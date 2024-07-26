@@ -1,0 +1,6 @@
+[workspace]
+resolver = "2"
+members = ["smushclient-scripting", "smushclient-swift"]
+
+[workspace.lints.clippy]
+manual_map = "allow"

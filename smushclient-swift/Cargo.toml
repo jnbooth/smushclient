@@ -1,0 +1,38 @@
+[package]
+name = "smushclient-swift"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[lib]
+crate-type = ["staticlib"]
+
+[lints]
+workspace = true
+
+[build-dependencies.swift-bridge-build]
+git = "https://github.com/jnbooth/swift-bridge"
+version = "0.1"
+rev = "6081259d04333d97450faa652da8b43cf8fec03b"
+
+[dependencies.enumeration]
+git = "https://github.com/jnbooth/enumeration"
+version = "0.7.0"
+
+[dependencies.mud-stream]
+git = "https://github.com/jnbooth/mxp"
+version = "0.2.0"
+
+[dependencies.mud-transformer]
+git = "https://github.com/jnbooth/mxp"
+version = "0.2.0"
+
+[dependencies.swift-bridge]
+git = "https://github.com/jnbooth/swift-bridge"
+version = "0.1"
+rev = "6081259d04333d97450faa652da8b43cf8fec03b"
+features = ["async"]
+
+[dependencies.tokio]
+version = "1.38.0"
+features = ["full"]

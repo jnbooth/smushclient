@@ -1,0 +1,716 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		091C02EF2C5035EC0060A147 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C02EE2C5035EC0060A147 /* AppDelegate.swift */; };
+		091C02F32C5035ED0060A147 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 091C02F22C5035ED0060A147 /* Assets.xcassets */; };
+		091C02F62C5035ED0060A147 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 091C02F52C5035ED0060A147 /* Base */; };
+		091C03012C5035ED0060A147 /* SmushClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C03002C5035ED0060A147 /* SmushClientTests.swift */; };
+		091C030B2C5035ED0060A147 /* SmushClientUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C030A2C5035ED0060A147 /* SmushClientUITests.swift */; };
+		091C030D2C5035ED0060A147 /* SmushClientUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C030C2C5035ED0060A147 /* SmushClientUITestsLaunchTests.swift */; };
+		091C03202C5036BE0060A147 /* smushclient-swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C031B2C5036BE0060A147 /* smushclient-swift.swift */; };
+		091C03212C5036BE0060A147 /* SwiftBridgeCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C031E2C5036BE0060A147 /* SwiftBridgeCore.swift */; };
+		091C03292C5037100060A147 /* AnsiColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C03232C5037100060A147 /* AnsiColors.swift */; };
+		091C032A2C5037100060A147 /* fragments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C03242C5037100060A147 /* fragments.swift */; };
+		094C30FA2C5038D20079B229 /* libsmushclient_swift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 094C30F82C50389A0079B229 /* libsmushclient_swift.a */; };
+		094C30FE2C5048CC0079B229 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 091C02F42C5035ED0060A147 /* Main.storyboard */; };
+		094C31062C5070120079B229 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 094C31052C5070120079B229 /* MainViewController.swift */; };
+		09BBB7542C509DFC00D2646C /* AppDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09BBB7532C509DFC00D2646C /* AppDefaults.swift */; };
+		09CDA6232C517FFE006FC3C9 /* actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CDA6222C517FFE006FC3C9 /* actions.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		091C02FD2C5035ED0060A147 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 091C02E32C5035EC0060A147 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 091C02EA2C5035EC0060A147;
+			remoteInfo = SmushClient;
+		};
+		091C03072C5035ED0060A147 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 091C02E32C5035EC0060A147 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 091C02EA2C5035EC0060A147;
+			remoteInfo = SmushClient;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		091C02EB2C5035EC0060A147 /* SmushClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SmushClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		091C02EE2C5035EC0060A147 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		091C02F22C5035ED0060A147 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		091C02F52C5035ED0060A147 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		091C02F72C5035ED0060A147 /* SmushClient.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SmushClient.entitlements; sourceTree = "<group>"; };
+		091C02FC2C5035ED0060A147 /* SmushClientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SmushClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		091C03002C5035ED0060A147 /* SmushClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmushClientTests.swift; sourceTree = "<group>"; };
+		091C03062C5035ED0060A147 /* SmushClientUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SmushClientUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		091C030A2C5035ED0060A147 /* SmushClientUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmushClientUITests.swift; sourceTree = "<group>"; };
+		091C030C2C5035ED0060A147 /* SmushClientUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmushClientUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		091C03192C5036BE0060A147 /* BridgingHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
+		091C031A2C5036BE0060A147 /* smushclient-swift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "smushclient-swift.h"; sourceTree = "<group>"; };
+		091C031B2C5036BE0060A147 /* smushclient-swift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "smushclient-swift.swift"; sourceTree = "<group>"; };
+		091C031D2C5036BE0060A147 /* SwiftBridgeCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwiftBridgeCore.h; sourceTree = "<group>"; };
+		091C031E2C5036BE0060A147 /* SwiftBridgeCore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftBridgeCore.swift; sourceTree = "<group>"; };
+		091C03232C5037100060A147 /* AnsiColors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnsiColors.swift; sourceTree = "<group>"; };
+		091C03242C5037100060A147 /* fragments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = fragments.swift; sourceTree = "<group>"; };
+		094C30F82C50389A0079B229 /* libsmushclient_swift.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsmushclient_swift.a; path = ../../target/debug/libsmushclient_swift.a; sourceTree = "<group>"; };
+		094C31052C5070120079B229 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		09BBB7532C509DFC00D2646C /* AppDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDefaults.swift; sourceTree = "<group>"; };
+		09CDA6222C517FFE006FC3C9 /* actions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = actions.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		091C02E82C5035EC0060A147 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				094C30FA2C5038D20079B229 /* libsmushclient_swift.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		091C02F92C5035ED0060A147 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		091C03032C5035ED0060A147 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		091C02E22C5035EC0060A147 = {
+			isa = PBXGroup;
+			children = (
+				091C03192C5036BE0060A147 /* BridgingHeader.h */,
+				091C031F2C5036BE0060A147 /* Generated */,
+				091C02ED2C5035EC0060A147 /* SmushClient */,
+				091C02FF2C5035ED0060A147 /* SmushClientTests */,
+				091C03092C5035ED0060A147 /* SmushClientUITests */,
+				091C02EC2C5035EC0060A147 /* Products */,
+				094C30F72C50389A0079B229 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		091C02EC2C5035EC0060A147 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				091C02EB2C5035EC0060A147 /* SmushClient.app */,
+				091C02FC2C5035ED0060A147 /* SmushClientTests.xctest */,
+				091C03062C5035ED0060A147 /* SmushClientUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		091C02ED2C5035EC0060A147 /* SmushClient */ = {
+			isa = PBXGroup;
+			children = (
+				09BBB7552C509E0100D2646C /* persist */,
+				091C03272C5037100060A147 /* mud */,
+				091C02EE2C5035EC0060A147 /* AppDelegate.swift */,
+				094C31052C5070120079B229 /* MainViewController.swift */,
+				091C02F22C5035ED0060A147 /* Assets.xcassets */,
+				091C02F42C5035ED0060A147 /* Main.storyboard */,
+				091C02F72C5035ED0060A147 /* SmushClient.entitlements */,
+			);
+			path = SmushClient;
+			sourceTree = "<group>";
+		};
+		091C02FF2C5035ED0060A147 /* SmushClientTests */ = {
+			isa = PBXGroup;
+			children = (
+				091C03002C5035ED0060A147 /* SmushClientTests.swift */,
+			);
+			path = SmushClientTests;
+			sourceTree = "<group>";
+		};
+		091C03092C5035ED0060A147 /* SmushClientUITests */ = {
+			isa = PBXGroup;
+			children = (
+				091C030A2C5035ED0060A147 /* SmushClientUITests.swift */,
+				091C030C2C5035ED0060A147 /* SmushClientUITestsLaunchTests.swift */,
+			);
+			path = SmushClientUITests;
+			sourceTree = "<group>";
+		};
+		091C031C2C5036BE0060A147 /* smushclient-swift */ = {
+			isa = PBXGroup;
+			children = (
+				091C031A2C5036BE0060A147 /* smushclient-swift.h */,
+				091C031B2C5036BE0060A147 /* smushclient-swift.swift */,
+			);
+			path = "smushclient-swift";
+			sourceTree = "<group>";
+		};
+		091C031F2C5036BE0060A147 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				091C031C2C5036BE0060A147 /* smushclient-swift */,
+				091C031D2C5036BE0060A147 /* SwiftBridgeCore.h */,
+				091C031E2C5036BE0060A147 /* SwiftBridgeCore.swift */,
+			);
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		091C03272C5037100060A147 /* mud */ = {
+			isa = PBXGroup;
+			children = (
+				091C03232C5037100060A147 /* AnsiColors.swift */,
+				09CDA6222C517FFE006FC3C9 /* actions.swift */,
+				091C03242C5037100060A147 /* fragments.swift */,
+			);
+			path = mud;
+			sourceTree = "<group>";
+		};
+		094C30F72C50389A0079B229 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				094C30F82C50389A0079B229 /* libsmushclient_swift.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		09BBB7552C509E0100D2646C /* persist */ = {
+			isa = PBXGroup;
+			children = (
+				09BBB7532C509DFC00D2646C /* AppDefaults.swift */,
+			);
+			path = persist;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		091C02EA2C5035EC0060A147 /* SmushClient */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 091C03102C5035ED0060A147 /* Build configuration list for PBXNativeTarget "SmushClient" */;
+			buildPhases = (
+				094C30FB2C503EB20079B229 /* ShellScript */,
+				094C30F62C5037C00079B229 /* ShellScript */,
+				091C02E72C5035EC0060A147 /* Sources */,
+				091C02E82C5035EC0060A147 /* Frameworks */,
+				091C02E92C5035EC0060A147 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SmushClient;
+			productName = SmushClient;
+			productReference = 091C02EB2C5035EC0060A147 /* SmushClient.app */;
+			productType = "com.apple.product-type.application";
+		};
+		091C02FB2C5035ED0060A147 /* SmushClientTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 091C03132C5035ED0060A147 /* Build configuration list for PBXNativeTarget "SmushClientTests" */;
+			buildPhases = (
+				091C02F82C5035ED0060A147 /* Sources */,
+				091C02F92C5035ED0060A147 /* Frameworks */,
+				091C02FA2C5035ED0060A147 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				091C02FE2C5035ED0060A147 /* PBXTargetDependency */,
+			);
+			name = SmushClientTests;
+			productName = SmushClientTests;
+			productReference = 091C02FC2C5035ED0060A147 /* SmushClientTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		091C03052C5035ED0060A147 /* SmushClientUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 091C03162C5035ED0060A147 /* Build configuration list for PBXNativeTarget "SmushClientUITests" */;
+			buildPhases = (
+				091C03022C5035ED0060A147 /* Sources */,
+				091C03032C5035ED0060A147 /* Frameworks */,
+				091C03042C5035ED0060A147 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				091C03082C5035ED0060A147 /* PBXTargetDependency */,
+			);
+			name = SmushClientUITests;
+			productName = SmushClientUITests;
+			productReference = 091C03062C5035ED0060A147 /* SmushClientUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		091C02E32C5035EC0060A147 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					091C02EA2C5035EC0060A147 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					091C02FB2C5035ED0060A147 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = 091C02EA2C5035EC0060A147;
+					};
+					091C03052C5035ED0060A147 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = 091C02EA2C5035EC0060A147;
+					};
+				};
+			};
+			buildConfigurationList = 091C02E62C5035EC0060A147 /* Build configuration list for PBXProject "SmushClient" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 091C02E22C5035EC0060A147;
+			productRefGroup = 091C02EC2C5035EC0060A147 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				091C02EA2C5035EC0060A147 /* SmushClient */,
+				091C02FB2C5035ED0060A147 /* SmushClientTests */,
+				091C03052C5035ED0060A147 /* SmushClientUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		091C02E92C5035EC0060A147 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				094C30FE2C5048CC0079B229 /* Main.storyboard in Resources */,
+				091C02F32C5035ED0060A147 /* Assets.xcassets in Resources */,
+				091C02F62C5035ED0060A147 /* Base in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		091C02FA2C5035ED0060A147 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		091C03042C5035ED0060A147 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		094C30F62C5037C00079B229 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"$(PROJECT_DIR)/rust-files.xcfilelist",
+			);
+			inputPaths = (
+				"$(PROJECT_DIR)/xcode-build-rust.sh",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(PROJECT_DIR)/Generated/smushclient-swift/smushclient-swift.swift",
+				"$(PROJECT_DIR)/Generated/smushclient-swift/SwiftBridgeCore.swift",
+				"$(PROJECT_DIR)/Generated/smushclient-swift/SwiftBridgeCore.h",
+				"$(PROJECT_DIR)/Generated/smushclient-swift/smushclient-swift.h",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./xcode-build-rust.sh\n";
+		};
+		094C30FB2C503EB20079B229 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(PROJECT_DIR)/rust-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo \"\" > rust-files.xcfilelist\n\nfind ../.. -name SmushClient -prune -o -name '*.rs' -exec sh -c 'echo \"\\$(PROJECT_DIR)/$1\" >> rust-files.xcfilelist' shell {} \\;\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		091C02E72C5035EC0060A147 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				09BBB7542C509DFC00D2646C /* AppDefaults.swift in Sources */,
+				09CDA6232C517FFE006FC3C9 /* actions.swift in Sources */,
+				091C032A2C5037100060A147 /* fragments.swift in Sources */,
+				091C03202C5036BE0060A147 /* smushclient-swift.swift in Sources */,
+				091C02EF2C5035EC0060A147 /* AppDelegate.swift in Sources */,
+				091C03292C5037100060A147 /* AnsiColors.swift in Sources */,
+				091C03212C5036BE0060A147 /* SwiftBridgeCore.swift in Sources */,
+				094C31062C5070120079B229 /* MainViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		091C02F82C5035ED0060A147 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				091C03012C5035ED0060A147 /* SmushClientTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		091C03022C5035ED0060A147 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				091C030D2C5035ED0060A147 /* SmushClientUITestsLaunchTests.swift in Sources */,
+				091C030B2C5035ED0060A147 /* SmushClientUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		091C02FE2C5035ED0060A147 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 091C02EA2C5035EC0060A147 /* SmushClient */;
+			targetProxy = 091C02FD2C5035ED0060A147 /* PBXContainerItemProxy */;
+		};
+		091C03082C5035ED0060A147 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 091C02EA2C5035EC0060A147 /* SmushClient */;
+			targetProxy = 091C03072C5035ED0060A147 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		091C02F42C5035ED0060A147 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				091C02F52C5035ED0060A147 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		091C030E2C5035ED0060A147 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		091C030F2C5035ED0060A147 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		091C03112C5035ED0060A147 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SmushClient/SmushClient.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 274U4G4QQG;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=*]" = "$(PROJECT_DIR)/../../target/debug";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jnbooth.SmushClient;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = "$(PROJECT_DIR)/BridgingHeader.h";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		091C03122C5035ED0060A147 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SmushClient/SmushClient.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 274U4G4QQG;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=*]" = "$(PROJECT_DIR)/../../target/release";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jnbooth.SmushClient;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/BridgingHeader.h";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		091C03142C5035ED0060A147 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 274U4G4QQG;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jnbooth.smushclient.SmushClientTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SmushClient.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SmushClient";
+			};
+			name = Debug;
+		};
+		091C03152C5035ED0060A147 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 274U4G4QQG;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jnbooth.smushclient.SmushClientTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SmushClient.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SmushClient";
+			};
+			name = Release;
+		};
+		091C03172C5035ED0060A147 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 274U4G4QQG;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jnbooth.smushclient.SmushClientUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = SmushClient;
+			};
+			name = Debug;
+		};
+		091C03182C5035ED0060A147 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 274U4G4QQG;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jnbooth.smushclient.SmushClientUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = SmushClient;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		091C02E62C5035EC0060A147 /* Build configuration list for PBXProject "SmushClient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				091C030E2C5035ED0060A147 /* Debug */,
+				091C030F2C5035ED0060A147 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		091C03102C5035ED0060A147 /* Build configuration list for PBXNativeTarget "SmushClient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				091C03112C5035ED0060A147 /* Debug */,
+				091C03122C5035ED0060A147 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		091C03132C5035ED0060A147 /* Build configuration list for PBXNativeTarget "SmushClientTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				091C03142C5035ED0060A147 /* Debug */,
+				091C03152C5035ED0060A147 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		091C03162C5035ED0060A147 /* Build configuration list for PBXNativeTarget "SmushClientUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				091C03172C5035ED0060A147 /* Debug */,
+				091C03182C5035ED0060A147 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 091C02E32C5035EC0060A147 /* Project object */;
+}
