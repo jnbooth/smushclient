@@ -19,3 +19,4 @@ Generated/
 # Xcode
 xcuserdata/
 rust-files.xcfilelist
+.build
