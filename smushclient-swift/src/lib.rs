@@ -136,6 +136,7 @@ impl RustMudBridge {
         Ok(())
     }
 
+    #[inline]
     async fn with_stream<'a, T, Fut, F>(&'a mut self, mut f: F) -> Result<T, String>
     where
         T: Default,
