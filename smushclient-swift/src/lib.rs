@@ -3,12 +3,10 @@ use mud_stream::nonblocking::MudStream;
 use mud_transformer::mxp::{self, Link, SendTo, WorldColor};
 use mud_transformer::{EffectFragment, TelnetFragment};
 use mud_transformer::{OutputFragment, TextFragment, TextStyle};
-use std::io;
+use std::future::Future;
+use std::{io, vec};
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
-
-use tokio::sync::mpsc;
-use tokio::task::JoinHandle;
 
 #[swift_bridge::bridge]
 mod ffi {
@@ -85,114 +83,88 @@ mod ffi {
     }
 
     extern "Rust" {
+        type RustOutputStream;
+        fn next(&mut self) -> Option<OutputFragment>;
+    }
+
+    extern "Rust" {
         type RustMudBridge;
         #[swift_bridge(init)]
         fn new(address: String, port: u16) -> RustMudBridge;
-        #[swift_bridge(swift_name = "isConnected")]
-        fn is_connected(&self) -> bool;
+        fn connected(&self) -> bool;
         async fn connect(&mut self) -> Result<(), String>;
-        fn disconnect(&self) -> bool;
-        #[swift_bridge(swift_name = "getOutput")]
-        async fn get_output(&mut self) -> Result<OutputFragment, String>;
-        #[swift_bridge(swift_name = "sendInput")]
-        fn send_input(&self, input: String) -> Result<(), String>;
-        #[swift_bridge(swift_name = "waitUntilDone")]
-        async fn wait_until_done(&mut self) -> Result<(), String>;
+        async fn disconnect(&mut self) -> Result<(), String>;
+        async fn receive(&mut self) -> Result<RustOutputStream, String>;
+        async fn send(&mut self, input: String) -> Result<(), String>;
+    }
+}
+
+pub struct RustOutputStream {
+    inner: vec::IntoIter<ffi::OutputFragment>,
+}
+
+impl RustOutputStream {
+    fn next(&mut self) -> Option<ffi::OutputFragment> {
+        self.inner.next()
     }
 }
 
 pub struct RustMudBridge {
     address: String,
     port: u16,
-    handle: Option<JoinHandle<io::Result<()>>>,
-    input: mpsc::UnboundedSender<String>,
-    output: mpsc::UnboundedReceiver<OutputFragment>,
-    output_dispatch: mpsc::UnboundedSender<OutputFragment>,
+    stream: Option<MudStream<TcpStream>>,
 }
 
 impl RustMudBridge {
     fn new(address: String, port: u16) -> Self {
-        let (input, _) = mpsc::unbounded_channel();
-        let (output_dispatch, output) = mpsc::unbounded_channel();
         Self {
             address,
             port,
-            handle: None,
-            input,
-            output,
-            output_dispatch,
+            stream: None,
         }
     }
 
-    fn is_connected(&self) -> bool {
-        match &self.handle {
-            Some(handle) => !handle.is_finished(),
-            None => false,
-        }
+    fn connected(&self) -> bool {
+        self.stream.is_some()
     }
 
     async fn connect(&mut self) -> Result<(), String> {
         let stream = TcpStream::connect((self.address.clone(), self.port))
             .await
             .map_err(|e| e.to_string())?;
-        let (tx_input, mut rx_input) = mpsc::unbounded_channel();
-        self.input = tx_input;
-        let tx_output = self.output_dispatch.clone();
-        self.handle = Some(tokio::spawn(async move {
-            let mut stream = MudStream::new(stream, Default::default());
-            loop {
-                let input = tokio::select! {
-                    input = rx_input.recv() => input,
-                    fragments = stream.read() => match fragments? {
-                        Some(fragments) => {
-                            for fragment in fragments {
-                                tx_output.send(fragment).map_err(|_| io::ErrorKind::BrokenPipe)?;
-                            }
-                            continue;
-                        }
-                        None => return Ok(()),
-                    }
-                };
-
-                if let Some(input) = input {
-                    stream.write_all(input.as_ref()).await?;
-                }
-            }
-        }));
+        self.stream = Some(MudStream::new(stream, Default::default()));
         Ok(())
     }
 
-    pub fn disconnect(&self) -> bool {
-        match &self.handle {
-            Some(handle) if !handle.is_finished() => {
-                handle.abort();
-                true
-            }
-            _ => false,
+    async fn with_stream<'a, T, Fut, F>(&'a mut self, mut f: F) -> Result<T, String>
+    where
+        T: Default,
+        Fut: Future<Output = io::Result<T>> + Send,
+        F: FnMut(&'a mut MudStream<TcpStream>) -> Fut,
+    {
+        match self.stream {
+            Some(ref mut stream) => f(stream).await.map_err(|e| e.to_string()),
+            None => Ok(T::default()),
         }
     }
 
-    pub async fn get_output(&mut self) -> Result<ffi::OutputFragment, String> {
-        match self.output.recv().await {
-            Some(output) => Ok(output.into()),
-            None => Err(io::ErrorKind::BrokenPipe.to_string()),
-        }
-    }
-
-    pub fn send_input(&self, input: String) -> Result<(), String> {
-        self.input.send(input).map_err(|e| e.to_string())
-    }
-
-    pub async fn wait_until_done(&mut self) -> Result<(), String> {
-        let handle = match self.handle.take() {
-            Some(handle) => handle,
-            None => return Ok(()),
+    async fn receive(&mut self) -> Result<RustOutputStream, String> {
+        let output = match self.with_stream(|stream| stream.read()).await? {
+            Some(output) => output.map(ffi::OutputFragment::from).collect(),
+            None => Vec::new(),
         };
-        match handle.await {
-            Ok(Ok(())) => Ok(()),
-            Ok(Err(e)) => Err(e.to_string()),
-            Err(e) => Err(e.to_string()),
-        }
+        Ok(RustOutputStream {
+            inner: output.into_iter(),
+        })
+    }
+
+    async fn disconnect(&mut self) -> Result<(), String> {
+        self.with_stream(|stream| stream.shutdown()).await
+    }
+
+    async fn send(&mut self, input: String) -> Result<(), String> {
+        self.with_stream(|stream| stream.write_all(input.as_bytes()))
+            .await
     }
 }
 
@@ -220,7 +192,7 @@ impl From<TextFragment> for RustTextFragment {
 macro_rules! flag_method {
     ($n:ident, $v:expr) => {
         #[inline]
-        pub fn $n(&self) -> bool {
+        fn $n(&self) -> bool {
             self.inner.flags.contains($v)
         }
     };

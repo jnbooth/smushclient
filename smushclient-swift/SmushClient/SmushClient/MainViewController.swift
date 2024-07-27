@@ -37,8 +37,10 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
       do {
         try await bridge.connect()
         while true {
-          let fragment = try await bridge.getOutput()
-          await receiveOutput(fragment)
+          let fragments = try await bridge.receive()
+          while let fragment = fragments.next() {
+            receiveOutput(fragment)
+          }
         }
       } catch {
         handleError(error)
@@ -46,11 +48,11 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
     }
   }
 
-  func disconnect() {
+  func disconnect() async throws {
     if let connectTask = connectTask {
       connectTask.cancel()
     }
-    _ = bridge.disconnect()
+    _ = try await bridge.disconnect()
   }
 
   public func control(
@@ -61,10 +63,12 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
     }
     let input = inputField.stringValue
     inputField.stringValue = ""
-    do {
-      try sendInput(input)
-    } catch {
-      handleError(error)
+    Task {
+      do {
+        try await sendInput(input)
+      } catch {
+        handleError(error)
+      }
     }
     return true
   }
@@ -77,13 +81,15 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
       return false
     }
 
-    do {
-      try handleLink(sendto, action)
-      return true
-    } catch {
-      handleError(error)
-      return false
+    Task {
+      do {
+        try await handleLink(sendto, action)
+      } catch {
+        handleError(error)
+      }
     }
+    
+    return true
   }
 
   public func textView(_ view: NSTextView, menu: NSMenu, for event: NSEvent, at charIndex: Int) -> NSMenu? {
@@ -91,10 +97,10 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
     return mxpActionMenu(attributes: attributes, action: #selector(handleChoice(_:)))
   }
 
-  func receiveOutput(_ fragment: OutputFragment) async {
+  public func receiveOutput(_ fragment: OutputFragment) {
     switch fragment {
     case .Effect(.Beep):
-      await handleBell()
+      handleBell()
       return
     case .Effect(_):
       return
@@ -107,6 +113,8 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
       willBreak = true
     case .PageBreak:
       break
+    case .Telnet(_):
+      return
     case .Text(let text):
       handleBreak()
       textStorage.append(renderText(text, ansiColors))
@@ -115,15 +123,17 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
 
   }
 
-  func sendInput(_ input: String) throws {
+  func sendInput(_ input: String) async throws {
     textStorage.append(NSAttributedString(string: "\n" + input, attributes: inputAttrs))
     willBreak = true
-    try bridge.sendInput(input + "\r\n")
+    try await bridge.send(input + "\r\n")
   }
 
-  func handleBell() async {
-    let _ = await MainActor.run {
-      NSApplication.shared.requestUserAttention(.criticalRequest)
+  func handleBell() {
+    Task {
+      let _ = await MainActor.run {
+        NSApplication.shared.requestUserAttention(.criticalRequest)
+      }
     }
   }
 
@@ -134,20 +144,20 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
     }
   }
 
-  @objc func handleChoice(_ item: NSMenuItem) {
+  @objc func handleChoice(_ item: NSMenuItem) async {
     do {
-      try sendInput(item.title)
+      try await sendInput(item.title)
     } catch {
       handleError(error)
     }
   }
 
-  func handleLink(_ sendto: InternalSendTo, _ text: Substring) throws {
+  func handleLink(_ sendto: InternalSendTo, _ text: Substring) async throws {
     switch sendto {
     case .Input:
       inputField.stringValue = String(text)
     case .World:
-      try sendInput(String(text))
+      try await sendInput(String(text))
     }
   }
 }
