@@ -33,9 +33,7 @@ func isBlack(_ color: MudColor) -> Bool {
 }
 
 func renderText(_ fragment: RustTextFragment, _ ansiColors: AnsiColors) -> NSAttributedString {
-  guard let text = String(bytes: fragment.text(), encoding: .utf8) else {
-    return NSAttributedString("�")
-  }
+  let text = fragment.text().toString()
 
   let font = NSFont.monospacedSystemFont(
     ofSize: NSFont.systemFontSize, weight: fragment.isBold() ? .bold : .medium)

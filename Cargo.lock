@@ -394,8 +394,8 @@ dependencies = [
 
 [[package]]
 name = "mud-stream"
-version = "0.2.1"
-source = "git+https://github.com/jnbooth/mxp#ad8fef02634503925e53738f9e21f3bab78b2db7"
+version = "0.4.1"
+source = "git+https://github.com/jnbooth/mxp#23b0f826e0cf549a2f2446b4cb67a09ebf9b4387"
 dependencies = [
  "mud-transformer",
  "pin-project-lite",
@@ -404,8 +404,8 @@ dependencies = [
 
 [[package]]
 name = "mud-transformer"
-version = "0.2.1"
-source = "git+https://github.com/jnbooth/mxp#ad8fef02634503925e53738f9e21f3bab78b2db7"
+version = "0.4.1"
+source = "git+https://github.com/jnbooth/mxp#23b0f826e0cf549a2f2446b4cb67a09ebf9b4387"
 dependencies = [
  "bytes",
  "enumeration",
@@ -415,8 +415,8 @@ dependencies = [
 
 [[package]]
 name = "mxp"
-version = "0.2.1"
-source = "git+https://github.com/jnbooth/mxp#ad8fef02634503925e53738f9e21f3bab78b2db7"
+version = "0.4.1"
+source = "git+https://github.com/jnbooth/mxp#23b0f826e0cf549a2f2446b4cb67a09ebf9b4387"
 dependencies = [
  "casefold",
  "enumeration",
@@ -618,7 +618,7 @@ checksum = "3c5e1a9a646d36c3599cd173a41282daf47c44583ad367b8e6837255952e5c67"
 
 [[package]]
 name = "smushclient-scripting"
-version = "0.2.1"
+version = "0.1.0"
 dependencies = [
  "chrono",
  "enumeration",
@@ -630,7 +630,7 @@ dependencies = [
 
 [[package]]
 name = "smushclient-swift"
-version = "0.2.1"
+version = "0.1.0"
 dependencies = [
  "enumeration",
  "mud-stream",

@@ -33,7 +33,7 @@ mod ffi {
 
     extern "Rust" {
         type RustTextFragment;
-        fn text(&self) -> &[u8];
+        fn text(&self) -> &str;
         fn foreground(&self) -> MudColor;
         fn background(&self) -> MudColor;
         #[swift_bridge(swift_name = "isBlink")]
@@ -62,6 +62,7 @@ mod ffi {
     }
 
     enum TelnetFragment {
+        Afk { challenge: String },
         Do { code: u8 },
         IacGa,
         Naws,
@@ -227,7 +228,7 @@ macro_rules! flag_method {
 
 impl RustTextFragment {
     #[inline]
-    fn text(&self) -> &[u8] {
+    fn text(&self) -> &str {
         &self.inner.text
     }
 
@@ -296,6 +297,9 @@ impl_enum_from!(
 impl From<TelnetFragment> for ffi::TelnetFragment {
     fn from(value: TelnetFragment) -> Self {
         match value {
+            TelnetFragment::Afk { challenge } => ffi::TelnetFragment::Afk {
+                challenge: String::from(&challenge),
+            },
             TelnetFragment::Do { code } => ffi::TelnetFragment::Do { code },
             TelnetFragment::IacGa => ffi::TelnetFragment::IacGa,
             TelnetFragment::Naws => ffi::TelnetFragment::Naws,
