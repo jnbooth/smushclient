@@ -438,10 +438,13 @@ mod tests {
     }
 
     mod senders {
+        use mlua::Lua;
+
         use super::*;
 
         fn basic_plugin() -> Plugin {
             Plugin {
+                lua: Lua::new(),
                 triggers: vec![Trigger::default()],
                 aliases: vec![Alias::default()],
                 timers: vec![Timer::default()],

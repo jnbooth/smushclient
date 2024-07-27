@@ -28,8 +28,12 @@ impl Serialize for PluginPack {
 }
 
 impl PluginPack {
-    pub fn from_xml<R: BufRead>(reader: R) -> Result<Self, DeError> {
+    pub fn from_xml_reader<R: BufRead>(reader: R) -> Result<Self, DeError> {
         quick_xml::de::from_reader(reader)
+    }
+
+    pub fn from_xml_str(s: &str) -> Result<Self, DeError> {
+        quick_xml::de::from_str(s)
     }
 
     pub fn to_xml<W: Write>(&self, writer: W) -> Result<(), DeError> {

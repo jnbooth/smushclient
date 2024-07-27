@@ -201,7 +201,7 @@ impl<K: ScriptArg + Ord, V: ScriptArg> ScriptArg for BTreeMap<K, V> {
     }
 }
 
-pub trait ScriptArgs {
+pub trait ScriptArgs: Send {
     fn to_args(self, lua: &Lua) -> mlua::Result<MultiValue>;
 }
 
@@ -211,7 +211,7 @@ impl ScriptArgs for () {
     }
 }
 
-impl<T: ScriptArg> ScriptArgs for T {
+impl<T: ScriptArg + Send> ScriptArgs for T {
     fn to_args(self, lua: &Lua) -> mlua::Result<MultiValue> {
         IntoLuaMulti::into_lua_multi(self.to_arg(lua), lua)
     }
@@ -225,7 +225,7 @@ macro_rules! impl_args {
     () => ();
     ($($name:ident,)+) => {
         impl<$($name,)*> ScriptArgs for ($($name,)*)
-        where $($name: ScriptArg,)*
+        where $($name: ScriptArg + Send,)*
         {
             #[allow(non_snake_case)]
             fn to_args(self, lua: &Lua) -> mlua::Result<MultiValue> {

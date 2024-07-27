@@ -10,6 +10,7 @@ use crate::convert::ScriptArgs;
 use crate::send::{Alias, Timer, Trigger};
 
 pub struct Plugin {
+    pub lua: Lua,
     pub metadata: PluginMetadata,
     /// Which callbacks it responds to.
     pub callbacks: EnumSet<Callback>,
@@ -39,9 +40,9 @@ impl Ord for Plugin {
 }
 
 impl Plugin {
-    pub fn load(engine: &Lua, pack: PluginPack) -> mlua::Result<Self> {
-        engine.load(&pack.script).exec()?;
-        let globals = engine.globals();
+    pub fn load(lua: Lua, pack: PluginPack) -> mlua::Result<Self> {
+        lua.load(&pack.script).exec()?;
+        let globals = lua.globals();
 
         let callbacks = Callback::enumerate(..)
             .filter(|cb| {
@@ -55,6 +56,7 @@ impl Plugin {
         mem::drop(globals);
 
         Ok(Plugin {
+            lua,
             metadata: pack.metadata,
             callbacks,
             triggers: pack.triggers,
@@ -63,45 +65,41 @@ impl Plugin {
         })
     }
 
-    pub fn with_userdata<T, R, F>(&self, engine: &Lua, key: &str, f: F) -> mlua::Result<R>
+    pub fn with_userdata<T, R, F>(&self, key: &str, f: F) -> mlua::Result<R>
     where
         T: 'static,
         F: FnOnce(&T) -> R,
     {
-        let global_ref = engine.globals().raw_get::<_, AnyUserData>(key)?;
+        let global_ref = self.lua.globals().raw_get::<_, AnyUserData>(key)?;
         let global_val = global_ref.borrow()?;
         Ok(f(&global_val))
     }
 
-    pub fn with_userdata_mut<T, R, F>(&self, engine: &Lua, key: &str, f: F) -> mlua::Result<R>
+    pub fn with_userdata_mut<T, R, F>(&self, key: &str, f: F) -> mlua::Result<R>
     where
         T: 'static,
         F: FnOnce(&mut T) -> R,
     {
-        let global_ref = engine.globals().raw_get::<_, AnyUserData>(key)?;
+        let global_ref = self.lua.globals().raw_get::<_, AnyUserData>(key)?;
         let mut global_val = global_ref.borrow_mut()?;
         Ok(f(&mut global_val))
     }
 
-    pub fn invoke<'lua, A, R>(
-        &'lua self,
-        engine: &'lua Lua,
-        fn_name: &str,
-        args: A,
-    ) -> mlua::Result<R>
+    pub async fn invoke<'lua, A, R>(&'lua self, fn_name: &str, args: A) -> mlua::Result<R>
     where
         A: ScriptArgs,
-        R: FromLuaMulti<'lua>,
+        R: FromLuaMulti<'lua> + 'lua,
     {
-        let f: Function<'lua> = engine.globals().raw_get(fn_name)?;
-        f.call(args.to_args(engine)?)
+        let f: Function<'lua> = self.lua.globals().raw_get(fn_name)?;
+        f.call_async(args.to_args(&self.lua)?).await
     }
 
-    pub fn call<'lua, A, R>(&'lua self, engine: &'lua Lua, cb: Callback, args: A) -> mlua::Result<R>
+    pub async fn call<'lua, A, R>(&'lua self, cb: Callback, args: A) -> mlua::Result<R>
     where
         A: ScriptArgs,
-        R: FromLuaMulti<'lua>,
+        R: FromLuaMulti<'lua> + 'lua,
     {
-        self.invoke(engine, &format!("{:?}", cb), args)
+        let f: Function<'lua> = self.lua.globals().raw_get(format!("{:?}", cb))?;
+        f.call_async(args.to_args(&self.lua)?).await
     }
 }
