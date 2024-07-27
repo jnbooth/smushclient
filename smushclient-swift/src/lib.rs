@@ -78,10 +78,6 @@ mod ffi {
         Text(RustTextFragment),
     }
 
-    enum PluginEvent {
-        InputModified(String),
-    }
-
     extern "Rust" {
         type RustOutputStream;
         fn next(&mut self) -> Option<OutputFragment>;
