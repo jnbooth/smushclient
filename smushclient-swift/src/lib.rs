@@ -95,77 +95,6 @@ mod ffi {
     }
 }
 
-#[repr(transparent)]
-struct RustOutputStream {
-    inner: vec::IntoIter<ffi::OutputFragment>,
-}
-
-impl RustOutputStream {
-    fn next(&mut self) -> Option<ffi::OutputFragment> {
-        self.inner.next()
-    }
-}
-
-pub struct RustMudBridge {
-    address: String,
-    port: u16,
-    stream: Option<MudStream<TcpStream>>,
-}
-
-impl RustMudBridge {
-    fn new(address: String, port: u16) -> Self {
-        Self {
-            address,
-            port,
-            stream: None,
-        }
-    }
-
-    fn connected(&self) -> bool {
-        self.stream.is_some()
-    }
-
-    async fn connect(&mut self) -> Result<(), String> {
-        let stream = TcpStream::connect((self.address.clone(), self.port))
-            .await
-            .map_err(|e| e.to_string())?;
-        self.stream = Some(MudStream::new(stream, Default::default()));
-        Ok(())
-    }
-
-    #[inline]
-    async fn with_stream<'a, T, Fut, F>(&'a mut self, mut f: F) -> Result<T, String>
-    where
-        T: Default,
-        Fut: Future<Output = io::Result<T>> + Send,
-        F: FnMut(&'a mut MudStream<TcpStream>) -> Fut,
-    {
-        match self.stream {
-            Some(ref mut stream) => f(stream).await.map_err(|e| e.to_string()),
-            None => Ok(T::default()),
-        }
-    }
-
-    async fn receive(&mut self) -> Result<RustOutputStream, String> {
-        let output = match self.with_stream(|stream| stream.read()).await? {
-            Some(output) => output.map(ffi::OutputFragment::from).collect(),
-            None => Vec::new(),
-        };
-        Ok(RustOutputStream {
-            inner: output.into_iter(),
-        })
-    }
-
-    async fn disconnect(&mut self) -> Result<(), String> {
-        self.with_stream(|stream| stream.shutdown()).await
-    }
-
-    async fn send(&mut self, input: String) -> Result<(), String> {
-        self.with_stream(|stream| stream.write_all(input.as_bytes()))
-            .await
-    }
-}
-
 impl From<WorldColor> for ffi::MudColor {
     #[inline]
     fn from(value: WorldColor) -> Self {
@@ -310,5 +239,76 @@ impl From<OutputFragment> for ffi::OutputFragment {
             OutputFragment::Telnet(telnet) => Self::Telnet(telnet.into()),
             OutputFragment::Text(text) => Self::Text(text.into()),
         }
+    }
+}
+
+#[repr(transparent)]
+struct RustOutputStream {
+    inner: vec::IntoIter<ffi::OutputFragment>,
+}
+
+impl RustOutputStream {
+    fn next(&mut self) -> Option<ffi::OutputFragment> {
+        self.inner.next()
+    }
+}
+
+pub struct RustMudBridge {
+    address: String,
+    port: u16,
+    stream: Option<MudStream<TcpStream>>,
+}
+
+impl RustMudBridge {
+    fn new(address: String, port: u16) -> Self {
+        Self {
+            address,
+            port,
+            stream: None,
+        }
+    }
+
+    fn connected(&self) -> bool {
+        self.stream.is_some()
+    }
+
+    async fn connect(&mut self) -> Result<(), String> {
+        let stream = TcpStream::connect((self.address.clone(), self.port))
+            .await
+            .map_err(|e| e.to_string())?;
+        self.stream = Some(MudStream::new(stream, Default::default()));
+        Ok(())
+    }
+
+    #[inline]
+    async fn with_stream<'a, T, Fut, F>(&'a mut self, mut f: F) -> Result<T, String>
+    where
+        T: Default,
+        Fut: Future<Output = io::Result<T>> + Send,
+        F: FnMut(&'a mut MudStream<TcpStream>) -> Fut,
+    {
+        match self.stream {
+            Some(ref mut stream) => f(stream).await.map_err(|e| e.to_string()),
+            None => Ok(T::default()),
+        }
+    }
+
+    async fn receive(&mut self) -> Result<RustOutputStream, String> {
+        let output = match self.with_stream(|stream| stream.read()).await? {
+            Some(output) => output.map(ffi::OutputFragment::from).collect(),
+            None => Vec::new(),
+        };
+        Ok(RustOutputStream {
+            inner: output.into_iter(),
+        })
+    }
+
+    async fn disconnect(&mut self) -> Result<(), String> {
+        self.with_stream(|stream| stream.shutdown()).await
+    }
+
+    async fn send(&mut self, input: String) -> Result<(), String> {
+        self.with_stream(|stream| stream.write_all(input.as_bytes()))
+            .await
     }
 }
