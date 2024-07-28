@@ -1,0 +1,26 @@
+[package]
+name = "smushclient-qt"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[workspace]
+
+[lib]
+crate-type = ["staticlib"]
+
+[build-dependencies]
+cxx-qt-build = "0.6"
+
+[dependencies]
+cxx = "1.0.95"
+cxx-qt = "0.6"
+cxx-qt-lib = "0.6"
+
+[dependencies.mud-transformer]
+git = "https://github.com/jnbooth/mxp"
+version = "0.4.2"
+
+[features]
+# This feature must be enabled for `cargo test` when linking Qt 6 statically.
+link_qt_object_files = ["cxx-qt-build/link_qt_object_files"]

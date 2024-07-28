@@ -394,8 +394,8 @@ dependencies = [
 
 [[package]]
 name = "mud-stream"
-version = "0.4.1"
-source = "git+https://github.com/jnbooth/mxp#23b0f826e0cf549a2f2446b4cb67a09ebf9b4387"
+version = "0.4.2"
+source = "git+https://github.com/jnbooth/mxp#257d83d27d8d52b98e7ce33d39bb31ab371efa0e"
 dependencies = [
  "mud-transformer",
  "pin-project-lite",
@@ -404,8 +404,8 @@ dependencies = [
 
 [[package]]
 name = "mud-transformer"
-version = "0.4.1"
-source = "git+https://github.com/jnbooth/mxp#23b0f826e0cf549a2f2446b4cb67a09ebf9b4387"
+version = "0.4.2"
+source = "git+https://github.com/jnbooth/mxp#257d83d27d8d52b98e7ce33d39bb31ab371efa0e"
 dependencies = [
  "bytes",
  "enumeration",
@@ -415,8 +415,8 @@ dependencies = [
 
 [[package]]
 name = "mxp"
-version = "0.4.1"
-source = "git+https://github.com/jnbooth/mxp#23b0f826e0cf549a2f2446b4cb67a09ebf9b4387"
+version = "0.4.2"
+source = "git+https://github.com/jnbooth/mxp#257d83d27d8d52b98e7ce33d39bb31ab371efa0e"
 dependencies = [
  "casefold",
  "enumeration",
@@ -632,7 +632,6 @@ dependencies = [
 name = "smushclient-swift"
 version = "0.1.0"
 dependencies = [
- "enumeration",
  "mud-stream",
  "mud-transformer",
  "swift-bridge",
