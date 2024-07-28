@@ -3,8 +3,8 @@ use mud_stream::nonblocking::MudStream;
 use mud_transformer::mxp::{self, SendTo, WorldColor};
 use mud_transformer::{EffectFragment, TelnetFragment};
 use mud_transformer::{OutputFragment, TextFragment, TextStyle};
-use std::future::Future;
-use std::{io, vec};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::vec;
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 
@@ -146,7 +146,7 @@ impl From<TextFragment> for RustTextFragment {
 
 macro_rules! flag_method {
     ($n:ident, $v:expr) => {
-        #[inline]
+        #[inline(always)]
         fn $n(&self) -> bool {
             self.inner.flags.contains($v)
         }
@@ -154,17 +154,17 @@ macro_rules! flag_method {
 }
 
 impl RustTextFragment {
-    #[inline]
+    #[inline(always)]
     fn text(&self) -> &str {
         &self.inner.text
     }
 
-    #[inline]
+    #[inline(always)]
     fn foreground(&self) -> ffi::MudColor {
         self.inner.foreground.into()
     }
 
-    #[inline]
+    #[inline(always)]
     fn background(&self) -> ffi::MudColor {
         self.inner.background.into()
     }
@@ -248,15 +248,46 @@ struct RustOutputStream {
 }
 
 impl RustOutputStream {
+    #[inline(always)]
     fn next(&mut self) -> Option<ffi::OutputFragment> {
         self.inner.next()
     }
 }
 
+#[derive(Default)]
+#[repr(transparent)]
+pub struct SimpleLock {
+    locked: AtomicBool,
+}
+
+impl SimpleLock {
+    fn lock(&self) -> SimpleLockGuard {
+        if self.locked.swap(true, Ordering::Relaxed) {
+            panic!("concurrent access");
+        }
+        SimpleLockGuard {
+            locked: &self.locked,
+        }
+    }
+}
+
+pub struct SimpleLockGuard<'a> {
+    locked: &'a AtomicBool,
+}
+
+impl<'a> Drop for SimpleLockGuard<'a> {
+    fn drop(&mut self) {
+        self.locked.store(false, Ordering::Relaxed);
+    }
+}
+
+#[derive(Default)]
 pub struct RustMudBridge {
     address: String,
     port: u16,
     stream: Option<MudStream<TcpStream>>,
+    input_lock: SimpleLock,
+    output_lock: SimpleLock,
 }
 
 impl RustMudBridge {
@@ -264,7 +295,7 @@ impl RustMudBridge {
         Self {
             address,
             port,
-            stream: None,
+            ..Default::default()
         }
     }
 
@@ -276,39 +307,46 @@ impl RustMudBridge {
         let stream = TcpStream::connect((self.address.clone(), self.port))
             .await
             .map_err(|e| e.to_string())?;
+        let locks = (self.output_lock.lock(), self.input_lock.lock());
         self.stream = Some(MudStream::new(stream, Default::default()));
+        drop(locks);
         Ok(())
     }
 
-    #[inline]
-    async fn with_stream<'a, T, Fut, F>(&'a mut self, mut f: F) -> Result<T, String>
-    where
-        T: Default,
-        Fut: Future<Output = io::Result<T>> + Send,
-        F: FnMut(&'a mut MudStream<TcpStream>) -> Fut,
-    {
-        match self.stream {
-            Some(ref mut stream) => f(stream).await.map_err(|e| e.to_string()),
-            None => Ok(T::default()),
-        }
+    async fn disconnect(&mut self) -> Result<(), String> {
+        let locks = (self.output_lock.lock(), self.input_lock.lock());
+        let result = match self.stream {
+            Some(ref mut stream) => stream.shutdown().await.map_err(|e| e.to_string()),
+            None => Ok(()),
+        };
+        drop(locks);
+        result
     }
 
     async fn receive(&mut self) -> Result<RustOutputStream, String> {
-        let output = match self.with_stream(|stream| stream.read()).await? {
-            Some(output) => output.map(ffi::OutputFragment::from).collect(),
+        let lock = self.output_lock.lock();
+        let result = match self.stream {
+            Some(ref mut stream) => stream.read().await.map_err(|e| e.to_string())?,
+            None => None,
+        };
+        let output = match result {
+            Some(output) => output.map(Into::into).collect(),
             None => Vec::new(),
         };
+        drop(lock);
         Ok(RustOutputStream {
             inner: output.into_iter(),
         })
     }
 
-    async fn disconnect(&mut self) -> Result<(), String> {
-        self.with_stream(|stream| stream.shutdown()).await
-    }
-
     async fn send(&mut self, input: String) -> Result<(), String> {
-        self.with_stream(|stream| stream.write_all(input.as_bytes()))
-            .await
+        let input = input.as_bytes();
+        let lock = self.input_lock.lock();
+        let result = match self.stream {
+            Some(ref mut stream) => stream.write_all(input).await.map_err(|e| e.to_string()),
+            None => Ok(()),
+        };
+        drop(lock);
+        result
     }
 }

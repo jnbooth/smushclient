@@ -39,9 +39,7 @@ public func setupActionAttributes(link: RustMxpLinkRef, text: String, attributes
   } else {
     attributes[.link] = serializeActionUrl(sendto, action)
   }
-  // attrs[.underlineStyle] = NSUnderlineStyle.single
   attributes[.toolTip] = action
-  // attrs[.cursor] = NSCursor.pointingHand
   let prompts = link.prompts()
   if prompts.isEmpty {
     return

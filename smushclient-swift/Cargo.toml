@@ -15,18 +15,14 @@ git = "https://github.com/jnbooth/swift-bridge"
 version = "0.1"
 rev = "6081259d04333d97450faa652da8b43cf8fec03b"
 
-[dependencies.enumeration]
-git = "https://github.com/jnbooth/enumeration"
-version = "0.7.0"
-
 [dependencies.mud-stream]
 git = "https://github.com/jnbooth/mxp"
-version = "0.4.1"
+version = "0.4.2"
 features = ["async"]
 
 [dependencies.mud-transformer]
 git = "https://github.com/jnbooth/mxp"
-version = "0.4.1"
+version = "0.4.2"
 
 [dependencies.swift-bridge]
 git = "https://github.com/jnbooth/swift-bridge"
