@@ -1,6 +1,6 @@
 #![allow(clippy::unnecessary_cast)]
 use mud_stream::nonblocking::MudStream;
-use mud_transformer::mxp::{self, Link, SendTo, WorldColor};
+use mud_transformer::mxp::{self, SendTo, WorldColor};
 use mud_transformer::{EffectFragment, TelnetFragment};
 use mud_transformer::{OutputFragment, TextFragment, TextStyle};
 use std::future::Future;
@@ -21,12 +21,12 @@ mod ffi {
         Internet,
     }
 
-    #[swift_bridge(swift_repr = "struct")]
-    struct MxpLink {
-        action: String,
-        hint: String,
-        prompts: Vec<String>,
-        sendto: SendTo,
+    extern "Rust" {
+        type RustMxpLink;
+        fn action(&self) -> &str;
+        fn hint(&self) -> Option<&str>;
+        fn prompts(&self) -> Vec<String>;
+        fn sendto(&self) -> SendTo;
     }
 
     extern "Rust" {
@@ -48,7 +48,7 @@ mod ffi {
         fn is_strikeout(&self) -> bool;
         #[swift_bridge(swift_name = "isUnderline")]
         fn is_underline(&self) -> bool;
-        fn link(&self) -> Option<MxpLink>;
+        fn link(&self) -> Option<&RustMxpLink>;
     }
 
     enum EffectFragment {
@@ -95,7 +95,8 @@ mod ffi {
     }
 }
 
-pub struct RustOutputStream {
+#[repr(transparent)]
+struct RustOutputStream {
     inner: vec::IntoIter<ffi::OutputFragment>,
 }
 
@@ -176,6 +177,34 @@ impl From<WorldColor> for ffi::MudColor {
 }
 
 #[repr(transparent)]
+struct RustMxpLink {
+    inner: mxp::Link,
+}
+
+impl RustMxpLink {
+    fn cast(link: &mxp::Link) -> &Self {
+        // SAFETY: #[repr(transparent)]
+        unsafe { &*(link as *const mxp::Link as *const Self) }
+    }
+
+    fn action(&self) -> &str {
+        &self.inner.action
+    }
+
+    fn hint(&self) -> Option<&str> {
+        self.inner.hint.as_deref()
+    }
+
+    fn prompts(&self) -> Vec<String> {
+        self.inner.prompts.clone()
+    }
+
+    fn sendto(&self) -> ffi::SendTo {
+        self.inner.sendto.into()
+    }
+}
+
+#[repr(transparent)]
 struct RustTextFragment {
     inner: TextFragment,
 }
@@ -212,11 +241,11 @@ impl RustTextFragment {
     }
 
     #[inline]
-    fn link(&self) -> Option<ffi::MxpLink> {
-        match &self.inner.action {
-            Some(action) => Some((**action).clone().into()),
-            None => None,
-        }
+    fn link(&self) -> Option<&RustMxpLink> {
+        self.inner
+            .action
+            .as_ref()
+            .map(|action| RustMxpLink::cast(action))
     }
 
     flag_method!(is_blink, TextStyle::Blink);
@@ -242,17 +271,6 @@ macro_rules! impl_enum_from {
 
 impl_enum_from!(ffi::SendTo, SendTo, World, Input, Internet);
 
-impl From<Link> for ffi::MxpLink {
-    fn from(value: Link) -> Self {
-        Self {
-            action: value.action,
-            hint: value.hint.unwrap_or_default(),
-            prompts: value.prompts,
-            sendto: value.sendto.into(),
-        }
-    }
-}
-
 impl_enum_from!(
     ffi::EffectFragment,
     EffectFragment,
@@ -266,17 +284,17 @@ impl_enum_from!(
 impl From<TelnetFragment> for ffi::TelnetFragment {
     fn from(value: TelnetFragment) -> Self {
         match value {
-            TelnetFragment::Afk { challenge } => ffi::TelnetFragment::Afk {
+            TelnetFragment::Afk { challenge } => Self::Afk {
                 challenge: String::from(&challenge),
             },
-            TelnetFragment::Do { code } => ffi::TelnetFragment::Do { code },
-            TelnetFragment::IacGa => ffi::TelnetFragment::IacGa,
-            TelnetFragment::Naws => ffi::TelnetFragment::Naws,
-            TelnetFragment::Subnegotiation { code, data } => ffi::TelnetFragment::Subnegotiation {
+            TelnetFragment::Do { code } => Self::Do { code },
+            TelnetFragment::IacGa => Self::IacGa,
+            TelnetFragment::Naws => Self::Naws,
+            TelnetFragment::Subnegotiation { code, data } => Self::Subnegotiation {
                 code,
                 data: data.to_vec(),
             },
-            TelnetFragment::Will { code } => ffi::TelnetFragment::Will { code },
+            TelnetFragment::Will { code } => Self::Will { code },
         }
     }
 }

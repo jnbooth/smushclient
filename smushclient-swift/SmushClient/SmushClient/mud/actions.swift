@@ -31,21 +31,23 @@ public func deserializeActionUrl(_ url: String) -> (InternalSendTo, Substring)? 
   }
 }
 
-public func setupActionAttributes(link: MxpLink, text: String, attributes: inout  [NSAttributedString.Key: Any]) {
-  let action = link.action.toString().replacing("&text;", with: text)
-  if link.sendto == .Internet, let url = URL(string: action) {
+public func setupActionAttributes(link: RustMxpLinkRef, text: String, attributes: inout  [NSAttributedString.Key: Any]) {
+  let action = link.action().toString().replacing("&text;", with: text)
+  let sendto = link.sendto();
+  if sendto == .Internet, let url = URL(string: action) {
     attributes[.link] = url
   } else {
-    attributes[.link] = serializeActionUrl(link.sendto, action)
+    attributes[.link] = serializeActionUrl(sendto, action)
   }
   // attrs[.underlineStyle] = NSUnderlineStyle.single
   attributes[.toolTip] = action
   // attrs[.cursor] = NSCursor.pointingHand
-  if link.prompts.isEmpty {
+  let prompts = link.prompts()
+  if prompts.isEmpty {
     return
   }
   var choices: [String] = []
-  for prompt in link.prompts {
+  for prompt in prompts {
     choices.append(prompt.as_str().toString())
   }
   attributes[.choices] = choices
