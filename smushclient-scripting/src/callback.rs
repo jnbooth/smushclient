@@ -1,10 +1,9 @@
 use enumeration::Enum;
-use mlua::{Lua, Value};
+use serde::{Deserialize, Serialize};
 
-use crate::convert::ScriptArg;
-
-#[allow(dead_code)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
+#[derive(
+    Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Enum, Serialize, Deserialize,
+)]
 pub enum Callback {
     Install,
     Open,
@@ -67,10 +66,4 @@ pub enum Callback {
     ChatUserDisconnect,
 
     DrawOutputWindow,
-}
-
-impl ScriptArg for Callback {
-    fn to_arg(self, lua: &Lua) -> mlua::Result<Value> {
-        format!("{:?}", self).to_arg(lua)
-    }
 }

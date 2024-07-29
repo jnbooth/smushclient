@@ -1,5 +1,4 @@
 use std::borrow::Cow;
-use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
@@ -13,13 +12,13 @@ pub struct Trigger {
     // Note: this is at the top for Ord-deriving purposes.
     pub reaction: Reaction,
     pub change_foreground: bool,
-    pub foreground: Option<String>,
+    pub foreground: String,
     pub change_background: bool,
-    pub background: Option<String>,
+    pub background: String,
     pub make_bold: bool,
     pub make_italic: bool,
     pub make_underline: bool,
-    pub sound: Option<PathBuf>,
+    pub sound: String,
     pub sound_if_inactive: bool,
     pub lowercase_wildcard: bool,
     pub multi_line: bool,
@@ -35,6 +34,18 @@ impl Trigger {
         Self::default()
     }
 }
+
+#[derive(Clone, Debug, Default)]
+pub struct TriggerEffects {
+    pub hide: bool,
+    pub foreground: Option<String>,
+    pub background: Option<String>,
+    pub sounds: Vec<String>,
+    pub make_bold: bool,
+    pub make_italic: bool,
+    pub make_underline: bool,
+}
+
 #[repr(u8)]
 enum Change {
     Both,
@@ -130,9 +141,9 @@ pub struct TriggerXml<'a> {
         borrow,
         default,
         rename = "@sound",
-        skip_serializing_if = "Option::is_none"
+        skip_serializing_if = "str::is_empty"
     )]
-    sound: Option<Cow<'a, str>>,
+    sound: Cow<'a, str>,
     #[serde(rename = "@sound_if_inactive")]
     sound_if_inactive: bool,
     #[serde(rename = "@lowercase_wildcard")]
@@ -146,10 +157,16 @@ pub struct TriggerXml<'a> {
         skip_serializing_if = "str::is_empty"
     )]
     variable: Cow<'a, str>,
-    #[serde(rename = "@other_text_colour", skip_serializing_if = "Option::is_none")]
-    other_text_colour: Option<String>,
-    #[serde(rename = "@other_back_colour", skip_serializing_if = "Option::is_none")]
-    other_back_colour: Option<String>,
+    #[serde(
+        rename = "@other_text_colour",
+        skip_serializing_if = "String::is_empty"
+    )]
+    other_text_colour: String,
+    #[serde(
+        rename = "@other_back_colour",
+        skip_serializing_if = "String::is_empty"
+    )]
+    other_back_colour: String,
     #[serde(borrow, default, rename = "send")]
     text: Vec<Cow<'a, str>>,
 }
@@ -204,7 +221,7 @@ impl TryFrom<TriggerXml<'_>> for Trigger {
                 foreground: value.other_text_colour,
                 change_background: Change::Bg.member(value.colour_change_type),
                 background: value.other_back_colour,
-                sound: value.sound.map(|s| PathBuf::from(s.as_ref())),
+                ..sound,
                 ..make_bold,
                 ..make_italic,
                 ..make_underline,
@@ -223,21 +240,21 @@ impl<'a> From<&'a Trigger> for TriggerXml<'a> {
             colour_change_type = Change::Fg.insert_into(colour_change_type);
             value.foreground.clone()
         } else {
-            None
+            String::new()
         };
         let other_back_colour = if value.change_background {
             colour_change_type = Change::Bg.insert_into(colour_change_type);
             value.background.clone()
         } else {
-            None
+            String::new()
         };
         in_place!(
             value,
             Self {
-                sound: value.sound.as_ref().and_then(|x| x.as_os_str().to_str()).map(Cow::Borrowed),
                 colour_change_type,
                 other_text_colour,
                 other_back_colour,
+                ..sound,
                 ..label,
                 ..text,
                 ..send_to,

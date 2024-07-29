@@ -5,9 +5,8 @@ use std::{iter, slice, str, vec};
 
 use fancy_regex::{CaptureMatches, Captures, Replacer};
 
-use super::file::PluginMetadata;
 use super::pad::Pad;
-use super::plugin::Plugin;
+use super::plugin::{Plugin, PluginMetadata};
 use crate::send::{Alias, Reaction, Sender, Timer, Trigger};
 
 pub type PluginIndex = usize;
@@ -438,18 +437,17 @@ mod tests {
     }
 
     mod senders {
-        use mlua::Lua;
 
         use super::*;
 
         fn basic_plugin() -> Plugin {
             Plugin {
-                lua: Lua::new(),
                 triggers: vec![Trigger::default()],
                 aliases: vec![Alias::default()],
                 timers: vec![Timer::default()],
                 metadata: PluginMetadata::default(),
                 callbacks: Default::default(),
+                script: String::default(),
             }
         }
 

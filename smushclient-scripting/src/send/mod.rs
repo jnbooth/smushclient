@@ -50,7 +50,7 @@ mod timer;
 pub use timer::{Timer, TimerXml};
 
 mod trigger;
-pub use trigger::{Trigger, TriggerXml};
+pub use trigger::{Trigger, TriggerEffects, TriggerXml};
 
 #[cfg(test)]
 mod tests {
