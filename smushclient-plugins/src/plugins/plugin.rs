@@ -6,12 +6,9 @@ use std::io::BufRead;
 use std::str;
 
 use chrono::{NaiveDate, NaiveDateTime, Utc};
-use quick_xml::DeError;
+pub use quick_xml::DeError as PluginLoadError;
 use serde::{Deserialize, Serialize};
 
-use enumeration::EnumSet;
-
-use crate::callback::Callback;
 use crate::in_place::InPlace;
 use crate::send::{Alias, AliasXml, Timer, TimerXml, Trigger, TriggerXml};
 
@@ -19,8 +16,6 @@ use crate::send::{Alias, AliasXml, Timer, TimerXml, Trigger, TriggerXml};
 #[serde(try_from = "PluginFile")]
 pub struct Plugin {
     pub metadata: PluginMetadata,
-    /// Which callbacks it responds to.
-    pub callbacks: EnumSet<Callback>,
     pub triggers: Vec<Trigger>,
     pub aliases: Vec<Alias>,
     pub timers: Vec<Timer>,
@@ -48,16 +43,20 @@ impl Ord for Plugin {
 }
 
 impl Plugin {
-    pub fn from_xml_reader<R: BufRead>(reader: R) -> Result<Self, DeError> {
+    pub fn from_xml<R: BufRead>(reader: R) -> Result<Self, PluginLoadError> {
         quick_xml::de::from_reader(reader)
     }
 
-    pub fn from_xml_str(s: &str) -> Result<Self, DeError> {
+    pub fn from_xml_str(s: &str) -> Result<Self, PluginLoadError> {
         quick_xml::de::from_str(s)
     }
 
-    pub fn to_xml<W: Write>(&self, writer: W) -> Result<(), DeError> {
+    pub fn to_xml<W: Write>(&self, writer: W) -> Result<(), PluginLoadError> {
         quick_xml::se::to_writer(writer, self)
+    }
+
+    pub fn to_xml_string(&self) -> Result<String, PluginLoadError> {
+        quick_xml::se::to_string(self)
     }
 }
 
@@ -66,8 +65,6 @@ impl Plugin {
 #[serde(rename = "muclient")]
 struct PluginFile<'a> {
     plugin: PluginMetadata,
-    #[serde(default)]
-    callbacks: Vec<Callback>,
     #[serde(borrow, default)]
     triggers: Vec<Triggers<'a>>,
     #[serde(borrow, default)]
@@ -84,7 +81,6 @@ impl TryFrom<PluginFile<'_>> for Plugin {
     fn try_from(value: PluginFile) -> Result<Self, Self::Error> {
         Ok(Self {
             metadata: value.plugin,
-            callbacks: value.callbacks.into_iter().collect(),
             triggers: XmlList::try_collect(value.triggers)?,
             aliases: XmlList::try_collect(value.aliases)?,
             timers: XmlList::collect(value.timers),
@@ -97,7 +93,6 @@ impl<'a> From<&'a Plugin> for PluginFile<'a> {
     fn from(value: &'a Plugin) -> Self {
         Self {
             plugin: value.metadata.clone(),
-            callbacks: value.callbacks.into_iter().collect(),
             triggers: vec![XmlList::from_children(&value.triggers)],
             aliases: vec![XmlList::from_children(&value.aliases)],
             timers: vec![XmlList::from_children(&value.timers)],
@@ -243,8 +238,6 @@ impl Default for PluginMetadata {
 
 #[cfg(test)]
 mod tests {
-    use enumeration::enums;
-
     use super::*;
 
     #[test]
@@ -257,7 +250,6 @@ mod tests {
         };
         let plugin = Plugin {
             metadata,
-            callbacks: enums![Callback::Install, Callback::Open],
             triggers: vec![Trigger::default()],
             aliases: vec![Alias::default()],
             timers: vec![Timer::default()],

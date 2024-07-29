@@ -5,13 +5,13 @@ use chrono::NaiveTime;
 use serde::{Deserialize, Serialize};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
-pub enum Event {
+pub enum Occurrence {
     // Note: this is at the top for Ord-deriving purposes.
     Time(NaiveTime),
     Interval(Duration),
 }
 
-impl Display for Event {
+impl Display for Occurrence {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
             Self::Interval(every) => {

@@ -1,13 +1,12 @@
-use std::borrow::Cow;
 use std::hash::Hash;
-use std::iter::FusedIterator;
+use std::iter::Enumerate;
 use std::{iter, slice, str, vec};
 
-use fancy_regex::{CaptureMatches, Captures, Replacer};
+use fancy_regex::{CaptureMatches, Captures};
 
 use super::pad::Pad;
 use super::plugin::{Plugin, PluginMetadata};
-use crate::send::{Alias, Reaction, Sender, Timer, Trigger};
+use crate::send::{Alias, Reaction, SendTo, Sender, Timer, Trigger};
 
 pub type PluginIndex = usize;
 
@@ -19,7 +18,9 @@ pub struct Indexed<T> {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Indexer<T>(Vec<Indexed<T>>);
+pub struct Indexer<T> {
+    inner: Vec<Indexed<T>>,
+}
 
 impl<T> Default for Indexer<T> {
     fn default() -> Self {
@@ -29,11 +30,11 @@ impl<T> Default for Indexer<T> {
 
 impl<T> Indexer<T> {
     pub const fn new() -> Self {
-        Self(Vec::new())
+        Self { inner: Vec::new() }
     }
 
     pub fn clear(&mut self) {
-        self.0.clear();
+        self.inner.clear();
     }
 
     pub fn replace<'a, I>(&mut self, index: PluginIndex, iter: I)
@@ -41,7 +42,7 @@ impl<T> Indexer<T> {
         I: IntoIterator<Item = &'a T>,
         T: 'a + Clone,
     {
-        self.0.retain(|x| x.plugin != index);
+        self.inner.retain(|x| x.plugin != index);
         self.extend(index, iter);
     }
 
@@ -54,21 +55,21 @@ impl<T> Indexer<T> {
             plugin: index,
             val: content.to_owned(),
         });
-        self.0.extend(new_iter);
+        self.inner.extend(new_iter);
     }
 
     pub fn sort(&mut self)
     where
         T: Ord,
     {
-        self.0.sort_unstable();
+        self.inner.sort_unstable();
     }
 
     pub fn add(&mut self, plugin: PluginIndex, val: T)
     where
         T: Ord,
     {
-        self.0.push(Indexed { val, plugin });
+        self.inner.push(Indexed { val, plugin });
         self.sort();
     }
 
@@ -81,47 +82,103 @@ impl<T> Indexer<T> {
     }
 
     pub fn matches<'a, 'b: 'a>(
-        &'a self,
+        &'a mut self,
         line: &'b str,
     ) -> impl Iterator<Item = SendMatch<'a, 'b, T>>
     where
         T: AsRef<Reaction> + Clone,
     {
-        self.0.iter().enumerate().flat_map(move |(pos, indexed)| {
-            let reaction = indexed.val.as_ref();
-            if !reaction.enabled || !matches!(reaction.regex.is_match(line), Ok(true)) {
-                return MatchIter::Repeat {
-                    count: 0,
-                    val: None,
-                };
-            }
+        MatchingIter {
+            inner: self.inner.iter().enumerate(),
+            line,
+            repeating: RepeatingMatch::Empty,
+        }
+    }
+}
 
+enum RepeatingMatch<'a, 'b, T> {
+    Empty,
+    Repeat(usize, SendMatch<'a, 'b, T>),
+    Captures {
+        pos: usize,
+        iter: CaptureMatches<'a, 'b>,
+        indexed: &'a Indexed<T>,
+    },
+}
+
+impl<'a, 'b, T: AsRef<Reaction>> Iterator for RepeatingMatch<'a, 'b, T> {
+    type Item = SendMatch<'a, 'b, T>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let next = match self {
+            RepeatingMatch::Empty => return None,
+            RepeatingMatch::Repeat(0, matched) => Some(matched.clone_uncaptured()),
+            RepeatingMatch::Repeat(times, matched) => {
+                *times -= 1;
+                return Some(matched.clone_uncaptured());
+            }
+            RepeatingMatch::Captures { iter, pos, indexed } => match iter.next() {
+                Some(Ok(captures)) => {
+                    let reaction = indexed.val.as_ref();
+                    return Some(SendMatch {
+                        plugin: indexed.plugin,
+                        sender: &indexed.val,
+                        pos: *pos,
+                        text: &reaction.text,
+                        captures: Some(captures),
+                    });
+                }
+                _ => None,
+            },
+        };
+        *self = RepeatingMatch::Empty;
+        next
+    }
+}
+
+struct MatchingIter<'a, 'b, T> {
+    inner: Enumerate<slice::Iter<'a, Indexed<T>>>,
+    line: &'b str,
+    repeating: RepeatingMatch<'a, 'b, T>,
+}
+
+impl<'a, 'b, T: AsRef<Reaction>> Iterator for MatchingIter<'a, 'b, T> {
+    type Item = SendMatch<'a, 'b, T>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(repeated) = self.repeating.next() {
+            return Some(repeated);
+        }
+        for (pos, indexed) in &mut self.inner {
+            let reaction = indexed.val.as_ref();
+            if !reaction.enabled || !matches!(reaction.regex.is_match(self.line), Ok(true)) {
+                continue;
+            }
+            let count = if reaction.repeat {
+                reaction.regex.find_iter(self.line).count()
+            } else {
+                1
+            };
             if reaction.script.is_empty() && !reaction.text.contains('$') {
-                // We don't need captures, so we can simply replicate
-                let count = if reaction.repeat {
-                    reaction.regex.find_iter(line).count()
-                } else {
-                    1
-                };
                 let val = SendMatch {
                     plugin: indexed.plugin,
                     sender: &indexed.val,
                     pos,
-                    text: Cow::Borrowed(&reaction.text),
-                    wildcards: Vec::new(),
+                    text: &reaction.text,
+                    captures: None,
                 };
-                MatchIter::Repeat {
-                    count,
-                    val: Some(val),
+                if count > 1 {
+                    self.repeating = RepeatingMatch::Repeat(count - 2, val.clone_uncaptured());
                 }
-            } else {
-                MatchIter::Captures {
-                    pos,
-                    iter: reaction.regex.captures_iter(line),
-                    indexed,
-                }
+                return Some(val);
             }
-        })
+            let iter = reaction.regex.captures_iter(self.line);
+            self.repeating = RepeatingMatch::Captures { iter, pos, indexed };
+            if let Some(repeated) = self.repeating.next() {
+                return Some(repeated);
+            }
+        }
+        None
     }
 }
 
@@ -131,7 +188,7 @@ impl<T> IntoIterator for Indexer<T> {
     type IntoIter = iter::Map<vec::IntoIter<Indexed<T>>, fn(Indexed<T>) -> (PluginIndex, T)>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.0.into_iter().map(|i| (i.plugin, i.val))
+        self.inner.into_iter().map(|i| (i.plugin, i.val))
     }
 }
 
@@ -141,7 +198,7 @@ impl<'a, T> IntoIterator for &'a Indexer<T> {
     type IntoIter = iter::Map<slice::Iter<'a, Indexed<T>>, fn(&Indexed<T>) -> (PluginIndex, &T)>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.0.iter().map(|i| (i.plugin, &i.val))
+        self.inner.iter().map(|i| (i.plugin, &i.val))
     }
 }
 
@@ -152,94 +209,82 @@ impl<'a, T> IntoIterator for &'a mut Indexer<T> {
         iter::Map<slice::IterMut<'a, Indexed<T>>, fn(&mut Indexed<T>) -> (PluginIndex, &mut T)>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.0.iter_mut().map(|i| (i.plugin, &mut i.val))
+        self.inner.iter_mut().map(|i| (i.plugin, &mut i.val))
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct SendMatch<'a, 'b, T> {
     pub plugin: PluginIndex,
     pub pos: usize,
     pub sender: &'a T,
-    pub text: Cow<'a, str>,
-    pub wildcards: Vec<&'b str>,
+    text: &'a str,
+    captures: Option<Captures<'b>>,
 }
 
-impl<'a, 'b, T: AsRef<Reaction>> SendMatch<'a, 'b, T> {
-    fn from_captures(pos: usize, captures: &Captures<'b>, indexed: &'a Indexed<T>) -> Self {
-        let reaction = indexed.val.as_ref();
-        let text = if reaction.text.is_empty() {
-            Cow::Borrowed(reaction.text.as_str())
-        } else {
-            let mut s = String::new();
-            reaction.text.as_str().replace_append(captures, &mut s);
-            Cow::Owned(s)
-        };
-        if reaction.script.is_empty() {
-            return Self {
-                plugin: indexed.plugin,
-                sender: &indexed.val,
-                pos,
-                text,
-                wildcards: Vec::new(),
-            };
+impl<'a, 'b, T> SendMatch<'a, 'b, T> {
+    pub const fn is_empty(&self) -> bool {
+        self.text.is_empty()
+    }
+
+    pub fn text<'c, 'd>(&self, buf: &'c mut String) -> &'d str
+    where
+        'a: 'd,
+        'c: 'd,
+    {
+        match &self.captures {
+            Some(ref captures) => {
+                captures.expand(self.text, buf);
+                buf.as_str()
+            }
+            None => self.text,
         }
+    }
+
+    pub fn wildcards(&self) -> Vec<&'b str> {
+        let captures = match &self.captures {
+            Some(ref captures) => captures,
+            None => return Vec::new(),
+        };
         let mut wildcards = Vec::with_capacity(captures.len() - 1);
         let mut iter = captures.iter();
         iter.next(); // skip the all-encompassing capture
         for capture in iter.flatten() {
             wildcards.push(capture.as_str());
         }
+        wildcards
+    }
+
+    fn clone_uncaptured(&self) -> Self {
         Self {
-            plugin: indexed.plugin,
-            sender: &indexed.val,
-            pos,
-            text,
-            wildcards,
+            plugin: self.plugin,
+            pos: self.pos,
+            sender: self.sender,
+            text: self.text,
+            captures: None,
         }
     }
 }
 
-enum MatchIter<'a, 'b, T> {
-    Repeat {
-        count: usize,
-        val: Option<SendMatch<'a, 'b, T>>,
-    },
-    Captures {
-        pos: usize,
-        iter: CaptureMatches<'a, 'b>,
-        indexed: &'a Indexed<T>,
-    },
-}
-
-impl<'a, 'b, T: AsRef<Reaction> + Clone> Iterator for MatchIter<'a, 'b, T> {
-    type Item = SendMatch<'a, 'b, T>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        match self {
-            Self::Repeat { count: 0, .. } => None,
-            Self::Repeat { count, val } => {
-                *count -= 1;
-                if *count == 0 {
-                    val.take()
-                } else {
-                    val.as_ref().map(ToOwned::to_owned)
-                }
-            }
-            Self::Captures { iter, pos, indexed } => {
-                Some(SendMatch::from_captures(*pos, &iter.next()?.ok()?, indexed))
-            }
-        }
+impl<'a, 'b, T: Sendable> SendMatch<'a, 'b, T> {
+    pub fn has_send(&self) -> bool {
+        let sender = self.sender.as_ref();
+        let send_to = sender.send_to;
+        !send_to.ignore_empty()
+            || !self.text.is_empty()
+            || !sender.script.is_empty()
+            || (send_to == SendTo::Variable && !sender.variable.is_empty())
     }
 
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        match self {
-            Self::Repeat { count, .. } => (*count, Some(*count)),
-            Self::Captures { iter, .. } => iter.size_hint(),
+    pub fn pad(&'a self, plugins: &'a [Plugin]) -> Option<Pad<'a>> {
+        let sender = self.sender.as_ref();
+        if sender.send_to.is_notepad() {
+            Some(self.sender.pad(&plugins[self.plugin].metadata))
+        } else {
+            None
         }
     }
 }
-impl<'a, 'b, T: AsRef<Reaction> + Clone> FusedIterator for MatchIter<'a, 'b, T> {}
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Senders {
@@ -288,7 +333,7 @@ impl Senders {
     // Given a sorted and deduplicated list of vector positions, deletes the elements corresponding
     // to those positions.
     pub fn delete_all<T: Sendable>(&mut self, positions: &[usize]) {
-        let indexer = &mut T::indexer_mut(self).0;
+        let indexer = &mut T::indexer_mut(self).inner;
         for &pos in positions.iter().rev() {
             indexer.remove(pos);
         }
@@ -301,7 +346,7 @@ impl Senders {
     pub fn replace<T: Sendable>(&mut self, plugin: PluginIndex, val: T) {
         let indexer = T::indexer_mut(self);
         let sender = val.as_ref();
-        indexer.0.retain(|indexed| {
+        indexer.inner.retain(|indexed| {
             indexed.plugin != plugin || {
                 let other = indexed.val.as_ref();
                 sender.label != other.label || sender.group != other.group
@@ -311,10 +356,10 @@ impl Senders {
     }
 }
 
-pub trait Sendable: 'static + Sized + Ord + AsRef<Sender> + AsMut<Sender> {
+pub trait Sendable: 'static + Sized + Ord + AsRef<Sender> {
     fn indexer(indices: &Senders) -> &Indexer<Self>;
     fn indexer_mut(indices: &mut Senders) -> &mut Indexer<Self>;
-    fn pad(&self, metadata: &PluginMetadata) -> Pad;
+    fn pad<'a>(&'a self, metadata: &'a PluginMetadata) -> Pad<'a>;
 }
 impl Sendable for Alias {
     fn indexer(indices: &Senders) -> &Indexer<Self> {
@@ -324,13 +369,13 @@ impl Sendable for Alias {
         &mut indices.aliases
     }
 
-    fn pad(&self, metadata: &PluginMetadata) -> Pad {
+    fn pad<'a>(&'a self, metadata: &'a PluginMetadata) -> Pad<'a> {
         Pad::Alias {
-            plugin: metadata.name.clone(),
+            plugin: &metadata.name,
             label: if self.label.is_empty() {
-                self.pattern.clone()
+                &self.pattern
             } else {
-                self.label.clone()
+                &self.label
             },
         }
     }
@@ -343,10 +388,10 @@ impl Sendable for Timer {
         &mut indices.timers
     }
 
-    fn pad(&self, metadata: &PluginMetadata) -> Pad {
+    fn pad<'a>(&'a self, metadata: &'a PluginMetadata) -> Pad<'a> {
         Pad::Timer {
-            plugin: metadata.name.clone(),
-            event: self.event,
+            plugin: &metadata.name,
+            occurrence: self.occurrence,
         }
     }
 }
@@ -358,13 +403,13 @@ impl Sendable for Trigger {
         &mut indices.triggers
     }
 
-    fn pad(&self, metadata: &PluginMetadata) -> Pad {
+    fn pad<'a>(&'a self, metadata: &'a PluginMetadata) -> Pad<'a> {
         Pad::Trigger {
-            plugin: metadata.name.clone(),
+            plugin: &metadata.name,
             label: if self.label.is_empty() {
-                self.pattern.clone()
+                &self.pattern
             } else {
-                self.label.clone()
+                &self.label
             },
         }
     }
@@ -412,30 +457,6 @@ mod tests {
         }
     }
 
-    mod send_match {
-        use super::*;
-
-        fn default_sendmatch() -> SendMatch<'static, 'static, Alias> {
-            SendMatch {
-                plugin: 0,
-                pos: 0,
-                sender: Box::leak(Box::default()),
-                text: Cow::Borrowed(""),
-                wildcards: Vec::new(),
-            }
-        }
-
-        #[test]
-        fn test_matchiter_repeat() {
-            const COUNT: usize = 5;
-            let iter = MatchIter::Repeat {
-                count: COUNT,
-                val: Some(default_sendmatch()),
-            };
-            assert_eq!(iter.size_hint().0, iter.count());
-        }
-    }
-
     mod senders {
 
         use super::*;
@@ -446,7 +467,6 @@ mod tests {
                 aliases: vec![Alias::default()],
                 timers: vec![Timer::default()],
                 metadata: PluginMetadata::default(),
-                callbacks: Default::default(),
                 script: String::default(),
             }
         }
@@ -458,9 +478,9 @@ mod tests {
             senders.clear();
             assert_eq!(
                 (
-                    senders.aliases.0.len(),
-                    senders.timers.0.len(),
-                    senders.triggers.0.len()
+                    senders.aliases.inner.len(),
+                    senders.timers.inner.len(),
+                    senders.triggers.inner.len()
                 ),
                 (0, 0, 0)
             );
@@ -526,7 +546,7 @@ mod tests {
             senders.aliases.add(1, alias);
             let outputs: Vec<_> = senders
                 .matches::<Alias>(opts.line)
-                .map(|send| send.text.into_owned())
+                .map(|send| send.text.to_owned())
                 .collect();
             let expect: Vec<_> = opts.expect.iter().map(|s| s.to_owned()).collect();
             assert_eq!(outputs, expect);

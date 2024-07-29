@@ -4,7 +4,7 @@ use std::time::Duration;
 use chrono::{NaiveTime, Timelike};
 use serde::{Deserialize, Serialize};
 
-use super::event::Event;
+use super::occurrence::Occurrence;
 use super::send_to::{sendto_serde, SendTo};
 use super::sender::Sender;
 use crate::in_place::InPlace;
@@ -19,7 +19,7 @@ fn duration_from_hms(hour: u64, minute: u64, second: f64) -> Duration {
 pub struct Timer {
     // Note: this is at the top for Ord-deriving purposes.
     pub send: Sender,
-    pub event: Event,
+    pub occurrence: Occurrence,
     pub active_closed: bool,
 }
 
@@ -29,7 +29,7 @@ impl_asref!(Timer, Sender);
 impl Default for Timer {
     fn default() -> Self {
         Self {
-            event: Event::Interval(Duration::new(0, 0)),
+            occurrence: Occurrence::Interval(Duration::new(0, 0)),
             send: Sender::default(),
             active_closed: false,
         }
@@ -94,8 +94,8 @@ pub struct TimerXml<'a> {
 }
 impl From<TimerXml<'_>> for Timer {
     fn from(value: TimerXml) -> Self {
-        let event = if value.at_time {
-            Event::Time(
+        let occurrence = if value.at_time {
+            Occurrence::Time(
                 NaiveTime::from_hms_opt(
                     value.hour as u32,
                     value.minute as u32,
@@ -104,7 +104,7 @@ impl From<TimerXml<'_>> for Timer {
                 .unwrap(),
             )
         } else {
-            Event::Interval(duration_from_hms(value.hour, value.minute, value.second))
+            Occurrence::Interval(duration_from_hms(value.hour, value.minute, value.second))
         };
         let send = in_place!(
             value,
@@ -123,7 +123,7 @@ impl From<TimerXml<'_>> for Timer {
             }
         );
         Self {
-            event,
+            occurrence,
             send,
             active_closed: value.active_closed,
         }
@@ -131,15 +131,15 @@ impl From<TimerXml<'_>> for Timer {
 }
 impl<'a> From<&'a Timer> for TimerXml<'a> {
     fn from(value: &'a Timer) -> Self {
-        let (at_time, hour, minute, second) = match value.event {
-            Event::Interval(every) => {
+        let (at_time, hour, minute, second) = match value.occurrence {
+            Occurrence::Interval(every) => {
                 let secs = every.as_secs();
                 let hour = secs / 3600;
                 let minute = (secs % 3600) / 3600;
                 let second = every.subsec_nanos() as f64 / NANOS as f64;
                 (false, hour, minute, second)
             }
-            Event::Time(time) => (
+            Occurrence::Time(time) => (
                 true,
                 time.hour() as u64,
                 time.minute() as u64,

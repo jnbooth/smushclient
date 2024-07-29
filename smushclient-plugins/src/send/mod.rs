@@ -34,8 +34,8 @@ macro_rules! impl_asref {
 mod alias;
 pub use alias::{Alias, AliasXml};
 
-mod event;
-pub use event::Event;
+mod occurrence;
+pub use occurrence::Occurrence;
 
 mod reaction;
 pub use reaction::Reaction;
@@ -50,7 +50,7 @@ mod timer;
 pub use timer::{Timer, TimerXml};
 
 mod trigger;
-pub use trigger::{Trigger, TriggerEffects, TriggerXml};
+pub use trigger::{Trigger, TriggerXml};
 
 #[cfg(test)]
 mod tests {

@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 
+use mxp::HexColor;
 use serde::{Deserialize, Serialize};
 
 use super::reaction::Reaction;
@@ -13,8 +14,12 @@ pub struct Trigger {
     pub reaction: Reaction,
     pub change_foreground: bool,
     pub foreground: String,
+    #[serde(skip)]
+    pub foreground_color: Option<HexColor>,
     pub change_background: bool,
     pub background: String,
+    #[serde(skip)]
+    pub background_color: Option<HexColor>,
     pub make_bold: bool,
     pub make_italic: bool,
     pub make_underline: bool,
@@ -28,23 +33,6 @@ pub struct Trigger {
 impl_deref!(Trigger, Reaction, reaction);
 impl_asref!(Trigger, Reaction);
 impl_asref!(Trigger, Sender);
-
-impl Trigger {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-
-#[derive(Clone, Debug, Default)]
-pub struct TriggerEffects {
-    pub hide: bool,
-    pub foreground: Option<String>,
-    pub background: Option<String>,
-    pub sounds: Vec<String>,
-    pub make_bold: bool,
-    pub make_italic: bool,
-    pub make_underline: bool,
-}
 
 #[repr(u8)]
 enum Change {
@@ -69,6 +57,13 @@ impl Change {
             _ => Some(Self::Both as u8),
         }
     }
+}
+
+fn get_color(name: &str) -> Option<HexColor> {
+    if name.is_empty() {
+        return None;
+    }
+    HexColor::named(name)
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
@@ -218,8 +213,10 @@ impl TryFrom<TriggerXml<'_>> for Trigger {
             Self {
                 reaction,
                 change_foreground: Change::Fg.member(value.colour_change_type),
+                foreground_color: get_color(&value.other_text_colour),
                 foreground: value.other_text_colour,
-                change_background: Change::Bg.member(value.colour_change_type),
+                change_background:Change::Bg.member(value.colour_change_type),
+                background_color: get_color(&value.other_back_colour),
                 background: value.other_back_colour,
                 ..sound,
                 ..make_bold,

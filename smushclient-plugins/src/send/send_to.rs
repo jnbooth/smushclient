@@ -1,9 +1,6 @@
-use enumeration::Enum;
 use serde::{Deserialize, Serialize};
 
-#[derive(
-    Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Enum, Deserialize, Serialize,
-)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 pub enum SendTo {
     World,
     WorldDelay,
@@ -40,6 +37,13 @@ impl SendTo {
                 | Self::Log
         )
     }
+
+    pub const fn is_notepad(self) -> bool {
+        matches!(
+            self,
+            Self::NotepadAppend | Self::NotepadNew | Self::NotepadReplace
+        )
+    }
 }
 
 pub mod sendto_serde {
@@ -49,16 +53,31 @@ pub mod sendto_serde {
     use super::*;
 
     pub fn serialize<S: Serializer>(value: &SendTo, serializer: S) -> Result<S::Ok, S::Error> {
-        value.index().serialize(serializer)
+        (*value as u8).serialize(serializer)
     }
 
     pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<SendTo, D::Error> {
-        let pos = <usize>::deserialize(deserializer)?;
-        <SendTo as Enum>::from_index(pos).ok_or_else(|| {
-            D::Error::invalid_value(
+        let pos = <u8>::deserialize(deserializer)?;
+        match pos {
+            0 => Ok(SendTo::World),
+            1 => Ok(SendTo::Command),
+            2 => Ok(SendTo::Output),
+            3 => Ok(SendTo::Status),
+            4 => Ok(SendTo::NotepadNew),
+            5 => Ok(SendTo::NotepadAppend),
+            6 => Ok(SendTo::Log),
+            7 => Ok(SendTo::NotepadReplace),
+            8 => Ok(SendTo::WorldDelay),
+            9 => Ok(SendTo::Variable),
+            10 => Ok(SendTo::Execute),
+            11 => Ok(SendTo::Speedwalk),
+            12 => Ok(SendTo::Script),
+            13 => Ok(SendTo::WorldImmediate),
+            14 => Ok(SendTo::ScriptAfterOmit),
+            _ => Err(D::Error::invalid_value(
                 Unexpected::Unsigned(pos as u64),
                 &"integer between 0 and 14",
-            )
-        })
+            )),
+        }
     }
 }

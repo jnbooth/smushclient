@@ -148,7 +148,6 @@ version = "0.7.1"
 source = "git+https://github.com/jnbooth/enumeration#5e8df7fb6b8df1449e95f36878fdf03b331986fa"
 dependencies = [
  "enumeration_derive",
- "serde",
 ]
 
 [[package]]
@@ -495,12 +494,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3c5e1a9a646d36c3599cd173a41282daf47c44583ad367b8e6837255952e5c67"
 
 [[package]]
-name = "smushclient-scripting"
+name = "smushclient"
+version = "0.0.0"
+dependencies = [
+ "mud-transformer",
+ "smushclient-plugins",
+ "uuid",
+]
+
+[[package]]
+name = "smushclient-plugins"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "enumeration",
  "fancy-regex",
+ "mxp",
  "quick-xml",
  "serde",
 ]
@@ -637,6 +645,12 @@ name = "unicode-ident"
 version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
+
+[[package]]
+name = "uuid"
+version = "1.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "81dfa00651efa65069b0b6b651f4aaa31ba9e3c3ce0137aaad053604ee7e0314"
 
 [[package]]
 name = "wasi"

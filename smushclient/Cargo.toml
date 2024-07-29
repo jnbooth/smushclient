@@ -1,0 +1,17 @@
+[package]
+name = "smushclient"
+version = "0.0.0"
+edition = "2021"
+
+[lints]
+workspace = true
+
+[dependencies.mud-transformer]
+git = "https://github.com/jnbooth/mxp"
+version = "0.4.1"
+
+[dependencies.smushclient-plugins]
+path = "../smushclient-plugins"
+
+[dependencies.uuid]
+version = "1.10.0"
