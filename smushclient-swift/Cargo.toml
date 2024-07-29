@@ -17,12 +17,12 @@ rev = "6081259d04333d97450faa652da8b43cf8fec03b"
 
 [dependencies.mud-stream]
 git = "https://github.com/jnbooth/mxp"
-version = "0.4.2"
+version = "0.4.4"
 features = ["async"]
 
 [dependencies.mud-transformer]
 git = "https://github.com/jnbooth/mxp"
-version = "0.4.2"
+version = "0.4.4"
 
 [dependencies.smushclient]
 path = "../smushclient"

@@ -1,6 +1,11 @@
 [workspace]
 resolver = "2"
-members = ["smushclient", "smushclient-plugins", "smushclient-swift"]
+members = [
+  "smushclient",
+  "smushclient-plugins",
+  "smushclient-qt/rust",
+  "smushclient-swift",
+]
 
 [workspace.lints.clippy]
 manual_map = "allow"

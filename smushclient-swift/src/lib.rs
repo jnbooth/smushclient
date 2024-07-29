@@ -1,41 +1,46 @@
 #![allow(clippy::unnecessary_cast)]
-use mud_stream::nonblocking::MudStream;
-use mud_transformer::mxp::{self, SendTo, WorldColor};
-use mud_transformer::{EffectFragment, TelnetFragment};
-use mud_transformer::{OutputFragment, TextFragment, TextStyle};
-use smushclient_plugins::SendTarget;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::vec;
-use tokio::io::AsyncWriteExt;
-use tokio::net::TcpStream;
 
-use smushclient::{SendRequest, SmushClient};
+mod bridge;
+mod client;
+mod enums;
+mod output;
+mod sync;
+
+use bridge::{RustMudBridge, RustOutputStream};
+use enums::bridge::{EffectFragment, MudColor, SendRequest, SendTo, TelnetFragment};
+use mud_transformer::OutputFragment;
+use output::{RustMxpLink, RustTextFragment};
 
 #[swift_bridge::bridge]
 mod ffi {
-    enum MudColor {
-        Ansi(u8),
-        Hex(u32),
-    }
-
-    enum SendTo {
-        World,
-        Input,
-        Internet,
-    }
+    #[swift_bridge(already_declared)]
+    enum MudColor {}
+    #[swift_bridge(already_declared)]
+    enum SendTo {}
+    #[swift_bridge(already_declared)]
+    enum EffectFragment {}
+    #[swift_bridge(already_declared)]
+    enum TelnetFragment {}
+    #[swift_bridge(already_declared)]
+    enum SendTarget {}
+    #[swift_bridge(already_declared, swift_repr = "struct")]
+    struct SendRequest;
 
     extern "Rust" {
         type RustMxpLink;
         fn action(&self) -> &str;
         fn hint(&self) -> Option<&str>;
         fn prompts(&self) -> Vec<String>;
+        #[swift_bridge(return_into)]
         fn sendto(&self) -> SendTo;
     }
 
     extern "Rust" {
         type RustTextFragment;
         fn text(&self) -> &str;
+        #[swift_bridge(return_into)]
         fn foreground(&self) -> MudColor;
+        #[swift_bridge(return_into)]
         fn background(&self) -> MudColor;
         #[swift_bridge(swift_name = "isBlink")]
         fn is_blink(&self) -> bool;
@@ -52,52 +57,6 @@ mod ffi {
         #[swift_bridge(swift_name = "isUnderline")]
         fn is_underline(&self) -> bool;
         fn link(&self) -> Option<&RustMxpLink>;
-    }
-
-    enum EffectFragment {
-        Backspace,
-        Beep,
-        CarriageReturn,
-        EraseCharacter,
-        EraseLine,
-    }
-
-    enum TelnetFragment {
-        Afk { challenge: String },
-        Do { code: u8 },
-        IacGa,
-        Naws,
-        Subnegotiation { code: u8, data: Vec<u8> },
-        Will { code: u8 },
-    }
-
-    enum SendTarget {
-        World,
-        WorldDelay,
-        WorldImmediate,
-        Command,
-        Output,
-        Status,
-        NotepadNew,
-        NotepadAppend,
-        NotepadReplace,
-        Log,
-        Speedwalk,
-        Execute,
-        Variable,
-        Script,
-        ScriptAfterOmit,
-    }
-
-    #[swift_bridge(swift_repr = "struct")]
-    struct SendRequest {
-        plugin: usize,
-        #[swift_bridge(swift_name = "sendTo")]
-        send_to: SendTarget,
-        script: String,
-        variable: String,
-        text: String,
-        wildcards: Vec<String>,
     }
 
     enum OutputFragment {
@@ -129,138 +88,7 @@ mod ffi {
     }
 }
 
-impl From<WorldColor> for ffi::MudColor {
-    #[inline]
-    fn from(value: WorldColor) -> Self {
-        match value {
-            mxp::WorldColor::Ansi(code) => Self::Ansi(code),
-            mxp::WorldColor::Hex(color) => Self::Hex(color.code()),
-        }
-    }
-}
-
-#[repr(transparent)]
-struct RustMxpLink {
-    inner: mxp::Link,
-}
-
-impl RustMxpLink {
-    fn cast(link: &mxp::Link) -> &Self {
-        // SAFETY: #[repr(transparent)]
-        unsafe { &*(link as *const mxp::Link as *const Self) }
-    }
-
-    fn action(&self) -> &str {
-        &self.inner.action
-    }
-
-    fn hint(&self) -> Option<&str> {
-        self.inner.hint.as_deref()
-    }
-
-    fn prompts(&self) -> Vec<String> {
-        self.inner.prompts.clone()
-    }
-
-    fn sendto(&self) -> ffi::SendTo {
-        self.inner.sendto.into()
-    }
-}
-
-#[repr(transparent)]
-struct RustTextFragment {
-    inner: TextFragment,
-}
-
-impl From<TextFragment> for RustTextFragment {
-    fn from(inner: TextFragment) -> Self {
-        Self { inner }
-    }
-}
-
-macro_rules! flag_method {
-    ($n:ident, $v:expr) => {
-        #[inline(always)]
-        fn $n(&self) -> bool {
-            self.inner.flags.contains($v)
-        }
-    };
-}
-
-impl RustTextFragment {
-    #[inline(always)]
-    fn text(&self) -> &str {
-        &self.inner.text
-    }
-
-    #[inline(always)]
-    fn foreground(&self) -> ffi::MudColor {
-        self.inner.foreground.into()
-    }
-
-    #[inline(always)]
-    fn background(&self) -> ffi::MudColor {
-        self.inner.background.into()
-    }
-
-    #[inline]
-    fn link(&self) -> Option<&RustMxpLink> {
-        self.inner
-            .action
-            .as_ref()
-            .map(|action| RustMxpLink::cast(action))
-    }
-
-    flag_method!(is_blink, TextStyle::Blink);
-    flag_method!(is_bold, TextStyle::Bold);
-    flag_method!(is_highlight, TextStyle::Highlight);
-    flag_method!(is_inverse, TextStyle::Inverse);
-    flag_method!(is_italic, TextStyle::Italic);
-    flag_method!(is_strikeout, TextStyle::Strikeout);
-    flag_method!(is_underline, TextStyle::Underline);
-}
-
-macro_rules! impl_enum_from {
-    ($f:ty, $t:path, $($variant:ident),+ $(,)?) => {
-        impl From<$t> for $f {
-            fn from(value: $t) -> Self {
-                match value {
-                    $(<$t>::$variant => Self::$variant),+
-                }
-            }
-        }
-    }
-}
-
-impl_enum_from!(ffi::SendTo, SendTo, World, Input, Internet);
-
-impl_enum_from!(
-    ffi::EffectFragment,
-    EffectFragment,
-    Backspace,
-    Beep,
-    CarriageReturn,
-    EraseCharacter,
-    EraseLine
-);
-
-impl From<TelnetFragment> for ffi::TelnetFragment {
-    fn from(value: TelnetFragment) -> Self {
-        match value {
-            TelnetFragment::Afk { challenge } => Self::Afk {
-                challenge: String::from(&challenge),
-            },
-            TelnetFragment::Do { code } => Self::Do { code },
-            TelnetFragment::IacGa => Self::IacGa,
-            TelnetFragment::Naws => Self::Naws,
-            TelnetFragment::Subnegotiation { code, data } => Self::Subnegotiation {
-                code,
-                data: data.to_vec(),
-            },
-            TelnetFragment::Will { code } => Self::Will { code },
-        }
-    }
-}
+pub use ffi::OutputFragment as FfiOutputFragment;
 
 impl From<OutputFragment> for ffi::OutputFragment {
     fn from(value: OutputFragment) -> Self {
@@ -273,179 +101,5 @@ impl From<OutputFragment> for ffi::OutputFragment {
             OutputFragment::Telnet(telnet) => Self::Telnet(telnet.into()),
             OutputFragment::Text(text) => Self::Text(text.into()),
         }
-    }
-}
-
-impl_enum_from!(
-    ffi::SendTarget,
-    SendTarget,
-    World,
-    WorldDelay,
-    WorldImmediate,
-    Command,
-    Output,
-    Status,
-    NotepadNew,
-    NotepadAppend,
-    NotepadReplace,
-    Log,
-    Speedwalk,
-    Execute,
-    Variable,
-    Script,
-    ScriptAfterOmit
-);
-
-impl<'a> From<SendRequest<'a>> for ffi::SendRequest {
-    fn from(value: SendRequest<'a>) -> Self {
-        Self {
-            plugin: value.plugin,
-            send_to: value.sender.send_to.into(),
-            script: value.sender.script.clone(),
-            variable: value.sender.variable.clone(),
-            text: value.text.to_owned(),
-            wildcards: value.wildcards.into_iter().map(ToOwned::to_owned).collect(),
-        }
-    }
-}
-
-struct ClientHandler {
-    output: Vec<ffi::OutputFragment>,
-}
-
-impl Default for ClientHandler {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl ClientHandler {
-    const fn new() -> Self {
-        Self { output: Vec::new() }
-    }
-}
-
-impl smushclient::Handler for ClientHandler {
-    fn display(&mut self, fragment: OutputFragment) {
-        self.output.push(fragment.into());
-    }
-
-    fn play_sound(&mut self, path: &str) {
-        self.output
-            .push(ffi::OutputFragment::Sound(path.to_owned()));
-    }
-
-    fn send(&mut self, request: SendRequest) {
-        self.output.push(ffi::OutputFragment::Send(request.into()));
-    }
-}
-
-#[repr(transparent)]
-struct RustOutputStream {
-    inner: vec::IntoIter<ffi::OutputFragment>,
-}
-
-impl RustOutputStream {
-    #[inline(always)]
-    fn next(&mut self) -> Option<ffi::OutputFragment> {
-        self.inner.next()
-    }
-}
-
-#[derive(Default)]
-#[repr(transparent)]
-pub struct SimpleLock {
-    locked: AtomicBool,
-}
-
-impl SimpleLock {
-    fn lock(&self) -> SimpleLockGuard {
-        if self.locked.swap(true, Ordering::Relaxed) {
-            panic!("concurrent access");
-        }
-        SimpleLockGuard {
-            locked: &self.locked,
-        }
-    }
-}
-
-pub struct SimpleLockGuard<'a> {
-    locked: &'a AtomicBool,
-}
-
-impl<'a> Drop for SimpleLockGuard<'a> {
-    fn drop(&mut self) {
-        self.locked.store(false, Ordering::Relaxed);
-    }
-}
-
-#[derive(Default)]
-pub struct RustMudBridge {
-    address: String,
-    port: u16,
-    stream: Option<MudStream<TcpStream>>,
-    client: SmushClient,
-    input_lock: SimpleLock,
-    output_lock: SimpleLock,
-}
-
-impl RustMudBridge {
-    fn new(address: String, port: u16) -> Self {
-        Self {
-            address,
-            port,
-            ..Default::default()
-        }
-    }
-
-    fn connected(&self) -> bool {
-        self.stream.is_some()
-    }
-
-    async fn connect(&mut self) -> Result<(), String> {
-        let stream = TcpStream::connect((self.address.clone(), self.port))
-            .await
-            .map_err(|e| e.to_string())?;
-        let locks = (self.output_lock.lock(), self.input_lock.lock());
-        self.stream = Some(MudStream::new(stream, Default::default()));
-        drop(locks);
-        Ok(())
-    }
-
-    async fn disconnect(&mut self) -> Result<(), String> {
-        let locks = (self.output_lock.lock(), self.input_lock.lock());
-        let result = match self.stream {
-            Some(ref mut stream) => stream.shutdown().await.map_err(|e| e.to_string()),
-            None => Ok(()),
-        };
-        drop(locks);
-        result
-    }
-
-    async fn receive(&mut self) -> Result<RustOutputStream, String> {
-        let lock = self.output_lock.lock();
-        let result = match self.stream {
-            Some(ref mut stream) => stream.read().await.map_err(|e| e.to_string())?,
-            None => None,
-        };
-        let mut handler = ClientHandler::new();
-        if let Some(output) = result {
-            self.client.receive(output, &mut handler);
-        }
-        drop(lock);
-        Ok(RustOutputStream {
-            inner: handler.output.into_iter(),
-        })
-    }
-
-    async fn send(&mut self, input: String) -> Result<(), String> {
-        let input = input.as_bytes();
-        let lock = self.input_lock.lock();
-        let result = match self.stream {
-            Some(ref mut stream) => stream.write_all(input).await.map_err(|e| e.to_string()),
-            None => Ok(()),
-        };
-        drop(lock);
-        result
     }
 }
