@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use serde::{Deserialize, Serialize};
 
 use super::reaction::Reaction;
-use super::send_to::{sendto_serde, SendTo};
+use super::send_to::{sendto_serde, SendTarget};
 use super::sender::Sender;
 use crate::constants::DEFAULT_SEQUENCE;
 use crate::in_place::InPlace;
@@ -72,7 +72,7 @@ pub struct AliasXml<'a> {
     #[serde(rename = "@regexp")]
     is_regex: bool,
     #[serde(with = "sendto_serde", rename = "@send_to")]
-    send_to: SendTo,
+    send_to: SendTarget,
     #[serde(rename = "@omit_from_output")]
     omit_from_output: bool,
     #[serde(rename = "@one_shot")]

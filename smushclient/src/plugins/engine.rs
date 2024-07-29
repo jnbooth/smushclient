@@ -12,9 +12,16 @@ fn check_oneshot<T: AsRef<Sender>>(oneshots: &mut Vec<usize>, send: &SendMatch<T
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct PluginEngine {
     plugins: Vec<Plugin>,
     senders: Senders,
+}
+
+impl Default for PluginEngine {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl PluginEngine {

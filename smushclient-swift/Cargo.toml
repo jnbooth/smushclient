@@ -24,6 +24,12 @@ features = ["async"]
 git = "https://github.com/jnbooth/mxp"
 version = "0.4.2"
 
+[dependencies.smushclient]
+path = "../smushclient"
+
+[dependencies.smushclient-plugins]
+path = "../smushclient-plugins"
+
 [dependencies.swift-bridge]
 git = "https://github.com/jnbooth/swift-bridge"
 version = "0.1"

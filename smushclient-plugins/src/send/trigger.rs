@@ -4,7 +4,7 @@ use mxp::HexColor;
 use serde::{Deserialize, Serialize};
 
 use super::reaction::Reaction;
-use super::send_to::{sendto_serde, SendTo};
+use super::send_to::{sendto_serde, SendTarget};
 use super::sender::Sender;
 use crate::in_place::InPlace;
 
@@ -129,7 +129,7 @@ pub struct TriggerXml<'a> {
     )]
     script: Cow<'a, str>,
     #[serde(with = "sendto_serde", rename = "@send_to")]
-    send_to: SendTo,
+    send_to: SendTarget,
     #[serde(rename = "@sequence")]
     sequence: i16,
     #[serde(

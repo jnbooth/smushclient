@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
-pub enum SendTo {
+pub enum SendTarget {
     World,
     WorldDelay,
     WorldImmediate,
@@ -19,13 +19,13 @@ pub enum SendTo {
     ScriptAfterOmit,
 }
 
-impl Default for SendTo {
+impl Default for SendTarget {
     fn default() -> Self {
         Self::World
     }
 }
 
-impl SendTo {
+impl SendTarget {
     pub const fn ignore_empty(self) -> bool {
         !matches!(
             self,
@@ -52,28 +52,28 @@ pub mod sendto_serde {
 
     use super::*;
 
-    pub fn serialize<S: Serializer>(value: &SendTo, serializer: S) -> Result<S::Ok, S::Error> {
+    pub fn serialize<S: Serializer>(value: &SendTarget, serializer: S) -> Result<S::Ok, S::Error> {
         (*value as u8).serialize(serializer)
     }
 
-    pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<SendTo, D::Error> {
+    pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<SendTarget, D::Error> {
         let pos = <u8>::deserialize(deserializer)?;
         match pos {
-            0 => Ok(SendTo::World),
-            1 => Ok(SendTo::Command),
-            2 => Ok(SendTo::Output),
-            3 => Ok(SendTo::Status),
-            4 => Ok(SendTo::NotepadNew),
-            5 => Ok(SendTo::NotepadAppend),
-            6 => Ok(SendTo::Log),
-            7 => Ok(SendTo::NotepadReplace),
-            8 => Ok(SendTo::WorldDelay),
-            9 => Ok(SendTo::Variable),
-            10 => Ok(SendTo::Execute),
-            11 => Ok(SendTo::Speedwalk),
-            12 => Ok(SendTo::Script),
-            13 => Ok(SendTo::WorldImmediate),
-            14 => Ok(SendTo::ScriptAfterOmit),
+            0 => Ok(SendTarget::World),
+            1 => Ok(SendTarget::Command),
+            2 => Ok(SendTarget::Output),
+            3 => Ok(SendTarget::Status),
+            4 => Ok(SendTarget::NotepadNew),
+            5 => Ok(SendTarget::NotepadAppend),
+            6 => Ok(SendTarget::Log),
+            7 => Ok(SendTarget::NotepadReplace),
+            8 => Ok(SendTarget::WorldDelay),
+            9 => Ok(SendTarget::Variable),
+            10 => Ok(SendTarget::Execute),
+            11 => Ok(SendTarget::Speedwalk),
+            12 => Ok(SendTarget::Script),
+            13 => Ok(SendTarget::WorldImmediate),
+            14 => Ok(SendTarget::ScriptAfterOmit),
             _ => Err(D::Error::invalid_value(
                 Unexpected::Unsigned(pos as u64),
                 &"integer between 0 and 14",

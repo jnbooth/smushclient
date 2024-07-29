@@ -3,10 +3,17 @@ use crate::plugins::PluginEngine;
 use mud_transformer::{EffectFragment, OutputDrain, OutputFragment};
 use smushclient_plugins::Plugin;
 
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SmushClient {
     output_buf: Vec<OutputFragment>,
     line_text: String,
     plugins: PluginEngine,
+}
+
+impl Default for SmushClient {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl SmushClient {

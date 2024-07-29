@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
 
-use super::send_to::SendTo;
+use super::send_to::SendTarget;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 #[serde(default)]
 pub struct Sender {
-    pub send_to: SendTo,
+    pub send_to: SendTarget,
     pub label: String,
     pub script: String,
     pub group: String,
@@ -29,7 +29,7 @@ impl Sender {
     pub const fn new() -> Self {
         Self {
             text: String::new(),
-            send_to: SendTo::World,
+            send_to: SendTarget::World,
             label: String::new(),
             script: String::new(),
             group: String::new(),

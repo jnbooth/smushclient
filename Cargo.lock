@@ -519,6 +519,8 @@ version = "0.1.0"
 dependencies = [
  "mud-stream",
  "mud-transformer",
+ "smushclient",
+ "smushclient-plugins",
  "swift-bridge",
  "swift-bridge-build",
  "tokio",

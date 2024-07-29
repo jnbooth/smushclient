@@ -5,7 +5,7 @@ use chrono::{NaiveTime, Timelike};
 use serde::{Deserialize, Serialize};
 
 use super::occurrence::Occurrence;
-use super::send_to::{sendto_serde, SendTo};
+use super::send_to::{sendto_serde, SendTarget};
 use super::sender::Sender;
 use crate::in_place::InPlace;
 
@@ -76,7 +76,7 @@ pub struct TimerXml<'a> {
     #[serde(rename = "@active_closed")]
     active_closed: bool,
     #[serde(with = "sendto_serde", rename = "@send_to")]
-    send_to: SendTo,
+    send_to: SendTarget,
     #[serde(rename = "@omit_from_output")]
     omit_from_output: bool,
     #[serde(rename = "@omit_from_log")]

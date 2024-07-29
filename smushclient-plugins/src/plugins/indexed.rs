@@ -6,7 +6,7 @@ use fancy_regex::{CaptureMatches, Captures};
 
 use super::pad::Pad;
 use super::plugin::{Plugin, PluginMetadata};
-use crate::send::{Alias, Reaction, SendTo, Sender, Timer, Trigger};
+use crate::send::{Alias, Reaction, SendTarget, Sender, Timer, Trigger};
 
 pub type PluginIndex = usize;
 
@@ -273,7 +273,7 @@ impl<'a, 'b, T: Sendable> SendMatch<'a, 'b, T> {
         !send_to.ignore_empty()
             || !self.text.is_empty()
             || !sender.script.is_empty()
-            || (send_to == SendTo::Variable && !sender.variable.is_empty())
+            || (send_to == SendTarget::Variable && !sender.variable.is_empty())
     }
 
     pub fn pad(&'a self, plugins: &'a [Plugin]) -> Option<Pad<'a>> {

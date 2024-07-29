@@ -15,4 +15,4 @@ mod regex;
 pub use regex::{Regex, RegexError};
 
 mod send;
-pub use send::{Alias, Occurrence, Reaction, SendTo, Sender, Timer, Trigger};
+pub use send::{Alias, Occurrence, Reaction, SendTarget, Sender, Timer, Trigger};

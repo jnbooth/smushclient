@@ -3,10 +3,13 @@ use mud_stream::nonblocking::MudStream;
 use mud_transformer::mxp::{self, SendTo, WorldColor};
 use mud_transformer::{EffectFragment, TelnetFragment};
 use mud_transformer::{OutputFragment, TextFragment, TextStyle};
+use smushclient_plugins::SendTarget;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::vec;
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
+
+use smushclient::{SendRequest, SmushClient};
 
 #[swift_bridge::bridge]
 mod ffi {
@@ -68,12 +71,43 @@ mod ffi {
         Will { code: u8 },
     }
 
+    enum SendTarget {
+        World,
+        WorldDelay,
+        WorldImmediate,
+        Command,
+        Output,
+        Status,
+        NotepadNew,
+        NotepadAppend,
+        NotepadReplace,
+        Log,
+        Speedwalk,
+        Execute,
+        Variable,
+        Script,
+        ScriptAfterOmit,
+    }
+
+    #[swift_bridge(swift_repr = "struct")]
+    struct SendRequest {
+        plugin: usize,
+        #[swift_bridge(swift_name = "sendTo")]
+        send_to: SendTarget,
+        script: String,
+        variable: String,
+        text: String,
+        wildcards: Vec<String>,
+    }
+
     enum OutputFragment {
         Effect(EffectFragment),
         Hr,
         Image(String),
         LineBreak,
         PageBreak,
+        Send(SendRequest),
+        Sound(String),
         Telnet(TelnetFragment),
         Text(RustTextFragment),
     }
@@ -242,6 +276,70 @@ impl From<OutputFragment> for ffi::OutputFragment {
     }
 }
 
+impl_enum_from!(
+    ffi::SendTarget,
+    SendTarget,
+    World,
+    WorldDelay,
+    WorldImmediate,
+    Command,
+    Output,
+    Status,
+    NotepadNew,
+    NotepadAppend,
+    NotepadReplace,
+    Log,
+    Speedwalk,
+    Execute,
+    Variable,
+    Script,
+    ScriptAfterOmit
+);
+
+impl<'a> From<SendRequest<'a>> for ffi::SendRequest {
+    fn from(value: SendRequest<'a>) -> Self {
+        Self {
+            plugin: value.plugin,
+            send_to: value.sender.send_to.into(),
+            script: value.sender.script.clone(),
+            variable: value.sender.variable.clone(),
+            text: value.text.to_owned(),
+            wildcards: value.wildcards.into_iter().map(ToOwned::to_owned).collect(),
+        }
+    }
+}
+
+struct ClientHandler {
+    output: Vec<ffi::OutputFragment>,
+}
+
+impl Default for ClientHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl ClientHandler {
+    const fn new() -> Self {
+        Self { output: Vec::new() }
+    }
+}
+
+impl smushclient::Handler for ClientHandler {
+    fn display(&mut self, fragment: OutputFragment) {
+        self.output.push(fragment.into());
+    }
+
+    fn play_sound(&mut self, path: &str) {
+        self.output
+            .push(ffi::OutputFragment::Sound(path.to_owned()));
+    }
+
+    fn send(&mut self, request: SendRequest) {
+        self.output.push(ffi::OutputFragment::Send(request.into()));
+    }
+}
+
 #[repr(transparent)]
 struct RustOutputStream {
     inner: vec::IntoIter<ffi::OutputFragment>,
@@ -286,6 +384,7 @@ pub struct RustMudBridge {
     address: String,
     port: u16,
     stream: Option<MudStream<TcpStream>>,
+    client: SmushClient,
     input_lock: SimpleLock,
     output_lock: SimpleLock,
 }
@@ -329,13 +428,13 @@ impl RustMudBridge {
             Some(ref mut stream) => stream.read().await.map_err(|e| e.to_string())?,
             None => None,
         };
-        let output = match result {
-            Some(output) => output.map(Into::into).collect(),
-            None => Vec::new(),
-        };
+        let mut handler = ClientHandler::new();
+        if let Some(output) = result {
+            self.client.receive(output, &mut handler);
+        }
         drop(lock);
         Ok(RustOutputStream {
-            inner: output.into_iter(),
+            inner: handler.output.into_iter(),
         })
     }
 

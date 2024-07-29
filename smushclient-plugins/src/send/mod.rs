@@ -41,7 +41,7 @@ mod reaction;
 pub use reaction::Reaction;
 
 mod send_to;
-pub use send_to::SendTo;
+pub use send_to::SendTarget;
 
 mod sender;
 pub use sender::Sender;
