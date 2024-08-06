@@ -15,7 +15,7 @@ pub struct Reaction {
     pub keep_evaluating: bool,
     pub is_regex: bool,
     pub expand_variables: bool,
-    pub repeat: bool,
+    pub repeats: bool,
 
     pub regex: Regex,
 }
@@ -33,7 +33,7 @@ impl Default for Reaction {
             keep_evaluating: false,
             is_regex: false,
             expand_variables: false,
-            repeat: false,
+            repeats: false,
             regex: Regex::new("^$").unwrap(),
         }
     }

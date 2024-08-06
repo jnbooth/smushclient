@@ -119,8 +119,8 @@ pub struct TriggerXml<'a> {
     omit_from_output: bool,
     #[serde(rename = "@regexp")]
     is_regex: bool,
-    #[serde(rename = "@repeat")]
-    repeat: bool,
+    #[serde(rename = "@repeats")]
+    repeats: bool,
     #[serde(
         borrow,
         default,
@@ -205,7 +205,7 @@ impl TryFrom<TriggerXml<'_>> for Trigger {
                 ..ignore_case,
                 ..keep_evaluating,
                 ..expand_variables,
-                ..repeat,
+                ..repeats,
             }
         );
         Ok(in_place!(
@@ -273,7 +273,7 @@ impl<'a> From<&'a Trigger> for TriggerXml<'a> {
                 ..make_italic,
                 ..make_underline,
                 ..sound_if_inactive,
-                ..repeat,
+                ..repeats,
                 ..lowercase_wildcard,
                 ..multi_line,
                 ..lines_to_match,

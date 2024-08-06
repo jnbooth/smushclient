@@ -154,7 +154,7 @@ impl<'a, 'b, T: AsRef<Reaction>> Iterator for MatchingIter<'a, 'b, T> {
             if !reaction.enabled || !matches!(reaction.regex.is_match(self.line), Ok(true)) {
                 continue;
             }
-            let count = if reaction.repeat {
+            let count = if reaction.repeats {
                 reaction.regex.find_iter(self.line).count()
             } else {
                 1
@@ -531,7 +531,7 @@ mod tests {
         struct Opts<'a> {
             pattern: &'a str,
             is_regex: bool,
-            repeat: bool,
+            repeats: bool,
             text: &'a str,
             line: &'a str,
             expect: &'a [&'a str],
@@ -540,7 +540,7 @@ mod tests {
         fn test_match(opts: Opts) {
             let mut alias = Alias::default();
             alias.reaction.regex = Reaction::make_regex(opts.pattern, opts.is_regex).unwrap();
-            alias.repeat = opts.repeat;
+            alias.repeats = opts.repeats;
             alias.text = opts.text.to_owned();
             let mut senders = Senders::new();
             senders.aliases.add(1, alias);
@@ -557,7 +557,7 @@ mod tests {
             test_match(Opts {
                 pattern: "a*e",
                 is_regex: true,
-                repeat: false,
+                repeats: false,
                 text: "abcdeae",
                 line: "b",
                 expect: &[],
@@ -569,7 +569,7 @@ mod tests {
             test_match(Opts {
                 pattern: "a*e",
                 is_regex: false,
-                repeat: false,
+                repeats: false,
                 text: "0",
                 line: "abcdeae",
                 expect: &["0"],
@@ -581,7 +581,7 @@ mod tests {
             test_match(Opts {
                 pattern: "a.*e",
                 is_regex: true,
-                repeat: false,
+                repeats: false,
                 text: "0",
                 line: "0abcdefgae",
                 expect: &["0"],
@@ -593,7 +593,7 @@ mod tests {
             test_match(Opts {
                 pattern: "^(?>tiny |small |medium |large |huge |enormous )(.+) stencil(.+)$",
                 is_regex: true,
-                repeat: false,
+                repeats: false,
                 text: "a $2 $3 \\$1",
                 line: "small green stencil!",
                 expect: &["a !  \\green"],
@@ -605,7 +605,7 @@ mod tests {
             test_match(Opts {
                 pattern: "a([^ ]*)e",
                 is_regex: true,
-                repeat: true,
+                repeats: true,
                 text: "f$2$1",
                 line: "abcde ade ae",
                 expect: &["fbcd", "fd", "f"],
