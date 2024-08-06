@@ -211,9 +211,12 @@ pub struct PluginMetadata {
     /// Plugin version.
     #[serde(default, rename = "@version", skip_serializing_if = "str::is_empty")]
     pub version: String,
-    /// Minimum qMUSHclient version required.
+    /// Minimum client version required.
     #[serde(default, rename = "@requires", skip_serializing_if = "str::is_empty")]
     pub requires: String,
+    /// Telnet protocols that should receive a WILL response.
+    #[serde(default, rename = "@protocols", skip_serializing_if = "Vec::is_empty")]
+    pub protocols: Vec<u8>,
     #[serde(skip)]
     pub is_world_plugin: bool,
 }
@@ -231,6 +234,7 @@ impl Default for PluginMetadata {
             version: String::new(),
             requires: String::new(),
             sequence: 0,
+            protocols: Vec::new(),
             is_world_plugin: false,
         }
     }
@@ -246,6 +250,7 @@ mod tests {
             name: "Test Plugin".to_owned(),
             author: "Test".to_owned(),
             id: "0".to_owned(),
+            protocols: vec![201],
             ..Default::default()
         };
         let plugin = Plugin {
