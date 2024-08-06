@@ -31,9 +31,13 @@ public func deserializeActionUrl(_ url: String) -> (InternalSendTo, Substring)? 
   }
 }
 
-public func setupActionAttributes(link: RustMxpLinkRef, text: String, attributes: inout  [NSAttributedString.Key: Any]) {
+public func setupActionAttributes(
+  link: RustMxpLinkRef,
+  text: String,
+  attributes: inout [NSAttributedString.Key: Any]
+) {
   let action = link.action().toString().replacing("&text;", with: text)
-  let sendto = link.sendto();
+  let sendto = link.sendto()
   if sendto == .Internet, let url = URL(string: action) {
     attributes[.link] = url
   } else {
@@ -58,7 +62,7 @@ func actionMenuItem(_ send: String, _ action: Selector) -> NSMenuItem {
   return item
 }
 
-public func mxpActionMenu(attributes: [NSAttributedString.Key : Any], action: Selector) -> NSMenu? {
+public func mxpActionMenu(attributes: [NSAttributedString.Key: Any], action: Selector) -> NSMenu? {
   guard
     let actionUrl = attributes[.link] as? String,
     let (sendto, mainAction) = deserializeActionUrl(actionUrl),

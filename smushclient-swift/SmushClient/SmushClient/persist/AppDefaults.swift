@@ -1,6 +1,6 @@
 import Foundation
 
-struct Key {
+struct DefaultsKey {
   static let FirstTime = "firstTime"
 }
 
@@ -9,10 +9,10 @@ public class AppDefaults {
 
   var firstTime: Bool {
     get {
-      !defaults.bool(forKey: Key.FirstTime)
+      !defaults.bool(forKey: DefaultsKey.FirstTime)
     }
     set {
-      defaults.set(!newValue, forKey: Key.FirstTime)
+      defaults.set(!newValue, forKey: DefaultsKey.FirstTime)
     }
   }
 }

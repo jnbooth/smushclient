@@ -9,26 +9,19 @@ enum RenderError: Error {
   case InvalidUtf8
 }
 
-func rgb(_ hex: UInt32) -> NSColor {
-  NSColor(
-    red: CGFloat(Double((hex >> 16) & 0xFF) / 255),
-    green: CGFloat(Double((hex >> 8) & 0xFF) / 255),
-    blue: CGFloat(Double(hex & 0xFF) / 255),
-    alpha: CGFloat(1)
-  )
-}
-
-func getColor(_ color: MudColor, _ ansiColors: AnsiColors) -> NSColor {
-  switch color {
-  case .Ansi(let code): return ansiColors[Int(code)]
-  case .Hex(let hex): return rgb(hex)
+extension MudColor {
+  func color(_ ansiColors: AnsiColors) -> NSColor {
+    switch self {
+    case .Ansi(let code): ansiColors[Int(code)]
+    case .Hex(let hex): NSColor(hex)
+    }
   }
-}
 
-func isBlack(_ color: MudColor) -> Bool {
-  switch color {
-  case .Ansi(let code): code == 0
-  case .Hex(let hex): hex == 0
+  func isBlack() -> Bool {
+    switch self {
+    case .Ansi(let code): code == 0
+    case .Hex(let hex): hex.r == 0 && hex.g == 0 && hex.b == 0
+    }
   }
 }
 
@@ -44,11 +37,11 @@ func renderText(_ fragment: RustTextFragment, _ ansiColors: AnsiColors) -> NSAtt
 
   var attrs: [NSAttributedString.Key: Any] = [
     .font: font,
-    .foregroundColor: getColor(foreground, ansiColors),
+    .foregroundColor: foreground.color(ansiColors),
   ]
 
-  if !isBlack(background) {
-    attrs[.backgroundColor] = getColor(background, ansiColors)
+  if !background.isBlack() {
+    attrs[.backgroundColor] = background.color(ansiColors)
   }
 
   if let link = fragment.link() {

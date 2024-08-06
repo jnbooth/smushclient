@@ -1,5 +1,4 @@
 import AppKit
-import Cocoa
 
 let inputAttrs = [
   NSAttributedString.Key.foregroundColor: NSColor.gray,
@@ -12,9 +11,23 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
   @IBOutlet weak var scrollView: NSScrollView!
   @IBOutlet weak var splitView: NSSplitView!
   @IBOutlet weak var textView: NSTextView!
+  @IBOutlet weak var status: StatusBarState!
+  var settingsWindowController: NSWindowController!
+  var bridge: RustMudBridge?
 
-  let ansiColors = defaultAnsiColors()
-  let bridge = RustMudBridge("discworld.atuin.net", 4242)
+  override public var representedObject: Any? {
+    didSet {
+      guard let world = representedObject as? WorldModel else {
+        return
+      }
+      bridge = RustMudBridge(World(world))
+    }
+  }
+
+  weak var world: WorldModel? {
+    representedObject as? WorldModel
+  }
+
   var connectTask: Task<(), Never>?
   weak var textStorage: NSTextStorage!
   var willBreak = false
@@ -25,17 +38,35 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
   }
 
   override public func viewDidLoad() {
+    super.viewDidLoad()
     textStorage = textView.textStorage
-    inputField.delegate = self
-    textView.delegate = self
+    NotificationCenter.default.addObserver(
+      self, selector: #selector(startWorld), name: NotificationName.NewWorld, object: nil)
+  }
 
+  deinit {
+    NotificationCenter.default.removeObserver(self, name: NotificationName.NewWorld, object: nil)
+  }
+
+  @IBAction func showWorldSettings(_ sender: Any?) {
+    settingsWindowController.showWindow(self)
+  }
+
+  @objc func startWorld(_ notification: Notification) {
     connect()
   }
 
   func connect() {
+    guard let bridge = bridge else {
+      return
+    }
+    if bridge.connected() {
+      return
+    }
     connectTask = Task {
       do {
         try await bridge.connect()
+        status.connected = true
         while true {
           let fragments = try await bridge.receive()
           while let fragment = fragments.next() {
@@ -43,6 +74,7 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
           }
         }
       } catch {
+        status.connected = false
         handleError(error)
       }
     }
@@ -52,7 +84,10 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
     if let connectTask = connectTask {
       connectTask.cancel()
     }
-    _ = try await bridge.disconnect()
+    if let bridge = bridge {
+      _ = try await bridge.disconnect()
+    }
+    status.connected = false
   }
 
   public func control(
@@ -88,13 +123,17 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
         handleError(error)
       }
     }
-    
+
     return true
   }
 
-  public func textView(_ view: NSTextView, menu: NSMenu, for event: NSEvent, at charIndex: Int) -> NSMenu? {
-    let attributes = textStorage.attributes(at: charIndex, effectiveRange: nil)
-    return mxpActionMenu(attributes: attributes, action: #selector(handleChoice(_:)))
+  public func textView(_ view: NSTextView, menu: NSMenu, for event: NSEvent, at charIndex: Int)
+    -> NSMenu?
+  {
+    mxpActionMenu(
+      attributes: textStorage.attributes(at: charIndex, effectiveRange: nil),
+      action: #selector(handleChoice(_:))
+    )
   }
 
   public func receiveOutput(_ fragment: OutputFragment) {
@@ -117,7 +156,11 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
       return
     case .Text(let text):
       handleBreak()
-      textStorage.append(renderText(text, ansiColors))
+      textStorage.append(renderText(text, world!.ansi_colors))
+    case .Send(_):
+      return
+    case .Sound(_):
+      return
     }
     textView.scrollRangeToVisible(NSRange(location: textStorage.length, length: 0))
 
@@ -126,7 +169,7 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
   func sendInput(_ input: String) async throws {
     textStorage.append(NSAttributedString(string: "\n" + input, attributes: inputAttrs))
     willBreak = true
-    try await bridge.send(input + "\r\n")
+    try await bridge!.send(input + "\r\n")
   }
 
   func handleBell() {
