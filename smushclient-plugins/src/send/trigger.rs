@@ -30,6 +30,12 @@ pub struct Trigger {
     pub lines_to_match: u8,
 }
 
+impl Trigger {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
 impl_deref!(Trigger, Reaction, reaction);
 impl_asref!(Trigger, Reaction);
 impl_asref!(Trigger, Sender);

@@ -28,9 +28,15 @@ impl_asref!(Timer, Sender);
 
 impl Default for Timer {
     fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Timer {
+    pub const fn new() -> Self {
         Self {
             occurrence: Occurrence::Interval(Duration::new(0, 0)),
-            send: Sender::default(),
+            send: Sender::new(),
             active_closed: false,
         }
     }

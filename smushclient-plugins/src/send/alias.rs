@@ -17,6 +17,12 @@ pub struct Alias {
     pub omit_from_command_history: bool,
 }
 
+impl Alias {
+    pub fn new() -> Self {
+        Default::default()
+    }
+}
+
 impl_deref!(Alias, Reaction, reaction);
 impl_asref!(Alias, Reaction);
 impl_asref!(Alias, Sender);

@@ -25,6 +25,12 @@ impl_asref!(Reaction, Sender);
 
 impl Default for Reaction {
     fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Reaction {
+    pub fn new() -> Self {
         Self {
             sequence: DEFAULT_SEQUENCE,
             pattern: String::new(),
@@ -37,9 +43,7 @@ impl Default for Reaction {
             regex: Regex::new("^$").unwrap(),
         }
     }
-}
 
-impl Reaction {
     pub fn make_regex(pattern: &str, is_regex: bool) -> Result<Regex, RegexError> {
         #[rustfmt::skip]
         fn is_special(c: char) -> bool {
