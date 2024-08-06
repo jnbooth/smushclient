@@ -2,6 +2,7 @@ use crate::convert::Convert;
 use std::collections::HashMap;
 use std::time::Duration;
 
+use crate::error::StringifyResultError;
 use mud_transformer::mxp::{HexColor, WorldColor};
 use mud_transformer::UseMxp;
 use smushclient::world::{AutoConnect, ColorPair, LogFormat, LogMode, ProxyType, ScriptRecompile};
@@ -784,3 +785,22 @@ impl_convert_struct!(
     note_text_color,
     plugins
 );
+
+pub fn create_world() -> World {
+    World::new()
+}
+
+pub fn read_world(data: &[u8]) -> Result<World, String> {
+    let world = World::load(data).str()?;
+    println!("is {}", world.site);
+    Ok(world)
+}
+
+pub fn write_world(world: World) -> Result<Vec<u8>, String> {
+    let mut vec = Vec::new();
+    println!("starts {}", world.site);
+    world.save(&mut vec).str()?;
+    let world = World::load(vec.as_slice()).str()?;
+    println!("is {}", world.site);
+    Ok(vec)
+}

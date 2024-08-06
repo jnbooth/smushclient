@@ -1,28 +1,45 @@
 use crate::handler::Handler;
 use crate::plugins::PluginEngine;
-use mud_transformer::{EffectFragment, OutputDrain, OutputFragment};
+use crate::world::World;
+use mud_transformer::{EffectFragment, OutputDrain, OutputFragment, TransformerConfig};
 use smushclient_plugins::Plugin;
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct SmushClient {
     output_buf: Vec<OutputFragment>,
     line_text: String,
     plugins: PluginEngine,
-}
-
-impl Default for SmushClient {
-    fn default() -> Self {
-        Self::new()
-    }
+    world: World,
 }
 
 impl SmushClient {
-    pub const fn new() -> Self {
+    pub fn new(world: World) -> Self {
+        let mut plugins = PluginEngine::new();
+        plugins.set_world_plugin(world.world_plugin());
         Self {
             output_buf: Vec::new(),
             line_text: String::new(),
-            plugins: PluginEngine::new(),
+            plugins,
+            world,
         }
+    }
+
+    pub fn config(&self) -> TransformerConfig {
+        TransformerConfig {
+            will: self.plugins.supported_protocols(),
+            ..TransformerConfig::from(&self.world)
+        }
+    }
+
+    pub fn world(&self) -> &World {
+        &self.world
+    }
+
+    #[must_use = "config changes must be applied to the transformer"]
+    pub fn set_world(&mut self, world: World) -> TransformerConfig {
+        self.plugins.set_world_plugin(world.world_plugin());
+        self.world = world;
+        self.config()
     }
 
     pub fn receive<H: Handler>(&mut self, mut output: OutputDrain, handler: &mut H) {

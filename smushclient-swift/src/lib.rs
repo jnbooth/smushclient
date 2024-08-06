@@ -6,6 +6,7 @@ mod convert;
 mod bridge;
 mod client;
 mod enums;
+mod error;
 mod output;
 mod sync;
 mod world;
@@ -14,7 +15,12 @@ use bridge::{RustMudBridge, RustOutputStream};
 use enums::ffi::{EffectFragment, SendTo, TelnetFragment};
 use mud_transformer::OutputFragment;
 use output::{RustMxpLink, RustTextFragment};
-use world::ffi::{MudColor, SendRequest};
+use world::ffi::{MudColor, SendRequest, World};
+use world::{create_world, read_world, write_world};
+
+fn convert_world(world: Result<smushclient::World, String>) -> Result<World, String> {
+    world.map(Into::into)
+}
 
 #[swift_bridge::bridge]
 mod ffi {
@@ -83,13 +89,29 @@ mod ffi {
 
     extern "Rust" {
         type RustMudBridge;
-        #[swift_bridge(init)]
-        fn new(address: String, port: u16) -> RustMudBridge;
+        #[swift_bridge(init, args_into = (world))]
+        fn new(world: World) -> RustMudBridge;
+        #[swift_bridge(associated_to = RustMudBridge)]
+        fn load(path: String) -> Result<RustMudBridge, String>;
+        fn save(&self, path: String) -> Result<(), String>;
+        #[swift_bridge(return_into)]
+        fn world(&self) -> World;
+        #[swift_bridge(args_into = (world))]
+        fn set_world(&mut self, world: World);
         fn connected(&self) -> bool;
         async fn connect(&mut self) -> Result<(), String>;
         async fn disconnect(&mut self) -> Result<(), String>;
         async fn receive(&mut self) -> Result<RustOutputStream, String>;
         async fn send(&mut self, input: String) -> Result<(), String>;
+    }
+
+    extern "Rust" {
+        #[swift_bridge(return_into)]
+        fn create_world() -> World;
+        #[swift_bridge(return_with = convert_world)]
+        fn read_world(data: &[u8]) -> Result<World, String>;
+        #[swift_bridge(args_into = (world))]
+        fn write_world(world: World) -> Result<Vec<u8>, String>;
     }
 }
 

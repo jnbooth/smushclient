@@ -1,4 +1,5 @@
 use core::str;
+use std::collections::HashSet;
 
 use super::effects::TriggerEffects;
 use super::send::SendRequest;
@@ -10,6 +11,10 @@ fn check_oneshot<T: AsRef<Sender>>(oneshots: &mut Vec<usize>, send: &SendMatch<T
     if send.sender.as_ref().one_shot && oneshots.last() != Some(&send.pos) {
         oneshots.push(send.pos);
     }
+}
+
+fn is_world(plugin: &Plugin) -> bool {
+    plugin.metadata.is_world_plugin
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -34,6 +39,29 @@ impl PluginEngine {
 
     pub fn load_plugins<I: IntoIterator<Item = Plugin>>(&mut self, iter: I) {
         self.plugins.extend(iter);
+        self.sort();
+    }
+
+    pub fn set_world_plugin(&mut self, plugin: Option<Plugin>) {
+        let plugin = match plugin {
+            Some(plugin) => plugin,
+            None => {
+                if let Some(old_index) = self.plugins.iter().position(is_world) {
+                    self.plugins.remove(old_index);
+                }
+                return;
+            }
+        };
+        match self.plugins.iter_mut().find(|plugin| is_world(plugin)) {
+            Some(old_plugin) => {
+                let has_same_sequence = old_plugin.metadata.sequence == plugin.metadata.sequence;
+                *old_plugin = plugin;
+                if has_same_sequence {
+                    return;
+                }
+            }
+            None => self.plugins.push(plugin),
+        }
         self.sort();
     }
 
@@ -110,5 +138,13 @@ impl PluginEngine {
         self.senders.delete_all::<Trigger>(&delete_oneshots);
 
         effects
+    }
+
+    pub fn supported_protocols(&self) -> HashSet<u8> {
+        self.plugins
+            .iter()
+            .flat_map(|plugin| plugin.metadata.protocols.iter())
+            .copied()
+            .collect()
     }
 }
