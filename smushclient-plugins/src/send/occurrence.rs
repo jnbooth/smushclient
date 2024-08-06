@@ -11,6 +11,18 @@ pub enum Occurrence {
     Interval(Duration),
 }
 
+impl From<NaiveTime> for Occurrence {
+    fn from(value: NaiveTime) -> Self {
+        Self::Time(value)
+    }
+}
+
+impl From<Duration> for Occurrence {
+    fn from(value: Duration) -> Self {
+        Self::Interval(value)
+    }
+}
+
 impl Display for Occurrence {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {

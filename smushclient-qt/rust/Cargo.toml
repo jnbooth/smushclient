@@ -14,7 +14,7 @@ cxx-qt-build = "0.6"
 cxx = "1.0.95"
 cxx-qt = "0.6"
 cxx-qt-lib = "0.6"
-mud-transformer = { git = "https://github.com/jnbooth/mxp", version = "0.4.4" }
+mud-transformer = { git = "https://github.com/jnbooth/mxp", version = "0.4.5" }
 
 [features]
 # This feature must be enabled for `cargo test` when linking Qt 6 statically.

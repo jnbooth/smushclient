@@ -512,8 +512,8 @@ dependencies = [
 
 [[package]]
 name = "mud-stream"
-version = "0.4.4"
-source = "git+https://github.com/jnbooth/mxp#3b03eeda333b522ab87e063e6b385310498ac347"
+version = "0.4.5"
+source = "git+https://github.com/jnbooth/mxp#c92ed2ba28e5c0eb9b32f832ba0156920a74f35c"
 dependencies = [
  "mud-transformer",
  "pin-project-lite",
@@ -522,8 +522,8 @@ dependencies = [
 
 [[package]]
 name = "mud-transformer"
-version = "0.4.4"
-source = "git+https://github.com/jnbooth/mxp#3b03eeda333b522ab87e063e6b385310498ac347"
+version = "0.4.5"
+source = "git+https://github.com/jnbooth/mxp#c92ed2ba28e5c0eb9b32f832ba0156920a74f35c"
 dependencies = [
  "bytes",
  "enumeration",
@@ -534,8 +534,8 @@ dependencies = [
 
 [[package]]
 name = "mxp"
-version = "0.4.4"
-source = "git+https://github.com/jnbooth/mxp#3b03eeda333b522ab87e063e6b385310498ac347"
+version = "0.4.5"
+source = "git+https://github.com/jnbooth/mxp#c92ed2ba28e5c0eb9b32f832ba0156920a74f35c"
 dependencies = [
  "casefold",
  "enumeration",
@@ -802,7 +802,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "swift-bridge"
 version = "0.1.55"
-source = "git+https://github.com/jnbooth/swift-bridge?rev=6081259d04333d97450faa652da8b43cf8fec03b#6081259d04333d97450faa652da8b43cf8fec03b"
+source = "git+https://github.com/jnbooth/swift-bridge?rev=d6090a0e0641101260c2e9d5d31b0a8195f6c138#d6090a0e0641101260c2e9d5d31b0a8195f6c138"
 dependencies = [
  "once_cell",
  "swift-bridge-build",
@@ -813,7 +813,7 @@ dependencies = [
 [[package]]
 name = "swift-bridge-build"
 version = "0.1.55"
-source = "git+https://github.com/jnbooth/swift-bridge?rev=6081259d04333d97450faa652da8b43cf8fec03b#6081259d04333d97450faa652da8b43cf8fec03b"
+source = "git+https://github.com/jnbooth/swift-bridge?rev=d6090a0e0641101260c2e9d5d31b0a8195f6c138#d6090a0e0641101260c2e9d5d31b0a8195f6c138"
 dependencies = [
  "proc-macro2",
  "swift-bridge-ir",
@@ -824,7 +824,7 @@ dependencies = [
 [[package]]
 name = "swift-bridge-ir"
 version = "0.1.55"
-source = "git+https://github.com/jnbooth/swift-bridge?rev=6081259d04333d97450faa652da8b43cf8fec03b#6081259d04333d97450faa652da8b43cf8fec03b"
+source = "git+https://github.com/jnbooth/swift-bridge?rev=d6090a0e0641101260c2e9d5d31b0a8195f6c138#d6090a0e0641101260c2e9d5d31b0a8195f6c138"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -834,7 +834,7 @@ dependencies = [
 [[package]]
 name = "swift-bridge-macro"
 version = "0.1.55"
-source = "git+https://github.com/jnbooth/swift-bridge?rev=6081259d04333d97450faa652da8b43cf8fec03b#6081259d04333d97450faa652da8b43cf8fec03b"
+source = "git+https://github.com/jnbooth/swift-bridge?rev=d6090a0e0641101260c2e9d5d31b0a8195f6c138#d6090a0e0641101260c2e9d5d31b0a8195f6c138"
 dependencies = [
  "proc-macro2",
  "quote",

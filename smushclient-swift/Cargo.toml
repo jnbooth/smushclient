@@ -13,16 +13,16 @@ workspace = true
 [build-dependencies.swift-bridge-build]
 git = "https://github.com/jnbooth/swift-bridge"
 version = "0.1"
-rev = "6081259d04333d97450faa652da8b43cf8fec03b"
+rev = "d6090a0e0641101260c2e9d5d31b0a8195f6c138"
 
 [dependencies.mud-stream]
 git = "https://github.com/jnbooth/mxp"
-version = "0.4.4"
+version = "0.4.5"
 features = ["async"]
 
 [dependencies.mud-transformer]
 git = "https://github.com/jnbooth/mxp"
-version = "0.4.4"
+version = "0.4.5"
 
 [dependencies.smushclient]
 path = "../smushclient"
@@ -33,8 +33,8 @@ path = "../smushclient-plugins"
 [dependencies.swift-bridge]
 git = "https://github.com/jnbooth/swift-bridge"
 version = "0.1"
-rev = "6081259d04333d97450faa652da8b43cf8fec03b"
-features = ["async"]
+rev = "d6090a0e0641101260c2e9d5d31b0a8195f6c138"
+features = ["async", "compatibility"]
 
 [dependencies.tokio]
 version = "1.38.0"

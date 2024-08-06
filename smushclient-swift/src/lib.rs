@@ -1,15 +1,20 @@
 #![allow(clippy::unnecessary_cast)]
 
+#[macro_use]
+mod convert;
+
 mod bridge;
 mod client;
 mod enums;
 mod output;
 mod sync;
+mod world;
 
 use bridge::{RustMudBridge, RustOutputStream};
-use enums::bridge::{EffectFragment, MudColor, SendRequest, SendTo, TelnetFragment};
+use enums::ffi::{EffectFragment, SendTo, TelnetFragment};
 use mud_transformer::OutputFragment;
 use output::{RustMxpLink, RustTextFragment};
+use world::ffi::{MudColor, SendRequest};
 
 #[swift_bridge::bridge]
 mod ffi {
@@ -21,10 +26,10 @@ mod ffi {
     enum EffectFragment {}
     #[swift_bridge(already_declared)]
     enum TelnetFragment {}
-    #[swift_bridge(already_declared)]
-    enum SendTarget {}
     #[swift_bridge(already_declared, swift_repr = "struct")]
     struct SendRequest;
+    #[swift_bridge(already_declared, swift_repr = "struct")]
+    struct World;
 
     extern "Rust" {
         type RustMxpLink;

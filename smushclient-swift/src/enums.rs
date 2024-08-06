@@ -1,15 +1,9 @@
-use mud_transformer::mxp::{self, SendTo, WorldColor};
+use crate::convert::Convert;
+use mud_transformer::mxp::SendTo;
 use mud_transformer::{EffectFragment, TelnetFragment};
-use smushclient::SendRequest;
-use smushclient_plugins::SendTarget;
 
 #[swift_bridge::bridge]
-mod ffi {
-    enum MudColor {
-        Ansi(u8),
-        Hex(u32),
-    }
-
+pub mod ffi {
     enum SendTo {
         World,
         Input,
@@ -32,66 +26,11 @@ mod ffi {
         Subnegotiation { code: u8, data: Vec<u8> },
         Will { code: u8 },
     }
-
-    enum SendTarget {
-        World,
-        WorldDelay,
-        WorldImmediate,
-        Command,
-        Output,
-        Status,
-        NotepadNew,
-        NotepadAppend,
-        NotepadReplace,
-        Log,
-        Speedwalk,
-        Execute,
-        Variable,
-        Script,
-        ScriptAfterOmit,
-    }
-
-    #[swift_bridge(swift_repr = "struct")]
-    struct SendRequest {
-        plugin: usize,
-        #[swift_bridge(swift_name = "sendTo")]
-        send_to: SendTarget,
-        script: String,
-        variable: String,
-        text: String,
-        wildcards: Vec<String>,
-    }
 }
 
-pub mod bridge {
-    pub use super::ffi::*;
-}
+impl_convert_enum!(ffi::SendTo, SendTo, World, Input, Internet);
 
-impl From<WorldColor> for ffi::MudColor {
-    #[inline]
-    fn from(value: WorldColor) -> Self {
-        match value {
-            mxp::WorldColor::Ansi(code) => Self::Ansi(code),
-            mxp::WorldColor::Hex(color) => Self::Hex(color.code()),
-        }
-    }
-}
-
-macro_rules! impl_enum_from {
-    ($f:ty, $t:path, $($variant:ident),+ $(,)?) => {
-        impl From<$t> for $f {
-            fn from(value: $t) -> Self {
-                match value {
-                    $(<$t>::$variant => Self::$variant),+
-                }
-            }
-        }
-    }
-}
-
-impl_enum_from!(ffi::SendTo, SendTo, World, Input, Internet);
-
-impl_enum_from!(
+impl_convert_enum!(
     ffi::EffectFragment,
     EffectFragment,
     Backspace,
@@ -119,35 +58,20 @@ impl From<TelnetFragment> for ffi::TelnetFragment {
     }
 }
 
-impl_enum_from!(
-    ffi::SendTarget,
-    SendTarget,
-    World,
-    WorldDelay,
-    WorldImmediate,
-    Command,
-    Output,
-    Status,
-    NotepadNew,
-    NotepadAppend,
-    NotepadReplace,
-    Log,
-    Speedwalk,
-    Execute,
-    Variable,
-    Script,
-    ScriptAfterOmit
-);
-
-impl<'a> From<SendRequest<'a>> for ffi::SendRequest {
-    fn from(value: SendRequest<'a>) -> Self {
-        Self {
-            plugin: value.plugin,
-            send_to: value.sender.send_to.into(),
-            script: value.sender.script.clone(),
-            variable: value.sender.variable.clone(),
-            text: value.text.to_owned(),
-            wildcards: value.wildcards.into_iter().map(ToOwned::to_owned).collect(),
+impl Clone for ffi::TelnetFragment {
+    fn clone(&self) -> Self {
+        match self {
+            Self::Afk { challenge } => Self::Afk {
+                challenge: challenge.clone(),
+            },
+            Self::Do { code } => Self::Do { code: *code },
+            Self::IacGa => Self::IacGa,
+            Self::Naws => Self::Naws,
+            Self::Subnegotiation { code, data } => Self::Subnegotiation {
+                code: *code,
+                data: data.clone(),
+            },
+            Self::Will { code } => Self::Will { code: *code },
         }
     }
 }

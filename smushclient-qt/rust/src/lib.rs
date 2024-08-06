@@ -1,5 +1,8 @@
 #![allow(clippy::missing_safety_doc)]
 
+#[macro_use]
+mod convert;
+
 mod client;
 use client::SmushClientRust;
 

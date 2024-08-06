@@ -86,21 +86,9 @@ impl RustTextFragment {
     flag_method!(is_underline, TextStyle::Underline);
 }
 
-macro_rules! impl_enum_from {
-    ($f:ty, $t:path, $($variant:ident),+ $(,)?) => {
-        impl From<$t> for $f {
-            fn from(value: $t) -> Self {
-                match value {
-                    $(<$t>::$variant => Self::$variant),+
-                }
-            }
-        }
-    }
-}
+impl_convert_enum!(ffi::SendTo, SendTo, World, Input, Internet);
 
-impl_enum_from!(ffi::SendTo, SendTo, World, Input, Internet);
-
-impl_enum_from!(
+impl_convert_enum!(
     ffi::EffectFragment,
     EffectFragment,
     Backspace,

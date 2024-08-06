@@ -3,7 +3,7 @@ const XCODE_CONFIGURATION_ENV: &str = "CONFIGURATION";
 fn main() {
     let out_dir = "./SmushClient/Generated/";
 
-    let bridges = vec!["src/lib.rs"];
+    let bridges = vec!["src/enums.rs", "src/world.rs", "src/lib.rs"];
     for path in &bridges {
         println!("cargo:rerun-if-changed={}", path);
     }
