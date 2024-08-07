@@ -1,5 +1,14 @@
 import SwiftUI
 
+private let defaultHyperlinkColor = NSColor.linkColor.usingColorSpace(.sRGB)!
+private let defaultChatColor = NSColor(red: 1, green: 1, blue: 1, alpha: 1)
+private let defaultCustomColor = NSColor(red: 0, green: 0, blue: 0, alpha: 1)
+private let defaultNoteTextColor = NSColor(red: 0, green: 0.5, blue: 1, alpha: 1)
+private let defaultCustomNames = [
+  "Custom1", "Custom2", "Custom3", "Custom4", "Custom5", "Custom6", "Custom7", "Custom8",
+  "Custom9", "Custom10", "Custom11", "Custom12", "Custom13", "Custom14", "Custom15", "Custom16",
+]
+
 @Observable
 class WorldModel {
   var name: String = ""
@@ -38,8 +47,7 @@ class WorldModel {
   var accept_chat_connections: Bool = false
   var chat_port: UInt16 = 4050
   var validate_incoming_chat_calls: Bool = false
-  var chat_colors: ColorPairModel = ColorPairModel(
-    foreground: NSColor(red: 1, green: 1, blue: 1, alpha: 1))
+  var chat_colors: ColorPairModel = ColorPairModel(foreground: defaultChatColor)
   var ignore_chat_colors: Bool = false
   var chat_message_prefix: String = ""
   var chat_max_lines_per_message: UInt = 0
@@ -76,8 +84,7 @@ class WorldModel {
   var terminal_identification: String = "mushclient"
   var use_mxp: UseMxp = .Command
   var detect_pueblo: Bool = true
-  var hyperlink_color: NSColor = NSColor(
-    red: 43.0 / 255.0, green: 121.0 / 255.0, blue: 162.0 / 255.0, alpha: 1.0)
+  var hyperlink_color: NSColor = defaultHyperlinkColor
   var use_custom_link_color: Bool = false
   var mud_can_change_link_color: Bool = true
   var underline_hyperlinks: Bool = true
@@ -89,12 +96,9 @@ class WorldModel {
   var mud_can_change_options: Bool = true
   var use_default_colors: Bool = true
   var ansi_colors: AnsiColors = defaultAnsiColors
-  var custom_names: [String] = [
-    "Custom1", "Custom2", "Custom3", "Custom4", "Custom5", "Custom6", "Custom7", "Custom8",
-    "Custom9", "Custom10", "Custom11", "Custom12", "Custom13", "Custom14", "Custom15", "Custom16",
-  ]
+  var custom_names: [String] = defaultCustomNames
   var custom_colors: [ColorPairModel] = Array(
-    repeating: ColorPairModel(foreground: NSColor(red: 0, green: 0, blue: 0, alpha: 1)), count: 16)
+    repeating: ColorPairModel(foreground: defaultCustomColor), count: 16)
   var triggers: [TriggerModel] = []
   var enable_triggers: Bool = true
   var enable_trigger_sounds: Bool = true
@@ -167,7 +171,7 @@ class WorldModel {
   var script_editor: String = "System"
   var script_reload_option: ScriptRecompile = .Confirm
   var script_errors_to_output_window: Bool = false
-  var note_text_color: NSColor = NSColor(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0)
+  var note_text_color: NSColor = defaultNoteTextColor
   var plugins: [String] = []
 
   init() {
