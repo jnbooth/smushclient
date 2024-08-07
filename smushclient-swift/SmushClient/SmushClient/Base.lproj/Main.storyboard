@@ -689,15 +689,12 @@
         <!--Document Window Controller-->
         <scene sceneID="R2V-B0-nI4">
             <objects>
-                <windowController storyboardIdentifier="Document Window Controller" id="B8D-0N-5wS" userLabel="Document Window Controller" customClass="WindowController" customModule="SmushClient" customModuleProvider="target" sceneMemberID="viewController">
+                <windowController storyboardIdentifier="Document Window Controller" id="B8D-0N-5wS" userLabel="Document Window Controller" sceneMemberID="viewController">
                     <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="241" width="480" height="269"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
-                        <connections>
-                            <outlet property="delegate" destination="B8D-0N-5wS" id="98r-iN-zZc"/>
-                        </connections>
                     </window>
                     <connections>
                         <segue destination="XpT-Xv-7Uw" kind="relationship" relationship="window.shadowedContentViewController" id="uBd-SG-73z"/>

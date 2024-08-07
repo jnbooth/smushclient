@@ -1,9 +1,11 @@
 import AppKit
 
 @main
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject {
   private var hasStarted = false
+}
 
+extension AppDelegate: NSApplicationDelegate {
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     hasStarted = true
   }

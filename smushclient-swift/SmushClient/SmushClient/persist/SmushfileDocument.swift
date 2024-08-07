@@ -23,6 +23,7 @@ class SmushfileDocument: NSDocument {
     
     let windowController =
       storyboard.instantiateController(withIdentifier: documentScene) as! NSWindowController
+    windowController.shouldCascadeWindows = true
     addWindowController(windowController)
 
     let mainController = windowController.contentViewController as! MainViewController

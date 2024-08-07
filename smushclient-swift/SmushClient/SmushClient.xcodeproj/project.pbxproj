@@ -14,7 +14,6 @@
 		091C03212C5036BE0060A147 /* SwiftBridgeCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C031E2C5036BE0060A147 /* SwiftBridgeCore.swift */; };
 		091C03292C5037100060A147 /* AnsiColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C03232C5037100060A147 /* AnsiColors.swift */; };
 		091C032A2C5037100060A147 /* fragments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C03242C5037100060A147 /* fragments.swift */; };
-		0935772B2C6148B2004F9A48 /* WindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0935772A2C6148B2004F9A48 /* WindowController.swift */; };
 		093EC6792C5C1C4000E7E646 /* WorldConnectingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A47AD42C5BDFC400A4D6C7 /* WorldConnectingView.swift */; };
 		093EC67B2C5C21BC00E7E646 /* WorldSettingsHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 093EC67A2C5C21BC00E7E646 /* WorldSettingsHostingController.swift */; };
 		0946E1412C612A2800AC76EF /* SmushfileDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0946E1402C612A2800AC76EF /* SmushfileDocument.swift */; };
@@ -24,6 +23,10 @@
 		0967D6A22C5AC94D00C0A7BC /* WorldSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0967D6A12C5AC94D00C0A7BC /* WorldSettingsView.swift */; };
 		0967D6A42C5ACCEA00C0A7BC /* WorldAddressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0967D6A32C5ACCEA00C0A7BC /* WorldAddressView.swift */; };
 		0967D6A82C5AF1FB00C0A7BC /* WorldModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0967D6A72C5AF1FB00C0A7BC /* WorldModel.swift */; };
+		09897B082C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B072C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift */; };
+		09897B0A2C63E67E0007C3D7 /* MainViewController+OutputHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B092C63E67E0007C3D7 /* MainViewController+OutputHandler.swift */; };
+		09897B0E2C63E7790007C3D7 /* MainViewController+ConnectionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B0D2C63E7790007C3D7 /* MainViewController+ConnectionHandler.swift */; };
+		09897B112C63E94E0007C3D7 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B102C63E94E0007C3D7 /* StatusBarView.swift */; };
 		09A4380D2C6123D60033B806 /* NotificationName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A4380C2C6123D60033B806 /* NotificationName.swift */; };
 		09AA66032C62C56500796476 /* StatusBarState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09AA66022C62C56500796476 /* StatusBarState.swift */; };
 		09BBB7542C509DFC00D2646C /* AppDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09BBB7532C509DFC00D2646C /* AppDefaults.swift */; };
@@ -38,7 +41,6 @@
 		09BCD6F72C62E06D0057B475 /* TriggerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09BCD6F62C62E06D0057B475 /* TriggerModel.swift */; };
 		09BCD6F92C62E0780057B475 /* TimerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09BCD6F82C62E0780057B475 /* TimerModel.swift */; };
 		09CDA6232C517FFE006FC3C9 /* actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CDA6222C517FFE006FC3C9 /* actions.swift */; };
-		09CE51012C62E775005057B6 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CE51002C62E775005057B6 /* StatusBarView.swift */; };
 		09CE51092C6317FF005057B6 /* InputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CE51082C6317FF005057B6 /* InputFormatter.swift */; };
 		09CE510B2C631812005057B6 /* OutputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CE510A2C631812005057B6 /* OutputFormatter.swift */; };
 /* End PBXBuildFile section */
@@ -57,7 +59,6 @@
 		091C03232C5037100060A147 /* AnsiColors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnsiColors.swift; sourceTree = "<group>"; };
 		091C03242C5037100060A147 /* fragments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = fragments.swift; sourceTree = "<group>"; };
 		093577282C61468D004F9A48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		0935772A2C6148B2004F9A48 /* WindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowController.swift; sourceTree = "<group>"; };
 		093EC67A2C5C21BC00E7E646 /* WorldSettingsHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldSettingsHostingController.swift; sourceTree = "<group>"; };
 		0946E1402C612A2800AC76EF /* SmushfileDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmushfileDocument.swift; sourceTree = "<group>"; };
 		094C30F82C50389A0079B229 /* libsmushclient_swift.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsmushclient_swift.a; path = ../../target/debug/libsmushclient_swift.a; sourceTree = "<group>"; };
@@ -66,6 +67,10 @@
 		0967D6A12C5AC94D00C0A7BC /* WorldSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldSettingsView.swift; sourceTree = "<group>"; };
 		0967D6A32C5ACCEA00C0A7BC /* WorldAddressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldAddressView.swift; sourceTree = "<group>"; };
 		0967D6A72C5AF1FB00C0A7BC /* WorldModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldModel.swift; sourceTree = "<group>"; };
+		09897B072C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MainViewController+NSTextFieldDelegate.swift"; sourceTree = "<group>"; };
+		09897B092C63E67E0007C3D7 /* MainViewController+OutputHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MainViewController+OutputHandler.swift"; sourceTree = "<group>"; };
+		09897B0D2C63E7790007C3D7 /* MainViewController+ConnectionHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MainViewController+ConnectionHandler.swift"; sourceTree = "<group>"; };
+		09897B102C63E94E0007C3D7 /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
 		09A4380C2C6123D60033B806 /* NotificationName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationName.swift; sourceTree = "<group>"; };
 		09A47AD42C5BDFC400A4D6C7 /* WorldConnectingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldConnectingView.swift; sourceTree = "<group>"; };
 		09AA66022C62C56500796476 /* StatusBarState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarState.swift; sourceTree = "<group>"; };
@@ -81,7 +86,6 @@
 		09BCD6F62C62E06D0057B475 /* TriggerModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TriggerModel.swift; sourceTree = "<group>"; };
 		09BCD6F82C62E0780057B475 /* TimerModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimerModel.swift; sourceTree = "<group>"; };
 		09CDA6222C517FFE006FC3C9 /* actions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = actions.swift; sourceTree = "<group>"; };
-		09CE51002C62E775005057B6 /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
 		09CE51082C6317FF005057B6 /* InputFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFormatter.swift; sourceTree = "<group>"; };
 		09CE510A2C631812005057B6 /* OutputFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputFormatter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -125,8 +129,7 @@
 				09BBB7552C509E0100D2646C /* persist */,
 				091C03272C5037100060A147 /* mud */,
 				091C02EE2C5035EC0060A147 /* AppDelegate.swift */,
-				094C31052C5070120079B229 /* MainViewController.swift */,
-				0935772A2C6148B2004F9A48 /* WindowController.swift */,
+				09897B0F2C63E7A00007C3D7 /* main-view */,
 				093577292C614697004F9A48 /* Resources */,
 				09A4380C2C6123D60033B806 /* NotificationName.swift */,
 			);
@@ -197,11 +200,22 @@
 			path = world;
 			sourceTree = "<group>";
 		};
+		09897B0F2C63E7A00007C3D7 /* main-view */ = {
+			isa = PBXGroup;
+			children = (
+				094C31052C5070120079B229 /* MainViewController.swift */,
+				09897B0D2C63E7790007C3D7 /* MainViewController+ConnectionHandler.swift */,
+				09897B092C63E67E0007C3D7 /* MainViewController+OutputHandler.swift */,
+				09897B072C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift */,
+			);
+			path = "main-view";
+			sourceTree = "<group>";
+		};
 		09AA66042C62C5F600796476 /* status-bar */ = {
 			isa = PBXGroup;
 			children = (
 				09AA66022C62C56500796476 /* StatusBarState.swift */,
-				09CE51002C62E775005057B6 /* StatusBarView.swift */,
+				09897B102C63E94E0007C3D7 /* StatusBarView.swift */,
 			);
 			path = "status-bar";
 			sourceTree = "<group>";
@@ -373,8 +387,8 @@
 				09565E2B2C5D491A00650902 /* serde.swift in Sources */,
 				09BCD6E52C62DA300057B475 /* WorldTextField.swift in Sources */,
 				09BCD6F52C62E0600057B475 /* AliasModel.swift in Sources */,
+				09897B112C63E94E0007C3D7 /* StatusBarView.swift in Sources */,
 				09CE51092C6317FF005057B6 /* InputFormatter.swift in Sources */,
-				09CE51012C62E775005057B6 /* StatusBarView.swift in Sources */,
 				09BCD6E72C62DC780057B475 /* WorldSecureField.swift in Sources */,
 				09A4380D2C6123D60033B806 /* NotificationName.swift in Sources */,
 				09BBB7542C509DFC00D2646C /* AppDefaults.swift in Sources */,
@@ -384,11 +398,12 @@
 				0967D6A82C5AF1FB00C0A7BC /* WorldModel.swift in Sources */,
 				09BCD6E92C62DCFA0057B475 /* WorldPortField.swift in Sources */,
 				0946E1412C612A2800AC76EF /* SmushfileDocument.swift in Sources */,
+				09897B0E2C63E7790007C3D7 /* MainViewController+ConnectionHandler.swift in Sources */,
 				091C03202C5036BE0060A147 /* smushclient-swift.swift in Sources */,
 				09CE510B2C631812005057B6 /* OutputFormatter.swift in Sources */,
 				091C02EF2C5035EC0060A147 /* AppDelegate.swift in Sources */,
+				09897B082C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift in Sources */,
 				091C03292C5037100060A147 /* AnsiColors.swift in Sources */,
-				0935772B2C6148B2004F9A48 /* WindowController.swift in Sources */,
 				091C03212C5036BE0060A147 /* SwiftBridgeCore.swift in Sources */,
 				094C31062C5070120079B229 /* MainViewController.swift in Sources */,
 				0967D6A42C5ACCEA00C0A7BC /* WorldAddressView.swift in Sources */,
@@ -396,6 +411,7 @@
 				09BCD6F92C62E0780057B475 /* TimerModel.swift in Sources */,
 				093EC6792C5C1C4000E7E646 /* WorldConnectingView.swift in Sources */,
 				09BCD6F32C62E0570057B475 /* ReactionModel.swift in Sources */,
+				09897B0A2C63E67E0007C3D7 /* MainViewController+OutputHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
