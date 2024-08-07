@@ -13,7 +13,7 @@
 		091C03202C5036BE0060A147 /* smushclient-swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C031B2C5036BE0060A147 /* smushclient-swift.swift */; };
 		091C03212C5036BE0060A147 /* SwiftBridgeCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C031E2C5036BE0060A147 /* SwiftBridgeCore.swift */; };
 		091C03292C5037100060A147 /* AnsiColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C03232C5037100060A147 /* AnsiColors.swift */; };
-		093EC6792C5C1C4000E7E646 /* WorldConnectingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A47AD42C5BDFC400A4D6C7 /* WorldConnectingView.swift */; };
+		093EC6792C5C1C4000E7E646 /* WorldAddressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A47AD42C5BDFC400A4D6C7 /* WorldAddressView.swift */; };
 		093EC67B2C5C21BC00E7E646 /* WorldSettingsHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 093EC67A2C5C21BC00E7E646 /* WorldSettingsHostingController.swift */; };
 		0946E1412C612A2800AC76EF /* SmushfileDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0946E1402C612A2800AC76EF /* SmushfileDocument.swift */; };
 		094C30FA2C5038D20079B229 /* libsmushclient_swift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 094C30F82C50389A0079B229 /* libsmushclient_swift.a */; };
@@ -23,7 +23,6 @@
 		0967D6A82C5AF1FB00C0A7BC /* WorldModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0967D6A72C5AF1FB00C0A7BC /* WorldModel.swift */; };
 		09897B082C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B072C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift */; };
 		09897B0A2C63E67E0007C3D7 /* MainViewController+OutputHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B092C63E67E0007C3D7 /* MainViewController+OutputHandler.swift */; };
-		09897B0E2C63E7790007C3D7 /* MainViewController+ConnectionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B0D2C63E7790007C3D7 /* MainViewController+ConnectionHandler.swift */; };
 		09897B112C63E94E0007C3D7 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B102C63E94E0007C3D7 /* StatusBarView.swift */; };
 		09897B132C63EC500007C3D7 /* ColorPairModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B122C63EC500007C3D7 /* ColorPairModel.swift */; };
 		09897B152C63EF800007C3D7 /* OutputFonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B142C63EF800007C3D7 /* OutputFonts.swift */; };
@@ -38,7 +37,7 @@
 		09BCD6F52C62E0600057B475 /* AliasModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09BCD6F42C62E0600057B475 /* AliasModel.swift */; };
 		09BCD6F72C62E06D0057B475 /* TriggerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09BCD6F62C62E06D0057B475 /* TriggerModel.swift */; };
 		09BCD6F92C62E0780057B475 /* TimerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09BCD6F82C62E0780057B475 /* TimerModel.swift */; };
-		09CDA6232C517FFE006FC3C9 /* setupActionAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CDA6222C517FFE006FC3C9 /* setupActionAttributes.swift */; };
+		09CDA6232C517FFE006FC3C9 /* actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CDA6222C517FFE006FC3C9 /* actions.swift */; };
 		09CE51092C6317FF005057B6 /* InputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CE51082C6317FF005057B6 /* InputFormatter.swift */; };
 		09CE510B2C631812005057B6 /* OutputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CE510A2C631812005057B6 /* OutputFormatter.swift */; };
 /* End PBXBuildFile section */
@@ -65,11 +64,10 @@
 		0967D6A72C5AF1FB00C0A7BC /* WorldModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldModel.swift; sourceTree = "<group>"; };
 		09897B072C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MainViewController+NSTextFieldDelegate.swift"; sourceTree = "<group>"; };
 		09897B092C63E67E0007C3D7 /* MainViewController+OutputHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MainViewController+OutputHandler.swift"; sourceTree = "<group>"; };
-		09897B0D2C63E7790007C3D7 /* MainViewController+ConnectionHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MainViewController+ConnectionHandler.swift"; sourceTree = "<group>"; };
 		09897B102C63E94E0007C3D7 /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
 		09897B122C63EC500007C3D7 /* ColorPairModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorPairModel.swift; sourceTree = "<group>"; };
 		09897B142C63EF800007C3D7 /* OutputFonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutputFonts.swift; sourceTree = "<group>"; };
-		09A47AD42C5BDFC400A4D6C7 /* WorldConnectingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldConnectingView.swift; sourceTree = "<group>"; };
+		09A47AD42C5BDFC400A4D6C7 /* WorldAddressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldAddressView.swift; sourceTree = "<group>"; };
 		09AA66022C62C56500796476 /* StatusBarState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarState.swift; sourceTree = "<group>"; };
 		09BBB7532C509DFC00D2646C /* AppDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDefaults.swift; sourceTree = "<group>"; };
 		09BCD6E42C62DA300057B475 /* WorldTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldTextField.swift; sourceTree = "<group>"; };
@@ -81,7 +79,7 @@
 		09BCD6F42C62E0600057B475 /* AliasModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AliasModel.swift; sourceTree = "<group>"; };
 		09BCD6F62C62E06D0057B475 /* TriggerModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TriggerModel.swift; sourceTree = "<group>"; };
 		09BCD6F82C62E0780057B475 /* TimerModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimerModel.swift; sourceTree = "<group>"; };
-		09CDA6222C517FFE006FC3C9 /* setupActionAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = setupActionAttributes.swift; sourceTree = "<group>"; };
+		09CDA6222C517FFE006FC3C9 /* actions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = actions.swift; sourceTree = "<group>"; };
 		09CE51082C6317FF005057B6 /* InputFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFormatter.swift; sourceTree = "<group>"; };
 		09CE510A2C631812005057B6 /* OutputFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputFormatter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -158,7 +156,7 @@
 				09CE51082C6317FF005057B6 /* InputFormatter.swift */,
 				09CE510A2C631812005057B6 /* OutputFormatter.swift */,
 				09897B142C63EF800007C3D7 /* OutputFonts.swift */,
-				09CDA6222C517FFE006FC3C9 /* setupActionAttributes.swift */,
+				09CDA6222C517FFE006FC3C9 /* actions.swift */,
 			);
 			path = Rendering;
 			sourceTree = "<group>";
@@ -197,7 +195,6 @@
 			isa = PBXGroup;
 			children = (
 				094C31052C5070120079B229 /* MainViewController.swift */,
-				09897B0D2C63E7790007C3D7 /* MainViewController+ConnectionHandler.swift */,
 				09897B092C63E67E0007C3D7 /* MainViewController+OutputHandler.swift */,
 				09897B072C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift */,
 			);
@@ -235,7 +232,7 @@
 		09BCD6EC2C62DFDD0057B475 /* Panes */ = {
 			isa = PBXGroup;
 			children = (
-				09A47AD42C5BDFC400A4D6C7 /* WorldConnectingView.swift */,
+				09A47AD42C5BDFC400A4D6C7 /* WorldAddressView.swift */,
 			);
 			path = Panes;
 			sourceTree = "<group>";
@@ -386,11 +383,10 @@
 				09BCD6E72C62DC780057B475 /* WorldSecureField.swift in Sources */,
 				09BBB7542C509DFC00D2646C /* AppDefaults.swift in Sources */,
 				0967D6A22C5AC94D00C0A7BC /* WorldSettingsView.swift in Sources */,
-				09CDA6232C517FFE006FC3C9 /* setupActionAttributes.swift in Sources */,
+				09CDA6232C517FFE006FC3C9 /* actions.swift in Sources */,
 				0967D6A82C5AF1FB00C0A7BC /* WorldModel.swift in Sources */,
 				09BCD6E92C62DCFA0057B475 /* WorldPortField.swift in Sources */,
 				0946E1412C612A2800AC76EF /* SmushfileDocument.swift in Sources */,
-				09897B0E2C63E7790007C3D7 /* MainViewController+ConnectionHandler.swift in Sources */,
 				091C03202C5036BE0060A147 /* smushclient-swift.swift in Sources */,
 				09CE510B2C631812005057B6 /* OutputFormatter.swift in Sources */,
 				091C02EF2C5035EC0060A147 /* AppDelegate.swift in Sources */,
@@ -401,7 +397,7 @@
 				09897B152C63EF800007C3D7 /* OutputFonts.swift in Sources */,
 				09BCD6F12C62E0490057B475 /* SenderModel.swift in Sources */,
 				09BCD6F92C62E0780057B475 /* TimerModel.swift in Sources */,
-				093EC6792C5C1C4000E7E646 /* WorldConnectingView.swift in Sources */,
+				093EC6792C5C1C4000E7E646 /* WorldAddressView.swift in Sources */,
 				09BCD6F32C62E0570057B475 /* ReactionModel.swift in Sources */,
 				09897B0A2C63E67E0007C3D7 /* MainViewController+OutputHandler.swift in Sources */,
 			);

@@ -4,8 +4,8 @@ struct DefaultsKey {
   static let FirstTime = "firstTime"
 }
 
-public class AppDefaults {
-  let defaults = UserDefaults()
+class AppDefaults {
+  private let defaults = UserDefaults()
 
   var firstTime: Bool {
     get {

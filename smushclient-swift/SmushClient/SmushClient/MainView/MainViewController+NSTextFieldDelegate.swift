@@ -1,15 +1,25 @@
 import AppKit
 import SwiftUI
 
+extension MainViewController {
+  @objc private func handleChoice(_ item: NSMenuItem) async {
+    do {
+      try await sendInput(item.title)
+    } catch {
+      handleError(error)
+    }
+  }
+}
+
 extension MainViewController: NSTextViewDelegate {
-  public func control(
+  func control(
     _ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector
   ) -> Bool {
     if commandSelector != #selector(NSResponder.insertNewline(_:)) {
       return false
     }
-    let input = inputField.stringValue
-    inputField.stringValue = ""
+    let input = control.stringValue
+    control.stringValue = ""
     Task {
       do {
         try await sendInput(input)
@@ -20,7 +30,7 @@ extension MainViewController: NSTextViewDelegate {
     return true
   }
 
-  public func textView(_ textView: NSTextView, clickedOnLink link: Any, at charIndex: Int) -> Bool {
+  func textView(_ textView: NSTextView, clickedOnLink link: Any, at charIndex: Int) -> Bool {
     guard
       let actionUrl = link as? String,
       let (sendto, action) = deserializeActionUrl(actionUrl)
@@ -28,23 +38,30 @@ extension MainViewController: NSTextViewDelegate {
       return false
     }
 
-    Task {
-      do {
-        try await handleLink(sendto, action)
-      } catch {
-        handleError(error)
+    switch sendto {
+    case .Input:
+      setInput(String(action))
+    case .World:
+      Task {
+        do {
+          try await sendInput(String(action))
+        } catch {
+          handleError(error)
+        }
       }
     }
 
     return true
   }
 
-  public func textView(_ view: NSTextView, menu: NSMenu, for event: NSEvent, at charIndex: Int)
+  func textView(_ view: NSTextView, menu: NSMenu, for event: NSEvent, at charIndex: Int)
     -> NSMenu?
   {
     mxpActionMenu(
-      attributes: textStorage.attributes(at: charIndex, effectiveRange: nil),
+      attributes: view.textStorage!.attributes(at: charIndex, effectiveRange: nil),
       action: #selector(handleChoice(_:))
     )
   }
 }
+
+extension MainViewController: NSTextFieldDelegate {}

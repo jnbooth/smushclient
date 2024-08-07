@@ -12,9 +12,7 @@ class ReactionModel {
   var repeats: Bool = false
   var regex: String = "^$"
 
-  init() {
-
-  }
+  init() {}
 
   init(_ reaction: Reaction) {
     sequence = reaction.sequence

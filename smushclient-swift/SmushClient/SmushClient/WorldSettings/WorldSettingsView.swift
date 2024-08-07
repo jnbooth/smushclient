@@ -2,7 +2,7 @@ import SwiftUI
 
 struct WorldSettingsView: View {
   @Environment(\.dismissWindow) private var dismissWindow
-  @State var world: WorldModel
+  @State private var world: WorldModel
 
   init(world: WorldModel) {
     self.world = world

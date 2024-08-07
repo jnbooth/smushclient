@@ -7,9 +7,7 @@ class AliasModel {
   var menu: Bool = false
   var omit_from_command_history: Bool = false
 
-  init() {
-
-  }
+  init() {}
 
   init(_ alias: Alias) {
     reaction = ReactionModel(alias.reaction)

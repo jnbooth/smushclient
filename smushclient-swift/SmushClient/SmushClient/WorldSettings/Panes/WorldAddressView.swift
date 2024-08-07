@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct WorldConnectingView: View {
+struct WorldAddressView: View {
   @State private var world: WorldModel
 
   init(world: WorldModel) {
@@ -27,5 +27,5 @@ struct WorldConnectingView: View {
 }
 
 #Preview {
-  WorldConnectingView(world: WorldModel())
+  WorldAddressView(world: WorldModel())
 }

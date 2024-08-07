@@ -179,8 +179,7 @@ class WorldModel {
   var note_text_color: NSColor = defaultNoteTextColor
   var plugins: [String] = []
 
-  init() {
-  }
+  init() {}
 
   init(_ world: World) {
     name = world.name.toString()

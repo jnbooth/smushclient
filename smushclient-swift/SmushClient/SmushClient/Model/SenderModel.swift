@@ -14,9 +14,7 @@ class SenderModel {
   var omit_from_output: Bool = false
   var omit_from_log: Bool = false
 
-  init() {
-
-  }
+  init() {}
 
   init(_ sender: Sender) {
     send_to = sender.send_to

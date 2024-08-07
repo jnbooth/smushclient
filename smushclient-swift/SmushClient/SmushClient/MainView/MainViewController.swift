@@ -5,21 +5,23 @@ struct NotificationName {
   static let NewWorld = NSNotification.Name("newWorld")
 }
 
-public class MainViewController: NSViewController {
-  @IBOutlet weak var inputField: NSTextField!
-  @IBOutlet weak var scrollView: NSScrollView!
-  @IBOutlet weak var splitView: NSSplitView!
-  @IBOutlet weak var textView: NSTextView!
-  @IBOutlet weak var statusBar: NSVisualEffectView!
-  var status: StatusBarState = StatusBarState()
+class MainViewController: NSViewController {
+  @IBOutlet private weak var scrollView: NSScrollView!
+  @IBOutlet private weak var statusBar: NSVisualEffectView!
+  @IBOutlet private weak var splitView: NSSplitView!
+  @IBOutlet private weak var inputField: NSTextField!
+  @IBOutlet private weak var textView: NSTextView!
   var settingsWindowController: NSWindowController!
-  var bridge: RustMudBridge?
-  var inputFormatter: InputFormatter = InputFormatter()
-  var outputFormatter: OutputFormatter = OutputFormatter()
-  var connectTask: Task<(), Never>?
-  weak var textStorage: NSTextStorage!
+
+  private var bridge: RustMudBridge?
+  private var connectTask: Task<(), Never>?
+  private let defaults = AppDefaults()
+  private let status: StatusBarState = StatusBarState()
+  private weak var textStorage: NSTextStorage!
+
+  private var inputFormatter: InputFormatter = InputFormatter()
+  private var outputFormatter: OutputFormatter = OutputFormatter()
   var willBreak = false
-  let defaults = AppDefaults()
 
   weak var world: WorldModel! {
     didSet {
@@ -33,7 +35,7 @@ public class MainViewController: NSViewController {
     outputFormatter = OutputFormatter(world)
   }
 
-  override public func viewDidLoad() {
+  override func viewDidLoad() {
     super.viewDidLoad()
 
     initStatusBar()
@@ -42,7 +44,7 @@ public class MainViewController: NSViewController {
       self, selector: #selector(startWorld), name: NotificationName.NewWorld, object: nil)
   }
 
-  func initStatusBar() {
+  private func initStatusBar() {
     let statusView = NSHostingView(rootView: StatusBarView(status: status))
     statusView.translatesAutoresizingMaskIntoConstraints = false
     statusBar.addConstraint(
@@ -62,32 +64,74 @@ public class MainViewController: NSViewController {
     NotificationCenter.default.removeObserver(self, name: NotificationName.NewWorld, object: nil)
   }
 
-  @IBAction func showWorldSettings(_ sender: Any?) {
+  @IBAction private func showWorldSettings(_ sender: Any?) {
     settingsWindowController.showWindow(self)
   }
 
-  @objc func startWorld(_ notification: Notification) {
+  @objc private func startWorld(_ notification: Notification) {
     connect()
-  }
-
-  @objc func handleChoice(_ item: NSMenuItem) async {
-    do {
-      try await sendInput(item.title)
-    } catch {
-      handleError(error)
-    }
   }
 
   func handleError(_ error: Error) {
     NSAlert(error: error).runModal()
   }
 
+  func setInput(_ input: String) {
+    inputField.stringValue = input
+  }
+
+  func scrollToBottom() {
+    textView.scrollRangeToVisible(NSRange(location: textStorage.length, length: 0))
+  }
+
   func sendInput(_ input: String) async throws {
     if let formatted = inputFormatter.format(input) {
       textStorage.append(formatted)
+      scrollToBottom()
     }
     willBreak = true
     try await bridge!.send(input + "\r\n")
   }
 
+  func appendText(_ fragment: RustTextFragment) {
+    textStorage.append(outputFormatter.format(fragment))
+  }
+
+  func appendText(_ string: NSAttributedString) {
+    textStorage.append(string)
+  }
+
+  func connect() {
+    guard let bridge = bridge else {
+      return
+    }
+    if bridge.connected() {
+      return
+    }
+    connectTask = Task {
+      do {
+        try await bridge.connect()
+        status.connected = true
+        while true {
+          let fragments = try await bridge.receive()
+          while let fragment = fragments.next() {
+            handleOutput(fragment)
+          }
+        }
+      } catch {
+        status.connected = false
+        handleError(error)
+      }
+    }
+  }
+
+  func disconnect() async throws {
+    if let connectTask = connectTask {
+      connectTask.cancel()
+    }
+    if let bridge = bridge {
+      _ = try await bridge.disconnect()
+    }
+    status.connected = false
+  }
 }

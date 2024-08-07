@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct WorldTextField: View {
-  var label: String
-  var value: Binding<String>
+  private var label: String
+  private var value: Binding<String>
 
   init(_ label: String, _ value: Binding<String>) {
     self.label = label

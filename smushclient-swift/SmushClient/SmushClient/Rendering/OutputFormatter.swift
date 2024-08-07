@@ -17,11 +17,11 @@ extension MudColor {
 }
 
 struct OutputFormatter {
-  let fonts: OutputFonts
-  let showUnderline: Bool
-  let hyperlinkColor: NSColor?
-  let underlineHyperlinks: Bool
-  let ansiColors: AnsiColors
+  private let fonts: OutputFonts
+  private let showUnderline: Bool
+  private let hyperlinkColor: NSColor?
+  private let underlineHyperlinks: Bool
+  private let ansiColors: AnsiColors
 
   init() {
     fonts = OutputFonts()

@@ -18,8 +18,7 @@ class TriggerModel {
   var multi_line: Bool = false
   var lines_to_match: UInt8 = 0
 
-  init() {
-  }
+  init() {}
 
   init(_ trigger: Trigger) {
     reaction = ReactionModel(trigger.reaction)

@@ -1,9 +1,9 @@
 import AppKit
 
 struct InputFormatter {
-  let display: Bool
-  let noNewline: Bool
-  let attributes: [NSAttributedString.Key: Any]
+  private let display: Bool
+  private let noNewline: Bool
+  private let attributes: [NSAttributedString.Key: Any]
 
   init() {
     display = true

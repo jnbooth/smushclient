@@ -8,8 +8,8 @@ func UInt16Formatter() -> NumberFormatter {
 }
 
 struct WorldPortField: View {
-  var label: String
-  var value: Binding<UInt16>
+  private var label: String
+  private var value: Binding<UInt16>
 
   init(_ label: String, _ value: Binding<UInt16>) {
     self.label = label

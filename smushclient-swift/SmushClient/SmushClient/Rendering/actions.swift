@@ -4,12 +4,12 @@ extension NSAttributedString.Key {
   static let choices: NSAttributedString.Key = .init("choices")
 }
 
-public enum InternalSendTo {
+enum InternalSendTo {
   case Input
   case World
 }
 
-public func setupActionAttributes(
+func setupActionAttributes(
   link: RustMxpLinkRef,
   text: String,
   attributes: inout [NSAttributedString.Key: Any]
@@ -33,7 +33,7 @@ public func setupActionAttributes(
   attributes[.choices] = choices
 }
 
-func serializeActionUrl(_ sendto: SendTo, _ action: String) -> String {
+private func serializeActionUrl(_ sendto: SendTo, _ action: String) -> String {
   switch sendto {
   case .Input:
     return "input:" + action
@@ -59,14 +59,7 @@ func deserializeActionUrl(_ url: String) -> (InternalSendTo, Substring)? {
   }
 }
 
-func actionMenuItem(_ send: String, _ action: Selector) -> NSMenuItem {
-  let item = NSMenuItem()
-  item.title = send
-  item.action = action
-  return item
-}
-
-public func mxpActionMenu(attributes: [NSAttributedString.Key: Any], action: Selector) -> NSMenu? {
+func mxpActionMenu(attributes: [NSAttributedString.Key: Any], action: Selector) -> NSMenu? {
   guard
     let actionUrl = attributes[.link] as? String,
     let (sendto, mainAction) = deserializeActionUrl(actionUrl),
@@ -83,4 +76,11 @@ public func mxpActionMenu(attributes: [NSAttributedString.Key: Any], action: Sel
     menu.addItem(actionMenuItem(choice, action))
   }
   return menu
+}
+
+private func actionMenuItem(_ send: String, _ action: Selector) -> NSMenuItem {
+  let item = NSMenuItem()
+  item.title = send
+  item.action = action
+  return item
 }

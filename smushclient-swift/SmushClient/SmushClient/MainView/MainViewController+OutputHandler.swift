@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 extension MainViewController {
-  public func handleOutput(_ fragment: OutputFragment) {
+  func handleOutput(_ fragment: OutputFragment) {
     switch fragment {
     case .Effect(.Beep):
       handleBell()
@@ -22,16 +22,16 @@ extension MainViewController {
       return
     case .Text(let text):
       handleBreak()
-      textStorage.append(outputFormatter.format(text))
+      appendText(text)
     case .Send(_):
       return
     case .Sound(_):
       return
     }
-    textView.scrollRangeToVisible(NSRange(location: textStorage.length, length: 0))
+    scrollToBottom()
   }
 
-  func handleBell() {
+  private func handleBell() {
     Task {
       let _ = await MainActor.run {
         NSApplication.shared.requestUserAttention(.criticalRequest)
@@ -39,19 +39,10 @@ extension MainViewController {
     }
   }
 
-  func handleBreak() {
+  private func handleBreak() {
     if willBreak {
-      textStorage.append(NSAttributedString("\n"))
+      appendText(NSAttributedString("\n"))
       willBreak = false
-    }
-  }
-
-  func handleLink(_ sendto: InternalSendTo, _ text: Substring) async throws {
-    switch sendto {
-    case .Input:
-      inputField.stringValue = String(text)
-    case .World:
-      try await sendInput(String(text))
     }
   }
 }

@@ -6,9 +6,7 @@ class TimerModel {
   var occurrence: Occurrence = .Interval(s: 0)
   var active_closed: Bool = false
 
-  init() {
-
-  }
+  init() {}
 
   init(_ timer: Timer) {
     send = SenderModel(timer.send)

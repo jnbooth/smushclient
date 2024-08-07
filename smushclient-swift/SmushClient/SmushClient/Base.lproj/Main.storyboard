@@ -734,6 +734,9 @@
                                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                             <size key="minSize" width="659" height="399"/>
                                                             <size key="maxSize" width="694" height="10000000"/>
+                                                            <connections>
+                                                                <outlet property="delegate" destination="XpT-Xv-7Uw" id="vBY-zY-f8A"/>
+                                                            </connections>
                                                         </textView>
                                                     </subviews>
                                                 </clipView>

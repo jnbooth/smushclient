@@ -1,8 +1,8 @@
 import AppKit
 
-public typealias AnsiColors = [NSColor]
+typealias AnsiColors = [NSColor]
 
-public let defaultAnsiColors: AnsiColors = [
+let defaultAnsiColors: AnsiColors = [
   NSColor(red: 0, green: 0, blue: 0, alpha: 1),  // black
   NSColor(red: 0.5, green: 0, blue: 0, alpha: 1),  // red
   NSColor(red: 0, green: 0.5, blue: 0, alpha: 1),  // green

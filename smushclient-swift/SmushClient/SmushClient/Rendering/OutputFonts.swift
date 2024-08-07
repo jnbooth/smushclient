@@ -1,10 +1,10 @@
 import AppKit
 
 struct OutputFonts {
-  let base: NSFont
-  let bold: NSFont
-  let italic: NSFont
-  let boldAndItalic: NSFont
+  private let base: NSFont
+  private let bold: NSFont
+  private let italic: NSFont
+  private let boldAndItalic: NSFont
 
   init() {
     base = WorldModel.defaultFont
