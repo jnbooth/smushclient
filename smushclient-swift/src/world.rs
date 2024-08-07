@@ -791,16 +791,11 @@ pub fn create_world() -> World {
 }
 
 pub fn read_world(data: &[u8]) -> Result<World, String> {
-    let world = World::load(data).str()?;
-    println!("is {}", world.site);
-    Ok(world)
+    World::load(data).str()
 }
 
 pub fn write_world(world: World) -> Result<Vec<u8>, String> {
     let mut vec = Vec::new();
-    println!("starts {}", world.site);
     world.save(&mut vec).str()?;
-    let world = World::load(vec.as_slice()).str()?;
-    println!("is {}", world.site);
     Ok(vec)
 }

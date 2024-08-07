@@ -261,7 +261,6 @@ mod tests {
             script: String::new(),
         };
         let to_file = quick_xml::se::to_string(&plugin).expect("error serializing plugin");
-        println!("{}", to_file);
         let from_file: Plugin =
             quick_xml::de::from_str(&to_file).expect("error deserializing plugin");
         assert_eq!(from_file, plugin);
