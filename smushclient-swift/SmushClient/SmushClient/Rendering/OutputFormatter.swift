@@ -22,9 +22,11 @@ struct OutputFormatter {
   private let hyperlinkColor: NSColor?
   private let underlineHyperlinks: Bool
   private let ansiColors: AnsiColors
+  let plainAttributes: [NSAttributedString.Key: Any]
 
   init() {
     fonts = OutputFonts()
+    plainAttributes = [.font: fonts.provide()]
     showUnderline = true
     hyperlinkColor = nil
     underlineHyperlinks = true
@@ -33,6 +35,7 @@ struct OutputFormatter {
 
   init(_ world: WorldModel) {
     fonts = OutputFonts(world)
+    plainAttributes = [.font: fonts.provide()]
     showUnderline = world.show_underline
     hyperlinkColor = world.use_custom_link_color ? world.hyperlink_color : nil
     underlineHyperlinks = world.underline_hyperlinks

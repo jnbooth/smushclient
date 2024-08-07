@@ -10,6 +10,7 @@ struct StatusBarView: View {
     HStack {
       Text(status.connected ? "Connected" : "Disconnected")
         .foregroundStyle(status.connected ? connectedColor : disconnectedColor)
+      Text(status.pluginMessage)
     }.padding(.horizontal, 10).padding(.vertical, 5)
   }
 }

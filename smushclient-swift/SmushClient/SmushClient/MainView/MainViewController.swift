@@ -20,11 +20,11 @@ class MainViewController: NSViewController {
   private var bridge: RustMudBridge?
   private var connectTask: Task<(), Never>?
   private let defaults = AppDefaults()
-  private let status: StatusBarState = StatusBarState()
-  private weak var textStorage: NSTextStorage!
+  let status: StatusBarState = StatusBarState()
+  weak var textStorage: NSTextStorage!
 
   private var inputFormatter: InputFormatter = InputFormatter()
-  private var outputFormatter: OutputFormatter = OutputFormatter()
+  var outputFormatter: OutputFormatter = OutputFormatter()
   var willBreak = false
 
   weak var world: WorldModel! {
@@ -106,14 +106,6 @@ class MainViewController: NSViewController {
     }
   }
 
-  func appendText(_ fragment: RustTextFragment) {
-    textStorage.append(outputFormatter.format(fragment))
-  }
-
-  func appendText(_ string: NSAttributedString) {
-    textStorage.append(string)
-  }
-
   func connect() {
     guard let bridge = bridge else {
       return
@@ -126,10 +118,8 @@ class MainViewController: NSViewController {
         try await bridge.connect()
         status.connected = true
         while true {
-          let fragments = try await bridge.receive()
-          while let fragment = fragments.next() {
-            handleOutput(fragment)
-          }
+          let output = try await bridge.receive()
+          handleOutput(output)
         }
       } catch {
         status.connected = false
