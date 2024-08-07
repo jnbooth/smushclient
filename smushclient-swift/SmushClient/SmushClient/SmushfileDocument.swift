@@ -14,13 +14,13 @@ class SmushfileDocument: NSDocument {
 
   override func makeWindowControllers() {
     let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
-  
+
     WorldSettingsHostingController.targetWorld = content
     let settingsWindowController =
       storyboard.instantiateController(withIdentifier: worldScene) as! NSWindowController
     WorldSettingsHostingController.targetWorld = nil
     addWindowController(settingsWindowController)
-    
+
     let windowController =
       storyboard.instantiateController(withIdentifier: documentScene) as! NSWindowController
     windowController.shouldCascadeWindows = true

@@ -16,49 +16,13 @@ extension MudColor {
   }
 }
 
-struct OutputFonts {
-  let base: NSFont
-  let bold: NSFont
-  let italic: NSFont
-  let boldAndItalic: NSFont
-  
-  init() {
-    base = WorldModel.defaultFont
-    bold = WorldModel.defaultFont
-    italic = WorldModel.defaultFont
-    boldAndItalic = WorldModel.defaultFont
-  }
-  
-  init(_ world: WorldModel, fontManager: NSFontManager = NSFontManager.shared) {
-    base = world.use_default_output_font ? WorldModel.defaultFont : fontManager.convert(world.output_font, toNotHaveTrait: [.boldFontMask, .italicFontMask])
-    bold = world.show_bold ? fontManager.convert(base, toHaveTrait: .boldFontMask) : base
-    italic = world.show_italic ? fontManager.convert(base, toHaveTrait: .italicFontMask) : base
-    boldAndItalic = world.show_italic ? fontManager.convert(bold, toHaveTrait: .italicFontMask) : bold
-  }
-  
-  func provide(bold isBold: Bool = false, italic isItalic: Bool = false) -> NSFont {
-    if isBold && isItalic {
-      return boldAndItalic
-    }
-    if isBold {
-      return bold
-    }
-    if isItalic {
-      return italic
-    }
-    return base
-  }
-}
-
-private let fullTraits: NSFontTraitMask = [.boldFontMask, .italicFontMask]
-
 struct OutputFormatter {
   let fonts: OutputFonts
   let showUnderline: Bool
   let hyperlinkColor: NSColor?
   let underlineHyperlinks: Bool
   let ansiColors: AnsiColors
-  
+
   init() {
     fonts = OutputFonts()
     showUnderline = true
@@ -66,7 +30,7 @@ struct OutputFormatter {
     underlineHyperlinks = true
     ansiColors = defaultAnsiColors
   }
-  
+
   init(_ world: WorldModel) {
     fonts = OutputFonts(world)
     showUnderline = world.show_underline
@@ -74,7 +38,7 @@ struct OutputFormatter {
     underlineHyperlinks = world.underline_hyperlinks
     ansiColors = world.use_default_colors ? defaultAnsiColors : world.ansi_colors
   }
-  
+
   func format(_ fragment: RustTextFragment) -> NSAttributedString {
     let text = fragment.text().toString()
 

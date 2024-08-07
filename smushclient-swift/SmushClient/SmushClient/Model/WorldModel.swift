@@ -13,8 +13,9 @@ private let defaultCustomNames = [
 
 @Observable
 class WorldModel {
-  static let defaultFont = NSFont.monospacedSystemFont(ofSize: NSFont.systemFontSize, weight: .medium)
-  
+  static let defaultFont = NSFont.monospacedSystemFont(
+    ofSize: NSFont.systemFontSize, weight: .medium)
+
   var name: String = ""
   var site: String = ""
   var port: UInt16 = 4000

@@ -1,34 +1,12 @@
 import AppKit
 
+extension NSAttributedString.Key {
+  static let choices: NSAttributedString.Key = .init("choices")
+}
+
 public enum InternalSendTo {
   case Input
   case World
-}
-
-public func serializeActionUrl(_ sendto: SendTo, _ action: String) -> String {
-  switch sendto {
-  case .Input:
-    return "input:" + action
-  case .Internet:
-    return action
-  case .World:
-    return "send:" + action
-  }
-}
-
-public func deserializeActionUrl(_ url: String) -> (InternalSendTo, Substring)? {
-  let components = url.split(separator: ":", maxSplits: 1)
-  if components.count < 2 {
-    return nil
-  }
-  switch components[0] {
-  case "input":
-    return (.Input, components[1])
-  case "send":
-    return (.World, components[1])
-  default:
-    return nil
-  }
 }
 
 public func setupActionAttributes(
@@ -53,6 +31,32 @@ public func setupActionAttributes(
     choices.append(prompt.as_str().toString())
   }
   attributes[.choices] = choices
+}
+
+func serializeActionUrl(_ sendto: SendTo, _ action: String) -> String {
+  switch sendto {
+  case .Input:
+    return "input:" + action
+  case .Internet:
+    return action
+  case .World:
+    return "send:" + action
+  }
+}
+
+func deserializeActionUrl(_ url: String) -> (InternalSendTo, Substring)? {
+  let components = url.split(separator: ":", maxSplits: 1)
+  if components.count < 2 {
+    return nil
+  }
+  switch components[0] {
+  case "input":
+    return (.Input, components[1])
+  case "send":
+    return (.World, components[1])
+  default:
+    return nil
+  }
 }
 
 func actionMenuItem(_ send: String, _ action: Selector) -> NSMenuItem {

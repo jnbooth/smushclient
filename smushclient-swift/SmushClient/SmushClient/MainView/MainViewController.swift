@@ -1,6 +1,10 @@
 import AppKit
 import SwiftUI
 
+struct NotificationName {
+  static let NewWorld = NSNotification.Name("newWorld")
+}
+
 public class MainViewController: NSViewController {
   @IBOutlet weak var inputField: NSTextField!
   @IBOutlet weak var scrollView: NSScrollView!
@@ -23,7 +27,7 @@ public class MainViewController: NSViewController {
       applyWorld()
     }
   }
-  
+
   func applyWorld() {
     inputFormatter = InputFormatter(world)
     outputFormatter = OutputFormatter(world)
@@ -31,13 +35,13 @@ public class MainViewController: NSViewController {
 
   override public func viewDidLoad() {
     super.viewDidLoad()
-    
+
     initStatusBar()
     textStorage = textView.textStorage
     NotificationCenter.default.addObserver(
       self, selector: #selector(startWorld), name: NotificationName.NewWorld, object: nil)
   }
-  
+
   func initStatusBar() {
     let statusView = NSHostingView(rootView: StatusBarView(status: status))
     statusView.translatesAutoresizingMaskIntoConstraints = false
