@@ -45,15 +45,13 @@ class SmushfileDocument: NSDocument {
     true
   }
 
-  override class func canConcurrentlyReadDocuments(ofType: String) -> Bool {
-    ofType == "com.smushclient.smushfile"
-  }
-
   override func read(from data: Data, ofType typeName: String) throws {
-    let world = try data.withUnsafeBytes { body in
-      try read_world(body.assumingMemoryBound(to: UInt8.self))
+    try MainActor.assumeIsolated {
+      let world = try data.withUnsafeBytes { body in
+        try read_world(body.assumingMemoryBound(to: UInt8.self))
+      }
+      content = WorldModel(world)
     }
-    content = WorldModel(world)
   }
 
   override func data(ofType typeName: String) throws -> Data {

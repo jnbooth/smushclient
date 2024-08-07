@@ -1,6 +1,10 @@
 import AppKit
 import SwiftUI
 
+extension RustMudBridgeRef: @unchecked Sendable {}
+extension RustOutputStream: @unchecked Sendable {}
+extension RustStringRef: @unchecked Sendable {}
+
 struct NotificationName {
   static let NewWorld = NSNotification.Name("newWorld")
 }
@@ -84,13 +88,22 @@ class MainViewController: NSViewController {
     textView.scrollRangeToVisible(NSRange(location: textStorage.length, length: 0))
   }
 
-  func sendInput(_ input: String) async throws {
+  func sendInput(_ input: String) {
     if let formatted = inputFormatter.format(input) {
       textStorage.append(formatted)
       scrollToBottom()
     }
     willBreak = true
-    try await bridge!.send(input + "\r\n")
+    guard let bridge = bridge else {
+      return
+    }
+    Task {
+      do {
+        try await bridge.send(input + "\r\n")
+      } catch {
+        handleError(error)
+      }
+    }
   }
 
   func appendText(_ fragment: RustTextFragment) {

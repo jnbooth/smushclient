@@ -2,12 +2,8 @@ import AppKit
 import SwiftUI
 
 extension MainViewController {
-  @objc private func handleChoice(_ item: NSMenuItem) async {
-    do {
-      try await sendInput(item.title)
-    } catch {
-      handleError(error)
-    }
+  @objc private func handleChoice(_ item: NSMenuItem) {
+    sendInput(item.title)
   }
 }
 
@@ -20,13 +16,7 @@ extension MainViewController: NSTextViewDelegate {
     }
     let input = control.stringValue
     control.stringValue = ""
-    Task {
-      do {
-        try await sendInput(input)
-      } catch {
-        handleError(error)
-      }
-    }
+    sendInput(input)
     return true
   }
 
@@ -42,13 +32,7 @@ extension MainViewController: NSTextViewDelegate {
     case .Input:
       setInput(String(action))
     case .World:
-      Task {
-        do {
-          try await sendInput(String(action))
-        } catch {
-          handleError(error)
-        }
-      }
+      sendInput(String(action))
     }
 
     return true
