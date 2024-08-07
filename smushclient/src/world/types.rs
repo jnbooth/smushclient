@@ -52,3 +52,12 @@ pub struct ColorPair {
     pub foreground: Option<HexColor>,
     pub background: Option<HexColor>,
 }
+
+impl ColorPair {
+    pub fn foreground(color: HexColor) -> Self {
+        Self {
+            foreground: Some(color),
+            background: None,
+        }
+    }
+}

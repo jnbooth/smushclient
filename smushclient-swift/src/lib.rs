@@ -61,7 +61,7 @@ mod ffi {
         fn is_highlight(&self) -> bool;
         #[swift_bridge(swift_name = "isInverse")]
         fn is_inverse(&self) -> bool;
-        #[swift_bridge(swift_name = "IsItalic")]
+        #[swift_bridge(swift_name = "isItalic")]
         fn is_italic(&self) -> bool;
         #[swift_bridge(swift_name = "isStrikeout")]
         fn is_strikeout(&self) -> bool;

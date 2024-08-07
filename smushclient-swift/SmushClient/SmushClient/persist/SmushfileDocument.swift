@@ -14,17 +14,16 @@ class SmushfileDocument: NSDocument {
 
   override func makeWindowControllers() {
     let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
-    let windowController =
-      storyboard.instantiateController(withIdentifier: documentScene) as! NSWindowController
-
-    addWindowController(windowController)
-
+  
     WorldSettingsHostingController.targetWorld = content
     let settingsWindowController =
       storyboard.instantiateController(withIdentifier: worldScene) as! NSWindowController
     WorldSettingsHostingController.targetWorld = nil
-
     addWindowController(settingsWindowController)
+    
+    let windowController =
+      storyboard.instantiateController(withIdentifier: documentScene) as! NSWindowController
+    addWindowController(windowController)
 
     let mainController = windowController.contentViewController as! MainViewController
     mainController.settingsWindowController = settingsWindowController
@@ -35,6 +34,8 @@ class SmushfileDocument: NSDocument {
       settingsWindowController.close()
       mainController.connect()
     }
+
+    settingsWindowController.window!.delegate = self
   }
 
   override func canAsynchronouslyWrite(
@@ -60,5 +61,11 @@ class SmushfileDocument: NSDocument {
     var data = Data(capacity: len)
     data.append(vec.as_ptr(), count: len)
     return data
+  }
+}
+
+extension SmushfileDocument: NSWindowDelegate {
+  func windowWillClose(_ notification: Notification) {
+    viewController.applyWorld()
   }
 }

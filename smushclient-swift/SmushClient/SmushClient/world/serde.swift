@@ -1,4 +1,12 @@
-import Foundation
+import AppKit
+
+func optionalRustString(_ string: RustString) -> String? {
+  let str = string.as_str()
+  if str.len == 0 {
+    return nil
+  }
+  return str.toString()
+}
 
 func fromVec<T, U>(_ vec: RustVec<T>, by: (_ item: T.SelfRef) -> U) -> [U] {
   let len = vec.len()
@@ -18,7 +26,7 @@ func intoVec<T, U>(_ list: [U], by: (_ item: U) -> T) -> RustVec<T> {
   return vec
 }
 
-func parseMapping(_ mapping: RustVec<KeypadMapping>) -> [String: String] {
+func mappingFromRust(_ mapping: RustVec<KeypadMapping>) -> [String: String] {
   var dict: [String: String] = [:]
   dict.reserveCapacity(mapping.len())
   while let item = mapping.pop() {

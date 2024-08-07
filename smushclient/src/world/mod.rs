@@ -291,10 +291,7 @@ impl World {
             accept_chat_connections: false,
             chat_port: 4050,
             validate_incoming_chat_calls: false,
-            chat_colors: ColorPair {
-                foreground: Some(HexColor::rgb(255, 0, 0)),
-                background: None,
-            },
+            chat_colors: ColorPair::foreground(HexColor::rgb(255, 0, 0)),
             ignore_chat_colors: false,
             chat_message_prefix: String::new(),
             chat_max_lines_per_message: 0,
@@ -353,10 +350,7 @@ impl World {
             use_default_colors: true,
             ansi_colors: ansi16(),
             custom_names,
-            custom_colors: [ColorPair {
-                foreground: Some(HexColor::new(0)),
-                background: None,
-            }; 16],
+            custom_colors: [ColorPair::foreground(HexColor::new(0)); 16],
 
             // Triggers
             triggers: Vec::new(),
@@ -366,14 +360,14 @@ impl World {
 
             // Commands
             display_my_input: true,
-            echo_colors: ColorPair::default(),
+            echo_colors: ColorPair::foreground(HexColor::rgb(128, 128, 128)),
             enable_speed_walk: false,
             speed_walk_prefix: "#".to_owned(),
             speed_walk_filler: "a".to_owned(),
             speed_walk_delay: 20,
             enable_command_stack: false,
             command_stack_character: "#".to_owned(),
-            input_colors: ColorPair::default(),
+            input_colors: ColorPair::foreground(HexColor::rgb(128, 128, 128)),
             input_font: "System".to_owned(),
             use_default_input_font: true,
             enable_spam_prevention: false,

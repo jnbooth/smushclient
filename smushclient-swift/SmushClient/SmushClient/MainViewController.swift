@@ -1,12 +1,6 @@
 import AppKit
 import SwiftUI
 
-let inputAttrs = [
-  NSAttributedString.Key.foregroundColor: NSColor.gray,
-  NSAttributedString.Key.font: NSFont.monospacedSystemFont(
-    ofSize: NSFont.systemFontSize, weight: .medium),
-]
-
 public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextViewDelegate {
   @IBOutlet weak var inputField: NSTextField!
   @IBOutlet weak var scrollView: NSScrollView!
@@ -16,10 +10,13 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
   var status: StatusBarState = StatusBarState()
   var settingsWindowController: NSWindowController!
   var bridge: RustMudBridge?
+  var inputFormatter: InputFormatter = InputFormatter()
+  var outputFormatter: OutputFormatter = OutputFormatter()
 
   weak var world: WorldModel! {
     didSet {
       bridge = RustMudBridge(World(world))
+      applyWorld()
     }
   }
 
@@ -29,7 +26,18 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
   let defaults = AppDefaults()
 
   func handleError(_ error: Error) {
-    print(error.localizedDescription)
+    if let e = error as? RustString {
+      print(e.toString())
+    } else if !error.localizedDescription.isEmpty {
+      print(error.localizedDescription)
+    } else {
+      print(error)
+    }
+  }
+  
+  func applyWorld() {
+    inputFormatter = InputFormatter(world)
+    outputFormatter = OutputFormatter(world)
   }
 
   override public func viewDidLoad() {
@@ -166,7 +174,7 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
       return
     case .Text(let text):
       handleBreak()
-      textStorage.append(renderText(text, world!.ansi_colors))
+      textStorage.append(outputFormatter.format(text))
     case .Send(_):
       return
     case .Sound(_):
@@ -177,7 +185,9 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
   }
 
   func sendInput(_ input: String) async throws {
-    textStorage.append(NSAttributedString(string: "\n" + input, attributes: inputAttrs))
+    if let formatted = inputFormatter.format(input) {
+      textStorage.append(formatted)
+    }
     willBreak = true
     try await bridge!.send(input + "\r\n")
   }

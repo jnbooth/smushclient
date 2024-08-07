@@ -43,7 +43,7 @@ class ColorPairModel {
   var background: NSColor?
 
   init() {
-    foreground = NSColor(red: 0, green: 0, blue: 0, alpha: 1)
+    foreground = NSColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1)
     background = nil
   }
 
@@ -62,5 +62,39 @@ extension ColorPair {
   init(_ pair: ColorPairModel) {
     foreground = ColorOption(pair.foreground)
     background = ColorOption(pair.background)
+  }
+}
+
+struct NSColorPair {
+  let foreground: NSColor?
+  let background: NSColor?
+  
+  init(foreground: NSColor? = nil, background: NSColor? = nil) {
+    self.foreground = foreground
+    self.background = background
+  }
+  
+  init(_ pair: ColorPairModel) {
+    foreground = pair.foreground
+    background = pair.background
+  }
+}
+
+extension NSFont {
+ convenience init?(_ rustString: RustString, manager: NSFontManager = NSFontManager.shared) {
+    guard
+      let fontString = optionalRustString(rustString),
+      let delimIndex = fontString.lastIndex(of: "-"),
+      let size = Double(fontString[fontString.index(after: delimIndex)...])
+    else {
+      return nil
+    }
+    self.init(name: String(fontString[..<delimIndex]), size: CGFloat(size))
+  }
+}
+
+extension NSFont: IntoRustString {
+  public func intoRustString() -> RustString {
+    RustString(String(format: "%@-%f", fontName, pointSize))
   }
 }

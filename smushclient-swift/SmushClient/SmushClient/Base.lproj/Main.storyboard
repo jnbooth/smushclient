@@ -762,6 +762,9 @@
                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
+                                                <connections>
+                                                    <outlet property="delegate" destination="XpT-Xv-7Uw" id="zNr-iE-fei"/>
+                                                </connections>
                                             </textField>
                                         </subviews>
                                         <constraints>

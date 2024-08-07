@@ -3,6 +3,8 @@ import SwiftUI
 private let defaultHyperlinkColor = NSColor.linkColor.usingColorSpace(.sRGB)!
 private let defaultChatColor = NSColor(red: 1, green: 1, blue: 1, alpha: 1)
 private let defaultCustomColor = NSColor(red: 0, green: 0, blue: 0, alpha: 1)
+private let defaultInputColor = NSColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1)
+private let defaultEchoColor = defaultInputColor
 private let defaultNoteTextColor = NSColor(red: 0, green: 0.5, blue: 1, alpha: 1)
 private let defaultCustomNames = [
   "Custom1", "Custom2", "Custom3", "Custom4", "Custom5", "Custom6", "Custom7", "Custom8",
@@ -11,6 +13,8 @@ private let defaultCustomNames = [
 
 @Observable
 class WorldModel {
+  static let defaultFont = NSFont.monospacedSystemFont(ofSize: NSFont.systemFontSize, weight: .medium)
+  
   var name: String = ""
   var site: String = ""
   var port: UInt16 = 4000
@@ -58,7 +62,7 @@ class WorldModel {
   var beep_sound: String = ""
   var pixel_offset: Int16 = 0
   var line_spacing: Float = 1.0
-  var output_font: String = "System"
+  var output_font: NSFont = defaultFont
   var use_default_output_font: Bool = true
   var show_bold: Bool = true
   var show_italic: Bool = true
@@ -104,15 +108,15 @@ class WorldModel {
   var enable_trigger_sounds: Bool = true
   var treeview_triggers: Bool = true
   var display_my_input: Bool = true
-  var echo_colors: ColorPairModel = ColorPairModel()
+  var echo_colors: ColorPairModel = ColorPairModel(foreground: defaultEchoColor)
   var enable_speed_walk: Bool = false
   var speed_walk_prefix: String = "#"
   var speed_walk_filler: String = "a"
   var speed_walk_delay: UInt32 = 20
   var enable_command_stack: Bool = false
   var command_stack_character: String = "#"
-  var input_colors: ColorPairModel = ColorPairModel()
-  var input_font: String = "System"
+  var input_colors: ColorPairModel = ColorPairModel(foreground: defaultInputColor)
+  var input_font: NSFont = defaultFont
   var use_default_input_font: Bool = true
   var enable_spam_prevention: Bool = false
   var spam_line_count: UInt = 20
@@ -225,7 +229,9 @@ class WorldModel {
     beep_sound = world.beep_sound.toString()
     pixel_offset = world.pixel_offset
     line_spacing = world.line_spacing
-    output_font = world.output_font.toString()
+    if let output_font = NSFont(world.output_font) {
+      self.output_font = output_font
+    }
     use_default_output_font = world.use_default_output_font
     show_bold = world.show_bold
     show_italic = world.show_italic
@@ -278,7 +284,9 @@ class WorldModel {
     enable_command_stack = world.enable_command_stack
     command_stack_character = world.command_stack_character.toString()
     input_colors = ColorPairModel(world.input_colors)
-    input_font = world.input_font.toString()
+    if let input_font = NSFont(world.input_font) {
+      self.input_font = input_font
+    }
     use_default_input_font = world.use_default_input_font
     enable_spam_prevention = world.enable_spam_prevention
     spam_line_count = world.spam_line_count
@@ -308,7 +316,7 @@ class WorldModel {
     enable_aliases = world.enable_aliases
     treeview_aliases = world.treeview_aliases
     keypad_enable = world.keypad_enable
-    keypad_shortcuts = parseMapping(world.keypad_shortcuts)
+    keypad_shortcuts = mappingFromRust(world.keypad_shortcuts)
     enable_auto_say = world.enable_auto_say
     autosay_exclude_non_alpha = world.autosay_exclude_non_alpha
     autosay_exclude_macros = world.autosay_exclude_macros
