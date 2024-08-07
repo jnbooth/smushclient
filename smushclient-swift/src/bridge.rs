@@ -7,7 +7,7 @@ use tokio::net::TcpStream;
 
 use crate::client::ClientHandler;
 use crate::error::StringifyResultError;
-use crate::sync::SimpleLock;
+use crate::sync::NonBlockingMutex;
 use crate::FfiOutputFragment;
 use smushclient::{SmushClient, World};
 
@@ -27,8 +27,8 @@ impl RustOutputStream {
 pub struct RustMudBridge {
     stream: Option<MudStream<TcpStream>>,
     client: SmushClient,
-    input_lock: SimpleLock,
-    output_lock: SimpleLock,
+    input_lock: NonBlockingMutex,
+    output_lock: NonBlockingMutex,
 }
 
 impl RustMudBridge {

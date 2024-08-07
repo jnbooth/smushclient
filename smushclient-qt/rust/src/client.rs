@@ -5,7 +5,7 @@ use std::pin::Pin;
 use crate::output::RustOutputFragment;
 
 use crate::ffi;
-use crate::sync::SimpleLock;
+use crate::sync::NonBlockingMutex;
 use mud_transformer::Transformer;
 
 #[derive(Default)]
@@ -15,8 +15,8 @@ pub struct SmushClientRust {
     buf: Vec<u8>,
     output: Vec<RustOutputFragment>,
     cursor: usize,
-    input_lock: SimpleLock,
-    output_lock: SimpleLock,
+    input_lock: NonBlockingMutex,
+    output_lock: NonBlockingMutex,
 }
 
 impl SmushClientRust {

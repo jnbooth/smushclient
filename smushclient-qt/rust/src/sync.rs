@@ -2,26 +2,26 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 #[derive(Default)]
 #[repr(transparent)]
-pub struct SimpleLock {
+pub struct NonBlockingMutex {
     locked: AtomicBool,
 }
 
-impl SimpleLock {
-    pub fn lock(&self) -> SimpleLockGuard {
+impl NonBlockingMutex {
+    pub fn lock(&self) -> NonBlockingMutexGuard {
         if self.locked.swap(true, Ordering::Relaxed) {
             panic!("concurrent access");
         }
-        SimpleLockGuard {
+        NonBlockingMutexGuard {
             locked: &self.locked,
         }
     }
 }
 
-pub struct SimpleLockGuard<'a> {
+pub struct NonBlockingMutexGuard<'a> {
     locked: &'a AtomicBool,
 }
 
-impl<'a> Drop for SimpleLockGuard<'a> {
+impl<'a> Drop for NonBlockingMutexGuard<'a> {
     fn drop(&mut self) {
         self.locked.store(false, Ordering::Relaxed);
     }

@@ -1,8 +1,11 @@
 import AppKit
 import SwiftUI
 
+// SAFETY: Ensured by mutex locks in Rust implementation.
 extension RustMudBridgeRef: @unchecked Sendable {}
+// SAFETY: All it can do is yield .next(), so it's safe for this usage.
 extension RustOutputStream: @unchecked Sendable {}
+// SAFETY: Rust strings are immutable.
 extension RustStringRef: @unchecked Sendable {}
 
 struct NotificationName {
@@ -80,10 +83,6 @@ class MainViewController: NSViewController {
     NSAlert(error: error).runModal()
   }
 
-  func setInput(_ input: String) {
-    inputField.stringValue = input
-  }
-
   func scrollToBottom() {
     textView.scrollRangeToVisible(NSRange(location: textStorage.length, length: 0))
   }
@@ -104,6 +103,10 @@ class MainViewController: NSViewController {
         handleError(error)
       }
     }
+  }
+  
+  func setInput(_ input: String) {
+    inputField.stringValue = input
   }
 
   func connect() {
