@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 
 let inputAttrs = [
   NSAttributedString.Key.foregroundColor: NSColor.gray,
@@ -11,21 +12,15 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
   @IBOutlet weak var scrollView: NSScrollView!
   @IBOutlet weak var splitView: NSSplitView!
   @IBOutlet weak var textView: NSTextView!
-  @IBOutlet weak var status: StatusBarState!
+  @IBOutlet weak var statusBar: NSVisualEffectView!
+  var status: StatusBarState = StatusBarState()
   var settingsWindowController: NSWindowController!
   var bridge: RustMudBridge?
 
-  override public var representedObject: Any? {
+  weak var world: WorldModel! {
     didSet {
-      guard let world = representedObject as? WorldModel else {
-        return
-      }
       bridge = RustMudBridge(World(world))
     }
-  }
-
-  weak var world: WorldModel? {
-    representedObject as? WorldModel
   }
 
   var connectTask: Task<(), Never>?
@@ -39,6 +34,21 @@ public class MainViewController: NSViewController, NSTextFieldDelegate, NSTextVi
 
   override public func viewDidLoad() {
     super.viewDidLoad()
+
+    let statusView = NSHostingView(rootView: StatusBarView(status: status))
+    statusView.translatesAutoresizingMaskIntoConstraints = false
+    statusBar.addConstraint(
+      NSLayoutConstraint(
+        item: statusView,
+        attribute: .height,
+        relatedBy: .equal,
+        toItem: statusBar,
+        attribute: .height,
+        multiplier: 1,
+        constant: 0
+      ))
+    statusBar.addSubview(statusView)
+
     textStorage = textView.textStorage
     NotificationCenter.default.addObserver(
       self, selector: #selector(startWorld), name: NotificationName.NewWorld, object: nil)

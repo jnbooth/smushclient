@@ -38,6 +38,7 @@
 		09BCD6F72C62E06D0057B475 /* TriggerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09BCD6F62C62E06D0057B475 /* TriggerModel.swift */; };
 		09BCD6F92C62E0780057B475 /* TimerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09BCD6F82C62E0780057B475 /* TimerModel.swift */; };
 		09CDA6232C517FFE006FC3C9 /* actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CDA6222C517FFE006FC3C9 /* actions.swift */; };
+		09CE51012C62E775005057B6 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CE51002C62E775005057B6 /* StatusBarView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -78,6 +79,7 @@
 		09BCD6F62C62E06D0057B475 /* TriggerModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TriggerModel.swift; sourceTree = "<group>"; };
 		09BCD6F82C62E0780057B475 /* TimerModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimerModel.swift; sourceTree = "<group>"; };
 		09CDA6222C517FFE006FC3C9 /* actions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = actions.swift; sourceTree = "<group>"; };
+		09CE51002C62E775005057B6 /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -193,6 +195,7 @@
 			isa = PBXGroup;
 			children = (
 				09AA66022C62C56500796476 /* StatusBarState.swift */,
+				09CE51002C62E775005057B6 /* StatusBarView.swift */,
 			);
 			path = "status-bar";
 			sourceTree = "<group>";
@@ -364,6 +367,7 @@
 				09565E2B2C5D491A00650902 /* serde.swift in Sources */,
 				09BCD6E52C62DA300057B475 /* WorldTextField.swift in Sources */,
 				09BCD6F52C62E0600057B475 /* AliasModel.swift in Sources */,
+				09CE51012C62E775005057B6 /* StatusBarView.swift in Sources */,
 				09BCD6E72C62DC780057B475 /* WorldSecureField.swift in Sources */,
 				09A4380D2C6123D60033B806 /* NotificationName.swift in Sources */,
 				09BBB7542C509DFC00D2646C /* AppDefaults.swift in Sources */,

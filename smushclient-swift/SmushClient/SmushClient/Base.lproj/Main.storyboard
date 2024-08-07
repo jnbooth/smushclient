@@ -712,11 +712,11 @@
             <objects>
                 <viewController id="XpT-Xv-7Uw" customClass="MainViewController" customModule="SmushClient" customModuleProvider="target" sceneMemberID="viewController">
                     <stackView key="view" distribution="fill" orientation="vertical" alignment="leading" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" id="DBN-yF-lwU">
-                        <rect key="frame" x="0.0" y="0.0" width="659" height="456"/>
+                        <rect key="frame" x="0.0" y="0.0" width="659" height="481"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <splitView autosaveName="inputHeight" dividerStyle="thin" id="NZ8-tO-mrv">
-                                <rect key="frame" x="0.0" y="25" width="659" height="431"/>
+                                <rect key="frame" x="0.0" y="50" width="659" height="431"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <visualEffectView fixedFrame="YES" blendingMode="behindWindow" material="underWindowBackground" state="followsWindowActiveState" id="SpW-rf-dfF">
@@ -777,44 +777,10 @@
                                     <real value="250"/>
                                 </holdingPriorities>
                             </splitView>
-                            <visualEffectView blendingMode="behindWindow" material="underWindowBackground" state="followsWindowActiveState" translatesAutoresizingMaskIntoConstraints="NO" id="IRu-L4-9sY">
-                                <rect key="frame" x="0.0" y="0.0" width="659" height="25"/>
-                                <subviews>
-                                    <stackView distribution="fill" orientation="horizontal" alignment="centerY" horizontalStackHuggingPriority="250" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PJH-Ee-MOq">
-                                        <rect key="frame" x="10" y="0.0" width="639" height="25"/>
-                                        <subviews>
-                                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kxK-Xb-WlW">
-                                                <rect key="frame" x="-2" y="5" width="643" height="16"/>
-                                                <textFieldCell key="cell" lineBreakMode="clipping" title="Disconnected" id="Igb-t9-XI2">
-                                                    <font key="font" usesAppearanceFont="YES"/>
-                                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                </textFieldCell>
-                                                <connections>
-                                                    <binding destination="Wlr-9e-Rpb" name="textColor" keyPath="connectedColor" id="CdO-IT-Z4m"/>
-                                                    <binding destination="Wlr-9e-Rpb" name="value" keyPath="connectedText" id="FzN-Vv-r49"/>
-                                                </connections>
-                                            </textField>
-                                        </subviews>
-                                        <visibilityPriorities>
-                                            <integer value="1000"/>
-                                        </visibilityPriorities>
-                                        <customSpacing>
-                                            <real value="3.4028234663852886e+38"/>
-                                        </customSpacing>
-                                    </stackView>
-                                </subviews>
-                                <constraints>
-                                    <constraint firstAttribute="bottom" secondItem="PJH-Ee-MOq" secondAttribute="bottom" id="GB4-ob-zvh"/>
-                                    <constraint firstItem="PJH-Ee-MOq" firstAttribute="leading" secondItem="IRu-L4-9sY" secondAttribute="leading" constant="10" id="eXR-Sq-L5z"/>
-                                    <constraint firstAttribute="trailing" secondItem="PJH-Ee-MOq" secondAttribute="trailing" constant="10" id="elc-1A-g8u"/>
-                                    <constraint firstItem="PJH-Ee-MOq" firstAttribute="top" secondItem="IRu-L4-9sY" secondAttribute="top" id="zdQ-y4-yu3"/>
-                                </constraints>
+                            <visualEffectView autoresizesSubviews="NO" blendingMode="behindWindow" material="underWindowBackground" state="followsWindowActiveState" translatesAutoresizingMaskIntoConstraints="NO" id="IRu-L4-9sY">
+                                <rect key="frame" x="0.0" y="0.0" width="659" height="50"/>
                             </visualEffectView>
                         </subviews>
-                        <constraints>
-                            <constraint firstItem="IRu-L4-9sY" firstAttribute="top" secondItem="DBN-yF-lwU" secondAttribute="bottom" constant="-25" id="7jb-gY-qnk"/>
-                        </constraints>
                         <visibilityPriorities>
                             <integer value="1000"/>
                             <integer value="1000"/>
@@ -828,12 +794,11 @@
                         <outlet property="inputField" destination="JBq-P3-dwo" id="qPj-NN-bQH"/>
                         <outlet property="scrollView" destination="bVh-cX-79L" id="vp0-8i-bcI"/>
                         <outlet property="splitView" destination="NZ8-tO-mrv" id="Nis-iz-GQU"/>
-                        <outlet property="status" destination="Wlr-9e-Rpb" id="LP3-Wj-wVh"/>
+                        <outlet property="statusBar" destination="IRu-L4-9sY" id="X55-Di-lA0"/>
                         <outlet property="textView" destination="8up-we-wXm" id="Akk-LU-FS6"/>
                     </connections>
                 </viewController>
                 <customObject id="CAd-FM-WGB" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-                <customObject id="Wlr-9e-Rpb" customClass="StatusBarState" customModule="SmushClient" customModuleProvider="target"/>
                 <userDefaultsController representsSharedInstance="YES" id="KeM-ke-GpG"/>
             </objects>
             <point key="canvasLocation" x="-206.5" y="611"/>

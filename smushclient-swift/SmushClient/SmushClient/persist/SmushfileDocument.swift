@@ -28,7 +28,7 @@ class SmushfileDocument: NSDocument {
 
     let mainController = windowController.contentViewController as! MainViewController
     mainController.settingsWindowController = settingsWindowController
-    mainController.representedObject = content
+    mainController.world = content
     viewController = mainController
 
     if !content.site.isEmpty {
