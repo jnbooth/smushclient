@@ -1,13 +1,15 @@
 import SwiftUI
 
-func UInt16Formatter() -> NumberFormatter {
+private func PortFormatter() -> NumberFormatter {
   let formatter = NumberFormatter()
-  formatter.minimum = 0
+  formatter.minimum = 1
   formatter.maximum = NSNumber(value: UInt16.max)
+  formatter.zeroSymbol = ""
   return formatter
 }
 
 struct WorldPortField: View {
+  private static let formatter: NumberFormatter = PortFormatter()
   private var label: String
   private var value: Binding<UInt16>
 
@@ -18,7 +20,7 @@ struct WorldPortField: View {
 
   var body: some View {
     LabeledContent(label) {
-      TextField("", value: value, formatter: UInt16Formatter()).frame(maxWidth: 75)
+      TextField("", value: value, formatter: Self.formatter).frame(maxWidth: 75)
     }
   }
 }

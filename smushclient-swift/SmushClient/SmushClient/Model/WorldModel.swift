@@ -18,10 +18,10 @@ class WorldModel {
 
   var name: String = ""
   var site: String = ""
-  var port: UInt16 = 4000
+  var port: UInt16 = 0
   var proxy_type: ProxyType = .None
   var proxy_server: String = ""
-  var proxy_port: UInt16 = 1080
+  var proxy_port: UInt16 = 0
   var proxy_username: String = ""
   var proxy_password: String = ""
   var proxy_password_base64: Bool = true
@@ -50,7 +50,7 @@ class WorldModel {
   var chat_name: String = ""
   var auto_allow_snooping: Bool = false
   var accept_chat_connections: Bool = false
-  var chat_port: UInt16 = 4050
+  var chat_port: UInt16 = 0
   var validate_incoming_chat_calls: Bool = false
   var chat_colors: ColorPairModel = ColorPairModel(foreground: defaultChatColor)
   var ignore_chat_colors: Bool = false
@@ -61,7 +61,7 @@ class WorldModel {
   var chat_file_save_directory: String = ""
   var notes: String = ""
   var beep_sound: String = ""
-  var pixel_offset: Int16 = 0
+  var pixel_offset: Int16 = 5
   var line_spacing: Float = 1.0
   var output_font: NSFont = defaultFont
   var use_default_output_font: Bool = true
