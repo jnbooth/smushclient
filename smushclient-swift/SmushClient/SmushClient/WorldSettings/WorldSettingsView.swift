@@ -42,9 +42,7 @@ struct WorldSettingsView: View {
       Button("Cancel", role: .cancel) {
         dismissWindow()
       }
-      Button("Connect") {
-        let notification = Notification(name: NotificationName.NewWorld, object: world)
-        NotificationCenter.default.post(notification)
+      Button("Apply") {
         dismissWindow()
       }
     }.padding(.top, 2).padding(.bottom, 8)

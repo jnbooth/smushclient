@@ -8,17 +8,12 @@ extension RustOutputStream: @unchecked Sendable {}
 // SAFETY: Rust strings are immutable.
 extension RustStringRef: @unchecked Sendable {}
 
-struct NotificationName {
-  static let NewWorld = NSNotification.Name("newWorld")
-}
-
 class MainViewController: NSViewController {
   @IBOutlet private weak var scrollView: NSScrollView!
   @IBOutlet private weak var statusBar: NSVisualEffectView!
   @IBOutlet private weak var splitView: NSSplitView!
   @IBOutlet private weak var inputField: NSTextField!
   @IBOutlet private weak var textView: NSTextView!
-  var settingsWindowController: NSWindowController!
 
   private var bridge: RustMudBridge?
   private var connectTask: Task<(), Never>?
@@ -29,26 +24,29 @@ class MainViewController: NSViewController {
   private var inputFormatter: InputFormatter = InputFormatter()
   var outputFormatter: OutputFormatter = OutputFormatter()
   var willBreak = false
-
-  weak var world: WorldModel! {
-    didSet {
-      bridge = RustMudBridge(World(world))
-      applyWorld()
-    }
-  }
-
-  func applyWorld() {
+  
+  func applyWorld(_ world: WorldModel) {
     inputFormatter = InputFormatter(world)
     outputFormatter = OutputFormatter(world)
+
+    let style = NSMutableParagraphStyle()
+    style.lineSpacing = CGFloat(world.line_spacing)
+    textView.defaultParagraphStyle = style
+
+    let textInset = Int(world.pixel_offset)
+    textView.textContainerInset = NSSize(width: textInset, height: textInset)
+    
+    if let bridge = bridge {
+      bridge.set_world(World(world))
+    } else {
+      bridge = RustMudBridge(World(world))
+    }
   }
 
   override func viewDidLoad() {
     super.viewDidLoad()
-
     initStatusBar()
     textStorage = textView.textStorage
-    NotificationCenter.default.addObserver(
-      self, selector: #selector(startWorld), name: NotificationName.NewWorld, object: nil)
   }
 
   private func initStatusBar() {
@@ -65,18 +63,6 @@ class MainViewController: NSViewController {
         constant: 0
       ))
     statusBar.addSubview(statusView)
-  }
-
-  deinit {
-    NotificationCenter.default.removeObserver(self, name: NotificationName.NewWorld, object: nil)
-  }
-
-  @IBAction private func showWorldSettings(_ sender: Any?) {
-    settingsWindowController.showWindow(self)
-  }
-
-  @objc private func startWorld(_ notification: Notification) {
-    connect()
   }
 
   func handleError(_ error: Error) {
@@ -109,12 +95,15 @@ class MainViewController: NSViewController {
     inputField.stringValue = input
   }
 
-  func connect() {
+  @IBAction func connect(_ sender: Any? = nil) {
     guard let bridge = bridge else {
       return
     }
     if bridge.connected() {
       return
+    }
+    if let connectTask = connectTask {
+      connectTask.cancel()
     }
     connectTask = Task {
       do {
@@ -131,13 +120,19 @@ class MainViewController: NSViewController {
     }
   }
 
-  func disconnect() async throws {
+  @IBAction func disconnect(_ sender: Any? = nil) {
     if let connectTask = connectTask {
       connectTask.cancel()
     }
-    if let bridge = bridge {
-      _ = try await bridge.disconnect()
+    connectTask = Task {
+      do {
+        if let bridge = bridge {
+          _ = try await bridge.disconnect()
+        }
+        status.connected = false
+      } catch {
+        handleError(error)
+      }
     }
-    status.connected = false
   }
 }
