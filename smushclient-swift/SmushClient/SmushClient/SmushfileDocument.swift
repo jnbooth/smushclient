@@ -5,8 +5,10 @@ private let worldScene = NSStoryboard.SceneIdentifier("World Settings Window Con
 
 class SmushfileDocument: NSDocument {
   private var content: WorldModel!
-  private weak var viewController: MainViewController!
-  private weak var settingsController: NSWindowController!
+  private var documentWindow: NSWindowController?
+  private weak var documentView: MainViewController?
+  private var settingsWindow: NSWindowController?
+  private weak var settingsView: WorldSettingsHostingController?
   private var closing = false
 
   override init() {
@@ -14,36 +16,36 @@ class SmushfileDocument: NSDocument {
     hasUndoManager = true
   }
 
-  override func makeWindowControllers() {
-    let isNew = content == nil
-    if isNew {
-      content = WorldModel()
+  private func instantiateDocumentWindow() {
+    let documentScene = Stories().instantiateDocument()
+    documentWindow = documentScene.window
+    documentView = documentScene.view
+    addWindowController(documentScene.window)
+
+    documentScene.window.shouldCascadeWindows = true
+    documentScene.window.shouldCloseDocument = true
+    documentScene.view.applyWorld(content)
+    documentScene.view.connect()
+  }
+
+  private func instantiateSettingsWindow(shouldClose: Bool) {
+    let worldSettingsScene = Stories().instantiateWorldSettings(content)
+    settingsWindow = worldSettingsScene.window
+    settingsView = worldSettingsScene.view
+    addWindowController(worldSettingsScene.window)
+
+    worldSettingsScene.window.shouldCloseDocument = shouldClose
+    if !shouldClose {
+      worldSettingsScene.window.showWindow(self)
     }
-    
-    let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
+  }
 
-    let windowController =
-      storyboard.instantiateController(withIdentifier: documentScene) as! NSWindowController
-    windowController.shouldCascadeWindows = true
-    addWindowController(windowController)
-
-    let mainController = windowController.contentViewController as! MainViewController
-    viewController = mainController
-    
-    
-    WorldSettingsHostingController.targetWorld = content
-    let settingsWindowController =
-      storyboard.instantiateController(withIdentifier: worldScene) as! NSWindowController
-    WorldSettingsHostingController.targetWorld = nil
-    addWindowController(settingsWindowController)
-    settingsController = settingsWindowController
-
-
-    if isNew {
-      showWorldSettings()
+  override func makeWindowControllers() {
+    if content == nil {
+      content = WorldModel()
+      instantiateSettingsWindow(shouldClose: true)
     } else {
-      mainController.applyWorld(content)
-      mainController.connect()
+      instantiateDocumentWindow()
     }
   }
 
@@ -69,33 +71,26 @@ class SmushfileDocument: NSDocument {
     data.append(vec.as_ptr(), count: len)
     return data
   }
-  
-  func setContent(_ world: WorldModel) {
-    updateChangeCount(.changeDone)
-    content = world
-    viewController.applyWorld(world)
-  }
-  
+
   @IBAction private func showWorldSettings(_ sender: Any? = nil) {
-    settingsController.showWindow(self)
+    if let settingsWindow = settingsWindow {
+      settingsWindow.showWindow(self)
+    } else {
+      instantiateSettingsWindow(shouldClose: false)
+    }
   }
 }
 
 extension SmushfileDocument: NSWindowDelegate {
   func windowWillClose(_ notification: Notification) {
-    if closing {
+    if content.site.isEmpty {
       return
     }
-    let manager = undoManager!
-    if manager.canUndo {
-      viewController.applyWorld(content)
-      manager.removeAllActions()
-      return
+    if let documentView = documentView {
+      documentView.applyWorld(content)
+    } else {
+      settingsWindow!.shouldCloseDocument = false
+      instantiateDocumentWindow()
     }
-    if isDraft && !isDocumentEdited {
-      closing = true
-      close()
-    }
-    
   }
 }

@@ -17,14 +17,13 @@ class MainViewController: NSViewController {
 
   private var bridge: RustMudBridge?
   private var connectTask: Task<(), Never>?
-  private let defaults = AppDefaults()
   let status: StatusBarState = StatusBarState()
   weak var textStorage: NSTextStorage!
 
   private var inputFormatter: InputFormatter = InputFormatter()
   var outputFormatter: OutputFormatter = OutputFormatter()
   var willBreak = false
-  
+
   func applyWorld(_ world: WorldModel) {
     inputFormatter = InputFormatter(world)
     outputFormatter = OutputFormatter(world)
@@ -35,7 +34,7 @@ class MainViewController: NSViewController {
 
     let textInset = Int(world.pixel_offset)
     textView.textContainerInset = NSSize(width: textInset, height: textInset)
-    
+
     if let bridge = bridge {
       bridge.set_world(World(world))
     } else {
@@ -90,7 +89,7 @@ class MainViewController: NSViewController {
       }
     }
   }
-  
+
   func setInput(_ input: String) {
     inputField.stringValue = input
   }
