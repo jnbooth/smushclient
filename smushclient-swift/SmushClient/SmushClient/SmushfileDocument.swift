@@ -5,15 +5,19 @@ private let worldScene = NSStoryboard.SceneIdentifier("World Settings Window Con
 
 class SmushfileDocument: NSDocument {
   private var content: WorldModel!
-  private var documentWindow: NSWindowController?
+  private weak var documentWindow: NSWindowController?
   private weak var documentView: MainViewController?
-  private var settingsWindow: NSWindowController?
+  private weak var settingsWindow: NSWindowController?
   private weak var settingsView: WorldSettingsHostingController?
   private var closing = false
 
   override init() {
     super.init()
     hasUndoManager = true
+  }
+
+  override func defaultDraftName() -> String {
+    "New World"
   }
 
   private func instantiateDocumentWindow() {
@@ -24,6 +28,7 @@ class SmushfileDocument: NSDocument {
 
     documentScene.window.shouldCascadeWindows = true
     documentScene.window.shouldCloseDocument = true
+    documentScene.window.synchronizeWindowTitleWithDocumentName()
     documentScene.view.applyWorld(content)
     documentScene.view.connect()
   }
@@ -34,10 +39,8 @@ class SmushfileDocument: NSDocument {
     settingsView = worldSettingsScene.view
     addWindowController(worldSettingsScene.window)
 
+    worldSettingsScene.window.window!.delegate = self
     worldSettingsScene.window.shouldCloseDocument = shouldClose
-    if !shouldClose {
-      worldSettingsScene.window.showWindow(self)
-    }
   }
 
   override func makeWindowControllers() {
@@ -61,6 +64,7 @@ class SmushfileDocument: NSDocument {
         try read_world(body.assumingMemoryBound(to: UInt8.self))
       }
       content = WorldModel(world)
+      displayName = content.name
     }
   }
 
@@ -86,14 +90,21 @@ extension SmushfileDocument: NSWindowDelegate {
     if content.site.isEmpty {
       return
     }
+    displayName = content.name
+
     if let documentView = documentView {
       documentView.applyWorld(content)
+      documentWindow!.synchronizeWindowTitleWithDocumentName()
       if content.save_world_automatically {
-        autosave(withImplicitCancellability: true) { error in return }
+        autosave(withImplicitCancellability: true) { _ in return }
       }
-    } else {
-      settingsWindow!.shouldCloseDocument = false
-      instantiateDocumentWindow()
+      return
+    }
+    settingsWindow!.shouldCloseDocument = false
+    instantiateDocumentWindow()
+    let window = documentWindow!.window!
+    if let screen = window.screen ?? NSScreen.main {
+      window.setFrame(screen.visibleFrame, display: true)
     }
   }
 }
