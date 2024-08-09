@@ -269,7 +269,7 @@ class WorldModel {
     mud_can_change_options = world.mud_can_change_options
     use_default_colors = world.use_default_colors
     ansi_colors = fromVec(world.ansi_colors, by: NSColor.init)
-    custom_names = fromVec(world.custom_names, by: { item in item.as_str().toString() })
+    custom_names = fromVec(world.custom_names, by: { $0.as_str().toString() })
     custom_colors = fromVec(world.custom_colors, by: ColorPairModel.init)
     triggers = fromVec(world.triggers, by: TriggerModel.init)
     enable_triggers = world.enable_triggers
@@ -347,7 +347,7 @@ class WorldModel {
     script_reload_option = world.script_reload_option
     script_errors_to_output_window = world.script_errors_to_output_window
     note_text_color = NSColor(world.note_text_color)
-    plugins = fromVec(world.plugins, by: { item in item.as_str().toString() })
+    plugins = fromVec(world.plugins, by: { $0.as_str().toString() })
   }
 }
 
@@ -438,7 +438,7 @@ extension World {
     mud_can_change_options = world.mud_can_change_options
     use_default_colors = world.use_default_colors
     ansi_colors = intoVec(world.ansi_colors, by: HexColor.init)
-    custom_names = intoVec(world.custom_names, by: { item in item.intoRustString() })
+    custom_names = intoVec(world.custom_names, by: { $0.intoRustString() })
     custom_colors = intoVec(world.custom_colors, by: ColorPair.init)
     triggers = intoVec(world.triggers, by: Trigger.init)
     enable_triggers = world.enable_triggers
@@ -513,6 +513,6 @@ extension World {
     script_reload_option = world.script_reload_option
     script_errors_to_output_window = world.script_errors_to_output_window
     note_text_color = HexColor(world.note_text_color)
-    plugins = intoVec(world.plugins, by: { item in item.intoRustString() })
+    plugins = intoVec(world.plugins, by: { $0.intoRustString() })
   }
 }
