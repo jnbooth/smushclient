@@ -88,6 +88,9 @@ extension SmushfileDocument: NSWindowDelegate {
     }
     if let documentView = documentView {
       documentView.applyWorld(content)
+      if content.save_world_automatically {
+        autosave(withImplicitCancellability: true) { error in return }
+      }
     } else {
       settingsWindow!.shouldCloseDocument = false
       instantiateDocumentWindow()
