@@ -22,6 +22,7 @@
 		09565E2B2C5D491A00650902 /* serde.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09565E2A2C5D491A00650902 /* serde.swift */; };
 		0967D6A22C5AC94D00C0A7BC /* WorldSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0967D6A12C5AC94D00C0A7BC /* WorldSettingsView.swift */; };
 		0967D6A82C5AF1FB00C0A7BC /* WorldModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0967D6A72C5AF1FB00C0A7BC /* WorldModel.swift */; };
+		098042222C669B1400621F92 /* RecentDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 098042212C669B1400621F92 /* RecentDocument.swift */; };
 		09897B082C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B072C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift */; };
 		09897B0A2C63E67E0007C3D7 /* MainViewController+OutputHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B092C63E67E0007C3D7 /* MainViewController+OutputHandler.swift */; };
 		09897B112C63E94E0007C3D7 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B102C63E94E0007C3D7 /* StatusBarView.swift */; };
@@ -41,6 +42,8 @@
 		09CE51092C6317FF005057B6 /* InputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CE51082C6317FF005057B6 /* InputFormatter.swift */; };
 		09CE510B2C631812005057B6 /* OutputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CE510A2C631812005057B6 /* OutputFormatter.swift */; };
 		09D666C02C654B2E00416A00 /* Stories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09D666BF2C654B2E00416A00 /* Stories.swift */; };
+		09E2DB342C6670680031BEDF /* WelcomeHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E2DB332C6670680031BEDF /* WelcomeHostingController.swift */; };
+		09E2DB362C6670860031BEDF /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E2DB352C6670860031BEDF /* WelcomeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,6 +67,7 @@
 		09565E2A2C5D491A00650902 /* serde.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = serde.swift; sourceTree = "<group>"; };
 		0967D6A12C5AC94D00C0A7BC /* WorldSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldSettingsView.swift; sourceTree = "<group>"; };
 		0967D6A72C5AF1FB00C0A7BC /* WorldModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldModel.swift; sourceTree = "<group>"; };
+		098042212C669B1400621F92 /* RecentDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentDocument.swift; sourceTree = "<group>"; };
 		09897B072C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MainViewController+NSTextFieldDelegate.swift"; sourceTree = "<group>"; };
 		09897B092C63E67E0007C3D7 /* MainViewController+OutputHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MainViewController+OutputHandler.swift"; sourceTree = "<group>"; };
 		09897B102C63E94E0007C3D7 /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
@@ -84,6 +88,8 @@
 		09CE51082C6317FF005057B6 /* InputFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFormatter.swift; sourceTree = "<group>"; };
 		09CE510A2C631812005057B6 /* OutputFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputFormatter.swift; sourceTree = "<group>"; };
 		09D666BF2C654B2E00416A00 /* Stories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stories.swift; sourceTree = "<group>"; };
+		09E2DB332C6670680031BEDF /* WelcomeHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeHostingController.swift; sourceTree = "<group>"; };
+		09E2DB352C6670860031BEDF /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,13 +127,14 @@
 			isa = PBXGroup;
 			children = (
 				091C02EE2C5035EC0060A147 /* AppDelegate.swift */,
-				09D666BF2C654B2E00416A00 /* Stories.swift */,
 				0946E1402C612A2800AC76EF /* SmushfileDocument.swift */,
+				09D666BF2C654B2E00416A00 /* Stories.swift */,
 				09897B0F2C63E7A00007C3D7 /* MainView */,
 				09BCD6ED2C62DFFE0057B475 /* Model */,
 				091C03272C5037100060A147 /* Rendering */,
 				093577292C614697004F9A48 /* Resources */,
 				09AA66042C62C5F600796476 /* StatusBar */,
+				09E2DB322C6670560031BEDF /* WelcomeView */,
 				097FDA302C59916D00F19196 /* WorldSettings */,
 			);
 			path = SmushClient;
@@ -246,6 +253,16 @@
 				0967D6A72C5AF1FB00C0A7BC /* WorldModel.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		09E2DB322C6670560031BEDF /* WelcomeView */ = {
+			isa = PBXGroup;
+			children = (
+				09E2DB332C6670680031BEDF /* WelcomeHostingController.swift */,
+				09E2DB352C6670860031BEDF /* WelcomeView.swift */,
+				098042212C669B1400621F92 /* RecentDocument.swift */,
+			);
+			path = WelcomeView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -382,8 +399,10 @@
 				09BCD6E92C62DCFA0057B475 /* WorldPortField.swift in Sources */,
 				0946E1412C612A2800AC76EF /* SmushfileDocument.swift in Sources */,
 				091C03202C5036BE0060A147 /* smushclient-swift.swift in Sources */,
+				098042222C669B1400621F92 /* RecentDocument.swift in Sources */,
 				09CE510B2C631812005057B6 /* OutputFormatter.swift in Sources */,
 				091C02EF2C5035EC0060A147 /* AppDelegate.swift in Sources */,
+				09E2DB342C6670680031BEDF /* WelcomeHostingController.swift in Sources */,
 				09897B082C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift in Sources */,
 				091C03292C5037100060A147 /* AnsiColors.swift in Sources */,
 				091C03212C5036BE0060A147 /* SwiftBridgeCore.swift in Sources */,
@@ -392,6 +411,7 @@
 				09BCD6F12C62E0490057B475 /* SenderModel.swift in Sources */,
 				09D666C02C654B2E00416A00 /* Stories.swift in Sources */,
 				093875282C6592C600F40D2F /* WorldSettingsTabView.swift in Sources */,
+				09E2DB362C6670860031BEDF /* WelcomeView.swift in Sources */,
 				09BCD6F92C62E0780057B475 /* TimerModel.swift in Sources */,
 				093EC6792C5C1C4000E7E646 /* WorldAddressView.swift in Sources */,
 				09BCD6F32C62E0570057B475 /* ReactionModel.swift in Sources */,

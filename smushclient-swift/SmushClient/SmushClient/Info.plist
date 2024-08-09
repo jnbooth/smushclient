@@ -6,11 +6,11 @@
 	<array>
 		<dict>
 			<key>NSUbiquitousDocumentUserActivityType</key>
-			<true/>
+			<string>com.smushclient.smushfile</string>
 			<key>CFBundleTypeIconFile</key>
 			<string></string>
 			<key>CFBundleTypeName</key>
-			<string>Plain Text</string>
+			<string>Smushfile</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSItemContentTypes</key>

@@ -3,7 +3,7 @@ import SwiftUI
 
 // SAFETY: Ensured by mutex locks in Rust implementation.
 extension RustMudBridgeRef: @unchecked Sendable {}
-// SAFETY: All it can do is yield .next(), so it's safe for this usage.
+// SAFETY: Protected here, not used elsewhere.
 extension RustOutputStream: @unchecked Sendable {}
 // SAFETY: Rust strings are immutable.
 extension RustStringRef: @unchecked Sendable {}
@@ -46,6 +46,10 @@ class MainViewController: NSViewController {
     super.viewDidLoad()
     initStatusBar()
     textStorage = textView.textStorage
+
+    if let welcomeWindow = WelcomeHostingController.window {
+      welcomeWindow.close()
+    }
   }
 
   private func initStatusBar() {

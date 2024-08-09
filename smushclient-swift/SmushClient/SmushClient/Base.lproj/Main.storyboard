@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="Tx3-b2-Jb8">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22690"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -690,7 +690,7 @@
         <scene sceneID="R2V-B0-nI4">
             <objects>
                 <windowController storyboardIdentifier="Document Window Controller" id="B8D-0N-5wS" userLabel="Document Window Controller" sceneMemberID="viewController">
-                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
+                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="241" width="480" height="269"/>
@@ -810,8 +810,8 @@
         <scene sceneID="Sns-Ih-toB">
             <objects>
                 <windowController storyboardIdentifier="World Settings Window Controller" id="yRz-zH-1Ll" userLabel="World Settings Window Controller" sceneMemberID="viewController">
-                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" titleVisibility="hidden" id="Kj6-Zo-99c">
-                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" fullSizeContentView="YES"/>
+                    <window key="window" title="World Settings" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" frameAutosaveName="" animationBehavior="default" titlebarAppearsTransparent="YES" id="Kj6-Zo-99c">
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="255" y="323" width="480" height="258"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1728" height="1079"/>
@@ -838,6 +838,38 @@
                 <customObject id="dbu-78-Wpq" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-99" y="-269"/>
+        </scene>
+        <!--Welcome Window Controller-->
+        <scene sceneID="L6S-dC-Cpl">
+            <objects>
+                <windowController storyboardIdentifier="Welcome Window Controller" showSeguePresentationStyle="single" id="Tx3-b2-Jb8" userLabel="Welcome Window Controller" sceneMemberID="viewController">
+                    <window key="window" title="SmushClient" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" frameAutosaveName="" animationBehavior="default" id="sGc-Ww-1zp">
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+                        <rect key="contentRect" x="255" y="323" width="480" height="270"/>
+                        <rect key="screenRect" x="0.0" y="0.0" width="1728" height="1079"/>
+                        <view key="contentView" id="7tU-Rf-4gR">
+                            <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </view>
+                        <connections>
+                            <outlet property="delegate" destination="Tx3-b2-Jb8" id="A7B-9D-BaO"/>
+                        </connections>
+                    </window>
+                    <connections>
+                        <segue destination="GhO-er-fIA" kind="relationship" relationship="window.shadowedContentViewController" id="xNB-x8-fh0"/>
+                    </connections>
+                </windowController>
+                <customObject id="8i5-lq-HoB" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1008" y="-451"/>
+        </scene>
+        <!--Welcome Hosting Controller-->
+        <scene sceneID="Dc2-aA-850">
+            <objects>
+                <hostingController id="GhO-er-fIA" userLabel="Welcome Hosting Controller" customClass="WelcomeHostingController" customModule="SmushClient" customModuleProvider="target" sceneMemberID="viewController"/>
+                <customObject id="N7O-Ne-le1" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="875" y="-75"/>
         </scene>
     </scenes>
 </document>

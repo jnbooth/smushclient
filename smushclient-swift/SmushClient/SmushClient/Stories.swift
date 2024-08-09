@@ -16,6 +16,10 @@ struct Stories {
     instantiate("Document Window Controller")
   }
 
+  @MainActor func instantiateWelcomeScreen() -> Story<WelcomeHostingController> {
+    instantiate("Welcome Window Controller")
+  }
+
   @MainActor func instantiateWorldSettings(_ world: WorldModel) -> Story<
     WorldSettingsHostingController
   > {
