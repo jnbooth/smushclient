@@ -22,14 +22,17 @@ extension MainViewController {
   func handleOutput(_ output: RustOutputStream) {
     textStorage.beginEditing()
     var shouldScrollToBottom = false
+    defer {
+      textStorage.endEditing()
+      if shouldScrollToBottom {
+        scrollToBottom()
+      }
+    }
+
     while let fragment = output.next() {
       if handleFragment(fragment) {
         shouldScrollToBottom = true
       }
-    }
-    textStorage.endEditing()
-    if shouldScrollToBottom {
-      scrollToBottom()
     }
   }
 
