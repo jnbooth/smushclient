@@ -26,6 +26,5 @@ struct WorldPortField: View {
 }
 
 #Preview {
-  var val = UInt16(65535)
-  return WorldPortField("Port", Binding(get: { val }, set: { v in val = v }))
+  WorldPortField("Port", .constant(65535))
 }

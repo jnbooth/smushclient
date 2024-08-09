@@ -17,6 +17,5 @@ struct WorldTextField: View {
 }
 
 #Preview {
-  var val = "Value"
-  return WorldTextField("Name", Binding(get: { val }, set: { v in val = v }))
+  WorldTextField("Name", .constant("Value"))
 }

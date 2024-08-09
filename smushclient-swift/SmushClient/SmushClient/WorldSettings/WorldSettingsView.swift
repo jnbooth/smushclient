@@ -3,49 +3,27 @@ import SwiftUI
 struct WorldSettingsView: View {
   @Environment(\.dismissWindow) private var dismissWindow
   @State private var world: WorldModel
-
+  @State private var isNew: Bool
+  
   init(world: WorldModel) {
     self.world = world
+    self.isNew = world.site.isEmpty
   }
 
   var body: some View {
-    TabView {
-      TabView {
-        WorldAddressView(world: world).tabItem {
-          Text("Address")
+    WorldSettingsTabView(world: world)
+    if isNew {
+      HStack {
+        Button("Cancel", role: .cancel) {
+          world.site = ""
+          dismissWindow()
         }
-      }.tabItem {
-        Label(String("Connecting"), systemImage: "globe")
-      }
-      TabView {
-
-      }.tabItem {
-        Label("Output", systemImage: "note.text")
-      }
-      TabView {
-
-      }.tabItem {
-        Label("Appearance", systemImage: "paintpalette")
-      }
-      TabView {
-
-      }.tabItem {
-        Label("Input", systemImage: "text.bubble")
-      }
-      TabView {
-
-      }.tabItem {
-        Label("Shortcuts", systemImage: "keyboard")
-      }
-    }.fixedSize()
-    HStack {
-      Button("Cancel", role: .cancel) {
-        dismissWindow()
-      }
-      Button("Apply") {
-        dismissWindow()
-      }
-    }.padding(.top, 2).padding(.bottom, 8)
+        Button("Connect") {
+          isNew = false
+          dismissWindow()
+        }
+      }.padding(.top, 2).padding(.bottom, 8)
+    }
   }
 }
 

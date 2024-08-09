@@ -17,6 +17,5 @@ struct WorldSecureField: View {
 }
 
 #Preview {
-  var val = "Value"
-  return WorldSecureField("Password", Binding(get: { val }, set: { v in val = v }))
+  WorldSecureField("Password", .constant("Value"))
 }

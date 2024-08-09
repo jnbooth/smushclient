@@ -1,16 +1,12 @@
 import SwiftUI
 
 struct WorldAddressView: View {
-  @State private var world: WorldModel
-
-  init(world: WorldModel) {
-    self.world = world
-  }
+  @Bindable var world: WorldModel
 
   var body: some View {
     Form {
-      WorldTextField("Player", $world.player)
-      WorldSecureField("Password", $world.password)
+      WorldTextField("World Name", $world.name)
+      WorldTextField("World Address", $world.site)
       WorldPortField("World Port", $world.port)
       Picker("Proxy Type", selection: $world.proxy_type) {
         Text("None").tag(ProxyType.None)

@@ -18,6 +18,5 @@ struct WorldToggleField: View {
 }
 
 #Preview {
-  var val = false
-  return WorldToggleField("Enable", Binding(get: { val }, set: { v in val = v }))
+  WorldToggleField("Enable", .constant(false))
 }
