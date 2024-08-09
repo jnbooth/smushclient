@@ -6,7 +6,7 @@ private let worldScene = NSStoryboard.SceneIdentifier("World Settings Window Con
 class SmushfileDocument: NSDocument {
   private var content: WorldModel!
   private weak var documentWindow: NSWindowController?
-  private weak var documentView: MainViewController?
+  private weak var documentView: DocumentViewController?
   private weak var settingsWindow: NSWindowController?
   private weak var settingsView: WorldSettingsHostingController?
   private var closing = false

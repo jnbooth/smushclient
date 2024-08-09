@@ -8,7 +8,7 @@ extension RustOutputStream: @unchecked Sendable {}
 // SAFETY: Rust strings are immutable.
 extension RustStringRef: @unchecked Sendable {}
 
-class MainViewController: NSViewController {
+class DocumentViewController: NSViewController {
   @IBOutlet private weak var scrollView: NSScrollView!
   @IBOutlet private weak var statusBar: NSVisualEffectView!
   @IBOutlet private weak var splitView: NSSplitView!

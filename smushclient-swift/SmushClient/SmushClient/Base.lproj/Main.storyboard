@@ -704,10 +704,10 @@
             </objects>
             <point key="canvasLocation" x="75" y="250.5"/>
         </scene>
-        <!--Main View Controller-->
+        <!--Document View Controller-->
         <scene sceneID="Umu-i2-7nY">
             <objects>
-                <viewController id="XpT-Xv-7Uw" customClass="MainViewController" customModule="SmushClient" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="XpT-Xv-7Uw" customClass="DocumentViewController" customModule="SmushClient" customModuleProvider="target" sceneMemberID="viewController">
                     <stackView key="view" distribution="fill" orientation="vertical" alignment="leading" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" id="DBN-yF-lwU">
                         <rect key="frame" x="0.0" y="0.0" width="659" height="481"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinY="YES" flexibleMaxY="YES"/>

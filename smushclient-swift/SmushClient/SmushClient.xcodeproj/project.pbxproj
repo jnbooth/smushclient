@@ -18,13 +18,13 @@
 		093EC67B2C5C21BC00E7E646 /* WorldSettingsHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 093EC67A2C5C21BC00E7E646 /* WorldSettingsHostingController.swift */; };
 		0946E1412C612A2800AC76EF /* SmushfileDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0946E1402C612A2800AC76EF /* SmushfileDocument.swift */; };
 		094C30FA2C5038D20079B229 /* libsmushclient_swift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 094C30F82C50389A0079B229 /* libsmushclient_swift.a */; };
-		094C31062C5070120079B229 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 094C31052C5070120079B229 /* MainViewController.swift */; };
+		094C31062C5070120079B229 /* DocumentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 094C31052C5070120079B229 /* DocumentViewController.swift */; };
 		09565E2B2C5D491A00650902 /* serde.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09565E2A2C5D491A00650902 /* serde.swift */; };
 		0967D6A22C5AC94D00C0A7BC /* WorldSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0967D6A12C5AC94D00C0A7BC /* WorldSettingsView.swift */; };
 		0967D6A82C5AF1FB00C0A7BC /* WorldModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0967D6A72C5AF1FB00C0A7BC /* WorldModel.swift */; };
 		098042222C669B1400621F92 /* RecentDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 098042212C669B1400621F92 /* RecentDocument.swift */; };
-		09897B082C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B072C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift */; };
-		09897B0A2C63E67E0007C3D7 /* MainViewController+OutputHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B092C63E67E0007C3D7 /* MainViewController+OutputHandler.swift */; };
+		09897B082C63E2B70007C3D7 /* DocumentViewController+NSTextFieldDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B072C63E2B70007C3D7 /* DocumentViewController+NSTextFieldDelegate.swift */; };
+		09897B0A2C63E67E0007C3D7 /* DocumentViewController+OutputHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B092C63E67E0007C3D7 /* DocumentViewController+OutputHandler.swift */; };
 		09897B112C63E94E0007C3D7 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B102C63E94E0007C3D7 /* StatusBarView.swift */; };
 		09897B132C63EC500007C3D7 /* ColorPairModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B122C63EC500007C3D7 /* ColorPairModel.swift */; };
 		09897B152C63EF800007C3D7 /* OutputFonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B142C63EF800007C3D7 /* OutputFonts.swift */; };
@@ -63,13 +63,13 @@
 		093EC67A2C5C21BC00E7E646 /* WorldSettingsHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldSettingsHostingController.swift; sourceTree = "<group>"; };
 		0946E1402C612A2800AC76EF /* SmushfileDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmushfileDocument.swift; sourceTree = "<group>"; };
 		094C30F82C50389A0079B229 /* libsmushclient_swift.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsmushclient_swift.a; path = ../../target/debug/libsmushclient_swift.a; sourceTree = "<group>"; };
-		094C31052C5070120079B229 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		094C31052C5070120079B229 /* DocumentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentViewController.swift; sourceTree = "<group>"; };
 		09565E2A2C5D491A00650902 /* serde.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = serde.swift; sourceTree = "<group>"; };
 		0967D6A12C5AC94D00C0A7BC /* WorldSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldSettingsView.swift; sourceTree = "<group>"; };
 		0967D6A72C5AF1FB00C0A7BC /* WorldModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldModel.swift; sourceTree = "<group>"; };
 		098042212C669B1400621F92 /* RecentDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentDocument.swift; sourceTree = "<group>"; };
-		09897B072C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MainViewController+NSTextFieldDelegate.swift"; sourceTree = "<group>"; };
-		09897B092C63E67E0007C3D7 /* MainViewController+OutputHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MainViewController+OutputHandler.swift"; sourceTree = "<group>"; };
+		09897B072C63E2B70007C3D7 /* DocumentViewController+NSTextFieldDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DocumentViewController+NSTextFieldDelegate.swift"; sourceTree = "<group>"; };
+		09897B092C63E67E0007C3D7 /* DocumentViewController+OutputHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DocumentViewController+OutputHandler.swift"; sourceTree = "<group>"; };
 		09897B102C63E94E0007C3D7 /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
 		09897B122C63EC500007C3D7 /* ColorPairModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorPairModel.swift; sourceTree = "<group>"; };
 		09897B142C63EF800007C3D7 /* OutputFonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutputFonts.swift; sourceTree = "<group>"; };
@@ -127,9 +127,8 @@
 			isa = PBXGroup;
 			children = (
 				091C02EE2C5035EC0060A147 /* AppDelegate.swift */,
-				0946E1402C612A2800AC76EF /* SmushfileDocument.swift */,
 				09D666BF2C654B2E00416A00 /* Stories.swift */,
-				09897B0F2C63E7A00007C3D7 /* MainView */,
+				09897B0F2C63E7A00007C3D7 /* Document */,
 				09BCD6ED2C62DFFE0057B475 /* Model */,
 				091C03272C5037100060A147 /* Rendering */,
 				093577292C614697004F9A48 /* Resources */,
@@ -201,14 +200,15 @@
 			path = WorldSettings;
 			sourceTree = "<group>";
 		};
-		09897B0F2C63E7A00007C3D7 /* MainView */ = {
+		09897B0F2C63E7A00007C3D7 /* Document */ = {
 			isa = PBXGroup;
 			children = (
-				094C31052C5070120079B229 /* MainViewController.swift */,
-				09897B092C63E67E0007C3D7 /* MainViewController+OutputHandler.swift */,
-				09897B072C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift */,
+				0946E1402C612A2800AC76EF /* SmushfileDocument.swift */,
+				094C31052C5070120079B229 /* DocumentViewController.swift */,
+				09897B092C63E67E0007C3D7 /* DocumentViewController+OutputHandler.swift */,
+				09897B072C63E2B70007C3D7 /* DocumentViewController+NSTextFieldDelegate.swift */,
 			);
-			path = MainView;
+			path = Document;
 			sourceTree = "<group>";
 		};
 		09AA66042C62C5F600796476 /* StatusBar */ = {
@@ -403,10 +403,10 @@
 				09CE510B2C631812005057B6 /* OutputFormatter.swift in Sources */,
 				091C02EF2C5035EC0060A147 /* AppDelegate.swift in Sources */,
 				09E2DB342C6670680031BEDF /* WelcomeHostingController.swift in Sources */,
-				09897B082C63E2B70007C3D7 /* MainViewController+NSTextFieldDelegate.swift in Sources */,
+				09897B082C63E2B70007C3D7 /* DocumentViewController+NSTextFieldDelegate.swift in Sources */,
 				091C03292C5037100060A147 /* AnsiColors.swift in Sources */,
 				091C03212C5036BE0060A147 /* SwiftBridgeCore.swift in Sources */,
-				094C31062C5070120079B229 /* MainViewController.swift in Sources */,
+				094C31062C5070120079B229 /* DocumentViewController.swift in Sources */,
 				09897B152C63EF800007C3D7 /* OutputFonts.swift in Sources */,
 				09BCD6F12C62E0490057B475 /* SenderModel.swift in Sources */,
 				09D666C02C654B2E00416A00 /* Stories.swift in Sources */,
@@ -415,7 +415,7 @@
 				09BCD6F92C62E0780057B475 /* TimerModel.swift in Sources */,
 				093EC6792C5C1C4000E7E646 /* WorldAddressView.swift in Sources */,
 				09BCD6F32C62E0570057B475 /* ReactionModel.swift in Sources */,
-				09897B0A2C63E67E0007C3D7 /* MainViewController+OutputHandler.swift in Sources */,
+				09897B0A2C63E67E0007C3D7 /* DocumentViewController+OutputHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,13 +1,13 @@
 import AppKit
 import SwiftUI
 
-extension MainViewController {
+extension DocumentViewController {
   @objc private func handleChoice(_ item: NSMenuItem) {
     sendInput(item.title)
   }
 }
 
-extension MainViewController: NSTextViewDelegate {
+extension DocumentViewController: NSTextViewDelegate {
   func control(
     _ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector
   ) -> Bool {
@@ -48,4 +48,4 @@ extension MainViewController: NSTextViewDelegate {
   }
 }
 
-extension MainViewController: NSTextFieldDelegate {}
+extension DocumentViewController: NSTextFieldDelegate {}

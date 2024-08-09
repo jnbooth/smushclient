@@ -18,7 +18,7 @@ func lastLineRange(_ string: NSString) -> NSRange {
   return NSRange(location: i, length: string.length - i)
 }
 
-extension MainViewController {
+extension DocumentViewController {
   func handleOutput(_ output: RustOutputStream) {
     textStorage.beginEditing()
     var shouldScrollToBottom = false

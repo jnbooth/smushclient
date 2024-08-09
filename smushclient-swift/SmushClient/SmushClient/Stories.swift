@@ -12,7 +12,7 @@ struct Stories {
     storyboard = NSStoryboard(name: NSStoryboard.Name(name), bundle: bundle)
   }
 
-  @MainActor func instantiateDocument() -> Story<MainViewController> {
+  @MainActor func instantiateDocument() -> Story<DocumentViewController> {
     instantiate("Document Window Controller")
   }
 
