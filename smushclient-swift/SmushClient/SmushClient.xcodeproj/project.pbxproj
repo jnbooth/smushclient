@@ -28,6 +28,7 @@
 		09897B112C63E94E0007C3D7 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B102C63E94E0007C3D7 /* StatusBarView.swift */; };
 		09897B132C63EC500007C3D7 /* ColorPairModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B122C63EC500007C3D7 /* ColorPairModel.swift */; };
 		09897B152C63EF800007C3D7 /* OutputFonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B142C63EF800007C3D7 /* OutputFonts.swift */; };
+		099A59C82C67E47F003ED81A /* WorldRequiredTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099A59C72C67E47F003ED81A /* WorldRequiredTextField.swift */; };
 		09AA66032C62C56500796476 /* StatusBarState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09AA66022C62C56500796476 /* StatusBarState.swift */; };
 		09BCD6E52C62DA300057B475 /* WorldTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09BCD6E42C62DA300057B475 /* WorldTextField.swift */; };
 		09BCD6E72C62DC780057B475 /* WorldSecureField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09BCD6E62C62DC780057B475 /* WorldSecureField.swift */; };
@@ -73,6 +74,7 @@
 		09897B102C63E94E0007C3D7 /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
 		09897B122C63EC500007C3D7 /* ColorPairModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorPairModel.swift; sourceTree = "<group>"; };
 		09897B142C63EF800007C3D7 /* OutputFonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutputFonts.swift; sourceTree = "<group>"; };
+		099A59C72C67E47F003ED81A /* WorldRequiredTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldRequiredTextField.swift; sourceTree = "<group>"; };
 		09A47AD42C5BDFC400A4D6C7 /* WorldAddressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldAddressView.swift; sourceTree = "<group>"; };
 		09AA66022C62C56500796476 /* StatusBarState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarState.swift; sourceTree = "<group>"; };
 		09BCD6E42C62DA300057B475 /* WorldTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldTextField.swift; sourceTree = "<group>"; };
@@ -226,6 +228,7 @@
 				09BCD6E82C62DCFA0057B475 /* WorldPortField.swift */,
 				09BCD6E62C62DC780057B475 /* WorldSecureField.swift */,
 				09BCD6E42C62DA300057B475 /* WorldTextField.swift */,
+				099A59C72C67E47F003ED81A /* WorldRequiredTextField.swift */,
 				09BCD6EA2C62DEF70057B475 /* WorldToggleField.swift */,
 			);
 			path = Components;
@@ -414,6 +417,7 @@
 				09E2DB362C6670860031BEDF /* WelcomeView.swift in Sources */,
 				09BCD6F92C62E0780057B475 /* TimerModel.swift in Sources */,
 				093EC6792C5C1C4000E7E646 /* WorldAddressView.swift in Sources */,
+				099A59C82C67E47F003ED81A /* WorldRequiredTextField.swift in Sources */,
 				09BCD6F32C62E0570057B475 /* ReactionModel.swift in Sources */,
 				09897B0A2C63E67E0007C3D7 /* DocumentViewController+OutputHandler.swift in Sources */,
 			);
