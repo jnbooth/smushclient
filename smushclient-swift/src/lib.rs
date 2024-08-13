@@ -107,11 +107,11 @@ mod ffi {
     }
 
     extern "Rust" {
-        #[swift_bridge(return_into)]
+        #[swift_bridge(swift_name = "createWorld", return_into)]
         fn create_world() -> World;
-        #[swift_bridge(return_with = convert_world)]
+        #[swift_bridge(swift_name = "readWorld", return_with = convert_world)]
         fn read_world(data: &[u8]) -> Result<World, String>;
-        #[swift_bridge(args_into = (world))]
+        #[swift_bridge(swift_name = "writeWorld", args_into = (world))]
         fn write_world(world: World) -> Result<Vec<u8>, String>;
     }
 }

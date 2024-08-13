@@ -61,7 +61,7 @@ class SmushfileDocument: NSDocument {
   override func read(from data: Data, ofType typeName: String) throws {
     try MainActor.assumeIsolated {
       let world = try data.withUnsafeBytes { body in
-        try read_world(body.assumingMemoryBound(to: UInt8.self))
+        try readWorld(body.assumingMemoryBound(to: UInt8.self))
       }
       content = WorldModel(world)
       displayName = content.name
@@ -69,7 +69,7 @@ class SmushfileDocument: NSDocument {
   }
 
   override func data(ofType typeName: String) throws -> Data {
-    let vec = try write_world(World(content))
+    let vec = try writeWorld(World(content))
     let len = vec.len()
     var data = Data(capacity: len)
     data.append(vec.as_ptr(), count: len)
