@@ -44,6 +44,8 @@ extension DocumentViewController {
       handleHR()
     case .Image(let src):
       handleImage(src.toString())
+    case .MxpError(let error):
+      handleMxpError(error.toString())
     case .LineBreak:
       handleLineBreak()
     case .PageBreak:
@@ -120,6 +122,11 @@ extension DocumentViewController {
     let didBreak = handleBreak()
     willBreak = true
     return didBreak
+  }
+
+  private func handleMxpError(_ error: String) -> Bool {
+    print(error)
+    return false
   }
 
   private func handlePageBreak() -> Bool {

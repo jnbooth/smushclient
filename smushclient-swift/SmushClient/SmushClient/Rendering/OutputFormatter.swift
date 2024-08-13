@@ -1,18 +1,8 @@
 import AppKit
 
-extension MudColor {
-  func color(_ ansiColors: AnsiColors) -> NSColor {
-    switch self {
-    case .Ansi(let code): ansiColors[Int(code)]
-    case .Hex(let hex): NSColor(hex)
-    }
-  }
-
+extension RgbColor {
   func isBlack() -> Bool {
-    switch self {
-    case .Ansi(let code): code == 0
-    case .Hex(let hex): hex.r == 0 && hex.g == 0 && hex.b == 0
-    }
+    self.r == 0 && self.g == 0 && self.b == 0
   }
 }
 
@@ -21,7 +11,6 @@ struct OutputFormatter {
   private let showUnderline: Bool
   private let hyperlinkColor: NSColor?
   private let underlineHyperlinks: Bool
-  private let ansiColors: AnsiColors
   let plainAttributes: [NSAttributedString.Key: Any]
 
   init() {
@@ -30,7 +19,6 @@ struct OutputFormatter {
     showUnderline = true
     hyperlinkColor = nil
     underlineHyperlinks = true
-    ansiColors = defaultAnsiColors
   }
 
   init(_ world: WorldModel) {
@@ -39,7 +27,6 @@ struct OutputFormatter {
     showUnderline = world.show_underline
     hyperlinkColor = world.use_custom_link_color ? world.hyperlink_color : nil
     underlineHyperlinks = world.underline_hyperlinks
-    ansiColors = world.use_default_colors ? defaultAnsiColors : world.ansi_colors
   }
 
   func format(_ fragment: RustTextFragment) -> NSAttributedString {
@@ -51,11 +38,11 @@ struct OutputFormatter {
 
     var attrs: [NSAttributedString.Key: Any] = [
       .font: fonts.provide(bold: fragment.isBold(), italic: fragment.isItalic()),
-      .foregroundColor: foreground.color(ansiColors),
+      .foregroundColor: NSColor(foreground),
     ]
 
     if !background.isBlack() {
-      attrs[.backgroundColor] = background.color(ansiColors)
+      attrs[.backgroundColor] = NSColor(background)
     }
 
     if let link = fragment.link() {

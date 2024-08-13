@@ -10,6 +10,24 @@ private let defaultCustomNames = [
   "Custom1", "Custom2", "Custom3", "Custom4", "Custom5", "Custom6", "Custom7", "Custom8",
   "Custom9", "Custom10", "Custom11", "Custom12", "Custom13", "Custom14", "Custom15", "Custom16",
 ]
+private let defaultAnsiColors: [NSColor] = [
+  NSColor(red: 0, green: 0, blue: 0, alpha: 1),  // black
+  NSColor(red: 0.5, green: 0, blue: 0, alpha: 1),  // red
+  NSColor(red: 0, green: 0.5, blue: 0, alpha: 1),  // green
+  NSColor(red: 0.5, green: 0.5, blue: 0, alpha: 1),  // yellow
+  NSColor(red: 0, green: 0, blue: 0.5, alpha: 1),  // blue
+  NSColor(red: 0.5, green: 0, blue: 0.5, alpha: 1),  // purple
+  NSColor(red: 0, green: 0.5, blue: 0.5, alpha: 1),  // cyan
+  NSColor(red: 0.75, green: 0.75, blue: 0.75, alpha: 1),  // white
+  NSColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1),  // bright black
+  NSColor(red: 1, green: 0, blue: 0, alpha: 1),  // bright red
+  NSColor(red: 0, green: 1, blue: 0, alpha: 1),  // bright green
+  NSColor(red: 1, green: 1, blue: 0, alpha: 1),  //bright yellow
+  NSColor(red: 0, green: 0, blue: 1, alpha: 1),  // bright blue
+  NSColor(red: 1, green: 0, blue: 1, alpha: 1),  // bright purple
+  NSColor(red: 0, green: 1, blue: 1, alpha: 1),  // bright cyan
+  NSColor(red: 1, green: 1, blue: 1, alpha: 1),  // bright white
+]
 
 @Observable
 class WorldModel {
@@ -100,7 +118,7 @@ class WorldModel {
   var send_mxp_afk_response: Bool = true
   var mud_can_change_options: Bool = true
   var use_default_colors: Bool = true
-  var ansi_colors: AnsiColors = defaultAnsiColors
+  var ansi_colors: [NSColor] = defaultAnsiColors
   var custom_names: [String] = defaultCustomNames
   var custom_colors: [ColorPairModel] = Array(
     repeating: ColorPairModel(foreground: defaultCustomColor), count: 16)
@@ -426,7 +444,7 @@ extension World {
     terminal_identification = world.terminal_identification.intoRustString()
     use_mxp = world.use_mxp
     detect_pueblo = world.detect_pueblo
-    hyperlink_color = HexColor(world.hyperlink_color)
+    hyperlink_color = RgbColor(world.hyperlink_color)
     use_custom_link_color = world.use_custom_link_color
     mud_can_change_link_color = world.mud_can_change_link_color
     underline_hyperlinks = world.underline_hyperlinks
@@ -437,7 +455,7 @@ extension World {
     send_mxp_afk_response = world.send_mxp_afk_response
     mud_can_change_options = world.mud_can_change_options
     use_default_colors = world.use_default_colors
-    ansi_colors = intoVec(world.ansi_colors, by: HexColor.init)
+    ansi_colors = intoVec(world.ansi_colors, by: RgbColor.init)
     custom_names = intoVec(world.custom_names) { $0.intoRustString() }
     custom_colors = intoVec(world.custom_colors, by: ColorPair.init)
     triggers = intoVec(world.triggers, by: Trigger.init)
@@ -512,7 +530,7 @@ extension World {
     script_editor = world.script_editor.intoRustString()
     script_reload_option = world.script_reload_option
     script_errors_to_output_window = world.script_errors_to_output_window
-    note_text_color = HexColor(world.note_text_color)
+    note_text_color = RgbColor(world.note_text_color)
     plugins = intoVec(world.plugins) { $0.intoRustString() }
   }
 }

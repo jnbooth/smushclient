@@ -11,7 +11,7 @@ use mud_transformer::{TransformerConfig, UseMxp};
 use serde::{Deserialize, Serialize};
 use smushclient_plugins::{Alias, Plugin, PluginMetadata, Sender, Timer, Trigger};
 
-use mud_transformer::mxp::{ansi16, HexColor};
+use mud_transformer::mxp::RgbColor;
 
 const CURRENT_VERSION: u8 = 1;
 
@@ -116,7 +116,7 @@ pub struct World {
     // MXP / Pueblo
     pub use_mxp: UseMxp,
     pub detect_pueblo: bool,
-    pub hyperlink_color: HexColor,
+    pub hyperlink_color: RgbColor,
     pub use_custom_link_color: bool,
     pub mud_can_change_link_color: bool,
     pub underline_hyperlinks: bool,
@@ -129,7 +129,7 @@ pub struct World {
 
     // ANSI Color
     pub use_default_colors: bool,
-    pub ansi_colors: [HexColor; 16],
+    pub ansi_colors: [RgbColor; 16],
 
     // Custom Color
     pub custom_names: [String; 16],
@@ -226,7 +226,7 @@ pub struct World {
     pub script_editor: String,
     pub script_reload_option: ScriptRecompile,
     pub script_errors_to_output_window: bool,
-    pub note_text_color: HexColor,
+    pub note_text_color: RgbColor,
 
     // Hidden
     pub plugins: Vec<String>,
@@ -291,7 +291,7 @@ impl World {
             accept_chat_connections: false,
             chat_port: 4050,
             validate_incoming_chat_calls: false,
-            chat_colors: ColorPair::foreground(HexColor::rgb(255, 0, 0)),
+            chat_colors: ColorPair::foreground(RgbColor::rgb(255, 0, 0)),
             ignore_chat_colors: false,
             chat_message_prefix: String::new(),
             chat_max_lines_per_message: 0,
@@ -335,7 +335,7 @@ impl World {
             // MXP / Pueblo
             use_mxp: UseMxp::Command,
             detect_pueblo: true,
-            hyperlink_color: HexColor::rgb(43, 121, 162),
+            hyperlink_color: RgbColor::rgb(43, 121, 162),
             use_custom_link_color: false,
             mud_can_change_link_color: true,
             underline_hyperlinks: true,
@@ -348,9 +348,9 @@ impl World {
 
             // ANSI Color
             use_default_colors: true,
-            ansi_colors: ansi16(),
+            ansi_colors: *RgbColor::XTERM_16,
             custom_names,
-            custom_colors: [ColorPair::foreground(HexColor::new(0)); 16],
+            custom_colors: [ColorPair::foreground(RgbColor::BLACK); 16],
 
             // Triggers
             triggers: Vec::new(),
@@ -360,14 +360,14 @@ impl World {
 
             // Commands
             display_my_input: true,
-            echo_colors: ColorPair::foreground(HexColor::rgb(128, 128, 128)),
+            echo_colors: ColorPair::foreground(RgbColor::rgb(128, 128, 128)),
             enable_speed_walk: false,
             speed_walk_prefix: "#".to_owned(),
             speed_walk_filler: "a".to_owned(),
             speed_walk_delay: 20,
             enable_command_stack: false,
             command_stack_character: "#".to_owned(),
-            input_colors: ColorPair::foreground(HexColor::rgb(128, 128, 128)),
+            input_colors: ColorPair::foreground(RgbColor::rgb(128, 128, 128)),
             input_font: "System".to_owned(),
             use_default_input_font: true,
             enable_spam_prevention: false,
@@ -441,7 +441,7 @@ impl World {
             script_editor: "System".to_owned(),
             script_reload_option: ScriptRecompile::Confirm,
             script_errors_to_output_window: false,
-            note_text_color: HexColor::rgb(0, 128, 255),
+            note_text_color: RgbColor::rgb(0, 128, 255),
 
             // Hidden
             plugins: Vec::new(),
@@ -509,6 +509,7 @@ impl From<&World> for TransformerConfig {
             naws: value.naws,
             disable_utf8: !value.utf_8,
             ignore_mxp_colors: value.ignore_mxp_color_changes,
+            colors: value.ansi_colors.to_vec(),
             ..Default::default()
         }
     }

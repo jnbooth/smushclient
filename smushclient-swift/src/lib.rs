@@ -15,7 +15,7 @@ use bridge::{RustMudBridge, RustOutputStream};
 use enums::ffi::{EffectFragment, SendTo, TelnetFragment};
 use mud_transformer::OutputFragment;
 use output::{RustMxpLink, RustTextFragment};
-use world::ffi::{MudColor, SendRequest, World};
+use world::ffi::{RgbColor, SendRequest, World};
 use world::{create_world, read_world, write_world};
 
 fn convert_world(world: Result<smushclient::World, String>) -> Result<World, String> {
@@ -24,8 +24,8 @@ fn convert_world(world: Result<smushclient::World, String>) -> Result<World, Str
 
 #[swift_bridge::bridge]
 mod ffi {
-    #[swift_bridge(already_declared)]
-    enum MudColor {}
+    #[swift_bridge(already_declared, swift_repr = "struct")]
+    struct RgbColor;
     #[swift_bridge(already_declared)]
     enum SendTo {}
     #[swift_bridge(already_declared)]
@@ -50,9 +50,9 @@ mod ffi {
         type RustTextFragment;
         fn text(&self) -> &str;
         #[swift_bridge(return_into)]
-        fn foreground(&self) -> MudColor;
+        fn foreground(&self) -> RgbColor;
         #[swift_bridge(return_into)]
-        fn background(&self) -> MudColor;
+        fn background(&self) -> RgbColor;
         #[swift_bridge(swift_name = "isBlink")]
         fn is_blink(&self) -> bool;
         #[swift_bridge(swift_name = "isBold")]
@@ -75,6 +75,7 @@ mod ffi {
         Hr,
         Image(String),
         LineBreak,
+        MxpError(String),
         PageBreak,
         Send(SendRequest),
         Sound(String),
@@ -124,6 +125,7 @@ impl From<OutputFragment> for ffi::OutputFragment {
             OutputFragment::Hr => Self::Hr,
             OutputFragment::Image(src) => Self::Image(src),
             OutputFragment::LineBreak => Self::LineBreak,
+            OutputFragment::MxpError(error) => Self::MxpError(error.to_string()),
             OutputFragment::PageBreak => Self::PageBreak,
             OutputFragment::Telnet(telnet) => Self::Telnet(telnet.into()),
             OutputFragment::Text(text) => Self::Text(text.into()),

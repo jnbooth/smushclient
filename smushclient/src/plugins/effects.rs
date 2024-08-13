@@ -1,4 +1,4 @@
-use mud_transformer::mxp::HexColor;
+use mud_transformer::mxp::RgbColor;
 use smushclient_plugins::{Alias, Trigger};
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -19,8 +19,8 @@ impl AliasEffects {
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct TriggerEffects {
     pub suppress: bool,
-    pub foreground: Option<HexColor>,
-    pub background: Option<HexColor>,
+    pub foreground: Option<RgbColor>,
+    pub background: Option<RgbColor>,
     pub make_bold: bool,
     pub make_italic: bool,
     pub make_underline: bool,

@@ -62,7 +62,7 @@ extension NSFont: IntoRustString {
   }
 }
 
-extension HexColor {
+extension RgbColor {
   init(_ color: NSColor) {
     self.r = UInt8(color.redComponent * 255)
     self.g = UInt8(color.greenComponent * 255)
@@ -73,7 +73,7 @@ extension HexColor {
 extension ColorOption {
   init(_ color: NSColor?) {
     if let color = color {
-      self = .Some(HexColor(color))
+      self = .Some(RgbColor(color))
     } else {
       self = .None
     }
@@ -81,7 +81,7 @@ extension ColorOption {
 }
 
 extension NSColor {
-  convenience init(_ color: HexColor) {
+  convenience init(_ color: RgbColor) {
     self.init(
       red: CGFloat(color.r) / 255,
       green: CGFloat(color.g) / 255,

@@ -1,5 +1,5 @@
 use enumeration::Enum;
-use mud_transformer::mxp::HexColor;
+use mud_transformer::mxp::RgbColor;
 use serde::{Deserialize, Serialize};
 
 #[derive(
@@ -49,12 +49,12 @@ pub enum LogMode {
     Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize,
 )]
 pub struct ColorPair {
-    pub foreground: Option<HexColor>,
-    pub background: Option<HexColor>,
+    pub foreground: Option<RgbColor>,
+    pub background: Option<RgbColor>,
 }
 
 impl ColorPair {
-    pub fn foreground(color: HexColor) -> Self {
+    pub fn foreground(color: RgbColor) -> Self {
         Self {
             foreground: Some(color),
             background: None,

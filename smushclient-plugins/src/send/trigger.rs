@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use mxp::HexColor;
+use mxp::RgbColor;
 use serde::{Deserialize, Serialize};
 
 use super::reaction::Reaction;
@@ -15,11 +15,11 @@ pub struct Trigger {
     pub change_foreground: bool,
     pub foreground: String,
     #[serde(skip)]
-    pub foreground_color: Option<HexColor>,
+    pub foreground_color: Option<RgbColor>,
     pub change_background: bool,
     pub background: String,
     #[serde(skip)]
-    pub background_color: Option<HexColor>,
+    pub background_color: Option<RgbColor>,
     pub make_bold: bool,
     pub make_italic: bool,
     pub make_underline: bool,
@@ -65,11 +65,11 @@ impl Change {
     }
 }
 
-fn get_color(name: &str) -> Option<HexColor> {
+fn get_color(name: &str) -> Option<RgbColor> {
     if name.is_empty() {
         return None;
     }
-    HexColor::named(name)
+    RgbColor::named(name)
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]

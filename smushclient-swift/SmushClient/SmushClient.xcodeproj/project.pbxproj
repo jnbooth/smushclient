@@ -12,7 +12,6 @@
 		091C02F62C5035ED0060A147 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 091C02F52C5035ED0060A147 /* Base */; };
 		091C03202C5036BE0060A147 /* smushclient-swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C031B2C5036BE0060A147 /* smushclient-swift.swift */; };
 		091C03212C5036BE0060A147 /* SwiftBridgeCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C031E2C5036BE0060A147 /* SwiftBridgeCore.swift */; };
-		091C03292C5037100060A147 /* AnsiColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091C03232C5037100060A147 /* AnsiColors.swift */; };
 		093875282C6592C600F40D2F /* WorldSettingsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 093875272C6592C600F40D2F /* WorldSettingsTabView.swift */; };
 		093EC6792C5C1C4000E7E646 /* WorldAddressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A47AD42C5BDFC400A4D6C7 /* WorldAddressView.swift */; };
 		093EC67B2C5C21BC00E7E646 /* WorldSettingsHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 093EC67A2C5C21BC00E7E646 /* WorldSettingsHostingController.swift */; };
@@ -58,7 +57,6 @@
 		091C031B2C5036BE0060A147 /* smushclient-swift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "smushclient-swift.swift"; sourceTree = "<group>"; };
 		091C031D2C5036BE0060A147 /* SwiftBridgeCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwiftBridgeCore.h; sourceTree = "<group>"; };
 		091C031E2C5036BE0060A147 /* SwiftBridgeCore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftBridgeCore.swift; sourceTree = "<group>"; };
-		091C03232C5037100060A147 /* AnsiColors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnsiColors.swift; sourceTree = "<group>"; };
 		093577282C61468D004F9A48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		093875272C6592C600F40D2F /* WorldSettingsTabView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WorldSettingsTabView.swift; sourceTree = "<group>"; };
 		093EC67A2C5C21BC00E7E646 /* WorldSettingsHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldSettingsHostingController.swift; sourceTree = "<group>"; };
@@ -246,7 +244,6 @@
 			isa = PBXGroup;
 			children = (
 				09BCD6F42C62E0600057B475 /* AliasModel.swift */,
-				091C03232C5037100060A147 /* AnsiColors.swift */,
 				09897B122C63EC500007C3D7 /* ColorPairModel.swift */,
 				09BCD6F22C62E0570057B475 /* ReactionModel.swift */,
 				09BCD6F02C62E0490057B475 /* SenderModel.swift */,
@@ -345,7 +342,6 @@
 				"$(PROJECT_DIR)/rust-files.xcfilelist",
 			);
 			inputPaths = (
-				"$(PROJECT_DIR)/xcode-build-rust.sh",
 			);
 			outputFileListPaths = (
 			);
@@ -407,7 +403,6 @@
 				091C02EF2C5035EC0060A147 /* AppDelegate.swift in Sources */,
 				09E2DB342C6670680031BEDF /* WelcomeHostingController.swift in Sources */,
 				09897B082C63E2B70007C3D7 /* DocumentViewController+NSTextFieldDelegate.swift in Sources */,
-				091C03292C5037100060A147 /* AnsiColors.swift in Sources */,
 				091C03212C5036BE0060A147 /* SwiftBridgeCore.swift in Sources */,
 				094C31062C5070120079B229 /* DocumentViewController.swift in Sources */,
 				09897B152C63EF800007C3D7 /* OutputFonts.swift in Sources */,

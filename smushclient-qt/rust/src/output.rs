@@ -1,15 +1,12 @@
 use super::ffi;
 use cxx_qt_lib::{QByteArray, QColor, QList, QString, QStringList};
-use mud_transformer::mxp::{self, SendTo, WorldColor};
-use mud_transformer::{EffectFragment, OutputFragment, TelnetFragment, TextFragment, TextStyle};
+use mud_transformer::mxp::{self, RgbColor, SendTo};
+use mud_transformer::{
+    EffectFragment, Output, OutputFragment, TelnetFragment, TextFragment, TextStyle,
+};
 
-fn encode_color(color: WorldColor) -> QColor {
-    match color {
-        WorldColor::Ansi(_) => unreachable!(),
-        WorldColor::Hex(color) => {
-            QColor::from_rgb(color.r() as i32, color.g() as i32, color.b() as i32)
-        }
-    }
+fn encode_color(color: RgbColor) -> QColor {
+    QColor::from_rgb(color.r as i32, color.g as i32, color.b as i32)
 }
 
 impl From<&mxp::Link> for ffi::MxpLink {
@@ -155,6 +152,7 @@ pub enum RustOutputFragment {
     Hr,
     Image(String),
     LineBreak,
+    MxpError(String),
     PageBreak,
     Telnet(RustTelnetFragment),
     Text(RustTextFragment),
@@ -167,10 +165,17 @@ impl From<OutputFragment> for RustOutputFragment {
             OutputFragment::Hr => Self::Hr,
             OutputFragment::Image(src) => Self::Image(src),
             OutputFragment::LineBreak => Self::LineBreak,
+            OutputFragment::MxpError(error) => Self::MxpError(error.to_string()),
             OutputFragment::PageBreak => Self::PageBreak,
             OutputFragment::Telnet(telnet) => Self::Telnet(telnet.into()),
             OutputFragment::Text(text) => Self::Text(text.into()),
         }
+    }
+}
+
+impl From<Output> for RustOutputFragment {
+    fn from(value: Output) -> Self {
+        Self::from(value.fragment)
     }
 }
 
@@ -181,6 +186,7 @@ impl RustOutputFragment {
             RustOutputFragment::Hr => ffi::OutputKind::Hr,
             RustOutputFragment::Image(_) => ffi::OutputKind::Image,
             RustOutputFragment::LineBreak => ffi::OutputKind::LineBreak,
+            RustOutputFragment::MxpError(_) => ffi::OutputKind::MxpError,
             RustOutputFragment::PageBreak => ffi::OutputKind::PageBreak,
             RustOutputFragment::Telnet(_) => ffi::OutputKind::Telnet,
             RustOutputFragment::Text(_) => ffi::OutputKind::Text,
@@ -198,6 +204,13 @@ impl RustOutputFragment {
         match self {
             RustOutputFragment::Image(image) => QString::from(image),
             _ => panic!("expected Image, found {:?}", self.kind()),
+        }
+    }
+
+    pub fn mxp_error(&self) -> QString {
+        match self {
+            RustOutputFragment::MxpError(error) => QString::from(error),
+            _ => panic!("expected MxpError, found {:?}", self.kind()),
         }
     }
 

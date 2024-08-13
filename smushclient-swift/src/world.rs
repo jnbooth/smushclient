@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 use crate::error::StringifyResultError;
-use mud_transformer::mxp::{HexColor, WorldColor};
+use mud_transformer::mxp::RgbColor;
 use mud_transformer::UseMxp;
 use smushclient::world::{AutoConnect, ColorPair, LogFormat, LogMode, ProxyType, ScriptRecompile};
 use smushclient::{SendRequest, World};
@@ -52,20 +52,15 @@ pub mod ffi {
 
     #[derive(Copy, Clone)]
     #[swift_bridge(swift_repr = "struct")]
-    struct HexColor {
+    struct RgbColor {
         r: u8,
         g: u8,
         b: u8,
     }
 
-    enum MudColor {
-        Ansi(u8),
-        Hex(HexColor),
-    }
-
     enum ColorOption {
         None,
-        Some(HexColor),
+        Some(RgbColor),
     }
 
     #[derive(Copy, Clone)]
@@ -266,7 +261,7 @@ pub mod ffi {
 
         use_mxp: UseMxp,
         detect_pueblo: bool,
-        hyperlink_color: HexColor,
+        hyperlink_color: RgbColor,
         use_custom_link_color: bool,
         mud_can_change_link_color: bool,
         underline_hyperlinks: bool,
@@ -278,7 +273,7 @@ pub mod ffi {
         mud_can_change_options: bool,
 
         use_default_colors: bool,
-        ansi_colors: Vec<HexColor>,
+        ansi_colors: Vec<RgbColor>,
 
         custom_names: Vec<String>,
         custom_colors: Vec<ColorPair>,
@@ -363,42 +358,13 @@ pub mod ffi {
         script_editor: String,
         script_reload_option: ScriptRecompile,
         script_errors_to_output_window: bool,
-        note_text_color: HexColor,
+        note_text_color: RgbColor,
 
         plugins: Vec<String>,
     }
 }
 
 impl Copy for ffi::ColorOption {}
-
-impl Copy for ffi::MudColor {}
-
-impl Clone for ffi::MudColor {
-    fn clone(&self) -> Self {
-        *self
-    }
-}
-
-impl From<WorldColor> for ffi::MudColor {
-    #[inline]
-    fn from(value: WorldColor) -> Self {
-        match value {
-            WorldColor::Ansi(code) => Self::Ansi(code),
-            WorldColor::Hex(color) => Self::Hex(color.into()),
-        }
-    }
-}
-
-impl From<ffi::MudColor> for WorldColor {
-    fn from(value: ffi::MudColor) -> Self {
-        match value {
-            ffi::MudColor::Ansi(code) => Self::Ansi(code),
-            ffi::MudColor::Hex(color) => Self::Hex(color.into()),
-        }
-    }
-}
-
-impl_convert!(ffi::MudColor, WorldColor);
 
 impl Convert<HashMap<String, String>> for Vec<ffi::KeypadMapping> {
     fn from_ffi(value: Self) -> HashMap<String, String> {
@@ -467,23 +433,7 @@ impl<'a> From<SendRequest<'a>> for ffi::SendRequest {
     }
 }
 
-impl From<HexColor> for ffi::HexColor {
-    fn from(value: HexColor) -> Self {
-        Self {
-            r: value.r(),
-            g: value.g(),
-            b: value.b(),
-        }
-    }
-}
-
-impl From<ffi::HexColor> for HexColor {
-    fn from(value: ffi::HexColor) -> Self {
-        HexColor::rgb(value.r, value.g, value.b)
-    }
-}
-
-impl_convert!(ffi::HexColor, HexColor);
+impl_convert_struct!(ffi::RgbColor, RgbColor, r, g, b);
 
 impl Clone for ffi::ColorOption {
     fn clone(&self) -> Self {
@@ -499,7 +449,7 @@ impl Clone for ffi::Occurrence {
 
 impl Copy for ffi::Occurrence {}
 
-impl From<ffi::ColorOption> for Option<HexColor> {
+impl From<ffi::ColorOption> for Option<RgbColor> {
     fn from(value: ffi::ColorOption) -> Self {
         match value {
             ffi::ColorOption::Some(color) => Some(color.into()),
@@ -508,8 +458,8 @@ impl From<ffi::ColorOption> for Option<HexColor> {
     }
 }
 
-impl From<Option<HexColor>> for ffi::ColorOption {
-    fn from(value: Option<HexColor>) -> Self {
+impl From<Option<RgbColor>> for ffi::ColorOption {
+    fn from(value: Option<RgbColor>) -> Self {
         match value {
             Some(color) => ffi::ColorOption::Some(color.into()),
             None => ffi::ColorOption::None,
@@ -517,7 +467,7 @@ impl From<Option<HexColor>> for ffi::ColorOption {
     }
 }
 
-impl_convert!(ffi::ColorOption, Option<HexColor>);
+impl_convert!(ffi::ColorOption, Option<RgbColor>);
 
 impl_convert_struct!(ffi::ColorPair, ColorPair, foreground, background,);
 

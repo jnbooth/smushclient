@@ -92,6 +92,7 @@ pub mod ffi {
         Hr,
         Image,
         LineBreak,
+        MxpError,
         PageBreak,
         Telnet,
         Text,
@@ -102,6 +103,7 @@ pub mod ffi {
         fn kind(&self) -> OutputKind;
         fn effect(&self) -> EffectFragment;
         fn image(&self) -> QString;
+        fn mxp_error(&self) -> QString;
         fn telnet(&self) -> &RustTelnetFragment;
         fn text(&self) -> &RustTextFragment;
     }

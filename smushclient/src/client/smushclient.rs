@@ -1,12 +1,12 @@
 use crate::handler::Handler;
 use crate::plugins::PluginEngine;
 use crate::world::World;
-use mud_transformer::{EffectFragment, OutputDrain, OutputFragment, TransformerConfig};
+use mud_transformer::{EffectFragment, Output, OutputDrain, OutputFragment, TransformerConfig};
 use smushclient_plugins::Plugin;
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct SmushClient {
-    output_buf: Vec<OutputFragment>,
+    output_buf: Vec<Output>,
     line_text: String,
     plugins: PluginEngine,
     world: World,
@@ -73,9 +73,9 @@ fn is_nonvisual_output(fragment: &OutputFragment) -> bool {
     )
 }
 
-fn is_break(fragment: &OutputFragment) -> bool {
+fn is_break(output: &Output) -> bool {
     matches!(
-        fragment,
+        output.fragment,
         OutputFragment::Hr | OutputFragment::LineBreak | OutputFragment::PageBreak
     )
 }
@@ -92,8 +92,8 @@ fn receive_lines<H: Handler>(
             return;
         }
         let mut until = 0;
-        for (i, fragment) in slice.iter().enumerate() {
-            match fragment {
+        for (i, output) in slice.iter().enumerate() {
+            match &output.fragment {
                 OutputFragment::Text(fragment) => line_text.push_str(&fragment.text),
                 OutputFragment::Hr | OutputFragment::LineBreak | OutputFragment::PageBreak => {
                     until = i + 1;
@@ -108,14 +108,14 @@ fn receive_lines<H: Handler>(
         let trigger_effects = plugins.trigger(line_text, handler);
         if trigger_effects.suppress {
             for _ in 0..until {
-                let fragment = output.next().unwrap();
+                let fragment = output.next().unwrap().fragment;
                 if is_nonvisual_output(&fragment) {
                     handler.display(fragment);
                 }
             }
         } else {
             for _ in 0..until {
-                handler.display(output.next().unwrap());
+                handler.display(output.next().unwrap().fragment);
             }
         }
     }

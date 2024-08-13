@@ -1,4 +1,4 @@
-use mud_transformer::mxp::{self, SendTo, WorldColor};
+use mud_transformer::mxp::{self, RgbColor, SendTo};
 use mud_transformer::{TextFragment, TextStyle};
 
 #[repr(transparent)]
@@ -56,12 +56,12 @@ impl RustTextFragment {
     }
 
     #[inline(always)]
-    pub fn foreground(&self) -> WorldColor {
+    pub fn foreground(&self) -> RgbColor {
         self.inner.foreground
     }
 
     #[inline(always)]
-    pub fn background(&self) -> WorldColor {
+    pub fn background(&self) -> RgbColor {
         self.inner.background
     }
 
