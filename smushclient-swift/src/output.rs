@@ -67,10 +67,7 @@ impl RustTextFragment {
 
     #[inline]
     pub fn link(&self) -> Option<&RustMxpLink> {
-        self.inner
-            .action
-            .as_ref()
-            .map(|action| RustMxpLink::cast(action))
+        self.inner.action.as_ref().map(RustMxpLink::cast)
     }
 
     flag_method!(is_blink, TextStyle::Blink);

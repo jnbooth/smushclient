@@ -71,7 +71,7 @@ impl RustTextFragment {
 
     #[inline]
     pub fn link(&self) -> ffi::MxpLink {
-        self.inner.action.as_ref().unwrap().as_ref().into()
+        self.inner.action.as_ref().unwrap().into()
     }
 
     flag_method!(is_blink, TextStyle::Blink);
@@ -153,6 +153,7 @@ pub enum RustOutputFragment {
     Image(String),
     LineBreak,
     MxpError(String),
+    MxpVariable { name: String, value: Option<String> },
     PageBreak,
     Telnet(RustTelnetFragment),
     Text(RustTextFragment),
@@ -166,6 +167,7 @@ impl From<OutputFragment> for RustOutputFragment {
             OutputFragment::Image(src) => Self::Image(src),
             OutputFragment::LineBreak => Self::LineBreak,
             OutputFragment::MxpError(error) => Self::MxpError(error.to_string()),
+            OutputFragment::MxpVariable { name, value } => Self::MxpVariable { name, value },
             OutputFragment::PageBreak => Self::PageBreak,
             OutputFragment::Telnet(telnet) => Self::Telnet(telnet.into()),
             OutputFragment::Text(text) => Self::Text(text.into()),
@@ -187,6 +189,10 @@ impl RustOutputFragment {
             RustOutputFragment::Image(_) => ffi::OutputKind::Image,
             RustOutputFragment::LineBreak => ffi::OutputKind::LineBreak,
             RustOutputFragment::MxpError(_) => ffi::OutputKind::MxpError,
+            RustOutputFragment::MxpVariable { value: None, .. } => {
+                ffi::OutputKind::MxpVariableUnset
+            }
+            RustOutputFragment::MxpVariable { .. } => ffi::OutputKind::MxpVariableSet,
             RustOutputFragment::PageBreak => ffi::OutputKind::PageBreak,
             RustOutputFragment::Telnet(_) => ffi::OutputKind::Telnet,
             RustOutputFragment::Text(_) => ffi::OutputKind::Text,
@@ -211,6 +217,25 @@ impl RustOutputFragment {
         match self {
             RustOutputFragment::MxpError(error) => QString::from(error),
             _ => panic!("expected MxpError, found {:?}", self.kind()),
+        }
+    }
+
+    pub fn mxp_variable_name(&self) -> QString {
+        match self {
+            RustOutputFragment::MxpVariable { name, .. } => QString::from(name),
+            _ => panic!(
+                "expected MxpVariableSet or MxpVariableUnset, found {:?}",
+                self.kind()
+            ),
+        }
+    }
+
+    pub fn mxp_variable_value(&self) -> QString {
+        match self {
+            RustOutputFragment::MxpVariable {
+                value: Some(value), ..
+            } => QString::from(value),
+            _ => panic!("expected MxpVariableSet, found {:?}", self.kind()),
         }
     }
 

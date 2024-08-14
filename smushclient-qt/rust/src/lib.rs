@@ -96,6 +96,8 @@ pub mod ffi {
         Image,
         LineBreak,
         MxpError,
+        MxpVariableSet,
+        MxpVariableUnset,
         PageBreak,
         Telnet,
         Text,

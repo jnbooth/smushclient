@@ -14,7 +14,7 @@ func setupActionAttributes(
   text: String,
   attributes: inout [NSAttributedString.Key: Any]
 ) {
-  let action = link.action().toString().replacing("&text;", with: text)
+  let action = link.action().toString();
   let sendto = link.sendto()
   if sendto == .Internet, let url = URL(string: action) {
     attributes[.link] = url

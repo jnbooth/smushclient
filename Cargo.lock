@@ -107,7 +107,7 @@ checksum = "a12916984aab3fa6e39d655a33e09c0071eb36d6ab3aea5c2d78551f1df6d952"
 [[package]]
 name = "casefold"
 version = "0.1.0"
-source = "git+https://github.com/jnbooth/casefold#78435c2691807569e5cb44e66fad082b035f2f9d"
+source = "git+https://github.com/jnbooth/casefold#155752e595e76fe1535a82c1f6ea29aa37c934cf"
 
 [[package]]
 name = "cc"
@@ -320,7 +320,7 @@ checksum = "60b1af1c220855b6ceac025d3f6ecdd2b7c4894bfe9cd9bda4fbb4bc7c0d4cf0"
 [[package]]
 name = "enumeration"
 version = "0.7.1"
-source = "git+https://github.com/jnbooth/enumeration#5e8df7fb6b8df1449e95f36878fdf03b331986fa"
+source = "git+https://github.com/jnbooth/enumeration#c404beef6d85fa76ed7de353652f7f966054e819"
 dependencies = [
  "enumeration_derive",
 ]
@@ -328,7 +328,7 @@ dependencies = [
 [[package]]
 name = "enumeration_derive"
 version = "0.7.1"
-source = "git+https://github.com/jnbooth/enumeration#5e8df7fb6b8df1449e95f36878fdf03b331986fa"
+source = "git+https://github.com/jnbooth/enumeration#c404beef6d85fa76ed7de353652f7f966054e819"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -512,8 +512,8 @@ dependencies = [
 
 [[package]]
 name = "mud-stream"
-version = "0.5.0"
-source = "git+https://github.com/jnbooth/mxp#4aed3ac26dee784d68cfd1d9a36a74b11666c6b1"
+version = "0.6.0"
+source = "git+https://github.com/jnbooth/mxp#4b2bcf71d01476a519703d76cf2520277247bea0"
 dependencies = [
  "mud-transformer",
  "pin-project-lite",
@@ -522,8 +522,8 @@ dependencies = [
 
 [[package]]
 name = "mud-transformer"
-version = "0.5.0"
-source = "git+https://github.com/jnbooth/mxp#4aed3ac26dee784d68cfd1d9a36a74b11666c6b1"
+version = "0.6.0"
+source = "git+https://github.com/jnbooth/mxp#4b2bcf71d01476a519703d76cf2520277247bea0"
 dependencies = [
  "bytes",
  "enumeration",
@@ -534,8 +534,8 @@ dependencies = [
 
 [[package]]
 name = "mxp"
-version = "0.5.0"
-source = "git+https://github.com/jnbooth/mxp#4aed3ac26dee784d68cfd1d9a36a74b11666c6b1"
+version = "0.6.0"
+source = "git+https://github.com/jnbooth/mxp#4b2bcf71d01476a519703d76cf2520277247bea0"
 dependencies = [
  "casefold",
  "enumeration",
