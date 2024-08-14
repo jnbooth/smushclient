@@ -1,4 +1,7 @@
+#![allow(clippy::cast_possible_wrap)]
+#![allow(clippy::cast_sign_loss)]
 #![allow(clippy::missing_safety_doc)]
+#![allow(clippy::unnecessary_box_returns)]
 
 #[macro_use]
 mod convert;

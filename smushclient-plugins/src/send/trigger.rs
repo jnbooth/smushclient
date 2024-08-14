@@ -1,6 +1,8 @@
 use std::borrow::Cow;
 
 use mxp::RgbColor;
+
+use enumeration::{Enum, EnumSet};
 use serde::{Deserialize, Serialize};
 
 use super::reaction::Reaction;
@@ -40,29 +42,11 @@ impl_deref!(Trigger, Reaction, reaction);
 impl_asref!(Trigger, Reaction);
 impl_asref!(Trigger, Sender);
 
-#[repr(u8)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
 enum Change {
     Both,
     Fg,
     Bg,
-}
-
-impl Change {
-    const fn member(self, set: Option<u8>) -> bool {
-        match set {
-            None => false,
-            Some(0) => true,
-            Some(x) => x == self as u8,
-        }
-    }
-
-    const fn insert_into(self, set: Option<u8>) -> Option<u8> {
-        match set {
-            None => Some(self as u8),
-            Some(i) if i == self as u8 => Some(i),
-            _ => Some(Self::Both as u8),
-        }
-    }
 }
 
 fn get_color(name: &str) -> Option<RgbColor> {
@@ -72,12 +56,17 @@ fn get_color(name: &str) -> Option<RgbColor> {
     RgbColor::named(name)
 }
 
+#[allow(clippy::trivially_copy_pass_by_ref)]
+const fn is_zero(n: &u8) -> bool {
+    *n == 0
+}
+
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 #[serde(default = "TriggerXml::template")]
 pub struct TriggerXml<'a> {
     /// See [`Change`].
-    #[serde(rename = "@color_change_type", skip_serializing_if = "Option::is_none")]
-    colour_change_type: Option<u8>,
+    #[serde(rename = "@color_change_type", skip_serializing_if = "is_zero")]
+    colour_change_type: u8,
     #[serde(rename = "@enabled")]
     enabled: bool,
     #[serde(rename = "@expand_variables")]
@@ -214,14 +203,15 @@ impl TryFrom<TriggerXml<'_>> for Trigger {
                 ..repeats,
             }
         );
+        let color_changes = EnumSet::from_raw(value.colour_change_type);
         Ok(in_place!(
             value,
             Self {
                 reaction,
-                change_foreground: Change::Fg.member(value.colour_change_type),
+                change_foreground: color_changes.contains(Change::Fg),
                 foreground_color: get_color(&value.other_text_colour),
                 foreground: value.other_text_colour,
-                change_background:Change::Bg.member(value.colour_change_type),
+                change_background: color_changes.contains(Change::Bg),
                 background_color: get_color(&value.other_back_colour),
                 background: value.other_back_colour,
                 ..sound,
@@ -238,19 +228,20 @@ impl TryFrom<TriggerXml<'_>> for Trigger {
 }
 impl<'a> From<&'a Trigger> for TriggerXml<'a> {
     fn from(value: &'a Trigger) -> Self {
-        let mut colour_change_type = None;
+        let mut color_changes = EnumSet::new();
         let other_text_colour = if value.change_foreground {
-            colour_change_type = Change::Fg.insert_into(colour_change_type);
+            color_changes.insert(Change::Fg);
             value.foreground.clone()
         } else {
             String::new()
         };
         let other_back_colour = if value.change_background {
-            colour_change_type = Change::Bg.insert_into(colour_change_type);
+            color_changes.insert(Change::Bg);
             value.background.clone()
         } else {
             String::new()
         };
+        let colour_change_type = color_changes.to_raw();
         in_place!(
             value,
             Self {

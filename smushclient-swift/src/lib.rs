@@ -1,3 +1,5 @@
+#![allow(clippy::expl_impl_clone_on_copy)]
+#![allow(clippy::ptr_as_ptr)]
 #![allow(clippy::unnecessary_cast)]
 
 #[macro_use]

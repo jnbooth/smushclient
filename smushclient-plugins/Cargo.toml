@@ -10,6 +10,10 @@ workspace = true
 version = "0.4.38"
 features = ["serde"]
 
+[dependencies.enumeration]
+git = "https://github.com/jnbooth/enumeration"
+version = "0.7.1"
+
 [dependencies.fancy-regex]
 version = "0.13.0"
 

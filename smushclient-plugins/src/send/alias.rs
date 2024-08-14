@@ -19,7 +19,7 @@ pub struct Alias {
 
 impl Alias {
     pub fn new() -> Self {
-        Default::default()
+        Self::default()
     }
 }
 

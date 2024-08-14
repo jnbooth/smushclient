@@ -753,6 +753,7 @@ name = "smushclient-plugins"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "enumeration",
  "fancy-regex",
  "mxp",
  "quick-xml",

@@ -49,9 +49,8 @@ impl SmushClient {
             return;
         }
         self.output_buf.extend(output);
-        let last_break = match self.output_buf.iter().rposition(is_break) {
-            Some(last_break) => last_break,
-            None => return,
+        let Some(last_break) = self.output_buf.iter().rposition(is_break) else {
+            return;
         };
         let mut output = self.output_buf.drain(..=last_break);
         receive_lines(&mut output, handler, &mut self.plugins, &mut self.line_text);

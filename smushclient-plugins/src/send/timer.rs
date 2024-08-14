@@ -1,3 +1,4 @@
+#![allow(clippy::cast_sign_loss)]
 use std::borrow::Cow;
 use std::time::Duration;
 
@@ -12,6 +13,10 @@ use crate::in_place::InPlace;
 const NANOS: u64 = 1_000_000_000;
 
 fn duration_from_hms(hour: u64, minute: u64, second: f64) -> Duration {
+    debug_assert!(
+        second.is_finite() && (second == 0.0 || second.is_sign_positive()),
+        "second must be a finite positive number"
+    );
     Duration::from_nanos((NANOS as f64 * second) as u64 + NANOS * 60 * (minute + 60 * hour))
 }
 

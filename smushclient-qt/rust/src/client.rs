@@ -30,7 +30,7 @@ impl SmushClientRust {
         }
 
         let output_lock = self.output_lock.lock();
-        let buf_ptr = self.buf.as_mut_ptr() as *mut c_char;
+        let buf_ptr = self.buf.as_mut_ptr().cast::<c_char>();
         let buf_len = self.buf.len() as i64;
         let mut total_read = 0;
         loop {
@@ -60,7 +60,7 @@ impl SmushClientRust {
                 if drain_buf.is_empty() {
                     break;
                 }
-                let drain_ptr = drain_buf.as_ptr() as *const c_char;
+                let drain_ptr = drain_buf.as_ptr().cast::<c_char>();
                 let drain_len = drain_buf.len() as i64;
                 // SAFETY: Device will not write past drain_len.
                 let n = unsafe { device.as_mut().write(drain_ptr, drain_len) };

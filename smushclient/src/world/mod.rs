@@ -241,7 +241,7 @@ impl Default for World {
 impl World {
     pub fn new() -> Self {
         let custom_names: [String; 16] = (1..=16)
-            .map(|i| format!("Custom{}", i))
+            .map(|i| format!("Custom{i}"))
             .collect::<Vec<_>>()
             .try_into()
             .unwrap();

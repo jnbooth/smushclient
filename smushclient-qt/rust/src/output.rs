@@ -120,9 +120,9 @@ impl RustTelnetFragment {
 
     pub fn code(&self) -> u8 {
         match self.inner {
-            TelnetFragment::Do { code } => code,
-            TelnetFragment::Subnegotiation { code, .. } => code,
-            TelnetFragment::Will { code } => code,
+            TelnetFragment::Will { code }
+            | TelnetFragment::Do { code }
+            | TelnetFragment::Subnegotiation { code, .. } => code,
             _ => 0,
         }
     }

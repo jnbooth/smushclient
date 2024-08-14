@@ -9,7 +9,7 @@ pub struct RustMxpLink {
 impl RustMxpLink {
     fn cast(link: &mxp::Link) -> &Self {
         // SAFETY: #[repr(transparent)]
-        unsafe { &*(link as *const mxp::Link as *const Self) }
+        unsafe { &*(link as *const mxp::Link).cast::<Self>() }
     }
 
     pub fn action(&self) -> &str {

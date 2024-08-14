@@ -242,9 +242,8 @@ impl<'a, 'b, T> SendMatch<'a, 'b, T> {
     }
 
     pub fn wildcards(&self) -> Vec<&'b str> {
-        let captures = match &self.captures {
-            Some(ref captures) => captures,
-            None => return Vec::new(),
+        let Some(ref captures) = &self.captures else {
+            return Vec::new();
         };
         let mut wildcards = Vec::with_capacity(captures.len() - 1);
         let mut iter = captures.iter();
@@ -502,7 +501,7 @@ mod tests {
                     vals(senders.triggers)
                 ),
                 (plugin.aliases, plugin.timers, plugin.triggers)
-            )
+            );
         }
 
         #[test]
@@ -537,6 +536,7 @@ mod tests {
             expect: &'a [&'a str],
         }
 
+        #[allow(clippy::needless_pass_by_value)]
         fn test_match(opts: Opts) {
             let mut alias = Alias::default();
             alias.reaction.regex = Reaction::make_regex(opts.pattern, opts.is_regex).unwrap();
@@ -548,7 +548,7 @@ mod tests {
                 .matches::<Alias>(opts.line)
                 .map(|send| send.text.to_owned())
                 .collect();
-            let expect: Vec<_> = opts.expect.iter().map(|s| s.to_owned()).collect();
+            let expect: Vec<_> = opts.expect.iter().map(ToOwned::to_owned).collect();
             assert_eq!(outputs, expect);
         }
 

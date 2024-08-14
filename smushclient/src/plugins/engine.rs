@@ -43,14 +43,11 @@ impl PluginEngine {
     }
 
     pub fn set_world_plugin(&mut self, plugin: Option<Plugin>) {
-        let plugin = match plugin {
-            Some(plugin) => plugin,
-            None => {
-                if let Some(old_index) = self.plugins.iter().position(is_world) {
-                    self.plugins.remove(old_index);
-                }
-                return;
+        let Some(plugin) = plugin else {
+            if let Some(old_index) = self.plugins.iter().position(is_world) {
+                self.plugins.remove(old_index);
             }
+            return;
         };
         match self.plugins.iter_mut().find(|plugin| is_world(plugin)) {
             Some(old_plugin) => {

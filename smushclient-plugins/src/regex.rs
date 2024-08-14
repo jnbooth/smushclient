@@ -46,7 +46,7 @@ impl Ord for Regex {
 
 impl Hash for Regex {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.as_str().hash(state)
+        self.as_str().hash(state);
     }
 }
 
