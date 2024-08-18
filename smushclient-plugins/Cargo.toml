@@ -12,14 +12,14 @@ features = ["serde"]
 
 [dependencies.enumeration]
 git = "https://github.com/jnbooth/enumeration"
-version = "0.7.1"
+version = "0.8.0"
 
 [dependencies.fancy-regex]
 version = "0.13.0"
 
 [dependencies.mxp]
 git = "https://github.com/jnbooth/mxp"
-version = "0.6.0"
+version = "0.8.0"
 
 [dependencies.quick-xml]
 version = "0.36.1"

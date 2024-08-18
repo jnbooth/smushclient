@@ -1,3 +1,8 @@
+pub trait Convert<T> {
+    fn from_ffi(value: Self) -> T;
+    fn to_ffi(value: T) -> Self;
+}
+
 macro_rules! impl_convert {
     ($ffi:ty, $rust:ty) => {
         impl Convert<$rust> for $ffi {
@@ -84,11 +89,6 @@ macro_rules! impl_convert_struct {
         }
         impl_convert!($ffi, $rust);
     }
-}
-
-pub trait Convert<T> {
-    fn from_ffi(value: Self) -> T;
-    fn to_ffi(value: T) -> Self;
 }
 
 impl Convert<Option<String>> for String {

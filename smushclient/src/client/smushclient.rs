@@ -1,7 +1,10 @@
 use crate::handler::Handler;
 use crate::plugins::PluginEngine;
 use crate::world::World;
-use mud_transformer::{EffectFragment, Output, OutputDrain, OutputFragment, TransformerConfig};
+use enumeration::EnumSet;
+use mud_transformer::{
+    EffectFragment, Output, OutputDrain, OutputFragment, Tag, TransformerConfig,
+};
 use smushclient_plugins::Plugin;
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -9,17 +12,19 @@ pub struct SmushClient {
     output_buf: Vec<Output>,
     line_text: String,
     plugins: PluginEngine,
+    supported_tags: EnumSet<Tag>,
     world: World,
 }
 
 impl SmushClient {
-    pub fn new(world: World) -> Self {
+    pub fn new(world: World, supported_tags: EnumSet<Tag>) -> Self {
         let mut plugins = PluginEngine::new();
         plugins.set_world_plugin(world.world_plugin());
         Self {
             output_buf: Vec::new(),
             line_text: String::new(),
             plugins,
+            supported_tags,
             world,
         }
     }
@@ -27,6 +32,7 @@ impl SmushClient {
     pub fn config(&self) -> TransformerConfig {
         TransformerConfig {
             will: self.plugins.supported_protocols(),
+            supports: self.supported_tags,
             ..TransformerConfig::from(&self.world)
         }
     }
@@ -107,14 +113,14 @@ fn receive_lines<H: Handler>(
         let trigger_effects = plugins.trigger(line_text, handler);
         if trigger_effects.suppress {
             for _ in 0..until {
-                let fragment = output.next().unwrap().fragment;
-                if is_nonvisual_output(&fragment) {
-                    handler.display(fragment);
+                let output = output.next().unwrap();
+                if is_nonvisual_output(&output.fragment) {
+                    handler.display(output);
                 }
             }
         } else {
             for _ in 0..until {
-                handler.display(output.next().unwrap().fragment);
+                handler.display(output.next().unwrap());
             }
         }
     }

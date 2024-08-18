@@ -1,11 +1,11 @@
-use mud_transformer::OutputFragment;
+use mud_transformer::Output;
 use std::vec;
 
-use crate::FfiOutputFragment;
+use crate::bindings::ffi;
 use smushclient::SendRequest;
 
 pub struct ClientHandler {
-    output: Vec<FfiOutputFragment>,
+    output: Vec<ffi::OutputFragment>,
 }
 
 impl Default for ClientHandler {
@@ -15,7 +15,7 @@ impl Default for ClientHandler {
 }
 
 impl IntoIterator for ClientHandler {
-    type Item = FfiOutputFragment;
+    type Item = ffi::OutputFragment;
 
     type IntoIter = vec::IntoIter<Self::Item>;
 
@@ -31,15 +31,16 @@ impl ClientHandler {
 }
 
 impl smushclient::Handler for ClientHandler {
-    fn display(&mut self, fragment: OutputFragment) {
-        self.output.push(fragment.into());
+    fn display(&mut self, output: Output) {
+        self.output.push(output.fragment.into());
     }
 
     fn play_sound(&mut self, path: &str) {
-        self.output.push(FfiOutputFragment::Sound(path.to_owned()));
+        self.output
+            .push(ffi::OutputFragment::Sound(path.to_owned()));
     }
 
     fn send(&mut self, request: SendRequest) {
-        self.output.push(FfiOutputFragment::Send(request.into()));
+        self.output.push(ffi::OutputFragment::Send(request.into()));
     }
 }

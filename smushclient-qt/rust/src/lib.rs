@@ -9,6 +9,10 @@ mod convert;
 mod client;
 use client::SmushClientRust;
 
+mod handler;
+
+mod impls;
+
 mod output;
 use output::{RustOutputFragment, RustTelnetFragment, RustTextFragment};
 
@@ -36,6 +40,24 @@ pub mod ffi {
         type QStringList = cxx_qt_lib::QStringList;
     }
 
+    enum Heading {
+        H1,
+        H2,
+        H3,
+        H4,
+        H5,
+        H6,
+        Normal,
+    }
+
+    enum EffectFragment {
+        Backspace,
+        Beep,
+        CarriageReturn,
+        EraseCharacter,
+        EraseLine,
+    }
+
     enum SendTo {
         World,
         Input,
@@ -47,6 +69,18 @@ pub mod ffi {
         hint: QString,
         prompts: QStringList,
         sendto: SendTo,
+    }
+
+    struct MxpEntitySet {
+        name: QString,
+        value: QString,
+        publish: bool,
+        is_variable: bool,
+    }
+
+    struct MxpEntityUnset {
+        name: QString,
+        is_variable: bool,
     }
 
     extern "Rust" {
@@ -63,14 +97,12 @@ pub mod ffi {
         fn is_underline(&self) -> bool;
         fn has_link(&self) -> bool;
         fn link(&self) -> MxpLink;
-    }
-
-    enum EffectFragment {
-        Backspace,
-        Beep,
-        CarriageReturn,
-        EraseCharacter,
-        EraseLine,
+        fn has_font(&self) -> bool;
+        fn font(&self) -> QString;
+        fn has_size(&self) -> bool;
+        fn size(&self) -> u8;
+        fn is_heading(&self) -> bool;
+        fn heading(&self) -> Heading;
     }
 
     enum TelnetRequest {
@@ -93,11 +125,10 @@ pub mod ffi {
     enum OutputKind {
         Effect,
         Hr,
-        Image,
         LineBreak,
         MxpError,
-        MxpVariableSet,
-        MxpVariableUnset,
+        MxpEntitySet,
+        MxpEntityUnset,
         PageBreak,
         Telnet,
         Text,
@@ -106,8 +137,8 @@ pub mod ffi {
     extern "Rust" {
         type RustOutputFragment;
         fn kind(&self) -> OutputKind;
-        fn effect(&self) -> EffectFragment;
-        fn image(&self) -> QString;
+        fn mxp_entity_set(&self) -> MxpEntitySet;
+        fn mxp_entity_unset(&self) -> MxpEntityUnset;
         fn mxp_error(&self) -> QString;
         fn telnet(&self) -> &RustTelnetFragment;
         fn text(&self) -> &RustTextFragment;

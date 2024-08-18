@@ -15,14 +15,18 @@ git = "https://github.com/jnbooth/swift-bridge"
 version = "0.1"
 rev = "d6090a0e0641101260c2e9d5d31b0a8195f6c138"
 
+[dependencies.enumeration]
+git = "https://github.com/jnbooth/enumeration"
+version = "0.8.0"
+
 [dependencies.mud-stream]
 git = "https://github.com/jnbooth/mxp"
-version = "0.6.0"
+version = "0.8.0"
 features = ["async"]
 
 [dependencies.mud-transformer]
 git = "https://github.com/jnbooth/mxp"
-version = "0.6.0"
+version = "0.8.0"
 
 [dependencies.smushclient]
 path = "../smushclient"

@@ -1,43 +1,15 @@
 use super::ffi;
-use cxx_qt_lib::{QByteArray, QColor, QList, QString, QStringList};
-use mud_transformer::mxp::{self, RgbColor, SendTo};
+use cxx_qt_lib::{QByteArray, QColor, QString};
+use mud_transformer::mxp::RgbColor;
 use mud_transformer::{
-    EffectFragment, Output, OutputFragment, TelnetFragment, TextFragment, TextStyle,
+    EffectFragment, EntityFragment, OutputFragment, TelnetFragment, TextFragment, TextStyle,
 };
 
 fn encode_color(color: RgbColor) -> QColor {
     QColor::from_rgb(color.r as i32, color.g as i32, color.b as i32)
 }
 
-impl From<&mxp::Link> for ffi::MxpLink {
-    fn from(action: &mxp::Link) -> Self {
-        let hint = match action.hint {
-            Some(ref hint) => hint.as_str().into(),
-            None => QString::default(),
-        };
-        let mut prompts = QList::default();
-        for prompt in &action.prompts {
-            prompts.append(QString::from(prompt));
-        }
-        Self {
-            action: action.action.as_str().into(),
-            hint,
-            prompts: QStringList::from(&prompts),
-            sendto: action.sendto.into(),
-        }
-    }
-}
-
-#[repr(transparent)]
-pub struct RustTextFragment {
-    inner: TextFragment,
-}
-
-impl From<TextFragment> for RustTextFragment {
-    fn from(inner: TextFragment) -> Self {
-        Self { inner }
-    }
-}
+binding!(RustTextFragment, TextFragment);
 
 macro_rules! flag_method {
     ($n:ident, $v:expr) => {
@@ -74,6 +46,42 @@ impl RustTextFragment {
         self.inner.action.as_ref().unwrap().into()
     }
 
+    #[inline]
+    pub fn has_font(&self) -> bool {
+        self.inner.font.is_some()
+    }
+
+    #[inline]
+    pub fn font(&self) -> QString {
+        match &self.inner.font {
+            Some(font) => QString::from(font),
+            None => QString::default(),
+        }
+    }
+
+    #[inline]
+    pub fn has_size(&self) -> bool {
+        self.inner.size.is_some()
+    }
+
+    #[inline]
+    pub fn size(&self) -> u8 {
+        match self.inner.size {
+            Some(size) => size.get(),
+            None => 0,
+        }
+    }
+
+    #[inline]
+    pub fn is_heading(&self) -> bool {
+        self.inner.heading.is_some()
+    }
+
+    #[inline]
+    pub fn heading(&self) -> ffi::Heading {
+        self.inner.heading.into()
+    }
+
     flag_method!(is_blink, TextStyle::Blink);
     flag_method!(is_bold, TextStyle::Bold);
     flag_method!(is_highlight, TextStyle::Highlight);
@@ -83,36 +91,17 @@ impl RustTextFragment {
     flag_method!(is_underline, TextStyle::Underline);
 }
 
-impl_convert_enum!(ffi::SendTo, SendTo, World, Input, Internet);
+binding!(RustEffectFragment, EffectFragment);
 
-impl_convert_enum!(
-    ffi::EffectFragment,
-    EffectFragment,
-    Backspace,
-    Beep,
-    CarriageReturn,
-    EraseCharacter,
-    EraseLine
-);
-
-#[repr(transparent)]
-pub struct RustTelnetFragment {
-    inner: TelnetFragment,
-}
-
-impl From<TelnetFragment> for RustTelnetFragment {
-    fn from(inner: TelnetFragment) -> Self {
-        Self { inner }
-    }
-}
+binding!(RustTelnetFragment, TelnetFragment);
 
 impl RustTelnetFragment {
     pub fn kind(&self) -> ffi::TelnetRequest {
         match self.inner {
-            TelnetFragment::Afk { .. } => ffi::TelnetRequest::Afk,
             TelnetFragment::Do { .. } => ffi::TelnetRequest::Do,
             TelnetFragment::IacGa => ffi::TelnetRequest::IacGa,
             TelnetFragment::Naws => ffi::TelnetRequest::Naws,
+            TelnetFragment::SetEcho { .. } => todo!(),
             TelnetFragment::Subnegotiation { .. } => ffi::TelnetRequest::Subnegotiation,
             TelnetFragment::Will { .. } => ffi::TelnetRequest::Will,
         }
@@ -129,126 +118,84 @@ impl RustTelnetFragment {
 
     pub fn data(&self) -> QByteArray {
         match &self.inner {
-            TelnetFragment::Afk { challenge } => QByteArray::from(&**challenge),
             TelnetFragment::Subnegotiation { data, .. } => QByteArray::from(&**data),
             _ => QByteArray::default(),
         }
     }
 }
 
-#[repr(transparent)]
-pub struct OutputFragmentRust {
-    inner: OutputFragment,
-}
-
-impl From<OutputFragment> for OutputFragmentRust {
-    fn from(inner: OutputFragment) -> Self {
-        Self { inner }
-    }
-}
-
-pub enum RustOutputFragment {
-    Effect(ffi::EffectFragment),
-    Hr,
-    Image(String),
-    LineBreak,
-    MxpError(String),
-    MxpVariable { name: String, value: Option<String> },
-    PageBreak,
-    Telnet(RustTelnetFragment),
-    Text(RustTextFragment),
-}
-
-impl From<OutputFragment> for RustOutputFragment {
-    fn from(value: OutputFragment) -> Self {
-        match value {
-            OutputFragment::Effect(effect) => Self::Effect(effect.into()),
-            OutputFragment::Hr => Self::Hr,
-            OutputFragment::Image(src) => Self::Image(src),
-            OutputFragment::LineBreak => Self::LineBreak,
-            OutputFragment::MxpError(error) => Self::MxpError(error.to_string()),
-            OutputFragment::MxpVariable { name, value } => Self::MxpVariable { name, value },
-            OutputFragment::PageBreak => Self::PageBreak,
-            OutputFragment::Telnet(telnet) => Self::Telnet(telnet.into()),
-            OutputFragment::Text(text) => Self::Text(text.into()),
-        }
-    }
-}
-
-impl From<Output> for RustOutputFragment {
-    fn from(value: Output) -> Self {
-        Self::from(value.fragment)
-    }
-}
+binding!(RustOutputFragment, OutputFragment);
 
 impl RustOutputFragment {
     pub fn kind(&self) -> ffi::OutputKind {
-        match self {
-            RustOutputFragment::Effect(_) => ffi::OutputKind::Effect,
-            RustOutputFragment::Hr => ffi::OutputKind::Hr,
-            RustOutputFragment::Image(_) => ffi::OutputKind::Image,
-            RustOutputFragment::LineBreak => ffi::OutputKind::LineBreak,
-            RustOutputFragment::MxpError(_) => ffi::OutputKind::MxpError,
-            RustOutputFragment::MxpVariable { value: None, .. } => {
-                ffi::OutputKind::MxpVariableUnset
-            }
-            RustOutputFragment::MxpVariable { .. } => ffi::OutputKind::MxpVariableSet,
-            RustOutputFragment::PageBreak => ffi::OutputKind::PageBreak,
-            RustOutputFragment::Telnet(_) => ffi::OutputKind::Telnet,
-            RustOutputFragment::Text(_) => ffi::OutputKind::Text,
+        match &self.inner {
+            OutputFragment::Effect(_) => ffi::OutputKind::Effect,
+            OutputFragment::Hr => ffi::OutputKind::Hr,
+            OutputFragment::LineBreak => ffi::OutputKind::LineBreak,
+            OutputFragment::MxpError(_) => ffi::OutputKind::MxpError,
+            OutputFragment::MxpEntity(EntityFragment::Set { .. }) => ffi::OutputKind::MxpEntitySet,
+            OutputFragment::MxpEntity(_) => ffi::OutputKind::MxpEntityUnset,
+            OutputFragment::PageBreak => ffi::OutputKind::PageBreak,
+            OutputFragment::Telnet(_) => ffi::OutputKind::Telnet,
+            OutputFragment::Text(_) => ffi::OutputKind::Text,
+            OutputFragment::Frame(_) => unimplemented!("<frame>"),
+            OutputFragment::Image(_) => unimplemented!("<image>"),
         }
     }
 
-    pub fn effect(&self) -> ffi::EffectFragment {
-        match self {
-            RustOutputFragment::Effect(fragment) => *fragment,
+    pub fn effect(&self) -> &RustEffectFragment {
+        match &self.inner {
+            OutputFragment::Effect(fragment) => fragment.into(),
             _ => panic!("expected Effect, found {:?}", self.kind()),
         }
     }
 
-    pub fn image(&self) -> QString {
-        match self {
-            RustOutputFragment::Image(image) => QString::from(image),
-            _ => panic!("expected Image, found {:?}", self.kind()),
+    pub fn mxp_entity_set(&self) -> ffi::MxpEntitySet {
+        match &self.inner {
+            OutputFragment::MxpEntity(EntityFragment::Set {
+                name,
+                value,
+                publish,
+                is_variable,
+            }) => ffi::MxpEntitySet {
+                name: name.into(),
+                value: value.into(),
+                publish: *publish,
+                is_variable: *is_variable,
+            },
+            _ => panic!("expected MxpEntitySet, found {:?}", self.kind()),
+        }
+    }
+
+    pub fn mxp_entity_unset(&self) -> ffi::MxpEntityUnset {
+        match &self.inner {
+            OutputFragment::MxpEntity(EntityFragment::Unset { name, is_variable }) => {
+                ffi::MxpEntityUnset {
+                    name: name.into(),
+                    is_variable: *is_variable,
+                }
+            }
+            _ => panic!("expected MxpEntityUnset, found {:?}", self.kind()),
         }
     }
 
     pub fn mxp_error(&self) -> QString {
-        match self {
-            RustOutputFragment::MxpError(error) => QString::from(error),
+        match &self.inner {
+            OutputFragment::MxpError(error) => QString::from(&error.to_string()),
             _ => panic!("expected MxpError, found {:?}", self.kind()),
         }
     }
 
-    pub fn mxp_variable_name(&self) -> QString {
-        match self {
-            RustOutputFragment::MxpVariable { name, .. } => QString::from(name),
-            _ => panic!(
-                "expected MxpVariableSet or MxpVariableUnset, found {:?}",
-                self.kind()
-            ),
-        }
-    }
-
-    pub fn mxp_variable_value(&self) -> QString {
-        match self {
-            RustOutputFragment::MxpVariable {
-                value: Some(value), ..
-            } => QString::from(value),
-            _ => panic!("expected MxpVariableSet, found {:?}", self.kind()),
-        }
-    }
-
     pub fn telnet(&self) -> &RustTelnetFragment {
-        match self {
-            RustOutputFragment::Telnet(request) => request,
+        match &self.inner {
+            OutputFragment::Telnet(request) => request.into(),
             _ => panic!("expected Telnet, found {:?}", self.kind()),
         }
     }
 
     pub fn text(&self) -> &RustTextFragment {
-        match self {
-            RustOutputFragment::Text(text) => text,
+        match &self.inner {
+            OutputFragment::Text(text) => text.into(),
             _ => panic!("expected Text, found {:?}", self.kind()),
         }
     }

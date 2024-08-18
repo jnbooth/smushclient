@@ -5,15 +5,18 @@ use std::pin::Pin;
 use crate::output::RustOutputFragment;
 
 use crate::ffi;
+use crate::handler::ClientHandler;
 use crate::sync::NonBlockingMutex;
 use mud_transformer::Transformer;
+use smushclient::SmushClient;
 
 #[derive(Default)]
 pub struct SmushClientRust {
     done: bool,
+    client: SmushClient,
     transformer: Transformer,
     buf: Vec<u8>,
-    output: Vec<RustOutputFragment>,
+    output: ClientHandler,
     cursor: usize,
     input_lock: NonBlockingMutex,
     output_lock: NonBlockingMutex,
@@ -42,15 +45,15 @@ impl SmushClientRust {
             total_read += n;
             if n == -1 {
                 self.done = true;
-                self.output
-                    .extend(self.transformer.flush_output().map(Into::into));
+                self.client
+                    .receive(self.transformer.flush_output(), &mut self.output);
                 return total_read;
             }
             let (received, buf) = self.buf.split_at_mut(n as usize);
             self.transformer.receive(received, buf).unwrap();
         }
-        self.output
-            .extend(self.transformer.drain_output().map(Into::into));
+        self.client
+            .receive(self.transformer.drain_output(), &mut self.output);
         drop(output_lock);
 
         let input_lock = self.input_lock.lock();
@@ -82,7 +85,7 @@ impl SmushClientRust {
     }
 
     pub fn next(&self) -> &RustOutputFragment {
-        &self.output[self.cursor - 1]
+        (&self.output[self.cursor - 1]).into()
     }
 }
 

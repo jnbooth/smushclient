@@ -1,15 +1,15 @@
-use mud_transformer::mxp::{self, RgbColor, SendTo};
+use mud_transformer::mxp::{Heading, Link, RgbColor, SendTo};
 use mud_transformer::{TextFragment, TextStyle};
 
 #[repr(transparent)]
 pub struct RustMxpLink {
-    inner: mxp::Link,
+    inner: Link,
 }
 
 impl RustMxpLink {
-    fn cast(link: &mxp::Link) -> &Self {
+    fn cast(link: &Link) -> &Self {
         // SAFETY: #[repr(transparent)]
-        unsafe { &*(link as *const mxp::Link).cast::<Self>() }
+        unsafe { &*(link as *const Link).cast::<Self>() }
     }
 
     pub fn action(&self) -> &str {
@@ -68,6 +68,11 @@ impl RustTextFragment {
     #[inline]
     pub fn link(&self) -> Option<&RustMxpLink> {
         self.inner.action.as_ref().map(RustMxpLink::cast)
+    }
+
+    #[inline]
+    pub fn heading(&self) -> Option<Heading> {
+        self.inner.heading
     }
 
     flag_method!(is_blink, TextStyle::Blink);

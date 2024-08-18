@@ -1,24 +1,45 @@
+use enumeration::EnumSet;
 use mud_stream::nonblocking::MudStream;
+use mud_transformer::Tag;
 use std::fs::File;
 use std::path::Path;
 use std::vec;
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 
+use crate::bindings::ffi;
 use crate::client::ClientHandler;
 use crate::error::StringifyResultError;
 use crate::sync::NonBlockingMutex;
-use crate::FfiOutputFragment;
 use smushclient::{SmushClient, World};
+
+const SUPPORTED_TAGS: EnumSet<Tag> = enums![
+    Tag::Bold,
+    Tag::Color,
+    Tag::Font,
+    Tag::H1,
+    Tag::H2,
+    Tag::H3,
+    Tag::H4,
+    Tag::H5,
+    Tag::H6,
+    Tag::Highlight,
+    Tag::Hr,
+    Tag::Hyperlink,
+    Tag::Italic,
+    Tag::Send,
+    Tag::Strikeout,
+    Tag::Underline
+];
 
 #[repr(transparent)]
 pub struct RustOutputStream {
-    inner: vec::IntoIter<FfiOutputFragment>,
+    inner: vec::IntoIter<ffi::OutputFragment>,
 }
 
 impl RustOutputStream {
     #[inline(always)]
-    pub fn next(&mut self) -> Option<FfiOutputFragment> {
+    pub fn next(&mut self) -> Option<ffi::OutputFragment> {
         self.inner.next()
     }
 }
@@ -34,7 +55,7 @@ pub struct RustMudBridge {
 impl RustMudBridge {
     pub fn new(world: World) -> Self {
         Self {
-            client: SmushClient::new(world),
+            client: SmushClient::new(world, SUPPORTED_TAGS),
             ..Default::default()
         }
     }

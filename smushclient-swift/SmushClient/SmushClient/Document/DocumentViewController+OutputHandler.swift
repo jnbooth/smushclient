@@ -42,16 +42,14 @@ extension DocumentViewController {
       handleEffect(effect)
     case .Hr:
       handleHR()
-    case .Image(let src):
-      handleImage(src.toString())
-    case .MxpError(let error):
-      handleMxpError(error.toString())
-    case .MxpVariableSet(let name, let value):
-      handleMxpVariable(name: name.toString(), value: value.toString())
-    case .MxpVariableUnset(let name):
-      handleMxpVariable(name: name.toString(), value: nil)
     case .LineBreak:
       handleLineBreak()
+    case .MxpError(let error):
+      handleMxpError(error.toString())
+    case .MxpEntitySet(let name, let value, let publish, let is_variable):
+      handleMxpVariable(name: name.toString(), value: value.toString())
+    case .MxpEntityUnset(let name, let is_variable):
+      handleMxpVariable(name: name.toString(), value: nil)
     case .PageBreak:
       handlePageBreak()
     case .Send(let send):
