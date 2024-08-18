@@ -13,7 +13,6 @@ binding!(RustTextFragment, TextFragment);
 
 macro_rules! flag_method {
     ($n:ident, $v:expr) => {
-        #[inline]
         pub fn $n(&self) -> bool {
             self.inner.flags.contains($v)
         }
@@ -21,37 +20,30 @@ macro_rules! flag_method {
 }
 
 impl RustTextFragment {
-    #[inline]
     pub fn text(&self) -> QString {
         QString::from(&*self.inner.text)
     }
 
-    #[inline]
     pub fn foreground(&self) -> QColor {
         encode_color(self.inner.foreground)
     }
 
-    #[inline]
     pub fn background(&self) -> QColor {
         encode_color(self.inner.background)
     }
 
-    #[inline]
     pub fn has_link(&self) -> bool {
         self.inner.action.is_some()
     }
 
-    #[inline]
     pub fn link(&self) -> ffi::MxpLink {
         self.inner.action.as_ref().unwrap().into()
     }
 
-    #[inline]
     pub fn has_font(&self) -> bool {
         self.inner.font.is_some()
     }
 
-    #[inline]
     pub fn font(&self) -> QString {
         match &self.inner.font {
             Some(font) => QString::from(font),
@@ -59,12 +51,10 @@ impl RustTextFragment {
         }
     }
 
-    #[inline]
     pub fn has_size(&self) -> bool {
         self.inner.size.is_some()
     }
 
-    #[inline]
     pub fn size(&self) -> u8 {
         match self.inner.size {
             Some(size) => size.get(),
@@ -72,12 +62,10 @@ impl RustTextFragment {
         }
     }
 
-    #[inline]
     pub fn is_heading(&self) -> bool {
         self.inner.heading.is_some()
     }
 
-    #[inline]
     pub fn heading(&self) -> ffi::Heading {
         self.inner.heading.into()
     }

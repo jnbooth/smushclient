@@ -65,12 +65,10 @@ impl RustTextFragment {
         self.inner.background
     }
 
-    #[inline]
     pub fn link(&self) -> Option<&RustMxpLink> {
         self.inner.action.as_ref().map(RustMxpLink::cast)
     }
 
-    #[inline]
     pub fn heading(&self) -> Option<Heading> {
         self.inner.heading
     }

@@ -22,7 +22,7 @@ macro_rules! impl_convert_enum_opt {
     ($ffi:ty, $rust:path, $fallback:ident, $($variant:ident),+ $(,)?) => {
         impl From<$rust> for $ffi {
             fn from(value: $rust) -> Self {
-                match value {   
+                match value {
                     $(<$rust>::$variant => Self::$variant),+
                 }
             }

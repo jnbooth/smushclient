@@ -6,12 +6,10 @@ pub trait Convert<T> {
 macro_rules! impl_convert {
     ($ffi:ty, $rust:ty) => {
         impl Convert<$rust> for $ffi {
-            #[inline]
             fn from_ffi(value: Self) -> $rust {
                 <$rust>::from(value)
             }
 
-            #[inline]
             fn to_ffi(value: $rust) -> Self {
                 Self::from(value)
             }
