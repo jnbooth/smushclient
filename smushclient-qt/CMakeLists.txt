@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(smushclient_qt)
-set(CMAKE_OSX_DEPLOYMENT_TARGET 14.5)
+project(SmushClient VERSION 0.1 LANGUAGES CXX)
+set(CMAKE_OSX_DEPLOYMENT_TARGET 14.6)
 set(APP_NAME ${PROJECT_NAME})
 
 # Rust always links against non-debug Windows runtime on *-msvc targets
@@ -12,16 +12,13 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 endif()
 
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(NOT USE_QT5)
-    find_package(Qt6 COMPONENTS Core Gui Network Qml)
-endif()
-if(NOT Qt6_FOUND)
-    find_package(Qt5 5.15 COMPONENTS Core Gui Network Qml REQUIRED)
-endif()
+find_package(Qt6 COMPONENTS Core Gui Network Qml Widgets REQUIRED)
 
 find_package(Corrosion QUIET)
 if(NOT Corrosion_FOUND)
@@ -29,7 +26,7 @@ if(NOT Corrosion_FOUND)
     FetchContent_Declare(
         Corrosion
         GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
-        GIT_TAG v0.4.2
+        GIT_TAG v0.5
     )
 
     FetchContent_MakeAvailable(Corrosion)
@@ -38,6 +35,33 @@ endif()
 # The path to the qmake executable path needs to be passed to the Rust
 # library's build script to ensure it uses the same installation of Qt as CMake.
 get_target_property(QMAKE Qt::qmake IMPORTED_LOCATION)
+
+set(PROJECT_SOURCES
+        cpp/main.cpp
+)
+
+qt_add_executable(${APP_NAME}
+    MANUAL_FINALIZATION
+    ${PROJECT_SOURCES}
+    cpp/ui/app.h cpp/ui/app.cpp cpp/ui/app.ui
+    cpp/ui/prefs/connecting.h cpp/ui/prefs/connecting.cpp cpp/ui/prefs/connecting.ui
+    cpp/ui/prefs/chat.h cpp/ui/prefs/chat.cpp cpp/ui/prefs/chat.ui
+    cpp/ui/prefs/address.h cpp/ui/prefs/address.cpp cpp/ui/prefs/address.ui
+    cpp/ui/prefs/aliases.h cpp/ui/prefs/aliases.cpp cpp/ui/prefs/aliases.ui
+    cpp/ui/prefs/color.h cpp/ui/prefs/color.cpp cpp/ui/prefs/color.ui
+    cpp/ui/prefs/commands.h cpp/ui/prefs/commands.cpp cpp/ui/prefs/commands.ui
+    cpp/ui/prefs/customcolor.h cpp/ui/prefs/customcolor.cpp cpp/ui/prefs/customcolor.ui
+    cpp/ui/prefs/logging.h cpp/ui/prefs/logging.cpp cpp/ui/prefs/logging.ui
+    cpp/ui/prefs/mxp.h cpp/ui/prefs/mxp.cpp cpp/ui/prefs/mxp.ui
+    cpp/ui/prefs/output.h cpp/ui/prefs/output.cpp cpp/ui/prefs/output.ui
+    cpp/ui/prefs/proxy.h cpp/ui/prefs/proxy.cpp cpp/ui/prefs/proxy.ui
+    cpp/ui/prefs/timers.h cpp/ui/prefs/timers.cpp cpp/ui/prefs/timers.ui
+    cpp/ui/prefs/triggers.h cpp/ui/prefs/triggers.cpp cpp/ui/prefs/triggers.ui
+    cpp/ui/prefs/specialhelp.h cpp/ui/prefs/specialhelp.cpp cpp/ui/prefs/specialhelp.ui
+    cpp/ui/prefs/triggeredit.h cpp/ui/prefs/triggeredit.cpp cpp/ui/prefs/triggeredit.ui
+    cpp/ui/worldprefs.h cpp/ui/worldprefs.cpp cpp/ui/worldprefs.ui
+    cpp/ui/worldtab.h cpp/ui/worldtab.cpp cpp/ui/worldtab.ui
+)
 
 set(CRATE smushclient-qt)
 # Corrosion creates a CMake target with the same name as the crate.
@@ -49,7 +73,7 @@ corrosion_import_crate(MANIFEST_PATH rust/Cargo.toml CRATES ${CRATE})
 # Also, set the QMAKE environment variable to ensure the Rust library uses
 # the same installation of Qt as CMake.
 set(CXXQT_EXPORT_DIR "${CMAKE_CURRENT_BINARY_DIR}/cxxqt")
-corrosion_set_env_vars(${CRATE}
+corrosion_set_env_vars(${APP_NAME}
     "CXXQT_EXPORT_DIR=${CXXQT_EXPORT_DIR}"
     "QMAKE=${QMAKE}"
 )
@@ -65,21 +89,39 @@ add_library(${APP_NAME}_lib INTERFACE)
 # overwriting another's files.
 target_include_directories(${APP_NAME}_lib INTERFACE "${CXXQT_EXPORT_DIR}/${CRATE}")
 
+target_link_libraries(${APP_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+
 target_link_libraries(${APP_NAME}_lib INTERFACE
     # WHOLE_ARCHIVE is needed for the generated QML plugin to register on startup,
     # otherwise the linker will discard the static variables that initialize it.
-    "$<LINK_LIBRARY:WHOLE_ARCHIVE,${CRATE}-static>"
+    "$<LINK_LIBRARY:WHOLE_ARCHIVE,smushclient_qt-static>"
     Qt::Core
     Qt::Gui
     Qt::Network
     Qt::Qml
+    Qt::Widgets
 )
 
-# Define the executable with the C++ source
-add_executable(${APP_NAME} cpp/main.cpp)
 
 # Link to the Rust library
 target_link_libraries(${APP_NAME} PRIVATE ${APP_NAME}_lib)
 
 # If we are using a statically linked Qt then we need to import any qml plugins
 qt_import_qml_plugins(${APP_NAME})
+
+set_target_properties(${APP_NAME} PROPERTIES
+    ${BUNDLE_ID_OPTION}
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
+)
+
+include(GNUInstallDirs)
+install(TARGETS ${APP_NAME}
+    BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+qt_finalize_executable(${APP_NAME})

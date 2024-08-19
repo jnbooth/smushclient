@@ -1,17 +1,14 @@
-#include <QtGui/QGuiApplication>
+#include "./ui/app.h"
+
+#include <QtWidgets/QApplication>
 #include <QtNetwork/QTcpSocket>
-#include "cxx-qt-gen/ffi.cxxqt.h"
+#include <QtCore/qmetatype.h>
 
 int main(int argc, char* argv[])
 {
-  QGuiApplication app(argc, argv);
-  QTcpSocket socket;
-  socket.connectToHost(QStringLiteral("discworld.atuin.net"), 4242);
-  SmushClient client;
-  client.read(socket);
-  while (client.tryNext()) {
-    client.next();
-  }
+  QApplication app(argc, argv);
+  App w;
+  w.show();
   return app.exec();
 }
 

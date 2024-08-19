@@ -2,7 +2,6 @@
 name = "smushclient-qt"
 version = "0.1.0"
 edition = "2021"
-build = "build.rs"
 
 [lints]
 workspace = true
@@ -11,12 +10,12 @@ workspace = true
 crate-type = ["staticlib"]
 
 [build-dependencies]
-cxx-qt-build = "0.6"
+cxx-qt-build = "0.6.1"
 
 [dependencies]
-cxx = "1.0.95"
-cxx-qt = "0.6"
-cxx-qt-lib = "0.6"
+cxx = "1.0.126"
+cxx-qt = "0.6.1"
+cxx-qt-lib = "0.6.1"
 mud-transformer = { git = "https://github.com/jnbooth/mxp", version = "0.8.0" }
 smushclient = { path = "../../smushclient" }
 
