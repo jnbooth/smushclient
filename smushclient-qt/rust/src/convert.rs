@@ -35,6 +35,11 @@ macro_rules! impl_convert_enum_opt {
                 }
             }
         }
+        impl Default for $ffi {
+            fn default() -> Self {
+                Self::$fallback
+            }
+        }
     }
 }
 

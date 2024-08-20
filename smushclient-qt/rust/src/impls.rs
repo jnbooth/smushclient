@@ -1,11 +1,54 @@
 use super::ffi;
 use cxx_qt_lib::{QList, QString, QStringList};
 use mud_transformer::mxp::{Heading, Link, SendTo};
-use mud_transformer::EffectFragment;
+use mud_transformer::{EffectFragment, UseMxp};
+use smushclient::world::{AutoConnect, LogFormat, LogMode, ProxyType, ScriptRecompile};
 
 impl_convert_enum!(ffi::SendTo, SendTo, World, Input, Internet);
 
 impl_convert_enum_opt!(ffi::Heading, Heading, Normal, H1, H2, H3, H4, H5, H6);
+
+impl_convert_enum_opt!(ffi::ProxyType, ProxyType, None, Socks4, Socks5);
+
+impl_convert_enum_opt!(ffi::AutoConnect, AutoConnect, None, Mush, Diku, Mxp);
+
+impl_convert_enum!(
+    ffi::ScriptRecompile,
+    ScriptRecompile,
+    Confirm,
+    Always,
+    Never
+);
+
+impl_convert_enum!(ffi::LogFormat, LogFormat, Text, Html, Raw);
+
+impl_convert_enum!(ffi::LogMode, LogMode, Append, Overwrite);
+
+impl_convert_enum!(ffi::UseMxp, UseMxp, Command, Query, Always, Never);
+
+impl Default for ffi::ScriptRecompile {
+    fn default() -> Self {
+        Self::Confirm
+    }
+}
+
+impl Default for ffi::LogFormat {
+    fn default() -> Self {
+        Self::Text
+    }
+}
+
+impl Default for ffi::LogMode {
+    fn default() -> Self {
+        Self::Append
+    }
+}
+
+impl Default for ffi::UseMxp {
+    fn default() -> Self {
+        Self::Command
+    }
+}
 
 impl From<EffectFragment> for ffi::EffectFragment {
     fn from(value: EffectFragment) -> Self {

@@ -8,7 +8,7 @@ use crate::ffi;
 use crate::handler::ClientHandler;
 use crate::sync::NonBlockingMutex;
 use mud_transformer::Transformer;
-use smushclient::SmushClient;
+use smushclient::{SmushClient, World};
 
 #[derive(Default)]
 pub struct SmushClientRust {
@@ -23,6 +23,10 @@ pub struct SmushClientRust {
 }
 
 impl SmushClientRust {
+    pub fn world(&self) -> &World {
+        self.client.world()
+    }
+
     pub fn read(&mut self, mut device: Pin<&mut ffi::QIODevice>) -> i64 {
         if self.done {
             return -1;
