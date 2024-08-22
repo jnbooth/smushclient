@@ -1,29 +1,22 @@
+use crate::ffi;
+use cxx_qt_lib::QString;
 use mud_transformer::{Output, OutputFragment};
 use smushclient::SendRequest;
-use std::ops::{Deref, DerefMut};
+use std::pin::Pin;
 
-#[derive(Debug, Default)]
-pub struct ClientHandler {
-    inner: Vec<OutputFragment>,
+pub struct ClientHandler<'a> {
+    pub doc: Pin<&'a mut ffi::Document>,
 }
 
-impl Deref for ClientHandler {
-    type Target = Vec<OutputFragment>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
-impl DerefMut for ClientHandler {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
-    }
-}
-
-impl smushclient::Handler for ClientHandler {
+impl<'a> smushclient::Handler for ClientHandler<'a> {
     fn display(&mut self, output: Output) {
-        self.inner.push(output.fragment);
+        if let OutputFragment::Text(fragment) = &output.fragment {
+            unsafe {
+                self.doc
+                    .as_mut()
+                    .appendText(&QString::from(&*fragment.text));
+            };
+        }
     }
 
     fn play_sound(&mut self, _path: &str) {}

@@ -163,14 +163,14 @@
       </spacer>
      </item>
      <item>
-      <widget class="QCheckBox" name="enable_triggers">
+      <widget class="QCheckBox" name="EnableTriggers">
        <property name="text">
         <string>Enable Triggers</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="enable_trigger_sounds">
+      <widget class="QCheckBox" name="EnableTriggerSounds">
        <property name="text">
         <string>Enable Sounds</string>
        </property>
@@ -183,9 +183,9 @@
  <resources/>
  <connections>
   <connection>
-   <sender>enable_triggers</sender>
+   <sender>EnableTriggers</sender>
    <signal>toggled(bool)</signal>
-   <receiver>enable_trigger_sounds</receiver>
+   <receiver>EnableTriggerSounds</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">

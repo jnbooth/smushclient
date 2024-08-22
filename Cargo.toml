@@ -9,9 +9,6 @@ members = [
 
 [workspace.lints.clippy]
 pedantic = { level = "warn", priority = -1 }
-cast_lossless = "allow"
-cast_possible_truncation = "allow"
-cast_precision_loss = "allow"
 inline_always = "allow"
 manual_assert = "allow"
 missing_errors_doc = "allow"

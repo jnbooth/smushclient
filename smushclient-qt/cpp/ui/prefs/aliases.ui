@@ -163,7 +163,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QCheckBox" name="enable_aliases">
+      <widget class="QCheckBox" name="EnableAliases">
        <property name="text">
         <string>Enable Aliases</string>
        </property>

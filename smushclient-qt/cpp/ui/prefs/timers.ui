@@ -175,7 +175,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QCheckBox" name="enable_timers">
+      <widget class="QCheckBox" name="EnableTimers">
        <property name="text">
         <string>Enable Timers</string>
        </property>

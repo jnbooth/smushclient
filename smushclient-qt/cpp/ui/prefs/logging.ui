@@ -41,20 +41,20 @@
    <item>
     <layout class="QHBoxLayout" name="_log">
      <item>
-      <widget class="QLabel" name="label_log_file">
+      <widget class="QLabel" name="AutoLogFileName_label">
        <property name="text">
         <string>Log to:</string>
        </property>
        <property name="buddy">
-        <cstring>auto_log_file_name</cstring>
+        <cstring>AutoLogFileName</cstring>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="auto_log_file_name"/>
+      <widget class="QLineEdit" name="AutoLogFileName"/>
      </item>
      <item>
-      <widget class="QToolButton" name="log_file_none">
+      <widget class="QToolButton" name="AutoLogFileName_none">
        <property name="text">
         <string>...</string>
        </property>
@@ -65,7 +65,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="log_file_browse">
+      <widget class="QToolButton" name="AutoLogFileName_browse">
        <property name="text">
         <string>&amp;Browse...</string>
        </property>
@@ -80,30 +80,30 @@
    <item>
     <layout class="QFormLayout" name="_session">
      <item row="0" column="0">
-      <widget class="QLabel" name="label_log_file_preamble">
+      <widget class="QLabel" name="LogFilePreamble_label">
        <property name="text">
         <string>Session &amp;Header:</string>
        </property>
        <property name="buddy">
-        <cstring>log_file_preamble</cstring>
+        <cstring>LogFilePreamble</cstring>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QPlainTextEdit" name="log_file_preamble"/>
+      <widget class="QPlainTextEdit" name="LogFilePreamble"/>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label_log_file_postamble">
+      <widget class="QLabel" name="LogFilePostamble_label">
        <property name="text">
         <string>Session &amp;Footer:</string>
        </property>
        <property name="buddy">
-        <cstring>log_file_postamble</cstring>
+        <cstring>LogFilePostamble</cstring>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QPlainTextEdit" name="log_file_postamble"/>
+      <widget class="QPlainTextEdit" name="LogFilePostamble"/>
      </item>
     </layout>
    </item>
@@ -123,21 +123,21 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QRadioButton" name="log_text">
+         <widget class="QRadioButton" name="LogFormat_Text">
           <property name="text">
            <string>Text</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="log_html">
+         <widget class="QRadioButton" name="LogFormat_Html">
           <property name="text">
            <string>&amp;HTML</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="log_raw">
+         <widget class="QRadioButton" name="LogFormat_Raw">
           <property name="text">
            <string>Raw</string>
           </property>
@@ -166,21 +166,21 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QCheckBox" name="log_output">
+         <widget class="QCheckBox" name="LogOutput">
           <property name="text">
            <string>Log &amp;Output</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="log_input">
+         <widget class="QCheckBox" name="LogInput">
           <property name="text">
            <string>Log &amp;Commands</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="log_notes">
+         <widget class="QCheckBox" name="LogNotes">
           <property name="text">
            <string>Log &amp;Notes</string>
           </property>
@@ -209,14 +209,14 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
-         <widget class="QRadioButton" name="log_append">
+         <widget class="QRadioButton" name="LogMode_Append">
           <property name="text">
            <string>Append</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="log_overwrite">
+         <widget class="QRadioButton" name="LogMode_Overwrite">
           <property name="text">
            <string>Overwrite</string>
           </property>
@@ -250,26 +250,26 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="log_preamble_output"/>
+      <widget class="QLineEdit" name="LogPreambleOutput"/>
      </item>
      <item row="1" column="2">
-      <widget class="QLineEdit" name="log_postamble_output"/>
+      <widget class="QLineEdit" name="LogPostambleOutput"/>
      </item>
      <item row="2" column="2">
-      <widget class="QLineEdit" name="log_postamble_input"/>
+      <widget class="QLineEdit" name="LogPostambleInput"/>
      </item>
      <item row="3" column="2">
-      <widget class="QLineEdit" name="log_postamble_notes"/>
+      <widget class="QLineEdit" name="LogPostambleNotes"/>
      </item>
      <item row="3" column="0">
-      <widget class="QLabel" name="label_notes">
+      <widget class="QLabel" name="Notes_label">
        <property name="text">
         <string>Script:</string>
        </property>
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="QLineEdit" name="log_preamble_notes"/>
+      <widget class="QLineEdit" name="LogPreambleNotes"/>
      </item>
      <item row="0" column="2" alignment="Qt::AlignHCenter">
       <widget class="QLabel" name="label_postamble">
@@ -292,7 +292,7 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="log_preamble_input"/>
+      <widget class="QLineEdit" name="LogPreambleInput"/>
      </item>
      <item row="0" column="1">
       <widget class="QLabel" name="label_preamble">
@@ -324,7 +324,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>log_html</sender>
+   <sender>LogFormat_Html</sender>
    <signal>toggled(bool)</signal>
    <receiver>_what_to_log</receiver>
    <slot>setDisabled(bool)</slot>
@@ -340,9 +340,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>log_file_none</sender>
+   <sender>AutoLogFileName_none</sender>
    <signal>clicked()</signal>
-   <receiver>auto_log_file_name</receiver>
+   <receiver>AutoLogFileName</receiver>
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">

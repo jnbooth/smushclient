@@ -76,7 +76,7 @@ pub mod sendto_serde {
             13 => Ok(SendTarget::WorldImmediate),
             14 => Ok(SendTarget::ScriptAfterOmit),
             _ => Err(D::Error::invalid_value(
-                Unexpected::Unsigned(pos as u64),
+                Unexpected::Unsigned(u64::from(pos)),
                 &"integer between 0 and 14",
             )),
         }

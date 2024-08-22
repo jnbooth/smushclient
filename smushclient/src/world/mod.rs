@@ -86,8 +86,9 @@ pub struct World {
     // Output
     pub beep_sound: Option<String>,
     pub pixel_offset: i16,
-    pub line_spacing: f32,
+    pub line_spacing: f64,
     pub output_font: String,
+    pub output_font_size: u8,
     pub use_default_output_font: bool,
     pub show_bold: bool,
     pub show_italic: bool,
@@ -113,9 +114,8 @@ pub struct World {
     pub convert_ga_to_newline: bool,
     pub terminal_identification: String,
 
-    // MXP / Pueblo
+    // MXP
     pub use_mxp: UseMxp,
-    pub detect_pueblo: bool,
     pub hyperlink_color: RgbColor,
     pub use_custom_link_color: bool,
     pub mud_can_change_link_color: bool,
@@ -125,7 +125,6 @@ pub struct World {
     pub echo_hyperlink_in_output_window: bool,
     pub ignore_mxp_color_changes: bool,
     pub send_mxp_afk_response: bool,
-    pub mud_can_change_options: bool,
 
     // ANSI Color
     pub use_default_colors: bool,
@@ -148,11 +147,12 @@ pub struct World {
     pub enable_speed_walk: bool,
     pub speed_walk_prefix: String,
     pub speed_walk_filler: String,
-    pub speed_walk_delay: u32,
+    pub speed_walk_delay: f64,
     pub enable_command_stack: bool,
     pub command_stack_character: String,
     pub input_colors: ColorPair,
     pub input_font: String,
+    pub input_font_size: u8,
     pub use_default_input_font: bool,
     pub enable_spam_prevention: bool,
     pub spam_line_count: usize,
@@ -307,6 +307,7 @@ impl World {
             pixel_offset: 0,
             line_spacing: 1.0,
             output_font: "System".to_owned(),
+            output_font_size: 12,
             use_default_output_font: true,
             show_bold: true,
             show_italic: true,
@@ -332,9 +333,8 @@ impl World {
             convert_ga_to_newline: false,
             terminal_identification: "mushclient".to_owned(),
 
-            // MXP / Pueblo
+            // MXP
             use_mxp: UseMxp::Command,
-            detect_pueblo: true,
             hyperlink_color: RgbColor::rgb(43, 121, 162),
             use_custom_link_color: false,
             mud_can_change_link_color: true,
@@ -344,7 +344,6 @@ impl World {
             echo_hyperlink_in_output_window: true,
             ignore_mxp_color_changes: false,
             send_mxp_afk_response: true,
-            mud_can_change_options: true,
 
             // ANSI Color
             use_default_colors: true,
@@ -364,11 +363,12 @@ impl World {
             enable_speed_walk: false,
             speed_walk_prefix: "#".to_owned(),
             speed_walk_filler: "a".to_owned(),
-            speed_walk_delay: 20,
+            speed_walk_delay: 20.0,
             enable_command_stack: false,
             command_stack_character: "#".to_owned(),
             input_colors: ColorPair::foreground(RgbColor::rgb(128, 128, 128)),
             input_font: "System".to_owned(),
+            input_font_size: 12,
             use_default_input_font: true,
             enable_spam_prevention: false,
             spam_line_count: 20,

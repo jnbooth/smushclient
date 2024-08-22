@@ -1,7 +1,8 @@
 #![allow(clippy::cast_possible_wrap)]
 #![allow(clippy::cast_sign_loss)]
-#![allow(clippy::missing_safety_doc)]
 #![allow(clippy::float_cmp)]
+#![allow(clippy::missing_safety_doc)]
+#![allow(clippy::needless_pass_by_value)]
 #![allow(clippy::unnecessary_box_returns)]
 
 #[macro_use]
@@ -9,6 +10,8 @@ mod convert;
 
 mod client;
 use client::SmushClientRust;
+
+mod colors;
 
 mod handler;
 
@@ -52,15 +55,27 @@ pub mod ffi {
         unsafe fn write(self: Pin<&mut QIODevice>, data: *const c_char, max_size: i64) -> i64;
     }
 
+    extern "C++Qt" {
+        include!("document.h");
+        type Document;
+
+        unsafe fn appendText(self: Pin<&mut Document>, text: &QString);
+    }
+
     extern "RustQt" {
         #[qobject]
         type SmushClient = super::SmushClientRust;
     }
 
     unsafe extern "RustQt" {
-        fn read(self: Pin<&mut SmushClient>, device: Pin<&mut QIODevice>) -> i64;
-        fn try_next(self: Pin<&mut SmushClient>) -> bool;
-        fn next(self: &SmushClient) -> &RustOutputFragment;
+        fn load_world(self: Pin<&mut SmushClient>, path: &QString, world: Pin<&mut World>) -> bool;
+        fn populate_world(self: &SmushClient, world: Pin<&mut World>);
+        fn set_world(self: Pin<&mut SmushClient>, world: &World);
+        fn read(
+            self: Pin<&mut SmushClient>,
+            device: Pin<&mut QIODevice>,
+            doc: Pin<&mut Document>,
+        ) -> i64;
     }
 
     unsafe impl !cxx_qt::Locking for SmushClient {}
@@ -174,10 +189,10 @@ pub mod ffi {
         // IP address
         #[qproperty(QString, name)]
         #[qproperty(QString, site)]
-        #[qproperty(u16, port)]
+        #[qproperty(i32, port)]
         #[qproperty(ProxyType, proxy_type)]
         #[qproperty(QString, proxy_server)]
-        #[qproperty(u16, proxy_port)]
+        #[qproperty(i32, proxy_port)]
         #[qproperty(QString, proxy_username)]
         #[qproperty(QString, proxy_password)]
         #[qproperty(bool, proxy_password_base64)]
@@ -209,30 +224,31 @@ pub mod ffi {
         #[qproperty(QString, chat_name)]
         #[qproperty(bool, auto_allow_snooping)]
         #[qproperty(bool, accept_chat_connections)]
-        #[qproperty(u16, chat_port)]
+        #[qproperty(i32, chat_port)]
         #[qproperty(bool, validate_incoming_chat_calls)]
-        #[qproperty(QColor, chat_color_fg)]
-        #[qproperty(QColor, chat_color_bg)]
+        #[qproperty(QColor, chat_colors_foreground)]
+        #[qproperty(QColor, chat_colors_background)]
         #[qproperty(bool, ignore_chat_colors)]
         #[qproperty(QString, chat_message_prefix)]
-        #[qproperty(usize, chat_max_lines_per_message)]
-        #[qproperty(usize, chat_max_bytes_per_message)]
+        #[qproperty(i32, chat_max_lines_per_message)]
+        #[qproperty(i32, chat_max_bytes_per_message)]
         #[qproperty(bool, auto_allow_files)]
         #[qproperty(QString, chat_file_save_directory)]
         // Notes
         #[qproperty(QString, notes)]
         // Output
         #[qproperty(QString, beep_sound)]
-        #[qproperty(i16, pixel_offset)]
-        #[qproperty(f32, line_spacing)]
+        #[qproperty(i32, pixel_offset)]
+        #[qproperty(f64, line_spacing)]
         #[qproperty(QString, output_font)]
+        #[qproperty(i32, output_font_size)]
         #[qproperty(bool, use_default_output_font)]
         #[qproperty(bool, show_bold)]
         #[qproperty(bool, show_italic)]
         #[qproperty(bool, show_underline)]
         #[qproperty(QString, new_activity_sound)]
-        #[qproperty(usize, max_output_lines)]
-        #[qproperty(u16, wrap_column)]
+        #[qproperty(i32, max_output_lines)]
+        #[qproperty(i32, wrap_column)]
         #[qproperty(bool, line_information)]
         #[qproperty(bool, start_paused)]
         #[qproperty(bool, auto_pause)]
@@ -249,9 +265,8 @@ pub mod ffi {
         #[qproperty(bool, auto_copy_to_clipboard_in_html)]
         #[qproperty(bool, convert_ga_to_newline)]
         #[qproperty(QString, terminal_identification)]
-        // MXP / Pueblo
+        // MXP
         #[qproperty(UseMxp, use_mxp)]
-        #[qproperty(bool, detect_pueblo)]
         #[qproperty(QColor, hyperlink_color)]
         #[qproperty(bool, use_custom_link_color)]
         #[qproperty(bool, mud_can_change_link_color)]
@@ -261,31 +276,94 @@ pub mod ffi {
         #[qproperty(bool, echo_hyperlink_in_output_window)]
         #[qproperty(bool, ignore_mxp_color_changes)]
         #[qproperty(bool, send_mxp_afk_response)]
-        #[qproperty(bool, mud_can_change_options)]
         // ANSI Color
         #[qproperty(bool, use_default_colors)]
+        #[qproperty(QColor, ansi_colors_0)]
+        #[qproperty(QColor, ansi_colors_1)]
+        #[qproperty(QColor, ansi_colors_2)]
+        #[qproperty(QColor, ansi_colors_3)]
+        #[qproperty(QColor, ansi_colors_4)]
+        #[qproperty(QColor, ansi_colors_5)]
+        #[qproperty(QColor, ansi_colors_6)]
+        #[qproperty(QColor, ansi_colors_7)]
+        #[qproperty(QColor, ansi_colors_8)]
+        #[qproperty(QColor, ansi_colors_9)]
+        #[qproperty(QColor, ansi_colors_10)]
+        #[qproperty(QColor, ansi_colors_11)]
+        #[qproperty(QColor, ansi_colors_12)]
+        #[qproperty(QColor, ansi_colors_13)]
+        #[qproperty(QColor, ansi_colors_14)]
+        #[qproperty(QColor, ansi_colors_15)]
         // Custom Color
-        #[qproperty(QStringList, custom_names)]
+        #[qproperty(QString, custom_names_0)]
+        #[qproperty(QString, custom_names_1)]
+        #[qproperty(QString, custom_names_2)]
+        #[qproperty(QString, custom_names_3)]
+        #[qproperty(QString, custom_names_4)]
+        #[qproperty(QString, custom_names_5)]
+        #[qproperty(QString, custom_names_6)]
+        #[qproperty(QString, custom_names_7)]
+        #[qproperty(QString, custom_names_8)]
+        #[qproperty(QString, custom_names_9)]
+        #[qproperty(QString, custom_names_10)]
+        #[qproperty(QString, custom_names_11)]
+        #[qproperty(QString, custom_names_12)]
+        #[qproperty(QString, custom_names_13)]
+        #[qproperty(QString, custom_names_14)]
+        #[qproperty(QString, custom_names_15)]
+        #[qproperty(QColor, custom_colors_foreground_0)]
+        #[qproperty(QColor, custom_colors_foreground_1)]
+        #[qproperty(QColor, custom_colors_foreground_2)]
+        #[qproperty(QColor, custom_colors_foreground_3)]
+        #[qproperty(QColor, custom_colors_foreground_4)]
+        #[qproperty(QColor, custom_colors_foreground_5)]
+        #[qproperty(QColor, custom_colors_foreground_6)]
+        #[qproperty(QColor, custom_colors_foreground_7)]
+        #[qproperty(QColor, custom_colors_foreground_8)]
+        #[qproperty(QColor, custom_colors_foreground_9)]
+        #[qproperty(QColor, custom_colors_foreground_10)]
+        #[qproperty(QColor, custom_colors_foreground_11)]
+        #[qproperty(QColor, custom_colors_foreground_12)]
+        #[qproperty(QColor, custom_colors_foreground_13)]
+        #[qproperty(QColor, custom_colors_foreground_14)]
+        #[qproperty(QColor, custom_colors_foreground_15)]
+        #[qproperty(QColor, custom_colors_background_0)]
+        #[qproperty(QColor, custom_colors_background_1)]
+        #[qproperty(QColor, custom_colors_background_2)]
+        #[qproperty(QColor, custom_colors_background_3)]
+        #[qproperty(QColor, custom_colors_background_4)]
+        #[qproperty(QColor, custom_colors_background_5)]
+        #[qproperty(QColor, custom_colors_background_6)]
+        #[qproperty(QColor, custom_colors_background_7)]
+        #[qproperty(QColor, custom_colors_background_8)]
+        #[qproperty(QColor, custom_colors_background_9)]
+        #[qproperty(QColor, custom_colors_background_10)]
+        #[qproperty(QColor, custom_colors_background_11)]
+        #[qproperty(QColor, custom_colors_background_12)]
+        #[qproperty(QColor, custom_colors_background_13)]
+        #[qproperty(QColor, custom_colors_background_14)]
+        #[qproperty(QColor, custom_colors_background_15)]
         // Triggers
         #[qproperty(bool, enable_triggers)]
         #[qproperty(bool, enable_trigger_sounds)]
         #[qproperty(bool, treeview_triggers)]
         // Commands
         #[qproperty(bool, display_my_input)]
-        #[qproperty(QColor, echo_color_fg)]
-        #[qproperty(QColor, echo_color_bg)]
+        #[qproperty(QColor, echo_colors_foreground)]
+        #[qproperty(QColor, echo_colors_background)]
         #[qproperty(bool, enable_speed_walk)]
         #[qproperty(QString, speed_walk_prefix)]
         #[qproperty(QString, speed_walk_filler)]
-        #[qproperty(u32, speed_walk_delay)]
+        #[qproperty(f64, speed_walk_delay)]
         #[qproperty(bool, enable_command_stack)]
         #[qproperty(QString, command_stack_character)]
-        #[qproperty(QColor, input_color_fg)]
-        #[qproperty(QColor, input_color_bg)]
+        #[qproperty(QColor, input_colors_foreground)]
+        #[qproperty(QColor, input_colors_background)]
         #[qproperty(QString, input_font)]
+        #[qproperty(i32, input_font_size)]
         #[qproperty(bool, use_default_input_font)]
         #[qproperty(bool, enable_spam_prevention)]
-        #[qproperty(usize, spam_line_count)]
+        #[qproperty(i32, spam_line_count)]
         #[qproperty(QString, spam_message)]
         #[qproperty(bool, auto_repeat)]
         #[qproperty(bool, lower_case_tab_completion)]
@@ -293,7 +371,7 @@ pub mod ffi {
         #[qproperty(bool, translate_backslash_sequences)]
         #[qproperty(bool, keep_commands_on_same_line)]
         #[qproperty(bool, no_echo_off)]
-        #[qproperty(usize, tab_completion_lines)]
+        #[qproperty(i32, tab_completion_lines)]
         #[qproperty(bool, tab_completion_space)]
         #[qproperty(bool, double_click_inserts)]
         #[qproperty(bool, double_click_sends)]
@@ -307,7 +385,7 @@ pub mod ffi {
         #[qproperty(bool, ctrl_z_goes_to_end_of_buffer)]
         #[qproperty(bool, ctrl_p_goes_to_previous_command)]
         #[qproperty(bool, ctrl_n_goes_to_next_command)]
-        #[qproperty(usize, history_lines)]
+        #[qproperty(i32, history_lines)]
         // Aliases
         #[qproperty(bool, enable_aliases)]
         #[qproperty(bool, treeview_aliases)]
@@ -323,16 +401,16 @@ pub mod ffi {
         // Paste
         #[qproperty(QString, paste_line_preamble)]
         #[qproperty(QString, paste_line_postamble)]
-        #[qproperty(u32, paste_delay)]
-        #[qproperty(u32, paste_delay_per_lines)]
+        #[qproperty(i32, paste_delay)]
+        #[qproperty(i32, paste_delay_per_lines)]
         #[qproperty(bool, paste_commented_softcode)]
         #[qproperty(bool, paste_echo)]
         #[qproperty(bool, confirm_on_paste)]
         // Send
         #[qproperty(QString, send_line_preamble)]
         #[qproperty(QString, send_line_postamble)]
-        #[qproperty(u32, send_delay)]
-        #[qproperty(u32, send_delay_per_lines)]
+        #[qproperty(i32, send_delay)]
+        #[qproperty(i32, send_delay_per_lines)]
         #[qproperty(bool, send_commented_softcode)]
         #[qproperty(bool, send_echo)]
         #[qproperty(bool, confirm_on_send)]
@@ -347,10 +425,6 @@ pub mod ffi {
         #[qproperty(bool, script_errors_to_output_window)]
         #[qproperty(QColor, note_text_color)]
         type World = super::WorldRust;
-    }
-
-    unsafe extern "RustQt" {
-        fn populate(self: Pin<&mut World>, client: &SmushClient);
     }
 
     enum ProxyType {

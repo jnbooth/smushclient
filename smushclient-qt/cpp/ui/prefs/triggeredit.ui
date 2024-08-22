@@ -24,17 +24,17 @@
     <widget class="QWidget" name="reactions_pattern" native="true">
      <layout class="QHBoxLayout" name="_3">
       <item>
-       <widget class="QLabel" name="label_pattern">
+       <widget class="QLabel" name="Pattern_label">
         <property name="text">
          <string>&amp;Trigger:</string>
         </property>
         <property name="buddy">
-         <cstring>pattern</cstring>
+         <cstring>Pattern</cstring>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="pattern"/>
+       <widget class="QLineEdit" name="Pattern"/>
       </item>
      </layout>
     </widget>
@@ -123,17 +123,17 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label_text">
+    <widget class="QLabel" name="Text_label">
      <property name="text">
       <string>&amp;Send:</string>
      </property>
      <property name="buddy">
-      <cstring>text</cstring>
+      <cstring>Text</cstring>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="text"/>
+    <widget class="QPlainTextEdit" name="Text"/>
    </item>
    <item>
     <layout class="QHBoxLayout" name="_main">
@@ -148,17 +148,17 @@
        <item>
         <layout class="QFormLayout" name="_send">
          <item row="0" column="0">
-          <widget class="QLabel" name="label_send_to">
+          <widget class="QLabel" name="SendTo_label">
            <property name="text">
             <string>Send to:</string>
            </property>
            <property name="buddy">
-            <cstring>send_to</cstring>
+            <cstring>SendTo</cstring>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="send_to">
+          <widget class="QComboBox" name="SendTo">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -213,17 +213,17 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="sequence_label">
+          <widget class="QLabel" name="Sequence_label">
            <property name="text">
             <string>Seq&amp;uence:</string>
            </property>
            <property name="buddy">
-            <cstring>sequence</cstring>
+            <cstring>Sequence</cstring>
            </property>
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QSpinBox" name="sequence">
+          <widget class="QSpinBox" name="Sequence">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -242,33 +242,33 @@
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label_script">
+          <widget class="QLabel" name="Script_label">
            <property name="text">
             <string>Script:</string>
            </property>
            <property name="buddy">
-            <cstring>script</cstring>
+            <cstring>Script</cstring>
            </property>
           </widget>
          </item>
          <item row="3" column="1">
-          <widget class="QLineEdit" name="script"/>
+          <widget class="QLineEdit" name="Script"/>
          </item>
          <item row="4" column="0">
-          <widget class="QLabel" name="label_group">
+          <widget class="QLabel" name="Group_label">
            <property name="text">
             <string>Group:</string>
            </property>
            <property name="buddy">
-            <cstring>group</cstring>
+            <cstring>Group</cstring>
            </property>
           </widget>
          </item>
          <item row="4" column="1">
-          <widget class="QLineEdit" name="group"/>
+          <widget class="QLineEdit" name="Group"/>
          </item>
          <item row="5" column="0">
-          <widget class="QLabel" name="variable_label">
+          <widget class="QLabel" name="Variable_label">
            <property name="visible">
             <bool>false</bool>
            </property>
@@ -276,27 +276,27 @@
             <string>Variable:</string>
            </property>
            <property name="buddy">
-            <cstring>variable</cstring>
+            <cstring>Variable</cstring>
            </property>
           </widget>
          </item>
          <item row="5" column="1">
-          <widget class="QLineEdit" name="variable">
+          <widget class="QLineEdit" name="Variable">
            <property name="enabled">
             <bool>false</bool>
            </property>
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QLineEdit" name="label"/>
+          <widget class="QLineEdit" name="Label"/>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="label_label">
+          <widget class="QLabel" name="Label_label">
            <property name="text">
             <string>&amp;Label:</string>
            </property>
            <property name="buddy">
-            <cstring>script</cstring>
+            <cstring>Script</cstring>
            </property>
           </widget>
          </item>
@@ -317,10 +317,10 @@
           <item>
            <layout class="QHBoxLayout" name="_soundfile">
             <item>
-             <widget class="QLineEdit" name="sound"/>
+             <widget class="QLineEdit" name="Sound"/>
             </item>
             <item>
-             <widget class="QToolButton" name="sound_browse">
+             <widget class="QToolButton" name="Sound_browse">
               <property name="text">
                <string>Browse...</string>
               </property>
@@ -331,7 +331,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="sound_none">
+             <widget class="QToolButton" name="Sound_none">
               <property name="text">
                <string>No sound</string>
               </property>
@@ -342,7 +342,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="sound_test">
+             <widget class="QToolButton" name="Sound_test">
               <property name="text">
                <string>Test</string>
               </property>
@@ -355,7 +355,7 @@
            </layout>
           </item>
           <item>
-           <widget class="QCheckBox" name="sound_if_inactive">
+           <widget class="QCheckBox" name="SoundIfInactive">
             <property name="text">
              <string>Only if inactive</string>
             </property>
@@ -371,7 +371,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="3">
-           <widget class="QPushButton" name="foreground">
+           <widget class="QPushButton" name="Foreground">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -394,14 +394,14 @@
            </spacer>
           </item>
           <item row="2" column="2">
-           <widget class="QCheckBox" name="change_background">
+           <widget class="QCheckBox" name="ChangeBackground">
             <property name="text">
              <string>Set background colour:</string>
             </property>
            </widget>
           </item>
           <item row="2" column="3">
-           <widget class="QPushButton" name="background">
+           <widget class="QPushButton" name="Background">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -411,28 +411,28 @@
            </widget>
           </item>
           <item row="2" column="0">
-           <widget class="QCheckBox" name="make_italic">
+           <widget class="QCheckBox" name="MakeItalic">
             <property name="text">
              <string>Italic</string>
             </property>
            </widget>
           </item>
           <item row="4" column="0">
-           <widget class="QCheckBox" name="make_underline">
+           <widget class="QCheckBox" name="MakeUnderline">
             <property name="text">
              <string>Underline</string>
             </property>
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QCheckBox" name="change_foreground">
+           <widget class="QCheckBox" name="ChangeForeground">
             <property name="text">
              <string>Set foreground colour:</string>
             </property>
            </widget>
           </item>
           <item row="0" column="0">
-           <widget class="QCheckBox" name="make_bold">
+           <widget class="QCheckBox" name="MakeBold">
             <property name="text">
              <string>Bold</string>
             </property>
@@ -478,7 +478,7 @@
         <number>6</number>
        </property>
        <item>
-        <widget class="QCheckBox" name="enabled">
+        <widget class="QCheckBox" name="Enabled">
          <property name="text">
           <string>En&amp;abled</string>
          </property>
@@ -488,98 +488,98 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="omit_from_output">
+        <widget class="QCheckBox" name="OmitFromOutput">
          <property name="text">
           <string>O&amp;mit from output</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="omit_from_log">
+        <widget class="QCheckBox" name="OmitFromLog">
          <property name="text">
           <string>&amp;Omit from log file</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="one_shot">
+        <widget class="QCheckBox" name="OneShot">
          <property name="text">
           <string>One-shot</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="temporary">
+        <widget class="QCheckBox" name="Temporary">
          <property name="text">
           <string>Temporary</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="ignore_case">
+        <widget class="QCheckBox" name="IgnoreCase">
          <property name="text">
           <string>&amp;Ignore case</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="keep_evaluating">
+        <widget class="QCheckBox" name="KeepEvaluating">
          <property name="text">
           <string>&amp;Keep evaluating</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="expand_variables">
+        <widget class="QCheckBox" name="ExpandVariables">
          <property name="text">
           <string>Expand variables</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="lowercase_wildcard">
+        <widget class="QCheckBox" name="LowercaseWildcard">
          <property name="text">
           <string>Make wildcards lower-case</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="is_regex">
+        <widget class="QCheckBox" name="IsRegex">
          <property name="text">
           <string>Regular expression</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="active_closed">
+        <widget class="QCheckBox" name="ActiveClosed">
          <property name="text">
           <string>Active when disconnected</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="echo_alias">
+        <widget class="QCheckBox" name="EchoAlias">
          <property name="text">
           <string>Echo alias</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="omit_from_command_history">
+        <widget class="QCheckBox" name="OmitFromCommandHistory">
          <property name="text">
           <string>Omit from command history</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="menu">
+        <widget class="QCheckBox" name="Menu">
          <property name="text">
           <string>Menu</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="repeat">
+        <widget class="QCheckBox" name="Repeat">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -589,7 +589,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="multi_line">
+        <widget class="QCheckBox" name="MultiLine">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -608,7 +608,7 @@
            <number>0</number>
           </property>
           <item alignment="Qt::AlignRight">
-           <widget class="QLabel" name="label_lines_to_match">
+           <widget class="QLabel" name="LinesToMatch_label">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -616,12 +616,12 @@
              <string>Lines:</string>
             </property>
             <property name="buddy">
-             <cstring>lines_to_match</cstring>
+             <cstring>LinesToMatch</cstring>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="lines_to_match">
+           <widget class="QSpinBox" name="LinesToMatch">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -700,9 +700,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>is_regex</sender>
+   <sender>IsRegex</sender>
    <signal>toggled(bool)</signal>
-   <receiver>repeat</receiver>
+   <receiver>Repeat</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -716,9 +716,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>is_regex</sender>
+   <sender>IsRegex</sender>
    <signal>toggled(bool)</signal>
-   <receiver>multi_line</receiver>
+   <receiver>MultiLine</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -732,7 +732,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>is_regex</sender>
+   <sender>IsRegex</sender>
    <signal>toggled(bool)</signal>
    <receiver>triggers_multi_line</receiver>
    <slot>setEnabled(bool)</slot>
@@ -748,9 +748,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>multi_line</sender>
+   <sender>MultiLine</sender>
    <signal>toggled(bool)</signal>
-   <receiver>lines_to_match</receiver>
+   <receiver>LinesToMatch</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -764,9 +764,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>multi_line</sender>
+   <sender>MultiLine</sender>
    <signal>toggled(bool)</signal>
-   <receiver>label_lines_to_match</receiver>
+   <receiver>LinesToMatch_label</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -780,9 +780,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>change_foreground</sender>
+   <sender>ChangeForeground</sender>
    <signal>toggled(bool)</signal>
-   <receiver>foreground</receiver>
+   <receiver>Foreground</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -796,9 +796,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>change_background</sender>
+   <sender>ChangeBackground</sender>
    <signal>toggled(bool)</signal>
-   <receiver>background</receiver>
+   <receiver>Background</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -812,9 +812,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>sound_none</sender>
+   <sender>Sound_none</sender>
    <signal>clicked()</signal>
-   <receiver>sound</receiver>
+   <receiver>Sound</receiver>
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">

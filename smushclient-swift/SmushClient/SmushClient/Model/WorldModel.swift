@@ -80,7 +80,7 @@ class WorldModel {
   var notes: String = ""
   var beep_sound: String = ""
   var pixel_offset: Int16 = 5
-  var line_spacing: Float = 1.0
+  var line_spacing: Double = 1.0
   var output_font: NSFont = defaultFont
   var use_default_output_font: Bool = true
   var show_bold: Bool = true
@@ -106,7 +106,6 @@ class WorldModel {
   var convert_ga_to_newline: Bool = false
   var terminal_identification: String = "mushclient"
   var use_mxp: UseMxp = .Command
-  var detect_pueblo: Bool = true
   var hyperlink_color: NSColor = defaultHyperlinkColor
   var use_custom_link_color: Bool = false
   var mud_can_change_link_color: Bool = true
@@ -116,7 +115,6 @@ class WorldModel {
   var echo_hyperlink_in_output_window: Bool = true
   var ignore_mxp_color_changes: Bool = false
   var send_mxp_afk_response: Bool = true
-  var mud_can_change_options: Bool = true
   var use_default_colors: Bool = true
   var ansi_colors: [NSColor] = defaultAnsiColors
   var custom_names: [String] = defaultCustomNames
@@ -131,7 +129,7 @@ class WorldModel {
   var enable_speed_walk: Bool = false
   var speed_walk_prefix: String = "#"
   var speed_walk_filler: String = "a"
-  var speed_walk_delay: UInt32 = 20
+  var speed_walk_delay: Double = 20.0
   var enable_command_stack: Bool = false
   var command_stack_character: String = "#"
   var input_colors: ColorPairModel = ColorPairModel(foreground: defaultInputColor)
@@ -247,7 +245,7 @@ class WorldModel {
     beep_sound = world.beep_sound.toString()
     pixel_offset = world.pixel_offset
     line_spacing = world.line_spacing
-    if let output_font = NSFont(world.output_font) {
+    if let output_font = NSFont(name: world.output_font.toString(), size: CGFloat(world.output_font_size)) {
       self.output_font = output_font
     }
     use_default_output_font = world.use_default_output_font
@@ -274,7 +272,6 @@ class WorldModel {
     convert_ga_to_newline = world.convert_ga_to_newline
     terminal_identification = world.terminal_identification.toString()
     use_mxp = world.use_mxp
-    detect_pueblo = world.detect_pueblo
     hyperlink_color = NSColor(world.hyperlink_color)
     use_custom_link_color = world.use_custom_link_color
     mud_can_change_link_color = world.mud_can_change_link_color
@@ -284,7 +281,6 @@ class WorldModel {
     echo_hyperlink_in_output_window = world.echo_hyperlink_in_output_window
     ignore_mxp_color_changes = world.ignore_mxp_color_changes
     send_mxp_afk_response = world.send_mxp_afk_response
-    mud_can_change_options = world.mud_can_change_options
     use_default_colors = world.use_default_colors
     ansi_colors = fromVec(world.ansi_colors, by: NSColor.init)
     custom_names = fromVec(world.custom_names) { $0.as_str().toString() }
@@ -302,7 +298,7 @@ class WorldModel {
     enable_command_stack = world.enable_command_stack
     command_stack_character = world.command_stack_character.toString()
     input_colors = ColorPairModel(world.input_colors)
-    if let input_font = NSFont(world.input_font) {
+    if let input_font = NSFont(name: world.input_font.toString(), size: CGFloat(world.input_font_size)) {
       self.input_font = input_font
     }
     use_default_input_font = world.use_default_input_font
@@ -419,6 +415,7 @@ extension World {
     pixel_offset = world.pixel_offset
     line_spacing = world.line_spacing
     output_font = world.output_font.intoRustString()
+    output_font_size = UInt8(world.output_font.pointSize)
     use_default_output_font = world.use_default_output_font
     show_bold = world.show_bold
     show_italic = world.show_italic
@@ -443,7 +440,6 @@ extension World {
     convert_ga_to_newline = world.convert_ga_to_newline
     terminal_identification = world.terminal_identification.intoRustString()
     use_mxp = world.use_mxp
-    detect_pueblo = world.detect_pueblo
     hyperlink_color = RgbColor(world.hyperlink_color)
     use_custom_link_color = world.use_custom_link_color
     mud_can_change_link_color = world.mud_can_change_link_color
@@ -453,7 +449,6 @@ extension World {
     echo_hyperlink_in_output_window = world.echo_hyperlink_in_output_window
     ignore_mxp_color_changes = world.ignore_mxp_color_changes
     send_mxp_afk_response = world.send_mxp_afk_response
-    mud_can_change_options = world.mud_can_change_options
     use_default_colors = world.use_default_colors
     ansi_colors = intoVec(world.ansi_colors, by: RgbColor.init)
     custom_names = intoVec(world.custom_names) { $0.intoRustString() }
@@ -472,6 +467,7 @@ extension World {
     command_stack_character = world.command_stack_character.intoRustString()
     input_colors = ColorPair(world.input_colors)
     input_font = world.input_font.intoRustString()
+    input_font_size = UInt8(world.input_font.pointSize)
     use_default_input_font = world.use_default_input_font
     enable_spam_prevention = world.enable_spam_prevention
     spam_line_count = world.spam_line_count

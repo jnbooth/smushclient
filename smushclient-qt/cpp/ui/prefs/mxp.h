@@ -2,21 +2,23 @@
 #define PREFSMXP_H
 
 #include <QtWidgets/QWidget>
+#include "abstractpane.h"
 
-namespace Ui {
-class PrefsMxp;
+namespace Ui
+{
+  class PrefsMxp;
 }
 
-class PrefsMxp : public QWidget
+class PrefsMxp : public AbstractPrefsPane
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit PrefsMxp(QWidget *parent = nullptr);
-    ~PrefsMxp();
+  explicit PrefsMxp(const World *world, QWidget *parent = nullptr);
+  ~PrefsMxp();
 
 private:
-    Ui::PrefsMxp *ui;
+  Ui::PrefsMxp *ui;
 };
 
 #endif // PREFSMXP_H

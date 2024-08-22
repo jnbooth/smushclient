@@ -45,24 +45,24 @@
      </property>
      <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
-       <widget class="QLabel" name="label_name">
+       <widget class="QLabel" name="Name_label">
         <property name="text">
          <string>World &amp;Name:</string>
         </property>
         <property name="buddy">
-         <cstring>name</cstring>
+         <cstring>Name</cstring>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="name">
+       <widget class="QLineEdit" name="Name">
         <property name="placeholderText">
          <string>Required</string>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="label_site">
+       <widget class="QLabel" name="Site_label">
         <property name="text">
          <string>&amp;TCP/IP Address:</string>
         </property>
@@ -70,12 +70,12 @@
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="buddy">
-         <cstring>site</cstring>
+         <cstring>Site</cstring>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="site">
+       <widget class="QLineEdit" name="Site">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -88,7 +88,7 @@
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="label_port">
+       <widget class="QLabel" name="Port_label">
         <property name="text">
          <string>&amp;Port:</string>
         </property>
@@ -96,12 +96,12 @@
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="buddy">
-         <cstring>port</cstring>
+         <cstring>Port</cstring>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QSpinBox" name="port">
+       <widget class="QSpinBox" name="Port">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -142,17 +142,17 @@
      </property>
      <layout class="QFormLayout" name="_4">
       <item row="0" column="0">
-       <widget class="QLabel" name="label_proxy_type">
+       <widget class="QLabel" name="ProxyType_label">
         <property name="text">
          <string>Type:</string>
         </property>
         <property name="buddy">
-         <cstring>proxy_type</cstring>
+         <cstring>ProxyType</cstring>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QComboBox" name="proxy_type">
+       <widget class="QComboBox" name="ProxyType">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -177,30 +177,30 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="label_proxy_server">
+       <widget class="QLabel" name="ProxyServer_label">
         <property name="text">
          <string>TCP/IP &amp;Address:</string>
         </property>
         <property name="buddy">
-         <cstring>proxy_server</cstring>
+         <cstring>ProxyServer</cstring>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="proxy_server"/>
+       <widget class="QLineEdit" name="ProxyServer"/>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="label_proxy_port">
+       <widget class="QLabel" name="ProxyPort_label">
         <property name="text">
          <string>Port:</string>
         </property>
         <property name="buddy">
-         <cstring>proxy_port</cstring>
+         <cstring>ProxyPort</cstring>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QSpinBox" name="proxy_port">
+       <widget class="QSpinBox" name="ProxyPort">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -213,7 +213,7 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QPushButton" name="proxy_password_button">
+       <widget class="QPushButton" name="ProxyPassword_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -229,7 +229,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="save_world_automatically">
+    <widget class="QCheckBox" name="SaveWorldAutomatically">
      <property name="text">
       <string>&amp;Save world automatically on close</string>
      </property>

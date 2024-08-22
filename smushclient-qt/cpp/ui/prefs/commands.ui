@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>606</width>
+    <width>607</width>
     <height>848</height>
    </rect>
   </property>
@@ -49,28 +49,28 @@
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QCheckBox" name="display_my_input">
+           <widget class="QCheckBox" name="DisplayMyInput">
             <property name="text">
              <string>Echo my &amp;input in</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="echo_colors_foreground">
+           <widget class="ColorPickerButton" name="EchoColorsForeground">
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_echo_colors_background">
+           <widget class="QLabel" name="EchoColorsBackground_label">
             <property name="text">
              <string>on</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="echo_colors_background">
+           <widget class="ColorPickerButton" name="EchoColorsBackground">
             <property name="text">
              <string/>
             </property>
@@ -79,7 +79,7 @@
           <item>
            <spacer name="horizontalSpacer">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -101,14 +101,14 @@
           <item>
            <layout class="QHBoxLayout" name="_walk">
             <item>
-             <widget class="QCheckBox" name="enable_speed_walk">
+             <widget class="QCheckBox" name="EnableSpeedWalk">
               <property name="text">
                <string>Enable &amp;speed walking with prefix:</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="speed_walk_prefix">
+             <widget class="QLineEdit" name="SpeedWalkPrefix">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -123,14 +123,14 @@
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <item>
-              <widget class="QLabel" name="label_speed_walk_delay">
+              <widget class="QLabel" name="SpeedWalkDelay_label">
                <property name="text">
                 <string>Delay:</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QDoubleSpinBox" name="speed_walk_delay">
+              <widget class="QDoubleSpinBox" name="SpeedWalkDelay">
                <property name="suffix">
                 <string> s</string>
                </property>
@@ -143,14 +143,14 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="label_speed_walk_filler">
+              <widget class="QLabel" name="SpeedWalkFiller_label">
                <property name="text">
                 <string>Filler:</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="speed_walk_filler"/>
+              <widget class="QLineEdit" name="SpeedWalkFiller"/>
              </item>
             </layout>
            </widget>
@@ -165,14 +165,14 @@
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
-           <widget class="QCheckBox" name="enable_command_stack">
+           <widget class="QCheckBox" name="EnableCommandStack">
             <property name="text">
              <string>Enable &amp;command stacking with prefix:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="command_stack_character">
+           <widget class="QLineEdit" name="CommandStackCharacter">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -191,7 +191,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
-           <widget class="QFontComboBox" name="input_font">
+           <widget class="QFontComboBox" name="InputFont">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -203,7 +203,7 @@
           <item>
            <layout class="QHBoxLayout" name="_font_options">
             <item>
-             <widget class="QSpinBox" name="input_font_size">
+             <widget class="QSpinBox" name="InputFontSize">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -215,8 +215,8 @@
               </property>
              </widget>
             </item>
-            <item alignment="Qt::AlignRight">
-             <widget class="QCheckBox" name="use_default_input_font">
+            <item alignment="Qt::AlignmentFlag::AlignRight">
+             <widget class="QCheckBox" name="UseDefaultInputFont">
               <property name="text">
                <string>O&amp;verride with default</string>
               </property>
@@ -227,28 +227,28 @@
           <item>
            <layout class="QHBoxLayout" name="_color">
             <item>
-             <widget class="QLabel" name="label_input_colors_foreground">
+             <widget class="QLabel" name="InputColorsForeground_label">
               <property name="text">
                <string>Colour:</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="input_colors_foreground">
+             <widget class="ColorPickerButton" name="InputColorsForeground">
               <property name="text">
                <string/>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_input_colors_background">
+             <widget class="QLabel" name="InputColorsBackground_label">
               <property name="text">
                <string>on</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="input_colors_background">
+             <widget class="ColorPickerButton" name="InputColorsBackground">
               <property name="text">
                <string/>
               </property>
@@ -257,7 +257,7 @@
             <item>
              <spacer name="horizontalSpacer_3">
               <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -279,7 +279,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
-           <widget class="QCheckBox" name="enable_spam_prevention">
+           <widget class="QCheckBox" name="EnableSpamPrevention">
             <property name="text">
              <string>Enable spam prevention</string>
             </property>
@@ -292,17 +292,17 @@
             </property>
             <layout class="QFormLayout" name="formLayout">
              <item row="1" column="0">
-              <widget class="QLabel" name="label_spam_message">
+              <widget class="QLabel" name="SpamMessage_label">
                <property name="text">
                 <string>Send:</string>
                </property>
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QLineEdit" name="spam_message"/>
+              <widget class="QLineEdit" name="SpamMessage"/>
              </item>
              <item row="0" column="0">
-              <widget class="QLabel" name="label_spam_line_count">
+              <widget class="QLabel" name="SpamLineCount_label">
                <property name="text">
                 <string>Every</string>
                </property>
@@ -311,7 +311,7 @@
              <item row="0" column="1">
               <layout class="QHBoxLayout" name="_spam_line_count">
                <item>
-                <widget class="QSpinBox" name="spam_line_count">
+                <widget class="QSpinBox" name="SpamLineCount">
                  <property name="maximum">
                   <number>1000</number>
                  </property>
@@ -321,7 +321,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="label_suffix_spam_line">
+                <widget class="QLabel" name="SuffixSpamLine_label">
                  <property name="text">
                   <string>identical commands</string>
                  </property>
@@ -343,42 +343,42 @@
         <number>6</number>
        </property>
        <item>
-        <widget class="QCheckBox" name="auto_repeat">
+        <widget class="QCheckBox" name="AutoRepeat">
          <property name="text">
           <string>Auto-repeat command</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="lower_case_tab_completion">
+        <widget class="QCheckBox" name="LowerCaseTabCompletion">
          <property name="text">
           <string>Tab completion in lowercase</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="translate_german">
+        <widget class="QCheckBox" name="TranslateGerman">
          <property name="text">
           <string>Translate German characters</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="translate_backslash_sequences">
+        <widget class="QCheckBox" name="TranslateBackslashSequences">
          <property name="text">
           <string>Translate backslash sequences</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="keep_commands_on_same_line">
+        <widget class="QCheckBox" name="KeepCommandsOnSameLine">
          <property name="text">
           <string>Keep commands on prompt line</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="no_echo_off">
+        <widget class="QCheckBox" name="NoEchoOff">
          <property name="text">
           <string>Ignore &quot;Echo Off&quot; messages</string>
          </property>
@@ -387,7 +387,7 @@
        <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -404,24 +404,24 @@
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_10">
           <item>
-           <widget class="QLabel" name="label_history_lines">
+           <widget class="QLabel" name="HistoryLines_label">
             <property name="text">
              <string>Keep</string>
             </property>
             <property name="buddy">
-             <cstring>history_lines</cstring>
+             <cstring>HistoryLines</cstring>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="history_lines">
+           <widget class="QSpinBox" name="HistoryLines">
             <property name="maximum">
              <number>100000</number>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_suffix_history_lines">
+           <widget class="QLabel" name="SuffixHistoryLines_label">
             <property name="text">
              <string>lines</string>
             </property>
@@ -451,7 +451,7 @@
    <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
-      <enum>Qt::Vertical</enum>
+      <enum>Qt::Orientation::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
@@ -463,12 +463,19 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ColorPickerButton</class>
+   <extends>QPushButton</extends>
+   <header>colorpickerbutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
-   <sender>use_default_input_font</sender>
+   <sender>UseDefaultInputFont</sender>
    <signal>toggled(bool)</signal>
-   <receiver>input_font</receiver>
+   <receiver>InputFont</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -482,9 +489,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>use_default_input_font</sender>
+   <sender>UseDefaultInputFont</sender>
    <signal>toggled(bool)</signal>
-   <receiver>input_font_size</receiver>
+   <receiver>InputFontSize</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -498,9 +505,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>enable_speed_walk</sender>
+   <sender>EnableSpeedWalk</sender>
    <signal>toggled(bool)</signal>
-   <receiver>speed_walk_prefix</receiver>
+   <receiver>SpeedWalkPrefix</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -514,7 +521,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>enable_spam_prevention</sender>
+   <sender>EnableSpamPrevention</sender>
    <signal>toggled(bool)</signal>
    <receiver>_spam_options</receiver>
    <slot>setEnabled(bool)</slot>
@@ -530,9 +537,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>enable_command_stack</sender>
+   <sender>EnableCommandStack</sender>
    <signal>toggled(bool)</signal>
-   <receiver>command_stack_character</receiver>
+   <receiver>CommandStackCharacter</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -546,7 +553,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>enable_speed_walk</sender>
+   <sender>EnableSpeedWalk</sender>
    <signal>toggled(bool)</signal>
    <receiver>_delay</receiver>
    <slot>setEnabled(bool)</slot>

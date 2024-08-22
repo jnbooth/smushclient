@@ -1,14 +1,14 @@
 #include "timers.h"
 #include "ui_timers.h"
 
-PrefsTimers::PrefsTimers(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::PrefsTimers)
+PrefsTimers::PrefsTimers(const World *world, QWidget *parent)
+    : AbstractPrefsPane(parent), ui(new Ui::PrefsTimers)
 {
-    ui->setupUi(this);
+  ui->setupUi(this);
+  CONNECT_WORLD(EnableTimers);
 }
 
 PrefsTimers::~PrefsTimers()
 {
-    delete ui;
+  delete ui;
 }

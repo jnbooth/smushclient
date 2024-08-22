@@ -1,5 +1,6 @@
 use super::ffi;
-use cxx_qt_lib::{QList, QString, QStringList};
+use crate::convert::Convert;
+use cxx_qt_lib::QString;
 use mud_transformer::mxp::{Heading, Link, SendTo};
 use mud_transformer::{EffectFragment, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, ProxyType, ScriptRecompile};
@@ -71,18 +72,10 @@ impl From<EffectFragment> for ffi::EffectFragment {
 
 impl From<&Link> for ffi::MxpLink {
     fn from(action: &Link) -> Self {
-        let hint = match &action.hint {
-            Some(ref hint) => hint.as_str().into(),
-            None => QString::default(),
-        };
-        let mut prompts = QList::default();
-        for prompt in &action.prompts {
-            prompts.append(QString::from(prompt));
-        }
         Self {
-            action: (&action.action).into(),
-            hint,
-            prompts: QStringList::from(&prompts),
+            action: QString::from(&action.action),
+            hint: action.hint.convert(),
+            prompts: action.prompts.convert(),
             sendto: action.sendto.into(),
         }
     }

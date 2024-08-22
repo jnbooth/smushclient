@@ -2,21 +2,27 @@
 #define PREFSCOMMANDS_H
 
 #include <QtWidgets/QWidget>
+#include "abstractpane.h"
 
-namespace Ui {
-class PrefsCommands;
+namespace Ui
+{
+  class PrefsCommands;
 }
 
-class PrefsCommands : public QWidget
+class PrefsCommands : public AbstractPrefsPane
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit PrefsCommands(QWidget *parent = nullptr);
-    ~PrefsCommands();
+  explicit PrefsCommands(World *world, QWidget *parent = nullptr);
+  ~PrefsCommands();
+
+private slots:
+  void on_InputFont_currentFontChanged(const QFont &f);
 
 private:
-    Ui::PrefsCommands *ui;
+  World *world;
+  Ui::PrefsCommands *ui;
 };
 
 #endif // PREFSCOMMANDS_H

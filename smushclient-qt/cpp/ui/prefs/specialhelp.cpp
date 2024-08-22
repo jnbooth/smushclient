@@ -2,13 +2,12 @@
 #include "ui_specialhelp.h"
 
 SpecialHelp::SpecialHelp(QWidget *parent)
-    : QDialog(parent)
-    , ui(new Ui::SpecialHelp)
+    : QDialog(parent), ui(new Ui::SpecialHelp)
 {
-    ui->setupUi(this);
+  ui->setupUi(this);
 }
 
 SpecialHelp::~SpecialHelp()
 {
-    delete ui;
+  delete ui;
 }

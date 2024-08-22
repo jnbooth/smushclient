@@ -1,13 +1,9 @@
 use super::ffi;
+use crate::convert::Convert;
 use cxx_qt_lib::{QByteArray, QColor, QString};
-use mud_transformer::mxp::RgbColor;
 use mud_transformer::{
     EffectFragment, EntityFragment, OutputFragment, TelnetFragment, TextFragment, TextStyle,
 };
-
-fn encode_color(color: RgbColor) -> QColor {
-    QColor::from_rgb(color.r as i32, color.g as i32, color.b as i32)
-}
 
 binding!(RustTextFragment, TextFragment);
 
@@ -25,11 +21,11 @@ impl RustTextFragment {
     }
 
     pub fn foreground(&self) -> QColor {
-        encode_color(self.inner.foreground)
+        self.inner.foreground.convert()
     }
 
     pub fn background(&self) -> QColor {
-        encode_color(self.inner.background)
+        self.inner.background.convert()
     }
 
     pub fn has_link(&self) -> bool {

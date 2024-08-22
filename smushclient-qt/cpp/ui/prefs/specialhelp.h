@@ -4,20 +4,21 @@
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QWidget>
 
-namespace Ui {
-class SpecialHelp;
+namespace Ui
+{
+  class SpecialHelp;
 }
 
 class SpecialHelp : public QDialog
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit SpecialHelp(QWidget *parent = nullptr);
-    ~SpecialHelp();
+  explicit SpecialHelp(QWidget *parent = nullptr);
+  ~SpecialHelp();
 
 private:
-    Ui::SpecialHelp *ui;
+  Ui::SpecialHelp *ui;
 };
 
 #endif // SPECIALHELP_H

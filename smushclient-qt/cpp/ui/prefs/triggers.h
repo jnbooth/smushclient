@@ -2,21 +2,23 @@
 #define PREFSTRIGGERS_H
 
 #include <QtWidgets/QWidget>
+#include "abstractpane.h"
 
-namespace Ui {
-class PrefsTriggers;
+namespace Ui
+{
+  class PrefsTriggers;
 }
 
-class PrefsTriggers : public QWidget
+class PrefsTriggers : public AbstractPrefsPane
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit PrefsTriggers(QWidget *parent = nullptr);
-    ~PrefsTriggers();
+  explicit PrefsTriggers(const World *world, QWidget *parent = nullptr);
+  ~PrefsTriggers();
 
 private:
-    Ui::PrefsTriggers *ui;
+  Ui::PrefsTriggers *ui;
 };
 
 #endif // PREFSTRIGGERS_H

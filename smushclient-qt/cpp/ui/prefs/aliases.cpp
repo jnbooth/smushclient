@@ -1,14 +1,14 @@
 #include "aliases.h"
 #include "ui_aliases.h"
 
-PrefsAliases::PrefsAliases(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::PrefsAliases)
+PrefsAliases::PrefsAliases(const World *world, QWidget *parent)
+    : AbstractPrefsPane(parent), ui(new Ui::PrefsAliases)
 {
-    ui->setupUi(this);
+  ui->setupUi(this);
+  CONNECT_WORLD(EnableAliases);
 }
 
 PrefsAliases::~PrefsAliases()
 {
-    delete ui;
+  delete ui;
 }

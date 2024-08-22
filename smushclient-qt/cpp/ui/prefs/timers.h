@@ -2,21 +2,23 @@
 #define PREFSTIMERS_H
 
 #include <QtWidgets/QWidget>
+#include "abstractpane.h"
 
-namespace Ui {
-class PrefsTimers;
+namespace Ui
+{
+  class PrefsTimers;
 }
 
-class PrefsTimers : public QWidget
+class PrefsTimers : public AbstractPrefsPane
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit PrefsTimers(QWidget *parent = nullptr);
-    ~PrefsTimers();
+  explicit PrefsTimers(const World *world, QWidget *parent = nullptr);
+  ~PrefsTimers();
 
 private:
-    Ui::PrefsTimers *ui;
+  Ui::PrefsTimers *ui;
 };
 
 #endif // PREFSTIMERS_H

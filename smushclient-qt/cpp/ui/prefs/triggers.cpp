@@ -1,14 +1,15 @@
 #include "triggers.h"
 #include "ui_triggers.h"
 
-PrefsTriggers::PrefsTriggers(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::PrefsTriggers)
+PrefsTriggers::PrefsTriggers(const World *world, QWidget *parent)
+    : AbstractPrefsPane(parent), ui(new Ui::PrefsTriggers)
 {
-    ui->setupUi(this);
+  ui->setupUi(this);
+  CONNECT_WORLD(EnableTriggers);
+  CONNECT_WORLD(EnableTriggerSounds);
 }
 
 PrefsTriggers::~PrefsTriggers()
 {
-    delete ui;
+  delete ui;
 }

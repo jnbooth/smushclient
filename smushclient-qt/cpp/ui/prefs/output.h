@@ -2,21 +2,27 @@
 #define PREFSOUTPUT_H
 
 #include <QtWidgets/QWidget>
+#include "abstractpane.h"
 
-namespace Ui {
-class PrefsOutput;
+namespace Ui
+{
+  class PrefsOutput;
 }
 
-class PrefsOutput : public QWidget
+class PrefsOutput : public AbstractPrefsPane
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit PrefsOutput(QWidget *parent = nullptr);
-    ~PrefsOutput();
+  explicit PrefsOutput(World *world, QWidget *parent = nullptr);
+  ~PrefsOutput();
+
+private slots:
+  void on_OutputFont_currentFontChanged(const QFont &f);
 
 private:
-    Ui::PrefsOutput *ui;
+  World *world;
+  Ui::PrefsOutput *ui;
 };
 
 #endif // PREFSOUTPUT_H

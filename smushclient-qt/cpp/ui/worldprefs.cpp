@@ -13,67 +13,69 @@
 #include "prefs/aliases.h"
 #include "prefs/triggers.h"
 
-WorldPrefs::WorldPrefs(QWidget *parent)
-    : QDialog(parent)
-    , ui(new Ui::WorldPrefs)
-    , panes(new QList<QWidget *>)
-    , activePane(NULL)
+WorldPrefs::WorldPrefs(World *world, QWidget *parent)
+    : QDialog(parent), ui(new Ui::WorldPrefs), panes(), activePane(NULL)
 {
-    ui->setupUi(this);
-    panes->reserve(12);
-    setupPane(new PrefsAddress(this), "IP address");
-    setupPane(new PrefsConnecting(this), "Connecting");
-    setupPane(new PrefsLogging(this), "Logging");
-    setupPane(new PrefsTimers(this), "Timers");
-    setupPane(new PrefsChat(this), "Chat");
-    setupPane(new PrefsOutput(this), "Output");
-    setupPane(new PrefsMxp(this), "MXP/Pueblo");
-    setupPane(new PrefsColor(this), "ANSI Colour");
-    setupPane(new PrefsCustomColor(this), "Custom Colour");
-    setupPane(new PrefsCommands(this), "Commands");
-    setupPane(new PrefsAliases(this), "Aliases");
-    setupPane(new PrefsTriggers(this), "Triggers");
+  ui->setupUi(this);
+  panes.reserve(12);
+  setupPane(new PrefsAddress(world, this), "IP address");
+  setupPane(new PrefsConnecting(world, this), "Connecting");
+  setupPane(new PrefsLogging(world, this), "Logging");
+  setupPane(new PrefsTimers(world, this), "Timers");
+  setupPane(new PrefsChat(world, this), "Chat");
+  setupPane(new PrefsOutput(world, this), "Output");
+  setupPane(new PrefsMxp(world, this), "MXP");
+  setupPane(new PrefsColor(world, this), "ANSI Colour");
+  setupPane(new PrefsCustomColor(world, this), "Custom Colour");
+  setupPane(new PrefsCommands(world, this), "Commands");
+  setupPane(new PrefsAliases(world, this), "Aliases");
+  setupPane(new PrefsTriggers(world, this), "Triggers");
 
-    for (QTreeWidgetItemIterator it(ui->settings_tree); *it; ++it) {
-      (*it)->setExpanded(true);
-    }
+  for (QTreeWidgetItemIterator it(ui->settings_tree); *it; ++it)
+  {
+    (*it)->setExpanded(true);
+  }
 }
 
 WorldPrefs::~WorldPrefs()
 {
-    delete ui;
+  delete ui;
 }
 
-void WorldPrefs::setupPane(QWidget *pane, const char *key) {
-  int index = panes->size();
-  panes->append(pane);
+void WorldPrefs::setupPane(QWidget *pane, const char *key)
+{
+  int index = panes.size();
+  panes.append(pane);
   ui->contents->addWidget(pane);
   pane->hide();
 
-  QTreeWidgetItem *item = ui
-    ->settings_tree
-    ->findItems(tr(key), Qt::MatchExactly | Qt::MatchRecursive)
-    .constFirst();
+  QTreeWidgetItem *item =
+      ui->settings_tree
+          ->findItems(tr(key), Qt::MatchExactly | Qt::MatchRecursive)
+          .constFirst();
   item->setData(0, Qt::UserRole, index);
 
-  if (index == 0) {
+  if (index == 0)
+  {
     ui->settings_tree->setCurrentItem(item);
   }
 }
 
 void WorldPrefs::on_settings_tree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
 {
-  if (current == NULL) {
+  if (current == NULL)
+  {
     return;
   }
   QVariant data = current->data(0, Qt::UserRole);
-  if (!data.canConvert<qsizetype>()) {
+  if (!data.canConvert<qsizetype>())
+  {
     return;
   }
-  if (activePane != NULL) {
+  if (activePane != NULL)
+  {
     activePane->hide();
   }
-  activePane = panes->at(data.value<qsizetype>());
+  activePane = panes.at(data.value<qsizetype>());
   activePane->show();
 }
-

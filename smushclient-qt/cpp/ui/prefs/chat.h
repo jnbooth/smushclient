@@ -2,21 +2,23 @@
 #define PREFSCHAT_H
 
 #include <QtWidgets/QWidget>
+#include "abstractpane.h"
 
-namespace Ui {
-class PrefsChat;
+namespace Ui
+{
+  class PrefsChat;
 }
 
-class PrefsChat : public QWidget
+class PrefsChat : public AbstractPrefsPane
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit PrefsChat(QWidget *parent = nullptr);
-    ~PrefsChat();
+  explicit PrefsChat(const World *world, QWidget *parent = nullptr);
+  ~PrefsChat();
 
 private:
-    Ui::PrefsChat *ui;
+  Ui::PrefsChat *ui;
 };
 
 #endif // PREFSCHAT_H

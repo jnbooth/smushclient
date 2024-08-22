@@ -2,21 +2,23 @@
 #define PREFSCOLOR_H
 
 #include <QtWidgets/QWidget>
+#include "abstractpane.h"
 
-namespace Ui {
-class PrefsColor;
+namespace Ui
+{
+  class PrefsColor;
 }
 
-class PrefsColor : public QWidget
+class PrefsColor : public AbstractPrefsPane
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit PrefsColor(QWidget *parent = nullptr);
-    ~PrefsColor();
+  explicit PrefsColor(const World *world, QWidget *parent = nullptr);
+  ~PrefsColor();
 
 private:
-    Ui::PrefsColor *ui;
+  Ui::PrefsColor *ui;
 };
 
 #endif // PREFSCOLOR_H

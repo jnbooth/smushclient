@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.24)
 project(SmushClient VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_OSX_DEPLOYMENT_TARGET 14.6)
 set(APP_NAME ${PROJECT_NAME})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Rust always links against non-debug Windows runtime on *-msvc targets
 # Note it is best to set this on the command line to ensure all targets are consistent
@@ -36,6 +37,8 @@ endif()
 # library's build script to ensure it uses the same installation of Qt as CMake.
 get_target_property(QMAKE Qt::qmake IMPORTED_LOCATION)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/cpp/ui/components)
+
 set(PROJECT_SOURCES
         cpp/main.cpp
 )
@@ -43,7 +46,9 @@ set(PROJECT_SOURCES
 qt_add_executable(${APP_NAME}
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
+    cpp/document.h cpp/document.cpp
     cpp/ui/app.h cpp/ui/app.cpp cpp/ui/app.ui
+    cpp/ui/prefs/abstractpane.h cpp/ui/prefs/abstractpane.cpp
     cpp/ui/prefs/connecting.h cpp/ui/prefs/connecting.cpp cpp/ui/prefs/connecting.ui
     cpp/ui/prefs/chat.h cpp/ui/prefs/chat.cpp cpp/ui/prefs/chat.ui
     cpp/ui/prefs/address.h cpp/ui/prefs/address.cpp cpp/ui/prefs/address.ui
@@ -61,9 +66,10 @@ qt_add_executable(${APP_NAME}
     cpp/ui/prefs/triggeredit.h cpp/ui/prefs/triggeredit.cpp cpp/ui/prefs/triggeredit.ui
     cpp/ui/worldprefs.h cpp/ui/worldprefs.cpp cpp/ui/worldprefs.ui
     cpp/ui/worldtab.h cpp/ui/worldtab.cpp cpp/ui/worldtab.ui
+    cpp/ui/components/colorpickerbutton.h cpp/ui/components/colorpickerbutton.cpp
 )
 
-set(CRATE smushclient-qt)
+set(CRATE smushclient_qt)
 # Corrosion creates a CMake target with the same name as the crate.
 corrosion_import_crate(MANIFEST_PATH rust/Cargo.toml CRATES ${CRATE})
 
@@ -73,7 +79,7 @@ corrosion_import_crate(MANIFEST_PATH rust/Cargo.toml CRATES ${CRATE})
 # Also, set the QMAKE environment variable to ensure the Rust library uses
 # the same installation of Qt as CMake.
 set(CXXQT_EXPORT_DIR "${CMAKE_CURRENT_BINARY_DIR}/cxxqt")
-corrosion_set_env_vars(${APP_NAME}
+corrosion_set_env_vars(${CRATE}
     "CXXQT_EXPORT_DIR=${CXXQT_EXPORT_DIR}"
     "QMAKE=${QMAKE}"
 )
@@ -94,14 +100,13 @@ target_link_libraries(${APP_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(${APP_NAME}_lib INTERFACE
     # WHOLE_ARCHIVE is needed for the generated QML plugin to register on startup,
     # otherwise the linker will discard the static variables that initialize it.
-    "$<LINK_LIBRARY:WHOLE_ARCHIVE,smushclient_qt-static>"
+    "$<LINK_LIBRARY:WHOLE_ARCHIVE,${CRATE}-static>"
     Qt::Core
     Qt::Gui
     Qt::Network
     Qt::Qml
     Qt::Widgets
 )
-
 
 # Link to the Rust library
 target_link_libraries(${APP_NAME} PRIVATE ${APP_NAME}_lib)

@@ -2,21 +2,23 @@
 #define PREFSADDRESS_H
 
 #include <QtWidgets/QWidget>
+#include "abstractpane.h"
 
-namespace Ui {
-class PrefsAddress;
+namespace Ui
+{
+  class PrefsAddress;
 }
 
-class PrefsAddress : public QWidget
+class PrefsAddress : public AbstractPrefsPane
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit PrefsAddress(QWidget *parent = nullptr);
-    ~PrefsAddress();
+  explicit PrefsAddress(const World *world, QWidget *parent = nullptr);
+  ~PrefsAddress();
 
 private:
-    Ui::PrefsAddress *ui;
+  Ui::PrefsAddress *ui;
 };
 
 #endif // PREFSADDRESS_H

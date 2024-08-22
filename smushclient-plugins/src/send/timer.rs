@@ -11,13 +11,15 @@ use super::sender::Sender;
 use crate::in_place::InPlace;
 
 const NANOS: u64 = 1_000_000_000;
+const NANOS_F: f64 = 1_000_000_000.0;
 
 fn duration_from_hms(hour: u64, minute: u64, second: f64) -> Duration {
     debug_assert!(
         second.is_finite() && (second == 0.0 || second.is_sign_positive()),
         "second must be a finite positive number"
     );
-    Duration::from_nanos((NANOS as f64 * second) as u64 + NANOS * 60 * (minute + 60 * hour))
+    #[allow(clippy::cast_possible_truncation)]
+    Duration::from_nanos((NANOS_F * second) as u64 + NANOS * 60 * (minute + 60 * hour))
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
@@ -108,9 +110,10 @@ impl From<TimerXml<'_>> for Timer {
         let occurrence = if value.at_time {
             Occurrence::Time(
                 NaiveTime::from_hms_opt(
-                    value.hour as u32,
-                    value.minute as u32,
-                    value.second as u32,
+                    u32::try_from(value.hour).unwrap(),
+                    u32::try_from(value.minute).unwrap(),
+                    #[allow(clippy::cast_possible_truncation)]
+                    u32::try_from(value.second as i64).unwrap(),
                 )
                 .unwrap(),
             )
@@ -141,19 +144,20 @@ impl From<TimerXml<'_>> for Timer {
     }
 }
 impl<'a> From<&'a Timer> for TimerXml<'a> {
+    #[allow(clippy::cast_lossless)]
     fn from(value: &'a Timer) -> Self {
         let (at_time, hour, minute, second) = match value.occurrence {
             Occurrence::Interval(every) => {
                 let secs = every.as_secs();
                 let hour = secs / 3600;
                 let minute = (secs % 3600) / 3600;
-                let second = every.subsec_nanos() as f64 / NANOS as f64;
+                let second = every.subsec_nanos() as f64 / NANOS_F;
                 (false, hour, minute, second)
             }
             Occurrence::Time(time) => (
                 true,
-                time.hour() as u64,
-                time.minute() as u64,
+                u64::from(time.hour()),
+                u64::from(time.minute()),
                 time.second() as f64,
             ),
         };

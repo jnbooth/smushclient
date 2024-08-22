@@ -2,13 +2,12 @@
 #include "ui_proxy.h"
 
 PrefsProxy::PrefsProxy(QWidget *parent)
-    : QDialog(parent)
-    , ui(new Ui::PrefsProxy)
+    : QDialog(parent), ui(new Ui::PrefsProxy)
 {
-    ui->setupUi(this);
+  ui->setupUi(this);
 }
 
 PrefsProxy::~PrefsProxy()
 {
-    delete ui;
+  delete ui;
 }
