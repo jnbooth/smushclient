@@ -3,6 +3,7 @@ use std::num::NonZeroU32;
 use std::time::Duration;
 
 use crate::convert::Convert;
+use crate::error::UnsupportedError;
 use crate::shared::ffi;
 use mud_transformer::mxp::{AudioRepetition, RgbColor, SendTo};
 use mud_transformer::{EffectFragment, TelnetFragment, UseMxp};
@@ -386,21 +387,23 @@ impl Convert<AudioRepetition> for u32 {
     }
 }
 
-impl From<EffectFragment> for ffi::EffectFragment {
-    fn from(value: EffectFragment) -> Self {
+impl TryFrom<EffectFragment> for ffi::EffectFragment {
+    type Error = UnsupportedError;
+
+    fn try_from(value: EffectFragment) -> Result<Self, Self::Error> {
         match value {
-            EffectFragment::Backspace => Self::Backspace,
-            EffectFragment::Beep => Self::Beep,
-            EffectFragment::CarriageReturn => Self::CarriageReturn,
-            EffectFragment::EraseCharacter => Self::EraseCharacter,
-            EffectFragment::EraseLine => Self::EraseLine,
-            EffectFragment::ExpireLinks(_) => unimplemented!("<expire>"),
-            EffectFragment::FileFilter(_) => unimplemented!("<filter>"),
-            EffectFragment::Gauge(_) => unimplemented!("<gauge>"),
-            EffectFragment::Music(_) | EffectFragment::MusicOff => unimplemented!("<music>"),
-            EffectFragment::Relocate(_) => unimplemented!("<relocate>"),
-            EffectFragment::Sound(_) | EffectFragment::SoundOff => unimplemented!("<sound>"),
-            EffectFragment::StatusBar(_) => unimplemented!("<stat>"),
+            EffectFragment::Backspace => Ok(Self::Backspace),
+            EffectFragment::Beep => Ok(Self::Beep),
+            EffectFragment::CarriageReturn => Ok(Self::CarriageReturn),
+            EffectFragment::EraseCharacter => Ok(Self::EraseCharacter),
+            EffectFragment::EraseLine => Ok(Self::EraseLine),
+            EffectFragment::ExpireLinks(_) => Err(UnsupportedError("<expire>")),
+            EffectFragment::FileFilter(_) => Err(UnsupportedError("<filter>")),
+            EffectFragment::Gauge(_) => Err(UnsupportedError("<gauge>")),
+            EffectFragment::Music(_) | EffectFragment::MusicOff => Err(UnsupportedError("<music>")),
+            EffectFragment::Relocate(_) => Err(UnsupportedError("<relocate>")),
+            EffectFragment::Sound(_) | EffectFragment::SoundOff => Err(UnsupportedError("<sound>")),
+            EffectFragment::StatusBar(_) => Err(UnsupportedError("<stat>")),
         }
     }
 }

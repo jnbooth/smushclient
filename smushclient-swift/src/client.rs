@@ -32,7 +32,9 @@ impl ClientHandler {
 
 impl smushclient::Handler for ClientHandler {
     fn display(&mut self, output: Output) {
-        self.output.push(output.fragment.into());
+        if let Ok(fragment) = output.fragment.try_into() {
+            self.output.push(fragment);
+        }
     }
 
     fn play_sound(&mut self, path: &str) {

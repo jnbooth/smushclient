@@ -1,5 +1,6 @@
 use crate::bridge::{RustMudBridge, RustOutputStream};
 use crate::convert::Convert;
+use crate::error::UnsupportedError;
 use crate::io::{create_world, read_world, write_world};
 use crate::output::{RustMxpLink, RustTextFragment};
 use crate::shared::ffi::{EffectFragment, RgbColor, SendRequest, SendTo, TelnetFragment, World};
@@ -134,13 +135,15 @@ pub mod ffi {
 
 impl_convert_enum!(ffi::Heading, Heading, H1, H2, H3, H4, H5, H6);
 
-impl From<OutputFragment> for ffi::OutputFragment {
-    fn from(value: OutputFragment) -> Self {
-        match value {
-            OutputFragment::Effect(effect) => Self::Effect(effect.into()),
-            OutputFragment::Frame(_) => unimplemented!("<frame>"),
+impl TryFrom<OutputFragment> for ffi::OutputFragment {
+    type Error = UnsupportedError;
+
+    fn try_from(value: OutputFragment) -> Result<Self, Self::Error> {
+        Ok(match value {
+            OutputFragment::Effect(effect) => Self::Effect(effect.try_into()?),
+            OutputFragment::Frame(_) => return Err(UnsupportedError("<frame>")),
             OutputFragment::Hr => Self::Hr,
-            OutputFragment::Image(_) => unimplemented!("<image>"),
+            OutputFragment::Image(_) => return Err(UnsupportedError("<image>")),
             OutputFragment::LineBreak => Self::LineBreak,
             OutputFragment::MxpEntity(EntityFragment::Set {
                 name,
@@ -160,6 +163,6 @@ impl From<OutputFragment> for ffi::OutputFragment {
             OutputFragment::PageBreak => Self::PageBreak,
             OutputFragment::Telnet(telnet) => Self::Telnet(telnet.into()),
             OutputFragment::Text(text) => Self::Text(text.into()),
-        }
+        })
     }
 }

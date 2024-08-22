@@ -29,6 +29,10 @@ impl SmushClient {
         }
     }
 
+    pub fn set_supported_tags(&mut self, supported_tags: EnumSet<Tag>) {
+        self.supported_tags = supported_tags;
+    }
+
     pub fn config(&self) -> TransformerConfig {
         TransformerConfig {
             will: self.plugins.supported_protocols(),
