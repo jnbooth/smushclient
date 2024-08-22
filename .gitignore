@@ -21,3 +21,6 @@ Generated/
 xcuserdata/
 rust-files.xcfilelist
 .build
+
+# Qt
+**/*.user
