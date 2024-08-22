@@ -47,9 +47,9 @@ extension DocumentViewController {
     case .MxpError(let error):
       handleMxpError(error.toString())
     case .MxpEntitySet(let name, let value, let publish, let is_variable):
-      handleMxpVariable(name: name.toString(), value: value.toString())
+      handleMxpVariable(name: name.toString(), value: value.toString(), publish: publish, is_variable: is_variable)
     case .MxpEntityUnset(let name, let is_variable):
-      handleMxpVariable(name: name.toString(), value: nil)
+      handleMxpVariable(name: name.toString(), value: nil, is_variable: is_variable)
     case .PageBreak:
       handlePageBreak()
     case .Send(let send):
@@ -131,7 +131,7 @@ extension DocumentViewController {
     return false
   }
   
-  private func handleMxpVariable(name: String, value: String?) -> Bool {
+  private func handleMxpVariable(name: String, value: String?, publish: Bool = false, is_variable: Bool = false) -> Bool {
     return false
   }
 
