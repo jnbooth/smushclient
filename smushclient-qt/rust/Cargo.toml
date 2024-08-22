@@ -16,6 +16,7 @@ cxx-qt-build = "0.6.1"
 cxx = "1.0.126"
 cxx-qt = "0.6.1"
 cxx-qt-lib = "0.6.1"
+enumeration = { git = "https://github.com/jnbooth/enumeration", version = "0.8.0" }
 mud-transformer = { git = "https://github.com/jnbooth/mxp", version = "0.8.0" }
 smushclient = { path = "../../smushclient" }
 smushclient-plugins = { path = "../../smushclient-plugins" }

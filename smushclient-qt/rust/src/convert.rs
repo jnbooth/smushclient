@@ -56,23 +56,6 @@ macro_rules! impl_convert_enum_opt {
     }
 }
 
-macro_rules! binding {
-    ($f:ident, $t:ty) => {
-        #[derive(Debug)]
-        #[repr(transparent)]
-        pub struct $f {
-            inner: $t,
-        }
-
-        impl From<&$t> for &$f {
-            fn from(inner: &$t) -> Self {
-                // SAFETY: #[repr(transparent)]
-                unsafe { &*(inner as *const $t).cast::<Self>() }
-            }
-        }
-    };
-}
-
 pub trait Convert<T> {
     fn convert(&self) -> T;
 }

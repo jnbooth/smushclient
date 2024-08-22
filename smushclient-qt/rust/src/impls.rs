@@ -1,13 +1,6 @@
 use super::ffi;
-use crate::convert::Convert;
-use cxx_qt_lib::QString;
-use mud_transformer::mxp::{Heading, Link, SendTo};
-use mud_transformer::{EffectFragment, UseMxp};
+use mud_transformer::{TextStyle, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, ProxyType, ScriptRecompile};
-
-impl_convert_enum!(ffi::SendTo, SendTo, World, Input, Internet);
-
-impl_convert_enum_opt!(ffi::Heading, Heading, Normal, H1, H2, H3, H4, H5, H6);
 
 impl_convert_enum_opt!(ffi::ProxyType, ProxyType, None, Socks4, Socks5);
 
@@ -51,32 +44,17 @@ impl Default for ffi::UseMxp {
     }
 }
 
-impl From<EffectFragment> for ffi::EffectFragment {
-    fn from(value: EffectFragment) -> Self {
-        match value {
-            EffectFragment::Backspace => Self::Backspace,
-            EffectFragment::Beep => Self::Beep,
-            EffectFragment::CarriageReturn => Self::CarriageReturn,
-            EffectFragment::EraseCharacter => Self::EraseCharacter,
-            EffectFragment::EraseLine => Self::EraseLine,
-            EffectFragment::ExpireLinks(_) => unimplemented!("<expire>"),
-            EffectFragment::FileFilter(_) => unimplemented!("<filter>"),
-            EffectFragment::Gauge(_) => unimplemented!("<gauge>"),
-            EffectFragment::Music(_) | EffectFragment::MusicOff => unimplemented!("<music>"),
-            EffectFragment::Relocate(_) => unimplemented!("<relocate>"),
-            EffectFragment::Sound(_) | EffectFragment::SoundOff => unimplemented!("<sound>"),
-            EffectFragment::StatusBar(_) => unimplemented!("<stat>"),
-        }
-    }
+macro_rules! assert_textstyle {
+    ($i:ident) => {
+        const _: [(); TextStyle::$i.bit() as usize] = [(); ffi::TextStyle::$i.repr as usize];
+    };
 }
 
-impl From<&Link> for ffi::MxpLink {
-    fn from(action: &Link) -> Self {
-        Self {
-            action: QString::from(&action.action),
-            hint: action.hint.convert(),
-            prompts: action.prompts.convert(),
-            sendto: action.sendto.into(),
-        }
-    }
-}
+assert_textstyle!(Blink);
+assert_textstyle!(Bold);
+assert_textstyle!(Highlight);
+assert_textstyle!(Inverse);
+assert_textstyle!(NonProportional);
+assert_textstyle!(Small);
+assert_textstyle!(Strikeout);
+assert_textstyle!(Underline);

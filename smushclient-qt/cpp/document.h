@@ -7,9 +7,13 @@
 class Document
 {
 public:
+  explicit Document();
   explicit Document(QTextBrowser *browser);
 
-  void appendText(const QString &text);
+  void setBrowser(QTextBrowser *browser);
+  void appendLine();
+  void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background);
+  void scrollToBottom();
 
 private:
   QTextBrowser *browser;

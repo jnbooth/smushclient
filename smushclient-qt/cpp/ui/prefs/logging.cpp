@@ -22,6 +22,7 @@ PrefsLogging::PrefsLogging(World *world, QWidget *parent)
   ui->LogFilePostamble->setPlainText(world->getLogFilePostamble());
 
   QButtonGroup *logFormatGroup = new QButtonGroup(this);
+  logFormatGroup->setObjectName("LogFormat");
   logFormatGroup->setExclusive(true);
   logFormatGroup->addButton(ui->LogFormat_Text);
   logFormatGroup->setId(ui->LogFormat_Text, (int)LogFormat::Text);
@@ -30,16 +31,17 @@ PrefsLogging::PrefsLogging(World *world, QWidget *parent)
   logFormatGroup->addButton(ui->LogFormat_Raw);
   logFormatGroup->setId(ui->LogFormat_Raw, (int)LogFormat::Raw);
   logFormatGroup->button((int)world->getLogFormat())->setChecked(true);
-  connect(logFormatGroup, &QButtonGroup::idClicked, this, &PrefsLogging::on_LogFormat_clicked);
+  connect(logFormatGroup, &QButtonGroup::idClicked, this, &PrefsLogging::on_LogFormatIdClicked);
 
   QButtonGroup *logModeGroup = new QButtonGroup(this);
+  logModeGroup->setObjectName("LogMode");
   logModeGroup->setExclusive(true);
   logModeGroup->addButton(ui->LogMode_Append);
   logModeGroup->setId(ui->LogMode_Append, (int)LogMode::Append);
   logModeGroup->addButton(ui->LogMode_Overwrite);
   logModeGroup->setId(ui->LogMode_Overwrite, (int)LogMode::Overwrite);
   logModeGroup->button((int)world->getLogMode())->setChecked(true);
-  connect(logModeGroup, &QButtonGroup::idClicked, this, &PrefsLogging::on_LogMode_clicked);
+  connect(logModeGroup, &QButtonGroup::idClicked, this, &PrefsLogging::on_LogModeIdClicked);
 }
 
 PrefsLogging::~PrefsLogging()
@@ -47,12 +49,12 @@ PrefsLogging::~PrefsLogging()
   delete ui;
 }
 
-void PrefsLogging::on_LogFormat_clicked(int id)
+void PrefsLogging::on_LogFormatIdClicked(int id)
 {
   world->setLogFormat((LogFormat)id);
 }
 
-void PrefsLogging::on_LogMode_clicked(int id)
+void PrefsLogging::on_LogModeIdClicked(int id)
 {
   world->setLogMode((LogMode)id);
 }

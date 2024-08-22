@@ -7,10 +7,34 @@ use crate::ffi;
 use crate::handler::ClientHandler;
 use crate::sync::NonBlockingMutex;
 use crate::world::WorldRust;
+use cxx_qt::Initialize;
 use cxx_qt_lib::QString;
-use mud_transformer::Transformer;
+use enumeration::EnumSet;
+use mud_transformer::{Tag, Transformer};
 use smushclient::world::PersistError;
 use smushclient::{SmushClient, World};
+
+const BUF_LEN: usize = 1024 * 20;
+const BUF_MIDPOINT: i64 = (BUF_LEN / 2) as i64;
+
+const SUPPORTED_TAGS: EnumSet<Tag> = enums![
+    Tag::Bold,
+    Tag::Color,
+    Tag::Font,
+    Tag::H1,
+    Tag::H2,
+    Tag::H3,
+    Tag::H4,
+    Tag::H5,
+    Tag::H6,
+    Tag::Highlight,
+    Tag::Hr,
+    Tag::Hyperlink,
+    Tag::Italic,
+    Tag::Send,
+    Tag::Strikeout,
+    Tag::Underline
+];
 
 #[derive(Default)]
 pub struct SmushClientRust {
@@ -23,6 +47,11 @@ pub struct SmushClientRust {
 }
 
 impl SmushClientRust {
+    fn initialize(&mut self) {
+        self.buf.resize(BUF_LEN, 0);
+        self.client.set_supported_tags(SUPPORTED_TAGS);
+    }
+
     pub fn load_world(&mut self, path: &QString, world: &mut WorldRust) -> bool {
         let Ok(worldfile) = Self::try_load_world(path) else {
             return false;
@@ -59,11 +88,10 @@ impl SmushClientRust {
 
         let output_lock = self.output_lock.lock();
         let buf_ptr = self.buf.as_mut_ptr().cast::<c_char>();
-        let buf_len = i64::try_from(self.buf.len()).unwrap();
         let mut total_read = 0;
         loop {
-            // SAFETY: Device will not read past buf_len.
-            let n = unsafe { device.as_mut().read(buf_ptr, buf_len) };
+            // SAFETY: Device will not read past buf.len().
+            let n = unsafe { device.as_mut().read(buf_ptr, BUF_MIDPOINT) };
             if n == 0 {
                 break;
             }
@@ -80,6 +108,8 @@ impl SmushClientRust {
         }
         self.client
             .receive(self.transformer.drain_output(), &mut handler);
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { handler.doc.scrollToBottom() };
         drop(output_lock);
 
         let input_lock = self.input_lock.lock();
@@ -100,6 +130,12 @@ impl SmushClientRust {
         drop(input_lock);
 
         total_read
+    }
+}
+
+impl Initialize for ffi::SmushClient {
+    fn initialize(self: Pin<&mut Self>) {
+        self.cxx_qt_ffi_rust_mut().initialize();
     }
 }
 

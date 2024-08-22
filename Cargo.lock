@@ -107,7 +107,7 @@ checksum = "8318a53db07bb3f8dca91a600466bdb3f2eaadeedfdbcf02e1accbad9271ba50"
 [[package]]
 name = "casefold"
 version = "0.1.0"
-source = "git+https://github.com/jnbooth/casefold#155752e595e76fe1535a82c1f6ea29aa37c934cf"
+source = "git+https://github.com/jnbooth/casefold#b5e75ed5f7a7e05a19d961100cf2943d92bd57c3"
 
 [[package]]
 name = "cc"
@@ -321,7 +321,7 @@ checksum = "60b1af1c220855b6ceac025d3f6ecdd2b7c4894bfe9cd9bda4fbb4bc7c0d4cf0"
 [[package]]
 name = "enumeration"
 version = "0.8.0"
-source = "git+https://github.com/jnbooth/enumeration#2f27f041f6b4ffebce580f12fd64b83a50f41efa"
+source = "git+https://github.com/jnbooth/enumeration#c1a02ea36351ee0b528bc5df2bd74628fbc9556d"
 dependencies = [
  "enumeration_derive",
 ]
@@ -329,7 +329,7 @@ dependencies = [
 [[package]]
 name = "enumeration_derive"
 version = "0.8.0"
-source = "git+https://github.com/jnbooth/enumeration#2f27f041f6b4ffebce580f12fd64b83a50f41efa"
+source = "git+https://github.com/jnbooth/enumeration#c1a02ea36351ee0b528bc5df2bd74628fbc9556d"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -513,8 +513,8 @@ dependencies = [
 
 [[package]]
 name = "mud-stream"
-version = "0.8.0"
-source = "git+https://github.com/jnbooth/mxp#87151052b62d54987cf1021ac7aad643bdb22617"
+version = "0.8.1"
+source = "git+https://github.com/jnbooth/mxp#fae129c6e2d7e33948e83c04e27294404d11579c"
 dependencies = [
  "mud-transformer",
  "pin-project-lite",
@@ -523,8 +523,8 @@ dependencies = [
 
 [[package]]
 name = "mud-transformer"
-version = "0.8.0"
-source = "git+https://github.com/jnbooth/mxp#87151052b62d54987cf1021ac7aad643bdb22617"
+version = "0.8.1"
+source = "git+https://github.com/jnbooth/mxp#fae129c6e2d7e33948e83c04e27294404d11579c"
 dependencies = [
  "bytes",
  "enumeration",
@@ -535,8 +535,8 @@ dependencies = [
 
 [[package]]
 name = "mxp"
-version = "0.8.0"
-source = "git+https://github.com/jnbooth/mxp#87151052b62d54987cf1021ac7aad643bdb22617"
+version = "0.8.1"
+source = "git+https://github.com/jnbooth/mxp#fae129c6e2d7e33948e83c04e27294404d11579c"
 dependencies = [
  "casefold",
  "enumeration",
@@ -789,6 +789,7 @@ dependencies = [
  "cxx-qt",
  "cxx-qt-build",
  "cxx-qt-lib",
+ "enumeration",
  "mud-transformer",
  "smushclient",
  "smushclient-plugins",

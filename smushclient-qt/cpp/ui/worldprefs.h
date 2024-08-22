@@ -26,7 +26,7 @@ private slots:
 private:
   Ui::WorldPrefs *ui;
   QList<QWidget *> panes;
-  QWidget *activePane;
+  qsizetype activePane;
   void setupPane(QWidget *pane, const char *key);
 };
 

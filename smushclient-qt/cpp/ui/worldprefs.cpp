@@ -14,7 +14,7 @@
 #include "prefs/triggers.h"
 
 WorldPrefs::WorldPrefs(World *world, QWidget *parent)
-    : QDialog(parent), ui(new Ui::WorldPrefs), panes(), activePane(NULL)
+    : QDialog(parent), ui(new Ui::WorldPrefs)
 {
   ui->setupUi(this);
   panes.reserve(12);
@@ -72,10 +72,10 @@ void WorldPrefs::on_settings_tree_currentItemChanged(QTreeWidgetItem *current, Q
   {
     return;
   }
-  if (activePane != NULL)
+  if (previous != NULL)
   {
-    activePane->hide();
+    panes.at(activePane)->hide();
   }
-  activePane = panes.at(data.value<qsizetype>());
-  activePane->show();
+  activePane = data.value<qsizetype>();
+  panes.at(activePane)->show();
 }

@@ -18,8 +18,10 @@ App::~App()
 
 void App::on_action_new_triggered()
 {
-  WorldTab *tab = new WorldTab(ui->world_tabs);
-  ui->world_tabs->addTab(tab, tr("New world"));
+  WorldTab *tab = new WorldTab(this);
+  tab->createWorld();
+  int tabIndex = ui->world_tabs->addTab(tab, tr("New world"));
+  ui->world_tabs->setCurrentIndex(tabIndex);
   tab->openPreferences();
 }
 
@@ -36,7 +38,8 @@ void App::on_action_open_world_triggered()
     delete tab;
     return;
   }
-  ui->world_tabs->addTab(tab, tab->title());
+  int tabIndex = ui->world_tabs->addTab(tab, tab->title());
+  ui->world_tabs->setCurrentIndex(tabIndex);
 }
 
 void App::on_action_world_properties_triggered()
