@@ -45,7 +45,7 @@ PrefsCommands::PrefsCommands(World *world, QWidget *parent)
   */
   CONNECT_WORLD(HistoryLines);
 
-  QFont inputFont = QFont(world->getInputFont(), world->getInputFontSize());
+  QFont inputFont(world->getInputFont(), world->getInputFontSize());
   ui->InputFont->setCurrentFont(inputFont);
 }
 

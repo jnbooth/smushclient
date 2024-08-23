@@ -47,6 +47,7 @@ qt_add_executable(${APP_NAME}
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
     cpp/document.h cpp/document.cpp
+    cpp/settings.h cpp/settings.cpp
     cpp/ui/app.h cpp/ui/app.cpp cpp/ui/app.ui
     cpp/ui/prefs/abstractpane.h cpp/ui/prefs/abstractpane.cpp
     cpp/ui/prefs/connecting.h cpp/ui/prefs/connecting.cpp cpp/ui/prefs/connecting.ui

@@ -1,3 +1,4 @@
+#include "../settings.h"
 #include "worldtab.h"
 #include "ui_worldtab.h"
 #include "worldprefs.h"
@@ -65,6 +66,7 @@ bool WorldTab::openWorld(const QString &filename)
     return false;
 
   filePath = filename;
+  Settings().addRecentFile(filePath);
   applyWorld();
   connectToHost();
   return true;
@@ -83,24 +85,28 @@ void WorldTab::applyWorld()
     ui->output->setFont(QFont(world.getOutputFont(), world.getOutputFontSize()));
 }
 
-bool WorldTab::saveWorld(const QString &saveFilter)
+QString WorldTab::saveWorld(const QString &saveFilter)
 {
-  if (!filePath.isEmpty())
-  {
-    return client.saveWorld(filePath);
-  }
-  return saveWorldAsNew(saveFilter);
+  if (filePath.isEmpty())
+    return saveWorldAsNew(saveFilter);
+
+  if (client.saveWorld(filePath))
+    return filePath;
+
+  return QString();
 }
 
-bool WorldTab::saveWorldAsNew(const QString &saveFilter)
+QString WorldTab::saveWorldAsNew(const QString &saveFilter)
 {
   QString path = QFileDialog::getSaveFileName(this, tr("Save as"), world.getName(), saveFilter);
   if (path.isEmpty())
-  {
-    return false;
-  }
+    return path;
+
   filePath = path;
-  return client.saveWorld(filePath);
+  if (client.saveWorld(filePath))
+    return filePath;
+
+  return QString();
 }
 
 void WorldTab::sendCommand(const QString &command)
@@ -162,7 +168,7 @@ void WorldTab::on_output_customContextMenuRequested(const QPoint &pos)
     return;
   }
   QStringList prompts = format.property(QTextCharFormat::UserProperty).value<QStringList>();
-  QMenu menu = QMenu(ui->output);
+  QMenu menu(ui->output);
   for (QString prompt : prompts)
     menu.addAction(prompt);
 

@@ -22,8 +22,8 @@ public:
   void openPreferences();
   void createWorld();
   bool openWorld(const QString &filename);
-  bool saveWorld(const QString &saveFilter);
-  bool saveWorldAsNew(const QString &saveFilter);
+  QString saveWorld(const QString &saveFilter);
+  QString saveWorldAsNew(const QString &saveFilter);
   const QString &title() const;
 
 private:

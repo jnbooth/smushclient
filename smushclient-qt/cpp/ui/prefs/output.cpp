@@ -34,7 +34,7 @@ PrefsOutput::PrefsOutput(World *world, QWidget *parent)
   CONNECT_WORLD(ConvertGaToNewline);
   CONNECT_WORLD(TerminalIdentification);
 
-  QFont outputFont = QFont(world->getOutputFont(), world->getOutputFontSize());
+  QFont outputFont(world->getOutputFont(), world->getOutputFontSize());
   ui->OutputFont->setCurrentFont(outputFont);
 }
 
