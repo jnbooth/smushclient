@@ -21,18 +21,17 @@ extension DocumentViewController: NSTextViewDelegate {
   }
 
   func textView(_ textView: NSTextView, clickedOnLink link: Any, at charIndex: Int) -> Bool {
-    guard
-      let actionUrl = link as? String,
-      let (sendto, action) = deserializeActionUrl(actionUrl)
-    else {
+    guard let actionUrl = link as? String else {
       return false
     }
 
+    let (sendto, action) = deserializeActionUrl(actionUrl)
+
     switch sendto {
     case .Input:
-      setInput(String(action))
+      setInput(action)
     case .World:
-      sendInput(String(action))
+      sendInput(action)
     }
 
     return true

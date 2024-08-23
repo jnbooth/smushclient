@@ -31,12 +31,11 @@ pub mod ffi {
         Blink = 1,
         Bold = 2,
         Highlight = 4,
-        Inverse = 8,
-        Italic = 16,
-        NonProportional = 32,
-        Small = 64,
-        Strikeout = 128,
-        Underline = 256,
+        Italic = 8,
+        NonProportional = 16,
+        Small = 32,
+        Strikeout = 64,
+        Underline = 128,
     }
 
     unsafe extern "C++" {
@@ -67,19 +66,46 @@ pub mod ffi {
         unsafe fn write(self: Pin<&mut QIODevice>, data: *const c_char, max_size: i64) -> i64;
     }
 
+    enum SendTo {
+        Internet,
+        World,
+        Input,
+    }
+
+    struct Link {
+        action: QString,
+        hint: QString,
+        prompts: QStringList,
+        sendto: SendTo,
+    }
+
     extern "C++Qt" {
         include!("document.h");
         type Document;
 
+        #[rust_name = "scroll_to_bottom"]
         unsafe fn scrollToBottom(self: Pin<&mut Document>);
 
+        #[rust_name = "append_line"]
         unsafe fn appendLine(self: Pin<&mut Document>);
+
+        #[rust_name = "append_text"]
         unsafe fn appendText(
             self: Pin<&mut Document>,
             text: &QString,
             style: u16,
             foreground: &QColor,
             background: &QColor,
+        );
+
+        #[rust_name = "append_link"]
+        unsafe fn appendText(
+            self: Pin<&mut Document>,
+            text: &QString,
+            style: u16,
+            foreground: &QColor,
+            background: &QColor,
+            link: &Link,
         );
 
     }

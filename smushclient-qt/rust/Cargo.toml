@@ -12,14 +12,29 @@ crate-type = ["staticlib"]
 [build-dependencies]
 cxx-qt-build = "0.6.1"
 
-[dependencies]
-cxx = "1.0.126"
-cxx-qt = "0.6.1"
-cxx-qt-lib = "0.6.1"
-enumeration = { git = "https://github.com/jnbooth/enumeration", version = "0.8.0" }
-mud-transformer = { git = "https://github.com/jnbooth/mxp", version = "0.8.0" }
-smushclient = { path = "../../smushclient" }
-smushclient-plugins = { path = "../../smushclient-plugins" }
+[dependencies.cxx]
+version = "1.0.126"
+
+[dependencies.cxx-qt]
+version = "0.6.1"
+
+[dependencies.cxx-qt-lib]
+version = "0.6.1"
+
+[dependencies.enumeration]
+git = "https://github.com/jnbooth/enumeration"
+version = "0.8.0"
+
+[dependencies.mud-transformer]
+git = "https://github.com/jnbooth/mxp"
+rev = "41ac42260007dac18426ee99027305bf56f514ba"
+
+[dependencies.smushclient]
+path = "../../smushclient"
+
+
+[dependencies.smushclient-plugins]
+path = "../../smushclient-plugins"
 
 [features]
 # This feature must be enabled for `cargo test` when linking Qt 6 statically.

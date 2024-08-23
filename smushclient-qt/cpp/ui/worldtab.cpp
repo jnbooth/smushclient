@@ -1,8 +1,12 @@
 #include "worldtab.h"
 #include "ui_worldtab.h"
-#include <QtWidgets/QDialog>
-#include <QtGui/QFont>
 #include "worldprefs.h"
+#include <QtGui/QAction>
+#include <QtGui/QDesktopServices>
+#include <QtGui/QFont>
+#include <QtCore/QUrl>
+#include <QtWidgets/QDialog>
+#include <QtWidgets/QMenu>
 
 WorldTab::WorldTab(QWidget *parent)
     : QSplitter(parent), ui(new Ui::WorldTab), socket(this)
@@ -43,7 +47,7 @@ void WorldTab::openPreferences()
 void WorldTab::createWorld()
 {
   QFont defaultFont = QFont();
-  defaultFont.setStyleHint(QFont::System);
+  defaultFont.setStyleHint(QFont::Monospace);
   QString fontFamily = defaultFont.family();
   client.populateWorld(world);
   world.setOutputFont(fontFamily);
@@ -59,6 +63,13 @@ bool WorldTab::openWorld(const QString &filename)
   }
   connectToHost();
   return true;
+}
+
+void WorldTab::sendCommand(const QString &command)
+{
+  QByteArray bytes = command.toLocal8Bit();
+  bytes.append("\r\n");
+  socket.write(bytes);
 }
 
 void WorldTab::on_finished(int result)
@@ -83,7 +94,50 @@ void WorldTab::on_readyRead()
 void WorldTab::on_input_returnPressed()
 {
   QString input = ui->input->text();
-  input.append("\r\n");
-  socket.write(input.toLocal8Bit());
+  sendCommand(input);
   ui->input->clear();
+}
+
+void WorldTab::on_output_anchorClicked(const QUrl &url)
+{
+  QString action = url.toString(QUrl::None);
+  if (action.isEmpty())
+  {
+    return;
+  }
+  QString last = action.last(1);
+  if (last == "\x17")
+  {
+    QDesktopServices::openUrl(QUrl(action));
+    return;
+  }
+  if (last == "\x18")
+  {
+    ui->input->setText(action);
+    return;
+  }
+  sendCommand(action);
+}
+
+void WorldTab::on_output_customContextMenuRequested(const QPoint &pos)
+{
+  QTextCharFormat format = ui->output->cursorForPosition(pos).charFormat();
+  QPoint mouse = ui->output->mapToGlobal(pos);
+  if (!format.hasProperty(QTextCharFormat::UserProperty))
+  {
+    ui->output->createStandardContextMenu(mouse)->exec(mouse);
+    return;
+  }
+  QStringList prompts = format.property(QTextCharFormat::UserProperty).value<QStringList>();
+  QMenu menu = QMenu(ui->output);
+  for (QString prompt : prompts)
+  {
+    menu.addAction(prompt);
+  }
+  QAction *chosen = menu.exec(mouse);
+  if (chosen == NULL)
+  {
+    return;
+  }
+  sendCommand(chosen->text());
 }

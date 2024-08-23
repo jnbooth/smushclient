@@ -12,7 +12,7 @@ pub struct ClientHandler<'a> {
 impl<'a> ClientHandler<'a> {
     fn display_linebreak(&mut self) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.doc.as_mut().appendLine() };
+        unsafe { self.doc.as_mut().append_line() };
     }
 
     fn display_text(&mut self, fragment: TextFragment) {
@@ -20,11 +20,17 @@ impl<'a> ClientHandler<'a> {
         let style = fragment.flags.to_raw();
         let foreground = fragment.foreground.convert();
         let background = fragment.background.convert();
+        let doc = self.doc.as_mut();
         // SAFETY: External call to safe method on opaque type.
         unsafe {
-            self.doc
-                .as_mut()
-                .appendText(&text, style, &foreground, &background);
+            match fragment.action {
+                Some(link) => {
+                    doc.append_link(&text, style, &foreground, &background, &(&link).into());
+                }
+                None => {
+                    doc.append_text(&text, style, &foreground, &background);
+                }
+            }
         };
     }
 }

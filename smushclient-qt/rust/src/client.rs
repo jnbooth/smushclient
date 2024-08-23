@@ -109,7 +109,7 @@ impl SmushClientRust {
         self.client
             .receive(self.transformer.drain_output(), &mut handler);
         // SAFETY: External call to safe method on opaque type.
-        unsafe { handler.doc.scrollToBottom() };
+        unsafe { handler.doc.scroll_to_bottom() };
         drop(output_lock);
 
         let input_lock = self.input_lock.lock();

@@ -32,11 +32,14 @@ private:
   World world;
 
   void connectToHost();
+  void sendCommand(const QString &command);
 
 private slots:
   void on_finished(int result);
   void on_input_returnPressed();
   void on_readyRead();
+  void on_output_anchorClicked(const QUrl &url);
+  void on_output_customContextMenuRequested(const QPoint &pos);
 };
 
 #endif // WORLDTAB_H

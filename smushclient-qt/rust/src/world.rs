@@ -233,7 +233,6 @@ impl DerefMut for WorldRust {
 #[allow(clippy::useless_conversion)]
 impl From<&WorldRust> for World {
     fn from(value: &WorldRust) -> Self {
-        println!("colors: {}", value.colors.array().len());
         let mut ansi_colors = <[RgbColor; 16]>::default();
         let mut custom_names = <[String; 16]>::default();
         let mut custom_colors = <[ColorPair; 16]>::default();
@@ -253,7 +252,6 @@ impl From<&WorldRust> for World {
                 background: entry.custom_background.convert(),
             }
         }
-        println!("rust {ansi_colors:?}");
 
         Self {
             name: String::from(&value.name),
@@ -433,14 +431,6 @@ impl From<&WorldRust> for World {
 impl WorldRust {
     #[allow(clippy::unnecessary_fallible_conversions)]
     pub fn populate(&mut self, world: &World) {
-        println!(
-            "colors: {}, ansi_colors: {}, custom_names: {}, custom_colors: {}",
-            self.colors.array().len(),
-            world.ansi_colors.len(),
-            world.custom_names.len(),
-            world.custom_colors.len()
-        );
-
         let iter = self
             .colors
             .array_mut()
@@ -455,15 +445,6 @@ impl WorldRust {
             *entry.custom_foreground = custom_color.foreground.convert();
             *entry.custom_background = custom_color.background.convert();
         }
-
-        let colors: Vec<RgbColor> = self
-            .colors
-            .array()
-            .into_iter()
-            .map(|entry| entry.ansi_foreground.convert())
-            .collect();
-
-        println!("ffi: {colors:?}");
 
         self.name = QString::from(&world.name);
         self.site = QString::from(&world.site);

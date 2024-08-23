@@ -1,9 +1,9 @@
 #include "document.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
-#include <QtGui/QBrush>
-#include <QtGui/QTextCharFormat>
 #include <QtGui/QTextDocument>
 #include <QtWidgets/QScrollBar>
+
+// Formatting
 
 bool hasStyle(quint16 flags, TextStyle style)
 {
@@ -17,14 +17,58 @@ bool isBlack(const QColor &color)
   return red + green + blue == 0;
 }
 
-void setColors(QTextFormat &format, const QColor &foreground, const QColor &background)
+void applyStyles(QTextCharFormat &format, quint16 style, const QColor &foreground, const QColor &background)
 {
+  if (hasStyle(style, TextStyle::Bold))
+  {
+    format.setFontWeight(QFont::Weight::Bold);
+  }
+  if (hasStyle(style, TextStyle::Italic))
+  {
+    format.setFontItalic(true);
+  }
+  if (hasStyle(style, TextStyle::Strikeout))
+  {
+    format.setFontStrikeOut(true);
+  }
+  if (hasStyle(style, TextStyle::Underline))
+  {
+    format.setFontUnderline(true);
+  }
   format.setForeground(QBrush(foreground));
   if (!isBlack(background))
   {
     format.setBackground(QBrush(background));
   }
 }
+
+void applyLink(QTextCharFormat &format, const Link &link)
+{
+  QString action = link.action;
+  switch (link.sendto)
+  {
+  case SendTo::Internet:
+    action.append('\x17');
+    break;
+  case SendTo::Input:
+    action.prepend('\x18');
+    break;
+  case SendTo::World:
+    break;
+  }
+  format.setAnchor(true);
+  format.setAnchorHref(action);
+  if (!link.prompts.isEmpty())
+  {
+    format.setProperty(QTextCharFormat::UserProperty, link.prompts);
+  }
+  if (!link.hint.isEmpty())
+  {
+    format.setToolTip(link.hint);
+  }
+}
+
+// Document
 
 Document::Document() {}
 
@@ -52,29 +96,14 @@ void Document::appendLine()
 void Document::appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background)
 {
   QTextCharFormat format;
-  if (hasStyle(style, TextStyle::Bold))
-  {
-    format.setFontWeight(QFont::Weight::Bold);
-  }
-  if (hasStyle(style, TextStyle::Italic))
-  {
-    format.setFontItalic(true);
-  }
-  if (hasStyle(style, TextStyle::Strikeout))
-  {
-    format.setFontStrikeOut(true);
-  }
-  if (hasStyle(style, TextStyle::Underline))
-  {
-    format.setFontUnderline(true);
-  }
-  if (hasStyle(style, TextStyle::Inverse))
-  {
-    setColors(format, background, foreground);
-  }
-  else
-  {
-    setColors(format, foreground, background);
-  }
+  applyStyles(format, style, foreground, background);
+  cursor.insertText(text, format);
+}
+
+void Document::appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background, const Link &link)
+{
+  QTextCharFormat format;
+  applyStyles(format, style, foreground, background);
+  applyLink(format, link);
   cursor.insertText(text, format);
 }

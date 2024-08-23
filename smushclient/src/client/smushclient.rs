@@ -1,9 +1,12 @@
+use std::mem;
+
 use crate::handler::Handler;
 use crate::plugins::PluginEngine;
 use crate::world::World;
 use enumeration::EnumSet;
 use mud_transformer::{
-    EffectFragment, Output, OutputDrain, OutputFragment, Tag, TransformerConfig,
+    EffectFragment, Output, OutputDrain, OutputFragment, Tag, TextFragment, TextStyle,
+    TransformerConfig,
 };
 use smushclient_plugins::Plugin;
 
@@ -54,7 +57,13 @@ impl SmushClient {
 
     pub fn receive<H: Handler>(&mut self, mut output: OutputDrain, handler: &mut H) {
         if self.output_buf.is_empty() {
-            receive_lines(&mut output, handler, &mut self.plugins, &mut self.line_text);
+            receive_lines(
+                &mut output,
+                handler,
+                &mut self.plugins,
+                &mut self.line_text,
+                &self.world,
+            );
             self.output_buf.extend(output);
             return;
         }
@@ -63,7 +72,13 @@ impl SmushClient {
             return;
         };
         let mut output = self.output_buf.drain(..=last_break);
-        receive_lines(&mut output, handler, &mut self.plugins, &mut self.line_text);
+        receive_lines(
+            &mut output,
+            handler,
+            &mut self.plugins,
+            &mut self.line_text,
+            &self.world,
+        );
     }
 
     pub fn alias<H: Handler>(&mut self, input: &str, handler: &mut H) -> bool {
@@ -94,6 +109,7 @@ fn receive_lines<H: Handler>(
     handler: &mut H,
     plugins: &mut PluginEngine,
     line_text: &mut String,
+    world: &World,
 ) {
     loop {
         let slice = output.as_slice();
@@ -124,8 +140,36 @@ fn receive_lines<H: Handler>(
             }
         } else {
             for _ in 0..until {
-                handler.display(output.next().unwrap());
+                let mut output = output.next().unwrap();
+                if let OutputFragment::Text(text) = &mut output.fragment {
+                    alter_text_output(text, world);
+                }
+                handler.display(output);
             }
         }
+    }
+}
+
+fn alter_text_output(fragment: &mut TextFragment, world: &World) {
+    if fragment.flags.contains(TextStyle::Inverse) {
+        mem::swap(&mut fragment.foreground, &mut fragment.background);
+    }
+    if !world.show_bold {
+        fragment.flags.remove(TextStyle::Bold);
+    }
+    if !world.show_italic {
+        fragment.flags.remove(TextStyle::Italic);
+    }
+    if !world.show_underline {
+        fragment.flags.remove(TextStyle::Underline);
+    }
+    if fragment.action.is_none() {
+        return;
+    }
+    if world.underline_hyperlinks {
+        fragment.flags.insert(TextStyle::Underline);
+    }
+    if world.use_custom_link_color {
+        fragment.foreground = world.hyperlink_color;
     }
 }

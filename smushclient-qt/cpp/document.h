@@ -4,6 +4,8 @@
 #include <QtGui/QTextCursor>
 #include <QtWidgets/QTextBrowser>
 
+struct Link;
+
 class Document
 {
 public:
@@ -13,6 +15,7 @@ public:
   void setBrowser(QTextBrowser *browser);
   void appendLine();
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background);
+  void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background, const Link &link);
   void scrollToBottom();
 
 private:

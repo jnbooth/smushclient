@@ -15,15 +15,12 @@ struct OutputFonts {
 
   init(_ world: WorldModel, fontManager: NSFontManager = NSFontManager.shared) {
     base = world.use_default_output_font ? WorldModel.defaultFont : world.output_font
-    bold = world.show_bold ? fontManager.convert(base, toHaveTrait: .boldFontMask) : base
-
-    if world.show_italic {
-      italic = fontManager.convert(base, toHaveTrait: .italicFontMask)
-      boldAndItalic = fontManager.convert(bold, toHaveTrait: .italicFontMask)
-    } else {
-      italic = base
-      boldAndItalic = bold
-    }
+    bold = fontManager.convert(base, toHaveTrait: .boldFontMask)
+    italic = fontManager.convert(base, toHaveTrait: .italicFontMask)
+    let tryBoth = fontManager.convert(base, toHaveTrait: [.boldFontMask, .italicFontMask])
+    boldAndItalic =
+      tryBoth == base
+      ? fontManager.convert(bold, toHaveTrait: .italicFontMask) : tryBoth
   }
 
   func provide(bold isBold: Bool = false, italic isItalic: Bool = false) -> NSFont {

@@ -1,6 +1,11 @@
 use super::ffi;
+use crate::convert::Convert;
+use cxx_qt_lib::QString;
+use mud_transformer::mxp::{Link, SendTo};
 use mud_transformer::{TextStyle, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, ProxyType, ScriptRecompile};
+
+impl_convert_enum!(ffi::SendTo, SendTo, Internet, World, Input);
 
 impl_convert_enum_opt!(ffi::ProxyType, ProxyType, None, Socks4, Socks5);
 
@@ -44,6 +49,17 @@ impl Default for ffi::UseMxp {
     }
 }
 
+impl From<&Link> for ffi::Link {
+    fn from(value: &Link) -> Self {
+        Self {
+            action: QString::from(&value.action),
+            hint: value.hint.convert(),
+            prompts: value.prompts.convert(),
+            sendto: value.sendto.into(),
+        }
+    }
+}
+
 macro_rules! assert_textstyle {
     ($i:ident) => {
         const _: [(); TextStyle::$i.bit() as usize] = [(); ffi::TextStyle::$i.repr as usize];
@@ -53,7 +69,6 @@ macro_rules! assert_textstyle {
 assert_textstyle!(Blink);
 assert_textstyle!(Bold);
 assert_textstyle!(Highlight);
-assert_textstyle!(Inverse);
 assert_textstyle!(NonProportional);
 assert_textstyle!(Small);
 assert_textstyle!(Strikeout);

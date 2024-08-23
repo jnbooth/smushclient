@@ -46,9 +46,9 @@ pub mod ffi {
     }
 
     enum SendTo {
+        Internet,
         World,
         Input,
-        Internet,
     }
 
     enum EffectFragment {

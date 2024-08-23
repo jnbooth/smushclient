@@ -46,6 +46,7 @@ class DocumentViewController: NSViewController {
     super.viewDidLoad()
     initStatusBar()
     textStorage = textView.textStorage
+    textView.linkTextAttributes = [:]
 
     if let welcomeWindow = WelcomeHostingController.window {
       welcomeWindow.close()

@@ -1,5 +1,8 @@
 import AppKit
 
+let sendToInputSuffix = "\u{17}"
+let sendToInputChar = Character(sendToInputSuffix)
+
 extension NSAttributedString.Key {
   static let choices: NSAttributedString.Key = .init("choices")
 }
@@ -14,18 +17,25 @@ func setupActionAttributes(
   text: String,
   attributes: inout [NSAttributedString.Key: Any]
 ) {
-  let action = link.action().toString();
+  let action = link.action().toString()
   let sendto = link.sendto()
-  if sendto == .Internet, let url = URL(string: action) {
-    attributes[.link] = url
-  } else {
-    attributes[.link] = serializeActionUrl(sendto, action)
+  switch sendto {
+  case .Input:
+    attributes[.link] = action + sendToInputSuffix
+  case .Internet:
+    if let url = URL(string: action) {
+      attributes[.link] = url
+    }
+  case .World:
+    attributes[.link] = action
   }
   attributes[.toolTip] = action
   let prompts = link.prompts()
   if prompts.isEmpty {
+    attributes[.cursor] = NSCursor.pointingHand
     return
   }
+  attributes[.cursor] = NSCursor.contextualMenu
   var choices: [String] = []
   for prompt in prompts {
     choices.append(prompt.as_str().toString())
@@ -33,42 +43,19 @@ func setupActionAttributes(
   attributes[.choices] = choices
 }
 
-private func serializeActionUrl(_ sendto: SendTo, _ action: String) -> String {
-  switch sendto {
-  case .Input:
-    return "input:" + action
-  case .Internet:
-    return action
-  case .World:
-    return "send:" + action
+func deserializeActionUrl(_ url: String) -> (InternalSendTo, String) {
+  if url.last == sendToInputChar {
+    return (.Input, String(url.dropLast()))
   }
-}
-
-func deserializeActionUrl(_ url: String) -> (InternalSendTo, Substring)? {
-  let components = url.split(separator: ":", maxSplits: 1)
-  if components.count < 2 {
-    return nil
-  }
-  switch components[0] {
-  case "input":
-    return (.Input, components[1])
-  case "send":
-    return (.World, components[1])
-  default:
-    return nil
-  }
+  return (.World, url)
 }
 
 func mxpActionMenu(attributes: [NSAttributedString.Key: Any], action: Selector) -> NSMenu? {
-  guard
-    let actionUrl = attributes[.link] as? String,
-    let (sendto, mainAction) = deserializeActionUrl(actionUrl),
-    case .World = sendto
-  else {
+  guard let actionUrl = attributes[.link] as? String else {
     return nil
   }
   let menu = NSMenu()
-  menu.addItem(actionMenuItem(String(mainAction), action))
+  menu.addItem(actionMenuItem(actionUrl, action))
   guard let choices = attributes[.choices] as? [String] else {
     return menu
   }

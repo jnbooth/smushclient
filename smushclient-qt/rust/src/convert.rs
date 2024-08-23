@@ -114,30 +114,49 @@ impl Convert<QString> for Option<String> {
     }
 }
 
-impl Convert<QStringList> for [String] {
-    fn convert(&self) -> QStringList {
+impl Convert<QList<QString>> for [String] {
+    fn convert(&self) -> QList<QString> {
         let mut list = QList::default();
         list.reserve(isize::try_from(self.len()).unwrap());
         for item in self {
             list.append(QString::from(item));
         }
+        list
+    }
+}
+
+impl Convert<QStringList> for [String] {
+    fn convert(&self) -> QStringList {
+        let list: QList<QString> = self.convert();
         QStringList::from(&list)
+    }
+}
+
+impl Convert<Vec<String>> for QList<QString> {
+    fn convert(&self) -> Vec<String> {
+        self.iter().map(String::from).collect()
     }
 }
 
 impl Convert<Vec<String>> for QStringList {
     fn convert(&self) -> Vec<String> {
-        QList::from(self).iter().map(String::from).collect()
+        QList::from(self).convert()
     }
 }
 
-impl<const N: usize> Convert<[String; N]> for QStringList {
+impl<const N: usize> Convert<[String; N]> for QList<QString> {
     fn convert(&self) -> [String; N] {
         let vec: Vec<String> = self.convert();
         match vec.try_into() {
             Ok(array) => array,
             Err(e) => panic!("expected length {N}, got length {}", e.len()),
         }
+    }
+}
+
+impl<const N: usize> Convert<[String; N]> for QStringList {
+    fn convert(&self) -> [String; N] {
+        QList::from(self).convert()
     }
 }
 
