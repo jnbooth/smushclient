@@ -5,8 +5,7 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMainWindow>
 
-App::App(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::App)
+App::App(QWidget *parent) : QMainWindow(parent), ui(new Ui::App)
 {
   ui->setupUi(this);
   saveFilter = tr("World files (*.smush);;All Files (*.*)");
@@ -31,9 +30,8 @@ void App::on_action_open_world_triggered()
   QString dialogName = ui->action_open_world->text();
   QString filename = QFileDialog::getOpenFileName(this, dialogName, "", saveFilter);
   if (filename.isEmpty())
-  {
     return;
-  }
+
   WorldTab *tab = new WorldTab(ui->world_tabs);
   if (!tab->openWorld(filename))
   {

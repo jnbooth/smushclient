@@ -33,9 +33,8 @@ const QString &WorldTab::title() const
 void WorldTab::connectToHost()
 {
   if (socket.isOpen())
-  {
     return;
-  }
+
   socket.connectToHost(world.getSite(), (quint16)world.getPort());
 }
 
@@ -63,9 +62,8 @@ void WorldTab::createWorld()
 bool WorldTab::openWorld(const QString &filename)
 {
   if (!client.loadWorld(filename, world))
-  {
     return false;
-  }
+
   filePath = filename;
   applyWorld();
   connectToHost();
@@ -75,21 +73,14 @@ bool WorldTab::openWorld(const QString &filename)
 void WorldTab::applyWorld()
 {
   if (world.getUseDefaultInputFont())
-  {
     ui->input->setFont(defaultFont);
-  }
   else
-  {
     ui->input->setFont(QFont(world.getInputFont(), world.getInputFontSize()));
-  }
+
   if (world.getUseDefaultOutputFont())
-  {
     ui->output->setFont(defaultFont);
-  }
   else
-  {
     ui->output->setFont(QFont(world.getOutputFont(), world.getOutputFontSize()));
-  }
 }
 
 bool WorldTab::saveWorld(const QString &saveFilter)
@@ -130,9 +121,7 @@ void WorldTab::on_finished(int result)
   case QDialog::Rejected:
     client.populateWorld(world);
     if (world.getSite().isEmpty())
-    {
       delete this;
-    }
   }
 }
 
@@ -152,21 +141,15 @@ void WorldTab::on_output_anchorClicked(const QUrl &url)
 {
   QString action = url.toString(QUrl::None);
   if (action.isEmpty())
-  {
     return;
-  }
+
   QString last = action.last(1);
   if (last == "\x17")
-  {
     QDesktopServices::openUrl(QUrl(action));
-    return;
-  }
-  if (last == "\x18")
-  {
+  else if (last == "\x18")
     ui->input->setText(action);
-    return;
-  }
-  sendCommand(action);
+  else
+    sendCommand(action);
 }
 
 void WorldTab::on_output_customContextMenuRequested(const QPoint &pos)
@@ -181,13 +164,11 @@ void WorldTab::on_output_customContextMenuRequested(const QPoint &pos)
   QStringList prompts = format.property(QTextCharFormat::UserProperty).value<QStringList>();
   QMenu menu = QMenu(ui->output);
   for (QString prompt : prompts)
-  {
     menu.addAction(prompt);
-  }
+
   QAction *chosen = menu.exec(mouse);
-  if (chosen == NULL)
-  {
+  if (chosen == nullptr)
     return;
-  }
+
   sendCommand(chosen->text());
 }

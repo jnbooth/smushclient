@@ -20,26 +20,21 @@ bool isBlack(const QColor &color)
 void applyStyles(QTextCharFormat &format, quint16 style, const QColor &foreground, const QColor &background)
 {
   if (hasStyle(style, TextStyle::Bold))
-  {
     format.setFontWeight(QFont::Weight::Bold);
-  }
+
   if (hasStyle(style, TextStyle::Italic))
-  {
     format.setFontItalic(true);
-  }
+
   if (hasStyle(style, TextStyle::Strikeout))
-  {
     format.setFontStrikeOut(true);
-  }
+
   if (hasStyle(style, TextStyle::Underline))
-  {
     format.setFontUnderline(true);
-  }
+
   format.setForeground(QBrush(foreground));
+
   if (!isBlack(background))
-  {
     format.setBackground(QBrush(background));
-  }
 }
 
 void applyLink(QTextCharFormat &format, const Link &link)
@@ -58,14 +53,10 @@ void applyLink(QTextCharFormat &format, const Link &link)
   }
   format.setAnchor(true);
   format.setAnchorHref(action);
-  if (!link.prompts.isEmpty())
-  {
-    format.setProperty(QTextCharFormat::UserProperty, link.prompts);
-  }
   if (!link.hint.isEmpty())
-  {
     format.setToolTip(link.hint);
-  }
+  if (!link.prompts.isEmpty())
+    format.setProperty(QTextCharFormat::UserProperty, link.prompts);
 }
 
 // Document

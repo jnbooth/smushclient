@@ -32,9 +32,7 @@ WorldPrefs::WorldPrefs(World *world, QWidget *parent)
   setupPane(new PrefsTriggers(world, this), "Triggers");
 
   for (QTreeWidgetItemIterator it(ui->settings_tree); *it; ++it)
-  {
     (*it)->setExpanded(true);
-  }
 }
 
 WorldPrefs::~WorldPrefs()
@@ -56,26 +54,21 @@ void WorldPrefs::setupPane(QWidget *pane, const char *key)
   item->setData(0, Qt::UserRole, index);
 
   if (index == 0)
-  {
     ui->settings_tree->setCurrentItem(item);
-  }
 }
 
 void WorldPrefs::on_settings_tree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
 {
-  if (current == NULL)
-  {
+  if (current == nullptr)
     return;
-  }
+
   QVariant data = current->data(0, Qt::UserRole);
   if (!data.canConvert<qsizetype>())
-  {
     return;
-  }
-  if (previous != NULL)
-  {
+
+  if (previous != nullptr)
     panes.at(activePane)->hide();
-  }
+
   activePane = data.value<qsizetype>();
   panes.at(activePane)->show();
 }
