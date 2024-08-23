@@ -8,6 +8,7 @@ fi
 
 DIR="build/$CONFIG"
 
+cd "$(dirname "$0")"
 cmake -S . -B $DIR
 cmake --build $DIR --config $CONFIG
 
