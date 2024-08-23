@@ -22,15 +22,20 @@ public:
   void openPreferences();
   void createWorld();
   bool openWorld(const QString &filename);
+  bool saveWorld(const QString &saveFilter);
+  bool saveWorldAsNew(const QString &saveFilter);
   const QString &title() const;
 
 private:
   Ui::WorldTab *ui;
+  QFont defaultFont;
+  QString filePath;
   QTcpSocket socket;
   Document document;
   SmushClient client;
   World world;
 
+  void applyWorld();
   void connectToHost();
   void sendCommand(const QString &command);
 

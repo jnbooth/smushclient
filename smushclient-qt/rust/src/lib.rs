@@ -118,6 +118,7 @@ pub mod ffi {
     unsafe extern "RustQt" {
         fn load_world(self: Pin<&mut SmushClient>, path: &QString, world: Pin<&mut World>) -> bool;
         fn populate_world(self: &SmushClient, world: Pin<&mut World>);
+        fn save_world(self: &SmushClient, path: &QString) -> bool;
         fn set_world(self: Pin<&mut SmushClient>, world: &World);
         fn read(
             self: Pin<&mut SmushClient>,

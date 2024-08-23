@@ -18,12 +18,18 @@ public:
   App(QWidget *parent = nullptr);
   ~App();
 
+private:
+  Ui::App *ui;
+  QString saveFilter;
+
+  void setWorldMenusEnabled(bool enabled);
+
 private slots:
   void on_action_new_triggered();
   void on_action_open_world_triggered();
+  void on_action_save_world_details_as_triggered();
+  void on_action_save_world_details_triggered();
   void on_action_world_properties_triggered();
-
-private:
-  Ui::App *ui;
+  void on_world_tabs_currentChanged(int index);
 };
 #endif // APP_H

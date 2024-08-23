@@ -4,14 +4,17 @@
 #include <QtGui/QAction>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QFont>
+#include <QtGui/QFontDatabase>
 #include <QtCore/QUrl>
 #include <QtWidgets/QDialog>
+#include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
 
 WorldTab::WorldTab(QWidget *parent)
-    : QSplitter(parent), ui(new Ui::WorldTab), socket(this)
+    : QSplitter(parent), ui(new Ui::WorldTab), socket(this), defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont))
 {
   ui->setupUi(this);
+  defaultFont.setPointSize(12);
   document.setBrowser(ui->output);
   socket.setObjectName("socket");
   connect(&socket, &QTcpSocket::readyRead, this, &WorldTab::on_readyRead);
@@ -46,13 +49,15 @@ void WorldTab::openPreferences()
 
 void WorldTab::createWorld()
 {
-  QFont defaultFont = QFont();
-  defaultFont.setStyleHint(QFont::Monospace);
-  QString fontFamily = defaultFont.family();
+  QString defaultFontFamily = defaultFont.family();
+  int defaultFontSize = defaultFont.pointSize();
   client.populateWorld(world);
-  world.setOutputFont(fontFamily);
-  world.setInputFont(fontFamily);
+  world.setInputFont(defaultFontFamily);
+  world.setInputFontSize(defaultFontSize);
+  world.setOutputFont(defaultFontFamily);
+  world.setOutputFontSize(defaultFontSize);
   client.setWorld(world);
+  applyWorld();
 }
 
 bool WorldTab::openWorld(const QString &filename)
@@ -61,8 +66,50 @@ bool WorldTab::openWorld(const QString &filename)
   {
     return false;
   }
+  filePath = filename;
+  applyWorld();
   connectToHost();
   return true;
+}
+
+void WorldTab::applyWorld()
+{
+  if (world.getUseDefaultInputFont())
+  {
+    ui->input->setFont(defaultFont);
+  }
+  else
+  {
+    ui->input->setFont(QFont(world.getInputFont(), world.getInputFontSize()));
+  }
+  if (world.getUseDefaultOutputFont())
+  {
+    ui->output->setFont(defaultFont);
+  }
+  else
+  {
+    ui->output->setFont(QFont(world.getOutputFont(), world.getOutputFontSize()));
+  }
+}
+
+bool WorldTab::saveWorld(const QString &saveFilter)
+{
+  if (!filePath.isEmpty())
+  {
+    return client.saveWorld(filePath);
+  }
+  return saveWorldAsNew(saveFilter);
+}
+
+bool WorldTab::saveWorldAsNew(const QString &saveFilter)
+{
+  QString path = QFileDialog::getSaveFileName(this, tr("Save as"), world.getName(), saveFilter);
+  if (path.isEmpty())
+  {
+    return false;
+  }
+  filePath = path;
+  return client.saveWorld(filePath);
 }
 
 void WorldTab::sendCommand(const QString &command)
@@ -82,7 +129,10 @@ void WorldTab::on_finished(int result)
     break;
   case QDialog::Rejected:
     client.populateWorld(world);
-    break;
+    if (world.getSite().isEmpty())
+    {
+      delete this;
+    }
   }
 }
 

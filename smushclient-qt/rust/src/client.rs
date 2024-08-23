@@ -67,6 +67,15 @@ impl SmushClientRust {
         World::load(file)
     }
 
+    pub fn save_world(&self, path: &QString) -> bool {
+        self.try_save_world(path).is_ok()
+    }
+
+    fn try_save_world(&self, path: &QString) -> Result<(), PersistError> {
+        let file = File::create(String::from(path))?;
+        self.client.world().save(file)
+    }
+
     pub fn populate_world(&self, world: &mut WorldRust) {
         world.populate(self.client.world());
     }
@@ -148,6 +157,10 @@ impl ffi::SmushClient {
     pub fn populate_world(&self, world: Pin<&mut ffi::World>) {
         self.cxx_qt_ffi_rust()
             .populate_world(&mut world.cxx_qt_ffi_rust_mut());
+    }
+
+    pub fn save_world(&self, path: &QString) -> bool {
+        self.cxx_qt_ffi_rust().save_world(path)
     }
 
     pub fn set_world(self: Pin<&mut Self>, world: &ffi::World) {
