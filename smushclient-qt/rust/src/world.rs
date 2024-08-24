@@ -228,7 +228,7 @@ impl WorldRust {
 
     pub fn get_alias(&self, index: usize, target: &mut AliasRust) {
         if let Some(alias) = self.aliases.get(index) {
-            target.populate(alias);
+            *target = AliasRust::from(alias);
         }
     }
 
@@ -246,7 +246,7 @@ impl WorldRust {
 
     pub fn get_timer(&self, index: usize, target: &mut TimerRust) {
         if let Some(timer) = self.timers.get(index) {
-            target.populate(timer);
+            *target = TimerRust::from(timer);
         }
     }
 
@@ -265,7 +265,7 @@ impl WorldRust {
 
     pub fn get_trigger(&self, index: usize, target: &mut TriggerRust) {
         if let Some(trigger) = self.triggers.get(index) {
-            target.populate(trigger);
+            *target = TriggerRust::from(trigger);
         }
     }
 
@@ -280,10 +280,12 @@ impl WorldRust {
         *entry = Trigger::try_from(trigger)?;
         Ok(())
     }
+}
 
-    pub fn populate(&mut self, world: &World) {
-        let iter = self
-            .colors
+impl From<&World> for WorldRust {
+    fn from(world: &World) -> Self {
+        let mut colors = Colors::default();
+        let iter = colors
             .array_mut()
             .into_iter()
             .zip(world.ansi_colors.iter())
@@ -297,167 +299,170 @@ impl WorldRust {
             *entry.custom_background = custom_color.background.convert();
         }
 
-        self.name = QString::from(&world.name);
-        self.site = QString::from(&world.site);
-        self.port = i32::from(world.port);
-        self.proxy_type = world.proxy_type.into();
-        self.proxy_server = QString::from(&world.proxy_server);
-        self.proxy_port = i32::from(world.proxy_port);
-        self.proxy_username = QString::from(&world.proxy_username);
-        self.proxy_password = QString::from(&world.proxy_password);
-        self.proxy_password_base64 = world.proxy_password_base64;
-        self.save_world_automatically = world.save_world_automatically;
-        self.player = QString::from(&world.player);
-        self.password = QString::from(&world.password);
-        self.connect_method = world.connect_method.into();
-        self.connect_text = QString::from(&world.connect_text);
-        self.log_file_preamble = QString::from(&world.log_file_preamble);
-        self.log_file_postamble = QString::from(&world.log_file_postamble);
-        self.log_format = world.log_format.into();
-        self.log_output = world.log_output;
-        self.log_input = world.log_input;
-        self.log_notes = world.log_notes;
-        self.log_mode = world.log_mode.into();
-        self.auto_log_file_name = world.auto_log_file_name.convert();
-        self.log_preamble_output = QString::from(&world.log_preamble_output);
-        self.log_preamble_input = QString::from(&world.log_preamble_input);
-        self.log_preamble_notes = QString::from(&world.log_preamble_notes);
-        self.log_postamble_output = QString::from(&world.log_postamble_output);
-        self.log_postamble_input = QString::from(&world.log_postamble_input);
-        self.log_postamble_notes = QString::from(&world.log_postamble_notes);
-        self.timers = world.timers.clone();
-        self.enable_timers = world.enable_timers;
-        self.treeview_timers = world.treeview_timers;
-        self.chat_name = QString::from(&world.chat_name);
-        self.auto_allow_snooping = world.auto_allow_snooping;
-        self.accept_chat_connections = world.accept_chat_connections;
-        self.chat_port = i32::from(world.chat_port);
-        self.validate_incoming_chat_calls = world.validate_incoming_chat_calls;
-        self.chat_colors_foreground = world.chat_colors.foreground.convert();
-        self.chat_colors_background = world.chat_colors.background.convert();
-        self.ignore_chat_colors = world.ignore_chat_colors;
-        self.chat_message_prefix = QString::from(&world.chat_message_prefix);
-        self.chat_max_lines_per_message = i32::try_from(world.chat_max_lines_per_message).unwrap();
-        self.chat_max_bytes_per_message = i32::try_from(world.chat_max_bytes_per_message).unwrap();
-        self.auto_allow_files = world.auto_allow_files;
-        self.chat_file_save_directory = world.chat_file_save_directory.convert();
-        self.notes = QString::from(&world.notes);
-        self.beep_sound = world.beep_sound.convert();
-        self.pixel_offset = i32::from(world.pixel_offset);
-        self.line_spacing = c_double::try_from(world.line_spacing).unwrap();
-        self.output_font = QString::from(&world.output_font);
-        self.output_font_size = i32::from(world.output_font_size);
-        self.use_default_output_font = world.use_default_output_font;
-        self.show_bold = world.show_bold;
-        self.show_italic = world.show_italic;
-        self.show_underline = world.show_underline;
-        self.new_activity_sound = world.new_activity_sound.convert();
-        self.max_output_lines = i32::try_from(world.max_output_lines).unwrap();
-        self.wrap_column = i32::from(world.wrap_column);
-        self.line_information = world.line_information;
-        self.start_paused = world.start_paused;
-        self.auto_pause = world.auto_pause;
-        self.unpause_on_send = world.unpause_on_send;
-        self.flash_taskbar_icon = world.flash_taskbar_icon;
-        self.disable_compression = world.disable_compression;
-        self.indent_paras = world.indent_paras;
-        self.naws = world.naws;
-        self.carriage_return_clears_line = world.carriage_return_clears_line;
-        self.utf_8 = world.utf_8;
-        self.auto_wrap_window_width = world.auto_wrap_window_width;
-        self.show_connect_disconnect = world.show_connect_disconnect;
-        self.copy_selection_to_clipboard = world.copy_selection_to_clipboard;
-        self.auto_copy_to_clipboard_in_html = world.auto_copy_to_clipboard_in_html;
-        self.convert_ga_to_newline = world.convert_ga_to_newline;
-        self.terminal_identification = QString::from(&world.terminal_identification);
-        self.use_mxp = world.use_mxp.into();
-        self.hyperlink_color = world.hyperlink_color.convert();
-        self.use_custom_link_color = world.use_custom_link_color;
-        self.mud_can_change_link_color = world.mud_can_change_link_color;
-        self.underline_hyperlinks = world.underline_hyperlinks;
-        self.mud_can_remove_underline = world.mud_can_remove_underline;
-        self.hyperlink_adds_to_command_history = world.hyperlink_adds_to_command_history;
-        self.echo_hyperlink_in_output_window = world.echo_hyperlink_in_output_window;
-        self.ignore_mxp_color_changes = world.ignore_mxp_color_changes;
-        self.send_mxp_afk_response = world.send_mxp_afk_response;
-        self.use_default_colors = world.use_default_colors;
-        self.triggers = world.triggers.clone();
-        self.enable_triggers = world.enable_triggers;
-        self.enable_trigger_sounds = world.enable_trigger_sounds;
-        self.treeview_triggers = world.treeview_triggers;
-        self.display_my_input = world.display_my_input;
-        self.echo_colors_foreground = world.echo_colors.foreground.convert();
-        self.echo_colors_background = world.echo_colors.background.convert();
-        self.enable_speed_walk = world.enable_speed_walk;
-        self.speed_walk_prefix = QString::from(&world.speed_walk_prefix);
-        self.speed_walk_filler = QString::from(&world.speed_walk_filler);
-        self.speed_walk_delay = c_double::try_from(world.speed_walk_delay).unwrap();
-        self.enable_command_stack = world.enable_command_stack;
-        self.command_stack_character = QString::from(&world.command_stack_character);
-        self.input_colors_foreground = world.input_colors.foreground.convert();
-        self.input_colors_background = world.input_colors.background.convert();
-        self.input_font = QString::from(&world.input_font);
-        self.input_font_size = i32::from(world.input_font_size);
-        self.use_default_input_font = world.use_default_input_font;
-        self.enable_spam_prevention = world.enable_spam_prevention;
-        self.spam_line_count = i32::try_from(world.spam_line_count).unwrap();
-        self.spam_message = QString::from(&world.spam_message);
-        self.auto_repeat = world.auto_repeat;
-        self.lower_case_tab_completion = world.lower_case_tab_completion;
-        self.translate_german = world.translate_german;
-        self.translate_backslash_sequences = world.translate_backslash_sequences;
-        self.keep_commands_on_same_line = world.keep_commands_on_same_line;
-        self.no_echo_off = world.no_echo_off;
-        self.tab_completion_lines = i32::try_from(world.tab_completion_lines).unwrap();
-        self.tab_completion_space = world.tab_completion_space;
-        self.double_click_inserts = world.double_click_inserts;
-        self.double_click_sends = world.double_click_sends;
-        self.escape_deletes_input = world.escape_deletes_input;
-        self.save_deleted_command = world.save_deleted_command;
-        self.confirm_before_replacing_typing = world.confirm_before_replacing_typing;
-        self.arrow_keys_wrap = world.arrow_keys_wrap;
-        self.arrows_change_history = world.arrows_change_history;
-        self.arrow_recalls_partial = world.arrow_recalls_partial;
-        self.alt_arrow_recalls_partial = world.alt_arrow_recalls_partial;
-        self.ctrl_z_goes_to_end_of_buffer = world.ctrl_z_goes_to_end_of_buffer;
-        self.ctrl_p_goes_to_previous_command = world.ctrl_p_goes_to_previous_command;
-        self.ctrl_n_goes_to_next_command = world.ctrl_n_goes_to_next_command;
-        self.history_lines = i32::try_from(world.history_lines).unwrap();
-        self.aliases = world.aliases.clone();
-        self.enable_aliases = world.enable_aliases;
-        self.treeview_aliases = world.treeview_aliases;
-        self.keypad_enable = world.keypad_enable;
-        self.keypad_shortcuts = world.keypad_shortcuts.clone();
-        self.enable_auto_say = world.enable_auto_say;
-        self.autosay_exclude_non_alpha = world.autosay_exclude_non_alpha;
-        self.autosay_exclude_macros = world.autosay_exclude_macros;
-        self.auto_say_override_prefix = QString::from(&world.auto_say_override_prefix);
-        self.auto_say_string = QString::from(&world.auto_say_string);
-        self.re_evaluate_auto_say = world.re_evaluate_auto_say;
-        self.paste_line_preamble = QString::from(&world.paste_line_preamble);
-        self.paste_line_postamble = QString::from(&world.paste_line_postamble);
-        self.paste_delay = i32::try_from(world.paste_delay).unwrap();
-        self.paste_delay_per_lines = i32::try_from(world.paste_delay_per_lines).unwrap();
-        self.paste_commented_softcode = world.paste_commented_softcode;
-        self.paste_echo = world.paste_echo;
-        self.confirm_on_paste = world.confirm_on_paste;
-        self.send_line_preamble = QString::from(&world.send_line_preamble);
-        self.send_line_postamble = QString::from(&world.send_line_postamble);
-        self.send_delay = i32::try_from(world.send_delay).unwrap();
-        self.send_delay_per_lines = i32::try_from(world.send_delay_per_lines).unwrap();
-        self.send_commented_softcode = world.send_commented_softcode;
-        self.send_echo = world.send_echo;
-        self.confirm_on_send = world.confirm_on_send;
-        self.world_script = QString::from(&world.world_script);
-        self.script_prefix = QString::from(&world.script_prefix);
-        self.enable_scripts = world.enable_scripts;
-        self.warn_if_scripting_inactive = world.warn_if_scripting_inactive;
-        self.edit_script_with_notepad = world.edit_script_with_notepad;
-        self.script_editor = QString::from(&world.script_editor);
-        self.script_reload_option = world.script_reload_option.into();
-        self.script_errors_to_output_window = world.script_errors_to_output_window;
-        self.note_text_color = world.note_text_color.convert();
-        self.plugins = world.plugins.convert();
+        Self {
+            colors,
+            name: QString::from(&world.name),
+            site: QString::from(&world.site),
+            port: i32::from(world.port),
+            proxy_type: world.proxy_type.into(),
+            proxy_server: QString::from(&world.proxy_server),
+            proxy_port: i32::from(world.proxy_port),
+            proxy_username: QString::from(&world.proxy_username),
+            proxy_password: QString::from(&world.proxy_password),
+            proxy_password_base64: world.proxy_password_base64,
+            save_world_automatically: world.save_world_automatically,
+            player: QString::from(&world.player),
+            password: QString::from(&world.password),
+            connect_method: world.connect_method.into(),
+            connect_text: QString::from(&world.connect_text),
+            log_file_preamble: QString::from(&world.log_file_preamble),
+            log_file_postamble: QString::from(&world.log_file_postamble),
+            log_format: world.log_format.into(),
+            log_output: world.log_output,
+            log_input: world.log_input,
+            log_notes: world.log_notes,
+            log_mode: world.log_mode.into(),
+            auto_log_file_name: world.auto_log_file_name.convert(),
+            log_preamble_output: QString::from(&world.log_preamble_output),
+            log_preamble_input: QString::from(&world.log_preamble_input),
+            log_preamble_notes: QString::from(&world.log_preamble_notes),
+            log_postamble_output: QString::from(&world.log_postamble_output),
+            log_postamble_input: QString::from(&world.log_postamble_input),
+            log_postamble_notes: QString::from(&world.log_postamble_notes),
+            timers: world.timers.clone(),
+            enable_timers: world.enable_timers,
+            treeview_timers: world.treeview_timers,
+            chat_name: QString::from(&world.chat_name),
+            auto_allow_snooping: world.auto_allow_snooping,
+            accept_chat_connections: world.accept_chat_connections,
+            chat_port: i32::from(world.chat_port),
+            validate_incoming_chat_calls: world.validate_incoming_chat_calls,
+            chat_colors_foreground: world.chat_colors.foreground.convert(),
+            chat_colors_background: world.chat_colors.background.convert(),
+            ignore_chat_colors: world.ignore_chat_colors,
+            chat_message_prefix: QString::from(&world.chat_message_prefix),
+            chat_max_lines_per_message: i32::try_from(world.chat_max_lines_per_message).unwrap(),
+            chat_max_bytes_per_message: i32::try_from(world.chat_max_bytes_per_message).unwrap(),
+            auto_allow_files: world.auto_allow_files,
+            chat_file_save_directory: world.chat_file_save_directory.convert(),
+            notes: QString::from(&world.notes),
+            beep_sound: world.beep_sound.convert(),
+            pixel_offset: i32::from(world.pixel_offset),
+            line_spacing: c_double::try_from(world.line_spacing).unwrap(),
+            output_font: QString::from(&world.output_font),
+            output_font_size: i32::from(world.output_font_size),
+            use_default_output_font: world.use_default_output_font,
+            show_bold: world.show_bold,
+            show_italic: world.show_italic,
+            show_underline: world.show_underline,
+            new_activity_sound: world.new_activity_sound.convert(),
+            max_output_lines: i32::try_from(world.max_output_lines).unwrap(),
+            wrap_column: i32::from(world.wrap_column),
+            line_information: world.line_information,
+            start_paused: world.start_paused,
+            auto_pause: world.auto_pause,
+            unpause_on_send: world.unpause_on_send,
+            flash_taskbar_icon: world.flash_taskbar_icon,
+            disable_compression: world.disable_compression,
+            indent_paras: world.indent_paras,
+            naws: world.naws,
+            carriage_return_clears_line: world.carriage_return_clears_line,
+            utf_8: world.utf_8,
+            auto_wrap_window_width: world.auto_wrap_window_width,
+            show_connect_disconnect: world.show_connect_disconnect,
+            copy_selection_to_clipboard: world.copy_selection_to_clipboard,
+            auto_copy_to_clipboard_in_html: world.auto_copy_to_clipboard_in_html,
+            convert_ga_to_newline: world.convert_ga_to_newline,
+            terminal_identification: QString::from(&world.terminal_identification),
+            use_mxp: world.use_mxp.into(),
+            hyperlink_color: world.hyperlink_color.convert(),
+            use_custom_link_color: world.use_custom_link_color,
+            mud_can_change_link_color: world.mud_can_change_link_color,
+            underline_hyperlinks: world.underline_hyperlinks,
+            mud_can_remove_underline: world.mud_can_remove_underline,
+            hyperlink_adds_to_command_history: world.hyperlink_adds_to_command_history,
+            echo_hyperlink_in_output_window: world.echo_hyperlink_in_output_window,
+            ignore_mxp_color_changes: world.ignore_mxp_color_changes,
+            send_mxp_afk_response: world.send_mxp_afk_response,
+            use_default_colors: world.use_default_colors,
+            triggers: world.triggers.clone(),
+            enable_triggers: world.enable_triggers,
+            enable_trigger_sounds: world.enable_trigger_sounds,
+            treeview_triggers: world.treeview_triggers,
+            display_my_input: world.display_my_input,
+            echo_colors_foreground: world.echo_colors.foreground.convert(),
+            echo_colors_background: world.echo_colors.background.convert(),
+            enable_speed_walk: world.enable_speed_walk,
+            speed_walk_prefix: QString::from(&world.speed_walk_prefix),
+            speed_walk_filler: QString::from(&world.speed_walk_filler),
+            speed_walk_delay: c_double::try_from(world.speed_walk_delay).unwrap(),
+            enable_command_stack: world.enable_command_stack,
+            command_stack_character: QString::from(&world.command_stack_character),
+            input_colors_foreground: world.input_colors.foreground.convert(),
+            input_colors_background: world.input_colors.background.convert(),
+            input_font: QString::from(&world.input_font),
+            input_font_size: i32::from(world.input_font_size),
+            use_default_input_font: world.use_default_input_font,
+            enable_spam_prevention: world.enable_spam_prevention,
+            spam_line_count: i32::try_from(world.spam_line_count).unwrap(),
+            spam_message: QString::from(&world.spam_message),
+            auto_repeat: world.auto_repeat,
+            lower_case_tab_completion: world.lower_case_tab_completion,
+            translate_german: world.translate_german,
+            translate_backslash_sequences: world.translate_backslash_sequences,
+            keep_commands_on_same_line: world.keep_commands_on_same_line,
+            no_echo_off: world.no_echo_off,
+            tab_completion_lines: i32::try_from(world.tab_completion_lines).unwrap(),
+            tab_completion_space: world.tab_completion_space,
+            double_click_inserts: world.double_click_inserts,
+            double_click_sends: world.double_click_sends,
+            escape_deletes_input: world.escape_deletes_input,
+            save_deleted_command: world.save_deleted_command,
+            confirm_before_replacing_typing: world.confirm_before_replacing_typing,
+            arrow_keys_wrap: world.arrow_keys_wrap,
+            arrows_change_history: world.arrows_change_history,
+            arrow_recalls_partial: world.arrow_recalls_partial,
+            alt_arrow_recalls_partial: world.alt_arrow_recalls_partial,
+            ctrl_z_goes_to_end_of_buffer: world.ctrl_z_goes_to_end_of_buffer,
+            ctrl_p_goes_to_previous_command: world.ctrl_p_goes_to_previous_command,
+            ctrl_n_goes_to_next_command: world.ctrl_n_goes_to_next_command,
+            history_lines: i32::try_from(world.history_lines).unwrap(),
+            aliases: world.aliases.clone(),
+            enable_aliases: world.enable_aliases,
+            treeview_aliases: world.treeview_aliases,
+            keypad_enable: world.keypad_enable,
+            keypad_shortcuts: world.keypad_shortcuts.clone(),
+            enable_auto_say: world.enable_auto_say,
+            autosay_exclude_non_alpha: world.autosay_exclude_non_alpha,
+            autosay_exclude_macros: world.autosay_exclude_macros,
+            auto_say_override_prefix: QString::from(&world.auto_say_override_prefix),
+            auto_say_string: QString::from(&world.auto_say_string),
+            re_evaluate_auto_say: world.re_evaluate_auto_say,
+            paste_line_preamble: QString::from(&world.paste_line_preamble),
+            paste_line_postamble: QString::from(&world.paste_line_postamble),
+            paste_delay: i32::try_from(world.paste_delay).unwrap(),
+            paste_delay_per_lines: i32::try_from(world.paste_delay_per_lines).unwrap(),
+            paste_commented_softcode: world.paste_commented_softcode,
+            paste_echo: world.paste_echo,
+            confirm_on_paste: world.confirm_on_paste,
+            send_line_preamble: QString::from(&world.send_line_preamble),
+            send_line_postamble: QString::from(&world.send_line_postamble),
+            send_delay: i32::try_from(world.send_delay).unwrap(),
+            send_delay_per_lines: i32::try_from(world.send_delay_per_lines).unwrap(),
+            send_commented_softcode: world.send_commented_softcode,
+            send_echo: world.send_echo,
+            confirm_on_send: world.confirm_on_send,
+            world_script: QString::from(&world.world_script),
+            script_prefix: QString::from(&world.script_prefix),
+            enable_scripts: world.enable_scripts,
+            warn_if_scripting_inactive: world.warn_if_scripting_inactive,
+            edit_script_with_notepad: world.edit_script_with_notepad,
+            script_editor: QString::from(&world.script_editor),
+            script_reload_option: world.script_reload_option.into(),
+            script_errors_to_output_window: world.script_errors_to_output_window,
+            note_text_color: world.note_text_color.convert(),
+            plugins: world.plugins.convert(),
+        }
     }
 }
 

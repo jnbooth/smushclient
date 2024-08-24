@@ -56,7 +56,7 @@ impl SmushClientRust {
         let Ok(worldfile) = Self::try_load_world(path) else {
             return false;
         };
-        world.populate(&worldfile);
+        *world = WorldRust::from(&worldfile);
         let config = self.client.set_world(worldfile);
         self.transformer.set_config(config);
         true
@@ -77,7 +77,7 @@ impl SmushClientRust {
     }
 
     pub fn populate_world(&self, world: &mut WorldRust) {
-        world.populate(self.client.world());
+        *world = WorldRust::from(self.client.world());
     }
 
     pub fn set_world(&mut self, world: &WorldRust) {

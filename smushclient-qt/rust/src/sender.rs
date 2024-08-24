@@ -1,5 +1,7 @@
+use std::pin::Pin;
 use std::time::Duration;
 
+use cxx_qt::{Constructor, Initialize};
 use cxx_qt_lib::{QString, QTime};
 use smushclient_plugins::{
     Alias, NaiveTime, Occurrence, Reaction, RegexError, Sender, Timelike, Timer, Trigger,
@@ -28,19 +30,21 @@ pub struct SenderRust {
     pub omit_from_log: bool,
 }
 
-impl SenderRust {
-    pub fn populate(&mut self, sender: &Sender) {
-        self.send_to = sender.send_to.into();
-        self.label = QString::from(&sender.label);
-        self.script = QString::from(&sender.script);
-        self.group = QString::from(&sender.group);
-        self.variable = QString::from(&sender.variable);
-        self.text = QString::from(&sender.text);
-        self.enabled = sender.enabled;
-        self.one_shot = sender.one_shot;
-        self.temporary = sender.temporary;
-        self.omit_from_output = sender.omit_from_output;
-        self.omit_from_log = sender.omit_from_log;
+impl From<&Sender> for SenderRust {
+    fn from(sender: &Sender) -> Self {
+        Self {
+            send_to: sender.send_to.into(),
+            label: QString::from(&sender.label),
+            script: QString::from(&sender.script),
+            group: QString::from(&sender.group),
+            variable: QString::from(&sender.variable),
+            text: QString::from(&sender.text),
+            enabled: sender.enabled,
+            one_shot: sender.one_shot,
+            temporary: sender.temporary,
+            omit_from_output: sender.omit_from_output,
+            omit_from_log: sender.omit_from_log,
+        }
     }
 }
 
@@ -75,26 +79,38 @@ pub struct TimerRust {
 
 impl_deref!(TimerRust, SenderRust, send);
 
-impl TimerRust {
-    pub fn populate(&mut self, timer: &Timer) {
-        self.send.populate(&timer.send);
+impl From<&Timer> for TimerRust {
+    fn from(timer: &Timer) -> Self {
+        let send = SenderRust::from(&timer.send);
+
         match timer.occurrence {
             Occurrence::Time(time) => {
-                self.occurrence = ffi::Occurrence::Time;
                 let seconds = i32::try_from(time.num_seconds_from_midnight()).unwrap();
                 let msecs = seconds * MILLISECONDS_PER_SECOND;
-                self.at_time = QTime::from_msecs_since_start_of_day(msecs);
+                Self {
+                    send,
+                    occurrence: ffi::Occurrence::Time,
+                    at_time: QTime::from_msecs_since_start_of_day(msecs),
+                    every_second: 0,
+                    every_minute: 0,
+                    every_hour: 0,
+                    active_closed: timer.active_closed,
+                }
             }
             Occurrence::Interval(duration) => {
-                self.occurrence = ffi::Occurrence::Interval;
                 let seconds = duration.as_secs();
-                self.every_second = i32::try_from(seconds % SECONDS_PER_MINUTE).unwrap();
                 let minutes = seconds / SECONDS_PER_MINUTE;
-                self.every_minute = i32::try_from(minutes % MINUTES_PER_HOUR).unwrap();
-                self.every_hour = i32::try_from(minutes / MINUTES_PER_HOUR).unwrap();
+                Self {
+                    send,
+                    occurrence: ffi::Occurrence::Interval,
+                    at_time: QTime::default(),
+                    every_second: i32::try_from(seconds % SECONDS_PER_MINUTE).unwrap(),
+                    every_minute: i32::try_from(minutes % MINUTES_PER_HOUR).unwrap(),
+                    every_hour: i32::try_from(minutes / MINUTES_PER_HOUR).unwrap(),
+                    active_closed: timer.active_closed,
+                }
             }
         }
-        self.active_closed = timer.active_closed;
     }
 }
 
@@ -139,16 +155,18 @@ pub struct ReactionRust {
 
 impl_deref!(ReactionRust, SenderRust, send);
 
-impl ReactionRust {
-    pub fn populate(&mut self, reaction: &Reaction) {
-        self.send.populate(&reaction.send);
-        self.sequence = i32::from(reaction.sequence);
-        self.pattern = QString::from(&reaction.pattern);
-        self.ignore_case = reaction.ignore_case;
-        self.keep_evaluating = reaction.keep_evaluating;
-        self.is_regex = reaction.is_regex;
-        self.expand_variables = reaction.expand_variables;
-        self.repeats = reaction.repeats;
+impl From<&Reaction> for ReactionRust {
+    fn from(reaction: &Reaction) -> Self {
+        Self {
+            sequence: i32::from(reaction.sequence),
+            send: SenderRust::from(&reaction.send),
+            pattern: QString::from(&reaction.pattern),
+            ignore_case: reaction.ignore_case,
+            keep_evaluating: reaction.keep_evaluating,
+            is_regex: reaction.is_regex,
+            expand_variables: reaction.expand_variables,
+            repeats: reaction.repeats,
+        }
     }
 }
 
@@ -182,12 +200,14 @@ pub struct AliasRust {
 
 impl_deref!(AliasRust, ReactionRust, reaction);
 
-impl AliasRust {
-    pub fn populate(&mut self, alias: &Alias) {
-        self.reaction.populate(&alias.reaction);
-        self.echo_alias = alias.echo_alias;
-        self.menu = alias.menu;
-        self.omit_from_command_history = alias.omit_from_command_history;
+impl From<&Alias> for AliasRust {
+    fn from(alias: &Alias) -> Self {
+        Self {
+            reaction: ReactionRust::from(&alias.reaction),
+            echo_alias: alias.echo_alias,
+            menu: alias.menu,
+            omit_from_command_history: alias.omit_from_command_history,
+        }
     }
 }
 
@@ -225,23 +245,25 @@ pub struct TriggerRust {
 
 impl_deref!(TriggerRust, ReactionRust, reaction);
 
-impl TriggerRust {
-    pub fn populate(&mut self, trigger: &Trigger) {
-        self.reaction.populate(&trigger.reaction);
-        self.change_foreground = trigger.change_foreground;
-        self.foreground = QString::from(&trigger.foreground);
-        self.foreground_color = trigger.foreground_color.convert();
-        self.change_background = trigger.change_background;
-        self.background = QString::from(&trigger.background);
-        self.background_color = trigger.background_color.convert();
-        self.make_bold = trigger.make_bold;
-        self.make_italic = trigger.make_italic;
-        self.make_underline = trigger.make_underline;
-        self.sound = QString::from(&trigger.sound);
-        self.sound_if_inactive = trigger.sound_if_inactive;
-        self.lowercase_wildcard = trigger.lowercase_wildcard;
-        self.multi_line = trigger.multi_line;
-        self.lines_to_match = i32::from(trigger.lines_to_match);
+impl From<&Trigger> for TriggerRust {
+    fn from(trigger: &Trigger) -> Self {
+        Self {
+            reaction: ReactionRust::from(&trigger.reaction),
+            change_foreground: trigger.change_foreground,
+            foreground: QString::from(&trigger.foreground),
+            foreground_color: trigger.foreground_color.convert(),
+            change_background: trigger.change_background,
+            background: QString::from(&trigger.background),
+            background_color: trigger.background_color.convert(),
+            make_bold: trigger.make_bold,
+            make_italic: trigger.make_italic,
+            make_underline: trigger.make_underline,
+            sound: QString::from(&trigger.sound),
+            sound_if_inactive: trigger.sound_if_inactive,
+            lowercase_wildcard: trigger.lowercase_wildcard,
+            multi_line: trigger.multi_line,
+            lines_to_match: i32::from(trigger.lines_to_match),
+        }
     }
 }
 
@@ -266,5 +288,86 @@ impl TryFrom<&TriggerRust> for Trigger {
             multi_line: value.multi_line,
             lines_to_match: u8::try_from(value.lines_to_match).unwrap(),
         })
+    }
+}
+
+impl Initialize for ffi::Alias {
+    fn initialize(self: Pin<&mut Self>) {}
+}
+
+impl Initialize for ffi::Timer {
+    fn initialize(self: Pin<&mut Self>) {}
+}
+
+impl Initialize for ffi::Trigger {
+    fn initialize(self: Pin<&mut Self>) {}
+}
+
+impl<'a> Constructor<(&'a ffi::World, usize)> for ffi::Alias {
+    type BaseArguments = ();
+    type InitializeArguments = ();
+    type NewArguments = (&'a ffi::World, usize);
+
+    fn route_arguments(
+        args: Self::NewArguments,
+    ) -> (
+        Self::NewArguments,
+        Self::BaseArguments,
+        Self::InitializeArguments,
+    ) {
+        (args, (), ())
+    }
+
+    fn new(args: (&'a ffi::World, usize)) -> AliasRust {
+        match args.0.cxx_qt_ffi_rust().aliases.get(args.1) {
+            Some(alias) => AliasRust::from(alias),
+            None => AliasRust::default(),
+        }
+    }
+}
+
+impl<'a> Constructor<(&'a ffi::World, usize)> for ffi::Timer {
+    type BaseArguments = ();
+    type InitializeArguments = ();
+    type NewArguments = (&'a ffi::World, usize);
+
+    fn route_arguments(
+        args: Self::NewArguments,
+    ) -> (
+        Self::NewArguments,
+        Self::BaseArguments,
+        Self::InitializeArguments,
+    ) {
+        (args, (), ())
+    }
+
+    fn new(args: (&'a ffi::World, usize)) -> TimerRust {
+        match args.0.cxx_qt_ffi_rust().timers.get(args.1) {
+            Some(timer) => TimerRust::from(timer),
+            None => TimerRust::default(),
+        }
+    }
+}
+
+impl<'a> Constructor<(&'a ffi::World, usize)> for ffi::Trigger {
+    type BaseArguments = ();
+    type InitializeArguments = ();
+    type NewArguments = (&'a ffi::World, usize);
+
+    fn route_arguments(
+        args: Self::NewArguments,
+    ) -> (
+        Self::NewArguments,
+        Self::BaseArguments,
+        Self::InitializeArguments,
+    ) {
+        (args, (), ())
+    }
+
+    fn new(args: (&'a ffi::World, usize)) -> TriggerRust {
+        match args.0.cxx_qt_ffi_rust().triggers.get(args.1) {
+            Some(trigger) => TriggerRust::from(trigger),
+            None => TriggerRust::default(),
+        }
     }
 }
