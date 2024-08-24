@@ -26,6 +26,12 @@ impl DerefMut for Regex {
     }
 }
 
+impl Default for Regex {
+    fn default() -> Self {
+        Self(fancy_regex::Regex::new("^$").unwrap())
+    }
+}
+
 impl PartialEq for Regex {
     fn eq(&self, other: &Self) -> bool {
         self.as_str() == other.as_str()

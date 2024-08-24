@@ -1,16 +1,18 @@
+#![allow(clippy::result_large_err)]
 use std::collections::HashMap;
-use std::ffi::{c_double, c_int};
-use std::ops::{Deref, DerefMut};
+use std::error::Error;
+use std::ffi::c_double;
+use std::pin::Pin;
 
 use crate::colors::Colors;
 use crate::convert::Convert;
+use crate::ffi;
+use crate::sender::{AliasRust, TimerRust, TriggerRust};
 use cxx_qt_lib::{QColor, QString, QStringList};
 use mud_transformer::mxp::RgbColor;
 use smushclient::world::ColorPair;
 use smushclient::World;
-use smushclient_plugins::{Alias, Timer, Trigger};
-
-use crate::ffi;
+use smushclient_plugins::{Alias, RegexError, Timer, Trigger};
 
 #[derive(Default)]
 pub struct WorldRust {
@@ -19,10 +21,10 @@ pub struct WorldRust {
     // IP address
     pub name: QString,
     pub site: QString,
-    pub port: c_int,
+    pub port: i32,
     pub proxy_type: ffi::ProxyType,
     pub proxy_server: QString,
-    pub proxy_port: c_int,
+    pub proxy_port: i32,
     pub proxy_username: QString,
     pub proxy_password: QString,
     pub proxy_password_base64: bool,
@@ -59,14 +61,14 @@ pub struct WorldRust {
     pub chat_name: QString,
     pub auto_allow_snooping: bool,
     pub accept_chat_connections: bool,
-    pub chat_port: c_int,
+    pub chat_port: i32,
     pub validate_incoming_chat_calls: bool,
     pub chat_colors_foreground: QColor,
     pub chat_colors_background: QColor,
     pub ignore_chat_colors: bool,
     pub chat_message_prefix: QString,
-    pub chat_max_lines_per_message: c_int,
-    pub chat_max_bytes_per_message: c_int,
+    pub chat_max_lines_per_message: i32,
+    pub chat_max_bytes_per_message: i32,
     pub auto_allow_files: bool,
     pub chat_file_save_directory: QString,
 
@@ -75,17 +77,17 @@ pub struct WorldRust {
 
     // Output
     pub beep_sound: QString,
-    pub pixel_offset: c_int,
+    pub pixel_offset: i32,
     pub line_spacing: c_double,
     pub output_font: QString,
-    pub output_font_size: c_int,
+    pub output_font_size: i32,
     pub use_default_output_font: bool,
     pub show_bold: bool,
     pub show_italic: bool,
     pub show_underline: bool,
     pub new_activity_sound: QString,
-    pub max_output_lines: c_int,
-    pub wrap_column: c_int,
+    pub max_output_lines: i32,
+    pub wrap_column: i32,
 
     pub line_information: bool,
     pub start_paused: bool,
@@ -138,10 +140,10 @@ pub struct WorldRust {
     pub input_colors_foreground: QColor,
     pub input_colors_background: QColor,
     pub input_font: QString,
-    pub input_font_size: c_int,
+    pub input_font_size: i32,
     pub use_default_input_font: bool,
     pub enable_spam_prevention: bool,
-    pub spam_line_count: c_int,
+    pub spam_line_count: i32,
     pub spam_message: QString,
 
     pub auto_repeat: bool,
@@ -150,7 +152,7 @@ pub struct WorldRust {
     pub translate_backslash_sequences: bool,
     pub keep_commands_on_same_line: bool,
     pub no_echo_off: bool,
-    pub tab_completion_lines: c_int,
+    pub tab_completion_lines: i32,
     pub tab_completion_space: bool,
 
     pub double_click_inserts: bool,
@@ -165,7 +167,7 @@ pub struct WorldRust {
     pub ctrl_z_goes_to_end_of_buffer: bool,
     pub ctrl_p_goes_to_previous_command: bool,
     pub ctrl_n_goes_to_next_command: bool,
-    pub history_lines: c_int,
+    pub history_lines: i32,
 
     // Aliases
     pub aliases: Vec<Alias>,
@@ -187,8 +189,8 @@ pub struct WorldRust {
     // Paste
     pub paste_line_preamble: QString,
     pub paste_line_postamble: QString,
-    pub paste_delay: c_int,
-    pub paste_delay_per_lines: c_int,
+    pub paste_delay: i32,
+    pub paste_delay_per_lines: i32,
     pub paste_commented_softcode: bool,
     pub paste_echo: bool,
     pub confirm_on_paste: bool,
@@ -196,8 +198,8 @@ pub struct WorldRust {
     // Send
     pub send_line_preamble: QString,
     pub send_line_postamble: QString,
-    pub send_delay: c_int,
-    pub send_delay_per_lines: c_int,
+    pub send_delay: i32,
+    pub send_delay_per_lines: i32,
     pub send_commented_softcode: bool,
     pub send_echo: bool,
     pub confirm_on_send: bool,
@@ -216,17 +218,246 @@ pub struct WorldRust {
     pub plugins: QStringList,
 }
 
-impl Deref for WorldRust {
-    type Target = Colors;
+impl_deref!(WorldRust, Colors, colors);
 
-    fn deref(&self) -> &Self::Target {
-        &self.colors
+impl WorldRust {
+    pub fn add_alias(&mut self, alias: &AliasRust) -> Result<(), RegexError> {
+        self.aliases.push(Alias::try_from(alias)?);
+        Ok(())
     }
-}
 
-impl DerefMut for WorldRust {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.colors
+    pub fn get_alias(&self, index: usize, target: &mut AliasRust) {
+        if let Some(alias) = self.aliases.get(index) {
+            target.populate(alias);
+        }
+    }
+
+    pub fn replace_alias(&mut self, index: usize, alias: &AliasRust) -> Result<(), RegexError> {
+        let Some(entry) = self.aliases.get_mut(index) else {
+            return self.add_alias(alias);
+        };
+        *entry = Alias::try_from(alias)?;
+        Ok(())
+    }
+
+    pub fn add_timer(&mut self, timer: &TimerRust) {
+        self.timers.push(Timer::from(timer));
+    }
+
+    pub fn get_timer(&self, index: usize, target: &mut TimerRust) {
+        if let Some(timer) = self.timers.get(index) {
+            target.populate(timer);
+        }
+    }
+
+    pub fn replace_timer(&mut self, index: usize, timer: &TimerRust) {
+        let Some(entry) = self.timers.get_mut(index) else {
+            self.add_timer(timer);
+            return;
+        };
+        *entry = Timer::from(timer);
+    }
+
+    pub fn add_trigger(&mut self, trigger: &TriggerRust) -> Result<(), RegexError> {
+        self.triggers.push(Trigger::try_from(trigger)?);
+        Ok(())
+    }
+
+    pub fn get_trigger(&self, index: usize, target: &mut TriggerRust) {
+        if let Some(trigger) = self.triggers.get(index) {
+            target.populate(trigger);
+        }
+    }
+
+    pub fn replace_trigger(
+        &mut self,
+        index: usize,
+        trigger: &TriggerRust,
+    ) -> Result<(), RegexError> {
+        let Some(entry) = self.triggers.get_mut(index) else {
+            return self.add_trigger(trigger);
+        };
+        *entry = Trigger::try_from(trigger)?;
+        Ok(())
+    }
+
+    pub fn populate(&mut self, world: &World) {
+        let iter = self
+            .colors
+            .array_mut()
+            .into_iter()
+            .zip(world.ansi_colors.iter())
+            .zip(world.custom_names.iter())
+            .zip(world.custom_colors.iter());
+
+        for (((entry, ansi_color), custom_name), custom_color) in iter {
+            *entry.ansi_foreground = ansi_color.convert();
+            *entry.custom_name = QString::from(custom_name);
+            *entry.custom_foreground = custom_color.foreground.convert();
+            *entry.custom_background = custom_color.background.convert();
+        }
+
+        self.name = QString::from(&world.name);
+        self.site = QString::from(&world.site);
+        self.port = i32::from(world.port);
+        self.proxy_type = world.proxy_type.into();
+        self.proxy_server = QString::from(&world.proxy_server);
+        self.proxy_port = i32::from(world.proxy_port);
+        self.proxy_username = QString::from(&world.proxy_username);
+        self.proxy_password = QString::from(&world.proxy_password);
+        self.proxy_password_base64 = world.proxy_password_base64;
+        self.save_world_automatically = world.save_world_automatically;
+        self.player = QString::from(&world.player);
+        self.password = QString::from(&world.password);
+        self.connect_method = world.connect_method.into();
+        self.connect_text = QString::from(&world.connect_text);
+        self.log_file_preamble = QString::from(&world.log_file_preamble);
+        self.log_file_postamble = QString::from(&world.log_file_postamble);
+        self.log_format = world.log_format.into();
+        self.log_output = world.log_output;
+        self.log_input = world.log_input;
+        self.log_notes = world.log_notes;
+        self.log_mode = world.log_mode.into();
+        self.auto_log_file_name = world.auto_log_file_name.convert();
+        self.log_preamble_output = QString::from(&world.log_preamble_output);
+        self.log_preamble_input = QString::from(&world.log_preamble_input);
+        self.log_preamble_notes = QString::from(&world.log_preamble_notes);
+        self.log_postamble_output = QString::from(&world.log_postamble_output);
+        self.log_postamble_input = QString::from(&world.log_postamble_input);
+        self.log_postamble_notes = QString::from(&world.log_postamble_notes);
+        self.timers = world.timers.clone();
+        self.enable_timers = world.enable_timers;
+        self.treeview_timers = world.treeview_timers;
+        self.chat_name = QString::from(&world.chat_name);
+        self.auto_allow_snooping = world.auto_allow_snooping;
+        self.accept_chat_connections = world.accept_chat_connections;
+        self.chat_port = i32::from(world.chat_port);
+        self.validate_incoming_chat_calls = world.validate_incoming_chat_calls;
+        self.chat_colors_foreground = world.chat_colors.foreground.convert();
+        self.chat_colors_background = world.chat_colors.background.convert();
+        self.ignore_chat_colors = world.ignore_chat_colors;
+        self.chat_message_prefix = QString::from(&world.chat_message_prefix);
+        self.chat_max_lines_per_message = i32::try_from(world.chat_max_lines_per_message).unwrap();
+        self.chat_max_bytes_per_message = i32::try_from(world.chat_max_bytes_per_message).unwrap();
+        self.auto_allow_files = world.auto_allow_files;
+        self.chat_file_save_directory = world.chat_file_save_directory.convert();
+        self.notes = QString::from(&world.notes);
+        self.beep_sound = world.beep_sound.convert();
+        self.pixel_offset = i32::from(world.pixel_offset);
+        self.line_spacing = c_double::try_from(world.line_spacing).unwrap();
+        self.output_font = QString::from(&world.output_font);
+        self.output_font_size = i32::from(world.output_font_size);
+        self.use_default_output_font = world.use_default_output_font;
+        self.show_bold = world.show_bold;
+        self.show_italic = world.show_italic;
+        self.show_underline = world.show_underline;
+        self.new_activity_sound = world.new_activity_sound.convert();
+        self.max_output_lines = i32::try_from(world.max_output_lines).unwrap();
+        self.wrap_column = i32::from(world.wrap_column);
+        self.line_information = world.line_information;
+        self.start_paused = world.start_paused;
+        self.auto_pause = world.auto_pause;
+        self.unpause_on_send = world.unpause_on_send;
+        self.flash_taskbar_icon = world.flash_taskbar_icon;
+        self.disable_compression = world.disable_compression;
+        self.indent_paras = world.indent_paras;
+        self.naws = world.naws;
+        self.carriage_return_clears_line = world.carriage_return_clears_line;
+        self.utf_8 = world.utf_8;
+        self.auto_wrap_window_width = world.auto_wrap_window_width;
+        self.show_connect_disconnect = world.show_connect_disconnect;
+        self.copy_selection_to_clipboard = world.copy_selection_to_clipboard;
+        self.auto_copy_to_clipboard_in_html = world.auto_copy_to_clipboard_in_html;
+        self.convert_ga_to_newline = world.convert_ga_to_newline;
+        self.terminal_identification = QString::from(&world.terminal_identification);
+        self.use_mxp = world.use_mxp.into();
+        self.hyperlink_color = world.hyperlink_color.convert();
+        self.use_custom_link_color = world.use_custom_link_color;
+        self.mud_can_change_link_color = world.mud_can_change_link_color;
+        self.underline_hyperlinks = world.underline_hyperlinks;
+        self.mud_can_remove_underline = world.mud_can_remove_underline;
+        self.hyperlink_adds_to_command_history = world.hyperlink_adds_to_command_history;
+        self.echo_hyperlink_in_output_window = world.echo_hyperlink_in_output_window;
+        self.ignore_mxp_color_changes = world.ignore_mxp_color_changes;
+        self.send_mxp_afk_response = world.send_mxp_afk_response;
+        self.use_default_colors = world.use_default_colors;
+        self.triggers = world.triggers.clone();
+        self.enable_triggers = world.enable_triggers;
+        self.enable_trigger_sounds = world.enable_trigger_sounds;
+        self.treeview_triggers = world.treeview_triggers;
+        self.display_my_input = world.display_my_input;
+        self.echo_colors_foreground = world.echo_colors.foreground.convert();
+        self.echo_colors_background = world.echo_colors.background.convert();
+        self.enable_speed_walk = world.enable_speed_walk;
+        self.speed_walk_prefix = QString::from(&world.speed_walk_prefix);
+        self.speed_walk_filler = QString::from(&world.speed_walk_filler);
+        self.speed_walk_delay = c_double::try_from(world.speed_walk_delay).unwrap();
+        self.enable_command_stack = world.enable_command_stack;
+        self.command_stack_character = QString::from(&world.command_stack_character);
+        self.input_colors_foreground = world.input_colors.foreground.convert();
+        self.input_colors_background = world.input_colors.background.convert();
+        self.input_font = QString::from(&world.input_font);
+        self.input_font_size = i32::from(world.input_font_size);
+        self.use_default_input_font = world.use_default_input_font;
+        self.enable_spam_prevention = world.enable_spam_prevention;
+        self.spam_line_count = i32::try_from(world.spam_line_count).unwrap();
+        self.spam_message = QString::from(&world.spam_message);
+        self.auto_repeat = world.auto_repeat;
+        self.lower_case_tab_completion = world.lower_case_tab_completion;
+        self.translate_german = world.translate_german;
+        self.translate_backslash_sequences = world.translate_backslash_sequences;
+        self.keep_commands_on_same_line = world.keep_commands_on_same_line;
+        self.no_echo_off = world.no_echo_off;
+        self.tab_completion_lines = i32::try_from(world.tab_completion_lines).unwrap();
+        self.tab_completion_space = world.tab_completion_space;
+        self.double_click_inserts = world.double_click_inserts;
+        self.double_click_sends = world.double_click_sends;
+        self.escape_deletes_input = world.escape_deletes_input;
+        self.save_deleted_command = world.save_deleted_command;
+        self.confirm_before_replacing_typing = world.confirm_before_replacing_typing;
+        self.arrow_keys_wrap = world.arrow_keys_wrap;
+        self.arrows_change_history = world.arrows_change_history;
+        self.arrow_recalls_partial = world.arrow_recalls_partial;
+        self.alt_arrow_recalls_partial = world.alt_arrow_recalls_partial;
+        self.ctrl_z_goes_to_end_of_buffer = world.ctrl_z_goes_to_end_of_buffer;
+        self.ctrl_p_goes_to_previous_command = world.ctrl_p_goes_to_previous_command;
+        self.ctrl_n_goes_to_next_command = world.ctrl_n_goes_to_next_command;
+        self.history_lines = i32::try_from(world.history_lines).unwrap();
+        self.aliases = world.aliases.clone();
+        self.enable_aliases = world.enable_aliases;
+        self.treeview_aliases = world.treeview_aliases;
+        self.keypad_enable = world.keypad_enable;
+        self.keypad_shortcuts = world.keypad_shortcuts.clone();
+        self.enable_auto_say = world.enable_auto_say;
+        self.autosay_exclude_non_alpha = world.autosay_exclude_non_alpha;
+        self.autosay_exclude_macros = world.autosay_exclude_macros;
+        self.auto_say_override_prefix = QString::from(&world.auto_say_override_prefix);
+        self.auto_say_string = QString::from(&world.auto_say_string);
+        self.re_evaluate_auto_say = world.re_evaluate_auto_say;
+        self.paste_line_preamble = QString::from(&world.paste_line_preamble);
+        self.paste_line_postamble = QString::from(&world.paste_line_postamble);
+        self.paste_delay = i32::try_from(world.paste_delay).unwrap();
+        self.paste_delay_per_lines = i32::try_from(world.paste_delay_per_lines).unwrap();
+        self.paste_commented_softcode = world.paste_commented_softcode;
+        self.paste_echo = world.paste_echo;
+        self.confirm_on_paste = world.confirm_on_paste;
+        self.send_line_preamble = QString::from(&world.send_line_preamble);
+        self.send_line_postamble = QString::from(&world.send_line_postamble);
+        self.send_delay = i32::try_from(world.send_delay).unwrap();
+        self.send_delay_per_lines = i32::try_from(world.send_delay_per_lines).unwrap();
+        self.send_commented_softcode = world.send_commented_softcode;
+        self.send_echo = world.send_echo;
+        self.confirm_on_send = world.confirm_on_send;
+        self.world_script = QString::from(&world.world_script);
+        self.script_prefix = QString::from(&world.script_prefix);
+        self.enable_scripts = world.enable_scripts;
+        self.warn_if_scripting_inactive = world.warn_if_scripting_inactive;
+        self.edit_script_with_notepad = world.edit_script_with_notepad;
+        self.script_editor = QString::from(&world.script_editor);
+        self.script_reload_option = world.script_reload_option.into();
+        self.script_errors_to_output_window = world.script_errors_to_output_window;
+        self.note_text_color = world.note_text_color.convert();
+        self.plugins = world.plugins.convert();
     }
 }
 
@@ -428,186 +659,68 @@ impl From<&WorldRust> for World {
     }
 }
 
-impl WorldRust {
-    #[allow(clippy::unnecessary_fallible_conversions)]
-    pub fn populate(&mut self, world: &World) {
-        let iter = self
-            .colors
-            .array_mut()
-            .into_iter()
-            .zip(world.ansi_colors.iter())
-            .zip(world.custom_names.iter())
-            .zip(world.custom_colors.iter());
+trait IntoResultString {
+    fn result(self) -> QString;
+}
 
-        for (((entry, ansi_color), custom_name), custom_color) in iter {
-            *entry.ansi_foreground = ansi_color.convert();
-            *entry.custom_name = QString::from(custom_name);
-            *entry.custom_foreground = custom_color.foreground.convert();
-            *entry.custom_background = custom_color.background.convert();
+impl<E: Error> IntoResultString for Result<(), E> {
+    fn result(self) -> QString {
+        match self {
+            Ok(()) => QString::default(),
+            Err(e) => QString::from(&e.to_string()),
         }
+    }
+}
 
-        self.name = QString::from(&world.name);
-        self.site = QString::from(&world.site);
-        self.port = c_int::from(world.port);
-        self.proxy_type = world.proxy_type.into();
-        self.proxy_server = QString::from(&world.proxy_server);
-        self.proxy_port = c_int::from(world.proxy_port);
-        self.proxy_username = QString::from(&world.proxy_username);
-        self.proxy_password = QString::from(&world.proxy_password);
-        self.proxy_password_base64 = world.proxy_password_base64;
-        self.save_world_automatically = world.save_world_automatically;
-        self.player = QString::from(&world.player);
-        self.password = QString::from(&world.password);
-        self.connect_method = world.connect_method.into();
-        self.connect_text = QString::from(&world.connect_text);
-        self.log_file_preamble = QString::from(&world.log_file_preamble);
-        self.log_file_postamble = QString::from(&world.log_file_postamble);
-        self.log_format = world.log_format.into();
-        self.log_output = world.log_output;
-        self.log_input = world.log_input;
-        self.log_notes = world.log_notes;
-        self.log_mode = world.log_mode.into();
-        self.auto_log_file_name = world.auto_log_file_name.convert();
-        self.log_preamble_output = QString::from(&world.log_preamble_output);
-        self.log_preamble_input = QString::from(&world.log_preamble_input);
-        self.log_preamble_notes = QString::from(&world.log_preamble_notes);
-        self.log_postamble_output = QString::from(&world.log_postamble_output);
-        self.log_postamble_input = QString::from(&world.log_postamble_input);
-        self.log_postamble_notes = QString::from(&world.log_postamble_notes);
-        self.timers = world.timers.clone();
-        self.enable_timers = world.enable_timers;
-        self.treeview_timers = world.treeview_timers;
-        self.chat_name = QString::from(&world.chat_name);
-        self.auto_allow_snooping = world.auto_allow_snooping;
-        self.accept_chat_connections = world.accept_chat_connections;
-        self.chat_port = c_int::from(world.chat_port);
-        self.validate_incoming_chat_calls = world.validate_incoming_chat_calls;
-        self.chat_colors_foreground = world.chat_colors.foreground.convert();
-        self.chat_colors_background = world.chat_colors.background.convert();
-        self.ignore_chat_colors = world.ignore_chat_colors;
-        self.chat_message_prefix = QString::from(&world.chat_message_prefix);
-        self.chat_max_lines_per_message =
-            c_int::try_from(world.chat_max_lines_per_message).unwrap();
-        self.chat_max_bytes_per_message =
-            c_int::try_from(world.chat_max_bytes_per_message).unwrap();
-        self.auto_allow_files = world.auto_allow_files;
-        self.chat_file_save_directory = world.chat_file_save_directory.convert();
-        self.notes = QString::from(&world.notes);
-        self.beep_sound = world.beep_sound.convert();
-        self.pixel_offset = c_int::from(world.pixel_offset);
-        self.line_spacing = c_double::try_from(world.line_spacing).unwrap();
-        self.output_font = QString::from(&world.output_font);
-        self.output_font_size = c_int::from(world.output_font_size);
-        self.use_default_output_font = world.use_default_output_font;
-        self.show_bold = world.show_bold;
-        self.show_italic = world.show_italic;
-        self.show_underline = world.show_underline;
-        self.new_activity_sound = world.new_activity_sound.convert();
-        self.max_output_lines = c_int::try_from(world.max_output_lines).unwrap();
-        self.wrap_column = c_int::from(world.wrap_column);
-        self.line_information = world.line_information;
-        self.start_paused = world.start_paused;
-        self.auto_pause = world.auto_pause;
-        self.unpause_on_send = world.unpause_on_send;
-        self.flash_taskbar_icon = world.flash_taskbar_icon;
-        self.disable_compression = world.disable_compression;
-        self.indent_paras = world.indent_paras;
-        self.naws = world.naws;
-        self.carriage_return_clears_line = world.carriage_return_clears_line;
-        self.utf_8 = world.utf_8;
-        self.auto_wrap_window_width = world.auto_wrap_window_width;
-        self.show_connect_disconnect = world.show_connect_disconnect;
-        self.copy_selection_to_clipboard = world.copy_selection_to_clipboard;
-        self.auto_copy_to_clipboard_in_html = world.auto_copy_to_clipboard_in_html;
-        self.convert_ga_to_newline = world.convert_ga_to_newline;
-        self.terminal_identification = QString::from(&world.terminal_identification);
-        self.use_mxp = world.use_mxp.into();
-        self.hyperlink_color = world.hyperlink_color.convert();
-        self.use_custom_link_color = world.use_custom_link_color;
-        self.mud_can_change_link_color = world.mud_can_change_link_color;
-        self.underline_hyperlinks = world.underline_hyperlinks;
-        self.mud_can_remove_underline = world.mud_can_remove_underline;
-        self.hyperlink_adds_to_command_history = world.hyperlink_adds_to_command_history;
-        self.echo_hyperlink_in_output_window = world.echo_hyperlink_in_output_window;
-        self.ignore_mxp_color_changes = world.ignore_mxp_color_changes;
-        self.send_mxp_afk_response = world.send_mxp_afk_response;
-        self.use_default_colors = world.use_default_colors;
-        self.triggers = world.triggers.clone();
-        self.enable_triggers = world.enable_triggers;
-        self.enable_trigger_sounds = world.enable_trigger_sounds;
-        self.treeview_triggers = world.treeview_triggers;
-        self.display_my_input = world.display_my_input;
-        self.echo_colors_foreground = world.echo_colors.foreground.convert();
-        self.echo_colors_background = world.echo_colors.background.convert();
-        self.enable_speed_walk = world.enable_speed_walk;
-        self.speed_walk_prefix = QString::from(&world.speed_walk_prefix);
-        self.speed_walk_filler = QString::from(&world.speed_walk_filler);
-        self.speed_walk_delay = c_double::try_from(world.speed_walk_delay).unwrap();
-        self.enable_command_stack = world.enable_command_stack;
-        self.command_stack_character = QString::from(&world.command_stack_character);
-        self.input_colors_foreground = world.input_colors.foreground.convert();
-        self.input_colors_background = world.input_colors.background.convert();
-        self.input_font = QString::from(&world.input_font);
-        self.input_font_size = c_int::from(world.input_font_size);
-        self.use_default_input_font = world.use_default_input_font;
-        self.enable_spam_prevention = world.enable_spam_prevention;
-        self.spam_line_count = c_int::try_from(world.spam_line_count).unwrap();
-        self.spam_message = QString::from(&world.spam_message);
-        self.auto_repeat = world.auto_repeat;
-        self.lower_case_tab_completion = world.lower_case_tab_completion;
-        self.translate_german = world.translate_german;
-        self.translate_backslash_sequences = world.translate_backslash_sequences;
-        self.keep_commands_on_same_line = world.keep_commands_on_same_line;
-        self.no_echo_off = world.no_echo_off;
-        self.tab_completion_lines = c_int::try_from(world.tab_completion_lines).unwrap();
-        self.tab_completion_space = world.tab_completion_space;
-        self.double_click_inserts = world.double_click_inserts;
-        self.double_click_sends = world.double_click_sends;
-        self.escape_deletes_input = world.escape_deletes_input;
-        self.save_deleted_command = world.save_deleted_command;
-        self.confirm_before_replacing_typing = world.confirm_before_replacing_typing;
-        self.arrow_keys_wrap = world.arrow_keys_wrap;
-        self.arrows_change_history = world.arrows_change_history;
-        self.arrow_recalls_partial = world.arrow_recalls_partial;
-        self.alt_arrow_recalls_partial = world.alt_arrow_recalls_partial;
-        self.ctrl_z_goes_to_end_of_buffer = world.ctrl_z_goes_to_end_of_buffer;
-        self.ctrl_p_goes_to_previous_command = world.ctrl_p_goes_to_previous_command;
-        self.ctrl_n_goes_to_next_command = world.ctrl_n_goes_to_next_command;
-        self.history_lines = c_int::try_from(world.history_lines).unwrap();
-        self.aliases = world.aliases.clone();
-        self.enable_aliases = world.enable_aliases;
-        self.treeview_aliases = world.treeview_aliases;
-        self.keypad_enable = world.keypad_enable;
-        self.keypad_shortcuts = world.keypad_shortcuts.clone();
-        self.enable_auto_say = world.enable_auto_say;
-        self.autosay_exclude_non_alpha = world.autosay_exclude_non_alpha;
-        self.autosay_exclude_macros = world.autosay_exclude_macros;
-        self.auto_say_override_prefix = QString::from(&world.auto_say_override_prefix);
-        self.auto_say_string = QString::from(&world.auto_say_string);
-        self.re_evaluate_auto_say = world.re_evaluate_auto_say;
-        self.paste_line_preamble = QString::from(&world.paste_line_preamble);
-        self.paste_line_postamble = QString::from(&world.paste_line_postamble);
-        self.paste_delay = c_int::try_from(world.paste_delay).unwrap();
-        self.paste_delay_per_lines = c_int::try_from(world.paste_delay_per_lines).unwrap();
-        self.paste_commented_softcode = world.paste_commented_softcode;
-        self.paste_echo = world.paste_echo;
-        self.confirm_on_paste = world.confirm_on_paste;
-        self.send_line_preamble = QString::from(&world.send_line_preamble);
-        self.send_line_postamble = QString::from(&world.send_line_postamble);
-        self.send_delay = c_int::try_from(world.send_delay).unwrap();
-        self.send_delay_per_lines = c_int::try_from(world.send_delay_per_lines).unwrap();
-        self.send_commented_softcode = world.send_commented_softcode;
-        self.send_echo = world.send_echo;
-        self.confirm_on_send = world.confirm_on_send;
-        self.world_script = QString::from(&world.world_script);
-        self.script_prefix = QString::from(&world.script_prefix);
-        self.enable_scripts = world.enable_scripts;
-        self.warn_if_scripting_inactive = world.warn_if_scripting_inactive;
-        self.edit_script_with_notepad = world.edit_script_with_notepad;
-        self.script_editor = QString::from(&world.script_editor);
-        self.script_reload_option = world.script_reload_option.into();
-        self.script_errors_to_output_window = world.script_errors_to_output_window;
-        self.note_text_color = world.note_text_color.convert();
-        self.plugins = world.plugins.convert();
+impl ffi::World {
+    pub fn add_alias(self: Pin<&mut Self>, alias: &ffi::Alias) -> QString {
+        self.cxx_qt_ffi_rust_mut()
+            .add_alias(alias.cxx_qt_ffi_rust())
+            .result()
+    }
+
+    pub fn get_alias(&self, index: usize, target: Pin<&mut ffi::Alias>) {
+        self.cxx_qt_ffi_rust()
+            .get_alias(index, &mut target.cxx_qt_ffi_rust_mut());
+    }
+
+    pub fn replace_alias(self: Pin<&mut Self>, index: usize, alias: &ffi::Alias) -> QString {
+        self.cxx_qt_ffi_rust_mut()
+            .replace_alias(index, alias.cxx_qt_ffi_rust())
+            .result()
+    }
+
+    pub fn add_timer(self: Pin<&mut Self>, timer: &ffi::Timer) -> QString {
+        self.cxx_qt_ffi_rust_mut()
+            .add_timer(timer.cxx_qt_ffi_rust());
+        QString::default()
+    }
+
+    pub fn get_timer(&self, index: usize, target: Pin<&mut ffi::Timer>) {
+        self.cxx_qt_ffi_rust()
+            .get_timer(index, &mut target.cxx_qt_ffi_rust_mut());
+    }
+
+    pub fn replace_timer(self: Pin<&mut Self>, index: usize, timer: &ffi::Timer) -> QString {
+        self.cxx_qt_ffi_rust_mut()
+            .replace_timer(index, timer.cxx_qt_ffi_rust());
+        QString::default()
+    }
+
+    pub fn add_trigger(self: Pin<&mut Self>, trigger: &ffi::Trigger) -> QString {
+        self.cxx_qt_ffi_rust_mut()
+            .add_trigger(trigger.cxx_qt_ffi_rust())
+            .result()
+    }
+
+    pub fn get_trigger(&self, index: usize, target: Pin<&mut ffi::Trigger>) {
+        self.cxx_qt_ffi_rust()
+            .get_trigger(index, &mut target.cxx_qt_ffi_rust_mut());
+    }
+
+    pub fn replace_trigger(self: Pin<&mut Self>, index: usize, trigger: &ffi::Trigger) -> QString {
+        self.cxx_qt_ffi_rust_mut()
+            .replace_trigger(index, trigger.cxx_qt_ffi_rust())
+            .result()
     }
 }

@@ -3,6 +3,24 @@ use cxx::ExternType;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVector};
 use mud_transformer::mxp::RgbColor;
 
+macro_rules! impl_deref {
+    ($t:ty, $target:ty, $field:ident) => {
+        impl std::ops::Deref for $t {
+            type Target = $target;
+
+            fn deref(&self) -> &Self::Target {
+                &self.$field
+            }
+        }
+
+        impl std::ops::DerefMut for $t {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.$field
+            }
+        }
+    };
+}
+
 macro_rules! impl_convert_enum {
     ($ffi:ty, $rust:path, $($variant:ident),+ $(,)?) => {
         impl From<$rust> for $ffi {

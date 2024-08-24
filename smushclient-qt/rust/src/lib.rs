@@ -20,6 +20,9 @@ mod handler;
 
 mod impls;
 
+mod sender;
+use sender::{AliasRust, ReactionRust, SenderRust, TimerRust, TriggerRust};
+
 mod sync;
 
 mod world;
@@ -56,6 +59,11 @@ pub mod ffi {
     unsafe extern "C++" {
         include!("cxx-qt-lib/qstringlist.h");
         type QStringList = cxx_qt_lib::QStringList;
+    }
+
+    unsafe extern "C++" {
+        include!("cxx-qt-lib/qtime.h");
+        type QTime = cxx_qt_lib::QTime;
     }
 
     extern "C++Qt" {
@@ -130,6 +138,169 @@ pub mod ffi {
     impl cxx_qt::Constructor<()> for SmushClient {}
 
     unsafe impl !cxx_qt::Locking for SmushClient {}
+
+    extern "RustQt" {
+        #[qobject]
+        #[qproperty(SendTarget, send_to)]
+        #[qproperty(QString, label)]
+        #[qproperty(QString, script)]
+        #[qproperty(QString, group)]
+        #[qproperty(QString, variable)]
+        #[qproperty(bool, enabled)]
+        #[qproperty(bool, one_shot)]
+        #[qproperty(bool, temporary)]
+        #[qproperty(bool, omit_from_output)]
+        #[qproperty(bool, omit_from_log)]
+        type Sender = super::SenderRust;
+    }
+
+    unsafe impl !cxx_qt::Locking for Sender {}
+
+    extern "RustQt" {
+        // Sender
+        #[qobject]
+        #[qproperty(SendTarget, send_to)]
+        #[qproperty(QString, label)]
+        #[qproperty(QString, script)]
+        #[qproperty(QString, group)]
+        #[qproperty(QString, variable)]
+        #[qproperty(bool, enabled)]
+        #[qproperty(bool, one_shot)]
+        #[qproperty(bool, temporary)]
+        #[qproperty(bool, omit_from_output)]
+        #[qproperty(bool, omit_from_log)]
+        // Timer
+        #[qproperty(Occurrence, occurrence)]
+        #[qproperty(QTime, at_time)]
+        #[qproperty(i32, every_hour)]
+        #[qproperty(i32, every_minute)]
+        #[qproperty(i32, every_second)]
+        #[qproperty(bool, active_closed)]
+        type Timer = super::TimerRust;
+    }
+
+    unsafe impl !cxx_qt::Locking for Timer {}
+
+    extern "RustQt" {
+        #[qobject]
+        // Sender
+        #[qproperty(SendTarget, send_to)]
+        #[qproperty(QString, label)]
+        #[qproperty(QString, script)]
+        #[qproperty(QString, group)]
+        #[qproperty(QString, variable)]
+        #[qproperty(bool, enabled)]
+        #[qproperty(bool, one_shot)]
+        #[qproperty(bool, temporary)]
+        #[qproperty(bool, omit_from_output)]
+        #[qproperty(bool, omit_from_log)]
+        // Reaction
+        #[qproperty(i32, sequence)]
+        #[qproperty(QString, pattern)]
+        #[qproperty(bool, ignore_case)]
+        #[qproperty(bool, keep_evaluating)]
+        #[qproperty(bool, is_regex)]
+        #[qproperty(bool, expand_variables)]
+        #[qproperty(bool, repeats)]
+        type Reaction = super::ReactionRust;
+    }
+
+    unsafe impl !cxx_qt::Locking for Reaction {}
+
+    extern "RustQt" {
+        #[qobject]
+        // Sender
+        #[qproperty(SendTarget, send_to)]
+        #[qproperty(QString, label)]
+        #[qproperty(QString, script)]
+        #[qproperty(QString, group)]
+        #[qproperty(QString, variable)]
+        #[qproperty(bool, enabled)]
+        #[qproperty(bool, one_shot)]
+        #[qproperty(bool, temporary)]
+        #[qproperty(bool, omit_from_output)]
+        #[qproperty(bool, omit_from_log)]
+        // Reaction
+        #[qproperty(i32, sequence)]
+        #[qproperty(QString, pattern)]
+        #[qproperty(bool, ignore_case)]
+        #[qproperty(bool, keep_evaluating)]
+        #[qproperty(bool, is_regex)]
+        #[qproperty(bool, expand_variables)]
+        #[qproperty(bool, repeats)]
+        // Alias
+        #[qproperty(bool, echo_alias)]
+        #[qproperty(bool, menu)]
+        #[qproperty(bool, omit_from_command_history)]
+        type Alias = super::AliasRust;
+    }
+
+    unsafe impl !cxx_qt::Locking for Alias {}
+
+    extern "RustQt" {
+        #[qobject]
+        // Sender
+        #[qproperty(SendTarget, send_to)]
+        #[qproperty(QString, label)]
+        #[qproperty(QString, script)]
+        #[qproperty(QString, group)]
+        #[qproperty(QString, variable)]
+        #[qproperty(bool, enabled)]
+        #[qproperty(bool, one_shot)]
+        #[qproperty(bool, temporary)]
+        #[qproperty(bool, omit_from_output)]
+        #[qproperty(bool, omit_from_log)]
+        // Reaction
+        #[qproperty(i32, sequence)]
+        #[qproperty(QString, pattern)]
+        #[qproperty(bool, ignore_case)]
+        #[qproperty(bool, keep_evaluating)]
+        #[qproperty(bool, is_regex)]
+        #[qproperty(bool, expand_variables)]
+        #[qproperty(bool, repeats)]
+        // Trigger
+        #[qproperty(bool, change_foreground)]
+        #[qproperty(QString, foreground)]
+        #[qproperty(QColor, foreground_color)]
+        #[qproperty(bool, change_background)]
+        #[qproperty(QString, background)]
+        #[qproperty(QColor, background_color)]
+        #[qproperty(bool, make_bold)]
+        #[qproperty(bool, make_underline)]
+        #[qproperty(QString, sound)]
+        #[qproperty(bool, sound_if_inactive)]
+        #[qproperty(bool, lowercase_wildcard)]
+        #[qproperty(bool, multi_line)]
+        #[qproperty(i32, lines_to_match)]
+        type Trigger = super::TriggerRust;
+    }
+
+    unsafe impl !cxx_qt::Locking for Trigger {}
+
+    #[qenum(Sender)]
+    enum SendTarget {
+        World,
+        WorldDelay,
+        WorldImmediate,
+        Command,
+        Output,
+        Status,
+        NotepadNew,
+        NotepadAppend,
+        NotepadReplace,
+        Log,
+        Speedwalk,
+        Execute,
+        Variable,
+        Script,
+        ScriptAfterOmit,
+    }
+
+    #[qenum(Timer)]
+    enum Occurrence {
+        Time,
+        Interval,
+    }
 
     extern "RustQt" {
         #[qobject]
@@ -372,6 +543,27 @@ pub mod ffi {
         #[qproperty(bool, script_errors_to_output_window)]
         #[qproperty(QColor, note_text_color)]
         type World = super::WorldRust;
+    }
+
+    unsafe extern "RustQt" {
+        #[cxx_name = "add"]
+        fn add_alias(self: Pin<&mut World>, alias: &Alias) -> QString;
+        #[cxx_name = "load"]
+        fn get_alias(self: &World, index: usize, target: Pin<&mut Alias>);
+        #[cxx_name = "replace"]
+        fn replace_alias(self: Pin<&mut World>, index: usize, alias: &Alias) -> QString;
+        #[cxx_name = "add"]
+        fn add_timer(self: Pin<&mut World>, timer: &Timer) -> QString;
+        #[cxx_name = "load"]
+        fn get_timer(self: &World, index: usize, target: Pin<&mut Timer>);
+        #[cxx_name = "replace"]
+        fn replace_timer(self: Pin<&mut World>, index: usize, timer: &Timer) -> QString;
+        #[cxx_name = "add"]
+        fn add_trigger(self: Pin<&mut World>, trigger: &Trigger) -> QString;
+        #[cxx_name = "load"]
+        fn get_trigger(self: &World, index: usize, target: Pin<&mut Trigger>);
+        #[cxx_name = "replace"]
+        fn replace_trigger(self: Pin<&mut World>, index: usize, trigger: &Trigger) -> QString;
     }
 
     #[qenum(World)]

@@ -4,6 +4,7 @@ use cxx_qt_lib::QString;
 use mud_transformer::mxp::{Link, SendTo};
 use mud_transformer::{TextStyle, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, ProxyType, ScriptRecompile};
+use smushclient_plugins::SendTarget;
 
 impl_convert_enum!(ffi::SendTo, SendTo, Internet, World, Input);
 
@@ -24,6 +25,38 @@ impl_convert_enum!(ffi::LogFormat, LogFormat, Text, Html, Raw);
 impl_convert_enum!(ffi::LogMode, LogMode, Append, Overwrite);
 
 impl_convert_enum!(ffi::UseMxp, UseMxp, Command, Query, Always, Never);
+
+impl_convert_enum!(
+    ffi::SendTarget,
+    SendTarget,
+    World,
+    WorldDelay,
+    WorldImmediate,
+    Command,
+    Output,
+    Status,
+    NotepadNew,
+    NotepadAppend,
+    NotepadReplace,
+    Log,
+    Speedwalk,
+    Execute,
+    Variable,
+    Script,
+    ScriptAfterOmit
+);
+
+impl Default for ffi::SendTarget {
+    fn default() -> Self {
+        Self::World
+    }
+}
+
+impl Default for ffi::Occurrence {
+    fn default() -> Self {
+        Self::Interval
+    }
+}
 
 impl Default for ffi::ScriptRecompile {
     fn default() -> Self {

@@ -40,7 +40,7 @@ impl Reaction {
             is_regex: false,
             expand_variables: false,
             repeats: false,
-            regex: Regex::new("^$").unwrap(),
+            regex: Regex::default(),
         }
     }
 
