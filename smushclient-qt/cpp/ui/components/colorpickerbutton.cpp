@@ -7,6 +7,17 @@ ColorPickerButton::ColorPickerButton(QWidget *parent)
   setFixedWidth(height());
 }
 
+// Public methods
+
+void ColorPickerButton::click()
+{
+  QColor color = QColorDialog::getColor(value(), this, "Select Color");
+  if (!color.isValid())
+    return;
+
+  setValue(color);
+}
+
 const QColor &ColorPickerButton::value() const
 {
   return palette().color(QPalette::ColorRole::Button);
@@ -21,13 +32,4 @@ void ColorPickerButton::setValue(const QColor &val)
   pal.setColor(QPalette::ColorRole::Button, val);
   setPalette(pal);
   emit valueChanged(val);
-}
-
-void ColorPickerButton::click()
-{
-  QColor color = QColorDialog::getColor(value(), this, "Select Color");
-  if (!color.isValid())
-    return;
-
-  setValue(color);
 }

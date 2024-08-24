@@ -24,23 +24,26 @@ App::~App()
   delete ui;
 }
 
-void App::on_action_new_triggered()
-{
-  WorldTab *tab = new WorldTab(this);
-  tab->createWorld();
-  int tabIndex = ui->world_tabs->addTab(tab, tr("New world"));
-  ui->world_tabs->setCurrentIndex(tabIndex);
-  tab->openPreferences();
-}
+// Private methods
 
-void App::on_action_open_world_triggered()
+void App::addRecentFile(const QString &filePath)
 {
-  QString dialogName = ui->action_open_world->text();
-  QString filePath = QFileDialog::getOpenFileName(this, dialogName, "", saveFilter);
   if (filePath.isEmpty())
     return;
 
-  openWorld(filePath);
+  RecentFileResult result = Settings().addRecentFile(filePath);
+  if (!result.changed)
+    return;
+
+  setupRecentFiles(result.recentFiles);
+}
+
+void App::openRecentFile(qsizetype index)
+{
+  QStringList recentFiles = Settings().recentFiles();
+  if (index >= recentFiles.length())
+    return;
+  openWorld(recentFiles.at(index));
 }
 
 void App::openWorld(const QString &filePath)
@@ -56,61 +59,6 @@ void App::openWorld(const QString &filePath)
   RecentFileResult result = Settings().removeRecentFile(filePath);
   if (result.changed)
     setupRecentFiles(result.recentFiles);
-}
-
-void App::openRecentFile(qsizetype index)
-{
-  QStringList recentFiles = Settings().recentFiles();
-  if (index >= recentFiles.length())
-    return;
-  openWorld(recentFiles.at(index));
-}
-
-void App::on_action_world_properties_triggered()
-{
-  WorldTab *tab = (WorldTab *)ui->world_tabs->currentWidget();
-  tab->openPreferences();
-}
-
-void App::on_action_save_world_details_triggered()
-{
-  WorldTab *tab = (WorldTab *)ui->world_tabs->currentWidget();
-  if (tab == nullptr)
-    return;
-
-  addRecentFile(tab->saveWorld(saveFilter));
-}
-
-void App::on_action_save_world_details_as_triggered()
-{
-  WorldTab *tab = (WorldTab *)ui->world_tabs->currentWidget();
-  if (tab == nullptr)
-    return;
-
-  addRecentFile(tab->saveWorldAsNew(saveFilter));
-}
-
-void App::on_world_tabs_currentChanged(int index)
-{
-  setWorldMenusEnabled(index != -1);
-}
-
-void App::on_openRecentFile(const QAction *action)
-{
-  QString filePath = action->data().toString();
-  openWorld(filePath);
-}
-
-void App::addRecentFile(const QString &filePath)
-{
-  if (filePath.isEmpty())
-    return;
-
-  RecentFileResult result = Settings().addRecentFile(filePath);
-  if (!result.changed)
-    return;
-
-  setupRecentFiles(result.recentFiles);
 }
 
 void App::setupRecentFiles(const QStringList &recentFiles)
@@ -154,4 +102,54 @@ void App::setWorldMenusEnabled(bool enabled)
   ui->action_debug_packets->setEnabled(enabled);
   ui->action_go_to_matching_brace->setEnabled(enabled);
   ui->action_select_to_matching_brace->setEnabled(enabled);
+}
+
+// Slots
+
+void App::on_action_new_triggered()
+{
+  WorldTab *tab = new WorldTab(this);
+  tab->createWorld();
+  int tabIndex = ui->world_tabs->addTab(tab, tr("New world"));
+  ui->world_tabs->setCurrentIndex(tabIndex);
+  tab->openWorldSettings();
+}
+
+void App::on_action_open_world_triggered()
+{
+  QString dialogName = ui->action_open_world->text();
+  QString filePath = QFileDialog::getOpenFileName(this, dialogName, "", saveFilter);
+  if (filePath.isEmpty())
+    return;
+
+  openWorld(filePath);
+}
+
+void App::on_action_save_world_details_as_triggered()
+{
+  WorldTab *tab = (WorldTab *)ui->world_tabs->currentWidget();
+  if (tab == nullptr)
+    return;
+
+  addRecentFile(tab->saveWorldAsNew(saveFilter));
+}
+
+void App::on_action_save_world_details_triggered()
+{
+  WorldTab *tab = (WorldTab *)ui->world_tabs->currentWidget();
+  if (tab == nullptr)
+    return;
+
+  addRecentFile(tab->saveWorld(saveFilter));
+}
+
+void App::on_action_world_properties_triggered()
+{
+  WorldTab *tab = (WorldTab *)ui->world_tabs->currentWidget();
+  tab->openWorldSettings();
+}
+
+void App::on_world_tabs_currentChanged(int index)
+{
+  setWorldMenusEnabled(index != -1);
 }

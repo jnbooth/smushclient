@@ -24,11 +24,11 @@ private:
   QList<QAction *> recentFileActions;
   QString saveFilter;
 
-  void setWorldMenusEnabled(bool enabled);
   void addRecentFile(const QString &filePath);
   void openRecentFile(qsizetype index);
   void openWorld(const QString &filePath);
   void setupRecentFiles(const QStringList &recentFiles);
+  void setWorldMenusEnabled(bool enabled);
 
 private slots:
   void on_action_new_triggered();
@@ -36,7 +36,6 @@ private slots:
   void on_action_save_world_details_as_triggered();
   void on_action_save_world_details_triggered();
   void on_action_world_properties_triggered();
-  void on_openRecentFile(const QAction *action);
   void on_world_tabs_currentChanged(int index);
 
   void on_action_rec_1_triggered() { openRecentFile(0); }

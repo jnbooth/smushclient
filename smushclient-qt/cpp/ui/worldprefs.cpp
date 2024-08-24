@@ -40,6 +40,8 @@ WorldPrefs::~WorldPrefs()
   delete ui;
 }
 
+// Private methods
+
 void WorldPrefs::setupPane(QWidget *pane, const char *key)
 {
   int index = panes.size();
@@ -56,6 +58,8 @@ void WorldPrefs::setupPane(QWidget *pane, const char *key)
   if (index == 0)
     ui->settings_tree->setCurrentItem(item);
 }
+
+// Slots
 
 void WorldPrefs::on_settings_tree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
 {

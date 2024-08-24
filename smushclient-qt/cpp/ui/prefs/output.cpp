@@ -43,6 +43,8 @@ PrefsOutput::~PrefsOutput()
   delete ui;
 }
 
+// Slots
+
 void PrefsOutput::on_OutputFont_currentFontChanged(const QFont &f)
 {
   world->setOutputFont(f.family());

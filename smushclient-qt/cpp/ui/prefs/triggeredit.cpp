@@ -11,7 +11,3 @@ TriggerEdit::~TriggerEdit()
 {
   delete ui;
 }
-
-void TriggerEdit::on_Text_textChanged()
-{
-}

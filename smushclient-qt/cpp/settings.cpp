@@ -5,6 +5,8 @@
 
 Settings::Settings() : store() {}
 
+// Recent files
+
 QStringList Settings::recentFiles() const
 {
   QStringList recent = store.value(KEY_RECENT_FILES).toStringList();

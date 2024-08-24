@@ -17,9 +17,6 @@ public:
   explicit TriggerEdit(QWidget *parent = nullptr);
   ~TriggerEdit();
 
-private slots:
-  void on_Text_textChanged();
-
 private:
   Ui::TriggerEdit *ui;
 };

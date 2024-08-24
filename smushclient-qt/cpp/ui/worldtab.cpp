@@ -17,8 +17,7 @@ WorldTab::WorldTab(QWidget *parent)
   ui->setupUi(this);
   defaultFont.setPointSize(12);
   document.setBrowser(ui->output);
-  socket.setObjectName("socket");
-  connect(&socket, &QTcpSocket::readyRead, this, &WorldTab::on_readyRead);
+  connect(&socket, &QTcpSocket::readyRead, this, &WorldTab::readFromSocket);
 }
 
 WorldTab::~WorldTab()
@@ -26,26 +25,7 @@ WorldTab::~WorldTab()
   delete ui;
 }
 
-const QString &WorldTab::title() const
-{
-  return world.getName();
-}
-
-void WorldTab::connectToHost()
-{
-  if (socket.isOpen())
-    return;
-
-  socket.connectToHost(world.getSite(), (quint16)world.getPort());
-}
-
-void WorldTab::openPreferences()
-{
-  WorldPrefs *prefs = new WorldPrefs(&world, this);
-  prefs->setAttribute(Qt::WA_DeleteOnClose, true);
-  connect(prefs, &QDialog::finished, this, &WorldTab::on_finished);
-  prefs->open();
-}
+// Public methods
 
 void WorldTab::createWorld()
 {
@@ -72,17 +52,12 @@ bool WorldTab::openWorld(const QString &filename)
   return true;
 }
 
-void WorldTab::applyWorld()
+void WorldTab::openWorldSettings()
 {
-  if (world.getUseDefaultInputFont())
-    ui->input->setFont(defaultFont);
-  else
-    ui->input->setFont(QFont(world.getInputFont(), world.getInputFontSize()));
-
-  if (world.getUseDefaultOutputFont())
-    ui->output->setFont(defaultFont);
-  else
-    ui->output->setFont(QFont(world.getOutputFont(), world.getOutputFontSize()));
+  WorldPrefs *prefs = new WorldPrefs(&world, this);
+  prefs->setAttribute(Qt::WA_DeleteOnClose, true);
+  connect(prefs, &QDialog::finished, this, &WorldTab::finalizeWorldSettings);
+  prefs->open();
 }
 
 QString WorldTab::saveWorld(const QString &saveFilter)
@@ -109,6 +84,34 @@ QString WorldTab::saveWorldAsNew(const QString &saveFilter)
   return QString();
 }
 
+const QString &WorldTab::title() const
+{
+  return world.getName();
+}
+
+// Private methods
+
+void WorldTab::applyWorld()
+{
+  if (world.getUseDefaultInputFont())
+    ui->input->setFont(defaultFont);
+  else
+    ui->input->setFont(QFont(world.getInputFont(), world.getInputFontSize()));
+
+  if (world.getUseDefaultOutputFont())
+    ui->output->setFont(defaultFont);
+  else
+    ui->output->setFont(QFont(world.getOutputFont(), world.getOutputFontSize()));
+}
+
+void WorldTab::connectToHost()
+{
+  if (socket.isOpen())
+    return;
+
+  socket.connectToHost(world.getSite(), (quint16)world.getPort());
+}
+
 void WorldTab::sendCommand(const QString &command)
 {
   QByteArray bytes = command.toLocal8Bit();
@@ -116,7 +119,9 @@ void WorldTab::sendCommand(const QString &command)
   socket.write(bytes);
 }
 
-void WorldTab::on_finished(int result)
+// Slots
+
+void WorldTab::finalizeWorldSettings(int result)
 {
   switch (result)
   {
@@ -131,7 +136,7 @@ void WorldTab::on_finished(int result)
   }
 }
 
-void WorldTab::on_readyRead()
+void WorldTab::readFromSocket()
 {
   client.read(socket, document);
 }

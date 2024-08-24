@@ -19,9 +19,9 @@ public:
   explicit WorldTab(QWidget *parent = nullptr);
   ~WorldTab();
 
-  void openPreferences();
   void createWorld();
   bool openWorld(const QString &filename);
+  void openWorldSettings();
   QString saveWorld(const QString &saveFilter);
   QString saveWorldAsNew(const QString &saveFilter);
   const QString &title() const;
@@ -40,9 +40,10 @@ private:
   void sendCommand(const QString &command);
 
 private slots:
-  void on_finished(int result);
+  void finalizeWorldSettings(int result);
+  void readFromSocket();
+
   void on_input_returnPressed();
-  void on_readyRead();
   void on_output_anchorClicked(const QUrl &url);
   void on_output_customContextMenuRequested(const QPoint &pos);
 };

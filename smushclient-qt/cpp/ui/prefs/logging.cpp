@@ -22,7 +22,6 @@ PrefsLogging::PrefsLogging(World *world, QWidget *parent)
   ui->LogFilePostamble->setPlainText(world->getLogFilePostamble());
 
   QButtonGroup *logFormatGroup = new QButtonGroup(this);
-  logFormatGroup->setObjectName("LogFormat");
   logFormatGroup->setExclusive(true);
   logFormatGroup->addButton(ui->LogFormat_Text);
   logFormatGroup->setId(ui->LogFormat_Text, (int)LogFormat::Text);
@@ -34,7 +33,6 @@ PrefsLogging::PrefsLogging(World *world, QWidget *parent)
   connect(logFormatGroup, &QButtonGroup::idClicked, this, &PrefsLogging::on_LogFormatIdClicked);
 
   QButtonGroup *logModeGroup = new QButtonGroup(this);
-  logModeGroup->setObjectName("LogMode");
   logModeGroup->setExclusive(true);
   logModeGroup->addButton(ui->LogMode_Append);
   logModeGroup->setId(ui->LogMode_Append, (int)LogMode::Append);
@@ -49,15 +47,7 @@ PrefsLogging::~PrefsLogging()
   delete ui;
 }
 
-void PrefsLogging::on_LogFormatIdClicked(int id)
-{
-  world->setLogFormat((LogFormat)id);
-}
-
-void PrefsLogging::on_LogModeIdClicked(int id)
-{
-  world->setLogMode((LogMode)id);
-}
+// Slots
 
 void PrefsLogging::on_LogFilePreamble_textChanged()
 {
@@ -67,4 +57,14 @@ void PrefsLogging::on_LogFilePreamble_textChanged()
 void PrefsLogging::on_LogFilePostamble_textChanged()
 {
   world->setLogFilePostamble(ui->LogFilePostamble->toPlainText());
+}
+
+void PrefsLogging::on_LogFormatIdClicked(int id)
+{
+  world->setLogFormat((LogFormat)id);
+}
+
+void PrefsLogging::on_LogModeIdClicked(int id)
+{
+  world->setLogMode((LogMode)id);
 }

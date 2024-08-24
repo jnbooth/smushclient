@@ -3,39 +3,14 @@
 #include <QtGui/QTextDocument>
 #include <QtWidgets/QScrollBar>
 
-// Formatting
+// Utilities
 
-bool hasStyle(quint16 flags, TextStyle style)
+inline bool hasStyle(quint16 flags, TextStyle style)
 {
   return flags & (quint16)style;
 }
 
-bool isBlack(const QColor &color)
-{
-  int red, green, blue;
-  color.getRgb(&red, &green, &blue);
-  return red + green + blue == 0;
-}
-
-void applyStyles(QTextCharFormat &format, quint16 style, const QColor &foreground, const QColor &background)
-{
-  if (hasStyle(style, TextStyle::Bold))
-    format.setFontWeight(QFont::Weight::Bold);
-
-  if (hasStyle(style, TextStyle::Italic))
-    format.setFontItalic(true);
-
-  if (hasStyle(style, TextStyle::Strikeout))
-    format.setFontStrikeOut(true);
-
-  if (hasStyle(style, TextStyle::Underline))
-    format.setFontUnderline(true);
-
-  format.setForeground(QBrush(foreground));
-
-  if (!isBlack(background))
-    format.setBackground(QBrush(background));
-}
+// Formatting
 
 void applyLink(QTextCharFormat &format, const Link &link)
 {
@@ -59,25 +34,33 @@ void applyLink(QTextCharFormat &format, const Link &link)
     format.setProperty(QTextCharFormat::UserProperty, link.prompts);
 }
 
+void applyStyles(QTextCharFormat &format, quint16 style, const QColor &foreground, const QColor &background)
+{
+  if (hasStyle(style, TextStyle::Bold))
+    format.setFontWeight(QFont::Weight::Bold);
+
+  if (hasStyle(style, TextStyle::Italic))
+    format.setFontItalic(true);
+
+  if (hasStyle(style, TextStyle::Strikeout))
+    format.setFontStrikeOut(true);
+
+  if (hasStyle(style, TextStyle::Underline))
+    format.setFontUnderline(true);
+
+  format.setForeground(QBrush(foreground));
+
+  int red, green, blue;
+  background.getRgb(&red, &green, &blue);
+  if (red + green + blue == 0)
+    format.setBackground(QBrush(background));
+}
+
 // Document
 
 Document::Document() {}
 
-Document::Document(QTextBrowser *browser) : browser(browser), cursor(browser->document())
-{
-}
-
-void Document::setBrowser(QTextBrowser *browser)
-{
-  cursor = QTextCursor(browser->document());
-  this->browser = browser;
-}
-
-void Document::scrollToBottom()
-{
-  QScrollBar *scrollbar = browser->verticalScrollBar();
-  scrollbar->setValue(scrollbar->maximum());
-}
+Document::Document(QTextBrowser *browser) : browser(browser), cursor(browser->document()) {}
 
 void Document::appendLine()
 {
@@ -97,4 +80,16 @@ void Document::appendText(const QString &text, quint16 style, const QColor &fore
   applyStyles(format, style, foreground, background);
   applyLink(format, link);
   cursor.insertText(text, format);
+}
+
+void Document::scrollToBottom()
+{
+  QScrollBar *scrollbar = browser->verticalScrollBar();
+  scrollbar->setValue(scrollbar->maximum());
+}
+
+void Document::setBrowser(QTextBrowser *textBrowser)
+{
+  cursor = QTextCursor(textBrowser->document());
+  browser = textBrowser;
 }

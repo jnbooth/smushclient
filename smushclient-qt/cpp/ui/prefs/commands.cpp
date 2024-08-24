@@ -54,6 +54,8 @@ PrefsCommands::~PrefsCommands()
   delete ui;
 }
 
+// Slots
+
 void PrefsCommands::on_InputFont_currentFontChanged(const QFont &f)
 {
   world->setInputFont(f.family());

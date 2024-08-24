@@ -17,6 +17,8 @@ PrefsConnecting::~PrefsConnecting()
   delete ui;
 }
 
+// Slots
+
 void PrefsConnecting::on_ConnectText_textChanged()
 {
   world->setConnectText(ui->ConnectText->toPlainText());

@@ -20,14 +20,15 @@ public:
   explicit WorldPrefs(World *world, QWidget *parent = nullptr);
   ~WorldPrefs();
 
-private slots:
-  void on_settings_tree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
-
 private:
   Ui::WorldPrefs *ui;
   QList<QWidget *> panes;
   qsizetype activePane;
+
   void setupPane(QWidget *pane, const char *key);
+
+private slots:
+  void on_settings_tree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 };
 
 #endif // WORLDPREFS_H
