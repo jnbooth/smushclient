@@ -52,7 +52,7 @@ void applyStyles(QTextCharFormat &format, quint16 style, const QColor &foregroun
 
   int red, green, blue;
   background.getRgb(&red, &green, &blue);
-  if (red + green + blue == 0)
+  if (red + green + blue != 0)
     format.setBackground(QBrush(background));
 }
 
