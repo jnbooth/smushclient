@@ -374,12 +374,14 @@ pub mod ffi {
         type World = super::WorldRust;
     }
 
+    #[qenum(World)]
     enum ProxyType {
         None,
         Socks4,
         Socks5,
     }
 
+    #[qenum(World)]
     enum AutoConnect {
         None,
         Mush,
@@ -387,26 +389,30 @@ pub mod ffi {
         Mxp,
     }
 
-    enum ScriptRecompile {
-        Confirm,
-        Always,
-        Never,
-    }
-
+    #[qenum(World)]
     enum LogFormat {
         Text,
         Html,
         Raw,
     }
 
+    #[qenum(World)]
     enum LogMode {
         Append,
         Overwrite,
     }
 
+    #[qenum(World)]
     enum UseMxp {
         Command,
         Query,
+        Always,
+        Never,
+    }
+
+    #[qenum(World)]
+    enum ScriptRecompile {
+        Confirm,
         Always,
         Never,
     }

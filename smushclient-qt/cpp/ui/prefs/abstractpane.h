@@ -26,8 +26,8 @@ protected:
   template <typename Enum>
   inline QMetaObject::Connection connectWorld(const World *world, QComboBox *input, const Enum value, void (World::*&&setter)(const Enum &value))
   {
-    static_assert(sizeof(Enum) == sizeof(quint8), "enum must be represented by quint8");
-    typedef void (World::* && Setter)(const quint8 &value);
+    static_assert(sizeof(Enum) == sizeof(quint32), "enum must be represented by quint32");
+    typedef void (World::* && Setter)(const quint32 &value);
     input->setCurrentIndex((int)value);
     return connect(input, &QComboBox::currentIndexChanged, world, reinterpret_cast<Setter>(setter));
   }
