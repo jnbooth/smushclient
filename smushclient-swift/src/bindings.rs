@@ -3,7 +3,9 @@ use crate::convert::Convert;
 use crate::error::UnsupportedError;
 use crate::io::{create_world, read_world, write_world};
 use crate::output::{RustMxpLink, RustTextFragment};
-use crate::shared::ffi::{EffectFragment, RgbColor, SendRequest, SendTo, TelnetFragment, World};
+use crate::shared::ffi::{
+    AliasOutcome, EffectFragment, RgbColor, SendRequest, SendTo, TelnetFragment, World,
+};
 use mud_transformer::mxp::Heading;
 use mud_transformer::{EntityFragment, OutputFragment};
 
@@ -23,6 +25,8 @@ fn convert_world<T: Into<World>>(from: Result<T, String>) -> Result<World, Strin
 pub mod ffi {
     #[swift_bridge(already_declared, swift_repr = "struct")]
     struct RgbColor;
+    #[swift_bridge(already_declared, swift_repr = "struct")]
+    struct AliasOutcome;
     #[swift_bridge(already_declared)]
     enum EffectFragment {}
     #[swift_bridge(already_declared)]
@@ -115,6 +119,7 @@ pub mod ffi {
         #[swift_bridge(args_into = (world))]
         fn set_world(&mut self, world: World);
         fn connected(&self) -> bool;
+        fn alias(&mut self, command: String) -> AliasOutcome;
         async fn connect(&mut self) -> Result<(), String>;
         async fn disconnect(&mut self) -> Result<(), String>;
         async fn receive(&mut self) -> Result<RustOutputStream, String>;

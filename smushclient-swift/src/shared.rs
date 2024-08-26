@@ -115,6 +115,14 @@ pub mod ffi {
     }
 
     #[swift_bridge(swift_repr = "struct")]
+    struct AliasOutcome {
+        display: bool,
+        remember: bool,
+        send: bool,
+        requests: Vec<SendRequest>,
+    }
+
+    #[swift_bridge(swift_repr = "struct")]
     #[derive(Clone)]
     struct Sender {
         send_to: SendTarget,

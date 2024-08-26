@@ -2,6 +2,44 @@ use mud_transformer::Output;
 use std::vec;
 
 use crate::bindings::ffi;
+use crate::shared::ffi::SendRequest;
+
+pub struct AliasHandler {
+    requests: Vec<SendRequest>,
+}
+
+impl Default for AliasHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl From<AliasHandler> for Vec<SendRequest> {
+    fn from(value: AliasHandler) -> Self {
+        value.requests
+    }
+}
+impl IntoIterator for AliasHandler {
+    type Item = SendRequest;
+
+    type IntoIter = vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.requests.into_iter()
+    }
+}
+
+impl AliasHandler {
+    pub const fn new() -> Self {
+        Self { requests: Vec::new() }
+    }
+}
+
+impl smushclient::SendHandler for AliasHandler {
+    fn send(&mut self, request: smushclient::SendRequest) {
+        self.requests.push(request.into());
+    }
+}
 
 pub struct ClientHandler {
     output: Vec<ffi::OutputFragment>,

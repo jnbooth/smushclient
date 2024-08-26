@@ -8,8 +8,9 @@ use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 
 use crate::bindings::ffi;
-use crate::client::ClientHandler;
+use crate::client::{AliasHandler, ClientHandler};
 use crate::error::StringifyResultError;
+use crate::shared::ffi::AliasOutcome;
 use crate::sync::NonBlockingMutex;
 use smushclient::{SmushClient, World};
 
@@ -83,6 +84,20 @@ impl RustMudBridge {
 
     pub fn connected(&self) -> bool {
         self.stream.is_some()
+    }
+
+    #[allow(clippy::needless_pass_by_value)]
+    pub fn alias(&mut self, command: String) -> AliasOutcome {
+        let mut handler = AliasHandler::new();
+        let lock = self.output_lock.lock();
+        let outcome = self.client.alias(&command, &mut handler);
+        drop(lock);
+        AliasOutcome {
+            display: outcome.display,
+            remember: outcome.remember,
+            send: outcome.send,
+            requests: handler.into(),
+        }
     }
 
     pub async fn connect(&mut self) -> Result<(), String> {
