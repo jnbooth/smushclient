@@ -1,7 +1,7 @@
 use std::mem;
 
-use crate::handler::Handler;
-use crate::plugins::PluginEngine;
+use crate::handler::{Handler, SendHandler};
+use crate::plugins::{AliasOutcome, PluginEngine};
 use crate::world::World;
 use enumeration::EnumSet;
 use mud_transformer::{
@@ -81,8 +81,8 @@ impl SmushClient {
         );
     }
 
-    pub fn alias<H: Handler>(&mut self, input: &str, handler: &mut H) -> bool {
-        self.plugins.alias(input, handler).suppress
+    pub fn alias<H: SendHandler>(&mut self, input: &str, handler: &mut H) -> AliasOutcome {
+        self.plugins.alias(input, handler).into()
     }
 
     pub fn load_plugins<I: IntoIterator<Item = Plugin>>(&mut self, iter: I) {
@@ -131,7 +131,7 @@ fn receive_lines<H: Handler>(
             return;
         }
         let trigger_effects = plugins.trigger(line_text, handler);
-        if trigger_effects.suppress {
+        if trigger_effects.omit_from_output {
             for _ in 0..until {
                 let output = output.next().unwrap();
                 if is_nonvisual_output(&output.fragment) {

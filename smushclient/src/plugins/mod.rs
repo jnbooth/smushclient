@@ -5,3 +5,4 @@ mod send;
 pub use send::SendRequest;
 
 mod effects;
+pub use effects::AliasOutcome;

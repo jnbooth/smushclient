@@ -3,7 +3,7 @@ use std::collections::HashSet;
 
 use super::effects::TriggerEffects;
 use super::send::SendRequest;
-use crate::handler::Handler;
+use crate::handler::{Handler, SendHandler};
 use crate::plugins::effects::AliasEffects;
 use smushclient_plugins::{Alias, Plugin, SendMatch, Sender, Senders, Trigger};
 
@@ -71,7 +71,7 @@ impl PluginEngine {
         }
     }
 
-    pub fn alias<H: Handler>(&mut self, line: &str, handler: &mut H) -> AliasEffects {
+    pub fn alias<H: SendHandler>(&mut self, line: &str, handler: &mut H) -> AliasEffects {
         let mut effects = AliasEffects::new();
         let mut delete_oneshots = Vec::new();
         let mut text_buf = String::new();

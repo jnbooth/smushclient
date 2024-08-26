@@ -35,6 +35,10 @@ impl<'a> ClientHandler<'a> {
     }
 }
 
+impl<'a> smushclient::SendHandler for ClientHandler<'a> {
+    fn send(&mut self, _request: SendRequest) {}
+}
+
 impl<'a> smushclient::Handler for ClientHandler<'a> {
     fn display(&mut self, output: Output) {
         match output.fragment {
@@ -45,6 +49,4 @@ impl<'a> smushclient::Handler for ClientHandler<'a> {
     }
 
     fn play_sound(&mut self, _path: &str) {}
-
-    fn send(&mut self, _request: SendRequest) {}
 }

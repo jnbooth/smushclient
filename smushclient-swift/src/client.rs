@@ -2,7 +2,6 @@ use mud_transformer::Output;
 use std::vec;
 
 use crate::bindings::ffi;
-use smushclient::SendRequest;
 
 pub struct ClientHandler {
     output: Vec<ffi::OutputFragment>,
@@ -30,6 +29,12 @@ impl ClientHandler {
     }
 }
 
+impl smushclient::SendHandler for ClientHandler {
+    fn send(&mut self, request: smushclient::SendRequest) {
+        self.output.push(ffi::OutputFragment::Send(request.into()));
+    }
+}
+
 impl smushclient::Handler for ClientHandler {
     fn display(&mut self, output: Output) {
         if let Ok(fragment) = output.fragment.try_into() {
@@ -40,9 +45,5 @@ impl smushclient::Handler for ClientHandler {
     fn play_sound(&mut self, path: &str) {
         self.output
             .push(ffi::OutputFragment::Sound(path.to_owned()));
-    }
-
-    fn send(&mut self, request: SendRequest) {
-        self.output.push(ffi::OutputFragment::Send(request.into()));
     }
 }
