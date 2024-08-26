@@ -41,7 +41,6 @@
 		09BCD6F72C62E06D0057B475 /* TriggerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09BCD6F62C62E06D0057B475 /* TriggerModel.swift */; };
 		09BCD6F92C62E0780057B475 /* TimerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09BCD6F82C62E0780057B475 /* TimerModel.swift */; };
 		09CDA6232C517FFE006FC3C9 /* actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CDA6222C517FFE006FC3C9 /* actions.swift */; };
-		09CE51092C6317FF005057B6 /* InputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CE51082C6317FF005057B6 /* InputFormatter.swift */; };
 		09CE510B2C631812005057B6 /* OutputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CE510A2C631812005057B6 /* OutputFormatter.swift */; };
 		09D666C02C654B2E00416A00 /* Stories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09D666BF2C654B2E00416A00 /* Stories.swift */; };
 		09E2DB342C6670680031BEDF /* WelcomeHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E2DB332C6670680031BEDF /* WelcomeHostingController.swift */; };
@@ -88,7 +87,6 @@
 		09BCD6F62C62E06D0057B475 /* TriggerModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TriggerModel.swift; sourceTree = "<group>"; };
 		09BCD6F82C62E0780057B475 /* TimerModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimerModel.swift; sourceTree = "<group>"; };
 		09CDA6222C517FFE006FC3C9 /* actions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = actions.swift; sourceTree = "<group>"; };
-		09CE51082C6317FF005057B6 /* InputFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFormatter.swift; sourceTree = "<group>"; };
 		09CE510A2C631812005057B6 /* OutputFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutputFormatter.swift; sourceTree = "<group>"; };
 		09D666BF2C654B2E00416A00 /* Stories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stories.swift; sourceTree = "<group>"; };
 		09E2DB332C6670680031BEDF /* WelcomeHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeHostingController.swift; sourceTree = "<group>"; };
@@ -165,7 +163,6 @@
 		091C03272C5037100060A147 /* Rendering */ = {
 			isa = PBXGroup;
 			children = (
-				09CE51082C6317FF005057B6 /* InputFormatter.swift */,
 				09CE510A2C631812005057B6 /* OutputFormatter.swift */,
 				09897B142C63EF800007C3D7 /* OutputFonts.swift */,
 				09CDA6222C517FFE006FC3C9 /* actions.swift */,
@@ -401,7 +398,6 @@
 				09BCD6E52C62DA300057B475 /* WorldTextField.swift in Sources */,
 				09BCD6F52C62E0600057B475 /* AliasModel.swift in Sources */,
 				09897B112C63E94E0007C3D7 /* StatusBarView.swift in Sources */,
-				09CE51092C6317FF005057B6 /* InputFormatter.swift in Sources */,
 				09BCD6E72C62DC780057B475 /* WorldSecureField.swift in Sources */,
 				0967D6A22C5AC94D00C0A7BC /* WorldSettingsView.swift in Sources */,
 				09CDA6232C517FFE006FC3C9 /* actions.swift in Sources */,

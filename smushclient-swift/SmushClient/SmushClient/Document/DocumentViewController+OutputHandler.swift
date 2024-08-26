@@ -119,7 +119,7 @@ extension DocumentViewController {
   }
 
   private func handleImage(_ src: String) -> Bool {
-    var attributes = outputFormatter.plainAttributes
+    var attributes = formatter.plainAttributes
     attributes[.link] = src
     textStorage.append(NSAttributedString(string: src, attributes: attributes))
     return true
@@ -156,7 +156,7 @@ extension DocumentViewController {
 
   private func handleText(_ text: RustTextFragment) -> Bool {
     let _ = handleBreak()
-    textStorage.append(outputFormatter.format(text))
+    textStorage.append(formatter.formatOutput(text))
     return true
   }
 
@@ -164,7 +164,7 @@ extension DocumentViewController {
     if !willBreak {
       return false
     }
-    let attributes = outputFormatter.plainAttributes
+    let attributes = formatter.plainAttributes
     textStorage.append(NSAttributedString(string: "\n", attributes: attributes))
     willBreak = false
     return true

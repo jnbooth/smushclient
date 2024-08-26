@@ -7,20 +7,44 @@ extension RgbColor {
 }
 
 struct OutputFormatter {
+  private let echoCommands: Bool
+  private let echoNewline: Bool
   private let fonts: OutputFonts
+  private let echoAttributes: [NSAttributedString.Key: Any]
   let plainAttributes: [NSAttributedString.Key: Any]
 
   init() {
     fonts = OutputFonts()
+    echoCommands = true
+    echoNewline = true
     plainAttributes = [.font: fonts.provide()]
+    echoAttributes = [.font: fonts.provide()]
   }
 
   init(_ world: WorldModel) {
     fonts = OutputFonts(world)
-    plainAttributes = [.font: fonts.provide()]
+    echoCommands = world.display_my_input
+    echoNewline = !world.keep_commands_on_same_line
+    let baseFont = fonts.provide()
+    plainAttributes = [.font: baseFont]
+    var echoAttrs: [NSAttributedString.Key: Any] = [.font: baseFont]
+    if let foreground = world.echo_colors.foreground {
+      echoAttrs[.foregroundColor] = foreground
+    }
+    if let background = world.echo_colors.background {
+      echoAttrs[.backgroundColor] = background
+    }
+    echoAttributes = echoAttrs
+  }
+  
+  func formatInput(_ input: String) -> NSAttributedString? {
+    if !echoCommands {
+      return nil
+    }
+    return NSAttributedString(string: echoNewline ? "\n" + input : input, attributes: echoAttributes)
   }
 
-  func format(_ fragment: RustTextFragment) -> NSAttributedString {
+  func formatOutput(_ fragment: RustTextFragment) -> NSAttributedString {
     let text = fragment.text().toString()
 
     var attrs: [NSAttributedString.Key: Any] = [

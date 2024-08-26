@@ -3,8 +3,7 @@ import SwiftUI
 private let defaultHyperlinkColor = NSColor.linkColor.usingColorSpace(.sRGB)!
 private let defaultChatColor = NSColor(red: 1, green: 1, blue: 1, alpha: 1)
 private let defaultCustomColor = NSColor(red: 0, green: 0, blue: 0, alpha: 1)
-private let defaultInputColor = NSColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1)
-private let defaultEchoColor = defaultInputColor
+private let defaultEchoColor = NSColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1)
 private let defaultNoteTextColor = NSColor(red: 0, green: 0.5, blue: 1, alpha: 1)
 private let defaultCustomNames = [
   "Custom1", "Custom2", "Custom3", "Custom4", "Custom5", "Custom6", "Custom7", "Custom8",
@@ -132,7 +131,7 @@ class WorldModel {
   var speed_walk_delay: Double = 20.0
   var enable_command_stack: Bool = false
   var command_stack_character: String = "#"
-  var input_colors: ColorPairModel = ColorPairModel(foreground: defaultInputColor)
+  var input_colors: ColorPairModel = ColorPairModel()
   var input_font: NSFont = defaultFont
   var use_default_input_font: Bool = true
   var enable_spam_prevention: Bool = false

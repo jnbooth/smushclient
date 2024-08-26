@@ -8,7 +8,7 @@ extension DocumentViewController {
       setInput(text)
 
     case .Output:
-      let attributes = outputFormatter.plainAttributes
+      let attributes = formatter.plainAttributes
       textStorage.append(NSAttributedString(string: text, attributes: attributes))
       return true
 

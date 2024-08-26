@@ -23,15 +23,13 @@ class DocumentViewController: NSViewController {
   let status: StatusBarState = StatusBarState()
   weak var textStorage: NSTextStorage!
 
-  private var inputFormatter: InputFormatter = InputFormatter()
-  var outputFormatter: OutputFormatter = OutputFormatter()
+  var formatter: OutputFormatter = OutputFormatter()
   var willBreak = false
 
   func applyWorld(_ world: WorldModel) {
     historyLimit = Int(world.history_lines)
     trimHistory()
-    inputFormatter = InputFormatter(world)
-    outputFormatter = OutputFormatter(world)
+    formatter = OutputFormatter(world)
 
     let style = NSMutableParagraphStyle()
     style.lineSpacing = CGFloat(world.line_spacing)
@@ -39,6 +37,9 @@ class DocumentViewController: NSViewController {
 
     let textInset = Int(world.pixel_offset)
     textView.textContainerInset = NSSize(width: textInset, height: textInset)
+
+    inputField.textColor = world.input_colors.foreground
+    inputField.backgroundColor = world.input_colors.background
 
     if let bridge = bridge {
       bridge.set_world(World(world))
@@ -100,7 +101,7 @@ class DocumentViewController: NSViewController {
         trimHistory()
       }
       var shouldScrollToBottom = false
-      if outcome.should_display(), let formatted = inputFormatter.format(input) {
+      if outcome.should_display(), let formatted = formatter.formatInput(input) {
         shouldScrollToBottom = true
         textStorage.append(formatted)
       }
@@ -116,7 +117,7 @@ class DocumentViewController: NSViewController {
       if !outcome.should_send() {
         return
       }
-    } else if let formatted = inputFormatter.format(input) {
+    } else if let formatted = formatter.formatInput(input) {
       textStorage.append(formatted)
       scrollToBottom()
     }
