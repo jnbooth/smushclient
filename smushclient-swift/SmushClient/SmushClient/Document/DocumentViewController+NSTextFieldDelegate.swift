@@ -16,7 +16,7 @@ extension DocumentViewController: NSTextViewDelegate {
     }
     let input = control.stringValue
     control.stringValue = ""
-    sendInput(input)
+    sendInput(input, fromUser: true)
     return true
   }
 

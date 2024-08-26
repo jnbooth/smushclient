@@ -1,4 +1,5 @@
 import AppKit
+import DequeModule
 import SwiftUI
 
 // SAFETY: Ensured by mutex locks in Rust implementation.
@@ -14,6 +15,8 @@ class DocumentViewController: NSViewController {
   @IBOutlet private weak var splitView: NSSplitView!
   @IBOutlet private weak var inputField: NSTextField!
   @IBOutlet private weak var textView: NSTextView!
+  private var history: Deque<String> = []
+  private var historyLimit: Int = Int.max
 
   private var bridge: RustMudBridge?
   private var connectTask: Task<(), Never>?
@@ -25,6 +28,8 @@ class DocumentViewController: NSViewController {
   var willBreak = false
 
   func applyWorld(_ world: WorldModel) {
+    historyLimit = Int(world.history_lines)
+    trimHistory()
     inputFormatter = InputFormatter(world)
     outputFormatter = OutputFormatter(world)
 
@@ -39,6 +44,12 @@ class DocumentViewController: NSViewController {
       bridge.set_world(World(world))
     } else {
       bridge = RustMudBridge(World(world))
+    }
+  }
+
+  func trimHistory() {
+    if history.count >= historyLimit {
+      history.removeFirst(historyLimit - 1 - history.count)
     }
   }
 
@@ -77,14 +88,37 @@ class DocumentViewController: NSViewController {
     textView.scrollRangeToVisible(NSRange(location: textStorage.length, length: 0))
   }
 
-  func sendInput(_ input: String) {
-    if let formatted = inputFormatter.format(input) {
-      textStorage.append(formatted)
-      scrollToBottom()
-    }
+  func sendInput(_ input: String, fromUser: Bool = false) {
     willBreak = true
     guard let bridge = bridge else {
       return
+    }
+    if fromUser {
+      let outcome = bridge.alias(input)
+      if outcome.should_remember() && history.last != input {
+        history.append(input)
+        trimHistory()
+      }
+      var shouldScrollToBottom = false
+      if outcome.should_display(), let formatted = inputFormatter.format(input) {
+        shouldScrollToBottom = true
+        textStorage.append(formatted)
+      }
+      let sendStream = outcome.stream()
+      while let send = sendStream.next() {
+        if handleSend(send) {
+          shouldScrollToBottom = true
+        }
+      }
+      if shouldScrollToBottom {
+        scrollToBottom()
+      }
+      if !outcome.should_send() {
+        return
+      }
+    } else if let formatted = inputFormatter.format(input) {
+      textStorage.append(formatted)
+      scrollToBottom()
     }
     Task {
       do {
@@ -140,4 +174,3 @@ class DocumentViewController: NSViewController {
     }
   }
 }
-

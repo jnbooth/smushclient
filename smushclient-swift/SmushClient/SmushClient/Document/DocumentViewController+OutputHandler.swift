@@ -20,6 +20,10 @@ func lastLineRange(_ string: NSString) -> NSRange {
 
 extension DocumentViewController {
   func handleOutput(_ output: RustOutputStream) {
+    if output.count() == 0 {
+      return
+    }
+
     textStorage.beginEditing()
     var shouldScrollToBottom = false
     defer {
@@ -47,7 +51,8 @@ extension DocumentViewController {
     case .MxpError(let error):
       handleMxpError(error.toString())
     case .MxpEntitySet(let name, let value, let publish, let is_variable):
-      handleMxpVariable(name: name.toString(), value: value.toString(), publish: publish, is_variable: is_variable)
+      handleMxpVariable(
+        name: name.toString(), value: value.toString(), publish: publish, is_variable: is_variable)
     case .MxpEntityUnset(let name, let is_variable):
       handleMxpVariable(name: name.toString(), value: nil, is_variable: is_variable)
     case .PageBreak:
@@ -130,37 +135,15 @@ extension DocumentViewController {
     print(error)
     return false
   }
-  
-  private func handleMxpVariable(name: String, value: String?, publish: Bool = false, is_variable: Bool = false) -> Bool {
+
+  private func handleMxpVariable(
+    name: String, value: String?, publish: Bool = false, is_variable: Bool = false
+  ) -> Bool {
     return false
   }
 
   private func handlePageBreak() -> Bool {
     handleLineBreak()
-  }
-
-  private func handleSend(_ send: SendRequest) -> Bool {
-    let text = send.text.toString()
-    switch send.send_to {
-    case .Command:
-      setInput(text)
-
-    case .Output:
-      let attributes = outputFormatter.plainAttributes
-      textStorage.append(NSAttributedString(string: text, attributes: attributes))
-      return true
-
-    case .Status:
-      status.pluginMessage = text
-
-    case .World, .WorldDelay, .WorldImmediate:
-      sendInput(text)
-
-    default:
-      break
-    }
-
-    return false
   }
 
   private func handleSound(_ location: String) -> Bool {

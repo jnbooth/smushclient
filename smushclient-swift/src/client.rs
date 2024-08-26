@@ -18,6 +18,7 @@ impl From<AliasHandler> for Vec<ffi::SendRequest> {
         value.requests
     }
 }
+
 impl IntoIterator for AliasHandler {
     type Item = ffi::SendRequest;
 

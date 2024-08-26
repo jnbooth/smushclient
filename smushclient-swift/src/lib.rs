@@ -17,7 +17,7 @@ mod io;
 mod output;
 mod sync;
 
-use crate::bridge::{RustMudBridge, RustOutputStream};
+use crate::bridge::{RustAliasOutcome, RustMudBridge, RustOutputStream, RustSendStream};
 use crate::io::{create_world, read_world, write_world};
 use crate::output::{RustMxpLink, RustTextFragment};
 
@@ -147,14 +147,6 @@ pub mod ffi {
         variable: String,
         text: String,
         wildcards: Vec<String>,
-    }
-
-    #[swift_bridge(swift_repr = "struct")]
-    struct AliasOutcome {
-        display: bool,
-        remember: bool,
-        send: bool,
-        requests: Vec<SendRequest>,
     }
 
     #[swift_bridge(swift_repr = "struct")]
@@ -481,8 +473,23 @@ pub mod ffi {
     }
 
     extern "Rust" {
+        type RustSendStream;
+        fn next(&mut self) -> Option<SendRequest>;
+        fn count(&self) -> usize;
+    }
+
+    extern "Rust" {
         type RustOutputStream;
         fn next(&mut self) -> Option<OutputFragment>;
+        fn count(&self) -> usize;
+    }
+
+    extern "Rust" {
+        type RustAliasOutcome;
+        fn should_display(&self) -> bool;
+        fn should_remember(&self) -> bool;
+        fn should_send(&self) -> bool;
+        fn stream(&mut self) -> RustSendStream;
     }
 
     extern "Rust" {
@@ -497,7 +504,7 @@ pub mod ffi {
         #[swift_bridge(args_into = (world))]
         fn set_world(&mut self, world: World);
         fn connected(&self) -> bool;
-        fn alias(&mut self, command: String) -> AliasOutcome;
+        fn alias(&mut self, command: String) -> RustAliasOutcome;
         async fn connect(&mut self) -> Result<(), String>;
         async fn disconnect(&mut self) -> Result<(), String>;
         async fn receive(&mut self) -> Result<RustOutputStream, String>;

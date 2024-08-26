@@ -3,7 +3,7 @@ use mud_stream::nonblocking::MudStream;
 use mud_transformer::Tag;
 use std::fs::File;
 use std::path::Path;
-use std::vec;
+use std::{mem, vec};
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 
@@ -11,7 +11,7 @@ use crate::client::{AliasHandler, ClientHandler};
 use crate::error::StringifyResultError;
 use crate::ffi;
 use crate::sync::NonBlockingMutex;
-use smushclient::{SmushClient, World};
+use smushclient::{AliasOutcome, SmushClient, World};
 
 const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Bold,
@@ -32,6 +32,52 @@ const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Underline
 ];
 
+pub struct RustAliasOutcome {
+    outcome: AliasOutcome,
+    requests: Vec<ffi::SendRequest>,
+}
+
+impl RustAliasOutcome {
+    pub fn new(outcome: AliasOutcome, requests: Vec<ffi::SendRequest>) -> Self {
+        Self { outcome, requests }
+    }
+
+    pub fn stream(&mut self) -> RustSendStream {
+        RustSendStream {
+            inner: mem::take(&mut self.requests).into_iter(),
+        }
+    }
+
+    pub fn should_display(&self) -> bool {
+        self.outcome.display
+    }
+
+    pub fn should_remember(&self) -> bool {
+        self.outcome.remember
+    }
+
+    pub fn should_send(&self) -> bool {
+        self.outcome.send
+    }
+}
+
+#[repr(transparent)]
+pub struct RustSendStream {
+    inner: vec::IntoIter<ffi::SendRequest>,
+}
+
+impl RustSendStream {
+    #[inline(always)]
+    pub fn next(&mut self) -> Option<ffi::SendRequest> {
+        self.inner.next()
+    }
+
+    #[inline(always)]
+    pub fn count(&self) -> usize {
+        self.inner.len()
+    }
+}
+
 #[repr(transparent)]
 pub struct RustOutputStream {
     inner: vec::IntoIter<ffi::OutputFragment>,
@@ -41,6 +87,11 @@ impl RustOutputStream {
     #[inline(always)]
     pub fn next(&mut self) -> Option<ffi::OutputFragment> {
         self.inner.next()
+    }
+
+    #[inline(always)]
+    pub fn count(&self) -> usize {
+        self.inner.len()
     }
 }
 
@@ -86,17 +137,12 @@ impl RustMudBridge {
     }
 
     #[allow(clippy::needless_pass_by_value)]
-    pub fn alias(&mut self, command: String) -> ffi::AliasOutcome {
+    pub fn alias(&mut self, command: String) -> RustAliasOutcome {
         let mut handler = AliasHandler::new();
         let lock = self.output_lock.lock();
         let outcome = self.client.alias(&command, &mut handler);
         drop(lock);
-        ffi::AliasOutcome {
-            display: outcome.display,
-            remember: outcome.remember,
-            send: outcome.send,
-            requests: handler.into(),
-        }
+        RustAliasOutcome::new(outcome, handler.into())
     }
 
     pub async fn connect(&mut self) -> Result<(), String> {

@@ -21,6 +21,8 @@
 		09565E2B2C5D491A00650902 /* serde.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09565E2A2C5D491A00650902 /* serde.swift */; };
 		0967D6A22C5AC94D00C0A7BC /* WorldSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0967D6A12C5AC94D00C0A7BC /* WorldSettingsView.swift */; };
 		0967D6A82C5AF1FB00C0A7BC /* WorldModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0967D6A72C5AF1FB00C0A7BC /* WorldModel.swift */; };
+		096854262C7D259E002F5858 /* DocumentViewController+SendHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 096854252C7D259E002F5858 /* DocumentViewController+SendHandler.swift */; };
+		096854292C7D2DEE002F5858 /* DequeModule in Frameworks */ = {isa = PBXBuildFile; productRef = 096854282C7D2DEE002F5858 /* DequeModule */; };
 		098042222C669B1400621F92 /* RecentDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 098042212C669B1400621F92 /* RecentDocument.swift */; };
 		09897B082C63E2B70007C3D7 /* DocumentViewController+NSTextFieldDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B072C63E2B70007C3D7 /* DocumentViewController+NSTextFieldDelegate.swift */; };
 		09897B0A2C63E67E0007C3D7 /* DocumentViewController+OutputHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09897B092C63E67E0007C3D7 /* DocumentViewController+OutputHandler.swift */; };
@@ -66,6 +68,7 @@
 		09565E2A2C5D491A00650902 /* serde.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = serde.swift; sourceTree = "<group>"; };
 		0967D6A12C5AC94D00C0A7BC /* WorldSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldSettingsView.swift; sourceTree = "<group>"; };
 		0967D6A72C5AF1FB00C0A7BC /* WorldModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldModel.swift; sourceTree = "<group>"; };
+		096854252C7D259E002F5858 /* DocumentViewController+SendHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentViewController+SendHandler.swift"; sourceTree = "<group>"; };
 		098042212C669B1400621F92 /* RecentDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentDocument.swift; sourceTree = "<group>"; };
 		09897B072C63E2B70007C3D7 /* DocumentViewController+NSTextFieldDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DocumentViewController+NSTextFieldDelegate.swift"; sourceTree = "<group>"; };
 		09897B092C63E67E0007C3D7 /* DocumentViewController+OutputHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DocumentViewController+OutputHandler.swift"; sourceTree = "<group>"; };
@@ -98,6 +101,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				094C30FA2C5038D20079B229 /* libsmushclient_swift.a in Frameworks */,
+				096854292C7D2DEE002F5858 /* DequeModule in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,6 +210,7 @@
 				0946E1402C612A2800AC76EF /* SmushfileDocument.swift */,
 				094C31052C5070120079B229 /* DocumentViewController.swift */,
 				09897B092C63E67E0007C3D7 /* DocumentViewController+OutputHandler.swift */,
+				096854252C7D259E002F5858 /* DocumentViewController+SendHandler.swift */,
 				09897B072C63E2B70007C3D7 /* DocumentViewController+NSTextFieldDelegate.swift */,
 			);
 			path = Document;
@@ -283,6 +288,9 @@
 			dependencies = (
 			);
 			name = SmushClient;
+			packageProductDependencies = (
+				096854282C7D2DEE002F5858 /* DequeModule */,
+			);
 			productName = SmushClient;
 			productReference = 091C02EB2C5035EC0060A147 /* SmushClient.app */;
 			productType = "com.apple.product-type.application";
@@ -311,6 +319,9 @@
 				Base,
 			);
 			mainGroup = 091C02E22C5035EC0060A147;
+			packageReferences = (
+				096854272C7D2DEE002F5858 /* XCRemoteSwiftPackageReference "swift-collections" */,
+			);
 			productRefGroup = 091C02EC2C5035EC0060A147 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -401,6 +412,7 @@
 				098042222C669B1400621F92 /* RecentDocument.swift in Sources */,
 				09CE510B2C631812005057B6 /* OutputFormatter.swift in Sources */,
 				091C02EF2C5035EC0060A147 /* AppDelegate.swift in Sources */,
+				096854262C7D259E002F5858 /* DocumentViewController+SendHandler.swift in Sources */,
 				09E2DB342C6670680031BEDF /* WelcomeHostingController.swift in Sources */,
 				09897B082C63E2B70007C3D7 /* DocumentViewController+NSTextFieldDelegate.swift in Sources */,
 				091C03212C5036BE0060A147 /* SwiftBridgeCore.swift in Sources */,
@@ -636,6 +648,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		096854272C7D2DEE002F5858 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		096854282C7D2DEE002F5858 /* DequeModule */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 096854272C7D2DEE002F5858 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = DequeModule;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 091C02E32C5035EC0060A147 /* Project object */;
 }
