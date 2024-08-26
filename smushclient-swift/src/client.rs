@@ -1,11 +1,10 @@
 use mud_transformer::Output;
 use std::vec;
 
-use crate::bindings::ffi;
-use crate::shared::ffi::SendRequest;
+use crate::ffi;
 
 pub struct AliasHandler {
-    requests: Vec<SendRequest>,
+    requests: Vec<ffi::SendRequest>,
 }
 
 impl Default for AliasHandler {
@@ -14,13 +13,13 @@ impl Default for AliasHandler {
     }
 }
 
-impl From<AliasHandler> for Vec<SendRequest> {
+impl From<AliasHandler> for Vec<ffi::SendRequest> {
     fn from(value: AliasHandler) -> Self {
         value.requests
     }
 }
 impl IntoIterator for AliasHandler {
-    type Item = SendRequest;
+    type Item = ffi::SendRequest;
 
     type IntoIter = vec::IntoIter<Self::Item>;
 
@@ -31,7 +30,9 @@ impl IntoIterator for AliasHandler {
 
 impl AliasHandler {
     pub const fn new() -> Self {
-        Self { requests: Vec::new() }
+        Self {
+            requests: Vec::new(),
+        }
     }
 }
 

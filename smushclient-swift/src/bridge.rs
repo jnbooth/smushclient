@@ -7,10 +7,9 @@ use std::vec;
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 
-use crate::bindings::ffi;
 use crate::client::{AliasHandler, ClientHandler};
 use crate::error::StringifyResultError;
-use crate::shared::ffi::AliasOutcome;
+use crate::ffi;
 use crate::sync::NonBlockingMutex;
 use smushclient::{SmushClient, World};
 
@@ -87,12 +86,12 @@ impl RustMudBridge {
     }
 
     #[allow(clippy::needless_pass_by_value)]
-    pub fn alias(&mut self, command: String) -> AliasOutcome {
+    pub fn alias(&mut self, command: String) -> ffi::AliasOutcome {
         let mut handler = AliasHandler::new();
         let lock = self.output_lock.lock();
         let outcome = self.client.alias(&command, &mut handler);
         drop(lock);
-        AliasOutcome {
+        ffi::AliasOutcome {
             display: outcome.display,
             remember: outcome.remember,
             send: outcome.send,
