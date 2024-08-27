@@ -1,4 +1,3 @@
-#![allow(clippy::cast_possible_wrap)]
 #![allow(clippy::cast_sign_loss)]
 #![allow(clippy::float_cmp)]
 #![allow(clippy::missing_safety_doc)]
@@ -10,6 +9,8 @@ extern crate enumeration;
 
 #[macro_use]
 mod convert;
+
+mod adapters;
 
 mod client;
 use client::SmushClientRust;
@@ -67,11 +68,12 @@ pub mod ffi {
     }
 
     extern "C++Qt" {
-        include!(<QtCore/QIODevice>);
-        type QIODevice;
+        include!(<QtNetwork/QTcpSocket>);
+        type QTcpSocket;
 
-        unsafe fn read(self: Pin<&mut QIODevice>, data: *mut c_char, max_size: i64) -> i64;
-        unsafe fn write(self: Pin<&mut QIODevice>, data: *const c_char, max_size: i64) -> i64;
+        unsafe fn flush(self: Pin<&mut QTcpSocket>) -> bool;
+        unsafe fn read(self: Pin<&mut QTcpSocket>, data: *mut c_char, max_size: i64) -> i64;
+        unsafe fn write(self: Pin<&mut QTcpSocket>, data: *const c_char, max_size: i64) -> i64;
     }
 
     enum SendTo {
@@ -97,6 +99,9 @@ pub mod ffi {
         #[rust_name = "append_line"]
         unsafe fn appendLine(self: Pin<&mut Document>);
 
+        #[rust_name = "append_plaintext"]
+        unsafe fn appendText(self: Pin<&mut Document>, text: &QString);
+
         #[rust_name = "append_text"]
         unsafe fn appendText(
             self: Pin<&mut Document>,
@@ -116,6 +121,12 @@ pub mod ffi {
             link: &Link,
         );
 
+        #[rust_name = "display_error"]
+        unsafe fn displayError(self: Pin<&mut Document>, text: &QString);
+
+        #[rust_name = "set_input"]
+        unsafe fn setInput(self: Pin<&mut Document>, text: &QString);
+
     }
 
     extern "RustQt" {
@@ -130,7 +141,7 @@ pub mod ffi {
         fn set_world(self: Pin<&mut SmushClient>, world: &World);
         fn read(
             self: Pin<&mut SmushClient>,
-            device: Pin<&mut QIODevice>,
+            device: Pin<&mut QTcpSocket>,
             doc: Pin<&mut Document>,
         ) -> i64;
     }

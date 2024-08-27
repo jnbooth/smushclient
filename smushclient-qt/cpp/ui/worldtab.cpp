@@ -12,11 +12,12 @@
 #include <QtWidgets/QMenu>
 
 WorldTab::WorldTab(QWidget *parent)
-    : QSplitter(parent), ui(new Ui::WorldTab), socket(this), defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont))
+    : QSplitter(parent), ui(new Ui::WorldTab), socket(this), defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont)), document(&socket)
 {
   ui->setupUi(this);
   defaultFont.setPointSize(12);
   document.setBrowser(ui->output);
+  document.setLineEdit(ui->input);
   connect(&socket, &QTcpSocket::readyRead, this, &WorldTab::readFromSocket);
 }
 

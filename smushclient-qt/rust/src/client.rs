@@ -1,6 +1,5 @@
-use std::ffi::c_char;
 use std::fs::File;
-use std::io::BufRead;
+use std::io::Read;
 use std::pin::Pin;
 
 use crate::ffi;
@@ -15,7 +14,7 @@ use smushclient::world::PersistError;
 use smushclient::{SmushClient, World};
 
 const BUF_LEN: usize = 1024 * 20;
-const BUF_MIDPOINT: i64 = (BUF_LEN / 2) as i64;
+const BUF_MIDPOINT: usize = BUF_LEN / 2;
 
 const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Bold,
@@ -85,60 +84,51 @@ impl SmushClientRust {
         self.transformer.set_config(config);
     }
 
-    pub fn read(
-        &mut self,
-        mut device: Pin<&mut ffi::QIODevice>,
-        doc: Pin<&mut ffi::Document>,
-    ) -> i64 {
+    pub fn read(&mut self, device: Pin<&mut ffi::QTcpSocket>, doc: Pin<&mut ffi::Document>) -> i64 {
         if self.done {
             return -1;
         }
-        let mut handler = ClientHandler { doc };
+        let mut handler = ClientHandler {
+            doc: doc.into(),
+            socket: device.into(),
+        };
 
         let output_lock = self.output_lock.lock();
-        let buf_ptr = self.buf.as_mut_ptr().cast::<c_char>();
         let mut total_read = 0;
         loop {
-            // SAFETY: Device will not read past buf.len().
-            let n = unsafe { device.as_mut().read(buf_ptr, BUF_MIDPOINT) };
-            if n == 0 {
-                break;
-            }
-            if n == -1 {
-                self.done = true;
-                self.client
-                    .receive(self.transformer.flush_output(), &mut handler);
-                return total_read;
-            }
+            let n = match handler.socket.read(&mut self.buf[..BUF_MIDPOINT]) {
+                Ok(0) => break,
+                Ok(n) => n,
+                Err(e) => {
+                    self.done = true;
+                    handler.doc.display_error(&QString::from(&e.to_string()));
+                    self.client
+                        .receive(self.transformer.flush_output(), &mut handler);
+                    return i64::try_from(total_read).unwrap();
+                }
+            };
             total_read += n;
-            let i = usize::try_from(n).unwrap();
-            let (received, buf) = self.buf.split_at_mut(i);
-            self.transformer.receive(received, buf).unwrap();
+            let (received, buf) = self.buf.split_at_mut(n);
+            if let Err(e) = self.transformer.receive(received, buf) {
+                handler.doc.display_error(&QString::from(&e.to_string()));
+                return -1;
+            }
         }
         self.client
             .receive(self.transformer.drain_output(), &mut handler);
-        // SAFETY: External call to safe method on opaque type.
-        unsafe { handler.doc.scroll_to_bottom() };
+        handler.doc.scroll_to_bottom();
         drop(output_lock);
 
         let input_lock = self.input_lock.lock();
         if let Some(mut drain) = self.transformer.drain_input() {
-            loop {
-                let drain_buf = drain.fill_buf().unwrap();
-                if drain_buf.is_empty() {
-                    break;
-                }
-                let drain_ptr = drain_buf.as_ptr().cast::<c_char>();
-                let drain_len = i64::try_from(drain_buf.len()).unwrap();
-                // SAFETY: Device will not write past drain_len.
-                let n = unsafe { device.as_mut().write(drain_ptr, drain_len) };
-                let i = usize::try_from(n).unwrap();
-                drain.consume(i);
+            if let Err(e) = drain.write_all_to(handler.socket) {
+                handler.doc.display_error(&QString::from(&e.to_string()));
+                return -1;
             }
         }
         drop(input_lock);
 
-        total_read
+        i64::try_from(total_read).unwrap()
     }
 }
 
@@ -170,7 +160,7 @@ impl ffi::SmushClient {
 
     pub fn read(
         self: Pin<&mut Self>,
-        device: Pin<&mut ffi::QIODevice>,
+        device: Pin<&mut ffi::QTcpSocket>,
         doc: Pin<&mut ffi::Document>,
     ) -> i64 {
         self.cxx_qt_ffi_rust_mut().read(device, doc)

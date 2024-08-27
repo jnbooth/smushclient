@@ -1,18 +1,19 @@
+use crate::adapters::{DocumentAdapter, SocketAdapter};
 use crate::convert::Convert;
-use crate::ffi;
 use cxx_qt_lib::QString;
 use mud_transformer::{Output, OutputFragment, TextFragment};
 use smushclient::SendRequest;
-use std::pin::Pin;
+use smushclient_plugins::SendTarget;
+use std::io::Write;
 
 pub struct ClientHandler<'a> {
-    pub doc: Pin<&'a mut ffi::Document>,
+    pub doc: DocumentAdapter<'a>,
+    pub socket: SocketAdapter<'a>,
 }
 
 impl<'a> ClientHandler<'a> {
     fn display_linebreak(&mut self) {
-        // SAFETY: External call to safe method on opaque type.
-        unsafe { self.doc.as_mut().append_line() };
+        self.doc.append_line();
     }
 
     fn display_text(&mut self, fragment: TextFragment) {
@@ -20,23 +21,36 @@ impl<'a> ClientHandler<'a> {
         let style = fragment.flags.to_raw();
         let foreground = fragment.foreground.convert();
         let background = fragment.background.convert();
-        let doc = self.doc.as_mut();
-        // SAFETY: External call to safe method on opaque type.
-        unsafe {
-            match fragment.action {
-                Some(link) => {
-                    doc.append_link(&text, style, &foreground, &background, &(&link).into());
-                }
-                None => {
-                    doc.append_text(&text, style, &foreground, &background);
-                }
+        match fragment.action {
+            Some(link) => {
+                self.doc
+                    .append_link(&text, style, &foreground, &background, &(&link).into());
+            }
+            None => {
+                self.doc.append_text(&text, style, &foreground, &background);
             }
         };
     }
 }
 
 impl<'a> smushclient::SendHandler for ClientHandler<'a> {
-    fn send(&mut self, _request: SendRequest) {}
+    fn send(&mut self, request: SendRequest) {
+        let text = request.text;
+        match request.sender.send_to {
+            SendTarget::Command => {
+                self.doc.set_input(&QString::from(text));
+            }
+            SendTarget::Output => {
+                self.doc.append_plaintext(&QString::from(text));
+            }
+            SendTarget::World | SendTarget::WorldDelay | SendTarget::WorldImmediate => {
+                if let Err(e) = self.socket.write_all(format!("{text}\r\n").as_bytes()) {
+                    self.doc.display_error(&QString::from(&e.to_string()));
+                }
+            }
+            _ => (),
+        }
+    }
 }
 
 impl<'a> smushclient::Handler for ClientHandler<'a> {

@@ -56,15 +56,28 @@ void applyStyles(QTextCharFormat &format, quint16 style, const QColor &foregroun
     format.setBackground(QBrush(background));
 }
 
+QTextCharFormat foregroundFormat(const QColor &foreground)
+{
+  QTextCharFormat format;
+  format.setForeground(QBrush(foreground));
+  return format;
+}
+
+static QTextCharFormat errorFormat = foregroundFormat(QColor::fromRgb(127, 0, 0));
+static QTextCharFormat pluginFormat = foregroundFormat(QColor::fromRgb(1, 164, 151));
+
 // Document
 
-Document::Document() {}
-
-Document::Document(QTextBrowser *browser) : browser(browser), cursor(browser->document()) {}
+Document::Document(QTcpSocket *socket) : socket(socket) {}
 
 void Document::appendLine()
 {
   cursor.insertBlock();
+}
+
+void Document::appendText(const QString &text)
+{
+  cursor.insertText(text, pluginFormat);
 }
 
 void Document::appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background)
@@ -82,6 +95,11 @@ void Document::appendText(const QString &text, quint16 style, const QColor &fore
   cursor.insertText(text, format);
 }
 
+void Document::displayError(const QString &text)
+{
+  cursor.insertText(text, errorFormat);
+}
+
 void Document::scrollToBottom()
 {
   QScrollBar *scrollbar = browser->verticalScrollBar();
@@ -92,4 +110,14 @@ void Document::setBrowser(QTextBrowser *textBrowser)
 {
   cursor = QTextCursor(textBrowser->document());
   browser = textBrowser;
+}
+
+void Document::setInput(const QString &text)
+{
+  input->setText(text);
+}
+
+void Document::setLineEdit(QLineEdit *lineEdit)
+{
+  input = lineEdit;
 }
