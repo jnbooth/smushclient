@@ -14,10 +14,9 @@ public:
   explicit Document(QTcpSocket *socket);
 
   void appendLine();
-  void appendText(const QString &text);
+  void appendText(const QString &text, const QColor &foreground);
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background, const Link &link);
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background);
-  void displayError(const QString &text);
   void scrollToBottom();
   void setInput(const QString &text);
   void setBrowser(QTextBrowser *browser);

@@ -75,9 +75,11 @@ void Document::appendLine()
   cursor.insertBlock();
 }
 
-void Document::appendText(const QString &text)
+void Document::appendText(const QString &text, const QColor &foreground)
 {
-  cursor.insertText(text, pluginFormat);
+  QTextCharFormat format;
+  format.setForeground(QBrush(foreground));
+  cursor.insertText(text, format);
 }
 
 void Document::appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background)
@@ -93,11 +95,6 @@ void Document::appendText(const QString &text, quint16 style, const QColor &fore
   applyStyles(format, style, foreground, background);
   applyLink(format, link);
   cursor.insertText(text, format);
-}
-
-void Document::displayError(const QString &text)
-{
-  cursor.insertText(text, errorFormat);
 }
 
 void Document::scrollToBottom()

@@ -85,9 +85,9 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.as_mut().append_line() }
     }
 
-    pub fn append_plaintext(&mut self, text: &QString) {
+    pub fn append_plaintext(&mut self, text: &QString, color: &QColor) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.as_mut().append_plaintext(text) };
+        unsafe { self.inner.as_mut().append_plaintext(text, color) };
     }
 
     pub fn append_text(
@@ -119,11 +119,6 @@ impl<'a> DocumentAdapter<'a> {
                 .as_mut()
                 .append_link(text, style, foreground, background, link);
         }
-    }
-
-    pub fn display_error(&mut self, text: &QString) {
-        // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.as_mut().display_error(text) };
     }
 
     pub fn set_input(&mut self, text: &QString) {

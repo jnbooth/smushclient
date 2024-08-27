@@ -100,7 +100,7 @@ pub mod ffi {
         unsafe fn appendLine(self: Pin<&mut Document>);
 
         #[rust_name = "append_plaintext"]
-        unsafe fn appendText(self: Pin<&mut Document>, text: &QString);
+        unsafe fn appendText(self: Pin<&mut Document>, text: &QString, foreground: &QColor);
 
         #[rust_name = "append_text"]
         unsafe fn appendText(
@@ -120,9 +120,6 @@ pub mod ffi {
             background: &QColor,
             link: &Link,
         );
-
-        #[rust_name = "display_error"]
-        unsafe fn displayError(self: Pin<&mut Document>, text: &QString);
 
         #[rust_name = "set_input"]
         unsafe fn setInput(self: Pin<&mut Document>, text: &QString);

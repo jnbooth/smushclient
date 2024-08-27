@@ -1,6 +1,6 @@
 use crate::adapters::{DocumentAdapter, SocketAdapter};
 use crate::convert::Convert;
-use cxx_qt_lib::QString;
+use cxx_qt_lib::{QColor, QString};
 use mud_transformer::{Output, OutputFragment, TextFragment};
 use smushclient::SendRequest;
 use smushclient_plugins::SendTarget;
@@ -9,9 +9,16 @@ use std::io::Write;
 pub struct ClientHandler<'a> {
     pub doc: DocumentAdapter<'a>,
     pub socket: SocketAdapter<'a>,
+    pub custom_color: &'a QColor,
+    pub error_color: &'a QColor,
 }
 
 impl<'a> ClientHandler<'a> {
+    pub fn display_error(&mut self, error: &str) {
+        self.doc
+            .append_plaintext(&QString::from(error), self.error_color);
+    }
+
     fn display_linebreak(&mut self) {
         self.doc.append_line();
     }
@@ -41,11 +48,12 @@ impl<'a> smushclient::SendHandler for ClientHandler<'a> {
                 self.doc.set_input(&QString::from(text));
             }
             SendTarget::Output => {
-                self.doc.append_plaintext(&QString::from(text));
+                self.doc
+                    .append_plaintext(&QString::from(text), self.custom_color);
             }
             SendTarget::World | SendTarget::WorldDelay | SendTarget::WorldImmediate => {
                 if let Err(e) = self.socket.write_all(format!("{text}\r\n").as_bytes()) {
-                    self.doc.display_error(&QString::from(&e.to_string()));
+                    self.display_error(&e.to_string());
                 }
             }
             _ => (),
