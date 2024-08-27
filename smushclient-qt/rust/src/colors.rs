@@ -1,26 +1,11 @@
-use cxx_qt_lib::{QColor, QString};
+use cxx_qt_lib::QColor;
+use mud_transformer::mxp::RgbColor;
 
-pub struct ColorEntryGeneric<TColor, TString> {
-    pub ansi_foreground: TColor,
-    pub custom_name: TString,
-    pub custom_foreground: TColor,
-    pub custom_background: TColor,
-}
+use crate::convert::Convert;
 
-impl<TColor, TString> ColorEntryGeneric<TColor, TString> {
-    pub const fn new(ansi: TColor, name: TString, foreground: TColor, background: TColor) -> Self {
-        Self {
-            ansi_foreground: ansi,
-            custom_name: name,
-            custom_foreground: foreground,
-            custom_background: background,
-        }
-    }
-}
-
+#[allow(clippy::struct_field_names)]
 #[derive(Debug, Default)]
 pub struct Colors {
-    // ANSI Color
     pub ansi_colors_0: QColor,
     pub ansi_colors_1: QColor,
     pub ansi_colors_2: QColor,
@@ -37,263 +22,51 @@ pub struct Colors {
     pub ansi_colors_13: QColor,
     pub ansi_colors_14: QColor,
     pub ansi_colors_15: QColor,
-
-    // Custom Color
-    pub custom_names_0: QString,
-    pub custom_names_1: QString,
-    pub custom_names_2: QString,
-    pub custom_names_3: QString,
-    pub custom_names_4: QString,
-    pub custom_names_5: QString,
-    pub custom_names_6: QString,
-    pub custom_names_7: QString,
-    pub custom_names_8: QString,
-    pub custom_names_9: QString,
-    pub custom_names_10: QString,
-    pub custom_names_11: QString,
-    pub custom_names_12: QString,
-    pub custom_names_13: QString,
-    pub custom_names_14: QString,
-    pub custom_names_15: QString,
-
-    pub custom_colors_foreground_0: QColor,
-    pub custom_colors_foreground_1: QColor,
-    pub custom_colors_foreground_2: QColor,
-    pub custom_colors_foreground_3: QColor,
-    pub custom_colors_foreground_4: QColor,
-    pub custom_colors_foreground_5: QColor,
-    pub custom_colors_foreground_6: QColor,
-    pub custom_colors_foreground_7: QColor,
-    pub custom_colors_foreground_8: QColor,
-    pub custom_colors_foreground_9: QColor,
-    pub custom_colors_foreground_10: QColor,
-    pub custom_colors_foreground_11: QColor,
-    pub custom_colors_foreground_12: QColor,
-    pub custom_colors_foreground_13: QColor,
-    pub custom_colors_foreground_14: QColor,
-    pub custom_colors_foreground_15: QColor,
-
-    pub custom_colors_background_0: QColor,
-    pub custom_colors_background_1: QColor,
-    pub custom_colors_background_2: QColor,
-    pub custom_colors_background_3: QColor,
-    pub custom_colors_background_4: QColor,
-    pub custom_colors_background_5: QColor,
-    pub custom_colors_background_6: QColor,
-    pub custom_colors_background_7: QColor,
-    pub custom_colors_background_8: QColor,
-    pub custom_colors_background_9: QColor,
-    pub custom_colors_background_10: QColor,
-    pub custom_colors_background_11: QColor,
-    pub custom_colors_background_12: QColor,
-    pub custom_colors_background_13: QColor,
-    pub custom_colors_background_14: QColor,
-    pub custom_colors_background_15: QColor,
 }
 
-type ColorEntry<'a> = ColorEntryGeneric<&'a QColor, &'a QString>;
-type ColorEntryMut<'a> = ColorEntryGeneric<&'a mut QColor, &'a mut QString>;
-
-impl Colors {
-    pub fn array(&self) -> [ColorEntry; 16] {
-        [
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_0,
-                custom_name: &self.custom_names_0,
-                custom_foreground: &self.custom_colors_foreground_0,
-                custom_background: &self.custom_colors_background_0,
-            },
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_1,
-                custom_name: &self.custom_names_1,
-                custom_foreground: &self.custom_colors_foreground_1,
-                custom_background: &self.custom_colors_background_1,
-            },
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_2,
-                custom_name: &self.custom_names_2,
-                custom_foreground: &self.custom_colors_foreground_2,
-                custom_background: &self.custom_colors_background_2,
-            },
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_3,
-                custom_name: &self.custom_names_3,
-                custom_foreground: &self.custom_colors_foreground_3,
-                custom_background: &self.custom_colors_background_3,
-            },
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_4,
-                custom_name: &self.custom_names_4,
-                custom_foreground: &self.custom_colors_foreground_4,
-                custom_background: &self.custom_colors_background_4,
-            },
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_5,
-                custom_name: &self.custom_names_5,
-                custom_foreground: &self.custom_colors_foreground_5,
-                custom_background: &self.custom_colors_background_5,
-            },
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_6,
-                custom_name: &self.custom_names_6,
-                custom_foreground: &self.custom_colors_foreground_6,
-                custom_background: &self.custom_colors_background_6,
-            },
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_7,
-                custom_name: &self.custom_names_7,
-                custom_foreground: &self.custom_colors_foreground_7,
-                custom_background: &self.custom_colors_background_7,
-            },
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_8,
-                custom_name: &self.custom_names_8,
-                custom_foreground: &self.custom_colors_foreground_8,
-                custom_background: &self.custom_colors_background_8,
-            },
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_9,
-                custom_name: &self.custom_names_9,
-                custom_foreground: &self.custom_colors_foreground_9,
-                custom_background: &self.custom_colors_background_9,
-            },
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_10,
-                custom_name: &self.custom_names_10,
-                custom_foreground: &self.custom_colors_foreground_10,
-                custom_background: &self.custom_colors_background_10,
-            },
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_11,
-                custom_name: &self.custom_names_11,
-                custom_foreground: &self.custom_colors_foreground_11,
-                custom_background: &self.custom_colors_background_11,
-            },
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_12,
-                custom_name: &self.custom_names_12,
-                custom_foreground: &self.custom_colors_foreground_12,
-                custom_background: &self.custom_colors_background_12,
-            },
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_13,
-                custom_name: &self.custom_names_13,
-                custom_foreground: &self.custom_colors_foreground_13,
-                custom_background: &self.custom_colors_background_13,
-            },
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_14,
-                custom_name: &self.custom_names_14,
-                custom_foreground: &self.custom_colors_foreground_14,
-                custom_background: &self.custom_colors_background_14,
-            },
-            ColorEntry {
-                ansi_foreground: &self.ansi_colors_15,
-                custom_name: &self.custom_names_15,
-                custom_foreground: &self.custom_colors_foreground_15,
-                custom_background: &self.custom_colors_background_15,
-            },
-        ]
+impl From<&[RgbColor; 16]> for Colors {
+    fn from(value: &[RgbColor; 16]) -> Self {
+        let &[c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15] = value;
+        Self {
+            ansi_colors_0: c0.convert(),
+            ansi_colors_1: c1.convert(),
+            ansi_colors_2: c2.convert(),
+            ansi_colors_3: c3.convert(),
+            ansi_colors_4: c4.convert(),
+            ansi_colors_5: c5.convert(),
+            ansi_colors_6: c6.convert(),
+            ansi_colors_7: c7.convert(),
+            ansi_colors_8: c8.convert(),
+            ansi_colors_9: c9.convert(),
+            ansi_colors_10: c10.convert(),
+            ansi_colors_11: c11.convert(),
+            ansi_colors_12: c12.convert(),
+            ansi_colors_13: c13.convert(),
+            ansi_colors_14: c14.convert(),
+            ansi_colors_15: c15.convert(),
+        }
     }
+}
 
-    pub fn array_mut(&mut self) -> [ColorEntryMut; 16] {
+impl From<&Colors> for [RgbColor; 16] {
+    fn from(value: &Colors) -> Self {
         [
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_0,
-                custom_name: &mut self.custom_names_0,
-                custom_foreground: &mut self.custom_colors_foreground_0,
-                custom_background: &mut self.custom_colors_background_0,
-            },
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_1,
-                custom_name: &mut self.custom_names_1,
-                custom_foreground: &mut self.custom_colors_foreground_1,
-                custom_background: &mut self.custom_colors_background_1,
-            },
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_2,
-                custom_name: &mut self.custom_names_2,
-                custom_foreground: &mut self.custom_colors_foreground_2,
-                custom_background: &mut self.custom_colors_background_2,
-            },
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_3,
-                custom_name: &mut self.custom_names_3,
-                custom_foreground: &mut self.custom_colors_foreground_3,
-                custom_background: &mut self.custom_colors_background_3,
-            },
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_4,
-                custom_name: &mut self.custom_names_4,
-                custom_foreground: &mut self.custom_colors_foreground_4,
-                custom_background: &mut self.custom_colors_background_4,
-            },
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_5,
-                custom_name: &mut self.custom_names_5,
-                custom_foreground: &mut self.custom_colors_foreground_5,
-                custom_background: &mut self.custom_colors_background_5,
-            },
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_6,
-                custom_name: &mut self.custom_names_6,
-                custom_foreground: &mut self.custom_colors_foreground_6,
-                custom_background: &mut self.custom_colors_background_6,
-            },
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_7,
-                custom_name: &mut self.custom_names_7,
-                custom_foreground: &mut self.custom_colors_foreground_7,
-                custom_background: &mut self.custom_colors_background_7,
-            },
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_8,
-                custom_name: &mut self.custom_names_8,
-                custom_foreground: &mut self.custom_colors_foreground_8,
-                custom_background: &mut self.custom_colors_background_8,
-            },
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_9,
-                custom_name: &mut self.custom_names_9,
-                custom_foreground: &mut self.custom_colors_foreground_9,
-                custom_background: &mut self.custom_colors_background_9,
-            },
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_10,
-                custom_name: &mut self.custom_names_10,
-                custom_foreground: &mut self.custom_colors_foreground_10,
-                custom_background: &mut self.custom_colors_background_10,
-            },
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_11,
-                custom_name: &mut self.custom_names_11,
-                custom_foreground: &mut self.custom_colors_foreground_11,
-                custom_background: &mut self.custom_colors_background_11,
-            },
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_12,
-                custom_name: &mut self.custom_names_12,
-                custom_foreground: &mut self.custom_colors_foreground_12,
-                custom_background: &mut self.custom_colors_background_12,
-            },
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_13,
-                custom_name: &mut self.custom_names_13,
-                custom_foreground: &mut self.custom_colors_foreground_13,
-                custom_background: &mut self.custom_colors_background_13,
-            },
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_14,
-                custom_name: &mut self.custom_names_14,
-                custom_foreground: &mut self.custom_colors_foreground_14,
-                custom_background: &mut self.custom_colors_background_14,
-            },
-            ColorEntryMut {
-                ansi_foreground: &mut self.ansi_colors_15,
-                custom_name: &mut self.custom_names_15,
-                custom_foreground: &mut self.custom_colors_foreground_15,
-                custom_background: &mut self.custom_colors_background_15,
-            },
+            value.ansi_colors_0.convert(),
+            value.ansi_colors_1.convert(),
+            value.ansi_colors_2.convert(),
+            value.ansi_colors_3.convert(),
+            value.ansi_colors_4.convert(),
+            value.ansi_colors_5.convert(),
+            value.ansi_colors_6.convert(),
+            value.ansi_colors_7.convert(),
+            value.ansi_colors_8.convert(),
+            value.ansi_colors_9.convert(),
+            value.ansi_colors_10.convert(),
+            value.ansi_colors_11.convert(),
+            value.ansi_colors_12.convert(),
+            value.ansi_colors_13.convert(),
+            value.ansi_colors_14.convert(),
+            value.ansi_colors_15.convert(),
         ]
     }
 }

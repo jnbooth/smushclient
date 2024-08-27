@@ -129,10 +129,8 @@ pub struct World {
     // ANSI Color
     pub use_default_colors: bool,
     pub ansi_colors: [RgbColor; 16],
-
-    // Custom Color
-    pub custom_names: [String; 16],
-    pub custom_colors: [ColorPair; 16],
+    pub custom_color: RgbColor,
+    pub error_color: RgbColor,
 
     // Triggers
     #[serde(serialize_with = "skip_temporary")]
@@ -240,11 +238,6 @@ impl Default for World {
 
 impl World {
     pub fn new() -> Self {
-        let custom_names: [String; 16] = (1..=16)
-            .map(|i| format!("Custom{i}"))
-            .collect::<Vec<_>>()
-            .try_into()
-            .unwrap();
         Self {
             // IP address
             name: String::new(),
@@ -348,8 +341,8 @@ impl World {
             // ANSI Color
             use_default_colors: true,
             ansi_colors: *RgbColor::XTERM_16,
-            custom_names,
-            custom_colors: [ColorPair::foreground(RgbColor::BLACK); 16],
+            custom_color: RgbColor::rgb(0, 164, 152),
+            error_color: RgbColor::rgb(127, 0, 0),
 
             // Triggers
             triggers: Vec::new(),
@@ -446,13 +439,6 @@ impl World {
             // Hidden
             plugins: Vec::new(),
         }
-    }
-
-    // Each plugin has one of these.
-    pub fn custom_color_map(&self) -> HashMap<String, ColorPair> {
-        let custom_names = self.custom_names.iter().map(ToOwned::to_owned);
-        let custom_colors = self.custom_colors.iter().map(ToOwned::to_owned);
-        custom_names.zip(custom_colors).collect()
     }
 
     pub fn world_plugin(&self) -> Option<Plugin> {

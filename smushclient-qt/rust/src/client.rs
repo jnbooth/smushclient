@@ -2,12 +2,13 @@ use std::fs::File;
 use std::io::Read;
 use std::pin::Pin;
 
+use crate::convert::Convert;
 use crate::ffi;
 use crate::handler::ClientHandler;
 use crate::sync::NonBlockingMutex;
 use crate::world::WorldRust;
 use cxx_qt::Initialize;
-use cxx_qt_lib::QString;
+use cxx_qt_lib::{QColor, QString};
 use enumeration::EnumSet;
 use mud_transformer::{Tag, Transformer};
 use smushclient::world::PersistError;
@@ -41,6 +42,8 @@ pub struct SmushClientRust {
     client: SmushClient,
     transformer: Transformer,
     buf: Vec<u8>,
+    custom_color: QColor,
+    error_color: QColor,
     input_lock: NonBlockingMutex,
     output_lock: NonBlockingMutex,
 }
@@ -56,8 +59,7 @@ impl SmushClientRust {
             return false;
         };
         *world = WorldRust::from(&worldfile);
-        let config = self.client.set_world(worldfile);
-        self.transformer.set_config(config);
+        self.apply_world(worldfile);
         true
     }
 
@@ -80,7 +82,14 @@ impl SmushClientRust {
     }
 
     pub fn set_world(&mut self, world: &WorldRust) {
-        let config = self.client.set_world(world.into());
+        let world = World::from(world);
+        self.apply_world(world);
+    }
+
+    fn apply_world(&mut self, world: World) {
+        self.custom_color = world.custom_color.convert();
+        self.error_color = world.error_color.convert();
+        let config = self.client.set_world(world);
         self.transformer.set_config(config);
     }
 
@@ -91,6 +100,8 @@ impl SmushClientRust {
         let mut handler = ClientHandler {
             doc: doc.into(),
             socket: device.into(),
+            custom_color: &self.custom_color,
+            error_color: &self.error_color,
         };
 
         let output_lock = self.output_lock.lock();
@@ -101,7 +112,7 @@ impl SmushClientRust {
                 Ok(n) => n,
                 Err(e) => {
                     self.done = true;
-                    handler.doc.display_error(&QString::from(&e.to_string()));
+                    handler.display_error(&e.to_string());
                     self.client
                         .receive(self.transformer.flush_output(), &mut handler);
                     return i64::try_from(total_read).unwrap();
@@ -110,7 +121,7 @@ impl SmushClientRust {
             total_read += n;
             let (received, buf) = self.buf.split_at_mut(n);
             if let Err(e) = self.transformer.receive(received, buf) {
-                handler.doc.display_error(&QString::from(&e.to_string()));
+                handler.display_error(&e.to_string());
                 return -1;
             }
         }
@@ -121,8 +132,8 @@ impl SmushClientRust {
 
         let input_lock = self.input_lock.lock();
         if let Some(mut drain) = self.transformer.drain_input() {
-            if let Err(e) = drain.write_all_to(handler.socket) {
-                handler.doc.display_error(&QString::from(&e.to_string()));
+            if let Err(e) = drain.write_all_to(&mut handler.socket) {
+                handler.display_error(&e.to_string());
                 return -1;
             }
         }

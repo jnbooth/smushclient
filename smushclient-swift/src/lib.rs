@@ -318,9 +318,8 @@ pub mod ffi {
 
         use_default_colors: bool,
         ansi_colors: Vec<RgbColor>,
-
-        custom_names: Vec<String>,
-        custom_colors: Vec<ColorPair>,
+        custom_color: RgbColor,
+        error_color: RgbColor,
 
         triggers: Vec<Trigger>,
         enable_triggers: bool,

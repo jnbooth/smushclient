@@ -8,7 +8,6 @@
 #include "prefs/output.h"
 #include "prefs/mxp.h"
 #include "prefs/color.h"
-#include "prefs/customcolor.h"
 #include "prefs/commands.h"
 #include "prefs/aliases.h"
 #include "prefs/triggers.h"
@@ -25,8 +24,7 @@ WorldPrefs::WorldPrefs(World *world, QWidget *parent)
   setupPane(new PrefsChat(world, this), "Chat");
   setupPane(new PrefsOutput(world, this), "Output");
   setupPane(new PrefsMxp(world, this), "MXP");
-  setupPane(new PrefsColor(world, this), "ANSI Colour");
-  setupPane(new PrefsCustomColor(world, this), "Custom Colour");
+  setupPane(new PrefsColor(world, this), "Colour");
   setupPane(new PrefsCommands(world, this), "Commands");
   setupPane(new PrefsAliases(world, this), "Aliases");
   setupPane(new PrefsTriggers(world, this), "Triggers");

@@ -56,7 +56,6 @@ qt_add_executable(${APP_NAME}
     cpp/ui/prefs/aliases.h cpp/ui/prefs/aliases.cpp cpp/ui/prefs/aliases.ui
     cpp/ui/prefs/color.h cpp/ui/prefs/color.cpp cpp/ui/prefs/color.ui
     cpp/ui/prefs/commands.h cpp/ui/prefs/commands.cpp cpp/ui/prefs/commands.ui
-    cpp/ui/prefs/customcolor.h cpp/ui/prefs/customcolor.cpp cpp/ui/prefs/customcolor.ui
     cpp/ui/prefs/logging.h cpp/ui/prefs/logging.cpp cpp/ui/prefs/logging.ui
     cpp/ui/prefs/mxp.h cpp/ui/prefs/mxp.cpp cpp/ui/prefs/mxp.ui
     cpp/ui/prefs/output.h cpp/ui/prefs/output.cpp cpp/ui/prefs/output.ui

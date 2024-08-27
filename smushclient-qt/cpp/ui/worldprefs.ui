@@ -93,12 +93,7 @@
         </item>
         <item>
          <property name="text">
-          <string>ANSI Colour</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Custom Colour</string>
+          <string>Colour</string>
          </property>
         </item>
         <item>

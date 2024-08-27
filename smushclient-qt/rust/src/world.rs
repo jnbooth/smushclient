@@ -9,15 +9,12 @@ use crate::convert::Convert;
 use crate::ffi;
 use crate::sender::{AliasRust, TimerRust, TriggerRust};
 use cxx_qt_lib::{QColor, QString, QStringList};
-use mud_transformer::mxp::RgbColor;
 use smushclient::world::ColorPair;
 use smushclient::World;
 use smushclient_plugins::{Alias, RegexError, Timer, Trigger};
 
 #[derive(Default)]
 pub struct WorldRust {
-    colors: Colors,
-
     // IP address
     pub name: QString,
     pub site: QString,
@@ -119,7 +116,10 @@ pub struct WorldRust {
     pub send_mxp_afk_response: bool,
 
     // ANSI Color
+    pub ansi_colors: Colors,
     pub use_default_colors: bool,
+    pub custom_color: QColor,
+    pub error_color: QColor,
 
     // Triggers
     pub triggers: Vec<Trigger>,
@@ -218,7 +218,7 @@ pub struct WorldRust {
     pub plugins: QStringList,
 }
 
-impl_deref!(WorldRust, Colors, colors);
+impl_deref!(WorldRust, Colors, ansi_colors);
 
 impl WorldRust {
     pub fn add_alias(&mut self, alias: &AliasRust) -> Result<(), RegexError> {
@@ -284,23 +284,7 @@ impl WorldRust {
 
 impl From<&World> for WorldRust {
     fn from(world: &World) -> Self {
-        let mut colors = Colors::default();
-        let iter = colors
-            .array_mut()
-            .into_iter()
-            .zip(world.ansi_colors.iter())
-            .zip(world.custom_names.iter())
-            .zip(world.custom_colors.iter());
-
-        for (((entry, ansi_color), custom_name), custom_color) in iter {
-            *entry.ansi_foreground = ansi_color.convert();
-            *entry.custom_name = QString::from(custom_name);
-            *entry.custom_foreground = custom_color.foreground.convert();
-            *entry.custom_background = custom_color.background.convert();
-        }
-
         Self {
-            colors,
             name: QString::from(&world.name),
             site: QString::from(&world.site),
             port: i32::from(world.port),
@@ -384,7 +368,10 @@ impl From<&World> for WorldRust {
             echo_hyperlink_in_output_window: world.echo_hyperlink_in_output_window,
             ignore_mxp_color_changes: world.ignore_mxp_color_changes,
             send_mxp_afk_response: world.send_mxp_afk_response,
+            ansi_colors: Colors::from(&world.ansi_colors),
             use_default_colors: world.use_default_colors,
+            custom_color: world.custom_color.convert(),
+            error_color: world.error_color.convert(),
             triggers: world.triggers.clone(),
             enable_triggers: world.enable_triggers,
             enable_trigger_sounds: world.enable_trigger_sounds,
@@ -469,26 +456,6 @@ impl From<&World> for WorldRust {
 #[allow(clippy::useless_conversion)]
 impl From<&WorldRust> for World {
     fn from(value: &WorldRust) -> Self {
-        let mut ansi_colors = <[RgbColor; 16]>::default();
-        let mut custom_names = <[String; 16]>::default();
-        let mut custom_colors = <[ColorPair; 16]>::default();
-        let iter = value
-            .colors
-            .array()
-            .into_iter()
-            .zip(ansi_colors.iter_mut())
-            .zip(custom_names.iter_mut())
-            .zip(custom_colors.iter_mut());
-
-        for (((entry, ansi_color), custom_name), custom_color) in iter {
-            *ansi_color = entry.ansi_foreground.convert();
-            *custom_name = String::from(entry.custom_name);
-            *custom_color = ColorPair {
-                foreground: entry.custom_foreground.convert(),
-                background: entry.custom_background.convert(),
-            }
-        }
-
         Self {
             name: String::from(&value.name),
             site: String::from(&value.site),
@@ -575,10 +542,10 @@ impl From<&WorldRust> for World {
             echo_hyperlink_in_output_window: value.echo_hyperlink_in_output_window,
             ignore_mxp_color_changes: value.ignore_mxp_color_changes,
             send_mxp_afk_response: value.send_mxp_afk_response,
+            ansi_colors: (&value.ansi_colors).into(),
             use_default_colors: value.use_default_colors,
-            ansi_colors,
-            custom_names,
-            custom_colors,
+            custom_color: value.custom_color.convert(),
+            error_color: value.error_color.convert(),
             triggers: value.triggers.clone(),
             enable_triggers: value.enable_triggers,
             enable_trigger_sounds: value.enable_trigger_sounds,
