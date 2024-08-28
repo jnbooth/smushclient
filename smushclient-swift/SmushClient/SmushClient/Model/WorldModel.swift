@@ -1,31 +1,32 @@
 import SwiftUI
 
 private let defaultHyperlinkColor = NSColor.linkColor.usingColorSpace(.sRGB)!
-private let defaultChatColor = NSColor(red: 1, green: 1, blue: 1, alpha: 1)
-private let defaultCustomColor = NSColor(red: 0, green: 0, blue: 0, alpha: 1)
-private let defaultEchoColor = NSColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1)
-private let defaultNoteTextColor = NSColor(red: 0, green: 0.5, blue: 1, alpha: 1)
+private let defaultChatColor = nscolor(srgbRed: 1, green: 1, blue: 1, alpha: 1)
+private let defaultCustomColor = nscolor(srgbRed: 0, green: 164, blue: 152, alpha: 1)
+private let defaultEchoColor = nscolor(srgbRed: 0.5, green: 0.5, blue: 0.5, alpha: 1)
+private let defaultErrorColor = nscolor(srgbRed: 1, green: 0, blue: 0, alpha: 1)
+private let defaultNoteTextColor = nscolor(srgbRed: 0, green: 0.5, blue: 1, alpha: 1)
 private let defaultCustomNames = [
   "Custom1", "Custom2", "Custom3", "Custom4", "Custom5", "Custom6", "Custom7", "Custom8",
   "Custom9", "Custom10", "Custom11", "Custom12", "Custom13", "Custom14", "Custom15", "Custom16",
 ]
 private let defaultAnsiColors: [NSColor] = [
-  NSColor(red: 0, green: 0, blue: 0, alpha: 1),  // black
-  NSColor(red: 0.5, green: 0, blue: 0, alpha: 1),  // red
-  NSColor(red: 0, green: 0.5, blue: 0, alpha: 1),  // green
-  NSColor(red: 0.5, green: 0.5, blue: 0, alpha: 1),  // yellow
-  NSColor(red: 0, green: 0, blue: 0.5, alpha: 1),  // blue
-  NSColor(red: 0.5, green: 0, blue: 0.5, alpha: 1),  // purple
-  NSColor(red: 0, green: 0.5, blue: 0.5, alpha: 1),  // cyan
-  NSColor(red: 0.75, green: 0.75, blue: 0.75, alpha: 1),  // white
-  NSColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1),  // bright black
-  NSColor(red: 1, green: 0, blue: 0, alpha: 1),  // bright red
-  NSColor(red: 0, green: 1, blue: 0, alpha: 1),  // bright green
-  NSColor(red: 1, green: 1, blue: 0, alpha: 1),  //bright yellow
-  NSColor(red: 0, green: 0, blue: 1, alpha: 1),  // bright blue
-  NSColor(red: 1, green: 0, blue: 1, alpha: 1),  // bright purple
-  NSColor(red: 0, green: 1, blue: 1, alpha: 1),  // bright cyan
-  NSColor(red: 1, green: 1, blue: 1, alpha: 1),  // bright white
+  nscolor(srgbRed: 0, green: 0, blue: 0, alpha: 1),  // black
+  nscolor(srgbRed: 0.5, green: 0, blue: 0, alpha: 1),  // red
+  nscolor(srgbRed: 0, green: 0.5, blue: 0, alpha: 1),  // green
+  nscolor(srgbRed: 0.5, green: 0.5, blue: 0, alpha: 1),  // yellow
+  nscolor(srgbRed: 0, green: 0, blue: 0.5, alpha: 1),  // blue
+  nscolor(srgbRed: 0.5, green: 0, blue: 0.5, alpha: 1),  // purple
+  nscolor(srgbRed: 0, green: 0.5, blue: 0.5, alpha: 1),  // cyan
+  nscolor(srgbRed: 0.75, green: 0.75, blue: 0.75, alpha: 1),  // white
+  nscolor(srgbRed: 0.5, green: 0.5, blue: 0.5, alpha: 1),  // bright black
+  nscolor(srgbRed: 1, green: 0, blue: 0, alpha: 1),  // bright red
+  nscolor(srgbRed: 0, green: 1, blue: 0, alpha: 1),  // bright green
+  nscolor(srgbRed: 1, green: 1, blue: 0, alpha: 1),  //bright yellow
+  nscolor(srgbRed: 0, green: 0, blue: 1, alpha: 1),  // bright blue
+  nscolor(srgbRed: 1, green: 0, blue: 1, alpha: 1),  // bright purple
+  nscolor(srgbRed: 0, green: 1, blue: 1, alpha: 1),  // bright cyan
+  nscolor(srgbRed: 1, green: 1, blue: 1, alpha: 1),  // bright white
 ]
 
 @Observable
@@ -116,9 +117,8 @@ class WorldModel {
   var send_mxp_afk_response: Bool = true
   var use_default_colors: Bool = true
   var ansi_colors: [NSColor] = defaultAnsiColors
-  var custom_names: [String] = defaultCustomNames
-  var custom_colors: [ColorPairModel] = Array(
-    repeating: ColorPairModel(foreground: defaultCustomColor), count: 16)
+  var custom_color: NSColor = defaultCustomColor
+  var error_color: NSColor = defaultErrorColor
   var triggers: [TriggerModel] = []
   var enable_triggers: Bool = true
   var enable_trigger_sounds: Bool = true
@@ -244,7 +244,9 @@ class WorldModel {
     beep_sound = world.beep_sound.toString()
     pixel_offset = world.pixel_offset
     line_spacing = world.line_spacing
-    if let output_font = NSFont(name: world.output_font.toString(), size: CGFloat(world.output_font_size)) {
+    if let output_font = NSFont(
+      name: world.output_font.toString(), size: CGFloat(world.output_font_size))
+    {
       self.output_font = output_font
     }
     use_default_output_font = world.use_default_output_font
@@ -282,8 +284,8 @@ class WorldModel {
     send_mxp_afk_response = world.send_mxp_afk_response
     use_default_colors = world.use_default_colors
     ansi_colors = fromVec(world.ansi_colors, by: NSColor.init)
-    custom_names = fromVec(world.custom_names) { $0.as_str().toString() }
-    custom_colors = fromVec(world.custom_colors, by: ColorPairModel.init)
+    custom_color = NSColor(world.custom_color)
+    error_color = NSColor(world.error_color)
     triggers = fromVec(world.triggers, by: TriggerModel.init)
     enable_triggers = world.enable_triggers
     enable_trigger_sounds = world.enable_trigger_sounds
@@ -297,7 +299,9 @@ class WorldModel {
     enable_command_stack = world.enable_command_stack
     command_stack_character = world.command_stack_character.toString()
     input_colors = ColorPairModel(world.input_colors)
-    if let input_font = NSFont(name: world.input_font.toString(), size: CGFloat(world.input_font_size)) {
+    if let input_font = NSFont(
+      name: world.input_font.toString(), size: CGFloat(world.input_font_size))
+    {
       self.input_font = input_font
     }
     use_default_input_font = world.use_default_input_font
@@ -450,8 +454,8 @@ extension World {
     send_mxp_afk_response = world.send_mxp_afk_response
     use_default_colors = world.use_default_colors
     ansi_colors = intoVec(world.ansi_colors, by: RgbColor.init)
-    custom_names = intoVec(world.custom_names) { $0.intoRustString() }
-    custom_colors = intoVec(world.custom_colors, by: ColorPair.init)
+    custom_color = RgbColor(world.custom_color)
+    error_color = RgbColor(world.error_color)
     triggers = intoVec(world.triggers, by: Trigger.init)
     enable_triggers = world.enable_triggers
     enable_trigger_sounds = world.enable_trigger_sounds

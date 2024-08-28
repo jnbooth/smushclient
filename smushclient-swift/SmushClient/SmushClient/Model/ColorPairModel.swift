@@ -6,7 +6,7 @@ class ColorPairModel {
   var background: NSColor?
 
   init() {
-    foreground = NSColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1)
+    foreground = NSColor(srgbRed: 0.5, green: 0.5, blue: 0.5, alpha: 1)
     background = nil
   }
 
