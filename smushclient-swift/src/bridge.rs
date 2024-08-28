@@ -101,6 +101,7 @@ pub struct RustMudBridge {
     client: SmushClient,
     input_lock: NonBlockingMutex,
     output_lock: NonBlockingMutex,
+    stream_lock: NonBlockingMutex,
 }
 
 impl RustMudBridge {
@@ -150,14 +151,22 @@ impl RustMudBridge {
         let stream = TcpStream::connect((world.site.clone(), world.port))
             .await
             .str()?;
-        let locks = (self.output_lock.lock(), self.input_lock.lock());
+        let locks = (
+            self.stream_lock.lock(),
+            self.output_lock.lock(),
+            self.input_lock.lock(),
+        );
         self.stream = Some(MudStream::new(stream, self.client.config()));
         drop(locks);
         Ok(())
     }
 
     pub async fn disconnect(&mut self) -> Result<(), String> {
-        let locks = (self.output_lock.lock(), self.input_lock.lock());
+        let locks = (
+            self.stream_lock.lock(),
+            self.output_lock.lock(),
+            self.input_lock.lock(),
+        );
         let result = match self.stream {
             Some(ref mut stream) => stream.shutdown().await.str(),
             None => Ok(()),
@@ -167,11 +176,13 @@ impl RustMudBridge {
     }
 
     pub async fn receive(&mut self) -> Result<RustOutputStream, String> {
-        let lock = self.output_lock.lock();
+        let lock = self.stream_lock.lock();
         let result = match self.stream {
             Some(ref mut stream) => stream.read().await.str()?,
             None => None,
         };
+        drop(lock);
+        let lock = self.output_lock.lock();
         let mut handler = ClientHandler::new();
         if let Some(output) = result {
             self.client.receive(output, &mut handler);

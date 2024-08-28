@@ -67,6 +67,11 @@ pub mod ffi {
         type QTime = cxx_qt_lib::QTime;
     }
 
+    unsafe extern "C++" {
+        include!("cxx-qt-lib/qvector.h");
+        type QVector_QColor = cxx_qt_lib::QVector<QColor>;
+    }
+
     extern "C++Qt" {
         include!(<QtNetwork/QTcpSocket>);
         type QTcpSocket;
@@ -100,7 +105,7 @@ pub mod ffi {
         unsafe fn appendLine(self: Pin<&mut Document>);
 
         #[rust_name = "append_plaintext"]
-        unsafe fn appendText(self: Pin<&mut Document>, text: &QString, foreground: &QColor);
+        unsafe fn appendText(self: Pin<&mut Document>, text: &QString, palette: i32);
 
         #[rust_name = "append_text"]
         unsafe fn appendText(
@@ -123,7 +128,6 @@ pub mod ffi {
 
         #[rust_name = "set_input"]
         unsafe fn setInput(self: Pin<&mut Document>, text: &QString);
-
     }
 
     extern "RustQt" {
@@ -136,14 +140,13 @@ pub mod ffi {
         fn populate_world(self: &SmushClient, world: Pin<&mut World>);
         fn save_world(self: &SmushClient, path: &QString) -> bool;
         fn set_world(self: Pin<&mut SmushClient>, world: &World);
+        fn palette(self: &SmushClient) -> QVector_QColor;
         fn read(
             self: Pin<&mut SmushClient>,
             device: Pin<&mut QTcpSocket>,
             doc: Pin<&mut Document>,
         ) -> i64;
     }
-
-    impl cxx_qt::Constructor<()> for SmushClient {}
 
     unsafe impl !cxx_qt::Locking for SmushClient {}
 

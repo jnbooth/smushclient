@@ -480,6 +480,17 @@ impl World {
             _ => Err(PersistError::NotSave),
         }
     }
+
+    pub fn palette(&self) -> [RgbColor; 166] {
+        let mut palette = [RgbColor::BLACK; 166];
+        palette[0] = self.custom_color;
+        palette[1] = self.error_color;
+        palette[2..18].copy_from_slice(&self.ansi_colors);
+        for (slot, (_name, color)) in palette[19..].iter_mut().zip(RgbColor::iter_named()) {
+            *slot = color;
+        }
+        palette
+    }
 }
 
 impl From<&World> for TransformerConfig {

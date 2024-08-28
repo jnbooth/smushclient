@@ -1,22 +1,26 @@
 use crate::adapters::{DocumentAdapter, SocketAdapter};
 use crate::convert::Convert;
-use cxx_qt_lib::{QColor, QString};
+use cxx_qt_lib::QString;
+use mud_transformer::mxp::RgbColor;
 use mud_transformer::{Output, OutputFragment, TextFragment};
 use smushclient::SendRequest;
 use smushclient_plugins::SendTarget;
+use std::collections::HashMap;
 use std::io::Write;
 
 pub struct ClientHandler<'a> {
     pub doc: DocumentAdapter<'a>,
     pub socket: SocketAdapter<'a>,
-    pub custom_color: &'a QColor,
-    pub error_color: &'a QColor,
+    pub palette: &'a HashMap<RgbColor, i32>,
 }
+
+const CUSTOM_FORMAT_INDEX: i32 = 0;
+const ERROR_FORMAT_INDEX: i32 = 1;
 
 impl<'a> ClientHandler<'a> {
     pub fn display_error(&mut self, error: &str) {
         self.doc
-            .append_plaintext(&QString::from(error), self.error_color);
+            .append_plaintext(&QString::from(error), ERROR_FORMAT_INDEX);
     }
 
     fn display_linebreak(&mut self) {
@@ -25,6 +29,15 @@ impl<'a> ClientHandler<'a> {
 
     fn display_text(&mut self, fragment: TextFragment) {
         let text = QString::from(&*fragment.text);
+        if fragment.flags.is_empty()
+            && fragment.background == RgbColor::BLACK
+            && fragment.action.is_none()
+        {
+            if let Some(index) = self.palette.get(&fragment.foreground) {
+                self.doc.append_plaintext(&text, *index);
+                return;
+            }
+        }
         let style = fragment.flags.to_raw();
         let foreground = fragment.foreground.convert();
         let background = fragment.background.convert();
@@ -49,7 +62,7 @@ impl<'a> smushclient::SendHandler for ClientHandler<'a> {
             }
             SendTarget::Output => {
                 self.doc
-                    .append_plaintext(&QString::from(text), self.custom_color);
+                    .append_plaintext(&QString::from(text), CUSTOM_FORMAT_INDEX);
             }
             SendTarget::World | SendTarget::WorldDelay | SendTarget::WorldImmediate => {
                 if let Err(e) = self.socket.write_all(format!("{text}\r\n").as_bytes()) {

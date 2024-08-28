@@ -19,7 +19,7 @@ mod sync;
 
 use crate::bridge::{RustAliasOutcome, RustMudBridge, RustOutputStream, RustSendStream};
 use crate::io::{create_world, read_world, write_world};
-use crate::output::{RustMxpLink, RustTextFragment};
+use crate::output::{RustMxpLink, RustNamedColorIter, RustTextFragment};
 
 fn convert_opt<Ffi, Rust: Into<Ffi>>(from: Option<Rust>) -> Option<Ffi> {
     from.map(Into::into)
@@ -414,6 +414,13 @@ pub mod ffi {
         H4,
         H5,
         H6,
+    }
+
+    extern "Rust" {
+        type RustNamedColorIter;
+        #[swift_bridge(init)]
+        fn new() -> RustNamedColorIter;
+        fn next(&mut self) -> Option<RgbColor>;
     }
 
     extern "Rust" {

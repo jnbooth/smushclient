@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 use std::pin::Pin;
@@ -7,9 +8,9 @@ use crate::ffi;
 use crate::handler::ClientHandler;
 use crate::sync::NonBlockingMutex;
 use crate::world::WorldRust;
-use cxx_qt::Initialize;
-use cxx_qt_lib::{QColor, QString};
+use cxx_qt_lib::{QColor, QString, QVector};
 use enumeration::EnumSet;
+use mud_transformer::mxp::RgbColor;
 use mud_transformer::{Tag, Transformer};
 use smushclient::world::PersistError;
 use smushclient::{SmushClient, World};
@@ -36,24 +37,31 @@ const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Underline
 ];
 
-#[derive(Default)]
 pub struct SmushClientRust {
     done: bool,
     client: SmushClient,
     transformer: Transformer,
     buf: Vec<u8>,
-    custom_color: QColor,
-    error_color: QColor,
     input_lock: NonBlockingMutex,
     output_lock: NonBlockingMutex,
+    palette: HashMap<RgbColor, i32>,
+}
+
+impl Default for SmushClientRust {
+    fn default() -> Self {
+        Self {
+            done: false,
+            client: SmushClient::new(World::default(), SUPPORTED_TAGS),
+            transformer: Transformer::default(),
+            buf: vec![0; BUF_LEN],
+            input_lock: NonBlockingMutex::default(),
+            output_lock: NonBlockingMutex::default(),
+            palette: HashMap::with_capacity(166),
+        }
+    }
 }
 
 impl SmushClientRust {
-    fn initialize(&mut self) {
-        self.buf.resize(BUF_LEN, 0);
-        self.client.set_supported_tags(SUPPORTED_TAGS);
-    }
-
     pub fn load_world(&mut self, path: &QString, world: &mut WorldRust) -> bool {
         let Ok(worldfile) = Self::try_load_world(path) else {
             return false;
@@ -86,9 +94,20 @@ impl SmushClientRust {
         self.apply_world(world);
     }
 
+    pub fn palette(&self) -> Vec<QColor> {
+        self.client
+            .world()
+            .palette()
+            .iter()
+            .map(Convert::convert)
+            .collect()
+    }
+
     fn apply_world(&mut self, world: World) {
-        self.custom_color = world.custom_color.convert();
-        self.error_color = world.error_color.convert();
+        self.palette.clear();
+        for (i, color) in world.palette().iter().enumerate() {
+            self.palette.insert(*color, i32::try_from(i).unwrap());
+        }
         let config = self.client.set_world(world);
         self.transformer.set_config(config);
     }
@@ -100,8 +119,7 @@ impl SmushClientRust {
         let mut handler = ClientHandler {
             doc: doc.into(),
             socket: device.into(),
-            custom_color: &self.custom_color,
-            error_color: &self.error_color,
+            palette: &self.palette,
         };
 
         let output_lock = self.output_lock.lock();
@@ -143,12 +161,6 @@ impl SmushClientRust {
     }
 }
 
-impl Initialize for ffi::SmushClient {
-    fn initialize(self: Pin<&mut Self>) {
-        self.cxx_qt_ffi_rust_mut().initialize();
-    }
-}
-
 impl ffi::SmushClient {
     pub fn load_world(self: Pin<&mut Self>, path: &QString, world: Pin<&mut ffi::World>) -> bool {
         self.cxx_qt_ffi_rust_mut()
@@ -167,6 +179,10 @@ impl ffi::SmushClient {
     pub fn set_world(self: Pin<&mut Self>, world: &ffi::World) {
         self.cxx_qt_ffi_rust_mut()
             .set_world(world.cxx_qt_ffi_rust());
+    }
+
+    pub fn palette(&self) -> QVector<QColor> {
+        QVector::from(&self.cxx_qt_ffi_rust().palette())
     }
 
     pub fn read(

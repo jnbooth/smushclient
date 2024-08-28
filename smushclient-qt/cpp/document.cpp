@@ -75,11 +75,9 @@ void Document::appendLine()
   cursor.insertBlock();
 }
 
-void Document::appendText(const QString &text, const QColor &foreground)
+void Document::appendText(const QString &text, int foreground)
 {
-  QTextCharFormat format;
-  format.setForeground(QBrush(foreground));
-  cursor.insertText(text, format);
+  cursor.insertText(text, formats[foreground]);
 }
 
 void Document::appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background)
@@ -117,4 +115,16 @@ void Document::setInput(const QString &text)
 void Document::setLineEdit(QLineEdit *lineEdit)
 {
   input = lineEdit;
+}
+
+void Document::setPalette(const QVector<QColor> &palette)
+{
+  QTextCharFormat *format = &formats[0];
+  for (QColor color : palette)
+  {
+    QTextCharFormat colorFormat;
+    colorFormat.setForeground(QBrush(color));
+    *format = colorFormat;
+    ++format;
+  }
 }

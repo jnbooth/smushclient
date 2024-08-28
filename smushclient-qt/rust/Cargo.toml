@@ -27,7 +27,7 @@ version = "0.8.0"
 
 [dependencies.mud-transformer]
 git = "https://github.com/jnbooth/mxp"
-rev = "41ac42260007dac18426ee99027305bf56f514ba"
+rev = "7fabb4bbe03e768d477476d794ebb3a6d8801e86"
 
 [dependencies.smushclient]
 path = "../../smushclient"

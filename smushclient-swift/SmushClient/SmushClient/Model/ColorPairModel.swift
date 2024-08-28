@@ -1,5 +1,21 @@
 import SwiftUI
 
+extension RgbColor: Equatable {
+  public static func == (lhs: RgbColor, rhs: RgbColor) -> Bool {
+    lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b
+  }
+}
+
+extension RgbColor: Hashable {
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(r)
+    hasher.combine(g)
+    hasher.combine(g)
+  }
+}
+
+extension RgbColor: @unchecked Sendable {}
+
 @Observable
 class ColorPairModel {
   var foreground: NSColor?

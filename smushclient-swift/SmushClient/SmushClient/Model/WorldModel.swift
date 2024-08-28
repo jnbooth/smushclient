@@ -1,32 +1,32 @@
 import SwiftUI
 
 private let defaultHyperlinkColor = NSColor.linkColor.usingColorSpace(.sRGB)!
-private let defaultChatColor = nscolor(srgbRed: 1, green: 1, blue: 1, alpha: 1)
-private let defaultCustomColor = nscolor(srgbRed: 0, green: 164, blue: 152, alpha: 1)
-private let defaultEchoColor = nscolor(srgbRed: 0.5, green: 0.5, blue: 0.5, alpha: 1)
-private let defaultErrorColor = nscolor(srgbRed: 1, green: 0, blue: 0, alpha: 1)
-private let defaultNoteTextColor = nscolor(srgbRed: 0, green: 0.5, blue: 1, alpha: 1)
+private let defaultChatColor = NSColor(srgbRed: 1, green: 1, blue: 1, alpha: 1)
+private let defaultCustomColor = NSColor(srgbRed: 0, green: 164, blue: 152, alpha: 1)
+private let defaultEchoColor = NSColor(srgbRed: 0.5, green: 0.5, blue: 0.5, alpha: 1)
+private let defaultErrorColor = NSColor(srgbRed: 1, green: 0, blue: 0, alpha: 1)
+private let defaultNoteTextColor = NSColor(srgbRed: 0, green: 0.5, blue: 1, alpha: 1)
 private let defaultCustomNames = [
   "Custom1", "Custom2", "Custom3", "Custom4", "Custom5", "Custom6", "Custom7", "Custom8",
   "Custom9", "Custom10", "Custom11", "Custom12", "Custom13", "Custom14", "Custom15", "Custom16",
 ]
 private let defaultAnsiColors: [NSColor] = [
-  nscolor(srgbRed: 0, green: 0, blue: 0, alpha: 1),  // black
-  nscolor(srgbRed: 0.5, green: 0, blue: 0, alpha: 1),  // red
-  nscolor(srgbRed: 0, green: 0.5, blue: 0, alpha: 1),  // green
-  nscolor(srgbRed: 0.5, green: 0.5, blue: 0, alpha: 1),  // yellow
-  nscolor(srgbRed: 0, green: 0, blue: 0.5, alpha: 1),  // blue
-  nscolor(srgbRed: 0.5, green: 0, blue: 0.5, alpha: 1),  // purple
-  nscolor(srgbRed: 0, green: 0.5, blue: 0.5, alpha: 1),  // cyan
-  nscolor(srgbRed: 0.75, green: 0.75, blue: 0.75, alpha: 1),  // white
-  nscolor(srgbRed: 0.5, green: 0.5, blue: 0.5, alpha: 1),  // bright black
-  nscolor(srgbRed: 1, green: 0, blue: 0, alpha: 1),  // bright red
-  nscolor(srgbRed: 0, green: 1, blue: 0, alpha: 1),  // bright green
-  nscolor(srgbRed: 1, green: 1, blue: 0, alpha: 1),  //bright yellow
-  nscolor(srgbRed: 0, green: 0, blue: 1, alpha: 1),  // bright blue
-  nscolor(srgbRed: 1, green: 0, blue: 1, alpha: 1),  // bright purple
-  nscolor(srgbRed: 0, green: 1, blue: 1, alpha: 1),  // bright cyan
-  nscolor(srgbRed: 1, green: 1, blue: 1, alpha: 1),  // bright white
+  NSColor(srgbRed: 0, green: 0, blue: 0, alpha: 1),  // black
+  NSColor(srgbRed: 0.5, green: 0, blue: 0, alpha: 1),  // red
+  NSColor(srgbRed: 0, green: 0.5, blue: 0, alpha: 1),  // green
+  NSColor(srgbRed: 0.5, green: 0.5, blue: 0, alpha: 1),  // yellow
+  NSColor(srgbRed: 0, green: 0, blue: 0.5, alpha: 1),  // blue
+  NSColor(srgbRed: 0.5, green: 0, blue: 0.5, alpha: 1),  // purple
+  NSColor(srgbRed: 0, green: 0.5, blue: 0.5, alpha: 1),  // cyan
+  NSColor(srgbRed: 0.75, green: 0.75, blue: 0.75, alpha: 1),  // white
+  NSColor(srgbRed: 0.5, green: 0.5, blue: 0.5, alpha: 1),  // bright black
+  NSColor(srgbRed: 1, green: 0, blue: 0, alpha: 1),  // bright red
+  NSColor(srgbRed: 0, green: 1, blue: 0, alpha: 1),  // bright green
+  NSColor(srgbRed: 1, green: 1, blue: 0, alpha: 1),  //bright yellow
+  NSColor(srgbRed: 0, green: 0, blue: 1, alpha: 1),  // bright blue
+  NSColor(srgbRed: 1, green: 0, blue: 1, alpha: 1),  // bright purple
+  NSColor(srgbRed: 0, green: 1, blue: 1, alpha: 1),  // bright cyan
+  NSColor(srgbRed: 1, green: 1, blue: 1, alpha: 1),  // bright white
 ]
 
 @Observable
@@ -283,7 +283,7 @@ class WorldModel {
     ignore_mxp_color_changes = world.ignore_mxp_color_changes
     send_mxp_afk_response = world.send_mxp_afk_response
     use_default_colors = world.use_default_colors
-    ansi_colors = fromVec(world.ansi_colors, by: NSColor.init)
+    ansi_colors = fromVec(world.ansi_colors, by: Palette.namedColors.get)
     custom_color = NSColor(world.custom_color)
     error_color = NSColor(world.error_color)
     triggers = fromVec(world.triggers, by: TriggerModel.init)

@@ -6,11 +6,23 @@ extension RgbColor {
   }
 }
 
+private typealias Attributes = [NSAttributedString.Key: Any]
+
+private func createNamedColors() -> [RgbColor: NSColor] {
+  var colors: [RgbColor: NSColor] = Dictionary(minimumCapacity: 166)
+  let iter = RustNamedColorIter()
+  while let color = iter.next() {
+    colors[color] = NSColor(color)
+  }
+  return colors
+}
+
 struct OutputFormatter {
   private let echoCommands: Bool
   private let echoNewline: Bool
   private let fonts: OutputFonts
-  private let echoAttributes: [NSAttributedString.Key: Any]
+  private let echoAttributes: Attributes
+  private let palette: Palette
   let plainAttributes: [NSAttributedString.Key: Any]
 
   init() {
@@ -19,6 +31,7 @@ struct OutputFormatter {
     echoNewline = true
     plainAttributes = [.font: fonts.provide()]
     echoAttributes = [.font: fonts.provide()]
+    palette = Palette()
   }
 
   init(_ world: WorldModel) {
@@ -35,13 +48,21 @@ struct OutputFormatter {
       echoAttrs[.backgroundColor] = background
     }
     echoAttributes = echoAttrs
+    var paletteMut = Palette.namedColors
+    paletteMut.insert(world.custom_color)
+    paletteMut.insert(world.error_color)
+    for color in world.ansi_colors {
+      paletteMut.insert(color)
+    }
+    palette = paletteMut
   }
-  
+
   func formatInput(_ input: String) -> NSAttributedString? {
     if !echoCommands {
       return nil
     }
-    return NSAttributedString(string: echoNewline ? "\n" + input : input, attributes: echoAttributes)
+    return NSAttributedString(
+      string: echoNewline ? "\n" + input : input, attributes: echoAttributes)
   }
 
   func formatOutput(_ fragment: RustTextFragment) -> NSAttributedString {
@@ -49,12 +70,12 @@ struct OutputFormatter {
 
     var attrs: [NSAttributedString.Key: Any] = [
       .font: fonts.provide(bold: fragment.isBold(), italic: fragment.isItalic()),
-      .foregroundColor: NSColor(fragment.foreground()),
+      .foregroundColor: palette[fragment.foreground()],
     ]
 
     let background = fragment.background()
     if !background.isBlack() {
-      attrs[.backgroundColor] = NSColor(background)
+      attrs[.backgroundColor] = palette[background]
     }
 
     if let link = fragment.link() {

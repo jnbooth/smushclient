@@ -94,6 +94,7 @@ const QString &WorldTab::title() const
 
 void WorldTab::applyWorld()
 {
+  document.setPalette(client.palette());
   if (world.getUseDefaultInputFont())
     ui->input->setFont(defaultFont);
   else

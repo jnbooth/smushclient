@@ -19,7 +19,7 @@ version = "0.13.0"
 
 [dependencies.mxp]
 git = "https://github.com/jnbooth/mxp"
-rev = "41ac42260007dac18426ee99027305bf56f514ba"
+rev = "7fabb4bbe03e768d477476d794ebb3a6d8801e86"
 
 [dependencies.quick-xml]
 version = "0.36.1"

@@ -1,5 +1,7 @@
-use mud_transformer::mxp::{Heading, Link, RgbColor, SendTo};
+use mud_transformer::mxp::{Heading, Link, NamedColorIter, RgbColor, SendTo};
 use mud_transformer::{TextFragment, TextStyle};
+
+use crate::ffi;
 
 #[repr(transparent)]
 pub struct RustMxpLink {
@@ -79,4 +81,27 @@ impl RustTextFragment {
     flag_method!(is_italic, TextStyle::Italic);
     flag_method!(is_strikeout, TextStyle::Strikeout);
     flag_method!(is_underline, TextStyle::Underline);
+}
+
+#[repr(transparent)]
+pub struct RustNamedColorIter {
+    inner: NamedColorIter,
+}
+
+impl Default for RustNamedColorIter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl RustNamedColorIter {
+    pub fn new() -> Self {
+        Self {
+            inner: RgbColor::iter_named(),
+        }
+    }
+
+    pub fn next(&mut self) -> Option<ffi::RgbColor> {
+        self.inner.next().map(|(_k, color)| color.into())
+    }
 }
