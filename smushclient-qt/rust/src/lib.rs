@@ -126,6 +126,9 @@ pub mod ffi {
             link: &Link,
         );
 
+        #[rust_name = "display_status_message"]
+        unsafe fn displayStatusMessage(self: Pin<&mut Document>, text: &QString);
+
         #[rust_name = "set_input"]
         unsafe fn setInput(self: Pin<&mut Document>, text: &QString);
     }

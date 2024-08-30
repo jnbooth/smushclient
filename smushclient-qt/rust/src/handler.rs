@@ -57,6 +57,11 @@ impl<'a> smushclient::SendHandler for ClientHandler<'a> {
     fn send(&mut self, request: SendRequest) {
         let text = request.text;
         match request.sender.send_to {
+            SendTarget::World | SendTarget::WorldDelay | SendTarget::WorldImmediate => {
+                if let Err(e) = self.socket.write_all(format!("{text}\r\n").as_bytes()) {
+                    self.display_error(&e.to_string());
+                }
+            }
             SendTarget::Command => {
                 self.doc.set_input(&QString::from(text));
             }
@@ -64,10 +69,8 @@ impl<'a> smushclient::SendHandler for ClientHandler<'a> {
                 self.doc
                     .append_plaintext(&QString::from(text), CUSTOM_FORMAT_INDEX);
             }
-            SendTarget::World | SendTarget::WorldDelay | SendTarget::WorldImmediate => {
-                if let Err(e) = self.socket.write_all(format!("{text}\r\n").as_bytes()) {
-                    self.display_error(&e.to_string());
-                }
+            SendTarget::Status => {
+                self.doc.display_status_message(&QString::from(text));
             }
             _ => (),
         }

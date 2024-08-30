@@ -2,8 +2,25 @@
 #include "cxx-qt-gen/ffi.cxxqt.h"
 #include <QtGui/QTextDocument>
 #include <QtWidgets/QScrollBar>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QStatusBar>
 
 // Utilities
+
+QMainWindow *getMainWindow(QObject *obj)
+{
+  QObject *parent = obj->parent();
+  if (parent == nullptr)
+  {
+    return nullptr;
+  }
+  QMainWindow *window = qobject_cast<QMainWindow *>(parent);
+  if (window != nullptr)
+  {
+    return window;
+  }
+  return getMainWindow(parent);
+}
 
 inline bool hasStyle(quint16 flags, TextStyle style)
 {
@@ -68,7 +85,7 @@ static QTextCharFormat pluginFormat = foregroundFormat(QColor::fromRgb(1, 164, 1
 
 // Document
 
-Document::Document(QTcpSocket *socket) : socket(socket) {}
+Document::Document(QTcpSocket *socket) : socket(socket), window(getMainWindow(socket)) {}
 
 void Document::appendLine()
 {
@@ -99,6 +116,11 @@ void Document::scrollToBottom()
 {
   QScrollBar *scrollbar = browser->verticalScrollBar();
   scrollbar->setValue(scrollbar->maximum());
+}
+
+void Document::displayStatusMessage(const QString &status)
+{
+  window->statusBar()->showMessage(status);
 }
 
 void Document::setBrowser(QTextBrowser *textBrowser)

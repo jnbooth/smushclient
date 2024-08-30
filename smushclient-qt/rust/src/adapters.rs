@@ -75,19 +75,23 @@ impl<'a> From<DocumentAdapter<'a>> for Pin<&'a mut ffi::Document> {
 }
 
 impl<'a> DocumentAdapter<'a> {
+    fn as_mut(&mut self) -> Pin<&mut ffi::Document> {
+        self.inner.as_mut()
+    }
+
     pub fn scroll_to_bottom(&mut self) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.as_mut().scroll_to_bottom() }
+        unsafe { self.as_mut().scroll_to_bottom() }
     }
 
     pub fn append_line(&mut self) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.as_mut().append_line() }
+        unsafe { self.as_mut().append_line() }
     }
 
     pub fn append_plaintext(&mut self, text: &QString, palette: i32) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.as_mut().append_plaintext(text, palette) };
+        unsafe { self.as_mut().append_plaintext(text, palette) };
     }
 
     pub fn append_text(
@@ -99,8 +103,7 @@ impl<'a> DocumentAdapter<'a> {
     ) {
         // SAFETY: External call to safe method on opaque type.
         unsafe {
-            self.inner
-                .as_mut()
+            self.as_mut()
                 .append_text(text, style, foreground, background);
         }
     }
@@ -115,10 +118,14 @@ impl<'a> DocumentAdapter<'a> {
     ) {
         // SAFETY: External call to safe method on opaque type.
         unsafe {
-            self.inner
-                .as_mut()
+            self.as_mut()
                 .append_link(text, style, foreground, background, link);
         }
+    }
+
+    pub fn display_status_message(&mut self, text: &QString) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.as_mut().display_status_message(text) };
     }
 
     pub fn set_input(&mut self, text: &QString) {

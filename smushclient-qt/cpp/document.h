@@ -6,6 +6,7 @@
 #include <QtWidgets/QLineEdit>
 #include <QtNetwork/QTcpSocket>
 #include <QtWidgets/QTextBrowser>
+#include <QtWidgets/QMainWindow>
 
 using QVector_QColor = QVector<QColor>;
 
@@ -21,6 +22,8 @@ public:
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background, const Link &link);
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background);
   void scrollToBottom();
+  void displayStatusMessage(const QString &status);
+
   void setBrowser(QTextBrowser *browser);
   void setInput(const QString &text);
   void setLineEdit(QLineEdit *input);
@@ -28,6 +31,7 @@ public:
 
 private:
   QLineEdit *input;
+  QMainWindow *window;
   QTcpSocket *socket;
   QTextBrowser *browser;
   QTextCursor cursor;
