@@ -23,24 +23,54 @@ public:
   explicit AbstractPrefsPane(QWidget *parent = nullptr);
 
 protected:
-  template <typename Enum>
-  inline QMetaObject::Connection connectWorld(const World *world, QComboBox *input, const Enum value, void (World::*&&setter)(const Enum &value))
+  template <typename T, typename Enum>
+  inline QMetaObject::Connection connectWorld(const T *world, QComboBox *input, const Enum value, void (T::*&&setter)(const Enum &value))
   {
     static_assert(sizeof(Enum) == sizeof(quint32), "enum must be represented by quint32");
-    typedef void (World::* && Setter)(const quint32 &value);
+    typedef void (T::* && Setter)(const quint32 &value);
     input->setCurrentIndex((int)value);
     return connect(input, &QComboBox::currentIndexChanged, world, reinterpret_cast<Setter>(setter));
   }
+
   // bool
-  QMetaObject::Connection connectWorld(const World *world, QCheckBox *input, const bool value, void (World::*&&setter)(const bool &value));
+  template <typename T>
+  QMetaObject::Connection connectWorld(const T *world, QCheckBox *input, const bool value, void (T::*&&setter)(const bool &value))
+  {
+    input->setChecked(value);
+    return connect(input, &QCheckBox::checkStateChanged, world, setter);
+  }
+
   // double
-  QMetaObject::Connection connectWorld(const World *world, QDoubleSpinBox *input, const double value, void (World::*&&setter)(const double &value));
+  template <typename T>
+  QMetaObject::Connection connectWorld(const T *world, QDoubleSpinBox *input, const double value, void (T::*&&setter)(const double &value))
+  {
+    input->setValue(value);
+    return connect(input, &QDoubleSpinBox::valueChanged, world, setter);
+  }
+
   // int
-  QMetaObject::Connection connectWorld(const World *world, QSpinBox *input, const int value, void (World::*&&setter)(const int &value));
+  template <typename T>
+  QMetaObject::Connection connectWorld(const T *world, QSpinBox *input, const int value, void (T::*&&setter)(const int &value))
+  {
+    input->setValue(value);
+    return connect(input, &QSpinBox::valueChanged, world, setter);
+  }
+
   // qcolor
-  QMetaObject::Connection connectWorld(const World *world, ColorPickerButton *input, const QColor &value, void (World::*&&setter)(const QColor &value));
+  template <typename T>
+  QMetaObject::Connection connectWorld(const T *world, ColorPickerButton *input, const QColor &value, void (T::*&&setter)(const QColor &value))
+  {
+    input->setValue(value);
+    return connect(input, &ColorPickerButton::valueChanged, world, setter);
+  }
+
   // qstring
-  QMetaObject::Connection connectWorld(const World *world, QLineEdit *input, const QString &value, void (World::*&&setter)(const QString &value));
+  template <typename T>
+  QMetaObject::Connection connectWorld(const T *world, QLineEdit *input, const QString &value, void (T::*&&setter)(const QString &value))
+  {
+    input->setText(value);
+    return connect(input, &QLineEdit::textChanged, world, setter);
+  }
 };
 
 #endif // PREFSABSTRACTPANE_H
