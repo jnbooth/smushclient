@@ -5,10 +5,11 @@ use super::send_to::SendTarget;
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 #[serde(default)]
 pub struct Sender {
-    pub send_to: SendTarget,
-    pub label: String,
-    pub script: String,
+    // Note: these two fields are at the top for Ord-deriving purposes.
     pub group: String,
+    pub label: String,
+    pub send_to: SendTarget,
+    pub script: String,
     pub variable: String,
     pub text: String,
 
