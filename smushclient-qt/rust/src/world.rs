@@ -1,7 +1,6 @@
 #![allow(clippy::result_large_err)]
 use std::collections::HashMap;
 use std::error::Error;
-use std::ffi::c_double;
 use std::pin::Pin;
 
 use crate::colors::Colors;
@@ -75,7 +74,7 @@ pub struct WorldRust {
     // Output
     pub beep_sound: QString,
     pub pixel_offset: i32,
-    pub line_spacing: c_double,
+    pub line_spacing: f64,
     pub output_font: QString,
     pub output_font_size: i32,
     pub use_default_output_font: bool,
@@ -134,7 +133,7 @@ pub struct WorldRust {
     pub enable_speed_walk: bool,
     pub speed_walk_prefix: QString,
     pub speed_walk_filler: QString,
-    pub speed_walk_delay: c_double,
+    pub speed_walk_delay: f64,
     pub enable_command_stack: bool,
     pub command_stack_character: QString,
     pub input_colors_foreground: QColor,
@@ -332,7 +331,7 @@ impl From<&World> for WorldRust {
             notes: QString::from(&world.notes),
             beep_sound: world.beep_sound.convert(),
             pixel_offset: i32::from(world.pixel_offset),
-            line_spacing: c_double::try_from(world.line_spacing).unwrap(),
+            line_spacing: world.line_spacing,
             output_font: QString::from(&world.output_font),
             output_font_size: i32::from(world.output_font_size),
             use_default_output_font: world.use_default_output_font,
@@ -382,7 +381,7 @@ impl From<&World> for WorldRust {
             enable_speed_walk: world.enable_speed_walk,
             speed_walk_prefix: QString::from(&world.speed_walk_prefix),
             speed_walk_filler: QString::from(&world.speed_walk_filler),
-            speed_walk_delay: c_double::try_from(world.speed_walk_delay).unwrap(),
+            speed_walk_delay: world.speed_walk_delay,
             enable_command_stack: world.enable_command_stack,
             command_stack_character: QString::from(&world.command_stack_character),
             input_colors_foreground: world.input_colors.foreground.convert(),
@@ -506,7 +505,7 @@ impl From<&WorldRust> for World {
             notes: String::from(&value.notes),
             beep_sound: value.beep_sound.convert(),
             pixel_offset: i16::try_from(value.pixel_offset).unwrap(),
-            line_spacing: f64::try_from(value.line_spacing).unwrap(),
+            line_spacing: value.line_spacing,
             output_font: String::from(&value.output_font),
             output_font_size: u8::try_from(value.output_font_size).unwrap(),
             use_default_output_font: value.use_default_output_font,
@@ -558,7 +557,7 @@ impl From<&WorldRust> for World {
             enable_speed_walk: value.enable_speed_walk,
             speed_walk_prefix: String::from(&value.speed_walk_prefix),
             speed_walk_filler: String::from(&value.speed_walk_filler),
-            speed_walk_delay: f64::try_from(value.speed_walk_delay).unwrap(),
+            speed_walk_delay: value.speed_walk_delay,
             enable_command_stack: value.enable_command_stack,
             command_stack_character: String::from(&value.command_stack_character),
             input_colors: ColorPair {
