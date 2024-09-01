@@ -87,7 +87,7 @@ impl From<&Link> for ffi::Link {
         Self {
             action: QString::from(&value.action),
             hint: value.hint.convert(),
-            prompts: value.prompts.convert(),
+            prompts: QString::from(&value.prompts.join("|")),
             sendto: value.sendto.into(),
         }
     }

@@ -174,9 +174,9 @@ void WorldTab::on_output_customContextMenuRequested(const QPoint &pos)
     ui->output->createStandardContextMenu(mouse)->exec(mouse);
     return;
   }
-  QStringList prompts = format.property(QTextCharFormat::UserProperty).value<QStringList>();
+  QString prompts = format.property(QTextCharFormat::UserProperty).value<QString>();
   QMenu menu(ui->output);
-  for (QString prompt : prompts)
+  for (QString prompt : prompts.split("|"))
     menu.addAction(prompt);
 
   QAction *chosen = menu.exec(mouse);

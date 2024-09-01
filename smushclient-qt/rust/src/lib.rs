@@ -58,11 +58,6 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
-        include!("cxx-qt-lib/qstringlist.h");
-        type QStringList = cxx_qt_lib::QStringList;
-    }
-
-    unsafe extern "C++" {
         include!("cxx-qt-lib/qtime.h");
         type QTime = cxx_qt_lib::QTime;
     }
@@ -90,7 +85,7 @@ pub mod ffi {
     struct Link {
         action: QString,
         hint: QString,
-        prompts: QStringList,
+        prompts: QString,
         sendto: SendTo,
     }
 
