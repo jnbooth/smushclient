@@ -44,6 +44,8 @@ TimerEdit::~TimerEdit()
   delete ui;
 }
 
+// Private methods
+
 void TimerEdit::on_Text_textChanged()
 {
   timer->setText(ui->Text->toPlainText());

@@ -19,11 +19,7 @@ PrefsAliases::~PrefsAliases()
   delete ui;
 }
 
-void PrefsAliases::buildTree()
-{
-  builder.clear();
-  world->buildAliasTree(builder);
-}
+// Protected overrides
 
 void PrefsAliases::addItem()
 {
@@ -62,4 +58,12 @@ void PrefsAliases::setItemButtonsEnabled(bool enabled)
 QTreeWidget *PrefsAliases::tree() const
 {
   return ui->tree;
+}
+
+// Private methods
+
+void PrefsAliases::buildTree()
+{
+  builder.clear();
+  world->buildAliasTree(builder);
 }

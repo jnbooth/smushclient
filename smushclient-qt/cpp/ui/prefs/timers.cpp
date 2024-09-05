@@ -19,11 +19,7 @@ PrefsTimers::~PrefsTimers()
   delete ui;
 }
 
-void PrefsTimers::buildTree()
-{
-  builder.clear();
-  world->buildTriggerTree(builder);
-}
+// Protected overrides
 
 void PrefsTimers::addItem()
 {
@@ -62,4 +58,12 @@ void PrefsTimers::setItemButtonsEnabled(bool enabled)
 QTreeWidget *PrefsTimers::tree() const
 {
   return ui->tree;
+}
+
+// Private methods
+
+void PrefsTimers::buildTree()
+{
+  builder.clear();
+  world->buildTriggerTree(builder);
 }

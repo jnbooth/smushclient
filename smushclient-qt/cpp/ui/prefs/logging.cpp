@@ -48,7 +48,7 @@ PrefsLogging::~PrefsLogging()
   delete ui;
 }
 
-// Slots
+// Private methods
 
 void PrefsLogging::on_LogFilePreamble_textChanged()
 {

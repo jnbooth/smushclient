@@ -7,27 +7,24 @@ QPen borderDownPen(QBrush(Qt::GlobalColor::white), 1);
 QPen borderUpPen(QBrush(Qt::GlobalColor::black), 1);
 QPen borderFocusedPen(QBrush(Qt::GlobalColor::darkBlue), 1);
 
-ColorPickerButton::ColorPickerButton(QWidget *parent)
-    : QAbstractButton(parent)
+ColorPickerButton::ColorPickerButton(QWidget *parent) : QAbstractButton(parent)
 {
-  connect(this, &QAbstractButton::clicked, this, &ColorPickerButton::onClicked);
+  connect(this, &QAbstractButton::clicked, this, &ColorPickerButton::openColorPicker);
 }
 
-// Public methods
-
-void ColorPickerButton::setValue(const QColor &val)
-{
-  if (currentValue == val)
-    return;
-
-  currentValue = val;
-  emit valueChanged(val);
-}
+// Public overrides
 
 QSize ColorPickerButton::minimumSizeHint() const
 {
   return minimumSize();
 }
+
+QSize ColorPickerButton::sizeHint() const
+{
+  return maximumSize();
+}
+
+// Public methods
 
 void ColorPickerButton::openColorPicker()
 {
@@ -38,9 +35,13 @@ void ColorPickerButton::openColorPicker()
   setValue(color);
 }
 
-QSize ColorPickerButton::sizeHint() const
+void ColorPickerButton::setValue(const QColor &val)
 {
-  return maximumSize();
+  if (currentValue == val)
+    return;
+
+  currentValue = val;
+  emit valueChanged(val);
 }
 
 const QColor &ColorPickerButton::value() const
@@ -48,7 +49,7 @@ const QColor &ColorPickerButton::value() const
   return currentValue;
 }
 
-// Protected methods
+// Protected overrides
 
 void ColorPickerButton::paintEvent(QPaintEvent *e)
 {
@@ -60,9 +61,4 @@ void ColorPickerButton::paintEvent(QPaintEvent *e)
                            : borderUpPen;
   painter.setPen(pen);
   painter.drawRect(rect);
-}
-
-void ColorPickerButton::onClicked(bool checked)
-{
-  openColorPicker();
 }

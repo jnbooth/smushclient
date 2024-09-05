@@ -52,6 +52,8 @@ TriggerEdit::~TriggerEdit()
   delete ui;
 }
 
+// Private methods
+
 void TriggerEdit::on_Text_textChanged()
 {
   trigger->setText(ui->Text->toPlainText());

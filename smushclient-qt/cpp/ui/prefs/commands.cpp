@@ -55,7 +55,7 @@ PrefsCommands::~PrefsCommands()
   delete ui;
 }
 
-// Slots
+// Private methods
 
 void PrefsCommands::on_InputFont_currentFontChanged(const QFont &f)
 {

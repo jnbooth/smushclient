@@ -20,11 +20,7 @@ PrefsTriggers::~PrefsTriggers()
   delete ui;
 }
 
-void PrefsTriggers::buildTree()
-{
-  builder.clear();
-  world->buildTriggerTree(builder);
-}
+// Protected overrides
 
 void PrefsTriggers::addItem()
 {
@@ -63,4 +59,12 @@ void PrefsTriggers::setItemButtonsEnabled(bool enabled)
 QTreeWidget *PrefsTriggers::tree() const
 {
   return ui->tree;
+}
+
+// Private methods
+
+void PrefsTriggers::buildTree()
+{
+  builder.clear();
+  world->buildTriggerTree(builder);
 }

@@ -18,7 +18,7 @@ PrefsConnecting::~PrefsConnecting()
   delete ui;
 }
 
-// Slots
+// Private methods
 
 void PrefsConnecting::on_ConnectText_textChanged()
 {

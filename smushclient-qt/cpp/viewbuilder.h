@@ -13,7 +13,7 @@ public:
   void startGroup(const QString &name);
   void startItem(size_t value);
   void addColumn(const QString &text);
-  void addColumn(qint16 value);
+  void addColumn(qint16 value) { addColumn(QString::number(value)); }
 
 private:
   int column;

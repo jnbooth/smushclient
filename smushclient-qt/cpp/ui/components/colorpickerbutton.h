@@ -27,9 +27,6 @@ signals:
 protected:
   void paintEvent(QPaintEvent *) override;
 
-protected slots:
-  void onClicked(bool checked = false);
-
 private:
   QColor currentValue;
 };

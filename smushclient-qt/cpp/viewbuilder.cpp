@@ -34,8 +34,3 @@ void TreeBuilder::addColumn(const QString &text)
   item->setText(column, text);
   column += 1;
 }
-
-void TreeBuilder::addColumn(qint16 value)
-{
-  addColumn(QString::number(value));
-}

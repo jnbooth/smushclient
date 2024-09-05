@@ -44,7 +44,7 @@ PrefsOutput::~PrefsOutput()
   delete ui;
 }
 
-// Slots
+// Private methods
 
 void PrefsOutput::on_OutputFont_currentFontChanged(const QFont &f)
 {
