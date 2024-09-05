@@ -32,7 +32,7 @@ inline bool hasStyle(quint16 flags, TextStyle style) noexcept
 
 void applyLink(QTextCharFormat &format, const Link &link) noexcept
 {
-  QString action = link.action;
+  QString action = QString(link.action);
   switch (link.sendto)
   {
   case SendTo::Internet:
@@ -145,9 +145,8 @@ void Document::setPalette(const QVector_QColor &palette)
   QTextCharFormat *format = &formats[0];
   for (QColor color : palette)
   {
-    QTextCharFormat colorFormat;
-    colorFormat.setForeground(QBrush(color));
-    *format = colorFormat;
+    *format = QTextCharFormat();
+    format->setForeground(QBrush(color));
     ++format;
   }
 }

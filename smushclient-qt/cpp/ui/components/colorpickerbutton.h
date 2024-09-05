@@ -11,6 +11,7 @@ class ColorPickerButton : public QAbstractButton
 
 public:
   explicit ColorPickerButton(QWidget *parent = nullptr);
+  virtual ~ColorPickerButton() {};
 
   QSize sizeHint() const override;
   QSize minimumSizeHint() const override;

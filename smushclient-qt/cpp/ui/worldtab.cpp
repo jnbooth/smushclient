@@ -16,7 +16,7 @@
 
 void setColors(QWidget *widget, QColor foreground, QColor background)
 {
-  QPalette palette = widget->palette();
+  QPalette palette = QPalette(widget->palette());
   palette.setColor(QPalette::Text, foreground);
   palette.setColor(QPalette::Base, background);
   palette.setColor(QPalette::AlternateBase, background);
@@ -70,8 +70,8 @@ bool WorldTab::openWorld(const QString &filename)
     return false;
   }
 
-  filePath = filename;
-  Settings().addRecentFile(filePath);
+  Settings().addRecentFile(filename);
+  filePath = QString(filename);
   applyWorld();
   connectToHost();
   return true;

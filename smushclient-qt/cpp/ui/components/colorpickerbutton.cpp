@@ -40,8 +40,8 @@ void ColorPickerButton::setValue(const QColor &val)
   if (currentValue == val)
     return;
 
-  currentValue = val;
-  emit valueChanged(val);
+  currentValue = QColor(val);
+  emit valueChanged(currentValue);
 }
 
 const QColor &ColorPickerButton::value() const

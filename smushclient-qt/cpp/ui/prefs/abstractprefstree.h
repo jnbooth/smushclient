@@ -11,6 +11,7 @@ class AbstractPrefsTree : public QWidget
 
 public:
   explicit AbstractPrefsTree(QWidget *parent = nullptr);
+  virtual ~AbstractPrefsTree() {};
 
 protected:
   QVariant currentData() const;
