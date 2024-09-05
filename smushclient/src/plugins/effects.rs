@@ -65,10 +65,10 @@ impl TriggerEffects {
         self.make_italic |= trigger.make_italic;
         self.make_underline |= trigger.make_underline;
         if trigger.change_foreground {
-            self.foreground = trigger.foreground_color;
+            self.foreground = Some(trigger.foreground_color);
         }
         if trigger.change_background {
-            self.background = trigger.background_color;
+            self.background = Some(trigger.background_color);
         }
     }
 }

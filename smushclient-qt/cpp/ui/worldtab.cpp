@@ -1,3 +1,4 @@
+#include "rust/cxx.h"
 #include "../settings.h"
 #include "worldtab.h"
 #include "ui_worldtab.h"
@@ -10,6 +11,7 @@
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
+#include <QtWidgets/QErrorMessage>
 
 WorldTab::WorldTab(QWidget *parent)
     : QSplitter(parent), ui(new Ui::WorldTab), socket(this), defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont)), document(&socket)
@@ -43,8 +45,15 @@ void WorldTab::createWorld()
 
 bool WorldTab::openWorld(const QString &filename)
 {
-  if (!client.loadWorld(filename, world))
+  try
+  {
+    client.loadWorld(filename, world);
+  }
+  catch (const rust::Error &e)
+  {
+    QErrorMessage::qtHandler()->showMessage(QString(e.what()));
     return false;
+  }
 
   filePath = filename;
   Settings().addRecentFile(filePath);
@@ -66,10 +75,16 @@ QString WorldTab::saveWorld(const QString &saveFilter)
   if (filePath.isEmpty())
     return saveWorldAsNew(saveFilter);
 
-  if (client.saveWorld(filePath))
+  try
+  {
+    client.saveWorld(filePath);
     return filePath;
-
-  return QString();
+  }
+  catch (const rust::Error &e)
+  {
+    QErrorMessage::qtHandler()->showMessage(QString(e.what()));
+    return QString();
+  }
 }
 
 QString WorldTab::saveWorldAsNew(const QString &saveFilter)
@@ -78,14 +93,20 @@ QString WorldTab::saveWorldAsNew(const QString &saveFilter)
   if (path.isEmpty())
     return path;
 
-  filePath = path;
-  if (client.saveWorld(filePath))
+  try
+  {
+    client.saveWorld(path);
+    filePath = path;
     return filePath;
-
-  return QString();
+  }
+  catch (const rust::Error &e)
+  {
+    QErrorMessage::qtHandler()->showMessage(QString(e.what()));
+    return QString();
+  }
 }
 
-const QString &WorldTab::title() const
+const QString WorldTab::title() const noexcept
 {
   return world.getName();
 }

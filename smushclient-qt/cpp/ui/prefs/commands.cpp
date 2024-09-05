@@ -1,8 +1,9 @@
 #include "commands.h"
 #include "ui_commands.h"
+#include "../../fieldconnector.h"
 
 PrefsCommands::PrefsCommands(World *world, QWidget *parent)
-    : AbstractPrefsPane(parent), ui(new Ui::PrefsCommands), world(world)
+    : QWidget(parent), ui(new Ui::PrefsCommands), world(world)
 {
   ui->setupUi(this);
   CONNECT_WORLD(DisplayMyInput);

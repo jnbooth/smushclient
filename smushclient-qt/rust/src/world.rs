@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::pin::Pin;
 
+use crate::adapters::TreeBuilderAdapter;
 use crate::colors::Colors;
 use crate::convert::Convert;
 use crate::ffi;
@@ -10,7 +11,7 @@ use crate::sender::{AliasRust, TimerRust, TriggerRust};
 use cxx_qt_lib::{QColor, QString, QStringList};
 use smushclient::world::ColorPair;
 use smushclient::World;
-use smushclient_plugins::{Alias, RegexError, Timer, Trigger};
+use smushclient_plugins::{Alias, Occurrence, RegexError, Sender, Timer, Trigger};
 
 #[derive(Default)]
 pub struct WorldRust {
@@ -219,15 +220,60 @@ pub struct WorldRust {
 
 impl_deref!(WorldRust, Colors, ansi_colors);
 
+fn sort_refs<T: AsRef<Sender>>(items: &[T]) -> Vec<(usize, &T)> {
+    let mut sorted_items: Vec<(usize, &T)> = items.iter().enumerate().collect();
+    sorted_items.sort_unstable_by_key(|(_, item)| (*item).as_ref());
+    sorted_items
+}
+
 impl WorldRust {
     pub fn add_alias(&mut self, alias: &AliasRust) -> Result<(), RegexError> {
         self.aliases.push(Alias::try_from(alias)?);
         Ok(())
     }
 
+    pub fn add_timer(&mut self, timer: &TimerRust) {
+        self.timers.push(Timer::from(timer));
+    }
+
+    pub fn add_trigger(&mut self, trigger: &TriggerRust) -> Result<(), RegexError> {
+        self.triggers.push(Trigger::try_from(trigger)?);
+        Ok(())
+    }
+
     pub fn get_alias(&self, index: usize, target: &mut AliasRust) {
         if let Some(alias) = self.aliases.get(index) {
             *target = AliasRust::from(alias);
+        }
+    }
+
+    pub fn get_timer(&self, index: usize, target: &mut TimerRust) {
+        if let Some(timer) = self.timers.get(index) {
+            *target = TimerRust::from(timer);
+        }
+    }
+
+    pub fn get_trigger(&self, index: usize, target: &mut TriggerRust) {
+        if let Some(trigger) = self.triggers.get(index) {
+            *target = TriggerRust::from(trigger);
+        }
+    }
+
+    pub fn remove_alias(&mut self, index: usize) {
+        if index < self.aliases.len() {
+            self.aliases.remove(index);
+        }
+    }
+
+    pub fn remove_timer(&mut self, index: usize) {
+        if index < self.timers.len() {
+            self.timers.remove(index);
+        }
+    }
+
+    pub fn remove_trigger(&mut self, index: usize) {
+        if index < self.triggers.len() {
+            self.triggers.remove(index);
         }
     }
 
@@ -239,33 +285,12 @@ impl WorldRust {
         Ok(())
     }
 
-    pub fn add_timer(&mut self, timer: &TimerRust) {
-        self.timers.push(Timer::from(timer));
-    }
-
-    pub fn get_timer(&self, index: usize, target: &mut TimerRust) {
-        if let Some(timer) = self.timers.get(index) {
-            *target = TimerRust::from(timer);
-        }
-    }
-
     pub fn replace_timer(&mut self, index: usize, timer: &TimerRust) {
         let Some(entry) = self.timers.get_mut(index) else {
             self.add_timer(timer);
             return;
         };
         *entry = Timer::from(timer);
-    }
-
-    pub fn add_trigger(&mut self, trigger: &TriggerRust) -> Result<(), RegexError> {
-        self.triggers.push(Trigger::try_from(trigger)?);
-        Ok(())
-    }
-
-    pub fn get_trigger(&self, index: usize, target: &mut TriggerRust) {
-        if let Some(trigger) = self.triggers.get(index) {
-            *target = TriggerRust::from(trigger);
-        }
     }
 
     pub fn replace_trigger(
@@ -278,6 +303,71 @@ impl WorldRust {
         };
         *entry = Trigger::try_from(trigger)?;
         Ok(())
+    }
+
+    pub fn build_alias_tree(&self, builder: &mut TreeBuilderAdapter) {
+        if self.aliases.is_empty() {
+            return;
+        }
+        let sorted_items = sort_refs(&self.aliases);
+        let mut last_group = "";
+        for (index, item) in sorted_items {
+            let group = item.group.as_str();
+            if group != last_group {
+                builder.start_group(&QString::from(group));
+                last_group = group;
+            }
+            builder.start_item(index);
+            builder.add_column(&QString::from(&item.label));
+            builder.add_column(item.sequence);
+            builder.add_column(&QString::from(&item.pattern));
+            builder.add_column(&QString::from(&item.text));
+        }
+    }
+
+    pub fn build_timer_tree(&self, builder: &mut TreeBuilderAdapter) {
+        if self.timers.is_empty() {
+            return;
+        }
+        let sorted_items = sort_refs(&self.timers);
+        let mut last_group = "";
+        let at = QString::from("At");
+        let every = QString::from("Every");
+        for (index, item) in sorted_items {
+            let group = item.group.as_str();
+            if group != last_group {
+                builder.start_group(&QString::from(group));
+                last_group = group;
+            }
+            builder.start_item(index);
+            builder.add_column(&QString::from(&item.label));
+            builder.add_column(match item.occurrence {
+                Occurrence::Interval(_) => &every,
+                Occurrence::Time(_) => &at,
+            });
+            builder.add_column(&QString::from(&item.occurrence.to_string()));
+            builder.add_column(&QString::from(&item.text));
+        }
+    }
+
+    pub fn build_trigger_tree(&self, builder: &mut TreeBuilderAdapter) {
+        if self.triggers.is_empty() {
+            return;
+        }
+        let sorted_items = sort_refs(&self.triggers);
+        let mut last_group = "";
+        for (index, item) in sorted_items {
+            let group = item.group.as_str();
+            if group != last_group {
+                builder.start_group(&QString::from(group));
+                last_group = group;
+            }
+            builder.start_item(index);
+            builder.add_column(&QString::from(&item.label));
+            builder.add_column(item.sequence);
+            builder.add_column(&QString::from(&item.pattern));
+            builder.add_column(&QString::from(&item.text));
+        }
     }
 }
 
@@ -650,31 +740,9 @@ impl ffi::World {
             .result()
     }
 
-    pub fn get_alias(&self, index: usize, target: Pin<&mut ffi::Alias>) {
-        self.cxx_qt_ffi_rust()
-            .get_alias(index, &mut target.cxx_qt_ffi_rust_mut());
-    }
-
-    pub fn replace_alias(self: Pin<&mut Self>, index: usize, alias: &ffi::Alias) -> QString {
-        self.cxx_qt_ffi_rust_mut()
-            .replace_alias(index, alias.cxx_qt_ffi_rust())
-            .result()
-    }
-
     pub fn add_timer(self: Pin<&mut Self>, timer: &ffi::Timer) -> QString {
         self.cxx_qt_ffi_rust_mut()
             .add_timer(timer.cxx_qt_ffi_rust());
-        QString::default()
-    }
-
-    pub fn get_timer(&self, index: usize, target: Pin<&mut ffi::Timer>) {
-        self.cxx_qt_ffi_rust()
-            .get_timer(index, &mut target.cxx_qt_ffi_rust_mut());
-    }
-
-    pub fn replace_timer(self: Pin<&mut Self>, index: usize, timer: &ffi::Timer) -> QString {
-        self.cxx_qt_ffi_rust_mut()
-            .replace_timer(index, timer.cxx_qt_ffi_rust());
         QString::default()
     }
 
@@ -684,14 +752,61 @@ impl ffi::World {
             .result()
     }
 
+    pub fn get_alias(&self, index: usize, target: Pin<&mut ffi::Alias>) {
+        self.cxx_qt_ffi_rust()
+            .get_alias(index, &mut target.cxx_qt_ffi_rust_mut());
+    }
+
+    pub fn get_timer(&self, index: usize, target: Pin<&mut ffi::Timer>) {
+        self.cxx_qt_ffi_rust()
+            .get_timer(index, &mut target.cxx_qt_ffi_rust_mut());
+    }
+
     pub fn get_trigger(&self, index: usize, target: Pin<&mut ffi::Trigger>) {
         self.cxx_qt_ffi_rust()
             .get_trigger(index, &mut target.cxx_qt_ffi_rust_mut());
+    }
+
+    pub fn remove_alias(self: Pin<&mut Self>, index: usize) {
+        self.cxx_qt_ffi_rust_mut().remove_alias(index);
+    }
+
+    pub fn remove_timer(self: Pin<&mut Self>, index: usize) {
+        self.cxx_qt_ffi_rust_mut().remove_timer(index);
+    }
+
+    pub fn remove_trigger(self: Pin<&mut Self>, index: usize) {
+        self.cxx_qt_ffi_rust_mut().remove_trigger(index);
+    }
+
+    pub fn replace_alias(self: Pin<&mut Self>, index: usize, alias: &ffi::Alias) -> QString {
+        self.cxx_qt_ffi_rust_mut()
+            .replace_alias(index, alias.cxx_qt_ffi_rust())
+            .result()
+    }
+
+    pub fn replace_timer(self: Pin<&mut Self>, index: usize, timer: &ffi::Timer) -> QString {
+        self.cxx_qt_ffi_rust_mut()
+            .replace_timer(index, timer.cxx_qt_ffi_rust());
+        QString::default()
     }
 
     pub fn replace_trigger(self: Pin<&mut Self>, index: usize, trigger: &ffi::Trigger) -> QString {
         self.cxx_qt_ffi_rust_mut()
             .replace_trigger(index, trigger.cxx_qt_ffi_rust())
             .result()
+    }
+
+    pub fn build_alias_tree(&self, builder: Pin<&mut ffi::TreeBuilder>) {
+        self.cxx_qt_ffi_rust().build_alias_tree(&mut builder.into());
+    }
+
+    pub fn build_timer_tree(&self, builder: Pin<&mut ffi::TreeBuilder>) {
+        self.cxx_qt_ffi_rust().build_timer_tree(&mut builder.into());
+    }
+
+    pub fn build_trigger_tree(&self, builder: Pin<&mut ffi::TreeBuilder>) {
+        self.cxx_qt_ffi_rust()
+            .build_trigger_tree(&mut builder.into());
     }
 }

@@ -2,14 +2,14 @@
 #define PREFSADDRESS_H
 
 #include <QtWidgets/QWidget>
-#include "abstractpane.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {
   class PrefsAddress;
 }
 
-class PrefsAddress : public AbstractPrefsPane
+class PrefsAddress : public QWidget
 {
   Q_OBJECT
 

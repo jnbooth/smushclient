@@ -9,27 +9,28 @@
 
 QMainWindow *getMainWindow(QObject *obj)
 {
+  if (obj == nullptr)
+    return nullptr;
+
   QObject *parent = obj->parent();
   if (parent == nullptr)
-  {
     return nullptr;
-  }
+
   QMainWindow *window = qobject_cast<QMainWindow *>(parent);
   if (window != nullptr)
-  {
     return window;
-  }
+
   return getMainWindow(parent);
 }
 
-inline bool hasStyle(quint16 flags, TextStyle style)
+inline bool hasStyle(quint16 flags, TextStyle style) noexcept
 {
   return flags & (quint16)style;
 }
 
 // Formatting
 
-void applyLink(QTextCharFormat &format, const Link &link)
+void applyLink(QTextCharFormat &format, const Link &link) noexcept
 {
   QString action = link.action;
   switch (link.sendto)
@@ -51,7 +52,7 @@ void applyLink(QTextCharFormat &format, const Link &link)
     format.setProperty(QTextCharFormat::UserProperty, link.prompts);
 }
 
-void applyStyles(QTextCharFormat &format, quint16 style, const QColor &foreground, const QColor &background)
+void applyStyles(QTextCharFormat &format, quint16 style, const QColor &foreground, const QColor &background) noexcept
 {
   if (hasStyle(style, TextStyle::Bold))
     format.setFontWeight(QFont::Weight::Bold);
@@ -139,7 +140,7 @@ void Document::setLineEdit(QLineEdit *lineEdit)
   input = lineEdit;
 }
 
-void Document::setPalette(const QVector<QColor> &palette)
+void Document::setPalette(const QVector_QColor &palette)
 {
   QTextCharFormat *format = &formats[0];
   for (QColor color : palette)

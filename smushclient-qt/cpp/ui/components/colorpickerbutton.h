@@ -13,13 +13,15 @@ public:
   explicit ColorPickerButton(QWidget *parent = nullptr);
 
   const QColor &value() const;
-  void click();
 
-public Q_SLOTS:
+public slots:
   void setValue(const QColor &val);
 
-Q_SIGNALS:
+signals:
   void valueChanged(const QColor &val);
+
+protected slots:
+  void openColorPicker(bool checked = false);
 };
 
 #endif // COLORPICKERBUTTON_H

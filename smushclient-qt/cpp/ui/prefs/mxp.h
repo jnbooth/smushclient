@@ -2,14 +2,14 @@
 #define PREFSMXP_H
 
 #include <QtWidgets/QWidget>
-#include "abstractpane.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {
   class PrefsMxp;
 }
 
-class PrefsMxp : public AbstractPrefsPane
+class PrefsMxp : public QWidget
 {
   Q_OBJECT
 

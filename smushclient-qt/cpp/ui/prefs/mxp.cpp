@@ -1,8 +1,9 @@
 #include "mxp.h"
 #include "ui_mxp.h"
+#include "../../fieldconnector.h"
 
 PrefsMxp::PrefsMxp(const World *world, QWidget *parent)
-    : AbstractPrefsPane(parent), ui(new Ui::PrefsMxp)
+    : QWidget(parent), ui(new Ui::PrefsMxp)
 {
   ui->setupUi(this);
   CONNECT_WORLD(UseMxp);

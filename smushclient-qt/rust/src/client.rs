@@ -44,6 +44,7 @@ pub struct SmushClientRust {
     buf: Vec<u8>,
     input_lock: NonBlockingMutex,
     output_lock: NonBlockingMutex,
+    send: Vec<QString>,
     palette: HashMap<RgbColor, i32>,
 }
 
@@ -56,31 +57,22 @@ impl Default for SmushClientRust {
             buf: vec![0; BUF_LEN],
             input_lock: NonBlockingMutex::default(),
             output_lock: NonBlockingMutex::default(),
+            send: Vec::new(),
             palette: HashMap::with_capacity(166),
         }
     }
 }
 
 impl SmushClientRust {
-    pub fn load_world(&mut self, path: &QString, world: &mut WorldRust) -> bool {
-        let Ok(worldfile) = Self::try_load_world(path) else {
-            return false;
-        };
-        *world = WorldRust::from(&worldfile);
-        self.apply_world(worldfile);
-        true
-    }
-
-    fn try_load_world(path: &QString) -> Result<World, PersistError> {
+    pub fn load_world(&mut self, path: &QString) -> Result<WorldRust, PersistError> {
         let file = File::open(String::from(path))?;
-        World::load(file)
+        let worldfile = World::load(file)?;
+        let world = WorldRust::from(&worldfile);
+        self.apply_world(worldfile);
+        Ok(world)
     }
 
-    pub fn save_world(&self, path: &QString) -> bool {
-        self.try_save_world(path).is_ok()
-    }
-
-    fn try_save_world(&self, path: &QString) -> Result<(), PersistError> {
+    pub fn save_world(&self, path: &QString) -> Result<(), PersistError> {
         let file = File::create(String::from(path))?;
         self.client.world().save(file)
     }
@@ -116,10 +108,12 @@ impl SmushClientRust {
         if self.done {
             return -1;
         }
+        self.send.clear();
         let mut handler = ClientHandler {
             doc: doc.into(),
             socket: device.into(),
             palette: &self.palette,
+            send: &mut self.send,
         };
 
         let output_lock = self.output_lock.lock();
@@ -145,6 +139,7 @@ impl SmushClientRust {
         }
         self.client
             .receive(self.transformer.drain_output(), &mut handler);
+        handler.output_sends();
         handler.doc.scroll_to_bottom();
         drop(output_lock);
 
@@ -162,9 +157,13 @@ impl SmushClientRust {
 }
 
 impl ffi::SmushClient {
-    pub fn load_world(self: Pin<&mut Self>, path: &QString, world: Pin<&mut ffi::World>) -> bool {
-        self.cxx_qt_ffi_rust_mut()
-            .load_world(path, &mut world.cxx_qt_ffi_rust_mut())
+    pub fn load_world(
+        self: Pin<&mut Self>,
+        path: &QString,
+        world: Pin<&mut ffi::World>,
+    ) -> Result<(), PersistError> {
+        *world.cxx_qt_ffi_rust_mut() = self.cxx_qt_ffi_rust_mut().load_world(path)?;
+        Ok(())
     }
 
     pub fn populate_world(&self, world: Pin<&mut ffi::World>) {
@@ -172,7 +171,7 @@ impl ffi::SmushClient {
             .populate_world(&mut world.cxx_qt_ffi_rust_mut());
     }
 
-    pub fn save_world(&self, path: &QString) -> bool {
+    pub fn save_world(&self, path: &QString) -> Result<(), PersistError> {
         self.cxx_qt_ffi_rust().save_world(path)
     }
 

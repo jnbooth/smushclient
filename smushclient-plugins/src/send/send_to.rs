@@ -1,21 +1,24 @@
+use enumeration::Enum;
 use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+#[derive(
+    Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize, Enum,
+)]
 pub enum SendTarget {
     World,
-    WorldDelay,
-    WorldImmediate,
     Command,
     Output,
     Status,
     NotepadNew,
     NotepadAppend,
-    NotepadReplace,
     Log,
-    Speedwalk,
-    Execute,
+    NotepadReplace,
+    WorldDelay,
     Variable,
+    Execute,
+    Speedwalk,
     Script,
+    WorldImmediate,
     ScriptAfterOmit,
 }
 
@@ -47,10 +50,14 @@ impl SendTarget {
 }
 
 pub mod sendto_serde {
+    use enumeration::Enum;
     use serde::de::{Error as _, Unexpected};
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
     use super::SendTarget;
+
+    const _: [(); 14] = [(); SendTarget::MAX as usize];
+    const EXPECTED: &str = "integer between 0 and 14";
 
     #[allow(clippy::trivially_copy_pass_by_ref)]
     pub fn serialize<S: Serializer>(value: &SendTarget, serializer: S) -> Result<S::Ok, S::Error> {
@@ -59,26 +66,9 @@ pub mod sendto_serde {
 
     pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<SendTarget, D::Error> {
         let pos = <u8>::deserialize(deserializer)?;
-        match pos {
-            0 => Ok(SendTarget::World),
-            1 => Ok(SendTarget::Command),
-            2 => Ok(SendTarget::Output),
-            3 => Ok(SendTarget::Status),
-            4 => Ok(SendTarget::NotepadNew),
-            5 => Ok(SendTarget::NotepadAppend),
-            6 => Ok(SendTarget::Log),
-            7 => Ok(SendTarget::NotepadReplace),
-            8 => Ok(SendTarget::WorldDelay),
-            9 => Ok(SendTarget::Variable),
-            10 => Ok(SendTarget::Execute),
-            11 => Ok(SendTarget::Speedwalk),
-            12 => Ok(SendTarget::Script),
-            13 => Ok(SendTarget::WorldImmediate),
-            14 => Ok(SendTarget::ScriptAfterOmit),
-            _ => Err(D::Error::invalid_value(
-                Unexpected::Unsigned(u64::from(pos)),
-                &"integer between 0 and 14",
-            )),
-        }
+        SendTarget::from_index(pos as usize).ok_or(D::Error::invalid_value(
+            Unexpected::Unsigned(u64::from(pos)),
+            &EXPECTED,
+        ))
     }
 }

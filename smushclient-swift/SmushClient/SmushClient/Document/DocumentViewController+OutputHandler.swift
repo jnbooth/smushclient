@@ -18,6 +18,18 @@ func lastLineRange(_ string: NSString) -> NSRange {
   return NSRange(location: i, length: string.length - i)
 }
 
+struct SendString {
+  var string: NSMutableAttributedString?
+  
+  mutating func append(_ attrString: NSAttributedString) {
+    if let string = string {
+      string.append(attrString)
+    } else {
+      string = NSMutableAttributedString(attributedString: attrString)
+    }
+  }
+}
+
 extension DocumentViewController {
   func handleOutput(_ output: RustOutputStream) {
     if output.count() == 0 {
@@ -32,39 +44,50 @@ extension DocumentViewController {
         scrollToBottom()
       }
     }
+    
+    var sendString = SendString()
 
     while let fragment = output.next() {
-      if handleFragment(fragment) {
+      if handleFragment(fragment, &sendString) {
         shouldScrollToBottom = true
       }
     }
+    
+    if let sendOutput = sendString.string {
+      textStorage.append(sendOutput)
+    }
   }
 
-  private func handleFragment(_ fragment: OutputFragment) -> Bool {
+  private func handleFragment(_ fragment: OutputFragment, _ sendString: inout SendString) -> Bool {
     switch fragment {
     case .Effect(let effect):
-      handleEffect(effect)
+      return handleEffect(effect)
     case .Hr:
-      handleHR()
+      return handleHR()
     case .LineBreak:
-      handleLineBreak()
+      return handleLineBreak()
     case .MxpError(let error):
-      handleMxpError(error.toString())
+      return handleMxpError(error.toString())
     case .MxpEntitySet(let name, let value, let publish, let is_variable):
-      handleMxpVariable(
+      return handleMxpVariable(
         name: name.toString(), value: value.toString(), publish: publish, is_variable: is_variable)
     case .MxpEntityUnset(let name, let is_variable):
-      handleMxpVariable(name: name.toString(), value: nil, is_variable: is_variable)
+      return handleMxpVariable(name: name.toString(), value: nil, is_variable: is_variable)
     case .PageBreak:
-      handlePageBreak()
+      return handlePageBreak()
     case .Send(let send):
-      handleSend(send)
+      if let send = handleSend(send) {
+        sendString.append(send)
+        return true
+      } else {
+        return false
+      }
     case .Sound(let sound):
-      handleSound(sound.toString())
+      return handleSound(sound.toString())
     case .Telnet(let sequence):
-      handleTelnet(sequence)
+      return handleTelnet(sequence)
     case .Text(let text):
-      handleText(text)
+      return handleText(text)
     }
   }
 

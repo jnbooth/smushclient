@@ -15,13 +15,9 @@ pub struct Trigger {
     // Note: this is at the top for Ord-deriving purposes.
     pub reaction: Reaction,
     pub change_foreground: bool,
-    pub foreground: String,
-    #[serde(skip)]
-    pub foreground_color: Option<RgbColor>,
+    pub foreground_color: RgbColor,
     pub change_background: bool,
-    pub background: String,
-    #[serde(skip)]
-    pub background_color: Option<RgbColor>,
+    pub background_color: RgbColor,
     pub make_bold: bool,
     pub make_italic: bool,
     pub make_underline: bool,
@@ -34,7 +30,21 @@ pub struct Trigger {
 
 impl Trigger {
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            reaction: Reaction::new(),
+            change_foreground: false,
+            foreground_color: RgbColor::WHITE,
+            change_background: false,
+            background_color: RgbColor::BLACK,
+            make_bold: false,
+            make_italic: false,
+            make_underline: false,
+            sound: String::new(),
+            sound_if_inactive: false,
+            lowercase_wildcard: false,
+            multi_line: false,
+            lines_to_match: 0,
+        }
     }
 }
 
@@ -209,11 +219,9 @@ impl TryFrom<TriggerXml<'_>> for Trigger {
             Self {
                 reaction,
                 change_foreground: color_changes.contains(Change::Fg),
-                foreground_color: get_color(&value.other_text_colour),
-                foreground: value.other_text_colour,
+                foreground_color: get_color(&value.other_text_colour).unwrap_or(RgbColor::WHITE),
                 change_background: color_changes.contains(Change::Bg),
-                background_color: get_color(&value.other_back_colour),
-                background: value.other_back_colour,
+                background_color: get_color(&value.other_back_colour).unwrap_or(RgbColor::BLACK),
                 ..sound,
                 ..make_bold,
                 ..make_italic,
@@ -231,13 +239,13 @@ impl<'a> From<&'a Trigger> for TriggerXml<'a> {
         let mut color_changes = EnumSet::new();
         let other_text_colour = if value.change_foreground {
             color_changes.insert(Change::Fg);
-            value.foreground.clone()
+            value.foreground_color.to_string()
         } else {
             String::new()
         };
         let other_back_colour = if value.change_background {
             color_changes.insert(Change::Bg);
-            value.background.clone()
+            value.background_color.to_string()
         } else {
             String::new()
         };

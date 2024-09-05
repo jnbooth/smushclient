@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TriggerEdit</class>
- <widget class="QDialog" name="TriggerEdit">
+ <class>AliasEdit</class>
+ <widget class="QDialog" name="AliasEdit">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Edit Trigger</string>
+   <string>Edit Alias</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -26,7 +26,7 @@
       <item>
        <widget class="QLabel" name="Pattern_label">
         <property name="text">
-         <string>&amp;Trigger:</string>
+         <string>Alias:</string>
         </property>
         <property name="buddy">
          <cstring>Pattern</cstring>
@@ -245,182 +245,6 @@
         </layout>
        </item>
        <item>
-        <widget class="QGroupBox" name="triggers_sound">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="title">
-          <string>Sound</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
-          <item>
-           <layout class="QHBoxLayout" name="_soundfile">
-            <item>
-             <widget class="QLineEdit" name="Sound"/>
-            </item>
-            <item>
-             <widget class="QToolButton" name="Sound_browse">
-              <property name="text">
-               <string>Browse...</string>
-              </property>
-              <property name="icon">
-               <iconset theme="document-open"/>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="Sound_none">
-              <property name="text">
-               <string>No sound</string>
-              </property>
-              <property name="icon">
-               <iconset theme="user-trash-symbolic"/>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="Sound_test">
-              <property name="text">
-               <string>Test</string>
-              </property>
-              <property name="icon">
-               <iconset theme="audio-volume-high-symbolic"/>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="SoundIfInactive">
-            <property name="text">
-             <string>Only if inactive</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="triggers_style">
-         <property name="title">
-          <string>Change colour and style</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="3">
-           <widget class="ColorPickerButton" name="ForegroundColor">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16</width>
-              <height>16</height>
-             </size>
-            </property>
-            <property name="autoFillBackground">
-             <bool>true</bool>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="flat">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="6">
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="2">
-           <widget class="QCheckBox" name="ChangeBackground">
-            <property name="text">
-             <string>Set background colour:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="3">
-           <widget class="ColorPickerButton" name="BackgroundColor">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16</width>
-              <height>16</height>
-             </size>
-            </property>
-            <property name="autoFillBackground">
-             <bool>true</bool>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="flat">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="MakeItalic">
-            <property name="text">
-             <string>Italic</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QCheckBox" name="MakeUnderline">
-            <property name="text">
-             <string>Underline</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QCheckBox" name="ChangeForeground">
-            <property name="text">
-             <string>Set foreground colour:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="MakeBold">
-            <property name="text">
-             <string>Bold</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Policy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Orientation::Vertical</enum>
@@ -514,6 +338,27 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="EchoAlias">
+         <property name="text">
+          <string>Echo alias</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="OmitFromCommandHistory">
+         <property name="text">
+          <string>Omit from command history</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="Menu">
+         <property name="text">
+          <string>Menu</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="Repeats">
          <property name="enabled">
           <bool>false</bool>
@@ -521,54 +366,6 @@
          <property name="text">
           <string>Repeat on same line</string>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="MultiLine">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Multi-line</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QWidget" name="triggers_multi_line" native="true">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_6">
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <item alignment="Qt::AlignmentFlag::AlignRight">
-           <widget class="QLabel" name="LinesToMatch_label">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Lines:</string>
-            </property>
-            <property name="buddy">
-             <cstring>LinesToMatch</cstring>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="LinesToMatch">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="minimum">
-             <number>1</number>
-            </property>
-            <property name="value">
-             <number>2</number>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </widget>
        </item>
        <item>
@@ -600,19 +397,12 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>ColorPickerButton</class>
-   <extends>QPushButton</extends>
-   <header>colorpickerbutton.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>TriggerEdit</receiver>
+   <receiver>AliasEdit</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -628,7 +418,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>TriggerEdit</receiver>
+   <receiver>AliasEdit</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -638,118 +428,6 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>IsRegex</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MultiLine</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>658</x>
-     <y>614</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>658</x>
-     <y>828</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>IsRegex</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>triggers_multi_line</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>658</x>
-     <y>614</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>658</x>
-     <y>873</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>MultiLine</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>LinesToMatch</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>658</x>
-     <y>828</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>649</x>
-     <y>864</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>MultiLine</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>LinesToMatch_label</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>658</x>
-     <y>828</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>549</x>
-     <y>864</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ChangeForeground</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ForegroundColor</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>322</x>
-     <y>695</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>371</x>
-     <y>697</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ChangeBackground</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>BackgroundColor</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>322</x>
-     <y>731</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>371</x>
-     <y>733</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Sound_none</sender>
-   <signal>clicked()</signal>
-   <receiver>Sound</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>394</x>
-     <y>588</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>326</x>
-     <y>589</y>
     </hint>
    </hints>
   </connection>

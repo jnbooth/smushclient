@@ -1,8 +1,9 @@
 #include "connecting.h"
 #include "ui_connecting.h"
+#include "../../fieldconnector.h"
 
 PrefsConnecting::PrefsConnecting(World *world, QWidget *parent)
-    : AbstractPrefsPane(parent), ui(new Ui::PrefsConnecting), world(world)
+    : QWidget(parent), ui(new Ui::PrefsConnecting), world(world)
 {
   ui->setupUi(this);
   CONNECT_WORLD(Player);

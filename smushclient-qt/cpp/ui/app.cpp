@@ -146,6 +146,8 @@ void App::on_action_save_world_details_triggered()
 void App::on_action_world_properties_triggered()
 {
   WorldTab *tab = (WorldTab *)ui->world_tabs->currentWidget();
+  if (tab == nullptr)
+    return;
   tab->openWorldSettings();
 }
 

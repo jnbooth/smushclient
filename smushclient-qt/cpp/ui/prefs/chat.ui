@@ -135,8 +135,20 @@
         </item>
         <item>
          <widget class="ColorPickerButton" name="ChatColorsForeground">
+          <property name="maximumSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
+          </property>
+          <property name="autoFillBackground">
+           <bool>true</bool>
+          </property>
           <property name="text">
            <string/>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
           </property>
           <property name="autoRaise" stdset="0">
            <bool>false</bool>
@@ -152,8 +164,20 @@
         </item>
         <item>
          <widget class="ColorPickerButton" name="ChatColorsBackground">
+          <property name="maximumSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
+          </property>
+          <property name="autoFillBackground">
+           <bool>true</bool>
+          </property>
           <property name="text">
            <string/>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
           </property>
          </widget>
         </item>

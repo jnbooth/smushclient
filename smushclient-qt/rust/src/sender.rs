@@ -2,19 +2,18 @@ use std::pin::Pin;
 use std::time::Duration;
 
 use cxx_qt::{Constructor, Initialize};
-use cxx_qt_lib::{QString, QTime};
+use cxx_qt_lib::{QColor, QString, QTime};
 use smushclient_plugins::{
     Alias, NaiveTime, Occurrence, Reaction, RegexError, Sender, Timelike, Timer, Trigger,
 };
 
 use crate::convert::Convert;
-use crate::ffi::{self, QColor};
+use crate::ffi;
 
 const MILLISECONDS_PER_SECOND: i32 = 1000;
 const SECONDS_PER_MINUTE: u64 = 60;
 const MINUTES_PER_HOUR: u64 = 60;
 
-#[derive(Default)]
 pub struct SenderRust {
     pub send_to: ffi::SendTarget,
     pub label: QString,
@@ -28,6 +27,24 @@ pub struct SenderRust {
     pub temporary: bool,
     pub omit_from_output: bool,
     pub omit_from_log: bool,
+}
+
+impl Default for SenderRust {
+    fn default() -> Self {
+        Self {
+            text: QString::default(),
+            send_to: ffi::SendTarget::World,
+            label: QString::default(),
+            script: QString::default(),
+            group: QString::default(),
+            variable: QString::default(),
+            enabled: true,
+            one_shot: false,
+            temporary: false,
+            omit_from_output: false,
+            omit_from_log: false,
+        }
+    }
 }
 
 impl From<&Sender> for SenderRust {
@@ -140,7 +157,6 @@ impl From<&TimerRust> for Timer {
     }
 }
 
-#[derive(Default)]
 pub struct ReactionRust {
     pub sequence: i32,
     pub pattern: QString,
@@ -154,6 +170,21 @@ pub struct ReactionRust {
 }
 
 impl_deref!(ReactionRust, SenderRust, send);
+
+impl Default for ReactionRust {
+    fn default() -> Self {
+        Self {
+            sequence: i32::from(Reaction::DEFAULT_SEQUENCE),
+            pattern: QString::default(),
+            send: SenderRust::default(),
+            ignore_case: false,
+            keep_evaluating: false,
+            is_regex: false,
+            expand_variables: false,
+            repeats: false,
+        }
+    }
+}
 
 impl From<&Reaction> for ReactionRust {
     fn from(reaction: &Reaction) -> Self {
@@ -224,14 +255,11 @@ impl TryFrom<&AliasRust> for Alias {
     }
 }
 
-#[derive(Default)]
 pub struct TriggerRust {
     pub reaction: ReactionRust,
     pub change_foreground: bool,
-    pub foreground: QString,
     pub foreground_color: QColor,
     pub change_background: bool,
-    pub background: QString,
     pub background_color: QColor,
     pub make_bold: bool,
     pub make_italic: bool,
@@ -245,15 +273,33 @@ pub struct TriggerRust {
 
 impl_deref!(TriggerRust, ReactionRust, reaction);
 
+impl Default for TriggerRust {
+    fn default() -> Self {
+        Self {
+            reaction: ReactionRust::default(),
+            change_foreground: false,
+            foreground_color: QColor::from_rgb(255, 255, 255),
+            change_background: false,
+            background_color: QColor::from_rgb(0, 0, 0),
+            make_bold: false,
+            make_italic: false,
+            make_underline: false,
+            sound: QString::default(),
+            sound_if_inactive: false,
+            lowercase_wildcard: false,
+            multi_line: false,
+            lines_to_match: 0,
+        }
+    }
+}
+
 impl From<&Trigger> for TriggerRust {
     fn from(trigger: &Trigger) -> Self {
         Self {
             reaction: ReactionRust::from(&trigger.reaction),
             change_foreground: trigger.change_foreground,
-            foreground: QString::from(&trigger.foreground),
             foreground_color: trigger.foreground_color.convert(),
             change_background: trigger.change_background,
-            background: QString::from(&trigger.background),
             background_color: trigger.background_color.convert(),
             make_bold: trigger.make_bold,
             make_italic: trigger.make_italic,
@@ -274,10 +320,8 @@ impl TryFrom<&TriggerRust> for Trigger {
         Ok(Self {
             reaction: Reaction::try_from(&value.reaction)?,
             change_foreground: value.change_foreground,
-            foreground: String::from(&value.foreground),
             foreground_color: value.foreground_color.convert(),
             change_background: value.change_background,
-            background: String::from(&value.background),
             background_color: value.background_color.convert(),
             make_bold: value.make_bold,
             make_italic: value.make_italic,

@@ -75,9 +75,9 @@ impl Serialize for Regex {
 
 impl<'de> Deserialize<'de> for Regex {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let s = <&str>::deserialize(deserializer)?;
-        Regex::new(s)
-            .map_err(|_| D::Error::invalid_value(Unexpected::Str(s), &"valid regular expression"))
+        let s = String::deserialize(deserializer)?;
+        Regex::new(&s)
+            .map_err(|_| D::Error::invalid_value(Unexpected::Str(&s), &"valid regular expression"))
     }
 }
 

@@ -122,19 +122,19 @@ pub mod ffi {
 
     enum SendTarget {
         World,
-        WorldDelay,
-        WorldImmediate,
         Command,
         Output,
         Status,
         NotepadNew,
         NotepadAppend,
-        NotepadReplace,
         Log,
-        Speedwalk,
-        Execute,
+        NotepadReplace,
+        WorldDelay,
         Variable,
+        Execute,
+        Speedwalk,
         Script,
+        WorldImmediate,
         ScriptAfterOmit,
     }
 
@@ -193,11 +193,9 @@ pub mod ffi {
     struct Trigger {
         reaction: Reaction,
         change_foreground: bool,
-        foreground: String,
-        foreground_color: ColorOption,
+        foreground_color: RgbColor,
         change_background: bool,
-        background: String,
-        background_color: ColorOption,
+        background_color: RgbColor,
         make_bold: bool,
         make_italic: bool,
         make_underline: bool,

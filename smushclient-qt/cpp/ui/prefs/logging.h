@@ -2,14 +2,14 @@
 #define PREFSLOGGING_H
 
 #include <QtWidgets/QWidget>
-#include "abstractpane.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {
   class PrefsLogging;
 }
 
-class PrefsLogging : public AbstractPrefsPane
+class PrefsLogging : public QWidget
 {
   Q_OBJECT
 

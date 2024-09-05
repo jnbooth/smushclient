@@ -2,14 +2,14 @@
 #define PREFSOUTPUT_H
 
 #include <QtWidgets/QWidget>
-#include "abstractpane.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {
   class PrefsOutput;
 }
 
-class PrefsOutput : public AbstractPrefsPane
+class PrefsOutput : public QWidget
 {
   Q_OBJECT
 

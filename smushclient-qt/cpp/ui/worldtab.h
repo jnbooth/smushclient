@@ -24,7 +24,7 @@ public:
   void openWorldSettings();
   QString saveWorld(const QString &saveFilter);
   QString saveWorldAsNew(const QString &saveFilter);
-  const QString &title() const;
+  const QString title() const noexcept;
 
 private:
   Ui::WorldTab *ui;

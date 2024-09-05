@@ -7,29 +7,41 @@ use std::ffi::c_char;
 use std::io::{self, Read, Write};
 use std::pin::Pin;
 
-#[repr(transparent)]
-pub struct SocketAdapter<'a> {
-    inner: Pin<&'a mut ffi::QTcpSocket>,
+macro_rules! impl_adapter {
+    ($rust:ident, $ffi:ty) => {
+        #[repr(transparent)]
+        pub struct $rust<'a> {
+            inner: Pin<&'a mut $ffi>,
+        }
+
+        impl<'a> From<Pin<&'a mut $ffi>> for $rust<'a> {
+            fn from(value: Pin<&'a mut $ffi>) -> Self {
+                Self { inner: value }
+            }
+        }
+
+        impl<'a> From<$rust<'a>> for Pin<&'a mut $ffi> {
+            fn from(value: $rust<'a>) -> Self {
+                value.inner
+            }
+        }
+
+        impl<'a> $rust<'a> {
+            fn as_mut(&mut self) -> Pin<&mut $ffi> {
+                self.inner.as_mut()
+            }
+        }
+    };
 }
 
-impl<'a> From<Pin<&'a mut ffi::QTcpSocket>> for SocketAdapter<'a> {
-    fn from(value: Pin<&'a mut ffi::QTcpSocket>) -> Self {
-        Self { inner: value }
-    }
-}
-
-impl<'a> From<SocketAdapter<'a>> for Pin<&'a mut ffi::QTcpSocket> {
-    fn from(value: SocketAdapter<'a>) -> Self {
-        value.inner
-    }
-}
+impl_adapter!(SocketAdapter, ffi::QTcpSocket);
 
 impl<'a> Read for SocketAdapter<'a> {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         let buf_ptr = buf.as_mut_ptr().cast::<c_char>();
         let buf_len = buf.len() as i64;
         // SAFETY: Device will not read past buf.len().
-        let n = unsafe { self.inner.as_mut().read(buf_ptr, buf_len) };
+        let n = unsafe { self.as_mut().read(buf_ptr, buf_len) };
         if n == -1 {
             Err(io::ErrorKind::BrokenPipe.into())
         } else {
@@ -43,7 +55,7 @@ impl<'a> Write for SocketAdapter<'a> {
         let bytes_ptr = buf.as_ptr().cast::<c_char>();
         let bytes_len = buf.len() as i64;
         // SAFETY: Device will not write past bytes.len().
-        let n = unsafe { self.inner.as_mut().write(bytes_ptr, bytes_len) };
+        let n = unsafe { self.as_mut().write(bytes_ptr, bytes_len) };
         if n == -1 {
             Err(io::ErrorKind::BrokenPipe.into())
         } else {
@@ -52,33 +64,14 @@ impl<'a> Write for SocketAdapter<'a> {
     }
 
     fn flush(&mut self) -> io::Result<()> {
-        unsafe { self.inner.as_mut().flush() };
+        unsafe { self.as_mut().flush() };
         Ok(())
     }
 }
 
-#[repr(transparent)]
-pub struct DocumentAdapter<'a> {
-    inner: Pin<&'a mut ffi::Document>,
-}
-
-impl<'a> From<Pin<&'a mut ffi::Document>> for DocumentAdapter<'a> {
-    fn from(value: Pin<&'a mut ffi::Document>) -> Self {
-        Self { inner: value }
-    }
-}
-
-impl<'a> From<DocumentAdapter<'a>> for Pin<&'a mut ffi::Document> {
-    fn from(value: DocumentAdapter<'a>) -> Self {
-        value.inner
-    }
-}
+impl_adapter!(DocumentAdapter, ffi::Document);
 
 impl<'a> DocumentAdapter<'a> {
-    fn as_mut(&mut self) -> Pin<&mut ffi::Document> {
-        self.inner.as_mut()
-    }
-
     pub fn scroll_to_bottom(&mut self) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.as_mut().scroll_to_bottom() }
@@ -131,5 +124,40 @@ impl<'a> DocumentAdapter<'a> {
     pub fn set_input(&mut self, text: &QString) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.as_mut().set_input(text) };
+    }
+}
+
+impl_adapter!(TreeBuilderAdapter, ffi::TreeBuilder);
+
+pub trait ColumnInsertable {
+    unsafe fn insert_column(self, builder: Pin<&mut ffi::TreeBuilder>);
+}
+
+impl ColumnInsertable for &QString {
+    unsafe fn insert_column(self, builder: Pin<&mut ffi::TreeBuilder>) {
+        builder.add_column(self);
+    }
+}
+
+impl ColumnInsertable for i16 {
+    unsafe fn insert_column(self, builder: Pin<&mut ffi::TreeBuilder>) {
+        builder.add_column_i16(self);
+    }
+}
+
+impl<'a> TreeBuilderAdapter<'a> {
+    pub fn start_group(&mut self, text: &QString) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.as_mut().start_group(text) };
+    }
+
+    pub fn start_item(&mut self, value: usize) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.as_mut().start_item(value) };
+    }
+
+    pub fn add_column<T: ColumnInsertable>(&mut self, value: T) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { value.insert_column(self.as_mut()) };
     }
 }

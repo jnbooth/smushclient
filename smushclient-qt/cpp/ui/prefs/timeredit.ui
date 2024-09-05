@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TimerEdit</class>
+ <widget class="QDialog" name="TimerEdit">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>670</width>
+    <height>927</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>670</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Edit Timer</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QWidget" name="timers_event" native="true">
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QRadioButton" name="Occurrence_Interval">
+        <property name="text">
+         <string>Every </string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QSpinBox" name="EveryHour">
+          <property name="suffix">
+           <string> hours</string>
+          </property>
+          <property name="maximum">
+           <number>24</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="EveryMinute">
+          <property name="suffix">
+           <string> minutes</string>
+          </property>
+          <property name="maximum">
+           <number>59</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="EverySecond">
+          <property name="suffix">
+           <string> seconds</string>
+          </property>
+          <property name="maximum">
+           <number>59</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QRadioButton" name="Occurrence_Time">
+        <property name="text">
+         <string>At time </string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QTimeEdit" name="AtTime">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="displayFormat">
+         <string>h:mm:ss AP</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="Text_label">
+     <property name="text">
+      <string>&amp;Send:</string>
+     </property>
+     <property name="buddy">
+      <cstring>Text</cstring>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPlainTextEdit" name="Text"/>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="_main">
+     <property name="spacing">
+      <number>20</number>
+     </property>
+     <item>
+      <layout class="QVBoxLayout" name="_options">
+       <property name="spacing">
+        <number>6</number>
+       </property>
+       <item>
+        <layout class="QFormLayout" name="_send">
+         <item row="0" column="0">
+          <widget class="QLabel" name="SendTo_label">
+           <property name="text">
+            <string>Send to:</string>
+           </property>
+           <property name="buddy">
+            <cstring>SendTo</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="SendTo">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <item>
+            <property name="text">
+             <string>World</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Command</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Output</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Status</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Notepad (new)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Notepad (append)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Log file</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Notepad (replace)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>World (speedwalk delay)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Variable</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Execute</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Script</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>World (immediate)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Script (after omit)</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="Script_label">
+           <property name="text">
+            <string>Script:</string>
+           </property>
+           <property name="buddy">
+            <cstring>Script</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="Script"/>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="Label"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="Label_label">
+           <property name="text">
+            <string>&amp;Label:</string>
+           </property>
+           <property name="buddy">
+            <cstring>Label</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="Group_label">
+           <property name="text">
+            <string>Group:</string>
+           </property>
+           <property name="buddy">
+            <cstring>Group</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="Group"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="Variable_label">
+           <property name="visible">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Variable:</string>
+           </property>
+           <property name="buddy">
+            <cstring>Variable</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="Variable">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="_checkboxes">
+       <property name="spacing">
+        <number>6</number>
+       </property>
+       <item>
+        <widget class="QCheckBox" name="Enabled">
+         <property name="text">
+          <string>En&amp;abled</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="OmitFromOutput">
+         <property name="text">
+          <string>O&amp;mit from output</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="OmitFromLog">
+         <property name="text">
+          <string>&amp;Omit from log file</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="OneShot">
+         <property name="text">
+          <string>One-shot</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="Temporary">
+         <property name="text">
+          <string>Temporary</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="ActiveClosed">
+         <property name="text">
+          <string>Active when disconnected</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>TimerEdit</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>205</x>
+     <y>917</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>TimerEdit</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>205</x>
+     <y>917</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

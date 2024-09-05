@@ -116,6 +116,7 @@ fn receive_lines<H: Handler>(
         if slice.is_empty() {
             return;
         }
+        line_text.clear();
         let mut until = 0;
         for (i, output) in slice.iter().enumerate() {
             match &output.fragment {

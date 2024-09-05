@@ -1,8 +1,9 @@
 #include "output.h"
 #include "ui_output.h"
+#include "../../fieldconnector.h"
 
 PrefsOutput::PrefsOutput(World *world, QWidget *parent)
-    : AbstractPrefsPane(parent), ui(new Ui::PrefsOutput), world(world)
+    : QWidget(parent), ui(new Ui::PrefsOutput), world(world)
 {
   ui->setupUi(this);
 

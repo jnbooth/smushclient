@@ -1,7 +1,7 @@
 import AppKit
 
 extension DocumentViewController {
-  func handleSend(_ send: SendRequest) -> Bool {
+  func handleSend(_ send: SendRequest) -> NSAttributedString? {
     let text = send.text.toString()
     switch send.send_to {
     case .Command:
@@ -9,8 +9,7 @@ extension DocumentViewController {
 
     case .Output:
       let attributes = formatter.plainAttributes
-      textStorage.append(NSAttributedString(string: text, attributes: attributes))
-      return true
+      return NSAttributedString(string: "\n" + text, attributes: attributes)
 
     case .Status:
       status.pluginMessage = text
@@ -22,6 +21,6 @@ extension DocumentViewController {
       break
     }
 
-    return false
+    return nil
   }
 }

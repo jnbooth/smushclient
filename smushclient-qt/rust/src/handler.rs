@@ -12,6 +12,7 @@ pub struct ClientHandler<'a> {
     pub doc: DocumentAdapter<'a>,
     pub socket: SocketAdapter<'a>,
     pub palette: &'a HashMap<RgbColor, i32>,
+    pub send: &'a mut Vec<QString>,
 }
 
 const CUSTOM_FORMAT_INDEX: i32 = 0;
@@ -51,6 +52,13 @@ impl<'a> ClientHandler<'a> {
             }
         };
     }
+
+    pub fn output_sends(&mut self) {
+        for send in self.send.iter() {
+            self.doc.append_plaintext(send, CUSTOM_FORMAT_INDEX);
+            self.doc.append_line();
+        }
+    }
 }
 
 impl<'a> smushclient::SendHandler for ClientHandler<'a> {
@@ -66,8 +74,7 @@ impl<'a> smushclient::SendHandler for ClientHandler<'a> {
                 self.doc.set_input(&QString::from(text));
             }
             SendTarget::Output => {
-                self.doc
-                    .append_plaintext(&QString::from(text), CUSTOM_FORMAT_INDEX);
+                self.send.push(QString::from(text));
             }
             SendTarget::Status => {
                 self.doc.display_status_message(&QString::from(text));

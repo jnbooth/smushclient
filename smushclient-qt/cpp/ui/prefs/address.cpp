@@ -1,8 +1,9 @@
 #include "address.h"
 #include "ui_address.h"
+#include "../../fieldconnector.h"
 
 PrefsAddress::PrefsAddress(const World *world, QWidget *parent)
-    : AbstractPrefsPane(parent), ui(new Ui::PrefsAddress)
+    : QWidget(parent), ui(new Ui::PrefsAddress)
 {
   ui->setupUi(this);
   CONNECT_WORLD(Name);

@@ -234,6 +234,7 @@ impl<'a, 'b, T> SendMatch<'a, 'b, T> {
     {
         match &self.captures {
             Some(ref captures) => {
+                buf.clear();
                 captures.expand(self.text, buf);
                 buf.as_str()
             }

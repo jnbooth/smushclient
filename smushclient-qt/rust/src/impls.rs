@@ -30,20 +30,20 @@ impl_convert_enum!(
     ffi::SendTarget,
     SendTarget,
     World,
-    WorldDelay,
-    WorldImmediate,
     Command,
     Output,
     Status,
     NotepadNew,
     NotepadAppend,
-    NotepadReplace,
     Log,
-    Speedwalk,
-    Execute,
+    NotepadReplace,
+    WorldDelay,
     Variable,
+    Execute,
+    Speedwalk,
     Script,
-    ScriptAfterOmit
+    WorldImmediate,
+    ScriptAfterOmit,
 );
 
 impl Default for ffi::SendTarget {

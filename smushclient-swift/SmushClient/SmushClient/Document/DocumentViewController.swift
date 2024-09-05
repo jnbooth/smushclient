@@ -107,7 +107,8 @@ class DocumentViewController: NSViewController {
       }
       let sendStream = outcome.stream()
       while let send = sendStream.next() {
-        if handleSend(send) {
+        if let output = handleSend(send) {
+          textStorage.append(output)
           shouldScrollToBottom = true
         }
       }

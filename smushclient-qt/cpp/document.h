@@ -5,12 +5,13 @@
 #include <QtGui/QTextCursor>
 #include <QtWidgets/QLineEdit>
 #include <QtNetwork/QTcpSocket>
-#include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QMainWindow>
-
-using QVector_QColor = QVector<QColor>;
+#include <QtWidgets/QTextBrowser>
+#include <QtWidgets/QTreeWidgetItem>
 
 struct Link;
+
+using QVector_QColor = QVector<QColor>;
 
 class Document
 {
@@ -27,7 +28,7 @@ public:
   void setBrowser(QTextBrowser *browser);
   void setInput(const QString &text);
   void setLineEdit(QLineEdit *input);
-  void setPalette(const QVector<QColor> &palette);
+  void setPalette(const QVector_QColor &palette);
 
 private:
   QLineEdit *input;

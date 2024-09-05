@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 
 use super::sender::Sender;
-use crate::constants::DEFAULT_SEQUENCE;
 use crate::regex::{Regex, RegexError};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
@@ -30,9 +29,11 @@ impl Default for Reaction {
 }
 
 impl Reaction {
+    pub const DEFAULT_SEQUENCE: i16 = crate::constants::DEFAULT_SEQUENCE;
+
     pub fn new() -> Self {
         Self {
-            sequence: DEFAULT_SEQUENCE,
+            sequence: Self::DEFAULT_SEQUENCE,
             pattern: String::new(),
             send: Sender::default(),
             ignore_case: false,

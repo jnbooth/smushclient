@@ -2,14 +2,14 @@
 #define PREFSCONNECTING_H
 
 #include <QtWidgets/QWidget>
-#include "abstractpane.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {
   class PrefsConnecting;
 }
 
-class PrefsConnecting : public AbstractPrefsPane
+class PrefsConnecting : public QWidget
 {
   Q_OBJECT
 

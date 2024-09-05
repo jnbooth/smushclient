@@ -12,17 +12,21 @@ fn get_header_dir() -> String {
     format!("{header_root}/cxx-qt-gen")
 }
 
-fn copy_document_header(header_dir: &str) {
-    let path = format!("{header_dir}/document.h");
-    let mut file = File::create(path).expect("Could not create document.h");
-    let contents = include_str!("../cpp/document.h");
-    write!(file, "{contents}").expect("Could not write document.h");
+fn copy_header(dir: &str, name: &str, contents: &str) {
+    let path = format!("{dir}/{name}");
+    let mut file = File::create(path).expect("Could not create {name}");
+    write!(file, "{contents}").expect("Could not write {name}");
 }
 
 fn main() {
     let header_dir = get_header_dir();
     fs::create_dir_all(&header_dir).expect("Could not create header dir");
-    copy_document_header(&header_dir);
+    copy_header(&header_dir, "document.h", include_str!("../cpp/document.h"));
+    copy_header(
+        &header_dir,
+        "viewbuilder.h",
+        include_str!("../cpp/viewbuilder.h"),
+    );
 
     CxxQtBuilder::new()
         .qml_module::<&str, &str>(QmlModule {

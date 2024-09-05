@@ -1,8 +1,9 @@
 #include "chat.h"
 #include "ui_chat.h"
+#include "../../fieldconnector.h"
 
 PrefsChat::PrefsChat(const World *world, QWidget *parent)
-    : AbstractPrefsPane(parent), ui(new Ui::PrefsChat)
+    : QWidget(parent), ui(new Ui::PrefsChat)
 {
   ui->setupUi(this);
   CONNECT_WORLD(ChatName);

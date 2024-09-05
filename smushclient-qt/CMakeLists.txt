@@ -47,26 +47,31 @@ qt_add_executable(${APP_NAME}
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
     cpp/document.h cpp/document.cpp
+    cpp/fieldconnector.h
     cpp/settings.h cpp/settings.cpp
+    cpp/viewbuilder.h cpp/viewbuilder.cpp
+
     cpp/ui/app.h cpp/ui/app.cpp cpp/ui/app.ui
-    cpp/ui/prefs/abstractpane.h cpp/ui/prefs/abstractpane.cpp
-    cpp/ui/prefs/connecting.h cpp/ui/prefs/connecting.cpp cpp/ui/prefs/connecting.ui
-    cpp/ui/prefs/chat.h cpp/ui/prefs/chat.cpp cpp/ui/prefs/chat.ui
+    cpp/ui/components/colorpickerbutton.h cpp/ui/components/colorpickerbutton.cpp
+    cpp/ui/prefs/abstractprefstree.h cpp/ui/prefs/abstractprefstree.cpp
     cpp/ui/prefs/address.h cpp/ui/prefs/address.cpp cpp/ui/prefs/address.ui
+    cpp/ui/prefs/aliasedit.h cpp/ui/prefs/aliasedit.cpp cpp/ui/prefs/aliasedit.ui
     cpp/ui/prefs/aliases.h cpp/ui/prefs/aliases.cpp cpp/ui/prefs/aliases.ui
+    cpp/ui/prefs/chat.h cpp/ui/prefs/chat.cpp cpp/ui/prefs/chat.ui
     cpp/ui/prefs/color.h cpp/ui/prefs/color.cpp cpp/ui/prefs/color.ui
     cpp/ui/prefs/commands.h cpp/ui/prefs/commands.cpp cpp/ui/prefs/commands.ui
+    cpp/ui/prefs/connecting.h cpp/ui/prefs/connecting.cpp cpp/ui/prefs/connecting.ui
     cpp/ui/prefs/logging.h cpp/ui/prefs/logging.cpp cpp/ui/prefs/logging.ui
     cpp/ui/prefs/mxp.h cpp/ui/prefs/mxp.cpp cpp/ui/prefs/mxp.ui
     cpp/ui/prefs/output.h cpp/ui/prefs/output.cpp cpp/ui/prefs/output.ui
     cpp/ui/prefs/proxy.h cpp/ui/prefs/proxy.cpp cpp/ui/prefs/proxy.ui
-    cpp/ui/prefs/timers.h cpp/ui/prefs/timers.cpp cpp/ui/prefs/timers.ui
-    cpp/ui/prefs/triggers.h cpp/ui/prefs/triggers.cpp cpp/ui/prefs/triggers.ui
     cpp/ui/prefs/specialhelp.h cpp/ui/prefs/specialhelp.cpp cpp/ui/prefs/specialhelp.ui
+    cpp/ui/prefs/timeredit.h cpp/ui/prefs/timeredit.cpp cpp/ui/prefs/timeredit.ui
+    cpp/ui/prefs/timers.h cpp/ui/prefs/timers.cpp cpp/ui/prefs/timers.ui
     cpp/ui/prefs/triggeredit.h cpp/ui/prefs/triggeredit.cpp cpp/ui/prefs/triggeredit.ui
+    cpp/ui/prefs/triggers.h cpp/ui/prefs/triggers.cpp cpp/ui/prefs/triggers.ui
     cpp/ui/worldprefs.h cpp/ui/worldprefs.cpp cpp/ui/worldprefs.ui
     cpp/ui/worldtab.h cpp/ui/worldtab.cpp cpp/ui/worldtab.ui
-    cpp/ui/components/colorpickerbutton.h cpp/ui/components/colorpickerbutton.cpp
 )
 
 set(CRATE smushclient_qt)

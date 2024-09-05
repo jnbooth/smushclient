@@ -2,14 +2,14 @@
 #define PREFSCOMMANDS_H
 
 #include <QtWidgets/QWidget>
-#include "abstractpane.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {
   class PrefsCommands;
 }
 
-class PrefsCommands : public AbstractPrefsPane
+class PrefsCommands : public QWidget
 {
   Q_OBJECT
 

@@ -2,14 +2,14 @@
 #define PREFSCHAT_H
 
 #include <QtWidgets/QWidget>
-#include "abstractpane.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {
   class PrefsChat;
 }
 
-class PrefsChat : public AbstractPrefsPane
+class PrefsChat : public QWidget
 {
   Q_OBJECT
 

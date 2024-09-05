@@ -128,15 +128,33 @@ pub mod ffi {
         unsafe fn setInput(self: Pin<&mut Document>, text: &QString);
     }
 
+    extern "C++Qt" {
+        include!("viewbuilder.h");
+        type TreeBuilder;
+
+        #[rust_name = "start_group"]
+        unsafe fn startGroup(self: Pin<&mut TreeBuilder>, text: &QString);
+        #[rust_name = "start_item"]
+        unsafe fn startItem(self: Pin<&mut TreeBuilder>, value: usize);
+        #[rust_name = "add_column"]
+        unsafe fn addColumn(self: Pin<&mut TreeBuilder>, text: &QString);
+        #[rust_name = "add_column_i16"]
+        unsafe fn addColumn(self: Pin<&mut TreeBuilder>, value: i16);
+    }
+
     extern "RustQt" {
         #[qobject]
         type SmushClient = super::SmushClientRust;
     }
 
     unsafe extern "RustQt" {
-        fn load_world(self: Pin<&mut SmushClient>, path: &QString, world: Pin<&mut World>) -> bool;
+        fn load_world(
+            self: Pin<&mut SmushClient>,
+            path: &QString,
+            world: Pin<&mut World>,
+        ) -> Result<()>;
         fn populate_world(self: &SmushClient, world: Pin<&mut World>);
-        fn save_world(self: &SmushClient, path: &QString) -> bool;
+        fn save_world(self: &SmushClient, path: &QString) -> Result<()>;
         fn set_world(self: Pin<&mut SmushClient>, world: &World);
         fn palette(self: &SmushClient) -> QVector_QColor;
         fn read(
@@ -160,6 +178,7 @@ pub mod ffi {
         #[qproperty(bool, temporary)]
         #[qproperty(bool, omit_from_output)]
         #[qproperty(bool, omit_from_log)]
+        #[qproperty(QString, text)]
         type Sender = super::SenderRust;
     }
 
@@ -178,6 +197,7 @@ pub mod ffi {
         #[qproperty(bool, temporary)]
         #[qproperty(bool, omit_from_output)]
         #[qproperty(bool, omit_from_log)]
+        #[qproperty(QString, text)]
         // Timer
         #[qproperty(Occurrence, occurrence)]
         #[qproperty(QTime, at_time)]
@@ -203,6 +223,7 @@ pub mod ffi {
         #[qproperty(bool, temporary)]
         #[qproperty(bool, omit_from_output)]
         #[qproperty(bool, omit_from_log)]
+        #[qproperty(QString, text)]
         // Reaction
         #[qproperty(i32, sequence)]
         #[qproperty(QString, pattern)]
@@ -229,6 +250,7 @@ pub mod ffi {
         #[qproperty(bool, temporary)]
         #[qproperty(bool, omit_from_output)]
         #[qproperty(bool, omit_from_log)]
+        #[qproperty(QString, text)]
         // Reaction
         #[qproperty(i32, sequence)]
         #[qproperty(QString, pattern)]
@@ -259,6 +281,7 @@ pub mod ffi {
         #[qproperty(bool, temporary)]
         #[qproperty(bool, omit_from_output)]
         #[qproperty(bool, omit_from_log)]
+        #[qproperty(QString, text)]
         // Reaction
         #[qproperty(i32, sequence)]
         #[qproperty(QString, pattern)]
@@ -269,12 +292,11 @@ pub mod ffi {
         #[qproperty(bool, repeats)]
         // Trigger
         #[qproperty(bool, change_foreground)]
-        #[qproperty(QString, foreground)]
         #[qproperty(QColor, foreground_color)]
         #[qproperty(bool, change_background)]
-        #[qproperty(QString, background)]
         #[qproperty(QColor, background_color)]
         #[qproperty(bool, make_bold)]
+        #[qproperty(bool, make_italic)]
         #[qproperty(bool, make_underline)]
         #[qproperty(QString, sound)]
         #[qproperty(bool, sound_if_inactive)]
@@ -289,19 +311,19 @@ pub mod ffi {
     #[qenum(Sender)]
     enum SendTarget {
         World,
-        WorldDelay,
-        WorldImmediate,
         Command,
         Output,
         Status,
         NotepadNew,
         NotepadAppend,
-        NotepadReplace,
         Log,
-        Speedwalk,
-        Execute,
+        NotepadReplace,
+        WorldDelay,
         Variable,
+        Execute,
+        Speedwalk,
         Script,
+        WorldImmediate,
         ScriptAfterOmit,
     }
 
@@ -506,24 +528,21 @@ pub mod ffi {
     }
 
     unsafe extern "RustQt" {
-        #[cxx_name = "add"]
         fn add_alias(self: Pin<&mut World>, alias: &Alias) -> QString;
-        #[cxx_name = "load"]
-        fn get_alias(self: &World, index: usize, target: Pin<&mut Alias>);
-        #[cxx_name = "replace"]
-        fn replace_alias(self: Pin<&mut World>, index: usize, alias: &Alias) -> QString;
-        #[cxx_name = "add"]
         fn add_timer(self: Pin<&mut World>, timer: &Timer) -> QString;
-        #[cxx_name = "load"]
-        fn get_timer(self: &World, index: usize, target: Pin<&mut Timer>);
-        #[cxx_name = "replace"]
-        fn replace_timer(self: Pin<&mut World>, index: usize, timer: &Timer) -> QString;
-        #[cxx_name = "add"]
         fn add_trigger(self: Pin<&mut World>, trigger: &Trigger) -> QString;
-        #[cxx_name = "load"]
+        fn get_alias(self: &World, index: usize, target: Pin<&mut Alias>);
+        fn get_timer(self: &World, index: usize, target: Pin<&mut Timer>);
         fn get_trigger(self: &World, index: usize, target: Pin<&mut Trigger>);
-        #[cxx_name = "replace"]
+        fn remove_alias(self: Pin<&mut World>, index: usize);
+        fn remove_timer(self: Pin<&mut World>, index: usize);
+        fn remove_trigger(self: Pin<&mut World>, index: usize);
+        fn replace_alias(self: Pin<&mut World>, index: usize, alias: &Alias) -> QString;
+        fn replace_timer(self: Pin<&mut World>, index: usize, timer: &Timer) -> QString;
         fn replace_trigger(self: Pin<&mut World>, index: usize, trigger: &Trigger) -> QString;
+        fn build_alias_tree(self: &World, builder: Pin<&mut TreeBuilder>);
+        fn build_timer_tree(self: &World, builder: Pin<&mut TreeBuilder>);
+        fn build_trigger_tree(self: &World, builder: Pin<&mut TreeBuilder>);
     }
 
     #[qenum(World)]

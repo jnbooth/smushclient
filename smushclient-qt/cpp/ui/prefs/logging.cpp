@@ -1,9 +1,10 @@
 #include "logging.h"
 #include "ui_logging.h"
+#include "../../fieldconnector.h"
 #include <QtWidgets/QButtonGroup>
 
 PrefsLogging::PrefsLogging(World *world, QWidget *parent)
-    : AbstractPrefsPane(parent), ui(new Ui::PrefsLogging), world(world)
+    : QWidget(parent), ui(new Ui::PrefsLogging), world(world)
 {
   ui->setupUi(this);
   CONNECT_WORLD(LogOutput);

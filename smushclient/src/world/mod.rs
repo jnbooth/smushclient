@@ -20,7 +20,8 @@ where
     S: serde::Serializer,
     T: serde::Serialize + AsRef<Sender>,
 {
-    let filtered = vec.iter().filter(|x| !x.as_ref().temporary);
+    // must collect in a vec because bincode needs to know the size ahead of time
+    let filtered: Vec<&T> = vec.iter().filter(|x| !x.as_ref().temporary).collect();
     serializer.collect_seq(filtered)
 }
 
