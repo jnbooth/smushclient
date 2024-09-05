@@ -310,10 +310,13 @@ impl Senders {
 
     pub fn extend(&mut self, i: PluginIndex, plugin: &Plugin) {
         self.triggers.extend(i, &plugin.triggers);
-        self.triggers.sort();
         self.aliases.extend(i, &plugin.aliases);
-        self.aliases.sort();
         self.timers.extend(i, &plugin.timers);
+    }
+
+    pub fn sort(&mut self) {
+        self.triggers.sort();
+        self.aliases.sort();
         self.timers.sort();
     }
 
@@ -495,6 +498,7 @@ mod tests {
             let mut senders = Senders::new();
             let plugin = basic_plugin();
             senders.extend(2, &plugin);
+            senders.sort();
             assert_eq!(
                 (
                     vals(senders.aliases),

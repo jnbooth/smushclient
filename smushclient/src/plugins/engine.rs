@@ -64,11 +64,14 @@ impl PluginEngine {
 
     fn sort(&mut self) {
         self.senders.clear();
+        if self.plugins.is_empty() {
+            return;
+        }
         self.plugins.sort_unstable();
-
         for (i, plugin) in self.plugins.iter_mut().enumerate() {
             self.senders.extend(i, plugin);
         }
+        self.senders.sort();
     }
 
     pub fn alias<H: SendHandler>(&mut self, line: &str, handler: &mut H) -> AliasEffects {
