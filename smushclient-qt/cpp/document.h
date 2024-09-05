@@ -25,10 +25,9 @@ public:
   void scrollToBottom();
   void displayStatusMessage(const QString &status);
 
-  void setBrowser(QTextBrowser *browser);
   void setInput(const QString &text);
-  void setLineEdit(QLineEdit *input);
   void setPalette(const QVector_QColor &palette);
+  void setUI(QTextBrowser *browser, QLineEdit *input);
 
 private:
   QLineEdit *input;

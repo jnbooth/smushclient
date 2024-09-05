@@ -28,8 +28,7 @@ WorldTab::WorldTab(QWidget *parent)
 {
   ui->setupUi(this);
   defaultFont.setPointSize(12);
-  document.setBrowser(ui->output);
-  document.setLineEdit(ui->input);
+  document.setUI(ui->output, ui->input);
   connect(&socket, &QTcpSocket::readyRead, this, &WorldTab::readFromSocket);
 }
 
@@ -40,7 +39,7 @@ WorldTab::~WorldTab()
 
 // Public methods
 
-void WorldTab::createWorld()
+void WorldTab::createWorld() &
 {
   const QString defaultFontFamily = defaultFont.family();
   const int defaultFontSize = defaultFont.pointSize();
@@ -58,7 +57,7 @@ void WorldTab::focusInput() const
   ui->input->focusWidget();
 }
 
-bool WorldTab::openWorld(const QString &filename)
+bool WorldTab::openWorld(const QString &filename) &
 {
   try
   {
@@ -77,7 +76,7 @@ bool WorldTab::openWorld(const QString &filename)
   return true;
 }
 
-void WorldTab::openWorldSettings()
+void WorldTab::openWorldSettings() &
 {
   WorldPrefs *prefs = new WorldPrefs(&world, this);
   prefs->setAttribute(Qt::WA_DeleteOnClose, true);

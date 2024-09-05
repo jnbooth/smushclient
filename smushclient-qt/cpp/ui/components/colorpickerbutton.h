@@ -16,7 +16,7 @@ public:
   QSize sizeHint() const override;
   QSize minimumSizeHint() const override;
 
-  const QColor &value() const;
+  const QColor &value() const &;
 
 public slots:
   void openColorPicker();

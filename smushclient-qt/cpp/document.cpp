@@ -124,20 +124,9 @@ void Document::displayStatusMessage(const QString &status)
   window->statusBar()->showMessage(status);
 }
 
-void Document::setBrowser(QTextBrowser *textBrowser)
-{
-  cursor = QTextCursor(textBrowser->document());
-  browser = textBrowser;
-}
-
 void Document::setInput(const QString &text)
 {
   input->setText(text);
-}
-
-void Document::setLineEdit(QLineEdit *lineEdit)
-{
-  input = lineEdit;
 }
 
 void Document::setPalette(const QVector_QColor &palette)
@@ -149,4 +138,11 @@ void Document::setPalette(const QVector_QColor &palette)
     format->setForeground(QBrush(color));
     ++format;
   }
+}
+
+void Document::setUI(QTextBrowser *textBrowser, QLineEdit *lineEdit)
+{
+  input = lineEdit;
+  cursor = QTextCursor(textBrowser->document());
+  browser = textBrowser;
 }

@@ -19,10 +19,10 @@ public:
   explicit WorldTab(QWidget *parent = nullptr);
   ~WorldTab();
 
-  void createWorld();
+  void createWorld() &;
   void focusInput() const;
-  bool openWorld(const QString &filename);
-  void openWorldSettings();
+  bool openWorld(const QString &filename) &;
+  void openWorldSettings() &;
   QString saveWorld(const QString &saveFilter);
   QString saveWorldAsNew(const QString &saveFilter);
   const QString title() const noexcept;
