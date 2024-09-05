@@ -44,7 +44,7 @@ void ColorPickerButton::setValue(const QColor &val)
   emit valueChanged(currentValue);
 }
 
-const QColor &ColorPickerButton::value() const
+const QColor &ColorPickerButton::value() const &
 {
   return currentValue;
 }
