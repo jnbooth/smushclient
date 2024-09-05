@@ -1,9 +1,9 @@
 #ifndef COLORPICKERBUTTON_H
 #define COLORPICKERBUTTON_H
 
-#include <QtWidgets/QPushButton>
+#include <QtWidgets/QAbstractButton>
 
-class ColorPickerButton : public QPushButton
+class ColorPickerButton : public QAbstractButton
 {
   Q_OBJECT
 
@@ -12,16 +12,26 @@ class ColorPickerButton : public QPushButton
 public:
   explicit ColorPickerButton(QWidget *parent = nullptr);
 
+  QSize sizeHint() const override;
+  QSize minimumSizeHint() const override;
+
   const QColor &value() const;
 
 public slots:
+  void openColorPicker();
   void setValue(const QColor &val);
 
 signals:
   void valueChanged(const QColor &val);
 
+protected:
+  void paintEvent(QPaintEvent *) override;
+
 protected slots:
-  void openColorPicker(bool checked = false);
+  void onClicked(bool checked = false);
+
+private:
+  QColor currentValue;
 };
 
 #endif // COLORPICKERBUTTON_H
