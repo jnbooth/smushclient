@@ -7,11 +7,21 @@
 #include <QtGui/QDesktopServices>
 #include <QtGui/QFont>
 #include <QtGui/QFontDatabase>
+#include <QtGui/QPalette>
 #include <QtCore/QUrl>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QErrorMessage>
+
+void setColors(QWidget *widget, QColor foreground, QColor background)
+{
+  QPalette palette = widget->palette();
+  palette.setColor(QPalette::Text, foreground);
+  palette.setColor(QPalette::Base, background);
+  palette.setColor(QPalette::AlternateBase, background);
+  widget->setPalette(palette);
+}
 
 WorldTab::WorldTab(QWidget *parent)
     : QSplitter(parent), ui(new Ui::WorldTab), socket(this), defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont)), document(&socket)
@@ -41,6 +51,11 @@ void WorldTab::createWorld()
   world.setOutputFontSize(defaultFontSize);
   client.setWorld(world);
   applyWorld();
+}
+
+void WorldTab::focusInput() const
+{
+  ui->input->focusWidget();
 }
 
 bool WorldTab::openWorld(const QString &filename)
@@ -116,6 +131,8 @@ const QString WorldTab::title() const noexcept
 void WorldTab::applyWorld()
 {
   document.setPalette(client.palette());
+  setColors(ui->input, world.getInputColorsForeground(), world.getInputColorsBackground());
+  setColors(ui->output, world.getAnsiColors7(), world.getAnsiColors0());
   if (world.getUseDefaultInputFont())
     ui->input->setFont(defaultFont);
   else
@@ -150,6 +167,7 @@ void WorldTab::finalizeWorldSettings(int result)
   {
   case QDialog::Accepted:
     client.setWorld(world);
+    applyWorld();
     connectToHost();
     break;
   case QDialog::Rejected:

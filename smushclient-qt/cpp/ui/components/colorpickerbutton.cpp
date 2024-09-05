@@ -4,7 +4,6 @@
 ColorPickerButton::ColorPickerButton(QWidget *parent)
     : QPushButton(parent)
 {
-  setFlat(false);
   connect(this, &QAbstractButton::clicked, this, &ColorPickerButton::openColorPicker);
 }
 
@@ -23,7 +22,6 @@ void ColorPickerButton::setValue(const QColor &val)
 
   pal.setColor(QPalette::Button, val);
   setPalette(pal);
-  setFlat(val.alpha() != 0);
   emit valueChanged(val);
 }
 
