@@ -141,18 +141,6 @@
             <height>16</height>
            </size>
           </property>
-          <property name="autoFillBackground">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
-          <property name="autoRaise" stdset="0">
-           <bool>false</bool>
-          </property>
          </widget>
         </item>
         <item>
@@ -169,15 +157,6 @@
             <width>16</width>
             <height>16</height>
            </size>
-          </property>
-          <property name="autoFillBackground">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -345,7 +324,7 @@
  <customwidgets>
   <customwidget>
    <class>ColorPickerButton</class>
-   <extends>QPushButton</extends>
+   <extends>QToolButton</extends>
    <header>colorpickerbutton.h</header>
   </customwidget>
  </customwidgets>
