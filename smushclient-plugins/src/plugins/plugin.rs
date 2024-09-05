@@ -183,6 +183,9 @@ pub struct PluginMetadata {
     // Note: This is at the top for Ord-deriving purposes.
     #[serde(default, rename = "@sequence")]
     pub sequence: i16,
+    // Note: This is also at the top for Ord-deriving purposes.
+    #[serde(skip)]
+    pub is_world_plugin: bool,
     /// Plugin name.
     #[serde(rename = "@name")]
     pub name: String,
@@ -217,8 +220,6 @@ pub struct PluginMetadata {
     /// Telnet protocols that should receive a WILL response.
     #[serde(default, rename = "@protocols", skip_serializing_if = "Vec::is_empty")]
     pub protocols: Vec<u8>,
-    #[serde(skip)]
-    pub is_world_plugin: bool,
 }
 
 impl Default for PluginMetadata {

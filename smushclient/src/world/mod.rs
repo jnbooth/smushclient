@@ -456,6 +456,7 @@ impl World {
             written: today,
             modified: today,
             is_world_plugin: true,
+            sequence: -1,
             ..Default::default()
         };
         Some(Plugin {
