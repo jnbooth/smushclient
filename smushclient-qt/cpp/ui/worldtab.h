@@ -20,6 +20,7 @@ public:
   ~WorldTab();
 
   void createWorld();
+  void focusInput() const;
   bool openWorld(const QString &filename);
   void openWorldSettings();
   QString saveWorld(const QString &saveFilter);

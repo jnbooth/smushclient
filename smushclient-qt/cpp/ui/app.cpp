@@ -153,5 +153,11 @@ void App::on_action_world_properties_triggered()
 
 void App::on_world_tabs_currentChanged(int index)
 {
-  setWorldMenusEnabled(index != -1);
+  bool hasOpenTab = index != -1;
+  setWorldMenusEnabled(hasOpenTab);
+  if (!hasOpenTab)
+    return;
+
+  WorldTab *tab = (WorldTab *)ui->world_tabs->widget(index);
+  tab->focusInput();
 }
