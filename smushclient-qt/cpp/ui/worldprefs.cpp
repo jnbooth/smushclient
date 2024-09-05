@@ -42,7 +42,7 @@ WorldPrefs::~WorldPrefs()
 
 void WorldPrefs::setupPane(QWidget *pane, const char *key)
 {
-  int index = panes.size();
+  const int index = panes.size();
   panes.append(pane);
   ui->contents->addWidget(pane);
   pane->hide();
@@ -64,7 +64,7 @@ void WorldPrefs::on_settings_tree_currentItemChanged(QTreeWidgetItem *current, Q
   if (current == nullptr)
     return;
 
-  QVariant data = current->data(0, Qt::UserRole);
+  const QVariant data = current->data(0, Qt::UserRole);
   if (!data.canConvert<qsizetype>())
     return;
 

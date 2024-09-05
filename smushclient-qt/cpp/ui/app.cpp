@@ -31,7 +31,7 @@ void App::addRecentFile(const QString &filePath)
   if (filePath.isEmpty())
     return;
 
-  RecentFileResult result = Settings().addRecentFile(filePath);
+  const RecentFileResult result = Settings().addRecentFile(filePath);
   if (!result.changed)
     return;
 
@@ -40,7 +40,7 @@ void App::addRecentFile(const QString &filePath)
 
 void App::openRecentFile(qsizetype index)
 {
-  QStringList recentFiles = Settings().recentFiles();
+  const QStringList recentFiles = Settings().recentFiles();
   if (index >= recentFiles.length())
     return;
   openWorld(recentFiles.at(index));
@@ -51,12 +51,12 @@ void App::openWorld(const QString &filePath)
   WorldTab *tab = new WorldTab(ui->world_tabs);
   if (tab->openWorld(filePath))
   {
-    int tabIndex = ui->world_tabs->addTab(tab, tab->title());
+    const int tabIndex = ui->world_tabs->addTab(tab, tab->title());
     ui->world_tabs->setCurrentIndex(tabIndex);
     return;
   }
   delete tab;
-  RecentFileResult result = Settings().removeRecentFile(filePath);
+  const RecentFileResult result = Settings().removeRecentFile(filePath);
   if (result.changed)
     setupRecentFiles(result.recentFiles);
 }
@@ -65,7 +65,7 @@ void App::setupRecentFiles(const QStringList &recentFiles)
 {
   auto i = recentFileActions.begin();
   auto end = recentFileActions.end();
-  for (QString filePath : recentFiles)
+  for (const QString filePath : recentFiles)
   {
     QAction *action = *i;
     action->setVisible(true);
@@ -110,15 +110,15 @@ void App::on_action_new_triggered()
 {
   WorldTab *tab = new WorldTab(this);
   tab->createWorld();
-  int tabIndex = ui->world_tabs->addTab(tab, tr("New world"));
+  const int tabIndex = ui->world_tabs->addTab(tab, tr("New world"));
   ui->world_tabs->setCurrentIndex(tabIndex);
   tab->openWorldSettings();
 }
 
 void App::on_action_open_world_triggered()
 {
-  QString dialogName = ui->action_open_world->text();
-  QString filePath = QFileDialog::getOpenFileName(this, dialogName, "", saveFilter);
+  const QString dialogName = ui->action_open_world->text();
+  const QString filePath = QFileDialog::getOpenFileName(this, dialogName, "", saveFilter);
   if (filePath.isEmpty())
     return;
 
@@ -153,11 +153,10 @@ void App::on_action_world_properties_triggered()
 
 void App::on_world_tabs_currentChanged(int index)
 {
-  bool hasOpenTab = index != -1;
+  const bool hasOpenTab = index != -1;
   setWorldMenusEnabled(hasOpenTab);
   if (!hasOpenTab)
     return;
 
-  WorldTab *tab = (WorldTab *)ui->world_tabs->widget(index);
-  tab->focusInput();
+  ((WorldTab *)ui->world_tabs->widget(index))->focusInput();
 }

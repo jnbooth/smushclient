@@ -4,7 +4,7 @@ AbstractPrefsTree::AbstractPrefsTree(QWidget *parent) : QWidget(parent) {}
 
 QVariant AbstractPrefsTree::currentData() const
 {
-  QTreeWidgetItem *item = tree()->currentItem();
+  const QTreeWidgetItem *item = tree()->currentItem();
   if (item == nullptr)
     return QVariant();
 
@@ -18,19 +18,19 @@ void AbstractPrefsTree::on_add_clicked(bool checked)
 
 void AbstractPrefsTree::on_edit_clicked(bool checked)
 {
-  QVariant data = currentData();
+  const QVariant data = currentData();
   if (!data.canConvert<size_t>())
     return;
-  size_t index = data.value<size_t>();
+  const size_t index = data.value<size_t>();
   editItem(index);
 }
 
 void AbstractPrefsTree::on_remove_clicked(bool checked)
 {
-  QVariant data = currentData();
+  const QVariant data = currentData();
   if (!data.canConvert<size_t>())
     return;
-  size_t index = data.value<size_t>();
+  const size_t index = data.value<size_t>();
   removeItem(index);
 }
 
@@ -41,9 +41,9 @@ void AbstractPrefsTree::on_tree_itemActivated(QTreeWidgetItem *item, int column)
 
 void AbstractPrefsTree::on_tree_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
-  QVariant data = item->data(0, Qt::UserRole);
+  const QVariant data = item->data(0, Qt::UserRole);
   if (!data.canConvert<size_t>())
     return;
-  size_t index = data.value<size_t>();
+  const size_t index = data.value<size_t>();
   editItem(index);
 }

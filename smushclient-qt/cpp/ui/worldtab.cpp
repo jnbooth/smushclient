@@ -42,8 +42,8 @@ WorldTab::~WorldTab()
 
 void WorldTab::createWorld()
 {
-  QString defaultFontFamily = defaultFont.family();
-  int defaultFontSize = defaultFont.pointSize();
+  const QString defaultFontFamily = defaultFont.family();
+  const int defaultFontSize = defaultFont.pointSize();
   client.populateWorld(world);
   world.setInputFont(defaultFontFamily);
   world.setInputFontSize(defaultFontSize);
@@ -104,7 +104,8 @@ QString WorldTab::saveWorld(const QString &saveFilter)
 
 QString WorldTab::saveWorldAsNew(const QString &saveFilter)
 {
-  QString path = QFileDialog::getSaveFileName(this, tr("Save as"), world.getName(), saveFilter);
+  const QString title = tr("Save as");
+  const QString path = QFileDialog::getSaveFileName(this, title, world.getName(), saveFilter);
   if (path.isEmpty())
     return path;
 
@@ -184,18 +185,18 @@ void WorldTab::readFromSocket()
 
 void WorldTab::on_input_returnPressed()
 {
-  QString input = ui->input->text();
+  const QString input = ui->input->text();
   sendCommand(input);
   ui->input->clear();
 }
 
 void WorldTab::on_output_anchorClicked(const QUrl &url)
 {
-  QString action = url.toString(QUrl::None);
+  const QString action = url.toString(QUrl::None);
   if (action.isEmpty())
     return;
 
-  QString last = action.last(1);
+  const QString last = action.last(1);
   if (last == "\x17")
     QDesktopServices::openUrl(QUrl(action));
   else if (last == "\x18")
@@ -206,19 +207,19 @@ void WorldTab::on_output_anchorClicked(const QUrl &url)
 
 void WorldTab::on_output_customContextMenuRequested(const QPoint &pos)
 {
-  QTextCharFormat format = ui->output->cursorForPosition(pos).charFormat();
-  QPoint mouse = ui->output->mapToGlobal(pos);
+  const QTextCharFormat format = ui->output->cursorForPosition(pos).charFormat();
+  const QPoint mouse = ui->output->mapToGlobal(pos);
   if (!format.hasProperty(QTextCharFormat::UserProperty))
   {
     ui->output->createStandardContextMenu(mouse)->exec(mouse);
     return;
   }
-  QString prompts = format.property(QTextCharFormat::UserProperty).value<QString>();
+  const QString prompts = format.property(QTextCharFormat::UserProperty).value<QString>();
   QMenu menu(ui->output);
   for (QString prompt : prompts.split("|"))
     menu.addAction(prompt);
 
-  QAction *chosen = menu.exec(mouse);
+  const QAction *chosen = menu.exec(mouse);
   if (chosen == nullptr)
     return;
 

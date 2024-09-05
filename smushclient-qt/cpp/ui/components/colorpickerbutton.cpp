@@ -3,9 +3,9 @@
 #include <QtGui/QPen>
 #include <QtWidgets/QColorDialog>
 
-QPen borderDownPen(QBrush(Qt::GlobalColor::white), 1);
-QPen borderUpPen(QBrush(Qt::GlobalColor::black), 1);
-QPen borderFocusedPen(QBrush(Qt::GlobalColor::darkBlue), 1);
+static const QPen borderDownPen(QBrush(Qt::GlobalColor::white), 1);
+static const QPen borderUpPen(QBrush(Qt::GlobalColor::black), 1);
+static const QPen borderFocusedPen(QBrush(Qt::GlobalColor::darkBlue), 1);
 
 ColorPickerButton::ColorPickerButton(QWidget *parent) : QAbstractButton(parent)
 {
@@ -28,7 +28,7 @@ QSize ColorPickerButton::sizeHint() const
 
 void ColorPickerButton::openColorPicker()
 {
-  QColor color = QColorDialog::getColor(currentValue, this, "Select Color");
+  const QColor color = QColorDialog::getColor(currentValue, this, "Select Color");
   if (!color.isValid())
     return;
 
@@ -54,11 +54,11 @@ const QColor &ColorPickerButton::value() const
 void ColorPickerButton::paintEvent(QPaintEvent *e)
 {
   QPainter painter(this);
-  QRect rect = this->rect();
+  const QRect rect = this->rect();
   painter.fillRect(rect, currentValue);
-  QPen &pen = isDown()     ? borderDownPen
-              : hasFocus() ? borderFocusedPen
-                           : borderUpPen;
+  const QPen &pen = isDown()     ? borderDownPen
+                    : hasFocus() ? borderFocusedPen
+                                 : borderUpPen;
   painter.setPen(pen);
   painter.drawRect(rect);
 }

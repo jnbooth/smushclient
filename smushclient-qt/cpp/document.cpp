@@ -81,8 +81,8 @@ QTextCharFormat foregroundFormat(const QColor &foreground)
   return format;
 }
 
-static QTextCharFormat errorFormat = foregroundFormat(QColor::fromRgb(127, 0, 0));
-static QTextCharFormat pluginFormat = foregroundFormat(QColor::fromRgb(1, 164, 151));
+static const QTextCharFormat errorFormat = foregroundFormat(QColor::fromRgb(127, 0, 0));
+static const QTextCharFormat pluginFormat = foregroundFormat(QColor::fromRgb(1, 164, 151));
 
 // Document
 
