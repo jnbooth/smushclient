@@ -4,7 +4,7 @@
 #include "ui_aliases.h"
 #include "aliasedit.h"
 
-PrefsAliases::PrefsAliases(World *world, QWidget *parent)
+PrefsAliases::PrefsAliases(World &world, QWidget *parent)
     : AbstractPrefsTree(parent), ui(new Ui::PrefsAliases), world(world), builder(nullptr)
 {
   ui->setupUi(this);
@@ -28,25 +28,25 @@ void PrefsAliases::addItem()
   if (edit.exec() == QDialog::Rejected)
     return;
 
-  world->addAlias(alias);
+  world.addAlias(alias);
   buildTree();
 }
 
 void PrefsAliases::editItem(size_t index)
 {
   Alias alias;
-  world->getAlias(index, alias);
+  world.getAlias(index, alias);
   AliasEdit edit(&alias, this);
   if (edit.exec() == QDialog::Rejected)
     return;
 
-  world->replaceAlias(index, alias);
+  world.replaceAlias(index, alias);
   buildTree();
 }
 
 void PrefsAliases::removeItem(size_t index)
 {
-  world->removeAlias(index);
+  world.removeAlias(index);
   buildTree();
 }
 
@@ -65,5 +65,5 @@ QTreeWidget *PrefsAliases::tree() const
 void PrefsAliases::buildTree()
 {
   builder.clear();
-  world->buildAliasTree(builder);
+  world.buildAliasTree(builder);
 }

@@ -15,7 +15,7 @@ class TriggerEdit : public QDialog
   Q_OBJECT
 
 public:
-  explicit TriggerEdit(Trigger *trigger, QWidget *parent = nullptr);
+  explicit TriggerEdit(Trigger &trigger, QWidget *parent = nullptr);
   ~TriggerEdit();
 
 private slots:
@@ -23,7 +23,7 @@ private slots:
 
 private:
   Ui::TriggerEdit *ui;
-  Trigger *trigger;
+  Trigger &trigger;
 };
 
 #endif // TRIGGEREDIT_H

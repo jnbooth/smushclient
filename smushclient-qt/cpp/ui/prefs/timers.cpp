@@ -4,7 +4,7 @@
 #include "ui_timers.h"
 #include "timeredit.h"
 
-PrefsTimers::PrefsTimers(World *world, QWidget *parent)
+PrefsTimers::PrefsTimers(World &world, QWidget *parent)
     : AbstractPrefsTree(parent), ui(new Ui::PrefsTimers), world(world), builder(nullptr)
 {
   ui->setupUi(this);
@@ -24,29 +24,29 @@ PrefsTimers::~PrefsTimers()
 void PrefsTimers::addItem()
 {
   Timer timer;
-  TimerEdit edit(&timer, this);
+  TimerEdit edit(timer, this);
   if (edit.exec() == QDialog::Rejected)
     return;
 
-  world->addTimer(timer);
+  world.addTimer(timer);
   buildTree();
 }
 
 void PrefsTimers::editItem(size_t index)
 {
   Timer timer;
-  world->getTimer(index, timer);
-  TimerEdit edit(&timer, this);
+  world.getTimer(index, timer);
+  TimerEdit edit(timer, this);
   if (edit.exec() == QDialog::Rejected)
     return;
 
-  world->replaceTimer(index, timer);
+  world.replaceTimer(index, timer);
   buildTree();
 }
 
 void PrefsTimers::removeItem(size_t index)
 {
-  world->removeTimer(index);
+  world.removeTimer(index);
   buildTree();
 }
 
@@ -65,5 +65,5 @@ QTreeWidget *PrefsTimers::tree() const
 void PrefsTimers::buildTree()
 {
   builder.clear();
-  world->buildTriggerTree(builder);
+  world.buildTriggerTree(builder);
 }

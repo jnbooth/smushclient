@@ -14,7 +14,7 @@ class PrefsConnecting : public QWidget
   Q_OBJECT
 
 public:
-  explicit PrefsConnecting(World *world, QWidget *parent = nullptr);
+  explicit PrefsConnecting(World &world, QWidget *parent = nullptr);
   ~PrefsConnecting();
 
 private slots:
@@ -22,7 +22,7 @@ private slots:
 
 private:
   Ui::PrefsConnecting *ui;
-  World *world;
+  World &world;
 };
 
 #endif // PREFSCONNECTING_H

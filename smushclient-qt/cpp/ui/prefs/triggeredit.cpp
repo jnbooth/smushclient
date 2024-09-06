@@ -2,9 +2,9 @@
 #include "ui_triggeredit.h"
 #include "../../fieldconnector.h"
 
-#define CONNECT(field) connectField(this, trigger, ui->field, trigger->get##field(), &Trigger::set##field);
+#define CONNECT(field) connectField(this, &trigger, ui->field, trigger.get##field(), &Trigger::set##field);
 
-TriggerEdit::TriggerEdit(Trigger *trigger, QWidget *parent)
+TriggerEdit::TriggerEdit(Trigger &trigger, QWidget *parent)
     : QDialog(parent), ui(new Ui::TriggerEdit), trigger(trigger)
 {
   ui->setupUi(this);
@@ -44,7 +44,7 @@ TriggerEdit::TriggerEdit(Trigger *trigger, QWidget *parent)
   CONNECT(MultiLine);
   CONNECT(LinesToMatch);
 
-  ui->Text->setPlainText(trigger->getText());
+  ui->Text->setPlainText(trigger.getText());
 }
 
 TriggerEdit::~TriggerEdit()
@@ -56,5 +56,5 @@ TriggerEdit::~TriggerEdit()
 
 void TriggerEdit::on_Text_textChanged()
 {
-  trigger->setText(ui->Text->toPlainText());
+  trigger.setText(ui->Text->toPlainText());
 }

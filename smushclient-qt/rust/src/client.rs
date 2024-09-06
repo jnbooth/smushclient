@@ -8,7 +8,7 @@ use crate::ffi;
 use crate::handler::ClientHandler;
 use crate::sync::NonBlockingMutex;
 use crate::world::WorldRust;
-use cxx_qt_lib::{QColor, QString, QVector};
+use cxx_qt_lib::{QColor, QList, QString, QStringList, QVector};
 use enumeration::EnumSet;
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::{Tag, Transformer};
@@ -93,6 +93,14 @@ impl SmushClientRust {
             .iter()
             .map(Convert::convert)
             .collect()
+    }
+
+    pub fn plugin_scripts(&self) -> QStringList {
+        let mut list = QList::default();
+        for plugin in self.client.plugins() {
+            list.append(QString::from(&plugin.script));
+        }
+        QStringList::from(&list)
     }
 
     fn apply_world(&mut self, world: World) {
@@ -182,6 +190,10 @@ impl ffi::SmushClient {
 
     pub fn palette(&self) -> QVector<QColor> {
         QVector::from(&self.cxx_qt_ffi_rust().palette())
+    }
+
+    pub fn plugin_scripts(&self) -> QStringList {
+        self.cxx_qt_ffi_rust().plugin_scripts()
     }
 
     pub fn read(

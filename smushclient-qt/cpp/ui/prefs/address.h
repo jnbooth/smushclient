@@ -14,7 +14,7 @@ class PrefsAddress : public QWidget
   Q_OBJECT
 
 public:
-  explicit PrefsAddress(const World *world, QWidget *parent = nullptr);
+  explicit PrefsAddress(const World &world, QWidget *parent = nullptr);
   ~PrefsAddress();
 
 private:

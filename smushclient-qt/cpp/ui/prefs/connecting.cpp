@@ -2,7 +2,7 @@
 #include "ui_connecting.h"
 #include "../../fieldconnector.h"
 
-PrefsConnecting::PrefsConnecting(World *world, QWidget *parent)
+PrefsConnecting::PrefsConnecting(World &world, QWidget *parent)
     : QWidget(parent), ui(new Ui::PrefsConnecting), world(world)
 {
   ui->setupUi(this);
@@ -10,7 +10,7 @@ PrefsConnecting::PrefsConnecting(World *world, QWidget *parent)
   CONNECT_WORLD(Password);
   CONNECT_WORLD(ConnectMethod);
 
-  ui->ConnectText->setPlainText(world->getConnectText());
+  ui->ConnectText->setPlainText(world.getConnectText());
 }
 
 PrefsConnecting::~PrefsConnecting()
@@ -22,5 +22,5 @@ PrefsConnecting::~PrefsConnecting()
 
 void PrefsConnecting::on_ConnectText_textChanged()
 {
-  world->setConnectText(ui->ConnectText->toPlainText());
+  world.setConnectText(ui->ConnectText->toPlainText());
 }

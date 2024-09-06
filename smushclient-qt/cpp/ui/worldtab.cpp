@@ -78,7 +78,7 @@ bool WorldTab::openWorld(const QString &filename) &
 
 void WorldTab::openWorldSettings() &
 {
-  WorldPrefs *prefs = new WorldPrefs(&world, this);
+  WorldPrefs *prefs = new WorldPrefs(world, this);
   prefs->setAttribute(Qt::WA_DeleteOnClose, true);
   connect(prefs, &QDialog::finished, this, &WorldTab::finalizeWorldSettings);
   prefs->open();

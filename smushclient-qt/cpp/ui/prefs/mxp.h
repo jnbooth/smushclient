@@ -14,7 +14,7 @@ class PrefsMxp : public QWidget
   Q_OBJECT
 
 public:
-  explicit PrefsMxp(const World *world, QWidget *parent = nullptr);
+  explicit PrefsMxp(const World &world, QWidget *parent = nullptr);
   ~PrefsMxp();
 
 private:

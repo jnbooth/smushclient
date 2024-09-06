@@ -2,7 +2,7 @@
 #include "ui_color.h"
 #include "../../fieldconnector.h"
 
-PrefsColor::PrefsColor(const World *world, QWidget *parent)
+PrefsColor::PrefsColor(const World &world, QWidget *parent)
     : QWidget(parent), ui(new Ui::PrefsColor)
 {
   ui->setupUi(this);

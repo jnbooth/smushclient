@@ -14,7 +14,7 @@ class PrefsLogging : public QWidget
   Q_OBJECT
 
 public:
-  explicit PrefsLogging(World *world, QWidget *parent = nullptr);
+  explicit PrefsLogging(World &world, QWidget *parent = nullptr);
   ~PrefsLogging();
 
 private slots:
@@ -24,7 +24,7 @@ private slots:
   void on_LogModeIdClicked(int id);
 
 private:
-  World *world;
+  World &world;
   Ui::PrefsLogging *ui;
 };
 

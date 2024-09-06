@@ -2,7 +2,7 @@
 #include "ui_address.h"
 #include "../../fieldconnector.h"
 
-PrefsAddress::PrefsAddress(const World *world, QWidget *parent)
+PrefsAddress::PrefsAddress(const World &world, QWidget *parent)
     : QWidget(parent), ui(new Ui::PrefsAddress)
 {
   ui->setupUi(this);

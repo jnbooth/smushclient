@@ -2,7 +2,7 @@
 #include "ui_chat.h"
 #include "../../fieldconnector.h"
 
-PrefsChat::PrefsChat(const World *world, QWidget *parent)
+PrefsChat::PrefsChat(const World &world, QWidget *parent)
     : QWidget(parent), ui(new Ui::PrefsChat)
 {
   ui->setupUi(this);

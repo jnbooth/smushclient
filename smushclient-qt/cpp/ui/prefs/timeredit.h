@@ -15,7 +15,7 @@ class TimerEdit : public QDialog
   Q_OBJECT
 
 public:
-  explicit TimerEdit(Timer *timer, QWidget *parent = nullptr);
+  explicit TimerEdit(Timer &timer, QWidget *parent = nullptr);
   ~TimerEdit();
 
 private slots:
@@ -24,7 +24,7 @@ private slots:
 
 private:
   Ui::TimerEdit *ui;
-  Timer *timer;
+  Timer &timer;
 };
 
 #endif // TIMEREDIT_H

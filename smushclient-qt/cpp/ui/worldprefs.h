@@ -17,7 +17,7 @@ class WorldPrefs : public QDialog
   Q_OBJECT
 
 public:
-  explicit WorldPrefs(World *world, QWidget *parent = nullptr);
+  explicit WorldPrefs(World &world, QWidget *parent = nullptr);
   ~WorldPrefs();
 
 private:

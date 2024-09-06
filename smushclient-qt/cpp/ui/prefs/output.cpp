@@ -2,7 +2,7 @@
 #include "ui_output.h"
 #include "../../fieldconnector.h"
 
-PrefsOutput::PrefsOutput(World *world, QWidget *parent)
+PrefsOutput::PrefsOutput(World &world, QWidget *parent)
     : QWidget(parent), ui(new Ui::PrefsOutput), world(world)
 {
   ui->setupUi(this);
@@ -35,7 +35,7 @@ PrefsOutput::PrefsOutput(World *world, QWidget *parent)
   CONNECT_WORLD(ConvertGaToNewline);
   CONNECT_WORLD(TerminalIdentification);
 
-  QFont outputFont(world->getOutputFont(), world->getOutputFontSize());
+  QFont outputFont(world.getOutputFont(), world.getOutputFontSize());
   ui->OutputFont->setCurrentFont(outputFont);
 }
 
@@ -48,5 +48,5 @@ PrefsOutput::~PrefsOutput()
 
 void PrefsOutput::on_OutputFont_currentFontChanged(const QFont &f)
 {
-  world->setOutputFont(f.family());
+  world.setOutputFont(f.family());
 }

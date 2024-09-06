@@ -14,14 +14,14 @@ class PrefsCommands : public QWidget
   Q_OBJECT
 
 public:
-  explicit PrefsCommands(World *world, QWidget *parent = nullptr);
+  explicit PrefsCommands(World &world, QWidget *parent = nullptr);
   ~PrefsCommands();
 
 private slots:
   void on_InputFont_currentFontChanged(const QFont &f);
 
 private:
-  World *world;
+  World &world;
   Ui::PrefsCommands *ui;
 };
 

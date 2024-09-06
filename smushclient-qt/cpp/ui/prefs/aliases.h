@@ -16,7 +16,7 @@ class PrefsAliases : public AbstractPrefsTree
   Q_OBJECT
 
 public:
-  explicit PrefsAliases(World *world, QWidget *parent = nullptr);
+  explicit PrefsAliases(World &world, QWidget *parent = nullptr);
   ~PrefsAliases();
 
 protected:
@@ -28,7 +28,7 @@ protected:
 
 private:
   Ui::PrefsAliases *ui;
-  World *world;
+  World &world;
   TreeBuilder builder;
 
   void buildTree();

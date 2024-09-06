@@ -15,7 +15,7 @@
 #include <QtWidgets/QWidget>
 #include "./ui/components/colorpickerbutton.h"
 
-#define CONNECT_WORLD(field) connectField(this, world, ui->field, world->get##field(), &World::set##field);
+#define CONNECT_WORLD(field) connectField(this, &world, ui->field, world.get##field(), &World::set##field);
 
 template <typename T, typename Enum>
 inline QMetaObject::Connection connectField(QObject *object, const T *target, QComboBox *input, const Enum value, void (T::*&&setter)(const Enum &value))

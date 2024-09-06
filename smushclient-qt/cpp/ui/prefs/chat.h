@@ -14,7 +14,7 @@ class PrefsChat : public QWidget
   Q_OBJECT
 
 public:
-  explicit PrefsChat(const World *world, QWidget *parent = nullptr);
+  explicit PrefsChat(const World &world, QWidget *parent = nullptr);
   ~PrefsChat();
 
 private:

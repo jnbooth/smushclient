@@ -3,9 +3,9 @@
 #include "../../fieldconnector.h"
 #include <QtWidgets/QButtonGroup>
 
-#define CONNECT(field) connectField(this, timer, ui->field, timer->get##field(), &Timer::set##field);
+#define CONNECT(field) connectField(this, &timer, ui->field, timer.get##field(), &Timer::set##field);
 
-TimerEdit::TimerEdit(Timer *timer, QWidget *parent)
+TimerEdit::TimerEdit(Timer &timer, QWidget *parent)
     : QDialog(parent), ui(new Ui::TimerEdit), timer(timer)
 {
   ui->setupUi(this);
@@ -29,7 +29,7 @@ TimerEdit::TimerEdit(Timer *timer, QWidget *parent)
   CONNECT(EverySecond);
   CONNECT(ActiveClosed);
 
-  ui->Text->setPlainText(timer->getText());
+  ui->Text->setPlainText(timer.getText());
   QButtonGroup *occurrenceGroup = new QButtonGroup(this);
   occurrenceGroup->setExclusive(true);
   occurrenceGroup->addButton(ui->Occurrence_Interval);
@@ -48,10 +48,10 @@ TimerEdit::~TimerEdit()
 
 void TimerEdit::on_Text_textChanged()
 {
-  timer->setText(ui->Text->toPlainText());
+  timer.setText(ui->Text->toPlainText());
 }
 
 void TimerEdit::on_OccurrenceIdClicked(int id)
 {
-  timer->setOccurrence((Occurrence)id);
+  timer.setOccurrence((Occurrence)id);
 }

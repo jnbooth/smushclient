@@ -16,7 +16,7 @@ class PrefsTimers : public AbstractPrefsTree
   Q_OBJECT
 
 public:
-  explicit PrefsTimers(World *world, QWidget *parent = nullptr);
+  explicit PrefsTimers(World &world, QWidget *parent = nullptr);
   ~PrefsTimers();
 
 protected:
@@ -28,7 +28,7 @@ protected:
 
 private:
   Ui::PrefsTimers *ui;
-  World *world;
+  World &world;
   TreeBuilder builder;
 
   void buildTree();

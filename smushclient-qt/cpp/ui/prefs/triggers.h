@@ -15,7 +15,7 @@ class PrefsTriggers : public AbstractPrefsTree
   Q_OBJECT
 
 public:
-  explicit PrefsTriggers(World *world, QWidget *parent = nullptr);
+  explicit PrefsTriggers(World &world, QWidget *parent = nullptr);
   ~PrefsTriggers();
 
 protected:
@@ -27,7 +27,7 @@ protected:
 
 private:
   Ui::PrefsTriggers *ui;
-  World *world;
+  World &world;
   TreeBuilder builder;
 
   void buildTree();

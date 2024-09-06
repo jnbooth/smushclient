@@ -67,18 +67,18 @@ void App::setupRecentFiles(const QStringList &recentFiles)
   auto end = recentFileActions.end();
   for (const QString filePath : recentFiles)
   {
-    QAction *action = *i;
-    action->setVisible(true);
-    action->setEnabled(true);
-    action->setText(filePath);
+    QAction &action = **i;
+    action.setVisible(true);
+    action.setEnabled(true);
+    action.setText(filePath);
     ++i;
   }
 
   for (; i != end; ++i)
   {
-    QAction *action = *i;
-    action->setEnabled(false);
-    action->setVisible(false);
+    QAction &action = **i;
+    action.setEnabled(false);
+    action.setVisible(false);
   }
 }
 

@@ -58,6 +58,11 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
+        include!("cxx-qt-lib/qstringlist.h");
+        type QStringList = cxx_qt_lib::QStringList;
+    }
+
+    unsafe extern "C++" {
         include!("cxx-qt-lib/qtime.h");
         type QTime = cxx_qt_lib::QTime;
     }
@@ -157,6 +162,7 @@ pub mod ffi {
         fn save_world(self: &SmushClient, path: &QString) -> Result<()>;
         fn set_world(self: Pin<&mut SmushClient>, world: &World);
         fn palette(self: &SmushClient) -> QVector_QColor;
+        fn plugin_scripts(self: &SmushClient) -> QStringList;
         fn read(
             self: Pin<&mut SmushClient>,
             device: Pin<&mut QTcpSocket>,

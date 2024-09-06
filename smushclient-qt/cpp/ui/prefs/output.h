@@ -14,14 +14,14 @@ class PrefsOutput : public QWidget
   Q_OBJECT
 
 public:
-  explicit PrefsOutput(World *world, QWidget *parent = nullptr);
+  explicit PrefsOutput(World &world, QWidget *parent = nullptr);
   ~PrefsOutput();
 
 private slots:
   void on_OutputFont_currentFontChanged(const QFont &f);
 
 private:
-  World *world;
+  World &world;
   Ui::PrefsOutput *ui;
 };
 

@@ -14,7 +14,7 @@ class PrefsColor : public QWidget
   Q_OBJECT
 
 public:
-  explicit PrefsColor(const World *world, QWidget *parent = nullptr);
+  explicit PrefsColor(const World &world, QWidget *parent = nullptr);
   ~PrefsColor();
 
 private:

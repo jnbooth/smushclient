@@ -3,7 +3,7 @@
 #include "../../fieldconnector.h"
 #include <QtWidgets/QButtonGroup>
 
-PrefsLogging::PrefsLogging(World *world, QWidget *parent)
+PrefsLogging::PrefsLogging(World &world, QWidget *parent)
     : QWidget(parent), ui(new Ui::PrefsLogging), world(world)
 {
   ui->setupUi(this);
@@ -19,8 +19,8 @@ PrefsLogging::PrefsLogging(World *world, QWidget *parent)
   CONNECT_WORLD(LogPostambleInput);
   CONNECT_WORLD(LogPostambleNotes);
 
-  ui->LogFilePreamble->setPlainText(world->getLogFilePreamble());
-  ui->LogFilePostamble->setPlainText(world->getLogFilePostamble());
+  ui->LogFilePreamble->setPlainText(world.getLogFilePreamble());
+  ui->LogFilePostamble->setPlainText(world.getLogFilePostamble());
 
   QButtonGroup *logFormatGroup = new QButtonGroup(this);
   logFormatGroup->setExclusive(true);
@@ -30,7 +30,7 @@ PrefsLogging::PrefsLogging(World *world, QWidget *parent)
   logFormatGroup->setId(ui->LogFormat_Html, (int)LogFormat::Html);
   logFormatGroup->addButton(ui->LogFormat_Raw);
   logFormatGroup->setId(ui->LogFormat_Raw, (int)LogFormat::Raw);
-  logFormatGroup->button((int)world->getLogFormat())->setChecked(true);
+  logFormatGroup->button((int)world.getLogFormat())->setChecked(true);
   connect(logFormatGroup, &QButtonGroup::idClicked, this, &PrefsLogging::on_LogFormatIdClicked);
 
   QButtonGroup *logModeGroup = new QButtonGroup(this);
@@ -39,7 +39,7 @@ PrefsLogging::PrefsLogging(World *world, QWidget *parent)
   logModeGroup->setId(ui->LogMode_Append, (int)LogMode::Append);
   logModeGroup->addButton(ui->LogMode_Overwrite);
   logModeGroup->setId(ui->LogMode_Overwrite, (int)LogMode::Overwrite);
-  logModeGroup->button((int)world->getLogMode())->setChecked(true);
+  logModeGroup->button((int)world.getLogMode())->setChecked(true);
   connect(logModeGroup, &QButtonGroup::idClicked, this, &PrefsLogging::on_LogModeIdClicked);
 }
 
@@ -52,20 +52,20 @@ PrefsLogging::~PrefsLogging()
 
 void PrefsLogging::on_LogFilePreamble_textChanged()
 {
-  world->setLogFilePreamble(ui->LogFilePreamble->toPlainText());
+  world.setLogFilePreamble(ui->LogFilePreamble->toPlainText());
 }
 
 void PrefsLogging::on_LogFilePostamble_textChanged()
 {
-  world->setLogFilePostamble(ui->LogFilePostamble->toPlainText());
+  world.setLogFilePostamble(ui->LogFilePostamble->toPlainText());
 }
 
 void PrefsLogging::on_LogFormatIdClicked(int id)
 {
-  world->setLogFormat((LogFormat)id);
+  world.setLogFormat((LogFormat)id);
 }
 
 void PrefsLogging::on_LogModeIdClicked(int id)
 {
-  world->setLogMode((LogMode)id);
+  world.setLogMode((LogMode)id);
 }

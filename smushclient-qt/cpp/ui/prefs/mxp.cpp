@@ -2,7 +2,7 @@
 #include "ui_mxp.h"
 #include "../../fieldconnector.h"
 
-PrefsMxp::PrefsMxp(const World *world, QWidget *parent)
+PrefsMxp::PrefsMxp(const World &world, QWidget *parent)
     : QWidget(parent), ui(new Ui::PrefsMxp)
 {
   ui->setupUi(this);

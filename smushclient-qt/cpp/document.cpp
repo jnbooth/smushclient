@@ -115,8 +115,8 @@ void Document::appendText(const QString &text, quint16 style, const QColor &fore
 
 void Document::scrollToBottom()
 {
-  QScrollBar *scrollbar = browser->verticalScrollBar();
-  scrollbar->setValue(scrollbar->maximum());
+  QScrollBar &scrollbar = *browser->verticalScrollBar();
+  scrollbar.setValue(scrollbar.maximum());
 }
 
 void Document::displayStatusMessage(const QString &status)

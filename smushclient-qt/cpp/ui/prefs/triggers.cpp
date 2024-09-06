@@ -4,7 +4,7 @@
 #include "ui_triggers.h"
 #include "triggeredit.h"
 
-PrefsTriggers::PrefsTriggers(World *world, QWidget *parent)
+PrefsTriggers::PrefsTriggers(World &world, QWidget *parent)
     : AbstractPrefsTree(parent), ui(new Ui::PrefsTriggers), world(world), builder(nullptr)
 {
   ui->setupUi(this);
@@ -25,29 +25,29 @@ PrefsTriggers::~PrefsTriggers()
 void PrefsTriggers::addItem()
 {
   Trigger trigger;
-  TriggerEdit edit(&trigger, this);
+  TriggerEdit edit(trigger, this);
   if (edit.exec() == QDialog::Rejected)
     return;
 
-  world->addTrigger(trigger);
+  world.addTrigger(trigger);
   buildTree();
 }
 
 void PrefsTriggers::editItem(size_t index)
 {
   Trigger trigger;
-  world->getTrigger(index, trigger);
-  TriggerEdit edit(&trigger, this);
+  world.getTrigger(index, trigger);
+  TriggerEdit edit(trigger, this);
   if (edit.exec() == QDialog::Rejected)
     return;
 
-  world->replaceTrigger(index, trigger);
+  world.replaceTrigger(index, trigger);
   buildTree();
 }
 
 void PrefsTriggers::removeItem(size_t index)
 {
-  world->removeTrigger(index);
+  world.removeTrigger(index);
   buildTree();
 }
 
@@ -66,5 +66,5 @@ QTreeWidget *PrefsTriggers::tree() const
 void PrefsTriggers::buildTree()
 {
   builder.clear();
-  world->buildTriggerTree(builder);
+  world.buildTriggerTree(builder);
 }

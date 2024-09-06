@@ -54,11 +54,11 @@ const QColor &ColorPickerButton::value() const &
 void ColorPickerButton::paintEvent(QPaintEvent *e)
 {
   QPainter painter(this);
-  const QRect rect = this->rect();
-  painter.fillRect(rect, currentValue);
+  const QRect bounds = rect();
+  painter.fillRect(bounds, currentValue);
   const QPen &pen = isDown()     ? borderDownPen
                     : hasFocus() ? borderFocusedPen
                                  : borderUpPen;
   painter.setPen(pen);
-  painter.drawRect(rect);
+  painter.drawRect(bounds);
 }
