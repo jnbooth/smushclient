@@ -14,7 +14,7 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QErrorMessage>
 
-void setColors(QWidget *widget, QColor foreground, QColor background)
+static void setColors(QWidget *widget, QColor foreground, QColor background)
 {
   QPalette palette = QPalette(widget->palette());
   palette.setColor(QPalette::Text, foreground);

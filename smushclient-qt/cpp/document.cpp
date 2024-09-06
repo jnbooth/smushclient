@@ -7,7 +7,7 @@
 
 // Utilities
 
-QMainWindow *getMainWindow(QObject *obj)
+static QMainWindow *getMainWindow(QObject *obj)
 {
   if (obj == nullptr)
     return nullptr;
@@ -23,14 +23,14 @@ QMainWindow *getMainWindow(QObject *obj)
   return getMainWindow(parent);
 }
 
-inline bool hasStyle(quint16 flags, TextStyle style) noexcept
+static inline bool hasStyle(quint16 flags, TextStyle style) noexcept
 {
   return flags & (quint16)style;
 }
 
 // Formatting
 
-void applyLink(QTextCharFormat &format, const Link &link) noexcept
+static void applyLink(QTextCharFormat &format, const Link &link) noexcept
 {
   QString action = QString(link.action);
   switch (link.sendto)
@@ -52,7 +52,7 @@ void applyLink(QTextCharFormat &format, const Link &link) noexcept
     format.setProperty(QTextCharFormat::UserProperty, link.prompts);
 }
 
-void applyStyles(QTextCharFormat &format, quint16 style, const QColor &foreground, const QColor &background) noexcept
+static void applyStyles(QTextCharFormat &format, quint16 style, const QColor &foreground, const QColor &background) noexcept
 {
   if (hasStyle(style, TextStyle::Bold))
     format.setFontWeight(QFont::Weight::Bold);
@@ -74,7 +74,7 @@ void applyStyles(QTextCharFormat &format, quint16 style, const QColor &foregroun
     format.setBackground(QBrush(background));
 }
 
-QTextCharFormat foregroundFormat(const QColor &foreground)
+static QTextCharFormat foregroundFormat(const QColor &foreground)
 {
   QTextCharFormat format;
   format.setForeground(QBrush(foreground));
