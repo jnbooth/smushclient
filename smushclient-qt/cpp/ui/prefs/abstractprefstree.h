@@ -22,11 +22,11 @@ protected:
   virtual QTreeWidget *tree() const = 0;
 
 protected slots:
-  void on_add_clicked(bool checked);
-  void on_edit_clicked(bool checked);
-  void on_remove_clicked(bool checked);
-  void on_tree_itemActivated(QTreeWidgetItem *item, int column);
-  void on_tree_itemDoubleClicked(QTreeWidgetItem *item, int column);
+  void on_add_clicked();
+  void on_edit_clicked();
+  void on_remove_clicked();
+  void on_tree_itemActivated(QTreeWidgetItem *item);
+  void on_tree_itemDoubleClicked(QTreeWidgetItem *item);
 };
 
 #endif // ABSTRACTPREFSTREE_H

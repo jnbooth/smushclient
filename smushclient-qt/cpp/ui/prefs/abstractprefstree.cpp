@@ -11,12 +11,12 @@ QVariant AbstractPrefsTree::currentData() const
   return item->data(0, Qt::UserRole);
 }
 
-void AbstractPrefsTree::on_add_clicked(bool checked)
+void AbstractPrefsTree::on_add_clicked()
 {
   addItem();
 }
 
-void AbstractPrefsTree::on_edit_clicked(bool checked)
+void AbstractPrefsTree::on_edit_clicked()
 {
   const QVariant data = currentData();
   if (!data.canConvert<size_t>())
@@ -25,7 +25,7 @@ void AbstractPrefsTree::on_edit_clicked(bool checked)
   editItem(index);
 }
 
-void AbstractPrefsTree::on_remove_clicked(bool checked)
+void AbstractPrefsTree::on_remove_clicked()
 {
   const QVariant data = currentData();
   if (!data.canConvert<size_t>())
@@ -34,12 +34,12 @@ void AbstractPrefsTree::on_remove_clicked(bool checked)
   removeItem(index);
 }
 
-void AbstractPrefsTree::on_tree_itemActivated(QTreeWidgetItem *item, int column)
+void AbstractPrefsTree::on_tree_itemActivated(QTreeWidgetItem *item)
 {
   setItemButtonsEnabled(item != nullptr && item->childCount() == 0);
 }
 
-void AbstractPrefsTree::on_tree_itemDoubleClicked(QTreeWidgetItem *item, int column)
+void AbstractPrefsTree::on_tree_itemDoubleClicked(QTreeWidgetItem *item)
 {
   const QVariant data = item->data(0, Qt::UserRole);
   if (!data.canConvert<size_t>())
