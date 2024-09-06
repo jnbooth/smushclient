@@ -21,6 +21,22 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 COMPONENTS Core Gui Network Qml Widgets REQUIRED)
 
+include(ExternalProject)
+
+find_program(MAKE_EXE NAMES gmake nmake make)
+
+ExternalProject_Add(lua
+   URL "https://www.lua.org/ftp/lua-5.4.7.tar.gz"
+   CONFIGURE_COMMAND ""
+   BUILD_COMMAND make generic
+   BUILD_ALWAYS true
+   BUILD_IN_SOURCE true
+   INSTALL_COMMAND ""
+)
+add_library(liblua STATIC IMPORTED)
+ExternalProject_Get_property(lua SOURCE_DIR)
+message("liblua will be found at \'${SOURCE_DIR}/src\'")
+
 find_package(Corrosion QUIET)
 if(NOT Corrosion_FOUND)
     include(FetchContent)
