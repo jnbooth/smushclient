@@ -1,5 +1,6 @@
 use core::str;
 use std::collections::HashSet;
+use std::{slice, vec};
 
 use super::effects::TriggerEffects;
 use super::send::SendRequest;
@@ -13,14 +14,11 @@ fn check_oneshot<T: AsRef<Sender>>(oneshots: &mut Vec<usize>, send: &SendMatch<T
     }
 }
 
-fn is_world(plugin: &Plugin) -> bool {
-    plugin.metadata.is_world_plugin
-}
-
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct PluginEngine {
     plugins: Vec<Plugin>,
     senders: Senders,
+    world_plugin_index: Option<usize>,
 }
 
 impl Default for PluginEngine {
@@ -34,6 +32,7 @@ impl PluginEngine {
         Self {
             plugins: Vec::new(),
             senders: Senders::new(),
+            world_plugin_index: None,
         }
     }
 
@@ -44,21 +43,17 @@ impl PluginEngine {
 
     pub fn set_world_plugin(&mut self, plugin: Option<Plugin>) {
         let Some(plugin) = plugin else {
-            if let Some(old_index) = self.plugins.iter().position(is_world) {
-                self.plugins.remove(old_index);
+            if let Some(index) = self.world_plugin_index {
+                self.plugins.remove(index);
+                self.world_plugin_index = None;
             }
             return;
         };
-        match self.plugins.iter_mut().find(|plugin| is_world(plugin)) {
-            Some(old_plugin) => {
-                let has_same_sequence = old_plugin.metadata.sequence == plugin.metadata.sequence;
-                *old_plugin = plugin;
-                if has_same_sequence {
-                    return;
-                }
-            }
-            None => self.plugins.push(plugin),
+        if let Some(index) = self.world_plugin_index {
+            self.plugins[index] = plugin;
+            return;
         }
+        self.plugins.push(plugin);
         self.sort();
     }
 
@@ -70,6 +65,9 @@ impl PluginEngine {
         self.plugins.sort_unstable();
         for (i, plugin) in self.plugins.iter_mut().enumerate() {
             self.senders.extend(i, plugin);
+            if plugin.metadata.is_world_plugin {
+                self.world_plugin_index = Some(i);
+            }
         }
         self.senders.sort();
     }
@@ -146,5 +144,29 @@ impl PluginEngine {
             .flat_map(|plugin| plugin.metadata.protocols.iter())
             .copied()
             .collect()
+    }
+
+    pub fn iter(&self) -> <&Self as IntoIterator>::IntoIter {
+        self.into_iter()
+    }
+}
+
+impl IntoIterator for PluginEngine {
+    type Item = Plugin;
+
+    type IntoIter = vec::IntoIter<Plugin>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.plugins.into_iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a PluginEngine {
+    type Item = &'a Plugin;
+
+    type IntoIter = slice::Iter<'a, Plugin>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.plugins.iter()
     }
 }

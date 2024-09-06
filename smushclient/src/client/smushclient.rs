@@ -1,4 +1,4 @@
-use std::mem;
+use std::{mem, slice};
 
 use crate::handler::{Handler, SendHandler};
 use crate::plugins::{AliasOutcome, PluginEngine};
@@ -87,6 +87,10 @@ impl SmushClient {
 
     pub fn load_plugins<I: IntoIterator<Item = Plugin>>(&mut self, iter: I) {
         self.plugins.load_plugins(iter);
+    }
+
+    pub fn plugins(&self) -> slice::Iter<Plugin> {
+        self.plugins.iter()
     }
 }
 
