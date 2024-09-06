@@ -20,8 +20,8 @@
 template <typename T, typename Enum>
 inline QMetaObject::Connection connectField(QObject *object, const T *target, QComboBox *input, const Enum value, void (T::*&&setter)(const Enum &value))
 {
-  static_assert(sizeof(Enum) == sizeof(quint32), "enum must be represented by quint32");
-  typedef void (T::* && Setter)(const quint32 &value);
+  static_assert(std::is_same_v<std::underlying_type_t<Enum>, int>, "enum must be represented by int");
+  typedef void (T::* && Setter)(const int &value);
   input->setCurrentIndex((int)value);
   return object->connect(input, &QComboBox::currentIndexChanged, target, reinterpret_cast<Setter>(setter));
 }

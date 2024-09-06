@@ -20,7 +20,7 @@ public:
 
 private slots:
   void on_Text_textChanged();
-  void on_OccurrenceIdClicked(int id);
+  void on_OccurrenceChanged(Occurrence value);
 
 private:
   Ui::TimerEdit *ui;

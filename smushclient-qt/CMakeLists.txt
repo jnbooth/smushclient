@@ -47,6 +47,7 @@ qt_add_executable(${APP_NAME}
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
     cpp/document.h cpp/document.cpp
+    cpp/enumbuttongroup.h
     cpp/fieldconnector.h
     cpp/settings.h cpp/settings.cpp
     cpp/viewbuilder.h cpp/viewbuilder.cpp

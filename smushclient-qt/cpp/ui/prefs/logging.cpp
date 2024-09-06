@@ -1,5 +1,6 @@
 #include "logging.h"
 #include "ui_logging.h"
+#include "../../enumbuttongroup.h"
 #include "../../fieldconnector.h"
 #include <QtWidgets/QButtonGroup>
 
@@ -22,20 +23,14 @@ PrefsLogging::PrefsLogging(World &world, QWidget *parent)
   ui->LogFilePreamble->setPlainText(world.getLogFilePreamble());
   ui->LogFilePostamble->setPlainText(world.getLogFilePostamble());
 
-  QButtonGroup *logFormatGroup = new QButtonGroup(this);
-  logFormatGroup->setExclusive(true);
-  logFormatGroup->addButton(ui->LogFormat_Text, (int)LogFormat::Text);
-  logFormatGroup->addButton(ui->LogFormat_Html, (int)LogFormat::Html);
-  logFormatGroup->addButton(ui->LogFormat_Raw, (int)LogFormat::Raw);
-  logFormatGroup->button((int)world.getLogFormat())->setChecked(true);
-  connect(logFormatGroup, &QButtonGroup::idClicked, this, &PrefsLogging::on_LogFormatIdClicked);
+  EnumButtonGroup(this, world.getLogFormat(), &PrefsLogging::on_LogFormatChanged)
+      .addButton(ui->LogFormat_Text, LogFormat::Text)
+      .addButton(ui->LogFormat_Html, LogFormat::Html)
+      .addButton(ui->LogFormat_Raw, LogFormat::Raw);
 
-  QButtonGroup *logModeGroup = new QButtonGroup(this);
-  logModeGroup->setExclusive(true);
-  logModeGroup->addButton(ui->LogMode_Append, (int)LogMode::Append);
-  logModeGroup->addButton(ui->LogMode_Overwrite, (int)LogMode::Overwrite);
-  logModeGroup->button((int)world.getLogMode())->setChecked(true);
-  connect(logModeGroup, &QButtonGroup::idClicked, this, &PrefsLogging::on_LogModeIdClicked);
+  EnumButtonGroup(this, world.getLogMode(), &PrefsLogging::on_LogModeChanged)
+      .addButton(ui->LogMode_Append, LogMode::Append)
+      .addButton(ui->LogMode_Overwrite, LogMode::Overwrite);
 }
 
 PrefsLogging::~PrefsLogging()
@@ -55,12 +50,12 @@ void PrefsLogging::on_LogFilePostamble_textChanged()
   world.setLogFilePostamble(ui->LogFilePostamble->toPlainText());
 }
 
-void PrefsLogging::on_LogFormatIdClicked(int id)
+void PrefsLogging::on_LogFormatChanged(LogFormat value)
 {
-  world.setLogFormat((LogFormat)id);
+  world.setLogFormat(value);
 }
 
-void PrefsLogging::on_LogModeIdClicked(int id)
+void PrefsLogging::on_LogModeChanged(LogMode value)
 {
-  world.setLogMode((LogMode)id);
+  world.setLogMode(value);
 }

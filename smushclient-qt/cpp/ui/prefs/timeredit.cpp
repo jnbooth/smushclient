@@ -1,5 +1,6 @@
 #include "timeredit.h"
 #include "ui_timeredit.h"
+#include "../../enumbuttongroup.h"
 #include "../../fieldconnector.h"
 #include <QtWidgets/QButtonGroup>
 
@@ -30,11 +31,9 @@ TimerEdit::TimerEdit(Timer &timer, QWidget *parent)
   CONNECT(ActiveClosed);
 
   ui->Text->setPlainText(timer.getText());
-  QButtonGroup *occurrenceGroup = new QButtonGroup(this);
-  occurrenceGroup->setExclusive(true);
-  occurrenceGroup->addButton(ui->Occurrence_Interval, (int)Occurrence::Interval);
-  occurrenceGroup->addButton(ui->Occurrence_Time, (int)Occurrence::Time);
-  connect(occurrenceGroup, &QButtonGroup::idClicked, this, &TimerEdit::on_OccurrenceIdClicked);
+  EnumButtonGroup(this, timer.getOccurrence(), &TimerEdit::on_OccurrenceChanged)
+      .addButton(ui->Occurrence_Interval, Occurrence::Interval)
+      .addButton(ui->Occurrence_Time, Occurrence::Time);
 }
 
 TimerEdit::~TimerEdit()
@@ -49,7 +48,7 @@ void TimerEdit::on_Text_textChanged()
   timer.setText(ui->Text->toPlainText());
 }
 
-void TimerEdit::on_OccurrenceIdClicked(int id)
+void TimerEdit::on_OccurrenceChanged(Occurrence value)
 {
-  timer.setOccurrence((Occurrence)id);
+  timer.setOccurrence(value);
 }

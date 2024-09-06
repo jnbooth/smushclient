@@ -20,8 +20,8 @@ public:
 private slots:
   void on_LogFilePostamble_textChanged();
   void on_LogFilePreamble_textChanged();
-  void on_LogFormatIdClicked(int id);
-  void on_LogModeIdClicked(int id);
+  void on_LogFormatChanged(LogFormat value);
+  void on_LogModeChanged(LogMode value);
 
 private:
   World &world;
