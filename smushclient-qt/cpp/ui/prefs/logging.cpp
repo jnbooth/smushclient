@@ -24,21 +24,16 @@ PrefsLogging::PrefsLogging(World &world, QWidget *parent)
 
   QButtonGroup *logFormatGroup = new QButtonGroup(this);
   logFormatGroup->setExclusive(true);
-  logFormatGroup->addButton(ui->LogFormat_Text);
-  logFormatGroup->setId(ui->LogFormat_Text, (int)LogFormat::Text);
-  logFormatGroup->addButton(ui->LogFormat_Html);
-  logFormatGroup->setId(ui->LogFormat_Html, (int)LogFormat::Html);
-  logFormatGroup->addButton(ui->LogFormat_Raw);
-  logFormatGroup->setId(ui->LogFormat_Raw, (int)LogFormat::Raw);
+  logFormatGroup->addButton(ui->LogFormat_Text, (int)LogFormat::Text);
+  logFormatGroup->addButton(ui->LogFormat_Html, (int)LogFormat::Html);
+  logFormatGroup->addButton(ui->LogFormat_Raw, (int)LogFormat::Raw);
   logFormatGroup->button((int)world.getLogFormat())->setChecked(true);
   connect(logFormatGroup, &QButtonGroup::idClicked, this, &PrefsLogging::on_LogFormatIdClicked);
 
   QButtonGroup *logModeGroup = new QButtonGroup(this);
   logModeGroup->setExclusive(true);
-  logModeGroup->addButton(ui->LogMode_Append);
-  logModeGroup->setId(ui->LogMode_Append, (int)LogMode::Append);
-  logModeGroup->addButton(ui->LogMode_Overwrite);
-  logModeGroup->setId(ui->LogMode_Overwrite, (int)LogMode::Overwrite);
+  logModeGroup->addButton(ui->LogMode_Append, (int)LogMode::Append);
+  logModeGroup->addButton(ui->LogMode_Overwrite, (int)LogMode::Overwrite);
   logModeGroup->button((int)world.getLogMode())->setChecked(true);
   connect(logModeGroup, &QButtonGroup::idClicked, this, &PrefsLogging::on_LogModeIdClicked);
 }

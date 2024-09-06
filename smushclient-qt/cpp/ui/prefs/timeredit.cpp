@@ -32,10 +32,8 @@ TimerEdit::TimerEdit(Timer &timer, QWidget *parent)
   ui->Text->setPlainText(timer.getText());
   QButtonGroup *occurrenceGroup = new QButtonGroup(this);
   occurrenceGroup->setExclusive(true);
-  occurrenceGroup->addButton(ui->Occurrence_Interval);
-  occurrenceGroup->setId(ui->Occurrence_Interval, (int)Occurrence::Interval);
-  occurrenceGroup->addButton(ui->Occurrence_Time);
-  occurrenceGroup->setId(ui->Occurrence_Time, (int)Occurrence::Time);
+  occurrenceGroup->addButton(ui->Occurrence_Interval, (int)Occurrence::Interval);
+  occurrenceGroup->addButton(ui->Occurrence_Time, (int)Occurrence::Time);
   connect(occurrenceGroup, &QButtonGroup::idClicked, this, &TimerEdit::on_OccurrenceIdClicked);
 }
 
