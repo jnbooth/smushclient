@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::pin::Pin;
 
-use crate::adapters::TreeBuilderAdapter;
+use crate::adapter::TreeBuilderAdapter;
 use crate::colors::Colors;
 use crate::convert::Convert;
 use crate::ffi;
@@ -319,7 +319,7 @@ impl WorldRust {
             }
             builder.start_item(index);
             builder.add_column(&QString::from(&item.label));
-            builder.add_column(item.sequence);
+            builder.add_column(i64::from(item.sequence));
             builder.add_column(&QString::from(&item.pattern));
             builder.add_column(&QString::from(&item.text));
         }
@@ -364,7 +364,7 @@ impl WorldRust {
             }
             builder.start_item(index);
             builder.add_column(&QString::from(&item.label));
-            builder.add_column(item.sequence);
+            builder.add_column(i64::from(item.sequence));
             builder.add_column(&QString::from(&item.pattern));
             builder.add_column(&QString::from(&item.text));
         }

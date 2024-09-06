@@ -13,7 +13,9 @@ public:
   void startGroup(const QString &name);
   void startItem(size_t value);
   void addColumn(const QString &text);
-  void addColumn(qint16 value) { addColumn(QString::number(value)); }
+  void addColumn(qlonglong value) { addColumn(QString::number(value)); }
+  void addColumn(qulonglong value) { addColumn(QString::number(value)); }
+  void addColumn(double value) { addColumn(QString::number(value, 'g', 2)); }
 
 private:
   int column;

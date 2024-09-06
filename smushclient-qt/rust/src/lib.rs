@@ -10,7 +10,7 @@ extern crate enumeration;
 #[macro_use]
 mod convert;
 
-mod adapters;
+mod adapter;
 
 mod client;
 use client::SmushClientRust;
@@ -143,8 +143,12 @@ pub mod ffi {
         unsafe fn startItem(self: Pin<&mut TreeBuilder>, value: usize);
         #[rust_name = "add_column"]
         unsafe fn addColumn(self: Pin<&mut TreeBuilder>, text: &QString);
-        #[rust_name = "add_column_i16"]
-        unsafe fn addColumn(self: Pin<&mut TreeBuilder>, value: i16);
+        #[rust_name = "add_column_signed"]
+        unsafe fn addColumn(self: Pin<&mut TreeBuilder>, value: i64);
+        #[rust_name = "add_column_unsigned"]
+        unsafe fn addColumn(self: Pin<&mut TreeBuilder>, value: u64);
+        #[rust_name = "add_column_floating"]
+        unsafe fn addColumn(self: Pin<&mut TreeBuilder>, value: f64);
     }
 
     extern "RustQt" {

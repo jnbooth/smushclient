@@ -1,6 +1,6 @@
 #include "viewbuilder.h"
 
-TreeBuilder::TreeBuilder(QTreeWidget *tree) : tree(tree) {}
+TreeBuilder::TreeBuilder(QTreeWidget *tree) : tree(tree), column(0) {}
 
 void TreeBuilder::clear()
 {

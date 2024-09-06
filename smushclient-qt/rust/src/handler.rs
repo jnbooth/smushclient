@@ -1,4 +1,4 @@
-use crate::adapters::{DocumentAdapter, SocketAdapter};
+use crate::adapter::{DocumentAdapter, QColorPair, SocketAdapter};
 use crate::convert::Convert;
 use cxx_qt_lib::QString;
 use mud_transformer::mxp::RgbColor;
@@ -34,21 +34,22 @@ impl<'a> ClientHandler<'a> {
             && fragment.background == RgbColor::BLACK
             && fragment.action.is_none()
         {
-            if let Some(index) = self.palette.get(&fragment.foreground) {
-                self.doc.append_plaintext(&text, *index);
+            if let Some(&index) = self.palette.get(&fragment.foreground) {
+                self.doc.append_plaintext(&text, index);
                 return;
             }
         }
         let style = fragment.flags.to_raw();
-        let foreground = fragment.foreground.convert();
-        let background = fragment.background.convert();
+        let colors = QColorPair {
+            foreground: fragment.foreground.convert(),
+            background: fragment.background.convert(),
+        };
         match fragment.action {
             Some(link) => {
-                self.doc
-                    .append_link(&text, style, &foreground, &background, &(&link).into());
+                self.doc.append_link(&text, style, &colors, &(&link).into());
             }
             None => {
-                self.doc.append_text(&text, style, &foreground, &background);
+                self.doc.append_text(&text, style, &colors);
             }
         };
     }
