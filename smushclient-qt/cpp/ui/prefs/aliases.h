@@ -27,7 +27,6 @@ protected:
 private:
   Ui::PrefsAliases *ui;
   World &world;
-  TreeBuilder builder;
 
   void buildTree();
 };

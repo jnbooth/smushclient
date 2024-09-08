@@ -5,12 +5,10 @@
 #include "aliasedit.h"
 
 PrefsAliases::PrefsAliases(World &world, QWidget *parent)
-    : AbstractPrefsTree(parent), ui(new Ui::PrefsAliases), world(world), builder(nullptr)
+    : AbstractPrefsTree(parent), ui(new Ui::PrefsAliases), world(world)
 {
   ui->setupUi(this);
-  builder = TreeBuilder(ui->tree);
   CONNECT_WORLD(EnableAliases);
-
   buildTree();
 }
 
@@ -64,6 +62,7 @@ QTreeWidget *PrefsAliases::tree() const
 
 void PrefsAliases::buildTree()
 {
-  builder.clear();
+  ui->tree->clear();
+  TreeBuilder builder(ui->tree);
   world.buildAliasTree(builder);
 }

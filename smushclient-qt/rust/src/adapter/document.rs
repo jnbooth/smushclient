@@ -8,8 +8,7 @@ pub struct QColorPair {
     pub background: QColor,
 }
 
-// SAFETY: Document instances are only ever provided by WorldTab instances, which guarantees all
-// internally-used pointers are valid.
+// SAFETY: Document instances are owned by their parent WorldTab, ensuring all pointers are valid.
 adapter!(DocumentAdapter, ffi::Document);
 
 impl<'a> DocumentAdapter<'a> {

@@ -26,7 +26,6 @@ protected:
 private:
   Ui::PrefsTriggers *ui;
   World &world;
-  TreeBuilder builder;
 
   void buildTree();
 };

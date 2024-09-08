@@ -7,7 +7,9 @@ class EnumButtonGroup
 {
 public:
   template <typename Parent>
-  explicit EnumButtonGroup(Parent *parent, T value, void (Parent::*&&slot)(T value)) : group(new QButtonGroup(parent)), currentValue(value)
+  EnumButtonGroup(Parent *parent, T value, void (Parent::*&&slot)(T value))
+      : group(new QButtonGroup(parent)),
+        currentValue(value)
   {
     static_assert(std::is_same_v<std::underlying_type_t<T>, int>, "enum must be represented by int");
     typedef void (Parent::* && IntSlot)(int value);

@@ -9,7 +9,6 @@ class TreeBuilder
 public:
   explicit TreeBuilder(QTreeWidget *tree);
 
-  void clear();
   void startGroup(const QString &name);
   void startItem(size_t value);
   void addColumn(const QString &text);

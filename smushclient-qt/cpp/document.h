@@ -13,10 +13,12 @@ struct Link;
 
 using QVector_QColor = QVector<QColor>;
 
-class Document
+class Document : QObject
 {
+  Q_OBJECT
+
 public:
-  explicit Document(QWidget *parent);
+  Document(QTextBrowser *browser, QLineEdit *input);
 
   void appendLine();
   void appendText(const QString &text, int format);
@@ -27,14 +29,12 @@ public:
 
   void setInput(const QString &text);
   void setPalette(const QVector_QColor &palette);
-  void setUI(QTextBrowser *browser, QLineEdit *input);
 
 private:
-  QLineEdit *input;
-  QMainWindow *window;
   QTextBrowser *browser;
   QTextCursor cursor;
   QTextCharFormat formats[166];
+  QLineEdit *input;
 };
 
 #endif // DOCUMENT_H

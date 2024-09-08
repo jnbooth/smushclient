@@ -5,13 +5,11 @@
 #include "triggeredit.h"
 
 PrefsTriggers::PrefsTriggers(World &world, QWidget *parent)
-    : AbstractPrefsTree(parent), ui(new Ui::PrefsTriggers), world(world), builder(nullptr)
+    : AbstractPrefsTree(parent), ui(new Ui::PrefsTriggers), world(world)
 {
   ui->setupUi(this);
-  builder = TreeBuilder(ui->tree);
   CONNECT_WORLD(EnableTriggers);
   CONNECT_WORLD(EnableTriggerSounds);
-
   buildTree();
 }
 
@@ -65,6 +63,7 @@ QTreeWidget *PrefsTriggers::tree() const
 
 void PrefsTriggers::buildTree()
 {
-  builder.clear();
+  ui->tree->clear();
+  TreeBuilder builder(ui->tree);
   world.buildTriggerTree(builder);
 }

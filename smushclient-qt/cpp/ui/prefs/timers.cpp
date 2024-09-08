@@ -5,12 +5,10 @@
 #include "timeredit.h"
 
 PrefsTimers::PrefsTimers(World &world, QWidget *parent)
-    : AbstractPrefsTree(parent), ui(new Ui::PrefsTimers), world(world), builder(nullptr)
+    : AbstractPrefsTree(parent), ui(new Ui::PrefsTimers), world(world)
 {
   ui->setupUi(this);
-  builder = TreeBuilder(ui->tree);
   CONNECT_WORLD(EnableTimers);
-
   buildTree();
 }
 
@@ -64,6 +62,7 @@ QTreeWidget *PrefsTimers::tree() const
 
 void PrefsTimers::buildTree()
 {
-  builder.clear();
+  ui->tree->clear();
+  TreeBuilder builder(ui->tree);
   world.buildTriggerTree(builder);
 }

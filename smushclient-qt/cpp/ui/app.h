@@ -14,7 +14,7 @@ class App : public QMainWindow
   Q_OBJECT
 
 public:
-  App(QWidget *parent = nullptr);
+  explicit App(QWidget *parent = nullptr);
   ~App();
 
 private:

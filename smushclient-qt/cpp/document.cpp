@@ -83,7 +83,11 @@ inline QTextCharFormat foregroundFormat(const QColor &foreground)
 
 // Document
 
-Document::Document(QWidget *parent) : window(getMainWindow(parent)) {}
+Document::Document(QTextBrowser *browser, QLineEdit *input)
+    : QObject(browser),
+      browser(browser),
+      cursor(browser->document()),
+      input(input) {}
 
 void Document::appendLine()
 {
@@ -118,6 +122,7 @@ void Document::scrollToBottom()
 
 void Document::displayStatusMessage(const QString &status)
 {
+  QMainWindow *window = getMainWindow(this);
   if (window == nullptr)
     return;
 
@@ -142,11 +147,4 @@ void Document::setPalette(const QVector_QColor &palette)
     format->setForeground(QBrush(color));
     ++format;
   }
-}
-
-void Document::setUI(QTextBrowser *textBrowser, QLineEdit *lineEdit)
-{
-  input = lineEdit;
-  cursor = QTextCursor(textBrowser->document());
-  browser = textBrowser;
 }

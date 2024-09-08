@@ -26,14 +26,13 @@ void setColors(QWidget *widget, QColor foreground, QColor background)
 WorldTab::WorldTab(QWidget *parent)
     : QSplitter(parent),
       ui(new Ui::WorldTab),
-      defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont)),
-      document(this),
-      socket(this)
+      defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont))
 {
   ui->setupUi(this);
   defaultFont.setPointSize(12);
-  document.setUI(ui->output, ui->input);
-  connect(&socket, &QTcpSocket::readyRead, this, &WorldTab::readFromSocket);
+  socket = new QTcpSocket(this);
+  document = new Document(ui->output, ui->input);
+  connect(socket, &QTcpSocket::readyRead, this, &WorldTab::readFromSocket);
 }
 
 WorldTab::~WorldTab()
@@ -136,7 +135,7 @@ const QString WorldTab::title() const noexcept
 
 void WorldTab::applyWorld()
 {
-  document.setPalette(client.palette());
+  document->setPalette(client.palette());
   setColors(ui->input, world.getInputColorsForeground(), world.getInputColorsBackground());
   setColors(ui->output, world.getAnsiColors7(), world.getAnsiColors0());
   if (world.getUseDefaultInputFont())
@@ -152,17 +151,17 @@ void WorldTab::applyWorld()
 
 void WorldTab::connectToHost()
 {
-  if (socket.isOpen())
+  if (socket->isOpen())
     return;
 
-  socket.connectToHost(world.getSite(), (quint16)world.getPort());
+  socket->connectToHost(world.getSite(), (quint16)world.getPort());
 }
 
 void WorldTab::sendCommand(const QString &command)
 {
   QByteArray bytes = command.toLocal8Bit();
   bytes.append("\r\n");
-  socket.write(bytes);
+  socket->write(bytes);
 }
 
 // Slots
@@ -185,7 +184,7 @@ void WorldTab::finalizeWorldSettings(int result)
 
 void WorldTab::readFromSocket()
 {
-  client.read(socket, document);
+  client.read(*socket, *document);
 }
 
 void WorldTab::on_input_returnPressed()

@@ -27,7 +27,6 @@ protected:
 private:
   Ui::PrefsTimers *ui;
   World &world;
-  TreeBuilder builder;
 
   void buildTree();
 };

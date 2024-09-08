@@ -10,7 +10,7 @@ typedef struct RecentFileResult
 class Settings
 {
 public:
-  explicit Settings();
+  Settings();
 
   QStringList recentFiles() const;
   RecentFileResult addRecentFile(const QString &path);

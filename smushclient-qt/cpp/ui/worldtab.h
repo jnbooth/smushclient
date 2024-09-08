@@ -30,10 +30,10 @@ private:
   Ui::WorldTab *ui;
   SmushClient client;
   QFont defaultFont;
-  Document document;
+  Document *document;
   QString filePath;
   ScriptEngine scriptEngine;
-  QTcpSocket socket;
+  QTcpSocket *socket;
   World world;
 
   void applyWorld();

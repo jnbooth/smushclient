@@ -14,7 +14,7 @@ enum struct RunScriptResult
 class ScriptState
 {
 public:
-  explicit ScriptState();
+  ScriptState();
   ScriptState(ScriptState &&other);
   ~ScriptState();
 
@@ -26,5 +26,4 @@ public:
 
 private:
   lua_State *L;
-  QHash<QString, int> chunks;
 };
