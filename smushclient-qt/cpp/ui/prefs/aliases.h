@@ -1,6 +1,4 @@
-#ifndef PREFSALIASES_H
-#define PREFSALIASES_H
-
+#pragma once
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QTreeWidget>
 #include "cxx-qt-gen/ffi.cxxqt.h"
@@ -33,5 +31,3 @@ private:
 
   void buildTree();
 };
-
-#endif // PREFSALIASES_H

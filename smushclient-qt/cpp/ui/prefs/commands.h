@@ -1,6 +1,4 @@
-#ifndef PREFSCOMMANDS_H
-#define PREFSCOMMANDS_H
-
+#pragma once
 #include <QtWidgets/QWidget>
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
@@ -24,5 +22,3 @@ private:
   Ui::PrefsCommands *ui;
   World &world;
 };
-
-#endif // PREFSCOMMANDS_H

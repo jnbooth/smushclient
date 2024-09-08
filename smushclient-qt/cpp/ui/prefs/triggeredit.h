@@ -1,6 +1,4 @@
-#ifndef TRIGGEREDIT_H
-#define TRIGGEREDIT_H
-
+#pragma once
 #include "cxx-qt-gen/ffi.cxxqt.h"
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QWidget>
@@ -25,5 +23,3 @@ private:
   Ui::TriggerEdit *ui;
   Trigger &trigger;
 };
-
-#endif // TRIGGEREDIT_H

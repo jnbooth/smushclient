@@ -1,6 +1,4 @@
-#ifndef SPECIALHELP_H
-#define SPECIALHELP_H
-
+#pragma once
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QWidget>
 
@@ -20,5 +18,3 @@ public:
 private:
   Ui::SpecialHelp *ui;
 };
-
-#endif // SPECIALHELP_H

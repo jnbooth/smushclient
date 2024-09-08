@@ -1,6 +1,4 @@
-#ifndef FIELDCONNECTOR_H
-#define FIELDCONNECTOR_H
-
+#pragma once
 #include <QtCore/QObject>
 #include <QtCore/QTime>
 #include <QtWidgets/QComboBox>
@@ -73,5 +71,3 @@ QMetaObject::Connection connectField(QObject *object, const T *target, QTimeEdit
   input->setTime(value);
   return object->connect(input, &QTimeEdit::timeChanged, target, setter);
 }
-
-#endif // FIELDCONNECTOR_H

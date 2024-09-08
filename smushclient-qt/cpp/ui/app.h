@@ -1,6 +1,4 @@
-#ifndef APP_H
-#define APP_H
-
+#pragma once
 #include <QtGui/QAction>
 #include <QtWidgets/QMainWindow>
 
@@ -44,4 +42,3 @@ private slots:
   void on_action_rec_4_triggered() { openRecentFile(3); }
   void on_action_rec_5_triggered() { openRecentFile(4); }
 };
-#endif // APP_H

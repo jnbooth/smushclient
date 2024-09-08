@@ -1,6 +1,4 @@
-#ifndef ENUMBUTTONGROUP_H
-#define ENUMBUTTONGROUP_H
-
+#pragma once
 #include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QButtonGroup>
 
@@ -29,5 +27,3 @@ private:
   QButtonGroup *group;
   T currentValue;
 };
-
-#endif // ENUMBUTTONGROUP_H

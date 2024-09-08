@@ -1,6 +1,4 @@
-#ifndef SCRIPTENGINE_H
-#define SCRIPTENGINE_H
-
+#pragma once
 #include <QtCore/QStringList>
 #include <vector>
 #include "scriptstate.h"
@@ -26,5 +24,3 @@ private:
 
   bool runScript(Plugin &plugin, const QString &script);
 };
-
-#endif // SCRIPTENGINE_H

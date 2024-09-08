@@ -1,6 +1,4 @@
-#ifndef ALIASEDIT_H
-#define ALIASEDIT_H
-
+#pragma once
 #include "cxx-qt-gen/ffi.cxxqt.h"
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QWidget>
@@ -25,5 +23,3 @@ private:
   Ui::AliasEdit *ui;
   Alias *alias;
 };
-
-#endif // ALIASEDIT_H

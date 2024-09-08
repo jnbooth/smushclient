@@ -1,6 +1,4 @@
-#ifndef PREFSADDRESS_H
-#define PREFSADDRESS_H
-
+#pragma once
 #include <QtWidgets/QWidget>
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
@@ -20,5 +18,3 @@ public:
 private:
   Ui::PrefsAddress *ui;
 };
-
-#endif // PREFSADDRESS_H

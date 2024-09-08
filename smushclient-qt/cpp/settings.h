@@ -1,6 +1,4 @@
-#ifndef SETTINGS_H
-#define SETTINGS_H
-
+#pragma once
 #include <QtCore/QSettings>
 
 typedef struct RecentFileResult
@@ -21,5 +19,3 @@ public:
 private:
   QSettings store;
 };
-
-#endif // SETTINGS_H

@@ -1,6 +1,4 @@
-#ifndef COLORPICKERBUTTON_H
-#define COLORPICKERBUTTON_H
-
+#pragma once
 #include <QtWidgets/QAbstractButton>
 
 class ColorPickerButton : public QAbstractButton
@@ -31,5 +29,3 @@ protected:
 private:
   QColor currentValue;
 };
-
-#endif // COLORPICKERBUTTON_H

@@ -1,6 +1,4 @@
-#ifndef WORLDTAB_H
-#define WORLDTAB_H
-
+#pragma once
 #include <QtNetwork/QTcpSocket>
 #include <QtWidgets/QSplitter>
 #include "../document.h"
@@ -50,5 +48,3 @@ private slots:
   void on_output_anchorClicked(const QUrl &url);
   void on_output_customContextMenuRequested(const QPoint &pos);
 };
-
-#endif // WORLDTAB_H

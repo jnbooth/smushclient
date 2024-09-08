@@ -1,6 +1,4 @@
-#ifndef PREFSMXP_H
-#define PREFSMXP_H
-
+#pragma once
 #include <QtWidgets/QWidget>
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
@@ -20,5 +18,3 @@ public:
 private:
   Ui::PrefsMxp *ui;
 };
-
-#endif // PREFSMXP_H

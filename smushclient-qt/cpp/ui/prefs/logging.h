@@ -1,6 +1,4 @@
-#ifndef PREFSLOGGING_H
-#define PREFSLOGGING_H
-
+#pragma once
 #include <QtWidgets/QWidget>
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
@@ -27,5 +25,3 @@ private:
   Ui::PrefsLogging *ui;
   World &world;
 };
-
-#endif // PREFSLOGGING_H

@@ -1,6 +1,4 @@
-#ifndef PREFSOUTPUT_H
-#define PREFSOUTPUT_H
-
+#pragma once
 #include <QtWidgets/QWidget>
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
@@ -24,5 +22,3 @@ private:
   Ui::PrefsOutput *ui;
   World &world;
 };
-
-#endif // PREFSOUTPUT_H

@@ -1,6 +1,4 @@
-#ifndef PREFSTIMERS_H
-#define PREFSTIMERS_H
-
+#pragma once
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QTreeWidget>
 #include "cxx-qt-gen/ffi.cxxqt.h"
@@ -33,5 +31,3 @@ private:
 
   void buildTree();
 };
-
-#endif // PREFSTIMERS_H

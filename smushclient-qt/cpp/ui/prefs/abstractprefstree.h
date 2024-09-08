@@ -1,6 +1,4 @@
-#ifndef ABSTRACTPREFSTREE_H
-#define ABSTRACTPREFSTREE_H
-
+#pragma once
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QTreeWidget>
 #include <QtWidgets/QTreeWidgetItem>
@@ -28,5 +26,3 @@ protected slots:
   void on_tree_itemActivated(QTreeWidgetItem *item);
   void on_tree_itemDoubleClicked(QTreeWidgetItem *item);
 };
-
-#endif // ABSTRACTPREFSTREE_H

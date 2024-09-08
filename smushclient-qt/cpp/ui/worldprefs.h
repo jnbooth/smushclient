@@ -1,6 +1,4 @@
-#ifndef WORLDPREFS_H
-#define WORLDPREFS_H
-
+#pragma once
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QTreeWidgetItem>
 #include <QtWidgets/QWidget>
@@ -30,5 +28,3 @@ private:
 private slots:
   void on_settings_tree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 };
-
-#endif // WORLDPREFS_H

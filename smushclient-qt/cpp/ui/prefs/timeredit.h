@@ -1,6 +1,4 @@
-#ifndef TIMEREDIT_H
-#define TIMEREDIT_H
-
+#pragma once
 #include "cxx-qt-gen/ffi.cxxqt.h"
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QWidget>
@@ -26,5 +24,3 @@ private:
   Ui::TimerEdit *ui;
   Timer &timer;
 };
-
-#endif // TIMEREDIT_H

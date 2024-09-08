@@ -1,6 +1,4 @@
-#ifndef LUAQ_H
-#define LUAQ_H
-
+#pragma once
 #include <QtCore/QString>
 
 extern "C"
@@ -10,5 +8,3 @@ extern "C"
 
 int luaQ_loadqstring(lua_State *L, const QString &chunk);
 QString luaQ_toqstring(lua_State *L, int idx);
-
-#endif // LUAQ_H

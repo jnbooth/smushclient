@@ -1,6 +1,4 @@
-#ifndef PREFSTRIGGERS_H
-#define PREFSTRIGGERS_H
-
+#pragma once
 #include <QtWidgets/QWidget>
 #include "cxx-qt-gen/ffi.cxxqt.h"
 #include "abstractprefstree.h"
@@ -32,5 +30,3 @@ private:
 
   void buildTree();
 };
-
-#endif // PREFSTRIGGERS_H

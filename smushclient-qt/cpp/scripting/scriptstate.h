@@ -1,6 +1,4 @@
-#ifndef SCRIPTSTATE_H
-#define SCRIPTSTATE_H
-
+#pragma once
 #include <QtCore/QHash>
 #include <QtCore/QString>
 
@@ -30,5 +28,3 @@ private:
   lua_State *L;
   QHash<QString, int> chunks;
 };
-
-#endif // SCRIPTSTATE_H

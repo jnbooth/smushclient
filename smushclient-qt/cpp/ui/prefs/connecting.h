@@ -1,6 +1,4 @@
-#ifndef PREFSCONNECTING_H
-#define PREFSCONNECTING_H
-
+#pragma once
 #include <QtWidgets/QWidget>
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
@@ -24,5 +22,3 @@ private:
   Ui::PrefsConnecting *ui;
   World &world;
 };
-
-#endif // PREFSCONNECTING_H

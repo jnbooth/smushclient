@@ -1,6 +1,4 @@
-#ifndef PREFSPROXY_H
-#define PREFSPROXY_H
-
+#pragma once
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QWidget>
 
@@ -20,5 +18,3 @@ public:
 private:
   Ui::PrefsProxy *ui;
 };
-
-#endif // PREFSPROXY_H

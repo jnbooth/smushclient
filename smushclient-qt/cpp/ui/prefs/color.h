@@ -1,6 +1,4 @@
-#ifndef PREFSCOLOR_H
-#define PREFSCOLOR_H
-
+#pragma once
 #include <QtWidgets/QWidget>
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
@@ -20,5 +18,3 @@ public:
 private:
   Ui::PrefsColor *ui;
 };
-
-#endif // PREFSCOLOR_H
