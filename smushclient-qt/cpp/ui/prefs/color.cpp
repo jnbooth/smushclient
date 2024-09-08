@@ -3,7 +3,8 @@
 #include "../../fieldconnector.h"
 
 PrefsColor::PrefsColor(const World &world, QWidget *parent)
-    : QWidget(parent), ui(new Ui::PrefsColor)
+    : QWidget(parent),
+      ui(new Ui::PrefsColor)
 {
   ui->setupUi(this);
   CONNECT_WORLD(UseDefaultColors);

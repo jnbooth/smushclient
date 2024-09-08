@@ -17,10 +17,10 @@ public:
   void addColumn(double value) { addColumn(QString::number(value, 'g', 2)); }
 
 private:
-  int column;
   QTreeWidget *tree;
   QTreeWidgetItem *group;
   QTreeWidgetItem *item;
+  int column;
 };
 
 #endif // VIEWBUILDER_H

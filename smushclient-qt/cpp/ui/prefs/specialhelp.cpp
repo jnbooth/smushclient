@@ -3,7 +3,8 @@
 #include "../../fieldconnector.h"
 
 SpecialHelp::SpecialHelp(QWidget *parent)
-    : QDialog(parent), ui(new Ui::SpecialHelp)
+    : QDialog(parent),
+      ui(new Ui::SpecialHelp)
 {
   ui->setupUi(this);
 }

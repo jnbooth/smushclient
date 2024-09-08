@@ -5,7 +5,9 @@
 #include "aliasedit.h"
 
 PrefsAliases::PrefsAliases(World &world, QWidget *parent)
-    : AbstractPrefsTree(parent), ui(new Ui::PrefsAliases), world(world)
+    : AbstractPrefsTree(parent),
+      ui(new Ui::PrefsAliases),
+      world(world)
 {
   ui->setupUi(this);
   CONNECT_WORLD(EnableAliases);

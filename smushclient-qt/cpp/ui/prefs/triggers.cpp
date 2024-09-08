@@ -5,7 +5,9 @@
 #include "triggeredit.h"
 
 PrefsTriggers::PrefsTriggers(World &world, QWidget *parent)
-    : AbstractPrefsTree(parent), ui(new Ui::PrefsTriggers), world(world)
+    : AbstractPrefsTree(parent),
+      ui(new Ui::PrefsTriggers),
+      world(world)
 {
   ui->setupUi(this);
   CONNECT_WORLD(EnableTriggers);

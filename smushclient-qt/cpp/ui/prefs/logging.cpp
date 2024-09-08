@@ -5,7 +5,9 @@
 #include <QtWidgets/QButtonGroup>
 
 PrefsLogging::PrefsLogging(World &world, QWidget *parent)
-    : QWidget(parent), ui(new Ui::PrefsLogging), world(world)
+    : QWidget(parent),
+      ui(new Ui::PrefsLogging),
+      world(world)
 {
   ui->setupUi(this);
   CONNECT_WORLD(LogOutput);

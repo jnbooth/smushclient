@@ -5,7 +5,9 @@
 #include "timeredit.h"
 
 PrefsTimers::PrefsTimers(World &world, QWidget *parent)
-    : AbstractPrefsTree(parent), ui(new Ui::PrefsTimers), world(world)
+    : AbstractPrefsTree(parent),
+      ui(new Ui::PrefsTimers),
+      world(world)
 {
   ui->setupUi(this);
   CONNECT_WORLD(EnableTimers);

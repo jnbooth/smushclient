@@ -3,7 +3,8 @@
 #include "../../fieldconnector.h"
 
 PrefsProxy::PrefsProxy(QWidget *parent)
-    : QDialog(parent), ui(new Ui::PrefsProxy)
+    : QDialog(parent),
+      ui(new Ui::PrefsProxy)
 {
   ui->setupUi(this);
 }

@@ -30,7 +30,8 @@ static int panic(lua_State *L)
   return 0;
 }
 
-ScriptState::ScriptState() : L(luaL_newstate())
+ScriptState::ScriptState()
+    : L(luaL_newstate())
 {
   if (L == nullptr)
     throw std::bad_alloc();
@@ -38,7 +39,8 @@ ScriptState::ScriptState() : L(luaL_newstate())
   lua_atpanic(L, &panic);
 }
 
-ScriptState::ScriptState(ScriptState &&other) : L(other.L) {}
+ScriptState::ScriptState(ScriptState &&other)
+    : L(other.L) {}
 
 ScriptState::~ScriptState()
 {

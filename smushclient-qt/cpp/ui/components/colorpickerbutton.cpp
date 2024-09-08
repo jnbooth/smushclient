@@ -3,7 +3,8 @@
 #include <QtGui/QPen>
 #include <QtWidgets/QColorDialog>
 
-ColorPickerButton::ColorPickerButton(QWidget *parent) : QAbstractButton(parent)
+ColorPickerButton::ColorPickerButton(QWidget *parent)
+    : QAbstractButton(parent)
 {
   connect(this, &QAbstractButton::clicked, this, &ColorPickerButton::openColorPicker);
 }

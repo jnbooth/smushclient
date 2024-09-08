@@ -1,6 +1,10 @@
 #include "viewbuilder.h"
 
-TreeBuilder::TreeBuilder(QTreeWidget *tree) : column(0), tree(tree), group(nullptr), item(nullptr) {}
+TreeBuilder::TreeBuilder(QTreeWidget *tree)
+    : tree(tree),
+      group(nullptr),
+      item(nullptr),
+      column(0) {}
 
 void TreeBuilder::startGroup(const QString &name)
 {

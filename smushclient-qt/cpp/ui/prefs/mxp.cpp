@@ -3,7 +3,8 @@
 #include "../../fieldconnector.h"
 
 PrefsMxp::PrefsMxp(const World &world, QWidget *parent)
-    : QWidget(parent), ui(new Ui::PrefsMxp)
+    : QWidget(parent),
+      ui(new Ui::PrefsMxp)
 {
   ui->setupUi(this);
   CONNECT_WORLD(UseMxp);

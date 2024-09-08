@@ -3,7 +3,9 @@
 #include "../../fieldconnector.h"
 
 PrefsOutput::PrefsOutput(World &world, QWidget *parent)
-    : QWidget(parent), ui(new Ui::PrefsOutput), world(world)
+    : QWidget(parent),
+      ui(new Ui::PrefsOutput),
+      world(world)
 {
   ui->setupUi(this);
 

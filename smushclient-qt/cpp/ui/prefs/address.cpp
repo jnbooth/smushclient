@@ -3,7 +3,8 @@
 #include "../../fieldconnector.h"
 
 PrefsAddress::PrefsAddress(const World &world, QWidget *parent)
-    : QWidget(parent), ui(new Ui::PrefsAddress)
+    : QWidget(parent),
+      ui(new Ui::PrefsAddress)
 {
   ui->setupUi(this);
   CONNECT_WORLD(Name);

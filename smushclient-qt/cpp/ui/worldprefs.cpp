@@ -13,7 +13,8 @@
 #include "prefs/triggers.h"
 
 WorldPrefs::WorldPrefs(World &world, QWidget *parent)
-    : QDialog(parent), ui(new Ui::WorldPrefs)
+    : QDialog(parent),
+      ui(new Ui::WorldPrefs)
 {
   ui->setupUi(this);
   panes.reserve(12);

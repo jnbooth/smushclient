@@ -6,7 +6,9 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMainWindow>
 
-App::App(QWidget *parent) : QMainWindow(parent), ui(new Ui::App)
+App::App(QWidget *parent)
+    : QMainWindow(parent),
+      ui(new Ui::App)
 {
   ui->setupUi(this);
   saveFilter = tr("World files (*.smush);;All Files (*.*)");

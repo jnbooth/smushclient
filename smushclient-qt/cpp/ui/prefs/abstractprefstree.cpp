@@ -1,6 +1,7 @@
 #include "abstractprefstree.h"
 
-AbstractPrefsTree::AbstractPrefsTree(QWidget *parent) : QWidget(parent) {}
+AbstractPrefsTree::AbstractPrefsTree(QWidget *parent)
+    : QWidget(parent) {}
 
 QVariant AbstractPrefsTree::currentData() const
 {

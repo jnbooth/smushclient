@@ -5,7 +5,9 @@
 #define CONNECT(field) connectField(this, alias, ui->field, alias->get##field(), &Alias::set##field);
 
 AliasEdit::AliasEdit(Alias *alias, QWidget *parent)
-    : QDialog(parent), ui(new Ui::AliasEdit), alias(alias)
+    : QDialog(parent),
+      ui(new Ui::AliasEdit),
+      alias(alias)
 {
   ui->setupUi(this);
 

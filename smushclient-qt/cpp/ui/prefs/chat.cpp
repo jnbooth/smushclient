@@ -3,7 +3,8 @@
 #include "../../fieldconnector.h"
 
 PrefsChat::PrefsChat(const World &world, QWidget *parent)
-    : QWidget(parent), ui(new Ui::PrefsChat)
+    : QWidget(parent),
+      ui(new Ui::PrefsChat)
 {
   ui->setupUi(this);
   CONNECT_WORLD(ChatName);

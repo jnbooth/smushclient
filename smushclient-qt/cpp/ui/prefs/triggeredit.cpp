@@ -5,7 +5,9 @@
 #define CONNECT(field) connectField(this, &trigger, ui->field, trigger.get##field(), &Trigger::set##field);
 
 TriggerEdit::TriggerEdit(Trigger &trigger, QWidget *parent)
-    : QDialog(parent), ui(new Ui::TriggerEdit), trigger(trigger)
+    : QDialog(parent),
+      ui(new Ui::TriggerEdit),
+      trigger(trigger)
 {
   ui->setupUi(this);
 
