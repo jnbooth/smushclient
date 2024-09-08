@@ -21,8 +21,8 @@ private slots:
   void on_OutputFont_currentFontChanged(const QFont &f);
 
 private:
-  World &world;
   Ui::PrefsOutput *ui;
+  World &world;
 };
 
 #endif // PREFSOUTPUT_H

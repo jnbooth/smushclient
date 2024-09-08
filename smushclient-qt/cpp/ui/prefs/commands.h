@@ -21,8 +21,8 @@ private slots:
   void on_InputFont_currentFontChanged(const QFont &f);
 
 private:
-  World &world;
   Ui::PrefsCommands *ui;
+  World &world;
 };
 
 #endif // PREFSCOMMANDS_H

@@ -3,10 +3,6 @@
 #include <QtGui/QPen>
 #include <QtWidgets/QColorDialog>
 
-static const QPen borderDownPen(QBrush(Qt::GlobalColor::white), 1);
-static const QPen borderUpPen(QBrush(Qt::GlobalColor::black), 1);
-static const QPen borderFocusedPen(QBrush(Qt::GlobalColor::darkBlue), 1);
-
 ColorPickerButton::ColorPickerButton(QWidget *parent) : QAbstractButton(parent)
 {
   connect(this, &QAbstractButton::clicked, this, &ColorPickerButton::openColorPicker);
@@ -28,7 +24,7 @@ QSize ColorPickerButton::sizeHint() const
 
 void ColorPickerButton::openColorPicker()
 {
-  const QColor color = QColorDialog::getColor(currentValue, this, "Select Color");
+  const QColor color = QColorDialog::getColor(currentValue, this, tr("Select Color"));
   if (!color.isValid())
     return;
 
@@ -51,8 +47,12 @@ const QColor &ColorPickerButton::value() const &
 
 // Protected overrides
 
-void ColorPickerButton::paintEvent(QPaintEvent *e)
+void ColorPickerButton::paintEvent(QPaintEvent *)
 {
+  static const QPen borderDownPen(QBrush(Qt::GlobalColor::white), 1);
+  static const QPen borderUpPen(QBrush(Qt::GlobalColor::black), 1);
+  static const QPen borderFocusedPen(QBrush(Qt::GlobalColor::darkBlue), 1);
+
   QPainter painter(this);
   const QRect bounds = rect();
   painter.fillRect(bounds, currentValue);

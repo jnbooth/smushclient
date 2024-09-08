@@ -65,7 +65,7 @@ void App::setupRecentFiles(const QStringList &recentFiles)
 {
   auto i = recentFileActions.begin();
   auto end = recentFileActions.end();
-  for (const QString filePath : recentFiles)
+  for (const QString &filePath : recentFiles)
   {
     QAction &action = **i;
     action.setVisible(true);
@@ -118,7 +118,7 @@ void App::on_action_new_triggered()
 void App::on_action_open_world_triggered()
 {
   const QString dialogName = ui->action_open_world->text();
-  const QString filePath = QFileDialog::getOpenFileName(this, dialogName, "", saveFilter);
+  const QString filePath = QFileDialog::getOpenFileName(this, dialogName, QString(), saveFilter);
   if (filePath.isEmpty())
     return;
 

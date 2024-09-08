@@ -14,7 +14,7 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QErrorMessage>
 
-static void setColors(QWidget *widget, QColor foreground, QColor background)
+void setColors(QWidget *widget, QColor foreground, QColor background)
 {
   QPalette palette = QPalette(widget->palette());
   palette.setColor(QPalette::Text, foreground);
@@ -24,7 +24,11 @@ static void setColors(QWidget *widget, QColor foreground, QColor background)
 }
 
 WorldTab::WorldTab(QWidget *parent)
-    : QSplitter(parent), ui(new Ui::WorldTab), socket(this), defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont)), document(&socket)
+    : QSplitter(parent),
+      ui(new Ui::WorldTab),
+      defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont)),
+      document(this),
+      socket(this)
 {
   ui->setupUi(this);
   defaultFont.setPointSize(12);
@@ -65,7 +69,7 @@ bool WorldTab::openWorld(const QString &filename) &
   }
   catch (const rust::Error &e)
   {
-    QErrorMessage::qtHandler()->showMessage(QString(e.what()));
+    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
     return false;
   }
 
@@ -96,7 +100,7 @@ QString WorldTab::saveWorld(const QString &saveFilter)
   }
   catch (const rust::Error &e)
   {
-    QErrorMessage::qtHandler()->showMessage(QString(e.what()));
+    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
     return QString();
   }
 }
@@ -116,7 +120,7 @@ QString WorldTab::saveWorldAsNew(const QString &saveFilter)
   }
   catch (const rust::Error &e)
   {
-    QErrorMessage::qtHandler()->showMessage(QString(e.what()));
+    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
     return QString();
   }
 }
@@ -195,13 +199,17 @@ void WorldTab::on_output_anchorClicked(const QUrl &url)
   if (action.isEmpty())
     return;
 
-  const QString last = action.last(1);
-  if (last == "\x17")
+  switch (action.back().unicode())
+  {
+  case 17:
     QDesktopServices::openUrl(QUrl(action));
-  else if (last == "\x18")
+    break;
+  case 18:
     ui->input->setText(action);
-  else
+    break;
+  default:
     sendCommand(action);
+  }
 }
 
 void WorldTab::on_output_customContextMenuRequested(const QPoint &pos)
@@ -215,7 +223,7 @@ void WorldTab::on_output_customContextMenuRequested(const QPoint &pos)
   }
   const QString prompts = format.property(QTextCharFormat::UserProperty).value<QString>();
   QMenu menu(ui->output);
-  for (QString prompt : prompts.split("|"))
+  for (const QString &prompt : prompts.split(QStringLiteral("|")))
     menu.addAction(prompt);
 
   const QAction *chosen = menu.exec(mouse);

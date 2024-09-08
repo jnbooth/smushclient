@@ -1,7 +1,7 @@
 #include "settings.h"
 
-#define KEY_RECENT_FILES "recent"
-#define MAX_RECENT_FILES 5
+static const QString recentFilesKey = QStringLiteral("recent");
+static const qsizetype recentFilesMax = 5;
 
 Settings::Settings() : store() {}
 
@@ -9,10 +9,10 @@ Settings::Settings() : store() {}
 
 QStringList Settings::recentFiles() const
 {
-  QStringList recent = store.value(KEY_RECENT_FILES).toStringList();
+  QStringList recent = store.value(recentFilesKey).toStringList();
   // Should never happen, but just in case.
-  if (recent.size() > MAX_RECENT_FILES) [[unlikely]]
-    recent.resize(MAX_RECENT_FILES);
+  if (recent.size() > recentFilesMax)
+    recent.resize(recentFilesMax);
   return recent;
 }
 
@@ -25,11 +25,11 @@ RecentFileResult Settings::addRecentFile(const QString &path)
 
   if (index != -1)
     recent.remove(index);
-  else if (recent.size() == MAX_RECENT_FILES)
+  else if (recent.size() == recentFilesMax)
     recent.removeLast();
 
   recent.prepend(path);
-  store.setValue(KEY_RECENT_FILES, recent);
+  store.setValue(recentFilesKey, recent);
   return RecentFileResult{.changed = true, .recentFiles = recent};
 }
 
@@ -41,6 +41,6 @@ RecentFileResult Settings::removeRecentFile(const QString &path)
     return RecentFileResult{.changed = false, .recentFiles = recent};
 
   recent.remove(index);
-  store.setValue(KEY_RECENT_FILES, recent);
+  store.setValue(recentFilesKey, recent);
   return RecentFileResult{.changed = true, .recentFiles = recent};
 }

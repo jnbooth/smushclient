@@ -16,7 +16,7 @@ using QVector_QColor = QVector<QColor>;
 class Document
 {
 public:
-  explicit Document(QTcpSocket *socket);
+  explicit Document(QWidget *parent);
 
   void appendLine();
   void appendText(const QString &text, int format);
@@ -32,7 +32,6 @@ public:
 private:
   QLineEdit *input;
   QMainWindow *window;
-  QTcpSocket *socket;
   QTextBrowser *browser;
   QTextCursor cursor;
   QTextCharFormat formats[166];

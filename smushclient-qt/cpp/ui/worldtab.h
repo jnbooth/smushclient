@@ -29,11 +29,11 @@ public:
 
 private:
   Ui::WorldTab *ui;
+  SmushClient client;
   QFont defaultFont;
+  Document document;
   QString filePath;
   QTcpSocket socket;
-  Document document;
-  SmushClient client;
   World world;
 
   void applyWorld();

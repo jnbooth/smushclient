@@ -90,6 +90,12 @@ qt_add_executable(${APP_NAME}
     cpp/ui/worldprefs.h cpp/ui/worldprefs.cpp cpp/ui/worldprefs.ui
     cpp/ui/worldtab.h cpp/ui/worldtab.cpp cpp/ui/worldtab.ui
 )
+if(MSVC)
+  target_compile_options(${APP_NAME} PRIVATE /W4 /WX)
+else()
+  target_compile_options(${APP_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
 
 set(CRATE smushclient_qt)
 # Corrosion creates a CMake target with the same name as the crate.
@@ -132,6 +138,8 @@ target_link_libraries(${APP_NAME}_lib INTERFACE
 
 # Link to the Rust library
 target_link_libraries(${APP_NAME} PRIVATE ${APP_NAME}_lib)
+
+add_compile_definitions(QT_NO_CAST_FROM_BYTEARRAY QT_NO_CAST_FROM_ASCII)
 
 # If we are using a statically linked Qt then we need to import any qml plugins
 qt_import_qml_plugins(${APP_NAME})

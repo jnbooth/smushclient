@@ -24,8 +24,8 @@ private slots:
   void on_LogModeChanged(LogMode value);
 
 private:
-  World &world;
   Ui::PrefsLogging *ui;
+  World &world;
 };
 
 #endif // PREFSLOGGING_H

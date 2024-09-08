@@ -7,7 +7,7 @@
 
 // Utilities
 
-static QMainWindow *getMainWindow(QObject *obj)
+QMainWindow *getMainWindow(QObject *obj)
 {
   if (obj == nullptr)
     return nullptr;
@@ -23,23 +23,23 @@ static QMainWindow *getMainWindow(QObject *obj)
   return getMainWindow(parent);
 }
 
-static inline bool hasStyle(quint16 flags, TextStyle style) noexcept
+inline bool hasStyle(quint16 flags, TextStyle style) noexcept
 {
   return flags & (quint16)style;
 }
 
 // Formatting
 
-static void applyLink(QTextCharFormat &format, const Link &link) noexcept
+inline void applyLink(QTextCharFormat &format, const Link &link) noexcept
 {
   QString action = QString(link.action);
   switch (link.sendto)
   {
   case SendTo::Internet:
-    action.append('\x17');
+    action.append(QChar(17));
     break;
   case SendTo::Input:
-    action.prepend('\x18');
+    action.prepend(QChar(18));
     break;
   case SendTo::World:
     break;
@@ -52,7 +52,7 @@ static void applyLink(QTextCharFormat &format, const Link &link) noexcept
     format.setProperty(QTextCharFormat::UserProperty, link.prompts);
 }
 
-static void applyStyles(QTextCharFormat &format, quint16 style, const QColor &foreground, const QColor &background) noexcept
+inline void applyStyles(QTextCharFormat &format, quint16 style, const QColor &foreground, const QColor &background) noexcept
 {
   if (hasStyle(style, TextStyle::Bold))
     format.setFontWeight(QFont::Weight::Bold);
@@ -74,19 +74,16 @@ static void applyStyles(QTextCharFormat &format, quint16 style, const QColor &fo
     format.setBackground(QBrush(background));
 }
 
-static QTextCharFormat foregroundFormat(const QColor &foreground)
+inline QTextCharFormat foregroundFormat(const QColor &foreground)
 {
   QTextCharFormat format;
   format.setForeground(QBrush(foreground));
   return format;
 }
 
-static const QTextCharFormat errorFormat = foregroundFormat(QColor::fromRgb(127, 0, 0));
-static const QTextCharFormat pluginFormat = foregroundFormat(QColor::fromRgb(1, 164, 151));
-
 // Document
 
-Document::Document(QTcpSocket *socket) : socket(socket), window(getMainWindow(socket)) {}
+Document::Document(QWidget *parent) : window(getMainWindow(parent)) {}
 
 void Document::appendLine()
 {
@@ -121,7 +118,14 @@ void Document::scrollToBottom()
 
 void Document::displayStatusMessage(const QString &status)
 {
-  window->statusBar()->showMessage(status);
+  if (window == nullptr)
+    return;
+
+  QStatusBar *statusBar = window->statusBar();
+  if (statusBar == nullptr)
+    return;
+
+  statusBar->showMessage(status);
 }
 
 void Document::setInput(const QString &text)
