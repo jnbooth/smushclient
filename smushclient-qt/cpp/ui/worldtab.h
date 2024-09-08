@@ -4,6 +4,7 @@
 #include <QtNetwork/QTcpSocket>
 #include <QtWidgets/QSplitter>
 #include "../document.h"
+#include "../scripting/scriptengine.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
@@ -33,6 +34,7 @@ private:
   QFont defaultFont;
   Document document;
   QString filePath;
+  ScriptEngine scriptEngine;
   QTcpSocket socket;
   World world;
 

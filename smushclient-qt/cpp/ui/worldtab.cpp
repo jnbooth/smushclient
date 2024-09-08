@@ -53,6 +53,7 @@ void WorldTab::createWorld() &
   world.setOutputFont(defaultFontFamily);
   world.setOutputFontSize(defaultFontSize);
   client.setWorld(world);
+  scriptEngine.initializeScripts(client.pluginScripts());
   applyWorld();
 }
 
@@ -66,6 +67,7 @@ bool WorldTab::openWorld(const QString &filename) &
   try
   {
     client.loadWorld(filename, world);
+    scriptEngine.initializeScripts(client.pluginScripts());
   }
   catch (const rust::Error &e)
   {

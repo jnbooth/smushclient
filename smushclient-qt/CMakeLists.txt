@@ -23,8 +23,6 @@ find_package(Qt6 COMPONENTS Core Gui Network Qml Widgets REQUIRED)
 
 include(ExternalProject)
 
-find_program(MAKE_EXE NAMES gmake nmake make)
-
 ExternalProject_Add(lua
    URL "https://www.lua.org/ftp/lua-5.4.7.tar.gz"
    CONFIGURE_COMMAND ""
@@ -35,7 +33,11 @@ ExternalProject_Add(lua
 )
 add_library(liblua STATIC IMPORTED)
 ExternalProject_Get_property(lua SOURCE_DIR)
-message("liblua will be found at \'${SOURCE_DIR}/src\'")
+find_library(LIBLUA_ARCHIVE NAMES liblua.a liblua.lib PATHS ${SOURCE_DIR}/src)
+SET_TARGET_PROPERTIES(liblua PROPERTIES
+  IMPORTED_LOCATION ${LIBLUA_ARCHIVE}
+  INTERFACE_INCLUDE_DIRECTORIES ${SOURCE_DIR}/src
+)
 
 find_package(Corrosion QUIET)
 if(NOT Corrosion_FOUND)
@@ -68,6 +70,10 @@ qt_add_executable(${APP_NAME}
     cpp/settings.h cpp/settings.cpp
     cpp/viewbuilder.h cpp/viewbuilder.cpp
 
+    cpp/scripting/luaq.h cpp/scripting/luaq.cpp
+    cpp/scripting/scriptengine.h cpp/scripting/scriptengine.cpp
+    cpp/scripting/scriptstate.h cpp/scripting/scriptstate.cpp
+
     cpp/ui/app.h cpp/ui/app.cpp cpp/ui/app.ui
     cpp/ui/components/colorpickerbutton.h cpp/ui/components/colorpickerbutton.cpp
     cpp/ui/prefs/abstractprefstree.h cpp/ui/prefs/abstractprefstree.cpp
@@ -96,6 +102,7 @@ else()
   target_compile_options(${APP_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
+target_link_libraries(${APP_NAME} PUBLIC liblua)
 
 set(CRATE smushclient_qt)
 # Corrosion creates a CMake target with the same name as the crate.
@@ -138,6 +145,7 @@ target_link_libraries(${APP_NAME}_lib INTERFACE
 
 # Link to the Rust library
 target_link_libraries(${APP_NAME} PRIVATE ${APP_NAME}_lib)
+target_include_directories(${APP_NAME} PUBLIC ${SOURCE_DIR}/src)
 
 add_compile_definitions(QT_NO_CAST_FROM_BYTEARRAY QT_NO_CAST_FROM_ASCII)
 
