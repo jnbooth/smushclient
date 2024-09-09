@@ -1,4 +1,4 @@
-#include "viewbuilder.h"
+#include "treebuilder.h"
 
 TreeBuilder::TreeBuilder(QTreeWidget *tree)
     : tree(tree),

@@ -1,7 +1,7 @@
 #pragma once
 #include <QtNetwork/QTcpSocket>
 #include <QtWidgets/QSplitter>
-#include "../document.h"
+#include "../bridge/document.h"
 #include "../scripting/scriptengine.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
 

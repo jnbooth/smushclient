@@ -1,5 +1,5 @@
 #include "../../fieldconnector.h"
-#include "../../viewbuilder.h"
+#include "../../bridge/treebuilder.h"
 #include "aliases.h"
 #include "ui_aliases.h"
 #include "aliasedit.h"

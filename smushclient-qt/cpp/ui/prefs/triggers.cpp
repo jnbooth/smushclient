@@ -1,5 +1,5 @@
 #include "../../fieldconnector.h"
-#include "../../viewbuilder.h"
+#include "../../bridge/treebuilder.h"
 #include "triggers.h"
 #include "ui_triggers.h"
 #include "triggeredit.h"

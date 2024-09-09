@@ -134,7 +134,7 @@ pub mod ffi {
     }
 
     extern "C++Qt" {
-        include!("viewbuilder.h");
+        include!("treebuilder.h");
         type TreeBuilder;
 
         #[rust_name = "start_group"]

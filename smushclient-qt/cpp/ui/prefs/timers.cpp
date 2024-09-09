@@ -1,5 +1,5 @@
 #include "../../fieldconnector.h"
-#include "../../viewbuilder.h"
+#include "../../bridge/treebuilder.h"
 #include "timers.h"
 #include "ui_timers.h"
 #include "timeredit.h"

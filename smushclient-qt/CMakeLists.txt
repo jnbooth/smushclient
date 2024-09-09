@@ -64,11 +64,12 @@ set(PROJECT_SOURCES
 qt_add_executable(${APP_NAME}
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
-    cpp/document.h cpp/document.cpp
     cpp/enumbuttongroup.h
     cpp/fieldconnector.h
     cpp/settings.h cpp/settings.cpp
-    cpp/viewbuilder.h cpp/viewbuilder.cpp
+    
+    cpp/bridge/document.h cpp/bridge/document.cpp
+    cpp/bridge/treebuilder.h cpp/bridge/treebuilder.cpp
 
     cpp/scripting/luaq.h cpp/scripting/luaq.cpp
     cpp/scripting/scriptengine.h cpp/scripting/scriptengine.cpp

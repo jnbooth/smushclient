@@ -21,11 +21,15 @@ fn copy_header(dir: &str, name: &str, contents: &str) {
 fn main() {
     let header_dir = get_header_dir();
     fs::create_dir_all(&header_dir).expect("Could not create header dir");
-    copy_header(&header_dir, "document.h", include_str!("../cpp/document.h"));
     copy_header(
         &header_dir,
-        "viewbuilder.h",
-        include_str!("../cpp/viewbuilder.h"),
+        "document.h",
+        include_str!("../cpp/bridge/document.h"),
+    );
+    copy_header(
+        &header_dir,
+        "treebuilder.h",
+        include_str!("../cpp/bridge/treebuilder.h"),
     );
 
     CxxQtBuilder::new()
