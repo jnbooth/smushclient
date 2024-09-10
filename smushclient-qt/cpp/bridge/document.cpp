@@ -1,5 +1,6 @@
 #include "document.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
+#include "../scripting/scriptengine.h"
 #include <QtGui/QTextDocument>
 #include <QtWidgets/QScrollBar>
 #include <QtWidgets/QApplication>
@@ -85,9 +86,15 @@ inline QTextCharFormat foregroundFormat(const QColor &foreground)
 
 Document::Document(QTextBrowser *browser, QLineEdit *input)
     : QObject(browser),
+      scriptEngine(new ScriptEngine(browser->document(), input)),
       browser(browser),
       cursor(browser->document()),
       input(input) {}
+
+Document::~Document()
+{
+  delete scriptEngine;
+}
 
 void Document::appendLine()
 {
@@ -112,6 +119,11 @@ void Document::appendText(const QString &text, quint16 style, const QColor &fore
   applyStyles(format, style, foreground, background);
   applyLink(format, link);
   cursor.insertText(text, format);
+}
+
+void Document::runScript(size_t plugin, const QString &script)
+{
+  scriptEngine->runScript(plugin, script);
 }
 
 void Document::scrollToBottom()
@@ -147,4 +159,5 @@ void Document::setPalette(const QVector_QColor &palette)
     format->setForeground(QBrush(color));
     ++format;
   }
+  scriptEngine->setErrorFormat(formats[1]);
 }

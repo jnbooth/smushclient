@@ -2,7 +2,14 @@
 #include <QtCore/QCoreApplication>
 #include <QtWidgets/QErrorMessage>
 
-ScriptEngine::ScriptEngine() {}
+inline QString tr(const char *key)
+{
+  return QCoreApplication::translate("ScriptEngine", key);
+}
+
+ScriptEngine::ScriptEngine(QTextDocument *document, QLineEdit *input)
+    : api(document, input),
+      cursor(document) {}
 
 void ScriptEngine::initializeScripts(const QStringList &scripts)
 {
@@ -10,10 +17,20 @@ void ScriptEngine::initializeScripts(const QStringList &scripts)
   plugins.reserve(scripts.size());
   for (const QString &script : scripts)
   {
-    Plugin &plugin = plugins.emplace_back();
+    Plugin &plugin = plugins.emplace_back(&api);
     if (!runScript(plugin, script))
       plugin.disabled = true;
   }
+}
+
+void ScriptEngine::setErrorFormat(const QTextCharFormat &format)
+{
+  cursor.setCharFormat(format);
+}
+
+bool ScriptEngine::runScript(size_t plugin, const QString &script)
+{
+  return runScript(plugins.at(plugin), script);
 }
 
 // Private methods
@@ -28,10 +45,12 @@ bool ScriptEngine::runScript(Plugin &plugin, const QString &script)
   case RunScriptResult::Ok:
     return true;
   case RunScriptResult::CompileError:
-    qDebug() << "Compile error: " << plugin.state.getError();
+    cursor.insertText(tr("Compile error: %1").arg(plugin.state.getError()));
+    cursor.insertBlock();
     return false;
   case RunScriptResult::RuntimeError:
-    qDebug() << "Compile error: " << plugin.state.getError();
+    cursor.insertText(tr("Runtime error: %1").arg(plugin.state.getError()));
+    cursor.insertBlock();
     return false;
   }
 }

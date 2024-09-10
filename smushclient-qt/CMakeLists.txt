@@ -67,11 +67,14 @@ qt_add_executable(${APP_NAME}
     cpp/enumbuttongroup.h
     cpp/fieldconnector.h
     cpp/settings.h cpp/settings.cpp
-    
+
     cpp/bridge/document.h cpp/bridge/document.cpp
     cpp/bridge/treebuilder.h cpp/bridge/treebuilder.cpp
 
-    cpp/scripting/luaq.h cpp/scripting/luaq.cpp
+    cpp/scripting/luaapi.h cpp/scripting/luaapi.cpp
+    cpp/scripting/lualibs.h cpp/scripting/lualibs.cpp
+    cpp/scripting/qlua.h cpp/scripting/qlua.cpp
+    cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
     cpp/scripting/scriptengine.h cpp/scripting/scriptengine.cpp
     cpp/scripting/scriptstate.h cpp/scripting/scriptstate.cpp
 

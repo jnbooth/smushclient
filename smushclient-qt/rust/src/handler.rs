@@ -77,6 +77,9 @@ impl<'a> smushclient::SendHandler for ClientHandler<'a> {
             SendTarget::Output => {
                 self.send.push(QString::from(text));
             }
+            SendTarget::Script | SendTarget::ScriptAfterOmit => {
+                self.doc.run_script(request.plugin, &QString::from(text));
+            }
             SendTarget::Status => {
                 self.doc.display_status_message(&QString::from(text));
             }

@@ -10,25 +10,31 @@
 #include <QtWidgets/QTreeWidgetItem>
 
 struct Link;
+class ScriptEngine;
 
 using QVector_QColor = QVector<QColor>;
 
-class Document : QObject
+class Document : public QObject
 {
   Q_OBJECT
 
 public:
   Document(QTextBrowser *browser, QLineEdit *input);
+  ~Document();
 
   void appendLine();
   void appendText(const QString &text, int format);
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background, const Link &link);
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background);
+  void runScript(size_t plugin, const QString &script);
   void scrollToBottom();
   void displayStatusMessage(const QString &status);
 
   void setInput(const QString &text);
   void setPalette(const QVector_QColor &palette);
+
+public:
+  ScriptEngine *scriptEngine;
 
 private:
   QTextBrowser *browser;

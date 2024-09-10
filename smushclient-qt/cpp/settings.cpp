@@ -1,7 +1,7 @@
 #include "settings.h"
 
 static const QString recentFilesKey = QStringLiteral("recent");
-static const qsizetype recentFilesMax = 5;
+static constexpr qsizetype recentFilesMax = 5;
 
 Settings::Settings() : store() {}
 

@@ -54,6 +54,11 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.as_mut().display_status_message(text) };
     }
 
+    pub fn run_script(&mut self, plugin: usize, script: &QString) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.as_mut().run_script(plugin, script) };
+    }
+
     pub fn set_input(&mut self, text: &QString) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.as_mut().set_input(text) };

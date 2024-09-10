@@ -1,6 +1,6 @@
 #pragma once
-#include <QtCore/QHash>
 #include <QtCore/QString>
+#include "scriptapi.h"
 
 struct lua_State;
 
@@ -14,7 +14,7 @@ enum struct RunScriptResult
 class ScriptState
 {
 public:
-  ScriptState();
+  ScriptState(ScriptApi *api);
   ScriptState(ScriptState &&other);
   ~ScriptState();
 

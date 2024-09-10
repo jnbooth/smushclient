@@ -1,4 +1,5 @@
 #include "rust/cxx.h"
+#include "../scripting/scriptengine.h"
 #include "../settings.h"
 #include "worldtab.h"
 #include "ui_worldtab.h"
@@ -14,7 +15,7 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QErrorMessage>
 
-void setColors(QWidget *widget, QColor foreground, QColor background)
+void setColors(QWidget *widget, const QColor &foreground, const QColor &background)
 {
   QPalette palette = QPalette(widget->palette());
   palette.setColor(QPalette::Text, foreground);
@@ -52,7 +53,7 @@ void WorldTab::createWorld() &
   world.setOutputFont(defaultFontFamily);
   world.setOutputFontSize(defaultFontSize);
   client.setWorld(world);
-  scriptEngine.initializeScripts(client.pluginScripts());
+  document->scriptEngine->initializeScripts(client.pluginScripts());
   applyWorld();
 }
 
@@ -66,7 +67,7 @@ bool WorldTab::openWorld(const QString &filename) &
   try
   {
     client.loadWorld(filename, world);
-    scriptEngine.initializeScripts(client.pluginScripts());
+    document->scriptEngine->initializeScripts(client.pluginScripts());
   }
   catch (const rust::Error &e)
   {
