@@ -19,11 +19,12 @@ typedef struct Plugin
 class ScriptEngine
 {
 public:
-  ScriptEngine(QTextDocument *document, QLineEdit *input);
+  ScriptEngine(QTextDocument *document, QLineEdit *input, QTcpSocket *socket);
 
   ScriptEngine(const ScriptEngine &) = delete;
   ScriptEngine &operator=(const ScriptEngine &) = delete;
 
+  inline void ensureNewline() { api.ensureNewline(); }
   void setErrorFormat(const QTextCharFormat &format);
   void initializeScripts(const QStringList &scripts);
   bool runScript(size_t plugin, const QString &script);

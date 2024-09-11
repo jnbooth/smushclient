@@ -32,7 +32,7 @@ WorldTab::WorldTab(QWidget *parent)
   ui->setupUi(this);
   defaultFont.setPointSize(12);
   socket = new QTcpSocket(this);
-  document = new Document(ui->output, ui->input);
+  document = new Document(ui->output, ui->input, socket);
   connect(socket, &QTcpSocket::readyRead, this, &WorldTab::readFromSocket);
 }
 

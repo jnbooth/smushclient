@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
+cmake_policy(SET CMP0169 OLD)
 
-project(SmushClient VERSION 0.1 LANGUAGES CXX)
+project(SmushClient VERSION 0.1 LANGUAGES CXX C)
 set(CMAKE_OSX_DEPLOYMENT_TARGET 14.6)
 set(APP_NAME ${PROJECT_NAME})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -21,35 +22,125 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 COMPONENTS Core Gui Network Qml Widgets REQUIRED)
 
-include(ExternalProject)
-
-ExternalProject_Add(lua
-   URL "https://www.lua.org/ftp/lua-5.4.7.tar.gz"
-   CONFIGURE_COMMAND ""
-   BUILD_COMMAND make generic
-   BUILD_ALWAYS true
-   BUILD_IN_SOURCE true
-   INSTALL_COMMAND ""
-)
-add_library(liblua STATIC IMPORTED)
-ExternalProject_Get_property(lua SOURCE_DIR)
-find_library(LIBLUA_ARCHIVE NAMES liblua.a liblua.lib PATHS ${SOURCE_DIR}/src)
-SET_TARGET_PROPERTIES(liblua PROPERTIES
-  IMPORTED_LOCATION ${LIBLUA_ARCHIVE}
-  INTERFACE_INCLUDE_DIRECTORIES ${SOURCE_DIR}/src
+include(FetchContent)
+FetchContent_Declare(
+  Corrosion
+  GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
+  GIT_TAG v0.5
+  FIND_PACKAGE_ARGS
 )
 
-find_package(Corrosion QUIET)
-if(NOT Corrosion_FOUND)
-    include(FetchContent)
-    FetchContent_Declare(
-        Corrosion
-        GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
-        GIT_TAG v0.5
-    )
+FetchContent_Declare(
+  base64
+  URL https://github.com/aklomp/base64/archive/refs/tags/v0.5.2.tar.gz
+)
 
-    FetchContent_MakeAvailable(Corrosion)
-endif()
+FetchContent_Declare(
+  pcre2
+  URL https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.44/pcre2-10.44.tar.gz
+)
+
+FetchContent_Declare(
+  lua_static
+  GIT_REPOSITORY https://github.com/walterschell/Lua.git
+  GIT_TAG v5.4.5
+)
+
+FetchContent_Declare(
+  bitlib
+  GIT_REPOSITORY https://github.com/LuaDist/bitlib.git
+)
+
+FetchContent_Declare(
+  lbc
+  URL http://webserver2.tecgraf.puc-rio.br/~lhf/ftp/lua/ar/lbc-101.tar.gz
+)
+
+FetchContent_Declare(
+  lpeg
+  URL https://www.inf.puc-rio.br/~roberto/lpeg/lpeg-1.1.0.tar.gz
+)
+
+FetchContent_Declare(
+  lrexlib
+  GIT_REPOSITORY https://github.com/rrthomas/lrexlib.git
+  GIT_TAG rel-2-9-2
+)
+
+FetchContent_Declare(
+  lsqlite3
+  URL http://lua.sqlite.org/index.cgi/zip/lsqlite3_v096.zip?uuid=v0.9.6
+)
+
+FetchContent_MakeAvailable(
+  Corrosion
+  base64
+  pcre2
+  lua_static
+  lbc
+  lpeg
+  lrexlib
+  lsqlite3
+)
+
+FetchContent_Populate(bitlib)
+
+
+file(READ "${bitlib_SOURCE_DIR}/lbitlib.c" TEXT)
+string(REPLACE "<lauxlib.h>" "\"lua_lib_compat.c\"" TEXT "${TEXT}")
+file(WRITE "${bitlib_SOURCE_DIR}/lbitlib.c" "${TEXT}")
+
+add_library(bitlib_static STATIC
+  ${bitlib_SOURCE_DIR}/bit_limits.h
+  ${bitlib_SOURCE_DIR}/lbitlib.c
+  lib-include/lua_lib_compat.c
+)
+target_include_directories(bitlib_static PRIVATE lib-include)
+target_link_libraries(bitlib_static PUBLIC lua_static)
+
+file(READ "${lbc_SOURCE_DIR}/lbc.c" TEXT)
+string(REPLACE "return luaL_unboxpointer" "return (bc_num)luaL_unboxpointer" TEXT "${TEXT}")
+string(REPLACE "=strchr" "=(char *)strchr" TEXT "${TEXT}")
+file(WRITE "${lbc_SOURCE_DIR}/lbc.c" "${TEXT}")
+
+add_library(lbc_static STATIC
+  ${lbc_SOURCE_DIR}/lbc.c
+  ${lbc_SOURCE_DIR}/src/config.h
+  ${lbc_SOURCE_DIR}/src/number.h ${lbc_SOURCE_DIR}/src/number.c
+)
+target_include_directories(lbc_static PRIVATE "${lbc_SOURCE_DIR}/src")
+target_link_libraries(lbc_static PUBLIC lua_static)
+
+add_library(lpeg_static STATIC
+  ${lpeg_SOURCE_DIR}/lpcap.h ${lpeg_SOURCE_DIR}/lpcap.c
+  ${lpeg_SOURCE_DIR}/lpcode.h ${lpeg_SOURCE_DIR}/lpcode.c
+  ${lpeg_SOURCE_DIR}/lpcset.h ${lpeg_SOURCE_DIR}/lpcset.c
+  ${lpeg_SOURCE_DIR}/lpprint.h ${lpeg_SOURCE_DIR}/lpprint.c
+  ${lpeg_SOURCE_DIR}/lptree.h ${lpeg_SOURCE_DIR}/lptree.c
+  ${lpeg_SOURCE_DIR}/lptypes.h
+  ${lpeg_SOURCE_DIR}/lpvm.h ${lpeg_SOURCE_DIR}/lpvm.c
+)
+target_link_libraries(lpeg_static PUBLIC lua_static)
+
+add_library(lrexlib_static STATIC
+  ${lrexlib_SOURCE_DIR}/src/algo.h
+  ${lrexlib_SOURCE_DIR}/src/common.c
+  ${lrexlib_SOURCE_DIR}/src/common.h
+  ${lrexlib_SOURCE_DIR}/src/pcre2/lpcre2.c
+  ${lrexlib_SOURCE_DIR}/src/pcre2/lpcre2_f.c
+)
+target_include_directories(lrexlib_static PRIVATE ${pcre2_BINARY_DIR})
+target_compile_definitions(lrexlib_static PRIVATE
+  PCRE2_CODE_UNIT_WIDTH=8
+  VERSION="10.44"
+)
+target_link_libraries(lrexlib_static PUBLIC lua_static pcre2-posix)
+
+add_library(lsqlite3_static STATIC
+  ${lsqlite3_SOURCE_DIR}/lsqlite3.c
+  ${lsqlite3_SOURCE_DIR}/sqlite3.h ${lsqlite3_SOURCE_DIR}/sqlite3.c
+)
+target_link_libraries(lsqlite3_static PUBLIC lua_static)
 
 # The path to the qmake executable path needs to be passed to the Rust
 # library's build script to ensure it uses the same installation of Qt as CMake.
@@ -106,7 +197,15 @@ else()
   target_compile_options(${APP_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-target_link_libraries(${APP_NAME} PUBLIC liblua)
+target_link_libraries(${APP_NAME} PUBLIC
+  base64
+  lua_static
+  bitlib_static
+  lbc_static
+  lpeg_static
+  lrexlib_static
+  lsqlite3_static
+)
 
 set(CRATE smushclient_qt)
 # Corrosion creates a CMake target with the same name as the crate.

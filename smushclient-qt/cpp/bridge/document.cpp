@@ -84,9 +84,9 @@ inline QTextCharFormat foregroundFormat(const QColor &foreground)
 
 // Document
 
-Document::Document(QTextBrowser *browser, QLineEdit *input)
+Document::Document(QTextBrowser *browser, QLineEdit *input, QTcpSocket *socket)
     : QObject(browser),
-      scriptEngine(new ScriptEngine(browser->document(), input)),
+      scriptEngine(new ScriptEngine(browser->document(), input, socket)),
       browser(browser),
       cursor(browser->document()),
       input(input) {}
@@ -101,16 +101,22 @@ void Document::appendLine()
   cursor.insertBlock();
 }
 
+void Document::appendText(const QString &text, const QTextCharFormat &format)
+{
+  scriptEngine->ensureNewline();
+  cursor.insertText(text, format);
+}
+
 void Document::appendText(const QString &text, int foreground)
 {
-  cursor.insertText(text, formats[foreground]);
+  appendText(text, formats[foreground]);
 }
 
 void Document::appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background)
 {
   QTextCharFormat format;
   applyStyles(format, style, foreground, background);
-  cursor.insertText(text, format);
+  appendText(text, format);
 }
 
 void Document::appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background, const Link &link)
@@ -118,7 +124,7 @@ void Document::appendText(const QString &text, quint16 style, const QColor &fore
   QTextCharFormat format;
   applyStyles(format, style, foreground, background);
   applyLink(format, link);
-  cursor.insertText(text, format);
+  appendText(text, format);
 }
 
 void Document::runScript(size_t plugin, const QString &script)

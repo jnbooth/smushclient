@@ -7,8 +7,8 @@ inline QString tr(const char *key)
   return QCoreApplication::translate("ScriptEngine", key);
 }
 
-ScriptEngine::ScriptEngine(QTextDocument *document, QLineEdit *input)
-    : api(document, input),
+ScriptEngine::ScriptEngine(QTextDocument *document, QLineEdit *input, QTcpSocket *socket)
+    : api(document, input, socket),
       cursor(document) {}
 
 void ScriptEngine::initializeScripts(const QStringList &scripts)

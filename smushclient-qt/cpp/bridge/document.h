@@ -19,10 +19,11 @@ class Document : public QObject
   Q_OBJECT
 
 public:
-  Document(QTextBrowser *browser, QLineEdit *input);
+  Document(QTextBrowser *browser, QLineEdit *input, QTcpSocket *socket);
   ~Document();
 
   void appendLine();
+  void appendText(const QString &text, const QTextCharFormat &format);
   void appendText(const QString &text, int format);
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background, const Link &link);
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background);
