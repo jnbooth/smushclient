@@ -98,6 +98,7 @@ impl SmushClientRust {
     pub fn plugin_scripts(&self) -> QStringList {
         let mut list = QList::default();
         for plugin in self.client.plugins() {
+            list.append(QString::from(&plugin.metadata.id));
             list.append(QString::from(&plugin.script));
         }
         QStringList::from(&list)

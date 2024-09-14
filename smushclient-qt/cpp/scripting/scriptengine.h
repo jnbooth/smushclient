@@ -6,15 +6,7 @@
 #include <QtWidgets/QLineEdit>
 #include <vector>
 #include "scriptapi.h"
-#include "scriptstate.h"
-
-typedef struct Plugin
-{
-  bool disabled;
-  ScriptState state;
-
-  Plugin(ScriptApi *api) : disabled(false), state(api) {}
-} Plugin;
+#include "plugin.h"
 
 class ScriptEngine
 {

@@ -9,8 +9,12 @@ extern "C"
 }
 
 #define API_REG_KEY "smushclient.api"
+#define VARIABLES_REG_KEY "smushclient.vars"
 #define WORLD_REG_KEY "smushclient.world"
 #define WORLD_LIB_KEY "world"
+
+using string = std::string;
+using stringmap = std::unordered_map<string, string>;
 
 inline int returnCode(lua_State *L, ScriptReturnCode code)
 {
@@ -18,20 +22,60 @@ inline int returnCode(lua_State *L, ScriptReturnCode code)
   return 1;
 }
 
-void setLuaApi(lua_State *L, ScriptApi *api)
+template <typename T>
+inline T *createUserdata(lua_State *L, const char *k)
 {
-  QPointer<ScriptApi> *ud = (QPointer<ScriptApi> *)lua_newuserdata(L, sizeof(QPointer<ScriptApi>));
-  *ud = api;
-  lua_setfield(L, LUA_REGISTRYINDEX, API_REG_KEY);
+  void *ud = lua_newuserdata(L, sizeof(T));
+  lua_setfield(L, LUA_REGISTRYINDEX, k);
+  return static_cast<T *>(ud);
 }
 
-ScriptApi &getApi(lua_State *L)
+template <typename T>
+inline T *getUserdata(lua_State *L, const char *k)
 {
-  lua_getfield(L, LUA_REGISTRYINDEX, API_REG_KEY);
-  QPointer<ScriptApi> *ud = (QPointer<ScriptApi> *)lua_touserdata(L, -1);
+  lua_getfield(L, LUA_REGISTRYINDEX, k);
+  void *ud = lua_touserdata(L, -1);
   lua_pop(L, 1);
-  ScriptApi *api = ud->data();
-  return *api;
+  return static_cast<T *>(ud);
+}
+
+void returnError(lua_State *L, const char *e)
+{
+  lua_pushstring(L, e);
+  lua_error(L);
+}
+
+void setLuaApi(lua_State *L, ScriptApi *api)
+{
+  *createUserdata<QPointer<ScriptApi>>(L, API_REG_KEY) = api;
+}
+
+inline ScriptApi &getApi(lua_State *L)
+{
+  QPointer<ScriptApi> *ud = getUserdata<QPointer<ScriptApi>>(L, API_REG_KEY);
+  if (ud == nullptr || ud->isNull())
+    returnError(L, "Userdata was deleted");
+  return *ud->data();
+}
+
+stringmap *createVariableMap(lua_State *L)
+{
+  stringmap *vars = createUserdata<stringmap>(L, VARIABLES_REG_KEY);
+  *vars = stringmap();
+  return vars;
+}
+
+inline stringmap *getVariableMap(lua_State *L)
+{
+  return getUserdata<stringmap>(L, VARIABLES_REG_KEY);
+}
+
+inline void pushVariable(lua_State *L, const stringmap &vars, const string &name)
+{
+  if (auto search = vars.find(name); search != vars.end())
+    qlua::pushString(L, search->second);
+  else
+    lua_pushnil(L);
 }
 
 inline void insertTextTriples(lua_State *L, ScriptApi &api)
@@ -42,6 +86,27 @@ inline void insertTextTriples(lua_State *L, ScriptApi &api)
         qlua::getQColor(L, i),
         qlua::getQColor(L, i + 1),
         qlua::getQString(L, i + 2));
+}
+
+inline void insertTexts(lua_State *L, ScriptApi &api)
+{
+  int n = lua_gettop(L);
+  for (int i = 1; i <= n; i += 1)
+    api.Tell(qlua::getQString(L, i));
+}
+
+static int L_ColourNameToRGB(lua_State *L)
+{
+  QColor color = qlua::getQColor(L, 0);
+  if (color.isValid())
+  {
+    int r, g, b;
+    color.getRgb(&r, &g, &b);
+    lua_pushinteger(L, r << 16 | g << 8 | b);
+  }
+  else
+    lua_pushinteger(L, 1);
+  return 1;
 }
 
 static int L_ColourNote(lua_State *L)
@@ -58,15 +123,59 @@ static int L_ColourTell(lua_State *L)
   return 0;
 }
 
+static int L_Note(lua_State *L)
+{
+  ScriptApi &api = getApi(L);
+  insertTexts(L, api);
+  api.insertBlock();
+  return 0;
+}
+
+static int L_Tell(lua_State *L)
+{
+  insertTexts(L, getApi(L));
+  return 0;
+}
+
+static int L_GetVariable(lua_State *L)
+{
+  pushVariable(L, *getVariableMap(L), qlua::getString(L, 1));
+  return 1;
+}
+
+static int L_GetPluginVariable(lua_State *L)
+{
+  const string pluginID = qlua::getString(L, 1);
+  const string name = qlua::getString(L, 2);
+  const stringmap *vars = getApi(L).getVariableMap(pluginID);
+  if (vars == nullptr)
+    lua_pushnil(L);
+  else
+    pushVariable(L, *vars, name);
+  return 1;
+}
+
+static int L_SetVariable(lua_State *L)
+{
+  (*getVariableMap(L))[qlua::getString(L, 1)] = qlua::getString(L, 2);
+  return returnCode(L, ScriptReturnCode::OK);
+}
+
 static int L_Send(lua_State *L)
 {
-  return returnCode(L, getApi(L).Send(qlua::borrowBytes(L, -1)));
+  return returnCode(L, getApi(L).Send(qlua::borrowBytes(L, 1)));
 }
 
 static const struct luaL_Reg worldlib[] =
-    {{"ColourNote", L_ColourNote},
+    {{"ColourNameToRGB", L_ColourNameToRGB},
+     {"ColourNote", L_ColourNote},
      {"ColourTell", L_ColourTell},
+     {"GetPluginVariable", L_GetPluginVariable},
+     {"GetVariable", L_GetVariable},
+     {"Note", L_Note},
      {"Send", L_Send},
+     {"Tell", L_Tell},
+     {"SetVariable", L_SetVariable},
 
      {NULL, NULL}};
 

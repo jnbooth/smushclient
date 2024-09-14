@@ -1,5 +1,6 @@
 #pragma once
 #include <QtCore/QString>
+#include <QtCore/QPointer>
 #include "scriptapi.h"
 
 struct lua_State;
@@ -14,7 +15,7 @@ enum struct RunScriptResult
 class ScriptState
 {
 public:
-  ScriptState(ScriptApi *api);
+  ScriptState(ScriptApi *api, const QString &pluginID);
   ScriptState(ScriptState &&other);
   ~ScriptState();
 
@@ -25,5 +26,7 @@ public:
   QString getError() const;
 
 private:
+  QPointer<ScriptApi> api;
   lua_State *L;
+  QString pluginID;
 };

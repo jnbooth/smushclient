@@ -20,5 +20,8 @@ namespace qlua
   QColor getQColor(lua_State *L, int idx, QColor ifNil);
   QString getQString(lua_State *L, int idx);
   QString getQString(lua_State *L, int idx, QString ifNil);
+  std::string getString(lua_State *L, int idx);
+  std::string getString(lua_State *L, int idx, std::string ifNil);
+  const char *pushString(lua_State *L, const std::string &string);
   int loadQString(lua_State *L, const QString &chunk);
 }

@@ -4,10 +4,15 @@
 #include <QtWidgets/QErrorMessage>
 #include "qlua.h"
 #include "luaapi.h"
-#include "lualibs.h"
 extern "C"
 {
 #include "lauxlib.h"
+  LUALIB_API int luaopen_bc(lua_State *L);
+  LUALIB_API int luaopen_bit(lua_State *L);
+  LUALIB_API int luaopen_lpeg(lua_State *L);
+  LUALIB_API int luaopen_rex_pcre2(lua_State *L);
+  LUALIB_API int luaopen_lsqlite3(lua_State *L);
+  LUALIB_API int luaopen_util(lua_State *L);
 }
 
 inline bool checkError(int status)
@@ -35,16 +40,25 @@ static int panic(lua_State *L)
   return 0;
 }
 
-ScriptState::ScriptState(ScriptApi *api)
-    : L(luaL_newstate())
+ScriptState::ScriptState(ScriptApi *api, const QString &pluginID)
+    : L(luaL_newstate()),
+      api(api),
+      pluginID(pluginID)
 {
   if (L == nullptr)
     throw std::bad_alloc();
 
   lua_atpanic(L, &panic);
-  openLuaLibs(L);
+  luaopen_bc(L);
+  luaopen_bit(L);
+  luaopen_lpeg(L);
+  luaopen_rex_pcre2(L);
+  luaopen_lsqlite3(L);
+  luaopen_util(L);
+  lua_settop(L, 0);
   registerLuaWorld(L);
   setLuaApi(L, api);
+  api->setVariableMap(pluginID.toStdString(), createVariableMap(L));
 }
 
 ScriptState::ScriptState(ScriptState &&other)
@@ -52,6 +66,7 @@ ScriptState::ScriptState(ScriptState &&other)
 
 ScriptState::~ScriptState()
 {
+  api->unsetVariableMap(pluginID.toStdString(), getVariableMap(L));
   lua_close(L);
 }
 

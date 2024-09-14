@@ -47,6 +47,12 @@ ScriptReturnCode ScriptApi::Send(const QByteArrayView &view)
   return ScriptReturnCode::OK;
 }
 
+void ScriptApi::Tell(const QString &text)
+{
+  cursor.insertText(text);
+  needsNewline = true;
+}
+
 void ScriptApi::ensureNewline()
 {
   if (!needsNewline)
@@ -61,4 +67,25 @@ void ScriptApi::insertBlock()
 {
   cursor.insertBlock();
   needsNewline = false;
+}
+
+std::unordered_map<std::string, std::string> *ScriptApi::getVariableMap(const std::string &pluginID)
+{
+  auto search = variables.find(pluginID);
+  if (search == variables.end())
+    return nullptr;
+  return search->second;
+}
+
+void ScriptApi::setVariableMap(const std::string &pluginID, std::unordered_map<std::string, std::string> *variableMap)
+{
+  variables[pluginID] = variableMap;
+}
+
+bool ScriptApi::unsetVariableMap(const std::string &pluginID, std::unordered_map<std::string, std::string> *variableMap)
+{
+  auto search = variables.find(pluginID);
+  if (search == variables.end() || search->second != variableMap)
+    return false;
+  variables.erase(pluginID);
 }

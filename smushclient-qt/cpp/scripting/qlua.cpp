@@ -5,6 +5,8 @@ extern "C"
 #include "lauxlib.h"
 }
 
+using string = std::string;
+
 bool checkIsSome(lua_State *L, int idx, int type, const char *name)
 {
   int actualType = lua_type(L, idx);
@@ -42,6 +44,13 @@ QString toQString(lua_State *L, int idx)
   size_t len;
   const char *message = lua_tolstring(L, idx, &len);
   return QString::fromUtf8(message, len);
+}
+
+string toString(lua_State *L, int idx)
+{
+  size_t len;
+  const char *message = lua_tolstring(L, idx, &len);
+  return string(message, len);
 }
 
 bool qlua::getBool(lua_State *L, int idx)
@@ -107,9 +116,25 @@ QString qlua::getQString(lua_State *L, int idx, QString ifNil)
   return checkIsSome(L, idx, LUA_TSTRING, "string") ? toQString(L, idx) : ifNil;
 }
 
+string qlua::getString(lua_State *L, int idx)
+{
+  luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
+  return toString(L, idx);
+}
+
+string qlua::getString(lua_State *L, int idx, string ifNil)
+{
+  return checkIsSome(L, idx, LUA_TSTRING, "string") ? toString(L, idx) : ifNil;
+}
+
 int qlua::loadQString(lua_State *L, const QString &chunk)
 {
   const QByteArray utf8 = chunk.toUtf8();
   const char *data = utf8.constData();
   return luaL_loadbuffer(L, data, utf8.size(), data);
+}
+
+const char *qlua::pushString(lua_State *L, const string &string)
+{
+  return lua_pushlstring(L, string.data(), string.size());
 }

@@ -15,10 +15,10 @@ void ScriptEngine::initializeScripts(const QStringList &scripts)
 {
   plugins.clear();
   plugins.reserve(scripts.size());
-  for (const QString &script : scripts)
+  for (auto it = scripts.cbegin(); it != scripts.cend(); ++it)
   {
-    Plugin &plugin = plugins.emplace_back(&api);
-    if (!runScript(plugin, script))
+    Plugin &plugin = plugins.emplace_back(&api, *it);
+    if (!runScript(plugin, *++it))
       plugin.disabled = true;
   }
 }
