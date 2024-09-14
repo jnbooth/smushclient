@@ -2,6 +2,7 @@
 #include <QtNetwork/QTcpSocket>
 #include <QtWidgets/QSplitter>
 #include "../bridge/document.h"
+#include "../scripting/scriptapi.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
@@ -25,15 +26,17 @@ public:
   QString saveWorldAsNew(const QString &saveFilter);
   const QString title() const noexcept;
 
-private:
+public:
   Ui::WorldTab *ui;
+  QTcpSocket *socket;
+  World world;
 
+private:
+  ScriptApi *api;
   SmushClient client;
   QFont defaultFont;
   Document *document;
   QString filePath;
-  QTcpSocket *socket;
-  World world;
 
   void applyWorld();
   void connectToHost();

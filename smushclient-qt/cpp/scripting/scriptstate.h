@@ -26,7 +26,7 @@ public:
   QString getError() const;
 
 private:
-  QPointer<ScriptApi> api;
   lua_State *L;
+  QPointer<ScriptApi> api;
   QString pluginID;
 };

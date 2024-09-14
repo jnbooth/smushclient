@@ -405,6 +405,8 @@ pub mod ffi {
         #[qproperty(QString, output_font)]
         #[qproperty(i32, output_font_size)]
         #[qproperty(bool, use_default_output_font)]
+        #[qproperty(QColor, custom_color)]
+        #[qproperty(QColor, error_color)]
         #[qproperty(bool, show_bold)]
         #[qproperty(bool, show_italic)]
         #[qproperty(bool, show_underline)]

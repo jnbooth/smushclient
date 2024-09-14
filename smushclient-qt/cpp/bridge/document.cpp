@@ -1,6 +1,7 @@
 #include "document.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
-#include "../scripting/scriptengine.h"
+#include "../ui/worldtab.h"
+#include "../ui/ui_worldtab.h"
 #include <QtGui/QTextDocument>
 #include <QtWidgets/QScrollBar>
 #include <QtWidgets/QApplication>
@@ -27,6 +28,11 @@ QMainWindow *getMainWindow(QObject *obj)
 inline bool hasStyle(quint16 flags, TextStyle style) noexcept
 {
   return flags & (quint16)style;
+}
+
+inline void scrollToEnd(QScrollBar &bar)
+{
+  bar.setValue(bar.maximum());
 }
 
 // Formatting
@@ -84,17 +90,11 @@ inline QTextCharFormat foregroundFormat(const QColor &foreground)
 
 // Document
 
-Document::Document(QTextBrowser *browser, QLineEdit *input, QTcpSocket *socket)
-    : QObject(browser),
-      scriptEngine(new ScriptEngine(browser->document(), input, socket)),
-      browser(browser),
-      cursor(browser->document()),
-      input(input) {}
-
-Document::~Document()
-{
-  delete scriptEngine;
-}
+Document::Document(WorldTab *parent, ScriptApi *api)
+    : QObject(parent),
+      scriptEngine(api),
+      cursor(parent->ui->output->document()),
+      scrollBar(parent->ui->output->verticalScrollBar()) {}
 
 void Document::appendLine()
 {
@@ -103,7 +103,7 @@ void Document::appendLine()
 
 void Document::appendText(const QString &text, const QTextCharFormat &format)
 {
-  scriptEngine->ensureNewline();
+  scriptEngine.api->ensureNewline();
   cursor.insertText(text, format);
 }
 
@@ -129,13 +129,12 @@ void Document::appendText(const QString &text, quint16 style, const QColor &fore
 
 void Document::runScript(size_t plugin, const QString &script)
 {
-  scriptEngine->runScript(plugin, script);
+  scriptEngine.runScript(plugin, script);
 }
 
 void Document::scrollToBottom()
 {
-  QScrollBar &scrollbar = *browser->verticalScrollBar();
-  scrollbar.setValue(scrollbar.maximum());
+  scrollToEnd(*scrollBar);
 }
 
 void Document::displayStatusMessage(const QString &status)
@@ -153,7 +152,7 @@ void Document::displayStatusMessage(const QString &status)
 
 void Document::setInput(const QString &text)
 {
-  input->setText(text);
+  tab()->ui->input->setText(text);
 }
 
 void Document::setPalette(const QVector_QColor &palette)
@@ -165,5 +164,4 @@ void Document::setPalette(const QVector_QColor &palette)
     format->setForeground(QBrush(color));
     ++format;
   }
-  scriptEngine->setErrorFormat(formats[1]);
 }

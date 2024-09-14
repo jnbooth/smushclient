@@ -6,11 +6,13 @@
 #include <QtWidgets/QLineEdit>
 #include <QtNetwork/QTcpSocket>
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QScrollBar>
 #include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QTreeWidgetItem>
+#include "scriptengine.h"
 
 struct Link;
-class ScriptEngine;
+class ScriptApi;
 
 using QVector_QColor = QVector<QColor>;
 
@@ -19,8 +21,7 @@ class Document : public QObject
   Q_OBJECT
 
 public:
-  Document(QTextBrowser *browser, QLineEdit *input, QTcpSocket *socket);
-  ~Document();
+  Document(WorldTab *parent, ScriptApi *api);
 
   void appendLine();
   void appendText(const QString &text, const QTextCharFormat &format);
@@ -35,13 +36,14 @@ public:
   void setPalette(const QVector_QColor &palette);
 
 public:
-  ScriptEngine *scriptEngine;
+  ScriptEngine scriptEngine;
 
 private:
-  QTextBrowser *browser;
   QTextCursor cursor;
   QTextCharFormat formats[166];
-  QLineEdit *input;
+  QScrollBar *scrollBar;
+
+  inline WorldTab *tab() const { return (WorldTab *)parent(); }
 };
 
 #endif // DOCUMENT_H

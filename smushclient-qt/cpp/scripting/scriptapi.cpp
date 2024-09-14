@@ -1,4 +1,6 @@
 #include "scriptapi.h"
+#include "../ui/worldtab.h"
+#include "../ui/ui_worldtab.h"
 
 QTextCharFormat colorFormat(const QColor &foreground, const QColor &background)
 {
@@ -10,14 +12,9 @@ QTextCharFormat colorFormat(const QColor &foreground, const QColor &background)
   return format;
 }
 
-ScriptApi::ScriptApi(QTextDocument *document, QLineEdit *input, QTcpSocket *socket)
-    : QObject(document),
-      cursor(document),
-      document(document),
-      input(input),
-      socket(socket)
-{
-}
+ScriptApi::ScriptApi(WorldTab *parent)
+    : QObject(parent),
+      cursor(parent->ui->output->document()) {}
 
 void ScriptApi::ColourTell(const QColor &foreground, const QColor &background, const QString &text)
 {
@@ -30,11 +27,13 @@ ScriptReturnCode ScriptApi::Send(const QByteArrayView &view)
   if (view.isEmpty())
     return ScriptReturnCode::OK;
 
-  if (!socket->isOpen())
+  QTcpSocket &socket = *tab()->socket;
+
+  if (!socket.isOpen())
     return ScriptReturnCode::WorldClosed;
 
   if (view.back() == '\n')
-    socket->write(view.constData(), view.size());
+    socket.write(view.constData(), view.size());
 
   else
   {
@@ -42,7 +41,7 @@ ScriptReturnCode ScriptApi::Send(const QByteArrayView &view)
     bytes.reserve(view.size() + 1);
     bytes.append(view);
     bytes.append('\n');
-    socket->write(bytes);
+    socket.write(bytes);
   }
   return ScriptReturnCode::OK;
 }
@@ -77,6 +76,15 @@ std::unordered_map<std::string, std::string> *ScriptApi::getVariableMap(const st
   return search->second;
 }
 
+void ScriptApi::printError(const QString &error)
+{
+  ensureNewline();
+  QTextCharFormat errorFormat;
+  errorFormat.setForeground(QBrush(tab()->world.getErrorColor()));
+  cursor.insertText(error, errorFormat);
+  insertBlock();
+}
+
 void ScriptApi::setVariableMap(const std::string &pluginID, std::unordered_map<std::string, std::string> *variableMap)
 {
   variables[pluginID] = variableMap;
@@ -88,4 +96,5 @@ bool ScriptApi::unsetVariableMap(const std::string &pluginID, std::unordered_map
   if (search == variables.end() || search->second != variableMap)
     return false;
   variables.erase(pluginID);
+  return true;
 }

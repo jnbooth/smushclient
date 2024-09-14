@@ -28,6 +28,11 @@ fn main() {
     );
     copy_header(
         &header_dir,
+        "scriptengine.h",
+        include_str!("../cpp/bridge/scriptengine.h"),
+    );
+    copy_header(
+        &header_dir,
         "treebuilder.h",
         include_str!("../cpp/bridge/treebuilder.h"),
     );

@@ -59,13 +59,13 @@ qt_add_executable(${APP_NAME}
     cpp/settings.h cpp/settings.cpp
 
     cpp/bridge/document.h cpp/bridge/document.cpp
+    cpp/bridge/scriptengine.h cpp/bridge/scriptengine.cpp
     cpp/bridge/treebuilder.h cpp/bridge/treebuilder.cpp
 
     cpp/scripting/luaapi.h cpp/scripting/luaapi.cpp
     cpp/scripting/plugin.h cpp/scripting/plugin.cpp
     cpp/scripting/qlua.h cpp/scripting/qlua.cpp
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
-    cpp/scripting/scriptengine.h cpp/scripting/scriptengine.cpp
     cpp/scripting/scriptstate.h cpp/scripting/scriptstate.cpp
 
     cpp/ui/app.h cpp/ui/app.cpp cpp/ui/app.ui

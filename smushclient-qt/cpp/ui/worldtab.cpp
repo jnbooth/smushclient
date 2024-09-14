@@ -1,5 +1,5 @@
 #include "rust/cxx.h"
-#include "../scripting/scriptengine.h"
+#include "../bridge/scriptengine.h"
 #include "../settings.h"
 #include "worldtab.h"
 #include "ui_worldtab.h"
@@ -32,12 +32,14 @@ WorldTab::WorldTab(QWidget *parent)
   ui->setupUi(this);
   defaultFont.setPointSize(12);
   socket = new QTcpSocket(this);
-  document = new Document(ui->output, ui->input, socket);
+  api = new ScriptApi(this);
+  document = new Document(this, api);
   connect(socket, &QTcpSocket::readyRead, this, &WorldTab::readFromSocket);
 }
 
 WorldTab::~WorldTab()
 {
+  delete api;
   delete ui;
 }
 
@@ -53,7 +55,7 @@ void WorldTab::createWorld() &
   world.setOutputFont(defaultFontFamily);
   world.setOutputFontSize(defaultFontSize);
   client.setWorld(world);
-  document->scriptEngine->initializeScripts(client.pluginScripts());
+  document->scriptEngine.initializeScripts(client.pluginScripts());
   applyWorld();
 }
 
@@ -67,7 +69,7 @@ bool WorldTab::openWorld(const QString &filename) &
   try
   {
     client.loadWorld(filename, world);
-    document->scriptEngine->initializeScripts(client.pluginScripts());
+    document->scriptEngine.initializeScripts(client.pluginScripts());
   }
   catch (const rust::Error &e)
   {
