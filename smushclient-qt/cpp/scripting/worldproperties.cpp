@@ -1,4 +1,3 @@
-#include <string>
 #include <unordered_map>
 #include <QtCore/QMetaProperty>
 #include "cxx-qt-gen/ffi.cxxqt.h"
@@ -10,10 +9,11 @@ extern "C"
 #include "lua.h"
 }
 
+using std::sort;
 using std::string;
-using std::unordered_map;
+using std::vector;
 
-std::string toSnakeCase(const std::string &key)
+string toSnakeCase(const string &key)
 {
   size_t size = key.size();
   for (char c : key)
@@ -38,38 +38,30 @@ std::string toSnakeCase(const std::string &key)
   return result;
 }
 
-unordered_map<string, string> getProperties()
+const WorldProperties WorldProperties::instance;
+
+WorldProperties::WorldProperties()
 {
   const QMetaObject &metaObject = World::staticMetaObject;
   int offset = metaObject.propertyOffset();
   int count = metaObject.propertyCount();
-  unordered_map<string, string> properties;
-  properties.reserve(count - offset);
+  size_t size = count - offset;
+  lookup.reserve(size);
+  sortedKeys.reserve(size);
   for (int i = offset; i < count; ++i)
   {
     string name = metaObject.property(i).name();
-    if (name.rfind("ansiColors", 0))
-      properties[toSnakeCase(name)] = name;
+    if (!name.rfind("ansiColors", 0))
+      continue;
+    string key = toSnakeCase(name);
+    lookup[key] = name;
+    sortedKeys.push_back(key);
   }
-  return properties;
+  sort(sortedKeys.begin(), sortedKeys.end());
 }
 
-static const unordered_map<string, string> properties = getProperties();
-
-const char *canonicalProperty(const std::string &name)
+const char *WorldProperties::canonicalName(const std::string &name)
 {
-  auto search = properties.find(name);
-  return (search == properties.end()) ? nullptr : search->second.data();
-}
-
-void pushPropertiesList(lua_State *L)
-{
-  lua_createtable(L, properties.size(), 0);
-  int i = 1;
-  for (auto it = properties.cbegin(), end = properties.cend(); it != end; ++it, ++i)
-  {
-    qlua::pushString(L, it->first);
-    lua_rawseti(L, -2, i);
-  }
-  return;
+  auto search = instance.lookup.find(name);
+  return (search == instance.lookup.end()) ? nullptr : search->second.data();
 }

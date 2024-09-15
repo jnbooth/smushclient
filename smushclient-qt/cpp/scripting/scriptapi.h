@@ -5,6 +5,8 @@
 #include <QtGui/QTextDocument>
 #include <QtWidgets/QLineEdit>
 #include <QtNetwork/QTcpSocket>
+#include <string>
+#include <vector>
 #include "scriptenums.h"
 
 class WorldTab;

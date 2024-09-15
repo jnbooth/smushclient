@@ -7,6 +7,7 @@ extern "C"
 }
 
 using std::string;
+using std::vector;
 
 inline QString charString(char c) { return QString::fromUtf8(&c, 1); }
 inline QString charString(char16_t c) { return QString::fromUtf16(&c, 1); }
@@ -326,4 +327,17 @@ void qlua::pushQVariants(lua_State *L, const QVariantList &variants)
 const char *qlua::pushString(lua_State *L, const string &string)
 {
   return lua_pushlstring(L, string.data(), string.size());
+}
+
+void qlua::pushStrings(lua_State *L, const vector<string> &strings)
+{
+  lua_createtable(L, strings.size(), 0);
+  int i = 1;
+  for (const string &string : strings)
+  {
+    qlua::pushString(L, string);
+    lua_rawseti(L, -2, i);
+    ++i;
+  }
+  return;
 }

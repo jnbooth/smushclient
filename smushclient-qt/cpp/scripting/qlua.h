@@ -40,7 +40,8 @@ namespace qlua
   void pushQMap(lua_State *L, const QVariantMap &variants);
   const char *pushQString(lua_State *L, const QString &string);
   void pushQStrings(lua_State *L, const QStringList &strings);
-  const char *pushString(lua_State *L, const std::string &string);
   void pushQVariant(lua_State *L, const QVariant &variant);
   void pushQVariants(lua_State *L, const QVariantList &variants);
+  const char *pushString(lua_State *L, const std::string &string);
+  void pushStrings(lua_State *L, const std::vector<std::string> &strings);
 }

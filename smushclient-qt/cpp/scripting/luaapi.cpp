@@ -138,7 +138,7 @@ static int L_GetOption(lua_State *L)
 
 static int L_GetOptionList(lua_State *L)
 {
-  pushPropertiesList(L);
+  qlua::pushStrings(L, WorldProperties::keys());
   return 1;
 }
 

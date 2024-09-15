@@ -33,7 +33,7 @@ void ScriptApi::ColourTell(const QColor &foreground, const QColor &background, c
 
 QVariant ScriptApi::GetOption(const std::string &name) const
 {
-  const char *prop = canonicalProperty(name);
+  const char *prop = WorldProperties::canonicalName(name);
   if (prop == nullptr)
     return QVariant();
 
@@ -86,7 +86,7 @@ ScriptReturnCode ScriptApi::SetOption(const std::string &name, const QVariant &v
 {
   WorldTab &worldtab = *tab();
   World &world = worldtab.world;
-  const char *prop = canonicalProperty(name);
+  const char *prop = WorldProperties::canonicalName(name);
   if (prop == nullptr)
     return ScriptReturnCode::UnknownOption;
   QVariant property = world.property(prop);
