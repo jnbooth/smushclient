@@ -67,6 +67,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/qlua.h cpp/scripting/qlua.cpp
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
     cpp/scripting/scriptstate.h cpp/scripting/scriptstate.cpp
+    cpp/scripting/worldproperties.h cpp/scripting/worldproperties.cpp
 
     cpp/ui/app.h cpp/ui/app.cpp cpp/ui/app.ui
     cpp/ui/components/colorpickerbutton.h cpp/ui/components/colorpickerbutton.cpp

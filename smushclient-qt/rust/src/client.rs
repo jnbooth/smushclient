@@ -81,9 +81,12 @@ impl SmushClientRust {
         *world = WorldRust::from(self.client.world());
     }
 
-    pub fn set_world(&mut self, world: &WorldRust) {
-        let world = World::from(world);
+    pub fn set_world(&mut self, world: &WorldRust) -> bool {
+        let Ok(world) = world.try_into() else {
+            return false;
+        };
         self.apply_world(world);
+        true
     }
 
     pub fn palette(&self) -> Vec<QColor> {
@@ -184,8 +187,9 @@ impl ffi::SmushClient {
         self.cxx_qt_ffi_rust().save_world(path)
     }
 
-    pub fn set_world(self: Pin<&mut Self>, world: &ffi::World) {
-        self.cxx_qt_ffi_rust_mut()
+    pub fn set_world(self: Pin<&mut Self>, world: &ffi::World) -> bool {
+        return self
+            .cxx_qt_ffi_rust_mut()
             .set_world(world.cxx_qt_ffi_rust());
     }
 

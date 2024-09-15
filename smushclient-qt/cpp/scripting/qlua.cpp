@@ -1,15 +1,20 @@
 #include "qlua.h"
+#include <QtCore/QUuid>
 
 extern "C"
 {
 #include "lauxlib.h"
 }
 
-using string = std::string;
+using std::string;
+
+inline QString charString(char c) { return QString::fromUtf8(&c, 1); }
+inline QString charString(char16_t c) { return QString::fromUtf16(&c, 1); }
+inline QString charString(char32_t c) { return QString::fromUcs4(&c, 1); }
 
 bool checkIsSome(lua_State *L, int idx, int type, const char *name)
 {
-  int actualType = lua_type(L, idx);
+  const int actualType = lua_type(L, idx);
   if (actualType <= 0)
     return false;
   luaL_argexpected(L, actualType == type, idx, name);
@@ -19,7 +24,7 @@ bool checkIsSome(lua_State *L, int idx, int type, const char *name)
 lua_Integer toInt(lua_State *L, int idx)
 {
   int isInt;
-  int result = lua_tointegerx(L, idx, &isInt);
+  const int result = lua_tointegerx(L, idx, &isInt);
   luaL_argexpected(L, isInt, idx, "integer");
   return result;
 }
@@ -46,11 +51,41 @@ QString toQString(lua_State *L, int idx)
   return QString::fromUtf8(message, len);
 }
 
+QVariantMap toQMap(lua_State *L, int idx)
+{
+  QVariantMap map;
+  lua_pushnil(L); // first key
+  while (lua_next(L, idx) != 0)
+    map[toQString(L, -2)] = qlua::getQVariant(L, -1);
+
+  return map;
+}
+
+QVariantList toQVariants(lua_State *L, int idx, qsizetype size)
+{
+  QVariantList variants(size);
+  for (lua_Integer i = 1; i <= size; ++i)
+  {
+    int type = lua_rawgeti(L, idx, i);
+    variants.append(qlua::getQVariant(L, -1, type));
+    lua_pop(L, 1);
+  }
+  return variants;
+}
+
 string toString(lua_State *L, int idx)
 {
   size_t len;
   const char *message = lua_tolstring(L, idx, &len);
   return string(message, len);
+}
+
+QByteArrayView qlua::borrowBytes(lua_State *L, int idx)
+{
+  luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
+  size_t len;
+  const char *message = lua_tolstring(L, idx, &len);
+  return QByteArrayView(message, len);
 }
 
 bool qlua::getBool(lua_State *L, int idx)
@@ -86,14 +121,6 @@ lua_Number qlua::getNumber(lua_State *L, int idx, lua_Number ifNil)
   return checkIsSome(L, idx, LUA_TNUMBER, "number") ? lua_tonumber(L, idx) : ifNil;
 }
 
-QByteArrayView qlua::borrowBytes(lua_State *L, int idx)
-{
-  luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
-  size_t len;
-  const char *message = lua_tolstring(L, idx, &len);
-  return QByteArrayView(message, len);
-}
-
 QColor qlua::getQColor(lua_State *L, int idx)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
@@ -116,6 +143,33 @@ QString qlua::getQString(lua_State *L, int idx, QString ifNil)
   return checkIsSome(L, idx, LUA_TSTRING, "string") ? toQString(L, idx) : ifNil;
 }
 
+QVariant qlua::getQVariant(lua_State *L, int idx, int type)
+{
+  switch (type)
+  {
+  case LUA_TNONE:
+    return QVariant();
+  case LUA_TNIL:
+    return QVariant(QMetaType::fromType<std::nullptr_t>());
+  case LUA_TNUMBER:
+    if (int isInt, result = lua_tointegerx(L, idx, &isInt); isInt)
+      return QVariant(result);
+    return QVariant(lua_tonumber(L, idx));
+  case LUA_TBOOLEAN:
+    return QVariant(lua_toboolean(L, idx));
+  case LUA_TSTRING:
+    return QVariant(getQString(L, idx));
+  case LUA_TTABLE:
+    if (lua_Integer len = lua_rawlen(L, idx))
+      return QVariant(toQVariants(L, idx, len));
+    if (const QVariantMap map = toQMap(L, idx); map.size())
+      return QVariant(map);
+    return QVariant(QVariantList(0));
+  default:
+    return QVariant();
+  }
+}
+
 string qlua::getString(lua_State *L, int idx)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
@@ -132,6 +186,141 @@ int qlua::loadQString(lua_State *L, const QString &chunk)
   const QByteArray utf8 = chunk.toUtf8();
   const char *data = utf8.constData();
   return luaL_loadbuffer(L, data, utf8.size(), data);
+}
+
+const char *qlua::pushBytes(lua_State *L, const QByteArray &bytes)
+{
+  return lua_pushlstring(L, bytes.constData(), bytes.size());
+}
+
+void qlua::pushQHash(lua_State *L, const QVariantHash &variants)
+{
+  lua_createtable(L, 0, variants.size());
+  for (auto it = variants.cbegin(), end = variants.cend(); it != end; ++it)
+  {
+    pushQString(L, it.key());
+    pushQVariant(L, it.value());
+    lua_rawset(L, -3);
+  }
+}
+
+void qlua::pushQMap(lua_State *L, const QVariantMap &variants)
+{
+  lua_createtable(L, 0, variants.size());
+  for (auto it = variants.cbegin(), end = variants.cend(); it != end; ++it)
+  {
+    pushQString(L, it.key());
+    pushQVariant(L, it.value());
+    lua_rawset(L, -3);
+  }
+}
+
+const char *qlua::pushQString(lua_State *L, const QString &string)
+{
+  return pushBytes(L, string.toUtf8());
+}
+
+void qlua::pushQStrings(lua_State *L, const QStringList &strings)
+{
+  lua_createtable(L, strings.size(), 0);
+  lua_Integer i = 1;
+  for (const QString &string : strings)
+  {
+    pushQString(L, string);
+    lua_rawseti(L, -2, i);
+    ++i;
+  }
+}
+
+void qlua::pushQVariant(lua_State *L, const QVariant &variant)
+{
+  switch (variant.typeId())
+  {
+  case QMetaType::Nullptr:
+    lua_pushnil(L);
+    return;
+  case QMetaType::Bool:
+    lua_pushboolean(L, variant.toBool());
+    return;
+  case QMetaType::Int:
+  case QMetaType::UInt:
+  case QMetaType::Long:
+  case QMetaType::LongLong:
+  case QMetaType::Short:
+  case QMetaType::ULong:
+  case QMetaType::ULongLong:
+  case QMetaType::UShort:
+    lua_pushinteger(L, variant.toLongLong());
+    return;
+  case QMetaType::Double:
+  case QMetaType::Float:
+  case QMetaType::Float16:
+    lua_pushnumber(L, variant.toDouble());
+    return;
+  case QMetaType::QChar:
+    pushQString(L, variant.toChar());
+    return;
+  case QMetaType::QString:
+    pushQString(L, variant.toString());
+    return;
+  case QMetaType::QByteArray:
+    pushBytes(L, variant.toByteArray());
+    return;
+  case QMetaType::Char:
+    pushQString(L, charString(variant.value<char>()));
+    return;
+  case QMetaType::Char16:
+    pushQString(L, charString(variant.value<char16_t>()));
+    return;
+  case QMetaType::Char32:
+    pushQString(L, charString(variant.value<char32_t>()));
+    return;
+  case QMetaType::SChar:
+    pushQString(L, charString((char)variant.value<signed char>()));
+    return;
+  case QMetaType::UChar:
+    pushQString(L, charString((char)variant.value<unsigned char>()));
+    return;
+  case QMetaType::QColor:
+    pushQString(L, variant.value<QColor>().name());
+    return;
+  case QMetaType::QUuid:
+    pushQString(L, variant.toUuid().toString());
+    return;
+  case QMetaType::QStringList:
+    pushQStrings(L, variant.toStringList());
+    return;
+  case QMetaType::QVariantHash:
+    pushQHash(L, variant.toHash());
+    return;
+  case QMetaType::QVariantMap:
+    pushQMap(L, variant.toMap());
+    return;
+  case QMetaType::QVariantList:
+    if (variant.canConvert<QStringList>())
+      pushQStrings(L, variant.toStringList());
+    else
+      pushQVariants(L, variant.toList());
+    return;
+  default:
+    if (variant.canConvert<int>())
+      lua_pushinteger(L, variant.toInt());
+    else
+      lua_pushnil(L);
+    return;
+  }
+}
+
+void qlua::pushQVariants(lua_State *L, const QVariantList &variants)
+{
+  lua_createtable(L, variants.size(), 0);
+  lua_Integer i = 1;
+  for (const QVariant &variant : variants)
+  {
+    pushQVariant(L, variant);
+    lua_rawseti(L, -2, i);
+    ++i;
+  }
 }
 
 const char *qlua::pushString(lua_State *L, const string &string)

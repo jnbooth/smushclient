@@ -2,6 +2,26 @@ use cxx::kind::Trivial;
 use cxx::ExternType;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVector};
 use mud_transformer::mxp::RgbColor;
+use std::error::Error;
+use std::fmt::{self, Display, Formatter};
+use std::num::TryFromIntError;
+
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct OutOfRangeError;
+
+impl Display for OutOfRangeError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.write_str("out of range")
+    }
+}
+
+impl Error for OutOfRangeError {}
+
+impl From<TryFromIntError> for OutOfRangeError {
+    fn from(_value: TryFromIntError) -> Self {
+        Self
+    }
+}
 
 macro_rules! impl_deref {
     ($t:ty, $target:ty, $field:ident) => {
@@ -30,12 +50,13 @@ macro_rules! impl_convert_enum {
                 }
             }
         }
-        impl From<$ffi> for $rust {
-            fn from(value: $ffi) -> Self {
+        impl TryFrom<$ffi> for $rust {
+            type Error = crate::convert::OutOfRangeError;
+
+            fn try_from(value: $ffi) -> Result<Self, Self::Error> {
                 match value {
-                    $(<$ffi>::$variant => Self::$variant),+,
-                    #[allow(unreachable_patterns)]
-                    _ => unreachable!()
+                    $(<$ffi>::$variant => Ok(Self::$variant)),+,
+                    _ => Err(crate::convert::OutOfRangeError)
                 }
             }
         }
@@ -58,11 +79,14 @@ macro_rules! impl_convert_enum_opt {
                 }
             }
         }
-        impl From<$ffi> for Option<$rust> {
-            fn from(value: $ffi) -> Self {
+        impl TryFrom<$ffi> for Option<$rust> {
+            type Error = crate::convert::OutOfRangeError;
+
+            fn try_from(value: $ffi) -> Result<Self, Self::Error> {
                 match value {
-                    $(<$ffi>::$variant => Some(<$rust>::$variant)),+,
-                    _ => None,
+                    <$ffi>::$fallback => Ok(None),
+                    $(<$ffi>::$variant => Ok(Some(<$rust>::$variant))),+,
+                    _ => Err(crate::convert::OutOfRangeError),
                 }
             }
         }

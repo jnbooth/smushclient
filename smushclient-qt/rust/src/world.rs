@@ -371,6 +371,16 @@ impl WorldRust {
     }
 }
 
+#[inline(always)]
+fn sign_u32(val: u32) -> i32 {
+    i32::try_from(val).unwrap_or(i32::MAX)
+}
+
+#[inline(always)]
+fn sign_usize(val: usize) -> i32 {
+    i32::try_from(val).unwrap_or(i32::MAX)
+}
+
 impl From<&World> for WorldRust {
     fn from(world: &World) -> Self {
         Self {
@@ -414,8 +424,8 @@ impl From<&World> for WorldRust {
             chat_colors_background: world.chat_colors.background.convert(),
             ignore_chat_colors: world.ignore_chat_colors,
             chat_message_prefix: QString::from(&world.chat_message_prefix),
-            chat_max_lines_per_message: i32::try_from(world.chat_max_lines_per_message).unwrap(),
-            chat_max_bytes_per_message: i32::try_from(world.chat_max_bytes_per_message).unwrap(),
+            chat_max_lines_per_message: sign_usize(world.chat_max_lines_per_message),
+            chat_max_bytes_per_message: sign_usize(world.chat_max_bytes_per_message),
             auto_allow_files: world.auto_allow_files,
             chat_file_save_directory: world.chat_file_save_directory.convert(),
             notes: QString::from(&world.notes),
@@ -429,7 +439,7 @@ impl From<&World> for WorldRust {
             show_italic: world.show_italic,
             show_underline: world.show_underline,
             new_activity_sound: world.new_activity_sound.convert(),
-            max_output_lines: i32::try_from(world.max_output_lines).unwrap(),
+            max_output_lines: sign_usize(world.max_output_lines),
             wrap_column: i32::from(world.wrap_column),
             line_information: world.line_information,
             start_paused: world.start_paused,
@@ -480,7 +490,7 @@ impl From<&World> for WorldRust {
             input_font_size: i32::from(world.input_font_size),
             use_default_input_font: world.use_default_input_font,
             enable_spam_prevention: world.enable_spam_prevention,
-            spam_line_count: i32::try_from(world.spam_line_count).unwrap(),
+            spam_line_count: sign_usize(world.spam_line_count),
             spam_message: QString::from(&world.spam_message),
             auto_repeat: world.auto_repeat,
             lower_case_tab_completion: world.lower_case_tab_completion,
@@ -488,7 +498,7 @@ impl From<&World> for WorldRust {
             translate_backslash_sequences: world.translate_backslash_sequences,
             keep_commands_on_same_line: world.keep_commands_on_same_line,
             no_echo_off: world.no_echo_off,
-            tab_completion_lines: i32::try_from(world.tab_completion_lines).unwrap(),
+            tab_completion_lines: sign_usize(world.tab_completion_lines),
             tab_completion_space: world.tab_completion_space,
             double_click_inserts: world.double_click_inserts,
             double_click_sends: world.double_click_sends,
@@ -502,7 +512,7 @@ impl From<&World> for WorldRust {
             ctrl_z_goes_to_end_of_buffer: world.ctrl_z_goes_to_end_of_buffer,
             ctrl_p_goes_to_previous_command: world.ctrl_p_goes_to_previous_command,
             ctrl_n_goes_to_next_command: world.ctrl_n_goes_to_next_command,
-            history_lines: i32::try_from(world.history_lines).unwrap(),
+            history_lines: sign_usize(world.history_lines),
             aliases: world.aliases.clone(),
             enable_aliases: world.enable_aliases,
             treeview_aliases: world.treeview_aliases,
@@ -516,15 +526,15 @@ impl From<&World> for WorldRust {
             re_evaluate_auto_say: world.re_evaluate_auto_say,
             paste_line_preamble: QString::from(&world.paste_line_preamble),
             paste_line_postamble: QString::from(&world.paste_line_postamble),
-            paste_delay: i32::try_from(world.paste_delay).unwrap(),
-            paste_delay_per_lines: i32::try_from(world.paste_delay_per_lines).unwrap(),
+            paste_delay: sign_u32(world.paste_delay),
+            paste_delay_per_lines: sign_u32(world.paste_delay_per_lines),
             paste_commented_softcode: world.paste_commented_softcode,
             paste_echo: world.paste_echo,
             confirm_on_paste: world.confirm_on_paste,
             send_line_preamble: QString::from(&world.send_line_preamble),
             send_line_postamble: QString::from(&world.send_line_postamble),
-            send_delay: i32::try_from(world.send_delay).unwrap(),
-            send_delay_per_lines: i32::try_from(world.send_delay_per_lines).unwrap(),
+            send_delay: sign_u32(world.send_delay),
+            send_delay_per_lines: sign_u32(world.send_delay_per_lines),
             send_commented_softcode: world.send_commented_softcode,
             send_echo: world.send_echo,
             confirm_on_send: world.confirm_on_send,
@@ -542,31 +552,32 @@ impl From<&World> for WorldRust {
     }
 }
 
-#[allow(clippy::useless_conversion)]
-impl From<&WorldRust> for World {
-    fn from(value: &WorldRust) -> Self {
-        Self {
+impl TryFrom<&WorldRust> for World {
+    type Error = crate::convert::OutOfRangeError;
+
+    fn try_from(value: &WorldRust) -> Result<Self, Self::Error> {
+        Ok(Self {
             name: String::from(&value.name),
             site: String::from(&value.site),
-            port: u16::try_from(value.port).unwrap(),
-            proxy_type: value.proxy_type.into(),
+            port: u16::try_from(value.port)?,
+            proxy_type: value.proxy_type.try_into()?,
             proxy_server: String::from(&value.proxy_server),
-            proxy_port: u16::try_from(value.proxy_port).unwrap(),
+            proxy_port: u16::try_from(value.proxy_port)?,
             proxy_username: String::from(&value.proxy_username),
             proxy_password: String::from(&value.proxy_password),
             proxy_password_base64: value.proxy_password_base64,
             save_world_automatically: value.save_world_automatically,
             player: String::from(&value.player),
             password: String::from(&value.password),
-            connect_method: value.connect_method.into(),
+            connect_method: value.connect_method.try_into()?,
             connect_text: String::from(&value.connect_text),
             log_file_preamble: String::from(&value.log_file_preamble),
             log_file_postamble: String::from(&value.log_file_postamble),
-            log_format: value.log_format.into(),
+            log_format: value.log_format.try_into()?,
             log_output: value.log_output,
             log_input: value.log_input,
             log_notes: value.log_notes,
-            log_mode: value.log_mode.into(),
+            log_mode: value.log_mode.try_into()?,
             auto_log_file_name: value.auto_log_file_name.convert(),
             log_preamble_output: String::from(&value.log_preamble_output),
             log_preamble_input: String::from(&value.log_preamble_input),
@@ -580,7 +591,7 @@ impl From<&WorldRust> for World {
             chat_name: String::from(&value.chat_name),
             auto_allow_snooping: value.auto_allow_snooping,
             accept_chat_connections: value.accept_chat_connections,
-            chat_port: u16::try_from(value.chat_port).unwrap(),
+            chat_port: u16::try_from(value.chat_port)?,
             validate_incoming_chat_calls: value.validate_incoming_chat_calls,
             chat_colors: ColorPair {
                 foreground: value.chat_colors_foreground.convert(),
@@ -588,23 +599,23 @@ impl From<&WorldRust> for World {
             },
             ignore_chat_colors: value.ignore_chat_colors,
             chat_message_prefix: String::from(&value.chat_message_prefix),
-            chat_max_lines_per_message: usize::try_from(value.chat_max_lines_per_message).unwrap(),
-            chat_max_bytes_per_message: usize::try_from(value.chat_max_bytes_per_message).unwrap(),
+            chat_max_lines_per_message: usize::try_from(value.chat_max_lines_per_message)?,
+            chat_max_bytes_per_message: usize::try_from(value.chat_max_bytes_per_message)?,
             auto_allow_files: value.auto_allow_files,
             chat_file_save_directory: value.chat_file_save_directory.convert(),
             notes: String::from(&value.notes),
             beep_sound: value.beep_sound.convert(),
-            pixel_offset: i16::try_from(value.pixel_offset).unwrap(),
+            pixel_offset: i16::try_from(value.pixel_offset)?,
             line_spacing: value.line_spacing,
             output_font: String::from(&value.output_font),
-            output_font_size: u8::try_from(value.output_font_size).unwrap(),
+            output_font_size: u8::try_from(value.output_font_size)?,
             use_default_output_font: value.use_default_output_font,
             show_bold: value.show_bold,
             show_italic: value.show_italic,
             show_underline: value.show_underline,
             new_activity_sound: value.new_activity_sound.convert(),
-            max_output_lines: usize::try_from(value.max_output_lines).unwrap(),
-            wrap_column: u16::try_from(value.wrap_column).unwrap(),
+            max_output_lines: usize::try_from(value.max_output_lines)?,
+            wrap_column: u16::try_from(value.wrap_column)?,
             line_information: value.line_information,
             start_paused: value.start_paused,
             auto_pause: value.auto_pause,
@@ -621,7 +632,7 @@ impl From<&WorldRust> for World {
             auto_copy_to_clipboard_in_html: value.auto_copy_to_clipboard_in_html,
             convert_ga_to_newline: value.convert_ga_to_newline,
             terminal_identification: String::from(&value.terminal_identification),
-            use_mxp: value.use_mxp.into(),
+            use_mxp: value.use_mxp.try_into()?,
             hyperlink_color: value.hyperlink_color.convert(),
             use_custom_link_color: value.use_custom_link_color,
             mud_can_change_link_color: value.mud_can_change_link_color,
@@ -655,10 +666,10 @@ impl From<&WorldRust> for World {
                 background: value.input_colors_background.convert(),
             },
             input_font: String::from(&value.input_font),
-            input_font_size: u8::try_from(value.input_font_size).unwrap(),
+            input_font_size: u8::try_from(value.input_font_size)?,
             use_default_input_font: value.use_default_input_font,
             enable_spam_prevention: value.enable_spam_prevention,
-            spam_line_count: usize::try_from(value.spam_line_count).unwrap(),
+            spam_line_count: usize::try_from(value.spam_line_count)?,
             spam_message: String::from(&value.spam_message),
             auto_repeat: value.auto_repeat,
             lower_case_tab_completion: value.lower_case_tab_completion,
@@ -666,7 +677,7 @@ impl From<&WorldRust> for World {
             translate_backslash_sequences: value.translate_backslash_sequences,
             keep_commands_on_same_line: value.keep_commands_on_same_line,
             no_echo_off: value.no_echo_off,
-            tab_completion_lines: usize::try_from(value.tab_completion_lines).unwrap(),
+            tab_completion_lines: usize::try_from(value.tab_completion_lines)?,
             tab_completion_space: value.tab_completion_space,
             double_click_inserts: value.double_click_inserts,
             double_click_sends: value.double_click_sends,
@@ -680,7 +691,7 @@ impl From<&WorldRust> for World {
             ctrl_z_goes_to_end_of_buffer: value.ctrl_z_goes_to_end_of_buffer,
             ctrl_p_goes_to_previous_command: value.ctrl_p_goes_to_previous_command,
             ctrl_n_goes_to_next_command: value.ctrl_n_goes_to_next_command,
-            history_lines: usize::try_from(value.history_lines).unwrap(),
+            history_lines: usize::try_from(value.history_lines)?,
             aliases: value.aliases.clone(),
             enable_aliases: value.enable_aliases,
             treeview_aliases: value.treeview_aliases,
@@ -694,15 +705,15 @@ impl From<&WorldRust> for World {
             re_evaluate_auto_say: value.re_evaluate_auto_say,
             paste_line_preamble: String::from(&value.paste_line_preamble),
             paste_line_postamble: String::from(&value.paste_line_postamble),
-            paste_delay: u32::try_from(value.paste_delay).unwrap(),
-            paste_delay_per_lines: u32::try_from(value.paste_delay_per_lines).unwrap(),
+            paste_delay: u32::try_from(value.paste_delay)?,
+            paste_delay_per_lines: u32::try_from(value.paste_delay_per_lines)?,
             paste_commented_softcode: value.paste_commented_softcode,
             paste_echo: value.paste_echo,
             confirm_on_paste: value.confirm_on_paste,
             send_line_preamble: String::from(&value.send_line_preamble),
             send_line_postamble: String::from(&value.send_line_postamble),
-            send_delay: u32::try_from(value.send_delay).unwrap(),
-            send_delay_per_lines: u32::try_from(value.send_delay_per_lines).unwrap(),
+            send_delay: u32::try_from(value.send_delay)?,
+            send_delay_per_lines: u32::try_from(value.send_delay_per_lines)?,
             send_commented_softcode: value.send_commented_softcode,
             send_echo: value.send_echo,
             confirm_on_send: value.confirm_on_send,
@@ -712,11 +723,11 @@ impl From<&WorldRust> for World {
             warn_if_scripting_inactive: value.warn_if_scripting_inactive,
             edit_script_with_notepad: value.edit_script_with_notepad,
             script_editor: String::from(&value.script_editor),
-            script_reload_option: value.script_reload_option.into(),
+            script_reload_option: value.script_reload_option.try_into()?,
             script_errors_to_output_window: value.script_errors_to_output_window,
             note_text_color: value.note_text_color.convert(),
             plugins: value.plugins.convert(),
-        }
+        })
     }
 }
 

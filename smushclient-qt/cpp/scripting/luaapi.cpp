@@ -1,7 +1,10 @@
+#include <QtCore/QMetaProperty>
 #include <QtCore/QPointer>
 #include "luaapi.h"
 #include "qlua.h"
 #include "scriptenums.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
+#include "worldproperties.h"
 extern "C"
 {
 #include "lauxlib.h"
@@ -13,7 +16,7 @@ extern "C"
 #define WORLD_REG_KEY "smushclient.world"
 #define WORLD_LIB_KEY "world"
 
-using string = std::string;
+using std::string;
 using stringmap = std::unordered_map<string, string>;
 
 inline int returnCode(lua_State *L, ScriptReturnCode code)
@@ -91,7 +94,7 @@ inline void insertTextTriples(lua_State *L, ScriptApi &api)
 inline void insertTexts(lua_State *L, ScriptApi &api)
 {
   int n = lua_gettop(L);
-  for (int i = 1; i <= n; i += 1)
+  for (int i = 1; i <= n; ++i)
     api.Tell(qlua::getQString(L, i));
 }
 
@@ -123,12 +126,34 @@ static int L_ColourTell(lua_State *L)
   return 0;
 }
 
+static int L_GetOption(lua_State *L)
+{
+  const QVariant option = getApi(L).GetOption(qlua::getString(L, 1));
+  if (option.isValid())
+    qlua::pushQVariant(L, option);
+  else
+    lua_pushinteger(L, -1);
+  return 1;
+}
+
+static int L_GetOptionList(lua_State *L)
+{
+  pushPropertiesList(L);
+  return 1;
+}
+
 static int L_Note(lua_State *L)
 {
   ScriptApi &api = getApi(L);
   insertTexts(L, api);
   api.insertBlock();
   return 0;
+}
+
+static int L_SetOption(lua_State *L)
+{
+  getApi(L).SetOption(qlua::getString(L, 1), qlua::getQVariant(L, 2));
+  return 1;
 }
 
 static int L_Tell(lua_State *L)
@@ -170,11 +195,14 @@ static const struct luaL_Reg worldlib[] =
     {{"ColourNameToRGB", L_ColourNameToRGB},
      {"ColourNote", L_ColourNote},
      {"ColourTell", L_ColourTell},
+     {"GetOption", L_GetOption},
+     {"GetOptionList", L_GetOptionList},
      {"GetPluginVariable", L_GetPluginVariable},
      {"GetVariable", L_GetVariable},
      {"Note", L_Note},
      {"Send", L_Send},
      {"Tell", L_Tell},
+     {"SetOption", L_SetOption},
      {"SetVariable", L_SetVariable},
 
      {NULL, NULL}};

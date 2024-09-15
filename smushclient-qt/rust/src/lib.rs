@@ -167,7 +167,7 @@ pub mod ffi {
         ) -> Result<()>;
         fn populate_world(self: &SmushClient, world: Pin<&mut World>);
         fn save_world(self: &SmushClient, path: &QString) -> Result<()>;
-        fn set_world(self: Pin<&mut SmushClient>, world: &World);
+        fn set_world(self: Pin<&mut SmushClient>, world: &World) -> bool;
         fn palette(self: &SmushClient) -> QVector_QColor;
         fn plugin_scripts(self: &SmushClient) -> QStringList;
         fn read(

@@ -68,7 +68,7 @@ impl From<&Sender> for SenderRust {
 impl From<&SenderRust> for Sender {
     fn from(value: &SenderRust) -> Self {
         Self {
-            send_to: value.send_to.into(),
+            send_to: value.send_to.try_into().unwrap_or_default(),
             label: String::from(&value.label),
             script: String::from(&value.script),
             group: String::from(&value.group),

@@ -7,6 +7,7 @@
 extern "C"
 {
 #include "lauxlib.h"
+#include "lualib.h"
   LUALIB_API int luaopen_bc(lua_State *L);
   LUALIB_API int luaopen_bit(lua_State *L);
   LUALIB_API int luaopen_lpeg(lua_State *L);
@@ -49,6 +50,7 @@ ScriptState::ScriptState(ScriptApi *api, const QString &pluginID)
     throw std::bad_alloc();
 
   lua_atpanic(L, &panic);
+  luaL_openlibs(L);
   luaopen_bc(L);
   luaopen_bit(L);
   luaopen_lpeg(L);
@@ -66,7 +68,8 @@ ScriptState::ScriptState(ScriptState &&other)
 
 ScriptState::~ScriptState()
 {
-  api->unsetVariableMap(pluginID.toStdString(), getVariableMap(L));
+  if (!api.isNull())
+    api->unsetVariableMap(pluginID.toStdString(), getVariableMap(L));
   lua_close(L);
 }
 

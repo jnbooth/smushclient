@@ -134,6 +134,17 @@ const QString WorldTab::title() const noexcept
   return world.getName();
 }
 
+bool WorldTab::updateWorld()
+{
+  if (client.setWorld(world))
+  {
+    applyWorld();
+    return true;
+  }
+  client.populateWorld(world);
+  return false;
+}
+
 // Private methods
 
 void WorldTab::applyWorld()

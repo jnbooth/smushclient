@@ -19,7 +19,7 @@ void ScriptEngine::initializeScripts(const QStringList &scripts)
   plugins.clear();
   plugins.reserve(scripts.size());
   QString error;
-  for (auto it = scripts.cbegin(); it != scripts.cend(); ++it)
+  for (auto it = scripts.cbegin(), end = scripts.cend(); it != end; ++it)
   {
     Plugin &plugin = plugins.emplace_back(api, *it);
     if (!runScript(plugin, *++it))

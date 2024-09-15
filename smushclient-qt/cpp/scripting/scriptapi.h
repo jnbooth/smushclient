@@ -17,8 +17,10 @@ public:
   ScriptApi(WorldTab *parent);
 
   void ColourTell(const QColor &foreground, const QColor &background, const QString &text);
-  void Tell(const QString &text);
+  QVariant GetOption(const std::string &name) const;
+  ScriptReturnCode SetOption(const std::string &name, const QVariant &variant);
   ScriptReturnCode Send(const QByteArrayView &bytes);
+  void Tell(const QString &text);
 
   void ensureNewline();
   void insertBlock();

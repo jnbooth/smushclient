@@ -29,5 +29,5 @@ void TreeBuilder::addColumn(const QString &text)
     return;
 
   item->setText(column, text);
-  column += 1;
+  ++column;
 }
