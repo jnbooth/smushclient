@@ -71,7 +71,7 @@ class WorldModel {
   var chat_port: UInt16 = 0
   var validate_incoming_chat_calls: Bool = false
   var chat_colors: ColorPairModel = ColorPairModel(foreground: defaultChatColor)
-  var ignore_chat_colors: Bool = false
+  var ignore_chat_colours: Bool = false
   var chat_message_prefix: String = ""
   var chat_max_lines_per_message: UInt = 0
   var chat_max_bytes_per_message: UInt = 0
@@ -106,16 +106,16 @@ class WorldModel {
   var convert_ga_to_newline: Bool = false
   var terminal_identification: String = "mushclient"
   var use_mxp: UseMxp = .Command
-  var hyperlink_color: NSColor = defaultHyperlinkColor
-  var use_custom_link_color: Bool = false
-  var mud_can_change_link_color: Bool = true
+  var hyperlink_colour: NSColor = defaultHyperlinkColor
+  var use_custom_link_colour: Bool = false
+  var mud_can_change_link_colour: Bool = true
   var underline_hyperlinks: Bool = true
   var mud_can_remove_underline: Bool = false
   var hyperlink_adds_to_command_history: Bool = true
   var echo_hyperlink_in_output_window: Bool = true
-  var ignore_mxp_color_changes: Bool = false
+  var ignore_mxp_colour_changes: Bool = false
   var send_mxp_afk_response: Bool = true
-  var use_default_colors: Bool = true
+  var use_default_colours: Bool = true
   var ansi_colors: [NSColor] = defaultAnsiColors
   var custom_color: NSColor = defaultCustomColor
   var error_color: NSColor = defaultErrorColor
@@ -178,8 +178,8 @@ class WorldModel {
   var confirm_on_paste: Bool = true
   var send_line_preamble: String = ""
   var send_line_postamble: String = ""
-  var send_delay: UInt32 = 0
-  var send_delay_per_lines: UInt32 = 1
+  var send_file_delay: UInt32 = 0
+  var send_file_delay_per_lines: UInt32 = 1
   var send_commented_softcode: Bool = false
   var send_echo: Bool = false
   var confirm_on_send: Bool = true
@@ -191,7 +191,7 @@ class WorldModel {
   var script_editor: String = "System"
   var script_reload_option: ScriptRecompile = .Confirm
   var script_errors_to_output_window: Bool = false
-  var note_text_color: NSColor = defaultNoteTextColor
+  var note_text_colour: NSColor = defaultNoteTextColor
   var plugins: [String] = []
 
   init() {}
@@ -234,7 +234,7 @@ class WorldModel {
     chat_port = world.chat_port
     validate_incoming_chat_calls = world.validate_incoming_chat_calls
     chat_colors = ColorPairModel(world.chat_colors)
-    ignore_chat_colors = world.ignore_chat_colors
+    ignore_chat_colours = world.ignore_chat_colours
     chat_message_prefix = world.chat_message_prefix.toString()
     chat_max_lines_per_message = world.chat_max_lines_per_message
     chat_max_bytes_per_message = world.chat_max_bytes_per_message
@@ -245,7 +245,7 @@ class WorldModel {
     pixel_offset = world.pixel_offset
     line_spacing = world.line_spacing
     if let output_font = NSFont(
-      name: world.output_font.toString(), size: CGFloat(world.output_font_size))
+      name: world.output_font.toString(), size: CGFloat(world.output_font_height))
     {
       self.output_font = output_font
     }
@@ -273,16 +273,16 @@ class WorldModel {
     convert_ga_to_newline = world.convert_ga_to_newline
     terminal_identification = world.terminal_identification.toString()
     use_mxp = world.use_mxp
-    hyperlink_color = NSColor(world.hyperlink_color)
-    use_custom_link_color = world.use_custom_link_color
-    mud_can_change_link_color = world.mud_can_change_link_color
+    hyperlink_colour = NSColor(world.hyperlink_colour)
+    use_custom_link_colour = world.use_custom_link_colour
+    mud_can_change_link_colour = world.mud_can_change_link_colour
     underline_hyperlinks = world.underline_hyperlinks
     mud_can_remove_underline = world.mud_can_remove_underline
     hyperlink_adds_to_command_history = world.hyperlink_adds_to_command_history
     echo_hyperlink_in_output_window = world.echo_hyperlink_in_output_window
-    ignore_mxp_color_changes = world.ignore_mxp_color_changes
+    ignore_mxp_colour_changes = world.ignore_mxp_colour_changes
     send_mxp_afk_response = world.send_mxp_afk_response
-    use_default_colors = world.use_default_colors
+    use_default_colours = world.use_default_colours
     ansi_colors = fromVec(world.ansi_colors, by: Palette.namedColors.get)
     custom_color = NSColor(world.custom_color)
     error_color = NSColor(world.error_color)
@@ -300,7 +300,7 @@ class WorldModel {
     command_stack_character = world.command_stack_character.toString()
     input_colors = ColorPairModel(world.input_colors)
     if let input_font = NSFont(
-      name: world.input_font.toString(), size: CGFloat(world.input_font_size))
+      name: world.input_font.toString(), size: CGFloat(world.input_font_height))
     {
       self.input_font = input_font
     }
@@ -350,8 +350,8 @@ class WorldModel {
     confirm_on_paste = world.confirm_on_paste
     send_line_preamble = world.send_line_preamble.toString()
     send_line_postamble = world.send_line_postamble.toString()
-    send_delay = world.send_delay
-    send_delay_per_lines = world.send_delay_per_lines
+    send_file_delay = world.send_file_delay
+    send_file_delay_per_lines = world.send_file_delay_per_lines
     send_commented_softcode = world.send_commented_softcode
     send_echo = world.send_echo
     confirm_on_send = world.confirm_on_send
@@ -363,7 +363,7 @@ class WorldModel {
     script_editor = world.script_editor.toString()
     script_reload_option = world.script_reload_option
     script_errors_to_output_window = world.script_errors_to_output_window
-    note_text_color = NSColor(world.note_text_color)
+    note_text_colour = NSColor(world.note_text_colour)
     plugins = fromVec(world.plugins) { $0.as_str().toString() }
   }
 }
@@ -407,7 +407,7 @@ extension World {
     chat_port = world.chat_port
     validate_incoming_chat_calls = world.validate_incoming_chat_calls
     chat_colors = ColorPair(world.chat_colors)
-    ignore_chat_colors = world.ignore_chat_colors
+    ignore_chat_colours = world.ignore_chat_colours
     chat_message_prefix = world.chat_message_prefix.intoRustString()
     chat_max_lines_per_message = world.chat_max_lines_per_message
     chat_max_bytes_per_message = world.chat_max_bytes_per_message
@@ -418,7 +418,7 @@ extension World {
     pixel_offset = world.pixel_offset
     line_spacing = world.line_spacing
     output_font = world.output_font.intoRustString()
-    output_font_size = UInt8(world.output_font.pointSize)
+    output_font_height = UInt8(world.output_font.pointSize)
     use_default_output_font = world.use_default_output_font
     show_bold = world.show_bold
     show_italic = world.show_italic
@@ -443,16 +443,16 @@ extension World {
     convert_ga_to_newline = world.convert_ga_to_newline
     terminal_identification = world.terminal_identification.intoRustString()
     use_mxp = world.use_mxp
-    hyperlink_color = RgbColor(world.hyperlink_color)
-    use_custom_link_color = world.use_custom_link_color
-    mud_can_change_link_color = world.mud_can_change_link_color
+    hyperlink_colour = RgbColor(world.hyperlink_colour)
+    use_custom_link_colour = world.use_custom_link_colour
+    mud_can_change_link_colour = world.mud_can_change_link_colour
     underline_hyperlinks = world.underline_hyperlinks
     mud_can_remove_underline = world.mud_can_remove_underline
     hyperlink_adds_to_command_history = world.hyperlink_adds_to_command_history
     echo_hyperlink_in_output_window = world.echo_hyperlink_in_output_window
-    ignore_mxp_color_changes = world.ignore_mxp_color_changes
+    ignore_mxp_colour_changes = world.ignore_mxp_colour_changes
     send_mxp_afk_response = world.send_mxp_afk_response
-    use_default_colors = world.use_default_colors
+    use_default_colours = world.use_default_colours
     ansi_colors = intoVec(world.ansi_colors, by: RgbColor.init)
     custom_color = RgbColor(world.custom_color)
     error_color = RgbColor(world.error_color)
@@ -470,7 +470,7 @@ extension World {
     command_stack_character = world.command_stack_character.intoRustString()
     input_colors = ColorPair(world.input_colors)
     input_font = world.input_font.intoRustString()
-    input_font_size = UInt8(world.input_font.pointSize)
+    input_font_height = UInt8(world.input_font.pointSize)
     use_default_input_font = world.use_default_input_font
     enable_spam_prevention = world.enable_spam_prevention
     spam_line_count = world.spam_line_count
@@ -516,8 +516,8 @@ extension World {
     confirm_on_paste = world.confirm_on_paste
     send_line_preamble = world.send_line_preamble.intoRustString()
     send_line_postamble = world.send_line_postamble.intoRustString()
-    send_delay = world.send_delay
-    send_delay_per_lines = world.send_delay_per_lines
+    send_file_delay = world.send_file_delay
+    send_file_delay_per_lines = world.send_file_delay_per_lines
     send_commented_softcode = world.send_commented_softcode
     send_echo = world.send_echo
     confirm_on_send = world.confirm_on_send
@@ -529,7 +529,7 @@ extension World {
     script_editor = world.script_editor.intoRustString()
     script_reload_option = world.script_reload_option
     script_errors_to_output_window = world.script_errors_to_output_window
-    note_text_color = RgbColor(world.note_text_color)
+    note_text_colour = RgbColor(world.note_text_colour)
     plugins = intoVec(world.plugins) { $0.intoRustString() }
   }
 }

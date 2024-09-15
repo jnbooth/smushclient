@@ -56,7 +56,7 @@
            </widget>
           </item>
           <item>
-           <widget class="ColorPickerButton" name="EchoColorsForeground">
+           <widget class="ColorPickerButton" name="EchoTextColour">
             <property name="maximumSize">
              <size>
               <width>20</width>
@@ -66,14 +66,14 @@
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="EchoColorsBackground_label">
+           <widget class="QLabel" name="EchoBackgroundColour_label">
             <property name="text">
              <string>on</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="ColorPickerButton" name="EchoColorsBackground">
+           <widget class="ColorPickerButton" name="EchoBackgroundColour">
             <property name="maximumSize">
              <size>
               <width>20</width>
@@ -209,7 +209,7 @@
           <item>
            <layout class="QHBoxLayout" name="_font_options">
             <item>
-             <widget class="QSpinBox" name="InputFontSize">
+             <widget class="QSpinBox" name="InputFontHeight">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -233,14 +233,14 @@
           <item>
            <layout class="QHBoxLayout" name="_color">
             <item>
-             <widget class="QLabel" name="InputColorsForeground_label">
+             <widget class="QLabel" name="InputTextColour_label">
               <property name="text">
                <string>Colour:</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="ColorPickerButton" name="InputColorsForeground">
+             <widget class="ColorPickerButton" name="InputTextColour">
               <property name="maximumSize">
                <size>
                 <width>20</width>
@@ -250,14 +250,14 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="InputColorsBackground_label">
+             <widget class="QLabel" name="InputBackgroundColour_label">
               <property name="text">
                <string>on</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="ColorPickerButton" name="InputColorsBackground">
+             <widget class="ColorPickerButton" name="InputBackgroundColour">
               <property name="maximumSize">
                <size>
                 <width>20</width>
@@ -503,7 +503,7 @@
   <connection>
    <sender>UseDefaultInputFont</sender>
    <signal>toggled(bool)</signal>
-   <receiver>InputFontSize</receiver>
+   <receiver>InputFontHeight</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">

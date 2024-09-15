@@ -7,23 +7,23 @@ PrefsColor::PrefsColor(const World &world, QWidget *parent)
       ui(new Ui::PrefsColor)
 {
   ui->setupUi(this);
-  CONNECT_WORLD(UseDefaultColors);
-  CONNECT_WORLD(AnsiColors0);
-  CONNECT_WORLD(AnsiColors1);
-  CONNECT_WORLD(AnsiColors2);
-  CONNECT_WORLD(AnsiColors3);
-  CONNECT_WORLD(AnsiColors4);
-  CONNECT_WORLD(AnsiColors5);
-  CONNECT_WORLD(AnsiColors6);
-  CONNECT_WORLD(AnsiColors7);
-  CONNECT_WORLD(AnsiColors8);
-  CONNECT_WORLD(AnsiColors9);
-  CONNECT_WORLD(AnsiColors10);
-  CONNECT_WORLD(AnsiColors11);
-  CONNECT_WORLD(AnsiColors12);
-  CONNECT_WORLD(AnsiColors13);
-  CONNECT_WORLD(AnsiColors14);
-  CONNECT_WORLD(AnsiColors15);
+  CONNECT_WORLD(UseDefaultColours);
+  CONNECT_WORLD(Ansi0);
+  CONNECT_WORLD(Ansi1);
+  CONNECT_WORLD(Ansi2);
+  CONNECT_WORLD(Ansi3);
+  CONNECT_WORLD(Ansi4);
+  CONNECT_WORLD(Ansi5);
+  CONNECT_WORLD(Ansi6);
+  CONNECT_WORLD(Ansi7);
+  CONNECT_WORLD(Ansi8);
+  CONNECT_WORLD(Ansi9);
+  CONNECT_WORLD(Ansi10);
+  CONNECT_WORLD(Ansi11);
+  CONNECT_WORLD(Ansi12);
+  CONNECT_WORLD(Ansi13);
+  CONNECT_WORLD(Ansi14);
+  CONNECT_WORLD(Ansi15);
 }
 
 PrefsColor::~PrefsColor()

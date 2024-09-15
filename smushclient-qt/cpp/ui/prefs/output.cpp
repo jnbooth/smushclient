@@ -12,7 +12,7 @@ PrefsOutput::PrefsOutput(World &world, QWidget *parent)
   CONNECT_WORLD(BeepSound);
   CONNECT_WORLD(PixelOffset);
   CONNECT_WORLD(LineSpacing);
-  CONNECT_WORLD(OutputFontSize);
+  CONNECT_WORLD(OutputFontHeight);
   CONNECT_WORLD(UseDefaultOutputFont);
   CONNECT_WORLD(ShowBold);
   CONNECT_WORLD(ShowItalic);
@@ -37,7 +37,7 @@ PrefsOutput::PrefsOutput(World &world, QWidget *parent)
   CONNECT_WORLD(ConvertGaToNewline);
   CONNECT_WORLD(TerminalIdentification);
 
-  QFont outputFont(world.getOutputFont(), world.getOutputFontSize());
+  QFont outputFont(world.getOutputFont(), world.getOutputFontHeight());
   ui->OutputFont->setCurrentFont(outputFont);
 }
 

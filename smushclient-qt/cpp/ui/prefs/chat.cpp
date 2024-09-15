@@ -13,9 +13,9 @@ PrefsChat::PrefsChat(const World &world, QWidget *parent)
   CONNECT_WORLD(AcceptChatConnections);
   CONNECT_WORLD(ChatPort);
   CONNECT_WORLD(ValidateIncomingChatCalls);
-  CONNECT_WORLD(ChatColorsForeground);
-  CONNECT_WORLD(ChatColorsBackground);
-  CONNECT_WORLD(IgnoreChatColors);
+  CONNECT_WORLD(ChatForegroundColour);
+  CONNECT_WORLD(ChatBackgroundColour);
+  CONNECT_WORLD(IgnoreChatColours);
   CONNECT_WORLD(ChatMessagePrefix);
   CONNECT_WORLD(ChatMaxLinesPerMessage);
   CONNECT_WORLD(ChatMaxBytesPerMessage);

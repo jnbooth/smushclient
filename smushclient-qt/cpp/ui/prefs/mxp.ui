@@ -74,7 +74,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QCheckBox" name="IgnoreMxpColorChanges">
+    <widget class="QCheckBox" name="IgnoreMxpColourChanges">
      <property name="text">
       <string>Ignore colour changes</string>
      </property>
@@ -103,14 +103,14 @@
       <item>
        <layout class="QHBoxLayout" name="_custom_color">
         <item>
-         <widget class="QCheckBox" name="UseCustomLinkColor">
+         <widget class="QCheckBox" name="UseCustomLinkColour">
           <property name="text">
            <string>Use custom link colour:</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="ColorPickerButton" name="HyperlinkColor">
+         <widget class="ColorPickerButton" name="HyperlinkColour">
           <property name="maximumSize">
            <size>
             <width>20</width>
@@ -135,7 +135,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QCheckBox" name="MudCanChangeLinkColor">
+       <widget class="QCheckBox" name="MudCanChangeLinkColour">
         <property name="text">
          <string>MUD can change link colour</string>
         </property>

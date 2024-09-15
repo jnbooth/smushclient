@@ -3,7 +3,6 @@
 #include "cxx-qt-gen/ffi.cxxqt.h"
 #include "worldproperties.h"
 #include "qlua.h"
-
 extern "C"
 {
 #include "lua.h"
@@ -17,14 +16,14 @@ string toSnakeCase(const string &key)
 {
   size_t size = key.size();
   for (char c : key)
-    if (isupper(c))
+    if (isupper(c) || isnumber(c))
       ++size;
   std::string result;
   result.reserve(size);
   bool isFirst = false;
   for (char c : key)
   {
-    if (!isupper(c))
+    if (!isupper(c) && !isnumber(c))
     {
       result.push_back(c);
       continue;
@@ -51,7 +50,7 @@ WorldProperties::WorldProperties()
   for (int i = offset; i < count; ++i)
   {
     string name = metaObject.property(i).name();
-    if (!name.rfind("ansiColors", 0))
+    if (!name.rfind("ansi", 0))
       continue;
     string key = toSnakeCase(name);
     lookup[key] = name;

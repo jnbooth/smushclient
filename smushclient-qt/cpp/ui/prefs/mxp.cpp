@@ -8,14 +8,14 @@ PrefsMxp::PrefsMxp(const World &world, QWidget *parent)
 {
   ui->setupUi(this);
   CONNECT_WORLD(UseMxp);
-  CONNECT_WORLD(HyperlinkColor);
-  CONNECT_WORLD(UseCustomLinkColor);
-  CONNECT_WORLD(MudCanChangeLinkColor);
+  CONNECT_WORLD(HyperlinkColour);
+  CONNECT_WORLD(UseCustomLinkColour);
+  CONNECT_WORLD(MudCanChangeLinkColour);
   CONNECT_WORLD(UnderlineHyperlinks);
   CONNECT_WORLD(MudCanRemoveUnderline);
   CONNECT_WORLD(HyperlinkAddsToCommandHistory);
   CONNECT_WORLD(EchoHyperlinkInOutputWindow);
-  CONNECT_WORLD(IgnoreMxpColorChanges);
+  CONNECT_WORLD(IgnoreMxpColourChanges);
   CONNECT_WORLD(SendMxpAfkResponse);
 }
 

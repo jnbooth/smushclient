@@ -64,7 +64,7 @@
           <item>
            <layout class="QHBoxLayout" name="_font_options">
             <item>
-             <widget class="QSpinBox" name="OutputFontSize">
+             <widget class="QSpinBox" name="OutputFontHeight">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -665,7 +665,7 @@
   <connection>
    <sender>UseDefaultOutputFont</sender>
    <signal>toggled(bool)</signal>
-   <receiver>OutputFontSize</receiver>
+   <receiver>OutputFontHeight</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">

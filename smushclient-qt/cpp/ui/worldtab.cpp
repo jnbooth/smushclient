@@ -48,12 +48,12 @@ WorldTab::~WorldTab()
 void WorldTab::createWorld() &
 {
   const QString defaultFontFamily = defaultFont.family();
-  const int defaultFontSize = defaultFont.pointSize();
+  const int defaultFontHeight = defaultFont.pointSize();
   client.populateWorld(world);
   world.setInputFont(defaultFontFamily);
-  world.setInputFontSize(defaultFontSize);
+  world.setInputFontHeight(defaultFontHeight);
   world.setOutputFont(defaultFontFamily);
-  world.setOutputFontSize(defaultFontSize);
+  world.setOutputFontHeight(defaultFontHeight);
   client.setWorld(world);
   document->scriptEngine.initializeScripts(client.pluginScripts());
   applyWorld();
@@ -150,17 +150,17 @@ bool WorldTab::updateWorld()
 void WorldTab::applyWorld()
 {
   document->setPalette(client.palette());
-  setColors(ui->input, world.getInputColorsForeground(), world.getInputColorsBackground());
-  setColors(ui->output, world.getAnsiColors7(), world.getAnsiColors0());
+  setColors(ui->input, world.getInputTextColour(), world.getInputBackgroundColour());
+  setColors(ui->output, world.getAnsi7(), world.getAnsi0());
   if (world.getUseDefaultInputFont())
     ui->input->setFont(defaultFont);
   else
-    ui->input->setFont(QFont(world.getInputFont(), world.getInputFontSize()));
+    ui->input->setFont(QFont(world.getInputFont(), world.getInputFontHeight()));
 
   if (world.getUseDefaultOutputFont())
     ui->output->setFont(defaultFont);
   else
-    ui->output->setFont(QFont(world.getOutputFont(), world.getOutputFontSize()));
+    ui->output->setFont(QFont(world.getOutputFont(), world.getOutputFontHeight()));
 }
 
 void WorldTab::connectToHost()

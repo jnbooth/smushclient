@@ -9,17 +9,17 @@ PrefsCommands::PrefsCommands(World &world, QWidget *parent)
 {
   ui->setupUi(this);
   CONNECT_WORLD(DisplayMyInput);
-  CONNECT_WORLD(EchoColorsForeground);
-  CONNECT_WORLD(EchoColorsBackground);
+  CONNECT_WORLD(EchoTextColour);
+  CONNECT_WORLD(EchoBackgroundColour);
   CONNECT_WORLD(EnableSpeedWalk);
   CONNECT_WORLD(SpeedWalkPrefix);
   CONNECT_WORLD(SpeedWalkFiller);
   CONNECT_WORLD(SpeedWalkDelay);
   CONNECT_WORLD(EnableCommandStack);
   CONNECT_WORLD(CommandStackCharacter);
-  CONNECT_WORLD(InputColorsForeground);
-  CONNECT_WORLD(InputColorsBackground);
-  CONNECT_WORLD(InputFontSize);
+  CONNECT_WORLD(InputTextColour);
+  CONNECT_WORLD(InputBackgroundColour);
+  CONNECT_WORLD(InputFontHeight);
   CONNECT_WORLD(UseDefaultInputFont);
   CONNECT_WORLD(EnableSpamPrevention);
   CONNECT_WORLD(SpamLineCount);
@@ -48,7 +48,7 @@ PrefsCommands::PrefsCommands(World &world, QWidget *parent)
   */
   CONNECT_WORLD(HistoryLines);
 
-  QFont inputFont(world.getInputFont(), world.getInputFontSize());
+  QFont inputFont(world.getInputFont(), world.getInputFontHeight());
   ui->InputFont->setCurrentFont(inputFont);
 }
 

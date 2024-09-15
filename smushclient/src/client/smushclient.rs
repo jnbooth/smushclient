@@ -174,7 +174,7 @@ fn alter_text_output(fragment: &mut TextFragment, world: &World) {
     if world.underline_hyperlinks {
         fragment.flags.insert(TextStyle::Underline);
     }
-    if world.use_custom_link_color {
-        fragment.foreground = world.hyperlink_color;
+    if world.use_custom_link_colour {
+        fragment.foreground = world.hyperlink_colour;
     }
 }
