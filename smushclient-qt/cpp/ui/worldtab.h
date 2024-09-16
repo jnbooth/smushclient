@@ -40,9 +40,9 @@ private:
   Document *document;
   QString filePath;
 
-  void applyWorld();
-  void connectToHost();
-  void sendCommand(const QString &command);
+  void applyWorld() const;
+  void connectToHost() const;
+  void sendCommand(const QString &command) const;
 
 private slots:
   void finalizeWorldSettings(int result);

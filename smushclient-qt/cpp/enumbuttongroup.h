@@ -17,7 +17,7 @@ public:
     parent->connect(group, &QButtonGroup::idClicked, parent, reinterpret_cast<IntSlot>(slot));
   }
 
-  EnumButtonGroup<T> &addButton(QAbstractButton *button, T id)
+  const EnumButtonGroup<T> &addButton(QAbstractButton *button, T id) const
   {
     if (id == currentValue)
       button->setChecked(true);

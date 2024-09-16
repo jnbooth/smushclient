@@ -97,7 +97,7 @@ ScriptReturnCode ScriptApi::Send(const QByteArrayView &view)
   return SendNoEcho(view);
 }
 
-ScriptReturnCode ScriptApi::SendNoEcho(const QByteArrayView &view)
+ScriptReturnCode ScriptApi::SendNoEcho(const QByteArrayView &view) const
 {
   if (view.isEmpty())
     return ScriptReturnCode::OK;
@@ -139,7 +139,7 @@ inline ScriptReturnCode updateWorld(WorldTab &worldtab)
   return worldtab.updateWorld() ? ScriptReturnCode::OK : ScriptReturnCode::OptionOutOfRange;
 }
 
-ScriptReturnCode ScriptApi::SetOption(const std::string &name, const QVariant &variant)
+ScriptReturnCode ScriptApi::SetOption(const std::string &name, const QVariant &variant) const
 {
   WorldTab &worldtab = *tab();
   World &world = worldtab.world;
@@ -195,7 +195,7 @@ void ScriptApi::finishNote()
   lastTellPosition = -1;
 }
 
-std::unordered_map<std::string, std::string> *ScriptApi::getVariableMap(const std::string &pluginID)
+std::unordered_map<std::string, std::string> *ScriptApi::getVariableMap(const std::string &pluginID) const
 {
   auto search = variables.find(pluginID);
   if (search == variables.end())

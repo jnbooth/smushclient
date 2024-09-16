@@ -146,7 +146,7 @@ bool WorldTab::updateWorld()
 
 // Private methods
 
-void WorldTab::applyWorld()
+void WorldTab::applyWorld() const
 {
   document->setPalette(client.palette());
   setColors(ui->input, world.getInputTextColour(), world.getInputBackgroundColour());
@@ -163,7 +163,7 @@ void WorldTab::applyWorld()
   api->applyWorld(world);
 }
 
-void WorldTab::connectToHost()
+void WorldTab::connectToHost() const
 {
   if (socket->isOpen())
     return;
@@ -171,7 +171,7 @@ void WorldTab::connectToHost()
   socket->connectToHost(world.getSite(), (quint16)world.getPort());
 }
 
-void WorldTab::sendCommand(const QString &command)
+void WorldTab::sendCommand(const QString &command) const
 {
   api->echo(command);
   QByteArray bytes = command.toLocal8Bit();

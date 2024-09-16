@@ -27,7 +27,7 @@ App::~App()
 
 // Private methods
 
-void App::addRecentFile(const QString &filePath)
+void App::addRecentFile(const QString &filePath) const
 {
   if (filePath.isEmpty())
     return;
@@ -39,7 +39,7 @@ void App::addRecentFile(const QString &filePath)
   setupRecentFiles(result.recentFiles);
 }
 
-void App::openRecentFile(qsizetype index)
+void App::openRecentFile(qsizetype index) const
 {
   const QStringList recentFiles = Settings().recentFiles();
   if (index >= recentFiles.length())
@@ -47,7 +47,7 @@ void App::openRecentFile(qsizetype index)
   openWorld(recentFiles.at(index));
 }
 
-void App::openWorld(const QString &filePath)
+void App::openWorld(const QString &filePath) const
 {
   WorldTab *tab = new WorldTab(ui->world_tabs);
   if (tab->openWorld(filePath))
@@ -62,7 +62,7 @@ void App::openWorld(const QString &filePath)
     setupRecentFiles(result.recentFiles);
 }
 
-void App::setupRecentFiles(const QStringList &recentFiles)
+void App::setupRecentFiles(const QStringList &recentFiles) const
 {
   auto i = recentFileActions.begin();
   auto end = recentFileActions.end();
@@ -83,7 +83,7 @@ void App::setupRecentFiles(const QStringList &recentFiles)
   }
 }
 
-void App::setWorldMenusEnabled(bool enabled)
+void App::setWorldMenusEnabled(bool enabled) const
 {
   ui->action_close_world->setEnabled(enabled);
   ui->action_import->setEnabled(enabled);
