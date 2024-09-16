@@ -1,3 +1,5 @@
+#include <QtGui/QGuiApplication>
+#include <QtGui/QClipboard>
 #include "scriptapi.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
@@ -15,10 +17,17 @@ inline QTextCharFormat colorFormat(const QColor &foreground, const QColor &backg
 
 inline QColor getColorFromVariant(const QVariant &variant)
 {
-  if (!variant.canConvert<QString>())
+  if (variant.canConvert<QString>())
+  {
+    QString colorName = variant.toString();
+    return colorName.isEmpty() ? QColor::fromRgb(0, 0, 0, 0) : QColor::fromString(colorName);
+  }
+  bool ok;
+  int rgb = variant.toInt(&ok);
+  if (!ok || rgb < 0 || rgb > 0xFFFFFF)
     return QColor();
-  QString colorName = variant.toString();
-  return colorName.isEmpty() ? QColor::fromRgb(0, 0, 0, 0) : QColor::fromString(colorName);
+  return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
+}
 
 inline bool beginTell(QTextCursor &cursor, int lastTellPosition)
 {
@@ -38,6 +47,24 @@ inline void endTell(QTextCursor &cursor, bool insideTell)
     cursor.insertBlock();
 }
 
+int ScriptApi::RGBColourToCode(const QColor &color)
+{
+  if (!color.isValid())
+    return -1;
+  int r, g, b;
+  color.getRgb(&r, &g, &b);
+  return b << 16 | g << 8 | r;
+}
+
+QColor ScriptApi::RGBCodeToColour(int rgb)
+{
+  return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
+}
+
+void ScriptApi::SetClipboard(const QString &text)
+{
+  QGuiApplication::clipboard()->setText(text);
+}
 
 ScriptApi::ScriptApi(WorldTab *parent)
     : QObject(parent),
@@ -65,6 +92,12 @@ QVariant ScriptApi::GetOption(const std::string &name) const
 }
 
 ScriptReturnCode ScriptApi::Send(const QByteArrayView &view)
+{
+  echo(QString::fromUtf8(view));
+  return SendNoEcho(view);
+}
+
+ScriptReturnCode ScriptApi::SendNoEcho(const QByteArrayView &view)
 {
   if (view.isEmpty())
     return ScriptReturnCode::OK;

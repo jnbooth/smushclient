@@ -1,5 +1,6 @@
 #include "qlua.h"
 #include <QtCore/QUuid>
+#include <QtGui/QColor>
 
 extern "C"
 {
@@ -34,9 +35,6 @@ QColor toColor(lua_State *L, int idx)
 {
   size_t len;
   const char *message = lua_tolstring(L, idx, &len);
-  if (len == 0)
-    return QColor();
-
   if (len == 0)
     return QColor();
 
@@ -194,6 +192,11 @@ const char *qlua::pushBytes(lua_State *L, const QByteArray &bytes)
   return lua_pushlstring(L, bytes.constData(), bytes.size());
 }
 
+void qlua::pushQColor(lua_State *L, const QColor &color)
+{
+  pushQString(L, color.name());
+}
+
 void qlua::pushQHash(lua_State *L, const QVariantHash &variants)
 {
   lua_createtable(L, 0, variants.size());
@@ -235,8 +238,10 @@ void qlua::pushQStrings(lua_State *L, const QStringList &strings)
 
 void qlua::pushQVariant(lua_State *L, const QVariant &variant)
 {
-  switch (variant.typeId())
+  QMetaType type = variant.metaType();
+  switch (type.id())
   {
+  case QMetaType::UnknownType:
   case QMetaType::Nullptr:
     lua_pushnil(L);
     return;
@@ -251,12 +256,12 @@ void qlua::pushQVariant(lua_State *L, const QVariant &variant)
   case QMetaType::ULong:
   case QMetaType::ULongLong:
   case QMetaType::UShort:
-    lua_pushinteger(L, variant.toLongLong());
+    lua_pushinteger(L, variant.value<lua_Integer>());
     return;
   case QMetaType::Double:
   case QMetaType::Float:
   case QMetaType::Float16:
-    lua_pushnumber(L, variant.toDouble());
+    lua_pushnumber(L, variant.value<lua_Number>());
     return;
   case QMetaType::QChar:
     pushQString(L, variant.toChar());
@@ -283,7 +288,7 @@ void qlua::pushQVariant(lua_State *L, const QVariant &variant)
     pushQString(L, charString((char)variant.value<unsigned char>()));
     return;
   case QMetaType::QColor:
-    pushQString(L, variant.value<QColor>().name());
+    pushQColor(L, variant.value<QColor>());
     return;
   case QMetaType::QUuid:
     pushQString(L, variant.toUuid().toString());
@@ -304,7 +309,7 @@ void qlua::pushQVariant(lua_State *L, const QVariant &variant)
       pushQVariants(L, variant.toList());
     return;
   default:
-    if (variant.canConvert<int>())
+    if (type.flags().testFlag(QMetaType::IsEnumeration))
       lua_pushinteger(L, variant.toInt());
     else
       lua_pushnil(L);

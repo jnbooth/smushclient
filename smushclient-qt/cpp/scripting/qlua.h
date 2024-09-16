@@ -36,6 +36,7 @@ namespace qlua
   int loadQString(lua_State *L, const QString &chunk);
 
   const char *pushBytes(lua_State *L, const QByteArray &bytes);
+  void pushQColor(lua_State *L, const QColor &color);
   void pushQHash(lua_State *L, const QVariantHash &variants);
   void pushQMap(lua_State *L, const QVariantMap &variants);
   const char *pushQString(lua_State *L, const QString &string);

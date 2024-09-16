@@ -10,6 +10,7 @@ extern "C"
 
 using std::sort;
 using std::string;
+using std::unordered_map;
 using std::vector;
 
 string toSnakeCase(const string &key)
@@ -37,30 +38,95 @@ string toSnakeCase(const string &key)
   return result;
 }
 
-const WorldProperties WorldProperties::instance;
-
 WorldProperties::WorldProperties()
 {
   const QMetaObject &metaObject = World::staticMetaObject;
   int offset = metaObject.propertyOffset();
   int count = metaObject.propertyCount();
   size_t size = count - offset;
-  lookup.reserve(size);
-  sortedKeys.reserve(size);
+  names.reserve(size);
+  numericProps.reserve(size);
+  stringProps.reserve(size);
   for (int i = offset; i < count; ++i)
   {
-    string name = metaObject.property(i).name();
+    const QMetaProperty prop = metaObject.property(i);
+    const string name = prop.name();
     if (!name.rfind("ansi", 0))
       continue;
-    string key = toSnakeCase(name);
-    lookup[key] = name;
-    sortedKeys.push_back(key);
+    const string key = toSnakeCase(name);
+    addProp(key, prop.metaType());
+    names[key] = name;
   }
-  sort(sortedKeys.begin(), sortedKeys.end());
+  numericProps.shrink_to_fit();
+  stringProps.shrink_to_fit();
+  sort(numericProps.begin(), numericProps.end());
+  sort(stringProps.begin(), stringProps.end());
+}
+
+void WorldProperties::addProp(const string &prop, const QMetaType &type)
+{
+  int id = type.id();
+  switch (id)
+  {
+  case QMetaType::Bool:
+  case QMetaType::Int:
+  case QMetaType::UInt:
+  case QMetaType::Long:
+  case QMetaType::LongLong:
+  case QMetaType::Short:
+  case QMetaType::ULong:
+  case QMetaType::ULongLong:
+  case QMetaType::UShort:
+  case QMetaType::Double:
+  case QMetaType::Float:
+  case QMetaType::Float16:
+    numericProps.push_back(prop);
+    break;
+  case QMetaType::QChar:
+  case QMetaType::QString:
+  case QMetaType::QByteArray:
+  case QMetaType::Char:
+  case QMetaType::Char16:
+  case QMetaType::Char32:
+  case QMetaType::SChar:
+  case QMetaType::UChar:
+  case QMetaType::QUuid:
+  case QMetaType::QStringList:
+    stringProps.push_back(prop);
+    break;
+  case QMetaType::QColor:
+    numericProps.push_back(prop);
+    stringProps.push_back(prop);
+    break;
+  default:
+    if (type.flags().testFlag(QMetaType::IsEnumeration))
+      numericProps.push_back(prop);
+  }
+}
+
+unordered_map<string, string> createNameMap()
+{
+  unordered_map<string, string> map;
+  const QMetaObject &metaObject = World::staticMetaObject;
+  int offset = metaObject.propertyOffset();
+  int count = metaObject.propertyCount();
+  size_t size = count - offset;
+  map.reserve(size);
+  for (int i = offset; i < count; ++i)
+  {
+    const QMetaProperty prop = metaObject.property(i);
+    const string name = prop.name();
+    if (!name.rfind("ansi", 0))
+      continue;
+    const string key = toSnakeCase(name);
+    map[key] = name;
+  }
+  return map;
 }
 
 const char *WorldProperties::canonicalName(const std::string &name)
 {
-  auto search = instance.lookup.find(name);
-  return (search == instance.lookup.end()) ? nullptr : search->second.data();
+  const unordered_map<string, string> &names = getInstance().names;
+  auto search = names.find(name);
+  return (search == names.end()) ? nullptr : search->second.data();
 }
