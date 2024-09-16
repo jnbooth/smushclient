@@ -1,8 +1,7 @@
-#include <unordered_map>
-#include <QtCore/QMetaProperty>
-#include "cxx-qt-gen/ffi.cxxqt.h"
 #include "worldproperties.h"
+#include <QtCore/QMetaProperty>
 #include "qlua.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 extern "C"
 {
 #include "lua.h"

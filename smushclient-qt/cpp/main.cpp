@@ -1,8 +1,5 @@
-#include "./ui/app.h"
-
 #include <QtWidgets/QApplication>
-#include <QtNetwork/QTcpSocket>
-#include <QtCore/qmetatype.h>
+#include "./ui/app.h"
 
 int main(int argc, char *argv[])
 {

@@ -3,8 +3,8 @@
 
 #include <QtCore/QVector>
 #include <QtGui/QTextCursor>
-#include <QtWidgets/QLineEdit>
 #include <QtNetwork/QTcpSocket>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QScrollBar>
 #include <QtWidgets/QTextBrowser>

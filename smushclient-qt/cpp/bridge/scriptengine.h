@@ -1,11 +1,7 @@
 #ifndef SCRIPTENGINE_H
 #define SCRIPTENGINE_H
-#include <QtCore/QStringList>
-#include <QtGui/QTextCharFormat>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextDocument>
-#include <QtWidgets/QLineEdit>
 #include <vector>
+#include <QtCore/QStringList>
 
 class ScriptApi;
 struct Plugin;

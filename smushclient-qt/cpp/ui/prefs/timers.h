@@ -1,8 +1,6 @@
 #pragma once
-#include <QtWidgets/QWidget>
-#include <QtWidgets/QTreeWidget>
-#include "cxx-qt-gen/ffi.cxxqt.h"
 #include "abstractprefstree.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {

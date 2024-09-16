@@ -1,7 +1,5 @@
 #include "qlua.h"
 #include <QtCore/QUuid>
-#include <QtGui/QColor>
-
 extern "C"
 {
 #include "lauxlib.h"

@@ -1,7 +1,5 @@
 #pragma once
-#include <QtWidgets/QWidget>
 #include <QtWidgets/QTreeWidget>
-#include <QtWidgets/QTreeWidgetItem>
 
 class AbstractPrefsTree : public QWidget
 {

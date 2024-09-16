@@ -1,5 +1,4 @@
 #pragma once
-#include "scriptapi.h"
 #include "scriptstate.h"
 
 typedef struct Plugin

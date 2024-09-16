@@ -1,11 +1,9 @@
 #include "document.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
-#include "../ui/worldtab.h"
-#include "../ui/ui_worldtab.h"
-#include <QtGui/QTextDocument>
 #include <QtWidgets/QScrollBar>
-#include <QtWidgets/QApplication>
 #include <QtWidgets/QStatusBar>
+#include "../ui/ui_worldtab.h"
+#include "../ui/worldtab.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 // Utilities
 

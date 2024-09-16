@@ -1,10 +1,9 @@
 #include "app.h"
-#include "../settings.h"
 #include "ui_app.h"
 #include "worldtab.h"
+#include "../settings.h"
 
 #include <QtWidgets/QFileDialog>
-#include <QtWidgets/QMainWindow>
 
 App::App(QWidget *parent)
     : QMainWindow(parent),

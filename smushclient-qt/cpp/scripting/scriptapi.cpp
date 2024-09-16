@@ -1,9 +1,9 @@
-#include <QtGui/QGuiApplication>
-#include <QtGui/QClipboard>
 #include "scriptapi.h"
+#include <QtGui/QClipboard>
+#include <QtGui/QGuiApplication>
+#include "worldproperties.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
-#include "worldproperties.h"
 
 inline QTextCharFormat colorFormat(const QColor &foreground, const QColor &background)
 {

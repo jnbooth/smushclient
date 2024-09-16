@@ -1,19 +1,19 @@
-#include "rust/cxx.h"
-#include "../bridge/scriptengine.h"
-#include "../settings.h"
 #include "worldtab.h"
-#include "ui_worldtab.h"
-#include "worldprefs.h"
+#include <QtCore/QUrl>
 #include <QtGui/QAction>
 #include <QtGui/QDesktopServices>
-#include <QtGui/QFont>
 #include <QtGui/QFontDatabase>
 #include <QtGui/QPalette>
-#include <QtCore/QUrl>
-#include <QtWidgets/QDialog>
+#include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
-#include <QtWidgets/QErrorMessage>
+#include "ui_worldtab.h"
+#include "worldprefs.h"
+#include "../bridge/document.h"
+#include "../bridge/scriptengine.h"
+#include "../scripting/scriptapi.h"
+#include "../settings.h"
+#include "rust/cxx.h"
 
 void setColors(QWidget *widget, const QColor &foreground, const QColor &background)
 {

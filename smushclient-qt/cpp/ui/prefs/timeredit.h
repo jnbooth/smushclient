@@ -1,7 +1,6 @@
 #pragma once
-#include "cxx-qt-gen/ffi.cxxqt.h"
 #include <QtWidgets/QDialog>
-#include <QtWidgets/QWidget>
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {

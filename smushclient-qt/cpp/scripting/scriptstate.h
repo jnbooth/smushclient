@@ -1,6 +1,6 @@
 #pragma once
-#include <QtCore/QString>
 #include <QtCore/QPointer>
+#include <QtCore/QString>
 #include "scriptapi.h"
 
 struct lua_State;

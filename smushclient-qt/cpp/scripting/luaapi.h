@@ -1,10 +1,12 @@
 #pragma once
-
-#include "scriptapi.h"
+#include <string>
+#include <unordered_map>
 extern "C"
 {
 #include "lua.h"
 }
+
+class ScriptApi;
 
 std::unordered_map<std::string, std::string> *createVariableMap(lua_State *L);
 std::unordered_map<std::string, std::string> *getVariableMap(lua_State *L);

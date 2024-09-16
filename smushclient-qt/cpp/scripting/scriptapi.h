@@ -1,13 +1,8 @@
 #pragma once
 
-#include <QtCore/QObject>
-#include <QtGui/QTextCharFormat>
-#include <QtGui/QTextCursor>
-#include <QtGui/QTextDocument>
-#include <QtWidgets/QLineEdit>
-#include <QtNetwork/QTcpSocket>
 #include <string>
-#include <vector>
+#include <unordered_map>
+#include <QtGui/QTextCursor>
 #include "scriptenums.h"
 
 class World;

@@ -1,9 +1,8 @@
 #include "scriptstate.h"
-#include <QtCore/QPointer>
 #include <QtCore/QCoreApplication>
 #include <QtWidgets/QErrorMessage>
-#include "qlua.h"
 #include "luaapi.h"
+#include "qlua.h"
 extern "C"
 {
 #include "lauxlib.h"

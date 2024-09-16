@@ -1,5 +1,4 @@
-#include <string>
-#include <unordered_map>
+#include "luaapi.h"
 #include <QtCore/QPointer>
 #include "qlua.h"
 #include "scriptapi.h"
@@ -94,19 +93,19 @@ static int L_GetOption(lua_State *L)
   const QMetaType type = option.metaType();
   switch (type.id())
   {
-    case QMetaType::Double:
-    case QMetaType::Float:
-    case QMetaType::Float16:
-      lua_pushnumber(L, option.value<lua_Number>());
-      break;
-    case QMetaType::QColor:
-      lua_pushinteger(L, ScriptApi::RGBColourToCode(option.value<QColor>()));
-      break;
-    default:
-      if (option.canConvert<lua_Integer>())
-        lua_pushinteger(L, option.value<lua_Integer>());
-      else
-        lua_pushinteger(L, -1);
+  case QMetaType::Double:
+  case QMetaType::Float:
+  case QMetaType::Float16:
+    lua_pushnumber(L, option.value<lua_Number>());
+    break;
+  case QMetaType::QColor:
+    lua_pushinteger(L, ScriptApi::RGBColourToCode(option.value<QColor>()));
+    break;
+  default:
+    if (option.canConvert<lua_Integer>())
+      lua_pushinteger(L, option.value<lua_Integer>());
+    else
+      lua_pushinteger(L, -1);
   }
   return 1;
 }

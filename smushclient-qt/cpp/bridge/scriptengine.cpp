@@ -1,6 +1,5 @@
 #include "scriptengine.h"
 #include <QtCore/QCoreApplication>
-#include <QtWidgets/QErrorMessage>
 #include "../scripting/plugin.h"
 #include "../scripting/scriptapi.h"
 

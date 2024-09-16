@@ -1,6 +1,5 @@
 #pragma once
 #include <QtWidgets/QDialog>
-#include <QtWidgets/QWidget>
 
 namespace Ui
 {

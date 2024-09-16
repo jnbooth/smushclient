@@ -1,6 +1,4 @@
 #pragma once
-#include <QtCore/QObject>
-#include <QtCore/QTime>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFontComboBox>
@@ -10,7 +8,6 @@
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QTimeEdit>
-#include <QtWidgets/QWidget>
 #include "./ui/components/colorpickerbutton.h"
 
 #define CONNECT_WORLD(field) connectField(this, &world, ui->field, world.get##field(), &World::set##field);

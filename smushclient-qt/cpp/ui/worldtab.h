@@ -1,9 +1,10 @@
 #pragma once
 #include <QtNetwork/QTcpSocket>
 #include <QtWidgets/QSplitter>
-#include "../bridge/document.h"
-#include "../scripting/scriptapi.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
+
+class Document;
+class ScriptApi;
 
 namespace Ui
 {

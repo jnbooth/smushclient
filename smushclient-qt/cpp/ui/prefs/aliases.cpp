@@ -1,8 +1,8 @@
-#include "../../fieldconnector.h"
-#include "../../bridge/treebuilder.h"
 #include "aliases.h"
-#include "ui_aliases.h"
 #include "aliasedit.h"
+#include "ui_aliases.h"
+#include "../../bridge/treebuilder.h"
+#include "../../fieldconnector.h"
 
 PrefsAliases::PrefsAliases(World &world, QWidget *parent)
     : AbstractPrefsTree(parent),

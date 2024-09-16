@@ -2,7 +2,6 @@
 #include "ui_logging.h"
 #include "../../enumbuttongroup.h"
 #include "../../fieldconnector.h"
-#include <QtWidgets/QButtonGroup>
 
 PrefsLogging::PrefsLogging(World &world, QWidget *parent)
     : QWidget(parent),

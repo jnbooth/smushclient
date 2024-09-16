@@ -1,5 +1,4 @@
 #pragma once
-#include <QtCore/QString>
 #include <QtCore/QVariant>
 #include <QtGui/QColor>
 

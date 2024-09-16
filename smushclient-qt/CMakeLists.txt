@@ -63,7 +63,7 @@ qt_add_executable(${APP_NAME}
     cpp/bridge/treebuilder.h cpp/bridge/treebuilder.cpp
 
     cpp/scripting/luaapi.h cpp/scripting/luaapi.cpp
-    cpp/scripting/plugin.h cpp/scripting/plugin.cpp
+    cpp/scripting/plugin.h
     cpp/scripting/qlua.h cpp/scripting/qlua.cpp
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
     cpp/scripting/scriptstate.h cpp/scripting/scriptstate.cpp

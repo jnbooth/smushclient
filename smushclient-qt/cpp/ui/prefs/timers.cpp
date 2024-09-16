@@ -1,8 +1,8 @@
-#include "../../fieldconnector.h"
-#include "../../bridge/treebuilder.h"
 #include "timers.h"
-#include "ui_timers.h"
 #include "timeredit.h"
+#include "ui_timers.h"
+#include "../../bridge/treebuilder.h"
+#include "../../fieldconnector.h"
 
 PrefsTimers::PrefsTimers(World &world, QWidget *parent)
     : AbstractPrefsTree(parent),

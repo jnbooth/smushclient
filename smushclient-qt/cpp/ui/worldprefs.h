@@ -1,8 +1,7 @@
 #pragma once
+#include <QtCore/QList>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QTreeWidgetItem>
-#include <QtWidgets/QWidget>
-#include <QtCore/QList>
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui

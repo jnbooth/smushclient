@@ -2,7 +2,6 @@
 #define VIEWBUILDER_H
 
 #include <QtWidgets/QTreeWidget>
-#include <QtWidgets/QTreeWidgetItem>
 
 class TreeBuilder
 {
