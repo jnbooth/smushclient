@@ -23,16 +23,16 @@ public:
   ScriptApi(WorldTab *parent);
 
   void ColourTell(const QColor &foreground, const QColor &background, const QString &text);
-  QVariant GetOption(const std::string &name) const;
+  QVariant GetOption(std::string_view name) const;
   ScriptReturnCode Send(const QByteArrayView &bytes);
   ScriptReturnCode SendNoEcho(const QByteArrayView &bytes) const;
-  ScriptReturnCode SetOption(const std::string &name, const QVariant &variant) const;
+  ScriptReturnCode SetOption(std::string_view name, const QVariant &variant) const;
   void Tell(const QString &text);
 
   void applyWorld(const World &world);
   void echo(const QString &text);
   void finishNote();
-  std::unordered_map<std::string, std::string> *getVariableMap(const std::string &pluginID) const;
+  std::unordered_map<std::string, std::string> *getVariableMap(std::string_view pluginID) const;
   void initializeScripts(const QStringList &scripts);
   void printError(const QString &message);
   inline bool runScript(size_t plugin, const QString &script) { return runScript(plugins[plugin], script); }

@@ -5,6 +5,10 @@
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 
+using std::string;
+using std::string_view;
+using std::unordered_map;
+
 inline QTextCharFormat colorFormat(const QColor &foreground, const QColor &background)
 {
   QTextCharFormat format;
@@ -82,7 +86,7 @@ void ScriptApi::ColourTell(const QColor &foreground, const QColor &background, c
   lastTellPosition = cursor.position();
 }
 
-QVariant ScriptApi::GetOption(const std::string &name) const
+QVariant ScriptApi::GetOption(string_view name) const
 {
   const char *prop = WorldProperties::canonicalName(name);
   if (prop == nullptr)
@@ -139,7 +143,7 @@ inline ScriptReturnCode updateWorld(WorldTab &worldtab)
   return worldtab.updateWorld() ? ScriptReturnCode::OK : ScriptReturnCode::OptionOutOfRange;
 }
 
-ScriptReturnCode ScriptApi::SetOption(const std::string &name, const QVariant &variant) const
+ScriptReturnCode ScriptApi::SetOption(string_view name, const QVariant &variant) const
 {
   WorldTab &worldtab = *tab();
   World &world = worldtab.world;
@@ -195,9 +199,9 @@ void ScriptApi::finishNote()
   lastTellPosition = -1;
 }
 
-std::unordered_map<std::string, std::string> *ScriptApi::getVariableMap(const std::string &pluginID) const
+unordered_map<string, string> *ScriptApi::getVariableMap(string_view pluginID) const
 {
-  auto search = variables.find(pluginID);
+  auto search = variables.find((string)pluginID);
   if (search == variables.end())
     return nullptr;
   return search->second;
@@ -214,7 +218,7 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
   for (auto it = scripts.cbegin(), end = scripts.cend(); it != end; ++it)
   {
     ScriptState &plugin = plugins.emplace_back(this);
-    const std::string pluginID = it->toStdString();
+    const string pluginID = it->toStdString();
     plugin.setID(pluginID);
     variables[pluginID] = plugin.variables();
     if (!runScript(plugin, *++it))

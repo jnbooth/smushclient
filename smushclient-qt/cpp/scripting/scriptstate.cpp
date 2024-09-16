@@ -16,6 +16,10 @@ extern "C"
   LUALIB_API int luaopen_util(lua_State *L);
 }
 
+using std::string;
+using std::string_view;
+using std::unordered_map;
+
 inline bool checkError(int status)
 {
   switch (status)
@@ -94,12 +98,12 @@ RunScriptResult ScriptState::runScript(const QString &script) const
   return RunScriptResult::Ok;
 }
 
-void ScriptState::setID(const std::string &pluginID) const
+void ScriptState::setID(string_view pluginID) const
 {
   setPluginID(L, pluginID);
 }
 
-std::unordered_map<std::string, std::string> *ScriptState::variables() const
+unordered_map<string, string> *ScriptState::variables() const
 {
   return getVariableMap(L);
 }

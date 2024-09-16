@@ -124,9 +124,9 @@ unordered_map<string, string> createNameMap()
   return map;
 }
 
-const char *WorldProperties::canonicalName(const std::string &name)
+const char *WorldProperties::canonicalName(std::string_view name)
 {
   const unordered_map<string, string> &names = getInstance().names;
-  auto search = names.find(name);
+  auto search = names.find((string)name);
   return (search == names.end()) ? nullptr : search->second.data();
 }

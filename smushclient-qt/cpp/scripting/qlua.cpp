@@ -6,6 +6,7 @@ extern "C"
 }
 
 using std::string;
+using std::string_view;
 using std::vector;
 
 inline QString charString(char c) { return QString::fromUtf8(&c, 1); }
@@ -70,11 +71,11 @@ QVariantList toQVariants(lua_State *L, int idx, qsizetype size)
   return variants;
 }
 
-string toString(lua_State *L, int idx)
+string_view toString(lua_State *L, int idx)
 {
   size_t len;
   const char *message = lua_tolstring(L, idx, &len);
-  return string(message, len);
+  return string_view(message, len);
 }
 
 QByteArrayView qlua::borrowBytes(lua_State *L, int idx)
@@ -167,13 +168,13 @@ QVariant qlua::getQVariant(lua_State *L, int idx, int type)
   }
 }
 
-string qlua::getString(lua_State *L, int idx)
+string_view qlua::getString(lua_State *L, int idx)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
   return toString(L, idx);
 }
 
-string qlua::getString(lua_State *L, int idx, string ifNil)
+string_view qlua::getString(lua_State *L, int idx, string ifNil)
 {
   return checkIsSome(L, idx, LUA_TSTRING, "string") ? toString(L, idx) : ifNil;
 }
@@ -327,7 +328,7 @@ void qlua::pushQVariants(lua_State *L, const QVariantList &variants)
   }
 }
 
-const char *qlua::pushString(lua_State *L, const string &string)
+const char *qlua::pushString(lua_State *L, string_view string)
 {
   return lua_pushlstring(L, string.data(), string.size());
 }

@@ -29,8 +29,8 @@ namespace qlua
   QVariant getQVariant(lua_State *L, int idx, int type);
   inline QVariant getQVariant(lua_State *L, int idx) { return getQVariant(L, idx, lua_type(L, idx)); }
 
-  std::string getString(lua_State *L, int idx);
-  std::string getString(lua_State *L, int idx, std::string ifNil);
+  std::string_view getString(lua_State *L, int idx);
+  std::string_view getString(lua_State *L, int idx, std::string ifNil);
 
   int loadQString(lua_State *L, const QString &chunk);
 
@@ -42,6 +42,6 @@ namespace qlua
   void pushQStrings(lua_State *L, const QStringList &strings);
   void pushQVariant(lua_State *L, const QVariant &variant);
   void pushQVariants(lua_State *L, const QVariantList &variants);
-  const char *pushString(lua_State *L, const std::string &string);
+  const char *pushString(lua_State *L, std::string_view string);
   void pushStrings(lua_State *L, const std::vector<std::string> &strings);
 }

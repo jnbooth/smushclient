@@ -11,7 +11,7 @@ extern "C"
 class WorldProperties
 {
 public:
-  static const char *canonicalName(const std::string &key);
+  static const char *canonicalName(std::string_view key);
   inline static const std::vector<std::string> &numericOptions() { return getInstance().numericProps; };
   inline static const std::vector<std::string> &stringOptions() { return getInstance().stringProps; };
 

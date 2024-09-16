@@ -18,6 +18,7 @@ extern "C"
 #define WORLD_REG_KEY "smushclient.world"
 
 using std::string;
+using std::string_view;
 using stringmap = std::unordered_map<string, string>;
 
 // utils
@@ -64,7 +65,7 @@ void setLuaApi(lua_State *L, ScriptApi *api)
   *createUserdata<QPointer<ScriptApi>>(L, API_REG_KEY) = api;
 }
 
-void setPluginID(lua_State *L, const std::string &pluginID)
+void setPluginID(lua_State *L, std::string_view pluginID)
 {
   qlua::pushString(L, pluginID);
   lua_setfield(L, LUA_REGISTRYINDEX, ID_REG_KEY);
@@ -224,9 +225,9 @@ inline stringmap *getVariableMap(lua_State *L)
   return getUserdata<stringmap>(L, VARIABLES_REG_KEY);
 }
 
-inline void pushVariable(lua_State *L, const stringmap &vars, const string &name)
+inline void pushVariable(lua_State *L, const stringmap &vars, string_view name)
 {
-  if (auto search = vars.find(name); search != vars.end())
+  if (auto search = vars.find((string)name); search != vars.end())
     qlua::pushString(L, search->second);
   else
     lua_pushnil(L);
@@ -250,7 +251,7 @@ static int L_GetPluginVariable(lua_State *L)
 
 static int L_SetVariable(lua_State *L)
 {
-  (*getVariableMap(L))[qlua::getString(L, 1)] = qlua::getString(L, 2);
+  (*getVariableMap(L))[(string)qlua::getString(L, 1)] = qlua::getString(L, 2);
   return returnCode(L, ScriptReturnCode::OK);
 }
 
