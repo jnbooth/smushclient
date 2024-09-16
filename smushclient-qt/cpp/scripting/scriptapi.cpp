@@ -199,12 +199,15 @@ void ScriptApi::finishNote()
   lastTellPosition = -1;
 }
 
-unordered_map<string, string> *ScriptApi::getVariableMap(string_view pluginID) const
+lua_State *ScriptApi::getLuaState(string_view pluginID) const
 {
-  auto search = variables.find((string)pluginID);
-  if (search == variables.end())
+  auto search = pluginIndices.find((string)pluginID);
+  if (search == pluginIndices.end())
     return nullptr;
-  return search->second;
+  const ScriptState &plugin = plugins[search->second];
+  if (plugin.isDisabled())
+    return nullptr;
+  return plugin.state();
 }
 
 void ScriptApi::initializeScripts(const QStringList &scripts)
@@ -212,15 +215,15 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
   size_t size = scripts.size();
   plugins.clear();
   plugins.reserve(size);
-  variables.clear();
-  variables.reserve(size);
+  pluginIndices.clear();
+  pluginIndices.reserve(size);
   QString error;
   for (auto it = scripts.cbegin(), end = scripts.cend(); it != end; ++it)
   {
-    ScriptState &plugin = plugins.emplace_back(this);
     const string pluginID = it->toStdString();
+    pluginIndices[pluginID] = plugins.size();
+    ScriptState &plugin = plugins.emplace_back(this);
     plugin.setID(pluginID);
-    variables[pluginID] = plugin.variables();
     if (!runScript(plugin, *++it))
       plugin.disable();
   }

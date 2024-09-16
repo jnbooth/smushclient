@@ -32,7 +32,7 @@ public:
   void applyWorld(const World &world);
   void echo(const QString &text);
   void finishNote();
-  std::unordered_map<std::string, std::string> *getVariableMap(std::string_view pluginID) const;
+  lua_State *getLuaState(std::string_view pluginID) const;
   void initializeScripts(const QStringList &scripts);
   void printError(const QString &message);
   inline bool runScript(size_t plugin, const QString &script) { return runScript(plugins[plugin], script); }
@@ -43,7 +43,7 @@ private:
   QTextCharFormat errorFormat;
   int lastTellPosition;
   std::vector<ScriptState> plugins;
-  std::unordered_map<std::string, std::unordered_map<std::string, std::string> *> variables;
+  std::unordered_map<std::string, size_t> pluginIndices;
 
   bool handleResult(RunScriptResult result, const ScriptState &plugin);
   bool runScript(ScriptState &plugin, const QString &script);

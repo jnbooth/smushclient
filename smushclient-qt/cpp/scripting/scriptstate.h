@@ -26,10 +26,11 @@ public:
   ScriptState &operator=(const ScriptState &) = delete;
 
   void disable();
+  inline bool isDisabled() const { return disabled; };
   RunScriptResult runScript(const QString &script) const;
   QString getError() const;
   void setID(std::string_view pluginID) const;
-  std::unordered_map<std::string, std::string> *variables() const;
+  inline lua_State *state() const { return L; }
 
 private:
   lua_State *L;

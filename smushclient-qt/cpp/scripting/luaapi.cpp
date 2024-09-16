@@ -241,11 +241,11 @@ static int L_GetVariable(lua_State *L)
 
 static int L_GetPluginVariable(lua_State *L)
 {
-  const stringmap *vars = getApi(L).getVariableMap(qlua::getString(L, 1));
-  if (vars == nullptr)
+  lua_State *pluginState = getApi(L).getLuaState(qlua::getString(L, 1));
+  if (pluginState == nullptr)
     lua_pushnil(L);
   else
-    pushVariable(L, *vars, qlua::getString(L, 2));
+    pushVariable(L, *getVariableMap(pluginState), qlua::getString(L, 2));
   return 1;
 }
 
