@@ -220,10 +220,12 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
   QString error;
   for (auto it = scripts.cbegin(), end = scripts.cend(); it != end; ++it)
   {
-    const string pluginID = it->toStdString();
-    pluginIndices[pluginID] = plugins.size();
-    Plugin &plugin = plugins.emplace_back(this);
-    plugin.setID(pluginID);
+    PluginMetadata metadata{
+        .id = *it,
+        .name = *++it,
+    };
+    pluginIndices[metadata.id.toStdString()] = plugins.size();
+    Plugin &plugin = plugins.emplace_back(this, std::move(metadata));
     if (!runScript(plugin, *++it))
       plugin.disable();
   }

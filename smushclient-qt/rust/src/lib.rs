@@ -81,6 +81,12 @@ pub mod ffi {
         unsafe fn write(self: Pin<&mut QTcpSocket>, data: *const c_char, max_size: i64) -> i64;
     }
 
+    struct PluginPack {
+        id: QString,
+        name: QString,
+        script: QString,
+    }
+
     enum SendTo {
         Internet,
         World,

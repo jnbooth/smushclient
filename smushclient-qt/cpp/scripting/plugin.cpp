@@ -45,9 +45,10 @@ static int panic(lua_State *L)
   return 0;
 }
 
-Plugin::Plugin(ScriptApi *api)
+Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
     : L(luaL_newstate()),
-      disabled(false)
+      disabled(false),
+      metadata(metadata)
 {
   if (L == nullptr)
     throw std::bad_alloc();
@@ -63,6 +64,7 @@ Plugin::Plugin(ScriptApi *api)
   lua_settop(L, 0);
   registerLuaWorld(L);
   createVariableMap(L);
+  setPluginID(L, metadata.id.toStdString());
   setLuaApi(L, api);
 }
 
@@ -96,9 +98,4 @@ RunScriptResult Plugin::runScript(const QString &script) const
     return RunScriptResult::RuntimeError;
 
   return RunScriptResult::Ok;
-}
-
-void Plugin::setID(string_view pluginID) const
-{
-  setPluginID(L, pluginID);
 }
