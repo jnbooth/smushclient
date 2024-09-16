@@ -30,7 +30,7 @@ namespace qlua
   inline QVariant getQVariant(lua_State *L, int idx) { return getQVariant(L, idx, lua_type(L, idx)); }
 
   std::string_view getString(lua_State *L, int idx);
-  std::string_view getString(lua_State *L, int idx, std::string ifNil);
+  std::string_view getString(lua_State *L, int idx, std::string_view ifNil);
 
   int loadQString(lua_State *L, const QString &chunk);
 

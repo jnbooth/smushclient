@@ -64,7 +64,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/luaapi.h cpp/scripting/luaapi.cpp
     cpp/scripting/qlua.h cpp/scripting/qlua.cpp
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
-    cpp/scripting/scriptstate.h cpp/scripting/scriptstate.cpp
+    cpp/scripting/plugin.h cpp/scripting/plugin.cpp
     cpp/scripting/worldproperties.h cpp/scripting/worldproperties.cpp
 
     cpp/ui/app.h cpp/ui/app.cpp cpp/ui/app.ui

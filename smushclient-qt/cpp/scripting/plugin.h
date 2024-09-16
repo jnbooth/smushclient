@@ -15,15 +15,15 @@ enum struct RunScriptResult
   RuntimeError,
 };
 
-class ScriptState
+class Plugin
 {
 public:
-  ScriptState(ScriptApi *api);
-  ScriptState(ScriptState &&other);
-  ~ScriptState();
+  Plugin(ScriptApi *api);
+  Plugin(Plugin &&other);
+  ~Plugin();
 
-  ScriptState(const ScriptState &) = delete;
-  ScriptState &operator=(const ScriptState &) = delete;
+  Plugin(const Plugin &) = delete;
+  Plugin &operator=(const Plugin &) = delete;
 
   void disable();
   inline bool isDisabled() const { return disabled; };

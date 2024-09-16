@@ -1,4 +1,4 @@
-#include "scriptstate.h"
+#include "plugin.h"
 #include <QtCore/QCoreApplication>
 #include <QtWidgets/QErrorMessage>
 #include "luaapi.h"
@@ -45,7 +45,7 @@ static int panic(lua_State *L)
   return 0;
 }
 
-ScriptState::ScriptState(ScriptApi *api)
+Plugin::Plugin(ScriptApi *api)
     : L(luaL_newstate()),
       disabled(false)
 {
@@ -66,25 +66,25 @@ ScriptState::ScriptState(ScriptApi *api)
   setLuaApi(L, api);
 }
 
-ScriptState::ScriptState(ScriptState &&other)
+Plugin::Plugin(Plugin &&other)
     : L(other.L) {}
 
-ScriptState::~ScriptState()
+Plugin::~Plugin()
 {
   lua_close(L);
 }
 
-void ScriptState::disable()
+void Plugin::disable()
 {
   disabled = true;
 }
 
-QString ScriptState::getError() const
+QString Plugin::getError() const
 {
   return qlua::getQString(L, -1);
 }
 
-RunScriptResult ScriptState::runScript(const QString &script) const
+RunScriptResult Plugin::runScript(const QString &script) const
 {
   if (disabled)
     return RunScriptResult::Disabled;
@@ -98,12 +98,7 @@ RunScriptResult ScriptState::runScript(const QString &script) const
   return RunScriptResult::Ok;
 }
 
-void ScriptState::setID(string_view pluginID) const
+void Plugin::setID(string_view pluginID) const
 {
   setPluginID(L, pluginID);
-}
-
-unordered_map<string, string> *ScriptState::variables() const
-{
-  return getVariableMap(L);
 }

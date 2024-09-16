@@ -174,7 +174,7 @@ string_view qlua::getString(lua_State *L, int idx)
   return toString(L, idx);
 }
 
-string_view qlua::getString(lua_State *L, int idx, string ifNil)
+string_view qlua::getString(lua_State *L, int idx, string_view ifNil)
 {
   return checkIsSome(L, idx, LUA_TSTRING, "string") ? toString(L, idx) : ifNil;
 }

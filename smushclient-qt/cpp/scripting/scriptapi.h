@@ -5,7 +5,7 @@
 #include <QtCore/QString>
 #include <QtGui/QTextCursor>
 #include "scriptenums.h"
-#include "scriptstate.h"
+#include "plugin.h"
 
 class World;
 class WorldTab;
@@ -42,10 +42,10 @@ private:
   QTextCharFormat echoFormat;
   QTextCharFormat errorFormat;
   int lastTellPosition;
-  std::vector<ScriptState> plugins;
+  std::vector<Plugin> plugins;
   std::unordered_map<std::string, size_t> pluginIndices;
 
-  bool handleResult(RunScriptResult result, const ScriptState &plugin);
-  bool runScript(ScriptState &plugin, const QString &script);
+  bool handleResult(RunScriptResult result, const Plugin &plugin);
+  bool runScript(Plugin &plugin, const QString &script);
   inline WorldTab *tab() const { return (WorldTab *)parent(); }
 };

@@ -204,7 +204,7 @@ lua_State *ScriptApi::getLuaState(string_view pluginID) const
   auto search = pluginIndices.find((string)pluginID);
   if (search == pluginIndices.end())
     return nullptr;
-  const ScriptState &plugin = plugins[search->second];
+  const Plugin &plugin = plugins[search->second];
   if (plugin.isDisabled())
     return nullptr;
   return plugin.state();
@@ -222,7 +222,7 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
   {
     const string pluginID = it->toStdString();
     pluginIndices[pluginID] = plugins.size();
-    ScriptState &plugin = plugins.emplace_back(this);
+    Plugin &plugin = plugins.emplace_back(this);
     plugin.setID(pluginID);
     if (!runScript(plugin, *++it))
       plugin.disable();
@@ -237,7 +237,7 @@ void ScriptApi::printError(const QString &error)
 
 // private methods
 
-inline bool ScriptApi::handleResult(RunScriptResult result, const ScriptState &plugin)
+inline bool ScriptApi::handleResult(RunScriptResult result, const Plugin &plugin)
 {
   switch (result)
   {
@@ -254,7 +254,7 @@ inline bool ScriptApi::handleResult(RunScriptResult result, const ScriptState &p
   }
 }
 
-inline bool ScriptApi::runScript(ScriptState &plugin, const QString &script)
+inline bool ScriptApi::runScript(Plugin &plugin, const QString &script)
 {
   return handleResult(plugin.runScript(script), plugin);
 }
