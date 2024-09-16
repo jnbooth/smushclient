@@ -317,7 +317,7 @@ pub mod ffi {
         use_default_colours: bool,
         ansi_colors: Vec<RgbColor>,
         custom_color: RgbColor,
-        error_color: RgbColor,
+        error_colour: RgbColor,
 
         triggers: Vec<Trigger>,
         enable_triggers: bool,

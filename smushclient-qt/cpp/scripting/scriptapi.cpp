@@ -19,16 +19,40 @@ inline QColor getColorFromVariant(const QVariant &variant)
     return QColor();
   QString colorName = variant.toString();
   return colorName.isEmpty() ? QColor::fromRgb(0, 0, 0, 0) : QColor::fromString(colorName);
+
+inline bool beginTell(QTextCursor &cursor, int lastTellPosition)
+{
+  if (cursor.position() == lastTellPosition)
+  {
+    cursor.setPosition(lastTellPosition - 1);
+    return true;
+  }
+  return false;
 }
+
+inline void endTell(QTextCursor &cursor, bool insideTell)
+{
+  if (insideTell)
+    cursor.setPosition(cursor.position() + 1);
+  else
+    cursor.insertBlock();
+}
+
 
 ScriptApi::ScriptApi(WorldTab *parent)
     : QObject(parent),
-      cursor(parent->ui->output->document()) {}
+      cursor(parent->ui->output->document()),
+      lastTellPosition(-1)
+{
+  applyWorld(parent->world);
+}
 
 void ScriptApi::ColourTell(const QColor &foreground, const QColor &background, const QString &text)
 {
+  const bool insideTell = beginTell(cursor, lastTellPosition);
   cursor.insertText(text, colorFormat(foreground, background));
-  needsNewline = true;
+  endTell(cursor, insideTell);
+  lastTellPosition = cursor.position();
 }
 
 QVariant ScriptApi::GetOption(const std::string &name) const
@@ -77,7 +101,7 @@ inline bool isEmptyList(const QVariant &variant)
   }
 }
 
-inline ScriptReturnCode applyWorld(WorldTab &worldtab)
+inline ScriptReturnCode updateWorld(WorldTab &worldtab)
 {
   return worldtab.updateWorld() ? ScriptReturnCode::OK : ScriptReturnCode::OptionOutOfRange;
 }
@@ -91,19 +115,19 @@ ScriptReturnCode ScriptApi::SetOption(const std::string &name, const QVariant &v
     return ScriptReturnCode::UnknownOption;
   QVariant property = world.property(prop);
   if (world.setProperty(prop, variant))
-    return applyWorld(worldtab);
+    return updateWorld(worldtab);
 
   switch (property.typeId())
   {
   case QMetaType::QColor:
     if (QColor color = getColorFromVariant(variant); color.isValid() && world.setProperty(prop, color))
-      return applyWorld(worldtab);
+      return updateWorld(worldtab);
   case QMetaType::QVariantHash:
     if (isEmptyList(variant) && world.setProperty(prop, QVariantHash()))
-      return applyWorld(worldtab);
+      return updateWorld(worldtab);
   case QMetaType::QVariantMap:
     if (isEmptyList(variant) && world.setProperty(prop, QVariantMap()))
-      return applyWorld(worldtab);
+      return updateWorld(worldtab);
   }
 
   return ScriptReturnCode::OptionOutOfRange;
@@ -111,24 +135,31 @@ ScriptReturnCode ScriptApi::SetOption(const std::string &name, const QVariant &v
 
 void ScriptApi::Tell(const QString &text)
 {
+  const bool insideTell = beginTell(cursor, lastTellPosition);
   cursor.insertText(text);
-  needsNewline = true;
+  endTell(cursor, insideTell);
+  lastTellPosition = cursor.position();
 }
 
-void ScriptApi::ensureNewline()
+void ScriptApi::applyWorld(const World &world)
 {
-  if (!needsNewline)
-    return;
-  needsNewline = false;
-  if (cursor.atBlockStart())
-    return;
+  QTextCharFormat noteFormat;
+  noteFormat.setForeground(QBrush(world.getCustomColor()));
+  cursor.setCharFormat(noteFormat);
+  echoFormat.setForeground(QBrush(world.getEchoTextColour()));
+  echoFormat.setBackground(QBrush(world.getEchoBackgroundColour()));
+  errorFormat.setForeground(QBrush(world.getErrorColour()));
+}
+
+void ScriptApi::echo(const QString &text)
+{
+  cursor.insertText(text, echoFormat);
   cursor.insertBlock();
 }
 
-void ScriptApi::insertBlock()
+void ScriptApi::finishNote()
 {
-  cursor.insertBlock();
-  needsNewline = false;
+  lastTellPosition = -1;
 }
 
 std::unordered_map<std::string, std::string> *ScriptApi::getVariableMap(const std::string &pluginID)
@@ -141,11 +172,8 @@ std::unordered_map<std::string, std::string> *ScriptApi::getVariableMap(const st
 
 void ScriptApi::printError(const QString &error)
 {
-  ensureNewline();
-  QTextCharFormat errorFormat;
-  errorFormat.setForeground(QBrush(tab()->world.getErrorColor()));
   cursor.insertText(error, errorFormat);
-  insertBlock();
+  cursor.insertBlock();
 }
 
 void ScriptApi::setVariableMap(const std::string &pluginID, std::unordered_map<std::string, std::string> *variableMap)

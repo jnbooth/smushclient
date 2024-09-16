@@ -208,7 +208,7 @@ impl_convert_struct!(
     use_default_colours,
     ansi_colors,
     custom_color,
-    error_color,
+    error_colour,
     triggers,
     enable_triggers,
     enable_trigger_sounds,

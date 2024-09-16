@@ -101,22 +101,16 @@ void Document::appendLine()
   cursor.insertBlock();
 }
 
-void Document::appendText(const QString &text, const QTextCharFormat &format)
-{
-  scriptEngine.api->ensureNewline();
-  cursor.insertText(text, format);
-}
-
 void Document::appendText(const QString &text, int foreground)
 {
-  appendText(text, formats[foreground]);
+  cursor.insertText(text, formats[foreground]);
 }
 
 void Document::appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background)
 {
   QTextCharFormat format;
   applyStyles(format, style, foreground, background);
-  appendText(text, format);
+  cursor.insertText(text, format);
 }
 
 void Document::appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background, const Link &link)
@@ -124,7 +118,7 @@ void Document::appendText(const QString &text, quint16 style, const QColor &fore
   QTextCharFormat format;
   applyStyles(format, style, foreground, background);
   applyLink(format, link);
-  appendText(text, format);
+  cursor.insertText(text, format);
 }
 
 void Document::runScript(size_t plugin, const QString &script)

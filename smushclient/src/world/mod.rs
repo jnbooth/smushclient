@@ -131,7 +131,7 @@ pub struct World {
     pub use_default_colours: bool,
     pub ansi_colors: [RgbColor; 16],
     pub custom_color: RgbColor,
-    pub error_color: RgbColor,
+    pub error_colour: RgbColor,
 
     // Triggers
     #[serde(serialize_with = "skip_temporary")]
@@ -343,7 +343,7 @@ impl World {
             use_default_colours: true,
             ansi_colors: *RgbColor::XTERM_16,
             custom_color: RgbColor::rgb(0, 164, 152),
-            error_color: RgbColor::rgb(127, 0, 0),
+            error_colour: RgbColor::rgb(127, 0, 0),
 
             // Triggers
             triggers: Vec::new(),
@@ -486,7 +486,7 @@ impl World {
     pub fn palette(&self) -> [RgbColor; 166] {
         let mut palette = [RgbColor::BLACK; 166];
         palette[0] = self.custom_color;
-        palette[1] = self.error_color;
+        palette[1] = self.error_colour;
         palette[2..18].copy_from_slice(&self.ansi_colors);
         for (slot, (_name, color)) in palette[19..].iter_mut().zip(RgbColor::iter_named()) {
             *slot = color;

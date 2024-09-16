@@ -24,7 +24,6 @@ public:
   Document(WorldTab *parent, ScriptApi *api);
 
   void appendLine();
-  void appendText(const QString &text, const QTextCharFormat &format);
   void appendText(const QString &text, int format);
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background, const Link &link);
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background);

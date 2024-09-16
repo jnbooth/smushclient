@@ -116,7 +116,7 @@ static int L_ColourNote(lua_State *L)
 {
   ScriptApi &api = getApi(L);
   insertTextTriples(L, api);
-  api.insertBlock();
+  api.finishNote();
   return 0;
 }
 
@@ -146,7 +146,7 @@ static int L_Note(lua_State *L)
 {
   ScriptApi &api = getApi(L);
   insertTexts(L, api);
-  api.insertBlock();
+  api.finishNote();
   return 0;
 }
 

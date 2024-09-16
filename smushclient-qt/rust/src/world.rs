@@ -119,7 +119,7 @@ pub struct WorldRust {
     pub ansi_colors: Colors,
     pub use_default_colours: bool,
     pub custom_color: QColor,
-    pub error_color: QColor,
+    pub error_colour: QColor,
 
     // Triggers
     pub triggers: Vec<Trigger>,
@@ -470,7 +470,7 @@ impl From<&World> for WorldRust {
             ansi_colors: Colors::from(&world.ansi_colors),
             use_default_colours: world.use_default_colours,
             custom_color: world.custom_color.convert(),
-            error_color: world.error_color.convert(),
+            error_colour: world.error_colour.convert(),
             triggers: world.triggers.clone(),
             enable_triggers: world.enable_triggers,
             enable_trigger_sounds: world.enable_trigger_sounds,
@@ -645,7 +645,7 @@ impl TryFrom<&WorldRust> for World {
             ansi_colors: (&value.ansi_colors).into(),
             use_default_colours: value.use_default_colours,
             custom_color: value.custom_color.convert(),
-            error_color: value.error_color.convert(),
+            error_colour: value.error_colour.convert(),
             triggers: value.triggers.clone(),
             enable_triggers: value.enable_triggers,
             enable_trigger_sounds: value.enable_trigger_sounds,

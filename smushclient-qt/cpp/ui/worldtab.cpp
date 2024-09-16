@@ -161,6 +161,7 @@ void WorldTab::applyWorld()
     ui->output->setFont(defaultFont);
   else
     ui->output->setFont(QFont(world.getOutputFont(), world.getOutputFontHeight()));
+  api->applyWorld(world);
 }
 
 void WorldTab::connectToHost()
@@ -173,6 +174,7 @@ void WorldTab::connectToHost()
 
 void WorldTab::sendCommand(const QString &command)
 {
+  api->echo(command);
   QByteArray bytes = command.toLocal8Bit();
   bytes.append("\r\n");
   socket->write(bytes);

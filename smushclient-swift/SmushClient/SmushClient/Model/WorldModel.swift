@@ -118,7 +118,7 @@ class WorldModel {
   var use_default_colours: Bool = true
   var ansi_colors: [NSColor] = defaultAnsiColors
   var custom_color: NSColor = defaultCustomColor
-  var error_color: NSColor = defaultErrorColor
+  var error_colour: NSColor = defaultErrorColor
   var triggers: [TriggerModel] = []
   var enable_triggers: Bool = true
   var enable_trigger_sounds: Bool = true
@@ -285,7 +285,7 @@ class WorldModel {
     use_default_colours = world.use_default_colours
     ansi_colors = fromVec(world.ansi_colors, by: Palette.namedColors.get)
     custom_color = NSColor(world.custom_color)
-    error_color = NSColor(world.error_color)
+    error_colour = NSColor(world.error_colour)
     triggers = fromVec(world.triggers, by: TriggerModel.init)
     enable_triggers = world.enable_triggers
     enable_trigger_sounds = world.enable_trigger_sounds
@@ -455,7 +455,7 @@ extension World {
     use_default_colours = world.use_default_colours
     ansi_colors = intoVec(world.ansi_colors, by: RgbColor.init)
     custom_color = RgbColor(world.custom_color)
-    error_color = RgbColor(world.error_color)
+    error_colour = RgbColor(world.error_colour)
     triggers = intoVec(world.triggers, by: Trigger.init)
     enable_triggers = world.enable_triggers
     enable_trigger_sounds = world.enable_trigger_sounds

@@ -24,8 +24,9 @@ public:
   ScriptReturnCode Send(const QByteArrayView &bytes);
   void Tell(const QString &text);
 
-  void ensureNewline();
-  void insertBlock();
+  void applyWorld(const World &world);
+  void echo(const QString &text);
+  void finishNote();
   std::unordered_map<std::string, std::string> *getVariableMap(const std::string &pluginID);
   void printError(const QString &message);
   void setVariableMap(const std::string &pluginID, std::unordered_map<std::string, std::string> *variableMap);
@@ -33,8 +34,10 @@ public:
 
 private:
   QTextCursor cursor;
+  QTextCharFormat echoFormat;
+  QTextCharFormat errorFormat;
+  int lastTellPosition;
   std::unordered_map<std::string, std::unordered_map<std::string, std::string> *> variables;
-  bool needsNewline;
 
   inline WorldTab *tab() const { return (WorldTab *)parent(); }
 };
