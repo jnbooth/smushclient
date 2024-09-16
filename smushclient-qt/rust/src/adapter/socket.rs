@@ -1,3 +1,4 @@
+#![allow(clippy::cast_sign_loss)]
 use crate::ffi;
 use std::ffi::c_char;
 use std::io::{self, Read, Write};

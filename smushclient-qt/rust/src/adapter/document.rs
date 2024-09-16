@@ -12,11 +12,6 @@ pub struct QColorPair {
 adapter!(DocumentAdapter, ffi::Document);
 
 impl<'a> DocumentAdapter<'a> {
-    pub fn scroll_to_bottom(&mut self) {
-        // SAFETY: External call to safe method on opaque type.
-        unsafe { self.as_mut().scroll_to_bottom() }
-    }
-
     pub fn append_line(&mut self) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.as_mut().append_line() }
@@ -51,16 +46,21 @@ impl<'a> DocumentAdapter<'a> {
 
     pub fn display_status_message(&mut self, text: &QString) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.as_mut().display_status_message(text) };
+        unsafe { self.inner.display_status_message(text) };
     }
 
     pub fn run_script(&mut self, plugin: usize, script: &QString) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.as_mut().run_script(plugin, script) };
+        unsafe { self.inner.run_script(plugin, script) };
+    }
+
+    pub fn scroll_to_bottom(&self) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.scroll_to_bottom() }
     }
 
     pub fn set_input(&mut self, text: &QString) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.as_mut().set_input(text) };
+        unsafe { self.inner.set_input(text) };
     }
 }

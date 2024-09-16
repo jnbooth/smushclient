@@ -1,8 +1,4 @@
-#![allow(clippy::cast_sign_loss)]
 #![allow(clippy::float_cmp)]
-#![allow(clippy::missing_safety_doc)]
-#![allow(clippy::needless_pass_by_value)]
-#![allow(clippy::unnecessary_box_returns)]
 
 #[macro_use]
 extern crate enumeration;
@@ -29,6 +25,10 @@ mod sync;
 mod world;
 use world::WorldRust;
 
+#[allow(non_snake_case)]
+#[allow(clippy::missing_safety_doc)]
+#[allow(clippy::needless_pass_by_value)]
+#[allow(clippy::unnecessary_box_returns)]
 #[cxx_qt::bridge]
 pub mod ffi {
     enum TextStyle {
@@ -98,9 +98,6 @@ pub mod ffi {
         include!("document.h");
         type Document;
 
-        #[rust_name = "scroll_to_bottom"]
-        unsafe fn scrollToBottom(self: Pin<&mut Document>);
-
         #[rust_name = "append_line"]
         unsafe fn appendLine(self: Pin<&mut Document>);
 
@@ -127,13 +124,17 @@ pub mod ffi {
         );
 
         #[rust_name = "display_status_message"]
-        unsafe fn displayStatusMessage(self: Pin<&mut Document>, text: &QString);
+        unsafe fn displayStatusMessage(self: &Document, text: &QString);
 
         #[rust_name = "run_script"]
-        unsafe fn runScript(self: Pin<&mut Document>, plugin: usize, script: &QString);
+        unsafe fn runScript(self: &Document, plugin: usize, script: &QString);
+
+        #[rust_name = "scroll_to_bottom"]
+        unsafe fn scrollToBottom(self: &Document);
 
         #[rust_name = "set_input"]
-        unsafe fn setInput(self: Pin<&mut Document>, text: &QString);
+        unsafe fn setInput(self: &Document, text: &QString);
+
     }
 
     extern "C++Qt" {

@@ -8,7 +8,7 @@
 
 // Utilities
 
-QMainWindow *getMainWindow(QObject *obj)
+QMainWindow *getMainWindow(const QObject *obj)
 {
   if (obj == nullptr)
     return nullptr;
@@ -120,17 +120,17 @@ void Document::appendText(const QString &text, quint16 style, const QColor &fore
   cursor.insertText(text, format);
 }
 
-void Document::runScript(size_t plugin, const QString &script)
+void Document::runScript(size_t plugin, const QString &script) const
 {
   api->runScript(plugin, script);
 }
 
-void Document::scrollToBottom()
+void Document::scrollToBottom() const
 {
   scrollToEnd(*scrollBar);
 }
 
-void Document::displayStatusMessage(const QString &status)
+void Document::displayStatusMessage(const QString &status) const
 {
   QMainWindow *window = getMainWindow(this);
   if (window == nullptr)
@@ -143,7 +143,7 @@ void Document::displayStatusMessage(const QString &status)
   statusBar->showMessage(status);
 }
 
-void Document::setInput(const QString &text)
+void Document::setInput(const QString &text) const
 {
   tab()->ui->input->setText(text);
 }
