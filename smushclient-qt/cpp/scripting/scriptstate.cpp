@@ -3,6 +3,7 @@
 #include <QtWidgets/QErrorMessage>
 #include "luaapi.h"
 #include "qlua.h"
+#include "scriptapi.h"
 extern "C"
 {
 #include "lauxlib.h"
@@ -30,7 +31,7 @@ inline bool checkError(int status)
 
 inline QString tr(const char *key)
 {
-  return QCoreApplication::translate("ScriptEngine", key);
+  return QCoreApplication::translate("ScriptApi", key);
 }
 
 static int panic(lua_State *L)
@@ -40,10 +41,9 @@ static int panic(lua_State *L)
   return 0;
 }
 
-ScriptState::ScriptState(ScriptApi *api, const QString &pluginID)
+ScriptState::ScriptState(ScriptApi *api)
     : L(luaL_newstate()),
-      api(api),
-      pluginID(pluginID)
+      disabled(false)
 {
   if (L == nullptr)
     throw std::bad_alloc();
@@ -58,8 +58,8 @@ ScriptState::ScriptState(ScriptApi *api, const QString &pluginID)
   luaopen_util(L);
   lua_settop(L, 0);
   registerLuaWorld(L);
+  createVariableMap(L);
   setLuaApi(L, api);
-  api->setVariableMap(pluginID.toStdString(), createVariableMap(L));
 }
 
 ScriptState::ScriptState(ScriptState &&other)
@@ -67,9 +67,12 @@ ScriptState::ScriptState(ScriptState &&other)
 
 ScriptState::~ScriptState()
 {
-  if (!api.isNull())
-    api->unsetVariableMap(pluginID.toStdString(), getVariableMap(L));
   lua_close(L);
+}
+
+void ScriptState::disable()
+{
+  disabled = true;
 }
 
 QString ScriptState::getError() const
@@ -77,8 +80,11 @@ QString ScriptState::getError() const
   return qlua::getQString(L, -1);
 }
 
-RunScriptResult ScriptState::runScript(const QString &script)
+RunScriptResult ScriptState::runScript(const QString &script) const
 {
+  if (disabled)
+    return RunScriptResult::Disabled;
+
   if (checkError(qlua::loadQString(L, script)))
     return RunScriptResult::CompileError;
 
@@ -86,4 +92,14 @@ RunScriptResult ScriptState::runScript(const QString &script)
     return RunScriptResult::RuntimeError;
 
   return RunScriptResult::Ok;
+}
+
+void ScriptState::setID(const std::string &pluginID) const
+{
+  setPluginID(L, pluginID);
+}
+
+std::unordered_map<std::string, std::string> *ScriptState::variables() const
+{
+  return getVariableMap(L);
 }

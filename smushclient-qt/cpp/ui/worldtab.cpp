@@ -10,7 +10,6 @@
 #include "ui_worldtab.h"
 #include "worldprefs.h"
 #include "../bridge/document.h"
-#include "../bridge/scriptengine.h"
 #include "../scripting/scriptapi.h"
 #include "../settings.h"
 #include "rust/cxx.h"
@@ -55,7 +54,7 @@ void WorldTab::createWorld() &
   world.setOutputFont(defaultFontFamily);
   world.setOutputFontHeight(defaultFontHeight);
   client.setWorld(world);
-  document->scriptEngine.initializeScripts(client.pluginScripts());
+  api->initializeScripts(client.pluginScripts());
   applyWorld();
 }
 
@@ -69,7 +68,7 @@ bool WorldTab::openWorld(const QString &filename) &
   try
   {
     client.loadWorld(filename, world);
-    document->scriptEngine.initializeScripts(client.pluginScripts());
+    api->initializeScripts(client.pluginScripts());
   }
   catch (const rust::Error &e)
   {

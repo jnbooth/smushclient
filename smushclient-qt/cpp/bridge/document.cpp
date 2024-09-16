@@ -1,6 +1,7 @@
 #include "document.h"
 #include <QtWidgets/QScrollBar>
 #include <QtWidgets/QStatusBar>
+#include "../scripting/scriptapi.h"
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
@@ -90,7 +91,7 @@ inline QTextCharFormat foregroundFormat(const QColor &foreground)
 
 Document::Document(WorldTab *parent, ScriptApi *api)
     : QObject(parent),
-      scriptEngine(api),
+      api(api),
       cursor(parent->ui->output->document()),
       scrollBar(parent->ui->output->verticalScrollBar()) {}
 
@@ -121,7 +122,7 @@ void Document::appendText(const QString &text, quint16 style, const QColor &fore
 
 void Document::runScript(size_t plugin, const QString &script)
 {
-  scriptEngine.runScript(plugin, script);
+  api->runScript(plugin, script);
 }
 
 void Document::scrollToBottom()

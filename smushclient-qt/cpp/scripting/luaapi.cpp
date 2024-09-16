@@ -12,9 +12,10 @@ extern "C"
 }
 
 #define API_REG_KEY "smushclient.api"
+#define ID_REG_KEY "smushclient.pluginid"
 #define VARIABLES_REG_KEY "smushclient.vars"
-#define WORLD_REG_KEY "smushclient.world"
 #define WORLD_LIB_KEY "world"
+#define WORLD_REG_KEY "smushclient.world"
 
 using std::string;
 using stringmap = std::unordered_map<string, string>;
@@ -61,6 +62,12 @@ inline ScriptApi &getApi(lua_State *L)
 void setLuaApi(lua_State *L, ScriptApi *api)
 {
   *createUserdata<QPointer<ScriptApi>>(L, API_REG_KEY) = api;
+}
+
+void setPluginID(lua_State *L, const std::string &pluginID)
+{
+  qlua::pushString(L, pluginID);
+  lua_setfield(L, LUA_REGISTRYINDEX, ID_REG_KEY);
 }
 
 // options

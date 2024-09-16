@@ -9,10 +9,10 @@
 #include <QtWidgets/QScrollBar>
 #include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QTreeWidgetItem>
-#include "scriptengine.h"
 
 struct Link;
 class ScriptApi;
+class WorldTab;
 
 using QVector_QColor = QVector<QColor>;
 
@@ -34,10 +34,8 @@ public:
   void setInput(const QString &text);
   void setPalette(const QVector_QColor &palette);
 
-public:
-  ScriptEngine scriptEngine;
-
 private:
+  ScriptApi *api;
   QTextCursor cursor;
   QTextCharFormat formats[166];
   QScrollBar *scrollBar;

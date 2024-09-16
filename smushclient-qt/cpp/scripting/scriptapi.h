@@ -1,12 +1,15 @@
 #pragma once
-
 #include <string>
 #include <unordered_map>
+#include <QtCore/QPointer>
+#include <QtCore/QString>
 #include <QtGui/QTextCursor>
 #include "scriptenums.h"
+#include "scriptstate.h"
 
 class World;
 class WorldTab;
+struct lua_State;
 
 class ScriptApi : public QObject
 {
@@ -30,16 +33,19 @@ public:
   void echo(const QString &text);
   void finishNote();
   std::unordered_map<std::string, std::string> *getVariableMap(const std::string &pluginID);
+  void initializeScripts(const QStringList &scripts);
   void printError(const QString &message);
-  void setVariableMap(const std::string &pluginID, std::unordered_map<std::string, std::string> *variableMap);
-  bool unsetVariableMap(const std::string &pluginID, std::unordered_map<std::string, std::string> *variableMap);
+  inline bool runScript(size_t plugin, const QString &script) { return runScript(plugins[plugin], script); }
 
 private:
   QTextCursor cursor;
   QTextCharFormat echoFormat;
   QTextCharFormat errorFormat;
   int lastTellPosition;
+  std::vector<ScriptState> plugins;
   std::unordered_map<std::string, std::unordered_map<std::string, std::string> *> variables;
 
+  bool handleResult(RunScriptResult result, const ScriptState &plugin);
+  bool runScript(ScriptState &plugin, const QString &script);
   inline WorldTab *tab() const { return (WorldTab *)parent(); }
 };

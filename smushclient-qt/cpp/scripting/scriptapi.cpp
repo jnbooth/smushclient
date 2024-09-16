@@ -203,22 +203,51 @@ std::unordered_map<std::string, std::string> *ScriptApi::getVariableMap(const st
   return search->second;
 }
 
+void ScriptApi::initializeScripts(const QStringList &scripts)
+{
+  size_t size = scripts.size();
+  plugins.clear();
+  plugins.reserve(size);
+  variables.clear();
+  variables.reserve(size);
+  QString error;
+  for (auto it = scripts.cbegin(), end = scripts.cend(); it != end; ++it)
+  {
+    ScriptState &plugin = plugins.emplace_back(this);
+    const std::string pluginID = it->toStdString();
+    plugin.setID(pluginID);
+    variables[pluginID] = plugin.variables();
+    if (!runScript(plugin, *++it))
+      plugin.disable();
+  }
+}
+
 void ScriptApi::printError(const QString &error)
 {
   cursor.insertText(error, errorFormat);
   cursor.insertBlock();
 }
 
-void ScriptApi::setVariableMap(const std::string &pluginID, std::unordered_map<std::string, std::string> *variableMap)
+// private methods
+
+inline bool ScriptApi::handleResult(RunScriptResult result, const ScriptState &plugin)
 {
-  variables[pluginID] = variableMap;
+  switch (result)
+  {
+  case RunScriptResult::Ok:
+    return true;
+  case RunScriptResult::Disabled:
+    return false;
+  case RunScriptResult::CompileError:
+    printError(tr("Compile error: %1").arg(plugin.getError()));
+    return false;
+  case RunScriptResult::RuntimeError:
+    printError(tr("Runtime error: %1").arg(plugin.getError()));
+    return false;
+  }
 }
 
-bool ScriptApi::unsetVariableMap(const std::string &pluginID, std::unordered_map<std::string, std::string> *variableMap)
+inline bool ScriptApi::runScript(ScriptState &plugin, const QString &script)
 {
-  auto search = variables.find(pluginID);
-  if (search == variables.end() || search->second != variableMap)
-    return false;
-  variables.erase(pluginID);
-  return true;
+  return handleResult(plugin.runScript(script), plugin);
 }
