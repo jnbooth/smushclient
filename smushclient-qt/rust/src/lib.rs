@@ -203,6 +203,9 @@ pub mod ffi {
             device: Pin<&mut QTcpSocket>,
             doc: Pin<&mut Document>,
         ) -> i64;
+        fn is_alias(self: &SmushClient, label: &QString) -> bool;
+        fn is_timer(self: &SmushClient, label: &QString) -> bool;
+        fn is_trigger(self: &SmushClient, label: &QString) -> bool;
         fn set_alias_enabled(self: Pin<&mut SmushClient>, label: &QString, enable: bool) -> bool;
         fn set_aliases_enabled(self: Pin<&mut SmushClient>, group: &QString, enable: bool) -> bool;
         fn set_plugin_enabled(self: Pin<&mut SmushClient>, index: usize, enable: bool) -> bool;

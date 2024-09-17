@@ -126,6 +126,14 @@ impl SmushClient {
         sender.as_mut().enabled = enabled;
         true
     }
+
+    pub fn sender_exists<T: Sendable>(&self, label: &str) -> bool {
+        self.plugins
+            .indexer::<T>()
+            .find_by(|item| item.as_ref().label == label)
+            .next()
+            .is_some()
+    }
 }
 
 fn is_nonvisual_output(fragment: &OutputFragment) -> bool {

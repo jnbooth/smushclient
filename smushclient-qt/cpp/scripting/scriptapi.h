@@ -33,6 +33,9 @@ public:
   ApiCode EnableTriggerGroup(const QString &group, bool enabled) const;
   QVariant GetOption(std::string_view name) const;
   QVariant GetPluginInfo(std::string_view pluginID, uint8_t infoType) const;
+  ApiCode IsAlias(const QString &label) const;
+  ApiCode IsTimer(const QString &label) const;
+  ApiCode IsTrigger(const QString &label) const;
   ApiCode Send(const QByteArrayView &bytes);
   ApiCode SendNoEcho(const QByteArrayView &bytes) const;
   ApiCode SetOption(std::string_view name, const QVariant &variant) const;

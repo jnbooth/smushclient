@@ -179,6 +179,21 @@ QVariant ScriptApi::GetPluginInfo(string_view pluginID, uint8_t infoType) const
   }
 }
 
+ApiCode ScriptApi::IsAlias(const QString &label) const
+{
+  return client()->isAlias(label) ? ApiCode::OK : ApiCode::AliasNotFound;
+}
+
+ApiCode ScriptApi::IsTimer(const QString &label) const
+{
+  return client()->isTimer(label) ? ApiCode::OK : ApiCode::TimerNotFound;
+}
+
+ApiCode ScriptApi::IsTrigger(const QString &label) const
+{
+  return client()->isTrigger(label) ? ApiCode::OK : ApiCode::TriggerNotFound;
+}
+
 ApiCode ScriptApi::Send(const QByteArrayView &view)
 {
   echo(QString::fromUtf8(view));

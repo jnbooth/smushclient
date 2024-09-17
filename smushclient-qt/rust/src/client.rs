@@ -221,6 +221,24 @@ impl ffi::SmushClient {
         self.cxx_qt_ffi_rust_mut().read(device, doc)
     }
 
+    pub fn is_alias(&self, label: &QString) -> bool {
+        self.cxx_qt_ffi_rust()
+            .client
+            .sender_exists::<Alias>(&label.to_string())
+    }
+
+    pub fn is_timer(&self, label: &QString) -> bool {
+        self.cxx_qt_ffi_rust()
+            .client
+            .sender_exists::<Timer>(&label.to_string())
+    }
+
+    pub fn is_trigger(&self, label: &QString) -> bool {
+        self.cxx_qt_ffi_rust()
+            .client
+            .sender_exists::<Trigger>(&label.to_string())
+    }
+
     pub fn set_alias_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
