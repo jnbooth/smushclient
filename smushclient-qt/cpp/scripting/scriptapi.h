@@ -25,6 +25,7 @@ public:
   void ColourTell(const QColor &foreground, const QColor &background, const QString &text);
   ApiCode EnableAlias(const QString &label, bool enabled) const;
   ApiCode EnableAliasGroup(const QString &group, bool enabled) const;
+  ApiCode EnablePlugin(std::string_view pluginID, bool enabled);
   ApiCode EnableTimer(const QString &label, bool enabled) const;
   ApiCode EnableTimerGroup(const QString &group, bool enabled) const;
   ApiCode EnableTrigger(const QString &label, bool enabled) const;

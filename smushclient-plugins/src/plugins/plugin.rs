@@ -16,6 +16,7 @@ use crate::send::{Alias, AliasXml, Timer, TimerXml, Trigger, TriggerXml};
 #[serde(try_from = "PluginFile")]
 pub struct Plugin {
     pub metadata: PluginMetadata,
+    pub disabled: bool,
     pub triggers: Vec<Trigger>,
     pub aliases: Vec<Alias>,
     pub timers: Vec<Timer>,
@@ -81,6 +82,7 @@ impl TryFrom<PluginFile<'_>> for Plugin {
     fn try_from(value: PluginFile) -> Result<Self, Self::Error> {
         Ok(Self {
             metadata: value.plugin,
+            disabled: false,
             triggers: XmlList::try_collect(value.triggers)?,
             aliases: XmlList::try_collect(value.aliases)?,
             timers: XmlList::collect(value.timers),
@@ -256,6 +258,7 @@ mod tests {
         };
         let plugin = Plugin {
             metadata,
+            disabled: false,
             triggers: vec![Trigger::default()],
             aliases: vec![Alias::default()],
             timers: vec![Timer::default()],

@@ -14,7 +14,7 @@ use mud_transformer::mxp::RgbColor;
 use mud_transformer::{Tag, Transformer};
 use smushclient::world::PersistError;
 use smushclient::{SmushClient, World};
-use smushclient_plugins::{Alias, Timer, Trigger};
+use smushclient_plugins::{Alias, PluginIndex, Timer, Trigger};
 
 const BUF_LEN: usize = 1024 * 20;
 const BUF_MIDPOINT: usize = BUF_LEN / 2;
@@ -214,7 +214,7 @@ impl ffi::SmushClient {
     pub fn set_alias_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_enabled::<Alias>(&label.to_string(), enabled)
+            .set_sender_enabled::<Alias>(&label.to_string(), enabled)
     }
 
     pub fn set_aliases_enabled(self: Pin<&mut Self>, group: &QString, enabled: bool) -> bool {
@@ -223,10 +223,16 @@ impl ffi::SmushClient {
             .set_group_enabled::<Alias>(&group.to_string(), enabled)
     }
 
+    pub fn set_plugin_enabled(self: Pin<&mut Self>, index: PluginIndex, enabled: bool) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .set_plugin_enabled(index, enabled)
+    }
+
     pub fn set_timer_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_enabled::<Timer>(&label.to_string(), enabled)
+            .set_sender_enabled::<Timer>(&label.to_string(), enabled)
     }
 
     pub fn set_timers_enabled(self: Pin<&mut Self>, group: &QString, enabled: bool) -> bool {
@@ -238,7 +244,7 @@ impl ffi::SmushClient {
     pub fn set_trigger_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_enabled::<Trigger>(&label.to_string(), enabled)
+            .set_sender_enabled::<Trigger>(&label.to_string(), enabled)
     }
 
     pub fn set_triggers_enabled(self: Pin<&mut Self>, group: &QString, enabled: bool) -> bool {

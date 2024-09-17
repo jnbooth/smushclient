@@ -461,6 +461,7 @@ impl World {
         };
         Some(Plugin {
             metadata,
+            disabled: false,
             triggers: self.triggers.clone(),
             aliases: self.aliases.clone(),
             timers: self.timers.clone(),

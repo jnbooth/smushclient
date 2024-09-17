@@ -37,6 +37,10 @@ impl<T> Indexer<T> {
         self.inner.clear();
     }
 
+    pub fn remove_by_plugin(&mut self, index: PluginIndex) {
+        self.inner.retain(|item| item.plugin != index);
+    }
+
     pub fn replace<'a, I>(&mut self, index: PluginIndex, iter: I)
     where
         I: IntoIterator<Item = &'a T>,
@@ -331,7 +335,16 @@ impl Senders {
         self.timers.clear();
     }
 
+    pub fn remove_by_plugin(&mut self, index: PluginIndex) {
+        self.triggers.remove_by_plugin(index);
+        self.aliases.remove_by_plugin(index);
+        self.timers.remove_by_plugin(index);
+    }
+
     pub fn extend(&mut self, i: PluginIndex, plugin: &Plugin) {
+        if plugin.disabled {
+            return;
+        }
         self.triggers.extend(i, &plugin.triggers);
         self.aliases.extend(i, &plugin.aliases);
         self.timers.extend(i, &plugin.timers);
@@ -489,6 +502,7 @@ mod tests {
 
         fn basic_plugin() -> Plugin {
             Plugin {
+                disabled: false,
                 triggers: vec![Trigger::default()],
                 aliases: vec![Alias::default()],
                 timers: vec![Timer::default()],

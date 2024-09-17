@@ -32,15 +32,16 @@ public:
   Plugin &operator=(const Plugin &) = delete;
 
   void disable();
+  void enable();
   QString getError() const;
   inline const QString &id() const { return metadata.id; }
-  inline bool isDisabled() const { return disabled; };
+  inline bool disabled() const { return isDisabled; };
   inline const QString &name() const { return metadata.name; }
   RunScriptResult runScript(const QString &script) const;
   inline lua_State *state() const { return L; }
 
 private:
   lua_State *L;
-  bool disabled;
+  bool isDisabled;
   PluginMetadata metadata;
 };

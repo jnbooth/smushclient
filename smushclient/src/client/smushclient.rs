@@ -8,7 +8,7 @@ use mud_transformer::{
     EffectFragment, Output, OutputDrain, OutputFragment, Tag, TextFragment, TextStyle,
     TransformerConfig,
 };
-use smushclient_plugins::{Plugin, Sendable};
+use smushclient_plugins::{Plugin, PluginIndex, Sendable};
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct SmushClient {
@@ -93,7 +93,7 @@ impl SmushClient {
         self.plugins.iter()
     }
 
-    pub fn set_enabled<T: Sendable>(&mut self, label: &str, enabled: bool) -> bool {
+    pub fn set_sender_enabled<T: Sendable>(&mut self, label: &str, enabled: bool) -> bool {
         let Some(sender) = self
             .plugins
             .find_by_mut(|item: &T| item.as_ref().label == label)
@@ -115,6 +115,14 @@ impl SmushClient {
             sender.as_mut().enabled = enabled;
         }
         found_group
+    }
+
+    pub fn set_plugin_enabled(&mut self, index: PluginIndex, enabled: bool) -> bool {
+        if enabled {
+            self.plugins.enable_plugin(index)
+        } else {
+            self.plugins.disable_plugin(index)
+        }
     }
 }
 

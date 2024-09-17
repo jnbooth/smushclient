@@ -127,6 +127,17 @@ ApiCode ScriptApi::EnableTimer(const QString &label, bool enabled) const
   return tab()->client.setTimerEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
+ApiCode ScriptApi::EnablePlugin(string_view pluginID, bool enabled)
+{
+  auto search = pluginIndices.find((string)pluginID);
+  if (search == pluginIndices.end())
+    return ApiCode::NoSuchPlugin;
+  const size_t index = search->second;
+  plugins[index].disable();
+  tab()->client.setPluginEnabled(index, enabled);
+  return ApiCode::OK;
+}
+
 ApiCode ScriptApi::EnableTimerGroup(const QString &group, bool enabled) const
 {
   return tab()->client.setTimersEnabled(group, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
@@ -255,13 +266,13 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
   pluginIndices.clear();
   pluginIndices.reserve(size);
   QString error;
-  for (auto it = scripts.cbegin(), end = scripts.cend(); it != end; ++it)
+  for (auto start = scripts.cbegin(), it = start, end = scripts.cend(); it != end; ++it)
   {
     PluginMetadata metadata{
         .id = *it,
         .name = *++it,
     };
-    pluginIndices[metadata.id.toStdString()] = plugins.size();
+    pluginIndices[metadata.id.toStdString()] = it - start;
     Plugin &plugin = plugins.emplace_back(this, std::move(metadata));
     if (!runScript(plugin, *++it))
       plugin.disable();

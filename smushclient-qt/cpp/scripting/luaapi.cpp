@@ -285,6 +285,11 @@ static int L_EnableAliasGroup(lua_State *L)
   return returnCode(L, getApi(L).EnableAliasGroup(qlua::getQString(L, 1), qlua::getBool(L, 2)));
 }
 
+static int L_EnablePlugin(lua_State *L)
+{
+  return returnCode(L, getApi(L).EnablePlugin(qlua::getString(L, 1), qlua::getBool(L, 2)));
+}
+
 static int L_EnableTimer(lua_State *L)
 {
   return returnCode(L, getApi(L).EnableTimer(qlua::getQString(L, 1), qlua::getBool(L, 2)));
@@ -315,7 +320,7 @@ static int L_CallPlugin(lua_State *L)
         fmtNoSuchPlugin(qlua::getQString(L, 1)));
 
   const Plugin &plugin = *pluginRef;
-  if (plugin.isDisabled())
+  if (plugin.disabled())
     return returnCode(L, ApiCode::PluginDisabled, fmtPluginDisabled(plugin));
 
   const string_view routine = qlua::getString(L, 2);
@@ -437,6 +442,7 @@ static const struct luaL_Reg worldlib[] =
      {"CallPlugin", L_CallPlugin},
      {"EnableAlias", L_EnableAlias},
      {"EnableAliasGroup", L_EnableAliasGroup},
+     {"EnablePlugin", L_EnablePlugin},
      {"EnableTimer", L_EnableTimer},
      {"EnableTimerGroup", L_EnableTimerGroup},
      {"EnableTrigger", L_EnableTrigger},

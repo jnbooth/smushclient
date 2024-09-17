@@ -3,8 +3,8 @@
 
 typedef struct RecentFileResult
 {
-  bool changed;
-  QStringList recentFiles;
+  const bool changed;
+  const QStringList recentFiles;
 } RecentFileResult;
 
 class Settings

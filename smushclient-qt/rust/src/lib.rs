@@ -184,6 +184,7 @@ pub mod ffi {
         ) -> i64;
         fn set_alias_enabled(self: Pin<&mut SmushClient>, label: &QString, enable: bool) -> bool;
         fn set_aliases_enabled(self: Pin<&mut SmushClient>, group: &QString, enable: bool) -> bool;
+        fn set_plugin_enabled(self: Pin<&mut SmushClient>, index: usize, enable: bool) -> bool;
         fn set_timer_enabled(self: Pin<&mut SmushClient>, label: &QString, enable: bool) -> bool;
         fn set_timers_enabled(self: Pin<&mut SmushClient>, group: &QString, enable: bool) -> bool;
         fn set_trigger_enabled(self: Pin<&mut SmushClient>, label: &QString, enable: bool) -> bool;

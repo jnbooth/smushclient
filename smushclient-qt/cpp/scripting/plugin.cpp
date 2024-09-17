@@ -42,7 +42,7 @@ static int panic(lua_State *L)
 
 Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
     : L(luaL_newstate()),
-      disabled(false),
+      isDisabled(false),
       metadata(metadata)
 {
   if (L == nullptr)
@@ -73,7 +73,12 @@ Plugin::~Plugin()
 
 void Plugin::disable()
 {
-  disabled = true;
+  isDisabled = true;
+}
+
+void Plugin::enable()
+{
+  isDisabled = false;
 }
 
 QString Plugin::getError() const
@@ -83,7 +88,7 @@ QString Plugin::getError() const
 
 RunScriptResult Plugin::runScript(const QString &script) const
 {
-  if (disabled)
+  if (isDisabled)
     return RunScriptResult::Disabled;
 
   if (checkError(qlua::loadQString(L, script)))

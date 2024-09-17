@@ -6,7 +6,9 @@ use super::effects::TriggerEffects;
 use super::send::SendRequest;
 use crate::handler::{Handler, SendHandler};
 use crate::plugins::effects::AliasEffects;
-use smushclient_plugins::{Alias, Plugin, SendMatch, Sendable, Sender, Senders, Trigger};
+use smushclient_plugins::{
+    Alias, Plugin, PluginIndex, SendMatch, Sendable, Sender, Senders, Trigger,
+};
 
 fn check_oneshot<T: AsRef<Sender>>(oneshots: &mut Vec<usize>, send: &SendMatch<T>) {
     if send.sender.as_ref().one_shot && oneshots.last() != Some(&send.pos) {
@@ -70,6 +72,30 @@ impl PluginEngine {
             }
         }
         self.senders.sort();
+    }
+
+    pub fn disable_plugin(&mut self, index: PluginIndex) -> bool {
+        let Some(plugin) = self.plugins.get_mut(index) else {
+            return false;
+        };
+        if plugin.disabled {
+            return true;
+        }
+        self.senders.remove_by_plugin(index);
+        true
+    }
+
+    pub fn enable_plugin(&mut self, index: PluginIndex) -> bool {
+        let Some(plugin) = self.plugins.get_mut(index) else {
+            return false;
+        };
+        if !plugin.disabled {
+            return true;
+        }
+        plugin.disabled = false;
+        self.senders.extend(index, plugin);
+        self.senders.sort();
+        true
     }
 
     pub fn alias<H: SendHandler>(&mut self, line: &str, handler: &mut H) -> AliasEffects {
