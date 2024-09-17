@@ -30,12 +30,12 @@ public:
 
 public:
   Ui::WorldTab *ui;
+  SmushClient client;
   QTcpSocket *socket;
   World world;
 
 private:
   ScriptApi *api;
-  SmushClient client;
   QFont defaultFont;
   Document *document;
   QString filePath;

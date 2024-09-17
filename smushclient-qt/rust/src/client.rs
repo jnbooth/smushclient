@@ -14,6 +14,7 @@ use mud_transformer::mxp::RgbColor;
 use mud_transformer::{Tag, Transformer};
 use smushclient::world::PersistError;
 use smushclient::{SmushClient, World};
+use smushclient_plugins::{Alias, Timer, Trigger};
 
 const BUF_LEN: usize = 1024 * 20;
 const BUF_MIDPOINT: usize = BUF_LEN / 2;
@@ -208,5 +209,23 @@ impl ffi::SmushClient {
         doc: Pin<&mut ffi::Document>,
     ) -> i64 {
         self.cxx_qt_ffi_rust_mut().read(device, doc)
+    }
+
+    pub fn set_alias_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .set_enabled::<Alias>(&label.to_string(), enabled)
+    }
+
+    pub fn set_timer_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .set_enabled::<Timer>(&label.to_string(), enabled)
+    }
+
+    pub fn set_trigger_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .set_enabled::<Trigger>(&label.to_string(), enabled)
     }
 }

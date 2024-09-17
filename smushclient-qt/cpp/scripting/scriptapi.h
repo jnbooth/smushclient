@@ -23,6 +23,9 @@ public:
   ScriptApi(WorldTab *parent);
 
   void ColourTell(const QColor &foreground, const QColor &background, const QString &text);
+  ScriptReturnCode EnableAlias(const QString &label, bool enabled) const;
+  ScriptReturnCode EnableTimer(const QString &label, bool enabled) const;
+  ScriptReturnCode EnableTrigger(const QString &label, bool enabled) const;
   QVariant GetOption(std::string_view name) const;
   ScriptReturnCode Send(const QByteArrayView &bytes);
   ScriptReturnCode SendNoEcho(const QByteArrayView &bytes) const;

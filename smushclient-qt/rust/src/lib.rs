@@ -182,6 +182,10 @@ pub mod ffi {
             device: Pin<&mut QTcpSocket>,
             doc: Pin<&mut Document>,
         ) -> i64;
+        fn set_alias_enabled(self: Pin<&mut SmushClient>, label: &QString, enabled: bool) -> bool;
+        fn set_timer_enabled(self: Pin<&mut SmushClient>, label: &QString, enabled: bool) -> bool;
+        fn set_trigger_enabled(self: Pin<&mut SmushClient>, label: &QString, enabled: bool)
+            -> bool;
     }
 
     unsafe impl !cxx_qt::Locking for SmushClient {}

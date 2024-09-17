@@ -6,7 +6,7 @@ use super::effects::TriggerEffects;
 use super::send::SendRequest;
 use crate::handler::{Handler, SendHandler};
 use crate::plugins::effects::AliasEffects;
-use smushclient_plugins::{Alias, Plugin, SendMatch, Sender, Senders, Trigger};
+use smushclient_plugins::{Alias, Plugin, SendMatch, Sendable, Sender, Senders, Trigger};
 
 fn check_oneshot<T: AsRef<Sender>>(oneshots: &mut Vec<usize>, send: &SendMatch<T>) {
     if send.sender.as_ref().one_shot && oneshots.last() != Some(&send.pos) {
@@ -148,6 +148,14 @@ impl PluginEngine {
 
     pub fn iter(&self) -> <&Self as IntoIterator>::IntoIter {
         self.into_iter()
+    }
+
+    pub fn find_by_label<T: Sendable>(&self, label: &str) -> Option<&T> {
+        T::indexer(&self.senders).find_by_label(label)
+    }
+
+    pub fn find_by_label_mut<T: Sendable>(&mut self, label: &str) -> Option<&mut T> {
+        T::indexer_mut(&mut self.senders).find_by_label_mut(label)
     }
 }
 

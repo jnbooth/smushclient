@@ -9,6 +9,8 @@ using std::string;
 using std::string_view;
 using std::unordered_map;
 
+// utils
+
 inline QTextCharFormat colorFormat(const QColor &foreground, const QColor &background)
 {
   QTextCharFormat format;
@@ -33,6 +35,24 @@ inline QColor getColorFromVariant(const QVariant &variant)
   return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
 }
 
+inline bool isEmptyList(const QVariant &variant)
+{
+  switch (variant.typeId())
+  {
+  case QMetaType::QStringList:
+    return variant.toStringList().isEmpty();
+  case QMetaType::QVariantList:
+    return variant.toList().isEmpty();
+  default:
+    return false;
+  }
+}
+
+inline ScriptReturnCode updateWorld(WorldTab &worldtab)
+{
+  return worldtab.updateWorld() ? ScriptReturnCode::OK : ScriptReturnCode::OptionOutOfRange;
+}
+
 inline bool beginTell(QTextCursor &cursor, int lastTellPosition)
 {
   if (cursor.position() == lastTellPosition)
@@ -50,6 +70,8 @@ inline void endTell(QTextCursor &cursor, bool insideTell)
   else
     cursor.insertBlock();
 }
+
+// static API
 
 int ScriptApi::RGBColourToCode(const QColor &color)
 {
@@ -70,6 +92,8 @@ void ScriptApi::SetClipboard(const QString &text)
   QGuiApplication::clipboard()->setText(text);
 }
 
+// constructor
+
 ScriptApi::ScriptApi(WorldTab *parent)
     : QObject(parent),
       cursor(parent->ui->output->document()),
@@ -78,12 +102,35 @@ ScriptApi::ScriptApi(WorldTab *parent)
   applyWorld(parent->world);
 }
 
+// public API
+
 void ScriptApi::ColourTell(const QColor &foreground, const QColor &background, const QString &text)
 {
   const bool insideTell = beginTell(cursor, lastTellPosition);
   cursor.insertText(text, colorFormat(foreground, background));
   endTell(cursor, insideTell);
   lastTellPosition = cursor.position();
+}
+
+ScriptReturnCode ScriptApi::EnableAlias(const QString &label, bool enabled) const
+{
+  return tab()->client.setAliasEnabled(label, enabled)
+             ? ScriptReturnCode::OK
+             : ScriptReturnCode::AliasNotFound;
+}
+
+ScriptReturnCode ScriptApi::EnableTimer(const QString &label, bool enabled) const
+{
+  return tab()->client.setTimerEnabled(label, enabled)
+             ? ScriptReturnCode::OK
+             : ScriptReturnCode::AliasNotFound;
+}
+
+ScriptReturnCode ScriptApi::EnableTrigger(const QString &label, bool enabled) const
+{
+  return tab()->client.setTriggerEnabled(label, enabled)
+             ? ScriptReturnCode::OK
+             : ScriptReturnCode::AliasNotFound;
 }
 
 QVariant ScriptApi::GetOption(string_view name) const
@@ -125,24 +172,6 @@ ScriptReturnCode ScriptApi::SendNoEcho(const QByteArrayView &view) const
   return ScriptReturnCode::OK;
 }
 
-inline bool isEmptyList(const QVariant &variant)
-{
-  switch (variant.typeId())
-  {
-  case QMetaType::QStringList:
-    return variant.toStringList().isEmpty();
-  case QMetaType::QVariantList:
-    return variant.toList().isEmpty();
-  default:
-    return false;
-  }
-}
-
-inline ScriptReturnCode updateWorld(WorldTab &worldtab)
-{
-  return worldtab.updateWorld() ? ScriptReturnCode::OK : ScriptReturnCode::OptionOutOfRange;
-}
-
 ScriptReturnCode ScriptApi::SetOption(string_view name, const QVariant &variant) const
 {
   WorldTab &worldtab = *tab();
@@ -177,6 +206,8 @@ void ScriptApi::Tell(const QString &text)
   endTell(cursor, insideTell);
   lastTellPosition = cursor.position();
 }
+
+// public methods
 
 void ScriptApi::applyWorld(const World &world)
 {

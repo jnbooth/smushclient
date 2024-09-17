@@ -94,6 +94,26 @@ impl<T> Indexer<T> {
             repeating: RepeatingMatch::Empty,
         }
     }
+
+    pub fn find_by_label(&self, label: &str) -> Option<&T>
+    where
+        T: AsRef<Sender>,
+    {
+        self.inner
+            .iter()
+            .map(|item| &item.val)
+            .find(|item| item.as_ref().label == label)
+    }
+
+    pub fn find_by_label_mut(&mut self, label: &str) -> Option<&mut T>
+    where
+        T: AsRef<Sender>,
+    {
+        self.inner
+            .iter_mut()
+            .map(|item| &mut item.val)
+            .find(|item| item.as_ref().label == label)
+    }
 }
 
 enum RepeatingMatch<'a, 'b, T> {
@@ -359,7 +379,7 @@ impl Senders {
     }
 }
 
-pub trait Sendable: 'static + Sized + Ord + AsRef<Sender> {
+pub trait Sendable: 'static + Sized + Ord + AsRef<Sender> + AsMut<Sender> {
     fn indexer(indices: &Senders) -> &Indexer<Self>;
     fn indexer_mut(indices: &mut Senders) -> &mut Indexer<Self>;
     fn pad<'a>(&'a self, metadata: &'a PluginMetadata) -> Pad<'a>;
