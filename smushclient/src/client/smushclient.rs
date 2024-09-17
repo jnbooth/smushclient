@@ -94,11 +94,27 @@ impl SmushClient {
     }
 
     pub fn set_enabled<T: Sendable>(&mut self, label: &str, enabled: bool) -> bool {
-        let Some(sender) = self.plugins.find_by_label_mut::<T>(label) else {
+        let Some(sender) = self
+            .plugins
+            .find_by_mut(|item: &T| item.as_ref().label == label)
+            .next()
+        else {
             return false;
         };
         sender.as_mut().enabled = enabled;
         true
+    }
+
+    pub fn set_group_enabled<T: Sendable>(&mut self, group: &str, enabled: bool) -> bool {
+        let mut found_group = false;
+        for sender in self
+            .plugins
+            .find_by_mut(|item: &T| item.as_ref().group == group)
+        {
+            found_group = true;
+            sender.as_mut().enabled = enabled;
+        }
+        found_group
     }
 }
 

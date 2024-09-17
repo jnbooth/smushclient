@@ -95,24 +95,27 @@ impl<T> Indexer<T> {
         }
     }
 
-    pub fn find_by_label(&self, label: &str) -> Option<&T>
+    pub fn find_by<'a, P>(&'a self, mut predicate: P) -> impl Iterator<Item = &'a T> + 'a
     where
-        T: AsRef<Sender>,
+        P: FnMut(&T) -> bool + 'a,
     {
         self.inner
             .iter()
             .map(|item| &item.val)
-            .find(|item| item.as_ref().label == label)
+            .filter(move |item| predicate(item))
     }
 
-    pub fn find_by_label_mut(&mut self, label: &str) -> Option<&mut T>
+    pub fn find_by_mut<'a, P>(
+        &'a mut self,
+        mut predicate: P,
+    ) -> impl Iterator<Item = &'a mut T> + 'a
     where
-        T: AsRef<Sender>,
+        P: FnMut(&T) -> bool + 'a,
     {
         self.inner
             .iter_mut()
             .map(|item| &mut item.val)
-            .find(|item| item.as_ref().label == label)
+            .filter(move |item| predicate(item))
     }
 }
 

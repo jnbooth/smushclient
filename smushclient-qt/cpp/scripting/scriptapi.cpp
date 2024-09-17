@@ -117,14 +117,29 @@ ApiCode ScriptApi::EnableAlias(const QString &label, bool enabled) const
   return tab()->client.setAliasEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
+ApiCode ScriptApi::EnableAliasGroup(const QString &group, bool enabled) const
+{
+  return tab()->client.setAliasesEnabled(group, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
+}
+
 ApiCode ScriptApi::EnableTimer(const QString &label, bool enabled) const
 {
   return tab()->client.setTimerEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
+ApiCode ScriptApi::EnableTimerGroup(const QString &group, bool enabled) const
+{
+  return tab()->client.setTimersEnabled(group, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
+}
+
 ApiCode ScriptApi::EnableTrigger(const QString &label, bool enabled) const
 {
   return tab()->client.setTriggerEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
+}
+
+ApiCode ScriptApi::EnableTriggerGroup(const QString &group, bool enabled) const
+{
+  return tab()->client.setTriggersEnabled(group, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
 QVariant ScriptApi::GetOption(string_view name) const

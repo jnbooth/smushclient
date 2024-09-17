@@ -24,8 +24,11 @@ public:
 
   void ColourTell(const QColor &foreground, const QColor &background, const QString &text);
   ApiCode EnableAlias(const QString &label, bool enabled) const;
+  ApiCode EnableAliasGroup(const QString &group, bool enabled) const;
   ApiCode EnableTimer(const QString &label, bool enabled) const;
+  ApiCode EnableTimerGroup(const QString &group, bool enabled) const;
   ApiCode EnableTrigger(const QString &label, bool enabled) const;
+  ApiCode EnableTriggerGroup(const QString &group, bool enabled) const;
   QVariant GetOption(std::string_view name) const;
   ApiCode Send(const QByteArrayView &bytes);
   ApiCode SendNoEcho(const QByteArrayView &bytes) const;

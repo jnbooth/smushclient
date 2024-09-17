@@ -217,15 +217,33 @@ impl ffi::SmushClient {
             .set_enabled::<Alias>(&label.to_string(), enabled)
     }
 
+    pub fn set_aliases_enabled(self: Pin<&mut Self>, group: &QString, enabled: bool) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .set_group_enabled::<Alias>(&group.to_string(), enabled)
+    }
+
     pub fn set_timer_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
             .set_enabled::<Timer>(&label.to_string(), enabled)
     }
 
+    pub fn set_timers_enabled(self: Pin<&mut Self>, group: &QString, enabled: bool) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .set_group_enabled::<Timer>(&group.to_string(), enabled)
+    }
+
     pub fn set_trigger_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
             .set_enabled::<Trigger>(&label.to_string(), enabled)
+    }
+
+    pub fn set_triggers_enabled(self: Pin<&mut Self>, group: &QString, enabled: bool) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .set_group_enabled::<Trigger>(&group.to_string(), enabled)
     }
 }

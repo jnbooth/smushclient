@@ -150,12 +150,20 @@ impl PluginEngine {
         self.into_iter()
     }
 
-    pub fn find_by_label<T: Sendable>(&self, label: &str) -> Option<&T> {
-        T::indexer(&self.senders).find_by_label(label)
+    pub fn find_by<'a, T, P>(&'a self, predicate: P) -> impl Iterator<Item = &'a T> + 'a
+    where
+        T: Sendable,
+        P: FnMut(&T) -> bool + 'a,
+    {
+        T::indexer(&self.senders).find_by(predicate)
     }
 
-    pub fn find_by_label_mut<T: Sendable>(&mut self, label: &str) -> Option<&mut T> {
-        T::indexer_mut(&mut self.senders).find_by_label_mut(label)
+    pub fn find_by_mut<'a, T, P>(&'a mut self, predicate: P) -> impl Iterator<Item = &'a mut T> + 'a
+    where
+        T: Sendable,
+        P: FnMut(&T) -> bool + 'a,
+    {
+        T::indexer_mut(&mut self.senders).find_by_mut(predicate)
     }
 }
 

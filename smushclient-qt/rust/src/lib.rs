@@ -182,9 +182,12 @@ pub mod ffi {
             device: Pin<&mut QTcpSocket>,
             doc: Pin<&mut Document>,
         ) -> i64;
-        fn set_alias_enabled(self: Pin<&mut SmushClient>, label: &QString, enabled: bool) -> bool;
-        fn set_timer_enabled(self: Pin<&mut SmushClient>, label: &QString, enabled: bool) -> bool;
-        fn set_trigger_enabled(self: Pin<&mut SmushClient>, label: &QString, enabled: bool)
+        fn set_alias_enabled(self: Pin<&mut SmushClient>, label: &QString, enable: bool) -> bool;
+        fn set_aliases_enabled(self: Pin<&mut SmushClient>, group: &QString, enable: bool) -> bool;
+        fn set_timer_enabled(self: Pin<&mut SmushClient>, label: &QString, enable: bool) -> bool;
+        fn set_timers_enabled(self: Pin<&mut SmushClient>, group: &QString, enable: bool) -> bool;
+        fn set_trigger_enabled(self: Pin<&mut SmushClient>, label: &QString, enable: bool) -> bool;
+        fn set_triggers_enabled(self: Pin<&mut SmushClient>, group: &QString, enable: bool)
             -> bool;
     }
 
