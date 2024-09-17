@@ -179,6 +179,27 @@ QVariant ScriptApi::GetPluginInfo(string_view pluginID, uint8_t infoType) const
   }
 }
 
+void ScriptApi::Hyperlink(const QString &action, const QString &text, const QString &hint, const QColor &foreground, const QColor &background, bool url, bool noUnderline)
+{
+  QTextCharFormat format;
+  if (url)
+  {
+    QString link = action;
+    link.prepend(QChar(17));
+    format.setAnchorHref(link);
+  }
+  else
+    format.setAnchorHref(action);
+  format.setToolTip(hint.isEmpty() ? action : hint);
+  if (foreground.isValid())
+    format.setForeground(foreground);
+  if (background.isValid())
+    format.setBackground(background);
+  if (!noUnderline)
+    format.setAnchor(true);
+  cursor.insertText(text, format);
+}
+
 ApiCode ScriptApi::IsAlias(const QString &label) const
 {
   return client()->isAlias(label) ? ApiCode::OK : ApiCode::AliasNotFound;

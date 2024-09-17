@@ -33,6 +33,7 @@ public:
   ApiCode EnableTriggerGroup(const QString &group, bool enabled) const;
   QVariant GetOption(std::string_view name) const;
   QVariant GetPluginInfo(std::string_view pluginID, uint8_t infoType) const;
+  void Hyperlink(const QString &action, const QString &text, const QString &hint, const QColor &foreground, const QColor &background, bool url, bool noUnderline);
   ApiCode IsAlias(const QString &label) const;
   ApiCode IsTimer(const QString &label) const;
   ApiCode IsTrigger(const QString &label) const;

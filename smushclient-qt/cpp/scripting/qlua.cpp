@@ -95,8 +95,21 @@ QByteArrayView qlua::borrowBytes(lua_State *L, int idx)
 
 bool qlua::getBool(lua_State *L, int idx)
 {
-  luaL_argexpected(L, lua_type(L, idx) == LUA_TBOOLEAN, idx, "boolean");
-  return lua_toboolean(L, idx);
+  switch (lua_type(L, idx))
+  {
+  case LUA_TBOOLEAN:
+    return lua_toboolean(L, idx);
+  case LUA_TNUMBER:
+    if (int isInt, value = lua_tointegerx(L, idx, &isInt); isInt)
+      switch (value)
+      {
+      case 0:
+        return false;
+      case 1:
+        return true;
+      }
+  }
+  luaL_argexpected(L, false, idx, "boolean");
 }
 
 bool qlua::getBool(lua_State *L, int idx, bool ifNil)

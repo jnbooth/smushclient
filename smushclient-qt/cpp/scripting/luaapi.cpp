@@ -237,6 +237,19 @@ static int L_ColourTell(lua_State *L)
   return 0;
 }
 
+static int L_Hyperlink(lua_State *L)
+{
+  getApi(L).Hyperlink(
+      qlua::getQString(L, 1),
+      qlua::getQString(L, 2),
+      qlua::getQString(L, 3),
+      qlua::getQColor(L, 4),
+      qlua::getQColor(L, 5),
+      qlua::getBool(L, 6),
+      qlua::getBool(L, 7, false));
+  return 0;
+}
+
 static int L_Note(lua_State *L)
 {
   ScriptApi &api = getApi(L);
