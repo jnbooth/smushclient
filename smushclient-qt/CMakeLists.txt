@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.24)
-cmake_policy(SET CMP0169 OLD)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET 15.0)
 project(SmushClient VERSION 0.1 LANGUAGES CXX)
