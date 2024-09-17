@@ -9,6 +9,8 @@ extern "C"
 
 namespace qlua
 {
+  QString getError(lua_State *L);
+
   QByteArrayView borrowBytes(lua_State *L, int idx);
 
   bool getBool(lua_State *L, int idx);
@@ -44,4 +46,6 @@ namespace qlua
   void pushQVariants(lua_State *L, const QVariantList &variants);
   const char *pushString(lua_State *L, std::string_view string);
   void pushStrings(lua_State *L, const std::vector<std::string> &strings);
+
+  bool copyValue(lua_State *fromL, lua_State *toL, int idx);
 }

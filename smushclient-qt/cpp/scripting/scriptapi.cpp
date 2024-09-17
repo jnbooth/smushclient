@@ -199,15 +199,12 @@ void ScriptApi::finishNote()
   lastTellPosition = -1;
 }
 
-lua_State *ScriptApi::getLuaState(string_view pluginID) const
+const Plugin *ScriptApi::getPlugin(string_view pluginID) const
 {
   auto search = pluginIndices.find((string)pluginID);
   if (search == pluginIndices.end())
     return nullptr;
-  const Plugin &plugin = plugins[search->second];
-  if (plugin.isDisabled())
-    return nullptr;
-  return plugin.state();
+  return &plugins[search->second];
 }
 
 void ScriptApi::initializeScripts(const QStringList &scripts)

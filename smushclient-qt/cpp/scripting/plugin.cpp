@@ -33,15 +33,10 @@ inline bool checkError(int status)
   }
 }
 
-inline QString tr(const char *key)
-{
-  return QCoreApplication::translate("ScriptApi", key);
-}
-
 static int panic(lua_State *L)
 {
-  const QString message = tr("PANIC: unprotected error in call to Lua API: %1");
-  QErrorMessage::qtHandler()->showMessage(message.arg(qlua::getQString(L, -1)));
+  const QString message = ScriptApi::tr("PANIC: unprotected error in call to Lua API: %1");
+  QErrorMessage::qtHandler()->showMessage(message.arg(qlua::getError(L)));
   return 0;
 }
 
@@ -83,7 +78,7 @@ void Plugin::disable()
 
 QString Plugin::getError() const
 {
-  return qlua::getQString(L, -1);
+  return qlua::getError(L);
 }
 
 RunScriptResult Plugin::runScript(const QString &script) const

@@ -78,6 +78,13 @@ string_view toString(lua_State *L, int idx)
   return string_view(message, len);
 }
 
+QString qlua::getError(lua_State *L)
+{
+  size_t len;
+  const char *message = lua_tolstring(L, -1, &len);
+  return QString::fromUtf8(message, len);
+}
+
 QByteArrayView qlua::borrowBytes(lua_State *L, int idx)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
@@ -344,4 +351,34 @@ void qlua::pushStrings(lua_State *L, const vector<string> &strings)
     ++i;
   }
   return;
+}
+
+bool qlua::copyValue(lua_State *fromL, lua_State *toL, int idx)
+{
+  switch (lua_type(fromL, idx))
+  {
+  case LUA_TNONE:
+    return true;
+  case LUA_TNIL:
+    lua_pushnil(toL);
+    return true;
+  case LUA_TBOOLEAN:
+    lua_pushboolean(toL, lua_toboolean(fromL, idx));
+    return true;
+  case LUA_TNUMBER:
+    if (int isInt, result = lua_tointegerx(fromL, idx, &isInt); isInt)
+      lua_pushinteger(toL, result);
+    else
+      lua_pushnumber(toL, lua_tonumber(fromL, idx));
+    return true;
+  case LUA_TSTRING:
+  {
+    size_t len;
+    const char *s = lua_tolstring(fromL, idx, &len);
+    lua_pushlstring(toL, s, len);
+  }
+    return true;
+  default:
+    return false;
+  }
 }

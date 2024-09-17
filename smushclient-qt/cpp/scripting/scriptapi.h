@@ -32,7 +32,7 @@ public:
   void applyWorld(const World &world);
   void echo(const QString &text);
   void finishNote();
-  lua_State *getLuaState(std::string_view pluginID) const;
+  const Plugin *getPlugin(std::string_view pluginID) const;
   void initializeScripts(const QStringList &scripts);
   void printError(const QString &message);
   inline bool runScript(size_t plugin, const QString &script) { return runScript(plugins[plugin], script); }
