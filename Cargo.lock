@@ -272,6 +272,7 @@ version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "002f1a6119bcb7dfec67eb7c0803a7b1d595dc54610559faeac35133f22a5880"
 dependencies = [
+ "chrono",
  "cxx",
  "cxx-build",
  "cxx-qt-lib-headers",

@@ -8,7 +8,8 @@ mod constants;
 
 mod plugins;
 pub use plugins::{
-    Pad, Plugin, PluginIndex, PluginLoadError, PluginMetadata, SendMatch, Sendable, Senders,
+    Indexer, Pad, Plugin, PluginIndex, PluginLoadError, PluginMetadata, SendMatch, Sendable,
+    Senders,
 };
 
 mod regex;
@@ -17,4 +18,4 @@ pub use regex::{Regex, RegexError};
 mod send;
 pub use send::{Alias, Occurrence, Reaction, SendTarget, Sender, Timer, Trigger};
 
-pub use chrono::{NaiveTime, Timelike};
+pub use chrono::{NaiveDate, NaiveTime, Timelike, Utc};

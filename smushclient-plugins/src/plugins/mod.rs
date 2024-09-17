@@ -1,5 +1,5 @@
 mod indexed;
-pub use indexed::{PluginIndex, SendMatch, Sendable, Senders};
+pub use indexed::{Indexer, PluginIndex, SendMatch, Sendable, Senders};
 
 mod pad;
 pub use pad::Pad;

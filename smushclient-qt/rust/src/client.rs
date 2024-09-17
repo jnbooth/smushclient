@@ -5,10 +5,11 @@ use std::pin::Pin;
 
 use crate::convert::Convert;
 use crate::ffi;
+use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
 use crate::sync::NonBlockingMutex;
 use crate::world::WorldRust;
-use cxx_qt_lib::{QColor, QList, QString, QStringList, QVector};
+use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant, QVector};
 use enumeration::EnumSet;
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::{Tag, Transformer};
@@ -97,6 +98,11 @@ impl SmushClientRust {
             .iter()
             .map(Convert::convert)
             .collect()
+    }
+
+    pub fn plugin_info(&self, index: PluginIndex, info_type: u8) -> QVariant {
+        self.client
+            .plugin_info::<InfoVisitorQVariant>(index, info_type)
     }
 
     pub fn plugin_scripts(&self) -> QStringList {
@@ -197,6 +203,10 @@ impl ffi::SmushClient {
 
     pub fn palette(&self) -> QVector<QColor> {
         QVector::from(&self.cxx_qt_ffi_rust().palette())
+    }
+
+    pub fn plugin_info(&self, index: PluginIndex, info_type: u8) -> QVariant {
+        self.cxx_qt_ffi_rust().plugin_info(index, info_type)
     }
 
     pub fn plugin_scripts(&self) -> QStringList {

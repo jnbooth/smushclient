@@ -99,3 +99,8 @@ RunScriptResult Plugin::runScript(const QString &script) const
 
   return RunScriptResult::Ok;
 }
+
+unordered_map<string, string> *Plugin::variables() const
+{
+  return getVariableMap(L);
+}

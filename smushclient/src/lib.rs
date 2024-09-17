@@ -1,11 +1,14 @@
 mod client;
 pub use client::SmushClient;
 
-pub mod world;
-pub use world::World;
+mod get_info;
+pub use get_info::InfoVisitor;
 
 mod handler;
 pub use handler::{Handler, SendHandler};
 
 mod plugins;
 pub use plugins::{AliasOutcome, SendRequest};
+
+pub mod world;
+pub use world::World;

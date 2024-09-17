@@ -14,7 +14,7 @@ use smushclient_plugins::{Plugin, PluginIndex, Sendable};
 pub struct SmushClient {
     output_buf: Vec<Output>,
     line_text: String,
-    plugins: PluginEngine,
+    pub(crate) plugins: PluginEngine,
     supported_tags: EnumSet<Tag>,
     world: World,
 }
@@ -93,23 +93,12 @@ impl SmushClient {
         self.plugins.iter()
     }
 
-    pub fn set_sender_enabled<T: Sendable>(&mut self, label: &str, enabled: bool) -> bool {
-        let Some(sender) = self
-            .plugins
-            .find_by_mut(|item: &T| item.as_ref().label == label)
-            .next()
-        else {
-            return false;
-        };
-        sender.as_mut().enabled = enabled;
-        true
-    }
-
     pub fn set_group_enabled<T: Sendable>(&mut self, group: &str, enabled: bool) -> bool {
         let mut found_group = false;
         for sender in self
             .plugins
-            .find_by_mut(|item: &T| item.as_ref().group == group)
+            .indexer_mut::<T>()
+            .find_by_mut(|item| item.as_ref().group == group)
         {
             found_group = true;
             sender.as_mut().enabled = enabled;
@@ -123,6 +112,19 @@ impl SmushClient {
         } else {
             self.plugins.disable_plugin(index)
         }
+    }
+
+    pub fn set_sender_enabled<T: Sendable>(&mut self, label: &str, enabled: bool) -> bool {
+        let Some(sender) = self
+            .plugins
+            .indexer_mut::<T>()
+            .find_by_mut(|item| item.as_ref().label == label)
+            .next()
+        else {
+            return false;
+        };
+        sender.as_mut().enabled = enabled;
+        true
     }
 }
 

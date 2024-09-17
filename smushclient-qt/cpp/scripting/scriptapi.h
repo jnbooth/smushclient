@@ -7,6 +7,7 @@
 #include "scriptenums.h"
 #include "plugin.h"
 
+class SmushClient;
 class World;
 class WorldTab;
 struct lua_State;
@@ -31,6 +32,7 @@ public:
   ApiCode EnableTrigger(const QString &label, bool enabled) const;
   ApiCode EnableTriggerGroup(const QString &group, bool enabled) const;
   QVariant GetOption(std::string_view name) const;
+  QVariant GetPluginInfo(std::string_view pluginID, uint8_t infoType) const;
   ApiCode Send(const QByteArrayView &bytes);
   ApiCode SendNoEcho(const QByteArrayView &bytes) const;
   ApiCode SetOption(std::string_view name, const QVariant &variant) const;
@@ -52,6 +54,8 @@ private:
   std::vector<Plugin> plugins;
   std::unordered_map<std::string, size_t> pluginIndices;
 
+  SmushClient *client() const;
+  size_t findPluginIndex(std::string_view pluginID) const;
   bool handleResult(RunScriptResult result, const Plugin &plugin);
   bool runScript(Plugin &plugin, const QString &script);
   inline WorldTab *tab() const { return (WorldTab *)parent(); }

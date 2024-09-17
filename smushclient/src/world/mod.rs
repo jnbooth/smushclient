@@ -6,10 +6,9 @@ pub use types::*;
 use std::collections::HashMap;
 use std::io::{Read, Write};
 
-use chrono::Utc;
 use mud_transformer::{TransformerConfig, UseMxp};
 use serde::{Deserialize, Serialize};
-use smushclient_plugins::{Alias, Plugin, PluginMetadata, Sender, Timer, Trigger};
+use smushclient_plugins::{Alias, Plugin, PluginMetadata, Sender, Timer, Trigger, Utc};
 
 use mud_transformer::mxp::RgbColor;
 

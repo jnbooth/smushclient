@@ -13,6 +13,8 @@ use client::SmushClientRust;
 
 mod colors;
 
+mod get_info;
+
 mod handler;
 
 mod impls;
@@ -65,6 +67,11 @@ pub mod ffi {
     unsafe extern "C++" {
         include!("cxx-qt-lib/qtime.h");
         type QTime = cxx_qt_lib::QTime;
+    }
+
+    unsafe extern "C++" {
+        include!("cxx-qt-lib/qvariant.h");
+        type QVariant = cxx_qt_lib::QVariant;
     }
 
     unsafe extern "C++" {
@@ -161,6 +168,19 @@ pub mod ffi {
         unsafe fn addColumn(self: Pin<&mut TreeBuilder>, value: f64);
     }
 
+    enum PluginInfo {
+        Aliases,
+        Author,
+        Description,
+        ID,
+        Name,
+        Purpose,
+        Script,
+        Sequence,
+        Timers,
+        Triggers,
+    }
+
     extern "RustQt" {
         #[qobject]
         type SmushClient = super::SmushClientRust;
@@ -176,6 +196,7 @@ pub mod ffi {
         fn save_world(self: &SmushClient, path: &QString) -> Result<()>;
         fn set_world(self: Pin<&mut SmushClient>, world: &World) -> bool;
         fn palette(self: &SmushClient) -> QVector_QColor;
+        fn plugin_info(self: &SmushClient, index: usize, info_type: u8) -> QVariant;
         fn plugin_scripts(self: &SmushClient) -> QStringList;
         fn read(
             self: Pin<&mut SmushClient>,

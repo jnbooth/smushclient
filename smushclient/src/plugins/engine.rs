@@ -7,7 +7,7 @@ use super::send::SendRequest;
 use crate::handler::{Handler, SendHandler};
 use crate::plugins::effects::AliasEffects;
 use smushclient_plugins::{
-    Alias, Plugin, PluginIndex, SendMatch, Sendable, Sender, Senders, Trigger,
+    Alias, Indexer, Plugin, PluginIndex, SendMatch, Sendable, Sender, Senders, Trigger,
 };
 
 fn check_oneshot<T: AsRef<Sender>>(oneshots: &mut Vec<usize>, send: &SendMatch<T>) {
@@ -36,6 +36,10 @@ impl PluginEngine {
             senders: Senders::new(),
             world_plugin_index: None,
         }
+    }
+
+    pub fn plugin_count(&self) -> usize {
+        self.plugins.len()
     }
 
     pub fn load_plugins<I: IntoIterator<Item = Plugin>>(&mut self, iter: I) {
@@ -176,20 +180,16 @@ impl PluginEngine {
         self.into_iter()
     }
 
-    pub fn find_by<'a, T, P>(&'a self, predicate: P) -> impl Iterator<Item = &'a T> + 'a
-    where
-        T: Sendable,
-        P: FnMut(&T) -> bool + 'a,
-    {
-        T::indexer(&self.senders).find_by(predicate)
+    pub fn plugin(&self, index: PluginIndex) -> Option<&Plugin> {
+        self.plugins.get(index)
     }
 
-    pub fn find_by_mut<'a, T, P>(&'a mut self, predicate: P) -> impl Iterator<Item = &'a mut T> + 'a
-    where
-        T: Sendable,
-        P: FnMut(&T) -> bool + 'a,
-    {
-        T::indexer_mut(&mut self.senders).find_by_mut(predicate)
+    pub fn indexer<T: Sendable>(&self) -> &Indexer<T> {
+        T::indexer(&self.senders)
+    }
+
+    pub fn indexer_mut<T: Sendable>(&mut self) -> &mut Indexer<T> {
+        T::indexer_mut(&mut self.senders)
     }
 }
 

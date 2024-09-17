@@ -37,6 +37,13 @@ impl<T> Indexer<T> {
         self.inner.clear();
     }
 
+    pub fn count(&self, index: PluginIndex) -> usize {
+        self.inner
+            .iter()
+            .filter(|item| item.plugin == index)
+            .count()
+    }
+
     pub fn remove_by_plugin(&mut self, index: PluginIndex) {
         self.inner.retain(|item| item.plugin != index);
     }

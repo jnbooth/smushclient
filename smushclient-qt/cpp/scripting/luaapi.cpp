@@ -373,6 +373,19 @@ static int L_CallPlugin(lua_State *L)
   return nresults;
 }
 
+static int L_GetPluginInfo(lua_State *L)
+{
+  const string_view pluginID = qlua::getString(L, 1);
+  const lua_Integer infoType = qlua::getInt(L, 2);
+  if (infoType > UINT8_MAX)
+  {
+    lua_pushnil(L);
+    return 1;
+  }
+  qlua::pushQVariant(L, getApi(L).GetPluginInfo(pluginID, (uint8_t)infoType));
+  return 1;
+}
+
 // variables
 
 stringmap *createVariableMap(lua_State *L)
@@ -407,7 +420,7 @@ static int L_GetPluginVariable(lua_State *L)
   if (plugin == nullptr)
     lua_pushnil(L);
   else
-    pushVariable(L, *getVariableMap(plugin->state()), qlua::getString(L, 2));
+    pushVariable(L, *plugin->variables(), qlua::getString(L, 2));
   return 1;
 }
 
@@ -447,6 +460,7 @@ static const struct luaL_Reg worldlib[] =
      {"EnableTimerGroup", L_EnableTimerGroup},
      {"EnableTrigger", L_EnableTrigger},
      {"EnableTriggerGroup", L_EnableTriggerGroup},
+     {"GetPluginInfo", L_GetPluginInfo},
      // variables
      {"GetVariable", L_GetVariable},
      {"GetPluginVariable", L_GetPluginVariable},

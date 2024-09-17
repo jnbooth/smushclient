@@ -9,6 +9,8 @@ using std::string;
 using std::string_view;
 using std::unordered_map;
 
+constexpr size_t noSuchPlugin = SIZE_T_MAX;
+
 // utils
 
 inline QTextCharFormat colorFormat(const QColor &foreground, const QColor &background)
@@ -114,43 +116,42 @@ void ScriptApi::ColourTell(const QColor &foreground, const QColor &background, c
 
 ApiCode ScriptApi::EnableAlias(const QString &label, bool enabled) const
 {
-  return tab()->client.setAliasEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
+  return client()->setAliasEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
 ApiCode ScriptApi::EnableAliasGroup(const QString &group, bool enabled) const
 {
-  return tab()->client.setAliasesEnabled(group, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
+  return client()->setAliasesEnabled(group, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
 ApiCode ScriptApi::EnableTimer(const QString &label, bool enabled) const
 {
-  return tab()->client.setTimerEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
+  return client()->setTimerEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
 ApiCode ScriptApi::EnablePlugin(string_view pluginID, bool enabled)
 {
-  auto search = pluginIndices.find((string)pluginID);
-  if (search == pluginIndices.end())
+  const size_t index = findPluginIndex(pluginID);
+  if (index == noSuchPlugin)
     return ApiCode::NoSuchPlugin;
-  const size_t index = search->second;
   plugins[index].disable();
-  tab()->client.setPluginEnabled(index, enabled);
+  client()->setPluginEnabled(index, enabled);
   return ApiCode::OK;
 }
 
 ApiCode ScriptApi::EnableTimerGroup(const QString &group, bool enabled) const
 {
-  return tab()->client.setTimersEnabled(group, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
+  return client()->setTimersEnabled(group, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
 ApiCode ScriptApi::EnableTrigger(const QString &label, bool enabled) const
 {
-  return tab()->client.setTriggerEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
+  return client()->setTriggerEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
 ApiCode ScriptApi::EnableTriggerGroup(const QString &group, bool enabled) const
 {
-  return tab()->client.setTriggersEnabled(group, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
+  return client()->setTriggersEnabled(group, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
 QVariant ScriptApi::GetOption(string_view name) const
@@ -160,6 +161,22 @@ QVariant ScriptApi::GetOption(string_view name) const
     return QVariant();
 
   return tab()->world.property(prop);
+}
+
+QVariant ScriptApi::GetPluginInfo(string_view pluginID, uint8_t infoType) const
+{
+  const size_t index = findPluginIndex(pluginID);
+  if (index == noSuchPlugin)
+    return QVariant();
+  switch (infoType)
+  {
+  case 16:
+    return QVariant(!plugins[index].disabled());
+  case 12:
+    return plugins[index].variables()->size();
+  default:
+    return client()->pluginInfo(index, infoType);
+  }
 }
 
 ApiCode ScriptApi::Send(const QByteArrayView &view)
@@ -239,6 +256,14 @@ void ScriptApi::applyWorld(const World &world)
   errorFormat.setForeground(QBrush(world.getErrorColour()));
 }
 
+SmushClient *ScriptApi::client() const
+{
+  WorldTab *worldtab = tab();
+  if (worldtab == nullptr)
+    return nullptr;
+  return &worldtab->client;
+}
+
 void ScriptApi::echo(const QString &text)
 {
   cursor.insertText(text, echoFormat);
@@ -252,10 +277,10 @@ void ScriptApi::finishNote()
 
 const Plugin *ScriptApi::getPlugin(string_view pluginID) const
 {
-  auto search = pluginIndices.find((string)pluginID);
-  if (search == pluginIndices.end())
+  const size_t index = findPluginIndex(pluginID);
+  if (index == noSuchPlugin)
     return nullptr;
-  return &plugins[search->second];
+  return &plugins[index];
 }
 
 void ScriptApi::initializeScripts(const QStringList &scripts)
@@ -286,6 +311,14 @@ void ScriptApi::printError(const QString &error)
 }
 
 // private methods
+
+size_t ScriptApi::findPluginIndex(string_view pluginID) const
+{
+  auto search = pluginIndices.find((string)pluginID);
+  if (search == pluginIndices.end())
+    return noSuchPlugin;
+  return search->second;
+}
 
 inline bool ScriptApi::handleResult(RunScriptResult result, const Plugin &plugin)
 {

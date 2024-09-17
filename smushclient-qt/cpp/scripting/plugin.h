@@ -39,6 +39,7 @@ public:
   inline const QString &name() const { return metadata.name; }
   RunScriptResult runScript(const QString &script) const;
   inline lua_State *state() const { return L; }
+  std::unordered_map<std::string, std::string> *variables() const;
 
 private:
   lua_State *L;
