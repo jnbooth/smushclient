@@ -273,6 +273,8 @@ void qlua::pushQVariant(lua_State *L, const QVariant &variant)
     pushQString(L, variant.toChar());
     return;
   case QMetaType::QString:
+  case QMetaType::QDate:
+  case QMetaType::QDateTime:
     pushQString(L, variant.toString());
     return;
   case QMetaType::QByteArray:

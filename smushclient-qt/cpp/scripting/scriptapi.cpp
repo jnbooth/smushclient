@@ -173,7 +173,7 @@ QVariant ScriptApi::GetPluginInfo(string_view pluginID, uint8_t infoType) const
   case 16:
     return QVariant(!plugins[index].disabled());
   case 12:
-    return plugins[index].variables()->size();
+    return QVariant((qlonglong)plugins[index].variables()->size());
   default:
     return client()->pluginInfo(index, infoType);
   }
