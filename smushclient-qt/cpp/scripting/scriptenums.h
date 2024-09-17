@@ -1,6 +1,6 @@
 #pragma once
 
-enum struct ScriptReturnCode
+enum struct ApiCode
 {
   OK = 0,                             // No error
   WorldOpen = 30001,                  // The world is already open

@@ -48,9 +48,9 @@ inline bool isEmptyList(const QVariant &variant)
   }
 }
 
-inline ScriptReturnCode updateWorld(WorldTab &worldtab)
+inline ApiCode updateWorld(WorldTab &worldtab)
 {
-  return worldtab.updateWorld() ? ScriptReturnCode::OK : ScriptReturnCode::OptionOutOfRange;
+  return worldtab.updateWorld() ? ApiCode::OK : ApiCode::OptionOutOfRange;
 }
 
 inline bool beginTell(QTextCursor &cursor, int lastTellPosition)
@@ -112,25 +112,19 @@ void ScriptApi::ColourTell(const QColor &foreground, const QColor &background, c
   lastTellPosition = cursor.position();
 }
 
-ScriptReturnCode ScriptApi::EnableAlias(const QString &label, bool enabled) const
+ApiCode ScriptApi::EnableAlias(const QString &label, bool enabled) const
 {
-  return tab()->client.setAliasEnabled(label, enabled)
-             ? ScriptReturnCode::OK
-             : ScriptReturnCode::AliasNotFound;
+  return tab()->client.setAliasEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
-ScriptReturnCode ScriptApi::EnableTimer(const QString &label, bool enabled) const
+ApiCode ScriptApi::EnableTimer(const QString &label, bool enabled) const
 {
-  return tab()->client.setTimerEnabled(label, enabled)
-             ? ScriptReturnCode::OK
-             : ScriptReturnCode::AliasNotFound;
+  return tab()->client.setTimerEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
-ScriptReturnCode ScriptApi::EnableTrigger(const QString &label, bool enabled) const
+ApiCode ScriptApi::EnableTrigger(const QString &label, bool enabled) const
 {
-  return tab()->client.setTriggerEnabled(label, enabled)
-             ? ScriptReturnCode::OK
-             : ScriptReturnCode::AliasNotFound;
+  return tab()->client.setTriggerEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
 QVariant ScriptApi::GetOption(string_view name) const
@@ -142,21 +136,21 @@ QVariant ScriptApi::GetOption(string_view name) const
   return tab()->world.property(prop);
 }
 
-ScriptReturnCode ScriptApi::Send(const QByteArrayView &view)
+ApiCode ScriptApi::Send(const QByteArrayView &view)
 {
   echo(QString::fromUtf8(view));
   return SendNoEcho(view);
 }
 
-ScriptReturnCode ScriptApi::SendNoEcho(const QByteArrayView &view) const
+ApiCode ScriptApi::SendNoEcho(const QByteArrayView &view) const
 {
   if (view.isEmpty())
-    return ScriptReturnCode::OK;
+    return ApiCode::OK;
 
   QTcpSocket &socket = *tab()->socket;
 
   if (!socket.isOpen())
-    return ScriptReturnCode::WorldClosed;
+    return ApiCode::WorldClosed;
 
   if (view.back() == '\n')
     socket.write(view.constData(), view.size());
@@ -169,16 +163,16 @@ ScriptReturnCode ScriptApi::SendNoEcho(const QByteArrayView &view) const
     bytes.append('\n');
     socket.write(bytes);
   }
-  return ScriptReturnCode::OK;
+  return ApiCode::OK;
 }
 
-ScriptReturnCode ScriptApi::SetOption(string_view name, const QVariant &variant) const
+ApiCode ScriptApi::SetOption(string_view name, const QVariant &variant) const
 {
   WorldTab &worldtab = *tab();
   World &world = worldtab.world;
   const char *prop = WorldProperties::canonicalName(name);
   if (prop == nullptr)
-    return ScriptReturnCode::UnknownOption;
+    return ApiCode::UnknownOption;
   QVariant property = world.property(prop);
   if (world.setProperty(prop, variant))
     return updateWorld(worldtab);
@@ -196,7 +190,7 @@ ScriptReturnCode ScriptApi::SetOption(string_view name, const QVariant &variant)
       return updateWorld(worldtab);
   }
 
-  return ScriptReturnCode::OptionOutOfRange;
+  return ApiCode::OptionOutOfRange;
 }
 
 void ScriptApi::Tell(const QString &text)

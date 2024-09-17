@@ -78,13 +78,13 @@ QString fmtBadReturn(const Plugin &plugin, string_view routine, int idx, const c
 
 // utils
 
-inline int returnCode(lua_State *L, ScriptReturnCode code)
+inline int returnCode(lua_State *L, ApiCode code)
 {
   lua_pushinteger(L, (lua_Integer)code);
   return 1;
 }
 
-inline int returnCode(lua_State *L, ScriptReturnCode code, const QString &reason)
+inline int returnCode(lua_State *L, ApiCode code, const QString &reason)
 {
   lua_pushinteger(L, (lua_Integer)code);
   qlua::pushQString(L, reason);
@@ -296,12 +296,12 @@ static int L_CallPlugin(lua_State *L)
   if (pluginRef == nullptr)
     return returnCode(
         L,
-        ScriptReturnCode::NoSuchPlugin,
+        ApiCode::NoSuchPlugin,
         fmtNoSuchPlugin(qlua::getQString(L, 1)));
 
   const Plugin &plugin = *pluginRef;
   if (plugin.isDisabled())
-    return returnCode(L, ScriptReturnCode::PluginDisabled, fmtPluginDisabled(plugin));
+    return returnCode(L, ApiCode::PluginDisabled, fmtPluginDisabled(plugin));
 
   const string_view routine = qlua::getString(L, 2);
 
@@ -309,13 +309,13 @@ static int L_CallPlugin(lua_State *L)
   if (L2 == L)
     return returnCode(
         L,
-        ScriptReturnCode::ErrorCallingPluginRoutine, fmtSelfCall(plugin));
+        ApiCode::ErrorCallingPluginRoutine, fmtSelfCall(plugin));
 
   const int n = lua_gettop(L);
   luaL_checkstack(L2, n - 1, nullptr);
 
   if (lua_getglobal(L2, routine.data()) != LUA_TFUNCTION)
-    return returnCode(L, ScriptReturnCode::NoSuchRoutine, fmtNoSuchRoutine(plugin, routine));
+    return returnCode(L, ApiCode::NoSuchRoutine, fmtNoSuchRoutine(plugin, routine));
 
   const int topBefore = lua_gettop(L2) - 1;
 
@@ -324,13 +324,13 @@ static int L_CallPlugin(lua_State *L)
     {
       lua_settop(L2, topBefore);
       lua_settop(L, 0);
-      return returnCode(L, ScriptReturnCode::BadParameter, fmtBadParam(i - 2, luaL_typename(L, i)));
+      return returnCode(L, ApiCode::BadParameter, fmtBadParam(i - 2, luaL_typename(L, i)));
     }
 
   if (lua_pcall(L2, n, LUA_MULTRET, 0) != LUA_OK)
   {
     lua_settop(L, 0);
-    lua_pushinteger(L, (lua_Integer)ScriptReturnCode::ErrorCallingPluginRoutine);
+    lua_pushinteger(L, (lua_Integer)ApiCode::ErrorCallingPluginRoutine);
     qlua::pushQString(L, fmtCallError(plugin, routine));
     size_t size;
     lua_pushlstring(L, lua_tolstring(L2, -1, &size), size);
@@ -342,11 +342,11 @@ static int L_CallPlugin(lua_State *L)
   const int nresults = topAfter - topBefore + 1;
   lua_settop(L, 0);
   luaL_checkstack(L, nresults, nullptr);
-  lua_pushinteger(L, (lua_Integer)ScriptReturnCode::OK);
+  lua_pushinteger(L, (lua_Integer)ApiCode::OK);
   for (int i = topBefore + 1; i <= topAfter; ++i)
   {
     if (!qlua::copyValue(L, L2, i))
-      return returnCode(L, ScriptReturnCode::ErrorCallingPluginRoutine,
+      return returnCode(L, ApiCode::ErrorCallingPluginRoutine,
                         fmtBadReturn(plugin, routine, i - topBefore, luaL_typename(L, i)));
   }
   lua_settop(L2, topBefore);
@@ -394,7 +394,7 @@ static int L_GetPluginVariable(lua_State *L)
 static int L_SetVariable(lua_State *L)
 {
   (*getVariableMap(L))[(string)qlua::getString(L, 1)] = qlua::getString(L, 2);
-  return returnCode(L, ScriptReturnCode::OK);
+  return returnCode(L, ApiCode::OK);
 }
 
 // userdata

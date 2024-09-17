@@ -23,13 +23,13 @@ public:
   ScriptApi(WorldTab *parent);
 
   void ColourTell(const QColor &foreground, const QColor &background, const QString &text);
-  ScriptReturnCode EnableAlias(const QString &label, bool enabled) const;
-  ScriptReturnCode EnableTimer(const QString &label, bool enabled) const;
-  ScriptReturnCode EnableTrigger(const QString &label, bool enabled) const;
+  ApiCode EnableAlias(const QString &label, bool enabled) const;
+  ApiCode EnableTimer(const QString &label, bool enabled) const;
+  ApiCode EnableTrigger(const QString &label, bool enabled) const;
   QVariant GetOption(std::string_view name) const;
-  ScriptReturnCode Send(const QByteArrayView &bytes);
-  ScriptReturnCode SendNoEcho(const QByteArrayView &bytes) const;
-  ScriptReturnCode SetOption(std::string_view name, const QVariant &variant) const;
+  ApiCode Send(const QByteArrayView &bytes);
+  ApiCode SendNoEcho(const QByteArrayView &bytes) const;
+  ApiCode SetOption(std::string_view name, const QVariant &variant) const;
   void Tell(const QString &text);
 
   void applyWorld(const World &world);
