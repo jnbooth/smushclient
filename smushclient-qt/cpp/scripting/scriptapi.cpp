@@ -1,6 +1,7 @@
 #include "scriptapi.h"
 #include <QtGui/QClipboard>
 #include <QtGui/QGuiApplication>
+#include "miniwindow.h"
 #include "worldproperties.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
@@ -280,6 +281,69 @@ void ScriptApi::Tell(const QString &text)
   lastTellPosition = cursor.position();
 }
 
+ApiCode ScriptApi::WindowCreate(
+    string_view name,
+    const QPoint &location,
+    const QSize &size,
+    MiniWindow::Position position,
+    MiniWindow::Flags flags,
+    const QColor &fill)
+{
+  if (name.empty())
+    return ApiCode::NoNameSpecified;
+  if (!size.isValid())
+    return ApiCode::BadParameter;
+
+  string windowName = (string)name;
+  MiniWindow *window = windows[windowName];
+  if (window == nullptr)
+    window = windows[windowName] = new MiniWindow(tab(), location, size, position, flags, fill);
+  else
+  {
+    window->setPosition(location, position, flags);
+    window->setSize(size, fill);
+  }
+  window->updatePosition();
+  window->show();
+  return ApiCode::OK;
+}
+
+ApiCode ScriptApi::WindowPosition(
+    std::string_view windowName,
+    const QPoint &location,
+    MiniWindow::Position position,
+    MiniWindow::Flags flags)
+    const
+{
+  MiniWindow *window = findWindow((string)windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  window->setPosition(location, position, flags);
+  return ApiCode::OK;
+}
+
+ApiCode ScriptApi::WindowResize(string_view windowName, const QSize &size, const QColor &fill) const
+{
+  if (windowName.empty())
+    return ApiCode::NoNameSpecified;
+  if (!size.isValid())
+    return ApiCode::BadParameter;
+  MiniWindow *window = findWindow((string)windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  window->setSize(size, fill);
+  return ApiCode::OK;
+}
+
+ApiCode ScriptApi::WindowSetZOrder(string_view windowName, int order) const
+{
+  MiniWindow *window = findWindow((string)windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  window->setZOrder(order);
+  return ApiCode::OK;
+}
+
 // public methods
 
 void ScriptApi::applyWorld(const World &world)
@@ -353,6 +417,14 @@ size_t ScriptApi::findPluginIndex(string_view pluginID) const
   auto search = pluginIndices.find((string)pluginID);
   if (search == pluginIndices.end())
     return noSuchPlugin;
+  return search->second;
+}
+
+MiniWindow *ScriptApi::findWindow(const string &windowName) const
+{
+  auto search = windows.find(windowName);
+  if (search == windows.end())
+    return nullptr;
   return search->second;
 }
 

@@ -34,11 +34,11 @@ public:
   void disable();
   void enable();
   QString getError() const;
-  inline const QString &id() const { return metadata.id; }
-  inline bool disabled() const { return isDisabled; };
-  inline const QString &name() const { return metadata.name; }
+  inline const QString &id() const noexcept { return metadata.id; }
+  inline bool disabled() const noexcept { return isDisabled; };
+  inline const QString &name() const noexcept { return metadata.name; }
   RunScriptResult runScript(const QString &script) const;
-  inline lua_State *state() const { return L; }
+  inline lua_State *state() const noexcept { return L; }
   std::unordered_map<std::string, std::string> *variables() const;
 
 private:

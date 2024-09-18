@@ -460,6 +460,51 @@ static int L_SetVariable(lua_State *L)
   return returnCode(L, ApiCode::OK);
 }
 
+// windows
+
+static int L_WindowCreate(lua_State *L)
+{
+  return returnCode(
+      L,
+      getApi(L).WindowCreate(
+          qlua::getString(L, 1),
+          QPoint(qlua::getInt(L, 2), qlua::getInt(L, 3)),
+          QSize(qlua::getInt(L, 4), qlua::getInt(L, 5)),
+          qlua::getEnum<MiniWindow::Position>(L, 6),
+          (MiniWindow::Flags)(int)qlua::getInt(L, 7),
+          qlua::getQColor(L, 8)));
+}
+
+static int L_WindowPosition(lua_State *L)
+{
+  return returnCode(
+      L,
+      getApi(L).WindowPosition(
+          qlua::getString(L, 1),
+          QPoint(qlua::getInt(L, 2), qlua::getInt(L, 3)),
+          qlua::getEnum<MiniWindow::Position>(L, 6),
+          (MiniWindow::Flags)(int)qlua::getInt(L, 7)));
+}
+
+static int L_WindowResize(lua_State *L)
+{
+  return returnCode(
+      L,
+      getApi(L).WindowResize(
+          qlua::getString(L, 1),
+          QSize(qlua::getInt(L, 2), qlua::getInt(L, 3)),
+          qlua::getQColor(L, 4)));
+}
+
+static int L_WindowSetZOrder(lua_State *L)
+{
+  return returnCode(
+      L,
+      getApi(L).WindowSetZOrder(
+          qlua::getString(L, 1),
+          qlua::getInt(L, 2)));
+}
+
 // userdata
 
 static const struct luaL_Reg worldlib[] =
@@ -475,6 +520,7 @@ static const struct luaL_Reg worldlib[] =
      {"ColourNameToRGB", L_ColourNameToRGB},
      {"ColourNote", L_ColourNote},
      {"ColourTell", L_ColourTell},
+     {"Hyperlink", L_Hyperlink},
      {"Note", L_Note},
      {"RGBColourToName", L_RGBColourToName},
      {"Send", L_Send},
@@ -499,6 +545,11 @@ static const struct luaL_Reg worldlib[] =
      {"GetVariable", L_GetVariable},
      {"GetPluginVariable", L_GetPluginVariable},
      {"SetVariable", L_SetVariable},
+     // windows
+     {"WindowCreate", L_WindowCreate},
+     {"WindowPosition", L_WindowPosition},
+     {"WindowResize", L_WindowResize},
+     {"WindowSetZOrder", L_WindowSetZOrder},
 
      {NULL, NULL}};
 

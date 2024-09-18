@@ -24,7 +24,7 @@ signals:
   void valueChanged(const QColor &val);
 
 protected:
-  void paintEvent(QPaintEvent *) override;
+  void paintEvent(QPaintEvent *event) override;
 
 private:
   QColor currentValue;

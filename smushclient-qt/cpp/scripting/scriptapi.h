@@ -4,8 +4,9 @@
 #include <QtCore/QPointer>
 #include <QtCore/QString>
 #include <QtGui/QTextCursor>
-#include "scriptenums.h"
+#include "miniwindow.h"
 #include "plugin.h"
+#include "scriptenums.h"
 
 class SmushClient;
 class World;
@@ -41,6 +42,20 @@ public:
   ApiCode SendNoEcho(const QByteArrayView &bytes) const;
   ApiCode SetOption(std::string_view name, const QVariant &variant) const;
   void Tell(const QString &text);
+  ApiCode WindowCreate(
+      std::string_view windowName,
+      const QPoint &location,
+      const QSize &size,
+      MiniWindow::Position position,
+      MiniWindow::Flags flags,
+      const QColor &fill);
+  ApiCode WindowPosition(
+      std::string_view windowName,
+      const QPoint &location,
+      MiniWindow::Position position,
+      MiniWindow::Flags flags) const;
+  ApiCode WindowResize(std::string_view windowName, const QSize &size, const QColor &fill) const;
+  ApiCode WindowSetZOrder(std::string_view windowName, int zOrder) const;
 
   void applyWorld(const World &world);
   void echo(const QString &text);
@@ -57,10 +72,12 @@ private:
   int lastTellPosition;
   std::vector<Plugin> plugins;
   std::unordered_map<std::string, size_t> pluginIndices;
+  std::unordered_map<std::string, MiniWindow *> windows;
 
   SmushClient *client() const;
   size_t findPluginIndex(std::string_view pluginID) const;
   bool handleResult(RunScriptResult result, const Plugin &plugin);
   bool runScript(Plugin &plugin, const QString &script);
+  MiniWindow *findWindow(const std::string &windowName) const;
   inline WorldTab *tab() const { return (WorldTab *)parent(); }
 };

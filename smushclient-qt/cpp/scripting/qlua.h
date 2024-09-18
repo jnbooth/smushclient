@@ -34,6 +34,9 @@ namespace qlua
   std::string_view getString(lua_State *L, int idx);
   std::string_view getString(lua_State *L, int idx, std::string_view ifNil);
 
+  template <typename T>
+  T getEnum(lua_State *L, int idx);
+
   int loadQString(lua_State *L, const QString &chunk);
 
   const char *pushBytes(lua_State *L, const QByteArray &bytes);

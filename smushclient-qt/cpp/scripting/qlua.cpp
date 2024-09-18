@@ -1,5 +1,6 @@
 #include "qlua.h"
 #include <QtCore/QUuid>
+#include "miniwindow.h"
 extern "C"
 {
 #include "lauxlib.h"
@@ -110,6 +111,7 @@ bool qlua::getBool(lua_State *L, int idx)
       }
   }
   luaL_argexpected(L, false, idx, "boolean");
+  return lua_toboolean(L, idx);
 }
 
 bool qlua::getBool(lua_State *L, int idx, bool ifNil)
@@ -197,6 +199,14 @@ string_view qlua::getString(lua_State *L, int idx)
 string_view qlua::getString(lua_State *L, int idx, string_view ifNil)
 {
   return checkIsSome(L, idx, LUA_TSTRING, "string") ? toString(L, idx) : ifNil;
+}
+
+template <>
+MiniWindow::Position qlua::getEnum(lua_State *L, int idx)
+{
+  const lua_Integer val = getInt(L, idx);
+  luaL_argexpected(L, val >= 0 && val <= (lua_Integer)MiniWindow::Position::Tile, idx, "window position enum");
+  return (MiniWindow::Position)val;
 }
 
 int qlua::loadQString(lua_State *L, const QString &chunk)
