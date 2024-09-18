@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 #include <unordered_map>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
@@ -7,6 +8,7 @@
 #include "miniwindow.h"
 #include "plugin.h"
 #include "scriptenums.h"
+#include "windowsort.h"
 
 class SmushClient;
 class World;
@@ -55,7 +57,7 @@ public:
       MiniWindow::Position position,
       MiniWindow::Flags flags) const;
   ApiCode WindowResize(std::string_view windowName, const QSize &size, const QColor &fill) const;
-  ApiCode WindowSetZOrder(std::string_view windowName, int zOrder) const;
+  ApiCode WindowSetZOrder(std::string_view windowName, int zOrder);
 
   void applyWorld(const World &world);
   void echo(const QString &text);
@@ -64,6 +66,7 @@ public:
   void initializeScripts(const QStringList &scripts);
   void printError(const QString &message);
   inline bool runScript(size_t plugin, const QString &script) { return runScript(plugins[plugin], script); }
+  void sortWindows();
 
 private:
   QTextCursor cursor;
@@ -73,6 +76,7 @@ private:
   std::vector<Plugin> plugins;
   std::unordered_map<std::string, size_t> pluginIndices;
   std::unordered_map<std::string, MiniWindow *> windows;
+  std::vector<WindowSort> windowSortBuffer;
 
   SmushClient *client() const;
   size_t findPluginIndex(std::string_view pluginID) const;

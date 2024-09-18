@@ -304,6 +304,7 @@ ApiCode ScriptApi::WindowCreate(
     window->setSize(size, fill);
   }
   window->updatePosition();
+  sortWindows();
   window->show();
   return ApiCode::OK;
 }
@@ -335,12 +336,13 @@ ApiCode ScriptApi::WindowResize(string_view windowName, const QSize &size, const
   return ApiCode::OK;
 }
 
-ApiCode ScriptApi::WindowSetZOrder(string_view windowName, int order) const
+ApiCode ScriptApi::WindowSetZOrder(string_view windowName, int order)
 {
   MiniWindow *window = findWindow((string)windowName);
   if (window == nullptr)
     return ApiCode::NoSuchWindow;
   window->setZOrder(order);
+  sortWindows();
   return ApiCode::OK;
 }
 
@@ -448,4 +450,9 @@ inline bool ScriptApi::handleResult(RunScriptResult result, const Plugin &plugin
 inline bool ScriptApi::runScript(Plugin &plugin, const QString &script)
 {
   return handleResult(plugin.runScript(script), plugin);
+}
+
+void ScriptApi::sortWindows()
+{
+  WindowSort::sort(windowSortBuffer, tab()->ui->output, windows);
 }

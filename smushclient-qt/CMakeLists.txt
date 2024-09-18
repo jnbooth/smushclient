@@ -16,7 +16,7 @@ endif()
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 COMPONENTS Core Gui Network Qml Widgets REQUIRED)
@@ -65,6 +65,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/qlua.h cpp/scripting/qlua.cpp
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
     cpp/scripting/plugin.h cpp/scripting/plugin.cpp
+    cpp/scripting/windowsort.h cpp/scripting/windowsort.cpp
     cpp/scripting/worldproperties.h cpp/scripting/worldproperties.cpp
 
     cpp/ui/app.h cpp/ui/app.cpp cpp/ui/app.ui

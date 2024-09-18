@@ -57,6 +57,7 @@ public:
       const QColor &fill);
   // long WindowPosition(BSTR WindowName, long Left, long Top, short Position, long Flags);
   void drawRect(const QRect &rect, const QColor &color);
+  int getZOrder() const noexcept;
   void setPosition(const QPoint &location, Position position, Flags flags) noexcept;
   void setSize(const QSize &size, const QColor &fill) noexcept;
   void setZOrder(int zOrder) noexcept;

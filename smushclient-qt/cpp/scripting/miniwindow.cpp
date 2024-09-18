@@ -93,6 +93,11 @@ void MiniWindow::drawRect(const QRect &rect, const QColor &color)
   painter.drawRect(rect);
 }
 
+int MiniWindow::getZOrder() const noexcept
+{
+  return zOrder;
+}
+
 void MiniWindow::setPosition(const QPoint &loc, Position pos, Flags newFlags) noexcept
 {
   location = loc;
@@ -140,7 +145,7 @@ void MiniWindow::updatePosition()
 
 void MiniWindow::paintEvent(QPaintEvent *)
 {
-  if (__builtin_expect(position == Position::Tile, false))
+  if (position == Position::Tile) [[unlikely]]
   {
     QPainter(this).drawTiledPixmap(rect(), pixmap);
     return;
