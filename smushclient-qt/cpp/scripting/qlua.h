@@ -4,6 +4,7 @@
 #include <QtCore/QVariant>
 #include <QtGui/QColor>
 #include <QtGui/QPen>
+#include <QtGui/QPolygonF>
 #include "miniwindow.h"
 extern "C"
 {
@@ -84,9 +85,10 @@ namespace qlua
 
   std::optional<QPen> getPen(lua_State *L, int idxColor, int idxStyle, int idxWidth);
 
+  std::optional<QPolygonF> getQPolygonF(lua_State *L, int idx);
+
   std::optional<MiniWindow::Position> getWindowPosition(
       lua_State *L,
       int idx,
       std::optional<MiniWindow::Position> ifNil = std::nullopt);
-
 }

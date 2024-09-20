@@ -590,6 +590,32 @@ static int L_WindowLine(lua_State *L)
   return returnCode(L, getApi(L).WindowLine(windowName, line, *pen));
 }
 
+static int L_WindowPolygon(lua_State *L)
+{
+  const string_view windowName = qlua::getString(L, 1);
+  const optional<QPolygonF> polygon = qlua::getQPolygonF(L, 2);
+  const optional<QPen> pen = qlua::getPen(L, 3, 4, 5);
+  const QColor brushColor = qlua::getQColor(L, 6);
+  const optional<Qt::BrushStyle> brushStyle = qlua::getBrush(L, 7);
+  const bool close = qlua::getBool(L, 8);
+  const bool winding = qlua::getBool(L, 9);
+  if (!polygon) [[unlikely]]
+    return returnCode(L, ApiCode::InvalidNumberOfPoints);
+  if (!pen) [[unlikely]]
+    return returnCode(L, ApiCode::PenStyleNotValid);
+  if (!brushStyle) [[unlikely]]
+    return returnCode(L, ApiCode::BrushStyleNotValid);
+  return returnCode(
+      L,
+      getApi(L).WindowPolygon(
+          windowName,
+          *polygon,
+          *pen,
+          QBrush(brushColor, *brushStyle),
+          close,
+          winding ? Qt::FillRule::WindingFill : Qt::FillRule::OddEvenFill));
+}
+
 static int L_WindowPosition(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
@@ -778,6 +804,7 @@ static const struct luaL_Reg worldlib[] =
      {"WindowCreate", L_WindowCreate},
      {"WindowFont", L_WindowFont},
      {"WindowLine", L_WindowLine},
+     {"WindowPolygon", L_WindowPolygon},
      {"WindowPosition", L_WindowPosition},
      {"WindowRectOp", L_WindowRectOp},
      {"WindowResize", L_WindowResize},

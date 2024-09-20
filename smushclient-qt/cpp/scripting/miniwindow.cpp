@@ -193,6 +193,25 @@ void MiniWindow::drawFrame(const QRectF &rect, const QColor &color1, const QColo
   update();
 }
 
+void MiniWindow::drawPolygon(
+    const QPolygonF &polygon,
+    const QPen &pen,
+    const QBrush &brush,
+    Qt::FillRule fillRule)
+{
+  QPainter painter(&pixmap);
+  painter.setPen(pen);
+  painter.setBrush(brush);
+  painter.drawPolygon(polygon, fillRule);
+}
+
+void MiniWindow::drawPolyline(const QPolygonF &polygon, const QPen &pen)
+{
+  QPainter painter(&pixmap);
+  painter.setPen(pen);
+  painter.drawPolyline(polygon);
+}
+
 void MiniWindow::drawRect(const QRectF &rect, const QPen &pen, const QBrush &brush)
 {
   QPainter painter(&pixmap);

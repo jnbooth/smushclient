@@ -102,6 +102,13 @@ public:
       std::string_view windowName,
       std::string_view hotspotID,
       const QRect &geometry) const;
+  ApiCode WindowPolygon(
+      std::string_view windowName,
+      const QPolygonF &polygon,
+      const QPen &pen,
+      const QBrush &brush,
+      bool close,
+      Qt::FillRule fillRule) const;
   ApiCode WindowPosition(
       std::string_view windowName,
       const QPoint &location,

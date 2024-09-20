@@ -1,4 +1,6 @@
 #include "qlua.h"
+#include <iostream>
+#include <sstream>
 #include <QtCore/QUuid>
 #include "miniwindow.h"
 extern "C"
@@ -603,6 +605,25 @@ optional<QPen> qlua::getPen(lua_State *L, int idxColor, int idxStyle, int idxWid
     return nullopt;
 
   return QPen(color, width, penStyle, capStyle, joinStyle);
+}
+
+optional<QPolygonF> qlua::getQPolygonF(lua_State *L, int idx)
+{
+  const string_view s = getString(L, idx);
+  const qsizetype commaCount = std::count(s.begin(), s.end(), ',');
+  if (commaCount % 2 == 0 || commaCount < 3) [[unlikely]]
+    return nullopt;
+  QList<QPointF> points((commaCount + 1) / 2);
+  std::istringstream stream((string)s);
+  for (string sX, sY; std::getline(stream, sX, ',') && std::getline(stream, sY, ',');)
+  {
+    qreal dX = stod(sX);
+    qreal dY = stod(sY);
+    if (!std::isfinite(dX) || !std::isfinite(dY)) [[unlikely]]
+      return nullopt;
+    points.append(QPointF(dX, dY));
+  }
+  return QPolygonF(points);
 }
 
 optional<MiniWindow::Position> qlua::getWindowPosition(

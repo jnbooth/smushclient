@@ -8,6 +8,7 @@
 #include <QtCore/QSize>
 #include <QtGui/QPen>
 #include <QtGui/QPixmap>
+#include <QtGui/QPolygon>
 #include "hotspot.h"
 #include "luaconf.h"
 
@@ -74,6 +75,12 @@ public:
   void drawLine(const QLineF &line, const QPen &pen);
   void drawEllipse(const QRectF &rect, const QPen &pen, const QBrush &brush = QBrush());
   void drawFrame(const QRectF &rect, const QColor &color1, const QColor &color2);
+  void drawPolygon(
+      const QPolygonF &polygon,
+      const QPen &pen,
+      const QBrush &brush,
+      Qt::FillRule fillRule);
+  void drawPolyline(const QPolygonF &polygon, const QPen &pen);
   void drawRect(const QRectF &rect, const QPen &pen, const QBrush &brush = QBrush());
   void drawRoundedRect(
       const QRectF &rect,

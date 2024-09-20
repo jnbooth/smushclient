@@ -395,6 +395,8 @@ ApiCode ScriptApi::WindowFont(
     font.setUnderline(true);
   if (strikeout)
     font.setStrikeOut(true);
+  window->loadFont(fontID, font);
+  return ApiCode::OK;
 }
 
 ApiCode ScriptApi::WindowFontUnload(string_view windowName, string_view fontID) const
@@ -444,6 +446,23 @@ ApiCode ScriptApi::WindowMoveHotspot(
   if (hotspot == nullptr)
     return ApiCode::HotspotNotInstalled;
   hotspot->setGeometry(geometry);
+  return ApiCode::OK;
+}
+ApiCode ScriptApi::WindowPolygon(
+    string_view windowName,
+    const QPolygonF &polygon,
+    const QPen &pen,
+    const QBrush &brush,
+    bool close,
+    Qt::FillRule fillRule) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  if (brush.style() == Qt::BrushStyle::NoBrush && !close)
+    window->drawPolyline(polygon, pen);
+  else
+    window->drawPolygon(polygon, pen, brush, fillRule);
   return ApiCode::OK;
 }
 
