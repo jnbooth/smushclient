@@ -76,20 +76,6 @@ inline void endTell(QTextCursor &cursor, bool insideTell)
 
 // static API
 
-int ScriptApi::RGBColourToCode(const QColor &color)
-{
-  if (!color.isValid())
-    return -1;
-  int r, g, b;
-  color.getRgb(&r, &g, &b);
-  return b << 16 | g << 8 | r;
-}
-
-QColor ScriptApi::RGBCodeToColour(int rgb)
-{
-  return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
-}
-
 void ScriptApi::SetClipboard(const QString &text)
 {
   QGuiApplication::clipboard()->setText(text);

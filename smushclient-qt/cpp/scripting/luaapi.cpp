@@ -169,7 +169,7 @@ static int L_GetOption(lua_State *L)
     lua_pushnumber(L, option.value<lua_Number>());
     break;
   case QMetaType::QColor:
-    lua_pushinteger(L, ScriptApi::RGBColourToCode(option.value<QColor>()));
+    lua_pushinteger(L, qlua::colorToRgbCode(option.value<QColor>()));
     break;
   default:
     if (option.canConvert<lua_Integer>())
@@ -219,7 +219,7 @@ inline void insertTexts(lua_State *L, ScriptApi &api)
 
 static int L_ColourNameToRGB(lua_State *L)
 {
-  lua_pushinteger(L, ScriptApi::RGBColourToCode(qlua::getQColor(L, 1)));
+  lua_pushinteger(L, qlua::colorToRgbCode(qlua::getQColor(L, 1)));
   return 1;
 }
 
@@ -260,7 +260,7 @@ static int L_Note(lua_State *L)
 
 static int L_RGBColourToName(lua_State *L)
 {
-  qlua::pushQColor(L, ScriptApi::RGBCodeToColour(qlua::getInt(L, 1)));
+  qlua::pushQColor(L, qlua::rgbCodeToColor(qlua::getInt(L, 1)));
   return 1;
 }
 

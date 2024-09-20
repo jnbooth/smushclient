@@ -9,6 +9,20 @@ extern "C"
 
 namespace qlua
 {
+  inline constexpr QColor rgbCodeToColor(int rgb) noexcept
+  {
+    return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
+  }
+
+  inline int colorToRgbCode(const QColor &color)
+  {
+    if (!color.isValid())
+      return -1;
+    int r, g, b;
+    color.getRgb(&r, &g, &b);
+    return b << 16 | g << 8 | r;
+  }
+
   QString getError(lua_State *L);
 
   QByteArrayView borrowBytes(lua_State *L, int idx);

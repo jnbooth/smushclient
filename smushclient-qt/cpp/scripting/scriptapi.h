@@ -20,8 +20,6 @@ class ScriptApi : public QObject
   Q_OBJECT
 
 public:
-  static int RGBColourToCode(const QColor &color);
-  static QColor RGBCodeToColour(int rgb);
   static void SetClipboard(const QString &text);
 
   ScriptApi(WorldTab *parent);

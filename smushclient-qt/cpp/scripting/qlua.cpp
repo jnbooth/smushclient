@@ -39,7 +39,7 @@ QColor toColor(lua_State *L, int idx)
     return QColor();
 
   const QColor color = QColor::fromString(QAnyStringView(message, len));
-  luaL_argcheck(L, color.isValid(), idx, "invalid color");
+  luaL_argcheck(L, color.isValid(), idx, "valid color");
   return color;
 }
 
@@ -181,13 +181,22 @@ lua_Number qlua::getNumber(lua_State *L, int idx, lua_Number ifNil)
 
 QColor qlua::getQColor(lua_State *L, int idx)
 {
-  luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
+  int type = lua_type(L, idx);
+  if (type == LUA_TNUMBER)
+    return rgbCodeToColor(toInt(L, idx));
+  luaL_argexpected(L, type == LUA_TSTRING, idx, "color name or code");
   return toColor(L, idx);
 }
 
 QColor qlua::getQColor(lua_State *L, int idx, QColor ifNil)
 {
-  return checkIsSome(L, idx, LUA_TSTRING, "string") ? toColor(L, idx) : ifNil;
+  int type = lua_type(L, idx);
+  if (type <= 0)
+    return ifNil;
+  if (type == LUA_TNUMBER)
+    return rgbCodeToColor(toInt(L, idx));
+  luaL_argexpected(L, type == LUA_TSTRING, idx, "color name or code");
+  return toColor(L, idx);
 }
 
 QString qlua::getQString(lua_State *L, int idx)
