@@ -82,7 +82,7 @@ public:
   {
     return plugins[plugin].runScript(script);
   }
-  void sortWindows();
+  void stackWindows();
 
 private:
   QTextCursor cursor;

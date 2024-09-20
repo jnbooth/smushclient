@@ -332,7 +332,7 @@ ApiCode ScriptApi::WindowCreate(
     window->reset();
   }
   window->updatePosition();
-  sortWindows();
+  stackWindows();
   window->show();
   return ApiCode::OK;
 }
@@ -381,7 +381,7 @@ ApiCode ScriptApi::WindowSetZOrder(string_view windowName, int order)
   if (window == nullptr)
     return ApiCode::NoSuchWindow;
   window->setZOrder(order);
-  sortWindows();
+  stackWindows();
   return ApiCode::OK;
 }
 
@@ -475,7 +475,7 @@ MiniWindow *ScriptApi::findWindow(string_view windowName) const
   return search->second;
 }
 
-void ScriptApi::sortWindows()
+void ScriptApi::stackWindows()
 {
   WindowSort::sort(windowSortBuffer, tab()->ui->output, windows);
 }
