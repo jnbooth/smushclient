@@ -6,6 +6,8 @@ extern "C"
 #include "lauxlib.h"
 }
 
+using std::nullopt;
+using std::optional;
 using std::string;
 using std::string_view;
 using std::vector;
@@ -421,6 +423,87 @@ inline T getEnum(lua_State *L, int idx)
 MiniWindow::Position qlua::getWindowPosition(lua_State *L, int idx)
 {
   return getEnum<MiniWindow::Position, (lua_Integer)MiniWindow::Position::Tile>(L, idx);
+}
+
+constexpr Qt::PenStyle getPenStyle(lua_Integer style) noexcept
+{
+  switch (style & 0xFF)
+  {
+  case 0:
+    return Qt::PenStyle::SolidLine;
+  case 1:
+    return Qt::PenStyle::DashLine;
+  case 2:
+    return Qt::PenStyle::DotLine;
+  case 3:
+    return Qt::PenStyle::DashDotLine;
+  case 4:
+    return Qt::PenStyle::DashDotDotLine;
+  case 5:
+    return Qt::PenStyle::NoPen;
+  case 6:
+    return Qt::PenStyle::SolidLine; // insideframe (a solid pen, drawn inside the shape)
+  default:
+    return Qt::PenStyle::MPenStyle;
+  }
+}
+
+constexpr Qt::PenCapStyle getPenCap(lua_Integer style) noexcept
+{
+  switch (style & 0xF00)
+  {
+  case 0x000:
+    return Qt::PenCapStyle::RoundCap;
+  case 0x100:
+    return Qt::PenCapStyle::SquareCap;
+  case 0x200:
+    return Qt::PenCapStyle::FlatCap;
+  default:
+    return Qt::PenCapStyle::MPenCapStyle;
+  }
+}
+
+constexpr Qt::PenJoinStyle getPenJoin(lua_Integer style) noexcept
+{
+  switch (style & ~0XFFF)
+  {
+  case 0x0000:
+    return Qt::PenJoinStyle::RoundJoin;
+  case 0x1000:
+    return Qt::PenJoinStyle::BevelJoin;
+  case 0x2000:
+    return Qt::PenJoinStyle::MiterJoin;
+  default:
+    return Qt::PenJoinStyle::MPenJoinStyle;
+  }
+}
+
+optional<QPen> qlua::getPen(lua_State *L, int idxColor, int idxStyle, int idxWidth)
+{
+  const QColor color = getQColor(L, idxColor);
+  const lua_Integer style = getInt(L, idxStyle);
+  const lua_Number width = getNumber(L, idxWidth);
+  if (style < 0 || width < 0) [[unlikely]]
+    return nullopt;
+
+  if (style == 0)
+    return QPen(
+        color,
+        width,
+        Qt::PenStyle::SolidLine,
+        Qt::PenCapStyle::RoundCap,
+        Qt::PenJoinStyle::RoundJoin);
+
+  const Qt::PenStyle penStyle = getPenStyle(style);
+  const Qt::PenCapStyle capStyle = getPenCap(style);
+  const Qt::PenJoinStyle joinStyle = getPenJoin(style);
+  if (
+      penStyle == Qt::PenStyle::MPenStyle ||
+      capStyle == Qt::PenCapStyle::MPenCapStyle ||
+      joinStyle == Qt::PenJoinStyle::MPenJoinStyle) [[unlikely]]
+    return nullopt;
+
+  return QPen(color, width, penStyle, capStyle, joinStyle);
 }
 
 Qt::CursorShape qlua::getCursor(lua_State *L, int idx)

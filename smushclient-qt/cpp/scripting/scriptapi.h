@@ -58,9 +58,8 @@ public:
       MiniWindow::Position position,
       MiniWindow::Flags flags,
       const QColor &fill);
-  ApiCode WindowDeleteHotspot(
-      std::string_view windowName,
-      std::string_view hotspotID) const;
+  ApiCode WindowDeleteHotspot(std::string_view windowName, std::string_view hotspotID) const;
+  ApiCode WindowLine(std::string_view windowName, const QLine &line, const QPen &pen) const;
   ApiCode WindowMoveHotspot(
       std::string_view windowName,
       std::string_view hotspotID,

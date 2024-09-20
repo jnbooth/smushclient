@@ -1,4 +1,5 @@
 #include "luaapi.h"
+#include <optional>
 #include <QtCore/QPointer>
 #include "qlua.h"
 #include "scriptapi.h"
@@ -17,6 +18,7 @@ extern "C"
 #define WORLD_LIB_KEY "world"
 #define WORLD_REG_KEY "smushclient.world"
 
+using std::optional;
 using std::string;
 using std::string_view;
 using stringmap = std::unordered_map<string, string>;
@@ -485,6 +487,20 @@ static int L_WindowCreate(lua_State *L)
           qlua::getQColor(L, 8)));
 }
 
+static int L_WindowLine(lua_State *L)
+{
+  const string_view windowName = qlua::getString(L, 1);
+  const QLine line(
+      qlua::getInt(L, 2),
+      qlua::getInt(L, 3),
+      qlua::getInt(L, 4),
+      qlua::getInt(L, 5));
+  const optional<QPen> pen = qlua::getPen(L, 6, 7, 8);
+  if (!pen) [[unlikely]]
+    return returnCode(L, ApiCode::PenStyleNotValid);
+  return returnCode(L, getApi(L).WindowLine(windowName, line, *pen));
+}
+
 static int L_WindowPosition(lua_State *L)
 {
   return returnCode(
@@ -602,6 +618,7 @@ static const struct luaL_Reg worldlib[] =
      {"Redraw", L_Redraw},
      {"Repaint", L_Repaint},
      {"WindowCreate", L_WindowCreate},
+     {"WindowLine", L_WindowLine},
      {"WindowPosition", L_WindowPosition},
      {"WindowResize", L_WindowResize},
      {"WindowSetZOrder", L_WindowSetZOrder},

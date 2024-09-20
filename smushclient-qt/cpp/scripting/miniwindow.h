@@ -2,9 +2,11 @@
 #include <string>
 #include <unordered_map>
 #include <QtWidgets/QLabel>
+#include <QtCore/QLine>
 #include <QtCore/QPoint>
 #include <QtCore/QRect>
 #include <QtCore/QSize>
+#include <QtGui/QPen>
 #include <QtGui/QPixmap>
 #include "hotspot.h"
 #include "luaconf.h"
@@ -69,7 +71,7 @@ public:
       Hotspot::Callbacks &&callbacks);
   void clearHotspots();
   bool deleteHotspot(std::string_view hotspotID);
-  void drawRect(const QRect &rect, const QColor &color);
+  void drawLine(const QLine &line, const QPen &pen);
   inline bool drawsUnderneath() const noexcept { return flags.testFlag(Flag::DrawUnderneath); }
   Hotspot *findHotspot(std::string_view hotspotID) const;
   int getZOrder() const noexcept;

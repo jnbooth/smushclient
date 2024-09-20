@@ -160,11 +160,11 @@ bool MiniWindow::deleteHotspot(string_view hotspotID)
   return true;
 }
 
-void MiniWindow::drawRect(const QRect &rect, const QColor &color)
+void MiniWindow::drawLine(const QLine &line, const QPen &pen)
 {
   QPainter painter(&pixmap);
-  painter.setBrush(color);
-  painter.drawRect(rect);
+  painter.setPen(pen);
+  painter.drawLine(line);
   updateMask();
   update();
 }

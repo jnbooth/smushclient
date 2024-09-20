@@ -1,7 +1,9 @@
 #pragma once
+#include <optional>
 #include <string>
 #include <QtCore/QVariant>
 #include <QtGui/QColor>
+#include <QtGui/QPen>
 #include "miniwindow.h"
 extern "C"
 {
@@ -66,6 +68,7 @@ namespace qlua
   bool copyValue(lua_State *fromL, lua_State *toL, int idx);
 
   Qt::CursorShape getCursor(lua_State *L, int idx);
+  std::optional<QPen> getPen(lua_State *L, int idxColor, int idxStyle, int idxWidth);
   MiniWindow::Position getWindowPosition(lua_State *L, int idx);
 
 }

@@ -333,6 +333,15 @@ ApiCode ScriptApi::WindowDeleteHotspot(string_view windowName, string_view hotsp
   return ApiCode::OK;
 }
 
+ApiCode ScriptApi::WindowLine(string_view windowName, const QLine &line, const QPen &pen) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  window->drawLine(line, pen);
+  return ApiCode::OK;
+}
+
 ApiCode ScriptApi::WindowMoveHotspot(string_view windowName, string_view hotspotID, const QRect &geometry) const
 {
   MiniWindow *window = findWindow(windowName);
