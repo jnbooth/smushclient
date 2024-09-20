@@ -6,6 +6,7 @@
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 
+using std::optional;
 using std::string;
 using std::string_view;
 using std::unordered_map;
@@ -166,7 +167,14 @@ QVariant ScriptApi::GetPluginInfo(string_view pluginID, uint8_t infoType) const
   }
 }
 
-void ScriptApi::Hyperlink(const QString &action, const QString &text, const QString &hint, const QColor &foreground, const QColor &background, bool url, bool noUnderline)
+void ScriptApi::Hyperlink(
+    const QString &action,
+    const QString &text,
+    const QString &hint,
+    const QColor &foreground,
+    const QColor &background,
+    bool url,
+    bool noUnderline)
 {
   QTextCharFormat format;
   if (url)
@@ -274,9 +282,12 @@ ApiCode ScriptApi::WindowAddHotspot(
     const QRect &geometry,
     Hotspot::Callbacks &&callbacks,
     const QString &tooltip,
-    Qt::CursorShape cursor,
+    optional<Qt::CursorShape> cursor,
     bool trackHover)
 {
+  if (!cursor)
+    return ApiCode::BadParameter;
+
   MiniWindow *window = findWindow(windowName);
   if (window == nullptr)
     return ApiCode::NoSuchWindow;
@@ -289,7 +300,7 @@ ApiCode ScriptApi::WindowAddHotspot(
     return ApiCode::HotspotPluginChanged;
   hotspot->setGeometry(geometry);
   hotspot->setToolTip(tooltip);
-  hotspot->setCursor(cursor);
+  hotspot->setCursor(*cursor);
   hotspot->setMouseTracking(trackHover);
   return ApiCode::OK;
 }
@@ -298,22 +309,23 @@ ApiCode ScriptApi::WindowCreate(
     string_view name,
     const QPoint &location,
     const QSize &size,
-    MiniWindow::Position position,
+    optional<MiniWindow::Position> position,
     MiniWindow::Flags flags,
     const QColor &fill)
 {
+  if (!position || !size.isValid())
+    return ApiCode::BadParameter;
   if (name.empty())
     return ApiCode::NoNameSpecified;
-  if (!size.isValid())
-    return ApiCode::BadParameter;
 
   string windowName = (string)name;
   MiniWindow *window = windows[windowName];
   if (window == nullptr)
-    window = windows[windowName] = new MiniWindow(tab(), location, size, position, flags, fill);
+    window = windows[windowName] =
+        new MiniWindow(tab()->ui->area, location, size, *position, flags, fill);
   else
   {
-    window->setPosition(location, position, flags);
+    window->setPosition(location, *position, flags);
     window->setSize(size, fill);
     window->reset();
   }
@@ -333,7 +345,36 @@ ApiCode ScriptApi::WindowDeleteHotspot(string_view windowName, string_view hotsp
   return ApiCode::OK;
 }
 
-ApiCode ScriptApi::WindowLine(string_view windowName, const QLine &line, const QPen &pen) const
+ApiCode ScriptApi::WindowEllipse(
+    string_view windowName,
+    const QRectF &rect,
+    const QPen &pen,
+    const QBrush &brush) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  window->drawEllipse(rect, pen, brush);
+  return ApiCode::OK;
+}
+
+ApiCode ScriptApi::WindowFrame(
+    string_view windowName,
+    const QRectF &rect,
+    const QColor &color1,
+    const QColor &color2) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  window->drawFrame(rect, color1, color2);
+  return ApiCode::OK;
+}
+
+ApiCode ScriptApi::WindowLine(
+    string_view windowName,
+    const QLineF &line,
+    const QPen &pen) const
 {
   MiniWindow *window = findWindow(windowName);
   if (window == nullptr)
@@ -342,7 +383,10 @@ ApiCode ScriptApi::WindowLine(string_view windowName, const QLine &line, const Q
   return ApiCode::OK;
 }
 
-ApiCode ScriptApi::WindowMoveHotspot(string_view windowName, string_view hotspotID, const QRect &geometry) const
+ApiCode ScriptApi::WindowMoveHotspot(
+    string_view windowName,
+    string_view hotspotID,
+    const QRect &geometry) const
 {
   MiniWindow *window = findWindow(windowName);
   if (window == nullptr)
@@ -357,15 +401,45 @@ ApiCode ScriptApi::WindowMoveHotspot(string_view windowName, string_view hotspot
 ApiCode ScriptApi::WindowPosition(
     string_view windowName,
     const QPoint &location,
-    MiniWindow::Position position,
+    optional<MiniWindow::Position> position,
     MiniWindow::Flags flags)
     const
+{
+  if (!position)
+    return ApiCode::BadParameter;
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  window->setPosition(location, *position, flags);
+  stackWindow(windowName, window);
+  return ApiCode::OK;
+}
+
+ApiCode ScriptApi::WindowRect(
+    string_view windowName,
+    const QRectF &rect,
+    const QPen &pen,
+    const QBrush &brush) const
 {
   MiniWindow *window = findWindow(windowName);
   if (window == nullptr)
     return ApiCode::NoSuchWindow;
-  window->setPosition(location, position, flags);
-  stackWindow(windowName, window);
+  window->drawRect(rect, pen, brush);
+  return ApiCode::OK;
+}
+
+ApiCode ScriptApi::WindowRoundedRect(
+    string_view windowName,
+    const QRectF &rect,
+    qreal xRadius,
+    qreal yRadius,
+    const QPen &pen,
+    const QBrush &brush) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  window->drawRoundedRect(rect, xRadius, yRadius, pen, brush);
   return ApiCode::OK;
 }
 
@@ -502,12 +576,12 @@ void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const
 {
   const bool drawsUnderneath = window->drawsUnderneath();
   const WindowCompare compare{window->getZOrder(), windowName};
-  MiniWindow *neighbor;
+  MiniWindow *neighbor = nullptr;
   WindowCompare neighborCompare;
 
   for (const auto &entry : windows)
   {
-    if (entry.second->drawsUnderneath() != drawsUnderneath)
+    if (entry.second == window || entry.second->drawsUnderneath() != drawsUnderneath)
       continue;
     WindowCompare entryCompare{entry.second->getZOrder(), (string_view)entry.first};
     if (entryCompare > compare && (!neighbor || entryCompare < neighborCompare))

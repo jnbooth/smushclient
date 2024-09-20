@@ -67,8 +67,9 @@ namespace qlua
 
   bool copyValue(lua_State *fromL, lua_State *toL, int idx);
 
-  Qt::CursorShape getCursor(lua_State *L, int idx);
+  std::optional<Qt::BrushStyle> getBrush(lua_State *L, int idx);
+  std::optional<Qt::CursorShape> getCursor(lua_State *L, int idx);
   std::optional<QPen> getPen(lua_State *L, int idxColor, int idxStyle, int idxWidth);
-  MiniWindow::Position getWindowPosition(lua_State *L, int idx);
+  std::optional<MiniWindow::Position> getWindowPosition(lua_State *L, int idx);
 
 }

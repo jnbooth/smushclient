@@ -113,7 +113,7 @@ bool qlua::getBool(lua_State *L, int idx)
       }
   }
   luaL_typeerror(L, idx, "boolean"); // exits function
-  return false;                      // unrechable
+  return false;                      // unreachable
 }
 
 bool qlua::getBool(lua_State *L, int idx, bool ifNil)
@@ -411,18 +411,91 @@ bool qlua::copyValue(lua_State *fromL, lua_State *toL, int idx)
   }
 }
 
-template <typename T, lua_Integer maxValue>
-inline T getEnum(lua_State *L, int idx)
+template <typename T, T minValue, T maxValue>
+inline optional<T> getEnum(lua_State *L, int idx)
 {
-  static const std::string expectMessage = "integer between 0 and " + std::to_string(maxValue);
   const lua_Integer val = qlua::getInt(L, idx);
-  luaL_argexpected(L, val >= 0 && val <= maxValue, idx, expectMessage.data());
-  return (MiniWindow::Position)val;
+  if (val < (lua_Integer)minValue || val > (lua_Integer)maxValue) [[unlikely]]
+    return nullopt;
+  return (T)val;
 }
 
-MiniWindow::Position qlua::getWindowPosition(lua_State *L, int idx)
+optional<MiniWindow::Position> qlua::getWindowPosition(lua_State *L, int idx)
 {
-  return getEnum<MiniWindow::Position, (lua_Integer)MiniWindow::Position::Tile>(L, idx);
+  using Position = MiniWindow::Position;
+  return getEnum<Position, Position::OutputStretch, Position::Tile>(L, idx);
+}
+
+optional<Qt::BrushStyle> qlua::getBrush(lua_State *L, int idx)
+{
+  switch (getInt(L, idx))
+  {
+  case 0:
+    return Qt::BrushStyle::SolidPattern;
+  case 1:
+    return Qt::BrushStyle::NoBrush;
+  case 2:
+    return Qt::BrushStyle::HorPattern;
+  case 3:
+    return Qt::BrushStyle::VerPattern;
+  case 4:
+    return Qt::BrushStyle::FDiagPattern;
+  case 5:
+    return Qt::BrushStyle::BDiagPattern;
+  case 6:
+    return Qt::BrushStyle::CrossPattern;
+  case 7:
+    return Qt::BrushStyle::DiagCrossPattern;
+  case 8:
+    return Qt::BrushStyle::Dense4Pattern;
+  case 9:
+    return Qt::BrushStyle::Dense2Pattern;
+  case 10:
+    return Qt::BrushStyle::Dense1Pattern;
+  case 11:
+    return Qt::BrushStyle::HorPattern; // waves - horizontal
+  case 12:
+    return Qt::BrushStyle::VerPattern; // waves - vertical
+  default:
+    return nullopt;
+  }
+}
+
+optional<Qt::CursorShape> qlua::getCursor(lua_State *L, int idx)
+{
+  switch (getInt(L, idx))
+  {
+  case -1:
+    return Qt::CursorShape::BlankCursor;
+  case 0:
+    return Qt::CursorShape::ArrowCursor;
+  case 1:
+    return Qt::CursorShape::OpenHandCursor;
+  case 2:
+    return Qt::CursorShape::IBeamCursor;
+  case 3:
+    return Qt::CursorShape::CrossCursor;
+  case 4:
+    return Qt::CursorShape::WaitCursor;
+  case 5:
+    return Qt::CursorShape::UpArrowCursor;
+  case 6:
+    return Qt::CursorShape::SizeFDiagCursor;
+  case 7:
+    return Qt::CursorShape::SizeBDiagCursor;
+  case 8:
+    return Qt::CursorShape::SizeHorCursor;
+  case 9:
+    return Qt::CursorShape::SizeVerCursor;
+  case 10:
+    return Qt::CursorShape::SizeAllCursor;
+  case 11:
+    return Qt::CursorShape::ForbiddenCursor;
+  case 12:
+    return Qt::WhatsThisCursor;
+  default:
+    return nullopt;
+  }
 }
 
 constexpr Qt::PenStyle getPenStyle(lua_Integer style) noexcept
@@ -504,42 +577,4 @@ optional<QPen> qlua::getPen(lua_State *L, int idxColor, int idxStyle, int idxWid
     return nullopt;
 
   return QPen(color, width, penStyle, capStyle, joinStyle);
-}
-
-Qt::CursorShape qlua::getCursor(lua_State *L, int idx)
-{
-  switch (getInt(L, idx))
-  {
-  case -1:
-    return Qt::CursorShape::BlankCursor;
-  case 0:
-    return Qt::CursorShape::ArrowCursor;
-  case 1:
-    return Qt::CursorShape::OpenHandCursor;
-  case 2:
-    return Qt::CursorShape::IBeamCursor;
-  case 3:
-    return Qt::CursorShape::CrossCursor;
-  case 4:
-    return Qt::CursorShape::WaitCursor;
-  case 5:
-    return Qt::CursorShape::UpArrowCursor;
-  case 6:
-    return Qt::CursorShape::SizeFDiagCursor;
-  case 7:
-    return Qt::CursorShape::SizeBDiagCursor;
-  case 8:
-    return Qt::CursorShape::SizeHorCursor;
-  case 9:
-    return Qt::CursorShape::SizeVerCursor;
-  case 10:
-    return Qt::CursorShape::SizeAllCursor;
-  case 11:
-    return Qt::CursorShape::ForbiddenCursor;
-  case 12:
-    return Qt::WhatsThisCursor;
-  default:
-    luaL_typeerror(L, idx, "integer between -1 and 12"); // exits function
-    return Qt::CursorShape::ArrowCursor;                 // unreachable
-  }
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <optional>
 #include <vector>
 #include <unordered_map>
 #include <QtCore/QPointer>
@@ -49,17 +50,30 @@ public:
       const QRect &geometry,
       Hotspot::Callbacks &&callbacks,
       const QString &tooltip,
-      Qt::CursorShape cursor,
+      std::optional<Qt::CursorShape> cursor,
       bool trackHover);
   ApiCode WindowCreate(
       std::string_view windowName,
       const QPoint &location,
       const QSize &size,
-      MiniWindow::Position position,
+      std::optional<MiniWindow::Position> position,
       MiniWindow::Flags flags,
       const QColor &fill);
   ApiCode WindowDeleteHotspot(std::string_view windowName, std::string_view hotspotID) const;
-  ApiCode WindowLine(std::string_view windowName, const QLine &line, const QPen &pen) const;
+  ApiCode WindowEllipse(
+      std::string_view windowName,
+      const QRectF &rect,
+      const QPen &pen,
+      const QBrush &brush = QBrush()) const;
+  ApiCode WindowFrame(
+      std::string_view windowName,
+      const QRectF &rect,
+      const QColor &color1,
+      const QColor &color2) const;
+  ApiCode WindowLine(
+      std::string_view windowName,
+      const QLineF &line,
+      const QPen &pen) const;
   ApiCode WindowMoveHotspot(
       std::string_view windowName,
       std::string_view hotspotID,
@@ -67,8 +81,20 @@ public:
   ApiCode WindowPosition(
       std::string_view windowName,
       const QPoint &location,
-      MiniWindow::Position position,
+      std::optional<MiniWindow::Position> position,
       MiniWindow::Flags flags) const;
+  ApiCode WindowRect(
+      std::string_view windowName,
+      const QRectF &rect,
+      const QPen &pen,
+      const QBrush &brush = QBrush()) const;
+  ApiCode WindowRoundedRect(
+      std::string_view windowName,
+      const QRectF &rect,
+      qreal xRadius,
+      qreal yRadius,
+      const QPen &pen,
+      const QBrush &brush = QBrush()) const;
   ApiCode WindowResize(std::string_view windowName, const QSize &size, const QColor &fill) const;
   ApiCode WindowSetZOrder(std::string_view windowName, int zOrder);
   ApiCode WindowShow(std::string_view windowName, bool show);

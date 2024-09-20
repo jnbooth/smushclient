@@ -71,7 +71,16 @@ public:
       Hotspot::Callbacks &&callbacks);
   void clearHotspots();
   bool deleteHotspot(std::string_view hotspotID);
-  void drawLine(const QLine &line, const QPen &pen);
+  void drawLine(const QLineF &line, const QPen &pen);
+  void drawEllipse(const QRectF &rect, const QPen &pen, const QBrush &brush = QBrush());
+  void drawFrame(const QRectF &rect, const QColor &color1, const QColor &color2);
+  void drawRect(const QRectF &rect, const QPen &pen, const QBrush &brush = QBrush());
+  void drawRoundedRect(
+    const QRectF &rect,
+    qreal xRadius,
+    qreal yRadius,
+    const QPen &pen,
+    const QBrush &brush = QBrush());
   inline bool drawsUnderneath() const noexcept { return flags.testFlag(Flag::DrawUnderneath); }
   Hotspot *findHotspot(std::string_view hotspotID) const;
   int getZOrder() const noexcept;

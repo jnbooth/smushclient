@@ -1,5 +1,6 @@
 #include "miniwindow.h"
 #include <QtGui/QPainter>
+#include <QtWidgets/QLayout>
 #include <QtGui/QPaintEvent>
 #include <QtGui/QResizeEvent>
 #include "hotspot.h"
@@ -160,11 +161,59 @@ bool MiniWindow::deleteHotspot(string_view hotspotID)
   return true;
 }
 
-void MiniWindow::drawLine(const QLine &line, const QPen &pen)
+void MiniWindow::drawLine(const QLineF &line, const QPen &pen)
 {
   QPainter painter(&pixmap);
   painter.setPen(pen);
   painter.drawLine(line);
+  updateMask();
+  update();
+}
+
+void MiniWindow::drawEllipse(const QRectF &rect, const QPen &pen, const QBrush &brush)
+{
+  QPainter painter(&pixmap);
+  painter.setPen(pen);
+  painter.setBrush(brush);
+  painter.drawEllipse(rect);
+  updateMask();
+  update();
+}
+
+void MiniWindow::drawFrame(const QRectF &rect, const QColor &color1, const QColor &color2)
+{
+  QPainter painter(&pixmap);
+  painter.setPen(color1);
+  painter.drawLine(rect.bottomLeft(), rect.topLeft());
+  painter.drawLine(rect.topLeft(), rect.topRight());
+  painter.setPen(color2);
+  painter.drawLine(rect.topRight(), rect.bottomRight());
+  painter.drawLine(rect.bottomRight(), rect.bottomLeft());
+  updateMask();
+  update();
+}
+
+void MiniWindow::drawRect(const QRectF &rect, const QPen &pen, const QBrush &brush)
+{
+  QPainter painter(&pixmap);
+  painter.setPen(pen);
+  painter.setBrush(brush);
+  painter.drawRect(rect);
+  updateMask();
+  update();
+}
+
+void MiniWindow::drawRoundedRect(
+    const QRectF &rect,
+    qreal xRadius,
+    qreal yRadius,
+    const QPen &pen,
+    const QBrush &brush)
+{
+  QPainter painter(&pixmap);
+  painter.setPen(pen);
+  painter.setBrush(brush);
+  painter.drawRoundedRect(rect, xRadius, yRadius);
   updateMask();
   update();
 }

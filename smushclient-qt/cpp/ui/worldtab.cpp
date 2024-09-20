@@ -150,7 +150,7 @@ void WorldTab::applyWorld() const
 {
   document->setPalette(client.palette());
   setColors(ui->input, world.getInputTextColour(), world.getInputBackgroundColour());
-  setColors(ui->output, world.getAnsi7(), world.getAnsi0());
+  setColors(ui->area, world.getAnsi7(), world.getAnsi0());
   if (world.getUseDefaultInputFont())
     ui->input->setFont(defaultFont);
   else

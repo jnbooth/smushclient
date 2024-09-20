@@ -1,5 +1,4 @@
 #include "luaapi.h"
-#include <optional>
 #include <QtCore/QPointer>
 #include "qlua.h"
 #include "scriptapi.h"
@@ -474,6 +473,48 @@ static int L_Repaint(lua_State *)
   return 0;
 }
 
+static int L_WindowCircleOp(lua_State *L)
+{
+  const string_view windowName = qlua::getString(L, 1);
+  const lua_Integer action = qlua::getInt(L, 2);
+  const QRectF rect(
+      qlua::getNumber(L, 3),
+      qlua::getNumber(L, 4),
+      qlua::getNumber(L, 5),
+      qlua::getNumber(L, 6));
+  const optional<QPen> pen = qlua::getPen(L, 7, 8, 9);
+  const QColor brushColor = qlua::getQColor(L, 10);
+  const optional<Qt::BrushStyle> brushStyle = qlua::getBrush(L, 11);
+  if (!pen) [[unlikely]]
+    return returnCode(L, ApiCode::PenStyleNotValid);
+  if (!brushStyle) [[unlikely]]
+    return returnCode(L, ApiCode::BrushStyleNotValid);
+  const QBrush brush(brushColor, *brushStyle);
+
+  switch (action)
+  {
+  case 1:
+    return returnCode(L, getApi(L).WindowEllipse(windowName, rect, *pen, brush));
+  case 2:
+    return returnCode(L, getApi(L).WindowRect(windowName, rect, *pen, brush));
+  case 3:
+    return returnCode(
+        L,
+        getApi(L).WindowRoundedRect(
+            windowName,
+            rect,
+            qlua::getNumber(L, 12),
+            qlua::getNumber(L, 13),
+            *pen,
+            brush));
+  case 4: // chord
+  case 5: // pie
+    return returnCode(L, ApiCode::OK);
+  default:
+    return returnCode(L, ApiCode::UnknownOption);
+  }
+}
+
 static int L_WindowCreate(lua_State *L)
 {
   return returnCode(
@@ -490,11 +531,11 @@ static int L_WindowCreate(lua_State *L)
 static int L_WindowLine(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
-  const QLine line(
-      qlua::getInt(L, 2),
-      qlua::getInt(L, 3),
-      qlua::getInt(L, 4),
-      qlua::getInt(L, 5));
+  QLineF line(
+      qlua::getNumber(L, 2),
+      qlua::getNumber(L, 3),
+      qlua::getNumber(L, 4),
+      qlua::getNumber(L, 5));
   const optional<QPen> pen = qlua::getPen(L, 6, 7, 8);
   if (!pen) [[unlikely]]
     return returnCode(L, ApiCode::PenStyleNotValid);
@@ -508,8 +549,38 @@ static int L_WindowPosition(lua_State *L)
       getApi(L).WindowPosition(
           qlua::getString(L, 1),
           QPoint(qlua::getInt(L, 2), qlua::getInt(L, 3)),
-          qlua::getWindowPosition(L, 6),
-          (MiniWindow::Flags)(int)qlua::getInt(L, 7)));
+          qlua::getWindowPosition(L, 4),
+          (MiniWindow::Flags)(int)qlua::getInt(L, 5)));
+}
+
+static int L_WindowRectOp(lua_State *L)
+{
+  const string_view windowName = qlua::getString(L, 1);
+  const lua_Integer action = qlua::getInt(L, 2);
+  const QRectF rect(
+      qlua::getNumber(L, 3),
+      qlua::getNumber(L, 4),
+      qlua::getNumber(L, 5),
+      qlua::getNumber(L, 6));
+  switch (action)
+  {
+  case 1: // draw
+    return returnCode(L, getApi(L).WindowRect(windowName, rect, qlua::getQColor(L, 7), QBrush()));
+  case 2: // fill
+    return returnCode(L, getApi(L).WindowRect(windowName, rect, QPen(), qlua::getQColor(L, 7)));
+  case 3: // invert
+    return returnCode(L, ApiCode::OK);
+  case 4: // draw in two colors
+    return returnCode(
+        L,
+        getApi(L).WindowFrame(windowName, rect, qlua::getQColor(L, 7), qlua::getQColor(L, 8)));
+  case 5: // draw 3d edge
+  case 6: // flood fill border
+  case 7: // flood fill surface
+    return returnCode(L, ApiCode::OK);
+  default:
+    return returnCode(L, ApiCode::UnknownOption);
+  }
 }
 
 static int L_WindowResize(lua_State *L)
@@ -617,9 +688,11 @@ static const struct luaL_Reg worldlib[] =
      // windows
      {"Redraw", L_Redraw},
      {"Repaint", L_Repaint},
+     {"WindowCircleOp", L_WindowCircleOp},
      {"WindowCreate", L_WindowCreate},
      {"WindowLine", L_WindowLine},
      {"WindowPosition", L_WindowPosition},
+     {"WindowRectOp", L_WindowRectOp},
      {"WindowResize", L_WindowResize},
      {"WindowSetZOrder", L_WindowSetZOrder},
      {"WindowShow", L_WindowShow},
