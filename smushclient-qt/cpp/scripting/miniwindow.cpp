@@ -166,6 +166,7 @@ void MiniWindow::drawRect(const QRect &rect, const QColor &color)
   painter.setBrush(color);
   painter.drawRect(rect);
   updateMask();
+  update();
 }
 
 Hotspot *MiniWindow::findHotspot(string_view hotspotID) const
@@ -234,14 +235,14 @@ void MiniWindow::updatePosition()
 
 // Protected overrides
 
-void MiniWindow::paintEvent(QPaintEvent *)
+void MiniWindow::paintEvent(QPaintEvent *event)
 {
   if (position == Position::Tile) [[unlikely]]
   {
-    QPainter(this).drawTiledPixmap(rect(), pixmap);
+    QPainter(this).drawTiledPixmap(event->rect(), pixmap);
     return;
   }
-  QPainter(this).drawPixmap(QPointF(), pixmap);
+  QPainter(this).drawPixmap(event->rect(), pixmap);
 }
 
 // Private methods

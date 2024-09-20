@@ -462,6 +462,16 @@ static int L_SetVariable(lua_State *L)
 
 // windows
 
+static int L_Redraw(lua_State *L)
+{
+  return 0;
+}
+
+static int L_Repaint(lua_State *L)
+{
+  return 0;
+}
+
 static int L_WindowCreate(lua_State *L)
 {
   return returnCode(
@@ -576,6 +586,8 @@ static const struct luaL_Reg worldlib[] =
      {"GetPluginVariable", L_GetPluginVariable},
      {"SetVariable", L_SetVariable},
      // windows
+     {"Redraw", L_Redraw},
+     {"Repaint", L_Repaint},
      {"WindowCreate", L_WindowCreate},
      {"WindowPosition", L_WindowPosition},
      {"WindowResize", L_WindowResize},
