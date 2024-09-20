@@ -332,7 +332,7 @@ ApiCode ScriptApi::WindowCreate(
     window->reset();
   }
   window->updatePosition();
-  stackWindows();
+  stackWindow(name, window);
   window->show();
   return ApiCode::OK;
 }
@@ -359,6 +359,7 @@ ApiCode ScriptApi::WindowPosition(
   if (window == nullptr)
     return ApiCode::NoSuchWindow;
   window->setPosition(location, position, flags);
+  stackWindow(windowName, window);
   return ApiCode::OK;
 }
 
@@ -381,7 +382,7 @@ ApiCode ScriptApi::WindowSetZOrder(string_view windowName, int order)
   if (window == nullptr)
     return ApiCode::NoSuchWindow;
   window->setZOrder(order);
-  stackWindows();
+  stackWindow(windowName, window);
   return ApiCode::OK;
 }
 
@@ -475,7 +476,34 @@ MiniWindow *ScriptApi::findWindow(string_view windowName) const
   return search->second;
 }
 
-void ScriptApi::stackWindows()
+struct WindowCompare
 {
-  WindowSort::sort(windowSortBuffer, tab()->ui->output, windows);
+  int zOrder;
+  string_view name;
+  std::strong_ordering operator<=>(const WindowCompare &) const = default;
+};
+
+void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const
+{
+  const bool drawsUnderneath = window->drawsUnderneath();
+  const WindowCompare compare{window->getZOrder(), windowName};
+  MiniWindow *neighbor;
+  WindowCompare neighborCompare;
+
+  for (const auto &entry : windows)
+  {
+    if (entry.second->drawsUnderneath() != drawsUnderneath)
+      continue;
+    WindowCompare entryCompare{entry.second->getZOrder(), (string_view)entry.first};
+    if (entryCompare > compare && (!neighbor || entryCompare < neighborCompare))
+    {
+      neighbor = entry.second;
+      neighborCompare = entryCompare;
+    }
+  }
+
+  if (neighbor != nullptr)
+    window->stackUnder(neighbor);
+  else if (drawsUnderneath)
+    window->stackUnder(tab()->ui->output);
 }

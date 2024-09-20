@@ -6,6 +6,7 @@
 
 using std::string;
 using std::string_view;
+using std::unordered_map;
 
 // Utils
 
@@ -68,6 +69,24 @@ constexpr QRect calculateGeometry(MiniWindow::Position pos, const QSize &parent,
   }
 }
 
+Hotspot *findHotspotNeighbor(string_view hotspotID, const unordered_map<string, Hotspot *> hotspots)
+{
+  Hotspot *neighbor;
+  string_view neighborID;
+  for (const auto &entry : hotspots)
+  {
+    const string_view entryID = (string_view)entry.first;
+    if (entryID == hotspotID)
+      return entry.second;
+    if (entryID > hotspotID && entryID < neighborID)
+    {
+      neighbor = entry.second;
+      neighborID = entryID;
+    }
+  }
+  return neighbor;
+}
+
 // Constructor
 
 MiniWindow::MiniWindow(
@@ -92,16 +111,35 @@ MiniWindow::MiniWindow(
 
 // Public methods
 
-Hotspot *MiniWindow::addHotspot(string_view id, const Plugin *plugin, Hotspot::Callbacks &&callbacks)
+Hotspot *MiniWindow::addHotspot(
+    string_view hotspotID,
+    const Plugin *plugin,
+    Hotspot::Callbacks &&callbacks)
 {
-  string hotspotID = (string)id;
-  Hotspot *hotspot = hotspots[hotspotID];
-  if (hotspot == nullptr)
-    hotspot = hotspots[hotspotID] = new Hotspot(this, plugin, hotspotID, std::move(callbacks));
-  else if (!hotspot->belongsToPlugin(plugin))
-    return nullptr;
-  else
-    hotspot->setCallbacks(std::move(callbacks));
+  Hotspot *neighbor;
+  string_view neighborID;
+  for (const auto &entry : hotspots)
+  {
+    const string_view entryID = (string_view)entry.first;
+    if (entryID == hotspotID)
+    {
+      Hotspot *hotspot = entry.second;
+      if (!hotspot->belongsToPlugin(plugin))
+        return nullptr;
+      hotspot->setCallbacks(std::move(callbacks));
+      return hotspot;
+    }
+    if (entryID > hotspotID && (!neighbor || entryID < neighborID))
+    {
+      neighbor = entry.second;
+      neighborID = entryID;
+    }
+  }
+
+  Hotspot *hotspot = new Hotspot(this, plugin, hotspotID, std::move(callbacks));
+  hotspots[(string)hotspotID] = hotspot;
+  if (neighbor)
+    hotspot->stackUnder(neighbor);
   return hotspot;
 }
 

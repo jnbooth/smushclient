@@ -9,7 +9,6 @@
 #include "miniwindow.h"
 #include "plugin.h"
 #include "scriptenums.h"
-#include "windowsort.h"
 
 class SmushClient;
 class World;
@@ -82,7 +81,7 @@ public:
   {
     return plugins[plugin].runScript(script);
   }
-  void stackWindows();
+  void stackWindow(std::string_view windowName, MiniWindow *window) const;
 
 private:
   QTextCursor cursor;
@@ -92,7 +91,6 @@ private:
   std::vector<Plugin> plugins;
   std::unordered_map<std::string, size_t> pluginIndices;
   std::unordered_map<std::string, MiniWindow *> windows;
-  std::vector<WindowSort> windowSortBuffer;
 
   SmushClient *client() const;
   size_t findPluginIndex(std::string_view pluginID) const;
