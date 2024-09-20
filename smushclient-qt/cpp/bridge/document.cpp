@@ -38,7 +38,7 @@ inline void scrollToEnd(QScrollBar &bar)
 
 inline void applyLink(QTextCharFormat &format, const Link &link) noexcept
 {
-  QString action = QString(link.action);
+  QString action(link.action);
   switch (link.sendto)
   {
   case SendTo::Internet:

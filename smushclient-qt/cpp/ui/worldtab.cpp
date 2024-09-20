@@ -16,7 +16,7 @@
 
 void setColors(QWidget *widget, const QColor &foreground, const QColor &background)
 {
-  QPalette palette = QPalette(widget->palette());
+  QPalette palette(widget->palette());
   palette.setColor(QPalette::Text, foreground);
   palette.setColor(QPalette::Base, background);
   palette.setColor(QPalette::AlternateBase, background);
