@@ -18,8 +18,6 @@ using QVector_QColor = QVector<QColor>;
 
 class Document : public QObject
 {
-  Q_OBJECT
-
 public:
   Document(WorldTab *parent, ScriptApi *api);
 

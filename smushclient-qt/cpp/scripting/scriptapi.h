@@ -18,8 +18,6 @@ struct lua_State;
 
 class ScriptApi : public QObject
 {
-  Q_OBJECT
-
 public:
   static void SetClipboard(const QString &text);
 
