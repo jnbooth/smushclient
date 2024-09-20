@@ -6,7 +6,6 @@
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 
-using std::optional;
 using std::string;
 using std::string_view;
 using std::unordered_map;
@@ -282,12 +281,9 @@ ApiCode ScriptApi::WindowAddHotspot(
     const QRect &geometry,
     Hotspot::Callbacks &&callbacks,
     const QString &tooltip,
-    optional<Qt::CursorShape> cursor,
+    Qt::CursorShape cursor,
     bool trackHover)
 {
-  if (!cursor)
-    return ApiCode::BadParameter;
-
   MiniWindow *window = findWindow(windowName);
   if (window == nullptr)
     return ApiCode::NoSuchWindow;
@@ -300,7 +296,7 @@ ApiCode ScriptApi::WindowAddHotspot(
     return ApiCode::HotspotPluginChanged;
   hotspot->setGeometry(geometry);
   hotspot->setToolTip(tooltip);
-  hotspot->setCursor(*cursor);
+  hotspot->setCursor(cursor);
   hotspot->setMouseTracking(trackHover);
   return ApiCode::OK;
 }
@@ -309,23 +305,23 @@ ApiCode ScriptApi::WindowCreate(
     string_view name,
     const QPoint &location,
     const QSize &size,
-    optional<MiniWindow::Position> position,
+    MiniWindow::Position position,
     MiniWindow::Flags flags,
     const QColor &fill)
 {
-  if (!position || !size.isValid())
-    return ApiCode::BadParameter;
   if (name.empty())
     return ApiCode::NoNameSpecified;
+  if (!size.isValid())
+    return ApiCode::BadParameter;
 
   string windowName = (string)name;
   MiniWindow *window = windows[windowName];
   if (window == nullptr)
     window = windows[windowName] =
-        new MiniWindow(tab()->ui->area, location, size, *position, flags, fill);
+        new MiniWindow(tab()->ui->area, location, size, position, flags, fill);
   else
   {
-    window->setPosition(location, *position, flags);
+    window->setPosition(location, position, flags);
     window->setSize(size, fill);
     window->reset();
   }
@@ -401,16 +397,14 @@ ApiCode ScriptApi::WindowMoveHotspot(
 ApiCode ScriptApi::WindowPosition(
     string_view windowName,
     const QPoint &location,
-    optional<MiniWindow::Position> position,
+    MiniWindow::Position position,
     MiniWindow::Flags flags)
     const
 {
-  if (!position)
-    return ApiCode::BadParameter;
   MiniWindow *window = findWindow(windowName);
   if (window == nullptr)
     return ApiCode::NoSuchWindow;
-  window->setPosition(location, *position, flags);
+  window->setPosition(location, position, flags);
   stackWindow(windowName, window);
   return ApiCode::OK;
 }

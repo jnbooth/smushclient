@@ -517,15 +517,15 @@ static int L_WindowCircleOp(lua_State *L)
 
 static int L_WindowCreate(lua_State *L)
 {
-  return returnCode(
-      L,
-      getApi(L).WindowCreate(
-          qlua::getString(L, 1),
-          QPoint(qlua::getInt(L, 2), qlua::getInt(L, 3)),
-          QSize(qlua::getInt(L, 4), qlua::getInt(L, 5)),
-          qlua::getWindowPosition(L, 6),
-          (MiniWindow::Flags)(int)qlua::getInt(L, 7),
-          qlua::getQColor(L, 8)));
+  const string_view windowName = qlua::getString(L, 1);
+  const QPoint location(qlua::getInt(L, 2), qlua::getInt(L, 3));
+  const QSize size(qlua::getInt(L, 4), qlua::getInt(L, 5));
+  const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 6);
+  const MiniWindow::Flags flags = (MiniWindow::Flags)(int)qlua::getInt(L, 7);
+  const QColor bg = qlua::getQColor(L, 8);
+  if (!position) [[unlikely]]
+    return returnCode(L, ApiCode::BadParameter);
+  return returnCode(L, getApi(L).WindowCreate(windowName, location, size, *position, flags, bg));
 }
 
 static int L_WindowLine(lua_State *L)
@@ -544,13 +544,13 @@ static int L_WindowLine(lua_State *L)
 
 static int L_WindowPosition(lua_State *L)
 {
-  return returnCode(
-      L,
-      getApi(L).WindowPosition(
-          qlua::getString(L, 1),
-          QPoint(qlua::getInt(L, 2), qlua::getInt(L, 3)),
-          qlua::getWindowPosition(L, 4),
-          (MiniWindow::Flags)(int)qlua::getInt(L, 5)));
+  const string_view windowName = qlua::getString(L, 1);
+  const QPoint location(qlua::getInt(L, 2), qlua::getInt(L, 3));
+  const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 4);
+  const MiniWindow::Flags flags = (MiniWindow::Flags)(int)qlua::getInt(L, 5);
+  if (!position) [[unlikely]]
+    return returnCode(L, ApiCode::BadParameter);
+  return returnCode(L, getApi(L).WindowPosition(windowName, location, *position, flags));
 }
 
 static int L_WindowRectOp(lua_State *L)
@@ -607,25 +607,35 @@ static int L_WindowShow(lua_State *L)
 
 static int L_WindowAddHotspot(lua_State *L)
 {
+  const string_view pluginID = qlua::getString(L, 1);
+  const string_view windowName = qlua::getString(L, 2);
+  const string_view hotspotID = qlua::getString(L, 3);
+  const QRect geometry(
+      QPoint(qlua::getInt(L, 4), qlua::getInt(L, 5)),
+      QPoint(qlua::getInt(L, 6), qlua::getInt(L, 7)));
+  Hotspot::Callbacks callbacks{
+      .mouseOver = (string)qlua::getString(L, 8),
+      .cancelMouseOver = (string)qlua::getString(L, 9),
+      .mouseDown = (string)qlua::getString(L, 10),
+      .cancelMouseDown = (string)qlua::getString(L, 11),
+      .mouseUp = (string)qlua::getString(L, 12),
+  };
+  const QString &tooltip = qlua::getQString(L, 13);
+  const optional<Qt::CursorShape> cursor = qlua::getCursor(L, 14);
+  const bool trackHover = qlua::getInt(L, 15) & 0x01;
+  if (!cursor) [[unlikely]]
+    return returnCode(L, ApiCode::BadParameter);
   return returnCode(
       L,
       getApi(L).WindowAddHotspot(
-          qlua::getString(L, 1),
-          qlua::getString(L, 2),
-          qlua::getString(L, 3),
-          QRect(
-              QPoint(qlua::getInt(L, 4), qlua::getInt(L, 5)),
-              QPoint(qlua::getInt(L, 6), qlua::getInt(L, 7))),
-          Hotspot::Callbacks{
-              .mouseOver = (string)qlua::getString(L, 8),
-              .cancelMouseOver = (string)qlua::getString(L, 9),
-              .mouseDown = (string)qlua::getString(L, 10),
-              .cancelMouseDown = (string)qlua::getString(L, 11),
-              .mouseUp = (string)qlua::getString(L, 12),
-          },
-          qlua::getQString(L, 13),
-          qlua::getCursor(L, 14),
-          qlua::getInt(L, 15) & 0x01));
+          pluginID,
+          windowName,
+          hotspotID,
+          geometry,
+          std::move(callbacks),
+          tooltip,
+          *cursor,
+          trackHover));
 }
 
 static int L_WindowDeleteHotspot(lua_State *L)

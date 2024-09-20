@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <optional>
 #include <vector>
 #include <unordered_map>
 #include <QtCore/QPointer>
@@ -50,13 +49,13 @@ public:
       const QRect &geometry,
       Hotspot::Callbacks &&callbacks,
       const QString &tooltip,
-      std::optional<Qt::CursorShape> cursor,
+      Qt::CursorShape cursor,
       bool trackHover);
   ApiCode WindowCreate(
       std::string_view windowName,
       const QPoint &location,
       const QSize &size,
-      std::optional<MiniWindow::Position> position,
+      MiniWindow::Position position,
       MiniWindow::Flags flags,
       const QColor &fill);
   ApiCode WindowDeleteHotspot(std::string_view windowName, std::string_view hotspotID) const;
@@ -81,7 +80,7 @@ public:
   ApiCode WindowPosition(
       std::string_view windowName,
       const QPoint &location,
-      std::optional<MiniWindow::Position> position,
+      MiniWindow::Position position,
       MiniWindow::Flags flags) const;
   ApiCode WindowRect(
       std::string_view windowName,
