@@ -576,6 +576,29 @@ static int L_WindowFont(lua_State *L)
           *hint));
 }
 
+static int L_WindowGradient(lua_State *L)
+{
+  const string_view windowName = qlua::getString(L, 1);
+  QRectF rect(
+      qlua::getNumber(L, 2),
+      qlua::getNumber(L, 3),
+      qlua::getNumber(L, 4),
+      qlua::getNumber(L, 5));
+  const QColor color1 = qlua::getQColor(L, 6);
+  const QColor color2 = qlua::getQColor(L, 7);
+  const lua_Integer mode = qlua::getInt(L, 7);
+  if (mode != (lua_Integer)Qt::Horizontal && mode != (lua_Integer)Qt::Vertical) [[unlikely]]
+    return returnCode(L, ApiCode::UnknownOption);
+  return returnCode(
+      L,
+      getApi(L).WindowGradient(
+          windowName,
+          rect,
+          color1,
+          color2,
+          (Qt::Orientation)mode));
+}
+
 static int L_WindowLine(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
@@ -803,6 +826,7 @@ static const struct luaL_Reg worldlib[] =
      {"WindowCircleOp", L_WindowCircleOp},
      {"WindowCreate", L_WindowCreate},
      {"WindowFont", L_WindowFont},
+     {"WindowGradient", L_WindowGradient},
      {"WindowLine", L_WindowLine},
      {"WindowPolygon", L_WindowPolygon},
      {"WindowPosition", L_WindowPosition},

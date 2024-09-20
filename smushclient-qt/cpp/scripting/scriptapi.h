@@ -92,6 +92,12 @@ public:
       const QRectF &rect,
       const QColor &color1,
       const QColor &color2) const;
+  ApiCode WindowGradient(
+    std::string_view windowName,
+    const QRectF &rect,
+    const QColor &color1,
+    const QColor &color2,
+    Qt::Orientation direction) const;
   ApiCode WindowLine(
       std::string_view windowName,
       const QLineF &line,

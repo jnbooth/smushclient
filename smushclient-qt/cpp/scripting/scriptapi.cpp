@@ -1,5 +1,6 @@
 #include "scriptapi.h"
 #include <QtGui/QClipboard>
+#include <QtGui/QGradient>
 #include <QtGui/QGuiApplication>
 #include "miniwindow.h"
 #include "worldproperties.h"
@@ -371,6 +372,24 @@ ApiCode ScriptApi::WindowEllipse(
   if (window == nullptr)
     return ApiCode::NoSuchWindow;
   window->drawEllipse(rect, pen, brush);
+  return ApiCode::OK;
+}
+ApiCode ScriptApi::WindowGradient(
+    std::string_view windowName,
+    const QRectF &rect,
+    const QColor &color1,
+    const QColor &color2,
+    Qt::Orientation direction) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  const bool isHorizontal = direction == Qt::Orientation::Horizontal;
+  QLinearGradient gradient(0, 0, isHorizontal, !isHorizontal);
+  gradient.setCoordinateMode(QGradient::CoordinateMode::ObjectMode);
+  gradient.setColorAt(0, color1);
+  gradient.setColorAt(1, color2);
+  window->drawGradient(rect, gradient);
   return ApiCode::OK;
 }
 
