@@ -76,18 +76,21 @@ public:
   void drawFrame(const QRectF &rect, const QColor &color1, const QColor &color2);
   void drawRect(const QRectF &rect, const QPen &pen, const QBrush &brush = QBrush());
   void drawRoundedRect(
-    const QRectF &rect,
-    qreal xRadius,
-    qreal yRadius,
-    const QPen &pen,
-    const QBrush &brush = QBrush());
+      const QRectF &rect,
+      qreal xRadius,
+      qreal yRadius,
+      const QPen &pen,
+      const QBrush &brush = QBrush());
   inline bool drawsUnderneath() const noexcept { return flags.testFlag(Flag::DrawUnderneath); }
   Hotspot *findHotspot(std::string_view hotspotID) const;
+  QFont getFont(std::string_view fontID) const;
   int getZOrder() const noexcept;
+  inline void loadFont(std::string_view fontID, const QFont &font) { fonts[(string)fontID] = font; }
   void reset();
   void setPosition(const QPoint &location, Position position, Flags flags) noexcept;
   void setSize(const QSize &size, const QColor &fill) noexcept;
   void setZOrder(int zOrder) noexcept;
+  inline void unloadFont(std::string_view fontID) { fonts.erase((string)fontID); }
   void updatePosition();
 
 protected:
@@ -97,6 +100,7 @@ private:
   QColor background;
   QSize dimensions;
   QFlags<Flag> flags;
+  std::unordered_map<std::string, QFont> fonts;
   std::unordered_map<std::string, Hotspot *> hotspots;
   QPoint location;
   QPixmap pixmap;

@@ -546,6 +546,36 @@ static int L_WindowCreate(lua_State *L)
   return returnCode(L, getApi(L).WindowCreate(windowName, location, size, *position, flags, bg));
 }
 
+static int L_WindowFont(lua_State *L)
+{
+  const string_view windowName = qlua::getString(L, 1);
+  const string_view fontID = qlua::getString(L, 2);
+  const QString fontName = qlua::getQString(L, 3);
+  const qreal pointSize = qlua::getNumber(L, 4);
+  if (pointSize == 0 && fontName.isEmpty()) [[unlikely]]
+    return returnCode(L, getApi(L).WindowFontUnload(windowName, fontID));
+  const bool bold = qlua::getBool(L, 5);
+  const bool italic = qlua::getBool(L, 6);
+  const bool underline = qlua::getBool(L, 7);
+  const bool strikeout = qlua::getBool(L, 8);
+  // const short charset = qlua::getInt(L, 9);
+  const optional<QFont::StyleHint> hint = qlua::getFontHint(L, 10);
+  if (!hint) [[unlikely]]
+    return returnCode(L, ApiCode::BadParameter);
+  return returnCode(
+      L,
+      getApi(L).WindowFont(
+          windowName,
+          fontID,
+          fontName,
+          pointSize,
+          bold,
+          italic,
+          underline,
+          strikeout,
+          *hint));
+}
+
 static int L_WindowLine(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
@@ -719,6 +749,7 @@ static const struct luaL_Reg worldlib[] =
      {"TextRectangle", L_TextRectangle},
      {"WindowCircleOp", L_WindowCircleOp},
      {"WindowCreate", L_WindowCreate},
+     {"WindowFont", L_WindowFont},
      {"WindowLine", L_WindowLine},
      {"WindowPosition", L_WindowPosition},
      {"WindowRectOp", L_WindowRectOp},

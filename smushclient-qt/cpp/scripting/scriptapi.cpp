@@ -374,6 +374,39 @@ ApiCode ScriptApi::WindowEllipse(
   return ApiCode::OK;
 }
 
+ApiCode ScriptApi::WindowFont(
+    string_view windowName,
+    string_view fontID,
+    const QString &fontName,
+    qreal pointSize,
+    bool bold,
+    bool italic,
+    bool underline,
+    bool strikeout,
+    QFont::StyleHint hint) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  QFont font(fontName, pointSize, bold ? QFont::Bold : QFont::Normal, italic);
+  font.setStyleHint(hint);
+  font.setPointSizeF(pointSize);
+  if (underline)
+    font.setUnderline(true);
+  if (strikeout)
+    font.setStrikeOut(true);
+}
+
+ApiCode ScriptApi::WindowFontUnload(string_view windowName, string_view fontID) const
+{
+
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  window->unloadFont(fontID);
+  return ApiCode::OK;
+}
+
 ApiCode ScriptApi::WindowFrame(
     string_view windowName,
     const QRectF &rect,

@@ -226,6 +226,14 @@ Hotspot *MiniWindow::findHotspot(string_view hotspotID) const
   return search->second;
 }
 
+QFont MiniWindow::getFont(string_view fontID) const
+{
+  auto search = fonts.find((string)fontID);
+  if (search == fonts.end())
+    return QFont();
+  return search->second;
+}
+
 int MiniWindow::getZOrder() const noexcept
 {
   return zOrder;

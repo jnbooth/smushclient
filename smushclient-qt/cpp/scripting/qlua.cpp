@@ -411,24 +411,12 @@ bool qlua::copyValue(lua_State *fromL, lua_State *toL, int idx)
   }
 }
 
-template <typename T, T minValue, T maxValue>
-inline optional<T> getEnum(lua_State *L, int idx)
+optional<Qt::BrushStyle> qlua::getBrush(lua_State *L, int idx, optional<Qt::BrushStyle> ifNil)
 {
-  const lua_Integer val = qlua::getInt(L, idx);
-  if (val < (lua_Integer)minValue || val > (lua_Integer)maxValue) [[unlikely]]
-    return nullopt;
-  return (T)val;
-}
+  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))
+    return ifNil;
 
-optional<MiniWindow::Position> qlua::getWindowPosition(lua_State *L, int idx)
-{
-  using Position = MiniWindow::Position;
-  return getEnum<Position, Position::OutputStretch, Position::Tile>(L, idx);
-}
-
-optional<Qt::BrushStyle> qlua::getBrush(lua_State *L, int idx)
-{
-  switch (getInt(L, idx))
+  switch (toInt(L, idx))
   {
   case 0:
     return Qt::BrushStyle::SolidPattern;
@@ -461,9 +449,12 @@ optional<Qt::BrushStyle> qlua::getBrush(lua_State *L, int idx)
   }
 }
 
-optional<Qt::CursorShape> qlua::getCursor(lua_State *L, int idx)
+optional<Qt::CursorShape> qlua::getCursor(lua_State *L, int idx, optional<Qt::CursorShape> ifNil)
 {
-  switch (getInt(L, idx))
+  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))
+    return ifNil;
+
+  switch (toInt(L, idx))
   {
   case -1:
     return Qt::CursorShape::BlankCursor;
@@ -493,6 +484,41 @@ optional<Qt::CursorShape> qlua::getCursor(lua_State *L, int idx)
     return Qt::CursorShape::ForbiddenCursor;
   case 12:
     return Qt::WhatsThisCursor;
+  default:
+    return nullopt;
+  }
+}
+
+optional<QFont::StyleHint> qlua::getFontHint(lua_State *L, int idx, optional<QFont::StyleHint> ifNil)
+{
+  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))
+    return ifNil;
+
+  const int style = toInt(L, idx);
+  switch (style & 0xF) // pitch
+  {
+  case 0: // default
+  case 1: // fixed
+  case 2: // variable
+    break;
+  case 8: // mono
+    return QFont::StyleHint::Monospace;
+  default:
+    return nullopt;
+  }
+
+  switch (style & ~0xF)
+  {
+  case 16: // roman
+    return QFont::StyleHint::Serif;
+  case 32: // swiss
+    return QFont::StyleHint::SansSerif;
+  case 48: // modern
+    return QFont::StyleHint::TypeWriter;
+  case 64: // script
+    return QFont::StyleHint::Cursive;
+  case 80: // decorative
+    return QFont::StyleHint::Decorative;
   default:
     return nullopt;
   }
@@ -577,4 +603,18 @@ optional<QPen> qlua::getPen(lua_State *L, int idxColor, int idxStyle, int idxWid
     return nullopt;
 
   return QPen(color, width, penStyle, capStyle, joinStyle);
+}
+
+optional<MiniWindow::Position> qlua::getWindowPosition(
+    lua_State *L,
+    int idx,
+    optional<MiniWindow::Position> ifNil)
+{
+  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))
+    return ifNil;
+  const lua_Integer val = toInt(L, idx);
+  if (val < (lua_Integer)MiniWindow::Position::OutputStretch ||
+      val > (lua_Integer)MiniWindow::Position::Tile) [[unlikely]]
+    return nullopt;
+  return (MiniWindow::Position)val;
 }

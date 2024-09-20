@@ -71,6 +71,17 @@ public:
       const QRectF &rect,
       const QPen &pen,
       const QBrush &brush = QBrush()) const;
+  ApiCode WindowFont(
+      std::string_view windowName,
+      std::string_view fontID,
+      const QString &fontName,
+      qreal pointSize,
+      bool bold,
+      bool italic,
+      bool underline,
+      bool strikeout,
+      QFont::StyleHint hint) const;
+  ApiCode WindowFontUnload(std::string_view windowName, std::string_view fontID) const;
   ApiCode WindowFrame(
       std::string_view windowName,
       const QRectF &rect,
