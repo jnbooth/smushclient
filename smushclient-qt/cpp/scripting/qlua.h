@@ -70,23 +70,23 @@ namespace qlua
   std::optional<Qt::BrushStyle> getBrush(
       lua_State *L,
       int idx,
-      std::optional<Qt::BrushStyle> ifNil = nullopt);
+      std::optional<Qt::BrushStyle> ifNil = std::nullopt);
 
   std::optional<Qt::CursorShape> getCursor(
       lua_State *L,
       int idx,
-      std::optional<Qt::CursorShape> ifNil = nullopt);
+      std::optional<Qt::CursorShape> ifNil = std::nullopt);
 
   std::optional<QFont::StyleHint> getFontHint(
       lua_State *L,
       int idx,
-      std::optional<QFont::StyleHint> ifNil = nullopt);
+      std::optional<QFont::StyleHint> ifNil = std::nullopt);
 
   std::optional<QPen> getPen(lua_State *L, int idxColor, int idxStyle, int idxWidth);
 
   std::optional<MiniWindow::Position> getWindowPosition(
       lua_State *L,
       int idx,
-      std::optional<MiniWindow::Position> ifNil = nullopt);
+      std::optional<MiniWindow::Position> ifNil = std::nullopt);
 
 }

@@ -35,7 +35,14 @@ public:
   ApiCode EnableTriggerGroup(const QString &group, bool enabled) const;
   QVariant GetOption(std::string_view name) const;
   QVariant GetPluginInfo(std::string_view pluginID, uint8_t infoType) const;
-  void Hyperlink(const QString &action, const QString &text, const QString &hint, const QColor &foreground, const QColor &background, bool url, bool noUnderline);
+  void Hyperlink(
+      const QString &action,
+      const QString &text,
+      const QString &hint,
+      const QColor &foreground,
+      const QColor &background,
+      bool url,
+      bool noUnderline);
   ApiCode IsAlias(const QString &label) const;
   ApiCode IsTimer(const QString &label) const;
   ApiCode IsTrigger(const QString &label) const;
@@ -113,8 +120,18 @@ public:
       const QPen &pen,
       const QBrush &brush = QBrush()) const;
   ApiCode WindowResize(std::string_view windowName, const QSize &size, const QColor &fill) const;
-  ApiCode WindowSetZOrder(std::string_view windowName, int zOrder);
-  ApiCode WindowShow(std::string_view windowName, bool show);
+  ApiCode WindowSetZOrder(std::string_view windowName, int zOrder) const;
+  ApiCode WindowShow(std::string_view windowName, bool show) const;
+  qreal WindowText(
+      std::string_view windowName,
+      std::string_view fontID,
+      const QString &text,
+      const QRectF &rect,
+      const QColor &color) const;
+  int WindowTextWidth(
+      std::string_view windowName,
+      std::string_view fontID,
+      const QString &text) const;
 
   void applyWorld(const World &world);
   void echo(const QString &text);

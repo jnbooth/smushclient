@@ -651,6 +651,33 @@ static int L_WindowShow(lua_State *L)
   return returnCode(L, getApi(L).WindowShow(qlua::getString(L, 1), qlua::getBool(L, 2)));
 }
 
+static int L_WindowText(lua_State *L)
+{
+  const qreal width = getApi(L).WindowText(
+      qlua::getString(L, 1),
+      qlua::getString(L, 2),
+      qlua::getQString(L, 3),
+      QRectF(
+          qlua::getNumber(L, 4),
+          qlua::getNumber(L, 5),
+          qlua::getNumber(L, 6),
+          qlua::getNumber(L, 7)),
+      qlua::getQColor(L, 8));
+  // qlua::getBool(L, 9) // unicode
+  lua_pushinteger(L, width);
+  return 1;
+}
+
+static int L_WindowTextWidth(lua_State *L)
+{
+  const int width = getApi(L).WindowTextWidth(
+      qlua::getString(L, 1),
+      qlua::getString(L, 2),
+      qlua::getQString(L, 3));
+  lua_pushinteger(L, width);
+  return 1;
+}
+
 // window hotspots
 
 static int L_WindowAddHotspot(lua_State *L)
@@ -756,6 +783,8 @@ static const struct luaL_Reg worldlib[] =
      {"WindowResize", L_WindowResize},
      {"WindowSetZOrder", L_WindowSetZOrder},
      {"WindowShow", L_WindowShow},
+     {"WindowText", L_WindowText},
+     {"WindowTextWidth", L_WindowTextWidth},
      // window hotspots
      {"WindowAddHotspot", L_WindowAddHotspot},
      {"WindowDeleteHotspot", L_WindowDeleteHotspot},

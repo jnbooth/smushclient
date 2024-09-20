@@ -81,17 +81,29 @@ public:
       qreal yRadius,
       const QPen &pen,
       const QBrush &brush = QBrush());
+  QRectF drawText(
+      const QFont &font,
+      const QString &text,
+      const QRectF &rect,
+      const QColor &color);
   inline bool drawsUnderneath() const noexcept { return flags.testFlag(Flag::DrawUnderneath); }
   Hotspot *findHotspot(std::string_view hotspotID) const;
-  QFont getFont(std::string_view fontID) const;
   int getZOrder() const noexcept;
-  inline void loadFont(std::string_view fontID, const QFont &font) { fonts[(string)fontID] = font; }
   void reset();
   void setPosition(const QPoint &location, Position position, Flags flags) noexcept;
   void setSize(const QSize &size, const QColor &fill) noexcept;
   void setZOrder(int zOrder) noexcept;
-  inline void unloadFont(std::string_view fontID) { fonts.erase((string)fontID); }
   void updatePosition();
+
+  const QFont *getFont(std::string_view fontID) const;
+  inline void loadFont(std::string_view fontID, const QFont &font)
+  {
+    fonts[(std::string)fontID] = font;
+  }
+  inline void unloadFont(std::string_view fontID)
+  {
+    fonts.erase((std::string)fontID);
+  }
 
 protected:
   void paintEvent(QPaintEvent *event) override;

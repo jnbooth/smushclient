@@ -218,6 +218,22 @@ void MiniWindow::drawRoundedRect(
   update();
 }
 
+QRectF MiniWindow::drawText(
+    const QFont &font,
+    const QString &text,
+    const QRectF &rect,
+    const QColor &color)
+{
+  QPainter painter(&pixmap);
+  painter.setFont(font);
+  painter.setPen(color);
+  QRectF boundingRect;
+  painter.drawText(rect, 0, text, &boundingRect);
+  updateMask();
+  update();
+  return boundingRect;
+}
+
 Hotspot *MiniWindow::findHotspot(string_view hotspotID) const
 {
   auto search = hotspots.find((string)hotspotID);
@@ -226,12 +242,12 @@ Hotspot *MiniWindow::findHotspot(string_view hotspotID) const
   return search->second;
 }
 
-QFont MiniWindow::getFont(string_view fontID) const
+const QFont *MiniWindow::getFont(string_view fontID) const
 {
   auto search = fonts.find((string)fontID);
   if (search == fonts.end())
-    return QFont();
-  return search->second;
+    return nullptr;
+  return &search->second;
 }
 
 int MiniWindow::getZOrder() const noexcept

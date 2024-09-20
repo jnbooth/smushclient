@@ -503,7 +503,7 @@ ApiCode ScriptApi::WindowResize(string_view windowName, const QSize &size, const
   return ApiCode::OK;
 }
 
-ApiCode ScriptApi::WindowSetZOrder(string_view windowName, int order)
+ApiCode ScriptApi::WindowSetZOrder(string_view windowName, int order) const
 {
   MiniWindow *window = findWindow(windowName);
   if (window == nullptr)
@@ -513,13 +513,44 @@ ApiCode ScriptApi::WindowSetZOrder(string_view windowName, int order)
   return ApiCode::OK;
 }
 
-ApiCode ScriptApi::WindowShow(string_view windowName, bool show)
+ApiCode ScriptApi::WindowShow(string_view windowName, bool show) const
 {
   MiniWindow *window = findWindow(windowName);
   if (window == nullptr)
     return ApiCode::NoSuchWindow;
   window->setVisible(show);
   return ApiCode::OK;
+}
+
+qreal ScriptApi::WindowText(
+    string_view windowName,
+    string_view fontID,
+    const QString &text,
+    const QRectF &rect,
+    const QColor &color) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return -1;
+  const QFont *font = window->getFont(fontID);
+  if (font == nullptr)
+    return -2;
+  return window->drawText(*font, text, rect, color).width();
+}
+
+int ScriptApi::WindowTextWidth(
+    std::string_view windowName,
+    std::string_view fontID,
+    const QString &text) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return -1;
+  const QFont *font = window->getFont(fontID);
+  if (font == nullptr)
+    return -2;
+  QFontMetrics fm(*font);
+  return fm.horizontalAdvance(text);
 }
 
 // public methods
