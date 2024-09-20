@@ -7,6 +7,7 @@
 #include <QtCore/QRect>
 #include <QtCore/QSize>
 #include <QtGui/QPen>
+#include <QtGui/QPainter>
 #include <QtGui/QPixmap>
 #include <QtGui/QPolygon>
 #include "hotspot.h"
@@ -75,6 +76,7 @@ public:
   void drawLine(const QLineF &line, const QPen &pen);
   void drawEllipse(const QRectF &rect, const QPen &pen, const QBrush &brush = QBrush());
   void drawFrame(const QRectF &rect, const QColor &color1, const QColor &color2);
+  void drawGradient(const QRectF &rect, const QGradient &gradient);
   void drawPolygon(
       const QPolygonF &polygon,
       const QPen &pen,
@@ -128,6 +130,18 @@ private:
 
   void applyFlags();
   void updateMask();
+
+  class Painter : public QPainter
+  {
+  public:
+    explicit Painter(MiniWindow *window);
+    Painter(MiniWindow *window, const QPen &pen);
+    Painter(MiniWindow *window, const QPen &pen, const QBrush &brush);
+    ~Painter();
+
+  private:
+    MiniWindow *window;
+  };
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(MiniWindow::Flags)

@@ -88,6 +88,30 @@ Hotspot *findHotspotNeighbor(string_view hotspotID, const unordered_map<string, 
   return neighbor;
 }
 
+// Painter
+
+MiniWindow::Painter::Painter(MiniWindow *window)
+    : QPainter(&window->pixmap),
+      window(window) {}
+
+MiniWindow::Painter::Painter(MiniWindow *window, const QPen &pen)
+    : MiniWindow::Painter(window)
+{
+  setPen(pen);
+}
+
+MiniWindow::Painter::Painter(MiniWindow *window, const QPen &pen, const QBrush &brush)
+    : MiniWindow::Painter(window, pen)
+{
+  setBrush(brush);
+}
+
+MiniWindow::Painter::~Painter()
+{
+  window->updateMask();
+  window->update();
+}
+
 // Constructor
 
 MiniWindow::MiniWindow(
@@ -163,34 +187,28 @@ bool MiniWindow::deleteHotspot(string_view hotspotID)
 
 void MiniWindow::drawLine(const QLineF &line, const QPen &pen)
 {
-  QPainter painter(&pixmap);
-  painter.setPen(pen);
-  painter.drawLine(line);
-  updateMask();
-  update();
+  Painter(this, pen).drawLine(line);
 }
 
 void MiniWindow::drawEllipse(const QRectF &rect, const QPen &pen, const QBrush &brush)
 {
-  QPainter painter(&pixmap);
-  painter.setPen(pen);
-  painter.setBrush(brush);
-  painter.drawEllipse(rect);
-  updateMask();
-  update();
+  Painter(this, pen, brush).drawEllipse(rect);
 }
 
 void MiniWindow::drawFrame(const QRectF &rect, const QColor &color1, const QColor &color2)
 {
-  QPainter painter(&pixmap);
+  Painter painter(this);
   painter.setPen(color1);
   painter.drawLine(rect.bottomLeft(), rect.topLeft());
   painter.drawLine(rect.topLeft(), rect.topRight());
   painter.setPen(color2);
   painter.drawLine(rect.topRight(), rect.bottomRight());
   painter.drawLine(rect.bottomRight(), rect.bottomLeft());
-  updateMask();
-  update();
+}
+
+void MiniWindow::drawGradient(const QRectF &rect, const QGradient &gradient)
+{
+  Painter(this).fillRect(rect, gradient);
 }
 
 void MiniWindow::drawPolygon(
@@ -199,27 +217,17 @@ void MiniWindow::drawPolygon(
     const QBrush &brush,
     Qt::FillRule fillRule)
 {
-  QPainter painter(&pixmap);
-  painter.setPen(pen);
-  painter.setBrush(brush);
-  painter.drawPolygon(polygon, fillRule);
+  Painter(this, pen, brush).drawPolygon(polygon, fillRule);
 }
 
 void MiniWindow::drawPolyline(const QPolygonF &polygon, const QPen &pen)
 {
-  QPainter painter(&pixmap);
-  painter.setPen(pen);
-  painter.drawPolyline(polygon);
+  Painter(this, pen).drawPolyline(polygon);
 }
 
 void MiniWindow::drawRect(const QRectF &rect, const QPen &pen, const QBrush &brush)
 {
-  QPainter painter(&pixmap);
-  painter.setPen(pen);
-  painter.setBrush(brush);
-  painter.drawRect(rect);
-  updateMask();
-  update();
+  Painter(this, pen, brush).drawRect(rect);
 }
 
 void MiniWindow::drawRoundedRect(
@@ -229,12 +237,7 @@ void MiniWindow::drawRoundedRect(
     const QPen &pen,
     const QBrush &brush)
 {
-  QPainter painter(&pixmap);
-  painter.setPen(pen);
-  painter.setBrush(brush);
-  painter.drawRoundedRect(rect, xRadius, yRadius);
-  updateMask();
-  update();
+  Painter(this, pen, brush).drawRoundedRect(rect, xRadius, yRadius);
 }
 
 QRectF MiniWindow::drawText(
@@ -243,13 +246,10 @@ QRectF MiniWindow::drawText(
     const QRectF &rect,
     const QColor &color)
 {
-  QPainter painter(&pixmap);
+  Painter painter(this, color);
   painter.setFont(font);
-  painter.setPen(color);
   QRectF boundingRect;
   painter.drawText(rect, 0, text, &boundingRect);
-  updateMask();
-  update();
   return boundingRect;
 }
 
