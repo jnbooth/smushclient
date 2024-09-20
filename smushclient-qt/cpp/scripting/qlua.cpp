@@ -119,44 +119,6 @@ bool qlua::getBool(lua_State *L, int idx, bool ifNil)
   return checkIsSome(L, idx, LUA_TBOOLEAN, "boolean") ? lua_toboolean(L, idx) : ifNil;
 }
 
-Qt::CursorShape qlua::getCursor(lua_State *L, int idx)
-{
-  switch (getInt(L, idx))
-  {
-  case -1:
-    return Qt::CursorShape::BlankCursor;
-  case 0:
-    return Qt::CursorShape::ArrowCursor;
-  case 1:
-    return Qt::CursorShape::OpenHandCursor;
-  case 2:
-    return Qt::CursorShape::IBeamCursor;
-  case 3:
-    return Qt::CursorShape::CrossCursor;
-  case 4:
-    return Qt::CursorShape::WaitCursor;
-  case 5:
-    return Qt::CursorShape::UpArrowCursor;
-  case 6:
-    return Qt::CursorShape::SizeFDiagCursor;
-  case 7:
-    return Qt::CursorShape::SizeBDiagCursor;
-  case 8:
-    return Qt::CursorShape::SizeHorCursor;
-  case 9:
-    return Qt::CursorShape::SizeVerCursor;
-  case 10:
-    return Qt::CursorShape::SizeAllCursor;
-  case 11:
-    return Qt::CursorShape::ForbiddenCursor;
-  case 12:
-    return Qt::WhatsThisCursor;
-  default:
-    luaL_typeerror(L, idx, "cursor code"); // exits function
-    return Qt::CursorShape::ArrowCursor;   // unreachable
-  }
-}
-
 lua_Integer qlua::getInt(lua_State *L, int idx)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TNUMBER, idx, "integer");
@@ -246,14 +208,6 @@ string_view qlua::getString(lua_State *L, int idx)
 string_view qlua::getString(lua_State *L, int idx, string_view ifNil)
 {
   return checkIsSome(L, idx, LUA_TSTRING, "string") ? toString(L, idx) : ifNil;
-}
-
-template <>
-MiniWindow::Position qlua::getEnum(lua_State *L, int idx)
-{
-  const lua_Integer val = getInt(L, idx);
-  luaL_argexpected(L, val >= 0 && val <= (lua_Integer)MiniWindow::Position::Tile, idx, "window position enum");
-  return (MiniWindow::Position)val;
 }
 
 int qlua::loadQString(lua_State *L, const QString &chunk)
@@ -452,5 +406,57 @@ bool qlua::copyValue(lua_State *fromL, lua_State *toL, int idx)
     return true;
   default:
     return false;
+  }
+}
+
+template <typename T, lua_Integer maxValue>
+inline T getEnum(lua_State *L, int idx)
+{
+  static const std::string expectMessage = "integer between 0 and " + std::to_string(maxValue);
+  const lua_Integer val = qlua::getInt(L, idx);
+  luaL_argexpected(L, val >= 0 && val <= maxValue, idx, expectMessage.data());
+  return (MiniWindow::Position)val;
+}
+
+MiniWindow::Position qlua::getWindowPosition(lua_State *L, int idx)
+{
+  return getEnum<MiniWindow::Position, (lua_Integer)MiniWindow::Position::Tile>(L, idx);
+}
+
+Qt::CursorShape qlua::getCursor(lua_State *L, int idx)
+{
+  switch (getInt(L, idx))
+  {
+  case -1:
+    return Qt::CursorShape::BlankCursor;
+  case 0:
+    return Qt::CursorShape::ArrowCursor;
+  case 1:
+    return Qt::CursorShape::OpenHandCursor;
+  case 2:
+    return Qt::CursorShape::IBeamCursor;
+  case 3:
+    return Qt::CursorShape::CrossCursor;
+  case 4:
+    return Qt::CursorShape::WaitCursor;
+  case 5:
+    return Qt::CursorShape::UpArrowCursor;
+  case 6:
+    return Qt::CursorShape::SizeFDiagCursor;
+  case 7:
+    return Qt::CursorShape::SizeBDiagCursor;
+  case 8:
+    return Qt::CursorShape::SizeHorCursor;
+  case 9:
+    return Qt::CursorShape::SizeVerCursor;
+  case 10:
+    return Qt::CursorShape::SizeAllCursor;
+  case 11:
+    return Qt::CursorShape::ForbiddenCursor;
+  case 12:
+    return Qt::WhatsThisCursor;
+  default:
+    luaL_typeerror(L, idx, "integer between -1 and 12"); // exits function
+    return Qt::CursorShape::ArrowCursor;                 // unreachable
   }
 }

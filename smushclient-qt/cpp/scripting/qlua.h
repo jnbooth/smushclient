@@ -1,10 +1,12 @@
 #pragma once
+#include <string>
 #include <QtCore/QVariant>
 #include <QtGui/QColor>
-
+#include "miniwindow.h"
 extern "C"
 {
 #include "lua.h"
+#include "lauxlib.h"
 }
 
 namespace qlua
@@ -30,8 +32,6 @@ namespace qlua
   bool getBool(lua_State *L, int idx);
   bool getBool(lua_State *L, int idx, bool ifNil);
 
-  Qt::CursorShape getCursor(lua_State *L, int idx);
-
   lua_Integer getInt(lua_State *L, int idx);
   lua_Integer getInt(lua_State *L, int idx, lua_Integer ifNil);
 
@@ -50,9 +50,6 @@ namespace qlua
   std::string_view getString(lua_State *L, int idx);
   std::string_view getString(lua_State *L, int idx, std::string_view ifNil);
 
-  template <typename T>
-  T getEnum(lua_State *L, int idx);
-
   int loadQString(lua_State *L, const QString &chunk);
 
   const char *pushBytes(lua_State *L, const QByteArray &bytes);
@@ -67,4 +64,8 @@ namespace qlua
   void pushStrings(lua_State *L, const std::vector<std::string> &strings);
 
   bool copyValue(lua_State *fromL, lua_State *toL, int idx);
+
+  Qt::CursorShape getCursor(lua_State *L, int idx);
+  MiniWindow::Position getWindowPosition(lua_State *L, int idx);
+
 }

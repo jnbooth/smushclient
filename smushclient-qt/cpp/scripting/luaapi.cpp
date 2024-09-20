@@ -480,7 +480,7 @@ static int L_WindowCreate(lua_State *L)
           qlua::getString(L, 1),
           QPoint(qlua::getInt(L, 2), qlua::getInt(L, 3)),
           QSize(qlua::getInt(L, 4), qlua::getInt(L, 5)),
-          qlua::getEnum<MiniWindow::Position>(L, 6),
+          qlua::getWindowPosition(L, 6),
           (MiniWindow::Flags)(int)qlua::getInt(L, 7),
           qlua::getQColor(L, 8)));
 }
@@ -492,7 +492,7 @@ static int L_WindowPosition(lua_State *L)
       getApi(L).WindowPosition(
           qlua::getString(L, 1),
           QPoint(qlua::getInt(L, 2), qlua::getInt(L, 3)),
-          qlua::getEnum<MiniWindow::Position>(L, 6),
+          qlua::getWindowPosition(L, 6),
           (MiniWindow::Flags)(int)qlua::getInt(L, 7)));
 }
 
