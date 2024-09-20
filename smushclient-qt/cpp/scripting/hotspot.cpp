@@ -38,7 +38,10 @@ Hotspot::Hotspot(MiniWindow *parent, const Plugin *plugin, string_view id, Callb
     : QWidget(parent),
       callbacks(std::move(callbacks)),
       id(id),
-      plugin(plugin) {}
+      plugin(plugin)
+{
+  setWindowOpacity(0);
+}
 
 void Hotspot::setCallbacks(Callbacks &&newCallbacks)
 {

@@ -462,12 +462,12 @@ static int L_SetVariable(lua_State *L)
 
 // windows
 
-static int L_Redraw(lua_State *L)
+static int L_Redraw(lua_State *)
 {
   return 0;
 }
 
-static int L_Repaint(lua_State *L)
+static int L_Repaint(lua_State *)
 {
   return 0;
 }
@@ -545,6 +545,18 @@ static int L_WindowDeleteHotspot(lua_State *L)
   return returnCode(L, getApi(L).WindowDeleteHotspot(qlua::getString(L, 1), qlua::getString(L, 2)));
 }
 
+static int L_WindowMoveHotspot(lua_State *L)
+{
+  return returnCode(
+      L,
+      getApi(L).WindowMoveHotspot(
+          qlua::getString(L, 1),
+          qlua::getString(L, 2),
+          QRect(
+              QPoint(qlua::getInt(L, 3), qlua::getInt(L, 4)),
+              QPoint(qlua::getInt(L, 5), qlua::getInt(L, 6)))));
+}
+
 // userdata
 
 static const struct luaL_Reg worldlib[] =
@@ -595,6 +607,7 @@ static const struct luaL_Reg worldlib[] =
      // window hotspots
      {"WindowAddHotspot", L_WindowAddHotspot},
      {"WindowDeleteHotspot", L_WindowDeleteHotspot},
+     {"WindowMoveHotspot", L_WindowMoveHotspot},
 
      {NULL, NULL}};
 

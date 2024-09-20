@@ -325,12 +325,23 @@ ApiCode ScriptApi::WindowCreate(
 
 ApiCode ScriptApi::WindowDeleteHotspot(string_view windowName, string_view hotspotID) const
 {
-
   MiniWindow *window = findWindow(windowName);
   if (window == nullptr)
     return ApiCode::NoSuchWindow;
   if (!window->deleteHotspot(hotspotID))
     return ApiCode::HotspotNotInstalled;
+  return ApiCode::OK;
+}
+
+ApiCode ScriptApi::WindowMoveHotspot(string_view windowName, string_view hotspotID, const QRect &geometry) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  Hotspot *hotspot = window->findHotspot(hotspotID);
+  if (hotspot == nullptr)
+    return ApiCode::HotspotNotInstalled;
+  hotspot->setGeometry(geometry);
   return ApiCode::OK;
 }
 

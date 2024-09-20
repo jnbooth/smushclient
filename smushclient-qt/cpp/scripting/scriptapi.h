@@ -61,6 +61,10 @@ public:
   ApiCode WindowDeleteHotspot(
       std::string_view windowName,
       std::string_view hotspotID) const;
+  ApiCode WindowMoveHotspot(
+      std::string_view windowName,
+      std::string_view hotspotID,
+      const QRect &geometry) const;
   ApiCode WindowPosition(
       std::string_view windowName,
       const QPoint &location,
