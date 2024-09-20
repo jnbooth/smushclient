@@ -15,17 +15,20 @@ struct WindowSort
       QTextBrowser *browser,
       const std::unordered_map<std::string, MiniWindow *> &windows);
 
+  char drawOrder;
   int zOrder;
   std::string_view name;
   QWidget *widget;
 
   WindowSort(MiniWindow *widget, std::string_view name)
-      : zOrder(widget->getZOrder()),
+      : drawOrder(widget->drawsUnderneath() ? 0 : 2),
+        zOrder(widget->getZOrder()),
         name(name),
         widget(widget) {}
 
-  WindowSort(QTextBrowser *widget)
-      : zOrder(0),
+  explicit WindowSort(QTextBrowser *widget)
+      : drawOrder(1),
+        zOrder(0),
         name(),
         widget(widget) {}
 

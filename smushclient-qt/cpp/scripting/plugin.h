@@ -3,17 +3,12 @@
 #include <unordered_map>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
+#include "luaconf.h"
 
 class ScriptApi;
 struct lua_State;
 
-enum struct RunScriptResult
-{
-  Ok,
-  Disabled,
-  CompileError,
-  RuntimeError,
-};
+typedef LUA_INTEGER lua_Integer;
 
 struct PluginMetadata
 {
@@ -37,7 +32,8 @@ public:
   inline const QString &id() const noexcept { return metadata.id; }
   inline bool disabled() const noexcept { return isDisabled; };
   inline const QString &name() const noexcept { return metadata.name; }
-  RunScriptResult runScript(const QString &script) const;
+  bool runCallback(std::string_view name, std::string_view arg1, lua_Integer arg2) const;
+  bool runScript(const QString &script) const;
   inline lua_State *state() const noexcept { return L; }
   std::unordered_map<std::string, std::string> *variables() const;
 

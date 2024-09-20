@@ -505,6 +505,36 @@ static int L_WindowSetZOrder(lua_State *L)
           qlua::getInt(L, 2)));
 }
 
+// window hotspots
+
+static int L_WindowAddHotspot(lua_State *L)
+{
+  return returnCode(
+      L,
+      getApi(L).WindowAddHotspot(
+          qlua::getString(L, 1),
+          qlua::getString(L, 2),
+          qlua::getString(L, 3),
+          QRect(
+              QPoint(qlua::getInt(L, 4), qlua::getInt(L, 5)),
+              QPoint(qlua::getInt(L, 6), qlua::getInt(L, 7))),
+          Hotspot::Callbacks{
+              .mouseOver = (string)qlua::getString(L, 8),
+              .cancelMouseOver = (string)qlua::getString(L, 9),
+              .mouseDown = (string)qlua::getString(L, 10),
+              .cancelMouseDown = (string)qlua::getString(L, 11),
+              .mouseUp = (string)qlua::getString(L, 12),
+          },
+          qlua::getQString(L, 13),
+          qlua::getCursor(L, 14),
+          qlua::getInt(L, 15) & 0x01));
+}
+
+static int L_WindowDeleteHotspot(lua_State *L)
+{
+  return returnCode(L, getApi(L).WindowDeleteHotspot(qlua::getString(L, 1), qlua::getString(L, 2)));
+}
+
 // userdata
 
 static const struct luaL_Reg worldlib[] =
@@ -550,6 +580,9 @@ static const struct luaL_Reg worldlib[] =
      {"WindowPosition", L_WindowPosition},
      {"WindowResize", L_WindowResize},
      {"WindowSetZOrder", L_WindowSetZOrder},
+     // window hotspots
+     {"WindowAddHotspot", L_WindowAddHotspot},
+     {"WindowDeleteHotspot", L_WindowDeleteHotspot},
 
      {NULL, NULL}};
 

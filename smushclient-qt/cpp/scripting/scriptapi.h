@@ -5,6 +5,7 @@
 #include <QtCore/QPointer>
 #include <QtCore/QString>
 #include <QtGui/QTextCursor>
+#include "hotspot.h"
 #include "miniwindow.h"
 #include "plugin.h"
 #include "scriptenums.h"
@@ -44,6 +45,15 @@ public:
   ApiCode SendNoEcho(const QByteArrayView &bytes) const;
   ApiCode SetOption(std::string_view name, const QVariant &variant) const;
   void Tell(const QString &text);
+  ApiCode WindowAddHotspot(
+      std::string_view pluginID,
+      std::string_view windowName,
+      std::string_view hotspotID,
+      const QRect &geometry,
+      Hotspot::Callbacks &&callbacks,
+      const QString &tooltip,
+      Qt::CursorShape cursor,
+      bool trackHover);
   ApiCode WindowCreate(
       std::string_view windowName,
       const QPoint &location,
@@ -51,6 +61,9 @@ public:
       MiniWindow::Position position,
       MiniWindow::Flags flags,
       const QColor &fill);
+  ApiCode WindowDeleteHotspot(
+      std::string_view windowName,
+      std::string_view hotspotID) const;
   ApiCode WindowPosition(
       std::string_view windowName,
       const QPoint &location,
@@ -65,7 +78,10 @@ public:
   const Plugin *getPlugin(std::string_view pluginID) const;
   void initializeScripts(const QStringList &scripts);
   void printError(const QString &message);
-  inline bool runScript(size_t plugin, const QString &script) { return runScript(plugins[plugin], script); }
+  inline bool runScript(size_t plugin, const QString &script) const
+  {
+    return plugins[plugin].runScript(script);
+  }
   void sortWindows();
 
 private:
@@ -80,8 +96,6 @@ private:
 
   SmushClient *client() const;
   size_t findPluginIndex(std::string_view pluginID) const;
-  bool handleResult(RunScriptResult result, const Plugin &plugin);
-  bool runScript(Plugin &plugin, const QString &script);
-  MiniWindow *findWindow(const std::string &windowName) const;
+  MiniWindow *findWindow(std::string_view windowName) const;
   inline WorldTab *tab() const { return (WorldTab *)parent(); }
 };

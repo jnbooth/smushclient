@@ -33,11 +33,36 @@ inline bool checkError(int status)
   }
 }
 
+QString formatCompileError(lua_State *L)
+{
+  return ScriptApi::tr("Compile error: %1").arg(qlua::getError(L));
+}
+
+QString formatPanic(lua_State *L)
+{
+  return ScriptApi::tr("PANIC: unprotected error in call to Lua API: %1").arg(qlua::getError(L));
+}
+
+QString formatRuntimeError(lua_State *L)
+{
+  return ScriptApi::tr("Compile error: %1").arg(qlua::getError(L));
+}
+
 static int panic(lua_State *L)
 {
-  const QString message = ScriptApi::tr("PANIC: unprotected error in call to Lua API: %1");
-  QErrorMessage::qtHandler()->showMessage(message.arg(qlua::getError(L)));
+  QErrorMessage::qtHandler()->showMessage(formatPanic(L));
   return 0;
+}
+
+inline bool api_pcall(lua_State *L, int nargs, int nreturn)
+{
+  if (checkError(lua_pcall(L, nargs, nreturn, 0))) [[unlikely]]
+  {
+    getApi(L).printError(formatRuntimeError(L));
+    return false;
+  }
+
+  return true;
 }
 
 Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
@@ -86,18 +111,29 @@ QString Plugin::getError() const
   return qlua::getError(L);
 }
 
-RunScriptResult Plugin::runScript(const QString &script) const
+bool Plugin::runCallback(string_view name, string_view arg1, lua_Integer arg2) const
 {
-  if (isDisabled)
-    return RunScriptResult::Disabled;
+  if (isDisabled) [[unlikely]]
+    return false;
 
-  if (checkError(qlua::loadQString(L, script)))
-    return RunScriptResult::CompileError;
+  lua_getglobal(L, name.data());
+  qlua::pushString(L, arg1);
+  lua_pushinteger(L, arg2);
+  return api_pcall(L, 2, 0);
+}
 
-  if (checkError(lua_pcall(L, 0, -1, 0)))
-    return RunScriptResult::RuntimeError;
+bool Plugin::runScript(const QString &script) const
+{
+  if (isDisabled) [[unlikely]]
+    return false;
 
-  return RunScriptResult::Ok;
+  if (checkError(qlua::loadQString(L, script))) [[unlikely]]
+  {
+    getApi(L).printError(formatCompileError(L));
+    return false;
+  }
+
+  return api_pcall(L, 0, 0);
 }
 
 unordered_map<string, string> *Plugin::variables() const

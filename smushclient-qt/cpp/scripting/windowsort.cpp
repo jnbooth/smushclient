@@ -13,7 +13,7 @@ void WindowSort::sort(
 {
   buffer.reserve(windows.size() + 1);
   buffer.emplace_back(browser);
-  for (const std::pair<const string, MiniWindow *> &entry : windows)
+  for (const auto &entry : windows)
     buffer.emplace_back(entry.second, string_view(entry.first));
 
   std::sort(buffer.begin(), buffer.end());

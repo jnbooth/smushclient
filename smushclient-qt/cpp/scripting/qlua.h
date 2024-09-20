@@ -16,6 +16,8 @@ namespace qlua
   bool getBool(lua_State *L, int idx);
   bool getBool(lua_State *L, int idx, bool ifNil);
 
+  Qt::CursorShape getCursor(lua_State *L, int idx);
+
   lua_Integer getInt(lua_State *L, int idx);
   lua_Integer getInt(lua_State *L, int idx, lua_Integer ifNil);
 

@@ -110,13 +110,51 @@ bool qlua::getBool(lua_State *L, int idx)
         return true;
       }
   }
-  luaL_argexpected(L, false, idx, "boolean");
-  return lua_toboolean(L, idx);
+  luaL_typeerror(L, idx, "boolean"); // exits function
+  return false;                      // unrechable
 }
 
 bool qlua::getBool(lua_State *L, int idx, bool ifNil)
 {
   return checkIsSome(L, idx, LUA_TBOOLEAN, "boolean") ? lua_toboolean(L, idx) : ifNil;
+}
+
+Qt::CursorShape qlua::getCursor(lua_State *L, int idx)
+{
+  switch (getInt(L, idx))
+  {
+  case -1:
+    return Qt::CursorShape::BlankCursor;
+  case 0:
+    return Qt::CursorShape::ArrowCursor;
+  case 1:
+    return Qt::CursorShape::OpenHandCursor;
+  case 2:
+    return Qt::CursorShape::IBeamCursor;
+  case 3:
+    return Qt::CursorShape::CrossCursor;
+  case 4:
+    return Qt::CursorShape::WaitCursor;
+  case 5:
+    return Qt::CursorShape::UpArrowCursor;
+  case 6:
+    return Qt::CursorShape::SizeFDiagCursor;
+  case 7:
+    return Qt::CursorShape::SizeBDiagCursor;
+  case 8:
+    return Qt::CursorShape::SizeHorCursor;
+  case 9:
+    return Qt::CursorShape::SizeVerCursor;
+  case 10:
+    return Qt::CursorShape::SizeAllCursor;
+  case 11:
+    return Qt::CursorShape::ForbiddenCursor;
+  case 12:
+    return Qt::WhatsThisCursor;
+  default:
+    luaL_typeerror(L, idx, "cursor code"); // exits function
+    return Qt::CursorShape::ArrowCursor;   // unreachable
+  }
 }
 
 lua_Integer qlua::getInt(lua_State *L, int idx)

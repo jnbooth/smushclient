@@ -281,6 +281,33 @@ void ScriptApi::Tell(const QString &text)
   lastTellPosition = cursor.position();
 }
 
+ApiCode ScriptApi::WindowAddHotspot(
+    string_view pluginID,
+    string_view windowName,
+    string_view hotspotID,
+    const QRect &geometry,
+    Hotspot::Callbacks &&callbacks,
+    const QString &tooltip,
+    Qt::CursorShape cursor,
+    bool trackHover)
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  const size_t pluginIndex = findPluginIndex(pluginID);
+  if (pluginIndex == noSuchPlugin)
+    return ApiCode::NoSuchPlugin;
+  const Plugin *plugin = &plugins[findPluginIndex(pluginID)];
+  Hotspot *hotspot = window->addHotspot(hotspotID, plugin, std::move(callbacks));
+  if (hotspot == nullptr)
+    return ApiCode::HotspotPluginChanged;
+  hotspot->setGeometry(geometry);
+  hotspot->setToolTip(tooltip);
+  hotspot->setCursor(cursor);
+  hotspot->setMouseTracking(trackHover);
+  return ApiCode::OK;
+}
+
 ApiCode ScriptApi::WindowCreate(
     string_view name,
     const QPoint &location,
@@ -302,6 +329,7 @@ ApiCode ScriptApi::WindowCreate(
   {
     window->setPosition(location, position, flags);
     window->setSize(size, fill);
+    window->reset();
   }
   window->updatePosition();
   sortWindows();
@@ -309,14 +337,25 @@ ApiCode ScriptApi::WindowCreate(
   return ApiCode::OK;
 }
 
+ApiCode ScriptApi::WindowDeleteHotspot(string_view windowName, string_view hotspotID) const
+{
+
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  if (!window->deleteHotspot(hotspotID))
+    return ApiCode::HotspotNotInstalled;
+  return ApiCode::OK;
+}
+
 ApiCode ScriptApi::WindowPosition(
-    std::string_view windowName,
+    string_view windowName,
     const QPoint &location,
     MiniWindow::Position position,
     MiniWindow::Flags flags)
     const
 {
-  MiniWindow *window = findWindow((string)windowName);
+  MiniWindow *window = findWindow(windowName);
   if (window == nullptr)
     return ApiCode::NoSuchWindow;
   window->setPosition(location, position, flags);
@@ -329,7 +368,7 @@ ApiCode ScriptApi::WindowResize(string_view windowName, const QSize &size, const
     return ApiCode::NoNameSpecified;
   if (!size.isValid())
     return ApiCode::BadParameter;
-  MiniWindow *window = findWindow((string)windowName);
+  MiniWindow *window = findWindow(windowName);
   if (window == nullptr)
     return ApiCode::NoSuchWindow;
   window->setSize(size, fill);
@@ -338,7 +377,7 @@ ApiCode ScriptApi::WindowResize(string_view windowName, const QSize &size, const
 
 ApiCode ScriptApi::WindowSetZOrder(string_view windowName, int order)
 {
-  MiniWindow *window = findWindow((string)windowName);
+  MiniWindow *window = findWindow(windowName);
   if (window == nullptr)
     return ApiCode::NoSuchWindow;
   window->setZOrder(order);
@@ -387,6 +426,12 @@ const Plugin *ScriptApi::getPlugin(string_view pluginID) const
 
 void ScriptApi::initializeScripts(const QStringList &scripts)
 {
+  if (!windows.empty())
+  {
+    for (const auto &entry : windows)
+      delete entry.second;
+    windows.clear();
+  }
   size_t size = scripts.size();
   plugins.clear();
   plugins.reserve(size);
@@ -401,7 +446,7 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
     };
     pluginIndices[metadata.id.toStdString()] = it - start;
     Plugin &plugin = plugins.emplace_back(this, std::move(metadata));
-    if (!runScript(plugin, *++it))
+    if (!plugin.runScript(*++it))
       plugin.disable();
   }
 }
@@ -422,34 +467,12 @@ size_t ScriptApi::findPluginIndex(string_view pluginID) const
   return search->second;
 }
 
-MiniWindow *ScriptApi::findWindow(const string &windowName) const
+MiniWindow *ScriptApi::findWindow(string_view windowName) const
 {
-  auto search = windows.find(windowName);
+  auto search = windows.find((string)windowName);
   if (search == windows.end())
     return nullptr;
   return search->second;
-}
-
-inline bool ScriptApi::handleResult(RunScriptResult result, const Plugin &plugin)
-{
-  switch (result)
-  {
-  case RunScriptResult::Ok:
-    return true;
-  case RunScriptResult::Disabled:
-    return false;
-  case RunScriptResult::CompileError:
-    printError(tr("Compile error: %1").arg(plugin.getError()));
-    return false;
-  case RunScriptResult::RuntimeError:
-    printError(tr("Runtime error: %1").arg(plugin.getError()));
-    return false;
-  }
-}
-
-inline bool ScriptApi::runScript(Plugin &plugin, const QString &script)
-{
-  return handleResult(plugin.runScript(script), plugin);
 }
 
 void ScriptApi::sortWindows()

@@ -1,16 +1,24 @@
 #pragma once
+#include <string>
+#include <unordered_map>
 #include <QtWidgets/QLabel>
 #include <QtCore/QPoint>
 #include <QtCore/QRect>
 #include <QtCore/QSize>
 #include <QtGui/QPixmap>
+#include "hotspot.h"
+#include "luaconf.h"
+
+typedef LUA_INTEGER lua_Integer;
+class Hotspot;
+class Plugin;
 
 class MiniWindow : public QWidget
 {
   Q_OBJECT
 
 public:
-  enum struct Position
+  enum struct Position : lua_Integer
   {
     OutputStretch = 0, // Stretch to output view size
     OutputScale = 1,   // Scale to output view with aspect ratio
@@ -55,9 +63,17 @@ public:
       Position position,
       Flags flags,
       const QColor &fill);
-  // long WindowPosition(BSTR WindowName, long Left, long Top, short Position, long Flags);
+  Hotspot *addHotspot(
+      std::string_view hotspotID,
+      const Plugin *plugin,
+      Hotspot::Callbacks &&callbacks);
+  void clearHotspots();
+  bool deleteHotspot(std::string_view hotspotID);
   void drawRect(const QRect &rect, const QColor &color);
+  inline bool drawsUnderneath() const noexcept { return flags.testFlag(Flag::DrawUnderneath); }
+  Hotspot *findHotspot(std::string_view hotspotID) const;
   int getZOrder() const noexcept;
+  void reset();
   void setPosition(const QPoint &location, Position position, Flags flags) noexcept;
   void setSize(const QSize &size, const QColor &fill) noexcept;
   void setZOrder(int zOrder) noexcept;
@@ -70,10 +86,14 @@ private:
   QColor background;
   QSize dimensions;
   QFlags<Flag> flags;
+  std::unordered_map<std::string, Hotspot *> hotspots;
   QPoint location;
   QPixmap pixmap;
   Position position;
   int zOrder;
+
+  void applyFlags();
+  void updateMask();
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(MiniWindow::Flags)
