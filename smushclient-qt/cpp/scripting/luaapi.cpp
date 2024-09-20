@@ -508,11 +508,12 @@ static int L_WindowResize(lua_State *L)
 
 static int L_WindowSetZOrder(lua_State *L)
 {
-  return returnCode(
-      L,
-      getApi(L).WindowSetZOrder(
-          qlua::getString(L, 1),
-          qlua::getInt(L, 2)));
+  return returnCode(L, getApi(L).WindowSetZOrder(qlua::getString(L, 1), qlua::getInt(L, 2)));
+}
+
+static int L_WindowShow(lua_State *L)
+{
+  return returnCode(L, getApi(L).WindowShow(qlua::getString(L, 1), qlua::getBool(L, 2)));
 }
 
 // window hotspots
@@ -604,6 +605,7 @@ static const struct luaL_Reg worldlib[] =
      {"WindowPosition", L_WindowPosition},
      {"WindowResize", L_WindowResize},
      {"WindowSetZOrder", L_WindowSetZOrder},
+     {"WindowShow", L_WindowShow},
      // window hotspots
      {"WindowAddHotspot", L_WindowAddHotspot},
      {"WindowDeleteHotspot", L_WindowDeleteHotspot},

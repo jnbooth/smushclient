@@ -72,6 +72,7 @@ public:
       MiniWindow::Flags flags) const;
   ApiCode WindowResize(std::string_view windowName, const QSize &size, const QColor &fill) const;
   ApiCode WindowSetZOrder(std::string_view windowName, int zOrder);
+  ApiCode WindowShow(std::string_view windowName, bool show);
 
   void applyWorld(const World &world);
   void echo(const QString &text);

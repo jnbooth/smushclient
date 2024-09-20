@@ -383,6 +383,15 @@ ApiCode ScriptApi::WindowSetZOrder(string_view windowName, int order)
   return ApiCode::OK;
 }
 
+ApiCode ScriptApi::WindowShow(string_view windowName, bool show)
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  window->setVisible(show);
+  return ApiCode::OK;
+}
+
 // public methods
 
 void ScriptApi::applyWorld(const World &world)
