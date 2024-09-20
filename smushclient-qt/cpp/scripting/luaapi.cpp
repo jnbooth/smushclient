@@ -473,6 +473,24 @@ static int L_Repaint(lua_State *)
   return 0;
 }
 
+static int L_TextRectangle(lua_State *L)
+{
+  const QMargins margins(
+      qlua::getInt(L, 1),
+      qlua::getInt(L, 2),
+      qlua::getInt(L, 3),
+      qlua::getInt(L, 4));
+  const int offset = qlua::getInt(L, 5);
+  const QColor borderColor = qlua::getQColor(L, 6);
+  const int borderWidth = qlua::getInt(L, 7);
+  const QColor outsideColor = qlua::getQColor(L, 8);
+  const optional<Qt::BrushStyle> outsideFillStyle = qlua::getBrush(L, 9);
+  if (!outsideFillStyle) [[unlikely]]
+    return returnCode(L, ApiCode::BrushStyleNotValid);
+  const QBrush fill(outsideColor, *outsideFillStyle);
+  return returnCode(L, getApi(L).TextRectangle(margins, offset, borderColor, borderWidth, fill));
+}
+
 static int L_WindowCircleOp(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
@@ -698,6 +716,7 @@ static const struct luaL_Reg worldlib[] =
      // windows
      {"Redraw", L_Redraw},
      {"Repaint", L_Repaint},
+     {"TextRectangle", L_TextRectangle},
      {"WindowCircleOp", L_WindowCircleOp},
      {"WindowCreate", L_WindowCreate},
      {"WindowLine", L_WindowLine},

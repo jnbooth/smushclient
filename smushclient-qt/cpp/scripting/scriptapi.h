@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <QtCore/QMargins>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
 #include <QtGui/QTextCursor>
@@ -42,6 +43,12 @@ public:
   ApiCode SendNoEcho(const QByteArrayView &bytes) const;
   ApiCode SetOption(std::string_view name, const QVariant &variant) const;
   void Tell(const QString &text);
+  ApiCode TextRectangle(
+      const QMargins &margins,
+      int borderOffset,
+      const QColor &borderColor,
+      int borderWidth,
+      const QBrush &outsideFill) const;
   ApiCode WindowAddHotspot(
       std::string_view pluginID,
       std::string_view windowName,
@@ -50,7 +57,7 @@ public:
       Hotspot::Callbacks &&callbacks,
       const QString &tooltip,
       Qt::CursorShape cursor,
-      bool trackHover);
+      bool trackHover) const;
   ApiCode WindowCreate(
       std::string_view windowName,
       const QPoint &location,

@@ -274,6 +274,26 @@ void ScriptApi::Tell(const QString &text)
   lastTellPosition = cursor.position();
 }
 
+ApiCode ScriptApi::TextRectangle(
+    const QMargins &margins,
+    int borderOffset,
+    const QColor &borderColor,
+    int borderWidth,
+    const QBrush &outsideFill) const
+{
+  Ui::WorldTab *ui = tab()->ui;
+  ui->area->setContentsMargins(margins);
+  QPalette areaPalette = ui->area->palette();
+  areaPalette.setBrush(QPalette::ColorRole::Base, outsideFill);
+  ui->area->setPalette(areaPalette);
+  ui->outputBorder->setContentsMargins(borderWidth, borderWidth, borderWidth, borderWidth);
+  QPalette borderPalette = ui->outputBorder->palette();
+  borderPalette.setBrush(QPalette::ColorRole::Base, borderColor);
+  ui->outputBorder->setPalette(borderPalette);
+  ui->background->setContentsMargins(borderOffset, borderOffset, borderOffset, borderOffset);
+  return ApiCode::OK;
+}
+
 ApiCode ScriptApi::WindowAddHotspot(
     string_view pluginID,
     string_view windowName,
@@ -282,7 +302,7 @@ ApiCode ScriptApi::WindowAddHotspot(
     Hotspot::Callbacks &&callbacks,
     const QString &tooltip,
     Qt::CursorShape cursor,
-    bool trackHover)
+    bool trackHover) const
 {
   MiniWindow *window = findWindow(windowName);
   if (window == nullptr)
@@ -588,5 +608,5 @@ void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const
   if (neighbor != nullptr)
     window->stackUnder(neighbor);
   else if (drawsUnderneath)
-    window->stackUnder(tab()->ui->output);
+    window->stackUnder(tab()->ui->outputBorder);
 }
