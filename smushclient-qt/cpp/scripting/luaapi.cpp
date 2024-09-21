@@ -123,7 +123,7 @@ void setLuaApi(lua_State *L, ScriptApi *api)
 inline ScriptApi &getApi(lua_State *L)
 {
   QPointer<ScriptApi> *ud = getUserdata<QPointer<ScriptApi>>(L, API_REG_KEY);
-  if (ud == nullptr || ud->isNull())
+  if (!ud || ud->isNull())
     returnError(L, "Userdata was deleted");
   return *ud->data();
 }
@@ -306,7 +306,7 @@ static int L_Tell(lua_State *L)
 static int L_CallPlugin(lua_State *L)
 {
   const Plugin *pluginRef = getApi(L).getPlugin(qlua::getString(L, 1));
-  if (pluginRef == nullptr)
+  if (!pluginRef)
     return returnCode(
         L,
         ApiCode::NoSuchPlugin,

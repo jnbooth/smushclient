@@ -129,7 +129,7 @@ void App::on_action_open_world_triggered()
 void App::on_action_save_world_details_as_triggered()
 {
   WorldTab *tab = (WorldTab *)ui->world_tabs->currentWidget();
-  if (tab == nullptr)
+  if (!tab)
     return;
 
   addRecentFile(tab->saveWorldAsNew(saveFilter));
@@ -138,7 +138,7 @@ void App::on_action_save_world_details_as_triggered()
 void App::on_action_save_world_details_triggered()
 {
   WorldTab *tab = (WorldTab *)ui->world_tabs->currentWidget();
-  if (tab == nullptr)
+  if (!tab)
     return;
 
   addRecentFile(tab->saveWorld(saveFilter));
@@ -147,7 +147,7 @@ void App::on_action_save_world_details_triggered()
 void App::on_action_world_properties_triggered()
 {
   WorldTab *tab = (WorldTab *)ui->world_tabs->currentWidget();
-  if (tab == nullptr)
+  if (!tab)
     return;
   tab->openWorldSettings();
 }

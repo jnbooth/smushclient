@@ -10,15 +10,15 @@
 
 QMainWindow *getMainWindow(const QObject *obj)
 {
-  if (obj == nullptr)
+  if (!obj)
     return nullptr;
 
   QObject *parent = obj->parent();
-  if (parent == nullptr)
+  if (!parent)
     return nullptr;
 
   QMainWindow *window = qobject_cast<QMainWindow *>(parent);
-  if (window != nullptr)
+  if (window)
     return window;
 
   return getMainWindow(parent);
@@ -133,11 +133,11 @@ void Document::scrollToBottom() const
 void Document::displayStatusMessage(const QString &status) const
 {
   QMainWindow *window = getMainWindow(this);
-  if (window == nullptr)
+  if (!window)
     return;
 
   QStatusBar *statusBar = window->statusBar();
-  if (statusBar == nullptr)
+  if (!statusBar)
     return;
 
   statusBar->showMessage(status);

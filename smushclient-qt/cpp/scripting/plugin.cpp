@@ -70,7 +70,7 @@ Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
       isDisabled(false),
       metadata(metadata)
 {
-  if (L == nullptr)
+  if (!L)
     throw std::bad_alloc();
 
   lua_atpanic(L, &panic);

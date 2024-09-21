@@ -6,7 +6,7 @@ AbstractPrefsTree::AbstractPrefsTree(QWidget *parent)
 QVariant AbstractPrefsTree::currentData() const
 {
   const QTreeWidgetItem *item = tree()->currentItem();
-  if (item == nullptr)
+  if (!item)
     return QVariant();
 
   return item->data(0, Qt::UserRole);
@@ -37,7 +37,7 @@ void AbstractPrefsTree::on_remove_clicked()
 
 void AbstractPrefsTree::on_tree_itemActivated(QTreeWidgetItem *item)
 {
-  setItemButtonsEnabled(item != nullptr && item->childCount() == 0);
+  setItemButtonsEnabled(item && item->childCount() == 0);
 }
 
 void AbstractPrefsTree::on_tree_itemDoubleClicked(QTreeWidgetItem *item)

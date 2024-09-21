@@ -15,7 +15,7 @@ void TreeBuilder::startGroup(const QString &name)
 
 void TreeBuilder::startItem(size_t value)
 {
-  if (group == nullptr)
+  if (!group)
     startGroup(tree->tr("(ungrouped)"));
 
   item = new QTreeWidgetItem(group);
@@ -25,7 +25,7 @@ void TreeBuilder::startItem(size_t value)
 
 void TreeBuilder::addColumn(const QString &text)
 {
-  if (item == nullptr)
+  if (!item)
     return;
 
   item->setText(column, text);

@@ -62,14 +62,14 @@ void WorldPrefs::setupPane(QWidget *pane, const char *key)
 
 void WorldPrefs::on_settings_tree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
 {
-  if (current == nullptr)
+  if (!current)
     return;
 
   const QVariant data = current->data(0, Qt::UserRole);
   if (!data.canConvert<qsizetype>())
     return;
 
-  if (previous != nullptr)
+  if (previous)
     panes.at(activePane)->hide();
 
   activePane = data.value<qsizetype>();

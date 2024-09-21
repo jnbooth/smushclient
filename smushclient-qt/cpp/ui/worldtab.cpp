@@ -267,7 +267,7 @@ void WorldTab::on_output_customContextMenuRequested(const QPoint &pos)
     menu.addAction(prompt);
 
   const QAction *chosen = menu.exec(mouse);
-  if (chosen == nullptr)
+  if (!chosen)
     return;
 
   sendCommand(chosen->text());
