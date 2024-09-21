@@ -36,7 +36,6 @@ public:
   bool runCallback(std::string_view name, std::string_view arg1, lua_Integer arg2) const;
   bool runScript(const QString &script) const;
   inline lua_State *state() const noexcept { return L; }
-  std::unordered_map<std::string, std::string> *variables() const;
 
 private:
   lua_State *L;
