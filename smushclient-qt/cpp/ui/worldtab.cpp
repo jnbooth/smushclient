@@ -75,6 +75,14 @@ bool WorldTab::openWorld(const QString &filename) &
     QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
     return false;
   }
+  try
+  {
+    client.loadVariables(filename + QStringLiteral(".vars"));
+  }
+  catch (const rust::Error &e)
+  {
+    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
+  }
 
   Settings().addRecentFile(filename);
   filePath = QString(filename);
@@ -99,13 +107,21 @@ QString WorldTab::saveWorld(const QString &saveFilter)
   try
   {
     client.saveWorld(filePath);
-    return filePath;
   }
   catch (const rust::Error &e)
   {
     QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
     return QString();
   }
+  try
+  {
+    client.saveVariables(filePath + QStringLiteral(".vars"));
+  }
+  catch (const rust::Error &e)
+  {
+    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
+  }
+  return filePath;
 }
 
 QString WorldTab::saveWorldAsNew(const QString &saveFilter)
@@ -119,13 +135,21 @@ QString WorldTab::saveWorldAsNew(const QString &saveFilter)
   {
     client.saveWorld(path);
     filePath = path;
-    return filePath;
   }
   catch (const rust::Error &e)
   {
     QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
     return QString();
   }
+  try
+  {
+    client.saveVariables(filePath + QStringLiteral(".vars"));
+  }
+  catch (const rust::Error &e)
+  {
+    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
+  }
+  return filePath;
 }
 
 const QString WorldTab::title() const noexcept

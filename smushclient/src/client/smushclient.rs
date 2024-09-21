@@ -1,8 +1,11 @@
+use std::ffi::c_char;
+use std::io::{Read, Write};
 use std::{mem, slice};
 
+use super::variables::PluginVariables;
 use crate::handler::{Handler, SendHandler};
 use crate::plugins::{AliasOutcome, PluginEngine};
-use crate::world::World;
+use crate::world::{PersistError, World};
 use enumeration::EnumSet;
 use mud_transformer::{
     EffectFragment, Output, OutputDrain, OutputFragment, Tag, TextFragment, TextStyle,
@@ -17,6 +20,7 @@ pub struct SmushClient {
     pub(crate) plugins: PluginEngine,
     supported_tags: EnumSet<Tag>,
     world: World,
+    variables: PluginVariables,
 }
 
 impl SmushClient {
@@ -29,6 +33,7 @@ impl SmushClient {
             plugins,
             supported_tags,
             world,
+            variables: PluginVariables::new(),
         }
     }
 
@@ -91,6 +96,46 @@ impl SmushClient {
 
     pub fn plugins(&self) -> slice::Iter<Plugin> {
         self.plugins.iter()
+    }
+
+    pub fn has_variables(&self) -> bool {
+        self.variables
+            .values()
+            .any(|variables| !variables.is_empty())
+    }
+
+    pub fn variables_len(&self, index: PluginIndex) -> Option<usize> {
+        let plugin_id = &self.plugins.plugin(index)?.metadata.id;
+        let variables = self.variables.get(plugin_id)?;
+        Some(variables.len())
+    }
+
+    pub fn load_variables<R: Read>(&mut self, reader: R) -> Result<(), PersistError> {
+        self.variables = PluginVariables::load(reader)?;
+        Ok(())
+    }
+
+    pub fn save_variables<W: Write>(&self, writer: W) -> Result<(), PersistError> {
+        self.variables.save(writer)
+    }
+
+    pub fn get_variable(&self, index: PluginIndex, key: &[c_char]) -> Option<&Vec<c_char>> {
+        let plugin_id = &self.plugins.plugin(index)?.metadata.id;
+        self.variables.get_variable(plugin_id, key)
+    }
+
+    pub fn set_variable(
+        &mut self,
+        index: PluginIndex,
+        key: Vec<c_char>,
+        value: Vec<c_char>,
+    ) -> bool {
+        let Some(plugin) = self.plugins.plugin(index) else {
+            return false;
+        };
+        let plugin_id = &plugin.metadata.id;
+        self.variables.set_variable(plugin_id, key, value);
+        true
     }
 
     pub fn set_group_enabled<T: Sendable>(&mut self, group: &str, enabled: bool) -> bool {

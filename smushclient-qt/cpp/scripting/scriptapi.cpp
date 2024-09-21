@@ -7,6 +7,8 @@
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 
+using std::nullopt;
+using std::optional;
 using std::string;
 using std::string_view;
 using std::unordered_map;
@@ -151,6 +153,23 @@ QVariant ScriptApi::GetOption(string_view name) const
   return tab()->world.property(prop);
 }
 
+optional<string_view> ScriptApi::GetVariable(size_t index, string_view key) const
+{
+  size_t size;
+  const char *variable = client()->getVariable(index, key.data(), key.size(), &size);
+  if (variable == nullptr)
+    return nullopt;
+  return string_view(variable, size);
+}
+
+optional<string_view> ScriptApi::GetVariable(string_view pluginID, string_view key) const
+{
+  const size_t index = findPluginIndex(pluginID);
+  if (index == noSuchPlugin)
+    return nullopt;
+  return GetVariable(index, key);
+}
+
 QVariant ScriptApi::GetPluginInfo(string_view pluginID, uint8_t infoType) const
 {
   const size_t index = findPluginIndex(pluginID);
@@ -160,8 +179,6 @@ QVariant ScriptApi::GetPluginInfo(string_view pluginID, uint8_t infoType) const
   {
   case 16:
     return QVariant(!plugins[index].disabled());
-  case 12:
-    return QVariant((qlonglong)plugins[index].variables()->size());
   default:
     return client()->pluginInfo(index, infoType);
   }
@@ -265,6 +282,11 @@ ApiCode ScriptApi::SetOption(string_view name, const QVariant &variant) const
   }
 
   return ApiCode::OptionOutOfRange;
+}
+
+bool ScriptApi::SetVariable(size_t index, string_view key, string_view value) const
+{
+  return client()->setVariable(index, key.data(), key.size(), value.data(), value.size());
 }
 
 void ScriptApi::Tell(const QString &text)
@@ -648,9 +670,10 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
   {
     PluginMetadata metadata{
         .id = *it,
+        .index = (size_t)(it - start),
         .name = *++it,
     };
-    pluginIndices[metadata.id.toStdString()] = it - start;
+    pluginIndices[metadata.id.toStdString()] = metadata.index;
     Plugin &plugin = plugins.emplace_back(this, std::move(metadata));
     if (!plugin.runScript(*++it))
       plugin.disable();

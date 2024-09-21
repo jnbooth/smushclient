@@ -192,8 +192,10 @@ pub mod ffi {
             path: &QString,
             world: Pin<&mut World>,
         ) -> Result<()>;
-        fn populate_world(self: &SmushClient, world: Pin<&mut World>);
         fn save_world(self: &SmushClient, path: &QString) -> Result<()>;
+        fn load_variables(self: Pin<&mut SmushClient>, path: &QString) -> Result<bool>;
+        fn save_variables(self: &SmushClient, path: &QString) -> Result<bool>;
+        fn populate_world(self: &SmushClient, world: Pin<&mut World>);
         fn set_world(self: Pin<&mut SmushClient>, world: &World) -> bool;
         fn palette(self: &SmushClient) -> QVector_QColor;
         fn plugin_info(self: &SmushClient, index: usize, info_type: u8) -> QVariant;
@@ -214,6 +216,21 @@ pub mod ffi {
         fn set_trigger_enabled(self: Pin<&mut SmushClient>, label: &QString, enable: bool) -> bool;
         fn set_triggers_enabled(self: Pin<&mut SmushClient>, group: &QString, enable: bool)
             -> bool;
+        unsafe fn get_variable(
+            self: &SmushClient,
+            index: usize,
+            key: *const c_char,
+            key_size: usize,
+            value_size: *mut usize,
+        ) -> *const c_char;
+        unsafe fn set_variable(
+            self: Pin<&mut SmushClient>,
+            index: usize,
+            key: *const c_char,
+            key_size: usize,
+            value: *const c_char,
+            value_size: usize,
+        ) -> bool;
     }
 
     unsafe impl !cxx_qt::Locking for SmushClient {}

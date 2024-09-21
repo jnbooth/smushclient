@@ -1,7 +1,9 @@
 use std::collections::HashMap;
+use std::ffi::c_char;
 use std::fs::File;
-use std::io::Read;
+use std::io::{self, Read};
 use std::pin::Pin;
+use std::{ptr, slice};
 
 use crate::convert::Convert;
 use crate::ffi;
@@ -67,7 +69,7 @@ impl Default for SmushClientRust {
 
 impl SmushClientRust {
     pub fn load_world(&mut self, path: &QString) -> Result<WorldRust, PersistError> {
-        let file = File::open(String::from(path))?;
+        let file = File::open(String::from(path).as_str())?;
         let worldfile = World::load(file)?;
         let world = WorldRust::from(&worldfile);
         self.apply_world(worldfile);
@@ -75,8 +77,26 @@ impl SmushClientRust {
     }
 
     pub fn save_world(&self, path: &QString) -> Result<(), PersistError> {
-        let file = File::create(String::from(path))?;
+        let file = File::create(String::from(path).as_str())?;
         self.client.world().save(file)
+    }
+
+    pub fn load_variables(&mut self, path: &QString) -> Result<bool, PersistError> {
+        let file = match File::open(String::from(path).as_str()) {
+            Err(err) if err.kind() == io::ErrorKind::NotFound => return Ok(false),
+            file => file?,
+        };
+        self.client.load_variables(file)?;
+        Ok(true)
+    }
+
+    pub fn save_variables(&self, path: &QString) -> Result<bool, PersistError> {
+        if !self.client.has_variables() {
+            return Ok(false);
+        }
+        let file = File::create(String::from(path).as_str())?;
+        self.client.save_variables(file)?;
+        Ok(true)
     }
 
     pub fn populate_world(&self, world: &mut WorldRust) {
@@ -186,13 +206,21 @@ impl ffi::SmushClient {
         Ok(())
     }
 
+    pub fn save_world(&self, path: &QString) -> Result<(), PersistError> {
+        self.cxx_qt_ffi_rust().save_world(path)
+    }
+
+    pub fn load_variables(self: Pin<&mut Self>, path: &QString) -> Result<bool, PersistError> {
+        self.cxx_qt_ffi_rust_mut().load_variables(path)
+    }
+
+    pub fn save_variables(&self, path: &QString) -> Result<bool, PersistError> {
+        self.cxx_qt_ffi_rust().save_variables(path)
+    }
+
     pub fn populate_world(&self, world: Pin<&mut ffi::World>) {
         self.cxx_qt_ffi_rust()
             .populate_world(&mut world.cxx_qt_ffi_rust_mut());
-    }
-
-    pub fn save_world(&self, path: &QString) -> Result<(), PersistError> {
-        self.cxx_qt_ffi_rust().save_world(path)
     }
 
     pub fn set_world(self: Pin<&mut Self>, world: &ffi::World) -> bool {
@@ -279,5 +307,43 @@ impl ffi::SmushClient {
         self.cxx_qt_ffi_rust_mut()
             .client
             .set_group_enabled::<Trigger>(&group.to_string(), enabled)
+    }
+
+    /// # Safety
+    ///
+    /// Refer to the safety documentation for [`std::slice::from_raw_parts`].
+    pub unsafe fn get_variable(
+        &self,
+        index: PluginIndex,
+        key: *const c_char,
+        key_size: usize,
+        value_size: *mut usize,
+    ) -> *const c_char {
+        let key = unsafe { slice::from_raw_parts(key, key_size) };
+        let Some(value) = self.cxx_qt_ffi_rust().client.get_variable(index, key) else {
+            return ptr::null();
+        };
+        if !value_size.is_null() {
+            *value_size = value.len();
+        }
+        value.as_ptr()
+    }
+
+    /// # Safety
+    ///
+    /// Refer to the safety documentation for [`std::slice::from_raw_parts`].
+    pub unsafe fn set_variable(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        key: *const c_char,
+        key_size: usize,
+        value: *const c_char,
+        value_size: usize,
+    ) -> bool {
+        let key = unsafe { slice::from_raw_parts(key, key_size) }.to_vec();
+        let value = unsafe { slice::from_raw_parts(value, value_size) }.to_vec();
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .set_variable(index, key, value)
     }
 }

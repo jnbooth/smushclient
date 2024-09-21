@@ -13,6 +13,7 @@ typedef LUA_INTEGER lua_Integer;
 struct PluginMetadata
 {
   const QString id;
+  const size_t index;
   const QString name;
 };
 

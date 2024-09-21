@@ -27,7 +27,7 @@ impl SmushClient {
             9 => V::visit_usize(self.plugins.indexer::<Trigger>().count(index)),
             10 => V::visit_usize(self.plugins.indexer::<Alias>().count(index)),
             11 => V::visit_usize(self.plugins.indexer::<Timer>().count(index)),
-            // 12 - number of variables (long)
+            12 => V::visit_usize(self.variables_len(index).unwrap_or_default()),
             13 => V::visit_date(plugin.metadata.written),
             14 => V::visit_date(plugin.metadata.modified),
             // 15 -- save state flag (boolean)

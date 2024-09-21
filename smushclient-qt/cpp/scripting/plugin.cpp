@@ -83,13 +83,14 @@ Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
   luaopen_util(L);
   lua_settop(L, 0);
   registerLuaWorld(L);
-  createVariableMap(L);
-  setPluginID(L, metadata.id.toStdString());
+  setPluginIndex(L, metadata.index);
   setLuaApi(L, api);
 }
 
 Plugin::Plugin(Plugin &&other)
-    : L(other.L) {}
+    : L(other.L),
+      isDisabled(other.isDisabled),
+      metadata(std::move(other.metadata)) {}
 
 Plugin::~Plugin()
 {
@@ -134,9 +135,4 @@ bool Plugin::runScript(const QString &script) const
   }
 
   return api_pcall(L, 0, 0);
-}
-
-unordered_map<string, string> *Plugin::variables() const
-{
-  return getVariableMap(L);
 }

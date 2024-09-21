@@ -5,7 +5,7 @@ use std::io;
 pub enum PersistError {
     File(io::Error),
     Serial(bincode::Error),
-    NotSave,
+    Invalid,
 }
 
 impl Display for PersistError {
@@ -13,7 +13,7 @@ impl Display for PersistError {
         match self {
             Self::File(error) => error.fmt(f),
             Self::Serial(error) => error.fmt(f),
-            Self::NotSave => f.write_str("invalid savefile"),
+            Self::Invalid => f.write_str("invalid savefile"),
         }
     }
 }

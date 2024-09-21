@@ -479,7 +479,7 @@ impl World {
         reader.read_exact(&mut version_buf)?;
         match version_buf[0] {
             1 => bincode::deserialize_from(reader).map_err(Into::into),
-            _ => Err(PersistError::NotSave),
+            _ => Err(PersistError::Invalid),
         }
     }
 

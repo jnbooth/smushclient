@@ -1,4 +1,5 @@
 #pragma once
+#include <optional>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -32,6 +33,8 @@ public:
   ApiCode EnableTrigger(const QString &label, bool enabled) const;
   ApiCode EnableTriggerGroup(const QString &group, bool enabled) const;
   QVariant GetOption(std::string_view name) const;
+  std::optional<std::string_view> GetVariable(size_t index, std::string_view key) const;
+  std::optional<std::string_view> GetVariable(std::string_view pluginID, std::string_view key) const;
   QVariant GetPluginInfo(std::string_view pluginID, uint8_t infoType) const;
   void Hyperlink(
       const QString &action,
@@ -47,6 +50,7 @@ public:
   ApiCode Send(const QByteArrayView &bytes);
   ApiCode SendNoEcho(const QByteArrayView &bytes) const;
   ApiCode SetOption(std::string_view name, const QVariant &variant) const;
+  bool SetVariable(size_t index, std::string_view key, std::string_view value) const;
   void Tell(const QString &text);
   ApiCode TextRectangle(
       const QMargins &margins,
@@ -93,11 +97,11 @@ public:
       const QColor &color1,
       const QColor &color2) const;
   ApiCode WindowGradient(
-    std::string_view windowName,
-    const QRectF &rect,
-    const QColor &color1,
-    const QColor &color2,
-    Qt::Orientation direction) const;
+      std::string_view windowName,
+      const QRectF &rect,
+      const QColor &color1,
+      const QColor &color2,
+      Qt::Orientation direction) const;
   ApiCode WindowLine(
       std::string_view windowName,
       const QLineF &line,

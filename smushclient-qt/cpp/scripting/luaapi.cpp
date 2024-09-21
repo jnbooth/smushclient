@@ -12,8 +12,7 @@ extern "C"
 }
 
 #define API_REG_KEY "smushclient.api"
-#define ID_REG_KEY "smushclient.pluginid"
-#define VARIABLES_REG_KEY "smushclient.vars"
+#define INDEX_REG_KEY "smushclient.plugin"
 #define WORLD_LIB_KEY "world"
 #define WORLD_REG_KEY "smushclient.world"
 
@@ -115,6 +114,11 @@ void returnError(lua_State *L, const char *e)
   lua_error(L);
 }
 
+void setLuaApi(lua_State *L, ScriptApi *api)
+{
+  *createUserdata<QPointer<ScriptApi>>(L, API_REG_KEY) = api;
+}
+
 inline ScriptApi &getApi(lua_State *L)
 {
   QPointer<ScriptApi> *ud = getUserdata<QPointer<ScriptApi>>(L, API_REG_KEY);
@@ -123,15 +127,18 @@ inline ScriptApi &getApi(lua_State *L)
   return *ud->data();
 }
 
-void setLuaApi(lua_State *L, ScriptApi *api)
+void setPluginIndex(lua_State *L, size_t index)
 {
-  *createUserdata<QPointer<ScriptApi>>(L, API_REG_KEY) = api;
+  lua_pushinteger(L, index);
+  lua_setfield(L, LUA_REGISTRYINDEX, INDEX_REG_KEY);
 }
 
-void setPluginID(lua_State *L, std::string_view pluginID)
+inline size_t getPluginIndex(lua_State *L)
 {
-  qlua::pushString(L, pluginID);
-  lua_setfield(L, LUA_REGISTRYINDEX, ID_REG_KEY);
+  lua_getfield(L, LUA_REGISTRYINDEX, INDEX_REG_KEY);
+  const size_t index = lua_tointeger(L, -1);
+  lua_pop(L, 1);
+  return index;
 }
 
 // options
@@ -419,45 +426,29 @@ static int L_IsTrigger(lua_State *L)
 
 // variables
 
-stringmap *createVariableMap(lua_State *L)
-{
-  stringmap *vars = createUserdata<stringmap>(L, VARIABLES_REG_KEY);
-  *vars = stringmap();
-  return vars;
-}
-
-inline stringmap *getVariableMap(lua_State *L)
-{
-  return getUserdata<stringmap>(L, VARIABLES_REG_KEY);
-}
-
-inline void pushVariable(lua_State *L, const stringmap &vars, string_view name)
-{
-  if (auto search = vars.find((string)name); search != vars.end())
-    qlua::pushString(L, search->second);
-  else
-    lua_pushnil(L);
-}
-
 static int L_GetVariable(lua_State *L)
 {
-  pushVariable(L, *getVariableMap(L), qlua::getString(L, 1));
+  optional<string_view> var = getApi(L).GetVariable(getPluginIndex(L), qlua::getString(L, 1));
+  if (!var)
+    lua_pushnil(L);
+  else
+    qlua::pushString(L, *var);
   return 1;
 }
 
 static int L_GetPluginVariable(lua_State *L)
 {
-  const Plugin *plugin = getApi(L).getPlugin(qlua::getString(L, 1));
-  if (plugin == nullptr)
+  optional<string_view> var = getApi(L).GetVariable(qlua::getString(L, 1), qlua::getString(L, 2));
+  if (!var)
     lua_pushnil(L);
   else
-    pushVariable(L, *plugin->variables(), qlua::getString(L, 2));
+    qlua::pushString(L, *var);
   return 1;
 }
 
 static int L_SetVariable(lua_State *L)
 {
-  (*getVariableMap(L))[(string)qlua::getString(L, 1)] = qlua::getString(L, 2);
+  getApi(L).SetVariable(getPluginIndex(L), qlua::getString(L, 1), qlua::getString(L, 2));
   return returnCode(L, ApiCode::OK);
 }
 
