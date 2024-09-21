@@ -9,8 +9,6 @@ class Plugin;
 
 class Hotspot : public QWidget
 {
-  Q_OBJECT
-
 public:
   enum struct EventFlag
   {
@@ -25,7 +23,6 @@ public:
     MouseMiddle = 0x200, // Middle mouse
   };
   Q_DECLARE_FLAGS(EventFlags, EventFlag)
-  Q_FLAG(EventFlag)
 
   struct Callbacks
   {

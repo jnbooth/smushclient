@@ -19,27 +19,16 @@ class Plugin;
 
 class MiniWindow : public QWidget
 {
-  Q_OBJECT
-
 public:
-  enum struct Position : lua_Integer
+  enum struct DrawImageMode
   {
-    OutputStretch = 0, // Stretch to output view size
-    OutputScale = 1,   // Scale to output view with aspect ratio
-    OwnerStretch = 2,  // Stretch to owner size
-    OwnerScale = 3,    // Scale to owner size with aspect ratio
-    TopLeft = 4,
-    TopCenter = 5,
-    TopRight = 6,
-    CenterRight = 7,
-    BottomRight = 8,
-    BottomCenter = 9,
-    BottomLeft = 10,
-    CenterLeft = 11,
-    Center = 12,
-    Tile = 13,
+    // Copy without stretching to the destination position. The image is not clipped, so only the Left and Top parameters are used - the full image is copied to that position.
+    Copy = 1,
+    // Stretch or shrink the image appropriately to fit into the rectangle: Left, Top, Right, Bottom.
+    Stretch = 2,
+    // Copy without stretching to the position Left, Top. However this is a transparent copy, where the pixel at the left,top corner (pixel position 0,0) is considered the transparent colour. Any pixels that exactly match that colour are not copied. WARNING - do not choose black or white as the transparent colour as that throws out the calculations. Choose some other colour (eg. purple) - you won't see that colour anyway.
+    CopyTransparent = 3,
   };
-  Q_ENUM(Position)
 
   enum Flag
   {
@@ -58,18 +47,24 @@ public:
     KeepHotspots = 0x10,
   };
   Q_DECLARE_FLAGS(Flags, Flag)
-  Q_FLAG(Flags)
 
-  enum struct DrawImageMode
+  enum struct Position : lua_Integer
   {
-    // Copy without stretching to the destination position. The image is not clipped, so only the Left and Top parameters are used - the full image is copied to that position.
-    Copy = 1,
-    // Stretch or shrink the image appropriately to fit into the rectangle: Left, Top, Right, Bottom.
-    Stretch = 2,
-    // Copy without stretching to the position Left, Top. However this is a transparent copy, where the pixel at the left,top corner (pixel position 0,0) is considered the transparent colour. Any pixels that exactly match that colour are not copied. WARNING - do not choose black or white as the transparent colour as that throws out the calculations. Choose some other colour (eg. purple) - you won't see that colour anyway.
-    CopyTransparent = 3,
+    OutputStretch = 0, // Stretch to output view size
+    OutputScale = 1,   // Scale to output view with aspect ratio
+    OwnerStretch = 2,  // Stretch to owner size
+    OwnerScale = 3,    // Scale to owner size with aspect ratio
+    TopLeft = 4,
+    TopCenter = 5,
+    TopRight = 6,
+    CenterRight = 7,
+    BottomRight = 8,
+    BottomCenter = 9,
+    BottomLeft = 10,
+    CenterLeft = 11,
+    Center = 12,
+    Tile = 13,
   };
-  Q_ENUM(DrawImageMode)
 
   MiniWindow(
       QWidget *parent,
