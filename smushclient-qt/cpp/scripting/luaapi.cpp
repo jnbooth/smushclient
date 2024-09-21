@@ -359,6 +359,17 @@ static int L_CallPlugin(lua_State *L)
   return nresults;
 }
 
+static int L_EnablePlugin(lua_State *L)
+{
+  return returnCode(L, getApi(L).EnablePlugin(qlua::getString(L, 1), qlua::getBool(L, 2)));
+}
+
+static int L_GetPluginId(lua_State *L)
+{
+  qlua::pushQString(L, getApi(L).GetPluginId(getPluginIndex(L)));
+  return 1;
+}
+
 static int L_GetPluginInfo(lua_State *L)
 {
   const string_view pluginID = qlua::getString(L, 1);
@@ -382,11 +393,6 @@ static int L_EnableAlias(lua_State *L)
 static int L_EnableAliasGroup(lua_State *L)
 {
   return returnCode(L, getApi(L).EnableAliasGroup(qlua::getQString(L, 1), qlua::getBool(L, 2)));
-}
-
-static int L_EnablePlugin(lua_State *L)
-{
-  return returnCode(L, getApi(L).EnablePlugin(qlua::getString(L, 1), qlua::getBool(L, 2)));
 }
 
 static int L_EnableTimer(lua_State *L)
@@ -794,11 +800,12 @@ static const struct luaL_Reg worldlib[] =
      {"Tell", L_Tell},
      // plugins
      {"CallPlugin", L_CallPlugin},
+     {"EnablePlugin", L_EnablePlugin},
+     {"GetPluginId", L_GetPluginId},
      {"GetPluginInfo", L_GetPluginInfo},
      // senders
      {"EnableAlias", L_EnableAlias},
      {"EnableAliasGroup", L_EnableAliasGroup},
-     {"EnablePlugin", L_EnablePlugin},
      {"EnableTimer", L_EnableTimer},
      {"EnableTimerGroup", L_EnableTimerGroup},
      {"EnableTrigger", L_EnableTrigger},

@@ -170,6 +170,11 @@ optional<string_view> ScriptApi::GetVariable(string_view pluginID, string_view k
   return GetVariable(index, key);
 }
 
+const QString &ScriptApi::GetPluginId(size_t index) const
+{
+  return plugins.at(index).id();
+}
+
 QVariant ScriptApi::GetPluginInfo(string_view pluginID, uint8_t infoType) const
 {
   const size_t index = findPluginIndex(pluginID);
