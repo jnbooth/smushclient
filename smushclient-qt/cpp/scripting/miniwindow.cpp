@@ -306,6 +306,13 @@ const QPixmap *MiniWindow::getImage(string_view imageID) const
   return &search->second;
 }
 
+void MiniWindow::invert(const QRect &rect, QImage::InvertMode mode)
+{
+  QImage image = pixmap.copy(rect).toImage();
+  image.invertPixels(mode);
+  Painter(this).drawImage(rect, image);
+}
+
 int MiniWindow::getZOrder() const noexcept
 {
   return zOrder;

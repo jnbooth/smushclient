@@ -118,6 +118,7 @@ public:
       std::string_view windowName,
       std::string_view imageID,
       std::string_view sourceWindow) const;
+  ApiCode WindowInvert(std::string_view windowName, const QRect &rect) const;
   ApiCode WindowLine(
       std::string_view windowName,
       const QLineF &line,

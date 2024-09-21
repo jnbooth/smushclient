@@ -111,6 +111,7 @@ public:
   Hotspot *findHotspot(std::string_view hotspotID) const;
   int getZOrder() const noexcept;
   inline const QPixmap &getPixmap() const noexcept { return pixmap; }
+  void invert(const QRect &rect, QImage::InvertMode mode = QImage::InvertMode::InvertRgb);
   void reset();
   void setPosition(const QPoint &location, Position position, Flags flags) noexcept;
   void setSize(const QSize &size, const QColor &fill) noexcept;

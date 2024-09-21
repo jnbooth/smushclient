@@ -514,6 +514,16 @@ ApiCode ScriptApi::WindowImageFromWindow(
   return ApiCode::OK;
 }
 
+ApiCode ScriptApi::WindowInvert(string_view windowName, const QRect &rect) const
+{
+
+  MiniWindow *window = findWindow(windowName);
+  if (!window) [[unlikely]]
+    return ApiCode::NoSuchWindow;
+  window->invert(rect);
+  return ApiCode::OK;
+}
+
 ApiCode ScriptApi::WindowLine(
     string_view windowName,
     const QLineF &line,
