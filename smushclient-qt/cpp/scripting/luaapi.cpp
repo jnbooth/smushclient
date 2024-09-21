@@ -15,6 +15,7 @@ extern "C"
 #define INDEX_REG_KEY "smushclient.plugin"
 #define WORLD_LIB_KEY "world"
 #define WORLD_REG_KEY "smushclient.world"
+#define VERSION "5.07"
 
 using std::optional;
 using std::string;
@@ -203,6 +204,12 @@ static int L_SetAlphaOption(lua_State *L)
 static int L_SetOption(lua_State *L)
 {
   getApi(L).SetOption(qlua::getString(L, 1), qlua::getNumber(L, 2));
+  return 1;
+}
+
+static int L_Version(lua_State *L)
+{
+  qlua::pushString(L, VERSION);
   return 1;
 }
 
@@ -797,6 +804,7 @@ static const struct luaL_Reg worldlib[] =
      {"GetOptionList", L_GetOptionList},
      {"SetAlphaOption", L_SetAlphaOption},
      {"SetOption", L_SetOption},
+     {"Version", L_Version},
      // output
      {"ColourNameToRGB", L_ColourNameToRGB},
      {"ColourNote", L_ColourNote},
