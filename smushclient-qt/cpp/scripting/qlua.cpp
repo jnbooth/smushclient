@@ -413,6 +413,56 @@ bool qlua::copyValue(lua_State *fromL, lua_State *toL, int idx)
   }
 }
 
+QLine qlua::getQLine(lua_State *L, int idxX1, int idxY1, int idxX2, int idxY2)
+{
+  return QLine(getInt(L, idxX1), getInt(L, idxY1), getInt(L, idxX2), getInt(L, idxY2));
+}
+
+QLineF qlua::getQLineF(lua_State *L, int idxX1, int idxY1, int idxX2, int idxY2)
+{
+  return QLineF(getNumber(L, idxX1), getNumber(L, idxY1), getNumber(L, idxX2), getNumber(L, idxY2));
+}
+
+QMargins qlua::getQMargins(lua_State *L, int idxLeft, int idxTop, int idxRight, int idxBottom)
+{
+  return QMargins(getInt(L, idxLeft), getInt(L, idxTop), getInt(L, idxRight), getInt(L, idxBottom));
+}
+
+QMarginsF qlua::getQMarginsF(lua_State *L, int idxLeft, int idxTop, int idxRight, int idxBottom)
+{
+  return QMarginsF(getNumber(L, idxLeft), getNumber(L, idxTop), getNumber(L, idxRight), getNumber(L, idxBottom));
+}
+
+QPoint qlua::getQPoint(lua_State *L, int idxX, int idxY)
+{
+  return QPoint(getInt(L, idxX), getInt(L, idxY));
+}
+
+QPointF qlua::getQPointF(lua_State *L, int idxX, int idxY)
+{
+  return QPointF(getNumber(L, idxX), getNumber(L, idxY));
+}
+
+QSize qlua::getQSize(lua_State *L, int idxWidth, int idxHeight)
+{
+  return QSize(getInt(L, idxWidth), getInt(L, idxHeight));
+}
+
+QSizeF qlua::getQSizeF(lua_State *L, int idxWidth, int idxHeight)
+{
+  return QSizeF(getNumber(L, idxWidth), getNumber(L, idxHeight));
+}
+
+QRect qlua::getQRect(lua_State *L, int idxLeft, int idxTop, int idxWidth, int idxHeight)
+{
+  return QRect(getInt(L, idxLeft), getInt(L, idxTop), getInt(L, idxWidth), getInt(L, idxHeight));
+}
+
+QRectF qlua::getQRectF(lua_State *L, int idxLeft, int idxTop, int idxWidth, int idxHeight)
+{
+  return QRectF(getNumber(L, idxLeft), getNumber(L, idxTop), getNumber(L, idxWidth), getNumber(L, idxHeight));
+}
+
 template <typename T, T MIN, T MAX>
 inline optional<T> getEnum(lua_State *L, int idx, optional<T> ifNil)
 {

@@ -68,6 +68,17 @@ namespace qlua
 
   bool copyValue(lua_State *fromL, lua_State *toL, int idx);
 
+  QLine getQLine(lua_State *L, int idxX1, int idxY1, int idxX2, int idxY2);
+  QLineF getQLineF(lua_State *L, int idxX1, int idxY1, int idxX2, int idxY2);
+  QMargins getQMargins(lua_State *L, int idxLeft, int idxTop, int idxRight, int idxBottom);
+  QMarginsF getQMarginsF(lua_State *L, int idxLeft, int idxTop, int idxRight, int idxBottom);
+  QPoint getQPoint(lua_State *L, int idxX, int idxY);
+  QPointF getQPointF(lua_State *L, int idxX, int idxY);
+  QSize getQSize(lua_State *L, int idxWidth, int idxHeight);
+  QSizeF getQSizeF(lua_State *L, int idxWidth, int idxHeight);
+  QRect getQRect(lua_State *L, int idxLeft, int idxTop, int idxWidth, int idxHeight);
+  QRectF getQRectF(lua_State *L, int idxLeft, int idxTop, int idxWidth, int idxHeight);
+
   std::optional<Qt::BrushStyle> getBrush(
       lua_State *L,
       int idx,

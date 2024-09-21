@@ -479,11 +479,7 @@ static int L_Repaint(lua_State *)
 
 static int L_TextRectangle(lua_State *L)
 {
-  const QMargins margins(
-      qlua::getInt(L, 1),
-      qlua::getInt(L, 2),
-      qlua::getInt(L, 3),
-      qlua::getInt(L, 4));
+  const QMargins margins = qlua::getQMargins(L, 1, 2, 3, 4);
   const int offset = qlua::getInt(L, 5);
   const QColor borderColor = qlua::getQColor(L, 6);
   const int borderWidth = qlua::getInt(L, 7);
@@ -505,11 +501,7 @@ static int L_WindowCircleOp(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
   const lua_Integer action = qlua::getInt(L, 2);
-  const QRectF rect(
-      qlua::getNumber(L, 3),
-      qlua::getNumber(L, 4),
-      qlua::getNumber(L, 5),
-      qlua::getNumber(L, 6));
+  const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
   const optional<QPen> pen = qlua::getPen(L, 7, 8, 9);
   const QColor brushColor = qlua::getQColor(L, 10);
   const optional<Qt::BrushStyle> brushStyle = qlua::getBrush(L, 11);
@@ -546,8 +538,8 @@ static int L_WindowCircleOp(lua_State *L)
 static int L_WindowCreate(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
-  const QPoint location(qlua::getInt(L, 2), qlua::getInt(L, 3));
-  const QSize size(qlua::getInt(L, 4), qlua::getInt(L, 5));
+  const QPoint location = qlua::getQPoint(L, 2, 3);
+  const QSize size = qlua::getQSize(L, 4, 5);
   const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 6);
   const MiniWindow::Flags flags = (MiniWindow::Flags)(int)qlua::getInt(L, 7);
   const QColor bg = qlua::getQColor(L, 8);
@@ -556,39 +548,13 @@ static int L_WindowCreate(lua_State *L)
   return returnCode(L, getApi(L).WindowCreate(windowName, location, size, *position, flags, bg));
 }
 
-static int L_WindowEllipse(lua_State *L)
-{
-  const string_view windowName = qlua::getString(L, 1);
-  const QRectF rect(
-      qlua::getNumber(L, 2),
-      qlua::getNumber(L, 3),
-      qlua::getNumber(L, 4),
-      qlua::getNumber(L, 5));
-  const optional<QPen> pen = qlua::getPen(L, 6, 7, 8);
-  const QColor fill = qlua::getQColor(L, 9);
-  const optional<Qt::BrushStyle> brush = qlua::getBrush(L, 9);
-  if (!pen) [[unlikely]]
-    return returnCode(L, ApiCode::PenStyleNotValid);
-  if (!brush) [[unlikely]]
-    return returnCode(L, ApiCode::BrushStyleNotValid);
-  return returnCode(L, getApi(L).WindowEllipse(windowName, rect, *pen, QBrush(fill, *brush)));
-}
-
 static int L_WindowDrawImage(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
   const string_view imageID = qlua::getString(L, 2);
-  const QRectF rect(
-      qlua::getNumber(L, 3),
-      qlua::getNumber(L, 4),
-      qlua::getNumber(L, 5),
-      qlua::getNumber(L, 6));
+  const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
   const optional<MiniWindow::DrawImageMode> mode = qlua::getDrawImageMode(L, 7);
-  const QRectF sourceRect(
-      qlua::getNumber(L, 8),
-      qlua::getNumber(L, 9),
-      qlua::getNumber(L, 10),
-      qlua::getNumber(L, 11));
+  const QRectF sourceRect = qlua::getQRectF(L, 8, 9, 10, 11);
   if (!mode)
     return returnCode(L, ApiCode::BadParameter);
   return returnCode(
@@ -600,16 +566,26 @@ static int L_WindowDrawImageAlpha(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
   const string_view imageID = qlua::getString(L, 2);
-  const QRectF rect(
-      qlua::getNumber(L, 3),
-      qlua::getNumber(L, 4),
-      qlua::getNumber(L, 5),
-      qlua::getNumber(L, 6));
+  const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
   const lua_Number opacity = qlua::getNumber(L, 7);
-  const QPointF origin(qlua::getNumber(L, 8), qlua::getNumber(L, 9));
+  const QPointF origin = qlua::getQPointF(L, 8, 9);
   return returnCode(
       L,
       getApi(L).WindowDrawImageAlpha(windowName, imageID, rect, opacity, origin));
+}
+
+static int L_WindowEllipse(lua_State *L)
+{
+  const string_view windowName = qlua::getString(L, 1);
+  const QRectF rect = qlua::getQRectF(L, 2, 3, 4, 5);
+  const optional<QPen> pen = qlua::getPen(L, 6, 7, 8);
+  const QColor fill = qlua::getQColor(L, 9);
+  const optional<Qt::BrushStyle> brush = qlua::getBrush(L, 9);
+  if (!pen) [[unlikely]]
+    return returnCode(L, ApiCode::PenStyleNotValid);
+  if (!brush) [[unlikely]]
+    return returnCode(L, ApiCode::BrushStyleNotValid);
+  return returnCode(L, getApi(L).WindowEllipse(windowName, rect, *pen, QBrush(fill, *brush)));
 }
 
 static int L_WindowFont(lua_State *L)
@@ -645,11 +621,7 @@ static int L_WindowFont(lua_State *L)
 static int L_WindowGradient(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
-  QRectF rect(
-      qlua::getNumber(L, 2),
-      qlua::getNumber(L, 3),
-      qlua::getNumber(L, 4),
-      qlua::getNumber(L, 5));
+  const QRectF rect = qlua::getQRectF(L, 2, 3, 4, 5);
   const QColor color1 = qlua::getQColor(L, 6);
   const QColor color2 = qlua::getQColor(L, 7);
   const lua_Integer mode = qlua::getInt(L, 7);
@@ -668,11 +640,7 @@ static int L_WindowGradient(lua_State *L)
 static int L_WindowLine(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
-  QLineF line(
-      qlua::getNumber(L, 2),
-      qlua::getNumber(L, 3),
-      qlua::getNumber(L, 4),
-      qlua::getNumber(L, 5));
+  const QLineF line = qlua::getQLineF(L, 2, 3, 4, 5);
   const optional<QPen> pen = qlua::getPen(L, 6, 7, 8);
   if (!pen) [[unlikely]]
     return returnCode(L, ApiCode::PenStyleNotValid);
@@ -718,7 +686,7 @@ static int L_WindowPolygon(lua_State *L)
 static int L_WindowPosition(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
-  const QPoint location(qlua::getInt(L, 2), qlua::getInt(L, 3));
+  const QPoint location = qlua::getQPoint(L, 2, 3);
   const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 4);
   const MiniWindow::Flags flags = (MiniWindow::Flags)(int)qlua::getInt(L, 5);
   if (!position) [[unlikely]]
@@ -730,11 +698,7 @@ static int L_WindowRectOp(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
   const lua_Integer action = qlua::getInt(L, 2);
-  const QRectF rect(
-      qlua::getNumber(L, 3),
-      qlua::getNumber(L, 4),
-      qlua::getNumber(L, 5),
-      qlua::getNumber(L, 6));
+  const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
   switch (action)
   {
   case 1: // draw
@@ -760,10 +724,7 @@ static int L_WindowResize(lua_State *L)
 {
   return returnCode(
       L,
-      getApi(L).WindowResize(
-          qlua::getString(L, 1),
-          QSize(qlua::getInt(L, 2), qlua::getInt(L, 3)),
-          qlua::getQColor(L, 4)));
+      getApi(L).WindowResize(qlua::getString(L, 1), qlua::getQSize(L, 2, 3), qlua::getQColor(L, 4)));
 }
 
 static int L_WindowSetZOrder(lua_State *L)
@@ -782,11 +743,7 @@ static int L_WindowText(lua_State *L)
       qlua::getString(L, 1),
       qlua::getString(L, 2),
       qlua::getQString(L, 3),
-      QRectF(
-          qlua::getNumber(L, 4),
-          qlua::getNumber(L, 5),
-          qlua::getNumber(L, 6),
-          qlua::getNumber(L, 7)),
+      qlua::getQRectF(L, 4, 5, 6, 7),
       qlua::getQColor(L, 8));
   // qlua::getBool(L, 9) // unicode
   lua_pushinteger(L, width);
@@ -810,9 +767,7 @@ static int L_WindowAddHotspot(lua_State *L)
   const string_view pluginID = qlua::getString(L, 1);
   const string_view windowName = qlua::getString(L, 2);
   const string_view hotspotID = qlua::getString(L, 3);
-  const QRect geometry(
-      QPoint(qlua::getInt(L, 4), qlua::getInt(L, 5)),
-      QPoint(qlua::getInt(L, 6), qlua::getInt(L, 7)));
+  const QRect geometry(qlua::getQPoint(L, 4, 5), qlua::getQPoint(L, 6, 7));
   Hotspot::Callbacks callbacks{
       .mouseOver = (string)qlua::getString(L, 8),
       .cancelMouseOver = (string)qlua::getString(L, 9),
@@ -850,9 +805,7 @@ static int L_WindowMoveHotspot(lua_State *L)
       getApi(L).WindowMoveHotspot(
           qlua::getString(L, 1),
           qlua::getString(L, 2),
-          QRect(
-              QPoint(qlua::getInt(L, 3), qlua::getInt(L, 4)),
-              QPoint(qlua::getInt(L, 5), qlua::getInt(L, 6)))));
+          QRect(qlua::getQPoint(L, 3, 4), qlua::getQPoint(L, 5, 6))));
 }
 
 // userdata
