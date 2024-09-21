@@ -491,8 +491,14 @@ static int L_TextRectangle(lua_State *L)
   const optional<Qt::BrushStyle> outsideFillStyle = qlua::getBrush(L, 9);
   if (!outsideFillStyle) [[unlikely]]
     return returnCode(L, ApiCode::BrushStyleNotValid);
-  const QBrush fill(outsideColor, *outsideFillStyle);
-  return returnCode(L, getApi(L).TextRectangle(margins, offset, borderColor, borderWidth, fill));
+  return returnCode(
+      L,
+      getApi(L).TextRectangle(
+          margins,
+          offset,
+          borderColor,
+          borderWidth,
+          QBrush(outsideColor, *outsideFillStyle)));
 }
 
 static int L_WindowCircleOp(lua_State *L)
@@ -548,6 +554,24 @@ static int L_WindowCreate(lua_State *L)
   if (!position) [[unlikely]]
     return returnCode(L, ApiCode::BadParameter);
   return returnCode(L, getApi(L).WindowCreate(windowName, location, size, *position, flags, bg));
+}
+
+static int L_WindowEllipse(lua_State *L)
+{
+  const string_view windowName = qlua::getString(L, 1);
+  const QRectF rect(
+      qlua::getNumber(L, 2),
+      qlua::getNumber(L, 3),
+      qlua::getNumber(L, 4),
+      qlua::getNumber(L, 5));
+  const optional<QPen> pen = qlua::getPen(L, 6, 7, 8);
+  const QColor fill = qlua::getQColor(L, 9);
+  const optional<Qt::BrushStyle> brush = qlua::getBrush(L, 9);
+  if (!pen) [[unlikely]]
+    return returnCode(L, ApiCode::PenStyleNotValid);
+  if (!brush) [[unlikely]]
+    return returnCode(L, ApiCode::BrushStyleNotValid);
+  return returnCode(L, getApi(L).WindowEllipse(windowName, rect, *pen, QBrush(fill, *brush)));
 }
 
 static int L_WindowFont(lua_State *L)
@@ -841,6 +865,7 @@ static const struct luaL_Reg worldlib[] =
      {"TextRectangle", L_TextRectangle},
      {"WindowCircleOp", L_WindowCircleOp},
      {"WindowCreate", L_WindowCreate},
+     {"WindowEllipse", L_WindowEllipse},
      {"WindowFont", L_WindowFont},
      {"WindowGradient", L_WindowGradient},
      {"WindowLine", L_WindowLine},
