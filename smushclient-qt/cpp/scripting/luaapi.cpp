@@ -550,7 +550,7 @@ static int L_WindowFont(lua_State *L)
   const QString fontName = qlua::getQString(L, 3);
   const qreal pointSize = qlua::getNumber(L, 4);
   if (pointSize == 0 && fontName.isEmpty()) [[unlikely]]
-    return returnCode(L, getApi(L).WindowFontUnload(windowName, fontID));
+    return returnCode(L, getApi(L).WindowUnloadFont(windowName, fontID));
   const bool bold = qlua::getBool(L, 5);
   const bool italic = qlua::getBool(L, 6);
   const bool underline = qlua::getBool(L, 7);
@@ -608,6 +608,16 @@ static int L_WindowLine(lua_State *L)
   if (!pen) [[unlikely]]
     return returnCode(L, ApiCode::PenStyleNotValid);
   return returnCode(L, getApi(L).WindowLine(windowName, line, *pen));
+}
+
+static int L_WindowLoadImage(lua_State *L)
+{
+  const string_view windowName = qlua::getString(L, 1);
+  const string_view imageID = qlua::getString(L, 2);
+  const QString filename = qlua::getQString(L, 3);
+  if (filename.isEmpty()) [[unlikely]]
+    return returnCode(L, getApi(L).WindowUnloadImage(windowName, imageID));
+  return returnCode(L, getApi(L).WindowLoadImage(windowName, imageID, filename));
 }
 
 static int L_WindowPolygon(lua_State *L)
@@ -826,6 +836,7 @@ static const struct luaL_Reg worldlib[] =
      {"WindowFont", L_WindowFont},
      {"WindowGradient", L_WindowGradient},
      {"WindowLine", L_WindowLine},
+     {"WindowLoadImage", L_WindowLoadImage},
      {"WindowPolygon", L_WindowPolygon},
      {"WindowPosition", L_WindowPosition},
      {"WindowRectOp", L_WindowRectOp},

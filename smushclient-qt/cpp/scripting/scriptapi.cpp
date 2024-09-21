@@ -1,4 +1,5 @@
 #include "scriptapi.h"
+#include <QtCore/QFile>
 #include <QtGui/QClipboard>
 #include <QtGui/QGradient>
 #include <QtGui/QGuiApplication>
@@ -445,16 +446,6 @@ ApiCode ScriptApi::WindowFont(
   return ApiCode::OK;
 }
 
-ApiCode ScriptApi::WindowFontUnload(string_view windowName, string_view fontID) const
-{
-
-  MiniWindow *window = findWindow(windowName);
-  if (window == nullptr)
-    return ApiCode::NoSuchWindow;
-  window->unloadFont(fontID);
-  return ApiCode::OK;
-}
-
 ApiCode ScriptApi::WindowFrame(
     string_view windowName,
     const QRectF &rect,
@@ -478,6 +469,25 @@ ApiCode ScriptApi::WindowLine(
     return ApiCode::NoSuchWindow;
   window->drawLine(line, pen);
   return ApiCode::OK;
+}
+
+ApiCode ScriptApi::WindowLoadImage(
+    string_view windowName,
+    string_view imageID,
+    const QString &filename) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  const QPixmap image(filename);
+  if (!image.isNull()) [[likely]]
+  {
+    window->loadImage(imageID, std::move(image));
+    return ApiCode::OK;
+  }
+  if (QFile::exists(filename))
+    return ApiCode::UnableToLoadImage;
+  return ApiCode::FileNotFound;
 }
 
 ApiCode ScriptApi::WindowMoveHotspot(
@@ -616,6 +626,24 @@ int ScriptApi::WindowTextWidth(
     return -2;
   QFontMetrics fm(*font);
   return fm.horizontalAdvance(text);
+}
+
+ApiCode ScriptApi::WindowUnloadFont(string_view windowName, string_view fontID) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  window->unloadFont(fontID);
+  return ApiCode::OK;
+}
+
+ApiCode ScriptApi::WindowUnloadImage(string_view windowName, string_view windowID) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr)
+    return ApiCode::NoSuchWindow;
+  window->unloadImage(windowID);
+  return ApiCode::OK;
 }
 
 // public methods

@@ -114,6 +114,16 @@ public:
     fonts.erase((std::string)fontID);
   }
 
+  const QPixmap getImage(std::string_view imageID) const;
+  inline void loadImage(std::string_view imageID, const QPixmap &&image)
+  {
+    images[(std::string)imageID] = image;
+  }
+  inline void unloadImage(std::string_view imageID)
+  {
+    images.erase((std::string)imageID);
+  }
+
 protected:
   void paintEvent(QPaintEvent *event) override;
 
@@ -123,6 +133,7 @@ private:
   QFlags<Flag> flags;
   std::unordered_map<std::string, QFont> fonts;
   std::unordered_map<std::string, Hotspot *> hotspots;
+  std::unordered_map<std::string, QPixmap> images;
   QPoint location;
   QPixmap pixmap;
   Position position;

@@ -91,7 +91,6 @@ public:
       bool underline,
       bool strikeout,
       QFont::StyleHint hint) const;
-  ApiCode WindowFontUnload(std::string_view windowName, std::string_view fontID) const;
   ApiCode WindowFrame(
       std::string_view windowName,
       const QRectF &rect,
@@ -107,6 +106,10 @@ public:
       std::string_view windowName,
       const QLineF &line,
       const QPen &pen) const;
+  ApiCode WindowLoadImage(
+      std::string_view windowName,
+      std::string_view imageID,
+      const QString &filename) const;
   ApiCode WindowMoveHotspot(
       std::string_view windowName,
       std::string_view hotspotID,
@@ -148,6 +151,10 @@ public:
       std::string_view windowName,
       std::string_view fontID,
       const QString &text) const;
+  ApiCode WindowUnloadImage(
+      std::string_view windowName,
+      std::string_view windowID) const;
+  ApiCode WindowUnloadFont(std::string_view windowName, std::string_view fontID) const;
 
   void applyWorld(const World &world);
   void echo(const QString &text);
