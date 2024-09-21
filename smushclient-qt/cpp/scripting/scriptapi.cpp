@@ -462,6 +462,19 @@ ApiCode ScriptApi::WindowGradient(
   return ApiCode::OK;
 }
 
+ApiCode ScriptApi::WindowImageFromWindow(
+    string_view windowName,
+    string_view imageID,
+    string_view sourceWindow) const
+{
+  MiniWindow *window = findWindow(windowName);
+  MiniWindow *source = findWindow(sourceWindow);
+  if (window == nullptr || source == nullptr) [[unlikely]]
+    return ApiCode::NoSuchWindow;
+  window->loadImage(imageID, source->getPixmap());
+  return ApiCode::OK;
+}
+
 ApiCode ScriptApi::WindowLine(
     string_view windowName,
     const QLineF &line,

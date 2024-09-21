@@ -269,6 +269,14 @@ const QFont *MiniWindow::getFont(string_view fontID) const
   return &search->second;
 }
 
+const QPixmap *MiniWindow::getImage(string_view imageID) const
+{
+  auto search = images.find((string)imageID);
+  if (search == images.end())
+    return nullptr;
+  return &search->second;
+}
+
 int MiniWindow::getZOrder() const noexcept
 {
   return zOrder;

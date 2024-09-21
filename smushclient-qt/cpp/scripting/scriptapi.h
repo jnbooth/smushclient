@@ -102,6 +102,11 @@ public:
       const QColor &color1,
       const QColor &color2,
       Qt::Orientation direction) const;
+  ApiCode WindowImageFromWindow(
+    std::string_view windowName,
+    std::string_view imageID,
+    std::string_view sourceWindow
+  ) const;
   ApiCode WindowLine(
       std::string_view windowName,
       const QLineF &line,

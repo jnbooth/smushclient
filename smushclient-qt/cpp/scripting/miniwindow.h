@@ -98,6 +98,7 @@ public:
   inline bool drawsUnderneath() const noexcept { return flags.testFlag(Flag::DrawUnderneath); }
   Hotspot *findHotspot(std::string_view hotspotID) const;
   int getZOrder() const noexcept;
+  inline const QPixmap &getPixmap() const noexcept { return pixmap; }
   void reset();
   void setPosition(const QPoint &location, Position position, Flags flags) noexcept;
   void setSize(const QSize &size, const QColor &fill) noexcept;
@@ -105,19 +106,23 @@ public:
   void updatePosition();
 
   const QFont *getFont(std::string_view fontID) const;
-  inline void loadFont(std::string_view fontID, const QFont &font)
+  inline const QFont &loadFont(std::string_view fontID, const QFont &font)
   {
-    fonts[(std::string)fontID] = font;
+    return fonts[(std::string)fontID] = font;
   }
   inline void unloadFont(std::string_view fontID)
   {
     fonts.erase((std::string)fontID);
   }
 
-  const QPixmap getImage(std::string_view imageID) const;
-  inline void loadImage(std::string_view imageID, const QPixmap &&image)
+  const QPixmap *getImage(std::string_view imageID) const;
+  inline const QPixmap &loadImage(std::string_view imageID, const QPixmap &&image)
   {
-    images[(std::string)imageID] = image;
+    return images[(std::string)imageID] = image;
+  }
+  inline const QPixmap &loadImage(std::string_view imageID, const QPixmap &image)
+  {
+    return images[(std::string)imageID] = image;
   }
   inline void unloadImage(std::string_view imageID)
   {
