@@ -574,6 +574,44 @@ static int L_WindowEllipse(lua_State *L)
   return returnCode(L, getApi(L).WindowEllipse(windowName, rect, *pen, QBrush(fill, *brush)));
 }
 
+static int L_WindowDrawImage(lua_State *L)
+{
+  const string_view windowName = qlua::getString(L, 1);
+  const string_view imageID = qlua::getString(L, 2);
+  const QRectF rect(
+      qlua::getNumber(L, 3),
+      qlua::getNumber(L, 4),
+      qlua::getNumber(L, 5),
+      qlua::getNumber(L, 6));
+  const optional<MiniWindow::DrawImageMode> mode = qlua::getDrawImageMode(L, 7);
+  const QRectF sourceRect(
+      qlua::getNumber(L, 8),
+      qlua::getNumber(L, 9),
+      qlua::getNumber(L, 10),
+      qlua::getNumber(L, 11));
+  if (!mode)
+    return returnCode(L, ApiCode::BadParameter);
+  return returnCode(
+      L,
+      getApi(L).WindowDrawImage(windowName, imageID, rect, *mode, sourceRect));
+}
+
+static int L_WindowDrawImageAlpha(lua_State *L)
+{
+  const string_view windowName = qlua::getString(L, 1);
+  const string_view imageID = qlua::getString(L, 2);
+  const QRectF rect(
+      qlua::getNumber(L, 3),
+      qlua::getNumber(L, 4),
+      qlua::getNumber(L, 5),
+      qlua::getNumber(L, 6));
+  const lua_Number opacity = qlua::getNumber(L, 7);
+  const QPointF origin(qlua::getNumber(L, 8), qlua::getNumber(L, 9));
+  return returnCode(
+      L,
+      getApi(L).WindowDrawImageAlpha(windowName, imageID, rect, opacity, origin));
+}
+
 static int L_WindowFont(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
@@ -865,6 +903,8 @@ static const struct luaL_Reg worldlib[] =
      {"TextRectangle", L_TextRectangle},
      {"WindowCircleOp", L_WindowCircleOp},
      {"WindowCreate", L_WindowCreate},
+     {"WindowDrawImage", L_WindowDrawImage},
+     {"WindowDrawImageAlpha", L_WindowDrawImageAlpha},
      {"WindowEllipse", L_WindowEllipse},
      {"WindowFont", L_WindowFont},
      {"WindowGradient", L_WindowGradient},

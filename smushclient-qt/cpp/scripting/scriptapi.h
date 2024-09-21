@@ -76,6 +76,18 @@ public:
       MiniWindow::Flags flags,
       const QColor &fill);
   ApiCode WindowDeleteHotspot(std::string_view windowName, std::string_view hotspotID) const;
+  ApiCode WindowDrawImage(
+      std::string_view windowName,
+      std::string_view imageID,
+      const QRectF &rect,
+      MiniWindow::DrawImageMode mode,
+      const QRectF &sourceRect) const;
+  ApiCode WindowDrawImageAlpha(
+      std::string_view windowName,
+      std::string_view imageID,
+      const QRectF &rect,
+      qreal opacity,
+      const QPointF origin) const;
   ApiCode WindowEllipse(
       std::string_view windowName,
       const QRectF &rect,
@@ -103,10 +115,9 @@ public:
       const QColor &color2,
       Qt::Orientation direction) const;
   ApiCode WindowImageFromWindow(
-    std::string_view windowName,
-    std::string_view imageID,
-    std::string_view sourceWindow
-  ) const;
+      std::string_view windowName,
+      std::string_view imageID,
+      std::string_view sourceWindow) const;
   ApiCode WindowLine(
       std::string_view windowName,
       const QLineF &line,

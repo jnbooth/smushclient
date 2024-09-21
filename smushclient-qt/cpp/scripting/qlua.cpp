@@ -413,6 +413,17 @@ bool qlua::copyValue(lua_State *fromL, lua_State *toL, int idx)
   }
 }
 
+template <typename T, T MIN, T MAX>
+inline optional<T> getEnum(lua_State *L, int idx, optional<T> ifNil)
+{
+  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))
+    return ifNil;
+  const lua_Integer val = toInt(L, idx);
+  if (val < (lua_Integer)MIN || val > (lua_Integer)MAX) [[unlikely]]
+    return nullopt;
+  return (T)val;
+}
+
 optional<Qt::BrushStyle> qlua::getBrush(lua_State *L, int idx, optional<Qt::BrushStyle> ifNil)
 {
   if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))
@@ -489,6 +500,17 @@ optional<Qt::CursorShape> qlua::getCursor(lua_State *L, int idx, optional<Qt::Cu
   default:
     return nullopt;
   }
+}
+
+optional<MiniWindow::DrawImageMode> qlua::getDrawImageMode(
+    lua_State *L,
+    int idx,
+    optional<MiniWindow::DrawImageMode> ifNil)
+{
+  return getEnum<
+      MiniWindow::DrawImageMode,
+      MiniWindow::DrawImageMode::Copy,
+      MiniWindow::DrawImageMode::CopyTransparent>(L, idx, ifNil);
 }
 
 optional<QFont::StyleHint> qlua::getFontHint(lua_State *L, int idx, optional<QFont::StyleHint> ifNil)
@@ -631,11 +653,8 @@ optional<MiniWindow::Position> qlua::getWindowPosition(
     int idx,
     optional<MiniWindow::Position> ifNil)
 {
-  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))
-    return ifNil;
-  const lua_Integer val = toInt(L, idx);
-  if (val < (lua_Integer)MiniWindow::Position::OutputStretch ||
-      val > (lua_Integer)MiniWindow::Position::Tile) [[unlikely]]
-    return nullopt;
-  return (MiniWindow::Position)val;
+  return getEnum<
+      MiniWindow::Position,
+      MiniWindow::Position::OutputStretch,
+      MiniWindow::Position::Tile>(L, idx, ifNil);
 }

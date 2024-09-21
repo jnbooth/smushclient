@@ -211,6 +211,35 @@ void MiniWindow::drawGradient(const QRectF &rect, const QGradient &gradient)
   Painter(this).fillRect(rect, gradient);
 }
 
+void MiniWindow::drawImage(
+    const QPixmap &image,
+    const QRectF &rect,
+    const QRectF &sourceRect,
+    DrawImageMode mode,
+    qreal opacity)
+{
+  Painter painter(this);
+  painter.setOpacity(opacity);
+  const QRectF imageRect = sourceRect.isNull() ? image.rect() : sourceRect;
+  switch (mode)
+  {
+  case DrawImageMode::Copy:
+    painter.drawPixmap(rect.topLeft(), image, imageRect);
+    return;
+  case DrawImageMode::Stretch:
+    painter.drawPixmap(rect, image, imageRect);
+    return;
+  case DrawImageMode::CopyTransparent:
+    QPixmap croppedImage = image.copy(sourceRect.toRect());
+    if (croppedImage.isNull())
+      return;
+    const QImage qImage = image.toImage().convertToFormat(QImage::Format_RGB32);
+    const QRgb pixel = qImage.pixel(0, 0);
+    croppedImage.setMask(QBitmap::fromImage(std::move(qImage).createMaskFromColor(pixel)));
+    Painter(this).drawPixmap(rect.topLeft(), croppedImage, croppedImage.rect());
+  }
+}
+
 void MiniWindow::drawPolygon(
     const QPolygonF &polygon,
     const QPen &pen,

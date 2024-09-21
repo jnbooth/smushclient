@@ -78,6 +78,11 @@ namespace qlua
       int idx,
       std::optional<Qt::CursorShape> ifNil = std::nullopt);
 
+  std::optional<MiniWindow::DrawImageMode> getDrawImageMode(
+      lua_State *L,
+      int idx,
+      std::optional<MiniWindow::DrawImageMode> ifNil = std::nullopt);
+
   std::optional<QFont::StyleHint> getFontHint(
       lua_State *L,
       int idx,

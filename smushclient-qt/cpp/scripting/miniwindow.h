@@ -60,6 +60,17 @@ public:
   Q_DECLARE_FLAGS(Flags, Flag)
   Q_FLAG(Flags)
 
+  enum struct DrawImageMode
+  {
+    // Copy without stretching to the destination position. The image is not clipped, so only the Left and Top parameters are used - the full image is copied to that position.
+    Copy = 1,
+    // Stretch or shrink the image appropriately to fit into the rectangle: Left, Top, Right, Bottom.
+    Stretch = 2,
+    // Copy without stretching to the position Left, Top. However this is a transparent copy, where the pixel at the left,top corner (pixel position 0,0) is considered the transparent colour. Any pixels that exactly match that colour are not copied. WARNING - do not choose black or white as the transparent colour as that throws out the calculations. Choose some other colour (eg. purple) - you won't see that colour anyway.
+    CopyTransparent = 3,
+  };
+  Q_ENUM(DrawImageMode)
+
   MiniWindow(
       QWidget *parent,
       const QPoint &location,
@@ -77,6 +88,12 @@ public:
   void drawEllipse(const QRectF &rect, const QPen &pen, const QBrush &brush = QBrush());
   void drawFrame(const QRectF &rect, const QColor &color1, const QColor &color2);
   void drawGradient(const QRectF &rect, const QGradient &gradient);
+  void drawImage(
+      const QPixmap &image,
+      const QRectF &rect,
+      const QRectF &sourceRect = QRectF(),
+      DrawImageMode = DrawImageMode::Copy,
+      qreal opacity = 1);
   void drawPolygon(
       const QPolygonF &polygon,
       const QPen &pen,

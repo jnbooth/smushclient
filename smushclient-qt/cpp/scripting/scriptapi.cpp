@@ -392,6 +392,45 @@ ApiCode ScriptApi::WindowDeleteHotspot(string_view windowName, string_view hotsp
   return ApiCode::OK;
 }
 
+ApiCode ScriptApi::WindowDrawImage(
+    std::string_view windowName,
+    std::string_view imageID,
+    const QRectF &rect,
+    MiniWindow::DrawImageMode mode,
+    const QRectF &sourceRect) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr) [[unlikely]]
+    return ApiCode::NoSuchWindow;
+  const QPixmap *image = window->getImage(imageID);
+  if (image == nullptr) [[unlikely]]
+    return ApiCode::ImageNotInstalled;
+  window->drawImage(*image, rect, sourceRect, mode);
+  return ApiCode::OK;
+}
+
+ApiCode ScriptApi::WindowDrawImageAlpha(
+    std::string_view windowName,
+    std::string_view imageID,
+    const QRectF &rect,
+    qreal opacity,
+    const QPointF origin) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (window == nullptr) [[unlikely]]
+    return ApiCode::NoSuchWindow;
+  const QPixmap *image = window->getImage(imageID);
+  if (image == nullptr) [[unlikely]]
+    return ApiCode::ImageNotInstalled;
+  window->drawImage(
+      *image,
+      rect,
+      QRectF(origin, image->rect().bottomRight().toPointF()),
+      MiniWindow::DrawImageMode::Copy,
+      opacity);
+  return ApiCode::OK;
+}
+
 ApiCode ScriptApi::WindowEllipse(
     string_view windowName,
     const QRectF &rect,
