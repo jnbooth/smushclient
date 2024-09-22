@@ -16,7 +16,6 @@ extern "C"
 #define INDEX_REG_KEY "smushclient.plugin"
 #define WORLD_LIB_KEY "world"
 #define WORLD_REG_KEY "smushclient.world"
-#define VERSION "5.07"
 
 using std::optional;
 using std::string;
@@ -143,6 +142,20 @@ inline size_t getPluginIndex(lua_State *L)
   return index;
 }
 
+// info
+
+static int L_GetInfo(lua_State *L)
+{
+  qlua::pushQVariant(L, getApi(L).GetInfo(qlua::getInt(L, 1)));
+  return 1;
+}
+
+static int L_Version(lua_State *L)
+{
+  qlua::pushString(L, SCRIPTING_VERSION);
+  return 1;
+}
+
 // options
 
 static int L_GetAlphaOption(lua_State *L)
@@ -205,12 +218,6 @@ static int L_SetAlphaOption(lua_State *L)
 static int L_SetOption(lua_State *L)
 {
   getApi(L).SetOption(qlua::getString(L, 1), qlua::getNumber(L, 2));
-  return 1;
-}
-
-static int L_Version(lua_State *L)
-{
-  qlua::pushString(L, VERSION);
   return 1;
 }
 
@@ -859,15 +866,17 @@ static int L_WindowMoveHotspot(lua_State *L)
 // userdata
 
 static const struct luaL_Reg worldlib[] =
-    // options
-    {{"GetAlphaOption", L_GetAlphaOption},
+    // info
+    {{"GetInfo", L_GetInfo},
+     {"Version", L_Version},
+     // options
+     {"GetAlphaOption", L_GetAlphaOption},
      {"GetAlphaOptionList", L_GetAlphaOptionList},
      {"GetCurrentValue", L_GetCurrentValue},
      {"GetOption", L_GetOption},
      {"GetOptionList", L_GetOptionList},
      {"SetAlphaOption", L_SetAlphaOption},
      {"SetOption", L_SetOption},
-     {"Version", L_Version},
      // output
      {"ColourNameToRGB", L_ColourNameToRGB},
      {"ColourNote", L_ColourNote},

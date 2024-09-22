@@ -12,6 +12,8 @@
 #include "plugin.h"
 #include "scriptenums.h"
 
+#define SCRIPTING_VERSION "5.07"
+
 class ImageFilter;
 class SmushClient;
 class World;
@@ -33,6 +35,7 @@ public:
   ApiCode EnableTimerGroup(const QString &group, bool enabled) const;
   ApiCode EnableTrigger(const QString &label, bool enabled) const;
   ApiCode EnableTriggerGroup(const QString &group, bool enabled) const;
+  QVariant GetInfo(int infoType) const;
   QVariant GetOption(std::string_view name) const;
   std::optional<std::string_view> GetVariable(size_t index, std::string_view key) const;
   std::optional<std::string_view> GetVariable(std::string_view pluginID, std::string_view key) const;

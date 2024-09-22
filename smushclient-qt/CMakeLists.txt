@@ -66,6 +66,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/miniwindow.h cpp/scripting/miniwindow.cpp
     cpp/scripting/qlua.h cpp/scripting/qlua.cpp
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
+    cpp/scripting/scriptapi_getinfo.cpp
     cpp/scripting/plugin.h cpp/scripting/plugin.cpp
     cpp/scripting/worldproperties.h cpp/scripting/worldproperties.cpp
 
