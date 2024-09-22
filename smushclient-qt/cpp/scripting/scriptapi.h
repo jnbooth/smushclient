@@ -64,7 +64,7 @@ public:
       int borderWidth,
       const QBrush &outsideFill) const;
   ApiCode WindowAddHotspot(
-      std::string_view pluginID,
+      size_t index,
       std::string_view windowName,
       std::string_view hotspotID,
       const QRect &geometry,
@@ -176,6 +176,11 @@ public:
       std::string_view windowName,
       std::string_view fontID,
       const QString &text) const;
+  ApiCode WindowUpdateHotspot(
+      size_t index,
+      std::string_view windowName,
+      std::string_view hotspotID,
+      Hotspot::CallbacksPartial &&callbacks) const;
   ApiCode WindowUnloadImage(
       std::string_view windowName,
       std::string_view windowID) const;

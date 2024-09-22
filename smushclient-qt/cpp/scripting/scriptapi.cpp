@@ -326,7 +326,7 @@ ApiCode ScriptApi::TextRectangle(
 }
 
 ApiCode ScriptApi::WindowAddHotspot(
-    string_view pluginID,
+    size_t index,
     string_view windowName,
     string_view hotspotID,
     const QRect &geometry,
@@ -338,10 +338,7 @@ ApiCode ScriptApi::WindowAddHotspot(
   MiniWindow *window = findWindow(windowName);
   if (!window) [[unlikely]]
     return ApiCode::NoSuchWindow;
-  const size_t pluginIndex = findPluginIndex(pluginID);
-  if (pluginIndex == noSuchPlugin) [[unlikely]]
-    return ApiCode::NoSuchPlugin;
-  const Plugin *plugin = &plugins[findPluginIndex(pluginID)];
+  const Plugin *plugin = &plugins[index];
   Hotspot *hotspot = window->addHotspot(hotspotID, plugin, std::move(callbacks));
   if (!hotspot) [[unlikely]]
     return ApiCode::HotspotPluginChanged;
@@ -720,6 +717,24 @@ ApiCode ScriptApi::WindowUnloadImage(string_view windowName, string_view windowI
   if (!window) [[unlikely]]
     return ApiCode::NoSuchWindow;
   window->unloadImage(windowID);
+  return ApiCode::OK;
+}
+
+ApiCode ScriptApi::WindowUpdateHotspot(
+    size_t index,
+    string_view windowName,
+    string_view hotspotID,
+    Hotspot::CallbacksPartial &&callbacks) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (!window) [[unlikely]]
+    return ApiCode::NoSuchWindow;
+  Hotspot *hotspot = window->findHotspot(hotspotID);
+  if (!hotspot) [[unlikely]]
+    return ApiCode::HotspotNotInstalled;
+  if (!hotspot->belongsToPlugin(&plugins[index]))
+    return ApiCode::HotspotPluginChanged;
+  hotspot->setCallbacks(std::move(callbacks));
   return ApiCode::OK;
 }
 

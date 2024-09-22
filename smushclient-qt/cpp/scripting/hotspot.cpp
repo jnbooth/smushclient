@@ -3,6 +3,7 @@
 #include "miniwindow.h"
 #include "plugin.h"
 
+using std::optional;
 using std::string;
 using std::string_view;
 
@@ -29,12 +30,26 @@ Hotspot::EventFlags getEventFlags(const QSinglePointEvent *event)
   return getEventFlags(event->modifiers(), event->buttons());
 }
 
+Hotspot::EventFlags getEventFlags(const QDragMoveEvent *event)
+{
+  return getEventFlags(event->modifiers(), event->buttons());
+}
+
+Hotspot::EventFlags getEventFlags(const QDropEvent *event)
+{
+  return getEventFlags(event->modifiers(), event->buttons());
+}
+
 Hotspot::EventFlags getEventFlags()
 {
   return getEventFlags(QGuiApplication::keyboardModifiers(), QGuiApplication::mouseButtons());
 }
 
-Hotspot::Hotspot(MiniWindow *parent, const Plugin *plugin, string_view id, Callbacks &&callbacks)
+Hotspot::Hotspot(
+    MiniWindow *parent,
+    const Plugin *plugin,
+    string_view id,
+    Callbacks &&callbacks)
     : QWidget(parent),
       callbacks(std::move(callbacks)),
       id(id),
@@ -43,44 +58,88 @@ Hotspot::Hotspot(MiniWindow *parent, const Plugin *plugin, string_view id, Callb
   setWindowOpacity(0);
 }
 
-void Hotspot::setCallbacks(Callbacks &&newCallbacks)
+const Hotspot::Callbacks &Hotspot::setCallbacks(Callbacks &&newCallbacks)
 {
   hadMouseDown = false;
   callbacks = std::move(newCallbacks);
+  return callbacks;
+}
+
+const Hotspot::Callbacks &Hotspot::setCallbacks(CallbacksPartial &&partial)
+{
+  hadMouseDown = false;
+  if (partial.dragMove)
+    callbacks.dragMove = std::move(*partial.dragMove);
+  if (partial.dragRelease)
+    callbacks.dragRelease = std::move(*partial.dragRelease);
+  if (partial.mouseOver)
+    callbacks.mouseOver = std::move(*partial.mouseOver);
+  if (partial.cancelMouseOver)
+    callbacks.cancelMouseOver = std::move(*partial.cancelMouseOver);
+  if (partial.mouseDown)
+    callbacks.mouseDown = std::move(*partial.mouseDown);
+  if (partial.cancelMouseDown)
+    callbacks.cancelMouseDown = std::move(*partial.cancelMouseDown);
+  if (partial.mouseUp)
+    callbacks.mouseUp = std::move(*partial.mouseUp);
+  if (partial.scroll)
+    callbacks.scroll = std::move(*partial.scroll);
+  return callbacks;
 }
 
 // Protected overrides
 
+inline bool hasCallback(const std::string &callback, QEvent *event)
+{
+  const bool willHandle = callback.empty();
+  event->setAccepted(willHandle);
+  return willHandle;
+}
+
+void Hotspot::dragMoveEvent(QDragMoveEvent *event)
+{
+  if (hasCallback(callbacks.dragMove, event))
+    runCallback(callbacks.dragMove, getEventFlags(event));
+}
+
+void Hotspot::dropEvent(QDropEvent *event)
+{
+  if (hasCallback(callbacks.dragRelease, event))
+    runCallback(callbacks.dragRelease, getEventFlags(event));
+}
+
 void Hotspot::enterEvent(QEnterEvent *event)
 {
-  runCallback(callbacks.mouseOver, event, getEventFlags(event));
+  if (hasCallback(callbacks.mouseOver, event))
+    runCallback(callbacks.mouseOver, getEventFlags(event));
 }
 
 void Hotspot::leaveEvent(QEvent *event)
 {
-  const bool handlesMouseDown = hadMouseDown && !callbacks.cancelMouseDown.empty();
-  const bool handlesMouseOver = !callbacks.cancelMouseOver.empty();
+  const bool hasCancelMouseOver = callbacks.cancelMouseOver.empty();
+  const bool hasCancelMouseDown = hadMouseDown && callbacks.cancelMouseDown.empty();
   hadMouseDown = false;
 
-  if (!handlesMouseDown && !handlesMouseOver)
+  if (!hasCancelMouseOver && !hasCancelMouseDown)
   {
     event->ignore();
     return;
   }
+
   event->accept();
+  const EventFlags flags = getEventFlags();
 
-  lua_Integer flags = (lua_Integer)getEventFlags();
+  if (hasCancelMouseOver)
+    runCallback(callbacks.cancelMouseOver, flags);
 
-  if (handlesMouseDown)
-    plugin->runCallback(callbacks.cancelMouseDown, id, flags);
-
-  if (handlesMouseOver)
-    plugin->runCallback(callbacks.cancelMouseOver, id, flags);
+  if (hasCancelMouseDown)
+    runCallback(callbacks.cancelMouseDown, flags);
 }
 
 void Hotspot::mouseDoubleClickEvent(QMouseEvent *event)
 {
-  runCallback(callbacks.mouseDown, event, getEventFlags(event) | EventFlag::DoubleClick);
+  if (hasCallback(callbacks.mouseDown, event))
+    runCallback(callbacks.mouseDown, getEventFlags(event) | EventFlag::DoubleClick);
 }
 
 void Hotspot::mouseMoveEvent(QMouseEvent *event)
@@ -90,28 +149,38 @@ void Hotspot::mouseMoveEvent(QMouseEvent *event)
     event->ignore();
     return;
   }
-  runCallback(callbacks.mouseOver, event, getEventFlags(event) | EventFlag::Hover);
+  if (hasCallback(callbacks.mouseOver, event))
+    runCallback(callbacks.mouseOver, getEventFlags(event) | EventFlag::Hover);
 }
 
 void Hotspot::mousePressEvent(QMouseEvent *event)
 {
   hadMouseDown = true;
-  runCallback(callbacks.mouseDown, event, getEventFlags(event));
+  if (hasCallback(callbacks.mouseDown, event))
+    runCallback(callbacks.mouseDown, getEventFlags(event));
 }
 
 void Hotspot::mouseReleaseEvent(QMouseEvent *event)
 {
   hadMouseDown = false;
-  runCallback(callbacks.mouseUp, event, getEventFlags(event));
+  if (hasCallback(callbacks.mouseUp, event))
+    runCallback(callbacks.mouseUp, getEventFlags(event));
 }
 
-void Hotspot::runCallback(const string &callback, QEvent *event, EventFlags flags)
+void Hotspot::wheelEvent(QWheelEvent *event)
 {
-  if (callback.empty())
-  {
-    event->ignore();
+  if (!hasCallback(callbacks.scroll, event))
     return;
-  }
-  event->accept();
-  plugin->runCallback(callback, id, (lua_Integer)flags);
+  const int yDelta = event->angleDelta().y();
+  if (yDelta > 0)
+    runCallback(callbacks.scroll, getEventFlags(event) | EventFlag::ScrollDown);
+  else if (yDelta < 0)
+    runCallback(callbacks.scroll, getEventFlags(event));
+}
+
+// Private methods
+
+inline void Hotspot::runCallback(const string &callback, EventFlags flags)
+{
+  plugin->runCallback(callback, (lua_Integer)flags, id);
 }

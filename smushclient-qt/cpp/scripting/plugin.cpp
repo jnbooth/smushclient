@@ -112,14 +112,14 @@ QString Plugin::getError() const
   return qlua::getError(L);
 }
 
-bool Plugin::runCallback(string_view name, string_view arg1, lua_Integer arg2) const
+bool Plugin::runCallback(string_view name, lua_Integer arg1, string_view arg2) const
 {
   if (isDisabled) [[unlikely]]
     return false;
 
   lua_getglobal(L, name.data());
-  qlua::pushString(L, arg1);
-  lua_pushinteger(L, arg2);
+  lua_pushinteger(L, arg1);
+  qlua::pushString(L, arg2);
   return api_pcall(L, 2, 0);
 }
 

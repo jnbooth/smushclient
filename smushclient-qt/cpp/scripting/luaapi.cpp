@@ -819,26 +819,25 @@ static int L_WindowTextWidth(lua_State *L)
 
 static int L_WindowAddHotspot(lua_State *L)
 {
-  const string_view pluginID = qlua::getString(L, 1);
-  const string_view windowName = qlua::getString(L, 2);
-  const string_view hotspotID = qlua::getString(L, 3);
-  const QRect geometry(qlua::getQPoint(L, 4, 5), qlua::getQPoint(L, 6, 7));
+  const string_view windowName = qlua::getString(L, 1);
+  const string_view hotspotID = qlua::getString(L, 2);
+  const QRect geometry(qlua::getQPoint(L, 3, 4), qlua::getQPoint(L, 5, 6));
   Hotspot::Callbacks callbacks{
-      .mouseOver = (string)qlua::getString(L, 8),
-      .cancelMouseOver = (string)qlua::getString(L, 9),
-      .mouseDown = (string)qlua::getString(L, 10),
-      .cancelMouseDown = (string)qlua::getString(L, 11),
-      .mouseUp = (string)qlua::getString(L, 12),
+      .mouseOver = (string)qlua::getString(L, 7),
+      .cancelMouseOver = (string)qlua::getString(L, 8),
+      .mouseDown = (string)qlua::getString(L, 9),
+      .cancelMouseDown = (string)qlua::getString(L, 10),
+      .mouseUp = (string)qlua::getString(L, 11),
   };
-  const QString &tooltip = qlua::getQString(L, 13);
-  const optional<Qt::CursorShape> cursor = qlua::getCursor(L, 14);
-  const bool trackHover = qlua::getInt(L, 15) & 0x01;
+  const QString &tooltip = qlua::getQString(L, 12);
+  const optional<Qt::CursorShape> cursor = qlua::getCursor(L, 13);
+  const bool trackHover = qlua::getInt(L, 14) & 0x01;
   if (!cursor) [[unlikely]]
     return returnCode(L, ApiCode::BadParameter);
   return returnCode(
       L,
       getApi(L).WindowAddHotspot(
-          pluginID,
+          getPluginIndex(L),
           windowName,
           hotspotID,
           geometry,
@@ -853,6 +852,19 @@ static int L_WindowDeleteHotspot(lua_State *L)
   return returnCode(L, getApi(L).WindowDeleteHotspot(qlua::getString(L, 1), qlua::getString(L, 2)));
 }
 
+static int L_WindowDragHandler(lua_State *L)
+{
+  return returnCode(
+      L,
+      getApi(L).WindowUpdateHotspot(
+          getPluginIndex(L),
+          qlua::getString(L, 1),
+          qlua::getString(L, 2),
+          Hotspot::CallbacksPartial{
+              .dragMove = (string)qlua::getString(L, 3),
+              .dragRelease = (string)qlua::getString(L, 4)}));
+}
+
 static int L_WindowMoveHotspot(lua_State *L)
 {
   return returnCode(
@@ -861,6 +873,17 @@ static int L_WindowMoveHotspot(lua_State *L)
           qlua::getString(L, 1),
           qlua::getString(L, 2),
           QRect(qlua::getQPoint(L, 3, 4), qlua::getQPoint(L, 5, 6))));
+}
+
+static int L_WindowScrollwheelHandler(lua_State *L)
+{
+  return returnCode(
+      L,
+      getApi(L).WindowUpdateHotspot(
+          getPluginIndex(L),
+          qlua::getString(L, 1),
+          qlua::getString(L, 2),
+          Hotspot::CallbacksPartial{.scroll = (string)qlua::getString(L, 3)}));
 }
 
 // userdata
@@ -932,7 +955,9 @@ static const struct luaL_Reg worldlib[] =
      // window hotspots
      {"WindowAddHotspot", L_WindowAddHotspot},
      {"WindowDeleteHotspot", L_WindowDeleteHotspot},
+     {"WindowDragHandler", L_WindowDragHandler},
      {"WindowMoveHotspot", L_WindowMoveHotspot},
+     {"WindowScrollwheelHandler", L_WindowScrollwheelHandler},
 
      {NULL, NULL}};
 
