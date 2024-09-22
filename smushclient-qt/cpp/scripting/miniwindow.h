@@ -15,6 +15,7 @@
 
 typedef LUA_INTEGER lua_Integer;
 class Hotspot;
+class ImageFilter;
 class Plugin;
 
 class MiniWindow : public QWidget
@@ -77,6 +78,7 @@ public:
       std::string_view hotspotID,
       const Plugin *plugin,
       Hotspot::Callbacks &&callbacks);
+  void applyFilter(const ImageFilter &filter, const QRect &rect = QRect());
   void clearHotspots();
   bool deleteHotspot(std::string_view hotspotID);
   void drawLine(const QLineF &line, const QPen &pen);

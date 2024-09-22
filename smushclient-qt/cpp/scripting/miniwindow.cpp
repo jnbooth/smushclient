@@ -1,9 +1,11 @@
 #include "miniwindow.h"
+#include <numeric>
 #include <QtGui/QPainter>
 #include <QtWidgets/QLayout>
 #include <QtGui/QPaintEvent>
 #include <QtGui/QResizeEvent>
 #include "hotspot.h"
+#include "imagefilters.h"
 
 using std::string;
 using std::string_view;
@@ -168,6 +170,18 @@ Hotspot *MiniWindow::addHotspot(
   return hotspot;
 }
 
+void MiniWindow::applyFilter(const ImageFilter &filter, const QRect &rect)
+{
+  if (rect.isNull() || rect == pixmap.rect())
+  {
+    filter.apply(pixmap);
+    return;
+  }
+  QPixmap section = pixmap.copy(rect);
+  filter.apply(section);
+  Painter(this).drawPixmap(rect, section, section.rect());
+}
+
 void MiniWindow::clearHotspots()
 {
   for (const auto &entry : hotspots)
@@ -306,16 +320,16 @@ const QPixmap *MiniWindow::getImage(string_view imageID) const
   return &search->second;
 }
 
+int MiniWindow::getZOrder() const noexcept
+{
+  return zOrder;
+}
+
 void MiniWindow::invert(const QRect &rect, QImage::InvertMode mode)
 {
   QImage image = pixmap.copy(rect).toImage();
   image.invertPixels(mode);
   Painter(this).drawImage(rect, image);
-}
-
-int MiniWindow::getZOrder() const noexcept
-{
-  return zOrder;
 }
 
 void MiniWindow::reset()

@@ -1,5 +1,6 @@
 #include "luaapi.h"
 #include <QtCore/QPointer>
+#include "imagefilters.h"
 #include "qlua.h"
 #include "scriptapi.h"
 #include "scriptenums.h"
@@ -588,6 +589,53 @@ static int L_WindowEllipse(lua_State *L)
   return returnCode(L, getApi(L).WindowEllipse(windowName, rect, *pen, QBrush(fill, *brush)));
 }
 
+static int L_WindowFilter(lua_State *L)
+{
+  using Channel = ImageFilter::Channel;
+  const ScriptApi &api = getApi(L);
+  const string_view windowName = qlua::getString(L, 1);
+  const QRect rect = qlua::getQRect(L, 2, 3, 4, 5);
+  switch (qlua::getInt(L, 6))
+  {
+  case 7:
+    return returnCode(
+        L,
+        api.WindowFilter(windowName, BrightnessAddFilter(qlua::getInt(L, 7)), rect));
+  case 10:
+    return returnCode(
+        L,
+        api.WindowFilter(windowName, BrightnessAddFilter(qlua::getInt(L, 7), Channel::Red), rect));
+  case 13:
+    return returnCode(
+        L,
+        api.WindowFilter(windowName, BrightnessAddFilter(qlua::getInt(L, 7), Channel::Green), rect));
+  case 16:
+    return returnCode(
+        L,
+        api.WindowFilter(windowName, BrightnessAddFilter(qlua::getInt(L, 7), Channel::Blue), rect));
+  case 19:
+    return returnCode(L, api.WindowFilter(windowName, GrayscaleFilter(), rect));
+  case 21:
+    return returnCode(
+        L,
+        api.WindowFilter(windowName, BrightnessMultFilter(qlua::getNumber(L, 7)), rect));
+  case 22:
+    return returnCode(
+        L,
+        api.WindowFilter(windowName, BrightnessMultFilter(qlua::getNumber(L, 7), Channel::Red), rect));
+  case 23:
+    return returnCode(
+        L,
+        api.WindowFilter(windowName, BrightnessMultFilter(qlua::getNumber(L, 7), Channel::Green), rect));
+  case 24:
+    return returnCode(
+        L,
+        api.WindowFilter(windowName, BrightnessMultFilter(qlua::getNumber(L, 7), Channel::Blue), rect));
+  default:
+    return returnCode(L, ApiCode::UnknownOption);
+  }
+}
+
 static int L_WindowFont(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
@@ -859,6 +907,7 @@ static const struct luaL_Reg worldlib[] =
      {"WindowDrawImage", L_WindowDrawImage},
      {"WindowDrawImageAlpha", L_WindowDrawImageAlpha},
      {"WindowEllipse", L_WindowEllipse},
+     {"WindowFilter", L_WindowFilter},
      {"WindowFont", L_WindowFont},
      {"WindowGradient", L_WindowGradient},
      {"WindowLine", L_WindowLine},

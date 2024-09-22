@@ -12,6 +12,7 @@
 #include "plugin.h"
 #include "scriptenums.h"
 
+class ImageFilter;
 class SmushClient;
 class World;
 class WorldTab;
@@ -93,6 +94,10 @@ public:
       const QRectF &rect,
       const QPen &pen,
       const QBrush &brush = QBrush()) const;
+  ApiCode WindowFilter(
+      std::string_view windowName,
+      const ImageFilter &filter,
+      const QRect &rect = QRect()) const;
   ApiCode WindowFont(
       std::string_view windowName,
       std::string_view fontID,

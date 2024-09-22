@@ -61,6 +61,7 @@ qt_add_executable(${APP_NAME}
     cpp/bridge/treebuilder.h cpp/bridge/treebuilder.cpp
 
     cpp/scripting/hotspot.h cpp/scripting/hotspot.cpp
+    cpp/scripting/imagefilters.h cpp/scripting/imagefilters.cpp
     cpp/scripting/luaapi.h cpp/scripting/luaapi.cpp
     cpp/scripting/miniwindow.h cpp/scripting/miniwindow.cpp
     cpp/scripting/qlua.h cpp/scripting/qlua.cpp

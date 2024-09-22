@@ -444,6 +444,18 @@ ApiCode ScriptApi::WindowEllipse(
   return ApiCode::OK;
 }
 
+ApiCode ScriptApi::WindowFilter(
+    string_view windowName,
+    const ImageFilter &filter,
+    const QRect &rect) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (!window) [[unlikely]]
+    return ApiCode::NoSuchWindow;
+  window->applyFilter(filter, rect);
+  return ApiCode::OK;
+}
+
 ApiCode ScriptApi::WindowFont(
     string_view windowName,
     string_view fontID,
