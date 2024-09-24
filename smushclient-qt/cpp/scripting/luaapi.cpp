@@ -159,6 +159,13 @@ static int L_GetInfo(lua_State *L)
   return 1;
 }
 
+static int L_WindowInfo(lua_State *L)
+{
+  expectMaxArgs(L, 2);
+  qlua::pushQVariant(L, getApi(L).WindowInfo(qlua::getString(L, 1), qlua::getInt(L, 2)));
+  return 1;
+}
+
 static int L_Version(lua_State *L)
 {
   expectMaxArgs(L, 0);
@@ -601,7 +608,16 @@ static int L_WindowCreate(lua_State *L)
   const QColor bg = qlua::getQColor(L, 8);
   if (!position) [[unlikely]]
     return returnCode(L, ApiCode::BadParameter);
-  return returnCode(L, getApi(L).WindowCreate(windowName, location, size, *position, flags, bg));
+  return returnCode(
+      L,
+      getApi(L).WindowCreate(
+          getPluginIndex(L),
+          windowName,
+          location,
+          size,
+          *position,
+          flags,
+          bg));
 }
 
 static int L_WindowDrawImage(lua_State *L)

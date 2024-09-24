@@ -1,15 +1,16 @@
 #pragma once
 #include <string>
-#include <unordered_map>
-#include <QtWidgets/QLabel>
+#include <QtCore/QDateTime>
 #include <QtCore/QLine>
 #include <QtCore/QPoint>
 #include <QtCore/QRect>
 #include <QtCore/QSize>
-#include <QtGui/QPen>
 #include <QtGui/QPainter>
+#include <QtGui/QPen>
 #include <QtGui/QPixmap>
 #include <QtGui/QPolygon>
+#include <QtWidgets/QLabel>
+#include <unordered_map>
 #include "hotspot.h"
 
 class Hotspot;
@@ -24,9 +25,9 @@ public:
     // Copy without stretching to the destination position. The image is not clipped, so only the Left and Top parameters are used - the full image is copied to that position.
     Copy = 1,
     // Stretch or shrink the image appropriately to fit into the rectangle: Left, Top, Right, Bottom.
-    Stretch = 2,
+    Stretch,
     // Copy without stretching to the position Left, Top. However this is a transparent copy, where the pixel at the left,top corner (pixel position 0,0) is considered the transparent colour. Any pixels that exactly match that colour are not copied. WARNING - do not choose black or white as the transparent colour as that throws out the calculations. Choose some other colour (eg. purple) - you won't see that colour anyway.
-    CopyTransparent = 3,
+    CopyTransparent,
   };
 
   enum Flag
@@ -49,20 +50,20 @@ public:
 
   enum struct Position
   {
-    OutputStretch = 0, // Stretch to output view size
-    OutputScale = 1,   // Scale to output view with aspect ratio
-    OwnerStretch = 2,  // Stretch to owner size
-    OwnerScale = 3,    // Scale to owner size with aspect ratio
-    TopLeft = 4,
-    TopCenter = 5,
-    TopRight = 6,
-    CenterRight = 7,
-    BottomRight = 8,
-    BottomCenter = 9,
-    BottomLeft = 10,
-    CenterLeft = 11,
-    Center = 12,
-    Tile = 13,
+    OutputStretch, // Stretch to output view size
+    OutputScale,   // Scale to output view with aspect ratio
+    OwnerStretch,  // Stretch to owner size
+    OwnerScale,    // Scale to owner size with aspect ratio
+    TopLeft,
+    TopCenter,
+    TopRight,
+    CenterRight,
+    BottomRight,
+    BottomCenter,
+    BottomLeft,
+    CenterLeft,
+    Center,
+    Tile,
   };
 
   MiniWindow(
@@ -71,7 +72,8 @@ public:
       const QSize &size,
       Position position,
       Flags flags,
-      const QColor &fill);
+      const QColor &fill,
+      const QString &pluginID = QString());
   Hotspot *addHotspot(
       std::string_view hotspotID,
       const Plugin *plugin,
@@ -112,6 +114,7 @@ public:
   Hotspot *findHotspot(std::string_view hotspotID) const;
   int getZOrder() const noexcept;
   inline const QPixmap &getPixmap() const noexcept { return pixmap; }
+  QVariant info(int infoType) const;
   void invert(const QRect &rect, QImage::InvertMode mode = QImage::InvertMode::InvertRgb);
   void reset();
   void setPosition(const QPoint &location, Position position, Flags flags) noexcept;
@@ -148,6 +151,7 @@ protected:
 
 private:
   QColor background;
+  QDateTime installed;
   QSize dimensions;
   QFlags<Flag> flags;
   std::unordered_map<std::string, QFont> fonts;
@@ -155,6 +159,7 @@ private:
   std::unordered_map<std::string, QPixmap> images;
   QPoint location;
   QPixmap pixmap;
+  QString pluginID;
   Position position;
   int zOrder;
 

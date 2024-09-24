@@ -40,7 +40,7 @@ public:
   std::optional<std::string_view> GetVariable(size_t index, std::string_view key) const;
   std::optional<std::string_view> GetVariable(std::string_view pluginID, std::string_view key) const;
   const QString &GetPluginId(size_t index) const;
-  QVariant GetPluginInfo(std::string_view pluginID, uint8_t infoType) const;
+  QVariant GetPluginInfo(std::string_view pluginID, int infoType) const;
   void Hyperlink(
       const QString &action,
       const QString &text,
@@ -75,6 +75,7 @@ public:
       Qt::CursorShape cursor,
       bool trackHover) const;
   ApiCode WindowCreate(
+      size_t index,
       std::string_view windowName,
       const QPoint &location,
       const QSize &size,
@@ -128,6 +129,7 @@ public:
       std::string_view windowName,
       std::string_view imageID,
       std::string_view sourceWindow) const;
+  QVariant WindowInfo(std::string_view windowName, int infoType) const;
   ApiCode WindowInvert(std::string_view windowName, const QRect &rect) const;
   ApiCode WindowLine(
       std::string_view windowName,

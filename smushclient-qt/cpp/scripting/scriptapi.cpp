@@ -178,10 +178,10 @@ const QString &ScriptApi::GetPluginId(size_t index) const
   return plugins.at(index).id();
 }
 
-QVariant ScriptApi::GetPluginInfo(string_view pluginID, uint8_t infoType) const
+QVariant ScriptApi::GetPluginInfo(string_view pluginID, int infoType) const
 {
   const size_t index = findPluginIndex(pluginID);
-  if (index == noSuchPlugin) [[unlikely]]
+  if (index == noSuchPlugin || infoType < 0 || infoType > UINT8_MAX) [[unlikely]]
     return QVariant();
   switch (infoType)
   {
@@ -346,6 +346,7 @@ ApiCode ScriptApi::WindowAddHotspot(
 }
 
 ApiCode ScriptApi::WindowCreate(
+    size_t index,
     string_view name,
     const QPoint &location,
     const QSize &size,
@@ -362,7 +363,7 @@ ApiCode ScriptApi::WindowCreate(
   MiniWindow *window = windows[windowName];
   if (!window)
     window = windows[windowName] =
-        new MiniWindow(tab()->ui->area, location, size, position, flags, fill);
+        new MiniWindow(tab()->ui->area, location, size, position, flags, fill, plugins[index].id());
   else
   {
     window->setPosition(location, position, flags);
@@ -517,6 +518,14 @@ ApiCode ScriptApi::WindowImageFromWindow(
     return ApiCode::NoSuchWindow;
   window->loadImage(imageID, source->getPixmap());
   return ApiCode::OK;
+}
+
+QVariant ScriptApi::WindowInfo(std::string_view windowName, int infoType) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (!window) [[unlikely]]
+    return QVariant();
+  return window->info(infoType);
 }
 
 ApiCode ScriptApi::WindowInvert(string_view windowName, const QRect &rect) const

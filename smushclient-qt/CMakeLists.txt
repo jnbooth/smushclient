@@ -42,13 +42,15 @@ FetchContent_MakeAvailable(
 
 set(LUACONF_PATH ${lualibs_SOURCE_DIR}/lua/lua-5.4.7/include/luaconf.h)
 file(READ ${LUACONF_PATH} LUACONF_CONTENTS)
-string(REPLACE
-  "#define LUA_INT_TYPE	LUA_INT_DEFAULT"
-  "#define LUA_INT_TYPE	LUA_INT_INT"
-  LUACONF_CONTENTS
-  "${LUACONF_CONTENTS}"
-)
-file(WRITE ${LUACONF_PATH} "${LUACONF_CONTENTS}")
+if(LUACONF_CONTENTS MATCHES "#define LUA_INT_TYPE	LUA_INT_DEFAULT")
+  string(REPLACE
+    "#define LUA_INT_TYPE	LUA_INT_DEFAULT"
+    "#define LUA_INT_TYPE	LUA_INT_INT"
+    LUACONF_CONTENTS
+    "${LUACONF_CONTENTS}"
+  )
+  file(WRITE ${LUACONF_PATH} "${LUACONF_CONTENTS}")
+endif()
 
 # The path to the qmake executable path needs to be passed to the Rust
 # library's build script to ensure it uses the same installation of Qt as CMake.

@@ -76,6 +76,16 @@ inline bool buildMenu(QMenu *menu, string_view text)
   return returnsNumber;
 }
 
+const QWidget *getParentWidget(const QWidget *widget)
+{
+  if (!widget) [[unlikely]]
+    return widget;
+  const QWidget *parent = widget->parentWidget();
+  if (!parent) [[unlikely]]
+    return widget;
+  return parent;
+}
+
 constexpr int xCenter(const QSize &parent, const QSize &child) noexcept
 {
   return parent.height() - child.height() / 2;
@@ -185,13 +195,16 @@ MiniWindow::MiniWindow(
     const QSize &size,
     Position position,
     Flags flags,
-    const QColor &fill)
+    const QColor &fill,
+    const QString &pluginID)
     : QWidget(parent),
       background(fill),
       dimensions(size),
       flags(flags),
+      installed(QDateTime::currentDateTime()),
       location(location),
       pixmap(size),
+      pluginID(pluginID),
       position(position)
 {
   setAttribute(Qt::WA_OpaquePaintEvent);
@@ -399,6 +412,57 @@ int MiniWindow::getZOrder() const noexcept
   return zOrder;
 }
 
+QVariant MiniWindow::info(int infoType) const
+{
+  switch (infoType)
+  {
+  case 1: // X
+    return location.x();
+  case 2: // Y
+    return location.y();
+  case 3: // Width
+    return width();
+  case 4: // Height
+    return height();
+  case 5: // Visible
+    return isVisible();
+  case 6: // Hidden
+    return isHidden();
+  case 7: // Position
+    return (int)position;
+  case 8: // Flags
+    return (int)flags;
+  case 9: // Background
+    return background;
+  case 10: // Left
+    return rect().left();
+  case 11: // Top
+    return rect().top();
+  case 12: // Right
+    return rect().right();
+  case 13: // Bottom
+    return rect().bottom();
+  case 14: // MouseCursorX
+    return mapFromGlobal(QCursor::pos()).x();
+  case 15: // MouseCursorY
+    return mapFromGlobal(QCursor::pos()).y();
+  case 16: // DragCursorX
+    return getParentWidget(this)->mapFromGlobal(QCursor::pos()).x();
+  case 17: // DragCursorY
+    return getParentWidget(this)->mapFromGlobal(QCursor::pos()).y();
+  case 18: // CursorIncrement
+    return 0;
+  case 19: // InstallTime
+    return installed;
+  case 20: // ZOrder
+    return zOrder;
+  case 21: // PluginID
+    return pluginID;
+  default:
+    return QVariant();
+  }
+}
+
 void MiniWindow::invert(const QRect &rect, QImage::InvertMode mode)
 {
   QImage image = pixmap.copy(rect).toImage();
@@ -431,18 +495,12 @@ void MiniWindow::setZOrder(int order) noexcept
   zOrder = order;
 }
 
-inline QSize getParentSize(const QWidget &widget)
-{
-  const QWidget *parent = widget.parentWidget();
-  return parent ? parent->size() : widget.size();
-}
-
 void MiniWindow::updatePosition()
 {
   const QRect geometry =
       flags.testFlag(Flag::Absolute)
           ? QRect(location, dimensions)
-          : calculateGeometry(position, getParentSize(*this), dimensions);
+          : calculateGeometry(position, getParentWidget(this)->size(), dimensions);
 
   const QSize newDimensions = geometry.size();
   if (newDimensions != dimensions)
