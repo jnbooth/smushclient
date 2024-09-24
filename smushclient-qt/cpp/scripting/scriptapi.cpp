@@ -589,6 +589,13 @@ ApiCode ScriptApi::WindowMoveHotspot(
   hotspot->setGeometry(geometry);
   return ApiCode::OK;
 }
+
+ApiCode ScriptApi::SetCursor(Qt::CursorShape cursor) const
+{
+  tab()->ui->area->setCursor(cursor);
+  return ApiCode::OK;
+}
+
 ApiCode ScriptApi::WindowPolygon(
     string_view windowName,
     const QPolygonF &polygon,

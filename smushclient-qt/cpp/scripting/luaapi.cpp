@@ -303,6 +303,14 @@ static int L_SetClipboard(lua_State *L)
   return 0;
 }
 
+static int L_SetCursor(lua_State *L)
+{
+  optional<Qt::CursorShape> cursor = qlua::getCursor(L, 1);
+  if (!cursor)
+    return returnCode(L, ApiCode::BadParameter);
+  return returnCode(L, getApi(L).SetCursor(*cursor));
+}
+
 static int L_Tell(lua_State *L)
 {
   insertTexts(L, getApi(L));
@@ -920,6 +928,7 @@ static const struct luaL_Reg worldlib[] =
      {"Send", L_Send},
      {"SendNoEcho", L_SendNoEcho},
      {"SetClipboard", L_SetClipboard},
+     {"SetCursor", L_SetCursor},
      {"Tell", L_Tell},
      // plugins
      {"CallPlugin", L_CallPlugin},

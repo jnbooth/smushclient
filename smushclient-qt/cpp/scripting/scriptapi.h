@@ -54,6 +54,7 @@ public:
   ApiCode IsTrigger(const QString &label) const;
   ApiCode Send(const QByteArrayView &bytes);
   ApiCode SendNoEcho(const QByteArrayView &bytes) const;
+  ApiCode SetCursor(Qt::CursorShape cursor) const;
   ApiCode SetOption(std::string_view name, const QVariant &variant) const;
   bool SetVariable(size_t index, std::string_view key, std::string_view value) const;
   void Tell(const QString &text);
