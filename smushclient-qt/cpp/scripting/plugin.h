@@ -3,12 +3,9 @@
 #include <unordered_map>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
-#include "luaconf.h"
 
 class ScriptApi;
 struct lua_State;
-
-typedef LUA_INTEGER lua_Integer;
 
 struct PluginMetadata
 {
@@ -33,7 +30,7 @@ public:
   inline const QString &id() const noexcept { return metadata.id; }
   inline bool disabled() const noexcept { return isDisabled; };
   inline const QString &name() const noexcept { return metadata.name; }
-  bool runCallback(std::string_view name, lua_Integer arg1, std::string_view arg2) const;
+  bool runCallback(std::string_view name, int arg1, std::string_view arg2) const;
   bool runScript(const QString &script) const;
   inline lua_State *state() const noexcept { return L; }
 

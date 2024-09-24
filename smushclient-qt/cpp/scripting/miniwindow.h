@@ -11,9 +11,7 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QPolygon>
 #include "hotspot.h"
-#include "luaconf.h"
 
-typedef LUA_INTEGER lua_Integer;
 class Hotspot;
 class ImageFilter;
 class Plugin;
@@ -49,7 +47,7 @@ public:
   };
   Q_DECLARE_FLAGS(Flags, Flag)
 
-  enum struct Position : lua_Integer
+  enum struct Position
   {
     OutputStretch = 0, // Stretch to output view size
     OutputScale = 1,   // Scale to output view with aspect ratio

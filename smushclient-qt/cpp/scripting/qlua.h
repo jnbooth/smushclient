@@ -35,14 +35,14 @@ namespace qlua
 
   QByteArrayView getBytes(lua_State *L, int idx);
 
-  lua_Integer getInt(lua_State *L, int idx);
-  lua_Integer getInt(lua_State *L, int idx, lua_Integer ifNil);
+  int getInt(lua_State *L, int idx);
+  int getInt(lua_State *L, int idx, int ifNil);
 
-  lua_Number getNumber(lua_State *L, int idx);
-  lua_Number getNumber(lua_State *L, int idx, lua_Number ifNil);
+  double getNumber(lua_State *L, int idx);
+  double getNumber(lua_State *L, int idx, double ifNil);
 
-  lua_Number getNumberOrBool(lua_State *L, int idx);
-  lua_Number getNumberOrBool(lua_State *L, int idx, lua_Number ifNil);
+  double getNumberOrBool(lua_State *L, int idx);
+  double getNumberOrBool(lua_State *L, int idx, double ifNil);
 
   QColor getQColor(lua_State *L, int idx);
   QColor getQColor(lua_State *L, int idx, QColor ifNil);

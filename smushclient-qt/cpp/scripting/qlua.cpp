@@ -27,7 +27,7 @@ bool checkIsSome(lua_State *L, int idx, int type, const char *name)
   return true;
 }
 
-lua_Integer toInt(lua_State *L, int idx)
+int toInt(lua_State *L, int idx)
 {
   int isInt;
   const int result = lua_tointegerx(L, idx, &isInt);
@@ -70,7 +70,7 @@ QVariantMap toQMap(lua_State *L, int idx)
 QVariantList toQVariants(lua_State *L, int idx, qsizetype size)
 {
   QVariantList variants(size);
-  for (lua_Integer i = 1; i <= size; ++i)
+  for (int i = 1; i <= size; ++i)
   {
     int type = lua_rawgeti(L, idx, i);
     variants.append(qlua::getQVariant(L, -1, type));
@@ -144,29 +144,29 @@ QByteArrayView qlua::getBytes(lua_State *L, int idx)
   return QByteArrayView(message, len);
 }
 
-lua_Integer qlua::getInt(lua_State *L, int idx)
+int qlua::getInt(lua_State *L, int idx)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TNUMBER, idx, "integer");
   return toInt(L, idx);
 }
 
-lua_Integer qlua::getInt(lua_State *L, int idx, lua_Integer ifNil)
+int qlua::getInt(lua_State *L, int idx, int ifNil)
 {
   return (checkIsSome(L, idx, LUA_TNUMBER, "integer")) ? toInt(L, idx) : ifNil;
 }
 
-lua_Number qlua::getNumber(lua_State *L, int idx)
+double qlua::getNumber(lua_State *L, int idx)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TNUMBER, idx, "number");
   return lua_tonumber(L, idx);
 }
 
-lua_Number qlua::getNumber(lua_State *L, int idx, lua_Number ifNil)
+double qlua::getNumber(lua_State *L, int idx, double ifNil)
 {
   return checkIsSome(L, idx, LUA_TNUMBER, "number") ? lua_tonumber(L, idx) : ifNil;
 }
 
-lua_Number qlua::getNumberOrBool(lua_State *L, int idx)
+double qlua::getNumberOrBool(lua_State *L, int idx)
 {
   switch (lua_type(L, idx))
   {
@@ -179,7 +179,7 @@ lua_Number qlua::getNumberOrBool(lua_State *L, int idx)
   return 0;                         // unreachable
 }
 
-lua_Number qlua::getNumberOrBool(lua_State *L, int idx, lua_Number ifNil)
+double qlua::getNumberOrBool(lua_State *L, int idx, double ifNil)
 {
   switch (lua_type(L, idx))
   {
@@ -243,7 +243,7 @@ QVariant qlua::getQVariant(lua_State *L, int idx, int type)
   case LUA_TSTRING:
     return QVariant(getQString(L, idx));
   case LUA_TTABLE:
-    if (lua_Integer len = lua_rawlen(L, idx))
+    if (int len = lua_rawlen(L, idx))
       return QVariant(toQVariants(L, idx, len));
     if (const QVariantMap map = toQMap(L, idx); map.size())
       return QVariant(map);
@@ -390,7 +390,7 @@ const char *qlua::pushQString(lua_State *L, const QString &string)
 void qlua::pushQStrings(lua_State *L, const QStringList &strings)
 {
   lua_createtable(L, strings.size(), 0);
-  lua_Integer i = 1;
+  int i = 1;
   for (const QString &string : strings)
   {
     pushQString(L, string);
@@ -419,12 +419,12 @@ void qlua::pushQVariant(lua_State *L, const QVariant &variant)
   case QMetaType::ULong:
   case QMetaType::ULongLong:
   case QMetaType::UShort:
-    lua_pushinteger(L, variant.value<lua_Integer>());
+    lua_pushinteger(L, variant.toInt());
     return;
   case QMetaType::Double:
   case QMetaType::Float:
   case QMetaType::Float16:
-    lua_pushnumber(L, variant.value<lua_Number>());
+    lua_pushnumber(L, variant.toDouble());
     return;
   case QMetaType::QChar:
     pushQString(L, variant.toChar());
@@ -485,7 +485,7 @@ void qlua::pushQVariant(lua_State *L, const QVariant &variant)
 void qlua::pushQVariants(lua_State *L, const QVariantList &variants)
 {
   lua_createtable(L, variants.size(), 0);
-  lua_Integer i = 1;
+  int i = 1;
   for (const QVariant &variant : variants)
   {
     pushQVariant(L, variant);
@@ -597,8 +597,8 @@ inline optional<T> getEnum(lua_State *L, int idx, optional<T> ifNil)
 {
   if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))
     return ifNil;
-  const lua_Integer val = toInt(L, idx);
-  if (val < (lua_Integer)MIN || val > (lua_Integer)MAX) [[unlikely]]
+  const int val = toInt(L, idx);
+  if (val < (int)MIN || val > (int)MAX) [[unlikely]]
     return nullopt;
   return (T)val;
 }
@@ -727,7 +727,7 @@ optional<QFont::StyleHint> qlua::getFontHint(lua_State *L, int idx, optional<QFo
   }
 }
 
-constexpr Qt::PenStyle getPenStyle(lua_Integer style) noexcept
+constexpr Qt::PenStyle getPenStyle(int style) noexcept
 {
   switch (style & 0xFF)
   {
@@ -750,7 +750,7 @@ constexpr Qt::PenStyle getPenStyle(lua_Integer style) noexcept
   }
 }
 
-constexpr Qt::PenCapStyle getPenCap(lua_Integer style) noexcept
+constexpr Qt::PenCapStyle getPenCap(int style) noexcept
 {
   switch (style & 0xF00)
   {
@@ -765,7 +765,7 @@ constexpr Qt::PenCapStyle getPenCap(lua_Integer style) noexcept
   }
 }
 
-constexpr Qt::PenJoinStyle getPenJoin(lua_Integer style) noexcept
+constexpr Qt::PenJoinStyle getPenJoin(int style) noexcept
 {
   switch (style & ~0XFFF)
   {
@@ -783,8 +783,8 @@ constexpr Qt::PenJoinStyle getPenJoin(lua_Integer style) noexcept
 optional<QPen> qlua::getPen(lua_State *L, int idxColor, int idxStyle, int idxWidth)
 {
   const QColor color = getQColor(L, idxColor);
-  const lua_Integer style = getInt(L, idxStyle);
-  const lua_Number width = getNumber(L, idxWidth);
+  const int style = getInt(L, idxStyle);
+  const double width = getNumber(L, idxWidth);
   if (style < 0 || width < 0) [[unlikely]]
     return nullopt;
 

@@ -81,13 +81,13 @@ QString fmtBadReturn(const Plugin &plugin, string_view routine, int idx, const c
 
 inline int returnCode(lua_State *L, ApiCode code)
 {
-  lua_pushinteger(L, (lua_Integer)code);
+  lua_pushinteger(L, (int)code);
   return 1;
 }
 
 inline int returnCode(lua_State *L, ApiCode code, const QString &reason)
 {
-  lua_pushinteger(L, (lua_Integer)code);
+  lua_pushinteger(L, (int)code);
   qlua::pushQString(L, reason);
   return 2;
 }
@@ -221,14 +221,14 @@ static int L_GetOption(lua_State *L)
   case QMetaType::Double:
   case QMetaType::Float:
   case QMetaType::Float16:
-    lua_pushnumber(L, option.value<lua_Number>());
+    lua_pushnumber(L, option.toDouble());
     break;
   case QMetaType::QColor:
     lua_pushinteger(L, qlua::colorToRgbCode(option.value<QColor>()));
     break;
   default:
-    if (option.canConvert<lua_Integer>())
-      lua_pushinteger(L, option.value<lua_Integer>());
+    if (option.canConvert<int>())
+      lua_pushinteger(L, option.value<int>());
     else
       lua_pushinteger(L, -1);
   }
@@ -381,7 +381,7 @@ static int L_CallPlugin(lua_State *L)
   if (lua_pcall(L2, n, LUA_MULTRET, 0) != LUA_OK)
   {
     lua_settop(L, 0);
-    lua_pushinteger(L, (lua_Integer)ApiCode::ErrorCallingPluginRoutine);
+    lua_pushinteger(L, (int)ApiCode::ErrorCallingPluginRoutine);
     qlua::pushQString(L, fmtCallError(plugin, routine));
     size_t size = 0;
     lua_pushlstring(L, lua_tolstring(L2, -1, &size), size);
@@ -393,7 +393,7 @@ static int L_CallPlugin(lua_State *L)
   const int nresults = topAfter - topBefore + 1;
   lua_settop(L, 0);
   luaL_checkstack(L, nresults, nullptr);
-  lua_pushinteger(L, (lua_Integer)ApiCode::OK);
+  lua_pushinteger(L, (int)ApiCode::OK);
   for (int i = topBefore + 1; i <= topAfter; ++i)
   {
     if (!qlua::copyValue(L, L2, i))
@@ -421,7 +421,7 @@ static int L_GetPluginInfo(lua_State *L)
 {
   expectMaxArgs(L, 2);
   const string_view pluginID = qlua::getString(L, 1);
-  const lua_Integer infoType = qlua::getInt(L, 2);
+  const int infoType = qlua::getInt(L, 2);
   if (infoType > UINT8_MAX) [[unlikely]]
     lua_pushnil(L);
   else
@@ -555,7 +555,7 @@ static int L_WindowCircleOp(lua_State *L)
 {
   expectMaxArgs(L, 15);
   const string_view windowName = qlua::getString(L, 1);
-  const lua_Integer action = qlua::getInt(L, 2);
+  const int action = qlua::getInt(L, 2);
   const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
   const optional<QPen> pen = qlua::getPen(L, 7, 8, 9);
   const QColor brushColor = qlua::getQColor(L, 10);
@@ -626,7 +626,7 @@ static int L_WindowDrawImageAlpha(lua_State *L)
   const string_view windowName = qlua::getString(L, 1);
   const string_view imageID = qlua::getString(L, 2);
   const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
-  const lua_Number opacity = qlua::getNumber(L, 7);
+  const double opacity = qlua::getNumber(L, 7);
   const QPointF origin = n >= 8 ? qlua::getQPointF(L, 8, 9) : QPointF();
   return returnCode(
       L,
@@ -702,7 +702,7 @@ static int L_WindowFont(lua_State *L)
   const string_view windowName = qlua::getString(L, 1);
   const string_view fontID = qlua::getString(L, 2);
   const QString fontName = qlua::getQString(L, 3);
-  const qreal pointSize = qlua::getNumber(L, 4);
+  const double pointSize = qlua::getNumber(L, 4);
   if (pointSize == 0 && fontName.isEmpty()) [[unlikely]]
     return returnCode(L, getApi(L).WindowUnloadFont(windowName, fontID));
   const bool bold = qlua::getBool(L, 5, false);
@@ -734,8 +734,8 @@ static int L_WindowGradient(lua_State *L)
   const QRectF rect = qlua::getQRectF(L, 2, 3, 4, 5);
   const QColor color1 = qlua::getQColor(L, 6);
   const QColor color2 = qlua::getQColor(L, 7);
-  const lua_Integer mode = qlua::getInt(L, 8);
-  if (mode != (lua_Integer)Qt::Horizontal && mode != (lua_Integer)Qt::Vertical) [[unlikely]]
+  const int mode = qlua::getInt(L, 8);
+  if (mode != (int)Qt::Horizontal && mode != (int)Qt::Vertical) [[unlikely]]
     return returnCode(L, ApiCode::UnknownOption);
   return returnCode(
       L,
@@ -823,7 +823,7 @@ static int L_WindowRectOp(lua_State *L)
 {
   expectMaxArgs(L, 8);
   const string_view windowName = qlua::getString(L, 1);
-  const lua_Integer action = qlua::getInt(L, 2);
+  const int action = qlua::getInt(L, 2);
   const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
   switch (action)
   {

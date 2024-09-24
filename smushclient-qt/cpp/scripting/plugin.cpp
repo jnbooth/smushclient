@@ -120,7 +120,7 @@ QString Plugin::getError() const
   return qlua::getError(L);
 }
 
-bool Plugin::runCallback(string_view name, lua_Integer arg1, string_view arg2) const
+bool Plugin::runCallback(string_view name, int arg1, string_view arg2) const
 {
   if (isDisabled) [[unlikely]]
     return false;

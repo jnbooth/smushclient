@@ -1,9 +1,6 @@
 #pragma once
-#include "luaconf.h"
 
-typedef LUA_INTEGER lua_Integer;
-
-enum struct ApiCode : lua_Integer
+enum struct ApiCode
 {
   OK = 0,                             // No error
   WorldOpen = 30001,                  // The world is already open
