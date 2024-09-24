@@ -110,6 +110,7 @@ public:
       const QRectF &rect,
       const QColor &color);
   inline bool drawsUnderneath() const noexcept { return flags.testFlag(Flag::DrawUnderneath); }
+  QVariant execMenu(const QPoint &location, std::string_view menuString);
   Hotspot *findHotspot(std::string_view hotspotID) const;
   int getZOrder() const noexcept;
   inline const QPixmap &getPixmap() const noexcept { return pixmap; }

@@ -712,6 +712,16 @@ static int L_WindowLoadImage(lua_State *L)
   return returnCode(L, getApi(L).WindowLoadImage(windowName, imageID, filename));
 }
 
+static int L_WindowMenu(lua_State *L)
+{
+  const QVariant result = getApi(L).WindowMenu(
+      qlua::getString(L, 1),
+      qlua::getQPoint(L, 2, 3),
+      qlua::getString(L, 4));
+  qlua::pushQVariant(L, result);
+  return 1;
+}
+
 static int L_WindowPolygon(lua_State *L)
 {
   const string_view windowName = qlua::getString(L, 1);
@@ -944,6 +954,7 @@ static const struct luaL_Reg worldlib[] =
      {"WindowGradient", L_WindowGradient},
      {"WindowLine", L_WindowLine},
      {"WindowLoadImage", L_WindowLoadImage},
+     {"WindowMenu", L_WindowMenu},
      {"WindowPolygon", L_WindowPolygon},
      {"WindowPosition", L_WindowPosition},
      {"WindowRectOp", L_WindowRectOp},

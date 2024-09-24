@@ -135,6 +135,10 @@ public:
       std::string_view windowName,
       std::string_view imageID,
       const QString &filename) const;
+  QVariant WindowMenu(
+      std::string_view windowName,
+      const QPoint &location,
+      std::string_view menuString) const;
   ApiCode WindowMoveHotspot(
       std::string_view windowName,
       std::string_view hotspotID,

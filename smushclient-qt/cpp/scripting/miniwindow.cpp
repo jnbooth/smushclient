@@ -4,14 +4,77 @@
 #include <QtWidgets/QLayout>
 #include <QtGui/QPaintEvent>
 #include <QtGui/QResizeEvent>
+#include <QtWidgets/QMenu>
 #include "hotspot.h"
 #include "imagefilters.h"
 
 using std::string;
 using std::string_view;
 using std::unordered_map;
+using std::vector;
 
 // Utils
+
+inline bool buildMenu(QMenu *menu, string_view text)
+{
+  const size_t menuCount = 1 + std::count(text.cbegin(), text.cend(), '>');
+  vector<QMenu *> menus(menuCount);
+  menus.push_back(menu);
+  std::istringstream stream((string)text);
+  const bool returnsNumber = stream.peek() == '!';
+  if (returnsNumber)
+    stream.get();
+  if (stream.peek() == '~')
+  {
+    stream.get(); // ~
+    stream.get(); // horizontal alignment
+    stream.get(); // vertical alignment
+  }
+  for (string item; std::getline(stream, item, '|');)
+  {
+    item.erase(std::remove_if(item.begin(), item.end(), ::isspace), item.end());
+    if (item == "-" || item == "")
+    {
+      menus.back()->addSeparator();
+      continue;
+    }
+    const char first = item.front();
+    if (first == '>') // nested menu
+    {
+      const QString menuTitle = QString::fromUtf8(item.data() + 1, item.size() - 1);
+      menus.push_back(menus.back()->addMenu(menuTitle));
+      continue;
+    }
+    if (first == '<')
+    {
+      if (menus.size() > 1)
+        menus.pop_back();
+      continue;
+    }
+    QMenu *menu = menus.back();
+    QAction *action = new QAction(menu);
+
+    char *start = item.data();
+    size_t size = item.size();
+
+    for (; size; ++start, --size)
+    {
+      switch (*start)
+      {
+      case '+':
+        action->setCheckable(true);
+        continue;
+      case '^':
+        action->setDisabled(true);
+        continue;
+      }
+      break;
+    }
+    action->setText(QString::fromUtf8(start, size));
+    menu->addAction(action);
+  }
+  return returnsNumber;
+}
 
 constexpr int xCenter(const QSize &parent, const QSize &child) noexcept
 {
@@ -294,6 +357,17 @@ QRectF MiniWindow::drawText(
   QRectF boundingRect;
   painter.drawText(rect, 0, text, &boundingRect);
   return boundingRect;
+}
+
+QVariant MiniWindow::execMenu(const QPoint &location, string_view menuString)
+{
+  QMenu menu(this);
+  const bool returnsNumber = buildMenu(&menu, menuString);
+  const QAction *choice = menu.exec(location);
+  if (!choice)
+    return QVariant();
+  const QString text = choice->text();
+  return returnsNumber ? QVariant(text.toDouble()) : QVariant(text);
 }
 
 Hotspot *MiniWindow::findHotspot(string_view hotspotID) const

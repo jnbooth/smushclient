@@ -682,7 +682,7 @@ optional<QPen> qlua::getPen(lua_State *L, int idxColor, int idxStyle, int idxWid
 optional<QPolygonF> qlua::getQPolygonF(lua_State *L, int idx)
 {
   const string_view s = getString(L, idx);
-  const qsizetype commaCount = std::count(s.begin(), s.end(), ',');
+  const qsizetype commaCount = std::count(s.cbegin(), s.cend(), ',');
   if (commaCount % 2 == 0 || commaCount < 3) [[unlikely]]
     return nullopt;
   QList<QPointF> points((commaCount + 1) / 2);

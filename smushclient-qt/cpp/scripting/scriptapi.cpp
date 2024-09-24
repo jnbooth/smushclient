@@ -564,6 +564,17 @@ ApiCode ScriptApi::WindowLoadImage(
   return ApiCode::FileNotFound;
 }
 
+QVariant ScriptApi::WindowMenu(
+    std::string_view windowName,
+    const QPoint &location,
+    std::string_view menuString) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (!window) [[unlikely]]
+    return QVariant();
+  return window->execMenu(location, menuString);
+}
+
 ApiCode ScriptApi::WindowMoveHotspot(
     string_view windowName,
     string_view hotspotID,
