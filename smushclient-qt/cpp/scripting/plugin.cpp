@@ -48,13 +48,19 @@ QString formatRuntimeError(lua_State *L)
   return ScriptApi::tr("Compile error: %1").arg(qlua::getError(L));
 }
 
-static int panic(lua_State *L)
+static int L_panic(lua_State *L)
 {
   QErrorMessage::qtHandler()->showMessage(formatPanic(L));
   return 0;
 }
 
-inline bool api_pcall(lua_State *L, int nargs, int nreturn)
+static int L_print(lua_State *L)
+{
+  getApi(L).Tell(qlua::concatStrings(L));
+  return 0;
+}
+
+inline bool L_api_pcall(lua_State *L, int nargs, int nreturn)
 {
   if (checkError(lua_pcall(L, nargs, nreturn, 0))) [[unlikely]]
   {
@@ -73,7 +79,9 @@ Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
   if (!L)
     throw std::bad_alloc();
 
-  lua_atpanic(L, &panic);
+  lua_atpanic(L, &L_panic);
+  lua_pushcfunction(L, L_print);
+  lua_setglobal(L, "print");
   luaL_openlibs(L);
   luaopen_bc(L);
   luaopen_bit(L);
@@ -120,7 +128,7 @@ bool Plugin::runCallback(string_view name, lua_Integer arg1, string_view arg2) c
   lua_getglobal(L, name.data());
   lua_pushinteger(L, arg1);
   qlua::pushString(L, arg2);
-  return api_pcall(L, 2, 0);
+  return L_api_pcall(L, 2, 0);
 }
 
 bool Plugin::runScript(const QString &script) const
@@ -134,5 +142,5 @@ bool Plugin::runScript(const QString &script) const
     return false;
   }
 
-  return api_pcall(L, 0, 0);
+  return L_api_pcall(L, 0, 0);
 }
