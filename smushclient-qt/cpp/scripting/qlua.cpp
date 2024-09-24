@@ -59,7 +59,10 @@ QVariantMap toQMap(lua_State *L, int idx)
   QVariantMap map;
   lua_pushnil(L); // first key
   while (lua_next(L, idx) != 0)
+  {
     map[toQString(L, -2)] = qlua::getQVariant(L, -1);
+    lua_pop(L, 1);
+  }
 
   return map;
 }
@@ -90,14 +93,6 @@ QString qlua::getError(lua_State *L)
   return QString::fromUtf8(message, len);
 }
 
-QByteArrayView qlua::borrowBytes(lua_State *L, int idx)
-{
-  luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
-  size_t len;
-  const char *message = lua_tolstring(L, idx, &len);
-  return QByteArrayView(message, len);
-}
-
 bool qlua::getBool(lua_State *L, int idx)
 {
   switch (lua_type(L, idx))
@@ -120,7 +115,33 @@ bool qlua::getBool(lua_State *L, int idx)
 
 bool qlua::getBool(lua_State *L, int idx, bool ifNil)
 {
-  return checkIsSome(L, idx, LUA_TBOOLEAN, "boolean") ? lua_toboolean(L, idx) : ifNil;
+  switch (lua_type(L, idx))
+  {
+  case LUA_TNONE:
+  case LUA_TNIL:
+    return ifNil;
+  case LUA_TBOOLEAN:
+    return lua_toboolean(L, idx);
+  case LUA_TNUMBER:
+    if (int isInt, value = lua_tointegerx(L, idx, &isInt); isInt)
+      switch (value)
+      {
+      case 0:
+        return false;
+      case 1:
+        return true;
+      }
+  }
+  luaL_typeerror(L, idx, "boolean"); // exits function
+  return false;                      // unreachable
+}
+
+QByteArrayView qlua::getBytes(lua_State *L, int idx)
+{
+  luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
+  size_t len;
+  const char *message = lua_tolstring(L, idx, &len);
+  return QByteArrayView(message, len);
 }
 
 lua_Integer qlua::getInt(lua_State *L, int idx)
@@ -143,6 +164,35 @@ lua_Number qlua::getNumber(lua_State *L, int idx)
 lua_Number qlua::getNumber(lua_State *L, int idx, lua_Number ifNil)
 {
   return checkIsSome(L, idx, LUA_TNUMBER, "number") ? lua_tonumber(L, idx) : ifNil;
+}
+
+lua_Number qlua::getNumberOrBool(lua_State *L, int idx)
+{
+  switch (lua_type(L, idx))
+  {
+  case LUA_TBOOLEAN:
+    return lua_toboolean(L, idx);
+  case LUA_TNUMBER:
+    return lua_tonumber(L, idx);
+  }
+  luaL_typeerror(L, idx, "number"); // exits function
+  return 0;                         // unreachable
+}
+
+lua_Number qlua::getNumberOrBool(lua_State *L, int idx, lua_Number ifNil)
+{
+  switch (lua_type(L, idx))
+  {
+  case LUA_TNONE:
+  case LUA_TNIL:
+    return ifNil;
+  case LUA_TBOOLEAN:
+    return lua_toboolean(L, idx);
+  case LUA_TNUMBER:
+    return lua_tonumber(L, idx);
+  }
+  luaL_typeerror(L, idx, "number"); // exits function
+  return 0;                         // unreachable
 }
 
 QColor qlua::getQColor(lua_State *L, int idx)
@@ -212,6 +262,74 @@ string_view qlua::getString(lua_State *L, int idx)
 string_view qlua::getString(lua_State *L, int idx, string_view ifNil)
 {
   return checkIsSome(L, idx, LUA_TSTRING, "string") ? toString(L, idx) : ifNil;
+}
+
+QByteArray qlua::concatBytes(lua_State *L)
+{
+  const int n = lua_gettop(L);
+  lua_Unsigned messageSize = 0;
+  for (int i = 1; i <= n; ++i)
+  {
+    luaL_argexpected(L, lua_type(L, i) == LUA_TSTRING, i, "string");
+    messageSize += lua_rawlen(L, i);
+  }
+  QByteArray bytes;
+  bytes.reserve(messageSize);
+  size_t chunkLen;
+  for (int i = 1; i <= n; ++i)
+    bytes.append(lua_tolstring(L, i, &chunkLen), chunkLen);
+  return bytes;
+}
+
+QString qlua::concatStrings(lua_State *L, const QString &delimiter)
+{
+  const int n = lua_gettop(L);
+  bool needsToString = true;
+  QString text;
+  size_t sLen;
+  for (int i = 1; i <= n; ++i)
+  {
+    if (i > 1)
+      text.append(delimiter);
+    switch (lua_type(L, i))
+    {
+    case LUA_TNIL:
+      text.append(QStringLiteral("nil"));
+      break;
+    case LUA_TBOOLEAN:
+      text.append(lua_toboolean(L, i) ? QStringLiteral("true") : QStringLiteral("false"));
+      break;
+    case LUA_TNUMBER:
+      if (int isInt, result = lua_tointegerx(L, i, &isInt); isInt)
+        text.append(QString::number(result));
+      else
+        text.append(QString::number(lua_tonumber(L, i)));
+      break;
+    case LUA_TSTRING:
+      text.append(QUtf8StringView(lua_tolstring(L, i, &sLen), sLen));
+      break;
+    default:
+      if (needsToString)
+      {
+        needsToString = false;
+        lua_getglobal(L, "tostring");
+      }
+      lua_pushvalue(L, -1); // tostring
+      lua_pushvalue(L, i);  // argument
+      lua_call(L, 1, 1);
+      if (const char *s = lua_tolstring(L, -1, &sLen); s)
+      {
+        text.append(QUtf8StringView(s, sLen));
+        lua_pop(L, 1);
+        break;
+      }
+      lua_pushstring(L, "'tostring' must return a string to be concatenated");
+      lua_error(L);
+    }
+  }
+  if (!needsToString)
+    lua_pop(L, 1);
+  return text;
 }
 
 int qlua::loadQString(lua_State *L, const QString &chunk)

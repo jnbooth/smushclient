@@ -30,16 +30,19 @@ namespace qlua
 
   QString getError(lua_State *L);
 
-  QByteArrayView borrowBytes(lua_State *L, int idx);
-
   bool getBool(lua_State *L, int idx);
   bool getBool(lua_State *L, int idx, bool ifNil);
+
+  QByteArrayView getBytes(lua_State *L, int idx);
 
   lua_Integer getInt(lua_State *L, int idx);
   lua_Integer getInt(lua_State *L, int idx, lua_Integer ifNil);
 
   lua_Number getNumber(lua_State *L, int idx);
   lua_Number getNumber(lua_State *L, int idx, lua_Number ifNil);
+
+  lua_Number getNumberOrBool(lua_State *L, int idx);
+  lua_Number getNumberOrBool(lua_State *L, int idx, lua_Number ifNil);
 
   QColor getQColor(lua_State *L, int idx);
   QColor getQColor(lua_State *L, int idx, QColor ifNil);
@@ -52,6 +55,9 @@ namespace qlua
 
   std::string_view getString(lua_State *L, int idx);
   std::string_view getString(lua_State *L, int idx, std::string_view ifNil);
+
+  QByteArray concatBytes(lua_State *L);
+  QString concatStrings(lua_State *L, const QString &delimiter = QString());
 
   int loadQString(lua_State *L, const QString &chunk);
 
