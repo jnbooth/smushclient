@@ -166,6 +166,24 @@ static int L_Version(lua_State *L)
   return 1;
 }
 
+// input
+
+static int L_Send(lua_State *L)
+{
+  return returnCode(L, getApi(L).Send(qlua::concatBytes(L)));
+}
+
+static int L_SendNoEcho(lua_State *L)
+{
+  return returnCode(L, getApi(L).SendNoEcho(qlua::concatBytes(L)));
+}
+
+static int L_SendPkt(lua_State *L)
+{
+  expectMaxArgs(L, 1);
+  return returnCode(L, getApi(L).SendPacket(qlua::getBytes(L, 1)));
+}
+
 // options
 
 static int L_GetAlphaOption(lua_State *L)
@@ -298,16 +316,6 @@ static int L_RGBColourToName(lua_State *L)
   expectMaxArgs(L, 1);
   qlua::pushQColor(L, qlua::rgbCodeToColor(qlua::getInt(L, 1)));
   return 1;
-}
-
-static int L_Send(lua_State *L)
-{
-  return returnCode(L, getApi(L).Send(qlua::concatBytes(L)));
-}
-
-static int L_SendNoEcho(lua_State *L)
-{
-  return returnCode(L, getApi(L).SendNoEcho(qlua::concatBytes(L)));
 }
 
 static int L_SetClipboard(lua_State *L)
@@ -974,6 +982,10 @@ static const struct luaL_Reg worldlib[] =
     // info
     {{"GetInfo", L_GetInfo},
      {"Version", L_Version},
+     // input
+     {"Send", L_Send},
+     {"SendNoEcho", L_SendNoEcho},
+     {"SendPkt", L_SendPkt},
      // options
      {"GetAlphaOption", L_GetAlphaOption},
      {"GetAlphaOptionList", L_GetAlphaOptionList},
@@ -989,8 +1001,6 @@ static const struct luaL_Reg worldlib[] =
      {"Hyperlink", L_Hyperlink},
      {"Note", L_Note},
      {"RGBColourToName", L_RGBColourToName},
-     {"Send", L_Send},
-     {"SendNoEcho", L_SendNoEcho},
      {"SetClipboard", L_SetClipboard},
      {"SetCursor", L_SetCursor},
      {"Tell", L_Tell},

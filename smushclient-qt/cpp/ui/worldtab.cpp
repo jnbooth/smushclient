@@ -198,7 +198,7 @@ void WorldTab::connectToHost() const
 void WorldTab::sendCommand(const QString &command) const
 {
   api->echo(command);
-  QByteArray bytes = command.toLocal8Bit();
+  QByteArray bytes = command.toUtf8();
   bytes.append("\r\n");
   socket->write(bytes);
 }

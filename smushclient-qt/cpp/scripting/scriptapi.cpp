@@ -235,13 +235,19 @@ ApiCode ScriptApi::IsTrigger(const QString &label) const
   return client()->isTrigger(label) ? ApiCode::OK : ApiCode::TriggerNotFound;
 }
 
-ApiCode ScriptApi::Send(const QByteArrayView &view)
+ApiCode ScriptApi::Send(QByteArrayView view)
 {
   echo(QString::fromUtf8(view));
   return SendNoEcho(view);
 }
 
-ApiCode ScriptApi::SendNoEcho(const QByteArrayView &view) const
+ApiCode ScriptApi::SendNoEcho(QByteArrayView view) const
+{
+  // run callbacks
+  return SendPacket(view);
+}
+
+ApiCode ScriptApi::SendPacket(QByteArrayView view) const
 {
   if (view.isEmpty()) [[unlikely]]
     return ApiCode::OK;
@@ -251,17 +257,7 @@ ApiCode ScriptApi::SendNoEcho(const QByteArrayView &view) const
   if (!socket.isOpen()) [[unlikely]]
     return ApiCode::WorldClosed;
 
-  if (view.back() == '\n')
-    socket.write(view.constData(), view.size());
-
-  else
-  {
-    QByteArray bytes;
-    bytes.reserve(view.size() + 1);
-    bytes.append(view);
-    bytes.append('\n');
-    socket.write(bytes);
-  }
+  socket.write(view.constData(), view.size());
   return ApiCode::OK;
 }
 
