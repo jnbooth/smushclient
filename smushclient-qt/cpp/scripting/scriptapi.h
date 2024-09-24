@@ -35,6 +35,7 @@ public:
   ApiCode EnableTimerGroup(const QString &group, bool enabled) const;
   ApiCode EnableTrigger(const QString &label, bool enabled) const;
   ApiCode EnableTriggerGroup(const QString &group, bool enabled) const;
+  QVariant FontInfo(const QFont &font, int infoType) const;
   QVariant GetInfo(int infoType) const;
   QVariant GetOption(std::string_view name) const;
   std::optional<std::string_view> GetVariable(size_t index, std::string_view key) const;
@@ -114,6 +115,10 @@ public:
       bool underline,
       bool strikeout,
       QFont::StyleHint hint) const;
+  QVariant WindowFontInfo(
+      std::string_view windowName,
+      std::string_view fontID,
+      int infoType) const;
   ApiCode WindowFrame(
       std::string_view windowName,
       const QRectF &rect,

@@ -416,47 +416,47 @@ QVariant MiniWindow::info(int infoType) const
 {
   switch (infoType)
   {
-  case 1: // X
+  case 1:
     return location.x();
-  case 2: // Y
+  case 2:
     return location.y();
-  case 3: // Width
+  case 3:
     return width();
-  case 4: // Height
+  case 4:
     return height();
-  case 5: // Visible
+  case 5:
     return isVisible();
-  case 6: // Hidden
+  case 6:
     return isHidden();
-  case 7: // Position
+  case 7:
     return (int)position;
-  case 8: // Flags
+  case 8:
     return (int)flags;
-  case 9: // Background
+  case 9:
     return background;
-  case 10: // Left
+  case 10:
     return rect().left();
-  case 11: // Top
+  case 11:
     return rect().top();
-  case 12: // Right
+  case 12:
     return rect().right();
-  case 13: // Bottom
+  case 13:
     return rect().bottom();
-  case 14: // MouseCursorX
+  case 14:
     return mapFromGlobal(QCursor::pos()).x();
-  case 15: // MouseCursorY
+  case 15:
     return mapFromGlobal(QCursor::pos()).y();
-  case 16: // DragCursorX
+  case 16:
     return getParentWidget(this)->mapFromGlobal(QCursor::pos()).x();
-  case 17: // DragCursorY
+  case 17:
     return getParentWidget(this)->mapFromGlobal(QCursor::pos()).y();
-  case 18: // CursorIncrement
+  case 18:
     return 0;
-  case 19: // InstallTime
+  case 19:
     return installed;
-  case 20: // ZOrder
+  case 20:
     return zOrder;
-  case 21: // PluginID
+  case 21:
     return pluginID;
   default:
     return QVariant();

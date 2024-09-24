@@ -475,6 +475,20 @@ ApiCode ScriptApi::WindowFont(
   return ApiCode::OK;
 }
 
+QVariant ScriptApi::WindowFontInfo(
+    string_view windowName,
+    string_view fontID,
+    int infoType) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (!window) [[unlikely]]
+    return QVariant();
+  const QFont *font = window->getFont(fontID);
+  if (!font) [[unlikely]]
+    return QVariant();
+  return FontInfo(*font, infoType);
+}
+
 ApiCode ScriptApi::WindowFrame(
     string_view windowName,
     const QRectF &rect,

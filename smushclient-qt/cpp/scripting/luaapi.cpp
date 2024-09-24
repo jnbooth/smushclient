@@ -743,6 +743,15 @@ static int L_WindowFont(lua_State *L)
           *hint));
 }
 
+static int L_WindowFontInfo(lua_State *L)
+{
+  expectMaxArgs(L, 3);
+  qlua::pushQVariant(
+      L,
+      getApi(L).WindowFontInfo(qlua::getString(L, 1), qlua::getString(L, 2), qlua::getInt(L, 3)));
+  return 1;
+}
+
 static int L_WindowGradient(lua_State *L)
 {
   expectMaxArgs(L, 8);
@@ -998,6 +1007,8 @@ static const struct luaL_Reg worldlib[] =
     // info
     {{"GetInfo", L_GetInfo},
      {"Version", L_Version},
+     {"WindowFontInfo", L_WindowFontInfo},
+     {"WindowInfo", L_WindowInfo},
      // input
      {"Send", L_Send},
      {"SendNoEcho", L_SendNoEcho},

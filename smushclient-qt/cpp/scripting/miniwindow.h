@@ -151,12 +151,12 @@ protected:
 
 private:
   QColor background;
-  QDateTime installed;
   QSize dimensions;
   QFlags<Flag> flags;
   std::unordered_map<std::string, QFont> fonts;
   std::unordered_map<std::string, Hotspot *> hotspots;
   std::unordered_map<std::string, QPixmap> images;
+  QDateTime installed;
   QPoint location;
   QPixmap pixmap;
   QString pluginID;
