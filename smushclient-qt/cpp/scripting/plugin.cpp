@@ -130,6 +130,13 @@ QString Plugin::getError() const
   return qlua::getError(L);
 }
 
+bool Plugin::hasFunction(string_view name) const
+{
+  const bool isFunction = lua_getglobal(L, name.data()) == LUA_TFUNCTION;
+  lua_pop(L, 1);
+  return isFunction;
+}
+
 bool Plugin::runCallback(string_view name, int arg1, string_view arg2) const
 {
   if (!findCallback(name))

@@ -252,6 +252,14 @@ ApiCode ScriptApi::IsTrigger(const QString &label) const
   return client()->isTrigger(label) ? ApiCode::OK : ApiCode::TriggerNotFound;
 }
 
+ApiCode ScriptApi::PluginSupports(string_view pluginID, string_view routine) const
+{
+  const size_t index = findPluginIndex(pluginID);
+  if (index == noSuchPlugin) [[unlikely]]
+    return ApiCode::NoSuchPlugin;
+  return plugins[index].hasFunction(routine) ? ApiCode::OK : ApiCode::NoSuchRoutine;
+}
+
 ApiCode ScriptApi::Send(QByteArrayView view)
 {
   echo(QString::fromUtf8(view));

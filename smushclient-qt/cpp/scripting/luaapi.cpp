@@ -428,6 +428,12 @@ static int L_GetPluginInfo(lua_State *L)
   return 1;
 }
 
+static int L_PluginSupports(lua_State *L)
+{
+  expectMaxArgs(L, 2);
+  return returnCode(L, getApi(L).PluginSupports(qlua::getString(L, 1), qlua::getString(L, 2)));
+}
+
 // senders
 
 static int L_EnableAlias(lua_State *L)
@@ -1029,6 +1035,7 @@ static const struct luaL_Reg worldlib[] =
      {"EnablePlugin", L_EnablePlugin},
      {"GetPluginId", L_GetPluginId},
      {"GetPluginInfo", L_GetPluginInfo},
+     {"PluginSupports", L_PluginSupports},
      // senders
      {"EnableAlias", L_EnableAlias},
      {"EnableAliasGroup", L_EnableAliasGroup},
