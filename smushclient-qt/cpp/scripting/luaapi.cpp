@@ -342,6 +342,15 @@ static int L_Tell(lua_State *L)
 
 // plugins
 
+static int L_BroadcastPlugin(lua_State *L)
+{
+  expectMaxArgs(L, 2);
+  lua_pushinteger(
+      L,
+      getApi(L).BroadcastPlugin(getPluginIndex(L), qlua::getInt(L, 1), qlua::getString(L, 2)));
+  return 1;
+}
+
 static int L_CallPlugin(lua_State *L)
 {
   const Plugin *pluginRef = getApi(L).getPlugin(qlua::getString(L, 1));
@@ -357,38 +366,38 @@ static int L_CallPlugin(lua_State *L)
 
   const string_view routine = qlua::getString(L, 2);
 
-  ScriptThread thread(plugin.state());
-  lua_State *threadL = thread.state();
+  const ScriptThread thread(plugin.state());
+  lua_State *L2 = thread.state();
 
   const int nargs = lua_gettop(L);
-  luaL_checkstack(threadL, nargs - 1, nullptr);
+  luaL_checkstack(L2, nargs - 1, nullptr);
 
-  if (lua_getglobal(threadL, routine.data()) != LUA_TFUNCTION)
+  if (lua_getglobal(L2, routine.data()) != LUA_TFUNCTION)
     return returnCode(L, ApiCode::NoSuchRoutine, fmtNoSuchRoutine(plugin, routine));
 
   for (int i = 3; i <= nargs; ++i)
-    if (!qlua::copyValue(L, threadL, i))
+    if (!qlua::copyValue(L, L2, i))
     {
       lua_settop(L, 0);
       return returnCode(L, ApiCode::BadParameter, fmtBadParam(i - 2, luaL_typename(L, i)));
     }
 
-  if (lua_pcall(threadL, nargs, LUA_MULTRET, 0) != LUA_OK)
+  if (lua_pcall(L2, nargs, LUA_MULTRET, 0) != LUA_OK)
   {
     lua_settop(L, 0);
     lua_pushinteger(L, (int)ApiCode::ErrorCallingPluginRoutine);
     qlua::pushQString(L, fmtCallError(plugin, routine));
     size_t size = 0;
-    lua_pushlstring(L, lua_tolstring(threadL, -1, &size), size);
+    lua_pushlstring(L, lua_tolstring(L2, -1, &size), size);
     return 3;
   }
 
-  const int nresults = lua_gettop(threadL) + 1;
+  const int nresults = lua_gettop(L2) + 1;
   lua_settop(L, 0);
   luaL_checkstack(L, nresults, nullptr);
   lua_pushinteger(L, (int)ApiCode::OK);
   for (int i = 1; i < nresults; ++i)
-    if (!qlua::copyValue(L, threadL, i))
+    if (!qlua::copyValue(L, L2, i))
       return returnCode(L, ApiCode::ErrorCallingPluginRoutine,
                         fmtBadReturn(plugin, routine, i, luaL_typename(L, i)));
   return nresults;
@@ -1015,6 +1024,7 @@ static const struct luaL_Reg worldlib[] =
      {"SetCursor", L_SetCursor},
      {"Tell", L_Tell},
      // plugins
+     {"BroadcastPlugin", L_BroadcastPlugin},
      {"CallPlugin", L_CallPlugin},
      {"EnablePlugin", L_EnablePlugin},
      {"GetPluginId", L_GetPluginId},

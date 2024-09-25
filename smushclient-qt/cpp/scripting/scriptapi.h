@@ -27,6 +27,7 @@ public:
 
   ScriptApi(WorldTab *parent);
 
+  int BroadcastPlugin(size_t pluginIndex, int message, std::string_view text) const;
   void ColourTell(const QColor &foreground, const QColor &background, const QString &text);
   ApiCode EnableAlias(const QString &label, bool enabled) const;
   ApiCode EnableAliasGroup(const QString &group, bool enabled) const;
@@ -38,9 +39,9 @@ public:
   QVariant FontInfo(const QFont &font, int infoType) const;
   QVariant GetInfo(int infoType) const;
   QVariant GetOption(std::string_view name) const;
-  std::optional<std::string_view> GetVariable(size_t index, std::string_view key) const;
+  std::optional<std::string_view> GetVariable(size_t pluginIndex, std::string_view key) const;
   std::optional<std::string_view> GetVariable(std::string_view pluginID, std::string_view key) const;
-  const QString &GetPluginId(size_t index) const;
+  const QString &GetPluginId(size_t pluginIndex) const;
   QVariant GetPluginInfo(std::string_view pluginID, int infoType) const;
   void Hyperlink(
       const QString &action,
@@ -58,7 +59,7 @@ public:
   ApiCode SendPacket(QByteArrayView bytes) const;
   ApiCode SetCursor(Qt::CursorShape cursor) const;
   ApiCode SetOption(std::string_view name, const QVariant &variant) const;
-  bool SetVariable(size_t index, std::string_view key, std::string_view value) const;
+  bool SetVariable(size_t pluginIndex, std::string_view key, std::string_view value) const;
   void Tell(const QString &text);
   ApiCode TextRectangle(
       const QMargins &margins,
@@ -67,7 +68,7 @@ public:
       int borderWidth,
       const QBrush &outsideFill) const;
   ApiCode WindowAddHotspot(
-      size_t index,
+      size_t pluginIndex,
       std::string_view windowName,
       std::string_view hotspotID,
       const QRect &geometry,
@@ -76,7 +77,7 @@ public:
       Qt::CursorShape cursor,
       bool trackHover) const;
   ApiCode WindowCreate(
-      size_t index,
+      size_t pluginIndex,
       std::string_view windowName,
       const QPoint &location,
       const QSize &size,
@@ -131,10 +132,9 @@ public:
       const QColor &color2,
       Qt::Orientation direction) const;
   QVariant WindowHotspotInfo(
-    std::string_view windowName,
-    std::string_view hotspotID,
-    int infoType
-  ) const;
+      std::string_view windowName,
+      std::string_view hotspotID,
+      int infoType) const;
   ApiCode WindowImageFromWindow(
       std::string_view windowName,
       std::string_view imageID,
@@ -195,7 +195,7 @@ public:
       std::string_view fontID,
       const QString &text) const;
   ApiCode WindowUpdateHotspot(
-      size_t index,
+      size_t pluginIndex,
       std::string_view windowName,
       std::string_view hotspotID,
       Hotspot::CallbacksPartial &&callbacks) const;

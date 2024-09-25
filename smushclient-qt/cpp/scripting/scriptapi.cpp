@@ -99,6 +99,23 @@ ScriptApi::ScriptApi(WorldTab *parent)
 
 // public API
 
+int ScriptApi::BroadcastPlugin(size_t index, int message, string_view text) const
+{
+  const Plugin &callingPlugin = plugins[index];
+  const string pluginID = callingPlugin.id().toStdString();
+  const string_view idView = pluginID;
+  const string pluginName = callingPlugin.name().toStdString();
+  const string_view nameView = pluginName;
+  int calledPlugins = 0;
+  for (const Plugin &plugin : plugins)
+  {
+    if (&plugin != &callingPlugin)
+      calledPlugins +=
+          plugin.runCallbackThreaded("OnPluginBroadcast", message, idView, nameView, text);
+  }
+  return calledPlugins;
+}
+
 void ScriptApi::ColourTell(const QColor &foreground, const QColor &background, const QString &text)
 {
   const bool insideTell = beginTell(cursor, lastTellPosition);

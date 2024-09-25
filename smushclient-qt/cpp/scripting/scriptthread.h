@@ -17,5 +17,4 @@ public:
 private:
   lua_State *L;
   lua_State *parentL;
-  int ref;
 };

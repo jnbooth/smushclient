@@ -21,6 +21,15 @@ using std::string;
 using std::string_view;
 using std::unordered_map;
 
+inline void pushArg(lua_State *L, int arg)
+{
+  lua_pushinteger(L, arg);
+}
+inline void pushArg(lua_State *L, string_view arg)
+{
+  qlua::pushString(L, arg);
+}
+
 inline bool checkError(int status)
 {
   switch (status)
@@ -61,7 +70,7 @@ static int L_print(lua_State *L)
   return 0;
 }
 
-inline bool L_api_pcall(lua_State *L, int nargs, int nreturn)
+inline bool api_pcall(lua_State *L, int nargs, int nreturn)
 {
   if (checkError(lua_pcall(L, nargs, nreturn, 0))) [[unlikely]]
   {
@@ -104,7 +113,6 @@ Plugin::Plugin(Plugin &&other)
 Plugin::~Plugin()
 {
   lua_close(L);
-  delete L;
 }
 
 void Plugin::disable()
@@ -124,13 +132,25 @@ QString Plugin::getError() const
 
 bool Plugin::runCallback(string_view name, int arg1, string_view arg2) const
 {
-  if (isDisabled) [[unlikely]]
+  if (!findCallback(name))
     return false;
-
-  lua_getglobal(L, name.data());
   lua_pushinteger(L, arg1);
   qlua::pushString(L, arg2);
-  return L_api_pcall(L, 2, 0);
+  return api_pcall(L, 2, 0);
+}
+
+bool Plugin::runCallbackThreaded(string_view name, int arg1, string_view arg2, string_view arg3, string_view arg4) const
+{
+  if (!findCallback(name))
+    return false;
+  const ScriptThread thread(L);
+  lua_State *L2 = thread.state();
+  lua_xmove(L, L2, 1);
+  lua_pushinteger(L2, arg1);
+  qlua::pushString(L2, arg2);
+  qlua::pushString(L2, arg3);
+  qlua::pushString(L2, arg4);
+  return api_pcall(L2, 4, 0);
 }
 
 bool Plugin::runScript(const QString &script) const
@@ -144,5 +164,17 @@ bool Plugin::runScript(const QString &script) const
     return false;
   }
 
-  return L_api_pcall(L, 0, 0);
+  return api_pcall(L, 0, 0);
+}
+
+bool Plugin::findCallback(string_view name) const
+{
+  if (isDisabled) [[unlikely]]
+    return false;
+
+  if (lua_getglobal(L, name.data()) == LUA_TFUNCTION)
+    return true;
+
+  lua_pop(L, 1);
+  return false;
 }
