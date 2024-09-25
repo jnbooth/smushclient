@@ -17,12 +17,14 @@ namespace qlua
 {
   inline constexpr QColor rgbCodeToColor(int rgb) noexcept
   {
+    if (rgb == -1) [[unlikely]]
+      return QColor();
     return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
   }
 
   inline int colorToRgbCode(const QColor &color)
   {
-    if (!color.isValid())
+    if (!color.isValid()) [[unlikely]]
       return -1;
     int r, g, b;
     color.getRgb(&r, &g, &b);

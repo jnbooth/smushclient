@@ -357,7 +357,7 @@ const char *qlua::pushBytes(lua_State *L, const QByteArray &bytes)
 
 void qlua::pushQColor(lua_State *L, const QColor &color)
 {
-  pushQString(L, color.name());
+  lua_pushinteger(L, colorToRgbCode(color));
 }
 
 void qlua::pushQHash(lua_State *L, const QVariantHash &variants)

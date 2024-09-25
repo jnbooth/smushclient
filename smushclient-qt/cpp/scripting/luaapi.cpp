@@ -226,7 +226,7 @@ static int L_GetOption(lua_State *L)
     lua_pushnumber(L, option.toDouble());
     break;
   case QMetaType::QColor:
-    lua_pushinteger(L, qlua::colorToRgbCode(option.value<QColor>()));
+    qlua::pushQColor(L, option.value<QColor>());
     break;
   default:
     if (option.canConvert<int>())
@@ -273,7 +273,7 @@ inline void insertTextTriples(lua_State *L, ScriptApi &api)
 static int L_ColourNameToRGB(lua_State *L)
 {
   expectMaxArgs(L, 1);
-  lua_pushinteger(L, qlua::colorToRgbCode(qlua::getQColor(L, 1)));
+  qlua::pushQColor(L, qlua::getQColor(L, 1));
   return 1;
 }
 
@@ -313,10 +313,16 @@ static int L_Note(lua_State *L)
   return 0;
 }
 
+static int L_PickColour(lua_State *L)
+{
+  qlua::pushQColor(L, getApi(L).PickColour(qlua::getQColor(L, 1, QColor())));
+  return 1;
+}
+
 static int L_RGBColourToName(lua_State *L)
 {
   expectMaxArgs(L, 1);
-  qlua::pushQColor(L, qlua::rgbCodeToColor(qlua::getInt(L, 1)));
+  qlua::pushQString(L, qlua::rgbCodeToColor(qlua::getInt(L, 1)).name());
   return 1;
 }
 
@@ -1030,6 +1036,7 @@ static const struct luaL_Reg worldlib[] =
      {"ColourTell", L_ColourTell},
      {"Hyperlink", L_Hyperlink},
      {"Note", L_Note},
+     {"PickColour", L_PickColour},
      {"RGBColourToName", L_RGBColourToName},
      {"SetClipboard", L_SetClipboard},
      {"SetCursor", L_SetCursor},

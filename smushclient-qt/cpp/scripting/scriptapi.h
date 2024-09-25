@@ -57,6 +57,7 @@ public:
   ApiCode IsAlias(const QString &label) const;
   ApiCode IsTimer(const QString &label) const;
   ApiCode IsTrigger(const QString &label) const;
+  QColor PickColour(const QColor &hint) const;
   ApiCode PluginSupports(std::string_view pluginID, std::string_view routine) const;
   ApiCode Send(QByteArrayView bytes);
   ApiCode SendNoEcho(QByteArrayView bytes) const;

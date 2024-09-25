@@ -3,6 +3,7 @@
 #include <QtGui/QClipboard>
 #include <QtGui/QGradient>
 #include <QtGui/QGuiApplication>
+#include <QtWidgets/QColorDialog>
 #include "sqlite3.h"
 #include "miniwindow.h"
 #include "worldproperties.h"
@@ -276,6 +277,11 @@ ApiCode ScriptApi::IsTimer(const QString &label) const
 ApiCode ScriptApi::IsTrigger(const QString &label) const
 {
   return client()->isTrigger(label) ? ApiCode::OK : ApiCode::TriggerNotFound;
+}
+
+QColor ScriptApi::PickColour(const QColor &hint) const
+{
+  return QColorDialog::getColor(hint, tab());
 }
 
 ApiCode ScriptApi::PluginSupports(string_view pluginID, string_view routine) const
