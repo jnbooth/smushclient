@@ -13,7 +13,6 @@
 #include <unordered_map>
 #include "hotspot.h"
 
-class Hotspot;
 class ImageFilter;
 class Plugin;
 

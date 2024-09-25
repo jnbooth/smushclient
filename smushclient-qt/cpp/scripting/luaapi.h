@@ -9,6 +9,6 @@ extern "C"
 class ScriptApi;
 
 ScriptApi &getApi(lua_State *L);
-void registerLuaWorld(lua_State *L);
-void setLuaApi(lua_State *L, ScriptApi *api);
-void setPluginIndex(lua_State *L, size_t index);
+int registerLuaWorld(lua_State *L);
+int setLuaApi(lua_State *L, ScriptApi *api);
+int setPluginIndex(lua_State *L, size_t index);

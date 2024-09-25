@@ -14,7 +14,7 @@ class Plugin;
 class Hotspot : public QWidget
 {
 public:
-  enum struct EventFlag
+  enum EventFlag
   {
     Shift = 0x01,        // Shift key down
     Control = 0x02,      // Control key down
@@ -27,6 +27,12 @@ public:
     MouseMiddle = 0x200, // Middle mouse
   };
   Q_DECLARE_FLAGS(EventFlags, EventFlag)
+
+  enum Flag
+  {
+    ReportAllMouseovers = 0x01,
+  };
+  Q_DECLARE_FLAGS(Flags, Flag)
 
   template <typename T>
   struct BasicCallbacks

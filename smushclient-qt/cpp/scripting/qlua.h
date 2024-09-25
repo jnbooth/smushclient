@@ -6,6 +6,7 @@
 #include <QtGui/QPen>
 #include <QtGui/QPolygonF>
 #include "miniwindow.h"
+#include "scriptenums.h"
 extern "C"
 {
 #include "lua.h"
@@ -90,6 +91,8 @@ namespace qlua
       int idx,
       std::optional<Qt::BrushStyle> ifNil = std::nullopt);
 
+  std::optional<CircleOp> getCircleOp(lua_State *L, int idx);
+
   std::optional<Qt::CursorShape> getCursor(
       lua_State *L,
       int idx,
@@ -108,6 +111,8 @@ namespace qlua
   std::optional<QPen> getPen(lua_State *L, int idxColor, int idxStyle, int idxWidth);
 
   std::optional<QPolygonF> getQPolygonF(lua_State *L, int idx);
+
+  std::optional<RectOp> getRectOp(lua_State *L, int idx);
 
   std::optional<MiniWindow::Position> getWindowPosition(
       lua_State *L,

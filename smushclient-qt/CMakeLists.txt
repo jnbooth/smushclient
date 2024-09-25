@@ -32,7 +32,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   lualibs
   GIT_REPOSITORY https://github.com/jnbooth/lua-batteries-included.git
-  GIT_TAG 16913674442b18f889147234833b4be912713cee
+  GIT_TAG 383ca79dee0d37167c3c0ae72b88f8725e1f6f41
 )
 
 FetchContent_MakeAvailable(
@@ -75,6 +75,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/hotspot.h cpp/scripting/hotspot.cpp
     cpp/scripting/imagefilters.h cpp/scripting/imagefilters.cpp
     cpp/scripting/luaapi.h cpp/scripting/luaapi.cpp
+    cpp/scripting/luaglobals.h cpp/scripting/luaglobals.cpp
     cpp/scripting/miniwindow.h cpp/scripting/miniwindow.cpp
     cpp/scripting/qlua.h cpp/scripting/qlua.cpp
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp

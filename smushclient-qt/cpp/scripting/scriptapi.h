@@ -76,7 +76,7 @@ public:
       Hotspot::Callbacks &&callbacks,
       const QString &tooltip,
       Qt::CursorShape cursor,
-      bool trackHover) const;
+      Hotspot::Flags flags) const;
   ApiCode WindowCreate(
       size_t pluginIndex,
       std::string_view windowName,

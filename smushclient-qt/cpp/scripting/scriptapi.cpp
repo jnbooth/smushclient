@@ -354,7 +354,7 @@ ApiCode ScriptApi::WindowAddHotspot(
     Hotspot::Callbacks &&callbacks,
     const QString &tooltip,
     Qt::CursorShape cursor,
-    bool trackHover) const
+    Hotspot::Flags flags) const
 {
   MiniWindow *window = findWindow(windowName);
   if (!window) [[unlikely]]
@@ -366,7 +366,7 @@ ApiCode ScriptApi::WindowAddHotspot(
   hotspot->setGeometry(geometry);
   hotspot->setToolTip(tooltip);
   hotspot->setCursor(cursor);
-  hotspot->setMouseTracking(trackHover);
+  hotspot->setMouseTracking(flags.testFlag(Hotspot::Flag::ReportAllMouseovers));
   return ApiCode::OK;
 }
 

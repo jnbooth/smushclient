@@ -46,24 +46,27 @@ QVariant ScriptApi::FontInfo(const QFont &font, int infoType) const
     return QFontInfo(font).strikeOut();
   case 19: // pitch and family
   {
-    QFontInfo info(font);
-    const int pitchFlag = info.fixedPitch() ? 2 : 1;
-    switch (font.styleHint())
+    const QFont::StyleHint hint = font.styleHint();
+    if (hint == QFont::StyleHint::Monospace)
+      return FontPitchFlag::Monospace;
+
+    const FontPitchFlag pitchFlag =
+        QFontInfo(font).fixedPitch() ? FontPitchFlag::Fixed : FontPitchFlag::Variable;
+
+    switch (hint)
     {
-    case QFont::StyleHint::Monospace:
-      return 8;
     case QFont::StyleHint::Serif:
-      return 16 | pitchFlag;
+      return FontFamilyFlag::Roman | pitchFlag;
     case QFont::StyleHint::SansSerif:
-      return 32 | pitchFlag;
+      return FontFamilyFlag::Swiss | pitchFlag;
     case QFont::StyleHint::TypeWriter:
-      return 48 | pitchFlag;
+      return FontFamilyFlag::Modern | pitchFlag;
     case QFont::StyleHint::Cursive:
-      return 64 | pitchFlag;
+      return FontFamilyFlag::Script | pitchFlag;
     case QFont::StyleHint::Decorative:
-      return 80 | pitchFlag;
+      return FontFamilyFlag::Decorative | pitchFlag;
     default:
-      return pitchFlag;
+      return FontFamilyFlag::AnyFamily | pitchFlag;
     }
   }
   // case 20: character set

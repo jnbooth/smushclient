@@ -108,15 +108,16 @@ int expectMaxArgs(lua_State *L, int max)
   const int n = lua_gettop(L);
   if (n > max) [[unlikely]]
   {
-    lua_pushstring(L, "Too many arguments");
+    qlua::pushQString(L, ScriptApi::tr("Too many arguments"));
     lua_error(L);
   }
   return n;
 }
 
-void setLuaApi(lua_State *L, ScriptApi *api)
+int setLuaApi(lua_State *L, ScriptApi *api)
 {
   *createUserdata<QPointer<ScriptApi>>(L, API_REG_KEY) = api;
+  return 0;
 }
 
 inline ScriptApi &getApi(lua_State *L)
@@ -124,16 +125,17 @@ inline ScriptApi &getApi(lua_State *L)
   QPointer<ScriptApi> *ud = getUserdata<QPointer<ScriptApi>>(L, API_REG_KEY);
   if (!ud || ud->isNull()) [[unlikely]]
   {
-    lua_pushstring(L, "Userdata was deleted");
+    qlua::pushQString(L, ScriptApi::tr("Userdata was deleted"));
     lua_error(L);
   }
   return *ud->data();
 }
 
-void setPluginIndex(lua_State *L, size_t index)
+int setPluginIndex(lua_State *L, size_t index)
 {
   lua_pushinteger(L, index);
   lua_setfield(L, LUA_REGISTRYINDEX, INDEX_REG_KEY);
+  return 0;
 }
 
 inline size_t getPluginIndex(lua_State *L)
@@ -560,24 +562,26 @@ static int L_WindowCircleOp(lua_State *L)
 {
   expectMaxArgs(L, 15);
   const string_view windowName = qlua::getString(L, 1);
-  const int action = qlua::getInt(L, 2);
+  const optional<CircleOp> action = qlua::getCircleOp(L, 2);
   const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
   const optional<QPen> pen = qlua::getPen(L, 7, 8, 9);
   const QColor brushColor = qlua::getQColor(L, 10);
   const optional<Qt::BrushStyle> brushStyle = qlua::getBrush(L, 11, Qt::BrushStyle::SolidPattern);
+  if (!action) [[unlikely]]
+    return returnCode(L, ApiCode::UnknownOption);
   if (!pen) [[unlikely]]
     return returnCode(L, ApiCode::PenStyleNotValid);
   if (!brushStyle) [[unlikely]]
     return returnCode(L, ApiCode::BrushStyleNotValid);
   const QBrush brush(brushColor, *brushStyle);
 
-  switch (action)
+  switch (*action)
   {
-  case 1:
+  case CircleOp::Ellipse:
     return returnCode(L, getApi(L).WindowEllipse(windowName, rect, *pen, brush));
-  case 2:
+  case CircleOp::Rectangle:
     return returnCode(L, getApi(L).WindowRect(windowName, rect, *pen, brush));
-  case 3:
+  case CircleOp::RoundedRectangle:
     return returnCode(
         L,
         getApi(L).WindowRoundedRect(
@@ -587,11 +591,9 @@ static int L_WindowCircleOp(lua_State *L)
             qlua::getNumber(L, 13, 0),
             *pen,
             brush));
-  case 4: // chord
-  case 5: // pie
+  case CircleOp::Chord:
+  case CircleOp::Pie:
     return returnCode(L, ApiCode::OK);
-  default:
-    return returnCode(L, ApiCode::UnknownOption);
   }
 }
 
@@ -602,7 +604,7 @@ static int L_WindowCreate(lua_State *L)
   const QPoint location = qlua::getQPoint(L, 2, 3);
   const QSize size = qlua::getQSize(L, 4, 5);
   const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 6);
-  const MiniWindow::Flags flags = (MiniWindow::Flags)(int)qlua::getInt(L, 7);
+  const MiniWindow::Flags flags = (MiniWindow::Flags)qlua::getInt(L, 7);
   const QColor bg = qlua::getQColor(L, 8);
   if (!position) [[unlikely]]
     return returnCode(L, ApiCode::BadParameter);
@@ -758,7 +760,7 @@ static int L_WindowGradient(lua_State *L)
   const QColor color1 = qlua::getQColor(L, 6);
   const QColor color2 = qlua::getQColor(L, 7);
   const int mode = qlua::getInt(L, 8);
-  if (mode != (int)Qt::Horizontal && mode != (int)Qt::Vertical) [[unlikely]]
+  if (mode != Qt::Horizontal && mode != Qt::Vertical) [[unlikely]]
     return returnCode(L, ApiCode::UnknownOption);
   return returnCode(
       L,
@@ -836,7 +838,7 @@ static int L_WindowPosition(lua_State *L)
   const string_view windowName = qlua::getString(L, 1);
   const QPoint location = qlua::getQPoint(L, 2, 3);
   const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 4);
-  const MiniWindow::Flags flags = (MiniWindow::Flags)(int)qlua::getInt(L, 5);
+  const MiniWindow::Flags flags = (MiniWindow::Flags)qlua::getInt(L, 5);
   if (!position) [[unlikely]]
     return returnCode(L, ApiCode::BadParameter);
   return returnCode(L, getApi(L).WindowPosition(windowName, location, *position, flags));
@@ -846,17 +848,20 @@ static int L_WindowRectOp(lua_State *L)
 {
   expectMaxArgs(L, 8);
   const string_view windowName = qlua::getString(L, 1);
-  const int action = qlua::getInt(L, 2);
+  const optional<RectOp> action = qlua::getRectOp(L, 2);
   const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
-  switch (action)
+  if (!action) [[unlikely]]
+    return returnCode(L, ApiCode::UnknownOption);
+
+  switch (*action)
   {
-  case 1: // draw
+  case RectOp::Frame:
     return returnCode(L, getApi(L).WindowRect(windowName, rect, qlua::getQColor(L, 7), QBrush()));
-  case 2: // fill
+  case RectOp::Fill:
     return returnCode(L, getApi(L).WindowRect(windowName, rect, QPen(), qlua::getQColor(L, 7)));
-  case 3: // invert
-    return returnCode(L, ApiCode::OK);
-  case 4: // draw in two colors
+  case RectOp::Invert:
+    return returnCode(L, getApi(L).WindowInvert(windowName, rect.toRect()));
+  case RectOp::Frame3D:
     return returnCode(
         L,
         getApi(L).WindowFrame(
@@ -864,12 +869,10 @@ static int L_WindowRectOp(lua_State *L)
             rect,
             qlua::getQColor(L, 7),
             qlua::getQColor(L, 8, Qt::GlobalColor::black)));
-  case 5: // draw 3d edge
-  case 6: // flood fill border
-  case 7: // flood fill surface
+  case RectOp::Edge3D:
+  case RectOp::FloodFillBorder:
+  case RectOp::FloodFillSurface:
     return returnCode(L, ApiCode::OK);
-  default:
-    return returnCode(L, ApiCode::UnknownOption);
   }
 }
 
@@ -940,7 +943,7 @@ static int L_WindowAddHotspot(lua_State *L)
   };
   const QString &tooltip = qlua::getQString(L, 12, QString());
   const optional<Qt::CursorShape> cursor = qlua::getCursor(L, 13, Qt::CursorShape::ArrowCursor);
-  const bool trackHover = qlua::getInt(L, 14, 0) & 0x01;
+  const Hotspot::Flags flags = (Hotspot::Flags)qlua::getInt(L, 14);
   if (!cursor) [[unlikely]]
     return returnCode(L, ApiCode::BadParameter);
   return returnCode(
@@ -953,7 +956,7 @@ static int L_WindowAddHotspot(lua_State *L)
           std::move(callbacks),
           tooltip,
           *cursor,
-          trackHover));
+          flags));
 }
 
 static int L_WindowDeleteHotspot(lua_State *L)
@@ -1090,7 +1093,7 @@ static int L_world_tostring(lua_State *L)
 
 static const struct luaL_Reg worldlib_meta[] = {{"__tostring", L_world_tostring}, {NULL, NULL}};
 
-void registerLuaWorld(lua_State *L)
+int registerLuaWorld(lua_State *L)
 {
   luaL_newlib(L, worldlib);
 
@@ -1108,5 +1111,5 @@ void registerLuaWorld(lua_State *L)
   lua_setfield(L, -2, "__index");
   lua_setmetatable(L, -2);
 
-  lua_pop(L, 1);
+  return 1;
 }

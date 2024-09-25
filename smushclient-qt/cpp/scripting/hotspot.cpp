@@ -182,5 +182,5 @@ void Hotspot::wheelEvent(QWheelEvent *event)
 
 inline void Hotspot::runCallback(const string &callback, EventFlags flags)
 {
-  plugin->runCallback(callback, (int)flags, id);
+  plugin->runCallback(callback, flags, id);
 }

@@ -2,6 +2,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtWidgets/QErrorMessage>
 #include "luaapi.h"
+#include "luaglobals.h"
 #include "qlua.h"
 #include "scriptapi.h"
 #include "scriptthread.h"
@@ -99,10 +100,11 @@ Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
   luaopen_rex_pcre2(L);
   luaopen_lsqlite3(L);
   luaopen_util(L);
-  lua_settop(L, 0);
+  registerLuaGlobals(L);
   registerLuaWorld(L);
   setPluginIndex(L, metadata.index);
   setLuaApi(L, api);
+  lua_settop(L, 0);
 }
 
 Plugin::Plugin(Plugin &&other)

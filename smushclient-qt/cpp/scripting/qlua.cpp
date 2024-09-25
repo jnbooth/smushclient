@@ -593,7 +593,7 @@ QRectF qlua::getQRectF(lua_State *L, int idxLeft, int idxTop, int idxWidth, int 
 }
 
 template <typename T, T MIN, T MAX>
-inline optional<T> getEnum(lua_State *L, int idx, optional<T> ifNil)
+inline optional<T> getEnum(lua_State *L, int idx, optional<T> ifNil = nullopt)
 {
   if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))
     return ifNil;
@@ -610,32 +610,32 @@ optional<Qt::BrushStyle> qlua::getBrush(lua_State *L, int idx, optional<Qt::Brus
 
   switch (toInt(L, idx))
   {
-  case 0:
+  case (int)ScriptBrush::SolidPattern:
     return Qt::BrushStyle::SolidPattern;
-  case 1:
+  case (int)ScriptBrush::NoBrush:
     return Qt::BrushStyle::NoBrush;
-  case 2:
+  case (int)ScriptBrush::HorPattern:
     return Qt::BrushStyle::HorPattern;
-  case 3:
+  case (int)ScriptBrush::VerPattern:
     return Qt::BrushStyle::VerPattern;
-  case 4:
+  case (int)ScriptBrush::FDiagPattern:
     return Qt::BrushStyle::FDiagPattern;
-  case 5:
+  case (int)ScriptBrush::BDiagPattern:
     return Qt::BrushStyle::BDiagPattern;
-  case 6:
+  case (int)ScriptBrush::CrossPattern:
     return Qt::BrushStyle::CrossPattern;
-  case 7:
+  case (int)ScriptBrush::DiagCrossPattern:
     return Qt::BrushStyle::DiagCrossPattern;
-  case 8:
+  case (int)ScriptBrush::Dense4Pattern:
     return Qt::BrushStyle::Dense4Pattern;
-  case 9:
+  case (int)ScriptBrush::Dense2Pattern:
     return Qt::BrushStyle::Dense2Pattern;
-  case 10:
+  case (int)ScriptBrush::Dense1Pattern:
     return Qt::BrushStyle::Dense1Pattern;
-  case 11:
-    return Qt::BrushStyle::HorPattern; // waves - horizontal
-  case 12:
-    return Qt::BrushStyle::VerPattern; // waves - vertical
+  case (int)ScriptBrush::HorWaves:
+    return Qt::BrushStyle::HorPattern;
+  case (int)ScriptBrush::VerWaves:
+    return Qt::BrushStyle::VerPattern;
   default:
     return nullopt;
   }
@@ -648,37 +648,42 @@ optional<Qt::CursorShape> qlua::getCursor(lua_State *L, int idx, optional<Qt::Cu
 
   switch (toInt(L, idx))
   {
-  case -1:
+  case (int)ScriptCursor::BlankCursor:
     return Qt::CursorShape::BlankCursor;
-  case 0:
+  case (int)ScriptCursor::ArrowCursor:
     return Qt::CursorShape::ArrowCursor;
-  case 1:
+  case (int)ScriptCursor::OpenHandCursor:
     return Qt::CursorShape::OpenHandCursor;
-  case 2:
+  case (int)ScriptCursor::IBeamCursor:
     return Qt::CursorShape::IBeamCursor;
-  case 3:
+  case (int)ScriptCursor::CrossCursor:
     return Qt::CursorShape::CrossCursor;
-  case 4:
+  case (int)ScriptCursor::WaitCursor:
     return Qt::CursorShape::WaitCursor;
-  case 5:
+  case (int)ScriptCursor::UpArrowCursor:
     return Qt::CursorShape::UpArrowCursor;
-  case 6:
+  case (int)ScriptCursor::SizeFDiagCursor:
     return Qt::CursorShape::SizeFDiagCursor;
-  case 7:
+  case (int)ScriptCursor::SizeBDiagCursor:
     return Qt::CursorShape::SizeBDiagCursor;
-  case 8:
+  case (int)ScriptCursor::SizeHorCursor:
     return Qt::CursorShape::SizeHorCursor;
-  case 9:
+  case (int)ScriptCursor::SizeVerCursor:
     return Qt::CursorShape::SizeVerCursor;
-  case 10:
+  case (int)ScriptCursor::SizeAllCursor:
     return Qt::CursorShape::SizeAllCursor;
-  case 11:
+  case (int)ScriptCursor::ForbiddenCursor:
     return Qt::CursorShape::ForbiddenCursor;
-  case 12:
+  case (int)ScriptCursor::WhatsThisCursor:
     return Qt::WhatsThisCursor;
   default:
     return nullopt;
   }
+}
+
+optional<CircleOp> qlua::getCircleOp(lua_State *L, int idx)
+{
+  return getEnum<CircleOp, CircleOp::Ellipse, CircleOp::Pie>(L, idx, nullopt);
 }
 
 optional<MiniWindow::DrawImageMode> qlua::getDrawImageMode(
@@ -700,11 +705,11 @@ optional<QFont::StyleHint> qlua::getFontHint(lua_State *L, int idx, optional<QFo
   const int style = toInt(L, idx);
   switch (style & 0xF) // pitch
   {
-  case 0: // default
-  case 1: // fixed
-  case 2: // variable
+  case FontPitchFlag::Default:
+  case FontPitchFlag::Fixed:
+  case FontPitchFlag::Variable:
     break;
-  case 8: // mono
+  case FontPitchFlag::Monospace:
     return QFont::StyleHint::Monospace;
   default:
     return nullopt;
@@ -712,15 +717,15 @@ optional<QFont::StyleHint> qlua::getFontHint(lua_State *L, int idx, optional<QFo
 
   switch (style & ~0xF)
   {
-  case 16: // roman
+  case FontFamilyFlag::Roman:
     return QFont::StyleHint::Serif;
-  case 32: // swiss
+  case FontFamilyFlag::Swiss:
     return QFont::StyleHint::SansSerif;
-  case 48: // modern
+  case FontFamilyFlag::Modern:
     return QFont::StyleHint::TypeWriter;
-  case 64: // script
+  case FontFamilyFlag::Script:
     return QFont::StyleHint::Cursive;
-  case 80: // decorative
+  case FontFamilyFlag::Decorative:
     return QFont::StyleHint::Decorative;
   default:
     return nullopt;
@@ -731,20 +736,20 @@ constexpr Qt::PenStyle getPenStyle(int style) noexcept
 {
   switch (style & 0xFF)
   {
-  case 0:
+  case PenStyleFlag::SolidLine:
     return Qt::PenStyle::SolidLine;
-  case 1:
+  case PenStyleFlag::DashLine:
     return Qt::PenStyle::DashLine;
-  case 2:
+  case PenStyleFlag::DotLine:
     return Qt::PenStyle::DotLine;
-  case 3:
+  case PenStyleFlag::DashDotLine:
     return Qt::PenStyle::DashDotLine;
-  case 4:
+  case PenStyleFlag::DashDotDotLine:
     return Qt::PenStyle::DashDotDotLine;
-  case 5:
+  case PenStyleFlag::NoPen:
     return Qt::PenStyle::NoPen;
-  case 6:
-    return Qt::PenStyle::SolidLine; // insideframe (a solid pen, drawn inside the shape)
+  case PenStyleFlag::InsideFrame:
+    return Qt::PenStyle::SolidLine;
   default:
     return Qt::PenStyle::MPenStyle;
   }
@@ -754,11 +759,11 @@ constexpr Qt::PenCapStyle getPenCap(int style) noexcept
 {
   switch (style & 0xF00)
   {
-  case 0x000:
+  case PenCapFlag::RoundCap:
     return Qt::PenCapStyle::RoundCap;
-  case 0x100:
+  case PenCapFlag::SquareCap:
     return Qt::PenCapStyle::SquareCap;
-  case 0x200:
+  case PenCapFlag::FlatCap:
     return Qt::PenCapStyle::FlatCap;
   default:
     return Qt::PenCapStyle::MPenCapStyle;
@@ -769,11 +774,11 @@ constexpr Qt::PenJoinStyle getPenJoin(int style) noexcept
 {
   switch (style & ~0XFFF)
   {
-  case 0x0000:
+  case PenJoinFlag::RoundJoin:
     return Qt::PenJoinStyle::RoundJoin;
-  case 0x1000:
+  case PenJoinFlag::BevelJoin:
     return Qt::PenJoinStyle::BevelJoin;
-  case 0x2000:
+  case PenJoinFlag::MiterJoin:
     return Qt::PenJoinStyle::MiterJoin;
   default:
     return Qt::PenJoinStyle::MPenJoinStyle;
@@ -825,6 +830,11 @@ optional<QPolygonF> qlua::getQPolygonF(lua_State *L, int idx)
     points.append(QPointF(dX, dY));
   }
   return QPolygonF(points);
+}
+
+optional<RectOp> qlua::getRectOp(lua_State *L, int idx)
+{
+  return getEnum<RectOp, RectOp::Frame, RectOp::FloodFillSurface>(L, idx);
 }
 
 optional<MiniWindow::Position> qlua::getWindowPosition(
