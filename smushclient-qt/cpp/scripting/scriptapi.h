@@ -7,6 +7,7 @@
 #include <QtCore/QPointer>
 #include <QtCore/QString>
 #include <QtGui/QTextCursor>
+#include "databaseconnection.h"
 #include "hotspot.h"
 #include "miniwindow.h"
 #include "plugin.h"
@@ -29,6 +30,8 @@ public:
 
   int BroadcastPlugin(size_t pluginIndex, int message, std::string_view text) const;
   void ColourTell(const QColor &foreground, const QColor &background, const QString &text);
+  int DatabaseClose(std::string_view databaseID);
+  int DatabaseOpen(std::string_view databaseID, std::string_view filename, int flags);
   ApiCode EnableAlias(const QString &label, bool enabled) const;
   ApiCode EnableAliasGroup(const QString &group, bool enabled) const;
   ApiCode EnablePlugin(std::string_view pluginID, bool enabled);
@@ -219,6 +222,7 @@ public:
 
 private:
   QTextCursor cursor;
+  std::unordered_map<std::string, DatabaseConnection> databases;
   QTextCharFormat echoFormat;
   QTextCharFormat errorFormat;
   int lastTellPosition;
@@ -227,7 +231,8 @@ private:
   std::unordered_map<std::string, MiniWindow *> windows;
 
   SmushClient *client() const;
-  size_t findPluginIndex(std::string_view pluginID) const;
-  MiniWindow *findWindow(std::string_view windowName) const;
+  DatabaseConnection *findDatabase(const std::string_view databaseID);
+  size_t findPluginIndex(const std::string_view pluginID) const;
+  MiniWindow *findWindow(const std::string_view windowName) const;
   inline WorldTab *tab() const { return (WorldTab *)parent(); }
 };

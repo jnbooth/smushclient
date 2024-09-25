@@ -3,6 +3,7 @@
 #include <QtGui/QClipboard>
 #include <QtGui/QGradient>
 #include <QtGui/QGuiApplication>
+#include "sqlite3.h"
 #include "miniwindow.h"
 #include "worldproperties.h"
 #include "../ui/worldtab.h"
@@ -122,6 +123,31 @@ void ScriptApi::ColourTell(const QColor &foreground, const QColor &background, c
   cursor.insertText(text, colorFormat(foreground, background));
   endTell(cursor, insideTell);
   lastTellPosition = cursor.position();
+}
+
+int ScriptApi::DatabaseClose(string_view databaseID)
+{
+  auto search = databases.find((string)databaseID);
+  if (search == databases.end()) [[unlikely]]
+    return -1;
+
+  const int result = search->second.close();
+  databases.erase(search);
+  return result;
+}
+
+int ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
+{
+  auto search = databases.emplace((string)databaseID, filename);
+  DatabaseConnection &db = search.first->second;
+  if (!search.second)
+    return db.isFile(databaseID) ? SQLITE_OK : -6;
+
+  const int result = db.open(flags);
+  if (result != SQLITE_OK)
+    databases.erase(search.first);
+
+  return result;
 }
 
 ApiCode ScriptApi::EnableAlias(const QString &label, bool enabled) const
@@ -889,6 +915,14 @@ void ScriptApi::printError(const QString &error)
 }
 
 // private methods
+
+DatabaseConnection *ScriptApi::findDatabase(string_view databaseID)
+{
+  auto search = databases.find((string)databaseID);
+  if (search == databases.end()) [[unlikely]]
+    return nullptr;
+  return &search->second;
+}
 
 size_t ScriptApi::findPluginIndex(string_view pluginID) const
 {

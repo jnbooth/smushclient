@@ -127,6 +127,24 @@ inline size_t getPluginIndex(lua_State *L)
   return index;
 }
 
+// database
+
+static int L_DatabaseClose(lua_State *L)
+{
+  expectMaxArgs(L, 1);
+  lua_pushinteger(L, getApi(L).DatabaseClose(qlua::getString(L, 1)));
+  return 1;
+}
+
+static int L_DatabaseOpen(lua_State *L)
+{
+  expectMaxArgs(L, 3);
+  lua_pushinteger(
+      L,
+      getApi(L).DatabaseOpen(qlua::getString(L, 1), qlua::getString(L, 2), qlua::getInt(L, 3, 6)));
+  return 1;
+}
+
 // info
 
 static int L_GetInfo(lua_State *L)
@@ -986,8 +1004,11 @@ static int L_WindowScrollwheelHandler(lua_State *L)
 // userdata
 
 static const struct luaL_Reg worldlib[] =
-    // info
-    {{"GetInfo", L_GetInfo},
+    // database
+    {{"DatabaseClose", L_DatabaseClose},
+     {"DatabaseOpen", L_DatabaseOpen},
+     // info
+     {"GetInfo", L_GetInfo},
      {"Version", L_Version},
      {"WindowFontInfo", L_WindowFontInfo},
      {"WindowInfo", L_WindowInfo},
