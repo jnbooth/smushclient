@@ -391,7 +391,7 @@ Hotspot *MiniWindow::findHotspot(string_view hotspotID) const
   return search->second;
 }
 
-const QFont *MiniWindow::getFont(string_view fontID) const
+const QFont *MiniWindow::findFont(string_view fontID) const
 {
   auto search = fonts.find((string)fontID);
   if (search == fonts.end())
@@ -399,7 +399,7 @@ const QFont *MiniWindow::getFont(string_view fontID) const
   return &search->second;
 }
 
-const QPixmap *MiniWindow::getImage(string_view imageID) const
+const QPixmap *MiniWindow::findImage(string_view imageID) const
 {
   auto search = images.find((string)imageID);
   if (search == images.end())
@@ -410,57 +410,6 @@ const QPixmap *MiniWindow::getImage(string_view imageID) const
 int MiniWindow::getZOrder() const noexcept
 {
   return zOrder;
-}
-
-QVariant MiniWindow::info(int infoType) const
-{
-  switch (infoType)
-  {
-  case 1:
-    return location.x();
-  case 2:
-    return location.y();
-  case 3:
-    return width();
-  case 4:
-    return height();
-  case 5:
-    return isVisible();
-  case 6:
-    return isHidden();
-  case 7:
-    return (int)position;
-  case 8:
-    return (int)flags;
-  case 9:
-    return background;
-  case 10:
-    return rect().left();
-  case 11:
-    return rect().top();
-  case 12:
-    return rect().right();
-  case 13:
-    return rect().bottom();
-  case 14:
-    return mapFromGlobal(QCursor::pos()).x();
-  case 15:
-    return mapFromGlobal(QCursor::pos()).y();
-  case 16:
-    return getParentWidget(this)->mapFromGlobal(QCursor::pos()).x();
-  case 17:
-    return getParentWidget(this)->mapFromGlobal(QCursor::pos()).y();
-  case 18:
-    return 0;
-  case 19:
-    return installed;
-  case 20:
-    return zOrder;
-  case 21:
-    return pluginID;
-  default:
-    return QVariant();
-  }
 }
 
 void MiniWindow::invert(const QRect &rect, QImage::InvertMode mode)

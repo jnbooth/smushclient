@@ -47,6 +47,7 @@ public:
   const Callbacks &setCallbacks(Callbacks &&callbacks);
   const Callbacks &setCallbacks(CallbacksPartial &&callbacks);
   inline bool belongsToPlugin(const Plugin *plugin) const noexcept { return plugin == this->plugin; }
+  QVariant info(int infoType) const;
 
 protected:
   void dragMoveEvent(QDragMoveEvent *event) override;

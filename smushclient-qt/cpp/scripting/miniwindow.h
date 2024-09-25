@@ -122,7 +122,7 @@ public:
   void setZOrder(int zOrder) noexcept;
   void updatePosition();
 
-  const QFont *getFont(std::string_view fontID) const;
+  const QFont *findFont(std::string_view fontID) const;
   inline const QFont &loadFont(std::string_view fontID, const QFont &font)
   {
     return fonts[(std::string)fontID] = font;
@@ -132,7 +132,7 @@ public:
     fonts.erase((std::string)fontID);
   }
 
-  const QPixmap *getImage(std::string_view imageID) const;
+  const QPixmap *findImage(std::string_view imageID) const;
   inline const QPixmap &loadImage(std::string_view imageID, const QPixmap &&image)
   {
     return images[(std::string)imageID] = image;

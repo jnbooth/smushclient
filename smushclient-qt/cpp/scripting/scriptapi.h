@@ -130,6 +130,11 @@ public:
       const QColor &color1,
       const QColor &color2,
       Qt::Orientation direction) const;
+  QVariant WindowHotspotInfo(
+    std::string_view windowName,
+    std::string_view hotspotID,
+    int infoType
+  ) const;
   ApiCode WindowImageFromWindow(
       std::string_view windowName,
       std::string_view imageID,

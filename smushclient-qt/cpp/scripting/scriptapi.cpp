@@ -396,7 +396,7 @@ ApiCode ScriptApi::WindowDrawImage(
   MiniWindow *window = findWindow(windowName);
   if (!window) [[unlikely]]
     return ApiCode::NoSuchWindow;
-  const QPixmap *image = window->getImage(imageID);
+  const QPixmap *image = window->findImage(imageID);
   if (!image) [[unlikely]]
     return ApiCode::ImageNotInstalled;
   window->drawImage(*image, rect, sourceRect, mode);
@@ -413,7 +413,7 @@ ApiCode ScriptApi::WindowDrawImageAlpha(
   MiniWindow *window = findWindow(windowName);
   if (!window) [[unlikely]]
     return ApiCode::NoSuchWindow;
-  const QPixmap *image = window->getImage(imageID);
+  const QPixmap *image = window->findImage(imageID);
   if (!image) [[unlikely]]
     return ApiCode::ImageNotInstalled;
   window->drawImage(
@@ -483,10 +483,25 @@ QVariant ScriptApi::WindowFontInfo(
   MiniWindow *window = findWindow(windowName);
   if (!window) [[unlikely]]
     return QVariant();
-  const QFont *font = window->getFont(fontID);
+  const QFont *font = window->findFont(fontID);
   if (!font) [[unlikely]]
     return QVariant();
   return FontInfo(*font, infoType);
+}
+
+QVariant ScriptApi::WindowHotspotInfo(
+    string_view windowName,
+    string_view hotspotID,
+    int infoType) const
+{
+
+  MiniWindow *window = findWindow(windowName);
+  if (!window) [[unlikely]]
+    return QVariant();
+  const Hotspot *hotspot = window->findHotspot(hotspotID);
+  if (!hotspot) [[unlikely]]
+    return QVariant();
+  return hotspot->info(infoType);
 }
 
 ApiCode ScriptApi::WindowFrame(
@@ -718,7 +733,7 @@ qreal ScriptApi::WindowText(
   MiniWindow *window = findWindow(windowName);
   if (!window) [[unlikely]]
     return -1;
-  const QFont *font = window->getFont(fontID);
+  const QFont *font = window->findFont(fontID);
   if (!font) [[unlikely]]
     return -2;
   return window->drawText(*font, text, rect, color).width();
@@ -732,7 +747,7 @@ int ScriptApi::WindowTextWidth(
   MiniWindow *window = findWindow(windowName);
   if (!window) [[unlikely]]
     return -1;
-  const QFont *font = window->getFont(fontID);
+  const QFont *font = window->findFont(fontID);
   if (!font) [[unlikely]]
     return -2;
   QFontMetrics fm(*font);
