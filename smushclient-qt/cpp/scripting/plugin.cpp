@@ -4,6 +4,7 @@
 #include "luaapi.h"
 #include "qlua.h"
 #include "scriptapi.h"
+#include "scriptthread.h"
 extern "C"
 {
 #include "lauxlib.h"
@@ -103,6 +104,7 @@ Plugin::Plugin(Plugin &&other)
 Plugin::~Plugin()
 {
   lua_close(L);
+  delete L;
 }
 
 void Plugin::disable()
