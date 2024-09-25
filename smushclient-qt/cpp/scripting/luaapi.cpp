@@ -13,10 +13,10 @@ extern "C"
 #include "lauxlib.h"
 }
 
-#define API_REG_KEY "smushclient.api"
-#define INDEX_REG_KEY "smushclient.plugin"
-#define WORLD_LIB_KEY "world"
-#define WORLD_REG_KEY "smushclient.world"
+static const char *apiRegKey = "smushclient.api";
+static const char *indexRegKey = "smushclient.plugin";
+static const char *worldRegKey = "smushclient.world";
+static const char *worldLibKey = "world";
 
 using std::optional;
 using std::string;
@@ -86,23 +86,6 @@ inline int returnCode(lua_State *L, ApiCode code, const QString &reason)
   return 2;
 }
 
-template <typename T>
-inline T *createUserdata(lua_State *L, const char *k)
-{
-  void *ud = lua_newuserdata(L, sizeof(T));
-  lua_setfield(L, LUA_REGISTRYINDEX, k);
-  return static_cast<T *>(ud);
-}
-
-template <typename T>
-inline T *getUserdata(lua_State *L, const char *k)
-{
-  lua_getfield(L, LUA_REGISTRYINDEX, k);
-  void *ud = lua_touserdata(L, -1);
-  lua_pop(L, 1);
-  return static_cast<T *>(ud);
-}
-
 int expectMaxArgs(lua_State *L, int max)
 {
   const int n = lua_gettop(L);
@@ -116,31 +99,29 @@ int expectMaxArgs(lua_State *L, int max)
 
 int setLuaApi(lua_State *L, ScriptApi *api)
 {
-  *createUserdata<QPointer<ScriptApi>>(L, API_REG_KEY) = api;
+  lua_pushlightuserdata(L, api);
+  lua_rawsetp(L, LUA_REGISTRYINDEX, apiRegKey);
   return 0;
 }
 
 inline ScriptApi &getApi(lua_State *L)
 {
-  QPointer<ScriptApi> *ud = getUserdata<QPointer<ScriptApi>>(L, API_REG_KEY);
-  if (!ud || ud->isNull()) [[unlikely]]
-  {
-    qlua::pushQString(L, ScriptApi::tr("Userdata was deleted"));
-    lua_error(L);
-  }
-  return *ud->data();
+  lua_rawgetp(L, LUA_REGISTRYINDEX, apiRegKey);
+  void *api = lua_touserdata(L, -1);
+  lua_pop(L, 1);
+  return *static_cast<ScriptApi *>(api);
 }
 
 int setPluginIndex(lua_State *L, size_t index)
 {
   lua_pushinteger(L, index);
-  lua_setfield(L, LUA_REGISTRYINDEX, INDEX_REG_KEY);
+  lua_rawsetp(L, LUA_REGISTRYINDEX, indexRegKey);
   return 0;
 }
 
 inline size_t getPluginIndex(lua_State *L)
 {
-  lua_getfield(L, LUA_REGISTRYINDEX, INDEX_REG_KEY);
+  lua_rawgetp(L, LUA_REGISTRYINDEX, indexRegKey);
   const size_t index = lua_tointeger(L, -1);
   lua_pop(L, 1);
   return index;
@@ -1097,17 +1078,17 @@ int registerLuaWorld(lua_State *L)
 {
   luaL_newlib(L, worldlib);
 
-  luaL_newmetatable(L, WORLD_REG_KEY);
+  luaL_newmetatable(L, worldRegKey);
   luaL_setfuncs(L, worldlib_meta, 0);
   lua_setmetatable(L, -2);
 
-  lua_setglobal(L, WORLD_LIB_KEY);
+  lua_setglobal(L, worldLibKey);
 
   lua_pushglobaltable(L);
   if (lua_getmetatable(L, -1) == LUA_TNIL)
     lua_newtable(L);
 
-  lua_getglobal(L, WORLD_LIB_KEY);
+  lua_getglobal(L, worldLibKey);
   lua_setfield(L, -2, "__index");
   lua_setmetatable(L, -2);
 

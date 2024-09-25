@@ -18,7 +18,7 @@ public:
 private:
   static const WorldProperties &getInstance()
   {
-    const static WorldProperties instance;
+    static const WorldProperties instance;
     return instance;
   }
 
