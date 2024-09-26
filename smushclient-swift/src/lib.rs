@@ -15,11 +15,13 @@ mod error;
 mod impls;
 mod io;
 mod output;
+mod stream;
 mod sync;
 
-use crate::bridge::{RustAliasOutcome, RustMudBridge, RustOutputStream, RustSendStream};
+use crate::bridge::RustMudBridge;
 use crate::io::{create_world, read_world, write_world};
 use crate::output::{RustMxpLink, RustNamedColorIter, RustTextFragment};
+use crate::stream::{RustAliasOutcome, RustOutputStream, RustSendStream};
 
 fn convert_opt<Ffi, Rust: Into<Ffi>>(from: Option<Rust>) -> Option<Ffi> {
     from.map(Into::into)
@@ -33,6 +35,7 @@ fn convert_world<T: Into<ffi::World>>(from: Result<T, String>) -> Result<ffi::Wo
     convert_result(from)
 }
 
+#[allow(non_camel_case_types)]
 #[swift_bridge::bridge]
 pub mod ffi {
     #[derive(Copy, Clone)]

@@ -3,15 +3,14 @@ use mud_stream::nonblocking::MudStream;
 use mud_transformer::Tag;
 use std::fs::File;
 use std::path::Path;
-use std::{mem, vec};
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 
 use crate::client::{AliasHandler, ClientHandler};
 use crate::error::StringifyResultError;
-use crate::ffi;
+use crate::stream::{RustAliasOutcome, RustOutputStream};
 use crate::sync::NonBlockingMutex;
-use smushclient::{AliasOutcome, SmushClient, World};
+use smushclient::{SmushClient, World};
 
 const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Bold,
@@ -31,69 +30,6 @@ const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Strikeout,
     Tag::Underline
 ];
-
-pub struct RustAliasOutcome {
-    outcome: AliasOutcome,
-    requests: Vec<ffi::SendRequest>,
-}
-
-impl RustAliasOutcome {
-    pub fn new(outcome: AliasOutcome, requests: Vec<ffi::SendRequest>) -> Self {
-        Self { outcome, requests }
-    }
-
-    pub fn stream(&mut self) -> RustSendStream {
-        RustSendStream {
-            inner: mem::take(&mut self.requests).into_iter(),
-        }
-    }
-
-    pub fn should_display(&self) -> bool {
-        self.outcome.display
-    }
-
-    pub fn should_remember(&self) -> bool {
-        self.outcome.remember
-    }
-
-    pub fn should_send(&self) -> bool {
-        self.outcome.send
-    }
-}
-
-#[repr(transparent)]
-pub struct RustSendStream {
-    inner: vec::IntoIter<ffi::SendRequest>,
-}
-
-impl RustSendStream {
-    #[inline(always)]
-    pub fn next(&mut self) -> Option<ffi::SendRequest> {
-        self.inner.next()
-    }
-
-    #[inline(always)]
-    pub fn count(&self) -> usize {
-        self.inner.len()
-    }
-}
-
-#[repr(transparent)]
-pub struct RustOutputStream {
-    inner: vec::IntoIter<ffi::OutputFragment>,
-}
-
-impl RustOutputStream {
-    #[inline(always)]
-    pub fn next(&mut self) -> Option<ffi::OutputFragment> {
-        self.inner.next()
-    }
-
-    #[inline(always)]
-    pub fn count(&self) -> usize {
-        self.inner.len()
-    }
-}
 
 #[derive(Default)]
 pub struct RustMudBridge {
@@ -188,9 +124,7 @@ impl RustMudBridge {
             self.client.receive(output, &mut handler);
         }
         drop(lock);
-        Ok(RustOutputStream {
-            inner: handler.into_iter(),
-        })
+        Ok(RustOutputStream::new(handler.into_iter()))
     }
 
     pub async fn send(&mut self, input: String) -> Result<(), String> {
