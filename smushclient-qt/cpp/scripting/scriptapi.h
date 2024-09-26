@@ -235,5 +235,5 @@ private:
   DatabaseConnection *findDatabase(const std::string_view databaseID);
   size_t findPluginIndex(const std::string_view pluginID) const;
   MiniWindow *findWindow(const std::string_view windowName) const;
-  inline WorldTab *tab() const { return (WorldTab *)parent(); }
+  WorldTab *tab() const;
 };

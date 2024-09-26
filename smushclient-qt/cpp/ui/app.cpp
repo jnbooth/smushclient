@@ -105,6 +105,18 @@ void App::setWorldMenusEnabled(bool enabled) const
   ui->action_select_to_matching_brace->setEnabled(enabled);
 }
 
+// Private methods
+
+WorldTab *App::worldtab() const
+{
+  return qobject_cast<WorldTab *>(ui->world_tabs->currentWidget());
+}
+
+WorldTab *App::worldtab(int index) const
+{
+  return qobject_cast<WorldTab *>(ui->world_tabs->widget(index));
+}
+
 // Slots
 
 void App::on_action_new_triggered()
@@ -128,7 +140,7 @@ void App::on_action_open_world_triggered()
 
 void App::on_action_save_world_details_as_triggered()
 {
-  WorldTab *tab = (WorldTab *)ui->world_tabs->currentWidget();
+  WorldTab *tab = worldtab();
   if (!tab)
     return;
 
@@ -137,7 +149,7 @@ void App::on_action_save_world_details_as_triggered()
 
 void App::on_action_save_world_details_triggered()
 {
-  WorldTab *tab = (WorldTab *)ui->world_tabs->currentWidget();
+  WorldTab *tab = worldtab();
   if (!tab)
     return;
 
@@ -146,7 +158,7 @@ void App::on_action_save_world_details_triggered()
 
 void App::on_action_world_properties_triggered()
 {
-  WorldTab *tab = (WorldTab *)ui->world_tabs->currentWidget();
+  WorldTab *tab = worldtab();
   if (!tab)
     return;
   tab->openWorldSettings();
@@ -158,6 +170,5 @@ void App::on_world_tabs_currentChanged(int index)
   setWorldMenusEnabled(hasOpenTab);
   if (!hasOpenTab)
     return;
-
-  ((WorldTab *)ui->world_tabs->widget(index))->focusInput();
+  worldtab(index)->focusInput();
 }

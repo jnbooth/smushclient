@@ -158,3 +158,7 @@ void Document::setPalette(const QVector_QColor &palette)
     ++format;
   }
 }
+
+// Private methods
+
+inline WorldTab *Document::tab() const { return qobject_cast<WorldTab *>(parent()); }

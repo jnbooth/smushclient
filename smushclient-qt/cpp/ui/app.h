@@ -28,6 +28,10 @@ private:
   void setupRecentFiles(const QStringList &recentFiles) const;
   void setWorldMenusEnabled(bool enabled) const;
 
+private:
+  WorldTab *worldtab() const;
+  WorldTab *worldtab(int index) const;
+
 private slots:
   void on_action_new_triggered();
   void on_action_open_world_triggered();

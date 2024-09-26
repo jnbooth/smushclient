@@ -37,7 +37,7 @@ private:
   QTextCharFormat formats[166];
   QScrollBar *scrollBar;
 
-  inline WorldTab *tab() const { return (WorldTab *)parent(); }
+  WorldTab *tab() const;
 };
 
 #endif // DOCUMENT_H

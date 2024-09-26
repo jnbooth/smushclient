@@ -977,3 +977,5 @@ void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const
   else if (drawsUnderneath)
     window->stackUnder(tab()->ui->outputBorder);
 }
+
+inline WorldTab *ScriptApi::tab() const { return qobject_cast<WorldTab *>(parent()); }
