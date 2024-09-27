@@ -136,18 +136,10 @@ pub mod ffi {
             link: &Link,
         );
 
-        #[rust_name = "display_status_message"]
-        unsafe fn displayStatusMessage(self: &Document, text: &QString);
-
-        #[rust_name = "run_script"]
-        unsafe fn runScript(self: &Document, plugin: usize, script: &QString);
-
         #[rust_name = "scroll_to_bottom"]
         unsafe fn scrollToBottom(self: &Document);
 
-        #[rust_name = "set_input"]
-        unsafe fn setInput(self: &Document, text: &QString);
-
+        unsafe fn send(self: Pin<&mut Document>, target: i32, plugin: usize, text: &QString);
     }
 
     extern "C++Qt" {

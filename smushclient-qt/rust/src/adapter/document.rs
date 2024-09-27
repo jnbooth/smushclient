@@ -44,23 +44,13 @@ impl<'a> DocumentAdapter<'a> {
         }
     }
 
-    pub fn display_status_message(&mut self, text: &QString) {
-        // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.display_status_message(text) };
-    }
-
-    pub fn run_script(&mut self, plugin: usize, script: &QString) {
-        // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.run_script(plugin, script) };
-    }
-
     pub fn scroll_to_bottom(&self) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.scroll_to_bottom() }
+        unsafe { self.inner.scroll_to_bottom() };
     }
 
-    pub fn set_input(&mut self, text: &QString) {
+    pub fn send(&mut self, target: ffi::SendTarget, plugin: usize, text: &QString) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.set_input(text) };
+        unsafe { self.as_mut().send(target.repr, plugin, text) };
     }
 }

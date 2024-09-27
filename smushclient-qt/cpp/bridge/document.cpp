@@ -8,22 +8,6 @@
 
 // Utilities
 
-QMainWindow *getMainWindow(const QObject *obj)
-{
-  if (!obj)
-    return nullptr;
-
-  QObject *parent = obj->parent();
-  if (!parent)
-    return nullptr;
-
-  QMainWindow *window = qobject_cast<QMainWindow *>(parent);
-  if (window)
-    return window;
-
-  return getMainWindow(parent);
-}
-
 inline bool hasStyle(quint16 flags, TextStyle style) noexcept
 {
   return flags & (quint16)style;
@@ -120,32 +104,14 @@ void Document::appendText(const QString &text, quint16 style, const QColor &fore
   cursor.insertText(text, format);
 }
 
-void Document::runScript(size_t plugin, const QString &script) const
-{
-  api->runScript(plugin, script);
-}
-
 void Document::scrollToBottom() const
 {
   scrollToEnd(*scrollBar);
 }
 
-void Document::displayStatusMessage(const QString &status) const
+void Document::send(int32_t target, size_t plugin, const QString &text)
 {
-  QMainWindow *window = getMainWindow(this);
-  if (!window)
-    return;
-
-  QStatusBar *statusBar = window->statusBar();
-  if (!statusBar)
-    return;
-
-  statusBar->showMessage(status);
-}
-
-void Document::setInput(const QString &text) const
-{
-  tab()->ui->input->setText(text);
+  api->sendTo(plugin, (SendTarget)target, text);
 }
 
 void Document::setPalette(const QVector_QColor &palette)

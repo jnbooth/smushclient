@@ -4,6 +4,7 @@
 #include <QtGui/QGradient>
 #include <QtGui/QGuiApplication>
 #include <QtWidgets/QColorDialog>
+#include <QtWidgets/QStatusBar>
 #include "sqlite3.h"
 #include "miniwindow.h"
 #include "worldproperties.h"
@@ -44,6 +45,22 @@ inline QColor getColorFromVariant(const QVariant &variant)
   if (!ok || rgb < 0 || rgb > 0xFFFFFF)
     return QColor();
   return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
+}
+
+QMainWindow *getMainWindow(const QObject *obj)
+{
+  if (!obj)
+    return nullptr;
+
+  QObject *parent = obj->parent();
+  if (!parent)
+    return nullptr;
+
+  QMainWindow *window = qobject_cast<QMainWindow *>(parent);
+  if (window)
+    return window;
+
+  return getMainWindow(parent);
 }
 
 inline bool isEmptyList(const QVariant &variant)
@@ -922,6 +939,19 @@ void ScriptApi::printError(const QString &error)
 
 // private methods
 
+void ScriptApi::displayStatusMessage(const QString &status) const
+{
+  QMainWindow *window = getMainWindow(this);
+  if (!window)
+    return;
+
+  QStatusBar *statusBar = window->statusBar();
+  if (!statusBar)
+    return;
+
+  statusBar->showMessage(status);
+}
+
 DatabaseConnection *ScriptApi::findDatabase(string_view databaseID)
 {
   auto search = databases.find((string)databaseID);
@@ -944,6 +974,33 @@ MiniWindow *ScriptApi::findWindow(string_view windowName) const
   if (search == windows.end()) [[unlikely]]
     return nullptr;
   return search->second;
+}
+
+void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
+{
+  switch (target)
+  {
+  case SendTarget::World:
+  case SendTarget::WorldDelay:
+  case SendTarget::WorldImmediate:
+    tab()->sendCommand(text);
+    return;
+  case SendTarget::Command:
+    tab()->ui->input->setText(text);
+    return;
+  case SendTarget::Output:
+    cursor.insertText(text);
+    return;
+  case SendTarget::Script:
+  case SendTarget::ScriptAfterOmit:
+    runScript(plugin, text);
+    return;
+  case SendTarget::Status:
+    displayStatusMessage(text);
+    return;
+  default:
+    return;
+  }
 }
 
 struct WindowCompare

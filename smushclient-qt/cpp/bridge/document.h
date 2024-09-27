@@ -25,11 +25,9 @@ public:
   void appendText(const QString &text, int format);
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background, const Link &link);
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background);
-  void displayStatusMessage(const QString &status) const;
-  void runScript(size_t plugin, const QString &script) const;
   void scrollToBottom() const;
-  void setInput(const QString &text) const;
   void setPalette(const QVector_QColor &palette);
+  void send(int32_t target, size_t plugin, const QString &text);
 
 private:
   ScriptApi *api;

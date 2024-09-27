@@ -12,6 +12,7 @@
 #include "miniwindow.h"
 #include "plugin.h"
 #include "scriptenums.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 #define SCRIPTING_VERSION "5.07"
 
@@ -219,6 +220,7 @@ public:
   {
     return plugins[plugin].runScript(script);
   }
+  void sendTo(size_t plugin, SendTarget target, const QString &text);
   void stackWindow(std::string_view windowName, MiniWindow *window) const;
 
 private:
@@ -232,6 +234,7 @@ private:
   std::unordered_map<std::string, MiniWindow *> windows;
 
   SmushClient *client() const;
+  void displayStatusMessage(const QString &status) const;
   DatabaseConnection *findDatabase(const std::string_view databaseID);
   size_t findPluginIndex(const std::string_view pluginID) const;
   MiniWindow *findWindow(const std::string_view windowName) const;

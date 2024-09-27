@@ -26,6 +26,7 @@ public:
   bool updateWorld();
   QString saveWorld(const QString &saveFilter);
   QString saveWorldAsNew(const QString &saveFilter);
+  void sendCommand(const QString &command) const;
   const QString title() const noexcept;
 
 public:
@@ -42,7 +43,6 @@ private:
 
   void applyWorld() const;
   void connectToHost() const;
-  void sendCommand(const QString &command) const;
 
 private slots:
   void finalizeWorldSettings(int result);

@@ -9,6 +9,8 @@ namespace Ui
 }
 QT_END_NAMESPACE
 
+class WorldTab;
+
 class App : public QMainWindow
 {
   Q_OBJECT
