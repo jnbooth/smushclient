@@ -335,7 +335,7 @@ static int L_SetClipboard(lua_State *L)
 static int L_SetCursor(lua_State *L)
 {
   expectMaxArgs(L, 1);
-  optional<Qt::CursorShape> cursor = qlua::getCursor(L, 1, Qt::CursorShape::ArrowCursor);
+  const optional<Qt::CursorShape> cursor = qlua::getCursor(L, 1, Qt::CursorShape::ArrowCursor);
   if (!cursor)
     return returnCode(L, ApiCode::BadParameter);
   return returnCode(L, getApi(L).SetCursor(*cursor));
@@ -443,6 +443,41 @@ static int L_PluginSupports(lua_State *L)
 
 // senders
 
+static int L_DoAfter(lua_State *L)
+{
+  expectMaxArgs(L, 2);
+  const double seconds = qlua::getNumber(L, 1);
+  const QString text = qlua::getQString(L, 2);
+  return returnCode(L, getApi(L).DoAfter(getPluginIndex(L), seconds, text, SendTarget::Command));
+}
+
+static int L_DoAfterNote(lua_State *L)
+{
+  expectMaxArgs(L, 2);
+  const double seconds = qlua::getNumber(L, 1);
+  const QString text = qlua::getQString(L, 2);
+  return returnCode(L, getApi(L).DoAfter(getPluginIndex(L), seconds, text, SendTarget::Output));
+}
+
+static int L_DoAfterSpecial(lua_State *L)
+{
+  expectMaxArgs(L, 3);
+  const double seconds = qlua::getNumber(L, 1);
+  const QString text = qlua::getQString(L, 2);
+  const optional<SendTarget> target = qlua::getSendTarget(L, 3);
+  if (!target) [[unlikely]]
+    return returnCode(L, ApiCode::OptionOutOfRange);
+  return returnCode(L, getApi(L).DoAfter(getPluginIndex(L), seconds, text, *target));
+}
+
+static int L_DoAfterSpeedwalk(lua_State *L)
+{
+  expectMaxArgs(L, 2);
+  const double seconds = qlua::getNumber(L, 1);
+  const QString text = qlua::getQString(L, 2);
+  return returnCode(L, getApi(L).DoAfter(getPluginIndex(L), seconds, text, SendTarget::Speedwalk));
+}
+
 static int L_EnableAlias(lua_State *L)
 {
   expectMaxArgs(L, 2);
@@ -502,7 +537,7 @@ static int L_IsTrigger(lua_State *L)
 static int L_GetVariable(lua_State *L)
 {
   expectMaxArgs(L, 1);
-  optional<string_view> var = getApi(L).GetVariable(getPluginIndex(L), qlua::getString(L, 1));
+  const optional<string_view> var = getApi(L).GetVariable(getPluginIndex(L), qlua::getString(L, 1));
   if (!var)
     lua_pushnil(L);
   else
@@ -513,7 +548,7 @@ static int L_GetVariable(lua_State *L)
 static int L_GetPluginVariable(lua_State *L)
 {
   expectMaxArgs(L, 2);
-  optional<string_view> var = getApi(L).GetVariable(qlua::getString(L, 1), qlua::getString(L, 2));
+  const optional<string_view> var = getApi(L).GetVariable(qlua::getString(L, 1), qlua::getString(L, 2));
   if (!var)
     lua_pushnil(L);
   else
@@ -1049,6 +1084,10 @@ static const struct luaL_Reg worldlib[] =
      {"GetPluginInfo", L_GetPluginInfo},
      {"PluginSupports", L_PluginSupports},
      // senders
+     {"DoAfter", L_DoAfter},
+     {"DoAfterNote", L_DoAfterNote},
+     {"DoAfterSpeedwalk", L_DoAfterSpeedwalk},
+     {"DoAfterSpecial", L_DoAfterSpecial},
      {"EnableAlias", L_EnableAlias},
      {"EnableAliasGroup", L_EnableAliasGroup},
      {"EnableTimer", L_EnableTimer},

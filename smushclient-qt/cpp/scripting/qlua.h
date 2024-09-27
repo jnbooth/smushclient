@@ -7,6 +7,7 @@
 #include <QtGui/QPolygonF>
 #include "miniwindow.h"
 #include "scriptenums.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 extern "C"
 {
 #include "lua.h"
@@ -115,6 +116,11 @@ namespace qlua
   std::optional<QPolygonF> getQPolygonF(lua_State *L, int idx);
 
   std::optional<RectOp> getRectOp(lua_State *L, int idx);
+
+  std::optional<SendTarget> getSendTarget(
+      lua_State *L,
+      int idx,
+      std::optional<SendTarget> ifNil = std::nullopt);
 
   std::optional<MiniWindow::Position> getWindowPosition(
       lua_State *L,

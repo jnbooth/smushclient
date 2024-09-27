@@ -168,6 +168,17 @@ int ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int fl
   return result;
 }
 
+ApiCode ScriptApi::DoAfter(size_t plugin, double seconds, const QString &text, SendTarget target)
+{
+  if (seconds < 0.1 || seconds > 86399)
+    return ApiCode::TimeInvalid;
+
+  const double ms = seconds * 1000.0;
+  const int timerId = startTimer(ms);
+  sendQueue[timerId] = {plugin, target, text};
+  return ApiCode::OK;
+}
+
 ApiCode ScriptApi::EnableAlias(const QString &label, bool enabled) const
 {
   return client()->setAliasEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
@@ -935,6 +946,18 @@ void ScriptApi::printError(const QString &error)
 {
   cursor.insertText(error, errorFormat);
   cursor.insertBlock();
+}
+
+// protected overrides
+
+void ScriptApi::timerEvent(QTimerEvent *event)
+{
+  auto search = sendQueue.find(event->timerId());
+  if (search == sendQueue.end()) [[unlikely]]
+    return;
+  const QueuedSend &send = search->second;
+  sendTo(send.plugin, send.target, send.text);
+  sendQueue.erase(search);
 }
 
 // private methods

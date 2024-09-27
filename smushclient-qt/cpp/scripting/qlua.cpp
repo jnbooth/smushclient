@@ -837,6 +837,11 @@ optional<RectOp> qlua::getRectOp(lua_State *L, int idx)
   return getEnum<RectOp, RectOp::Frame, RectOp::FloodFillSurface>(L, idx);
 }
 
+optional<SendTarget> qlua::getSendTarget(lua_State *L, int idx, optional<SendTarget> ifNil)
+{
+  return getEnum<SendTarget, SendTarget::World, SendTarget::ScriptAfterOmit>(L, idx, ifNil);
+}
+
 optional<MiniWindow::Position> qlua::getWindowPosition(
     lua_State *L,
     int idx,

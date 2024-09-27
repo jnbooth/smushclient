@@ -22,6 +22,13 @@ class World;
 class WorldTab;
 struct lua_State;
 
+struct QueuedSend
+{
+  size_t plugin;
+  SendTarget target;
+  QString text;
+};
+
 class ScriptApi : public QObject
 {
 public:
@@ -33,6 +40,7 @@ public:
   void ColourTell(const QColor &foreground, const QColor &background, const QString &text);
   int DatabaseClose(std::string_view databaseID);
   int DatabaseOpen(std::string_view databaseID, std::string_view filename, int flags);
+  ApiCode DoAfter(size_t plugin, double seconds, const QString &text, SendTarget target);
   ApiCode EnableAlias(const QString &label, bool enabled) const;
   ApiCode EnableAliasGroup(const QString &group, bool enabled) const;
   ApiCode EnablePlugin(std::string_view pluginID, bool enabled);
@@ -223,6 +231,9 @@ public:
   void sendTo(size_t plugin, SendTarget target, const QString &text);
   void stackWindow(std::string_view windowName, MiniWindow *window) const;
 
+protected:
+  void timerEvent(QTimerEvent *event) override;
+
 private:
   QTextCursor cursor;
   std::unordered_map<std::string, DatabaseConnection> databases;
@@ -231,6 +242,7 @@ private:
   int lastTellPosition;
   std::vector<Plugin> plugins;
   std::unordered_map<std::string, size_t> pluginIndices;
+  std::unordered_map<int, QueuedSend> sendQueue;
   std::unordered_map<std::string, MiniWindow *> windows;
 
   SmushClient *client() const;
