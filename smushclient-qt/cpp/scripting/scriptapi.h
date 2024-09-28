@@ -15,6 +15,7 @@
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
 #define SCRIPTING_VERSION "5.07"
+constexpr size_t noSuchPlugin = SIZE_T_MAX;
 
 class ImageFilter;
 class SmushClient;
