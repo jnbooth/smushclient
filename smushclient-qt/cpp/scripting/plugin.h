@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
+#include "plugincallback.h"
 
 class ScriptApi;
 struct lua_State;
@@ -27,12 +28,13 @@ public:
   void disable();
   void enable();
   QString getError() const;
-  bool hasFunction(std::string_view name) const;
+  bool hasFunction(const char *name) const;
+  inline bool hasFunction(std::string_view name) const { return hasFunction(name.data()); };
   inline const QString &id() const noexcept { return metadata.id; }
   inline bool disabled() const noexcept { return isDisabled; };
   inline const QString &name() const noexcept { return metadata.name; }
-  bool runCallback(std::string_view name, int arg1, std::string_view arg2) const;
-  bool runCallbackThreaded(std::string_view name, int arg1, std::string_view arg2, std::string_view arg3, std::string_view arg4) const;
+  bool runCallback(PluginCallback &callback) const;
+  bool runCallbackThreaded(PluginCallback &callback) const;
   bool runScript(const QString &script) const;
   inline lua_State *state() const noexcept { return L; }
 
@@ -41,5 +43,6 @@ private:
   bool isDisabled;
   PluginMetadata metadata;
 
-  bool findCallback(std::string_view name) const;
+  bool findCallback(const char *name) const;
+  inline bool findCallback(std::string_view name) const { return findCallback(name.data()); }
 };

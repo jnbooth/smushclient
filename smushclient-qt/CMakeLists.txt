@@ -78,6 +78,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/luaapi.h cpp/scripting/luaapi.cpp
     cpp/scripting/luaglobals.h cpp/scripting/luaglobals.cpp
     cpp/scripting/miniwindow.h cpp/scripting/miniwindow.cpp
+    cpp/scripting/plugincallback.h cpp/scripting/plugincallback.cpp
     cpp/scripting/qlua.h cpp/scripting/qlua.cpp
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
     cpp/scripting/scriptapi_api.cpp

@@ -87,16 +87,12 @@ int ScriptApi::BroadcastPlugin(size_t index, int message, string_view text) cons
 {
   const Plugin &callingPlugin = plugins[index];
   const string pluginID = callingPlugin.id().toStdString();
-  const string_view idView = pluginID;
   const string pluginName = callingPlugin.name().toStdString();
-  const string_view nameView = pluginName;
   int calledPlugins = 0;
+  OnPluginBroadcast onBroadcast(message, pluginID, pluginName, text);
   for (const Plugin &plugin : plugins)
-  {
     if (&plugin != &callingPlugin)
-      calledPlugins +=
-          plugin.runCallbackThreaded("OnPluginBroadcast", message, idView, nameView, text);
-  }
+      calledPlugins += plugin.runCallbackThreaded(onBroadcast);
   return calledPlugins;
 }
 
@@ -166,6 +162,8 @@ ApiCode ScriptApi::EnablePlugin(string_view pluginID, bool enabled)
     return ApiCode::NoSuchPlugin;
   plugins[index].disable();
   client()->setPluginEnabled(index, enabled);
+  OnPluginListChanged onListChanged;
+  sendCallback(onListChanged);
   return ApiCode::OK;
 }
 

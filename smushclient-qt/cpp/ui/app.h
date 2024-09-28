@@ -31,6 +31,8 @@ private:
   void setWorldMenusEnabled(bool enabled) const;
 
 private:
+  int lastTabIndex;
+
   WorldTab *worldtab() const;
   WorldTab *worldtab(int index) const;
 

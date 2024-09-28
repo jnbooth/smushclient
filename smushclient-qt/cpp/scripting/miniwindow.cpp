@@ -3,7 +3,6 @@
 #include <QtGui/QPainter>
 #include <QtWidgets/QLayout>
 #include <QtGui/QPaintEvent>
-#include <QtGui/QResizeEvent>
 #include <QtWidgets/QMenu>
 #include "hotspot.h"
 #include "imagefilters.h"

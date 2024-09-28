@@ -22,15 +22,6 @@ using std::string;
 using std::string_view;
 using std::unordered_map;
 
-inline void pushArg(lua_State *L, int arg)
-{
-  lua_pushinteger(L, arg);
-}
-inline void pushArg(lua_State *L, string_view arg)
-{
-  qlua::pushString(L, arg);
-}
-
 inline bool checkError(int status)
 {
   switch (status)
@@ -132,34 +123,34 @@ QString Plugin::getError() const
   return qlua::getError(L);
 }
 
-bool Plugin::hasFunction(string_view name) const
+bool Plugin::hasFunction(const char *name) const
 {
-  const bool isFunction = lua_getglobal(L, name.data()) == LUA_TFUNCTION;
+  const bool isFunction = lua_getglobal(L, name) == LUA_TFUNCTION;
   lua_pop(L, 1);
   return isFunction;
 }
 
-bool Plugin::runCallback(string_view name, int arg1, string_view arg2) const
+bool Plugin::runCallback(PluginCallback &callback) const
 {
-  if (!findCallback(name))
+  if (!findCallback(callback.name()))
     return false;
-  lua_pushinteger(L, arg1);
-  qlua::pushString(L, arg2);
-  return api_pcall(L, 2, 0);
+  if (!api_pcall(L, callback.pushArguments(L), callback.expectedSize()))
+    return false;
+  callback.collectReturned(L);
+  return true;
 }
 
-bool Plugin::runCallbackThreaded(string_view name, int arg1, string_view arg2, string_view arg3, string_view arg4) const
+bool Plugin::runCallbackThreaded(PluginCallback &callback) const
 {
-  if (!findCallback(name))
+  if (!findCallback(callback.name()))
     return false;
   const ScriptThread thread(L);
   lua_State *L2 = thread.state();
   lua_xmove(L, L2, 1);
-  lua_pushinteger(L2, arg1);
-  qlua::pushString(L2, arg2);
-  qlua::pushString(L2, arg3);
-  qlua::pushString(L2, arg4);
-  return api_pcall(L2, 4, 0);
+  if (!api_pcall(L2, callback.pushArguments(L2), callback.expectedSize()))
+    return false;
+  callback.collectReturned(L2);
+  return true;
 }
 
 bool Plugin::runScript(const QString &script) const
@@ -176,12 +167,12 @@ bool Plugin::runScript(const QString &script) const
   return api_pcall(L, 0, 0);
 }
 
-bool Plugin::findCallback(string_view name) const
+bool Plugin::findCallback(const char *name) const
 {
   if (isDisabled) [[unlikely]]
     return false;
 
-  if (lua_getglobal(L, name.data()) == LUA_TFUNCTION)
+  if (lua_getglobal(L, name) == LUA_TFUNCTION)
     return true;
 
   lua_pop(L, 1);

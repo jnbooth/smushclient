@@ -2,6 +2,8 @@
 #include <QtGui/QGuiApplication>
 #include "miniwindow.h"
 #include "plugin.h"
+#include "plugincallback.h"
+#include "qlua.h"
 
 using std::optional;
 using std::string;
@@ -180,7 +182,31 @@ void Hotspot::wheelEvent(QWheelEvent *event)
 
 // Private methods
 
-inline void Hotspot::runCallback(const string &callback, EventFlags flags)
+class HotspotCallback : public PluginCallback
 {
-  plugin->runCallback(callback, flags, id);
+public:
+  HotspotCallback(const string &callback, Hotspot::EventFlags flags, const string &hotspotID)
+      : callback(callback.data()),
+        flags(flags),
+        hotspotID(hotspotID) {}
+
+  inline constexpr const char *name() const override { return callback; }
+
+  int pushArguments(lua_State *L) const override
+  {
+    lua_pushinteger(L, flags);
+    qlua::pushString(L, hotspotID);
+    return 2;
+  }
+
+private:
+  const char *callback;
+  Hotspot::EventFlags flags;
+  const string &hotspotID;
+};
+
+inline void Hotspot::runCallback(const string &callbackName, EventFlags flags)
+{
+  HotspotCallback callback(callbackName, flags, id);
+  plugin->runCallback(callback);
 }

@@ -136,10 +136,22 @@ pub mod ffi {
             link: &Link,
         );
 
+        #[rust_name = "handle_telnet_iac_ga"]
+        unsafe fn handleTelnetIacGa(self: &Document);
+
+        #[rust_name = "handle_telnet_request"]
+        unsafe fn handleTelnetRequest(self: &Document, code: u8, sent: bool);
+
+        #[rust_name = "handle_telnet_subnegotiation"]
+        unsafe fn handleTelnetSubnegotiation(self: &Document, code: u8, data: &QByteArray);
+
+        #[rust_name = "permit_line"]
+        unsafe fn permitLine(self: &Document, data: *const c_char, size: usize) -> bool;
+
         #[rust_name = "scroll_to_bottom"]
         unsafe fn scrollToBottom(self: &Document);
 
-        unsafe fn send(self: Pin<&mut Document>, target: i32, plugin: usize, text: &QString);
+        unsafe fn send(self: &Document, target: i32, plugin: usize, text: &QString);
     }
 
     extern "C++Qt" {

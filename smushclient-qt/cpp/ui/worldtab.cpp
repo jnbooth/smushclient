@@ -1,4 +1,5 @@
 #include "worldtab.h"
+#include <string>
 #include <QtCore/QUrl>
 #include <QtGui/QAction>
 #include <QtGui/QDesktopServices>
@@ -14,6 +15,8 @@
 #include "../settings.h"
 #include "rust/cxx.h"
 
+using std::string;
+
 void setColors(QWidget *widget, const QColor &foreground, const QColor &background)
 {
   QPalette palette(widget->palette());
@@ -21,6 +24,11 @@ void setColors(QWidget *widget, const QColor &foreground, const QColor &backgrou
   palette.setColor(QPalette::Base, background);
   palette.setColor(QPalette::AlternateBase, background);
   widget->setPalette(palette);
+}
+
+inline void showRustError(const rust::Error &e)
+{
+  QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
 }
 
 WorldTab::WorldTab(QWidget *parent)
@@ -34,6 +42,8 @@ WorldTab::WorldTab(QWidget *parent)
   api = new ScriptApi(this);
   document = new Document(this, api);
   connect(socket, &QTcpSocket::readyRead, this, &WorldTab::readFromSocket);
+  connect(socket, &QTcpSocket::connected, this, &WorldTab::onConnect);
+  connect(socket, &QTcpSocket::disconnected, this, &WorldTab::onDisconnect);
 }
 
 WorldTab::~WorldTab()
@@ -58,9 +68,17 @@ void WorldTab::createWorld() &
   applyWorld();
 }
 
-void WorldTab::focusInput() const
+void WorldTab::onTabSwitch(bool active) const
 {
+  if (!active)
+  {
+    OnPluginLoseFocus onLoseFocus;
+    api->sendCallback(onLoseFocus);
+    return;
+  }
   ui->input->focusWidget();
+  OnPluginGetFocus onGetFocus;
+  api->sendCallback(onGetFocus);
 }
 
 bool WorldTab::openWorld(const QString &filename) &
@@ -72,7 +90,7 @@ bool WorldTab::openWorld(const QString &filename) &
   }
   catch (const rust::Error &e)
   {
-    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
+    showRustError(e);
     return false;
   }
   try
@@ -81,7 +99,7 @@ bool WorldTab::openWorld(const QString &filename) &
   }
   catch (const rust::Error &e)
   {
-    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
+    showRustError(e);
   }
 
   Settings().addRecentFile(filename);
@@ -104,23 +122,9 @@ QString WorldTab::saveWorld(const QString &saveFilter)
   if (filePath.isEmpty())
     return saveWorldAsNew(saveFilter);
 
-  try
-  {
-    client.saveWorld(filePath);
-  }
-  catch (const rust::Error &e)
-  {
-    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
+  if (!saveWorldAndState(filePath))
     return QString();
-  }
-  try
-  {
-    client.saveVariables(filePath + QStringLiteral(".vars"));
-  }
-  catch (const rust::Error &e)
-  {
-    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
-  }
+
   return filePath;
 }
 
@@ -131,24 +135,10 @@ QString WorldTab::saveWorldAsNew(const QString &saveFilter)
   if (path.isEmpty())
     return path;
 
-  try
-  {
-    client.saveWorld(path);
-    filePath = path;
-  }
-  catch (const rust::Error &e)
-  {
-    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
+  if (!saveWorldAndState(path))
     return QString();
-  }
-  try
-  {
-    client.saveVariables(filePath + QStringLiteral(".vars"));
-  }
-  catch (const rust::Error &e)
-  {
-    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
-  }
+
+  filePath = path;
   return filePath;
 }
 
@@ -166,6 +156,24 @@ bool WorldTab::updateWorld()
   }
   client.populateWorld(world);
   return false;
+}
+
+// Protected overrides
+
+void WorldTab::resizeEvent(QResizeEvent *)
+{
+  if (resizeTimerId)
+    killTimer(resizeTimerId);
+  resizeTimerId = startTimer(1000);
+}
+
+void WorldTab::timerEvent(QTimerEvent *event)
+{
+  if (resizeTimerId != event->timerId())
+    return;
+  resizeTimerId = 0;
+  OnPluginWorldOutputResized onResized;
+  api->sendCallback(onResized);
 }
 
 // Private methods
@@ -199,6 +207,43 @@ void WorldTab::sendCommand(const QString &command) const
 {
   api->echo(command);
   QByteArray bytes = command.toUtf8();
+  sendWithCallbacks(bytes);
+}
+
+bool WorldTab::saveWorldAndState(const QString &path) const
+{
+  OnPluginWorldSave onWorldSave;
+  api->sendCallback(onWorldSave);
+  try
+  {
+    client.saveWorld(path);
+  }
+  catch (const rust::Error &e)
+  {
+    showRustError(e);
+    return false;
+  }
+  OnPluginSaveState onSaveState;
+  api->sendCallback(onSaveState);
+  try
+  {
+    client.saveVariables(path + QStringLiteral(".vars"));
+  }
+  catch (const rust::Error &e)
+  {
+    showRustError(e);
+  }
+  return true;
+}
+
+void WorldTab::sendWithCallbacks(QByteArray &bytes) const
+{
+  OnPluginSend onSend(bytes);
+  api->sendCallback(onSend);
+  if (onSend.discarded())
+    return;
+  OnPluginSent onSent(bytes);
+  api->sendCallback(onSent);
   bytes.append("\r\n");
   socket->write(bytes);
 }
@@ -221,6 +266,18 @@ void WorldTab::finalizeWorldSettings(int result)
   }
 }
 
+void WorldTab::onConnect()
+{
+  OnPluginConnect onConnect;
+  api->sendCallback(onConnect);
+}
+
+void WorldTab::onDisconnect()
+{
+  OnPluginDisconnect onDisconnect;
+  api->sendCallback(onDisconnect);
+}
+
 void WorldTab::readFromSocket()
 {
   client.read(*socket, *document);
@@ -229,8 +286,36 @@ void WorldTab::readFromSocket()
 void WorldTab::on_input_returnPressed()
 {
   const QString input = ui->input->text();
-  sendCommand(input);
+  api->echo(input);
+  QByteArray bytes = input.toUtf8();
+  OnPluginCommand onCommand(bytes);
+  api->sendCallback(onCommand);
+  if (onCommand.discarded())
+  {
+    ui->input->clear();
+    return;
+  }
+  OnPluginCommandEntered onCommandEntered(bytes);
+  api->sendCallback(onCommandEntered);
+  if (bytes.size() == 1)
+  {
+    switch (bytes.front())
+    {
+    case '\t':
+      ui->input->clear();
+      return;
+    case '\r':
+      return;
+    }
+  }
   ui->input->clear();
+  sendWithCallbacks(bytes);
+}
+
+void WorldTab::on_input_textEdited()
+{
+  OnPluginCommandChanged onCommandChanged;
+  api->sendCallback(onCommandChanged);
 }
 
 void WorldTab::on_output_anchorClicked(const QUrl &url)

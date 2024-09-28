@@ -7,7 +7,8 @@
 
 App::App(QWidget *parent)
     : QMainWindow(parent),
-      ui(new Ui::App)
+      ui(new Ui::App),
+      lastTabIndex(-1)
 {
   ui->setupUi(this);
   saveFilter = tr("World files (*.smush);;All Files (*.*)");
@@ -166,9 +167,16 @@ void App::on_action_world_properties_triggered()
 
 void App::on_world_tabs_currentChanged(int index)
 {
-  const bool hasOpenTab = index != -1;
-  setWorldMenusEnabled(hasOpenTab);
-  if (!hasOpenTab)
+  const WorldTab *lastTab = worldtab(lastTabIndex);
+  if (lastTab)
+    lastTab->onTabSwitch(false);
+  lastTabIndex = index;
+  const WorldTab *activeTab = worldtab(index);
+  if (!activeTab)
+  {
+    setWorldMenusEnabled(false);
     return;
-  worldtab(index)->focusInput();
+  }
+  setWorldMenusEnabled(true);
+  activeTab->onTabSwitch(true);
 }

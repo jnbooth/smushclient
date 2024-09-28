@@ -1,4 +1,6 @@
-use cxx_qt_lib::{QColor, QString};
+use std::ffi::c_char;
+
+use cxx_qt_lib::{QByteArray, QColor, QString};
 
 use crate::ffi;
 
@@ -44,13 +46,34 @@ impl<'a> DocumentAdapter<'a> {
         }
     }
 
+    pub fn handle_telnet_iac_ga(&self) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.handle_telnet_iac_ga() };
+    }
+
+    pub fn handle_telnet_request(&self, code: u8, sent: bool) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.handle_telnet_request(code, sent) };
+    }
+
+    pub fn handle_telnet_subnegotiation(&self, code: u8, data: &QByteArray) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.handle_telnet_subnegotiation(code, data) };
+    }
+
+    pub fn permit_line(&self, data: &[u8]) -> bool {
+        let ptr = data.as_ptr().cast::<c_char>();
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.permit_line(ptr, data.len()) }
+    }
+
     pub fn scroll_to_bottom(&self) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.scroll_to_bottom() };
     }
 
-    pub fn send(&mut self, target: ffi::SendTarget, plugin: usize, text: &QString) {
+    pub fn send(&self, target: ffi::SendTarget, plugin: usize, text: &QString) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.as_mut().send(target.repr, plugin, text) };
+        unsafe { self.inner.send(target.repr, plugin, text) };
     }
 }

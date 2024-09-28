@@ -1,8 +1,8 @@
 use crate::adapter::{DocumentAdapter, QColorPair, SocketAdapter};
 use crate::convert::Convert;
-use cxx_qt_lib::QString;
+use cxx_qt_lib::{QByteArray, QString};
 use mud_transformer::mxp::RgbColor;
-use mud_transformer::{Output, OutputFragment, TextFragment};
+use mud_transformer::{Output, OutputFragment, TelnetFragment, TextFragment};
 use smushclient::SendRequest;
 use smushclient_plugins::SendTarget;
 use std::collections::HashMap;
@@ -27,7 +27,7 @@ impl<'a> ClientHandler<'a> {
         self.doc.append_line();
     }
 
-    fn display_text(&mut self, fragment: TextFragment) {
+    fn display_text(&mut self, fragment: &TextFragment) {
         let text = QString::from(&*fragment.text);
         if fragment.flags.is_empty()
             && fragment.background == RgbColor::BLACK
@@ -43,14 +43,26 @@ impl<'a> ClientHandler<'a> {
             foreground: fragment.foreground.convert(),
             background: fragment.background.convert(),
         };
-        match fragment.action {
+        match &fragment.action {
             Some(link) => {
-                self.doc.append_link(&text, style, &colors, &(&link).into());
+                self.doc.append_link(&text, style, &colors, &link.into());
             }
             None => {
                 self.doc.append_text(&text, style, &colors);
             }
         };
+    }
+
+    fn handle_telnet(&self, fragment: &TelnetFragment) {
+        match fragment {
+            TelnetFragment::Subnegotiation { code, data } => self
+                .doc
+                .handle_telnet_subnegotiation(*code, &QByteArray::from(&**data)),
+            TelnetFragment::IacGa => self.doc.handle_telnet_iac_ga(),
+            TelnetFragment::Do { code } => self.doc.handle_telnet_request(*code, true),
+            TelnetFragment::Will { code } => self.doc.handle_telnet_request(*code, false),
+            _ => (),
+        }
     }
 
     pub fn output_sends(&mut self) {
@@ -79,9 +91,14 @@ impl<'a> smushclient::Handler for ClientHandler<'a> {
     fn display(&mut self, output: Output) {
         match output.fragment {
             OutputFragment::LineBreak | OutputFragment::PageBreak => self.display_linebreak(),
-            OutputFragment::Text(text) => self.display_text(text),
+            OutputFragment::Text(text) => self.display_text(&text),
+            OutputFragment::Telnet(telnet) => self.handle_telnet(&telnet),
             _ => (),
         }
+    }
+
+    fn permit_line(&mut self, line: &str) -> bool {
+        self.doc.permit_line(line.as_bytes())
     }
 
     fn play_sound(&mut self, _path: &str) {}

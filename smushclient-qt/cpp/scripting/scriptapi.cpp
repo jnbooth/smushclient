@@ -107,12 +107,20 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
     if (!plugin.runScript(*++it))
       plugin.disable();
   }
+  OnPluginListChanged onListChanged;
+  sendCallback(onListChanged);
 }
 
 void ScriptApi::printError(const QString &error)
 {
   cursor.insertText(error, errorFormat);
   cursor.insertBlock();
+}
+
+void ScriptApi::sendCallback(PluginCallback &callback) const
+{
+  for (const Plugin &plugin : plugins)
+    plugin.runCallback(callback);
 }
 
 // protected overrides

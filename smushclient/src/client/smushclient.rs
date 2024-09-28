@@ -223,7 +223,7 @@ fn receive_lines<H: Handler>(
             return;
         }
         let trigger_effects = plugins.trigger(line_text, handler);
-        if trigger_effects.omit_from_output {
+        if !handler.permit_line(line_text) || trigger_effects.omit_from_output {
             for _ in 0..until {
                 let output = output.next().unwrap();
                 if is_nonvisual_output(&output.fragment) {

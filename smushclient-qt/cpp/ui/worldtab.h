@@ -1,4 +1,6 @@
 #pragma once
+#include <QtCore/QTimerEvent>
+#include <QtGui/QResizeEvent>
 #include <QtNetwork/QTcpSocket>
 #include <QtWidgets/QSplitter>
 #include "cxx-qt-gen/ffi.cxxqt.h"
@@ -20,7 +22,7 @@ public:
   ~WorldTab();
 
   void createWorld() &;
-  void focusInput() const;
+  void onTabSwitch(bool active) const;
   bool openWorld(const QString &filename) &;
   void openWorldSettings() &;
   bool updateWorld();
@@ -35,20 +37,30 @@ public:
   QTcpSocket *socket;
   World world;
 
+protected:
+  void resizeEvent(QResizeEvent *event) override;
+  void timerEvent(QTimerEvent *event) override;
+
 private:
   ScriptApi *api;
   QFont defaultFont;
   Document *document;
   QString filePath;
+  int resizeTimerId;
 
   void applyWorld() const;
   void connectToHost() const;
+  bool saveWorldAndState(const QString &filePath) const;
+  void sendWithCallbacks(QByteArray &bytes) const;
 
 private slots:
   void finalizeWorldSettings(int result);
+  void onConnect();
+  void onDisconnect();
   void readFromSocket();
 
   void on_input_returnPressed();
+  void on_input_textEdited();
   void on_output_anchorClicked(const QUrl &url);
   void on_output_customContextMenuRequested(const QPoint &pos);
 };

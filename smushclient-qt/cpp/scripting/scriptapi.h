@@ -229,8 +229,26 @@ public:
   {
     return plugins[plugin].runScript(script);
   }
+  void sendCallback(PluginCallback &callback) const;
   void sendTo(size_t plugin, SendTarget target, const QString &text);
   void stackWindow(std::string_view windowName, MiniWindow *window) const;
+
+  inline constexpr std::vector<Plugin>::const_iterator cbegin() const noexcept
+  {
+    return plugins.cbegin();
+  }
+  inline constexpr std::vector<Plugin>::const_iterator begin() const noexcept
+  {
+    return plugins.begin();
+  }
+  inline constexpr std::vector<Plugin>::const_iterator cend() const noexcept
+  {
+    return plugins.cend();
+  }
+  inline constexpr std::vector<Plugin>::const_iterator end() const noexcept
+  {
+    return plugins.end();
+  }
 
 protected:
   void timerEvent(QTimerEvent *event) override;

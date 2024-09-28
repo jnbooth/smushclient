@@ -1,10 +1,15 @@
 #include "document.h"
+#include <string>
 #include <QtWidgets/QScrollBar>
 #include <QtWidgets/QStatusBar>
 #include "../scripting/scriptapi.h"
+#include "../scripting/plugincallback.h"
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
+
+using std::string;
+using std::string_view;
 
 // Utilities
 
@@ -104,12 +109,38 @@ void Document::appendText(const QString &text, quint16 style, const QColor &fore
   cursor.insertText(text, format);
 }
 
+void Document::handleTelnetIacGa() const
+{
+  OnPluginIacGa onIacGa;
+  api->sendCallback(onIacGa);
+}
+
+void Document::handleTelnetRequest(uint8_t code, bool sent) const
+{
+  OnPluginTelnetRequest onTelnetRequest(code, sent ? "SENT_DO" : "WILL");
+  api->sendCallback(onTelnetRequest);
+}
+
+void Document::handleTelnetSubnegotiation(uint8_t code, const QByteArray &data) const
+{
+  OnPluginTelnetSubnegotiation onTelnetSubnegotiation(code, data);
+  api->sendCallback(onTelnetSubnegotiation);
+}
+
+bool Document::permitLine(const char *data, size_t size) const
+{
+  const string_view line(data, size);
+  OnPluginLineReceived onLineReceived(line);
+  api->sendCallback(onLineReceived);
+  return !onLineReceived.discarded();
+}
+
 void Document::scrollToBottom() const
 {
   scrollToEnd(*scrollBar);
 }
 
-void Document::send(int32_t target, size_t plugin, const QString &text)
+void Document::send(int32_t target, size_t plugin, const QString &text) const
 {
   api->sendTo(plugin, (SendTarget)target, text);
 }

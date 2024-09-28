@@ -25,9 +25,13 @@ public:
   void appendText(const QString &text, int format);
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background, const Link &link);
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background);
+  void handleTelnetIacGa() const;
+  void handleTelnetRequest(uint8_t code, bool sent) const;
+  void handleTelnetSubnegotiation(uint8_t code, const QByteArray &data) const;
+  bool permitLine(const char *data, size_t size) const;
   void scrollToBottom() const;
   void setPalette(const QVector_QColor &palette);
-  void send(int32_t target, size_t plugin, const QString &text);
+  void send(int32_t target, size_t plugin, const QString &text) const;
 
 private:
   ScriptApi *api;
