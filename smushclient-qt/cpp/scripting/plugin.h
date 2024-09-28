@@ -29,9 +29,9 @@ public:
   void enable();
   QString getError() const;
   bool hasFunction(const char *name) const;
-  inline bool hasFunction(std::string_view name) const { return hasFunction(name.data()); };
+  inline bool hasFunction(std::string_view name) const { return hasFunction(name.data()); }
   inline const QString &id() const noexcept { return metadata.id; }
-  inline bool disabled() const noexcept { return isDisabled; };
+  inline bool disabled() const noexcept { return isDisabled; }
   inline const QString &name() const noexcept { return metadata.name; }
   bool runCallback(PluginCallback &callback) const;
   bool runCallbackThreaded(PluginCallback &callback) const;

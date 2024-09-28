@@ -254,6 +254,7 @@ protected:
   void timerEvent(QTimerEvent *event) override;
 
 private:
+  CallbackFilter callbackFilter;
   QTextCursor cursor;
   std::unordered_map<std::string, DatabaseConnection> databases;
   QTextCharFormat echoFormat;

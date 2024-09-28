@@ -5,15 +5,10 @@ using std::string_view;
 
 // Abstract
 
-DiscardCallback::DiscardCallback() : processing(true) {}
-
 void DiscardCallback::collectReturned(lua_State *L)
 {
   processing = processing && lua_toboolean(L, -1);
 }
-
-ModifyTextCallback::ModifyTextCallback(QByteArray &text)
-    : text(text) {}
 
 void ModifyTextCallback::collectReturned(lua_State *L)
 {
@@ -33,12 +28,6 @@ int ModifyTextCallback::pushArguments(lua_State *L) const
 
 // Concrete
 
-OnPluginBroadcast::OnPluginBroadcast(int message, string_view pluginID, string_view pluginName, string_view text)
-    : message(message),
-      pluginID(pluginID),
-      pluginName(pluginName),
-      text(text) {}
-
 int OnPluginBroadcast::pushArguments(lua_State *L) const
 {
   lua_pushinteger(L, message);
@@ -48,22 +37,11 @@ int OnPluginBroadcast::pushArguments(lua_State *L) const
   return 4;
 }
 
-OnPluginCommand::OnPluginCommand(const QByteArray &text)
-    : DiscardCallback(),
-      text(text) {}
-
 int OnPluginCommand::pushArguments(lua_State *L) const
 {
   qlua::pushBytes(L, text);
   return 1;
 }
-
-OnPluginCommandEntered::OnPluginCommandEntered(QByteArray &text)
-    : ModifyTextCallback(text) {}
-
-OnPluginLineReceived::OnPluginLineReceived(string_view line)
-    : DiscardCallback(),
-      line(line) {}
 
 int OnPluginLineReceived::pushArguments(lua_State *L) const
 {
@@ -71,31 +49,17 @@ int OnPluginLineReceived::pushArguments(lua_State *L) const
   return 1;
 }
 
-OnPluginSend::OnPluginSend(const QByteArray &text)
-    : DiscardCallback(),
-      text(text) {}
-
 int OnPluginSend::pushArguments(lua_State *L) const
 {
   qlua::pushBytes(L, text);
   return 1;
 }
 
-OnPluginSent::OnPluginSent(const QByteArray &text)
-    : text(text) {}
-
 int OnPluginSent::pushArguments(lua_State *L) const
 {
   qlua::pushBytes(L, text);
   return 1;
 }
-
-OnPluginTabComplete::OnPluginTabComplete(QByteArray &text)
-    : ModifyTextCallback(text) {}
-
-OnPluginTelnetRequest::OnPluginTelnetRequest(uint8_t code, string_view message)
-    : code(code),
-      message(message) {}
 
 int OnPluginTelnetRequest::pushArguments(lua_State *L) const
 {
@@ -104,13 +68,70 @@ int OnPluginTelnetRequest::pushArguments(lua_State *L) const
   return 2;
 }
 
-OnPluginTelnetSubnegotiation::OnPluginTelnetSubnegotiation(uint8_t code, const QByteArray &data)
-    : code(code),
-      data(data) {}
-
 int OnPluginTelnetSubnegotiation::pushArguments(lua_State *L) const
 {
   lua_pushinteger(L, code);
   qlua::pushBytes(L, data);
   return 2;
+}
+
+CallbackFilter::CallbackFilter() : filter(0) {}
+
+void CallbackFilter::scan(lua_State *L)
+{
+  static QByteArray emptyByteArray;
+  const static OnPluginBroadcast onBroadcast(0, "", "", "");
+  const static OnPluginCommand onCommand(emptyByteArray);
+  const static OnPluginCommandChanged onCommandChanged;
+  const static OnPluginClose onClose;
+  const static OnPluginCommandEntered onCommandEntered(emptyByteArray);
+  const static OnPluginConnect onConnect;
+  const static OnPluginDisconnect onDisconnect;
+  const static OnPluginGetFocus onGetFocus;
+  const static OnPluginIacGa onIacGa;
+  const static OnPluginInstall onInstall;
+  const static OnPluginLineReceived onLineReceived("");
+  const static OnPluginListChanged onListChanged;
+  const static OnPluginLoseFocus onLoseFocus;
+  const static OnPluginSaveState onSaveState;
+  const static OnPluginSend onSend(emptyByteArray);
+  const static OnPluginSent onSent(emptyByteArray);
+  const static OnPluginTabComplete onTabComplete(emptyByteArray);
+  const static OnPluginTelnetRequest onTelnetRequest(0, "");
+  const static OnPluginTelnetSubnegotiation onTelnetSubnegotiation(0, emptyByteArray);
+  const static OnPluginWorldSave onWorldSave;
+  const static OnPluginWorldOutputResized onWorldOutputResized;
+  const int top = lua_gettop(L);
+  setIfDefined(L, onBroadcast);
+  setIfDefined(L, onCommand);
+  setIfDefined(L, onCommandChanged);
+  setIfDefined(L, onClose);
+  setIfDefined(L, onCommandEntered);
+  setIfDefined(L, onConnect);
+  setIfDefined(L, onDisconnect);
+  lua_settop(L, top);
+  setIfDefined(L, onGetFocus);
+  setIfDefined(L, onIacGa);
+  setIfDefined(L, onInstall);
+  setIfDefined(L, onLineReceived);
+  setIfDefined(L, onListChanged);
+  setIfDefined(L, onLoseFocus);
+  setIfDefined(L, onSaveState);
+  lua_settop(L, top);
+  setIfDefined(L, onSend);
+  setIfDefined(L, onSent);
+  setIfDefined(L, onTabComplete);
+  setIfDefined(L, onTelnetRequest);
+  setIfDefined(L, onTelnetSubnegotiation);
+  setIfDefined(L, onWorldSave);
+  setIfDefined(L, onWorldOutputResized);
+  lua_settop(L, top);
+}
+
+bool CallbackFilter::setIfDefined(lua_State *L, const PluginCallback &callback)
+{
+  const bool isDefined = lua_getglobal(L, callback.name()) == LUA_TFUNCTION;
+  if (isDefined)
+    filter |= callback.id();
+  return isDefined;
 }

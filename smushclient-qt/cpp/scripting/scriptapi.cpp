@@ -36,6 +36,7 @@ QMainWindow *getMainWindow(const QObject *obj)
 
 ScriptApi::ScriptApi(WorldTab *parent)
     : QObject(parent),
+      callbackFilter(),
       cursor(parent->ui->output->document()),
       lastTellPosition(-1)
 {
@@ -90,6 +91,7 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
     windows.clear();
   }
   const size_t size = scripts.size();
+  callbackFilter.clear();
   plugins.clear();
   plugins.reserve(size);
   pluginIndices.clear();
@@ -104,7 +106,9 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
     };
     pluginIndices[metadata.id.toStdString()] = metadata.index;
     Plugin &plugin = plugins.emplace_back(this, std::move(metadata));
-    if (!plugin.runScript(*++it))
+    if (plugin.runScript(*++it))
+      callbackFilter.scan(plugin.state());
+    else
       plugin.disable();
   }
   OnPluginListChanged onListChanged;
@@ -119,6 +123,8 @@ void ScriptApi::printError(const QString &error)
 
 void ScriptApi::sendCallback(PluginCallback &callback) const
 {
+  if (!callbackFilter.includes(callback))
+    return;
   for (const Plugin &plugin : plugins)
     plugin.runCallback(callback);
 }
