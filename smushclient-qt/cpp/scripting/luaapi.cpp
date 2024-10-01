@@ -23,6 +23,8 @@ using std::string;
 using std::string_view;
 using stringmap = std::unordered_map<string, string>;
 
+using qlua::expectMaxArgs;
+
 // localization
 
 QString fmtNoSuchPlugin(const QString &id)
@@ -84,17 +86,6 @@ inline int returnCode(lua_State *L, ApiCode code, const QString &reason)
   lua_pushinteger(L, (int)code);
   qlua::pushQString(L, reason);
   return 2;
-}
-
-int expectMaxArgs(lua_State *L, int max)
-{
-  const int n = lua_gettop(L);
-  if (n > max) [[unlikely]]
-  {
-    qlua::pushQString(L, ScriptApi::tr("Too many arguments"));
-    lua_error(L);
-  }
-  return n;
 }
 
 int setLuaApi(lua_State *L, ScriptApi *api)
@@ -416,10 +407,10 @@ static int L_EnablePlugin(lua_State *L)
   return returnCode(L, getApi(L).EnablePlugin(qlua::getString(L, 1), qlua::getBool(L, 2, true)));
 }
 
-static int L_GetPluginId(lua_State *L)
+static int L_GetPluginID(lua_State *L)
 {
   expectMaxArgs(L, 0);
-  qlua::pushQString(L, getApi(L).GetPluginId(getPluginIndex(L)));
+  qlua::pushQString(L, getApi(L).GetPluginID(getPluginIndex(L)));
   return 1;
 }
 
@@ -1080,7 +1071,7 @@ static const struct luaL_Reg worldlib[] =
      {"BroadcastPlugin", L_BroadcastPlugin},
      {"CallPlugin", L_CallPlugin},
      {"EnablePlugin", L_EnablePlugin},
-     {"GetPluginId", L_GetPluginId},
+     {"GetPluginID", L_GetPluginID},
      {"GetPluginInfo", L_GetPluginInfo},
      {"PluginSupports", L_PluginSupports},
      // senders

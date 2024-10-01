@@ -5,6 +5,7 @@ use mud_transformer::mxp::RgbColor;
 use std::error::Error;
 use std::fmt::{self, Display, Formatter};
 use std::num::TryFromIntError;
+use std::path::PathBuf;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct OutOfRangeError;
@@ -199,6 +200,38 @@ impl<const N: usize> Convert<[String; N]> for QList<QString> {
 impl<const N: usize> Convert<[String; N]> for QStringList {
     fn convert(&self) -> [String; N] {
         QList::from(self).convert()
+    }
+}
+
+impl Convert<Vec<PathBuf>> for QList<QString> {
+    fn convert(&self) -> Vec<PathBuf> {
+        self.iter()
+            .map(|val| PathBuf::from(String::from(val)))
+            .collect()
+    }
+}
+
+impl Convert<Vec<PathBuf>> for QStringList {
+    fn convert(&self) -> Vec<PathBuf> {
+        QList::from(self).convert()
+    }
+}
+
+impl Convert<QList<QString>> for [PathBuf] {
+    fn convert(&self) -> QList<QString> {
+        let mut list = QList::default();
+        list.reserve(isize::try_from(self.len()).unwrap());
+        for item in self {
+            list.append(QString::from(&*item.to_string_lossy()));
+        }
+        list
+    }
+}
+
+impl Convert<QStringList> for [PathBuf] {
+    fn convert(&self) -> QStringList {
+        let list: QList<QString> = self.convert();
+        QStringList::from(&list)
     }
 }
 

@@ -23,6 +23,7 @@ public:
 
   void createWorld() &;
   void onTabSwitch(bool active) const;
+  void openPluginsDialog();
   bool openWorld(const QString &filename) &;
   void openWorldSettings() &;
   bool updateWorld();
@@ -50,6 +51,7 @@ private:
 
   void applyWorld() const;
   void connectToHost() const;
+  bool loadPlugins();
   bool saveWorldAndState(const QString &filePath) const;
   void sendWithCallbacks(QByteArray &bytes) const;
 

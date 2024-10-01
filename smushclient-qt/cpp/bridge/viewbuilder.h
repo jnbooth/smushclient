@@ -1,7 +1,27 @@
 #ifndef VIEWBUILDER_H
 #define VIEWBUILDER_H
 
+#include <QtWidgets/QTableWidget>
 #include <QtWidgets/QTreeWidget>
+
+class TableBuilder
+{
+public:
+  explicit TableBuilder(QTableWidget *table);
+
+  void setRowCount(int rows) const;
+  void startRow(const QString &data);
+  void addColumn(const QString &text);
+  void addColumn(bool value);
+
+private:
+  QTableWidget *table;
+  QString yes;
+  QString no;
+  QString rowData;
+  int row;
+  int column;
+};
 
 class TreeBuilder
 {

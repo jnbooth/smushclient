@@ -15,8 +15,8 @@ extern "C"
   LUALIB_API int luaopen_lpeg(lua_State *L);
   LUALIB_API int luaopen_rex_pcre2(lua_State *L);
   LUALIB_API int luaopen_lsqlite3(lua_State *L);
-  LUALIB_API int luaopen_util(lua_State *L);
 }
+int luaopen_utils(lua_State *L);
 
 using std::string;
 using std::string_view;
@@ -37,17 +37,17 @@ inline bool checkError(int status)
 
 QString formatCompileError(lua_State *L)
 {
-  return ScriptApi::tr("Compile error: %1").arg(qlua::getError(L));
+  return QStringLiteral("Compile error: %1").arg(qlua::getError(L));
 }
 
 QString formatPanic(lua_State *L)
 {
-  return ScriptApi::tr("PANIC: unprotected error in call to Lua API: %1").arg(qlua::getError(L));
+  return QStringLiteral("PANIC: unprotected error in call to Lua API: %1").arg(qlua::getError(L));
 }
 
 QString formatRuntimeError(lua_State *L)
 {
-  return ScriptApi::tr("Compile error: %1").arg(qlua::getError(L));
+  return QStringLiteral("Compile error: %1").arg(qlua::getError(L));
 }
 
 static int L_panic(lua_State *L)
@@ -73,6 +73,13 @@ inline bool api_pcall(lua_State *L, int nargs, int nreturn)
   return true;
 }
 
+void setlib(lua_State *L, const char *name)
+{
+  lua_pushvalue(L, -1);
+  lua_setglobal(L, name);
+  lua_setfield(L, 1, name);
+}
+
 Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
     : L(luaL_newstate()),
       isDisabled(false),
@@ -85,12 +92,20 @@ Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
   lua_pushcfunction(L, L_print);
   lua_setglobal(L, "print");
   luaL_openlibs(L);
+  lua_settop(L, 0);
+  lua_getfield(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
   luaopen_bc(L);
+  setlib(L, "bc");
   luaopen_bit(L);
+  setlib(L, "bit");
   luaopen_lpeg(L);
+  setlib(L, "lpeg");
   luaopen_rex_pcre2(L);
+  setlib(L, "rex");
   luaopen_lsqlite3(L);
-  luaopen_util(L);
+  setlib(L, "sqlite3");
+  luaopen_utils(L);
+  setlib(L, "utils");
   registerLuaGlobals(L);
   registerLuaWorld(L);
   setPluginIndex(L, metadata.index);

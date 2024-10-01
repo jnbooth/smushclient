@@ -100,6 +100,7 @@ pub mod ffi {
     enum TelnetFragment {
         Do { code: u8 },
         IacGa,
+        Mxp { enabled: bool },
         Naws,
         SetEcho { should_echo: bool },
         Subnegotiation { code: u8, data: Vec<u8> },

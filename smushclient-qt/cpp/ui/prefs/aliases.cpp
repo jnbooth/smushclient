@@ -1,7 +1,7 @@
 #include "aliases.h"
 #include "aliasedit.h"
 #include "ui_aliases.h"
-#include "../../bridge/treebuilder.h"
+#include "../../bridge/viewbuilder.h"
 #include "../../fieldconnector.h"
 
 PrefsAliases::PrefsAliases(World &world, QWidget *parent)

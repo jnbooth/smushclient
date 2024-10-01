@@ -54,17 +54,16 @@ QString toQString(lua_State *L, int idx)
   return QString::fromUtf8(message, len);
 }
 
-QVariantMap toQMap(lua_State *L, int idx)
+QVariantHash toQHash(lua_State *L, int idx)
 {
-  QVariantMap map;
+  QVariantHash hash;
   lua_pushnil(L); // first key
   while (lua_next(L, idx) != 0)
   {
-    map[toQString(L, -2)] = qlua::getQVariant(L, -1);
+    hash[toQString(L, -2)] = qlua::getQVariant(L, -1);
     lua_pop(L, 1);
   }
-
-  return map;
+  return hash;
 }
 
 QVariantList toQVariants(lua_State *L, int idx, qsizetype size)
@@ -84,6 +83,17 @@ string_view toString(lua_State *L, int idx)
   size_t len;
   const char *message = lua_tolstring(L, idx, &len);
   return string_view(message, len);
+}
+
+int qlua::expectMaxArgs(lua_State *L, int max)
+{
+  const int n = lua_gettop(L);
+  if (n > max) [[unlikely]]
+  {
+    qlua::pushQString(L, QStringLiteral("Too many arguments"));
+    lua_error(L);
+  }
+  return n;
 }
 
 QString qlua::getError(lua_State *L)
@@ -204,7 +214,7 @@ QColor qlua::getQColor(lua_State *L, int idx)
   return toColor(L, idx);
 }
 
-QColor qlua::getQColor(lua_State *L, int idx, QColor ifNil)
+QColor qlua::getQColor(lua_State *L, int idx, const QColor &ifNil)
 {
   int type = lua_type(L, idx);
   if (type <= 0)
@@ -245,8 +255,8 @@ QVariant qlua::getQVariant(lua_State *L, int idx, int type)
   case LUA_TTABLE:
     if (int len = lua_rawlen(L, idx))
       return QVariant(toQVariants(L, idx, len));
-    if (const QVariantMap map = toQMap(L, idx); map.size())
-      return QVariant(map);
+    if (const QVariantHash hash = toQHash(L, idx); hash.size())
+      return QVariant(hash);
     return QVariant(QVariantList(0));
   default:
     return QVariant();

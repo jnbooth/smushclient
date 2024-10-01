@@ -1,11 +1,21 @@
 #include "databaseconnection.h"
 #include "sqlite3.h"
 
+using std::string;
 using std::string_view;
+
+inline string replacePathSeparators(string_view path)
+{
+  string file = (string)path;
+  for (auto iter = file.begin(), end = file.end(); iter != end; ++iter)
+    if (*iter == '\\')
+      *iter = '/';
+  return file;
+}
 
 DatabaseConnection::DatabaseConnection(string_view filename)
     : db(nullptr),
-      filename(filename),
+      filename(replacePathSeparators(filename)),
       stmt(nullptr),
       validRow(false) {}
 

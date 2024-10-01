@@ -28,8 +28,8 @@ fn main() {
     );
     copy_header(
         &header_dir,
-        "treebuilder.h",
-        include_str!("../cpp/bridge/treebuilder.h"),
+        "viewbuilder.h",
+        include_str!("../cpp/bridge/viewbuilder.h"),
     );
 
     CxxQtBuilder::new()

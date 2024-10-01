@@ -7,16 +7,8 @@ if [ "$1" = "--release" ]; then
   shift
 fi
 
-DIR="build/$CONFIG"
+BUILDDIR="build/$CONFIG"
 
 cd "$(dirname "$0")"
-cmake -S . -B $DIR
-cmake --build $DIR --config $CONFIG $@
-
-if [ -z "$RUN" ]; then
-  exit
-fi
-
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    $DIR/SmushClient.app/Contents/MacOS/SmushClient
-fi
+cmake -S . -B $BUILDDIR
+cmake --build $BUILDDIR --config $CONFIG $@

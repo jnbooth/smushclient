@@ -2,7 +2,6 @@
 #define DOCUMENT_H
 
 #include <QtCore/QVector>
-#include <QtGui/QTextCursor>
 #include <QtNetwork/QTcpSocket>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
@@ -25,6 +24,9 @@ public:
   void appendText(const QString &text, int format);
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background, const Link &link);
   void appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background);
+  void handleMxpChange(bool enabled) const;
+  void handleMxpEntity(const char *data, size_t size) const;
+  void handleMxpVariable(const char *name, size_t nameSize, const char *value, size_t valueSize) const;
   void handleTelnetIacGa() const;
   void handleTelnetRequest(uint8_t code, bool sent) const;
   void handleTelnetSubnegotiation(uint8_t code, const QByteArray &data) const;

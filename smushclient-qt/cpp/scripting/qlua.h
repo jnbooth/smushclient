@@ -32,6 +32,7 @@ namespace qlua
     return b << 16 | g << 8 | r;
   }
 
+  int expectMaxArgs(lua_State *L, int max);
   QString getError(lua_State *L);
 
   bool getBool(lua_State *L, int idx);
@@ -49,13 +50,16 @@ namespace qlua
   double getNumberOrBool(lua_State *L, int idx, double ifNil);
 
   QColor getQColor(lua_State *L, int idx);
-  QColor getQColor(lua_State *L, int idx, QColor ifNil);
+  QColor getQColor(lua_State *L, int idx, const QColor &ifNil);
 
   QString getQString(lua_State *L, int idx);
   QString getQString(lua_State *L, int idx, QString ifNil);
 
   QVariant getQVariant(lua_State *L, int idx, int type);
-  inline QVariant getQVariant(lua_State *L, int idx) { return getQVariant(L, idx, lua_type(L, idx)); }
+  inline QVariant getQVariant(lua_State *L, int idx)
+  {
+    return getQVariant(L, idx, lua_type(L, idx));
+  }
 
   std::string_view getString(lua_State *L, int idx);
   std::string_view getString(lua_State *L, int idx, std::string_view ifNil);

@@ -39,6 +39,7 @@ private:
 private slots:
   void on_action_new_triggered();
   void on_action_open_world_triggered();
+  void on_action_plugins_triggered();
   void on_action_save_world_details_as_triggered();
   void on_action_save_world_details_triggered();
   void on_action_world_properties_triggered();

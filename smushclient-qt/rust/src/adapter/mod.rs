@@ -34,5 +34,8 @@ pub use document::{DocumentAdapter, QColorPair};
 mod socket;
 pub use socket::SocketAdapter;
 
+mod table_builder;
+pub use table_builder::TableBuilderAdapter;
+
 mod tree_builder;
 pub use tree_builder::TreeBuilderAdapter;

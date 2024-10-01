@@ -24,3 +24,6 @@ rust-files.xcfilelist
 
 # Qt
 **/*.user
+
+# Local
+environment/

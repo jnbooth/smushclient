@@ -32,7 +32,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   lualibs
   GIT_REPOSITORY https://github.com/jnbooth/lua-batteries-included.git
-  GIT_TAG 383ca79dee0d37167c3c0ae72b88f8725e1f6f41
+  GIT_TAG 7135e9961d421e57db7316a5b8869baf21d91984
 )
 
 FetchContent_MakeAvailable(
@@ -70,12 +70,13 @@ qt_add_executable(${APP_NAME}
     cpp/settings.h cpp/settings.cpp
 
     cpp/bridge/document.h cpp/bridge/document.cpp
-    cpp/bridge/treebuilder.h cpp/bridge/treebuilder.cpp
+    cpp/bridge/viewbuilder.h cpp/bridge/viewbuilder.cpp
 
     cpp/scripting/databaseconnection.h cpp/scripting/databaseconnection.cpp
     cpp/scripting/hotspot.h cpp/scripting/hotspot.cpp
     cpp/scripting/imagefilters.h cpp/scripting/imagefilters.cpp
     cpp/scripting/luaapi.h cpp/scripting/luaapi.cpp
+    cpp/scripting/luautils.cpp
     cpp/scripting/luaglobals.h cpp/scripting/luaglobals.cpp
     cpp/scripting/miniwindow.h cpp/scripting/miniwindow.cpp
     cpp/scripting/plugincallback.h cpp/scripting/plugincallback.cpp
@@ -90,6 +91,7 @@ qt_add_executable(${APP_NAME}
 
     cpp/ui/app.h cpp/ui/app.cpp cpp/ui/app.ui
     cpp/ui/components/colorpickerbutton.h cpp/ui/components/colorpickerbutton.cpp
+    cpp/ui/pluginsdialog.h cpp/ui/pluginsdialog.cpp cpp/ui/pluginsdialog.ui
     cpp/ui/prefs/abstractprefstree.h cpp/ui/prefs/abstractprefstree.cpp
     cpp/ui/prefs/address.h cpp/ui/prefs/address.cpp cpp/ui/prefs/address.ui
     cpp/ui/prefs/aliasedit.h cpp/ui/prefs/aliasedit.cpp cpp/ui/prefs/aliasedit.ui

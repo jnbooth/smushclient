@@ -5,6 +5,7 @@ use std::io::{self, Read};
 use std::pin::Pin;
 use std::{ptr, slice};
 
+use crate::adapter::TableBuilderAdapter;
 use crate::convert::Convert;
 use crate::ffi;
 use crate::get_info::InfoVisitorQVariant;
@@ -76,6 +77,19 @@ impl SmushClientRust {
         Ok(world)
     }
 
+    pub fn load_plugins(&mut self) -> QStringList {
+        let Err(errors) = self.client.load_plugins() else {
+            return QStringList::default();
+        };
+        let mut list: QList<QString> = QList::default();
+        list.reserve(isize::try_from(errors.len() * 2).unwrap());
+        for error in &errors {
+            list.append(QString::from(&*error.path.to_string_lossy()));
+            list.append(QString::from(&error.error.to_string()));
+        }
+        QStringList::from(&list)
+    }
+
     pub fn save_world(&self, path: &QString) -> Result<(), PersistError> {
         let file = File::create(String::from(path).as_str())?;
         self.client.world().save(file)
@@ -133,6 +147,24 @@ impl SmushClientRust {
             list.append(QString::from(&plugin.script));
         }
         QStringList::from(&list)
+    }
+
+    pub fn build_plugins_table(&self, table: &mut TableBuilderAdapter) {
+        let plugins = self.client.plugins();
+        table.set_row_count(i32::try_from(plugins.len()).unwrap());
+        for plugin in plugins {
+            let metadata = &plugin.metadata;
+            if metadata.is_world_plugin {
+                continue;
+            }
+            table.start_row(&QString::from(&metadata.id));
+            table.add_column(&QString::from(&metadata.name));
+            table.add_column(&QString::from(&metadata.purpose));
+            table.add_column(&QString::from(&metadata.author));
+            table.add_column(&QString::from(&*metadata.path.to_string_lossy()));
+            table.add_column(!plugin.disabled);
+            table.add_column(&QString::from(&metadata.version));
+        }
     }
 
     fn apply_world(&mut self, world: World) {
@@ -206,6 +238,10 @@ impl ffi::SmushClient {
         Ok(())
     }
 
+    pub fn load_plugins(self: Pin<&mut Self>) -> QStringList {
+        self.cxx_qt_ffi_rust_mut().load_plugins()
+    }
+
     pub fn save_world(&self, path: &QString) -> Result<(), PersistError> {
         self.cxx_qt_ffi_rust().save_world(path)
     }
@@ -235,6 +271,29 @@ impl ffi::SmushClient {
 
     pub fn plugin_info(&self, index: PluginIndex, info_type: u8) -> QVariant {
         self.cxx_qt_ffi_rust().plugin_info(index, info_type)
+    }
+
+    pub fn build_plugins_table(&self, table: Pin<&mut ffi::TableBuilder>) {
+        self.cxx_qt_ffi_rust()
+            .build_plugins_table(&mut table.into());
+    }
+
+    pub fn add_plugin(self: Pin<&mut Self>, path: &QString) -> QString {
+        match self
+            .cxx_qt_ffi_rust_mut()
+            .client
+            .add_plugin(&String::from(path))
+        {
+            Ok(_) => QString::default(),
+            Err(e) => QString::from(&e.to_string()),
+        }
+    }
+
+    pub fn remove_plugin(self: Pin<&mut Self>, plugin_id: &QString) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .remove_plugin(&String::from(plugin_id))
+            .is_some()
     }
 
     pub fn plugin_scripts(&self) -> QStringList {

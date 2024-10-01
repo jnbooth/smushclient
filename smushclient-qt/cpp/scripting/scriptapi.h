@@ -54,7 +54,7 @@ public:
   QVariant GetOption(std::string_view name) const;
   std::optional<std::string_view> GetVariable(size_t pluginIndex, std::string_view key) const;
   std::optional<std::string_view> GetVariable(std::string_view pluginID, std::string_view key) const;
-  const QString &GetPluginId(size_t pluginIndex) const;
+  const QString &GetPluginID(size_t pluginIndex) const;
   QVariant GetPluginInfo(std::string_view pluginID, int infoType) const;
   void Hyperlink(
       const QString &action,

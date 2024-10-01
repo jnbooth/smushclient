@@ -8,6 +8,7 @@
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
+#include "pluginsdialog.h"
 #include "ui_worldtab.h"
 #include "worldprefs.h"
 #include "../bridge/document.h"
@@ -48,6 +49,7 @@ WorldTab::WorldTab(QWidget *parent)
 
 WorldTab::~WorldTab()
 {
+  disconnect(socket, nullptr, nullptr, nullptr);
   delete api;
   delete ui;
 }
@@ -64,7 +66,7 @@ void WorldTab::createWorld() &
   world.setOutputFont(defaultFontFamily);
   world.setOutputFontHeight(defaultFontHeight);
   client.setWorld(world);
-  api->initializeScripts(client.pluginScripts());
+  loadPlugins();
   applyWorld();
 }
 
@@ -81,18 +83,26 @@ void WorldTab::onTabSwitch(bool active) const
   api->sendCallback(onGetFocus);
 }
 
+void WorldTab::openPluginsDialog()
+{
+  PluginsDialog dialog(client, this);
+  if (dialog.exec() != QDialog::Accepted)
+    return;
+  loadPlugins();
+}
+
 bool WorldTab::openWorld(const QString &filename) &
 {
   try
   {
     client.loadWorld(filename, world);
-    api->initializeScripts(client.pluginScripts());
   }
   catch (const rust::Error &e)
   {
     showRustError(e);
     return false;
   }
+  loadPlugins();
   try
   {
     client.loadVariables(filename + QStringLiteral(".vars"));
@@ -201,6 +211,18 @@ void WorldTab::connectToHost() const
     return;
 
   socket->connectToHost(world.getSite(), (quint16)world.getPort());
+}
+
+bool WorldTab::loadPlugins()
+{
+  const QStringList errors = client.loadPlugins();
+  if (!errors.empty())
+  {
+    QErrorMessage::qtHandler()->showMessage(errors.join(QChar::fromLatin1('\n')));
+    return false;
+  }
+  api->initializeScripts(client.pluginScripts());
+  return true;
 }
 
 void WorldTab::sendCommand(const QString &command) const

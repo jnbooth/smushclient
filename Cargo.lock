@@ -515,7 +515,7 @@ dependencies = [
 [[package]]
 name = "mud-stream"
 version = "0.8.1"
-source = "git+https://github.com/jnbooth/mxp?rev=7fabb4bbe03e768d477476d794ebb3a6d8801e86#7fabb4bbe03e768d477476d794ebb3a6d8801e86"
+source = "git+https://github.com/jnbooth/mxp?rev=e7a695f4db96bb0bade913a5aab3d4b9d2687bf7#e7a695f4db96bb0bade913a5aab3d4b9d2687bf7"
 dependencies = [
  "mud-transformer",
  "pin-project-lite",
@@ -525,7 +525,7 @@ dependencies = [
 [[package]]
 name = "mud-transformer"
 version = "0.8.1"
-source = "git+https://github.com/jnbooth/mxp?rev=7fabb4bbe03e768d477476d794ebb3a6d8801e86#7fabb4bbe03e768d477476d794ebb3a6d8801e86"
+source = "git+https://github.com/jnbooth/mxp?rev=e7a695f4db96bb0bade913a5aab3d4b9d2687bf7#e7a695f4db96bb0bade913a5aab3d4b9d2687bf7"
 dependencies = [
  "bytes",
  "enumeration",
@@ -537,7 +537,7 @@ dependencies = [
 [[package]]
 name = "mxp"
 version = "0.8.1"
-source = "git+https://github.com/jnbooth/mxp?rev=7fabb4bbe03e768d477476d794ebb3a6d8801e86#7fabb4bbe03e768d477476d794ebb3a6d8801e86"
+source = "git+https://github.com/jnbooth/mxp?rev=e7a695f4db96bb0bade913a5aab3d4b9d2687bf7#e7a695f4db96bb0bade913a5aab3d4b9d2687bf7"
 dependencies = [
  "casefold",
  "enumeration",

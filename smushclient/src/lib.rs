@@ -8,7 +8,7 @@ mod handler;
 pub use handler::{Handler, SendHandler};
 
 mod plugins;
-pub use plugins::{AliasOutcome, SendRequest};
+pub use plugins::{AliasOutcome, LoadError, LoadFailure, SendRequest};
 
 pub mod world;
 pub use world::World;

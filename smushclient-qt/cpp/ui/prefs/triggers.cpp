@@ -1,7 +1,7 @@
 #include "triggers.h"
 #include "triggeredit.h"
 #include "ui_triggers.h"
-#include "../../bridge/treebuilder.h"
+#include "../../bridge/viewbuilder.h"
 #include "../../fieldconnector.h"
 
 PrefsTriggers::PrefsTriggers(World &world, QWidget *parent)

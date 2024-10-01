@@ -5,6 +5,7 @@ pub use types::*;
 
 use std::collections::HashMap;
 use std::io::{Read, Write};
+use std::path::PathBuf;
 
 use mud_transformer::{TransformerConfig, UseMxp};
 use serde::{Deserialize, Serialize};
@@ -227,7 +228,7 @@ pub struct World {
     pub note_text_colour: RgbColor,
 
     // Hidden
-    pub plugins: Vec<String>,
+    pub plugins: Vec<PathBuf>,
 }
 
 impl Default for World {

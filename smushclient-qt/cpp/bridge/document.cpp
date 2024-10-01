@@ -109,6 +109,39 @@ void Document::appendText(const QString &text, quint16 style, const QColor &fore
   cursor.insertText(text, format);
 }
 
+void Document::handleMxpChange(bool enabled) const
+{
+  if (enabled)
+  {
+    OnPluginMXPStart onMxpStart;
+    api->sendCallback(onMxpStart);
+  }
+  else
+  {
+    OnPluginMXPStop onMxpStop;
+    api->sendCallback(onMxpStop);
+  }
+}
+
+void Document::handleMxpEntity(const char *data, size_t size) const
+{
+  string_view value(data, size);
+  OnPluginMXPSetEntity onMxpSetEntity(value);
+  api->sendCallback(onMxpSetEntity);
+}
+
+void Document::handleMxpVariable(
+    const char *variableData,
+    size_t variableSize,
+    const char *contentsData,
+    size_t contentsSize) const
+{
+  string_view variable(variableData, variableSize);
+  string_view contents(contentsData, contentsSize);
+  OnPluginMXPSetVariable onMxpSetVariable(variable, contents);
+  api->sendCallback(onMxpSetVariable);
+}
+
 void Document::handleTelnetIacGa() const
 {
   OnPluginIacGa onIacGa;

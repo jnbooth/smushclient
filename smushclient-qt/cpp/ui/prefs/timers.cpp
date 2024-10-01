@@ -1,7 +1,7 @@
 #include "timers.h"
 #include "timeredit.h"
 #include "ui_timers.h"
-#include "../../bridge/treebuilder.h"
+#include "../../bridge/viewbuilder.h"
 #include "../../fieldconnector.h"
 
 PrefsTimers::PrefsTimers(World &world, QWidget *parent)

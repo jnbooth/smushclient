@@ -97,14 +97,15 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
   pluginIndices.clear();
   pluginIndices.reserve(size);
   QString error;
-  for (auto start = scripts.cbegin(), it = start, end = scripts.cend(); it != end; ++it)
+  size_t index = 0;
+  for (auto start = scripts.cbegin(), it = start, end = scripts.cend(); it != end; ++it, ++index)
   {
     PluginMetadata metadata{
         .id = *it,
-        .index = (size_t)(it - start),
+        .index = index,
         .name = *++it,
     };
-    pluginIndices[metadata.id.toStdString()] = metadata.index;
+    pluginIndices[metadata.id.toStdString()] = index;
     Plugin &plugin = plugins.emplace_back(this, std::move(metadata));
     if (plugin.runScript(*++it))
       callbackFilter.scan(plugin.state());

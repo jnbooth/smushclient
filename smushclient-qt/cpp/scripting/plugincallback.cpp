@@ -49,6 +49,19 @@ int OnPluginLineReceived::pushArguments(lua_State *L) const
   return 1;
 }
 
+int OnPluginMXPSetEntity::pushArguments(lua_State *L) const
+{
+  qlua::pushString(L, value);
+  return 1;
+}
+
+int OnPluginMXPSetVariable::pushArguments(lua_State *L) const
+{
+  qlua::pushString(L, variable);
+  qlua::pushString(L, contents);
+  return 2;
+}
+
 int OnPluginSend::pushArguments(lua_State *L) const
 {
   qlua::pushBytes(L, text);
@@ -93,6 +106,10 @@ void CallbackFilter::scan(lua_State *L)
   const static OnPluginLineReceived onLineReceived("");
   const static OnPluginListChanged onListChanged;
   const static OnPluginLoseFocus onLoseFocus;
+  const static OnPluginMXPStart onMxpStart;
+  const static OnPluginMXPStop onMxpStop;
+  const static OnPluginMXPSetEntity onMxpSetEntity("");
+  const static OnPluginMXPSetVariable onMxpSetVariable("", "");
   const static OnPluginSaveState onSaveState;
   const static OnPluginSend onSend(emptyByteArray);
   const static OnPluginSent onSent(emptyByteArray);
@@ -109,15 +126,19 @@ void CallbackFilter::scan(lua_State *L)
   setIfDefined(L, onCommandEntered);
   setIfDefined(L, onConnect);
   setIfDefined(L, onDisconnect);
-  lua_settop(L, top);
   setIfDefined(L, onGetFocus);
+  lua_settop(L, top);
   setIfDefined(L, onIacGa);
   setIfDefined(L, onInstall);
   setIfDefined(L, onLineReceived);
   setIfDefined(L, onListChanged);
   setIfDefined(L, onLoseFocus);
-  setIfDefined(L, onSaveState);
+  setIfDefined(L, onMxpStart);
+  setIfDefined(L, onMxpStop);
   lua_settop(L, top);
+  setIfDefined(L, onMxpSetEntity);
+  setIfDefined(L, onMxpSetVariable);
+  setIfDefined(L, onSaveState);
   setIfDefined(L, onSend);
   setIfDefined(L, onSent);
   setIfDefined(L, onTabComplete);

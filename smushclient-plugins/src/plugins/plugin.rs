@@ -3,6 +3,7 @@ use std::cmp::Ordering;
 use std::fmt::Write;
 use std::hash::Hash;
 use std::io::BufRead;
+use std::path::PathBuf;
 use std::str;
 
 use chrono::{NaiveDate, NaiveDateTime, Utc};
@@ -197,6 +198,8 @@ pub struct PluginMetadata {
     /// Unique ID.
     #[serde(rename = "@id")]
     pub id: String,
+    #[serde(skip)]
+    pub path: PathBuf,
     /// Short description of the plugin's functionality.
     #[serde(default, rename = "@purpose", skip_serializing_if = "str::is_empty")]
     pub purpose: String,
@@ -232,6 +235,7 @@ impl Default for PluginMetadata {
             purpose: String::new(),
             description: String::new(),
             id: String::new(),
+            path: PathBuf::new(),
             written: today(),
             modified: today(),
             version: String::new(),

@@ -46,6 +46,27 @@ impl<'a> DocumentAdapter<'a> {
         }
     }
 
+    pub fn handle_mxp_change(&self, enabled: bool) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.handle_mxp_change(enabled) };
+    }
+
+    pub fn handle_mxp_entity(&self, value: &[u8]) {
+        let ptr = value.as_ptr().cast::<c_char>();
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.handle_mxp_entity(ptr, value.len()) };
+    }
+
+    pub fn handle_mxp_variable(&self, name: &[u8], value: &[u8]) {
+        let name_ptr = name.as_ptr().cast::<c_char>();
+        let value_ptr = value.as_ptr().cast::<c_char>();
+        // SAFETY: External call to safe method on opaque type.
+        unsafe {
+            self.inner
+                .handle_mxp_variable(name_ptr, name.len(), value_ptr, value.len());
+        }
+    }
+
     pub fn handle_telnet_iac_ga(&self) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.handle_telnet_iac_ga() };

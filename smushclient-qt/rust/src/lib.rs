@@ -136,6 +136,21 @@ pub mod ffi {
             link: &Link,
         );
 
+        #[rust_name = "handle_mxp_change"]
+        unsafe fn handleMxpChange(self: &Document, enabled: bool);
+
+        #[rust_name = "handle_mxp_entity"]
+        unsafe fn handleMxpEntity(self: &Document, data: *const c_char, size: usize);
+
+        #[rust_name = "handle_mxp_variable"]
+        unsafe fn handleMxpVariable(
+            self: &Document,
+            nameData: *const c_char,
+            nameSize: usize,
+            valueData: *const c_char,
+            valueSize: usize,
+        );
+
         #[rust_name = "handle_telnet_iac_ga"]
         unsafe fn handleTelnetIacGa(self: &Document);
 
@@ -155,7 +170,19 @@ pub mod ffi {
     }
 
     extern "C++Qt" {
-        include!("treebuilder.h");
+        include!("viewbuilder.h");
+
+        type TableBuilder;
+
+        #[rust_name = "set_row_count"]
+        unsafe fn setRowCount(self: &TableBuilder, rows: i32);
+        #[rust_name = "start_row"]
+        unsafe fn startRow(self: Pin<&mut TableBuilder>, data: &QString);
+        #[rust_name = "add_column"]
+        unsafe fn addColumn(self: Pin<&mut TableBuilder>, text: &QString);
+        #[rust_name = "add_column_bool"]
+        unsafe fn addColumn(self: Pin<&mut TableBuilder>, value: bool);
+
         type TreeBuilder;
 
         #[rust_name = "start_group"]
@@ -197,12 +224,16 @@ pub mod ffi {
             world: Pin<&mut World>,
         ) -> Result<()>;
         fn save_world(self: &SmushClient, path: &QString) -> Result<()>;
+        fn load_plugins(self: Pin<&mut SmushClient>) -> QStringList;
         fn load_variables(self: Pin<&mut SmushClient>, path: &QString) -> Result<bool>;
         fn save_variables(self: &SmushClient, path: &QString) -> Result<bool>;
         fn populate_world(self: &SmushClient, world: Pin<&mut World>);
         fn set_world(self: Pin<&mut SmushClient>, world: &World) -> bool;
         fn palette(self: &SmushClient) -> QVector_QColor;
         fn plugin_info(self: &SmushClient, index: usize, info_type: u8) -> QVariant;
+        fn add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> QString;
+        fn remove_plugin(self: Pin<&mut SmushClient>, plugin_id: &QString) -> bool;
+        fn build_plugins_table(self: &SmushClient, table: Pin<&mut TableBuilder>);
         fn plugin_scripts(self: &SmushClient) -> QStringList;
         fn read(
             self: Pin<&mut SmushClient>,

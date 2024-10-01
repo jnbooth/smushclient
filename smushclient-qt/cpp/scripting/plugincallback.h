@@ -6,7 +6,7 @@ struct lua_State;
 
 #define CALLBACK(idNumber, nameString)                                               \
   inline constexpr const char *name() const noexcept override { return nameString; } \
-  inline constexpr size_t id() const noexcept override { return 1 << idNumber; }
+  inline constexpr int id() const noexcept override { return 1 << idNumber; }
 
 // Abstract
 
@@ -14,7 +14,7 @@ class PluginCallback
 {
 public:
   virtual const char *name() const noexcept = 0;
-  virtual size_t id() const noexcept = 0;
+  virtual int id() const noexcept = 0;
   virtual int expectedSize() const noexcept { return 0; }
   virtual int pushArguments(lua_State *) const { return 0; }
   virtual void collectReturned(lua_State *) {};
@@ -151,16 +151,53 @@ public:
   CALLBACK(12, "OnPluginLoseFocus")
 };
 
+class OnPluginMXPStart : public PluginCallback
+{
+public:
+  CALLBACK(13, "OnPluginMXPstart")
+};
+
+class OnPluginMXPStop : public PluginCallback
+{
+public:
+  CALLBACK(14, "OnPluginMXPstop")
+};
+
+class OnPluginMXPSetEntity : public PluginCallback
+{
+public:
+  CALLBACK(15, "OnPluginMXPsetEntity")
+  constexpr OnPluginMXPSetEntity(std::string_view value) : value(value) {}
+  int pushArguments(lua_State *L) const override;
+
+private:
+  std::string_view value;
+};
+
+class OnPluginMXPSetVariable : public PluginCallback
+{
+public:
+  CALLBACK(16, "OnPluginMXPsetVariable")
+  constexpr OnPluginMXPSetVariable(std::string_view variable, std::string_view contents)
+      : variable(variable),
+        contents(contents) {}
+  int pushArguments(lua_State *L) const override;
+
+private:
+  std::string_view variable;
+  std::string_view contents;
+};
+
 class OnPluginSaveState : public PluginCallback
 {
 public:
-  CALLBACK(13, "OnPluginSaveState")
+  CALLBACK(17, "OnPluginSaveState")
 };
 
 class OnPluginSend : public DiscardCallback
 {
 public:
-  CALLBACK(14, "OnPluginSend")
+  CALLBACK(18, "OnPluginSend")
   constexpr OnPluginSend(const QByteArray &text) : DiscardCallback(), text(text) {}
   int pushArguments(lua_State *L) const override;
 
@@ -171,7 +208,7 @@ private:
 class OnPluginSent : public PluginCallback
 {
 public:
-  CALLBACK(15, "OnPluginSend")
+  CALLBACK(19, "OnPluginSend")
   constexpr OnPluginSent(const QByteArray &text) : text(text) {}
   int pushArguments(lua_State *L) const override;
 
@@ -182,14 +219,14 @@ private:
 class OnPluginTabComplete : public ModifyTextCallback
 {
 public:
-  CALLBACK(16, "OnPluginTabComplete")
+  CALLBACK(20, "OnPluginTabComplete")
   constexpr OnPluginTabComplete(QByteArray &text) : ModifyTextCallback(text) {}
 };
 
 class OnPluginTelnetRequest : public PluginCallback
 {
 public:
-  CALLBACK(17, "OnPluginTelnetRequest")
+  CALLBACK(21, "OnPluginTelnetRequest")
   constexpr OnPluginTelnetRequest(uint8_t code, std::string_view message) : code(code), message(message) {}
   int pushArguments(lua_State *L) const override;
 
@@ -201,7 +238,7 @@ private:
 class OnPluginTelnetSubnegotiation : public PluginCallback
 {
 public:
-  CALLBACK(18, "OnPluginTelnetSubnegotiation")
+  CALLBACK(22, "OnPluginTelnetSubnegotiation")
   constexpr OnPluginTelnetSubnegotiation(uint8_t code, const QByteArray &data) : code(code), data(data) {}
   int pushArguments(lua_State *L) const override;
 
@@ -213,13 +250,13 @@ private:
 class OnPluginWorldSave : public PluginCallback
 {
 public:
-  CALLBACK(19, "OnPluginWorldSave")
+  CALLBACK(23, "OnPluginWorldSave")
 };
 
 class OnPluginWorldOutputResized : public PluginCallback
 {
 public:
-  CALLBACK(20, "OnPluginWorldOutputResized")
+  CALLBACK(24, "OnPluginWorldOutputResized")
 };
 
 class CallbackFilter

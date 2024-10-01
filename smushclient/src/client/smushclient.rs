@@ -1,11 +1,13 @@
 use std::ffi::c_char;
 use std::io::{Read, Write};
-use std::{mem, slice};
+use std::path::Path;
+use std::{env, mem, slice};
 
 use super::variables::PluginVariables;
 use crate::handler::{Handler, SendHandler};
-use crate::plugins::{AliasOutcome, PluginEngine};
+use crate::plugins::{AliasOutcome, LoadFailure, PluginEngine};
 use crate::world::{PersistError, World};
+use crate::LoadError;
 use enumeration::EnumSet;
 use mud_transformer::{
     EffectFragment, Output, OutputDrain, OutputFragment, Tag, TextFragment, TextStyle,
@@ -90,8 +92,32 @@ impl SmushClient {
         self.plugins.alias(input, handler).into()
     }
 
-    pub fn load_plugins<I: IntoIterator<Item = Plugin>>(&mut self, iter: I) {
-        self.plugins.load_plugins(iter);
+    pub fn load_plugins(&mut self) -> Result<(), Vec<LoadFailure>> {
+        self.plugins.load_plugins(&self.world.plugins)
+    }
+
+    pub fn add_plugin<P: AsRef<Path>>(&mut self, path: P) -> Result<&Plugin, LoadError> {
+        let path = path.as_ref();
+        let path = env::current_dir()
+            .ok()
+            .and_then(|cwd| path.strip_prefix(cwd).ok())
+            .unwrap_or(path);
+        let index = self.plugins.add_plugin(path)?.0;
+        self.world.plugins.clear();
+        self.world.plugins.extend(
+            self.plugins
+                .iter()
+                .filter(|plugin| !plugin.metadata.is_world_plugin)
+                .map(|plugin| plugin.metadata.path.clone()),
+        );
+        Ok(self.plugins.plugin(index).unwrap())
+    }
+
+    pub fn remove_plugin(&mut self, id: &str) -> Option<Plugin> {
+        let plugin = self.plugins.remove_plugin(id)?;
+        let plugin_path = plugin.metadata.path.as_path();
+        self.world.plugins.retain(|path| path != plugin_path);
+        Some(plugin)
     }
 
     pub fn plugins(&self) -> slice::Iter<Plugin> {

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::num::NonZeroU32;
+use std::path::PathBuf;
 use std::time::Duration;
 
 use crate::convert::Convert;
@@ -12,6 +13,16 @@ use smushclient::{SendRequest, World};
 use smushclient_plugins::{
     Alias, NaiveTime, Occurrence, Reaction, Regex, SendTarget, Sender, Timelike, Timer, Trigger,
 };
+
+impl Convert<PathBuf> for String {
+    fn from_ffi(value: Self) -> PathBuf {
+        PathBuf::from(value)
+    }
+
+    fn to_ffi(value: PathBuf) -> Self {
+        value.to_string_lossy().into_owned()
+    }
+}
 
 impl_convert_enum_opt!(ffi::ProxyType, ProxyType, Socks4, Socks5);
 
@@ -411,6 +422,7 @@ impl From<TelnetFragment> for ffi::TelnetFragment {
         match value {
             TelnetFragment::Do { code } => Self::Do { code },
             TelnetFragment::IacGa => Self::IacGa,
+            TelnetFragment::Mxp { enabled } => Self::Mxp { enabled },
             TelnetFragment::Naws => Self::Naws,
             TelnetFragment::SetEcho { should_echo } => Self::SetEcho { should_echo },
             TelnetFragment::Subnegotiation { code, data } => Self::Subnegotiation {
@@ -427,6 +439,7 @@ impl Clone for ffi::TelnetFragment {
         match self {
             Self::Do { code } => Self::Do { code: *code },
             Self::IacGa => Self::IacGa,
+            Self::Mxp { enabled } => Self::Mxp { enabled: *enabled },
             Self::Naws => Self::Naws,
             Self::SetEcho { should_echo } => Self::SetEcho {
                 should_echo: *should_echo,

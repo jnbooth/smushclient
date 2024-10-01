@@ -208,7 +208,7 @@ optional<string_view> ScriptApi::GetVariable(string_view pluginID, string_view k
   return GetVariable(index, key);
 }
 
-const QString &ScriptApi::GetPluginId(size_t index) const
+const QString &ScriptApi::GetPluginID(size_t index) const
 {
   return plugins.at(index).id();
 }

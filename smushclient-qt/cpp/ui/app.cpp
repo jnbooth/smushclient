@@ -55,6 +55,7 @@ void App::openWorld(const QString &filePath) const
   {
     const int tabIndex = ui->world_tabs->addTab(tab, tab->title());
     ui->world_tabs->setCurrentIndex(tabIndex);
+    addRecentFile(filePath);
     return;
   }
   delete tab;
@@ -137,6 +138,14 @@ void App::on_action_open_world_triggered()
     return;
 
   openWorld(filePath);
+}
+
+void App::on_action_plugins_triggered()
+{
+  WorldTab *tab = worldtab();
+  if (!tab)
+    return;
+  tab->openPluginsDialog();
 }
 
 void App::on_action_save_world_details_as_triggered()

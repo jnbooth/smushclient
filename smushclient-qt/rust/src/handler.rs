@@ -2,7 +2,7 @@ use crate::adapter::{DocumentAdapter, QColorPair, SocketAdapter};
 use crate::convert::Convert;
 use cxx_qt_lib::{QByteArray, QString};
 use mud_transformer::mxp::RgbColor;
-use mud_transformer::{Output, OutputFragment, TelnetFragment, TextFragment};
+use mud_transformer::{EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment};
 use smushclient::SendRequest;
 use smushclient_plugins::SendTarget;
 use std::collections::HashMap;
@@ -53,12 +53,34 @@ impl<'a> ClientHandler<'a> {
         };
     }
 
+    fn handle_mxp_entity(&self, fragment: &EntityFragment) {
+        let EntityFragment::Set {
+            name,
+            value,
+            publish,
+            is_variable,
+        } = fragment
+        else {
+            return;
+        };
+        if !publish {
+            return;
+        }
+        if *is_variable {
+            self.doc
+                .handle_mxp_variable(name.as_bytes(), value.as_bytes());
+        }
+        let entity = format!("{name}={value}");
+        self.doc.handle_mxp_entity(entity.as_bytes());
+    }
+
     fn handle_telnet(&self, fragment: &TelnetFragment) {
         match fragment {
             TelnetFragment::Subnegotiation { code, data } => self
                 .doc
                 .handle_telnet_subnegotiation(*code, &QByteArray::from(&**data)),
             TelnetFragment::IacGa => self.doc.handle_telnet_iac_ga(),
+            TelnetFragment::Mxp { enabled } => self.doc.handle_mxp_change(*enabled),
             TelnetFragment::Do { code } => self.doc.handle_telnet_request(*code, true),
             TelnetFragment::Will { code } => self.doc.handle_telnet_request(*code, false),
             _ => (),
@@ -91,6 +113,7 @@ impl<'a> smushclient::Handler for ClientHandler<'a> {
     fn display(&mut self, output: Output) {
         match output.fragment {
             OutputFragment::LineBreak | OutputFragment::PageBreak => self.display_linebreak(),
+            OutputFragment::MxpEntity(entity) => self.handle_mxp_entity(&entity),
             OutputFragment::Text(text) => self.display_text(&text),
             OutputFragment::Telnet(telnet) => self.handle_telnet(&telnet),
             _ => (),

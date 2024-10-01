@@ -1,11 +1,16 @@
 use core::str;
 use std::collections::HashSet;
+use std::fs::File;
+use std::io::{self, BufReader};
+use std::path::Path;
 use std::{slice, vec};
 
 use super::effects::TriggerEffects;
+use super::error::LoadError;
 use super::send::SendRequest;
 use crate::handler::{Handler, SendHandler};
 use crate::plugins::effects::AliasEffects;
+use crate::plugins::LoadFailure;
 use smushclient_plugins::{
     Alias, Indexer, Plugin, PluginIndex, SendMatch, Sendable, Sender, Senders, Trigger,
 };
@@ -42,9 +47,70 @@ impl PluginEngine {
         self.plugins.len()
     }
 
-    pub fn load_plugins<I: IntoIterator<Item = Plugin>>(&mut self, iter: I) {
-        self.plugins.extend(iter);
+    pub fn load_plugins<I>(&mut self, iter: I) -> Result<(), Vec<LoadFailure>>
+    where
+        I: IntoIterator,
+        I::Item: AsRef<Path>,
+    {
+        let errors: Vec<LoadFailure> = iter
+            .into_iter()
+            .filter_map(|path| {
+                let path = path.as_ref();
+                let error = self.load_plugin(path).err()?;
+                Some(LoadFailure {
+                    error,
+                    path: path.to_path_buf(),
+                })
+            })
+            .collect();
         self.sort();
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
+    }
+
+    pub fn add_plugin<P: AsRef<Path>>(
+        &mut self,
+        path: P,
+    ) -> Result<(PluginIndex, &Plugin), LoadError> {
+        let path = path.as_ref();
+        if self
+            .plugins
+            .iter()
+            .any(|plugin| plugin.metadata.path == path)
+        {
+            return Err(io::Error::from(io::ErrorKind::AlreadyExists).into());
+        }
+        self.load_plugin(path)?;
+        self.sort();
+        Ok(self
+            .plugins
+            .iter()
+            .enumerate()
+            .find(|(_, plugin)| plugin.metadata.path == path)
+            .unwrap())
+    }
+
+    fn load_plugin(&mut self, path: &Path) -> Result<&Plugin, LoadError> {
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+        let mut plugin = Plugin::from_xml(reader)?;
+
+        plugin.metadata.path = path.to_path_buf();
+        self.plugins.push(plugin);
+        Ok(self.plugins.last().unwrap())
+    }
+
+    pub fn remove_plugin(&mut self, id: &str) -> Option<Plugin> {
+        let index = self
+            .plugins
+            .iter()
+            .enumerate()
+            .find(|(_, plugin)| plugin.metadata.id == id)?
+            .0;
+        Some(self.plugins.remove(index))
     }
 
     pub fn set_world_plugin(&mut self, plugin: Option<Plugin>) {

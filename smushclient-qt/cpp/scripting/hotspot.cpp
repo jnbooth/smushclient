@@ -191,7 +191,7 @@ public:
         hotspotID(hotspotID) {}
 
   inline constexpr const char *name() const noexcept override { return callback; }
-  inline constexpr size_t id() const noexcept override { return 0; }
+  inline constexpr int id() const noexcept override { return 0; }
 
   int pushArguments(lua_State *L) const override
   {
