@@ -350,14 +350,19 @@ void ScriptApi::Tell(const QString &text)
 }
 
 ApiCode ScriptApi::TextRectangle(
-    const QMargins &margins,
+    const QRect &rect,
     int borderOffset,
     const QColor &borderColor,
     int borderWidth,
     const QBrush &outsideFill) const
 {
   Ui::WorldTab *ui = tab()->ui;
-  ui->area->setContentsMargins(margins);
+  const QSize size = ui->area->size();
+  ui->area->setContentsMargins(
+      rect.left(),
+      rect.top(),
+      size.width() - rect.right(),
+      size.height() - rect.bottom());
   QPalette areaPalette = ui->area->palette();
   areaPalette.setBrush(QPalette::ColorRole::Base, outsideFill);
   areaPalette.setBrush(QPalette::ColorRole::Window, outsideFill);

@@ -571,7 +571,7 @@ static int L_Repaint(lua_State *L)
 static int L_TextRectangle(lua_State *L)
 {
   expectMaxArgs(L, 9);
-  const QMargins margins = qlua::getQMargins(L, 1, 2, 3, 4);
+  const QRect rect = qlua::getQRect(L, 1, 2, 3, 4);
   const int offset = qlua::getInt(L, 5);
   const QColor borderColor = qlua::getQColor(L, 6);
   const int borderWidth = qlua::getInt(L, 7);
@@ -582,7 +582,7 @@ static int L_TextRectangle(lua_State *L)
   return returnCode(
       L,
       getApi(L).TextRectangle(
-          margins,
+          rect,
           offset,
           borderColor,
           borderWidth,

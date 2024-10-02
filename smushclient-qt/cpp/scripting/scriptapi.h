@@ -77,7 +77,7 @@ public:
   bool SetVariable(size_t pluginIndex, std::string_view key, std::string_view value) const;
   void Tell(const QString &text);
   ApiCode TextRectangle(
-      const QMargins &margins,
+      const QRect &rect,
       int borderOffset,
       const QColor &borderColor,
       int borderWidth,
