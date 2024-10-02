@@ -14,6 +14,17 @@ using std::vector;
 
 // Utils
 
+inline bool isNotSpace(char c)
+{
+  return !std::isspace(c);
+}
+
+inline void trim(string &s)
+{
+  s.erase(s.begin(), std::find_if(s.begin(), s.end(), isNotSpace));
+  s.erase(std::find_if(s.rbegin(), s.rend(), isNotSpace).base(), s.end());
+}
+
 inline bool buildMenu(QMenu *menu, string_view text)
 {
   const size_t menuCount = 1 + std::count(text.cbegin(), text.cend(), '>');
@@ -31,7 +42,7 @@ inline bool buildMenu(QMenu *menu, string_view text)
   }
   for (string item; std::getline(stream, item, '|');)
   {
-    item.erase(std::remove_if(item.begin(), item.end(), ::isspace), item.end());
+    trim(item);
     if (item == "-" || item == "")
     {
       menus.back()->addSeparator();
@@ -146,7 +157,7 @@ constexpr QRect calculateGeometry(MiniWindow::Position pos, const QSize &parent,
 
 Hotspot *findHotspotNeighbor(string_view hotspotID, const unordered_map<string, Hotspot *> hotspots)
 {
-  Hotspot *neighbor;
+  Hotspot *neighbor = nullptr;
   string_view neighborID;
   for (const auto &entry : hotspots)
   {
@@ -218,7 +229,7 @@ Hotspot *MiniWindow::addHotspot(
     const Plugin *plugin,
     Hotspot::Callbacks &&callbacks)
 {
-  Hotspot *neighbor;
+  Hotspot *neighbor = nullptr;
   string_view neighborID;
   for (const auto &entry : hotspots)
   {
@@ -375,9 +386,9 @@ QVariant MiniWindow::execMenu(const QPoint &location, string_view menuString)
 {
   QMenu menu(this);
   const bool returnsNumber = buildMenu(&menu, menuString);
-  const QAction *choice = menu.exec(location);
+  const QAction *choice = menu.exec(mapToGlobal(location));
   if (!choice)
-    return QVariant();
+    return QStringLiteral("");
   const QString text = choice->text();
   return returnsNumber ? QVariant(text.toDouble()) : QVariant(text);
 }

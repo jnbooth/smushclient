@@ -7,7 +7,8 @@ using std::string_view;
 
 void DiscardCallback::collectReturned(lua_State *L)
 {
-  processing = processing && lua_toboolean(L, -1);
+  if (processing && !lua_isnil(L, -1) && !lua_toboolean(L, -1))
+    processing = false;
 }
 
 void ModifyTextCallback::collectReturned(lua_State *L)

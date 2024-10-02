@@ -29,7 +29,7 @@ constexpr Hotspot::EventFlags getEventFlags(Qt::KeyboardModifiers modifiers, Qt:
 
 Hotspot::EventFlags getEventFlags(const QSinglePointEvent *event)
 {
-  return getEventFlags(event->modifiers(), event->buttons());
+  return getEventFlags(event->modifiers(), event->buttons() | event->button());
 }
 
 Hotspot::EventFlags getEventFlags(const QDragMoveEvent *event)
@@ -93,7 +93,7 @@ const Hotspot::Callbacks &Hotspot::setCallbacks(CallbacksPartial &&partial)
 
 inline bool hasCallback(const std::string &callback, QEvent *event)
 {
-  const bool willHandle = callback.empty();
+  const bool willHandle = !callback.empty();
   event->setAccepted(willHandle);
   return willHandle;
 }

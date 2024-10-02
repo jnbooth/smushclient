@@ -113,6 +113,8 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
     else
       plugin.disable();
   }
+  OnPluginInstall onInstall;
+  sendCallback(onInstall);
   OnPluginListChanged onListChanged;
   sendCallback(onListChanged);
 }
