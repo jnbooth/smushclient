@@ -933,7 +933,7 @@ static int L_WindowText(lua_State *L)
   const string_view windowName = qlua::getString(L, 1);
   const string_view fontID = qlua::getString(L, 2);
   const string_view view = qlua::getString(L, 3);
-  const QRectF rect = qlua::getQRectF(L, 44, 55, 6, 7);
+  const QRectF rect = qlua::getQRectF(L, 4, 5, 6, 7);
   const QColor color = qlua::getQColor(L, 8);
   const bool unicode = qlua::getBool(L, 9, false);
   const QString text = unicode ? QString::fromUtf8(view.data(), view.size())
@@ -974,7 +974,7 @@ static int L_WindowAddHotspot(lua_State *L)
   };
   const QString &tooltip = qlua::getQString(L, 12, QString());
   const optional<Qt::CursorShape> cursor = qlua::getCursor(L, 13, Qt::CursorShape::ArrowCursor);
-  const Hotspot::Flags flags = (Hotspot::Flags)qlua::getInt(L, 14);
+  const Hotspot::Flags flags = (Hotspot::Flags)qlua::getInt(L, 14, 0);
   if (!cursor) [[unlikely]]
     return returnCode(L, ApiCode::BadParameter);
   return returnCode(
