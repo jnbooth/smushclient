@@ -55,10 +55,7 @@ Hotspot::Hotspot(
     : QWidget(parent),
       callbacks(std::move(callbacks)),
       id(id),
-      plugin(plugin)
-{
-  setWindowOpacity(0);
-}
+      plugin(plugin) {}
 
 const Hotspot::Callbacks &Hotspot::setCallbacks(Callbacks &&newCallbacks)
 {

@@ -360,6 +360,7 @@ ApiCode ScriptApi::TextRectangle(
   ui->area->setContentsMargins(margins);
   QPalette areaPalette = ui->area->palette();
   areaPalette.setBrush(QPalette::ColorRole::Base, outsideFill);
+  areaPalette.setBrush(QPalette::ColorRole::Window, outsideFill);
   ui->area->setPalette(areaPalette);
   ui->outputBorder->setContentsMargins(borderWidth, borderWidth, borderWidth, borderWidth);
   QPalette borderPalette = ui->outputBorder->palette();
