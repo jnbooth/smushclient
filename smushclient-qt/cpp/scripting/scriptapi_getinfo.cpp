@@ -85,6 +85,8 @@ QVariant ScriptApi::GetInfo(int infoType) const
     return QStringLiteral(SCRIPTING_VERSION);
   case 106:
     return !tab()->socket->isOpen();
+  case 239:
+    return (int)actionSource;
   case 272:
     return tab()->ui->area->contentsMargins().left();
   case 273:

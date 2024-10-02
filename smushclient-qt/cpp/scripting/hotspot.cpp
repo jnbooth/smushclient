@@ -191,7 +191,7 @@ public:
         hotspotID(hotspotID) {}
 
   inline constexpr const char *name() const noexcept override { return callback; }
-  inline constexpr int id() const noexcept override { return 0; }
+  inline constexpr ActionSource source() const noexcept override { return ActionSource::Hotspot; }
 
   int pushArguments(lua_State *L) const override
   {

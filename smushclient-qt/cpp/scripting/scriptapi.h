@@ -229,8 +229,11 @@ public:
   {
     return plugins[plugin].runScript(script);
   }
-  void sendCallback(PluginCallback &callback) const;
+  bool runScript(const QString &pluginID, const QString &script) const;
+  void sendCallback(PluginCallback &callback);
+  bool sendCallback(PluginCallback &callback, const QString &pluginID);
   void sendTo(size_t plugin, SendTarget target, const QString &text);
+  ActionSource setSource(ActionSource source) noexcept;
   void stackWindow(std::string_view windowName, MiniWindow *window) const;
 
   inline constexpr std::vector<Plugin>::const_iterator cbegin() const noexcept
@@ -254,6 +257,7 @@ protected:
   void timerEvent(QTimerEvent *event) override;
 
 private:
+  ActionSource actionSource;
   CallbackFilter callbackFilter;
   QTextCursor cursor;
   std::unordered_map<std::string, DatabaseConnection> databases;

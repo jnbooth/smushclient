@@ -308,7 +308,9 @@ void WorldTab::onDisconnect()
 
 void WorldTab::readFromSocket()
 {
+  const ActionSource currentSource = api->setSource(ActionSource::TriggerFired);
   client.read(*socket, *document);
+  api->setSource(currentSource);
 }
 
 void WorldTab::on_input_returnPressed()

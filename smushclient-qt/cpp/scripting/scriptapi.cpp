@@ -36,6 +36,7 @@ QMainWindow *getMainWindow(const QObject *obj)
 
 ScriptApi::ScriptApi(WorldTab *parent)
     : QObject(parent),
+      actionSource(ActionSource::Unknown),
       callbackFilter(),
       cursor(parent->ui->output->document()),
       lastTellPosition(-1)
@@ -122,12 +123,52 @@ void ScriptApi::printError(const QString &error)
   cursor.insertBlock();
 }
 
-void ScriptApi::sendCallback(PluginCallback &callback) const
+bool ScriptApi::runScript(const QString &pluginID, const QString &script) const
+{
+  const size_t index = findPluginIndex(pluginID.toStdString());
+  if (index == noSuchPlugin) [[unlikely]]
+    return false;
+  return runScript(index, script);
+}
+
+void ScriptApi::sendCallback(PluginCallback &callback)
 {
   if (!callbackFilter.includes(callback))
     return;
+
+  const ActionSource callbackSource = callback.source();
+  if (callbackSource == ActionSource::Unknown)
+  {
+    for (const Plugin &plugin : plugins)
+      plugin.runCallback(callback);
+    return;
+  }
+
+  const ActionSource initialSource = actionSource;
+  actionSource = callbackSource;
+
   for (const Plugin &plugin : plugins)
     plugin.runCallback(callback);
+
+  actionSource = initialSource;
+}
+
+bool ScriptApi::sendCallback(PluginCallback &callback, const QString &pluginID)
+{
+  const size_t index = findPluginIndex(pluginID.toStdString());
+  if (index == noSuchPlugin) [[unlikely]]
+    return false;
+
+  const ActionSource callbackSource = callback.source();
+
+  if (callbackSource == ActionSource::Unknown)
+    return plugins[index].runCallback(callback);
+
+  const ActionSource initialSource = actionSource;
+  actionSource = callbackSource;
+  const bool succeeded = plugins[index].runCallback(callback);
+  actionSource = initialSource;
+  return succeeded;
 }
 
 // protected overrides
@@ -138,8 +179,11 @@ void ScriptApi::timerEvent(QTimerEvent *event)
   if (search == sendQueue.end()) [[unlikely]]
     return;
   const QueuedSend &send = search->second;
+  const ActionSource oldSource = actionSource;
+  actionSource = ActionSource::TimerFired;
   sendTo(send.plugin, send.target, send.text);
   sendQueue.erase(search);
+  actionSource = oldSource;
 }
 
 // private methods
@@ -179,6 +223,13 @@ MiniWindow *ScriptApi::findWindow(string_view windowName) const
   if (search == windows.end()) [[unlikely]]
     return nullptr;
   return search->second;
+}
+
+ActionSource ScriptApi::setSource(ActionSource source) noexcept
+{
+  const ActionSource previousSource = actionSource;
+  actionSource = source;
+  return previousSource;
 }
 
 void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)

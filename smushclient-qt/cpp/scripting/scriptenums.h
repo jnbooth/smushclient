@@ -97,6 +97,22 @@ enum struct AliasFlag
 };
 Q_DECLARE_FLAGS(AliasFlags, AliasFlag)
 
+enum struct ActionSource
+{
+  Unknown,         // No particular reason, could be plugin saving
+  UserTyping,      // User typed something in the command area and pressed <Enter>
+  UserMacro,       // User typed a macro (e.g. F2)
+  UserKeypad,      // User used the numeric keypad
+  UserAccelerator, // User used an accelerator key
+  UserMenuAction,  // Item chosen from pop-up menu
+  TriggerFired,    // Trigger fired
+  TimerFired,      // Timer fired
+  InputFromServer, // Input arrived (eg. packet received)
+  WorldAction,     // Some sort of world action (e.g. world open, connect, got focus)
+  LuaSandbox,      // Executing Lua sandbox
+  Hotspot,         // Hotspot callback
+};
+
 enum struct CircleOp
 {
   Ellipse = 1,
@@ -240,3 +256,4 @@ enum struct TriggerFlag
   OneShot = 32768,          // If set, only fires once
 };
 Q_DECLARE_FLAGS(TriggerFlags, TriggerFlag)
+
