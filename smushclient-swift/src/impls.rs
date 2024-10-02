@@ -6,13 +6,12 @@ use std::time::Duration;
 use crate::convert::Convert;
 use crate::error::UnsupportedError;
 use crate::ffi;
+use chrono::{NaiveTime, Timelike};
 use mud_transformer::mxp::{AudioRepetition, Heading, RgbColor, SendTo};
 use mud_transformer::{EffectFragment, EntityFragment, OutputFragment, TelnetFragment, UseMxp};
 use smushclient::world::{AutoConnect, ColorPair, LogFormat, LogMode, ProxyType, ScriptRecompile};
 use smushclient::{SendRequest, World};
-use smushclient_plugins::{
-    Alias, NaiveTime, Occurrence, Reaction, Regex, SendTarget, Sender, Timelike, Timer, Trigger,
-};
+use smushclient_plugins::{Alias, Occurrence, Reaction, Regex, SendTarget, Sender, Timer, Trigger};
 
 impl Convert<PathBuf> for String {
     fn from_ffi(value: Self) -> PathBuf {

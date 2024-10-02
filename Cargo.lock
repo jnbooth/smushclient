@@ -772,6 +772,7 @@ dependencies = [
 name = "smushclient-swift"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "enumeration",
  "mud-stream",
  "mud-transformer",
@@ -786,6 +787,7 @@ dependencies = [
 name = "smushclient_qt"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "cxx",
  "cxx-qt",
  "cxx-qt-build",

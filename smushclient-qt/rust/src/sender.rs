@@ -1,11 +1,10 @@
 use std::pin::Pin;
 use std::time::Duration;
 
+use chrono::{NaiveTime, Timelike};
 use cxx_qt::{Constructor, Initialize};
 use cxx_qt_lib::{QColor, QString, QTime};
-use smushclient_plugins::{
-    Alias, NaiveTime, Occurrence, Reaction, RegexError, Sender, Timelike, Timer, Trigger,
-};
+use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer, Trigger};
 
 use crate::convert::Convert;
 use crate::ffi;

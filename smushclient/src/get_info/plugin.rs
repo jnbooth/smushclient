@@ -1,3 +1,4 @@
+use chrono::Utc;
 use smushclient_plugins::{Alias, PluginIndex, Timer, Trigger};
 
 use super::visitor::InfoVisitor;
@@ -37,7 +38,7 @@ impl SmushClient {
             19 => parse_double::<V>(&plugin.metadata.version),
             // 20 - plugin file directory (string)
             21 => V::visit_usize(index),
-            // 22 - date/time plugin installed (date)
+            22 => V::visit_datetime(Utc::now()), // date/time plugin installed (date)
             // 23 - during a CallPlugin call, the ID of the calling plugin (if any) (string)
             // 24 - Time spent on scripting in this plugin (seconds, double)
             25 => V::visit_i16(plugin.metadata.sequence),

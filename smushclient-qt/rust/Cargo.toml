@@ -12,6 +12,10 @@ crate-type = ["staticlib"]
 [build-dependencies]
 cxx-qt-build = "0.6.1"
 
+[dependencies.chrono]
+version = "0.4.38"
+features = ["serde"]
+
 [dependencies.cxx]
 version = "1.0.126"
 

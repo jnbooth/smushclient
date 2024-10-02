@@ -15,6 +15,10 @@ git = "https://github.com/jnbooth/swift-bridge"
 version = "0.1"
 rev = "d6090a0e0641101260c2e9d5d31b0a8195f6c138"
 
+[dependencies.chrono]
+version = "0.4.38"
+features = ["serde"]
+
 [dependencies.enumeration]
 git = "https://github.com/jnbooth/enumeration"
 version = "0.8.0"

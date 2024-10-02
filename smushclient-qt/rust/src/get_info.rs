@@ -1,6 +1,6 @@
-use cxx_qt_lib::{QDate, QString, QVariant};
+use chrono::{DateTime, NaiveDate, Utc};
+use cxx_qt_lib::{QByteArray, QDate, QDateTime, QString, QVariant};
 use smushclient::InfoVisitor;
-use smushclient_plugins::NaiveDate;
 
 pub struct InfoVisitorQVariant;
 
@@ -13,6 +13,10 @@ impl InfoVisitor for InfoVisitorQVariant {
 
     fn visit_date(info: NaiveDate) -> Self::Output {
         QVariant::from(&QDate::from(info))
+    }
+
+    fn visit_datetime(info: DateTime<Utc>) -> Self::Output {
+        QVariant::from(&QDateTime::from(info))
     }
 
     fn visit_double(info: f64) -> Self::Output {

@@ -17,5 +17,3 @@ pub use regex::{Regex, RegexError};
 
 mod send;
 pub use send::{Alias, Occurrence, Reaction, SendTarget, Sender, Timer, Trigger};
-
-pub use chrono::{NaiveDate, NaiveTime, Timelike, Utc};
