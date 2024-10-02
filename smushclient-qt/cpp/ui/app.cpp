@@ -19,7 +19,12 @@ App::App(QWidget *parent)
       ui->action_rec_3,
       ui->action_rec_4,
       ui->action_rec_5};
-  setupRecentFiles(Settings().recentFiles());
+  const QStringList recentFiles = Settings().recentFiles();
+  if (recentFiles.empty())
+    return;
+
+  setupRecentFiles(recentFiles);
+  openWorld(recentFiles.first());
 }
 
 App::~App()
