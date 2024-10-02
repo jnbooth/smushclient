@@ -2,7 +2,7 @@
 #include <QtCore/QDir>
 
 static const QString recentFilesKey = QStringLiteral("recent");
-static constexpr qsizetype recentFilesMax = 5;
+constexpr qsizetype recentFilesMax = 5;
 
 Settings::Settings() : store() {}
 
