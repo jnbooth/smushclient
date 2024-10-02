@@ -66,6 +66,7 @@ qt_add_executable(${APP_NAME}
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
     cpp/enumbuttongroup.h
+    cpp/environment.h
     cpp/fieldconnector.h
     cpp/settings.h cpp/settings.cpp
 

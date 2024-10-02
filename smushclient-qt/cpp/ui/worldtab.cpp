@@ -12,6 +12,7 @@
 #include "ui_worldtab.h"
 #include "worldprefs.h"
 #include "../bridge/document.h"
+#include "../environment.h"
 #include "../scripting/scriptapi.h"
 #include "../settings.h"
 #include "rust/cxx.h"
@@ -141,7 +142,11 @@ QString WorldTab::saveWorld(const QString &saveFilter)
 QString WorldTab::saveWorldAsNew(const QString &saveFilter)
 {
   const QString title = tr("Save as");
-  const QString path = QFileDialog::getSaveFileName(this, title, world.getName(), saveFilter);
+  const QString path = QFileDialog::getSaveFileName(
+      this,
+      tr("Save as"),
+      QStringLiteral(WORLDS_DIR "/%1").arg(world.getName()),
+      saveFilter);
   if (path.isEmpty())
     return path;
 

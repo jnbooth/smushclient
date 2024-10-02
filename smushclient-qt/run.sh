@@ -14,8 +14,11 @@ BUILDDIR="$(pwd)/$DIR/build/$CONFIG"
 cmake -S . -B $BUILDDIR
 cmake --build $BUILDDIR --config $CONFIG $@
 
+mkdir -p ../environment
 cd ../environment
-export LUA_PATH="lua/?.lua"
+mkdir -p lua
+mkdir -p plugins
+mkdir -p worlds
 if [[ "$OSTYPE" == "darwin"* ]]; then
     "$BUILDDIR/SmushClient.app/Contents/MacOS/SmushClient"
 fi

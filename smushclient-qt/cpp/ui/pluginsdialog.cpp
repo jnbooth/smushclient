@@ -3,6 +3,7 @@
 #include <QtWidgets/QFileDialog>
 #include "ui_pluginsdialog.h"
 #include "../../bridge/viewbuilder.h"
+#include "../../environment.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
 PluginsDialog::PluginsDialog(SmushClient &client, QWidget *parent)
@@ -34,7 +35,10 @@ void PluginsDialog::buildTable()
 void PluginsDialog::on_button_add_clicked()
 {
   const QString filePath = QFileDialog::getOpenFileName(
-      this, tr("Add Plugin"), QString(), tr("Plugin files (*.xml);;All Files(*.*)"));
+      this,
+      tr("Add Plugin"),
+      QStringLiteral(PLUGINS_DIR),
+      tr("Plugin files (*.xml);;All Files(*.*)"));
 
   if (filePath.isEmpty())
     return;
