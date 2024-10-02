@@ -9,7 +9,7 @@ fi
 DIR="$(dirname "$0")"
 cd "$DIR"
 
-BUILDDIR="$(pwd)/$DIR/build/$CONFIG"
+BUILDDIR="$(pwd)/build/$CONFIG"
 
 cmake -S . -B $BUILDDIR
 cmake --build $BUILDDIR --config $CONFIG $@
