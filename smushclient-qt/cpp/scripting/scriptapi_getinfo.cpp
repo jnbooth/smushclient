@@ -21,9 +21,9 @@ QVariant ScriptApi::FontInfo(const QFont &font, int infoType) const
   case 3:
     return QFontMetrics(font).descent();
   case 4: // internal leading
-    return 0;
-  case 5: // external leading
     return QFontMetrics(font).leading();
+  case 5: // external leading
+    return 0;
   case 6:
     return QFontMetrics(font).averageCharWidth();
   case 7:
