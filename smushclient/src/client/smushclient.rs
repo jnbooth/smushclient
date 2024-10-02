@@ -62,6 +62,14 @@ impl SmushClient {
         self.config()
     }
 
+    #[must_use = "config changes must be applied to the transformer"]
+    pub fn set_world_with_plugins(&mut self, mut world: World) -> TransformerConfig {
+        mem::swap(&mut world.plugins, &mut self.world.plugins);
+        self.plugins.set_world_plugin(world.world_plugin());
+        self.world = world;
+        self.config()
+    }
+
     pub fn receive<H: Handler>(&mut self, mut output: OutputDrain, handler: &mut H) {
         if self.output_buf.is_empty() {
             receive_lines(
@@ -103,13 +111,7 @@ impl SmushClient {
             .and_then(|cwd| path.strip_prefix(cwd).ok())
             .unwrap_or(path);
         let index = self.plugins.add_plugin(path)?.0;
-        self.world.plugins.clear();
-        self.world.plugins.extend(
-            self.plugins
-                .iter()
-                .filter(|plugin| !plugin.metadata.is_world_plugin)
-                .map(|plugin| plugin.metadata.path.clone()),
-        );
+        self.update_world_plugins();
         Ok(self.plugins.plugin(index).unwrap())
     }
 
@@ -204,6 +206,16 @@ impl SmushClient {
             .find_by(|item| item.as_ref().label == label)
             .next()
             .is_some()
+    }
+
+    fn update_world_plugins(&mut self) {
+        self.world.plugins.clear();
+        self.world.plugins.extend(
+            self.plugins
+                .iter()
+                .filter(|plugin| !plugin.metadata.is_world_plugin)
+                .map(|plugin| plugin.metadata.path.clone()),
+        );
     }
 }
 

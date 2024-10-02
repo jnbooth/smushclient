@@ -8,7 +8,7 @@ use crate::colors::Colors;
 use crate::convert::Convert;
 use crate::ffi;
 use crate::sender::{AliasRust, TimerRust, TriggerRust};
-use cxx_qt_lib::{QColor, QString, QStringList};
+use cxx_qt_lib::{QColor, QString};
 use smushclient::world::ColorPair;
 use smushclient::World;
 use smushclient_plugins::{Alias, Occurrence, RegexError, Sender, Timer, Trigger};
@@ -214,8 +214,6 @@ pub struct WorldRust {
     pub script_reload_option: ffi::ScriptRecompile,
     pub script_errors_to_output_window: bool,
     pub note_text_colour: QColor,
-
-    pub plugins: QStringList,
 }
 
 impl_deref!(WorldRust, Colors, ansi_colors);
@@ -547,7 +545,6 @@ impl From<&World> for WorldRust {
             script_reload_option: world.script_reload_option.into(),
             script_errors_to_output_window: world.script_errors_to_output_window,
             note_text_colour: world.note_text_colour.convert(),
-            plugins: world.plugins.convert(),
         }
     }
 }
@@ -726,7 +723,7 @@ impl TryFrom<&WorldRust> for World {
             script_reload_option: value.script_reload_option.try_into()?,
             script_errors_to_output_window: value.script_errors_to_output_window,
             note_text_colour: value.note_text_colour.convert(),
-            plugins: value.plugins.convert(),
+            plugins: Vec::new(),
         })
     }
 }

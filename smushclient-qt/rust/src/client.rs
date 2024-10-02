@@ -73,7 +73,9 @@ impl SmushClientRust {
         let file = File::open(String::from(path).as_str())?;
         let worldfile = World::load(file)?;
         let world = WorldRust::from(&worldfile);
-        self.apply_world(worldfile);
+        self.transformer
+            .set_config(self.client.set_world(worldfile));
+        self.apply_world();
         Ok(world)
     }
 
@@ -121,7 +123,9 @@ impl SmushClientRust {
         let Ok(world) = world.try_into() else {
             return false;
         };
-        self.apply_world(world);
+        self.transformer
+            .set_config(self.client.set_world_with_plugins(world));
+        self.apply_world();
         true
     }
 
@@ -167,13 +171,12 @@ impl SmushClientRust {
         }
     }
 
-    fn apply_world(&mut self, world: World) {
+    fn apply_world(&mut self) {
+        let world = self.client.world();
         self.palette.clear();
         for (i, color) in world.palette().iter().enumerate() {
             self.palette.insert(*color, i32::try_from(i).unwrap());
         }
-        let config = self.client.set_world(world);
-        self.transformer.set_config(config);
     }
 
     pub fn read(&mut self, device: Pin<&mut ffi::QTcpSocket>, doc: Pin<&mut ffi::Document>) -> i64 {

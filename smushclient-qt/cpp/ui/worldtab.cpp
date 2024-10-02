@@ -221,7 +221,8 @@ bool WorldTab::loadPlugins()
     QErrorMessage::qtHandler()->showMessage(errors.join(QChar::fromLatin1('\n')));
     return false;
   }
-  api->initializeScripts(client.pluginScripts());
+  QStringList plugins = client.pluginScripts();
+  api->initializeScripts(plugins);
   return true;
 }
 

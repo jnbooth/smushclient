@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use chrono::{DateTime, NaiveDate, Utc};
 use cxx_qt_lib::{QByteArray, QDate, QDateTime, QString, QVariant};
 use smushclient::InfoVisitor;
@@ -29,6 +31,10 @@ impl InfoVisitor for InfoVisitorQVariant {
 
     fn visit_none() -> Self::Output {
         QVariant::default()
+    }
+
+    fn visit_path(info: &Path) -> Self::Output {
+        QVariant::from(&QByteArray::from(info.as_os_str().as_encoded_bytes()))
     }
 
     fn visit_str(info: &str) -> Self::Output {

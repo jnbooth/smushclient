@@ -1,8 +1,9 @@
 use cxx::kind::Trivial;
 use cxx::ExternType;
-use cxx_qt_lib::{QColor, QList, QString, QStringList, QVector};
+use cxx_qt_lib::{QByteArray, QColor, QList, QString, QStringList, QVector};
 use mud_transformer::mxp::RgbColor;
 use std::error::Error;
+use std::ffi::OsStr;
 use std::fmt::{self, Display, Formatter};
 use std::num::TryFromIntError;
 use std::path::PathBuf;
@@ -203,35 +204,16 @@ impl<const N: usize> Convert<[String; N]> for QStringList {
     }
 }
 
-impl Convert<Vec<PathBuf>> for QList<QString> {
-    fn convert(&self) -> Vec<PathBuf> {
-        self.iter()
-            .map(|val| PathBuf::from(String::from(val)))
-            .collect()
+impl Convert<QByteArray> for PathBuf {
+    fn convert(&self) -> QByteArray {
+        QByteArray::from(self.as_os_str().as_encoded_bytes())
     }
 }
 
-impl Convert<Vec<PathBuf>> for QStringList {
-    fn convert(&self) -> Vec<PathBuf> {
-        QList::from(self).convert()
-    }
-}
-
-impl Convert<QList<QString>> for [PathBuf] {
-    fn convert(&self) -> QList<QString> {
-        let mut list = QList::default();
-        list.reserve(isize::try_from(self.len()).unwrap());
-        for item in self {
-            list.append(QString::from(&*item.to_string_lossy()));
-        }
-        list
-    }
-}
-
-impl Convert<QStringList> for [PathBuf] {
-    fn convert(&self) -> QStringList {
-        let list: QList<QString> = self.convert();
-        QStringList::from(&list)
+impl Convert<PathBuf> for QByteArray {
+    fn convert(&self) -> PathBuf {
+        // SAFETY: Paired with the as_encoded_bytes call above.
+        unsafe { OsStr::from_encoded_bytes_unchecked(self.as_slice()) }.into()
     }
 }
 

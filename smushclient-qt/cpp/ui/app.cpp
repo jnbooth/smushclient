@@ -1,6 +1,7 @@
 #include "app.h"
 #include "ui_app.h"
 #include "worldtab.h"
+#include "../environment.h"
 #include "../settings.h"
 
 #include <QtWidgets/QFileDialog>
@@ -132,8 +133,11 @@ void App::on_action_new_triggered()
 
 void App::on_action_open_world_triggered()
 {
-  const QString dialogName = ui->action_open_world->text();
-  const QString filePath = QFileDialog::getOpenFileName(this, dialogName, QString(), saveFilter);
+  const QString filePath = QFileDialog::getOpenFileName(
+      this,
+      ui->action_open_world->text(),
+      QStringLiteral(WORLDS_DIR),
+      saveFilter);
   if (filePath.isEmpty())
     return;
 

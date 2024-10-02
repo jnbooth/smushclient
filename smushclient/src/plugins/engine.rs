@@ -52,6 +52,7 @@ impl PluginEngine {
         I: IntoIterator,
         I::Item: AsRef<Path>,
     {
+        self.plugins.clear();
         let errors: Vec<LoadFailure> = iter
             .into_iter()
             .filter_map(|path| {
