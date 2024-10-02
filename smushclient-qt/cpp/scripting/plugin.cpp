@@ -23,6 +23,8 @@ using std::string;
 using std::string_view;
 using std::unordered_map;
 
+constexpr int tracebackIdx = 1;
+
 inline bool checkError(int status)
 {
   switch (status)
@@ -48,7 +50,7 @@ QString formatPanic(lua_State *L)
 
 QString formatRuntimeError(lua_State *L)
 {
-  return QStringLiteral("Compile error: %1").arg(qlua::getError(L));
+  return QStringLiteral("Runtime error: %1").arg(qlua::getError(L));
 }
 
 static int L_panic(lua_State *L)
@@ -59,13 +61,15 @@ static int L_panic(lua_State *L)
 
 static int L_print(lua_State *L)
 {
-  getApi(L).Tell(qlua::concatStrings(L));
+  const QString output = qlua::concatStrings(L);
+  qInfo() << "print(" << output << ")";
+  getApi(L).Tell(output);
   return 0;
 }
 
 inline bool api_pcall(lua_State *L, int nargs, int nreturn)
 {
-  if (checkError(lua_pcall(L, nargs, nreturn, 0))) [[unlikely]]
+  if (checkError(lua_pcall(L, nargs, nreturn, tracebackIdx))) [[unlikely]]
   {
     getApi(L).printError(formatRuntimeError(L));
     return false;
@@ -114,6 +118,9 @@ Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
   setPluginIndex(L, metadata.index);
   setLuaApi(L, api);
   lua_settop(L, 0);
+  lua_getglobal(L, LUA_DBLIBNAME);
+  lua_getfield(L, -1, "traceback");
+  lua_remove(L, 1);
 }
 
 Plugin::Plugin(Plugin &&other)
