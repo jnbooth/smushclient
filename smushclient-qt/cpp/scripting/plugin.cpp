@@ -12,6 +12,7 @@ extern "C"
 #include "lualib.h"
   LUALIB_API int luaopen_bc(lua_State *L);
   LUALIB_API int luaopen_bit(lua_State *L);
+  LUALIB_API int luaopen_cjson(lua_State *L);
   LUALIB_API int luaopen_lpeg(lua_State *L);
   LUALIB_API int luaopen_rex_pcre2(lua_State *L);
   LUALIB_API int luaopen_lsqlite3(lua_State *L);
@@ -98,6 +99,8 @@ Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
   setlib(L, "bc");
   luaopen_bit(L);
   setlib(L, "bit");
+  luaopen_cjson(L);
+  setlib(L, "json");
   luaopen_lpeg(L);
   setlib(L, "lpeg");
   luaopen_rex_pcre2(L);

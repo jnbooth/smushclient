@@ -17,7 +17,7 @@ struct LocalizedString
 };
 
 static const pair<string, AliasFlag>
-    alias_flags[] =
+    alias_flag[] =
         {{"Enabled", AliasFlag::Enabled},
          {"KeepEvaluating", AliasFlag::KeepEvaluating},
          {"IgnoreAliasCase", AliasFlag::IgnoreAliasCase},
@@ -31,7 +31,7 @@ static const pair<string, AliasFlag>
          {"Temporary", AliasFlag::Temporary},
          {"OneShot", AliasFlag::OneShot}};
 
-static const pair<string, ApiCode> error_codes[] =
+static const pair<string, ApiCode> error_code[] =
     {{"eOK", ApiCode::OK},
      {"eWorldOpen", ApiCode::WorldOpen},
      {"eWorldClosed", ApiCode::WorldClosed},
@@ -108,7 +108,7 @@ static const pair<string, ApiCode> error_codes[] =
      {"eNoSuchWindow", ApiCode::NoSuchWindow},
      {"eBrushStyleNotValid", ApiCode::BrushStyleNotValid}};
 
-static const pair<ApiCode, LocalizedString> error_descriptions[] =
+static const pair<ApiCode, LocalizedString> error_desc[] =
     {{ApiCode::OK, "No error"},
      {ApiCode::WorldOpen, "The world is already open"},
      {ApiCode::WorldClosed, "The world is closed, this action cannot be performed"},
@@ -186,7 +186,7 @@ static const pair<ApiCode, LocalizedString> error_descriptions[] =
      {ApiCode::NoSuchWindow, "Requested miniwindow does not exist"},
      {ApiCode::BrushStyleNotValid, "Invalid settings for brush parameter"}};
 
-static const pair<string, int> miniwindow_flags[] =
+static const pair<string, int> miniwin[] =
     {{"pos_stretch_to_view", (int)MiniWindow::Position::OutputStretch},
      {"pos_stretch_to_view_with_aspect", (int)MiniWindow::Position::OutputScale},
      {"pos_stretch_to_owner", (int)MiniWindow::Position::OwnerStretch},
@@ -430,7 +430,7 @@ static const pair<string, int> miniwindow_flags[] =
      {"wheel_got_alt", Hotspot::EventFlag::Alt},
      {"wheel_scroll_back", Hotspot::EventFlag::ScrollDown}};
 
-static const pair<string, SendTarget> send_to_destination[] =
+static const pair<string, SendTarget> sendto[] =
     {{"world", SendTarget::World},
      {"command", SendTarget::Command},
      {"output", SendTarget::Output},
@@ -447,7 +447,7 @@ static const pair<string, SendTarget> send_to_destination[] =
      {"immediate", SendTarget::WorldImmediate},
      {"scriptafteromit", SendTarget::ScriptAfterOmit}};
 
-static const pair<string, TimerFlag> timer_flags[] =
+static const pair<string, TimerFlag> timer_flag[] =
     {{"Enabled", TimerFlag::Enabled},
      {"AtTime", TimerFlag::AtTime},
      {"OneShot", TimerFlag::OneShot},
@@ -457,7 +457,7 @@ static const pair<string, TimerFlag> timer_flags[] =
      {"Replace", TimerFlag::Replace},
      {"Temporary", TimerFlag::Temporary}};
 
-static const pair<string, TriggerFlag> trigger_flags[] =
+static const pair<string, TriggerFlag> trigger_flag[] =
     {{"Enabled", TriggerFlag::Enabled},
      {"OmitFromLog", TriggerFlag::OmitFromLog},
      {"OmitFromOutput", TriggerFlag::OmitFromOutput},
@@ -506,11 +506,12 @@ void registerTable(lua_State *L, const char *name, const pair<K, V> (&entries)[N
 
 int registerLuaGlobals(lua_State *L)
 {
-  registerTable(L, "alias_flags", alias_flags);
-  registerTable(L, "error_codes", error_codes);
-  registerTable(L, "error_descriptions", error_descriptions);
-  registerTable(L, "send_to_destination", send_to_destination);
-  registerTable(L, "timer_flags", timer_flags);
-  registerTable(L, "trigger_flags", trigger_flags);
+  registerTable(L, "alias_flag", alias_flag);
+  registerTable(L, "error_code", error_code);
+  registerTable(L, "error_desc", error_desc);
+  registerTable(L, "miniwin", miniwin);
+  registerTable(L, "sendto", sendto);
+  registerTable(L, "timer_flag", timer_flag);
+  registerTable(L, "trigger_flag", trigger_flag);
   return 0;
 }
