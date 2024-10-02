@@ -803,6 +803,15 @@ static int L_WindowGradient(lua_State *L)
           (Qt::Orientation)mode));
 }
 
+static int L_WindowImageFromWindow(lua_State *L)
+{
+  expectMaxArgs(L, 3);
+  const string_view windowName = qlua::getString(L, 1);
+  const string_view imageID = qlua::getString(L, 2);
+  const string_view sourceWindow = qlua::getString(L, 3);
+  return returnCode(L, getApi(L).WindowImageFromWindow(windowName, imageID, sourceWindow));
+}
+
 static int L_WindowLine(lua_State *L)
 {
   expectMaxArgs(L, 8);
@@ -1104,6 +1113,7 @@ static const struct luaL_Reg worldlib[] =
      {"WindowFilter", L_WindowFilter},
      {"WindowFont", L_WindowFont},
      {"WindowGradient", L_WindowGradient},
+     {"WindowImageFromWindow", L_WindowImageFromWindow},
      {"WindowLine", L_WindowLine},
      {"WindowLoadImage", L_WindowLoadImage},
      {"WindowMenu", L_WindowMenu},
