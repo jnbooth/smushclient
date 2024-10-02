@@ -179,11 +179,12 @@ bool WorldTab::updateWorld()
 
 // Protected overrides
 
-void WorldTab::resizeEvent(QResizeEvent *)
+void WorldTab::resizeEvent(QResizeEvent *event)
 {
   if (resizeTimerId)
     killTimer(resizeTimerId);
   resizeTimerId = startTimer(1000);
+  QSplitter::resizeEvent(event);
 }
 
 void WorldTab::timerEvent(QTimerEvent *event)
