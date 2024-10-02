@@ -2,6 +2,7 @@
 #include <string>
 #include <QtWidgets/QScrollBar>
 #include <QtWidgets/QStatusBar>
+#include "../link.h"
 #include "../scripting/scriptapi.h"
 #include "../scripting/plugincallback.h"
 #include "../ui/ui_worldtab.h"
@@ -27,20 +28,8 @@ inline void scrollToEnd(QScrollBar &bar)
 
 inline void applyLink(QTextCharFormat &format, const Link &link) noexcept
 {
-  QString action(link.action);
-  switch (link.sendto)
-  {
-  case SendTo::Internet:
-    action.append(QChar(17));
-    break;
-  case SendTo::Input:
-    action.prepend(QChar(18));
-    break;
-  case SendTo::World:
-    break;
-  }
   format.setAnchor(true);
-  format.setAnchorHref(action);
+  format.setAnchorHref(encodeLink(link.sendto, link.action));
   if (!link.hint.isEmpty())
     format.setToolTip(link.hint);
   if (!link.prompts.isEmpty())

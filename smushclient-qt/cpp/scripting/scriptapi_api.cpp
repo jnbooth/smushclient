@@ -8,6 +8,7 @@
 #include "sqlite3.h"
 #include "miniwindow.h"
 #include "worldproperties.h"
+#include "../../link.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 
@@ -237,14 +238,7 @@ void ScriptApi::Hyperlink(
     bool noUnderline)
 {
   QTextCharFormat format;
-  if (url)
-  {
-    QString link = action;
-    link.prepend(QChar(17));
-    format.setAnchorHref(link);
-  }
-  else
-    format.setAnchorHref(action);
+  format.setAnchorHref(encodeLink(url ? SendTo::Internet : SendTo::World, action));
   format.setToolTip(hint.isEmpty() ? action : hint);
   if (foreground.isValid())
     format.setForeground(foreground);

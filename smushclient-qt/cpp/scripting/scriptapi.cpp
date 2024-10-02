@@ -209,9 +209,9 @@ DatabaseConnection *ScriptApi::findDatabase(string_view databaseID)
   return &search->second;
 }
 
-size_t ScriptApi::findPluginIndex(string_view pluginID) const
+size_t ScriptApi::findPluginIndex(const string &pluginID) const
 {
-  auto search = pluginIndices.find((string)pluginID);
+  auto search = pluginIndices.find(pluginID);
   if (search == pluginIndices.end()) [[unlikely]]
     return noSuchPlugin;
   return search->second;

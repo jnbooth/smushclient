@@ -13,6 +13,8 @@
 #include "worldprefs.h"
 #include "../bridge/document.h"
 #include "../environment.h"
+#include "../link.h"
+#include "../scripting/qlua.h"
 #include "../scripting/scriptapi.h"
 #include "../settings.h"
 #include "rust/cxx.h"
@@ -39,6 +41,8 @@ WorldTab::WorldTab(QWidget *parent)
       defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont))
 {
   ui->setupUi(this);
+  ui->output->setOpenLinks(false);
+  ui->output->setOpenExternalLinks(false);
   defaultFont.setPointSize(12);
   socket = new QTcpSocket(this);
   api = new ScriptApi(this);
@@ -348,23 +352,61 @@ void WorldTab::on_input_textEdited()
   api->sendCallback(onCommandChanged);
 }
 
+class AnchorCallback : public PluginCallback
+{
+public:
+  AnchorCallback(const string &callback, const QString &arg)
+      : callback(callback.data()),
+        arg(arg) {}
+
+  inline constexpr const char *name() const noexcept override { return callback; }
+  inline constexpr ActionSource source() const noexcept override { return ActionSource::UserMenuAction; }
+
+  int pushArguments(lua_State *L) const override
+  {
+    qlua::pushQString(L, arg);
+    return 1;
+  }
+
+private:
+  const char *callback;
+  const QString &arg;
+};
+
 void WorldTab::on_output_anchorClicked(const QUrl &url)
 {
-  const QString action = url.toString(QUrl::None);
+  QString action = url.toString(QUrl::None);
   if (action.isEmpty())
     return;
 
-  switch (action.back().unicode())
+  switch (decodeLink(action))
   {
-  case 17:
+  case SendTo::Internet:
     QDesktopServices::openUrl(QUrl(action));
+    return;
+  case SendTo::World:
     break;
-  case 18:
+  case SendTo::Input:
     ui->input->setText(action);
-    break;
-  default:
-    sendCommand(action);
+    return;
   }
+
+  int delimIndex, fnIndex;
+  if (
+      action.first(2) != QStringLiteral("!!") ||
+      action.back() != QChar::fromLatin1(')') ||
+      (delimIndex = action.indexOf(QChar::fromLatin1(':'))) == -1 ||
+      (fnIndex = action.indexOf(QChar::fromLatin1('('), delimIndex)) == -1)
+  {
+    sendCommand(action);
+    return;
+  }
+
+  const QString pluginID = action.sliced(2, delimIndex - 2);
+  const string functionName = action.sliced(delimIndex + 1, fnIndex - delimIndex - 1).toStdString();
+  const QString arg = action.sliced(fnIndex + 1, action.size() - fnIndex - 2);
+  AnchorCallback callback(functionName, arg);
+  api->sendCallback(callback, pluginID);
 }
 
 void WorldTab::on_output_customContextMenuRequested(const QPoint &pos)

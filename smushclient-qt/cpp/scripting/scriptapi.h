@@ -272,7 +272,11 @@ private:
   SmushClient *client() const;
   void displayStatusMessage(const QString &status) const;
   DatabaseConnection *findDatabase(const std::string_view databaseID);
-  size_t findPluginIndex(const std::string_view pluginID) const;
+  size_t findPluginIndex(const std::string &pluginID) const;
+  inline size_t findPluginIndex(const std::string_view pluginID) const
+  {
+    return findPluginIndex((std::string)pluginID);
+  }
   MiniWindow *findWindow(const std::string_view windowName) const;
   WorldTab *tab() const;
 };
