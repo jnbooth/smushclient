@@ -829,7 +829,8 @@ optional<QPolygonF> qlua::getQPolygonF(lua_State *L, int idx)
   const qsizetype commaCount = std::count(s.cbegin(), s.cend(), ',');
   if (commaCount % 2 == 0 || commaCount < 3) [[unlikely]]
     return nullopt;
-  QList<QPointF> points((commaCount + 1) / 2);
+  QList<QPointF> points;
+  points.reserve((commaCount + 1) / 2);
   std::istringstream stream((string)s);
   for (string sX, sY; std::getline(stream, sX, ',') && std::getline(stream, sY, ',');)
   {
