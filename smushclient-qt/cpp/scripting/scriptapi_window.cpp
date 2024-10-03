@@ -54,7 +54,7 @@ ApiCode ScriptApi::WindowCreate(
   if (!size.isValid()) [[unlikely]]
     return ApiCode::BadParameter;
 
-  string windowName = (string)name;
+  const string windowName = (string)name;
   MiniWindow *window = windows[windowName];
   if (!window)
     window = windows[windowName] =
@@ -67,7 +67,7 @@ ApiCode ScriptApi::WindowCreate(
   }
   window->updatePosition();
   stackWindow(name, window);
-  window->show();
+  window->hide();
   return ApiCode::OK;
 }
 
