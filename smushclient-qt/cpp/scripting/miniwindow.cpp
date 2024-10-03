@@ -256,9 +256,10 @@ Hotspot *MiniWindow::addHotspot(
   return hotspot;
 }
 
-void MiniWindow::applyFilter(const ImageFilter &filter, const QRect &rect)
+void MiniWindow::applyFilter(const ImageFilter &filter, const QRect &rectBase)
 {
-  if (rect.isNull() || rect == pixmap.rect())
+  const QRect rect = normalizeRect(rectBase);
+  if (rectBase == pixmap.rect())
   {
     filter.apply(pixmap);
     return;
@@ -292,11 +293,12 @@ void MiniWindow::drawLine(const QLineF &line, const QPen &pen)
 
 void MiniWindow::drawEllipse(const QRectF &rect, const QPen &pen, const QBrush &brush)
 {
-  Painter(this, pen, brush).drawEllipse(rect);
+  Painter(this, pen, brush).drawEllipse(normalizeRect(rect));
 }
 
-void MiniWindow::drawFrame(const QRectF &rect, const QColor &color1, const QColor &color2)
+void MiniWindow::drawFrame(const QRectF &rectBase, const QColor &color1, const QColor &color2)
 {
+  const QRectF rect = normalizeRect(rectBase);
   Painter painter(this);
   painter.setPen(color1);
   painter.drawLine(rect.bottomLeft(), rect.topLeft());
@@ -308,26 +310,27 @@ void MiniWindow::drawFrame(const QRectF &rect, const QColor &color1, const QColo
 
 void MiniWindow::drawGradient(const QRectF &rect, const QGradient &gradient)
 {
-  Painter(this).fillRect(rect, gradient);
+  Painter(this).fillRect(normalizeRect(rect), gradient);
 }
 
 void MiniWindow::drawImage(
     const QPixmap &image,
-    const QRectF &rect,
-    const QRectF &sourceRect,
+    const QRectF &rectBase,
+    const QRectF &sourceRectBase,
     DrawImageMode mode,
     qreal opacity)
 {
   Painter painter(this);
   painter.setOpacity(opacity);
-  const QRectF imageRect = sourceRect.isNull() ? image.rect() : sourceRect;
+  const QRectF rect = normalizeRect(rectBase);
+  const QRectF sourceRect = normalizeRect(sourceRectBase, image);
   switch (mode)
   {
   case DrawImageMode::Copy:
-    painter.drawPixmap(rect.topLeft(), image, imageRect);
+    painter.drawPixmap(rect.topLeft(), image, sourceRect);
     return;
   case DrawImageMode::Stretch:
-    painter.drawPixmap(rect, image, imageRect);
+    painter.drawPixmap(rect, image, sourceRect);
     return;
   case DrawImageMode::CopyTransparent:
     QPixmap croppedImage = image.copy(sourceRect.toRect());
@@ -336,7 +339,7 @@ void MiniWindow::drawImage(
     const QImage qImage = image.toImage().convertToFormat(QImage::Format_RGB32);
     const QRgb pixel = qImage.pixel(0, 0);
     croppedImage.setMask(QBitmap::fromImage(std::move(qImage).createMaskFromColor(pixel)));
-    Painter(this).drawPixmap(rect.topLeft(), croppedImage, croppedImage.rect());
+    Painter(this).drawPixmap(rect.topLeft(), croppedImage);
   }
 }
 
@@ -356,7 +359,7 @@ void MiniWindow::drawPolyline(const QPolygonF &polygon, const QPen &pen)
 
 void MiniWindow::drawRect(const QRectF &rect, const QPen &pen, const QBrush &brush)
 {
-  Painter(this, pen, brush).drawRect(rect);
+  Painter(this, pen, brush).drawRect(normalizeRect(rect));
 }
 
 void MiniWindow::drawRoundedRect(
@@ -366,7 +369,7 @@ void MiniWindow::drawRoundedRect(
     const QPen &pen,
     const QBrush &brush)
 {
-  Painter(this, pen, brush).drawRoundedRect(rect, xRadius, yRadius);
+  Painter(this, pen, brush).drawRoundedRect(normalizeRect(rect), xRadius, yRadius);
 }
 
 QRectF MiniWindow::drawText(
@@ -378,7 +381,7 @@ QRectF MiniWindow::drawText(
   Painter painter(this, color);
   painter.setFont(font);
   QRectF boundingRect;
-  painter.drawText(rect, 0, text, &boundingRect);
+  painter.drawText(normalizeRect(rect), 0, text, &boundingRect);
   return boundingRect;
 }
 
@@ -422,8 +425,9 @@ int MiniWindow::getZOrder() const noexcept
   return zOrder;
 }
 
-void MiniWindow::invert(const QRect &rect, QImage::InvertMode mode)
+void MiniWindow::invert(const QRect &rectBase, QImage::InvertMode mode)
 {
+  const QRect rect = normalizeRect(rectBase);
   QImage image = pixmap.copy(rect).toImage();
   image.invertPixels(mode);
   Painter(this).drawImage(rect, image);
@@ -480,10 +484,11 @@ void MiniWindow::paintEvent(QPaintEvent *event)
 {
   if (position == Position::Tile) [[unlikely]]
   {
-    QPainter(this).drawTiledPixmap(event->rect(), pixmap);
+    QPainter(this).drawTiledPixmap(rect(), pixmap);
     return;
   }
-  QPainter(this).drawPixmap(event->rect(), pixmap);
+  const QRect &eventRect = event->rect();
+  QPainter(this).drawPixmap(eventRect, pixmap, eventRect);
 }
 
 // Private methods

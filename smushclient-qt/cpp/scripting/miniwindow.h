@@ -165,6 +165,25 @@ private:
   void applyFlags();
   void updateMask();
 
+  static inline QRect normalizeRect(const QRect &rect, const QPixmap &pixmap) noexcept
+  {
+    int x1, y1, x2, y2;
+    rect.getRect(&x1, &y1, &x2, &y2);
+    return QRect(
+        QPoint(x1, y1),
+        QPoint(x2 > 0 ? x2 : pixmap.width() - x2, y2 > 0 ? y2 : pixmap.height() - y2));
+  }
+  static inline QRectF normalizeRect(const QRectF &rect, const QPixmap &pixmap) noexcept
+  {
+    qreal x1, y1, x2, y2;
+    rect.getRect(&x1, &y1, &x2, &y2);
+    return QRectF(
+        QPointF(x1, y1),
+        QPointF(x2 > 0 ? x2 : pixmap.width() - x2, y2 > 0 ? y2 : pixmap.height() - y2));
+  }
+  inline QRect normalizeRect(const QRect &rect) const noexcept { return normalizeRect(rect, pixmap); }
+  inline QRectF normalizeRect(const QRectF &rect) const noexcept { return normalizeRect(rect, pixmap); }
+
   class Painter : public QPainter
   {
   public:
