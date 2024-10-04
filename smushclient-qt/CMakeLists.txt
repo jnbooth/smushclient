@@ -113,6 +113,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/prefs/triggers.h cpp/ui/prefs/triggers.cpp cpp/ui/prefs/triggers.ui
     cpp/ui/worldprefs.h cpp/ui/worldprefs.cpp cpp/ui/worldprefs.ui
     cpp/ui/worldtab.h cpp/ui/worldtab.cpp cpp/ui/worldtab.ui
+    resources/resources.qrc
 )
 if(MSVC)
   target_compile_options(${APP_NAME} PRIVATE /W4 /WX)

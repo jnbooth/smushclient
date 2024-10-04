@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/fonts">
+        <file alias="Dina-Bold">fonts/Dina-Bold.ttf</file>
+        <file alias="Dina">fonts/Dina.ttf</file>
+        <file alias="FixedSys">fonts/FixedSys.ttf</file>
+    </qresource>
+</RCC>

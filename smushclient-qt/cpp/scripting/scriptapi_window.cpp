@@ -1,6 +1,7 @@
 #include "scriptapi.h"
 #include <QtCore/QFile>
 #include <QtGui/QClipboard>
+#include <QtGui/QFontDatabase>
 #include <QtGui/QGradient>
 #include <QtGui/QGuiApplication>
 #include <QtWidgets/QColorDialog>
@@ -161,9 +162,20 @@ ApiCode ScriptApi::WindowFont(
   MiniWindow *window = findWindow(windowName);
   if (!window) [[unlikely]]
     return ApiCode::NoSuchWindow;
-  QFont font(fontName, pointSize, bold ? QFont::Bold : QFont::Normal, italic);
+  QFont font;
+  font.setFamily(fontName);
   font.setStyleHint(hint);
-  font.setPointSizeF(pointSize);
+  if (fontName == QStringLiteral("FixedSys") || fontName == QStringLiteral("Dina"))
+  {
+    font.setPixelSize(16);
+    font.setStyleStrategy(QFont::StyleStrategy::NoAntialias);
+  }
+  else
+    font.setPointSizeF(pointSize);
+  if (bold)
+    font.setBold(true);
+  if (italic)
+    font.setItalic(true);
   if (underline)
     font.setUnderline(true);
   if (strikeout)
