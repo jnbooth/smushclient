@@ -33,6 +33,12 @@ use world::WorldRust;
 #[allow(clippy::unnecessary_box_returns)]
 #[cxx_qt::bridge]
 pub mod ffi {
+    enum AliasOutcome {
+        Display = 1,
+        Remember = 2,
+        Send = 4,
+    }
+
     enum TextStyle {
         Blink = 1,
         Bold = 2,
@@ -42,6 +48,7 @@ pub mod ffi {
         Small = 32,
         Strikeout = 64,
         Underline = 128,
+        Inverse = 256,
     }
 
     unsafe extern "C++" {
@@ -167,6 +174,16 @@ pub mod ffi {
         unsafe fn scrollToBottom(self: &Document);
 
         unsafe fn send(self: &Document, target: i32, plugin: usize, text: &QString);
+
+        #[rust_name = "send_script"]
+        unsafe fn send(
+            self: &Document,
+            target: usize,
+            script: &QString,
+            alias: &QString,
+            line: &QString,
+            wildcards: &QStringList,
+        );
     }
 
     extern "C++Qt" {
@@ -230,6 +247,7 @@ pub mod ffi {
         fn populate_world(self: &SmushClient, world: Pin<&mut World>);
         fn set_world(self: Pin<&mut SmushClient>, world: &World) -> bool;
         fn palette(self: &SmushClient) -> QVector_QColor;
+        fn alias(self: Pin<&mut SmushClient>, command: &QString, doc: Pin<&mut Document>) -> u8;
         fn plugin_info(self: &SmushClient, index: usize, info_type: u8) -> QVariant;
         fn add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> QString;
         fn remove_plugin(self: Pin<&mut SmushClient>, plugin_id: &QString) -> bool;

@@ -238,13 +238,6 @@ bool WorldTab::loadPlugins()
   return true;
 }
 
-void WorldTab::sendCommand(const QString &command) const
-{
-  api->echo(command);
-  QByteArray bytes = command.toUtf8();
-  sendWithCallbacks(bytes);
-}
-
 bool WorldTab::saveWorldAndState(const QString &path) const
 {
   OnPluginWorldSave onWorldSave;
@@ -269,18 +262,6 @@ bool WorldTab::saveWorldAndState(const QString &path) const
     showRustError(e);
   }
   return true;
-}
-
-void WorldTab::sendWithCallbacks(QByteArray &bytes) const
-{
-  OnPluginSend onSend(bytes);
-  api->sendCallback(onSend);
-  if (onSend.discarded())
-    return;
-  OnPluginSent onSent(bytes);
-  api->sendCallback(onSent);
-  bytes.append("\r\n");
-  socket->write(bytes);
 }
 
 // Private slots
@@ -323,7 +304,14 @@ void WorldTab::readFromSocket()
 void WorldTab::on_input_returnPressed()
 {
   const QString input = ui->input->text();
-  api->echo(input);
+  const auto aliasOutcome = client.alias(input, *document);
+  if (aliasOutcome & (uint8_t)AliasOutcome::Display)
+    api->echo(input);
+  if (!(aliasOutcome & (uint8_t)AliasOutcome::Send))
+  {
+    ui->input->clear();
+    return;
+  }
   QByteArray bytes = input.toUtf8();
   OnPluginCommand onCommand(bytes);
   api->sendCallback(onCommand);
@@ -346,7 +334,7 @@ void WorldTab::on_input_returnPressed()
     }
   }
   ui->input->clear();
-  sendWithCallbacks(bytes);
+  api->SendNoEcho(bytes);
 }
 
 void WorldTab::on_input_textEdited()
@@ -401,7 +389,7 @@ void WorldTab::on_output_anchorClicked(const QUrl &url)
       (delimIndex = action.indexOf(QChar::fromLatin1(':'))) == -1 ||
       (fnIndex = action.indexOf(QChar::fromLatin1('('), delimIndex)) == -1)
   {
-    sendCommand(action);
+    api->Send(action);
     return;
   }
 
@@ -430,5 +418,5 @@ void WorldTab::on_output_customContextMenuRequested(const QPoint &pos)
   if (!chosen)
     return;
 
-  sendCommand(chosen->text());
+  api->Send(chosen->text());
 }

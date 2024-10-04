@@ -4,6 +4,7 @@ use cxx_qt_lib::QString;
 use mud_transformer::mxp::{Link, SendTo};
 use mud_transformer::{TextStyle, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, ProxyType, ScriptRecompile};
+use smushclient::AliasOutcome;
 use smushclient_plugins::SendTarget;
 
 impl_convert_enum!(ffi::SendTo, SendTo, Internet, World, Input);
@@ -106,3 +107,18 @@ assert_textstyle!(NonProportional);
 assert_textstyle!(Small);
 assert_textstyle!(Strikeout);
 assert_textstyle!(Underline);
+assert_textstyle!(Inverse);
+
+const fn flag_if(flag: ffi::AliasOutcome, pred: bool) -> u8 {
+    if pred {
+        flag.repr
+    } else {
+        0
+    }
+}
+
+pub const fn convert_alias_outcome(outcome: AliasOutcome) -> u8 {
+    flag_if(ffi::AliasOutcome::Display, outcome.display)
+        | flag_if(ffi::AliasOutcome::Remember, outcome.remember)
+        | flag_if(ffi::AliasOutcome::Send, outcome.send)
+}

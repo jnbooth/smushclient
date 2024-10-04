@@ -163,12 +163,14 @@ static int L_Version(lua_State *L)
 
 static int L_Send(lua_State *L)
 {
-  return returnCode(L, getApi(L).Send(qlua::concatBytes(L)));
+  QByteArray bytes = qlua::concatBytes(L);
+  return returnCode(L, getApi(L).Send(bytes));
 }
 
 static int L_SendNoEcho(lua_State *L)
 {
-  return returnCode(L, getApi(L).SendNoEcho(qlua::concatBytes(L)));
+  QByteArray bytes = qlua::concatBytes(L);
+  return returnCode(L, getApi(L).SendNoEcho(bytes));
 }
 
 static int L_SendPkt(lua_State *L)

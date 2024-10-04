@@ -45,7 +45,8 @@ ScriptApi::ScriptApi(WorldTab *parent)
       callbackFilter(),
       cursor(parent->ui->output->document()),
       lastTellPosition(-1),
-      scrollBar(parent->ui->output->verticalScrollBar())
+      scrollBar(parent->ui->output->verticalScrollBar()),
+      socket(parent->socket)
 {
   applyWorld(parent->world);
 }
@@ -152,12 +153,8 @@ void ScriptApi::sendCallback(PluginCallback &callback)
   actionSource = initialSource;
 }
 
-bool ScriptApi::sendCallback(PluginCallback &callback, const QString &pluginID)
+bool ScriptApi::sendCallback(PluginCallback &callback, size_t index)
 {
-  const size_t index = findPluginIndex(pluginID.toStdString());
-  if (index == noSuchPlugin) [[unlikely]]
-    return false;
-
   const ActionSource callbackSource = callback.source();
 
   if (callbackSource == ActionSource::Unknown)
@@ -170,6 +167,15 @@ bool ScriptApi::sendCallback(PluginCallback &callback, const QString &pluginID)
   return succeeded;
 }
 
+bool ScriptApi::sendCallback(PluginCallback &callback, const QString &pluginID)
+{
+  const size_t index = findPluginIndex(pluginID.toStdString());
+  if (index == noSuchPlugin) [[unlikely]]
+    return false;
+
+  return sendCallback(callback, index);
+}
+
 void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
 {
   switch (target)
@@ -177,7 +183,7 @@ void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
   case SendTarget::World:
   case SendTarget::WorldDelay:
   case SendTarget::WorldImmediate:
-    tab()->sendCommand(text);
+    Send(text);
     return;
   case SendTarget::Command:
     tab()->ui->input->setText(text);

@@ -3,6 +3,7 @@
 #include <QtWidgets/QScrollBar>
 #include <QtWidgets/QStatusBar>
 #include "../link.h"
+#include "../scripting/qlua.h"
 #include "../scripting/scriptapi.h"
 #include "../scripting/plugincallback.h"
 #include "../ui/ui_worldtab.h"
@@ -163,6 +164,50 @@ void Document::scrollToBottom() const
 void Document::send(int32_t target, size_t plugin, const QString &text) const
 {
   api->sendTo(plugin, (SendTarget)target, text);
+}
+
+class AliasCallback : public PluginCallback
+{
+public:
+  AliasCallback(
+      const string &callback,
+      const QString &line,
+      const QString &alias,
+      const QStringList &wildcards)
+      : PluginCallback(),
+        callback(callback.data()),
+        alias(alias),
+        line(line),
+        wildcards(wildcards) {}
+
+  inline constexpr const char *name() const noexcept override { return callback; }
+  inline constexpr ActionSource source() const noexcept override { return ActionSource::Unknown; }
+
+  int pushArguments(lua_State *L) const override
+  {
+    qlua::pushQString(L, alias);
+    qlua::pushQString(L, line);
+    qlua::pushQStrings(L, wildcards);
+    return 3;
+  }
+
+private:
+  const char *callback;
+  const QString &alias;
+  const QString &line;
+  const QStringList &wildcards;
+};
+
+void Document::send(
+    size_t plugin,
+    const QString &callback,
+    const QString &alias,
+    const QString &line,
+    const QStringList &wildcards) const
+{
+  const string callbackName = callback.toStdString();
+  AliasCallback aliasCallback(callbackName, alias, line, wildcards);
+  api->sendCallback(aliasCallback, plugin);
 }
 
 void Document::setPalette(const QVector_QColor &palette)

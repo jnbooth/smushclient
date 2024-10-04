@@ -1,4 +1,4 @@
-use crate::adapter::{DocumentAdapter, QColorPair, SocketAdapter};
+use crate::adapter::{DocumentAdapter, QColorPair};
 use crate::convert::Convert;
 use cxx_qt_lib::{QByteArray, QString};
 use mud_transformer::mxp::RgbColor;
@@ -9,7 +9,6 @@ use std::collections::HashMap;
 
 pub struct ClientHandler<'a> {
     pub doc: DocumentAdapter<'a>,
-    pub socket: SocketAdapter<'a>,
     pub palette: &'a HashMap<RgbColor, i32>,
     pub send: &'a mut Vec<QString>,
 }
@@ -92,11 +91,22 @@ impl<'a> ClientHandler<'a> {
             self.doc.append_plaintext(send, CUSTOM_FORMAT_INDEX);
             self.doc.append_line();
         }
+        self.send.clear();
     }
 }
 
 impl<'a> smushclient::SendHandler for ClientHandler<'a> {
     fn send(&mut self, request: SendRequest) {
+        if !request.sender.script.is_empty() {
+            self.doc.send_script(
+                request.plugin,
+                &QString::from(&request.sender.script),
+                &QString::from(&request.sender.label),
+                &QString::from(request.text),
+                &request.wildcards.convert(),
+            );
+            return;
+        }
         if request.sender.send_to == SendTarget::Output {
             self.send.push(QString::from(request.text));
             return;

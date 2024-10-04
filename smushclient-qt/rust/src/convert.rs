@@ -188,6 +188,24 @@ impl Convert<Vec<String>> for QStringList {
     }
 }
 
+impl Convert<QList<QString>> for [&str] {
+    fn convert(&self) -> QList<QString> {
+        let mut list = QList::default();
+        list.reserve(isize::try_from(self.len()).unwrap());
+        for item in self {
+            list.append(QString::from(*item));
+        }
+        list
+    }
+}
+
+impl Convert<QStringList> for [&str] {
+    fn convert(&self) -> QStringList {
+        let list: QList<QString> = self.convert();
+        QStringList::from(&list)
+    }
+}
+
 impl<const N: usize> Convert<[String; N]> for QList<QString> {
     fn convert(&self) -> [String; N] {
         let vec: Vec<String> = self.convert();

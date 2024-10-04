@@ -293,16 +293,6 @@ QByteArray qlua::concatBytes(lua_State *L)
   for (int i = 1; i <= n; ++i)
     bytes.append(lua_tolstring(L, i, &chunkLen), chunkLen);
 
-  switch (bytes.isEmpty() ? '\0' : bytes.back())
-  {
-  case '\n':
-    break;
-  case '\r':
-    bytes.append('\n');
-    break;
-  default:
-    bytes.append("\r\n");
-  }
   return bytes;
 }
 

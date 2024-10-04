@@ -1,6 +1,6 @@
 use std::ffi::c_char;
 
-use cxx_qt_lib::{QByteArray, QColor, QString};
+use cxx_qt_lib::{QByteArray, QColor, QString, QStringList};
 
 use crate::ffi;
 
@@ -96,5 +96,20 @@ impl<'a> DocumentAdapter<'a> {
     pub fn send(&self, target: ffi::SendTarget, plugin: usize, text: &QString) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.send(target.repr, plugin, text) };
+    }
+
+    pub fn send_script(
+        &self,
+        plugin: usize,
+        script: &QString,
+        alias: &QString,
+        line: &QString,
+        wildcards: &QStringList,
+    ) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe {
+            self.inner
+                .send_script(plugin, script, alias, line, wildcards);
+        }
     }
 }

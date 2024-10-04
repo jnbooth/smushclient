@@ -88,7 +88,7 @@ QVariant ScriptApi::GetInfo(int infoType) const
   case 72:
     return QStringLiteral(SCRIPTING_VERSION);
   case 106:
-    return !tab()->socket->isOpen();
+    return !socket->isOpen();
   case 239:
     return (int)actionSource;
   case 272:

@@ -5,11 +5,12 @@ use std::io::{self, Read};
 use std::pin::Pin;
 use std::{ptr, slice};
 
-use crate::adapter::TableBuilderAdapter;
+use crate::adapter::{DocumentAdapter, SocketAdapter, TableBuilderAdapter};
 use crate::convert::Convert;
 use crate::ffi;
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
+use crate::impls::convert_alias_outcome;
 use crate::sync::NonBlockingMutex;
 use crate::world::WorldRust;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant, QVector};
@@ -153,7 +154,7 @@ impl SmushClientRust {
         QStringList::from(&list)
     }
 
-    pub fn build_plugins_table(&self, table: &mut TableBuilderAdapter) {
+    pub fn build_plugins_table(&self, mut table: TableBuilderAdapter) {
         let plugins = self.client.plugins();
         table.set_row_count(i32::try_from(plugins.len()).unwrap());
         for plugin in plugins {
@@ -179,22 +180,20 @@ impl SmushClientRust {
         }
     }
 
-    pub fn read(&mut self, device: Pin<&mut ffi::QTcpSocket>, doc: Pin<&mut ffi::Document>) -> i64 {
+    pub fn read(&mut self, mut socket: SocketAdapter, doc: DocumentAdapter) -> i64 {
         if self.done {
             return -1;
         }
+        let output_lock = self.output_lock.lock();
         self.send.clear();
         let mut handler = ClientHandler {
-            doc: doc.into(),
-            socket: device.into(),
+            doc,
             palette: &self.palette,
             send: &mut self.send,
         };
-
-        let output_lock = self.output_lock.lock();
         let mut total_read = 0;
         loop {
-            let n = match handler.socket.read(&mut self.buf[..BUF_MIDPOINT]) {
+            let n = match socket.read(&mut self.buf[..BUF_MIDPOINT]) {
                 Ok(0) => break,
                 Ok(n) => n,
                 Err(e) => {
@@ -220,7 +219,7 @@ impl SmushClientRust {
 
         let input_lock = self.input_lock.lock();
         if let Some(mut drain) = self.transformer.drain_input() {
-            if let Err(e) = drain.write_all_to(&mut handler.socket) {
+            if let Err(e) = drain.write_all_to(&mut socket) {
                 handler.display_error(&e.to_string());
                 return -1;
             }
@@ -228,6 +227,21 @@ impl SmushClientRust {
         drop(input_lock);
 
         i64::try_from(total_read).unwrap()
+    }
+
+    pub fn alias(&mut self, command: &QString, doc: DocumentAdapter) -> u8 {
+        let output_lock = self.output_lock.lock();
+        self.send.clear();
+        let mut handler = ClientHandler {
+            doc,
+            palette: &self.palette,
+            send: &mut self.send,
+        };
+        let outcome = self.client.alias(&String::from(command), &mut handler);
+        handler.output_sends();
+        handler.doc.scroll_to_bottom();
+        drop(output_lock);
+        convert_alias_outcome(outcome)
     }
 }
 
@@ -277,8 +291,7 @@ impl ffi::SmushClient {
     }
 
     pub fn build_plugins_table(&self, table: Pin<&mut ffi::TableBuilder>) {
-        self.cxx_qt_ffi_rust()
-            .build_plugins_table(&mut table.into());
+        self.cxx_qt_ffi_rust().build_plugins_table(table.into());
     }
 
     pub fn add_plugin(self: Pin<&mut Self>, path: &QString) -> QString {
@@ -308,37 +321,37 @@ impl ffi::SmushClient {
         device: Pin<&mut ffi::QTcpSocket>,
         doc: Pin<&mut ffi::Document>,
     ) -> i64 {
-        self.cxx_qt_ffi_rust_mut().read(device, doc)
+        self.cxx_qt_ffi_rust_mut().read(device.into(), doc.into())
     }
 
     pub fn is_alias(&self, label: &QString) -> bool {
         self.cxx_qt_ffi_rust()
             .client
-            .sender_exists::<Alias>(&label.to_string())
+            .sender_exists::<Alias>(&String::from(label))
     }
 
     pub fn is_timer(&self, label: &QString) -> bool {
         self.cxx_qt_ffi_rust()
             .client
-            .sender_exists::<Timer>(&label.to_string())
+            .sender_exists::<Timer>(&String::from(label))
     }
 
     pub fn is_trigger(&self, label: &QString) -> bool {
         self.cxx_qt_ffi_rust()
             .client
-            .sender_exists::<Trigger>(&label.to_string())
+            .sender_exists::<Trigger>(&String::from(label))
     }
 
     pub fn set_alias_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_sender_enabled::<Alias>(&label.to_string(), enabled)
+            .set_sender_enabled::<Alias>(&String::from(label), enabled)
     }
 
     pub fn set_aliases_enabled(self: Pin<&mut Self>, group: &QString, enabled: bool) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_group_enabled::<Alias>(&group.to_string(), enabled)
+            .set_group_enabled::<Alias>(&String::from(group), enabled)
     }
 
     pub fn set_plugin_enabled(self: Pin<&mut Self>, index: PluginIndex, enabled: bool) -> bool {
@@ -350,25 +363,29 @@ impl ffi::SmushClient {
     pub fn set_timer_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_sender_enabled::<Timer>(&label.to_string(), enabled)
+            .set_sender_enabled::<Timer>(&String::from(label), enabled)
     }
 
     pub fn set_timers_enabled(self: Pin<&mut Self>, group: &QString, enabled: bool) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_group_enabled::<Timer>(&group.to_string(), enabled)
+            .set_group_enabled::<Timer>(&String::from(group), enabled)
     }
 
     pub fn set_trigger_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_sender_enabled::<Trigger>(&label.to_string(), enabled)
+            .set_sender_enabled::<Trigger>(&String::from(label), enabled)
     }
 
     pub fn set_triggers_enabled(self: Pin<&mut Self>, group: &QString, enabled: bool) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_group_enabled::<Trigger>(&group.to_string(), enabled)
+            .set_group_enabled::<Trigger>(&String::from(group), enabled)
+    }
+
+    pub fn alias(self: Pin<&mut Self>, command: &QString, doc: Pin<&mut ffi::Document>) -> u8 {
+        self.cxx_qt_ffi_rust_mut().alias(command, doc.into())
     }
 
     /// # Safety

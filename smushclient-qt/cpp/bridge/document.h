@@ -34,6 +34,12 @@ public:
   void scrollToBottom() const;
   void setPalette(const QVector_QColor &palette);
   void send(int32_t target, size_t plugin, const QString &text) const;
+  void send(
+      size_t plugin,
+      const QString &callback,
+      const QString &alias,
+      const QString &line,
+      const QStringList &wildcards) const;
 
 private:
   ScriptApi *api;

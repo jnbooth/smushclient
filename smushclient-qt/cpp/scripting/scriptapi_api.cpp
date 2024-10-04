@@ -255,29 +255,42 @@ ApiCode ScriptApi::PluginSupports(string_view pluginID, string_view routine) con
   return plugins[index].hasFunction(routine) ? ApiCode::OK : ApiCode::NoSuchRoutine;
 }
 
-ApiCode ScriptApi::Send(QByteArrayView view)
+ApiCode ScriptApi::Send(QByteArray &bytes)
 {
-  echo(QString::fromUtf8(view));
-  return SendNoEcho(view);
+  echo(QString::fromUtf8(bytes));
+  return SendNoEcho(bytes);
 }
 
-ApiCode ScriptApi::SendNoEcho(QByteArrayView view) const
+ApiCode ScriptApi::Send(const QString &text)
 {
-  // run callbacks
-  return SendPacket(view);
+  echo(text);
+  QByteArray bytes = text.toUtf8();
+  return SendNoEcho(bytes);
+}
+
+ApiCode ScriptApi::SendNoEcho(QByteArray &bytes)
+{
+  OnPluginSend onSend(bytes);
+  sendCallback(onSend);
+  if (onSend.discarded())
+    return ApiCode::OK;
+  bytes.append("\r\n");
+
+  const qsizetype size = bytes.size();
+  if (socket->write(bytes.constData(), size) == -1) [[unlikely]]
+    return ApiCode::WorldClosed;
+  bytes.truncate(size - 2);
+
+  OnPluginSent onSent(bytes);
+  sendCallback(onSent);
+  return ApiCode::OK;
 }
 
 ApiCode ScriptApi::SendPacket(QByteArrayView view) const
 {
-  if (view.isEmpty()) [[unlikely]]
-    return ApiCode::OK;
-
-  QTcpSocket &socket = *tab()->socket;
-
-  if (!socket.isOpen()) [[unlikely]]
+  if (socket->write(view.data(), view.size()) == -1) [[unlikely]]
     return ApiCode::WorldClosed;
 
-  socket.write(view.constData(), view.size());
   return ApiCode::OK;
 }
 

@@ -69,8 +69,9 @@ public:
   ApiCode IsTrigger(const QString &label) const;
   QColor PickColour(const QColor &hint) const;
   ApiCode PluginSupports(std::string_view pluginID, std::string_view routine) const;
-  ApiCode Send(QByteArrayView bytes);
-  ApiCode SendNoEcho(QByteArrayView bytes) const;
+  ApiCode Send(QByteArray &bytes);
+  ApiCode Send(const QString &text);
+  ApiCode SendNoEcho(QByteArray &bytes);
   ApiCode SendPacket(QByteArrayView bytes) const;
   ApiCode SetCursor(Qt::CursorShape cursor) const;
   ApiCode SetOption(std::string_view name, const QVariant &variant) const;
@@ -231,6 +232,7 @@ public:
   }
   bool runScript(const QString &pluginID, const QString &script) const;
   void sendCallback(PluginCallback &callback);
+  bool sendCallback(PluginCallback &callback, size_t plugin);
   bool sendCallback(PluginCallback &callback, const QString &pluginID);
   void sendTo(size_t plugin, SendTarget target, const QString &text);
   ActionSource setSource(ActionSource source) noexcept;
@@ -267,6 +269,7 @@ private:
   std::vector<Plugin> plugins;
   std::unordered_map<std::string, size_t> pluginIndices;
   QScrollBar *scrollBar;
+  QTcpSocket *socket;
   std::unordered_map<int, QueuedSend> sendQueue;
   std::unordered_map<std::string, MiniWindow *> windows;
 
