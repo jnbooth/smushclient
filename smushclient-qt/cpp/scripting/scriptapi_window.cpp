@@ -16,6 +16,8 @@ using std::optional;
 using std::string;
 using std::string_view;
 
+// Public methods
+
 ApiCode ScriptApi::WindowAddHotspot(
     size_t index,
     string_view windowName,

@@ -25,18 +25,7 @@ using std::unordered_map;
 
 constexpr int tracebackIdx = 1;
 
-inline bool checkError(int status)
-{
-  switch (status)
-  {
-  case LUA_OK:
-    return false;
-  case LUA_ERRMEM:
-    throw std::bad_alloc();
-  default:
-    return true;
-  }
-}
+// Private localization
 
 QString formatCompileError(lua_State *L)
 {
@@ -53,6 +42,8 @@ QString formatRuntimeError(lua_State *L)
   return QStringLiteral("Runtime error: %1").arg(qlua::getError(L));
 }
 
+// Private Lua functions
+
 static int L_panic(lua_State *L)
 {
   QErrorMessage::qtHandler()->showMessage(formatPanic(L));
@@ -65,6 +56,21 @@ static int L_print(lua_State *L)
   qInfo() << "print(" << output << ")";
   getApi(L).Tell(output);
   return 0;
+}
+
+// Private utils
+
+inline bool checkError(int status)
+{
+  switch (status)
+  {
+  case LUA_OK:
+    return false;
+  case LUA_ERRMEM:
+    throw std::bad_alloc();
+  default:
+    return true;
+  }
 }
 
 inline bool api_pcall(lua_State *L, int nargs, int nreturn)
@@ -84,6 +90,8 @@ void setlib(lua_State *L, const char *name)
   lua_setglobal(L, name);
   lua_setfield(L, 1, name);
 }
+
+// Public methods
 
 Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
     : L(luaL_newstate()),
@@ -191,6 +199,8 @@ bool Plugin::runScript(const QString &script) const
 
   return api_pcall(L, 0, 0);
 }
+
+// Private methods
 
 bool Plugin::findCallback(const char *name) const
 {

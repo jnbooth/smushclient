@@ -14,6 +14,8 @@ using std::string;
 using std::string_view;
 using std::vector;
 
+// Private utilities
+
 inline QString charString(char c) { return QString::fromUtf8(&c, 1); }
 inline QString charString(char16_t c) { return QString::fromUtf16(&c, 1); }
 inline QString charString(char32_t c) { return QString::fromUcs4(&c, 1); }
@@ -84,6 +86,8 @@ string_view toString(lua_State *L, int idx)
   const char *message = lua_tolstring(L, idx, &len);
   return string_view(message, len);
 }
+
+// Public functions
 
 int qlua::expectMaxArgs(lua_State *L, int max)
 {

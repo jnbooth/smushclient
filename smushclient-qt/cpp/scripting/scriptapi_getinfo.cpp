@@ -5,10 +5,14 @@
 
 using std::string;
 
+// Private utils
+
 inline QString convertString(const string &s)
 {
   return QString::fromUtf8(s.data(), s.size());
 }
+
+// Public methods
 
 QVariant ScriptApi::FontInfo(const QFont &font, int infoType) const
 {

@@ -12,6 +12,8 @@
 #include "prefs/timers.h"
 #include "prefs/triggers.h"
 
+// Public methods
+
 WorldPrefs::WorldPrefs(World &world, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::WorldPrefs)
@@ -58,7 +60,7 @@ void WorldPrefs::setupPane(QWidget *pane, const char *key)
     ui->settings_tree->setCurrentItem(item);
 }
 
-// Slots
+// Private slots
 
 void WorldPrefs::on_settings_tree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
 {

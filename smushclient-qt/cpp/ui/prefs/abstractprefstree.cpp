@@ -1,7 +1,11 @@
 #include "abstractprefstree.h"
 
+// Public methods
+
 AbstractPrefsTree::AbstractPrefsTree(QWidget *parent)
     : QWidget(parent) {}
+
+// Protected methods
 
 QVariant AbstractPrefsTree::currentData() const
 {
@@ -11,6 +15,8 @@ QVariant AbstractPrefsTree::currentData() const
 
   return item->data(0, Qt::UserRole);
 }
+
+// Protected slots
 
 void AbstractPrefsTree::on_add_clicked()
 {

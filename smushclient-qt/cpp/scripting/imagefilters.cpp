@@ -1,5 +1,7 @@
 #include "imagefilters.h"
 
+// Private utils
+
 constexpr int rgbaOffset(ImageFilter::Channel channel) noexcept
 {
   if (channel == ImageFilter::Channel::All)
@@ -14,6 +16,8 @@ constexpr int rgbaIncrement(ImageFilter::Channel channel) noexcept
 {
   return channel == ImageFilter::Channel::All ? 1 : 4;
 }
+
+// Public methods
 
 void BrightnessAddFilter::apply(QPixmap &pixmap) const
 {

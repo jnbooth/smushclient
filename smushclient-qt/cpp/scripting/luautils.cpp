@@ -1,9 +1,9 @@
 #include "luaapi.h"
-#include "qlua.h"
-#include "scriptapi.h"
 #include <QtGui/QFontDatabase>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QInputDialog>
+#include "qlua.h"
+#include "scriptapi.h"
 extern "C"
 {
 #include "lauxlib.h"
@@ -24,9 +24,15 @@ static int L_split(lua_State *L)
   const char *sep = luaL_checklstring(L, 2, &sepLength);
   const int count = qlua::getInt(L, 3, 0);
   if (sepLength != 1)
-    luaL_error(L, "Separator must be a single character");
+  {
+    qlua::pushString(L, "Separator must be a single character");
+    lua_error(L);
+  }
   if (count < 0)
-    luaL_error(L, "Count must be positive or zero");
+  {
+    qlua::pushString(L, "Count must be positive or zero");
+    lua_error(L);
+  }
 
   lua_newtable(L);
   const int max = count == 0 ? INT_MAX : count;

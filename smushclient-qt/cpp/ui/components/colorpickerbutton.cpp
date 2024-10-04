@@ -3,25 +3,13 @@
 #include <QtGui/QPen>
 #include <QtWidgets/QColorDialog>
 
+// Public methods
+
 ColorPickerButton::ColorPickerButton(QWidget *parent)
     : QAbstractButton(parent)
 {
   connect(this, &QAbstractButton::clicked, this, &ColorPickerButton::openColorPicker);
 }
-
-// Public overrides
-
-QSize ColorPickerButton::minimumSizeHint() const
-{
-  return minimumSize();
-}
-
-QSize ColorPickerButton::sizeHint() const
-{
-  return maximumSize();
-}
-
-// Public methods
 
 void ColorPickerButton::openColorPicker()
 {
@@ -44,6 +32,18 @@ void ColorPickerButton::setValue(const QColor &val)
 const QColor &ColorPickerButton::value() const &
 {
   return currentValue;
+}
+
+// Public overrides
+
+QSize ColorPickerButton::minimumSizeHint() const
+{
+  return minimumSize();
+}
+
+QSize ColorPickerButton::sizeHint() const
+{
+  return maximumSize();
 }
 
 // Protected overrides

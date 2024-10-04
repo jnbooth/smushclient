@@ -9,6 +9,8 @@ using std::optional;
 using std::string;
 using std::string_view;
 
+// Public methods
+
 constexpr Hotspot::EventFlags getEventFlags(Qt::KeyboardModifiers modifiers, Qt::MouseButtons buttons) noexcept
 {
   Hotspot::EventFlags flags;

@@ -17,7 +17,7 @@ using std::optional;
 using std::string;
 using std::string_view;
 
-// utils
+// Private utils
 
 inline QTextCharFormat colorFormat(const QColor &foreground, const QColor &background)
 {
@@ -61,28 +61,7 @@ inline ApiCode updateWorld(WorldTab &worldtab)
   return worldtab.updateWorld() ? ApiCode::OK : ApiCode::OptionOutOfRange;
 }
 
-inline bool beginTell(QTextCursor &cursor, int lastTellPosition)
-{
-  if (cursor.position() == lastTellPosition)
-  {
-    cursor.setPosition(lastTellPosition - 1);
-    return true;
-  }
-  return false;
-}
-
-inline void endTell(QTextCursor &cursor, bool insideTell)
-{
-  if (insideTell)
-    cursor.setPosition(cursor.position() + 1);
-  else
-    cursor.insertBlock();
-}
-
-void ScriptApi::SetClipboard(const QString &text)
-{
-  QGuiApplication::clipboard()->setText(text);
-}
+// Public methods
 
 int ScriptApi::BroadcastPlugin(size_t index, int message, string_view text) const
 {
@@ -99,10 +78,9 @@ int ScriptApi::BroadcastPlugin(size_t index, int message, string_view text) cons
 
 void ScriptApi::ColourTell(const QColor &foreground, const QColor &background, const QString &text)
 {
-  const bool insideTell = beginTell(cursor, lastTellPosition);
+  const bool insideTell = beginTell();
   cursor.insertText(text, colorFormat(foreground, background));
-  endTell(cursor, insideTell);
-  lastTellPosition = cursor.position();
+  endTell(insideTell);
 }
 
 int ScriptApi::DatabaseClose(string_view databaseID)
@@ -303,6 +281,11 @@ ApiCode ScriptApi::SendPacket(QByteArrayView view) const
   return ApiCode::OK;
 }
 
+void ScriptApi::SetClipboard(const QString &text)
+{
+  QGuiApplication::clipboard()->setText(text);
+}
+
 ApiCode ScriptApi::SetCursor(Qt::CursorShape cursor) const
 {
   tab()->ui->area->setCursor(cursor);
@@ -343,10 +326,9 @@ bool ScriptApi::SetVariable(size_t index, string_view key, string_view value) co
 
 void ScriptApi::Tell(const QString &text)
 {
-  const bool insideTell = beginTell(cursor, lastTellPosition);
+  const bool insideTell = beginTell();
   cursor.insertText(text);
-  endTell(cursor, insideTell);
-  lastTellPosition = cursor.position();
+  endTell(insideTell);
 }
 
 ApiCode ScriptApi::TextRectangle(

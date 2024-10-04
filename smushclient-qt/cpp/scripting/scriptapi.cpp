@@ -14,7 +14,7 @@
 using std::string;
 using std::string_view;
 
-// utils
+// Private utils
 
 QMainWindow *getMainWindow(const QObject *obj)
 {
@@ -32,19 +32,23 @@ QMainWindow *getMainWindow(const QObject *obj)
   return getMainWindow(parent);
 }
 
-// constructor
+inline void scrollToEnd(QScrollBar &bar)
+{
+  bar.setValue(bar.maximum());
+}
+
+// Public methods
 
 ScriptApi::ScriptApi(WorldTab *parent)
     : QObject(parent),
       actionSource(ActionSource::Unknown),
       callbackFilter(),
       cursor(parent->ui->output->document()),
-      lastTellPosition(-1)
+      lastTellPosition(-1),
+      scrollBar(parent->ui->output->verticalScrollBar())
 {
   applyWorld(parent->world);
 }
-
-// public methods
 
 void ScriptApi::applyWorld(const World &world)
 {
@@ -56,18 +60,11 @@ void ScriptApi::applyWorld(const World &world)
   errorFormat.setForeground(QBrush(world.getErrorColour()));
 }
 
-SmushClient *ScriptApi::client() const
-{
-  WorldTab *worldtab = tab();
-  if (!worldtab) [[unlikely]]
-    return nullptr;
-  return &worldtab->client;
-}
-
 void ScriptApi::echo(const QString &text)
 {
   cursor.insertText(text, echoFormat);
   cursor.insertBlock();
+  scrollToBottom();
 }
 
 void ScriptApi::finishNote()
@@ -173,67 +170,6 @@ bool ScriptApi::sendCallback(PluginCallback &callback, const QString &pluginID)
   return succeeded;
 }
 
-// protected overrides
-
-void ScriptApi::timerEvent(QTimerEvent *event)
-{
-  auto search = sendQueue.find(event->timerId());
-  if (search == sendQueue.end()) [[unlikely]]
-    return;
-  const QueuedSend &send = search->second;
-  const ActionSource oldSource = actionSource;
-  actionSource = ActionSource::TimerFired;
-  sendTo(send.plugin, send.target, send.text);
-  sendQueue.erase(search);
-  actionSource = oldSource;
-}
-
-// private methods
-
-void ScriptApi::displayStatusMessage(const QString &status) const
-{
-  QMainWindow *window = getMainWindow(this);
-  if (!window)
-    return;
-
-  QStatusBar *statusBar = window->statusBar();
-  if (!statusBar)
-    return;
-
-  statusBar->showMessage(status);
-}
-
-DatabaseConnection *ScriptApi::findDatabase(string_view databaseID)
-{
-  auto search = databases.find((string)databaseID);
-  if (search == databases.end()) [[unlikely]]
-    return nullptr;
-  return &search->second;
-}
-
-size_t ScriptApi::findPluginIndex(const string &pluginID) const
-{
-  auto search = pluginIndices.find(pluginID);
-  if (search == pluginIndices.end()) [[unlikely]]
-    return noSuchPlugin;
-  return search->second;
-}
-
-MiniWindow *ScriptApi::findWindow(string_view windowName) const
-{
-  auto search = windows.find((string)windowName);
-  if (search == windows.end()) [[unlikely]]
-    return nullptr;
-  return search->second;
-}
-
-ActionSource ScriptApi::setSource(ActionSource source) noexcept
-{
-  const ActionSource previousSource = actionSource;
-  actionSource = source;
-  return previousSource;
-}
-
 void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
 {
   switch (target)
@@ -248,6 +184,8 @@ void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
     return;
   case SendTarget::Output:
     cursor.insertText(text);
+    cursor.insertBlock();
+    scrollToBottom();
     return;
   case SendTarget::Script:
   case SendTarget::ScriptAfterOmit:
@@ -259,6 +197,13 @@ void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
   default:
     return;
   }
+}
+
+ActionSource ScriptApi::setSource(ActionSource source) noexcept
+{
+  const ActionSource previousSource = actionSource;
+  actionSource = source;
+  return previousSource;
 }
 
 struct WindowCompare
@@ -291,6 +236,93 @@ void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const
     window->stackUnder(neighbor);
   else if (drawsUnderneath)
     window->stackUnder(tab()->ui->outputBorder);
+}
+
+// protected overrides
+
+void ScriptApi::timerEvent(QTimerEvent *event)
+{
+  auto search = sendQueue.find(event->timerId());
+  if (search == sendQueue.end()) [[unlikely]]
+    return;
+  const QueuedSend &send = search->second;
+  const ActionSource oldSource = actionSource;
+  actionSource = ActionSource::TimerFired;
+  sendTo(send.plugin, send.target, send.text);
+  sendQueue.erase(search);
+  actionSource = oldSource;
+}
+
+// Private methods
+
+bool ScriptApi::beginTell()
+{
+  if (cursor.position() == lastTellPosition)
+  {
+    cursor.setPosition(lastTellPosition - 1);
+    return true;
+  }
+  return false;
+}
+
+SmushClient *ScriptApi::client() const
+{
+  WorldTab *worldtab = tab();
+  if (!worldtab) [[unlikely]]
+    return nullptr;
+  return &worldtab->client;
+}
+
+void ScriptApi::displayStatusMessage(const QString &status) const
+{
+  QMainWindow *window = getMainWindow(this);
+  if (!window)
+    return;
+
+  QStatusBar *statusBar = window->statusBar();
+  if (!statusBar)
+    return;
+
+  statusBar->showMessage(status);
+}
+
+void ScriptApi::endTell(bool insideTell)
+{
+  if (insideTell)
+    cursor.setPosition(cursor.position() + 1);
+  else
+    cursor.insertBlock();
+  lastTellPosition = cursor.position();
+  scrollToBottom();
+}
+
+DatabaseConnection *ScriptApi::findDatabase(string_view databaseID)
+{
+  auto search = databases.find((string)databaseID);
+  if (search == databases.end()) [[unlikely]]
+    return nullptr;
+  return &search->second;
+}
+
+size_t ScriptApi::findPluginIndex(const string &pluginID) const
+{
+  auto search = pluginIndices.find(pluginID);
+  if (search == pluginIndices.end()) [[unlikely]]
+    return noSuchPlugin;
+  return search->second;
+}
+
+MiniWindow *ScriptApi::findWindow(string_view windowName) const
+{
+  auto search = windows.find((string)windowName);
+  if (search == windows.end()) [[unlikely]]
+    return nullptr;
+  return search->second;
+}
+
+void ScriptApi::scrollToBottom() const
+{
+  scrollToEnd(*scrollBar);
 }
 
 inline WorldTab *ScriptApi::tab() const { return qobject_cast<WorldTab *>(parent()); }

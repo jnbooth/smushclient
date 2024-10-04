@@ -4,6 +4,8 @@
 using std::string;
 using std::string_view;
 
+// Private utils
+
 inline string replacePathSeparators(string_view path)
 {
   string file = (string)path;
@@ -12,6 +14,8 @@ inline string replacePathSeparators(string_view path)
       *iter = '/';
   return file;
 }
+
+// Public methods
 
 DatabaseConnection::DatabaseConnection(string_view filename)
     : db(nullptr),
@@ -29,8 +33,6 @@ DatabaseConnection::~DatabaseConnection()
 {
   close();
 }
-
-// Public methods
 
 int DatabaseConnection::close()
 {

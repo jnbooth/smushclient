@@ -1,6 +1,8 @@
 #include "viewbuilder.h"
 #include <QtCore/QCoreApplication>
 
+// Public methods
+
 TableBuilder::TableBuilder(QTableWidget *table)
     : table(table),
       yes(QCoreApplication::translate("TableBuilder", "Yes")),

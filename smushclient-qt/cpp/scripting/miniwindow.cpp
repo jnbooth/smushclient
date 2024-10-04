@@ -12,7 +12,7 @@ using std::string_view;
 using std::unordered_map;
 using std::vector;
 
-// Utils
+// Private utils
 
 inline bool isNotSpace(char c)
 {
@@ -197,7 +197,7 @@ MiniWindow::Painter::~Painter()
   window->update();
 }
 
-// Constructor
+// Public methods
 
 MiniWindow::MiniWindow(
     QWidget *parent,
@@ -221,8 +221,6 @@ MiniWindow::MiniWindow(
   pixmap.fill(background);
   applyFlags();
 }
-
-// Public methods
 
 Hotspot *MiniWindow::addHotspot(
     string_view hotspotID,

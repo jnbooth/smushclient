@@ -21,6 +21,8 @@
 
 using std::string;
 
+// Private utilities
+
 void setColors(QWidget *widget, const QColor &foreground, const QColor &background)
 {
   QPalette palette(widget->palette());
@@ -34,6 +36,8 @@ inline void showRustError(const rust::Error &e)
 {
   QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
 }
+
+// Public methods
 
 WorldTab::WorldTab(QWidget *parent)
     : QSplitter(parent),
@@ -58,8 +62,6 @@ WorldTab::~WorldTab()
   delete api;
   delete ui;
 }
-
-// Public methods
 
 void WorldTab::createWorld() &
 {
@@ -220,7 +222,7 @@ void WorldTab::connectToHost() const
   if (socket->isOpen())
     return;
 
-  socket->connectToHost(world.getSite(), (quint16)world.getPort());
+  socket->connectToHost(world.getSite(), (uint16_t)world.getPort());
 }
 
 bool WorldTab::loadPlugins()
@@ -281,7 +283,7 @@ void WorldTab::sendWithCallbacks(QByteArray &bytes) const
   socket->write(bytes);
 }
 
-// Slots
+// Private slots
 
 void WorldTab::finalizeWorldSettings(int result)
 {

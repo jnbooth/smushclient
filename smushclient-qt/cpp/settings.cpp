@@ -4,18 +4,20 @@
 static const QString recentFilesKey = QStringLiteral("recent");
 constexpr qsizetype recentFilesMax = 5;
 
-Settings::Settings() : store() {}
+// Private utilities
 
 QString makePathRelative(const QString &filePath)
 {
   const QString cwd = QDir::currentPath();
   if (!filePath.startsWith(cwd))
     return filePath;
-  const size_t cwdSize = cwd.size() + 1;
+  const qsizetype cwdSize = cwd.size() + 1;
   return filePath.sliced(cwdSize, filePath.size() - cwdSize);
 }
 
-// Recent files
+// Public methods
+
+Settings::Settings() : store() {}
 
 QStringList Settings::recentFiles() const
 {

@@ -266,11 +266,14 @@ private:
   int lastTellPosition;
   std::vector<Plugin> plugins;
   std::unordered_map<std::string, size_t> pluginIndices;
+  QScrollBar *scrollBar;
   std::unordered_map<int, QueuedSend> sendQueue;
   std::unordered_map<std::string, MiniWindow *> windows;
 
+  bool beginTell();
   SmushClient *client() const;
   void displayStatusMessage(const QString &status) const;
+  void endTell(bool insideTell);
   DatabaseConnection *findDatabase(const std::string_view databaseID);
   size_t findPluginIndex(const std::string &pluginID) const;
   inline size_t findPluginIndex(const std::string_view pluginID) const
@@ -278,5 +281,6 @@ private:
     return findPluginIndex((std::string)pluginID);
   }
   MiniWindow *findWindow(const std::string_view windowName) const;
+  void scrollToBottom() const;
   WorldTab *tab() const;
 };

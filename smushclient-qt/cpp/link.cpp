@@ -5,6 +5,8 @@ static const QString internetPrefix = QStringLiteral("i:");
 static const QString worldPrefix = QStringLiteral("w:");
 static const QString inputPrefix = QStringLiteral("n:");
 
+// Public functions
+
 constexpr const QString &getPrefix(SendTo sendto)
 {
   switch (sendto)

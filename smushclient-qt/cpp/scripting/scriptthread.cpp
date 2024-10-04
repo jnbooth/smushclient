@@ -4,6 +4,8 @@ extern "C"
 #include "lua.h"
 }
 
+// Public methods
+
 ScriptThread::ScriptThread(lua_State *parentL)
     : L(lua_newthread(parentL)), parentL(parentL)
 {

@@ -6,6 +6,8 @@
 #include "../../environment.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
+// Public methods
+
 PluginsDialog::PluginsDialog(SmushClient &client, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::PluginsDialog),

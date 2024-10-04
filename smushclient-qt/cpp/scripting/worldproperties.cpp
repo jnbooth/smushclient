@@ -13,6 +13,8 @@ using std::string;
 using std::unordered_map;
 using std::vector;
 
+// Private utils
+
 string toSnakeCase(const string &key)
 {
   size_t size = key.size();
@@ -37,6 +39,8 @@ string toSnakeCase(const string &key)
   }
   return result;
 }
+
+// Private methods
 
 WorldProperties::WorldProperties()
 {

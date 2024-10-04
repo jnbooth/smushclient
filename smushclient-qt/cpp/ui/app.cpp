@@ -113,8 +113,6 @@ void App::setWorldMenusEnabled(bool enabled) const
   ui->action_select_to_matching_brace->setEnabled(enabled);
 }
 
-// Private methods
-
 WorldTab *App::worldtab() const
 {
   return qobject_cast<WorldTab *>(ui->world_tabs->currentWidget());
@@ -125,7 +123,7 @@ WorldTab *App::worldtab(int index) const
   return qobject_cast<WorldTab *>(ui->world_tabs->widget(index));
 }
 
-// Slots
+// Private slots
 
 void App::on_action_new_triggered()
 {

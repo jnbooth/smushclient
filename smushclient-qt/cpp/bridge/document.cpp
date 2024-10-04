@@ -12,19 +12,12 @@
 using std::string;
 using std::string_view;
 
-// Utilities
+// Private utils
 
-inline bool hasStyle(quint16 flags, TextStyle style) noexcept
+constexpr bool hasStyle(uint16_t flags, TextStyle style) noexcept
 {
-  return flags & (quint16)style;
+  return flags & (uint16_t)style;
 }
-
-inline void scrollToEnd(QScrollBar &bar)
-{
-  bar.setValue(bar.maximum());
-}
-
-// Formatting
 
 inline void applyLink(QTextCharFormat &format, const Link &link) noexcept
 {
@@ -36,7 +29,7 @@ inline void applyLink(QTextCharFormat &format, const Link &link) noexcept
     format.setProperty(QTextCharFormat::UserProperty, link.prompts);
 }
 
-inline void applyStyles(QTextCharFormat &format, quint16 style, const QColor &foreground, const QColor &background) noexcept
+inline void applyStyles(QTextCharFormat &format, uint16_t style, const QColor &foreground, const QColor &background) noexcept
 {
   if (hasStyle(style, TextStyle::Bold))
     format.setFontWeight(QFont::Weight::Bold);
@@ -65,7 +58,12 @@ inline QTextCharFormat foregroundFormat(const QColor &foreground)
   return format;
 }
 
-// Document
+inline void scrollToEnd(QScrollBar &bar)
+{
+  bar.setValue(bar.maximum());
+}
+
+// Public methods
 
 Document::Document(WorldTab *parent, ScriptApi *api)
     : QObject(parent),
@@ -83,14 +81,14 @@ void Document::appendText(const QString &text, int foreground)
   cursor.insertText(text, formats[foreground]);
 }
 
-void Document::appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background)
+void Document::appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background)
 {
   QTextCharFormat format;
   applyStyles(format, style, foreground, background);
   cursor.insertText(text, format);
 }
 
-void Document::appendText(const QString &text, quint16 style, const QColor &foreground, const QColor &background, const Link &link)
+void Document::appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background, const Link &link)
 {
   QTextCharFormat format;
   applyStyles(format, style, foreground, background);

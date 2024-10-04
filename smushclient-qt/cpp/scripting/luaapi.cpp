@@ -25,7 +25,7 @@ using stringmap = std::unordered_map<string, string>;
 
 using qlua::expectMaxArgs;
 
-// localization
+// Private localization
 
 QString fmtNoSuchPlugin(const QString &id)
 {
@@ -73,7 +73,7 @@ QString fmtBadReturn(const Plugin &plugin, string_view routine, int idx, const c
       .arg(plugin.id());
 }
 
-// utils
+// Private utils
 
 inline int returnCode(lua_State *L, ApiCode code)
 {
