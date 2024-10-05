@@ -80,13 +80,6 @@ QVariantList toQVariants(lua_State *L, int idx, qsizetype size)
   return variants;
 }
 
-string_view toString(lua_State *L, int idx)
-{
-  size_t len;
-  const char *message = lua_tolstring(L, idx, &len);
-  return string_view(message, len);
-}
-
 // Public functions
 
 int qlua::expectMaxArgs(lua_State *L, int max)
@@ -265,6 +258,13 @@ QVariant qlua::getQVariant(lua_State *L, int idx, int type)
   default:
     return QVariant();
   }
+}
+
+string_view qlua::toString(lua_State *L, int idx)
+{
+  size_t len;
+  const char *message = lua_tolstring(L, idx, &len);
+  return string_view(message, len);
 }
 
 string_view qlua::getString(lua_State *L, int idx)

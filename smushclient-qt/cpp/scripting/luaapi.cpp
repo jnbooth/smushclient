@@ -957,7 +957,7 @@ static int L_WindowText(lua_State *L)
   expectMaxArgs(L, 9);
   const string_view windowName = qlua::getString(L, 1);
   const string_view fontID = qlua::getString(L, 2);
-  const string_view view = qlua::getString(L, 3);
+  const string_view view = qlua::toString(L, 3);
   const QRectF rect = qlua::getQRectF(L, 4, 5, 6, 7);
   const QColor color = qlua::getQColor(L, 8);
   const bool unicode = qlua::getBool(L, 9, false);

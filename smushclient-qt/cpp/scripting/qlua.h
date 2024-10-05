@@ -63,6 +63,7 @@ namespace qlua
 
   std::string_view getString(lua_State *L, int idx);
   std::string_view getString(lua_State *L, int idx, std::string_view ifNil);
+  std::string_view toString(lua_State *L, int idx);
 
   QByteArray concatBytes(lua_State *L);
   QString concatStrings(lua_State *L, const QString &delimiter = QString());
