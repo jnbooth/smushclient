@@ -11,6 +11,7 @@ use super::send::SendRequest;
 use crate::handler::{Handler, SendHandler};
 use crate::plugins::effects::AliasEffects;
 use crate::plugins::LoadFailure;
+use crate::World;
 use smushclient_plugins::{
     Alias, Indexer, Plugin, PluginIndex, SendMatch, Sendable, Sender, Senders, Trigger,
 };
@@ -25,7 +26,6 @@ fn check_oneshot<T: AsRef<Sender>>(oneshots: &mut Vec<usize>, send: &SendMatch<T
 pub struct PluginEngine {
     plugins: Vec<Plugin>,
     senders: Senders,
-    world_plugin_index: Option<usize>,
 }
 
 impl Default for PluginEngine {
@@ -39,7 +39,6 @@ impl PluginEngine {
         Self {
             plugins: Vec::new(),
             senders: Senders::new(),
-            world_plugin_index: None,
         }
     }
 
@@ -47,14 +46,12 @@ impl PluginEngine {
         self.plugins.len()
     }
 
-    pub fn load_plugins<I>(&mut self, iter: I) -> Result<(), Vec<LoadFailure>>
-    where
-        I: IntoIterator,
-        I::Item: AsRef<Path>,
-    {
+    pub fn load_plugins(&mut self, world: &World) -> Result<(), Vec<LoadFailure>> {
         self.plugins.clear();
-        let errors: Vec<LoadFailure> = iter
-            .into_iter()
+        self.plugins.push(world.world_plugin());
+        let errors: Vec<LoadFailure> = world
+            .plugins
+            .iter()
             .filter_map(|path| {
                 let path = path.as_ref();
                 let error = self.load_plugin(path).err()?;
@@ -100,6 +97,7 @@ impl PluginEngine {
         let mut plugin = Plugin::from_xml(reader)?;
 
         plugin.metadata.path = path.to_path_buf();
+        println!("!{:?}", plugin.metadata.protocols);
         self.plugins.push(plugin);
         Ok(self.plugins.last().unwrap())
     }
@@ -114,19 +112,16 @@ impl PluginEngine {
         Some(self.plugins.remove(index))
     }
 
-    pub fn set_world_plugin(&mut self, plugin: Option<Plugin>) {
-        let Some(plugin) = plugin else {
-            if let Some(index) = self.world_plugin_index {
-                self.plugins.remove(index);
-                self.world_plugin_index = None;
-            }
-            return;
-        };
-        if let Some(index) = self.world_plugin_index {
-            self.plugins[index] = plugin;
-            return;
+    pub fn set_world_plugin(&mut self, plugin: Plugin) {
+        if let Some(world_plugin) = self
+            .plugins
+            .iter_mut()
+            .find(|plugin| plugin.metadata.is_world_plugin)
+        {
+            *world_plugin = plugin;
+        } else {
+            self.plugins.push(plugin);
         }
-        self.plugins.push(plugin);
         self.sort();
     }
 
@@ -138,9 +133,6 @@ impl PluginEngine {
         self.plugins.sort_unstable();
         for (i, plugin) in self.plugins.iter_mut().enumerate() {
             self.senders.extend(i, plugin);
-            if plugin.metadata.is_world_plugin {
-                self.world_plugin_index = Some(i);
-            }
         }
         self.senders.sort();
     }

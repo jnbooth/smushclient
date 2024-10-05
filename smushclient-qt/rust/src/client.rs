@@ -75,22 +75,27 @@ impl SmushClientRust {
         let worldfile = World::load(file)?;
         let world = WorldRust::from(&worldfile);
         self.transformer
-            .set_config(self.client.set_world(worldfile));
+            .set_config(self.client.set_world_and_plugins(worldfile));
         self.apply_world();
         Ok(world)
     }
 
     pub fn load_plugins(&mut self) -> QStringList {
-        let Err(errors) = self.client.load_plugins() else {
-            return QStringList::default();
-        };
-        let mut list: QList<QString> = QList::default();
-        list.reserve(isize::try_from(errors.len() * 2).unwrap());
-        for error in &errors {
-            list.append(QString::from(&*error.path.to_string_lossy()));
-            list.append(QString::from(&error.error.to_string()));
+        match self.client.load_plugins() {
+            Ok(config) => {
+                self.transformer.set_config(config);
+                QStringList::default()
+            }
+            Err(errors) => {
+                let mut list: QList<QString> = QList::default();
+                list.reserve(isize::try_from(errors.len() * 2).unwrap());
+                for error in &errors {
+                    list.append(QString::from(&*error.path.to_string_lossy()));
+                    list.append(QString::from(&error.error.to_string()));
+                }
+                QStringList::from(&list)
+            }
         }
-        QStringList::from(&list)
     }
 
     pub fn save_world(&self, path: &QString) -> Result<(), PersistError> {
@@ -124,8 +129,7 @@ impl SmushClientRust {
         let Ok(world) = world.try_into() else {
             return false;
         };
-        self.transformer
-            .set_config(self.client.set_world_with_plugins(world));
+        self.transformer.set_config(self.client.set_world(world));
         self.apply_world();
         true
     }

@@ -45,6 +45,13 @@ impl Ord for Plugin {
 }
 
 impl Plugin {
+    pub fn is_empty(&self) -> bool {
+        self.triggers.is_empty()
+            && self.aliases.is_empty()
+            && self.timers.is_empty()
+            && self.script.trim().is_empty()
+    }
+
     pub fn from_xml<R: BufRead>(reader: R) -> Result<Self, PluginLoadError> {
         quick_xml::de::from_reader(reader)
     }
@@ -67,13 +74,13 @@ impl Plugin {
 #[serde(rename = "muclient")]
 struct PluginFile<'a> {
     plugin: PluginMetadata,
-    #[serde(borrow, default)]
+    #[serde(borrow, default, skip_serializing_if = "Vec::is_empty")]
     triggers: Vec<Triggers<'a>>,
-    #[serde(borrow, default)]
+    #[serde(borrow, default, skip_serializing_if = "Vec::is_empty")]
     aliases: Vec<Aliases<'a>>,
-    #[serde(borrow, default)]
+    #[serde(borrow, default, skip_serializing_if = "Vec::is_empty")]
     timers: Vec<Timers<'a>>,
-    #[serde(borrow, default)]
+    #[serde(borrow, default, skip_serializing_if = "Vec::is_empty")]
     script: Vec<Cow<'a, str>>,
 }
 

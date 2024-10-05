@@ -443,14 +443,7 @@ impl World {
         }
     }
 
-    pub fn world_plugin(&self) -> Option<Plugin> {
-        if self.triggers.is_empty()
-            && self.aliases.is_empty()
-            && self.timers.is_empty()
-            && self.world_script.trim().is_empty()
-        {
-            return None;
-        }
+    pub fn world_plugin(&self) -> Plugin {
         let today = Utc::now().date_naive();
         let metadata = PluginMetadata {
             name: format!("World Script: {}", self.name),
@@ -460,14 +453,14 @@ impl World {
             sequence: -1,
             ..Default::default()
         };
-        Some(Plugin {
+        Plugin {
             metadata,
             disabled: false,
             triggers: self.triggers.clone(),
             aliases: self.aliases.clone(),
             timers: self.timers.clone(),
             script: self.world_script.clone(),
-        })
+        }
     }
 
     pub fn save<W: Write>(&self, mut writer: W) -> Result<(), PersistError> {
