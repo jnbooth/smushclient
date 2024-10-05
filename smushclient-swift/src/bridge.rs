@@ -1,5 +1,4 @@
 use enumeration::EnumSet;
-use mud_stream::nonblocking::MudStream;
 use mud_transformer::Tag;
 use std::fs::File;
 use std::path::Path;
@@ -33,7 +32,7 @@ const SUPPORTED_TAGS: EnumSet<Tag> = enums![
 
 #[derive(Default)]
 pub struct RustMudBridge {
-    stream: Option<MudStream<TcpStream>>,
+    stream: Option<TcpStream>,
     client: SmushClient,
     input_lock: NonBlockingMutex,
     output_lock: NonBlockingMutex,
@@ -63,10 +62,7 @@ impl RustMudBridge {
     }
 
     pub fn set_world(&mut self, world: World) {
-        let config = self.client.set_world(world);
-        if let Some(ref mut stream) = &mut self.stream {
-            stream.set_config(config);
-        }
+        self.client.set_world(world);
     }
 
     pub fn connected(&self) -> bool {
@@ -92,7 +88,7 @@ impl RustMudBridge {
             self.output_lock.lock(),
             self.input_lock.lock(),
         );
-        self.stream = Some(MudStream::new(stream, self.client.config()));
+        self.stream = Some(stream);
         drop(locks);
         Ok(())
     }
@@ -112,16 +108,26 @@ impl RustMudBridge {
     }
 
     pub async fn receive(&mut self) -> Result<RustOutputStream, String> {
-        let lock = self.stream_lock.lock();
-        let result = match self.stream {
-            Some(ref mut stream) => stream.read().await.str()?,
-            None => None,
+        let Some(ref mut stream) = &mut self.stream else {
+            return Ok(RustOutputStream::new(Vec::new().into_iter()));
         };
-        drop(lock);
         let lock = self.output_lock.lock();
+        let read_result = self.client.read_async(stream).await;
+
         let mut handler = ClientHandler::new();
-        if let Some(output) = result {
-            self.client.receive(output, &mut handler);
+        self.client.flush_output(&mut handler);
+        drop(lock);
+
+        if let Err(e) = read_result {
+            let output = handler.into_iter();
+            if output.len() == 0 {
+                return Err(e.to_string());
+            }
+            return Ok(RustOutputStream::new(output));
+        }
+        let lock = self.input_lock.lock();
+        if let Err(e) = self.client.write_async(stream).await {
+            return Err(e.to_string());
         }
         drop(lock);
         Ok(RustOutputStream::new(handler.into_iter()))

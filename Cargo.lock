@@ -513,16 +513,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "mud-stream"
-version = "0.8.1"
-source = "git+https://github.com/jnbooth/mxp?rev=e7a695f4db96bb0bade913a5aab3d4b9d2687bf7#e7a695f4db96bb0bade913a5aab3d4b9d2687bf7"
-dependencies = [
- "mud-transformer",
- "pin-project-lite",
- "tokio",
-]
-
-[[package]]
 name = "mud-transformer"
 version = "0.8.1"
 source = "git+https://github.com/jnbooth/mxp?rev=e7a695f4db96bb0bade913a5aab3d4b9d2687bf7#e7a695f4db96bb0bade913a5aab3d4b9d2687bf7"
@@ -754,6 +744,7 @@ dependencies = [
  "mud-transformer",
  "serde",
  "smushclient-plugins",
+ "tokio",
 ]
 
 [[package]]
@@ -774,7 +765,6 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "enumeration",
- "mud-stream",
  "mud-transformer",
  "smushclient",
  "smushclient-plugins",

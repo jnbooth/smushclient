@@ -17,3 +17,11 @@ smushclient-plugins = { path = "../smushclient-plugins" }
 git = "https://github.com/jnbooth/mxp"
 rev = "e7a695f4db96bb0bade913a5aab3d4b9d2687bf7"
 features = ["serde"]
+
+[dependencies.tokio]
+version = "1.38.0"
+features = ["io-util", "net"]
+optional = true
+
+[features]
+async = ["tokio"]

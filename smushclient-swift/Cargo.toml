@@ -23,17 +23,13 @@ features = ["serde"]
 git = "https://github.com/jnbooth/enumeration"
 version = "0.8.0"
 
-[dependencies.mud-stream]
-git = "https://github.com/jnbooth/mxp"
-rev = "e7a695f4db96bb0bade913a5aab3d4b9d2687bf7"
-features = ["async"]
-
 [dependencies.mud-transformer]
 git = "https://github.com/jnbooth/mxp"
 rev = "e7a695f4db96bb0bade913a5aab3d4b9d2687bf7"
 
 [dependencies.smushclient]
 path = "../smushclient"
+features = ["async"]
 
 [dependencies.smushclient-plugins]
 path = "../smushclient-plugins"

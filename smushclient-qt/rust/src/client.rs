@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::ffi::c_char;
 use std::fs::File;
-use std::io::{self, Read};
+use std::io;
 use std::pin::Pin;
 use std::{ptr, slice};
 
@@ -16,13 +16,10 @@ use crate::world::WorldRust;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant, QVector};
 use enumeration::EnumSet;
 use mud_transformer::mxp::RgbColor;
-use mud_transformer::{Tag, Transformer};
+use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{SmushClient, World};
 use smushclient_plugins::{Alias, PluginIndex, Timer, Trigger};
-
-const BUF_LEN: usize = 1024 * 20;
-const BUF_MIDPOINT: usize = BUF_LEN / 2;
 
 const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Bold,
@@ -44,10 +41,7 @@ const SUPPORTED_TAGS: EnumSet<Tag> = enums![
 ];
 
 pub struct SmushClientRust {
-    done: bool,
     client: SmushClient,
-    transformer: Transformer,
-    buf: Vec<u8>,
     input_lock: NonBlockingMutex,
     output_lock: NonBlockingMutex,
     send: Vec<QString>,
@@ -57,10 +51,7 @@ pub struct SmushClientRust {
 impl Default for SmushClientRust {
     fn default() -> Self {
         Self {
-            done: false,
             client: SmushClient::new(World::default(), SUPPORTED_TAGS),
-            transformer: Transformer::default(),
-            buf: vec![0; BUF_LEN],
             input_lock: NonBlockingMutex::default(),
             output_lock: NonBlockingMutex::default(),
             send: Vec::new(),
@@ -74,28 +65,22 @@ impl SmushClientRust {
         let file = File::open(String::from(path).as_str())?;
         let worldfile = World::load(file)?;
         let world = WorldRust::from(&worldfile);
-        self.transformer
-            .set_config(self.client.set_world_and_plugins(worldfile));
+        self.client.set_world_and_plugins(worldfile);
         self.apply_world();
         Ok(world)
     }
 
     pub fn load_plugins(&mut self) -> QStringList {
-        match self.client.load_plugins() {
-            Ok(config) => {
-                self.transformer.set_config(config);
-                QStringList::default()
-            }
-            Err(errors) => {
-                let mut list: QList<QString> = QList::default();
-                list.reserve(isize::try_from(errors.len() * 2).unwrap());
-                for error in &errors {
-                    list.append(QString::from(&*error.path.to_string_lossy()));
-                    list.append(QString::from(&error.error.to_string()));
-                }
-                QStringList::from(&list)
-            }
+        let Err(errors) = self.client.load_plugins() else {
+            return QStringList::default();
+        };
+        let mut list: QList<QString> = QList::default();
+        list.reserve(isize::try_from(errors.len() * 2).unwrap());
+        for error in &errors {
+            list.append(QString::from(&*error.path.to_string_lossy()));
+            list.append(QString::from(&error.error.to_string()));
         }
+        QStringList::from(&list)
     }
 
     pub fn save_world(&self, path: &QString) -> Result<(), PersistError> {
@@ -129,7 +114,7 @@ impl SmushClientRust {
         let Ok(world) = world.try_into() else {
             return false;
         };
-        self.transformer.set_config(self.client.set_world(world));
+        self.client.set_world(world);
         self.apply_world();
         true
     }
@@ -185,9 +170,6 @@ impl SmushClientRust {
     }
 
     pub fn read(&mut self, mut socket: SocketAdapter, doc: DocumentAdapter) -> i64 {
-        if self.done {
-            return -1;
-        }
         let output_lock = self.output_lock.lock();
         self.send.clear();
         let mut handler = ClientHandler {
@@ -195,39 +177,26 @@ impl SmushClientRust {
             palette: &self.palette,
             send: &mut self.send,
         };
-        let mut total_read = 0;
-        loop {
-            let n = match socket.read(&mut self.buf[..BUF_MIDPOINT]) {
-                Ok(0) => break,
-                Ok(n) => n,
-                Err(e) => {
-                    self.done = true;
-                    handler.display_error(&e.to_string());
-                    self.client
-                        .receive(self.transformer.flush_output(), &mut handler);
-                    return i64::try_from(total_read).unwrap();
-                }
-            };
-            total_read += n;
-            let (received, buf) = self.buf.split_at_mut(n);
-            if let Err(e) = self.transformer.receive(received, buf) {
-                handler.display_error(&e.to_string());
-                return -1;
-            }
-        }
-        self.client
-            .receive(self.transformer.flush_output(), &mut handler);
+        let read_result = self.client.read(&mut socket);
+
+        self.client.flush_output(&mut handler);
         handler.output_sends();
         handler.doc.scroll_to_bottom();
         drop(output_lock);
 
-        let input_lock = self.input_lock.lock();
-        if let Some(mut drain) = self.transformer.drain_input() {
-            if let Err(e) = drain.write_all_to(&mut socket) {
+        let total_read = match read_result {
+            Ok(total_read) => total_read,
+            Err(e) => {
                 handler.display_error(&e.to_string());
                 return -1;
             }
-        }
+        };
+
+        let input_lock = self.input_lock.lock();
+        if let Err(e) = self.client.write(&mut socket) {
+            handler.display_error(&e.to_string());
+            return -1;
+        };
         drop(input_lock);
 
         i64::try_from(total_read).unwrap()

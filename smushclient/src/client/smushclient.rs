@@ -1,5 +1,5 @@
 use std::ffi::c_char;
-use std::io::{Read, Write};
+use std::io::{self, Read, Write};
 use std::path::Path;
 use std::{env, mem, slice};
 
@@ -10,27 +10,46 @@ use crate::world::{PersistError, World};
 use crate::LoadError;
 use enumeration::EnumSet;
 use mud_transformer::{
-    EffectFragment, OutputDrain, OutputFragment, Tag, TextFragment, TextStyle, TransformerConfig,
+    EffectFragment, OutputFragment, Tag, TextFragment, TextStyle, Transformer, TransformerConfig,
 };
 use smushclient_plugins::{Plugin, PluginIndex, Sendable};
+#[cfg(feature = "async")]
+use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
-#[derive(Clone, Debug, Default, PartialEq)]
+const BUF_LEN: usize = 1024 * 20;
+const BUF_MIDPOINT: usize = BUF_LEN / 2;
+
+#[derive(Debug)]
 pub struct SmushClient {
     line_text: String,
     pub(crate) plugins: PluginEngine,
+    read_buf: Vec<u8>,
     supported_tags: EnumSet<Tag>,
+    transformer: Transformer,
     world: World,
     variables: PluginVariables,
+}
+
+impl Default for SmushClient {
+    fn default() -> Self {
+        Self::new(World::default(), EnumSet::new())
+    }
 }
 
 impl SmushClient {
     pub fn new(world: World, supported_tags: EnumSet<Tag>) -> Self {
         let mut plugins = PluginEngine::new();
         plugins.set_world_plugin(world.world_plugin());
+        let transformer = Transformer::new(TransformerConfig {
+            supports: supported_tags,
+            ..TransformerConfig::from(&world)
+        });
         Self {
             line_text: String::new(),
             plugins,
+            read_buf: vec![0; BUF_LEN],
             supported_tags,
+            transformer,
             world,
             variables: PluginVariables::new(),
         }
@@ -40,34 +59,76 @@ impl SmushClient {
         self.supported_tags = supported_tags;
     }
 
-    pub fn config(&self) -> TransformerConfig {
-        TransformerConfig {
+    fn update_config(&mut self) {
+        self.transformer.set_config(TransformerConfig {
             will: self.plugins.supported_protocols(),
             supports: self.supported_tags,
             ..TransformerConfig::from(&self.world)
-        }
+        });
     }
 
     pub fn world(&self) -> &World {
         &self.world
     }
 
-    #[must_use = "config changes must be applied to the transformer"]
-    pub fn set_world_and_plugins(&mut self, world: World) -> TransformerConfig {
+    pub fn set_world_and_plugins(&mut self, world: World) {
         self.plugins.set_world_plugin(world.world_plugin());
         self.world = world;
-        self.config()
+        self.update_config();
     }
 
-    #[must_use = "config changes must be applied to the transformer"]
-    pub fn set_world(&mut self, mut world: World) -> TransformerConfig {
+    pub fn set_world(&mut self, mut world: World) {
         mem::swap(&mut world.plugins, &mut self.world.plugins);
         self.plugins.set_world_plugin(world.world_plugin());
         self.world = world;
-        self.config()
+        self.update_config();
     }
 
-    pub fn receive<H: Handler>(&mut self, mut output: OutputDrain, handler: &mut H) {
+    pub fn read<R: Read>(&mut self, mut reader: R) -> io::Result<usize> {
+        let mut total_read = 0;
+        loop {
+            let n = reader.read(&mut self.read_buf[..BUF_MIDPOINT])?;
+            if n == 0 {
+                return Ok(total_read);
+            }
+            let (received, buf) = self.read_buf.split_at_mut(n);
+            self.transformer.receive(received, buf)?;
+            total_read += n;
+        }
+    }
+
+    #[cfg(feature = "async")]
+    pub async fn read_async<R: AsyncRead + Unpin>(&mut self, reader: &mut R) -> io::Result<usize> {
+        let mut total_read = 0;
+        loop {
+            let n = reader.read(&mut self.read_buf[..BUF_MIDPOINT]).await?;
+            if n == 0 {
+                return Ok(total_read);
+            }
+            let (received, buf) = self.read_buf.split_at_mut(n);
+            self.transformer.receive(received, buf)?;
+            total_read += n;
+        }
+    }
+
+    pub fn write<W: Write>(&mut self, writer: &mut W) -> io::Result<()> {
+        let Some(mut drain) = self.transformer.drain_input() else {
+            return Ok(());
+        };
+        drain.write_all_to(writer)
+    }
+
+    #[cfg(feature = "async")]
+    pub async fn write_async<W: AsyncWrite + Unpin>(&mut self, mut writer: W) -> io::Result<()> {
+        if let Some(mut drain) = self.transformer.drain_input() {
+            writer.write_all_buf(&mut drain).await
+        } else {
+            Ok(())
+        }
+    }
+
+    pub fn flush_output<H: Handler>(&mut self, handler: &mut H) {
+        let mut output = self.transformer.flush_output();
         loop {
             let slice = output.as_slice();
             if slice.is_empty() {
@@ -112,10 +173,10 @@ impl SmushClient {
         self.plugins.alias(input, handler).into()
     }
 
-    #[must_use = "config changes must be applied to the transformer"]
-    pub fn load_plugins(&mut self) -> Result<TransformerConfig, Vec<LoadFailure>> {
+    pub fn load_plugins(&mut self) -> Result<(), Vec<LoadFailure>> {
         self.plugins.load_plugins(&self.world)?;
-        Ok(self.config())
+        self.update_config();
+        Ok(())
     }
 
     pub fn add_plugin<P: AsRef<Path>>(&mut self, path: P) -> Result<&Plugin, LoadError> {
