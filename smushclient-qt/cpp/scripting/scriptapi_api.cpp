@@ -229,7 +229,9 @@ void ScriptApi::Hyperlink(
     format.setBackground(background);
   if (!noUnderline)
     format.setAnchor(true);
+  const bool insideTell = beginTell();
   cursor.insertText(text, format);
+  endTell(insideTell);
 }
 
 ApiCode ScriptApi::IsAlias(const QString &label) const
