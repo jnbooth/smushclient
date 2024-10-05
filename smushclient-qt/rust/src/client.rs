@@ -18,7 +18,7 @@ use enumeration::EnumSet;
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
-use smushclient::{SmushClient, World};
+use smushclient::{SendHandler, SmushClient, World};
 use smushclient_plugins::{Alias, PluginIndex, Timer, Trigger};
 
 const SUPPORTED_TAGS: EnumSet<Tag> = enums![
@@ -226,6 +226,10 @@ impl ffi::SmushClient {
     ) -> Result<(), PersistError> {
         *world.cxx_qt_ffi_rust_mut() = self.cxx_qt_ffi_rust_mut().load_world(path)?;
         Ok(())
+    }
+
+    pub fn open_log(self: Pin<&mut Self>) -> io::Result<()> {
+        self.cxx_qt_ffi_rust_mut().client.open_log()
     }
 
     pub fn load_plugins(self: Pin<&mut Self>) -> QStringList {

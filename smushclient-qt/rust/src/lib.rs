@@ -241,6 +241,7 @@ pub mod ffi {
             world: Pin<&mut World>,
         ) -> Result<()>;
         fn save_world(self: &SmushClient, path: &QString) -> Result<()>;
+        fn open_log(self: Pin<&mut SmushClient>) -> Result<()>;
         fn load_plugins(self: Pin<&mut SmushClient>) -> QStringList;
         fn load_variables(self: Pin<&mut SmushClient>, path: &QString) -> Result<bool>;
         fn save_variables(self: &SmushClient, path: &QString) -> Result<bool>;

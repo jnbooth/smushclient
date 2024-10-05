@@ -3,6 +3,7 @@ use std::io::{self, Read, Write};
 use std::path::Path;
 use std::{env, mem, slice};
 
+use super::logger::Logger;
 use super::variables::PluginVariables;
 use crate::handler::{Handler, SendHandler};
 use crate::plugins::{AliasOutcome, LoadFailure, PluginEngine};
@@ -21,13 +22,15 @@ const BUF_MIDPOINT: usize = BUF_LEN / 2;
 
 #[derive(Debug)]
 pub struct SmushClient {
+    last_log_file_name: Option<String>,
     line_text: String,
+    logger: Logger,
     pub(crate) plugins: PluginEngine,
     read_buf: Vec<u8>,
     supported_tags: EnumSet<Tag>,
     transformer: Transformer,
-    world: World,
     variables: PluginVariables,
+    world: World,
 }
 
 impl Default for SmushClient {
@@ -45,13 +48,15 @@ impl SmushClient {
             ..TransformerConfig::from(&world)
         });
         Self {
+            last_log_file_name: world.auto_log_file_name.clone(),
             line_text: String::new(),
+            logger: Logger::Closed,
             plugins,
             read_buf: vec![0; BUF_LEN],
             supported_tags,
             transformer,
-            world,
             variables: PluginVariables::new(),
+            world,
         }
     }
 
@@ -84,6 +89,17 @@ impl SmushClient {
         self.update_config();
     }
 
+    pub fn open_log(&mut self) -> io::Result<()> {
+        if self.world.auto_log_file_name != self.last_log_file_name {
+            self.last_log_file_name = self.world.auto_log_file_name.clone();
+        } else if matches!(self.logger, Logger::Open(..)) {
+            return Ok(());
+        }
+        self.last_log_file_name = self.world.auto_log_file_name.clone();
+        self.logger = Logger::open(&self.world)?;
+        Ok(())
+    }
+
     pub fn read<R: Read>(&mut self, mut reader: R) -> io::Result<usize> {
         let mut total_read = 0;
         loop {
@@ -92,6 +108,7 @@ impl SmushClient {
                 return Ok(total_read);
             }
             let (received, buf) = self.read_buf.split_at_mut(n);
+            self.logger.log_raw(received, &self.world);
             self.transformer.receive(received, buf)?;
             total_read += n;
         }
@@ -106,6 +123,7 @@ impl SmushClient {
                 return Ok(total_read);
             }
             let (received, buf) = self.read_buf.split_at_mut(n);
+            self.logger.log_raw(buf, &self.world);
             self.transformer.receive(received, buf)?;
             total_read += n;
         }
@@ -128,6 +146,7 @@ impl SmushClient {
     }
 
     pub fn flush_output<H: Handler>(&mut self, handler: &mut H) {
+        self.logger.log_error(handler);
         let mut output = self.transformer.flush_output();
         loop {
             let slice = output.as_slice();
@@ -166,11 +185,24 @@ impl SmushClient {
                     handler.display(output);
                 }
             }
+            if !trigger_effects.omit_from_log {
+                self.logger
+                    .log_output_line(self.line_text.as_bytes(), &self.world);
+            }
         }
     }
 
     pub fn alias<H: SendHandler>(&mut self, input: &str, handler: &mut H) -> AliasOutcome {
-        self.plugins.alias(input, handler).into()
+        let outcome = self.plugins.alias(input, handler);
+        if !outcome.omit_from_log {
+            self.logger.log_input_line(input.as_bytes(), &self.world);
+            self.logger.log_error(handler);
+        }
+        outcome.into()
+    }
+
+    pub fn log_note(&mut self, note: &[u8]) {
+        self.logger.log_note(note, &self.world);
     }
 
     pub fn load_plugins(&mut self) -> Result<(), Vec<LoadFailure>> {

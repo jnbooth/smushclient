@@ -17,11 +17,6 @@ const CUSTOM_FORMAT_INDEX: i32 = 0;
 const ERROR_FORMAT_INDEX: i32 = 1;
 
 impl<'a> ClientHandler<'a> {
-    pub fn display_error(&mut self, error: &str) {
-        self.doc
-            .append_plaintext(&QString::from(error), ERROR_FORMAT_INDEX);
-    }
-
     fn display_linebreak(&mut self) {
         self.doc.append_line();
     }
@@ -96,6 +91,11 @@ impl<'a> ClientHandler<'a> {
 }
 
 impl<'a> smushclient::SendHandler for ClientHandler<'a> {
+    fn display_error(&mut self, error: &str) {
+        self.doc
+            .append_plaintext(&QString::from(error), ERROR_FORMAT_INDEX);
+    }
+
     fn send(&mut self, request: SendRequest) {
         if !request.sender.script.is_empty() {
             self.doc.send_script(

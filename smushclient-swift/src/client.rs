@@ -38,6 +38,10 @@ impl AliasHandler {
 }
 
 impl smushclient::SendHandler for AliasHandler {
+    fn display_error(&mut self, error: &str) {
+        eprintln!("Handler error: {error}");
+    }
+
     fn send(&mut self, request: smushclient::SendRequest) {
         self.requests.push(request.into());
     }
@@ -70,6 +74,10 @@ impl ClientHandler {
 }
 
 impl smushclient::SendHandler for ClientHandler {
+    fn display_error(&mut self, error: &str) {
+        eprintln!("Handler error: {error}");
+    }
+
     fn send(&mut self, request: smushclient::SendRequest) {
         self.output.push(ffi::OutputFragment::Send(request.into()));
     }
@@ -85,5 +93,9 @@ impl smushclient::Handler for ClientHandler {
     fn play_sound(&mut self, path: &str) {
         self.output
             .push(ffi::OutputFragment::Sound(path.to_owned()));
+    }
+
+    fn permit_line(&mut self, _line: &str) -> bool {
+        true
     }
 }

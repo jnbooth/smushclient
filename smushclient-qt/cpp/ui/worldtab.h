@@ -51,6 +51,7 @@ private:
   void applyWorld() const;
   void connectToHost() const;
   bool loadPlugins();
+  void openLog();
   bool saveWorldAndState(const QString &filePath) const;
 
 private slots:

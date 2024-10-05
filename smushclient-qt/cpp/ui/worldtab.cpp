@@ -73,6 +73,7 @@ void WorldTab::createWorld() &
   world.setOutputFont(defaultFontFamily);
   world.setOutputFontHeight(defaultFontHeight);
   client.setWorld(world);
+  openLog();
   loadPlugins();
   applyWorld();
 }
@@ -109,6 +110,7 @@ bool WorldTab::openWorld(const QString &filename) &
     showRustError(e);
     return false;
   }
+  openLog();
   loadPlugins();
   try
   {
@@ -236,6 +238,18 @@ bool WorldTab::loadPlugins()
   QStringList plugins = client.pluginScripts();
   api->initializeScripts(plugins);
   return true;
+}
+
+void WorldTab::openLog()
+{
+  try
+  {
+    client.openLog();
+  }
+  catch (const rust::Error &e)
+  {
+    showRustError(e);
+  }
 }
 
 bool WorldTab::saveWorldAndState(const QString &path) const
