@@ -212,7 +212,7 @@ impl SmushClientRust {
             }
         }
         self.client
-            .receive(self.transformer.drain_output(), &mut handler);
+            .receive(self.transformer.flush_output(), &mut handler);
         handler.output_sends();
         handler.doc.scroll_to_bottom();
         drop(output_lock);

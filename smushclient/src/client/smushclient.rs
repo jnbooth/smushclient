@@ -10,14 +10,12 @@ use crate::world::{PersistError, World};
 use crate::LoadError;
 use enumeration::EnumSet;
 use mud_transformer::{
-    EffectFragment, Output, OutputDrain, OutputFragment, Tag, TextFragment, TextStyle,
-    TransformerConfig,
+    EffectFragment, OutputDrain, OutputFragment, Tag, TextFragment, TextStyle, TransformerConfig,
 };
 use smushclient_plugins::{Plugin, PluginIndex, Sendable};
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct SmushClient {
-    output_buf: Vec<Output>,
     line_text: String,
     pub(crate) plugins: PluginEngine,
     supported_tags: EnumSet<Tag>,
@@ -30,7 +28,6 @@ impl SmushClient {
         let mut plugins = PluginEngine::new();
         plugins.set_world_plugin(world.world_plugin());
         Self {
-            output_buf: Vec::new(),
             line_text: String::new(),
             plugins,
             supported_tags,
@@ -56,14 +53,14 @@ impl SmushClient {
     }
 
     #[must_use = "config changes must be applied to the transformer"]
-    pub fn set_world(&mut self, world: World) -> TransformerConfig {
+    pub fn set_world_and_plugins(&mut self, world: World) -> TransformerConfig {
         self.plugins.set_world_plugin(world.world_plugin());
         self.world = world;
         self.config()
     }
 
     #[must_use = "config changes must be applied to the transformer"]
-    pub fn set_world_with_plugins(&mut self, mut world: World) -> TransformerConfig {
+    pub fn set_world(&mut self, mut world: World) -> TransformerConfig {
         mem::swap(&mut world.plugins, &mut self.world.plugins);
         self.plugins.set_world_plugin(world.world_plugin());
         self.world = world;
@@ -71,37 +68,54 @@ impl SmushClient {
     }
 
     pub fn receive<H: Handler>(&mut self, mut output: OutputDrain, handler: &mut H) {
-        if self.output_buf.is_empty() {
-            receive_lines(
-                &mut output,
-                handler,
-                &mut self.plugins,
-                &mut self.line_text,
-                &self.world,
-            );
-            self.output_buf.extend(output);
-            return;
+        loop {
+            let slice = output.as_slice();
+            if slice.is_empty() {
+                return;
+            }
+            self.line_text.clear();
+            let mut until = 0;
+            for (i, output) in slice.iter().enumerate() {
+                match &output.fragment {
+                    OutputFragment::Text(fragment) => self.line_text.push_str(&fragment.text),
+                    OutputFragment::Hr | OutputFragment::LineBreak | OutputFragment::PageBreak => {
+                        until = i + 1;
+                        break;
+                    }
+                    _ => (),
+                }
+            }
+            if until == 0 {
+                until = slice.len();
+            }
+            let trigger_effects = self.plugins.trigger(&self.line_text, handler);
+            if !handler.permit_line(&self.line_text) || trigger_effects.omit_from_output {
+                for _ in 0..until {
+                    let output = output.next().unwrap();
+                    if is_nonvisual_output(&output.fragment) {
+                        handler.display(output);
+                    }
+                }
+            } else {
+                for _ in 0..until {
+                    let mut output = output.next().unwrap();
+                    if let OutputFragment::Text(text) = &mut output.fragment {
+                        alter_text_output(text, &self.world);
+                    }
+                    handler.display(output);
+                }
+            }
         }
-        self.output_buf.extend(output);
-        let Some(last_break) = self.output_buf.iter().rposition(is_break) else {
-            return;
-        };
-        let mut output = self.output_buf.drain(..=last_break);
-        receive_lines(
-            &mut output,
-            handler,
-            &mut self.plugins,
-            &mut self.line_text,
-            &self.world,
-        );
     }
 
     pub fn alias<H: SendHandler>(&mut self, input: &str, handler: &mut H) -> AliasOutcome {
         self.plugins.alias(input, handler).into()
     }
 
-    pub fn load_plugins(&mut self) -> Result<(), Vec<LoadFailure>> {
-        self.plugins.load_plugins(&self.world.plugins)
+    #[must_use = "config changes must be applied to the transformer"]
+    pub fn load_plugins(&mut self) -> Result<TransformerConfig, Vec<LoadFailure>> {
+        self.plugins.load_plugins(&self.world)?;
+        Ok(self.config())
     }
 
     pub fn add_plugin<P: AsRef<Path>>(&mut self, path: P) -> Result<&Plugin, LoadError> {
@@ -224,60 +238,6 @@ fn is_nonvisual_output(fragment: &OutputFragment) -> bool {
         fragment,
         OutputFragment::Effect(EffectFragment::Beep) | OutputFragment::Telnet(_)
     )
-}
-
-fn is_break(output: &Output) -> bool {
-    matches!(
-        output.fragment,
-        OutputFragment::Hr | OutputFragment::LineBreak | OutputFragment::PageBreak
-    )
-}
-
-fn receive_lines<H: Handler>(
-    output: &mut OutputDrain,
-    handler: &mut H,
-    plugins: &mut PluginEngine,
-    line_text: &mut String,
-    world: &World,
-) {
-    loop {
-        let slice = output.as_slice();
-        if slice.is_empty() {
-            return;
-        }
-        line_text.clear();
-        let mut until = 0;
-        for (i, output) in slice.iter().enumerate() {
-            match &output.fragment {
-                OutputFragment::Text(fragment) => line_text.push_str(&fragment.text),
-                OutputFragment::Hr | OutputFragment::LineBreak | OutputFragment::PageBreak => {
-                    until = i + 1;
-                    break;
-                }
-                _ => (),
-            }
-        }
-        if until == 0 {
-            return;
-        }
-        let trigger_effects = plugins.trigger(line_text, handler);
-        if !handler.permit_line(line_text) || trigger_effects.omit_from_output {
-            for _ in 0..until {
-                let output = output.next().unwrap();
-                if is_nonvisual_output(&output.fragment) {
-                    handler.display(output);
-                }
-            }
-        } else {
-            for _ in 0..until {
-                let mut output = output.next().unwrap();
-                if let OutputFragment::Text(text) = &mut output.fragment {
-                    alter_text_output(text, world);
-                }
-                handler.display(output);
-            }
-        }
-    }
 }
 
 fn alter_text_output(fragment: &mut TextFragment, world: &World) {
