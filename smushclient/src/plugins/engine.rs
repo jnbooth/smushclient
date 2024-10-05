@@ -97,7 +97,6 @@ impl PluginEngine {
         let mut plugin = Plugin::from_xml(reader)?;
 
         plugin.metadata.path = path.to_path_buf();
-        println!("!{:?}", plugin.metadata.protocols);
         self.plugins.push(plugin);
         Ok(self.plugins.last().unwrap())
     }
