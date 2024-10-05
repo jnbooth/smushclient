@@ -1,4 +1,5 @@
 #include "scriptapi.h"
+#include <QtGui/QTextBlock>
 #include <QtNetwork/QTcpSocket>
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
@@ -103,6 +104,22 @@ QVariant ScriptApi::GetInfo(int infoType) const
     return tab()->ui->area->height();
   case 281:
     return tab()->ui->area->width();
+  default:
+    return QVariant();
+  }
+}
+
+QVariant ScriptApi::GetLineInfo(int line, int infoType) const
+{
+  const QTextBlock block = cursor.document()->findBlockByLineNumber(line);
+  switch (infoType)
+  {
+  case 1:
+    return block.text();
+  case 2:
+    return block.text().length();
+  case 3:
+    return block.text().isEmpty();
   default:
     return QVariant();
   }

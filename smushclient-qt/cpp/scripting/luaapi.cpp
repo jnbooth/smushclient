@@ -145,6 +145,13 @@ static int L_GetInfo(lua_State *L)
   return 1;
 }
 
+static int L_GetLineInfo(lua_State *L)
+{
+  expectMaxArgs(L, 2);
+  qlua::pushQVariant(L, getApi(L).GetLineInfo(qlua::getInt(L, 1), qlua::getInt(L, 2)));
+  return 1;
+}
+
 static int L_WindowInfo(lua_State *L)
 {
   expectMaxArgs(L, 2);
@@ -282,6 +289,13 @@ static int L_ColourTell(lua_State *L)
 {
   insertTextTriples(L, getApi(L));
   return 0;
+}
+
+static int L_GetLinesInBufferCount(lua_State *L)
+{
+  expectMaxArgs(L, 0);
+  lua_pushinteger(L, getApi(L).GetLinesInBufferCount());
+  return 1;
 }
 
 static int L_Hyperlink(lua_State *L)
@@ -1052,6 +1066,7 @@ static const struct luaL_Reg worldlib[] =
      {"DatabaseOpen", L_DatabaseOpen},
      // info
      {"GetInfo", L_GetInfo},
+     {"GetLineInfo", L_GetLineInfo},
      {"Version", L_Version},
      {"WindowFontInfo", L_WindowFontInfo},
      {"WindowInfo", L_WindowInfo},
@@ -1071,6 +1086,7 @@ static const struct luaL_Reg worldlib[] =
      {"ColourNameToRGB", L_ColourNameToRGB},
      {"ColourNote", L_ColourNote},
      {"ColourTell", L_ColourTell},
+     {"GetLinesInBufferCount", L_GetLinesInBufferCount},
      {"Hyperlink", L_Hyperlink},
      {"Note", L_Note},
      {"PickColour", L_PickColour},

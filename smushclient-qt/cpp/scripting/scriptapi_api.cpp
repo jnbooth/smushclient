@@ -161,6 +161,11 @@ ApiCode ScriptApi::EnableTriggerGroup(const QString &group, bool enabled) const
   return client()->setTriggersEnabled(group, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
+int ScriptApi::GetLinesInBufferCount() const
+{
+  return cursor.document()->lineCount();
+}
+
 QVariant ScriptApi::GetOption(string_view name) const
 {
   const char *prop = WorldProperties::canonicalName(name);

@@ -51,6 +51,8 @@ public:
   ApiCode EnableTriggerGroup(const QString &group, bool enabled) const;
   QVariant FontInfo(const QFont &font, int infoType) const;
   QVariant GetInfo(int infoType) const;
+  QVariant GetLineInfo(int line, int infoType) const;
+  int GetLinesInBufferCount() const;
   QVariant GetOption(std::string_view name) const;
   std::optional<std::string_view> GetVariable(size_t pluginIndex, std::string_view key) const;
   std::optional<std::string_view> GetVariable(std::string_view pluginID, std::string_view key) const;
