@@ -178,10 +178,11 @@ impl SmushClientRust {
             send: &mut self.send,
         };
         let read_result = self.client.read(&mut socket);
+        handler.doc.begin();
 
         self.client.flush_output(&mut handler);
         handler.output_sends();
-        handler.doc.scroll_to_bottom();
+        handler.doc.end();
         drop(output_lock);
 
         let total_read = match read_result {
@@ -202,7 +203,8 @@ impl SmushClientRust {
         i64::try_from(total_read).unwrap()
     }
 
-    pub fn alias(&mut self, command: &QString, doc: DocumentAdapter) -> u8 {
+    pub fn alias(&mut self, command: &QString, mut doc: DocumentAdapter) -> u8 {
+        doc.begin();
         let output_lock = self.output_lock.lock();
         self.send.clear();
         let mut handler = ClientHandler {
@@ -212,7 +214,7 @@ impl SmushClientRust {
         };
         let outcome = self.client.alias(&String::from(command), &mut handler);
         handler.output_sends();
-        handler.doc.scroll_to_bottom();
+        handler.doc.end();
         drop(output_lock);
         convert_alias_outcome(outcome)
     }

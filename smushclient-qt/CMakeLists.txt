@@ -68,7 +68,7 @@ qt_add_executable(${APP_NAME}
     cpp/enumbuttongroup.h
     cpp/environment.h
     cpp/fieldconnector.h
-    cpp/link.h cpp/link.cpp
+    cpp/spans.h cpp/spans.cpp
     cpp/settings.h cpp/settings.cpp
 
     cpp/bridge/document.h cpp/bridge/document.cpp

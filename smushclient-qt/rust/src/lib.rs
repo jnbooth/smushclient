@@ -118,6 +118,9 @@ pub mod ffi {
         include!("document.h");
         type Document;
 
+        #[rust_name = "append_html"]
+        unsafe fn appendHtml(self: Pin<&mut Document>, text: &QString);
+
         #[rust_name = "append_line"]
         unsafe fn appendLine(self: Pin<&mut Document>);
 
@@ -142,6 +145,10 @@ pub mod ffi {
             background: &QColor,
             link: &Link,
         );
+
+        unsafe fn begin(self: Pin<&mut Document>);
+
+        unsafe fn end(self: &Document);
 
         #[rust_name = "handle_mxp_change"]
         unsafe fn handleMxpChange(self: &Document, enabled: bool);
@@ -169,9 +176,6 @@ pub mod ffi {
 
         #[rust_name = "permit_line"]
         unsafe fn permitLine(self: &Document, data: *const c_char, size: usize) -> bool;
-
-        #[rust_name = "scroll_to_bottom"]
-        unsafe fn scrollToBottom(self: &Document);
 
         unsafe fn send(self: &Document, target: i32, plugin: usize, text: &QString);
 

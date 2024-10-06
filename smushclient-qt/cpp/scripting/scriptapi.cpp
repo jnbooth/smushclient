@@ -10,6 +10,7 @@
 #include "worldproperties.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
+#include "../../spans.h"
 
 using std::string;
 using std::string_view;
@@ -46,14 +47,17 @@ ScriptApi::ScriptApi(WorldTab *parent)
       cursor(parent->ui->output->document()),
       lastTellPosition(-1),
       scrollBar(parent->ui->output->verticalScrollBar()),
-      socket(parent->socket)
+      socket(parent->socket),
+      whenConnected(QDateTime::currentDateTime())
 {
+  setLineType(echoFormat, LineType::Input);
   applyWorld(parent->world);
 }
 
 void ScriptApi::applyWorld(const World &world)
 {
   QTextCharFormat noteFormat;
+  setLineType(noteFormat, LineType::Note);
   noteFormat.setForeground(QBrush(world.getCustomColor()));
   cursor.setCharFormat(noteFormat);
   echoFormat.setForeground(QBrush(world.getEchoTextColour()));
@@ -268,6 +272,7 @@ bool ScriptApi::beginTell()
     cursor.setPosition(lastTellPosition - 1);
     return true;
   }
+  setTimestamp(cursor);
   return false;
 }
 

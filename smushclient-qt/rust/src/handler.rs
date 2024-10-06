@@ -122,10 +122,11 @@ impl<'a> smushclient::SendHandler for ClientHandler<'a> {
 impl<'a> smushclient::Handler for ClientHandler<'a> {
     fn display(&mut self, output: Output) {
         match output.fragment {
+            OutputFragment::Text(text) => self.display_text(&text),
             OutputFragment::LineBreak | OutputFragment::PageBreak => self.display_linebreak(),
             OutputFragment::MxpEntity(entity) => self.handle_mxp_entity(&entity),
-            OutputFragment::Text(text) => self.display_text(&text),
             OutputFragment::Telnet(telnet) => self.handle_telnet(&telnet),
+            OutputFragment::Hr => self.doc.append_html(&QString::from("<hr>")),
             _ => (),
         }
     }

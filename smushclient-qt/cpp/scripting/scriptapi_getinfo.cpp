@@ -1,9 +1,14 @@
 #include "scriptapi.h"
 #include <QtGui/QTextBlock>
+#include <QtGui/QTextDocumentFragment>
+#include <QtGui/QTextLayout>
+#include <QtGui/QTextLine>
 #include <QtNetwork/QTcpSocket>
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
+#include "../../spans.h"
 
+using std::optional;
 using std::string;
 
 // Private utils
@@ -112,18 +117,140 @@ QVariant ScriptApi::GetInfo(int infoType) const
 QVariant ScriptApi::GetLineInfo(int line, int infoType) const
 {
   const QTextBlock block = cursor.document()->findBlockByLineNumber(line);
+  if (!block.isValid())
+    return QVariant();
+  const int lineIndex = line - block.firstLineNumber();
   switch (infoType)
   {
   case 1:
-    return block.text();
+  {
+    const QTextLine line = block.layout()->lineAt(lineIndex);
+    return block.text().sliced(line.textStart(), line.textLength());
+  }
   case 2:
-    return block.text().length();
+    return block.layout()->lineAt(lineIndex).textLength();
   case 3:
-    return block.text().isEmpty();
+    return lineIndex == block.lineCount() - 1;
+  case 4:
+    return getLineType(block.charFormat()) == LineType::Note;
+  case 5:
+    return getLineType(block.charFormat()) == LineType::Input;
+  case 6: // true if line logged
+    return true;
+  case 7: // true if bookmarked
+    return false;
+  case 8:
+  {
+    const QTextLine line = block.layout()->lineAt(lineIndex);
+    return block.text().sliced(line.textStart(), line.textLength()) == QStringLiteral("<hr>");
+  }
+  case 9:
+    return getTimestamp(block.blockFormat());
+  case 10:
+    return line;
+  case 11:
+  {
+    const QTextLine line = block.layout()->lineAt(lineIndex);
+    int styleCount = 0;
+    const int start = line.textStart();
+    const int end = start + line.textLength();
+    for (const QTextLayout::FormatRange &range : block.textFormats())
+    {
+      if (range.start > end)
+        return styleCount;
+      if (range.start + range.length >= start)
+        styleCount += 1;
+    }
+  }
+  // case 12: // ticks - exact value from the high-performance timer
+  case 13:
+    return whenConnected.secsTo(getTimestamp(block.blockFormat()));
   default:
     return QVariant();
   }
 }
+
+QVariant ScriptApi::GetStyleInfo(int line, int style, int infoType) const
+{
+  const QTextDocument *doc = cursor.document();
+  const QTextBlock block = doc->findBlockByLineNumber(line - 1);
+  if (!block.isValid())
+    return QVariant();
+  const QTextLayout *layout = block.layout();
+  const QTextLine textLine = layout->lineAt(line - block.firstLineNumber());
+  const int textStart = textLine.textStart();
+  const int textEnd = textStart + textLine.textLength();
+  const QList<QTextLayout::FormatRange> styles = block.textFormats();
+  auto iter = styles.cbegin();
+  int styleOffset = style;
+  for (auto end = styles.cend();; ++iter)
+  {
+    if (iter == end || iter->start > textEnd)
+      return QVariant();
+    if (iter->start + iter->length < textStart)
+      continue;
+    if (styleOffset == 0)
+      break;
+    --styleOffset;
+  }
+  const QTextLayout::FormatRange &range = *iter;
+  const int rangeStart = std::max(textStart, range.start);
+  const int rangeEnd = std::min(textEnd, range.start + range.length);
+  switch (infoType)
+  {
+  case 1:
+    return block.text().sliced(rangeStart, rangeEnd);
+  case 2:
+    return rangeEnd - rangeStart;
+  case 3:
+    return range.start - textStart;
+  case 4:
+  {
+    optional<SendTo> sendto = getSendTo(range.format);
+    if (!sendto)
+      return 0;
+    switch (*sendto)
+    {
+    case SendTo::Internet:
+      return 2;
+    case SendTo::World:
+      return 1;
+    case SendTo::Input:
+      return 3;
+    }
+  }
+  case 5:
+  {
+    QString link = range.format.anchorHref();
+    if (!link.isEmpty())
+      decodeLink(link);
+    return link;
+  }
+  case 6:
+    return range.format.toolTip();
+  // case 7: // variable to set
+  case 8:
+    return range.format.fontWeight() == QFont::Weight::Bold;
+  case 9:
+    return range.format.fontUnderline();
+  case 10:
+    return getStyles(range.format).testFlag(TextStyle::Blink);
+  case 11:
+    return getStyles(range.format).testFlag(TextStyle::Inverse);
+  case 12: // changed by trigger from original
+    return false;
+  case 13: // true if start of a tag (action is tag name)
+    return false;
+  case 14:
+    return range.format.foreground().color();
+  case 15:
+    return range.format.background().color();
+  default:
+    return QVariant();
+  }
+}
+
+// External implementations
 
 QVariant MiniWindow::info(int infoType) const
 {

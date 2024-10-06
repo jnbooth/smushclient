@@ -152,10 +152,12 @@ static int L_GetLineInfo(lua_State *L)
   return 1;
 }
 
-static int L_WindowInfo(lua_State *L)
+static int L_GetStyleInfo(lua_State *L)
 {
-  expectMaxArgs(L, 2);
-  qlua::pushQVariant(L, getApi(L).WindowInfo(qlua::getString(L, 1), qlua::getInt(L, 2)));
+  expectMaxArgs(L, 3);
+  qlua::pushQVariant(
+      L,
+      getApi(L).GetStyleInfo(qlua::getInt(L, 1), qlua::getInt(L, 2), qlua::getInt(L, 3)));
   return 1;
 }
 
@@ -163,6 +165,13 @@ static int L_Version(lua_State *L)
 {
   expectMaxArgs(L, 0);
   qlua::pushString(L, SCRIPTING_VERSION);
+  return 1;
+}
+
+static int L_WindowInfo(lua_State *L)
+{
+  expectMaxArgs(L, 2);
+  qlua::pushQVariant(L, getApi(L).WindowInfo(qlua::getString(L, 1), qlua::getInt(L, 2)));
   return 1;
 }
 
@@ -1067,6 +1076,7 @@ static const struct luaL_Reg worldlib[] =
      // info
      {"GetInfo", L_GetInfo},
      {"GetLineInfo", L_GetLineInfo},
+     {"GetStyleInfo", L_GetStyleInfo},
      {"Version", L_Version},
      {"WindowFontInfo", L_WindowFontInfo},
      {"WindowInfo", L_WindowInfo},

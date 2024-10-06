@@ -58,6 +58,7 @@ public:
   std::optional<std::string_view> GetVariable(std::string_view pluginID, std::string_view key) const;
   const QString &GetPluginID(size_t pluginIndex) const;
   QVariant GetPluginInfo(std::string_view pluginID, int infoType) const;
+  QVariant GetStyleInfo(int line, int style, int infoType) const;
   void Hyperlink(
       const QString &action,
       const QString &text,
@@ -273,6 +274,7 @@ private:
   QScrollBar *scrollBar;
   QTcpSocket *socket;
   std::unordered_map<int, QueuedSend> sendQueue;
+  QDateTime whenConnected;
   std::unordered_map<std::string, MiniWindow *> windows;
 
   bool beginTell();

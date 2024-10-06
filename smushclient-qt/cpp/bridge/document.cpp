@@ -2,7 +2,7 @@
 #include <string>
 #include <QtWidgets/QScrollBar>
 #include <QtWidgets/QStatusBar>
-#include "../link.h"
+#include "../spans.h"
 #include "../scripting/qlua.h"
 #include "../scripting/scriptapi.h"
 #include "../scripting/plugincallback.h"
@@ -15,35 +15,13 @@ using std::string_view;
 
 // Private utils
 
-constexpr bool hasStyle(uint16_t flags, TextStyle style) noexcept
+inline void applyStyles(
+    QTextCharFormat &format,
+    uint16_t style,
+    const QColor &foreground,
+    const QColor &background)
 {
-  return flags & (uint16_t)style;
-}
-
-inline void applyLink(QTextCharFormat &format, const Link &link) noexcept
-{
-  format.setAnchor(true);
-  format.setAnchorHref(encodeLink(link.sendto, link.action));
-  if (!link.hint.isEmpty())
-    format.setToolTip(link.hint);
-  if (!link.prompts.isEmpty())
-    format.setProperty(QTextCharFormat::UserProperty, link.prompts);
-}
-
-inline void applyStyles(QTextCharFormat &format, uint16_t style, const QColor &foreground, const QColor &background) noexcept
-{
-  if (hasStyle(style, TextStyle::Bold))
-    format.setFontWeight(QFont::Weight::Bold);
-
-  if (hasStyle(style, TextStyle::Italic))
-    format.setFontItalic(true);
-
-  if (hasStyle(style, TextStyle::Strikeout))
-    format.setFontStrikeOut(true);
-
-  if (hasStyle(style, TextStyle::Underline))
-    format.setFontUnderline(true);
-
+  setStyles(format, QFlags<TextStyle>::fromInt(style));
   format.setForeground(QBrush(foreground));
 
   int red, green, blue;
@@ -72,6 +50,12 @@ Document::Document(WorldTab *parent, ScriptApi *api)
       cursor(parent->ui->output->document()),
       scrollBar(parent->ui->output->verticalScrollBar()) {}
 
+
+void Document::appendHtml(const QString &html)
+{
+  cursor.insertHtml(html);
+}
+
 void Document::appendLine()
 {
   cursor.insertBlock();
@@ -89,12 +73,27 @@ void Document::appendText(const QString &text, uint16_t style, const QColor &for
   cursor.insertText(text, format);
 }
 
-void Document::appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background, const Link &link)
+void Document::appendText(
+    const QString &text,
+    uint16_t style,
+    const QColor &foreground,
+    const QColor &background,
+    const Link &link)
 {
   QTextCharFormat format;
   applyStyles(format, style, foreground, background);
   applyLink(format, link);
   cursor.insertText(text, format);
+}
+
+void Document::begin()
+{
+  setTimestamp(cursor);
+}
+
+void Document::end() const
+{
+  scrollToEnd(*scrollBar);
 }
 
 void Document::handleMxpChange(bool enabled) const
@@ -154,11 +153,6 @@ bool Document::permitLine(const char *data, size_t size) const
   OnPluginLineReceived onLineReceived(line);
   api->sendCallback(onLineReceived);
   return !onLineReceived.discarded();
-}
-
-void Document::scrollToBottom() const
-{
-  scrollToEnd(*scrollBar);
 }
 
 void Document::send(int32_t target, size_t plugin, const QString &text) const

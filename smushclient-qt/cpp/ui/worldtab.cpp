@@ -13,7 +13,7 @@
 #include "worldprefs.h"
 #include "../bridge/document.h"
 #include "../environment.h"
-#include "../link.h"
+#include "../spans.h"
 #include "../scripting/qlua.h"
 #include "../scripting/scriptapi.h"
 #include "../settings.h"
@@ -418,12 +418,12 @@ void WorldTab::on_output_customContextMenuRequested(const QPoint &pos)
 {
   const QTextCharFormat format = ui->output->cursorForPosition(pos).charFormat();
   const QPoint mouse = ui->output->mapToGlobal(pos);
-  if (!format.hasProperty(QTextCharFormat::UserProperty))
+  const QString prompts = getPrompts(format);
+  if (prompts.isEmpty())
   {
     ui->output->createStandardContextMenu(mouse)->exec(mouse);
     return;
   }
-  const QString prompts = format.property(QTextCharFormat::UserProperty).value<QString>();
   QMenu menu(ui->output);
   for (const QString &prompt : prompts.split(QStringLiteral("|")))
     menu.addAction(prompt);

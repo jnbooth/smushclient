@@ -8,7 +8,7 @@
 #include "sqlite3.h"
 #include "miniwindow.h"
 #include "worldproperties.h"
-#include "../../link.h"
+#include "../../spans.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 
@@ -18,16 +18,6 @@ using std::string;
 using std::string_view;
 
 // Private utils
-
-inline QTextCharFormat colorFormat(const QColor &foreground, const QColor &background)
-{
-  QTextCharFormat format;
-  if (foreground.isValid())
-    format.setForeground(QBrush(foreground));
-  if (background.isValid())
-    format.setBackground(QBrush(background));
-  return format;
-}
 
 inline QColor getColorFromVariant(const QVariant &variant)
 {
@@ -79,7 +69,12 @@ int ScriptApi::BroadcastPlugin(size_t index, int message, string_view text) cons
 void ScriptApi::ColourTell(const QColor &foreground, const QColor &background, const QString &text)
 {
   const bool insideTell = beginTell();
-  cursor.insertText(text, colorFormat(foreground, background));
+  QTextCharFormat format = cursor.charFormat();
+  if (foreground.isValid())
+    format.setForeground(QBrush(foreground));
+  if (background.isValid())
+    format.setBackground(QBrush(background));
+  cursor.insertText(text, format);
   endTell(insideTell);
 }
 

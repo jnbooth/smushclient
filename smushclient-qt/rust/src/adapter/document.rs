@@ -14,6 +14,11 @@ pub struct QColorPair {
 adapter!(DocumentAdapter, ffi::Document);
 
 impl<'a> DocumentAdapter<'a> {
+    pub fn append_html(&mut self, html: &QString) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.as_mut().append_html(html) };
+    }
+
     pub fn append_line(&mut self) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.as_mut().append_line() }
@@ -44,6 +49,16 @@ impl<'a> DocumentAdapter<'a> {
             self.as_mut()
                 .append_link(text, style, &color.foreground, &color.background, link);
         }
+    }
+
+    pub fn begin(&mut self) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.as_mut().begin() };
+    }
+
+    pub fn end(&self) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.end() };
     }
 
     pub fn handle_mxp_change(&self, enabled: bool) {
@@ -86,11 +101,6 @@ impl<'a> DocumentAdapter<'a> {
         let ptr = data.as_ptr().cast::<c_char>();
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.permit_line(ptr, data.len()) }
-    }
-
-    pub fn scroll_to_bottom(&self) {
-        // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.scroll_to_bottom() };
     }
 
     pub fn send(&self, target: ffi::SendTarget, plugin: usize, text: &QString) {
