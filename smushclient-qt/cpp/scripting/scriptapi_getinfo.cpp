@@ -60,7 +60,7 @@ QVariant ScriptApi::FontInfo(const QFont &font, int infoType) const
     if (hint == QFont::StyleHint::Monospace)
       return FontPitchFlag::Monospace;
 
-    const FontPitchFlag pitchFlag =
+    const int pitchFlag =
         QFontInfo(font).fixedPitch() ? FontPitchFlag::Fixed : FontPitchFlag::Variable;
 
     switch (hint)
