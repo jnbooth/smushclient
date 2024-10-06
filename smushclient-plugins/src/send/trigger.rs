@@ -10,7 +10,7 @@ use super::send_to::{sendto_serde, SendTarget};
 use super::sender::Sender;
 use crate::in_place::InPlace;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 pub struct Trigger {
     // Note: this is at the top for Ord-deriving purposes.
     pub reaction: Reaction,
@@ -28,10 +28,10 @@ pub struct Trigger {
     pub lines_to_match: u8,
 }
 
-impl Trigger {
-    pub fn new() -> Self {
+impl Default for Trigger {
+    fn default() -> Self {
         Self {
-            reaction: Reaction::new(),
+            reaction: Reaction::default(),
             change_foreground: false,
             foreground_color: RgbColor::WHITE,
             change_background: false,

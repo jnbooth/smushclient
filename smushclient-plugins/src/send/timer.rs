@@ -4,7 +4,6 @@ use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike};
 use serde::{Deserialize, Serialize};
-
 use super::occurrence::Occurrence;
 use super::send_to::{sendto_serde, SendTarget};
 use super::sender::Sender;
@@ -22,7 +21,7 @@ fn duration_from_hms(hour: u64, minute: u64, second: f64) -> Duration {
     Duration::from_nanos((NANOS_F * second) as u64 + NANOS * 60 * (minute + 60 * hour))
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 pub struct Timer {
     // Note: this is at the top for Ord-deriving purposes.
     pub send: Sender,
@@ -32,22 +31,6 @@ pub struct Timer {
 
 impl_deref!(Timer, Sender, send);
 impl_asref!(Timer, Sender);
-
-impl Default for Timer {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl Timer {
-    pub const fn new() -> Self {
-        Self {
-            occurrence: Occurrence::Interval(Duration::new(0, 0)),
-            send: Sender::new(),
-            active_closed: false,
-        }
-    }
-}
 
 #[derive(Clone, Debug, Default, PartialEq, PartialOrd, Deserialize, Serialize)]
 #[serde(default)]

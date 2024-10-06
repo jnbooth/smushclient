@@ -11,6 +11,12 @@ pub enum Occurrence {
     Interval(Duration),
 }
 
+impl Default for Occurrence {
+    fn default() -> Self {
+        Self::Interval(Duration::default())
+    }
+}
+
 impl From<NaiveTime> for Occurrence {
     fn from(value: NaiveTime) -> Self {
         Self::Time(value)

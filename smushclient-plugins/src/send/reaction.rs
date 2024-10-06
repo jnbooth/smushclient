@@ -24,14 +24,6 @@ impl_asref!(Reaction, Sender);
 
 impl Default for Reaction {
     fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl Reaction {
-    pub const DEFAULT_SEQUENCE: i16 = crate::constants::DEFAULT_SEQUENCE;
-
-    pub fn new() -> Self {
         Self {
             sequence: Self::DEFAULT_SEQUENCE,
             pattern: String::new(),
@@ -44,6 +36,10 @@ impl Reaction {
             regex: Regex::default(),
         }
     }
+}
+
+impl Reaction {
+    pub const DEFAULT_SEQUENCE: i16 = crate::constants::DEFAULT_SEQUENCE;
 
     pub fn make_regex(pattern: &str, is_regex: bool) -> Result<Regex, RegexError> {
         #[rustfmt::skip]
