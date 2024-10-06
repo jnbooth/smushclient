@@ -155,9 +155,9 @@ bool Document::permitLine(const char *data, size_t size) const
   return !onLineReceived.discarded();
 }
 
-void Document::send(int32_t target, size_t plugin, const QString &text) const
+void Document::send(size_t plugin, SendTarget target, const QString &text) const
 {
-  api->sendTo(plugin, (SendTarget)target, text);
+  api->sendTo(plugin, target, text);
 }
 
 class AliasCallback : public PluginCallback

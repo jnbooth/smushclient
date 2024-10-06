@@ -1,6 +1,7 @@
 use std::ffi::c_char;
 
 use cxx_qt_lib::{QByteArray, QColor, QString, QStringList};
+use smushclient_plugins::SendTarget;
 
 use crate::ffi;
 
@@ -103,9 +104,9 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.permit_line(ptr, data.len()) }
     }
 
-    pub fn send(&self, target: ffi::SendTarget, plugin: usize, text: &QString) {
+    pub fn send(&self, plugin: usize, target: SendTarget, text: &QString) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.send(target.repr, plugin, text) };
+        unsafe { self.inner.send(plugin, target.into(), text) };
     }
 
     pub fn send_script(

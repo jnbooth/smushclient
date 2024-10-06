@@ -112,8 +112,8 @@ impl<'a> smushclient::SendHandler for ClientHandler<'a> {
             return;
         }
         self.doc.send(
-            request.sender.send_to.into(),
             request.plugin,
+            request.sender.send_to,
             &QString::from(request.text),
         );
     }

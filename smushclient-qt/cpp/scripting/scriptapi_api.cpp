@@ -107,10 +107,8 @@ ApiCode ScriptApi::DoAfter(size_t plugin, double seconds, const QString &text, S
 {
   if (seconds < 0.1 || seconds > 86399)
     return ApiCode::TimeInvalid;
-
-  const double ms = seconds * 1000.0;
-  const int timerId = startTimer(ms);
-  sendQueue[timerId] = {plugin, target, text};
+  const int timerId = startTimer(std::chrono::milliseconds{(int)(seconds * 1000.0)});
+  sendQueue[timerId] = {.plugin = plugin, .target = target, .text = text};
   return ApiCode::OK;
 }
 

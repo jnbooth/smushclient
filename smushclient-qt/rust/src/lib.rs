@@ -114,6 +114,25 @@ pub mod ffi {
         sendto: SendTo,
     }
 
+    #[qenum(Sender)]
+    enum SendTarget {
+        World,
+        Command,
+        Output,
+        Status,
+        NotepadNew,
+        NotepadAppend,
+        Log,
+        NotepadReplace,
+        WorldDelay,
+        Variable,
+        Execute,
+        Speedwalk,
+        Script,
+        WorldImmediate,
+        ScriptAfterOmit,
+    }
+
     extern "C++Qt" {
         include!("document.h");
         type Document;
@@ -177,7 +196,7 @@ pub mod ffi {
         #[rust_name = "permit_line"]
         unsafe fn permitLine(self: &Document, data: *const c_char, size: usize) -> bool;
 
-        unsafe fn send(self: &Document, target: i32, plugin: usize, text: &QString);
+        unsafe fn send(self: &Document, plugin: usize, target: SendTarget, text: &QString);
 
         #[rust_name = "send_script"]
         unsafe fn send(
@@ -434,25 +453,6 @@ pub mod ffi {
     }
 
     unsafe impl !cxx_qt::Locking for Trigger {}
-
-    #[qenum(Sender)]
-    enum SendTarget {
-        World,
-        Command,
-        Output,
-        Status,
-        NotepadNew,
-        NotepadAppend,
-        Log,
-        NotepadReplace,
-        WorldDelay,
-        Variable,
-        Execute,
-        Speedwalk,
-        Script,
-        WorldImmediate,
-        ScriptAfterOmit,
-    }
 
     #[qenum(Timer)]
     enum Occurrence {

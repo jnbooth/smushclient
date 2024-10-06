@@ -11,6 +11,7 @@
 
 struct Link;
 class ScriptApi;
+enum class SendTarget : int32_t;
 class WorldTab;
 
 using QVector_QColor = QVector<QColor>;
@@ -35,7 +36,7 @@ public:
   void handleTelnetSubnegotiation(uint8_t code, const QByteArray &data) const;
   bool permitLine(const char *data, size_t size) const;
   void setPalette(const QVector_QColor &palette);
-  void send(int32_t target, size_t plugin, const QString &text) const;
+  void send(size_t plugin, SendTarget target, const QString &text) const;
   void send(
       size_t plugin,
       const QString &callback,
