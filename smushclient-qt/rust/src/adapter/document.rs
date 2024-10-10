@@ -104,6 +104,11 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.permit_line(ptr, data.len()) }
     }
 
+    pub fn play_sound(&self, file_path: &QString) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.play_sound(file_path) };
+    }
+
     pub fn send(&self, plugin: usize, target: SendTarget, text: &QString) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.send(plugin, target.into(), text) };

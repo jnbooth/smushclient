@@ -7,14 +7,17 @@
 #include <QtCore/QPointer>
 #include <QtCore/QString>
 #include <QtGui/QTextCursor>
+#include <QtMultimedia/QSoundEffect>
 #include "databaseconnection.h"
 #include "hotspot.h"
 #include "miniwindow.h"
 #include "plugin.h"
 #include "scriptenums.h"
+#include "../audio.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
 #define SCRIPTING_VERSION "5.07"
+
 constexpr size_t noSuchPlugin = SIZE_T_MAX;
 
 class ImageFilter;
@@ -71,6 +74,8 @@ public:
   ApiCode IsTimer(const QString &label) const;
   ApiCode IsTrigger(const QString &label) const;
   QColor PickColour(const QColor &hint) const;
+  ApiCode PlaySound(size_t channel, const QString &path, bool loop = false, float volume = 1.0);
+  ApiCode PlaySoundMemory(size_t channel, const QByteArray &sound, bool loop = false, float volume = 1.0);
   ApiCode PluginSupports(std::string_view pluginID, std::string_view routine) const;
   ApiCode Send(QByteArray &bytes);
   ApiCode Send(const QString &text);
@@ -79,6 +84,7 @@ public:
   ApiCode SetCursor(Qt::CursorShape cursor) const;
   ApiCode SetOption(std::string_view name, const QVariant &variant) const;
   bool SetVariable(size_t pluginIndex, std::string_view key, std::string_view value) const;
+  ApiCode StopSound(size_t channel);
   void Tell(const QString &text);
   ApiCode TextRectangle(
       const QRect &rect,
@@ -263,6 +269,7 @@ protected:
 
 private:
   ActionSource actionSource;
+  std::array<AudioChannel, 10> audioChannels;
   CallbackFilter callbackFilter;
   QTextCursor cursor;
   std::unordered_map<std::string, DatabaseConnection> databases;
@@ -277,6 +284,7 @@ private:
   QDateTime whenConnected;
   std::unordered_map<std::string, MiniWindow *> windows;
 
+  AudioChannel &getAudioChannel(size_t index);
   bool beginTell();
   SmushClient *client() const;
   void displayStatusMessage(const QString &status) const;

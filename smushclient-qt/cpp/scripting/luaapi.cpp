@@ -548,6 +548,41 @@ static int L_IsTrigger(lua_State *L)
   return returnCode(L, getApi(L).IsTrigger(qlua::getQString(L, 1)));
 }
 
+// sound
+
+static int L_PlaySound(lua_State *L)
+{
+  // long PlaySound(short Buffer, BSTR FileName, BOOL Loop, double Volume, double Pan);
+  expectMaxArgs(L, 5);
+  return returnCode(
+      L,
+      getApi(L).PlaySound(
+          qlua::getInt(L, 1),
+          qlua::getQString(L, 2),
+          qlua::getBool(L, 3, false),
+          qlua::getNumber(L, 4, 1.0)));
+  // qlua::getDouble(L, 5) pan
+}
+
+static int L_PlaySoundMemory(lua_State *L)
+{
+  expectMaxArgs(L, 5);
+  return returnCode(
+      L,
+      getApi(L).PlaySoundMemory(
+          qlua::getInt(L, 1),
+          qlua::getBytes(L, 2).toByteArray(),
+          qlua::getBool(L, 3, false),
+          qlua::getNumber(L, 4, 1.0)));
+  // qlua::getDouble(L, 5) pan
+}
+
+static int L_StopSound(lua_State *L)
+{
+  expectMaxArgs(L, 1);
+  return returnCode(L, getApi(L).StopSound(qlua::getInt(L, 1)));
+}
+
 // variables
 
 static int L_GetVariable(lua_State *L)
@@ -1125,6 +1160,10 @@ static const struct luaL_Reg worldlib[] =
      {"IsAlias", L_IsAlias},
      {"IsTimer", L_IsTimer},
      {"IsTrigger", L_IsTrigger},
+     // sound
+     {"PlaySound", L_PlaySound},
+     {"PlaySoundMemory", L_PlaySoundMemory},
+     {"StopSound", L_StopSound},
      // variables
      {"GetVariable", L_GetVariable},
      {"GetPluginVariable", L_GetPluginVariable},

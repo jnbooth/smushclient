@@ -43,6 +43,7 @@ inline void scrollToEnd(QScrollBar &bar)
 ScriptApi::ScriptApi(WorldTab *parent)
     : QObject(parent),
       actionSource(ActionSource::Unknown),
+      audioChannels(),
       callbackFilter(),
       cursor(parent->ui->output->document()),
       lastTellPosition(-1),
@@ -52,6 +53,11 @@ ScriptApi::ScriptApi(WorldTab *parent)
 {
   setLineType(echoFormat, LineType::Input);
   applyWorld(parent->world);
+
+  QAudioFormat audioFormat;
+  audioFormat.setChannelCount(2);
+  audioFormat.setSampleFormat(QAudioFormat::UInt8);
+  audioFormat.setSampleRate(44100);
 }
 
 void ScriptApi::applyWorld(const World &world)
@@ -264,6 +270,16 @@ void ScriptApi::timerEvent(QTimerEvent *event)
 }
 
 // Private methods
+
+AudioChannel &ScriptApi::getAudioChannel(size_t index)
+{
+  if (index)
+    return audioChannels[index - 1];
+  for (AudioChannel &channel : audioChannels)
+    if (!channel.isPlaying())
+      return channel;
+  return audioChannels[0];
+}
 
 bool ScriptApi::beginTell()
 {

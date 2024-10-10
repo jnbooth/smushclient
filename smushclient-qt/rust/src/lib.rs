@@ -196,6 +196,9 @@ pub mod ffi {
         #[rust_name = "permit_line"]
         unsafe fn permitLine(self: &Document, data: *const c_char, size: usize) -> bool;
 
+        #[rust_name = "play_sound"]
+        unsafe fn playSound(self: &Document, filePath: &QString);
+
         unsafe fn send(self: &Document, plugin: usize, target: SendTarget, text: &QString);
 
         #[rust_name = "send_script"]

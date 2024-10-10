@@ -35,6 +35,7 @@ public:
   void handleTelnetRequest(uint8_t code, bool sent) const;
   void handleTelnetSubnegotiation(uint8_t code, const QByteArray &data) const;
   bool permitLine(const char *data, size_t size) const;
+  void playSound(const QString &filePath) const;
   void setPalette(const QVector_QColor &palette);
   void send(size_t plugin, SendTarget target, const QString &text) const;
   void send(

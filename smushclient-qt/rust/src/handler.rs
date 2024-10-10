@@ -135,5 +135,7 @@ impl<'a> smushclient::Handler for ClientHandler<'a> {
         self.doc.permit_line(line.as_bytes())
     }
 
-    fn play_sound(&mut self, _path: &str) {}
+    fn play_sound(&mut self, path: &str) {
+        self.doc.play_sound(&QString::from(path));
+    }
 }

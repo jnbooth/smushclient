@@ -50,7 +50,6 @@ Document::Document(WorldTab *parent, ScriptApi *api)
       cursor(parent->ui->output->document()),
       scrollBar(parent->ui->output->verticalScrollBar()) {}
 
-
 void Document::appendHtml(const QString &html)
 {
   cursor.insertHtml(html);
@@ -153,6 +152,11 @@ bool Document::permitLine(const char *data, size_t size) const
   OnPluginLineReceived onLineReceived(line);
   api->sendCallback(onLineReceived);
   return !onLineReceived.discarded();
+}
+
+void Document::playSound(const QString &filePath) const
+{
+  api->PlaySound(0, filePath);
 }
 
 void Document::send(size_t plugin, SendTarget target, const QString &text) const

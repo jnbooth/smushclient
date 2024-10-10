@@ -19,7 +19,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 COMPONENTS Core Gui Network Qml Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Core Gui Multimedia Network Qml Widgets REQUIRED)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -65,6 +65,7 @@ set(PROJECT_SOURCES
 qt_add_executable(${APP_NAME}
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
+    cpp/audio.h cpp/audio.cpp
     cpp/enumbuttongroup.h
     cpp/environment.h
     cpp/fieldconnector.h
@@ -157,6 +158,7 @@ target_link_libraries(${APP_NAME}_lib INTERFACE
     "$<LINK_LIBRARY:WHOLE_ARCHIVE,${CRATE}-static>"
     Qt::Core
     Qt::Gui
+    Qt::Multimedia
     Qt::Network
     Qt::Qml
     Qt::Widgets

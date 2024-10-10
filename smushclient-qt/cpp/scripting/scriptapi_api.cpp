@@ -247,6 +247,26 @@ QColor ScriptApi::PickColour(const QColor &hint) const
   return QColorDialog::getColor(hint, tab());
 }
 
+ApiCode ScriptApi::PlaySound(size_t channel, const QString &path, bool loop, float volume)
+{
+  if (channel < 0 || channel > audioChannels.size())
+    return ApiCode::BadParameter;
+
+  getAudioChannel(channel).playFile(path, loop, volume);
+
+  return ApiCode::OK;
+}
+
+ApiCode ScriptApi::PlaySoundMemory(size_t channel, const QByteArray &sound, bool loop, float volume)
+{
+  if (channel < 0 || channel > audioChannels.size())
+    return ApiCode::BadParameter;
+
+  getAudioChannel(channel).playBuffer(sound, loop, volume);
+
+  return ApiCode::OK;
+}
+
 ApiCode ScriptApi::PluginSupports(string_view pluginID, string_view routine) const
 {
   const size_t index = findPluginIndex(pluginID);
@@ -335,6 +355,20 @@ ApiCode ScriptApi::SetOption(string_view name, const QVariant &variant) const
 bool ScriptApi::SetVariable(size_t index, string_view key, string_view value) const
 {
   return client()->setVariable(index, key.data(), key.size(), value.data(), value.size());
+}
+
+ApiCode ScriptApi::StopSound(size_t channel)
+{
+  if (channel < 0 || channel > audioChannels.size())
+    return ApiCode::BadParameter;
+  if (channel)
+  {
+    audioChannels[channel - 1].stop();
+    return ApiCode::OK;
+  }
+  for (AudioChannel &channel : audioChannels)
+    channel.stop();
+  return ApiCode::OK;
 }
 
 void ScriptApi::Tell(const QString &text)
