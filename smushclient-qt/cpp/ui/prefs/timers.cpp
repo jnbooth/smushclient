@@ -34,8 +34,7 @@ void PrefsTimers::addItem()
 
 void PrefsTimers::editItem(size_t index)
 {
-  Timer timer;
-  world.getTimer(index, timer);
+  Timer timer(&world, index);
   TimerEdit edit(timer, this);
   if (edit.exec() == QDialog::Rejected)
     return;

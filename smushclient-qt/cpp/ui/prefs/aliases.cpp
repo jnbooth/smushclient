@@ -34,8 +34,7 @@ void PrefsAliases::addItem()
 
 void PrefsAliases::editItem(size_t index)
 {
-  Alias alias;
-  world.getAlias(index, alias);
+  Alias alias(&world, index);
   AliasEdit edit(&alias, this);
   if (edit.exec() == QDialog::Rejected)
     return;

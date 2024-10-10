@@ -1,4 +1,5 @@
 #![allow(clippy::float_cmp)]
+#![allow(clippy::needless_pass_by_value)]
 
 #[macro_use]
 extern crate enumeration;
@@ -29,7 +30,6 @@ use world::WorldRust;
 
 #[allow(non_snake_case)]
 #[allow(clippy::missing_safety_doc)]
-#[allow(clippy::needless_pass_by_value)]
 #[allow(clippy::unnecessary_box_returns)]
 #[cxx_qt::bridge]
 pub mod ffi {
@@ -359,6 +359,9 @@ pub mod ffi {
 
     unsafe impl !cxx_qt::Locking for Timer {}
 
+    impl cxx_qt::Constructor<(), NewArguments = ()> for Timer {}
+    impl cxx_qt::Constructor<(*const World, usize), NewArguments = (*const World, usize)> for Timer {}
+
     extern "RustQt" {
         #[qobject]
         // Sender
@@ -417,6 +420,9 @@ pub mod ffi {
 
     unsafe impl !cxx_qt::Locking for Alias {}
 
+    impl cxx_qt::Constructor<(), NewArguments = ()> for Alias {}
+    impl cxx_qt::Constructor<(*const World, usize), NewArguments = (*const World, usize)> for Alias {}
+
     extern "RustQt" {
         #[qobject]
         // Sender
@@ -456,6 +462,9 @@ pub mod ffi {
     }
 
     unsafe impl !cxx_qt::Locking for Trigger {}
+
+    impl cxx_qt::Constructor<(), NewArguments = ()> for Trigger {}
+    impl cxx_qt::Constructor<(*const World, usize), NewArguments = (*const World, usize)> for Trigger {}
 
     #[qenum(Timer)]
     enum Occurrence {
@@ -663,9 +672,9 @@ pub mod ffi {
         fn add_alias(self: Pin<&mut World>, alias: &Alias) -> QString;
         fn add_timer(self: Pin<&mut World>, timer: &Timer) -> QString;
         fn add_trigger(self: Pin<&mut World>, trigger: &Trigger) -> QString;
-        fn get_alias(self: &World, index: usize, target: Pin<&mut Alias>);
-        fn get_timer(self: &World, index: usize, target: Pin<&mut Timer>);
-        fn get_trigger(self: &World, index: usize, target: Pin<&mut Trigger>);
+        fn num_aliases(self: &World) -> usize;
+        fn num_timers(self: &World) -> usize;
+        fn num_triggers(self: &World) -> usize;
         fn remove_alias(self: Pin<&mut World>, index: usize);
         fn remove_timer(self: Pin<&mut World>, index: usize);
         fn remove_trigger(self: Pin<&mut World>, index: usize);

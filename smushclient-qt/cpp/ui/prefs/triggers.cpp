@@ -35,7 +35,7 @@ void PrefsTriggers::addItem()
 
 void PrefsTriggers::editItem(size_t index)
 {
-  Trigger trigger;
+  Trigger trigger(&world, index);
   world.getTrigger(index, trigger);
   TriggerEdit edit(trigger, this);
   if (edit.exec() == QDialog::Rejected)

@@ -239,24 +239,6 @@ impl WorldRust {
         Ok(())
     }
 
-    pub fn get_alias(&self, index: usize, target: &mut AliasRust) {
-        if let Some(alias) = self.aliases.get(index) {
-            *target = AliasRust::from(alias);
-        }
-    }
-
-    pub fn get_timer(&self, index: usize, target: &mut TimerRust) {
-        if let Some(timer) = self.timers.get(index) {
-            *target = TimerRust::from(timer);
-        }
-    }
-
-    pub fn get_trigger(&self, index: usize, target: &mut TriggerRust) {
-        if let Some(trigger) = self.triggers.get(index) {
-            *target = TriggerRust::from(trigger);
-        }
-    }
-
     pub fn remove_alias(&mut self, index: usize) {
         if index < self.aliases.len() {
             self.aliases.remove(index);
@@ -760,19 +742,16 @@ impl ffi::World {
             .result()
     }
 
-    pub fn get_alias(&self, index: usize, target: Pin<&mut ffi::Alias>) {
-        self.cxx_qt_ffi_rust()
-            .get_alias(index, &mut target.cxx_qt_ffi_rust_mut());
+    pub fn num_aliases(&self) -> usize {
+        self.cxx_qt_ffi_rust().aliases.len()
     }
 
-    pub fn get_timer(&self, index: usize, target: Pin<&mut ffi::Timer>) {
-        self.cxx_qt_ffi_rust()
-            .get_timer(index, &mut target.cxx_qt_ffi_rust_mut());
+    pub fn num_timers(&self) -> usize {
+        self.cxx_qt_ffi_rust().timers.len()
     }
 
-    pub fn get_trigger(&self, index: usize, target: Pin<&mut ffi::Trigger>) {
-        self.cxx_qt_ffi_rust()
-            .get_trigger(index, &mut target.cxx_qt_ffi_rust_mut());
+    pub fn num_triggers(&self) -> usize {
+        self.cxx_qt_ffi_rust().triggers.len()
     }
 
     pub fn remove_alias(self: Pin<&mut Self>, index: usize) {

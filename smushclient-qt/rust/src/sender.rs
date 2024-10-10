@@ -346,10 +346,10 @@ impl Initialize for ffi::Trigger {
     fn initialize(self: Pin<&mut Self>) {}
 }
 
-impl<'a> Constructor<(&'a ffi::World, usize)> for ffi::Alias {
+impl Constructor<(*const ffi::World, usize)> for ffi::Alias {
     type BaseArguments = ();
     type InitializeArguments = ();
-    type NewArguments = (&'a ffi::World, usize);
+    type NewArguments = (*const ffi::World, usize);
 
     fn route_arguments(
         args: Self::NewArguments,
@@ -361,18 +361,18 @@ impl<'a> Constructor<(&'a ffi::World, usize)> for ffi::Alias {
         (args, (), ())
     }
 
-    fn new(args: (&'a ffi::World, usize)) -> AliasRust {
-        match args.0.cxx_qt_ffi_rust().aliases.get(args.1) {
+    fn new(args: (*const ffi::World, usize)) -> AliasRust {
+        match unsafe { (*args.0).cxx_qt_ffi_rust().aliases.get(args.1) } {
             Some(alias) => AliasRust::from(alias),
             None => AliasRust::default(),
         }
     }
 }
 
-impl<'a> Constructor<(&'a ffi::World, usize)> for ffi::Timer {
+impl Constructor<(*const ffi::World, usize)> for ffi::Timer {
     type BaseArguments = ();
     type InitializeArguments = ();
-    type NewArguments = (&'a ffi::World, usize);
+    type NewArguments = (*const ffi::World, usize);
 
     fn route_arguments(
         args: Self::NewArguments,
@@ -384,18 +384,18 @@ impl<'a> Constructor<(&'a ffi::World, usize)> for ffi::Timer {
         (args, (), ())
     }
 
-    fn new(args: (&'a ffi::World, usize)) -> TimerRust {
-        match args.0.cxx_qt_ffi_rust().timers.get(args.1) {
+    fn new(args: (*const ffi::World, usize)) -> TimerRust {
+        match unsafe { (*args.0).cxx_qt_ffi_rust().timers.get(args.1) } {
             Some(timer) => TimerRust::from(timer),
             None => TimerRust::default(),
         }
     }
 }
 
-impl<'a> Constructor<(&'a ffi::World, usize)> for ffi::Trigger {
+impl Constructor<(*const ffi::World, usize)> for ffi::Trigger {
     type BaseArguments = ();
     type InitializeArguments = ();
-    type NewArguments = (&'a ffi::World, usize);
+    type NewArguments = (*const ffi::World, usize);
 
     fn route_arguments(
         args: Self::NewArguments,
@@ -407,8 +407,8 @@ impl<'a> Constructor<(&'a ffi::World, usize)> for ffi::Trigger {
         (args, (), ())
     }
 
-    fn new(args: (&'a ffi::World, usize)) -> TriggerRust {
-        match args.0.cxx_qt_ffi_rust().triggers.get(args.1) {
+    fn new(args: (*const ffi::World, usize)) -> TriggerRust {
+        match unsafe { (*args.0).cxx_qt_ffi_rust().triggers.get(args.1) } {
             Some(trigger) => TriggerRust::from(trigger),
             None => TriggerRust::default(),
         }

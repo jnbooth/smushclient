@@ -119,7 +119,14 @@ qt_add_executable(${APP_NAME}
 if(MSVC)
   target_compile_options(${APP_NAME} PRIVATE /W4 /WX)
 else()
-  target_compile_options(${APP_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+  target_compile_options(
+    ${APP_NAME}
+    PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+    -Wno-dollar-in-identifier-extension
+)
 endif()
 
 target_link_libraries(${APP_NAME} PUBLIC lualibs)
