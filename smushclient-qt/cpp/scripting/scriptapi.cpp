@@ -53,11 +53,6 @@ ScriptApi::ScriptApi(WorldTab *parent)
 {
   setLineType(echoFormat, LineType::Input);
   applyWorld(parent->world);
-
-  QAudioFormat audioFormat;
-  audioFormat.setChannelCount(2);
-  audioFormat.setSampleFormat(QAudioFormat::UInt8);
-  audioFormat.setSampleRate(44100);
 }
 
 void ScriptApi::applyWorld(const World &world)

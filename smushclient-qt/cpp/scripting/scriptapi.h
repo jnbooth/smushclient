@@ -7,7 +7,6 @@
 #include <QtCore/QPointer>
 #include <QtCore/QString>
 #include <QtGui/QTextCursor>
-#include <QtMultimedia/QSoundEffect>
 #include "databaseconnection.h"
 #include "hotspot.h"
 #include "miniwindow.h"
