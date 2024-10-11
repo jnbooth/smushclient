@@ -204,11 +204,21 @@ pub mod ffi {
         #[rust_name = "send_script"]
         unsafe fn send(
             self: &Document,
-            target: usize,
+            plugin: usize,
             script: &QString,
             alias: &QString,
             line: &QString,
             wildcards: &QStringList,
+        );
+
+        #[rust_name = "start_timer"]
+        unsafe fn startTimer(
+            self: &Document,
+            plugin: usize,
+            target: SendTarget,
+            text: &QString,
+            ms: u64,
+            activeClosed: bool,
         );
     }
 

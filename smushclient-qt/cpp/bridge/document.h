@@ -44,6 +44,12 @@ public:
       const QString &alias,
       const QString &line,
       const QStringList &wildcards) const;
+  void startTimer(
+      size_t plugin,
+      SendTarget target,
+      const QString &text,
+      uint64_t ms,
+      bool activeClosed) const;
 
 private:
   ScriptApi *api;

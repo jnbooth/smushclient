@@ -128,4 +128,19 @@ impl<'a> DocumentAdapter<'a> {
                 .send_script(plugin, script, alias, line, wildcards);
         }
     }
+
+    pub fn start_timer(
+        &self,
+        plugin: usize,
+        target: SendTarget,
+        text: &QString,
+        ms: u64,
+        active_closed: bool,
+    ) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe {
+            self.inner
+                .start_timer(plugin, target.into(), text, ms, active_closed);
+        }
+    }
 }

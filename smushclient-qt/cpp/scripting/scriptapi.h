@@ -27,7 +27,9 @@ struct lua_State;
 
 struct QueuedSend
 {
+  bool activeClosed;
   size_t plugin;
+  std::chrono::milliseconds repeat;
   SendTarget target;
   QString text;
 };
@@ -233,6 +235,7 @@ public:
   void finishNote();
   const Plugin *getPlugin(std::string_view pluginID) const;
   void initializeScripts(const QStringList &scripts);
+  inline bool isPluginEnabled(size_t plugin) const { return !plugins[plugin].disabled(); }
   void printError(const QString &message);
   inline bool runScript(size_t plugin, const QString &script) const
   {
@@ -245,6 +248,13 @@ public:
   void sendTo(size_t plugin, SendTarget target, const QString &text);
   ActionSource setSource(ActionSource source) noexcept;
   void stackWindow(std::string_view windowName, MiniWindow *window) const;
+  void startSendTimer(
+      size_t plugin,
+      SendTarget target,
+      const QString &text,
+      std::chrono::milliseconds duration,
+      bool repeat = false,
+      bool activeClosed = false);
 
   inline constexpr std::vector<Plugin>::const_iterator cbegin() const noexcept
   {

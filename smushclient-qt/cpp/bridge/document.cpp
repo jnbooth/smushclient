@@ -12,6 +12,7 @@
 
 using std::string;
 using std::string_view;
+using std::chrono::milliseconds;
 
 // Private utils
 
@@ -217,6 +218,17 @@ void Document::setPalette(const QVector_QColor &palette)
     format->setForeground(QBrush(color));
     ++format;
   }
+}
+
+void Document::startTimer(
+    size_t plugin,
+    SendTarget target,
+    const QString &text,
+    uint64_t ms,
+    bool activeClosed) const
+{
+  if (api->isPluginEnabled(plugin))
+    api->startSendTimer(plugin, target, text, milliseconds{ms}, true, activeClosed);
 }
 
 // Private methods

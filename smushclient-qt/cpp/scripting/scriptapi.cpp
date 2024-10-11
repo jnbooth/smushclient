@@ -14,6 +14,7 @@
 
 using std::string;
 using std::string_view;
+using std::chrono::milliseconds;
 
 // Private utils
 
@@ -100,6 +101,12 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
   plugins.reserve(size);
   pluginIndices.clear();
   pluginIndices.reserve(size);
+  if (!sendQueue.empty())
+  {
+    for (const auto &entry : sendQueue)
+      killTimer(entry.first);
+    sendQueue.clear();
+  }
   QString error;
   size_t index = 0;
   for (auto start = scripts.cbegin(), it = start, end = scripts.cend(); it != end; ++it, ++index)
@@ -249,6 +256,23 @@ void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const
     window->stackUnder(tab()->ui->outputBorder);
 }
 
+void ScriptApi::startSendTimer(
+    size_t plugin,
+    SendTarget target,
+    const QString &text,
+    std::chrono::milliseconds duration,
+    bool repeat,
+    bool activeClosed)
+{
+  const int timerId = startTimer(duration);
+  sendQueue[timerId] = {
+      .activeClosed = activeClosed,
+      .plugin = plugin,
+      .repeat = repeat ? duration : milliseconds::zero(),
+      .target = target,
+      .text = text};
+}
+
 // protected overrides
 
 void ScriptApi::timerEvent(QTimerEvent *event)
@@ -257,11 +281,22 @@ void ScriptApi::timerEvent(QTimerEvent *event)
   if (search == sendQueue.end()) [[unlikely]]
     return;
   const QueuedSend &send = search->second;
-  const ActionSource oldSource = actionSource;
-  actionSource = ActionSource::TimerFired;
-  sendTo(send.plugin, send.target, send.text);
-  sendQueue.erase(search);
-  actionSource = oldSource;
+  if (send.activeClosed || socket->isOpen())
+  {
+    const ActionSource oldSource = actionSource;
+    actionSource = ActionSource::TimerFired;
+    sendTo(send.plugin, send.target, send.text);
+    actionSource = oldSource;
+  }
+  if (send.repeat == milliseconds::zero())
+  {
+    sendQueue.erase(search);
+    return;
+  }
+  const int newTimerId = startTimer(send.repeat);
+  auto node = sendQueue.extract(search);
+  node.key() = newTimerId;
+  sendQueue.insert(std::move(node));
 }
 
 // Private methods
