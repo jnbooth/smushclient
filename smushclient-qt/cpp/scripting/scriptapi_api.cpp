@@ -47,6 +47,11 @@ inline bool isEmptyList(const QVariant &variant)
   }
 }
 
+inline rust::slice<const char> stringSlice(string_view view) noexcept
+{
+  return rust::slice<const char>(view.data(), view.size());
+}
+
 inline ApiCode updateWorld(WorldTab &worldtab)
 {
   return worldtab.updateWorld() ? ApiCode::OK : ApiCode::OptionOutOfRange;
@@ -171,7 +176,7 @@ QVariant ScriptApi::GetOption(string_view name) const
 optional<string_view> ScriptApi::GetVariable(size_t index, string_view key) const
 {
   size_t size;
-  const char *variable = client()->getVariable(index, key.data(), key.size(), &size);
+  const char *variable = client()->getVariable(index, stringSlice(key), &size);
   if (!variable)
     return nullopt;
   return string_view(variable, size);
@@ -354,7 +359,7 @@ ApiCode ScriptApi::SetOption(string_view name, const QVariant &variant) const
 
 bool ScriptApi::SetVariable(size_t index, string_view key, string_view value) const
 {
-  return client()->setVariable(index, key.data(), key.size(), value.data(), value.size());
+  return client()->setVariable(index, stringSlice(key), stringSlice(value));
 }
 
 ApiCode ScriptApi::StopSound(size_t channel)

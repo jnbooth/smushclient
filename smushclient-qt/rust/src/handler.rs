@@ -61,11 +61,10 @@ impl<'a> ClientHandler<'a> {
             return;
         }
         if *is_variable {
-            self.doc
-                .handle_mxp_variable(name.as_bytes(), value.as_bytes());
+            self.doc.handle_mxp_variable(name, value);
         }
         let entity = format!("{name}={value}");
-        self.doc.handle_mxp_entity(entity.as_bytes());
+        self.doc.handle_mxp_entity(&entity);
     }
 
     fn handle_telnet(&self, fragment: &TelnetFragment) {
@@ -132,7 +131,7 @@ impl<'a> smushclient::Handler for ClientHandler<'a> {
     }
 
     fn permit_line(&mut self, line: &str) -> bool {
-        self.doc.permit_line(line.as_bytes())
+        self.doc.permit_line(line)
     }
 
     fn play_sound(&mut self, path: &str) {

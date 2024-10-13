@@ -173,16 +173,10 @@ pub mod ffi {
         unsafe fn handleMxpChange(self: &Document, enabled: bool);
 
         #[rust_name = "handle_mxp_entity"]
-        unsafe fn handleMxpEntity(self: &Document, data: *const c_char, size: usize);
+        unsafe fn handleMxpEntity(self: &Document, data: &str);
 
         #[rust_name = "handle_mxp_variable"]
-        unsafe fn handleMxpVariable(
-            self: &Document,
-            nameData: *const c_char,
-            nameSize: usize,
-            valueData: *const c_char,
-            valueSize: usize,
-        );
+        unsafe fn handleMxpVariable(self: &Document, name: &str, value: &str);
 
         #[rust_name = "handle_telnet_iac_ga"]
         unsafe fn handleTelnetIacGa(self: &Document);
@@ -194,7 +188,7 @@ pub mod ffi {
         unsafe fn handleTelnetSubnegotiation(self: &Document, code: u8, data: &QByteArray);
 
         #[rust_name = "permit_line"]
-        unsafe fn permitLine(self: &Document, data: *const c_char, size: usize) -> bool;
+        unsafe fn permitLine(self: &Document, line: &str) -> bool;
 
         #[rust_name = "play_sound"]
         unsafe fn playSound(self: &Document, filePath: &QString);
@@ -309,17 +303,14 @@ pub mod ffi {
         unsafe fn get_variable(
             self: &SmushClient,
             index: usize,
-            key: *const c_char,
-            key_size: usize,
+            key: &[c_char],
             value_size: *mut usize,
         ) -> *const c_char;
-        unsafe fn set_variable(
+        fn set_variable(
             self: Pin<&mut SmushClient>,
             index: usize,
-            key: *const c_char,
-            key_size: usize,
-            value: *const c_char,
-            value_size: usize,
+            key: &[c_char],
+            value: &[c_char],
         ) -> bool;
     }
 
@@ -342,6 +333,11 @@ pub mod ffi {
     }
 
     unsafe impl !cxx_qt::Locking for Sender {}
+
+    unsafe extern "C++" {
+        include!("cxx-qt-extensions/quuid.h");
+        type QUuid = cxx_qt_extensions::QUuid;
+    }
 
     extern "RustQt" {
         // Sender

@@ -8,6 +8,7 @@
 #include <QtWidgets/QScrollBar>
 #include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QTreeWidgetItem>
+#include "rust/cxx.h"
 
 struct Link;
 class ScriptApi;
@@ -29,12 +30,12 @@ public:
   void begin();
   void end() const;
   void handleMxpChange(bool enabled) const;
-  void handleMxpEntity(const char *data, size_t size) const;
-  void handleMxpVariable(const char *name, size_t nameSize, const char *value, size_t valueSize) const;
+  void handleMxpEntity(::rust::str data) const;
+  void handleMxpVariable(::rust::str name, ::rust::str value) const;
   void handleTelnetIacGa() const;
   void handleTelnetRequest(uint8_t code, bool sent) const;
   void handleTelnetSubnegotiation(uint8_t code, const QByteArray &data) const;
-  bool permitLine(const char *data, size_t size) const;
+  bool permitLine(::rust::str line) const;
   void playSound(const QString &filePath) const;
   void setPalette(const QVector_QColor &palette);
   void send(size_t plugin, SendTarget target, const QString &text) const;

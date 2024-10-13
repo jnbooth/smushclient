@@ -1,5 +1,3 @@
-use std::ffi::c_char;
-
 use cxx_qt_lib::{QByteArray, QColor, QString, QStringList};
 use smushclient_plugins::SendTarget;
 
@@ -67,20 +65,14 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.handle_mxp_change(enabled) };
     }
 
-    pub fn handle_mxp_entity(&self, value: &[u8]) {
-        let ptr = value.as_ptr().cast::<c_char>();
+    pub fn handle_mxp_entity(&self, value: &str) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.handle_mxp_entity(ptr, value.len()) };
+        unsafe { self.inner.handle_mxp_entity(value) };
     }
 
-    pub fn handle_mxp_variable(&self, name: &[u8], value: &[u8]) {
-        let name_ptr = name.as_ptr().cast::<c_char>();
-        let value_ptr = value.as_ptr().cast::<c_char>();
+    pub fn handle_mxp_variable(&self, name: &str, value: &str) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe {
-            self.inner
-                .handle_mxp_variable(name_ptr, name.len(), value_ptr, value.len());
-        }
+        unsafe { self.inner.handle_mxp_variable(name, value) };
     }
 
     pub fn handle_telnet_iac_ga(&self) {
@@ -98,10 +90,9 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.handle_telnet_subnegotiation(code, data) };
     }
 
-    pub fn permit_line(&self, data: &[u8]) -> bool {
-        let ptr = data.as_ptr().cast::<c_char>();
+    pub fn permit_line(&self, line: &str) -> bool {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.permit_line(ptr, data.len()) }
+        unsafe { self.inner.permit_line(line) }
     }
 
     pub fn play_sound(&self, file_path: &QString) {

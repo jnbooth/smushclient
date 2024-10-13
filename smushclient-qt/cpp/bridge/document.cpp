@@ -43,6 +43,11 @@ inline void scrollToEnd(QScrollBar &bar)
   bar.setValue(bar.maximum());
 }
 
+inline string_view strView(::rust::str str) noexcept
+{
+  return string_view(str.data(), str.length());
+}
+
 // Public methods
 
 Document::Document(WorldTab *parent, ScriptApi *api)
@@ -110,22 +115,16 @@ void Document::handleMxpChange(bool enabled) const
   }
 }
 
-void Document::handleMxpEntity(const char *data, size_t size) const
+void Document::handleMxpEntity(::rust::str data) const
 {
-  string_view value(data, size);
-  OnPluginMXPSetEntity onMxpSetEntity(value);
+  OnPluginMXPSetEntity onMxpSetEntity(strView(data));
   api->sendCallback(onMxpSetEntity);
 }
 
 void Document::handleMxpVariable(
-    const char *variableData,
-    size_t variableSize,
-    const char *contentsData,
-    size_t contentsSize) const
+    ::rust::str name, ::rust::str value) const
 {
-  string_view variable(variableData, variableSize);
-  string_view contents(contentsData, contentsSize);
-  OnPluginMXPSetVariable onMxpSetVariable(variable, contents);
+  OnPluginMXPSetVariable onMxpSetVariable(strView(name), strView(value));
   api->sendCallback(onMxpSetVariable);
 }
 
@@ -147,10 +146,9 @@ void Document::handleTelnetSubnegotiation(uint8_t code, const QByteArray &data) 
   api->sendCallback(onTelnetSubnegotiation);
 }
 
-bool Document::permitLine(const char *data, size_t size) const
+bool Document::permitLine(::rust::str line) const
 {
-  const string_view line(data, size);
-  OnPluginLineReceived onLineReceived(line);
+  OnPluginLineReceived onLineReceived(strView(line));
   api->sendCallback(onLineReceived);
   return !onLineReceived.discarded();
 }

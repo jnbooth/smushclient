@@ -3,7 +3,7 @@ use std::ffi::c_char;
 use std::fs::File;
 use std::io;
 use std::pin::Pin;
-use std::{ptr, slice};
+use std::ptr;
 
 use crate::adapter::{DocumentAdapter, SocketAdapter, TableBuilderAdapter};
 use crate::convert::Convert;
@@ -373,11 +373,9 @@ impl ffi::SmushClient {
     pub unsafe fn get_variable(
         &self,
         index: PluginIndex,
-        key: *const c_char,
-        key_size: usize,
+        key: &[c_char],
         value_size: *mut usize,
     ) -> *const c_char {
-        let key = unsafe { slice::from_raw_parts(key, key_size) };
         let Some(value) = self.cxx_qt_ffi_rust().client.get_variable(index, key) else {
             return ptr::null();
         };
@@ -387,21 +385,14 @@ impl ffi::SmushClient {
         value.as_ptr()
     }
 
-    /// # Safety
-    ///
-    /// Refer to the safety documentation for [`std::slice::from_raw_parts`].
-    pub unsafe fn set_variable(
+    pub fn set_variable(
         self: Pin<&mut Self>,
         index: PluginIndex,
-        key: *const c_char,
-        key_size: usize,
-        value: *const c_char,
-        value_size: usize,
+        key: &[c_char],
+        value: &[c_char],
     ) -> bool {
-        let key = unsafe { slice::from_raw_parts(key, key_size) }.to_vec();
-        let value = unsafe { slice::from_raw_parts(value, value_size) }.to_vec();
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_variable(index, key, value)
+            .set_variable(index, key.to_vec(), value.to_vec())
     }
 }
