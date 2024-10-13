@@ -29,3 +29,7 @@ features = ["serialize"]
 [dependencies.serde]
 version = "1.0.204"
 features = ["derive"]
+
+[dependencies.uuid]
+version = "1.10.0"
+features = ["v4", "fast-rng"]

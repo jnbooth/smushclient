@@ -18,10 +18,10 @@ mod output;
 mod stream;
 mod sync;
 
-use crate::bridge::RustMudBridge;
-use crate::io::{create_world, read_world, write_world};
-use crate::output::{RustMxpLink, RustNamedColorIter, RustTextFragment};
-use crate::stream::{RustAliasOutcome, RustOutputStream, RustSendStream};
+use bridge::RustMudBridge;
+use io::{create_world, read_world, write_world};
+use output::{RustMxpLink, RustNamedColorIter, RustTextFragment};
+use stream::{RustAliasOutcome, RustOutputStream, RustSendStream};
 
 fn convert_opt<Ffi, Rust: Into<Ffi>>(from: Option<Rust>) -> Option<Ffi> {
     from.map(Into::into)
@@ -211,11 +211,33 @@ pub mod ffi {
     }
 
     #[swift_bridge(swift_repr = "struct")]
+    #[derive(Copy, Clone)]
+    struct Uuid {
+        b0: u8,
+        b1: u8,
+        b2: u8,
+        b3: u8,
+        b4: u8,
+        b5: u8,
+        b6: u8,
+        b7: u8,
+        b8: u8,
+        b9: u8,
+        ba: u8,
+        bb: u8,
+        bc: u8,
+        bd: u8,
+        be: u8,
+        bf: u8,
+    }
+
+    #[swift_bridge(swift_repr = "struct")]
     #[derive(Clone)]
     struct Timer {
         send: Sender,
         occurrence: Occurrence,
         active_closed: bool,
+        id: Uuid,
     }
 
     #[swift_bridge(swift_repr = "struct")]

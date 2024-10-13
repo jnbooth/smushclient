@@ -2,12 +2,14 @@
 use std::borrow::Cow;
 use std::time::Duration;
 
+use chrono::{NaiveTime, Timelike};
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+
 use super::occurrence::Occurrence;
 use super::send_to::{sendto_serde, SendTarget};
 use super::sender::Sender;
 use crate::in_place::InPlace;
-use chrono::{NaiveTime, Timelike};
-use serde::{Deserialize, Serialize};
 
 const NANOS: u64 = 1_000_000_000;
 const NANOS_F: f64 = 1_000_000_000.0;
@@ -27,6 +29,8 @@ pub struct Timer {
     pub send: Sender,
     pub occurrence: Occurrence,
     pub active_closed: bool,
+    #[serde(skip, default = "Uuid::new_v4")]
+    pub id: Uuid,
 }
 
 impl_deref!(Timer, Sender, send);
@@ -123,6 +127,7 @@ impl From<TimerXml<'_>> for Timer {
             occurrence,
             send,
             active_closed: value.active_closed,
+            id: Uuid::new_v4(),
         }
     }
 }

@@ -26,6 +26,7 @@ features = ["chrono"]
 [dependencies.cxx-qt-extensions]
 git = "https://github.com/jnbooth/cxx-qt-extensions"
 rev = "2fbda65c7ba35d00a5b8c93b04377fd0aa469e06"
+features = ["uuid"]
 
 [dependencies.enumeration]
 git = "https://github.com/jnbooth/enumeration"

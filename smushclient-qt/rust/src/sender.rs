@@ -3,6 +3,7 @@ use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike};
 use cxx_qt::{Constructor, Initialize};
+use cxx_qt_extensions::QUuid;
 use cxx_qt_lib::{QColor, QString, QTime};
 use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer, Trigger};
 
@@ -91,6 +92,7 @@ pub struct TimerRust {
     pub every_minute: i32,
     pub every_second: i32,
     pub active_closed: bool,
+    pub id: QUuid,
 }
 
 impl_deref!(TimerRust, SenderRust, send);
@@ -111,6 +113,7 @@ impl From<&Timer> for TimerRust {
                     every_minute: 0,
                     every_hour: 0,
                     active_closed: timer.active_closed,
+                    id: timer.id.into(),
                 }
             }
             Occurrence::Interval(duration) => {
@@ -124,6 +127,7 @@ impl From<&Timer> for TimerRust {
                     every_minute: i32::try_from(minutes % MINUTES_PER_HOUR).unwrap(),
                     every_hour: i32::try_from(minutes / MINUTES_PER_HOUR).unwrap(),
                     active_closed: timer.active_closed,
+                    id: timer.id.into(),
                 }
             }
         }
@@ -152,6 +156,7 @@ impl From<&TimerRust> for Timer {
             send: Sender::from(&value.send),
             occurrence,
             active_closed: value.active_closed,
+            id: value.id.into(),
         }
     }
 }

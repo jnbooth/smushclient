@@ -17,3 +17,5 @@ pub use regex::{Regex, RegexError};
 
 mod send;
 pub use send::{Alias, Occurrence, Reaction, SendTarget, Sender, Timer, Trigger};
+
+pub use uuid::Uuid;

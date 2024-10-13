@@ -11,7 +11,9 @@ use mud_transformer::mxp::{AudioRepetition, Heading, RgbColor, SendTo};
 use mud_transformer::{EffectFragment, EntityFragment, OutputFragment, TelnetFragment, UseMxp};
 use smushclient::world::{AutoConnect, ColorPair, LogFormat, LogMode, ProxyType, ScriptRecompile};
 use smushclient::{SendRequest, World};
-use smushclient_plugins::{Alias, Occurrence, Reaction, Regex, SendTarget, Sender, Timer, Trigger};
+use smushclient_plugins::{
+    Alias, Occurrence, Reaction, Regex, SendTarget, Sender, Timer, Trigger, Uuid,
+};
 
 impl Convert<PathBuf> for String {
     fn from_ffi(value: Self) -> PathBuf {
@@ -126,7 +128,59 @@ impl_convert_struct!(
 
 impl_convert!(ffi::Occurrence, Occurrence);
 
-impl_convert_struct!(ffi::Timer, Timer, send, occurrence, active_closed);
+impl From<ffi::Uuid> for Uuid {
+    fn from(value: ffi::Uuid) -> Self {
+        let ffi::Uuid {
+            b0,
+            b1,
+            b2,
+            b3,
+            b4,
+            b5,
+            b6,
+            b7,
+            b8,
+            b9,
+            ba,
+            bb,
+            bc,
+            bd,
+            be,
+            bf,
+        } = value;
+        Self::from_bytes([
+            b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, ba, bb, bc, bd, be, bf,
+        ])
+    }
+}
+
+impl From<Uuid> for ffi::Uuid {
+    fn from(value: Uuid) -> Self {
+        let [b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, ba, bb, bc, bd, be, bf] = value.into_bytes();
+        Self {
+            b0,
+            b1,
+            b2,
+            b3,
+            b4,
+            b5,
+            b6,
+            b7,
+            b8,
+            b9,
+            ba,
+            bb,
+            bc,
+            bd,
+            be,
+            bf,
+        }
+    }
+}
+
+impl_convert!(ffi::Uuid, Uuid);
+
+impl_convert_struct!(ffi::Timer, Timer, send, occurrence, active_closed, id);
 
 impl_convert_struct!(ffi::RgbColor, RgbColor, r, g, b);
 
