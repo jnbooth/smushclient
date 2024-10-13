@@ -4,33 +4,24 @@ use std::io::Write;
 
 use cxx_qt_build::{CxxQtBuilder, QmlModule};
 
-fn get_header_dir() -> String {
+fn main() {
     let header_root = match env::var("CXXQT_EXPORT_DIR") {
         Ok(export_dir) => format!("{export_dir}/{}", env::var("CARGO_PKG_NAME").unwrap()),
         Err(_) => env::var("OUT_DIR").unwrap(),
     };
-    format!("{header_root}/cxx-qt-gen")
-}
+    cxx_qt_extensions_headers::write_headers(format!("{header_root}/cxx-qt-extensions"));
 
-fn copy_header(dir: &str, name: &str, contents: &str) {
-    let path = format!("{dir}/{name}");
-    let mut file = File::create(path).expect("Could not create {name}");
-    write!(file, "{contents}").expect("Could not write {name}");
-}
-
-fn main() {
-    let header_dir = get_header_dir();
+    let header_dir = format!("{header_root}/cxx-qt-gen");
     fs::create_dir_all(&header_dir).expect("Could not create header dir");
-    copy_header(
-        &header_dir,
-        "document.h",
-        include_str!("../cpp/bridge/document.h"),
-    );
-    copy_header(
-        &header_dir,
-        "viewbuilder.h",
-        include_str!("../cpp/bridge/viewbuilder.h"),
-    );
+
+    for (file_contents, file_name) in [
+        (include_str!("../cpp/bridge/document.h"), "document.h"),
+        (include_str!("../cpp/bridge/viewbuilder.h"), "viewbuilder.h"),
+    ] {
+        let h_path = format!("{header_dir}/{file_name}");
+        let mut header = File::create(h_path).expect("Could not create cxx-qt-gen header");
+        write!(header, "{file_contents}").expect("Could not write cxx-qt-gen header");
+    }
 
     CxxQtBuilder::new()
         .qml_module::<&str, &str>(QmlModule {

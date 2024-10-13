@@ -253,6 +253,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "cxx-qt-extensions"
+version = "0.1.0"
+source = "git+https://github.com/jnbooth/cxx-qt-extensions?rev=2fbda65c7ba35d00a5b8c93b04377fd0aa469e06#2fbda65c7ba35d00a5b8c93b04377fd0aa469e06"
+dependencies = [
+ "cxx",
+ "cxx-build",
+ "cxx-qt-extensions-headers",
+ "cxx-qt-lib",
+ "cxx-qt-lib-headers",
+ "qt-build-utils",
+]
+
+[[package]]
+name = "cxx-qt-extensions-headers"
+version = "0.1.0"
+source = "git+https://github.com/jnbooth/cxx-qt-extensions?rev=2fbda65c7ba35d00a5b8c93b04377fd0aa469e06#2fbda65c7ba35d00a5b8c93b04377fd0aa469e06"
+
+[[package]]
 name = "cxx-qt-gen"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -781,6 +799,8 @@ dependencies = [
  "cxx",
  "cxx-qt",
  "cxx-qt-build",
+ "cxx-qt-extensions",
+ "cxx-qt-extensions-headers",
  "cxx-qt-lib",
  "enumeration",
  "mud-transformer",

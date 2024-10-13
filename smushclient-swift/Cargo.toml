@@ -10,11 +10,6 @@ crate-type = ["staticlib"]
 [lints]
 workspace = true
 
-[build-dependencies.swift-bridge-build]
-git = "https://github.com/jnbooth/swift-bridge"
-version = "0.1"
-rev = "d6090a0e0641101260c2e9d5d31b0a8195f6c138"
-
 [dependencies.chrono]
 version = "0.4.38"
 features = ["serde"]
@@ -43,3 +38,8 @@ features = ["async", "compatibility"]
 [dependencies.tokio]
 version = "1.38.0"
 features = ["full"]
+
+[build-dependencies.swift-bridge-build]
+git = "https://github.com/jnbooth/swift-bridge"
+version = "0.1"
+rev = "d6090a0e0641101260c2e9d5d31b0a8195f6c138"

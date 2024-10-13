@@ -9,9 +9,6 @@ workspace = true
 [lib]
 crate-type = ["staticlib"]
 
-[build-dependencies]
-cxx-qt-build = "0.6.1"
-
 [dependencies.chrono]
 version = "0.4.38"
 features = ["serde"]
@@ -26,6 +23,10 @@ version = "0.6.1"
 version = "0.6.1"
 features = ["chrono"]
 
+[dependencies.cxx-qt-extensions]
+git = "https://github.com/jnbooth/cxx-qt-extensions"
+rev = "2fbda65c7ba35d00a5b8c93b04377fd0aa469e06"
+
 [dependencies.enumeration]
 git = "https://github.com/jnbooth/enumeration"
 version = "0.8.0"
@@ -37,9 +38,15 @@ rev = "e7a695f4db96bb0bade913a5aab3d4b9d2687bf7"
 [dependencies.smushclient]
 path = "../../smushclient"
 
-
 [dependencies.smushclient-plugins]
 path = "../../smushclient-plugins"
+
+[build-dependencies.cxx-qt-build]
+version = "0.6.1"
+
+[build-dependencies.cxx-qt-extensions-headers]
+git = "https://github.com/jnbooth/cxx-qt-extensions"
+rev = "2fbda65c7ba35d00a5b8c93b04377fd0aa469e06"
 
 [features]
 # This feature must be enabled for `cargo test` when linking Qt 6 statically.
