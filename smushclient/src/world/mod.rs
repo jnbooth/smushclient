@@ -456,9 +456,9 @@ impl World {
         Plugin {
             metadata,
             disabled: false,
-            triggers: self.triggers.clone(),
-            aliases: self.aliases.clone(),
-            timers: self.timers.clone(),
+            triggers: Vec::new(),
+            aliases: Vec::new(),
+            timers: Vec::new(),
             script: self.world_script.clone(),
         }
     }

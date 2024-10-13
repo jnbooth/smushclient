@@ -2,30 +2,32 @@ use core::str;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, BufReader};
+use std::ops::{Deref, DerefMut};
 use std::path::Path;
-use std::{slice, vec};
 
-use super::effects::TriggerEffects;
+use super::effects::{AliasEffects, TriggerEffects};
 use super::error::LoadError;
+use super::error::LoadFailure;
 use super::send::SendRequest;
 use crate::handler::{Handler, SendHandler};
-use crate::plugins::effects::AliasEffects;
-use crate::plugins::LoadFailure;
 use crate::World;
-use smushclient_plugins::{
-    Alias, Indexer, Plugin, PluginIndex, SendMatch, Sendable, Sender, Senders, Trigger,
-};
+use smushclient_plugins::{Alias, Matches, Pad, Plugin, PluginIndex, SendMatch, Sender, Trigger};
 
 fn check_oneshot<T: AsRef<Sender>>(oneshots: &mut Vec<usize>, send: &SendMatch<T>) {
-    if send.sender.as_ref().one_shot && oneshots.last() != Some(&send.pos) {
-        oneshots.push(send.pos);
+    if send.sender.as_ref().one_shot && oneshots.last() != Some(&send.index) {
+        oneshots.push(send.index);
+    }
+}
+
+fn delete_oneshots<T>(vec: &mut Vec<T>, oneshots: &[usize]) {
+    for &pos in oneshots.iter().rev() {
+        vec.remove(pos);
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct PluginEngine {
     plugins: Vec<Plugin>,
-    senders: Senders,
 }
 
 impl Default for PluginEngine {
@@ -38,12 +40,7 @@ impl PluginEngine {
     pub const fn new() -> Self {
         Self {
             plugins: Vec::new(),
-            senders: Senders::new(),
         }
-    }
-
-    pub fn plugin_count(&self) -> usize {
-        self.plugins.len()
     }
 
     pub fn load_plugins(&mut self, world: &World) -> Result<(), Vec<LoadFailure>> {
@@ -125,103 +122,111 @@ impl PluginEngine {
     }
 
     fn sort(&mut self) {
-        self.senders.clear();
-        if self.plugins.is_empty() {
-            return;
-        }
         self.plugins.sort_unstable();
-        for (i, plugin) in self.plugins.iter_mut().enumerate() {
-            self.senders.extend(i, plugin);
-        }
-        self.senders.sort();
     }
 
-    pub fn disable_plugin(&mut self, index: PluginIndex) -> bool {
-        let Some(plugin) = self.plugins.get_mut(index) else {
-            return false;
-        };
-        if plugin.disabled {
-            return true;
-        }
-        self.senders.remove_by_plugin(index);
-        true
-    }
-
-    pub fn enable_plugin(&mut self, index: PluginIndex) -> bool {
-        let Some(plugin) = self.plugins.get_mut(index) else {
-            return false;
-        };
-        if !plugin.disabled {
-            return true;
-        }
-        plugin.disabled = false;
-        self.senders.extend(index, plugin);
-        self.senders.sort();
-        true
-    }
-
-    pub fn alias<H: SendHandler>(&mut self, line: &str, handler: &mut H) -> AliasEffects {
+    pub fn alias<H: SendHandler>(
+        &mut self,
+        line: &str,
+        world: &mut World,
+        handler: &mut H,
+    ) -> AliasEffects {
         let mut effects = AliasEffects::new();
-        let mut delete_oneshots = Vec::new();
+        let mut oneshots = Vec::new();
         let mut text_buf = String::new();
 
-        for send in self.senders.matches::<Alias>(line) {
-            let alias: &Alias = send.sender;
-            check_oneshot(&mut delete_oneshots, &send);
-
-            if send.has_send() {
-                handler.send(SendRequest {
-                    pad: send.pad(&self.plugins),
-                    plugin: send.plugin,
-                    line,
-                    wildcards: send.wildcards(),
-                    sender: alias,
-                    text: send.text(&mut text_buf),
-                });
+        for (i, plugin) in self.plugins.iter_mut().enumerate() {
+            if plugin.disabled {
+                continue;
             }
+            let aliases = if plugin.metadata.is_world_plugin {
+                &mut world.aliases
+            } else {
+                &mut plugin.aliases
+            };
+            for send in Matches::find(aliases, line) {
+                let alias: &Alias = send.sender;
+                check_oneshot(&mut oneshots, &send);
 
-            effects.add_effects(alias);
+                if send.has_send() {
+                    handler.send(SendRequest {
+                        pad: if alias.send_to.is_notepad() {
+                            Some(Pad::new(alias, &plugin.metadata.name))
+                        } else {
+                            None
+                        },
+                        plugin: i,
+                        line,
+                        wildcards: send.wildcards(),
+                        sender: alias,
+                        text: send.text(&mut text_buf),
+                    });
+                }
 
-            if !alias.keep_evaluating {
-                break;
+                effects.add_effects(alias);
+
+                if !alias.keep_evaluating {
+                    delete_oneshots(aliases, &oneshots);
+                    return effects;
+                }
             }
+            delete_oneshots(aliases, &oneshots);
         }
-        self.senders.delete_all::<Alias>(&delete_oneshots);
 
         effects
     }
 
-    pub fn trigger<H: Handler>(&mut self, line: &str, handler: &mut H) -> TriggerEffects {
+    pub fn trigger<H: Handler>(
+        &mut self,
+        line: &str,
+        world: &mut World,
+        handler: &mut H,
+    ) -> TriggerEffects {
         let mut effects = TriggerEffects::new();
-        let mut delete_oneshots = Vec::new();
+        let mut oneshots = Vec::new();
         let mut text_buf = String::new();
 
-        for send in self.senders.matches::<Trigger>(line) {
-            let trigger: &Trigger = send.sender;
-            check_oneshot(&mut delete_oneshots, &send);
-
-            if send.has_send() {
-                handler.send(SendRequest {
-                    pad: send.pad(&self.plugins),
-                    plugin: send.plugin,
-                    line,
-                    wildcards: send.wildcards(),
-                    sender: trigger,
-                    text: send.text(&mut text_buf),
-                });
+        for (i, plugin) in self.plugins.iter_mut().enumerate() {
+            if plugin.disabled {
+                continue;
             }
+            let triggers = if plugin.metadata.is_world_plugin {
+                &mut world.triggers
+            } else {
+                &mut plugin.triggers
+            };
+            for send in Matches::find(triggers, line) {
+                let trigger: &Trigger = send.sender;
+                check_oneshot(&mut oneshots, &send);
 
-            if !trigger.sound.is_empty() {
-                handler.play_sound(&trigger.sound);
+                if send.has_send() {
+                    handler.send(SendRequest {
+                        pad: if trigger.send_to.is_notepad() {
+                            Some(Pad::new(trigger, &plugin.metadata.name))
+                        } else {
+                            None
+                        },
+                        plugin: i,
+                        line,
+                        wildcards: send.wildcards(),
+                        sender: trigger,
+                        text: send.text(&mut text_buf),
+                    });
+                }
+
+                if !trigger.sound.is_empty() {
+                    handler.play_sound(&trigger.sound);
+                }
+
+                effects.add_effects(trigger);
+
+                if !trigger.keep_evaluating {
+                    delete_oneshots(triggers, &oneshots);
+                    return effects;
+                }
             }
-
-            effects.add_effects(trigger);
-
-            if !trigger.keep_evaluating {
-                break;
-            }
+            delete_oneshots(triggers, &oneshots);
         }
-        self.senders.delete_all::<Trigger>(&delete_oneshots);
 
         effects
     }
@@ -233,40 +238,18 @@ impl PluginEngine {
             .copied()
             .collect()
     }
+}
 
-    pub fn iter(&self) -> <&Self as IntoIterator>::IntoIter {
-        self.into_iter()
-    }
+impl Deref for PluginEngine {
+    type Target = [Plugin];
 
-    pub fn plugin(&self, index: PluginIndex) -> Option<&Plugin> {
-        self.plugins.get(index)
-    }
-
-    pub fn indexer<T: Sendable>(&self) -> &Indexer<T> {
-        T::indexer(&self.senders)
-    }
-
-    pub fn indexer_mut<T: Sendable>(&mut self) -> &mut Indexer<T> {
-        T::indexer_mut(&mut self.senders)
+    fn deref(&self) -> &Self::Target {
+        &self.plugins
     }
 }
 
-impl IntoIterator for PluginEngine {
-    type Item = Plugin;
-
-    type IntoIter = vec::IntoIter<Plugin>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.plugins.into_iter()
-    }
-}
-
-impl<'a> IntoIterator for &'a PluginEngine {
-    type Item = &'a Plugin;
-
-    type IntoIter = slice::Iter<'a, Plugin>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.plugins.iter()
+impl DerefMut for PluginEngine {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.plugins
     }
 }

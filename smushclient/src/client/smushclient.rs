@@ -6,14 +6,14 @@ use std::{env, mem, slice};
 use super::logger::Logger;
 use super::variables::PluginVariables;
 use crate::handler::{Handler, SendHandler};
-use crate::plugins::{AliasOutcome, LoadFailure, PluginEngine};
+use crate::plugins::{AliasOutcome, LoadFailure, PluginEngine, SendIterable};
 use crate::world::{PersistError, World};
 use crate::LoadError;
 use enumeration::EnumSet;
 use mud_transformer::{
     EffectFragment, OutputFragment, Tag, TextFragment, TextStyle, Transformer, TransformerConfig,
 };
-use smushclient_plugins::{Plugin, PluginIndex, Sendable};
+use smushclient_plugins::{Plugin, PluginIndex};
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
@@ -168,7 +168,9 @@ impl SmushClient {
             if until == 0 {
                 until = slice.len();
             }
-            let trigger_effects = self.plugins.trigger(&self.line_text, handler);
+            let trigger_effects = self
+                .plugins
+                .trigger(&self.line_text, &mut self.world, handler);
             if !handler.permit_line(&self.line_text) || trigger_effects.omit_from_output {
                 for _ in 0..until {
                     let output = output.next().unwrap();
@@ -193,7 +195,7 @@ impl SmushClient {
     }
 
     pub fn alias<H: SendHandler>(&mut self, input: &str, handler: &mut H) -> AliasOutcome {
-        let outcome = self.plugins.alias(input, handler);
+        let outcome = self.plugins.alias(input, &mut self.world, handler);
         if !outcome.omit_from_log {
             self.logger.log_input_line(input.as_bytes(), &self.world);
             self.logger.log_error(handler);
@@ -219,7 +221,7 @@ impl SmushClient {
             .unwrap_or(path);
         let index = self.plugins.add_plugin(path)?.0;
         self.update_world_plugins();
-        Ok(self.plugins.plugin(index).unwrap())
+        Ok(&self.plugins[index])
     }
 
     pub fn remove_plugin(&mut self, id: &str) -> Option<Plugin> {
@@ -240,7 +242,7 @@ impl SmushClient {
     }
 
     pub fn variables_len(&self, index: PluginIndex) -> Option<usize> {
-        let plugin_id = &self.plugins.plugin(index)?.metadata.id;
+        let plugin_id = &self.plugins.get(index)?.metadata.id;
         let variables = self.variables.get(plugin_id)?;
         Some(variables.len())
     }
@@ -255,7 +257,7 @@ impl SmushClient {
     }
 
     pub fn get_variable(&self, index: PluginIndex, key: &[c_char]) -> Option<&Vec<c_char>> {
-        let plugin_id = &self.plugins.plugin(index)?.metadata.id;
+        let plugin_id = &self.plugins.get(index)?.metadata.id;
         self.variables.get_variable(plugin_id, key)
     }
 
@@ -265,7 +267,7 @@ impl SmushClient {
         key: Vec<c_char>,
         value: Vec<c_char>,
     ) -> bool {
-        let Some(plugin) = self.plugins.plugin(index) else {
+        let Some(plugin) = self.plugins.get(index) else {
             return false;
         };
         let plugin_id = &plugin.metadata.id;
@@ -273,12 +275,10 @@ impl SmushClient {
         true
     }
 
-    pub fn set_group_enabled<T: Sendable>(&mut self, group: &str, enabled: bool) -> bool {
+    pub fn set_group_enabled<T: SendIterable>(&mut self, group: &str, enabled: bool) -> bool {
         let mut found_group = false;
-        for sender in self
-            .plugins
-            .indexer_mut::<T>()
-            .find_by_mut(|item| item.as_ref().group == group)
+        for sender in T::iter_mut(&mut self.plugins, &mut self.world)
+            .filter(|item| item.as_ref().group == group)
         {
             found_group = true;
             sender.as_mut().enabled = enabled;
@@ -287,19 +287,16 @@ impl SmushClient {
     }
 
     pub fn set_plugin_enabled(&mut self, index: PluginIndex, enabled: bool) -> bool {
-        if enabled {
-            self.plugins.enable_plugin(index)
-        } else {
-            self.plugins.disable_plugin(index)
-        }
+        let Some(plugin) = self.plugins.get_mut(index) else {
+            return false;
+        };
+        plugin.disabled = !enabled;
+        true
     }
 
-    pub fn set_sender_enabled<T: Sendable>(&mut self, label: &str, enabled: bool) -> bool {
-        let Some(sender) = self
-            .plugins
-            .indexer_mut::<T>()
-            .find_by_mut(|item| item.as_ref().label == label)
-            .next()
+    pub fn set_sender_enabled<T: SendIterable>(&mut self, label: &str, enabled: bool) -> bool {
+        let Some(sender) = T::iter_mut(&mut self.plugins, &mut self.world)
+            .find(|item| item.as_ref().label == label)
         else {
             return false;
         };
@@ -307,12 +304,8 @@ impl SmushClient {
         true
     }
 
-    pub fn sender_exists<T: Sendable>(&self, label: &str) -> bool {
-        self.plugins
-            .indexer::<T>()
-            .find_by(|item| item.as_ref().label == label)
-            .next()
-            .is_some()
+    pub fn sender_exists<T: SendIterable>(&self, label: &str) -> bool {
+        T::iter(&self.plugins, &self.world).any(|item| item.as_ref().label == label)
     }
 
     fn update_world_plugins(&mut self) {

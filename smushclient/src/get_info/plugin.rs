@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use chrono::Utc;
-use smushclient_plugins::{Alias, PluginIndex, Timer, Trigger};
+use smushclient_plugins::PluginIndex;
 
 use super::visitor::InfoVisitor;
 use crate::SmushClient;
@@ -15,7 +15,7 @@ fn parse_double<V: InfoVisitor>(info: &str) -> V::Output {
 
 impl SmushClient {
     pub fn plugin_info<V: InfoVisitor>(&self, index: PluginIndex, info_type: u8) -> V::Output {
-        let Some(plugin) = self.plugins.plugin(index) else {
+        let Some(plugin) = self.plugins.get(index) else {
             return V::visit_none();
         };
         match info_type {
@@ -27,9 +27,9 @@ impl SmushClient {
             6 => V::visit_path(&plugin.metadata.path),
             7 => V::visit_str(&plugin.metadata.id),
             8 => V::visit_str(&plugin.metadata.purpose),
-            9 => V::visit_usize(self.plugins.indexer::<Trigger>().count(index)),
-            10 => V::visit_usize(self.plugins.indexer::<Alias>().count(index)),
-            11 => V::visit_usize(self.plugins.indexer::<Timer>().count(index)),
+            9 => V::visit_usize(plugin.triggers.len()),
+            10 => V::visit_usize(plugin.aliases.len()),
+            11 => V::visit_usize(plugin.timers.len()),
             12 => V::visit_usize(self.variables_len(index).unwrap_or_default()),
             13 => V::visit_date(plugin.metadata.written),
             14 => V::visit_date(plugin.metadata.modified),

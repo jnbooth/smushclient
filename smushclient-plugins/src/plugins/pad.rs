@@ -1,4 +1,5 @@
 use crate::send::Occurrence;
+use crate::send::{Alias, Timer, Trigger};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Pad<'a> {
@@ -32,6 +33,49 @@ impl<'a> Pad<'a> {
                 format!("Trigger: {label} ({plugin}) - {pad_name}")
             }
             Self::PacketDebug => format!("Packet debug - {pad_name}"),
+        }
+    }
+
+    pub fn new<T: PadSource>(source: &'a T, plugin_name: &'a str) -> Self {
+        source.to_pad(plugin_name)
+    }
+}
+
+pub trait PadSource {
+    fn to_pad<'a>(&'a self, plugin_name: &'a str) -> Pad<'a>;
+}
+
+impl PadSource for Alias {
+    fn to_pad<'a>(&'a self, plugin_name: &'a str) -> Pad<'a> {
+        Pad::Alias {
+            plugin: plugin_name,
+            label: if self.label.is_empty() {
+                &self.pattern
+            } else {
+                &self.label
+            },
+        }
+    }
+}
+
+impl PadSource for Timer {
+    fn to_pad<'a>(&'a self, plugin_name: &'a str) -> Pad<'a> {
+        Pad::Timer {
+            plugin: plugin_name,
+            occurrence: self.occurrence,
+        }
+    }
+}
+
+impl PadSource for Trigger {
+    fn to_pad<'a>(&'a self, plugin_name: &'a str) -> Pad<'a> {
+        Pad::Trigger {
+            plugin: plugin_name,
+            label: if self.label.is_empty() {
+                &self.pattern
+            } else {
+                &self.label
+            },
         }
     }
 }

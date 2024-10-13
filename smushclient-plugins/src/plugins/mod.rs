@@ -1,5 +1,7 @@
-mod indexed;
-pub use indexed::{Indexer, PluginIndex, SendMatch, Sendable, Senders};
+pub type PluginIndex = usize;
+
+mod matching;
+pub use matching::{Matches, SendMatch};
 
 mod pad;
 pub use pad::Pad;
