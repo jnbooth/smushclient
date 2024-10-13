@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>qMUSHclient</string>
+   <string>SmushClient</string>
   </property>
   <property name="documentMode">
    <bool>false</bool>
@@ -223,10 +223,10 @@
     <addaction name="action_functions_list"/>
     <addaction name="action_functions_web_page"/>
     <addaction name="action_mud_lists"/>
-    <addaction name="action_qmushclient_web_page"/>
+    <addaction name="action_smushclient_web_page"/>
     <addaction name="action_plugins_list"/>
     <addaction name="action_regular_expressions_web_page"/>
-    <addaction name="action_about_qmushclient"/>
+    <addaction name="action_about_smushclient"/>
    </widget>
    <widget class="QMenu" name="menu_file">
     <property name="title">
@@ -1543,9 +1543,9 @@
     <string>&amp;MUD Lists...</string>
    </property>
   </action>
-  <action name="action_qmushclient_web_page">
+  <action name="action_smushclient_web_page">
    <property name="text">
-    <string>qMUSHclient &amp;Web Page...</string>
+    <string>SmushClient &amp;Web Page...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+Shift+W</string>
@@ -1561,12 +1561,12 @@
     <string>Regular &amp;Expressions Web Page...</string>
    </property>
   </action>
-  <action name="action_about_qmushclient">
+  <action name="action_about_smushclient">
    <property name="icon">
     <iconset theme="help-about"/>
    </property>
    <property name="text">
-    <string>&amp;About qMUSHclient...</string>
+    <string>&amp;About SmushClient...</string>
    </property>
   </action>
   <action name="action_redo">
