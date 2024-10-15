@@ -1,5 +1,6 @@
 #include "settings.h"
 #include <QtCore/QDir>
+#include <QtCore/QUuid>
 
 static const QString recentFilesKey = QStringLiteral("recent");
 constexpr qsizetype recentFilesMax = 5;

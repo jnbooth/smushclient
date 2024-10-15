@@ -237,6 +237,7 @@ bool WorldTab::loadPlugins()
   }
   QStringList plugins = client.pluginScripts();
   api->initializeScripts(plugins);
+  client.startTimers(*document);
   return true;
 }
 

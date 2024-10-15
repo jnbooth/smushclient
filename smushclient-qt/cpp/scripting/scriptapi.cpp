@@ -257,6 +257,7 @@ void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const
 }
 
 void ScriptApi::startSendTimer(
+    QUuid id,
     size_t plugin,
     SendTarget target,
     const QString &text,
@@ -267,6 +268,7 @@ void ScriptApi::startSendTimer(
   const int timerId = startTimer(duration);
   sendQueue[timerId] = {
       .activeClosed = activeClosed,
+      .id = id,
       .plugin = plugin,
       .repeat = repeat ? duration : milliseconds::zero(),
       .target = target,
@@ -287,6 +289,8 @@ void ScriptApi::timerEvent(QTimerEvent *event)
     actionSource = ActionSource::TimerFired;
     sendTo(send.plugin, send.target, send.text);
     actionSource = oldSource;
+    if (!send.id.isNull())
+      client()->finishTimer(send.plugin, send.id);
   }
   if (send.repeat == milliseconds::zero())
   {
@@ -322,12 +326,9 @@ bool ScriptApi::beginTell()
   return false;
 }
 
-SmushClient *ScriptApi::client() const
+inline SmushClient *ScriptApi::client() const
 {
-  WorldTab *worldtab = tab();
-  if (!worldtab) [[unlikely]]
-    return nullptr;
-  return &worldtab->client;
+  return &tab()->client;
 }
 
 void ScriptApi::displayStatusMessage(const QString &status) const

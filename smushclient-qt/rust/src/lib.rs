@@ -208,6 +208,7 @@ pub mod ffi {
         #[rust_name = "start_timer"]
         unsafe fn startTimer(
             self: &Document,
+            id: QUuid,
             plugin: usize,
             target: SendTarget,
             text: &QString,
@@ -275,6 +276,7 @@ pub mod ffi {
         fn load_plugins(self: Pin<&mut SmushClient>) -> QStringList;
         fn load_variables(self: Pin<&mut SmushClient>, path: &QString) -> Result<bool>;
         fn save_variables(self: &SmushClient, path: &QString) -> Result<bool>;
+        fn start_timers(self: &SmushClient, doc: Pin<&mut Document>);
         fn populate_world(self: &SmushClient, world: Pin<&mut World>);
         fn set_world(self: Pin<&mut SmushClient>, world: &World) -> bool;
         fn palette(self: &SmushClient) -> QVector_QColor;
@@ -300,6 +302,7 @@ pub mod ffi {
         fn set_trigger_enabled(self: Pin<&mut SmushClient>, label: &QString, enable: bool) -> bool;
         fn set_triggers_enabled(self: Pin<&mut SmushClient>, group: &QString, enable: bool)
             -> bool;
+        fn finish_timer(self: Pin<&mut SmushClient>, index: usize, id: QUuid) -> bool;
         unsafe fn get_variable(
             self: &SmushClient,
             index: usize,

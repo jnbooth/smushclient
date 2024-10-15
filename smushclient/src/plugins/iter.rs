@@ -1,4 +1,4 @@
-use smushclient_plugins::{Alias, Plugin, Sender, Timer, Trigger};
+use smushclient_plugins::{Alias, Plugin, PluginIndex, Sender, Timer, Trigger};
 
 use crate::World;
 
@@ -8,33 +8,40 @@ pub trait SendIterable: AsRef<Sender> + AsMut<Sender> + Sized {
     fn from_world(world: &World) -> &[Self];
     fn from_world_mut(world: &mut World) -> &mut Vec<Self>;
 
-    fn iter<'a>(plugins: &'a [Plugin], world: &'a World) -> impl Iterator<Item = &'a Self>
+    fn iter<'a>(
+        plugins: &'a [Plugin],
+        world: &'a World,
+    ) -> impl Iterator<Item = (PluginIndex, &'a Self)>
     where
         Self: 'a,
     {
-        plugins.iter().flat_map(|plugin| {
+        plugins.iter().enumerate().flat_map(|(i, plugin)| {
             if plugin.metadata.is_world_plugin {
                 Self::from_world(world)
             } else {
                 Self::from_plugin(plugin)
             }
+            .iter()
+            .map(move |sender| (i, sender))
         })
     }
 
     fn iter_mut<'a>(
         plugins: &'a mut [Plugin],
         world: &'a mut World,
-    ) -> impl Iterator<Item = &'a mut Self>
+    ) -> impl Iterator<Item = (PluginIndex, &'a mut Self)>
     where
         Self: 'a,
     {
         let mut world = Some(world);
-        plugins.iter_mut().flat_map(move |plugin| {
+        plugins.iter_mut().enumerate().flat_map(move |(i, plugin)| {
             if plugin.metadata.is_world_plugin {
                 Self::from_world_mut(world.take().expect("more than one world plugin"))
             } else {
                 Self::from_plugin_mut(plugin)
             }
+            .iter_mut()
+            .map(move |sender| (i, sender))
         })
     }
 }

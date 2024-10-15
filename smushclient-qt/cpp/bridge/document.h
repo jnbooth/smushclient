@@ -46,6 +46,7 @@ public:
       const QString &line,
       const QStringList &wildcards) const;
   void startTimer(
+      QUuid id,
       size_t plugin,
       SendTarget target,
       const QString &text,

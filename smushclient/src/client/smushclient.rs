@@ -13,7 +13,7 @@ use enumeration::EnumSet;
 use mud_transformer::{
     EffectFragment, OutputFragment, Tag, TextFragment, TextStyle, Transformer, TransformerConfig,
 };
-use smushclient_plugins::{Plugin, PluginIndex};
+use smushclient_plugins::{Plugin, PluginIndex, Timer, Uuid};
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
@@ -277,8 +277,8 @@ impl SmushClient {
 
     pub fn set_group_enabled<T: SendIterable>(&mut self, group: &str, enabled: bool) -> bool {
         let mut found_group = false;
-        for sender in T::iter_mut(&mut self.plugins, &mut self.world)
-            .filter(|item| item.as_ref().group == group)
+        for (_, sender) in T::iter_mut(&mut self.plugins, &mut self.world)
+            .filter(|(_, item)| item.as_ref().group == group)
         {
             found_group = true;
             sender.as_mut().enabled = enabled;
@@ -295,8 +295,8 @@ impl SmushClient {
     }
 
     pub fn set_sender_enabled<T: SendIterable>(&mut self, label: &str, enabled: bool) -> bool {
-        let Some(sender) = T::iter_mut(&mut self.plugins, &mut self.world)
-            .find(|item| item.as_ref().label == label)
+        let Some((_, sender)) = T::iter_mut(&mut self.plugins, &mut self.world)
+            .find(|(_, item)| item.as_ref().label == label)
         else {
             return false;
         };
@@ -305,7 +305,42 @@ impl SmushClient {
     }
 
     pub fn sender_exists<T: SendIterable>(&self, label: &str) -> bool {
-        T::iter(&self.plugins, &self.world).any(|item| item.as_ref().label == label)
+        T::iter(&self.plugins, &self.world).any(|(_, item)| item.as_ref().label == label)
+    }
+
+    pub fn senders<T: SendIterable>(&self, index: PluginIndex) -> &[T] {
+        let plugin = &self.plugins[index];
+        if plugin.metadata.is_world_plugin {
+            T::from_world(&self.world)
+        } else {
+            T::from_plugin(plugin)
+        }
+    }
+
+    pub fn senders_mut<T: SendIterable>(&mut self, index: PluginIndex) -> &mut Vec<T> {
+        let plugin = &mut self.plugins[index];
+        if plugin.metadata.is_world_plugin {
+            T::from_world_mut(&mut self.world)
+        } else {
+            T::from_plugin_mut(plugin)
+        }
+    }
+
+    pub fn timers(&self) -> impl Iterator<Item = (PluginIndex, &Timer)> {
+        Timer::iter(&self.plugins, &self.world)
+    }
+
+    pub fn finish_timer(&mut self, index: PluginIndex, id: Uuid) -> Option<Timer> {
+        let timers = self.senders_mut::<Timer>(index);
+        let (i, timer) = timers
+            .iter()
+            .enumerate()
+            .find(|(_, timer)| timer.id == id)?;
+        if timer.one_shot {
+            Some(timers.remove(i))
+        } else {
+            None
+        }
     }
 
     fn update_world_plugins(&mut self) {

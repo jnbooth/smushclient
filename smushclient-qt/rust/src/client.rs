@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 use std::ffi::c_char;
 use std::fs::File;
-use std::io;
 use std::pin::Pin;
 use std::ptr;
+use std::{io, u64};
 
 use crate::adapter::{DocumentAdapter, SocketAdapter, TableBuilderAdapter};
 use crate::convert::Convert;
@@ -13,13 +13,14 @@ use crate::handler::ClientHandler;
 use crate::impls::convert_alias_outcome;
 use crate::sync::NonBlockingMutex;
 use crate::world::WorldRust;
+use cxx_qt_extensions::QUuid;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant, QVector};
 use enumeration::EnumSet;
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{SendHandler, SmushClient, World};
-use smushclient_plugins::{Alias, PluginIndex, Timer, Trigger};
+use smushclient_plugins::{Alias, Occurrence, PluginIndex, Timer, Trigger};
 
 const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Bold,
@@ -218,6 +219,25 @@ impl SmushClientRust {
         drop(output_lock);
         convert_alias_outcome(outcome)
     }
+
+    pub fn start_timers(&self, doc: DocumentAdapter) {
+        for (plugin, timer) in self.client.timers() {
+            if !timer.enabled {
+                continue;
+            }
+            let Occurrence::Interval(interval) = timer.occurrence else {
+                continue;
+            };
+            doc.start_timer(
+                timer.id.into(),
+                plugin,
+                timer.send_to,
+                &QString::from(&timer.text),
+                interval.as_millis().try_into().unwrap_or(u64::MAX),
+                timer.active_closed,
+            );
+        }
+    }
 }
 
 impl ffi::SmushClient {
@@ -363,8 +383,19 @@ impl ffi::SmushClient {
             .set_group_enabled::<Trigger>(&String::from(group), enabled)
     }
 
+    pub fn finish_timer(self: Pin<&mut Self>, plugin: PluginIndex, id: QUuid) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .finish_timer(plugin, id.into())
+            .is_some()
+    }
+
     pub fn alias(self: Pin<&mut Self>, command: &QString, doc: Pin<&mut ffi::Document>) -> u8 {
         self.cxx_qt_ffi_rust_mut().alias(command, doc.into())
+    }
+
+    pub fn start_timers(&self, doc: Pin<&mut ffi::Document>) {
+        self.cxx_qt_ffi_rust().start_timers(doc.into());
     }
 
     /// # Safety

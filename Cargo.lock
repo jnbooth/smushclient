@@ -255,7 +255,7 @@ dependencies = [
 [[package]]
 name = "cxx-qt-extensions"
 version = "0.1.0"
-source = "git+https://github.com/jnbooth/cxx-qt-extensions?rev=2fbda65c7ba35d00a5b8c93b04377fd0aa469e06#2fbda65c7ba35d00a5b8c93b04377fd0aa469e06"
+source = "git+https://github.com/jnbooth/cxx-qt-extensions?rev=55270d03f3ad82bb8b795ae607c16e1e51af237f#55270d03f3ad82bb8b795ae607c16e1e51af237f"
 dependencies = [
  "cxx",
  "cxx-build",
@@ -269,7 +269,7 @@ dependencies = [
 [[package]]
 name = "cxx-qt-extensions-headers"
 version = "0.1.0"
-source = "git+https://github.com/jnbooth/cxx-qt-extensions?rev=2fbda65c7ba35d00a5b8c93b04377fd0aa469e06#2fbda65c7ba35d00a5b8c93b04377fd0aa469e06"
+source = "git+https://github.com/jnbooth/cxx-qt-extensions?rev=55270d03f3ad82bb8b795ae607c16e1e51af237f#55270d03f3ad82bb8b795ae607c16e1e51af237f"
 
 [[package]]
 name = "cxx-qt-gen"

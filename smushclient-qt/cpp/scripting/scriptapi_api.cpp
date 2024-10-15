@@ -113,7 +113,7 @@ ApiCode ScriptApi::DoAfter(size_t plugin, double seconds, const QString &text, S
 {
   if (seconds < 0.1 || seconds > 86399)
     return ApiCode::TimeInvalid;
-  startSendTimer(plugin, target, text, milliseconds{(int)(seconds * 1000.0)});
+  startSendTimer(QUuid(), plugin, target, text, milliseconds{(int)(seconds * 1000.0)});
   return ApiCode::OK;
 }
 

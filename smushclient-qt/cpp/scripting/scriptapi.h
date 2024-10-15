@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <QtCore/QMargins>
+#include <QtCore/QUuid>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
 #include <QtGui/QTextCursor>
@@ -28,6 +29,7 @@ struct lua_State;
 struct QueuedSend
 {
   bool activeClosed;
+  QUuid id;
   size_t plugin;
   std::chrono::milliseconds repeat;
   SendTarget target;
@@ -36,6 +38,8 @@ struct QueuedSend
 
 class ScriptApi : public QObject
 {
+  Q_OBJECT
+
 public:
   static void SetClipboard(const QString &text);
 
@@ -249,6 +253,7 @@ public:
   ActionSource setSource(ActionSource source) noexcept;
   void stackWindow(std::string_view windowName, MiniWindow *window) const;
   void startSendTimer(
+      QUuid id,
       size_t plugin,
       SendTarget target,
       const QString &text,

@@ -224,6 +224,7 @@ void Document::setPalette(const QVector_QColor &palette)
 }
 
 void Document::startTimer(
+    QUuid id,
     size_t plugin,
     SendTarget target,
     const QString &text,
@@ -231,7 +232,7 @@ void Document::startTimer(
     bool activeClosed) const
 {
   if (api->isPluginEnabled(plugin))
-    api->startSendTimer(plugin, target, text, milliseconds{ms}, true, activeClosed);
+    api->startSendTimer(id, plugin, target, text, milliseconds{ms}, true, activeClosed);
 }
 
 // Private methods
