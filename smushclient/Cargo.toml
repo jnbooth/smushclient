@@ -15,7 +15,7 @@ smushclient-plugins = { path = "../smushclient-plugins" }
 
 [dependencies.mud-transformer]
 git = "https://github.com/jnbooth/mxp"
-rev = "e7a695f4db96bb0bade913a5aab3d4b9d2687bf7"
+rev = "2d7b672d6b7f4e298f03e9103992be8398db7413"
 features = ["serde"]
 
 [dependencies.tokio]

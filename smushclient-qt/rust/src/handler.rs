@@ -74,8 +74,9 @@ impl<'a> ClientHandler<'a> {
                 .handle_telnet_subnegotiation(*code, &QByteArray::from(&**data)),
             TelnetFragment::IacGa => self.doc.handle_telnet_iac_ga(),
             TelnetFragment::Mxp { enabled } => self.doc.handle_mxp_change(*enabled),
-            TelnetFragment::Do { code } => self.doc.handle_telnet_request(*code, true),
-            TelnetFragment::Will { code } => self.doc.handle_telnet_request(*code, false),
+            TelnetFragment::Will { code, supported } => {
+                self.doc.handle_telnet_request(*code, *supported);
+            }
             _ => (),
         }
     }

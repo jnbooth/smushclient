@@ -473,7 +473,8 @@ impl TryFrom<EffectFragment> for ffi::EffectFragment {
 impl From<TelnetFragment> for ffi::TelnetFragment {
     fn from(value: TelnetFragment) -> Self {
         match value {
-            TelnetFragment::Do { code } => Self::Do { code },
+            TelnetFragment::Do { code, supported } => Self::Do { code, supported },
+            TelnetFragment::Dont { code } => Self::Dont { code },
             TelnetFragment::IacGa => Self::IacGa,
             TelnetFragment::Mxp { enabled } => Self::Mxp { enabled },
             TelnetFragment::Naws => Self::Naws,
@@ -482,7 +483,8 @@ impl From<TelnetFragment> for ffi::TelnetFragment {
                 code,
                 data: data.to_vec(),
             },
-            TelnetFragment::Will { code } => Self::Will { code },
+            TelnetFragment::Will { code, supported } => Self::Will { code, supported },
+            TelnetFragment::Wont { code } => Self::Wont { code },
         }
     }
 }
@@ -490,7 +492,11 @@ impl From<TelnetFragment> for ffi::TelnetFragment {
 impl Clone for ffi::TelnetFragment {
     fn clone(&self) -> Self {
         match self {
-            Self::Do { code } => Self::Do { code: *code },
+            Self::Do { code, supported } => Self::Do {
+                code: *code,
+                supported: *supported,
+            },
+            Self::Dont { code } => Self::Dont { code: *code },
             Self::IacGa => Self::IacGa,
             Self::Mxp { enabled } => Self::Mxp { enabled: *enabled },
             Self::Naws => Self::Naws,
@@ -501,7 +507,11 @@ impl Clone for ffi::TelnetFragment {
                 code: *code,
                 data: data.clone(),
             },
-            Self::Will { code } => Self::Will { code: *code },
+            Self::Will { code, supported } => Self::Will {
+                code: *code,
+                supported: *supported,
+            },
+            Self::Wont { code } => Self::Wont { code: *code },
         }
     }
 }

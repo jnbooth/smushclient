@@ -33,7 +33,7 @@ public:
   void handleMxpEntity(::rust::str data) const;
   void handleMxpVariable(::rust::str name, ::rust::str value) const;
   void handleTelnetIacGa() const;
-  void handleTelnetRequest(uint8_t code, bool sent) const;
+  void handleTelnetRequest(uint8_t code, bool supported) const;
   void handleTelnetSubnegotiation(uint8_t code, const QByteArray &data) const;
   bool permitLine(::rust::str line) const;
   void playSound(const QString &filePath) const;

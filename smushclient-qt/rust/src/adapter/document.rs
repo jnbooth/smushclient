@@ -80,9 +80,9 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.handle_telnet_iac_ga() };
     }
 
-    pub fn handle_telnet_request(&self, code: u8, sent: bool) {
+    pub fn handle_telnet_request(&self, code: u8, supported: bool) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.handle_telnet_request(code, sent) };
+        unsafe { self.inner.handle_telnet_request(code, supported) };
     }
 
     pub fn handle_telnet_subnegotiation(&self, code: u8, data: &QByteArray) {

@@ -182,7 +182,7 @@ pub mod ffi {
         unsafe fn handleTelnetIacGa(self: &Document);
 
         #[rust_name = "handle_telnet_request"]
-        unsafe fn handleTelnetRequest(self: &Document, code: u8, sent: bool);
+        unsafe fn handleTelnetRequest(self: &Document, code: u8, supported: bool);
 
         #[rust_name = "handle_telnet_subnegotiation"]
         unsafe fn handleTelnetSubnegotiation(self: &Document, code: u8, data: &QByteArray);

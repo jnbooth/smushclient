@@ -134,10 +134,15 @@ void Document::handleTelnetIacGa() const
   api->sendCallback(onIacGa);
 }
 
-void Document::handleTelnetRequest(uint8_t code, bool sent) const
+void Document::handleTelnetRequest(uint8_t code, bool supported) const
 {
-  OnPluginTelnetRequest onTelnetRequest(code, sent ? "SENT_DO" : "WILL");
+  OnPluginTelnetRequest onTelnetRequest(code, "SENT_DO");
   api->sendCallback(onTelnetRequest);
+  if (supported)
+  {
+    OnPluginTelnetRequest onTelnetRequest(code, "WILL");
+    api->sendCallback(onTelnetRequest);
+  }
 }
 
 void Document::handleTelnetSubnegotiation(uint8_t code, const QByteArray &data) const
