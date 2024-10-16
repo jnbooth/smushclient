@@ -8,12 +8,14 @@
 #include "sqlite3.h"
 #include "miniwindow.h"
 #include "worldproperties.h"
+#include "../bridge/timekeeper.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 #include "../../spans.h"
 
 using std::string;
 using std::string_view;
+using std::variant;
 using std::chrono::milliseconds;
 
 // Private utils
@@ -52,6 +54,7 @@ ScriptApi::ScriptApi(WorldTab *parent)
       socket(parent->socket),
       whenConnected(QDateTime::currentDateTime())
 {
+  timekeeper = new Timekeeper(this);
   setLineType(echoFormat, LineType::Input);
   applyWorld(parent->world);
 }
@@ -118,10 +121,10 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
     };
     pluginIndices[metadata.id.toStdString()] = index;
     Plugin &plugin = plugins.emplace_back(this, std::move(metadata));
-    if (plugin.runScript(*++it))
-      callbackFilter.scan(plugin.state());
-    else
-      plugin.disable();
+    if (!plugin.runScript(*++it))
+      continue;
+    callbackFilter.scan(plugin.state());
+    client()->startTimers(index, *timekeeper);
   }
   OnPluginInstall onInstall;
   sendCallback(onInstall);
@@ -190,6 +193,8 @@ bool ScriptApi::sendCallback(PluginCallback &callback, const QString &pluginID)
 
 void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
 {
+  if (text.isEmpty())
+    return;
   switch (target)
   {
   case SendTarget::World:
@@ -215,6 +220,11 @@ void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
   default:
     return;
   }
+}
+
+void ScriptApi::setOpen(bool open) const
+{
+  timekeeper->setOpen(open);
 }
 
 ActionSource ScriptApi::setSource(ActionSource source) noexcept
@@ -256,25 +266,6 @@ void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const
     window->stackUnder(tab()->ui->outputBorder);
 }
 
-void ScriptApi::startSendTimer(
-    QUuid id,
-    size_t plugin,
-    SendTarget target,
-    const QString &text,
-    std::chrono::milliseconds duration,
-    bool repeat,
-    bool activeClosed)
-{
-  const int timerId = startTimer(duration);
-  sendQueue[timerId] = {
-      .activeClosed = activeClosed,
-      .id = id,
-      .plugin = plugin,
-      .repeat = repeat ? duration : milliseconds::zero(),
-      .target = target,
-      .text = text};
-}
-
 // protected overrides
 
 void ScriptApi::timerEvent(QTimerEvent *event)
@@ -283,24 +274,10 @@ void ScriptApi::timerEvent(QTimerEvent *event)
   if (search == sendQueue.end()) [[unlikely]]
     return;
   const QueuedSend &send = search->second;
-  if (send.activeClosed || socket->isOpen())
-  {
-    const ActionSource oldSource = actionSource;
-    actionSource = ActionSource::TimerFired;
-    sendTo(send.plugin, send.target, send.text);
-    actionSource = oldSource;
-    if (!send.id.isNull())
-      client()->finishTimer(send.plugin, send.id);
-  }
-  if (send.repeat == milliseconds::zero())
-  {
-    sendQueue.erase(search);
-    return;
-  }
-  const int newTimerId = startTimer(send.repeat);
-  auto node = sendQueue.extract(search);
-  node.key() = newTimerId;
-  sendQueue.insert(std::move(node));
+  const ActionSource oldSource = actionSource;
+  actionSource = ActionSource::TimerFired;
+  sendTo(send.plugin, send.target, send.text);
+  actionSource = oldSource;
 }
 
 // Private methods

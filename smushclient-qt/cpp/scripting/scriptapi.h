@@ -22,16 +22,14 @@ constexpr size_t noSuchPlugin = SIZE_T_MAX;
 
 class ImageFilter;
 class SmushClient;
+class Timekeeper;
 class World;
 class WorldTab;
 struct lua_State;
 
 struct QueuedSend
 {
-  bool activeClosed;
-  QUuid id;
   size_t plugin;
-  std::chrono::milliseconds repeat;
   SendTarget target;
   QString text;
 };
@@ -45,6 +43,15 @@ public:
 
   ScriptApi(WorldTab *parent);
 
+  ApiCode AddTimer(
+      size_t plugin,
+      const QString &name,
+      int hour,
+      int minute,
+      double second,
+      const QString &text,
+      QFlags<TimerFlag> flags,
+      std::string_view scriptName = "");
   int BroadcastPlugin(size_t pluginIndex, int message, std::string_view text) const;
   void ColourTell(const QColor &foreground, const QColor &background, const QString &text);
   int DatabaseClose(std::string_view databaseID);
@@ -235,6 +242,7 @@ public:
   ApiCode WindowUnloadFont(std::string_view windowName, std::string_view fontID) const;
 
   void applyWorld(const World &world);
+  SmushClient *client() const;
   void echo(const QString &text);
   void finishNote();
   const Plugin *getPlugin(std::string_view pluginID) const;
@@ -250,16 +258,9 @@ public:
   bool sendCallback(PluginCallback &callback, size_t plugin);
   bool sendCallback(PluginCallback &callback, const QString &pluginID);
   void sendTo(size_t plugin, SendTarget target, const QString &text);
+  void setOpen(bool open) const;
   ActionSource setSource(ActionSource source) noexcept;
   void stackWindow(std::string_view windowName, MiniWindow *window) const;
-  void startSendTimer(
-      QUuid id,
-      size_t plugin,
-      SendTarget target,
-      const QString &text,
-      std::chrono::milliseconds duration,
-      bool repeat = false,
-      bool activeClosed = false);
 
   inline constexpr std::vector<Plugin>::const_iterator cbegin() const noexcept
   {
@@ -295,12 +296,12 @@ private:
   QScrollBar *scrollBar;
   QTcpSocket *socket;
   std::unordered_map<int, QueuedSend> sendQueue;
+  Timekeeper *timekeeper;
   QDateTime whenConnected;
   std::unordered_map<std::string, MiniWindow *> windows;
 
   AudioChannel &getAudioChannel(size_t index);
   bool beginTell();
-  SmushClient *client() const;
   void displayStatusMessage(const QString &status) const;
   void endTell(bool insideTell);
   DatabaseConnection *findDatabase(const std::string_view databaseID);

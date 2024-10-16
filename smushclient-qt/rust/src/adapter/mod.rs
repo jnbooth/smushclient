@@ -34,6 +34,9 @@ pub use document::{DocumentAdapter, QColorPair};
 mod socket;
 pub use socket::SocketAdapter;
 
+mod timekeeper;
+pub use timekeeper::TimekeeperAdapter;
+
 mod table_builder;
 pub use table_builder::TableBuilderAdapter;
 

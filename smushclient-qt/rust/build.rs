@@ -16,6 +16,7 @@ fn main() {
 
     for (file_contents, file_name) in [
         (include_str!("../cpp/bridge/document.h"), "document.h"),
+        (include_str!("../cpp/bridge/timekeeper.h"), "timekeeper.h"),
         (include_str!("../cpp/bridge/viewbuilder.h"), "viewbuilder.h"),
     ] {
         let h_path = format!("{header_dir}/{file_name}");

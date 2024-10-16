@@ -25,6 +25,8 @@ use sender::{AliasRust, ReactionRust, SenderRust, TimerRust, TriggerRust};
 
 mod sync;
 
+mod timers;
+
 mod world;
 use world::WorldRust;
 
@@ -133,6 +135,16 @@ pub mod ffi {
         ScriptAfterOmit,
     }
 
+    struct SendTimer {
+        #[rust_name = "active_closed"]
+        activeClosed: bool,
+        label: String,
+        plugin: usize,
+        script: String,
+        target: SendTarget,
+        text: QString,
+    }
+
     extern "C++Qt" {
         include!("document.h");
         type Document;
@@ -204,17 +216,16 @@ pub mod ffi {
             line: &QString,
             wildcards: &QStringList,
         );
+    }
 
-        #[rust_name = "start_timer"]
-        unsafe fn startTimer(
-            self: &Document,
-            id: QUuid,
-            plugin: usize,
-            target: SendTarget,
-            text: &QString,
-            ms: u64,
-            activeClosed: bool,
-        );
+    extern "C++Qt" {
+        include!("timekeeper.h");
+        type Timekeeper;
+
+        #[rust_name = "send_timer"]
+        unsafe fn sendTimer(self: &Timekeeper, timer: &SendTimer);
+        #[rust_name = "start_send_timer"]
+        unsafe fn startSendTimer(self: Pin<&mut Timekeeper>, id: usize, milliseconds: u32);
     }
 
     extern "C++Qt" {
@@ -276,7 +287,6 @@ pub mod ffi {
         fn load_plugins(self: Pin<&mut SmushClient>) -> QStringList;
         fn load_variables(self: Pin<&mut SmushClient>, path: &QString) -> Result<bool>;
         fn save_variables(self: &SmushClient, path: &QString) -> Result<bool>;
-        fn start_timers(self: &SmushClient, doc: Pin<&mut Document>);
         fn populate_world(self: &SmushClient, world: Pin<&mut World>);
         fn set_world(self: Pin<&mut SmushClient>, world: &World) -> bool;
         fn palette(self: &SmushClient) -> QVector_QColor;
@@ -302,7 +312,6 @@ pub mod ffi {
         fn set_trigger_enabled(self: Pin<&mut SmushClient>, label: &QString, enable: bool) -> bool;
         fn set_triggers_enabled(self: Pin<&mut SmushClient>, group: &QString, enable: bool)
             -> bool;
-        fn finish_timer(self: Pin<&mut SmushClient>, index: usize, id: QUuid) -> bool;
         unsafe fn get_variable(
             self: &SmushClient,
             index: usize,
@@ -315,6 +324,12 @@ pub mod ffi {
             key: &[c_char],
             value: &[c_char],
         ) -> bool;
+        fn start_timers(
+            self: Pin<&mut SmushClient>,
+            index: usize,
+            timekeeper: Pin<&mut Timekeeper>,
+        );
+        fn finish_timer(self: Pin<&mut SmushClient>, id: usize, timekeeper: Pin<&mut Timekeeper>);
     }
 
     unsafe impl !cxx_qt::Locking for SmushClient {}

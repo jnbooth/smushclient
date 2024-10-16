@@ -223,18 +223,6 @@ void Document::setPalette(const QVector_QColor &palette)
   }
 }
 
-void Document::startTimer(
-    QUuid id,
-    size_t plugin,
-    SendTarget target,
-    const QString &text,
-    uint64_t ms,
-    bool activeClosed) const
-{
-  if (api->isPluginEnabled(plugin))
-    api->startSendTimer(id, plugin, target, text, milliseconds{ms}, true, activeClosed);
-}
-
 // Private methods
 
 inline WorldTab *Document::tab() const { return qobject_cast<WorldTab *>(parent()); }

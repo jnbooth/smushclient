@@ -1,26 +1,26 @@
 use std::collections::HashMap;
 use std::ffi::c_char;
 use std::fs::File;
+use std::io;
 use std::pin::Pin;
 use std::ptr;
-use std::{io, u64};
 
-use crate::adapter::{DocumentAdapter, SocketAdapter, TableBuilderAdapter};
+use crate::adapter::{DocumentAdapter, SocketAdapter, TableBuilderAdapter, TimekeeperAdapter};
 use crate::convert::Convert;
 use crate::ffi;
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
 use crate::impls::convert_alias_outcome;
 use crate::sync::NonBlockingMutex;
+use crate::timers::{ReuseVec, SendTimer};
 use crate::world::WorldRust;
-use cxx_qt_extensions::QUuid;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant, QVector};
 use enumeration::EnumSet;
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{SendHandler, SmushClient, World};
-use smushclient_plugins::{Alias, Occurrence, PluginIndex, Timer, Trigger};
+use smushclient_plugins::{Alias, PluginIndex, Timer, Trigger};
 
 const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Bold,
@@ -46,6 +46,7 @@ pub struct SmushClientRust {
     input_lock: NonBlockingMutex,
     output_lock: NonBlockingMutex,
     send: Vec<QString>,
+    send_timers: ReuseVec<SendTimer>,
     palette: HashMap<RgbColor, i32>,
 }
 
@@ -56,6 +57,7 @@ impl Default for SmushClientRust {
             input_lock: NonBlockingMutex::default(),
             output_lock: NonBlockingMutex::default(),
             send: Vec::new(),
+            send_timers: ReuseVec::new(),
             palette: HashMap::with_capacity(166),
         }
     }
@@ -220,23 +222,34 @@ impl SmushClientRust {
         convert_alias_outcome(outcome)
     }
 
-    pub fn start_timers(&self, doc: DocumentAdapter) {
-        for (plugin, timer) in self.client.timers() {
+    pub fn start_timers(&mut self, index: PluginIndex, mut timekeeper: TimekeeperAdapter) {
+        for timer in self.client.senders::<Timer>(index) {
             if !timer.enabled {
                 continue;
             }
-            let Occurrence::Interval(interval) = timer.occurrence else {
+            let Some(send_timer) = SendTimer::new(index, timer) else {
                 continue;
             };
-            doc.start_timer(
-                timer.id.into(),
-                plugin,
-                timer.send_to,
-                &QString::from(&timer.text),
-                interval.as_millis().try_into().unwrap_or(u64::MAX),
-                timer.active_closed,
-            );
+            let milliseconds = send_timer.milliseconds;
+            let id = self.send_timers.insert(send_timer);
+            timekeeper.start_send_timer(id, milliseconds);
         }
+    }
+
+    pub fn finish_timer(&mut self, id: usize, mut timekeeper: TimekeeperAdapter) {
+        let Some(timer) = self.send_timers.get(id) else {
+            return;
+        };
+        timekeeper.send_timer(&timer.qt);
+        if !timer.one_shot {
+            timekeeper.start_send_timer(id, timer.milliseconds);
+            return;
+        }
+        let timers = self.client.senders_mut::<Timer>(timer.qt.plugin);
+        if let Some(i) = timers.iter().position(|t| t.id == timer.id) {
+            timers.remove(i);
+        }
+        self.send_timers.remove(id);
     }
 }
 
@@ -326,19 +339,22 @@ impl ffi::SmushClient {
     pub fn is_alias(&self, label: &QString) -> bool {
         self.cxx_qt_ffi_rust()
             .client
-            .sender_exists::<Alias>(&String::from(label))
+            .find_sender::<Alias>(&String::from(label))
+            .is_some()
     }
 
     pub fn is_timer(&self, label: &QString) -> bool {
         self.cxx_qt_ffi_rust()
             .client
-            .sender_exists::<Timer>(&String::from(label))
+            .find_sender::<Timer>(&String::from(label))
+            .is_some()
     }
 
     pub fn is_trigger(&self, label: &QString) -> bool {
         self.cxx_qt_ffi_rust()
             .client
-            .sender_exists::<Trigger>(&String::from(label))
+            .find_sender::<Trigger>(&String::from(label))
+            .is_some()
     }
 
     pub fn set_alias_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
@@ -383,19 +399,8 @@ impl ffi::SmushClient {
             .set_group_enabled::<Trigger>(&String::from(group), enabled)
     }
 
-    pub fn finish_timer(self: Pin<&mut Self>, plugin: PluginIndex, id: QUuid) -> bool {
-        self.cxx_qt_ffi_rust_mut()
-            .client
-            .finish_timer(plugin, id.into())
-            .is_some()
-    }
-
     pub fn alias(self: Pin<&mut Self>, command: &QString, doc: Pin<&mut ffi::Document>) -> u8 {
         self.cxx_qt_ffi_rust_mut().alias(command, doc.into())
-    }
-
-    pub fn start_timers(&self, doc: Pin<&mut ffi::Document>) {
-        self.cxx_qt_ffi_rust().start_timers(doc.into());
     }
 
     /// # Safety
@@ -425,5 +430,19 @@ impl ffi::SmushClient {
         self.cxx_qt_ffi_rust_mut()
             .client
             .set_variable(index, key.to_vec(), value.to_vec())
+    }
+
+    pub fn start_timers(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        timekeeper: Pin<&mut ffi::Timekeeper>,
+    ) {
+        self.cxx_qt_ffi_rust_mut()
+            .start_timers(index, timekeeper.into());
+    }
+
+    pub fn finish_timer(self: Pin<&mut Self>, id: usize, timekeeper: Pin<&mut ffi::Timekeeper>) {
+        self.cxx_qt_ffi_rust_mut()
+            .finish_timer(id, timekeeper.into());
     }
 }

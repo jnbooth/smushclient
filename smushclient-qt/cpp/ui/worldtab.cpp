@@ -237,7 +237,6 @@ bool WorldTab::loadPlugins()
   }
   QStringList plugins = client.pluginScripts();
   api->initializeScripts(plugins);
-  client.startTimers(*document);
   return true;
 }
 
@@ -299,12 +298,14 @@ void WorldTab::finalizeWorldSettings(int result)
 
 void WorldTab::onConnect()
 {
+  api->setOpen(true);
   OnPluginConnect onConnect;
   api->sendCallback(onConnect);
 }
 
 void WorldTab::onDisconnect()
 {
+  api->setOpen(false);
   OnPluginDisconnect onDisconnect;
   api->sendCallback(onDisconnect);
 }

@@ -1,4 +1,3 @@
-use cxx_qt_extensions::QUuid;
 use cxx_qt_lib::{QByteArray, QColor, QString, QStringList};
 use smushclient_plugins::SendTarget;
 
@@ -118,22 +117,6 @@ impl<'a> DocumentAdapter<'a> {
         unsafe {
             self.inner
                 .send_script(plugin, script, alias, line, wildcards);
-        }
-    }
-
-    pub fn start_timer(
-        &self,
-        id: QUuid,
-        plugin: usize,
-        target: SendTarget,
-        text: &QString,
-        ms: u64,
-        active_closed: bool,
-    ) {
-        // SAFETY: External call to safe method on opaque type.
-        unsafe {
-            self.inner
-                .start_timer(id, plugin, target.into(), text, ms, active_closed);
         }
     }
 }

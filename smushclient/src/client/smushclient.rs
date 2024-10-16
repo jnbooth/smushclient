@@ -294,18 +294,36 @@ impl SmushClient {
         true
     }
 
-    pub fn set_sender_enabled<T: SendIterable>(&mut self, label: &str, enabled: bool) -> bool {
-        let Some((_, sender)) = T::iter_mut(&mut self.plugins, &mut self.world)
+    pub fn find_sender<T: SendIterable>(&self, label: &str) -> Option<(PluginIndex, &T)> {
+        T::iter(&self.plugins, &self.world).find(|(_, item)| item.as_ref().label == label)
+    }
+
+    pub fn find_sender_mut<T: SendIterable>(
+        &mut self,
+        label: &str,
+    ) -> Option<(PluginIndex, &mut T)> {
+        T::iter_mut(&mut self.plugins, &mut self.world)
             .find(|(_, item)| item.as_ref().label == label)
-        else {
+    }
+
+    pub fn find_world_sender<T: SendIterable>(&self, label: &str) -> Option<&T> {
+        T::from_world(&self.world)
+            .iter()
+            .find(|item| item.as_ref().label == label)
+    }
+
+    pub fn find_world_sender_mut<T: SendIterable>(&mut self, label: &str) -> Option<&mut T> {
+        T::from_world_mut(&mut self.world)
+            .iter_mut()
+            .find(|item| item.as_ref().label == label)
+    }
+
+    pub fn set_sender_enabled<T: SendIterable>(&mut self, label: &str, enabled: bool) -> bool {
+        let Some((_, sender)) = self.find_sender_mut::<T>(label) else {
             return false;
         };
         sender.as_mut().enabled = enabled;
         true
-    }
-
-    pub fn sender_exists<T: SendIterable>(&self, label: &str) -> bool {
-        T::iter(&self.plugins, &self.world).any(|(_, item)| item.as_ref().label == label)
     }
 
     pub fn senders<T: SendIterable>(&self, index: PluginIndex) -> &[T] {
@@ -324,10 +342,6 @@ impl SmushClient {
         } else {
             T::from_plugin_mut(plugin)
         }
-    }
-
-    pub fn timers(&self) -> impl Iterator<Item = (PluginIndex, &Timer)> {
-        Timer::iter(&self.plugins, &self.world)
     }
 
     pub fn finish_timer(&mut self, index: PluginIndex, id: Uuid) -> Option<Timer> {

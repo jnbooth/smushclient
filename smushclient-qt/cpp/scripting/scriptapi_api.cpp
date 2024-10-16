@@ -113,7 +113,8 @@ ApiCode ScriptApi::DoAfter(size_t plugin, double seconds, const QString &text, S
 {
   if (seconds < 0.1 || seconds > 86399)
     return ApiCode::TimeInvalid;
-  startSendTimer(QUuid(), plugin, target, text, milliseconds{(int)(seconds * 1000.0)});
+  const milliseconds duration = milliseconds{(int)(seconds * 1000.0)};
+  sendQueue[startTimer(duration)] = {.plugin = plugin, .target = target, .text = text};
   return ApiCode::OK;
 }
 

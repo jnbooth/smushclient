@@ -73,6 +73,7 @@ qt_add_executable(${APP_NAME}
     cpp/settings.h cpp/settings.cpp
 
     cpp/bridge/document.h cpp/bridge/document.cpp
+    cpp/bridge/timekeeper.h cpp/bridge/timekeeper.cpp
     cpp/bridge/viewbuilder.h cpp/bridge/viewbuilder.cpp
 
     cpp/scripting/databaseconnection.h cpp/scripting/databaseconnection.cpp
