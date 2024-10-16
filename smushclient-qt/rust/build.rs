@@ -9,7 +9,6 @@ fn main() {
         Ok(export_dir) => format!("{export_dir}/{}", env::var("CARGO_PKG_NAME").unwrap()),
         Err(_) => env::var("OUT_DIR").unwrap(),
     };
-    cxx_qt_extensions_headers::write_headers(format!("{header_root}/cxx-qt-extensions"));
 
     let header_dir = format!("{header_root}/cxx-qt-gen");
     fs::create_dir_all(&header_dir).expect("Could not create header dir");

@@ -1,10 +1,10 @@
 #![allow(clippy::cast_sign_loss)]
 use std::borrow::Cow;
+use std::sync::atomic::{AtomicU16, Ordering};
 use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use super::occurrence::Occurrence;
 use super::send_to::{sendto_serde, SendTarget};
@@ -13,6 +13,11 @@ use crate::in_place::InPlace;
 
 const NANOS: u64 = 1_000_000_000;
 const NANOS_F: f64 = 1_000_000_000.0;
+
+fn get_id() -> u16 {
+    static ID_COUNTER: AtomicU16 = AtomicU16::new(0);
+    ID_COUNTER.fetch_add(1, Ordering::Relaxed)
+}
 
 fn duration_from_hms(hour: u64, minute: u64, second: f64) -> Duration {
     debug_assert!(
@@ -23,14 +28,25 @@ fn duration_from_hms(hour: u64, minute: u64, second: f64) -> Duration {
     Duration::from_nanos((NANOS_F * second) as u64 + NANOS * 60 * (minute + 60 * hour))
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 pub struct Timer {
     // Note: this is at the top for Ord-deriving purposes.
     pub send: Sender,
     pub occurrence: Occurrence,
     pub active_closed: bool,
-    #[serde(skip, default = "Uuid::new_v4")]
-    pub id: Uuid,
+    #[serde(skip, default = "get_id")]
+    pub id: u16,
+}
+
+impl Default for Timer {
+    fn default() -> Self {
+        Self {
+            send: Sender::default(),
+            occurrence: Occurrence::default(),
+            active_closed: false,
+            id: get_id(),
+        }
+    }
 }
 
 impl_deref!(Timer, Sender, send);
@@ -127,7 +143,7 @@ impl From<TimerXml<'_>> for Timer {
             occurrence,
             send,
             active_closed: value.active_closed,
-            id: Uuid::new_v4(),
+            id: get_id(),
         }
     }
 }

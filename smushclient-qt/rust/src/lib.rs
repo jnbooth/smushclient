@@ -352,11 +352,6 @@ pub mod ffi {
 
     unsafe impl !cxx_qt::Locking for Sender {}
 
-    unsafe extern "C++" {
-        include!("cxx-qt-extensions/quuid.h");
-        type QUuid = cxx_qt_extensions::QUuid;
-    }
-
     extern "RustQt" {
         // Sender
         #[qobject]

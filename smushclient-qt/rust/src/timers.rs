@@ -1,5 +1,5 @@
 use cxx_qt_lib::QString;
-use smushclient_plugins::{Occurrence, PluginIndex, Timer, Uuid};
+use smushclient_plugins::{Occurrence, PluginIndex, Timer};
 
 use crate::ffi;
 
@@ -18,7 +18,7 @@ impl Clone for ffi::SendTimer {
 
 #[derive(Clone)]
 pub struct SendTimer {
-    pub id: Uuid,
+    pub id: u16,
     pub milliseconds: u32,
     pub one_shot: bool,
     pub qt: ffi::SendTimer,

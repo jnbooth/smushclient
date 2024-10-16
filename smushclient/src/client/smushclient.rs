@@ -13,7 +13,7 @@ use enumeration::EnumSet;
 use mud_transformer::{
     EffectFragment, OutputFragment, Tag, TextFragment, TextStyle, Transformer, TransformerConfig,
 };
-use smushclient_plugins::{Plugin, PluginIndex, Timer, Uuid};
+use smushclient_plugins::{Plugin, PluginIndex, Timer};
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
@@ -344,7 +344,7 @@ impl SmushClient {
         }
     }
 
-    pub fn finish_timer(&mut self, index: PluginIndex, id: Uuid) -> Option<Timer> {
+    pub fn finish_timer(&mut self, index: PluginIndex, id: u16) -> Option<Timer> {
         let timers = self.senders_mut::<Timer>(index);
         let (i, timer) = timers
             .iter()
