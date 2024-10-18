@@ -459,32 +459,65 @@ static int L_PluginSupports(lua_State *L)
 
 // senders
 
-// long AddTimer(BSTR TimerName, short Hour, short Minute, double Second, BSTR ResponseText, long Flags, BSTR ScriptName);
+static int L_AddAlias(lua_State *L)
+{
+  expectMaxArgs(L, 5);
+  const QString name = qlua::getQString(L, 1);
+  const QString pattern = qlua::getQString(L, 2);
+  const QString text = qlua::getQString(L, 3);
+  const QFlags<AliasFlag> flags = (QFlags<AliasFlag>)qlua::getInt(L, 4);
+  const optional<QString> script = qlua::getScriptName(L, 5);
+
+  if (!script)
+    return returnCode(L, ApiCode::ScriptNameNotLocated);
+
+  return returnCode(L, getApi(L).AddAlias(getPluginIndex(L), name, pattern, text, flags, *script));
+}
 
 static int L_AddTimer(lua_State *L)
 {
   expectMaxArgs(L, 7);
-  const QString &timerName = qlua::getQString(L, 1);
+  const QString name = qlua::getQString(L, 1);
   const int hour = qlua::getInt(L, 2);
   const int minute = qlua::getInt(L, 3);
   const double second = qlua::getNumber(L, 4);
-  const QString &text = qlua::getQString(L, 5);
+  const QString text = qlua::getQString(L, 5);
   const QFlags<TimerFlag> flags = (QFlags<TimerFlag>)qlua::getInt(L, 6);
-  const string_view &script = qlua::getString(L, 7, "");
+  const optional<QString> script = qlua::getScriptName(L, 7);
 
-  if (!script.empty())
-  {
-    const int scriptType = lua_getglobal(L, script.data());
-    lua_pop(L, 1);
-    if (scriptType != LUA_TFUNCTION)
-      return returnCode(L, ApiCode::ScriptNameNotLocated);
-  }
-
-  const QString scriptQ = QString::fromUtf8(script.data(), script.length());
+  if (!script)
+    return returnCode(L, ApiCode::ScriptNameNotLocated);
 
   return returnCode(
       L,
-      getApi(L).AddTimer(getPluginIndex(L), timerName, hour, minute, second, text, flags, scriptQ));
+      getApi(L).AddTimer(getPluginIndex(L), name, hour, minute, second, text, flags, *script));
+}
+
+static int L_AddTrigger(lua_State *L)
+{
+  expectMaxArgs(L, 10);
+  const QString name = qlua::getQString(L, 1);
+  const QString pattern = qlua::getQString(L, 2);
+  const QString text = qlua::getQString(L, 3);
+  const QFlags<TriggerFlag> flags = (QFlags<TriggerFlag>)qlua::getInt(L, 4);
+  const QColor color = qlua::getCustomColor(L, 5);
+  // const int wildcardIndex = qlua::getInt(L, 6);
+  const QString soundFile = qlua::getQString(L, 7);
+  const optional<QString> script = qlua::getScriptName(L, 8);
+  const optional<SendTarget> target = qlua::getSendTarget(L, 9, SendTarget::World);
+  const int sequence = qlua::getInt(L, 10, 100);
+
+  if (!script)
+    return returnCode(L, ApiCode::ScriptNameNotLocated);
+
+  if (!target)
+    return returnCode(L, ApiCode::TriggerSendToInvalid);
+
+  return returnCode(
+      L,
+      getApi(L).AddTrigger(
+          getPluginIndex(L),
+          name, pattern, text, flags, color, soundFile, *script, *target, sequence));
 }
 
 static int L_DoAfter(lua_State *L)
@@ -1175,7 +1208,10 @@ static const struct luaL_Reg worldlib[] =
      {"GetPluginInfo", L_GetPluginInfo},
      {"PluginSupports", L_PluginSupports},
      // senders
+     {"AddAlias", L_AddAlias},
      {"AddTimer", L_AddTimer},
+     {"AddTrigger", L_AddTrigger},
+     {"AddTriggerEx", L_AddTrigger},
      {"DoAfter", L_DoAfter},
      {"DoAfterNote", L_DoAfterNote},
      {"DoAfterSpeedwalk", L_DoAfterSpeedwalk},

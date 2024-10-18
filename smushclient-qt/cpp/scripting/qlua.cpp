@@ -16,6 +16,25 @@ using std::vector;
 
 // Private utilities
 
+static const QColor customColors[16] = {
+    QColor(255, 128, 128),
+    QColor(255, 255, 128),
+    QColor(128, 255, 128),
+    QColor(128, 255, 255),
+    QColor(0, 128, 255),
+    QColor(255, 128, 192),
+    QColor(255, 0, 0),
+    QColor(0, 128, 192),
+    QColor(255, 0, 255),
+    QColor(128, 64, 64),
+    QColor(255, 128, 64),
+    QColor(0, 128, 128),
+    QColor(0, 64, 128),
+    QColor(255, 0, 128),
+    QColor(0, 128, 0),
+    QColor(0, 0, 255),
+};
+
 inline QString charString(char c) { return QString::fromUtf8(&c, 1); }
 inline QString charString(char16_t c) { return QString::fromUtf16(&c, 1); }
 inline QString charString(char32_t c) { return QString::fromUcs4(&c, 1); }
@@ -211,6 +230,12 @@ QColor qlua::getQColor(lua_State *L, int idx)
   return toColor(L, idx);
 }
 
+QColor qlua::getCustomColor(lua_State *L, int idx)
+{
+  const int colorIndex = getInt(L, idx);
+  return (colorIndex < 0 || colorIndex >= 16) ? QColor() : customColors[colorIndex];
+}
+
 QColor qlua::getQColor(lua_State *L, int idx, const QColor &ifNil)
 {
   int type = lua_type(L, idx);
@@ -258,6 +283,22 @@ QVariant qlua::getQVariant(lua_State *L, int idx, int type)
   default:
     return QVariant();
   }
+}
+
+optional<QString> qlua::getScriptName(lua_State *L, int idx)
+{
+  luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
+  size_t len;
+  const char *message = lua_tolstring(L, idx, &len);
+  if (len == 0)
+    return QString();
+
+  const int globalType = lua_getglobal(L, message);
+  lua_pop(L, 1);
+  if (globalType != LUA_TFUNCTION)
+    return nullopt;
+
+  return QString::fromUtf8(message, len);
 }
 
 string_view qlua::toString(lua_State *L, int idx)

@@ -62,6 +62,49 @@ inline ApiCode updateWorld(WorldTab &worldtab)
 
 // Public methods
 
+ApiCode ScriptApi::AddAlias(
+    size_t plugin,
+    const QString &name,
+    const QString &pattern,
+    const QString &text,
+    QFlags<AliasFlag> flags,
+    const QString &scriptName) const
+{
+  if (pattern.isEmpty())
+    return ApiCode::TriggerCannotBeEmpty;
+
+  const SendTarget target =
+      flags.testFlag(AliasFlag::AliasSpeedWalk) ? SendTarget::Speedwalk
+      : flags.testFlag(AliasFlag::AliasQueue)   ? SendTarget::WorldDelay
+                                                : SendTarget::World;
+
+  Alias alias;
+  alias.setSendTo(target);
+  alias.setLabel(name);
+  alias.setPattern(pattern);
+  alias.setText(text);
+  alias.setScript(scriptName);
+  alias.setEnabled(flags.testFlag(AliasFlag::Enabled));
+  alias.setKeepEvaluating(flags.testFlag(AliasFlag::KeepEvaluating));
+  alias.setOmitFromLog(flags.testFlag(AliasFlag::OmitFromLogFile));
+  alias.setIsRegex(flags.testFlag(AliasFlag::RegularExpression));
+  alias.setExpandVariables(flags.testFlag(AliasFlag::ExpandVariables));
+  alias.setMenu(flags.testFlag(AliasFlag::AliasMenu));
+  alias.setTemporary(flags.testFlag(AliasFlag::Temporary));
+
+  try
+  {
+    const ssize_t index = flags.testFlag(AliasFlag::Replace)
+                              ? client()->addAlias(plugin, alias)
+                              : client()->replaceAlias(plugin, alias);
+    return index < 0 ? ApiCode::AliasAlreadyExists : ApiCode::OK;
+  }
+  catch (rust::Error &)
+  {
+    return ApiCode::BadRegularExpression;
+  }
+}
+
 ApiCode ScriptApi::AddTimer(
     size_t plugin,
     const QString &name,
@@ -70,7 +113,7 @@ ApiCode ScriptApi::AddTimer(
     double second,
     const QString &text,
     QFlags<TimerFlag> flags,
-    const QString &scriptName)
+    const QString &scriptName) const
 {
   if (flags.testFlag(TimerFlag::AtTime))
     return ApiCode::OK;
@@ -98,14 +141,63 @@ ApiCode ScriptApi::AddTimer(
   timer.setTemporary(flags.testFlag(TimerFlag::Temporary));
   timer.setText(text);
 
-  const ssize_t index = (flags.testFlag(TimerFlag::Replace))
+  const ssize_t index = flags.testFlag(TimerFlag::Replace)
                             ? client()->addTimer(plugin, timer, *timekeeper)
                             : client()->replaceTimer(plugin, timer, *timekeeper);
 
-  if (index < 0)
-    return ApiCode::TimerAlreadyExists;
+  return index < 0 ? ApiCode::TimerAlreadyExists : ApiCode::OK;
+}
+ApiCode ScriptApi::AddTrigger(
+    size_t plugin,
+    const QString &name,
+    const QString &pattern,
+    const QString &text,
+    QFlags<TriggerFlag> flags,
+    const QColor &color,
+    const QString &sound,
+    const QString &script,
+    SendTarget target,
+    int sequence) const
+{
+  if (pattern.isEmpty())
+    return ApiCode::TriggerCannotBeEmpty;
 
-  return ApiCode::OK;
+  if (sequence < 0 || sequence > 10000)
+    return ApiCode::TriggerSequenceOutOfRange;
+
+  Trigger trigger;
+  trigger.setEnabled(flags.testFlag(TriggerFlag::Enabled));
+  trigger.setExpandVariables(flags.testFlag(TriggerFlag::ExpandVariables));
+  trigger.setIgnoreCase(flags.testFlag(TriggerFlag::IgnoreCase));
+  trigger.setIsRegex(flags.testFlag(TriggerFlag::RegularExpression));
+  trigger.setKeepEvaluating(flags.testFlag(TriggerFlag::KeepEvaluating));
+  trigger.setLabel(name);
+  trigger.setLowercaseWildcard(flags.testFlag(TriggerFlag::LowercaseWildcard));
+  trigger.setOmitFromLog(flags.testFlag(TriggerFlag::OmitFromLog));
+  trigger.setOmitFromOutput(flags.testFlag(TriggerFlag::OmitFromOutput));
+  trigger.setPattern(pattern);
+  trigger.setScript(script);
+  trigger.setSendTo(target);
+  trigger.setSequence(sequence);
+  trigger.setSound(sound);
+  trigger.setText(text);
+  if (color.isValid())
+  {
+    trigger.setChangeForeground(true);
+    trigger.setForegroundColor(color);
+  }
+
+  try
+  {
+    const ssize_t index = flags.testFlag(TriggerFlag::Replace)
+                              ? client()->addTrigger(plugin, trigger)
+                              : client()->replaceTrigger(plugin, trigger);
+    return index < 0 ? ApiCode::TriggerAlreadyExists : ApiCode::OK;
+  }
+  catch (rust::Error &)
+  {
+    return ApiCode::BadRegularExpression;
+  }
 }
 
 int ScriptApi::BroadcastPlugin(size_t index, int message, string_view text) const

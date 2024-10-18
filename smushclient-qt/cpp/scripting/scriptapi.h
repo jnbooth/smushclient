@@ -43,6 +43,13 @@ public:
 
   ScriptApi(WorldTab *parent);
 
+  ApiCode AddAlias(
+      size_t plugin,
+      const QString &name,
+      const QString &pattern,
+      const QString &text,
+      QFlags<AliasFlag> flags,
+      const QString &scriptName = QString()) const;
   ApiCode AddTimer(
       size_t plugin,
       const QString &name,
@@ -51,7 +58,18 @@ public:
       double second,
       const QString &text,
       QFlags<TimerFlag> flags,
-      const QString &scriptName = QString());
+      const QString &scriptName = QString()) const;
+  ApiCode AddTrigger(
+      size_t plugin,
+      const QString &name,
+      const QString &pattern,
+      const QString &text,
+      QFlags<TriggerFlag> flags,
+      const QColor &color,
+      const QString &sound,
+      const QString &scriptName = QString(),
+      SendTarget target = SendTarget::World,
+      int sequence = 100) const;
   int BroadcastPlugin(size_t pluginIndex, int message, std::string_view text) const;
   void ColourTell(const QColor &foreground, const QColor &background, const QString &text);
   int DatabaseClose(std::string_view databaseID);

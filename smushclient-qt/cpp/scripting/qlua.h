@@ -51,6 +51,7 @@ namespace qlua
 
   QColor getQColor(lua_State *L, int idx);
   QColor getQColor(lua_State *L, int idx, const QColor &ifNil);
+  QColor getCustomColor(lua_State *L, int idx);
 
   QString getQString(lua_State *L, int idx);
   QString getQString(lua_State *L, int idx, QString ifNil);
@@ -60,6 +61,8 @@ namespace qlua
   {
     return getQVariant(L, idx, lua_type(L, idx));
   }
+
+  std::optional<QString> getScriptName(lua_State *L, int idx);
 
   std::string_view getString(lua_State *L, int idx);
   std::string_view getString(lua_State *L, int idx, std::string_view ifNil);
