@@ -520,6 +520,45 @@ static int L_AddTrigger(lua_State *L)
           name, pattern, text, flags, color, soundFile, *script, *target, sequence));
 }
 
+static int L_DeleteAlias(lua_State *L)
+{
+  expectMaxArgs(L, 1);
+  return returnCode(L, getApi(L).DeleteAlias(getPluginIndex(L), qlua::getQString(L, 1)));
+}
+
+static int L_DeleteAliases(lua_State *L)
+{
+  expectMaxArgs(L, 1);
+  lua_pushinteger(L, getApi(L).DeleteAliases(getPluginIndex(L), qlua::getQString(L, 1)));
+  return 1;
+}
+
+static int L_DeleteTimer(lua_State *L)
+{
+  expectMaxArgs(L, 1);
+  return returnCode(L, getApi(L).DeleteTimer(getPluginIndex(L), qlua::getQString(L, 1)));
+}
+
+static int L_DeleteTimers(lua_State *L)
+{
+  expectMaxArgs(L, 1);
+  lua_pushinteger(L, getApi(L).DeleteTimers(getPluginIndex(L), qlua::getQString(L, 1)));
+  return 1;
+}
+
+static int L_DeleteTrigger(lua_State *L)
+{
+  expectMaxArgs(L, 1);
+  return returnCode(L, getApi(L).DeleteTrigger(getPluginIndex(L), qlua::getQString(L, 1)));
+}
+
+static int L_DeleteTriggers(lua_State *L)
+{
+  expectMaxArgs(L, 1);
+  lua_pushinteger(L, getApi(L).DeleteTriggers(getPluginIndex(L), qlua::getQString(L, 1)));
+  return 1;
+}
+
 static int L_DoAfter(lua_State *L)
 {
   expectMaxArgs(L, 2);
@@ -1212,6 +1251,12 @@ static const struct luaL_Reg worldlib[] =
      {"AddTimer", L_AddTimer},
      {"AddTrigger", L_AddTrigger},
      {"AddTriggerEx", L_AddTrigger},
+     {"DeleteAlias", L_DeleteAlias},
+     {"DeleteAliases", L_DeleteAliases},
+     {"DeleteTimer", L_DeleteTimer},
+     {"DeleteTimers", L_DeleteTimers},
+     {"DeleteTrigger", L_DeleteTrigger},
+     {"DeleteTriggers", L_DeleteTriggers},
      {"DoAfter", L_DoAfter},
      {"DoAfterNote", L_DoAfterNote},
      {"DoAfterSpeedwalk", L_DoAfterSpeedwalk},

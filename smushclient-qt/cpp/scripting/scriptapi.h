@@ -70,6 +70,12 @@ public:
       const QString &scriptName = QString(),
       SendTarget target = SendTarget::World,
       int sequence = 100) const;
+  ApiCode DeleteAlias(size_t plugin, const QString &name) const;
+  size_t DeleteAliases(size_t plugin, const QString &group) const;
+  ApiCode DeleteTimer(size_t plugin, const QString &name) const;
+  size_t DeleteTimers(size_t plugin, const QString &group) const;
+  ApiCode DeleteTrigger(size_t plugin, const QString &name) const;
+  size_t DeleteTriggers(size_t plugin, const QString &group) const;
   int BroadcastPlugin(size_t pluginIndex, int message, std::string_view text) const;
   void ColourTell(const QColor &foreground, const QColor &background, const QString &text);
   int DatabaseClose(std::string_view databaseID);

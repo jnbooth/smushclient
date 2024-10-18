@@ -376,6 +376,45 @@ impl ffi::SmushClient {
         Ok(self.cxx_qt_ffi_rust_mut().add_sender(index, trigger))
     }
 
+    pub fn remove_alias(self: Pin<&mut Self>, index: PluginIndex, name: &QString) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .remove_sender::<Alias>(index, &String::from(name))
+            .is_some()
+    }
+
+    pub fn remove_timer(self: Pin<&mut Self>, index: PluginIndex, name: &QString) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .remove_sender::<Timer>(index, &String::from(name))
+            .is_some()
+    }
+
+    pub fn remove_trigger(self: Pin<&mut Self>, index: PluginIndex, name: &QString) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .remove_sender::<Trigger>(index, &String::from(name))
+            .is_some()
+    }
+
+    pub fn remove_aliases(self: Pin<&mut Self>, index: PluginIndex, name: &QString) -> usize {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .remove_senders::<Alias>(index, &String::from(name))
+    }
+
+    pub fn remove_timers(self: Pin<&mut Self>, index: PluginIndex, group: &QString) -> usize {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .remove_senders::<Timer>(index, &String::from(group))
+    }
+
+    pub fn remove_triggers(self: Pin<&mut Self>, index: PluginIndex, group: &QString) -> usize {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .remove_senders::<Trigger>(index, &String::from(group))
+    }
+
     pub fn replace_alias(
         self: Pin<&mut Self>,
         index: PluginIndex,

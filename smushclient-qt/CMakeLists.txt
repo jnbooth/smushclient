@@ -88,6 +88,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
     cpp/scripting/scriptapi_api.cpp
     cpp/scripting/scriptapi_getinfo.cpp
+    cpp/scripting/scriptapi_senders.cpp
     cpp/scripting/scriptapi_window.cpp
     cpp/scripting/scriptthread.h cpp/scripting/scriptthread.cpp
     cpp/scripting/plugin.h cpp/scripting/plugin.cpp

@@ -367,6 +367,21 @@ impl SmushClient {
         Ok((pos, &senders[pos]))
     }
 
+    pub fn remove_sender<T: SendIterable>(&mut self, index: PluginIndex, label: &str) -> Option<T> {
+        let senders = self.senders_mut::<T>(index);
+        let pos = senders
+            .iter()
+            .position(|sender| sender.as_ref().label == label)?;
+        Some(senders.remove(pos))
+    }
+
+    pub fn remove_senders<T: SendIterable>(&mut self, index: PluginIndex, group: &str) -> usize {
+        let senders = self.senders_mut::<T>(index);
+        let len = senders.len();
+        senders.retain(|sender| sender.as_ref().group != group);
+        len - senders.len()
+    }
+
     pub fn replace_sender<T: SendIterable>(
         &mut self,
         index: PluginIndex,

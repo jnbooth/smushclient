@@ -288,6 +288,12 @@ pub mod ffi {
             index: usize,
             trigger: &Trigger,
         ) -> Result<isize>;
+        fn remove_alias(self: Pin<&mut SmushClient>, index: usize, label: &QString) -> bool;
+        fn remove_timer(self: Pin<&mut SmushClient>, index: usize, label: &QString) -> bool;
+        fn remove_trigger(self: Pin<&mut SmushClient>, index: usize, label: &QString) -> bool;
+        fn remove_aliases(self: Pin<&mut SmushClient>, index: usize, group: &QString) -> usize;
+        fn remove_timers(self: Pin<&mut SmushClient>, index: usize, group: &QString) -> usize;
+        fn remove_triggers(self: Pin<&mut SmushClient>, index: usize, group: &QString) -> usize;
         fn replace_alias(self: Pin<&mut SmushClient>, index: usize, alias: &Alias)
             -> Result<usize>;
         fn replace_timer(
