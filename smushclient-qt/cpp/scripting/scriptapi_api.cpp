@@ -98,10 +98,13 @@ ApiCode ScriptApi::AddTimer(
   timer.setTemporary(flags.testFlag(TimerFlag::Temporary));
   timer.setText(text);
 
-  if (flags.testFlag(TimerFlag::Replace))
-    client()->addTimer(plugin, timer, *timekeeper);
-  else
-    client()->replaceTimer(plugin, timer, *timekeeper);
+  const ssize_t index = (flags.testFlag(TimerFlag::Replace))
+                            ? client()->addTimer(plugin, timer, *timekeeper)
+                            : client()->replaceTimer(plugin, timer, *timekeeper);
+
+  if (index < 0)
+    return ApiCode::TimerAlreadyExists;
+
   return ApiCode::OK;
 }
 
