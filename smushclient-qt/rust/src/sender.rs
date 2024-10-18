@@ -9,6 +9,7 @@ use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer
 use crate::convert::Convert;
 use crate::ffi;
 
+const NANOSECONDS_PER_MILLISECOND: u32 = 1_000_000;
 const MILLISECONDS_PER_SECOND: i32 = 1000;
 const SECONDS_PER_MINUTE: u64 = 60;
 const MINUTES_PER_HOUR: u64 = 60;
@@ -90,6 +91,7 @@ pub struct TimerRust {
     pub every_hour: i32,
     pub every_minute: i32,
     pub every_second: i32,
+    pub every_millisecond: u32,
     pub active_closed: bool,
     pub id: u16,
 }
@@ -108,6 +110,7 @@ impl From<&Timer> for TimerRust {
                     send,
                     occurrence: ffi::Occurrence::Time,
                     at_time: QTime::from_msecs_since_start_of_day(msecs),
+                    every_millisecond: 0,
                     every_second: 0,
                     every_minute: 0,
                     every_hour: 0,
@@ -122,6 +125,7 @@ impl From<&Timer> for TimerRust {
                     send,
                     occurrence: ffi::Occurrence::Interval,
                     at_time: QTime::default(),
+                    every_millisecond: duration.subsec_millis(),
                     every_second: i32::try_from(seconds % SECONDS_PER_MINUTE).unwrap(),
                     every_minute: i32::try_from(minutes % MINUTES_PER_HOUR).unwrap(),
                     every_hour: i32::try_from(minutes / MINUTES_PER_HOUR).unwrap(),
@@ -147,7 +151,10 @@ impl From<&TimerRust> for Timer {
                 let minutes = u64::try_from(value.every_minute).unwrap();
                 let hours = u64::try_from(value.every_hour).unwrap();
                 let duration = seconds + SECONDS_PER_MINUTE * (minutes + MINUTES_PER_HOUR * hours);
-                Occurrence::Interval(Duration::from_secs(duration))
+                Occurrence::Interval(Duration::new(
+                    duration,
+                    value.every_millisecond * NANOSECONDS_PER_MILLISECOND,
+                ))
             }
             _ => unreachable!(),
         };

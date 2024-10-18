@@ -16,7 +16,10 @@ using std::nullopt;
 using std::optional;
 using std::string;
 using std::string_view;
+using std::chrono::hours;
 using std::chrono::milliseconds;
+using std::chrono::minutes;
+using std::chrono::seconds;
 
 // Private utils
 
@@ -58,6 +61,49 @@ inline ApiCode updateWorld(WorldTab &worldtab)
 }
 
 // Public methods
+
+ApiCode ScriptApi::AddTimer(
+    size_t plugin,
+    const QString &name,
+    int hour,
+    int minute,
+    double second,
+    const QString &text,
+    QFlags<TimerFlag> flags,
+    const QString &scriptName)
+{
+  if (flags.testFlag(TimerFlag::AtTime))
+    return ApiCode::OK;
+
+  if (hour < 0 || minute < 0 || second < 0 || hour >= 24 || minute >= 60 || second >= 60)
+    return ApiCode::TimeInvalid;
+
+  const SendTarget target =
+      flags.testFlag(TimerFlag::TimerSpeedWalk) ? SendTarget::Speedwalk
+      : flags.testFlag(TimerFlag::TimerNote)    ? SendTarget::Output
+                                                : SendTarget::World;
+
+  Timer timer;
+  timer.setActiveClosed(flags.testFlag(TimerFlag::ActiveWhenClosed));
+  timer.setEnabled(flags.testFlag(TimerFlag::Enabled));
+  timer.setEveryHour(hour);
+  timer.setEveryMillisecond((int)(second * 1000));
+  timer.setEveryMinute(minute);
+  timer.setEverySecond((int)second);
+  timer.setLabel(name);
+  timer.setOccurrence(Occurrence::Interval);
+  timer.setOneShot(flags.testFlag(TimerFlag::OneShot));
+  timer.setScript(scriptName);
+  timer.setSendTo(target);
+  timer.setTemporary(flags.testFlag(TimerFlag::Temporary));
+  timer.setText(text);
+
+  if (flags.testFlag(TimerFlag::Replace))
+    client()->addTimer(plugin, timer, *timekeeper);
+  else
+    client()->replaceTimer(plugin, timer, *timekeeper);
+  return ApiCode::OK;
+}
 
 int ScriptApi::BroadcastPlugin(size_t index, int message, string_view text) const
 {

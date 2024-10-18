@@ -25,8 +25,6 @@ use sender::{AliasRust, ReactionRust, SenderRust, TimerRust, TriggerRust};
 
 mod sync;
 
-mod timers;
-
 mod world;
 use world::WorldRust;
 
@@ -301,6 +299,31 @@ pub mod ffi {
             device: Pin<&mut QTcpSocket>,
             doc: Pin<&mut Document>,
         ) -> i64;
+        fn add_alias(self: Pin<&mut SmushClient>, index: usize, alias: &Alias) -> Result<isize>;
+        fn add_timer(
+            self: Pin<&mut SmushClient>,
+            index: usize,
+            timer: &Timer,
+            timekeper: Pin<&mut Timekeeper>,
+        ) -> isize;
+        fn add_trigger(
+            self: Pin<&mut SmushClient>,
+            index: usize,
+            trigger: &Trigger,
+        ) -> Result<isize>;
+        fn replace_alias(self: Pin<&mut SmushClient>, index: usize, alias: &Alias)
+            -> Result<usize>;
+        fn replace_timer(
+            self: Pin<&mut SmushClient>,
+            index: usize,
+            timer: &Timer,
+            timekeeper: Pin<&mut Timekeeper>,
+        ) -> usize;
+        fn replace_trigger(
+            self: Pin<&mut SmushClient>,
+            index: usize,
+            trigger: &Trigger,
+        ) -> Result<usize>;
         fn is_alias(self: &SmushClient, label: &QString) -> bool;
         fn is_timer(self: &SmushClient, label: &QString) -> bool;
         fn is_trigger(self: &SmushClient, label: &QString) -> bool;
@@ -372,6 +395,7 @@ pub mod ffi {
         #[qproperty(i32, every_hour)]
         #[qproperty(i32, every_minute)]
         #[qproperty(i32, every_second)]
+        #[qproperty(u32, every_millisecond)]
         #[qproperty(bool, active_closed)]
         type Timer = super::TimerRust;
     }

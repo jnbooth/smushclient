@@ -459,6 +459,34 @@ static int L_PluginSupports(lua_State *L)
 
 // senders
 
+// long AddTimer(BSTR TimerName, short Hour, short Minute, double Second, BSTR ResponseText, long Flags, BSTR ScriptName);
+
+static int L_AddTimer(lua_State *L)
+{
+  expectMaxArgs(L, 7);
+  const QString &timerName = qlua::getQString(L, 1);
+  const int hour = qlua::getInt(L, 2);
+  const int minute = qlua::getInt(L, 3);
+  const double second = qlua::getNumber(L, 4);
+  const QString &text = qlua::getQString(L, 5);
+  const QFlags<TimerFlag> flags = (QFlags<TimerFlag>)qlua::getInt(L, 6);
+  const string_view &script = qlua::getString(L, 7, "");
+
+  if (!script.empty())
+  {
+    const int scriptType = lua_getglobal(L, script.data());
+    lua_pop(L, 1);
+    if (scriptType != LUA_TFUNCTION)
+      return returnCode(L, ApiCode::ScriptNameNotLocated);
+  }
+
+  const QString scriptQ = QString::fromUtf8(script.data(), script.length());
+
+  return returnCode(
+      L,
+      getApi(L).AddTimer(getPluginIndex(L), timerName, hour, minute, second, text, flags, scriptQ));
+}
+
 static int L_DoAfter(lua_State *L)
 {
   expectMaxArgs(L, 2);
@@ -1147,6 +1175,7 @@ static const struct luaL_Reg worldlib[] =
      {"GetPluginInfo", L_GetPluginInfo},
      {"PluginSupports", L_PluginSupports},
      // senders
+     {"AddTimer", L_AddTimer},
      {"DoAfter", L_DoAfter},
      {"DoAfterNote", L_DoAfterNote},
      {"DoAfterSpeedwalk", L_DoAfterSpeedwalk},

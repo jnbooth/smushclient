@@ -2,7 +2,7 @@ use smushclient_plugins::{Alias, Plugin, PluginIndex, Sender, Timer, Trigger};
 
 use crate::World;
 
-pub trait SendIterable: AsRef<Sender> + AsMut<Sender> + Sized {
+pub trait SendIterable: AsRef<Sender> + AsMut<Sender> + Ord + Sized {
     fn from_plugin(plugin: &Plugin) -> &[Self];
     fn from_plugin_mut(plugin: &mut Plugin) -> &mut Vec<Self>;
     fn from_world(world: &World) -> &[Self];

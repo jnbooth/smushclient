@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::ffi::c_char;
 use std::io::{self, Read, Write};
 use std::path::Path;
@@ -342,6 +343,89 @@ impl SmushClient {
         } else {
             T::from_plugin_mut(plugin)
         }
+    }
+
+    pub fn add_sender<T: SendIterable>(
+        &mut self,
+        index: PluginIndex,
+        sender: T,
+    ) -> Result<(usize, &T), usize> {
+        let senders = self.senders_mut::<T>(index);
+        let label = sender.as_ref().label.as_str();
+        if !label.is_empty() {
+            if let Some(pos) = senders
+                .iter()
+                .position(|sender| sender.as_ref().label == label)
+            {
+                return Err(pos);
+            }
+        }
+        let pos = match senders.binary_search(&sender) {
+            Ok(pos) | Err(pos) => pos,
+        };
+        senders.insert(pos, sender);
+        Ok((pos, &senders[pos]))
+    }
+
+    pub fn replace_sender<T: SendIterable>(
+        &mut self,
+        index: PluginIndex,
+        sender: T,
+        replace_at: usize,
+    ) -> Result<(usize, &T), usize> {
+        let senders = self.senders_mut::<T>(index);
+        let label = sender.as_ref().label.as_str();
+        if !label.is_empty() {
+            if let Some((pos, _)) = senders
+                .iter()
+                .enumerate()
+                .find(|(pos, sender)| sender.as_ref().label == label && *pos != replace_at)
+            {
+                return Err(pos);
+            }
+        }
+        let pos = match senders.binary_search(&sender) {
+            Ok(pos) | Err(pos) => pos,
+        };
+        if replace_at >= senders.len() {
+            senders.insert(pos, sender);
+            return Ok((pos, &senders[pos]));
+        }
+        senders[replace_at] = sender;
+        match replace_at.cmp(&pos) {
+            Ordering::Less => senders[replace_at..=pos].rotate_left(1),
+            Ordering::Equal => (),
+            Ordering::Greater => senders[pos..=replace_at].rotate_right(1),
+        }
+        Ok((pos, &senders[pos]))
+    }
+
+    pub fn add_or_replace_sender<T: SendIterable>(
+        &mut self,
+        index: PluginIndex,
+        sender: T,
+    ) -> (usize, &T) {
+        let senders = self.senders_mut::<T>(index);
+        let pos = match senders.binary_search(&sender) {
+            Ok(pos) | Err(pos) => pos,
+        };
+        let label = sender.as_ref().label.as_str();
+        if !label.is_empty() {
+            if let Some(replace_at) = senders
+                .iter()
+                .position(|sender| sender.as_ref().label == label)
+            {
+                senders[replace_at] = sender;
+                match replace_at.cmp(&pos) {
+                    Ordering::Less => senders[replace_at..=pos].rotate_left(1),
+                    Ordering::Equal => (),
+                    Ordering::Greater => senders[pos..=replace_at].rotate_right(1),
+                }
+                return (pos, &senders[pos]);
+            }
+        }
+        senders.insert(pos, sender);
+        (pos, &senders[pos])
     }
 
     pub fn finish_timer(&mut self, index: PluginIndex, id: u16) -> Option<Timer> {

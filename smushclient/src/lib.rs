@@ -1,14 +1,14 @@
 mod client;
-pub use client::SmushClient;
+pub use client::{SmushClient, TimerConstructible, Timers};
 
 mod get_info;
 pub use get_info::InfoVisitor;
 
 mod handler;
-pub use handler::{Handler, SendHandler};
+pub use handler::{Handler, SendHandler, TimerHandler};
 
 mod plugins;
-pub use plugins::{AliasOutcome, LoadError, LoadFailure, SendRequest};
+pub use plugins::{AliasOutcome, LoadError, LoadFailure, SendIterable, SendRequest};
 
 pub mod world;
 pub use world::World;

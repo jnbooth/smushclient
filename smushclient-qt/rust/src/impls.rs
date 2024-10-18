@@ -4,8 +4,8 @@ use cxx_qt_lib::QString;
 use mud_transformer::mxp::{Link, SendTo};
 use mud_transformer::{TextStyle, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, ProxyType, ScriptRecompile};
-use smushclient::AliasOutcome;
-use smushclient_plugins::SendTarget;
+use smushclient::{AliasOutcome, TimerConstructible};
+use smushclient_plugins::{PluginIndex, SendTarget, Timer};
 
 impl_convert_enum!(ffi::SendTo, SendTo, Internet, World, Input);
 
@@ -90,6 +90,19 @@ impl From<&Link> for ffi::Link {
             hint: value.hint.convert(),
             prompts: QString::from(&value.prompts.join("|")),
             sendto: value.sendto.into(),
+        }
+    }
+}
+
+impl TimerConstructible for ffi::SendTimer {
+    fn construct(plugin: PluginIndex, timer: &Timer) -> Self {
+        Self {
+            active_closed: timer.active_closed,
+            label: timer.label.clone(),
+            plugin,
+            script: timer.script.clone(),
+            target: timer.send_to.into(),
+            text: QString::from(&timer.text),
         }
     }
 }

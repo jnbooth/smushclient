@@ -51,7 +51,7 @@ public:
       double second,
       const QString &text,
       QFlags<TimerFlag> flags,
-      std::string_view scriptName = "");
+      const QString &scriptName = QString());
   int BroadcastPlugin(size_t pluginIndex, int message, std::string_view text) const;
   void ColourTell(const QColor &foreground, const QColor &background, const QString &text);
   int DatabaseClose(std::string_view databaseID);

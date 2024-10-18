@@ -12,15 +12,14 @@ use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
 use crate::impls::convert_alias_outcome;
 use crate::sync::NonBlockingMutex;
-use crate::timers::{ReuseVec, SendTimer};
 use crate::world::WorldRust;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant, QVector};
 use enumeration::EnumSet;
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
-use smushclient::{SendHandler, SmushClient, World};
-use smushclient_plugins::{Alias, PluginIndex, Timer, Trigger};
+use smushclient::{SendHandler, SendIterable, SmushClient, Timers, World};
+use smushclient_plugins::{Alias, PluginIndex, RegexError, Timer, Trigger};
 
 const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Bold,
@@ -46,7 +45,7 @@ pub struct SmushClientRust {
     input_lock: NonBlockingMutex,
     output_lock: NonBlockingMutex,
     send: Vec<QString>,
-    send_timers: ReuseVec<SendTimer>,
+    timers: Timers<ffi::SendTimer>,
     palette: HashMap<RgbColor, i32>,
 }
 
@@ -57,7 +56,7 @@ impl Default for SmushClientRust {
             input_lock: NonBlockingMutex::default(),
             output_lock: NonBlockingMutex::default(),
             send: Vec::new(),
-            send_timers: ReuseVec::new(),
+            timers: Timers::new(),
             palette: HashMap::with_capacity(166),
         }
     }
@@ -224,32 +223,44 @@ impl SmushClientRust {
 
     pub fn start_timers(&mut self, index: PluginIndex, mut timekeeper: TimekeeperAdapter) {
         for timer in self.client.senders::<Timer>(index) {
-            if !timer.enabled {
-                continue;
-            }
-            let Some(send_timer) = SendTimer::new(index, timer) else {
-                continue;
-            };
-            let milliseconds = send_timer.milliseconds;
-            let id = self.send_timers.insert(send_timer);
-            timekeeper.start_send_timer(id, milliseconds);
+            self.timers.start(index, timer, &mut timekeeper);
         }
     }
 
     pub fn finish_timer(&mut self, id: usize, mut timekeeper: TimekeeperAdapter) {
-        let Some(timer) = self.send_timers.get(id) else {
-            return;
+        self.timers.finish(id, &mut self.client, &mut timekeeper);
+    }
+
+    fn add_sender<T: SendIterable>(&mut self, index: PluginIndex, sender: T) -> isize {
+        match self.client.add_sender(index, sender) {
+            Ok((pos, _)) => isize::try_from(pos).unwrap(),
+            Err(pos) => -1 - isize::try_from(pos).unwrap(),
+        }
+    }
+
+    pub fn add_timer(
+        &mut self,
+        index: PluginIndex,
+        timer: Timer,
+        mut timekeeper: TimekeeperAdapter,
+    ) -> isize {
+        let (pos, timer) = match self.client.add_sender(index, timer) {
+            Ok((pos, timer)) => (isize::try_from(pos).unwrap(), timer),
+            Err(pos) => return -1 - isize::try_from(pos).unwrap(),
         };
-        timekeeper.send_timer(&timer.qt);
-        if !timer.one_shot {
-            timekeeper.start_send_timer(id, timer.milliseconds);
-            return;
-        }
-        let timers = self.client.senders_mut::<Timer>(timer.qt.plugin);
-        if let Some(i) = timers.iter().position(|t| t.id == timer.id) {
-            timers.remove(i);
-        }
-        self.send_timers.remove(id);
+        self.timers.start(index, timer, &mut timekeeper);
+        pos
+    }
+
+    pub fn add_or_replace_timer(
+        &mut self,
+        index: PluginIndex,
+        timer: Timer,
+        mut timekeeper: TimekeeperAdapter,
+    ) -> usize {
+        let (pos, timer) = self.client.add_or_replace_sender(index, timer);
+        self.timers.start(index, timer, &mut timekeeper);
+        pos
     }
 }
 
@@ -334,6 +345,72 @@ impl ffi::SmushClient {
         doc: Pin<&mut ffi::Document>,
     ) -> i64 {
         self.cxx_qt_ffi_rust_mut().read(device.into(), doc.into())
+    }
+
+    pub fn add_alias(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        alias: &ffi::Alias,
+    ) -> Result<isize, Box<RegexError>> {
+        let alias = Alias::try_from(alias.cxx_qt_ffi_rust())?;
+        Ok(self.cxx_qt_ffi_rust_mut().add_sender(index, alias))
+    }
+
+    pub fn add_timer(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        timer: &ffi::Timer,
+        timekeeper: Pin<&mut ffi::Timekeeper>,
+    ) -> isize {
+        let timer = Timer::from(timer.cxx_qt_ffi_rust());
+        self.cxx_qt_ffi_rust_mut()
+            .add_timer(index, timer, timekeeper.into())
+    }
+
+    pub fn add_trigger(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        trigger: &ffi::Trigger,
+    ) -> Result<isize, Box<RegexError>> {
+        let trigger = Trigger::try_from(trigger.cxx_qt_ffi_rust())?;
+        Ok(self.cxx_qt_ffi_rust_mut().add_sender(index, trigger))
+    }
+
+    pub fn replace_alias(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        alias: &ffi::Alias,
+    ) -> Result<usize, Box<RegexError>> {
+        let alias = Alias::try_from(alias.cxx_qt_ffi_rust())?;
+        Ok(self
+            .cxx_qt_ffi_rust_mut()
+            .client
+            .add_or_replace_sender(index, alias)
+            .0)
+    }
+
+    pub fn replace_timer(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        timer: &ffi::Timer,
+        timekeeper: Pin<&mut ffi::Timekeeper>,
+    ) -> usize {
+        let timer = Timer::from(timer.cxx_qt_ffi_rust());
+        self.cxx_qt_ffi_rust_mut()
+            .add_or_replace_timer(index, timer, timekeeper.into())
+    }
+
+    pub fn replace_trigger(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        trigger: &ffi::Trigger,
+    ) -> Result<usize, Box<RegexError>> {
+        let trigger = Trigger::try_from(trigger.cxx_qt_ffi_rust())?;
+        Ok(self
+            .cxx_qt_ffi_rust_mut()
+            .client
+            .add_or_replace_sender(index, trigger)
+            .0)
     }
 
     pub fn is_alias(&self, label: &QString) -> bool {
