@@ -26,7 +26,7 @@ fn main() {
     CxxQtBuilder::new()
         .qml_module::<&str, &str>(QmlModule {
             uri: "com.jnbooth.smushclient",
-            rust_files: &["src/lib.rs"],
+            rust_files: &["src/bridge.rs"],
             qml_files: &[],
             ..Default::default()
         })

@@ -1,36 +1,13 @@
 #![allow(clippy::float_cmp)]
 #![allow(clippy::needless_pass_by_value)]
+#![allow(non_snake_case)]
+#![allow(clippy::missing_safety_doc)]
+#![allow(clippy::unnecessary_box_returns)]
 
-#[macro_use]
-extern crate enumeration;
+use crate::client::SmushClientRust;
+use crate::sender::{AliasRust, ReactionRust, SenderRust, TimerRust, TriggerRust};
+use crate::world::WorldRust;
 
-#[macro_use]
-mod convert;
-
-mod adapter;
-
-mod client;
-use client::SmushClientRust;
-
-mod colors;
-
-mod get_info;
-
-mod handler;
-
-mod impls;
-
-mod sender;
-use sender::{AliasRust, ReactionRust, SenderRust, TimerRust, TriggerRust};
-
-mod sync;
-
-mod world;
-use world::WorldRust;
-
-#[allow(non_snake_case)]
-#[allow(clippy::missing_safety_doc)]
-#[allow(clippy::unnecessary_box_returns)]
 #[cxx_qt::bridge]
 pub mod ffi {
     enum AliasOutcome {

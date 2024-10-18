@@ -3,25 +3,10 @@
 #![allow(clippy::unnecessary_cast)]
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
 
-#[macro_use]
-extern crate enumeration;
-
-#[macro_use]
-mod convert;
-
-mod client;
-mod error;
-mod impls;
-mod io;
-mod mud;
-mod output;
-mod stream;
-mod sync;
-
-use io::{create_world, read_world, write_world};
-use mud::RustMudBridge;
-use output::{RustMxpLink, RustNamedColorIter, RustTextFragment};
-use stream::{RustAliasOutcome, RustOutputStream, RustSendStream};
+use crate::io::{create_world, read_world, write_world};
+use crate::mud::RustMudBridge;
+use crate::output::{RustMxpLink, RustNamedColorIter, RustTextFragment};
+use crate::stream::{RustAliasOutcome, RustOutputStream, RustSendStream};
 
 fn convert_opt<Ffi, Rust: Into<Ffi>>(from: Option<Rust>) -> Option<Ffi> {
     from.map(Into::into)
