@@ -88,14 +88,18 @@ impl TryFrom<PluginFile<'_>> for Plugin {
     type Error = crate::regex::RegexError;
 
     fn try_from(value: PluginFile) -> Result<Self, Self::Error> {
-        Ok(Self {
+        let mut plugin = Self {
             metadata: value.plugin,
             disabled: false,
             triggers: XmlList::try_collect(value.triggers)?,
             aliases: XmlList::try_collect(value.aliases)?,
             timers: XmlList::collect(value.timers),
             script: value.script.in_place(),
-        })
+        };
+        plugin.aliases.sort_unstable();
+        plugin.timers.sort_unstable();
+        plugin.triggers.sort_unstable();
+        Ok(plugin)
     }
 }
 
