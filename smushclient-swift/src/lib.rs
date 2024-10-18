@@ -9,17 +9,17 @@ extern crate enumeration;
 #[macro_use]
 mod convert;
 
-mod bridge;
 mod client;
 mod error;
 mod impls;
 mod io;
+mod mud;
 mod output;
 mod stream;
 mod sync;
 
-use bridge::RustMudBridge;
 use io::{create_world, read_world, write_world};
+use mud::RustMudBridge;
 use output::{RustMxpLink, RustNamedColorIter, RustTextFragment};
 use stream::{RustAliasOutcome, RustOutputStream, RustSendStream};
 
