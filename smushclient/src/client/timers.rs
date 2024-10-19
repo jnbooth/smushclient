@@ -89,19 +89,19 @@ impl<T: TimerConstructible> Timers<T> {
         id: usize,
         client: &mut SmushClient,
         handler: &mut H,
-    ) {
+    ) -> bool {
         let Some(send_timer) = self.inner.get(id) else {
-            return;
+            return true;
         };
         handler.send_timer(&send_timer.timer);
         if !send_timer.one_shot {
-            handler.start_timer(id, send_timer.milliseconds);
-            return;
+            return false;
         }
         let timers = client.senders_mut::<Timer>(send_timer.plugin);
         if let Some(i) = timers.iter().position(|timer| timer.id == send_timer.id) {
             timers.remove(i);
         }
         self.inner.remove(id);
+        true
     }
 }

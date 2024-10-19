@@ -270,7 +270,9 @@ void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const
 
 void ScriptApi::timerEvent(QTimerEvent *event)
 {
-  auto search = sendQueue.find(event->timerId());
+  const int id = event->timerId();
+  killTimer(id);
+  auto search = sendQueue.find(id);
   if (search == sendQueue.end()) [[unlikely]]
     return;
   const QueuedSend &send = search->second;

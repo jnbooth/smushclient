@@ -14,7 +14,7 @@ use enumeration::EnumSet;
 use mud_transformer::{
     EffectFragment, OutputFragment, Tag, TextFragment, TextStyle, Transformer, TransformerConfig,
 };
-use smushclient_plugins::{Plugin, PluginIndex, Timer};
+use smushclient_plugins::{Plugin, PluginIndex};
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
@@ -446,19 +446,6 @@ impl SmushClient {
         }
         senders.insert(pos, sender);
         (pos, &senders[pos])
-    }
-
-    pub fn finish_timer(&mut self, index: PluginIndex, id: u16) -> Option<Timer> {
-        let timers = self.senders_mut::<Timer>(index);
-        let (i, timer) = timers
-            .iter()
-            .enumerate()
-            .find(|(_, timer)| timer.id == id)?;
-        if timer.one_shot {
-            Some(timers.remove(i))
-        } else {
-            None
-        }
     }
 
     fn update_world_plugins(&mut self) {

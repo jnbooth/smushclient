@@ -61,10 +61,12 @@ void Timekeeper::startSendTimer(size_t id, uint ms)
 
 void Timekeeper::timerEvent(QTimerEvent *event)
 {
-  auto search = queue.find(event->timerId());
+  const int id = event->timerId();
+  auto search = queue.find(id);
   if (search == queue.end()) [[unlikely]]
     return;
-  getApi()->client()->finishTimer(search->second, *this);
+  if (getApi()->client()->finishTimer(search->second, *this))
+    killTimer(id);
 }
 
 // Private methods

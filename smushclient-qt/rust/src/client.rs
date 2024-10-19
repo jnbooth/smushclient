@@ -230,8 +230,8 @@ impl SmushClientRust {
         }
     }
 
-    pub fn finish_timer(&mut self, id: usize, mut timekeeper: TimekeeperAdapter) {
-        self.timers.finish(id, &mut self.client, &mut timekeeper);
+    pub fn finish_timer(&mut self, id: usize, mut timekeeper: TimekeeperAdapter) -> bool {
+        self.timers.finish(id, &mut self.client, &mut timekeeper)
     }
 
     fn add_sender<T: SendIterable>(&mut self, index: PluginIndex, sender: T) -> isize {
@@ -673,8 +673,12 @@ impl ffi::SmushClient {
             .start_timers(index, timekeeper.into());
     }
 
-    pub fn finish_timer(self: Pin<&mut Self>, id: usize, timekeeper: Pin<&mut ffi::Timekeeper>) {
+    pub fn finish_timer(
+        self: Pin<&mut Self>,
+        id: usize,
+        timekeeper: Pin<&mut ffi::Timekeeper>,
+    ) -> bool {
         self.cxx_qt_ffi_rust_mut()
-            .finish_timer(id, timekeeper.into());
+            .finish_timer(id, timekeeper.into())
     }
 }

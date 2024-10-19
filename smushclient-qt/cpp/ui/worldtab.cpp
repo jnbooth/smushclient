@@ -193,7 +193,9 @@ void WorldTab::resizeEvent(QResizeEvent *event)
 
 void WorldTab::timerEvent(QTimerEvent *event)
 {
-  if (resizeTimerId != event->timerId())
+  const int id = event->timerId();
+  killTimer(id);
+  if (resizeTimerId != id)
     return;
   resizeTimerId = 0;
   OnPluginWorldOutputResized onResized;

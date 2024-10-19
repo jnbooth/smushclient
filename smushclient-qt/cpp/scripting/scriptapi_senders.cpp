@@ -91,7 +91,7 @@ ApiCode ScriptApi::AddTimer(
   timer.setActiveClosed(flags.testFlag(TimerFlag::ActiveWhenClosed));
   timer.setEnabled(flags.testFlag(TimerFlag::Enabled));
   timer.setEveryHour(hour);
-  timer.setEveryMillisecond((int)(second * 1000));
+  timer.setEveryMillisecond((int)(second / 1000));
   timer.setEveryMinute(minute);
   timer.setEverySecond((int)second);
   timer.setLabel(name);

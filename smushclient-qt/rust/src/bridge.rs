@@ -445,7 +445,11 @@ pub mod ffi {
             index: usize,
             timekeeper: Pin<&mut Timekeeper>,
         );
-        fn finish_timer(self: Pin<&mut SmushClient>, id: usize, timekeeper: Pin<&mut Timekeeper>);
+        fn finish_timer(
+            self: Pin<&mut SmushClient>,
+            id: usize,
+            timekeeper: Pin<&mut Timekeeper>,
+        ) -> bool;
     }
 
     unsafe impl !cxx_qt::Locking for SmushClient {}
