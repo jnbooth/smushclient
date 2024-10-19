@@ -235,7 +235,7 @@ static int L_GetAlphaOptionList(lua_State *L)
 static int L_GetCurrentValue(lua_State *L)
 {
   expectMaxArgs(L, 1);
-  qlua::pushQVariant(L, getApi(L).GetOption(qlua::getString(L, 1)));
+  qlua::pushQVariant(L, getApi(L).GetOption(qlua::getString(L, 1)), true);
   return 1;
 }
 
@@ -686,7 +686,7 @@ static int L_SetTriggerOption(lua_State *L)
   if (const auto search = triggerBools.find(optionName); search != triggerBools.end())
     return returnCode(
         L,
-        getApi(L).SetTriggerOption(plugin, label, search->second, qlua::getBool(L, 2)));
+        getApi(L).SetTriggerOption(plugin, label, search->second, qlua::getBool(L, 3)));
 
   if (optionName == "group")
     return returnCode(L, getApi(L).SetTriggerGroup(plugin, label, qlua::getQString(L, 3)));

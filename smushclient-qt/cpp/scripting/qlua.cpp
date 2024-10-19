@@ -134,6 +134,14 @@ bool qlua::getBool(lua_State *L, int idx)
       case 1:
         return true;
       }
+  case LUA_TSTRING:
+  {
+    const string_view message = toString(L, idx);
+    if (message == "n" || message == "N" || message == "0")
+      return false;
+    if (message == "y" || message == "Y" || message == "1")
+      return true;
+  }
   }
   luaL_typeerror(L, idx, "boolean"); // exits function
   return false;                      // unreachable
@@ -452,7 +460,7 @@ void qlua::pushQStrings(lua_State *L, const QStringList &strings)
   }
 }
 
-void qlua::pushQVariant(lua_State *L, const QVariant &variant)
+void qlua::pushQVariant(lua_State *L, const QVariant &variant, bool intBools)
 {
   QMetaType type = variant.metaType();
   switch (type.id())
@@ -462,7 +470,10 @@ void qlua::pushQVariant(lua_State *L, const QVariant &variant)
     lua_pushnil(L);
     return;
   case QMetaType::Bool:
-    lua_pushboolean(L, variant.toBool());
+    if (intBools)
+      lua_pushinteger(L, variant.toBool());
+    else
+      lua_pushboolean(L, variant.toBool());
     return;
   case QMetaType::Int:
   case QMetaType::UInt:
