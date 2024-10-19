@@ -4,7 +4,7 @@ use cxx_qt_lib::QString;
 use mud_transformer::mxp::{Link, SendTo};
 use mud_transformer::{TextStyle, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, ProxyType, ScriptRecompile};
-use smushclient::{AliasOutcome, TimerConstructible};
+use smushclient::{AliasBool, AliasOutcome, TimerBool, TimerConstructible, TriggerBool};
 use smushclient_plugins::{PluginIndex, SendTarget, Timer};
 
 impl_convert_enum!(ffi::SendTo, SendTo, Internet, World, Input);
@@ -45,6 +45,58 @@ impl_convert_enum!(
     Script,
     WorldImmediate,
     ScriptAfterOmit,
+);
+
+impl_convert_enum!(
+    ffi::AliasBool,
+    AliasBool,
+    Enabled,
+    OneShot,
+    Temporary,
+    OmitFromOutput,
+    OmitFromLog,
+    IgnoreCase,
+    KeepEvaluating,
+    IsRegex,
+    ExpandVariables,
+    Repeats,
+    EchoAlias,
+    Menu,
+    OmitFromCommandHistory,
+);
+
+impl_convert_enum!(
+    ffi::TimerBool,
+    TimerBool,
+    Enabled,
+    OneShot,
+    Temporary,
+    OmitFromOutput,
+    OmitFromLog,
+    ActiveClosed,
+);
+
+impl_convert_enum!(
+    ffi::TriggerBool,
+    TriggerBool,
+    Enabled,
+    OneShot,
+    Temporary,
+    OmitFromOutput,
+    OmitFromLog,
+    IgnoreCase,
+    KeepEvaluating,
+    IsRegex,
+    ExpandVariables,
+    Repeats,
+    ChangeForeground,
+    ChangeBackground,
+    MakeBold,
+    MakeItalic,
+    MakeUnderline,
+    SoundIfInactive,
+    LowercaseWildcard,
+    MultiLine
 );
 
 impl Default for ffi::SendTarget {

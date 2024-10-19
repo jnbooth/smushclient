@@ -192,47 +192,57 @@ size_t ScriptApi::DeleteTriggers(size_t index, const QString &group) const
   return client()->removeTriggers(index, group);
 }
 
-ApiCode ScriptApi::EnableAlias(const QString &label, bool enabled) const
+ApiCode ScriptApi::EnableAlias(size_t plugin, const QString &label, bool enabled) const
 {
-  return client()->setAliasEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
+  return client()->setAliasEnabled(plugin, label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
-ApiCode ScriptApi::EnableAliasGroup(const QString &group, bool enabled) const
+ApiCode ScriptApi::EnableAliasGroup(size_t plugin, const QString &group, bool enabled) const
 {
-  return client()->setAliasesEnabled(group, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
+  return client()->setAliasesEnabled(plugin, group, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
-ApiCode ScriptApi::EnableTimer(const QString &label, bool enabled) const
+ApiCode ScriptApi::EnableTimer(size_t plugin, const QString &label, bool enabled) const
 {
-  return client()->setTimerEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
+  return client()->setTimerEnabled(plugin, label, enabled) ? ApiCode::OK : ApiCode::TimerNotFound;
 }
 
-ApiCode ScriptApi::EnableTimerGroup(const QString &group, bool enabled) const
+ApiCode ScriptApi::EnableTimerGroup(size_t plugin, const QString &group, bool enabled) const
 {
-  return client()->setTimersEnabled(group, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
+  return client()->setTimersEnabled(plugin, group, enabled) ? ApiCode::OK : ApiCode::TimerNotFound;
 }
 
-ApiCode ScriptApi::EnableTrigger(const QString &label, bool enabled) const
+ApiCode ScriptApi::EnableTrigger(size_t plugin, const QString &label, bool enabled) const
 {
-  return client()->setTriggerEnabled(label, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
+  return client()->setTriggerEnabled(plugin, label, enabled) ? ApiCode::OK : ApiCode::TriggerNotFound;
 }
 
-ApiCode ScriptApi::EnableTriggerGroup(const QString &group, bool enabled) const
+ApiCode ScriptApi::EnableTriggerGroup(size_t plugin, const QString &group, bool enabled) const
 {
-  return client()->setTriggersEnabled(group, enabled) ? ApiCode::OK : ApiCode::AliasNotFound;
+  return client()->setTriggersEnabled(plugin, group, enabled) ? ApiCode::OK : ApiCode::TriggerNotFound;
 }
 
-ApiCode ScriptApi::IsAlias(const QString &label) const
+ApiCode ScriptApi::IsAlias(size_t plugin, const QString &label) const
 {
-  return client()->isAlias(label) ? ApiCode::OK : ApiCode::AliasNotFound;
+  return client()->isAlias(plugin, label) ? ApiCode::OK : ApiCode::AliasNotFound;
 }
 
-ApiCode ScriptApi::IsTimer(const QString &label) const
+ApiCode ScriptApi::IsTimer(size_t plugin, const QString &label) const
 {
-  return client()->isTimer(label) ? ApiCode::OK : ApiCode::TimerNotFound;
+  return client()->isTimer(plugin, label) ? ApiCode::OK : ApiCode::TimerNotFound;
 }
 
-ApiCode ScriptApi::IsTrigger(const QString &label) const
+ApiCode ScriptApi::IsTrigger(size_t plugin, const QString &label) const
 {
-  return client()->isTrigger(label) ? ApiCode::OK : ApiCode::TriggerNotFound;
+  return client()->isTrigger(plugin, label) ? ApiCode::OK : ApiCode::TriggerNotFound;
+}
+
+ApiCode ScriptApi::SetTriggerGroup(size_t plugin, const QString &label, const QString &group) const
+{
+  return client()->setTriggerGroup(plugin, label, group) ? ApiCode::OK : ApiCode::TriggerNotFound;
+}
+
+ApiCode ScriptApi::SetTriggerOption(size_t plugin, const QString &label, TriggerBool option, bool value) const
+{
+  return client()->setTriggerBool(plugin, label, option, value) ? ApiCode::OK : ApiCode::TriggerNotFound;
 }

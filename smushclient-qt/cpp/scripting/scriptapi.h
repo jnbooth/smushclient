@@ -81,13 +81,13 @@ public:
   int DatabaseClose(std::string_view databaseID);
   int DatabaseOpen(std::string_view databaseID, std::string_view filename, int flags);
   ApiCode DoAfter(size_t plugin, double seconds, const QString &text, SendTarget target);
-  ApiCode EnableAlias(const QString &label, bool enabled) const;
-  ApiCode EnableAliasGroup(const QString &group, bool enabled) const;
+  ApiCode EnableAlias(size_t plugin, const QString &label, bool enabled) const;
+  ApiCode EnableAliasGroup(size_t plugin, const QString &group, bool enabled) const;
   ApiCode EnablePlugin(std::string_view pluginID, bool enabled);
-  ApiCode EnableTimer(const QString &label, bool enabled) const;
-  ApiCode EnableTimerGroup(const QString &group, bool enabled) const;
-  ApiCode EnableTrigger(const QString &label, bool enabled) const;
-  ApiCode EnableTriggerGroup(const QString &group, bool enabled) const;
+  ApiCode EnableTimer(size_t plugin, const QString &label, bool enabled) const;
+  ApiCode EnableTimerGroup(size_t plugin, const QString &group, bool enabled) const;
+  ApiCode EnableTrigger(size_t plugin, const QString &label, bool enabled) const;
+  ApiCode EnableTriggerGroup(size_t plugin, const QString &group, bool enabled) const;
   QVariant FontInfo(const QFont &font, int infoType) const;
   QVariant GetInfo(int infoType) const;
   QVariant GetLineInfo(int line, int infoType) const;
@@ -106,9 +106,9 @@ public:
       const QColor &background,
       bool url,
       bool noUnderline);
-  ApiCode IsAlias(const QString &label) const;
-  ApiCode IsTimer(const QString &label) const;
-  ApiCode IsTrigger(const QString &label) const;
+  ApiCode IsAlias(size_t plugin, const QString &label) const;
+  ApiCode IsTimer(size_t plugin, const QString &label) const;
+  ApiCode IsTrigger(size_t plugin, const QString &label) const;
   QColor PickColour(const QColor &hint) const;
   ApiCode PlaySound(size_t channel, const QString &path, bool loop = false, float volume = 1.0);
   ApiCode PlaySoundMemory(size_t channel, const QByteArray &sound, bool loop = false, float volume = 1.0);
@@ -119,6 +119,8 @@ public:
   ApiCode SendPacket(QByteArrayView bytes) const;
   ApiCode SetCursor(Qt::CursorShape cursor) const;
   ApiCode SetOption(std::string_view name, const QVariant &variant) const;
+  ApiCode SetTriggerGroup(size_t plugin, const QString &label, const QString &group) const;
+  ApiCode SetTriggerOption(size_t plugin, const QString &label, TriggerBool option, bool value) const;
   bool SetVariable(size_t pluginIndex, std::string_view key, std::string_view value) const;
   ApiCode StopSound(size_t channel);
   void Tell(const QString &text);

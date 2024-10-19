@@ -157,6 +157,14 @@ bool qlua::getBool(lua_State *L, int idx, bool ifNil)
       case 1:
         return true;
       }
+  case LUA_TSTRING:
+  {
+    const string_view message = toString(L, idx);
+    if (message == "n" || message == "N" || message == "0")
+      return false;
+    if (message == "y" || message == "Y" || message == "1")
+      return true;
+  }
   }
   luaL_typeerror(L, idx, "boolean"); // exits function
   return false;                      // unreachable

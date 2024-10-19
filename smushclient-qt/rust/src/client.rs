@@ -18,7 +18,10 @@ use enumeration::EnumSet;
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
-use smushclient::{SendHandler, SendIterable, SmushClient, Timers, World};
+use smushclient::{
+    AliasBool, BoolProperty, SendHandler, SendIterable, SmushClient, TimerBool, Timers,
+    TriggerBool, World,
+};
 use smushclient_plugins::{Alias, PluginIndex, RegexError, Timer, Trigger};
 
 const SUPPORTED_TAGS: EnumSet<Tag> = enums![
@@ -262,6 +265,37 @@ impl SmushClientRust {
         self.timers.start(index, timer, &mut timekeeper);
         pos
     }
+
+    pub fn set_bool<P>(&mut self, index: PluginIndex, label: &QString, prop: P, value: bool) -> bool
+    where
+        P: BoolProperty,
+        P::Target: SendIterable,
+    {
+        let Some(sender) = self
+            .client
+            .find_sender_mut::<P::Target>(index, &String::from(label))
+        else {
+            return false;
+        };
+        *prop.get_mut(sender) = value;
+        true
+    }
+
+    pub fn set_sender_group<T: SendIterable>(
+        &mut self,
+        index: PluginIndex,
+        label: &QString,
+        group: &QString,
+    ) -> bool {
+        let Some(sender) = self
+            .client
+            .find_sender_mut::<T>(index, &String::from(label))
+        else {
+            return false;
+        };
+        sender.as_mut().group = String::from(group);
+        true
+    }
 }
 
 impl ffi::SmushClient {
@@ -452,37 +486,47 @@ impl ffi::SmushClient {
             .0)
     }
 
-    pub fn is_alias(&self, label: &QString) -> bool {
+    pub fn is_alias(&self, index: PluginIndex, label: &QString) -> bool {
         self.cxx_qt_ffi_rust()
             .client
-            .find_sender::<Alias>(&String::from(label))
+            .find_sender::<Alias>(index, &String::from(label))
             .is_some()
     }
 
-    pub fn is_timer(&self, label: &QString) -> bool {
+    pub fn is_timer(&self, index: PluginIndex, label: &QString) -> bool {
         self.cxx_qt_ffi_rust()
             .client
-            .find_sender::<Timer>(&String::from(label))
+            .find_sender::<Timer>(index, &String::from(label))
             .is_some()
     }
 
-    pub fn is_trigger(&self, label: &QString) -> bool {
+    pub fn is_trigger(&self, index: PluginIndex, label: &QString) -> bool {
         self.cxx_qt_ffi_rust()
             .client
-            .find_sender::<Trigger>(&String::from(label))
+            .find_sender::<Trigger>(index, &String::from(label))
             .is_some()
     }
 
-    pub fn set_alias_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
+    pub fn set_alias_enabled(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        label: &QString,
+        enabled: bool,
+    ) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_sender_enabled::<Alias>(&String::from(label), enabled)
+            .set_sender_enabled::<Alias>(index, &String::from(label), enabled)
     }
 
-    pub fn set_aliases_enabled(self: Pin<&mut Self>, group: &QString, enabled: bool) -> bool {
+    pub fn set_aliases_enabled(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        group: &QString,
+        enabled: bool,
+    ) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_group_enabled::<Alias>(&String::from(group), enabled)
+            .set_group_enabled::<Alias>(index, &String::from(group), enabled)
     }
 
     pub fn set_plugin_enabled(self: Pin<&mut Self>, index: PluginIndex, enabled: bool) -> bool {
@@ -491,28 +535,100 @@ impl ffi::SmushClient {
             .set_plugin_enabled(index, enabled)
     }
 
-    pub fn set_timer_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
+    pub fn set_timer_enabled(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        label: &QString,
+        enabled: bool,
+    ) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_sender_enabled::<Timer>(&String::from(label), enabled)
+            .set_sender_enabled::<Timer>(index, &String::from(label), enabled)
     }
 
-    pub fn set_timers_enabled(self: Pin<&mut Self>, group: &QString, enabled: bool) -> bool {
+    pub fn set_timers_enabled(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        group: &QString,
+        enabled: bool,
+    ) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_group_enabled::<Timer>(&String::from(group), enabled)
+            .set_group_enabled::<Timer>(index, &String::from(group), enabled)
     }
 
-    pub fn set_trigger_enabled(self: Pin<&mut Self>, label: &QString, enabled: bool) -> bool {
+    pub fn set_trigger_enabled(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        label: &QString,
+        enabled: bool,
+    ) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_sender_enabled::<Trigger>(&String::from(label), enabled)
+            .set_sender_enabled::<Trigger>(index, &String::from(label), enabled)
     }
 
-    pub fn set_triggers_enabled(self: Pin<&mut Self>, group: &QString, enabled: bool) -> bool {
+    pub fn set_triggers_enabled(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        group: &QString,
+        enabled: bool,
+    ) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .set_group_enabled::<Trigger>(&String::from(group), enabled)
+            .set_group_enabled::<Trigger>(index, &String::from(group), enabled)
+    }
+
+    pub fn set_alias_bool(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        label: &QString,
+        option: ffi::AliasBool,
+        value: bool,
+    ) -> bool {
+        let Ok(option) = AliasBool::try_from(option) else {
+            return false;
+        };
+        self.cxx_qt_ffi_rust_mut()
+            .set_bool(index, label, option, value)
+    }
+
+    pub fn set_timer_bool(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        label: &QString,
+        option: ffi::TimerBool,
+        value: bool,
+    ) -> bool {
+        let Ok(option) = TimerBool::try_from(option) else {
+            return false;
+        };
+        self.cxx_qt_ffi_rust_mut()
+            .set_bool(index, label, option, value)
+    }
+
+    pub fn set_trigger_bool(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        label: &QString,
+        option: ffi::TriggerBool,
+        value: bool,
+    ) -> bool {
+        let Ok(option) = TriggerBool::try_from(option) else {
+            return false;
+        };
+        self.cxx_qt_ffi_rust_mut()
+            .set_bool(index, label, option, value)
+    }
+
+    pub fn set_trigger_group(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        label: &QString,
+        group: &QString,
+    ) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .set_sender_group::<Trigger>(index, label, group)
     }
 
     pub fn alias(self: Pin<&mut Self>, command: &QString, doc: Pin<&mut ffi::Document>) -> u8 {

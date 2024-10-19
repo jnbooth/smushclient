@@ -276,13 +276,21 @@ impl SmushClient {
         true
     }
 
-    pub fn set_group_enabled<T: SendIterable>(&mut self, group: &str, enabled: bool) -> bool {
+    pub fn set_group_enabled<T: SendIterable>(
+        &mut self,
+        index: PluginIndex,
+        group: &str,
+        enabled: bool,
+    ) -> bool {
         let mut found_group = false;
-        for (_, sender) in T::iter_mut(&mut self.plugins, &mut self.world)
-            .filter(|(_, item)| item.as_ref().group == group)
+        for sender in self
+            .senders_mut::<T>(index)
+            .iter_mut()
+            .map(AsMut::as_mut)
+            .filter(|sender| sender.group == group)
         {
+            sender.enabled = enabled;
             found_group = true;
-            sender.as_mut().enabled = enabled;
         }
         found_group
     }
@@ -295,32 +303,29 @@ impl SmushClient {
         true
     }
 
-    pub fn find_sender<T: SendIterable>(&self, label: &str) -> Option<(PluginIndex, &T)> {
-        T::iter(&self.plugins, &self.world).find(|(_, item)| item.as_ref().label == label)
+    pub fn find_sender<T: SendIterable>(&self, index: PluginIndex, label: &str) -> Option<&T> {
+        self.senders::<T>(index)
+            .iter()
+            .find(|sender| sender.as_ref().label == label)
     }
 
     pub fn find_sender_mut<T: SendIterable>(
         &mut self,
+        index: PluginIndex,
         label: &str,
-    ) -> Option<(PluginIndex, &mut T)> {
-        T::iter_mut(&mut self.plugins, &mut self.world)
-            .find(|(_, item)| item.as_ref().label == label)
-    }
-
-    pub fn find_world_sender<T: SendIterable>(&self, label: &str) -> Option<&T> {
-        T::from_world(&self.world)
-            .iter()
-            .find(|item| item.as_ref().label == label)
-    }
-
-    pub fn find_world_sender_mut<T: SendIterable>(&mut self, label: &str) -> Option<&mut T> {
-        T::from_world_mut(&mut self.world)
+    ) -> Option<&mut T> {
+        self.senders_mut::<T>(index)
             .iter_mut()
-            .find(|item| item.as_ref().label == label)
+            .find(|sender| sender.as_ref().label == label)
     }
 
-    pub fn set_sender_enabled<T: SendIterable>(&mut self, label: &str, enabled: bool) -> bool {
-        let Some((_, sender)) = self.find_sender_mut::<T>(label) else {
+    pub fn set_sender_enabled<T: SendIterable>(
+        &mut self,
+        index: PluginIndex,
+        label: &str,
+        enabled: bool,
+    ) -> bool {
+        let Some(sender) = self.find_sender_mut::<T>(index, label) else {
             return false;
         };
         sender.as_mut().enabled = enabled;

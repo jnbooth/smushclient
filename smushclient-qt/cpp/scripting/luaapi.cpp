@@ -21,9 +21,26 @@ static const char *worldLibKey = "world";
 using std::optional;
 using std::string;
 using std::string_view;
-using stringmap = std::unordered_map<string, string>;
+using std::unordered_map;
+using stringmap = unordered_map<string, string>;
 
 using qlua::expectMaxArgs;
+
+static const unordered_map<string, TriggerBool> triggerBools =
+    {
+        {"enabled", TriggerBool::Enabled},
+        {"expand_variables", TriggerBool::ExpandVariables},
+        {"ignore_case", TriggerBool::IgnoreCase},
+        {"keep_evaluating", TriggerBool::KeepEvaluating},
+        {"lowercase_wildcard", TriggerBool::LowercaseWildcard},
+        {"multi_line", TriggerBool::MultiLine},
+        {"omit_from_log", TriggerBool::OmitFromLog},
+        {"omit_from_output", TriggerBool::OmitFromOutput},
+        {"one_shot", TriggerBool::OneShot},
+        {"regexp", TriggerBool::IsRegex},
+        {"repeat", TriggerBool::Repeats},
+        {"sound_if_inactive", TriggerBool::SoundIfInactive},
+};
 
 // Private localization
 
@@ -597,55 +614,84 @@ static int L_DoAfterSpeedwalk(lua_State *L)
 static int L_EnableAlias(lua_State *L)
 {
   expectMaxArgs(L, 2);
-  return returnCode(L, getApi(L).EnableAlias(qlua::getQString(L, 1), qlua::getBool(L, 2, true)));
+  return returnCode(
+      L,
+      getApi(L).EnableAlias(getPluginIndex(L), qlua::getQString(L, 1), qlua::getBool(L, 2, true)));
 }
 
 static int L_EnableAliasGroup(lua_State *L)
 {
   expectMaxArgs(L, 2);
-  return returnCode(L, getApi(L).EnableAliasGroup(qlua::getQString(L, 1), qlua::getBool(L, 2, true)));
+  return returnCode(
+      L,
+      getApi(L).EnableAliasGroup(getPluginIndex(L), qlua::getQString(L, 1), qlua::getBool(L, 2, true)));
 }
 
 static int L_EnableTimer(lua_State *L)
 {
   expectMaxArgs(L, 2);
-  return returnCode(L, getApi(L).EnableTimer(qlua::getQString(L, 1), qlua::getBool(L, 2, true)));
+  return returnCode(
+      L,
+      getApi(L).EnableTimer(getPluginIndex(L), qlua::getQString(L, 1), qlua::getBool(L, 2, true)));
 }
 
 static int L_EnableTimerGroup(lua_State *L)
 {
   expectMaxArgs(L, 2);
-  return returnCode(L, getApi(L).EnableTimerGroup(qlua::getQString(L, 1), qlua::getBool(L, 2, true)));
+  return returnCode(
+      L,
+      getApi(L).EnableTimerGroup(getPluginIndex(L), qlua::getQString(L, 1), qlua::getBool(L, 2, true)));
 }
 
 static int L_EnableTrigger(lua_State *L)
 {
   expectMaxArgs(L, 2);
-  return returnCode(L, getApi(L).EnableTrigger(qlua::getQString(L, 1), qlua::getBool(L, 2, true)));
+  return returnCode(
+      L,
+      getApi(L).EnableTrigger(getPluginIndex(L), qlua::getQString(L, 1), qlua::getBool(L, 2, true)));
 }
 
 static int L_EnableTriggerGroup(lua_State *L)
 {
   expectMaxArgs(L, 2);
-  return returnCode(L, getApi(L).EnableTrigger(qlua::getQString(L, 1), qlua::getBool(L, 2, true)));
+  return returnCode(
+      L,
+      getApi(L).EnableTrigger(getPluginIndex(L), qlua::getQString(L, 1), qlua::getBool(L, 2, true)));
 }
 
 static int L_IsAlias(lua_State *L)
 {
   expectMaxArgs(L, 1);
-  return returnCode(L, getApi(L).IsAlias(qlua::getQString(L, 1)));
+  return returnCode(L, getApi(L).IsAlias(getPluginIndex(L), qlua::getQString(L, 1)));
 }
 
 static int L_IsTimer(lua_State *L)
 {
   expectMaxArgs(L, 1);
-  return returnCode(L, getApi(L).IsTimer(qlua::getQString(L, 1)));
+  return returnCode(L, getApi(L).IsTimer(getPluginIndex(L), qlua::getQString(L, 1)));
 }
 
 static int L_IsTrigger(lua_State *L)
 {
   expectMaxArgs(L, 1);
-  return returnCode(L, getApi(L).IsTrigger(qlua::getQString(L, 1)));
+  return returnCode(L, getApi(L).IsTrigger(getPluginIndex(L), qlua::getQString(L, 1)));
+}
+
+static int L_SetTriggerOption(lua_State *L)
+{
+  expectMaxArgs(L, 3);
+  const QString label = qlua::getQString(L, 1);
+  const string optionName = (string)qlua::getString(L, 2);
+  const size_t plugin = getPluginIndex(L);
+  if (const auto search = triggerBools.find(optionName); search != triggerBools.end())
+    return returnCode(
+        L,
+        getApi(L).SetTriggerOption(plugin, label, search->second, qlua::getBool(L, 2)));
+
+  if (optionName == "group")
+    return returnCode(L, getApi(L).SetTriggerGroup(plugin, label, qlua::getQString(L, 3)));
+
+  return returnCode(L, ApiCode::PluginCannotSetOption);
 }
 
 // sound
@@ -1270,6 +1316,7 @@ static const struct luaL_Reg worldlib[] =
      {"IsAlias", L_IsAlias},
      {"IsTimer", L_IsTimer},
      {"IsTrigger", L_IsTrigger},
+     {"SetTriggerOption", L_SetTriggerOption},
      // sound
      {"PlaySound", L_PlaySound},
      {"PlaySoundMemory", L_PlaySoundMemory},
