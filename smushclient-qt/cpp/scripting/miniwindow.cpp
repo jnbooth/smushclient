@@ -240,7 +240,7 @@ Hotspot *MiniWindow::addHotspot(
       hotspot->setCallbacks(std::move(callbacks));
       return hotspot;
     }
-    if (entryID > hotspotID && (!neighbor || entryID < neighborID))
+    if (entryID < hotspotID && (!neighbor || entryID > neighborID))
     {
       neighbor = entry.second;
       neighborID = entryID;
