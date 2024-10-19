@@ -1250,6 +1250,11 @@ static int L_WindowScrollwheelHandler(lua_State *L)
 
 // userdata
 
+static int L_noop(lua_State *L)
+{
+  return returnCode(L, ApiCode::OK);
+}
+
 static const struct luaL_Reg worldlib[] =
     // database
     {{"DatabaseClose", L_DatabaseClose},
@@ -1355,6 +1360,9 @@ static const struct luaL_Reg worldlib[] =
      {"WindowDragHandler", L_WindowDragHandler},
      {"WindowMoveHotspot", L_WindowMoveHotspot},
      {"WindowScrollwheelHandler", L_WindowScrollwheelHandler},
+     // stubs
+     {"SetBackgroundImage", L_noop},
+     {"SetFrameBackgroundColour", L_noop},
 
      {NULL, NULL}};
 
