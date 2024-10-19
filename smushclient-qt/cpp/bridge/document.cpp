@@ -173,8 +173,8 @@ class AliasCallback : public PluginCallback
 public:
   AliasCallback(
       const string &callback,
-      const QString &line,
       const QString &alias,
+      const QString &line,
       const QStringList &wildcards)
       : PluginCallback(),
         callback(callback.data()),
