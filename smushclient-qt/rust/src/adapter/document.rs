@@ -2,6 +2,7 @@ use cxx_qt_lib::{QByteArray, QColor, QString, QStringList};
 use smushclient_plugins::SendTarget;
 
 use crate::ffi;
+use crate::sender::OutputSpan;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct QColorPair {
@@ -112,11 +113,12 @@ impl<'a> DocumentAdapter<'a> {
         alias: &QString,
         line: &QString,
         wildcards: &QStringList,
+        output: &[OutputSpan],
     ) {
         // SAFETY: External call to safe method on opaque type.
         unsafe {
             self.inner
-                .send_script(plugin, script, alias, line, wildcards);
+                .send_script(plugin, script, alias, line, wildcards, output);
         }
     }
 }

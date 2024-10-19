@@ -173,12 +173,12 @@ class AliasCallback : public PluginCallback
 public:
   AliasCallback(
       const string &callback,
-      const QString &alias,
+      const QString &senderName,
       const QString &line,
       const QStringList &wildcards)
       : PluginCallback(),
         callback(callback.data()),
-        alias(alias),
+        senderName(senderName),
         line(line),
         wildcards(wildcards) {}
 
@@ -187,7 +187,7 @@ public:
 
   int pushArguments(lua_State *L) const override
   {
-    qlua::pushQString(L, alias);
+    qlua::pushQString(L, senderName);
     qlua::pushQString(L, line);
     qlua::pushQStrings(L, wildcards);
     return 3;
@@ -195,21 +195,79 @@ public:
 
 private:
   const char *callback;
-  const QString &alias;
+  const QString &senderName;
   const QString &line;
   const QStringList &wildcards;
+};
+
+class TriggerCallback : public AliasCallback
+{
+public:
+  TriggerCallback(
+      const string &callback,
+      const QString &senderName,
+      const QString &line,
+      const QStringList &wildcards,
+      const rust::Slice<const OutputSpan> &spans)
+      : AliasCallback(callback, senderName, line, wildcards),
+        spans(spans) {}
+
+  inline constexpr ActionSource source() const noexcept override { return ActionSource::TriggerFired; }
+
+  int pushArguments(lua_State *L) const override
+  {
+    const int n = AliasCallback::pushArguments(L);
+    const size_t len = spans.length();
+    lua_createtable(L, len, 0);
+    int i = 0;
+
+    for (const OutputSpan &output : spans)
+    {
+      const TextSpan *span = output.text_span();
+      if (!span)
+        continue;
+      lua_createtable(L, 0, 5);
+      lua_pushinteger(L, span->foreground());
+      lua_setfield(L, -2, "textcolour");
+      lua_pushinteger(L, span->background());
+      lua_setfield(L, -2, "backcolour");
+      const rust::Str text = span->text();
+      size_t len = text.length();
+      lua_pushlstring(L, text.data(), len);
+      lua_setfield(L, -2, "text");
+      lua_pushinteger(L, len);
+      lua_setfield(L, -2, "length");
+      lua_pushinteger(L, span->style());
+      lua_setfield(L, -2, "style");
+      lua_rawseti(L, -2, ++i);
+    }
+
+    return n + 1;
+  }
+
+private:
+  const rust::Slice<const OutputSpan> &spans;
 };
 
 void Document::send(
     size_t plugin,
     const QString &callback,
-    const QString &alias,
+    const QString &sender,
     const QString &line,
-    const QStringList &wildcards) const
+    const QStringList &wildcards,
+    rust::Slice<const OutputSpan> spans) const
 {
   const string callbackName = callback.toStdString();
-  AliasCallback aliasCallback(callbackName, alias, line, wildcards);
-  api->sendCallback(aliasCallback, plugin);
+  if (spans.empty())
+  {
+    AliasCallback aliasCallback(callbackName, sender, line, wildcards);
+    api->sendCallback(aliasCallback, plugin);
+  }
+  else
+  {
+    TriggerCallback triggerCallback(callbackName, sender, line, wildcards, spans);
+    api->sendCallback(triggerCallback, plugin);
+  }
 }
 
 void Document::setPalette(const QVector_QColor &palette)

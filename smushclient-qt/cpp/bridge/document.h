@@ -10,10 +10,11 @@
 #include <QtWidgets/QTreeWidgetItem>
 #include "rust/cxx.h"
 
-struct Link;
 class ScriptApi;
-enum class SendTarget : int32_t;
 class WorldTab;
+enum class SendTarget : int32_t;
+struct Link;
+struct OutputSpan;
 
 using QVector_QColor = QVector<QColor>;
 
@@ -42,9 +43,10 @@ public:
   void send(
       size_t plugin,
       const QString &callback,
-      const QString &alias,
+      const QString &sender,
       const QString &line,
-      const QStringList &wildcards) const;
+      const QStringList &wildcards,
+      rust::Slice<const OutputSpan> spans) const;
 
 private:
   ScriptApi *api;

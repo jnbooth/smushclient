@@ -6,6 +6,7 @@
 
 use crate::client::SmushClientRust;
 use crate::sender::{AliasRust, ReactionRust, SenderRust, TimerRust, TriggerRust};
+use crate::sender::{OutputSpan, TextSpan};
 use crate::world::WorldRust;
 
 #[cxx_qt::bridge]
@@ -120,6 +121,19 @@ pub mod ffi {
         text: QString,
     }
 
+    extern "Rust" {
+        type TextSpan;
+        fn foreground(&self) -> i32;
+        fn background(&self) -> i32;
+        fn text(&self) -> &str;
+        fn style(&self) -> u8;
+    }
+
+    extern "Rust" {
+        type OutputSpan;
+        fn text_span(&self) -> *const TextSpan;
+    }
+
     extern "C++Qt" {
         include!("document.h");
         type Document;
@@ -187,9 +201,10 @@ pub mod ffi {
             self: &Document,
             plugin: usize,
             script: &QString,
-            alias: &QString,
+            sender: &QString,
             line: &QString,
             wildcards: &QStringList,
+            output: &[OutputSpan],
         );
     }
 

@@ -11,6 +11,7 @@ use super::error::LoadFailure;
 use super::send::SendRequest;
 use crate::handler::{Handler, SendHandler};
 use crate::World;
+use mud_transformer::Output;
 use smushclient_plugins::{Alias, Matches, Pad, Plugin, PluginIndex, SendMatch, Sender, Trigger};
 
 fn check_oneshot<T: AsRef<Sender>>(oneshots: &mut Vec<usize>, send: &SendMatch<T>) {
@@ -160,6 +161,7 @@ impl PluginEngine {
                         wildcards: send.wildcards(),
                         sender: alias,
                         text: send.text(&mut text_buf),
+                        output: &[],
                     });
                 }
 
@@ -180,6 +182,7 @@ impl PluginEngine {
         &mut self,
         line: &str,
         world: &mut World,
+        output: &[Output],
         handler: &mut H,
     ) -> TriggerEffects {
         let mut effects = TriggerEffects::new();
@@ -211,6 +214,7 @@ impl PluginEngine {
                         wildcards: send.wildcards(),
                         sender: trigger,
                         text: send.text(&mut text_buf),
+                        output,
                     });
                 }
 

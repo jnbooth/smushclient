@@ -169,9 +169,9 @@ impl SmushClient {
             if until == 0 {
                 until = slice.len();
             }
-            let trigger_effects = self
-                .plugins
-                .trigger(&self.line_text, &mut self.world, handler);
+            let trigger_effects =
+                self.plugins
+                    .trigger(&self.line_text, &mut self.world, &slice[..until], handler);
             if !handler.permit_line(&self.line_text) || trigger_effects.omit_from_output {
                 for _ in 0..until {
                     let output = output.next().unwrap();

@@ -1,9 +1,13 @@
 use std::pin::Pin;
+use std::ptr;
 use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike};
 use cxx_qt::{Constructor, Initialize};
 use cxx_qt_lib::{QColor, QString, QTime};
+use enumeration::{Enum, EnumSet};
+use mud_transformer::mxp::RgbColor;
+use mud_transformer::{Output, OutputFragment, TextFragment, TextStyle};
 use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer, Trigger};
 
 use crate::convert::Convert;
@@ -423,5 +427,66 @@ impl Constructor<(*const ffi::World, usize)> for ffi::Trigger {
             Some(trigger) => TriggerRust::from(trigger),
             None => TriggerRust::default(),
         }
+    }
+}
+
+#[inline(always)]
+fn if_contains<E: Enum>(set: EnumSet<E>, value: E, flag: u8) -> u8 {
+    if set.contains(value) {
+        flag
+    } else {
+        0
+    }
+}
+
+#[inline(always)]
+const fn color_code(color: RgbColor) -> i32 {
+    ((color.b as i32) << 16) | ((color.g as i32) << 8) | (color.r as i32)
+}
+
+#[repr(transparent)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct TextSpan {
+    inner: TextFragment,
+}
+
+impl TextSpan {
+    pub fn foreground(&self) -> i32 {
+        color_code(self.inner.foreground)
+    }
+
+    pub fn background(&self) -> i32 {
+        color_code(self.inner.background)
+    }
+
+    pub fn text(&self) -> &str {
+        &self.inner.text
+    }
+
+    pub fn style(&self) -> u8 {
+        let flags = self.inner.flags;
+        if_contains(flags, TextStyle::Bold, 1)
+            | if_contains(flags, TextStyle::Underline, 2)
+            | if_contains(flags, TextStyle::Blink, 4)
+    }
+}
+
+#[repr(transparent)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct OutputSpan {
+    inner: Output,
+}
+
+impl OutputSpan {
+    pub fn cast(output: &[Output]) -> &[Self] {
+        // SAFETY: #[repr(transparent)]
+        unsafe { &*(output as *const [Output] as *const [Self]) }
+    }
+
+    pub fn text_span(&self) -> *const TextSpan {
+        let OutputFragment::Text(fragment) = &self.inner.fragment else {
+            return ptr::null();
+        };
+        (fragment as *const TextFragment).cast::<TextSpan>()
     }
 }

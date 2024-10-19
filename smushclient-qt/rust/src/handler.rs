@@ -1,5 +1,6 @@
 use crate::adapter::{DocumentAdapter, QColorPair};
 use crate::convert::Convert;
+use crate::sender::OutputSpan;
 use cxx_qt_lib::{QByteArray, QString};
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::{EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment};
@@ -104,6 +105,7 @@ impl<'a> smushclient::SendHandler for ClientHandler<'a> {
                 &QString::from(&request.sender.label),
                 &QString::from(request.text),
                 &request.wildcards.convert(),
+                OutputSpan::cast(request.output),
             );
             return;
         }
