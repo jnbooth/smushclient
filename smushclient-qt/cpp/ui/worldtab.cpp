@@ -402,20 +402,33 @@ void WorldTab::on_output_anchorClicked(const QUrl &url)
 
   int delimIndex, fnIndex;
   if (
-      action.first(2) != QStringLiteral("!!") ||
-      action.back() != QChar::fromLatin1(')') ||
-      (delimIndex = action.indexOf(QChar::fromLatin1(':'))) == -1 ||
-      (fnIndex = action.indexOf(QChar::fromLatin1('('), delimIndex)) == -1)
+      action.first(2) == QStringLiteral("!!") &&
+      action.back() == QChar::fromLatin1(')') &&
+      (delimIndex = action.indexOf(QChar::fromLatin1(':'))) != -1 &&
+      (fnIndex = action.indexOf(QChar::fromLatin1('('), delimIndex)) != -1)
   {
-    api->Send(action);
+    const QString pluginID = action.sliced(2, delimIndex - 2);
+    const string functionName = action.sliced(delimIndex + 1, fnIndex - delimIndex - 1).toStdString();
+    const QString arg = action.sliced(fnIndex + 1, action.size() - fnIndex - 2);
+    AnchorCallback callback(functionName, arg);
+    api->sendCallback(callback, pluginID);
     return;
   }
 
-  const QString pluginID = action.sliced(2, delimIndex - 2);
-  const string functionName = action.sliced(delimIndex + 1, fnIndex - delimIndex - 1).toStdString();
-  const QString arg = action.sliced(fnIndex + 1, action.size() - fnIndex - 2);
-  AnchorCallback callback(functionName, arg);
-  api->sendCallback(callback, pluginID);
+  const auto aliasOutcome = client.alias(action, *document);
+  if (aliasOutcome & (uint8_t)AliasOutcome::Display)
+    api->echo(action);
+
+  if (!(aliasOutcome & (uint8_t)AliasOutcome::Send))
+    return;
+
+  QByteArray bytes = action.toUtf8();
+  OnPluginCommand onCommand(bytes);
+  api->sendCallback(onCommand);
+  if (onCommand.discarded())
+    return;
+
+  api->SendNoEcho(bytes);
 }
 
 void WorldTab::on_output_customContextMenuRequested(const QPoint &pos)
