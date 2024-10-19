@@ -94,8 +94,8 @@ namespace qlua
   QPointF getQPointF(lua_State *L, int idxX, int idxY);
   QSize getQSize(lua_State *L, int idxWidth, int idxHeight);
   QSizeF getQSizeF(lua_State *L, int idxWidth, int idxHeight);
-  QRect getQRect(lua_State *L, int idxLeft, int idxTop, int idxWidth, int idxHeight);
-  QRectF getQRectF(lua_State *L, int idxLeft, int idxTop, int idxWidth, int idxHeight);
+  QRect getQRect(lua_State *L, int idxLeft, int idxTop, int idxRight, int idxBottom);
+  QRectF getQRectF(lua_State *L, int idxLeft, int idxTop, int idxRight, int idxBottom);
 
   std::optional<Qt::BrushStyle> getBrush(
       lua_State *L,

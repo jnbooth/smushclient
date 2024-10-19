@@ -646,14 +646,18 @@ QSizeF qlua::getQSizeF(lua_State *L, int idxWidth, int idxHeight)
   return QSizeF(getNumber(L, idxWidth), getNumber(L, idxHeight));
 }
 
-QRect qlua::getQRect(lua_State *L, int idxLeft, int idxTop, int idxWidth, int idxHeight)
+QRect qlua::getQRect(lua_State *L, int idxLeft, int idxTop, int idxRight, int idxBottom)
 {
-  return QRect(getInt(L, idxLeft), getInt(L, idxTop), getInt(L, idxWidth), getInt(L, idxHeight));
+  return QRect(
+      QPoint(getInt(L, idxLeft), getInt(L, idxTop)),
+      QPoint(getInt(L, idxRight), getInt(L, idxBottom)));
 }
 
-QRectF qlua::getQRectF(lua_State *L, int idxLeft, int idxTop, int idxWidth, int idxHeight)
+QRectF qlua::getQRectF(lua_State *L, int idxLeft, int idxTop, int idxRight, int idxBottom)
 {
-  return QRectF(getNumber(L, idxLeft), getNumber(L, idxTop), getNumber(L, idxWidth), getNumber(L, idxHeight));
+  return QRectF(
+      QPointF(getNumber(L, idxLeft), getNumber(L, idxTop)),
+      QPointF(getNumber(L, idxRight), getNumber(L, idxBottom)));
 }
 
 template <typename T, T MIN, T MAX>

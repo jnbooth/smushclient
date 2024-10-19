@@ -167,19 +167,23 @@ private:
 
   static inline QRect normalizeRect(const QRect &rect, const QPixmap &pixmap) noexcept
   {
-    int x1, y1, x2, y2;
-    rect.getRect(&x1, &y1, &x2, &y2);
+    int x, y, w, h;
+    rect.getRect(&x, &y, &w, &h);
     return QRect(
-        QPoint(x1, y1),
-        QPoint(x2 > 0 ? x2 : pixmap.width() - x2, y2 > 0 ? y2 : pixmap.height() - y2));
+        x,
+        y,
+        w > 0 ? w : pixmap.width() - w - x,
+        h > 0 ? h : pixmap.height() - h - y);
   }
   static inline QRectF normalizeRect(const QRectF &rect, const QPixmap &pixmap) noexcept
   {
-    qreal x1, y1, x2, y2;
-    rect.getRect(&x1, &y1, &x2, &y2);
+    qreal x, y, w, h;
+    rect.getRect(&x, &y, &w, &h);
     return QRectF(
-        QPointF(x1, y1),
-        QPointF(x2 > 0 ? x2 : pixmap.width() - x2, y2 > 0 ? y2 : pixmap.height() - y2));
+        x,
+        y,
+        w > 0 ? w : pixmap.width() - w - x,
+        h > 0 ? h : pixmap.height() - h - y);
   }
   inline QRect normalizeRect(const QRect &rect) const noexcept { return normalizeRect(rect, pixmap); }
   inline QRectF normalizeRect(const QRectF &rect) const noexcept { return normalizeRect(rect, pixmap); }
