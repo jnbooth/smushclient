@@ -49,6 +49,7 @@ ScriptApi::ScriptApi(WorldTab *parent)
       audioChannels(),
       callbackFilter(),
       cursor(parent->ui->output->document()),
+      hasLine(false),
       lastTellPosition(-1),
       scrollBar(parent->ui->output->verticalScrollBar()),
       socket(parent->socket),
@@ -57,6 +58,37 @@ ScriptApi::ScriptApi(WorldTab *parent)
   timekeeper = new Timekeeper(this);
   setLineType(echoFormat, LineType::Input);
   applyWorld(parent->world);
+}
+
+void ScriptApi::appendHtml(const QString &html)
+{
+  flushLine();
+  cursor.insertHtml(html);
+}
+
+void ScriptApi::appendTell(const QString &text, const QTextCharFormat &format)
+{
+  if (cursor.position() != lastTellPosition)
+  {
+    flushLine();
+    updateTimestamp();
+  }
+  cursor.insertText(text, format);
+  hasLine = true;
+  lastTellPosition = cursor.position();
+  scrollToBottom();
+}
+
+void ScriptApi::appendText(const QString &text, const QTextCharFormat &format)
+{
+  flushLine();
+  cursor.insertText(text, format);
+}
+
+void ScriptApi::appendText(const QString &text)
+{
+  flushLine();
+  cursor.insertText(text);
 }
 
 void ScriptApi::applyWorld(const World &world)
@@ -72,8 +104,8 @@ void ScriptApi::applyWorld(const World &world)
 
 void ScriptApi::echo(const QString &text)
 {
-  cursor.insertText(text, echoFormat);
-  cursor.insertBlock();
+  appendText(text, echoFormat);
+  startLine();
   scrollToBottom();
 }
 
@@ -134,8 +166,8 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
 
 void ScriptApi::printError(const QString &error)
 {
-  cursor.insertText(error, errorFormat);
-  cursor.insertBlock();
+  appendText(error, errorFormat);
+  startLine();
 }
 
 bool ScriptApi::runScript(const QString &pluginID, const QString &script) const
@@ -206,8 +238,8 @@ void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
     tab()->ui->input->setText(text);
     return;
   case SendTarget::Output:
-    cursor.insertText(text);
-    cursor.insertBlock();
+    appendText(text);
+    startLine();
     scrollToBottom();
     return;
   case SendTarget::Script:
@@ -266,6 +298,19 @@ void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const
     window->stackUnder(tab()->ui->outputBorder);
 }
 
+void ScriptApi::startLine()
+{
+  if (hasLine) [[unlikely]]
+    cursor.insertBlock();
+  else
+    hasLine = true;
+}
+
+void ScriptApi::updateTimestamp()
+{
+  setTimestamp(cursor);
+}
+
 // protected overrides
 
 void ScriptApi::timerEvent(QTimerEvent *event)
@@ -294,17 +339,6 @@ AudioChannel &ScriptApi::getAudioChannel(size_t index)
   return audioChannels[0];
 }
 
-bool ScriptApi::beginTell()
-{
-  if (cursor.position() == lastTellPosition)
-  {
-    cursor.setPosition(lastTellPosition - 1);
-    return true;
-  }
-  setTimestamp(cursor);
-  return false;
-}
-
 inline SmushClient *ScriptApi::client() const
 {
   return &tab()->client;
@@ -321,16 +355,6 @@ void ScriptApi::displayStatusMessage(const QString &status) const
     return;
 
   statusBar->showMessage(status);
-}
-
-void ScriptApi::endTell(bool insideTell)
-{
-  if (insideTell)
-    cursor.setPosition(cursor.position() + 1);
-  else
-    cursor.insertBlock();
-  lastTellPosition = cursor.position();
-  scrollToBottom();
 }
 
 DatabaseConnection *ScriptApi::findDatabase(string_view databaseID)
@@ -355,6 +379,15 @@ MiniWindow *ScriptApi::findWindow(string_view windowName) const
   if (search == windows.end()) [[unlikely]]
     return nullptr;
   return search->second;
+}
+
+void ScriptApi::flushLine()
+{
+  if (hasLine) [[unlikely]]
+  {
+    hasLine = false;
+    cursor.insertBlock();
+  }
 }
 
 void ScriptApi::scrollToBottom() const

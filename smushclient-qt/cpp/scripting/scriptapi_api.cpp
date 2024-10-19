@@ -77,14 +77,12 @@ int ScriptApi::BroadcastPlugin(size_t index, int message, string_view text) cons
 
 void ScriptApi::ColourTell(const QColor &foreground, const QColor &background, const QString &text)
 {
-  const bool insideTell = beginTell();
   QTextCharFormat format = cursor.charFormat();
   if (foreground.isValid())
     format.setForeground(QBrush(foreground));
   if (background.isValid())
     format.setBackground(QBrush(background));
-  cursor.insertText(text, format);
-  endTell(insideTell);
+  appendTell(text, format);
 }
 
 int ScriptApi::DatabaseClose(string_view databaseID)
@@ -201,9 +199,7 @@ void ScriptApi::Hyperlink(
     format.setBackground(background);
   if (!noUnderline)
     format.setAnchor(true);
-  const bool insideTell = beginTell();
-  cursor.insertText(text, format);
-  endTell(insideTell);
+  appendTell(text, format);
 }
 
 QColor ScriptApi::PickColour(const QColor &hint) const
@@ -337,9 +333,7 @@ ApiCode ScriptApi::StopSound(size_t channel)
 
 void ScriptApi::Tell(const QString &text)
 {
-  const bool insideTell = beginTell();
-  cursor.insertText(text);
-  endTell(insideTell);
+  appendTell(text, cursor.charFormat());
 }
 
 ApiCode ScriptApi::TextRectangle(

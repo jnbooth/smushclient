@@ -267,6 +267,10 @@ public:
       std::string_view windowID) const;
   ApiCode WindowUnloadFont(std::string_view windowName, std::string_view fontID) const;
 
+  void appendHtml(const QString &html);
+  void appendTell(const QString &text, const QTextCharFormat &format);
+  void appendText(const QString &text, const QTextCharFormat &format);
+  void appendText(const QString &text);
   void applyWorld(const World &world);
   SmushClient *client() const;
   void echo(const QString &text);
@@ -287,6 +291,8 @@ public:
   void setOpen(bool open) const;
   ActionSource setSource(ActionSource source) noexcept;
   void stackWindow(std::string_view windowName, MiniWindow *window) const;
+  void startLine();
+  void updateTimestamp();
 
   inline constexpr std::vector<Plugin>::const_iterator cbegin() const noexcept
   {
@@ -316,6 +322,7 @@ private:
   std::unordered_map<std::string, DatabaseConnection> databases;
   QTextCharFormat echoFormat;
   QTextCharFormat errorFormat;
+  bool hasLine;
   int lastTellPosition;
   std::vector<Plugin> plugins;
   std::unordered_map<std::string, size_t> pluginIndices;
@@ -327,9 +334,7 @@ private:
   std::unordered_map<std::string, MiniWindow *> windows;
 
   AudioChannel &getAudioChannel(size_t index);
-  bool beginTell();
   void displayStatusMessage(const QString &status) const;
-  void endTell(bool insideTell);
   DatabaseConnection *findDatabase(const std::string_view databaseID);
   size_t findPluginIndex(const std::string &pluginID) const;
   inline size_t findPluginIndex(const std::string_view pluginID) const
@@ -337,6 +342,7 @@ private:
     return findPluginIndex((std::string)pluginID);
   }
   MiniWindow *findWindow(const std::string_view windowName) const;
+  void flushLine();
   void scrollToBottom() const;
   WorldTab *tab() const;
 };

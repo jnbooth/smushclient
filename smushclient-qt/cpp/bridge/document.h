@@ -50,7 +50,6 @@ public:
 
 private:
   ScriptApi *api;
-  QTextCursor cursor;
   QTextCharFormat formats[166];
   QScrollBar *scrollBar;
 

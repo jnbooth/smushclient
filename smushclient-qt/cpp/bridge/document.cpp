@@ -53,29 +53,28 @@ inline string_view strView(::rust::str str) noexcept
 Document::Document(WorldTab *parent, ScriptApi *api)
     : QObject(parent),
       api(api),
-      cursor(parent->ui->output->document()),
       scrollBar(parent->ui->output->verticalScrollBar()) {}
 
 void Document::appendHtml(const QString &html)
 {
-  cursor.insertHtml(html);
+  api->appendHtml(html);
 }
 
 void Document::appendLine()
 {
-  cursor.insertBlock();
+  api->startLine();
 }
 
 void Document::appendText(const QString &text, int foreground)
 {
-  cursor.insertText(text, formats[foreground]);
+  api->appendText(text, formats[foreground]);
 }
 
 void Document::appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background)
 {
   QTextCharFormat format;
   applyStyles(format, style, foreground, background);
-  cursor.insertText(text, format);
+  api->appendText(text, format);
 }
 
 void Document::appendText(
@@ -88,12 +87,12 @@ void Document::appendText(
   QTextCharFormat format;
   applyStyles(format, style, foreground, background);
   applyLink(format, link);
-  cursor.insertText(text, format);
+  api->appendText(text, format);
 }
 
 void Document::begin()
 {
-  setTimestamp(cursor);
+  api->updateTimestamp();
 }
 
 void Document::end() const

@@ -165,7 +165,7 @@ static int L_GetInfo(lua_State *L)
 static int L_GetLineInfo(lua_State *L)
 {
   expectMaxArgs(L, 2);
-  qlua::pushQVariant(L, getApi(L).GetLineInfo(qlua::getInt(L, 1), qlua::getInt(L, 2)));
+  qlua::pushQVariant(L, getApi(L).GetLineInfo(qlua::getInt(L, 1) - 1, qlua::getInt(L, 2)));
   return 1;
 }
 
