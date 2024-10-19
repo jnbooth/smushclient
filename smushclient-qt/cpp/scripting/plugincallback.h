@@ -16,6 +16,7 @@ class PluginCallback
 {
 public:
   virtual const char *name() const noexcept = 0;
+  virtual const char *property() const noexcept { return nullptr; }
   virtual int id() const noexcept { return 0; }
   virtual ActionSource source() const noexcept = 0;
   virtual int expectedSize() const noexcept { return 0; }

@@ -165,7 +165,7 @@ bool Plugin::hasFunction(const char *name) const
 
 bool Plugin::runCallback(PluginCallback &callback) const
 {
-  if (!findCallback(callback.name()))
+  if (!findCallback(callback))
     return false;
   if (!api_pcall(L, callback.pushArguments(L), callback.expectedSize()))
     return false;
@@ -175,7 +175,7 @@ bool Plugin::runCallback(PluginCallback &callback) const
 
 bool Plugin::runCallbackThreaded(PluginCallback &callback) const
 {
-  if (!findCallback(callback.name()))
+  if (!findCallback(callback))
     return false;
   const ScriptThread thread(L);
   lua_State *L2 = thread.state();
@@ -202,14 +202,36 @@ bool Plugin::runScript(const QString &script) const
 
 // Private methods
 
-bool Plugin::findCallback(const char *name) const
+bool Plugin::findCallback(const PluginCallback &callback) const
 {
   if (isDisabled) [[unlikely]]
     return false;
 
-  if (lua_getglobal(L, name) == LUA_TFUNCTION)
+  switch (lua_getglobal(L, callback.name()))
+  {
+  case LUA_TFUNCTION:
     return true;
+  case LUA_TTABLE:
+    break;
+  default:
+    lua_pop(L, 1);
+    return false;
+  }
 
-  lua_pop(L, 1);
-  return false;
+  const char *property = callback.property();
+
+  if (!property) [[unlikely]]
+  {
+    lua_pop(L, 1);
+    return false;
+  }
+
+  if (lua_getfield(L, -1, property) != LUA_TFUNCTION) [[unlikely]]
+  {
+    lua_pop(L, 2);
+    return false;
+  }
+
+  lua_remove(L, -2);
+  return true;
 }

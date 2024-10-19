@@ -43,6 +43,5 @@ private:
   bool isDisabled;
   PluginMetadata metadata;
 
-  bool findCallback(const char *name) const;
-  inline bool findCallback(std::string_view name) const { return findCallback(name.data()); }
+  bool findCallback(const PluginCallback &callback) const;
 };

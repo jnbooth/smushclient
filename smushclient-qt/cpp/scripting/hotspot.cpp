@@ -9,6 +9,27 @@ using std::optional;
 using std::string;
 using std::string_view;
 
+// Private utils
+
+constexpr void replaceFirstStop(string &callback) noexcept
+{
+  const size_t n = callback.find('.');
+  if (n != string::npos)
+    callback[n] = 0;
+}
+
+constexpr void replaceFirstStops(Hotspot::Callbacks &callbacks) noexcept
+{
+  replaceFirstStop(callbacks.cancelMouseDown);
+  replaceFirstStop(callbacks.cancelMouseOver);
+  replaceFirstStop(callbacks.dragMove);
+  replaceFirstStop(callbacks.dragRelease);
+  replaceFirstStop(callbacks.mouseDown);
+  replaceFirstStop(callbacks.mouseOver);
+  replaceFirstStop(callbacks.mouseUp);
+  replaceFirstStop(callbacks.scroll);
+}
+
 // Public methods
 
 constexpr Hotspot::EventFlags getEventFlags(Qt::KeyboardModifiers modifiers, Qt::MouseButtons buttons) noexcept
@@ -53,16 +74,20 @@ Hotspot::Hotspot(
     MiniWindow *parent,
     const Plugin *plugin,
     string_view id,
-    Callbacks &&callbacks)
+    Callbacks &&callbacksMoved)
     : QWidget(parent),
-      callbacks(std::move(callbacks)),
+      callbacks(std::move(callbacksMoved)),
       id(id),
-      plugin(plugin) {}
+      plugin(plugin)
+{
+  replaceFirstStops(callbacks);
+}
 
 const Hotspot::Callbacks &Hotspot::setCallbacks(Callbacks &&newCallbacks)
 {
   hadMouseDown = false;
   callbacks = std::move(newCallbacks);
+  replaceFirstStops(callbacks);
   return callbacks;
 }
 
@@ -85,6 +110,7 @@ const Hotspot::Callbacks &Hotspot::setCallbacks(CallbacksPartial &&partial)
     callbacks.mouseUp = std::move(*partial.mouseUp);
   if (partial.scroll)
     callbacks.scroll = std::move(*partial.scroll);
+  replaceFirstStops(callbacks);
   return callbacks;
 }
 
@@ -181,15 +207,23 @@ void Hotspot::wheelEvent(QWheelEvent *event)
 
 // Private methods
 
+inline constexpr const char *getProperty(const string &callback)
+{
+  const size_t n = callback.find((char)0);
+  return n == string::npos ? nullptr : callback.data() + n + 1;
+}
+
 class HotspotCallback : public PluginCallback
 {
 public:
   HotspotCallback(const string &callback, Hotspot::EventFlags flags, const string &hotspotID)
       : callback(callback.data()),
         flags(flags),
-        hotspotID(hotspotID) {}
+        hotspotID(hotspotID),
+        prop(getProperty(callback)) {}
 
   inline constexpr const char *name() const noexcept override { return callback; }
+  inline constexpr const char *property() const noexcept override { return prop; }
   inline constexpr ActionSource source() const noexcept override { return ActionSource::Hotspot; }
 
   int pushArguments(lua_State *L) const override
@@ -203,6 +237,7 @@ private:
   const char *callback;
   Hotspot::EventFlags flags;
   const string &hotspotID;
+  const char *prop;
 };
 
 inline void Hotspot::runCallback(const string &callbackName, EventFlags flags)
