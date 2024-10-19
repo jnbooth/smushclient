@@ -362,6 +362,7 @@ ApiCode ScriptApi::WindowPosition(
   if (!window) [[unlikely]]
     return ApiCode::NoSuchWindow;
   window->setPosition(location, position, flags);
+  window->updatePosition();
   stackWindow(windowName, window);
   return ApiCode::OK;
 }
@@ -404,6 +405,7 @@ ApiCode ScriptApi::WindowResize(string_view windowName, const QSize &size, const
   if (!window) [[unlikely]]
     return ApiCode::NoSuchWindow;
   window->setSize(size, fill);
+  window->updatePosition();
   return ApiCode::OK;
 }
 
