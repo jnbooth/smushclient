@@ -494,9 +494,11 @@ void qlua::pushQVariant(lua_State *L, const QVariant &variant, bool intBools)
     pushQString(L, variant.toChar());
     return;
   case QMetaType::QString:
+    pushQString(L, variant.toString());
+    return;
   case QMetaType::QDate:
   case QMetaType::QDateTime:
-    pushQString(L, variant.toString());
+    lua_pushinteger(L, variant.toDateTime().currentSecsSinceEpoch());
     return;
   case QMetaType::QByteArray:
     pushBytes(L, variant.toByteArray());
