@@ -46,7 +46,9 @@ QString formatRuntimeError(lua_State *L)
 
 static int L_panic(lua_State *L)
 {
-  QErrorMessage::qtHandler()->showMessage(formatPanic(L));
+  const QString message = formatPanic(L);
+  qCritical() << "panic(" << message << ")";
+  QErrorMessage::qtHandler()->showMessage(message);
   return 0;
 }
 
