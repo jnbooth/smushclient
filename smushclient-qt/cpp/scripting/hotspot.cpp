@@ -147,8 +147,8 @@ void Hotspot::enterEvent(QEnterEvent *event)
 
 void Hotspot::leaveEvent(QEvent *event)
 {
-  const bool hasCancelMouseOver = callbacks.cancelMouseOver.empty();
-  const bool hasCancelMouseDown = hadMouseDown && callbacks.cancelMouseDown.empty();
+  const bool hasCancelMouseOver = !callbacks.cancelMouseOver.empty();
+  const bool hasCancelMouseDown = hadMouseDown && !callbacks.cancelMouseDown.empty();
   hadMouseDown = false;
 
   if (!hasCancelMouseOver && !hasCancelMouseDown)
