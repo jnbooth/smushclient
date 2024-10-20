@@ -152,6 +152,7 @@ void ScriptApi::printError(const QString &error)
 {
   appendText(error, errorFormat);
   startLine();
+  scrollToBottom();
 }
 
 bool ScriptApi::runScript(const QString &pluginID, const QString &script) const

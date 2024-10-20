@@ -30,7 +30,6 @@ namespace qlua
   }
 
   int expectMaxArgs(lua_State *L, int max);
-  QString getError(lua_State *L);
 
   bool getBool(lua_State *L, int idx);
   bool getBool(lua_State *L, int idx, bool ifNil);

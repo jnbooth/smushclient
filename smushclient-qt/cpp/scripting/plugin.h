@@ -27,7 +27,6 @@ public:
 
   void disable();
   void enable();
-  QString getError() const;
   bool hasFunction(const char *name) const;
   inline bool hasFunction(std::string_view name) const { return hasFunction(name.data()); }
   inline const QString &id() const noexcept { return metadata.id; }

@@ -1,6 +1,7 @@
 #include "plugin.h"
 #include <QtCore/QCoreApplication>
 #include <QtWidgets/QErrorMessage>
+#include "localization.h"
 #include "luaapi.h"
 #include "luaglobals.h"
 #include "qlua.h"
@@ -24,23 +25,6 @@ using std::string_view;
 using std::unordered_map;
 
 constexpr int tracebackIdx = 1;
-
-// Private localization
-
-QString formatCompileError(lua_State *L)
-{
-  return QStringLiteral("Compile error: %1").arg(qlua::getError(L));
-}
-
-QString formatPanic(lua_State *L)
-{
-  return QStringLiteral("PANIC: unprotected error in call to Lua API: %1").arg(qlua::getError(L));
-}
-
-QString formatRuntimeError(lua_State *L)
-{
-  return QStringLiteral("Runtime error: %1").arg(qlua::getError(L));
-}
 
 // Private Lua functions
 
@@ -151,11 +135,6 @@ void Plugin::disable()
 void Plugin::enable()
 {
   isDisabled = false;
-}
-
-QString Plugin::getError() const
-{
-  return qlua::getError(L);
 }
 
 bool Plugin::hasFunction(const char *name) const

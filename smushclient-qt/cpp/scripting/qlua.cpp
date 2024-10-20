@@ -112,13 +112,6 @@ int qlua::expectMaxArgs(lua_State *L, int max)
   return n;
 }
 
-QString qlua::getError(lua_State *L)
-{
-  size_t len;
-  const char *message = lua_tolstring(L, -1, &len);
-  return QString::fromUtf8(message, len);
-}
-
 bool qlua::getBool(lua_State *L, int idx)
 {
   switch (lua_type(L, idx))

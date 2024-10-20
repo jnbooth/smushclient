@@ -79,6 +79,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/databaseconnection.h cpp/scripting/databaseconnection.cpp
     cpp/scripting/hotspot.h cpp/scripting/hotspot.cpp
     cpp/scripting/imagefilters.h cpp/scripting/imagefilters.cpp
+    cpp/scripting/localization.h cpp/scripting/localization.cpp
     cpp/scripting/luaapi.h cpp/scripting/luaapi.cpp
     cpp/scripting/luautils.cpp
     cpp/scripting/luaglobals.h cpp/scripting/luaglobals.cpp
