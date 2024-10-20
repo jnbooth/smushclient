@@ -1,12 +1,9 @@
 #pragma once
 #include <string>
 #include <unordered_map>
-extern "C"
-{
-#include "lua.h"
-}
 
 class ScriptApi;
+struct lua_State;
 
 ScriptApi &getApi(lua_State *L);
 int registerLuaWorld(lua_State *L);

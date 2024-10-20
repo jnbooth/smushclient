@@ -301,6 +301,11 @@ QVariant qlua::getQVariant(lua_State *L, int idx, int type)
   }
 }
 
+inline QVariant qlua::getQVariant(lua_State *L, int idx)
+{
+  return getQVariant(L, idx, lua_type(L, idx));
+}
+
 optional<QString> qlua::getScriptName(lua_State *L, int idx)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");

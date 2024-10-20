@@ -8,11 +8,8 @@
 #include "miniwindow.h"
 #include "scriptenums.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
-extern "C"
-{
-#include "lua.h"
-#include "lauxlib.h"
-}
+
+struct lua_State;
 
 namespace qlua
 {
@@ -57,10 +54,7 @@ namespace qlua
   QString getQString(lua_State *L, int idx, QString ifNil);
 
   QVariant getQVariant(lua_State *L, int idx, int type);
-  inline QVariant getQVariant(lua_State *L, int idx)
-  {
-    return getQVariant(L, idx, lua_type(L, idx));
-  }
+  QVariant getQVariant(lua_State *L, int idx);
 
   std::optional<QString> getScriptName(lua_State *L, int idx);
 

@@ -6,6 +6,10 @@
 #include "scriptapi.h"
 #include "scriptenums.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
+extern "C"
+{
+#include "lua.h"
+}
 
 using std::pair;
 using std::string;

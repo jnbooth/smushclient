@@ -4,6 +4,10 @@
 #include "plugin.h"
 #include "plugincallback.h"
 #include "qlua.h"
+extern "C"
+{
+#include "lua.h"
+}
 
 using std::optional;
 using std::string;

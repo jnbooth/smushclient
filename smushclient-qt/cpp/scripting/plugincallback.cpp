@@ -1,5 +1,9 @@
 #include "plugincallback.h"
 #include "qlua.h"
+extern "C"
+{
+#include "lua.h"
+}
 
 using std::string_view;
 

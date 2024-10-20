@@ -9,6 +9,10 @@
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
+extern "C"
+{
+#include "lua.h"
+}
 
 using std::string;
 using std::string_view;
