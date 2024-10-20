@@ -413,7 +413,10 @@ static int L_CallPlugin(lua_State *L)
   luaL_checkstack(L2, nargs - 1, nullptr);
 
   if (lua_getglobal(L2, routine.data()) != LUA_TFUNCTION)
+  {
+    lua_pop(L2, 1);
     return returnCode(L, ApiCode::NoSuchRoutine, fmtNoSuchRoutine(plugin, routine));
+  }
 
   for (int i = 3; i <= nargs; ++i)
     if (!qlua::copyValue(L, L2, i))
@@ -422,7 +425,7 @@ static int L_CallPlugin(lua_State *L)
       return returnCode(L, ApiCode::BadParameter, fmtBadParam(i - 2, luaL_typename(L, i)));
     }
 
-  if (lua_pcall(L2, nargs, LUA_MULTRET, 0) != LUA_OK)
+  if (lua_pcall(L2, nargs - 2, LUA_MULTRET, 0) != LUA_OK)
   {
     lua_settop(L, 0);
     lua_pushinteger(L, (int)ApiCode::ErrorCallingPluginRoutine);
