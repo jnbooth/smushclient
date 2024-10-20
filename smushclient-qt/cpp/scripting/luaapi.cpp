@@ -374,6 +374,13 @@ static int L_SetCursor(lua_State *L)
   return returnCode(L, getApi(L).SetCursor(*cursor));
 }
 
+static int L_SetStatus(lua_State *L)
+{
+  expectMaxArgs(L, 1);
+  getApi(L).SetStatus(qlua::getQString(L, 1));
+  return 0;
+}
+
 static int L_Tell(lua_State *L)
 {
   getApi(L).Tell(qlua::concatStrings(L));
@@ -1292,6 +1299,7 @@ static const struct luaL_Reg worldlib[] =
      {"RGBColourToName", L_RGBColourToName},
      {"SetClipboard", L_SetClipboard},
      {"SetCursor", L_SetCursor},
+     {"SetStatus", L_SetStatus},
      {"Tell", L_Tell},
      // plugins
      {"BroadcastPlugin", L_BroadcastPlugin},

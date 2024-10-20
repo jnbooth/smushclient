@@ -119,6 +119,7 @@ public:
   ApiCode SendPacket(QByteArrayView bytes) const;
   ApiCode SetCursor(Qt::CursorShape cursor) const;
   ApiCode SetOption(std::string_view name, const QVariant &variant) const;
+  void SetStatus(const QString &status) const;
   ApiCode SetTriggerGroup(size_t plugin, const QString &label, const QString &group) const;
   ApiCode SetTriggerOption(size_t plugin, const QString &label, TriggerBool option, bool value) const;
   bool SetVariable(size_t pluginIndex, std::string_view key, std::string_view value) const;
@@ -334,7 +335,6 @@ private:
   std::unordered_map<std::string, MiniWindow *> windows;
 
   AudioChannel &getAudioChannel(size_t index);
-  void displayStatusMessage(const QString &status) const;
   DatabaseConnection *findDatabase(const std::string_view databaseID);
   size_t findPluginIndex(const std::string &pluginID) const;
   inline size_t findPluginIndex(const std::string_view pluginID) const

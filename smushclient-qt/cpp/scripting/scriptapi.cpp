@@ -20,22 +20,6 @@ using std::chrono::milliseconds;
 
 // Private utils
 
-QMainWindow *getMainWindow(const QObject *obj)
-{
-  if (!obj)
-    return nullptr;
-
-  QObject *parent = obj->parent();
-  if (!parent)
-    return nullptr;
-
-  QMainWindow *window = qobject_cast<QMainWindow *>(parent);
-  if (window)
-    return window;
-
-  return getMainWindow(parent);
-}
-
 inline void scrollToEnd(QScrollBar &bar)
 {
   bar.setValue(bar.maximum());
@@ -247,7 +231,7 @@ void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
     runScript(plugin, text);
     return;
   case SendTarget::Status:
-    displayStatusMessage(text);
+    SetStatus(text);
     return;
   default:
     return;
@@ -342,19 +326,6 @@ AudioChannel &ScriptApi::getAudioChannel(size_t index)
 inline SmushClient *ScriptApi::client() const
 {
   return &tab()->client;
-}
-
-void ScriptApi::displayStatusMessage(const QString &status) const
-{
-  QMainWindow *window = getMainWindow(this);
-  if (!window)
-    return;
-
-  QStatusBar *statusBar = window->statusBar();
-  if (!statusBar)
-    return;
-
-  statusBar->showMessage(status);
 }
 
 DatabaseConnection *ScriptApi::findDatabase(string_view databaseID)
