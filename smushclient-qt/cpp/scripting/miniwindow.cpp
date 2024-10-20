@@ -28,7 +28,8 @@ inline void trim(string &s)
 inline bool buildMenu(QMenu *menu, string_view text)
 {
   const size_t menuCount = 1 + std::count(text.cbegin(), text.cend(), '>');
-  vector<QMenu *> menus(menuCount);
+  vector<QMenu *> menus;
+  menus.reserve(menuCount);
   menus.push_back(menu);
   std::istringstream stream((string)text);
   const bool returnsNumber = stream.peek() == '!';
