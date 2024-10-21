@@ -1,5 +1,6 @@
 #include "luaapi.h"
 #include <QtCore/QPointer>
+#include "errors.h"
 #include "imagefilters.h"
 #include "qlua.h"
 #include "scriptapi.h"
@@ -432,7 +433,7 @@ static int L_CallPlugin(lua_State *L)
       return returnCode(L, ApiCode::BadParameter, fmtBadParam(i - 2, luaL_typename(L, i)));
     }
 
-  if (lua_pcall(L2, nargs - 2, LUA_MULTRET, 1) != LUA_OK)
+  if (api_pcall(L2, nargs - 2, LUA_MULTRET) != LUA_OK)
   {
     lua_settop(L, 0);
     lua_pushinteger(L, (int)ApiCode::ErrorCallingPluginRoutine);

@@ -1,4 +1,4 @@
-#include "plugin.h"
+#include "errors.h"
 #include "scriptthread.h"
 extern "C"
 {
@@ -11,7 +11,7 @@ ScriptThread::ScriptThread(lua_State *parentL)
     : L(lua_newthread(parentL)), parentL(parentL)
 {
   lua_rawsetp(parentL, LUA_REGISTRYINDEX, L);
-  Plugin::pushErrorHandler(L);
+  pushErrorHandler(L);
 }
 
 ScriptThread::ScriptThread(ScriptThread &&other)

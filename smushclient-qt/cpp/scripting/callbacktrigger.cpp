@@ -1,5 +1,5 @@
 #include "callbacktrigger.h"
-#include "localization.h"
+#include "errors.h"
 #include "luaapi.h"
 #include "plugincallback.h"
 #include "scriptapi.h"
@@ -31,10 +31,5 @@ bool CallbackTrigger::trigger()
   for (int i = top; i <= top + nargs; ++i)
     lua_pushvalue(L, i);
 
-  if (lua_pcall(L, nargs, 0, 1) == LUA_OK) [[likely]]
-    return true;
-
-  getApi(L).printError(formatRuntimeError(L));
-  lua_pop(L, 1);
-  return false;
+  return api_pcall(L, nargs, 0);
 }

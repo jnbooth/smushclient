@@ -1,7 +1,7 @@
 #include "plugin.h"
 #include <QtCore/QCoreApplication>
 #include <QtWidgets/QErrorMessage>
-#include "localization.h"
+#include "errors.h"
 #include "luaapi.h"
 #include "luaglobals.h"
 #include "qlua.h"
@@ -23,9 +23,6 @@ int luaopen_utils(lua_State *L);
 using std::string;
 using std::string_view;
 using std::unordered_map;
-
-constexpr int tracebackIdx = 1;
-static const char *errorHandlerKey = "trace";
 
 // Private Lua functions
 
@@ -60,18 +57,6 @@ inline bool checkError(int status)
   }
 }
 
-inline bool api_pcall(lua_State *L, int nargs, int nreturn)
-{
-  if (checkError(lua_pcall(L, nargs, nreturn, tracebackIdx))) [[unlikely]]
-  {
-    getApi(L).printError(formatRuntimeError(L));
-    lua_pop(L, 1);
-    return false;
-  }
-
-  return true;
-}
-
 void setlib(lua_State *L, const char *name)
 {
   lua_pushvalue(L, -1);
@@ -80,11 +65,6 @@ void setlib(lua_State *L, const char *name)
 }
 
 // Public methods
-
-void Plugin::pushErrorHandler(lua_State *L)
-{
-  lua_rawgetp(L, LUA_REGISTRYINDEX, errorHandlerKey);
-}
 
 Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
     : L(luaL_newstate()),
@@ -119,11 +99,7 @@ Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
   setPluginIndex(L, metadata.index);
   setLuaApi(L, api);
   lua_settop(L, 0);
-  lua_getglobal(L, LUA_DBLIBNAME);
-  lua_getfield(L, -1, "traceback");
-  lua_pushvalue(L, -1);
-  lua_rawsetp(L, LUA_REGISTRYINDEX, errorHandlerKey);
-  lua_remove(L, 1);
+  addErrorHandler(L);
 }
 
 Plugin::Plugin(Plugin &&other)
