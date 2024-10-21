@@ -36,5 +36,6 @@ bool CallbackTrigger::trigger()
     return true;
 
   getApi(L).printError(formatRuntimeError(L));
+  lua_pop(L, 1);
   return false;
 }
