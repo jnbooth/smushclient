@@ -25,6 +25,7 @@ using std::string_view;
 using std::unordered_map;
 
 constexpr int tracebackIdx = 1;
+static const char *errorHandlerKey = "trace";
 
 // Private Lua functions
 
@@ -80,6 +81,11 @@ void setlib(lua_State *L, const char *name)
 
 // Public methods
 
+void Plugin::pushErrorHandler(lua_State *L)
+{
+  lua_rawgetp(L, LUA_REGISTRYINDEX, errorHandlerKey);
+}
+
 Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
     : L(luaL_newstate()),
       isDisabled(false),
@@ -115,6 +121,8 @@ Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
   lua_settop(L, 0);
   lua_getglobal(L, LUA_DBLIBNAME);
   lua_getfield(L, -1, "traceback");
+  lua_pushvalue(L, -1);
+  lua_rawsetp(L, LUA_REGISTRYINDEX, errorHandlerKey);
   lua_remove(L, 1);
 }
 

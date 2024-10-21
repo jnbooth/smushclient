@@ -25,6 +25,8 @@ public:
   Plugin(const Plugin &) = delete;
   Plugin &operator=(const Plugin &) = delete;
 
+  static void pushErrorHandler(lua_State *L);
+
   void disable();
   void enable();
   bool hasFunction(const char *name) const;
