@@ -7,7 +7,7 @@ pub trait SendHandler {
 }
 
 pub trait Handler: SendHandler {
-    fn display(&mut self, output: Output);
+    fn display(&mut self, output: &Output);
     fn permit_line(&mut self, line: &str) -> bool;
     fn play_sound(&mut self, path: &str);
 }

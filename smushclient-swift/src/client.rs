@@ -84,8 +84,8 @@ impl smushclient::SendHandler for ClientHandler {
 }
 
 impl smushclient::Handler for ClientHandler {
-    fn display(&mut self, output: Output) {
-        if let Ok(fragment) = output.fragment.try_into() {
+    fn display(&mut self, output: &Output) {
+        if let Ok(fragment) = output.fragment.clone().try_into() {
             self.output.push(fragment);
         }
     }

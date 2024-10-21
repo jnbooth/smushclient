@@ -176,7 +176,7 @@ impl SmushClient {
                 for _ in 0..until {
                     let output = output.next().unwrap();
                     if is_nonvisual_output(&output.fragment) {
-                        handler.display(output);
+                        handler.display(&output);
                     }
                 }
             } else {
@@ -185,7 +185,7 @@ impl SmushClient {
                     if let OutputFragment::Text(text) = &mut output.fragment {
                         alter_text_output(text, &self.world);
                     }
-                    handler.display(output);
+                    handler.display(&output);
                 }
             }
             if !trigger_effects.omit_from_log {
