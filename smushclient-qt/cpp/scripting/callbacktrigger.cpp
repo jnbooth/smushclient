@@ -1,30 +1,29 @@
 #include "callbacktrigger.h"
 #include "localization.h"
 #include "luaapi.h"
+#include "plugincallback.h"
 #include "scriptapi.h"
 extern "C"
 {
 #include "lua.h"
 }
 
-CallbackTrigger::CallbackTrigger(lua_State *L, int nargs)
-    : L(L),
-      nargs(nargs),
-      top(lua_gettop(L) - nargs) {}
+CallbackTrigger::CallbackTrigger(lua_State *parentL, int nargs)
+    : nargs(nargs),
+      thread(parentL)
+{
+  L = thread.state();
+  top = lua_gettop(L) + 1;
+  lua_xmove(parentL, L, nargs + 1);
+}
 
 CallbackTrigger::CallbackTrigger(CallbackTrigger &&other)
     : L(other.L),
       nargs(other.nargs),
+      thread(std::move(other.thread)),
       top(other.top)
 {
   other.moved = true;
-}
-
-CallbackTrigger::~CallbackTrigger()
-{
-  if (moved)
-    return;
-  lua_settop(L, top - 1);
 }
 
 bool CallbackTrigger::trigger()
