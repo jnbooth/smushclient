@@ -103,7 +103,7 @@ impl<'a> smushclient::SendHandler for ClientHandler<'a> {
                 request.plugin,
                 &QString::from(&request.sender.script),
                 &QString::from(&request.sender.label),
-                &QString::from(request.text),
+                &QString::from(request.line),
                 &request.wildcards.convert(),
                 OutputSpan::cast(request.output),
             );
