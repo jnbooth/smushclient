@@ -145,7 +145,7 @@ impl PluginEngine {
             } else {
                 &mut plugin.aliases
             };
-            for send in Matches::find(aliases, line) {
+            for send in Matches::find(aliases.iter().enumerate(), line) {
                 let alias: &Alias = send.sender;
                 check_oneshot(&mut oneshots, &send);
 
@@ -196,7 +196,7 @@ impl PluginEngine {
             } else {
                 &mut plugin.triggers
             };
-            for send in Matches::find(triggers, line) {
+            for send in Matches::find(triggers.iter().enumerate(), line) {
                 let trigger: &Trigger = send.sender;
                 check_oneshot(&mut oneshots, &send);
 

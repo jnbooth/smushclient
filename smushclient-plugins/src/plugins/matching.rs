@@ -1,6 +1,3 @@
-use std::iter::Enumerate;
-use std::slice;
-
 use fancy_regex::{CaptureMatches, Captures};
 
 use crate::send::{Reaction, SendTarget, Sender};
@@ -49,25 +46,29 @@ impl<'a, 'b, T: AsRef<Reaction>> Iterator for RepeatingMatch<'a, 'b, T> {
     }
 }
 
-pub struct Matches<'a, 'b, T> {
+pub struct Matches<'a, 'b, I, T> {
     done: bool,
-    inner: Enumerate<slice::Iter<'a, T>>,
+    inner: I,
     line: &'b str,
     repeating: RepeatingMatch<'a, 'b, T>,
 }
 
-impl<'a, 'b, T> Matches<'a, 'b, T> {
-    pub fn find(senders: &'a [T], line: &'b str) -> Self {
+impl<'a, 'b, I, T> Matches<'a, 'b, I, T> {
+    pub fn find(iter: I, line: &'b str) -> Self {
         Self {
             done: false,
-            inner: senders.iter().enumerate(),
+            inner: iter,
             line,
             repeating: RepeatingMatch::Empty,
         }
     }
 }
 
-impl<'a, 'b, T: AsRef<Reaction>> Iterator for Matches<'a, 'b, T> {
+impl<'a, 'b, I, T> Iterator for Matches<'a, 'b, I, T>
+where
+    I: Iterator<Item = (usize, &'a T)>,
+    T: AsRef<Reaction>,
+{
     type Item = SendMatch<'a, 'b, T>;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -193,7 +194,8 @@ mod tests {
         alias.repeats = opts.repeats;
         alias.text = opts.text.to_owned();
         let mut buf = String::new();
-        let outputs: Vec<_> = Matches::find(&[alias], opts.line)
+        let aliases = vec![alias];
+        let outputs: Vec<_> = Matches::find(aliases.iter().enumerate(), opts.line)
             .map(move |send| send.text(&mut buf).to_owned())
             .collect();
         let expect: Vec<_> = opts.expect.iter().map(ToOwned::to_owned).collect();
