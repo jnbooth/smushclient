@@ -166,13 +166,11 @@ impl PluginEngine {
                 }
 
                 effects.add_effects(alias);
-
-                if !alias.keep_evaluating {
-                    delete_oneshots(aliases, &oneshots);
-                    return effects;
-                }
             }
             delete_oneshots(aliases, &oneshots);
+            if !effects.keep_evaluating {
+                break;
+            }
         }
 
         effects
@@ -223,13 +221,11 @@ impl PluginEngine {
                 }
 
                 effects.add_effects(trigger);
-
-                if !trigger.keep_evaluating {
-                    delete_oneshots(triggers, &oneshots);
-                    return effects;
-                }
             }
             delete_oneshots(triggers, &oneshots);
+            if !effects.keep_evaluating {
+                break;
+            }
         }
 
         effects

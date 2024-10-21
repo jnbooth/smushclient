@@ -1,20 +1,34 @@
 use mud_transformer::mxp::RgbColor;
 use smushclient_plugins::{Alias, Trigger};
 
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AliasEffects {
+    pub keep_evaluating: bool,
     pub omit_from_command_history: bool,
     pub omit_from_log: bool,
     pub omit_from_output: bool,
     pub suppress: bool,
 }
 
+impl Default for AliasEffects {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AliasEffects {
-    pub fn new() -> Self {
-        Self::default()
+    pub const fn new() -> Self {
+        Self {
+            keep_evaluating: true,
+            omit_from_command_history: false,
+            omit_from_log: false,
+            omit_from_output: false,
+            suppress: false,
+        }
     }
 
     pub fn add_effects(&mut self, alias: &Alias) {
+        self.keep_evaluating &= alias.keep_evaluating;
         self.omit_from_command_history |= alias.omit_from_command_history;
         self.omit_from_log |= alias.omit_from_log;
         self.omit_from_output |= alias.omit_from_output;
@@ -39,8 +53,9 @@ impl From<AliasEffects> for AliasOutcome {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct TriggerEffects {
+    pub keep_evaluating: bool,
     pub omit_from_output: bool,
     pub omit_from_log: bool,
     pub foreground: Option<RgbColor>,
@@ -50,12 +65,28 @@ pub struct TriggerEffects {
     pub make_underline: bool,
 }
 
+impl Default for TriggerEffects {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TriggerEffects {
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            keep_evaluating: true,
+            omit_from_output: false,
+            omit_from_log: false,
+            foreground: None,
+            background: None,
+            make_bold: false,
+            make_italic: false,
+            make_underline: false,
+        }
     }
 
     pub fn add_effects(&mut self, trigger: &Trigger) {
+        self.keep_evaluating &= trigger.keep_evaluating;
         self.omit_from_log |= trigger.omit_from_log;
         self.omit_from_output |= trigger.omit_from_output;
         if self.omit_from_output {

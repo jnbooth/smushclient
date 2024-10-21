@@ -50,6 +50,7 @@ impl<'a, 'b, T: AsRef<Reaction>> Iterator for RepeatingMatch<'a, 'b, T> {
 }
 
 pub struct Matches<'a, 'b, T> {
+    done: bool,
     inner: Enumerate<slice::Iter<'a, T>>,
     line: &'b str,
     repeating: RepeatingMatch<'a, 'b, T>,
@@ -58,6 +59,7 @@ pub struct Matches<'a, 'b, T> {
 impl<'a, 'b, T> Matches<'a, 'b, T> {
     pub fn find(senders: &'a [T], line: &'b str) -> Self {
         Self {
+            done: false,
             inner: senders.iter().enumerate(),
             line,
             repeating: RepeatingMatch::Empty,
@@ -72,11 +74,15 @@ impl<'a, 'b, T: AsRef<Reaction>> Iterator for Matches<'a, 'b, T> {
         if let Some(repeated) = self.repeating.next() {
             return Some(repeated);
         }
+        if self.done {
+            return None;
+        }
         for (index, sender) in &mut self.inner {
             let reaction = sender.as_ref();
             if !reaction.enabled || !matches!(reaction.regex.is_match(self.line), Ok(true)) {
                 continue;
             }
+            self.done = !reaction.keep_evaluating;
             let count = if reaction.repeats {
                 reaction.regex.find_iter(self.line).count()
             } else {
