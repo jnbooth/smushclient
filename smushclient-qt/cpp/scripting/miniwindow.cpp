@@ -225,6 +225,7 @@ MiniWindow::MiniWindow(
 
 Hotspot *MiniWindow::addHotspot(
     string_view hotspotID,
+    WorldTab *tab,
     const Plugin *plugin,
     Hotspot::Callbacks &&callbacks)
 {
@@ -248,7 +249,7 @@ Hotspot *MiniWindow::addHotspot(
     }
   }
 
-  Hotspot *hotspot = new Hotspot(this, plugin, hotspotID, std::move(callbacks));
+  Hotspot *hotspot = new Hotspot(this, tab, plugin, hotspotID, std::move(callbacks));
   hotspots[(string)hotspotID] = hotspot;
   if (neighbor)
     hotspot->stackUnder(neighbor);

@@ -120,10 +120,15 @@ Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
 Plugin::Plugin(Plugin &&other)
     : L(other.L),
       isDisabled(other.isDisabled),
-      metadata(std::move(other.metadata)) {}
+      metadata(std::move(other.metadata))
+{
+  other.moved = true;
+}
 
 Plugin::~Plugin()
 {
+  if (moved)
+    return;
   lua_close(L);
 }
 
@@ -188,31 +193,5 @@ bool Plugin::findCallback(const PluginCallback &callback) const
   if (isDisabled) [[unlikely]]
     return false;
 
-  switch (lua_getglobal(L, callback.name()))
-  {
-  case LUA_TFUNCTION:
-    return true;
-  case LUA_TTABLE:
-    break;
-  default:
-    lua_pop(L, 1);
-    return false;
-  }
-
-  const char *property = callback.property();
-
-  if (!property) [[unlikely]]
-  {
-    lua_pop(L, 1);
-    return false;
-  }
-
-  if (lua_getfield(L, -1, property) != LUA_TFUNCTION) [[unlikely]]
-  {
-    lua_pop(L, 2);
-    return false;
-  }
-
-  lua_remove(L, -2);
-  return true;
+  return callback.findCallback(L);
 }

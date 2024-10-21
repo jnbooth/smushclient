@@ -921,3 +921,4 @@ optional<MiniWindow::Position> qlua::getWindowPosition(
       MiniWindow::Position::OutputStretch,
       MiniWindow::Position::Tile>(L, idx, ifNil);
 }
+

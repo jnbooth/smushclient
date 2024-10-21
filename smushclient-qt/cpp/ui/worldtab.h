@@ -1,11 +1,14 @@
 #pragma once
+#include <QtCore/QPointer>
 #include <QtCore/QTimerEvent>
 #include <QtGui/QResizeEvent>
 #include <QtNetwork/QTcpSocket>
 #include <QtWidgets/QSplitter>
+#include "../scripting/callbacktrigger.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
 class Document;
+class Hotspot;
 class ScriptApi;
 
 namespace Ui
@@ -26,10 +29,12 @@ public:
   void openPluginsDialog();
   bool openWorld(const QString &filename) &;
   void openWorldSettings() &;
-  bool updateWorld();
   QString saveWorld(const QString &saveFilter);
   QString saveWorldAsNew(const QString &saveFilter);
+  void setOnDragMove(CallbackTrigger &&trigger);
+  void setOnDragRelease(Hotspot *hotspot);
   const QString title() const noexcept;
+  bool updateWorld();
 
 public:
   Ui::WorldTab *ui;
@@ -38,6 +43,9 @@ public:
   World world;
 
 protected:
+  void leaveEvent(QEvent *event) override;
+  void mouseMoveEvent(QMouseEvent *event) override;
+  void mouseReleaseEvent(QMouseEvent *event) override;
   void resizeEvent(QResizeEvent *event) override;
   void timerEvent(QTimerEvent *event) override;
 
@@ -46,10 +54,13 @@ private:
   QFont defaultFont;
   Document *document;
   QString filePath;
+  std::optional<CallbackTrigger> onDragMove;
+  QPointer<Hotspot> onDragRelease;
   int resizeTimerId;
 
   void applyWorld() const;
   void connectToHost() const;
+  void finishDrag();
   bool loadPlugins();
   void openLog();
   bool saveWorldAndState(const QString &filePath) const;

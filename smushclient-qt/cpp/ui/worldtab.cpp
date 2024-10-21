@@ -13,12 +13,14 @@
 #include "worldprefs.h"
 #include "../bridge/document.h"
 #include "../environment.h"
-#include "../spans.h"
+#include "../scripting/hotspot.h"
 #include "../scripting/qlua.h"
 #include "../scripting/scriptapi.h"
 #include "../settings.h"
+#include "../spans.h"
 #include "rust/cxx.h"
 
+using std::nullopt;
 using std::string;
 
 // Private utilities
@@ -42,7 +44,10 @@ inline void showRustError(const rust::Error &e)
 WorldTab::WorldTab(QWidget *parent)
     : QSplitter(parent),
       ui(new Ui::WorldTab),
-      defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont))
+      defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont)),
+      onDragMove(nullopt),
+      onDragRelease(nullptr),
+      resizeTimerId(0)
 {
   ui->setupUi(this);
   ui->output->setOpenLinks(false);
@@ -165,6 +170,16 @@ QString WorldTab::saveWorldAsNew(const QString &saveFilter)
   return filePath;
 }
 
+void WorldTab::setOnDragMove(CallbackTrigger &&trigger)
+{
+  onDragMove.emplace(std::move(trigger));
+}
+
+void WorldTab::setOnDragRelease(Hotspot *hotspot)
+{
+  onDragRelease = hotspot;
+}
+
 const QString WorldTab::title() const noexcept
 {
   return world.getName();
@@ -182,6 +197,22 @@ bool WorldTab::updateWorld()
 }
 
 // Protected overrides
+
+void WorldTab::mouseMoveEvent(QMouseEvent *)
+{
+  if (onDragMove) [[unlikely]]
+    onDragMove->trigger();
+}
+
+void WorldTab::leaveEvent(QEvent *)
+{
+  finishDrag();
+}
+
+void WorldTab::mouseReleaseEvent(QMouseEvent *)
+{
+  finishDrag();
+}
 
 void WorldTab::resizeEvent(QResizeEvent *event)
 {
@@ -227,6 +258,16 @@ void WorldTab::connectToHost() const
     return;
 
   socket->connectToHost(world.getSite(), (uint16_t)world.getPort());
+}
+
+inline void WorldTab::finishDrag()
+{
+  onDragMove.reset();
+  if (onDragRelease) [[unlikely]]
+  {
+    onDragRelease->finishDrag();
+    onDragRelease = nullptr;
+  }
 }
 
 bool WorldTab::loadPlugins()

@@ -33,7 +33,7 @@ ApiCode ScriptApi::WindowAddHotspot(
   if (!window) [[unlikely]]
     return ApiCode::NoSuchWindow;
   const Plugin *plugin = &plugins[index];
-  Hotspot *hotspot = window->addHotspot(hotspotID, plugin, std::move(callbacks));
+  Hotspot *hotspot = window->addHotspot(hotspotID, tab(), plugin, std::move(callbacks));
   if (!hotspot) [[unlikely]]
     return ApiCode::HotspotPluginChanged;
   hotspot->setGeometry(geometry);

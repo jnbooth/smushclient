@@ -14,10 +14,15 @@ ScriptThread::ScriptThread(lua_State *parentL)
 
 ScriptThread::ScriptThread(ScriptThread &&other)
     : L(other.L),
-      parentL(other.parentL) {}
+      parentL(other.parentL)
+{
+  other.moved = true;
+}
 
 ScriptThread::~ScriptThread()
 {
+  if (moved)
+    return;
   lua_closethread(L, nullptr);
   lua_pushnil(parentL);
   lua_rawsetp(parentL, LUA_REGISTRYINDEX, L);

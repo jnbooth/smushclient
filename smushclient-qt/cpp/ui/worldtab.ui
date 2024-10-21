@@ -70,7 +70,7 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QTextBrowser" name="output">
+           <widget class="MudBrowser" name="output">
             <property name="focusPolicy">
              <enum>Qt::FocusPolicy::NoFocus</enum>
             </property>
@@ -92,6 +92,13 @@
   </widget>
   <widget class="QLineEdit" name="input"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MudBrowser</class>
+   <extends>QTextBrowser</extends>
+   <header>mudbrowser.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

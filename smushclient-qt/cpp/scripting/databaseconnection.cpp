@@ -27,10 +27,15 @@ DatabaseConnection::DatabaseConnection(DatabaseConnection &&other)
     : db(other.db),
       filename(std::move(other.filename)),
       stmt(other.stmt),
-      validRow(other.validRow) {}
+      validRow(other.validRow)
+{
+  other.moved = true;
+}
 
 DatabaseConnection::~DatabaseConnection()
 {
+  if (moved)
+    return;
   close();
 }
 

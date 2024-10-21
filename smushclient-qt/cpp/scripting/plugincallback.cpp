@@ -9,6 +9,37 @@ using std::string_view;
 
 // Abstract
 
+bool PluginCallback::findCallback(lua_State *L) const
+{
+  switch (lua_getglobal(L, name()))
+  {
+  case LUA_TFUNCTION:
+    return true;
+  case LUA_TTABLE:
+    break;
+  default:
+    lua_pop(L, 1);
+    return false;
+  }
+
+  const char *prop = property();
+
+  if (!prop) [[unlikely]]
+  {
+    lua_pop(L, 1);
+    return false;
+  }
+
+  if (lua_getfield(L, -1, prop) != LUA_TFUNCTION) [[unlikely]]
+  {
+    lua_pop(L, 2);
+    return false;
+  }
+
+  lua_remove(L, -2);
+  return true;
+}
+
 void DiscardCallback::collectReturned(lua_State *L)
 {
   if (processing && !lua_isnil(L, -1) && !lua_toboolean(L, -1))

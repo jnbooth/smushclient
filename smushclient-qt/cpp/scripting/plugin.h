@@ -39,6 +39,7 @@ public:
 
 private:
   lua_State *L;
+  bool moved;
   bool isDisabled;
   PluginMetadata metadata;
 

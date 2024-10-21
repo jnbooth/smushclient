@@ -287,16 +287,20 @@ QVariant MiniWindow::info(int infoType) const
   case 15:
     return mapFromGlobal(QCursor::pos()).y();
   case 16:
-    return parentWidget()->mapFromGlobal(QCursor::pos()).x();
+    return 1; // incremented each time items 14/15 are updated
   case 17:
-    return parentWidget()->mapFromGlobal(QCursor::pos()).y();
+    return parentWidget()->mapFromGlobal(QCursor::pos()).x();
   case 18:
-    return 0;
+    return parentWidget()->mapFromGlobal(QCursor::pos()).y();
   case 19:
-    return installed;
+    return QString(); // hotspot currently being moused-over in
   case 20:
-    return zOrder;
+    return QString(); // hotspot currently being moused-down in
   case 21:
+    return installed;
+  case 22:
+    return zOrder;
+  case 23:
     return pluginID;
   default:
     return QVariant();

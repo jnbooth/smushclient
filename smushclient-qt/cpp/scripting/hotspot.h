@@ -10,6 +10,7 @@
 
 class MiniWindow;
 class Plugin;
+class WorldTab;
 
 class Hotspot : public QWidget
 {
@@ -49,15 +50,14 @@ public:
   using Callbacks = BasicCallbacks<std::string>;
   using CallbacksPartial = BasicCallbacks<std::optional<std::string>>;
 
-  Hotspot(MiniWindow *parent, const Plugin *plugin, std::string_view id, Callbacks &&callbacks);
+  Hotspot(MiniWindow *parent, WorldTab *tab, const Plugin *plugin, std::string_view id, Callbacks &&callbacks);
   const Callbacks &setCallbacks(Callbacks &&callbacks);
   const Callbacks &setCallbacks(CallbacksPartial &&callbacks);
   inline bool belongsToPlugin(const Plugin *plugin) const noexcept { return plugin == this->plugin; }
+  void finishDrag();
   QVariant info(int infoType) const;
 
 protected:
-  void dragMoveEvent(QDragMoveEvent *event) override;
-  void dropEvent(QDropEvent *event) override;
   void enterEvent(QEnterEvent *event) override;
   void leaveEvent(QEvent *event) override;
   void mouseDoubleClickEvent(QMouseEvent *event) override;
@@ -68,9 +68,12 @@ protected:
 
 private:
   Callbacks callbacks;
+  bool hadDrag;
   bool hadMouseDown;
   std::string id;
   const Plugin *plugin;
+  WorldTab *tab;
 
   void runCallback(const std::string &callback, EventFlags flags);
+  void startDrag(QMouseEvent *event);
 };

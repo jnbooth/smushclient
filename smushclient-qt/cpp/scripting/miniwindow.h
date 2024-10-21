@@ -15,6 +15,7 @@
 
 class ImageFilter;
 class Plugin;
+class WorldTab;
 
 class MiniWindow : public QWidget
 {
@@ -75,6 +76,7 @@ public:
       const QString &pluginID = QString());
   Hotspot *addHotspot(
       std::string_view hotspotID,
+      WorldTab *tab,
       const Plugin *plugin,
       Hotspot::Callbacks &&callbacks);
   void applyFilter(const ImageFilter &filter, const QRect &rect = QRect());

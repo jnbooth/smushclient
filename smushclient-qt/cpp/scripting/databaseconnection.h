@@ -21,6 +21,7 @@ public:
 private:
   sqlite3 *db;
   std::string filename;
+  bool moved;
   sqlite3_stmt *stmt;
   bool validRow;
 };

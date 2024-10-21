@@ -1,6 +1,5 @@
 #include "audio.h"
 #include <QtCore/QFile>
-#include <QtCore/QDebug>
 
 AudioChannel::AudioChannel()
     : buffer(),

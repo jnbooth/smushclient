@@ -22,6 +22,8 @@ public:
   virtual int expectedSize() const noexcept { return 0; }
   virtual int pushArguments(lua_State *) const { return 0; }
   virtual void collectReturned(lua_State *) {}
+
+  virtual bool findCallback(lua_State *L) const;
 };
 
 class DiscardCallback : public PluginCallback
