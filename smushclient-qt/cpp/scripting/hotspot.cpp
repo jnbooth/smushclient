@@ -134,7 +134,8 @@ const Hotspot::Callbacks &Hotspot::setCallbacks(CallbacksPartial &&partial)
 void Hotspot::finishDrag()
 {
   hadDrag = false;
-  runCallback(callbacks.dragRelease, getEventFlags());
+  if (hasCallback(callbacks.dragRelease))
+    runCallback(callbacks.dragRelease, getEventFlags());
 }
 
 // Protected overrides
@@ -251,8 +252,7 @@ inline void Hotspot::runCallback(const string &callbackName, EventFlags flags)
 void Hotspot::startDrag(QMouseEvent *event)
 {
   hadDrag = true;
-  if (hasCallback(callbacks.dragRelease))
-    tab->setOnDragRelease(this);
+  tab->setOnDragRelease(this);
 
   if (!hasCallback(callbacks.dragMove))
     return;
