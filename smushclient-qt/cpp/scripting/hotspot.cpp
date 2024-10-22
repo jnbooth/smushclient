@@ -194,14 +194,18 @@ void Hotspot::mousePressEvent(QMouseEvent *event)
 void Hotspot::mouseReleaseEvent(QMouseEvent *event)
 {
   hadMouseDown = false;
+
   if (hasCallback(callbacks.mouseUp))
     runCallback(callbacks.mouseUp, getEventFlags(event));
+
+  event->ignore();
 }
 
 void Hotspot::wheelEvent(QWheelEvent *event)
 {
   if (!hasCallback(callbacks.scroll, event))
     return;
+
   const int yDelta = event->angleDelta().y();
   if (yDelta > 0)
     runCallback(callbacks.scroll, getEventFlags(event) | EventFlag::ScrollDown);
