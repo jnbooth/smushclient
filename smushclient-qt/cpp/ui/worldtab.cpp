@@ -63,6 +63,8 @@ WorldTab::WorldTab(QWidget *parent)
 
 WorldTab::~WorldTab()
 {
+  OnPluginClose onPluginClose;
+  api->sendCallback(onPluginClose);
   disconnect(socket, nullptr, nullptr, nullptr);
   delete api;
   delete ui;
