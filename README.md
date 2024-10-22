@@ -9,15 +9,15 @@ _Shown above: SmushClient running [Quow's MUSHclient plugin pack](https://quow.c
 | ![image](https://github.com/user-attachments/assets/a61c4d52-f2a5-48f3-a4a0-9e95810d7218) | ![image](https://github.com/user-attachments/assets/22df296d-7192-4b15-812a-2a4e9fb3f8a6) |
 | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 
-# Local Development
+## Local Development
 
-## Prerequisites
+### Prerequisites
 
 - [Rust](https://doc.rust-lang.org/cargo/getting-started/installation.html)
 - [Qt framework](https://doc.qt.io/qt-6/get-and-install-qt.html)
 - [CMake](https://cmake.org/download/)
 
-## Building for Development
+### Building for Development
 
 ```console
 cd smushclient-qt
@@ -25,7 +25,7 @@ cmake -S . -B build/Debug
 cmake --build build/Debug --config Debug
 ```
 
-## Building for Release
+### Building for Release
 
 ```console
 cd smushclient-qt
@@ -33,7 +33,7 @@ cmake -S . -B build/Release
 cmake --build build/Relase --config Release
 ```
 
-## Running
+### Running
 
 SmushClient looks for resources according to the following directory structure:
 
@@ -44,7 +44,7 @@ SmushClient looks for resources according to the following directory structure:
 | `<DIR>/sounds/`  | Sound files (any format) |
 | `<DIR>/worlds/`  | World files              |
 
-# Related Links
+## Related Links
 
 - [nickgammon/mushclient](https://github.com/nickgammon/mushclient): [Nick Gammon](https://www.gammon.com.au/)'s legendary MUSHclient application, created in 1995.
 - [jnbooth/mxp](https://github.com/jnbooth/mxp): Rust libraries for parsing the [MXP protocol](https://www.zuggsoft.com/zmud/mxp.htm). Comprises the majority of SmushClient's back end.
