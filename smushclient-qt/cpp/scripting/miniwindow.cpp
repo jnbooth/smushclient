@@ -465,10 +465,10 @@ void MiniWindow::updatePosition()
           ? QRect(location, dimensions)
           : calculateGeometry(position, getParentWidget(this)->size(), dimensions);
 
-  const QSize newDimensions = geometry.size();
-  if (newDimensions != dimensions)
+  const QSize newSize = geometry.size();
+  if (pixmap.size() != newSize)
   {
-    QPixmap newPixmap(newDimensions);
+    QPixmap newPixmap(newSize);
     newPixmap.fill(background);
     QPainter(&newPixmap).drawPixmap(QPointF(), pixmap);
     pixmap.swap(newPixmap);
