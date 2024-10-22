@@ -238,17 +238,24 @@ void WorldTab::timerEvent(QTimerEvent *event)
 void WorldTab::applyWorld() const
 {
   document->setPalette(client.palette());
-  setColors(ui->input, world.getInputTextColour(), world.getInputBackgroundColour());
   setColors(ui->background, world.getAnsi7(), world.getAnsi0());
-  if (world.getUseDefaultInputFont())
-    ui->input->setFont(defaultFont);
-  else
-    ui->input->setFont(QFont(world.getInputFont(), world.getInputFontHeight()));
 
-  if (world.getUseDefaultOutputFont())
-    ui->output->setFont(defaultFont);
-  else
-    ui->output->setFont(QFont(world.getOutputFont(), world.getOutputFontHeight()));
+  MudInput *input = ui->input;
+  setColors(input, world.getInputTextColour(), world.getInputBackgroundColour());
+  input->setMaxLogSize(world.getHistoryLines());
+  const QFont &inputFont =
+      world.getUseDefaultInputFont()
+          ? defaultFont
+          : QFont(world.getInputFont(), world.getInputFontHeight());
+  input->setFont(inputFont);
+
+  MudBrowser *output = ui->output;
+  const QFont &outputFont =
+      world.getUseDefaultOutputFont()
+          ? defaultFont
+          : QFont(world.getOutputFont(), world.getOutputFontHeight());
+  output->setFont(outputFont);
+
   api->applyWorld(world);
 }
 
@@ -364,11 +371,16 @@ void WorldTab::on_input_returnPressed()
 {
   const QString input = ui->input->text();
   const auto aliasOutcome = client.alias(input, *document);
+
+  if (!(aliasOutcome & (uint8_t)AliasOutcome::Remember))
+    ui->input->forgetLast();
+
   if (!(aliasOutcome & (uint8_t)AliasOutcome::Send))
   {
     ui->input->clear();
     return;
   }
+
   QByteArray bytes = input.toUtf8();
   OnPluginCommand onCommand(bytes);
   api->sendCallback(onCommand);

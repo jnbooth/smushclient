@@ -66,6 +66,7 @@ qt_add_executable(${APP_NAME}
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
     cpp/audio.h cpp/audio.cpp
+    cpp/commandhistory.h cpp/commandhistory.cpp
     cpp/enumbuttongroup.h
     cpp/environment.h
     cpp/fieldconnector.h
@@ -99,6 +100,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/app.h cpp/ui/app.cpp cpp/ui/app.ui
     cpp/ui/components/colorpickerbutton.h cpp/ui/components/colorpickerbutton.cpp
     cpp/ui/components/mudbrowser.h cpp/ui/components/mudbrowser.cpp
+    cpp/ui/components/mudinput.h cpp/ui/components/mudinput.cpp
     cpp/ui/pluginsdialog.h cpp/ui/pluginsdialog.cpp cpp/ui/pluginsdialog.ui
     cpp/ui/prefs/abstractprefstree.h cpp/ui/prefs/abstractprefstree.cpp
     cpp/ui/prefs/address.h cpp/ui/prefs/address.cpp cpp/ui/prefs/address.ui

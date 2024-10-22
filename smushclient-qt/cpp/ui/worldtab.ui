@@ -90,13 +90,18 @@
     </item>
    </layout>
   </widget>
-  <widget class="QLineEdit" name="input"/>
+  <widget class="MudInput" name="input"/>
  </widget>
  <customwidgets>
   <customwidget>
    <class>MudBrowser</class>
    <extends>QTextBrowser</extends>
    <header>mudbrowser.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MudInput</class>
+   <extends>QLineEdit</extends>
+   <header>mudinput.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
