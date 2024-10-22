@@ -7,7 +7,10 @@ mod in_place;
 mod constants;
 
 mod plugins;
-pub use plugins::{Matches, Pad, Plugin, PluginIndex, PluginLoadError, PluginMetadata, SendMatch};
+pub use plugins::{
+    Matches, Pad, PadSource, Plugin, PluginIndex, PluginLoadError, PluginMetadata, SendMatch,
+    SendMatches,
+};
 
 mod regex;
 pub use regex::{Regex, RegexError};

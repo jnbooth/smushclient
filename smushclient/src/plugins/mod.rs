@@ -7,6 +7,8 @@ pub use error::{LoadError, LoadFailure};
 mod iter;
 pub use iter::SendIterable;
 
+mod output;
+
 mod send;
 pub use send::SendRequest;
 

@@ -1,7 +1,7 @@
 use std::ops::{Deref, DerefMut};
 
-use super::reuse_vec::ReuseVec;
 use super::SmushClient;
+use crate::collections::ReuseVec;
 use crate::handler::TimerHandler;
 use smushclient_plugins::{Occurrence, PluginIndex, Timer};
 

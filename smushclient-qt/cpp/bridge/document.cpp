@@ -99,6 +99,11 @@ void Document::begin()
   api->updateTimestamp();
 }
 
+void Document::echo(const QString &command) const
+{
+  api->echo(command);
+}
+
 void Document::end() const
 {
   scrollToEnd(*scrollBar);

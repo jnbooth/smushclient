@@ -19,8 +19,8 @@ use mud_transformer::mxp::RgbColor;
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
-    AliasBool, BoolProperty, SendHandler, SendIterable, SmushClient, TimerBool, Timers,
-    TriggerBool, World,
+    AliasBool, BoolProperty, Handler, SendIterable, SmushClient, TimerBool, Timers, TriggerBool,
+    World,
 };
 use smushclient_plugins::{Alias, PluginIndex, RegexError, Timer, Trigger};
 

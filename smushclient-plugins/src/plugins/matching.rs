@@ -1,11 +1,14 @@
 use fancy_regex::{CaptureMatches, Captures};
+use std::iter::FusedIterator;
 
 use crate::send::{Reaction, SendTarget, Sender};
+use crate::{Alias, PluginIndex, Trigger};
 
 enum RepeatingMatch<'a, 'b, T> {
     Empty,
     Repeat(usize, SendMatch<'a, 'b, T>),
     Captures {
+        plugin: PluginIndex,
         index: usize,
         iter: CaptureMatches<'a, 'b>,
         sender: &'a T,
@@ -24,6 +27,7 @@ impl<'a, 'b, T: AsRef<Reaction>> Iterator for RepeatingMatch<'a, 'b, T> {
                 return Some(matched.clone_uncaptured());
             }
             RepeatingMatch::Captures {
+                plugin,
                 index,
                 iter,
                 sender,
@@ -32,6 +36,7 @@ impl<'a, 'b, T: AsRef<Reaction>> Iterator for RepeatingMatch<'a, 'b, T> {
                     let sender: &T = sender;
                     let reaction = sender.as_ref();
                     return Some(SendMatch {
+                        plugin: *plugin,
                         index: *index,
                         sender,
                         text: &reaction.text,
@@ -46,14 +51,102 @@ impl<'a, 'b, T: AsRef<Reaction>> Iterator for RepeatingMatch<'a, 'b, T> {
     }
 }
 
-pub struct Matches<'a, 'b, I, T> {
+pub trait AsReaction {
+    fn as_reaction(&self) -> &Reaction;
+}
+
+macro_rules! impl_asreaction {
+    ($t:ty) => {
+        impl<'a> AsReaction for $t {
+            fn as_reaction(&self) -> &Reaction {
+                &self.reaction
+            }
+        }
+
+        impl<'a, T> AsReaction for (T, $t) {
+            fn as_reaction(&self) -> &Reaction {
+                &self.1.reaction
+            }
+        }
+
+        impl<'a, T, U> AsReaction for (T, U, $t) {
+            fn as_reaction(&self) -> &Reaction {
+                &self.2.reaction
+            }
+        }
+    };
+}
+
+macro_rules! impl_asreaction_all {
+    ($t:ty) => {
+        impl_asreaction!($t);
+        impl_asreaction!(&'a $t);
+        impl_asreaction!(&'a mut $t);
+    };
+}
+
+impl_asreaction_all!(Alias);
+impl_asreaction_all!(Trigger);
+
+pub struct Matches<'a, T> {
+    inner: T,
+    done: bool,
+    line: &'a str,
+}
+
+impl<'a, T> Matches<'a, T> {
+    pub fn find<I: IntoIterator<IntoIter = T>>(iter: I, line: &'a str) -> Self {
+        Self {
+            inner: iter.into_iter(),
+            done: false,
+            line,
+        }
+    }
+}
+
+impl<'a, T> Iterator for Matches<'a, T>
+where
+    T: Iterator,
+    T::Item: AsReaction,
+{
+    type Item = T::Item;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.done {
+            return None;
+        }
+        for item in &mut self.inner {
+            let reaction = item.as_reaction();
+            if !reaction.enabled || !matches!(reaction.regex.is_match(self.line), Ok(true)) {
+                continue;
+            }
+            self.done = !reaction.keep_evaluating;
+            return Some(item);
+        }
+        None
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let (_, upper) = self.inner.size_hint();
+        (0, upper)
+    }
+}
+
+impl<'a, T> FusedIterator for Matches<'a, T>
+where
+    T: Iterator,
+    T::Item: AsReaction,
+{
+}
+
+pub struct SendMatches<'a, 'b, I, T> {
     done: bool,
     inner: I,
     line: &'b str,
     repeating: RepeatingMatch<'a, 'b, T>,
 }
 
-impl<'a, 'b, I, T> Matches<'a, 'b, I, T> {
+impl<'a, 'b, I, T> SendMatches<'a, 'b, I, T> {
     pub fn find(iter: I, line: &'b str) -> Self {
         Self {
             done: false,
@@ -64,9 +157,9 @@ impl<'a, 'b, I, T> Matches<'a, 'b, I, T> {
     }
 }
 
-impl<'a, 'b, I, T> Iterator for Matches<'a, 'b, I, T>
+impl<'a, 'b, I, T> Iterator for SendMatches<'a, 'b, I, T>
 where
-    I: Iterator<Item = (usize, &'a T)>,
+    I: Iterator<Item = (PluginIndex, usize, &'a T)>,
     T: AsRef<Reaction>,
 {
     type Item = SendMatch<'a, 'b, T>;
@@ -78,12 +171,8 @@ where
         if self.done {
             return None;
         }
-        for (index, sender) in &mut self.inner {
+        for (plugin, index, sender) in &mut self.inner {
             let reaction = sender.as_ref();
-            if !reaction.enabled || !matches!(reaction.regex.is_match(self.line), Ok(true)) {
-                continue;
-            }
-            self.done = !reaction.keep_evaluating;
             let count = if reaction.repeats {
                 reaction.regex.find_iter(self.line).count()
             } else {
@@ -91,6 +180,7 @@ where
             };
             if reaction.script.is_empty() && !reaction.text.contains('$') {
                 let val = SendMatch {
+                    plugin,
                     index,
                     sender,
                     text: &reaction.text,
@@ -103,6 +193,7 @@ where
             }
             let iter = reaction.regex.captures_iter(self.line);
             self.repeating = RepeatingMatch::Captures {
+                plugin,
                 index,
                 iter,
                 sender,
@@ -117,6 +208,7 @@ where
 
 #[derive(Debug)]
 pub struct SendMatch<'a, 'b, T> {
+    pub plugin: PluginIndex,
     pub index: usize,
     pub sender: &'a T,
     text: &'a str,
@@ -154,6 +246,7 @@ impl<'a, 'b, T> SendMatch<'a, 'b, T> {
 
     fn clone_uncaptured(&self) -> Self {
         Self {
+            plugin: self.plugin,
             index: self.index,
             sender: self.sender,
             text: self.text,
@@ -194,12 +287,15 @@ mod tests {
         alias.repeats = opts.repeats;
         alias.text = opts.text.to_owned();
         let mut buf = String::new();
-        let aliases = vec![alias];
-        let outputs: Vec<_> = Matches::find(aliases.iter().enumerate(), opts.line)
+        let aliases = &[(1, 0, &alias)];
+        let alias_iter = aliases.iter().copied().filter(|(_, _, alias)| {
+            alias.enabled && matches!(alias.regex.is_match(opts.line), Ok(true))
+        });
+        let outputs: Vec<_> = SendMatches::find(alias_iter, opts.line)
             .map(move |send| send.text(&mut buf).to_owned())
             .collect();
         let expect: Vec<_> = opts.expect.iter().map(ToOwned::to_owned).collect();
-        assert_eq!(outputs, expect);
+        assert_eq!(outputs, expect, "{:?}", alias.regex);
     }
 
     #[test]

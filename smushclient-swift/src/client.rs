@@ -37,14 +37,24 @@ impl AliasHandler {
     }
 }
 
-impl smushclient::SendHandler for AliasHandler {
+impl smushclient::Handler for AliasHandler {
+    fn display(&mut self, _output: &Output) {}
+
     fn display_error(&mut self, error: &str) {
         eprintln!("Handler error: {error}");
     }
 
+    fn echo(&mut self, _command: &str) {}
+
     fn send(&mut self, request: smushclient::SendRequest) {
         self.requests.push(request.into());
     }
+
+    fn permit_line(&mut self, _line: &str) -> bool {
+        true
+    }
+
+    fn play_sound(&mut self, _path: &str) {}
 }
 
 pub struct ClientHandler {
@@ -73,22 +83,18 @@ impl ClientHandler {
     }
 }
 
-impl smushclient::SendHandler for ClientHandler {
-    fn display_error(&mut self, error: &str) {
-        eprintln!("Handler error: {error}");
-    }
-
-    fn send(&mut self, request: smushclient::SendRequest) {
-        self.output.push(ffi::OutputFragment::Send(request.into()));
-    }
-}
-
 impl smushclient::Handler for ClientHandler {
     fn display(&mut self, output: &Output) {
         if let Ok(fragment) = output.fragment.clone().try_into() {
             self.output.push(fragment);
         }
     }
+
+    fn display_error(&mut self, error: &str) {
+        eprintln!("Handler error: {error}");
+    }
+
+    fn echo(&mut self, _command: &str) {}
 
     fn play_sound(&mut self, path: &str) {
         self.output
@@ -97,5 +103,9 @@ impl smushclient::Handler for ClientHandler {
 
     fn permit_line(&mut self, _line: &str) -> bool {
         true
+    }
+
+    fn send(&mut self, request: smushclient::SendRequest) {
+        self.output.push(ffi::OutputFragment::Send(request.into()));
     }
 }

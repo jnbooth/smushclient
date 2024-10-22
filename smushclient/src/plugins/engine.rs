@@ -9,26 +9,56 @@ use super::effects::{AliasEffects, TriggerEffects};
 use super::error::LoadError;
 use super::error::LoadFailure;
 use super::send::SendRequest;
-use crate::handler::{Handler, SendHandler};
-use crate::World;
-use mud_transformer::Output;
-use smushclient_plugins::{Alias, Matches, Pad, Plugin, PluginIndex, SendMatch, Sender, Trigger};
+use crate::collections::LifetimeVec;
+use crate::handler::Handler;
+use crate::plugins::iter::ReactionIterable;
+use crate::plugins::output::{alter_text_output, is_nonvisual_output};
+use crate::{SendIterable, World};
+use mud_transformer::{Output, OutputFragment};
+use smushclient_plugins::{
+    Alias, Pad, PadSource, Plugin, PluginIndex, Reaction, SendMatches, Sender, Trigger,
+};
 
-fn check_oneshot<T: AsRef<Sender>>(oneshots: &mut Vec<usize>, send: &SendMatch<T>) {
-    if send.sender.as_ref().one_shot && oneshots.last() != Some(&send.index) {
-        oneshots.push(send.index);
-    }
-}
-
-fn delete_oneshots<T>(vec: &mut Vec<T>, oneshots: &[usize]) {
-    for &pos in oneshots.iter().rev() {
-        vec.remove(pos);
+fn send_all<H, T>(
+    senders: &[(PluginIndex, usize, &T)],
+    line: &str,
+    text_buf: &mut String,
+    plugins: &[Plugin],
+    output: &[Output],
+    handler: &mut H,
+) where
+    H: Handler,
+    T: AsRef<Sender> + AsRef<Reaction> + PadSource,
+{
+    text_buf.clear();
+    for send in SendMatches::find(senders.iter().copied(), line) {
+        if !send.has_send() {
+            continue;
+        }
+        let reaction: &Reaction = send.sender.as_ref();
+        handler.send(SendRequest {
+            pad: if reaction.send_to.is_notepad() {
+                Some(Pad::new(send.sender, &plugins[send.plugin].metadata.name))
+            } else {
+                None
+            },
+            plugin: send.plugin,
+            line,
+            wildcards: send.wildcards(),
+            sender: send.sender.as_ref(),
+            text: send.text(text_buf),
+            output,
+        });
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct PluginEngine {
     plugins: Vec<Plugin>,
+    aliases: LifetimeVec<(PluginIndex, usize, &'static Alias)>,
+    triggers: LifetimeVec<(PluginIndex, usize, &'static Trigger)>,
+    alias_buf: String,
+    trigger_buf: String,
 }
 
 impl Default for PluginEngine {
@@ -41,6 +71,10 @@ impl PluginEngine {
     pub const fn new() -> Self {
         Self {
             plugins: Vec::new(),
+            aliases: LifetimeVec::new(),
+            triggers: LifetimeVec::new(),
+            alias_buf: String::new(),
+            trigger_buf: String::new(),
         }
     }
 
@@ -126,52 +160,51 @@ impl PluginEngine {
         self.plugins.sort_unstable();
     }
 
-    pub fn alias<H: SendHandler>(
+    fn remove_oneshots<T: SendIterable>(
+        &mut self,
+        oneshots: &[(PluginIndex, usize)],
+        world: &mut World,
+    ) {
+        let mut current_plugin = usize::MAX;
+        let mut senders: &mut Vec<T> = &mut Vec::new();
+        for &(next_plugin, i) in oneshots.iter().rev() {
+            if next_plugin != current_plugin {
+                let plugin = &mut self.plugins[next_plugin];
+                current_plugin = next_plugin;
+                senders = if plugin.metadata.is_world_plugin {
+                    T::from_world_mut(world)
+                } else {
+                    T::from_plugin_mut(plugin)
+                }
+            }
+            senders.remove(i);
+        }
+    }
+
+    pub fn alias<H: Handler>(
         &mut self,
         line: &str,
         world: &mut World,
         handler: &mut H,
     ) -> AliasEffects {
-        let mut effects = AliasEffects::new();
         let mut oneshots = Vec::new();
-        let mut text_buf = String::new();
+        let mut matched = self.aliases.acquire();
+        let effects = Alias::find_matches(&self.plugins, world, line, &mut matched, &mut oneshots);
 
-        for (i, plugin) in self.plugins.iter_mut().enumerate() {
-            if plugin.disabled {
-                continue;
-            }
-            let aliases = if plugin.metadata.is_world_plugin {
-                &mut world.aliases
-            } else {
-                &mut plugin.aliases
-            };
-            for send in Matches::find(aliases.iter().enumerate(), line) {
-                let alias: &Alias = send.sender;
-                check_oneshot(&mut oneshots, &send);
-
-                if send.has_send() {
-                    handler.send(SendRequest {
-                        pad: if alias.send_to.is_notepad() {
-                            Some(Pad::new(alias, &plugin.metadata.name))
-                        } else {
-                            None
-                        },
-                        plugin: i,
-                        line,
-                        wildcards: send.wildcards(),
-                        sender: alias,
-                        text: send.text(&mut text_buf),
-                        output: &[],
-                    });
-                }
-
-                effects.add_effects(alias);
-            }
-            delete_oneshots(aliases, &oneshots);
-            if !effects.keep_evaluating {
-                break;
-            }
+        if !effects.omit_from_output {
+            handler.echo(line);
         }
+
+        send_all(
+            &matched,
+            line,
+            &mut self.alias_buf,
+            &self.plugins,
+            &[],
+            handler,
+        );
+        drop(matched);
+        self.remove_oneshots::<Alias>(&oneshots, world);
 
         effects
     }
@@ -179,54 +212,47 @@ impl PluginEngine {
     pub fn trigger<H: Handler>(
         &mut self,
         line: &str,
+        output: &mut [Output],
         world: &mut World,
-        output: &[Output],
         handler: &mut H,
     ) -> TriggerEffects {
-        let mut effects = TriggerEffects::new();
         let mut oneshots = Vec::new();
-        let mut text_buf = String::new();
+        let mut matched = self.triggers.acquire();
+        let effects =
+            Trigger::find_matches(&self.plugins, world, line, &mut matched, &mut oneshots);
 
-        for (i, plugin) in self.plugins.iter_mut().enumerate() {
-            if plugin.disabled {
-                continue;
-            }
-            let triggers = if plugin.metadata.is_world_plugin {
-                &mut world.triggers
-            } else {
-                &mut plugin.triggers
-            };
-            for send in Matches::find(triggers.iter().enumerate(), line) {
-                let trigger: &Trigger = send.sender;
-                check_oneshot(&mut oneshots, &send);
-
-                if send.has_send() {
-                    handler.send(SendRequest {
-                        pad: if trigger.send_to.is_notepad() {
-                            Some(Pad::new(trigger, &plugin.metadata.name))
-                        } else {
-                            None
-                        },
-                        plugin: i,
-                        line,
-                        wildcards: send.wildcards(),
-                        sender: trigger,
-                        text: send.text(&mut text_buf),
-                        output,
-                    });
+        if !handler.permit_line(line) || effects.omit_from_output {
+            for fragment in output.iter() {
+                if is_nonvisual_output(&fragment.fragment) {
+                    handler.display(fragment);
                 }
-
-                if !trigger.sound.is_empty() {
-                    handler.play_sound(&trigger.sound);
-                }
-
-                effects.add_effects(trigger);
             }
-            delete_oneshots(triggers, &oneshots);
-            if !effects.keep_evaluating {
-                break;
+        } else {
+            for fragment in output.iter_mut() {
+                if let OutputFragment::Text(text) = &mut fragment.fragment {
+                    alter_text_output(text, world);
+                }
+                handler.display(fragment);
             }
         }
+
+        send_all(
+            &matched,
+            line,
+            &mut self.trigger_buf,
+            &self.plugins,
+            output,
+            handler,
+        );
+
+        for (_, _, trigger) in &matched {
+            if !trigger.sound.is_empty() {
+                handler.play_sound(&trigger.sound);
+            }
+        }
+
+        drop(matched);
+        self.remove_oneshots::<Trigger>(&oneshots, world);
 
         effects
     }

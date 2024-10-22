@@ -1,5 +1,5 @@
 use crate::world::{LogFormat, LogMode, World};
-use crate::SendHandler;
+use crate::Handler;
 use std::fs::File;
 use std::io::{self, Write};
 
@@ -79,7 +79,7 @@ impl Logger {
         }
     }
 
-    pub fn log_error<H: SendHandler>(&mut self, handler: &mut H) {
+    pub fn log_error<H: Handler>(&mut self, handler: &mut H) {
         let Self::Failed(e) = self else {
             return;
         };

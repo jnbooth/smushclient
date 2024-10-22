@@ -6,14 +6,12 @@ use std::{env, mem, slice};
 
 use super::logger::Logger;
 use super::variables::PluginVariables;
-use crate::handler::{Handler, SendHandler};
+use crate::handler::Handler;
 use crate::plugins::{AliasOutcome, LoadFailure, PluginEngine, SendIterable};
 use crate::world::{PersistError, World};
 use crate::LoadError;
 use enumeration::EnumSet;
-use mud_transformer::{
-    EffectFragment, OutputFragment, Tag, TextFragment, TextStyle, Transformer, TransformerConfig,
-};
+use mud_transformer::{Output, OutputFragment, Tag, Transformer, TransformerConfig};
 use smushclient_plugins::{Plugin, PluginIndex};
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
@@ -26,6 +24,7 @@ pub struct SmushClient {
     last_log_file_name: Option<String>,
     line_text: String,
     logger: Logger,
+    output_buf: Vec<Output>,
     pub(crate) plugins: PluginEngine,
     read_buf: Vec<u8>,
     supported_tags: EnumSet<Tag>,
@@ -52,6 +51,7 @@ impl SmushClient {
             last_log_file_name: world.auto_log_file_name.clone(),
             line_text: String::new(),
             logger: Logger::Closed,
+            output_buf: Vec::new(),
             plugins,
             read_buf: vec![0; BUF_LEN],
             supported_tags,
@@ -148,9 +148,10 @@ impl SmushClient {
 
     pub fn flush_output<H: Handler>(&mut self, handler: &mut H) {
         self.logger.log_error(handler);
-        let mut output = self.transformer.flush_output();
+        self.output_buf.clear();
+        self.output_buf.extend(self.transformer.flush_output());
+        let mut slice = &mut self.output_buf[..];
         loop {
-            let slice = output.as_slice();
             if slice.is_empty() {
                 return;
             }
@@ -169,25 +170,13 @@ impl SmushClient {
             if until == 0 {
                 until = slice.len();
             }
+            let (output, after) = slice.split_at_mut(until);
+            slice = after;
+
             let trigger_effects =
                 self.plugins
-                    .trigger(&self.line_text, &mut self.world, &slice[..until], handler);
-            if !handler.permit_line(&self.line_text) || trigger_effects.omit_from_output {
-                for _ in 0..until {
-                    let output = output.next().unwrap();
-                    if is_nonvisual_output(&output.fragment) {
-                        handler.display(&output);
-                    }
-                }
-            } else {
-                for _ in 0..until {
-                    let mut output = output.next().unwrap();
-                    if let OutputFragment::Text(text) = &mut output.fragment {
-                        alter_text_output(text, &self.world);
-                    }
-                    handler.display(&output);
-                }
-            }
+                    .trigger(&self.line_text, output, &mut self.world, handler);
+
             if !trigger_effects.omit_from_log {
                 self.logger
                     .log_output_line(self.line_text.as_bytes(), &self.world);
@@ -195,7 +184,7 @@ impl SmushClient {
         }
     }
 
-    pub fn alias<H: SendHandler>(&mut self, input: &str, handler: &mut H) -> AliasOutcome {
+    pub fn alias<H: Handler>(&mut self, input: &str, handler: &mut H) -> AliasOutcome {
         let outcome = self.plugins.alias(input, &mut self.world, handler);
         if !outcome.omit_from_log {
             self.logger.log_input_line(input.as_bytes(), &self.world);
@@ -456,36 +445,5 @@ impl SmushClient {
                 .filter(|plugin| !plugin.metadata.is_world_plugin)
                 .map(|plugin| plugin.metadata.path.clone()),
         );
-    }
-}
-
-fn is_nonvisual_output(fragment: &OutputFragment) -> bool {
-    matches!(
-        fragment,
-        OutputFragment::Effect(EffectFragment::Beep) | OutputFragment::Telnet(_)
-    )
-}
-
-fn alter_text_output(fragment: &mut TextFragment, world: &World) {
-    if fragment.flags.contains(TextStyle::Inverse) {
-        mem::swap(&mut fragment.foreground, &mut fragment.background);
-    }
-    if !world.show_bold {
-        fragment.flags.remove(TextStyle::Bold);
-    }
-    if !world.show_italic {
-        fragment.flags.remove(TextStyle::Italic);
-    }
-    if !world.show_underline {
-        fragment.flags.remove(TextStyle::Underline);
-    }
-    if fragment.action.is_none() {
-        return;
-    }
-    if world.underline_hyperlinks {
-        fragment.flags.insert(TextStyle::Underline);
-    }
-    if world.use_custom_link_colour {
-        fragment.foreground = world.hyperlink_colour;
     }
 }

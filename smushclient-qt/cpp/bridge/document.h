@@ -29,6 +29,7 @@ public:
   void appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background, const Link &link);
   void appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background);
   void begin();
+  void echo(const QString &command) const;
   void end() const;
   void handleMxpChange(bool enabled) const;
   void handleMxpEntity(::rust::str data) const;

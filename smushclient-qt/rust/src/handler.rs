@@ -91,10 +91,33 @@ impl<'a> ClientHandler<'a> {
     }
 }
 
-impl<'a> smushclient::SendHandler for ClientHandler<'a> {
+impl<'a> smushclient::Handler for ClientHandler<'a> {
+    fn display(&mut self, output: &Output) {
+        match &output.fragment {
+            OutputFragment::Text(text) => self.display_text(text),
+            OutputFragment::LineBreak | OutputFragment::PageBreak => self.display_linebreak(),
+            OutputFragment::MxpEntity(entity) => self.handle_mxp_entity(entity),
+            OutputFragment::Telnet(telnet) => self.handle_telnet(telnet),
+            OutputFragment::Hr => self.doc.append_html(&QString::from("<hr>")),
+            _ => (),
+        }
+    }
+
     fn display_error(&mut self, error: &str) {
         self.doc
             .append_plaintext(&QString::from(error), ERROR_FORMAT_INDEX);
+    }
+
+    fn echo(&mut self, command: &str) {
+        self.doc.echo(&QString::from(command));
+    }
+
+    fn permit_line(&mut self, line: &str) -> bool {
+        self.doc.permit_line(line)
+    }
+
+    fn play_sound(&mut self, path: &str) {
+        self.doc.play_sound(&QString::from(path));
     }
 
     fn send(&mut self, request: SendRequest) {
@@ -118,26 +141,5 @@ impl<'a> smushclient::SendHandler for ClientHandler<'a> {
             request.sender.send_to,
             &QString::from(request.text),
         );
-    }
-}
-
-impl<'a> smushclient::Handler for ClientHandler<'a> {
-    fn display(&mut self, output: &Output) {
-        match &output.fragment {
-            OutputFragment::Text(text) => self.display_text(text),
-            OutputFragment::LineBreak | OutputFragment::PageBreak => self.display_linebreak(),
-            OutputFragment::MxpEntity(entity) => self.handle_mxp_entity(entity),
-            OutputFragment::Telnet(telnet) => self.handle_telnet(telnet),
-            OutputFragment::Hr => self.doc.append_html(&QString::from("<hr>")),
-            _ => (),
-        }
-    }
-
-    fn permit_line(&mut self, line: &str) -> bool {
-        self.doc.permit_line(line)
-    }
-
-    fn play_sound(&mut self, path: &str) {
-        self.doc.play_sound(&QString::from(path));
     }
 }

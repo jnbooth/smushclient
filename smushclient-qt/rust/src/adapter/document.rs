@@ -56,6 +56,11 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.as_mut().begin() };
     }
 
+    pub fn echo(&self, command: &QString) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.echo(command) };
+    }
+
     pub fn end(&self) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.end() };

@@ -364,8 +364,6 @@ void WorldTab::on_input_returnPressed()
 {
   const QString input = ui->input->text();
   const auto aliasOutcome = client.alias(input, *document);
-  if (aliasOutcome & (uint8_t)AliasOutcome::Display)
-    api->echo(input);
   if (!(aliasOutcome & (uint8_t)AliasOutcome::Send))
   {
     ui->input->clear();
@@ -457,8 +455,6 @@ void WorldTab::on_output_anchorClicked(const QUrl &url)
   }
 
   const auto aliasOutcome = client.alias(action, *document);
-  if (aliasOutcome & (uint8_t)AliasOutcome::Display)
-    api->echo(action);
 
   if (!(aliasOutcome & (uint8_t)AliasOutcome::Send))
     return;

@@ -279,7 +279,8 @@ mod tests {
             timers: vec![Timer::default()],
             script: String::new(),
         };
-        let to_file = quick_xml::se::to_string(&plugin).expect("error serializing plugin");
+        let to_file =
+            quick_xml::se::to_string(&PluginFile::from(&plugin)).expect("error serializing plugin");
         let from_file: Plugin =
             quick_xml::de::from_str(&to_file).expect("error deserializing plugin");
         assert_eq!(from_file, plugin);

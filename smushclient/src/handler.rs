@@ -1,13 +1,11 @@
 use crate::plugins::SendRequest;
 use mud_transformer::Output;
 
-pub trait SendHandler {
-    fn display_error(&mut self, error: &str);
-    fn send(&mut self, request: SendRequest);
-}
-
-pub trait Handler: SendHandler {
+pub trait Handler {
     fn display(&mut self, output: &Output);
+    fn display_error(&mut self, error: &str);
+    fn echo(&mut self, line: &str);
+    fn send(&mut self, request: SendRequest);
     fn permit_line(&mut self, line: &str) -> bool;
     fn play_sound(&mut self, path: &str);
 }

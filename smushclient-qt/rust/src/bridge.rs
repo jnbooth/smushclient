@@ -168,6 +168,8 @@ pub mod ffi {
 
         unsafe fn begin(self: Pin<&mut Document>);
 
+        unsafe fn echo(self: &Document, command: &QString);
+
         unsafe fn end(self: &Document);
 
         #[rust_name = "handle_mxp_change"]
