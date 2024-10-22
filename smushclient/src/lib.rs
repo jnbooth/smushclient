@@ -13,7 +13,9 @@ mod options;
 pub use options::{AliasBool, BoolProperty, TimerBool, TriggerBool};
 
 mod plugins;
-pub use plugins::{AliasOutcome, LoadError, LoadFailure, SendIterable, SendRequest};
+pub use plugins::{
+    AliasOutcome, LoadError, LoadFailure, SendIterable, SendRequest, SenderAccessError,
+};
 
 pub mod world;
 pub use world::World;

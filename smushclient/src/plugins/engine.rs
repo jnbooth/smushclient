@@ -203,6 +203,11 @@ impl PluginEngine {
             &[],
             handler,
         );
+
+        for (_, _, alias) in &matched {
+            alias.unlock();
+        }
+
         drop(matched);
         self.remove_oneshots::<Alias>(&oneshots, world);
 
@@ -249,6 +254,7 @@ impl PluginEngine {
             if !trigger.sound.is_empty() {
                 handler.play_sound(&trigger.sound);
             }
+            trigger.unlock();
         }
 
         drop(matched);

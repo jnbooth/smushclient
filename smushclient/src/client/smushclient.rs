@@ -7,7 +7,9 @@ use std::{env, mem, slice};
 use super::logger::Logger;
 use super::variables::PluginVariables;
 use crate::handler::Handler;
-use crate::plugins::{AliasOutcome, LoadFailure, PluginEngine, SendIterable};
+use crate::plugins::{
+    assert_unique_label, AliasOutcome, LoadFailure, PluginEngine, SendIterable, SenderAccessError,
+};
 use crate::world::{PersistError, World};
 use crate::LoadError;
 use enumeration::EnumSet;
@@ -302,10 +304,14 @@ impl SmushClient {
         &mut self,
         index: PluginIndex,
         label: &str,
-    ) -> Option<&mut T> {
-        self.senders_mut::<T>(index)
+    ) -> Result<&mut T, SenderAccessError> {
+        let sender = self
+            .senders_mut::<T>(index)
             .iter_mut()
             .find(|sender| sender.as_ref().label == label)
+            .ok_or(SenderAccessError::NotFound)?;
+        sender.try_unlock()?;
+        Ok(sender)
     }
 
     pub fn set_sender_enabled<T: SendIterable>(
@@ -313,12 +319,9 @@ impl SmushClient {
         index: PluginIndex,
         label: &str,
         enabled: bool,
-    ) -> bool {
-        let Some(sender) = self.find_sender_mut::<T>(index, label) else {
-            return false;
-        };
-        sender.as_mut().enabled = enabled;
-        true
+    ) -> Result<(), SenderAccessError> {
+        self.find_sender_mut::<T>(index, label)?.as_mut().enabled = enabled;
+        Ok(())
     }
 
     pub fn senders<T: SendIterable>(&self, index: PluginIndex) -> &[T] {
@@ -330,7 +333,7 @@ impl SmushClient {
         }
     }
 
-    pub fn senders_mut<T: SendIterable>(&mut self, index: PluginIndex) -> &mut Vec<T> {
+    pub(crate) fn senders_mut<T: SendIterable>(&mut self, index: PluginIndex) -> &mut Vec<T> {
         let plugin = &mut self.plugins[index];
         if plugin.metadata.is_world_plugin {
             T::from_world_mut(&mut self.world)
@@ -343,17 +346,9 @@ impl SmushClient {
         &mut self,
         index: PluginIndex,
         sender: T,
-    ) -> Result<(usize, &T), usize> {
+    ) -> Result<(usize, &T), SenderAccessError> {
         let senders = self.senders_mut::<T>(index);
-        let label = sender.as_ref().label.as_str();
-        if !label.is_empty() {
-            if let Some(pos) = senders
-                .iter()
-                .position(|sender| sender.as_ref().label == label)
-            {
-                return Err(pos);
-            }
-        }
+        assert_unique_label(&sender, senders, None)?;
         let pos = match senders.binary_search(&sender) {
             Ok(pos) | Err(pos) => pos,
         };
@@ -361,18 +356,25 @@ impl SmushClient {
         Ok((pos, &senders[pos]))
     }
 
-    pub fn remove_sender<T: SendIterable>(&mut self, index: PluginIndex, label: &str) -> Option<T> {
+    pub fn remove_sender<T: SendIterable>(
+        &mut self,
+        index: PluginIndex,
+        label: &str,
+    ) -> Result<T, SenderAccessError> {
         let senders = self.senders_mut::<T>(index);
-        let pos = senders
+        let (pos, sender) = senders
             .iter()
-            .position(|sender| sender.as_ref().label == label)?;
-        Some(senders.remove(pos))
+            .enumerate()
+            .find(|(_, sender)| sender.as_ref().label == label)
+            .ok_or(SenderAccessError::NotFound)?;
+        sender.try_unlock()?;
+        Ok(senders.remove(pos))
     }
 
     pub fn remove_senders<T: SendIterable>(&mut self, index: PluginIndex, group: &str) -> usize {
         let senders = self.senders_mut::<T>(index);
         let len = senders.len();
-        senders.retain(|sender| sender.as_ref().group != group);
+        senders.retain(|sender| sender.as_ref().group != group || sender.is_locked());
         len - senders.len()
     }
 
@@ -381,18 +383,9 @@ impl SmushClient {
         index: PluginIndex,
         sender: T,
         replace_at: usize,
-    ) -> Result<(usize, &T), usize> {
+    ) -> Result<(usize, &T), SenderAccessError> {
         let senders = self.senders_mut::<T>(index);
-        let label = sender.as_ref().label.as_str();
-        if !label.is_empty() {
-            if let Some((pos, _)) = senders
-                .iter()
-                .enumerate()
-                .find(|(pos, sender)| sender.as_ref().label == label && *pos != replace_at)
-            {
-                return Err(pos);
-            }
-        }
+        assert_unique_label(&sender, senders, Some(replace_at))?;
         let pos = match senders.binary_search(&sender) {
             Ok(pos) | Err(pos) => pos,
         };
@@ -400,6 +393,7 @@ impl SmushClient {
             senders.insert(pos, sender);
             return Ok((pos, &senders[pos]));
         }
+        senders[replace_at].try_unlock()?;
         senders[replace_at] = sender;
         match replace_at.cmp(&pos) {
             Ordering::Less => senders[replace_at..=pos].rotate_left(1),
@@ -413,7 +407,7 @@ impl SmushClient {
         &mut self,
         index: PluginIndex,
         sender: T,
-    ) -> (usize, &T) {
+    ) -> Result<(usize, &T), SenderAccessError> {
         let senders = self.senders_mut::<T>(index);
         let pos = match senders.binary_search(&sender) {
             Ok(pos) | Err(pos) => pos,
@@ -424,17 +418,18 @@ impl SmushClient {
                 .iter()
                 .position(|sender| sender.as_ref().label == label)
             {
+                senders[replace_at].try_unlock()?;
                 senders[replace_at] = sender;
                 match replace_at.cmp(&pos) {
                     Ordering::Less => senders[replace_at..=pos].rotate_left(1),
                     Ordering::Equal => (),
                     Ordering::Greater => senders[pos..=replace_at].rotate_right(1),
                 }
-                return (pos, &senders[pos]);
+                return Ok((pos, &senders[pos]));
             }
         }
         senders.insert(pos, sender);
-        (pos, &senders[pos])
+        Ok((pos, &senders[pos]))
     }
 
     fn update_world_plugins(&mut self) {

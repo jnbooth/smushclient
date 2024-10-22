@@ -1,13 +1,51 @@
-use smushclient_plugins::{Alias, Plugin, PluginIndex, Reaction, Sender, Timer, Trigger};
+use smushclient_plugins::{
+    Alias, Plugin, PluginIndex, Reaction, Sender, SenderLockError, Timer, Trigger,
+};
 
-use crate::plugins::effects::{AliasEffects, TriggerEffects};
-use crate::World;
+use super::effects::{AliasEffects, TriggerEffects};
+use super::send::SenderAccessError;
+use crate::world::World;
+
+pub fn assert_unique_label<T: AsRef<Sender>>(
+    sender: &T,
+    senders: &[T],
+    i: Option<usize>,
+) -> Result<(), SenderAccessError> {
+    let label = sender.as_ref().label.as_str();
+    if label.is_empty() {
+        return Ok(());
+    }
+    if let Some(i) = i {
+        match senders
+            .iter()
+            .enumerate()
+            .find(|(pos, sender)| sender.as_ref().label == label && *pos != i)
+        {
+            Some((pos, _)) => Err(SenderAccessError::LabelConflict(pos)),
+            None => Ok(()),
+        }
+    } else {
+        match senders
+            .iter()
+            .position(|sender| sender.as_ref().label == label)
+        {
+            Some(pos) => Err(SenderAccessError::LabelConflict(pos)),
+            None => Ok(()),
+        }
+    }
+}
 
 pub trait SendIterable: AsRef<Sender> + AsMut<Sender> + Ord + Sized {
     fn from_plugin(plugin: &Plugin) -> &[Self];
     fn from_plugin_mut(plugin: &mut Plugin) -> &mut Vec<Self>;
     fn from_world(world: &World) -> &[Self];
     fn from_world_mut(world: &mut World) -> &mut Vec<Self>;
+    fn is_locked(&self) -> bool {
+        self.as_ref().is_locked()
+    }
+    fn try_unlock(&self) -> Result<(), SenderLockError> {
+        self.as_ref().try_unlock()
+    }
 }
 
 macro_rules! impl_send_iterable {
@@ -24,6 +62,12 @@ macro_rules! impl_send_iterable {
             }
             fn from_world_mut(world: &mut World) -> &mut Vec<Self> {
                 &mut world.$i
+            }
+            fn is_locked(&self) -> bool {
+                self.send.is_locked()
+            }
+            fn try_unlock(&self) -> Result<(), SenderLockError> {
+                self.send.try_unlock()
             }
         }
     };
@@ -62,6 +106,7 @@ pub trait ReactionIterable: SendIterable + AsRef<Reaction> + AsMut<Reaction> {
                 if !reaction.enabled || !matches!(reaction.regex.is_match(line), Ok(true)) {
                     continue;
                 }
+                reaction.lock();
                 if reaction.one_shot {
                     oneshots.push((index, i));
                 }

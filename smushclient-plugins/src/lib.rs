@@ -16,4 +16,6 @@ mod regex;
 pub use regex::{Regex, RegexError};
 
 mod send;
-pub use send::{Alias, Occurrence, Reaction, SendTarget, Sender, Timer, Trigger};
+pub use send::{
+    Alias, Occurrence, Reaction, SendTarget, Sender, SenderLock, SenderLockError, Timer, Trigger,
+};

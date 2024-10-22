@@ -17,6 +17,15 @@ pub mod ffi {
         Send = 4,
     }
 
+    #[repr(i32)]
+    enum SenderAccessResult {
+        LabelConflict = -4,
+        BadParameter = -3,
+        Locked = -2,
+        NotFound = -1,
+        Ok = 0,
+    }
+
     enum TextStyle {
         Blink = 1,
         Bold = 2,
@@ -347,37 +356,33 @@ pub mod ffi {
             device: Pin<&mut QTcpSocket>,
             doc: Pin<&mut Document>,
         ) -> i64;
-        fn add_alias(self: Pin<&mut SmushClient>, index: usize, alias: &Alias) -> Result<isize>;
+        fn add_alias(self: Pin<&mut SmushClient>, index: usize, alias: &Alias) -> Result<i32>;
         fn add_timer(
             self: Pin<&mut SmushClient>,
             index: usize,
             timer: &Timer,
             timekeper: Pin<&mut Timekeeper>,
-        ) -> isize;
-        fn add_trigger(
-            self: Pin<&mut SmushClient>,
-            index: usize,
-            trigger: &Trigger,
-        ) -> Result<isize>;
-        fn remove_alias(self: Pin<&mut SmushClient>, index: usize, label: &QString) -> bool;
-        fn remove_timer(self: Pin<&mut SmushClient>, index: usize, label: &QString) -> bool;
-        fn remove_trigger(self: Pin<&mut SmushClient>, index: usize, label: &QString) -> bool;
+        ) -> i32;
+        fn add_trigger(self: Pin<&mut SmushClient>, index: usize, trigger: &Trigger)
+            -> Result<i32>;
+        fn remove_alias(self: Pin<&mut SmushClient>, index: usize, label: &QString) -> i32;
+        fn remove_timer(self: Pin<&mut SmushClient>, index: usize, label: &QString) -> i32;
+        fn remove_trigger(self: Pin<&mut SmushClient>, index: usize, label: &QString) -> i32;
         fn remove_aliases(self: Pin<&mut SmushClient>, index: usize, group: &QString) -> usize;
         fn remove_timers(self: Pin<&mut SmushClient>, index: usize, group: &QString) -> usize;
         fn remove_triggers(self: Pin<&mut SmushClient>, index: usize, group: &QString) -> usize;
-        fn replace_alias(self: Pin<&mut SmushClient>, index: usize, alias: &Alias)
-            -> Result<usize>;
+        fn replace_alias(self: Pin<&mut SmushClient>, index: usize, alias: &Alias) -> Result<i32>;
         fn replace_timer(
             self: Pin<&mut SmushClient>,
             index: usize,
             timer: &Timer,
             timekeeper: Pin<&mut Timekeeper>,
-        ) -> usize;
+        ) -> i32;
         fn replace_trigger(
             self: Pin<&mut SmushClient>,
             index: usize,
             trigger: &Trigger,
-        ) -> Result<usize>;
+        ) -> Result<i32>;
         fn is_alias(self: &SmushClient, index: usize, label: &QString) -> bool;
         fn is_timer(self: &SmushClient, index: usize, label: &QString) -> bool;
         fn is_trigger(self: &SmushClient, index: usize, label: &QString) -> bool;
@@ -386,7 +391,7 @@ pub mod ffi {
             index: usize,
             label: &QString,
             enable: bool,
-        ) -> bool;
+        ) -> i32;
         fn set_aliases_enabled(
             self: Pin<&mut SmushClient>,
             index: usize,
@@ -399,7 +404,7 @@ pub mod ffi {
             index: usize,
             label: &QString,
             enable: bool,
-        ) -> bool;
+        ) -> i32;
         fn set_timers_enabled(
             self: Pin<&mut SmushClient>,
             index: usize,
@@ -411,7 +416,7 @@ pub mod ffi {
             index: usize,
             label: &QString,
             enable: bool,
-        ) -> bool;
+        ) -> i32;
         fn set_triggers_enabled(
             self: Pin<&mut SmushClient>,
             index: usize,
@@ -424,27 +429,27 @@ pub mod ffi {
             label: &QString,
             option: AliasBool,
             value: bool,
-        ) -> bool;
+        ) -> i32;
         fn set_timer_bool(
             self: Pin<&mut SmushClient>,
             index: usize,
             label: &QString,
             option: TimerBool,
             value: bool,
-        ) -> bool;
+        ) -> i32;
         fn set_trigger_bool(
             self: Pin<&mut SmushClient>,
             index: usize,
             label: &QString,
             option: TriggerBool,
             value: bool,
-        ) -> bool;
+        ) -> i32;
         fn set_trigger_group(
             self: Pin<&mut SmushClient>,
             index: usize,
             label: &QString,
             group: &QString,
-        ) -> bool;
+        ) -> i32;
         unsafe fn get_variable(
             self: &SmushClient,
             index: usize,

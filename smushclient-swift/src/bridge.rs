@@ -154,6 +154,7 @@ pub mod ffi {
         temporary: bool,
         omit_from_output: bool,
         omit_from_log: bool,
+        lock: bool,
     }
 
     #[swift_bridge(swift_repr = "struct")]

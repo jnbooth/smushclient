@@ -4,11 +4,11 @@ use serde::{Deserialize, Serialize};
 
 use super::reaction::Reaction;
 use super::send_to::{sendto_serde, SendTarget};
-use super::sender::Sender;
+use super::sender::{Sender, SenderLock};
 use crate::constants::DEFAULT_SEQUENCE;
 use crate::in_place::InPlace;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Alias {
     // Note: This is at the top for Ord-deriving purposes.
     pub reaction: Reaction,
@@ -107,6 +107,7 @@ impl TryFrom<AliasXml<'_>> for Alias {
         let send = in_place!(
             value,
             Sender {
+                    lock: SenderLock::default(),
                     ..label,
                     ..text,
                     ..send_to,

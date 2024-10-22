@@ -10,7 +10,7 @@ use crate::convert::Convert;
 use crate::ffi;
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
-use crate::impls::convert_alias_outcome;
+use crate::results::{convert_alias_outcome, IntoErrorCode, IntoResultCode};
 use crate::sync::NonBlockingMutex;
 use crate::world::WorldRust;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant, QVector};
@@ -19,8 +19,8 @@ use mud_transformer::mxp::RgbColor;
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
-    AliasBool, BoolProperty, Handler, SendIterable, SmushClient, TimerBool, Timers, TriggerBool,
-    World,
+    AliasBool, BoolProperty, Handler, SendIterable, SenderAccessError, SmushClient, TimerBool,
+    Timers, TriggerBool, World,
 };
 use smushclient_plugins::{Alias, PluginIndex, RegexError, Timer, Trigger};
 
@@ -234,25 +234,15 @@ impl SmushClientRust {
         self.timers.finish(id, &mut self.client, &mut timekeeper)
     }
 
-    fn add_sender<T: SendIterable>(&mut self, index: PluginIndex, sender: T) -> isize {
-        match self.client.add_sender(index, sender) {
-            Ok((pos, _)) => isize::try_from(pos).unwrap(),
-            Err(pos) => -1 - isize::try_from(pos).unwrap(),
-        }
-    }
-
     pub fn add_timer(
         &mut self,
         index: PluginIndex,
         timer: Timer,
         mut timekeeper: TimekeeperAdapter,
-    ) -> isize {
-        let (pos, timer) = match self.client.add_sender(index, timer) {
-            Ok((pos, timer)) => (isize::try_from(pos).unwrap(), timer),
-            Err(pos) => return -1 - isize::try_from(pos).unwrap(),
-        };
+    ) -> Result<usize, SenderAccessError> {
+        let (pos, timer) = self.client.add_sender(index, timer)?;
         self.timers.start(index, timer, &mut timekeeper);
-        pos
+        Ok(pos)
     }
 
     pub fn add_or_replace_timer(
@@ -260,25 +250,28 @@ impl SmushClientRust {
         index: PluginIndex,
         timer: Timer,
         mut timekeeper: TimekeeperAdapter,
-    ) -> usize {
-        let (pos, timer) = self.client.add_or_replace_sender(index, timer);
+    ) -> Result<usize, SenderAccessError> {
+        let (pos, timer) = self.client.add_or_replace_sender(index, timer)?;
         self.timers.start(index, timer, &mut timekeeper);
-        pos
+        Ok(pos)
     }
 
-    pub fn set_bool<P>(&mut self, index: PluginIndex, label: &QString, prop: P, value: bool) -> bool
+    pub fn set_bool<P>(
+        &mut self,
+        index: PluginIndex,
+        label: &QString,
+        prop: P,
+        value: bool,
+    ) -> Result<(), SenderAccessError>
     where
         P: BoolProperty,
         P::Target: SendIterable,
     {
-        let Some(sender) = self
+        let sender = self
             .client
-            .find_sender_mut::<P::Target>(index, &String::from(label))
-        else {
-            return false;
-        };
+            .find_sender_mut::<P::Target>(index, &String::from(label))?;
         *prop.get_mut(sender) = value;
-        true
+        Ok(())
     }
 
     pub fn set_sender_group<T: SendIterable>(
@@ -286,15 +279,12 @@ impl SmushClientRust {
         index: PluginIndex,
         label: &QString,
         group: &QString,
-    ) -> bool {
-        let Some(sender) = self
+    ) -> Result<(), SenderAccessError> {
+        let sender = self
             .client
-            .find_sender_mut::<T>(index, &String::from(label))
-        else {
-            return false;
-        };
+            .find_sender_mut::<T>(index, &String::from(label))?;
         sender.as_mut().group = String::from(group);
-        true
+        Ok(())
     }
 }
 
@@ -385,9 +375,13 @@ impl ffi::SmushClient {
         self: Pin<&mut Self>,
         index: PluginIndex,
         alias: &ffi::Alias,
-    ) -> Result<isize, Box<RegexError>> {
+    ) -> Result<i32, Box<RegexError>> {
         let alias = Alias::try_from(alias.cxx_qt_ffi_rust())?;
-        Ok(self.cxx_qt_ffi_rust_mut().add_sender(index, alias))
+        Ok(self
+            .cxx_qt_ffi_rust_mut()
+            .client
+            .add_sender(index, alias)
+            .code())
     }
 
     pub fn add_timer(
@@ -395,40 +389,45 @@ impl ffi::SmushClient {
         index: PluginIndex,
         timer: &ffi::Timer,
         timekeeper: Pin<&mut ffi::Timekeeper>,
-    ) -> isize {
+    ) -> i32 {
         let timer = Timer::from(timer.cxx_qt_ffi_rust());
         self.cxx_qt_ffi_rust_mut()
             .add_timer(index, timer, timekeeper.into())
+            .code()
     }
 
     pub fn add_trigger(
         self: Pin<&mut Self>,
         index: PluginIndex,
         trigger: &ffi::Trigger,
-    ) -> Result<isize, Box<RegexError>> {
+    ) -> Result<i32, Box<RegexError>> {
         let trigger = Trigger::try_from(trigger.cxx_qt_ffi_rust())?;
-        Ok(self.cxx_qt_ffi_rust_mut().add_sender(index, trigger))
+        Ok(self
+            .cxx_qt_ffi_rust_mut()
+            .client
+            .add_sender(index, trigger)
+            .code())
     }
 
-    pub fn remove_alias(self: Pin<&mut Self>, index: PluginIndex, name: &QString) -> bool {
+    pub fn remove_alias(self: Pin<&mut Self>, index: PluginIndex, name: &QString) -> i32 {
         self.cxx_qt_ffi_rust_mut()
             .client
             .remove_sender::<Alias>(index, &String::from(name))
-            .is_some()
+            .code()
     }
 
-    pub fn remove_timer(self: Pin<&mut Self>, index: PluginIndex, name: &QString) -> bool {
+    pub fn remove_timer(self: Pin<&mut Self>, index: PluginIndex, name: &QString) -> i32 {
         self.cxx_qt_ffi_rust_mut()
             .client
             .remove_sender::<Timer>(index, &String::from(name))
-            .is_some()
+            .code()
     }
 
-    pub fn remove_trigger(self: Pin<&mut Self>, index: PluginIndex, name: &QString) -> bool {
+    pub fn remove_trigger(self: Pin<&mut Self>, index: PluginIndex, name: &QString) -> i32 {
         self.cxx_qt_ffi_rust_mut()
             .client
             .remove_sender::<Trigger>(index, &String::from(name))
-            .is_some()
+            .code()
     }
 
     pub fn remove_aliases(self: Pin<&mut Self>, index: PluginIndex, name: &QString) -> usize {
@@ -453,13 +452,13 @@ impl ffi::SmushClient {
         self: Pin<&mut Self>,
         index: PluginIndex,
         alias: &ffi::Alias,
-    ) -> Result<usize, Box<RegexError>> {
+    ) -> Result<i32, Box<RegexError>> {
         let alias = Alias::try_from(alias.cxx_qt_ffi_rust())?;
         Ok(self
             .cxx_qt_ffi_rust_mut()
             .client
             .add_or_replace_sender(index, alias)
-            .0)
+            .code())
     }
 
     pub fn replace_timer(
@@ -467,23 +466,24 @@ impl ffi::SmushClient {
         index: PluginIndex,
         timer: &ffi::Timer,
         timekeeper: Pin<&mut ffi::Timekeeper>,
-    ) -> usize {
+    ) -> i32 {
         let timer = Timer::from(timer.cxx_qt_ffi_rust());
         self.cxx_qt_ffi_rust_mut()
             .add_or_replace_timer(index, timer, timekeeper.into())
+            .code()
     }
 
     pub fn replace_trigger(
         self: Pin<&mut Self>,
         index: PluginIndex,
         trigger: &ffi::Trigger,
-    ) -> Result<usize, Box<RegexError>> {
+    ) -> Result<i32, Box<RegexError>> {
         let trigger = Trigger::try_from(trigger.cxx_qt_ffi_rust())?;
         Ok(self
             .cxx_qt_ffi_rust_mut()
             .client
             .add_or_replace_sender(index, trigger)
-            .0)
+            .code())
     }
 
     pub fn is_alias(&self, index: PluginIndex, label: &QString) -> bool {
@@ -512,10 +512,11 @@ impl ffi::SmushClient {
         index: PluginIndex,
         label: &QString,
         enabled: bool,
-    ) -> bool {
+    ) -> i32 {
         self.cxx_qt_ffi_rust_mut()
             .client
             .set_sender_enabled::<Alias>(index, &String::from(label), enabled)
+            .code()
     }
 
     pub fn set_aliases_enabled(
@@ -540,10 +541,11 @@ impl ffi::SmushClient {
         index: PluginIndex,
         label: &QString,
         enabled: bool,
-    ) -> bool {
+    ) -> i32 {
         self.cxx_qt_ffi_rust_mut()
             .client
             .set_sender_enabled::<Timer>(index, &String::from(label), enabled)
+            .code()
     }
 
     pub fn set_timers_enabled(
@@ -562,10 +564,11 @@ impl ffi::SmushClient {
         index: PluginIndex,
         label: &QString,
         enabled: bool,
-    ) -> bool {
+    ) -> i32 {
         self.cxx_qt_ffi_rust_mut()
             .client
             .set_sender_enabled::<Trigger>(index, &String::from(label), enabled)
+            .code()
     }
 
     pub fn set_triggers_enabled(
@@ -585,12 +588,13 @@ impl ffi::SmushClient {
         label: &QString,
         option: ffi::AliasBool,
         value: bool,
-    ) -> bool {
+    ) -> i32 {
         let Ok(option) = AliasBool::try_from(option) else {
-            return false;
+            return ffi::SenderAccessResult::BadParameter.repr;
         };
         self.cxx_qt_ffi_rust_mut()
             .set_bool(index, label, option, value)
+            .code()
     }
 
     pub fn set_timer_bool(
@@ -599,12 +603,13 @@ impl ffi::SmushClient {
         label: &QString,
         option: ffi::TimerBool,
         value: bool,
-    ) -> bool {
+    ) -> i32 {
         let Ok(option) = TimerBool::try_from(option) else {
-            return false;
+            return -3;
         };
         self.cxx_qt_ffi_rust_mut()
             .set_bool(index, label, option, value)
+            .code()
     }
 
     pub fn set_trigger_bool(
@@ -613,12 +618,13 @@ impl ffi::SmushClient {
         label: &QString,
         option: ffi::TriggerBool,
         value: bool,
-    ) -> bool {
+    ) -> i32 {
         let Ok(option) = TriggerBool::try_from(option) else {
-            return false;
+            return -3;
         };
         self.cxx_qt_ffi_rust_mut()
             .set_bool(index, label, option, value)
+            .code()
     }
 
     pub fn set_trigger_group(
@@ -626,9 +632,10 @@ impl ffi::SmushClient {
         index: PluginIndex,
         label: &QString,
         group: &QString,
-    ) -> bool {
+    ) -> i32 {
         self.cxx_qt_ffi_rust_mut()
             .set_sender_group::<Trigger>(index, label, group)
+            .code()
     }
 
     pub fn alias(self: Pin<&mut Self>, command: &QString, doc: Pin<&mut ffi::Document>) -> u8 {

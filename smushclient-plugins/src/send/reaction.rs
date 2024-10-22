@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use super::sender::Sender;
 use crate::regex::{Regex, RegexError};
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Reaction {
     // Note: this is at the top for Ord-deriving purposes.
     pub sequence: i16,

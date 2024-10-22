@@ -7,10 +7,10 @@ use serde::{Deserialize, Serialize};
 
 use super::reaction::Reaction;
 use super::send_to::{sendto_serde, SendTarget};
-use super::sender::Sender;
+use super::sender::{Sender, SenderLock};
 use crate::in_place::InPlace;
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Trigger {
     // Note: this is at the top for Ord-deriving purposes.
     pub reaction: Reaction,
@@ -186,6 +186,7 @@ impl TryFrom<TriggerXml<'_>> for Trigger {
         let send = in_place!(
             value,
             Sender {
+                    lock: SenderLock::default(),
                     ..label,
                     ..text,
                     ..send_to,

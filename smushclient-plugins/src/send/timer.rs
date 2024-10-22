@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use super::occurrence::Occurrence;
 use super::send_to::{sendto_serde, SendTarget};
-use super::sender::Sender;
+use super::sender::{Sender, SenderLock};
 use crate::in_place::InPlace;
 
 const NANOS: u64 = 1_000_000_000;
@@ -28,7 +28,7 @@ fn duration_from_hms(hour: u64, minute: u64, second: f64) -> Duration {
     Duration::from_nanos((NANOS_F * second) as u64 + NANOS * 60 * (minute + 60 * hour))
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Timer {
     // Note: this is at the top for Ord-deriving purposes.
     pub send: Sender,
@@ -126,6 +126,7 @@ impl From<TimerXml<'_>> for Timer {
         let send = in_place!(
             value,
             Sender {
+                    lock: SenderLock::default(),
                     ..label,
                     ..text,
                     ..send_to,

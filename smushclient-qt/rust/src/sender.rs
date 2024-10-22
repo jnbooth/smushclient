@@ -8,7 +8,9 @@ use cxx_qt_lib::{QColor, QString, QTime};
 use enumeration::{Enum, EnumSet};
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::{Output, OutputFragment, TextFragment, TextStyle};
-use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer, Trigger};
+use smushclient_plugins::{
+    Alias, Occurrence, Reaction, RegexError, Sender, SenderLock, Timer, Trigger,
+};
 
 use crate::convert::Convert;
 use crate::ffi;
@@ -83,6 +85,7 @@ impl From<&SenderRust> for Sender {
             temporary: value.temporary,
             omit_from_output: value.omit_from_output,
             omit_from_log: value.omit_from_log,
+            lock: SenderLock::default(),
         }
     }
 }

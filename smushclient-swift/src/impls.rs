@@ -11,7 +11,9 @@ use mud_transformer::mxp::{AudioRepetition, Heading, RgbColor, SendTo};
 use mud_transformer::{EffectFragment, EntityFragment, OutputFragment, TelnetFragment, UseMxp};
 use smushclient::world::{AutoConnect, ColorPair, LogFormat, LogMode, ProxyType, ScriptRecompile};
 use smushclient::{SendRequest, World};
-use smushclient_plugins::{Alias, Occurrence, Reaction, Regex, SendTarget, Sender, Timer, Trigger};
+use smushclient_plugins::{
+    Alias, Occurrence, Reaction, Regex, SendTarget, Sender, SenderLock, Timer, Trigger,
+};
 
 impl Convert<PathBuf> for String {
     fn from_ffi(value: Self) -> PathBuf {
@@ -22,6 +24,8 @@ impl Convert<PathBuf> for String {
         value.to_string_lossy().into_owned()
     }
 }
+
+impl_convert!(bool, SenderLock);
 
 impl_convert_enum_opt!(ffi::ProxyType, ProxyType, Socks4, Socks5);
 
@@ -80,7 +84,8 @@ impl_convert_struct!(
     one_shot,
     temporary,
     omit_from_output,
-    omit_from_log
+    omit_from_log,
+    lock
 );
 
 impl_convert_struct!(
