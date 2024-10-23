@@ -50,6 +50,7 @@ WorldTab::WorldTab(QWidget *parent)
       resizeTimerId(0)
 {
   ui->setupUi(this);
+  ui->input->setFocus();
   defaultFont.setPointSize(12);
   socket = new QTcpSocket(this);
   api = new ScriptApi(this);
@@ -368,10 +369,9 @@ void WorldTab::readFromSocket()
   api->setSource(currentSource);
 }
 
-void WorldTab::on_input_returnPressed()
+void WorldTab::on_input_submitted(const QString &text)
 {
-  const QString input = ui->input->text();
-  const auto aliasOutcome = client.alias(input, *document);
+  const auto aliasOutcome = client.alias(text, *document);
 
   if (!(aliasOutcome & (uint8_t)AliasOutcome::Remember))
     ui->input->forgetLast();
@@ -382,7 +382,7 @@ void WorldTab::on_input_returnPressed()
     return;
   }
 
-  QByteArray bytes = input.toUtf8();
+  QByteArray bytes = text.toUtf8();
   OnPluginCommand onCommand(bytes);
   api->sendCallback(onCommand);
   if (onCommand.discarded())
@@ -407,7 +407,7 @@ void WorldTab::on_input_returnPressed()
   api->SendNoEcho(bytes);
 }
 
-void WorldTab::on_input_textEdited()
+void WorldTab::on_input_textChanged()
 {
   OnPluginCommandChanged onCommandChanged;
   api->sendCallback(onCommandChanged);

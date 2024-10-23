@@ -24,6 +24,11 @@ public:
     return iterator == begin ? __emptyString : *--iterator;
   }
 
+  constexpr const QString &current() const noexcept
+  {
+    return iterator > last ? __emptyString : *iterator;
+  }
+
   constexpr const QString &next() noexcept
   {
     return iterator >= last ? __emptyString : *++iterator;

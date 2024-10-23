@@ -71,8 +71,8 @@ private slots:
   void onDisconnect();
   void readFromSocket();
 
-  void on_input_returnPressed();
-  void on_input_textEdited();
+  void on_input_submitted(const QString &text);
+  void on_input_textChanged();
   void on_output_anchorClicked(const QUrl &url);
   void on_output_customContextMenuRequested(const QPoint &pos);
 };

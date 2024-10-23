@@ -4,17 +4,17 @@
 // Public methods
 
 MudInput::MudInput(QWidget *parent)
-    : QLineEdit(parent),
+    : QTextEdit(parent),
       draft(),
       history() {}
 
 MudInput::MudInput(QWidget *parent, const QStringList &history)
-    : QLineEdit(parent),
+    : QTextEdit(parent),
       draft(),
       history(history) {}
 
 MudInput::MudInput(const QStringList &history)
-    : QLineEdit(),
+    : QTextEdit(),
       draft(),
       history(history) {}
 
@@ -48,6 +48,19 @@ void MudInput::setMaxLogSize(qsizetype size)
   history.setMaxSize(size);
 }
 
+// Public overrides
+
+QSize MudInput::minimumSizeHint() const
+{
+  const QFontMetrics metrics = fontMetrics();
+  return QSize(metrics.maxWidth(), metrics.lineSpacing() + 8);
+}
+
+QSize MudInput::sizeHint() const
+{
+  return minimumSizeHint();
+}
+
 // Protected overrides
 
 void MudInput::keyPressEvent(QKeyEvent *event)
@@ -55,63 +68,57 @@ void MudInput::keyPressEvent(QKeyEvent *event)
   switch (event->key())
   {
   case Qt::Key::Key_Up:
-    previous();
-    return;
+    if (textCursor().atStart())
+    {
+      setTextFromHistory(history.previous());
+      return;
+    }
 
   case Qt::Key::Key_Down:
-    next();
-    return;
+    if (textCursor().atEnd())
+    {
+      setTextFromHistory(history.next());
+      return;
+    }
 
   case Qt::Key::Key_Enter:
   case Qt::Key::Key_Return:
-    if (const QString input = text(); !input.isEmpty())
-      history.push(input);
+    if (event->modifiers().testFlag(Qt::KeyboardModifier::ShiftModifier))
+    {
+      QTextEdit::keyPressEvent(event);
+      return;
+    }
+    if (const QString text = toPlainText(); !text.isEmpty())
+    {
+      history.push(text);
+      emit submitted(text);
+      clear();
+      return;
+    }
   }
 
-  QLineEdit::keyPressEvent(event);
+  QTextEdit::keyPressEvent(event);
 }
 
 // Private methods
 
-void MudInput::previous()
-{
-  const int pos = cursorPosition();
-  home(false);
-  if (cursorPosition() != pos)
-    return;
-
-  setTextFromHistory(history.previous());
-}
-
-void MudInput::next()
-{
-  const int pos = cursorPosition();
-  end(false);
-  if (cursorPosition() != pos)
-    return;
-
-  setTextFromHistory(history.next());
-}
-
 void MudInput::restoreDraft()
 {
-
   if (!draft.isEmpty())
   {
     setText(draft);
-    setModified(true);
     draft.clear();
   }
 }
 
 void MudInput::saveDraft()
 {
-  if (!isModified())
+  if (document()->isEmpty())
     return;
-  const QString value = text();
-  if (value.isEmpty())
+  const QString text = toPlainText();
+  if (text == history.current())
     return;
-  draft = value;
+  draft = text;
 }
 
 void MudInput::setTextFromHistory(const QString &text)
@@ -121,7 +128,6 @@ void MudInput::setTextFromHistory(const QString &text)
     restoreDraft();
     return;
   }
-
   saveDraft();
   setText(text);
 }

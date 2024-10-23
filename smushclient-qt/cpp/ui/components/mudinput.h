@@ -1,9 +1,11 @@
 #pragma once
-#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QTextEdit>
 #include "../../commandhistory.h"
 
-class MudInput : public QLineEdit
+class MudInput : public QTextEdit
 {
+  Q_OBJECT
+
 public:
   explicit MudInput(QWidget *parent = nullptr);
   MudInput(QWidget *parent, const QStringList &history);
@@ -17,6 +19,12 @@ public:
   void setLog(const QStringList &log);
   void setMaxLogSize(qsizetype size);
 
+  virtual QSize minimumSizeHint() const override;
+  virtual QSize sizeHint() const override;
+
+signals:
+  void submitted(const QString &text);
+
 protected:
   virtual void keyPressEvent(QKeyEvent *event) override;
 
@@ -25,8 +33,6 @@ private:
   CommandHistory history;
 
 private:
-  void previous();
-  void next();
   void restoreDraft();
   void saveDraft();
   void setTextFromHistory(const QString &text);
