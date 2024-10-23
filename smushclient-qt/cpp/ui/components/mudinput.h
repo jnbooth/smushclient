@@ -21,5 +21,13 @@ protected:
   virtual void keyPressEvent(QKeyEvent *event) override;
 
 private:
+  QString draft;
   CommandHistory history;
+
+private:
+  void previous();
+  void next();
+  void restoreDraft();
+  void saveDraft();
+  void setTextFromHistory(const QString &text);
 };
