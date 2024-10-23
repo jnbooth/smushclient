@@ -21,6 +21,7 @@
 constexpr size_t noSuchPlugin = SIZE_T_MAX;
 
 class ImageFilter;
+class MudStatusBar;
 class SmushClient;
 class Timekeeper;
 class World;
@@ -331,6 +332,7 @@ private:
   QScrollBar *scrollBar;
   QTcpSocket *socket;
   std::unordered_map<int, QueuedSend> sendQueue;
+  MudStatusBar *statusBar;
   Timekeeper *timekeeper;
   QDateTime whenConnected;
   std::unordered_map<std::string, MiniWindow *> windows;

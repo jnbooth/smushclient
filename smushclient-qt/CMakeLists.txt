@@ -99,8 +99,10 @@ qt_add_executable(${APP_NAME}
 
     cpp/ui/app.h cpp/ui/app.cpp cpp/ui/app.ui
     cpp/ui/components/colorpickerbutton.h cpp/ui/components/colorpickerbutton.cpp
+    cpp/ui/components/iconlabel.h cpp/ui/components/iconlabel.cpp
     cpp/ui/components/mudbrowser.h cpp/ui/components/mudbrowser.cpp
     cpp/ui/components/mudinput.h cpp/ui/components/mudinput.cpp
+    cpp/ui/components/mudstatusbar.h cpp/ui/components/mudstatusbar.cpp
     cpp/ui/pluginsdialog.h cpp/ui/pluginsdialog.cpp cpp/ui/pluginsdialog.ui
     cpp/ui/prefs/abstractprefstree.h cpp/ui/prefs/abstractprefstree.cpp
     cpp/ui/prefs/address.h cpp/ui/prefs/address.cpp cpp/ui/prefs/address.ui

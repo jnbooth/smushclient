@@ -9,6 +9,7 @@
 #include "miniwindow.h"
 #include "worldproperties.h"
 #include "../../spans.h"
+#include "../ui/components/mudstatusbar.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 
@@ -37,21 +38,6 @@ inline QColor getColorFromVariant(const QVariant &variant)
   return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
 }
 
-QMainWindow *getMainWindow(const QObject *obj)
-{
-  if (!obj)
-    return nullptr;
-
-  QObject *parent = obj->parent();
-  if (!parent)
-    return nullptr;
-
-  QMainWindow *window = qobject_cast<QMainWindow *>(parent);
-  if (window)
-    return window;
-
-  return getMainWindow(parent);
-}
 inline bool isEmptyList(const QVariant &variant)
 {
   switch (variant.typeId())
@@ -329,14 +315,6 @@ ApiCode ScriptApi::SetOption(string_view name, const QVariant &variant) const
 
 void ScriptApi::SetStatus(const QString &status) const
 {
-  QMainWindow *window = getMainWindow(this);
-  if (!window)
-    return;
-
-  QStatusBar *statusBar = window->statusBar();
-  if (!statusBar)
-    return;
-
   statusBar->showMessage(status);
 }
 

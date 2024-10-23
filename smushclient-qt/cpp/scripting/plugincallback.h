@@ -6,6 +6,7 @@
 struct lua_State;
 
 #define CALLBACK(idNumber, nameString, sourceAction)                                 \
+  static const int ID = 1 << idNumber;                                               \
   inline constexpr int id() const noexcept override { return 1 << idNumber; }        \
   inline constexpr const char *name() const noexcept override { return nameString; } \
   inline constexpr ActionSource source() const noexcept override { return sourceAction; }

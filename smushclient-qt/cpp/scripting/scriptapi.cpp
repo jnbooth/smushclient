@@ -9,6 +9,7 @@
 #include "miniwindow.h"
 #include "worldproperties.h"
 #include "../bridge/timekeeper.h"
+#include "../ui/components/mudstatusbar.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 #include "../../spans.h"
@@ -19,6 +20,22 @@ using std::variant;
 using std::chrono::milliseconds;
 
 // Private utils
+
+QMainWindow *getMainWindow(const QObject *obj)
+{
+  if (!obj)
+    return nullptr;
+
+  QObject *parent = obj->parent();
+  if (!parent)
+    return nullptr;
+
+  QMainWindow *window = qobject_cast<QMainWindow *>(parent);
+  if (window)
+    return window;
+
+  return getMainWindow(parent);
+}
 
 inline void scrollToEnd(QScrollBar &bar)
 {
@@ -37,6 +54,7 @@ ScriptApi::ScriptApi(WorldTab *parent)
       lastTellPosition(-1),
       scrollBar(parent->ui->output->verticalScrollBar()),
       socket(parent->socket),
+      statusBar(qobject_cast<MudStatusBar *>(getMainWindow(parent)->statusBar())),
       whenConnected(QDateTime::currentDateTime())
 {
   timekeeper = new Timekeeper(this);
@@ -174,6 +192,22 @@ bool ScriptApi::runScript(const QString &pluginID, const QString &script) const
 
 void ScriptApi::sendCallback(PluginCallback &callback)
 {
+  switch (callback.id())
+  {
+  case OnPluginConnect::ID:
+    statusBar->setConnected(true);
+    break;
+
+  case OnPluginDisconnect::ID:
+    statusBar->setConnected(false);
+    break;
+
+  case OnPluginWorldOutputResized::ID:
+    for (const auto &window : windows)
+      window.second->updatePosition();
+    break;
+  }
+
   if (!callbackFilter.includes(callback))
     return;
 

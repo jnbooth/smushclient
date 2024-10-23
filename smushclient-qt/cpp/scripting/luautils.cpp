@@ -108,7 +108,7 @@ static int L_inputbox(lua_State *L)
   const QString fontFamily = qlua::getQString(L, 4, QString());
   const int fontSize = qlua::getInt(L, 5, -1);
 
-  QInputDialog *dialog = new QInputDialog();
+  QInputDialog *dialog = new QInputDialog;
   dialog->setWindowTitle(title);
   dialog->setLabelText(message);
   dialog->setTextValue(defaultText);
@@ -146,7 +146,7 @@ static int L_listbox(lua_State *L)
     lua_pop(L, 1);
   }
 
-  QInputDialog *dialog = new QInputDialog();
+  QInputDialog *dialog = new QInputDialog;
   dialog->setWindowTitle(title);
   dialog->setLabelText(message);
   dialog->setComboBoxItems(choiceValues);
