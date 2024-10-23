@@ -371,7 +371,8 @@ ApiCode ScriptApi::TextRectangle(
     int borderWidth,
     const QBrush &outsideFill) const
 {
-  Ui::WorldTab *ui = tab()->ui;
+  WorldTab *worldtab = tab();
+  Ui::WorldTab *ui = worldtab->ui;
   const QSize size = ui->area->size();
   ui->area->setContentsMargins(
       rect.left(),
@@ -379,12 +380,18 @@ ApiCode ScriptApi::TextRectangle(
       size.width() - rect.right(),
       size.height() - rect.bottom());
   QPalette areaPalette = ui->area->palette();
-  areaPalette.setBrush(QPalette::ColorRole::Base, outsideFill);
-  areaPalette.setBrush(QPalette::ColorRole::Window, outsideFill);
+  QBrush outsideBrush = outsideFill;
+
+  if (!outsideBrush.color().isValid())
+    outsideBrush.setColor(worldtab->world.getAnsi0());
+
+  const QColor &borderColorFill = borderColor.isValid() ? borderColor : outsideBrush.color();
+
+  areaPalette.setBrush(QPalette::ColorRole::Window, outsideBrush);
   ui->area->setPalette(areaPalette);
   ui->outputBorder->setContentsMargins(borderWidth, borderWidth, borderWidth, borderWidth);
   QPalette borderPalette = ui->outputBorder->palette();
-  borderPalette.setBrush(QPalette::ColorRole::Base, borderColor);
+  borderPalette.setBrush(QPalette::ColorRole::Window, borderColorFill);
   ui->outputBorder->setPalette(borderPalette);
   ui->background->setContentsMargins(borderOffset, borderOffset, borderOffset, borderOffset);
   return ApiCode::OK;

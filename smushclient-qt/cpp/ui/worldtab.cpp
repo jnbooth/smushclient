@@ -50,10 +50,6 @@ WorldTab::WorldTab(QWidget *parent)
       resizeTimerId(0)
 {
   ui->setupUi(this);
-  ui->output->setOpenLinks(false);
-  ui->output->setOpenExternalLinks(false);
-  ui->area->setAutoFillBackground(true);
-  ui->area->setAutoFillBackground(true);
   defaultFont.setPointSize(12);
   socket = new QTcpSocket(this);
   api = new ScriptApi(this);
