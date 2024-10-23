@@ -74,6 +74,7 @@ inline bool buildMenu(QMenu *menu, string_view text)
       {
       case '+':
         action->setCheckable(true);
+        action->setChecked(true);
         continue;
       case '^':
         action->setDisabled(true);
