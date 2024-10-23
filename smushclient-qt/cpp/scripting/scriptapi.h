@@ -280,6 +280,7 @@ public:
   void initializeScripts(const QStringList &scripts);
   inline bool isPluginEnabled(size_t plugin) const { return !plugins[plugin].disabled(); }
   void printError(const QString &message);
+  void resize();
   inline bool runScript(size_t plugin, const QString &script) const
   {
     return plugins[plugin].runScript(script);

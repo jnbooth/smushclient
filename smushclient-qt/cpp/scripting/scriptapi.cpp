@@ -155,6 +155,15 @@ void ScriptApi::printError(const QString &error)
   scrollToBottom();
 }
 
+void ScriptApi::resize()
+{
+  for (const auto &window : windows)
+    window.second->updatePosition();
+
+  OnPluginWorldOutputResized onResized;
+  sendCallback(onResized);
+}
+
 bool ScriptApi::runScript(const QString &pluginID, const QString &script) const
 {
   const size_t index = findPluginIndex(pluginID.toStdString());

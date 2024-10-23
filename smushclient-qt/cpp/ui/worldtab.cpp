@@ -231,8 +231,7 @@ void WorldTab::timerEvent(QTimerEvent *event)
   if (resizeTimerId != id)
     return;
   resizeTimerId = 0;
-  OnPluginWorldOutputResized onResized;
-  api->sendCallback(onResized);
+  api->resize();
 }
 
 // Private methods
