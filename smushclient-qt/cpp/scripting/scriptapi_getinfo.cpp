@@ -275,13 +275,13 @@ QVariant MiniWindow::info(int infoType) const
   case 9:
     return background;
   case 10:
-    return rect().left();
+    return geometry().left();
   case 11:
-    return rect().top();
+    return geometry().top();
   case 12:
-    return rect().right();
+    return geometry().right();
   case 13:
-    return rect().bottom();
+    return geometry().bottom();
   case 14:
     return mapFromGlobal(QCursor::pos()).x();
   case 15:
@@ -312,13 +312,13 @@ QVariant Hotspot::info(int infoType) const
   switch (infoType)
   {
   case 1:
-    return rect().left();
+    return geometry().left();
   case 2:
-    return rect().top();
+    return geometry().top();
   case 3:
-    return rect().right();
+    return geometry().right();
   case 4:
-    return rect().bottom();
+    return geometry().bottom();
   case 5:
     return convertString(callbacks.mouseOver);
   case 6:
