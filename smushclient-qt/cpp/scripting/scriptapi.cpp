@@ -261,7 +261,7 @@ struct WindowCompare
 void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const
 {
   const bool drawsUnderneath = window->drawsUnderneath();
-  const WindowCompare compare{window->getZOrder(), windowName};
+  const WindowCompare compare{-window->getZOrder(), windowName};
   MiniWindow *neighbor = nullptr;
   WindowCompare neighborCompare;
 
