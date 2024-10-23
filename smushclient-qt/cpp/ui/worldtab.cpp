@@ -52,6 +52,8 @@ WorldTab::WorldTab(QWidget *parent)
   ui->setupUi(this);
   ui->output->setOpenLinks(false);
   ui->output->setOpenExternalLinks(false);
+  ui->area->setAutoFillBackground(true);
+  ui->area->setAutoFillBackground(true);
   defaultFont.setPointSize(12);
   socket = new QTcpSocket(this);
   api = new ScriptApi(this);
@@ -101,6 +103,7 @@ void WorldTab::onTabSwitch(bool active) const
 void WorldTab::openPluginsDialog()
 {
   PluginsDialog dialog(client, this);
+  connect(&dialog, &PluginsDialog::reinstallClicked, this, &WorldTab::loadPlugins);
   if (dialog.exec() != QDialog::Accepted)
     return;
   loadPlugins();
@@ -278,19 +281,6 @@ inline void WorldTab::finishDrag()
   }
 }
 
-bool WorldTab::loadPlugins()
-{
-  const QStringList errors = client.loadPlugins();
-  if (!errors.empty())
-  {
-    QErrorMessage::qtHandler()->showMessage(errors.join(QChar::fromLatin1('\n')));
-    return false;
-  }
-  QStringList plugins = client.pluginScripts();
-  api->initializeScripts(plugins);
-  return true;
-}
-
 void WorldTab::openLog()
 {
   try
@@ -345,6 +335,19 @@ void WorldTab::finalizeWorldSettings(int result)
     if (world.getSite().isEmpty())
       delete this;
   }
+}
+
+bool WorldTab::loadPlugins()
+{
+  const QStringList errors = client.loadPlugins();
+  if (!errors.empty())
+  {
+    QErrorMessage::qtHandler()->showMessage(errors.join(QChar::fromLatin1('\n')));
+    return false;
+  }
+  QStringList plugins = client.pluginScripts();
+  api->initializeScripts(plugins);
+  return true;
 }
 
 void WorldTab::onConnect()

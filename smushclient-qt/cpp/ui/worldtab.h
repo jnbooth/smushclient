@@ -61,12 +61,12 @@ private:
   void applyWorld() const;
   void connectToHost() const;
   void finishDrag();
-  bool loadPlugins();
   void openLog();
   bool saveWorldAndState(const QString &filePath) const;
 
 private slots:
   void finalizeWorldSettings(int result);
+  bool loadPlugins();
   void onConnect();
   void onDisconnect();
   void readFromSocket();

@@ -63,6 +63,11 @@ void PluginsDialog::on_button_close_clicked()
     reject();
 }
 
+void PluginsDialog::on_button_reinstall_clicked()
+{
+  emit reinstallClicked();
+}
+
 void PluginsDialog::on_button_remove_clicked()
 {
   const QTableWidgetItem *item = ui->table->currentItem();

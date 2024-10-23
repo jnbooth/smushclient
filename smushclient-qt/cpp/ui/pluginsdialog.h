@@ -18,6 +18,9 @@ public:
   explicit PluginsDialog(SmushClient &client, QWidget *parent = nullptr);
   ~PluginsDialog();
 
+signals:
+  void reinstallClicked();
+
 private:
   Ui::PluginsDialog *ui;
   SmushClient &client;
@@ -28,6 +31,7 @@ private:
 private slots:
   void on_button_add_clicked();
   void on_button_close_clicked();
+  void on_button_reinstall_clicked();
   void on_button_remove_clicked();
 };
 
