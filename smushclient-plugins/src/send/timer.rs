@@ -4,6 +4,7 @@ use std::sync::atomic::{AtomicU16, Ordering};
 use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike};
+use quick_xml::DeError;
 use serde::{Deserialize, Serialize};
 
 use super::occurrence::Occurrence;
@@ -51,6 +52,18 @@ impl Default for Timer {
 
 impl_deref!(Timer, Sender, send);
 impl_asref!(Timer, Sender);
+
+impl Timer {
+    pub fn from_xml_str(s: &str) -> Result<Vec<Self>, DeError> {
+        let nodes: Vec<TimerXml> = quick_xml::de::from_str(s)?;
+        Ok(nodes.into_iter().map(Self::from).collect())
+    }
+
+    pub fn to_xml_string<'a, I: IntoIterator<Item = &'a Self>>(iter: I) -> Result<String, DeError> {
+        let nodes: Vec<TimerXml<'a>> = iter.into_iter().map(TimerXml::from).collect();
+        quick_xml::se::to_string(&nodes)
+    }
+}
 
 #[derive(Clone, Debug, Default, PartialEq, PartialOrd, Deserialize, Serialize)]
 #[serde(default)]

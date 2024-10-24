@@ -44,6 +44,19 @@ void PrefsTriggers::editItem(size_t index)
   buildTree();
 }
 
+QString PrefsTriggers::exportXml() const
+{
+  return world.exportTriggers();
+}
+
+QString PrefsTriggers::importXml(const QString &xml)
+{
+  const QString result = world.importTriggers(xml);
+  if (result.isEmpty())
+    buildTree();
+  return result;
+}
+
 void PrefsTriggers::removeItem(size_t index)
 {
   world.removeTrigger(index);

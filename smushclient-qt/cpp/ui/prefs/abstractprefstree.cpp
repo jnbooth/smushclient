@@ -1,4 +1,7 @@
 #include "abstractprefstree.h"
+#include <QtGui/QClipboard>
+#include <QtGui/QGuiApplication>
+#include <QtWidgets/QErrorMessage>
 
 // Public methods
 
@@ -30,6 +33,20 @@ void AbstractPrefsTree::on_edit_clicked()
     return;
   const size_t index = data.value<size_t>();
   editItem(index);
+}
+
+void AbstractPrefsTree::on_export_xml_clicked()
+{
+  QGuiApplication::clipboard()->setText(exportXml());
+}
+
+void AbstractPrefsTree::on_import_xml_clicked()
+{
+  QString error = importXml(QGuiApplication::clipboard()->text());
+  if (error.isEmpty())
+    return;
+
+  QErrorMessage::qtHandler()->showMessage(error);
 }
 
 void AbstractPrefsTree::on_remove_clicked()

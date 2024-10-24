@@ -13,6 +13,8 @@ protected:
   QVariant currentData() const;
   virtual void addItem() = 0;
   virtual void editItem(size_t index) = 0;
+  virtual QString exportXml() const = 0;
+  virtual QString importXml(const QString &text) = 0;
   virtual void removeItem(size_t index) = 0;
   virtual void setItemButtonsEnabled(bool enabled) = 0;
   virtual QTreeWidget *tree() const = 0;
@@ -20,6 +22,8 @@ protected:
 protected slots:
   void on_add_clicked();
   void on_edit_clicked();
+  void on_export_xml_clicked();
+  void on_import_xml_clicked();
   void on_remove_clicked();
   void on_tree_itemActivated(QTreeWidgetItem *item);
   void on_tree_itemDoubleClicked(QTreeWidgetItem *item);

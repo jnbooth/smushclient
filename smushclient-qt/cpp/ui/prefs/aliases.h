@@ -18,6 +18,8 @@ public:
 protected:
   void addItem() override;
   void editItem(size_t index) override;
+  QString exportXml() const override;
+  QString importXml(const QString &text) override;
   void removeItem(size_t index) override;
   void setItemButtonsEnabled(bool enabled) override;
   QTreeWidget *tree() const override;
@@ -25,6 +27,6 @@ protected:
 private:
   Ui::PrefsAliases *ui;
   World &world;
-
   void buildTree();
+
 };

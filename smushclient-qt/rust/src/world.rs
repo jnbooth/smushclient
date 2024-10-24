@@ -11,7 +11,7 @@ use crate::sender::{AliasRust, TimerRust, TriggerRust};
 use cxx_qt_lib::{QColor, QString};
 use smushclient::world::ColorPair;
 use smushclient::World;
-use smushclient_plugins::{Alias, Occurrence, RegexError, Sender, Timer, Trigger};
+use smushclient_plugins::{Alias, Occurrence, PluginLoadError, RegexError, Sender, Timer, Trigger};
 
 #[derive(Default)]
 pub struct WorldRust {
@@ -236,6 +236,33 @@ impl WorldRust {
 
     pub fn add_trigger(&mut self, trigger: &TriggerRust) -> Result<(), RegexError> {
         self.triggers.push(Trigger::try_from(trigger)?);
+        Ok(())
+    }
+
+    pub fn export_aliases(&self) -> Result<String, PluginLoadError> {
+        Alias::to_xml_string(&self.aliases)
+    }
+
+    pub fn export_timers(&self) -> Result<String, PluginLoadError> {
+        Timer::to_xml_string(&self.timers)
+    }
+
+    pub fn export_triggers(&self) -> Result<String, PluginLoadError> {
+        Trigger::to_xml_string(&self.triggers)
+    }
+
+    pub fn import_aliases(&mut self, xml: &str) -> Result<(), PluginLoadError> {
+        self.aliases.append(&mut Alias::from_xml_str(xml)?);
+        Ok(())
+    }
+
+    pub fn import_timers(&mut self, xml: &str) -> Result<(), PluginLoadError> {
+        self.timers.append(&mut Timer::from_xml_str(xml)?);
+        Ok(())
+    }
+
+    pub fn import_triggers(&mut self, xml: &str) -> Result<(), PluginLoadError> {
+        self.triggers.append(&mut Trigger::from_xml_str(xml)?);
         Ok(())
     }
 
@@ -727,6 +754,15 @@ impl<E: Error> IntoResultString for Result<(), E> {
     }
 }
 
+impl<E: Error> IntoResultString for Result<String, E> {
+    fn result(self) -> QString {
+        match self {
+            Ok(s) => QString::from(&s),
+            Err(e) => QString::from(&e.to_string()),
+        }
+    }
+}
+
 impl ffi::World {
     pub fn add_alias(self: Pin<&mut Self>, alias: &ffi::Alias) -> QString {
         self.cxx_qt_ffi_rust_mut()
@@ -743,6 +779,36 @@ impl ffi::World {
     pub fn add_trigger(self: Pin<&mut Self>, trigger: &ffi::Trigger) -> QString {
         self.cxx_qt_ffi_rust_mut()
             .add_trigger(trigger.cxx_qt_ffi_rust())
+            .result()
+    }
+
+    pub fn export_aliases(&self) -> QString {
+        self.cxx_qt_ffi_rust().export_aliases().result()
+    }
+
+    pub fn export_timers(&self) -> QString {
+        self.cxx_qt_ffi_rust().export_timers().result()
+    }
+
+    pub fn export_triggers(&self) -> QString {
+        self.cxx_qt_ffi_rust().export_triggers().result()
+    }
+
+    pub fn import_aliases(self: Pin<&mut Self>, xml: &QString) -> QString {
+        self.cxx_qt_ffi_rust_mut()
+            .import_aliases(&String::from(xml))
+            .result()
+    }
+
+    pub fn import_timers(self: Pin<&mut Self>, xml: &QString) -> QString {
+        self.cxx_qt_ffi_rust_mut()
+            .import_timers(&String::from(xml))
+            .result()
+    }
+
+    pub fn import_triggers(self: Pin<&mut Self>, xml: &QString) -> QString {
+        self.cxx_qt_ffi_rust_mut()
+            .import_triggers(&String::from(xml))
             .result()
     }
 

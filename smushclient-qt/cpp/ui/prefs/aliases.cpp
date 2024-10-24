@@ -43,6 +43,19 @@ void PrefsAliases::editItem(size_t index)
   buildTree();
 }
 
+QString PrefsAliases::exportXml() const
+{
+  return world.exportAliases();
+}
+
+QString PrefsAliases::importXml(const QString &xml)
+{
+  const QString result = world.importAliases(xml);
+  if (result.isEmpty())
+    buildTree();
+  return result;
+}
+
 void PrefsAliases::removeItem(size_t index)
 {
   world.removeAlias(index);

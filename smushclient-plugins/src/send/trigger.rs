@@ -3,6 +3,7 @@ use std::borrow::Cow;
 use mxp::RgbColor;
 
 use enumeration::{Enum, EnumSet};
+use quick_xml::DeError;
 use serde::{Deserialize, Serialize};
 
 use super::reaction::Reaction;
@@ -51,6 +52,27 @@ impl Default for Trigger {
 impl_deref!(Trigger, Reaction, reaction);
 impl_asref!(Trigger, Reaction);
 impl_asref!(Trigger, Sender);
+
+impl Trigger {
+    pub fn from_xml_str<T: FromIterator<Self>>(s: &str) -> Result<T, DeError> {
+        let nodes: Vec<TriggerXml> = quick_xml::de::from_str(s)?;
+        nodes
+            .into_iter()
+            .enumerate()
+            .map(|(i, node)| {
+                Self::try_from(node).map_err(|err| {
+                    let n = i + 1;
+                    DeError::Custom(format!("Invalid regular expression in item {n}: {err}"))
+                })
+            })
+            .collect()
+    }
+
+    pub fn to_xml_string<'a, I: IntoIterator<Item = &'a Self>>(iter: I) -> Result<String, DeError> {
+        let nodes: Vec<TriggerXml<'a>> = iter.into_iter().map(TriggerXml::from).collect();
+        quick_xml::se::to_string(&nodes)
+    }
+}
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
 enum Change {

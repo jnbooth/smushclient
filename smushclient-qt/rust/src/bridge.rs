@@ -834,6 +834,12 @@ pub mod ffi {
         fn add_alias(self: Pin<&mut World>, alias: &Alias) -> QString;
         fn add_timer(self: Pin<&mut World>, timer: &Timer) -> QString;
         fn add_trigger(self: Pin<&mut World>, trigger: &Trigger) -> QString;
+        fn export_aliases(self: &World) -> QString;
+        fn export_timers(self: &World) -> QString;
+        fn export_triggers(self: &World) -> QString;
+        fn import_aliases(self: Pin<&mut World>, xml: &QString) -> QString;
+        fn import_timers(self: Pin<&mut World>, xml: &QString) -> QString;
+        fn import_triggers(self: Pin<&mut World>, xml: &QString) -> QString;
         fn num_aliases(self: &World) -> usize;
         fn num_timers(self: &World) -> usize;
         fn num_triggers(self: &World) -> usize;

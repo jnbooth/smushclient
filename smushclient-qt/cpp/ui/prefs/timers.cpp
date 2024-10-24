@@ -43,6 +43,19 @@ void PrefsTimers::editItem(size_t index)
   buildTree();
 }
 
+QString PrefsTimers::exportXml() const
+{
+  return world.exportTimers();
+}
+
+QString PrefsTimers::importXml(const QString &xml)
+{
+  const QString result = world.importTimers(xml);
+  if (result.isEmpty())
+    buildTree();
+  return result;
+}
+
 void PrefsTimers::removeItem(size_t index)
 {
   world.removeTimer(index);
