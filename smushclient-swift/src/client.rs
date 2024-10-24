@@ -46,9 +46,13 @@ impl smushclient::Handler for AliasHandler {
 
     fn echo(&mut self, _command: &str) {}
 
+    fn erase_last_line(&mut self) {}
+
     fn send(&mut self, request: smushclient::SendRequest) {
         self.requests.push(request.into());
     }
+
+    fn send_script(&mut self, _request: smushclient::SendScriptRequest) {}
 
     fn permit_line(&mut self, _line: &str) -> bool {
         true
@@ -96,6 +100,8 @@ impl smushclient::Handler for ClientHandler {
 
     fn echo(&mut self, _command: &str) {}
 
+    fn erase_last_line(&mut self) {}
+
     fn play_sound(&mut self, path: &str) {
         self.output
             .push(ffi::OutputFragment::Sound(path.to_owned()));
@@ -108,4 +114,6 @@ impl smushclient::Handler for ClientHandler {
     fn send(&mut self, request: smushclient::SendRequest) {
         self.output.push(ffi::OutputFragment::Send(request.into()));
     }
+
+    fn send_script(&mut self, _request: smushclient::SendScriptRequest) {}
 }

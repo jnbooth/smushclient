@@ -10,7 +10,7 @@ use chrono::{NaiveTime, Timelike};
 use mud_transformer::mxp::{AudioRepetition, Heading, RgbColor, SendTo};
 use mud_transformer::{EffectFragment, EntityFragment, OutputFragment, TelnetFragment, UseMxp};
 use smushclient::world::{AutoConnect, ColorPair, LogFormat, LogMode, ProxyType, ScriptRecompile};
-use smushclient::{SendRequest, World};
+use smushclient::{SendRequest, SendScriptRequest, World};
 use smushclient_plugins::{
     Alias, Occurrence, Reaction, Regex, SendTarget, Sender, SenderLock, Timer, Trigger,
 };
@@ -319,13 +319,37 @@ impl Convert<HashMap<String, String>> for Vec<ffi::KeypadMapping> {
 
 impl<'a> From<SendRequest<'a>> for ffi::SendRequest {
     fn from(value: SendRequest<'a>) -> Self {
+        let pad = match &value.pad {
+            Some(pad) => pad.title().into_owned(),
+            None => String::default(),
+        };
         Self {
             plugin: value.plugin,
-            send_to: value.sender.send_to.into(),
-            script: value.sender.script.clone(),
-            variable: value.sender.variable.clone(),
+            send_to: value.send_to.into(),
             text: value.text.to_owned(),
-            wildcards: value.wildcards.into_iter().map(ToOwned::to_owned).collect(),
+            pad,
+        }
+    }
+}
+
+impl<'a> From<SendScriptRequest<'a>> for ffi::SendScriptRequest {
+    fn from(value: SendScriptRequest<'a>) -> Self {
+        let wildcards = match value.wildcards {
+            Some(captures) => {
+                let mut iter = captures.iter();
+                iter.next();
+                iter.flatten()
+                    .map(|capture| capture.as_str().to_owned())
+                    .collect()
+            }
+            None => Vec::new(),
+        };
+        Self {
+            plugin: value.plugin,
+            script: value.script.to_owned(),
+            label: value.label.to_owned(),
+            line: value.line.to_owned(),
+            wildcards,
         }
     }
 }

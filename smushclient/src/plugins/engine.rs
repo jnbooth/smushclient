@@ -8,54 +8,13 @@ use std::path::Path;
 use super::effects::{AliasEffects, TriggerEffects};
 use super::error::LoadError;
 use super::error::LoadFailure;
-use super::send::SendRequest;
 use crate::collections::LifetimeVec;
-use crate::handler::Handler;
+use crate::handler::{Handler, HandlerExt};
 use crate::plugins::iter::ReactionIterable;
 use crate::plugins::output::is_nonvisual_output;
 use crate::{SendIterable, World};
 use mud_transformer::{Output, OutputFragment};
-use smushclient_plugins::{
-    Alias, Pad, PadSource, Plugin, PluginIndex, Reaction, SendMatches, Sender, Trigger,
-};
-
-fn send_all<H, T>(
-    senders: &[(PluginIndex, usize, &T)],
-    line: &str,
-    text_buf: &mut String,
-    plugins: &[Plugin],
-    output: &[Output],
-    handler: &mut H,
-) where
-    H: Handler,
-    T: AsRef<Sender> + AsRef<Reaction> + PadSource,
-{
-    text_buf.clear();
-    for send in SendMatches::find(senders.iter().copied(), line) {
-        if !send.has_send() {
-            continue;
-        }
-        let reaction: &Reaction = send.sender.as_ref();
-        if !reaction.enabled {
-            continue;
-        }
-        reaction.lock();
-        handler.send(SendRequest {
-            pad: if reaction.send_to.is_notepad() {
-                Some(Pad::new(send.sender, &plugins[send.plugin].metadata.name))
-            } else {
-                None
-            },
-            plugin: send.plugin,
-            line,
-            wildcards: send.wildcards(),
-            sender: send.sender.as_ref(),
-            text: send.text(text_buf),
-            output,
-        });
-        reaction.unlock();
-    }
-}
+use smushclient_plugins::{Alias, Plugin, PluginIndex, Trigger};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct PluginEngine {
@@ -200,14 +159,8 @@ impl PluginEngine {
             handler.echo(line);
         }
 
-        send_all(
-            &matched,
-            line,
-            &mut self.alias_buf,
-            &self.plugins,
-            &[],
-            handler,
-        );
+        handler.send_all(&matched, line, &mut self.alias_buf, &self.plugins);
+        handler.send_all_scripts(&matched, line, &[]);
 
         drop(matched);
         self.remove_oneshots::<Alias>(&oneshots, world);
@@ -242,16 +195,16 @@ impl PluginEngine {
             }
         }
 
-        send_all(
-            &matched,
-            line,
-            &mut self.trigger_buf,
-            &self.plugins,
-            output,
-            handler,
-        );
+        handler.send_all(&matched, line, &mut self.trigger_buf, &self.plugins);
+        handler.send_all_scripts(&matched, line, output);
 
-        for (_, _, trigger) in &matched {
+        let mut final_effects = TriggerEffects::new();
+
+        for &(_, _, trigger) in &matched {
+            if !trigger.enabled {
+                continue;
+            }
+            final_effects.add_effects(trigger);
             if !trigger.sound.is_empty() {
                 handler.play_sound(&trigger.sound);
             }
@@ -260,7 +213,11 @@ impl PluginEngine {
         drop(matched);
         self.remove_oneshots::<Trigger>(&oneshots, world);
 
-        effects
+        if !effects.omit_from_output && final_effects.omit_from_output {
+            handler.erase_last_line();
+        }
+
+        final_effects
     }
 
     pub fn supported_protocols(&self) -> HashSet<u8> {

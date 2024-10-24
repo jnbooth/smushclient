@@ -1,5 +1,7 @@
 #include "mudinput.h"
 #include <QtGui/QKeyEvent>
+#include <QtGui/QTextBlock>
+#include <QtGui/QTextDocument>
 
 // Public methods
 
@@ -68,13 +70,13 @@ void MudInput::keyPressEvent(QKeyEvent *event)
   switch (event->key())
   {
   case Qt::Key::Key_Up:
-    if (!textCursor().atStart())
+    if (int lines = document()->lineCount(); lines > 1 && !textCursor().atStart())
       break;
     setTextFromHistory(history.previous());
     return;
 
   case Qt::Key::Key_Down:
-    if (!textCursor().atEnd())
+    if (int lines = document()->lineCount(); lines > 1 && !textCursor().atEnd())
       break;
     setTextFromHistory(history.next());
     return;
@@ -111,12 +113,9 @@ void MudInput::restoreDraft()
 
 void MudInput::saveDraft()
 {
-  if (document()->isEmpty())
+  if (!history.atEnd() || document()->isEmpty())
     return;
-  const QString text = toPlainText();
-  if (text == history.current())
-    return;
-  draft = text;
+  draft = toPlainText();
 }
 
 void MudInput::setTextFromHistory(const QString &text)

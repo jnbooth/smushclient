@@ -1,9 +1,12 @@
+use std::mem;
+
 use fancy_regex::{CaptureMatches, Captures};
 
 use crate::send::{Reaction, SendTarget, Sender};
 use crate::PluginIndex;
 
-enum RepeatingMatch<'a, 'b, T> {
+#[derive(Debug)]
+pub enum SendMatchIter<'a, 'b, T> {
     Empty,
     Repeat(usize, SendMatch<'a, 'b, T>),
     Captures {
@@ -14,106 +17,87 @@ enum RepeatingMatch<'a, 'b, T> {
     },
 }
 
-impl<'a, 'b, T: AsRef<Reaction>> Iterator for RepeatingMatch<'a, 'b, T> {
+pub trait SendMatchIterable: Sized {
+    fn matches<'a, 'b>(
+        &'a self,
+        plugin: PluginIndex,
+        index: usize,
+        line: &'b str,
+    ) -> SendMatchIter<'a, 'b, Self>;
+}
+
+impl<T: AsRef<Reaction> + Sized> SendMatchIterable for T {
+    fn matches<'a, 'b>(
+        &'a self,
+        plugin: PluginIndex,
+        index: usize,
+        line: &'b str,
+    ) -> SendMatchIter<'a, 'b, Self> {
+        let reaction = self.as_ref();
+        if !reaction.script.is_empty() || reaction.text.contains('$') {
+            return SendMatchIter::Captures {
+                plugin,
+                index,
+                iter: reaction.regex.captures_iter(line),
+                sender: self,
+            };
+        }
+        let count = if reaction.repeats {
+            reaction.regex.find_iter(line).count()
+        } else {
+            1
+        };
+        let matched = SendMatch {
+            plugin,
+            index,
+            sender: self,
+            text: &reaction.text,
+            captures: None,
+        };
+        SendMatchIter::Repeat(count, matched)
+    }
+}
+
+impl<'a, 'b, T: AsRef<Reaction>> Iterator for SendMatchIter<'a, 'b, T> {
     type Item = SendMatch<'a, 'b, T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let next = match self {
-            RepeatingMatch::Empty => return None,
-            RepeatingMatch::Repeat(0, matched) => Some(matched.clone_uncaptured()),
-            RepeatingMatch::Repeat(times, matched) => {
-                *times -= 1;
-                return Some(matched.clone_uncaptured());
+        let mut buf = Self::Empty;
+        mem::swap(self, &mut buf);
+        match buf {
+            Self::Empty => None,
+            Self::Repeat(1, matched) => Some(matched),
+            Self::Repeat(times, matched) => {
+                *self = Self::Repeat(times - 1, matched.clone_uncaptured());
+                Some(matched)
             }
-            RepeatingMatch::Captures {
+            Self::Captures {
                 plugin,
                 index,
-                iter,
+                mut iter,
                 sender,
             } => match iter.next() {
                 Some(Ok(captures)) => {
                     let sender: &T = sender;
                     let reaction = sender.as_ref();
-                    return Some(SendMatch {
-                        plugin: *plugin,
-                        index: *index,
+                    let matched = SendMatch {
+                        plugin,
+                        index,
                         sender,
                         text: &reaction.text,
                         captures: Some(captures),
-                    });
+                    };
+                    *self = Self::Captures {
+                        plugin,
+                        index,
+                        iter,
+                        sender,
+                    };
+                    Some(matched)
                 }
                 _ => None,
             },
-        };
-        *self = RepeatingMatch::Empty;
-        next
-    }
-}
-
-pub struct SendMatches<'a, 'b, I, T> {
-    done: bool,
-    inner: I,
-    line: &'b str,
-    repeating: RepeatingMatch<'a, 'b, T>,
-}
-
-impl<'a, 'b, I, T> SendMatches<'a, 'b, I, T> {
-    pub fn find(iter: I, line: &'b str) -> Self {
-        Self {
-            done: false,
-            inner: iter,
-            line,
-            repeating: RepeatingMatch::Empty,
         }
-    }
-}
-
-impl<'a, 'b, I, T> Iterator for SendMatches<'a, 'b, I, T>
-where
-    I: Iterator<Item = (PluginIndex, usize, &'a T)>,
-    T: AsRef<Reaction>,
-{
-    type Item = SendMatch<'a, 'b, T>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if let Some(repeated) = self.repeating.next() {
-            return Some(repeated);
-        }
-        if self.done {
-            return None;
-        }
-        for (plugin, index, sender) in &mut self.inner {
-            let reaction = sender.as_ref();
-            let count = if reaction.repeats {
-                reaction.regex.find_iter(self.line).count()
-            } else {
-                1
-            };
-            if reaction.script.is_empty() && !reaction.text.contains('$') {
-                let val = SendMatch {
-                    plugin,
-                    index,
-                    sender,
-                    text: &reaction.text,
-                    captures: None,
-                };
-                if count > 1 {
-                    self.repeating = RepeatingMatch::Repeat(count - 2, val.clone_uncaptured());
-                }
-                return Some(val);
-            }
-            let iter = reaction.regex.captures_iter(self.line);
-            self.repeating = RepeatingMatch::Captures {
-                plugin,
-                index,
-                iter,
-                sender,
-            };
-            if let Some(repeated) = self.repeating.next() {
-                return Some(repeated);
-            }
-        }
-        None
     }
 }
 
@@ -123,7 +107,7 @@ pub struct SendMatch<'a, 'b, T> {
     pub index: usize,
     pub sender: &'a T,
     text: &'a str,
-    captures: Option<Captures<'b>>,
+    pub captures: Option<Captures<'b>>,
 }
 
 impl<'a, 'b, T> SendMatch<'a, 'b, T> {
@@ -140,19 +124,6 @@ impl<'a, 'b, T> SendMatch<'a, 'b, T> {
             }
             None => self.text,
         }
-    }
-
-    pub fn wildcards(&self) -> Vec<&'b str> {
-        let Some(ref captures) = &self.captures else {
-            return Vec::new();
-        };
-        let mut wildcards = Vec::with_capacity(captures.len() - 1);
-        let mut iter = captures.iter();
-        iter.next(); // skip the all-encompassing capture
-        for capture in iter.flatten() {
-            wildcards.push(capture.as_str());
-        }
-        wildcards
     }
 
     fn clone_uncaptured(&self) -> Self {
@@ -172,7 +143,6 @@ impl<'a, 'b, T: AsRef<Sender>> SendMatch<'a, 'b, T> {
         let send_to = sender.send_to;
         !send_to.ignore_empty()
             || !self.text.is_empty()
-            || !sender.script.is_empty()
             || (send_to == SendTarget::Variable && !sender.variable.is_empty())
     }
 }
@@ -198,11 +168,8 @@ mod tests {
         alias.repeats = opts.repeats;
         alias.text = opts.text.to_owned();
         let mut buf = String::new();
-        let aliases = &[(1, 0, &alias)];
-        let alias_iter = aliases.iter().copied().filter(|(_, _, alias)| {
-            alias.enabled && matches!(alias.regex.is_match(opts.line), Ok(true))
-        });
-        let outputs: Vec<_> = SendMatches::find(alias_iter, opts.line)
+        let outputs: Vec<_> = alias
+            .matches(1, 0, opts.line)
             .map(move |send| send.text(&mut buf).to_owned())
             .collect();
         let expect: Vec<_> = opts.expect.iter().map(ToOwned::to_owned).collect();

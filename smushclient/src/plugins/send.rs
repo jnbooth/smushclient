@@ -1,17 +1,23 @@
 use mud_transformer::Output;
-use smushclient_plugins::{Pad, PluginIndex, Sender, SenderLockError};
+use smushclient_plugins::{Captures, Pad, PluginIndex, SendTarget, SenderLockError};
 use std::error::Error;
 use std::fmt::{self, Display, Formatter};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SendRequest<'a> {
     pub plugin: PluginIndex,
-    pub line: &'a str,
-    pub wildcards: Vec<&'a str>,
-    pub pad: Option<Pad<'a>>,
-    pub output: &'a [Output],
-    pub sender: &'a Sender,
+    pub send_to: SendTarget,
     pub text: &'a str,
+    pub pad: Option<Pad<'a>>,
+}
+
+pub struct SendScriptRequest<'a> {
+    pub plugin: PluginIndex,
+    pub script: &'a str,
+    pub label: &'a str,
+    pub line: &'a str,
+    pub wildcards: Option<Captures<'a>>,
+    pub output: &'a [Output],
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]

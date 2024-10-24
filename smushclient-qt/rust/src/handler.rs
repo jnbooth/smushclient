@@ -1,10 +1,9 @@
 use crate::adapter::{DocumentAdapter, QColorPair};
 use crate::convert::Convert;
-use crate::sender::OutputSpan;
 use cxx_qt_lib::{QByteArray, QString};
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::{EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment};
-use smushclient::SendRequest;
+use smushclient::{SendRequest, SendScriptRequest};
 use std::collections::HashMap;
 
 pub struct ClientHandler<'a> {
@@ -101,6 +100,10 @@ impl<'a> smushclient::Handler for ClientHandler<'a> {
         self.doc.echo(&QString::from(command));
     }
 
+    fn erase_last_line(&mut self) {
+        self.doc.erase_last_line();
+    }
+
     fn permit_line(&mut self, line: &str) -> bool {
         self.doc.permit_line(line)
     }
@@ -110,20 +113,10 @@ impl<'a> smushclient::Handler for ClientHandler<'a> {
     }
 
     fn send(&mut self, request: SendRequest) {
-        if !request.sender.script.is_empty() {
-            self.doc.send_script(
-                request.plugin,
-                &QString::from(&request.sender.script),
-                &QString::from(&request.sender.label),
-                &QString::from(request.line),
-                &request.wildcards.convert(),
-                OutputSpan::cast(request.output),
-            );
-        }
-        self.doc.send(
-            request.plugin,
-            request.sender.send_to,
-            &QString::from(request.text),
-        );
+        self.doc.send(&request.into());
+    }
+
+    fn send_script(&mut self, request: SendScriptRequest) {
+        self.doc.send_script(&request.into());
     }
 }

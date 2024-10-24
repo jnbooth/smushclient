@@ -13,4 +13,4 @@ pub use iter::{assert_unique_label, SendIterable};
 mod output;
 
 mod send;
-pub use send::{SendRequest, SenderAccessError};
+pub use send::{SendRequest, SendScriptRequest, SenderAccessError};

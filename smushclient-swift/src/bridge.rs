@@ -134,9 +134,17 @@ pub mod ffi {
     struct SendRequest {
         plugin: usize,
         send_to: SendTarget,
-        script: String,
-        variable: String,
         text: String,
+        pad: String,
+    }
+
+    #[swift_bridge(swift_repr = "struct")]
+    #[derive(Clone)]
+    struct SendScriptRequest {
+        plugin: usize,
+        script: String,
+        label: String,
+        line: String,
         wildcards: Vec<String>,
     }
 

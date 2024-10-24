@@ -130,6 +130,22 @@ pub mod ffi {
         text: QString,
     }
 
+    struct SendRequest {
+        plugin: usize,
+        send_to: SendTarget,
+        text: QString,
+        pad: QString,
+    }
+
+    struct SendScriptRequest<'a> {
+        plugin: usize,
+        script: &'a str,
+        label: &'a str,
+        line: &'a str,
+        wildcards: Vec<&'a str>,
+        output: &'a [OutputSpan],
+    }
+
     extern "Rust" {
         type TextSpan;
         fn foreground(&self) -> i32;
@@ -148,17 +164,17 @@ pub mod ffi {
         type Document;
 
         #[rust_name = "append_html"]
-        unsafe fn appendHtml(self: Pin<&mut Document>, text: &QString);
+        unsafe fn appendHtml(self: &Document, text: &QString);
 
         #[rust_name = "append_line"]
         unsafe fn appendLine(self: Pin<&mut Document>);
 
         #[rust_name = "append_plaintext"]
-        unsafe fn appendText(self: Pin<&mut Document>, text: &QString, palette: i32);
+        unsafe fn appendText(self: &Document, text: &QString, palette: i32);
 
         #[rust_name = "append_text"]
         unsafe fn appendText(
-            self: Pin<&mut Document>,
+            self: &Document,
             text: &QString,
             style: u16,
             foreground: &QColor,
@@ -167,7 +183,7 @@ pub mod ffi {
 
         #[rust_name = "append_link"]
         unsafe fn appendText(
-            self: Pin<&mut Document>,
+            self: &Document,
             text: &QString,
             style: u16,
             foreground: &QColor,
@@ -175,9 +191,12 @@ pub mod ffi {
             link: &Link,
         );
 
-        unsafe fn begin(self: Pin<&mut Document>);
+        unsafe fn begin(self: &Document);
 
         unsafe fn echo(self: &Document, command: &QString);
+
+        #[rust_name = "erase_last_line"]
+        unsafe fn eraseLastLine(self: &Document);
 
         unsafe fn end(self: &Document);
 
@@ -205,18 +224,10 @@ pub mod ffi {
         #[rust_name = "play_sound"]
         unsafe fn playSound(self: &Document, filePath: &QString);
 
-        unsafe fn send(self: &Document, plugin: usize, target: SendTarget, text: &QString);
+        unsafe fn send(self: &Document, request: &SendRequest);
 
         #[rust_name = "send_script"]
-        unsafe fn send(
-            self: &Document,
-            plugin: usize,
-            script: &QString,
-            sender: &QString,
-            line: &QString,
-            wildcards: &QStringList,
-            output: &[OutputSpan],
-        );
+        unsafe fn send(self: &Document, request: &SendScriptRequest);
     }
 
     extern "C++Qt" {

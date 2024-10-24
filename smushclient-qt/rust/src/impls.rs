@@ -1,10 +1,13 @@
 use super::ffi;
 use crate::convert::Convert;
+use crate::sender::OutputSpan;
 use cxx_qt_lib::QString;
 use mud_transformer::mxp::{Link, SendTo};
 use mud_transformer::{TextStyle, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, ProxyType, ScriptRecompile};
-use smushclient::{AliasBool, TimerBool, TimerConstructible, TriggerBool};
+use smushclient::{
+    AliasBool, SendRequest, SendScriptRequest, TimerBool, TimerConstructible, TriggerBool,
+};
 use smushclient_plugins::{PluginIndex, SendTarget, Timer};
 
 impl_convert_enum!(ffi::SendTo, SendTo, Internet, World, Input);
@@ -142,6 +145,42 @@ impl From<&Link> for ffi::Link {
             hint: value.hint.convert(),
             prompts: QString::from(&value.prompts.join("|")),
             sendto: value.sendto.into(),
+        }
+    }
+}
+
+impl<'a> From<SendRequest<'a>> for ffi::SendRequest {
+    fn from(value: SendRequest<'a>) -> Self {
+        let pad = match &value.pad {
+            Some(pad) => QString::from(&*pad.title()),
+            None => QString::default(),
+        };
+        Self {
+            plugin: value.plugin,
+            send_to: value.send_to.into(),
+            text: QString::from(value.text),
+            pad,
+        }
+    }
+}
+
+impl<'a> From<SendScriptRequest<'a>> for ffi::SendScriptRequest<'a> {
+    fn from(value: SendScriptRequest<'a>) -> Self {
+        let wildcards = match value.wildcards {
+            Some(captures) => {
+                let mut iter = captures.iter();
+                iter.next();
+                iter.flatten().map(|capture| capture.as_str()).collect()
+            }
+            None => Vec::new(),
+        };
+        Self {
+            plugin: value.plugin,
+            script: value.script,
+            label: value.label,
+            line: value.line,
+            wildcards,
+            output: OutputSpan::cast(value.output),
         }
     }
 }

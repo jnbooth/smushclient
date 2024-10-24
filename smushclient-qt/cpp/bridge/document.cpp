@@ -1,6 +1,7 @@
 #include "document.h"
 #include <string>
 #include <QtWidgets/QScrollBar>
+#include <QtGui/QTextDocumentFragment>
 #include <QtWidgets/QStatusBar>
 #include "../spans.h"
 #include "../scripting/qlua.h"
@@ -57,24 +58,30 @@ inline string_view strView(::rust::str str) noexcept
 Document::Document(WorldTab *parent, ScriptApi *api)
     : QObject(parent),
       api(api),
+      doc(parent->ui->output->document()),
       scrollBar(parent->ui->output->verticalScrollBar()) {}
 
-void Document::appendHtml(const QString &html)
+void Document::appendHtml(const QString &html) const
 {
   api->appendHtml(html);
 }
 
 void Document::appendLine()
 {
+  lastLine = doc->blockCount() - 1;
   api->startLine();
 }
 
-void Document::appendText(const QString &text, int foreground)
+void Document::appendText(const QString &text, int foreground) const
 {
   api->appendText(text, formats[foreground]);
 }
 
-void Document::appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background)
+void Document::appendText(
+    const QString &text,
+    uint16_t style,
+    const QColor &foreground,
+    const QColor &background) const
 {
   QTextCharFormat format;
   applyStyles(format, style, foreground, background);
@@ -86,7 +93,7 @@ void Document::appendText(
     uint16_t style,
     const QColor &foreground,
     const QColor &background,
-    const Link &link)
+    const Link &link) const
 {
   QTextCharFormat format;
   applyStyles(format, style, foreground, background);
@@ -94,7 +101,7 @@ void Document::appendText(
   api->appendText(text, format);
 }
 
-void Document::begin()
+void Document::begin() const
 {
   api->updateTimestamp();
 }
@@ -107,6 +114,11 @@ void Document::echo(const QString &command) const
 void Document::end() const
 {
   scrollToEnd(*scrollBar);
+}
+
+void Document::eraseLastLine() const
+{
+  doc->findBlockByNumber(lastLine).setVisible(false);
 }
 
 void Document::handleMxpChange(bool enabled) const
@@ -171,9 +183,9 @@ void Document::playSound(const QString &filePath) const
   api->PlaySound(0, filePath);
 }
 
-void Document::send(size_t plugin, SendTarget target, const QString &text) const
+void Document::send(const SendRequest &request) const
 {
-  api->sendTo(plugin, target, text);
+  api->sendTo(request.plugin, request.send_to, request.text);
 }
 
 class AliasCallback : public PluginCallback
@@ -181,9 +193,9 @@ class AliasCallback : public PluginCallback
 public:
   AliasCallback(
       const string &callback,
-      const QString &senderName,
-      const QString &line,
-      const QStringList &wildcards)
+      rust::Str senderName,
+      rust::Str line,
+      const rust::Vec<rust::Str> &wildcards)
       : PluginCallback(),
         callback(callback.data()),
         senderName(senderName),
@@ -195,17 +207,17 @@ public:
 
   int pushArguments(lua_State *L) const override
   {
-    qlua::pushQString(L, senderName);
-    qlua::pushQString(L, line);
-    qlua::pushQStrings(L, wildcards);
+    qlua::pushRString(L, senderName);
+    qlua::pushRString(L, line);
+    qlua::pushRStrings(L, wildcards);
     return 3;
   }
 
 private:
   const char *callback;
-  const QString &senderName;
-  const QString &line;
-  const QStringList &wildcards;
+  rust::Str senderName;
+  rust::Str line;
+  const rust::Vec<rust::Str> &wildcards;
 };
 
 class TriggerCallback : public AliasCallback
@@ -213,10 +225,10 @@ class TriggerCallback : public AliasCallback
 public:
   TriggerCallback(
       const string &callback,
-      const QString &senderName,
-      const QString &line,
-      const QStringList &wildcards,
-      const rust::Slice<const OutputSpan> &spans)
+      rust::Str senderName,
+      rust::Str line,
+      const rust::Vec<rust::Str> &wildcards,
+      rust::Slice<const OutputSpan> spans)
       : AliasCallback(callback, senderName, line, wildcards),
         spans(spans) {}
 
@@ -254,27 +266,22 @@ public:
   }
 
 private:
-  const rust::Slice<const OutputSpan> &spans;
+  rust::Slice<const OutputSpan> spans;
 };
 
-void Document::send(
-    size_t plugin,
-    const QString &callback,
-    const QString &sender,
-    const QString &line,
-    const QStringList &wildcards,
-    rust::Slice<const OutputSpan> spans) const
+void Document::send(const SendScriptRequest &request) const
 {
-  const string callbackName = callback.toStdString();
-  if (spans.empty())
+  if (request.output.empty())
   {
-    AliasCallback aliasCallback(callbackName, sender, line, wildcards);
-    api->sendCallback(aliasCallback, plugin);
+    const string callback(request.script.data(), request.script.size());
+    AliasCallback aliasCallback(callback, request.label, request.line, request.wildcards);
+    api->sendCallback(aliasCallback, request.plugin);
   }
   else
   {
-    TriggerCallback triggerCallback(callbackName, sender, line, wildcards, spans);
-    api->sendCallback(triggerCallback, plugin);
+    const string callback(request.script.data(), request.script.size());
+    TriggerCallback triggerCallback(callback, request.label, request.line, request.wildcards, request.output);
+    api->sendCallback(triggerCallback, request.plugin);
   }
 }
 

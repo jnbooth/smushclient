@@ -558,9 +558,40 @@ void qlua::pushQVariants(lua_State *L, const QVariantList &variants)
   }
 }
 
+const char *qlua::pushRString(lua_State *L, rust::Str string)
+{
+  return lua_pushlstring(L, string.data(), string.size());
+}
+
 const char *qlua::pushString(lua_State *L, string_view string)
 {
   return lua_pushlstring(L, string.data(), string.size());
+}
+
+void qlua::pushRStrings(lua_State *L, rust::Slice<const rust::Str> strings)
+{
+  lua_createtable(L, strings.size(), 0);
+  int i = 1;
+  for (rust::Str string : strings)
+  {
+    qlua::pushRString(L, string);
+    lua_rawseti(L, -2, i);
+    ++i;
+  }
+  return;
+}
+
+void qlua::pushRStrings(lua_State *L, const rust::Vec<rust::Str> &strings)
+{
+  lua_createtable(L, strings.size(), 0);
+  int i = 1;
+  for (rust::Str string : strings)
+  {
+    qlua::pushRString(L, string);
+    lua_rawseti(L, -2, i);
+    ++i;
+  }
+  return;
 }
 
 void qlua::pushStrings(lua_State *L, const vector<string> &strings)
@@ -921,4 +952,3 @@ optional<MiniWindow::Position> qlua::getWindowPosition(
       MiniWindow::Position::OutputStretch,
       MiniWindow::Position::Tile>(L, idx, ifNil);
 }
-

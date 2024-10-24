@@ -34,6 +34,11 @@ public:
     return iterator >= last ? __emptyString : *++iterator;
   }
 
+  constexpr bool atEnd() const noexcept
+  {
+    return iterator >= last;
+  }
+
   constexpr bool isEmpty() const noexcept
   {
     return size() == 0;

@@ -1,8 +1,6 @@
-use cxx_qt_lib::{QByteArray, QColor, QString, QStringList};
-use smushclient_plugins::SendTarget;
+use cxx_qt_lib::{QByteArray, QColor, QString};
 
 use crate::ffi;
-use crate::sender::OutputSpan;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct QColorPair {
@@ -16,7 +14,7 @@ adapter!(DocumentAdapter, ffi::Document);
 impl<'a> DocumentAdapter<'a> {
     pub fn append_html(&mut self, html: &QString) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.as_mut().append_html(html) };
+        unsafe { self.inner.append_html(html) };
     }
 
     pub fn append_line(&mut self) {
@@ -26,13 +24,13 @@ impl<'a> DocumentAdapter<'a> {
 
     pub fn append_plaintext(&mut self, text: &QString, palette: i32) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.as_mut().append_plaintext(text, palette) };
+        unsafe { self.inner.append_plaintext(text, palette) };
     }
 
     pub fn append_text(&mut self, text: &QString, style: u16, color: &QColorPair) {
         // SAFETY: External call to safe method on opaque type.
         unsafe {
-            self.as_mut()
+            self.inner
                 .append_text(text, style, &color.foreground, &color.background);
         }
     }
@@ -46,19 +44,24 @@ impl<'a> DocumentAdapter<'a> {
     ) {
         // SAFETY: External call to safe method on opaque type.
         unsafe {
-            self.as_mut()
+            self.inner
                 .append_link(text, style, &color.foreground, &color.background, link);
         }
     }
 
     pub fn begin(&mut self) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.as_mut().begin() };
+        unsafe { self.inner.begin() };
     }
 
     pub fn echo(&self, command: &QString) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.echo(command) };
+    }
+
+    pub fn erase_last_line(&mut self) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.erase_last_line() };
     }
 
     pub fn end(&self) {
@@ -106,24 +109,13 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.play_sound(file_path) };
     }
 
-    pub fn send(&self, plugin: usize, target: SendTarget, text: &QString) {
+    pub fn send(&self, request: &ffi::SendRequest) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.send(plugin, target.into(), text) };
+        unsafe { self.inner.send(request) };
     }
 
-    pub fn send_script(
-        &self,
-        plugin: usize,
-        script: &QString,
-        alias: &QString,
-        line: &QString,
-        wildcards: &QStringList,
-        output: &[OutputSpan],
-    ) {
+    pub fn send_script(&self, request: &ffi::SendScriptRequest) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe {
-            self.inner
-                .send_script(plugin, script, alias, line, wildcards, output);
-        }
+        unsafe { self.inner.send_script(request) };
     }
 }

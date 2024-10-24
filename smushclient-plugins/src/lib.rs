@@ -8,10 +8,12 @@ mod constants;
 
 mod plugins;
 pub use plugins::{
-    Pad, PadSource, Plugin, PluginIndex, PluginLoadError, PluginMetadata, SendMatch, SendMatches,
+    Pad, PadSource, Plugin, PluginIndex, PluginLoadError, PluginMetadata, SendMatch, SendMatchIter,
+    SendMatchIterable,
 };
 
 mod regex;
+pub use fancy_regex::{CaptureMatches, Captures, Match, SubCaptureMatches};
 pub use regex::{Regex, RegexError};
 
 mod send;

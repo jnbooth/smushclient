@@ -74,7 +74,10 @@ namespace qlua
   void pushQStrings(lua_State *L, const QStringList &strings);
   void pushQVariant(lua_State *L, const QVariant &variant, bool intBools = false);
   void pushQVariants(lua_State *L, const QVariantList &variants);
+  const char *pushRString(lua_State *L, rust::Str string);
   const char *pushString(lua_State *L, std::string_view string);
+  void pushRStrings(lua_State *L, rust::Slice<const rust::Str> strings);
+  void pushRStrings(lua_State *L, const rust::Vec<rust::Str> &strings);
   void pushStrings(lua_State *L, const std::vector<std::string> &strings);
 
   bool copyValue(lua_State *fromL, lua_State *toL, int idx);

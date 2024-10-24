@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::send::Occurrence;
 use crate::send::{Alias, Timer, Trigger};
 
@@ -20,19 +22,13 @@ pub enum Pad<'a> {
 }
 
 impl<'a> Pad<'a> {
-    pub fn title(&self, pad_name: &str) -> String {
+    pub fn title(&self) -> Cow<'a, str> {
         match self {
-            Self::Script(s) => format!("{s} - {pad_name}"),
-            Self::Alias { plugin, label } => {
-                format!("Alias: {label} ({plugin}) - {pad_name}")
-            }
-            Self::Timer { plugin, occurrence } => {
-                format!("Timer: {occurrence} ({plugin}) - {pad_name}")
-            }
-            Self::Trigger { plugin, label } => {
-                format!("Trigger: {label} ({plugin}) - {pad_name}")
-            }
-            Self::PacketDebug => format!("Packet debug - {pad_name}"),
+            Self::Script(s) => (*s).into(),
+            Self::Alias { plugin, label } => format!("Alias: {label} ({plugin})").into(),
+            Self::Timer { plugin, occurrence } => format!("Timer: {occurrence} ({plugin})").into(),
+            Self::Trigger { plugin, label } => format!("Trigger: {label} ({plugin})").into(),
+            Self::PacketDebug => "Packet debug".into(),
         }
     }
 

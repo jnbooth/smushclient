@@ -2,6 +2,7 @@
 #define DOCUMENT_H
 
 #include <QtCore/QVector>
+#include <QtGui/QTextBlock>
 #include <QtNetwork/QTcpSocket>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
@@ -10,6 +11,8 @@
 #include <QtWidgets/QTreeWidgetItem>
 #include "rust/cxx.h"
 
+struct SendRequest;
+struct SendScriptRequest;
 class ScriptApi;
 class WorldTab;
 enum class SendTarget : int32_t;
@@ -23,14 +26,15 @@ class Document : public QObject
 public:
   Document(WorldTab *parent, ScriptApi *api);
 
-  void appendHtml(const QString &html);
+  void appendHtml(const QString &html) const;
   void appendLine();
-  void appendText(const QString &text, int format);
-  void appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background, const Link &link);
-  void appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background);
-  void begin();
+  void appendText(const QString &text, int format) const;
+  void appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background, const Link &link) const;
+  void appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background) const;
+  void begin() const;
   void echo(const QString &command) const;
   void end() const;
+  void eraseLastLine() const;
   void handleMxpChange(bool enabled) const;
   void handleMxpEntity(::rust::str data) const;
   void handleMxpVariable(::rust::str name, ::rust::str value) const;
@@ -40,17 +44,13 @@ public:
   bool permitLine(::rust::str line) const;
   void playSound(const QString &filePath) const;
   void setPalette(const QVector_QColor &palette);
-  void send(size_t plugin, SendTarget target, const QString &text) const;
-  void send(
-      size_t plugin,
-      const QString &callback,
-      const QString &sender,
-      const QString &line,
-      const QStringList &wildcards,
-      rust::Slice<const OutputSpan> spans) const;
+  void send(const SendRequest &request) const;
+  void send(const SendScriptRequest &request) const;
 
 private:
   ScriptApi *api;
+  int lastLine;
+  QTextDocument *doc;
   QTextCharFormat formats[166];
   QScrollBar *scrollBar;
 

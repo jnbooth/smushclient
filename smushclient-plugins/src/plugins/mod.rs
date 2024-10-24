@@ -1,7 +1,7 @@
 pub type PluginIndex = usize;
 
 mod matching;
-pub use matching::{SendMatch, SendMatches};
+pub use matching::{SendMatch, SendMatchIter, SendMatchIterable};
 
 mod pad;
 pub use pad::{Pad, PadSource};
