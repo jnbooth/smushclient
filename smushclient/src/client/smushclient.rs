@@ -310,7 +310,6 @@ impl SmushClient {
             .iter_mut()
             .find(|sender| sender.as_ref().label == label)
             .ok_or(SenderAccessError::NotFound)?;
-        sender.try_unlock()?;
         Ok(sender)
     }
 

@@ -12,7 +12,7 @@ use super::send::SendRequest;
 use crate::collections::LifetimeVec;
 use crate::handler::Handler;
 use crate::plugins::iter::ReactionIterable;
-use crate::plugins::output::{alter_text_output, is_nonvisual_output};
+use crate::plugins::output::is_nonvisual_output;
 use crate::{SendIterable, World};
 use mud_transformer::{Output, OutputFragment};
 use smushclient_plugins::{
@@ -36,6 +36,10 @@ fn send_all<H, T>(
             continue;
         }
         let reaction: &Reaction = send.sender.as_ref();
+        if !reaction.enabled {
+            continue;
+        }
+        reaction.lock();
         handler.send(SendRequest {
             pad: if reaction.send_to.is_notepad() {
                 Some(Pad::new(send.sender, &plugins[send.plugin].metadata.name))
@@ -49,6 +53,7 @@ fn send_all<H, T>(
             text: send.text(text_buf),
             output,
         });
+        reaction.unlock();
     }
 }
 
@@ -204,10 +209,6 @@ impl PluginEngine {
             handler,
         );
 
-        for (_, _, alias) in &matched {
-            alias.unlock();
-        }
-
         drop(matched);
         self.remove_oneshots::<Alias>(&oneshots, world);
 
@@ -235,7 +236,7 @@ impl PluginEngine {
         } else {
             for fragment in output.iter_mut() {
                 if let OutputFragment::Text(text) = &mut fragment.fragment {
-                    alter_text_output(text, world);
+                    effects.apply(text, world);
                 }
                 handler.display(fragment);
             }
@@ -254,7 +255,6 @@ impl PluginEngine {
             if !trigger.sound.is_empty() {
                 handler.play_sound(&trigger.sound);
             }
-            trigger.unlock();
         }
 
         drop(matched);

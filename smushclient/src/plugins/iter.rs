@@ -78,7 +78,7 @@ impl_send_iterable!(Timer, timers);
 impl_send_iterable!(Trigger, triggers);
 
 pub trait ReactionIterable: SendIterable + AsRef<Reaction> + AsMut<Reaction> {
-    type Effects: Default;
+    type Effects: Default + std::fmt::Debug;
 
     fn add_effects(&self, effects: &mut Self::Effects);
 
@@ -95,7 +95,6 @@ pub trait ReactionIterable: SendIterable + AsRef<Reaction> + AsMut<Reaction> {
             if plugin.disabled {
                 continue;
             }
-            buf.clear();
             let senders = if plugin.metadata.is_world_plugin {
                 Self::from_world(world)
             } else {
@@ -103,15 +102,17 @@ pub trait ReactionIterable: SendIterable + AsRef<Reaction> + AsMut<Reaction> {
             };
             for (i, sender) in senders.iter().enumerate() {
                 let reaction: &Reaction = sender.as_ref();
-                if !reaction.enabled || !matches!(reaction.regex.is_match(line), Ok(true)) {
+                if !matches!(reaction.regex.is_match(line), Ok(true)) {
                     continue;
                 }
-                reaction.lock();
+                buf.push((index, i, sender));
+                if !reaction.enabled {
+                    continue;
+                }
+                sender.add_effects(&mut effects);
                 if reaction.one_shot {
                     oneshots.push((index, i));
                 }
-                sender.add_effects(&mut effects);
-                buf.push((index, i, sender));
                 if !reaction.keep_evaluating {
                     return effects;
                 }

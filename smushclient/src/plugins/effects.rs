@@ -1,5 +1,10 @@
+use std::mem;
+
 use mud_transformer::mxp::RgbColor;
+use mud_transformer::{TextFragment, TextStyle};
 use smushclient_plugins::{Alias, Trigger};
+
+use crate::world::World;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AliasEffects {
@@ -100,6 +105,42 @@ impl TriggerEffects {
         }
         if trigger.change_background {
             self.background = Some(trigger.background_color);
+        }
+    }
+
+    pub fn apply(&self, fragment: &mut TextFragment, world: &World) {
+        if fragment.flags.contains(TextStyle::Inverse) {
+            mem::swap(&mut fragment.foreground, &mut fragment.background);
+        }
+        if let Some(foreground) = self.foreground {
+            fragment.foreground = foreground;
+        }
+        if let Some(background) = self.background {
+            fragment.background = background;
+        }
+        if self.make_bold {
+            fragment.flags.insert(TextStyle::Bold);
+        } else if !world.show_bold {
+            fragment.flags.remove(TextStyle::Bold);
+        }
+        if self.make_italic {
+            fragment.flags.insert(TextStyle::Italic);
+        } else if !world.show_italic {
+            fragment.flags.remove(TextStyle::Italic);
+        }
+        if self.make_underline {
+            fragment.flags.insert(TextStyle::Underline);
+        } else if !world.show_underline {
+            fragment.flags.remove(TextStyle::Underline);
+        }
+        if fragment.action.is_none() {
+            return;
+        }
+        if world.underline_hyperlinks {
+            fragment.flags.insert(TextStyle::Underline);
+        }
+        if world.use_custom_link_colour {
+            fragment.foreground = world.hyperlink_colour;
         }
     }
 }
