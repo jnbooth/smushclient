@@ -49,16 +49,14 @@ impl Reaction {
         if is_regex {
             Regex::new(pattern)
         } else {
-            let extra_len = pattern
-                .bytes()
-                .filter(|&b| is_special(char::from(b)))
-                .count();
-            let mut buf = String::with_capacity(pattern.len() + extra_len + 2);
+            let mut buf = String::with_capacity(pattern.len() * 4);
             buf.push('^');
             for c in pattern.chars() {
                 if c == '*' {
-                    buf.push('.');
-                } else if is_special(c) {
+                    buf.push_str("(.*)");
+                    continue;
+                }
+                if is_special(c) {
                     buf.push('\\');
                 }
                 buf.push(c);
