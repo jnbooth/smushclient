@@ -8,8 +8,7 @@ mod constants;
 
 mod plugins;
 pub use plugins::{
-    Matches, Pad, PadSource, Plugin, PluginIndex, PluginLoadError, PluginMetadata, SendMatch,
-    SendMatches,
+    Pad, PadSource, Plugin, PluginIndex, PluginLoadError, PluginMetadata, SendMatch, SendMatches,
 };
 
 mod regex;
