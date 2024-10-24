@@ -19,6 +19,12 @@ cd ../environment
 mkdir -p lua
 mkdir -p plugins
 mkdir -p worlds
+
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    "$BUILDDIR/SmushClient.app/Contents/MacOS/SmushClient"
+    if [[ "$CONFIG" == "Release" ]]; then
+      cp -r "$BUILDDIR/SmushClient.app" .
+      open "SmushClient.app"
+    else
+      "$BUILDDIR/SmushClient.app/Contents/MacOS/SmushClient"
+    fi
 fi
