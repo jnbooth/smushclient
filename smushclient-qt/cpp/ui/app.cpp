@@ -11,6 +11,13 @@ App::App(QWidget *parent)
       ui(new Ui::App),
       lastTabIndex(-1)
 {
+  if (QDir::current().isRoot())
+  {
+    QString dirPath = QCoreApplication::applicationDirPath();
+    if (qsizetype i = dirPath.indexOf(QStringLiteral(".app")); i != -1)
+      dirPath.truncate(dirPath.lastIndexOf(QDir::separator(), i));
+    QDir::setCurrent(dirPath);
+  }
   ui->setupUi(this);
   saveFilter = tr("World files (*.smush);;All Files (*.*)");
   recentFileActions = QList<QAction *>{
