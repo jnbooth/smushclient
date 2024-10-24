@@ -5,16 +5,13 @@ use cxx_qt_lib::{QByteArray, QString};
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::{EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment};
 use smushclient::SendRequest;
-use smushclient_plugins::SendTarget;
 use std::collections::HashMap;
 
 pub struct ClientHandler<'a> {
     pub doc: DocumentAdapter<'a>,
     pub palette: &'a HashMap<RgbColor, i32>,
-    pub send: &'a mut Vec<QString>,
 }
 
-const CUSTOM_FORMAT_INDEX: i32 = 0;
 const ERROR_FORMAT_INDEX: i32 = 1;
 
 impl<'a> ClientHandler<'a> {
@@ -81,14 +78,6 @@ impl<'a> ClientHandler<'a> {
             _ => (),
         }
     }
-
-    pub fn output_sends(&mut self) {
-        for send in self.send.iter() {
-            self.doc.append_plaintext(send, CUSTOM_FORMAT_INDEX);
-            self.doc.append_line();
-        }
-        self.send.clear();
-    }
 }
 
 impl<'a> smushclient::Handler for ClientHandler<'a> {
@@ -130,11 +119,6 @@ impl<'a> smushclient::Handler for ClientHandler<'a> {
                 &request.wildcards.convert(),
                 OutputSpan::cast(request.output),
             );
-            return;
-        }
-        if request.sender.send_to == SendTarget::Output {
-            self.send.push(QString::from(request.text));
-            return;
         }
         self.doc.send(
             request.plugin,

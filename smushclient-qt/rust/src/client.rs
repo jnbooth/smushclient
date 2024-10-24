@@ -180,13 +180,11 @@ impl SmushClientRust {
         let mut handler = ClientHandler {
             doc,
             palette: &self.palette,
-            send: &mut self.send,
         };
         let read_result = self.client.read(&mut socket);
         handler.doc.begin();
 
         self.client.flush_output(&mut handler);
-        handler.output_sends();
         handler.doc.end();
         drop(output_lock);
 
@@ -215,10 +213,8 @@ impl SmushClientRust {
         let mut handler = ClientHandler {
             doc,
             palette: &self.palette,
-            send: &mut self.send,
         };
         let outcome = self.client.alias(&String::from(command), &mut handler);
-        handler.output_sends();
         handler.doc.end();
         drop(output_lock);
         convert_alias_outcome(outcome)
