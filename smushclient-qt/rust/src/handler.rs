@@ -66,14 +66,14 @@ impl<'a> ClientHandler<'a> {
 
     fn handle_telnet(&self, fragment: &TelnetFragment) {
         match fragment {
+            TelnetFragment::IacGa => self.doc.handle_telnet_iac_ga(),
+            TelnetFragment::Mxp { enabled } => self.doc.handle_mxp_change(*enabled),
+            TelnetFragment::Negotiation { source, verb, code } => {
+                self.doc.handle_telnet_negotiation(*source, *verb, *code);
+            }
             TelnetFragment::Subnegotiation { code, data } => self
                 .doc
                 .handle_telnet_subnegotiation(*code, &QByteArray::from(&**data)),
-            TelnetFragment::IacGa => self.doc.handle_telnet_iac_ga(),
-            TelnetFragment::Mxp { enabled } => self.doc.handle_mxp_change(*enabled),
-            TelnetFragment::Will { code, supported } => {
-                self.doc.handle_telnet_request(*code, *supported);
-            }
             _ => (),
         }
     }

@@ -281,7 +281,6 @@ public:
   void initializeScripts(const QStringList &scripts);
   inline bool isPluginEnabled(size_t plugin) const { return !plugins[plugin].disabled(); }
   void printError(const QString &message);
-  void resize();
   inline bool runScript(size_t plugin, const QString &script) const
   {
     return plugins[plugin].runScript(script);
@@ -290,7 +289,9 @@ public:
   void sendCallback(PluginCallback &callback);
   bool sendCallback(PluginCallback &callback, size_t plugin);
   bool sendCallback(PluginCallback &callback, const QString &pluginID);
+  void sendNaws() const;
   void sendTo(size_t plugin, SendTarget target, const QString &text);
+  void setNawsEnabled(bool enabled);
   void setOpen(bool open) const;
   ActionSource setSource(ActionSource source) noexcept;
   void stackWindow(std::string_view windowName, MiniWindow *window) const;
@@ -323,6 +324,7 @@ private:
   CallbackFilter callbackFilter;
   QTextCursor cursor;
   std::unordered_map<std::string, DatabaseConnection> databases;
+  bool doesNaws;
   QTextCharFormat echoFormat;
   QTextCharFormat errorFormat;
   bool hasLine;

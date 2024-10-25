@@ -8,6 +8,12 @@ use crate::client::SmushClientRust;
 use crate::sender::{AliasRust, ReactionRust, SenderRust, TimerRust, TriggerRust};
 use crate::sender::{OutputSpan, TextSpan};
 use crate::world::WorldRust;
+use cxx_qt_lib::QByteArray;
+use mud_transformer::escape::telnet::naws;
+
+fn encode_naws(width: u16, height: u16) -> QByteArray {
+    QByteArray::from(naws(width, height).as_slice())
+}
 
 #[cxx_qt::bridge]
 pub mod ffi {
@@ -80,6 +86,23 @@ pub mod ffi {
         unsafe fn flush(self: Pin<&mut QTcpSocket>) -> bool;
         unsafe fn read(self: Pin<&mut QTcpSocket>, data: *mut c_char, max_size: i64) -> i64;
         unsafe fn write(self: Pin<&mut QTcpSocket>, data: *const c_char, max_size: i64) -> i64;
+    }
+
+    extern "Rust" {
+        #[cxx_name = "encodeNaws"]
+        fn encode_naws(width: u16, height: u16) -> QByteArray;
+    }
+
+    enum TelnetSource {
+        Client,
+        Server,
+    }
+
+    enum TelnetVerb {
+        Do,
+        Dont,
+        Will,
+        Wont,
     }
 
     struct PluginPack {
@@ -212,8 +235,16 @@ pub mod ffi {
         #[rust_name = "handle_telnet_iac_ga"]
         unsafe fn handleTelnetIacGa(self: &Document);
 
-        #[rust_name = "handle_telnet_request"]
-        unsafe fn handleTelnetRequest(self: &Document, code: u8, supported: bool);
+        #[rust_name = "handle_telnet_naws"]
+        unsafe fn handleTelnetNaws(self: &Document);
+
+        #[rust_name = "handle_telnet_negotiation"]
+        unsafe fn handleTelnetNegotiation(
+            self: &Document,
+            source: TelnetSource,
+            verb: TelnetVerb,
+            code: u8,
+        );
 
         #[rust_name = "handle_telnet_subnegotiation"]
         unsafe fn handleTelnetSubnegotiation(self: &Document, code: u8, data: &QByteArray);

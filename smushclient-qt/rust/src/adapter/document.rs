@@ -1,4 +1,5 @@
 use cxx_qt_lib::{QByteArray, QColor, QString};
+use mud_transformer::{TelnetSource, TelnetVerb};
 
 use crate::ffi;
 
@@ -89,9 +90,17 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.handle_telnet_iac_ga() };
     }
 
-    pub fn handle_telnet_request(&self, code: u8, supported: bool) {
+    pub fn handle_telnet_naws(&mut self) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.handle_telnet_request(code, supported) };
+        unsafe { self.inner.handle_telnet_naws() };
+    }
+
+    pub fn handle_telnet_negotiation(&self, source: TelnetSource, verb: TelnetVerb, code: u8) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe {
+            self.inner
+                .handle_telnet_negotiation(source.into(), verb.into(), code);
+        }
     }
 
     pub fn handle_telnet_subnegotiation(&self, code: u8, data: &QByteArray) {

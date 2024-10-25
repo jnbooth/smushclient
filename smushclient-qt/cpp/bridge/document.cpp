@@ -2,6 +2,7 @@
 #include <string>
 #include <QtWidgets/QScrollBar>
 #include <QtGui/QTextDocumentFragment>
+#include <QtGui/QAbstractTextDocumentLayout>
 #include <QtWidgets/QStatusBar>
 #include "../spans.h"
 #include "../scripting/qlua.h"
@@ -18,6 +19,8 @@ extern "C"
 using std::string;
 using std::string_view;
 using std::chrono::milliseconds;
+
+constexpr uint8_t telnetNAWS = 31;
 
 // Private utils
 
@@ -154,13 +157,31 @@ void Document::handleTelnetIacGa() const
   api->sendCallback(onIacGa);
 }
 
-void Document::handleTelnetRequest(uint8_t code, bool supported) const
+void Document::handleTelnetNaws() const
 {
-  OnPluginTelnetRequest onTelnetRequest(code, "SENT_DO");
-  api->sendCallback(onTelnetRequest);
-  if (supported)
+  api->sendNaws();
+}
+
+void Document::handleTelnetNegotiation(TelnetSource source, TelnetVerb verb, uint8_t code) const
+{
+  if (source == TelnetSource::Server && code == telnetNAWS)
+  {
+    if (verb == TelnetVerb::Will)
+      api->setNawsEnabled(true);
+    else if (verb == TelnetVerb::Wont)
+      api->setNawsEnabled(false);
+  }
+
+  if (source == TelnetSource::Server && verb == TelnetVerb::Will)
   {
     OnPluginTelnetRequest onTelnetRequest(code, "WILL");
+    api->sendCallback(onTelnetRequest);
+    return;
+  }
+
+  if (source == TelnetSource::Client && verb == TelnetVerb::Do)
+  {
+    OnPluginTelnetRequest onTelnetRequest(code, "SENT_DO");
     api->sendCallback(onTelnetRequest);
   }
 }

@@ -16,6 +16,8 @@ struct SendScriptRequest;
 class ScriptApi;
 class WorldTab;
 enum class SendTarget : int32_t;
+enum class TelnetSource : uint8_t;
+enum class TelnetVerb : uint8_t;
 struct Link;
 struct OutputSpan;
 
@@ -39,7 +41,8 @@ public:
   void handleMxpEntity(::rust::str data) const;
   void handleMxpVariable(::rust::str name, ::rust::str value) const;
   void handleTelnetIacGa() const;
-  void handleTelnetRequest(uint8_t code, bool supported) const;
+  void handleTelnetNaws() const;
+  void handleTelnetNegotiation(TelnetSource source, TelnetVerb verb, uint8_t code) const;
   void handleTelnetSubnegotiation(uint8_t code, const QByteArray &data) const;
   bool permitLine(::rust::str line) const;
   void playSound(const QString &filePath) const;

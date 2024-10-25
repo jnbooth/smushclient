@@ -50,6 +50,7 @@ ScriptApi::ScriptApi(WorldTab *parent)
       audioChannels(),
       callbackFilter(),
       cursor(parent->ui->output->document()),
+      doesNaws(false),
       hasLine(false),
       lastTellPosition(-1),
       scrollBar(parent->ui->output->verticalScrollBar()),
@@ -102,6 +103,7 @@ void ScriptApi::applyWorld(const World &world)
   echoFormat.setForeground(QBrush(world.getEchoTextColour()));
   echoFormat.setBackground(QBrush(world.getEchoBackgroundColour()));
   errorFormat.setForeground(QBrush(world.getErrorColour()));
+  sendNaws();
 }
 
 void ScriptApi::echo(const QString &text)
@@ -173,15 +175,6 @@ void ScriptApi::printError(const QString &error)
   scrollToBottom();
 }
 
-void ScriptApi::resize()
-{
-  for (const auto &window : windows)
-    window.second->updatePosition();
-
-  OnPluginWorldOutputResized onResized;
-  sendCallback(onResized);
-}
-
 bool ScriptApi::runScript(const QString &pluginID, const QString &script) const
 {
   const size_t index = findPluginIndex(pluginID.toStdString());
@@ -199,12 +192,14 @@ void ScriptApi::sendCallback(PluginCallback &callback)
     break;
 
   case OnPluginDisconnect::ID:
+    doesNaws = false;
     statusBar->setConnected(false);
     break;
 
   case OnPluginWorldOutputResized::ID:
     for (const auto &window : windows)
       window.second->updatePosition();
+    sendNaws();
     break;
   }
 
@@ -251,6 +246,19 @@ bool ScriptApi::sendCallback(PluginCallback &callback, const QString &pluginID)
   return sendCallback(callback, index);
 }
 
+void ScriptApi::sendNaws() const
+{
+  if (!doesNaws)
+    return;
+  MudBrowser *browser = tab()->ui->output;
+  const QFontMetrics metrics = browser->fontMetrics();
+  const QMargins margins = browser->contentsMargins();
+  const int advance = metrics.horizontalAdvance(QStringLiteral("0123456789"));
+  SendPacket(encodeNaws(
+      (browser->width() - margins.left() - margins.right() - scrollBar->width()) * 10 / advance,
+      (browser->height() - margins.top() - margins.bottom()) / metrics.lineSpacing() - 4));
+}
+
 void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
 {
   if (text.isEmpty())
@@ -280,6 +288,11 @@ void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
   default:
     return;
   }
+}
+
+void ScriptApi::setNawsEnabled(bool enabled)
+{
+  doesNaws = enabled;
 }
 
 void ScriptApi::setOpen(bool open) const

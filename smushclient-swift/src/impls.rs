@@ -8,7 +8,10 @@ use crate::error::UnsupportedError;
 use crate::ffi;
 use chrono::{NaiveTime, Timelike};
 use mud_transformer::mxp::{AudioRepetition, Heading, RgbColor, SendTo};
-use mud_transformer::{EffectFragment, EntityFragment, OutputFragment, TelnetFragment, UseMxp};
+use mud_transformer::{
+    EffectFragment, EntityFragment, OutputFragment, TelnetFragment, TelnetSource, TelnetVerb,
+    UseMxp,
+};
 use smushclient::world::{AutoConnect, ColorPair, LogFormat, LogMode, ProxyType, ScriptRecompile};
 use smushclient::{SendRequest, SendScriptRequest, World};
 use smushclient_plugins::{
@@ -70,6 +73,10 @@ impl_convert!(ffi::ColorOption, Option<RgbColor>);
 impl_convert_struct!(ffi::ColorPair, ColorPair, foreground, background,);
 
 impl_convert_enum!(ffi::SendTo, SendTo, World, Input, Internet);
+
+impl_convert_enum!(ffi::TelnetSource, TelnetSource, Client, Server);
+
+impl_convert_enum!(ffi::TelnetVerb, TelnetVerb, Do, Dont, Will, Wont);
 
 impl_convert_struct!(
     ffi::Sender,
@@ -448,18 +455,19 @@ impl TryFrom<EffectFragment> for ffi::EffectFragment {
 impl From<TelnetFragment> for ffi::TelnetFragment {
     fn from(value: TelnetFragment) -> Self {
         match value {
-            TelnetFragment::Do { code, supported } => Self::Do { code, supported },
-            TelnetFragment::Dont { code } => Self::Dont { code },
             TelnetFragment::IacGa => Self::IacGa,
             TelnetFragment::Mxp { enabled } => Self::Mxp { enabled },
             TelnetFragment::Naws => Self::Naws,
+            TelnetFragment::Negotiation { source, verb, code } => Self::Negotiation {
+                source: source.into(),
+                verb: verb.into(),
+                code,
+            },
             TelnetFragment::SetEcho { should_echo } => Self::SetEcho { should_echo },
             TelnetFragment::Subnegotiation { code, data } => Self::Subnegotiation {
                 code,
                 data: data.to_vec(),
             },
-            TelnetFragment::Will { code, supported } => Self::Will { code, supported },
-            TelnetFragment::Wont { code } => Self::Wont { code },
         }
     }
 }
@@ -467,14 +475,14 @@ impl From<TelnetFragment> for ffi::TelnetFragment {
 impl Clone for ffi::TelnetFragment {
     fn clone(&self) -> Self {
         match self {
-            Self::Do { code, supported } => Self::Do {
-                code: *code,
-                supported: *supported,
-            },
-            Self::Dont { code } => Self::Dont { code: *code },
             Self::IacGa => Self::IacGa,
             Self::Mxp { enabled } => Self::Mxp { enabled: *enabled },
             Self::Naws => Self::Naws,
+            Self::Negotiation { source, verb, code } => Self::Negotiation {
+                source: *source,
+                verb: *verb,
+                code: *code,
+            },
             Self::SetEcho { should_echo } => Self::SetEcho {
                 should_echo: *should_echo,
             },
@@ -482,11 +490,6 @@ impl Clone for ffi::TelnetFragment {
                 code: *code,
                 data: data.clone(),
             },
-            Self::Will { code, supported } => Self::Will {
-                code: *code,
-                supported: *supported,
-            },
-            Self::Wont { code } => Self::Wont { code: *code },
         }
     }
 }

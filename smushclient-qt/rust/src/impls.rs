@@ -3,7 +3,7 @@ use crate::convert::Convert;
 use crate::sender::OutputSpan;
 use cxx_qt_lib::QString;
 use mud_transformer::mxp::{Link, SendTo};
-use mud_transformer::{TextStyle, UseMxp};
+use mud_transformer::{TelnetSource, TelnetVerb, TextStyle, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, ProxyType, ScriptRecompile};
 use smushclient::{
     AliasBool, SendRequest, SendScriptRequest, TimerBool, TimerConstructible, TriggerBool,
@@ -11,6 +11,10 @@ use smushclient::{
 use smushclient_plugins::{PluginIndex, SendTarget, Timer};
 
 impl_convert_enum!(ffi::SendTo, SendTo, Internet, World, Input);
+
+impl_convert_enum!(ffi::TelnetSource, TelnetSource, Client, Server);
+
+impl_convert_enum!(ffi::TelnetVerb, TelnetVerb, Do, Dont, Will, Wont);
 
 impl_convert_enum_opt!(ffi::ProxyType, ProxyType, None, Socks4, Socks5);
 
