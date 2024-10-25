@@ -49,7 +49,7 @@ struct OutputFormatter {
     }
     echoAttributes = echoAttrs
     var paletteMut = Palette.namedColors
-    paletteMut.insert(world.custom_color)
+    paletteMut.insert(world.note_text_colour)
     paletteMut.insert(world.error_colour)
     for color in world.ansi_colors {
       paletteMut.insert(color)

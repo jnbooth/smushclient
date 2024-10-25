@@ -60,6 +60,7 @@ ScriptApi::ScriptApi(WorldTab *parent)
 {
   timekeeper = new Timekeeper(this);
   setLineType(echoFormat, LineType::Input);
+  setLineType(noteFormat, LineType::Note);
   applyWorld(parent->world);
 }
 
@@ -96,13 +97,10 @@ void ScriptApi::appendText(const QString &text)
 
 void ScriptApi::applyWorld(const World &world)
 {
-  QTextCharFormat noteFormat;
-  setLineType(noteFormat, LineType::Note);
-  noteFormat.setForeground(QBrush(world.getCustomColor()));
-  cursor.setCharFormat(noteFormat);
   echoFormat.setForeground(QBrush(world.getEchoTextColour()));
   echoFormat.setBackground(QBrush(world.getEchoBackgroundColour()));
   errorFormat.setForeground(QBrush(world.getErrorColour()));
+  noteFormat.setForeground(QBrush(world.getNoteTextColour()));
   sendNaws();
 }
 
@@ -274,7 +272,7 @@ void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
     tab()->ui->input->setText(text);
     return;
   case SendTarget::Output:
-    appendText(text);
+    appendText(text, noteFormat);
     startLine();
     scrollToBottom();
     return;

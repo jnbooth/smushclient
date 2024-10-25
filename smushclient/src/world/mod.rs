@@ -1,7 +1,11 @@
 mod error;
 pub use error::PersistError;
+
 mod types;
 pub use types::*;
+
+mod versions;
+use versions::WorldVersion;
 
 use std::collections::HashMap;
 use std::io::{Read, Write};
@@ -14,7 +18,7 @@ use smushclient_plugins::{Alias, Plugin, PluginMetadata, Sender, Timer, Trigger}
 
 use mud_transformer::mxp::RgbColor;
 
-const CURRENT_VERSION: u8 = 1;
+const CURRENT_VERSION: u8 = 2;
 
 fn skip_temporary<S, T>(vec: &[T], serializer: S) -> Result<S::Ok, S::Error>
 where
@@ -131,8 +135,6 @@ pub struct World {
     // ANSI Color
     pub use_default_colours: bool,
     pub ansi_colors: [RgbColor; 16],
-    pub custom_color: RgbColor,
-    pub error_colour: RgbColor,
 
     // Triggers
     #[serde(serialize_with = "skip_temporary")]
@@ -226,6 +228,7 @@ pub struct World {
     pub script_editor: String,
     pub script_reload_option: ScriptRecompile,
     pub script_errors_to_output_window: bool,
+    pub error_colour: RgbColor,
     pub note_text_colour: RgbColor,
 
     // Hidden
@@ -343,7 +346,6 @@ impl World {
             // ANSI Color
             use_default_colours: true,
             ansi_colors: *RgbColor::XTERM_16,
-            custom_color: RgbColor::rgb(0, 164, 152),
             error_colour: RgbColor::rgb(127, 0, 0),
 
             // Triggers
@@ -473,14 +475,15 @@ impl World {
         let mut version_buf = [0; 1];
         reader.read_exact(&mut version_buf)?;
         match version_buf[0] {
-            1 => bincode::deserialize_from(reader).map_err(Into::into),
-            _ => Err(PersistError::Invalid),
+            1 => versions::V1::migrate(&mut reader),
+            2 => bincode::deserialize_from(reader).map_err(Into::into),
+            _ => Err(PersistError::Invalid)?,
         }
     }
 
     pub fn palette(&self) -> [RgbColor; 166] {
         let mut palette = [RgbColor::BLACK; 166];
-        palette[0] = self.custom_color;
+        palette[0] = self.note_text_colour;
         palette[1] = self.error_colour;
         palette[2..18].copy_from_slice(&self.ansi_colors);
         for (slot, (_name, color)) in palette[19..].iter_mut().zip(RgbColor::iter_named()) {

@@ -735,8 +735,6 @@ pub mod ffi {
         #[qproperty(QString, output_font)]
         #[qproperty(i32, output_font_height)]
         #[qproperty(bool, use_default_output_font)]
-        #[qproperty(QColor, custom_color)]
-        #[qproperty(QColor, error_colour)]
         #[qproperty(bool, show_bold)]
         #[qproperty(bool, show_italic)]
         #[qproperty(bool, show_underline)]
@@ -868,6 +866,7 @@ pub mod ffi {
         #[qproperty(QString, script_editor)]
         #[qproperty(ScriptRecompile, script_reload_option)]
         #[qproperty(bool, script_errors_to_output_window)]
+        #[qproperty(QColor, error_colour)]
         #[qproperty(QColor, note_text_colour)]
         type World = super::WorldRust;
     }

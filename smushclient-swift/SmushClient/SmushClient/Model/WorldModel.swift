@@ -2,7 +2,6 @@ import SwiftUI
 
 private let defaultHyperlinkColor = NSColor.linkColor.usingColorSpace(.sRGB)!
 private let defaultChatColor = NSColor(srgbRed: 1, green: 1, blue: 1, alpha: 1)
-private let defaultCustomColor = NSColor(srgbRed: 0, green: 164, blue: 152, alpha: 1)
 private let defaultEchoColor = NSColor(srgbRed: 0.5, green: 0.5, blue: 0.5, alpha: 1)
 private let defaultErrorColor = NSColor(srgbRed: 1, green: 0, blue: 0, alpha: 1)
 private let defaultNoteTextColor = NSColor(srgbRed: 0, green: 0.5, blue: 1, alpha: 1)
@@ -117,7 +116,6 @@ class WorldModel {
   var send_mxp_afk_response: Bool = true
   var use_default_colours: Bool = true
   var ansi_colors: [NSColor] = defaultAnsiColors
-  var custom_color: NSColor = defaultCustomColor
   var error_colour: NSColor = defaultErrorColor
   var triggers: [TriggerModel] = []
   var enable_triggers: Bool = true
@@ -284,8 +282,6 @@ class WorldModel {
     send_mxp_afk_response = world.send_mxp_afk_response
     use_default_colours = world.use_default_colours
     ansi_colors = fromVec(world.ansi_colors, by: Palette.namedColors.get)
-    custom_color = NSColor(world.custom_color)
-    error_colour = NSColor(world.error_colour)
     triggers = fromVec(world.triggers, by: TriggerModel.init)
     enable_triggers = world.enable_triggers
     enable_trigger_sounds = world.enable_trigger_sounds
@@ -363,6 +359,7 @@ class WorldModel {
     script_editor = world.script_editor.toString()
     script_reload_option = world.script_reload_option
     script_errors_to_output_window = world.script_errors_to_output_window
+    error_colour = NSColor(world.error_colour)
     note_text_colour = NSColor(world.note_text_colour)
     plugins = fromVec(world.plugins) { $0.as_str().toString() }
   }
@@ -454,8 +451,6 @@ extension World {
     send_mxp_afk_response = world.send_mxp_afk_response
     use_default_colours = world.use_default_colours
     ansi_colors = intoVec(world.ansi_colors, by: RgbColor.init)
-    custom_color = RgbColor(world.custom_color)
-    error_colour = RgbColor(world.error_colour)
     triggers = intoVec(world.triggers, by: Trigger.init)
     enable_triggers = world.enable_triggers
     enable_trigger_sounds = world.enable_trigger_sounds
@@ -529,6 +524,7 @@ extension World {
     script_editor = world.script_editor.intoRustString()
     script_reload_option = world.script_reload_option
     script_errors_to_output_window = world.script_errors_to_output_window
+    error_colour = RgbColor(world.error_colour)
     note_text_colour = RgbColor(world.note_text_colour)
     plugins = intoVec(world.plugins) { $0.intoRustString() }
   }

@@ -339,7 +339,7 @@ ApiCode ScriptApi::StopSound(size_t channel)
 
 void ScriptApi::Tell(const QString &text)
 {
-  appendTell(text, cursor.charFormat());
+  appendTell(text, noteFormat);
 }
 
 ApiCode ScriptApi::TextRectangle(

@@ -118,8 +118,6 @@ pub struct WorldRust {
     // ANSI Color
     pub ansi_colors: Colors,
     pub use_default_colours: bool,
-    pub custom_color: QColor,
-    pub error_colour: QColor,
 
     // Triggers
     pub triggers: Vec<Trigger>,
@@ -214,6 +212,7 @@ pub struct WorldRust {
     pub script_reload_option: ffi::ScriptRecompile,
     pub script_errors_to_output_window: bool,
     pub note_text_colour: QColor,
+    pub error_colour: QColor,
 }
 
 impl_deref!(WorldRust, Colors, ansi_colors);
@@ -476,8 +475,6 @@ impl From<&World> for WorldRust {
             send_mxp_afk_response: world.send_mxp_afk_response,
             ansi_colors: Colors::from(&world.ansi_colors),
             use_default_colours: world.use_default_colours,
-            custom_color: world.custom_color.convert(),
-            error_colour: world.error_colour.convert(),
             triggers: world.triggers.clone(),
             enable_triggers: world.enable_triggers,
             enable_trigger_sounds: world.enable_trigger_sounds,
@@ -553,6 +550,7 @@ impl From<&World> for WorldRust {
             script_editor: QString::from(&world.script_editor),
             script_reload_option: world.script_reload_option.into(),
             script_errors_to_output_window: world.script_errors_to_output_window,
+            error_colour: world.error_colour.convert(),
             note_text_colour: world.note_text_colour.convert(),
         }
     }
@@ -650,8 +648,6 @@ impl TryFrom<&WorldRust> for World {
             send_mxp_afk_response: value.send_mxp_afk_response,
             ansi_colors: (&value.ansi_colors).into(),
             use_default_colours: value.use_default_colours,
-            custom_color: value.custom_color.convert(),
-            error_colour: value.error_colour.convert(),
             triggers: value.triggers.clone(),
             enable_triggers: value.enable_triggers,
             enable_trigger_sounds: value.enable_trigger_sounds,
@@ -731,6 +727,7 @@ impl TryFrom<&WorldRust> for World {
             script_editor: String::from(&value.script_editor),
             script_reload_option: value.script_reload_option.try_into()?,
             script_errors_to_output_window: value.script_errors_to_output_window,
+            error_colour: value.error_colour.convert(),
             note_text_colour: value.note_text_colour.convert(),
             plugins: Vec::new(),
         };

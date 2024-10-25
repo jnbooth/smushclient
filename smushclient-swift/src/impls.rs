@@ -229,8 +229,6 @@ impl_convert_struct!(
     send_mxp_afk_response,
     use_default_colours,
     ansi_colors,
-    custom_color,
-    error_colour,
     triggers,
     enable_triggers,
     enable_trigger_sounds,
@@ -304,6 +302,7 @@ impl_convert_struct!(
     script_editor,
     script_reload_option,
     script_errors_to_output_window,
+    error_colour,
     note_text_colour,
     plugins
 );

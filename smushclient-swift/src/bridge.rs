@@ -337,8 +337,6 @@ pub mod ffi {
 
         use_default_colours: bool,
         ansi_colors: Vec<RgbColor>,
-        custom_color: RgbColor,
-        error_colour: RgbColor,
 
         triggers: Vec<Trigger>,
         enable_triggers: bool,
@@ -421,6 +419,7 @@ pub mod ffi {
         script_editor: String,
         script_reload_option: ScriptRecompile,
         script_errors_to_output_window: bool,
+        error_colour: RgbColor,
         note_text_colour: RgbColor,
 
         plugins: Vec<String>,

@@ -329,6 +329,7 @@ private:
   QTextCharFormat errorFormat;
   bool hasLine;
   int lastTellPosition;
+  QTextCharFormat noteFormat;
   std::vector<Plugin> plugins;
   std::unordered_map<std::string, size_t> pluginIndices;
   QScrollBar *scrollBar;
