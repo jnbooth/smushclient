@@ -16,8 +16,9 @@ public:
   ~PrefsTimers();
 
 protected:
-  void addItem() override;
-  void editItem(size_t index) override;
+  bool addItem() override;
+  void buildTree(TreeBuilder &builder) override;
+  bool editItem(size_t index) override;
   QString exportXml() const override;
   QString importXml(const QString &text) override;
   void removeItem(size_t index) override;
@@ -27,6 +28,4 @@ protected:
 private:
   Ui::PrefsTimers *ui;
   World &world;
-
-  void buildTree();
 };

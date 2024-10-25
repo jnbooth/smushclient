@@ -11,7 +11,9 @@ PrefsAliases::PrefsAliases(World &world, QWidget *parent)
 {
   ui->setupUi(this);
   CONNECT_WORLD(EnableAliases);
-  buildTree();
+  ui->tree->clear();
+  TreeBuilder builder(ui->tree);
+  world.buildAliasTree(builder);
 }
 
 PrefsAliases::~PrefsAliases()
@@ -21,26 +23,31 @@ PrefsAliases::~PrefsAliases()
 
 // Protected overrides
 
-void PrefsAliases::addItem()
+bool PrefsAliases::addItem()
 {
   Alias alias;
   AliasEdit edit(&alias, this);
   if (edit.exec() == QDialog::Rejected)
-    return;
+    return false;
 
   world.addAlias(alias);
-  buildTree();
+  return true;
 }
 
-void PrefsAliases::editItem(size_t index)
+void PrefsAliases::buildTree(TreeBuilder &builder)
+{
+  world.buildAliasTree(builder);
+}
+
+bool PrefsAliases::editItem(size_t index)
 {
   Alias alias(&world, index);
   AliasEdit edit(&alias, this);
   if (edit.exec() == QDialog::Rejected)
-    return;
+    return false;
 
   world.replaceAlias(index, alias);
-  buildTree();
+  return true;
 }
 
 QString PrefsAliases::exportXml() const
@@ -50,16 +57,12 @@ QString PrefsAliases::exportXml() const
 
 QString PrefsAliases::importXml(const QString &xml)
 {
-  const QString result = world.importAliases(xml);
-  if (result.isEmpty())
-    buildTree();
-  return result;
+  return world.importAliases(xml);
 }
 
 void PrefsAliases::removeItem(size_t index)
 {
   world.removeAlias(index);
-  buildTree();
 }
 
 void PrefsAliases::setItemButtonsEnabled(bool enabled)
@@ -70,13 +73,4 @@ void PrefsAliases::setItemButtonsEnabled(bool enabled)
 QTreeWidget *PrefsAliases::tree() const
 {
   return ui->tree;
-}
-
-// Private methods
-
-void PrefsAliases::buildTree()
-{
-  ui->tree->clear();
-  TreeBuilder builder(ui->tree);
-  world.buildAliasTree(builder);
 }

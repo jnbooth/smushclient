@@ -11,7 +11,9 @@ PrefsTimers::PrefsTimers(World &world, QWidget *parent)
 {
   ui->setupUi(this);
   CONNECT_WORLD(EnableTimers);
-  buildTree();
+  ui->tree->clear();
+  TreeBuilder builder(ui->tree);
+  world.buildTimerTree(builder);
 }
 
 PrefsTimers::~PrefsTimers()
@@ -21,26 +23,31 @@ PrefsTimers::~PrefsTimers()
 
 // Protected overrides
 
-void PrefsTimers::addItem()
+bool PrefsTimers::addItem()
 {
   Timer timer;
   TimerEdit edit(timer, this);
   if (edit.exec() == QDialog::Rejected)
-    return;
+    return false;
 
   world.addTimer(timer);
-  buildTree();
+  return true;
 }
 
-void PrefsTimers::editItem(size_t index)
+void PrefsTimers::buildTree(TreeBuilder &builder)
+{
+  world.buildTimerTree(builder);
+}
+
+bool PrefsTimers::editItem(size_t index)
 {
   Timer timer(&world, index);
   TimerEdit edit(timer, this);
   if (edit.exec() == QDialog::Rejected)
-    return;
+    return false;
 
   world.replaceTimer(index, timer);
-  buildTree();
+  return true;
 }
 
 QString PrefsTimers::exportXml() const
@@ -50,16 +57,12 @@ QString PrefsTimers::exportXml() const
 
 QString PrefsTimers::importXml(const QString &xml)
 {
-  const QString result = world.importTimers(xml);
-  if (result.isEmpty())
-    buildTree();
-  return result;
+  return world.importTimers(xml);
 }
 
 void PrefsTimers::removeItem(size_t index)
 {
   world.removeTimer(index);
-  buildTree();
 }
 
 void PrefsTimers::setItemButtonsEnabled(bool enabled)
@@ -70,13 +73,4 @@ void PrefsTimers::setItemButtonsEnabled(bool enabled)
 QTreeWidget *PrefsTimers::tree() const
 {
   return ui->tree;
-}
-
-// Private methods
-
-void PrefsTimers::buildTree()
-{
-  ui->tree->clear();
-  TreeBuilder builder(ui->tree);
-  world.buildTriggerTree(builder);
 }

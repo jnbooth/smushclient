@@ -12,7 +12,9 @@ PrefsTriggers::PrefsTriggers(World &world, QWidget *parent)
   ui->setupUi(this);
   CONNECT_WORLD(EnableTriggers);
   CONNECT_WORLD(EnableTriggerSounds);
-  buildTree();
+  ui->tree->clear();
+  TreeBuilder builder(ui->tree);
+  world.buildTriggerTree(builder);
 }
 
 PrefsTriggers::~PrefsTriggers()
@@ -22,26 +24,31 @@ PrefsTriggers::~PrefsTriggers()
 
 // Protected overrides
 
-void PrefsTriggers::addItem()
+bool PrefsTriggers::addItem()
 {
   Trigger trigger;
   TriggerEdit edit(trigger, this);
   if (edit.exec() == QDialog::Rejected)
-    return;
+    return false;
 
   world.addTrigger(trigger);
-  buildTree();
+  return true;
 }
 
-void PrefsTriggers::editItem(size_t index)
+void PrefsTriggers::buildTree(TreeBuilder &builder)
+{
+  world.buildTriggerTree(builder);
+}
+
+bool PrefsTriggers::editItem(size_t index)
 {
   Trigger trigger(&world, index);
   TriggerEdit edit(trigger, this);
   if (edit.exec() == QDialog::Rejected)
-    return;
+    return false;
 
   world.replaceTrigger(index, trigger);
-  buildTree();
+  return true;
 }
 
 QString PrefsTriggers::exportXml() const
@@ -51,16 +58,12 @@ QString PrefsTriggers::exportXml() const
 
 QString PrefsTriggers::importXml(const QString &xml)
 {
-  const QString result = world.importTriggers(xml);
-  if (result.isEmpty())
-    buildTree();
-  return result;
+  return world.importTriggers(xml);
 }
 
 void PrefsTriggers::removeItem(size_t index)
 {
   world.removeTrigger(index);
-  buildTree();
 }
 
 void PrefsTriggers::setItemButtonsEnabled(bool enabled)
@@ -71,13 +74,4 @@ void PrefsTriggers::setItemButtonsEnabled(bool enabled)
 QTreeWidget *PrefsTriggers::tree() const
 {
   return ui->tree;
-}
-
-// Private methods
-
-void PrefsTriggers::buildTree()
-{
-  ui->tree->clear();
-  TreeBuilder builder(ui->tree);
-  world.buildTriggerTree(builder);
 }

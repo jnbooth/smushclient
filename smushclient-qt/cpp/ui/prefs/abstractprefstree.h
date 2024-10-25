@@ -1,6 +1,8 @@
 #pragma once
 #include <QtWidgets/QTreeWidget>
 
+class TreeBuilder;
+
 class AbstractPrefsTree : public QWidget
 {
   Q_OBJECT
@@ -11,8 +13,9 @@ public:
 
 protected:
   QVariant currentData() const;
-  virtual void addItem() = 0;
-  virtual void editItem(size_t index) = 0;
+  virtual bool addItem() = 0;
+  virtual void buildTree(TreeBuilder &builder) = 0;
+  virtual bool editItem(size_t index) = 0;
   virtual QString exportXml() const = 0;
   virtual QString importXml(const QString &text) = 0;
   virtual void removeItem(size_t index) = 0;
@@ -27,4 +30,7 @@ protected slots:
   void on_remove_clicked();
   void on_tree_itemActivated(QTreeWidgetItem *item);
   void on_tree_itemDoubleClicked(QTreeWidgetItem *item);
+
+private:
+  void buildTree();
 };
