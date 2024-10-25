@@ -6,13 +6,13 @@
 #include <QtNetwork/QTcpSocket>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
-#include <QtWidgets/QScrollBar>
 #include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QTreeWidgetItem>
 #include "rust/cxx.h"
 
 struct SendRequest;
 struct SendScriptRequest;
+class MudScrollBar;
 class ScriptApi;
 class WorldTab;
 enum class SendTarget : int32_t;
@@ -55,7 +55,7 @@ private:
   int lastLine;
   QTextDocument *doc;
   QTextCharFormat formats[166];
-  QScrollBar *scrollBar;
+  MudScrollBar *scrollBar;
 
   WorldTab *tab() const;
 };

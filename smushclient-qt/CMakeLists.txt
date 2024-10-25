@@ -102,6 +102,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/components/iconlabel.h cpp/ui/components/iconlabel.cpp
     cpp/ui/components/mudbrowser.h cpp/ui/components/mudbrowser.cpp
     cpp/ui/components/mudinput.h cpp/ui/components/mudinput.cpp
+    cpp/ui/components/mudscrollbar.h cpp/ui/components/mudscrollbar.cpp
     cpp/ui/components/mudstatusbar.h cpp/ui/components/mudstatusbar.cpp
     cpp/ui/pluginsdialog.h cpp/ui/pluginsdialog.cpp cpp/ui/pluginsdialog.ui
     cpp/ui/prefs/abstractprefstree.h cpp/ui/prefs/abstractprefstree.cpp

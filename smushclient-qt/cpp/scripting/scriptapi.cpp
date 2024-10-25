@@ -9,6 +9,7 @@
 #include "miniwindow.h"
 #include "worldproperties.h"
 #include "../bridge/timekeeper.h"
+#include "../ui/components/mudscrollbar.h"
 #include "../ui/components/mudstatusbar.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
@@ -35,11 +36,6 @@ QMainWindow *getMainWindow(const QObject *obj)
     return window;
 
   return getMainWindow(parent);
-}
-
-inline void scrollToEnd(QScrollBar &bar)
-{
-  bar.setValue(bar.maximum());
 }
 
 // Public methods
@@ -418,7 +414,7 @@ void ScriptApi::flushLine()
 
 void ScriptApi::scrollToBottom() const
 {
-  scrollToEnd(*scrollBar);
+  scrollBar->toEnd();
 }
 
 inline WorldTab *ScriptApi::tab() const { return qobject_cast<WorldTab *>(parent()); }

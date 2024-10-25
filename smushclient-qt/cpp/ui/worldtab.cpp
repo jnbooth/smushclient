@@ -15,6 +15,7 @@
 #include "../environment.h"
 #include "../scripting/hotspot.h"
 #include "../scripting/qlua.h"
+#include "../components/mudscrollbar.h"
 #include "../scripting/scriptapi.h"
 #include "../settings.h"
 #include "../spans.h"
@@ -385,6 +386,8 @@ void WorldTab::readFromSocket()
 
 void WorldTab::on_input_submitted(const QString &text)
 {
+  ui->output->verticalScrollBar()->unpause();
+
   const auto aliasOutcome = client.alias(text, *document);
 
   if (!(aliasOutcome & (uint8_t)AliasOutcome::Remember))

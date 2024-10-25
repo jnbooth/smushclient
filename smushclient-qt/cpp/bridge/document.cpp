@@ -1,6 +1,5 @@
 #include "document.h"
 #include <string>
-#include <QtWidgets/QScrollBar>
 #include <QtGui/QTextDocumentFragment>
 #include <QtGui/QAbstractTextDocumentLayout>
 #include <QtWidgets/QStatusBar>
@@ -8,6 +7,7 @@
 #include "../scripting/qlua.h"
 #include "../scripting/scriptapi.h"
 #include "../scripting/plugincallback.h"
+#include "../ui/components/mudscrollbar.h"
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
@@ -44,11 +44,6 @@ inline QTextCharFormat foregroundFormat(const QColor &foreground)
   QTextCharFormat format;
   format.setForeground(QBrush(foreground));
   return format;
-}
-
-inline void scrollToEnd(QScrollBar &bar)
-{
-  bar.setValue(bar.maximum());
 }
 
 inline string_view strView(::rust::str str) noexcept
@@ -116,7 +111,7 @@ void Document::echo(const QString &command) const
 
 void Document::end() const
 {
-  scrollToEnd(*scrollBar);
+  scrollBar->toEnd();
 }
 
 void Document::eraseLastLine() const

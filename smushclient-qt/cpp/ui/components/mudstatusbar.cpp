@@ -3,6 +3,8 @@
 #include <QtWidgets/QHBoxLayout>
 #include "iconlabel.h"
 
+// Public methods
+
 MudStatusBar::MudStatusBar(QWidget *parent)
     : QStatusBar(parent)
 {

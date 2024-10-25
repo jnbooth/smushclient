@@ -21,6 +21,7 @@
 constexpr size_t noSuchPlugin = SIZE_T_MAX;
 
 class ImageFilter;
+class MudScrollBar;
 class MudStatusBar;
 class SmushClient;
 class Timekeeper;
@@ -332,7 +333,7 @@ private:
   QTextCharFormat noteFormat;
   std::vector<Plugin> plugins;
   std::unordered_map<std::string, size_t> pluginIndices;
-  QScrollBar *scrollBar;
+  MudScrollBar *scrollBar;
   QTcpSocket *socket;
   std::unordered_map<int, QueuedSend> sendQueue;
   MudStatusBar *statusBar;
