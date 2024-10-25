@@ -340,7 +340,7 @@ bool WorldTab::loadPlugins()
   const QStringList errors = client.loadPlugins();
   if (!errors.empty())
   {
-    QErrorMessage::qtHandler()->showMessage(errors.join(QChar::fromLatin1('\n')));
+    QErrorMessage::qtHandler()->showMessage(errors.join(u'\n'));
     return false;
   }
   QStringList plugins = client.pluginScripts();
@@ -455,9 +455,9 @@ void WorldTab::on_output_anchorClicked(const QUrl &url)
   int delimIndex, fnIndex;
   if (
       action.first(2) == QStringLiteral("!!") &&
-      action.back() == QChar::fromLatin1(')') &&
-      (delimIndex = action.indexOf(QChar::fromLatin1(':'))) != -1 &&
-      (fnIndex = action.indexOf(QChar::fromLatin1('('), delimIndex)) != -1)
+      action.back() == u')' &&
+      (delimIndex = action.indexOf(u':')) != -1 &&
+      (fnIndex = action.indexOf(u'(', delimIndex)) != -1)
   {
     const QString pluginID = action.sliced(2, delimIndex - 2);
     const string functionName = action.sliced(delimIndex + 1, fnIndex - delimIndex - 1).toStdString();

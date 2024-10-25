@@ -41,7 +41,7 @@ QVariant ScriptApi::FontInfo(const QFont &font, int infoType) const
   case 8:
     return font.weight();
   case 9: // overhang
-    return QFontMetrics(font).leftBearing(QChar::fromLatin1('l'));
+    return QFontMetrics(font).leftBearing(u'l');
   // case 10: digitized aspect X
   // case 11: digitized aspect Y
   // case 12: first character defined in font
