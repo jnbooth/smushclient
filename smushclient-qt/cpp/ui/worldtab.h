@@ -51,15 +51,17 @@ protected:
 
 private:
   ScriptApi *api;
+  bool queuedConnect;
   QFont defaultFont;
   Document *document;
   QString filePath;
+  bool initialized;
   std::optional<CallbackTrigger> onDragMove;
   QPointer<Hotspot> onDragRelease;
   int resizeTimerId;
 
   void applyWorld() const;
-  void connectToHost() const;
+  void connectToHost();
   void finishDrag();
   void openLog();
   bool saveWorldAndState(const QString &filePath) const;

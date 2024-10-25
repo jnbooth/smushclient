@@ -45,10 +45,12 @@ WorldTab::WorldTab(QWidget *parent)
     : QSplitter(parent),
       ui(new Ui::WorldTab),
       defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont)),
+      initialized(false),
       onDragMove(nullopt),
       onDragRelease(nullptr),
       resizeTimerId(0)
 {
+  resizeTimerId = startTimer(1000);
   ui->setupUi(this);
   ui->input->setFocus();
   defaultFont.setPointSize(12);
@@ -231,8 +233,14 @@ void WorldTab::timerEvent(QTimerEvent *event)
   if (resizeTimerId != id)
     return;
   resizeTimerId = 0;
+  initialized = true;
   OnPluginWorldOutputResized onWorldOutputResized;
   api->sendCallback(onWorldOutputResized);
+  if (queuedConnect)
+  {
+    queuedConnect = false;
+    connectToHost();
+  }
 }
 
 // Private methods
@@ -261,8 +269,14 @@ void WorldTab::applyWorld() const
   api->applyWorld(world);
 }
 
-void WorldTab::connectToHost() const
+void WorldTab::connectToHost()
 {
+  if (!initialized)
+  {
+    queuedConnect = true;
+    return;
+  }
+
   if (socket->isOpen())
     return;
 
