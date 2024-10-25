@@ -8,7 +8,7 @@ mod error;
 pub use error::{LoadError, LoadFailure};
 
 mod iter;
-pub use iter::{assert_unique_label, SendIterable};
+pub use iter::{assert_unique_label, ReactionIterable, SendIterable};
 
 mod output;
 

@@ -1,8 +1,6 @@
-use crate::plugins::{SendRequest, SendScriptRequest};
+use crate::plugins::{ReactionIterable, SendRequest, SendScriptRequest};
 use mud_transformer::Output;
-use smushclient_plugins::{
-    Pad, PadSource, Plugin, PluginIndex, Reaction, SendMatchIterable, Sender,
-};
+use smushclient_plugins::{Pad, PadSource, Plugin, PluginIndex, Reaction, SendMatchIterable};
 
 pub trait Handler {
     fn display(&mut self, output: &Output);
@@ -28,15 +26,16 @@ pub trait HandlerExt {
         text_buf: &mut String,
         plugins: &[Plugin],
     ) where
-        T: AsRef<Sender> + AsRef<Reaction> + PadSource;
+        T: ReactionIterable + PadSource;
 
     fn send_all_scripts<T>(
         &mut self,
         senders: &[(PluginIndex, usize, &T)],
         line: &str,
         output: &[Output],
-    ) where
-        T: AsRef<Sender> + AsRef<Reaction>;
+    ) -> T::Effects
+    where
+        T: ReactionIterable;
 }
 
 impl<H: Handler> HandlerExt for H {
@@ -47,7 +46,7 @@ impl<H: Handler> HandlerExt for H {
         text_buf: &mut String,
         plugins: &[Plugin],
     ) where
-        T: AsRef<Sender> + AsRef<Reaction> + PadSource,
+        T: ReactionIterable + PadSource,
     {
         text_buf.clear();
         for &(plugin, index, sender) in senders {
@@ -77,14 +76,17 @@ impl<H: Handler> HandlerExt for H {
         senders: &[(PluginIndex, usize, &T)],
         line: &str,
         output: &[Output],
-    ) where
-        T: AsRef<Sender> + AsRef<Reaction>,
+    ) -> T::Effects
+    where
+        T: ReactionIterable,
     {
+        let mut effects = T::Effects::default();
         for &(plugin, index, sender) in senders {
             let reaction: &Reaction = sender.as_ref();
             if !reaction.enabled {
                 continue;
             }
+            sender.add_effects(&mut effects);
             reaction.lock();
             for send in sender.matches(plugin, index, line) {
                 self.send_script(SendScriptRequest {
@@ -98,5 +100,6 @@ impl<H: Handler> HandlerExt for H {
             }
             reaction.unlock();
         }
+        effects
     }
 }

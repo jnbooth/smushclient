@@ -114,7 +114,7 @@ pub trait ReactionIterable: SendIterable + AsRef<Reaction> + AsMut<Reaction> {
                     oneshots.push((index, i));
                 }
                 if !reaction.keep_evaluating {
-                    return effects;
+                    break;
                 }
             }
         }

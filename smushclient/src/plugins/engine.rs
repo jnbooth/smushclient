@@ -160,12 +160,12 @@ impl PluginEngine {
         }
 
         handler.send_all(&matched, line, &mut self.alias_buf, &self.plugins);
-        handler.send_all_scripts(&matched, line, &[]);
+        let final_effects = handler.send_all_scripts(&matched, line, &[]);
 
         drop(matched);
         self.remove_oneshots::<Alias>(&oneshots, world);
 
-        effects
+        final_effects
     }
 
     pub fn trigger<H: Handler>(
@@ -196,16 +196,10 @@ impl PluginEngine {
         }
 
         handler.send_all(&matched, line, &mut self.trigger_buf, &self.plugins);
-        handler.send_all_scripts(&matched, line, output);
-
-        let mut final_effects = TriggerEffects::new();
+        let final_effects = handler.send_all_scripts(&matched, line, output);
 
         for &(_, _, trigger) in &matched {
-            if !trigger.enabled {
-                continue;
-            }
-            final_effects.add_effects(trigger);
-            if !trigger.sound.is_empty() {
+            if trigger.enabled && !trigger.sound.is_empty() {
                 handler.play_sound(&trigger.sound);
             }
         }
