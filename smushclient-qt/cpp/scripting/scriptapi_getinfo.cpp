@@ -301,7 +301,7 @@ QVariant MiniWindow::info(int infoType) const
   case 22:
     return zOrder;
   case 23:
-    return pluginID;
+    return QString::fromUtf8(pluginID.data(), pluginID.size());
   default:
     return QVariant();
   }

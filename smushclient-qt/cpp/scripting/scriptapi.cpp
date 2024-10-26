@@ -120,7 +120,7 @@ const Plugin *ScriptApi::getPlugin(string_view pluginID) const
   return &plugins[index];
 }
 
-void ScriptApi::initializeScripts(const QStringList &scripts)
+void ScriptApi::initializePlugins(const rust::Vec<PluginPack> &pack)
 {
   if (!windows.empty())
   {
@@ -128,7 +128,7 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
       delete entry.second;
     windows.clear();
   }
-  const size_t size = scripts.size();
+  const size_t size = pack.size();
   callbackFilter.clear();
   plugins.clear();
   plugins.reserve(size);
@@ -142,16 +142,16 @@ void ScriptApi::initializeScripts(const QStringList &scripts)
   }
   QString error;
   size_t index = 0;
-  for (auto start = scripts.cbegin(), it = start, end = scripts.cend(); it != end; ++it, ++index)
+  for (auto start = pack.cbegin(), it = start, end = pack.cend(); it != end; ++it, ++index)
   {
     PluginMetadata metadata{
-        .id = *it,
+        .id = it->id.toStdString(),
         .index = index,
-        .name = *++it,
+        .name = it->name.toStdString(),
     };
-    pluginIndices[metadata.id.toStdString()] = index;
+    pluginIndices[metadata.id] = index;
     Plugin &plugin = plugins.emplace_back(this, std::move(metadata));
-    if (!plugin.runScript(*++it))
+    if (!plugin.runScript(string_view(reinterpret_cast<const char *>(it->scriptData), it->scriptSize)))
       continue;
     callbackFilter.scan(plugin.state());
     client()->startTimers(index, *timekeeper);

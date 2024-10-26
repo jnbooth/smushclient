@@ -108,7 +108,8 @@ pub mod ffi {
     struct PluginPack {
         id: QString,
         name: QString,
-        script: QString,
+        scriptData: *const u8,
+        scriptSize: usize,
     }
 
     enum SendTo {
@@ -392,7 +393,7 @@ pub mod ffi {
         fn add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> QString;
         fn remove_plugin(self: Pin<&mut SmushClient>, plugin_id: &QString) -> bool;
         fn build_plugins_table(self: &SmushClient, table: Pin<&mut TableBuilder>);
-        fn plugin_scripts(self: &SmushClient) -> QStringList;
+        fn plugin_scripts(self: &SmushClient) -> Vec<PluginPack>;
         fn read(
             self: Pin<&mut SmushClient>,
             device: Pin<&mut QTcpSocket>,

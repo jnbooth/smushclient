@@ -97,7 +97,7 @@ public:
   QVariant GetOption(std::string_view name) const;
   std::optional<std::string_view> GetVariable(size_t pluginIndex, std::string_view key) const;
   std::optional<std::string_view> GetVariable(std::string_view pluginID, std::string_view key) const;
-  const QString &GetPluginID(size_t pluginIndex) const;
+  const std::string &GetPluginID(size_t pluginIndex) const;
   QVariant GetPluginInfo(std::string_view pluginID, int infoType) const;
   QVariant GetStyleInfo(int line, int style, int infoType) const;
   void Hyperlink(
@@ -279,7 +279,7 @@ public:
   void echo(const QString &text);
   void finishNote();
   const Plugin *getPlugin(std::string_view pluginID) const;
-  void initializeScripts(const QStringList &scripts);
+  void initializePlugins(const rust::Vec<PluginPack> &plugins);
   inline bool isPluginEnabled(size_t plugin) const { return !plugins[plugin].disabled(); }
   void printError(const QString &message);
   inline bool runScript(size_t plugin, const QString &script) const

@@ -10,8 +10,8 @@
 
 App::App(QWidget *parent)
     : QMainWindow(parent),
-      findDialog(this),
       ui(new Ui::App),
+      findDialog(this),
       lastTabIndex(-1)
 {
   if (QDir::current().isRoot())

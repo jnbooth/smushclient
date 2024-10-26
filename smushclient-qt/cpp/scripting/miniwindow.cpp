@@ -208,7 +208,7 @@ MiniWindow::MiniWindow(
     Position position,
     Flags flags,
     const QColor &fill,
-    const QString &pluginID)
+    const std::string &pluginID)
     : QWidget(parent),
       background(fill),
       dimensions(size),

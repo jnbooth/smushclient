@@ -409,6 +409,12 @@ int qlua::loadQString(lua_State *L, const QString &chunk)
   return luaL_loadbuffer(L, data, utf8.size(), data);
 }
 
+int qlua::loadString(lua_State *L, string_view chunk)
+{
+  const char *data = chunk.data();
+  return luaL_loadbuffer(L, data, chunk.size(), data);
+}
+
 const char *qlua::pushBytes(lua_State *L, const QByteArray &bytes)
 {
   return lua_pushlstring(L, bytes.constData(), bytes.size());

@@ -22,6 +22,8 @@ public:
 
 private:
   Ui::App *ui;
+  FindDialog findDialog;
+  int lastTabIndex;
   QList<QAction *> recentFileActions;
   QString saveFilter;
 
@@ -30,11 +32,6 @@ private:
   void openWorld(const QString &filePath) const;
   void setupRecentFiles(const QStringList &recentFiles) const;
   void setWorldMenusEnabled(bool enabled) const;
-
-private:
-  FindDialog findDialog;
-  int lastTabIndex;
-
   WorldTab *worldtab() const;
   WorldTab *worldtab(int index) const;
 

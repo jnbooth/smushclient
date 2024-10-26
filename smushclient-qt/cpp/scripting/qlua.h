@@ -65,6 +65,7 @@ namespace qlua
   QString concatStrings(lua_State *L, const QString &delimiter = QString());
 
   int loadQString(lua_State *L, const QString &chunk);
+  int loadString(lua_State *L, std::string_view chunk);
 
   const char *pushBytes(lua_State *L, const QByteArray &bytes);
   void pushQColor(lua_State *L, const QColor &color);

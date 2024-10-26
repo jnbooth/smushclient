@@ -45,6 +45,11 @@ static const unordered_map<string, TriggerBool> triggerBools =
 
 // Private localization
 
+QString convertStdString(const string &s)
+{
+  return QString::fromUtf8(s.data(), s.size());
+}
+
 QString fmtNoSuchPlugin(const QString &id)
 {
   return ScriptApi::tr("Plugin ID (%1) is not installed")
@@ -54,16 +59,16 @@ QString fmtNoSuchPlugin(const QString &id)
 QString fmtPluginDisabled(const Plugin &plugin)
 {
   return ScriptApi::tr("Plugin '%1' (%2) is not enabled")
-      .arg(plugin.name())
-      .arg(plugin.id());
+      .arg(convertStdString(plugin.name()))
+      .arg(convertStdString(plugin.id()));
 }
 
 QString fmtNoSuchRoutine(const Plugin &plugin, string_view routine)
 {
   return ScriptApi::tr("No function '%1' in plugin '%2' (%3)")
       .arg(QString::fromUtf8(routine.data(), routine.size()))
-      .arg(plugin.name())
-      .arg(plugin.id());
+      .arg(convertStdString(plugin.name()))
+      .arg(convertStdString(plugin.id()));
 }
 
 QString fmtBadParam(int idx, const char *type)
@@ -77,8 +82,8 @@ QString fmtCallError(const Plugin &plugin, string_view routine)
 {
   return ScriptApi::tr("Runtime error in function '%1', plugin '%2' (%3)")
       .arg(QString::fromUtf8(routine.data(), routine.size()))
-      .arg(plugin.name())
-      .arg(plugin.id());
+      .arg(convertStdString(plugin.name()))
+      .arg(convertStdString(plugin.id()));
 }
 
 QString fmtBadReturn(const Plugin &plugin, string_view routine, int idx, const char *type)
@@ -87,8 +92,8 @@ QString fmtBadReturn(const Plugin &plugin, string_view routine, int idx, const c
       .arg(idx)
       .arg(QString::fromUtf8(type))
       .arg(QString::fromUtf8(routine.data(), routine.size()))
-      .arg(plugin.name())
-      .arg(plugin.id());
+      .arg(convertStdString(plugin.name()))
+      .arg(convertStdString(plugin.id()));
 }
 
 // Private utils
@@ -463,7 +468,7 @@ static int L_EnablePlugin(lua_State *L)
 static int L_GetPluginID(lua_State *L)
 {
   expectMaxArgs(L, 0);
-  qlua::pushQString(L, getApi(L).GetPluginID(getPluginIndex(L)));
+  qlua::pushString(L, getApi(L).GetPluginID(getPluginIndex(L)));
   return 1;
 }
 

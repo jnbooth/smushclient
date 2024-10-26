@@ -1,9 +1,8 @@
 use std::collections::HashMap;
 use std::ffi::c_char;
 use std::fs::File;
-use std::io;
 use std::pin::Pin;
-use std::ptr;
+use std::{io, ptr};
 
 use crate::adapter::{DocumentAdapter, SocketAdapter, TableBuilderAdapter, TimekeeperAdapter};
 use crate::convert::Convert;
@@ -138,14 +137,16 @@ impl SmushClientRust {
             .plugin_info::<InfoVisitorQVariant>(index, info_type)
     }
 
-    pub fn plugin_scripts(&self) -> QStringList {
-        let mut list = QList::default();
-        for plugin in self.client.plugins() {
-            list.append(QString::from(&plugin.metadata.id));
-            list.append(QString::from(&plugin.metadata.name));
-            list.append(QString::from(&plugin.script));
-        }
-        QStringList::from(&list)
+    pub fn plugin_scripts(&self) -> Vec<ffi::PluginPack> {
+        self.client
+            .plugins()
+            .map(|plugin| ffi::PluginPack {
+                id: QString::from(&plugin.metadata.id),
+                name: QString::from(&plugin.metadata.name),
+                scriptData: plugin.script.as_ptr(),
+                scriptSize: plugin.script.len(),
+            })
+            .collect()
     }
 
     pub fn build_plugins_table(&self, mut table: TableBuilderAdapter) {
@@ -355,7 +356,7 @@ impl ffi::SmushClient {
             .is_some()
     }
 
-    pub fn plugin_scripts(&self) -> QStringList {
+    pub fn plugin_scripts(&self) -> Vec<ffi::PluginPack> {
         self.cxx_qt_ffi_rust().plugin_scripts()
     }
 

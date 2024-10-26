@@ -159,10 +159,24 @@ bool Plugin::runCallbackThreaded(PluginCallback &callback) const
 
 bool Plugin::runScript(const QString &script) const
 {
-  if (isDisabled) [[unlikely]]
+  if (isDisabled || script.isEmpty()) [[unlikely]]
     return false;
 
   if (checkError(qlua::loadQString(L, script))) [[unlikely]]
+  {
+    getApi(L).printError(formatCompileError(L));
+    return false;
+  }
+
+  return api_pcall(L, 0, 0);
+}
+
+bool Plugin::runScript(string_view script) const
+{
+  if (isDisabled || script.empty()) [[unlikely]]
+    return false;
+
+  if (checkError(qlua::loadString(L, script))) [[unlikely]]
   {
     getApi(L).printError(formatCompileError(L));
     return false;

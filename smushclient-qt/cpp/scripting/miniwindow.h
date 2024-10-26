@@ -73,7 +73,7 @@ public:
       Position position,
       Flags flags,
       const QColor &fill,
-      const QString &pluginID = QString());
+      const std::string &pluginID = std::string());
   Hotspot *addHotspot(
       std::string_view hotspotID,
       WorldTab *tab,
@@ -160,7 +160,7 @@ private:
   QDateTime installed;
   QPoint location;
   QPixmap pixmap;
-  QString pluginID;
+  std::string pluginID;
   Position position;
   int zOrder;
 

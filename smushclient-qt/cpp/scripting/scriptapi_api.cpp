@@ -66,10 +66,8 @@ inline ApiCode updateWorld(WorldTab &worldtab)
 int ScriptApi::BroadcastPlugin(size_t index, int message, string_view text) const
 {
   const Plugin &callingPlugin = plugins[index];
-  const string pluginID = callingPlugin.id().toStdString();
-  const string pluginName = callingPlugin.name().toStdString();
   int calledPlugins = 0;
-  OnPluginBroadcast onBroadcast(message, pluginID, pluginName, text);
+  OnPluginBroadcast onBroadcast(message, callingPlugin.id(), callingPlugin.name(), text);
   for (const Plugin &plugin : plugins)
     if (&plugin != &callingPlugin)
       calledPlugins += plugin.runCallbackThreaded(onBroadcast);
@@ -163,7 +161,7 @@ optional<string_view> ScriptApi::GetVariable(string_view pluginID, string_view k
   return GetVariable(index, key);
 }
 
-const QString &ScriptApi::GetPluginID(size_t index) const
+const string &ScriptApi::GetPluginID(size_t index) const
 {
   return plugins.at(index).id();
 }

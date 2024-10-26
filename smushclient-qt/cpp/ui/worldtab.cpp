@@ -358,8 +358,7 @@ bool WorldTab::loadPlugins()
     QErrorMessage::qtHandler()->showMessage(errors.join(u'\n'));
     return false;
   }
-  QStringList plugins = client.pluginScripts();
-  api->initializeScripts(plugins);
+  api->initializePlugins(client.pluginScripts());
   return true;
 }
 
