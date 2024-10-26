@@ -36,6 +36,8 @@ private:
   WorldTab *worldtab(int index) const;
 
 private slots:
+  void on_action_connect_triggered();
+  void on_action_disconnect_triggered();
   void on_action_find_triggered();
   void on_action_find_again_triggered();
   void on_action_new_triggered();

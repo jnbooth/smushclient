@@ -24,7 +24,9 @@ public:
   explicit WorldTab(QWidget *parent = nullptr);
   ~WorldTab();
 
+  void connectToHost();
   void createWorld() &;
+  void disconnectFromHost();
   void onTabSwitch(bool active) const;
   void openPluginsDialog();
   bool openWorld(const QString &filename) &;
@@ -61,7 +63,6 @@ private:
   int resizeTimerId;
 
   void applyWorld() const;
-  void connectToHost();
   void finishDrag();
   void openLog();
   bool saveWorldAndState(const QString &filePath) const;

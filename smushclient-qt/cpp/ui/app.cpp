@@ -137,24 +137,28 @@ WorldTab *App::worldtab(int index) const
 
 // Private slots
 
+void App::on_action_connect_triggered()
+{
+  if (WorldTab *tab = worldtab(); tab)
+    tab->connectToHost();
+}
+
+void App::on_action_disconnect_triggered()
+{
+  if (WorldTab *tab = worldtab(); tab)
+    tab->disconnectFromHost();
+}
+
 void App::on_action_find_triggered()
 {
-  WorldTab *tab = worldtab();
-  if (!tab)
-    return;
-  if (findDialog.exec() == QDialog::Rejected)
-    return;
-  findDialog.find(tab->ui->output);
+  if (WorldTab *tab = worldtab(); tab && findDialog.exec() == QDialog::Accepted)
+    findDialog.find(tab->ui->output);
 }
 
 void App::on_action_find_again_triggered()
 {
-  WorldTab *tab = worldtab();
-  if (!tab)
-    return;
-  if (!findDialog.isFilled() && findDialog.exec() == QDialog::Rejected)
-    return;
-  findDialog.find(tab->ui->output);
+  if (WorldTab *tab = worldtab(); tab && (findDialog.isFilled() || findDialog.exec() == QDialog::Accepted))
+    findDialog.find(tab->ui->output);
 }
 
 void App::on_action_new_triggered()
@@ -181,36 +185,26 @@ void App::on_action_open_world_triggered()
 
 void App::on_action_plugins_triggered()
 {
-  WorldTab *tab = worldtab();
-  if (!tab)
-    return;
-  tab->openPluginsDialog();
+  if (WorldTab *tab = worldtab(); tab)
+    tab->openPluginsDialog();
 }
 
 void App::on_action_save_world_details_as_triggered()
 {
-  WorldTab *tab = worldtab();
-  if (!tab)
-    return;
-
-  addRecentFile(tab->saveWorldAsNew(saveFilter));
+  if (WorldTab *tab = worldtab(); tab)
+    addRecentFile(tab->saveWorldAsNew(saveFilter));
 }
 
 void App::on_action_save_world_details_triggered()
 {
-  WorldTab *tab = worldtab();
-  if (!tab)
-    return;
-
-  addRecentFile(tab->saveWorld(saveFilter));
+  if (WorldTab *tab = worldtab(); tab)
+    addRecentFile(tab->saveWorld(saveFilter));
 }
 
 void App::on_action_world_properties_triggered()
 {
-  WorldTab *tab = worldtab();
-  if (!tab)
-    return;
-  tab->openWorldSettings();
+  if (WorldTab *tab = worldtab(); tab)
+    tab->openWorldSettings();
 }
 
 void App::on_world_tabs_currentChanged(int index)

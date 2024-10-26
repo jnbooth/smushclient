@@ -87,6 +87,25 @@ void WorldTab::createWorld() &
   applyWorld();
 }
 
+void WorldTab::connectToHost()
+{
+  if (!initialized)
+  {
+    queuedConnect = true;
+    return;
+  }
+
+  if (socket->isOpen())
+    return;
+
+  socket->connectToHost(world.getSite(), (uint16_t)world.getPort());
+}
+
+void WorldTab::disconnectFromHost()
+{
+  socket->disconnectFromHost();
+}
+
 void WorldTab::onTabSwitch(bool active) const
 {
   if (!active)
@@ -268,20 +287,6 @@ void WorldTab::applyWorld() const
   output->setFont(outputFont);
 
   api->applyWorld(world);
-}
-
-void WorldTab::connectToHost()
-{
-  if (!initialized)
-  {
-    queuedConnect = true;
-    return;
-  }
-
-  if (socket->isOpen())
-    return;
-
-  socket->connectToHost(world.getSite(), (uint16_t)world.getPort());
 }
 
 inline void WorldTab::finishDrag()
