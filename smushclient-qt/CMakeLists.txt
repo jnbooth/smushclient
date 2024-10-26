@@ -104,6 +104,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/components/mudinput.h cpp/ui/components/mudinput.cpp
     cpp/ui/components/mudscrollbar.h cpp/ui/components/mudscrollbar.cpp
     cpp/ui/components/mudstatusbar.h cpp/ui/components/mudstatusbar.cpp
+    cpp/ui/finddialog.h cpp/ui/finddialog.cpp cpp/ui/finddialog.ui
     cpp/ui/pluginsdialog.h cpp/ui/pluginsdialog.cpp cpp/ui/pluginsdialog.ui
     cpp/ui/prefs/abstractprefstree.h cpp/ui/prefs/abstractprefstree.cpp
     cpp/ui/prefs/address.h cpp/ui/prefs/address.cpp cpp/ui/prefs/address.ui

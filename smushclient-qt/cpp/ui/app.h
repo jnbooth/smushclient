@@ -1,6 +1,7 @@
 #pragma once
 #include <QtGui/QAction>
 #include <QtWidgets/QMainWindow>
+#include "finddialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -31,12 +32,15 @@ private:
   void setWorldMenusEnabled(bool enabled) const;
 
 private:
+  FindDialog findDialog;
   int lastTabIndex;
 
   WorldTab *worldtab() const;
   WorldTab *worldtab(int index) const;
 
 private slots:
+  void on_action_find_triggered();
+  void on_action_find_again_triggered();
   void on_action_new_triggered();
   void on_action_open_world_triggered();
   void on_action_plugins_triggered();

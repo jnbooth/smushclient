@@ -1,13 +1,16 @@
 #include "app.h"
 #include "ui_app.h"
+#include "ui_worldtab.h"
 #include "worldtab.h"
 #include "../environment.h"
 #include "../settings.h"
+#include "finddialog.h"
 
 #include <QtWidgets/QFileDialog>
 
 App::App(QWidget *parent)
     : QMainWindow(parent),
+      findDialog(this),
       ui(new Ui::App),
       lastTabIndex(-1)
 {
@@ -101,23 +104,25 @@ void App::setupRecentFiles(const QStringList &recentFiles) const
 void App::setWorldMenusEnabled(bool enabled) const
 {
   ui->action_close_world->setEnabled(enabled);
-  ui->action_import->setEnabled(enabled);
-  ui->action_plugins->setEnabled(enabled);
-  ui->action_plugin_wizard->setEnabled(enabled);
-  ui->action_save_world_details->setEnabled(enabled);
-  ui->action_save_world_details_as->setEnabled(enabled);
-  ui->action_print->setEnabled(enabled);
-  ui->action_log_session->setEnabled(enabled);
-  ui->action_reload_defaults->setEnabled(enabled);
-  ui->action_world_properties->setEnabled(enabled);
-  ui->action_undo->setEnabled(enabled);
-  ui->action_paste->setEnabled(enabled);
-  ui->action_paste_to_world->setEnabled(enabled);
-  ui->action_recall_last_word->setEnabled(enabled);
-  ui->action_select_all->setEnabled(enabled);
   ui->action_debug_packets->setEnabled(enabled);
+  ui->action_find_again->setEnabled(enabled);
+  ui->action_find->setEnabled(enabled);
   ui->action_go_to_matching_brace->setEnabled(enabled);
+  ui->action_import->setEnabled(enabled);
+  ui->action_log_session->setEnabled(enabled);
+  ui->action_paste_to_world->setEnabled(enabled);
+  ui->action_paste->setEnabled(enabled);
+  ui->action_plugin_wizard->setEnabled(enabled);
+  ui->action_plugins->setEnabled(enabled);
+  ui->action_print->setEnabled(enabled);
+  ui->action_recall_last_word->setEnabled(enabled);
+  ui->action_reload_defaults->setEnabled(enabled);
+  ui->action_save_world_details_as->setEnabled(enabled);
+  ui->action_save_world_details->setEnabled(enabled);
+  ui->action_select_all->setEnabled(enabled);
   ui->action_select_to_matching_brace->setEnabled(enabled);
+  ui->action_undo->setEnabled(enabled);
+  ui->action_world_properties->setEnabled(enabled);
 }
 
 WorldTab *App::worldtab() const
@@ -131,6 +136,26 @@ WorldTab *App::worldtab(int index) const
 }
 
 // Private slots
+
+void App::on_action_find_triggered()
+{
+  WorldTab *tab = worldtab();
+  if (!tab)
+    return;
+  if (findDialog.exec() == QDialog::Rejected)
+    return;
+  findDialog.find(tab->ui->output);
+}
+
+void App::on_action_find_again_triggered()
+{
+  WorldTab *tab = worldtab();
+  if (!tab)
+    return;
+  if (!findDialog.isFilled() && findDialog.exec() == QDialog::Rejected)
+    return;
+  findDialog.find(tab->ui->output);
+}
 
 void App::on_action_new_triggered()
 {
