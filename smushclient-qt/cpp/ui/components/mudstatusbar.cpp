@@ -11,7 +11,7 @@ MudStatusBar::MudStatusBar(QWidget *parent)
   connectionStatus = new QLabel;
   addPermanentWidget(connectionStatus);
 
-  QIcon networkIcon = QIcon::fromTheme(QIcon::ThemeIcon::NetworkWireless);
+  QIcon networkIcon = QIcon::fromTheme(QIcon::ThemeIcon::NetworkWired);
   connectionIcon = new IconLabel(networkIcon, QIcon::Mode::Disabled);
   addPermanentWidget(connectionIcon);
 
