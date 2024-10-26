@@ -104,25 +104,34 @@ void App::setupRecentFiles(const QStringList &recentFiles) const
 void App::setWorldMenusEnabled(bool enabled) const
 {
   ui->action_close_world->setEnabled(enabled);
-  ui->action_debug_packets->setEnabled(enabled);
-  ui->action_find_again->setEnabled(enabled);
-  ui->action_find->setEnabled(enabled);
-  ui->action_go_to_matching_brace->setEnabled(enabled);
-  ui->action_import->setEnabled(enabled);
-  ui->action_log_session->setEnabled(enabled);
-  ui->action_paste_to_world->setEnabled(enabled);
-  ui->action_paste->setEnabled(enabled);
-  ui->action_plugin_wizard->setEnabled(enabled);
-  ui->action_plugins->setEnabled(enabled);
-  ui->action_print->setEnabled(enabled);
-  ui->action_recall_last_word->setEnabled(enabled);
-  ui->action_reload_defaults->setEnabled(enabled);
-  ui->action_save_world_details_as->setEnabled(enabled);
   ui->action_save_world_details->setEnabled(enabled);
-  ui->action_select_all->setEnabled(enabled);
-  ui->action_select_to_matching_brace->setEnabled(enabled);
+  ui->action_save_world_details_as->setEnabled(enabled);
+  ui->action_edit_world_details->setEnabled(enabled);
+  ui->action_plugins->setEnabled(enabled);
+  ui->action_edit_script_file->setEnabled(enabled);
+  ui->action_reload_script_file->setEnabled(enabled);
+  ui->action_log_session->setEnabled(enabled);
+  ui->action_print->setEnabled(enabled);
   ui->action_undo->setEnabled(enabled);
-  ui->action_world_properties->setEnabled(enabled);
+  ui->action_redo->setEnabled(enabled);
+  ui->action_cut->setEnabled(enabled);
+  ui->action_copy->setEnabled(enabled);
+  ui->action_copy_as_html->setEnabled(enabled);
+  ui->action_paste->setEnabled(enabled);
+  ui->action_paste_to_world->setEnabled(enabled);
+  ui->action_select_all->setEnabled(enabled);
+  ui->action_save_selection->setEnabled(enabled);
+  ui->action_find->setEnabled(enabled);
+  ui->action_find_again->setEnabled(enabled);
+  ui->action_show_world_notepad->setEnabled(enabled);
+  ui->action_pause_output->setEnabled(enabled);
+  ui->action_connect->setEnabled(enabled);
+  ui->action_disconnect->setEnabled(enabled);
+  ui->action_go_to_line->setEnabled(enabled);
+  ui->action_command_history->setEnabled(enabled);
+  ui->action_clear_output->setEnabled(enabled);
+  ui->action_reset_all_timers->setEnabled(enabled);
+  ui->action_stop_sound_playing->setEnabled(enabled);
 }
 
 WorldTab *App::worldtab() const
