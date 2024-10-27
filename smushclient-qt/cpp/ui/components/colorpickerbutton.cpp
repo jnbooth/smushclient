@@ -1,4 +1,5 @@
 #include "colorpickerbutton.h"
+#include <QtGui/QPaintEvent>
 #include <QtGui/QPainter>
 #include <QtGui/QPen>
 #include <QtWidgets/QColorDialog>
@@ -48,18 +49,20 @@ QSize ColorPickerButton::sizeHint() const
 
 // Protected overrides
 
-void ColorPickerButton::paintEvent(QPaintEvent *)
+void ColorPickerButton::paintEvent(QPaintEvent *event)
 {
   static const QPen borderDownPen(QBrush(Qt::GlobalColor::white), 1);
   static const QPen borderUpPen(QBrush(Qt::GlobalColor::black), 1);
   static const QPen borderFocusedPen(QBrush(Qt::GlobalColor::darkBlue), 1);
 
+  const QRect &eventRect = event->rect();
+
   QPainter painter(this);
-  const QRect bounds = rect();
-  painter.fillRect(bounds, currentValue);
+  painter.setClipRegion(event->region());
+  painter.fillRect(eventRect, currentValue);
   const QPen &pen = isDown()     ? borderDownPen
                     : hasFocus() ? borderFocusedPen
                                  : borderUpPen;
   painter.setPen(pen);
-  painter.drawRect(bounds);
+  painter.drawRect(rect());
 }

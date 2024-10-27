@@ -483,13 +483,15 @@ void MiniWindow::updatePosition()
 
 void MiniWindow::paintEvent(QPaintEvent *event)
 {
+  QPainter painter(this);
+  painter.setClipRegion(event->region());
   if (position == Position::Tile) [[unlikely]]
   {
-    QPainter(this).drawTiledPixmap(rect(), pixmap);
+    painter.drawTiledPixmap(rect(), pixmap);
     return;
   }
   const QRect &eventRect = event->rect();
-  QPainter(this).drawPixmap(eventRect, pixmap, eventRect);
+  painter.drawPixmap(eventRect, pixmap, eventRect);
 }
 
 // Private methods
