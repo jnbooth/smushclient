@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::ffi::c_char;
 use std::fs::File;
+use std::io::Write;
 use std::pin::Pin;
 use std::{io, ptr};
 
@@ -121,6 +122,21 @@ impl SmushClientRust {
         self.client.set_world(world);
         self.apply_world();
         true
+    }
+
+    pub fn handle_connect(&self, mut socket: SocketAdapter) -> QString {
+        let input_lock = self.input_lock.lock();
+        let connect_message = self.client.world().connect_message();
+        let error = match socket.write_all(connect_message.as_bytes()) {
+            Ok(()) => QString::default(),
+            Err(e) => QString::from(&e.to_string()),
+        };
+        drop(input_lock);
+        error
+    }
+
+    pub fn handle_disconnect(&mut self) {
+        self.client.reset_connection();
     }
 
     pub fn palette(&self) -> Vec<QColor> {
@@ -328,6 +344,14 @@ impl ffi::SmushClient {
 
     pub fn palette(&self) -> QVector<QColor> {
         QVector::from(&self.cxx_qt_ffi_rust().palette())
+    }
+
+    pub fn handle_connect(&self, socket: Pin<&mut ffi::QTcpSocket>) -> QString {
+        self.cxx_qt_ffi_rust().handle_connect(socket.into())
+    }
+
+    pub fn handle_disconnect(self: Pin<&mut Self>) {
+        self.cxx_qt_ffi_rust_mut().handle_disconnect();
     }
 
     pub fn plugin_info(&self, index: PluginIndex, info_type: u8) -> QVariant {

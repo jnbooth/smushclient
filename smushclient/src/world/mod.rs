@@ -323,16 +323,44 @@ impl World {
         }
         palette
     }
+
+    pub fn connect_message(&self) -> String {
+        let player = &self.player;
+        let password = &self.password;
+        let text = if self.connect_text.is_empty() {
+            String::new()
+        } else {
+            let mut text = self
+                .connect_text
+                .replace("%name%", player)
+                .replace("%password%", password);
+            if !text.ends_with('\n') {
+                text.push_str("\r\n");
+            }
+            text
+        };
+        match self.connect_method {
+            Some(AutoConnect::Diku) if password.is_empty() => format!("{player}\r\n{text}"),
+            Some(AutoConnect::Diku) => format!("{player}\r\n{password}\r\n{text}"),
+            Some(AutoConnect::Mush) => format!("connect {player} {password}\r\n{text}"),
+            Some(AutoConnect::Mxp) | None => text,
+        }
+    }
 }
 
 impl From<&World> for TransformerConfig {
     fn from(value: &World) -> Self {
+        let (player, password) = if value.connect_method == Some(AutoConnect::Mxp) {
+            (value.player.clone(), value.password.clone())
+        } else {
+            (String::new(), String::new())
+        };
         Self {
             use_mxp: value.use_mxp,
             disable_compression: value.disable_compression,
             terminal_identification: value.terminal_identification.clone(),
-            player: value.player.clone(),
-            password: value.password.clone(),
+            player,
+            password,
             convert_ga_to_newline: value.convert_ga_to_newline,
             no_echo_off: value.no_echo_off,
             naws: value.naws,

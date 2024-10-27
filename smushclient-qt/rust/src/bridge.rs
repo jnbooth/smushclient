@@ -388,6 +388,8 @@ pub mod ffi {
         fn populate_world(self: &SmushClient, world: Pin<&mut World>);
         fn set_world(self: Pin<&mut SmushClient>, world: &World) -> bool;
         fn palette(self: &SmushClient) -> QVector_QColor;
+        fn handle_connect(self: &SmushClient, socket: Pin<&mut QTcpSocket>) -> QString;
+        fn handle_disconnect(self: Pin<&mut SmushClient>);
         fn alias(self: Pin<&mut SmushClient>, command: &QString, doc: Pin<&mut Document>) -> u8;
         fn plugin_info(self: &SmushClient, index: usize, info_type: u8) -> QVariant;
         fn add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> QString;

@@ -379,6 +379,7 @@ bool WorldTab::loadPlugins()
 
 void WorldTab::onConnect()
 {
+  client.handleConnect(*socket);
   api->setOpen(true);
   OnPluginConnect onConnect;
   api->sendCallback(onConnect);
@@ -386,6 +387,7 @@ void WorldTab::onConnect()
 
 void WorldTab::onDisconnect()
 {
+  client.handleDisconnect();
   api->setOpen(false);
   OnPluginDisconnect onDisconnect;
   api->sendCallback(onDisconnect);
