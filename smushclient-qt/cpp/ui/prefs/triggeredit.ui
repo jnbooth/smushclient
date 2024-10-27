@@ -319,7 +319,7 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
-            <property name="maximumSize">
+            <property name="baseSize">
              <size>
               <width>20</width>
               <height>20</height>
@@ -352,7 +352,7 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
-            <property name="maximumSize">
+            <property name="baseSize">
              <size>
               <width>20</width>
               <height>20</height>

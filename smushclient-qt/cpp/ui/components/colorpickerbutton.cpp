@@ -43,7 +43,7 @@ QSize ColorPickerButton::minimumSizeHint() const
 
 QSize ColorPickerButton::sizeHint() const
 {
-  return maximumSize();
+  return baseSize();
 }
 
 // Protected overrides

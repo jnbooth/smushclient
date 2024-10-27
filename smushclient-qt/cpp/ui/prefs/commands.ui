@@ -59,7 +59,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="EchoTextColour">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -76,7 +76,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="EchoBackgroundColour">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>

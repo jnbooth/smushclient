@@ -65,7 +65,7 @@
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
              <widget class="ColorPickerButton" name="Ansi0">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -75,7 +75,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="Ansi1">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -85,7 +85,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="Ansi2">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -95,7 +95,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="Ansi3">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -105,7 +105,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="Ansi4">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -115,7 +115,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="Ansi5">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -125,7 +125,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="Ansi6">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -135,7 +135,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="Ansi7">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -246,7 +246,7 @@
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
              <widget class="ColorPickerButton" name="Ansi8">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -256,7 +256,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="Ansi9">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -266,7 +266,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="Ansi10">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -276,7 +276,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="Ansi11">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -286,7 +286,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="Ansi12">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -296,7 +296,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="Ansi13">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -306,7 +306,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="Ansi14">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>
@@ -316,7 +316,7 @@
             </item>
             <item>
              <widget class="ColorPickerButton" name="Ansi15">
-              <property name="maximumSize">
+              <property name="baseSize">
                <size>
                 <width>20</width>
                 <height>20</height>

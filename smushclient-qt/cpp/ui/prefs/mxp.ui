@@ -111,7 +111,7 @@
         </item>
         <item>
          <widget class="ColorPickerButton" name="HyperlinkColour">
-          <property name="maximumSize">
+          <property name="baseSize">
            <size>
             <width>20</width>
             <height>20</height>
