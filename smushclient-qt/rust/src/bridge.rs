@@ -685,7 +685,7 @@ pub mod ffi {
         #[qproperty(QString, name)]
         #[qproperty(QString, site)]
         #[qproperty(i32, port)]
-        #[qproperty(ProxyType, proxy_type)]
+        #[qproperty(bool, use_proxy)]
         #[qproperty(QString, proxy_server)]
         #[qproperty(i32, proxy_port)]
         #[qproperty(QString, proxy_username)]
@@ -814,13 +814,6 @@ pub mod ffi {
         fn build_alias_tree(self: &World, builder: Pin<&mut TreeBuilder>);
         fn build_timer_tree(self: &World, builder: Pin<&mut TreeBuilder>);
         fn build_trigger_tree(self: &World, builder: Pin<&mut TreeBuilder>);
-    }
-
-    #[qenum(World)]
-    enum ProxyType {
-        None,
-        Socks4,
-        Socks5,
     }
 
     #[qenum(World)]

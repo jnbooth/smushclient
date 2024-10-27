@@ -10,7 +10,7 @@ PrefsAddress::PrefsAddress(const World &world, QWidget *parent)
   CONNECT_WORLD(Name);
   CONNECT_WORLD(Site);
   CONNECT_WORLD(Port);
-  CONNECT_WORLD(ProxyType);
+  CONNECT_WORLD(UseProxy);
   CONNECT_WORLD(ProxyServer);
   CONNECT_WORLD(ProxyPort);
   CONNECT_WORLD(SaveWorldAutomatically);

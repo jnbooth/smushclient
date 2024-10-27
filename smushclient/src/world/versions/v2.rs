@@ -10,6 +10,12 @@ use mud_transformer::mxp::RgbColor;
 use super::super::types::*;
 
 #[derive(Deserialize)]
+pub enum ProxyType {
+    Socks4,
+    Socks5,
+}
+
+#[derive(Deserialize)]
 pub struct World {
     // IP address
     pub name: String,
@@ -217,7 +223,7 @@ impl From<World> for super::super::World {
             name: value.name,
             site: value.site,
             port: value.port,
-            proxy_type: value.proxy_type,
+            use_proxy: value.proxy_type.is_some(),
             proxy_server: value.proxy_server,
             proxy_port: value.proxy_port,
             proxy_username: value.proxy_username,

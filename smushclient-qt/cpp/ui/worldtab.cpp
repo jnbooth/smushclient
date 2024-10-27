@@ -5,6 +5,7 @@
 #include <QtGui/QDesktopServices>
 #include <QtGui/QFontDatabase>
 #include <QtGui/QPalette>
+#include <QtNetwork/QNetworkProxy>
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
@@ -296,6 +297,17 @@ void WorldTab::applyWorld() const
 {
   document->setPalette(client.palette());
   setColors(ui->background, world.getAnsi7(), world.getAnsi0());
+  if (world.getUseProxy())
+    socket->setProxy(QNetworkProxy(
+        QNetworkProxy::ProxyType::Socks5Proxy,
+        world.getProxyServer(),
+        world.getProxyPort(),
+        world.getProxyUsername(),
+        world.getProxyPassword()));
+  else
+    socket->setProxy(QNetworkProxy::NoProxy);
+  if (world.getSaveWorldAutomatically())
+    saveWorldAndState(filePath);
   api->applyWorld(world);
 }
 

@@ -31,12 +31,6 @@ pub mod ffi {
         b: u8,
     }
 
-    enum ProxyType {
-        None,
-        Socks4,
-        Socks5,
-    }
-
     enum AutoConnect {
         None,
         Mush,
@@ -248,7 +242,7 @@ pub mod ffi {
         name: String,
         site: String,
         port: u16,
-        proxy_type: ProxyType,
+        use_proxy: bool,
         proxy_server: String,
         proxy_port: u16,
         proxy_username: String,

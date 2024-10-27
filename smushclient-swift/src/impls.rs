@@ -12,7 +12,7 @@ use mud_transformer::{
     EffectFragment, EntityFragment, OutputFragment, TelnetFragment, TelnetSource, TelnetVerb,
     UseMxp,
 };
-use smushclient::world::{AutoConnect, ColorPair, LogFormat, LogMode, ProxyType, ScriptRecompile};
+use smushclient::world::{AutoConnect, ColorPair, LogFormat, LogMode, ScriptRecompile};
 use smushclient::{SendRequest, SendScriptRequest, World};
 use smushclient_plugins::{
     Alias, Occurrence, Reaction, Regex, SendTarget, Sender, SenderLock, Timer, Trigger,
@@ -29,8 +29,6 @@ impl Convert<PathBuf> for String {
 }
 
 impl_convert!(bool, SenderLock);
-
-impl_convert_enum_opt!(ffi::ProxyType, ProxyType, Socks4, Socks5);
 
 impl_convert_enum_opt!(ffi::AutoConnect, AutoConnect, Mush, Diku, Mxp);
 
@@ -148,7 +146,7 @@ impl_convert_struct!(
     name,
     site,
     port,
-    proxy_type,
+    use_proxy,
     proxy_server,
     proxy_port,
     proxy_username,

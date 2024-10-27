@@ -5,14 +5,6 @@ use serde::{Deserialize, Serialize};
 #[derive(
     Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize, Enum,
 )]
-pub enum ProxyType {
-    Socks4,
-    Socks5,
-}
-
-#[derive(
-    Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize, Enum,
-)]
 pub enum AutoConnect {
     Mush,
     Diku,

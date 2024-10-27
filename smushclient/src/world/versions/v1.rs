@@ -8,6 +8,7 @@ use smushclient_plugins::{Alias, Timer, Trigger};
 use mud_transformer::mxp::RgbColor;
 
 use super::super::types::*;
+use super::v2::ProxyType;
 
 #[derive(Deserialize)]
 pub struct World {
