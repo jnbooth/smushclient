@@ -88,13 +88,14 @@ void MudInput::keyPressEvent(QKeyEvent *event)
       QTextEdit::keyPressEvent(event);
       return;
     }
-    if (const QString text = toPlainText(); !text.isEmpty())
+    const QString text = toPlainText();
+    if (!text.isEmpty())
     {
       history.push(text);
-      emit submitted(text);
       clear();
-      return;
     }
+    emit submitted(text);
+    return;
   }
 
   QTextEdit::keyPressEvent(event);
