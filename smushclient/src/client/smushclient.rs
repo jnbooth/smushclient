@@ -9,6 +9,7 @@ use super::variables::PluginVariables;
 use crate::handler::Handler;
 use crate::plugins::{
     assert_unique_label, AliasOutcome, LoadFailure, PluginEngine, SendIterable, SenderAccessError,
+    TriggerEffects,
 };
 use crate::world::{PersistError, World};
 use crate::LoadError;
@@ -159,6 +160,7 @@ impl SmushClient {
         self.logger.log_error(handler);
         self.output_buf.clear();
         self.output_buf.extend(self.transformer.flush_output());
+        let enable_triggers = self.world.enable_triggers;
         let mut slice = &mut self.output_buf[..];
         loop {
             if slice.is_empty() {
@@ -182,9 +184,19 @@ impl SmushClient {
             let (output, after) = slice.split_at_mut(until);
             slice = after;
 
-            let trigger_effects =
+            let trigger_effects = if enable_triggers {
                 self.plugins
-                    .trigger(&self.line_text, output, &mut self.world, handler);
+                    .trigger(&self.line_text, output, &mut self.world, handler)
+            } else {
+                let trigger_effects = TriggerEffects::default();
+                for fragment in output.iter_mut() {
+                    if let OutputFragment::Text(text) = &mut fragment.fragment {
+                        trigger_effects.apply(text, &self.world);
+                    }
+                    handler.display(fragment);
+                }
+                trigger_effects
+            };
 
             if !trigger_effects.omit_from_log {
                 self.logger
@@ -194,6 +206,14 @@ impl SmushClient {
     }
 
     pub fn alias<H: Handler>(&mut self, input: &str, handler: &mut H) -> AliasOutcome {
+        if !self.world.enable_aliases {
+            handler.echo(input);
+            return AliasOutcome {
+                display: true,
+                remember: true,
+                send: true,
+            };
+        }
         let outcome = self.plugins.alias(input, &mut self.world, handler);
         if !outcome.omit_from_log {
             self.logger.log_input_line(input.as_bytes(), &self.world);

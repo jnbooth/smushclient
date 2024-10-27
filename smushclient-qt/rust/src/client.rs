@@ -238,6 +238,9 @@ impl SmushClientRust {
     }
 
     pub fn start_timers(&mut self, index: PluginIndex, mut timekeeper: TimekeeperAdapter) {
+        if !self.client.world().enable_timers {
+            return;
+        }
         for timer in self.client.senders::<Timer>(index) {
             self.timers.start(index, timer, &mut timekeeper);
         }
@@ -253,8 +256,11 @@ impl SmushClientRust {
         timer: Timer,
         mut timekeeper: TimekeeperAdapter,
     ) -> Result<usize, SenderAccessError> {
+        let enable_timers = self.client.world().enable_timers;
         let (pos, timer) = self.client.add_sender(index, timer)?;
-        self.timers.start(index, timer, &mut timekeeper);
+        if enable_timers {
+            self.timers.start(index, timer, &mut timekeeper);
+        }
         Ok(pos)
     }
 
@@ -264,8 +270,11 @@ impl SmushClientRust {
         timer: Timer,
         mut timekeeper: TimekeeperAdapter,
     ) -> Result<usize, SenderAccessError> {
+        let enable_timers = self.client.world().enable_timers;
         let (pos, timer) = self.client.add_or_replace_sender(index, timer)?;
-        self.timers.start(index, timer, &mut timekeeper);
+        if enable_timers {
+            self.timers.start(index, timer, &mut timekeeper);
+        }
         Ok(pos)
     }
 
