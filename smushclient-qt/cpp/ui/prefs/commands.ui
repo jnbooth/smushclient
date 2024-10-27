@@ -47,53 +47,71 @@
          <property name="title">
           <string>Output Window</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <layout class="QVBoxLayout" name="verticalLayout">
           <item>
-           <widget class="QCheckBox" name="DisplayMyInput">
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QCheckBox" name="DisplayMyInput">
+              <property name="text">
+               <string>Echo my &amp;input in</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ColorPickerButton" name="EchoTextColour">
+              <property name="maximumSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="EchoBackgroundColour_label">
+              <property name="text">
+               <string>on</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ColorPickerButton" name="EchoBackgroundColour">
+              <property name="maximumSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="KeepCommandsOnSameLine">
             <property name="text">
-             <string>Echo my &amp;input in</string>
+             <string>Keep commands on prompt line</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="ColorPickerButton" name="EchoTextColour">
-            <property name="maximumSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="EchoBackgroundColour_label">
+           <widget class="QCheckBox" name="NoEchoOff">
             <property name="text">
-             <string>on</string>
+             <string>Ignore &quot;Echo Off&quot; messages</string>
             </property>
            </widget>
-          </item>
-          <item>
-           <widget class="ColorPickerButton" name="EchoBackgroundColour">
-            <property name="maximumSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </widget>
@@ -191,100 +209,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="_command_window">
-         <property name="title">
-          <string>Command Window</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
-          <item>
-           <widget class="QFontComboBox" name="InputFont">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="_font_options">
-            <item>
-             <widget class="QSpinBox" name="InputFontHeight">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="suffix">
-               <string> pt.</string>
-              </property>
-             </widget>
-            </item>
-            <item alignment="Qt::AlignmentFlag::AlignRight">
-             <widget class="QCheckBox" name="UseDefaultInputFont">
-              <property name="text">
-               <string>O&amp;verride with default</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="_color">
-            <item>
-             <widget class="QLabel" name="InputTextColour_label">
-              <property name="text">
-               <string>Colour:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="ColorPickerButton" name="InputTextColour">
-              <property name="maximumSize">
-               <size>
-                <width>20</width>
-                <height>20</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="InputBackgroundColour_label">
-              <property name="text">
-               <string>on</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="ColorPickerButton" name="InputBackgroundColour">
-              <property name="maximumSize">
-               <size>
-                <width>20</width>
-                <height>20</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Orientation::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <widget class="QGroupBox" name="_spam_prevention">
          <property name="title">
           <string>Spam Prevention</string>
@@ -349,115 +273,6 @@
        </item>
       </layout>
      </item>
-     <item>
-      <layout class="QVBoxLayout" name="_checkboxes">
-       <property name="spacing">
-        <number>6</number>
-       </property>
-       <item>
-        <widget class="QCheckBox" name="AutoRepeat">
-         <property name="text">
-          <string>Auto-repeat command</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="LowerCaseTabCompletion">
-         <property name="text">
-          <string>Tab completion in lowercase</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="TranslateGerman">
-         <property name="text">
-          <string>Translate German characters</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="TranslateBackslashSequences">
-         <property name="text">
-          <string>Translate backslash sequences</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="KeepCommandsOnSameLine">
-         <property name="text">
-          <string>Keep commands on prompt line</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="NoEchoOff">
-         <property name="text">
-          <string>Ignore &quot;Echo Off&quot; messages</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Orientation::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox_6">
-         <property name="title">
-          <string>Command History</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_10">
-          <item>
-           <widget class="QLabel" name="HistoryLines_label">
-            <property name="text">
-             <string>Keep</string>
-            </property>
-            <property name="buddy">
-             <cstring>HistoryLines</cstring>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="HistoryLines">
-            <property name="maximum">
-             <number>100000</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="SuffixHistoryLines_label">
-            <property name="text">
-             <string>lines</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="keyboard_preferences_button">
-         <property name="text">
-          <string>Keyboard Preferences...</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="tab_completion_button">
-         <property name="text">
-          <string>Tab Completion...</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
     </layout>
    </item>
    <item>
@@ -484,38 +299,6 @@
  </customwidgets>
  <resources/>
  <connections>
-  <connection>
-   <sender>UseDefaultInputFont</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>InputFont</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>205</x>
-     <y>385</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>214</x>
-     <y>356</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>UseDefaultInputFont</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>InputFontHeight</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>267</x>
-     <y>388</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>118</x>
-     <y>396</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>EnableSpeedWalk</sender>
    <signal>toggled(bool)</signal>

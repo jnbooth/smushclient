@@ -2,7 +2,6 @@
 #include "ui_worldprefs.h"
 #include "prefs/address.h"
 #include "prefs/aliases.h"
-#include "prefs/chat.h"
 #include "prefs/color.h"
 #include "prefs/commands.h"
 #include "prefs/connecting.h"
@@ -19,12 +18,11 @@ WorldPrefs::WorldPrefs(World &world, QWidget *parent)
       ui(new Ui::WorldPrefs)
 {
   ui->setupUi(this);
-  panes.reserve(12);
+  panes.reserve(10);
   setupPane(new PrefsAddress(world, this), "IP address");
   setupPane(new PrefsConnecting(world, this), "Connecting");
   setupPane(new PrefsLogging(world, this), "Logging");
   setupPane(new PrefsTimers(world, this), "Timers");
-  setupPane(new PrefsChat(world, this), "Chat");
   setupPane(new PrefsOutput(world, this), "Output");
   setupPane(new PrefsMxp(world, this), "MXP");
   setupPane(new PrefsColor(world, this), "Colour");

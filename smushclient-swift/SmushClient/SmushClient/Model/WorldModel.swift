@@ -119,7 +119,6 @@ class WorldModel {
   var error_colour: NSColor = defaultErrorColor
   var triggers: [TriggerModel] = []
   var enable_triggers: Bool = true
-  var enable_trigger_sounds: Bool = true
   var treeview_triggers: Bool = true
   var display_my_input: Bool = true
   var echo_colors: ColorPairModel = ColorPairModel(foreground: defaultEchoColor)
@@ -284,7 +283,6 @@ class WorldModel {
     ansi_colors = fromVec(world.ansi_colors, by: Palette.namedColors.get)
     triggers = fromVec(world.triggers, by: TriggerModel.init)
     enable_triggers = world.enable_triggers
-    enable_trigger_sounds = world.enable_trigger_sounds
     treeview_triggers = world.treeview_triggers
     display_my_input = world.display_my_input
     echo_colors = ColorPairModel(world.echo_colors)
@@ -453,7 +451,6 @@ extension World {
     ansi_colors = intoVec(world.ansi_colors, by: RgbColor.init)
     triggers = intoVec(world.triggers, by: Trigger.init)
     enable_triggers = world.enable_triggers
-    enable_trigger_sounds = world.enable_trigger_sounds
     treeview_triggers = world.treeview_triggers
     display_my_input = world.display_my_input
     echo_colors = ColorPair(world.echo_colors)

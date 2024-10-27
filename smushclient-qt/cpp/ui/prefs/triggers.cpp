@@ -11,7 +11,6 @@ PrefsTriggers::PrefsTriggers(World &world, QWidget *parent)
 {
   ui->setupUi(this);
   CONNECT_WORLD(EnableTriggers);
-  CONNECT_WORLD(EnableTriggerSounds);
   ui->tree->clear();
   TreeBuilder builder(ui->tree);
   world.buildTriggerTree(builder);

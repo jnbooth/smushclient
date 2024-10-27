@@ -86,14 +86,7 @@ WorldTab::~WorldTab()
 
 void WorldTab::createWorld() &
 {
-  const QString defaultFontFamily = defaultFont.family();
-  const int defaultFontHeight = defaultFont.pointSize();
   client.populateWorld(world);
-  world.setInputFont(defaultFontFamily);
-  world.setInputFontHeight(defaultFontHeight);
-  world.setOutputFont(defaultFontFamily);
-  world.setOutputFontHeight(defaultFontHeight);
-  client.setWorld(world);
   openLog();
   loadPlugins();
   applyWorld();
@@ -303,9 +296,6 @@ void WorldTab::applyWorld() const
 {
   document->setPalette(client.palette());
   setColors(ui->background, world.getAnsi7(), world.getAnsi0());
-
-  ui->input->setMaxLogSize(world.getHistoryLines());
-
   api->applyWorld(world);
 }
 

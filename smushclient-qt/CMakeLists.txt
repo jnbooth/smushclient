@@ -110,7 +110,6 @@ qt_add_executable(${APP_NAME}
     cpp/ui/prefs/address.h cpp/ui/prefs/address.cpp cpp/ui/prefs/address.ui
     cpp/ui/prefs/aliasedit.h cpp/ui/prefs/aliasedit.cpp cpp/ui/prefs/aliasedit.ui
     cpp/ui/prefs/aliases.h cpp/ui/prefs/aliases.cpp cpp/ui/prefs/aliases.ui
-    cpp/ui/prefs/chat.h cpp/ui/prefs/chat.cpp cpp/ui/prefs/chat.ui
     cpp/ui/prefs/color.h cpp/ui/prefs/color.cpp cpp/ui/prefs/color.ui
     cpp/ui/prefs/commands.h cpp/ui/prefs/commands.cpp cpp/ui/prefs/commands.ui
     cpp/ui/prefs/connecting.h cpp/ui/prefs/connecting.cpp cpp/ui/prefs/connecting.ui

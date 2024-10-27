@@ -4,8 +4,7 @@
 
 PrefsCommands::PrefsCommands(World &world, QWidget *parent)
     : QWidget(parent),
-      ui(new Ui::PrefsCommands),
-      world(world)
+      ui(new Ui::PrefsCommands)
 {
   ui->setupUi(this);
   CONNECT_WORLD(DisplayMyInput);
@@ -17,49 +16,14 @@ PrefsCommands::PrefsCommands(World &world, QWidget *parent)
   CONNECT_WORLD(SpeedWalkDelay);
   CONNECT_WORLD(EnableCommandStack);
   CONNECT_WORLD(CommandStackCharacter);
-  CONNECT_WORLD(InputTextColour);
-  CONNECT_WORLD(InputBackgroundColour);
-  CONNECT_WORLD(InputFontHeight);
-  CONNECT_WORLD(UseDefaultInputFont);
   CONNECT_WORLD(EnableSpamPrevention);
   CONNECT_WORLD(SpamLineCount);
   CONNECT_WORLD(SpamMessage);
-  CONNECT_WORLD(AutoRepeat);
-  CONNECT_WORLD(LowerCaseTabCompletion);
-  CONNECT_WORLD(TranslateGerman);
-  CONNECT_WORLD(TranslateBackslashSequences);
   CONNECT_WORLD(KeepCommandsOnSameLine);
   CONNECT_WORLD(NoEchoOff);
-  /*
-  CONNECT_WORLD(TabCompletionLines);
-  CONNECT_WORLD(TabCompletionSpace);
-  CONNECT_WORLD(DoubleClickInserts);
-  CONNECT_WORLD(DoubleClickSends);
-  CONNECT_WORLD(EscapeDeletesInput);
-  CONNECT_WORLD(SaveDeletedCommand);
-  CONNECT_WORLD(ConfirmBeforeReplacingTyping);
-  CONNECT_WORLD(ArrowKeysWrap);
-  CONNECT_WORLD(ArrowsChangeHistory);
-  CONNECT_WORLD(ArrowRecallsPartial);
-  CONNECT_WORLD(AltArrowRrecallsPartial);
-  CONNECT_WORLD(CtrlZGoesToEndOfBuffer);
-  CONNECT_WORLD(CtrlPGoesToPreviousCommand);
-  CONNECT_WORLD(CtrlNGoesToNextCommand);
-  */
-  CONNECT_WORLD(HistoryLines);
-
-  QFont inputFont(world.getInputFont(), world.getInputFontHeight());
-  ui->InputFont->setCurrentFont(inputFont);
 }
 
 PrefsCommands::~PrefsCommands()
 {
   delete ui;
-}
-
-// Private methods
-
-void PrefsCommands::on_InputFont_currentFontChanged(const QFont &f)
-{
-  world.setInputFont(f.family());
 }

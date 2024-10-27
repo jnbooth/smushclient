@@ -15,10 +15,6 @@ public:
   explicit PrefsCommands(World &world, QWidget *parent = nullptr);
   ~PrefsCommands();
 
-private slots:
-  void on_InputFont_currentFontChanged(const QFont &f);
-
 private:
   Ui::PrefsCommands *ui;
-  World &world;
 };

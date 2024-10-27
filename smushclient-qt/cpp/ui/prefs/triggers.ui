@@ -167,13 +167,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="EnableTriggerSounds">
-       <property name="text">
-        <string>Enable Sounds</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QToolButton" name="export_xml">
        <property name="text">
         <string/>
@@ -198,22 +191,4 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>EnableTriggers</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>EnableTriggerSounds</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>342</x>
-     <y>398</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>403</x>
-     <y>390</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
 </ui>

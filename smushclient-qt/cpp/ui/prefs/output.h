@@ -15,10 +15,6 @@ public:
   explicit PrefsOutput(World &world, QWidget *parent = nullptr);
   ~PrefsOutput();
 
-private slots:
-  void on_OutputFont_currentFontChanged(const QFont &f);
-
 private:
   Ui::PrefsOutput *ui;
-  World &world;
 };
