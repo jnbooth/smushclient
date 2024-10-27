@@ -35,6 +35,13 @@ void setColors(QWidget *widget, const QColor &foreground, const QColor &backgrou
   widget->setPalette(palette);
 }
 
+void setColor(QWidget *widget, QPalette::ColorRole role, const QColor &color)
+{
+  QPalette palette(widget->palette());
+  palette.setColor(role, color);
+  widget->setPalette(palette);
+}
+
 inline void showRustError(const rust::Error &e)
 {
   QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
@@ -61,6 +68,11 @@ WorldTab::WorldTab(QWidget *parent)
   connect(socket, &QTcpSocket::readyRead, this, &WorldTab::readFromSocket);
   connect(socket, &QTcpSocket::connected, this, &WorldTab::onConnect);
   connect(socket, &QTcpSocket::disconnected, this, &WorldTab::onDisconnect);
+
+  const Settings settings;
+  setColors(ui->input, settings.inputForeground(), settings.inputBackground());
+  ui->input->setFont(settings.inputFont());
+  ui->output->setFont(settings.outputFont());
 }
 
 WorldTab::~WorldTab()
@@ -220,6 +232,28 @@ bool WorldTab::updateWorld()
   return false;
 }
 
+// Public slots
+
+void WorldTab::onInputBackgroundChanged(const QColor &color)
+{
+  setColor(ui->input, QPalette::ColorRole::Base, color);
+}
+
+void WorldTab::onInputFontChanged(const QFont &font)
+{
+  ui->input->setFont(font);
+}
+
+void WorldTab::onInputForegroundChanged(const QColor &color)
+{
+  setColor(ui->input, QPalette::ColorRole::Text, color);
+}
+
+void WorldTab::onOutputFontChanged(const QFont &font)
+{
+  ui->output->setFont(font);
+}
+
 // Protected overrides
 
 void WorldTab::mouseMoveEvent(QMouseEvent *)
@@ -270,21 +304,7 @@ void WorldTab::applyWorld() const
   document->setPalette(client.palette());
   setColors(ui->background, world.getAnsi7(), world.getAnsi0());
 
-  MudInput *input = ui->input;
-  setColors(input, world.getInputTextColour(), world.getInputBackgroundColour());
-  input->setMaxLogSize(world.getHistoryLines());
-  const QFont &inputFont =
-      world.getUseDefaultInputFont()
-          ? defaultFont
-          : QFont(world.getInputFont(), world.getInputFontHeight());
-  input->setFont(inputFont);
-
-  MudBrowser *output = ui->output;
-  const QFont &outputFont =
-      world.getUseDefaultOutputFont()
-          ? defaultFont
-          : QFont(world.getOutputFont(), world.getOutputFontHeight());
-  output->setFont(outputFont);
+  ui->input->setMaxLogSize(world.getHistoryLines());
 
   api->applyWorld(world);
 }

@@ -5,6 +5,7 @@
 #include "../environment.h"
 #include "../settings.h"
 #include "finddialog.h"
+#include "settings.h"
 
 #include <QtWidgets/QFileDialog>
 
@@ -158,6 +159,12 @@ void App::on_action_disconnect_triggered()
     tab->disconnectFromHost();
 }
 
+void App::on_action_edit_world_details_triggered()
+{
+  if (WorldTab *tab = worldtab(); tab)
+    tab->openWorldSettings();
+}
+
 void App::on_action_find_triggered()
 {
   if (WorldTab *tab = worldtab(); tab && findDialog.exec() == QDialog::Accepted)
@@ -168,6 +175,24 @@ void App::on_action_find_again_triggered()
 {
   if (WorldTab *tab = worldtab(); tab && (findDialog.isFilled() || findDialog.exec() == QDialog::Accepted))
     findDialog.find(tab->ui->output);
+}
+
+void App::on_action_global_preferences_triggered()
+{
+  Settings settings;
+  SettingsDialog *dialog = new SettingsDialog(settings, this);
+  dialog->setAttribute(Qt::WA_DeleteOnClose, true);
+  for (QObject *child : ui->world_tabs->children())
+  {
+    WorldTab *tab = qobject_cast<WorldTab *>(child);
+    if (!tab)
+      continue;
+    connect(dialog, &SettingsDialog::inputBackgroundChanged, tab, &WorldTab::onInputBackgroundChanged);
+    connect(dialog, &SettingsDialog::inputFontChanged, tab, &WorldTab::onInputFontChanged);
+    connect(dialog, &SettingsDialog::inputForegroundChanged, tab, &WorldTab::onInputForegroundChanged);
+    connect(dialog, &SettingsDialog::outputFontChanged, tab, &WorldTab::onOutputFontChanged);
+  }
+  dialog->exec();
 }
 
 void App::on_action_new_triggered()
@@ -208,12 +233,6 @@ void App::on_action_save_world_details_triggered()
 {
   if (WorldTab *tab = worldtab(); tab)
     addRecentFile(tab->saveWorld(saveFilter));
-}
-
-void App::on_action_world_properties_triggered()
-{
-  if (WorldTab *tab = worldtab(); tab)
-    tab->openWorldSettings();
 }
 
 void App::on_world_tabs_currentChanged(int index)

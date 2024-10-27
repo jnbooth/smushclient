@@ -5,6 +5,7 @@
 #include <QtNetwork/QTcpSocket>
 #include <QtWidgets/QSplitter>
 #include "../scripting/callbacktrigger.h"
+#include "../settings.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
 class Document;
@@ -43,6 +44,12 @@ public:
   SmushClient client;
   QTcpSocket *socket;
   World world;
+
+public slots:
+  void onInputBackgroundChanged(const QColor &color);
+  void onInputFontChanged(const QFont &font);
+  void onInputForegroundChanged(const QColor &color);
+  void onOutputFontChanged(const QFont &font);
 
 protected:
   void leaveEvent(QEvent *event) override;

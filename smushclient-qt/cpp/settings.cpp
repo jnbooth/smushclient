@@ -1,9 +1,15 @@
 #include "settings.h"
 #include <QtCore/QDir>
 #include <QtCore/QUuid>
+#include <QtGui/QColor>
+#include <QtGui/QFontDatabase>
 
-static const QString recentFilesKey = QStringLiteral("recent");
-constexpr qsizetype recentFilesMax = 5;
+QFont getDefaultFont(int pointSize)
+{
+  QFont defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+  defaultFont.setPointSize(pointSize);
+  return defaultFont;
+}
 
 // Private utilities
 
@@ -19,6 +25,84 @@ QString makePathRelative(const QString &filePath)
 // Public methods
 
 Settings::Settings() : store() {}
+
+// Input font
+
+static const QString inputFontKey = QStringLiteral("input/font");
+
+QFont Settings::inputFont() const
+{
+  const QVariant font = store.value(inputFontKey);
+  if (font.canConvert<QFont>())
+    return font.value<QFont>();
+
+  static const QFont defaultFont = getDefaultFont(12);
+  return defaultFont;
+}
+
+void Settings::setInputFont(const QFont &font)
+{
+  store.setValue(inputFontKey, font);
+}
+
+// Input background
+
+static const QString inputBackgroundKey = QStringLiteral("input/background");
+
+QColor Settings::inputBackground() const
+{
+  const QVariant color = store.value(inputBackgroundKey);
+  if (color.canConvert<QColor>())
+    return color.value<QColor>();
+  return Qt::GlobalColor::white;
+}
+
+void Settings::setInputBackground(const QColor &color)
+{
+  store.setValue(inputBackgroundKey, color);
+}
+
+// Input foreground
+
+static const QString inputForegroundKey = QStringLiteral("input/foreground");
+
+QColor Settings::inputForeground() const
+{
+  const QVariant color = store.value(inputForegroundKey);
+  if (color.canConvert<QColor>())
+    return color.value<QColor>();
+  return Qt::GlobalColor::black;
+}
+
+void Settings::setInputForeground(const QColor &color)
+{
+  store.setValue(inputForegroundKey, color);
+}
+
+// Output font
+
+static const QString outputFontKey = QStringLiteral("output/font");
+
+QFont Settings::outputFont() const
+{
+  const QVariant font = store.value(outputFontKey);
+  if (font.canConvert<QFont>())
+    return font.value<QFont>();
+
+  static const QFont defaultFont = getDefaultFont(12);
+  return defaultFont;
+}
+
+void Settings::setOutputFont(const QFont &font)
+{
+  store.setValue(outputFontKey, font);
+}
+
+// Recent files
+
+static const QString recentFilesKey = QStringLiteral("recent");
+
+constexpr qsizetype recentFilesMax = 5;
 
 QStringList Settings::recentFiles() const
 {
