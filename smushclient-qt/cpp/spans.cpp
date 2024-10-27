@@ -121,9 +121,9 @@ LineType getLineType(const QTextCharFormat &format)
 
 void setTimestamp(QTextCursor &cursor)
 {
-  QTextBlockFormat format = cursor.blockFormat();
+  QTextBlockFormat format;
   format.setProperty(timestampProp, QDateTime::currentDateTime());
-  cursor.setBlockFormat(format);
+  cursor.mergeBlockFormat(format);
 }
 
 QDateTime getTimestamp(const QTextBlockFormat &format)
