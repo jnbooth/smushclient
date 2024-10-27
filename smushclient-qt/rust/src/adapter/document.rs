@@ -13,7 +13,7 @@ pub struct QColorPair {
 adapter!(DocumentAdapter, ffi::Document);
 
 impl<'a> DocumentAdapter<'a> {
-    pub fn append_html(&mut self, html: &QString) {
+    pub fn append_html(&self, html: &QString) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.append_html(html) };
     }
@@ -23,12 +23,12 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.as_mut().append_line() }
     }
 
-    pub fn append_plaintext(&mut self, text: &QString, palette: i32) {
+    pub fn append_plaintext(&self, text: &QString, palette: i32) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.append_plaintext(text, palette) };
     }
 
-    pub fn append_text(&mut self, text: &QString, style: u16, color: &QColorPair) {
+    pub fn append_text(&self, text: &QString, style: u16, color: &QColorPair) {
         // SAFETY: External call to safe method on opaque type.
         unsafe {
             self.inner
@@ -36,13 +36,7 @@ impl<'a> DocumentAdapter<'a> {
         }
     }
 
-    pub fn append_link(
-        &mut self,
-        text: &QString,
-        style: u16,
-        color: &QColorPair,
-        link: &ffi::Link,
-    ) {
+    pub fn append_link(&self, text: &QString, style: u16, color: &QColorPair, link: &ffi::Link) {
         // SAFETY: External call to safe method on opaque type.
         unsafe {
             self.inner
@@ -50,7 +44,12 @@ impl<'a> DocumentAdapter<'a> {
         }
     }
 
-    pub fn begin(&mut self) {
+    pub fn beep(&self) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.beep() };
+    }
+
+    pub fn begin(&self) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.begin() };
     }
@@ -60,9 +59,19 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.echo(command) };
     }
 
-    pub fn erase_last_line(&mut self) {
+    pub fn erase_current_line(&self) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.erase_current_line() };
+    }
+
+    pub fn erase_last_line(&self) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.erase_last_line() };
+    }
+
+    pub fn erase_last_character(&self) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.erase_last_character() };
     }
 
     pub fn end(&self) {
@@ -90,7 +99,7 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.handle_telnet_iac_ga() };
     }
 
-    pub fn handle_telnet_naws(&mut self) {
+    pub fn handle_telnet_naws(&self) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.handle_telnet_naws() };
     }
@@ -126,5 +135,10 @@ impl<'a> DocumentAdapter<'a> {
     pub fn send_script(&self, request: &ffi::SendScriptRequest) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.send_script(request) };
+    }
+
+    pub fn set_suppress_echo(&self, suppress: bool) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.set_suppress_echo(suppress) };
     }
 }

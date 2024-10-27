@@ -215,9 +215,17 @@ pub mod ffi {
             link: &Link,
         );
 
+        unsafe fn beep(self: &Document);
+
         unsafe fn begin(self: &Document);
 
         unsafe fn echo(self: &Document, command: &QString);
+
+        #[rust_name = "erase_current_line"]
+        unsafe fn eraseCurrentLine(self: &Document);
+
+        #[rust_name = "erase_last_character"]
+        unsafe fn eraseLastCharacter(self: &Document);
 
         #[rust_name = "erase_last_line"]
         unsafe fn eraseLastLine(self: &Document);
@@ -260,6 +268,9 @@ pub mod ffi {
 
         #[rust_name = "send_script"]
         unsafe fn send(self: &Document, request: &SendScriptRequest);
+
+        #[rust_name = "set_suppress_echo"]
+        unsafe fn setSuppressEcho(self: &Document, suppress: bool);
     }
 
     extern "C++Qt" {

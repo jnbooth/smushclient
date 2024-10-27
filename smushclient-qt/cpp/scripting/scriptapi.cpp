@@ -46,6 +46,7 @@ ScriptApi::ScriptApi(WorldTab *parent)
       audioChannels(),
       callbackFilter(),
       cursor(parent->ui->output->document()),
+      doNaws(false),
       doesNaws(false),
       hasLine(false),
       indentNext(false),
@@ -54,6 +55,7 @@ ScriptApi::ScriptApi(WorldTab *parent)
       scrollBar(parent->ui->output->verticalScrollBar()),
       socket(parent->socket),
       statusBar(qobject_cast<MudStatusBar *>(getMainWindow(parent)->statusBar())),
+      suppressEcho(false),
       whenConnected(QDateTime::currentDateTime())
 {
   timekeeper = new Timekeeper(this);
@@ -95,16 +97,21 @@ void ScriptApi::appendText(const QString &text)
 
 void ScriptApi::applyWorld(const World &world)
 {
+  doNaws = world.getNaws();
+  if (world.getNoEchoOff())
+    suppressEcho = false;
+
   indentText = QStringLiteral(" ").repeated(world.getIndentParas());
   echoFormat.setForeground(QBrush(world.getEchoTextColour()));
   echoFormat.setBackground(QBrush(world.getEchoBackgroundColour()));
   errorFormat.setForeground(QBrush(world.getErrorColour()));
   noteFormat.setForeground(QBrush(world.getNoteTextColour()));
-  sendNaws();
 }
 
 void ScriptApi::echo(const QString &text)
 {
+  if (suppressEcho) [[unlikely]]
+    return;
   appendText(text, echoFormat);
   startLine();
   scrollToBottom();
@@ -245,7 +252,7 @@ bool ScriptApi::sendCallback(PluginCallback &callback, const QString &pluginID)
 
 void ScriptApi::sendNaws() const
 {
-  if (!doesNaws)
+  if (!doesNaws || !doNaws)
     return;
   MudBrowser *browser = tab()->ui->output;
   const QFontMetrics metrics = browser->fontMetrics();
@@ -302,6 +309,11 @@ ActionSource ScriptApi::setSource(ActionSource source) noexcept
   const ActionSource previousSource = actionSource;
   actionSource = source;
   return previousSource;
+}
+
+void ScriptApi::setSuppressEcho(bool suppress) noexcept
+{
+  suppressEcho = suppress;
 }
 
 struct WindowCompare

@@ -33,9 +33,12 @@ public:
   void appendText(const QString &text, int format) const;
   void appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background, const Link &link) const;
   void appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background) const;
+  void beep() const;
   void begin() const;
   void echo(const QString &command) const;
   void end() const;
+  void eraseCurrentLine() const;
+  void eraseLastCharacter() const;
   void eraseLastLine() const;
   void handleMxpChange(bool enabled) const;
   void handleMxpEntity(::rust::str data) const;
@@ -46,9 +49,10 @@ public:
   void handleTelnetSubnegotiation(uint8_t code, const QByteArray &data) const;
   bool permitLine(::rust::str line) const;
   void playSound(const QString &filePath) const;
-  void setPalette(const QVector_QColor &palette);
   void send(const SendRequest &request) const;
   void send(const SendScriptRequest &request) const;
+  void setPalette(const QVector_QColor &palette);
+  void setSuppressEcho(bool suppress) const;
 
 private:
   ScriptApi *api;

@@ -99,6 +99,8 @@ void Document::appendText(
   api->appendText(text, format);
 }
 
+void Document::beep() const {}
+
 void Document::begin() const
 {
   api->updateTimestamp();
@@ -112,6 +114,20 @@ void Document::echo(const QString &command) const
 void Document::end() const
 {
   scrollBar->toEnd();
+}
+
+void Document::eraseCurrentLine() const
+{
+  QTextCursor cursor(doc);
+  cursor.select(QTextCursor::SelectionType::BlockUnderCursor);
+  cursor.removeSelectedText();
+}
+
+void Document::eraseLastCharacter() const
+{
+  QTextCursor cursor(doc);
+  cursor.movePosition(QTextCursor::MoveOperation::PreviousCharacter, QTextCursor::MoveMode::KeepAnchor);
+  cursor.removeSelectedText();
 }
 
 void Document::eraseLastLine() const
@@ -310,6 +326,11 @@ void Document::setPalette(const QVector_QColor &palette)
     format->setForeground(QBrush(color));
     ++format;
   }
+}
+
+void Document::setSuppressEcho(bool suppress) const
+{
+  api->setSuppressEcho(suppress);
 }
 
 // Private methods

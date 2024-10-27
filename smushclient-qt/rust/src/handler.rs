@@ -2,22 +2,22 @@ use crate::adapter::{DocumentAdapter, QColorPair};
 use crate::convert::Convert;
 use cxx_qt_lib::{QByteArray, QString};
 use mud_transformer::mxp::RgbColor;
-use mud_transformer::{EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment};
+use mud_transformer::{
+    EffectFragment, EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment,
+};
 use smushclient::{SendRequest, SendScriptRequest};
 use std::collections::HashMap;
 
 pub struct ClientHandler<'a> {
     pub doc: DocumentAdapter<'a>,
     pub palette: &'a HashMap<RgbColor, i32>,
+    pub carriage_return_clears_line: bool,
+    pub no_echo_off: bool,
 }
 
 const ERROR_FORMAT_INDEX: i32 = 1;
 
 impl<'a> ClientHandler<'a> {
-    fn display_linebreak(&mut self) {
-        self.doc.append_line();
-    }
-
     fn display_text(&mut self, fragment: &TextFragment) {
         let text = QString::from(&*fragment.text);
         if fragment.flags.is_empty()
@@ -44,6 +44,20 @@ impl<'a> ClientHandler<'a> {
         };
     }
 
+    fn handle_effect(&self, fragment: &EffectFragment) {
+        match fragment {
+            EffectFragment::Backspace | EffectFragment::EraseCharacter => {
+                self.doc.erase_last_character();
+            }
+            EffectFragment::Beep => self.doc.beep(),
+            EffectFragment::CarriageReturn if !self.carriage_return_clears_line => (),
+            EffectFragment::CarriageReturn | EffectFragment::EraseLine => {
+                self.doc.erase_current_line();
+            }
+            _ => (),
+        }
+    }
+
     fn handle_mxp_entity(&self, fragment: &EntityFragment) {
         let EntityFragment::Set {
             name,
@@ -68,13 +82,15 @@ impl<'a> ClientHandler<'a> {
         match fragment {
             TelnetFragment::IacGa => self.doc.handle_telnet_iac_ga(),
             TelnetFragment::Mxp { enabled } => self.doc.handle_mxp_change(*enabled),
+            TelnetFragment::Naws => self.doc.handle_telnet_naws(),
             TelnetFragment::Negotiation { source, verb, code } => {
                 self.doc.handle_telnet_negotiation(*source, *verb, *code);
             }
+            TelnetFragment::SetEcho { .. } if self.no_echo_off => (),
+            TelnetFragment::SetEcho { should_echo } => self.doc.set_suppress_echo(!should_echo),
             TelnetFragment::Subnegotiation { code, data } => self
                 .doc
                 .handle_telnet_subnegotiation(*code, &QByteArray::from(&**data)),
-            _ => (),
         }
     }
 }
@@ -82,12 +98,14 @@ impl<'a> ClientHandler<'a> {
 impl<'a> smushclient::Handler for ClientHandler<'a> {
     fn display(&mut self, output: &Output) {
         match &output.fragment {
-            OutputFragment::Text(text) => self.display_text(text),
-            OutputFragment::LineBreak | OutputFragment::PageBreak => self.display_linebreak(),
-            OutputFragment::MxpEntity(entity) => self.handle_mxp_entity(entity),
-            OutputFragment::Telnet(telnet) => self.handle_telnet(telnet),
+            OutputFragment::Effect(effect) => self.handle_effect(effect),
             OutputFragment::Hr => self.doc.append_html(&QString::from("<hr>")),
-            _ => (),
+            OutputFragment::LineBreak | OutputFragment::PageBreak => self.doc.append_line(),
+            OutputFragment::MxpEntity(entity) => self.handle_mxp_entity(entity),
+            OutputFragment::MxpError(error) => self.display_error(&format!("MXP error: {error}")),
+            OutputFragment::Telnet(telnet) => self.handle_telnet(telnet),
+            OutputFragment::Text(text) => self.display_text(text),
+            OutputFragment::Frame(_) | OutputFragment::Image(_) => (),
         }
     }
 

@@ -194,9 +194,12 @@ impl SmushClientRust {
     pub fn read(&mut self, mut socket: SocketAdapter, doc: DocumentAdapter) -> i64 {
         let output_lock = self.output_lock.lock();
         self.send.clear();
+        let world = self.client.world();
         let mut handler = ClientHandler {
             doc,
             palette: &self.palette,
+            carriage_return_clears_line: world.carriage_return_clears_line,
+            no_echo_off: world.no_echo_off,
         };
         let read_result = self.client.read(&mut socket);
         handler.doc.begin();
@@ -223,13 +226,16 @@ impl SmushClientRust {
         i64::try_from(total_read).unwrap()
     }
 
-    pub fn alias(&mut self, command: &QString, mut doc: DocumentAdapter) -> u8 {
+    pub fn alias(&mut self, command: &QString, doc: DocumentAdapter) -> u8 {
         doc.begin();
         let output_lock = self.output_lock.lock();
         self.send.clear();
+        let world = self.client.world();
         let mut handler = ClientHandler {
             doc,
             palette: &self.palette,
+            carriage_return_clears_line: world.carriage_return_clears_line,
+            no_echo_off: world.no_echo_off,
         };
         let outcome = self.client.alias(&String::from(command), &mut handler);
         handler.doc.end();

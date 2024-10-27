@@ -295,6 +295,7 @@ public:
   void setNawsEnabled(bool enabled);
   void setOpen(bool open) const;
   ActionSource setSource(ActionSource source) noexcept;
+  void setSuppressEcho(bool suppress) noexcept;
   void stackWindow(std::string_view windowName, MiniWindow *window) const;
   void startLine();
   void updateTimestamp();
@@ -325,6 +326,7 @@ private:
   CallbackFilter callbackFilter;
   QTextCursor cursor;
   std::unordered_map<std::string, DatabaseConnection> databases;
+  bool doNaws;
   bool doesNaws;
   QTextCharFormat echoFormat;
   QTextCharFormat errorFormat;
@@ -336,8 +338,9 @@ private:
   std::vector<Plugin> plugins;
   std::unordered_map<std::string, size_t> pluginIndices;
   MudScrollBar *scrollBar;
-  QTcpSocket *socket;
   std::unordered_map<int, QueuedSend> sendQueue;
+  QTcpSocket *socket;
+  bool suppressEcho;
   MudStatusBar *statusBar;
   Timekeeper *timekeeper;
   QDateTime whenConnected;
