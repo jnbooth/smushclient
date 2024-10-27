@@ -514,6 +514,12 @@ void WorldTab::on_output_anchorClicked(const QUrl &url)
 
   const auto aliasOutcome = client.alias(action, *document);
 
+  if (aliasOutcome & (uint8_t)AliasOutcome::Remember && world.getHyperlinkAddsToCommandHistory())
+    ui->input->remember(action);
+
+  if (aliasOutcome & (uint8_t)AliasOutcome::Display && world.getEchoHyperlinkInOutputWindow())
+    api->echo(action);
+
   if (!(aliasOutcome & (uint8_t)AliasOutcome::Send))
     return;
 
