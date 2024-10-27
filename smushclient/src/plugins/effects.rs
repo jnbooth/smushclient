@@ -139,8 +139,13 @@ impl TriggerEffects {
         if world.underline_hyperlinks {
             fragment.flags.insert(TextStyle::Underline);
         }
-        if world.use_custom_link_colour {
-            fragment.foreground = world.hyperlink_colour;
+        if world.mud_can_change_link_colour && fragment.foreground != world.ansi_colors[7] {
+            return;
+        }
+        fragment.foreground = if world.use_custom_link_colour {
+            world.hyperlink_colour
+        } else {
+            RgbColor::rgb(43, 121, 162)
         }
     }
 }
