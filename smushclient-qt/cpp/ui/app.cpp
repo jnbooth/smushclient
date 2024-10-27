@@ -180,19 +180,18 @@ void App::on_action_find_again_triggered()
 void App::on_action_global_preferences_triggered()
 {
   Settings settings;
-  SettingsDialog *dialog = new SettingsDialog(settings, this);
-  dialog->setAttribute(Qt::WA_DeleteOnClose, true);
+  SettingsDialog dialog(settings, this);
   for (QObject *child : ui->world_tabs->children())
   {
     WorldTab *tab = qobject_cast<WorldTab *>(child);
     if (!tab)
       continue;
-    connect(dialog, &SettingsDialog::inputBackgroundChanged, tab, &WorldTab::onInputBackgroundChanged);
-    connect(dialog, &SettingsDialog::inputFontChanged, tab, &WorldTab::onInputFontChanged);
-    connect(dialog, &SettingsDialog::inputForegroundChanged, tab, &WorldTab::onInputForegroundChanged);
-    connect(dialog, &SettingsDialog::outputFontChanged, tab, &WorldTab::onOutputFontChanged);
+    connect(&dialog, &SettingsDialog::inputBackgroundChanged, tab, &WorldTab::onInputBackgroundChanged);
+    connect(&dialog, &SettingsDialog::inputFontChanged, tab, &WorldTab::onInputFontChanged);
+    connect(&dialog, &SettingsDialog::inputForegroundChanged, tab, &WorldTab::onInputForegroundChanged);
+    connect(&dialog, &SettingsDialog::outputFontChanged, tab, &WorldTab::onOutputFontChanged);
   }
-  dialog->exec();
+  dialog.exec();
 }
 
 void App::on_action_new_triggered()

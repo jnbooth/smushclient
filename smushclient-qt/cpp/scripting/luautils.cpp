@@ -108,15 +108,15 @@ static int L_inputbox(lua_State *L)
   const QString fontFamily = qlua::getQString(L, 4, QString());
   const int fontSize = qlua::getInt(L, 5, -1);
 
-  QInputDialog *dialog = new QInputDialog;
-  dialog->setWindowTitle(title);
-  dialog->setLabelText(message);
-  dialog->setTextValue(defaultText);
+  QInputDialog dialog;
+  dialog.setWindowTitle(title);
+  dialog.setLabelText(message);
+  dialog.setTextValue(defaultText);
   if (!fontFamily.isEmpty())
-    dialog->setFont(QFont(fontFamily, fontSize));
+    dialog.setFont(QFont(fontFamily, fontSize));
 
-  if (dialog->exec() == QDialog::Accepted)
-    qlua::pushQString(L, dialog->textValue());
+  if (dialog.exec() == QDialog::Accepted)
+    qlua::pushQString(L, dialog.textValue());
   else
     lua_pushnil(L);
 
@@ -146,15 +146,15 @@ static int L_listbox(lua_State *L)
     lua_pop(L, 1);
   }
 
-  QInputDialog *dialog = new QInputDialog;
-  dialog->setWindowTitle(title);
-  dialog->setLabelText(message);
-  dialog->setComboBoxItems(choiceValues);
+  QInputDialog dialog;
+  dialog.setWindowTitle(title);
+  dialog.setLabelText(message);
+  dialog.setComboBoxItems(choiceValues);
   if (!defaultValue.isEmpty())
-    dialog->setTextValue(defaultValue);
+    dialog.setTextValue(defaultValue);
 
-  if (dialog->exec() == QDialog::Accepted)
-    qlua::pushQVariant(L, choices[dialog->textValue()]);
+  if (dialog.exec() == QDialog::Accepted)
+    qlua::pushQVariant(L, choices[dialog.textValue()]);
   else
     lua_pushnil(L);
 
