@@ -329,6 +329,7 @@ private:
   bool doNaws;
   bool doesNaws;
   QTextCharFormat echoFormat;
+  bool echoOnSameLine;
   QTextCharFormat errorFormat;
   bool hasLine;
   bool indentNext;
@@ -340,8 +341,8 @@ private:
   MudScrollBar *scrollBar;
   std::unordered_map<int, QueuedSend> sendQueue;
   QTcpSocket *socket;
-  bool suppressEcho;
   MudStatusBar *statusBar;
+  bool suppressEcho;
   Timekeeper *timekeeper;
   QDateTime whenConnected;
   std::unordered_map<std::string, MiniWindow *> windows;

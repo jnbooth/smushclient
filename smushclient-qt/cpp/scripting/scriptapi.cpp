@@ -48,6 +48,7 @@ ScriptApi::ScriptApi(WorldTab *parent)
       cursor(parent->ui->output->document()),
       doNaws(false),
       doesNaws(false),
+      echoOnSameLine(false),
       hasLine(false),
       indentNext(false),
       indentText(),
@@ -98,6 +99,7 @@ void ScriptApi::appendText(const QString &text)
 void ScriptApi::applyWorld(const World &world)
 {
   doNaws = world.getNaws();
+  echoOnSameLine = world.getKeepCommandsOnSameLine();
   if (world.getNoEchoOff())
     suppressEcho = false;
 
@@ -112,6 +114,11 @@ void ScriptApi::echo(const QString &text)
 {
   if (suppressEcho) [[unlikely]]
     return;
+  if (echoOnSameLine)
+  {
+    cursor.insertText(text, echoFormat);
+    return;
+  }
   appendText(text, echoFormat);
   startLine();
   scrollToBottom();
