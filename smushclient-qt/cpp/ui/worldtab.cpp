@@ -100,7 +100,7 @@ void WorldTab::connectToHost()
     return;
   }
 
-  if (socket->isOpen())
+  if (socket->state() != QAbstractSocket::SocketState::UnconnectedState)
     return;
 
   socket->connectToHost(world.getSite(), (uint16_t)world.getPort());
