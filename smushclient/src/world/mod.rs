@@ -80,7 +80,7 @@ pub struct World {
     pub new_activity_sound: Option<String>,
 
     pub disable_compression: bool,
-    pub indent_paras: bool,
+    pub indent_paras: u8,
     pub naws: bool,
     pub carriage_return_clears_line: bool,
     pub utf_8: bool,
@@ -206,7 +206,7 @@ impl World {
             new_activity_sound: None,
 
             disable_compression: false,
-            indent_paras: true,
+            indent_paras: 0,
             naws: false,
             carriage_return_clears_line: false,
             utf_8: true,

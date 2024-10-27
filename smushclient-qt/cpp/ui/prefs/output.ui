@@ -48,7 +48,7 @@
        <item>
         <widget class="QGroupBox" name="_font">
          <property name="title">
-          <string>Font</string>
+          <string>Formatting</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
@@ -80,6 +80,36 @@
                <string>Underline</string>
               </property>
              </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLabel" name="IndentParas_label">
+              <property name="text">
+               <string>Indent paragraphs:</string>
+              </property>
+              <property name="buddy">
+               <cstring>IndentParas</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="IndentParas"/>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </item>
@@ -157,13 +187,6 @@
           <widget class="QCheckBox" name="DisableCompression">
            <property name="text">
             <string>Disable compression</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="IndentParas">
-           <property name="text">
-            <string>&amp;Indent paragraphs</string>
            </property>
           </widget>
          </item>

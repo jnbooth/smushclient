@@ -329,6 +329,8 @@ private:
   QTextCharFormat echoFormat;
   QTextCharFormat errorFormat;
   bool hasLine;
+  bool indentNext;
+  QString indentText;
   int lastTellPosition;
   QTextCharFormat noteFormat;
   std::vector<Plugin> plugins;

@@ -48,6 +48,8 @@ ScriptApi::ScriptApi(WorldTab *parent)
       cursor(parent->ui->output->document()),
       doesNaws(false),
       hasLine(false),
+      indentNext(false),
+      indentText(),
       lastTellPosition(-1),
       scrollBar(parent->ui->output->verticalScrollBar()),
       socket(parent->socket),
@@ -93,6 +95,7 @@ void ScriptApi::appendText(const QString &text)
 
 void ScriptApi::applyWorld(const World &world)
 {
+  indentText = QStringLiteral(" ").repeated(world.getIndentParas());
   echoFormat.setForeground(QBrush(world.getEchoTextColour()));
   echoFormat.setBackground(QBrush(world.getEchoBackgroundColour()));
   errorFormat.setForeground(QBrush(world.getErrorColour()));
@@ -336,7 +339,10 @@ void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const
 void ScriptApi::startLine()
 {
   if (hasLine) [[unlikely]]
+  {
     cursor.insertBlock();
+    indentNext = !indentText.isEmpty();
+  }
   else
     hasLine = true;
 }
@@ -405,11 +411,17 @@ MiniWindow *ScriptApi::findWindow(string_view windowName) const
 
 void ScriptApi::flushLine()
 {
-  if (hasLine) [[unlikely]]
-  {
-    hasLine = false;
-    cursor.insertBlock();
-  }
+  if (!hasLine) [[likely]]
+    return;
+
+  hasLine = false;
+  cursor.insertBlock();
+
+  if (!indentNext) [[likely]]
+    return;
+
+  indentNext = false;
+  cursor.insertText(indentText);
 }
 
 void ScriptApi::scrollToBottom() const

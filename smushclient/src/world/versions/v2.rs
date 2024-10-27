@@ -255,7 +255,7 @@ impl From<World> for super::super::World {
             show_underline: value.show_underline,
             new_activity_sound: value.new_activity_sound,
             disable_compression: value.disable_compression,
-            indent_paras: value.indent_paras,
+            indent_paras: if value.indent_paras { 2 } else { 0 },
             naws: value.naws,
             carriage_return_clears_line: value.carriage_return_clears_line,
             utf_8: value.utf_8,

@@ -280,7 +280,7 @@ pub mod ffi {
         new_activity_sound: String,
 
         disable_compression: bool,
-        indent_paras: bool,
+        indent_paras: u8,
         naws: bool,
         carriage_return_clears_line: bool,
         utf_8: bool,

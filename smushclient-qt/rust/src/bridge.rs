@@ -721,7 +721,7 @@ pub mod ffi {
         #[qproperty(bool, show_underline)]
         #[qproperty(QString, new_activity_sound)]
         #[qproperty(bool, disable_compression)]
-        #[qproperty(bool, indent_paras)]
+        #[qproperty(i32, indent_paras)]
         #[qproperty(bool, naws)]
         #[qproperty(bool, carriage_return_clears_line)]
         #[qproperty(bool, utf_8)]
