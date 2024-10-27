@@ -140,6 +140,20 @@
           <number>6</number>
          </property>
          <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QLabel" name="TerminalIdentification_label">
+             <property name="text">
+              <string>Terminal identification</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="TerminalIdentification"/>
+           </item>
+          </layout>
+         </item>
+         <item>
           <widget class="QCheckBox" name="DisableCompression">
            <property name="text">
             <string>Disable compression</string>
