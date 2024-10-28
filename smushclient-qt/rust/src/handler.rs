@@ -102,7 +102,7 @@ impl<'a> smushclient::Handler for ClientHandler<'a> {
             OutputFragment::Hr => self.doc.append_html(&QString::from("<hr>")),
             OutputFragment::LineBreak | OutputFragment::PageBreak => self.doc.append_line(),
             OutputFragment::MxpEntity(entity) => self.handle_mxp_entity(entity),
-            OutputFragment::MxpError(error) => self.display_error(&format!("MXP error: {error}")),
+            OutputFragment::MxpError(error) => eprintln!("MXP error: {error}"),
             OutputFragment::Telnet(telnet) => self.handle_telnet(telnet),
             OutputFragment::Text(text) => self.display_text(text),
             OutputFragment::Frame(_) | OutputFragment::Image(_) => (),
@@ -110,8 +110,10 @@ impl<'a> smushclient::Handler for ClientHandler<'a> {
     }
 
     fn display_error(&mut self, error: &str) {
+        self.doc.append_line();
         self.doc
             .append_plaintext(&QString::from(error), ERROR_FORMAT_INDEX);
+        self.doc.append_line();
     }
 
     fn echo(&mut self, command: &str) {
