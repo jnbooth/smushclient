@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::num::NonZeroU32;
 use std::path::PathBuf;
 use std::time::Duration;
@@ -12,7 +11,9 @@ use mud_transformer::{
     EffectFragment, EntityFragment, OutputFragment, TelnetFragment, TelnetSource, TelnetVerb,
     UseMxp,
 };
-use smushclient::world::{AutoConnect, ColorPair, LogFormat, LogMode, ScriptRecompile};
+use smushclient::world::{
+    AutoConnect, ColorPair, LogFormat, LogMode, Numpad, NumpadMapping, ScriptRecompile,
+};
 use smushclient::{SendRequest, SendScriptRequest, World};
 use smushclient_plugins::{
     Alias, Occurrence, Reaction, Regex, SendTarget, Sender, SenderLock, Timer, Trigger,
@@ -141,6 +142,28 @@ impl_convert_struct!(ffi::Timer, Timer, send, occurrence, active_closed, id);
 impl_convert_struct!(ffi::RgbColor, RgbColor, r, g, b);
 
 impl_convert_struct!(
+    ffi::Numpad,
+    Numpad,
+    key_0,
+    key_1,
+    key_2,
+    key_3,
+    key_4,
+    key_5,
+    key_6,
+    key_7,
+    key_8,
+    key_9,
+    key_dot,
+    key_slash,
+    key_asterisk,
+    key_minus,
+    key_plus,
+);
+
+impl_convert_struct!(ffi::NumpadMapping, NumpadMapping, base, modified);
+
+impl_convert_struct!(
     ffi::World,
     World,
     name,
@@ -213,13 +236,8 @@ impl_convert_struct!(
     no_echo_off,
     aliases,
     enable_aliases,
-    keypad_enable,
-    keypad_shortcuts,
-    paste_line_preamble,
-    paste_line_postamble,
-    paste_delay,
-    paste_delay_per_lines,
-    paste_echo,
+    numpad_enable,
+    numpad_shortcuts,
     world_script,
     enable_scripts,
     script_reload_option,
@@ -227,22 +245,6 @@ impl_convert_struct!(
     note_text_colour,
     plugins
 );
-
-impl Convert<HashMap<String, String>> for Vec<ffi::KeypadMapping> {
-    fn from_ffi(value: Self) -> HashMap<String, String> {
-        value
-            .into_iter()
-            .map(|mapping| (mapping.keypad, mapping.command))
-            .collect()
-    }
-
-    fn to_ffi(value: HashMap<String, String>) -> Self {
-        value
-            .into_iter()
-            .map(|(keypad, command)| ffi::KeypadMapping { keypad, command })
-            .collect()
-    }
-}
 
 impl<'a> From<SendRequest<'a>> for ffi::SendRequest {
     fn from(value: SendRequest<'a>) -> Self {

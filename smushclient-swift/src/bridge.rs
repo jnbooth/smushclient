@@ -231,9 +231,29 @@ pub mod ffi {
 
     #[swift_bridge(swift_repr = "struct")]
     #[derive(Clone)]
-    struct KeypadMapping {
-        keypad: String,
-        command: String,
+    struct Numpad {
+        key_0: String,
+        key_1: String,
+        key_2: String,
+        key_3: String,
+        key_4: String,
+        key_5: String,
+        key_6: String,
+        key_7: String,
+        key_8: String,
+        key_9: String,
+        key_dot: String,
+        key_slash: String,
+        key_asterisk: String,
+        key_minus: String,
+        key_plus: String,
+    }
+
+    #[swift_bridge(swift_repr = "struct")]
+    #[derive(Clone)]
+    struct NumpadMapping {
+        base: Numpad,
+        modified: Numpad,
     }
 
     #[swift_bridge(swift_repr = "struct")]
@@ -321,14 +341,8 @@ pub mod ffi {
         aliases: Vec<Alias>,
         enable_aliases: bool,
 
-        keypad_enable: bool,
-        keypad_shortcuts: Vec<KeypadMapping>,
-
-        paste_line_preamble: String,
-        paste_line_postamble: String,
-        paste_delay: u32,
-        paste_delay_per_lines: u32,
-        paste_echo: bool,
+        numpad_enable: bool,
+        numpad_shortcuts: NumpadMapping,
 
         world_script: String,
         enable_scripts: bool,

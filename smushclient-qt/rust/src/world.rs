@@ -1,5 +1,4 @@
 #![allow(clippy::result_large_err)]
-use std::collections::HashMap;
 use std::error::Error;
 use std::pin::Pin;
 
@@ -9,7 +8,7 @@ use crate::convert::Convert;
 use crate::ffi;
 use crate::sender::{AliasRust, TimerRust, TriggerRust};
 use cxx_qt_lib::{QColor, QString};
-use smushclient::world::ColorPair;
+use smushclient::world::{ColorPair, Numpad, NumpadMapping};
 use smushclient::World;
 use smushclient_plugins::{Alias, Occurrence, PluginLoadError, RegexError, Sender, Timer, Trigger};
 
@@ -110,15 +109,37 @@ pub struct WorldRust {
     pub enable_aliases: bool,
 
     // Keypad
-    pub keypad_enable: bool,
-    pub keypad_shortcuts: HashMap<String, String>,
-
-    // Paste
-    pub paste_line_preamble: QString,
-    pub paste_line_postamble: QString,
-    pub paste_delay: i32,
-    pub paste_delay_per_lines: i32,
-    pub paste_echo: bool,
+    pub numpad_enable: bool,
+    pub numpad_0: QString,
+    pub numpad_1: QString,
+    pub numpad_2: QString,
+    pub numpad_3: QString,
+    pub numpad_4: QString,
+    pub numpad_5: QString,
+    pub numpad_6: QString,
+    pub numpad_7: QString,
+    pub numpad_8: QString,
+    pub numpad_9: QString,
+    pub numpad_dot: QString,
+    pub numpad_slash: QString,
+    pub numpad_asterisk: QString,
+    pub numpad_minus: QString,
+    pub numpad_plus: QString,
+    pub numpad_mod_0: QString,
+    pub numpad_mod_1: QString,
+    pub numpad_mod_2: QString,
+    pub numpad_mod_3: QString,
+    pub numpad_mod_4: QString,
+    pub numpad_mod_5: QString,
+    pub numpad_mod_6: QString,
+    pub numpad_mod_7: QString,
+    pub numpad_mod_8: QString,
+    pub numpad_mod_9: QString,
+    pub numpad_mod_dot: QString,
+    pub numpad_mod_slash: QString,
+    pub numpad_mod_asterisk: QString,
+    pub numpad_mod_minus: QString,
+    pub numpad_mod_plus: QString,
 
     // Scripts
     pub world_script: QString,
@@ -291,17 +312,16 @@ impl WorldRust {
 }
 
 #[inline(always)]
-fn sign_u32(val: u32) -> i32 {
-    i32::try_from(val).unwrap_or(i32::MAX)
-}
-
-#[inline(always)]
 fn sign_usize(val: usize) -> i32 {
     i32::try_from(val).unwrap_or(i32::MAX)
 }
 
 impl From<&World> for WorldRust {
     fn from(world: &World) -> Self {
+        let NumpadMapping {
+            base: keypad,
+            modified: numpad_mod,
+        } = &world.numpad_shortcuts;
         Self {
             name: QString::from(&world.name),
             site: QString::from(&world.site),
@@ -374,13 +394,37 @@ impl From<&World> for WorldRust {
             no_echo_off: world.no_echo_off,
             aliases: world.aliases.clone(),
             enable_aliases: world.enable_aliases,
-            keypad_enable: world.keypad_enable,
-            keypad_shortcuts: world.keypad_shortcuts.clone(),
-            paste_line_preamble: QString::from(&world.paste_line_preamble),
-            paste_line_postamble: QString::from(&world.paste_line_postamble),
-            paste_delay: sign_u32(world.paste_delay),
-            paste_delay_per_lines: sign_u32(world.paste_delay_per_lines),
-            paste_echo: world.paste_echo,
+            numpad_enable: world.numpad_enable,
+            numpad_0: QString::from(&keypad.key_0),
+            numpad_1: QString::from(&keypad.key_1),
+            numpad_2: QString::from(&keypad.key_2),
+            numpad_3: QString::from(&keypad.key_3),
+            numpad_4: QString::from(&keypad.key_4),
+            numpad_5: QString::from(&keypad.key_5),
+            numpad_6: QString::from(&keypad.key_6),
+            numpad_7: QString::from(&keypad.key_7),
+            numpad_8: QString::from(&keypad.key_8),
+            numpad_9: QString::from(&keypad.key_9),
+            numpad_dot: QString::from(&keypad.key_dot),
+            numpad_slash: QString::from(&keypad.key_slash),
+            numpad_asterisk: QString::from(&keypad.key_asterisk),
+            numpad_minus: QString::from(&keypad.key_minus),
+            numpad_plus: QString::from(&keypad.key_plus),
+            numpad_mod_0: QString::from(&numpad_mod.key_0),
+            numpad_mod_1: QString::from(&numpad_mod.key_1),
+            numpad_mod_2: QString::from(&numpad_mod.key_2),
+            numpad_mod_3: QString::from(&numpad_mod.key_3),
+            numpad_mod_4: QString::from(&numpad_mod.key_4),
+            numpad_mod_5: QString::from(&numpad_mod.key_5),
+            numpad_mod_6: QString::from(&numpad_mod.key_6),
+            numpad_mod_7: QString::from(&numpad_mod.key_7),
+            numpad_mod_8: QString::from(&numpad_mod.key_8),
+            numpad_mod_9: QString::from(&numpad_mod.key_9),
+            numpad_mod_dot: QString::from(&numpad_mod.key_dot),
+            numpad_mod_slash: QString::from(&numpad_mod.key_slash),
+            numpad_mod_asterisk: QString::from(&numpad_mod.key_asterisk),
+            numpad_mod_minus: QString::from(&numpad_mod.key_minus),
+            numpad_mod_plus: QString::from(&numpad_mod.key_plus),
             world_script: QString::from(&world.world_script),
             enable_scripts: world.enable_scripts,
             script_reload_option: world.script_reload_option.into(),
@@ -468,13 +512,43 @@ impl TryFrom<&WorldRust> for World {
             no_echo_off: value.no_echo_off,
             aliases: value.aliases.clone(),
             enable_aliases: value.enable_aliases,
-            keypad_enable: value.keypad_enable,
-            keypad_shortcuts: value.keypad_shortcuts.clone(),
-            paste_line_preamble: String::from(&value.paste_line_preamble),
-            paste_line_postamble: String::from(&value.paste_line_postamble),
-            paste_delay: u32::try_from(value.paste_delay)?,
-            paste_delay_per_lines: u32::try_from(value.paste_delay_per_lines)?,
-            paste_echo: value.paste_echo,
+            numpad_enable: value.numpad_enable,
+            numpad_shortcuts: NumpadMapping {
+                base: Numpad {
+                    key_0: String::from(&value.numpad_0),
+                    key_1: String::from(&value.numpad_1),
+                    key_2: String::from(&value.numpad_2),
+                    key_3: String::from(&value.numpad_3),
+                    key_4: String::from(&value.numpad_4),
+                    key_5: String::from(&value.numpad_5),
+                    key_6: String::from(&value.numpad_6),
+                    key_7: String::from(&value.numpad_7),
+                    key_8: String::from(&value.numpad_8),
+                    key_9: String::from(&value.numpad_9),
+                    key_dot: String::from(&value.numpad_dot),
+                    key_slash: String::from(&value.numpad_slash),
+                    key_asterisk: String::from(&value.numpad_asterisk),
+                    key_minus: String::from(&value.numpad_minus),
+                    key_plus: String::from(&value.numpad_plus),
+                },
+                modified: Numpad {
+                    key_0: String::from(&value.numpad_mod_0),
+                    key_1: String::from(&value.numpad_mod_1),
+                    key_2: String::from(&value.numpad_mod_2),
+                    key_3: String::from(&value.numpad_mod_3),
+                    key_4: String::from(&value.numpad_mod_4),
+                    key_5: String::from(&value.numpad_mod_5),
+                    key_6: String::from(&value.numpad_mod_6),
+                    key_7: String::from(&value.numpad_mod_7),
+                    key_8: String::from(&value.numpad_mod_8),
+                    key_9: String::from(&value.numpad_mod_9),
+                    key_dot: String::from(&value.numpad_mod_dot),
+                    key_slash: String::from(&value.numpad_mod_slash),
+                    key_asterisk: String::from(&value.numpad_mod_asterisk),
+                    key_minus: String::from(&value.numpad_mod_minus),
+                    key_plus: String::from(&value.numpad_mod_plus),
+                },
+            },
             world_script: String::from(&value.world_script),
             enable_scripts: value.enable_scripts,
             script_reload_option: value.script_reload_option.try_into()?,

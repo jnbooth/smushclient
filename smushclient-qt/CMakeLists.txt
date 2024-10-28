@@ -115,6 +115,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/prefs/connecting.h cpp/ui/prefs/connecting.cpp cpp/ui/prefs/connecting.ui
     cpp/ui/prefs/logging.h cpp/ui/prefs/logging.cpp cpp/ui/prefs/logging.ui
     cpp/ui/prefs/mxp.h cpp/ui/prefs/mxp.cpp cpp/ui/prefs/mxp.ui
+    cpp/ui/prefs/numpad.h cpp/ui/prefs/numpad.cpp cpp/ui/prefs/numpad.ui
     cpp/ui/prefs/output.h cpp/ui/prefs/output.cpp cpp/ui/prefs/output.ui
     cpp/ui/prefs/proxy.h cpp/ui/prefs/proxy.cpp cpp/ui/prefs/proxy.ui
     cpp/ui/prefs/specialhelp.h cpp/ui/prefs/specialhelp.cpp cpp/ui/prefs/specialhelp.ui

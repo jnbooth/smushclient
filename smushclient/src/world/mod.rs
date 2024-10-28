@@ -7,7 +7,6 @@ pub use types::*;
 mod versions;
 use versions::WorldVersion;
 
-use std::collections::HashMap;
 use std::io::{Read, Write};
 use std::path::PathBuf;
 
@@ -18,7 +17,7 @@ use smushclient_plugins::{Alias, Plugin, PluginMetadata, Sender, Timer, Trigger}
 
 use mud_transformer::mxp::RgbColor;
 
-const CURRENT_VERSION: u8 = 3;
+const CURRENT_VERSION: u8 = 4;
 
 fn skip_temporary<S, T>(vec: &[T], serializer: S) -> Result<S::Ok, S::Error>
 where
@@ -128,16 +127,9 @@ pub struct World {
     pub aliases: Vec<Alias>,
     pub enable_aliases: bool,
 
-    // Keypad
-    pub keypad_enable: bool,
-    pub keypad_shortcuts: HashMap<String, String>,
-
-    // Paste
-    pub paste_line_preamble: String,
-    pub paste_line_postamble: String,
-    pub paste_delay: u32,
-    pub paste_delay_per_lines: u32,
-    pub paste_echo: bool,
+    // Numpad
+    pub numpad_enable: bool,
+    pub numpad_shortcuts: NumpadMapping,
 
     // Scripts
     pub world_script: String,
@@ -255,15 +247,8 @@ impl World {
             enable_aliases: true,
 
             // Keypad
-            keypad_enable: true,
-            keypad_shortcuts: HashMap::new(),
-
-            // Paste
-            paste_line_preamble: String::new(),
-            paste_line_postamble: String::new(),
-            paste_delay: 0,
-            paste_delay_per_lines: 1,
-            paste_echo: false,
+            numpad_enable: true,
+            numpad_shortcuts: NumpadMapping::navigation(),
 
             // Scripts
             world_script: String::new(),
@@ -308,7 +293,8 @@ impl World {
         match version_buf[0] {
             1 => versions::V1::migrate(&mut reader),
             2 => versions::V2::migrate(&mut reader),
-            3 => bincode::deserialize_from(reader).map_err(Into::into),
+            3 => versions::V3::migrate(&mut reader),
+            4 => bincode::deserialize_from(reader).map_err(Into::into),
             _ => Err(PersistError::Invalid)?,
         }
     }

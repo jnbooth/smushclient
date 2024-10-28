@@ -7,6 +7,7 @@
 #include "prefs/connecting.h"
 #include "prefs/logging.h"
 #include "prefs/mxp.h"
+#include "prefs/numpad.h"
 #include "prefs/output.h"
 #include "prefs/timers.h"
 #include "prefs/triggers.h"
@@ -18,7 +19,8 @@ WorldPrefs::WorldPrefs(World &world, QWidget *parent)
       ui(new Ui::WorldPrefs)
 {
   ui->setupUi(this);
-  panes.reserve(10);
+  panes.reserve(11);
+
   setupPane(new PrefsAddress(world, this), "IP address");
   setupPane(new PrefsConnecting(world, this), "Connecting");
   setupPane(new PrefsLogging(world, this), "Logging");
@@ -29,6 +31,7 @@ WorldPrefs::WorldPrefs(World &world, QWidget *parent)
   setupPane(new PrefsCommands(world, this), "Commands");
   setupPane(new PrefsAliases(world, this), "Aliases");
   setupPane(new PrefsTriggers(world, this), "Triggers");
+  setupPane(new PrefsNumpad(world, this), "Keypad");
 
   for (QTreeWidgetItemIterator it(ui->settings_tree); *it; ++it)
     (*it)->setExpanded(true);

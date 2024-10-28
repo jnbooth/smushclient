@@ -116,6 +116,11 @@
           <string>Aliases</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>Keypad</string>
+         </property>
+        </item>
        </item>
       </widget>
      </item>

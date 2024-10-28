@@ -11,6 +11,9 @@ pub use v1::World as V1;
 mod v2;
 pub use v2::World as V2;
 
+mod v3;
+pub use v3::World as V3;
+
 pub trait WorldVersion {
     fn migrate(reader: &mut dyn Read) -> Result<super::World, super::PersistError>;
 }
