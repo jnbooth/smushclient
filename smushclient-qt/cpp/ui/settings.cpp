@@ -6,7 +6,9 @@
 
 SettingsDialog::SettingsDialog(Settings &settings, QWidget *parent)
     : QDialog(parent),
-      ui(new Ui::SettingsDialog)
+      ui(new Ui::SettingsDialog),
+      panes(),
+      activePane(0)
 {
   ui->setupUi(this);
   panes.reserve(1);

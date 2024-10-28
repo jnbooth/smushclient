@@ -6,15 +6,22 @@
 // Public methods
 
 MudInput::MudInput(QWidget *parent)
-    : QTextEdit(parent) {}
+    : QTextEdit(parent),
+      draft(),
+      history(),
+      ignoreKeypad() {}
 
 MudInput::MudInput(QWidget *parent, const QStringList &history)
     : QTextEdit(parent),
-      history(history) {}
+      draft(),
+      history(history),
+      ignoreKeypad() {}
 
 MudInput::MudInput(const QStringList &history)
     : QTextEdit(),
-      history(history) {}
+      draft(),
+      history(history),
+      ignoreKeypad() {}
 
 void MudInput::clearLog()
 {

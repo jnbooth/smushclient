@@ -8,7 +8,9 @@ extern "C"
 // Public methods
 
 ScriptThread::ScriptThread(lua_State *parentL)
-    : L(lua_newthread(parentL)), parentL(parentL)
+    : L(lua_newthread(parentL)),
+      moved(false),
+      parentL(parentL)
 {
   lua_rawsetp(parentL, LUA_REGISTRYINDEX, L);
   pushErrorHandler(L);
@@ -16,6 +18,7 @@ ScriptThread::ScriptThread(lua_State *parentL)
 
 ScriptThread::ScriptThread(ScriptThread &&other)
     : L(other.L),
+      moved(false),
       parentL(other.parentL)
 {
   other.moved = true;

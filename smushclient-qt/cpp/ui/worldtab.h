@@ -61,14 +61,14 @@ protected:
 
 private:
   ScriptApi *api;
-  bool handleKeypad;
-  bool queuedConnect;
   QFont defaultFont;
   Document *document;
   QString filePath;
+  bool handleKeypad;
   bool initialized;
   std::optional<CallbackTrigger> onDragMove;
   QPointer<Hotspot> onDragRelease;
+  bool queuedConnect;
   int resizeTimerId;
   QRegularExpression splitter;
   bool useSplitter;

@@ -9,18 +9,20 @@ extern "C"
 }
 
 CallbackTrigger::CallbackTrigger(lua_State *parentL, int nargs)
-    : nargs(nargs),
-      thread(parentL)
+    : moved(false),
+      nargs(nargs),
+      thread(parentL),
+      L(thread.state()),
+      top(lua_gettop(L) + 1)
 {
-  L = thread.state();
-  top = lua_gettop(L) + 1;
   lua_xmove(parentL, L, nargs + 1);
 }
 
 CallbackTrigger::CallbackTrigger(CallbackTrigger &&other)
-    : L(other.L),
+    : moved(false),
       nargs(other.nargs),
       thread(std::move(other.thread)),
+      L(other.L),
       top(other.top)
 {
   other.moved = true;

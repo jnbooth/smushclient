@@ -13,7 +13,9 @@ App::App(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::App),
       findDialog(this),
-      lastTabIndex(-1)
+      lastTabIndex(-1),
+      recentFileActions(),
+      saveFilter(tr("World files (*.smush);;All Files (*.*)"))
 {
   if (QDir::current().isRoot())
   {
@@ -23,7 +25,6 @@ App::App(QWidget *parent)
     QDir::setCurrent(dirPath);
   }
   ui->setupUi(this);
-  saveFilter = tr("World files (*.smush);;All Files (*.*)");
   recentFileActions = QList<QAction *>{
       ui->action_rec_1,
       ui->action_rec_2,

@@ -56,11 +56,18 @@ inline void showRustError(const rust::Error &e)
 WorldTab::WorldTab(QWidget *parent)
     : QSplitter(parent),
       ui(new Ui::WorldTab),
+      client(),
+      world(),
       defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont)),
+      filePath(),
+      handleKeypad(false),
       initialized(false),
       onDragMove(nullopt),
       onDragRelease(nullptr),
-      resizeTimerId(0)
+      queuedConnect(false),
+      resizeTimerId(0),
+      splitter(),
+      useSplitter(false)
 {
   resizeTimerId = startTimer(1000);
   ui->setupUi(this);

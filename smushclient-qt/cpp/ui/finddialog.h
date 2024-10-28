@@ -25,10 +25,10 @@ private slots:
   void on_buttonBox_rejected();
 
 private:
+  Ui::FindDialog *ui;
   bool filled;
   QFlags<QTextDocument::FindFlag> flags;
   bool isRegex;
   QRegularExpression pattern;
   QString text;
-  Ui::FindDialog *ui;
 };

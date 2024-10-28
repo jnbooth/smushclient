@@ -43,21 +43,40 @@ QMainWindow *getMainWindow(const QObject *obj)
 ScriptApi::ScriptApi(WorldTab *parent)
     : QObject(parent),
       actionSource(ActionSource::Unknown),
-      audioChannels(),
+      audioChannels{
+          AudioChannel(),
+          AudioChannel(),
+          AudioChannel(),
+          AudioChannel(),
+          AudioChannel(),
+          AudioChannel(),
+          AudioChannel(),
+          AudioChannel(),
+          AudioChannel(),
+          AudioChannel(),
+      },
       callbackFilter(),
       cursor(parent->ui->output->document()),
+      databases(),
       doNaws(false),
       doesNaws(false),
+      echoFormat(),
       echoOnSameLine(false),
+      errorFormat(),
       hasLine(false),
       indentNext(false),
       indentText(),
       lastTellPosition(-1),
+      noteFormat(),
+      plugins(),
+      pluginIndices(),
       scrollBar(parent->ui->output->verticalScrollBar()),
+      sendQueue(),
       socket(parent->socket),
       statusBar(qobject_cast<MudStatusBar *>(getMainWindow(parent)->statusBar())),
       suppressEcho(false),
-      whenConnected(QDateTime::currentDateTime())
+      whenConnected(QDateTime::currentDateTime()),
+      windows()
 {
   timekeeper = new Timekeeper(this);
   setLineType(echoFormat, LineType::Input);

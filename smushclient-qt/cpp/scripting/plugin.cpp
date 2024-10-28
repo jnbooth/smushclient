@@ -69,7 +69,8 @@ void setlib(lua_State *L, const char *name)
 Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
     : L(luaL_newstate()),
       isDisabled(false),
-      metadata(metadata)
+      metadata(metadata),
+      moved(false)
 {
   if (!L)
     throw std::bad_alloc();
@@ -105,7 +106,8 @@ Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
 Plugin::Plugin(Plugin &&other)
     : L(other.L),
       isDisabled(other.isDisabled),
-      metadata(std::move(other.metadata))
+      metadata(std::move(other.metadata)),
+      moved(false)
 {
   other.moved = true;
 }

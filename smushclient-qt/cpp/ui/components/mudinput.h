@@ -29,9 +29,9 @@ protected:
   virtual void keyPressEvent(QKeyEvent *event) override;
 
 private:
-  bool ignoreKeypad;
   QString draft;
   CommandHistory history;
+  bool ignoreKeypad;
 
 private:
   void restoreDraft();

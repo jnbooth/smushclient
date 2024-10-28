@@ -57,9 +57,9 @@ public:
 
 private:
   ScriptApi *api;
-  int lastLine;
   QTextDocument *doc;
-  QTextCharFormat formats[166];
+  std::array<QTextCharFormat, 166> formats;
+  int lastLine;
   MudScrollBar *scrollBar;
 
   WorldTab *tab() const;

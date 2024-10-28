@@ -16,7 +16,9 @@
 
 WorldPrefs::WorldPrefs(World &world, QWidget *parent)
     : QDialog(parent),
-      ui(new Ui::WorldPrefs)
+      ui(new Ui::WorldPrefs),
+      panes(),
+      activePane(0)
 {
   ui->setupUi(this);
   panes.reserve(11);

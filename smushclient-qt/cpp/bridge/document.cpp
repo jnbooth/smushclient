@@ -57,7 +57,12 @@ Document::Document(WorldTab *parent, ScriptApi *api)
     : QObject(parent),
       api(api),
       doc(parent->ui->output->document()),
-      scrollBar(parent->ui->output->verticalScrollBar()) {}
+      formats(),
+      lastLine(-1),
+      scrollBar(parent->ui->output->verticalScrollBar())
+{
+  formats.fill(QTextCharFormat());
+}
 
 void Document::appendHtml(const QString &html) const
 {
@@ -316,11 +321,7 @@ void Document::setPalette(const QVector_QColor &palette)
 {
   QTextCharFormat *format = &formats[0];
   for (QColor color : palette)
-  {
-    *format = QTextCharFormat();
-    format->setForeground(QBrush(color));
-    ++format;
-  }
+    format->setForeground(color);
 }
 
 void Document::setSuppressEcho(bool suppress) const

@@ -5,7 +5,8 @@
 // Public methods
 
 MudBrowser::MudBrowser(QWidget *parent)
-    : QTextBrowser(parent)
+    : QTextBrowser(parent),
+      ignoreKeypad(false)
 {
   setVerticalScrollBar(new MudScrollBar);
 }
