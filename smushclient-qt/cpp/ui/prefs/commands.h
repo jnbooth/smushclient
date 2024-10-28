@@ -15,6 +15,10 @@ public:
   explicit PrefsCommands(World &world, QWidget *parent = nullptr);
   ~PrefsCommands();
 
+private slots:
+  void on_CommandStackCharacter_textChanged(const QString &character);
+
 private:
   Ui::PrefsCommands *ui;
+  World &world;
 };

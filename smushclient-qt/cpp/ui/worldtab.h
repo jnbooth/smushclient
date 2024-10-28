@@ -68,11 +68,14 @@ private:
   std::optional<CallbackTrigger> onDragMove;
   QPointer<Hotspot> onDragRelease;
   int resizeTimerId;
+  QRegularExpression splitter;
+  bool useSplitter;
 
-  void applyWorld() const;
+  void applyWorld();
   void finishDrag();
   void openLog();
   bool saveWorldAndState(const QString &filePath) const;
+  bool sendCommand(const QString &command);
 
 private slots:
   void finalizeWorldSettings(int result);

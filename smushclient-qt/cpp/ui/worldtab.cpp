@@ -293,7 +293,7 @@ void WorldTab::timerEvent(QTimerEvent *event)
 
 // Private methods
 
-void WorldTab::applyWorld() const
+void WorldTab::applyWorld()
 {
   document->setPalette(client.palette());
   setColors(ui->background, world.getAnsi7(), world.getAnsi0());
@@ -309,6 +309,23 @@ void WorldTab::applyWorld() const
   if (world.getSaveWorldAutomatically())
     saveWorldAndState(filePath);
   api->applyWorld(world);
+  if (!world.getEnableCommandStack())
+  {
+    useSplitter = false;
+    return;
+  }
+  const QChar splitOn(world.getCommandStackCharacter());
+  if (splitOn == u']')
+  {
+    QChar chars[] = {u'[', u'\n', u'\\', splitOn, u']'};
+    splitter.setPattern(QString(chars, 5));
+  }
+  else
+  {
+    QChar chars[] = {u'[', u'\n', splitOn, u']'};
+    splitter.setPattern(QString(chars, 4));
+  }
+  useSplitter = true;
 }
 
 inline void WorldTab::finishDrag()
@@ -357,6 +374,43 @@ bool WorldTab::saveWorldAndState(const QString &path) const
     showRustError(e);
   }
   return true;
+}
+
+bool WorldTab::sendCommand(const QString &command)
+{
+  const auto aliasOutcome = client.alias(command, *document);
+  const bool remember = aliasOutcome & (uint8_t)AliasOutcome::Remember;
+
+  if (!(aliasOutcome & (uint8_t)AliasOutcome::Send))
+  {
+    ui->input->clear();
+    return remember;
+  }
+
+  QByteArray bytes = command.toUtf8();
+  OnPluginCommand onCommand(bytes);
+  api->sendCallback(onCommand);
+  if (onCommand.discarded())
+  {
+    ui->input->clear();
+    return remember;
+  }
+  OnPluginCommandEntered onCommandEntered(bytes);
+  api->sendCallback(onCommandEntered);
+  if (bytes.size() == 1)
+  {
+    switch (bytes.front())
+    {
+    case '\t':
+      ui->input->clear();
+      return remember;
+    case '\r':
+      return remember;
+    }
+  }
+  ui->input->clear();
+  api->SendNoEcho(bytes);
+  return remember;
 }
 
 // Private slots
@@ -416,40 +470,15 @@ void WorldTab::on_input_submitted(const QString &text)
 {
   ui->output->verticalScrollBar()->unpause();
 
-  const auto aliasOutcome = client.alias(text, *document);
+  bool remember = false;
 
-  if (!(aliasOutcome & (uint8_t)AliasOutcome::Remember))
+  const QStringList commands = useSplitter ? text.split(splitter) : text.split(u'\n');
+
+  for (const QString &command : commands)
+    remember = sendCommand(command) || remember;
+
+  if (!remember)
     ui->input->forgetLast();
-
-  if (!(aliasOutcome & (uint8_t)AliasOutcome::Send))
-  {
-    ui->input->clear();
-    return;
-  }
-
-  QByteArray bytes = text.toUtf8();
-  OnPluginCommand onCommand(bytes);
-  api->sendCallback(onCommand);
-  if (onCommand.discarded())
-  {
-    ui->input->clear();
-    return;
-  }
-  OnPluginCommandEntered onCommandEntered(bytes);
-  api->sendCallback(onCommandEntered);
-  if (bytes.size() == 1)
-  {
-    switch (bytes.front())
-    {
-    case '\t':
-      ui->input->clear();
-      return;
-    case '\r':
-      return;
-    }
-  }
-  ui->input->clear();
-  api->SendNoEcho(bytes);
 }
 
 void WorldTab::on_input_textChanged()

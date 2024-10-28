@@ -203,7 +203,7 @@ impl_convert_struct!(
     enable_speed_walk,
     speed_walk_prefix,
     speed_walk_filler,
-    speed_walk_delay,
+    command_queue_delay,
     enable_command_stack,
     command_stack_character,
     enable_spam_prevention,
