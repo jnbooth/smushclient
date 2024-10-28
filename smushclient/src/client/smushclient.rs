@@ -8,8 +8,8 @@ use super::logger::Logger;
 use super::variables::PluginVariables;
 use crate::handler::Handler;
 use crate::plugins::{
-    assert_unique_label, AliasOutcome, CommandSource, LoadFailure, PluginEngine, SendIterable,
-    SenderAccessError, TriggerEffects,
+    AliasOutcome, CommandSource, LoadFailure, PluginEngine, SendIterable, SenderAccessError,
+    TriggerEffects,
 };
 use crate::world::{PersistError, World};
 use crate::LoadError;
@@ -355,21 +355,11 @@ impl SmushClient {
     }
 
     pub fn senders<T: SendIterable>(&self, index: PluginIndex) -> &[T] {
-        let plugin = &self.plugins[index];
-        if plugin.metadata.is_world_plugin {
-            T::from_world(&self.world)
-        } else {
-            T::from_plugin(plugin)
-        }
+        T::from_either(&self.plugins[index], &self.world)
     }
 
     pub(crate) fn senders_mut<T: SendIterable>(&mut self, index: PluginIndex) -> &mut Vec<T> {
-        let plugin = &mut self.plugins[index];
-        if plugin.metadata.is_world_plugin {
-            T::from_world_mut(&mut self.world)
-        } else {
-            T::from_plugin_mut(plugin)
-        }
+        T::from_either_mut(&mut self.plugins[index], &mut self.world)
     }
 
     pub fn add_sender<T: SendIterable>(
@@ -377,13 +367,7 @@ impl SmushClient {
         index: PluginIndex,
         sender: T,
     ) -> Result<(usize, &T), SenderAccessError> {
-        let senders = self.senders_mut::<T>(index);
-        assert_unique_label(&sender, senders, None)?;
-        let pos = match senders.binary_search(&sender) {
-            Ok(pos) | Err(pos) => pos,
-        };
-        senders.insert(pos, sender);
-        Ok((pos, &senders[pos]))
+        self.plugins.add_sender(index, &mut self.world, sender)
     }
 
     pub fn remove_sender<T: SendIterable>(
@@ -391,46 +375,18 @@ impl SmushClient {
         index: PluginIndex,
         label: &str,
     ) -> Result<T, SenderAccessError> {
-        let senders = self.senders_mut::<T>(index);
-        let (pos, sender) = senders
-            .iter()
-            .enumerate()
-            .find(|(_, sender)| sender.as_ref().label == label)
-            .ok_or(SenderAccessError::NotFound)?;
-        sender.try_unlock()?;
-        Ok(senders.remove(pos))
+        self.plugins
+            .remove_sender(index, &mut self.world, |sender: &T| {
+                sender.as_ref().label == label
+            })
+            .ok_or(SenderAccessError::NotFound)
     }
 
     pub fn remove_senders<T: SendIterable>(&mut self, index: PluginIndex, group: &str) -> usize {
-        let senders = self.senders_mut::<T>(index);
-        let len = senders.len();
-        senders.retain(|sender| sender.as_ref().group != group || sender.is_locked());
-        len - senders.len()
-    }
-
-    pub fn replace_sender<T: SendIterable>(
-        &mut self,
-        index: PluginIndex,
-        sender: T,
-        replace_at: usize,
-    ) -> Result<(usize, &T), SenderAccessError> {
-        let senders = self.senders_mut::<T>(index);
-        assert_unique_label(&sender, senders, Some(replace_at))?;
-        let pos = match senders.binary_search(&sender) {
-            Ok(pos) | Err(pos) => pos,
-        };
-        if replace_at >= senders.len() {
-            senders.insert(pos, sender);
-            return Ok((pos, &senders[pos]));
-        }
-        senders[replace_at].try_unlock()?;
-        senders[replace_at] = sender;
-        match replace_at.cmp(&pos) {
-            Ordering::Less => senders[replace_at..=pos].rotate_left(1),
-            Ordering::Equal => (),
-            Ordering::Greater => senders[pos..=replace_at].rotate_right(1),
-        }
-        Ok((pos, &senders[pos]))
+        self.plugins
+            .remove_senders(index, &mut self.world, |sender: &T| {
+                sender.as_ref().group == group
+            })
     }
 
     pub fn add_or_replace_sender<T: SendIterable>(
@@ -438,27 +394,28 @@ impl SmushClient {
         index: PluginIndex,
         sender: T,
     ) -> Result<(usize, &T), SenderAccessError> {
+        let label = sender.as_ref().label.as_str();
+        if label.is_empty() {
+            return self.add_sender(index, sender);
+        }
+        let Some(replace_at) = self
+            .senders::<T>(index)
+            .iter()
+            .position(|sender| sender.as_ref().label == label)
+        else {
+            return self.add_sender(index, sender);
+        };
         let senders = self.senders_mut::<T>(index);
         let pos = match senders.binary_search(&sender) {
             Ok(pos) | Err(pos) => pos,
         };
-        let label = sender.as_ref().label.as_str();
-        if !label.is_empty() {
-            if let Some(replace_at) = senders
-                .iter()
-                .position(|sender| sender.as_ref().label == label)
-            {
-                senders[replace_at].try_unlock()?;
-                senders[replace_at] = sender;
-                match replace_at.cmp(&pos) {
-                    Ordering::Less => senders[replace_at..=pos].rotate_left(1),
-                    Ordering::Equal => (),
-                    Ordering::Greater => senders[pos..=replace_at].rotate_right(1),
-                }
-                return Ok((pos, &senders[pos]));
-            }
+        senders[replace_at].as_ref().try_unlock()?;
+        senders[replace_at] = sender;
+        match replace_at.cmp(&pos) {
+            Ordering::Less => senders[replace_at..=pos].rotate_left(1),
+            Ordering::Equal => (),
+            Ordering::Greater => senders[pos..=replace_at].rotate_right(1),
         }
-        senders.insert(pos, sender);
         Ok((pos, &senders[pos]))
     }
 

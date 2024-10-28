@@ -9,21 +9,25 @@ use super::effects::CommandSource;
 use super::effects::{AliasEffects, TriggerEffects};
 use super::error::LoadError;
 use super::error::LoadFailure;
-use super::iter::ReactionIterable;
+use super::guard::SenderGuard;
+use super::iter::{ReactionIterable, Senders};
 use super::output::is_nonvisual_output;
 use crate::collections::LifetimeVec;
 use crate::handler::{Handler, HandlerExt};
-use crate::{SendIterable, World};
+use crate::plugins::assert_unique_label;
+use crate::world::World;
+use crate::{SendIterable, SenderAccessError};
 use mud_transformer::{Output, OutputFragment};
 use smushclient_plugins::{Alias, Plugin, PluginIndex, Trigger};
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PluginEngine {
     plugins: Vec<Plugin>,
     aliases: LifetimeVec<(PluginIndex, usize, &'static Alias)>,
     triggers: LifetimeVec<(PluginIndex, usize, &'static Trigger)>,
     alias_buf: String,
     trigger_buf: String,
+    guards: Senders<SenderGuard>,
 }
 
 impl Default for PluginEngine {
@@ -40,6 +44,7 @@ impl PluginEngine {
             triggers: LifetimeVec::new(),
             alias_buf: String::new(),
             trigger_buf: String::new(),
+            guards: Senders::new(SenderGuard::new(), SenderGuard::new(), SenderGuard::new()),
         }
     }
 
@@ -125,25 +130,38 @@ impl PluginEngine {
         self.plugins.sort_unstable();
     }
 
-    fn remove_oneshots<T: SendIterable>(
+    pub fn add_sender<'a, T: SendIterable>(
+        &'a mut self,
+        index: PluginIndex,
+        world: &'a mut World,
+        sender: T,
+    ) -> Result<(usize, &'a T), SenderAccessError> {
+        let senders = T::from_either_mut(&mut self.plugins[index], world);
+        assert_unique_label(&sender, senders, None)?;
+        Ok(self.guards.get_mut::<T>().add(index, senders, sender))
+    }
+
+    pub fn remove_sender<T: SendIterable, P: FnMut(&T) -> bool>(
         &mut self,
-        oneshots: &[(PluginIndex, usize)],
+        index: PluginIndex,
         world: &mut World,
-    ) {
-        let mut current_plugin = usize::MAX;
-        let mut senders: &mut Vec<T> = &mut Vec::new();
-        for &(next_plugin, i) in oneshots.iter().rev() {
-            if next_plugin != current_plugin {
-                let plugin = &mut self.plugins[next_plugin];
-                current_plugin = next_plugin;
-                senders = if plugin.metadata.is_world_plugin {
-                    T::from_world_mut(world)
-                } else {
-                    T::from_plugin_mut(plugin)
-                }
-            }
-            senders.remove(i);
-        }
+        pred: P,
+    ) -> Option<T> {
+        let senders = T::from_either_mut(&mut self.plugins[index], world);
+        let pos = senders.iter().position(pred)?;
+        self.guards.get_mut::<T>().remove::<T>(index, senders, pos)
+    }
+
+    pub fn remove_senders<T: SendIterable, P: FnMut(&T) -> bool>(
+        &mut self,
+        index: PluginIndex,
+        world: &mut World,
+        pred: P,
+    ) -> usize {
+        let senders = T::from_either_mut(&mut self.plugins[index], world);
+        self.guards
+            .get_mut::<T>()
+            .remove_all::<T, P>(index, senders, pred)
     }
 
     pub fn alias<H: Handler>(
@@ -153,14 +171,16 @@ impl PluginEngine {
         world: &mut World,
         handler: &mut H,
     ) -> AliasEffects {
-        let mut oneshots = Vec::new();
+        let postpone = self.guards.get_mut::<Alias>();
+        postpone.set_plugin_count(self.plugins.len());
+        postpone.defer();
         let mut matched = self.aliases.acquire();
         Alias::find_matches(
+            postpone,
             &self.plugins,
             world,
             line,
             &mut matched,
-            &mut oneshots,
             &mut AliasEffects::default(),
         );
 
@@ -169,7 +189,7 @@ impl PluginEngine {
         handler.send_all_scripts(&matched, line, &[], &mut final_effects);
 
         drop(matched);
-        self.remove_oneshots::<Alias>(&oneshots, world);
+        postpone.finalize::<Alias>(&mut self.plugins, world);
 
         final_effects
     }
@@ -181,15 +201,16 @@ impl PluginEngine {
         world: &mut World,
         handler: &mut H,
     ) -> TriggerEffects {
-        let mut oneshots = Vec::new();
+        let postpone = self.guards.get_mut::<Trigger>();
+        postpone.set_plugin_count(self.plugins.len());
         let mut matched = self.triggers.acquire();
         let mut effects = TriggerEffects::new();
         Trigger::find_matches(
+            postpone,
             &self.plugins,
             world,
             line,
             &mut matched,
-            &mut oneshots,
             &mut effects,
         );
 
@@ -219,7 +240,7 @@ impl PluginEngine {
         }
 
         drop(matched);
-        self.remove_oneshots::<Trigger>(&oneshots, world);
+        postpone.finalize::<Trigger>(&mut self.plugins, world);
 
         if !effects.omit_from_output && final_effects.omit_from_output {
             handler.erase_last_line();
