@@ -91,7 +91,7 @@
        </widget>
       </item>
       <item row="12" column="2">
-       <widget class="QLabel" name="NumpadDot_label">
+       <widget class="QLabel" name="NumpadPeriod_label">
         <property name="text">
          <string>&amp;.</string>
         </property>
@@ -99,7 +99,7 @@
          <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
         <property name="buddy">
-         <cstring>NumpadDot</cstring>
+         <cstring>NumpadPeriod</cstring>
         </property>
        </widget>
       </item>
@@ -336,7 +336,7 @@
        </widget>
       </item>
       <item row="13" column="2">
-       <widget class="QLineEdit" name="NumpadDot">
+       <widget class="QLineEdit" name="NumpadPeriod">
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
@@ -455,7 +455,7 @@
        </widget>
       </item>
       <item row="12" column="2">
-       <widget class="QLabel" name="NumpadModDot_label">
+       <widget class="QLabel" name="NumpadModPeriod_label">
         <property name="text">
          <string>&amp;.</string>
         </property>
@@ -463,7 +463,7 @@
          <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
         <property name="buddy">
-         <cstring>NumpadModDot</cstring>
+         <cstring>NumpadModPeriod</cstring>
         </property>
        </widget>
       </item>
@@ -700,7 +700,7 @@
        </widget>
       </item>
       <item row="13" column="2">
-       <widget class="QLineEdit" name="NumpadModDot">
+       <widget class="QLineEdit" name="NumpadModPeriod">
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
@@ -737,16 +737,30 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="NumpadEnable">
+    <widget class="QCheckBox" name="show_mod">
      <property name="text">
-      <string>&amp;Enable Numpad Actions</string>
+      <string>Show actions if &amp;CTRL/CMD held down</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="show_mod">
+    <widget class="QCheckBox" name="NumpadEnable">
      <property name="text">
-      <string>Show Actions If &amp;CTRL Held Down</string>
+      <string>&amp;Enable numpad actions</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="HotkeyAddsToCommandHistory">
+     <property name="text">
+      <string>Save hyperlink mouse clicks in history</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="EchoHotkeyInOutputWindow">
+     <property name="text">
+      <string>Echo numpad actions in output</string>
      </property>
     </widget>
    </item>

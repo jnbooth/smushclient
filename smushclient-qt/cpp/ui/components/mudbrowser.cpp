@@ -15,7 +15,22 @@ MudScrollBar *MudBrowser::verticalScrollBar() const
   return qobject_cast<MudScrollBar *>(QAbstractScrollArea::verticalScrollBar());
 }
 
+void MudBrowser::setIgnoreKeypad(bool ignore)
+{
+  ignoreKeypad = ignore;
+}
+
 // Protected overrides
+
+void MudBrowser::keyPressEvent(QKeyEvent *event)
+{
+  if (ignoreKeypad && event->modifiers().testFlag(Qt::KeypadModifier)) [[unlikely]]
+  {
+    event->ignore();
+    return;
+  }
+  QTextBrowser::keyPressEvent(event);
+}
 
 void MudBrowser::mouseMoveEvent(QMouseEvent *event)
 {

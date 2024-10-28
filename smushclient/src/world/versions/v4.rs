@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::path::PathBuf;
 
 use mud_transformer::UseMxp;
@@ -95,9 +94,9 @@ pub struct World {
     pub enable_speed_walk: bool,
     pub speed_walk_prefix: String,
     pub speed_walk_filler: String,
-    pub speed_walk_delay: f64,
+    pub command_queue_delay: f64,
     pub enable_command_stack: bool,
-    pub command_stack_character: String,
+    pub command_stack_character: u16,
     pub enable_spam_prevention: bool,
     pub spam_line_count: usize,
     pub spam_message: String,
@@ -107,16 +106,9 @@ pub struct World {
     pub aliases: Vec<Alias>,
     pub enable_aliases: bool,
 
-    // Keypad
-    pub keypad_enable: bool,
-    pub keypad_shortcuts: HashMap<String, String>,
-
-    // Paste
-    pub paste_line_preamble: String,
-    pub paste_line_postamble: String,
-    pub paste_delay: u32,
-    pub paste_delay_per_lines: u32,
-    pub paste_echo: bool,
+    // Numpad
+    pub numpad_enable: bool,
+    pub numpad_shortcuts: NumpadMapping,
 
     // Scripts
     pub world_script: String,
@@ -130,12 +122,6 @@ pub struct World {
 }
 
 impl From<World> for super::super::World {
-    fn from(value: World) -> Self {
-        Self::from(super::v4::World::from(value))
-    }
-}
-
-impl From<World> for super::v4::World {
     fn from(value: World) -> Self {
         Self {
             name: value.name,
@@ -200,23 +186,19 @@ impl From<World> for super::v4::World {
             enable_speed_walk: value.enable_speed_walk,
             speed_walk_prefix: value.speed_walk_prefix,
             speed_walk_filler: value.speed_walk_filler,
-            command_queue_delay: value.speed_walk_delay,
+            command_queue_delay: value.command_queue_delay,
             enable_command_stack: value.enable_command_stack,
-            command_stack_character: u16::from(
-                *value
-                    .command_stack_character
-                    .as_bytes()
-                    .first()
-                    .unwrap_or(&b'#'),
-            ),
+            command_stack_character: value.command_stack_character,
             enable_spam_prevention: value.enable_spam_prevention,
             spam_line_count: value.spam_line_count,
             spam_message: value.spam_message,
             no_echo_off: value.no_echo_off,
             aliases: value.aliases,
             enable_aliases: value.enable_aliases,
-            numpad_enable: value.keypad_enable,
+            numpad_enable: value.numpad_enable,
             numpad_shortcuts: NumpadMapping::navigation(),
+            hotkey_adds_to_command_history: false,
+            echo_hotkey_in_output_window: true,
             world_script: value.world_script,
             enable_scripts: value.enable_scripts,
             script_reload_option: value.script_reload_option,

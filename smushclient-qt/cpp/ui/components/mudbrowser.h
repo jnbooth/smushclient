@@ -11,6 +11,12 @@ public:
 
   MudScrollBar *verticalScrollBar() const;
 
+  void setIgnoreKeypad(bool ignore);
+
 protected:
+  virtual void keyPressEvent(QKeyEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
+
+private:
+  bool ignoreKeypad;
 };

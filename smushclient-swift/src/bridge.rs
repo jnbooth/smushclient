@@ -242,7 +242,7 @@ pub mod ffi {
         key_7: String,
         key_8: String,
         key_9: String,
-        key_dot: String,
+        key_period: String,
         key_slash: String,
         key_asterisk: String,
         key_minus: String,
@@ -343,6 +343,8 @@ pub mod ffi {
 
         numpad_enable: bool,
         numpad_shortcuts: NumpadMapping,
+        hotkey_adds_to_command_history: bool,
+        echo_hotkey_in_output_window: bool,
 
         world_script: String,
         enable_scripts: bool,

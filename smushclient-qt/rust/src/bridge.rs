@@ -8,8 +8,17 @@ use crate::client::SmushClientRust;
 use crate::sender::{AliasRust, ReactionRust, SenderRust, TimerRust, TriggerRust};
 use crate::sender::{OutputSpan, TextSpan};
 use crate::world::WorldRust;
+use cxx::{type_id, ExternType};
 use cxx_qt_lib::QByteArray;
 use mud_transformer::escape::telnet::naws;
+
+#[repr(transparent)]
+pub struct AliasOutcomes(pub u8);
+
+unsafe impl ExternType for AliasOutcomes {
+    type Id = type_id!("AliasOutcomes");
+    type Kind = cxx::kind::Trivial;
+}
 
 fn encode_naws(width: u16, height: u16) -> QByteArray {
     QByteArray::from(naws(width, height).as_slice())
@@ -185,6 +194,8 @@ pub mod ffi {
 
     extern "C++Qt" {
         include!("document.h");
+        type AliasOutcomes = super::AliasOutcomes;
+
         type Document;
 
         #[rust_name = "append_html"]
@@ -218,8 +229,6 @@ pub mod ffi {
         unsafe fn beep(self: &Document);
 
         unsafe fn begin(self: &Document);
-
-        unsafe fn echo(self: &Document, command: &QString);
 
         #[rust_name = "erase_current_line"]
         unsafe fn eraseCurrentLine(self: &Document);
@@ -380,6 +389,12 @@ pub mod ffi {
         MultiLine,
     }
 
+    enum CommandSource {
+        Hotkey,
+        Link,
+        User,
+    }
+
     extern "RustQt" {
         #[qobject]
         type SmushClient = super::SmushClientRust;
@@ -401,7 +416,12 @@ pub mod ffi {
         fn palette(self: &SmushClient) -> QVector_QColor;
         fn handle_connect(self: &SmushClient, socket: Pin<&mut QTcpSocket>) -> QString;
         fn handle_disconnect(self: Pin<&mut SmushClient>);
-        fn alias(self: Pin<&mut SmushClient>, command: &QString, doc: Pin<&mut Document>) -> u8;
+        fn alias(
+            self: Pin<&mut SmushClient>,
+            command: &QString,
+            source: CommandSource,
+            doc: Pin<&mut Document>,
+        ) -> AliasOutcomes;
         fn plugin_info(self: &SmushClient, index: usize, info_type: u8) -> QVariant;
         fn add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> QString;
         fn remove_plugin(self: Pin<&mut SmushClient>, plugin_id: &QString) -> bool;
@@ -798,7 +818,7 @@ pub mod ffi {
         #[qproperty(QString, numpad_7)]
         #[qproperty(QString, numpad_8)]
         #[qproperty(QString, numpad_9)]
-        #[qproperty(QString, numpad_dot)]
+        #[qproperty(QString, numpad_period)]
         #[qproperty(QString, numpad_slash)]
         #[qproperty(QString, numpad_asterisk)]
         #[qproperty(QString, numpad_minus)]
@@ -813,11 +833,13 @@ pub mod ffi {
         #[qproperty(QString, numpad_mod_7)]
         #[qproperty(QString, numpad_mod_8)]
         #[qproperty(QString, numpad_mod_9)]
-        #[qproperty(QString, numpad_mod_dot)]
+        #[qproperty(QString, numpad_mod_period)]
         #[qproperty(QString, numpad_mod_slash)]
         #[qproperty(QString, numpad_mod_asterisk)]
         #[qproperty(QString, numpad_mod_minus)]
         #[qproperty(QString, numpad_mod_plus)]
+        #[qproperty(bool, hotkey_adds_to_command_history)]
+        #[qproperty(bool, echo_hotkey_in_output_window)]
         // Scripts
         #[qproperty(QString, world_script)]
         #[qproperty(bool, enable_scripts)]

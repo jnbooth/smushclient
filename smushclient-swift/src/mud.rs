@@ -9,7 +9,7 @@ use crate::client::{AliasHandler, ClientHandler};
 use crate::error::StringifyResultError;
 use crate::stream::{RustAliasOutcome, RustOutputStream};
 use crate::sync::NonBlockingMutex;
-use smushclient::{SmushClient, World};
+use smushclient::{CommandSource, SmushClient, World};
 
 const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Bold,
@@ -73,7 +73,9 @@ impl RustMudBridge {
     pub fn alias(&mut self, command: String) -> RustAliasOutcome {
         let mut handler = AliasHandler::new();
         let lock = self.output_lock.lock();
-        let outcome = self.client.alias(&command, &mut handler);
+        let outcome = self
+            .client
+            .alias(&command, CommandSource::User, &mut handler);
         drop(lock);
         RustAliasOutcome::new(outcome, handler.into())
     }

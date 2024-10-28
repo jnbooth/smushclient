@@ -1,3 +1,4 @@
+use crate::bridge::AliasOutcomes;
 use crate::ffi;
 use smushclient::{AliasOutcome, SendIterable, SenderAccessError};
 
@@ -9,10 +10,12 @@ const fn flag_if(flag: ffi::AliasOutcome, pred: bool) -> u8 {
     }
 }
 
-pub const fn convert_alias_outcome(outcome: AliasOutcome) -> u8 {
-    flag_if(ffi::AliasOutcome::Display, outcome.display)
-        | flag_if(ffi::AliasOutcome::Remember, outcome.remember)
-        | flag_if(ffi::AliasOutcome::Send, outcome.send)
+pub const fn convert_alias_outcome(outcome: AliasOutcome) -> AliasOutcomes {
+    AliasOutcomes(
+        flag_if(ffi::AliasOutcome::Display, outcome.display)
+            | flag_if(ffi::AliasOutcome::Remember, outcome.remember)
+            | flag_if(ffi::AliasOutcome::Send, outcome.send),
+    )
 }
 
 pub trait IntoResultCode {

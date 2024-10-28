@@ -106,11 +106,6 @@ void Document::begin() const
   api->updateTimestamp();
 }
 
-void Document::echo(const QString &command) const
-{
-  api->echo(command);
-}
-
 void Document::end() const
 {
   scrollBar->toEnd();

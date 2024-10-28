@@ -13,9 +13,9 @@ public:
   virtual ~MudInput() {};
 
   void clearLog();
-  void forgetLast() noexcept;
   const QStringList &log() const noexcept;
   void remember(const QString &text);
+  void setIgnoreKeypad(bool ignore);
   void setLog(const QStringList &log);
   void setMaxLogSize(qsizetype size);
 
@@ -29,6 +29,7 @@ protected:
   virtual void keyPressEvent(QKeyEvent *event) override;
 
 private:
+  bool ignoreKeypad;
   QString draft;
   CommandHistory history;
 

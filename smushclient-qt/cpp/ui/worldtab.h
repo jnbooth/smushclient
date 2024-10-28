@@ -53,6 +53,7 @@ public slots:
 
 protected:
   void leaveEvent(QEvent *event) override;
+  void keyPressEvent(QKeyEvent *event) override;
   void mouseMoveEvent(QMouseEvent *event) override;
   void mouseReleaseEvent(QMouseEvent *event) override;
   void resizeEvent(QResizeEvent *event) override;
@@ -60,6 +61,7 @@ protected:
 
 private:
   ScriptApi *api;
+  bool handleKeypad;
   bool queuedConnect;
   QFont defaultFont;
   Document *document;
@@ -75,7 +77,7 @@ private:
   void finishDrag();
   void openLog();
   bool saveWorldAndState(const QString &filePath) const;
-  bool sendCommand(const QString &command);
+  bool sendCommand(const QString &command, CommandSource source);
 
 private slots:
   void finalizeWorldSettings(int result);

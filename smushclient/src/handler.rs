@@ -5,7 +5,6 @@ use smushclient_plugins::{Pad, PadSource, Plugin, PluginIndex, Reaction, SendMat
 pub trait Handler {
     fn display(&mut self, output: &Output);
     fn display_error(&mut self, error: &str);
-    fn echo(&mut self, line: &str);
     fn erase_last_line(&mut self);
     fn send(&mut self, request: SendRequest);
     fn send_script(&mut self, request: SendScriptRequest);
@@ -33,8 +32,8 @@ pub trait HandlerExt {
         senders: &[(PluginIndex, usize, &T)],
         line: &str,
         output: &[Output],
-    ) -> T::Effects
-    where
+        effects: &mut T::Effects,
+    ) where
         T: ReactionIterable;
 }
 
@@ -76,17 +75,16 @@ impl<H: Handler> HandlerExt for H {
         senders: &[(PluginIndex, usize, &T)],
         line: &str,
         output: &[Output],
-    ) -> T::Effects
-    where
+        effects: &mut T::Effects,
+    ) where
         T: ReactionIterable,
     {
-        let mut effects = T::Effects::default();
         for &(plugin, index, sender) in senders {
             let reaction: &Reaction = sender.as_ref();
             if !reaction.enabled {
                 continue;
             }
-            sender.add_effects(&mut effects);
+            sender.add_effects(effects);
             reaction.lock();
             for send in sender.matches(plugin, index, line) {
                 self.send_script(SendScriptRequest {
@@ -100,6 +98,5 @@ impl<H: Handler> HandlerExt for H {
             }
             reaction.unlock();
         }
-        effects
     }
 }

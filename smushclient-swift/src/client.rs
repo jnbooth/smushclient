@@ -44,8 +44,6 @@ impl smushclient::Handler for AliasHandler {
         eprintln!("Handler error: {error}");
     }
 
-    fn echo(&mut self, _command: &str) {}
-
     fn erase_last_line(&mut self) {}
 
     fn send(&mut self, request: smushclient::SendRequest) {
@@ -97,8 +95,6 @@ impl smushclient::Handler for ClientHandler {
     fn display_error(&mut self, error: &str) {
         eprintln!("Handler error: {error}");
     }
-
-    fn echo(&mut self, _command: &str) {}
 
     fn erase_last_line(&mut self) {}
 

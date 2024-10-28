@@ -17,7 +17,7 @@ use smushclient_plugins::{Alias, Plugin, PluginMetadata, Sender, Timer, Trigger}
 
 use mud_transformer::mxp::RgbColor;
 
-const CURRENT_VERSION: u8 = 4;
+const CURRENT_VERSION: u8 = 5;
 
 fn skip_temporary<S, T>(vec: &[T], serializer: S) -> Result<S::Ok, S::Error>
 where
@@ -130,6 +130,8 @@ pub struct World {
     // Numpad
     pub numpad_enable: bool,
     pub numpad_shortcuts: NumpadMapping,
+    pub hotkey_adds_to_command_history: bool,
+    pub echo_hotkey_in_output_window: bool,
 
     // Scripts
     pub world_script: String,
@@ -249,6 +251,8 @@ impl World {
             // Keypad
             numpad_enable: true,
             numpad_shortcuts: NumpadMapping::navigation(),
+            hotkey_adds_to_command_history: false,
+            echo_hotkey_in_output_window: true,
 
             // Scripts
             world_script: String::new(),
@@ -294,7 +298,8 @@ impl World {
             1 => versions::V1::migrate(&mut reader),
             2 => versions::V2::migrate(&mut reader),
             3 => versions::V3::migrate(&mut reader),
-            4 => bincode::deserialize_from(reader).map_err(Into::into),
+            4 => versions::V4::migrate(&mut reader),
+            5 => bincode::deserialize_from(reader).map_err(Into::into),
             _ => Err(PersistError::Invalid)?,
         }
     }

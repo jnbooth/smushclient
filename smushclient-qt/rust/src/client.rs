@@ -6,6 +6,7 @@ use std::pin::Pin;
 use std::{io, ptr};
 
 use crate::adapter::{DocumentAdapter, SocketAdapter, TableBuilderAdapter, TimekeeperAdapter};
+use crate::bridge::AliasOutcomes;
 use crate::convert::Convert;
 use crate::ffi;
 use crate::get_info::InfoVisitorQVariant;
@@ -19,8 +20,8 @@ use mud_transformer::mxp::RgbColor;
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
-    AliasBool, BoolProperty, Handler, SendIterable, SenderAccessError, SmushClient, TimerBool,
-    Timers, TriggerBool, World,
+    AliasBool, BoolProperty, CommandSource, Handler, SendIterable, SenderAccessError, SmushClient,
+    TimerBool, Timers, TriggerBool, World,
 };
 use smushclient_plugins::{Alias, PluginIndex, RegexError, Timer, Trigger};
 
@@ -226,7 +227,12 @@ impl SmushClientRust {
         i64::try_from(total_read).unwrap()
     }
 
-    pub fn alias(&mut self, command: &QString, doc: DocumentAdapter) -> u8 {
+    pub fn alias(
+        &mut self,
+        command: &QString,
+        source: CommandSource,
+        doc: DocumentAdapter,
+    ) -> AliasOutcomes {
         doc.begin();
         let output_lock = self.output_lock.lock();
         self.send.clear();
@@ -237,7 +243,9 @@ impl SmushClientRust {
             carriage_return_clears_line: world.carriage_return_clears_line,
             no_echo_off: world.no_echo_off,
         };
-        let outcome = self.client.alias(&String::from(command), &mut handler);
+        let outcome = self
+            .client
+            .alias(&String::from(command), source, &mut handler);
         handler.doc.end();
         drop(output_lock);
         convert_alias_outcome(outcome)
@@ -674,8 +682,17 @@ impl ffi::SmushClient {
             .code()
     }
 
-    pub fn alias(self: Pin<&mut Self>, command: &QString, doc: Pin<&mut ffi::Document>) -> u8 {
-        self.cxx_qt_ffi_rust_mut().alias(command, doc.into())
+    pub fn alias(
+        self: Pin<&mut Self>,
+        command: &QString,
+        source: ffi::CommandSource,
+        doc: Pin<&mut ffi::Document>,
+    ) -> AliasOutcomes {
+        let Ok(source) = source.try_into() else {
+            return AliasOutcomes(0);
+        };
+        self.cxx_qt_ffi_rust_mut()
+            .alias(command, source, doc.into())
     }
 
     /// # Safety

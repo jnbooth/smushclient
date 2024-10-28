@@ -5,13 +5,14 @@ use std::io::{self, BufReader};
 use std::ops::{Deref, DerefMut};
 use std::path::Path;
 
+use super::effects::CommandSource;
 use super::effects::{AliasEffects, TriggerEffects};
 use super::error::LoadError;
 use super::error::LoadFailure;
+use super::iter::ReactionIterable;
+use super::output::is_nonvisual_output;
 use crate::collections::LifetimeVec;
 use crate::handler::{Handler, HandlerExt};
-use crate::plugins::iter::ReactionIterable;
-use crate::plugins::output::is_nonvisual_output;
 use crate::{SendIterable, World};
 use mud_transformer::{Output, OutputFragment};
 use smushclient_plugins::{Alias, Plugin, PluginIndex, Trigger};
@@ -148,19 +149,24 @@ impl PluginEngine {
     pub fn alias<H: Handler>(
         &mut self,
         line: &str,
+        source: CommandSource,
         world: &mut World,
         handler: &mut H,
     ) -> AliasEffects {
         let mut oneshots = Vec::new();
         let mut matched = self.aliases.acquire();
-        let effects = Alias::find_matches(&self.plugins, world, line, &mut matched, &mut oneshots);
-
-        if !effects.omit_from_output {
-            handler.echo(line);
-        }
+        Alias::find_matches(
+            &self.plugins,
+            world,
+            line,
+            &mut matched,
+            &mut oneshots,
+            &mut AliasEffects::default(),
+        );
 
         handler.send_all(&matched, line, &mut self.alias_buf, &self.plugins);
-        let final_effects = handler.send_all_scripts(&matched, line, &[]);
+        let mut final_effects = AliasEffects::new(world, source);
+        handler.send_all_scripts(&matched, line, &[], &mut final_effects);
 
         drop(matched);
         self.remove_oneshots::<Alias>(&oneshots, world);
@@ -177,8 +183,15 @@ impl PluginEngine {
     ) -> TriggerEffects {
         let mut oneshots = Vec::new();
         let mut matched = self.triggers.acquire();
-        let effects =
-            Trigger::find_matches(&self.plugins, world, line, &mut matched, &mut oneshots);
+        let mut effects = TriggerEffects::new();
+        Trigger::find_matches(
+            &self.plugins,
+            world,
+            line,
+            &mut matched,
+            &mut oneshots,
+            &mut effects,
+        );
 
         if !handler.permit_line(line) || effects.omit_from_output {
             for fragment in output.iter() {
@@ -196,7 +209,8 @@ impl PluginEngine {
         }
 
         handler.send_all(&matched, line, &mut self.trigger_buf, &self.plugins);
-        let final_effects = handler.send_all_scripts(&matched, line, output);
+        let mut final_effects = TriggerEffects::new();
+        handler.send_all_scripts(&matched, line, output, &mut final_effects);
 
         for &(_, _, trigger) in &matched {
             if trigger.enabled && !trigger.sound.is_empty() {

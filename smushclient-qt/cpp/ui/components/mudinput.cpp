@@ -6,28 +6,19 @@
 // Public methods
 
 MudInput::MudInput(QWidget *parent)
-    : QTextEdit(parent),
-      draft(),
-      history() {}
+    : QTextEdit(parent) {}
 
 MudInput::MudInput(QWidget *parent, const QStringList &history)
     : QTextEdit(parent),
-      draft(),
       history(history) {}
 
 MudInput::MudInput(const QStringList &history)
     : QTextEdit(),
-      draft(),
       history(history) {}
 
 void MudInput::clearLog()
 {
   history.clear();
-}
-
-void MudInput::forgetLast() noexcept
-{
-  history.pop();
 }
 
 const QStringList &MudInput::log() const noexcept
@@ -38,6 +29,11 @@ const QStringList &MudInput::log() const noexcept
 void MudInput::remember(const QString &text)
 {
   history.push(text);
+}
+
+void MudInput::setIgnoreKeypad(bool ignore)
+{
+  ignoreKeypad = ignore;
 }
 
 void MudInput::setLog(const QStringList &log)
@@ -67,6 +63,11 @@ QSize MudInput::sizeHint() const
 
 void MudInput::keyPressEvent(QKeyEvent *event)
 {
+  if (ignoreKeypad && event->modifiers().testFlag(Qt::KeypadModifier)) [[unlikely]]
+  {
+    event->ignore();
+    return;
+  }
   switch (event->key())
   {
   case Qt::Key::Key_Up:
@@ -89,11 +90,6 @@ void MudInput::keyPressEvent(QKeyEvent *event)
       return;
     }
     const QString text = toPlainText();
-    if (!text.isEmpty())
-    {
-      history.push(text);
-      clear();
-    }
     emit submitted(text);
     return;
   }

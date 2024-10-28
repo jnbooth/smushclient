@@ -14,6 +14,7 @@
 #include "worldprefs.h"
 #include "../bridge/document.h"
 #include "../environment.h"
+#include "../hotkeys.h"
 #include "../scripting/hotspot.h"
 #include "../scripting/qlua.h"
 #include "../components/mudscrollbar.h"
@@ -24,6 +25,8 @@
 
 using std::nullopt;
 using std::string;
+
+constexpr Qt::KeyboardModifiers numpadMods = Qt::KeyboardModifier::ControlModifier | Qt::KeyboardModifier::MetaModifier;
 
 // Private utilities
 
@@ -261,6 +264,20 @@ void WorldTab::leaveEvent(QEvent *)
   finishDrag();
 }
 
+void WorldTab::keyPressEvent(QKeyEvent *event)
+{
+  const Qt::KeyboardModifiers modifiers = event->modifiers();
+  if (!handleKeypad || !modifiers.testFlag(Qt::KeyboardModifier::KeypadModifier)) [[likely]]
+  {
+    QSplitter::keyPressEvent(event);
+    return;
+  }
+  QString action = hotkeys::numpad(world, Qt::Key(event->key()), modifiers.testAnyFlags(numpadMods));
+  if (action.isEmpty())
+    return;
+  sendCommand(action, CommandSource::Hotkey);
+}
+
 void WorldTab::mouseReleaseEvent(QMouseEvent *)
 {
   finishDrag();
@@ -295,6 +312,9 @@ void WorldTab::timerEvent(QTimerEvent *event)
 
 void WorldTab::applyWorld()
 {
+  handleKeypad = world.getNumpadEnable();
+  ui->input->setIgnoreKeypad(handleKeypad);
+  ui->output->setIgnoreKeypad(handleKeypad);
   document->setPalette(client.palette());
   setColors(ui->background, world.getAnsi7(), world.getAnsi0());
   if (world.getUseProxy())
@@ -376,25 +396,26 @@ bool WorldTab::saveWorldAndState(const QString &path) const
   return true;
 }
 
-bool WorldTab::sendCommand(const QString &command)
+bool WorldTab::sendCommand(const QString &command, CommandSource source)
 {
-  const auto aliasOutcome = client.alias(command, *document);
-  const bool remember = aliasOutcome & (uint8_t)AliasOutcome::Remember;
+  const auto aliasOutcome = client.alias(command, source, *document);
 
-  if (!(aliasOutcome & (uint8_t)AliasOutcome::Send))
+  if (aliasOutcome.testFlag(AliasOutcome::Remember))
+    ui->input->remember(command);
+
+  if (aliasOutcome.testFlag(AliasOutcome::Display))
+    api->echo(command);
+
+  if (!aliasOutcome.testFlag(AliasOutcome::Send))
   {
-    ui->input->clear();
-    return remember;
+    return true;
   }
 
   QByteArray bytes = command.toUtf8();
   OnPluginCommand onCommand(bytes);
   api->sendCallback(onCommand);
   if (onCommand.discarded())
-  {
-    ui->input->clear();
-    return remember;
-  }
+    return true;
   OnPluginCommandEntered onCommandEntered(bytes);
   api->sendCallback(onCommandEntered);
   if (bytes.size() == 1)
@@ -402,15 +423,13 @@ bool WorldTab::sendCommand(const QString &command)
     switch (bytes.front())
     {
     case '\t':
-      ui->input->clear();
-      return remember;
+      return true;
     case '\r':
-      return remember;
+      return false;
     }
   }
-  ui->input->clear();
   api->SendNoEcho(bytes);
-  return remember;
+  return true;
 }
 
 // Private slots
@@ -470,15 +489,15 @@ void WorldTab::on_input_submitted(const QString &text)
 {
   ui->output->verticalScrollBar()->unpause();
 
-  bool remember = false;
-
   const QStringList commands = useSplitter ? text.split(splitter) : text.split(u'\n');
 
-  for (const QString &command : commands)
-    remember = sendCommand(command) || remember;
+  bool eraseInput = commands.length() > 1;
 
-  if (!remember)
-    ui->input->forgetLast();
+  for (const QString &command : commands)
+    eraseInput = sendCommand(command, CommandSource::User) || eraseInput;
+
+  if (eraseInput)
+    ui->input->clear();
 }
 
 void WorldTab::on_input_textChanged()
@@ -541,24 +560,7 @@ void WorldTab::on_output_anchorClicked(const QUrl &url)
     return;
   }
 
-  const auto aliasOutcome = client.alias(action, *document);
-
-  if (aliasOutcome & (uint8_t)AliasOutcome::Remember && world.getHyperlinkAddsToCommandHistory())
-    ui->input->remember(action);
-
-  if (aliasOutcome & (uint8_t)AliasOutcome::Display && world.getEchoHyperlinkInOutputWindow())
-    api->echo(action);
-
-  if (!(aliasOutcome & (uint8_t)AliasOutcome::Send))
-    return;
-
-  QByteArray bytes = action.toUtf8();
-  OnPluginCommand onCommand(bytes);
-  api->sendCallback(onCommand);
-  if (onCommand.discarded())
-    return;
-
-  api->SendNoEcho(bytes);
+  sendCommand(action, CommandSource::Hotkey);
 }
 
 void WorldTab::on_output_customContextMenuRequested(const QPoint &pos)

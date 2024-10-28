@@ -2,7 +2,7 @@ mod engine;
 pub use engine::PluginEngine;
 
 mod effects;
-pub use effects::{AliasOutcome, TriggerEffects};
+pub use effects::{AliasOutcome, CommandSource, TriggerEffects};
 
 mod error;
 pub use error::{LoadError, LoadFailure};

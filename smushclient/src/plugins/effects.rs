@@ -1,12 +1,20 @@
 use std::mem;
 
+use enumeration::Enum;
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::{TextFragment, TextStyle};
 use smushclient_plugins::{Alias, Trigger};
 
 use crate::world::World;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
+pub enum CommandSource {
+    Hotkey,
+    Link,
+    User,
+}
+
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AliasEffects {
     pub keep_evaluating: bool,
     pub omit_from_command_history: bool,
@@ -15,20 +23,30 @@ pub struct AliasEffects {
     pub suppress: bool,
 }
 
-impl Default for AliasEffects {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl AliasEffects {
-    pub const fn new() -> Self {
-        Self {
-            keep_evaluating: true,
-            omit_from_command_history: false,
-            omit_from_log: false,
-            omit_from_output: false,
-            suppress: false,
+    pub const fn new(world: &World, source: CommandSource) -> Self {
+        match source {
+            CommandSource::Hotkey => Self {
+                keep_evaluating: true,
+                omit_from_command_history: !world.hotkey_adds_to_command_history,
+                omit_from_log: false,
+                omit_from_output: !world.echo_hotkey_in_output_window,
+                suppress: false,
+            },
+            CommandSource::Link => Self {
+                keep_evaluating: true,
+                omit_from_command_history: !world.hyperlink_adds_to_command_history,
+                omit_from_log: false,
+                omit_from_output: !world.echo_hyperlink_in_output_window,
+                suppress: false,
+            },
+            CommandSource::User => Self {
+                keep_evaluating: true,
+                omit_from_command_history: false,
+                omit_from_log: false,
+                omit_from_output: false,
+                suppress: false,
+            },
         }
     }
 

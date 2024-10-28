@@ -8,8 +8,8 @@ use super::logger::Logger;
 use super::variables::PluginVariables;
 use crate::handler::Handler;
 use crate::plugins::{
-    assert_unique_label, AliasOutcome, LoadFailure, PluginEngine, SendIterable, SenderAccessError,
-    TriggerEffects,
+    assert_unique_label, AliasOutcome, CommandSource, LoadFailure, PluginEngine, SendIterable,
+    SenderAccessError, TriggerEffects,
 };
 use crate::world::{PersistError, World};
 use crate::LoadError;
@@ -205,16 +205,20 @@ impl SmushClient {
         }
     }
 
-    pub fn alias<H: Handler>(&mut self, input: &str, handler: &mut H) -> AliasOutcome {
+    pub fn alias<H: Handler>(
+        &mut self,
+        input: &str,
+        source: CommandSource,
+        handler: &mut H,
+    ) -> AliasOutcome {
         if !self.world.enable_aliases {
-            handler.echo(input);
             return AliasOutcome {
                 display: true,
                 remember: true,
                 send: true,
             };
         }
-        let outcome = self.plugins.alias(input, &mut self.world, handler);
+        let outcome = self.plugins.alias(input, source, &mut self.world, handler);
         if !outcome.omit_from_log {
             self.logger.log_input_line(input.as_bytes(), &self.world);
             self.logger.log_error(handler);

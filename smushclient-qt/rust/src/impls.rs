@@ -6,7 +6,8 @@ use mud_transformer::mxp::{Link, SendTo};
 use mud_transformer::{TelnetSource, TelnetVerb, TextStyle, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, ScriptRecompile};
 use smushclient::{
-    AliasBool, SendRequest, SendScriptRequest, TimerBool, TimerConstructible, TriggerBool,
+    AliasBool, CommandSource, SendRequest, SendScriptRequest, TimerBool, TimerConstructible,
+    TriggerBool,
 };
 use smushclient_plugins::{PluginIndex, SendTarget, Timer};
 
@@ -103,6 +104,8 @@ impl_convert_enum!(
     LowercaseWildcard,
     MultiLine
 );
+
+impl_convert_enum!(ffi::CommandSource, CommandSource, Hotkey, Link, User);
 
 impl Default for ffi::SendTarget {
     fn default() -> Self {

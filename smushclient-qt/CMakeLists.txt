@@ -70,6 +70,7 @@ qt_add_executable(${APP_NAME}
     cpp/enumbuttongroup.h
     cpp/environment.h
     cpp/fieldconnector.h
+    cpp/hotkeys.h cpp/hotkeys.cpp
     cpp/spans.h cpp/spans.cpp
     cpp/settings.h cpp/settings.cpp
 

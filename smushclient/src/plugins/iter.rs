@@ -78,7 +78,7 @@ impl_send_iterable!(Timer, timers);
 impl_send_iterable!(Trigger, triggers);
 
 pub trait ReactionIterable: SendIterable + AsRef<Reaction> + AsMut<Reaction> {
-    type Effects: Default + std::fmt::Debug;
+    type Effects;
 
     fn add_effects(&self, effects: &mut Self::Effects);
 
@@ -88,9 +88,8 @@ pub trait ReactionIterable: SendIterable + AsRef<Reaction> + AsMut<Reaction> {
         line: &str,
         buf: &mut Vec<(PluginIndex, usize, &'a Self)>,
         oneshots: &mut Vec<(PluginIndex, usize)>,
-    ) -> Self::Effects {
-        let mut effects = Self::Effects::default();
-
+        effects: &mut Self::Effects,
+    ) {
         for (index, plugin) in plugins.iter().enumerate() {
             if plugin.disabled {
                 continue;
@@ -109,7 +108,7 @@ pub trait ReactionIterable: SendIterable + AsRef<Reaction> + AsMut<Reaction> {
                 if !reaction.enabled {
                     continue;
                 }
-                sender.add_effects(&mut effects);
+                sender.add_effects(effects);
                 if reaction.one_shot {
                     oneshots.push((index, i));
                 }
@@ -118,8 +117,6 @@ pub trait ReactionIterable: SendIterable + AsRef<Reaction> + AsMut<Reaction> {
                 }
             }
         }
-
-        effects
     }
 }
 

@@ -15,12 +15,14 @@ struct SendScriptRequest;
 class MudScrollBar;
 class ScriptApi;
 class WorldTab;
+enum class AliasOutcome : uint8_t;
 enum class SendTarget : int32_t;
 enum class TelnetSource : uint8_t;
 enum class TelnetVerb : uint8_t;
 struct Link;
 struct OutputSpan;
 
+using AliasOutcomes = QFlags<AliasOutcome>;
 using QVector_QColor = QVector<QColor>;
 
 class Document : public QObject
@@ -35,7 +37,6 @@ public:
   void appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background) const;
   void beep() const;
   void begin() const;
-  void echo(const QString &command) const;
   void end() const;
   void eraseCurrentLine() const;
   void eraseLastCharacter() const;
