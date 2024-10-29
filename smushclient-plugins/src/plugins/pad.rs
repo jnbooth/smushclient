@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use crate::send::Occurrence;
 use crate::send::{Alias, Timer, Trigger};
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Pad<'a> {
     Script(&'a str),
     Alias {

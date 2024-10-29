@@ -25,8 +25,8 @@ pub struct PluginEngine {
     plugins: Vec<Plugin>,
     aliases: LifetimeVec<(PluginIndex, usize, &'static Alias)>,
     triggers: LifetimeVec<(PluginIndex, usize, &'static Trigger)>,
-    alias_buf: String,
-    trigger_buf: String,
+    alias_buf: Vec<u8>,
+    trigger_buf: Vec<u8>,
     guards: Senders<SenderGuard>,
 }
 
@@ -42,8 +42,8 @@ impl PluginEngine {
             plugins: Vec::new(),
             aliases: LifetimeVec::new(),
             triggers: LifetimeVec::new(),
-            alias_buf: String::new(),
-            trigger_buf: String::new(),
+            alias_buf: Vec::new(),
+            trigger_buf: Vec::new(),
             guards: Senders::new(SenderGuard::new(), SenderGuard::new(), SenderGuard::new()),
         }
     }

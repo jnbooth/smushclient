@@ -1,5 +1,7 @@
+use fancy_regex::{Captures, Expander};
 use serde::{Deserialize, Serialize};
 
+use super::send_to::SendTarget;
 use super::sender::Sender;
 use crate::regex::{Regex, RegexError};
 
@@ -40,6 +42,20 @@ impl Default for Reaction {
 
 impl Reaction {
     pub const DEFAULT_SEQUENCE: i16 = crate::constants::DEFAULT_SEQUENCE;
+
+    pub fn expand_text<'a>(&self, buf: &'a mut Vec<u8>, captures: &Captures) -> &'a str {
+        Expander {
+            sub_char: '%',
+            ..Default::default()
+        }
+        .write_expansion_vec(buf, &self.text, captures)
+        .expect("expansion succeeded");
+        std::str::from_utf8(buf).expect("expansion is UTF-8")
+    }
+
+    pub fn has_send(&self) -> bool {
+        !self.text.is_empty() || self.send_to == SendTarget::Variable
+    }
 
     pub fn make_regex(pattern: &str, is_regex: bool) -> Result<Regex, RegexError> {
         #[rustfmt::skip]

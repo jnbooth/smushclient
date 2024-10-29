@@ -7,10 +7,7 @@ mod in_place;
 mod constants;
 
 mod plugins;
-pub use plugins::{
-    Pad, PadSource, Plugin, PluginIndex, PluginLoadError, PluginMetadata, SendMatch, SendMatchIter,
-    SendMatchIterable,
-};
+pub use plugins::{Pad, PadSource, Plugin, PluginIndex, PluginLoadError, PluginMetadata};
 
 mod regex;
 pub use fancy_regex::{CaptureMatches, Captures, Match, SubCaptureMatches};

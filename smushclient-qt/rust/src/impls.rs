@@ -171,13 +171,26 @@ impl<'a> From<SendRequest<'a>> for ffi::SendRequest {
 
 impl<'a> From<SendScriptRequest<'a>> for ffi::SendScriptRequest<'a> {
     fn from(value: SendScriptRequest<'a>) -> Self {
-        let wildcards = match value.wildcards {
+        let (wildcards, named_wildcards) = match value.wildcards {
             Some(captures) => {
                 let mut iter = captures.iter();
                 iter.next();
-                iter.flatten().map(|capture| capture.as_str()).collect()
+                let wildcards = iter.flatten().map(|capture| capture.as_str()).collect();
+                let named_wildcards = value
+                    .regex
+                    .capture_names()
+                    .filter_map(|name| {
+                        let name = name?;
+                        let value = captures.name(name)?;
+                        Some(ffi::NamedWildcard {
+                            name,
+                            value: value.as_str(),
+                        })
+                    })
+                    .collect();
+                (wildcards, named_wildcards)
             }
-            None => Vec::new(),
+            None => (Vec::new(), Vec::new()),
         };
         Self {
             plugin: value.plugin,
@@ -185,6 +198,7 @@ impl<'a> From<SendScriptRequest<'a>> for ffi::SendScriptRequest<'a> {
             label: value.label,
             line: value.line,
             wildcards,
+            named_wildcards,
             output: OutputSpan::cast(value.output),
         }
     }

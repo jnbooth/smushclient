@@ -139,6 +139,11 @@
            </item>
            <item>
             <property name="text">
+             <string>Speedwalk</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>Script</string>
             </property>
            </item>

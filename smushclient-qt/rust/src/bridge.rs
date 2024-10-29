@@ -1,8 +1,9 @@
 #![allow(clippy::float_cmp)]
-#![allow(clippy::needless_pass_by_value)]
-#![allow(non_snake_case)]
 #![allow(clippy::missing_safety_doc)]
+#![allow(clippy::needless_lifetimes)]
+#![allow(clippy::needless_pass_by_value)]
 #![allow(clippy::unnecessary_box_returns)]
+#![allow(non_snake_case)]
 
 use crate::client::SmushClientRust;
 use crate::sender::{AliasRust, ReactionRust, SenderRust, TimerRust, TriggerRust};
@@ -169,12 +170,19 @@ pub mod ffi {
         pad: QString,
     }
 
+    struct NamedWildcard<'a> {
+        name: &'a str,
+        value: &'a str,
+    }
+
     struct SendScriptRequest<'a> {
         plugin: usize,
         script: &'a str,
         label: &'a str,
         line: &'a str,
         wildcards: Vec<&'a str>,
+        #[rust_name = "named_wildcards"]
+        namedWildcards: Vec<NamedWildcard<'a>>,
         output: &'a [OutputSpan],
     }
 

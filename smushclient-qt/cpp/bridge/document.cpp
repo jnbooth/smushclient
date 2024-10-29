@@ -232,12 +232,14 @@ public:
       const string &callback,
       rust::Str senderName,
       rust::Str line,
-      const rust::Vec<rust::Str> &wildcards)
+      const rust::Vec<rust::Str> &wildcards,
+      const rust::Vec<NamedWildcard> &namedWildcards)
       : PluginCallback(),
         callback(callback.data()),
         senderName(senderName),
         line(line),
-        wildcards(wildcards) {}
+        wildcards(wildcards),
+        namedWildcards(namedWildcards) {}
 
   inline constexpr const char *name() const noexcept override { return callback; }
   inline constexpr ActionSource source() const noexcept override { return ActionSource::Unknown; }
@@ -246,7 +248,20 @@ public:
   {
     qlua::pushRString(L, senderName);
     qlua::pushRString(L, line);
-    qlua::pushRStrings(L, wildcards);
+    lua_createtable(L, wildcards.size(), namedWildcards.size());
+    int i = 1;
+    for (rust::Str wildcard : wildcards)
+    {
+      qlua::pushRString(L, wildcard);
+      lua_rawseti(L, -2, i);
+      ++i;
+    }
+    for (const NamedWildcard &wildcard : namedWildcards)
+    {
+      qlua::pushRString(L, wildcard.name);
+      qlua::pushRString(L, wildcard.value);
+      lua_rawset(L, -3);
+    }
     return 3;
   }
 
@@ -255,6 +270,7 @@ private:
   rust::Str senderName;
   rust::Str line;
   const rust::Vec<rust::Str> &wildcards;
+  const rust::Vec<NamedWildcard> &namedWildcards;
 };
 
 class TriggerCallback : public AliasCallback
@@ -265,8 +281,9 @@ public:
       rust::Str senderName,
       rust::Str line,
       const rust::Vec<rust::Str> &wildcards,
+      const rust::Vec<NamedWildcard> &namedWildcards,
       rust::Slice<const OutputSpan> spans)
-      : AliasCallback(callback, senderName, line, wildcards),
+      : AliasCallback(callback, senderName, line, wildcards, namedWildcards),
         spans(spans) {}
 
   inline constexpr ActionSource source() const noexcept override { return ActionSource::TriggerFired; }
@@ -311,13 +328,24 @@ void Document::send(const SendScriptRequest &request) const
   if (request.output.empty())
   {
     const string callback(request.script.data(), request.script.size());
-    AliasCallback aliasCallback(callback, request.label, request.line, request.wildcards);
+    AliasCallback aliasCallback(
+        callback,
+        request.label,
+        request.line,
+        request.wildcards,
+        request.namedWildcards);
     api->sendCallback(aliasCallback, request.plugin);
   }
   else
   {
     const string callback(request.script.data(), request.script.size());
-    TriggerCallback triggerCallback(callback, request.label, request.line, request.wildcards, request.output);
+    TriggerCallback triggerCallback(
+        callback,
+        request.label,
+        request.line,
+        request.wildcards,
+        request.namedWildcards,
+        request.output);
     api->sendCallback(triggerCallback, request.plugin);
   }
 }

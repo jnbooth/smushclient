@@ -1,6 +1,6 @@
 use crate::plugins::{ReactionIterable, SendRequest, SendScriptRequest};
 use mud_transformer::Output;
-use smushclient_plugins::{Pad, PadSource, Plugin, PluginIndex, Reaction, SendMatchIterable};
+use smushclient_plugins::{Pad, PadSource, Plugin, PluginIndex, Reaction};
 
 pub trait Handler {
     fn display(&mut self, output: &Output);
@@ -23,7 +23,7 @@ pub trait HandlerExt {
         &mut self,
         senders: &[(PluginIndex, usize, &T)],
         line: &str,
-        text_buf: &mut String,
+        text_buf: &mut Vec<u8>,
         plugins: &[Plugin],
     ) where
         T: ReactionIterable + PadSource;
@@ -43,28 +43,45 @@ impl<H: Handler> HandlerExt for H {
         &mut self,
         senders: &[(PluginIndex, usize, &T)],
         line: &str,
-        text_buf: &mut String,
+        text_buf: &mut Vec<u8>,
         plugins: &[Plugin],
     ) where
         T: ReactionIterable + PadSource,
     {
-        text_buf.clear();
-        for &(plugin, index, sender) in senders {
+        for &(plugin, _, sender) in senders {
             let reaction: &Reaction = sender.as_ref();
-            if !reaction.enabled {
+            if !reaction.enabled || !reaction.has_send() {
                 continue;
             }
             reaction.lock();
-            for send in sender.matches(plugin, index, line) {
+            let mut found_capture = false;
+            let pad = if reaction.send_to.is_notepad() {
+                Some(Pad::new(sender, &plugins[plugin].metadata.name))
+            } else {
+                None
+            };
+            for captures in reaction.regex.captures_iter(line) {
+                let Ok(captures) = captures else {
+                    continue;
+                };
+                found_capture = true;
+                text_buf.clear();
                 self.send(SendRequest {
-                    plugin: send.plugin,
+                    plugin,
                     send_to: reaction.send_to,
-                    text: send.text(text_buf),
-                    pad: if reaction.send_to.is_notepad() {
-                        Some(Pad::new(send.sender, &plugins[send.plugin].metadata.name))
-                    } else {
-                        None
-                    },
+                    text: reaction.expand_text(text_buf, &captures),
+                    pad,
+                });
+                if !reaction.repeats {
+                    break;
+                }
+            }
+            if !found_capture {
+                self.send(SendRequest {
+                    plugin,
+                    send_to: reaction.send_to,
+                    text: &reaction.text,
+                    pad,
                 });
             }
             reaction.unlock();
@@ -80,21 +97,44 @@ impl<H: Handler> HandlerExt for H {
     ) where
         T: ReactionIterable,
     {
-        for &(plugin, index, sender) in senders {
+        for &(plugin, _, sender) in senders {
             let reaction: &Reaction = sender.as_ref();
             if !reaction.enabled {
                 continue;
             }
             sender.add_effects(effects);
+            if reaction.script.is_empty() {
+                continue;
+            }
             reaction.lock();
-            for send in sender.matches(plugin, index, line) {
+            let mut found_capture = false;
+            for captures in reaction.regex.captures_iter(line) {
+                let Ok(captures) = captures else {
+                    continue;
+                };
+                found_capture = true;
                 self.send_script(SendScriptRequest {
                     plugin,
                     script: &reaction.script,
                     label: &reaction.label,
                     line,
                     output,
-                    wildcards: send.captures,
+                    regex: &reaction.regex,
+                    wildcards: Some(captures),
+                });
+                if !reaction.repeats {
+                    break;
+                }
+            }
+            if !found_capture {
+                self.send_script(SendScriptRequest {
+                    plugin,
+                    script: &reaction.script,
+                    label: &reaction.label,
+                    line,
+                    output,
+                    regex: &reaction.regex,
+                    wildcards: None,
                 });
             }
             reaction.unlock();

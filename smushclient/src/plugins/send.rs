@@ -1,5 +1,5 @@
 use mud_transformer::Output;
-use smushclient_plugins::{Captures, Pad, PluginIndex, SendTarget, SenderLockError};
+use smushclient_plugins::{Captures, Pad, PluginIndex, Regex, SendTarget, SenderLockError};
 use std::error::Error;
 use std::fmt::{self, Display, Formatter};
 
@@ -16,6 +16,7 @@ pub struct SendScriptRequest<'a> {
     pub script: &'a str,
     pub label: &'a str,
     pub line: &'a str,
+    pub regex: &'a Regex,
     pub wildcards: Option<Captures<'a>>,
     pub output: &'a [Output],
 }
