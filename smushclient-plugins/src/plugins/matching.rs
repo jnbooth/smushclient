@@ -1,6 +1,6 @@
 use std::mem;
 
-use fancy_regex::{CaptureMatches, Captures};
+use fancy_regex::{CaptureMatches, Captures, Expander};
 
 use crate::send::{Reaction, SendTarget, Sender};
 use crate::PluginIndex;
@@ -34,7 +34,7 @@ impl<T: AsRef<Reaction> + Sized> SendMatchIterable for T {
         line: &'b str,
     ) -> SendMatchIter<'a, 'b, Self> {
         let reaction = self.as_ref();
-        if !reaction.script.is_empty() || reaction.text.contains('$') {
+        if !reaction.script.is_empty() || reaction.text.contains('%') {
             return SendMatchIter::Captures {
                 plugin,
                 index,
@@ -119,7 +119,11 @@ impl<'a, 'b, T> SendMatch<'a, 'b, T> {
         match &self.captures {
             Some(ref captures) => {
                 buf.clear();
-                captures.expand(self.text, buf);
+                Expander {
+                    sub_char: '%',
+                    ..Default::default()
+                }
+                .append_expansion(buf, self.text, captures);
                 buf.as_str()
             }
             None => self.text,

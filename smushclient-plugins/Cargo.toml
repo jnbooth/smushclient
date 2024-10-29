@@ -15,7 +15,8 @@ git = "https://github.com/jnbooth/enumeration"
 version = "0.8.0"
 
 [dependencies.fancy-regex]
-version = "0.13.0"
+git = "https://github.com/jnbooth/fancy-regex"
+rev = "8eb029d57fada825af701593e8dc73eee2019c99"
 
 [dependencies.mxp]
 git = "https://github.com/jnbooth/mxp"
