@@ -12,8 +12,7 @@ const fn flag_if(flag: ffi::AliasOutcome, pred: bool) -> u8 {
 
 pub const fn convert_alias_outcome(outcome: AliasOutcome) -> AliasOutcomes {
     AliasOutcomes(
-        flag_if(ffi::AliasOutcome::Display, outcome.display)
-            | flag_if(ffi::AliasOutcome::Remember, outcome.remember)
+        flag_if(ffi::AliasOutcome::Remember, outcome.remember)
             | flag_if(ffi::AliasOutcome::Send, outcome.send),
     )
 }

@@ -27,9 +27,8 @@ fn encode_naws(width: u16, height: u16) -> QByteArray {
 #[cxx_qt::bridge]
 pub mod ffi {
     enum AliasOutcome {
-        Display = 1,
-        Remember = 2,
-        Send = 4,
+        Remember = 1,
+        Send = 2,
     }
 
     #[repr(i32)]
@@ -229,6 +228,8 @@ pub mod ffi {
         unsafe fn beep(self: &Document);
 
         unsafe fn begin(self: &Document);
+
+        unsafe fn echo(self: &Document, command: &QString);
 
         #[rust_name = "erase_current_line"]
         unsafe fn eraseCurrentLine(self: &Document);

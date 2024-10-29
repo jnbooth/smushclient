@@ -212,8 +212,8 @@ impl SmushClient {
         handler: &mut H,
     ) -> AliasOutcome {
         if !self.world.enable_aliases {
+            handler.echo(input);
             return AliasOutcome {
-                display: true,
                 remember: true,
                 send: true,
             };

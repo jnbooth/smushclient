@@ -175,14 +175,19 @@ impl PluginEngine {
         postpone.set_plugin_count(self.plugins.len());
         postpone.defer();
         let mut matched = self.aliases.acquire();
+        let mut effects = AliasEffects::default();
         Alias::find_matches(
             postpone,
             &self.plugins,
             world,
             line,
             &mut matched,
-            &mut AliasEffects::default(),
+            &mut effects,
         );
+
+        if !effects.omit_from_output {
+            handler.echo(line);
+        }
 
         handler.send_all(&matched, line, &mut self.alias_buf, &self.plugins);
         let mut final_effects = AliasEffects::new(world, source);

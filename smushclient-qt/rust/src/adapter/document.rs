@@ -54,6 +54,11 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.begin() };
     }
 
+    pub fn echo(&self, command: &QString) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.echo(command) };
+    }
+
     pub fn erase_current_line(&self) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.erase_current_line() };

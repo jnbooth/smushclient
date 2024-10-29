@@ -19,10 +19,6 @@ impl RustAliasOutcome {
         }
     }
 
-    pub fn should_display(&self) -> bool {
-        self.outcome.display
-    }
-
     pub fn should_remember(&self) -> bool {
         self.outcome.remember
     }

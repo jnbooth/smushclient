@@ -440,7 +440,6 @@ pub mod ffi {
 
     extern "Rust" {
         type RustAliasOutcome;
-        fn should_display(&self) -> bool;
         fn should_remember(&self) -> bool;
         fn should_send(&self) -> bool;
         fn stream(&mut self) -> RustSendStream;

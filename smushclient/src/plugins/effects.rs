@@ -61,7 +61,6 @@ impl AliasEffects {
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AliasOutcome {
-    pub display: bool,
     pub remember: bool,
     pub send: bool,
 }
@@ -69,7 +68,6 @@ pub struct AliasOutcome {
 impl From<AliasEffects> for AliasOutcome {
     fn from(value: AliasEffects) -> Self {
         Self {
-            display: !value.omit_from_output,
             remember: !value.omit_from_command_history,
             send: !value.suppress,
         }

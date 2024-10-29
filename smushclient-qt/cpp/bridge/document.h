@@ -37,6 +37,7 @@ public:
   void appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background) const;
   void beep() const;
   void begin() const;
+  void echo(const QString &command) const;
   void end() const;
   void eraseCurrentLine() const;
   void eraseLastCharacter() const;

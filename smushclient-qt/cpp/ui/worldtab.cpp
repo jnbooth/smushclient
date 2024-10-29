@@ -410,13 +410,8 @@ bool WorldTab::sendCommand(const QString &command, CommandSource source)
   if (aliasOutcome.testFlag(AliasOutcome::Remember))
     ui->input->remember(command);
 
-  if (aliasOutcome.testFlag(AliasOutcome::Display))
-    api->echo(command);
-
   if (!aliasOutcome.testFlag(AliasOutcome::Send))
-  {
     return true;
-  }
 
   QByteArray bytes = command.toUtf8();
   OnPluginCommand onCommand(bytes);

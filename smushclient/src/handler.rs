@@ -5,6 +5,7 @@ use smushclient_plugins::{Pad, PadSource, Plugin, PluginIndex, Reaction, SendMat
 pub trait Handler {
     fn display(&mut self, output: &Output);
     fn display_error(&mut self, error: &str);
+    fn echo(&mut self, command: &str);
     fn erase_last_line(&mut self);
     fn send(&mut self, request: SendRequest);
     fn send_script(&mut self, request: SendScriptRequest);
