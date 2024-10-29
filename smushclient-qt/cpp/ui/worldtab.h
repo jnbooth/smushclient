@@ -64,6 +64,7 @@ private:
   QFont defaultFont;
   Document *document;
   QString filePath;
+  int flushTimerId;
   bool handleKeypad;
   bool initialized;
   std::optional<CallbackTrigger> onDragMove;

@@ -441,6 +441,8 @@ pub mod ffi {
             device: Pin<&mut QTcpSocket>,
             doc: Pin<&mut Document>,
         ) -> i64;
+        fn flush(self: Pin<&mut SmushClient>, doc: Pin<&mut Document>);
+        fn has_output(self: &SmushClient) -> bool;
         fn add_alias(self: Pin<&mut SmushClient>, index: usize, alias: &Alias) -> Result<i32>;
         fn add_timer(
             self: Pin<&mut SmushClient>,

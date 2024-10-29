@@ -156,15 +156,31 @@ impl SmushClient {
         }
     }
 
+    pub fn has_output(&self) -> bool {
+        self.transformer.has_output()
+    }
+
+    pub fn drain_output<H: Handler>(&mut self, handler: &mut H) {
+        self.process_output(handler, false);
+    }
+
     pub fn flush_output<H: Handler>(&mut self, handler: &mut H) {
+        self.process_output(handler, true);
+    }
+
+    fn process_output<H: Handler>(&mut self, handler: &mut H, flush: bool) {
         self.logger.log_error(handler);
         self.output_buf.clear();
-        self.output_buf.extend(self.transformer.flush_output());
+        if flush {
+            self.output_buf.extend(self.transformer.flush_output());
+        } else {
+            self.output_buf.extend(self.transformer.drain_output());
+        }
         let enable_triggers = self.world.enable_triggers;
         let mut slice = &mut self.output_buf[..];
         loop {
             if slice.is_empty() {
-                return;
+                break;
             }
             self.line_text.clear();
             let mut until = 0;

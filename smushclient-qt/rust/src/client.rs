@@ -205,7 +205,7 @@ impl SmushClientRust {
         let read_result = self.client.read(&mut socket);
         handler.doc.begin();
 
-        self.client.flush_output(&mut handler);
+        self.client.drain_output(&mut handler);
         handler.doc.end();
         drop(output_lock);
 
@@ -225,6 +225,23 @@ impl SmushClientRust {
         drop(input_lock);
 
         i64::try_from(total_read).unwrap()
+    }
+
+    pub fn flush(&mut self, doc: DocumentAdapter) {
+        let output_lock = self.output_lock.lock();
+        self.send.clear();
+        let world = self.client.world();
+        let mut handler = ClientHandler {
+            doc,
+            palette: &self.palette,
+            carriage_return_clears_line: world.carriage_return_clears_line,
+            no_echo_off: world.no_echo_off,
+        };
+        handler.doc.begin();
+
+        self.client.flush_output(&mut handler);
+        handler.doc.end();
+        drop(output_lock);
     }
 
     pub fn alias(
@@ -413,6 +430,14 @@ impl ffi::SmushClient {
         doc: Pin<&mut ffi::Document>,
     ) -> i64 {
         self.cxx_qt_ffi_rust_mut().read(device.into(), doc.into())
+    }
+
+    pub fn flush(self: Pin<&mut Self>, doc: Pin<&mut ffi::Document>) {
+        self.cxx_qt_ffi_rust_mut().flush(doc.into());
+    }
+
+    pub fn has_output(&self) -> bool {
+        self.cxx_qt_ffi_rust().client.has_output()
     }
 
     pub fn add_alias(

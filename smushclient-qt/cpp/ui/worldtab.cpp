@@ -60,12 +60,13 @@ WorldTab::WorldTab(QWidget *parent)
       world(),
       defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont)),
       filePath(),
+      flushTimerId(-1),
       handleKeypad(false),
       initialized(false),
       onDragMove(nullopt),
       onDragRelease(nullptr),
       queuedConnect(false),
-      resizeTimerId(0),
+      resizeTimerId(-1),
       splitter(),
       useSplitter(false)
 {
@@ -302,7 +303,15 @@ void WorldTab::timerEvent(QTimerEvent *event)
 {
   const int id = event->timerId();
   killTimer(id);
-  if (resizeTimerId != id)
+  if (id == flushTimerId)
+  {
+    flushTimerId = 0;
+    const ActionSource currentSource = api->setSource(ActionSource::TriggerFired);
+    client.flush(*document);
+    api->setSource(currentSource);
+    return;
+  }
+  if (id != resizeTimerId)
     return;
   resizeTimerId = 0;
   initialized = true;
@@ -485,6 +494,10 @@ void WorldTab::readFromSocket()
   const ActionSource currentSource = api->setSource(ActionSource::TriggerFired);
   client.read(*socket, *document);
   api->setSource(currentSource);
+  if (client.hasOutput())
+    flushTimerId = startTimer(2000);
+  else
+    flushTimerId = -1;
 }
 
 void WorldTab::on_input_submitted(const QString &text)
