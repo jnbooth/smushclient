@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET 15.0)
+set(CMAKE_OSX_DEPLOYMENT_TARGET 15)
 project(SmushClient VERSION 0.1 LANGUAGES CXX)
 set(APP_NAME ${PROJECT_NAME})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -32,7 +32,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   lualibs
   GIT_REPOSITORY https://github.com/jnbooth/lua-batteries-included.git
-  GIT_TAG 7135e9961d421e57db7316a5b8869baf21d91984
+  GIT_TAG 84faa49f324b8dd5c1b249b73cf2bd59e1f3b97a
 )
 
 FetchContent_MakeAvailable(
