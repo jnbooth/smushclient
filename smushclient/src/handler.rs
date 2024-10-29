@@ -1,4 +1,4 @@
-use crate::plugins::{ReactionIterable, SendRequest, SendScriptRequest};
+use crate::plugins::{ReactionIterable, SendRequest, SendScriptRequest, SenderGuard};
 use mud_transformer::Output;
 use smushclient_plugins::{Pad, PadSource, Plugin, PluginIndex, Reaction};
 
@@ -25,6 +25,7 @@ pub trait HandlerExt {
         line: &str,
         text_buf: &mut Vec<u8>,
         plugins: &[Plugin],
+        guard: &mut SenderGuard,
     ) where
         T: ReactionIterable + PadSource;
 
@@ -34,6 +35,7 @@ pub trait HandlerExt {
         line: &str,
         output: &[Output],
         effects: &mut T::Effects,
+        guard: &SenderGuard,
     ) where
         T: ReactionIterable;
 }
@@ -45,12 +47,21 @@ impl<H: Handler> HandlerExt for H {
         line: &str,
         text_buf: &mut Vec<u8>,
         plugins: &[Plugin],
+        guard: &mut SenderGuard,
     ) where
         T: ReactionIterable + PadSource,
     {
-        for &(plugin, _, sender) in senders {
+        let mut skip_plugin = usize::MAX;
+        for &(plugin, i, sender) in senders {
+            if plugin == skip_plugin {
+                continue;
+            }
             let reaction: &Reaction = sender.as_ref();
             if !reaction.enabled || !reaction.has_send() {
+                continue;
+            }
+            if guard.should_stop(plugin, i) {
+                skip_plugin = plugin;
                 continue;
             }
             reaction.lock();
@@ -94,10 +105,20 @@ impl<H: Handler> HandlerExt for H {
         line: &str,
         output: &[Output],
         effects: &mut T::Effects,
+        guard: &SenderGuard,
     ) where
         T: ReactionIterable,
     {
-        for &(plugin, _, sender) in senders {
+        let stops = guard.stops();
+        let mut skip_plugin = usize::MAX;
+        for &(plugin, i, sender) in senders {
+            if plugin == skip_plugin {
+                continue;
+            }
+            if stops[plugin] == i {
+                skip_plugin = plugin;
+                continue;
+            }
             let reaction: &Reaction = sender.as_ref();
             if !reaction.enabled {
                 continue;

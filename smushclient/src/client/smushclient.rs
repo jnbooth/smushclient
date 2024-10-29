@@ -75,6 +75,10 @@ impl SmushClient {
         self.supported_tags = supported_tags;
     }
 
+    pub fn stop_evaluating<T: SendIterable>(&mut self) {
+        self.plugins.stop_evaluating::<T>();
+    }
+
     fn update_config(&mut self) {
         self.transformer.set_config(TransformerConfig {
             will: self.plugins.supported_protocols(),

@@ -13,6 +13,7 @@ pub use iter::{assert_unique_label, ReactionIterable, SendIterable};
 mod output;
 
 mod guard;
+pub use guard::SenderGuard;
 
 mod send;
 pub use send::{SendRequest, SendScriptRequest, SenderAccessError};

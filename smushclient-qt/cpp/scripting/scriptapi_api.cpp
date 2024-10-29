@@ -321,6 +321,11 @@ bool ScriptApi::SetVariable(size_t index, string_view key, string_view value) co
   return client()->setVariable(index, stringSlice(key), stringSlice(value));
 }
 
+void ScriptApi::StopEvaluatingTriggers() const
+{
+  return client()->stopTriggers();
+}
+
 ApiCode ScriptApi::StopSound(size_t channel)
 {
   if (channel < 0 || channel > audioChannels.size())

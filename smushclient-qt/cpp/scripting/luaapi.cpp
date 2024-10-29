@@ -710,6 +710,13 @@ static int L_SetTriggerOption(lua_State *L)
   return returnCode(L, ApiCode::PluginCannotSetOption);
 }
 
+static int L_StopEvaluatingTriggers(lua_State *L)
+{
+  expectMaxArgs(L, 1);
+  getApi(L).StopEvaluatingTriggers();
+  return 0;
+}
+
 // sound
 
 static int L_PlaySound(lua_State *L)
@@ -1339,6 +1346,7 @@ static const struct luaL_Reg worldlib[] =
      {"IsTimer", L_IsTimer},
      {"IsTrigger", L_IsTrigger},
      {"SetTriggerOption", L_SetTriggerOption},
+     {"StopEvaluatingTriggers", L_StopEvaluatingTriggers},
      // sound
      {"PlaySound", L_PlaySound},
      {"PlaySoundMemory", L_PlaySoundMemory},

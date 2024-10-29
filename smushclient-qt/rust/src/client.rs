@@ -766,4 +766,10 @@ impl ffi::SmushClient {
         self.cxx_qt_ffi_rust_mut()
             .finish_timer(id, timekeeper.into())
     }
+
+    pub fn stop_triggers(self: Pin<&mut Self>) {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .stop_evaluating::<Trigger>();
+    }
 }

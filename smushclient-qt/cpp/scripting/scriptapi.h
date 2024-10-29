@@ -125,6 +125,7 @@ public:
   ApiCode SetTriggerGroup(size_t plugin, const QString &label, const QString &group) const;
   ApiCode SetTriggerOption(size_t plugin, const QString &label, TriggerBool option, bool value) const;
   bool SetVariable(size_t pluginIndex, std::string_view key, std::string_view value) const;
+  void StopEvaluatingTriggers() const;
   ApiCode StopSound(size_t channel);
   void Tell(const QString &text);
   ApiCode TextRectangle(

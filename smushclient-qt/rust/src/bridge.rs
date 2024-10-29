@@ -559,6 +559,7 @@ pub mod ffi {
             id: usize,
             timekeeper: Pin<&mut Timekeeper>,
         ) -> bool;
+        fn stop_triggers(self: Pin<&mut SmushClient>);
     }
 
     unsafe impl !cxx_qt::Locking for SmushClient {}

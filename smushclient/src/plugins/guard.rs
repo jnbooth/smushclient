@@ -1,4 +1,4 @@
-use smushclient_plugins::{Plugin, PluginIndex};
+use smushclient_plugins::{Plugin, PluginIndex, Sender};
 
 use crate::world::World;
 
@@ -9,6 +9,8 @@ pub struct SenderGuard {
     defer: bool,
     needs_sort: Vec<bool>,
     removals: Vec<Vec<usize>>,
+    stops: Vec<usize>,
+    stop: bool,
 }
 
 impl Default for SenderGuard {
@@ -23,6 +25,8 @@ impl SenderGuard {
             defer: false,
             needs_sort: Vec::new(),
             removals: Vec::new(),
+            stops: Vec::new(),
+            stop: false,
         }
     }
 
@@ -32,12 +36,35 @@ impl SenderGuard {
         }
         self.needs_sort.resize(count, false);
         self.removals.resize_with(count, Default::default);
+        self.stops.clear();
+        self.stops.resize(count, usize::MAX);
+        self.stop = false;
     }
 }
 
 impl SenderGuard {
     pub fn defer(&mut self) {
         self.defer = true;
+    }
+
+    pub fn stop(&mut self) {
+        self.stop = true;
+    }
+
+    pub fn should_stop(&mut self, plugin: PluginIndex, i: usize) -> bool {
+        if !self.stop {
+            return false;
+        }
+        self.stop = false;
+        if self.stops.len() <= plugin {
+            self.stops.resize(plugin + 1, usize::MAX);
+        }
+        self.stops[plugin] = i;
+        true
+    }
+
+    pub fn stops(&self) -> &[usize] {
+        &self.stops
     }
 
     pub fn add<'a, T: Ord>(
@@ -64,7 +91,7 @@ impl SenderGuard {
         self.removals[plugin].push(pos);
     }
 
-    pub fn remove<T>(
+    pub fn remove<T: AsMut<Sender>>(
         &mut self,
         plugin: PluginIndex,
         senders: &mut Vec<T>,
@@ -74,13 +101,14 @@ impl SenderGuard {
             return None;
         }
         if self.defer {
+            senders[pos].as_mut().enabled = false;
             self.removals[plugin].push(pos);
             return None;
         }
         Some(senders.remove(pos))
     }
 
-    pub fn remove_all<T, P: FnMut(&T) -> bool>(
+    pub fn remove_all<T: AsMut<Sender>, P: FnMut(&T) -> bool>(
         &mut self,
         plugin: PluginIndex,
         senders: &mut Vec<T>,
@@ -95,10 +123,13 @@ impl SenderGuard {
         let len = removals.len();
         removals.extend(
             senders
-                .iter()
+                .iter_mut()
                 .enumerate()
                 .filter(|(_, sender)| pred(sender))
-                .map(|(pos, _)| pos),
+                .map(|(pos, sender)| {
+                    sender.as_mut().enabled = false;
+                    pos
+                }),
         );
         removals.len() - len
     }

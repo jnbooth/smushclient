@@ -164,6 +164,10 @@ impl PluginEngine {
             .remove_all::<T, P>(index, senders, pred)
     }
 
+    pub fn stop_evaluating<T: SendIterable>(&mut self) {
+        self.guards.get_mut::<T>().stop();
+    }
+
     pub fn alias<H: Handler>(
         &mut self,
         line: &str,
@@ -189,9 +193,9 @@ impl PluginEngine {
             handler.echo(line);
         }
 
-        handler.send_all(&matched, line, &mut self.alias_buf, &self.plugins);
+        handler.send_all(&matched, line, &mut self.alias_buf, &self.plugins, postpone);
         let mut final_effects = AliasEffects::new(world, source);
-        handler.send_all_scripts(&matched, line, &[], &mut final_effects);
+        handler.send_all_scripts(&matched, line, &[], &mut final_effects, postpone);
 
         drop(matched);
         postpone.finalize::<Alias>(&mut self.plugins, world);
@@ -208,6 +212,7 @@ impl PluginEngine {
     ) -> TriggerEffects {
         let postpone = self.guards.get_mut::<Trigger>();
         postpone.set_plugin_count(self.plugins.len());
+        postpone.defer();
         let mut matched = self.triggers.acquire();
         let mut effects = TriggerEffects::new();
         Trigger::find_matches(
@@ -234,9 +239,15 @@ impl PluginEngine {
             }
         }
 
-        handler.send_all(&matched, line, &mut self.trigger_buf, &self.plugins);
+        handler.send_all(
+            &matched,
+            line,
+            &mut self.trigger_buf,
+            &self.plugins,
+            postpone,
+        );
         let mut final_effects = TriggerEffects::new();
-        handler.send_all_scripts(&matched, line, output, &mut final_effects);
+        handler.send_all_scripts(&matched, line, output, &mut final_effects, postpone);
 
         for &(_, _, trigger) in &matched {
             if trigger.enabled && !trigger.sound.is_empty() {
