@@ -37,8 +37,10 @@ static int L_panic(lua_State *L)
 static int L_print(lua_State *L)
 {
   const QString output = qlua::concatStrings(L);
-  qInfo() << "print(" << output << ")";
+#ifdef NDEBUG
   getApi(L).Tell(output);
+#endif
+  qInfo() << "print(" << output << ")";
   return 0;
 }
 
