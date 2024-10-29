@@ -167,6 +167,7 @@ bool Plugin::runScript(const QString &script) const
   if (checkError(qlua::loadQString(L, script))) [[unlikely]]
   {
     getApi(L).printError(formatCompileError(L));
+    lua_pop(L, 1);
     return false;
   }
 
@@ -181,6 +182,7 @@ bool Plugin::runScript(string_view script) const
   if (checkError(qlua::loadString(L, script))) [[unlikely]]
   {
     getApi(L).printError(formatCompileError(L));
+    lua_pop(L, 1);
     return false;
   }
 
