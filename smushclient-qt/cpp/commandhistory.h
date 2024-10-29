@@ -15,7 +15,7 @@ public:
 
   void clear();
   void pop() noexcept;
-  void push(const QString &command);
+  bool push(const QString &command);
   void replace(const QStringList &history);
   void setMaxSize(qsizetype max);
 
@@ -26,17 +26,27 @@ public:
 
   constexpr const QString &current() const noexcept
   {
-    return iterator > last ? __emptyString : *iterator;
+    return iterator == end ? __emptyString : *iterator;
   }
 
   constexpr const QString &next() noexcept
   {
-    return iterator >= last ? __emptyString : *++iterator;
+    return iterator == end || (++iterator == end) ? __emptyString : *iterator;
+  }
+
+  constexpr bool atStart() const noexcept
+  {
+    return iterator == begin;
+  }
+
+  constexpr bool atLast() const noexcept
+  {
+    return iterator == end - 1;
   }
 
   constexpr bool atEnd() const noexcept
   {
-    return iterator >= last;
+    return iterator == end;
   }
 
   constexpr bool isEmpty() const noexcept
@@ -61,15 +71,15 @@ public:
 
   constexpr qsizetype size() const noexcept
   {
-    return 1 + (last - begin);
+    return end - begin;
   }
 
 private:
   QStringList history;
   qsizetype max;
   QStringList::const_iterator begin;
+  QStringList::const_iterator end;
   QStringList::const_iterator iterator;
-  QStringList::const_iterator last;
 
 private:
   void resetIterators() noexcept;

@@ -321,7 +321,10 @@ void Document::setPalette(const QVector_QColor &palette)
 {
   QTextCharFormat *format = &formats[0];
   for (QColor color : palette)
+  {
     format->setForeground(color);
+    ++format;
+  }
 }
 
 void Document::setSuppressEcho(bool suppress) const

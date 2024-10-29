@@ -7,19 +7,16 @@
 
 MudInput::MudInput(QWidget *parent)
     : QTextEdit(parent),
-      draft(),
       history(),
       ignoreKeypad() {}
 
 MudInput::MudInput(QWidget *parent, const QStringList &history)
     : QTextEdit(parent),
-      draft(),
       history(history),
       ignoreKeypad() {}
 
 MudInput::MudInput(const QStringList &history)
     : QTextEdit(),
-      draft(),
       history(history),
       ignoreKeypad() {}
 
@@ -70,27 +67,29 @@ QSize MudInput::sizeHint() const
 
 void MudInput::keyPressEvent(QKeyEvent *event)
 {
-  if (ignoreKeypad && event->modifiers().testFlag(Qt::KeypadModifier)) [[unlikely]]
-  {
-    event->ignore();
-    return;
-  }
   switch (event->key())
   {
   case Qt::Key::Key_Up:
+    if (history.atStart())
+      break;
     if (int lines = document()->lineCount(); lines > 1 && !textCursor().atStart())
       break;
-    setTextFromHistory(history.previous());
+    if ((history.atEnd() || history.atLast()) && !document()->isEmpty() && history.push(toPlainText()))
+      history.previous();
+    setText(history.previous());
+    moveCursor(QTextCursor::MoveOperation::End);
     return;
 
   case Qt::Key::Key_Down:
     if (int lines = document()->lineCount(); lines > 1 && !textCursor().atEnd())
       break;
-    setTextFromHistory(history.next());
+    setText(history.next());
+    moveCursor(QTextCursor::MoveOperation::End);
     return;
 
   case Qt::Key::Key_Enter:
   case Qt::Key::Key_Return:
+  {
     if (event->modifiers().testFlag(Qt::KeyboardModifier::ShiftModifier))
     {
       QTextEdit::keyPressEvent(event);
@@ -101,35 +100,17 @@ void MudInput::keyPressEvent(QKeyEvent *event)
     return;
   }
 
-  QTextEdit::keyPressEvent(event);
-}
+  case Qt::Key::Key_Left:
+  case Qt::Key::Key_Right:
+    break;
 
-// Private methods
-
-void MudInput::restoreDraft()
-{
-  if (draft.isEmpty())
-    return;
-  setText(draft);
-  moveCursor(QTextCursor::MoveOperation::End);
-  draft.clear();
-}
-
-void MudInput::saveDraft()
-{
-  if (!history.atEnd() || document()->isEmpty())
-    return;
-  draft = toPlainText();
-}
-
-void MudInput::setTextFromHistory(const QString &text)
-{
-  if (text.isEmpty())
-  {
-    restoreDraft();
-    return;
+  default:
+    if (ignoreKeypad && event->modifiers().testFlag(Qt::KeypadModifier)) [[unlikely]]
+    {
+      event->ignore();
+      return;
+    }
   }
-  saveDraft();
-  setText(text);
-  moveCursor(QTextCursor::MoveOperation::End);
+
+  QTextEdit::keyPressEvent(event);
 }

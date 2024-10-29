@@ -8,15 +8,15 @@ CommandHistory::CommandHistory(qsizetype max)
     : history(),
       max(max),
       begin(history.cbegin()),
-      iterator(history.cend()),
-      last(iterator - 1) {}
+      end(history.cend()),
+      iterator(end) {}
 
 CommandHistory::CommandHistory(const QStringList &borrowHistory, qsizetype max)
     : history(borrowHistory),
       max(max),
       begin(history.cbegin()),
-      iterator(history.cend()),
-      last(iterator - 1) {}
+      end(history.cend()),
+      iterator(end) {}
 
 CommandHistory::CommandHistory(CommandHistory &&other)
     : CommandHistory(std::move(other.history), other.max) {}
@@ -52,11 +52,11 @@ void CommandHistory::pop() noexcept
   resetIterators();
 }
 
-void CommandHistory::push(const QString &command)
+bool CommandHistory::push(const QString &command)
 {
   const qsizetype currentSize = size();
-  if (currentSize && *last == command)
-    return;
+  if (currentSize && *(end - 1) == command)
+    return false;
 
   if (currentSize == max)
     history.removeFirst();
@@ -64,6 +64,8 @@ void CommandHistory::push(const QString &command)
   history.append(command);
 
   resetIterators();
+
+  return true;
 }
 
 void CommandHistory::replace(const QStringList &newHistory)
@@ -89,6 +91,6 @@ void CommandHistory::setMaxSize(qsizetype newMax)
 void CommandHistory::resetIterators() noexcept
 {
   begin = history.cbegin();
-  iterator = history.cend();
-  last = iterator - 1;
+  end = history.cend();
+  iterator = end;
 }
