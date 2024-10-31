@@ -1,7 +1,10 @@
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::ffi::c_char;
+use std::fmt::{self, Display, Formatter};
 use std::io::{Read, Write};
 use std::ops::{Deref, DerefMut};
+use std::ptr;
 
 use serde::{Deserialize, Serialize};
 
@@ -23,6 +26,23 @@ impl Deref for PluginVariables {
 impl DerefMut for PluginVariables {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
+    }
+}
+
+fn format_slice(val: &[i8]) -> Cow<str> {
+    let bytes: &[u8] = unsafe { &*(ptr::from_ref(val) as *const [u8]) };
+    String::from_utf8_lossy(bytes)
+}
+
+impl Display for PluginVariables {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        for (id, vars) in &self.0 {
+            writeln!(f, "{id}:")?;
+            for (key, val) in vars {
+                writeln!(f, "    {}: {}", format_slice(key), format_slice(val))?;
+            }
+        }
+        Ok(())
     }
 }
 
