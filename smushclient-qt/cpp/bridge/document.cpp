@@ -193,9 +193,9 @@ void Document::handleTelnetNegotiation(TelnetSource source, TelnetVerb verb, uin
 {
   if (source == TelnetSource::Server && code == telnetNAWS)
   {
-    if (verb == TelnetVerb::Will)
+    if (verb == TelnetVerb::Do)
       api->setNawsEnabled(true);
-    else if (verb == TelnetVerb::Wont)
+    else if (verb == TelnetVerb::Dont)
       api->setNawsEnabled(false);
   }
 
