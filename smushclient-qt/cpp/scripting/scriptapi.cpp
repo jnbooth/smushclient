@@ -92,6 +92,8 @@ void ScriptApi::appendHtml(const QString &html)
 
 void ScriptApi::appendTell(const QString &text, const QTextCharFormat &format)
 {
+  if (text.isEmpty())
+    return;
   if (cursor.position() != lastTellPosition)
   {
     flushLine();
