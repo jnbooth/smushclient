@@ -157,7 +157,6 @@ bool WorldTab::openWorld(const QString &filename) &
     return false;
   }
   openLog();
-  loadPlugins();
   try
   {
     client.loadVariables(filename + QStringLiteral(".vars"));
@@ -166,6 +165,7 @@ bool WorldTab::openWorld(const QString &filename) &
   {
     showRustError(e);
   }
+  loadPlugins();
 
   Settings().addRecentFile(filename);
   filePath = QString(filename);
