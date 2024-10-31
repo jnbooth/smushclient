@@ -5,6 +5,8 @@
 #![allow(clippy::unnecessary_box_returns)]
 #![allow(non_snake_case)]
 
+use std::mem;
+
 use crate::client::SmushClientRust;
 use crate::sender::{AliasRust, ReactionRust, SenderRust, TimerRust, TriggerRust};
 use crate::sender::{OutputSpan, TextSpan};
@@ -15,9 +17,19 @@ use mud_transformer::escape::telnet::naws;
 
 #[repr(transparent)]
 pub struct AliasOutcomes(pub u8);
+const _: [(); mem::size_of::<AliasOutcomes>()] = [(); mem::size_of::<ffi::AliasOutcome>()];
 
 unsafe impl ExternType for AliasOutcomes {
     type Id = type_id!("AliasOutcomes");
+    type Kind = cxx::kind::Trivial;
+}
+
+#[repr(transparent)]
+pub struct TextStyles(pub u16);
+const _: [(); mem::size_of::<TextStyles>()] = [(); mem::size_of::<ffi::TextStyle>()];
+
+unsafe impl ExternType for TextStyles {
+    type Id = type_id!("TextStyles");
     type Kind = cxx::kind::Trivial;
 }
 
@@ -202,6 +214,7 @@ pub mod ffi {
     extern "C++Qt" {
         include!("document.h");
         type AliasOutcomes = super::AliasOutcomes;
+        type TextStyles = super::TextStyles;
 
         type Document;
 
@@ -218,7 +231,7 @@ pub mod ffi {
         unsafe fn appendText(
             self: &Document,
             text: &QString,
-            style: u16,
+            style: TextStyles,
             foreground: &QColor,
             background: &QColor,
         );
@@ -227,10 +240,20 @@ pub mod ffi {
         unsafe fn appendText(
             self: &Document,
             text: &QString,
-            style: u16,
+            style: TextStyles,
             foreground: &QColor,
             background: &QColor,
             link: &Link,
+        );
+
+        #[rust_name = "apply_styles"]
+        unsafe fn applyStyles(
+            self: &Document,
+            start: i32,
+            end: i32,
+            style: TextStyles,
+            foreground: &QColor,
+            background: &QColor,
         );
 
         unsafe fn beep(self: &Document);

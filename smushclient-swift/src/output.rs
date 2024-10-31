@@ -1,3 +1,5 @@
+use std::ptr;
+
 use mud_transformer::mxp::{Heading, Link, NamedColorIter, RgbColor, SendTo};
 use mud_transformer::{TextFragment, TextStyle};
 
@@ -11,7 +13,7 @@ pub struct RustMxpLink {
 impl RustMxpLink {
     fn cast(link: &Link) -> &Self {
         // SAFETY: #[repr(transparent)]
-        unsafe { &*(link as *const Link).cast::<Self>() }
+        unsafe { &*ptr::from_ref::<Link>(link).cast::<Self>() }
     }
 
     pub fn action(&self) -> &str {

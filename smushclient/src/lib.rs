@@ -15,7 +15,7 @@ pub use options::{AliasBool, BoolProperty, TimerBool, TriggerBool};
 mod plugins;
 pub use plugins::{
     AliasOutcome, CommandSource, LoadError, LoadFailure, SendIterable, SendRequest,
-    SendScriptRequest, SenderAccessError,
+    SendScriptRequest, SenderAccessError, SpanStyle,
 };
 
 pub mod world;

@@ -1,8 +1,11 @@
-use crate::plugins::{ReactionIterable, SendRequest, SendScriptRequest, SenderGuard};
+use std::ops::Range;
+
+use crate::plugins::{ReactionIterable, SendRequest, SendScriptRequest, SenderGuard, SpanStyle};
 use mud_transformer::Output;
 use smushclient_plugins::{Pad, PadSource, Plugin, PluginIndex, Reaction};
 
 pub trait Handler {
+    fn apply_styles(&mut self, range: Range<usize>, style: SpanStyle);
     fn display(&mut self, output: &Output);
     fn display_error(&mut self, error: &str);
     fn echo(&mut self, command: &str);

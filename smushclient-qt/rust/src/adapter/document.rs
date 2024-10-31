@@ -1,5 +1,8 @@
+use std::ops::Range;
+
 use cxx_qt_lib::{QByteArray, QColor, QString};
-use mud_transformer::{TelnetSource, TelnetVerb};
+use enumeration::EnumSet;
+use mud_transformer::{TelnetSource, TelnetVerb, TextStyle};
 
 use crate::ffi;
 
@@ -28,19 +31,42 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.append_plaintext(text, palette) };
     }
 
-    pub fn append_text(&self, text: &QString, style: u16, color: &QColorPair) {
+    pub fn append_text(&self, text: &QString, style: EnumSet<TextStyle>, color: &QColorPair) {
         // SAFETY: External call to safe method on opaque type.
         unsafe {
             self.inner
-                .append_text(text, style, &color.foreground, &color.background);
+                .append_text(text, style.into(), &color.foreground, &color.background);
         }
     }
 
-    pub fn append_link(&self, text: &QString, style: u16, color: &QColorPair, link: &ffi::Link) {
+    pub fn append_link(
+        &self,
+        text: &QString,
+        style: EnumSet<TextStyle>,
+        color: &QColorPair,
+        link: &ffi::Link,
+    ) {
         // SAFETY: External call to safe method on opaque type.
         unsafe {
-            self.inner
-                .append_link(text, style, &color.foreground, &color.background, link);
+            self.inner.append_link(
+                text,
+                style.into(),
+                &color.foreground,
+                &color.background,
+                link,
+            );
+        }
+    }
+
+    pub fn apply_styles(&self, range: Range<usize>, style: EnumSet<TextStyle>, color: &QColorPair) {
+        unsafe {
+            self.inner.apply_styles(
+                i32::try_from(range.start).unwrap_or(i32::MAX),
+                i32::try_from(range.end - range.start).unwrap_or(i32::MAX),
+                style.into(),
+                &color.foreground,
+                &color.background,
+            );
         }
     }
 

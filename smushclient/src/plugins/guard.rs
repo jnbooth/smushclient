@@ -51,6 +51,14 @@ impl SenderGuard {
         self.stop = true;
     }
 
+    pub fn set_stopped(&mut self, stop: bool) {
+        self.stop = stop;
+    }
+
+    pub fn stopped(&self) -> bool {
+        self.stop
+    }
+
     pub fn should_stop(&mut self, plugin: PluginIndex, i: usize) -> bool {
         if !self.stop {
             return false;

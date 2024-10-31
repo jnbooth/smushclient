@@ -5,8 +5,9 @@ use mud_transformer::mxp::RgbColor;
 use mud_transformer::{
     EffectFragment, EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment,
 };
-use smushclient::{SendRequest, SendScriptRequest};
+use smushclient::{SendRequest, SendScriptRequest, SpanStyle};
 use std::collections::HashMap;
+use std::ops::Range;
 
 pub struct ClientHandler<'a> {
     pub doc: DocumentAdapter<'a>,
@@ -29,17 +30,17 @@ impl<'a> ClientHandler<'a> {
                 return;
             }
         }
-        let style = fragment.flags.to_raw();
         let colors = QColorPair {
             foreground: fragment.foreground.convert(),
             background: fragment.background.convert(),
         };
         match &fragment.action {
             Some(link) => {
-                self.doc.append_link(&text, style, &colors, &link.into());
+                self.doc
+                    .append_link(&text, fragment.flags, &colors, &link.into());
             }
             None => {
-                self.doc.append_text(&text, style, &colors);
+                self.doc.append_text(&text, fragment.flags, &colors);
             }
         };
     }
@@ -96,6 +97,17 @@ impl<'a> ClientHandler<'a> {
 }
 
 impl<'a> smushclient::Handler for ClientHandler<'a> {
+    fn apply_styles(&mut self, range: Range<usize>, style: SpanStyle) {
+        self.doc.apply_styles(
+            range,
+            style.flags,
+            &QColorPair {
+                foreground: style.foreground.convert(),
+                background: style.background.convert(),
+            },
+        );
+    }
+
     fn display(&mut self, output: &Output) {
         match &output.fragment {
             OutputFragment::Effect(effect) => self.handle_effect(effect),

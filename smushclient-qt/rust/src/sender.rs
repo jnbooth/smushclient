@@ -483,13 +483,13 @@ pub struct OutputSpan {
 impl OutputSpan {
     pub fn cast(output: &[Output]) -> &[Self] {
         // SAFETY: #[repr(transparent)]
-        unsafe { &*(output as *const [Output] as *const [Self]) }
+        unsafe { &*(ptr::from_ref(output) as *const [Self]) }
     }
 
     pub fn text_span(&self) -> *const TextSpan {
         let OutputFragment::Text(fragment) = &self.inner.fragment else {
             return ptr::null();
         };
-        (fragment as *const TextFragment).cast::<TextSpan>()
+        ptr::from_ref(fragment).cast::<TextSpan>()
     }
 }

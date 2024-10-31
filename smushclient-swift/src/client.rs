@@ -1,4 +1,6 @@
 use mud_transformer::Output;
+use smushclient::SpanStyle;
+use std::ops::Range;
 use std::vec;
 
 use crate::ffi;
@@ -38,6 +40,8 @@ impl AliasHandler {
 }
 
 impl smushclient::Handler for AliasHandler {
+    fn apply_styles(&mut self, _range: Range<usize>, _style: SpanStyle) {}
+
     fn display(&mut self, _output: &Output) {}
 
     fn display_error(&mut self, error: &str) {
@@ -88,6 +92,8 @@ impl ClientHandler {
 }
 
 impl smushclient::Handler for ClientHandler {
+    fn apply_styles(&mut self, _range: Range<usize>, _style: SpanStyle) {}
+
     fn display(&mut self, output: &Output) {
         if let Ok(fragment) = output.fragment.clone().try_into() {
             self.output.push(fragment);

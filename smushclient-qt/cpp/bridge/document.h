@@ -19,10 +19,12 @@ enum class AliasOutcome : uint8_t;
 enum class SendTarget : int32_t;
 enum class TelnetSource : uint8_t;
 enum class TelnetVerb : uint8_t;
+enum class TextStyle : uint16_t;
 struct Link;
 struct OutputSpan;
 
 using AliasOutcomes = QFlags<AliasOutcome>;
+using TextStyles = QFlags<TextStyle>;
 using QVector_QColor = QVector<QColor>;
 
 class Document : public QObject
@@ -33,8 +35,9 @@ public:
   void appendHtml(const QString &html) const;
   void appendLine();
   void appendText(const QString &text, int format) const;
-  void appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background, const Link &link) const;
-  void appendText(const QString &text, uint16_t style, const QColor &foreground, const QColor &background) const;
+  void appendText(const QString &text, TextStyles style, const QColor &foreground, const QColor &background, const Link &link) const;
+  void appendText(const QString &text, TextStyles style, const QColor &foreground, const QColor &background) const;
+  void applyStyles(int start, int end, TextStyles style, const QColor &foreground, const QColor &background) const;
   void beep() const;
   void begin() const;
   void echo(const QString &command) const;
@@ -60,7 +63,7 @@ private:
   ScriptApi *api;
   QTextDocument *doc;
   std::array<QTextCharFormat, 166> formats;
-  int lastLine;
+  int outputStart;
   MudScrollBar *scrollBar;
 
   WorldTab *tab() const;

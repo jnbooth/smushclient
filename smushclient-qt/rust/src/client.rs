@@ -406,7 +406,7 @@ impl ffi::SmushClient {
         match self
             .cxx_qt_ffi_rust_mut()
             .client
-            .add_plugin(&String::from(path))
+            .add_plugin(String::from(path))
         {
             Ok(_) => QString::default(),
             Err(e) => QString::from(&e.to_string()),

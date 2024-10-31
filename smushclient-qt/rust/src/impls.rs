@@ -1,7 +1,11 @@
+use std::mem;
+
 use super::ffi;
+use crate::bridge::TextStyles;
 use crate::convert::Convert;
 use crate::sender::OutputSpan;
 use cxx_qt_lib::QString;
+use enumeration::EnumSet;
 use mud_transformer::mxp::{Link, SendTo};
 use mud_transformer::{TelnetSource, TelnetVerb, TextStyle, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, ScriptRecompile};
@@ -214,6 +218,14 @@ impl TimerConstructible for ffi::SendTimer {
             target: timer.send_to.into(),
             text: QString::from(&timer.text),
         }
+    }
+}
+
+const _: [(); mem::size_of::<EnumSet<TextStyle>>()] = [(); mem::size_of::<TextStyles>()];
+
+impl From<EnumSet<TextStyle>> for TextStyles {
+    fn from(value: EnumSet<TextStyle>) -> Self {
+        Self(value.to_raw())
     }
 }
 

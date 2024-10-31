@@ -24,14 +24,18 @@ constexpr uint8_t telnetNAWS = 31;
 
 // Private utils
 
-inline void applyStyles(
+inline void mergeStyles(
     QTextCharFormat &format,
-    uint16_t style,
+    TextStyles style,
     const QColor &foreground,
     const QColor &background)
 {
-  setStyles(format, QFlags<TextStyle>::fromInt(style));
-  format.setForeground(QBrush(foreground));
+  setStyles(format, style);
+  if (foreground.isValid())
+    format.setForeground(QBrush(foreground));
+
+  if (!background.isValid())
+    return;
 
   int red, green, blue;
   background.getRgb(&red, &green, &blue);
@@ -58,7 +62,7 @@ Document::Document(WorldTab *parent, ScriptApi *api)
       api(api),
       doc(parent->ui->output->document()),
       formats(),
-      lastLine(-1),
+      outputStart(0),
       scrollBar(parent->ui->output->verticalScrollBar())
 {
   formats.fill(QTextCharFormat());
@@ -71,7 +75,7 @@ void Document::appendHtml(const QString &html) const
 
 void Document::appendLine()
 {
-  lastLine = doc->blockCount() - 1;
+  outputStart = doc->blockCount() - 1;
   api->startLine();
 }
 
@@ -82,26 +86,36 @@ void Document::appendText(const QString &text, int foreground) const
 
 void Document::appendText(
     const QString &text,
-    uint16_t style,
+    TextStyles style,
     const QColor &foreground,
     const QColor &background) const
 {
   QTextCharFormat format;
-  applyStyles(format, style, foreground, background);
+  mergeStyles(format, style, foreground, background);
   api->appendText(text, format);
 }
 
 void Document::appendText(
     const QString &text,
-    uint16_t style,
+    TextStyles style,
     const QColor &foreground,
     const QColor &background,
     const Link &link) const
 {
   QTextCharFormat format;
-  applyStyles(format, style, foreground, background);
+  mergeStyles(format, style, foreground, background);
   applyLink(format, link);
   api->appendText(text, format);
+}
+
+void Document::applyStyles(int start, int end, TextStyles style, const QColor &foreground, const QColor &background) const
+{
+  QTextCharFormat format;
+  mergeStyles(format, style, foreground, background);
+  QTextCursor cursor(doc->findBlockByNumber(outputStart));
+  cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, start);
+  cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, end);
+  cursor.mergeCharFormat(format);
 }
 
 void Document::beep() const {}
@@ -137,7 +151,9 @@ void Document::eraseLastCharacter() const
 
 void Document::eraseLastLine() const
 {
-  doc->findBlockByNumber(lastLine).setVisible(false);
+  QTextCursor cursor(doc->findBlockByLineNumber(outputStart));
+  cursor.select(QTextCursor::SelectionType::BlockUnderCursor);
+  cursor.removeSelectedText();
 }
 
 void Document::handleMxpChange(bool enabled) const

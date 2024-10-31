@@ -514,7 +514,7 @@ dependencies = [
 [[package]]
 name = "mud-transformer"
 version = "0.8.1"
-source = "git+https://github.com/jnbooth/mxp?rev=683b70c4abea35e8277774bb6971e7f43e284911#683b70c4abea35e8277774bb6971e7f43e284911"
+source = "git+https://github.com/jnbooth/mxp?rev=37aa1184a61315d71cda55a1a12dfc4f66f22cd4#37aa1184a61315d71cda55a1a12dfc4f66f22cd4"
 dependencies = [
  "bytes",
  "enumeration",
@@ -526,7 +526,7 @@ dependencies = [
 [[package]]
 name = "mxp"
 version = "0.8.1"
-source = "git+https://github.com/jnbooth/mxp?rev=683b70c4abea35e8277774bb6971e7f43e284911#683b70c4abea35e8277774bb6971e7f43e284911"
+source = "git+https://github.com/jnbooth/mxp?rev=37aa1184a61315d71cda55a1a12dfc4f66f22cd4#37aa1184a61315d71cda55a1a12dfc4f66f22cd4"
 dependencies = [
  "casefold",
  "enumeration",

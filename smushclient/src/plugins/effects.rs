@@ -1,8 +1,6 @@
-use std::mem;
-
-use enumeration::Enum;
+use enumeration::{Enum, EnumSet};
 use mud_transformer::mxp::RgbColor;
-use mud_transformer::{TextFragment, TextStyle};
+use mud_transformer::TextStyle;
 use smushclient_plugins::{Alias, Trigger};
 
 use crate::world::World;
@@ -76,14 +74,8 @@ impl From<AliasEffects> for AliasOutcome {
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct TriggerEffects {
-    pub keep_evaluating: bool,
     pub omit_from_output: bool,
     pub omit_from_log: bool,
-    pub foreground: Option<RgbColor>,
-    pub background: Option<RgbColor>,
-    pub make_bold: bool,
-    pub make_italic: bool,
-    pub make_underline: bool,
 }
 
 impl Default for TriggerEffects {
@@ -95,35 +87,17 @@ impl Default for TriggerEffects {
 impl TriggerEffects {
     pub fn new() -> Self {
         Self {
-            keep_evaluating: true,
             omit_from_output: false,
             omit_from_log: false,
-            foreground: None,
-            background: None,
-            make_bold: false,
-            make_italic: false,
-            make_underline: false,
         }
     }
 
     pub fn add_effects(&mut self, trigger: &Trigger) {
-        self.keep_evaluating &= trigger.keep_evaluating;
         self.omit_from_log |= trigger.omit_from_log;
         self.omit_from_output |= trigger.omit_from_output;
-        if self.omit_from_output {
-            return;
-        }
-        self.make_bold |= trigger.make_bold;
-        self.make_italic |= trigger.make_italic;
-        self.make_underline |= trigger.make_underline;
-        if trigger.change_foreground {
-            self.foreground = Some(trigger.foreground_color);
-        }
-        if trigger.change_background {
-            self.background = Some(trigger.background_color);
-        }
     }
 
+    /*
     pub fn apply(&self, fragment: &mut TextFragment, world: &World) {
         if fragment.flags.contains(TextStyle::Inverse) {
             mem::swap(&mut fragment.foreground, &mut fragment.background);
@@ -162,6 +136,62 @@ impl TriggerEffects {
             world.hyperlink_colour
         } else {
             RgbColor::rgb(43, 121, 162)
+        }
+    }
+    */
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct SpanStyle {
+    pub flags: EnumSet<TextStyle>,
+    pub foreground: Option<RgbColor>,
+    pub background: Option<RgbColor>,
+}
+
+impl Default for SpanStyle {
+    fn default() -> Self {
+        Self::null()
+    }
+}
+
+impl SpanStyle {
+    pub const fn null() -> Self {
+        Self {
+            flags: EnumSet::new(),
+            foreground: None,
+            background: None,
+        }
+    }
+
+    pub fn is_null(&self) -> bool {
+        self.flags.is_empty() && self.foreground.is_none() && self.background.is_none()
+    }
+}
+
+impl From<&Trigger> for SpanStyle {
+    fn from(trigger: &Trigger) -> Self {
+        let mut flags = EnumSet::new();
+        if trigger.make_bold {
+            flags.insert(TextStyle::Bold);
+        }
+        if trigger.make_italic {
+            flags.insert(TextStyle::Italic);
+        }
+        if trigger.make_underline {
+            flags.insert(TextStyle::Underline);
+        }
+        Self {
+            flags,
+            foreground: if trigger.change_foreground {
+                Some(trigger.foreground_color)
+            } else {
+                None
+            },
+            background: if trigger.change_background {
+                Some(trigger.background_color)
+            } else {
+                None
+            },
         }
     }
 }

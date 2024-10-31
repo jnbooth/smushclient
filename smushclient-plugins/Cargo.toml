@@ -20,7 +20,7 @@ rev = "8eb029d57fada825af701593e8dc73eee2019c99"
 
 [dependencies.mxp]
 git = "https://github.com/jnbooth/mxp"
-rev = "683b70c4abea35e8277774bb6971e7f43e284911"
+rev = "37aa1184a61315d71cda55a1a12dfc4f66f22cd4"
 features = ["serde"]
 
 [dependencies.quick-xml]

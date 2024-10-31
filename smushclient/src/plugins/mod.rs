@@ -2,15 +2,13 @@ mod engine;
 pub use engine::PluginEngine;
 
 mod effects;
-pub use effects::{AliasOutcome, CommandSource, TriggerEffects};
+pub use effects::{AliasOutcome, CommandSource, SpanStyle, TriggerEffects};
 
 mod error;
 pub use error::{LoadError, LoadFailure};
 
 mod iter;
 pub use iter::{assert_unique_label, ReactionIterable, SendIterable};
-
-mod output;
 
 mod guard;
 pub use guard::SenderGuard;

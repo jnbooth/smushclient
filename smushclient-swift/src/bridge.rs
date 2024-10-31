@@ -2,6 +2,7 @@
 #![allow(clippy::ptr_as_ptr)]
 #![allow(clippy::unnecessary_cast)]
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
+#![allow(dead_code)]
 
 use crate::io::{create_world, read_world, write_world};
 use crate::mud::RustMudBridge;

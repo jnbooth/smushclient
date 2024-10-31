@@ -298,7 +298,7 @@ public:
   ActionSource setSource(ActionSource source) noexcept;
   void setSuppressEcho(bool suppress) noexcept;
   void stackWindow(std::string_view windowName, MiniWindow *window) const;
-  void startLine();
+  int startLine();
   void updateTimestamp();
 
   inline constexpr std::vector<Plugin>::const_iterator cbegin() const noexcept

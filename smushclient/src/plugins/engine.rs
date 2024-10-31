@@ -11,14 +11,13 @@ use super::error::LoadError;
 use super::error::LoadFailure;
 use super::guard::SenderGuard;
 use super::iter::{ReactionIterable, Senders};
-use super::output::is_nonvisual_output;
 use crate::collections::LifetimeVec;
 use crate::handler::{Handler, HandlerExt};
 use crate::plugins::assert_unique_label;
 use crate::world::World;
-use crate::{SendIterable, SenderAccessError};
-use mud_transformer::{Output, OutputFragment};
-use smushclient_plugins::{Alias, Plugin, PluginIndex, Trigger};
+use crate::{SendIterable, SenderAccessError, SpanStyle};
+use mud_transformer::Output;
+use smushclient_plugins::{Alias, Pad, Plugin, PluginIndex, Trigger};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PluginEngine {
@@ -26,7 +25,9 @@ pub struct PluginEngine {
     aliases: LifetimeVec<(PluginIndex, usize, &'static Alias)>,
     triggers: LifetimeVec<(PluginIndex, usize, &'static Trigger)>,
     alias_buf: Vec<u8>,
+    alias_matches: Vec<(PluginIndex, usize)>,
     trigger_buf: Vec<u8>,
+    trigger_matches: Vec<(PluginIndex, usize)>,
     guards: Senders<SenderGuard>,
 }
 
@@ -43,7 +44,9 @@ impl PluginEngine {
             aliases: LifetimeVec::new(),
             triggers: LifetimeVec::new(),
             alias_buf: Vec::new(),
+            alias_matches: Vec::new(),
             trigger_buf: Vec::new(),
+            trigger_matches: Vec::new(),
             guards: Senders::new(SenderGuard::new(), SenderGuard::new(), SenderGuard::new()),
         }
     }
@@ -206,63 +209,107 @@ impl PluginEngine {
     pub fn trigger<H: Handler>(
         &mut self,
         line: &str,
-        output: &mut [Output],
+        output: &[Output],
         world: &mut World,
         handler: &mut H,
     ) -> TriggerEffects {
         let postpone = self.guards.get_mut::<Trigger>();
         postpone.set_plugin_count(self.plugins.len());
         postpone.defer();
-        let mut matched = self.triggers.acquire();
+        self.trigger_matches.clear();
         let mut effects = TriggerEffects::new();
-        Trigger::find_matches(
-            postpone,
-            &self.plugins,
-            world,
-            line,
-            &mut matched,
-            &mut effects,
-        );
+        let mut style = SpanStyle::null();
+        let mut has_style = false;
 
-        if !handler.permit_line(line) || effects.omit_from_output {
-            for fragment in output.iter() {
-                if is_nonvisual_output(&fragment.fragment) {
-                    handler.display(fragment);
-                }
+        for (plugin_index, plugin) in self.plugins.iter().enumerate() {
+            if plugin.disabled {
+                continue;
             }
-        } else {
-            for fragment in output.iter_mut() {
-                if let OutputFragment::Text(text) = &mut fragment.fragment {
-                    effects.apply(text, world);
+            for (i, trigger) in Trigger::from_either(plugin, world).iter().enumerate() {
+                if !trigger.enabled {
+                    continue;
                 }
-                handler.display(fragment);
+                if postpone.stopped() {
+                    postpone.set_stopped(false);
+                    break;
+                }
+                let pad = if trigger.send_to.is_notepad() {
+                    Some(Pad::new(trigger, &plugin.metadata.name))
+                } else {
+                    None
+                };
+                let mut matched = false;
+                for captures in trigger.regex.captures_iter(line) {
+                    let Ok(captures) = captures else {
+                        continue;
+                    };
+                    if !matched {
+                        matched = true;
+                        style = SpanStyle::from(trigger);
+                        has_style = !style.is_null();
+                        trigger.lock();
+                    }
+                    if has_style {
+                        if let Some(Some(capture)) = captures.iter().next() {
+                            handler.apply_styles(capture.range(), style);
+                        }
+                    }
+                    self.trigger_buf.clear();
+                    handler.send(super::SendRequest {
+                        plugin: plugin_index,
+                        send_to: trigger.send_to,
+                        text: trigger.expand_text(&mut self.trigger_buf, &captures),
+                        pad,
+                    });
+                    if !trigger.repeats {
+                        break;
+                    }
+                }
+                if !matched {
+                    continue;
+                }
+                if !trigger.script.is_empty() {
+                    self.trigger_matches.push((plugin_index, i));
+                }
+                if !trigger.sound.is_empty() {
+                    handler.play_sound(&trigger.sound);
+                }
+                effects.add_effects(trigger);
+                trigger.unlock();
+                if !trigger.keep_evaluating {
+                    break;
+                }
             }
         }
 
-        handler.send_all(
-            &matched,
-            line,
-            &mut self.trigger_buf,
-            &self.plugins,
-            postpone,
-        );
-        let mut final_effects = TriggerEffects::new();
-        handler.send_all_scripts(&matched, line, output, &mut final_effects, postpone);
-
-        for &(_, _, trigger) in &matched {
-            if trigger.enabled && !trigger.sound.is_empty() {
-                handler.play_sound(&trigger.sound);
+        for &(plugin_index, i) in &self.trigger_matches {
+            let plugin = &self.plugins[plugin_index];
+            let trigger = &Trigger::from_either(plugin, world)[i];
+            trigger.lock();
+            for captures in trigger.regex.captures_iter(line) {
+                let Ok(captures) = captures else {
+                    continue;
+                };
+                handler.send_script(super::SendScriptRequest {
+                    plugin: plugin_index,
+                    script: &trigger.script,
+                    label: &trigger.label,
+                    line,
+                    regex: &trigger.regex,
+                    wildcards: Some(captures),
+                    output,
+                });
             }
+            trigger.unlock();
         }
 
-        drop(matched);
         postpone.finalize::<Trigger>(&mut self.plugins, world);
 
-        if !effects.omit_from_output && final_effects.omit_from_output {
+        if effects.omit_from_output {
             handler.erase_last_line();
         }
 
-        final_effects
+        effects
     }
 
     pub fn supported_protocols(&self) -> HashSet<u8> {

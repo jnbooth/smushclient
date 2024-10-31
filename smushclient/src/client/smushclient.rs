@@ -14,7 +14,7 @@ use crate::plugins::{
 use crate::world::{PersistError, World};
 use crate::LoadError;
 use enumeration::EnumSet;
-use mud_transformer::{Output, OutputFragment, Tag, Transformer, TransformerConfig};
+use mud_transformer::{OutputFragment, Tag, Transformer, TransformerConfig};
 use smushclient_plugins::{Plugin, PluginIndex};
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
@@ -27,7 +27,6 @@ pub struct SmushClient {
     last_log_file_name: Option<String>,
     line_text: String,
     logger: Logger,
-    output_buf: Vec<Output>,
     pub(crate) plugins: PluginEngine,
     read_buf: Vec<u8>,
     supported_tags: EnumSet<Tag>,
@@ -54,7 +53,6 @@ impl SmushClient {
             last_log_file_name: world.auto_log_file_name.clone(),
             line_text: String::new(),
             logger: Logger::Closed,
-            output_buf: Vec::new(),
             plugins,
             read_buf: vec![0; BUF_LEN],
             supported_tags,
@@ -174,14 +172,13 @@ impl SmushClient {
 
     fn process_output<H: Handler>(&mut self, handler: &mut H, flush: bool) {
         self.logger.log_error(handler);
-        self.output_buf.clear();
-        if flush {
-            self.output_buf.extend(self.transformer.flush_output());
+        let drain = if flush {
+            self.transformer.flush_output()
         } else {
-            self.output_buf.extend(self.transformer.drain_output());
-        }
+            self.transformer.drain_output()
+        };
+        let mut slice = drain.as_slice();
         let enable_triggers = self.world.enable_triggers;
-        let mut slice = &mut self.output_buf[..];
         loop {
             if slice.is_empty() {
                 break;
@@ -201,26 +198,33 @@ impl SmushClient {
             if until == 0 {
                 until = slice.len();
             }
-            let (output, after) = slice.split_at_mut(until);
-            slice = after;
+            let output = &slice[..until];
+            slice = &slice[until..];
+
+            if !handler.permit_line(&self.line_text) {
+                for fragment in output {
+                    if !fragment.fragment.is_visual() {
+                        handler.display(fragment);
+                    }
+                }
+                continue;
+            }
+
+            for fragment in output {
+                handler.display(fragment);
+            }
 
             let trigger_effects = if enable_triggers {
                 self.plugins
                     .trigger(&self.line_text, output, &mut self.world, handler)
             } else {
-                let trigger_effects = TriggerEffects::default();
-                for fragment in output.iter_mut() {
-                    if let OutputFragment::Text(text) = &mut fragment.fragment {
-                        trigger_effects.apply(text, &self.world);
-                    }
-                    handler.display(fragment);
-                }
-                trigger_effects
+                TriggerEffects::default()
             };
 
             if !trigger_effects.omit_from_log {
                 self.logger
                     .log_output_line(self.line_text.as_bytes(), &self.world);
+                self.logger.log_error(handler);
             }
         }
     }

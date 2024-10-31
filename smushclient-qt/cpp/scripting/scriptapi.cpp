@@ -374,7 +374,7 @@ void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const
     window->stackUnder(tab()->ui->outputBorder);
 }
 
-void ScriptApi::startLine()
+int ScriptApi::startLine()
 {
   if (hasLine) [[unlikely]]
   {
@@ -383,6 +383,7 @@ void ScriptApi::startLine()
   }
   else
     hasLine = true;
+  return cursor.position();
 }
 
 void ScriptApi::updateTimestamp()
