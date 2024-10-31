@@ -422,8 +422,8 @@ static int L_CallPlugin(lua_State *L)
   const ScriptThread thread(plugin.state());
   lua_State *L2 = thread.state();
 
-  const int nargs = lua_gettop(L);
-  luaL_checkstack(L2, nargs - 1, nullptr);
+  const int nargs = lua_gettop(L) - 2;
+  luaL_checkstack(L2, nargs + 1, nullptr);
 
   if (lua_getglobal(L2, routine.data()) != LUA_TFUNCTION)
   {
@@ -431,14 +431,16 @@ static int L_CallPlugin(lua_State *L)
     return returnCode(L, ApiCode::NoSuchRoutine, fmtNoSuchRoutine(plugin, routine));
   }
 
-  for (int i = 3; i <= nargs; ++i)
-    if (!qlua::copyValue(L, L2, i))
+  const int topBefore = lua_gettop(L2) - 1;
+
+  for (int i = 1; i <= nargs; ++i)
+    if (!qlua::copyValue(L, L2, i + 2))
     {
       lua_settop(L, 0);
       return returnCode(L, ApiCode::BadParameter, fmtBadParam(i - 2, luaL_typename(L, i)));
     }
 
-  if (api_pcall(L2, nargs - 2, LUA_MULTRET) != LUA_OK)
+  if (!api_pcall(L2, nargs, LUA_MULTRET))
   {
     lua_settop(L, 0);
     lua_pushinteger(L, (int)ApiCode::ErrorCallingPluginRoutine);
@@ -448,15 +450,16 @@ static int L_CallPlugin(lua_State *L)
     return 3;
   }
 
-  const int nresults = lua_gettop(L2) + 1;
+  const int topAfter = lua_gettop(L2);
+  const int nresults = topAfter - topBefore;
   lua_settop(L, 0);
-  luaL_checkstack(L, nresults, nullptr);
+  luaL_checkstack(L, nresults + 1, nullptr);
   lua_pushinteger(L, (int)ApiCode::OK);
-  for (int i = 1; i < nresults; ++i)
-    if (!qlua::copyValue(L, L2, i))
+  for (int i = topBefore + 1; i <= topAfter; ++i)
+    if (!qlua::copyValue(L2, L, i))
       return returnCode(L, ApiCode::ErrorCallingPluginRoutine,
-                        fmtBadReturn(plugin, routine, i, luaL_typename(L, i)));
-  return nresults;
+                        fmtBadReturn(plugin, routine, i, luaL_typename(L2, i)));
+  return nresults + 1;
 }
 
 static int L_EnablePlugin(lua_State *L)
