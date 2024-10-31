@@ -42,6 +42,7 @@ pub mod ffi {
     enum AliasOutcome {
         Remember = 1,
         Send = 2,
+        Display = 4,
     }
 
     #[repr(i32)]
@@ -259,8 +260,6 @@ pub mod ffi {
         unsafe fn beep(self: &Document);
 
         unsafe fn begin(self: &Document);
-
-        unsafe fn echo(self: &Document, command: &QString);
 
         #[rust_name = "erase_current_line"]
         unsafe fn eraseCurrentLine(self: &Document);

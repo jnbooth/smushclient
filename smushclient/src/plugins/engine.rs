@@ -10,8 +10,7 @@ use super::effects::{AliasEffects, TriggerEffects};
 use super::error::LoadError;
 use super::error::LoadFailure;
 use super::guard::SenderGuard;
-use super::iter::{ReactionIterable, Senders};
-use crate::collections::LifetimeVec;
+use super::iter::Senders;
 use crate::handler::{Handler, HandlerExt};
 use crate::plugins::assert_unique_label;
 use crate::world::World;
@@ -22,13 +21,12 @@ use smushclient_plugins::{Alias, Pad, Plugin, PluginIndex, Trigger};
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PluginEngine {
     plugins: Vec<Plugin>,
-    aliases: LifetimeVec<(PluginIndex, usize, &'static Alias)>,
-    triggers: LifetimeVec<(PluginIndex, usize, &'static Trigger)>,
     alias_buf: Vec<u8>,
     alias_matches: Vec<(PluginIndex, usize)>,
     trigger_buf: Vec<u8>,
     trigger_matches: Vec<(PluginIndex, usize)>,
     guards: Senders<SenderGuard>,
+    stop_triggers: bool,
 }
 
 impl Default for PluginEngine {
@@ -41,13 +39,12 @@ impl PluginEngine {
     pub const fn new() -> Self {
         Self {
             plugins: Vec::new(),
-            aliases: LifetimeVec::new(),
-            triggers: LifetimeVec::new(),
             alias_buf: Vec::new(),
             alias_matches: Vec::new(),
             trigger_buf: Vec::new(),
             trigger_matches: Vec::new(),
             guards: Senders::new(SenderGuard::new(), SenderGuard::new(), SenderGuard::new()),
+            stop_triggers: false,
         }
     }
 
@@ -167,8 +164,8 @@ impl PluginEngine {
             .remove_all::<T, P>(index, senders, pred)
     }
 
-    pub fn stop_evaluating<T: SendIterable>(&mut self) {
-        self.guards.get_mut::<T>().stop();
+    pub fn stop_evaluating_triggers(&mut self) {
+        self.stop_triggers = true;
     }
 
     pub fn alias<H: Handler>(
@@ -178,32 +175,67 @@ impl PluginEngine {
         world: &mut World,
         handler: &mut H,
     ) -> AliasEffects {
+        self.alias_matches.clear();
         let postpone = self.guards.get_mut::<Alias>();
         postpone.set_plugin_count(self.plugins.len());
         postpone.defer();
-        let mut matched = self.aliases.acquire();
-        let mut effects = AliasEffects::default();
-        Alias::find_matches(
-            postpone,
-            &self.plugins,
-            world,
-            line,
-            &mut matched,
-            &mut effects,
-        );
+        let mut effects = AliasEffects::new(world, source);
 
-        if !effects.omit_from_output {
-            handler.echo(line);
+        for (plugin_index, plugin) in self.plugins.iter().enumerate() {
+            if plugin.disabled {
+                continue;
+            }
+            for (i, alias) in Alias::from_either(plugin, world).iter().enumerate() {
+                if !alias.enabled {
+                    continue;
+                }
+                let pad = if alias.send_to.is_notepad() {
+                    Some(Pad::new(alias, &plugin.metadata.name))
+                } else {
+                    None
+                };
+                let mut matched = false;
+                for captures in alias.regex.captures_iter(line) {
+                    let Ok(captures) = captures else {
+                        continue;
+                    };
+                    if !matched {
+                        matched = true;
+                        alias.lock();
+                    }
+                    self.alias_buf.clear();
+                    handler.send(super::SendRequest {
+                        plugin: plugin_index,
+                        send_to: alias.send_to,
+                        text: alias.expand_text(&mut self.alias_buf, &captures),
+                        pad,
+                    });
+                    if !alias.repeats {
+                        break;
+                    }
+                }
+                if !matched {
+                    continue;
+                }
+                if !alias.script.is_empty() {
+                    self.alias_matches.push((plugin_index, i));
+                }
+                effects.add_effects(alias);
+                if alias.one_shot {
+                    postpone.defer_remove(plugin_index, i);
+                }
+                alias.unlock();
+                if !alias.keep_evaluating {
+                    break;
+                }
+            }
         }
 
-        handler.send_all(&matched, line, &mut self.alias_buf, &self.plugins, postpone);
-        let mut final_effects = AliasEffects::new(world, source);
-        handler.send_all_scripts(&matched, line, &[], &mut final_effects, postpone);
+        handler.send_all_scripts::<Alias>(&self.plugins, world, &self.alias_matches, line, &[]);
 
-        drop(matched);
         postpone.finalize::<Alias>(&mut self.plugins, world);
 
-        final_effects
+        effects
     }
 
     pub fn trigger<H: Handler>(
@@ -213,10 +245,10 @@ impl PluginEngine {
         world: &mut World,
         handler: &mut H,
     ) -> TriggerEffects {
+        self.trigger_matches.clear();
         let postpone = self.guards.get_mut::<Trigger>();
         postpone.set_plugin_count(self.plugins.len());
         postpone.defer();
-        self.trigger_matches.clear();
         let mut effects = TriggerEffects::new();
         let mut style = SpanStyle::null();
         let mut has_style = false;
@@ -225,12 +257,12 @@ impl PluginEngine {
             if plugin.disabled {
                 continue;
             }
+            self.stop_triggers = false;
             for (i, trigger) in Trigger::from_either(plugin, world).iter().enumerate() {
                 if !trigger.enabled {
                     continue;
                 }
-                if postpone.stopped() {
-                    postpone.set_stopped(false);
+                if self.stop_triggers {
                     break;
                 }
                 let pad = if trigger.send_to.is_notepad() {
@@ -274,6 +306,9 @@ impl PluginEngine {
                 if !trigger.sound.is_empty() {
                     handler.play_sound(&trigger.sound);
                 }
+                if trigger.one_shot {
+                    postpone.defer_remove(plugin_index, i);
+                }
                 effects.add_effects(trigger);
                 trigger.unlock();
                 if !trigger.keep_evaluating {
@@ -282,26 +317,13 @@ impl PluginEngine {
             }
         }
 
-        for &(plugin_index, i) in &self.trigger_matches {
-            let plugin = &self.plugins[plugin_index];
-            let trigger = &Trigger::from_either(plugin, world)[i];
-            trigger.lock();
-            for captures in trigger.regex.captures_iter(line) {
-                let Ok(captures) = captures else {
-                    continue;
-                };
-                handler.send_script(super::SendScriptRequest {
-                    plugin: plugin_index,
-                    script: &trigger.script,
-                    label: &trigger.label,
-                    line,
-                    regex: &trigger.regex,
-                    wildcards: Some(captures),
-                    output,
-                });
-            }
-            trigger.unlock();
-        }
+        handler.send_all_scripts::<Trigger>(
+            &self.plugins,
+            world,
+            &self.trigger_matches,
+            line,
+            output,
+        );
 
         postpone.finalize::<Trigger>(&mut self.plugins, world);
 

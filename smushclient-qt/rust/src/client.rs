@@ -768,8 +768,6 @@ impl ffi::SmushClient {
     }
 
     pub fn stop_triggers(self: Pin<&mut Self>) {
-        self.cxx_qt_ffi_rust_mut()
-            .client
-            .stop_evaluating::<Trigger>();
+        self.cxx_qt_ffi_rust_mut().client.stop_evaluating_triggers();
     }
 }

@@ -237,12 +237,14 @@ ApiCode ScriptApi::PluginSupports(string_view pluginID, string_view routine) con
 ApiCode ScriptApi::Send(QByteArray &bytes)
 {
   echo(QString::fromUtf8(bytes));
+  scrollToBottom();
   return SendNoEcho(bytes);
 }
 
 ApiCode ScriptApi::Send(const QString &text)
 {
   echo(text);
+  scrollToBottom();
   QByteArray bytes = text.toUtf8();
   return SendNoEcho(bytes);
 }

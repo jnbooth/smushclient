@@ -9,8 +9,6 @@ pub struct SenderGuard {
     defer: bool,
     needs_sort: Vec<bool>,
     removals: Vec<Vec<usize>>,
-    stops: Vec<usize>,
-    stop: bool,
 }
 
 impl Default for SenderGuard {
@@ -25,8 +23,6 @@ impl SenderGuard {
             defer: false,
             needs_sort: Vec::new(),
             removals: Vec::new(),
-            stops: Vec::new(),
-            stop: false,
         }
     }
 
@@ -36,43 +32,12 @@ impl SenderGuard {
         }
         self.needs_sort.resize(count, false);
         self.removals.resize_with(count, Default::default);
-        self.stops.clear();
-        self.stops.resize(count, usize::MAX);
-        self.stop = false;
     }
 }
 
 impl SenderGuard {
     pub fn defer(&mut self) {
         self.defer = true;
-    }
-
-    pub fn stop(&mut self) {
-        self.stop = true;
-    }
-
-    pub fn set_stopped(&mut self, stop: bool) {
-        self.stop = stop;
-    }
-
-    pub fn stopped(&self) -> bool {
-        self.stop
-    }
-
-    pub fn should_stop(&mut self, plugin: PluginIndex, i: usize) -> bool {
-        if !self.stop {
-            return false;
-        }
-        self.stop = false;
-        if self.stops.len() <= plugin {
-            self.stops.resize(plugin + 1, usize::MAX);
-        }
-        self.stops[plugin] = i;
-        true
-    }
-
-    pub fn stops(&self) -> &[usize] {
-        &self.stops
     }
 
     pub fn add<'a, T: Ord>(

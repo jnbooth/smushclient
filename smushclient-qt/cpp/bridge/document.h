@@ -40,7 +40,6 @@ public:
   void applyStyles(int start, int end, TextStyles style, const QColor &foreground, const QColor &background) const;
   void beep() const;
   void begin() const;
-  void echo(const QString &command) const;
   void end() const;
   void eraseCurrentLine() const;
   void eraseLastCharacter() const;

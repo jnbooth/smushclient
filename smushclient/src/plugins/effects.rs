@@ -14,7 +14,6 @@ pub enum CommandSource {
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AliasEffects {
-    pub keep_evaluating: bool,
     pub omit_from_command_history: bool,
     pub omit_from_log: bool,
     pub omit_from_output: bool,
@@ -25,21 +24,18 @@ impl AliasEffects {
     pub const fn new(world: &World, source: CommandSource) -> Self {
         match source {
             CommandSource::Hotkey => Self {
-                keep_evaluating: true,
                 omit_from_command_history: !world.hotkey_adds_to_command_history,
                 omit_from_log: false,
                 omit_from_output: !world.echo_hotkey_in_output_window,
                 suppress: false,
             },
             CommandSource::Link => Self {
-                keep_evaluating: true,
                 omit_from_command_history: !world.hyperlink_adds_to_command_history,
                 omit_from_log: false,
                 omit_from_output: !world.echo_hyperlink_in_output_window,
                 suppress: false,
             },
             CommandSource::User => Self {
-                keep_evaluating: true,
                 omit_from_command_history: false,
                 omit_from_log: false,
                 omit_from_output: false,
@@ -49,7 +45,6 @@ impl AliasEffects {
     }
 
     pub fn add_effects(&mut self, alias: &Alias) {
-        self.keep_evaluating &= alias.keep_evaluating;
         self.omit_from_command_history |= alias.omit_from_command_history;
         self.omit_from_log |= alias.omit_from_log;
         self.omit_from_output |= alias.omit_from_output;
@@ -59,6 +54,7 @@ impl AliasEffects {
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AliasOutcome {
+    pub display: bool,
     pub remember: bool,
     pub send: bool,
 }
@@ -66,6 +62,7 @@ pub struct AliasOutcome {
 impl From<AliasEffects> for AliasOutcome {
     fn from(value: AliasEffects) -> Self {
         Self {
+            display: !value.omit_from_output,
             remember: !value.omit_from_command_history,
             send: !value.suppress,
         }

@@ -140,7 +140,6 @@ void ScriptApi::echo(const QString &text)
   }
   appendText(text, echoFormat);
   startLine();
-  scrollToBottom();
 }
 
 void ScriptApi::finishNote()

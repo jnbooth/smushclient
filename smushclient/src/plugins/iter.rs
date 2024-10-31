@@ -1,7 +1,5 @@
-use smushclient_plugins::{Alias, Plugin, PluginIndex, Reaction, Sender, Timer, Trigger};
+use smushclient_plugins::{Alias, Plugin, Sender, Timer, Trigger};
 
-use super::effects::{AliasEffects, TriggerEffects};
-use super::guard::SenderGuard;
 use super::send::SenderAccessError;
 use crate::world::World;
 
@@ -116,58 +114,3 @@ macro_rules! impl_send_iterable {
 impl_send_iterable!(Alias, aliases);
 impl_send_iterable!(Timer, timers);
 impl_send_iterable!(Trigger, triggers);
-
-pub trait ReactionIterable: SendIterable + AsRef<Reaction> + AsMut<Reaction> {
-    type Effects;
-
-    fn add_effects(&self, effects: &mut Self::Effects);
-
-    fn find_matches<'a>(
-        postpone: &mut SenderGuard,
-        plugins: &'a [Plugin],
-        world: &'a World,
-        line: &str,
-        buf: &mut Vec<(PluginIndex, usize, &'a Self)>,
-        effects: &mut Self::Effects,
-    ) {
-        for (index, plugin) in plugins.iter().enumerate() {
-            if plugin.disabled {
-                continue;
-            }
-            let senders = Self::from_either(plugin, world);
-            for (i, sender) in senders.iter().enumerate() {
-                let reaction: &Reaction = sender.as_ref();
-                if !matches!(reaction.regex.is_match(line), Ok(true)) {
-                    continue;
-                }
-                buf.push((index, i, sender));
-                if !reaction.enabled {
-                    continue;
-                }
-                sender.add_effects(effects);
-                if reaction.one_shot {
-                    postpone.defer_remove(index, i);
-                }
-                if !reaction.keep_evaluating {
-                    break;
-                }
-            }
-        }
-    }
-}
-
-impl ReactionIterable for Alias {
-    type Effects = AliasEffects;
-
-    fn add_effects(&self, effects: &mut Self::Effects) {
-        effects.add_effects(self);
-    }
-}
-
-impl ReactionIterable for Trigger {
-    type Effects = TriggerEffects;
-
-    fn add_effects(&self, effects: &mut Self::Effects) {
-        effects.add_effects(self);
-    }
-}

@@ -73,8 +73,8 @@ impl SmushClient {
         self.supported_tags = supported_tags;
     }
 
-    pub fn stop_evaluating<T: SendIterable>(&mut self) {
-        self.plugins.stop_evaluating::<T>();
+    pub fn stop_evaluating_triggers(&mut self) {
+        self.plugins.stop_evaluating_triggers();
     }
 
     fn update_config(&mut self) {
@@ -236,8 +236,8 @@ impl SmushClient {
         handler: &mut H,
     ) -> AliasOutcome {
         if !self.world.enable_aliases {
-            handler.echo(input);
             return AliasOutcome {
+                display: true,
                 remember: true,
                 send: true,
             };

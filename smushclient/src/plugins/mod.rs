@@ -8,10 +8,9 @@ mod error;
 pub use error::{LoadError, LoadFailure};
 
 mod iter;
-pub use iter::{assert_unique_label, ReactionIterable, SendIterable};
+pub use iter::{assert_unique_label, SendIterable};
 
 mod guard;
-pub use guard::SenderGuard;
 
 mod send;
 pub use send::{SendRequest, SendScriptRequest, SenderAccessError};
