@@ -4,6 +4,7 @@
 #include <QtWidgets/QInputDialog>
 #include "qlua.h"
 #include "scriptapi.h"
+#include "../ui/scripting/listbox.h"
 extern "C"
 {
 #include "lauxlib.h"
@@ -92,6 +93,8 @@ static int L_getfontfamilies(lua_State *L)
   lua_createtable(L, 0, families.size());
   for (const QString &family : families)
   {
+    if (family.startsWith(u'.'))
+      continue;
     qlua::pushQString(L, family);
     lua_pushboolean(L, true);
     lua_rawset(L, -3);
@@ -131,30 +134,23 @@ static int L_listbox(lua_State *L)
   luaL_argexpected(L, lua_type(L, 3) == LUA_TTABLE, 3, "table");
   const QVariant defaultKey = qlua::getQVariant(L, 4);
 
-  QString defaultValue;
-  QVariantHash choices;
-  QStringList choiceValues;
+  ListBox listbox(title, message);
+
   lua_pushnil(L); // first key
   size_t size;
+
   while (lua_next(L, 3) != 0)
   {
     const QVariant key = qlua::getQVariant(L, -2);
     const QString value = QString::fromUtf8(lua_tolstring(L, -1, &size), size);
-    if (key == defaultKey)
-      defaultValue = value;
-    choices[value] = key;
+    listbox.addItem(value, key, key == defaultKey);
     lua_pop(L, 1);
   }
 
-  QInputDialog dialog;
-  dialog.setWindowTitle(title);
-  dialog.setLabelText(message);
-  dialog.setComboBoxItems(choiceValues);
-  if (!defaultValue.isEmpty())
-    dialog.setTextValue(defaultValue);
+  listbox.sortItems();
 
-  if (dialog.exec() == QDialog::Accepted)
-    qlua::pushQVariant(L, choices[dialog.textValue()]);
+  if (listbox.exec() == QDialog::Accepted)
+    qlua::pushQVariant(L, listbox.value());
   else
     lua_pushnil(L);
 
