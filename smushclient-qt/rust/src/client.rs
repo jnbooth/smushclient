@@ -160,6 +160,7 @@ impl SmushClientRust {
             .map(|plugin| ffi::PluginPack {
                 id: QString::from(&plugin.metadata.id),
                 name: QString::from(&plugin.metadata.name),
+                path: QString::from(&*plugin.metadata.path.to_string_lossy()),
                 scriptData: plugin.script.as_ptr(),
                 scriptSize: plugin.script.len(),
             })

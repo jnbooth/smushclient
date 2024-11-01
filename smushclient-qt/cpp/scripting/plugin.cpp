@@ -161,6 +161,21 @@ bool Plugin::runCallbackThreaded(PluginCallback &callback) const
   return true;
 }
 
+bool Plugin::runFile(const QString &string) const
+{
+  if (isDisabled) [[unlikely]]
+    return false;
+
+  if (checkError(luaL_loadfile(L, string.toUtf8().data()))) [[unlikely]]
+  {
+    getApi(L).printError(formatCompileError(L));
+    lua_pop(L, 1);
+    return false;
+  }
+
+  return api_pcall(L, 0, 0);
+}
+
 bool Plugin::runScript(const QString &script) const
 {
   if (isDisabled || script.isEmpty()) [[unlikely]]

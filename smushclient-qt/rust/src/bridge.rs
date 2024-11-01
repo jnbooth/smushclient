@@ -130,6 +130,7 @@ pub mod ffi {
     struct PluginPack {
         id: QString,
         name: QString,
+        path: QString,
         scriptData: *const u8,
         scriptSize: usize,
     }

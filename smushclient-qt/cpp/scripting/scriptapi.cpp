@@ -1,5 +1,6 @@
 #include "scriptapi.h"
 #include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtGui/QClipboard>
 #include <QtGui/QGradient>
 #include <QtGui/QGuiApplication>
@@ -188,7 +189,12 @@ void ScriptApi::initializePlugins(const rust::Vec<PluginPack> &pack)
     };
     pluginIndices[metadata.id] = index;
     Plugin &plugin = plugins.emplace_back(this, std::move(metadata));
-    if (!plugin.runScript(string_view(reinterpret_cast<const char *>(it->scriptData), it->scriptSize)))
+    if (it->scriptSize && !plugin.runScript(string_view(reinterpret_cast<const char *>(it->scriptData), it->scriptSize)))
+      continue;
+    QString scriptPath = it->path;
+    scriptPath.replace(scriptPath.size() - 3, 3, QStringLiteral("lua"));
+    const QFileInfo info(scriptPath);
+    if (info.exists() && info.isFile() && info.isReadable() && !plugin.runFile(scriptPath))
       continue;
     callbackFilter.scan(plugin.state());
     client()->startTimers(index, *timekeeper);

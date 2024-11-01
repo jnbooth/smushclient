@@ -35,6 +35,7 @@ public:
   inline const std::string &name() const noexcept { return metadata.name; }
   bool runCallback(PluginCallback &callback) const;
   bool runCallbackThreaded(PluginCallback &callback) const;
+  bool runFile(const QString &path) const;
   bool runScript(const QString &script) const;
   bool runScript(std::string_view script) const;
   inline lua_State *state() const noexcept { return L; }
