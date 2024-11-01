@@ -17,7 +17,7 @@ use smushclient_plugins::{Alias, Plugin, PluginMetadata, Sender, Timer, Trigger}
 
 use mud_transformer::mxp::RgbColor;
 
-const CURRENT_VERSION: u8 = 5;
+const CURRENT_VERSION: u16 = 5;
 
 fn skip_temporary<S, T>(vec: &[T], serializer: S) -> Result<S::Ok, S::Error>
 where
@@ -286,15 +286,15 @@ impl World {
     }
 
     pub fn save<W: Write>(&self, mut writer: W) -> Result<(), PersistError> {
-        writer.write_all(&[CURRENT_VERSION])?;
+        writer.write_all(&CURRENT_VERSION.to_be_bytes())?;
         bincode::serialize_into(writer, self)?;
         Ok(())
     }
 
     pub fn load<R: Read>(mut reader: R) -> Result<Self, PersistError> {
-        let mut version_buf = [0; 1];
+        let mut version_buf = [0; 2];
         reader.read_exact(&mut version_buf)?;
-        match version_buf[0] {
+        match u16::from_be_bytes(version_buf) {
             1 => versions::V1::migrate(&mut reader),
             2 => versions::V2::migrate(&mut reader),
             3 => versions::V3::migrate(&mut reader),

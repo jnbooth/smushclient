@@ -20,7 +20,11 @@ impl Display for PersistError {
 
 impl From<io::Error> for PersistError {
     fn from(value: io::Error) -> Self {
-        Self::File(value)
+        if value.kind() == io::ErrorKind::UnexpectedEof {
+            Self::Invalid
+        } else {
+            Self::File(value)
+        }
     }
 }
 
