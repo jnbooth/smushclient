@@ -114,7 +114,6 @@ class WorldModel {
   var echo_hyperlink_in_output_window: Bool = true
   var ignore_mxp_colour_changes: Bool = false
   var send_mxp_afk_response: Bool = true
-  var use_default_colours: Bool = true
   var ansi_colors: [NSColor] = defaultAnsiColors
   var error_colour: NSColor = defaultErrorColor
   var triggers: [TriggerModel] = []
@@ -279,7 +278,6 @@ class WorldModel {
     echo_hyperlink_in_output_window = world.echo_hyperlink_in_output_window
     ignore_mxp_colour_changes = world.ignore_mxp_colour_changes
     send_mxp_afk_response = world.send_mxp_afk_response
-    use_default_colours = world.use_default_colours
     ansi_colors = fromVec(world.ansi_colors, by: Palette.namedColors.get)
     triggers = fromVec(world.triggers, by: TriggerModel.init)
     enable_triggers = world.enable_triggers
@@ -447,7 +445,6 @@ extension World {
     echo_hyperlink_in_output_window = world.echo_hyperlink_in_output_window
     ignore_mxp_colour_changes = world.ignore_mxp_colour_changes
     send_mxp_afk_response = world.send_mxp_afk_response
-    use_default_colours = world.use_default_colours
     ansi_colors = intoVec(world.ansi_colors, by: RgbColor.init)
     triggers = intoVec(world.triggers, by: Trigger.init)
     enable_triggers = world.enable_triggers

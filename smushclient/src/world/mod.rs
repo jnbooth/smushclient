@@ -69,38 +69,29 @@ pub struct World {
     pub timers: Vec<Timer>,
     pub enable_timers: bool,
 
-    // Notes
-    pub notes: String,
-
     // Output
     pub show_bold: bool,
     pub show_italic: bool,
     pub show_underline: bool,
+    pub indent_paras: u8,
+    pub ansi_colors: [RgbColor; 16],
     pub new_activity_sound: Option<String>,
 
+    // MUD
+    pub use_mxp: UseMxp,
+    pub ignore_mxp_colour_changes: bool,
+    pub use_custom_link_colour: bool,
+    pub hyperlink_colour: RgbColor,
+    pub mud_can_change_link_colour: bool,
+    pub underline_hyperlinks: bool,
+    pub hyperlink_adds_to_command_history: bool,
+    pub echo_hyperlink_in_output_window: bool,
+    pub terminal_identification: String,
     pub disable_compression: bool,
-    pub indent_paras: u8,
     pub naws: bool,
     pub carriage_return_clears_line: bool,
     pub utf_8: bool,
     pub convert_ga_to_newline: bool,
-    pub terminal_identification: String,
-
-    // MXP
-    pub use_mxp: UseMxp,
-    pub hyperlink_colour: RgbColor,
-    pub use_custom_link_colour: bool,
-    pub mud_can_change_link_colour: bool,
-    pub underline_hyperlinks: bool,
-    pub mud_can_remove_underline: bool,
-    pub hyperlink_adds_to_command_history: bool,
-    pub echo_hyperlink_in_output_window: bool,
-    pub ignore_mxp_colour_changes: bool,
-    pub send_mxp_afk_response: bool,
-
-    // ANSI Color
-    pub use_default_colours: bool,
-    pub ansi_colors: [RgbColor; 16],
 
     // Triggers
     #[serde(serialize_with = "skip_temporary")]
@@ -109,15 +100,15 @@ pub struct World {
 
     // Commands
     pub display_my_input: bool,
+    pub echo_colors: ColorPair,
     pub keep_commands_on_same_line: bool,
     pub no_echo_off: bool,
-    pub echo_colors: ColorPair,
-    pub enable_speed_walk: bool,
-    pub speed_walk_prefix: String,
-    pub speed_walk_filler: String,
     pub command_queue_delay: f64,
     pub enable_command_stack: bool,
     pub command_stack_character: u16,
+    pub enable_speed_walk: bool,
+    pub speed_walk_prefix: String,
+    pub speed_walk_filler: String,
     pub enable_spam_prevention: bool,
     pub spam_line_count: usize,
     pub spam_message: String,
@@ -128,17 +119,17 @@ pub struct World {
     pub enable_aliases: bool,
 
     // Numpad
-    pub numpad_enable: bool,
     pub numpad_shortcuts: NumpadMapping,
+    pub numpad_enable: bool,
     pub hotkey_adds_to_command_history: bool,
     pub echo_hotkey_in_output_window: bool,
 
     // Scripts
-    pub world_script: Option<String>,
     pub enable_scripts: bool,
+    pub world_script: Option<String>,
     pub script_reload_option: ScriptRecompile,
-    pub error_colour: RgbColor,
     pub note_text_colour: RgbColor,
+    pub error_colour: RgbColor,
 
     // Hidden
     pub plugins: Vec<PathBuf>,
@@ -190,39 +181,29 @@ impl World {
             timers: Vec::new(),
             enable_timers: true,
 
-            // Notes
-            notes: String::new(),
-
             // Output
             show_bold: true,
             show_italic: true,
             show_underline: true,
+            indent_paras: 0,
+            ansi_colors: *RgbColor::XTERM_16,
             new_activity_sound: None,
 
+            // MUD
+            use_mxp: UseMxp::Command,
+            ignore_mxp_colour_changes: false,
+            use_custom_link_colour: false,
+            hyperlink_colour: RgbColor::rgb(43, 121, 162),
+            mud_can_change_link_colour: true,
+            underline_hyperlinks: true,
+            hyperlink_adds_to_command_history: true,
+            echo_hyperlink_in_output_window: true,
+            terminal_identification: "mushclient".to_owned(),
             disable_compression: false,
-            indent_paras: 0,
             naws: false,
             carriage_return_clears_line: false,
             utf_8: true,
             convert_ga_to_newline: false,
-            terminal_identification: "mushclient".to_owned(),
-
-            // MXP
-            use_mxp: UseMxp::Command,
-            hyperlink_colour: RgbColor::rgb(43, 121, 162),
-            use_custom_link_colour: false,
-            mud_can_change_link_colour: true,
-            underline_hyperlinks: true,
-            mud_can_remove_underline: false,
-            hyperlink_adds_to_command_history: true,
-            echo_hyperlink_in_output_window: true,
-            ignore_mxp_colour_changes: false,
-            send_mxp_afk_response: true,
-
-            // ANSI Color
-            use_default_colours: true,
-            ansi_colors: *RgbColor::XTERM_16,
-            error_colour: RgbColor::rgb(127, 0, 0),
 
             // Triggers
             triggers: Vec::new(),
@@ -230,27 +211,26 @@ impl World {
 
             // Commands
             display_my_input: true,
-            keep_commands_on_same_line: false,
             echo_colors: ColorPair::foreground(RgbColor::rgb(128, 128, 128)),
-            enable_speed_walk: false,
-            speed_walk_prefix: "#".to_owned(),
-            speed_walk_filler: "a".to_owned(),
+            keep_commands_on_same_line: false,
+            no_echo_off: false,
             command_queue_delay: 0.0,
             enable_command_stack: false,
             command_stack_character: u16::from(b';'),
+            enable_speed_walk: false,
+            speed_walk_prefix: "#".to_owned(),
+            speed_walk_filler: "a".to_owned(),
             enable_spam_prevention: false,
             spam_line_count: 20,
             spam_message: "look".to_owned(),
-
-            no_echo_off: false,
 
             // Aliases
             aliases: Vec::new(),
             enable_aliases: true,
 
             // Keypad
-            numpad_enable: true,
             numpad_shortcuts: NumpadMapping::navigation(),
+            numpad_enable: true,
             hotkey_adds_to_command_history: false,
             echo_hotkey_in_output_window: true,
 
@@ -258,6 +238,7 @@ impl World {
             world_script: None,
             enable_scripts: true,
             script_reload_option: ScriptRecompile::Confirm,
+            error_colour: RgbColor::rgb(127, 0, 0),
             note_text_colour: RgbColor::rgb(0, 128, 255),
 
             // Hidden

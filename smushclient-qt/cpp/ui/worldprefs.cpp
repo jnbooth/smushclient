@@ -2,11 +2,10 @@
 #include "ui_worldprefs.h"
 #include "prefs/address.h"
 #include "prefs/aliases.h"
-#include "prefs/color.h"
 #include "prefs/commands.h"
 #include "prefs/connecting.h"
 #include "prefs/logging.h"
-#include "prefs/mxp.h"
+#include "prefs/mud.h"
 #include "prefs/numpad.h"
 #include "prefs/output.h"
 #include "prefs/timers.h"
@@ -28,15 +27,11 @@ WorldPrefs::WorldPrefs(World &world, QWidget *parent)
   setupPane(new PrefsLogging(world, this), "Logging");
   setupPane(new PrefsTimers(world, this), "Timers");
   setupPane(new PrefsOutput(world, this), "Output");
-  setupPane(new PrefsMxp(world, this), "MXP");
-  setupPane(new PrefsColor(world, this), "Colour");
+  setupPane(new PrefsMud(world, this), "MUD");
   setupPane(new PrefsCommands(world, this), "Commands");
   setupPane(new PrefsAliases(world, this), "Aliases");
   setupPane(new PrefsTriggers(world, this), "Triggers");
   setupPane(new PrefsNumpad(world, this), "Keypad");
-
-  for (QTreeWidgetItemIterator it(ui->settings_tree); *it; ++it)
-    (*it)->setExpanded(true);
 }
 
 WorldPrefs::~WorldPrefs()
@@ -53,24 +48,24 @@ void WorldPrefs::setupPane(QWidget *pane, const char *key)
   ui->contents->addWidget(pane);
   pane->hide();
 
-  QTreeWidgetItem *item =
-      ui->settings_tree
-          ->findItems(tr(key), Qt::MatchExactly | Qt::MatchRecursive)
+  QListWidgetItem *item =
+      ui->settings_list
+          ->findItems(tr(key), Qt::MatchExactly)
           .constFirst();
-  item->setData(0, Qt::UserRole, index);
+  item->setData(Qt::UserRole, index);
 
   if (index == 0)
-    ui->settings_tree->setCurrentItem(item);
+    ui->settings_list->setCurrentItem(item);
 }
 
 // Private slots
 
-void WorldPrefs::on_settings_tree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+void WorldPrefs::on_settings_list_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
 {
   if (!current)
     return;
 
-  const QVariant data = current->data(0, Qt::UserRole);
+  const QVariant data = current->data(Qt::UserRole);
   if (!data.canConvert<qsizetype>())
     return;
 

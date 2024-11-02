@@ -12,7 +12,7 @@ class PrefsOutput : public QWidget
   Q_OBJECT
 
 public:
-  explicit PrefsOutput(World &world, QWidget *parent = nullptr);
+  explicit PrefsOutput(const World &world, QWidget *parent = nullptr);
   ~PrefsOutput();
 
 private:

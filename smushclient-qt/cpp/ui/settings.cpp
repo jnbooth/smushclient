@@ -31,7 +31,7 @@ void SettingsDialog::setupPane(QWidget *pane, const char *key)
 
   QListWidgetItem *item =
       ui->settings_list
-          ->findItems(tr(key), Qt::MatchExactly | Qt::MatchRecursive)
+          ->findItems(tr(key), Qt::MatchExactly)
           .constFirst();
   item->setData(Qt::UserRole, index);
 

@@ -14,11 +14,10 @@ PrefsLogging::PrefsLogging(World &world, QWidget *parent)
   CONNECT_WORLD(LogNotes);
   CONNECT_WORLD(AutoLogFileName);
   CONNECT_WORLD(LogPreambleOutput);
-  CONNECT_WORLD(LogPreambleInput);
-  CONNECT_WORLD(LogPreambleNotes);
-  CONNECT_WORLD(LogPreambleOutput);
   CONNECT_WORLD(LogPostambleOutput);
+  CONNECT_WORLD(LogPreambleInput);
   CONNECT_WORLD(LogPostambleInput);
+  CONNECT_WORLD(LogPreambleNotes);
   CONNECT_WORLD(LogPostambleNotes);
 
   ui->LogFilePreamble->setPlainText(world.getLogFilePreamble());

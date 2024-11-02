@@ -111,14 +111,14 @@ qt_add_executable(${APP_NAME}
     cpp/ui/prefs/address.h cpp/ui/prefs/address.cpp cpp/ui/prefs/address.ui
     cpp/ui/prefs/aliasedit.h cpp/ui/prefs/aliasedit.cpp cpp/ui/prefs/aliasedit.ui
     cpp/ui/prefs/aliases.h cpp/ui/prefs/aliases.cpp cpp/ui/prefs/aliases.ui
-    cpp/ui/prefs/color.h cpp/ui/prefs/color.cpp cpp/ui/prefs/color.ui
     cpp/ui/prefs/commands.h cpp/ui/prefs/commands.cpp cpp/ui/prefs/commands.ui
     cpp/ui/prefs/connecting.h cpp/ui/prefs/connecting.cpp cpp/ui/prefs/connecting.ui
     cpp/ui/prefs/logging.h cpp/ui/prefs/logging.cpp cpp/ui/prefs/logging.ui
-    cpp/ui/prefs/mxp.h cpp/ui/prefs/mxp.cpp cpp/ui/prefs/mxp.ui
+    cpp/ui/prefs/mud.h cpp/ui/prefs/mud.cpp cpp/ui/prefs/mud.ui
+
     cpp/ui/prefs/numpad.h cpp/ui/prefs/numpad.cpp cpp/ui/prefs/numpad.ui
     cpp/ui/prefs/output.h cpp/ui/prefs/output.cpp cpp/ui/prefs/output.ui
-    cpp/ui/prefs/proxy.h cpp/ui/prefs/proxy.cpp cpp/ui/prefs/proxy.ui
+
     cpp/ui/prefs/specialhelp.h cpp/ui/prefs/specialhelp.cpp cpp/ui/prefs/specialhelp.ui
     cpp/ui/prefs/timeredit.h cpp/ui/prefs/timeredit.cpp cpp/ui/prefs/timeredit.ui
     cpp/ui/prefs/timers.h cpp/ui/prefs/timers.cpp cpp/ui/prefs/timers.ui

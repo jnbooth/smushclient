@@ -20,7 +20,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QTreeWidget" name="settings_tree">
+      <widget class="QListWidget" name="settings_list">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -29,103 +29,89 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>170</width>
+         <width>150</width>
          <height>16777215</height>
         </size>
        </property>
-       <property name="itemsExpandable">
+       <property name="font">
+        <font>
+         <pointsize>21</pointsize>
+        </font>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+       </property>
+       <property name="tabKeyNavigation">
         <bool>true</bool>
        </property>
-       <attribute name="headerVisible">
+       <property name="showDropIndicator" stdset="0">
         <bool>false</bool>
-       </attribute>
-       <column>
-        <property name="text">
-         <string>Setting</string>
-        </property>
-       </column>
+       </property>
+       <property name="spacing">
+        <number>3</number>
+       </property>
+       <property name="uniformItemSizes">
+        <bool>true</bool>
+       </property>
        <item>
         <property name="text">
-         <string>General</string>
+         <string>IP address</string>
         </property>
-        <property name="flags">
-         <set>ItemIsDragEnabled|ItemIsDropEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
-        </property>
-        <item>
-         <property name="text">
-          <string>IP address</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Connecting</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Logging</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Timers</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Chat</string>
-         </property>
-        </item>
        </item>
        <item>
         <property name="text">
-         <string>Appearance</string>
+         <string>Connecting</string>
         </property>
-        <item>
-         <property name="text">
-          <string>Output</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>MXP</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Colour</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Triggers</string>
-         </property>
-        </item>
        </item>
        <item>
         <property name="text">
-         <string>Input</string>
+         <string>Logging</string>
         </property>
-        <item>
-         <property name="text">
-          <string>Commands</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Aliases</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Keypad</string>
-         </property>
-        </item>
+       </item>
+       <item>
+        <property name="text">
+         <string>Timers</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Output</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>MUD</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Triggers</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Commands</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Aliases</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Keypad</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Scripts</string>
+        </property>
        </item>
       </widget>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="contents"/>
+      <layout class="QVBoxLayout" name="contents" stretch=""/>
      </item>
     </layout>
    </item>

@@ -228,9 +228,6 @@
          <item row="1" column="1">
           <widget class="QLineEdit" name="Script"/>
          </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="Label"/>
-         </item>
          <item row="2" column="0">
           <widget class="QLabel" name="Label_label">
            <property name="text">
@@ -241,20 +238,10 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="Group_label">
-           <property name="text">
-            <string>Group:</string>
-           </property>
-           <property name="buddy">
-            <cstring>Group</cstring>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="1">
-          <widget class="QLineEdit" name="Group"/>
+          <widget class="QLineEdit" name="Label"/>
          </item>
-         <item row="3" column="0">
+         <item row="4" column="0">
           <widget class="QLabel" name="Variable_label">
            <property name="visible">
             <bool>false</bool>
@@ -267,10 +254,23 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="4" column="1">
           <widget class="QLineEdit" name="Variable">
            <property name="enabled">
             <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="Group"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="Group_label">
+           <property name="text">
+            <string>Group:</string>
+           </property>
+           <property name="buddy">
+            <cstring>Group</cstring>
            </property>
           </widget>
          </item>

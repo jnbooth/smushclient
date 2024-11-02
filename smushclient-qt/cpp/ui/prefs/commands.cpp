@@ -11,16 +11,16 @@ PrefsCommands::PrefsCommands(World &world, QWidget *parent)
   CONNECT_WORLD(DisplayMyInput);
   CONNECT_WORLD(EchoTextColour);
   CONNECT_WORLD(EchoBackgroundColour);
+  CONNECT_WORLD(KeepCommandsOnSameLine);
+  CONNECT_WORLD(NoEchoOff);
+  CONNECT_WORLD(CommandQueueDelay);
+  CONNECT_WORLD(EnableCommandStack);
   CONNECT_WORLD(EnableSpeedWalk);
   CONNECT_WORLD(SpeedWalkPrefix);
   CONNECT_WORLD(SpeedWalkFiller);
-  CONNECT_WORLD(CommandQueueDelay);
-  CONNECT_WORLD(EnableCommandStack);
   CONNECT_WORLD(EnableSpamPrevention);
   CONNECT_WORLD(SpamLineCount);
   CONNECT_WORLD(SpamMessage);
-  CONNECT_WORLD(KeepCommandsOnSameLine);
-  CONNECT_WORLD(NoEchoOff);
   ui->CommandStackCharacter->setText(QChar(world.getCommandStackCharacter()));
 }
 

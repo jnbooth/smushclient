@@ -1,7 +1,7 @@
 #pragma once
 #include <QtCore/QList>
 #include <QtWidgets/QDialog>
-#include <QtWidgets/QTreeWidgetItem>
+#include <QtWidgets/QListWidgetItem>
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
@@ -25,5 +25,5 @@ private:
   void setupPane(QWidget *pane, const char *key);
 
 private slots:
-  void on_settings_tree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+  void on_settings_list_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
 };
