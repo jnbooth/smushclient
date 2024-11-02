@@ -283,6 +283,7 @@ public:
   void initializePlugins(const rust::Vec<PluginPack> &plugins);
   inline bool isPluginEnabled(size_t plugin) const { return !plugins[plugin].disabled(); }
   void printError(const QString &message);
+  void reloadWorldScript(const QString &worldScriptPath);
   inline bool runScript(size_t plugin, const QString &script) const
   {
     return plugins[plugin].runScript(script);
@@ -347,6 +348,7 @@ private:
   Timekeeper *timekeeper;
   QDateTime whenConnected;
   std::unordered_map<std::string, MiniWindow *> windows;
+  size_t worldScriptIndex;
 
   AudioChannel &getAudioChannel(size_t index);
   DatabaseConnection *findDatabase(const std::string_view databaseID);

@@ -1,4 +1,5 @@
 #pragma once
+#include <QtCore/QFileSystemWatcher>
 #include <QtCore/QPointer>
 #include <QtCore/QTimerEvent>
 #include <QtGui/QResizeEvent>
@@ -73,12 +74,15 @@ private:
   int resizeTimerId;
   QRegularExpression splitter;
   bool useSplitter;
+  QFileSystemWatcher worldScriptWatcher;
 
   void applyWorld();
   void finishDrag();
   void openLog();
   bool saveWorldAndState(const QString &filePath) const;
   bool sendCommand(const QString &command, CommandSource source);
+  void setupWorldScriptWatcher();
+  void updateWorldScript();
 
 private slots:
   void finalizeWorldSettings(int result);
@@ -86,6 +90,7 @@ private slots:
   void onConnect();
   void onDisconnect();
   void readFromSocket();
+  void reloadWorldScript(const QString &worldScriptPath);
 
   void on_input_submitted(const QString &text);
   void on_input_textChanged();

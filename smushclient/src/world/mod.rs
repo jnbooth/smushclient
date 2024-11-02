@@ -17,7 +17,7 @@ use smushclient_plugins::{Alias, Plugin, PluginMetadata, Sender, Timer, Trigger}
 
 use mud_transformer::mxp::RgbColor;
 
-const CURRENT_VERSION: u16 = 5;
+const CURRENT_VERSION: u16 = 6;
 
 fn skip_temporary<S, T>(vec: &[T], serializer: S) -> Result<S::Ok, S::Error>
 where
@@ -134,7 +134,7 @@ pub struct World {
     pub echo_hotkey_in_output_window: bool,
 
     // Scripts
-    pub world_script: String,
+    pub world_script: Option<String>,
     pub enable_scripts: bool,
     pub script_reload_option: ScriptRecompile,
     pub error_colour: RgbColor,
@@ -255,7 +255,7 @@ impl World {
             echo_hotkey_in_output_window: true,
 
             // Scripts
-            world_script: String::new(),
+            world_script: None,
             enable_scripts: true,
             script_reload_option: ScriptRecompile::Confirm,
             note_text_colour: RgbColor::rgb(0, 128, 255),
@@ -267,12 +267,17 @@ impl World {
 
     pub fn world_plugin(&self) -> Plugin {
         let today = Utc::now().date_naive();
+        let path = match &self.world_script {
+            Some(world_script) => PathBuf::from(&world_script),
+            None => PathBuf::new(),
+        };
         let metadata = PluginMetadata {
             name: format!("World Script: {}", self.name),
             written: today,
             modified: today,
             is_world_plugin: true,
             sequence: -1,
+            path,
             ..Default::default()
         };
         Plugin {
@@ -281,7 +286,7 @@ impl World {
             triggers: Vec::new(),
             aliases: Vec::new(),
             timers: Vec::new(),
-            script: self.world_script.clone(),
+            script: String::new(),
         }
     }
 
@@ -299,7 +304,8 @@ impl World {
             2 => versions::V2::migrate(&mut reader),
             3 => versions::V3::migrate(&mut reader),
             4 => versions::V4::migrate(&mut reader),
-            5 => bincode::deserialize_from(reader).map_err(Into::into),
+            5 => versions::V5::migrate(&mut reader),
+            6 => bincode::deserialize_from(reader).map_err(Into::into),
             _ => Err(PersistError::Invalid)?,
         }
     }

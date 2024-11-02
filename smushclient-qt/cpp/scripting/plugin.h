@@ -33,6 +33,7 @@ public:
   inline const std::string &id() const noexcept { return metadata.id; }
   inline bool disabled() const noexcept { return isDisabled; }
   inline const std::string &name() const noexcept { return metadata.name; }
+  void reset(ScriptApi *api);
   bool runCallback(PluginCallback &callback) const;
   bool runCallbackThreaded(PluginCallback &callback) const;
   bool runFile(const QString &path) const;

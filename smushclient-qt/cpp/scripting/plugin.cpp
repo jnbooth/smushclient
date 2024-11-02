@@ -69,40 +69,12 @@ void setlib(lua_State *L, const char *name)
 // Public methods
 
 Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
-    : L(luaL_newstate()),
+    : L(nullptr),
       isDisabled(false),
       metadata(metadata),
       moved(false)
 {
-  if (!L)
-    throw std::bad_alloc();
-
-  lua_atpanic(L, &L_panic);
-  lua_pushcfunction(L, L_print);
-  lua_setglobal(L, "print");
-  luaL_openlibs(L);
-  lua_settop(L, 0);
-  lua_getfield(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
-  luaopen_bc(L);
-  setlib(L, "bc");
-  luaopen_bit(L);
-  setlib(L, "bit");
-  luaopen_cjson(L);
-  setlib(L, "json");
-  luaopen_lpeg(L);
-  setlib(L, "lpeg");
-  luaopen_rex_pcre2(L);
-  setlib(L, "rex");
-  luaopen_lsqlite3(L);
-  setlib(L, "sqlite3");
-  luaopen_utils(L);
-  setlib(L, "utils");
-  registerLuaGlobals(L);
-  registerLuaWorld(L);
-  setPluginIndex(L, metadata.index);
-  setLuaApi(L, api);
-  lua_settop(L, 0);
-  addErrorHandler(L);
+  reset(api);
 }
 
 Plugin::Plugin(Plugin &&other)
@@ -136,6 +108,50 @@ bool Plugin::hasFunction(const char *name) const
   const bool isFunction = lua_getglobal(L, name) == LUA_TFUNCTION;
   lua_pop(L, 1);
   return isFunction;
+}
+
+void Plugin::reset(ScriptApi *api)
+{
+  isDisabled = false;
+
+  if (L)
+  {
+    lua_State *oldL = L;
+    L = nullptr;
+    lua_close(oldL);
+  }
+
+  L = luaL_newstate();
+
+  if (!L)
+    throw std::bad_alloc();
+
+  lua_atpanic(L, &L_panic);
+  lua_pushcfunction(L, L_print);
+  lua_setglobal(L, "print");
+  luaL_openlibs(L);
+  lua_settop(L, 0);
+  lua_getfield(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE);
+  luaopen_bc(L);
+  setlib(L, "bc");
+  luaopen_bit(L);
+  setlib(L, "bit");
+  luaopen_cjson(L);
+  setlib(L, "json");
+  luaopen_lpeg(L);
+  setlib(L, "lpeg");
+  luaopen_rex_pcre2(L);
+  setlib(L, "rex");
+  luaopen_lsqlite3(L);
+  setlib(L, "sqlite3");
+  luaopen_utils(L);
+  setlib(L, "utils");
+  registerLuaGlobals(L);
+  registerLuaWorld(L);
+  setPluginIndex(L, metadata.index);
+  setLuaApi(L, api);
+  lua_settop(L, 0);
+  addErrorHandler(L);
 }
 
 bool Plugin::runCallback(PluginCallback &callback) const

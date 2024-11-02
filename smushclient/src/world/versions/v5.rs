@@ -109,6 +109,8 @@ pub struct World {
     // Numpad
     pub numpad_enable: bool,
     pub numpad_shortcuts: NumpadMapping,
+    pub hotkey_adds_to_command_history: bool,
+    pub echo_hotkey_in_output_window: bool,
 
     // Scripts
     pub world_script: String,
@@ -122,12 +124,6 @@ pub struct World {
 }
 
 impl From<World> for super::super::World {
-    fn from(value: World) -> Self {
-        Self::from(super::v5::World::from(value))
-    }
-}
-
-impl From<World> for super::v5::World {
     fn from(value: World) -> Self {
         Self {
             name: value.name,
@@ -205,7 +201,7 @@ impl From<World> for super::v5::World {
             numpad_shortcuts: NumpadMapping::navigation(),
             hotkey_adds_to_command_history: false,
             echo_hotkey_in_output_window: true,
-            world_script: value.world_script,
+            world_script: None,
             enable_scripts: value.enable_scripts,
             script_reload_option: value.script_reload_option,
             note_text_colour: value.note_text_colour,

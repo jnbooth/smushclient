@@ -9,6 +9,7 @@
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
+#include <QtWidgets/QMessageBox>
 #include "pluginsdialog.h"
 #include "ui_worldtab.h"
 #include "worldprefs.h"
@@ -68,7 +69,8 @@ WorldTab::WorldTab(QWidget *parent)
       queuedConnect(false),
       resizeTimerId(-1),
       splitter(),
-      useSplitter(false)
+      useSplitter(false),
+      worldScriptWatcher(this)
 {
   resizeTimerId = startTimer(1000);
   ui->setupUi(this);
@@ -80,6 +82,7 @@ WorldTab::WorldTab(QWidget *parent)
   connect(socket, &QTcpSocket::readyRead, this, &WorldTab::readFromSocket);
   connect(socket, &QTcpSocket::connected, this, &WorldTab::onConnect);
   connect(socket, &QTcpSocket::disconnected, this, &WorldTab::onDisconnect);
+  connect(&worldScriptWatcher, &QFileSystemWatcher::fileChanged, this, &WorldTab::reloadWorldScript);
 
   const Settings settings;
   setColors(ui->input, settings.inputForeground(), settings.inputBackground());
@@ -99,6 +102,7 @@ WorldTab::~WorldTab()
 void WorldTab::createWorld() &
 {
   client.populateWorld(world);
+  setupWorldScriptWatcher();
   openLog();
   loadPlugins();
   applyWorld();
@@ -156,6 +160,7 @@ bool WorldTab::openWorld(const QString &filename) &
     showRustError(e);
     return false;
   }
+  setupWorldScriptWatcher();
   openLog();
   try
   {
@@ -344,6 +349,7 @@ void WorldTab::applyWorld()
     socket->setProxy(QNetworkProxy::NoProxy);
   if (world.getSaveWorldAutomatically())
     saveWorldAndState(filePath);
+
   api->applyWorld(world);
   if (!world.getEnableCommandStack())
   {
@@ -456,6 +462,26 @@ bool WorldTab::sendCommand(const QString &command, CommandSource source)
   return true;
 }
 
+void WorldTab::setupWorldScriptWatcher()
+{
+  worldScriptWatcher.removePaths(worldScriptWatcher.files());
+  const QString &worldScriptPath = world.getWorldScript();
+  if (!worldScriptPath.isEmpty())
+    worldScriptWatcher.addPath(worldScriptPath);
+}
+
+void WorldTab::updateWorldScript()
+{
+  const QString &worldScriptPath = world.getWorldScript();
+  const QStringList watchedScripts = worldScriptWatcher.files();
+  if (watchedScripts.value(0) == worldScriptPath)
+    return;
+  worldScriptWatcher.removePaths(watchedScripts);
+  if (!worldScriptPath.isEmpty())
+    worldScriptWatcher.addPath(worldScriptPath);
+  reloadWorldScript(worldScriptPath);
+}
+
 // Private slots
 
 void WorldTab::finalizeWorldSettings(int result)
@@ -511,6 +537,24 @@ void WorldTab::readFromSocket()
     flushTimerId = startTimer(2000);
   else
     flushTimerId = -1;
+}
+
+void WorldTab::reloadWorldScript(const QString &worldScriptPath)
+{
+  QFileInfo info(worldScriptPath);
+  if (!info.isFile() || !info.isReadable())
+    return;
+  switch (world.getScriptReloadOption())
+  {
+  case ScriptRecompile::Always:
+    break;
+  case ScriptRecompile::Never:
+    return;
+  case ScriptRecompile::Confirm:
+    if (QMessageBox::question(this, tr("World script changed"), tr("Would you like to reload the world script?")) != QMessageBox::StandardButton::Yes)
+      return;
+  }
+  api->reloadWorldScript(worldScriptPath);
 }
 
 void WorldTab::on_input_submitted(const QString &text)

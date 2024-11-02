@@ -77,7 +77,8 @@ ScriptApi::ScriptApi(WorldTab *parent)
       statusBar(qobject_cast<MudStatusBar *>(getMainWindow(parent)->statusBar())),
       suppressEcho(false),
       whenConnected(QDateTime::currentDateTime()),
-      windows()
+      windows(),
+      worldScriptIndex(noSuchPlugin)
 {
   timekeeper = new Timekeeper(this);
   setLineType(echoFormat, LineType::Input);
@@ -160,6 +161,7 @@ const Plugin *ScriptApi::getPlugin(string_view pluginID) const
 
 void ScriptApi::initializePlugins(const rust::Vec<PluginPack> &pack)
 {
+  worldScriptIndex = noSuchPlugin;
   if (!windows.empty())
   {
     for (const auto &entry : windows)
@@ -187,15 +189,27 @@ void ScriptApi::initializePlugins(const rust::Vec<PluginPack> &pack)
         .index = index,
         .name = it->name.toStdString(),
     };
+    if (metadata.id.empty())
+      worldScriptIndex = index;
     pluginIndices[metadata.id] = index;
     Plugin &plugin = plugins.emplace_back(this, std::move(metadata));
     if (it->scriptSize && !plugin.runScript(string_view(reinterpret_cast<const char *>(it->scriptData), it->scriptSize)))
+    {
+      plugin.disable();
       continue;
+    }
     QString scriptPath = it->path;
-    scriptPath.replace(scriptPath.size() - 3, 3, QStringLiteral("lua"));
-    const QFileInfo info(scriptPath);
-    if (info.exists() && info.isFile() && info.isReadable() && !plugin.runFile(scriptPath))
-      continue;
+    if (!scriptPath.isEmpty())
+    {
+      if (index != worldScriptIndex)
+        scriptPath.replace(scriptPath.size() - 3, 3, QStringLiteral("lua"));
+      const QFileInfo info(scriptPath);
+      if (info.isFile() && info.isReadable() && !plugin.runFile(scriptPath))
+      {
+        plugin.disable();
+        continue;
+      }
+    }
     callbackFilter.scan(plugin.state());
     client()->startTimers(index, *timekeeper);
   }
@@ -210,6 +224,20 @@ void ScriptApi::printError(const QString &error)
   appendText(error, errorFormat);
   startLine();
   scrollToBottom();
+}
+
+void ScriptApi::reloadWorldScript(const QString &worldScriptPath)
+{
+  if (worldScriptIndex == noSuchPlugin)
+    return;
+  Plugin &worldPlugin = plugins[worldScriptIndex];
+  worldPlugin.reset(this);
+
+  if (worldScriptPath.isEmpty())
+    return;
+
+  if (!worldPlugin.runFile(worldScriptPath))
+    worldPlugin.disable();
 }
 
 bool ScriptApi::runScript(const QString &pluginID, const QString &script) const
