@@ -22,7 +22,7 @@ public:
 
 private:
   Ui::App *ui;
-  FindDialog findDialog;
+  FindDialog *findDialog;
   int lastTabIndex;
   QList<QAction *> recentFileActions;
   QString saveFilter;

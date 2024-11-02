@@ -12,11 +12,11 @@
 App::App(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::App),
-      findDialog(this),
       lastTabIndex(-1),
       recentFileActions(),
       saveFilter(tr("World files (*.smush);;All Files (*.*)"))
 {
+  findDialog = new FindDialog(this);
   if (QDir::current().isRoot())
   {
     QString dirPath = QCoreApplication::applicationDirPath();
@@ -168,14 +168,14 @@ void App::on_action_edit_world_details_triggered()
 
 void App::on_action_find_triggered()
 {
-  if (WorldTab *tab = worldtab(); tab && findDialog.exec() == QDialog::Accepted)
-    findDialog.find(tab->ui->output);
+  if (WorldTab *tab = worldtab(); tab && findDialog->exec() == QDialog::Accepted)
+    findDialog->find(tab->ui->output);
 }
 
 void App::on_action_find_again_triggered()
 {
-  if (WorldTab *tab = worldtab(); tab && (findDialog.isFilled() || findDialog.exec() == QDialog::Accepted))
-    findDialog.find(tab->ui->output);
+  if (WorldTab *tab = worldtab(); tab && (findDialog->isFilled() || findDialog->exec() == QDialog::Accepted))
+    findDialog->find(tab->ui->output);
 }
 
 void App::on_action_global_preferences_triggered()
