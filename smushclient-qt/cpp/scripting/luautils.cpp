@@ -56,6 +56,8 @@ int execScriptDialog(lua_State *L, int idx, AbstractScriptDialog &dialog, const 
     lua_pop(L, 1);
   }
 
+  dialog.sortItems();
+
   if (dialog.exec() == QDialog::Accepted)
     qlua::pushQVariant(L, dialog.value());
   else
