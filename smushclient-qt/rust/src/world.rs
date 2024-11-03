@@ -57,6 +57,10 @@ pub struct WorldRust {
     pub show_underline: bool,
     pub indent_paras: i32,
     pub ansi_colors: Colors,
+    pub display_my_input: bool,
+    pub echo_text_colour: QColor,
+    pub echo_background_colour: QColor,
+    pub keep_commands_on_same_line: bool,
     pub new_activity_sound: QString,
 
     // MUD
@@ -74,26 +78,13 @@ pub struct WorldRust {
     pub carriage_return_clears_line: bool,
     pub utf_8: bool,
     pub convert_ga_to_newline: bool,
+    pub no_echo_off: bool,
+    pub enable_command_stack: bool,
+    pub command_stack_character: u16,
 
     // Triggers
     pub triggers: Vec<Trigger>,
     pub enable_triggers: bool,
-
-    // Commands
-    pub display_my_input: bool,
-    pub echo_text_colour: QColor,
-    pub echo_background_colour: QColor,
-    pub keep_commands_on_same_line: bool,
-    pub no_echo_off: bool,
-    pub command_queue_delay: f64,
-    pub enable_command_stack: bool,
-    pub command_stack_character: u16,
-    pub enable_speed_walk: bool,
-    pub speed_walk_prefix: QString,
-    pub speed_walk_filler: QString,
-    pub enable_spam_prevention: bool,
-    pub spam_line_count: i32,
-    pub spam_message: QString,
 
     // Aliases
     pub aliases: Vec<Alias>,
@@ -304,11 +295,6 @@ impl WorldRust {
     }
 }
 
-#[inline(always)]
-fn sign_usize(val: usize) -> i32 {
-    i32::try_from(val).unwrap_or(i32::MAX)
-}
-
 impl From<&World> for WorldRust {
     fn from(world: &World) -> Self {
         let NumpadMapping {
@@ -354,6 +340,10 @@ impl From<&World> for WorldRust {
             show_underline: world.show_underline,
             indent_paras: i32::from(world.indent_paras),
             ansi_colors: Colors::from(&world.ansi_colors),
+            display_my_input: world.display_my_input,
+            echo_text_colour: world.echo_colors.foreground.convert(),
+            echo_background_colour: world.echo_colors.background.convert(),
+            keep_commands_on_same_line: world.keep_commands_on_same_line,
             new_activity_sound: world.new_activity_sound.convert(),
 
             use_mxp: world.use_mxp.into(),
@@ -370,24 +360,12 @@ impl From<&World> for WorldRust {
             carriage_return_clears_line: world.carriage_return_clears_line,
             utf_8: world.utf_8,
             convert_ga_to_newline: world.convert_ga_to_newline,
+            no_echo_off: world.no_echo_off,
+            enable_command_stack: world.enable_command_stack,
+            command_stack_character: world.command_stack_character,
 
             triggers: world.triggers.clone(),
             enable_triggers: world.enable_triggers,
-
-            display_my_input: world.display_my_input,
-            echo_text_colour: world.echo_colors.foreground.convert(),
-            echo_background_colour: world.echo_colors.background.convert(),
-            keep_commands_on_same_line: world.keep_commands_on_same_line,
-            no_echo_off: world.no_echo_off,
-            command_queue_delay: world.command_queue_delay,
-            enable_command_stack: world.enable_command_stack,
-            command_stack_character: world.command_stack_character,
-            enable_speed_walk: world.enable_speed_walk,
-            speed_walk_prefix: QString::from(&world.speed_walk_prefix),
-            speed_walk_filler: QString::from(&world.speed_walk_filler),
-            enable_spam_prevention: world.enable_spam_prevention,
-            spam_line_count: sign_usize(world.spam_line_count),
-            spam_message: QString::from(&world.spam_message),
 
             aliases: world.aliases.clone(),
             enable_aliases: world.enable_aliases,
@@ -478,6 +456,12 @@ impl TryFrom<&WorldRust> for World {
             show_underline: value.show_underline,
             indent_paras: u8::try_from(value.indent_paras)?,
             ansi_colors: (&value.ansi_colors).into(),
+            display_my_input: value.display_my_input,
+            echo_colors: ColorPair {
+                foreground: value.echo_text_colour.convert(),
+                background: value.echo_background_colour.convert(),
+            },
+            keep_commands_on_same_line: value.keep_commands_on_same_line,
             new_activity_sound: value.new_activity_sound.convert(),
 
             use_mxp: value.use_mxp.try_into()?,
@@ -494,26 +478,12 @@ impl TryFrom<&WorldRust> for World {
             carriage_return_clears_line: value.carriage_return_clears_line,
             utf_8: value.utf_8,
             convert_ga_to_newline: value.convert_ga_to_newline,
+            no_echo_off: value.no_echo_off,
+            enable_command_stack: value.enable_command_stack,
+            command_stack_character: value.command_stack_character,
 
             triggers: value.triggers.clone(),
             enable_triggers: value.enable_triggers,
-
-            display_my_input: value.display_my_input,
-            echo_colors: ColorPair {
-                foreground: value.echo_text_colour.convert(),
-                background: value.echo_background_colour.convert(),
-            },
-            keep_commands_on_same_line: value.keep_commands_on_same_line,
-            no_echo_off: value.no_echo_off,
-            command_queue_delay: value.command_queue_delay,
-            enable_command_stack: value.enable_command_stack,
-            command_stack_character: value.command_stack_character,
-            enable_speed_walk: value.enable_speed_walk,
-            speed_walk_prefix: String::from(&value.speed_walk_prefix),
-            speed_walk_filler: String::from(&value.speed_walk_filler),
-            enable_spam_prevention: value.enable_spam_prevention,
-            spam_line_count: usize::try_from(value.spam_line_count)?,
-            spam_message: String::from(&value.spam_message),
 
             aliases: value.aliases.clone(),
             enable_aliases: value.enable_aliases,

@@ -768,6 +768,10 @@ pub mod ffi {
         #[qproperty(QColor, ansi_13)]
         #[qproperty(QColor, ansi_14)]
         #[qproperty(QColor, ansi_15)]
+        #[qproperty(bool, display_my_input)]
+        #[qproperty(QColor, echo_text_colour)]
+        #[qproperty(QColor, echo_background_colour)]
+        #[qproperty(bool, keep_commands_on_same_line)]
         #[qproperty(QString, new_activity_sound)]
         // MUD
         #[qproperty(UseMxp, use_mxp)]
@@ -784,23 +788,11 @@ pub mod ffi {
         #[qproperty(bool, convert_ga_to_newline)]
         #[qproperty(QString, terminal_identification)]
         #[qproperty(bool, disable_compression)]
-        // Triggers
-        #[qproperty(bool, enable_triggers)]
-        // Commands
-        #[qproperty(bool, display_my_input)]
-        #[qproperty(QColor, echo_text_colour)]
-        #[qproperty(QColor, echo_background_colour)]
-        #[qproperty(bool, keep_commands_on_same_line)]
         #[qproperty(bool, no_echo_off)]
-        #[qproperty(f64, command_queue_delay)]
         #[qproperty(bool, enable_command_stack)]
         #[qproperty(u16, command_stack_character)]
-        #[qproperty(bool, enable_speed_walk)]
-        #[qproperty(QString, speed_walk_prefix)]
-        #[qproperty(QString, speed_walk_filler)]
-        #[qproperty(bool, enable_spam_prevention)]
-        #[qproperty(i32, spam_line_count)]
-        #[qproperty(QString, spam_message)]
+        // Triggers
+        #[qproperty(bool, enable_triggers)]
         // Aliases
         #[qproperty(bool, enable_aliases)]
         // Keypad

@@ -14,9 +14,6 @@
    <string>Output</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="spacing">
-    <number>20</number>
-   </property>
    <item>
     <widget class="QLabel" name="label_title">
      <property name="sizePolicy">
@@ -181,10 +178,7 @@
      <property name="title">
       <string>Telnet</string>
      </property>
-     <layout class="QVBoxLayout" name="_checkboxes">
-      <property name="spacing">
-       <number>6</number>
-      </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_1">
         <item>
@@ -233,6 +227,67 @@
          <string>Convert IAC EOR/GA to newline</string>
         </property>
        </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="NoEchoOff">
+        <property name="text">
+         <string>Ignore &quot;Echo Off&quot; server commands</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="_command_stacking">
+     <property name="title">
+      <string>Command Stacking</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>-1</number>
+      </property>
+      <item>
+       <widget class="QCheckBox" name="EnableCommandStack">
+        <property name="text">
+         <string>Enable &amp;command stacking with prefix:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="CommandStackCharacter">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>30</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="maxLength">
+         <number>1</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>600</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>

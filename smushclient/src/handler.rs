@@ -53,7 +53,7 @@ impl<H: Handler> HandlerExt for H {
                 let Ok(captures) = captures else {
                     continue;
                 };
-                self.send_script(super::SendScriptRequest {
+                self.send_script(SendScriptRequest {
                     plugin: plugin_index,
                     script: &reaction.script,
                     label: &reaction.label,

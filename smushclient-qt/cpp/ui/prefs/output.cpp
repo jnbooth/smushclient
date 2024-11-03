@@ -27,6 +27,10 @@ PrefsOutput::PrefsOutput(const World &world, QWidget *parent)
   CONNECT_WORLD(Ansi13);
   CONNECT_WORLD(Ansi14);
   CONNECT_WORLD(Ansi15);
+  CONNECT_WORLD(DisplayMyInput);
+  CONNECT_WORLD(EchoTextColour);
+  CONNECT_WORLD(EchoBackgroundColour);
+  CONNECT_WORLD(KeepCommandsOnSameLine);
   CONNECT_WORLD(NewActivitySound);
 }
 

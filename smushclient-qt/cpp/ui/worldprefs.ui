@@ -90,11 +90,6 @@
        </item>
        <item>
         <property name="text">
-         <string>Commands</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
          <string>Aliases</string>
         </property>
        </item>

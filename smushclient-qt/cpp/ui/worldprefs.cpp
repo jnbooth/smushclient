@@ -2,7 +2,6 @@
 #include "ui_worldprefs.h"
 #include "prefs/address.h"
 #include "prefs/aliases.h"
-#include "prefs/commands.h"
 #include "prefs/connecting.h"
 #include "prefs/logging.h"
 #include "prefs/mud.h"
@@ -28,7 +27,6 @@ WorldPrefs::WorldPrefs(World &world, QWidget *parent)
   setupPane(new PrefsTimers(world, this), "Timers");
   setupPane(new PrefsOutput(world, this), "Output");
   setupPane(new PrefsMud(world, this), "MUD");
-  setupPane(new PrefsCommands(world, this), "Commands");
   setupPane(new PrefsAliases(world, this), "Aliases");
   setupPane(new PrefsTriggers(world, this), "Triggers");
   setupPane(new PrefsNumpad(world, this), "Keypad");

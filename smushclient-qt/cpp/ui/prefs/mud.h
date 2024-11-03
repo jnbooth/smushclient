@@ -15,6 +15,10 @@ public:
   explicit PrefsMud(World &world, QWidget *parent = nullptr);
   ~PrefsMud();
 
+private slots:
+  void on_CommandStackCharacter_textChanged(const QString &character);
+
 private:
   Ui::PrefsMud *ui;
+  World &world;
 };

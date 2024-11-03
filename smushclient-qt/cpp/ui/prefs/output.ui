@@ -13,10 +13,7 @@
   <property name="windowTitle">
    <string>Colour</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="spacing">
-    <number>20</number>
-   </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QLabel" name="label_title">
      <property name="sizePolicy">
@@ -561,6 +558,73 @@
         </property>
         <property name="icon">
          <iconset theme="edit-undo"/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="_output_window">
+     <property name="title">
+      <string>Commands</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QCheckBox" name="DisplayMyInput">
+          <property name="text">
+           <string>Echo my &amp;input in</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="ColorPickerButton" name="EchoTextColour">
+          <property name="baseSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="EchoBackgroundColour_label">
+          <property name="text">
+           <string>on</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="ColorPickerButton" name="EchoBackgroundColour">
+          <property name="baseSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="KeepCommandsOnSameLine">
+        <property name="text">
+         <string>Keep commands on prompt line</string>
         </property>
        </widget>
       </item>

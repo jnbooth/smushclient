@@ -48,38 +48,29 @@ pub struct World {
     pub timers: Vec<Timer>,
     pub enable_timers: bool,
 
-    // Notes
-    pub notes: String,
-
     // Output
     pub show_bold: bool,
     pub show_italic: bool,
     pub show_underline: bool,
+    pub indent_paras: u8,
+    pub ansi_colors: [RgbColor; 16],
     pub new_activity_sound: Option<String>,
 
+    // MUD
+    pub use_mxp: UseMxp,
+    pub ignore_mxp_colour_changes: bool,
+    pub use_custom_link_colour: bool,
+    pub hyperlink_colour: RgbColor,
+    pub mud_can_change_link_colour: bool,
+    pub underline_hyperlinks: bool,
+    pub hyperlink_adds_to_command_history: bool,
+    pub echo_hyperlink_in_output_window: bool,
+    pub terminal_identification: String,
     pub disable_compression: bool,
-    pub indent_paras: u8,
     pub naws: bool,
     pub carriage_return_clears_line: bool,
     pub utf_8: bool,
     pub convert_ga_to_newline: bool,
-    pub terminal_identification: String,
-
-    // MXP
-    pub use_mxp: UseMxp,
-    pub hyperlink_colour: RgbColor,
-    pub use_custom_link_colour: bool,
-    pub mud_can_change_link_colour: bool,
-    pub underline_hyperlinks: bool,
-    pub mud_can_remove_underline: bool,
-    pub hyperlink_adds_to_command_history: bool,
-    pub echo_hyperlink_in_output_window: bool,
-    pub ignore_mxp_colour_changes: bool,
-    pub send_mxp_afk_response: bool,
-
-    // ANSI Color
-    pub use_default_colours: bool,
-    pub ansi_colors: [RgbColor; 16],
 
     // Triggers
     #[serde(serialize_with = "skip_temporary")]
@@ -88,15 +79,15 @@ pub struct World {
 
     // Commands
     pub display_my_input: bool,
+    pub echo_colors: ColorPair,
     pub keep_commands_on_same_line: bool,
     pub no_echo_off: bool,
-    pub echo_colors: ColorPair,
-    pub enable_speed_walk: bool,
-    pub speed_walk_prefix: String,
-    pub speed_walk_filler: String,
     pub command_queue_delay: f64,
     pub enable_command_stack: bool,
     pub command_stack_character: u16,
+    pub enable_speed_walk: bool,
+    pub speed_walk_prefix: String,
+    pub speed_walk_filler: String,
     pub enable_spam_prevention: bool,
     pub spam_line_count: usize,
     pub spam_message: String,
@@ -107,29 +98,23 @@ pub struct World {
     pub enable_aliases: bool,
 
     // Numpad
-    pub numpad_enable: bool,
     pub numpad_shortcuts: NumpadMapping,
+    pub numpad_enable: bool,
     pub hotkey_adds_to_command_history: bool,
     pub echo_hotkey_in_output_window: bool,
 
     // Scripts
-    pub world_script: String,
     pub enable_scripts: bool,
+    pub world_script: Option<String>,
     pub script_reload_option: ScriptRecompile,
-    pub error_colour: RgbColor,
     pub note_text_colour: RgbColor,
+    pub error_colour: RgbColor,
 
     // Hidden
     pub plugins: Vec<PathBuf>,
 }
 
 impl From<World> for super::super::World {
-    fn from(value: World) -> Self {
-        Self::from(super::v6::World::from(value))
-    }
-}
-
-impl From<World> for super::v6::World {
     fn from(value: World) -> Self {
         Self {
             name: value.name,
@@ -141,10 +126,12 @@ impl From<World> for super::v6::World {
             proxy_username: value.proxy_username,
             proxy_password: value.proxy_password,
             save_world_automatically: value.save_world_automatically,
+
             player: value.player,
             password: value.password,
             connect_method: value.connect_method,
             connect_text: value.connect_text,
+
             log_file_preamble: value.log_file_preamble,
             log_file_postamble: value.log_file_postamble,
             log_format: value.log_format,
@@ -159,14 +146,20 @@ impl From<World> for super::v6::World {
             log_postamble_output: value.log_postamble_output,
             log_postamble_input: value.log_postamble_input,
             log_postamble_notes: value.log_postamble_notes,
+
             timers: value.timers,
             enable_timers: value.enable_timers,
+
             show_bold: value.show_bold,
             show_italic: value.show_italic,
             show_underline: value.show_underline,
             indent_paras: value.indent_paras,
             ansi_colors: value.ansi_colors,
+            display_my_input: value.display_my_input,
+            keep_commands_on_same_line: value.keep_commands_on_same_line,
+            echo_colors: value.echo_colors,
             new_activity_sound: value.new_activity_sound,
+
             use_mxp: value.use_mxp,
             ignore_mxp_colour_changes: value.ignore_mxp_colour_changes,
             use_custom_link_colour: value.use_custom_link_colour,
@@ -181,32 +174,27 @@ impl From<World> for super::v6::World {
             carriage_return_clears_line: value.carriage_return_clears_line,
             utf_8: value.utf_8,
             convert_ga_to_newline: value.convert_ga_to_newline,
-            triggers: value.triggers,
-            enable_triggers: value.enable_triggers,
-            display_my_input: value.display_my_input,
-            keep_commands_on_same_line: value.keep_commands_on_same_line,
-            echo_colors: value.echo_colors,
             no_echo_off: value.no_echo_off,
-            command_queue_delay: value.command_queue_delay,
             enable_command_stack: value.enable_command_stack,
             command_stack_character: value.command_stack_character,
-            enable_speed_walk: value.enable_speed_walk,
-            speed_walk_prefix: value.speed_walk_prefix,
-            speed_walk_filler: value.speed_walk_filler,
-            enable_spam_prevention: value.enable_spam_prevention,
-            spam_line_count: value.spam_line_count,
-            spam_message: value.spam_message,
+
+            triggers: value.triggers,
+            enable_triggers: value.enable_triggers,
+
             aliases: value.aliases,
             enable_aliases: value.enable_aliases,
+
             numpad_shortcuts: NumpadMapping::navigation(),
             numpad_enable: value.numpad_enable,
             hotkey_adds_to_command_history: false,
             echo_hotkey_in_output_window: true,
+
             enable_scripts: value.enable_scripts,
             world_script: None,
             script_reload_option: value.script_reload_option,
             note_text_colour: value.note_text_colour,
             error_colour: value.error_colour,
+
             plugins: value.plugins,
         }
     }

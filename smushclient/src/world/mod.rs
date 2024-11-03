@@ -17,7 +17,7 @@ use smushclient_plugins::{Alias, Plugin, PluginMetadata, Sender, Timer, Trigger}
 
 use mud_transformer::mxp::RgbColor;
 
-const CURRENT_VERSION: u16 = 6;
+const CURRENT_VERSION: u16 = 7;
 
 fn skip_temporary<S, T>(vec: &[T], serializer: S) -> Result<S::Ok, S::Error>
 where
@@ -75,6 +75,9 @@ pub struct World {
     pub show_underline: bool,
     pub indent_paras: u8,
     pub ansi_colors: [RgbColor; 16],
+    pub display_my_input: bool,
+    pub echo_colors: ColorPair,
+    pub keep_commands_on_same_line: bool,
     pub new_activity_sound: Option<String>,
 
     // MUD
@@ -92,26 +95,14 @@ pub struct World {
     pub carriage_return_clears_line: bool,
     pub utf_8: bool,
     pub convert_ga_to_newline: bool,
+    pub no_echo_off: bool,
+    pub enable_command_stack: bool,
+    pub command_stack_character: u16,
 
     // Triggers
     #[serde(serialize_with = "skip_temporary")]
     pub triggers: Vec<Trigger>,
     pub enable_triggers: bool,
-
-    // Commands
-    pub display_my_input: bool,
-    pub echo_colors: ColorPair,
-    pub keep_commands_on_same_line: bool,
-    pub no_echo_off: bool,
-    pub command_queue_delay: f64,
-    pub enable_command_stack: bool,
-    pub command_stack_character: u16,
-    pub enable_speed_walk: bool,
-    pub speed_walk_prefix: String,
-    pub speed_walk_filler: String,
-    pub enable_spam_prevention: bool,
-    pub spam_line_count: usize,
-    pub spam_message: String,
 
     // Aliases
     #[serde(serialize_with = "skip_temporary")]
@@ -187,6 +178,9 @@ impl World {
             show_underline: true,
             indent_paras: 0,
             ansi_colors: *RgbColor::XTERM_16,
+            display_my_input: true,
+            echo_colors: ColorPair::foreground(RgbColor::rgb(128, 128, 128)),
+            keep_commands_on_same_line: false,
             new_activity_sound: None,
 
             // MUD
@@ -204,25 +198,13 @@ impl World {
             carriage_return_clears_line: false,
             utf_8: true,
             convert_ga_to_newline: false,
+            no_echo_off: false,
+            enable_command_stack: false,
+            command_stack_character: u16::from(b';'),
 
             // Triggers
             triggers: Vec::new(),
             enable_triggers: true,
-
-            // Commands
-            display_my_input: true,
-            echo_colors: ColorPair::foreground(RgbColor::rgb(128, 128, 128)),
-            keep_commands_on_same_line: false,
-            no_echo_off: false,
-            command_queue_delay: 0.0,
-            enable_command_stack: false,
-            command_stack_character: u16::from(b';'),
-            enable_speed_walk: false,
-            speed_walk_prefix: "#".to_owned(),
-            speed_walk_filler: "a".to_owned(),
-            enable_spam_prevention: false,
-            spam_line_count: 20,
-            spam_message: "look".to_owned(),
 
             // Aliases
             aliases: Vec::new(),
@@ -263,7 +245,7 @@ impl World {
         };
         Plugin {
             metadata,
-            disabled: false,
+            disabled: !self.enable_scripts,
             triggers: Vec::new(),
             aliases: Vec::new(),
             timers: Vec::new(),
@@ -286,7 +268,8 @@ impl World {
             3 => versions::V3::migrate(&mut reader),
             4 => versions::V4::migrate(&mut reader),
             5 => versions::V5::migrate(&mut reader),
-            6 => bincode::deserialize_from(reader).map_err(Into::into),
+            6 => versions::V6::migrate(&mut reader),
+            7 => bincode::deserialize_from(reader).map_err(Into::into),
             _ => Err(PersistError::Invalid)?,
         }
     }
