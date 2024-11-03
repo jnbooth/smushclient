@@ -14,7 +14,7 @@ AliasEdit::AliasEdit(Alias *alias, QWidget *parent)
   // Sender
   CONNECT(Group);
   CONNECT(Label);
-  CONNECT(SendTo);
+  CONNECT(SendToIndex);
   CONNECT(Script);
   CONNECT(Variable);
   CONNECT(Enabled);

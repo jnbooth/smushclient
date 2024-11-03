@@ -16,7 +16,7 @@ class MudScrollBar;
 class ScriptApi;
 class WorldTab;
 enum class AliasOutcome : uint8_t;
-enum class SendTarget : int32_t;
+enum class SendTarget : uint8_t;
 enum class TelnetSource : uint8_t;
 enum class TelnetVerb : uint8_t;
 enum class TextStyle : uint16_t;

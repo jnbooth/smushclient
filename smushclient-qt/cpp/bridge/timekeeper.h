@@ -7,7 +7,7 @@
 #include "rust/cxx.h"
 
 class ScriptApi;
-enum class SendTarget : int32_t;
+enum class SendTarget : uint8_t;
 struct SendTimer;
 
 class Timekeeper : public QObject

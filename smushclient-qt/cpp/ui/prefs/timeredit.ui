@@ -126,17 +126,17 @@
        <item>
         <layout class="QFormLayout" name="_send">
          <item row="0" column="0">
-          <widget class="QLabel" name="SendTo_label">
+          <widget class="QLabel" name="SendToIndex_label">
            <property name="text">
             <string>Send to:</string>
            </property>
            <property name="buddy">
-            <cstring>SendTo</cstring>
+            <cstring>SendToIndex</cstring>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="SendTo">
+          <widget class="QComboBox" name="SendToIndex">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -175,17 +175,12 @@
            </item>
            <item>
             <property name="text">
-             <string>Log file</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
              <string>Notepad (replace)</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>World (speedwalk delay)</string>
+             <string>Log file</string>
             </property>
            </item>
            <item>
@@ -195,22 +190,7 @@
            </item>
            <item>
             <property name="text">
-             <string>Execute</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
              <string>Script</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>World (immediate)</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Script (after omit)</string>
             </property>
            </item>
           </widget>

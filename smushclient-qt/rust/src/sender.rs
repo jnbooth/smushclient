@@ -20,6 +20,46 @@ const MILLISECONDS_PER_SECOND: i32 = 1000;
 const SECONDS_PER_MINUTE: u64 = 60;
 const MINUTES_PER_HOUR: u64 = 60;
 
+impl ffi::SendTarget {
+    pub fn to_index(self) -> i32 {
+        match self {
+            Self::World
+            | Self::WorldDelay
+            | Self::Execute
+            | Self::Speedwalk
+            | Self::WorldImmediate => 0,
+            Self::Command => 1,
+            Self::Output => 2,
+            Self::Status => 3,
+            Self::NotepadNew => 4,
+            Self::NotepadAppend => 5,
+            Self::NotepadReplace => 6,
+            Self::Log => 7,
+            Self::Variable => 8,
+            Self::Script | Self::ScriptAfterOmit => 9,
+            Self { repr } => i32::from(repr),
+        }
+    }
+
+    pub fn from_index(i: i32) -> Self {
+        match i {
+            0 => Self::World,
+            1 => Self::Command,
+            2 => Self::Output,
+            3 => Self::Status,
+            4 => Self::NotepadNew,
+            5 => Self::NotepadAppend,
+            6 => Self::NotepadReplace,
+            7 => Self::Log,
+            8 => Self::Variable,
+            9 => Self::Script,
+            _ => Self {
+                repr: u8::try_from(i).unwrap_or(u8::MAX),
+            },
+        }
+    }
+}
+
 pub struct SenderRust {
     pub send_to: ffi::SendTarget,
     pub label: QString,
@@ -349,6 +389,36 @@ impl TryFrom<&TriggerRust> for Trigger {
             multi_line: value.multi_line,
             lines_to_match: u8::try_from(value.lines_to_match).unwrap(),
         })
+    }
+}
+
+impl ffi::Alias {
+    pub fn get_send_to_index(&self) -> i32 {
+        self.send_to.to_index()
+    }
+
+    pub fn set_send_to_index(self: Pin<&mut Self>, i: i32) {
+        self.cxx_qt_ffi_rust_mut().send_to = ffi::SendTarget::from_index(i);
+    }
+}
+
+impl ffi::Timer {
+    pub fn get_send_to_index(&self) -> i32 {
+        self.send_to.to_index()
+    }
+
+    pub fn set_send_to_index(self: Pin<&mut Self>, i: i32) {
+        self.cxx_qt_ffi_rust_mut().send_to = ffi::SendTarget::from_index(i);
+    }
+}
+
+impl ffi::Trigger {
+    pub fn get_send_to_index(&self) -> i32 {
+        self.send_to.to_index()
+    }
+
+    pub fn set_send_to_index(self: Pin<&mut Self>, i: i32) {
+        self.cxx_qt_ffi_rust_mut().send_to = ffi::SendTarget::from_index(i);
     }
 }
 

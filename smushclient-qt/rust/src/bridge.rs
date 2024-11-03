@@ -8,7 +8,7 @@
 use std::mem;
 
 use crate::client::SmushClientRust;
-use crate::sender::{AliasRust, ReactionRust, SenderRust, TimerRust, TriggerRust};
+use crate::sender::{AliasRust, TimerRust, TriggerRust};
 use crate::sender::{OutputSpan, TextSpan};
 use crate::world::WorldRust;
 use cxx::{type_id, ExternType};
@@ -148,7 +148,6 @@ pub mod ffi {
         sendto: SendTo,
     }
 
-    #[qenum(Sender)]
     enum SendTarget {
         World,
         Command,
@@ -586,23 +585,11 @@ pub mod ffi {
 
     unsafe impl !cxx_qt::Locking for SmushClient {}
 
-    extern "RustQt" {
-        #[qobject]
-        #[qproperty(SendTarget, send_to)]
-        #[qproperty(QString, label)]
-        #[qproperty(QString, script)]
-        #[qproperty(QString, group)]
-        #[qproperty(QString, variable)]
-        #[qproperty(bool, enabled)]
-        #[qproperty(bool, one_shot)]
-        #[qproperty(bool, temporary)]
-        #[qproperty(bool, omit_from_output)]
-        #[qproperty(bool, omit_from_log)]
-        #[qproperty(QString, text)]
-        type Sender = super::SenderRust;
+    #[qenum(Timer)]
+    enum Occurrence {
+        Time,
+        Interval,
     }
-
-    unsafe impl !cxx_qt::Locking for Sender {}
 
     extern "RustQt" {
         // Sender
@@ -627,6 +614,11 @@ pub mod ffi {
         #[qproperty(u32, every_millisecond)]
         #[qproperty(bool, active_closed)]
         type Timer = super::TimerRust;
+    }
+
+    unsafe extern "RustQt" {
+        fn get_send_to_index(self: &Timer) -> i32;
+        fn set_send_to_index(self: Pin<&mut Timer>, i: i32);
     }
 
     unsafe impl !cxx_qt::Locking for Timer {}
@@ -656,38 +648,16 @@ pub mod ffi {
         #[qproperty(bool, is_regex)]
         #[qproperty(bool, expand_variables)]
         #[qproperty(bool, repeats)]
-        type Reaction = super::ReactionRust;
-    }
-
-    unsafe impl !cxx_qt::Locking for Reaction {}
-
-    extern "RustQt" {
-        #[qobject]
-        // Sender
-        #[qproperty(SendTarget, send_to)]
-        #[qproperty(QString, label)]
-        #[qproperty(QString, script)]
-        #[qproperty(QString, group)]
-        #[qproperty(QString, variable)]
-        #[qproperty(bool, enabled)]
-        #[qproperty(bool, one_shot)]
-        #[qproperty(bool, temporary)]
-        #[qproperty(bool, omit_from_output)]
-        #[qproperty(bool, omit_from_log)]
-        #[qproperty(QString, text)]
-        // Reaction
-        #[qproperty(i32, sequence)]
-        #[qproperty(QString, pattern)]
-        #[qproperty(bool, ignore_case)]
-        #[qproperty(bool, keep_evaluating)]
-        #[qproperty(bool, is_regex)]
-        #[qproperty(bool, expand_variables)]
-        #[qproperty(bool, repeats)]
         // Alias
         #[qproperty(bool, echo_alias)]
         #[qproperty(bool, menu)]
         #[qproperty(bool, omit_from_command_history)]
         type Alias = super::AliasRust;
+    }
+
+    unsafe extern "RustQt" {
+        fn get_send_to_index(self: &Alias) -> i32;
+        fn set_send_to_index(self: Pin<&mut Alias>, i: i32);
     }
 
     unsafe impl !cxx_qt::Locking for Alias {}
@@ -733,16 +703,15 @@ pub mod ffi {
         type Trigger = super::TriggerRust;
     }
 
+    unsafe extern "RustQt" {
+        fn get_send_to_index(self: &Trigger) -> i32;
+        fn set_send_to_index(self: Pin<&mut Trigger>, i: i32);
+    }
+
     unsafe impl !cxx_qt::Locking for Trigger {}
 
     impl cxx_qt::Constructor<(), NewArguments = ()> for Trigger {}
     impl cxx_qt::Constructor<(*const World, usize), NewArguments = (*const World, usize)> for Trigger {}
-
-    #[qenum(Timer)]
-    enum Occurrence {
-        Time,
-        Interval,
-    }
 
     extern "RustQt" {
         #[qobject]

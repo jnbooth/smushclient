@@ -14,7 +14,7 @@ TriggerEdit::TriggerEdit(Trigger &trigger, QWidget *parent)
   // Sender
   CONNECT(Group);
   CONNECT(Label);
-  CONNECT(SendTo);
+  CONNECT(SendToIndex);
   CONNECT(Script);
   CONNECT(Variable);
   CONNECT(Enabled);

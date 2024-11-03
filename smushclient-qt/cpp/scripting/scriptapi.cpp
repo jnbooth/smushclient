@@ -332,6 +332,8 @@ void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
   {
   case SendTarget::World:
   case SendTarget::WorldDelay:
+  case SendTarget::Execute:
+  case SendTarget::Speedwalk:
   case SendTarget::WorldImmediate:
     Send(text);
     return;
@@ -343,14 +345,18 @@ void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
     startLine();
     scrollToBottom();
     return;
-  case SendTarget::Script:
-  case SendTarget::ScriptAfterOmit:
-    runScript(plugin, text);
-    return;
   case SendTarget::Status:
     SetStatus(text);
     return;
-  default:
+  case SendTarget::NotepadNew:
+  case SendTarget::NotepadAppend:
+  case SendTarget::NotepadReplace:
+  case SendTarget::Log:
+    return;
+  case SendTarget::Variable:
+  case SendTarget::Script:
+  case SendTarget::ScriptAfterOmit:
+    runScript(plugin, text);
     return;
   }
 }
