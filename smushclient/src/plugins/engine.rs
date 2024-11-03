@@ -11,12 +11,13 @@ use super::error::LoadError;
 use super::error::LoadFailure;
 use super::guard::SenderGuard;
 use super::iter::Senders;
+use crate::client::PluginVariables;
 use crate::handler::{Handler, HandlerExt};
 use crate::plugins::assert_unique_label;
 use crate::world::World;
 use crate::{SendIterable, SenderAccessError, SpanStyle};
 use mud_transformer::Output;
-use smushclient_plugins::{Alias, Plugin, PluginIndex, Trigger};
+use smushclient_plugins::{Alias, Plugin, PluginIndex, SendTarget, Trigger};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PluginEngine {
@@ -173,6 +174,7 @@ impl PluginEngine {
         line: &str,
         source: CommandSource,
         world: &mut World,
+        variables: &mut PluginVariables,
         handler: &mut H,
     ) -> AliasEffects {
         self.alias_matches.clear();
@@ -199,11 +201,20 @@ impl PluginEngine {
                         alias.lock();
                     }
                     self.alias_buf.clear();
-                    handler.send(super::SendRequest {
-                        plugin: plugin_index,
-                        send_to: alias.send_to,
-                        text: alias.expand_text(&mut self.alias_buf, &captures),
-                    });
+                    let text = alias.expand_text(&mut self.alias_buf, &captures);
+                    if alias.send_to == SendTarget::Variable {
+                        variables.set_variable(
+                            &plugin.metadata.id,
+                            alias.variable.clone(),
+                            text.to_owned(),
+                        );
+                    } else {
+                        handler.send(super::SendRequest {
+                            plugin: plugin_index,
+                            send_to: alias.send_to,
+                            text,
+                        });
+                    }
                     if !alias.repeats {
                         break;
                     }
@@ -237,6 +248,7 @@ impl PluginEngine {
         line: &str,
         output: &[Output],
         world: &mut World,
+        variables: &mut PluginVariables,
         handler: &mut H,
     ) -> TriggerEffects {
         self.trigger_matches.clear();
@@ -276,11 +288,20 @@ impl PluginEngine {
                         }
                     }
                     self.trigger_buf.clear();
-                    handler.send(super::SendRequest {
-                        plugin: plugin_index,
-                        send_to: trigger.send_to,
-                        text: trigger.expand_text(&mut self.trigger_buf, &captures),
-                    });
+                    let text = trigger.expand_text(&mut self.trigger_buf, &captures);
+                    if trigger.send_to == SendTarget::Variable {
+                        variables.set_variable(
+                            &plugin.metadata.id,
+                            trigger.variable.clone(),
+                            text.to_owned(),
+                        );
+                    } else {
+                        handler.send(super::SendRequest {
+                            plugin: plugin_index,
+                            send_to: trigger.send_to,
+                            text,
+                        });
+                    }
                     if !trigger.repeats {
                         break;
                     }

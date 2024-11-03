@@ -1,11 +1,11 @@
 use std::cmp::Ordering;
-use std::ffi::c_char;
 use std::io::{self, Read, Write};
 use std::path::Path;
 use std::{env, mem, slice};
 
 use super::logger::Logger;
 use super::variables::PluginVariables;
+use crate::client::variables::{LuaStr, LuaString};
 use crate::handler::Handler;
 use crate::plugins::{
     AliasOutcome, CommandSource, LoadFailure, PluginEngine, SendIterable, SenderAccessError,
@@ -215,8 +215,13 @@ impl SmushClient {
             }
 
             let trigger_effects = if enable_triggers {
-                self.plugins
-                    .trigger(&self.line_text, output, &mut self.world, handler)
+                self.plugins.trigger(
+                    &self.line_text,
+                    output,
+                    &mut self.world,
+                    &mut self.variables,
+                    handler,
+                )
             } else {
                 TriggerEffects::default()
             };
@@ -242,7 +247,9 @@ impl SmushClient {
                 send: true,
             };
         }
-        let outcome = self.plugins.alias(input, source, &mut self.world, handler);
+        let outcome =
+            self.plugins
+                .alias(input, source, &mut self.world, &mut self.variables, handler);
         if !outcome.omit_from_log {
             self.logger.log_input_line(input.as_bytes(), &self.world);
             self.logger.log_error(handler);
@@ -303,17 +310,16 @@ impl SmushClient {
         self.variables.save(writer)
     }
 
-    pub fn get_variable(&self, index: PluginIndex, key: &[c_char]) -> Option<&Vec<c_char>> {
+    pub fn get_variable(&self, index: PluginIndex, key: &LuaStr) -> Option<&LuaStr> {
         let plugin_id = &self.plugins.get(index)?.metadata.id;
         self.variables.get_variable(plugin_id, key)
     }
 
-    pub fn set_variable(
-        &mut self,
-        index: PluginIndex,
-        key: Vec<c_char>,
-        value: Vec<c_char>,
-    ) -> bool {
+    pub fn set_variable<K, V>(&mut self, index: PluginIndex, key: K, value: V) -> bool
+    where
+        K: Into<LuaString>,
+        V: Into<LuaString>,
+    {
         let Some(plugin) = self.plugins.get(index) else {
             return false;
         };

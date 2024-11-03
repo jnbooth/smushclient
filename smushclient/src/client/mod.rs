@@ -7,3 +7,4 @@ mod timers;
 pub use timers::{TimerConstructible, Timers};
 
 mod variables;
+pub use variables::PluginVariables;
