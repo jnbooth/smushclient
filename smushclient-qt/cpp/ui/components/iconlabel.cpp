@@ -7,7 +7,7 @@
 IconLabel::IconLabel(const QIcon &icon, QIcon::Mode mode, QIcon::State state, QWidget *parent)
     : QLabel(parent),
       icon(icon),
-      maxSize(icon.availableSizes().last()),
+      maxSize(icon.availableSizes().constLast()),
       mode(mode),
       needsUpdate(true),
       state(state) {}
@@ -31,7 +31,7 @@ void IconLabel::setIcon(const QIcon &newIcon, QIcon::Mode newMode, QIcon::State 
   icon = newIcon;
   mode = newMode;
   state = newState;
-  maxSize = icon.availableSizes().last();
+  maxSize = icon.availableSizes().constLast();
   needsUpdate = true;
 }
 

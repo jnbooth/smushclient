@@ -36,7 +36,7 @@ App::App(QWidget *parent)
     return;
 
   setupRecentFiles(recentFiles);
-  openWorld(recentFiles.first());
+  openWorld(recentFiles.constFirst());
 }
 
 App::~App()
