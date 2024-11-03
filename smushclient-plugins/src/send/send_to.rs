@@ -47,6 +47,10 @@ impl SendTarget {
             Self::NotepadAppend | Self::NotepadNew | Self::NotepadReplace
         )
     }
+
+    pub const fn is_script(self) -> bool {
+        matches!(self, Self::Script | Self::ScriptAfterOmit)
+    }
 }
 
 pub mod sendto_serde {

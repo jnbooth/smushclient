@@ -131,6 +131,14 @@ void ScriptApi::applyWorld(const World &world)
   echoFormat.setBackground(QBrush(world.getEchoBackgroundColour()));
   errorFormat.setForeground(QBrush(world.getErrorColour()));
   noteFormat.setForeground(QBrush(world.getNoteTextColour()));
+
+  if (worldScriptIndex == noSuchPlugin)
+    return;
+
+  if (world.getEnableScripts())
+    plugins[worldScriptIndex].enable();
+  else
+    plugins[worldScriptIndex].disable();
 }
 
 void ScriptApi::echo(const QString &text)

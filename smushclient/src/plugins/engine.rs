@@ -187,6 +187,7 @@ impl PluginEngine {
             if plugin.disabled {
                 continue;
             }
+            let enable_scripts = !plugin.metadata.is_world_plugin || world.enable_scripts;
             for (i, alias) in Alias::from_either(plugin, world).iter().enumerate() {
                 if !alias.enabled {
                     continue;
@@ -208,7 +209,7 @@ impl PluginEngine {
                             alias.variable.clone(),
                             text.to_owned(),
                         );
-                    } else {
+                    } else if enable_scripts || !alias.send_to.is_script() {
                         handler.send(super::SendRequest {
                             plugin: plugin_index,
                             send_to: alias.send_to,
@@ -222,7 +223,7 @@ impl PluginEngine {
                 if !matched {
                     continue;
                 }
-                if !alias.script.is_empty() {
+                if enable_scripts && !alias.script.is_empty() {
                     self.alias_matches.push((plugin_index, i));
                 }
                 effects.add_effects(alias);
@@ -263,6 +264,7 @@ impl PluginEngine {
             if plugin.disabled {
                 continue;
             }
+            let enable_scripts = !plugin.metadata.is_world_plugin || world.enable_scripts;
             self.stop_triggers = false;
             for (i, trigger) in Trigger::from_either(plugin, world).iter().enumerate() {
                 if !trigger.enabled {
@@ -295,7 +297,7 @@ impl PluginEngine {
                             trigger.variable.clone(),
                             text.to_owned(),
                         );
-                    } else {
+                    } else if enable_scripts || !trigger.send_to.is_script() {
                         handler.send(super::SendRequest {
                             plugin: plugin_index,
                             send_to: trigger.send_to,
@@ -309,7 +311,7 @@ impl PluginEngine {
                 if !matched {
                     continue;
                 }
-                if !trigger.script.is_empty() {
+                if enable_scripts && !trigger.script.is_empty() {
                     self.trigger_matches.push((plugin_index, i));
                 }
                 if !trigger.sound.is_empty() {
