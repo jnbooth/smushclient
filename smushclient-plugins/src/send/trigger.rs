@@ -53,6 +53,12 @@ impl_deref!(Trigger, Reaction, reaction);
 impl_asref!(Trigger, Reaction);
 impl_asref!(Trigger, Sender);
 
+#[derive(Debug, Serialize)]
+#[serde(rename = "X")]
+struct TriggersXml<'a> {
+    trigger: Vec<TriggerXml<'a>>,
+}
+
 impl Trigger {
     pub fn from_xml_str<T: FromIterator<Self>>(s: &str) -> Result<T, DeError> {
         let nodes: Vec<TriggerXml> = quick_xml::de::from_str(s)?;
@@ -70,7 +76,8 @@ impl Trigger {
 
     pub fn to_xml_string<'a, I: IntoIterator<Item = &'a Self>>(iter: I) -> Result<String, DeError> {
         let nodes: Vec<TriggerXml<'a>> = iter.into_iter().map(TriggerXml::from).collect();
-        quick_xml::se::to_string(&nodes)
+        let xml = quick_xml::se::to_string(&TriggersXml { trigger: nodes })?;
+        Ok(xml[3..xml.len() - 4].to_owned())
     }
 }
 

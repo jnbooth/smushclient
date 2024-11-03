@@ -53,6 +53,12 @@ impl Default for Timer {
 impl_deref!(Timer, Sender, send);
 impl_asref!(Timer, Sender);
 
+#[derive(Debug, Serialize)]
+#[serde(rename = "X")]
+struct TimersXml<'a> {
+    timer: Vec<TimerXml<'a>>,
+}
+
 impl Timer {
     pub fn from_xml_str(s: &str) -> Result<Vec<Self>, DeError> {
         let nodes: Vec<TimerXml> = quick_xml::de::from_str(s)?;
@@ -61,7 +67,8 @@ impl Timer {
 
     pub fn to_xml_string<'a, I: IntoIterator<Item = &'a Self>>(iter: I) -> Result<String, DeError> {
         let nodes: Vec<TimerXml<'a>> = iter.into_iter().map(TimerXml::from).collect();
-        quick_xml::se::to_string(&nodes)
+        let xml = quick_xml::se::to_string(&TimersXml { timer: nodes })?;
+        Ok(xml[3..xml.len() - 4].to_owned())
     }
 }
 

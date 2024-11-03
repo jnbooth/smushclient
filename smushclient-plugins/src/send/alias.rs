@@ -22,6 +22,12 @@ impl_deref!(Alias, Reaction, reaction);
 impl_asref!(Alias, Reaction);
 impl_asref!(Alias, Sender);
 
+#[derive(Debug, Serialize)]
+#[serde(rename = "X")]
+struct AliasesXml<'a> {
+    alias: Vec<AliasXml<'a>>,
+}
+
 impl Alias {
     pub fn from_xml_str<T: FromIterator<Self>>(s: &str) -> Result<T, DeError> {
         let nodes: Vec<AliasXml> = quick_xml::de::from_str(s)?;
@@ -39,7 +45,8 @@ impl Alias {
 
     pub fn to_xml_string<'a, I: IntoIterator<Item = &'a Self>>(iter: I) -> Result<String, DeError> {
         let nodes: Vec<AliasXml<'a>> = iter.into_iter().map(AliasXml::from).collect();
-        quick_xml::se::to_string(&nodes)
+        let xml = quick_xml::se::to_string(&AliasesXml { alias: nodes })?;
+        Ok(xml[3..xml.len() - 4].to_owned())
     }
 }
 
