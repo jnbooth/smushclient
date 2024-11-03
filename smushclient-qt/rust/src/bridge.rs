@@ -181,7 +181,6 @@ pub mod ffi {
         plugin: usize,
         send_to: SendTarget,
         text: QString,
-        pad: QString,
     }
 
     struct NamedWildcard<'a> {

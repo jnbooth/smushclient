@@ -160,15 +160,10 @@ impl From<&Link> for ffi::Link {
 
 impl<'a> From<SendRequest<'a>> for ffi::SendRequest {
     fn from(value: SendRequest<'a>) -> Self {
-        let pad = match &value.pad {
-            Some(pad) => QString::from(&*pad.title()),
-            None => QString::default(),
-        };
         Self {
             plugin: value.plugin,
             send_to: value.send_to.into(),
             text: QString::from(value.text),
-            pad,
         }
     }
 }

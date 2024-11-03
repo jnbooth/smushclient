@@ -13,6 +13,8 @@ use serde::{Deserialize, Serialize};
 use crate::in_place::InPlace;
 use crate::send::{Alias, AliasXml, Timer, TimerXml, Trigger, TriggerXml};
 
+pub type PluginIndex = usize;
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(try_from = "PluginFile")]
 pub struct Plugin {

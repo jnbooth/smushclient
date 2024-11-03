@@ -257,15 +257,10 @@ impl_convert_struct!(
 
 impl<'a> From<SendRequest<'a>> for ffi::SendRequest {
     fn from(value: SendRequest<'a>) -> Self {
-        let pad = match &value.pad {
-            Some(pad) => pad.title().into_owned(),
-            None => String::default(),
-        };
         Self {
             plugin: value.plugin,
             send_to: value.send_to.into(),
             text: value.text.to_owned(),
-            pad,
         }
     }
 }

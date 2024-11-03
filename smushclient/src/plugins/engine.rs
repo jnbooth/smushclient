@@ -16,7 +16,7 @@ use crate::plugins::assert_unique_label;
 use crate::world::World;
 use crate::{SendIterable, SenderAccessError, SpanStyle};
 use mud_transformer::Output;
-use smushclient_plugins::{Alias, Pad, Plugin, PluginIndex, Trigger};
+use smushclient_plugins::{Alias, Plugin, PluginIndex, Trigger};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PluginEngine {
@@ -189,11 +189,6 @@ impl PluginEngine {
                 if !alias.enabled {
                     continue;
                 }
-                let pad = if alias.send_to.is_notepad() {
-                    Some(Pad::new(alias, &plugin.metadata.name))
-                } else {
-                    None
-                };
                 let mut matched = false;
                 for captures in alias.regex.captures_iter(line) {
                     let Ok(captures) = captures else {
@@ -208,7 +203,6 @@ impl PluginEngine {
                         plugin: plugin_index,
                         send_to: alias.send_to,
                         text: alias.expand_text(&mut self.alias_buf, &captures),
-                        pad,
                     });
                     if !alias.repeats {
                         break;
@@ -265,11 +259,6 @@ impl PluginEngine {
                 if self.stop_triggers {
                     break;
                 }
-                let pad = if trigger.send_to.is_notepad() {
-                    Some(Pad::new(trigger, &plugin.metadata.name))
-                } else {
-                    None
-                };
                 let mut matched = false;
                 for captures in trigger.regex.captures_iter(line) {
                     let Ok(captures) = captures else {
@@ -291,7 +280,6 @@ impl PluginEngine {
                         plugin: plugin_index,
                         send_to: trigger.send_to,
                         text: trigger.expand_text(&mut self.trigger_buf, &captures),
-                        pad,
                     });
                     if !trigger.repeats {
                         break;
