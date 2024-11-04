@@ -239,7 +239,21 @@
           <item>
            <layout class="QHBoxLayout" name="_soundfile">
             <item>
-             <widget class="QLineEdit" name="Sound"/>
+             <widget class="QToolButton" name="Sound_test">
+              <property name="text">
+               <string>Test</string>
+              </property>
+              <property name="icon">
+               <iconset theme="audio-volume-high-symbolic"/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="Sound">
+              <property name="clearButtonEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QToolButton" name="Sound_browse">
@@ -248,26 +262,6 @@
               </property>
               <property name="icon">
                <iconset theme="document-open"/>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="Sound_none">
-              <property name="text">
-               <string>No sound</string>
-              </property>
-              <property name="icon">
-               <iconset theme="user-trash-symbolic"/>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="Sound_test">
-              <property name="text">
-               <string>Test</string>
-              </property>
-              <property name="icon">
-               <iconset theme="audio-volume-high-symbolic"/>
               </property>
              </widget>
             </item>
@@ -696,22 +690,6 @@
     <hint type="destinationlabel">
      <x>371</x>
      <y>733</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Sound_none</sender>
-   <signal>clicked()</signal>
-   <receiver>Sound</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>394</x>
-     <y>588</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>326</x>
-     <y>589</y>
     </hint>
    </hints>
   </connection>

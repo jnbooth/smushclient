@@ -35,7 +35,7 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>21</pointsize>
+         <pointsize>18</pointsize>
         </font>
        </property>
        <property name="editTriggers">

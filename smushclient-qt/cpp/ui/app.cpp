@@ -167,6 +167,12 @@ void App::on_action_disconnect_triggered()
     tab->disconnectFromHost();
 }
 
+void App::on_action_edit_script_file_triggered()
+{
+  if (WorldTab *tab = worldtab(); tab)
+    tab->editWorldScript();
+}
+
 void App::on_action_edit_world_details_triggered()
 {
   if (WorldTab *tab = worldtab(); tab)
@@ -233,6 +239,12 @@ void App::on_action_plugins_triggered()
 void App::on_action_quit_triggered()
 {
   QCoreApplication::quit();
+}
+
+void App::on_action_reload_script_file_triggered()
+{
+  if (WorldTab *tab = worldtab(); tab)
+    tab->reloadWorldScript();
 }
 
 void App::on_action_save_world_details_as_triggered()

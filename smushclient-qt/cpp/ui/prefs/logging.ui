@@ -54,15 +54,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="AutoLogFileName"/>
-     </item>
-     <item>
-      <widget class="QToolButton" name="AutoLogFileName_none">
-       <property name="text">
-        <string>...</string>
-       </property>
-       <property name="icon">
-        <iconset theme="user-trash-symbolic"/>
+      <widget class="QLineEdit" name="AutoLogFileName">
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -345,22 +339,6 @@
     <hint type="destinationlabel">
      <x>289</x>
      <y>445</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>AutoLogFileName_none</sender>
-   <signal>clicked()</signal>
-   <receiver>AutoLogFileName</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>462</x>
-     <y>54</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>408</x>
-     <y>47</y>
     </hint>
    </hints>
   </connection>

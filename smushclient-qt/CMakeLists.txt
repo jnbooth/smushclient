@@ -132,6 +132,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/worldtab.h cpp/ui/worldtab.cpp cpp/ui/worldtab.ui
 
     resources/resources.qrc
+    cpp/ui/prefs/scripts.h cpp/ui/prefs/scripts.cpp cpp/ui/prefs/scripts.ui
 )
 if(MSVC)
   target_compile_options(${APP_NAME} PRIVATE /W4 /WX)

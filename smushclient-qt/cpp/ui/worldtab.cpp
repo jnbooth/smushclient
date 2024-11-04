@@ -82,7 +82,7 @@ WorldTab::WorldTab(QWidget *parent)
   connect(socket, &QTcpSocket::readyRead, this, &WorldTab::readFromSocket);
   connect(socket, &QTcpSocket::connected, this, &WorldTab::onConnect);
   connect(socket, &QTcpSocket::disconnected, this, &WorldTab::onDisconnect);
-  connect(&worldScriptWatcher, &QFileSystemWatcher::fileChanged, this, &WorldTab::reloadWorldScript);
+  connect(&worldScriptWatcher, &QFileSystemWatcher::fileChanged, this, &WorldTab::confirmReloadWorldScript);
 
   const Settings settings;
   setColors(ui->input, settings.inputForeground(), settings.inputBackground());
@@ -102,10 +102,6 @@ WorldTab::~WorldTab()
 void WorldTab::createWorld() &
 {
   client.populateWorld(world);
-  setupWorldScriptWatcher();
-  openLog();
-  loadPlugins();
-  applyWorld();
 }
 
 void WorldTab::connectToHost()
@@ -125,6 +121,32 @@ void WorldTab::connectToHost()
 void WorldTab::disconnectFromHost()
 {
   socket->disconnectFromHost();
+}
+
+void WorldTab::editWorldScript()
+{
+  const QString &scriptPath = world.getWorldScript();
+  if (!scriptPath.isEmpty() && QDesktopServices::openUrl(QUrl::fromLocalFile(scriptPath)))
+    return;
+
+  const QString path = QFileDialog::getSaveFileName(
+      this,
+      tr("Create world script"),
+      scriptPath.isEmpty() ? QStringLiteral(WORLDS_DIR "/%1").arg(world.getName()) : scriptPath,
+      tr("Lua files (*.lua);;All Files (*.*)"));
+
+  if (path.isEmpty())
+    return;
+
+  QFile file(path);
+  if (!file.open(QIODevice::WriteOnly))
+  {
+    QErrorMessage::qtHandler()->showMessage(file.errorString());
+    return;
+  }
+  file.close();
+  world.setWorldScript(path);
+  QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 }
 
 void WorldTab::onTabSwitch(bool active) const
@@ -160,31 +182,29 @@ bool WorldTab::openWorld(const QString &filename) &
     showRustError(e);
     return false;
   }
-  setupWorldScriptWatcher();
-  openLog();
-  try
-  {
-    client.loadVariables(filename + QStringLiteral(".vars"));
-  }
-  catch (const rust::Error &e)
-  {
-    showRustError(e);
-  }
-  loadPlugins();
-
-  Settings().addRecentFile(filename);
-  filePath = QString(filename);
-  applyWorld();
-  connectToHost();
+  filePath = filename;
   return true;
 }
 
-void WorldTab::openWorldSettings() &
+bool WorldTab::openWorldSettings()
 {
-  WorldPrefs *prefs = new WorldPrefs(world, this);
-  prefs->setAttribute(Qt::WA_DeleteOnClose, true);
-  connect(prefs, &QDialog::finished, this, &WorldTab::finalizeWorldSettings);
-  prefs->open();
+  WorldPrefs prefs(world, this);
+  if (prefs.exec() == QDialog::Accepted)
+  {
+    client.setWorld(world);
+    applyWorld();
+    return true;
+  }
+  client.populateWorld(world);
+  return false;
+}
+
+void WorldTab::reloadWorldScript() const
+{
+  const QString &path = world.getWorldScript();
+  if (path.isEmpty())
+    return;
+  api->reloadWorldScript(path);
 }
 
 QString WorldTab::saveWorld(const QString &saveFilter)
@@ -200,12 +220,12 @@ QString WorldTab::saveWorld(const QString &saveFilter)
 
 QString WorldTab::saveWorldAsNew(const QString &saveFilter)
 {
-  const QString title = tr("Save as");
   const QString path = QFileDialog::getSaveFileName(
       this,
       tr("Save as"),
       QStringLiteral(WORLDS_DIR "/%1").arg(world.getName()),
       saveFilter);
+
   if (path.isEmpty())
     return path;
 
@@ -224,6 +244,29 @@ void WorldTab::setOnDragMove(CallbackTrigger &&trigger)
 void WorldTab::setOnDragRelease(Hotspot *hotspot)
 {
   onDragRelease = hotspot;
+}
+
+void WorldTab::start()
+{
+  setupWorldScriptWatcher();
+  openLog();
+
+  if (!filePath.isEmpty())
+  {
+    try
+    {
+      client.loadVariables(filePath + QStringLiteral(".vars"));
+    }
+    catch (const rust::Error &e)
+    {
+      showRustError(e);
+    }
+  }
+
+  loadPlugins();
+
+  applyWorld();
+  connectToHost();
 }
 
 const QString WorldTab::title() const noexcept
@@ -351,6 +394,7 @@ void WorldTab::applyWorld()
     saveWorldAndState(filePath);
 
   api->applyWorld(world);
+  updateWorldScript();
   if (!world.getEnableCommandStack())
   {
     useSplitter = false;
@@ -464,7 +508,9 @@ bool WorldTab::sendCommand(const QString &command, CommandSource source)
 
 void WorldTab::setupWorldScriptWatcher()
 {
-  worldScriptWatcher.removePaths(worldScriptWatcher.files());
+  const QStringList watchedScripts = worldScriptWatcher.files();
+  if (!watchedScripts.isEmpty())
+    worldScriptWatcher.removePaths(watchedScripts);
   const QString &worldScriptPath = world.getWorldScript();
   if (!worldScriptPath.isEmpty())
     worldScriptWatcher.addPath(worldScriptPath);
@@ -476,28 +522,31 @@ void WorldTab::updateWorldScript()
   const QStringList watchedScripts = worldScriptWatcher.files();
   if (watchedScripts.value(0) == worldScriptPath)
     return;
-  worldScriptWatcher.removePaths(watchedScripts);
+  if (!watchedScripts.isEmpty())
+    worldScriptWatcher.removePaths(watchedScripts);
   if (!worldScriptPath.isEmpty())
     worldScriptWatcher.addPath(worldScriptPath);
-  reloadWorldScript(worldScriptPath);
+  confirmReloadWorldScript(worldScriptPath);
 }
 
 // Private slots
 
-void WorldTab::finalizeWorldSettings(int result)
+void WorldTab::confirmReloadWorldScript(const QString &worldScriptPath)
 {
-  switch (result)
+  QFileInfo info(worldScriptPath);
+  if (!info.isFile() || !info.isReadable())
+    return;
+  switch (world.getScriptReloadOption())
   {
-  case QDialog::Accepted:
-    client.setWorld(world);
-    applyWorld();
-    connectToHost();
+  case ScriptRecompile::Always:
     break;
-  case QDialog::Rejected:
-    client.populateWorld(world);
-    if (world.getSite().isEmpty())
-      delete this;
+  case ScriptRecompile::Never:
+    return;
+  case ScriptRecompile::Confirm:
+    if (QMessageBox::question(this, tr("World script changed"), tr("Would you like to reload the world script?")) != QMessageBox::StandardButton::Yes)
+      return;
   }
+  api->reloadWorldScript(worldScriptPath);
 }
 
 bool WorldTab::loadPlugins()
@@ -537,24 +586,6 @@ void WorldTab::readFromSocket()
     flushTimerId = startTimer(2000);
   else
     flushTimerId = -1;
-}
-
-void WorldTab::reloadWorldScript(const QString &worldScriptPath)
-{
-  QFileInfo info(worldScriptPath);
-  if (!info.isFile() || !info.isReadable())
-    return;
-  switch (world.getScriptReloadOption())
-  {
-  case ScriptRecompile::Always:
-    break;
-  case ScriptRecompile::Never:
-    return;
-  case ScriptRecompile::Confirm:
-    if (QMessageBox::question(this, tr("World script changed"), tr("Would you like to reload the world script?")) != QMessageBox::StandardButton::Yes)
-      return;
-  }
-  api->reloadWorldScript(worldScriptPath);
 }
 
 void WorldTab::on_input_submitted(const QString &text)

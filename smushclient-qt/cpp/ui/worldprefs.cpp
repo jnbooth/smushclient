@@ -7,6 +7,7 @@
 #include "prefs/mud.h"
 #include "prefs/numpad.h"
 #include "prefs/output.h"
+#include "prefs/scripts.h"
 #include "prefs/timers.h"
 #include "prefs/triggers.h"
 
@@ -19,7 +20,7 @@ WorldPrefs::WorldPrefs(World &world, QWidget *parent)
       activePane(0)
 {
   ui->setupUi(this);
-  panes.reserve(11);
+  panes.reserve(10);
 
   setupPane(new PrefsAddress(world, this), "IP address");
   setupPane(new PrefsConnecting(world, this), "Connecting");
@@ -30,6 +31,7 @@ WorldPrefs::WorldPrefs(World &world, QWidget *parent)
   setupPane(new PrefsAliases(world, this), "Aliases");
   setupPane(new PrefsTriggers(world, this), "Triggers");
   setupPane(new PrefsNumpad(world, this), "Keypad");
+  setupPane(new PrefsScripts(world, this), "Scripts");
 }
 
 WorldPrefs::~WorldPrefs()

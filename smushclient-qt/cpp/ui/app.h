@@ -40,6 +40,7 @@ private slots:
   void on_action_connect_triggered();
   void on_action_disconnect_triggered();
   void on_action_edit_world_details_triggered();
+  void on_action_edit_script_file_triggered();
   void on_action_find_triggered();
   void on_action_find_again_triggered();
   void on_action_global_preferences_triggered();
@@ -47,6 +48,7 @@ private slots:
   void on_action_open_world_triggered();
   void on_action_plugins_triggered();
   void on_action_quit_triggered();
+  void on_action_reload_script_file_triggered();
   void on_action_save_world_details_as_triggered();
   void on_action_save_world_details_triggered();
   void on_world_tabs_currentChanged(int index);

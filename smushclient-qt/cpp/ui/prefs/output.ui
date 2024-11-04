@@ -654,12 +654,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="NewActivitySound_none">
-        <property name="text">
-         <string>No sound</string>
-        </property>
-        <property name="icon">
-         <iconset theme="user-trash-symbolic"/>
+       <widget class="QLineEdit" name="NewActivitySound">
+        <property name="clearButtonEnabled">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -672,9 +669,6 @@
          <iconset theme="document-open"/>
         </property>
        </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="NewActivitySound"/>
       </item>
      </layout>
     </widget>

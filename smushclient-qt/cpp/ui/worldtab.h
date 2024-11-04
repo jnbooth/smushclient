@@ -29,16 +29,23 @@ public:
   void connectToHost();
   void createWorld() &;
   void disconnectFromHost();
+  void editWorldScript();
   void onTabSwitch(bool active) const;
   void openPluginsDialog();
   bool openWorld(const QString &filename) &;
-  void openWorldSettings() &;
+  bool openWorldSettings();
+  void reloadWorldScript() const;
   QString saveWorld(const QString &saveFilter);
   QString saveWorldAsNew(const QString &saveFilter);
   void setOnDragMove(CallbackTrigger &&trigger);
   void setOnDragRelease(Hotspot *hotspot);
+  void start();
   const QString title() const noexcept;
   bool updateWorld();
+  constexpr const QString &worldFilePath() const noexcept
+  {
+    return filePath;
+  }
 
 public:
   Ui::WorldTab *ui;
@@ -85,12 +92,11 @@ private:
   void updateWorldScript();
 
 private slots:
-  void finalizeWorldSettings(int result);
+  void confirmReloadWorldScript(const QString &worldScriptPath);
   bool loadPlugins();
   void onConnect();
   void onDisconnect();
   void readFromSocket();
-  void reloadWorldScript(const QString &worldScriptPath);
 
   void on_input_submitted(const QString &text);
   void on_input_textChanged();
