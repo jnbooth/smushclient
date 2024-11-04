@@ -54,6 +54,9 @@ pub struct World {
     pub show_underline: bool,
     pub indent_paras: u8,
     pub ansi_colors: [RgbColor; 16],
+    pub display_my_input: bool,
+    pub echo_colors: ColorPair,
+    pub keep_commands_on_same_line: bool,
     pub new_activity_sound: Option<String>,
 
     // MUD
@@ -71,26 +74,14 @@ pub struct World {
     pub carriage_return_clears_line: bool,
     pub utf_8: bool,
     pub convert_ga_to_newline: bool,
+    pub no_echo_off: bool,
+    pub enable_command_stack: bool,
+    pub command_stack_character: u16,
 
     // Triggers
     #[serde(serialize_with = "skip_temporary")]
     pub triggers: Vec<Trigger>,
     pub enable_triggers: bool,
-
-    // Commands
-    pub display_my_input: bool,
-    pub echo_colors: ColorPair,
-    pub keep_commands_on_same_line: bool,
-    pub no_echo_off: bool,
-    pub command_queue_delay: f64,
-    pub enable_command_stack: bool,
-    pub command_stack_character: u16,
-    pub enable_speed_walk: bool,
-    pub speed_walk_prefix: String,
-    pub speed_walk_filler: String,
-    pub enable_spam_prevention: bool,
-    pub spam_line_count: usize,
-    pub spam_message: String,
 
     // Aliases
     #[serde(serialize_with = "skip_temporary")]
@@ -115,12 +106,6 @@ pub struct World {
 }
 
 impl From<World> for super::super::World {
-    fn from(value: World) -> Self {
-        Self::from(super::v7::World::from(value))
-    }
-}
-
-impl From<World> for super::v7::World {
     fn from(value: World) -> Self {
         Self {
             name: value.name,
@@ -160,10 +145,10 @@ impl From<World> for super::v7::World {
             show_italic: value.show_italic,
             show_underline: value.show_underline,
             indent_paras: value.indent_paras,
-            ansi_colors: value.ansi_colors,
+            ansi_colours: value.ansi_colors,
             display_my_input: value.display_my_input,
             keep_commands_on_same_line: value.keep_commands_on_same_line,
-            echo_colors: value.echo_colors,
+            echo_colours: value.echo_colors,
             new_activity_sound: value.new_activity_sound,
 
             use_mxp: value.use_mxp,
@@ -198,8 +183,8 @@ impl From<World> for super::v7::World {
             enable_scripts: value.enable_scripts,
             world_script: None,
             script_reload_option: value.script_reload_option,
-            note_text_colour: value.note_text_colour,
-            error_colour: value.error_colour,
+            note_colours: ColorPair::foreground(value.note_text_colour),
+            error_colours: ColorPair::foreground(value.error_colour),
 
             plugins: value.plugins,
         }

@@ -834,7 +834,9 @@ pub mod ffi {
         #[qproperty(QString, world_script)]
         #[qproperty(ScriptRecompile, script_reload_option)]
         #[qproperty(QColor, note_text_colour)]
-        #[qproperty(QColor, error_colour)]
+        #[qproperty(QColor, note_background_colour)]
+        #[qproperty(QColor, error_text_colour)]
+        #[qproperty(QColor, error_background_colour)]
         type World = super::WorldRust;
     }
 

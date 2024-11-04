@@ -17,7 +17,7 @@ use smushclient_plugins::{Alias, Plugin, PluginMetadata, Sender, Timer, Trigger}
 
 use mud_transformer::mxp::RgbColor;
 
-const CURRENT_VERSION: u16 = 7;
+const CURRENT_VERSION: u16 = 8;
 
 fn skip_temporary<S, T>(vec: &[T], serializer: S) -> Result<S::Ok, S::Error>
 where
@@ -74,9 +74,9 @@ pub struct World {
     pub show_italic: bool,
     pub show_underline: bool,
     pub indent_paras: u8,
-    pub ansi_colors: [RgbColor; 16],
+    pub ansi_colours: [RgbColor; 16],
     pub display_my_input: bool,
-    pub echo_colors: ColorPair,
+    pub echo_colours: ColorPair,
     pub keep_commands_on_same_line: bool,
     pub new_activity_sound: Option<String>,
 
@@ -119,8 +119,8 @@ pub struct World {
     pub enable_scripts: bool,
     pub world_script: Option<String>,
     pub script_reload_option: ScriptRecompile,
-    pub note_text_colour: RgbColor,
-    pub error_colour: RgbColor,
+    pub note_colours: ColorPair,
+    pub error_colours: ColorPair,
 
     // Hidden
     pub plugins: Vec<PathBuf>,
@@ -177,9 +177,9 @@ impl World {
             show_italic: true,
             show_underline: true,
             indent_paras: 0,
-            ansi_colors: *RgbColor::XTERM_16,
+            ansi_colours: *RgbColor::XTERM_16,
             display_my_input: true,
-            echo_colors: ColorPair::foreground(RgbColor::rgb(128, 128, 128)),
+            echo_colours: ColorPair::foreground(RgbColor::rgb(128, 128, 128)),
             keep_commands_on_same_line: false,
             new_activity_sound: None,
 
@@ -217,11 +217,11 @@ impl World {
             echo_hotkey_in_output_window: true,
 
             // Scripts
-            world_script: None,
             enable_scripts: true,
+            world_script: None,
             script_reload_option: ScriptRecompile::Confirm,
-            error_colour: RgbColor::rgb(127, 0, 0),
-            note_text_colour: RgbColor::rgb(0, 128, 255),
+            note_colours: ColorPair::foreground(RgbColor::rgb(0, 128, 255)),
+            error_colours: ColorPair::foreground(RgbColor::rgb(127, 0, 0)),
 
             // Hidden
             plugins: Vec::new(),
@@ -269,17 +269,16 @@ impl World {
             4 => versions::V4::migrate(&mut reader),
             5 => versions::V5::migrate(&mut reader),
             6 => versions::V6::migrate(&mut reader),
-            7 => bincode::deserialize_from(reader).map_err(Into::into),
+            7 => versions::V7::migrate(&mut reader),
+            8 => bincode::deserialize_from(reader).map_err(Into::into),
             _ => Err(PersistError::Invalid)?,
         }
     }
 
-    pub fn palette(&self) -> [RgbColor; 166] {
-        let mut palette = [RgbColor::BLACK; 166];
-        palette[0] = self.note_text_colour;
-        palette[1] = self.error_colour;
-        palette[2..18].copy_from_slice(&self.ansi_colors);
-        for (slot, (_name, color)) in palette[19..].iter_mut().zip(RgbColor::iter_named()) {
+    pub fn palette(&self) -> [RgbColor; 164] {
+        let mut palette = [RgbColor::BLACK; 164];
+        palette[0..16].copy_from_slice(&self.ansi_colours);
+        for (slot, (_name, color)) in palette[17..].iter_mut().zip(RgbColor::iter_named()) {
             *slot = color;
         }
         palette
@@ -327,7 +326,7 @@ impl From<&World> for TransformerConfig {
             naws: value.naws,
             disable_utf8: !value.utf_8,
             ignore_mxp_colors: value.ignore_mxp_colour_changes,
-            colors: value.ansi_colors.to_vec(),
+            colors: value.ansi_colours.to_vec(),
             ..Default::default()
         }
     }

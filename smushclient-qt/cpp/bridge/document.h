@@ -61,7 +61,7 @@ public:
 private:
   ScriptApi *api;
   QTextDocument *doc;
-  std::array<QTextCharFormat, 166> formats;
+  std::array<QTextCharFormat, 164> formats;
   int outputStart;
   MudScrollBar *scrollBar;
 

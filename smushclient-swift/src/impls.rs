@@ -203,9 +203,9 @@ impl_convert_struct!(
     show_italic,
     show_underline,
     indent_paras,
-    ansi_colors,
+    ansi_colours,
     display_my_input,
-    echo_colors,
+    echo_colours,
     keep_commands_on_same_line,
     new_activity_sound,
     //MUD
@@ -241,8 +241,8 @@ impl_convert_struct!(
     enable_scripts,
     world_script,
     script_reload_option,
-    note_text_colour,
-    error_colour,
+    note_colours,
+    error_colours,
     // Hidden
     plugins
 );

@@ -56,7 +56,7 @@ pub struct WorldRust {
     pub show_italic: bool,
     pub show_underline: bool,
     pub indent_paras: i32,
-    pub ansi_colors: Colors,
+    pub ansi_colours: Colors,
     pub display_my_input: bool,
     pub echo_text_colour: QColor,
     pub echo_background_colour: QColor,
@@ -130,10 +130,12 @@ pub struct WorldRust {
     pub world_script: QString,
     pub script_reload_option: ffi::ScriptRecompile,
     pub note_text_colour: QColor,
-    pub error_colour: QColor,
+    pub note_background_colour: QColor,
+    pub error_text_colour: QColor,
+    pub error_background_colour: QColor,
 }
 
-impl_deref!(WorldRust, Colors, ansi_colors);
+impl_deref!(WorldRust, Colors, ansi_colours);
 
 fn sort_refs<T: AsRef<Sender>>(items: &[T]) -> Vec<(usize, &T)> {
     let mut sorted_items: Vec<(usize, &T)> = items.iter().enumerate().collect();
@@ -339,10 +341,10 @@ impl From<&World> for WorldRust {
             show_italic: world.show_italic,
             show_underline: world.show_underline,
             indent_paras: i32::from(world.indent_paras),
-            ansi_colors: Colors::from(&world.ansi_colors),
+            ansi_colours: Colors::from(&world.ansi_colours),
             display_my_input: world.display_my_input,
-            echo_text_colour: world.echo_colors.foreground.convert(),
-            echo_background_colour: world.echo_colors.background.convert(),
+            echo_text_colour: world.echo_colours.foreground.convert(),
+            echo_background_colour: world.echo_colours.background.convert(),
             keep_commands_on_same_line: world.keep_commands_on_same_line,
             new_activity_sound: world.new_activity_sound.convert(),
 
@@ -407,8 +409,10 @@ impl From<&World> for WorldRust {
             enable_scripts: world.enable_scripts,
             world_script: world.world_script.convert(),
             script_reload_option: world.script_reload_option.into(),
-            note_text_colour: world.note_text_colour.convert(),
-            error_colour: world.error_colour.convert(),
+            note_text_colour: world.note_colours.foreground.convert(),
+            note_background_colour: world.note_colours.background.convert(),
+            error_text_colour: world.error_colours.foreground.convert(),
+            error_background_colour: world.error_colours.background.convert(),
         }
     }
 }
@@ -455,9 +459,9 @@ impl TryFrom<&WorldRust> for World {
             show_italic: value.show_italic,
             show_underline: value.show_underline,
             indent_paras: u8::try_from(value.indent_paras)?,
-            ansi_colors: (&value.ansi_colors).into(),
+            ansi_colours: (&value.ansi_colours).into(),
             display_my_input: value.display_my_input,
-            echo_colors: ColorPair {
+            echo_colours: ColorPair {
                 foreground: value.echo_text_colour.convert(),
                 background: value.echo_background_colour.convert(),
             },
@@ -531,8 +535,14 @@ impl TryFrom<&WorldRust> for World {
             enable_scripts: value.enable_scripts,
             world_script: value.world_script.convert(),
             script_reload_option: value.script_reload_option.try_into()?,
-            note_text_colour: value.note_text_colour.convert(),
-            error_colour: value.error_colour.convert(),
+            note_colours: ColorPair {
+                foreground: value.note_text_colour.convert(),
+                background: value.note_background_colour.convert(),
+            },
+            error_colours: ColorPair {
+                foreground: value.error_text_colour.convert(),
+                background: value.error_background_colour.convert(),
+            },
 
             plugins: Vec::new(),
         };

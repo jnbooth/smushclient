@@ -128,8 +128,10 @@ void ScriptApi::applyWorld(const World &world)
   indentText = QStringLiteral(" ").repeated(world.getIndentParas());
   echoFormat.setForeground(QBrush(world.getEchoTextColour()));
   echoFormat.setBackground(QBrush(world.getEchoBackgroundColour()));
-  errorFormat.setForeground(QBrush(world.getErrorColour()));
+  errorFormat.setForeground(QBrush(world.getErrorTextColour()));
+  errorFormat.setBackground(QBrush(world.getErrorBackgroundColour()));
   noteFormat.setForeground(QBrush(world.getNoteTextColour()));
+  noteFormat.setBackground(QBrush(world.getNoteBackgroundColour()));
 
   if (worldScriptIndex == noSuchPlugin)
     return;

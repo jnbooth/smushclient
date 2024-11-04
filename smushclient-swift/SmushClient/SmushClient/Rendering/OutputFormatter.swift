@@ -9,7 +9,7 @@ extension RgbColor {
 private typealias Attributes = [NSAttributedString.Key: Any]
 
 private func createNamedColors() -> [RgbColor: NSColor] {
-  var colors: [RgbColor: NSColor] = Dictionary(minimumCapacity: 166)
+  var colors: [RgbColor: NSColor] = Dictionary(minimumCapacity: 164)
   let iter = RustNamedColorIter()
   while let color = iter.next() {
     colors[color] = NSColor(color)

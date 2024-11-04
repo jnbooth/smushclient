@@ -23,6 +23,9 @@ pub use v5::World as V5;
 mod v6;
 pub use v6::World as V6;
 
+mod v7;
+pub use v7::World as V7;
+
 pub trait WorldVersion {
     fn migrate(reader: &mut dyn Read) -> Result<super::World, super::PersistError>;
 }

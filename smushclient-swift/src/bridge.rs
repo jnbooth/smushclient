@@ -295,10 +295,10 @@ pub mod ffi {
         show_bold: bool,
         show_italic: bool,
         show_underline: bool,
-        ansi_colors: Vec<RgbColor>,
+        ansi_colours: Vec<RgbColor>,
         indent_paras: u8,
         display_my_input: bool,
-        echo_colors: ColorPair,
+        echo_colours: ColorPair,
         keep_commands_on_same_line: bool,
         new_activity_sound: String,
 
@@ -334,8 +334,8 @@ pub mod ffi {
         enable_scripts: bool,
         world_script: String,
         script_reload_option: ScriptRecompile,
-        note_text_colour: RgbColor,
-        error_colour: RgbColor,
+        note_colours: ColorPair,
+        error_colours: ColorPair,
 
         plugins: Vec<String>,
     }

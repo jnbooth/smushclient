@@ -13,7 +13,7 @@ struct Palette {
   }
 
   private static func createNamedColors() -> Self {
-    var namedColors = Self(minimumCapacity: 166)
+    var namedColors = Self(minimumCapacity: 164)
     let iter = RustNamedColorIter()
     while let color = iter.next() {
       namedColors.insert(color)
@@ -36,5 +36,5 @@ struct Palette {
   func get(_ index: RgbColor) -> NSColor {
     self[index]
   }
-  
+
 }

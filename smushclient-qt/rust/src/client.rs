@@ -61,7 +61,7 @@ impl Default for SmushClientRust {
             output_lock: NonBlockingMutex::default(),
             send: Vec::new(),
             timers: Timers::new(),
-            palette: HashMap::with_capacity(166),
+            palette: HashMap::with_capacity(164),
         }
     }
 }
