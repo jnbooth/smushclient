@@ -1,5 +1,6 @@
 #include "app.h"
 #include "ui_app.h"
+#include <QtWidgets/QFileDialog>
 #include "ui_worldtab.h"
 #include "worldtab.h"
 #include "../environment.h"
@@ -7,14 +8,13 @@
 #include "finddialog.h"
 #include "settings.h"
 
-#include <QtWidgets/QFileDialog>
+constexpr const char *saveFilter = "World files (*.smush);;All Files (*.*)";
 
 App::App(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::App),
       lastTabIndex(-1),
-      recentFileActions(),
-      saveFilter(tr("World files (*.smush);;All Files (*.*)"))
+      recentFileActions()
 {
   findDialog = new FindDialog(this);
   if (QDir::current().isRoot())
@@ -31,16 +31,29 @@ App::App(QWidget *parent)
       ui->action_rec_3,
       ui->action_rec_4,
       ui->action_rec_5};
-  const QStringList recentFiles = Settings().recentFiles();
-  if (recentFiles.empty())
-    return;
 
-  setupRecentFiles(recentFiles);
-  openWorld(recentFiles.constFirst());
+  Settings settings;
+
+  const QStringList recentFiles = settings.recentFiles();
+  if (!recentFiles.empty())
+    setupRecentFiles(recentFiles);
+
+  for (const QString &reopen : settings.lastFiles())
+    openWorld(reopen);
 }
 
 App::~App()
 {
+  QStringList lastFiles;
+  const int tabCount = ui->world_tabs->count();
+  lastFiles.reserve(tabCount);
+  for (int i = 0; i < tabCount; ++i)
+  {
+    const QString &worldFilePath = worldtab(i)->worldFilePath();
+    if (!worldFilePath.isEmpty())
+      lastFiles.push_back(worldFilePath);
+  }
+  Settings().setLastFiles(lastFiles);
   delete ui;
 }
 
@@ -58,15 +71,29 @@ void App::addRecentFile(const QString &filePath) const
   setupRecentFiles(result.recentFiles);
 }
 
-void App::openRecentFile(qsizetype index) const
+void App::openRecentFile(qsizetype index)
 {
   const QStringList recentFiles = Settings().recentFiles();
   if (index >= recentFiles.length())
     return;
+
+  const QString &filePath = recentFiles.at(index);
+
+  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
+  {
+    WorldTab *tab = worldtab(i);
+    qDebug() << filePath << tab->worldFilePath();
+    if (tab->worldFilePath() == filePath)
+    {
+      ui->world_tabs->setCurrentWidget(tab);
+      return;
+    }
+  }
+
   openWorld(recentFiles.at(index));
 }
 
-void App::openWorld(const QString &filePath) const
+void App::openWorld(const QString &filePath)
 {
   WorldTab *tab = new WorldTab(ui->world_tabs);
   if (tab->openWorld(filePath))
@@ -74,6 +101,7 @@ void App::openWorld(const QString &filePath) const
     const int tabIndex = ui->world_tabs->addTab(tab, tab->title());
     ui->world_tabs->setCurrentIndex(tabIndex);
     addRecentFile(filePath);
+    tab->start();
     return;
   }
   delete tab;
@@ -195,9 +223,9 @@ void App::on_action_global_preferences_triggered()
 {
   Settings settings;
   SettingsDialog dialog(settings, this);
-  for (QObject *child : ui->world_tabs->children())
+  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
   {
-    WorldTab *tab = qobject_cast<WorldTab *>(child);
+    WorldTab *tab = worldtab(i);
     if (!tab)
       continue;
     connect(&dialog, &SettingsDialog::inputBackgroundChanged, tab, &WorldTab::onInputBackgroundChanged);
@@ -210,11 +238,18 @@ void App::on_action_global_preferences_triggered()
 
 void App::on_action_new_triggered()
 {
+  const int currentIndex = ui->world_tabs->currentIndex();
   WorldTab *tab = new WorldTab(this);
   tab->createWorld();
   const int tabIndex = ui->world_tabs->addTab(tab, tr("New world"));
   ui->world_tabs->setCurrentIndex(tabIndex);
-  tab->openWorldSettings();
+  if (tab->openWorldSettings())
+  {
+    tab->start();
+    return;
+  }
+  delete tab;
+  ui->world_tabs->setCurrentIndex(currentIndex);
 }
 
 void App::on_action_open_world_triggered()
@@ -223,7 +258,8 @@ void App::on_action_open_world_triggered()
       this,
       ui->action_open_world->text(),
       QStringLiteral(WORLDS_DIR),
-      saveFilter);
+      tr(saveFilter));
+
   if (filePath.isEmpty())
     return;
 
@@ -250,13 +286,13 @@ void App::on_action_reload_script_file_triggered()
 void App::on_action_save_world_details_as_triggered()
 {
   if (WorldTab *tab = worldtab(); tab)
-    addRecentFile(tab->saveWorldAsNew(saveFilter));
+    addRecentFile(tab->saveWorldAsNew(tr(saveFilter)));
 }
 
 void App::on_action_save_world_details_triggered()
 {
   if (WorldTab *tab = worldtab(); tab)
-    addRecentFile(tab->saveWorld(saveFilter));
+    addRecentFile(tab->saveWorld(tr(saveFilter)));
 }
 
 void App::on_world_tabs_currentChanged(int index)

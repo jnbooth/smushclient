@@ -25,11 +25,10 @@ private:
   FindDialog *findDialog;
   int lastTabIndex;
   QList<QAction *> recentFileActions;
-  QString saveFilter;
 
   void addRecentFile(const QString &filePath) const;
-  void openRecentFile(qsizetype index) const;
-  void openWorld(const QString &filePath) const;
+  void openRecentFile(qsizetype index);
+  void openWorld(const QString &filePath);
   void setupRecentFiles(const QStringList &recentFiles) const;
   void setWorldMenusEnabled(bool enabled) const;
   WorldTab *worldtab() const;

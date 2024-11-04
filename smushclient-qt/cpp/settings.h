@@ -23,6 +23,9 @@ public:
   QColor inputForeground() const;
   void setInputForeground(const QColor &color);
 
+  QStringList lastFiles() const;
+  void setLastFiles(const QStringList &files);
+
   QFont outputFont() const;
   void setOutputFont(const QFont &font);
 

@@ -79,6 +79,20 @@ void Settings::setInputForeground(const QColor &color)
   store.setValue(inputForegroundKey, color);
 }
 
+// Last files
+
+static const QString lastFilesKey = QStringLiteral("reopen");
+
+QStringList Settings::lastFiles() const
+{
+  return store.value(lastFilesKey).toStringList();
+}
+
+void Settings::setLastFiles(const QStringList &files)
+{
+  return store.setValue(lastFilesKey, files);
+}
+
 // Output font
 
 static const QString outputFontKey = QStringLiteral("output/font");
