@@ -1,9 +1,7 @@
-#include "luaapi.h"
 #include <QtGui/QFontDatabase>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QInputDialog>
 #include "qlua.h"
-#include "scriptapi.h"
 #include "../ui/scripting/choose.h"
 #include "../ui/scripting/listbox.h"
 extern "C"

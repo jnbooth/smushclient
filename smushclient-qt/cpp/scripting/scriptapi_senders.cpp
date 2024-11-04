@@ -7,11 +7,7 @@
 #include <QtWidgets/QStatusBar>
 #include "errors.h"
 #include "sqlite3.h"
-#include "miniwindow.h"
-#include "worldproperties.h"
-#include "../../spans.h"
 #include "../ui/worldtab.h"
-#include "../ui/ui_worldtab.h"
 
 using std::nullopt;
 using std::optional;

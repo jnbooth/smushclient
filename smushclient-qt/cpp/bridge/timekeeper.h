@@ -4,7 +4,6 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QTimerEvent>
-#include "rust/cxx.h"
 
 class ScriptApi;
 enum class SendTarget : uint8_t;

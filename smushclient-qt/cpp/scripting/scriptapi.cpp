@@ -8,7 +8,6 @@
 #include <QtWidgets/QStatusBar>
 #include "sqlite3.h"
 #include "miniwindow.h"
-#include "worldproperties.h"
 #include "../bridge/timekeeper.h"
 #include "../ui/components/mudscrollbar.h"
 #include "../ui/components/mudstatusbar.h"

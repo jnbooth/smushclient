@@ -1,12 +1,6 @@
 #include "worldproperties.h"
 #include <QtCore/QMetaProperty>
-#include "qlua.h"
-#include "../bridge/document.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
-extern "C"
-{
-#include "lua.h"
-}
 
 using std::sort;
 using std::string;

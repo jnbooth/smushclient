@@ -1,6 +1,5 @@
 #pragma once
-#include <string>
-#include <unordered_map>
+#include <cstddef>
 
 class ScriptApi;
 struct lua_State;

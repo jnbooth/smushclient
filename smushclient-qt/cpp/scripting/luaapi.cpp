@@ -10,7 +10,6 @@
 extern "C"
 {
 #include "lua.h"
-#include "lualib.h"
 #include "lauxlib.h"
 }
 
@@ -19,6 +18,7 @@ static const char *indexRegKey = "smushclient.plugin";
 static const char *worldRegKey = "smushclient.world";
 static const char *worldLibKey = "world";
 
+using std::nullopt;
 using std::optional;
 using std::string;
 using std::string_view;
@@ -1207,11 +1207,14 @@ static int L_WindowAddHotspot(lua_State *L)
   const string_view hotspotID = qlua::getString(L, 2);
   const QRect geometry(qlua::getQPoint(L, 3, 4), qlua::getQPoint(L, 5, 6));
   Hotspot::Callbacks callbacks{
+      .dragMove = "",
+      .dragRelease = "",
       .mouseOver = (string)qlua::getString(L, 7, ""),
       .cancelMouseOver = (string)qlua::getString(L, 8, ""),
       .mouseDown = (string)qlua::getString(L, 9, ""),
       .cancelMouseDown = (string)qlua::getString(L, 10, ""),
       .mouseUp = (string)qlua::getString(L, 11, ""),
+      .scroll = "",
   };
   const QString &tooltip = qlua::getQString(L, 12, QString());
   const optional<Qt::CursorShape> cursor = qlua::getCursor(L, 13, Qt::CursorShape::ArrowCursor);
@@ -1248,7 +1251,13 @@ static int L_WindowDragHandler(lua_State *L)
           qlua::getString(L, 2),
           Hotspot::CallbacksPartial{
               .dragMove = (string)qlua::getString(L, 3, ""),
-              .dragRelease = (string)qlua::getString(L, 4, "")}));
+              .dragRelease = (string)qlua::getString(L, 4, ""),
+              .mouseOver = nullopt,
+              .cancelMouseOver = nullopt,
+              .mouseDown = nullopt,
+              .cancelMouseDown = nullopt,
+              .mouseUp = nullopt,
+              .scroll = nullopt}));
 }
 
 static int L_WindowMoveHotspot(lua_State *L)
@@ -1271,7 +1280,15 @@ static int L_WindowScrollwheelHandler(lua_State *L)
           getPluginIndex(L),
           qlua::getString(L, 1),
           qlua::getString(L, 2),
-          Hotspot::CallbacksPartial{.scroll = (string)qlua::getString(L, 3, "")}));
+          Hotspot::CallbacksPartial{
+              .dragMove = nullopt,
+              .dragRelease = nullopt,
+              .mouseOver = nullopt,
+              .cancelMouseOver = nullopt,
+              .mouseDown = nullopt,
+              .cancelMouseDown = nullopt,
+              .mouseUp = nullopt,
+              .scroll = (string)qlua::getString(L, 3, "")}));
 }
 
 // userdata

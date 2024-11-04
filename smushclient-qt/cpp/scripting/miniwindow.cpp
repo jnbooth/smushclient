@@ -1,5 +1,4 @@
 #include "miniwindow.h"
-#include <numeric>
 #include <QtGui/QPainter>
 #include <QtWidgets/QLayout>
 #include <QtGui/QPaintEvent>

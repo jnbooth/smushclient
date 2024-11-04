@@ -8,7 +8,6 @@
 #include <QtWidgets/QStatusBar>
 #include "sqlite3.h"
 #include "miniwindow.h"
-#include "worldproperties.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 

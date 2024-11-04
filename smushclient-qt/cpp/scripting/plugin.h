@@ -1,10 +1,8 @@
 #pragma once
 #include <string>
-#include <unordered_map>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
 #include "plugincallback.h"
-#include "rust/cxx.h"
 
 class ScriptApi;
 struct lua_State;

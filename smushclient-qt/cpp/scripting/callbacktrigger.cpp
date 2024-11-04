@@ -1,8 +1,5 @@
 #include "callbacktrigger.h"
 #include "errors.h"
-#include "luaapi.h"
-#include "plugincallback.h"
-#include "scriptapi.h"
 extern "C"
 {
 #include "lua.h"

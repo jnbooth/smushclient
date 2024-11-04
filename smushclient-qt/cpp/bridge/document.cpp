@@ -10,7 +10,6 @@
 #include "../ui/components/mudscrollbar.h"
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
 extern "C"
 {
 #include "lua.h"

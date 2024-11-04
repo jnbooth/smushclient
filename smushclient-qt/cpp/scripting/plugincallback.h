@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 #include <QtCore/QByteArray>
 #include "scriptenums.h"
 

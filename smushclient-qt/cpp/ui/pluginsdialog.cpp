@@ -2,7 +2,6 @@
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QFileDialog>
 #include "ui_pluginsdialog.h"
-#include "../../bridge/viewbuilder.h"
 #include "../../environment.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
