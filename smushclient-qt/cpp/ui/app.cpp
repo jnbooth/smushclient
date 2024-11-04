@@ -148,6 +148,13 @@ WorldTab *App::worldtab(int index) const
 
 // Private slots
 
+void App::on_action_close_world_triggered()
+{
+  QWidget *tab = ui->world_tabs->currentWidget();
+  if (tab)
+    delete tab;
+}
+
 void App::on_action_connect_triggered()
 {
   if (WorldTab *tab = worldtab(); tab)
@@ -223,6 +230,11 @@ void App::on_action_plugins_triggered()
     tab->openPluginsDialog();
 }
 
+void App::on_action_quit_triggered()
+{
+  QCoreApplication::quit();
+}
+
 void App::on_action_save_world_details_as_triggered()
 {
   if (WorldTab *tab = worldtab(); tab)
@@ -249,4 +261,9 @@ void App::on_world_tabs_currentChanged(int index)
   }
   setWorldMenusEnabled(true);
   activeTab->onTabSwitch(true);
+}
+
+void App::on_world_tabs_tabCloseRequested(int index)
+{
+  delete ui->world_tabs->widget(index);
 }
