@@ -284,6 +284,7 @@ public:
   inline bool isPluginEnabled(size_t plugin) const { return !plugins[plugin].disabled(); }
   void printError(const QString &message);
   void reloadWorldScript(const QString &worldScriptPath);
+  void resetAllTimers();
   inline bool runScript(size_t plugin, const QString &script) const
   {
     return plugins[plugin].runScript(script);

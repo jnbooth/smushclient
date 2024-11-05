@@ -230,6 +230,11 @@ void WorldTab::reloadWorldScript() const
   api->reloadWorldScript(world.getWorldScript());
 }
 
+void WorldTab::resetAllTimers() const
+{
+  api->resetAllTimers();
+}
+
 QString WorldTab::saveWorld(const QString &saveFilter)
 {
   if (filePath.isEmpty())

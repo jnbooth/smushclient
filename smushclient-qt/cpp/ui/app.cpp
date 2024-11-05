@@ -379,6 +379,12 @@ void App::on_action_reload_script_file_triggered()
   worldtab()->reloadWorldScript();
 }
 
+void App::on_action_reset_all_timers_triggered()
+{
+  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
+    worldtab(i)->resetAllTimers();
+}
+
 void App::on_action_save_world_details_as_triggered()
 {
   addRecentFile(worldtab()->saveWorldAsNew(tr(saveFilter)));

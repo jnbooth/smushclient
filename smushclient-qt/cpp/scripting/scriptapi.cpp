@@ -248,6 +248,14 @@ void ScriptApi::reloadWorldScript(const QString &worldScriptPath)
     worldPlugin.disable();
 }
 
+void ScriptApi::resetAllTimers()
+{
+  sendQueue.clear();
+  SmushClient *cli = client();
+  for (int i = 0; i < plugins.size(); ++i)
+    cli->startTimers(i, *timekeeper);
+}
+
 bool ScriptApi::runScript(const QString &pluginID, const QString &script) const
 {
   const size_t index = findPluginIndex(pluginID.toStdString());

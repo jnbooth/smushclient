@@ -49,6 +49,7 @@ public:
   bool openWorld(const QString &filename) &;
   bool openWorldSettings();
   void reloadWorldScript() const;
+  void resetAllTimers() const;
   QString saveWorld(const QString &saveFilter);
   QString saveWorldAsNew(const QString &saveFilter);
   void setOnDragMove(CallbackTrigger &&trigger);
