@@ -23,7 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
       lastTabIndex(-1),
-      recentFileActions()
+      recentFileActions(),
+      socketConnection()
 {
   setAttribute(Qt::WA_DeleteOnClose);
   findDialog = new FindDialog(this);
@@ -170,8 +171,6 @@ void MainWindow::setWorldMenusEnabled(bool enabled) const
   ui->action_find_again->setEnabled(enabled);
   ui->action_show_world_notepad->setEnabled(enabled);
   ui->action_pause_output->setEnabled(enabled);
-  ui->action_connect->setEnabled(enabled);
-  ui->action_disconnect->setEnabled(enabled);
   ui->action_go_to_line->setEnabled(enabled);
   ui->action_command_history->setEnabled(enabled);
   ui->action_clear_output->setEnabled(enabled);
@@ -196,6 +195,12 @@ void MainWindow::onCopyAvailable(AvailableCopy copy)
   ui->action_cut->setEnabled(copy == AvailableCopy::Input);
   ui->action_copy->setEnabled(copy != AvailableCopy::None);
   ui->action_copy_as_html->setEnabled(copy == AvailableCopy::Output);
+}
+
+void MainWindow::onConnectionStatusChanged(bool connected)
+{
+  ui->action_connect->setEnabled(!connected);
+  ui->action_disconnect->setEnabled(connected);
 }
 
 void MainWindow::on_action_auto_connect_triggered(bool checked)
@@ -471,12 +476,17 @@ void MainWindow::on_world_tabs_currentChanged(int index)
     lastTab->onTabSwitch(false);
   lastTabIndex = index;
   const WorldTab *activeTab = worldtab(index);
+  disconnect(socketConnection);
   if (!activeTab)
   {
     setWorldMenusEnabled(false);
+    ui->action_connect->setEnabled(false);
+    ui->action_disconnect->setEnabled(false);
     onCopyAvailable(AvailableCopy::None);
     return;
   }
+  socketConnection = connect(activeTab, &WorldTab::connectionStatusChanged, this, &MainWindow::onConnectionStatusChanged);
+  onConnectionStatusChanged(activeTab->connected());
   setWorldMenusEnabled(true);
   ui->action_pause_output->setChecked(activeTab->ui->output->verticalScrollBar()->paused());
   activeTab->onTabSwitch(true);

@@ -28,6 +28,7 @@ private:
   FindDialog *findDialog;
   int lastTabIndex;
   QList<QAction *> recentFileActions;
+  QMetaObject::Connection socketConnection;
 
   void addRecentFile(const QString &filePath) const;
   void openRecentFile(qsizetype index);
@@ -38,6 +39,7 @@ private:
 
 private slots:
   void onCopyAvailable(AvailableCopy copy);
+  void onConnectionStatusChanged(bool connected);
 
   void on_action_auto_connect_triggered(bool checked);
   void on_action_clear_output_triggered();

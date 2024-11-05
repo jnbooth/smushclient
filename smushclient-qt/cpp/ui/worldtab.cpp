@@ -136,6 +136,11 @@ void WorldTab::createWorld() &
   client.populateWorld(world);
 }
 
+bool WorldTab::connected() const
+{
+  return socket->state() != QAbstractSocket::SocketState::UnconnectedState;
+}
+
 void WorldTab::connectToHost()
 {
   if (!initialized)
@@ -594,6 +599,7 @@ void WorldTab::onConnect()
   api->setOpen(true);
   OnPluginConnect onConnect;
   api->sendCallback(onConnect);
+  emit connectionStatusChanged(true);
 }
 
 void WorldTab::onDisconnect()
@@ -602,6 +608,7 @@ void WorldTab::onDisconnect()
   api->setOpen(false);
   OnPluginDisconnect onDisconnect;
   api->sendCallback(onDisconnect);
+  emit connectionStatusChanged(false);
   if (manualDisconnect)
   {
     manualDisconnect = false;

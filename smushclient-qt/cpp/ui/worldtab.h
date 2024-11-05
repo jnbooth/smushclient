@@ -38,6 +38,7 @@ public:
 
   AvailableCopy availableCopy() const;
   void closeLog();
+  bool connected() const;
   void connectToHost();
   QTextEdit *copyableEditor() const;
   void createWorld() &;
@@ -76,6 +77,7 @@ public slots:
   void onOutputFontChanged(const QFont &font);
 
 signals:
+  void connectionStatusChanged(bool connected);
   void copyAvailable(AvailableCopy available);
 
 protected:
