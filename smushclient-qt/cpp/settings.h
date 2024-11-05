@@ -13,6 +13,9 @@ class Settings
 public:
   Settings();
 
+  bool autoConnect() const;
+  void setAutoConnect(bool autoConnect);
+
   QFont inputFont() const;
   void setInputFont(const QFont &font);
 
@@ -28,9 +31,6 @@ public:
   bool loggingEnabled() const;
   void setLoggingEnabled(bool enabled);
 
-  bool showStatusBar() const;
-  void setShowStatusBar(bool show);
-
   QFont outputFont() const;
   void setOutputFont(const QFont &font);
 
@@ -40,6 +40,12 @@ public:
   QStringList recentFiles() const;
   RecentFileResult addRecentFile(const QString &path);
   RecentFileResult removeRecentFile(const QString &path);
+
+  bool reconnectOnDisconnect() const;
+  void setReconnectOnDisconnect(bool reconnect);
+
+  bool showStatusBar() const;
+  void setShowStatusBar(bool show);
 
 private:
   QSettings store;

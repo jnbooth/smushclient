@@ -26,6 +26,20 @@ QString makePathRelative(const QString &filePath)
 
 Settings::Settings() : store() {}
 
+// Auto connect
+
+static const QString autoConnectKey = QStringLiteral("connecting/auto");
+
+bool Settings::autoConnect() const
+{
+  return value(autoConnectKey, true);
+}
+
+void Settings::setAutoConnect(bool enabled)
+{
+  store.setValue(autoConnectKey, enabled);
+}
+
 // Input font
 
 static const QString inputFontKey = QStringLiteral("input/font");
@@ -170,6 +184,20 @@ RecentFileResult Settings::removeRecentFile(const QString &path)
   recent.remove(index);
   store.setValue(recentFilesKey, recent);
   return RecentFileResult{.changed = true, .recentFiles = recent};
+}
+
+// Reconnect on disconnect
+
+static const QString reconnectKey = QStringLiteral("connecting/reconnect");
+
+bool Settings::reconnectOnDisconnect() const
+{
+  return value(reconnectKey, false);
+}
+
+void Settings::setReconnectOnDisconnect(bool enabled)
+{
+  store.setValue(reconnectKey, enabled);
 }
 
 // Show status bar

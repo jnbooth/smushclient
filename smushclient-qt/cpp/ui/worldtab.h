@@ -93,6 +93,7 @@ private:
   bool handleKeypad;
   bool initialized;
   bool inputCopyAvailable;
+  bool manualDisconnect;
   std::optional<CallbackTrigger> onDragMove;
   QPointer<Hotspot> onDragRelease;
   bool outputCopyAvailable;

@@ -68,6 +68,7 @@ WorldTab::WorldTab(QWidget *parent)
       onDragMove(nullopt),
       onDragRelease(nullptr),
       outputCopyAvailable(false),
+      manualDisconnect(false),
       queuedConnect(false),
       resizeTimerId(-1),
       splitter(),
@@ -151,6 +152,7 @@ void WorldTab::connectToHost()
 
 void WorldTab::disconnectFromHost()
 {
+  manualDisconnect = true;
   socket->disconnectFromHost();
 }
 
@@ -269,8 +271,11 @@ void WorldTab::setOnDragRelease(Hotspot *hotspot)
 
 void WorldTab::start()
 {
+  Settings settings;
+
   setupWorldScriptWatcher();
-  if (Settings().loggingEnabled())
+
+  if (settings.loggingEnabled())
     openLog();
 
   if (!filePath.isEmpty())
@@ -288,7 +293,9 @@ void WorldTab::start()
   loadPlugins();
 
   applyWorld();
-  connectToHost();
+
+  if (settings.autoConnect())
+    connectToHost();
 }
 
 const QString WorldTab::title() const noexcept
@@ -585,6 +592,13 @@ void WorldTab::onDisconnect()
   api->setOpen(false);
   OnPluginDisconnect onDisconnect;
   api->sendCallback(onDisconnect);
+  if (manualDisconnect)
+  {
+    manualDisconnect = false;
+    return;
+  }
+  if (Settings().reconnectOnDisconnect())
+    connectToHost();
 }
 
 void WorldTab::readFromSocket()

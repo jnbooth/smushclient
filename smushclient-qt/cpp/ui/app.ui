@@ -75,15 +75,11 @@
     <addaction name="separator"/>
     <addaction name="action_wrap_output"/>
     <addaction name="action_pause_output"/>
-    <addaction name="separator"/>
-    <addaction name="action_full_screen_mode"/>
    </widget>
    <widget class="QMenu" name="menu_connection">
     <property name="title">
      <string>&amp;Connection</string>
     </property>
-    <addaction name="action_quick_connect"/>
-    <addaction name="separator"/>
     <addaction name="action_connect"/>
     <addaction name="action_disconnect"/>
     <addaction name="separator"/>
@@ -91,7 +87,6 @@
     <addaction name="action_reconnect_on_disconnect"/>
     <addaction name="separator"/>
     <addaction name="action_connect_to_all_open_worlds"/>
-    <addaction name="action_connect_to_worlds_in_startup_list"/>
    </widget>
    <widget class="QMenu" name="menu_game">
     <property name="title">
@@ -427,25 +422,6 @@
     <string>Show &amp;Status Bar</string>
    </property>
   </action>
-  <action name="action_full_screen_mode">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Enter &amp;Full Screen</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Alt+F</string>
-   </property>
-  </action>
-  <action name="action_quick_connect">
-   <property name="text">
-    <string>&amp;Quick Connect...</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Alt+Shift+K</string>
-   </property>
-  </action>
   <action name="action_connect">
    <property name="enabled">
     <bool>false</bool>
@@ -490,11 +466,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+K</string>
-   </property>
-  </action>
-  <action name="action_connect_to_worlds_in_startup_list">
-   <property name="text">
-    <string>Connect To Worlds &amp;In Startup List</string>
    </property>
   </action>
   <action name="action_command_history">

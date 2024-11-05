@@ -33,11 +33,10 @@ App::App(QWidget *parent)
 
   ui->setupUi(this);
 
-  const bool showStatusBar = settings.showStatusBar();
-  ui->action_status_bar->setChecked(showStatusBar);
-
-  const bool wrapOutput = settings.outputWrapping();
-  ui->action_wrap_output->setChecked(wrapOutput);
+  ui->action_status_bar->setChecked(settings.showStatusBar());
+  ui->action_wrap_output->setChecked(settings.outputWrapping());
+  ui->action_auto_connect->setChecked(settings.autoConnect());
+  ui->action_reconnect_on_disconnect->setChecked(settings.reconnectOnDisconnect());
 
   recentFileActions = QList<QAction *>{
       ui->action_rec_1,
@@ -193,6 +192,11 @@ void App::onCopyAvailable(AvailableCopy copy)
   ui->action_copy_as_html->setEnabled(copy == AvailableCopy::Output);
 }
 
+void App::on_action_auto_connect_triggered(bool checked)
+{
+  Settings().setAutoConnect(checked);
+}
+
 void App::on_action_close_world_triggered()
 {
   QWidget *tab = ui->world_tabs->currentWidget();
@@ -214,6 +218,12 @@ void App::on_action_copy_as_html_triggered()
 void App::on_action_cut_triggered()
 {
   worldtab()->copyableEditor()->cut();
+}
+
+void App::on_action_connect_to_all_open_worlds_triggered()
+{
+  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
+    worldtab(i)->connectToHost();
 }
 
 void App::on_action_connect_triggered()
@@ -324,6 +334,11 @@ void App::on_action_plugins_triggered()
 void App::on_action_quit_triggered()
 {
   QCoreApplication::quit();
+}
+
+void App::on_action_reconnect_on_disconnect_triggered(bool checked)
+{
+  Settings().setReconnectOnDisconnect(checked);
 }
 
 void App::on_action_reload_script_file_triggered()
