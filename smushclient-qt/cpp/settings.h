@@ -26,6 +26,9 @@ public:
   QStringList lastFiles() const;
   void setLastFiles(const QStringList &files);
 
+  bool loggingEnabled() const;
+  void setLoggingEnabled(bool enabled);
+
   QFont outputFont() const;
   void setOutputFont(const QFont &font);
 

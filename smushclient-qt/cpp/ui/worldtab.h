@@ -37,12 +37,14 @@ public:
   ~WorldTab();
 
   AvailableCopy availableCopy() const;
+  void closeLog();
   void connectToHost();
   QTextEdit *copyableEditor() const;
   void createWorld() &;
   void disconnectFromHost();
   void editWorldScript();
   void onTabSwitch(bool active) const;
+  void openLog();
   void openPluginsDialog();
   bool openWorld(const QString &filename) &;
   bool openWorldSettings();
@@ -102,7 +104,6 @@ private:
 
   void applyWorld();
   void finishDrag();
-  void openLog();
   bool saveWorldAndState(const QString &filePath) const;
   bool sendCommand(const QString &command, CommandSource source);
   void setupWorldScriptWatcher();

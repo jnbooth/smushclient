@@ -113,6 +113,10 @@ impl SmushClient {
         Ok(())
     }
 
+    pub fn close_log(&mut self) {
+        self.logger = Logger::Closed;
+    }
+
     pub fn read<R: Read>(&mut self, mut reader: R) -> io::Result<usize> {
         let mut total_read = 0;
         loop {

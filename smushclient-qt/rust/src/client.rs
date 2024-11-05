@@ -356,6 +356,10 @@ impl ffi::SmushClient {
         self.cxx_qt_ffi_rust_mut().client.open_log()
     }
 
+    pub fn close_log(self: Pin<&mut Self>) {
+        self.cxx_qt_ffi_rust_mut().client.close_log();
+    }
+
     pub fn load_plugins(self: Pin<&mut Self>) -> QStringList {
         self.cxx_qt_ffi_rust_mut().load_plugins()
     }

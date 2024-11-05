@@ -93,6 +93,20 @@ void Settings::setLastFiles(const QStringList &files)
   return store.setValue(lastFilesKey, files);
 }
 
+// Logging enabled
+
+static const QString loggingDisabledKey = QStringLiteral("logging/disable");
+
+bool Settings::loggingEnabled() const
+{
+  return !store.value(loggingDisabledKey).toBool();
+}
+
+void Settings::setLoggingEnabled(bool enabled)
+{
+  store.setValue(loggingDisabledKey, !enabled);
+}
+
 // Output font
 
 static const QString outputFontKey = QStringLiteral("output/font");

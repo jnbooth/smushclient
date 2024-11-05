@@ -110,6 +110,11 @@ AvailableCopy WorldTab::availableCopy() const
   return AvailableCopy::None;
 }
 
+void WorldTab::closeLog()
+{
+  client.closeLog();
+}
+
 QTextEdit *WorldTab::copyableEditor() const
 {
   if (outputCopyAvailable)
@@ -161,6 +166,18 @@ void WorldTab::onTabSwitch(bool active) const
   ui->input->focusWidget();
   OnPluginGetFocus onGetFocus;
   api->sendCallback(onGetFocus);
+}
+
+void WorldTab::openLog()
+{
+  try
+  {
+    client.openLog();
+  }
+  catch (const rust::Error &e)
+  {
+    showRustError(e);
+  }
 }
 
 void WorldTab::openPluginsDialog()
@@ -247,7 +264,8 @@ void WorldTab::setOnDragRelease(Hotspot *hotspot)
 void WorldTab::start()
 {
   setupWorldScriptWatcher();
-  openLog();
+  if (Settings().loggingEnabled())
+    openLog();
 
   if (!filePath.isEmpty())
   {
@@ -419,18 +437,6 @@ inline void WorldTab::finishDrag()
   {
     onDragRelease->finishDrag();
     onDragRelease = nullptr;
-  }
-}
-
-void WorldTab::openLog()
-{
-  try
-  {
-    client.openLog();
-  }
-  catch (const rust::Error &e)
-  {
-    showRustError(e);
   }
 }
 

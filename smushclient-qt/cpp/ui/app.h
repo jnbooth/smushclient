@@ -49,6 +49,7 @@ private slots:
   void on_action_find_triggered();
   void on_action_find_again_triggered();
   void on_action_global_preferences_triggered();
+  void on_action_log_session_triggered(bool checked);
   void on_action_new_triggered();
   void on_action_open_world_triggered();
   void on_action_paste_triggered();

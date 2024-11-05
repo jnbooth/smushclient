@@ -37,6 +37,8 @@ App::App(QWidget *parent)
 
   Settings settings;
 
+  ui->action_log_session->setChecked(settings.loggingEnabled());
+
   const QStringList recentFiles = settings.recentFiles();
   if (!recentFiles.empty())
     setupRecentFiles(recentFiles);
@@ -244,14 +246,24 @@ void App::on_action_global_preferences_triggered()
   for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
   {
     WorldTab *tab = worldtab(i);
-    if (!tab)
-      continue;
     connect(&dialog, &SettingsDialog::inputBackgroundChanged, tab, &WorldTab::onInputBackgroundChanged);
     connect(&dialog, &SettingsDialog::inputFontChanged, tab, &WorldTab::onInputFontChanged);
     connect(&dialog, &SettingsDialog::inputForegroundChanged, tab, &WorldTab::onInputForegroundChanged);
     connect(&dialog, &SettingsDialog::outputFontChanged, tab, &WorldTab::onOutputFontChanged);
   }
   dialog.exec();
+}
+
+void App::on_action_log_session_triggered(bool checked)
+{
+  Settings().setLoggingEnabled(checked);
+  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
+  {
+    if (checked)
+      worldtab(i)->openLog();
+    else
+      worldtab(i)->closeLog();
+  }
 }
 
 void App::on_action_new_triggered()
