@@ -50,6 +50,7 @@ private slots:
   void on_action_reload_script_file_triggered();
   void on_action_save_world_details_as_triggered();
   void on_action_save_world_details_triggered();
+  void on_menu_file_aboutToShow();
   void on_world_tabs_currentChanged(int index);
 
   void on_action_rec_1_triggered() { openRecentFile(0); }

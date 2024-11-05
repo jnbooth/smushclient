@@ -294,6 +294,13 @@ void App::on_action_save_world_details_triggered()
   if (WorldTab *tab = worldtab(); tab)
     addRecentFile(tab->saveWorld(tr(saveFilter)));
 }
+void App::on_menu_file_aboutToShow()
+{
+  WorldTab *tab = worldtab();
+  const bool hasWorldScript = tab && !tab->world.getWorldScript().isEmpty();
+  ui->action_edit_script_file->setEnabled(hasWorldScript);
+  ui->action_reload_script_file->setEnabled(hasWorldScript);
+}
 
 void App::on_world_tabs_currentChanged(int index)
 {

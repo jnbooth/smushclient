@@ -126,27 +126,8 @@ void WorldTab::disconnectFromHost()
 void WorldTab::editWorldScript()
 {
   const QString &scriptPath = world.getWorldScript();
-  if (!scriptPath.isEmpty() && QDesktopServices::openUrl(QUrl::fromLocalFile(scriptPath)))
-    return;
-
-  const QString path = QFileDialog::getSaveFileName(
-      this,
-      tr("Create world script"),
-      scriptPath.isEmpty() ? QStringLiteral(WORLDS_DIR "/%1").arg(world.getName()) : scriptPath,
-      tr("Lua files (*.lua);;All Files (*.*)"));
-
-  if (path.isEmpty())
-    return;
-
-  QFile file(path);
-  if (!file.open(QIODevice::WriteOnly))
-  {
-    QErrorMessage::qtHandler()->showMessage(file.errorString());
-    return;
-  }
-  file.close();
-  world.setWorldScript(path);
-  QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+  if (!QDesktopServices::openUrl(QUrl::fromLocalFile(scriptPath)))
+    QErrorMessage::qtHandler()->showMessage(tr("Failed to open file: %1").arg(scriptPath));
 }
 
 void WorldTab::onTabSwitch(bool active) const
@@ -201,10 +182,7 @@ bool WorldTab::openWorldSettings()
 
 void WorldTab::reloadWorldScript() const
 {
-  const QString &path = world.getWorldScript();
-  if (path.isEmpty())
-    return;
-  api->reloadWorldScript(path);
+  api->reloadWorldScript(world.getWorldScript());
 }
 
 QString WorldTab::saveWorld(const QString &saveFilter)
