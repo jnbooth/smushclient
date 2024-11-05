@@ -27,15 +27,21 @@ App::App(QWidget *parent)
       dirPath.truncate(dirPath.lastIndexOf(QDir::separator(), i));
     QDir::setCurrent(dirPath);
   }
+
+  Settings settings;
+
   ui->setupUi(this);
+
+  const bool showStatusBar = settings.showStatusBar();
+  ui->statusBar->setVisible(showStatusBar);
+  ui->action_status_bar->setChecked(showStatusBar);
+
   recentFileActions = QList<QAction *>{
       ui->action_rec_1,
       ui->action_rec_2,
       ui->action_rec_3,
       ui->action_rec_4,
       ui->action_rec_5};
-
-  Settings settings;
 
   ui->action_log_session->setChecked(settings.loggingEnabled());
 
@@ -325,6 +331,12 @@ void App::on_action_save_world_details_as_triggered()
 void App::on_action_select_all_triggered()
 {
   worldtab()->ui->input->selectAll();
+}
+
+void App::on_action_status_bar_triggered(bool checked)
+{
+  Settings().setShowStatusBar(checked);
+  ui->statusBar->setVisible(checked);
 }
 
 void App::on_action_save_world_details_triggered()

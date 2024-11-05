@@ -171,3 +171,17 @@ RecentFileResult Settings::removeRecentFile(const QString &path)
   store.setValue(recentFilesKey, recent);
   return RecentFileResult{.changed = true, .recentFiles = recent};
 }
+
+// Show status bar
+
+static const QString hideStatusBarKey = QStringLiteral("statusbar/hide");
+
+bool Settings::showStatusBar() const
+{
+  return !store.value(hideStatusBarKey).toBool();
+}
+
+void Settings::setShowStatusBar(bool show)
+{
+  store.setValue(hideStatusBarKey, !show);
+}

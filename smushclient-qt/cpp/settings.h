@@ -11,7 +11,6 @@ typedef struct RecentFileResult
 class Settings
 {
 public:
-public:
   Settings();
 
   QFont inputFont() const;
@@ -28,6 +27,9 @@ public:
 
   bool loggingEnabled() const;
   void setLoggingEnabled(bool enabled);
+
+  bool showStatusBar() const;
+  void setShowStatusBar(bool show);
 
   QFont outputFont() const;
   void setOutputFont(const QFont &font);
