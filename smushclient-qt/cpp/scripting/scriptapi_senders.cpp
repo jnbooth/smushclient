@@ -1,6 +1,5 @@
 #include "scriptapi.h"
 #include <QtCore/QFile>
-#include <QtGui/QClipboard>
 #include <QtGui/QGradient>
 #include <QtGui/QGuiApplication>
 #include <QtWidgets/QColorDialog>
