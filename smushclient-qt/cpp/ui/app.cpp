@@ -3,6 +3,8 @@
 #include <QtGui/QClipboard>
 #include <QtGui/QTextDocumentFragment>
 #include <QtGui/QDesktopServices>
+#include <QtPrintSupport/QPrintDialog>
+#include <QtPrintSupport/QPrinter>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QInputDialog>
 #include "ui_worldtab.h"
@@ -369,6 +371,15 @@ void App::on_action_pause_output_triggered(bool checked)
 void App::on_action_plugins_triggered()
 {
   worldtab()->openPluginsDialog();
+}
+
+void App::on_action_print_triggered()
+{
+  QPrinter printer;
+  QPrintDialog dialog(&printer, this);
+  if (dialog.exec() != QDialog::Accepted)
+    return;
+  worldtab()->ui->output->document()->print(&printer);
 }
 
 void App::on_action_quit_triggered()

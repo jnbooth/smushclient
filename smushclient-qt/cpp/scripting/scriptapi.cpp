@@ -252,7 +252,7 @@ void ScriptApi::resetAllTimers()
 {
   sendQueue.clear();
   SmushClient *cli = client();
-  for (int i = 0; i < plugins.size(); ++i)
+  for (size_t i = 0; i < plugins.size(); ++i)
     cli->startTimers(i, *timekeeper);
 }
 
