@@ -401,6 +401,12 @@ void App::on_action_status_bar_triggered(bool checked)
   ui->statusBar->setVisible(checked);
 }
 
+void App::on_action_stop_sound_playing_triggered()
+{
+  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
+    worldtab(i)->stopSound();
+}
+
 void App::on_action_wrap_output_triggered(bool checked)
 {
   Settings().setOutputWrapping(checked);

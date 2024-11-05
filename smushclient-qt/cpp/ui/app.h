@@ -68,6 +68,7 @@ private slots:
   void on_action_save_world_details_triggered();
   void on_action_select_all_triggered();
   void on_action_status_bar_triggered(bool checked);
+  void on_action_stop_sound_playing_triggered();
   void on_action_wrap_output_triggered(bool checked);
   void on_menu_file_aboutToShow();
   void on_menu_view_aboutToShow();

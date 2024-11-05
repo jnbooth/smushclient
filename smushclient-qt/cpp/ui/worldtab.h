@@ -55,6 +55,7 @@ public:
   void setOnDragMove(CallbackTrigger &&trigger);
   void setOnDragRelease(Hotspot *hotspot);
   void start();
+  void stopSound() const;
   const QString title() const noexcept;
   bool updateWorld();
   constexpr const QString &worldFilePath() const noexcept

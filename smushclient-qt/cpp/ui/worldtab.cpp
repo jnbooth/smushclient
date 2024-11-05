@@ -303,6 +303,11 @@ void WorldTab::start()
     connectToHost();
 }
 
+void WorldTab::stopSound() const
+{
+  api->StopSound();
+}
+
 const QString WorldTab::title() const noexcept
 {
   return world.getName();
