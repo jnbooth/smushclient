@@ -39,6 +39,9 @@ App::App(QWidget *parent)
   ui->action_wrap_output->setChecked(settings.outputWrapping());
   ui->action_auto_connect->setChecked(settings.autoConnect());
   ui->action_reconnect_on_disconnect->setChecked(settings.reconnectOnDisconnect());
+  connect(ui->action_maximize, &QAction::triggered, this, &App::showMaximized);
+  connect(ui->action_minimize, &QAction::triggered, this, &App::showMinimized);
+  connect(ui->action_restore, &QAction::triggered, this, &App::showNormal);
 
   recentFileActions = QList<QAction *>{
       ui->action_rec_1,
@@ -52,9 +55,6 @@ App::App(QWidget *parent)
   const QStringList recentFiles = settings.recentFiles();
   if (!recentFiles.empty())
     setupRecentFiles(recentFiles);
-
-  for (const QString &reopen : settings.lastFiles())
-    openWorld(reopen);
 }
 
 App::~App()
@@ -70,6 +70,24 @@ App::~App()
   }
   Settings().setLastFiles(lastFiles);
   delete ui;
+}
+
+void App::openWorld(const QString &filePath)
+{
+  WorldTab *tab = new WorldTab(ui->world_tabs);
+  if (tab->openWorld(filePath))
+  {
+    connect(tab, &WorldTab::copyAvailable, this, &App::onCopyAvailable);
+    const int tabIndex = ui->world_tabs->addTab(tab, tab->title());
+    ui->world_tabs->setCurrentIndex(tabIndex);
+    addRecentFile(filePath);
+    tab->start();
+    return;
+  }
+  delete tab;
+  const RecentFileResult result = Settings().removeRecentFile(filePath);
+  if (result.changed)
+    setupRecentFiles(result.recentFiles);
 }
 
 // Private methods
@@ -105,24 +123,6 @@ void App::openRecentFile(qsizetype index)
   }
 
   openWorld(recentFiles.at(index));
-}
-
-void App::openWorld(const QString &filePath)
-{
-  WorldTab *tab = new WorldTab(ui->world_tabs);
-  if (tab->openWorld(filePath))
-  {
-    connect(tab, &WorldTab::copyAvailable, this, &App::onCopyAvailable);
-    const int tabIndex = ui->world_tabs->addTab(tab, tab->title());
-    ui->world_tabs->setCurrentIndex(tabIndex);
-    addRecentFile(filePath);
-    tab->start();
-    return;
-  }
-  delete tab;
-  const RecentFileResult result = Settings().removeRecentFile(filePath);
-  if (result.changed)
-    setupRecentFiles(result.recentFiles);
 }
 
 void App::setupRecentFiles(const QStringList &recentFiles) const
@@ -333,6 +333,12 @@ void App::on_action_new_triggered()
   }
   delete tab;
   ui->world_tabs->setCurrentIndex(currentIndex);
+}
+
+void App::on_action_new_window_triggered()
+{
+  App *newWindow = new App();
+  newWindow->show();
 }
 
 void App::on_action_open_world_triggered()

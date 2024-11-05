@@ -21,6 +21,8 @@ public:
   explicit App(QWidget *parent = nullptr);
   ~App();
 
+  void openWorld(const QString &filePath);
+
 private:
   Ui::App *ui;
   FindDialog *findDialog;
@@ -29,7 +31,6 @@ private:
 
   void addRecentFile(const QString &filePath) const;
   void openRecentFile(qsizetype index);
-  void openWorld(const QString &filePath);
   void setupRecentFiles(const QStringList &recentFiles) const;
   void setWorldMenusEnabled(bool enabled) const;
   WorldTab *worldtab() const;
@@ -56,6 +57,7 @@ private slots:
   void on_action_go_to_line_triggered();
   void on_action_log_session_triggered(bool checked);
   void on_action_new_triggered();
+  void on_action_new_window_triggered();
   void on_action_open_world_triggered();
   void on_action_paste_triggered();
   void on_action_pause_output_triggered(bool checked);
