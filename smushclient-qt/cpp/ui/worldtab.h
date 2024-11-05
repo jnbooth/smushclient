@@ -18,15 +18,27 @@ namespace Ui
   class WorldTab;
 }
 
+enum class AvailableCopy
+{
+  None,
+  Input,
+  Output,
+};
+
 class WorldTab : public QSplitter
 {
   Q_OBJECT
 
 public:
+  Q_ENUM(AvailableCopy)
+
+public:
   explicit WorldTab(QWidget *parent = nullptr);
   ~WorldTab();
 
+  AvailableCopy availableCopy() const;
   void connectToHost();
+  QTextEdit *copyableEditor() const;
   void createWorld() &;
   void disconnectFromHost();
   void editWorldScript();
@@ -59,6 +71,9 @@ public slots:
   void onInputForegroundChanged(const QColor &color);
   void onOutputFontChanged(const QFont &font);
 
+signals:
+  void copyAvailable(AvailableCopy available);
+
 protected:
   void leaveEvent(QEvent *event) override;
   void keyPressEvent(QKeyEvent *event) override;
@@ -75,8 +90,10 @@ private:
   int flushTimerId;
   bool handleKeypad;
   bool initialized;
+  bool inputCopyAvailable;
   std::optional<CallbackTrigger> onDragMove;
   QPointer<Hotspot> onDragRelease;
+  bool outputCopyAvailable;
   bool queuedConnect;
   int resizeTimerId;
   QRegularExpression splitter;
@@ -98,8 +115,10 @@ private slots:
   void onDisconnect();
   void readFromSocket();
 
+  void on_input_copyAvailable(bool available);
   void on_input_submitted(const QString &text);
   void on_input_textChanged();
   void on_output_anchorClicked(const QUrl &url);
+  void on_output_copyAvailable(bool available);
   void on_output_customContextMenuRequested(const QPoint &pos);
 };

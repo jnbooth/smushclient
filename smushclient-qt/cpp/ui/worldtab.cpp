@@ -64,8 +64,10 @@ WorldTab::WorldTab(QWidget *parent)
       flushTimerId(-1),
       handleKeypad(false),
       initialized(false),
+      inputCopyAvailable(false),
       onDragMove(nullopt),
       onDragRelease(nullptr),
+      outputCopyAvailable(false),
       queuedConnect(false),
       resizeTimerId(-1),
       splitter(),
@@ -97,6 +99,24 @@ WorldTab::~WorldTab()
   disconnect(socket, nullptr, nullptr, nullptr);
   delete api;
   delete ui;
+}
+
+AvailableCopy WorldTab::availableCopy() const
+{
+  if (outputCopyAvailable)
+    return AvailableCopy::Output;
+  if (inputCopyAvailable)
+    return AvailableCopy::Input;
+  return AvailableCopy::None;
+}
+
+QTextEdit *WorldTab::copyableEditor() const
+{
+  if (outputCopyAvailable)
+    return ui->output;
+  if (inputCopyAvailable)
+    return ui->input;
+  return nullptr;
 }
 
 void WorldTab::createWorld() &
@@ -566,6 +586,12 @@ void WorldTab::readFromSocket()
     flushTimerId = -1;
 }
 
+void WorldTab::on_input_copyAvailable(bool available)
+{
+  inputCopyAvailable = available;
+  emit copyAvailable(availableCopy());
+}
+
 void WorldTab::on_input_submitted(const QString &text)
 {
   ui->output->verticalScrollBar()->unpause();
@@ -642,6 +668,12 @@ void WorldTab::on_output_anchorClicked(const QUrl &url)
   }
 
   sendCommand(action, CommandSource::Hotkey);
+}
+
+void WorldTab::on_output_copyAvailable(bool available)
+{
+  outputCopyAvailable = available;
+  emit copyAvailable(availableCopy());
 }
 
 void WorldTab::on_output_customContextMenuRequested(const QPoint &pos)

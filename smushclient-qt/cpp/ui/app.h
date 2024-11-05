@@ -10,6 +10,7 @@ namespace Ui
 }
 QT_END_NAMESPACE
 
+enum class AvailableCopy : int;
 class WorldTab;
 
 class App : public QMainWindow
@@ -35,8 +36,13 @@ private:
   WorldTab *worldtab(int index) const;
 
 private slots:
+  void onCopyAvailable(AvailableCopy copy);
+
   void on_action_close_world_triggered();
   void on_action_connect_triggered();
+  void on_action_copy_triggered();
+  void on_action_copy_as_html_triggered();
+  void on_action_cut_triggered();
   void on_action_disconnect_triggered();
   void on_action_edit_world_details_triggered();
   void on_action_edit_script_file_triggered();
@@ -45,11 +51,13 @@ private slots:
   void on_action_global_preferences_triggered();
   void on_action_new_triggered();
   void on_action_open_world_triggered();
+  void on_action_paste_triggered();
   void on_action_plugins_triggered();
   void on_action_quit_triggered();
   void on_action_reload_script_file_triggered();
   void on_action_save_world_details_as_triggered();
   void on_action_save_world_details_triggered();
+  void on_action_select_all_triggered();
   void on_menu_file_aboutToShow();
   void on_world_tabs_currentChanged(int index);
 

@@ -37,3 +37,5 @@ LineType getLineType(const QTextCharFormat &format);
 void setTimestamp(QTextCursor &cursor);
 
 QDateTime getTimestamp(const QTextBlockFormat &format);
+
+QString &sanitizeHtml(QString &html);

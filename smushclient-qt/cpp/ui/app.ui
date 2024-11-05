@@ -59,7 +59,6 @@
     <addaction name="action_copy"/>
     <addaction name="action_copy_as_html"/>
     <addaction name="action_paste"/>
-    <addaction name="action_paste_to_world"/>
     <addaction name="separator"/>
     <addaction name="action_select_all"/>
     <addaction name="action_save_selection"/>
@@ -361,17 +360,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+V</string>
-   </property>
-  </action>
-  <action name="action_paste_to_world">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Paste to &amp;World...</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+V</string>
    </property>
   </action>
   <action name="action_select_all">

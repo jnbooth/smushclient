@@ -130,3 +130,31 @@ QDateTime getTimestamp(const QTextBlockFormat &format)
 {
   return format.property(timestampProp).toDateTime();
 }
+
+QString &sanitizeHtml(QString &html)
+{
+#define Q QStringLiteral
+
+  static const QString none;
+  static const QRegularExpression sanitize(Q(
+      "("
+      " ?(background-color:transparent|-qt-paragraph-type:empty|(\\w|-)+:0(px)?);? ?"
+      "|"
+      "<!--.*?-->"
+      ")"));
+  static const QRegularExpression attributeWhitespace(Q("=\"\\s+"));
+  static const QRegularExpression emptyAttribute(Q(" ?(\\w|-)+=\"\""));
+
+  const qsizetype bodyStart = html.indexOf(Q("<body>")) + 6;
+  const qsizetype bodyEnd = html.lastIndexOf(Q("</body>"));
+
+  return html
+      .slice(bodyStart, bodyEnd - bodyStart)
+      .replace(sanitize, none)
+      .replace(attributeWhitespace, Q("=\""))
+      .replace(Q(" ?\\w+=\"\""), none)
+      .replace(emptyAttribute, none)
+      .replace(Q("href=\"w:"), Q("href=\""));
+
+#undef Q
+}

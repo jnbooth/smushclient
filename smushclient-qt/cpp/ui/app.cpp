@@ -1,10 +1,13 @@
 #include "app.h"
 #include "ui_app.h"
+#include <QtGui/QClipboard>
+#include <QtGui/QTextDocumentFragment>
 #include <QtWidgets/QFileDialog>
 #include "ui_worldtab.h"
 #include "worldtab.h"
 #include "../environment.h"
 #include "../settings.h"
+#include "../spans.h"
 #include "finddialog.h"
 #include "settings.h"
 
@@ -82,7 +85,6 @@ void App::openRecentFile(qsizetype index)
   for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
   {
     WorldTab *tab = worldtab(i);
-    qDebug() << filePath << tab->worldFilePath();
     if (tab->worldFilePath() == filePath)
     {
       ui->world_tabs->setCurrentWidget(tab);
@@ -98,6 +100,7 @@ void App::openWorld(const QString &filePath)
   WorldTab *tab = new WorldTab(ui->world_tabs);
   if (tab->openWorld(filePath))
   {
+    connect(tab, &WorldTab::copyAvailable, this, &App::onCopyAvailable);
     const int tabIndex = ui->world_tabs->addTab(tab, tab->title());
     ui->world_tabs->setCurrentIndex(tabIndex);
     addRecentFile(filePath);
@@ -144,11 +147,7 @@ void App::setWorldMenusEnabled(bool enabled) const
   ui->action_print->setEnabled(enabled);
   ui->action_undo->setEnabled(enabled);
   ui->action_redo->setEnabled(enabled);
-  ui->action_cut->setEnabled(enabled);
-  ui->action_copy->setEnabled(enabled);
-  ui->action_copy_as_html->setEnabled(enabled);
   ui->action_paste->setEnabled(enabled);
-  ui->action_paste_to_world->setEnabled(enabled);
   ui->action_select_all->setEnabled(enabled);
   ui->action_save_selection->setEnabled(enabled);
   ui->action_find->setEnabled(enabled);
@@ -176,6 +175,13 @@ WorldTab *App::worldtab(int index) const
 
 // Private slots
 
+void App::onCopyAvailable(AvailableCopy copy)
+{
+  ui->action_cut->setEnabled(copy == AvailableCopy::Input);
+  ui->action_copy->setEnabled(copy != AvailableCopy::None);
+  ui->action_copy_as_html->setEnabled(copy == AvailableCopy::Output);
+}
+
 void App::on_action_close_world_triggered()
 {
   QWidget *tab = ui->world_tabs->currentWidget();
@@ -183,40 +189,52 @@ void App::on_action_close_world_triggered()
     delete tab;
 }
 
+void App::on_action_copy_triggered()
+{
+  worldtab()->copyableEditor()->copy();
+}
+
+void App::on_action_copy_as_html_triggered()
+{
+  QString html = worldtab()->copyableEditor()->textCursor().selection().toHtml();
+  QGuiApplication::clipboard()->setText(sanitizeHtml(html));
+}
+
+void App::on_action_cut_triggered()
+{
+  worldtab()->copyableEditor()->cut();
+}
+
 void App::on_action_connect_triggered()
 {
-  if (WorldTab *tab = worldtab(); tab)
-    tab->connectToHost();
+  worldtab()->connectToHost();
 }
 
 void App::on_action_disconnect_triggered()
 {
-  if (WorldTab *tab = worldtab(); tab)
-    tab->disconnectFromHost();
+  worldtab()->disconnectFromHost();
 }
 
 void App::on_action_edit_script_file_triggered()
 {
-  if (WorldTab *tab = worldtab(); tab)
-    tab->editWorldScript();
+  worldtab()->editWorldScript();
 }
 
 void App::on_action_edit_world_details_triggered()
 {
-  if (WorldTab *tab = worldtab(); tab)
-    tab->openWorldSettings();
+  worldtab()->openWorldSettings();
 }
 
 void App::on_action_find_triggered()
 {
-  if (WorldTab *tab = worldtab(); tab && findDialog->exec() == QDialog::Accepted)
-    findDialog->find(tab->ui->output);
+  if (findDialog->exec() == QDialog::Accepted)
+    findDialog->find(worldtab()->ui->output);
 }
 
 void App::on_action_find_again_triggered()
 {
-  if (WorldTab *tab = worldtab(); tab && (findDialog->isFilled() || findDialog->exec() == QDialog::Accepted))
-    findDialog->find(tab->ui->output);
+  if (findDialog->isFilled() || findDialog->exec() == QDialog::Accepted)
+    findDialog->find(worldtab()->ui->output);
 }
 
 void App::on_action_global_preferences_triggered()
@@ -241,6 +259,7 @@ void App::on_action_new_triggered()
   const int currentIndex = ui->world_tabs->currentIndex();
   WorldTab *tab = new WorldTab(this);
   tab->createWorld();
+  connect(tab, &WorldTab::copyAvailable, this, &App::onCopyAvailable);
   const int tabIndex = ui->world_tabs->addTab(tab, tr("New world"));
   ui->world_tabs->setCurrentIndex(tabIndex);
   if (tab->openWorldSettings())
@@ -266,10 +285,14 @@ void App::on_action_open_world_triggered()
   openWorld(filePath);
 }
 
+void App::on_action_paste_triggered()
+{
+  worldtab()->ui->input->paste();
+}
+
 void App::on_action_plugins_triggered()
 {
-  if (WorldTab *tab = worldtab(); tab)
-    tab->openPluginsDialog();
+  worldtab()->openPluginsDialog();
 }
 
 void App::on_action_quit_triggered()
@@ -279,20 +302,22 @@ void App::on_action_quit_triggered()
 
 void App::on_action_reload_script_file_triggered()
 {
-  if (WorldTab *tab = worldtab(); tab)
-    tab->reloadWorldScript();
+  worldtab()->reloadWorldScript();
 }
 
 void App::on_action_save_world_details_as_triggered()
 {
-  if (WorldTab *tab = worldtab(); tab)
-    addRecentFile(tab->saveWorldAsNew(tr(saveFilter)));
+  addRecentFile(worldtab()->saveWorldAsNew(tr(saveFilter)));
+}
+
+void App::on_action_select_all_triggered()
+{
+  worldtab()->ui->input->selectAll();
 }
 
 void App::on_action_save_world_details_triggered()
 {
-  if (WorldTab *tab = worldtab(); tab)
-    addRecentFile(tab->saveWorld(tr(saveFilter)));
+  addRecentFile(worldtab()->saveWorld(tr(saveFilter)));
 }
 void App::on_menu_file_aboutToShow()
 {
@@ -312,10 +337,12 @@ void App::on_world_tabs_currentChanged(int index)
   if (!activeTab)
   {
     setWorldMenusEnabled(false);
+    onCopyAvailable(AvailableCopy::None);
     return;
   }
   setWorldMenusEnabled(true);
   activeTab->onTabSwitch(true);
+  onCopyAvailable(activeTab->availableCopy());
 }
 
 void App::on_world_tabs_tabCloseRequested(int index)
