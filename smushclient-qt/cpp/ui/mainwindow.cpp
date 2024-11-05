@@ -1,5 +1,5 @@
-#include "app.h"
-#include "ui_app.h"
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
 #include <QtGui/QClipboard>
 #include <QtGui/QTextDocumentFragment>
 #include <QtGui/QDesktopServices>
@@ -19,9 +19,9 @@
 
 constexpr const char *saveFilter = "World files (*.smush);;All Files (*.*)";
 
-App::App(QWidget *parent)
+MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      ui(new Ui::App),
+      ui(new Ui::MainWindow),
       lastTabIndex(-1),
       recentFileActions()
 {
@@ -43,9 +43,9 @@ App::App(QWidget *parent)
   ui->action_wrap_output->setChecked(settings.outputWrapping());
   ui->action_auto_connect->setChecked(settings.autoConnect());
   ui->action_reconnect_on_disconnect->setChecked(settings.reconnectOnDisconnect());
-  connect(ui->action_maximize, &QAction::triggered, this, &App::showMaximized);
-  connect(ui->action_minimize, &QAction::triggered, this, &App::showMinimized);
-  connect(ui->action_restore, &QAction::triggered, this, &App::showNormal);
+  connect(ui->action_maximize, &QAction::triggered, this, &MainWindow::showMaximized);
+  connect(ui->action_minimize, &QAction::triggered, this, &MainWindow::showMinimized);
+  connect(ui->action_restore, &QAction::triggered, this, &MainWindow::showNormal);
 
   recentFileActions = QList<QAction *>{
       ui->action_rec_1,
@@ -61,7 +61,7 @@ App::App(QWidget *parent)
     setupRecentFiles(recentFiles);
 }
 
-App::~App()
+MainWindow::~MainWindow()
 {
   QStringList lastFiles;
   const int tabCount = ui->world_tabs->count();
@@ -76,12 +76,12 @@ App::~App()
   delete ui;
 }
 
-void App::openWorld(const QString &filePath)
+void MainWindow::openWorld(const QString &filePath)
 {
   WorldTab *tab = new WorldTab(ui->world_tabs);
   if (tab->openWorld(filePath))
   {
-    connect(tab, &WorldTab::copyAvailable, this, &App::onCopyAvailable);
+    connect(tab, &WorldTab::copyAvailable, this, &MainWindow::onCopyAvailable);
     const int tabIndex = ui->world_tabs->addTab(tab, tab->title());
     ui->world_tabs->setCurrentIndex(tabIndex);
     addRecentFile(filePath);
@@ -96,7 +96,7 @@ void App::openWorld(const QString &filePath)
 
 // Private methods
 
-void App::addRecentFile(const QString &filePath) const
+void MainWindow::addRecentFile(const QString &filePath) const
 {
   if (filePath.isEmpty())
     return;
@@ -108,7 +108,7 @@ void App::addRecentFile(const QString &filePath) const
   setupRecentFiles(result.recentFiles);
 }
 
-void App::openRecentFile(qsizetype index)
+void MainWindow::openRecentFile(qsizetype index)
 {
   const QStringList recentFiles = Settings().recentFiles();
   if (index >= recentFiles.length())
@@ -129,7 +129,7 @@ void App::openRecentFile(qsizetype index)
   openWorld(recentFiles.at(index));
 }
 
-void App::setupRecentFiles(const QStringList &recentFiles) const
+void MainWindow::setupRecentFiles(const QStringList &recentFiles) const
 {
   auto i = recentFileActions.begin();
   auto end = recentFileActions.end();
@@ -150,7 +150,7 @@ void App::setupRecentFiles(const QStringList &recentFiles) const
   }
 }
 
-void App::setWorldMenusEnabled(bool enabled) const
+void MainWindow::setWorldMenusEnabled(bool enabled) const
 {
   ui->action_close_world->setEnabled(enabled);
   ui->action_save_world_details->setEnabled(enabled);
@@ -179,43 +179,43 @@ void App::setWorldMenusEnabled(bool enabled) const
   ui->action_stop_sound_playing->setEnabled(enabled);
 }
 
-WorldTab *App::worldtab() const
+WorldTab *MainWindow::worldtab() const
 {
   return qobject_cast<WorldTab *>(ui->world_tabs->currentWidget());
 }
 
-WorldTab *App::worldtab(int index) const
+WorldTab *MainWindow::worldtab(int index) const
 {
   return qobject_cast<WorldTab *>(ui->world_tabs->widget(index));
 }
 
 // Private slots
 
-void App::onCopyAvailable(AvailableCopy copy)
+void MainWindow::onCopyAvailable(AvailableCopy copy)
 {
   ui->action_cut->setEnabled(copy == AvailableCopy::Input);
   ui->action_copy->setEnabled(copy != AvailableCopy::None);
   ui->action_copy_as_html->setEnabled(copy == AvailableCopy::Output);
 }
 
-void App::on_action_auto_connect_triggered(bool checked)
+void MainWindow::on_action_auto_connect_triggered(bool checked)
 {
   Settings().setAutoConnect(checked);
 }
 
-void App::on_action_clear_output_triggered()
+void MainWindow::on_action_clear_output_triggered()
 {
   worldtab()->ui->output->clear();
 }
 
-void App::on_action_close_world_triggered()
+void MainWindow::on_action_close_world_triggered()
 {
   QWidget *tab = ui->world_tabs->currentWidget();
   if (tab)
     delete tab;
 }
 
-void App::on_action_command_history_triggered()
+void MainWindow::on_action_command_history_triggered()
 {
   MudInput *input = worldtab()->ui->input;
   ListBox listbox(tr("Command History"), QString(), this);
@@ -228,61 +228,61 @@ void App::on_action_command_history_triggered()
   input->setText(text);
 }
 
-void App::on_action_copy_triggered()
+void MainWindow::on_action_copy_triggered()
 {
   worldtab()->copyableEditor()->copy();
 }
 
-void App::on_action_copy_as_html_triggered()
+void MainWindow::on_action_copy_as_html_triggered()
 {
   QString html = worldtab()->copyableEditor()->textCursor().selection().toHtml();
   QGuiApplication::clipboard()->setText(sanitizeHtml(html));
 }
 
-void App::on_action_cut_triggered()
+void MainWindow::on_action_cut_triggered()
 {
   worldtab()->copyableEditor()->cut();
 }
 
-void App::on_action_connect_to_all_open_worlds_triggered()
+void MainWindow::on_action_connect_to_all_open_worlds_triggered()
 {
   for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
     worldtab(i)->connectToHost();
 }
 
-void App::on_action_connect_triggered()
+void MainWindow::on_action_connect_triggered()
 {
   worldtab()->connectToHost();
 }
 
-void App::on_action_disconnect_triggered()
+void MainWindow::on_action_disconnect_triggered()
 {
   worldtab()->disconnectFromHost();
 }
 
-void App::on_action_edit_script_file_triggered()
+void MainWindow::on_action_edit_script_file_triggered()
 {
   worldtab()->editWorldScript();
 }
 
-void App::on_action_edit_world_details_triggered()
+void MainWindow::on_action_edit_world_details_triggered()
 {
   worldtab()->openWorldSettings();
 }
 
-void App::on_action_find_triggered()
+void MainWindow::on_action_find_triggered()
 {
   if (findDialog->exec() == QDialog::Accepted)
     findDialog->find(worldtab()->ui->output);
 }
 
-void App::on_action_find_again_triggered()
+void MainWindow::on_action_find_again_triggered()
 {
   if (findDialog->isFilled() || findDialog->exec() == QDialog::Accepted)
     findDialog->find(worldtab()->ui->output);
 }
 
-void App::on_action_global_preferences_triggered()
+void MainWindow::on_action_global_preferences_triggered()
 {
   Settings settings;
   SettingsDialog dialog(settings, this);
@@ -297,7 +297,7 @@ void App::on_action_global_preferences_triggered()
   dialog.exec();
 }
 
-void App::on_action_go_to_line_triggered()
+void MainWindow::on_action_go_to_line_triggered()
 {
   QTextEdit *output = worldtab()->ui->output;
   QTextDocument *doc = output->document();
@@ -310,7 +310,7 @@ void App::on_action_go_to_line_triggered()
   output->setTextCursor(cursor);
 }
 
-void App::on_action_log_session_triggered(bool checked)
+void MainWindow::on_action_log_session_triggered(bool checked)
 {
   Settings().setLoggingEnabled(checked);
   for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
@@ -322,12 +322,12 @@ void App::on_action_log_session_triggered(bool checked)
   }
 }
 
-void App::on_action_new_triggered()
+void MainWindow::on_action_new_triggered()
 {
   const int currentIndex = ui->world_tabs->currentIndex();
   WorldTab *tab = new WorldTab(this);
   tab->createWorld();
-  connect(tab, &WorldTab::copyAvailable, this, &App::onCopyAvailable);
+  connect(tab, &WorldTab::copyAvailable, this, &MainWindow::onCopyAvailable);
   const int tabIndex = ui->world_tabs->addTab(tab, tr("New world"));
   ui->world_tabs->setCurrentIndex(tabIndex);
   if (tab->openWorldSettings())
@@ -339,13 +339,13 @@ void App::on_action_new_triggered()
   ui->world_tabs->setCurrentIndex(currentIndex);
 }
 
-void App::on_action_new_window_triggered()
+void MainWindow::on_action_new_window_triggered()
 {
-  App *newWindow = new App();
+  MainWindow *newWindow = new MainWindow();
   newWindow->show();
 }
 
-void App::on_action_open_world_triggered()
+void MainWindow::on_action_open_world_triggered()
 {
   const QString filePath = QFileDialog::getOpenFileName(
       this,
@@ -359,22 +359,22 @@ void App::on_action_open_world_triggered()
   openWorld(filePath);
 }
 
-void App::on_action_paste_triggered()
+void MainWindow::on_action_paste_triggered()
 {
   worldtab()->ui->input->paste();
 }
 
-void App::on_action_pause_output_triggered(bool checked)
+void MainWindow::on_action_pause_output_triggered(bool checked)
 {
   worldtab()->ui->output->verticalScrollBar()->setPaused(checked);
 }
 
-void App::on_action_plugins_triggered()
+void MainWindow::on_action_plugins_triggered()
 {
   worldtab()->openPluginsDialog();
 }
 
-void App::on_action_print_triggered()
+void MainWindow::on_action_print_triggered()
 {
   QPrinter printer;
   QPrintDialog dialog(&printer, this);
@@ -383,50 +383,50 @@ void App::on_action_print_triggered()
   worldtab()->ui->output->document()->print(&printer);
 }
 
-void App::on_action_quit_triggered()
+void MainWindow::on_action_quit_triggered()
 {
   QCoreApplication::quit();
 }
 
-void App::on_action_reconnect_on_disconnect_triggered(bool checked)
+void MainWindow::on_action_reconnect_on_disconnect_triggered(bool checked)
 {
   Settings().setReconnectOnDisconnect(checked);
 }
 
-void App::on_action_reload_script_file_triggered()
+void MainWindow::on_action_reload_script_file_triggered()
 {
   worldtab()->reloadWorldScript();
 }
 
-void App::on_action_reset_all_timers_triggered()
+void MainWindow::on_action_reset_all_timers_triggered()
 {
   for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
     worldtab(i)->resetAllTimers();
 }
 
-void App::on_action_save_world_details_as_triggered()
+void MainWindow::on_action_save_world_details_as_triggered()
 {
   addRecentFile(worldtab()->saveWorldAsNew(tr(saveFilter)));
 }
 
-void App::on_action_select_all_triggered()
+void MainWindow::on_action_select_all_triggered()
 {
   worldtab()->ui->input->selectAll();
 }
 
-void App::on_action_status_bar_triggered(bool checked)
+void MainWindow::on_action_status_bar_triggered(bool checked)
 {
   Settings().setShowStatusBar(checked);
   ui->statusBar->setVisible(checked);
 }
 
-void App::on_action_stop_sound_playing_triggered()
+void MainWindow::on_action_stop_sound_playing_triggered()
 {
   for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
     worldtab(i)->stopSound();
 }
 
-void App::on_action_wrap_output_triggered(bool checked)
+void MainWindow::on_action_wrap_output_triggered(bool checked)
 {
   Settings().setOutputWrapping(checked);
   const QTextEdit::LineWrapMode mode =
@@ -435,22 +435,22 @@ void App::on_action_wrap_output_triggered(bool checked)
     worldtab(i)->ui->output->setLineWrapMode(mode);
 }
 
-void App::on_action_save_world_details_triggered()
+void MainWindow::on_action_save_world_details_triggered()
 {
   addRecentFile(worldtab()->saveWorld(tr(saveFilter)));
 }
 
-void App::on_action_visit_api_guide_triggered()
+void MainWindow::on_action_visit_api_guide_triggered()
 {
   QDesktopServices::openUrl(QStringLiteral("https://www.gammon.com.au/scripts/doc.php?general=function_list"));
 }
 
-void App::on_action_visit_bug_reports_triggered()
+void MainWindow::on_action_visit_bug_reports_triggered()
 {
   QDesktopServices::openUrl(QStringLiteral("https://github.com/jnbooth/smushclient/issues"));
 }
 
-void App::on_menu_file_aboutToShow()
+void MainWindow::on_menu_file_aboutToShow()
 {
   WorldTab *tab = worldtab();
   const bool hasWorldScript = tab && !tab->world.getWorldScript().isEmpty();
@@ -458,13 +458,13 @@ void App::on_menu_file_aboutToShow()
   ui->action_reload_script_file->setEnabled(hasWorldScript);
 }
 
-void App::on_menu_view_aboutToShow()
+void MainWindow::on_menu_view_aboutToShow()
 {
   WorldTab *tab = worldtab();
   ui->action_pause_output->setChecked(tab && tab->ui->output->verticalScrollBar()->paused());
 }
 
-void App::on_world_tabs_currentChanged(int index)
+void MainWindow::on_world_tabs_currentChanged(int index)
 {
   const WorldTab *lastTab = worldtab(lastTabIndex);
   if (lastTab)
@@ -483,7 +483,7 @@ void App::on_world_tabs_currentChanged(int index)
   onCopyAvailable(activeTab->availableCopy());
 }
 
-void App::on_world_tabs_tabCloseRequested(int index)
+void MainWindow::on_world_tabs_tabCloseRequested(int index)
 {
   delete ui->world_tabs->widget(index);
 }

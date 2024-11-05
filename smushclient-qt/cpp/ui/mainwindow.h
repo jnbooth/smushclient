@@ -6,25 +6,25 @@
 QT_BEGIN_NAMESPACE
 namespace Ui
 {
-  class App;
+  class MainWindow;
 }
 QT_END_NAMESPACE
 
 enum class AvailableCopy : int;
 class WorldTab;
 
-class App : public QMainWindow
+class MainWindow : public QMainWindow
 {
   Q_OBJECT
 
 public:
-  explicit App(QWidget *parent = nullptr);
-  ~App();
+  explicit MainWindow(QWidget *parent = nullptr);
+  ~MainWindow();
 
   void openWorld(const QString &filePath);
 
 private:
-  Ui::App *ui;
+  Ui::MainWindow *ui;
   FindDialog *findDialog;
   int lastTabIndex;
   QList<QAction *> recentFileActions;

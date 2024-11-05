@@ -109,7 +109,6 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/plugin.h cpp/scripting/plugin.cpp
     cpp/scripting/worldproperties.h cpp/scripting/worldproperties.cpp
 
-    cpp/ui/app.h cpp/ui/app.cpp cpp/ui/app.ui
     cpp/ui/components/colorpickerbutton.h cpp/ui/components/colorpickerbutton.cpp
     cpp/ui/components/iconlabel.h cpp/ui/components/iconlabel.cpp
     cpp/ui/components/mudbrowser.h cpp/ui/components/mudbrowser.cpp
@@ -117,6 +116,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/components/mudscrollbar.h cpp/ui/components/mudscrollbar.cpp
     cpp/ui/components/mudstatusbar.h cpp/ui/components/mudstatusbar.cpp
     cpp/ui/finddialog.h cpp/ui/finddialog.cpp cpp/ui/finddialog.ui
+    cpp/ui/mainwindow.h cpp/ui/mainwindow.cpp cpp/ui/mainwindow.ui
     cpp/ui/pluginsdialog.h cpp/ui/pluginsdialog.cpp cpp/ui/pluginsdialog.ui
     cpp/ui/prefs/abstractprefstree.h cpp/ui/prefs/abstractprefstree.cpp
     cpp/ui/prefs/address.h cpp/ui/prefs/address.cpp cpp/ui/prefs/address.ui

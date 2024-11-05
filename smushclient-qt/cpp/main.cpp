@@ -2,7 +2,7 @@
 #include <QtWidgets/QApplication>
 #include "lua.h"
 #include "environment.h"
-#include "./ui/app.h"
+#include "./ui/mainwindow.h"
 #include "settings.h"
 
 int main(int argc, char *argv[])
@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
   QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/Dina-Bold"));
   QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/FixedSys"));
   Settings settings;
-  App *w = new App;
+  MainWindow *w = new MainWindow;
   for (const QString &reopen : settings.lastFiles())
     w->openWorld(reopen);
   w->show();
