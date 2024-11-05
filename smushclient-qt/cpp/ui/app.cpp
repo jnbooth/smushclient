@@ -3,6 +3,7 @@
 #include <QtGui/QClipboard>
 #include <QtGui/QTextDocumentFragment>
 #include <QtWidgets/QFileDialog>
+#include <QtWidgets/QInputDialog>
 #include "ui_worldtab.h"
 #include "worldtab.h"
 #include "../environment.h"
@@ -271,6 +272,19 @@ void App::on_action_global_preferences_triggered()
     connect(&dialog, &SettingsDialog::outputFontChanged, tab, &WorldTab::onOutputFontChanged);
   }
   dialog.exec();
+}
+
+void App::on_action_go_to_line_triggered()
+{
+  QTextEdit *output = worldtab()->ui->output;
+  QTextDocument *doc = output->document();
+  const int blockCount = doc->blockCount();
+  const int choice = QInputDialog::getInt(this, tr("Go to line"), tr("Enter line number"), blockCount, 1, blockCount);
+  QTextCursor cursor(doc->findBlockByNumber(choice - 1));
+  if (cursor.columnNumber())
+    cursor.movePosition(QTextCursor::MoveOperation::NextRow);
+  cursor.movePosition(QTextCursor::MoveOperation::EndOfBlock, QTextCursor::MoveMode::KeepAnchor);
+  output->setTextCursor(cursor);
 }
 
 void App::on_action_log_session_triggered(bool checked)
