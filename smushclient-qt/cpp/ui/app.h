@@ -39,6 +39,7 @@ private slots:
   void onCopyAvailable(AvailableCopy copy);
 
   void on_action_auto_connect_triggered(bool checked);
+  void on_action_clear_output_triggered();
   void on_action_close_world_triggered();
   void on_action_command_history_triggered();
   void on_action_connect_to_all_open_worlds_triggered();

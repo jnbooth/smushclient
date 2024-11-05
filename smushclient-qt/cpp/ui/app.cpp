@@ -199,6 +199,11 @@ void App::on_action_auto_connect_triggered(bool checked)
   Settings().setAutoConnect(checked);
 }
 
+void App::on_action_clear_output_triggered()
+{
+  worldtab()->ui->output->clear();
+}
+
 void App::on_action_close_world_triggered()
 {
   QWidget *tab = ui->world_tabs->currentWidget();
