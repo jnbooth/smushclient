@@ -2,6 +2,7 @@
 #include "ui_app.h"
 #include <QtGui/QClipboard>
 #include <QtGui/QTextDocumentFragment>
+#include <QtGui/QDesktopServices>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QInputDialog>
 #include "ui_worldtab.h"
@@ -426,6 +427,17 @@ void App::on_action_save_world_details_triggered()
 {
   addRecentFile(worldtab()->saveWorld(tr(saveFilter)));
 }
+
+void App::on_action_visit_api_guide_triggered()
+{
+  QDesktopServices::openUrl(QStringLiteral("https://www.gammon.com.au/scripts/doc.php?general=function_list"));
+}
+
+void App::on_action_visit_bug_reports_triggered()
+{
+  QDesktopServices::openUrl(QStringLiteral("https://github.com/jnbooth/smushclient/issues"));
+}
+
 void App::on_menu_file_aboutToShow()
 {
   WorldTab *tab = worldtab();

@@ -117,8 +117,8 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
-    <addaction name="action_api_guide"/>
-    <addaction name="action_bug_reports"/>
+    <addaction name="action_visit_api_guide"/>
+    <addaction name="action_visit_bug_reports"/>
    </widget>
    <widget class="QMenu" name="menu_file">
     <property name="title">
@@ -615,7 +615,7 @@
     <string>Restore</string>
    </property>
   </action>
-  <action name="action_bug_reports">
+  <action name="action_visit_bug_reports">
    <property name="text">
     <string>Report a &amp;Bug</string>
    </property>
@@ -645,7 +645,7 @@
     <string>Ctrl+Alt+Space</string>
    </property>
   </action>
-  <action name="action_api_guide">
+  <action name="action_visit_api_guide">
    <property name="text">
     <string>API Guide</string>
    </property>
