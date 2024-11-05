@@ -15,7 +15,9 @@ public:
   explicit ListBox(const QString &title, const QString &message, QWidget *parent = nullptr);
   ~ListBox();
 
+  void addItems(const QStringList &items);
   void setMode(QListWidget::SelectionMode mode);
+  QString text() const;
 
   void addItem(const QString &text, const QVariant &value, bool active = false) override;
   void sortItems() override;

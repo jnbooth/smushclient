@@ -11,14 +11,26 @@ ListBox::ListBox(const QString &title, const QString &message, QWidget *parent)
   setWindowTitle(title);
   ui->label->setText(message);
 }
+
 ListBox::~ListBox()
 {
   delete ui;
 }
 
+void ListBox::addItems(const QStringList &items)
+{
+  ui->items->addItems(items);
+}
+
 void ListBox::setMode(QListWidget::SelectionMode mode)
 {
   ui->items->setSelectionMode(mode);
+}
+
+QString ListBox::text() const
+{
+  QListWidgetItem *item = ui->items->currentItem();
+  return item ? item->text() : QString();
 }
 
 // Public overrides

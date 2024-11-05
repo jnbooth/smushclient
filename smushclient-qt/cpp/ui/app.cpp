@@ -9,7 +9,8 @@
 #include "../environment.h"
 #include "../settings.h"
 #include "../spans.h"
-#include "components/mudscrollbar.h"
+#include "../components/mudscrollbar.h"
+#include "../scripting/listbox.h"
 #include "finddialog.h"
 #include "settings.h"
 
@@ -203,6 +204,19 @@ void App::on_action_close_world_triggered()
   QWidget *tab = ui->world_tabs->currentWidget();
   if (tab)
     delete tab;
+}
+
+void App::on_action_command_history_triggered()
+{
+  MudInput *input = worldtab()->ui->input;
+  ListBox listbox(tr("Command History"), QString(), this);
+  listbox.addItems(input->log());
+  if (listbox.exec() != QDialog::Accepted)
+    return;
+  QString text = listbox.text();
+  if (text.isEmpty())
+    return;
+  input->setText(text);
 }
 
 void App::on_action_copy_triggered()

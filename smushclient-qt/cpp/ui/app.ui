@@ -94,8 +94,6 @@
     </property>
     <addaction name="action_go_to_line"/>
     <addaction name="separator"/>
-    <addaction name="action_echo_commands"/>
-    <addaction name="separator"/>
     <addaction name="action_command_history"/>
     <addaction name="separator"/>
     <addaction name="action_clear_output"/>
@@ -546,20 +544,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+B</string>
-   </property>
-  </action>
-  <action name="action_echo_commands">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Echo Commands</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Alt+E</string>
    </property>
   </action>
   <action name="action_wrap_output">
