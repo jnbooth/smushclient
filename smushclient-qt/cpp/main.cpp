@@ -13,9 +13,9 @@ int main(int argc, char *argv[])
   QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/Dina-Bold"));
   QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/FixedSys"));
   Settings settings;
-  App w;
+  App *w = new App;
   for (const QString &reopen : settings.lastFiles())
-    w.openWorld(reopen);
-  w.show();
-  return app.exec();
+    w->openWorld(reopen);
+  w->show();
+  app.exec();
 }

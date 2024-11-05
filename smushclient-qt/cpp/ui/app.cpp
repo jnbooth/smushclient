@@ -25,6 +25,7 @@ App::App(QWidget *parent)
       lastTabIndex(-1),
       recentFileActions()
 {
+  setAttribute(Qt::WA_DeleteOnClose);
   findDialog = new FindDialog(this);
   if (QDir::current().isRoot())
   {
