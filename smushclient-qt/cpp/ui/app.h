@@ -53,6 +53,7 @@ private slots:
   void on_action_new_triggered();
   void on_action_open_world_triggered();
   void on_action_paste_triggered();
+  void on_action_pause_output_triggered(bool checked);
   void on_action_plugins_triggered();
   void on_action_quit_triggered();
   void on_action_reload_script_file_triggered();
@@ -60,7 +61,9 @@ private slots:
   void on_action_save_world_details_triggered();
   void on_action_select_all_triggered();
   void on_action_status_bar_triggered(bool checked);
+  void on_action_wrap_output_triggered(bool checked);
   void on_menu_file_aboutToShow();
+  void on_menu_view_aboutToShow();
   void on_world_tabs_currentChanged(int index);
 
   void on_action_rec_1_triggered() { openRecentFile(0); }

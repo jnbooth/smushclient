@@ -90,6 +90,12 @@ WorldTab::WorldTab(QWidget *parent)
   setColors(ui->input, settings.inputForeground(), settings.inputBackground());
   ui->input->setFont(settings.inputFont());
   ui->output->setFont(settings.outputFont());
+
+  const QTextEdit::LineWrapMode wrapMode =
+      settings.outputWrapping()
+          ? QTextEdit::LineWrapMode::WidgetWidth
+          : QTextEdit::LineWrapMode::NoWrap;
+  ui->output->setLineWrapMode(wrapMode);
 }
 
 WorldTab::~WorldTab()
@@ -600,7 +606,7 @@ void WorldTab::on_input_copyAvailable(bool available)
 
 void WorldTab::on_input_submitted(const QString &text)
 {
-  ui->output->verticalScrollBar()->unpause();
+  ui->output->verticalScrollBar()->setPaused(false);
 
   const QStringList commands = useSplitter ? text.split(splitter) : text.split(u'\n');
 

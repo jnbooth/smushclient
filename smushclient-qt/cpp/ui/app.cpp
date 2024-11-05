@@ -8,6 +8,7 @@
 #include "../environment.h"
 #include "../settings.h"
 #include "../spans.h"
+#include "components/mudscrollbar.h"
 #include "finddialog.h"
 #include "settings.h"
 
@@ -33,8 +34,10 @@ App::App(QWidget *parent)
   ui->setupUi(this);
 
   const bool showStatusBar = settings.showStatusBar();
-  ui->statusBar->setVisible(showStatusBar);
   ui->action_status_bar->setChecked(showStatusBar);
+
+  const bool wrapOutput = settings.outputWrapping();
+  ui->action_wrap_output->setChecked(wrapOutput);
 
   recentFileActions = QList<QAction *>{
       ui->action_rec_1,
@@ -308,6 +311,11 @@ void App::on_action_paste_triggered()
   worldtab()->ui->input->paste();
 }
 
+void App::on_action_pause_output_triggered(bool checked)
+{
+  worldtab()->ui->output->verticalScrollBar()->setPaused(checked);
+}
+
 void App::on_action_plugins_triggered()
 {
   worldtab()->openPluginsDialog();
@@ -339,6 +347,15 @@ void App::on_action_status_bar_triggered(bool checked)
   ui->statusBar->setVisible(checked);
 }
 
+void App::on_action_wrap_output_triggered(bool checked)
+{
+  Settings().setOutputWrapping(checked);
+  const QTextEdit::LineWrapMode mode =
+      checked ? QTextEdit::LineWrapMode::WidgetWidth : QTextEdit::LineWrapMode::NoWrap;
+  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
+    worldtab(i)->ui->output->setLineWrapMode(mode);
+}
+
 void App::on_action_save_world_details_triggered()
 {
   addRecentFile(worldtab()->saveWorld(tr(saveFilter)));
@@ -349,6 +366,12 @@ void App::on_menu_file_aboutToShow()
   const bool hasWorldScript = tab && !tab->world.getWorldScript().isEmpty();
   ui->action_edit_script_file->setEnabled(hasWorldScript);
   ui->action_reload_script_file->setEnabled(hasWorldScript);
+}
+
+void App::on_menu_view_aboutToShow()
+{
+  WorldTab *tab = worldtab();
+  ui->action_pause_output->setChecked(tab && tab->ui->output->verticalScrollBar()->paused());
 }
 
 void App::on_world_tabs_currentChanged(int index)
@@ -365,6 +388,7 @@ void App::on_world_tabs_currentChanged(int index)
     return;
   }
   setWorldMenusEnabled(true);
+  ui->action_pause_output->setChecked(activeTab->ui->output->verticalScrollBar()->paused());
   activeTab->onTabSwitch(true);
   onCopyAvailable(activeTab->availableCopy());
 }

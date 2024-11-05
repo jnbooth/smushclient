@@ -11,15 +11,22 @@ public:
 
   inline void disablePausing() { setPausingEnabled(false); }
   inline void enablePausing() { setPausingEnabled(true); }
+  constexpr bool paused() const
+  {
+    return isPaused;
+  }
+  void setPaused(bool paused);
   void setPausingEnabled(bool enabled);
   void toEnd();
-  void unpause();
 
 protected:
   virtual void sliderChange(QAbstractSlider::SliderChange change) override;
 
 private:
   int lastValue;
-  bool paused;
+  bool isPaused;
   bool pausingEnabled;
+
+private:
+  void updateParentPolicy() const;
 };

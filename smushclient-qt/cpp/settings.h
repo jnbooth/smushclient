@@ -34,10 +34,21 @@ public:
   QFont outputFont() const;
   void setOutputFont(const QFont &font);
 
+  bool outputWrapping() const;
+  void setOutputWrapping(bool wrapping);
+
   QStringList recentFiles() const;
   RecentFileResult addRecentFile(const QString &path);
   RecentFileResult removeRecentFile(const QString &path);
 
 private:
   QSettings store;
+
+private:
+  template <typename T>
+  inline T value(QAnyStringView key, T defaultValue) const
+  {
+    const QVariant val = store.value(key);
+    return val.canConvert<T>() ? val.value<T>() : defaultValue;
+  }
 };

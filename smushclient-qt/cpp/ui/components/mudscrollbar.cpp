@@ -24,38 +24,33 @@ QAbstractScrollArea *getScrollArea(const QObject *obj)
 MudScrollBar::MudScrollBar(QWidget *parent)
     : QScrollBar(parent),
       lastValue(0),
-      paused(false),
+      isPaused(false),
       pausingEnabled(true) {}
+
+void MudScrollBar::setPaused(bool paused)
+{
+  isPaused = paused;
+  if (!isPaused)
+    setValue(maximum());
+}
 
 void MudScrollBar::setPausingEnabled(bool enabled)
 {
   pausingEnabled = enabled;
-  QAbstractScrollArea *p = getScrollArea(parent());
-  if (!pausingEnabled)
+  if (pausingEnabled)
   {
-    paused = false;
-    if (p)
-      p->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAsNeeded);
-    return;
+    lastValue = value();
+    isPaused = lastValue != maximum();
   }
-  lastValue = value();
-  paused = lastValue != maximum();
-  if (p)
-    p->setVerticalScrollBarPolicy(
-        paused ? Qt::ScrollBarPolicy::ScrollBarAlwaysOn
-               : Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+  else
+    isPaused = false;
+  updateParentPolicy();
 }
 
 void MudScrollBar::toEnd()
 {
-  if (!paused)
+  if (!isPaused)
     setValue(maximum());
-}
-
-void MudScrollBar::unpause()
-{
-  paused = false;
-  setValue(maximum());
 }
 
 // Protected overrides
@@ -68,21 +63,29 @@ void MudScrollBar::sliderChange(QAbstractSlider::SliderChange change)
   lastValue = value();
   if (lastValue == maximum())
   {
-    if (!paused)
+    if (!isPaused)
       return;
-    paused = false;
+    isPaused = false;
   }
   else if (lastValue < previousValue)
   {
-    if (paused)
+    if (isPaused)
       return;
-    paused = true;
+    isPaused = true;
   }
+  updateParentPolicy();
+}
+
+// Private methods
+
+void MudScrollBar::updateParentPolicy() const
+{
   QAbstractScrollArea *p = getScrollArea(parent());
   if (!p)
     return;
 
   p->setVerticalScrollBarPolicy(
-      paused ? Qt::ScrollBarPolicy::ScrollBarAlwaysOn
-             : Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+      !pausingEnabled ? Qt::ScrollBarPolicy::ScrollBarAsNeeded
+      : isPaused      ? Qt::ScrollBarPolicy::ScrollBarAlwaysOn
+                      : Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
 }

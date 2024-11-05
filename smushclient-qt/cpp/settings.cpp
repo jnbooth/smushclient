@@ -32,12 +32,8 @@ static const QString inputFontKey = QStringLiteral("input/font");
 
 QFont Settings::inputFont() const
 {
-  const QVariant font = store.value(inputFontKey);
-  if (font.canConvert<QFont>())
-    return font.value<QFont>();
-
   static const QFont defaultFont = getDefaultFont(12);
-  return defaultFont;
+  return value(inputFontKey, defaultFont);
 }
 
 void Settings::setInputFont(const QFont &font)
@@ -51,10 +47,7 @@ static const QString inputBackgroundKey = QStringLiteral("input/background");
 
 QColor Settings::inputBackground() const
 {
-  const QVariant color = store.value(inputBackgroundKey);
-  if (color.canConvert<QColor>())
-    return color.value<QColor>();
-  return Qt::GlobalColor::white;
+  return value(inputBackgroundKey, QColor(Qt::GlobalColor::white));
 }
 
 void Settings::setInputBackground(const QColor &color)
@@ -68,10 +61,7 @@ static const QString inputForegroundKey = QStringLiteral("input/foreground");
 
 QColor Settings::inputForeground() const
 {
-  const QVariant color = store.value(inputForegroundKey);
-  if (color.canConvert<QColor>())
-    return color.value<QColor>();
-  return Qt::GlobalColor::black;
+  return value(inputForegroundKey, QColor(Qt::GlobalColor::black));
 }
 
 void Settings::setInputForeground(const QColor &color)
@@ -95,16 +85,16 @@ void Settings::setLastFiles(const QStringList &files)
 
 // Logging enabled
 
-static const QString loggingDisabledKey = QStringLiteral("logging/disable");
+static const QString loggingEnabledKey = QStringLiteral("logging/enable");
 
 bool Settings::loggingEnabled() const
 {
-  return !store.value(loggingDisabledKey).toBool();
+  return value(loggingEnabledKey, true);
 }
 
 void Settings::setLoggingEnabled(bool enabled)
 {
-  store.setValue(loggingDisabledKey, !enabled);
+  store.setValue(loggingEnabledKey, enabled);
 }
 
 // Output font
@@ -113,17 +103,27 @@ static const QString outputFontKey = QStringLiteral("output/font");
 
 QFont Settings::outputFont() const
 {
-  const QVariant font = store.value(outputFontKey);
-  if (font.canConvert<QFont>())
-    return font.value<QFont>();
-
   static const QFont defaultFont = getDefaultFont(12);
-  return defaultFont;
+  return value(outputFontKey, defaultFont);
 }
 
 void Settings::setOutputFont(const QFont &font)
 {
   store.setValue(outputFontKey, font);
+}
+
+// Output wrapping
+
+static const QString outputWrapKey = QStringLiteral("output/wrap");
+
+bool Settings::outputWrapping() const
+{
+  return value(outputWrapKey, true);
+}
+
+void Settings::setOutputWrapping(bool wrapping)
+{
+  store.setValue(outputWrapKey, wrapping);
 }
 
 // Recent files
@@ -174,14 +174,14 @@ RecentFileResult Settings::removeRecentFile(const QString &path)
 
 // Show status bar
 
-static const QString hideStatusBarKey = QStringLiteral("statusbar/hide");
+static const QString showStatusBarKey = QStringLiteral("statusbar/visible");
 
 bool Settings::showStatusBar() const
 {
-  return !store.value(hideStatusBarKey).toBool();
+  return value(showStatusBarKey, true);
 }
 
 void Settings::setShowStatusBar(bool show)
 {
-  store.setValue(hideStatusBarKey, !show);
+  store.setValue(showStatusBarKey, show);
 }
