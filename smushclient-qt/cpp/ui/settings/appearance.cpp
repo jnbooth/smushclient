@@ -17,6 +17,13 @@ SettingsAppearance::SettingsAppearance(Settings &settings, QWidget *parent)
   ui->setupUi(this);
   ui->inputBackground->setValue(settings.inputBackground());
   ui->inputForeground->setValue(settings.inputForeground());
+  ui->inputFont->setCurrentFont(inputFont);
+  ui->inputFontSize->setValue(inputFont.pointSize());
+  ui->outputFont->setCurrentFont(outputFont);
+  ui->outputFontSize->setValue(outputFont.pointSize());
+
+  connect(ui->inputBackground, &ColorPickerButton::valueChanged, &settings, &Settings::setInputBackground);
+  connect(ui->inputForeground, &ColorPickerButton::valueChanged, &settings, &Settings::setInputForeground);
 }
 
 SettingsAppearance::~SettingsAppearance()
@@ -28,7 +35,6 @@ SettingsAppearance::~SettingsAppearance()
 
 void SettingsAppearance::on_inputBackground_valueChanged(const QColor &color)
 {
-  settings.setInputBackground(color);
   emit inputBackgroundChanged(color);
 }
 
@@ -54,7 +60,6 @@ void SettingsAppearance::on_inputFontSize_valueChanged(int size)
 
 void SettingsAppearance::on_inputForeground_valueChanged(const QColor &color)
 {
-  settings.setInputForeground(color);
   emit inputForegroundChanged(color);
 }
 

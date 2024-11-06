@@ -24,7 +24,9 @@ QString makePathRelative(const QString &filePath)
 
 // Public methods
 
-Settings::Settings() : store() {}
+Settings::Settings(QObject *parent)
+    : QObject(parent),
+      store() {}
 
 // Auto connect
 

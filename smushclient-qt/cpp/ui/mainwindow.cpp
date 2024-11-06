@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
       ui(new Ui::MainWindow),
       lastTabIndex(-1),
       recentFileActions(),
+      settings(),
       socketConnection()
 {
   setAttribute(Qt::WA_DeleteOnClose);
@@ -36,8 +37,6 @@ MainWindow::MainWindow(QWidget *parent)
     QDir::setCurrent(dirPath);
   }
 
-  Settings settings;
-
   ui->setupUi(this);
 
   ui->action_status_bar->setChecked(settings.showStatusBar());
@@ -47,6 +46,11 @@ MainWindow::MainWindow(QWidget *parent)
   connect(ui->action_maximize, &QAction::triggered, this, &MainWindow::showMaximized);
   connect(ui->action_minimize, &QAction::triggered, this, &MainWindow::showMinimized);
   connect(ui->action_restore, &QAction::triggered, this, &MainWindow::showNormal);
+  connect(ui->action_auto_connect, &QAction::triggered, &settings, &Settings::setAutoConnect);
+  connect(ui->action_log_session, &QAction::triggered, &settings, &Settings::setLoggingEnabled);
+  connect(ui->action_reconnect_on_disconnect, &QAction::triggered, &settings, &Settings::setReconnectOnDisconnect);
+  connect(ui->action_status_bar, &QAction::triggered, &settings, &Settings::setShowStatusBar);
+  connect(ui->action_wrap_output, &QAction::triggered, &settings, &Settings::setOutputWrapping);
 
   recentFileActions = QList<QAction *>{
       ui->action_rec_1,
@@ -73,7 +77,7 @@ MainWindow::~MainWindow()
     if (!worldFilePath.isEmpty())
       lastFiles.push_back(worldFilePath);
   }
-  Settings().setLastFiles(lastFiles);
+  settings.setLastFiles(lastFiles);
   delete ui;
 }
 
@@ -90,19 +94,19 @@ void MainWindow::openWorld(const QString &filePath)
     return;
   }
   delete tab;
-  const RecentFileResult result = Settings().removeRecentFile(filePath);
+  const RecentFileResult result = settings.removeRecentFile(filePath);
   if (result.changed)
     setupRecentFiles(result.recentFiles);
 }
 
 // Private methods
 
-void MainWindow::addRecentFile(const QString &filePath) const
+void MainWindow::addRecentFile(const QString &filePath)
 {
   if (filePath.isEmpty())
     return;
 
-  const RecentFileResult result = Settings().addRecentFile(filePath);
+  const RecentFileResult result = settings.addRecentFile(filePath);
   if (!result.changed)
     return;
 
@@ -111,7 +115,7 @@ void MainWindow::addRecentFile(const QString &filePath) const
 
 void MainWindow::openRecentFile(qsizetype index)
 {
-  const QStringList recentFiles = Settings().recentFiles();
+  const QStringList recentFiles = settings.recentFiles();
   if (index >= recentFiles.length())
     return;
 
@@ -203,11 +207,6 @@ void MainWindow::onConnectionStatusChanged(bool connected)
   ui->action_disconnect->setEnabled(connected);
 }
 
-void MainWindow::on_action_auto_connect_triggered(bool checked)
-{
-  Settings().setAutoConnect(checked);
-}
-
 void MainWindow::on_action_clear_output_triggered()
 {
   worldtab()->ui->output->clear();
@@ -289,7 +288,6 @@ void MainWindow::on_action_find_again_triggered()
 
 void MainWindow::on_action_global_preferences_triggered()
 {
-  Settings settings;
   SettingsDialog dialog(settings, this);
   for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
   {
@@ -317,7 +315,6 @@ void MainWindow::on_action_go_to_line_triggered()
 
 void MainWindow::on_action_log_session_triggered(bool checked)
 {
-  Settings().setLoggingEnabled(checked);
   for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
   {
     if (checked)
@@ -393,11 +390,6 @@ void MainWindow::on_action_quit_triggered()
   QCoreApplication::quit();
 }
 
-void MainWindow::on_action_reconnect_on_disconnect_triggered(bool checked)
-{
-  Settings().setReconnectOnDisconnect(checked);
-}
-
 void MainWindow::on_action_reload_script_file_triggered()
 {
   worldtab()->reloadWorldScript();
@@ -421,7 +413,6 @@ void MainWindow::on_action_select_all_triggered()
 
 void MainWindow::on_action_status_bar_triggered(bool checked)
 {
-  Settings().setShowStatusBar(checked);
   ui->statusBar->setVisible(checked);
 }
 
@@ -433,7 +424,6 @@ void MainWindow::on_action_stop_sound_playing_triggered()
 
 void MainWindow::on_action_wrap_output_triggered(bool checked)
 {
-  Settings().setOutputWrapping(checked);
   const QTextEdit::LineWrapMode mode =
       checked ? QTextEdit::LineWrapMode::WidgetWidth : QTextEdit::LineWrapMode::NoWrap;
   for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)

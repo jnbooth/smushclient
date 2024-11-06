@@ -8,43 +8,42 @@ typedef struct RecentFileResult
   const QStringList recentFiles;
 } RecentFileResult;
 
-class Settings
+class Settings : public QObject
 {
 public:
-  Settings();
+  explicit Settings(QObject *parent = nullptr);
 
   bool autoConnect() const;
-  void setAutoConnect(bool autoConnect);
-
+  
   QFont inputFont() const;
-  void setInputFont(const QFont &font);
-
   QColor inputBackground() const;
-  void setInputBackground(const QColor &color);
-
   QColor inputForeground() const;
-  void setInputForeground(const QColor &color);
 
   QStringList lastFiles() const;
-  void setLastFiles(const QStringList &files);
 
   bool loggingEnabled() const;
-  void setLoggingEnabled(bool enabled);
 
   QFont outputFont() const;
-  void setOutputFont(const QFont &font);
-
   bool outputWrapping() const;
-  void setOutputWrapping(bool wrapping);
 
   QStringList recentFiles() const;
   RecentFileResult addRecentFile(const QString &path);
   RecentFileResult removeRecentFile(const QString &path);
 
   bool reconnectOnDisconnect() const;
-  void setReconnectOnDisconnect(bool reconnect);
 
   bool showStatusBar() const;
+
+public slots:
+  void setAutoConnect(bool autoConnect);
+  void setInputFont(const QFont &font);
+  void setInputBackground(const QColor &color);
+  void setInputForeground(const QColor &color);
+  void setLastFiles(const QStringList &files);
+  void setLoggingEnabled(bool enabled);
+  void setOutputFont(const QFont &font);
+  void setOutputWrapping(bool wrapping);
+  void setReconnectOnDisconnect(bool reconnect);
   void setShowStatusBar(bool show);
 
 private:
@@ -54,7 +53,6 @@ private:
   template <typename T>
   inline T value(QAnyStringView key, T defaultValue) const
   {
-    const QVariant val = store.value(key);
-    return val.canConvert<T>() ? val.value<T>() : defaultValue;
+    return store.contains(key) ? store.value(key).value<T>() : defaultValue;
   }
 };

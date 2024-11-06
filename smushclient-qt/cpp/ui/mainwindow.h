@@ -2,6 +2,7 @@
 #include <QtGui/QAction>
 #include <QtWidgets/QMainWindow>
 #include "finddialog.h"
+#include "../settings.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -28,9 +29,10 @@ private:
   FindDialog *findDialog;
   int lastTabIndex;
   QList<QAction *> recentFileActions;
+  Settings settings;
   QMetaObject::Connection socketConnection;
 
-  void addRecentFile(const QString &filePath) const;
+  void addRecentFile(const QString &filePath);
   void openRecentFile(qsizetype index);
   void setupRecentFiles(const QStringList &recentFiles) const;
   void setWorldMenusEnabled(bool enabled) const;
@@ -41,7 +43,6 @@ private slots:
   void onCopyAvailable(AvailableCopy copy);
   void onConnectionStatusChanged(bool connected);
 
-  void on_action_auto_connect_triggered(bool checked);
   void on_action_clear_output_triggered();
   void on_action_close_world_triggered();
   void on_action_command_history_triggered();
@@ -66,7 +67,6 @@ private slots:
   void on_action_plugins_triggered();
   void on_action_print_triggered();
   void on_action_quit_triggered();
-  void on_action_reconnect_on_disconnect_triggered(bool checked);
   void on_action_reload_script_file_triggered();
   void on_action_reset_all_timers_triggered();
   void on_action_save_world_details_as_triggered();
