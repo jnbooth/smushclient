@@ -1,7 +1,5 @@
-#ifndef PLUGINSDIALOG_H
-#define PLUGINSDIALOG_H
-
-#include <QDialog>
+#pragma once
+#include <QtWidgets/QDialog>
 
 namespace Ui
 {
@@ -34,5 +32,3 @@ private slots:
   void on_button_reinstall_clicked();
   void on_button_remove_clicked();
 };
-
-#endif // PLUGINSDIALOG_H
