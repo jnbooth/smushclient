@@ -1,16 +1,15 @@
 #include "appearance.h"
 #include "ui_appearance.h"
 #include "../settings.h"
-
-#undef emit
-#define emit qobject_cast<SettingsDialog *>(parent())->
+#include "notifier.h"
 
 // Public methods
 
-SettingsAppearance::SettingsAppearance(Settings &settings, QWidget *parent)
+SettingsAppearance::SettingsAppearance(Settings &settings, SettingsNotifier *notifier, QWidget *parent)
     : QWidget(parent),
       ui(new Ui::SettingsAppearance),
       inputFont(settings.inputFont()),
+      notifier(notifier),
       outputFont(settings.outputFont()),
       settings(settings)
 {
@@ -35,7 +34,7 @@ SettingsAppearance::~SettingsAppearance()
 
 void SettingsAppearance::on_inputBackground_valueChanged(const QColor &color)
 {
-  emit inputBackgroundChanged(color);
+  emit notifier->inputBackgroundChanged(color);
 }
 
 void SettingsAppearance::on_inputFont_currentFontChanged(const QFont &font)
@@ -46,7 +45,7 @@ void SettingsAppearance::on_inputFont_currentFontChanged(const QFont &font)
   inputFont = font;
   inputFont.setPointSize(pointSize);
   settings.setInputFont(inputFont);
-  emit inputFontChanged(inputFont);
+  emit notifier->inputFontChanged(inputFont);
 }
 
 void SettingsAppearance::on_inputFontSize_valueChanged(int size)
@@ -55,12 +54,12 @@ void SettingsAppearance::on_inputFontSize_valueChanged(int size)
     return;
   inputFont.setPointSize(size);
   settings.setInputFont(inputFont);
-  emit inputFontChanged(inputFont);
+  emit notifier->inputFontChanged(inputFont);
 }
 
 void SettingsAppearance::on_inputForeground_valueChanged(const QColor &color)
 {
-  emit inputForegroundChanged(color);
+  emit notifier->inputForegroundChanged(color);
 }
 
 void SettingsAppearance::on_outputFont_currentFontChanged(const QFont &font)
@@ -71,7 +70,7 @@ void SettingsAppearance::on_outputFont_currentFontChanged(const QFont &font)
   outputFont = font;
   outputFont.setPointSize(pointSize);
   settings.setOutputFont(outputFont);
-  emit outputFontChanged(outputFont);
+  emit notifier->outputFontChanged(outputFont);
 }
 
 void SettingsAppearance::on_outputFontSize_valueChanged(int size)
@@ -80,5 +79,5 @@ void SettingsAppearance::on_outputFontSize_valueChanged(int size)
     return;
   outputFont.setPointSize(size);
   settings.setOutputFont(outputFont);
-  emit outputFontChanged(outputFont);
+  emit notifier->outputFontChanged(outputFont);
 }

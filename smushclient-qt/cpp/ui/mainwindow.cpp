@@ -86,7 +86,7 @@ void MainWindow::openWorld(const QString &filePath)
   WorldTab *tab = new WorldTab(ui->world_tabs);
   if (tab->openWorld(filePath))
   {
-    connect(tab, &WorldTab::copyAvailable, this, &MainWindow::onCopyAvailable);
+    connectTab(tab);
     const int tabIndex = ui->world_tabs->addTab(tab, tab->title());
     ui->world_tabs->setCurrentIndex(tabIndex);
     addRecentFile(filePath);
@@ -111,6 +111,12 @@ void MainWindow::addRecentFile(const QString &filePath)
     return;
 
   setupRecentFiles(result.recentFiles);
+}
+
+void MainWindow::connectTab(WorldTab *tab) const
+{
+  connect(tab, &WorldTab::copyAvailable, this, &MainWindow::onCopyAvailable);
+  SettingsDialog::connect(tab);
 }
 
 void MainWindow::openRecentFile(qsizetype index)
@@ -288,16 +294,7 @@ void MainWindow::on_action_find_again_triggered()
 
 void MainWindow::on_action_global_preferences_triggered()
 {
-  SettingsDialog dialog(settings, this);
-  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
-  {
-    WorldTab *tab = worldtab(i);
-    connect(&dialog, &SettingsDialog::inputBackgroundChanged, tab, &WorldTab::onInputBackgroundChanged);
-    connect(&dialog, &SettingsDialog::inputFontChanged, tab, &WorldTab::onInputFontChanged);
-    connect(&dialog, &SettingsDialog::inputForegroundChanged, tab, &WorldTab::onInputForegroundChanged);
-    connect(&dialog, &SettingsDialog::outputFontChanged, tab, &WorldTab::onOutputFontChanged);
-  }
-  dialog.exec();
+  SettingsDialog(settings, this).exec();
 }
 
 void MainWindow::on_action_go_to_line_triggered()
@@ -329,11 +326,11 @@ void MainWindow::on_action_new_triggered()
   const int currentIndex = ui->world_tabs->currentIndex();
   WorldTab *tab = new WorldTab(this);
   tab->createWorld();
-  connect(tab, &WorldTab::copyAvailable, this, &MainWindow::onCopyAvailable);
   const int tabIndex = ui->world_tabs->addTab(tab, tr("New world"));
   ui->world_tabs->setCurrentIndex(tabIndex);
   if (tab->openWorldSettings())
   {
+    connectTab(tab);
     tab->start();
     return;
   }

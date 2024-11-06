@@ -1,6 +1,20 @@
 #include "settings.h"
 #include "ui_settings.h"
 #include "settings/appearance.h"
+#include "settings/notifier.h"
+#include "worldtab.h"
+
+static SettingsNotifier notifier;
+
+// Static methods
+
+void SettingsDialog::connect(WorldTab *tab)
+{
+  tab->connect(&notifier, &SettingsNotifier::inputBackgroundChanged, tab, &WorldTab::onInputBackgroundChanged);
+  tab->connect(&notifier, &SettingsNotifier::inputForegroundChanged, tab, &WorldTab::onInputForegroundChanged);
+  tab->connect(&notifier, &SettingsNotifier::inputFontChanged, tab, &WorldTab::onInputFontChanged);
+  tab->connect(&notifier, &SettingsNotifier::outputFontChanged, tab, &WorldTab::onOutputFontChanged);
+}
 
 // Public methods
 
@@ -12,7 +26,7 @@ SettingsDialog::SettingsDialog(Settings &settings, QWidget *parent)
 {
   ui->setupUi(this);
   panes.reserve(1);
-  setupPane(new SettingsAppearance(settings, this), "Appearance");
+  setupPane(new SettingsAppearance(settings, &notifier, this), "Appearance");
 }
 
 SettingsDialog::~SettingsDialog()

@@ -125,10 +125,9 @@ qt_add_executable(${APP_NAME}
     cpp/ui/prefs/connecting.h cpp/ui/prefs/connecting.cpp cpp/ui/prefs/connecting.ui
     cpp/ui/prefs/logging.h cpp/ui/prefs/logging.cpp cpp/ui/prefs/logging.ui
     cpp/ui/prefs/mud.h cpp/ui/prefs/mud.cpp cpp/ui/prefs/mud.ui
-
     cpp/ui/prefs/numpad.h cpp/ui/prefs/numpad.cpp cpp/ui/prefs/numpad.ui
     cpp/ui/prefs/output.h cpp/ui/prefs/output.cpp cpp/ui/prefs/output.ui
-
+    cpp/ui/prefs/scripts.h cpp/ui/prefs/scripts.cpp cpp/ui/prefs/scripts.ui
     cpp/ui/prefs/specialhelp.h cpp/ui/prefs/specialhelp.cpp cpp/ui/prefs/specialhelp.ui
     cpp/ui/prefs/timeredit.h cpp/ui/prefs/timeredit.cpp cpp/ui/prefs/timeredit.ui
     cpp/ui/prefs/timers.h cpp/ui/prefs/timers.cpp cpp/ui/prefs/timers.ui
@@ -139,11 +138,11 @@ qt_add_executable(${APP_NAME}
     cpp/ui/scripting/listbox.h cpp/ui/scripting/listbox.cpp cpp/ui/scripting/listbox.ui
     cpp/ui/settings.h cpp/ui/settings.cpp cpp/ui/settings.ui
     cpp/ui/settings/appearance.h cpp/ui/settings/appearance.cpp cpp/ui/settings/appearance.ui
+    cpp/ui/settings/notifier.h
     cpp/ui/worldprefs.h cpp/ui/worldprefs.cpp cpp/ui/worldprefs.ui
     cpp/ui/worldtab.h cpp/ui/worldtab.cpp cpp/ui/worldtab.ui
 
     resources/resources.qrc
-    cpp/ui/prefs/scripts.h cpp/ui/prefs/scripts.cpp cpp/ui/prefs/scripts.ui
 )
 if(MSVC)
   target_compile_options(${APP_NAME} PRIVATE /W4 /WX)

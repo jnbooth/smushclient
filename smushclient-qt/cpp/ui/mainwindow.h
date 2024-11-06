@@ -33,6 +33,7 @@ private:
   QMetaObject::Connection socketConnection;
 
   void addRecentFile(const QString &filePath);
+  void connectTab(WorldTab *tab) const;
   void openRecentFile(qsizetype index);
   void setupRecentFiles(const QStringList &recentFiles) const;
   void setWorldMenusEnabled(bool enabled) const;

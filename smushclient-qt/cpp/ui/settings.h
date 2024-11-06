@@ -8,19 +8,17 @@ namespace Ui
   class SettingsDialog;
 }
 
+class WorldTab;
+
 class SettingsDialog : public QDialog
 {
   Q_OBJECT
 
 public:
+  static void connect(WorldTab *tab);
+
   explicit SettingsDialog(Settings &settings, QWidget *parent = nullptr);
   ~SettingsDialog();
-
-signals:
-  void inputBackgroundChanged(const QColor &color);
-  void inputForegroundChanged(const QColor &color);
-  void inputFontChanged(const QFont &font);
-  void outputFontChanged(const QFont &font);
 
 private:
   Ui::SettingsDialog *ui;

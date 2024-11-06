@@ -8,17 +8,20 @@ namespace Ui
   class SettingsAppearance;
 }
 
+class SettingsNotifier;
+
 class SettingsAppearance : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit SettingsAppearance(Settings &settings, QWidget *parent = nullptr);
+  explicit SettingsAppearance(Settings &settings, SettingsNotifier *notifier, QWidget *parent = nullptr);
   ~SettingsAppearance();
 
 private:
   Ui::SettingsAppearance *ui;
   QFont inputFont;
+  SettingsNotifier *notifier;
   QFont outputFont;
   Settings &settings;
 
