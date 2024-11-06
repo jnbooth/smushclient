@@ -82,8 +82,8 @@ qt_add_executable(${APP_NAME}
     cpp/environment.h
     cpp/fieldconnector.h
     cpp/hotkeys.h cpp/hotkeys.cpp
-    cpp/spans.h cpp/spans.cpp
     cpp/settings.h cpp/settings.cpp
+    cpp/spans.h cpp/spans.cpp
 
     cpp/bridge/document.h cpp/bridge/document.cpp
     cpp/bridge/timekeeper.h cpp/bridge/timekeeper.cpp
@@ -95,18 +95,18 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/hotspot.h cpp/scripting/hotspot.cpp
     cpp/scripting/imagefilters.h cpp/scripting/imagefilters.cpp
     cpp/scripting/luaapi.h cpp/scripting/luaapi.cpp
-    cpp/scripting/luautils.cpp
     cpp/scripting/luaglobals.h cpp/scripting/luaglobals.cpp
+    cpp/scripting/luautils.cpp
     cpp/scripting/miniwindow.h cpp/scripting/miniwindow.cpp
+    cpp/scripting/plugin.h cpp/scripting/plugin.cpp
     cpp/scripting/plugincallback.h cpp/scripting/plugincallback.cpp
     cpp/scripting/qlua.h cpp/scripting/qlua.cpp
-    cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
     cpp/scripting/scriptapi_api.cpp
     cpp/scripting/scriptapi_getinfo.cpp
     cpp/scripting/scriptapi_senders.cpp
     cpp/scripting/scriptapi_window.cpp
+    cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
     cpp/scripting/scriptthread.h cpp/scripting/scriptthread.cpp
-    cpp/scripting/plugin.h cpp/scripting/plugin.cpp
     cpp/scripting/worldproperties.h cpp/scripting/worldproperties.cpp
 
     cpp/ui/components/colorpickerbutton.h cpp/ui/components/colorpickerbutton.cpp
