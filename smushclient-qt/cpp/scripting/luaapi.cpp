@@ -144,8 +144,6 @@ inline size_t getPluginIndex(lua_State *L)
 
 // benchmarking
 
-#define BENCHMARK_LUA
-
 #ifdef BENCHMARK_LUA
 class Benchmarker
 {

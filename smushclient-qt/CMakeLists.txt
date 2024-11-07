@@ -207,6 +207,13 @@ target_include_directories(${APP_NAME} PUBLIC ${SOURCE_DIR}/src)
 
 add_compile_definitions(QT_NO_CAST_FROM_BYTEARRAY QT_NO_CAST_FROM_ASCII)
 
+# Enable Lua benchmarking
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+#add_compile_definitions(BENCHMARK_LUA)
+else ()
+add_compile_definitions(BENCHMARK_LUA)
+endif()
+
 # If we are using a statically linked Qt then we need to import any qml plugins
 qt_import_qml_plugins(${APP_NAME})
 
