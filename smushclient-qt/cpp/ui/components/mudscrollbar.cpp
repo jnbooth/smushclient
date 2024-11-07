@@ -27,6 +27,8 @@ MudScrollBar::MudScrollBar(QWidget *parent)
       isPaused(false),
       pausingEnabled(true) {}
 
+// Public slots
+
 void MudScrollBar::setPaused(bool paused)
 {
   isPaused = paused;

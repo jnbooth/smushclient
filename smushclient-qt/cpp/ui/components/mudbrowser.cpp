@@ -16,6 +16,8 @@ MudScrollBar *MudBrowser::verticalScrollBar() const
   return qobject_cast<MudScrollBar *>(QAbstractScrollArea::verticalScrollBar());
 }
 
+// Public slots
+
 void MudBrowser::setIgnoreKeypad(bool ignore)
 {
   ignoreKeypad = ignore;

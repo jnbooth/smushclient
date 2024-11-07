@@ -20,24 +20,9 @@ MudInput::MudInput(const QStringList &history)
       history(history),
       ignoreKeypad() {}
 
-void MudInput::clearLog()
-{
-  history.clear();
-}
-
 const QStringList &MudInput::log() const noexcept
 {
   return history.log();
-}
-
-void MudInput::remember(const QString &text)
-{
-  history.push(text);
-}
-
-void MudInput::setIgnoreKeypad(bool ignore)
-{
-  ignoreKeypad = ignore;
 }
 
 void MudInput::setLog(const QStringList &log)
@@ -61,6 +46,23 @@ QSize MudInput::minimumSizeHint() const
 QSize MudInput::sizeHint() const
 {
   return minimumSizeHint();
+}
+
+// Public slots
+
+void MudInput::clearLog()
+{
+  history.clear();
+}
+
+void MudInput::remember(const QString &text)
+{
+  history.push(text);
+}
+
+void MudInput::setIgnoreKeypad(bool ignore)
+{
+  ignoreKeypad = ignore;
 }
 
 // Protected overrides

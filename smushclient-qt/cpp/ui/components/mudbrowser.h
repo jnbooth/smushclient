@@ -11,6 +11,7 @@ public:
 
   MudScrollBar *verticalScrollBar() const;
 
+public slots:
   void setIgnoreKeypad(bool ignore);
 
 protected:

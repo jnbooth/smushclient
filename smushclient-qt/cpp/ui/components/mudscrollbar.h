@@ -15,9 +15,20 @@ public:
   {
     return isPaused;
   }
-  void setPaused(bool paused);
-  void setPausingEnabled(bool enabled);
+
+public slots:
+  void setPaused(bool paused = true);
+  void setPausingEnabled(bool enabled = true);
   void toEnd();
+
+  inline void setPausingDisabled(bool disabled = true)
+  {
+    setPausingEnabled(!disabled);
+  }
+  inline void setUnpaused(bool unpaused = true)
+  {
+    setPaused(!unpaused);
+  }
 
 protected:
   virtual void sliderChange(QAbstractSlider::SliderChange change) override;

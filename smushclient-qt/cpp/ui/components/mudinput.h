@@ -12,15 +12,17 @@ public:
   explicit MudInput(const QStringList &history);
   virtual ~MudInput() {};
 
-  void clearLog();
   const QStringList &log() const noexcept;
-  void remember(const QString &text);
-  void setIgnoreKeypad(bool ignore);
   void setLog(const QStringList &log);
   void setMaxLogSize(qsizetype size);
 
   virtual QSize minimumSizeHint() const override;
   virtual QSize sizeHint() const override;
+
+public slots:
+  void clearLog();
+  void remember(const QString &text);
+  void setIgnoreKeypad(bool ignore);
 
 signals:
   void submitted(const QString &text);

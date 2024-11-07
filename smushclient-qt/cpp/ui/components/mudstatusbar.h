@@ -12,6 +12,7 @@ public:
   explicit MudStatusBar(QWidget *parent = nullptr);
   virtual ~MudStatusBar() {};
 
+public slots:
   void setConnected(bool connected);
 
 private:

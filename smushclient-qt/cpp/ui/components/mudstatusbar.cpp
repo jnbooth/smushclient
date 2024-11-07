@@ -11,12 +11,14 @@ MudStatusBar::MudStatusBar(QWidget *parent)
   connectionStatus = new QLabel;
   addPermanentWidget(connectionStatus);
 
-  QIcon networkIcon = QIcon::fromTheme(QIcon::ThemeIcon::NetworkWired);
+  const QIcon networkIcon = QIcon::fromTheme(QIcon::ThemeIcon::NetworkWired);
   connectionIcon = new IconLabel(networkIcon, QIcon::Mode::Disabled);
   addPermanentWidget(connectionIcon);
 
   setConnected(false);
 }
+
+// Public slots
 
 void MudStatusBar::setConnected(bool connected)
 {
