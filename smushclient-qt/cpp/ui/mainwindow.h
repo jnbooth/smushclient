@@ -73,6 +73,7 @@ private slots:
   void on_action_quit_triggered();
   void on_action_reload_script_file_triggered();
   void on_action_reset_all_timers_triggered();
+  void on_action_save_selection_triggered();
   void on_action_save_world_details_as_triggered();
   void on_action_save_world_details_triggered();
   void on_action_select_all_triggered();

@@ -1,9 +1,13 @@
 #include "notepad.h"
 #include "ui_notepad.h"
-#include <QtGui/QWindow>
+#include <QtCore/QSaveFile>
 #include <QtGui/QDesktopServices>
+#include <QtGui/QTextDocumentFragment>
+#include <QtGui/QWindow>
 #include <QtPrintSupport/QPrintDialog>
 #include <QtPrintSupport/QPrinter>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QErrorMessage>
 #include "finddialog.h"
 #include "settings.h"
 #include "../settings.h"
@@ -121,6 +125,28 @@ void Notepad::on_action_reset_size_triggered()
   fontSize = ui->editor->document()->defaultFont().pointSizeF();
   ui->action_decrease_size->setEnabled(fontSize > minFontSize);
   applyFontSize();
+}
+
+void Notepad::on_action_save_selection_triggered()
+{
+  const QString path = QFileDialog::getSaveFileName(
+      this,
+      tr("Save as"),
+      QString(),
+      tr("Text files (*.txt);;All Files (*.*)"));
+
+  if (path.isEmpty())
+    return;
+
+  QSaveFile file(path);
+  if (file.open(QSaveFile::WriteOnly))
+  {
+    file.write(ui->editor->textCursor().selection().toPlainText().toUtf8());
+    if (file.commit())
+      return;
+  }
+  QErrorMessage::qtHandler()->showMessage(file.errorString());
+  return;
 }
 
 void Notepad::on_action_visit_api_guide_triggered()

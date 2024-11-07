@@ -1,10 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QtCore/QSaveFile>
 #include <QtGui/QClipboard>
 #include <QtGui/QTextDocumentFragment>
 #include <QtGui/QDesktopServices>
 #include <QtPrintSupport/QPrintDialog>
 #include <QtPrintSupport/QPrinter>
+#include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QInputDialog>
 #include "ui_worldtab.h"
@@ -179,7 +181,6 @@ void MainWindow::setWorldMenusEnabled(bool enabled) const
   ui->action_redo->setEnabled(enabled);
   ui->action_paste->setEnabled(enabled);
   ui->action_select_all->setEnabled(enabled);
-  ui->action_save_selection->setEnabled(enabled);
   ui->action_find->setEnabled(enabled);
   ui->action_find_again->setEnabled(enabled);
   ui->action_pause_output->setEnabled(enabled);
@@ -207,6 +208,7 @@ void MainWindow::onCopyAvailable(AvailableCopy copy)
   ui->action_cut->setEnabled(copy == AvailableCopy::Input);
   ui->action_copy->setEnabled(copy != AvailableCopy::None);
   ui->action_copy_as_html->setEnabled(copy == AvailableCopy::Output);
+  ui->action_save_selection->setEnabled(copy != AvailableCopy::None);
 }
 
 void MainWindow::onConnectionStatusChanged(bool connected)
@@ -403,6 +405,28 @@ void MainWindow::on_action_reset_all_timers_triggered()
 {
   for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
     worldtab(i)->resetAllTimers();
+}
+
+void MainWindow::on_action_save_selection_triggered()
+{
+  const QString path = QFileDialog::getSaveFileName(
+      this,
+      tr("Save as"),
+      QString(),
+      tr("Text files (*.txt);;All Files (*.*)"));
+
+  if (path.isEmpty())
+    return;
+
+  QSaveFile file(path);
+  if (file.open(QSaveFile::WriteOnly))
+  {
+    file.write(worldtab()->copyableEditor()->textCursor().selection().toPlainText().toUtf8());
+    if (file.commit())
+      return;
+  }
+  QErrorMessage::qtHandler()->showMessage(file.errorString());
+  return;
 }
 
 void MainWindow::on_action_save_world_details_as_triggered()

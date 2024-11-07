@@ -132,6 +132,9 @@
    </property>
   </action>
   <action name="action_undo">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>&amp;Undo</string>
    </property>
@@ -219,6 +222,9 @@
    </property>
   </action>
   <action name="action_redo">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Redo</string>
    </property>
@@ -297,5 +303,86 @@
   </action>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>editor</sender>
+   <signal>copyAvailable(bool)</signal>
+   <receiver>action_copy</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>318</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editor</sender>
+   <signal>copyAvailable(bool)</signal>
+   <receiver>action_cut</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>318</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editor</sender>
+   <signal>copyAvailable(bool)</signal>
+   <receiver>action_save_selection</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>318</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editor</sender>
+   <signal>redoAvailable(bool)</signal>
+   <receiver>action_redo</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>318</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editor</sender>
+   <signal>undoAvailable(bool)</signal>
+   <receiver>action_undo</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>318</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
