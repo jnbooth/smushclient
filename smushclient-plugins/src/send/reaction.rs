@@ -1,4 +1,4 @@
-use fancy_regex::{Captures, Expander};
+use pcre2::bytes::Captures;
 use serde::{Deserialize, Serialize};
 
 use super::send_to::SendTarget;
@@ -44,13 +44,30 @@ impl Reaction {
     pub const DEFAULT_SEQUENCE: i16 = crate::constants::DEFAULT_SEQUENCE;
 
     pub fn expand_text<'a>(&self, buf: &'a mut Vec<u8>, captures: &Captures) -> &'a str {
-        Expander {
-            sub_char: '%',
-            ..Default::default()
+        buf.clear();
+        let mut chars = self.text.as_bytes().iter().copied();
+        while let Some(c) = chars.next() {
+            if c != b'%' {
+                buf.push(c);
+                continue;
+            }
+            let mut replace = 0usize;
+            let mut leftover = b'0';
+            for c in chars.by_ref() {
+                if !c.is_ascii_digit() {
+                    leftover = c;
+                    break;
+                }
+                replace = replace * 10 + usize::from(c - b'0');
+            }
+            if let Some(capture) = captures.get(replace) {
+                buf.extend_from_slice(capture.as_bytes());
+            }
+            if leftover != b'0' {
+                buf.push(leftover);
+            }
         }
-        .write_expansion_vec(buf, &self.text, captures)
-        .expect("expansion succeeded");
-        std::str::from_utf8(buf).expect("expansion is UTF-8")
+        Regex::expect(buf)
     }
 
     pub fn has_send(&self) -> bool {

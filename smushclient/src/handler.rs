@@ -49,7 +49,7 @@ impl<H: Handler> HandlerExt for H {
             let sender = &T::from_either(plugin, world)[i];
             let reaction: &Reaction = sender.as_ref();
             reaction.lock();
-            for captures in reaction.regex.captures_iter(line) {
+            for captures in reaction.regex.captures_iter(line.as_bytes()) {
                 let Ok(captures) = captures else {
                     continue;
                 };

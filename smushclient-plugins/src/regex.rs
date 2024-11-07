@@ -2,19 +2,19 @@ use std::cmp::Ordering;
 use std::fmt::{self, Debug, Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::ops::{Deref, DerefMut};
-use std::str::FromStr;
+use std::str::{self, FromStr};
 
 use serde::de::{Error as _, Unexpected};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-/// A wrapper around [`fancy_regex::Regex`] providing additional trait implementations.
+/// A wrapper around [`pcre2::bytes::Regex`] providing additional trait implementations.
 #[derive(Clone)]
-pub struct Regex(fancy_regex::Regex);
+pub struct Regex(pcre2::bytes::Regex);
 
-pub type RegexError = fancy_regex::Error;
+pub type RegexError = pcre2::Error;
 
 impl Deref for Regex {
-    type Target = fancy_regex::Regex;
+    type Target = pcre2::bytes::Regex;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -28,7 +28,7 @@ impl DerefMut for Regex {
 
 impl Default for Regex {
     fn default() -> Self {
-        Self(fancy_regex::Regex::new("^$").unwrap())
+        Self(pcre2::bytes::Regex::new("^$").unwrap())
     }
 }
 
@@ -85,16 +85,20 @@ impl FromStr for Regex {
     type Err = RegexError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        fancy_regex::Regex::from_str(s).map(Self)
+        pcre2::bytes::Regex::new(s).map(Self)
     }
 }
 
 impl Regex {
+    pub fn expect(bytes: &[u8]) -> &str {
+        str::from_utf8(bytes).expect("expansion is UTF-8")
+    }
+
     /// Compiles a regular expression. Once compiled, it can be used repeatedly
     /// to search, split or replace text in a string.
     ///
     /// If an invalid expression is given, then an error is returned.
     pub fn new(re: &str) -> Result<Self, RegexError> {
-        fancy_regex::Regex::new(re).map(Self)
+        pcre2::bytes::Regex::new(re).map(Self)
     }
 }

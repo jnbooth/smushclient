@@ -262,11 +262,11 @@ impl<'a> From<SendScriptRequest<'a>> for ffi::SendScriptRequest {
     fn from(value: SendScriptRequest<'a>) -> Self {
         let wildcards = match value.wildcards {
             Some(captures) => {
-                let mut iter = captures.iter();
-                iter.next();
-                iter.flatten()
-                    .map(|capture| capture.as_str().to_owned())
-                    .collect()
+                let mut wildcards = Vec::new();
+                for i in 1..captures.len() {
+                    wildcards.push(Regex::expect(captures.get(i).unwrap().as_bytes()).to_owned());
+                }
+                wildcards
             }
             None => Vec::new(),
         };

@@ -13,7 +13,7 @@ use smushclient::{
     AliasBool, CommandSource, SendRequest, SendScriptRequest, TimerBool, TimerConstructible,
     TriggerBool,
 };
-use smushclient_plugins::{PluginIndex, SendTarget, Timer};
+use smushclient_plugins::{PluginIndex, Regex, SendTarget, Timer};
 
 impl_convert_enum!(ffi::SendTo, SendTo, Internet, World, Input);
 
@@ -173,18 +173,20 @@ impl<'a> From<SendScriptRequest<'a>> for ffi::SendScriptRequest<'a> {
     fn from(value: SendScriptRequest<'a>) -> Self {
         let (wildcards, named_wildcards) = match value.wildcards {
             Some(captures) => {
-                let mut iter = captures.iter();
-                iter.next();
-                let wildcards = iter.flatten().map(|capture| capture.as_str()).collect();
+                let mut wildcards = Vec::new();
+                for i in 1..captures.len() {
+                    wildcards.push(Regex::expect(captures.get(i).unwrap().as_bytes()));
+                }
                 let named_wildcards = value
                     .regex
                     .capture_names()
+                    .iter()
                     .filter_map(|name| {
-                        let name = name?;
+                        let name = name.as_ref()?;
                         let value = captures.name(name)?;
                         Some(ffi::NamedWildcard {
                             name,
-                            value: value.as_str(),
+                            value: Regex::expect(value.as_bytes()),
                         })
                     })
                     .collect();

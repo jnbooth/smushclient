@@ -193,7 +193,7 @@ impl PluginEngine {
                     continue;
                 }
                 let mut matched = false;
-                for captures in alias.regex.captures_iter(line) {
+                for captures in alias.regex.captures_iter(line.as_bytes()) {
                     let Ok(captures) = captures else {
                         continue;
                     };
@@ -275,7 +275,7 @@ impl PluginEngine {
                     break;
                 }
                 let mut matched = false;
-                for captures in trigger.regex.captures_iter(line) {
+                for captures in trigger.regex.captures_iter(line.as_bytes()) {
                     let Ok(captures) = captures else {
                         continue;
                     };
@@ -286,8 +286,8 @@ impl PluginEngine {
                         trigger.lock();
                     }
                     if has_style {
-                        if let Some(Some(capture)) = captures.iter().next() {
-                            handler.apply_styles(capture.range(), style);
+                        if let Some(capture) = captures.get(0) {
+                            handler.apply_styles(capture.start()..capture.end(), style);
                         }
                     }
                     self.trigger_buf.clear();
