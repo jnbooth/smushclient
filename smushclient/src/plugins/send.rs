@@ -8,6 +8,7 @@ pub struct SendRequest<'a> {
     pub plugin: PluginIndex,
     pub send_to: SendTarget,
     pub text: &'a str,
+    pub destination: &'a str,
 }
 
 pub struct SendScriptRequest<'a> {

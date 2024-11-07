@@ -113,6 +113,49 @@ void Settings::setLoggingEnabled(bool enabled)
   store.setValue(loggingEnabledKey, enabled);
 }
 
+// Notepad font
+
+static const QString notepadFontKey = QStringLiteral("notepad/font");
+
+QFont Settings::notepadFont() const
+{
+  static const QFont defaultFont = getDefaultFont(12);
+  return value(notepadFontKey, defaultFont);
+}
+
+void Settings::setNotepadFont(const QFont &font)
+{
+  store.setValue(notepadFontKey, font);
+}
+
+// Notepad background
+
+static const QString notepadBackgroundKey = QStringLiteral("notepad/background");
+
+QColor Settings::notepadBackground() const
+{
+  return value(notepadBackgroundKey, QColor(Qt::GlobalColor::white));
+}
+
+void Settings::setNotepadBackground(const QColor &color)
+{
+  store.setValue(notepadBackgroundKey, color);
+}
+
+// Notepad foreground
+
+static const QString notepadForegroundKey = QStringLiteral("notepad/foreground");
+
+QColor Settings::notepadForeground() const
+{
+  return value(notepadForegroundKey, QColor(Qt::GlobalColor::black));
+}
+
+void Settings::setNotepadForeground(const QColor &color)
+{
+  store.setValue(notepadForegroundKey, color);
+}
+
 // Output font
 
 static const QString outputFontKey = QStringLiteral("output/font");

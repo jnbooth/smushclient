@@ -117,6 +117,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/components/mudstatusbar.h cpp/ui/components/mudstatusbar.cpp
     cpp/ui/finddialog.h cpp/ui/finddialog.cpp cpp/ui/finddialog.ui
     cpp/ui/mainwindow.h cpp/ui/mainwindow.cpp cpp/ui/mainwindow.ui
+    cpp/ui/notepad.h cpp/ui/notepad.cpp cpp/ui/notepad.ui
     cpp/ui/pluginsdialog.h cpp/ui/pluginsdialog.cpp cpp/ui/pluginsdialog.ui
     cpp/ui/prefs/abstractprefstree.h cpp/ui/prefs/abstractprefstree.cpp
     cpp/ui/prefs/address.h cpp/ui/prefs/address.cpp cpp/ui/prefs/address.ui

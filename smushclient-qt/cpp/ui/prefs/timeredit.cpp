@@ -15,7 +15,7 @@ TimerEdit::TimerEdit(Timer &timer, QWidget *parent)
   // Sender
   CONNECT(Group);
   CONNECT(Label);
-  CONNECT(SendToIndex);
+  CONNECT(UserSendTo);
   CONNECT(Script);
   CONNECT(Variable);
   CONNECT(Enabled);
@@ -42,14 +42,39 @@ TimerEdit::~TimerEdit()
   delete ui;
 }
 
-// Private methods
-
-void TimerEdit::on_Text_textChanged()
-{
-  timer.setText(ui->Text->toPlainText());
-}
+// Private slots
 
 void TimerEdit::on_OccurrenceChanged(Occurrence value)
 {
   timer.setOccurrence(value);
+}
+
+void TimerEdit::on_Label_textChanged(const QString &text)
+{
+  ui->Variable->setPlaceholderText(text);
+}
+
+void TimerEdit::on_UserSendTo_currentIndexChanged(int index)
+{
+  switch (index)
+  {
+  case (int)UserSendTarget::NotepadAppend:
+  case (int)UserSendTarget::NotepadNew:
+  case (int)UserSendTarget::NotepadReplace:
+    ui->Variable->show();
+    ui->Variable_label->setText(tr("Notepad:"));
+    return;
+  case (int)UserSendTarget::Variable:
+    ui->Variable->show();
+    ui->Variable_label->setText(tr("Variable:"));
+    return;
+  default:
+    ui->Variable->hide();
+    ui->Variable_label->clear();
+  }
+}
+
+void TimerEdit::on_Text_textChanged()
+{
+  timer.setText(ui->Text->toPlainText());
 }

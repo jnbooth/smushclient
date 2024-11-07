@@ -23,6 +23,7 @@ constexpr size_t noSuchPlugin = SIZE_T_MAX;
 class ImageFilter;
 class MudScrollBar;
 class MudStatusBar;
+class Notepads;
 class SmushClient;
 class Timekeeper;
 class World;
@@ -43,7 +44,7 @@ class ScriptApi : public QObject
 public:
   static void SetClipboard(const QString &text);
 
-  ScriptApi(WorldTab *parent);
+  ScriptApi(Notepads *notepads, WorldTab *parent);
 
   ApiCode AddAlias(
       size_t plugin,
@@ -294,7 +295,11 @@ public:
   bool sendCallback(PluginCallback &callback, size_t plugin);
   bool sendCallback(PluginCallback &callback, const QString &pluginID);
   void sendNaws() const;
-  void sendTo(size_t plugin, SendTarget target, const QString &text);
+  void sendTo(
+      size_t plugin,
+      SendTarget target,
+      const QString &text,
+      const QString &destination = QString());
   void setNawsEnabled(bool enabled);
   void setOpen(bool open) const;
   ActionSource setSource(ActionSource source) noexcept;
@@ -339,6 +344,7 @@ private:
   QString indentText;
   int lastTellPosition;
   QTextCharFormat noteFormat;
+  Notepads *notepads;
   std::vector<Plugin> plugins;
   std::unordered_map<std::string, size_t> pluginIndices;
   MudScrollBar *scrollBar;

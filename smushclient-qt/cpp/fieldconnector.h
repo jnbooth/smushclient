@@ -21,13 +21,6 @@ inline QMetaObject::Connection connectField(QObject *object, const T *target, QC
   return object->connect(input, &QComboBox::currentIndexChanged, target, reinterpret_cast<Setter>(setter));
 }
 
-template <typename T>
-inline QMetaObject::Connection connectField(QObject *object, const T *target, QComboBox *input, const int value, void (T::*&&setter)(const int value))
-{
-  input->setCurrentIndex(value);
-  return object->connect(input, &QComboBox::currentIndexChanged, target, setter);
-}
-
 // bool
 template <typename T>
 QMetaObject::Connection connectField(QObject *object, const T *target, QCheckBox *input, const bool value, void (T::*&&setter)(const bool &value))

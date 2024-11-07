@@ -20,42 +20,42 @@ const MILLISECONDS_PER_SECOND: i32 = 1000;
 const SECONDS_PER_MINUTE: u64 = 60;
 const MINUTES_PER_HOUR: u64 = 60;
 
-impl ffi::SendTarget {
-    pub fn to_index(self) -> i32 {
-        match self {
-            Self::World
-            | Self::WorldDelay
-            | Self::Execute
-            | Self::Speedwalk
-            | Self::WorldImmediate => 0,
-            Self::Command => 1,
-            Self::Output => 2,
-            Self::Status => 3,
-            Self::NotepadNew => 4,
-            Self::NotepadAppend => 5,
-            Self::NotepadReplace => 6,
-            Self::Log => 7,
-            Self::Variable => 8,
-            Self::Script | Self::ScriptAfterOmit => 9,
-            Self { repr } => i32::from(repr),
+impl From<ffi::SendTarget> for ffi::UserSendTarget {
+    fn from(value: ffi::SendTarget) -> Self {
+        use ffi::SendTarget as T;
+
+        match value {
+            T::World | T::WorldDelay | T::Execute | T::Speedwalk | T::WorldImmediate => Self::World,
+            T::Command => Self::Command,
+            T::Output => Self::Output,
+            T::Status => Self::Status,
+            T::NotepadNew => Self::NotepadNew,
+            T::NotepadAppend => Self::NotepadAppend,
+            T::NotepadReplace => Self::NotepadReplace,
+            T::Log => Self::Log,
+            T::Variable => Self::Variable,
+            T::Script | T::ScriptAfterOmit => Self::Script,
+            T { repr } => Self { repr },
         }
     }
+}
 
-    pub fn from_index(i: i32) -> Self {
-        match i {
-            0 => Self::World,
-            1 => Self::Command,
-            2 => Self::Output,
-            3 => Self::Status,
-            4 => Self::NotepadNew,
-            5 => Self::NotepadAppend,
-            6 => Self::NotepadReplace,
-            7 => Self::Log,
-            8 => Self::Variable,
-            9 => Self::Script,
-            _ => Self {
-                repr: u8::try_from(i).unwrap_or(u8::MAX),
-            },
+impl From<ffi::UserSendTarget> for ffi::SendTarget {
+    fn from(value: ffi::UserSendTarget) -> Self {
+        use ffi::UserSendTarget as T;
+
+        match value {
+            T::World => Self::World,
+            T::Command => Self::Command,
+            T::Output => Self::Output,
+            T::Status => Self::Status,
+            T::NotepadNew => Self::NotepadNew,
+            T::NotepadAppend => Self::NotepadAppend,
+            T::NotepadReplace => Self::NotepadReplace,
+            T::Log => Self::Log,
+            T::Variable => Self::Variable,
+            T::Script => Self::Script,
+            T { repr } => Self { repr },
         }
     }
 }
@@ -393,32 +393,35 @@ impl TryFrom<&TriggerRust> for Trigger {
 }
 
 impl ffi::Alias {
-    pub fn get_send_to_index(&self) -> i32 {
-        self.send_to.to_index()
+    pub fn get_user_send_to(&self) -> ffi::UserSendTarget {
+        self.send_to.into()
     }
 
-    pub fn set_send_to_index(self: Pin<&mut Self>, i: i32) {
-        self.cxx_qt_ffi_rust_mut().send_to = ffi::SendTarget::from_index(i);
+    #[allow(clippy::trivially_copy_pass_by_ref)]
+    pub fn set_user_send_to(self: Pin<&mut Self>, send_to: &ffi::UserSendTarget) {
+        self.cxx_qt_ffi_rust_mut().send_to = (*send_to).into();
     }
 }
 
 impl ffi::Timer {
-    pub fn get_send_to_index(&self) -> i32 {
-        self.send_to.to_index()
+    pub fn get_user_send_to(&self) -> ffi::UserSendTarget {
+        self.send_to.into()
     }
 
-    pub fn set_send_to_index(self: Pin<&mut Self>, i: i32) {
-        self.cxx_qt_ffi_rust_mut().send_to = ffi::SendTarget::from_index(i);
+    #[allow(clippy::trivially_copy_pass_by_ref)]
+    pub fn set_user_send_to(self: Pin<&mut Self>, send_to: &ffi::UserSendTarget) {
+        self.cxx_qt_ffi_rust_mut().send_to = (*send_to).into();
     }
 }
 
 impl ffi::Trigger {
-    pub fn get_send_to_index(&self) -> i32 {
-        self.send_to.to_index()
+    pub fn get_user_send_to(&self) -> ffi::UserSendTarget {
+        self.send_to.into()
     }
 
-    pub fn set_send_to_index(self: Pin<&mut Self>, i: i32) {
-        self.cxx_qt_ffi_rust_mut().send_to = ffi::SendTarget::from_index(i);
+    #[allow(clippy::trivially_copy_pass_by_ref)]
+    pub fn set_user_send_to(self: Pin<&mut Self>, send_to: &ffi::UserSendTarget) {
+        self.cxx_qt_ffi_rust_mut().send_to = (*send_to).into();
     }
 }
 

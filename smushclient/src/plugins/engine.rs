@@ -214,6 +214,7 @@ impl PluginEngine {
                             plugin: plugin_index,
                             send_to: alias.send_to,
                             text,
+                            destination: alias.destination(),
                         });
                     }
                     if !alias.repeats {
@@ -302,6 +303,7 @@ impl PluginEngine {
                             plugin: plugin_index,
                             send_to: trigger.send_to,
                             text,
+                            destination: trigger.destination(),
                         });
                     }
                     if !trigger.repeats {

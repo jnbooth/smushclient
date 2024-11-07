@@ -16,6 +16,8 @@ public:
   ~TriggerEdit();
 
 private slots:
+  void on_Label_textChanged(const QString &text);
+  void on_UserSendTo_currentIndexChanged(int index);
   void on_Text_textChanged();
 
 private:

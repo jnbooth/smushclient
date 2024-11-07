@@ -11,6 +11,7 @@
 
 class Document;
 class Hotspot;
+class Notepads;
 class ScriptApi;
 
 namespace Ui
@@ -33,7 +34,7 @@ public:
   Q_ENUM(AvailableCopy)
 
 public:
-  explicit WorldTab(QWidget *parent = nullptr);
+  explicit WorldTab(Notepads *notepads, QWidget *parent = nullptr);
   ~WorldTab();
 
   AvailableCopy availableCopy() const;

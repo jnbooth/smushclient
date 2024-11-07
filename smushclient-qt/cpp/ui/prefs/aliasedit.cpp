@@ -4,6 +4,8 @@
 
 #define CONNECT(field) connectField(this, alias, ui->field, alias->get##field(), &Alias::set##field);
 
+// Public methods
+
 AliasEdit::AliasEdit(Alias *alias, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::AliasEdit),
@@ -14,7 +16,7 @@ AliasEdit::AliasEdit(Alias *alias, QWidget *parent)
   // Sender
   CONNECT(Group);
   CONNECT(Label);
-  CONNECT(SendToIndex);
+  CONNECT(UserSendTo);
   CONNECT(Script);
   CONNECT(Variable);
   CONNECT(Enabled);
@@ -43,6 +45,34 @@ AliasEdit::AliasEdit(Alias *alias, QWidget *parent)
 AliasEdit::~AliasEdit()
 {
   delete ui;
+}
+
+// Private slots
+
+void AliasEdit::on_Label_textChanged(const QString &text)
+{
+  ui->Variable->setPlaceholderText(text);
+}
+
+void AliasEdit::on_UserSendTo_currentIndexChanged(int index)
+{
+  switch (index)
+  {
+  case (int)UserSendTarget::NotepadAppend:
+  case (int)UserSendTarget::NotepadNew:
+  case (int)UserSendTarget::NotepadReplace:
+    ui->Variable->show();
+    ui->Variable_label->setText(tr("Notepad:"));
+    return;
+  case (int)UserSendTarget::Variable:
+    ui->Variable->show();
+    ui->Variable_label->setText(tr("Variable:"));
+    return;
+  default:
+    ui->Variable->hide();
+    ui->Variable->clear();
+    ui->Variable_label->clear();
+  }
 }
 
 void AliasEdit::on_Text_textChanged()

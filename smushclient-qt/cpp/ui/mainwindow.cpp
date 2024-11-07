@@ -14,15 +14,17 @@
 #include "../spans.h"
 #include "../components/mudscrollbar.h"
 #include "../scripting/listbox.h"
+#include "notepad.h"
 #include "finddialog.h"
 #include "settings.h"
 
 constexpr const char *saveFilter = "World files (*.smush);;All Files (*.*)";
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(Notepads *notepads, QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
       lastTabIndex(-1),
+      notepads(notepads),
       recentFileActions(),
       settings(),
       socketConnection()
@@ -43,12 +45,13 @@ MainWindow::MainWindow(QWidget *parent)
   ui->action_wrap_output->setChecked(settings.outputWrapping());
   ui->action_auto_connect->setChecked(settings.autoConnect());
   ui->action_reconnect_on_disconnect->setChecked(settings.reconnectOnDisconnect());
+  connect(ui->action_auto_connect, &QAction::triggered, &settings, &Settings::setAutoConnect);
+  connect(ui->action_close_window, &QAction::triggered, this, &MainWindow::close);
+  connect(ui->action_log_session, &QAction::triggered, &settings, &Settings::setLoggingEnabled);
   connect(ui->action_maximize, &QAction::triggered, this, &MainWindow::showMaximized);
   connect(ui->action_minimize, &QAction::triggered, this, &MainWindow::showMinimized);
-  connect(ui->action_restore, &QAction::triggered, this, &MainWindow::showNormal);
-  connect(ui->action_auto_connect, &QAction::triggered, &settings, &Settings::setAutoConnect);
-  connect(ui->action_log_session, &QAction::triggered, &settings, &Settings::setLoggingEnabled);
   connect(ui->action_reconnect_on_disconnect, &QAction::triggered, &settings, &Settings::setReconnectOnDisconnect);
+  connect(ui->action_restore, &QAction::triggered, this, &MainWindow::showNormal);
   connect(ui->action_status_bar, &QAction::triggered, &settings, &Settings::setShowStatusBar);
   connect(ui->action_wrap_output, &QAction::triggered, &settings, &Settings::setOutputWrapping);
 
@@ -83,7 +86,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::openWorld(const QString &filePath)
 {
-  WorldTab *tab = new WorldTab(ui->world_tabs);
+  WorldTab *tab = new WorldTab(notepads, ui->world_tabs);
   if (tab->openWorld(filePath))
   {
     connectTab(tab);
@@ -179,7 +182,6 @@ void MainWindow::setWorldMenusEnabled(bool enabled) const
   ui->action_save_selection->setEnabled(enabled);
   ui->action_find->setEnabled(enabled);
   ui->action_find_again->setEnabled(enabled);
-  ui->action_show_world_notepad->setEnabled(enabled);
   ui->action_pause_output->setEnabled(enabled);
   ui->action_go_to_line->setEnabled(enabled);
   ui->action_command_history->setEnabled(enabled);
@@ -216,6 +218,11 @@ void MainWindow::onConnectionStatusChanged(bool connected)
 void MainWindow::on_action_clear_output_triggered()
 {
   worldtab()->ui->output->clear();
+}
+
+void MainWindow::on_action_close_all_notepad_windows_triggered()
+{
+  notepads->closeAll();
 }
 
 void MainWindow::on_action_close_world_triggered()
@@ -324,7 +331,7 @@ void MainWindow::on_action_log_session_triggered(bool checked)
 void MainWindow::on_action_new_triggered()
 {
   const int currentIndex = ui->world_tabs->currentIndex();
-  WorldTab *tab = new WorldTab(this);
+  WorldTab *tab = new WorldTab(notepads, this);
   tab->createWorld();
   const int tabIndex = ui->world_tabs->addTab(tab, tr("New world"));
   ui->world_tabs->setCurrentIndex(tabIndex);
@@ -340,7 +347,7 @@ void MainWindow::on_action_new_triggered()
 
 void MainWindow::on_action_new_window_triggered()
 {
-  MainWindow *newWindow = new MainWindow();
+  MainWindow *newWindow = new MainWindow(notepads);
   newWindow->show();
 }
 

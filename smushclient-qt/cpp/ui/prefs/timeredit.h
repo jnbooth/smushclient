@@ -16,8 +16,11 @@ public:
   ~TimerEdit();
 
 private slots:
-  void on_Text_textChanged();
   void on_OccurrenceChanged(Occurrence value);
+
+  void on_Label_textChanged(const QString &text);
+  void on_UserSendTo_currentIndexChanged(int index);
+  void on_Text_textChanged();
 
 private:
   Ui::TimerEdit *ui;

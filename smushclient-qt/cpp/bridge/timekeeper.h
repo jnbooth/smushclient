@@ -6,7 +6,7 @@
 #include <QtCore/QTimerEvent>
 
 class ScriptApi;
-enum class SendTarget : uint8_t;
+enum class SendTarget;
 struct SendTimer;
 
 class Timekeeper : public QObject

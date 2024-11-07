@@ -232,7 +232,7 @@ void Document::playSound(const QString &filePath) const
 
 void Document::send(const SendRequest &request) const
 {
-  api->sendTo(request.plugin, request.send_to, request.text);
+  api->sendTo(request.plugin, request.send_to, request.text, request.destination);
 }
 
 class AliasCallback : public PluginCallback

@@ -2,6 +2,7 @@
 #![allow(clippy::missing_safety_doc)]
 #![allow(clippy::needless_lifetimes)]
 #![allow(clippy::needless_pass_by_value)]
+#![allow(clippy::trivially_copy_pass_by_ref)]
 #![allow(clippy::unnecessary_box_returns)]
 #![allow(non_snake_case)]
 
@@ -148,6 +149,7 @@ pub mod ffi {
         sendto: SendTo,
     }
 
+    #[repr(i32)]
     enum SendTarget {
         World,
         Command,
@@ -166,6 +168,20 @@ pub mod ffi {
         ScriptAfterOmit,
     }
 
+    #[repr(i32)]
+    enum UserSendTarget {
+        World,
+        Command,
+        Output,
+        Status,
+        NotepadNew,
+        NotepadAppend,
+        NotepadReplace,
+        Log,
+        Variable,
+        Script,
+    }
+
     struct SendTimer {
         #[rust_name = "active_closed"]
         activeClosed: bool,
@@ -174,12 +190,14 @@ pub mod ffi {
         script: String,
         target: SendTarget,
         text: QString,
+        destination: QString,
     }
 
     struct SendRequest {
         plugin: usize,
         send_to: SendTarget,
         text: QString,
+        destination: QString,
     }
 
     struct NamedWildcard<'a> {
@@ -618,8 +636,8 @@ pub mod ffi {
     }
 
     unsafe extern "RustQt" {
-        fn get_send_to_index(self: &Timer) -> i32;
-        fn set_send_to_index(self: Pin<&mut Timer>, i: i32);
+        fn get_user_send_to(self: &Timer) -> UserSendTarget;
+        fn set_user_send_to(self: Pin<&mut Timer>, send_to: &UserSendTarget);
     }
 
     unsafe impl !cxx_qt::Locking for Timer {}
@@ -657,8 +675,8 @@ pub mod ffi {
     }
 
     unsafe extern "RustQt" {
-        fn get_send_to_index(self: &Alias) -> i32;
-        fn set_send_to_index(self: Pin<&mut Alias>, i: i32);
+        fn get_user_send_to(self: &Alias) -> UserSendTarget;
+        fn set_user_send_to(self: Pin<&mut Alias>, send_to: &UserSendTarget);
     }
 
     unsafe impl !cxx_qt::Locking for Alias {}
@@ -705,8 +723,8 @@ pub mod ffi {
     }
 
     unsafe extern "RustQt" {
-        fn get_send_to_index(self: &Trigger) -> i32;
-        fn set_send_to_index(self: Pin<&mut Trigger>, i: i32);
+        fn get_user_send_to(self: &Trigger) -> UserSendTarget;
+        fn set_user_send_to(self: Pin<&mut Trigger>, send_to: &UserSendTarget);
     }
 
     unsafe impl !cxx_qt::Locking for Trigger {}

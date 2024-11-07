@@ -150,6 +150,7 @@ pub mod ffi {
         plugin: usize,
         send_to: SendTarget,
         text: String,
+        destination: String,
     }
 
     #[swift_bridge(swift_repr = "struct")]

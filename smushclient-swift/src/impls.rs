@@ -253,6 +253,7 @@ impl<'a> From<SendRequest<'a>> for ffi::SendRequest {
             plugin: value.plugin,
             send_to: value.send_to.into(),
             text: value.text.to_owned(),
+            destination: value.destination.to_owned(),
         }
     }
 }

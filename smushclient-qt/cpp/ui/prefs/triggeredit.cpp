@@ -14,7 +14,7 @@ TriggerEdit::TriggerEdit(Trigger &trigger, QWidget *parent)
   // Sender
   CONNECT(Group);
   CONNECT(Label);
-  CONNECT(SendToIndex);
+  CONNECT(UserSendTo);
   CONNECT(Script);
   CONNECT(Variable);
   CONNECT(Enabled);
@@ -54,7 +54,32 @@ TriggerEdit::~TriggerEdit()
   delete ui;
 }
 
-// Private methods
+// Private slots
+
+void TriggerEdit::on_Label_textChanged(const QString &text)
+{
+  ui->Variable->setPlaceholderText(text);
+}
+
+void TriggerEdit::on_UserSendTo_currentIndexChanged(int index)
+{
+  switch (index)
+  {
+  case (int)UserSendTarget::NotepadAppend:
+  case (int)UserSendTarget::NotepadNew:
+  case (int)UserSendTarget::NotepadReplace:
+    ui->Variable->show();
+    ui->Variable_label->setText(tr("Notepad:"));
+    return;
+  case (int)UserSendTarget::Variable:
+    ui->Variable->show();
+    ui->Variable_label->setText(tr("Variable:"));
+    return;
+  default:
+    ui->Variable->hide();
+    ui->Variable_label->clear();
+  }
+}
 
 void TriggerEdit::on_Text_textChanged()
 {

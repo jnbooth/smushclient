@@ -10,6 +10,7 @@
 #include "../bridge/timekeeper.h"
 #include "../ui/components/mudscrollbar.h"
 #include "../ui/components/mudstatusbar.h"
+#include "../ui/notepad.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 #include "../../spans.h"
@@ -39,7 +40,7 @@ QMainWindow *getMainWindow(const QObject *obj)
 
 // Public methods
 
-ScriptApi::ScriptApi(WorldTab *parent)
+ScriptApi::ScriptApi(Notepads *notepads, WorldTab *parent)
     : QObject(parent),
       actionSource(ActionSource::Unknown),
       audioChannels{
@@ -67,6 +68,7 @@ ScriptApi::ScriptApi(WorldTab *parent)
       indentText(),
       lastTellPosition(-1),
       noteFormat(),
+      notepads(notepads),
       plugins(),
       pluginIndices(),
       scrollBar(parent->ui->output->verticalScrollBar()),
@@ -340,7 +342,11 @@ void ScriptApi::sendNaws() const
       (browser->height() - margins.top() - margins.bottom()) / metrics.lineSpacing() - 4));
 }
 
-void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
+void ScriptApi::sendTo(
+    size_t plugin,
+    SendTarget target,
+    const QString &text,
+    const QString &destination)
 {
   if (text.isEmpty())
     return;
@@ -365,11 +371,23 @@ void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text)
     SetStatus(text);
     return;
   case SendTarget::NotepadNew:
+    notepads->pad()->insertPlainText(text);
+    return;
   case SendTarget::NotepadAppend:
+  {
+    QTextCursor cursor = notepads->pad(destination)->textCursor();
+    if (!cursor.atBlockStart())
+      cursor.insertBlock();
+    cursor.insertText(text);
+    return;
+  }
   case SendTarget::NotepadReplace:
+    notepads->pad(destination)->setPlainText(text);
+    return;
   case SendTarget::Log:
     return;
   case SendTarget::Variable:
+    return;
   case SendTarget::Script:
   case SendTarget::ScriptAfterOmit:
     runScript(plugin, text);

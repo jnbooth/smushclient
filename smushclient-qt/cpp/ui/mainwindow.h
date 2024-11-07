@@ -12,6 +12,7 @@ namespace Ui
 QT_END_NAMESPACE
 
 enum class AvailableCopy : int;
+class Notepads;
 class WorldTab;
 
 class MainWindow : public QMainWindow
@@ -19,7 +20,7 @@ class MainWindow : public QMainWindow
   Q_OBJECT
 
 public:
-  explicit MainWindow(QWidget *parent = nullptr);
+  explicit MainWindow(Notepads *notepads, QWidget *parent = nullptr);
   ~MainWindow();
 
   void openWorld(const QString &filePath);
@@ -28,6 +29,7 @@ private:
   Ui::MainWindow *ui;
   FindDialog *findDialog;
   int lastTabIndex;
+  Notepads *notepads;
   QList<QAction *> recentFileActions;
   Settings settings;
   QMetaObject::Connection socketConnection;
@@ -45,6 +47,7 @@ private slots:
   void onConnectionStatusChanged(bool connected);
 
   void on_action_clear_output_triggered();
+  void on_action_close_all_notepad_windows_triggered();
   void on_action_close_world_triggered();
   void on_action_command_history_triggered();
   void on_action_connect_to_all_open_worlds_triggered();

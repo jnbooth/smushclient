@@ -49,6 +49,14 @@ impl Default for Sender {
 }
 
 impl Sender {
+    pub fn destination(&self) -> &str {
+        if self.variable.is_empty() {
+            self.label.as_str()
+        } else {
+            self.variable.as_str()
+        }
+    }
+
     pub fn lock(&self) -> bool {
         !self.lock.swap(true, Ordering::Relaxed)
     }

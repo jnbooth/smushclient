@@ -54,7 +54,7 @@ inline void showRustError(const rust::Error &e)
 
 // Public methods
 
-WorldTab::WorldTab(QWidget *parent)
+WorldTab::WorldTab(Notepads *notepads, QWidget *parent)
     : QSplitter(parent),
       ui(new Ui::WorldTab),
       client(),
@@ -80,7 +80,7 @@ WorldTab::WorldTab(QWidget *parent)
   ui->input->setFocus();
   defaultFont.setPointSize(12);
   socket = new QTcpSocket(this);
-  api = new ScriptApi(this);
+  api = new ScriptApi(notepads, this);
   document = new Document(this, api);
   connect(socket, &QTcpSocket::readyRead, this, &WorldTab::readFromSocket);
   connect(socket, &QTcpSocket::connected, this, &WorldTab::onConnect);

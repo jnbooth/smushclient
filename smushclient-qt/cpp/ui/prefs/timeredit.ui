@@ -126,17 +126,17 @@
        <item>
         <layout class="QFormLayout" name="_send">
          <item row="0" column="0">
-          <widget class="QLabel" name="SendToIndex_label">
+          <widget class="QLabel" name="UserSendTo_label">
            <property name="text">
             <string>Send to:</string>
            </property>
            <property name="buddy">
-            <cstring>SendToIndex</cstring>
+            <cstring>UserSendTo</cstring>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="SendToIndex">
+          <widget class="QComboBox" name="UserSendTo">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -223,11 +223,8 @@
          </item>
          <item row="4" column="0">
           <widget class="QLabel" name="Variable_label">
-           <property name="visible">
-            <bool>false</bool>
-           </property>
            <property name="text">
-            <string>Variable:</string>
+            <string></string>
            </property>
            <property name="buddy">
             <cstring>Variable</cstring>
@@ -236,7 +233,7 @@
          </item>
          <item row="4" column="1">
           <widget class="QLineEdit" name="Variable">
-           <property name="enabled">
+           <property name="visible">
             <bool>false</bool>
            </property>
           </widget>
