@@ -6,7 +6,7 @@ use std::io::BufRead;
 use std::path::PathBuf;
 use std::str;
 
-use chrono::{NaiveDate, NaiveDateTime, Utc};
+use chrono::{Local, NaiveDate, NaiveDateTime};
 pub use quick_xml::DeError as PluginLoadError;
 use serde::{Deserialize, Serialize};
 
@@ -187,7 +187,7 @@ xml_list!(Aliases, AliasXml, "alias");
 xml_list!(Timers, TimerXml, "timer");
 
 fn today() -> NaiveDate {
-    Utc::now().date_naive()
+    Local::now().date_naive()
 }
 
 /// World plugins.

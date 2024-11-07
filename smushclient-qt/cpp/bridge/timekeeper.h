@@ -15,6 +15,7 @@ class Timekeeper : public QObject
 
 public:
   Timekeeper(ScriptApi *parent);
+  void beginPolling(std::chrono::milliseconds interval, Qt::TimerType timerType = Qt::CoarseTimer);
   void sendTimer(const SendTimer &timer) const;
   void startSendTimer(size_t id, uint milliseconds);
   inline void setOpen(bool open) { closed = !open; }
@@ -24,6 +25,7 @@ protected:
 
 private:
   bool closed;
+  int pollTimerId;
   std::unordered_map<int, size_t> queue;
 
   ScriptApi *getApi() const;

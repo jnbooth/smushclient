@@ -10,7 +10,7 @@ use versions::WorldVersion;
 use std::io::{Read, Write};
 use std::path::PathBuf;
 
-use chrono::Utc;
+use chrono::Local;
 use mud_transformer::{TransformerConfig, UseMxp};
 use serde::{Deserialize, Serialize};
 use smushclient_plugins::{Alias, Plugin, PluginMetadata, Sender, Timer, Trigger};
@@ -229,7 +229,7 @@ impl World {
     }
 
     pub fn world_plugin(&self) -> Plugin {
-        let today = Utc::now().date_naive();
+        let today = Local::now().date_naive();
         let path = match &self.world_script {
             Some(world_script) => PathBuf::from(&world_script),
             None => PathBuf::new(),

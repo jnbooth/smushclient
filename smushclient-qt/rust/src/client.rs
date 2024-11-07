@@ -282,6 +282,10 @@ impl SmushClientRust {
         self.timers.finish(id, &mut self.client, &mut timekeeper)
     }
 
+    pub fn poll_timers(&mut self, mut timekeeper: TimekeeperAdapter) {
+        self.timers.poll(&mut self.client, &mut timekeeper);
+    }
+
     pub fn add_timer(
         &mut self,
         index: PluginIndex,
@@ -770,6 +774,10 @@ impl ffi::SmushClient {
     ) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .finish_timer(id, timekeeper.into())
+    }
+
+    pub fn poll_timers(self: Pin<&mut Self>, timekeeper: Pin<&mut ffi::Timekeeper>) {
+        self.cxx_qt_ffi_rust_mut().poll_timers(timekeeper.into());
     }
 
     pub fn stop_triggers(self: Pin<&mut Self>) {

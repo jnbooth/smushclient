@@ -1,5 +1,5 @@
 mod client;
-pub use client::{SmushClient, TimerConstructible, Timers};
+pub use client::SmushClient;
 
 mod collections;
 
@@ -17,6 +17,9 @@ pub use plugins::{
     AliasOutcome, CommandSource, LoadError, LoadFailure, SendIterable, SendRequest,
     SendScriptRequest, SenderAccessError, SpanStyle,
 };
+
+mod timer;
+pub use timer::{TimerConstructible, Timers};
 
 pub mod world;
 pub use world::World;

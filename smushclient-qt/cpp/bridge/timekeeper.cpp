@@ -32,7 +32,13 @@ private:
 Timekeeper::Timekeeper(ScriptApi *parent)
     : QObject(parent),
       closed(true),
+      pollTimerId(-1),
       queue() {}
+
+void Timekeeper::beginPolling(milliseconds interval, Qt::TimerType timerType)
+{
+  pollTimerId = startTimer(interval, timerType);
+}
 
 void Timekeeper::sendTimer(const SendTimer &timer) const
 {
@@ -61,9 +67,17 @@ void Timekeeper::startSendTimer(size_t id, uint ms)
 void Timekeeper::timerEvent(QTimerEvent *event)
 {
   const int id = event->timerId();
+  if (id == pollTimerId)
+  {
+    getApi()->client()->pollTimers(*this);
+    return;
+  }
   auto search = queue.find(id);
   if (search == queue.end()) [[unlikely]]
+  {
+    killTimer(id);
     return;
+  }
   if (getApi()->client()->finishTimer(search->second, *this))
     killTimer(id);
 }

@@ -599,6 +599,7 @@ pub mod ffi {
             id: usize,
             timekeeper: Pin<&mut Timekeeper>,
         ) -> bool;
+        fn poll_timers(self: Pin<&mut SmushClient>, timekeeper: Pin<&mut Timekeeper>);
         fn stop_triggers(self: Pin<&mut SmushClient>);
     }
 

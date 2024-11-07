@@ -19,6 +19,7 @@ using std::string;
 using std::string_view;
 using std::variant;
 using std::chrono::milliseconds;
+using std::chrono::seconds;
 
 // Private utils
 
@@ -81,6 +82,7 @@ ScriptApi::ScriptApi(Notepads *notepads, WorldTab *parent)
       worldScriptIndex(noSuchPlugin)
 {
   timekeeper = new Timekeeper(this);
+  timekeeper->beginPolling(milliseconds(seconds{60}));
   setLineType(echoFormat, LineType::Input);
   setLineType(noteFormat, LineType::Note);
   applyWorld(parent->world);
