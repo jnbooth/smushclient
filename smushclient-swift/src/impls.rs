@@ -16,7 +16,7 @@ use smushclient::world::{
 };
 use smushclient::{SendRequest, SendScriptRequest, World};
 use smushclient_plugins::{
-    Alias, Occurrence, Reaction, Regex, SendTarget, Sender, SenderLock, Timer, Trigger,
+    Alias, CursorVec, Occurrence, Reaction, Regex, SendTarget, Sender, SenderLock, Timer, Trigger,
 };
 
 impl Convert<PathBuf> for String {
@@ -26,6 +26,16 @@ impl Convert<PathBuf> for String {
 
     fn to_ffi(value: PathBuf) -> Self {
         value.to_string_lossy().into_owned()
+    }
+}
+
+impl<T, Ffi: Convert<T>> Convert<CursorVec<T>> for Vec<Ffi> {
+    fn from_ffi(value: Self) -> CursorVec<T> {
+        value.into_iter().map(Convert::from_ffi).collect()
+    }
+
+    fn to_ffi(value: CursorVec<T>) -> Self {
+        value.into_iter().map(Convert::to_ffi).collect()
     }
 }
 

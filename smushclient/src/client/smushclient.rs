@@ -15,7 +15,7 @@ use crate::world::{PersistError, World};
 use crate::LoadError;
 use enumeration::EnumSet;
 use mud_transformer::{OutputFragment, Tag, Transformer, TransformerConfig};
-use smushclient_plugins::{Plugin, PluginIndex};
+use smushclient_plugins::{CursorVec, Plugin, PluginIndex};
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
@@ -392,7 +392,7 @@ impl SmushClient {
         T::from_either(&self.plugins[index], &self.world)
     }
 
-    pub(crate) fn senders_mut<T: SendIterable>(&mut self, index: PluginIndex) -> &mut Vec<T> {
+    pub(crate) fn senders_mut<T: SendIterable>(&mut self, index: PluginIndex) -> &mut CursorVec<T> {
         T::from_either_mut(&mut self.plugins[index], &mut self.world)
     }
 
@@ -400,7 +400,7 @@ impl SmushClient {
         &mut self,
         index: PluginIndex,
         sender: T,
-    ) -> Result<(usize, &T), SenderAccessError> {
+    ) -> Result<usize, SenderAccessError> {
         self.plugins.add_sender(index, &mut self.world, sender)
     }
 
@@ -427,7 +427,7 @@ impl SmushClient {
         &mut self,
         index: PluginIndex,
         sender: T,
-    ) -> Result<(usize, &T), SenderAccessError> {
+    ) -> Result<usize, SenderAccessError> {
         let label = sender.as_ref().label.as_str();
         if label.is_empty() {
             return self.add_sender(index, sender);
@@ -450,7 +450,7 @@ impl SmushClient {
             Ordering::Equal => (),
             Ordering::Greater => senders[pos..=replace_at].rotate_right(1),
         }
-        Ok((pos, &senders[pos]))
+        Ok(pos)
     }
 
     fn update_world_plugins(&mut self) {

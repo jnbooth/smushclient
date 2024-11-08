@@ -10,6 +10,7 @@ use chrono::{Local, NaiveDate, NaiveDateTime};
 pub use quick_xml::DeError as PluginLoadError;
 use serde::{Deserialize, Serialize};
 
+use crate::cursor_vec::CursorVec;
 use crate::in_place::InPlace;
 use crate::send::{Alias, AliasXml, Timer, TimerXml, Trigger, TriggerXml};
 
@@ -20,9 +21,9 @@ pub type PluginIndex = usize;
 pub struct Plugin {
     pub metadata: PluginMetadata,
     pub disabled: bool,
-    pub triggers: Vec<Trigger>,
-    pub aliases: Vec<Alias>,
-    pub timers: Vec<Timer>,
+    pub triggers: CursorVec<Trigger>,
+    pub aliases: CursorVec<Alias>,
+    pub timers: CursorVec<Timer>,
     pub script: String,
 }
 
@@ -93,9 +94,9 @@ impl TryFrom<PluginFile<'_>> for Plugin {
         let mut plugin = Self {
             metadata: value.plugin,
             disabled: false,
-            triggers: XmlList::try_collect(value.triggers)?,
-            aliases: XmlList::try_collect(value.aliases)?,
-            timers: XmlList::collect(value.timers),
+            triggers: XmlList::try_collect(value.triggers)?.into(),
+            aliases: XmlList::try_collect(value.aliases)?.into(),
+            timers: XmlList::collect(value.timers).into(),
             script: value.script.in_place(),
         };
         plugin.aliases.sort_unstable();
@@ -276,9 +277,9 @@ mod tests {
         let plugin = Plugin {
             metadata,
             disabled: false,
-            triggers: vec![Trigger::default()],
-            aliases: vec![Alias::default()],
-            timers: vec![Timer::default()],
+            triggers: vec![Trigger::default()].into(),
+            aliases: vec![Alias::default()].into(),
+            timers: vec![Timer::default()].into(),
             script: String::new(),
         };
         let to_file =

@@ -10,7 +10,9 @@ use crate::sender::{AliasRust, TimerRust, TriggerRust};
 use cxx_qt_lib::{QColor, QString};
 use smushclient::world::{ColorPair, Numpad, NumpadMapping};
 use smushclient::World;
-use smushclient_plugins::{Alias, Occurrence, PluginLoadError, RegexError, Sender, Timer, Trigger};
+use smushclient_plugins::{
+    Alias, CursorVec, Occurrence, PluginLoadError, RegexError, Sender, Timer, Trigger,
+};
 
 #[derive(Default)]
 pub struct WorldRust {
@@ -48,7 +50,7 @@ pub struct WorldRust {
     pub log_postamble_notes: QString,
 
     // Timers
-    pub timers: Vec<Timer>,
+    pub timers: CursorVec<Timer>,
     pub enable_timers: bool,
 
     // Output
@@ -83,11 +85,11 @@ pub struct WorldRust {
     pub command_stack_character: u16,
 
     // Triggers
-    pub triggers: Vec<Trigger>,
+    pub triggers: CursorVec<Trigger>,
     pub enable_triggers: bool,
 
     // Aliases
-    pub aliases: Vec<Alias>,
+    pub aliases: CursorVec<Alias>,
     pub enable_aliases: bool,
 
     // Keypad
@@ -145,16 +147,16 @@ fn sort_refs<T: AsRef<Sender>>(items: &[T]) -> Vec<(usize, &T)> {
 
 impl WorldRust {
     pub fn add_alias(&mut self, alias: &AliasRust) -> Result<(), RegexError> {
-        self.aliases.push(Alias::try_from(alias)?);
+        self.aliases.insert(Alias::try_from(alias)?);
         Ok(())
     }
 
     pub fn add_timer(&mut self, timer: &TimerRust) {
-        self.timers.push(Timer::from(timer));
+        self.timers.insert(Timer::from(timer));
     }
 
     pub fn add_trigger(&mut self, trigger: &TriggerRust) -> Result<(), RegexError> {
-        self.triggers.push(Trigger::try_from(trigger)?);
+        self.triggers.insert(Trigger::try_from(trigger)?);
         Ok(())
     }
 

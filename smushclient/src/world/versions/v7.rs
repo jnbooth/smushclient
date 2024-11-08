@@ -138,7 +138,7 @@ impl From<World> for super::super::World {
             log_postamble_input: value.log_postamble_input,
             log_postamble_notes: value.log_postamble_notes,
 
-            timers: value.timers,
+            timers: value.timers.into(),
             enable_timers: value.enable_timers,
 
             show_bold: value.show_bold,
@@ -169,10 +169,10 @@ impl From<World> for super::super::World {
             enable_command_stack: value.enable_command_stack,
             command_stack_character: value.command_stack_character,
 
-            triggers: value.triggers,
+            triggers: value.triggers.into(),
             enable_triggers: value.enable_triggers,
 
-            aliases: value.aliases,
+            aliases: value.aliases.into(),
             enable_aliases: value.enable_aliases,
 
             numpad_shortcuts: NumpadMapping::navigation(),

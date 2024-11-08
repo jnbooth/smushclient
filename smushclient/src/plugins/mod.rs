@@ -10,7 +10,5 @@ pub use error::{LoadError, LoadFailure};
 mod iter;
 pub use iter::{assert_unique_label, SendIterable};
 
-mod guard;
-
 mod send;
 pub use send::{SendRequest, SendScriptRequest, SenderAccessError};

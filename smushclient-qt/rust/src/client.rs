@@ -293,11 +293,10 @@ impl SmushClientRust {
         mut timekeeper: TimekeeperAdapter,
     ) -> Result<usize, SenderAccessError> {
         let enable_timers = self.client.world().enable_timers;
-        let (pos, timer) = self.client.add_sender(index, timer)?;
         if enable_timers {
-            self.timers.start(index, timer, &mut timekeeper);
+            self.timers.start(index, &timer, &mut timekeeper);
         }
-        Ok(pos)
+        self.client.add_sender(index, timer)
     }
 
     pub fn add_or_replace_timer(
@@ -307,11 +306,10 @@ impl SmushClientRust {
         mut timekeeper: TimekeeperAdapter,
     ) -> Result<usize, SenderAccessError> {
         let enable_timers = self.client.world().enable_timers;
-        let (pos, timer) = self.client.add_or_replace_sender(index, timer)?;
         if enable_timers {
-            self.timers.start(index, timer, &mut timekeeper);
+            self.timers.start(index, &timer, &mut timekeeper);
         }
-        Ok(pos)
+        self.client.add_or_replace_sender(index, timer)
     }
 
     pub fn set_bool<P>(

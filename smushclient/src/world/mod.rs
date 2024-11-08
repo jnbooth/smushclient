@@ -13,7 +13,7 @@ use std::path::PathBuf;
 use chrono::Local;
 use mud_transformer::{TransformerConfig, UseMxp};
 use serde::{Deserialize, Serialize};
-use smushclient_plugins::{Alias, Plugin, PluginMetadata, Sender, Timer, Trigger};
+use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Sender, Timer, Trigger};
 
 use mud_transformer::mxp::RgbColor;
 
@@ -66,7 +66,7 @@ pub struct World {
 
     // Timers
     #[serde(serialize_with = "skip_temporary")]
-    pub timers: Vec<Timer>,
+    pub timers: CursorVec<Timer>,
     pub enable_timers: bool,
 
     // Output
@@ -101,12 +101,12 @@ pub struct World {
 
     // Triggers
     #[serde(serialize_with = "skip_temporary")]
-    pub triggers: Vec<Trigger>,
+    pub triggers: CursorVec<Trigger>,
     pub enable_triggers: bool,
 
     // Aliases
     #[serde(serialize_with = "skip_temporary")]
-    pub aliases: Vec<Alias>,
+    pub aliases: CursorVec<Alias>,
     pub enable_aliases: bool,
 
     // Numpad
@@ -169,7 +169,7 @@ impl World {
             log_postamble_notes: String::new(),
 
             // Timers
-            timers: Vec::new(),
+            timers: CursorVec::new(),
             enable_timers: true,
 
             // Output
@@ -203,11 +203,11 @@ impl World {
             command_stack_character: u16::from(b';'),
 
             // Triggers
-            triggers: Vec::new(),
+            triggers: CursorVec::new(),
             enable_triggers: true,
 
             // Aliases
-            aliases: Vec::new(),
+            aliases: CursorVec::new(),
             enable_aliases: true,
 
             // Keypad
@@ -246,9 +246,9 @@ impl World {
         Plugin {
             metadata,
             disabled: !self.enable_scripts,
-            triggers: Vec::new(),
-            aliases: Vec::new(),
-            timers: Vec::new(),
+            triggers: CursorVec::new(),
+            aliases: CursorVec::new(),
+            timers: CursorVec::new(),
             script: String::new(),
         }
     }

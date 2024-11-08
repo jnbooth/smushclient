@@ -1,4 +1,4 @@
-use smushclient_plugins::{Alias, Plugin, Sender, Timer, Trigger};
+use smushclient_plugins::{Alias, CursorVec, Plugin, Sender, Timer, Trigger};
 
 use super::send::SenderAccessError;
 use crate::world::World;
@@ -32,44 +32,11 @@ pub fn assert_unique_label<T: AsRef<Sender>>(
     }
 }
 
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Senders<T> {
-    aliases: T,
-    timers: T,
-    triggers: T,
-}
-
-impl<T> Senders<T> {
-    pub const fn new(aliases: T, timers: T, triggers: T) -> Self {
-        Self {
-            aliases,
-            timers,
-            triggers,
-        }
-    }
-}
-
-impl<T> Senders<T> {
-    pub fn get<S: SendIterable>(&self) -> &T {
-        S::access_senders(self)
-    }
-
-    pub fn get_mut<S: SendIterable>(&mut self) -> &mut T {
-        S::access_senders_mut(self)
-    }
-
-    pub fn set<S: SendIterable>(&mut self, value: T) {
-        *self.get_mut::<S>() = value;
-    }
-}
-
 pub trait SendIterable: AsRef<Sender> + AsMut<Sender> + Ord + Sized {
-    fn access_senders<U>(senders: &Senders<U>) -> &U;
-    fn access_senders_mut<U>(senders: &mut Senders<U>) -> &mut U;
     fn from_plugin(plugin: &Plugin) -> &[Self];
-    fn from_plugin_mut(plugin: &mut Plugin) -> &mut Vec<Self>;
+    fn from_plugin_mut(plugin: &mut Plugin) -> &mut CursorVec<Self>;
     fn from_world(world: &World) -> &[Self];
-    fn from_world_mut(world: &mut World) -> &mut Vec<Self>;
+    fn from_world_mut(world: &mut World) -> &mut CursorVec<Self>;
     fn from_either<'a>(plugin: &'a Plugin, world: &'a World) -> &'a [Self] {
         if plugin.metadata.is_world_plugin {
             Self::from_world(world)
@@ -77,7 +44,10 @@ pub trait SendIterable: AsRef<Sender> + AsMut<Sender> + Ord + Sized {
             Self::from_plugin(plugin)
         }
     }
-    fn from_either_mut<'a>(plugin: &'a mut Plugin, world: &'a mut World) -> &'a mut Vec<Self> {
+    fn from_either_mut<'a>(
+        plugin: &'a mut Plugin,
+        world: &'a mut World,
+    ) -> &'a mut CursorVec<Self> {
         if plugin.metadata.is_world_plugin {
             Self::from_world_mut(world)
         } else {
@@ -89,22 +59,16 @@ pub trait SendIterable: AsRef<Sender> + AsMut<Sender> + Ord + Sized {
 macro_rules! impl_send_iterable {
     ($t:ty, $i:ident) => {
         impl SendIterable for $t {
-            fn access_senders<U>(senders: &Senders<U>) -> &U {
-                &senders.$i
-            }
-            fn access_senders_mut<U>(senders: &mut Senders<U>) -> &mut U {
-                &mut senders.$i
-            }
             fn from_plugin(plugin: &Plugin) -> &[Self] {
                 &plugin.$i
             }
-            fn from_plugin_mut(plugin: &mut Plugin) -> &mut Vec<Self> {
+            fn from_plugin_mut(plugin: &mut Plugin) -> &mut CursorVec<Self> {
                 &mut plugin.$i
             }
             fn from_world(plugin: &World) -> &[Self] {
                 &plugin.$i
             }
-            fn from_world_mut(world: &mut World) -> &mut Vec<Self> {
+            fn from_world_mut(world: &mut World) -> &mut CursorVec<Self> {
                 &mut world.$i
             }
         }

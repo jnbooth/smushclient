@@ -6,6 +6,9 @@ mod in_place;
 
 mod constants;
 
+mod cursor_vec;
+pub use cursor_vec::CursorVec;
+
 mod plugin;
 pub use plugin::{Plugin, PluginIndex, PluginLoadError, PluginMetadata};
 

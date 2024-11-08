@@ -9,22 +9,19 @@ use super::effects::CommandSource;
 use super::effects::{AliasEffects, TriggerEffects};
 use super::error::LoadError;
 use super::error::LoadFailure;
-use super::guard::SenderGuard;
-use super::iter::Senders;
 use crate::client::PluginVariables;
 use crate::handler::{Handler, HandlerExt};
 use crate::plugins::assert_unique_label;
 use crate::world::World;
 use crate::{SendIterable, SenderAccessError, SpanStyle};
 use mud_transformer::Output;
-use smushclient_plugins::{Alias, Plugin, PluginIndex, SendTarget, Trigger};
+use smushclient_plugins::{Plugin, PluginIndex, SendTarget};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PluginEngine {
     plugins: Vec<Plugin>,
     alias_buf: Vec<u8>,
     trigger_buf: Vec<u8>,
-    guards: Senders<SenderGuard>,
     stop_triggers: bool,
 }
 
@@ -40,7 +37,6 @@ impl PluginEngine {
             plugins: Vec::new(),
             alias_buf: Vec::new(),
             trigger_buf: Vec::new(),
-            guards: Senders::new(SenderGuard::new(), SenderGuard::new(), SenderGuard::new()),
             stop_triggers: false,
         }
     }
@@ -132,10 +128,10 @@ impl PluginEngine {
         index: PluginIndex,
         world: &'a mut World,
         sender: T,
-    ) -> Result<(usize, &'a T), SenderAccessError> {
+    ) -> Result<usize, SenderAccessError> {
         let senders = T::from_either_mut(&mut self.plugins[index], world);
         assert_unique_label(&sender, senders, None)?;
-        Ok(self.guards.get_mut::<T>().add(index, senders, sender))
+        Ok(senders.insert(sender))
     }
 
     pub fn remove_sender<T: SendIterable, P: FnMut(&T) -> bool>(
@@ -146,7 +142,7 @@ impl PluginEngine {
     ) -> Option<T> {
         let senders = T::from_either_mut(&mut self.plugins[index], world);
         let pos = senders.iter().position(pred)?;
-        self.guards.get_mut::<T>().remove::<T>(index, senders, pos)
+        Some(senders.remove(pos))
     }
 
     pub fn remove_senders<T: SendIterable, P: FnMut(&T) -> bool>(
@@ -155,10 +151,7 @@ impl PluginEngine {
         world: &mut World,
         pred: P,
     ) -> usize {
-        let senders = T::from_either_mut(&mut self.plugins[index], world);
-        self.guards
-            .get_mut::<T>()
-            .remove_all::<T, P>(index, senders, pred)
+        T::from_either_mut(&mut self.plugins[index], world).remove_if(pred)
     }
 
     pub fn stop_evaluating_triggers(&mut self) {
@@ -173,17 +166,20 @@ impl PluginEngine {
         variables: &mut PluginVariables,
         handler: &mut H,
     ) -> AliasEffects {
-        let postpone = self.guards.get_mut::<Alias>();
-        postpone.set_plugin_count(self.plugins.len());
-        postpone.defer();
         let mut effects = AliasEffects::new(world, source);
 
-        for (plugin_index, plugin) in self.plugins.iter().enumerate() {
+        for (plugin_index, plugin) in self.plugins.iter_mut().enumerate() {
             if plugin.disabled {
                 continue;
             }
             let enable_scripts = !plugin.metadata.is_world_plugin || world.enable_scripts;
-            for (i, alias) in Alias::from_either(plugin, world).iter().enumerate() {
+            let aliases = if plugin.metadata.is_world_plugin {
+                &mut world.aliases
+            } else {
+                &mut plugin.aliases
+            };
+            aliases.restart();
+            while let Some(alias) = aliases.next() {
                 if !alias.enabled {
                     continue;
                 }
@@ -223,17 +219,16 @@ impl PluginEngine {
                     handler.send_scripts(plugin_index, alias, line, &[]);
                 }
                 effects.add_effects(alias);
-                if alias.one_shot {
-                    postpone.defer_remove(plugin_index, i);
-                }
                 alias.unlock();
-                if !alias.keep_evaluating {
+                let keep_evaluating = alias.keep_evaluating;
+                if alias.one_shot {
+                    aliases.remove_current();
+                }
+                if !keep_evaluating {
                     break;
                 }
             }
         }
-
-        postpone.finalize::<Alias>(&mut self.plugins, world);
 
         effects
     }
@@ -246,20 +241,23 @@ impl PluginEngine {
         variables: &mut PluginVariables,
         handler: &mut H,
     ) -> TriggerEffects {
-        let postpone = self.guards.get_mut::<Trigger>();
-        postpone.set_plugin_count(self.plugins.len());
-        postpone.defer();
         let mut effects = TriggerEffects::new();
         let mut style = SpanStyle::null();
         let mut has_style = false;
 
-        for (plugin_index, plugin) in self.plugins.iter().enumerate() {
+        for (plugin_index, plugin) in self.plugins.iter_mut().enumerate() {
             if plugin.disabled {
                 continue;
             }
             let enable_scripts = !plugin.metadata.is_world_plugin || world.enable_scripts;
             self.stop_triggers = false;
-            for (i, trigger) in Trigger::from_either(plugin, world).iter().enumerate() {
+            let triggers = if plugin.metadata.is_world_plugin {
+                &mut world.triggers
+            } else {
+                &mut plugin.triggers
+            };
+            triggers.restart();
+            while let Some(trigger) = triggers.next() {
                 if !trigger.enabled {
                     continue;
                 }
@@ -273,7 +271,7 @@ impl PluginEngine {
                     };
                     if !matched {
                         matched = true;
-                        style = SpanStyle::from(trigger);
+                        style = SpanStyle::from(&*trigger);
                         has_style = !style.is_null();
                         trigger.lock();
                     }
@@ -311,18 +309,17 @@ impl PluginEngine {
                 if !trigger.sound.is_empty() {
                     handler.play_sound(&trigger.sound);
                 }
-                if trigger.one_shot {
-                    postpone.defer_remove(plugin_index, i);
-                }
                 effects.add_effects(trigger);
                 trigger.unlock();
-                if !trigger.keep_evaluating {
+                let keep_evaluating = trigger.keep_evaluating;
+                if trigger.one_shot {
+                    triggers.remove_current();
+                }
+                if !keep_evaluating {
                     break;
                 }
             }
         }
-
-        postpone.finalize::<Trigger>(&mut self.plugins, world);
 
         if effects.omit_from_output {
             handler.erase_last_line();
