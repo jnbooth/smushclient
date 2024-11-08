@@ -3,35 +3,6 @@ use smushclient_plugins::{Alias, CursorVec, Plugin, Sender, Timer, Trigger};
 use super::send::SenderAccessError;
 use crate::world::World;
 
-pub fn assert_unique_label<T: AsRef<Sender>>(
-    sender: &T,
-    senders: &[T],
-    i: Option<usize>,
-) -> Result<(), SenderAccessError> {
-    let label = sender.as_ref().label.as_str();
-    if label.is_empty() {
-        return Ok(());
-    }
-    if let Some(i) = i {
-        match senders
-            .iter()
-            .enumerate()
-            .find(|(pos, sender)| sender.as_ref().label == label && *pos != i)
-        {
-            Some((pos, _)) => Err(SenderAccessError::LabelConflict(pos)),
-            None => Ok(()),
-        }
-    } else {
-        match senders
-            .iter()
-            .position(|sender| sender.as_ref().label == label)
-        {
-            Some(pos) => Err(SenderAccessError::LabelConflict(pos)),
-            None => Ok(()),
-        }
-    }
-}
-
 pub trait SendIterable: AsRef<Sender> + AsMut<Sender> + Ord + Sized {
     fn from_plugin(plugin: &Plugin) -> &[Self];
     fn from_plugin_mut(plugin: &mut Plugin) -> &mut CursorVec<Self>;
@@ -52,6 +23,34 @@ pub trait SendIterable: AsRef<Sender> + AsMut<Sender> + Ord + Sized {
             Self::from_world_mut(world)
         } else {
             Self::from_plugin_mut(plugin)
+        }
+    }
+    fn assert_unique_label(
+        &self,
+        senders: &[Self],
+        i: Option<usize>,
+    ) -> Result<(), SenderAccessError> {
+        let label = self.as_ref().label.as_str();
+        if label.is_empty() {
+            return Ok(());
+        }
+        if let Some(i) = i {
+            match senders
+                .iter()
+                .enumerate()
+                .find(|(pos, sender)| sender.as_ref().label == label && *pos != i)
+            {
+                Some((pos, _)) => Err(SenderAccessError::LabelConflict(pos)),
+                None => Ok(()),
+            }
+        } else {
+            match senders
+                .iter()
+                .position(|sender| sender.as_ref().label == label)
+            {
+                Some(pos) => Err(SenderAccessError::LabelConflict(pos)),
+                None => Ok(()),
+            }
         }
     }
 }

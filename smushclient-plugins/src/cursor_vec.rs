@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::ops::{Deref, DerefMut};
 use std::{slice, vec};
 
@@ -7,6 +8,8 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 pub struct CursorVec<T> {
     inner: Vec<T>,
     cursor: usize,
+    removals: Vec<usize>,
+    additions: Vec<T>,
 }
 
 impl<T> CursorVec<T> {
@@ -14,74 +17,133 @@ impl<T> CursorVec<T> {
         Self {
             inner: Vec::new(),
             cursor: 0,
+            removals: Vec::new(),
+            additions: Vec::new(),
         }
-    }
-
-    pub fn restart(&mut self) {
-        self.cursor = 0;
-    }
-
-    #[allow(clippy::should_implement_trait)]
-    pub fn next(&mut self) -> Option<&mut T> {
-        let item = self.inner.get_mut(self.cursor)?;
-        self.cursor += 1;
-        Some(item)
     }
 }
 
 impl<T: Ord> CursorVec<T> {
-    pub fn iter(&self) -> slice::Iter<T> {
-        self.inner.iter()
+    pub fn begin(&mut self) {
+        self.apply_pending(true);
+        self.cursor = 0;
     }
 
-    pub fn iter_mut(&mut self) -> slice::IterMut<T> {
-        self.inner.iter_mut()
+    pub fn end(&mut self) {
+        self.cursor = self.inner.len();
+        self.apply_pending(true);
     }
 
-    pub fn insert(&mut self, item: T) -> usize {
-        let pos = match self.inner.binary_search(&item) {
+    pub fn done(&self) -> bool {
+        self.cursor >= self.inner.len()
+    }
+
+    #[allow(clippy::should_implement_trait)]
+    pub fn next(&mut self) -> Option<&mut T> {
+        if self.done() {
+            self.apply_pending(true);
+            return None;
+        }
+        self.apply_pending(false);
+        self.cursor += 1;
+        self.inner.get_mut(self.cursor - 1)
+    }
+
+    pub fn append(&mut self, other: &mut Vec<T>) {
+        if self.done() {
+            self.inner.append(other);
+            self.inner.sort_unstable();
+        } else {
+            self.additions.append(other);
+        }
+    }
+
+    fn apply_pending(&mut self, done: bool) {
+        for &i in self.removals.iter().rev() {
+            self.inner.remove(i);
+            if !done && i <= self.cursor {
+                self.cursor -= 1;
+            }
+        }
+        for item in self.additions.drain(..) {
+            if Self::do_insert(&mut self.inner, item) < self.cursor && !done {
+                self.cursor += 1;
+            }
+        }
+        self.removals.clear();
+    }
+
+    pub fn insert(&mut self, item: T) {
+        if self.done() {
+            Self::do_insert(&mut self.inner, item);
+        } else {
+            self.additions.push(item);
+        }
+    }
+
+    fn do_insert(inner: &mut Vec<T>, item: T) -> usize {
+        let pos = match inner.binary_search(&item) {
             Ok(pos) => {
-                self.inner[pos] = item;
+                inner[pos] = item;
                 return pos;
             }
             Err(pos) => pos,
         };
-        if pos == self.inner.len() {
-            self.inner.push(item);
-            return pos;
-        }
-        if pos < self.cursor {
-            self.cursor += 1;
-        }
-        self.inner.insert(pos, item);
+        inner.insert(pos, item);
         pos
     }
 
-    pub fn append(&mut self, other: &mut Vec<T>) {
-        self.cursor = 0;
-        self.inner.append(other);
-        self.inner.sort_unstable();
-    }
-
-    pub fn remove(&mut self, i: usize) -> T {
-        if i <= self.cursor {
-            self.cursor -= 1;
+    pub fn replace(&mut self, i: usize, item: T) {
+        let pos = match self.inner.binary_search(&item) {
+            Ok(pos) | Err(pos) => pos,
+        };
+        if pos == i {
+            self.inner[i] = item;
+            return;
         }
-        self.inner.remove(i)
+        if !self.done() {
+            self.removals.push(i);
+            self.additions.push(item);
+            return;
+        }
+        self.inner[i] = item;
+        match i.cmp(&pos) {
+            Ordering::Less => self.inner[i..=pos].rotate_left(1),
+            Ordering::Equal => (),
+            Ordering::Greater => self.inner[pos..=i].rotate_right(1),
+        }
     }
 
-    pub fn remove_current(&mut self) -> T {
-        self.remove(self.cursor)
+    pub fn remove(&mut self, i: usize) {
+        if i > self.cursor || self.done() {
+            self.inner.remove(i);
+        } else {
+            self.removals.push(i);
+        }
     }
 
-    pub fn remove_if<P: FnMut(&T) -> bool>(&mut self, mut pred: P) -> usize {
-        let len = self.inner.len();
-        for i in (0..len).rev() {
-            if pred(&self.inner[i]) {
+    pub fn remove_current(&mut self) {
+        self.removals.push(self.cursor);
+    }
+
+    pub fn position<P: FnMut(&T) -> bool>(&mut self, mut pred: P) -> Option<usize> {
+        let (i, _) = self
+            .inner
+            .iter()
+            .enumerate()
+            .find(|(i, item)| pred(item) && !self.removals.contains(i))?;
+        Some(i)
+    }
+
+    pub fn retain<P: FnMut(&T) -> bool>(&mut self, mut pred: P) -> usize {
+        let mut removed = 0;
+        for i in (0..self.inner.len()).rev() {
+            if !pred(&self.inner[i]) {
                 self.remove(i);
+                removed += 1;
             }
         }
-        len - self.inner.len()
+        removed
     }
 }
 
@@ -89,7 +151,7 @@ impl<T> From<Vec<T>> for CursorVec<T> {
     fn from(value: Vec<T>) -> Self {
         Self {
             inner: value,
-            cursor: 0,
+            ..Default::default()
         }
     }
 }

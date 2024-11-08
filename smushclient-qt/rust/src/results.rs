@@ -1,22 +1,5 @@
-use crate::bridge::AliasOutcomes;
 use crate::ffi;
-use smushclient::{AliasOutcome, SendIterable, SenderAccessError};
-
-const fn flag_if(flag: ffi::AliasOutcome, pred: bool) -> u8 {
-    if pred {
-        flag.repr
-    } else {
-        0
-    }
-}
-
-pub const fn convert_alias_outcome(outcome: AliasOutcome) -> AliasOutcomes {
-    AliasOutcomes(
-        flag_if(ffi::AliasOutcome::Remember, outcome.remember)
-            | flag_if(ffi::AliasOutcome::Send, outcome.send)
-            | flag_if(ffi::AliasOutcome::Display, outcome.display),
-    )
-}
+use smushclient::SenderAccessError;
 
 pub trait IntoResultCode {
     fn code(self) -> i32;
@@ -56,19 +39,6 @@ impl IntoResultCode for Result<(), SenderAccessError> {
     fn code(self) -> i32 {
         match self {
             Ok(()) => ffi::SenderAccessResult::Ok.repr,
-            Err(e) => e.code(),
-        }
-    }
-}
-
-pub trait IntoErrorCode {
-    fn code(self) -> i32;
-}
-
-impl<T: SendIterable> IntoErrorCode for Result<T, SenderAccessError> {
-    fn code(self) -> i32 {
-        match self {
-            Ok(_) => ffi::SenderAccessResult::Ok.repr,
             Err(e) => e.code(),
         }
     }

@@ -460,6 +460,29 @@ impl Constructor<(*const ffi::World, usize)> for ffi::Alias {
     }
 }
 
+impl Constructor<(*const ffi::SmushClient, usize)> for ffi::Alias {
+    type BaseArguments = ();
+    type InitializeArguments = ();
+    type NewArguments = (*const ffi::SmushClient, usize);
+
+    fn route_arguments(
+        args: Self::NewArguments,
+    ) -> (
+        Self::NewArguments,
+        Self::BaseArguments,
+        Self::InitializeArguments,
+    ) {
+        (args, (), ())
+    }
+
+    fn new(args: (*const ffi::SmushClient, usize)) -> AliasRust {
+        match unsafe { (*args.0).cxx_qt_ffi_rust().world().aliases.get(args.1) } {
+            Some(alias) => AliasRust::from(alias),
+            None => AliasRust::default(),
+        }
+    }
+}
+
 impl Constructor<(*const ffi::World, usize)> for ffi::Timer {
     type BaseArguments = ();
     type InitializeArguments = ();
@@ -477,6 +500,29 @@ impl Constructor<(*const ffi::World, usize)> for ffi::Timer {
 
     fn new(args: (*const ffi::World, usize)) -> TimerRust {
         match unsafe { (*args.0).cxx_qt_ffi_rust().timers.get(args.1) } {
+            Some(timer) => TimerRust::from(timer),
+            None => TimerRust::default(),
+        }
+    }
+}
+
+impl Constructor<(*const ffi::SmushClient, usize)> for ffi::Timer {
+    type BaseArguments = ();
+    type InitializeArguments = ();
+    type NewArguments = (*const ffi::SmushClient, usize);
+
+    fn route_arguments(
+        args: Self::NewArguments,
+    ) -> (
+        Self::NewArguments,
+        Self::BaseArguments,
+        Self::InitializeArguments,
+    ) {
+        (args, (), ())
+    }
+
+    fn new(args: (*const ffi::SmushClient, usize)) -> TimerRust {
+        match unsafe { (*args.0).cxx_qt_ffi_rust().world().timers.get(args.1) } {
             Some(timer) => TimerRust::from(timer),
             None => TimerRust::default(),
         }

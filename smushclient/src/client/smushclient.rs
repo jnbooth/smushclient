@@ -1,4 +1,3 @@
-use std::cmp::Ordering;
 use std::io::{self, Read, Write};
 use std::path::Path;
 use std::{env, mem, slice};
@@ -73,8 +72,10 @@ impl SmushClient {
         self.supported_tags = supported_tags;
     }
 
-    pub fn stop_evaluating_triggers(&mut self) {
-        self.plugins.stop_evaluating_triggers();
+    pub fn stop_evaluating<T: SendIterable>(&mut self) {
+        for plugin in self.plugins.iter_mut() {
+            T::from_either_mut(plugin, &mut self.world).end();
+        }
     }
 
     fn update_config(&mut self) {
@@ -87,6 +88,10 @@ impl SmushClient {
 
     pub fn world(&self) -> &World {
         &self.world
+    }
+
+    pub fn world_mut(&mut self) -> &mut World {
+        &mut self.world
     }
 
     pub fn set_world_and_plugins(&mut self, world: World) {
@@ -400,57 +405,47 @@ impl SmushClient {
         &mut self,
         index: PluginIndex,
         sender: T,
-    ) -> Result<usize, SenderAccessError> {
-        self.plugins.add_sender(index, &mut self.world, sender)
+    ) -> Result<(), SenderAccessError> {
+        let senders = T::from_either_mut(&mut self.plugins[index], &mut self.world);
+        sender.assert_unique_label(senders, None)?;
+        senders.insert(sender);
+        Ok(())
     }
 
     pub fn remove_sender<T: SendIterable>(
         &mut self,
         index: PluginIndex,
         label: &str,
-    ) -> Result<T, SenderAccessError> {
-        self.plugins
-            .remove_sender(index, &mut self.world, |sender: &T| {
-                sender.as_ref().label == label
-            })
-            .ok_or(SenderAccessError::NotFound)
+    ) -> Result<(), SenderAccessError> {
+        let senders = T::from_either_mut(&mut self.plugins[index], &mut self.world);
+        let pos = senders
+            .position(|sender| sender.as_ref().label == label)
+            .ok_or(SenderAccessError::NotFound)?;
+        senders.remove(pos);
+        Ok(())
     }
 
     pub fn remove_senders<T: SendIterable>(&mut self, index: PluginIndex, group: &str) -> usize {
-        self.plugins
-            .remove_senders(index, &mut self.world, |sender: &T| {
-                sender.as_ref().group == group
-            })
+        self.senders_mut::<T>(index)
+            .retain(|sender: &T| sender.as_ref().group != group)
     }
 
     pub fn add_or_replace_sender<T: SendIterable>(
         &mut self,
         index: PluginIndex,
         sender: T,
-    ) -> Result<usize, SenderAccessError> {
+    ) -> Result<(), SenderAccessError> {
         let label = sender.as_ref().label.as_str();
         if label.is_empty() {
             return self.add_sender(index, sender);
         }
-        let Some(replace_at) = self
-            .senders::<T>(index)
-            .iter()
-            .position(|sender| sender.as_ref().label == label)
-        else {
+        let senders = self.senders_mut::<T>(index);
+
+        let Some(replace_at) = senders.position(|sender| sender.as_ref().label == label) else {
             return self.add_sender(index, sender);
         };
-        let senders = self.senders_mut::<T>(index);
-        let pos = match senders.binary_search(&sender) {
-            Ok(pos) | Err(pos) => pos,
-        };
-        senders[replace_at].as_ref().try_unlock()?;
-        senders[replace_at] = sender;
-        match replace_at.cmp(&pos) {
-            Ordering::Less => senders[replace_at..=pos].rotate_left(1),
-            Ordering::Equal => (),
-            Ordering::Greater => senders[pos..=replace_at].rotate_right(1),
-        }
-        Ok(pos)
+        senders.replace(replace_at, sender);
+        Ok(())
     }
 
     fn update_world_plugins(&mut self) {

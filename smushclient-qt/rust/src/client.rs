@@ -11,7 +11,7 @@ use crate::convert::Convert;
 use crate::ffi;
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
-use crate::results::{convert_alias_outcome, IntoErrorCode, IntoResultCode};
+use crate::results::IntoResultCode;
 use crate::sync::NonBlockingMutex;
 use crate::world::WorldRust;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant, QVector};
@@ -67,6 +67,10 @@ impl Default for SmushClientRust {
 }
 
 impl SmushClientRust {
+    pub fn world(&self) -> &World {
+        self.client.world()
+    }
+
     pub fn load_world(&mut self, path: &QString) -> Result<WorldRust, PersistError> {
         let file = File::open(String::from(path).as_str())?;
         let worldfile = World::load(file)?;
@@ -266,7 +270,7 @@ impl SmushClientRust {
             .alias(&String::from(command), source, &mut handler);
         handler.doc.end();
         drop(output_lock);
-        convert_alias_outcome(outcome)
+        outcome.into()
     }
 
     pub fn start_timers(&mut self, index: PluginIndex, mut timekeeper: TimekeeperAdapter) {
@@ -286,17 +290,24 @@ impl SmushClientRust {
         self.timers.poll(&mut self.client, &mut timekeeper);
     }
 
+    pub fn stop_senders(&mut self) {
+        self.client.stop_evaluating::<Alias>();
+        self.client.stop_evaluating::<Timer>();
+        self.client.stop_evaluating::<Trigger>();
+    }
+
     pub fn add_timer(
         &mut self,
         index: PluginIndex,
         timer: Timer,
         mut timekeeper: TimekeeperAdapter,
-    ) -> Result<usize, SenderAccessError> {
+    ) -> Result<(), SenderAccessError> {
         let enable_timers = self.client.world().enable_timers;
         if enable_timers {
             self.timers.start(index, &timer, &mut timekeeper);
         }
-        self.client.add_sender(index, timer)
+        self.client.add_sender(index, timer)?;
+        Ok(())
     }
 
     pub fn add_or_replace_timer(
@@ -304,12 +315,13 @@ impl SmushClientRust {
         index: PluginIndex,
         timer: Timer,
         mut timekeeper: TimekeeperAdapter,
-    ) -> Result<usize, SenderAccessError> {
+    ) -> Result<(), SenderAccessError> {
         let enable_timers = self.client.world().enable_timers;
         if enable_timers {
             self.timers.start(index, &timer, &mut timekeeper);
         }
-        self.client.add_or_replace_sender(index, timer)
+        self.client.add_or_replace_sender(index, timer)?;
+        Ok(())
     }
 
     pub fn set_bool<P>(
@@ -778,7 +790,21 @@ impl ffi::SmushClient {
         self.cxx_qt_ffi_rust_mut().poll_timers(timekeeper.into());
     }
 
+    pub fn stop_senders(self: Pin<&mut Self>) {
+        self.cxx_qt_ffi_rust_mut().stop_senders();
+    }
+
+    pub fn stop_aliases(self: Pin<&mut Self>) {
+        self.cxx_qt_ffi_rust_mut().client.stop_evaluating::<Alias>();
+    }
+
+    pub fn stop_timers(self: Pin<&mut Self>) {
+        self.cxx_qt_ffi_rust_mut().client.stop_evaluating::<Timer>();
+    }
+
     pub fn stop_triggers(self: Pin<&mut Self>) {
-        self.cxx_qt_ffi_rust_mut().client.stop_evaluating_triggers();
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .stop_evaluating::<Trigger>();
     }
 }

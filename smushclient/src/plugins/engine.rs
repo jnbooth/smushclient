@@ -11,9 +11,8 @@ use super::error::LoadError;
 use super::error::LoadFailure;
 use crate::client::PluginVariables;
 use crate::handler::{Handler, HandlerExt};
-use crate::plugins::assert_unique_label;
 use crate::world::World;
-use crate::{SendIterable, SenderAccessError, SpanStyle};
+use crate::SpanStyle;
 use mud_transformer::Output;
 use smushclient_plugins::{Plugin, PluginIndex, SendTarget};
 
@@ -22,7 +21,6 @@ pub struct PluginEngine {
     plugins: Vec<Plugin>,
     alias_buf: Vec<u8>,
     trigger_buf: Vec<u8>,
-    stop_triggers: bool,
 }
 
 impl Default for PluginEngine {
@@ -37,7 +35,6 @@ impl PluginEngine {
             plugins: Vec::new(),
             alias_buf: Vec::new(),
             trigger_buf: Vec::new(),
-            stop_triggers: false,
         }
     }
 
@@ -123,41 +120,6 @@ impl PluginEngine {
         self.plugins.sort_unstable();
     }
 
-    pub fn add_sender<'a, T: SendIterable>(
-        &'a mut self,
-        index: PluginIndex,
-        world: &'a mut World,
-        sender: T,
-    ) -> Result<usize, SenderAccessError> {
-        let senders = T::from_either_mut(&mut self.plugins[index], world);
-        assert_unique_label(&sender, senders, None)?;
-        Ok(senders.insert(sender))
-    }
-
-    pub fn remove_sender<T: SendIterable, P: FnMut(&T) -> bool>(
-        &mut self,
-        index: PluginIndex,
-        world: &mut World,
-        pred: P,
-    ) -> Option<T> {
-        let senders = T::from_either_mut(&mut self.plugins[index], world);
-        let pos = senders.iter().position(pred)?;
-        Some(senders.remove(pos))
-    }
-
-    pub fn remove_senders<T: SendIterable, P: FnMut(&T) -> bool>(
-        &mut self,
-        index: PluginIndex,
-        world: &mut World,
-        pred: P,
-    ) -> usize {
-        T::from_either_mut(&mut self.plugins[index], world).remove_if(pred)
-    }
-
-    pub fn stop_evaluating_triggers(&mut self) {
-        self.stop_triggers = true;
-    }
-
     pub fn alias<H: Handler>(
         &mut self,
         line: &str,
@@ -178,7 +140,7 @@ impl PluginEngine {
             } else {
                 &mut plugin.aliases
             };
-            aliases.restart();
+            aliases.begin();
             while let Some(alias) = aliases.next() {
                 if !alias.enabled {
                     continue;
@@ -228,6 +190,7 @@ impl PluginEngine {
                     break;
                 }
             }
+            aliases.end();
         }
 
         effects
@@ -250,19 +213,15 @@ impl PluginEngine {
                 continue;
             }
             let enable_scripts = !plugin.metadata.is_world_plugin || world.enable_scripts;
-            self.stop_triggers = false;
             let triggers = if plugin.metadata.is_world_plugin {
                 &mut world.triggers
             } else {
                 &mut plugin.triggers
             };
-            triggers.restart();
+            triggers.begin();
             while let Some(trigger) = triggers.next() {
                 if !trigger.enabled {
                     continue;
-                }
-                if self.stop_triggers {
-                    break;
                 }
                 let mut matched = false;
                 for captures in trigger.regex.captures_iter(line.as_bytes()) {
@@ -319,6 +278,7 @@ impl PluginEngine {
                     break;
                 }
             }
+            triggers.end();
         }
 
         if effects.omit_from_output {

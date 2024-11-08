@@ -15,6 +15,15 @@ use crate::world::WorldRust;
 use cxx::{type_id, ExternType};
 use cxx_qt_lib::QByteArray;
 use mud_transformer::escape::telnet::naws;
+use smushclient::AliasOutcome;
+
+const fn flag_if(flag: ffi::AliasOutcome, pred: bool) -> u8 {
+    if pred {
+        flag.repr
+    } else {
+        0
+    }
+}
 
 #[repr(transparent)]
 pub struct AliasOutcomes(pub u8);
@@ -23,6 +32,16 @@ const _: [(); mem::size_of::<AliasOutcomes>()] = [(); mem::size_of::<ffi::AliasO
 unsafe impl ExternType for AliasOutcomes {
     type Id = type_id!("AliasOutcomes");
     type Kind = cxx::kind::Trivial;
+}
+
+impl From<AliasOutcome> for AliasOutcomes {
+    fn from(value: AliasOutcome) -> Self {
+        Self(
+            flag_if(ffi::AliasOutcome::Remember, value.remember)
+                | flag_if(ffi::AliasOutcome::Send, value.send)
+                | flag_if(ffi::AliasOutcome::Display, value.display),
+        )
+    }
 }
 
 #[repr(transparent)]
@@ -600,6 +619,9 @@ pub mod ffi {
             timekeeper: Pin<&mut Timekeeper>,
         ) -> bool;
         fn poll_timers(self: Pin<&mut SmushClient>, timekeeper: Pin<&mut Timekeeper>);
+        fn stop_senders(self: Pin<&mut SmushClient>);
+        fn stop_aliases(self: Pin<&mut SmushClient>);
+        fn stop_timers(self: Pin<&mut SmushClient>);
         fn stop_triggers(self: Pin<&mut SmushClient>);
     }
 
