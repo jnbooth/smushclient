@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use super::occurrence::Occurrence;
 use super::send_to::{sendto_serde, SendTarget};
-use super::sender::{Sender, SenderLock};
+use super::sender::Sender;
 use crate::in_place::InPlace;
 
 const NANOS: u64 = 1_000_000_000;
@@ -146,7 +146,6 @@ impl From<TimerXml<'_>> for Timer {
         let send = in_place!(
             value,
             Sender {
-                    lock: SenderLock::default(),
                     ..label,
                     ..text,
                     ..send_to,

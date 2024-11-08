@@ -152,7 +152,6 @@ impl PluginEngine {
                     };
                     if !matched {
                         matched = true;
-                        alias.lock();
                     }
                     self.alias_buf.clear();
                     let text = alias.expand_text(&mut self.alias_buf, &captures);
@@ -181,7 +180,6 @@ impl PluginEngine {
                     handler.send_scripts(plugin_index, alias, line, &[]);
                 }
                 effects.add_effects(alias);
-                alias.unlock();
                 let keep_evaluating = alias.keep_evaluating;
                 if alias.one_shot {
                     aliases.remove_current();
@@ -232,7 +230,6 @@ impl PluginEngine {
                         matched = true;
                         style = SpanStyle::from(&*trigger);
                         has_style = !style.is_null();
-                        trigger.lock();
                     }
                     if has_style {
                         if let Some(capture) = captures.get(0) {
@@ -269,7 +266,6 @@ impl PluginEngine {
                     handler.play_sound(&trigger.sound);
                 }
                 effects.add_effects(trigger);
-                trigger.unlock();
                 let keep_evaluating = trigger.keep_evaluating;
                 if trigger.one_shot {
                     triggers.remove_current();

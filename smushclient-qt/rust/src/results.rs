@@ -9,7 +9,6 @@ impl IntoResultCode for SenderAccessError {
     fn code(self) -> i32 {
         match self {
             SenderAccessError::NotFound => ffi::SenderAccessResult::NotFound.repr,
-            SenderAccessError::Locked => ffi::SenderAccessResult::Locked.repr,
             SenderAccessError::LabelConflict(pos) => {
                 ffi::SenderAccessResult::LabelConflict.repr - i32::try_from(pos).unwrap_or(i32::MAX)
             }

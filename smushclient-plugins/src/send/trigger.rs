@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use super::reaction::Reaction;
 use super::send_to::{sendto_serde, SendTarget};
-use super::sender::{Sender, SenderLock};
+use super::sender::Sender;
 use crate::in_place::InPlace;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
@@ -215,7 +215,6 @@ impl TryFrom<TriggerXml<'_>> for Trigger {
         let send = in_place!(
             value,
             Sender {
-                    lock: SenderLock::default(),
                     ..label,
                     ..text,
                     ..send_to,

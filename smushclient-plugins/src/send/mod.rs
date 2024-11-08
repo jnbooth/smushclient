@@ -44,7 +44,7 @@ mod send_to;
 pub use send_to::SendTarget;
 
 mod sender;
-pub use sender::{Sender, SenderLock, SenderLockError};
+pub use sender::Sender;
 
 mod timer;
 pub use timer::{Timer, TimerXml};

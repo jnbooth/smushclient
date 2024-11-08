@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use super::reaction::Reaction;
 use super::send_to::{sendto_serde, SendTarget};
-use super::sender::{Sender, SenderLock};
+use super::sender::Sender;
 use crate::constants::DEFAULT_SEQUENCE;
 use crate::in_place::InPlace;
 use quick_xml::DeError;
@@ -136,7 +136,6 @@ impl TryFrom<AliasXml<'_>> for Alias {
         let send = in_place!(
             value,
             Sender {
-                    lock: SenderLock::default(),
                     ..label,
                     ..text,
                     ..send_to,

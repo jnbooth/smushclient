@@ -16,7 +16,7 @@ use smushclient::world::{
 };
 use smushclient::{SendRequest, SendScriptRequest, World};
 use smushclient_plugins::{
-    Alias, CursorVec, Occurrence, Reaction, Regex, SendTarget, Sender, SenderLock, Timer, Trigger,
+    Alias, CursorVec, Occurrence, Reaction, Regex, SendTarget, Sender, Timer, Trigger,
 };
 
 impl Convert<PathBuf> for String {
@@ -38,8 +38,6 @@ impl<T, Ffi: Convert<T>> Convert<CursorVec<T>> for Vec<Ffi> {
         value.into_iter().map(Convert::to_ffi).collect()
     }
 }
-
-impl_convert!(bool, SenderLock);
 
 impl_convert_enum_opt!(ffi::AutoConnect, AutoConnect, Mush, Diku, Mxp);
 
@@ -100,8 +98,7 @@ impl_convert_struct!(
     one_shot,
     temporary,
     omit_from_output,
-    omit_from_log,
-    lock
+    omit_from_log
 );
 
 impl_convert_struct!(

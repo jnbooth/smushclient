@@ -69,7 +69,6 @@ pub mod ffi {
     enum SenderAccessResult {
         LabelConflict = -4,
         BadParameter = -3,
-        Locked = -2,
         NotFound = -1,
         Ok = 0,
     }
