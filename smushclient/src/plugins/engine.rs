@@ -23,9 +23,7 @@ use smushclient_plugins::{Alias, Plugin, PluginIndex, SendTarget, Trigger};
 pub struct PluginEngine {
     plugins: Vec<Plugin>,
     alias_buf: Vec<u8>,
-    alias_matches: Vec<(PluginIndex, usize)>,
     trigger_buf: Vec<u8>,
-    trigger_matches: Vec<(PluginIndex, usize)>,
     guards: Senders<SenderGuard>,
     stop_triggers: bool,
 }
@@ -41,9 +39,7 @@ impl PluginEngine {
         Self {
             plugins: Vec::new(),
             alias_buf: Vec::new(),
-            alias_matches: Vec::new(),
             trigger_buf: Vec::new(),
-            trigger_matches: Vec::new(),
             guards: Senders::new(SenderGuard::new(), SenderGuard::new(), SenderGuard::new()),
             stop_triggers: false,
         }
@@ -177,7 +173,6 @@ impl PluginEngine {
         variables: &mut PluginVariables,
         handler: &mut H,
     ) -> AliasEffects {
-        self.alias_matches.clear();
         let postpone = self.guards.get_mut::<Alias>();
         postpone.set_plugin_count(self.plugins.len());
         postpone.defer();
@@ -225,7 +220,7 @@ impl PluginEngine {
                     continue;
                 }
                 if enable_scripts && !alias.script.is_empty() {
-                    self.alias_matches.push((plugin_index, i));
+                    handler.send_scripts(plugin_index, alias, line, &[]);
                 }
                 effects.add_effects(alias);
                 if alias.one_shot {
@@ -237,8 +232,6 @@ impl PluginEngine {
                 }
             }
         }
-
-        handler.send_all_scripts::<Alias>(&self.plugins, world, &self.alias_matches, line, &[]);
 
         postpone.finalize::<Alias>(&mut self.plugins, world);
 
@@ -253,7 +246,6 @@ impl PluginEngine {
         variables: &mut PluginVariables,
         handler: &mut H,
     ) -> TriggerEffects {
-        self.trigger_matches.clear();
         let postpone = self.guards.get_mut::<Trigger>();
         postpone.set_plugin_count(self.plugins.len());
         postpone.defer();
@@ -314,7 +306,7 @@ impl PluginEngine {
                     continue;
                 }
                 if enable_scripts && !trigger.script.is_empty() {
-                    self.trigger_matches.push((plugin_index, i));
+                    handler.send_scripts(plugin_index, trigger, line, output);
                 }
                 if !trigger.sound.is_empty() {
                     handler.play_sound(&trigger.sound);
@@ -329,14 +321,6 @@ impl PluginEngine {
                 }
             }
         }
-
-        handler.send_all_scripts::<Trigger>(
-            &self.plugins,
-            world,
-            &self.trigger_matches,
-            line,
-            output,
-        );
 
         postpone.finalize::<Trigger>(&mut self.plugins, world);
 
