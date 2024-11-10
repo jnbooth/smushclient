@@ -313,7 +313,7 @@ void MiniWindow::drawFrame(const QRectF &rectBase, const QColor &color1, const Q
 
 void MiniWindow::drawGradient(const QRectF &rect, const QGradient &gradient)
 {
-  Painter(this).fillRect(normalizeRect(rect), gradient);
+  Painter(this).fillRect(rect, gradient);
 }
 
 void MiniWindow::drawImage(
