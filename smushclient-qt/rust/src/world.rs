@@ -8,7 +8,7 @@ use smushclient_plugins::CursorVec;
 
 #[derive(Default)]
 pub struct WorldRust {
-    // IP address
+    // Connecting
     pub name: QString,
     pub site: QString,
     pub port: i32,
@@ -19,7 +19,7 @@ pub struct WorldRust {
     pub proxy_password: QString,
     pub save_world_automatically: bool,
 
-    // Connecting
+    // Login
     pub player: QString,
     pub password: QString,
     pub connect_method: ffi::AutoConnect,
@@ -116,7 +116,7 @@ pub struct WorldRust {
     pub hotkey_adds_to_command_history: bool,
     pub echo_hotkey_in_output_window: bool,
 
-    // Scripts
+    // Scripting
     pub enable_scripts: bool,
     pub world_script: QString,
     pub script_reload_option: ffi::ScriptRecompile,

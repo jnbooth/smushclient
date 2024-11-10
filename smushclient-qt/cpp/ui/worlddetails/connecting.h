@@ -12,13 +12,9 @@ class PrefsConnecting : public QWidget
   Q_OBJECT
 
 public:
-  explicit PrefsConnecting(World &world, QWidget *parent = nullptr);
+  explicit PrefsConnecting(const World &world, QWidget *parent = nullptr);
   ~PrefsConnecting();
-
-private slots:
-  void on_ConnectText_textChanged();
 
 private:
   Ui::PrefsConnecting *ui;
-  World &world;
 };

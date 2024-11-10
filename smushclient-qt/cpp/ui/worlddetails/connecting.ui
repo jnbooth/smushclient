@@ -30,128 +30,225 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QGroupBox" name="_credentials">
+    <widget class="QGroupBox" name="_mud">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>4</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title">
-      <string>Character name and password</string>
+      <string>MUD Address and Port</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
-       <widget class="QLabel" name="Player_label">
+       <widget class="QLabel" name="Name_label">
         <property name="text">
-         <string>&amp;Name:</string>
+         <string>World &amp;Name:</string>
         </property>
         <property name="buddy">
-         <cstring>Player</cstring>
+         <cstring>Name</cstring>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="Player"/>
+       <widget class="QLineEdit" name="Name">
+        <property name="placeholderText">
+         <string>Required</string>
+        </property>
+       </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="Password_label">
+       <widget class="QLabel" name="Site_label">
         <property name="text">
-         <string>&amp;Password:</string>
+         <string>&amp;IP Address:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
         </property>
         <property name="buddy">
-         <cstring>Password</cstring>
+         <cstring>Site</cstring>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="Password">
-        <property name="echoMode">
-         <enum>QLineEdit::EchoMode::Password</enum>
+       <widget class="QLineEdit" name="Site">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="placeholderText">
+         <string>Required</string>
         </property>
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="ConnectMethod_label">
+       <widget class="QLabel" name="Port_label">
         <property name="text">
-         <string>&amp;Connect:</string>
+         <string>&amp;Port:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
         </property>
         <property name="buddy">
-         <cstring>ConnectMethod</cstring>
+         <cstring>Port</cstring>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QComboBox" name="ConnectMethod">
-        <item>
-         <property name="text">
-          <string>No auto-connect</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>MUSH/MOO ( CONNECT name password )</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Diku-style ( name, password )</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>MXP (automatically when requested)</string>
-         </property>
-        </item>
+       <widget class="QSpinBox" name="Port">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximum">
+         <number>65535</number>
+        </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="_connect_header">
-     <item>
-      <widget class="QLabel" name="ConnectText_label">
-       <property name="text">
-        <string>Connect &amp;Text. (Sent after connected):</string>
-       </property>
-       <property name="buddy">
-        <cstring>ConnectText</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="ConnectText_lines_label">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Lines:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="ConnectText_lines">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="QPlainTextEdit" name="ConnectText"/>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_help">
-     <property name="text">
-      <string>&quot;%name%&quot; and &quot;%password%&quot; are automatically replaced with your login.</string>
+    <widget class="QGroupBox" name="_proxy">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>3</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <property name="wordWrap">
-      <bool>true</bool>
+     <property name="title">
+      <string>Pr&amp;oxy Server</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft</set>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="UseProxy">
+        <property name="text">
+         <string>Use proxy</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="_proxy_credentials" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <layout class="QFormLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="ProxyServer_label">
+           <property name="text">
+            <string>TCP/IP &amp;Address:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="ProxyServer"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="ProxyPort_label">
+           <property name="text">
+            <string>Port:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="ProxyPort">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximum">
+            <number>65535</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="ProxyUsername_label">
+           <property name="text">
+            <string>Username:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="ProxyUsername"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="ProxyPassword_label">
+           <property name="text">
+            <string>Password:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="ProxyPassword">
+           <property name="inputMethodHints">
+            <set>Qt::InputMethodHint::ImhSensitiveData</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="SaveWorldAutomatically">
+     <property name="text">
+      <string>&amp;Save world automatically on close</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="spacer">
+     <property name="orientation">
+      <enum>Qt::Orientation::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QLabel" name="links">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;http://www.gammon.com.au/links/muds.htm&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#646464;&quot;&gt;Find MUDs&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;https://www.github.com/jnbooth/smushclient/issues&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#646464;&quot;&gt;Report a bug or submit a suggestion&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft</set>
+     </property>
+     <property name="indent">
+      <number>20</number>
      </property>
     </widget>
    </item>
@@ -160,18 +257,18 @@
  <resources/>
  <connections>
   <connection>
-   <sender>ConnectText</sender>
-   <signal>blockCountChanged(int)</signal>
-   <receiver>ConnectText_lines</receiver>
-   <slot>setNum(int)</slot>
+   <sender>UseProxy</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>_proxy_credentials</receiver>
+   <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>392</x>
-     <y>250</y>
+     <x>303</x>
+     <y>207</y>
     </hint>
     <hint type="destinationlabel">
-     <x>464</x>
-     <y>204</y>
+     <x>299</x>
+     <y>281</y>
     </hint>
    </hints>
   </connection>

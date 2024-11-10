@@ -55,7 +55,7 @@
        </property>
        <item>
         <property name="text">
-         <string>IP Address</string>
+         <string>Connecting</string>
         </property>
         <property name="icon">
          <iconset resource="../../../resources/resources.qrc">
@@ -67,7 +67,7 @@
        </item>
        <item>
         <property name="text">
-         <string>Connecting</string>
+         <string>Login</string>
         </property>
         <property name="icon">
          <iconset resource="../../../resources/resources.qrc">
@@ -163,7 +163,7 @@
        </item>
        <item>
         <property name="text">
-         <string>Scripts</string>
+         <string>Scripting</string>
         </property>
         <property name="icon">
          <iconset resource="../../../resources/resources.qrc">

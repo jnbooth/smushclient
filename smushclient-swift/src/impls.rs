@@ -173,7 +173,7 @@ impl_convert_struct!(ffi::NumpadMapping, NumpadMapping, base, modified);
 impl_convert_struct!(
     ffi::World,
     World,
-    // IP address
+    // Connecting
     name,
     site,
     port,
@@ -183,6 +183,7 @@ impl_convert_struct!(
     proxy_username,
     proxy_password,
     save_world_automatically,
+    // Login
     player,
     password,
     connect_method,
@@ -244,7 +245,7 @@ impl_convert_struct!(
     numpad_enable,
     hotkey_adds_to_command_history,
     echo_hotkey_in_output_window,
-    // Scripts
+    // Scripting
     enable_scripts,
     world_script,
     script_reload_option,

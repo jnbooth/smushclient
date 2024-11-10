@@ -36,7 +36,7 @@ where
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct World {
-    // IP address
+    // Connecting
     pub name: String,
     pub site: String,
     pub port: u16,
@@ -47,7 +47,7 @@ pub struct World {
     pub proxy_password: String,
     pub save_world_automatically: bool,
 
-    // Connecting
+    // Login
     pub player: String,
     pub password: String,
     pub connect_method: Option<AutoConnect>,
@@ -114,13 +114,13 @@ pub struct World {
     pub aliases: CursorVec<Alias>,
     pub enable_aliases: bool,
 
-    // Numpad
+    // Keypad
     pub numpad_shortcuts: NumpadMapping,
     pub numpad_enable: bool,
     pub hotkey_adds_to_command_history: bool,
     pub echo_hotkey_in_output_window: bool,
 
-    // Scripts
+    // Scripting
     pub enable_scripts: bool,
     pub world_script: Option<String>,
     pub script_reload_option: ScriptRecompile,
@@ -140,7 +140,7 @@ impl Default for World {
 impl World {
     pub fn new() -> Self {
         Self {
-            // IP address
+            // Connecting
             name: String::new(),
             site: String::new(),
             port: 4000,
@@ -151,7 +151,7 @@ impl World {
             proxy_password: String::new(),
             save_world_automatically: false,
 
-            // Connecting
+            // Login
             player: String::new(),
             password: String::new(),
             connect_method: None,
@@ -221,7 +221,7 @@ impl World {
             hotkey_adds_to_command_history: false,
             echo_hotkey_in_output_window: true,
 
-            // Scripts
+            // Scripting
             enable_scripts: true,
             world_script: None,
             script_reload_option: ScriptRecompile::Confirm,

@@ -2,27 +2,23 @@
 #include "ui_connecting.h"
 #include "../../fieldconnector.h"
 
-PrefsConnecting::PrefsConnecting(World &world, QWidget *parent)
+PrefsConnecting::PrefsConnecting(const World &world, QWidget *parent)
     : QWidget(parent),
-      ui(new Ui::PrefsConnecting),
-      world(world)
+      ui(new Ui::PrefsConnecting)
 {
   ui->setupUi(this);
-  CONNECT_WORLD(Player);
-  CONNECT_WORLD(Password);
-  CONNECT_WORLD(ConnectMethod);
-
-  ui->ConnectText->setPlainText(world.getConnectText());
+  CONNECT_WORLD(Name);
+  CONNECT_WORLD(Site);
+  CONNECT_WORLD(Port);
+  CONNECT_WORLD(UseProxy);
+  CONNECT_WORLD(ProxyServer);
+  CONNECT_WORLD(ProxyPort);
+  CONNECT_WORLD(ProxyUsername);
+  CONNECT_WORLD(ProxyPassword);
+  CONNECT_WORLD(SaveWorldAutomatically);
 }
 
 PrefsConnecting::~PrefsConnecting()
 {
   delete ui;
-}
-
-// Private methods
-
-void PrefsConnecting::on_ConnectText_textChanged()
-{
-  world.setConnectText(ui->ConnectText->toPlainText());
 }

@@ -4,19 +4,19 @@
 
 namespace Ui
 {
-  class PrefsScripts;
+  class PrefsScripting;
 }
 
-class PrefsScripts : public QWidget
+class PrefsScripting : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit PrefsScripts(World &world, QWidget *parent = nullptr);
-  ~PrefsScripts();
+  explicit PrefsScripting(World &world, QWidget *parent = nullptr);
+  ~PrefsScripting();
 
 private:
-  Ui::PrefsScripts *ui;
+  Ui::PrefsScripting *ui;
   World &world;
 
 private:

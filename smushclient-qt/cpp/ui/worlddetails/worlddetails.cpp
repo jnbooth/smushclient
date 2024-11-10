@@ -1,14 +1,14 @@
 #include "worlddetails.h"
 #include "ui_worlddetails.h"
-#include "address.h"
 #include "aliases.h"
 #include "connecting.h"
+#include "login.h"
 #include "logging.h"
 #include "mud.h"
 #include "numpad.h"
 #include "output.h"
 #include "plugins.h"
-#include "scripts.h"
+#include "scripting.h"
 #include "timers.h"
 #include "triggers.h"
 #include "../../scripting/scriptapi.h"
@@ -39,9 +39,9 @@ QWidget *WorldPrefs::paneForIndex(int n)
   switch (n)
   {
   case 0:
-    return new PrefsAddress(world, this);
-  case 1:
     return new PrefsConnecting(world, this);
+  case 1:
+    return new PrefsLogin(world, this);
   case 2:
     return new PrefsOutput(world, this);
   case 3:
@@ -57,7 +57,7 @@ QWidget *WorldPrefs::paneForIndex(int n)
   case 8:
     return new PrefsTriggers(world, client, this);
   case 9:
-    return new PrefsScripts(world, this);
+    return new PrefsScripting(world, this);
   case 10:
     return new PrefsPlugins(client, api, this);
   default:

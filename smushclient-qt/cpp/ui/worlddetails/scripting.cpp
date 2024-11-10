@@ -1,5 +1,5 @@
-#include "scripts.h"
-#include "ui_scripts.h"
+#include "scripting.h"
+#include "ui_scripting.h"
 #include <QtGui/QDesktopServices>
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QFileDialog>
@@ -10,9 +10,9 @@ constexpr const char *fileFilter = "Lua files (*.lua);;All Files (*.*)";
 
 // Public methods
 
-PrefsScripts::PrefsScripts(World &world, QWidget *parent)
+PrefsScripting::PrefsScripting(World &world, QWidget *parent)
     : QWidget(parent),
-      ui(new Ui::PrefsScripts),
+      ui(new Ui::PrefsScripting),
       world(world)
 {
   ui->setupUi(this);
@@ -25,21 +25,21 @@ PrefsScripts::PrefsScripts(World &world, QWidget *parent)
   CONNECT_WORLD(ErrorBackgroundColour);
 }
 
-PrefsScripts::~PrefsScripts()
+PrefsScripting::~PrefsScripting()
 {
   delete ui;
 }
 
 // Private methods
 
-QString PrefsScripts::defaultScriptPath() const
+QString PrefsScripting::defaultScriptPath() const
 {
   return QStringLiteral(WORLDS_DIR "/%1").arg(world.getName());
 }
 
 // Private slots
 
-void PrefsScripts::on_WorldScript_browse_clicked()
+void PrefsScripting::on_WorldScript_browse_clicked()
 {
   const QString path = QFileDialog::getOpenFileName(
       this,
@@ -53,7 +53,7 @@ void PrefsScripts::on_WorldScript_browse_clicked()
   ui->WorldScript->setText(path);
 }
 
-void PrefsScripts::on_WorldScript_create_clicked()
+void PrefsScripting::on_WorldScript_create_clicked()
 {
   const QString path = QFileDialog::getSaveFileName(
       this,
@@ -74,7 +74,7 @@ void PrefsScripts::on_WorldScript_create_clicked()
   ui->WorldScript->setText(path);
 }
 
-void PrefsScripts::on_WorldScript_edit_clicked()
+void PrefsScripting::on_WorldScript_edit_clicked()
 {
   const QString &scriptPath = ui->WorldScript->text();
   if (QDesktopServices::openUrl(QUrl::fromLocalFile(scriptPath)))
@@ -104,7 +104,7 @@ void PrefsScripts::on_WorldScript_edit_clicked()
   QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 }
 
-void PrefsScripts::on_WorldScript_textChanged(const QString &value)
+void PrefsScripting::on_WorldScript_textChanged(const QString &value)
 {
   if (value.isEmpty())
   {

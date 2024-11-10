@@ -810,7 +810,7 @@ pub mod ffi {
 
     extern "RustQt" {
         #[qobject]
-        // IP address
+        // Connecting
         #[qproperty(QString, name)]
         #[qproperty(QString, site)]
         #[qproperty(i32, port)]
@@ -820,7 +820,7 @@ pub mod ffi {
         #[qproperty(QString, proxy_username)]
         #[qproperty(QString, proxy_password)]
         #[qproperty(bool, save_world_automatically)]
-        // Connecting
+        // Login
         #[qproperty(QString, player)]
         #[qproperty(QString, password)]
         #[qproperty(AutoConnect, connect_method)]
@@ -924,7 +924,7 @@ pub mod ffi {
         #[qproperty(bool, numpad_enable)]
         #[qproperty(bool, hotkey_adds_to_command_history)]
         #[qproperty(bool, echo_hotkey_in_output_window)]
-        // Scripts
+        // Scripting
         #[qproperty(bool, enable_scripts)]
         #[qproperty(QString, world_script)]
         #[qproperty(ScriptRecompile, script_reload_option)]
