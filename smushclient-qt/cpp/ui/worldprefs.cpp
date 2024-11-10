@@ -7,31 +7,24 @@
 #include "prefs/mud.h"
 #include "prefs/numpad.h"
 #include "prefs/output.h"
+#include "prefs/plugins.h"
 #include "prefs/scripts.h"
 #include "prefs/timers.h"
 #include "prefs/triggers.h"
+#include "../scripting/scriptapi.h"
 
 // Public methods
 
-WorldPrefs::WorldPrefs(World &world, SmushClient &client, Timekeeper *timekeeper, QWidget *parent)
+WorldPrefs::WorldPrefs(World &world, SmushClient &client, ScriptApi *api, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::WorldPrefs),
-      panes(),
-      activePane(0)
+      api(api),
+      client(client),
+      pane(nullptr),
+      world(world)
 {
   ui->setupUi(this);
-  panes.reserve(10);
-
-  setupPane(new PrefsAddress(world, this), "IP address");
-  setupPane(new PrefsConnecting(world, this), "Connecting");
-  setupPane(new PrefsLogging(world, this), "Logging");
-  setupPane(new PrefsTimers(world, client, timekeeper, this), "Timers");
-  setupPane(new PrefsOutput(world, this), "Output");
-  setupPane(new PrefsMud(world, this), "MUD");
-  setupPane(new PrefsAliases(world, client, this), "Aliases");
-  setupPane(new PrefsTriggers(world, client, this), "Triggers");
-  setupPane(new PrefsNumpad(world, this), "Keypad");
-  setupPane(new PrefsScripts(world, this), "Scripts");
+  ui->settings_list->setCurrentRow(0);
 }
 
 WorldPrefs::~WorldPrefs()
@@ -41,37 +34,47 @@ WorldPrefs::~WorldPrefs()
 
 // Private methods
 
-void WorldPrefs::setupPane(QWidget *pane, const char *key)
+QWidget *WorldPrefs::paneForIndex(int n)
 {
-  const int index = panes.size();
-  panes.append(pane);
-  ui->contents->addWidget(pane);
-  pane->hide();
-
-  QListWidgetItem *item =
-      ui->settings_list
-          ->findItems(tr(key), Qt::MatchExactly)
-          .constFirst();
-  item->setData(Qt::UserRole, index);
-
-  if (index == 0)
-    ui->settings_list->setCurrentItem(item);
+  switch (n)
+  {
+  case 0:
+    return new PrefsAddress(world, this);
+  case 1:
+    return new PrefsConnecting(world, this);
+  case 2:
+    return new PrefsOutput(world, this);
+  case 3:
+    return new PrefsMud(world, this);
+  case 4:
+    return new PrefsLogging(world, this);
+  case 5:
+    return new PrefsNumpad(world, this);
+  case 6:
+    return new PrefsAliases(world, client, this);
+  case 7:
+    return new PrefsTimers(world, client, api->timekeeper, this);
+  case 8:
+    return new PrefsTriggers(world, client, this);
+  case 9:
+    return new PrefsScripts(world, this);
+  case 10:
+    return new PrefsPlugins(client, api, this);
+  default:
+    return nullptr;
+  }
 }
 
 // Private slots
 
-void WorldPrefs::on_settings_list_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
+void WorldPrefs::on_settings_list_currentRowChanged(int row)
 {
-  if (!current)
+  if (row == -1)
     return;
 
-  const QVariant data = current->data(Qt::UserRole);
-  if (!data.canConvert<qsizetype>())
-    return;
+  if (pane)
+    delete pane;
 
-  if (previous)
-    panes.at(activePane)->hide();
-
-  activePane = data.value<qsizetype>();
-  panes.at(activePane)->show();
+  pane = paneForIndex(row);
+  ui->contents->addWidget(pane);
 }

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
+    <width>800</width>
     <height>600</height>
    </rect>
   </property>
@@ -14,24 +14,18 @@
    <string>Dialog</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QLabel" name="label_title">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Triggers</string>
-     </property>
-    </widget>
-   </item>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QTreeWidget" name="tree">
      <property name="dragEnabled">
@@ -128,6 +122,26 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QToolButton" name="export_xml">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset theme="QIcon::ThemeIcon::EditCopy"/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="import_xml">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset theme="QIcon::ThemeIcon::EditPaste"/>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -163,26 +177,6 @@
       <widget class="QCheckBox" name="EnableTriggers">
        <property name="text">
         <string>Enable Triggers</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="export_xml">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset theme="QIcon::ThemeIcon::EditCopy"/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="import_xml">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset theme="QIcon::ThemeIcon::EditPaste"/>
        </property>
       </widget>
      </item>

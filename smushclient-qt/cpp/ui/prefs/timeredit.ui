@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>670</width>
-    <height>927</height>
+    <width>700</width>
+    <height>467</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>670</width>
+    <width>0</width>
     <height>0</height>
    </size>
   </property>
@@ -23,8 +23,32 @@
    <item>
     <widget class="QWidget" name="timers_event" native="true">
      <layout class="QFormLayout" name="formLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item row="0" column="0">
        <widget class="QRadioButton" name="Occurrence_Interval">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>75</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
          <string>Every </string>
         </property>
@@ -79,6 +103,12 @@
       </item>
       <item row="1" column="0">
        <widget class="QRadioButton" name="Occurrence_Time">
+        <property name="minimumSize">
+         <size>
+          <width>75</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
          <string>At time </string>
         </property>
@@ -111,7 +141,20 @@
     </widget>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="Text"/>
+    <widget class="QPlainTextEdit" name="Text">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>1</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="_main">
@@ -224,7 +267,7 @@
          <item row="4" column="0">
           <widget class="QLabel" name="Variable_label">
            <property name="text">
-            <string></string>
+            <string/>
            </property>
            <property name="buddy">
             <cstring>Variable</cstring>
@@ -261,7 +304,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>40</height>
+           <height>2</height>
           </size>
          </property>
         </spacer>
@@ -326,7 +369,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>40</height>
+           <height>2</height>
           </size>
          </property>
         </spacer>

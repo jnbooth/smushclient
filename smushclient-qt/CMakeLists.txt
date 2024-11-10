@@ -118,7 +118,6 @@ qt_add_executable(${APP_NAME}
     cpp/ui/finddialog.h cpp/ui/finddialog.cpp cpp/ui/finddialog.ui
     cpp/ui/mainwindow.h cpp/ui/mainwindow.cpp cpp/ui/mainwindow.ui
     cpp/ui/notepad.h cpp/ui/notepad.cpp cpp/ui/notepad.ui
-    cpp/ui/pluginsdialog.h cpp/ui/pluginsdialog.cpp cpp/ui/pluginsdialog.ui
     cpp/ui/prefs/abstractprefstree.h cpp/ui/prefs/abstractprefstree.cpp
     cpp/ui/prefs/address.h cpp/ui/prefs/address.cpp cpp/ui/prefs/address.ui
     cpp/ui/prefs/aliasedit.h cpp/ui/prefs/aliasedit.cpp cpp/ui/prefs/aliasedit.ui
@@ -128,6 +127,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/prefs/mud.h cpp/ui/prefs/mud.cpp cpp/ui/prefs/mud.ui
     cpp/ui/prefs/numpad.h cpp/ui/prefs/numpad.cpp cpp/ui/prefs/numpad.ui
     cpp/ui/prefs/output.h cpp/ui/prefs/output.cpp cpp/ui/prefs/output.ui
+    cpp/ui/prefs/plugins.h cpp/ui/prefs/plugins.cpp cpp/ui/prefs/plugins.ui
     cpp/ui/prefs/scripts.h cpp/ui/prefs/scripts.cpp cpp/ui/prefs/scripts.ui
     cpp/ui/prefs/specialhelp.h cpp/ui/prefs/specialhelp.cpp cpp/ui/prefs/specialhelp.ui
     cpp/ui/prefs/timeredit.h cpp/ui/prefs/timeredit.cpp cpp/ui/prefs/timeredit.ui

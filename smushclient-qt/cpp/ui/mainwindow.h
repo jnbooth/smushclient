@@ -68,7 +68,6 @@ private slots:
   void on_action_open_world_triggered();
   void on_action_paste_triggered();
   void on_action_pause_output_triggered(bool checked);
-  void on_action_plugins_triggered();
   void on_action_print_triggered();
   void on_action_quit_triggered();
   void on_action_reload_script_file_triggered();

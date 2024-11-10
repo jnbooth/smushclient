@@ -10,7 +10,6 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMessageBox>
-#include "pluginsdialog.h"
 #include "ui_worldtab.h"
 #include "worldprefs.h"
 #include "../bridge/document.h"
@@ -193,15 +192,6 @@ void WorldTab::openLog()
   }
 }
 
-void WorldTab::openPluginsDialog()
-{
-  PluginsDialog dialog(client, this);
-  connect(&dialog, &PluginsDialog::reinstallClicked, this, &WorldTab::loadPlugins);
-  if (dialog.exec() != QDialog::Accepted)
-    return;
-  loadPlugins();
-}
-
 bool WorldTab::openWorld(const QString &filename) &
 {
   try
@@ -219,7 +209,7 @@ bool WorldTab::openWorld(const QString &filename) &
 
 bool WorldTab::openWorldSettings()
 {
-  WorldPrefs prefs(world, client, api->timekeeper, this);
+  WorldPrefs prefs(world, client, api, this);
   if (prefs.exec() == QDialog::Accepted)
   {
     client.setWorld(world);

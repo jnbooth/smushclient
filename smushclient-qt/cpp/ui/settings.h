@@ -22,11 +22,11 @@ public:
 
 private:
   Ui::SettingsDialog *ui;
-  QList<QWidget *> panes;
-  qsizetype activePane;
+  QWidget *pane;
+  Settings &settings;
 
-  void setupPane(QWidget *pane, const char *key);
+  QWidget *paneForIndex(int row);
 
 private slots:
-  void on_settings_list_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
+  void on_settings_list_currentRowChanged(int row);
 };

@@ -136,8 +136,6 @@
     <addaction name="action_save_world_details_as"/>
     <addaction name="action_edit_world_details"/>
     <addaction name="separator"/>
-    <addaction name="action_plugins"/>
-    <addaction name="separator"/>
     <addaction name="action_edit_script_file"/>
     <addaction name="action_reload_script_file"/>
     <addaction name="separator"/>
@@ -219,17 +217,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
-   </property>
-  </action>
-  <action name="action_plugins">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Pl&amp;ugins...</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+P</string>
    </property>
   </action>
   <action name="action_save_world_details">

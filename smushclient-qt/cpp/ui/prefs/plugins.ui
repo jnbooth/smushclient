@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PluginsDialog</class>
- <widget class="QDialog" name="PluginsDialog">
+ <class>PrefsPlugins</class>
+ <widget class="QWidget" name="PrefsPlugins">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,9 +11,21 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Plugins</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QTableWidget" name="table">
      <column>
@@ -50,62 +62,45 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QPushButton" name="button_add">
-       <property name="text">
-        <string>&amp;Add...</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="button_reinstall">
-       <property name="text">
-        <string>Re&amp;Install</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="2">
-      <widget class="QPushButton" name="button_enable">
-       <property name="text">
-        <string>E&amp;nable</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QPushButton" name="button_remove">
-       <property name="text">
-        <string>&amp;Remove</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="button_showinfo">
-       <property name="text">
-        <string>&amp;Show Info</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
       <widget class="QPushButton" name="button_disable">
        <property name="text">
         <string>&amp;Disable</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
-      <widget class="QPushButton" name="button_edit">
+     <item row="0" column="1">
+      <widget class="QPushButton" name="button_showinfo">
        <property name="text">
-        <string>&amp;Edit</string>
+        <string>&amp;Show Info</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="3">
-      <widget class="QPushButton" name="button_close">
+     <item row="2" column="1">
+      <widget class="QPushButton" name="button_reinstall">
        <property name="text">
-        <string>&amp;Close</string>
+        <string>Re&amp;install</string>
        </property>
-       <property name="default">
-        <bool>true</bool>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="button_add">
+       <property name="text">
+        <string>&amp;Add...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="button_enable">
+       <property name="text">
+        <string>E&amp;nable</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QPushButton" name="button_remove">
+       <property name="text">
+        <string>&amp;Remove</string>
        </property>
       </widget>
      </item>

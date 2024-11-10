@@ -47,7 +47,6 @@ public:
   void editWorldScript();
   void onTabSwitch(bool active) const;
   void openLog();
-  void openPluginsDialog();
   bool openWorld(const QString &filename) &;
   bool openWorldSettings();
   void reloadWorldScript() const;

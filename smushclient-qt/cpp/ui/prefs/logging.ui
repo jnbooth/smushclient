@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
+    <width>800</width>
     <height>600</height>
    </rect>
   </property>
@@ -23,24 +23,18 @@
    <property name="spacing">
     <number>20</number>
    </property>
-   <item>
-    <widget class="QLabel" name="label_title">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Logging</string>
-     </property>
-    </widget>
-   </item>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <layout class="QHBoxLayout" name="_log">
      <item>
@@ -69,36 +63,6 @@
         <iconset theme="document-open"/>
        </property>
       </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QFormLayout" name="_session">
-     <item row="0" column="0">
-      <widget class="QLabel" name="LogFilePreamble_label">
-       <property name="text">
-        <string>Session &amp;Header:</string>
-       </property>
-       <property name="buddy">
-        <cstring>LogFilePreamble</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QPlainTextEdit" name="LogFilePreamble"/>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="LogFilePostamble_label">
-       <property name="text">
-        <string>Session &amp;Footer:</string>
-       </property>
-       <property name="buddy">
-        <cstring>LogFilePostamble</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QPlainTextEdit" name="LogFilePostamble"/>
      </item>
     </layout>
    </item>
@@ -229,6 +193,36 @@
     </layout>
    </item>
    <item>
+    <layout class="QFormLayout" name="_session">
+     <item row="0" column="0">
+      <widget class="QLabel" name="LogFilePreamble_label">
+       <property name="text">
+        <string>Session &amp;Header:</string>
+       </property>
+       <property name="buddy">
+        <cstring>LogFilePreamble</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPlainTextEdit" name="LogFilePreamble"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="LogFilePostamble_label">
+       <property name="text">
+        <string>Session &amp;Footer:</string>
+       </property>
+       <property name="buddy">
+        <cstring>LogFilePostamble</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPlainTextEdit" name="LogFilePostamble"/>
+     </item>
+    </layout>
+   </item>
+   <item>
     <layout class="QGridLayout" name="_affixes">
      <item row="0" column="1">
       <widget class="QLabel" name="label_preamble">
@@ -295,30 +289,6 @@
      </item>
      <item row="3" column="2">
       <widget class="QLineEdit" name="LogPostambleNotes"/>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="label_help">
-       <property name="text">
-        <string>All fields above can include date fields, e.g. %a %b %d.</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::StandardButton::Help</set>
-       </property>
-      </widget>
      </item>
     </layout>
    </item>

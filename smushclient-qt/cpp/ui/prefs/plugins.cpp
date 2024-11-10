@@ -1,39 +1,45 @@
-#include "pluginsdialog.h"
+#include "plugins.h"
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QFileDialog>
-#include "ui_pluginsdialog.h"
+#include "ui_plugins.h"
 #include "../../environment.h"
+#include "../../scripting/scriptapi.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
 // Public methods
 
-PluginsDialog::PluginsDialog(SmushClient &client, QWidget *parent)
-    : QDialog(parent),
-      ui(new Ui::PluginsDialog),
-      client(client),
-      changedPlugins(false)
+PrefsPlugins::PrefsPlugins(SmushClient &client, ScriptApi *api, QWidget *parent)
+    : QWidget(parent),
+      ui(new Ui::PrefsPlugins),
+      api(api),
+      client(client)
 {
   ui->setupUi(this);
   buildTable();
 }
 
-PluginsDialog::~PluginsDialog()
+PrefsPlugins::~PrefsPlugins()
 {
   delete ui;
 }
 
 // Private methods
 
-void PluginsDialog::buildTable()
+void PrefsPlugins::buildTable()
 {
   ui->table->clear();
   TableBuilder builder(ui->table);
   client.buildPluginsTable(builder);
 }
 
+void PrefsPlugins::initPlugins()
+{
+  api->initializePlugins(client.pluginScripts());
+}
+
 // Private slots
 
-void PluginsDialog::on_button_add_clicked()
+void PrefsPlugins::on_button_add_clicked()
 {
   const QString filePath = QFileDialog::getOpenFileName(
       this,
@@ -50,30 +56,22 @@ void PluginsDialog::on_button_add_clicked()
     QErrorMessage::qtHandler()->showMessage(error);
     return;
   }
-  changedPlugins = true;
+  initPlugins();
   buildTable();
 }
 
-void PluginsDialog::on_button_close_clicked()
+void PrefsPlugins::on_button_reinstall_clicked()
 {
-  if (changedPlugins)
-    accept();
-  else
-    reject();
+  initPlugins();
 }
 
-void PluginsDialog::on_button_reinstall_clicked()
-{
-  emit reinstallClicked();
-}
-
-void PluginsDialog::on_button_remove_clicked()
+void PrefsPlugins::on_button_remove_clicked()
 {
   const QTableWidgetItem *item = ui->table->currentItem();
   if (!item)
     return;
   if (!client.removePlugin(item->data(Qt::UserRole).toString()))
     return;
-  changedPlugins = true;
+
   buildTable();
 }

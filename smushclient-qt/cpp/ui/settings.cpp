@@ -21,12 +21,11 @@ void SettingsDialog::connect(WorldTab *tab)
 SettingsDialog::SettingsDialog(Settings &settings, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::SettingsDialog),
-      panes(),
-      activePane(0)
+      pane(nullptr),
+      settings(settings)
 {
   ui->setupUi(this);
-  panes.reserve(1);
-  setupPane(new SettingsAppearance(settings, &notifier, this), "Appearance");
+  ui->settings_list->setCurrentRow(0);
 }
 
 SettingsDialog::~SettingsDialog()
@@ -36,37 +35,27 @@ SettingsDialog::~SettingsDialog()
 
 // Private methods
 
-void SettingsDialog::setupPane(QWidget *pane, const char *key)
+QWidget *SettingsDialog::paneForIndex(int n)
 {
-  const int index = panes.size();
-  panes.append(pane);
-  ui->contents->addWidget(pane);
-  pane->hide();
-
-  QListWidgetItem *item =
-      ui->settings_list
-          ->findItems(tr(key), Qt::MatchExactly)
-          .constFirst();
-  item->setData(Qt::UserRole, index);
-
-  if (index == 0)
-    ui->settings_list->setCurrentItem(item);
+  switch (n)
+  {
+  case 0:
+    return new SettingsAppearance(settings, &notifier, this);
+  default:
+    return nullptr;
+  }
 }
 
 // Private slots
 
-void SettingsDialog::on_settings_list_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
+void SettingsDialog::on_settings_list_currentRowChanged(int row)
 {
-  if (!current)
+  if (row == -1)
     return;
 
-  const QVariant data = current->data(Qt::UserRole);
-  if (!data.canConvert<qsizetype>())
-    return;
+  if (pane)
+    delete pane;
 
-  if (previous)
-    panes.at(activePane)->hide();
-
-  activePane = data.value<qsizetype>();
-  panes.at(activePane)->show();
+  pane = paneForIndex(row);
+  ui->contents->addWidget(pane);
 }

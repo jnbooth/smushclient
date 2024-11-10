@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>670</width>
-    <height>640</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,65 +48,103 @@
         <bool>false</bool>
        </property>
        <property name="spacing">
-        <number>3</number>
+        <number>5</number>
        </property>
        <property name="uniformItemSizes">
         <bool>true</bool>
        </property>
        <item>
         <property name="text">
-         <string>IP address</string>
+         <string>IP Address</string>
+        </property>
+        <property name="flags">
+         <set>ItemIsSelectable|ItemIsEnabled</set>
         </property>
        </item>
        <item>
         <property name="text">
          <string>Connecting</string>
         </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Logging</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Timers</string>
+        <property name="flags">
+         <set>ItemIsSelectable|ItemIsEnabled</set>
         </property>
        </item>
        <item>
         <property name="text">
          <string>Output</string>
         </property>
+        <property name="flags">
+         <set>ItemIsSelectable|ItemIsEnabled</set>
+        </property>
        </item>
        <item>
         <property name="text">
          <string>MUD</string>
         </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Triggers</string>
+        <property name="flags">
+         <set>ItemIsSelectable|ItemIsEnabled</set>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Aliases</string>
+         <string>Logging</string>
+        </property>
+        <property name="flags">
+         <set>ItemIsSelectable|ItemIsEnabled</set>
         </property>
        </item>
        <item>
         <property name="text">
          <string>Keypad</string>
         </property>
+        <property name="flags">
+         <set>ItemIsSelectable|ItemIsEnabled</set>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Aliases</string>
+        </property>
+        <property name="flags">
+         <set>ItemIsSelectable|ItemIsEnabled</set>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Timers</string>
+        </property>
+        <property name="flags">
+         <set>ItemIsSelectable|ItemIsEnabled</set>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Triggers</string>
+        </property>
+        <property name="flags">
+         <set>ItemIsSelectable|ItemIsEnabled</set>
+        </property>
        </item>
        <item>
         <property name="text">
          <string>Scripts</string>
         </property>
+        <property name="flags">
+         <set>ItemIsSelectable|ItemIsEnabled</set>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Plugins</string>
+        </property>
+        <property name="flags">
+         <set>ItemIsSelectable|ItemIsEnabled</set>
+        </property>
        </item>
       </widget>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="contents" stretch=""/>
+      <layout class="QVBoxLayout" name="contents"/>
      </item>
     </layout>
    </item>

@@ -9,21 +9,25 @@ namespace Ui
   class WorldPrefs;
 }
 
+class ScriptApi;
+
 class WorldPrefs : public QDialog
 {
   Q_OBJECT
 
 public:
-  explicit WorldPrefs(World &world, SmushClient &client, Timekeeper *timekeeper, QWidget *parent = nullptr);
+  explicit WorldPrefs(World &world, SmushClient &client, ScriptApi *api, QWidget *parent = nullptr);
   ~WorldPrefs();
 
 private:
   Ui::WorldPrefs *ui;
-  QList<QWidget *> panes;
-  qsizetype activePane;
+  ScriptApi *api;
+  SmushClient &client;
+  QWidget *pane;
+  World &world;
 
-  void setupPane(QWidget *pane, const char *key);
+  QWidget *paneForIndex(int row);
 
 private slots:
-  void on_settings_list_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
+  void on_settings_list_currentRowChanged(int row);
 };

@@ -172,7 +172,6 @@ void MainWindow::setWorldMenusEnabled(bool enabled) const
   ui->action_save_world_details->setEnabled(enabled);
   ui->action_save_world_details_as->setEnabled(enabled);
   ui->action_edit_world_details->setEnabled(enabled);
-  ui->action_plugins->setEnabled(enabled);
   ui->action_edit_script_file->setEnabled(enabled);
   ui->action_reload_script_file->setEnabled(enabled);
   ui->action_log_session->setEnabled(enabled);
@@ -375,11 +374,6 @@ void MainWindow::on_action_paste_triggered()
 void MainWindow::on_action_pause_output_triggered(bool checked)
 {
   worldtab()->ui->output->verticalScrollBar()->setPaused(checked);
-}
-
-void MainWindow::on_action_plugins_triggered()
-{
-  worldtab()->openPluginsDialog();
 }
 
 void MainWindow::on_action_print_triggered()
