@@ -4,4 +4,17 @@
         <file alias="Dina">fonts/Dina.ttf</file>
         <file alias="FixedSys">fonts/FixedSys.ttf</file>
     </qresource>
+    <qresource prefix="/icons/world-details">
+        <file>icons/world-details/aliases.svg</file>
+        <file>icons/world-details/connecting.svg</file>
+        <file>icons/world-details/keypad.svg</file>
+        <file>icons/world-details/logging.svg</file>
+        <file>icons/world-details/login.svg</file>
+        <file>icons/world-details/mud.svg</file>
+        <file>icons/world-details/output.svg</file>
+        <file>icons/world-details/plugins.svg</file>
+        <file>icons/world-details/scripting.svg</file>
+        <file>icons/world-details/timers.svg</file>
+        <file>icons/world-details/triggers.svg</file>
+    </qresource>
 </RCC>
