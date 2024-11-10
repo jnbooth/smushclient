@@ -219,7 +219,7 @@ bool WorldTab::openWorld(const QString &filename) &
 
 bool WorldTab::openWorldSettings()
 {
-  WorldPrefs prefs(world, this);
+  WorldPrefs prefs(world, client, api->timekeeper, this);
   if (prefs.exec() == QDialog::Accepted)
   {
     client.setWorld(world);

@@ -51,10 +51,11 @@ ApiCode ScriptApi::AddAlias(
 
   try
   {
-    const int code = flags.testFlag(AliasFlag::Replace)
-                         ? client()->addAlias(plugin, alias)
-                         : client()->replaceAlias(plugin, alias);
-    return convertAliasCode(code);
+    if (!flags.testFlag(AliasFlag::Replace))
+      return convertAliasCode(client()->addAlias(plugin, alias));
+
+    client()->replaceAlias(plugin, alias);
+    return ApiCode::OK;
   }
   catch (rust::Error &)
   {
@@ -98,10 +99,11 @@ ApiCode ScriptApi::AddTimer(
   timer.setTemporary(flags.testFlag(TimerFlag::Temporary));
   timer.setText(text);
 
-  const int code = flags.testFlag(TimerFlag::Replace)
-                       ? client()->addTimer(plugin, timer, *timekeeper)
-                       : client()->replaceTimer(plugin, timer, *timekeeper);
-  return convertTimerCode(code);
+  if (!flags.testFlag(TimerFlag::Replace))
+    return convertTimerCode(client()->addTimer(plugin, timer, *timekeeper));
+
+  client()->replaceTimer(plugin, timer, *timekeeper);
+  return ApiCode::OK;
 }
 
 ApiCode ScriptApi::AddTrigger(
@@ -146,10 +148,11 @@ ApiCode ScriptApi::AddTrigger(
 
   try
   {
-    const int code = flags.testFlag(TriggerFlag::Replace)
-                         ? client()->addTrigger(plugin, trigger)
-                         : client()->replaceTrigger(plugin, trigger);
-    return convertTimerCode(code);
+    if (!flags.testFlag(TriggerFlag::Replace))
+      return convertTriggerCode(client()->addTrigger(plugin, trigger));
+
+    client()->replaceTrigger(plugin, trigger);
+    return ApiCode::OK;
   }
   catch (rust::Error &)
   {

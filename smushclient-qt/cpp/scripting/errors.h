@@ -26,12 +26,10 @@ constexpr ApiCode convertClientResultCode(int code)
     return ApiCode::OK;
   case (int)SenderAccessResult::NotFound:
     return NotFound;
-  case (int)SenderAccessResult::Locked:
-    return ApiCode::ItemInUse;
   case (int)SenderAccessResult::BadParameter:
     return ApiCode::BadParameter;
   default:
-    return code < 0 ? Conflict : ApiCode::OK;
+    return code <= (int)SenderAccessResult::LabelConflict ? Conflict : ApiCode::OK;
   }
 }
 

@@ -17,7 +17,7 @@ protected:
   virtual void buildTree(TreeBuilder &builder) = 0;
   virtual bool editItem(size_t index) = 0;
   virtual QString exportXml() const = 0;
-  virtual QString importXml(const QString &text) = 0;
+  virtual void importXml(const QString &text) = 0;
   virtual void removeItem(size_t index) = 0;
   virtual void setItemButtonsEnabled(bool enabled) = 0;
   virtual QTreeWidget *tree() const = 0;

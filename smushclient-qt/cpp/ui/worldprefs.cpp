@@ -13,7 +13,7 @@
 
 // Public methods
 
-WorldPrefs::WorldPrefs(World &world, QWidget *parent)
+WorldPrefs::WorldPrefs(World &world, SmushClient &client, Timekeeper *timekeeper, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::WorldPrefs),
       panes(),
@@ -25,11 +25,11 @@ WorldPrefs::WorldPrefs(World &world, QWidget *parent)
   setupPane(new PrefsAddress(world, this), "IP address");
   setupPane(new PrefsConnecting(world, this), "Connecting");
   setupPane(new PrefsLogging(world, this), "Logging");
-  setupPane(new PrefsTimers(world, this), "Timers");
+  setupPane(new PrefsTimers(world, client, timekeeper, this), "Timers");
   setupPane(new PrefsOutput(world, this), "Output");
   setupPane(new PrefsMud(world, this), "MUD");
-  setupPane(new PrefsAliases(world, this), "Aliases");
-  setupPane(new PrefsTriggers(world, this), "Triggers");
+  setupPane(new PrefsAliases(world, client, this), "Aliases");
+  setupPane(new PrefsTriggers(world, client, this), "Triggers");
   setupPane(new PrefsNumpad(world, this), "Keypad");
   setupPane(new PrefsScripts(world, this), "Scripts");
 }

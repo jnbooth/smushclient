@@ -12,7 +12,7 @@ class PrefsTriggers : public AbstractPrefsTree
   Q_OBJECT
 
 public:
-  explicit PrefsTriggers(World &world, QWidget *parent = nullptr);
+  explicit PrefsTriggers(const World &world, SmushClient &client, QWidget *parent = nullptr);
   ~PrefsTriggers();
 
 protected:
@@ -20,12 +20,12 @@ protected:
   void buildTree(TreeBuilder &builder) override;
   bool editItem(size_t index) override;
   QString exportXml() const override;
-  QString importXml(const QString &text) override;
+  void importXml(const QString &text) override;
   void removeItem(size_t index) override;
   void setItemButtonsEnabled(bool enabled) override;
   QTreeWidget *tree() const override;
 
 private:
   Ui::PrefsTriggers *ui;
-  World &world;
+  SmushClient &client;
 };

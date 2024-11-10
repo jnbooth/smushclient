@@ -16,7 +16,7 @@ void TableBuilder::setRowCount(int rows) const
   table->setRowCount(rows);
 }
 
-void TableBuilder::startRow(const QString &data)
+void TableBuilder::startRow(const QVariant &data)
 {
   ++row;
   column = 0;
@@ -49,13 +49,13 @@ void TreeBuilder::startGroup(const QString &name)
   group->setExpanded(true);
 }
 
-void TreeBuilder::startItem(size_t value)
+void TreeBuilder::startRow(const QVariant &data)
 {
   if (!group)
     startGroup(tree->tr("(ungrouped)"));
 
   item = new QTreeWidgetItem(group);
-  item->setData(0, Qt::UserRole, qulonglong(value));
+  item->setData(0, Qt::UserRole, data);
   column = 0;
 }
 

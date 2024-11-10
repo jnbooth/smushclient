@@ -1,6 +1,7 @@
 use std::pin::Pin;
 
-use cxx_qt_lib::QString;
+use cxx_qt_lib::{QString, QVariant};
+use smushclient_plugins::Plugin;
 
 use crate::ffi;
 
@@ -14,14 +15,19 @@ impl<'a> TableBuilderAdapter<'a> {
         unsafe { self.inner.set_row_count(rows) };
     }
 
-    pub fn start_row(&mut self, data: &QString) {
+    pub fn start_row<D: Into<QVariant>>(&mut self, data: D) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.as_mut().start_row(data) };
+        unsafe { self.as_mut().start_row(&data.into()) };
     }
 
     pub fn add_column<T: ColumnInsertable>(&mut self, value: T) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { value.insert_column(self.as_mut()) };
+    }
+
+    pub fn add_row<T: RowInsertable, D: Into<QVariant>>(&mut self, data: D, item: &T) {
+        self.start_row(data);
+        item.insert_row(self);
     }
 }
 
@@ -41,3 +47,19 @@ macro_rules! impl_column_insertable {
 
 impl_column_insertable!(&QString, add_column);
 impl_column_insertable!(bool, add_column_bool);
+
+pub trait RowInsertable {
+    fn insert_row(&self, builder: &mut TableBuilderAdapter);
+}
+
+impl RowInsertable for Plugin {
+    fn insert_row(&self, builder: &mut TableBuilderAdapter) {
+        let metadata = &self.metadata;
+        builder.add_column(&QString::from(&metadata.name));
+        builder.add_column(&QString::from(&metadata.purpose));
+        builder.add_column(&QString::from(&metadata.author));
+        builder.add_column(&QString::from(&*metadata.path.to_string_lossy()));
+        builder.add_column(!self.disabled);
+        builder.add_column(&QString::from(&metadata.version));
+    }
+}

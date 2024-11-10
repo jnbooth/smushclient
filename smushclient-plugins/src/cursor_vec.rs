@@ -9,7 +9,8 @@ pub struct CursorVec<T> {
     inner: Vec<T>,
     cursor: usize,
     removals: Vec<usize>,
-    additions: Vec<T>,
+    additions_index: usize,
+    evaluating: bool,
 }
 
 impl<T> CursorVec<T> {
@@ -18,7 +19,8 @@ impl<T> CursorVec<T> {
             inner: Vec::new(),
             cursor: 0,
             removals: Vec::new(),
-            additions: Vec::new(),
+            additions_index: 0,
+            evaluating: false,
         }
     }
 }
@@ -26,99 +28,121 @@ impl<T> CursorVec<T> {
 impl<T: Ord> CursorVec<T> {
     pub fn begin(&mut self) {
         self.apply_pending(true);
+        self.evaluating = true;
+        self.additions_index = self.inner.len();
         self.cursor = 0;
     }
 
     pub fn end(&mut self) {
-        self.cursor = self.inner.len();
         self.apply_pending(true);
-    }
-
-    pub fn done(&self) -> bool {
-        self.cursor >= self.inner.len()
+        self.evaluating = false;
     }
 
     #[allow(clippy::should_implement_trait)]
     pub fn next(&mut self) -> Option<&mut T> {
-        if self.done() {
-            self.apply_pending(true);
+        if self.cursor >= self.inner.len() {
+            self.end();
             return None;
         }
         self.apply_pending(false);
         self.cursor += 1;
+        self.additions_index = self.inner.len();
         self.inner.get_mut(self.cursor - 1)
     }
 
     pub fn append(&mut self, other: &mut Vec<T>) {
-        if self.done() {
-            self.inner.append(other);
-            self.inner.sort_unstable();
-        } else {
-            self.additions.append(other);
-        }
+        self.inner.append(other);
     }
 
     fn apply_pending(&mut self, done: bool) {
         for &i in self.removals.iter().rev() {
             self.inner.remove(i);
+            self.additions_index -= 1;
             if !done && i <= self.cursor {
                 self.cursor -= 1;
             }
         }
-        for item in self.additions.drain(..) {
-            if Self::do_insert(&mut self.inner, item) < self.cursor && !done {
+        self.removals.clear();
+        if !self.evaluating {
+            return;
+        }
+        while self.additions_index < self.inner.len() {
+            let Some(item) = self.inner.pop() else {
+                break;
+            };
+            let Err(pos) = self.do_insert(item) else {
+                continue;
+            };
+            self.additions_index += 1;
+            if !done && pos < self.cursor {
                 self.cursor += 1;
             }
         }
-        self.removals.clear();
     }
 
-    pub fn insert(&mut self, item: T) {
-        if self.done() {
-            Self::do_insert(&mut self.inner, item);
+    pub fn insert(&mut self, item: T) -> &T {
+        let pos = if self.evaluating {
+            self.inner.push(item);
+            self.inner.len() - 1
         } else {
-            self.additions.push(item);
+            match self.do_insert(item) {
+                Ok(pos) | Err(pos) => pos,
+            }
+        };
+        &self.inner[pos]
+    }
+
+    fn sorted_slice(&self) -> &[T] {
+        if self.evaluating {
+            &self.inner[..self.additions_index]
+        } else {
+            self.inner.as_slice()
         }
     }
 
-    fn do_insert(inner: &mut Vec<T>, item: T) -> usize {
-        let pos = match inner.binary_search(&item) {
+    fn do_insert(&mut self, item: T) -> Result<usize, usize> {
+        let pos = match self.sorted_slice().binary_search(&item) {
             Ok(pos) => {
-                inner[pos] = item;
-                return pos;
+                self.inner[pos] = item;
+                return Ok(pos);
             }
             Err(pos) => pos,
         };
-        inner.insert(pos, item);
-        pos
+        self.inner.insert(pos, item);
+        Err(pos)
     }
 
-    pub fn replace(&mut self, i: usize, item: T) {
-        let pos = match self.inner.binary_search(&item) {
+    pub fn replace(&mut self, i: usize, item: T) -> &T {
+        let mut pos = match self.sorted_slice().binary_search(&item) {
             Ok(pos) | Err(pos) => pos,
         };
         if pos == i {
-            self.inner[i] = item;
-            return;
+            let entry = &mut self.inner[i];
+            *entry = item;
+            return entry;
         }
-        if !self.done() {
+        if self.evaluating {
             self.removals.push(i);
-            self.additions.push(item);
-            return;
+            self.inner.push(item);
+            return &self.inner[self.inner.len() - 1];
         }
         self.inner[i] = item;
+        if pos == self.inner.len() {
+            pos -= 1;
+        }
         match i.cmp(&pos) {
             Ordering::Less => self.inner[i..=pos].rotate_left(1),
             Ordering::Equal => (),
             Ordering::Greater => self.inner[pos..=i].rotate_right(1),
         }
+        &self.inner[pos]
     }
 
     pub fn remove(&mut self, i: usize) {
-        if i > self.cursor || self.done() {
-            self.inner.remove(i);
-        } else {
+        if self.evaluating && i <= self.cursor {
             self.removals.push(i);
+        } else {
+            self.inner.remove(i);
         }
     }
 
@@ -126,7 +150,25 @@ impl<T: Ord> CursorVec<T> {
         self.removals.push(self.cursor);
     }
 
-    pub fn position<P: FnMut(&T) -> bool>(&mut self, mut pred: P) -> Option<usize> {
+    pub fn find<P: FnMut(&T) -> bool>(&self, mut pred: P) -> Option<&T> {
+        let (_, item) = self
+            .inner
+            .iter()
+            .enumerate()
+            .find(|(i, item)| pred(item) && !self.removals.contains(i))?;
+        Some(item)
+    }
+
+    pub fn find_mut<P: FnMut(&T) -> bool>(&mut self, mut pred: P) -> Option<&mut T> {
+        let (_, item) = self
+            .inner
+            .iter_mut()
+            .enumerate()
+            .find(|(i, item)| pred(item) && !self.removals.contains(i))?;
+        Some(item)
+    }
+
+    pub fn position<P: FnMut(&T) -> bool>(&self, mut pred: P) -> Option<usize> {
         let (i, _) = self
             .inner
             .iter()

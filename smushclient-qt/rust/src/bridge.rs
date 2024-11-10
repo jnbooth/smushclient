@@ -67,8 +67,8 @@ pub mod ffi {
 
     #[repr(i32)]
     enum SenderAccessResult {
-        LabelConflict = -4,
-        BadParameter = -3,
+        LabelConflict = -3,
+        BadParameter = -2,
         NotFound = -1,
         Ok = 0,
     }
@@ -366,7 +366,7 @@ pub mod ffi {
         #[rust_name = "set_row_count"]
         unsafe fn setRowCount(self: &TableBuilder, rows: i32);
         #[rust_name = "start_row"]
-        unsafe fn startRow(self: Pin<&mut TableBuilder>, data: &QString);
+        unsafe fn startRow(self: Pin<&mut TableBuilder>, data: &QVariant);
         #[rust_name = "add_column"]
         unsafe fn addColumn(self: Pin<&mut TableBuilder>, text: &QString);
         #[rust_name = "add_column_bool"]
@@ -376,8 +376,8 @@ pub mod ffi {
 
         #[rust_name = "start_group"]
         unsafe fn startGroup(self: Pin<&mut TreeBuilder>, text: &QString);
-        #[rust_name = "start_item"]
-        unsafe fn startItem(self: Pin<&mut TreeBuilder>, value: usize);
+        #[rust_name = "start_row"]
+        unsafe fn startRow(self: Pin<&mut TreeBuilder>, data: &QVariant);
         #[rust_name = "add_column"]
         unsafe fn addColumn(self: Pin<&mut TreeBuilder>, text: &QString);
         #[rust_name = "add_column_signed"]
@@ -493,6 +493,12 @@ pub mod ffi {
         fn add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> QString;
         fn remove_plugin(self: Pin<&mut SmushClient>, plugin_id: &QString) -> bool;
         fn build_plugins_table(self: &SmushClient, table: Pin<&mut TableBuilder>);
+        fn build_aliases_tree(self: &SmushClient, tree: Pin<&mut TreeBuilder>);
+        fn build_timers_tree(self: &SmushClient, tree: Pin<&mut TreeBuilder>);
+        fn build_triggers_tree(self: &SmushClient, tree: Pin<&mut TreeBuilder>);
+        fn world_aliases_len(self: &SmushClient) -> usize;
+        fn world_timers_len(self: &SmushClient) -> usize;
+        fn world_triggers_len(self: &SmushClient) -> usize;
         fn plugin_scripts(self: &SmushClient) -> Vec<PluginPack>;
         fn read(
             self: Pin<&mut SmushClient>,
@@ -516,18 +522,54 @@ pub mod ffi {
         fn remove_aliases(self: Pin<&mut SmushClient>, index: usize, group: &QString) -> usize;
         fn remove_timers(self: Pin<&mut SmushClient>, index: usize, group: &QString) -> usize;
         fn remove_triggers(self: Pin<&mut SmushClient>, index: usize, group: &QString) -> usize;
-        fn replace_alias(self: Pin<&mut SmushClient>, index: usize, alias: &Alias) -> Result<i32>;
-        fn replace_timer(
+        fn add_world_alias(self: Pin<&mut SmushClient>, alias: &Alias) -> Result<i32>;
+        fn add_world_timer(
+            self: Pin<&mut SmushClient>,
+            timer: &Timer,
+            timekeeper: Pin<&mut Timekeeper>,
+        ) -> i32;
+        fn add_world_trigger(self: Pin<&mut SmushClient>, trigger: &Trigger) -> Result<i32>;
+        fn replace_world_alias(
+            self: Pin<&mut SmushClient>,
+            index: usize,
+            alias: &Alias,
+        ) -> Result<i32>;
+        fn replace_world_timer(
             self: Pin<&mut SmushClient>,
             index: usize,
             timer: &Timer,
             timekeeper: Pin<&mut Timekeeper>,
         ) -> i32;
-        fn replace_trigger(
+        fn replace_world_trigger(
             self: Pin<&mut SmushClient>,
             index: usize,
             trigger: &Trigger,
         ) -> Result<i32>;
+        fn remove_world_alias(self: Pin<&mut SmushClient>, i: usize) -> bool;
+        fn remove_world_timer(self: Pin<&mut SmushClient>, i: usize) -> bool;
+        fn remove_world_trigger(self: Pin<&mut SmushClient>, i: usize) -> bool;
+        fn export_world_aliases(self: &SmushClient) -> Result<QString>;
+        fn export_world_timers(self: &SmushClient) -> Result<QString>;
+        fn export_world_triggers(self: &SmushClient) -> Result<QString>;
+        fn import_world_aliases(self: Pin<&mut SmushClient>, xml: &QString) -> Result<()>;
+        fn import_world_timers(
+            self: Pin<&mut SmushClient>,
+            xml: &QString,
+            timekeeper: Pin<&mut Timekeeper>,
+        ) -> Result<()>;
+        fn import_world_triggers(self: Pin<&mut SmushClient>, xml: &QString) -> Result<()>;
+        fn replace_alias(self: Pin<&mut SmushClient>, index: usize, alias: &Alias) -> Result<()>;
+        fn replace_timer(
+            self: Pin<&mut SmushClient>,
+            index: usize,
+            timer: &Timer,
+            timekeeper: Pin<&mut Timekeeper>,
+        );
+        fn replace_trigger(
+            self: Pin<&mut SmushClient>,
+            index: usize,
+            trigger: &Trigger,
+        ) -> Result<()>;
         fn is_alias(self: &SmushClient, index: usize, label: &QString) -> bool;
         fn is_timer(self: &SmushClient, index: usize, label: &QString) -> bool;
         fn is_trigger(self: &SmushClient, index: usize, label: &QString) -> bool;
@@ -665,7 +707,11 @@ pub mod ffi {
     unsafe impl !cxx_qt::Locking for Timer {}
 
     impl cxx_qt::Constructor<(), NewArguments = ()> for Timer {}
-    impl cxx_qt::Constructor<(*const World, usize), NewArguments = (*const World, usize)> for Timer {}
+    impl
+        cxx_qt::Constructor<(*const SmushClient, usize), NewArguments = (*const SmushClient, usize)>
+        for Timer
+    {
+    }
 
     extern "RustQt" {
         #[qobject]
@@ -704,7 +750,11 @@ pub mod ffi {
     unsafe impl !cxx_qt::Locking for Alias {}
 
     impl cxx_qt::Constructor<(), NewArguments = ()> for Alias {}
-    impl cxx_qt::Constructor<(*const World, usize), NewArguments = (*const World, usize)> for Alias {}
+    impl
+        cxx_qt::Constructor<(*const SmushClient, usize), NewArguments = (*const SmushClient, usize)>
+        for Alias
+    {
+    }
 
     extern "RustQt" {
         #[qobject]
@@ -752,7 +802,11 @@ pub mod ffi {
     unsafe impl !cxx_qt::Locking for Trigger {}
 
     impl cxx_qt::Constructor<(), NewArguments = ()> for Trigger {}
-    impl cxx_qt::Constructor<(*const World, usize), NewArguments = (*const World, usize)> for Trigger {}
+    impl
+        cxx_qt::Constructor<(*const SmushClient, usize), NewArguments = (*const SmushClient, usize)>
+        for Trigger
+    {
+    }
 
     extern "RustQt" {
         #[qobject]
@@ -879,30 +933,6 @@ pub mod ffi {
         #[qproperty(QColor, error_text_colour)]
         #[qproperty(QColor, error_background_colour)]
         type World = super::WorldRust;
-    }
-
-    unsafe extern "RustQt" {
-        fn add_alias(self: Pin<&mut World>, alias: &Alias) -> QString;
-        fn add_timer(self: Pin<&mut World>, timer: &Timer) -> QString;
-        fn add_trigger(self: Pin<&mut World>, trigger: &Trigger) -> QString;
-        fn export_aliases(self: &World) -> QString;
-        fn export_timers(self: &World) -> QString;
-        fn export_triggers(self: &World) -> QString;
-        fn import_aliases(self: Pin<&mut World>, xml: &QString) -> QString;
-        fn import_timers(self: Pin<&mut World>, xml: &QString) -> QString;
-        fn import_triggers(self: Pin<&mut World>, xml: &QString) -> QString;
-        fn num_aliases(self: &World) -> usize;
-        fn num_timers(self: &World) -> usize;
-        fn num_triggers(self: &World) -> usize;
-        fn remove_alias(self: Pin<&mut World>, index: usize);
-        fn remove_timer(self: Pin<&mut World>, index: usize);
-        fn remove_trigger(self: Pin<&mut World>, index: usize);
-        fn replace_alias(self: Pin<&mut World>, index: usize, alias: &Alias) -> QString;
-        fn replace_timer(self: Pin<&mut World>, index: usize, timer: &Timer) -> QString;
-        fn replace_trigger(self: Pin<&mut World>, index: usize, trigger: &Trigger) -> QString;
-        fn build_alias_tree(self: &World, builder: Pin<&mut TreeBuilder>);
-        fn build_timer_tree(self: &World, builder: Pin<&mut TreeBuilder>);
-        fn build_trigger_tree(self: &World, builder: Pin<&mut TreeBuilder>);
     }
 
     #[qenum(World)]

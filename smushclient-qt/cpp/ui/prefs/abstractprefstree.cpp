@@ -2,6 +2,7 @@
 #include <QtGui/QClipboard>
 #include <QtGui/QGuiApplication>
 #include <QtWidgets/QErrorMessage>
+#include "rust/cxx.h"
 #include "../../bridge/viewbuilder.h"
 
 using std::vector;
@@ -42,16 +43,25 @@ void AbstractPrefsTree::on_edit_clicked()
 
 void AbstractPrefsTree::on_export_xml_clicked()
 {
-  QGuiApplication::clipboard()->setText(exportXml());
+  try
+  {
+    QGuiApplication::clipboard()->setText(exportXml());
+  }
+  catch (const rust::Error &e)
+  {
+    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
+  }
 }
 
 void AbstractPrefsTree::on_import_xml_clicked()
 {
-  QString error = importXml(QGuiApplication::clipboard()->text());
-  if (!error.isEmpty())
+  try
   {
-    QErrorMessage::qtHandler()->showMessage(error);
-    return;
+    importXml(QGuiApplication::clipboard()->text());
+  }
+  catch (const rust::Error &e)
+  {
+    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
   }
   buildTree();
 }
@@ -68,11 +78,11 @@ void AbstractPrefsTree::on_remove_clicked()
       continue;
     const size_t index = data.value<size_t>();
     indexes.push_back(index);
-    delete item;
   }
   std::sort(indexes.rbegin(), indexes.rend());
   for (size_t index : indexes)
     removeItem(index);
+  buildTree();
 }
 
 void AbstractPrefsTree::on_tree_itemActivated(QTreeWidgetItem *item)

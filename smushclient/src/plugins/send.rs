@@ -21,10 +21,16 @@ pub struct SendScriptRequest<'a> {
     pub output: &'a [Output],
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug)]
 pub enum SenderAccessError {
     LabelConflict(usize),
     NotFound,
+}
+
+impl From<usize> for SenderAccessError {
+    fn from(value: usize) -> Self {
+        Self::LabelConflict(value)
+    }
 }
 
 impl Display for SenderAccessError {

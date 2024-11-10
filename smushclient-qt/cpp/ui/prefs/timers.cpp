@@ -4,16 +4,18 @@
 #include "../../bridge/viewbuilder.h"
 #include "../../fieldconnector.h"
 
-PrefsTimers::PrefsTimers(World &world, QWidget *parent)
+PrefsTimers::PrefsTimers(const World &world, SmushClient &client, Timekeeper *timekeeper, QWidget *parent)
     : AbstractPrefsTree(parent),
       ui(new Ui::PrefsTimers),
-      world(world)
+      client(client),
+      timekeeper(timekeeper)
 {
   ui->setupUi(this);
   CONNECT_WORLD(EnableTimers);
+  client.stopTimers();
   ui->tree->clear();
   TreeBuilder builder(ui->tree);
-  world.buildTimerTree(builder);
+  client.buildTimersTree(builder);
 }
 
 PrefsTimers::~PrefsTimers()
@@ -30,39 +32,39 @@ bool PrefsTimers::addItem()
   if (edit.exec() == QDialog::Rejected)
     return false;
 
-  world.addTimer(timer);
+  client.addWorldTimer(timer, *timekeeper);
   return true;
 }
 
 void PrefsTimers::buildTree(TreeBuilder &builder)
 {
-  world.buildTimerTree(builder);
+  client.buildTimersTree(builder);
 }
 
 bool PrefsTimers::editItem(size_t index)
 {
-  Timer timer(&world, index);
+  Timer timer(&client, index);
   TimerEdit edit(timer, this);
   if (edit.exec() == QDialog::Rejected)
     return false;
 
-  world.replaceTimer(index, timer);
+  client.replaceWorldTimer(index, timer, *timekeeper);
   return true;
 }
 
 QString PrefsTimers::exportXml() const
 {
-  return world.exportTimers();
+  return client.exportWorldTimers();
 }
 
-QString PrefsTimers::importXml(const QString &xml)
+void PrefsTimers::importXml(const QString &xml)
 {
-  return world.importTimers(xml);
+  client.importWorldTimers(xml, *timekeeper);
 }
 
 void PrefsTimers::removeItem(size_t index)
 {
-  world.removeTimer(index);
+  client.removeWorldTimer(index);
 }
 
 void PrefsTimers::setItemButtonsEnabled(bool enabled)

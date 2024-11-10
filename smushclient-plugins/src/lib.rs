@@ -19,3 +19,5 @@ mod send;
 pub use send::{Alias, Occurrence, Reaction, SendTarget, Sender, Timer, Trigger};
 
 pub use pcre2::bytes::{CaptureMatches, Captures, Match};
+
+pub use quick_xml::DeError as XmlError;

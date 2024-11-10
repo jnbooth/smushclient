@@ -1,18 +1,10 @@
-#![allow(clippy::result_large_err)]
-use std::error::Error;
-use std::pin::Pin;
-
-use crate::adapter::TreeBuilderAdapter;
 use crate::colors::Colors;
 use crate::convert::Convert;
 use crate::ffi;
-use crate::sender::{AliasRust, TimerRust, TriggerRust};
 use cxx_qt_lib::{QColor, QString};
 use smushclient::world::{ColorPair, Numpad, NumpadMapping};
 use smushclient::World;
-use smushclient_plugins::{
-    Alias, CursorVec, Occurrence, PluginLoadError, RegexError, Sender, Timer, Trigger,
-};
+use smushclient_plugins::CursorVec;
 
 #[derive(Default)]
 pub struct WorldRust {
@@ -50,7 +42,6 @@ pub struct WorldRust {
     pub log_postamble_notes: QString,
 
     // Timers
-    pub timers: CursorVec<Timer>,
     pub enable_timers: bool,
 
     // Output
@@ -85,11 +76,9 @@ pub struct WorldRust {
     pub command_stack_character: u16,
 
     // Triggers
-    pub triggers: CursorVec<Trigger>,
     pub enable_triggers: bool,
 
     // Aliases
-    pub aliases: CursorVec<Alias>,
     pub enable_aliases: bool,
 
     // Keypad
@@ -139,166 +128,6 @@ pub struct WorldRust {
 
 impl_deref!(WorldRust, Colors, ansi_colours);
 
-fn sort_refs<T: AsRef<Sender>>(items: &[T]) -> Vec<(usize, &T)> {
-    let mut sorted_items: Vec<(usize, &T)> = items.iter().enumerate().collect();
-    sorted_items.sort_unstable_by_key(|(_, item)| (*item).as_ref());
-    sorted_items
-}
-
-impl WorldRust {
-    pub fn add_alias(&mut self, alias: &AliasRust) -> Result<(), RegexError> {
-        self.aliases.insert(Alias::try_from(alias)?);
-        Ok(())
-    }
-
-    pub fn add_timer(&mut self, timer: &TimerRust) {
-        self.timers.insert(Timer::from(timer));
-    }
-
-    pub fn add_trigger(&mut self, trigger: &TriggerRust) -> Result<(), RegexError> {
-        self.triggers.insert(Trigger::try_from(trigger)?);
-        Ok(())
-    }
-
-    pub fn export_aliases(&self) -> Result<String, PluginLoadError> {
-        Alias::to_xml_string(&self.aliases)
-    }
-
-    pub fn export_timers(&self) -> Result<String, PluginLoadError> {
-        Timer::to_xml_string(&self.timers)
-    }
-
-    pub fn export_triggers(&self) -> Result<String, PluginLoadError> {
-        Trigger::to_xml_string(&self.triggers)
-    }
-
-    pub fn import_aliases(&mut self, xml: &str) -> Result<(), PluginLoadError> {
-        self.aliases.append(&mut Alias::from_xml_str(xml)?);
-        Ok(())
-    }
-
-    pub fn import_timers(&mut self, xml: &str) -> Result<(), PluginLoadError> {
-        self.timers.append(&mut Timer::from_xml_str(xml)?);
-        Ok(())
-    }
-
-    pub fn import_triggers(&mut self, xml: &str) -> Result<(), PluginLoadError> {
-        self.triggers.append(&mut Trigger::from_xml_str(xml)?);
-        Ok(())
-    }
-
-    pub fn remove_alias(&mut self, index: usize) {
-        if index < self.aliases.len() {
-            self.aliases.remove(index);
-        }
-    }
-
-    pub fn remove_timer(&mut self, index: usize) {
-        if index < self.timers.len() {
-            self.timers.remove(index);
-        }
-    }
-
-    pub fn remove_trigger(&mut self, index: usize) {
-        if index < self.triggers.len() {
-            self.triggers.remove(index);
-        }
-    }
-
-    pub fn replace_alias(&mut self, index: usize, alias: &AliasRust) -> Result<(), RegexError> {
-        let Some(entry) = self.aliases.get_mut(index) else {
-            return self.add_alias(alias);
-        };
-        *entry = Alias::try_from(alias)?;
-        Ok(())
-    }
-
-    pub fn replace_timer(&mut self, index: usize, timer: &TimerRust) {
-        let Some(entry) = self.timers.get_mut(index) else {
-            self.add_timer(timer);
-            return;
-        };
-        *entry = Timer::from(timer);
-    }
-
-    pub fn replace_trigger(
-        &mut self,
-        index: usize,
-        trigger: &TriggerRust,
-    ) -> Result<(), RegexError> {
-        let Some(entry) = self.triggers.get_mut(index) else {
-            return self.add_trigger(trigger);
-        };
-        *entry = Trigger::try_from(trigger)?;
-        Ok(())
-    }
-
-    pub fn build_alias_tree(&self, builder: &mut TreeBuilderAdapter) {
-        if self.aliases.is_empty() {
-            return;
-        }
-        let sorted_items = sort_refs(&self.aliases);
-        let mut last_group = "";
-        for (index, item) in sorted_items {
-            let group = item.group.as_str();
-            if group != last_group {
-                builder.start_group(&QString::from(group));
-                last_group = group;
-            }
-            builder.start_item(index);
-            builder.add_column(&QString::from(&item.label));
-            builder.add_column(i64::from(item.sequence));
-            builder.add_column(&QString::from(&item.pattern));
-            builder.add_column(&QString::from(&item.text));
-        }
-    }
-
-    pub fn build_timer_tree(&self, builder: &mut TreeBuilderAdapter) {
-        if self.timers.is_empty() {
-            return;
-        }
-        let sorted_items = sort_refs(&self.timers);
-        let mut last_group = "";
-        let at = QString::from("At");
-        let every = QString::from("Every");
-        for (index, item) in sorted_items {
-            let group = item.group.as_str();
-            if group != last_group {
-                builder.start_group(&QString::from(group));
-                last_group = group;
-            }
-            builder.start_item(index);
-            builder.add_column(&QString::from(&item.label));
-            builder.add_column(match item.occurrence {
-                Occurrence::Interval(_) => &every,
-                Occurrence::Time(_) => &at,
-            });
-            builder.add_column(&QString::from(&item.occurrence.to_string()));
-            builder.add_column(&QString::from(&item.text));
-        }
-    }
-
-    pub fn build_trigger_tree(&self, builder: &mut TreeBuilderAdapter) {
-        if self.triggers.is_empty() {
-            return;
-        }
-        let sorted_items = sort_refs(&self.triggers);
-        let mut last_group = "";
-        for (index, item) in sorted_items {
-            let group = item.group.as_str();
-            if group != last_group {
-                builder.start_group(&QString::from(group));
-                last_group = group;
-            }
-            builder.start_item(index);
-            builder.add_column(&QString::from(&item.label));
-            builder.add_column(i64::from(item.sequence));
-            builder.add_column(&QString::from(&item.pattern));
-            builder.add_column(&QString::from(&item.text));
-        }
-    }
-}
-
 impl From<&World> for WorldRust {
     fn from(world: &World) -> Self {
         let NumpadMapping {
@@ -336,7 +165,6 @@ impl From<&World> for WorldRust {
             log_postamble_input: QString::from(&world.log_postamble_input),
             log_postamble_notes: QString::from(&world.log_postamble_notes),
 
-            timers: world.timers.clone(),
             enable_timers: world.enable_timers,
 
             show_bold: world.show_bold,
@@ -368,10 +196,8 @@ impl From<&World> for WorldRust {
             enable_command_stack: world.enable_command_stack,
             command_stack_character: world.command_stack_character,
 
-            triggers: world.triggers.clone(),
             enable_triggers: world.enable_triggers,
 
-            aliases: world.aliases.clone(),
             enable_aliases: world.enable_aliases,
 
             numpad_0: QString::from(&keypad.key_0),
@@ -454,7 +280,7 @@ impl TryFrom<&WorldRust> for World {
             log_postamble_input: String::from(&value.log_postamble_input),
             log_postamble_notes: String::from(&value.log_postamble_notes),
 
-            timers: value.timers.clone(),
+            timers: CursorVec::new(),
             enable_timers: value.enable_timers,
 
             show_bold: value.show_bold,
@@ -488,10 +314,10 @@ impl TryFrom<&WorldRust> for World {
             enable_command_stack: value.enable_command_stack,
             command_stack_character: value.command_stack_character,
 
-            triggers: value.triggers.clone(),
+            triggers: CursorVec::new(),
             enable_triggers: value.enable_triggers,
 
-            aliases: value.aliases.clone(),
+            aliases: CursorVec::new(),
             enable_aliases: value.enable_aliases,
 
             numpad_shortcuts: NumpadMapping {
@@ -552,132 +378,5 @@ impl TryFrom<&WorldRust> for World {
         world.timers.sort_unstable();
         world.triggers.sort_unstable();
         Ok(world)
-    }
-}
-
-trait IntoResultString {
-    fn result(self) -> QString;
-}
-
-impl<E: Error> IntoResultString for Result<(), E> {
-    fn result(self) -> QString {
-        match self {
-            Ok(()) => QString::default(),
-            Err(e) => QString::from(&e.to_string()),
-        }
-    }
-}
-
-impl<E: Error> IntoResultString for Result<String, E> {
-    fn result(self) -> QString {
-        match self {
-            Ok(s) => QString::from(&s),
-            Err(e) => QString::from(&e.to_string()),
-        }
-    }
-}
-
-impl ffi::World {
-    pub fn add_alias(self: Pin<&mut Self>, alias: &ffi::Alias) -> QString {
-        self.cxx_qt_ffi_rust_mut()
-            .add_alias(alias.cxx_qt_ffi_rust())
-            .result()
-    }
-
-    pub fn add_timer(self: Pin<&mut Self>, timer: &ffi::Timer) -> QString {
-        self.cxx_qt_ffi_rust_mut()
-            .add_timer(timer.cxx_qt_ffi_rust());
-        QString::default()
-    }
-
-    pub fn add_trigger(self: Pin<&mut Self>, trigger: &ffi::Trigger) -> QString {
-        self.cxx_qt_ffi_rust_mut()
-            .add_trigger(trigger.cxx_qt_ffi_rust())
-            .result()
-    }
-
-    pub fn export_aliases(&self) -> QString {
-        self.cxx_qt_ffi_rust().export_aliases().result()
-    }
-
-    pub fn export_timers(&self) -> QString {
-        self.cxx_qt_ffi_rust().export_timers().result()
-    }
-
-    pub fn export_triggers(&self) -> QString {
-        self.cxx_qt_ffi_rust().export_triggers().result()
-    }
-
-    pub fn import_aliases(self: Pin<&mut Self>, xml: &QString) -> QString {
-        self.cxx_qt_ffi_rust_mut()
-            .import_aliases(&String::from(xml))
-            .result()
-    }
-
-    pub fn import_timers(self: Pin<&mut Self>, xml: &QString) -> QString {
-        self.cxx_qt_ffi_rust_mut()
-            .import_timers(&String::from(xml))
-            .result()
-    }
-
-    pub fn import_triggers(self: Pin<&mut Self>, xml: &QString) -> QString {
-        self.cxx_qt_ffi_rust_mut()
-            .import_triggers(&String::from(xml))
-            .result()
-    }
-
-    pub fn num_aliases(&self) -> usize {
-        self.cxx_qt_ffi_rust().aliases.len()
-    }
-
-    pub fn num_timers(&self) -> usize {
-        self.cxx_qt_ffi_rust().timers.len()
-    }
-
-    pub fn num_triggers(&self) -> usize {
-        self.cxx_qt_ffi_rust().triggers.len()
-    }
-
-    pub fn remove_alias(self: Pin<&mut Self>, index: usize) {
-        self.cxx_qt_ffi_rust_mut().remove_alias(index);
-    }
-
-    pub fn remove_timer(self: Pin<&mut Self>, index: usize) {
-        self.cxx_qt_ffi_rust_mut().remove_timer(index);
-    }
-
-    pub fn remove_trigger(self: Pin<&mut Self>, index: usize) {
-        self.cxx_qt_ffi_rust_mut().remove_trigger(index);
-    }
-
-    pub fn replace_alias(self: Pin<&mut Self>, index: usize, alias: &ffi::Alias) -> QString {
-        self.cxx_qt_ffi_rust_mut()
-            .replace_alias(index, alias.cxx_qt_ffi_rust())
-            .result()
-    }
-
-    pub fn replace_timer(self: Pin<&mut Self>, index: usize, timer: &ffi::Timer) -> QString {
-        self.cxx_qt_ffi_rust_mut()
-            .replace_timer(index, timer.cxx_qt_ffi_rust());
-        QString::default()
-    }
-
-    pub fn replace_trigger(self: Pin<&mut Self>, index: usize, trigger: &ffi::Trigger) -> QString {
-        self.cxx_qt_ffi_rust_mut()
-            .replace_trigger(index, trigger.cxx_qt_ffi_rust())
-            .result()
-    }
-
-    pub fn build_alias_tree(&self, builder: Pin<&mut ffi::TreeBuilder>) {
-        self.cxx_qt_ffi_rust().build_alias_tree(&mut builder.into());
-    }
-
-    pub fn build_timer_tree(&self, builder: Pin<&mut ffi::TreeBuilder>) {
-        self.cxx_qt_ffi_rust().build_timer_tree(&mut builder.into());
-    }
-
-    pub fn build_trigger_tree(&self, builder: Pin<&mut ffi::TreeBuilder>) {
-        self.cxx_qt_ffi_rust()
-            .build_trigger_tree(&mut builder.into());
     }
 }

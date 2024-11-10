@@ -5,13 +5,16 @@ use std::io::Write;
 use std::pin::Pin;
 use std::{io, ptr};
 
-use crate::adapter::{DocumentAdapter, SocketAdapter, TableBuilderAdapter, TimekeeperAdapter};
+use crate::adapter::{
+    DocumentAdapter, RowInsertable, SocketAdapter, TableBuilderAdapter, TimekeeperAdapter,
+    TreeBuilderAdapter,
+};
 use crate::bridge::AliasOutcomes;
 use crate::convert::Convert;
 use crate::ffi;
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
-use crate::results::IntoResultCode;
+use crate::results::{IntoErrorCode, IntoResultCode};
 use crate::sync::NonBlockingMutex;
 use crate::world::WorldRust;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant, QVector};
@@ -23,7 +26,7 @@ use smushclient::{
     AliasBool, BoolProperty, CommandSource, Handler, SendIterable, SenderAccessError, SmushClient,
     TimerBool, Timers, TriggerBool, World,
 };
-use smushclient_plugins::{Alias, PluginIndex, RegexError, Timer, Trigger};
+use smushclient_plugins::{Alias, PluginIndex, RegexError, Timer, Trigger, XmlError};
 
 const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Bold,
@@ -67,10 +70,6 @@ impl Default for SmushClientRust {
 }
 
 impl SmushClientRust {
-    pub fn world(&self) -> &World {
-        self.client.world()
-    }
-
     pub fn load_world(&mut self, path: &QString) -> Result<WorldRust, PersistError> {
         let file = File::open(String::from(path).as_str())?;
         let worldfile = World::load(file)?;
@@ -121,9 +120,10 @@ impl SmushClientRust {
     }
 
     pub fn set_world(&mut self, world: &WorldRust) -> bool {
-        let Ok(world) = world.try_into() else {
+        let Ok(mut world) = World::try_from(world) else {
             return false;
         };
+        world.swap_senders(self.client.world_mut());
         self.client.set_world(world);
         self.apply_world();
         true
@@ -158,6 +158,13 @@ impl SmushClientRust {
             .plugin_info::<InfoVisitorQVariant>(index, info_type)
     }
 
+    pub fn world_plugin_index(&self) -> PluginIndex {
+        self.client
+            .plugins()
+            .position(|plugin| plugin.metadata.is_world_plugin)
+            .unwrap()
+    }
+
     pub fn plugin_scripts(&self) -> Vec<ffi::PluginPack> {
         self.client
             .plugins()
@@ -179,13 +186,25 @@ impl SmushClientRust {
             if metadata.is_world_plugin {
                 continue;
             }
-            table.start_row(&QString::from(&metadata.id));
-            table.add_column(&QString::from(&metadata.name));
-            table.add_column(&QString::from(&metadata.purpose));
-            table.add_column(&QString::from(&metadata.author));
-            table.add_column(&QString::from(&*metadata.path.to_string_lossy()));
-            table.add_column(!plugin.disabled);
-            table.add_column(&QString::from(&metadata.version));
+            table.add_row(&QString::from(&metadata.id), plugin);
+        }
+    }
+
+    pub fn build_senders_tree<T: SendIterable + RowInsertable>(
+        &self,
+        mut tree: TreeBuilderAdapter,
+    ) {
+        let senders = T::from_world(self.client.world());
+        let mut sorted_items: Vec<(usize, &T)> = senders.iter().enumerate().collect();
+        sorted_items.sort_unstable_by_key(|(_, item)| (*item).as_ref());
+        let mut last_group = "";
+        for (index, item) in sorted_items {
+            let group = item.as_ref().group.as_str();
+            if group != last_group {
+                tree.start_group(&QString::from(group));
+                last_group = group;
+            }
+            tree.add_row(&u64::try_from(index).unwrap_or(u64::MAX), item);
         }
     }
 
@@ -303,10 +322,10 @@ impl SmushClientRust {
         mut timekeeper: TimekeeperAdapter,
     ) -> Result<(), SenderAccessError> {
         let enable_timers = self.client.world().enable_timers;
+        let timer = self.client.add_sender(index, timer)?;
         if enable_timers {
-            self.timers.start(index, &timer, &mut timekeeper);
+            self.timers.start(index, timer, &mut timekeeper);
         }
-        self.client.add_sender(index, timer)?;
         Ok(())
     }
 
@@ -315,12 +334,59 @@ impl SmushClientRust {
         index: PluginIndex,
         timer: Timer,
         mut timekeeper: TimekeeperAdapter,
-    ) -> Result<(), SenderAccessError> {
+    ) {
         let enable_timers = self.client.world().enable_timers;
+        let timer = self.client.add_or_replace_sender(index, timer);
         if enable_timers {
-            self.timers.start(index, &timer, &mut timekeeper);
+            self.timers.start(index, timer, &mut timekeeper);
         }
-        self.client.add_or_replace_sender(index, timer)?;
+    }
+
+    pub fn replace_world_timer(
+        &mut self,
+        index: usize,
+        timer: Timer,
+        mut timekeeper: TimekeeperAdapter,
+    ) -> Result<(), SenderAccessError> {
+        let world_index = self.world_plugin_index();
+        let world = self.client.world_mut();
+        let enable_timers = world.enable_timers;
+        let timer = world.replace_sender(index, timer)?;
+        if enable_timers {
+            self.timers.start(world_index, timer, &mut timekeeper);
+        }
+        Ok(())
+    }
+
+    pub fn import_world_aliases(&mut self, xml: &QString) -> Result<(), XmlError> {
+        let mut aliases = Alias::from_xml_str(&String::from(xml))?;
+        let world = self.client.world_mut();
+        world.import_senders(&mut aliases);
+        world.aliases.sort_unstable();
+        Ok(())
+    }
+
+    pub fn import_world_timers(
+        &mut self,
+        xml: &QString,
+        mut timekeeper: TimekeeperAdapter,
+    ) -> Result<(), XmlError> {
+        let mut timers = Timer::from_xml_str(&String::from(xml))?;
+        let world_index = self.world_plugin_index();
+        let world = self.client.world_mut();
+        let timers = world.import_senders(&mut timers);
+        for timer in timers {
+            self.timers.start(world_index, timer, &mut timekeeper);
+        }
+        world.timers.sort_unstable();
+        Ok(())
+    }
+
+    pub fn import_world_triggers(&mut self, xml: &QString) -> Result<(), XmlError> {
+        let mut triggers = Trigger::from_xml_str(&String::from(xml))?;
+        let world = self.client.world_mut();
+        world.import_senders(&mut triggers);
+        world.triggers.sort_unstable();
         Ok(())
     }
 
@@ -357,6 +423,10 @@ impl SmushClientRust {
 }
 
 impl ffi::SmushClient {
+    pub fn world_sender<T: SendIterable>(&self, index: usize) -> Option<&T> {
+        T::from_world(self.cxx_qt_ffi_rust().client.world()).get(index)
+    }
+
     pub fn load_world(
         self: Pin<&mut Self>,
         path: &QString,
@@ -421,6 +491,33 @@ impl ffi::SmushClient {
         self.cxx_qt_ffi_rust().build_plugins_table(table.into());
     }
 
+    pub fn build_aliases_tree(&self, tree: Pin<&mut ffi::TreeBuilder>) {
+        self.cxx_qt_ffi_rust()
+            .build_senders_tree::<Alias>(tree.into());
+    }
+
+    pub fn build_timers_tree(&self, tree: Pin<&mut ffi::TreeBuilder>) {
+        self.cxx_qt_ffi_rust()
+            .build_senders_tree::<Timer>(tree.into());
+    }
+
+    pub fn build_triggers_tree(&self, tree: Pin<&mut ffi::TreeBuilder>) {
+        self.cxx_qt_ffi_rust()
+            .build_senders_tree::<Trigger>(tree.into());
+    }
+
+    pub fn world_aliases_len(&self) -> usize {
+        self.cxx_qt_ffi_rust().client.world().aliases.len()
+    }
+
+    pub fn world_timers_len(&self) -> usize {
+        self.cxx_qt_ffi_rust().client.world().timers.len()
+    }
+
+    pub fn world_triggers_len(&self) -> usize {
+        self.cxx_qt_ffi_rust().client.world().triggers.len()
+    }
+
     pub fn add_plugin(self: Pin<&mut Self>, path: &QString) -> QString {
         match self
             .cxx_qt_ffi_rust_mut()
@@ -463,7 +560,7 @@ impl ffi::SmushClient {
         self: Pin<&mut Self>,
         index: PluginIndex,
         alias: &ffi::Alias,
-    ) -> Result<i32, Box<RegexError>> {
+    ) -> Result<i32, RegexError> {
         let alias = Alias::try_from(alias.cxx_qt_ffi_rust())?;
         Ok(self
             .cxx_qt_ffi_rust_mut()
@@ -488,7 +585,7 @@ impl ffi::SmushClient {
         self: Pin<&mut Self>,
         index: PluginIndex,
         trigger: &ffi::Trigger,
-    ) -> Result<i32, Box<RegexError>> {
+    ) -> Result<i32, RegexError> {
         let trigger = Trigger::try_from(trigger.cxx_qt_ffi_rust())?;
         Ok(self
             .cxx_qt_ffi_rust_mut()
@@ -536,17 +633,144 @@ impl ffi::SmushClient {
             .remove_senders::<Trigger>(index, &String::from(group))
     }
 
-    pub fn replace_alias(
-        self: Pin<&mut Self>,
-        index: PluginIndex,
-        alias: &ffi::Alias,
-    ) -> Result<i32, Box<RegexError>> {
+    pub fn add_world_alias(self: Pin<&mut Self>, alias: &ffi::Alias) -> Result<i32, RegexError> {
         let alias = Alias::try_from(alias.cxx_qt_ffi_rust())?;
         Ok(self
             .cxx_qt_ffi_rust_mut()
             .client
-            .add_or_replace_sender(index, alias)
+            .world_mut()
+            .add_sender(alias)
             .code())
+    }
+
+    pub fn add_world_timer(
+        self: Pin<&mut Self>,
+        timer: &ffi::Timer,
+        timekeeper: Pin<&mut ffi::Timekeeper>,
+    ) -> i32 {
+        let index = self.cxx_qt_ffi_rust().world_plugin_index();
+        self.add_timer(index, timer, timekeeper)
+    }
+
+    pub fn add_world_trigger(
+        self: Pin<&mut Self>,
+        trigger: &ffi::Trigger,
+    ) -> Result<i32, RegexError> {
+        let trigger = Trigger::try_from(trigger.cxx_qt_ffi_rust())?;
+        Ok(self
+            .cxx_qt_ffi_rust_mut()
+            .client
+            .world_mut()
+            .add_sender(trigger)
+            .code())
+    }
+
+    pub fn replace_world_alias(
+        self: Pin<&mut Self>,
+        index: usize,
+        alias: &ffi::Alias,
+    ) -> Result<i32, RegexError> {
+        let alias = Alias::try_from(alias.cxx_qt_ffi_rust())?;
+        Ok(self
+            .cxx_qt_ffi_rust_mut()
+            .client
+            .world_mut()
+            .replace_sender(index, alias)
+            .code())
+    }
+
+    pub fn replace_world_timer(
+        self: Pin<&mut Self>,
+        index: usize,
+        timer: &ffi::Timer,
+        timekeeper: Pin<&mut ffi::Timekeeper>,
+    ) -> i32 {
+        let timer = Timer::from(timer.cxx_qt_ffi_rust());
+        self.cxx_qt_ffi_rust_mut()
+            .replace_world_timer(index, timer, timekeeper.into())
+            .code()
+    }
+
+    pub fn replace_world_trigger(
+        self: Pin<&mut Self>,
+        index: usize,
+        trigger: &ffi::Trigger,
+    ) -> Result<i32, RegexError> {
+        let trigger = Trigger::try_from(trigger.cxx_qt_ffi_rust())?;
+        Ok(self
+            .cxx_qt_ffi_rust_mut()
+            .client
+            .world_mut()
+            .replace_sender(index, trigger)
+            .code())
+    }
+
+    pub fn remove_world_alias(self: Pin<&mut Self>, i: usize) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .world_mut()
+            .remove_sender::<Alias>(i)
+            .is_ok()
+    }
+
+    pub fn remove_world_timer(self: Pin<&mut Self>, i: usize) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .world_mut()
+            .remove_sender::<Timer>(i)
+            .is_ok()
+    }
+
+    pub fn remove_world_trigger(self: Pin<&mut Self>, i: usize) -> bool {
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .world_mut()
+            .remove_sender::<Trigger>(i)
+            .is_ok()
+    }
+
+    pub fn export_world_aliases(&self) -> Result<QString, XmlError> {
+        let xml = Alias::to_xml_string(&self.cxx_qt_ffi_rust().client.world().aliases)?;
+        Ok(QString::from(&xml))
+    }
+
+    pub fn export_world_timers(&self) -> Result<QString, XmlError> {
+        let xml = Timer::to_xml_string(&self.cxx_qt_ffi_rust().client.world().timers)?;
+        Ok(QString::from(&xml))
+    }
+
+    pub fn export_world_triggers(&self) -> Result<QString, XmlError> {
+        let xml = Trigger::to_xml_string(&self.cxx_qt_ffi_rust().client.world().triggers)?;
+        Ok(QString::from(&xml))
+    }
+
+    pub fn import_world_aliases(self: Pin<&mut Self>, xml: &QString) -> Result<(), XmlError> {
+        self.cxx_qt_ffi_rust_mut().import_world_aliases(xml)
+    }
+
+    pub fn import_world_timers(
+        self: Pin<&mut Self>,
+        xml: &QString,
+        timekeeper: Pin<&mut ffi::Timekeeper>,
+    ) -> Result<(), XmlError> {
+        self.cxx_qt_ffi_rust_mut()
+            .import_world_timers(xml, timekeeper.into())
+    }
+
+    pub fn import_world_triggers(self: Pin<&mut Self>, xml: &QString) -> Result<(), XmlError> {
+        self.cxx_qt_ffi_rust_mut().import_world_triggers(xml)
+    }
+
+    pub fn replace_alias(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        alias: &ffi::Alias,
+    ) -> Result<(), RegexError> {
+        let alias = Alias::try_from(alias.cxx_qt_ffi_rust())?;
+        self.cxx_qt_ffi_rust_mut()
+            .client
+            .add_or_replace_sender(index, alias);
+        Ok(())
     }
 
     pub fn replace_timer(
@@ -554,24 +778,22 @@ impl ffi::SmushClient {
         index: PluginIndex,
         timer: &ffi::Timer,
         timekeeper: Pin<&mut ffi::Timekeeper>,
-    ) -> i32 {
+    ) {
         let timer = Timer::from(timer.cxx_qt_ffi_rust());
         self.cxx_qt_ffi_rust_mut()
-            .add_or_replace_timer(index, timer, timekeeper.into())
-            .code()
+            .add_or_replace_timer(index, timer, timekeeper.into());
     }
 
     pub fn replace_trigger(
         self: Pin<&mut Self>,
         index: PluginIndex,
         trigger: &ffi::Trigger,
-    ) -> Result<i32, Box<RegexError>> {
+    ) -> Result<(), RegexError> {
         let trigger = Trigger::try_from(trigger.cxx_qt_ffi_rust())?;
-        Ok(self
-            .cxx_qt_ffi_rust_mut()
+        self.cxx_qt_ffi_rust_mut()
             .client
-            .add_or_replace_sender(index, trigger)
-            .code())
+            .add_or_replace_sender(index, trigger);
+        Ok(())
     }
 
     pub fn is_alias(&self, index: PluginIndex, label: &QString) -> bool {

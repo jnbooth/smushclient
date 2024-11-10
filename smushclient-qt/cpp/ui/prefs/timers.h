@@ -12,7 +12,7 @@ class PrefsTimers : public AbstractPrefsTree
   Q_OBJECT
 
 public:
-  explicit PrefsTimers(World &world, QWidget *parent = nullptr);
+  explicit PrefsTimers(const World &world, SmushClient &client, Timekeeper *timekeeper, QWidget *parent = nullptr);
   ~PrefsTimers();
 
 protected:
@@ -20,12 +20,13 @@ protected:
   void buildTree(TreeBuilder &builder) override;
   bool editItem(size_t index) override;
   QString exportXml() const override;
-  QString importXml(const QString &text) override;
+  void importXml(const QString &text) override;
   void removeItem(size_t index) override;
   void setItemButtonsEnabled(bool enabled) override;
   QTreeWidget *tree() const override;
 
 private:
   Ui::PrefsTimers *ui;
-  World &world;
+  SmushClient &client;
+  Timekeeper *timekeeper;
 };

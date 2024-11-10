@@ -41,4 +41,4 @@ mod table_builder;
 pub use table_builder::TableBuilderAdapter;
 
 mod tree_builder;
-pub use tree_builder::TreeBuilderAdapter;
+pub use tree_builder::{RowInsertable, TreeBuilderAdapter};

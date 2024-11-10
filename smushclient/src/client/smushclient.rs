@@ -366,7 +366,6 @@ impl SmushClient {
 
     pub fn find_sender<T: SendIterable>(&self, index: PluginIndex, label: &str) -> Option<&T> {
         self.senders::<T>(index)
-            .iter()
             .find(|sender| sender.as_ref().label == label)
     }
 
@@ -393,7 +392,7 @@ impl SmushClient {
         Ok(())
     }
 
-    pub fn senders<T: SendIterable>(&self, index: PluginIndex) -> &[T] {
+    pub fn senders<T: SendIterable>(&self, index: PluginIndex) -> &CursorVec<T> {
         T::from_either(&self.plugins[index], &self.world)
     }
 
@@ -405,11 +404,10 @@ impl SmushClient {
         &mut self,
         index: PluginIndex,
         sender: T,
-    ) -> Result<(), SenderAccessError> {
-        let senders = T::from_either_mut(&mut self.plugins[index], &mut self.world);
-        sender.assert_unique_label(senders, None)?;
-        senders.insert(sender);
-        Ok(())
+    ) -> Result<&T, SenderAccessError> {
+        let senders = self.senders_mut::<T>(index);
+        sender.assert_unique_label(senders)?;
+        Ok(senders.insert(sender))
     }
 
     pub fn remove_sender<T: SendIterable>(
@@ -417,7 +415,7 @@ impl SmushClient {
         index: PluginIndex,
         label: &str,
     ) -> Result<(), SenderAccessError> {
-        let senders = T::from_either_mut(&mut self.plugins[index], &mut self.world);
+        let senders = self.senders_mut::<T>(index);
         let pos = senders
             .position(|sender| sender.as_ref().label == label)
             .ok_or(SenderAccessError::NotFound)?;
@@ -430,22 +428,12 @@ impl SmushClient {
             .retain(|sender: &T| sender.as_ref().group != group)
     }
 
-    pub fn add_or_replace_sender<T: SendIterable>(
-        &mut self,
-        index: PluginIndex,
-        sender: T,
-    ) -> Result<(), SenderAccessError> {
-        let label = sender.as_ref().label.as_str();
-        if label.is_empty() {
-            return self.add_sender(index, sender);
-        }
+    pub fn add_or_replace_sender<T: SendIterable>(&mut self, index: PluginIndex, sender: T) -> &T {
         let senders = self.senders_mut::<T>(index);
-
-        let Some(replace_at) = senders.position(|sender| sender.as_ref().label == label) else {
-            return self.add_sender(index, sender);
-        };
-        senders.replace(replace_at, sender);
-        Ok(())
+        match sender.assert_unique_label(senders) {
+            Ok(()) => senders.insert(sender),
+            Err(replace_at) => senders.replace(replace_at, sender),
+        }
     }
 
     fn update_world_plugins(&mut self) {

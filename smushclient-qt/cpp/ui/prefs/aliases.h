@@ -12,7 +12,7 @@ class PrefsAliases : public AbstractPrefsTree
   Q_OBJECT
 
 public:
-  explicit PrefsAliases(World &world, QWidget *parent = nullptr);
+  explicit PrefsAliases(const World &world, SmushClient &client, QWidget *parent = nullptr);
   ~PrefsAliases();
 
 protected:
@@ -20,13 +20,12 @@ protected:
   void buildTree(TreeBuilder &builder) override;
   bool editItem(size_t index) override;
   QString exportXml() const override;
-  QString importXml(const QString &text) override;
+  void importXml(const QString &text) override;
   void removeItem(size_t index) override;
   void setItemButtonsEnabled(bool enabled) override;
   QTreeWidget *tree() const override;
 
 private:
   Ui::PrefsAliases *ui;
-  World &world;
-
+  SmushClient &client;
 };

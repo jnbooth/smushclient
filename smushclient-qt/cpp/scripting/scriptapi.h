@@ -325,6 +325,9 @@ public:
     return plugins.end();
   }
 
+public:
+  Timekeeper *timekeeper;
+
 protected:
   void timerEvent(QTimerEvent *event) override;
 
@@ -352,7 +355,6 @@ private:
   QTcpSocket *socket;
   MudStatusBar *statusBar;
   bool suppressEcho;
-  Timekeeper *timekeeper;
   QDateTime whenConnected;
   std::unordered_map<std::string, MiniWindow *> windows;
   size_t worldScriptIndex;

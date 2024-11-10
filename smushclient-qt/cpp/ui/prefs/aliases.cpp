@@ -4,16 +4,17 @@
 #include "../../bridge/viewbuilder.h"
 #include "../../fieldconnector.h"
 
-PrefsAliases::PrefsAliases(World &world, QWidget *parent)
+PrefsAliases::PrefsAliases(const World &world, SmushClient &client, QWidget *parent)
     : AbstractPrefsTree(parent),
       ui(new Ui::PrefsAliases),
-      world(world)
+      client(client)
 {
   ui->setupUi(this);
   CONNECT_WORLD(EnableAliases);
+  client.stopAliases();
   ui->tree->clear();
   TreeBuilder builder(ui->tree);
-  world.buildAliasTree(builder);
+  client.buildAliasesTree(builder);
 }
 
 PrefsAliases::~PrefsAliases()
@@ -30,39 +31,39 @@ bool PrefsAliases::addItem()
   if (edit.exec() == QDialog::Rejected)
     return false;
 
-  world.addAlias(alias);
+  client.addWorldAlias(alias);
   return true;
 }
 
 void PrefsAliases::buildTree(TreeBuilder &builder)
 {
-  world.buildAliasTree(builder);
+  client.buildAliasesTree(builder);
 }
 
 bool PrefsAliases::editItem(size_t index)
 {
-  Alias alias(&world, index);
+  Alias alias(&client, index);
   AliasEdit edit(&alias, this);
   if (edit.exec() == QDialog::Rejected)
     return false;
 
-  world.replaceAlias(index, alias);
+  client.replaceWorldAlias(index, alias);
   return true;
 }
 
 QString PrefsAliases::exportXml() const
 {
-  return world.exportAliases();
+  return client.exportWorldAliases();
 }
 
-QString PrefsAliases::importXml(const QString &xml)
+void PrefsAliases::importXml(const QString &xml)
 {
-  return world.importAliases(xml);
+  client.importWorldAliases(xml);
 }
 
 void PrefsAliases::removeItem(size_t index)
 {
-  world.removeAlias(index);
+  client.removeWorldAlias(index);
 }
 
 void PrefsAliases::setItemButtonsEnabled(bool enabled)

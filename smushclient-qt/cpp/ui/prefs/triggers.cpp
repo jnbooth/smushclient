@@ -4,16 +4,17 @@
 #include "../../bridge/viewbuilder.h"
 #include "../../fieldconnector.h"
 
-PrefsTriggers::PrefsTriggers(World &world, QWidget *parent)
+PrefsTriggers::PrefsTriggers(const World &world, SmushClient &client, QWidget *parent)
     : AbstractPrefsTree(parent),
       ui(new Ui::PrefsTriggers),
-      world(world)
+      client(client)
 {
   ui->setupUi(this);
   CONNECT_WORLD(EnableTriggers);
+  client.stopTriggers();
   ui->tree->clear();
   TreeBuilder builder(ui->tree);
-  world.buildTriggerTree(builder);
+  client.buildTriggersTree(builder);
 }
 
 PrefsTriggers::~PrefsTriggers()
@@ -30,39 +31,39 @@ bool PrefsTriggers::addItem()
   if (edit.exec() == QDialog::Rejected)
     return false;
 
-  world.addTrigger(trigger);
+  client.addWorldTrigger(trigger);
   return true;
 }
 
 void PrefsTriggers::buildTree(TreeBuilder &builder)
 {
-  world.buildTriggerTree(builder);
+  client.buildTriggersTree(builder);
 }
 
 bool PrefsTriggers::editItem(size_t index)
 {
-  Trigger trigger(&world, index);
+  Trigger trigger(&client, index);
   TriggerEdit edit(trigger, this);
   if (edit.exec() == QDialog::Rejected)
     return false;
 
-  world.replaceTrigger(index, trigger);
+  client.replaceWorldTrigger(index, trigger);
   return true;
 }
 
 QString PrefsTriggers::exportXml() const
 {
-  return world.exportTriggers();
+  return client.exportWorldTriggers();
 }
 
-QString PrefsTriggers::importXml(const QString &xml)
+void PrefsTriggers::importXml(const QString &xml)
 {
-  return world.importTriggers(xml);
+  client.importWorldTriggers(xml);
 }
 
 void PrefsTriggers::removeItem(size_t index)
 {
-  world.removeTrigger(index);
+  client.removeWorldTrigger(index);
 }
 
 void PrefsTriggers::setItemButtonsEnabled(bool enabled)

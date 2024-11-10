@@ -434,120 +434,53 @@ impl Initialize for ffi::Trigger {
     fn initialize(self: Pin<&mut Self>) {}
 }
 
-impl Constructor<(*const ffi::World, usize)> for ffi::Alias {
-    type BaseArguments = ();
-    type InitializeArguments = ();
-    type NewArguments = (*const ffi::World, usize);
+macro_rules! impl_constructor {
+    ($t:ty, $a:ty, { $i:item }) => {
+        impl Constructor<$a> for $t {
+            type BaseArguments = ();
+            type InitializeArguments = ();
+            type NewArguments = $a;
 
-    fn route_arguments(
-        args: Self::NewArguments,
-    ) -> (
-        Self::NewArguments,
-        Self::BaseArguments,
-        Self::InitializeArguments,
-    ) {
-        (args, (), ())
-    }
+            fn route_arguments(
+                args: Self::NewArguments,
+            ) -> (
+                Self::NewArguments,
+                Self::BaseArguments,
+                Self::InitializeArguments,
+            ) {
+                (args, (), ())
+            }
 
-    fn new(args: (*const ffi::World, usize)) -> AliasRust {
-        match unsafe { (*args.0).cxx_qt_ffi_rust().aliases.get(args.1) } {
+            $i
+        }
+    };
+}
+impl_constructor!(ffi::Alias, (*const ffi::SmushClient, usize), {
+    fn new((client, i): (*const ffi::SmushClient, usize)) -> AliasRust {
+        match unsafe { &*client }.world_sender::<Alias>(i) {
             Some(alias) => AliasRust::from(alias),
             None => AliasRust::default(),
         }
     }
-}
+});
 
-impl Constructor<(*const ffi::SmushClient, usize)> for ffi::Alias {
-    type BaseArguments = ();
-    type InitializeArguments = ();
-    type NewArguments = (*const ffi::SmushClient, usize);
-
-    fn route_arguments(
-        args: Self::NewArguments,
-    ) -> (
-        Self::NewArguments,
-        Self::BaseArguments,
-        Self::InitializeArguments,
-    ) {
-        (args, (), ())
-    }
-
-    fn new(args: (*const ffi::SmushClient, usize)) -> AliasRust {
-        match unsafe { (*args.0).cxx_qt_ffi_rust().world().aliases.get(args.1) } {
-            Some(alias) => AliasRust::from(alias),
-            None => AliasRust::default(),
-        }
-    }
-}
-
-impl Constructor<(*const ffi::World, usize)> for ffi::Timer {
-    type BaseArguments = ();
-    type InitializeArguments = ();
-    type NewArguments = (*const ffi::World, usize);
-
-    fn route_arguments(
-        args: Self::NewArguments,
-    ) -> (
-        Self::NewArguments,
-        Self::BaseArguments,
-        Self::InitializeArguments,
-    ) {
-        (args, (), ())
-    }
-
-    fn new(args: (*const ffi::World, usize)) -> TimerRust {
-        match unsafe { (*args.0).cxx_qt_ffi_rust().timers.get(args.1) } {
+impl_constructor!(ffi::Timer, (*const ffi::SmushClient, usize), {
+    fn new((client, i): (*const ffi::SmushClient, usize)) -> TimerRust {
+        match unsafe { &*client }.world_sender::<Timer>(i) {
             Some(timer) => TimerRust::from(timer),
             None => TimerRust::default(),
         }
     }
-}
+});
 
-impl Constructor<(*const ffi::SmushClient, usize)> for ffi::Timer {
-    type BaseArguments = ();
-    type InitializeArguments = ();
-    type NewArguments = (*const ffi::SmushClient, usize);
-
-    fn route_arguments(
-        args: Self::NewArguments,
-    ) -> (
-        Self::NewArguments,
-        Self::BaseArguments,
-        Self::InitializeArguments,
-    ) {
-        (args, (), ())
-    }
-
-    fn new(args: (*const ffi::SmushClient, usize)) -> TimerRust {
-        match unsafe { (*args.0).cxx_qt_ffi_rust().world().timers.get(args.1) } {
-            Some(timer) => TimerRust::from(timer),
-            None => TimerRust::default(),
-        }
-    }
-}
-
-impl Constructor<(*const ffi::World, usize)> for ffi::Trigger {
-    type BaseArguments = ();
-    type InitializeArguments = ();
-    type NewArguments = (*const ffi::World, usize);
-
-    fn route_arguments(
-        args: Self::NewArguments,
-    ) -> (
-        Self::NewArguments,
-        Self::BaseArguments,
-        Self::InitializeArguments,
-    ) {
-        (args, (), ())
-    }
-
-    fn new(args: (*const ffi::World, usize)) -> TriggerRust {
-        match unsafe { (*args.0).cxx_qt_ffi_rust().triggers.get(args.1) } {
+impl_constructor!(ffi::Trigger, (*const ffi::SmushClient, usize), {
+    fn new((client, i): (*const ffi::SmushClient, usize)) -> TriggerRust {
+        match unsafe { &*client }.world_sender::<Trigger>(i) {
             Some(trigger) => TriggerRust::from(trigger),
             None => TriggerRust::default(),
         }
     }
-}
+});
 
 #[inline(always)]
 fn if_contains<E: Enum>(set: EnumSet<E>, value: E, flag: u8) -> u8 {

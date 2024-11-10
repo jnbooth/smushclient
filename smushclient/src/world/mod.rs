@@ -7,7 +7,10 @@ pub use types::*;
 mod versions;
 use versions::WorldVersion;
 
+use std::collections::HashSet;
+use std::fmt::Write as _;
 use std::io::{Read, Write};
+use std::mem;
 use std::path::PathBuf;
 
 use chrono::Local;
@@ -16,6 +19,8 @@ use serde::{Deserialize, Serialize};
 use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Sender, Timer, Trigger};
 
 use mud_transformer::mxp::RgbColor;
+
+use crate::{SendIterable, SenderAccessError};
 
 const CURRENT_VERSION: u16 = 8;
 
@@ -253,6 +258,46 @@ impl World {
         }
     }
 
+    pub fn swap_senders(&mut self, other: &mut Self) {
+        mem::swap(&mut self.aliases, &mut other.aliases);
+        mem::swap(&mut self.timers, &mut other.timers);
+        mem::swap(&mut self.triggers, &mut other.triggers);
+    }
+
+    pub fn add_sender<T: SendIterable>(&mut self, sender: T) -> Result<&T, SenderAccessError> {
+        let senders = T::from_world_mut(self);
+        sender.assert_unique_label(senders)?;
+        Ok(senders.insert(sender))
+    }
+
+    pub fn replace_sender<T: SendIterable>(
+        &mut self,
+        index: usize,
+        sender: T,
+    ) -> Result<&T, SenderAccessError> {
+        let senders = T::from_world_mut(self);
+        if index >= senders.len() {
+            return Err(SenderAccessError::NotFound);
+        }
+        match sender.assert_unique_label(senders) {
+            Err(pos) if pos != index => Err(pos),
+            _ => Ok(()),
+        }?;
+        Ok(senders.replace(index, sender))
+    }
+
+    pub fn remove_sender<T: SendIterable>(
+        &mut self,
+        index: usize,
+    ) -> Result<(), SenderAccessError> {
+        let senders = T::from_world_mut(self);
+        if index >= senders.len() {
+            return Err(SenderAccessError::NotFound);
+        }
+        senders.remove(index);
+        Ok(())
+    }
+
     pub fn save<W: Write>(&self, mut writer: W) -> Result<(), PersistError> {
         writer.write_all(&CURRENT_VERSION.to_be_bytes())?;
         bincode::serialize_into(writer, self)?;
@@ -305,6 +350,36 @@ impl World {
             Some(AutoConnect::Mush) => format!("connect {player} {password}\r\n{text}"),
             Some(AutoConnect::Mxp) | None => text,
         }
+    }
+
+    pub fn import_senders<T: SendIterable>(&mut self, imported: &mut Vec<T>) -> &mut [T] {
+        let senders = T::from_world_mut(self);
+        let senders_len = senders.len();
+        let need_relabeling = !imported
+            .iter()
+            .all(|sender| sender.as_ref().label.is_empty());
+        senders.append(imported);
+        if !need_relabeling {
+            return &mut senders[senders_len..];
+        }
+        let mut labels = HashSet::new();
+        for sender in senders.iter_mut() {
+            let sender = sender.as_mut();
+            if !labels.contains(&sender.label) {
+                labels.insert(&sender.label);
+                continue;
+            }
+            let len = sender.label.len();
+            for i in 0.. {
+                write!(sender.label, "{i}").unwrap();
+                if !labels.contains(&sender.label) {
+                    labels.insert(&sender.label);
+                    break;
+                }
+                sender.label.truncate(len);
+            }
+        }
+        &mut senders[senders_len..]
     }
 }
 

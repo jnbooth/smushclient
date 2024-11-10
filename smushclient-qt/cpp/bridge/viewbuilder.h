@@ -10,7 +10,7 @@ public:
   explicit TableBuilder(QTableWidget *table);
 
   void setRowCount(int rows) const;
-  void startRow(const QString &data);
+  void startRow(const QVariant &data);
   void addColumn(const QString &text);
   void addColumn(bool value);
 
@@ -18,7 +18,7 @@ private:
   QTableWidget *table;
   QString yes;
   QString no;
-  QString rowData;
+  QVariant rowData;
   int row;
   int column;
 };
@@ -29,7 +29,7 @@ public:
   explicit TreeBuilder(QTreeWidget *tree);
 
   void startGroup(const QString &name);
-  void startItem(size_t value);
+  void startRow(const QVariant &data);
   void addColumn(const QString &text);
   void addColumn(qlonglong value) { addColumn(QString::number(value)); }
   void addColumn(qulonglong value) { addColumn(QString::number(value)); }
