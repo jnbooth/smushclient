@@ -35,8 +35,17 @@
       <string>Character name and password</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::FieldGrowthPolicy::ExpandingFieldsGrow</enum>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="Player_label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>&amp;Name:</string>
         </property>
@@ -50,6 +59,12 @@
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="Password_label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>&amp;Password:</string>
         </property>
@@ -67,6 +82,12 @@
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="ConnectMethod_label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>&amp;Connect:</string>
         </property>
@@ -103,47 +124,54 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="_connect_header">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="spacing">
+      <number>5</number>
+     </property>
      <item>
-      <widget class="QLabel" name="ConnectText_label">
-       <property name="text">
-        <string>Connect &amp;Text. (Sent after connected):</string>
-       </property>
-       <property name="buddy">
-        <cstring>ConnectText</cstring>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="_connect_header">
+       <item>
+        <widget class="QLabel" name="ConnectText_label">
+         <property name="text">
+          <string>Connect &amp;Text. (Sent after connected):</string>
+         </property>
+         <property name="buddy">
+          <cstring>ConnectText</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="ConnectText_lines_label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Lines:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="ConnectText_lines">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QLabel" name="ConnectText_lines_label">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Lines:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="ConnectText_lines">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
+      <widget class="QPlainTextEdit" name="ConnectText"/>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QPlainTextEdit" name="ConnectText"/>
    </item>
    <item>
     <widget class="QLabel" name="label_help">

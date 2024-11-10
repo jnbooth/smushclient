@@ -46,3 +46,17 @@ PrefsNumpad::~PrefsNumpad()
 {
   delete ui;
 }
+
+void PrefsNumpad::on_show_mod_toggled(bool checked)
+{
+  if (checked)
+  {
+    ui->NumpadGroup->hide();
+    ui->NumpadModGroup->show();
+  }
+  else
+  {
+    ui->NumpadModGroup->hide();
+    ui->NumpadGroup->show();
+  }
+}

@@ -35,6 +35,9 @@
       <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <property name="verticalSpacing">
+       <number>0</number>
+      </property>
       <item row="1" column="2">
        <widget class="QLineEdit" name="NumpadModAsterisk">
         <property name="alignment">
@@ -414,7 +417,7 @@
         <property name="sizeHint" stdset="0">
          <size>
           <width>20</width>
-          <height>20</height>
+          <height>10</height>
          </size>
         </property>
        </spacer>
@@ -540,7 +543,7 @@
         <property name="sizeHint" stdset="0">
          <size>
           <width>20</width>
-          <height>20</height>
+          <height>10</height>
          </size>
         </property>
        </spacer>
@@ -706,7 +709,7 @@
         <property name="sizeHint" stdset="0">
          <size>
           <width>20</width>
-          <height>20</height>
+          <height>10</height>
          </size>
         </property>
        </spacer>
@@ -719,7 +722,7 @@
         <property name="sizeHint" stdset="0">
          <size>
           <width>20</width>
-          <height>20</height>
+          <height>10</height>
          </size>
         </property>
        </spacer>
@@ -798,38 +801,5 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>show_mod</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>NumpadModGroup</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>203</x>
-     <y>757</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>542</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>show_mod</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>NumpadGroup</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>203</x>
-     <y>757</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>183</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

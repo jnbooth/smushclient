@@ -41,8 +41,17 @@
       <string>MUD Address and Port</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::FieldGrowthPolicy::ExpandingFieldsGrow</enum>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="Name_label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>World &amp;Name:</string>
         </property>
@@ -60,6 +69,12 @@
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="Site_label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>&amp;IP Address:</string>
         </property>
@@ -86,6 +101,12 @@
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="Port_label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>&amp;Port:</string>
         </property>
@@ -141,6 +162,9 @@
          <bool>false</bool>
         </property>
         <layout class="QFormLayout">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::FieldGrowthPolicy::ExpandingFieldsGrow</enum>
+         </property>
          <property name="leftMargin">
           <number>0</number>
          </property>
@@ -155,8 +179,17 @@
          </property>
          <item row="0" column="0">
           <widget class="QLabel" name="ProxyServer_label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
-            <string>TCP/IP &amp;Address:</string>
+            <string>IP &amp;Address:</string>
+           </property>
+           <property name="buddy">
+            <cstring>ProxyServer</cstring>
            </property>
           </widget>
          </item>
@@ -165,6 +198,12 @@
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="ProxyPort_label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Port:</string>
            </property>
@@ -185,6 +224,12 @@
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="ProxyUsername_label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Username:</string>
            </property>
@@ -195,6 +240,12 @@
          </item>
          <item row="3" column="0">
           <widget class="QLabel" name="ProxyPassword_label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Password:</string>
            </property>
