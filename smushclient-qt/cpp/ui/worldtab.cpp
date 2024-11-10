@@ -11,7 +11,6 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMessageBox>
 #include "ui_worldtab.h"
-#include "worldprefs.h"
 #include "../bridge/document.h"
 #include "../environment.h"
 #include "../hotkeys.h"
@@ -21,6 +20,7 @@
 #include "../scripting/scriptapi.h"
 #include "../settings.h"
 #include "../spans.h"
+#include "worlddetails/worlddetails.h"
 #include "rust/cxx.h"
 
 using std::nullopt;
@@ -209,8 +209,8 @@ bool WorldTab::openWorld(const QString &filename) &
 
 bool WorldTab::openWorldSettings()
 {
-  WorldPrefs prefs(world, client, api, this);
-  if (prefs.exec() == QDialog::Accepted)
+  WorldPrefs worlddetails(world, client, api, this);
+  if (worlddetails.exec() == QDialog::Accepted)
   {
     client.setWorld(world);
     applyWorld();

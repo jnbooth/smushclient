@@ -109,39 +109,43 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/scriptthread.h cpp/scripting/scriptthread.cpp
     cpp/scripting/worldproperties.h cpp/scripting/worldproperties.cpp
 
+    cpp/ui/finddialog.h cpp/ui/finddialog.cpp cpp/ui/finddialog.ui
+    cpp/ui/mainwindow.h cpp/ui/mainwindow.cpp cpp/ui/mainwindow.ui
+    cpp/ui/notepad.h cpp/ui/notepad.cpp cpp/ui/notepad.ui
+    cpp/ui/settings.h cpp/ui/settings.cpp cpp/ui/settings.ui
+    cpp/ui/worldtab.h cpp/ui/worldtab.cpp cpp/ui/worldtab.ui
+
     cpp/ui/components/colorpickerbutton.h cpp/ui/components/colorpickerbutton.cpp
     cpp/ui/components/iconlabel.h cpp/ui/components/iconlabel.cpp
     cpp/ui/components/mudbrowser.h cpp/ui/components/mudbrowser.cpp
     cpp/ui/components/mudinput.h cpp/ui/components/mudinput.cpp
     cpp/ui/components/mudscrollbar.h cpp/ui/components/mudscrollbar.cpp
     cpp/ui/components/mudstatusbar.h cpp/ui/components/mudstatusbar.cpp
-    cpp/ui/finddialog.h cpp/ui/finddialog.cpp cpp/ui/finddialog.ui
-    cpp/ui/mainwindow.h cpp/ui/mainwindow.cpp cpp/ui/mainwindow.ui
-    cpp/ui/notepad.h cpp/ui/notepad.cpp cpp/ui/notepad.ui
-    cpp/ui/prefs/abstractprefstree.h cpp/ui/prefs/abstractprefstree.cpp
-    cpp/ui/prefs/address.h cpp/ui/prefs/address.cpp cpp/ui/prefs/address.ui
-    cpp/ui/prefs/aliasedit.h cpp/ui/prefs/aliasedit.cpp cpp/ui/prefs/aliasedit.ui
-    cpp/ui/prefs/aliases.h cpp/ui/prefs/aliases.cpp cpp/ui/prefs/aliases.ui
-    cpp/ui/prefs/connecting.h cpp/ui/prefs/connecting.cpp cpp/ui/prefs/connecting.ui
-    cpp/ui/prefs/logging.h cpp/ui/prefs/logging.cpp cpp/ui/prefs/logging.ui
-    cpp/ui/prefs/mud.h cpp/ui/prefs/mud.cpp cpp/ui/prefs/mud.ui
-    cpp/ui/prefs/numpad.h cpp/ui/prefs/numpad.cpp cpp/ui/prefs/numpad.ui
-    cpp/ui/prefs/output.h cpp/ui/prefs/output.cpp cpp/ui/prefs/output.ui
-    cpp/ui/prefs/plugins.h cpp/ui/prefs/plugins.cpp cpp/ui/prefs/plugins.ui
-    cpp/ui/prefs/scripts.h cpp/ui/prefs/scripts.cpp cpp/ui/prefs/scripts.ui
-    cpp/ui/prefs/specialhelp.h cpp/ui/prefs/specialhelp.cpp cpp/ui/prefs/specialhelp.ui
-    cpp/ui/prefs/timeredit.h cpp/ui/prefs/timeredit.cpp cpp/ui/prefs/timeredit.ui
-    cpp/ui/prefs/timers.h cpp/ui/prefs/timers.cpp cpp/ui/prefs/timers.ui
-    cpp/ui/prefs/triggeredit.h cpp/ui/prefs/triggeredit.cpp cpp/ui/prefs/triggeredit.ui
-    cpp/ui/prefs/triggers.h cpp/ui/prefs/triggers.cpp cpp/ui/prefs/triggers.ui
+
     cpp/ui/scripting/abstractscriptdialog.h cpp/ui/scripting/abstractscriptdialog.cpp
     cpp/ui/scripting/choose.h cpp/ui/scripting/choose.cpp cpp/ui/scripting/choose.ui
     cpp/ui/scripting/listbox.h cpp/ui/scripting/listbox.cpp cpp/ui/scripting/listbox.ui
-    cpp/ui/settings.h cpp/ui/settings.cpp cpp/ui/settings.ui
+
     cpp/ui/settings/appearance.h cpp/ui/settings/appearance.cpp cpp/ui/settings/appearance.ui
     cpp/ui/settings/notifier.h
-    cpp/ui/worldprefs.h cpp/ui/worldprefs.cpp cpp/ui/worldprefs.ui
-    cpp/ui/worldtab.h cpp/ui/worldtab.cpp cpp/ui/worldtab.ui
+
+    cpp/ui/worlddetails/abstractprefstree.h cpp/ui/worlddetails/abstractprefstree.cpp
+    cpp/ui/worlddetails/address.h cpp/ui/worlddetails/address.cpp cpp/ui/worlddetails/address.ui
+    cpp/ui/worlddetails/aliasedit.h cpp/ui/worlddetails/aliasedit.cpp cpp/ui/worlddetails/aliasedit.ui
+    cpp/ui/worlddetails/aliases.h cpp/ui/worlddetails/aliases.cpp cpp/ui/worlddetails/aliases.ui
+    cpp/ui/worlddetails/connecting.h cpp/ui/worlddetails/connecting.cpp cpp/ui/worlddetails/connecting.ui
+    cpp/ui/worlddetails/logging.h cpp/ui/worlddetails/logging.cpp cpp/ui/worlddetails/logging.ui
+    cpp/ui/worlddetails/mud.h cpp/ui/worlddetails/mud.cpp cpp/ui/worlddetails/mud.ui
+    cpp/ui/worlddetails/numpad.h cpp/ui/worlddetails/numpad.cpp cpp/ui/worlddetails/numpad.ui
+    cpp/ui/worlddetails/output.h cpp/ui/worlddetails/output.cpp cpp/ui/worlddetails/output.ui
+    cpp/ui/worlddetails/plugins.h cpp/ui/worlddetails/plugins.cpp cpp/ui/worlddetails/plugins.ui
+    cpp/ui/worlddetails/scripts.h cpp/ui/worlddetails/scripts.cpp cpp/ui/worlddetails/scripts.ui
+    cpp/ui/worlddetails/specialhelp.h cpp/ui/worlddetails/specialhelp.cpp cpp/ui/worlddetails/specialhelp.ui
+    cpp/ui/worlddetails/timeredit.h cpp/ui/worlddetails/timeredit.cpp cpp/ui/worlddetails/timeredit.ui
+    cpp/ui/worlddetails/timers.h cpp/ui/worlddetails/timers.cpp cpp/ui/worlddetails/timers.ui
+    cpp/ui/worlddetails/triggeredit.h cpp/ui/worlddetails/triggeredit.cpp cpp/ui/worlddetails/triggeredit.ui
+    cpp/ui/worlddetails/triggers.h cpp/ui/worlddetails/triggers.cpp cpp/ui/worlddetails/triggers.ui
+    cpp/ui/worlddetails/worlddetails.h cpp/ui/worlddetails/worlddetails.cpp cpp/ui/worlddetails/worlddetails.ui
 
     resources/resources.qrc
 )
