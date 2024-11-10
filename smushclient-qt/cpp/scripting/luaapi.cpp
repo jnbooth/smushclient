@@ -142,6 +142,11 @@ inline size_t getPluginIndex(lua_State *L)
   return index;
 }
 
+constexpr double convertVolume(double decibels) noexcept
+{
+  return 1 / pow(2, decibels / -3);
+}
+
 // benchmarking
 
 #ifdef BENCHMARK_LUA
@@ -820,7 +825,7 @@ static int L_PlaySound(lua_State *L)
           qlua::getInt(L, 1),
           qlua::getQString(L, 2),
           qlua::getBool(L, 3, false),
-          qlua::getNumber(L, 4, 1.0)));
+          convertVolume(qlua::getNumber(L, 4, 0.0))));
   // qlua::getDouble(L, 5) pan
 }
 
@@ -834,7 +839,7 @@ static int L_PlaySoundMemory(lua_State *L)
           qlua::getInt(L, 1),
           qlua::getBytes(L, 2).toByteArray(),
           qlua::getBool(L, 3, false),
-          qlua::getNumber(L, 4, 1.0)));
+          convertVolume(qlua::getNumber(L, 4, 0.0))));
   // qlua::getDouble(L, 5) pan
 }
 

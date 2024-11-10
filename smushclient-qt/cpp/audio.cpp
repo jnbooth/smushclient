@@ -12,13 +12,12 @@ AudioChannel::AudioChannel()
 void AudioChannel::playBuffer(const QByteArray &data, bool loop, float volume)
 {
   player.stop();
-  output.setVolume(volume);
   buffer.close();
   buffer.setData(data);
   buffer.open(QIODevice::ReadOnly | QIODevice::Unbuffered);
-  buffer.seek(0);
   player.setSourceDevice(&buffer);
   player.setLoops(loop ? QMediaPlayer::Infinite : 0);
+  output.setVolume(volume);
   player.play();
 }
 

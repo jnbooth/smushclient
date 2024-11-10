@@ -1,9 +1,9 @@
 #pragma once
 #include <QtCore/QBuffer>
 #include <QtMultimedia/QAudioFormat>
+#include <QtMultimedia/QAudioOutput>
 #include <QtMultimedia/QAudioSink>
 #include <QtMultimedia/QMediaPlayer>
-#include <QtMultimedia/QAudioOutput>
 
 class AudioChannel
 {
