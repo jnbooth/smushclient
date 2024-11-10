@@ -17,6 +17,7 @@ public:
 
 private slots:
   void on_CommandStackCharacter_textChanged(const QString &character);
+  void on_UseMxp_currentIndexChanged(int index);
 
 private:
   Ui::PrefsMud *ui;

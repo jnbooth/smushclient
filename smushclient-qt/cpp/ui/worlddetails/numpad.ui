@@ -801,5 +801,70 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>NumpadEnable</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>HotkeyAddsToCommandHistory</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>277</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>340</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>NumpadEnable</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>EchoHotkeyInOutputWindow</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>277</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>319</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>NumpadEnable</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>NumpadModGroup</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>277</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>49</x>
+     <y>14</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>NumpadEnable</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>NumpadGroup</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>277</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>396</x>
+     <y>127</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

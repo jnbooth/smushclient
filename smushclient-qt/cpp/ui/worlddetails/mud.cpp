@@ -39,3 +39,14 @@ void PrefsMud::on_CommandStackCharacter_textChanged(const QString &character)
     return;
   world.setCommandStackCharacter(character.front().unicode());
 }
+
+void PrefsMud::on_UseMxp_currentIndexChanged(int index)
+{
+  const bool enableMxp = index != (int)UseMxp::Never;
+  ui->IgnoreMxpColourChanges->setEnabled(enableMxp);
+  ui->UseCustomLinkColour->setEnabled(enableMxp);
+  ui->MudCanChangeLinkColour->setEnabled(enableMxp);
+  ui->UnderlineHyperlinks->setEnabled(enableMxp);
+  ui->HyperlinkAddsToCommandHistory->setEnabled(enableMxp);
+  ui->EchoHyperlinkInOutputWindow->setEnabled(enableMxp);
+}

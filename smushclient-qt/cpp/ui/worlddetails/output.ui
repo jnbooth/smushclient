@@ -690,5 +690,22 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>DisplayMyInput</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>KeepCommandsOnSameLine</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>76</x>
+     <y>322</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>403</x>
+     <y>356</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
