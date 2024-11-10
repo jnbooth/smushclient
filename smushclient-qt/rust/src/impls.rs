@@ -147,13 +147,17 @@ impl Default for ffi::UseMxp {
     }
 }
 
-impl From<&Link> for ffi::Link {
-    fn from(value: &Link) -> Self {
+impl<'a> From<&'a Link> for ffi::Link<'a> {
+    fn from(value: &'a Link) -> Self {
         Self {
             action: QString::from(&value.action),
             hint: value.hint.convert(),
             prompts: QString::from(&value.prompts.join("|")),
             sendto: value.sendto.into(),
+            expires: match &value.expires {
+                Some(expires) => expires.as_str(),
+                None => "",
+            },
         }
     }
 }
@@ -175,7 +179,10 @@ impl<'a> From<SendScriptRequest<'a>> for ffi::SendScriptRequest<'a> {
             Some(captures) => {
                 let mut wildcards = Vec::new();
                 for i in 1..captures.len() {
-                    wildcards.push(Regex::expect(captures.get(i).unwrap().as_bytes()));
+                    match captures.get(i) {
+                        Some(captures) => wildcards.push(Regex::expect(captures.as_bytes())),
+                        None => wildcards.push(""),
+                    }
                 }
                 let named_wildcards = value
                     .regex

@@ -45,7 +45,7 @@ impl<'a> ClientHandler<'a> {
         };
     }
 
-    fn handle_effect(&self, fragment: &EffectFragment) {
+    fn handle_effect(&mut self, fragment: &EffectFragment) {
         match fragment {
             EffectFragment::Backspace | EffectFragment::EraseCharacter => {
                 self.doc.erase_last_character();
@@ -55,6 +55,8 @@ impl<'a> ClientHandler<'a> {
             EffectFragment::CarriageReturn | EffectFragment::EraseLine => {
                 self.doc.erase_current_line();
             }
+            EffectFragment::ExpireLinks(None) => self.doc.expire_links(""),
+            EffectFragment::ExpireLinks(Some(expires)) => self.doc.expire_links(expires.as_str()),
             _ => (),
         }
     }

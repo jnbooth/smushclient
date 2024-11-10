@@ -40,7 +40,7 @@ impl<'a> DocumentAdapter<'a> {
     }
 
     pub fn append_link(
-        &self,
+        &mut self,
         text: &QString,
         style: EnumSet<TextStyle>,
         color: &QColorPair,
@@ -48,7 +48,7 @@ impl<'a> DocumentAdapter<'a> {
     ) {
         // SAFETY: External call to safe method on opaque type.
         unsafe {
-            self.inner.append_link(
+            self.as_mut().append_link(
                 text,
                 style.into(),
                 &color.foreground,
@@ -80,6 +80,11 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.begin() };
     }
 
+    pub fn end(&self) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.end() };
+    }
+
     pub fn erase_current_line(&self) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.erase_current_line() };
@@ -95,9 +100,9 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.erase_last_character() };
     }
 
-    pub fn end(&self) {
+    pub fn expire_links(&mut self, expires: &str) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.end() };
+        unsafe { self.as_mut().expire_links(expires) };
     }
 
     pub fn handle_mxp_change(&self, enabled: bool) {

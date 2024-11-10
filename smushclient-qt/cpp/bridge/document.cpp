@@ -17,6 +17,7 @@ extern "C"
 
 using std::string;
 using std::string_view;
+using std::vector;
 using std::chrono::milliseconds;
 
 constexpr uint8_t telnetNAWS = 31;
@@ -49,7 +50,7 @@ inline QTextCharFormat foregroundFormat(const QColor &foreground)
   return format;
 }
 
-inline string_view strView(::rust::str str) noexcept
+inline string_view strView(rust::str str) noexcept
 {
   return string_view(str.data(), str.length());
 }
@@ -60,11 +61,16 @@ Document::Document(WorldTab *parent, ScriptApi *api)
     : QObject(parent),
       api(api),
       doc(parent->ui->output->document()),
+      expireLinkFormat(),
       formats(),
+      links(),
       outputStart(0),
-      scrollBar(parent->ui->output->verticalScrollBar())
+      scrollBar(parent->ui->output->verticalScrollBar()),
+      serverExpiresLinks(false)
 {
   formats.fill(QTextCharFormat());
+  expireLinkFormat.setAnchor(false);
+  expireLinkFormat.setAnchorHref(QString());
 }
 
 void Document::appendHtml(const QString &html) const
@@ -99,12 +105,24 @@ void Document::appendText(
     TextStyles style,
     const QColor &foreground,
     const QColor &background,
-    const Link &link) const
+    const Link &link)
 {
   QTextCharFormat format;
   mergeStyles(format, style, foreground, background);
   applyLink(format, link);
+  const int position = doc->characterCount();
   api->appendText(text, format);
+
+  if (!serverExpiresLinks || link.expires.empty())
+    return;
+
+  QTextCursor cursor(doc);
+  cursor.setPosition(position - 1);
+  if (cursor.atBlockEnd())
+    cursor.movePosition(QTextCursor::MoveOperation::NextBlock);
+  cursor.movePosition(QTextCursor::MoveOperation::End, QTextCursor::MoveMode::KeepAnchor);
+  cursor.setKeepPositionOnInsert(true);
+  linksWithExpiration(link.expires).push_back(cursor);
 }
 
 void Document::applyStyles(int start, int end, TextStyles style, const QColor &foreground, const QColor &background) const
@@ -143,6 +161,26 @@ void Document::eraseLastCharacter() const
   cursor.removeSelectedText();
 }
 
+void Document::expireLinks(rust::str expires)
+{
+  serverExpiresLinks = true;
+  if (!expires.empty())
+  {
+    std::vector<QTextCursor> &expiredLinks = linksWithExpiration(expires);
+    for (QTextCursor &cursor : expiredLinks)
+      cursor.mergeCharFormat(expireLinkFormat);
+    expiredLinks.clear();
+    return;
+  }
+  for (auto &pair : links)
+  {
+    std::vector<QTextCursor> &expiredLinks = pair.second;
+    for (QTextCursor &cursor : expiredLinks)
+      cursor.mergeCharFormat(expireLinkFormat);
+    expiredLinks.clear();
+  }
+}
+
 void Document::eraseLastLine() const
 {
   QTextCursor cursor(doc->findBlockByLineNumber(outputStart));
@@ -164,14 +202,13 @@ void Document::handleMxpChange(bool enabled) const
   }
 }
 
-void Document::handleMxpEntity(::rust::str data) const
+void Document::handleMxpEntity(rust::str data) const
 {
   OnPluginMXPSetEntity onMxpSetEntity(strView(data));
   api->sendCallback(onMxpSetEntity);
 }
 
-void Document::handleMxpVariable(
-    ::rust::str name, ::rust::str value) const
+void Document::handleMxpVariable(rust::str name, rust::str value) const
 {
   OnPluginMXPSetVariable onMxpSetVariable(strView(name), strView(value));
   api->sendCallback(onMxpSetVariable);
@@ -218,7 +255,7 @@ void Document::handleTelnetSubnegotiation(uint8_t code, const QByteArray &data) 
   api->sendCallback(onTelnetSubnegotiation);
 }
 
-bool Document::permitLine(::rust::str line) const
+bool Document::permitLine(rust::str line) const
 {
   OnPluginLineReceived onLineReceived(strView(line));
   api->sendCallback(onLineReceived);
@@ -376,5 +413,10 @@ void Document::setSuppressEcho(bool suppress) const
 }
 
 // Private methods
+
+inline vector<QTextCursor> &Document::linksWithExpiration(rust::str expires)
+{
+  return links[string(expires.data(), expires.length())];
+}
 
 inline WorldTab *Document::tab() const { return qobject_cast<WorldTab *>(parent()); }

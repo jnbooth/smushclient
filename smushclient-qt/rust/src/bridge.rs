@@ -160,11 +160,12 @@ pub mod ffi {
         Input,
     }
 
-    struct Link {
+    struct Link<'a> {
         action: QString,
         hint: QString,
         prompts: QString,
         sendto: SendTo,
+        expires: &'a str,
     }
 
     #[repr(i32)]
@@ -274,7 +275,7 @@ pub mod ffi {
 
         #[rust_name = "append_link"]
         unsafe fn appendText(
-            self: &Document,
+            self: Pin<&mut Document>,
             text: &QString,
             style: TextStyles,
             foreground: &QColor,
@@ -296,6 +297,8 @@ pub mod ffi {
 
         unsafe fn begin(self: &Document);
 
+        unsafe fn end(self: &Document);
+
         #[rust_name = "erase_current_line"]
         unsafe fn eraseCurrentLine(self: &Document);
 
@@ -305,7 +308,8 @@ pub mod ffi {
         #[rust_name = "erase_last_line"]
         unsafe fn eraseLastLine(self: &Document);
 
-        unsafe fn end(self: &Document);
+        #[rust_name = "expire_links"]
+        unsafe fn expireLinks(self: Pin<&mut Document>, expires: &str);
 
         #[rust_name = "handle_mxp_change"]
         unsafe fn handleMxpChange(self: &Document, enabled: bool);

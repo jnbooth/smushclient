@@ -31,6 +31,7 @@ use smushclient_plugins::{Alias, PluginIndex, RegexError, Timer, Trigger, XmlErr
 const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Bold,
     Tag::Color,
+    Tag::Expire,
     Tag::Font,
     Tag::H1,
     Tag::H2,
