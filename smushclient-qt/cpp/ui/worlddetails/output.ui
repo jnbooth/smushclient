@@ -639,6 +639,9 @@
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QToolButton" name="NewActivitySound_test">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Test</string>
         </property>

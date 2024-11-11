@@ -79,7 +79,7 @@ qt_add_executable(${APP_NAME}
     cpp/audio.h cpp/audio.cpp
     cpp/commandhistory.h cpp/commandhistory.cpp
     cpp/enumbuttongroup.h
-    cpp/environment.h
+    cpp/environment.h cpp/environment.cpp
     cpp/fieldconnector.h
     cpp/hotkeys.h cpp/hotkeys.cpp
     cpp/settings.h cpp/settings.cpp

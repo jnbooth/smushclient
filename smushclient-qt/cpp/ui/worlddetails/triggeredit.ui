@@ -359,6 +359,9 @@
               <property name="text">
                <string>Test</string>
               </property>
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="icon">
                <iconset theme="audio-volume-high-symbolic"/>
               </property>

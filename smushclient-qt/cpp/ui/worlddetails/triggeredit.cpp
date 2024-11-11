@@ -1,5 +1,7 @@
 #include "triggeredit.h"
 #include "ui_triggeredit.h"
+#include <QtWidgets/QFileDialog>
+#include "../../environment.h"
 #include "../../fieldconnector.h"
 
 #define CONNECT(field) connectField(this, &trigger, ui->field, trigger.get##field(), &Trigger::set##field);
@@ -7,6 +9,8 @@
 TriggerEdit::TriggerEdit(Trigger &trigger, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::TriggerEdit),
+      audio(),
+      player(),
       trigger(trigger)
 {
   ui->setupUi(this);
@@ -47,6 +51,7 @@ TriggerEdit::TriggerEdit(Trigger &trigger, QWidget *parent)
   CONNECT(LinesToMatch);
 
   ui->Text->setPlainText(trigger.getText());
+  player.setAudioOutput(&audio);
 }
 
 TriggerEdit::~TriggerEdit()
@@ -79,6 +84,32 @@ void TriggerEdit::on_UserSendTo_currentIndexChanged(int index)
     ui->Variable->hide();
     ui->Variable_label->clear();
   }
+}
+
+void TriggerEdit::on_Sound_browse_clicked()
+{
+  const QString currentFile = ui->Sound->text();
+  const QString path = QFileDialog::getOpenFileName(
+      this,
+      tr("Select sound file"),
+      currentFile.isEmpty() ? QStringLiteral(SOUNDS_DIR) : currentFile);
+
+  if (path.isEmpty())
+    return;
+
+  ui->Sound->setText(makePathRelative(path));
+}
+
+void TriggerEdit::on_Sound_test_clicked()
+{
+  player.stop();
+  player.setSource(QUrl::fromLocalFile(ui->Sound->text()));
+  player.play();
+}
+
+void TriggerEdit::on_Sound_textChanged(const QString &text)
+{
+  ui->Sound_test->setEnabled(!text.isEmpty());
 }
 
 void TriggerEdit::on_Text_textChanged()

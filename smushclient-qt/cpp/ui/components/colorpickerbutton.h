@@ -18,10 +18,10 @@ public:
 
 public slots:
   void openColorPicker();
-  void setValue(const QColor &val);
+  void setValue(const QColor &value);
 
 signals:
-  void valueChanged(const QColor &val);
+  void valueChanged(const QColor &value);
 
 protected:
   virtual void paintEvent(QPaintEvent *event) override;

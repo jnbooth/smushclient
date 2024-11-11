@@ -1,10 +1,15 @@
 #include "output.h"
 #include "ui_output.h"
+#include <QtWidgets/QFileDialog>
 #include "../../fieldconnector.h"
+#include "../../environment.h"
+#include "../../scripting/scriptapi.h"
 
 PrefsOutput::PrefsOutput(const World &world, QWidget *parent)
     : QWidget(parent),
-      ui(new Ui::PrefsOutput)
+      ui(new Ui::PrefsOutput),
+      audio(),
+      player()
 {
   ui->setupUi(this);
   CONNECT_WORLD(ShowBold);
@@ -32,9 +37,38 @@ PrefsOutput::PrefsOutput(const World &world, QWidget *parent)
   CONNECT_WORLD(EchoBackgroundColour);
   CONNECT_WORLD(KeepCommandsOnSameLine);
   CONNECT_WORLD(NewActivitySound);
+  player.setAudioOutput(&audio);
 }
 
 PrefsOutput::~PrefsOutput()
 {
   delete ui;
+}
+
+// Private slots
+
+void PrefsOutput::on_NewActivitySound_browse_clicked()
+{
+  const QString currentFile = ui->NewActivitySound->text();
+  const QString path = QFileDialog::getOpenFileName(
+      this,
+      tr("Select sound file"),
+      currentFile.isEmpty() ? QStringLiteral(SOUNDS_DIR) : currentFile);
+
+  if (path.isEmpty())
+    return;
+
+  ui->NewActivitySound->setText(makePathRelative(path));
+}
+
+void PrefsOutput::on_NewActivitySound_test_clicked()
+{
+  player.stop();
+  player.setSource(QUrl::fromLocalFile(ui->NewActivitySound->text()));
+  player.play();
+}
+
+void PrefsOutput::on_NewActivitySound_textChanged(const QString &text)
+{
+  ui->NewActivitySound_test->setEnabled(!text.isEmpty());
 }

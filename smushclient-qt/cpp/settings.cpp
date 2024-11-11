@@ -3,23 +3,13 @@
 #include <QtCore/QUuid>
 #include <QtGui/QColor>
 #include <QtGui/QFontDatabase>
+#include "environment.h"
 
 QFont getDefaultFont(int pointSize)
 {
   QFont defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
   defaultFont.setPointSize(pointSize);
   return defaultFont;
-}
-
-// Private utilities
-
-QString makePathRelative(const QString &filePath)
-{
-  const QString cwd = QDir::currentPath();
-  if (!filePath.startsWith(cwd))
-    return filePath;
-  const qsizetype cwdSize = cwd.size() + 1;
-  return filePath.sliced(cwdSize, filePath.size() - cwdSize);
 }
 
 // Public methods
