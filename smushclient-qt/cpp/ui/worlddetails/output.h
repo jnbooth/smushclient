@@ -28,4 +28,5 @@ private slots:
   void on_NewActivitySound_browse_clicked();
   void on_NewActivitySound_test_clicked();
   void on_NewActivitySound_textChanged(const QString &text);
+  void on_reset_clicked();
 };

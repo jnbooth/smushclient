@@ -5,6 +5,8 @@
 #include "../../environment.h"
 #include "../../scripting/scriptapi.h"
 
+using std::array;
+
 PrefsOutput::PrefsOutput(const World &world, QWidget *parent)
     : QWidget(parent),
       ui(new Ui::PrefsOutput),
@@ -71,4 +73,29 @@ void PrefsOutput::on_NewActivitySound_test_clicked()
 void PrefsOutput::on_NewActivitySound_textChanged(const QString &text)
 {
   ui->NewActivitySound_test->setEnabled(!text.isEmpty());
+}
+
+void PrefsOutput::on_reset_clicked()
+{
+  const QVector<QColor> ansiColors = ansi16();
+  array<ColorPickerButton *, 16> colorPickers{
+      ui->Ansi0,
+      ui->Ansi1,
+      ui->Ansi2,
+      ui->Ansi3,
+      ui->Ansi4,
+      ui->Ansi5,
+      ui->Ansi6,
+      ui->Ansi7,
+      ui->Ansi8,
+      ui->Ansi9,
+      ui->Ansi10,
+      ui->Ansi11,
+      ui->Ansi12,
+      ui->Ansi13,
+      ui->Ansi14,
+      ui->Ansi15};
+  auto ansi = ansiColors.cbegin();
+  for (auto picker = colorPickers.cbegin(), end = colorPickers.cend(); picker != end; ++picker, ++ansi)
+    (*picker)->setValue(*ansi);
 }

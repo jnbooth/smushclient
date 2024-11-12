@@ -9,13 +9,19 @@
 use std::mem;
 
 use crate::client::SmushClientRust;
+use crate::convert::Convert;
 use crate::sender::{AliasRust, TimerRust, TriggerRust};
 use crate::sender::{OutputSpan, TextSpan};
 use crate::world::WorldRust;
 use cxx::{type_id, ExternType};
-use cxx_qt_lib::QByteArray;
+use cxx_qt_lib::{QByteArray, QColor, QVector};
 use mud_transformer::escape::telnet::naws;
+use mud_transformer::mxp::RgbColor;
 use smushclient::AliasOutcome;
+
+pub fn ansi16() -> QVector<QColor> {
+    RgbColor::XTERM_16.to_vec().convert()
+}
 
 const fn flag_if(flag: ffi::AliasOutcome, pred: bool) -> u8 {
     if pred {
@@ -970,5 +976,9 @@ pub mod ffi {
         Confirm,
         Always,
         Never,
+    }
+
+    extern "Rust" {
+        fn ansi16() -> QVector_QColor;
     }
 }
