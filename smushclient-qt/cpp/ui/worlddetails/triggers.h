@@ -23,7 +23,6 @@ protected:
   void importXml(const QString &text) override;
   void removeItem(size_t index) override;
   void setItemButtonsEnabled(bool enabled) override;
-  QTreeView *tree() override;
 
 private:
   Ui::PrefsTriggers *ui;

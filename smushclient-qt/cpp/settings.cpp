@@ -5,11 +5,33 @@
 #include <QtGui/QFontDatabase>
 #include "environment.h"
 
+// Private utils
+
 QFont getDefaultFont(int pointSize)
 {
   QFont defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
   defaultFont.setPointSize(pointSize);
   return defaultFont;
+}
+
+const QString &headerKey(ModelType modelType)
+{
+  static const QString aliasKey = QStringLiteral("headers/aliases");
+  static const QString timerKey = QStringLiteral("headers/timers");
+  static const QString triggerKey = QStringLiteral("headers/aliases");
+  static const QString pluginKey = QStringLiteral("headers/aliases");
+
+  switch (modelType)
+  {
+  case ModelType::Alias:
+    return aliasKey;
+  case ModelType::Timer:
+    return timerKey;
+  case ModelType::Trigger:
+    return triggerKey;
+  case ModelType::Plugin:
+    return pluginKey;
+  }
 }
 
 // Public methods
@@ -247,4 +269,16 @@ bool Settings::showStatusBar() const
 void Settings::setShowStatusBar(bool show)
 {
   store.setValue(showStatusBarKey, show);
+}
+
+// Header state
+
+QByteArray Settings::headerState(ModelType modelType) const
+{
+  return store.value(headerKey(modelType)).toByteArray();
+}
+
+void Settings::setHeaderState(ModelType modelType, const QByteArray &state)
+{
+  store.setValue(headerKey(modelType), state);
 }

@@ -3,14 +3,17 @@
 #include "ui_timers.h"
 #include "../../bridge/viewbuilder.h"
 #include "../../fieldconnector.h"
+#include "../../settings.h"
 
 PrefsTimers::PrefsTimers(const World &world, SmushClient &client, Timekeeper *timekeeper, QWidget *parent)
-    : AbstractPrefsTree(parent),
+    : AbstractPrefsTree(ModelType::Timer, parent),
       ui(new Ui::PrefsTimers),
       client(client),
       timekeeper(timekeeper)
 {
   ui->setupUi(this);
+  setTree(ui->tree);
+  setHeaders({tr("Group/Label"), tr("Type"), tr("Occurrence"), tr("Text")});
   CONNECT_WORLD(EnableTimers);
   client.stopTimers();
   ui->tree->setModel(model());
@@ -69,9 +72,4 @@ void PrefsTimers::removeItem(size_t index)
 void PrefsTimers::setItemButtonsEnabled(bool enabled)
 {
   ui->edit->setEnabled(enabled);
-}
-
-QTreeView *PrefsTimers::tree()
-{
-  return ui->tree;
 }

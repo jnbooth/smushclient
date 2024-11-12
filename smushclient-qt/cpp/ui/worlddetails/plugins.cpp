@@ -4,6 +4,7 @@
 #include "ui_plugins.h"
 #include "../../environment.h"
 #include "../../scripting/scriptapi.h"
+#include "../../settings.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
 // Public methods
@@ -12,16 +13,23 @@ PrefsPlugins::PrefsPlugins(SmushClient &client, ScriptApi *api, QWidget *parent)
     : QWidget(parent),
       ui(new Ui::PrefsPlugins),
       api(api),
-      builder(new ModelBuilder(this)),
       client(client)
 {
   ui->setupUi(this);
+  builder = new ModelBuilder(this);
+  builder->setHeaders({tr("Name"),
+                       tr("Purpose"),
+                       tr("Author"),
+                       tr("Path"),
+                       tr("Enabled"),
+                       tr("Version")});
   ui->table->setModel(model());
   buildTable();
 }
 
 PrefsPlugins::~PrefsPlugins()
 {
+  Settings().setHeaderState(ModelType::Plugin, ui->table->horizontalHeader()->saveState());
   delete ui;
 }
 
@@ -29,8 +37,14 @@ PrefsPlugins::~PrefsPlugins()
 
 void PrefsPlugins::buildTable()
 {
+  QHeaderView *header = ui->table->horizontalHeader();
+  const QByteArray headerState =
+      model()->rowCount() == 0 ? Settings().headerState(ModelType::Plugin) : header->saveState();
+
   builder->clear();
   client.buildPluginsTable(*builder);
+
+  header->restoreState(headerState);
 }
 
 void PrefsPlugins::initPlugins()
@@ -68,10 +82,7 @@ void PrefsPlugins::on_button_reinstall_clicked()
 
 void PrefsPlugins::on_button_remove_clicked()
 {
-  const QStandardItem *item = model()->itemFromIndex(ui->table->currentIndex());
-  if (!item)
-    return;
-  if (!client.removePlugin(item->data(Qt::UserRole).toString()))
+  if (!client.removePlugin(model()->data(ui->table->currentIndex()).toString()))
     return;
 
   buildTable();

@@ -5,12 +5,15 @@
 
 class ModelBuilder : public QObject
 {
+  Q_OBJECT
+
 public:
   explicit ModelBuilder(QObject *parent = nullptr);
   ~ModelBuilder();
 
   inline constexpr QStandardItemModel *model() const noexcept { return items; }
   void clear();
+  void setHeaders(const QStringList &headers);
   void startGroup(const QString &name);
   void addColumn(const QString &text);
   inline void addColumn(qlonglong value) { addColumn(QString::number(value)); }
@@ -18,13 +21,12 @@ public:
   inline void addColumn(double value) { addColumn(QString::number(value, 'g', 2)); }
   inline void addColumn(bool value) { addColumn(value ? yes : no); }
   void finishRow(const QVariant &data);
-  void startReplacement(const QModelIndex &index);
 
 private:
   QStandardItemModel *items;
+  QStringList headers;
   QStandardItem *group;
   QList<QStandardItem *> row;
-  QModelIndex replacing;
   QString no;
   QString yes;
 };

@@ -3,13 +3,16 @@
 #include "ui_triggers.h"
 #include "../../bridge/viewbuilder.h"
 #include "../../fieldconnector.h"
+#include "../../settings.h"
 
 PrefsTriggers::PrefsTriggers(const World &world, SmushClient &client, QWidget *parent)
-    : AbstractPrefsTree(parent),
+    : AbstractPrefsTree(ModelType::Trigger, parent),
       ui(new Ui::PrefsTriggers),
       client(client)
 {
   ui->setupUi(this);
+  setTree(ui->tree);
+  setHeaders({tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text")});
   CONNECT_WORLD(EnableTriggers);
   client.stopTriggers();
   ui->tree->setModel(model());
@@ -68,9 +71,4 @@ void PrefsTriggers::removeItem(size_t index)
 void PrefsTriggers::setItemButtonsEnabled(bool enabled)
 {
   ui->edit->setEnabled(enabled);
-}
-
-QTreeView *PrefsTriggers::tree()
-{
-  return ui->tree;
 }

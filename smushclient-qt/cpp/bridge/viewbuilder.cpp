@@ -1,16 +1,17 @@
 #include "viewbuilder.h"
 #include <QtCore/QCoreApplication>
+#include "../settings.h"
 
 // Public methods
 
 ModelBuilder::ModelBuilder(QObject *parent)
     : QObject(parent),
-      row(),
-      replacing(),
-      no(tr("No")),
-      yes(tr("Yes"))
+      headers(),
+      row()
 {
   items = new QStandardItemModel(this);
+  no = tr("No");
+  yes = tr("Yes");
   group = items->invisibleRootItem();
 }
 
@@ -26,6 +27,15 @@ void ModelBuilder::clear()
   items->clear();
   group = items->invisibleRootItem();
   row.clear();
+  items->setHorizontalHeaderLabels(headers);
+}
+
+void ModelBuilder::setHeaders(const QStringList &newHeaders)
+{
+  headers = newHeaders;
+  items->setHorizontalHeaderLabels(headers);
+  for (int i = 0, end = headers.size(); i < end; ++i)
+    items->setHeaderData(i, Qt::Orientation::Horizontal, i);
 }
 
 void ModelBuilder::startGroup(const QString &name)
@@ -36,20 +46,7 @@ void ModelBuilder::startGroup(const QString &name)
 
 void ModelBuilder::addColumn(const QString &text)
 {
-  if (!replacing.isValid())
-  {
-    row.push_back(new QStandardItem(text));
-    return;
-  }
-  QStandardItem *item = items->itemFromIndex(replacing);
-  if (!item)
-  {
-    replacing = QModelIndex();
-    return;
-  }
-  item->setText(text);
-  replacing = replacing.siblingAtColumn(replacing.column() + 1);
-  return;
+  row.push_back(new QStandardItem(text));
 }
 
 void ModelBuilder::finishRow(const QVariant &data)
@@ -58,10 +55,4 @@ void ModelBuilder::finishRow(const QVariant &data)
     item->setData(data);
   group->appendRow(row);
   row.clear();
-  replacing = QModelIndex();
-}
-
-void ModelBuilder::startReplacement(const QModelIndex &index)
-{
-  replacing = index;
 }

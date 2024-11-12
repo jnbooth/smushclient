@@ -2,6 +2,8 @@
 #include <QtGui/QClipboard>
 #include <QtGui/QGuiApplication>
 #include <QtWidgets/QErrorMessage>
+#include <QtWidgets/QHeaderView>
+#include "../../settings.h"
 #include "rust/cxx.h"
 
 using std::vector;
@@ -10,16 +12,42 @@ constexpr size_t invalidIndex = SIZE_MAX;
 
 // Public methods
 
-AbstractPrefsTree::AbstractPrefsTree(QWidget *parent)
+AbstractPrefsTree::AbstractPrefsTree(ModelType modelType, QWidget *parent)
     : QWidget(parent),
-      builder(new ModelBuilder(this)) {}
+      modelType(modelType),
+      tree(nullptr)
+{
+  builder = new ModelBuilder(this);
+}
+
+AbstractPrefsTree::~AbstractPrefsTree()
+{
+  Settings().setHeaderState(modelType, tree->header()->saveState());
+}
 
 // Protected methods
 
 void AbstractPrefsTree::buildTree()
 {
+  QHeaderView *header = tree->header();
+  const QByteArray headerState =
+      model()->rowCount() == 0 ? Settings().headerState(modelType) : header->saveState();
+
   builder->clear();
-  return buildTree(*builder);
+  buildTree(*builder);
+  tree->expandAll();
+
+  header->restoreState(headerState);
+}
+
+void AbstractPrefsTree::setHeaders(const QStringList &newHeaders)
+{
+  builder->setHeaders(newHeaders);
+}
+
+void AbstractPrefsTree::setTree(QTreeView *newTree)
+{
+  tree = newTree;
 }
 
 // Protected slots
@@ -32,7 +60,7 @@ void AbstractPrefsTree::on_add_clicked()
 
 void AbstractPrefsTree::on_edit_clicked()
 {
-  const size_t index = clientIndex(tree()->currentIndex());
+  const size_t index = clientIndex(tree->currentIndex());
   if (index != invalidIndex && editItem(index))
     buildTree();
 }
@@ -64,7 +92,7 @@ void AbstractPrefsTree::on_import_xml_clicked()
 
 void AbstractPrefsTree::on_remove_clicked()
 {
-  const QModelIndexList items = tree()->selectionModel()->selectedIndexes();
+  const QModelIndexList items = tree->selectionModel()->selectedIndexes();
   vector<size_t> indexes;
   indexes.reserve(items.size());
 
@@ -86,7 +114,7 @@ void AbstractPrefsTree::on_tree_activated(QModelIndex index)
 
 void AbstractPrefsTree::on_tree_doubleClicked(QModelIndex modelIndex)
 {
-  QItemSelectionModel *selection = tree()->selectionModel();
+  QItemSelectionModel *selection = tree->selectionModel();
   if (selection->selectedIndexes().size() > 1)
   {
     selection->clear();
@@ -100,10 +128,7 @@ void AbstractPrefsTree::on_tree_doubleClicked(QModelIndex modelIndex)
 
 size_t AbstractPrefsTree::clientIndex(QModelIndex index) const
 {
-  QStandardItem *item = model()->itemFromIndex(index);
-  if (!item)
-    return invalidIndex;
-  QVariant data = item->data(Qt::UserRole);
+  const QVariant data = model()->data(index);
   if (!data.canConvert<size_t>())
     return invalidIndex;
   return data.value<size_t>();

@@ -203,7 +203,7 @@ impl SmushClientRust {
         }
         let mut sorted_items: Vec<(usize, &T)> = senders.iter().enumerate().collect();
         sorted_items.sort_unstable_by_key(|(_, item)| (*item).as_ref());
-        let mut last_group = "";
+        let mut last_group = "\0";
         for (index, item) in sorted_items {
             let group = item.as_ref().group.as_str();
             if group != last_group {

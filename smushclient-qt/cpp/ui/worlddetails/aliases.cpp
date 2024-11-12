@@ -3,13 +3,16 @@
 #include "ui_aliases.h"
 #include "../../bridge/viewbuilder.h"
 #include "../../fieldconnector.h"
+#include "../../settings.h"
 
 PrefsAliases::PrefsAliases(const World &world, SmushClient &client, QWidget *parent)
-    : AbstractPrefsTree(parent),
+    : AbstractPrefsTree(ModelType::Alias, parent),
       ui(new Ui::PrefsAliases),
       client(client)
 {
   ui->setupUi(this);
+  setTree(ui->tree);
+  setHeaders({tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text")});
   CONNECT_WORLD(EnableAliases);
   client.stopAliases();
   ui->tree->setModel(model());
@@ -68,9 +71,4 @@ void PrefsAliases::removeItem(size_t index)
 void PrefsAliases::setItemButtonsEnabled(bool enabled)
 {
   ui->edit->setEnabled(enabled);
-}
-
-QTreeView *PrefsAliases::tree()
-{
-  return ui->tree;
 }
