@@ -16,7 +16,6 @@ PrefsTimers::PrefsTimers(const World &world, SmushClient &client, Timekeeper *ti
   setHeaders({tr("Group/Label"), tr("Type"), tr("Occurrence"), tr("Text")});
   CONNECT_WORLD(EnableTimers);
   client.stopTimers();
-  ui->tree->setModel(model());
   AbstractPrefsTree::buildTree();
 }
 

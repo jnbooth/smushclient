@@ -15,7 +15,6 @@ PrefsAliases::PrefsAliases(const World &world, SmushClient &client, QWidget *par
   setHeaders({tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text")});
   CONNECT_WORLD(EnableAliases);
   client.stopAliases();
-  ui->tree->setModel(model());
   AbstractPrefsTree::buildTree();
 }
 

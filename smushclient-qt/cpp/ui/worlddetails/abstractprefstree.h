@@ -1,4 +1,5 @@
 #pragma once
+#include <QtCore/QSortFilterProxyModel>
 #include <QtGui/QStandardItemModel>
 #include <QtWidgets/QTreeView>
 #include <QtWidgets/QWidget>
@@ -16,7 +17,6 @@ public:
 
 protected:
   void buildTree();
-  constexpr QStandardItemModel *model() const noexcept { return builder->model(); }
   void setHeaders(const QStringList &headers);
   void setTree(QTreeView *tree);
 
@@ -34,14 +34,17 @@ protected slots:
   void on_export_xml_clicked();
   void on_import_xml_clicked();
   void on_remove_clicked();
+  void on_search_textChanged(const QString &text);
   void on_tree_activated(QModelIndex index);
   void on_tree_doubleClicked(QModelIndex index);
 
 private:
   ModelBuilder *builder;
   ModelType modelType;
+  QSortFilterProxyModel *proxy;
   QTreeView *tree;
 
 private:
   size_t clientIndex(QModelIndex index) const;
+  constexpr QStandardItemModel *model() const noexcept { return builder->model(); }
 };

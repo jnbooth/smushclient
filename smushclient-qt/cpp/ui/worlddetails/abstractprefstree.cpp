@@ -18,6 +18,11 @@ AbstractPrefsTree::AbstractPrefsTree(ModelType modelType, QWidget *parent)
       tree(nullptr)
 {
   builder = new ModelBuilder(this);
+  proxy = new QSortFilterProxyModel(this);
+  proxy->setFilterCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
+  proxy->setSourceModel(builder->model());
+  proxy->setRecursiveFilteringEnabled(true);
+  proxy->setFilterKeyColumn(-1);
 }
 
 AbstractPrefsTree::~AbstractPrefsTree()
@@ -48,6 +53,7 @@ void AbstractPrefsTree::setHeaders(const QStringList &newHeaders)
 void AbstractPrefsTree::setTree(QTreeView *newTree)
 {
   tree = newTree;
+  tree->setModel(proxy);
 }
 
 // Protected slots
@@ -60,7 +66,7 @@ void AbstractPrefsTree::on_add_clicked()
 
 void AbstractPrefsTree::on_edit_clicked()
 {
-  const size_t index = clientIndex(tree->currentIndex());
+  const size_t index = clientIndex(proxy->mapToSource(tree->currentIndex()));
   if (index != invalidIndex && editItem(index))
     buildTree();
 }
@@ -106,9 +112,15 @@ void AbstractPrefsTree::on_remove_clicked()
   buildTree();
 }
 
+void AbstractPrefsTree::on_search_textChanged(const QString &text)
+{
+  proxy->setFilterFixedString(text);
+  tree->expandAll();
+}
+
 void AbstractPrefsTree::on_tree_activated(QModelIndex index)
 {
-  QStandardItem *item = model()->itemFromIndex(index);
+  QStandardItem *item = model()->itemFromIndex(proxy->mapToSource(index));
   setItemButtonsEnabled(item && !item->hasChildren());
 }
 
@@ -128,7 +140,7 @@ void AbstractPrefsTree::on_tree_doubleClicked(QModelIndex modelIndex)
 
 size_t AbstractPrefsTree::clientIndex(QModelIndex index) const
 {
-  const QVariant data = model()->data(index);
+  const QVariant data = model()->data(proxy->mapToSource(index));
   if (!data.canConvert<size_t>())
     return invalidIndex;
   return data.value<size_t>();

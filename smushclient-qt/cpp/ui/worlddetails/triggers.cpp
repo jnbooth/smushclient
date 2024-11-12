@@ -15,7 +15,6 @@ PrefsTriggers::PrefsTriggers(const World &world, SmushClient &client, QWidget *p
   setHeaders({tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text")});
   CONNECT_WORLD(EnableTriggers);
   client.stopTriggers();
-  ui->tree->setModel(model());
   AbstractPrefsTree::buildTree();
 }
 
