@@ -1,0 +1,199 @@
+use chrono::{DateTime, Local, TimeZone};
+use std::fmt::{self, Display, Formatter};
+use std::io::{self, Write};
+
+use crate::world::World;
+use std::borrow::Cow;
+
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Escaped<S = String> {
+    message: S,
+    has_chrono: bool,
+}
+
+impl<S> Escaped<S> {
+    pub fn create<'a>(message: &'a str, world: &World) -> Self
+    where
+        S: From<&'a str> + From<String>,
+    {
+        if message.len() <= 1 {
+            return Self {
+                message: message.into(),
+                has_chrono: false,
+            };
+        }
+        let mut has_world = false;
+        let mut has_player = false;
+        let mut has_chrono = false;
+        let mut in_escape = false;
+        for &byte in message.as_bytes() {
+            if in_escape {
+                match byte {
+                    b'N' => has_world = true,
+                    b'P' => has_player = true,
+                    _ => has_chrono = true,
+                }
+                in_escape = false;
+            } else if byte == b'%' {
+                in_escape = true;
+            }
+        }
+        let mut message = Cow::Borrowed(message);
+        if has_world {
+            message = message.replace("%N", &world.name).into();
+        }
+        if has_player {
+            message = message.replace("%P", &world.player).into();
+        }
+        Self {
+            message: match message {
+                Cow::Borrowed(borrowed) => borrowed.into(),
+                Cow::Owned(owned) => owned.into(),
+            },
+            has_chrono,
+        }
+    }
+}
+
+impl<S: AsRef<str>> Escaped<S> {
+    pub fn is_empty(&self) -> bool {
+        self.message.as_ref().is_empty()
+    }
+}
+
+impl<S> Escaped<S> {
+    pub fn with_datetime<Tz>(&self, datetime: DateTime<Tz>) -> EscapedChrono<S, Tz>
+    where
+        Tz: TimeZone,
+    {
+        EscapedChrono {
+            escaped: self,
+            datetime,
+        }
+    }
+}
+
+impl<'a> Escaped<Cow<'a, str>> {
+    pub fn borrow(message: &'a str, world: &World) -> Self {
+        Self::create(message, world)
+    }
+}
+
+impl Escaped<String> {
+    pub fn new(message: &str, world: &World) -> Self {
+        Self::create(message, world)
+    }
+}
+
+impl<S> Display for Escaped<S>
+where
+    S: AsRef<str>,
+{
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        if self.has_chrono {
+            Local::now().format(self.message.as_ref()).fmt(f)
+        } else {
+            f.write_str(self.message.as_ref())
+        }
+    }
+}
+
+pub struct EscapedChrono<'a, S, Tz: TimeZone> {
+    escaped: &'a Escaped<S>,
+    datetime: DateTime<Tz>,
+}
+
+impl<'a, S, Tz> Display for EscapedChrono<'a, S, Tz>
+where
+    S: AsRef<str>,
+    Tz: TimeZone,
+    Tz::Offset: Display,
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        if self.escaped.has_chrono {
+            self.datetime.format(self.escaped.message.as_ref()).fmt(f)
+        } else {
+            f.write_str(self.escaped.message.as_ref())
+        }
+    }
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct EscapedBrackets<S = String> {
+    before: Escaped<S>,
+    after: Escaped<S>,
+}
+
+impl<S> EscapedBrackets<S> {
+    pub fn new(before: Escaped<S>, after: Escaped<S>) -> Self {
+        Self { before, after }
+    }
+
+    pub const fn before(&self) -> &Escaped<S> {
+        &self.before
+    }
+
+    pub const fn after(&self) -> &Escaped<S> {
+        &self.after
+    }
+
+    pub fn write<W: Write>(&self, mut writer: W, line: &[u8]) -> io::Result<()>
+    where
+        S: AsRef<str>,
+    {
+        let Self { before, after } = self;
+        if !before.has_chrono && !after.has_chrono {
+            writer.write_all(before.message.as_ref().as_bytes())?;
+            writer.write_all(line)?;
+            return writer.write_all(after.message.as_ref().as_bytes());
+        }
+        let now = Local::now();
+        write!(writer, "{}", before.with_datetime(now))?;
+        writer.write_all(line)?;
+        write!(writer, "{}", after.with_datetime(now))
+    }
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct LogBrackets {
+    pub file: EscapedBrackets<String>,
+    pub output: EscapedBrackets<String>,
+    pub input: EscapedBrackets<String>,
+    pub notes: EscapedBrackets<String>,
+}
+
+impl From<&World> for LogBrackets {
+    fn from(world: &World) -> Self {
+        let mut file = EscapedBrackets::new(
+            Escaped::new(&world.log_file_preamble, world),
+            Escaped::new(&world.log_file_postamble, world),
+        );
+        let mut output = EscapedBrackets::new(
+            Escaped::new(&world.log_preamble_output, world),
+            Escaped::new(&world.log_postamble_output, world),
+        );
+        let mut input = EscapedBrackets::new(
+            Escaped::new(&world.log_preamble_input, world),
+            Escaped::new(&world.log_postamble_input, world),
+        );
+        let mut notes = EscapedBrackets::new(
+            Escaped::new(&world.log_preamble_notes, world),
+            Escaped::new(&world.log_postamble_notes, world),
+        );
+        if !file.before.message.is_empty() {
+            file.before.message.push('\n');
+        }
+        if !file.after.message.is_empty() {
+            file.after.message.push('\n');
+        }
+        output.after.message.push('\n');
+        input.after.message.push('\n');
+        notes.after.message.push('\n');
+        Self {
+            file,
+            output,
+            input,
+            notes,
+        }
+    }
+}

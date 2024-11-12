@@ -6,13 +6,12 @@ use std::ops::{Deref, DerefMut};
 use std::path::Path;
 
 use super::effects::CommandSource;
-use super::effects::{AliasEffects, TriggerEffects};
+use super::effects::{AliasEffects, SpanStyle, TriggerEffects};
 use super::error::LoadError;
 use super::error::LoadFailure;
 use crate::client::PluginVariables;
 use crate::handler::{Handler, HandlerExt};
 use crate::world::World;
-use crate::SpanStyle;
 use mud_transformer::Output;
 use smushclient_plugins::{Plugin, PluginIndex, SendTarget};
 

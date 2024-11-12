@@ -1,12 +1,16 @@
 mod error;
 pub use error::PersistError;
 
+mod escaping;
+pub use escaping::{Escaped, EscapedBrackets, LogBrackets};
+
 mod types;
 pub use types::*;
 
 mod versions;
 use versions::WorldVersion;
 
+use std::borrow::Cow;
 use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::io::{Read, Write};
@@ -20,7 +24,7 @@ use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Sender, Time
 
 use mud_transformer::mxp::RgbColor;
 
-use crate::{SendIterable, SenderAccessError};
+use crate::plugins::{SendIterable, SenderAccessError};
 
 const CURRENT_VERSION: u16 = 8;
 
@@ -233,28 +237,32 @@ impl World {
         }
     }
 
+    pub fn escape<'a>(&self, message: &'a str) -> Escaped<Cow<'a, str>> {
+        Escaped::borrow(message, self)
+    }
+
+    pub fn brackets(&self) -> LogBrackets {
+        LogBrackets::from(self)
+    }
+
     pub fn world_plugin(&self) -> Plugin {
         let today = Local::now().date_naive();
         let path = match &self.world_script {
             Some(world_script) => PathBuf::from(&world_script),
             None => PathBuf::new(),
         };
-        let metadata = PluginMetadata {
-            name: format!("World Script: {}", self.name),
-            written: today,
-            modified: today,
-            is_world_plugin: true,
-            sequence: -1,
-            path,
-            ..Default::default()
-        };
         Plugin {
-            metadata,
             disabled: !self.enable_scripts,
-            triggers: CursorVec::new(),
-            aliases: CursorVec::new(),
-            timers: CursorVec::new(),
-            script: String::new(),
+            metadata: PluginMetadata {
+                name: format!("World Script: {}", self.name),
+                written: today,
+                modified: today,
+                is_world_plugin: true,
+                sequence: -1,
+                path,
+                ..Default::default()
+            },
+            ..Default::default()
         }
     }
 

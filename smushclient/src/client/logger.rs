@@ -1,23 +1,24 @@
-use crate::world::{LogFormat, LogMode, World};
-use crate::Handler;
+use crate::handler::Handler;
+use crate::world::{Escaped, EscapedBrackets, LogBrackets, LogFormat, LogMode, World};
 use std::fs::File;
-use std::io::{self, Write};
+use std::io::{self, BufWriter, Write};
+use std::mem;
 
 #[derive(Debug)]
-pub enum Logger {
+pub enum LogFile {
     Closed,
     Failed(io::Error),
-    Open(File, Vec<u8>),
+    Open(BufWriter<File>),
 }
 
-impl Default for Logger {
+impl Default for LogFile {
     fn default() -> Self {
         Self::Closed
     }
 }
 
-impl Logger {
-    pub fn open(world: &World) -> io::Result<Self> {
+impl LogFile {
+    pub fn open(world: &World, preamble: &Escaped) -> io::Result<Self> {
         let Some(log_file_path) = &world.auto_log_file_name else {
             return Ok(Self::Closed);
         };
@@ -25,65 +26,132 @@ impl Logger {
             LogMode::Append => File::open(log_file_path),
             LogMode::Overwrite => File::create(log_file_path),
         }?;
-        Ok(Self::Open(file, Vec::new()))
+        let mut file = BufWriter::new(file);
+        if !preamble.is_empty() {
+            writeln!(file, "{preamble}")?;
+        }
+        Ok(Self::Open(file))
     }
 
-    pub fn log_raw(&mut self, bytes: &[u8], world: &World) {
-        if world.log_format != LogFormat::Raw {
+    pub fn close(&mut self, postamble: &Escaped) {
+        if postamble.is_empty() {
+            *self = Self::Closed;
             return;
         }
-        let Self::Open(file, ..) = self else {
+        let Self::Open(file) = self else {
             return;
         };
-        if let Err(e) = file.write_all(bytes) {
+        if let Err(e) = writeln!(file, "{postamble}") {
             *self = Self::Failed(e);
+        } else {
+            *self = Self::Closed;
         }
     }
 
-    pub fn log_input_line(&mut self, line: &[u8], world: &World) {
-        if world.log_format != LogFormat::Text {
-            return;
-        }
-        self.log_line(line, &world.log_preamble_input, &world.log_postamble_input);
+    pub const fn is_open(&self) -> bool {
+        matches!(self, Self::Open(_))
     }
 
-    pub fn log_note(&mut self, line: &[u8], world: &World) {
-        if world.log_format != LogFormat::Text {
-            return;
-        }
-        self.log_line(line, &world.log_preamble_notes, &world.log_postamble_notes);
-    }
-
-    pub fn log_output_line(&mut self, line: &[u8], world: &World) {
-        if world.log_format != LogFormat::Text {
-            return;
-        }
-        self.log_line(
-            line,
-            &world.log_preamble_output,
-            &world.log_postamble_output,
-        );
-    }
-
-    fn log_line(&mut self, line: &[u8], preamble: &str, postamble: &str) {
-        let Self::Open(file, buf) = self else {
+    pub fn log_raw(&mut self, bytes: &[u8]) {
+        let Self::Open(file) = self else {
             return;
         };
-        buf.clear();
-        buf.extend_from_slice(preamble.as_bytes());
-        buf.extend_from_slice(line);
-        buf.extend_from_slice(postamble.as_bytes());
-        buf.push(b'\n');
-        if let Err(e) = file.write_all(buf) {
-            *self = Self::Failed(e);
+        let Err(e) = file.write_all(bytes) else {
+            return;
+        };
+        *self = Self::Failed(e);
+    }
+
+    pub fn log_line(&mut self, line: &[u8], brackets: &EscapedBrackets) {
+        let Self::Open(file) = self else {
+            return;
+        };
+        let Err(e) = brackets.write(file, line) else {
+            return;
+        };
+        *self = Self::Failed(e);
+    }
+
+    pub fn take_error(&mut self) -> Option<io::Error> {
+        if !matches!(self, Self::Failed(_)) {
+            return None;
         }
+        let mut buf = Self::Closed;
+        mem::swap(self, &mut buf);
+        match buf {
+            Self::Failed(e) => Some(e),
+            _ => None,
+        }
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct Logger {
+    brackets: LogBrackets,
+    file: LogFile,
+    format: LogFormat,
+}
+
+impl Logger {
+    pub fn open(world: &World) -> io::Result<Self> {
+        let brackets = world.brackets();
+        Ok(Self {
+            file: LogFile::open(world, brackets.file.before())?,
+            brackets,
+            format: world.log_format,
+        })
+    }
+
+    pub fn apply_world(&mut self, world: &World) {
+        self.brackets = world.brackets();
+        self.format = world.log_format;
+    }
+
+    pub fn close(&mut self) {
+        self.file.close(self.brackets.file.after());
+    }
+
+    pub const fn is_open(&self) -> bool {
+        self.file.is_open()
+    }
+
+    pub fn log_raw(&mut self, bytes: &[u8]) {
+        if self.format != LogFormat::Raw {
+            return;
+        }
+        self.file.log_raw(bytes);
+    }
+
+    pub fn log_input_line(&mut self, line: &[u8]) {
+        if self.format != LogFormat::Text {
+            return;
+        }
+        self.file.log_line(line, &self.brackets.input);
+    }
+
+    pub fn log_note(&mut self, line: &[u8]) {
+        if self.format != LogFormat::Text {
+            return;
+        }
+        self.file.log_line(line, &self.brackets.notes);
+    }
+
+    pub fn log_output_line(&mut self, line: &[u8]) {
+        if self.format != LogFormat::Text {
+            return;
+        }
+        self.file.log_line(line, &self.brackets.output);
     }
 
     pub fn log_error<H: Handler>(&mut self, handler: &mut H) {
-        let Self::Failed(e) = self else {
-            return;
-        };
-        handler.display_error(&format!("Log error: {e}"));
-        *self = Self::Closed;
+        if let Some(e) = self.file.take_error() {
+            handler.display_error(&format!("Log error: {e}"));
+        }
+    }
+}
+
+impl Drop for Logger {
+    fn drop(&mut self) {
+        self.close();
     }
 }

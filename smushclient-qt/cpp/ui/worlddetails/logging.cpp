@@ -1,5 +1,6 @@
 #include "logging.h"
 #include "ui_logging.h"
+#include "specialhelp.h"
 #include "../../enumbuttongroup.h"
 #include "../../fieldconnector.h"
 
@@ -58,4 +59,9 @@ void PrefsLogging::on_LogFormatChanged(LogFormat value)
 void PrefsLogging::on_LogModeChanged(LogMode value)
 {
   world.setLogMode(value);
+}
+
+void PrefsLogging::on_view_special_clicked()
+{
+  SpecialHelp(this).exec();
 }

@@ -4,7 +4,7 @@ use chrono::Utc;
 use smushclient_plugins::PluginIndex;
 
 use super::visitor::InfoVisitor;
-use crate::SmushClient;
+use crate::client::SmushClient;
 
 fn parse_double<V: InfoVisitor>(info: &str) -> V::Output {
     match info.parse() {

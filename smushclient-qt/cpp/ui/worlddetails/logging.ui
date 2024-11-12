@@ -37,8 +37,17 @@
    </property>
    <item>
     <layout class="QHBoxLayout" name="_log">
+     <property name="spacing">
+      <number>5</number>
+     </property>
      <item>
       <widget class="QLabel" name="AutoLogFileName_label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Log to:</string>
        </property>
@@ -49,6 +58,18 @@
      </item>
      <item>
       <widget class="QLineEdit" name="AutoLogFileName">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>2000</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="clearButtonEnabled">
         <bool>true</bool>
        </property>
@@ -61,6 +82,32 @@
        </property>
        <property name="icon">
         <iconset theme="document-open"/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="view_special">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>View special characters</string>
        </property>
       </widget>
      </item>
@@ -195,7 +242,7 @@
    <item>
     <layout class="QFormLayout" name="_session">
      <property name="fieldGrowthPolicy">
-      <enum>QFormLayout::FieldGrowthPolicy::ExpandingFieldsGrow</enum>
+      <enum>QFormLayout::FieldGrowthPolicy::AllNonFixedFieldsGrow</enum>
      </property>
      <item row="0" column="0">
       <widget class="QLabel" name="LogFilePreamble_label">
@@ -208,7 +255,14 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QPlainTextEdit" name="LogFilePreamble"/>
+      <widget class="QPlainTextEdit" name="LogFilePreamble">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="LogFilePostamble_label">
@@ -221,14 +275,30 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QPlainTextEdit" name="LogFilePostamble"/>
+      <widget class="QPlainTextEdit" name="LogFilePostamble">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
    <item>
     <layout class="QGridLayout" name="_affixes">
+     <property name="verticalSpacing">
+      <number>5</number>
+     </property>
      <item row="0" column="1">
       <widget class="QLabel" name="label_preamble">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="font">
         <font>
          <bold>true</bold>
@@ -242,40 +312,14 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2" alignment="Qt::AlignmentFlag::AlignHCenter">
-      <widget class="QLabel" name="label_postamble">
-       <property name="font">
-        <font>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Suffix</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_output">
-       <property name="text">
-        <string>Output:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="LogPreambleOutput"/>
-     </item>
-     <item row="1" column="2">
-      <widget class="QLineEdit" name="LogPostambleOutput"/>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_input">
-       <property name="text">
-        <string>Commands:</string>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="1">
       <widget class="QLineEdit" name="LogPreambleInput"/>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="LogPreambleNotes"/>
+     </item>
+     <item row="3" column="2">
+      <widget class="QLineEdit" name="LogPostambleNotes"/>
      </item>
      <item row="2" column="2">
       <widget class="QLineEdit" name="LogPostambleInput"/>
@@ -287,11 +331,43 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="QLineEdit" name="LogPreambleNotes"/>
+     <item row="1" column="2">
+      <widget class="QLineEdit" name="LogPostambleOutput"/>
      </item>
-     <item row="3" column="2">
-      <widget class="QLineEdit" name="LogPostambleNotes"/>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_output">
+       <property name="text">
+        <string>Output:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2" alignment="Qt::AlignmentFlag::AlignHCenter">
+      <widget class="QLabel" name="label_postamble">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Suffix</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="LogPreambleOutput"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_input">
+       <property name="text">
+        <string>Commands:</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

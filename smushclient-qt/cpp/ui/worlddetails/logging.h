@@ -21,7 +21,9 @@ private slots:
   void on_LogFormatChanged(LogFormat value);
   void on_LogModeChanged(LogMode value);
 
-private:
+  void on_view_special_clicked();
+
+  private:
   Ui::PrefsLogging *ui;
   World &world;
 };

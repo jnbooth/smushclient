@@ -50,6 +50,9 @@
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="spacing">
+         <number>5</number>
+        </property>
         <item>
          <widget class="QLineEdit" name="WorldScript">
           <property name="clearButtonEnabled">

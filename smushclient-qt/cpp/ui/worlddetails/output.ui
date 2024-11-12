@@ -637,6 +637,9 @@
       <string>Sound to play on new activity</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>5</number>
+      </property>
       <item>
        <widget class="QToolButton" name="NewActivitySound_test">
         <property name="enabled">

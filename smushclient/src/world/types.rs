@@ -29,6 +29,12 @@ pub enum LogFormat {
     Raw,
 }
 
+impl Default for LogFormat {
+    fn default() -> Self {
+        Self::Text
+    }
+}
+
 #[derive(
     Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize, Enum,
 )]

@@ -4,14 +4,13 @@ use std::{env, mem, slice};
 
 use super::logger::Logger;
 use super::variables::PluginVariables;
-use crate::client::variables::{LuaStr, LuaString};
+use super::variables::{LuaStr, LuaString};
 use crate::handler::Handler;
 use crate::plugins::{
-    AliasOutcome, CommandSource, LoadFailure, PluginEngine, SendIterable, SenderAccessError,
-    TriggerEffects,
+    AliasOutcome, CommandSource, LoadError, LoadFailure, PluginEngine, SendIterable,
+    SenderAccessError, TriggerEffects,
 };
 use crate::world::{PersistError, World};
-use crate::LoadError;
 use enumeration::EnumSet;
 use mud_transformer::{OutputFragment, Tag, Transformer, TransformerConfig};
 use smushclient_plugins::{CursorVec, Plugin, PluginIndex};
@@ -51,7 +50,7 @@ impl SmushClient {
         Self {
             last_log_file_name: world.auto_log_file_name.clone(),
             line_text: String::new(),
-            logger: Logger::Closed,
+            logger: Logger::default(),
             plugins,
             read_buf: vec![0; BUF_LEN],
             supported_tags,
@@ -95,22 +94,24 @@ impl SmushClient {
     }
 
     pub fn set_world_and_plugins(&mut self, world: World) {
-        self.plugins.set_world_plugin(world.world_plugin());
         self.world = world;
+        self.plugins.set_world_plugin(self.world.world_plugin());
+        self.logger.apply_world(&self.world);
         self.update_config();
     }
 
     pub fn set_world(&mut self, mut world: World) {
         mem::swap(&mut world.plugins, &mut self.world.plugins);
-        self.plugins.set_world_plugin(world.world_plugin());
         self.world = world;
+        self.plugins.set_world_plugin(self.world.world_plugin());
+        self.logger.apply_world(&self.world);
         self.update_config();
     }
 
     pub fn open_log(&mut self) -> io::Result<()> {
         if self.world.auto_log_file_name != self.last_log_file_name {
             self.last_log_file_name = self.world.auto_log_file_name.clone();
-        } else if matches!(self.logger, Logger::Open(..)) {
+        } else if self.logger.is_open() {
             return Ok(());
         }
         self.last_log_file_name = self.world.auto_log_file_name.clone();
@@ -119,7 +120,7 @@ impl SmushClient {
     }
 
     pub fn close_log(&mut self) {
-        self.logger = Logger::Closed;
+        self.logger.close();
     }
 
     pub fn read<R: Read>(&mut self, mut reader: R) -> io::Result<usize> {
@@ -130,7 +131,7 @@ impl SmushClient {
                 return Ok(total_read);
             }
             let (received, buf) = self.read_buf.split_at_mut(n);
-            self.logger.log_raw(received, &self.world);
+            self.logger.log_raw(received);
             self.transformer.receive(received, buf)?;
             total_read += n;
         }
@@ -145,7 +146,7 @@ impl SmushClient {
                 return Ok(total_read);
             }
             let (received, buf) = self.read_buf.split_at_mut(n);
-            self.logger.log_raw(buf, &self.world);
+            self.logger.log_raw(buf);
             self.transformer.receive(received, buf)?;
             total_read += n;
         }
@@ -236,8 +237,7 @@ impl SmushClient {
             };
 
             if !trigger_effects.omit_from_log {
-                self.logger
-                    .log_output_line(self.line_text.as_bytes(), &self.world);
+                self.logger.log_output_line(self.line_text.as_bytes());
                 self.logger.log_error(handler);
             }
         }
@@ -260,14 +260,14 @@ impl SmushClient {
             self.plugins
                 .alias(input, source, &mut self.world, &mut self.variables, handler);
         if !outcome.omit_from_log {
-            self.logger.log_input_line(input.as_bytes(), &self.world);
+            self.logger.log_input_line(input.as_bytes());
             self.logger.log_error(handler);
         }
         outcome.into()
     }
 
     pub fn log_note(&mut self, note: &[u8]) {
-        self.logger.log_note(note, &self.world);
+        self.logger.log_note(note);
     }
 
     pub fn load_plugins(&mut self) -> Result<(), Vec<LoadFailure>> {

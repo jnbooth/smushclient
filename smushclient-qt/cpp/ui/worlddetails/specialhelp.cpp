@@ -7,6 +7,9 @@ SpecialHelp::SpecialHelp(QWidget *parent)
       ui(new Ui::SpecialHelp)
 {
   ui->setupUi(this);
+  QPalette palette = ui->textEdit->palette();
+  palette.setColor(QPalette::ColorRole::Base, palette.color(QPalette::ColorRole::Window));
+  ui->textEdit->setPalette(palette);
 }
 
 SpecialHelp::~SpecialHelp()
