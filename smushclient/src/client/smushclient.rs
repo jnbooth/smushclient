@@ -5,6 +5,7 @@ use std::{env, mem, slice};
 use super::logger::Logger;
 use super::variables::PluginVariables;
 use super::variables::{LuaStr, LuaString};
+use crate::collections::SortOnDrop;
 use crate::handler::Handler;
 use crate::plugins::{
     AliasOutcome, CommandSource, LoadError, LoadFailure, PluginEngine, SendIterable,
@@ -13,7 +14,7 @@ use crate::plugins::{
 use crate::world::{PersistError, World};
 use enumeration::EnumSet;
 use mud_transformer::{OutputFragment, Tag, Transformer, TransformerConfig};
-use smushclient_plugins::{CursorVec, Plugin, PluginIndex};
+use smushclient_plugins::{CursorVec, Plugin, PluginIndex, XmlError};
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
@@ -434,6 +435,40 @@ impl SmushClient {
             Ok(()) => senders.insert(sender),
             Err(replace_at) => senders.replace(replace_at, sender),
         }
+    }
+
+    pub fn add_world_sender<T: SendIterable>(
+        &mut self,
+        sender: T,
+    ) -> Result<&T, SenderAccessError> {
+        self.world.add_sender(sender)
+    }
+
+    pub fn replace_world_sender<T: SendIterable>(
+        &mut self,
+        index: usize,
+        sender: T,
+    ) -> Result<&T, SenderAccessError> {
+        self.world.replace_sender(index, sender)
+    }
+
+    pub fn remove_world_sender<T: SendIterable>(
+        &mut self,
+        index: usize,
+    ) -> Result<(), SenderAccessError> {
+        self.world.remove_sender::<T>(index)
+    }
+
+    pub fn import_world_senders<T: SendIterable>(
+        &mut self,
+        xml: &str,
+    ) -> Result<SortOnDrop<T>, XmlError> {
+        let mut senders = T::from_xml_str(xml)?;
+        Ok(self.world.import_senders(&mut senders).into())
+    }
+
+    pub fn export_world_senders<T: SendIterable>(&self) -> Result<String, XmlError> {
+        T::to_xml_string(T::from_world(&self.world))
     }
 
     fn update_world_plugins(&mut self) {
