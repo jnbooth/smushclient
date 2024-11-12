@@ -496,13 +496,10 @@ pub mod ffi {
         fn plugin_info(self: &SmushClient, index: usize, info_type: u8) -> QVariant;
         fn add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> QString;
         fn remove_plugin(self: Pin<&mut SmushClient>, plugin_id: &QString) -> bool;
-        fn build_plugins_table(self: &SmushClient, table: Pin<&mut TableBuilder>);
-        fn build_aliases_tree(self: &SmushClient, tree: Pin<&mut TreeBuilder>);
-        fn build_timers_tree(self: &SmushClient, tree: Pin<&mut TreeBuilder>);
-        fn build_triggers_tree(self: &SmushClient, tree: Pin<&mut TreeBuilder>);
-        fn world_aliases_len(self: &SmushClient) -> usize;
-        fn world_timers_len(self: &SmushClient) -> usize;
-        fn world_triggers_len(self: &SmushClient) -> usize;
+        fn build_plugins_table(self: &SmushClient, table: Pin<&mut TableBuilder>) -> usize;
+        fn build_aliases_tree(self: &SmushClient, tree: Pin<&mut TreeBuilder>) -> usize;
+        fn build_timers_tree(self: &SmushClient, tree: Pin<&mut TreeBuilder>) -> usize;
+        fn build_triggers_tree(self: &SmushClient, tree: Pin<&mut TreeBuilder>) -> usize;
         fn plugin_scripts(self: &SmushClient) -> Vec<PluginPack>;
         fn read(
             self: Pin<&mut SmushClient>,

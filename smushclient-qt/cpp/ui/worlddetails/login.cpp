@@ -5,6 +5,8 @@
 PrefsLogin::PrefsLogin(World &world, QWidget *parent)
     : QWidget(parent),
       ui(new Ui::PrefsLogin),
+      empty(true),
+      single(true),
       world(world)
 {
   ui->setupUi(this);
@@ -24,5 +26,16 @@ PrefsLogin::~PrefsLogin()
 
 void PrefsLogin::on_ConnectText_textChanged()
 {
-  world.setConnectText(ui->ConnectText->toPlainText());
+  const QString text = ui->ConnectText->toPlainText();
+  empty = text.isEmpty();
+  world.setConnectText(text);
+  if (single) {
+    ui->ConnectText_lines->setNum(empty ? 0 : 1);
+  }
+}
+
+void PrefsLogin::on_ConnectText_blockCountChanged(int count)
+{
+  single = count <= 1;
+  ui->ConnectText_lines->setNum(count == 1 && empty ? 0 : count);
 }

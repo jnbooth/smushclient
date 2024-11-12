@@ -176,22 +176,25 @@ impl SmushClientRust {
             .collect()
     }
 
-    pub fn build_plugins_table(&self, mut table: TableBuilderAdapter) {
+    pub fn build_plugins_table(&self, mut table: TableBuilderAdapter) -> usize {
         let plugins = self.client.plugins();
         table.set_row_count(i32::try_from(plugins.len()).unwrap());
+        let mut count = 0;
         for plugin in plugins {
             let metadata = &plugin.metadata;
             if metadata.is_world_plugin {
                 continue;
             }
+            count += 1;
             table.add_row(&QString::from(&metadata.id), plugin);
         }
+        count
     }
 
     pub fn build_senders_tree<T: SendIterable + RowInsertable>(
         &self,
         mut tree: TreeBuilderAdapter,
-    ) {
+    ) -> usize {
         let senders = T::from_world(self.client.world());
         let mut sorted_items: Vec<(usize, &T)> = senders.iter().enumerate().collect();
         sorted_items.sort_unstable_by_key(|(_, item)| (*item).as_ref());
@@ -204,6 +207,7 @@ impl SmushClientRust {
             }
             tree.add_row(&u64::try_from(index).unwrap_or(u64::MAX), item);
         }
+        senders.len()
     }
 
     fn apply_world(&mut self) {

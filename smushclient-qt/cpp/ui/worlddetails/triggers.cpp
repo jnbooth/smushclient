@@ -14,7 +14,7 @@ PrefsTriggers::PrefsTriggers(const World &world, SmushClient &client, QWidget *p
   client.stopTriggers();
   ui->tree->clear();
   TreeBuilder builder(ui->tree);
-  client.buildTriggersTree(builder);
+  ui->item_count->setNum((int)client.buildTriggersTree(builder));
 }
 
 PrefsTriggers::~PrefsTriggers()
@@ -37,7 +37,7 @@ bool PrefsTriggers::addItem()
 
 void PrefsTriggers::buildTree(TreeBuilder &builder)
 {
-  client.buildTriggersTree(builder);
+  ui->item_count->setNum((int)client.buildTriggersTree(builder));
 }
 
 bool PrefsTriggers::editItem(size_t index)

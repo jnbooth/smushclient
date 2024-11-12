@@ -15,7 +15,7 @@ PrefsTimers::PrefsTimers(const World &world, SmushClient &client, Timekeeper *ti
   client.stopTimers();
   ui->tree->clear();
   TreeBuilder builder(ui->tree);
-  client.buildTimersTree(builder);
+  ui->item_count->setNum((int)client.buildTimersTree(builder));
 }
 
 PrefsTimers::~PrefsTimers()
@@ -38,7 +38,7 @@ bool PrefsTimers::addItem()
 
 void PrefsTimers::buildTree(TreeBuilder &builder)
 {
-  client.buildTimersTree(builder);
+  ui->item_count->setNum((int)client.buildTimersTree(builder));
 }
 
 bool PrefsTimers::editItem(size_t index)

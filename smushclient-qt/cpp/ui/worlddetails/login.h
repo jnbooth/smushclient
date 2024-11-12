@@ -17,8 +17,11 @@ public:
 
 private slots:
   void on_ConnectText_textChanged();
+  void on_ConnectText_blockCountChanged(int count);
 
 private:
   Ui::PrefsLogin *ui;
+  bool empty;
+  bool single;
   World &world;
 };

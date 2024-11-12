@@ -14,7 +14,7 @@ PrefsAliases::PrefsAliases(const World &world, SmushClient &client, QWidget *par
   client.stopAliases();
   ui->tree->clear();
   TreeBuilder builder(ui->tree);
-  client.buildAliasesTree(builder);
+  ui->item_count->setNum((int)client.buildAliasesTree(builder));
 }
 
 PrefsAliases::~PrefsAliases()
@@ -37,7 +37,7 @@ bool PrefsAliases::addItem()
 
 void PrefsAliases::buildTree(TreeBuilder &builder)
 {
-  client.buildAliasesTree(builder);
+  ui->item_count->setNum((int)client.buildAliasesTree(builder));
 }
 
 bool PrefsAliases::editItem(size_t index)
