@@ -46,5 +46,4 @@ private:
 
 private:
   size_t clientIndex(QModelIndex index) const;
-  constexpr QStandardItemModel *model() const noexcept { return builder->model(); }
 };

@@ -36,7 +36,7 @@ void AbstractPrefsTree::buildTree()
 {
   QHeaderView *header = tree->header();
   const QByteArray headerState =
-      model()->rowCount() == 0 ? Settings().headerState(modelType) : header->saveState();
+      builder->model()->rowCount() == 0 ? Settings().headerState(modelType) : header->saveState();
 
   builder->clear();
   buildTree(*builder);
@@ -66,7 +66,7 @@ void AbstractPrefsTree::on_add_clicked()
 
 void AbstractPrefsTree::on_edit_clicked()
 {
-  const size_t index = clientIndex(proxy->mapToSource(tree->currentIndex()));
+  const size_t index = clientIndex(tree->currentIndex());
   if (index != invalidIndex && editItem(index))
     buildTree();
 }
@@ -107,8 +107,14 @@ void AbstractPrefsTree::on_remove_clicked()
       indexes.push_back(index);
 
   std::sort(indexes.rbegin(), indexes.rend());
+  size_t lastIndex = -1;
   for (size_t index : indexes)
+  {
+    if (index == lastIndex)
+      continue;
     removeItem(index);
+    lastIndex = index;
+  }
   buildTree();
 }
 
@@ -120,8 +126,7 @@ void AbstractPrefsTree::on_search_textChanged(const QString &text)
 
 void AbstractPrefsTree::on_tree_activated(QModelIndex index)
 {
-  QStandardItem *item = model()->itemFromIndex(proxy->mapToSource(index));
-  setItemButtonsEnabled(item && !item->hasChildren());
+  setItemButtonsEnabled(!proxy->hasChildren(index));
 }
 
 void AbstractPrefsTree::on_tree_doubleClicked(QModelIndex modelIndex)
@@ -140,7 +145,7 @@ void AbstractPrefsTree::on_tree_doubleClicked(QModelIndex modelIndex)
 
 size_t AbstractPrefsTree::clientIndex(QModelIndex index) const
 {
-  const QVariant data = model()->data(proxy->mapToSource(index));
+  const QVariant data = proxy->data(index, Qt::UserRole + 1);
   if (!data.canConvert<size_t>())
     return invalidIndex;
   return data.value<size_t>();
