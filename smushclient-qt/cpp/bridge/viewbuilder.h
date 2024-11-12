@@ -1,45 +1,32 @@
 #ifndef VIEWBUILDER_H
 #define VIEWBUILDER_H
 
-#include <QtWidgets/QTableWidget>
-#include <QtWidgets/QTreeWidget>
+#include <QtGui/QStandardItemModel>
 
-class TableBuilder
+class ModelBuilder : public QObject
 {
 public:
-  explicit TableBuilder(QTableWidget *table);
+  explicit ModelBuilder(QObject *parent = nullptr);
+  ~ModelBuilder();
 
-  void setRowCount(int rows) const;
-  void startRow(const QVariant &data);
-  void addColumn(const QString &text);
-  void addColumn(bool value);
-
-private:
-  QTableWidget *table;
-  QString yes;
-  QString no;
-  QVariant rowData;
-  int row;
-  int column;
-};
-
-class TreeBuilder
-{
-public:
-  explicit TreeBuilder(QTreeWidget *tree);
-
+  inline constexpr QStandardItemModel *model() const noexcept { return items; }
+  void clear();
   void startGroup(const QString &name);
-  void startRow(const QVariant &data);
   void addColumn(const QString &text);
-  void addColumn(qlonglong value) { addColumn(QString::number(value)); }
-  void addColumn(qulonglong value) { addColumn(QString::number(value)); }
-  void addColumn(double value) { addColumn(QString::number(value, 'g', 2)); }
+  inline void addColumn(qlonglong value) { addColumn(QString::number(value)); }
+  inline void addColumn(qulonglong value) { addColumn(QString::number(value)); }
+  inline void addColumn(double value) { addColumn(QString::number(value, 'g', 2)); }
+  inline void addColumn(bool value) { addColumn(value ? yes : no); }
+  void finishRow(const QVariant &data);
+  void startReplacement(const QModelIndex &index);
 
 private:
-  QTreeWidget *tree;
-  QTreeWidgetItem *group;
-  QTreeWidgetItem *item;
-  int column;
+  QStandardItemModel *items;
+  QStandardItem *group;
+  QList<QStandardItem *> row;
+  QModelIndex replacing;
+  QString no;
+  QString yes;
 };
 
 #endif // VIEWBUILDER_H

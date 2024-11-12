@@ -3,67 +3,65 @@
 
 // Public methods
 
-TableBuilder::TableBuilder(QTableWidget *table)
-    : table(table),
-      yes(QCoreApplication::translate("TableBuilder", "Yes")),
-      no(QCoreApplication::translate("TableBuilder", "No")),
-      rowData(),
-      row(-1),
-      column(0) {}
-
-void TableBuilder::setRowCount(int rows) const
+ModelBuilder::ModelBuilder(QObject *parent)
+    : QObject(parent),
+      row(),
+      replacing(),
+      no(tr("No")),
+      yes(tr("Yes"))
 {
-  table->setRowCount(rows);
+  items = new QStandardItemModel(this);
+  group = items->invisibleRootItem();
 }
 
-void TableBuilder::startRow(const QVariant &data)
+ModelBuilder::~ModelBuilder()
 {
-  ++row;
-  column = 0;
-  rowData = data;
+  qDeleteAll(row);
+  row.clear();
 }
 
-void TableBuilder::addColumn(const QString &text)
+void ModelBuilder::clear()
 {
-  QTableWidgetItem *item = new QTableWidgetItem(text);
-  item->setData(Qt::UserRole, rowData);
-  table->setItem(row, column, item);
-  ++column;
+  qDeleteAll(row);
+  items->clear();
+  group = items->invisibleRootItem();
+  row.clear();
 }
 
-void TableBuilder::addColumn(bool value)
+void ModelBuilder::startGroup(const QString &name)
 {
-  addColumn(value ? yes : no);
+  group = name.isEmpty() ? new QStandardItem(tr("(ungrouped)")) : new QStandardItem(name);
+  items->appendRow(group);
 }
 
-TreeBuilder::TreeBuilder(QTreeWidget *tree)
-    : tree(tree),
-      group(nullptr),
-      item(nullptr),
-      column(0) {}
-
-void TreeBuilder::startGroup(const QString &name)
+void ModelBuilder::addColumn(const QString &text)
 {
-  group = new QTreeWidgetItem(tree);
-  group->setText(0, name);
-  group->setExpanded(true);
-}
-
-void TreeBuilder::startRow(const QVariant &data)
-{
-  if (!group)
-    startGroup(tree->tr("(ungrouped)"));
-
-  item = new QTreeWidgetItem(group);
-  item->setData(0, Qt::UserRole, data);
-  column = 0;
-}
-
-void TreeBuilder::addColumn(const QString &text)
-{
-  if (!item)
+  if (!replacing.isValid())
+  {
+    row.push_back(new QStandardItem(text));
     return;
+  }
+  QStandardItem *item = items->itemFromIndex(replacing);
+  if (!item)
+  {
+    replacing = QModelIndex();
+    return;
+  }
+  item->setText(text);
+  replacing = replacing.siblingAtColumn(replacing.column() + 1);
+  return;
+}
 
-  item->setText(column, text);
-  ++column;
+void ModelBuilder::finishRow(const QVariant &data)
+{
+  for (QStandardItem *item : row)
+    item->setData(data);
+  group->appendRow(row);
+  row.clear();
+  replacing = QModelIndex();
+}
+
+void ModelBuilder::startReplacement(const QModelIndex &index)
+{
+  replacing = index;
 }

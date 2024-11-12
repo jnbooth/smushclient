@@ -12,9 +12,8 @@ PrefsTriggers::PrefsTriggers(const World &world, SmushClient &client, QWidget *p
   ui->setupUi(this);
   CONNECT_WORLD(EnableTriggers);
   client.stopTriggers();
-  ui->tree->clear();
-  TreeBuilder builder(ui->tree);
-  ui->item_count->setNum((int)client.buildTriggersTree(builder));
+  ui->tree->setModel(model());
+  AbstractPrefsTree::buildTree();
 }
 
 PrefsTriggers::~PrefsTriggers()
@@ -35,9 +34,9 @@ bool PrefsTriggers::addItem()
   return true;
 }
 
-void PrefsTriggers::buildTree(TreeBuilder &builder)
+void PrefsTriggers::buildTree(ModelBuilder &builder)
 {
-  ui->item_count->setNum((int)client.buildTriggersTree(builder));
+  ui->item_count->setNum((int)client.buildTriggersTree(builder, true));
 }
 
 bool PrefsTriggers::editItem(size_t index)
@@ -71,7 +70,7 @@ void PrefsTriggers::setItemButtonsEnabled(bool enabled)
   ui->edit->setEnabled(enabled);
 }
 
-QTreeWidget *PrefsTriggers::tree() const
+QTreeView *PrefsTriggers::tree()
 {
   return ui->tree;
 }

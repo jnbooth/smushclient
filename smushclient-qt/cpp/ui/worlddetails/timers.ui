@@ -27,7 +27,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QTreeWidget" name="tree">
+    <widget class="QTreeView" name="tree">
      <property name="dragEnabled">
       <bool>false</bool>
      </property>
@@ -49,31 +49,6 @@
      <property name="allColumnsShowFocus">
       <bool>true</bool>
      </property>
-     <column>
-      <property name="text">
-       <string>Label</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Type</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>When</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Send</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Next</string>
-      </property>
-     </column>
     </widget>
    </item>
    <item>

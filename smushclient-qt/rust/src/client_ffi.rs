@@ -75,23 +75,23 @@ impl ffi::SmushClient {
         self.cxx_qt_ffi_rust().plugin_info(index, info_type)
     }
 
-    pub fn build_plugins_table(&self, table: Pin<&mut ffi::TableBuilder>) -> usize {
+    pub fn build_plugins_table(&self, table: Pin<&mut ffi::ModelBuilder>) -> usize {
         self.cxx_qt_ffi_rust().build_plugins_table(table.into())
     }
 
-    pub fn build_aliases_tree(&self, tree: Pin<&mut ffi::TreeBuilder>) -> usize {
+    pub fn build_aliases_tree(&self, tree: Pin<&mut ffi::ModelBuilder>, group: bool) -> usize {
         self.cxx_qt_ffi_rust()
-            .build_senders_tree::<Alias>(tree.into())
+            .build_senders_tree::<Alias>(tree.into(), group)
     }
 
-    pub fn build_timers_tree(&self, tree: Pin<&mut ffi::TreeBuilder>) -> usize {
+    pub fn build_timers_tree(&self, tree: Pin<&mut ffi::ModelBuilder>, group: bool) -> usize {
         self.cxx_qt_ffi_rust()
-            .build_senders_tree::<Timer>(tree.into())
+            .build_senders_tree::<Timer>(tree.into(), group)
     }
 
-    pub fn build_triggers_tree(&self, tree: Pin<&mut ffi::TreeBuilder>) -> usize {
+    pub fn build_triggers_tree(&self, tree: Pin<&mut ffi::ModelBuilder>, group: bool) -> usize {
         self.cxx_qt_ffi_rust()
-            .build_senders_tree::<Trigger>(tree.into())
+            .build_senders_tree::<Trigger>(tree.into(), group)
     }
 
     pub fn add_plugin(self: Pin<&mut Self>, path: &QString) -> QString {

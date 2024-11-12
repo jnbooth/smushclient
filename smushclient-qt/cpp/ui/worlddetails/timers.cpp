@@ -13,9 +13,8 @@ PrefsTimers::PrefsTimers(const World &world, SmushClient &client, Timekeeper *ti
   ui->setupUi(this);
   CONNECT_WORLD(EnableTimers);
   client.stopTimers();
-  ui->tree->clear();
-  TreeBuilder builder(ui->tree);
-  ui->item_count->setNum((int)client.buildTimersTree(builder));
+  ui->tree->setModel(model());
+  AbstractPrefsTree::buildTree();
 }
 
 PrefsTimers::~PrefsTimers()
@@ -36,9 +35,9 @@ bool PrefsTimers::addItem()
   return true;
 }
 
-void PrefsTimers::buildTree(TreeBuilder &builder)
+void PrefsTimers::buildTree(ModelBuilder &builder)
 {
-  ui->item_count->setNum((int)client.buildTimersTree(builder));
+  ui->item_count->setNum((int)client.buildTimersTree(builder, true));
 }
 
 bool PrefsTimers::editItem(size_t index)
@@ -72,7 +71,7 @@ void PrefsTimers::setItemButtonsEnabled(bool enabled)
   ui->edit->setEnabled(enabled);
 }
 
-QTreeWidget *PrefsTimers::tree() const
+QTreeView *PrefsTimers::tree()
 {
   return ui->tree;
 }

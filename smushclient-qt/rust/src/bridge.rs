@@ -371,31 +371,22 @@ pub mod ffi {
     extern "C++Qt" {
         include!("viewbuilder.h");
 
-        type TableBuilder;
-
-        #[rust_name = "set_row_count"]
-        unsafe fn setRowCount(self: &TableBuilder, rows: i32);
-        #[rust_name = "start_row"]
-        unsafe fn startRow(self: Pin<&mut TableBuilder>, data: &QVariant);
-        #[rust_name = "add_column"]
-        unsafe fn addColumn(self: Pin<&mut TableBuilder>, text: &QString);
-        #[rust_name = "add_column_bool"]
-        unsafe fn addColumn(self: Pin<&mut TableBuilder>, value: bool);
-
-        type TreeBuilder;
+        type ModelBuilder;
 
         #[rust_name = "start_group"]
-        unsafe fn startGroup(self: Pin<&mut TreeBuilder>, text: &QString);
-        #[rust_name = "start_row"]
-        unsafe fn startRow(self: Pin<&mut TreeBuilder>, data: &QVariant);
+        unsafe fn startGroup(self: Pin<&mut ModelBuilder>, text: &QString);
         #[rust_name = "add_column"]
-        unsafe fn addColumn(self: Pin<&mut TreeBuilder>, text: &QString);
+        unsafe fn addColumn(self: Pin<&mut ModelBuilder>, text: &QString);
+        #[rust_name = "add_column_bool"]
+        unsafe fn addColumn(self: Pin<&mut ModelBuilder>, value: bool);
         #[rust_name = "add_column_signed"]
-        unsafe fn addColumn(self: Pin<&mut TreeBuilder>, value: i64);
+        unsafe fn addColumn(self: Pin<&mut ModelBuilder>, value: i64);
         #[rust_name = "add_column_unsigned"]
-        unsafe fn addColumn(self: Pin<&mut TreeBuilder>, value: u64);
+        unsafe fn addColumn(self: Pin<&mut ModelBuilder>, value: u64);
         #[rust_name = "add_column_floating"]
-        unsafe fn addColumn(self: Pin<&mut TreeBuilder>, value: f64);
+        unsafe fn addColumn(self: Pin<&mut ModelBuilder>, value: f64);
+        #[rust_name = "finish_row"]
+        unsafe fn finishRow(self: Pin<&mut ModelBuilder>, data: &QVariant);
     }
 
     enum PluginInfo {
@@ -502,10 +493,22 @@ pub mod ffi {
         fn plugin_info(self: &SmushClient, index: usize, info_type: u8) -> QVariant;
         fn add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> QString;
         fn remove_plugin(self: Pin<&mut SmushClient>, plugin_id: &QString) -> bool;
-        fn build_plugins_table(self: &SmushClient, table: Pin<&mut TableBuilder>) -> usize;
-        fn build_aliases_tree(self: &SmushClient, tree: Pin<&mut TreeBuilder>) -> usize;
-        fn build_timers_tree(self: &SmushClient, tree: Pin<&mut TreeBuilder>) -> usize;
-        fn build_triggers_tree(self: &SmushClient, tree: Pin<&mut TreeBuilder>) -> usize;
+        fn build_plugins_table(self: &SmushClient, table: Pin<&mut ModelBuilder>) -> usize;
+        fn build_aliases_tree(
+            self: &SmushClient,
+            tree: Pin<&mut ModelBuilder>,
+            group: bool,
+        ) -> usize;
+        fn build_timers_tree(
+            self: &SmushClient,
+            tree: Pin<&mut ModelBuilder>,
+            group: bool,
+        ) -> usize;
+        fn build_triggers_tree(
+            self: &SmushClient,
+            tree: Pin<&mut ModelBuilder>,
+            group: bool,
+        ) -> usize;
         fn plugin_scripts(self: &SmushClient) -> Vec<PluginPack>;
         fn read(
             self: Pin<&mut SmushClient>,

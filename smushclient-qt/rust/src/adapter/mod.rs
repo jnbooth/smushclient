@@ -31,14 +31,11 @@ macro_rules! adapter {
 mod document;
 pub use document::{DocumentAdapter, QColorPair};
 
+mod model_builder;
+pub use model_builder::{ModelBuilderAdapter, RowInsertable};
+
 mod socket;
 pub use socket::SocketAdapter;
 
 mod timekeeper;
 pub use timekeeper::TimekeeperAdapter;
-
-mod table_builder;
-pub use table_builder::TableBuilderAdapter;
-
-mod tree_builder;
-pub use tree_builder::{RowInsertable, TreeBuilderAdapter};

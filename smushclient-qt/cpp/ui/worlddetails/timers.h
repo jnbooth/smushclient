@@ -17,13 +17,13 @@ public:
 
 protected:
   bool addItem() override;
-  void buildTree(TreeBuilder &builder) override;
+  void buildTree(ModelBuilder &builder) override;
   bool editItem(size_t index) override;
   QString exportXml() const override;
   void importXml(const QString &text) override;
   void removeItem(size_t index) override;
   void setItemButtonsEnabled(bool enabled) override;
-  QTreeWidget *tree() const override;
+  QTreeView *tree() override;
 
 private:
   Ui::PrefsTimers *ui;

@@ -12,9 +12,8 @@ PrefsAliases::PrefsAliases(const World &world, SmushClient &client, QWidget *par
   ui->setupUi(this);
   CONNECT_WORLD(EnableAliases);
   client.stopAliases();
-  ui->tree->clear();
-  TreeBuilder builder(ui->tree);
-  ui->item_count->setNum((int)client.buildAliasesTree(builder));
+  ui->tree->setModel(model());
+  AbstractPrefsTree::buildTree();
 }
 
 PrefsAliases::~PrefsAliases()
@@ -35,9 +34,9 @@ bool PrefsAliases::addItem()
   return true;
 }
 
-void PrefsAliases::buildTree(TreeBuilder &builder)
+void PrefsAliases::buildTree(ModelBuilder &builder)
 {
-  ui->item_count->setNum((int)client.buildAliasesTree(builder));
+  ui->item_count->setNum((int)client.buildAliasesTree(builder, true));
 }
 
 bool PrefsAliases::editItem(size_t index)
@@ -71,7 +70,7 @@ void PrefsAliases::setItemButtonsEnabled(bool enabled)
   ui->edit->setEnabled(enabled);
 }
 
-QTreeWidget *PrefsAliases::tree() const
+QTreeView *PrefsAliases::tree()
 {
   return ui->tree;
 }

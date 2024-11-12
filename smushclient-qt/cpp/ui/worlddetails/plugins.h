@@ -1,5 +1,6 @@
 #pragma once
 #include <QtWidgets/QWidget>
+#include "../../bridge/viewbuilder.h"
 
 namespace Ui
 {
@@ -20,10 +21,13 @@ public:
 private:
   Ui::PrefsPlugins *ui;
   ScriptApi *api;
+  ModelBuilder *builder;
   SmushClient &client;
 
+private:
   void buildTable();
   void initPlugins();
+  constexpr QStandardItemModel *model() const noexcept { return builder->model(); }
 
 private slots:
   void on_button_add_clicked();

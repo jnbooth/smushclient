@@ -3,24 +3,23 @@
 #include <QtGui/QGuiApplication>
 #include <QtWidgets/QErrorMessage>
 #include "rust/cxx.h"
-#include "../../bridge/viewbuilder.h"
 
 using std::vector;
+
+constexpr size_t invalidIndex = SIZE_MAX;
 
 // Public methods
 
 AbstractPrefsTree::AbstractPrefsTree(QWidget *parent)
-    : QWidget(parent) {}
+    : QWidget(parent),
+      builder(new ModelBuilder(this)) {}
 
 // Protected methods
 
-QVariant AbstractPrefsTree::currentData() const
+void AbstractPrefsTree::buildTree()
 {
-  const QTreeWidgetItem *item = tree()->currentItem();
-  if (!item)
-    return QVariant();
-
-  return item->data(0, Qt::UserRole);
+  builder->clear();
+  return buildTree(*builder);
 }
 
 // Protected slots
@@ -33,11 +32,8 @@ void AbstractPrefsTree::on_add_clicked()
 
 void AbstractPrefsTree::on_edit_clicked()
 {
-  const QVariant data = currentData();
-  if (!data.canConvert<size_t>())
-    return;
-  const size_t index = data.value<size_t>();
-  if (editItem(index))
+  const size_t index = clientIndex(tree()->currentIndex());
+  if (index != invalidIndex && editItem(index))
     buildTree();
 }
 
@@ -68,50 +64,47 @@ void AbstractPrefsTree::on_import_xml_clicked()
 
 void AbstractPrefsTree::on_remove_clicked()
 {
-  QList<QTreeWidgetItem *> items = tree()->selectedItems();
+  const QModelIndexList items = tree()->selectionModel()->selectedIndexes();
   vector<size_t> indexes;
   indexes.reserve(items.size());
-  for (const QTreeWidgetItem *item : tree()->selectedItems())
-  {
-    QVariant data = item->data(0, Qt::UserRole);
-    if (!data.canConvert<size_t>())
-      continue;
-    const size_t index = data.value<size_t>();
-    indexes.push_back(index);
-  }
+
+  for (const QModelIndex &modelIndex : items)
+    if (size_t index = clientIndex(modelIndex); index != invalidIndex)
+      indexes.push_back(index);
+
   std::sort(indexes.rbegin(), indexes.rend());
   for (size_t index : indexes)
     removeItem(index);
   buildTree();
 }
 
-void AbstractPrefsTree::on_tree_itemActivated(QTreeWidgetItem *item)
+void AbstractPrefsTree::on_tree_activated(QModelIndex index)
 {
-  setItemButtonsEnabled(item && item->childCount() == 0);
+  QStandardItem *item = model()->itemFromIndex(index);
+  setItemButtonsEnabled(item && !item->hasChildren());
 }
 
-void AbstractPrefsTree::on_tree_itemDoubleClicked(QTreeWidgetItem *item)
+void AbstractPrefsTree::on_tree_doubleClicked(QModelIndex modelIndex)
 {
-  QTreeWidget *treeWidget = item->treeWidget();
-  if (treeWidget->selectedItems().size() > 1)
+  QItemSelectionModel *selection = tree()->selectionModel();
+  if (selection->selectedIndexes().size() > 1)
   {
-    treeWidget->clearSelection();
-    item->setSelected(true);
+    selection->clear();
+    selection->select(modelIndex, QItemSelectionModel::SelectionFlag::SelectCurrent);
   }
-  const QVariant data = item->data(0, Qt::UserRole);
-  if (!data.canConvert<size_t>())
-    return;
-  const size_t index = data.value<size_t>();
-  if (editItem(index))
+  if (size_t index = clientIndex(modelIndex); index != invalidIndex && editItem(index))
     buildTree();
 }
 
 // Private methods
 
-void AbstractPrefsTree::buildTree()
+size_t AbstractPrefsTree::clientIndex(QModelIndex index) const
 {
-  QTreeWidget *treeWidget = tree();
-  treeWidget->clear();
-  TreeBuilder builder(treeWidget);
-  buildTree(builder);
+  QStandardItem *item = model()->itemFromIndex(index);
+  if (!item)
+    return invalidIndex;
+  QVariant data = item->data(Qt::UserRole);
+  if (!data.canConvert<size_t>())
+    return invalidIndex;
+  return data.value<size_t>();
 }

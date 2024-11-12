@@ -4,8 +4,7 @@ use std::io;
 use std::io::Write;
 
 use crate::adapter::{
-    DocumentAdapter, RowInsertable, SocketAdapter, TableBuilderAdapter, TimekeeperAdapter,
-    TreeBuilderAdapter,
+    DocumentAdapter, ModelBuilderAdapter, RowInsertable, SocketAdapter, TimekeeperAdapter,
 };
 use crate::bridge::AliasOutcomes;
 use crate::convert::Convert;
@@ -176,9 +175,8 @@ impl SmushClientRust {
             .collect()
     }
 
-    pub fn build_plugins_table(&self, mut table: TableBuilderAdapter) -> usize {
+    pub fn build_plugins_table(&self, mut builder: ModelBuilderAdapter) -> usize {
         let plugins = self.client.plugins();
-        table.set_row_count(i32::try_from(plugins.len()).unwrap());
         let mut count = 0;
         for plugin in plugins {
             let metadata = &plugin.metadata;
@@ -186,26 +184,33 @@ impl SmushClientRust {
                 continue;
             }
             count += 1;
-            table.add_row(&QString::from(&metadata.id), plugin);
+            builder.add_row(&QString::from(&metadata.id), plugin);
         }
         count
     }
 
     pub fn build_senders_tree<T: SendIterable + RowInsertable>(
         &self,
-        mut tree: TreeBuilderAdapter,
+        mut builder: ModelBuilderAdapter,
+        group: bool,
     ) -> usize {
         let senders = T::from_world(self.client.world());
+        if !group {
+            for (index, item) in senders.iter().enumerate() {
+                builder.add_row(&u64::try_from(index).unwrap_or(u64::MAX), item);
+            }
+            return senders.len();
+        }
         let mut sorted_items: Vec<(usize, &T)> = senders.iter().enumerate().collect();
         sorted_items.sort_unstable_by_key(|(_, item)| (*item).as_ref());
         let mut last_group = "";
         for (index, item) in sorted_items {
             let group = item.as_ref().group.as_str();
             if group != last_group {
-                tree.start_group(&QString::from(group));
+                builder.start_group(&QString::from(group));
                 last_group = group;
             }
-            tree.add_row(&u64::try_from(index).unwrap_or(u64::MAX), item);
+            builder.add_row(&u64::try_from(index).unwrap_or(u64::MAX), item);
         }
         senders.len()
     }

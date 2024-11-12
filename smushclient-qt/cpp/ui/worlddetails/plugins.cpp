@@ -12,9 +12,11 @@ PrefsPlugins::PrefsPlugins(SmushClient &client, ScriptApi *api, QWidget *parent)
     : QWidget(parent),
       ui(new Ui::PrefsPlugins),
       api(api),
+      builder(new ModelBuilder(this)),
       client(client)
 {
   ui->setupUi(this);
+  ui->table->setModel(model());
   buildTable();
 }
 
@@ -27,9 +29,8 @@ PrefsPlugins::~PrefsPlugins()
 
 void PrefsPlugins::buildTable()
 {
-  ui->table->clear();
-  TableBuilder builder(ui->table);
-  client.buildPluginsTable(builder);
+  builder->clear();
+  client.buildPluginsTable(*builder);
 }
 
 void PrefsPlugins::initPlugins()
@@ -67,7 +68,7 @@ void PrefsPlugins::on_button_reinstall_clicked()
 
 void PrefsPlugins::on_button_remove_clicked()
 {
-  const QTableWidgetItem *item = ui->table->currentItem();
+  const QStandardItem *item = model()->itemFromIndex(ui->table->currentIndex());
   if (!item)
     return;
   if (!client.removePlugin(item->data(Qt::UserRole).toString()))
