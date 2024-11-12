@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>711</height>
+    <height>811</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -356,11 +356,11 @@
            <layout class="QHBoxLayout" name="_soundfile">
             <item>
              <widget class="QToolButton" name="Sound_test">
-              <property name="text">
-               <string>Test</string>
-              </property>
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Test</string>
               </property>
               <property name="icon">
                <iconset theme="audio-volume-high-symbolic"/>
