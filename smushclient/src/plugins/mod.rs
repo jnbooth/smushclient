@@ -5,7 +5,7 @@ mod effects;
 pub use effects::{AliasOutcome, CommandSource, SpanStyle, TriggerEffects};
 
 mod error;
-pub use error::{LoadError, LoadFailure};
+pub use error::LoadFailure;
 
 mod iter;
 pub use iter::SendIterable;

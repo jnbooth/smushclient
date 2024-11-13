@@ -1,19 +1,17 @@
 use core::str;
 use std::collections::HashSet;
-use std::fs::File;
-use std::io::{self, BufReader};
+use std::io::{self};
 use std::ops::{Deref, DerefMut};
 use std::path::Path;
 
 use super::effects::CommandSource;
 use super::effects::{AliasEffects, SpanStyle, TriggerEffects};
-use super::error::LoadError;
 use super::error::LoadFailure;
 use crate::client::PluginVariables;
 use crate::handler::{Handler, HandlerExt};
 use crate::world::World;
 use mud_transformer::Output;
-use smushclient_plugins::{Plugin, PluginIndex, SendTarget};
+use smushclient_plugins::{LoadError, Plugin, PluginIndex, SendTarget};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PluginEngine {
@@ -44,20 +42,33 @@ impl PluginEngine {
             .plugins
             .iter()
             .filter_map(|path| {
-                let path = path.as_ref();
                 let error = self.load_plugin(path).err()?;
                 Some(LoadFailure {
                     error,
-                    path: path.to_path_buf(),
+                    path: path.clone(),
                 })
             })
             .collect();
-        self.sort();
+        self.plugins.sort_unstable();
         if errors.is_empty() {
             Ok(())
         } else {
             Err(errors)
         }
+    }
+
+    pub fn reinstall_plugin(&mut self, id: &str) -> Result<bool, LoadError> {
+        let (index, plugin) = self
+            .plugins
+            .iter_mut()
+            .enumerate()
+            .find(|(_, plugin)| plugin.metadata.id == id)
+            .ok_or(io::ErrorKind::NotFound)?;
+        let path = plugin.metadata.path.clone();
+        plugin.disabled = true;
+        *plugin = Plugin::load(&path)?;
+        self.plugins.sort_unstable();
+        Ok(self.plugins[index].metadata.id == id)
     }
 
     pub fn add_plugin<P: AsRef<Path>>(
@@ -73,7 +84,7 @@ impl PluginEngine {
             return Err(io::Error::from(io::ErrorKind::AlreadyExists).into());
         }
         self.load_plugin(path)?;
-        self.sort();
+        self.plugins.sort_unstable();
         Ok(self
             .plugins
             .iter()
@@ -83,11 +94,7 @@ impl PluginEngine {
     }
 
     fn load_plugin(&mut self, path: &Path) -> Result<&Plugin, LoadError> {
-        let file = File::open(path)?;
-        let reader = BufReader::new(file);
-        let mut plugin = Plugin::from_xml(reader)?;
-
-        plugin.metadata.path = path.to_path_buf();
+        let plugin = Plugin::load(path)?;
         self.plugins.push(plugin);
         Ok(self.plugins.last().unwrap())
     }
@@ -112,10 +119,6 @@ impl PluginEngine {
         } else {
             self.plugins.push(plugin);
         }
-        self.sort();
-    }
-
-    fn sort(&mut self) {
         self.plugins.sort_unstable();
     }
 

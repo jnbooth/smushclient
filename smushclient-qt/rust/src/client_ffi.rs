@@ -8,7 +8,7 @@ use crate::results::{IntoErrorCode, IntoResultCode};
 use cxx_qt_lib::{QColor, QString, QStringList, QVariant, QVector};
 use smushclient::world::PersistError;
 use smushclient::{AliasBool, SendIterable, TimerBool, TriggerBool};
-use smushclient_plugins::{Alias, PluginIndex, RegexError, Timer, Trigger, XmlError};
+use smushclient_plugins::{Alias, LoadError, PluginIndex, RegexError, Timer, Trigger, XmlError};
 
 impl ffi::SmushClient {
     pub fn world_sender<T: SendIterable>(&self, index: usize) -> Option<&T> {
@@ -114,6 +114,13 @@ impl ffi::SmushClient {
 
     pub fn plugin_scripts(&self) -> Vec<ffi::PluginPack> {
         self.cxx_qt_ffi_rust().plugin_scripts()
+    }
+
+    pub fn reinstall_plugin(
+        self: Pin<&mut Self>,
+        plugin_id: &QString,
+    ) -> Result<Vec<ffi::PluginPack>, LoadError> {
+        self.cxx_qt_ffi_rust_mut().reinstall_plugin(plugin_id)
     }
 
     pub fn read(

@@ -8,13 +8,13 @@ use super::variables::{LuaStr, LuaString};
 use crate::collections::SortOnDrop;
 use crate::handler::Handler;
 use crate::plugins::{
-    AliasOutcome, CommandSource, LoadError, LoadFailure, PluginEngine, SendIterable,
-    SenderAccessError, TriggerEffects,
+    AliasOutcome, CommandSource, LoadFailure, PluginEngine, SendIterable, SenderAccessError,
+    TriggerEffects,
 };
 use crate::world::{PersistError, World};
 use enumeration::EnumSet;
 use mud_transformer::{OutputFragment, Tag, Transformer, TransformerConfig};
-use smushclient_plugins::{CursorVec, Plugin, PluginIndex, XmlError};
+use smushclient_plugins::{CursorVec, LoadError, Plugin, PluginIndex, XmlError};
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
@@ -295,8 +295,16 @@ impl SmushClient {
         Some(plugin)
     }
 
+    pub fn reinstall_plugin(&mut self, id: &str) -> Result<bool, LoadError> {
+        self.plugins.reinstall_plugin(id)
+    }
+
     pub fn plugins(&self) -> slice::Iter<Plugin> {
         self.plugins.iter()
+    }
+
+    pub fn plugin(&self, index: PluginIndex) -> &Plugin {
+        &self.plugins[index]
     }
 
     pub fn has_variables(&self) -> bool {

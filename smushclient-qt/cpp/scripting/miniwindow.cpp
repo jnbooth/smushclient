@@ -423,11 +423,6 @@ const QPixmap *MiniWindow::findImage(string_view imageID) const
   return &search->second;
 }
 
-int MiniWindow::getZOrder() const noexcept
-{
-  return zOrder;
-}
-
 void MiniWindow::invert(const QRect &rectBase, QImage::InvertMode mode)
 {
   const QRect rect = normalizeRect(rectBase);

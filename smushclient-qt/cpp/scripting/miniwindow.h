@@ -113,8 +113,9 @@ public:
   inline bool drawsUnderneath() const noexcept { return flags.testFlag(Flag::DrawUnderneath); }
   QVariant execMenu(const QPoint &location, std::string_view menuString);
   Hotspot *findHotspot(std::string_view hotspotID) const;
-  int getZOrder() const noexcept;
-  inline const QPixmap &getPixmap() const noexcept { return pixmap; }
+  constexpr const std::string &getPluginId() const noexcept { return pluginID; }
+  constexpr const QPixmap &getPixmap() const noexcept { return pixmap; }
+  constexpr int getZOrder() const noexcept { return zOrder; }
   QVariant info(int infoType) const;
   void invert(const QRect &rect, QImage::InvertMode mode = QImage::InvertMode::InvertRgb);
   void reset();

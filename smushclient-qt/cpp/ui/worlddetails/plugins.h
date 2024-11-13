@@ -25,6 +25,7 @@ private:
   SmushClient &client;
 
 private:
+  QString activePluginId();
   void buildTable();
   void initPlugins();
   constexpr QStandardItemModel *model() const noexcept { return builder->model(); }

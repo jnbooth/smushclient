@@ -13,7 +13,7 @@ use smushclient::{
     AliasBool, CommandSource, SendRequest, SendScriptRequest, TimerBool, TimerConstructible,
     TriggerBool,
 };
-use smushclient_plugins::{PluginIndex, Regex, SendTarget, Timer};
+use smushclient_plugins::{Plugin, PluginIndex, Regex, SendTarget, Timer};
 
 impl_convert_enum!(ffi::SendTo, SendTo, Internet, World, Input);
 
@@ -223,6 +223,18 @@ impl TimerConstructible for ffi::SendTimer {
             target: timer.send_to.into(),
             text: QString::from(&timer.text),
             destination: QString::from(timer.destination()),
+        }
+    }
+}
+
+impl From<&Plugin> for ffi::PluginPack {
+    fn from(value: &Plugin) -> Self {
+        Self {
+            id: QString::from(&value.metadata.id),
+            name: QString::from(&value.metadata.name),
+            path: QString::from(&*value.metadata.path.to_string_lossy()),
+            scriptData: value.script.as_ptr(),
+            scriptSize: value.script.len(),
         }
     }
 }

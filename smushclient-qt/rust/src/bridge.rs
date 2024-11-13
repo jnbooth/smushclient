@@ -510,6 +510,10 @@ pub mod ffi {
             group: bool,
         ) -> usize;
         fn plugin_scripts(self: &SmushClient) -> Vec<PluginPack>;
+        fn reinstall_plugin(
+            self: Pin<&mut SmushClient>,
+            plugin_id: &QString,
+        ) -> Result<Vec<PluginPack>>;
         fn read(
             self: Pin<&mut SmushClient>,
             device: Pin<&mut QTcpSocket>,

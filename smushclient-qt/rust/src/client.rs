@@ -22,7 +22,7 @@ use smushclient::{
     BoolProperty, CommandSource, Handler, SendIterable, SenderAccessError, SmushClient, Timers,
     World,
 };
-use smushclient_plugins::{Alias, PluginIndex, Timer, Trigger, XmlError};
+use smushclient_plugins::{Alias, LoadError, PluginIndex, Timer, Trigger, XmlError};
 
 const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Bold,
@@ -163,16 +163,22 @@ impl SmushClientRust {
     }
 
     pub fn plugin_scripts(&self) -> Vec<ffi::PluginPack> {
-        self.client
+        self.client.plugins().map(ffi::PluginPack::from).collect()
+    }
+
+    pub fn reinstall_plugin(&mut self, id: &QString) -> Result<Vec<ffi::PluginPack>, LoadError> {
+        let id = String::from(id);
+        if !self.client.reinstall_plugin(&id)? {
+            return Ok(self.plugin_scripts());
+        }
+        match self
+            .client
             .plugins()
-            .map(|plugin| ffi::PluginPack {
-                id: QString::from(&plugin.metadata.id),
-                name: QString::from(&plugin.metadata.name),
-                path: QString::from(&*plugin.metadata.path.to_string_lossy()),
-                scriptData: plugin.script.as_ptr(),
-                scriptSize: plugin.script.len(),
-            })
-            .collect()
+            .find(|plugin| plugin.metadata.id == id)
+        {
+            Some(plugin) => Ok(vec![plugin.into()]),
+            None => Ok(self.plugin_scripts()),
+        }
     }
 
     pub fn build_plugins_table(&self, mut builder: ModelBuilderAdapter) -> usize {

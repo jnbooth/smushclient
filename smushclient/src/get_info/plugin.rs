@@ -1,6 +1,5 @@
 use std::path::Path;
 
-use chrono::Utc;
 use smushclient_plugins::PluginIndex;
 
 use super::visitor::InfoVisitor;
@@ -40,7 +39,7 @@ impl SmushClient {
             19 => parse_double::<V>(&plugin.metadata.version),
             20 => V::visit_path(plugin.metadata.path.parent().unwrap_or(Path::new(""))),
             21 => V::visit_usize(index),
-            22 => V::visit_datetime(Utc::now()), // date/time plugin installed (date)
+            // 22 => V::visit_datetime(Utc::now()), // date/time plugin installed (handled by frontend)
             // 23 - during a CallPlugin call, the ID of the calling plugin (if any) (handled by frontend)
             24 => V::visit_double(0.0), // Time spent on scripting in this plugin (seconds, double)
             25 => V::visit_i16(plugin.metadata.sequence),

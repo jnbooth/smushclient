@@ -282,6 +282,7 @@ public:
   void finishNote();
   const Plugin *getPlugin(std::string_view pluginID) const;
   void initializePlugins(const rust::Vec<PluginPack> &plugins);
+  void reinstallPlugin(const PluginPack &plugin);
   inline bool isPluginEnabled(size_t plugin) const { return !plugins[plugin].disabled(); }
   void printError(const QString &message);
   void reloadWorldScript(const QString &worldScriptPath);

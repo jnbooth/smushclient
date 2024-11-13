@@ -10,6 +10,7 @@
 
 using std::optional;
 using std::string;
+using std::string_view;
 
 // Private utils
 
@@ -167,6 +168,22 @@ QVariant ScriptApi::GetLineInfo(int line, int infoType) const
     return whenConnected.secsTo(getTimestamp(block.blockFormat()));
   default:
     return QVariant();
+  }
+}
+
+QVariant ScriptApi::GetPluginInfo(string_view pluginID, int infoType) const
+{
+  const size_t index = findPluginIndex(pluginID);
+  if (index == noSuchPlugin || infoType < 0 || infoType > UINT8_MAX) [[unlikely]]
+    return QVariant();
+  switch (infoType)
+  {
+  case 16:
+    return QVariant(!plugins[index].disabled());
+  case 22:
+    return QVariant(plugins[index].installed());
+  default:
+    return client()->pluginInfo(index, infoType);
   }
 }
 

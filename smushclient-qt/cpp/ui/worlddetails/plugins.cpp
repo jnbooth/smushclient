@@ -35,6 +35,11 @@ PrefsPlugins::~PrefsPlugins()
 
 // Private methods
 
+QString PrefsPlugins::activePluginId()
+{
+  return model()->data(ui->table->currentIndex(), Qt::UserRole + 1).toString();
+}
+
 void PrefsPlugins::buildTable()
 {
   QHeaderView *header = ui->table->horizontalHeader();
@@ -77,12 +82,16 @@ void PrefsPlugins::on_button_add_clicked()
 
 void PrefsPlugins::on_button_reinstall_clicked()
 {
-  initPlugins();
+  const rust::Vec<PluginPack> packs = client.reinstallPlugin(activePluginId());
+  if (packs.size() == 1)
+    api->reinstallPlugin(packs.front());
+  else
+    api->initializePlugins(packs);
 }
 
 void PrefsPlugins::on_button_remove_clicked()
 {
-  if (!client.removePlugin(model()->data(ui->table->currentIndex()).toString()))
+  if (!client.removePlugin(activePluginId()))
     return;
 
   buildTable();

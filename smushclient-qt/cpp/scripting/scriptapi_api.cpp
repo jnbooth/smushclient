@@ -166,20 +166,6 @@ const string &ScriptApi::GetPluginID(size_t index) const
   return plugins.at(index).id();
 }
 
-QVariant ScriptApi::GetPluginInfo(string_view pluginID, int infoType) const
-{
-  const size_t index = findPluginIndex(pluginID);
-  if (index == noSuchPlugin || infoType < 0 || infoType > UINT8_MAX) [[unlikely]]
-    return QVariant();
-  switch (infoType)
-  {
-  case 16:
-    return QVariant(!plugins[index].disabled());
-  default:
-    return client()->pluginInfo(index, infoType);
-  }
-}
-
 void ScriptApi::Hyperlink(
     const QString &action,
     const QString &text,

@@ -1,9 +1,10 @@
 use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::fmt::Write;
+use std::fs::File;
 use std::hash::Hash;
-use std::io::BufRead;
-use std::path::PathBuf;
+use std::io::{BufRead, BufReader};
+use std::path::{Path, PathBuf};
 use std::str;
 
 use chrono::{Local, NaiveDate, NaiveDateTime};
@@ -11,6 +12,7 @@ pub use quick_xml::DeError as PluginLoadError;
 use serde::{Deserialize, Serialize};
 
 use crate::cursor_vec::CursorVec;
+use crate::error::LoadError;
 use crate::in_place::InPlace;
 use crate::send::{Alias, AliasXml, Timer, TimerXml, Trigger, TriggerXml};
 
@@ -69,6 +71,15 @@ impl Plugin {
 
     pub fn to_xml_string(&self) -> Result<String, PluginLoadError> {
         quick_xml::se::to_string(self)
+    }
+
+    pub fn load<P: AsRef<Path>>(path: P) -> Result<Self, LoadError> {
+        let path = path.as_ref();
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+        let mut this = Self::from_xml(reader)?;
+        this.metadata.path = path.to_path_buf();
+        Ok(this)
     }
 }
 

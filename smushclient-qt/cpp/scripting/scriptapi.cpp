@@ -196,37 +196,50 @@ void ScriptApi::initializePlugins(const rust::Vec<PluginPack> &pack)
   size_t index = 0;
   for (auto start = pack.cbegin(), it = start, end = pack.cend(); it != end; ++it, ++index)
   {
-    PluginMetadata metadata{
-        .id = it->id.toStdString(),
-        .index = index,
-        .name = it->name.toStdString(),
-    };
+    PluginMetadata metadata(*it, index);
     if (metadata.id.empty())
       worldScriptIndex = index;
     pluginIndices[metadata.id] = index;
-    Plugin &plugin = plugins.emplace_back(this, std::move(metadata));
-    if (it->scriptSize && !plugin.runScript(string_view(reinterpret_cast<const char *>(it->scriptData), it->scriptSize)))
+    Plugin &plugin = plugins.emplace_back(this, *it, index);
+    if (plugin.metadata.id.empty())
+      worldScriptIndex = index;
+    pluginIndices[plugin.metadata.id] = index;
+    if (plugin.install(*it))
     {
-      plugin.disable();
-      continue;
+      callbackFilter.scan(plugin.state());
+      client()->startTimers(index, *timekeeper);
     }
-    QString scriptPath = it->path;
-    if (!scriptPath.isEmpty())
-    {
-      if (index != worldScriptIndex)
-        scriptPath.replace(scriptPath.size() - 3, 3, QStringLiteral("lua"));
-      const QFileInfo info(scriptPath);
-      if (info.isFile() && info.isReadable() && !plugin.runFile(scriptPath))
-      {
-        plugin.disable();
-        continue;
-      }
-    }
-    callbackFilter.scan(plugin.state());
-    client()->startTimers(index, *timekeeper);
   }
   OnPluginInstall onInstall;
   sendCallback(onInstall);
+  OnPluginListChanged onListChanged;
+  sendCallback(onListChanged);
+}
+
+void ScriptApi::reinstallPlugin(const PluginPack &pack)
+{
+  const string pluginId = pack.id.toStdString();
+  size_t index = pluginIndices[pluginId];
+  if (!windows.empty())
+  {
+    for (auto it = windows.begin(); it != windows.end();)
+      if (MiniWindow *window = it->second; window->getPluginId() == pluginId)
+      {
+        delete window;
+        it = windows.erase(it);
+      }
+      else
+        ++it;
+  }
+  Plugin &plugin = plugins[index];
+  plugin.metadata = PluginMetadata(pack, index);
+  plugin.reset();
+  if (!plugin.install(pack))
+    return;
+  callbackFilter.scan(plugin.state());
+  client()->startTimers(index, *timekeeper);
+  OnPluginInstall onInstall;
+  sendCallback(onInstall, index);
   OnPluginListChanged onListChanged;
   sendCallback(onListChanged);
 }
@@ -243,7 +256,7 @@ void ScriptApi::reloadWorldScript(const QString &worldScriptPath)
   if (worldScriptIndex == noSuchPlugin)
     return;
   Plugin &worldPlugin = plugins[worldScriptIndex];
-  worldPlugin.reset(this);
+  worldPlugin.reset();
 
   if (worldScriptPath.isEmpty())
     return;

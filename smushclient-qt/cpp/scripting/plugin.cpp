@@ -1,5 +1,6 @@
 #include "plugin.h"
 #include <QtCore/QCoreApplication>
+#include <QtCore/QFileInfo>
 #include <QtWidgets/QErrorMessage>
 #include "errors.h"
 #include "luaapi.h"
@@ -66,21 +67,29 @@ void setlib(lua_State *L, const char *name)
   lua_setfield(L, 1, name);
 }
 
+// Metadata
+
+PluginMetadata::PluginMetadata(const PluginPack &pack, size_t index)
+    : id(pack.id.toStdString()),
+      index(index),
+      installed(QDateTime::currentDateTimeUtc()),
+      name(pack.name.toStdString()) {}
+
 // Public methods
 
-Plugin::Plugin(ScriptApi *api, PluginMetadata &&metadata)
-    : L(nullptr),
+Plugin::Plugin(ScriptApi *api, const PluginPack &pack, size_t index)
+    : metadata(pack, index),
+      L(nullptr),
       isDisabled(false),
-      metadata(metadata),
       moved(false)
 {
   reset(api);
 }
 
 Plugin::Plugin(Plugin &&other)
-    : L(other.L),
+    : metadata(std::move(other.metadata)),
+      L(other.L),
       isDisabled(other.isDisabled),
-      metadata(std::move(other.metadata)),
       moved(false)
 {
   other.moved = true;
@@ -108,6 +117,34 @@ bool Plugin::hasFunction(const char *name) const
   const bool isFunction = lua_getglobal(L, name) == LUA_TFUNCTION;
   lua_pop(L, 1);
   return isFunction;
+}
+
+bool Plugin::install(const PluginPack &pack)
+{
+  if (pack.scriptSize && !runScript(string_view(reinterpret_cast<const char *>(pack.scriptData), pack.scriptSize)))
+  {
+    disable();
+    return false;
+  }
+  QString scriptPath = pack.path;
+  if (scriptPath.isEmpty())
+    return true;
+
+  if (!pack.id.isEmpty())
+    scriptPath.replace(scriptPath.size() - 3, 3, QStringLiteral("lua"));
+
+  const QFileInfo info(scriptPath);
+  if (info.isFile() && info.isReadable() && !runFile(scriptPath))
+  {
+    disable();
+    return false;
+  }
+  return true;
+}
+
+void Plugin::reset()
+{
+  reset(&getApi(L));
 }
 
 void Plugin::reset(ScriptApi *api)
