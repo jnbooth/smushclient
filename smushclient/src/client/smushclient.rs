@@ -303,10 +303,6 @@ impl SmushClient {
         self.plugins.iter()
     }
 
-    pub fn plugin(&self, index: PluginIndex) -> &Plugin {
-        &self.plugins[index]
-    }
-
     pub fn has_variables(&self) -> bool {
         self.variables
             .values()

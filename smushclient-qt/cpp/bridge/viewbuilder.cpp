@@ -21,6 +21,11 @@ ModelBuilder::~ModelBuilder()
   row.clear();
 }
 
+bool ModelBuilder::getBool(QModelIndex index) const
+{
+  return items->itemFromIndex(index)->text() == yes;
+}
+
 void ModelBuilder::clear()
 {
   qDeleteAll(row);

@@ -10,6 +10,7 @@ use std::mem;
 
 use crate::client::SmushClientRust;
 use crate::convert::Convert;
+use crate::get_info::PluginDetailsRust;
 use crate::sender::{AliasRust, TimerRust, TriggerRust};
 use crate::sender::{OutputSpan, TextSpan};
 use crate::world::WorldRust;
@@ -109,6 +110,11 @@ pub mod ffi {
     unsafe extern "C++" {
         include!("cxx-qt-lib/qstringlist.h");
         type QStringList = cxx_qt_lib::QStringList;
+    }
+
+    unsafe extern "C++" {
+        include!("cxx-qt-lib/qdate.h");
+        type QDate = cxx_qt_lib::QDate;
     }
 
     unsafe extern "C++" {
@@ -460,6 +466,27 @@ pub mod ffi {
         Hotkey,
         Link,
         User,
+    }
+
+    extern "RustQt" {
+        #[qobject]
+        #[qproperty(QString, name)]
+        #[qproperty(QString, version)]
+        #[qproperty(QString, author)]
+        #[qproperty(QDate, written)]
+        #[qproperty(QDate, modified)]
+        #[qproperty(QString, id)]
+        #[qproperty(QString, file)]
+        #[qproperty(QString, description)]
+        type PluginDetails = super::PluginDetailsRust;
+    }
+
+    impl
+        cxx_qt::Constructor<
+            (*const SmushClient, QString),
+            NewArguments = (*const SmushClient, QString),
+        > for PluginDetails
+    {
     }
 
     extern "RustQt" {

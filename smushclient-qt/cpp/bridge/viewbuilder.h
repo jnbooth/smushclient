@@ -12,6 +12,7 @@ public:
   ~ModelBuilder();
 
   inline constexpr QStandardItemModel *model() const noexcept { return items; }
+  bool getBool(QModelIndex index) const;
   void clear();
   void setHeaders(const QStringList &headers);
   void startGroup(const QString &name);

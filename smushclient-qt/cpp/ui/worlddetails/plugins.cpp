@@ -2,6 +2,7 @@
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QFileDialog>
 #include "ui_plugins.h"
+#include "pluginpopup.h"
 #include "../../environment.h"
 #include "../../scripting/scriptapi.h"
 #include "../../settings.h"
@@ -87,6 +88,7 @@ void PrefsPlugins::on_button_reinstall_clicked()
     api->reinstallPlugin(packs.front());
   else
     api->initializePlugins(packs);
+  buildTable();
 }
 
 void PrefsPlugins::on_button_remove_clicked()
@@ -95,4 +97,35 @@ void PrefsPlugins::on_button_remove_clicked()
     return;
 
   buildTable();
+}
+
+void PrefsPlugins::on_button_enable_clicked()
+{
+  api->EnablePlugin(activePluginId().toStdString(), true);
+  buildTable();
+  ui->button_disable->setEnabled(false);
+  ui->button_disable->setEnabled(true);
+}
+
+void PrefsPlugins::on_button_showinfo_clicked()
+{
+  PluginPopup(client, activePluginId(), this).exec();
+}
+
+void PrefsPlugins::on_button_disable_clicked()
+{
+  api->EnablePlugin(activePluginId().toStdString(), false);
+  buildTable();
+  ui->button_disable->setEnabled(true);
+  ui->button_disable->setEnabled(false);
+}
+
+void PrefsPlugins::on_table_clicked(const QModelIndex &index)
+{
+  bool isEnabled = builder->getBool(index.siblingAtColumn(4));
+  ui->button_disable->setEnabled(isEnabled);
+  ui->button_enable->setEnabled(!isEnabled);
+  ui->button_reinstall->setEnabled(true);
+  ui->button_remove->setEnabled(true);
+  ui->button_showinfo->setEnabled(true);
 }

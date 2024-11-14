@@ -3,7 +3,7 @@ use std::ptr;
 use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike};
-use cxx_qt::{Constructor, Initialize};
+use cxx_qt::Initialize;
 use cxx_qt_lib::{QColor, QString, QTime};
 use enumeration::{Enum, EnumSet};
 use mud_transformer::mxp::RgbColor;
@@ -434,27 +434,6 @@ impl Initialize for ffi::Trigger {
     fn initialize(self: Pin<&mut Self>) {}
 }
 
-macro_rules! impl_constructor {
-    ($t:ty, $a:ty, { $i:item }) => {
-        impl Constructor<$a> for $t {
-            type BaseArguments = ();
-            type InitializeArguments = ();
-            type NewArguments = $a;
-
-            fn route_arguments(
-                args: Self::NewArguments,
-            ) -> (
-                Self::NewArguments,
-                Self::BaseArguments,
-                Self::InitializeArguments,
-            ) {
-                (args, (), ())
-            }
-
-            $i
-        }
-    };
-}
 impl_constructor!(ffi::Alias, (*const ffi::SmushClient, usize), {
     fn new((client, i): (*const ffi::SmushClient, usize)) -> AliasRust {
         match unsafe { &*client }.world_sender::<Alias>(i) {

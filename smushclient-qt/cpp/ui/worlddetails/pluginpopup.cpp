@@ -1,0 +1,23 @@
+#include "pluginpopup.h"
+#include "ui_pluginpopup.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
+
+PluginPopup::PluginPopup(const SmushClient &client, const QString &id, QWidget *parent)
+    : QDialog(parent), ui(new Ui::PluginPopup)
+{
+  ui->setupUi(this);
+  PluginDetails plugin(&client, id);
+  ui->author->setText(plugin.getAuthor());
+  ui->description->setText(plugin.getDescription());
+  ui->file->setText(plugin.getFile());
+  ui->id->setText(plugin.getId());
+  ui->name->setText(plugin.getName());
+  ui->updated->setText(plugin.getModified().toString());
+  ui->version->setText(plugin.getVersion());
+  ui->written->setText(plugin.getWritten().toString());
+}
+
+PluginPopup::~PluginPopup()
+{
+  delete ui;
+}

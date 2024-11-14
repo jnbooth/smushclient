@@ -34,4 +34,8 @@ private slots:
   void on_button_add_clicked();
   void on_button_reinstall_clicked();
   void on_button_remove_clicked();
+  void on_button_enable_clicked();
+  void on_button_showinfo_clicked();
+  void on_button_disable_clicked();
+  void on_table_clicked(const QModelIndex &index);
 };

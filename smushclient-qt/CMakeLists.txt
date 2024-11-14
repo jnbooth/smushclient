@@ -148,6 +148,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/worlddetails/worlddetails.h cpp/ui/worlddetails/worlddetails.cpp cpp/ui/worlddetails/worlddetails.ui
 
     resources/resources.qrc
+    cpp/ui/worlddetails/pluginpopup.h cpp/ui/worlddetails/pluginpopup.cpp cpp/ui/worlddetails/pluginpopup.ui
 )
 if(MSVC)
   target_compile_options(${APP_NAME} PRIVATE /W4 /WX)

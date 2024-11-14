@@ -100,6 +100,28 @@ macro_rules! impl_convert_enum_opt {
     }
 }
 
+macro_rules! impl_constructor {
+    ($t:ty, $a:ty, { $i:item }) => {
+        impl cxx_qt::Constructor<$a> for $t {
+            type BaseArguments = ();
+            type InitializeArguments = ();
+            type NewArguments = $a;
+
+            fn route_arguments(
+                args: Self::NewArguments,
+            ) -> (
+                Self::NewArguments,
+                Self::BaseArguments,
+                Self::InitializeArguments,
+            ) {
+                (args, (), ())
+            }
+
+            $i
+        }
+    };
+}
+
 pub trait Convert<T> {
     fn convert(&self) -> T;
 }
