@@ -4,6 +4,7 @@
 #include "ui_plugins.h"
 #include "pluginpopup.h"
 #include "../../environment.h"
+#include "../../model/plugin.h"
 #include "../../scripting/scriptapi.h"
 #include "../../settings.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
@@ -13,19 +14,14 @@
 PrefsPlugins::PrefsPlugins(SmushClient &client, ScriptApi *api, QWidget *parent)
     : QWidget(parent),
       ui(new Ui::PrefsPlugins),
-      api(api),
-      client(client)
+      api(api)
 {
+  model = new PluginModel(client, this);
   ui->setupUi(this);
-  builder = new ModelBuilder(this);
-  builder->setHeaders({tr("Name"),
-                       tr("Purpose"),
-                       tr("Author"),
-                       tr("Path"),
-                       tr("Enabled"),
-                       tr("Version")});
-  ui->table->setModel(model());
-  buildTable();
+  ui->table->setModel(model);
+  connect(model, &PluginModel::clientError, this, &PrefsPlugins::onClientError);
+  connect(model, &PluginModel::pluginOrderChanged, this, &PrefsPlugins::onPluginOrderChanged);
+  connect(model, &PluginModel::pluginScriptChanged, this, &PrefsPlugins::onPluginScriptChanged);
 }
 
 PrefsPlugins::~PrefsPlugins()
@@ -34,31 +30,22 @@ PrefsPlugins::~PrefsPlugins()
   delete ui;
 }
 
-// Private methods
-
-QString PrefsPlugins::activePluginId()
-{
-  return model()->data(ui->table->currentIndex(), Qt::UserRole + 1).toString();
-}
-
-void PrefsPlugins::buildTable()
-{
-  QHeaderView *header = ui->table->horizontalHeader();
-  const QByteArray headerState =
-      model()->rowCount() == 0 ? Settings().headerState(ModelType::Plugin) : header->saveState();
-
-  builder->clear();
-  client.buildPluginsTable(*builder);
-
-  header->restoreState(headerState);
-}
-
-void PrefsPlugins::initPlugins()
-{
-  api->initializePlugins(client.pluginScripts());
-}
-
 // Private slots
+
+void PrefsPlugins::onClientError(const QString &error)
+{
+  QErrorMessage::qtHandler()->showMessage(error);
+}
+
+void PrefsPlugins::onPluginOrderChanged()
+{
+  api->initializePlugins();
+}
+
+void PrefsPlugins::onPluginScriptChanged(size_t index)
+{
+  api->reinstallPlugin(index);
+}
 
 void PrefsPlugins::on_button_add_clicked()
 {
@@ -71,60 +58,26 @@ void PrefsPlugins::on_button_add_clicked()
   if (filePath.isEmpty())
     return;
 
-  const QString error = client.addPlugin(filePath);
-  if (!error.isEmpty())
-  {
-    QErrorMessage::qtHandler()->showMessage(error);
-    return;
-  }
-  initPlugins();
-  buildTable();
+  model->addPlugin(filePath);
 }
 
 void PrefsPlugins::on_button_reinstall_clicked()
 {
-  const rust::Vec<PluginPack> packs = client.reinstallPlugin(activePluginId());
-  if (packs.size() == 1)
-    api->reinstallPlugin(packs.front());
-  else
-    api->initializePlugins(packs);
-  buildTable();
+  model->reinstall(ui->table->currentIndex());
 }
 
 void PrefsPlugins::on_button_remove_clicked()
 {
-  if (!client.removePlugin(activePluginId()))
-    return;
-
-  buildTable();
-}
-
-void PrefsPlugins::on_button_enable_clicked()
-{
-  api->EnablePlugin(activePluginId().toStdString(), true);
-  buildTable();
-  ui->button_disable->setEnabled(false);
-  ui->button_disable->setEnabled(true);
+  model->removeRow(ui->table->currentIndex().row());
 }
 
 void PrefsPlugins::on_button_showinfo_clicked()
 {
-  PluginPopup(client, activePluginId(), this).exec();
-}
-
-void PrefsPlugins::on_button_disable_clicked()
-{
-  api->EnablePlugin(activePluginId().toStdString(), false);
-  buildTable();
-  ui->button_disable->setEnabled(true);
-  ui->button_disable->setEnabled(false);
+  PluginPopup(model->pluginDetails(ui->table->currentIndex()), this).exec();
 }
 
 void PrefsPlugins::on_table_clicked(const QModelIndex &index)
 {
-  bool isEnabled = builder->getBool(index.siblingAtColumn(4));
-  ui->button_disable->setEnabled(isEnabled);
-  ui->button_enable->setEnabled(!isEnabled);
   ui->button_reinstall->setEnabled(true);
   ui->button_remove->setEnabled(true);
   ui->button_showinfo->setEnabled(true);

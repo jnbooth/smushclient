@@ -1,12 +1,12 @@
 #pragma once
 #include <QtWidgets/QWidget>
-#include "../../bridge/viewbuilder.h"
 
 namespace Ui
 {
   class PrefsPlugins;
 }
 
+class PluginModel;
 class ScriptApi;
 class SmushClient;
 
@@ -21,21 +21,18 @@ public:
 private:
   Ui::PrefsPlugins *ui;
   ScriptApi *api;
-  ModelBuilder *builder;
-  SmushClient &client;
 
 private:
-  QString activePluginId();
-  void buildTable();
   void initPlugins();
-  constexpr QStandardItemModel *model() const noexcept { return builder->model(); }
+  PluginModel *model;
 
 private slots:
+  void onClientError(const QString &error);
+  void onPluginOrderChanged();
+  void onPluginScriptChanged(size_t pluginIndex);
   void on_button_add_clicked();
   void on_button_reinstall_clicked();
   void on_button_remove_clicked();
-  void on_button_enable_clicked();
   void on_button_showinfo_clicked();
-  void on_button_disable_clicked();
   void on_table_clicked(const QModelIndex &index);
 };

@@ -277,7 +277,10 @@ impl SmushClient {
         Ok(())
     }
 
-    pub fn add_plugin<P: AsRef<Path>>(&mut self, path: P) -> Result<&Plugin, LoadError> {
+    pub fn add_plugin<P: AsRef<Path>>(
+        &mut self,
+        path: P,
+    ) -> Result<(PluginIndex, &Plugin), LoadError> {
         let path = path.as_ref();
         let path = env::current_dir()
             .ok()
@@ -285,22 +288,30 @@ impl SmushClient {
             .unwrap_or(path);
         let index = self.plugins.add_plugin(path)?.0;
         self.update_world_plugins();
-        Ok(&self.plugins[index])
+        Ok((index, &self.plugins[index]))
     }
 
-    pub fn remove_plugin(&mut self, id: &str) -> Option<Plugin> {
-        let plugin = self.plugins.remove_plugin(id)?;
+    pub fn remove_plugin(&mut self, index: PluginIndex) -> Option<Plugin> {
+        let plugin = self.plugins.remove_plugin(index)?;
         let plugin_path = plugin.metadata.path.as_path();
         self.world.plugins.retain(|path| path != plugin_path);
         Some(plugin)
     }
 
-    pub fn reinstall_plugin(&mut self, id: &str) -> Result<bool, LoadError> {
-        self.plugins.reinstall_plugin(id)
+    pub fn reinstall_plugin(&mut self, index: PluginIndex) -> Result<usize, LoadError> {
+        self.plugins.reinstall_plugin(index)
     }
 
     pub fn plugins(&self) -> slice::Iter<Plugin> {
         self.plugins.iter()
+    }
+
+    pub fn plugin(&self, index: PluginIndex) -> Option<&Plugin> {
+        self.plugins.get(index)
+    }
+
+    pub fn plugins_len(&self) -> usize {
+        self.plugins.len()
     }
 
     pub fn has_variables(&self) -> bool {

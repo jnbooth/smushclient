@@ -57,18 +57,21 @@ impl PluginEngine {
         }
     }
 
-    pub fn reinstall_plugin(&mut self, id: &str) -> Result<bool, LoadError> {
-        let (index, plugin) = self
-            .plugins
-            .iter_mut()
-            .enumerate()
-            .find(|(_, plugin)| plugin.metadata.id == id)
-            .ok_or(io::ErrorKind::NotFound)?;
+    pub fn reinstall_plugin(&mut self, index: PluginIndex) -> Result<usize, LoadError> {
+        let plugin = self.plugins.get_mut(index).ok_or(io::ErrorKind::NotFound)?;
         let path = plugin.metadata.path.clone();
         plugin.disabled = true;
         *plugin = Plugin::load(&path)?;
+        let id = plugin.metadata.id.clone();
         self.plugins.sort_unstable();
-        Ok(self.plugins[index].metadata.id == id)
+        if self.plugins[index].metadata.id == id {
+            return Ok(index);
+        }
+        Ok(self
+            .plugins
+            .iter()
+            .position(|plugin| plugin.metadata.id == id)
+            .unwrap())
     }
 
     pub fn add_plugin<P: AsRef<Path>>(
@@ -99,14 +102,12 @@ impl PluginEngine {
         Ok(self.plugins.last().unwrap())
     }
 
-    pub fn remove_plugin(&mut self, id: &str) -> Option<Plugin> {
-        let index = self
-            .plugins
-            .iter()
-            .enumerate()
-            .find(|(_, plugin)| plugin.metadata.id == id)?
-            .0;
-        Some(self.plugins.remove(index))
+    pub fn remove_plugin(&mut self, index: PluginIndex) -> Option<Plugin> {
+        if index > self.plugins.len() {
+            None
+        } else {
+            Some(self.plugins.remove(index))
+        }
     }
 
     pub fn set_world_plugin(&mut self, plugin: Plugin) {

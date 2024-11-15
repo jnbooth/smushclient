@@ -3,22 +3,24 @@
 
 #include <QDialog>
 
+class PluginDetails;
 class SmushClient;
 
-namespace Ui {
-class PluginPopup;
+namespace Ui
+{
+  class PluginPopup;
 }
 
 class PluginPopup : public QDialog
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    PluginPopup(const SmushClient &client, const QString &id, QWidget *parent = nullptr);
-    ~PluginPopup();
+  PluginPopup(const PluginDetails &plugin, QWidget *parent = nullptr);
+  ~PluginPopup();
 
 private:
-    Ui::PluginPopup *ui;
+  Ui::PluginPopup *ui;
 };
 
 #endif // PLUGINPOPUP_H

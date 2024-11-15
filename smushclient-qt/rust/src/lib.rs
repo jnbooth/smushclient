@@ -16,6 +16,7 @@ mod colors;
 mod get_info;
 mod handler;
 mod impls;
+mod modeled;
 mod results;
 mod sender;
 mod sync;

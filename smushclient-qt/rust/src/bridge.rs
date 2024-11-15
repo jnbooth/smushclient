@@ -10,7 +10,7 @@ use std::mem;
 
 use crate::client::SmushClientRust;
 use crate::convert::Convert;
-use crate::get_info::PluginDetailsRust;
+use crate::modeled::PluginDetailsRust;
 use crate::sender::{AliasRust, TimerRust, TriggerRust};
 use crate::sender::{OutputSpan, TextSpan};
 use crate::world::WorldRust;
@@ -504,6 +504,7 @@ pub mod ffi {
         fn open_log(self: Pin<&mut SmushClient>) -> Result<()>;
         fn close_log(self: Pin<&mut SmushClient>);
         fn load_plugins(self: Pin<&mut SmushClient>) -> QStringList;
+        fn world_plugin_index(self: &SmushClient) -> usize;
         fn load_variables(self: Pin<&mut SmushClient>, path: &QString) -> Result<bool>;
         fn save_variables(self: &SmushClient, path: &QString) -> Result<bool>;
         fn populate_world(self: &SmushClient, world: Pin<&mut World>);
@@ -518,9 +519,12 @@ pub mod ffi {
             doc: Pin<&mut Document>,
         ) -> AliasOutcomes;
         fn plugin_info(self: &SmushClient, index: usize, info_type: u8) -> QVariant;
-        fn add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> QString;
-        fn remove_plugin(self: Pin<&mut SmushClient>, plugin_id: &QString) -> bool;
-        fn build_plugins_table(self: &SmushClient, table: Pin<&mut ModelBuilder>) -> usize;
+        fn plugins_len(self: &SmushClient) -> usize;
+        fn add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> Result<usize>;
+        fn remove_plugin(self: Pin<&mut SmushClient>, index: usize) -> bool;
+        fn plugin_enabled(self: &SmushClient, index: usize) -> bool;
+        fn plugin_id(self: &SmushClient, index: usize) -> QString;
+        fn plugin_model_text(self: &SmushClient, index: usize, column: i32) -> QString;
         fn build_aliases_tree(
             self: &SmushClient,
             tree: Pin<&mut ModelBuilder>,
@@ -537,10 +541,7 @@ pub mod ffi {
             group: bool,
         ) -> usize;
         fn plugin_scripts(self: &SmushClient) -> Vec<PluginPack>;
-        fn reinstall_plugin(
-            self: Pin<&mut SmushClient>,
-            plugin_id: &QString,
-        ) -> Result<Vec<PluginPack>>;
+        fn reinstall_plugin(self: Pin<&mut SmushClient>, index: usize) -> Result<usize>;
         fn read(
             self: Pin<&mut SmushClient>,
             device: Pin<&mut QTcpSocket>,

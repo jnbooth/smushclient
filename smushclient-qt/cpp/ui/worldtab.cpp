@@ -579,7 +579,7 @@ bool WorldTab::loadPlugins()
     QErrorMessage::qtHandler()->showMessage(errors.join(u'\n'));
     return false;
   }
-  api->initializePlugins(client.pluginScripts());
+  api->initializePlugins();
   return true;
 }
 

@@ -36,6 +36,14 @@ impl ffi::SmushClient {
         self.cxx_qt_ffi_rust_mut().load_plugins()
     }
 
+    pub fn world_plugin_index(&self) -> usize {
+        self.cxx_qt_ffi_rust().world_plugin_index()
+    }
+
+    pub fn plugins_len(&self) -> usize {
+        self.cxx_qt_ffi_rust().client.plugins_len()
+    }
+
     pub fn save_world(&self, path: &QString) -> Result<(), PersistError> {
         self.cxx_qt_ffi_rust().save_world(path)
     }
@@ -75,8 +83,22 @@ impl ffi::SmushClient {
         self.cxx_qt_ffi_rust().plugin_info(index, info_type)
     }
 
-    pub fn build_plugins_table(&self, table: Pin<&mut ffi::ModelBuilder>) -> usize {
-        self.cxx_qt_ffi_rust().build_plugins_table(table.into())
+    pub fn plugin_enabled(&self, index: PluginIndex) -> bool {
+        self.cxx_qt_ffi_rust()
+            .client
+            .plugin(index)
+            .is_some_and(|plugin| !plugin.disabled)
+    }
+
+    pub fn plugin_id(&self, index: PluginIndex) -> QString {
+        match self.cxx_qt_ffi_rust().client.plugin(index) {
+            Some(plugin) => QString::from(&plugin.metadata.id),
+            None => QString::default(),
+        }
+    }
+
+    pub fn plugin_model_text(&self, index: PluginIndex, column: i32) -> QString {
+        self.cxx_qt_ffi_rust().plugin_model_text(index, column)
     }
 
     pub fn build_aliases_tree(&self, tree: Pin<&mut ffi::ModelBuilder>, group: bool) -> usize {
@@ -94,21 +116,18 @@ impl ffi::SmushClient {
             .build_senders_tree::<Trigger>(tree.into(), group)
     }
 
-    pub fn add_plugin(self: Pin<&mut Self>, path: &QString) -> QString {
-        match self
+    pub fn add_plugin(self: Pin<&mut Self>, path: &QString) -> Result<PluginIndex, LoadError> {
+        Ok(self
             .cxx_qt_ffi_rust_mut()
             .client
-            .add_plugin(String::from(path))
-        {
-            Ok(_) => QString::default(),
-            Err(e) => QString::from(&e.to_string()),
-        }
+            .add_plugin(String::from(path))?
+            .0)
     }
 
-    pub fn remove_plugin(self: Pin<&mut Self>, plugin_id: &QString) -> bool {
+    pub fn remove_plugin(self: Pin<&mut Self>, index: PluginIndex) -> bool {
         self.cxx_qt_ffi_rust_mut()
             .client
-            .remove_plugin(&String::from(plugin_id))
+            .remove_plugin(index)
             .is_some()
     }
 
@@ -116,11 +135,8 @@ impl ffi::SmushClient {
         self.cxx_qt_ffi_rust().plugin_scripts()
     }
 
-    pub fn reinstall_plugin(
-        self: Pin<&mut Self>,
-        plugin_id: &QString,
-    ) -> Result<Vec<ffi::PluginPack>, LoadError> {
-        self.cxx_qt_ffi_rust_mut().reinstall_plugin(plugin_id)
+    pub fn reinstall_plugin(self: Pin<&mut Self>, index: PluginIndex) -> Result<usize, LoadError> {
+        self.cxx_qt_ffi_rust_mut().client.reinstall_plugin(index)
     }
 
     pub fn read(

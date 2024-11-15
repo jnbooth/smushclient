@@ -11,6 +11,7 @@ use crate::convert::Convert;
 use crate::ffi;
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
+use crate::modeled::Modeled;
 use crate::sync::NonBlockingMutex;
 use crate::world::WorldRust;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant};
@@ -22,7 +23,7 @@ use smushclient::{
     BoolProperty, CommandSource, Handler, SendIterable, SenderAccessError, SmushClient, Timers,
     World,
 };
-use smushclient_plugins::{Alias, LoadError, PluginIndex, Timer, Trigger, XmlError};
+use smushclient_plugins::{Alias, PluginIndex, Timer, Trigger, XmlError};
 
 const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Bold,
@@ -166,35 +167,6 @@ impl SmushClientRust {
         self.client.plugins().map(ffi::PluginPack::from).collect()
     }
 
-    pub fn reinstall_plugin(&mut self, id: &QString) -> Result<Vec<ffi::PluginPack>, LoadError> {
-        let id = String::from(id);
-        if !self.client.reinstall_plugin(&id)? {
-            return Ok(self.plugin_scripts());
-        }
-        match self
-            .client
-            .plugins()
-            .find(|plugin| plugin.metadata.id == id)
-        {
-            Some(plugin) => Ok(vec![plugin.into()]),
-            None => Ok(self.plugin_scripts()),
-        }
-    }
-
-    pub fn build_plugins_table(&self, mut builder: ModelBuilderAdapter) -> usize {
-        let plugins = self.client.plugins();
-        let mut count = 0;
-        for plugin in plugins {
-            let metadata = &plugin.metadata;
-            if metadata.is_world_plugin {
-                continue;
-            }
-            count += 1;
-            builder.add_row(&QString::from(&metadata.id), plugin);
-        }
-        count
-    }
-
     pub fn build_senders_tree<T: SendIterable + RowInsertable>(
         &self,
         mut builder: ModelBuilderAdapter,
@@ -219,6 +191,13 @@ impl SmushClientRust {
             builder.add_row(&u64::try_from(index).unwrap_or(u64::MAX), item);
         }
         senders.len()
+    }
+
+    pub fn plugin_model_text(&self, index: PluginIndex, column: i32) -> QString {
+        let Some(plugin) = self.client.plugin(index) else {
+            return QString::default();
+        };
+        plugin.cell_text(column)
     }
 
     fn apply_world(&mut self) {

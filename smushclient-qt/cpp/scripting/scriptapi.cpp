@@ -171,8 +171,9 @@ const Plugin *ScriptApi::getPlugin(string_view pluginID) const
   return &plugins[index];
 }
 
-void ScriptApi::initializePlugins(const rust::Vec<PluginPack> &pack)
+void ScriptApi::initializePlugins()
 {
+  const rust::Vec<PluginPack> pack = client()->pluginScripts();
   worldScriptIndex = noSuchPlugin;
   if (!windows.empty())
   {
@@ -216,10 +217,11 @@ void ScriptApi::initializePlugins(const rust::Vec<PluginPack> &pack)
   sendCallback(onListChanged);
 }
 
-void ScriptApi::reinstallPlugin(const PluginPack &pack)
+void ScriptApi::reinstallPlugin(size_t index)
 {
+  const rust::Vec<PluginPack> packs = client()->pluginScripts();
+  const PluginPack &pack = packs[index];
   const string pluginId = pack.id.toStdString();
-  size_t index = pluginIndices[pluginId];
   if (!windows.empty())
   {
     for (auto it = windows.begin(); it != windows.end();)

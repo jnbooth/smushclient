@@ -89,6 +89,8 @@ qt_add_executable(${APP_NAME}
     cpp/bridge/timekeeper.h cpp/bridge/timekeeper.cpp
     cpp/bridge/viewbuilder.h cpp/bridge/viewbuilder.cpp
 
+    cpp/model/plugin.h cpp/model/plugin.cpp
+
     cpp/scripting/callbacktrigger.h cpp/scripting/callbacktrigger.cpp
     cpp/scripting/databaseconnection.h cpp/scripting/databaseconnection.cpp
     cpp/scripting/errors.h cpp/scripting/errors.cpp
