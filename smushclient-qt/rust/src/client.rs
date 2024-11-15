@@ -72,7 +72,7 @@ impl SmushClientRust {
         let file = File::open(String::from(path).as_str())?;
         let worldfile = World::load(file)?;
         let world = WorldRust::from(&worldfile);
-        self.client.set_world_and_plugins(worldfile);
+        self.client.set_world_entire(worldfile);
         self.apply_world();
         Ok(world)
     }
@@ -118,10 +118,9 @@ impl SmushClientRust {
     }
 
     pub fn set_world(&mut self, world: &WorldRust) -> bool {
-        let Ok(mut world) = World::try_from(world) else {
+        let Ok(world) = World::try_from(world) else {
             return false;
         };
-        world.swap_senders(self.client.world_mut());
         self.client.set_world(world);
         self.apply_world();
         true

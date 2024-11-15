@@ -14,7 +14,6 @@ use std::borrow::Cow;
 use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::io::{Read, Write};
-use std::mem;
 use std::path::PathBuf;
 
 use chrono::Local;
@@ -264,12 +263,6 @@ impl World {
             },
             ..Default::default()
         }
-    }
-
-    pub fn swap_senders(&mut self, other: &mut Self) {
-        mem::swap(&mut self.aliases, &mut other.aliases);
-        mem::swap(&mut self.timers, &mut other.timers);
-        mem::swap(&mut self.triggers, &mut other.triggers);
     }
 
     pub fn add_sender<T: SendIterable>(&mut self, sender: T) -> Result<&T, SenderAccessError> {

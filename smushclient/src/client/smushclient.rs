@@ -94,7 +94,7 @@ impl SmushClient {
         &mut self.world
     }
 
-    pub fn set_world_and_plugins(&mut self, world: World) {
+    pub fn set_world_entire(&mut self, world: World) {
         self.world = world;
         self.plugins.set_world_plugin(self.world.world_plugin());
         self.logger.apply_world(&self.world);
@@ -103,6 +103,9 @@ impl SmushClient {
 
     pub fn set_world(&mut self, mut world: World) {
         mem::swap(&mut world.plugins, &mut self.world.plugins);
+        mem::swap(&mut world.aliases, &mut self.world.aliases);
+        mem::swap(&mut world.timers, &mut self.world.timers);
+        mem::swap(&mut world.triggers, &mut self.world.triggers);
         self.world = world;
         self.plugins.set_world_plugin(self.world.world_plugin());
         self.logger.apply_world(&self.world);
