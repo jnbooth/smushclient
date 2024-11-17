@@ -19,6 +19,7 @@ PrefsPlugins::PrefsPlugins(SmushClient &client, ScriptApi *api, QWidget *parent)
   model = new PluginModel(client, this);
   ui->setupUi(this);
   ui->table->setModel(model);
+  ui->table->horizontalHeader()->restoreState(Settings().headerState(objectName()));
   connect(model, &PluginModel::clientError, this, &PrefsPlugins::onClientError);
   connect(model, &PluginModel::pluginOrderChanged, this, &PrefsPlugins::onPluginOrderChanged);
   connect(model, &PluginModel::pluginScriptChanged, this, &PrefsPlugins::onPluginScriptChanged);
@@ -26,7 +27,7 @@ PrefsPlugins::PrefsPlugins(SmushClient &client, ScriptApi *api, QWidget *parent)
 
 PrefsPlugins::~PrefsPlugins()
 {
-  Settings().setHeaderState(ModelType::Plugin, ui->table->horizontalHeader()->saveState());
+  Settings().setHeaderState(objectName(), ui->table->horizontalHeader()->saveState());
   delete ui;
 }
 
@@ -76,7 +77,7 @@ void PrefsPlugins::on_button_showinfo_clicked()
   PluginPopup(model->pluginDetails(ui->table->currentIndex()), this).exec();
 }
 
-void PrefsPlugins::on_table_clicked(const QModelIndex &index)
+void PrefsPlugins::on_table_clicked()
 {
   ui->button_reinstall->setEnabled(true);
   ui->button_remove->setEnabled(true);

@@ -80,7 +80,9 @@ bool PluginModel::reinstall(const QModelIndex &index)
     emit pluginScriptChanged(newIndex);
     return true;
   }
+
   emit layoutAboutToBeChanged({}, QAbstractItemModel::LayoutChangeHint::VerticalSortHint);
+
   const size_t worldPluginIndex = worldIndex;
   if (oldIndex > worldPluginIndex && newIndex <= worldPluginIndex)
     worldIndex += 1;
@@ -88,11 +90,14 @@ bool PluginModel::reinstall(const QModelIndex &index)
     worldIndex -= 1;
   const int newRow = pluginIndexToRow(newIndex);
   const QModelIndex parent = createIndex(0, 0);
+
   beginMoveRows(parent, row, row, parent, newRow);
   endMoveRows();
+
   emit pluginOrderChanged();
   emit dataChanged(createIndex(newRow, 0), createIndex(newRow, numColumns - 1), {Qt::DisplayRole});
   emit pluginScriptChanged(newIndex);
+
   emit layoutChanged({}, QAbstractItemModel::LayoutChangeHint::VerticalSortHint);
   return true;
 }
@@ -170,8 +175,9 @@ QMap<int, QVariant> PluginModel::itemData(const QModelIndex &index) const
     return QMap<int, QVariant>();
 
   QMap<int, QVariant> map;
-  map.insert(Qt::DisplayRole, data(index));
-  map.insert(Qt::UserRole + 1, data(index));
+  map.insert(Qt::DisplayRole, data(index, Qt::DisplayRole));
+  map.insert(Qt::CheckStateRole, data(index, Qt::CheckStateRole));
+  map.insert(Qt::InitialSortOrderRole, data(index, Qt::InitialSortOrderRole));
   return map;
 }
 
@@ -208,7 +214,7 @@ bool PluginModel::removeRows(int row, int count, const QModelIndex &parent)
 
 int PluginModel::rowCount(const QModelIndex &index) const
 {
-  return index.internalPointer() ? 0 : pluginCount;
+  return index.constInternalPointer() ? 0 : pluginCount;
 }
 
 bool PluginModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -217,7 +223,7 @@ bool PluginModel::setData(const QModelIndex &index, const QVariant &value, int r
       index.column() != 4 ||
       index.row() < 0 ||
       index.row() >= pluginCount ||
-      index.internalPointer())
+      index.constInternalPointer())
     return false;
 
   switch (value.toInt())
@@ -241,5 +247,5 @@ bool PluginModel::isValidIndex(const QModelIndex &index) const noexcept
   return isValidColumn(index.column()) &&
          index.row() >= 0 &&
          index.row() < pluginCount &&
-         index.internalPointer() == nullptr;
+         index.constInternalPointer() == nullptr;
 }

@@ -2,14 +2,15 @@
 #include "ui_aliasedit.h"
 #include "../../fieldconnector.h"
 
-#define CONNECT(field) connectField(this, alias, ui->field, alias->get##field(), &Alias::set##field);
+#define CONNECT(field) connectField(this, &alias, ui->field, alias.get##field(), &Alias::set##field);
 
 // Public methods
 
-AliasEdit::AliasEdit(Alias *alias, QWidget *parent)
+AliasEdit::AliasEdit(Alias &alias, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::AliasEdit),
-      alias(alias)
+      alias(alias),
+      originalGroup(alias.getGroup())
 {
   ui->setupUi(this);
 
@@ -39,12 +40,17 @@ AliasEdit::AliasEdit(Alias *alias, QWidget *parent)
   CONNECT(Menu);
   CONNECT(OmitFromCommandHistory);
 
-  ui->Text->setPlainText(alias->getText());
+  ui->Text->setPlainText(alias.getText());
 }
 
 AliasEdit::~AliasEdit()
 {
   delete ui;
+}
+
+bool AliasEdit::groupChanged() const
+{
+  return originalGroup != ui->Group->text();
 }
 
 // Private slots
@@ -77,5 +83,5 @@ void AliasEdit::on_UserSendTo_currentIndexChanged(int index)
 
 void AliasEdit::on_Text_textChanged()
 {
-  alias->setText(ui->Text->toPlainText());
+  alias.setText(ui->Text->toPlainText());
 }

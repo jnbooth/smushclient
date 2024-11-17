@@ -31,9 +31,6 @@ macro_rules! adapter {
 mod document;
 pub use document::{DocumentAdapter, QColorPair};
 
-mod model_builder;
-pub use model_builder::{ModelBuilderAdapter, RowInsertable};
-
 mod socket;
 pub use socket::SocketAdapter;
 

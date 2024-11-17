@@ -19,6 +19,10 @@ public:
     return row >= worldIndex ? row + 1 : row;
   }
 
+  int columnCount(const QModelIndex &) const override
+  {
+    return numColumns;
+  }
   QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
   Qt::ItemFlags flags(const QModelIndex &index) const override;
   bool hasChildren(const QModelIndex &index = QModelIndex()) const override;
@@ -44,11 +48,6 @@ private:
   int worldIndex;
 
 private:
-  int columnCount(const QModelIndex &) const override
-  {
-    return numColumns;
-  }
-
   static constexpr bool isValidColumn(int column) noexcept
   {
     return column >= 0 && column < numColumns;

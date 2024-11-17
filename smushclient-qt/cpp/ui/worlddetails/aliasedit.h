@@ -13,8 +13,10 @@ class AliasEdit : public QDialog
   Q_OBJECT
 
 public:
-  explicit AliasEdit(Alias *alias, QWidget *parent = nullptr);
+  explicit AliasEdit(Alias &alias, QWidget *parent = nullptr);
   ~AliasEdit();
+
+  bool groupChanged() const;
 
 private slots:
   void on_Label_textChanged(const QString &text);
@@ -23,5 +25,6 @@ private slots:
 
 private:
   Ui::AliasEdit *ui;
-  Alias *alias;
+  Alias &alias;
+  QString originalGroup;
 };

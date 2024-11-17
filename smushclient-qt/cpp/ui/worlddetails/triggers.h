@@ -7,6 +7,8 @@ namespace Ui
   class PrefsTriggers;
 }
 
+class TriggerModel;
+
 class PrefsTriggers : public AbstractPrefsTree
 {
   Q_OBJECT
@@ -16,15 +18,10 @@ public:
   ~PrefsTriggers();
 
 protected:
-  bool addItem() override;
-  void buildTree(ModelBuilder &builder) override;
-  bool editItem(size_t index) override;
-  QString exportXml() const override;
-  void importXml(const QString &text) override;
-  void removeItem(size_t index) override;
-  void setItemButtonsEnabled(bool enabled) override;
+  void enableSingleButtons(bool enabled) override;
+  void enableMultiButtons(bool enabled) override;
 
 private:
   Ui::PrefsTriggers *ui;
-  SmushClient &client;
+  TriggerModel *model;
 };

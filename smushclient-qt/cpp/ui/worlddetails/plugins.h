@@ -23,7 +23,6 @@ private:
   ScriptApi *api;
 
 private:
-  void initPlugins();
   PluginModel *model;
 
 private slots:
@@ -34,5 +33,5 @@ private slots:
   void on_button_reinstall_clicked();
   void on_button_remove_clicked();
   void on_button_showinfo_clicked();
-  void on_table_clicked(const QModelIndex &index);
+  void on_table_clicked();
 };

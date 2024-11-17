@@ -4,6 +4,9 @@ pub use error::PersistError;
 mod escaping;
 pub use escaping::{Escaped, EscapedBrackets, LogBrackets};
 
+mod sender_map;
+pub use sender_map::SenderMap;
+
 mod types;
 pub use types::*;
 
@@ -275,7 +278,7 @@ impl World {
         &mut self,
         index: usize,
         sender: T,
-    ) -> Result<&T, SenderAccessError> {
+    ) -> Result<(usize, &T), SenderAccessError> {
         let senders = T::from_world_mut(self);
         if index >= senders.len() {
             return Err(SenderAccessError::NotFound);
@@ -297,6 +300,30 @@ impl World {
         }
         senders.remove(index);
         Ok(())
+    }
+
+    pub fn sender_groups<T: SendIterable>(&self) -> Vec<String> {
+        T::from_world(self)
+            .iter()
+            .map(|sender| sender.as_ref().group.clone())
+            .collect::<HashSet<_>>()
+            .into_iter()
+            .collect()
+    }
+
+    pub fn senders_group_len<T: SendIterable>(&self, group: &str) -> usize {
+        T::from_world(self)
+            .iter()
+            .filter(|sender| sender.as_ref().group == group)
+            .count()
+    }
+
+    pub fn nth_sender<T: SendIterable>(&self, group: &str, index: usize) -> Option<(usize, &T)> {
+        T::from_world(self)
+            .iter()
+            .enumerate()
+            .filter(|(_, sender)| sender.as_ref().group == group)
+            .nth(index)
     }
 
     pub fn save<W: Write>(&self, mut writer: W) -> Result<(), PersistError> {

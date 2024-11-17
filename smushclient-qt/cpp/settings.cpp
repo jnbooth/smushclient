@@ -14,24 +14,9 @@ QFont getDefaultFont(int pointSize)
   return defaultFont;
 }
 
-const QString &headerKey(ModelType modelType)
+const QString headerKey(const QString &modelName)
 {
-  static const QString aliasKey = QStringLiteral("headers/aliases");
-  static const QString timerKey = QStringLiteral("headers/timers");
-  static const QString triggerKey = QStringLiteral("headers/aliases");
-  static const QString pluginKey = QStringLiteral("headers/aliases");
-
-  switch (modelType)
-  {
-  case ModelType::Alias:
-    return aliasKey;
-  case ModelType::Timer:
-    return timerKey;
-  case ModelType::Trigger:
-    return triggerKey;
-  case ModelType::Plugin:
-    return pluginKey;
-  }
+  return QStringLiteral("headers/%1").arg(modelName);
 }
 
 // Public methods
@@ -273,12 +258,12 @@ void Settings::setShowStatusBar(bool show)
 
 // Header state
 
-QByteArray Settings::headerState(ModelType modelType) const
+QByteArray Settings::headerState(const QString &modelName) const
 {
-  return store.value(headerKey(modelType)).toByteArray();
+  return store.value(headerKey(modelName)).toByteArray();
 }
 
-void Settings::setHeaderState(ModelType modelType, const QByteArray &state)
+void Settings::setHeaderState(const QString &modelName, const QByteArray &state)
 {
-  store.setValue(headerKey(modelType), state);
+  store.setValue(headerKey(modelName), state);
 }

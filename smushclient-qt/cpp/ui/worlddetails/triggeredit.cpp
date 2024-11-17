@@ -11,6 +11,7 @@ TriggerEdit::TriggerEdit(Trigger &trigger, QWidget *parent)
       ui(new Ui::TriggerEdit),
       audio(),
       player(),
+      originalGroup(trigger.getGroup()),
       trigger(trigger)
 {
   ui->setupUi(this);
@@ -57,6 +58,11 @@ TriggerEdit::TriggerEdit(Trigger &trigger, QWidget *parent)
 TriggerEdit::~TriggerEdit()
 {
   delete ui;
+}
+
+bool TriggerEdit::groupChanged() const
+{
+  return originalGroup != ui->Group->text();
 }
 
 // Private slots

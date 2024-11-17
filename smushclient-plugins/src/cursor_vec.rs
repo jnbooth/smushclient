@@ -112,19 +112,20 @@ impl<T: Ord> CursorVec<T> {
         Err(pos)
     }
 
-    pub fn replace(&mut self, i: usize, item: T) -> &T {
+    pub fn replace(&mut self, i: usize, item: T) -> (usize, &T) {
         let mut pos = match self.sorted_slice().binary_search(&item) {
             Ok(pos) | Err(pos) => pos,
         };
         if pos == i {
             let entry = &mut self.inner[i];
             *entry = item;
-            return entry;
+            return (pos, entry);
         }
         if self.evaluating {
             self.removals.push(i);
+            let pos = self.inner.len();
             self.inner.push(item);
-            return &self.inner[self.inner.len() - 1];
+            return (pos, &self.inner[pos]);
         }
         self.inner[i] = item;
         if pos == self.inner.len() {
@@ -135,7 +136,7 @@ impl<T: Ord> CursorVec<T> {
             Ordering::Equal => (),
             Ordering::Greater => self.inner[pos..=i].rotate_right(1),
         }
-        &self.inner[pos]
+        (pos, &self.inner[pos])
     }
 
     pub fn remove(&mut self, i: usize) {

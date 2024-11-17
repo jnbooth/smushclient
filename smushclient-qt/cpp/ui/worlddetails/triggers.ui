@@ -71,6 +71,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="remove">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -81,6 +84,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="edit">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -110,6 +116,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="export_xml">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string/>
        </property>

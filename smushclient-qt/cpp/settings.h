@@ -8,14 +8,6 @@ typedef struct RecentFileResult
   const QStringList recentFiles;
 } RecentFileResult;
 
-enum class ModelType
-{
-  Alias,
-  Timer,
-  Trigger,
-  Plugin,
-};
-
 class Settings : public QObject
 {
   Q_OBJECT
@@ -48,7 +40,7 @@ public:
 
   bool showStatusBar() const;
 
-  QByteArray headerState(ModelType modelType) const;
+  QByteArray headerState(const QString &modelName) const;
 
 public slots:
   void setAutoConnect(bool enabled);
@@ -72,7 +64,7 @@ public slots:
 
   void setShowStatusBar(bool show);
 
-  void setHeaderState(ModelType modelType, const QByteArray &state);
+  void setHeaderState(const QString &modelName, const QByteArray &state);
 
 private:
   QSettings store;

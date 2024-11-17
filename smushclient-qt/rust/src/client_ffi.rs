@@ -1,3 +1,4 @@
+#![allow(clippy::ptr_arg)]
 use std::ffi::c_char;
 use std::pin::Pin;
 use std::{io, ptr};
@@ -99,21 +100,6 @@ impl ffi::SmushClient {
 
     pub fn plugin_model_text(&self, index: PluginIndex, column: i32) -> QString {
         self.cxx_qt_ffi_rust().plugin_model_text(index, column)
-    }
-
-    pub fn build_aliases_tree(&self, tree: Pin<&mut ffi::ModelBuilder>, group: bool) -> usize {
-        self.cxx_qt_ffi_rust()
-            .build_senders_tree::<Alias>(tree.into(), group)
-    }
-
-    pub fn build_timers_tree(&self, tree: Pin<&mut ffi::ModelBuilder>, group: bool) -> usize {
-        self.cxx_qt_ffi_rust()
-            .build_senders_tree::<Timer>(tree.into(), group)
-    }
-
-    pub fn build_triggers_tree(&self, tree: Pin<&mut ffi::ModelBuilder>, group: bool) -> usize {
-        self.cxx_qt_ffi_rust()
-            .build_senders_tree::<Trigger>(tree.into(), group)
     }
 
     pub fn add_plugin(self: Pin<&mut Self>, path: &QString) -> Result<PluginIndex, LoadError> {

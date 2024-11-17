@@ -90,10 +90,6 @@ impl SmushClient {
         &self.world
     }
 
-    pub fn world_mut(&mut self) -> &mut World {
-        &mut self.world
-    }
-
     pub fn set_world_entire(&mut self, world: World) {
         self.world = world;
         self.plugins.set_world_plugin(self.world.world_plugin());
@@ -419,6 +415,10 @@ impl SmushClient {
         T::from_either_mut(&mut self.plugins[index], &mut self.world)
     }
 
+    pub fn world_senders_mut<T: SendIterable>(&mut self) -> &mut CursorVec<T> {
+        T::from_world_mut(&mut self.world)
+    }
+
     pub fn add_sender<T: SendIterable>(
         &mut self,
         index: PluginIndex,
@@ -451,7 +451,7 @@ impl SmushClient {
         let senders = self.senders_mut::<T>(index);
         match sender.assert_unique_label(senders) {
             Ok(()) => senders.insert(sender),
-            Err(replace_at) => senders.replace(replace_at, sender),
+            Err(replace_at) => senders.replace(replace_at, sender).1,
         }
     }
 
@@ -466,7 +466,7 @@ impl SmushClient {
         &mut self,
         index: usize,
         sender: T,
-    ) -> Result<&T, SenderAccessError> {
+    ) -> Result<(usize, &T), SenderAccessError> {
         self.world.replace_sender(index, sender)
     }
 

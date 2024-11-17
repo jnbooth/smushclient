@@ -3,9 +3,7 @@ use std::fs::File;
 use std::io;
 use std::io::Write;
 
-use crate::adapter::{
-    DocumentAdapter, ModelBuilderAdapter, RowInsertable, SocketAdapter, TimekeeperAdapter,
-};
+use crate::adapter::{DocumentAdapter, SocketAdapter, TimekeeperAdapter};
 use crate::bridge::AliasOutcomes;
 use crate::convert::Convert;
 use crate::ffi;
@@ -166,32 +164,6 @@ impl SmushClientRust {
         self.client.plugins().map(ffi::PluginPack::from).collect()
     }
 
-    pub fn build_senders_tree<T: SendIterable + RowInsertable>(
-        &self,
-        mut builder: ModelBuilderAdapter,
-        group: bool,
-    ) -> usize {
-        let senders = T::from_world(self.client.world());
-        if !group {
-            for (index, item) in senders.iter().enumerate() {
-                builder.add_row(&u64::try_from(index).unwrap_or(u64::MAX), item);
-            }
-            return senders.len();
-        }
-        let mut sorted_items: Vec<(usize, &T)> = senders.iter().enumerate().collect();
-        sorted_items.sort_unstable_by_key(|(_, item)| (*item).as_ref());
-        let mut last_group = "\0";
-        for (index, item) in sorted_items {
-            let group = item.as_ref().group.as_str();
-            if group != last_group {
-                builder.start_group(&QString::from(group));
-                last_group = group;
-            }
-            builder.add_row(&u64::try_from(index).unwrap_or(u64::MAX), item);
-        }
-        senders.len()
-    }
-
     pub fn plugin_model_text(&self, index: PluginIndex, column: i32) -> QString {
         let Some(plugin) = self.client.plugin(index) else {
             return QString::default();
@@ -341,7 +313,7 @@ impl SmushClientRust {
     ) -> Result<(), SenderAccessError> {
         let enable_timers = self.client.world().enable_timers;
         let world_index = self.world_plugin_index();
-        let timer = self.client.replace_world_sender(index, timer)?;
+        let (_, timer) = self.client.replace_world_sender(index, timer)?;
         if enable_timers {
             self.timers.start(world_index, timer, &mut timekeeper);
         }

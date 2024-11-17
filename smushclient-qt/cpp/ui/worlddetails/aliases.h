@@ -7,6 +7,8 @@ namespace Ui
   class PrefsAliases;
 }
 
+class AliasModel;
+
 class PrefsAliases : public AbstractPrefsTree
 {
   Q_OBJECT
@@ -16,15 +18,10 @@ public:
   ~PrefsAliases();
 
 protected:
-  bool addItem() override;
-  void buildTree(ModelBuilder &builder) override;
-  bool editItem(size_t index) override;
-  QString exportXml() const override;
-  void importXml(const QString &text) override;
-  void removeItem(size_t index) override;
-  void setItemButtonsEnabled(bool enabled) override;
+  void enableSingleButtons(bool enabled) override;
+  void enableMultiButtons(bool enabled) override;
 
 private:
   Ui::PrefsAliases *ui;
-  SmushClient &client;
+  AliasModel *model;
 };

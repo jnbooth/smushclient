@@ -10,7 +10,7 @@ use std::mem;
 
 use crate::client::SmushClientRust;
 use crate::convert::Convert;
-use crate::modeled::PluginDetailsRust;
+use crate::modeled::{PluginDetailsRust, SenderMapRust};
 use crate::sender::{AliasRust, TimerRust, TriggerRust};
 use crate::sender::{OutputSpan, TextSpan};
 use crate::world::WorldRust;
@@ -374,26 +374,45 @@ pub mod ffi {
         unsafe fn startSendTimer(self: Pin<&mut Timekeeper>, id: usize, milliseconds: u32);
     }
 
-    extern "C++Qt" {
-        include!("viewbuilder.h");
-
-        type ModelBuilder;
-
-        #[rust_name = "start_group"]
-        unsafe fn startGroup(self: Pin<&mut ModelBuilder>, text: &QString);
-        #[rust_name = "add_column"]
-        unsafe fn addColumn(self: Pin<&mut ModelBuilder>, text: &QString);
-        #[rust_name = "add_column_bool"]
-        unsafe fn addColumn(self: Pin<&mut ModelBuilder>, value: bool);
-        #[rust_name = "add_column_signed"]
-        unsafe fn addColumn(self: Pin<&mut ModelBuilder>, value: i64);
-        #[rust_name = "add_column_unsigned"]
-        unsafe fn addColumn(self: Pin<&mut ModelBuilder>, value: u64);
-        #[rust_name = "add_column_floating"]
-        unsafe fn addColumn(self: Pin<&mut ModelBuilder>, value: f64);
-        #[rust_name = "finish_row"]
-        unsafe fn finishRow(self: Pin<&mut ModelBuilder>, data: &QVariant);
+    #[qenum(SenderMap)]
+    enum SenderType {
+        Alias,
+        Timer,
+        Trigger,
     }
+
+    extern "RustQt" {
+        #[qobject]
+        type SenderMap = super::SenderMapRust;
+    }
+
+    unsafe extern "RustQt" {
+        pub fn cell_text(
+            self: &SenderMap,
+            client: &SmushClient,
+            group: &String,
+            index: usize,
+            column: i32,
+        ) -> QString;
+        unsafe fn len(self: &SenderMap) -> usize;
+        unsafe fn group_len(self: &SenderMap, group_index: usize) -> usize;
+        unsafe fn group_index(self: &SenderMap, group: &String) -> i32;
+        unsafe fn group_name(self: &SenderMap, group_index: usize) -> *const String;
+        unsafe fn position_in_group(self: &SenderMap, group: &String, index: usize) -> i32;
+        unsafe fn recalculate(self: Pin<&mut SenderMap>, client: &SmushClient);
+        unsafe fn remove(
+            self: &SenderMap,
+            client: Pin<&mut SmushClient>,
+            group: &String,
+            first: usize,
+            amount: usize,
+        ) -> bool;
+        unsafe fn sender_index(self: &SenderMap, group: &String, index: usize) -> i32;
+    }
+
+    impl cxx_qt::Constructor<(SenderType,), NewArguments = (SenderType,)> for SenderMap {}
+
+    unsafe impl !cxx_qt::Locking for SmushClient {}
 
     enum PluginInfo {
         Aliases,
@@ -525,21 +544,6 @@ pub mod ffi {
         fn plugin_enabled(self: &SmushClient, index: usize) -> bool;
         fn plugin_id(self: &SmushClient, index: usize) -> QString;
         fn plugin_model_text(self: &SmushClient, index: usize, column: i32) -> QString;
-        fn build_aliases_tree(
-            self: &SmushClient,
-            tree: Pin<&mut ModelBuilder>,
-            group: bool,
-        ) -> usize;
-        fn build_timers_tree(
-            self: &SmushClient,
-            tree: Pin<&mut ModelBuilder>,
-            group: bool,
-        ) -> usize;
-        fn build_triggers_tree(
-            self: &SmushClient,
-            tree: Pin<&mut ModelBuilder>,
-            group: bool,
-        ) -> usize;
         fn plugin_scripts(self: &SmushClient) -> Vec<PluginPack>;
         fn reinstall_plugin(self: Pin<&mut SmushClient>, index: usize) -> Result<usize>;
         fn read(

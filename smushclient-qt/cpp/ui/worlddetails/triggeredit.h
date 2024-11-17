@@ -17,6 +17,8 @@ public:
   explicit TriggerEdit(Trigger &trigger, QWidget *parent = nullptr);
   ~TriggerEdit();
 
+  bool groupChanged() const;
+
 private slots:
   void on_Label_textChanged(const QString &text);
   void on_UserSendTo_currentIndexChanged(int index);
@@ -29,5 +31,6 @@ private:
   Ui::TriggerEdit *ui;
   QAudioOutput audio;
   QMediaPlayer player;
+  QString originalGroup;
   Trigger &trigger;
 };

@@ -5,77 +5,68 @@
 #include <QtWidgets/QHeaderView>
 #include "../../settings.h"
 #include "rust/cxx.h"
+#include "../../model/sender.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 using std::vector;
 
-constexpr size_t invalidIndex = SIZE_MAX;
-
 // Public methods
 
-AbstractPrefsTree::AbstractPrefsTree(ModelType modelType, QWidget *parent)
+AbstractPrefsTree::AbstractPrefsTree(QWidget *parent)
     : QWidget(parent),
-      modelType(modelType),
+      filtering(false),
+      model(nullptr),
       tree(nullptr)
 {
-  builder = new ModelBuilder(this);
   proxy = new QSortFilterProxyModel(this);
   proxy->setFilterCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
-  proxy->setSourceModel(builder->model());
   proxy->setRecursiveFilteringEnabled(true);
   proxy->setFilterKeyColumn(-1);
 }
 
 AbstractPrefsTree::~AbstractPrefsTree()
 {
-  Settings().setHeaderState(modelType, tree->header()->saveState());
+  Settings().setHeaderState(objectName(), tree->header()->saveState());
 }
 
 // Protected methods
 
-void AbstractPrefsTree::buildTree()
+void AbstractPrefsTree::setModel(AbstractSenderModel *newModel)
 {
-  QHeaderView *header = tree->header();
-  const QByteArray headerState =
-      builder->model()->rowCount() == 0 ? Settings().headerState(modelType) : header->saveState();
-
-  builder->clear();
-  buildTree(*builder);
-  tree->expandAll();
-
-  header->restoreState(headerState);
-}
-
-void AbstractPrefsTree::setHeaders(const QStringList &newHeaders)
-{
-  builder->setHeaders(newHeaders);
+  model = newModel;
+  proxy->setSourceModel(model);
 }
 
 void AbstractPrefsTree::setTree(QTreeView *newTree)
 {
   tree = newTree;
-  tree->setModel(proxy);
+  tree->header()->restoreState(Settings().headerState(objectName()));
+  if (filtering)
+    tree->setModel(proxy);
+  else
+    tree->setModel(model);
+  tree->expandAll();
+  connect(tree->selectionModel(), &QItemSelectionModel::selectionChanged, this, &AbstractPrefsTree::onSelectionChanged);
 }
 
 // Protected slots
 
 void AbstractPrefsTree::on_add_clicked()
 {
-  if (addItem())
-    buildTree();
+  model->addItem(this);
 }
 
 void AbstractPrefsTree::on_edit_clicked()
 {
-  const size_t index = clientIndex(tree->currentIndex());
-  if (index != invalidIndex && editItem(index))
-    buildTree();
+  model->editItem(mapIndex(tree->currentIndex()), this);
+  tree->expandAll();
 }
 
 void AbstractPrefsTree::on_export_xml_clicked()
 {
   try
   {
-    QGuiApplication::clipboard()->setText(exportXml());
+    QGuiApplication::clipboard()->setText(model->exportXml());
   }
   catch (const rust::Error &e)
   {
@@ -87,66 +78,65 @@ void AbstractPrefsTree::on_import_xml_clicked()
 {
   try
   {
-    importXml(QGuiApplication::clipboard()->text());
+    model->importXml(QGuiApplication::clipboard()->text());
   }
   catch (const rust::Error &e)
   {
     QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
   }
-  buildTree();
 }
 
 void AbstractPrefsTree::on_remove_clicked()
 {
-  const QModelIndexList items = tree->selectionModel()->selectedIndexes();
-  vector<size_t> indexes;
-  indexes.reserve(items.size());
-
-  for (const QModelIndex &modelIndex : items)
-    if (size_t index = clientIndex(modelIndex); index != invalidIndex)
-      indexes.push_back(index);
-
-  std::sort(indexes.rbegin(), indexes.rend());
-  size_t lastIndex = -1;
-  for (size_t index : indexes)
-  {
-    if (index == lastIndex)
-      continue;
-    removeItem(index);
-    lastIndex = index;
-  }
-  buildTree();
+  QItemSelection selection = tree->selectionModel()->selection();
+  if (filtering)
+    selection = proxy->mapSelectionToSource(selection);
+  model->removeSelection(selection);
 }
 
 void AbstractPrefsTree::on_search_textChanged(const QString &text)
 {
   proxy->setFilterFixedString(text);
-  tree->expandAll();
-}
+  if (filtering == !text.isEmpty())
+    return;
 
-void AbstractPrefsTree::on_tree_activated(QModelIndex index)
-{
-  setItemButtonsEnabled(!proxy->hasChildren(index));
+  filtering = !filtering;
+  if (filtering)
+    tree->setModel(proxy);
+  else
+    tree->setModel(model);
+  tree->expandAll();
 }
 
 void AbstractPrefsTree::on_tree_doubleClicked(QModelIndex modelIndex)
 {
   QItemSelectionModel *selection = tree->selectionModel();
-  if (selection->selectedIndexes().size() > 1)
-  {
-    selection->clear();
-    selection->select(modelIndex, QItemSelectionModel::SelectionFlag::SelectCurrent);
-  }
-  if (size_t index = clientIndex(modelIndex); index != invalidIndex && editItem(index))
-    buildTree();
+  QItemSelection itemSelection;
+  const int columns = model->columnCount(modelIndex);
+  itemSelection.select(modelIndex.siblingAtColumn(0), modelIndex.siblingAtColumn(columns - 1));
+  selection->select(itemSelection, QItemSelectionModel::SelectionFlag::Select);
+  model->editItem(mapIndex(modelIndex), this);
+  tree->expandAll();
 }
 
 // Private methods
 
-size_t AbstractPrefsTree::clientIndex(QModelIndex index) const
+QModelIndex AbstractPrefsTree::mapIndex(const QModelIndex &index) const
 {
-  const QVariant data = proxy->data(index, Qt::UserRole + 1);
-  if (!data.canConvert<size_t>())
-    return invalidIndex;
-  return data.value<size_t>();
+  return filtering ? proxy->mapToSource(index) : index;
+}
+
+// Private slots
+
+void AbstractPrefsTree::onSelectionChanged()
+{
+  const QItemSelectionModel *selection = tree->selectionModel();
+  if (!selection->hasSelection())
+  {
+    enableSingleButtons(false);
+    enableMultiButtons(false);
+    return;
+  }
+  enableSingleButtons(selection->selectedRows().length() == 1);
+  enableMultiButtons(true);
 }

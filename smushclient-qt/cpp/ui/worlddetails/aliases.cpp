@@ -1,21 +1,20 @@
 #include "aliases.h"
 #include "aliasedit.h"
 #include "ui_aliases.h"
-#include "../../bridge/viewbuilder.h"
 #include "../../fieldconnector.h"
-#include "../../settings.h"
+#include "../../model/alias.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 PrefsAliases::PrefsAliases(const World &world, SmushClient &client, QWidget *parent)
-    : AbstractPrefsTree(ModelType::Alias, parent),
-      ui(new Ui::PrefsAliases),
-      client(client)
+    : AbstractPrefsTree(parent),
+      ui(new Ui::PrefsAliases)
 {
   ui->setupUi(this);
+  model = new AliasModel(client, this);
+  setModel(model);
   setTree(ui->tree);
-  setHeaders({tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text")});
   CONNECT_WORLD(EnableAliases);
   client.stopAliases();
-  AbstractPrefsTree::buildTree();
 }
 
 PrefsAliases::~PrefsAliases()
@@ -25,49 +24,13 @@ PrefsAliases::~PrefsAliases()
 
 // Protected overrides
 
-bool PrefsAliases::addItem()
-{
-  Alias alias;
-  AliasEdit edit(&alias, this);
-  if (edit.exec() == QDialog::Rejected)
-    return false;
-
-  client.addWorldAlias(alias);
-  return true;
-}
-
-void PrefsAliases::buildTree(ModelBuilder &builder)
-{
-  ui->item_count->setNum((int)client.buildAliasesTree(builder, true));
-}
-
-bool PrefsAliases::editItem(size_t index)
-{
-  Alias alias(&client, index);
-  AliasEdit edit(&alias, this);
-  if (edit.exec() == QDialog::Rejected)
-    return false;
-
-  client.replaceWorldAlias(index, alias);
-  return true;
-}
-
-QString PrefsAliases::exportXml() const
-{
-  return client.exportWorldAliases();
-}
-
-void PrefsAliases::importXml(const QString &xml)
-{
-  client.importWorldAliases(xml);
-}
-
-void PrefsAliases::removeItem(size_t index)
-{
-  client.removeWorldAlias(index);
-}
-
-void PrefsAliases::setItemButtonsEnabled(bool enabled)
+void PrefsAliases::enableSingleButtons(bool enabled)
 {
   ui->edit->setEnabled(enabled);
+}
+
+void PrefsAliases::enableMultiButtons(bool enabled)
+{
+  ui->export_xml->setEnabled(enabled);
+  ui->remove->setEnabled(enabled);
 }

@@ -22,4 +22,4 @@ mod timer;
 pub use timer::{TimerConstructible, Timers};
 
 pub mod world;
-pub use world::World;
+pub use world::{SenderMap, World};
