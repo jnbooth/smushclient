@@ -2,11 +2,23 @@
 #include "../ui/worlddetails/aliasedit.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
+// Public methods
+
 AliasModel::AliasModel(SmushClient &client, QObject *parent)
     : AbstractSenderModel(client, SenderType::Alias, parent)
 {
   setHeaders(tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text"));
 }
+
+Qt::ItemFlags AliasModel::flags(const QModelIndex &index) const
+{
+  if (!index.constInternalPointer())
+    return Qt::ItemFlag::ItemIsEnabled;
+
+  return Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemNeverHasChildren | Qt::ItemIsEditable;
+}
+
+// Protected overrides
 
 int AliasModel::addItem(SmushClient &client, QWidget *parent)
 {

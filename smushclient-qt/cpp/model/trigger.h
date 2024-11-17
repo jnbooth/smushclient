@@ -8,6 +8,8 @@ class TriggerModel : public AbstractSenderModel
 public:
   TriggerModel(SmushClient &client, QObject *parent = nullptr);
 
+  Qt::ItemFlags flags(const QModelIndex &index) const override;
+
 protected:
   int addItem(SmushClient &client, QWidget *parent) override;
   int editItem(SmushClient &client, size_t index, QWidget *parent) override;

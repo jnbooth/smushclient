@@ -57,7 +57,6 @@ bool AbstractSenderModel::addItem(QWidget *parent)
 
 bool AbstractSenderModel::editItem(const QModelIndex &modelIndex, QWidget *parent)
 {
-  qDebug() << "edit" << modelIndex;
   refresh();
   const rust::String *group = static_cast<const rust::String *>(modelIndex.constInternalPointer());
   if (!group)
@@ -102,7 +101,7 @@ bool AbstractSenderModel::editItem(const QModelIndex &modelIndex, QWidget *paren
     emit dataChanged(
         modelIndex.siblingAtColumn(0),
         modelIndex.siblingAtColumn(numColumns - 1),
-        {Qt::DisplayRole});
+        {Qt::DisplayRole, Qt::EditRole});
     return true;
   }
 
@@ -116,7 +115,7 @@ bool AbstractSenderModel::editItem(const QModelIndex &modelIndex, QWidget *paren
   emit dataChanged(
       modelIndex.sibling(newRow, 0),
       modelIndex.sibling(newRow, numColumns - 1),
-      {Qt::DisplayRole});
+      {Qt::DisplayRole, Qt::EditRole});
 
   emit layoutChanged({}, QAbstractItemModel::LayoutChangeHint::VerticalSortHint);
   return true;
@@ -179,7 +178,7 @@ int AbstractSenderModel::senderIndex(const QModelIndex &index) const
 QVariant AbstractSenderModel::data(const QModelIndex &index, int role) const
 {
   refresh();
-  if (role != Qt::DisplayRole)
+  if (role != Qt::DisplayRole && role != Qt::EditRole)
     return QVariant();
 
   const rust::String *group = static_cast<const rust::String *>(index.constInternalPointer());
@@ -198,13 +197,6 @@ QVariant AbstractSenderModel::data(const QModelIndex &index, int role) const
     return QString::fromUtf8(parentGroup->data(), len);
 
   return untitledGroupName;
-}
-
-Qt::ItemFlags AbstractSenderModel::flags(const QModelIndex &index) const
-{
-  return index.constInternalPointer()
-             ? Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemNeverHasChildren
-             : Qt::ItemFlag::ItemIsEnabled;
 }
 
 bool AbstractSenderModel::hasChildren(const QModelIndex &index) const
@@ -290,6 +282,48 @@ int AbstractSenderModel::rowCount(const QModelIndex &index) const
     return 0;
 
   return map->groupLen(index.row());
+}
+
+bool AbstractSenderModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+  if (role != Qt::EditRole)
+    return false;
+
+  refresh();
+
+  const rust::String *group = static_cast<const rust::String *>(index.constInternalPointer());
+  if (!group)
+    return false;
+
+  const int row = index.row();
+  if (row < 0)
+    return false;
+
+  const int newRow = map->setCell(client, *group, row, index.column(), value);
+  if (newRow < 0)
+    return false;
+
+  static const QList<int> changedRoles{Qt::DisplayRole, Qt::EditRole};
+
+  if (newRow == row)
+  {
+    emit dataChanged(index, index, changedRoles);
+    return true;
+  }
+
+  emit layoutAboutToBeChanged({}, QAbstractItemModel::LayoutChangeHint::VerticalSortHint);
+
+  const QModelIndex parentIndex = index.parent();
+
+  beginMoveRows(parentIndex, row, row, parentIndex, newRow);
+  endMoveRows();
+
+  const QModelIndex newIndex = index.siblingAtRow(newRow);
+
+  emit dataChanged(newIndex, newIndex, changedRoles);
+
+  emit layoutChanged({}, QAbstractItemModel::LayoutChangeHint::VerticalSortHint);
+  return true;
 }
 
 // Protected methods

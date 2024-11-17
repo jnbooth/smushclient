@@ -10,6 +10,8 @@ class TimerModel : public AbstractSenderModel
 public:
   TimerModel(SmushClient &client, Timekeeper *timekeeper, QObject *parent = nullptr);
 
+  Qt::ItemFlags flags(const QModelIndex &index) const override;
+
 protected:
   int addItem(SmushClient &client, QWidget *parent) override;
   int editItem(SmushClient &client, size_t index, QWidget *parent) override;

@@ -2,12 +2,36 @@ use std::pin::Pin;
 use std::ptr;
 
 use crate::ffi;
-use cxx_qt_lib::{QDate, QString};
-use smushclient::{SenderMap, SmushClient};
-use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Timer, Trigger};
+use cxx_qt_lib::{QDate, QString, QVariant};
+use smushclient::{SendIterable, SenderMap, SmushClient};
+use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Reaction, Timer, Trigger};
+
+fn data_text(data: &QVariant) -> Option<String> {
+    Some(String::from(&data.value::<QString>()?))
+}
 
 pub trait Modeled {
     fn cell_text(&self, column: i32) -> QString;
+    fn set_cell(&mut self, column: i32, data: &QVariant) -> Option<()>;
+
+    fn update_in_world(
+        client: &mut SmushClient,
+        index: usize,
+        column: i32,
+        data: &QVariant,
+    ) -> Option<usize>
+    where
+        Self: Clone + Eq + SendIterable,
+    {
+        let senders = client.world_senders_mut::<Self>();
+        senders[index].set_cell(column, data)?;
+        if senders.is_sorted() {
+            return Some(index);
+        }
+        let clone = senders[index].clone();
+        senders.sort_unstable();
+        senders.iter().position(|sender| sender == &clone)
+    }
 }
 
 impl Modeled for Alias {
@@ -19,6 +43,22 @@ impl Modeled for Alias {
             3 => QString::from(&self.text),
             _ => QString::default(),
         }
+    }
+
+    fn set_cell(&mut self, column: i32, data: &QVariant) -> Option<()> {
+        match column {
+            0 => self.label = data_text(data)?,
+            1 => self.sequence = data.value()?,
+            2 => {
+                let text = data_text(data)?;
+                let regex = Reaction::make_regex(&text, self.is_regex).ok()?;
+                self.pattern = text;
+                self.regex = regex;
+            }
+            3 => self.text = data_text(data)?,
+            _ => return None,
+        };
+        Some(())
     }
 }
 
@@ -35,6 +75,19 @@ impl Modeled for Plugin {
             _ => QString::default(),
         }
     }
+
+    fn set_cell(&mut self, column: i32, data: &QVariant) -> Option<()> {
+        match column {
+            0 => self.metadata.name = data_text(data)?,
+            1 => self.metadata.purpose = data_text(data)?,
+            2 => self.metadata.author = data_text(data)?,
+            3 => self.metadata.path = data_text(data)?.into(),
+            4 => self.disabled = !data.value()?,
+            5 => self.metadata.version = data_text(data)?,
+            _ => return None,
+        };
+        Some(())
+    }
 }
 
 impl Modeled for Timer {
@@ -47,6 +100,17 @@ impl Modeled for Timer {
             _ => QString::default(),
         }
     }
+
+    fn set_cell(&mut self, column: i32, data: &QVariant) -> Option<()> {
+        match column {
+            0 => self.label = data_text(data)?,
+            // 1 => self.occurrence = data.value()?,
+            // 2 => self.occurrence = data_text(data)?,
+            3 => self.text = data_text(data)?,
+            _ => return None,
+        };
+        Some(())
+    }
 }
 
 impl Modeled for Trigger {
@@ -58,6 +122,22 @@ impl Modeled for Trigger {
             3 => QString::from(&self.text),
             _ => QString::default(),
         }
+    }
+
+    fn set_cell(&mut self, column: i32, data: &QVariant) -> Option<()> {
+        match column {
+            0 => self.label = data_text(data)?,
+            1 => self.sequence = data.value()?,
+            2 => {
+                let text = data_text(data)?;
+                let regex = Reaction::make_regex(&text, self.is_regex).ok()?;
+                self.pattern = text;
+                self.regex = regex;
+            }
+            3 => self.text = data_text(data)?,
+            _ => return None,
+        };
+        Some(())
     }
 }
 
@@ -208,6 +288,36 @@ impl SenderMapRust {
             None => -1,
         }
     }
+
+    pub fn set_cell(
+        &mut self,
+        client: &mut SmushClient,
+        group: &str,
+        row: usize,
+        column: i32,
+        data: &QVariant,
+    ) -> i32 {
+        let Some(index) = self.inner.sender_index(group, row) else {
+            return -1;
+        };
+        let result = match self.sender_type {
+            ffi::SenderType::Alias => Alias::update_in_world(client, index, column, data),
+            ffi::SenderType::Timer => Timer::update_in_world(client, index, column, data),
+            ffi::SenderType::Trigger => Trigger::update_in_world(client, index, column, data),
+            _ => None,
+        };
+        let Some(new_index) = result else {
+            return -1;
+        };
+        if new_index == index {
+            return i32::try_from(row).unwrap_or(-1);
+        }
+        self.recalculate(client);
+        let Some(new_row) = self.inner[group].iter().position(|&i| i == new_index) else {
+            return -1;
+        };
+        i32::try_from(new_row).unwrap_or(-1)
+    }
 }
 
 impl_constructor!(ffi::SenderMap, (ffi::SenderType,), {
@@ -278,5 +388,19 @@ impl ffi::SenderMap {
     #[allow(clippy::ptr_arg)]
     pub fn sender_index(&self, group: &String, index: usize) -> i32 {
         self.cxx_qt_ffi_rust().sender_index(group, index)
+    }
+
+    #[allow(clippy::ptr_arg)]
+    pub fn set_cell(
+        self: Pin<&mut Self>,
+        client: Pin<&mut ffi::SmushClient>,
+        group: &String,
+        index: usize,
+        column: i32,
+        data: &QVariant,
+    ) -> i32 {
+        let client = &mut client.cxx_qt_ffi_rust_mut().client;
+        self.cxx_qt_ffi_rust_mut()
+            .set_cell(client, group, index, column, data)
     }
 }

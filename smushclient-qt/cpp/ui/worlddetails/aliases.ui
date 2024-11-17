@@ -29,7 +29,7 @@
    <item>
     <widget class="QTreeView" name="tree">
      <property name="editTriggers">
-      <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+      <set>QAbstractItemView::EditTrigger::EditKeyPressed|QAbstractItemView::EditTrigger::SelectedClicked</set>
      </property>
      <property name="showDropIndicator" stdset="0">
       <bool>false</bool>

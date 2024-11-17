@@ -2,12 +2,27 @@
 #include "../ui/worlddetails/timeredit.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
+// Public methods
+
 TimerModel::TimerModel(SmushClient &client, Timekeeper *timekeeper, QObject *parent)
     : AbstractSenderModel(client, SenderType::Timer, parent),
       timekeeper(timekeeper)
 {
   setHeaders(tr("Group/Label"), tr("Type"), tr("Occurrence"), tr("Text"));
 }
+
+Qt::ItemFlags TimerModel::flags(const QModelIndex &index) const
+{
+  if (!index.constInternalPointer())
+    return Qt::ItemFlag::ItemIsEnabled;
+
+  const Qt::ItemFlags flags = Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemNeverHasChildren;
+
+  const int column = index.column();
+  return column == 0 || column == 3 ? flags | Qt::ItemFlag::ItemIsEditable : flags;
+}
+
+// Protected overrides
 
 int TimerModel::addItem(SmushClient &client, QWidget *parent)
 {

@@ -408,6 +408,14 @@ pub mod ffi {
             amount: usize,
         ) -> bool;
         unsafe fn sender_index(self: &SenderMap, group: &String, index: usize) -> i32;
+        unsafe fn set_cell(
+            self: Pin<&mut SenderMap>,
+            client: Pin<&mut SmushClient>,
+            group: &String,
+            index: usize,
+            column: i32,
+            data: &QVariant,
+        ) -> i32;
     }
 
     impl cxx_qt::Constructor<(SenderType,), NewArguments = (SenderType,)> for SenderMap {}
