@@ -19,7 +19,7 @@ PrefsPlugins::PrefsPlugins(SmushClient &client, ScriptApi *api, QWidget *parent)
   model = new PluginModel(client, this);
   ui->setupUi(this);
   ui->table->setModel(model);
-  ui->table->horizontalHeader()->restoreState(Settings().headerState(objectName()));
+  ui->table->horizontalHeader()->restoreState(Settings().getHeaderState(objectName()));
   connect(model, &PluginModel::clientError, this, &PrefsPlugins::onClientError);
   connect(model, &PluginModel::pluginOrderChanged, this, &PrefsPlugins::onPluginOrderChanged);
   connect(model, &PluginModel::pluginScriptChanged, this, &PrefsPlugins::onPluginScriptChanged);

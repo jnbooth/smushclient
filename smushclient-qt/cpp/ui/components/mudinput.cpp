@@ -30,11 +30,6 @@ void MudInput::setLog(const QStringList &log)
   history.replace(log);
 }
 
-void MudInput::setMaxLogSize(qsizetype size)
-{
-  history.setMaxSize(size);
-}
-
 // Public overrides
 
 QSize MudInput::minimumSizeHint() const
@@ -63,6 +58,11 @@ void MudInput::remember(const QString &text)
 void MudInput::setIgnoreKeypad(bool ignore)
 {
   ignoreKeypad = ignore;
+}
+
+void MudInput::setMaxLogSize(int size)
+{
+  history.setMaxSize(size);
 }
 
 // Protected overrides

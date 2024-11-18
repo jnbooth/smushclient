@@ -117,7 +117,6 @@ qt_add_executable(${APP_NAME}
     cpp/ui/finddialog.h cpp/ui/finddialog.cpp cpp/ui/finddialog.ui
     cpp/ui/mainwindow.h cpp/ui/mainwindow.cpp cpp/ui/mainwindow.ui
     cpp/ui/notepad.h cpp/ui/notepad.cpp cpp/ui/notepad.ui
-    cpp/ui/settings.h cpp/ui/settings.cpp cpp/ui/settings.ui
     cpp/ui/worldtab.h cpp/ui/worldtab.cpp cpp/ui/worldtab.ui
 
     cpp/ui/components/colorpickerbutton.h cpp/ui/components/colorpickerbutton.cpp
@@ -132,7 +131,9 @@ qt_add_executable(${APP_NAME}
     cpp/ui/scripting/listbox.h cpp/ui/scripting/listbox.cpp cpp/ui/scripting/listbox.ui
 
     cpp/ui/settings/appearance.h cpp/ui/settings/appearance.cpp cpp/ui/settings/appearance.ui
+    cpp/ui/settings/history.h cpp/ui/settings/history.cpp cpp/ui/settings/history.ui
     cpp/ui/settings/notifier.h
+    cpp/ui/settings/settings.h cpp/ui/settings/settings.cpp cpp/ui/settings/settings.ui
 
     cpp/ui/worlddetails/abstractprefstree.h cpp/ui/worlddetails/abstractprefstree.cpp
     cpp/ui/worlddetails/aliasedit.h cpp/ui/worlddetails/aliasedit.cpp cpp/ui/worlddetails/aliasedit.ui
@@ -143,6 +144,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/worlddetails/mud.h cpp/ui/worlddetails/mud.cpp cpp/ui/worlddetails/mud.ui
     cpp/ui/worlddetails/numpad.h cpp/ui/worlddetails/numpad.cpp cpp/ui/worlddetails/numpad.ui
     cpp/ui/worlddetails/output.h cpp/ui/worlddetails/output.cpp cpp/ui/worlddetails/output.ui
+    cpp/ui/worlddetails/pluginpopup.h cpp/ui/worlddetails/pluginpopup.cpp cpp/ui/worlddetails/pluginpopup.ui
     cpp/ui/worlddetails/plugins.h cpp/ui/worlddetails/plugins.cpp cpp/ui/worlddetails/plugins.ui
     cpp/ui/worlddetails/scripting.h cpp/ui/worlddetails/scripting.cpp cpp/ui/worlddetails/scripting.ui
     cpp/ui/worlddetails/specialhelp.h cpp/ui/worlddetails/specialhelp.cpp cpp/ui/worlddetails/specialhelp.ui
@@ -153,7 +155,6 @@ qt_add_executable(${APP_NAME}
     cpp/ui/worlddetails/worlddetails.h cpp/ui/worlddetails/worlddetails.cpp cpp/ui/worlddetails/worlddetails.ui
 
     resources/resources.qrc
-    cpp/ui/worlddetails/pluginpopup.h cpp/ui/worlddetails/pluginpopup.cpp cpp/ui/worlddetails/pluginpopup.ui
 )
 if(MSVC)
   target_compile_options(${APP_NAME} PRIVATE /W4 /WX)

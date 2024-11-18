@@ -10,6 +10,8 @@
 #include <QtWidgets/QTimeEdit>
 #include "./ui/components/colorpickerbutton.h"
 
+#define CONNECT_SETTINGS(field) connectField(this, &settings, ui->field, settings.get##field(), &Settings::set##field);
+
 #define CONNECT_WORLD(field) connectField(this, &world, ui->field, world.get##field(), &World::set##field);
 
 template <typename T, typename Enum>
@@ -29,6 +31,13 @@ QMetaObject::Connection connectField(QObject *object, const T *target, QCheckBox
   return object->connect(input, &QCheckBox::checkStateChanged, target, setter);
 }
 
+template <typename T>
+QMetaObject::Connection connectField(QObject *object, const T *target, QCheckBox *input, const bool value, void (T::*&&setter)(bool value))
+{
+  input->setChecked(value);
+  return object->connect(input, &QCheckBox::checkStateChanged, target, setter);
+}
+
 // double
 template <typename T>
 QMetaObject::Connection connectField(QObject *object, const T *target, QDoubleSpinBox *input, const double value, void (T::*&&setter)(const double &value))
@@ -37,9 +46,23 @@ QMetaObject::Connection connectField(QObject *object, const T *target, QDoubleSp
   return object->connect(input, &QDoubleSpinBox::valueChanged, target, setter);
 }
 
+template <typename T>
+QMetaObject::Connection connectField(QObject *object, const T *target, QDoubleSpinBox *input, const double value, void (T::*&&setter)(double value))
+{
+  input->setValue(value);
+  return object->connect(input, &QDoubleSpinBox::valueChanged, target, setter);
+}
+
 // int
 template <typename T>
 QMetaObject::Connection connectField(QObject *object, const T *target, QSpinBox *input, const int value, void (T::*&&setter)(const int &value))
+{
+  input->setValue(value);
+  return object->connect(input, &QSpinBox::valueChanged, target, setter);
+}
+
+template <typename T>
+QMetaObject::Connection connectField(QObject *object, const T *target, QSpinBox *input, const int value, void (T::*&&setter)(int value))
 {
   input->setValue(value);
   return object->connect(input, &QSpinBox::valueChanged, target, setter);

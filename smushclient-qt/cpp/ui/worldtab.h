@@ -109,6 +109,9 @@ private:
 
   void applyWorld();
   void finishDrag();
+  bool restoreHistory();
+  bool saveHistory() const;
+  bool saveState(const QString &filePath) const;
   bool saveWorldAndState(const QString &filePath) const;
   bool sendCommand(const QString &command, CommandSource source);
   void setupWorldScriptWatcher();

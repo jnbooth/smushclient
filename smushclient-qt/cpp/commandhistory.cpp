@@ -77,6 +77,12 @@ void CommandHistory::replace(const QStringList &newHistory)
 
 void CommandHistory::setMaxSize(qsizetype newMax)
 {
+  if (newMax < 0)
+  {
+    max = SSIZE_MAX;
+    return;
+  }
+
   max = newMax;
   const qsizetype currentSize = size();
   if (currentSize <= max)

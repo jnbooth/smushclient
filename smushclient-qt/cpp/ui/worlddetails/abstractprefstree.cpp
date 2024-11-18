@@ -40,7 +40,7 @@ void AbstractPrefsTree::setModel(AbstractSenderModel *newModel)
 void AbstractPrefsTree::setTree(QTreeView *newTree)
 {
   tree = newTree;
-  tree->header()->restoreState(Settings().headerState(objectName()));
+  tree->header()->restoreState(Settings().getHeaderState(objectName()));
   if (filtering)
     tree->setModel(proxy);
   else

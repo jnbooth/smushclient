@@ -14,6 +14,21 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>20</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QGroupBox" name="outputGroup">
      <property name="title">
@@ -21,24 +36,30 @@
      </property>
      <layout class="QFormLayout" name="formLayout_2">
       <item row="0" column="0">
-       <widget class="QLabel" name="outputFontLabel">
+       <widget class="QLabel" name="OutputFont_label">
         <property name="text">
          <string>Font Family</string>
+        </property>
+        <property name="buddy">
+         <cstring>OutputFont</cstring>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QFontComboBox" name="outputFont"/>
+       <widget class="QFontComboBox" name="OutputFont"/>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="outputFontSizeLabel">
+       <widget class="QLabel" name="OutputFontSize_label">
         <property name="text">
          <string>Font Size</string>
+        </property>
+        <property name="buddy">
+         <cstring>OutputFontSize</cstring>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QSpinBox" name="outputFontSize">
+       <widget class="QSpinBox" name="OutputFontSize">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -66,24 +87,30 @@
      </property>
      <layout class="QFormLayout" name="formLayout_3">
       <item row="0" column="0">
-       <widget class="QLabel" name="inputFontLabel">
+       <widget class="QLabel" name="InputFont_label">
         <property name="text">
          <string>Font Family</string>
+        </property>
+        <property name="buddy">
+         <cstring>InputFont</cstring>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QFontComboBox" name="inputFont"/>
+       <widget class="QFontComboBox" name="InputFont"/>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="inputFontSizeLabel">
+       <widget class="QLabel" name="InputFontSize_label">
         <property name="text">
          <string>Font Size</string>
+        </property>
+        <property name="buddy">
+         <cstring>InputFontSize</cstring>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QSpinBox" name="inputFontSize">
+       <widget class="QSpinBox" name="InputFontSize">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -102,42 +129,48 @@
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="inputForegroundLabel">
+       <widget class="QLabel" name="InputForeground_label">
         <property name="text">
          <string>Foreground</string>
+        </property>
+        <property name="buddy">
+         <cstring>InputForeground</cstring>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="ColorPickerButton" name="inputForeground">
-        <property name="text">
-         <string/>
-        </property>
+       <widget class="ColorPickerButton" name="InputForeground">
         <property name="baseSize">
-          <size>
+         <size>
           <width>20</width>
           <height>20</height>
-          </size>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>
       <item row="3" column="0">
-       <widget class="QLabel" name="inputBackgroundLabel">
+       <widget class="QLabel" name="InputBackground_label">
         <property name="text">
          <string>Background</string>
+        </property>
+        <property name="buddy">
+         <cstring>InputBackground</cstring>
         </property>
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="ColorPickerButton" name="inputBackground">
-        <property name="text">
-         <string/>
-        </property>
+       <widget class="ColorPickerButton" name="InputBackground">
         <property name="baseSize">
-          <size>
+         <size>
           <width>20</width>
           <height>20</height>
-          </size>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>

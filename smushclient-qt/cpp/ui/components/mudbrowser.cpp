@@ -23,6 +23,11 @@ void MudBrowser::setIgnoreKeypad(bool ignore)
   ignoreKeypad = ignore;
 }
 
+void MudBrowser::setMaximumBlockCount(int maximum)
+{
+  document()->setMaximumBlockCount(maximum);
+}
+
 // Protected overrides
 
 void MudBrowser::keyPressEvent(QKeyEvent *event)

@@ -1,5 +1,6 @@
 #include "worldtab.h"
 #include <string>
+#include <QtCore/QSaveFile>
 #include <QtCore/QUrl>
 #include <QtGui/QAction>
 #include <QtGui/QDesktopServices>
@@ -29,6 +30,16 @@ using std::string;
 constexpr Qt::KeyboardModifiers numpadMods = Qt::KeyboardModifier::ControlModifier | Qt::KeyboardModifier::MetaModifier;
 
 // Private utilities
+
+QString historyPath(const QString &path)
+{
+  return path + QStringLiteral(".history");
+}
+
+QString variablesPath(const QString &path)
+{
+  return path + QStringLiteral(".vars");
+}
 
 void setColors(QWidget *widget, const QColor &foreground, const QColor &background)
 {
@@ -87,12 +98,12 @@ WorldTab::WorldTab(Notepads *notepads, QWidget *parent)
   connect(&worldScriptWatcher, &QFileSystemWatcher::fileChanged, this, &WorldTab::confirmReloadWorldScript);
 
   const Settings settings;
-  setColors(ui->input, settings.inputForeground(), settings.inputBackground());
-  ui->input->setFont(settings.inputFont());
-  ui->output->setFont(settings.outputFont());
+  setColors(ui->input, settings.getInputForeground(), settings.getInputBackground());
+  ui->input->setFont(settings.getInputFont());
+  ui->output->setFont(settings.getOutputFont());
 
   const QTextEdit::LineWrapMode wrapMode =
-      settings.outputWrapping()
+      settings.getOutputWrapping()
           ? QTextEdit::LineWrapMode::WidgetWidth
           : QTextEdit::LineWrapMode::NoWrap;
   ui->output->setLineWrapMode(wrapMode);
@@ -103,6 +114,12 @@ WorldTab::~WorldTab()
   OnPluginClose onPluginClose;
   api->sendCallback(onPluginClose);
   disconnect(socket, nullptr, nullptr, nullptr);
+  if (!filePath.isEmpty())
+  {
+    saveState(filePath);
+    saveHistory();
+  }
+
   delete api;
   delete ui;
 }
@@ -204,6 +221,8 @@ bool WorldTab::openWorld(const QString &filename) &
     return false;
   }
   filePath = filename;
+  restoreHistory();
+  ui->output->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
   return true;
 }
 
@@ -275,14 +294,14 @@ void WorldTab::start()
 
   setupWorldScriptWatcher();
 
-  if (settings.loggingEnabled())
+  if (settings.getLoggingEnabled())
     openLog();
 
   if (!filePath.isEmpty())
   {
     try
     {
-      client.loadVariables(filePath + QStringLiteral(".vars"));
+      client.loadVariables(variablesPath(filePath));
     }
     catch (const rust::Error &e)
     {
@@ -294,7 +313,7 @@ void WorldTab::start()
 
   applyWorld();
 
-  if (settings.autoConnect())
+  if (settings.getAutoConnect())
     connectToHost();
 }
 
@@ -458,6 +477,69 @@ inline void WorldTab::finishDrag()
   }
 }
 
+bool WorldTab::restoreHistory()
+{
+  if (filePath.isEmpty())
+    return false;
+
+  QFile file(historyPath(filePath));
+  if (!file.open(QFile::ReadOnly))
+    return false;
+
+  const QByteArray history = file.readAll();
+
+  if (file.error() != QFile::FileError::NoError || history.isEmpty())
+    return false;
+
+  ui->output->setHtml(QString::fromUtf8(qUncompress(history)));
+
+  return true;
+}
+
+bool WorldTab::saveHistory() const
+{
+  if (filePath.isEmpty())
+    return false;
+
+  Settings settings;
+
+  if (!settings.getOutputHistoryEnabled())
+    return false;
+
+  if (settings.getOutputHistoryLimit())
+    ui->output->document()->setMaximumBlockCount(settings.getOutputHistoryLines());
+
+  QSaveFile file(historyPath(filePath));
+  if (!file.open(QSaveFile::WriteOnly))
+    return false;
+
+  api->startLine();
+  api->appendHtml(QStringLiteral("<hr/>"));
+  api->startLine();
+  api->startLine();
+
+  if (file.write(qCompress(ui->output->toHtml().toUtf8())) == -1)
+    return false;
+
+  return file.commit();
+}
+
+bool WorldTab::saveState(const QString &path) const
+{
+  OnPluginSaveState onSaveState;
+  api->sendCallback(onSaveState);
+  try
+  {
+    client.saveVariables(variablesPath(path));
+    return true;
+  }
+  catch (const rust::Error &e)
+  {
+    showRustError(e);
+    return false;
+  }
+}
+
 bool WorldTab::saveWorldAndState(const QString &path) const
 {
   OnPluginWorldSave onWorldSave;
@@ -471,16 +553,7 @@ bool WorldTab::saveWorldAndState(const QString &path) const
     showRustError(e);
     return false;
   }
-  OnPluginSaveState onSaveState;
-  api->sendCallback(onSaveState);
-  try
-  {
-    client.saveVariables(path + QStringLiteral(".vars"));
-  }
-  catch (const rust::Error &e)
-  {
-    showRustError(e);
-  }
+  saveState(path);
   return true;
 }
 
@@ -604,7 +677,7 @@ void WorldTab::onDisconnect()
     manualDisconnect = false;
     return;
   }
-  if (Settings().reconnectOnDisconnect())
+  if (Settings().getReconnectOnDisconnect())
     connectToHost();
 }
 

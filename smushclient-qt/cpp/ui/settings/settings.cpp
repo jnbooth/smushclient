@@ -1,8 +1,10 @@
 #include "settings.h"
 #include "ui_settings.h"
-#include "settings/appearance.h"
-#include "settings/notifier.h"
-#include "worldtab.h"
+#include "appearance.h"
+#include "history.h"
+#include "notifier.h"
+#include "../worldtab.h"
+#include "../ui_worldtab.h"
 
 static SettingsNotifier notifier;
 
@@ -14,6 +16,8 @@ void SettingsDialog::connect(WorldTab *tab)
   tab->connect(&notifier, &SettingsNotifier::inputForegroundChanged, tab, &WorldTab::onInputForegroundChanged);
   tab->connect(&notifier, &SettingsNotifier::inputFontChanged, tab, &WorldTab::onInputFontChanged);
   tab->connect(&notifier, &SettingsNotifier::outputFontChanged, tab, &WorldTab::onOutputFontChanged);
+  tab->connect(&notifier, &SettingsNotifier::inputHistoryLimitChanged, tab->ui->input, &MudInput::setMaxLogSize);
+  tab->connect(&notifier, &SettingsNotifier::outputLimitChanged, tab->ui->output, &MudBrowser::setMaximumBlockCount);
 }
 
 // Public methods
@@ -41,6 +45,8 @@ QWidget *SettingsDialog::paneForIndex(int n)
   {
   case 0:
     return new SettingsAppearance(settings, &notifier, this);
+  case 1:
+    return new SettingsHistory(settings, &notifier, this);
   default:
     return nullptr;
   }

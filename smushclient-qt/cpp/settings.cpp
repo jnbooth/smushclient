@@ -29,7 +29,7 @@ Settings::Settings(QObject *parent)
 
 static const QString autoConnectKey = QStringLiteral("connecting/auto");
 
-bool Settings::autoConnect() const
+bool Settings::getAutoConnect() const
 {
   return value(autoConnectKey, true);
 }
@@ -39,11 +39,25 @@ void Settings::setAutoConnect(bool enabled)
   store.setValue(autoConnectKey, enabled);
 }
 
+// Input background
+
+static const QString inputBackgroundKey = QStringLiteral("input/background");
+
+QColor Settings::getInputBackground() const
+{
+  return value(inputBackgroundKey, QColor(Qt::GlobalColor::white));
+}
+
+void Settings::setInputBackground(const QColor &color)
+{
+  store.setValue(inputBackgroundKey, color);
+}
+
 // Input font
 
 static const QString inputFontKey = QStringLiteral("input/font");
 
-QFont Settings::inputFont() const
+QFont Settings::getInputFont() const
 {
   static const QFont defaultFont = getDefaultFont(12);
   return value(inputFontKey, defaultFont);
@@ -54,25 +68,11 @@ void Settings::setInputFont(const QFont &font)
   store.setValue(inputFontKey, font);
 }
 
-// Input background
-
-static const QString inputBackgroundKey = QStringLiteral("input/background");
-
-QColor Settings::inputBackground() const
-{
-  return value(inputBackgroundKey, QColor(Qt::GlobalColor::white));
-}
-
-void Settings::setInputBackground(const QColor &color)
-{
-  store.setValue(inputBackgroundKey, color);
-}
-
 // Input foreground
 
 static const QString inputForegroundKey = QStringLiteral("input/foreground");
 
-QColor Settings::inputForeground() const
+QColor Settings::getInputForeground() const
 {
   return value(inputForegroundKey, QColor(Qt::GlobalColor::black));
 }
@@ -82,11 +82,39 @@ void Settings::setInputForeground(const QColor &color)
   store.setValue(inputForegroundKey, color);
 }
 
+// Input history limit
+
+static const QString inputHistoryLimitKey = QStringLiteral("input/history/limit");
+
+bool Settings::getInputHistoryLimit() const
+{
+  return value(inputHistoryLimitKey, false);
+}
+
+void Settings::setInputHistoryLimit(bool limit)
+{
+  store.setValue(inputHistoryLimitKey, limit);
+}
+
+// Input history lines
+
+static const QString inputHistoryLinesKey = QStringLiteral("input/history/lines");
+
+int Settings::getInputHistoryLines() const
+{
+  return value(inputHistoryLinesKey, 100);
+}
+
+void Settings::setInputHistoryLines(int lines)
+{
+  store.setValue(inputHistoryLinesKey, lines);
+}
+
 // Last files
 
 static const QString lastFilesKey = QStringLiteral("reopen");
 
-QStringList Settings::lastFiles() const
+QStringList Settings::getLastFiles() const
 {
   return store.value(lastFilesKey).toStringList();
 }
@@ -100,7 +128,7 @@ void Settings::setLastFiles(const QStringList &files)
 
 static const QString loggingEnabledKey = QStringLiteral("logging/enable");
 
-bool Settings::loggingEnabled() const
+bool Settings::getLoggingEnabled() const
 {
   return value(loggingEnabledKey, true);
 }
@@ -114,7 +142,7 @@ void Settings::setLoggingEnabled(bool enabled)
 
 static const QString notepadFontKey = QStringLiteral("notepad/font");
 
-QFont Settings::notepadFont() const
+QFont Settings::getNotepadFont() const
 {
   static const QFont defaultFont = getDefaultFont(12);
   return value(notepadFontKey, defaultFont);
@@ -129,7 +157,7 @@ void Settings::setNotepadFont(const QFont &font)
 
 static const QString notepadBackgroundKey = QStringLiteral("notepad/background");
 
-QColor Settings::notepadBackground() const
+QColor Settings::getNotepadBackground() const
 {
   return value(notepadBackgroundKey, QColor(Qt::GlobalColor::white));
 }
@@ -143,7 +171,7 @@ void Settings::setNotepadBackground(const QColor &color)
 
 static const QString notepadForegroundKey = QStringLiteral("notepad/foreground");
 
-QColor Settings::notepadForeground() const
+QColor Settings::getNotepadForeground() const
 {
   return value(notepadForegroundKey, QColor(Qt::GlobalColor::black));
 }
@@ -157,7 +185,7 @@ void Settings::setNotepadForeground(const QColor &color)
 
 static const QString outputFontKey = QStringLiteral("output/font");
 
-QFont Settings::outputFont() const
+QFont Settings::getOutputFont() const
 {
   static const QFont defaultFont = getDefaultFont(12);
   return value(outputFontKey, defaultFont);
@@ -168,11 +196,81 @@ void Settings::setOutputFont(const QFont &font)
   store.setValue(outputFontKey, font);
 }
 
+// Output limit
+
+static const QString outputLimitKey = QStringLiteral("output/limit");
+
+bool Settings::getOutputLimit() const
+{
+  return value(outputLimitKey, false);
+}
+
+void Settings::setOutputLimit(bool limit)
+{
+  store.setValue(outputLimitKey, limit);
+}
+
+// Output lines
+
+static const QString outputLinesKey = QStringLiteral("output/lines");
+
+int Settings::getOutputLines() const
+{
+  return value(outputLinesKey, 10000);
+}
+
+void Settings::setOutputLines(int lines)
+{
+  store.setValue(outputLinesKey, lines);
+}
+
+// Output history enabled
+
+static const QString outputHistoryEnabledKey = QStringLiteral("output/history/enable");
+
+bool Settings::getOutputHistoryEnabled() const
+{
+  return value(outputHistoryEnabledKey, true);
+}
+
+void Settings::setOutputHistoryEnabled(bool enabled)
+{
+  store.setValue(outputHistoryEnabledKey, enabled);
+}
+
+// Output history limit
+
+static const QString outputHistoryLimitKey = QStringLiteral("output/history/limit");
+
+bool Settings::getOutputHistoryLimit() const
+{
+  return value(outputHistoryLimitKey, false);
+}
+
+void Settings::setOutputHistoryLimit(bool limit)
+{
+  store.setValue(outputHistoryLimitKey, limit);
+}
+
+// Output history lines
+
+static const QString outputHistoryLinesKey = QStringLiteral("output/history/lines");
+
+int Settings::getOutputHistoryLines() const
+{
+  return value(outputHistoryLinesKey, 1000);
+}
+
+void Settings::setOutputHistoryLines(int lines)
+{
+  store.setValue(outputHistoryLinesKey, lines);
+}
+
 // Output wrapping
 
 static const QString outputWrapKey = QStringLiteral("output/wrap");
 
-bool Settings::outputWrapping() const
+bool Settings::getOutputWrapping() const
 {
   return value(outputWrapKey, true);
 }
@@ -188,7 +286,7 @@ static const QString recentFilesKey = QStringLiteral("recent");
 
 constexpr qsizetype recentFilesMax = 5;
 
-QStringList Settings::recentFiles() const
+QStringList Settings::getRecentFiles() const
 {
   QStringList recent = store.value(recentFilesKey).toStringList();
   // Should never happen, but just in case.
@@ -200,7 +298,7 @@ QStringList Settings::recentFiles() const
 RecentFileResult Settings::addRecentFile(const QString &path)
 {
   QString relativePath = makePathRelative(path);
-  QStringList recent = recentFiles();
+  QStringList recent = getRecentFiles();
   qsizetype index = recent.indexOf(relativePath);
   if (index == 0)
     return RecentFileResult{.changed = false, .recentFiles = recent};
@@ -218,7 +316,7 @@ RecentFileResult Settings::addRecentFile(const QString &path)
 RecentFileResult Settings::removeRecentFile(const QString &path)
 {
   QString relativePath = makePathRelative(path);
-  QStringList recent = recentFiles();
+  QStringList recent = getRecentFiles();
   qsizetype index = recent.indexOf(relativePath);
   if (index == -1)
     return RecentFileResult{.changed = false, .recentFiles = recent};
@@ -232,7 +330,7 @@ RecentFileResult Settings::removeRecentFile(const QString &path)
 
 static const QString reconnectKey = QStringLiteral("connecting/reconnect");
 
-bool Settings::reconnectOnDisconnect() const
+bool Settings::getReconnectOnDisconnect() const
 {
   return value(reconnectKey, false);
 }
@@ -246,7 +344,7 @@ void Settings::setReconnectOnDisconnect(bool enabled)
 
 static const QString showStatusBarKey = QStringLiteral("statusbar/visible");
 
-bool Settings::showStatusBar() const
+bool Settings::getShowStatusBar() const
 {
   return value(showStatusBarKey, true);
 }
@@ -258,7 +356,7 @@ void Settings::setShowStatusBar(bool show)
 
 // Header state
 
-QByteArray Settings::headerState(const QString &modelName) const
+QByteArray Settings::getHeaderState(const QString &modelName) const
 {
   return store.value(headerKey(modelName)).toByteArray();
 }

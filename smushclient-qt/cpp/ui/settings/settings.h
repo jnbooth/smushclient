@@ -1,7 +1,7 @@
 #pragma once
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QListWidgetItem>
-#include "../settings.h"
+#include "../../settings.h"
 
 namespace Ui
 {

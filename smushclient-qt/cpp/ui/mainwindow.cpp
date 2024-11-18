@@ -16,9 +16,9 @@
 #include "../spans.h"
 #include "../components/mudscrollbar.h"
 #include "../scripting/listbox.h"
+#include "settings/settings.h"
 #include "notepad.h"
 #include "finddialog.h"
-#include "settings.h"
 
 constexpr const char *saveFilter = "World files (*.smush);;All Files (*.*)";
 
@@ -43,10 +43,10 @@ MainWindow::MainWindow(Notepads *notepads, QWidget *parent)
 
   ui->setupUi(this);
 
-  ui->action_status_bar->setChecked(settings.showStatusBar());
-  ui->action_wrap_output->setChecked(settings.outputWrapping());
-  ui->action_auto_connect->setChecked(settings.autoConnect());
-  ui->action_reconnect_on_disconnect->setChecked(settings.reconnectOnDisconnect());
+  ui->action_status_bar->setChecked(settings.getShowStatusBar());
+  ui->action_wrap_output->setChecked(settings.getOutputWrapping());
+  ui->action_auto_connect->setChecked(settings.getAutoConnect());
+  ui->action_reconnect_on_disconnect->setChecked(settings.getReconnectOnDisconnect());
   connect(ui->action_auto_connect, &QAction::triggered, &settings, &Settings::setAutoConnect);
   connect(ui->action_close_window, &QAction::triggered, this, &MainWindow::close);
   connect(ui->action_log_session, &QAction::triggered, &settings, &Settings::setLoggingEnabled);
@@ -64,9 +64,9 @@ MainWindow::MainWindow(Notepads *notepads, QWidget *parent)
       ui->action_rec_4,
       ui->action_rec_5};
 
-  ui->action_log_session->setChecked(settings.loggingEnabled());
+  ui->action_log_session->setChecked(settings.getLoggingEnabled());
 
-  const QStringList recentFiles = settings.recentFiles();
+  const QStringList recentFiles = settings.getRecentFiles();
   if (!recentFiles.empty())
     setupRecentFiles(recentFiles);
 }
@@ -126,7 +126,7 @@ void MainWindow::connectTab(WorldTab *tab) const
 
 void MainWindow::openRecentFile(qsizetype index)
 {
-  const QStringList recentFiles = settings.recentFiles();
+  const QStringList recentFiles = settings.getRecentFiles();
   if (index >= recentFiles.length())
     return;
 

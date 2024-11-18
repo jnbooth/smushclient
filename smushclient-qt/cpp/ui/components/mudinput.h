@@ -14,7 +14,6 @@ public:
 
   const QStringList &log() const noexcept;
   void setLog(const QStringList &log);
-  void setMaxLogSize(qsizetype size);
 
   virtual QSize minimumSizeHint() const override;
   virtual QSize sizeHint() const override;
@@ -23,6 +22,7 @@ public slots:
   void clearLog();
   void remember(const QString &text);
   void setIgnoreKeypad(bool ignore);
+  void setMaxLogSize(int size);
 
 signals:
   void submitted(const QString &text);

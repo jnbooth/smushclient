@@ -70,6 +70,15 @@
          <set>ItemIsSelectable|ItemIsEnabled</set>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>History</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../resources/resources.qrc">
+          <normaloff>:/icons/settings/history.svg</normaloff>:/icons/settings/history.svg</iconset>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
@@ -79,6 +88,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

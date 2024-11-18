@@ -9,7 +9,7 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QErrorMessage>
 #include "finddialog.h"
-#include "settings.h"
+#include "settings/settings.h"
 #include "../settings.h"
 
 constexpr int minFontSize = 5;
@@ -27,10 +27,10 @@ Notepad::Notepad(QWidget *parent)
   setAttribute(Qt::WA_DeleteOnClose);
   Settings settings;
   QPalette palette = ui->editor->palette();
-  palette.setBrush(QPalette::ColorRole::Text, settings.notepadForeground());
-  palette.setBrush(QPalette::ColorRole::Base, settings.notepadBackground());
+  palette.setBrush(QPalette::ColorRole::Text, settings.getNotepadForeground());
+  palette.setBrush(QPalette::ColorRole::Base, settings.getNotepadBackground());
   ui->editor->setPalette(palette);
-  const QFont font = settings.notepadFont();
+  const QFont font = settings.getNotepadFont();
   fontSize = font.pointSizeF();
   QTextCharFormat format;
   format.setFont(font);

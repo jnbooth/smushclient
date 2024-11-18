@@ -13,6 +13,7 @@ public:
 
 public slots:
   void setIgnoreKeypad(bool ignore);
+  void setMaximumBlockCount(int maximum);
 
 protected:
   virtual void keyPressEvent(QKeyEvent *event) override;

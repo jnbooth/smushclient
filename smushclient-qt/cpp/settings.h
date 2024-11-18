@@ -15,39 +15,48 @@ class Settings : public QObject
 public:
   explicit Settings(QObject *parent = nullptr);
 
-  bool autoConnect() const;
+  bool getAutoConnect() const;
 
-  QFont inputFont() const;
-  QColor inputBackground() const;
-  QColor inputForeground() const;
+  QColor getInputBackground() const;
+  QFont getInputFont() const;
+  QColor getInputForeground() const;
+  bool getInputHistoryLimit() const;
+  int getInputHistoryLines() const;
 
-  QStringList lastFiles() const;
+  QStringList getLastFiles() const;
 
-  bool loggingEnabled() const;
+  bool getLoggingEnabled() const;
 
-  QFont notepadFont() const;
-  QColor notepadBackground() const;
-  QColor notepadForeground() const;
+  QFont getNotepadFont() const;
+  QColor getNotepadBackground() const;
+  QColor getNotepadForeground() const;
 
-  QFont outputFont() const;
-  bool outputWrapping() const;
+  QFont getOutputFont() const;
+  bool getOutputLimit() const;
+  int getOutputLines() const;
+  bool getOutputHistoryEnabled() const;
+  bool getOutputHistoryLimit() const;
+  int getOutputHistoryLines() const;
+  bool getOutputWrapping() const;
 
-  QStringList recentFiles() const;
+  QStringList getRecentFiles() const;
   RecentFileResult addRecentFile(const QString &path);
   RecentFileResult removeRecentFile(const QString &path);
 
-  bool reconnectOnDisconnect() const;
+  bool getReconnectOnDisconnect() const;
 
-  bool showStatusBar() const;
+  bool getShowStatusBar() const;
 
-  QByteArray headerState(const QString &modelName) const;
+  QByteArray getHeaderState(const QString &modelName) const;
 
 public slots:
   void setAutoConnect(bool enabled);
 
-  void setInputFont(const QFont &font);
   void setInputBackground(const QColor &color);
+  void setInputFont(const QFont &font);
   void setInputForeground(const QColor &color);
+  void setInputHistoryLimit(bool limit);
+  void setInputHistoryLines(int lines);
 
   void setLastFiles(const QStringList &files);
 
@@ -58,6 +67,11 @@ public slots:
   void setNotepadForeground(const QColor &color);
 
   void setOutputFont(const QFont &font);
+  void setOutputLimit(bool limit);
+  void setOutputLines(int lines);
+  void setOutputHistoryEnabled(bool enabled);
+  void setOutputHistoryLimit(bool limit);
+  void setOutputHistoryLines(int lines);
   void setOutputWrapping(bool wrapping);
 
   void setReconnectOnDisconnect(bool reconnect);

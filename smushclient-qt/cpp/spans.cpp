@@ -123,7 +123,7 @@ void setTimestamp(QTextCursor &cursor)
 {
   QTextBlockFormat format;
   format.setProperty(timestampProp, QDateTime::currentDateTime());
-  cursor.mergeBlockFormat(format);
+  cursor.setBlockFormat(format);
 }
 
 QDateTime getTimestamp(const QTextBlockFormat &format)

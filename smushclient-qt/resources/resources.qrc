@@ -1,10 +1,9 @@
 <RCC>
-    <qresource prefix="/fonts">
-        <file alias="Dina-Bold">fonts/Dina-Bold.ttf</file>
-        <file alias="Dina">fonts/Dina.ttf</file>
-        <file alias="FixedSys">fonts/FixedSys.ttf</file>
-    </qresource>
-    <qresource prefix="/icons/world-details">
+    <qresource prefix="/">
+        <file>fonts/Dina-Bold.ttf</file>
+        <file>fonts/Dina.ttf</file>
+        <file>fonts/FixedSys.ttf</file>
+        <file>icons/settings/history.svg</file>
         <file>icons/world-details/aliases.svg</file>
         <file>icons/world-details/connecting.svg</file>
         <file>icons/world-details/keypad.svg</file>

@@ -59,7 +59,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../../resources/resources.qrc">
-          <normaloff>:/icons/world-details/icons/world-details/connecting.svg</normaloff>:/icons/world-details/icons/world-details/connecting.svg</iconset>
+          <normaloff>:/icons/world-details/connecting.svg</normaloff>:/icons/world-details/connecting.svg</iconset>
         </property>
         <property name="flags">
          <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -71,7 +71,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../../resources/resources.qrc">
-          <normaloff>:/icons/world-details/icons/world-details/login.svg</normaloff>:/icons/world-details/icons/world-details/login.svg</iconset>
+          <normaloff>:/icons/world-details/login.svg</normaloff>:/icons/world-details/login.svg</iconset>
         </property>
         <property name="flags">
          <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -83,7 +83,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../../resources/resources.qrc">
-          <normaloff>:/icons/world-details/icons/world-details/output.svg</normaloff>:/icons/world-details/icons/world-details/output.svg</iconset>
+          <normaloff>:/icons/world-details/output.svg</normaloff>:/icons/world-details/output.svg</iconset>
         </property>
         <property name="flags">
          <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -95,7 +95,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../../resources/resources.qrc">
-          <normaloff>:/icons/world-details/icons/world-details/mud.svg</normaloff>:/icons/world-details/icons/world-details/mud.svg</iconset>
+          <normaloff>:/icons/world-details/mud.svg</normaloff>:/icons/world-details/mud.svg</iconset>
         </property>
         <property name="flags">
          <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -107,7 +107,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../../resources/resources.qrc">
-          <normaloff>:/icons/world-details/icons/world-details/logging.svg</normaloff>:/icons/world-details/icons/world-details/logging.svg</iconset>
+          <normaloff>:/icons/world-details/logging.svg</normaloff>:/icons/world-details/logging.svg</iconset>
         </property>
         <property name="flags">
          <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -119,7 +119,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../../resources/resources.qrc">
-          <normaloff>:/icons/world-details/icons/world-details/keypad.svg</normaloff>:/icons/world-details/icons/world-details/keypad.svg</iconset>
+          <normaloff>:/icons/world-details/keypad.svg</normaloff>:/icons/world-details/keypad.svg</iconset>
         </property>
         <property name="flags">
          <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -131,7 +131,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../../resources/resources.qrc">
-          <normaloff>:/icons/world-details/icons/world-details/aliases.svg</normaloff>:/icons/world-details/icons/world-details/aliases.svg</iconset>
+          <normaloff>:/icons/world-details/aliases.svg</normaloff>:/icons/world-details/aliases.svg</iconset>
         </property>
         <property name="flags">
          <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -143,7 +143,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../../resources/resources.qrc">
-          <normaloff>:/icons/world-details/icons/world-details/timers.svg</normaloff>:/icons/world-details/icons/world-details/timers.svg</iconset>
+          <normaloff>:/icons/world-details/timers.svg</normaloff>:/icons/world-details/timers.svg</iconset>
         </property>
         <property name="flags">
          <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -155,7 +155,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../../resources/resources.qrc">
-          <normaloff>:/icons/world-details/icons/world-details/triggers.svg</normaloff>:/icons/world-details/icons/world-details/triggers.svg</iconset>
+          <normaloff>:/icons/world-details/triggers.svg</normaloff>:/icons/world-details/triggers.svg</iconset>
         </property>
         <property name="flags">
          <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -167,7 +167,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../../resources/resources.qrc">
-          <normaloff>:/icons/world-details/icons/world-details/scripting.svg</normaloff>:/icons/world-details/icons/world-details/scripting.svg</iconset>
+          <normaloff>:/icons/world-details/scripting.svg</normaloff>:/icons/world-details/scripting.svg</iconset>
         </property>
         <property name="flags">
          <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -179,7 +179,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../../resources/resources.qrc">
-          <normaloff>:/icons/world-details/icons/world-details/plugins.svg</normaloff>:/icons/world-details/icons/world-details/plugins.svg</iconset>
+          <normaloff>:/icons/world-details/plugins.svg</normaloff>:/icons/world-details/plugins.svg</iconset>
         </property>
         <property name="flags">
          <set>ItemIsSelectable|ItemIsEnabled</set>

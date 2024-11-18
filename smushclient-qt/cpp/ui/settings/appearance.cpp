@@ -1,28 +1,27 @@
 #include "appearance.h"
 #include "ui_appearance.h"
-#include "../settings.h"
+#include "settings.h"
 #include "notifier.h"
+#include "../../fieldconnector.h"
 
 // Public methods
 
 SettingsAppearance::SettingsAppearance(Settings &settings, SettingsNotifier *notifier, QWidget *parent)
     : QWidget(parent),
       ui(new Ui::SettingsAppearance),
-      inputFont(settings.inputFont()),
+      inputFont(settings.getInputFont()),
       notifier(notifier),
-      outputFont(settings.outputFont()),
+      outputFont(settings.getOutputFont()),
       settings(settings)
 {
   ui->setupUi(this);
-  ui->inputBackground->setValue(settings.inputBackground());
-  ui->inputForeground->setValue(settings.inputForeground());
-  ui->inputFont->setCurrentFont(inputFont);
-  ui->inputFontSize->setValue(inputFont.pointSize());
-  ui->outputFont->setCurrentFont(outputFont);
-  ui->outputFontSize->setValue(outputFont.pointSize());
+  ui->InputFont->setCurrentFont(inputFont);
+  ui->InputFontSize->setValue(inputFont.pointSize());
+  ui->OutputFont->setCurrentFont(outputFont);
+  ui->OutputFontSize->setValue(outputFont.pointSize());
 
-  connect(ui->inputBackground, &ColorPickerButton::valueChanged, &settings, &Settings::setInputBackground);
-  connect(ui->inputForeground, &ColorPickerButton::valueChanged, &settings, &Settings::setInputForeground);
+  CONNECT_SETTINGS(InputBackground);
+  CONNECT_SETTINGS(InputForeground);
 }
 
 SettingsAppearance::~SettingsAppearance()
@@ -32,12 +31,12 @@ SettingsAppearance::~SettingsAppearance()
 
 // Private slots
 
-void SettingsAppearance::on_inputBackground_valueChanged(const QColor &color)
+void SettingsAppearance::on_InputBackground_valueChanged(const QColor &color)
 {
   emit notifier->inputBackgroundChanged(color);
 }
 
-void SettingsAppearance::on_inputFont_currentFontChanged(const QFont &font)
+void SettingsAppearance::on_InputFont_currentFontChanged(const QFont &font)
 {
   if (inputFont == font)
     return;
@@ -48,7 +47,7 @@ void SettingsAppearance::on_inputFont_currentFontChanged(const QFont &font)
   emit notifier->inputFontChanged(inputFont);
 }
 
-void SettingsAppearance::on_inputFontSize_valueChanged(int size)
+void SettingsAppearance::on_InputFontSize_valueChanged(int size)
 {
   if (inputFont.pointSize() == size)
     return;
@@ -57,12 +56,12 @@ void SettingsAppearance::on_inputFontSize_valueChanged(int size)
   emit notifier->inputFontChanged(inputFont);
 }
 
-void SettingsAppearance::on_inputForeground_valueChanged(const QColor &color)
+void SettingsAppearance::on_InputForeground_valueChanged(const QColor &color)
 {
   emit notifier->inputForegroundChanged(color);
 }
 
-void SettingsAppearance::on_outputFont_currentFontChanged(const QFont &font)
+void SettingsAppearance::on_OutputFont_currentFontChanged(const QFont &font)
 {
   if (outputFont == font)
     return;
@@ -73,7 +72,7 @@ void SettingsAppearance::on_outputFont_currentFontChanged(const QFont &font)
   emit notifier->outputFontChanged(outputFont);
 }
 
-void SettingsAppearance::on_outputFontSize_valueChanged(int size)
+void SettingsAppearance::on_OutputFontSize_valueChanged(int size)
 {
   if (outputFont.pointSize() == size)
     return;

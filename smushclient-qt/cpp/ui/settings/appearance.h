@@ -26,10 +26,10 @@ private:
   Settings &settings;
 
 private slots:
-  void on_inputBackground_valueChanged(const QColor &color);
-  void on_inputFont_currentFontChanged(const QFont &font);
-  void on_inputFontSize_valueChanged(int size);
-  void on_inputForeground_valueChanged(const QColor &color);
-  void on_outputFont_currentFontChanged(const QFont &font);
-  void on_outputFontSize_valueChanged(int size);
+  void on_InputBackground_valueChanged(const QColor &color);
+  void on_InputFont_currentFontChanged(const QFont &font);
+  void on_InputFontSize_valueChanged(int size);
+  void on_InputForeground_valueChanged(const QColor &color);
+  void on_OutputFont_currentFontChanged(const QFont &font);
+  void on_OutputFontSize_valueChanged(int size);
 };
