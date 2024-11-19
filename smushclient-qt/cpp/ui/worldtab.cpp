@@ -111,15 +111,7 @@ WorldTab::WorldTab(Notepads *notepads, QWidget *parent)
 
 WorldTab::~WorldTab()
 {
-  OnPluginClose onPluginClose;
-  api->sendCallback(onPluginClose);
   disconnect(socket, nullptr, nullptr, nullptr);
-  if (!filePath.isEmpty())
-  {
-    saveState(filePath);
-    saveHistory();
-  }
-
   delete api;
   delete ui;
 }
@@ -362,15 +354,27 @@ void WorldTab::onOutputFontChanged(const QFont &font)
 
 // Protected overrides
 
-void WorldTab::mouseMoveEvent(QMouseEvent *)
+void WorldTab::closeEvent(QCloseEvent *event)
 {
-  if (onDragMove) [[unlikely]]
-    onDragMove->trigger();
+  OnPluginClose onPluginClose;
+  api->sendCallback(onPluginClose);
+  if (!filePath.isEmpty())
+  {
+    saveState(filePath);
+    saveHistory();
+  }
+  event->accept();
 }
 
 void WorldTab::leaveEvent(QEvent *)
 {
   finishDrag();
+}
+
+void WorldTab::mouseMoveEvent(QMouseEvent *)
+{
+  if (onDragMove) [[unlikely]]
+    onDragMove->trigger();
 }
 
 void WorldTab::keyPressEvent(QKeyEvent *event)

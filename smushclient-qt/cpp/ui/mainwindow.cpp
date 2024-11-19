@@ -73,22 +73,13 @@ MainWindow::MainWindow(Notepads *notepads, QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-  QStringList lastFiles;
-  const int tabCount = ui->world_tabs->count();
-  lastFiles.reserve(tabCount);
-  for (int i = 0; i < tabCount; ++i)
-  {
-    const QString &worldFilePath = worldtab(i)->worldFilePath();
-    if (!worldFilePath.isEmpty())
-      lastFiles.push_back(worldFilePath);
-  }
-  settings.setLastFiles(lastFiles);
   delete ui;
 }
 
 void MainWindow::openWorld(const QString &filePath)
 {
   WorldTab *tab = new WorldTab(notepads, ui->world_tabs);
+  tab->setAttribute(Qt::WA_DeleteOnClose);
   if (tab->openWorld(filePath))
   {
     connectTab(tab);
@@ -102,6 +93,32 @@ void MainWindow::openWorld(const QString &filePath)
   const RecentFileResult result = settings.removeRecentFile(filePath);
   if (result.changed)
     setupRecentFiles(result.recentFiles);
+}
+
+// Protected methods
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+  QList<WorldTab *> tabs;
+  const int tabCount = ui->world_tabs->count();
+  tabs.reserve(tabCount);
+  QStringList lastFiles;
+  lastFiles.reserve(tabCount);
+
+  for (int i = 0; i < tabCount; ++i)
+  {
+    WorldTab *tab = qobject_cast<WorldTab *>(ui->world_tabs->widget(i));
+    const QString &worldFilePath = tab->worldFilePath();
+    if (!worldFilePath.isEmpty())
+      lastFiles.push_back(worldFilePath);
+    tabs.push_back(tab);
+  }
+
+  for (WorldTab *tab : tabs)
+    tab->close();
+
+  settings.setLastFiles(lastFiles);
+  event->accept();
 }
 
 // Private methods
@@ -230,7 +247,7 @@ void MainWindow::on_action_close_world_triggered()
 {
   QWidget *tab = ui->world_tabs->currentWidget();
   if (tab)
-    delete tab;
+    tab->close();
 }
 
 void MainWindow::on_action_command_history_triggered()
@@ -333,6 +350,7 @@ void MainWindow::on_action_new_triggered()
 {
   const int currentIndex = ui->world_tabs->currentIndex();
   WorldTab *tab = new WorldTab(notepads, this);
+  tab->setAttribute(Qt::WA_DeleteOnClose);
   tab->createWorld();
   const int tabIndex = ui->world_tabs->addTab(tab, tr("New world"));
   ui->world_tabs->setCurrentIndex(tabIndex);
@@ -507,5 +525,5 @@ void MainWindow::on_world_tabs_currentChanged(int index)
 
 void MainWindow::on_world_tabs_tabCloseRequested(int index)
 {
-  delete ui->world_tabs->widget(index);
+  ui->world_tabs->widget(index)->close();
 }

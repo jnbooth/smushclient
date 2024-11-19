@@ -81,6 +81,7 @@ signals:
   void copyAvailable(AvailableCopy available);
 
 protected:
+  void closeEvent(QCloseEvent *event) override;
   void leaveEvent(QEvent *event) override;
   void keyPressEvent(QKeyEvent *event) override;
   void mouseMoveEvent(QMouseEvent *event) override;

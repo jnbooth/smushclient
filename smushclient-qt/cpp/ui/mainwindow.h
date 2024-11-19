@@ -25,6 +25,9 @@ public:
 
   void openWorld(const QString &filePath);
 
+protected:
+  void closeEvent(QCloseEvent *event) override;
+
 private:
   Ui::MainWindow *ui;
   FindDialog *findDialog;
