@@ -116,10 +116,10 @@ impl<T: Ord> CursorVec<T> {
         let mut pos = match self.sorted_slice().binary_search(&item) {
             Ok(pos) | Err(pos) => pos,
         };
-        if pos == i {
+        if pos == i || pos == i + 1 {
             let entry = &mut self.inner[i];
             *entry = item;
-            return (pos, entry);
+            return (i, entry);
         }
         if self.evaluating {
             self.removals.push(i);

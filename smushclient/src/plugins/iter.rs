@@ -2,7 +2,7 @@ use smushclient_plugins::{Alias, CursorVec, Plugin, Sender, Timer, Trigger, XmlE
 
 use crate::world::World;
 
-pub trait SendIterable: AsRef<Sender> + AsMut<Sender> + Ord + Sized {
+pub trait SendIterable: AsRef<Sender> + AsMut<Sender> + Eq + Ord + Sized {
     fn from_xml_str(s: &str) -> Result<Vec<Self>, XmlError>;
     fn to_xml_string<'a, I: IntoIterator<Item = &'a Self>>(iter: I) -> Result<String, XmlError>
     where
