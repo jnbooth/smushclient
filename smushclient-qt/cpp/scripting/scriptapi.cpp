@@ -287,15 +287,6 @@ void ScriptApi::sendCallback(PluginCallback &callback)
 {
   switch (callback.id())
   {
-  case OnPluginConnect::ID:
-    statusBar->setConnected(true);
-    break;
-
-  case OnPluginDisconnect::ID:
-    doesNaws = false;
-    statusBar->setConnected(false);
-    break;
-
   case OnPluginWorldOutputResized::ID:
     for (const auto &window : windows)
       window.second->updatePosition();

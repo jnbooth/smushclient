@@ -255,6 +255,7 @@ void MainWindow::onConnectionStatusChanged(bool connected)
 {
   ui->action_connect->setEnabled(!connected);
   ui->action_disconnect->setEnabled(connected);
+  ui->statusBar->setConnected(connected);
 }
 
 void MainWindow::onNewActivity(WorldTab *tab)
