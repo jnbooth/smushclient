@@ -20,8 +20,6 @@
 #include "notepad.h"
 #include "finddialog.h"
 
-constexpr const char *saveFilter = "World files (*.smush);;All Files (*.*)";
-
 MainWindow::MainWindow(Notepads *notepads, QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
@@ -109,6 +107,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
   for (int i = 0; i < tabCount; ++i)
   {
     WorldTab *tab = qobject_cast<WorldTab *>(ui->world_tabs->widget(i));
+    if (!tab->promptSave())
+    {
+      event->ignore();
+      return;
+    }
     const QString &worldFilePath = tab->worldFilePath();
     if (!worldFilePath.isEmpty())
       lastFiles.push_back(worldFilePath);
@@ -116,7 +119,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
   }
 
   for (WorldTab *tab : tabs)
+  {
+    tab->setWindowModified(false);
     tab->close();
+  }
 
   settings.setLastFiles(lastFiles);
   event->accept();
@@ -337,7 +343,11 @@ void MainWindow::on_action_edit_world_details_triggered()
 {
   WorldTab *tab = worldtab();
   tab->openWorldSettings();
-  ui->world_tabs->setTabText(ui->world_tabs->currentIndex(), tab->title());
+  if (tab->isWindowModified())
+    setWindowModified(true);
+  const QString &title = tab->title();
+  ui->world_tabs->setTabText(ui->world_tabs->currentIndex(), title);
+  setWindowTitle(title + QStringLiteral("[*] - SmushClient"));
 }
 
 void MainWindow::on_action_find_triggered()
@@ -391,6 +401,7 @@ void MainWindow::on_action_new_triggered()
   ui->world_tabs->setCurrentIndex(tabIndex);
   if (tab->openWorldSettings())
   {
+    setWindowModified(true);
     connectTab(tab);
     tab->start();
     return;
@@ -411,7 +422,7 @@ void MainWindow::on_action_open_world_triggered()
       this,
       ui->action_open_world->text(),
       QStringLiteral(WORLDS_DIR),
-      tr(saveFilter));
+      WorldTab::saveFilter());
 
   if (filePath.isEmpty())
     return;
@@ -478,7 +489,16 @@ void MainWindow::on_action_save_selection_triggered()
 
 void MainWindow::on_action_save_world_details_as_triggered()
 {
-  addRecentFile(worldtab()->saveWorldAsNew(tr(saveFilter)));
+  WorldTab *tab = worldtab();
+  addRecentFile(tab->saveWorldAsNew());
+  setWindowModified(tab->isWindowModified());
+}
+
+void MainWindow::on_action_save_world_details_triggered()
+{
+  WorldTab *tab = worldtab();
+  addRecentFile(tab->saveWorld());
+  setWindowModified(tab->isWindowModified());
 }
 
 void MainWindow::on_action_select_all_triggered()
@@ -503,11 +523,6 @@ void MainWindow::on_action_wrap_output_triggered(bool checked)
       checked ? QTextEdit::LineWrapMode::WidgetWidth : QTextEdit::LineWrapMode::NoWrap;
   for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
     worldtab(i)->ui->output->setLineWrapMode(mode);
-}
-
-void MainWindow::on_action_save_world_details_triggered()
-{
-  addRecentFile(worldtab()->saveWorld(tr(saveFilter)));
 }
 
 void MainWindow::on_action_visit_api_guide_triggered()
@@ -555,7 +570,10 @@ void MainWindow::on_world_tabs_currentChanged(int index)
   setWorldMenusEnabled(true);
   ui->action_pause_output->setChecked(activeTab->ui->output->verticalScrollBar()->paused());
   activeTab->setIsActive(true);
-  ui->world_tabs->tabBar()->setTabText(index, activeTab->title());
+  const QString &title = activeTab->title();
+  ui->world_tabs->tabBar()->setTabText(index, title);
+  setWindowTitle(title + QStringLiteral("[*] - SmushClient"));
+  setWindowModified(activeTab->isWindowModified());
   onCopyAvailable(activeTab->availableCopy());
 }
 

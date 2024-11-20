@@ -62,6 +62,13 @@ inline void showRustError(const rust::Error &e)
   QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
 }
 
+// Static public methods
+
+QString WorldTab::saveFilter()
+{
+  return tr("World files (*.smush);;All Files (*.*)");
+}
+
 // Public methods
 
 WorldTab::WorldTab(Notepads *notepads, QWidget *parent)
@@ -211,14 +218,41 @@ bool WorldTab::openWorld(const QString &filename) &
 bool WorldTab::openWorldSettings()
 {
   WorldPrefs worlddetails(world, client, api, this);
-  if (worlddetails.exec() == QDialog::Accepted)
+  if (worlddetails.exec() != QDialog::Accepted)
   {
-    client.setWorld(world);
-    applyWorld();
+    client.populateWorld(world);
+    return false;
+  }
+  if (!client.setWorld(world))
+    return false;
+
+  if (!world.getSaveWorldAutomatically())
+    setWindowModified(true);
+
+  applyWorld();
+  return true;
+}
+
+bool WorldTab::promptSave()
+{
+  if (!isWindowModified())
+    return true;
+  QMessageBox msgBox;
+  msgBox.setText(tr("Do you want to save the changes you made to %1?").arg(world.getName()));
+  msgBox.setInformativeText(tr("Your changes will be lost if you don't save them."));
+  msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+  msgBox.setDefaultButton(QMessageBox::Save);
+  switch (msgBox.exec())
+  {
+  case QMessageBox::Save:
+    return !saveWorld().isEmpty();
+  case QMessageBox::Discard:
+    return true;
+  case QMessageBox::Cancel:
+    return false;
+  default:
     return true;
   }
-  client.populateWorld(world);
-  return false;
 }
 
 void WorldTab::reloadWorldScript() const
@@ -231,10 +265,10 @@ void WorldTab::resetAllTimers() const
   api->resetAllTimers();
 }
 
-QString WorldTab::saveWorld(const QString &saveFilter)
+QString WorldTab::saveWorld()
 {
   if (filePath.isEmpty())
-    return saveWorldAsNew(saveFilter);
+    return saveWorldAsNew();
 
   if (!saveWorldAndState(filePath))
     return QString();
@@ -242,13 +276,13 @@ QString WorldTab::saveWorld(const QString &saveFilter)
   return filePath;
 }
 
-QString WorldTab::saveWorldAsNew(const QString &saveFilter)
+QString WorldTab::saveWorldAsNew()
 {
   const QString path = QFileDialog::getSaveFileName(
       this,
       tr("Save as"),
-      QStringLiteral(WORLDS_DIR "/%1").arg(world.getName()),
-      saveFilter);
+      QStringLiteral(WORLDS_DIR "/") + world.getName(),
+      saveFilter());
 
   if (path.isEmpty())
     return path;
@@ -319,7 +353,7 @@ void WorldTab::stopSound() const
   api->StopSound();
 }
 
-const QString WorldTab::title() const noexcept
+const QString &WorldTab::title() const noexcept
 {
   return world.getName();
 }
@@ -363,6 +397,11 @@ void WorldTab::closeEvent(QCloseEvent *event)
 {
   OnPluginClose onPluginClose;
   api->sendCallback(onPluginClose);
+  if (!promptSave())
+  {
+    event->ignore();
+    return;
+  }
   if (!filePath.isEmpty())
   {
     saveState(filePath);
@@ -549,7 +588,7 @@ bool WorldTab::saveState(const QString &path) const
   }
 }
 
-bool WorldTab::saveWorldAndState(const QString &path) const
+bool WorldTab::saveWorldAndState(const QString &path)
 {
   OnPluginWorldSave onWorldSave;
   api->sendCallback(onWorldSave);
@@ -562,6 +601,7 @@ bool WorldTab::saveWorldAndState(const QString &path) const
     showRustError(e);
     return false;
   }
+  setWindowModified(false);
   saveState(path);
   return true;
 }

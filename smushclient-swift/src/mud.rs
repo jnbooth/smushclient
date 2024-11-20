@@ -62,7 +62,7 @@ impl RustMudBridge {
     }
 
     pub fn set_world(&mut self, world: World) {
-        self.client.set_world(world);
+        self.client.update_world(world);
     }
 
     pub fn connected(&self) -> bool {

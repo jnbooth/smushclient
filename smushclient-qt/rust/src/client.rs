@@ -70,7 +70,7 @@ impl SmushClientRust {
         let file = File::open(String::from(path).as_str())?;
         let worldfile = World::load(file)?;
         let world = WorldRust::from(&worldfile);
-        self.client.set_world_entire(worldfile);
+        self.client.set_world(worldfile);
         self.apply_world();
         Ok(world)
     }
@@ -119,9 +119,9 @@ impl SmushClientRust {
         let Ok(world) = World::try_from(world) else {
             return false;
         };
-        self.client.set_world(world);
+        let changed = self.client.update_world(world);
         self.apply_world();
-        true
+        changed
     }
 
     pub fn handle_connect(&self, mut socket: SocketAdapter) -> QString {

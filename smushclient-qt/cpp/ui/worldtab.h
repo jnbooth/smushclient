@@ -37,6 +37,8 @@ public:
   explicit WorldTab(Notepads *notepads, QWidget *parent = nullptr);
   ~WorldTab();
 
+  static QString saveFilter();
+
   AvailableCopy availableCopy() const;
   void closeLog();
   bool connected() const;
@@ -48,16 +50,17 @@ public:
   void openLog();
   bool openWorld(const QString &filename) &;
   bool openWorldSettings();
+  bool promptSave();
   void reloadWorldScript() const;
   void resetAllTimers() const;
-  QString saveWorld(const QString &saveFilter);
-  QString saveWorldAsNew(const QString &saveFilter);
+  QString saveWorld();
+  QString saveWorldAsNew();
   void setIsActive(bool active);
   void setOnDragMove(CallbackTrigger &&trigger);
   void setOnDragRelease(Hotspot *hotspot);
   void start();
   void stopSound() const;
-  const QString title() const noexcept;
+  const QString &title() const noexcept;
   bool updateWorld();
   constexpr const QString &worldFilePath() const noexcept
   {
@@ -116,7 +119,7 @@ private:
   bool restoreHistory();
   bool saveHistory() const;
   bool saveState(const QString &filePath) const;
-  bool saveWorldAndState(const QString &filePath) const;
+  bool saveWorldAndState(const QString &filePath);
   bool sendCommand(const QString &command, CommandSource source);
   void setupWorldScriptWatcher();
   void updateWorldScript();
