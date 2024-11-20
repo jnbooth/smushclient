@@ -27,9 +27,11 @@ public:
 
 protected:
   void closeEvent(QCloseEvent *event) override;
+  bool event(QEvent *event) override;
 
 private:
   Ui::MainWindow *ui;
+  QIcon activityIcon;
   FindDialog *findDialog;
   int lastTabIndex;
   Notepads *notepads;
@@ -48,6 +50,7 @@ private:
 private slots:
   void onCopyAvailable(AvailableCopy copy);
   void onConnectionStatusChanged(bool connected);
+  void onNewActivity(WorldTab *tab);
 
   void on_action_clear_output_triggered();
   void on_action_close_all_notepad_windows_triggered();

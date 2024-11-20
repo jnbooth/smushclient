@@ -45,7 +45,6 @@ public:
   void createWorld() &;
   void disconnectFromHost();
   void editWorldScript();
-  void onTabSwitch(bool active) const;
   void openLog();
   bool openWorld(const QString &filename) &;
   bool openWorldSettings();
@@ -53,6 +52,7 @@ public:
   void resetAllTimers() const;
   QString saveWorld(const QString &saveFilter);
   QString saveWorldAsNew(const QString &saveFilter);
+  void setIsActive(bool active);
   void setOnDragMove(CallbackTrigger &&trigger);
   void setOnDragRelease(Hotspot *hotspot);
   void start();
@@ -79,6 +79,7 @@ public slots:
 signals:
   void connectionStatusChanged(bool connected);
   void copyAvailable(AvailableCopy available);
+  void newActivity(WorldTab *self);
 
 protected:
   void closeEvent(QCloseEvent *event) override;
@@ -90,6 +91,7 @@ protected:
   void timerEvent(QTimerEvent *event) override;
 
 private:
+  bool alertNewActivity;
   ScriptApi *api;
   QFont defaultFont;
   Document *document;
@@ -98,6 +100,7 @@ private:
   bool handleKeypad;
   bool initialized;
   bool inputCopyAvailable;
+  bool isActive;
   bool manualDisconnect;
   std::optional<CallbackTrigger> onDragMove;
   QPointer<Hotspot> onDragRelease;
@@ -123,6 +126,7 @@ private slots:
   bool loadPlugins();
   void onConnect();
   void onDisconnect();
+  void onNewActivity();
   void readFromSocket();
 
   void on_input_copyAvailable(bool available);

@@ -192,8 +192,8 @@ impl SmushClientRust {
         let read_result = self.client.read(&mut socket);
         handler.doc.begin();
 
-        self.client.drain_output(&mut handler);
-        handler.doc.end();
+        let had_output = self.client.drain_output(&mut handler);
+        handler.doc.end(had_output);
         drop(output_lock);
 
         let total_read = match read_result {
@@ -226,8 +226,8 @@ impl SmushClientRust {
         };
         handler.doc.begin();
 
-        self.client.flush_output(&mut handler);
-        handler.doc.end();
+        let had_output = self.client.flush_output(&mut handler);
+        handler.doc.end(had_output);
         drop(output_lock);
     }
 
@@ -250,7 +250,7 @@ impl SmushClientRust {
         let outcome = self
             .client
             .alias(&String::from(command), source, &mut handler);
-        handler.doc.end();
+        handler.doc.end(false);
         drop(output_lock);
         outcome.into()
     }

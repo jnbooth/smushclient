@@ -69,12 +69,14 @@ WorldTab::WorldTab(Notepads *notepads, QWidget *parent)
       ui(new Ui::WorldTab),
       client(),
       world(),
+      alertNewActivity(false),
       defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont)),
       filePath(),
       flushTimerId(-1),
       handleKeypad(false),
       initialized(false),
       inputCopyAvailable(false),
+      isActive(true),
       manualDisconnect(false),
       onDragMove(nullopt),
       onDragRelease(nullptr),
@@ -92,6 +94,7 @@ WorldTab::WorldTab(Notepads *notepads, QWidget *parent)
   socket = new QTcpSocket(this);
   api = new ScriptApi(notepads, this);
   document = new Document(this, api);
+  connect(document, &Document::newActivity, this, &WorldTab::onNewActivity);
   connect(socket, &QTcpSocket::readyRead, this, &WorldTab::readFromSocket);
   connect(socket, &QTcpSocket::connected, this, &WorldTab::onConnect);
   connect(socket, &QTcpSocket::disconnected, this, &WorldTab::onDisconnect);
@@ -176,19 +179,6 @@ void WorldTab::editWorldScript()
     QErrorMessage::qtHandler()->showMessage(tr("Failed to open file: %1").arg(scriptPath));
 }
 
-void WorldTab::onTabSwitch(bool active) const
-{
-  if (!active)
-  {
-    OnPluginLoseFocus onLoseFocus;
-    api->sendCallback(onLoseFocus);
-    return;
-  }
-  ui->input->focusWidget();
-  OnPluginGetFocus onGetFocus;
-  api->sendCallback(onGetFocus);
-}
-
 void WorldTab::openLog()
 {
   try
@@ -268,6 +258,21 @@ QString WorldTab::saveWorldAsNew(const QString &saveFilter)
 
   filePath = path;
   return filePath;
+}
+
+void WorldTab::setIsActive(bool active)
+{
+  isActive = active;
+  alertNewActivity = !active;
+  if (!active)
+  {
+    OnPluginLoseFocus onLoseFocus;
+    api->sendCallback(onLoseFocus);
+    return;
+  }
+  ui->input->focusWidget();
+  OnPluginGetFocus onGetFocus;
+  api->sendCallback(onGetFocus);
 }
 
 void WorldTab::setOnDragMove(CallbackTrigger &&trigger)
@@ -683,6 +688,17 @@ void WorldTab::onDisconnect()
   }
   if (Settings().getReconnectOnDisconnect())
     connectToHost();
+}
+
+void WorldTab::onNewActivity()
+{
+  if (!alertNewActivity)
+    return;
+  alertNewActivity = false;
+  emit newActivity(this);
+  const QString sound = world.getNewActivitySound();
+  if (!sound.isEmpty())
+    api->PlaySound(0, sound);
 }
 
 void WorldTab::readFromSocket()

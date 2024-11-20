@@ -25,6 +25,7 @@ constexpr const char *saveFilter = "World files (*.smush);;All Files (*.*)";
 MainWindow::MainWindow(Notepads *notepads, QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
+      activityIcon(QIcon::fromTheme(QIcon::ThemeIcon::DialogWarning)),
       lastTabIndex(-1),
       notepads(notepads),
       recentFileActions(),
@@ -121,6 +122,28 @@ void MainWindow::closeEvent(QCloseEvent *event)
   event->accept();
 }
 
+bool MainWindow::event(QEvent *event)
+{
+
+  switch (event->type())
+  {
+  case QEvent::WindowActivate:
+    if (WorldTab *tab = worldtab(); tab)
+      tab->setIsActive(true);
+    break;
+
+  case QEvent::WindowDeactivate:
+    if (WorldTab *tab = worldtab(); tab)
+      tab->setIsActive(false);
+    break;
+
+  default:
+    break;
+  };
+
+  return QMainWindow::event(event);
+}
+
 // Private methods
 
 void MainWindow::addRecentFile(const QString &filePath)
@@ -138,6 +161,7 @@ void MainWindow::addRecentFile(const QString &filePath)
 void MainWindow::connectTab(WorldTab *tab) const
 {
   connect(tab, &WorldTab::copyAvailable, this, &MainWindow::onCopyAvailable);
+  connect(tab, &WorldTab::newActivity, this, &MainWindow::onNewActivity);
   SettingsDialog::connect(tab);
 }
 
@@ -233,6 +257,14 @@ void MainWindow::onConnectionStatusChanged(bool connected)
   ui->action_disconnect->setEnabled(connected);
 }
 
+void MainWindow::onNewActivity(WorldTab *tab)
+{
+  const int index = ui->world_tabs->indexOf(tab);
+  if (index == -1 || index == ui->world_tabs->currentIndex())
+    return;
+  ui->world_tabs->tabBar()->setTabText(index, tab->title() + QStringLiteral(" ⏺︎"));
+}
+
 void MainWindow::on_action_clear_output_triggered()
 {
   worldtab()->ui->output->clear();
@@ -302,7 +334,9 @@ void MainWindow::on_action_edit_script_file_triggered()
 
 void MainWindow::on_action_edit_world_details_triggered()
 {
-  worldtab()->openWorldSettings();
+  WorldTab *tab = worldtab();
+  tab->openWorldSettings();
+  ui->world_tabs->setTabText(ui->world_tabs->currentIndex(), tab->title());
 }
 
 void MainWindow::on_action_find_triggered()
@@ -501,11 +535,11 @@ void MainWindow::on_menu_view_aboutToShow()
 
 void MainWindow::on_world_tabs_currentChanged(int index)
 {
-  const WorldTab *lastTab = worldtab(lastTabIndex);
+  WorldTab *lastTab = worldtab(lastTabIndex);
   if (lastTab)
-    lastTab->onTabSwitch(false);
+    lastTab->setIsActive(false);
   lastTabIndex = index;
-  const WorldTab *activeTab = worldtab(index);
+  WorldTab *activeTab = worldtab(index);
   disconnect(socketConnection);
   if (!activeTab)
   {
@@ -519,7 +553,8 @@ void MainWindow::on_world_tabs_currentChanged(int index)
   onConnectionStatusChanged(activeTab->connected());
   setWorldMenusEnabled(true);
   ui->action_pause_output->setChecked(activeTab->ui->output->verticalScrollBar()->paused());
-  activeTab->onTabSwitch(true);
+  activeTab->setIsActive(true);
+  ui->world_tabs->tabBar()->setTabText(index, activeTab->title());
   onCopyAvailable(activeTab->availableCopy());
 }
 

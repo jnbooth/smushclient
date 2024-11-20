@@ -80,9 +80,9 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.begin() };
     }
 
-    pub fn end(&self) {
+    pub fn end(&mut self, had_output: bool) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.end() };
+        unsafe { self.as_mut().end(had_output) };
     }
 
     pub fn erase_current_line(&self) {

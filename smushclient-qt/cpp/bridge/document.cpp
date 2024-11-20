@@ -142,9 +142,11 @@ void Document::begin() const
   api->updateTimestamp();
 }
 
-void Document::end() const
+void Document::end(bool hadOutput)
 {
   scrollBar->toEnd();
+  if (hadOutput)
+    emit newActivity();
 }
 
 void Document::eraseCurrentLine() const
@@ -418,5 +420,3 @@ inline vector<QTextCursor> &Document::linksWithExpiration(rust::str expires)
 {
   return links[string(expires.data(), expires.length())];
 }
-
-inline WorldTab *Document::tab() const { return qobject_cast<WorldTab *>(parent()); }

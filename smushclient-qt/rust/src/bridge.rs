@@ -309,7 +309,7 @@ pub mod ffi {
 
         unsafe fn begin(self: &Document);
 
-        unsafe fn end(self: &Document);
+        unsafe fn end(self: Pin<&mut Document>, had_output: bool);
 
         #[rust_name = "erase_current_line"]
         unsafe fn eraseCurrentLine(self: &Document);

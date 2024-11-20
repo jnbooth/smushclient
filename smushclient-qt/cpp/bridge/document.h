@@ -30,6 +30,8 @@ using QVector_QColor = QVector<QColor>;
 
 class Document : public QObject
 {
+  Q_OBJECT
+
 public:
   Document(WorldTab *parent, ScriptApi *api);
 
@@ -41,7 +43,7 @@ public:
   void applyStyles(int start, int end, TextStyles style, const QColor &foreground, const QColor &background) const;
   void beep() const;
   void begin() const;
-  void end() const;
+  void end(bool hadOutput);
   void eraseCurrentLine() const;
   void eraseLastCharacter() const;
   void eraseLastLine() const;
@@ -60,6 +62,9 @@ public:
   void setPalette(const QVector_QColor &palette);
   void setSuppressEcho(bool suppress) const;
 
+signals:
+  void newActivity();
+
 private:
   ScriptApi *api;
   QTextDocument *doc;
@@ -71,7 +76,6 @@ private:
   bool serverExpiresLinks;
 
   std::vector<QTextCursor> &linksWithExpiration(rust::str expires);
-  WorldTab *tab() const;
 };
 
 #endif // DOCUMENT_H

@@ -172,21 +172,22 @@ impl SmushClient {
         self.transformer.has_output()
     }
 
-    pub fn drain_output<H: Handler>(&mut self, handler: &mut H) {
-        self.process_output(handler, false);
+    pub fn drain_output<H: Handler>(&mut self, handler: &mut H) -> bool {
+        self.process_output(handler, false)
     }
 
-    pub fn flush_output<H: Handler>(&mut self, handler: &mut H) {
-        self.process_output(handler, true);
+    pub fn flush_output<H: Handler>(&mut self, handler: &mut H) -> bool {
+        self.process_output(handler, true)
     }
 
-    fn process_output<H: Handler>(&mut self, handler: &mut H, flush: bool) {
+    fn process_output<H: Handler>(&mut self, handler: &mut H, flush: bool) -> bool {
         self.logger.log_error(handler);
         let drain = if flush {
             self.transformer.flush_output()
         } else {
             self.transformer.drain_output()
         };
+        let mut had_output = false;
         let mut slice = drain.as_slice();
         let enable_triggers = self.world.enable_triggers;
         loop {
@@ -236,11 +237,16 @@ impl SmushClient {
                 TriggerEffects::default()
             };
 
+            had_output =
+                had_output || !self.line_text.is_empty() && !trigger_effects.omit_from_output;
+
             if !trigger_effects.omit_from_log {
                 self.logger.log_output_line(self.line_text.as_bytes());
                 self.logger.log_error(handler);
             }
         }
+
+        had_output
     }
 
     pub fn alias<H: Handler>(
