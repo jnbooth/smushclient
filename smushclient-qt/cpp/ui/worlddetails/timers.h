@@ -14,7 +14,7 @@ class PrefsTimers : public AbstractPrefsTree
   Q_OBJECT
 
 public:
-  explicit PrefsTimers(const World &world, SmushClient &client, Timekeeper *timekeeper, QWidget *parent = nullptr);
+  PrefsTimers(const World &world, TimerModel *model, QWidget *parent = nullptr);
   ~PrefsTimers();
 
 protected:
@@ -23,5 +23,4 @@ protected:
 
 private:
   Ui::PrefsTimers *ui;
-  TimerModel *model;
 };

@@ -9,6 +9,7 @@ TimerModel::TimerModel(SmushClient &client, Timekeeper *timekeeper, QObject *par
       timekeeper(timekeeper)
 {
   setHeaders(tr("Group/Label"), tr("Type"), tr("Occurrence"), tr("Text"));
+  client.stopTimers();
 }
 
 Qt::ItemFlags TimerModel::flags(const QModelIndex &index) const

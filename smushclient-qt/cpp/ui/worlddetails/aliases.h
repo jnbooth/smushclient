@@ -14,7 +14,7 @@ class PrefsAliases : public AbstractPrefsTree
   Q_OBJECT
 
 public:
-  explicit PrefsAliases(const World &world, SmushClient &client, QWidget *parent = nullptr);
+  PrefsAliases(const World &world, AliasModel *model, QWidget *parent = nullptr);
   ~PrefsAliases();
 
 protected:
@@ -23,5 +23,4 @@ protected:
 
 private:
   Ui::PrefsAliases *ui;
-  AliasModel *model;
 };

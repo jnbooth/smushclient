@@ -5,16 +5,13 @@
 #include "../../model/alias.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
-PrefsAliases::PrefsAliases(const World &world, SmushClient &client, QWidget *parent)
-    : AbstractPrefsTree(parent),
+PrefsAliases::PrefsAliases(const World &world, AliasModel *model, QWidget *parent)
+    : AbstractPrefsTree(model, parent),
       ui(new Ui::PrefsAliases)
 {
   ui->setupUi(this);
-  model = new AliasModel(client, this);
-  setModel(model);
   setTree(ui->tree);
   CONNECT_WORLD(EnableAliases);
-  client.stopAliases();
 }
 
 PrefsAliases::~PrefsAliases()

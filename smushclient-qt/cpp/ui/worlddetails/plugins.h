@@ -15,7 +15,7 @@ class PrefsPlugins : public QWidget
   Q_OBJECT
 
 public:
-  PrefsPlugins(SmushClient &client, ScriptApi *api, QWidget *parent = nullptr);
+  PrefsPlugins(PluginModel *model, ScriptApi *api, QWidget *parent = nullptr);
   ~PrefsPlugins();
 
 private:

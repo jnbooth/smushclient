@@ -223,6 +223,9 @@ bool WorldTab::openWorldSettings()
     client.populateWorld(world);
     return false;
   }
+  if (worlddetails.isDirty())
+    setWindowModified(true);
+
   if (!client.setWorld(world))
     return false;
 

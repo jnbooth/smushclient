@@ -11,12 +11,12 @@
 
 // Public methods
 
-PrefsPlugins::PrefsPlugins(SmushClient &client, ScriptApi *api, QWidget *parent)
+PrefsPlugins::PrefsPlugins(PluginModel *model, ScriptApi *api, QWidget *parent)
     : QWidget(parent),
       ui(new Ui::PrefsPlugins),
-      api(api)
+      api(api),
+      model(model)
 {
-  model = new PluginModel(client, this);
   ui->setupUi(this);
   ui->table->setModel(model);
   ui->table->horizontalHeader()->restoreState(Settings().getHeaderState(objectName()));

@@ -12,6 +12,10 @@
 #include "timers.h"
 #include "triggers.h"
 #include "../../scripting/scriptapi.h"
+#include "../../model/alias.h"
+#include "../../model/plugin.h"
+#include "../../model/timer.h"
+#include "../../model/trigger.h"
 
 // Public methods
 
@@ -20,11 +24,20 @@ WorldPrefs::WorldPrefs(World &world, SmushClient &client, ScriptApi *api, QWidge
       ui(new Ui::WorldPrefs),
       api(api),
       client(client),
+      dirty(false),
       pane(nullptr),
       world(world)
 {
   ui->setupUi(this);
   ui->settings_list->setCurrentRow(0);
+  aliases = new AliasModel(client, this);
+  plugins = new PluginModel(client, this);
+  timers = new TimerModel(client, api->timekeeper, this);
+  triggers = new TriggerModel(client, this);
+  connectModel(aliases);
+  connectModel(plugins);
+  connectModel(timers);
+  connectModel(triggers);
 }
 
 WorldPrefs::~WorldPrefs()
@@ -33,6 +46,13 @@ WorldPrefs::~WorldPrefs()
 }
 
 // Private methods
+
+void WorldPrefs::connectModel(QAbstractItemModel *model)
+{
+  connect(model, &QAbstractItemModel::dataChanged, this, &WorldPrefs::markDirty);
+  connect(model, &QAbstractItemModel::layoutChanged, this, &WorldPrefs::markDirty);
+  connect(model, &QAbstractItemModel::modelReset, this, &WorldPrefs::markDirty);
+}
 
 QWidget *WorldPrefs::paneForIndex(int n)
 {
@@ -51,21 +71,26 @@ QWidget *WorldPrefs::paneForIndex(int n)
   case 5:
     return new PrefsNumpad(world, this);
   case 6:
-    return new PrefsAliases(world, client, this);
+    return new PrefsAliases(world, aliases, this);
   case 7:
-    return new PrefsTimers(world, client, api->timekeeper, this);
+    return new PrefsTimers(world, timers, this);
   case 8:
-    return new PrefsTriggers(world, client, this);
+    return new PrefsTriggers(world, triggers, this);
   case 9:
     return new PrefsScripting(world, this);
   case 10:
-    return new PrefsPlugins(client, api, this);
+    return new PrefsPlugins(plugins, api, this);
   default:
     return nullptr;
   }
 }
 
 // Private slots
+
+void WorldPrefs::markDirty()
+{
+  dirty = true;
+}
 
 void WorldPrefs::on_settings_list_currentRowChanged(int row)
 {

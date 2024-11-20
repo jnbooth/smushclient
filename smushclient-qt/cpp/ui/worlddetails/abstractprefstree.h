@@ -12,13 +12,12 @@ class AbstractPrefsTree : public QWidget
   Q_OBJECT
 
 public:
-  explicit AbstractPrefsTree(QWidget *parent = nullptr);
+  explicit AbstractPrefsTree(AbstractSenderModel *model, QWidget *parent = nullptr);
   virtual ~AbstractPrefsTree();
 
 protected:
   virtual void enableSingleButtons(bool enabled) = 0;
   virtual void enableMultiButtons(bool enabled) = 0;
-  void setModel(AbstractSenderModel *model);
   void setTree(QTreeView *tree);
 
 protected slots:

@@ -8,6 +8,7 @@ AliasModel::AliasModel(SmushClient &client, QObject *parent)
     : AbstractSenderModel(client, SenderType::Alias, parent)
 {
   setHeaders(tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text"));
+  client.stopAliases();
 }
 
 Qt::ItemFlags AliasModel::flags(const QModelIndex &index) const

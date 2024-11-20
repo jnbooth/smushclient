@@ -8,6 +8,7 @@ TriggerModel::TriggerModel(SmushClient &client, QObject *parent)
     : AbstractSenderModel(client, SenderType::Trigger, parent)
 {
   setHeaders(tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text"));
+  client.stopTriggers();
 }
 
 Qt::ItemFlags TriggerModel::flags(const QModelIndex &index) const

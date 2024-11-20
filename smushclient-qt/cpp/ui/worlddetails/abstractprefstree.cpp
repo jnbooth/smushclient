@@ -12,13 +12,14 @@ using std::vector;
 
 // Public methods
 
-AbstractPrefsTree::AbstractPrefsTree(QWidget *parent)
+AbstractPrefsTree::AbstractPrefsTree(AbstractSenderModel *model, QWidget *parent)
     : QWidget(parent),
       filtering(false),
-      model(nullptr),
+      model(model),
       tree(nullptr)
 {
   proxy = new QSortFilterProxyModel(this);
+  proxy->setSourceModel(model);
   proxy->setFilterCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
   proxy->setRecursiveFilteringEnabled(true);
   proxy->setFilterKeyColumn(-1);
@@ -30,12 +31,6 @@ AbstractPrefsTree::~AbstractPrefsTree()
 }
 
 // Protected methods
-
-void AbstractPrefsTree::setModel(AbstractSenderModel *newModel)
-{
-  model = newModel;
-  proxy->setSourceModel(model);
-}
 
 void AbstractPrefsTree::setTree(QTreeView *newTree)
 {

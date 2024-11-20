@@ -4,16 +4,13 @@
 #include "../../model/trigger.h"
 #include "../../fieldconnector.h"
 
-PrefsTriggers::PrefsTriggers(const World &world, SmushClient &client, QWidget *parent)
-    : AbstractPrefsTree(parent),
+PrefsTriggers::PrefsTriggers(const World &world, TriggerModel *model, QWidget *parent)
+    : AbstractPrefsTree(model, parent),
       ui(new Ui::PrefsTriggers)
 {
   ui->setupUi(this);
-  model = new TriggerModel(client, this);
-  setModel(model);
   setTree(ui->tree);
   CONNECT_WORLD(EnableTriggers);
-  client.stopTriggers();
 }
 
 PrefsTriggers::~PrefsTriggers()

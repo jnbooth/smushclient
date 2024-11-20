@@ -4,16 +4,13 @@
 #include "../../fieldconnector.h"
 #include "../../model/timer.h"
 
-PrefsTimers::PrefsTimers(const World &world, SmushClient &client, Timekeeper *timekeeper, QWidget *parent)
-    : AbstractPrefsTree(parent),
+PrefsTimers::PrefsTimers(const World &world, TimerModel *model, QWidget *parent)
+    : AbstractPrefsTree(model, parent),
       ui(new Ui::PrefsTimers)
 {
   ui->setupUi(this);
-  model = new TimerModel(client, timekeeper, this);
-  setModel(model);
   setTree(ui->tree);
   CONNECT_WORLD(EnableTimers);
-  client.stopTimers();
 }
 
 PrefsTimers::~PrefsTimers()
