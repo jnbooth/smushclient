@@ -25,6 +25,7 @@ pub struct SendScriptRequest<'a> {
 pub enum SenderAccessError {
     LabelConflict(usize),
     NotFound,
+    Unchanged,
 }
 
 impl From<usize> for SenderAccessError {
@@ -38,6 +39,7 @@ impl Display for SenderAccessError {
         match self {
             Self::LabelConflict(_) => f.write_str("sender name conflict"),
             Self::NotFound => f.write_str("sender not found"),
+            Self::Unchanged => f.write_str("attempted to replace with the same value"),
         }
     }
 }

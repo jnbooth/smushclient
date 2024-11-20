@@ -26,7 +26,7 @@ int TriggerModel::addItem(SmushClient &client, QWidget *parent)
   Trigger trigger;
   TriggerEdit edit(trigger, parent);
   if (edit.exec() == QDialog::Rejected)
-    return -1;
+    return EditResult::Unchanged;
   return client.addWorldTrigger(trigger);
 }
 
@@ -35,12 +35,14 @@ int TriggerModel::editItem(SmushClient &client, size_t index, QWidget *parent)
   Trigger trigger(&client, index);
   TriggerEdit edit(trigger, parent);
   if (edit.exec() == QDialog::Rejected)
-    return -2;
+    return EditResult::Unchanged;
   const int result = client.replaceWorldTrigger(index, trigger);
+  if (result == (int)SenderAccessResult::Unchanged)
+    return EditResult::Unchanged;
   if (result < 0)
-    return -3;
+    return EditResult::Failed;
   if (edit.groupChanged())
-    return -1;
+    return EditResult::GroupChanged;
   return result;
 }
 

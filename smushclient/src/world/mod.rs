@@ -280,8 +280,9 @@ impl World {
         sender: T,
     ) -> Result<(usize, &T), SenderAccessError> {
         let senders = T::from_world_mut(self);
-        if index >= senders.len() {
-            return Err(SenderAccessError::NotFound);
+        let current = senders.get(index).ok_or(SenderAccessError::NotFound)?;
+        if current == &sender {
+            return Err(SenderAccessError::Unchanged);
         }
         match sender.assert_unique_label(senders) {
             Err(pos) if pos != index => Err(pos),

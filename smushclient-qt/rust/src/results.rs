@@ -12,6 +12,7 @@ impl IntoResultCode for SenderAccessError {
             Self::LabelConflict(pos) => {
                 ffi::SenderAccessResult::LabelConflict.repr - i32::try_from(pos).unwrap_or(i32::MAX)
             }
+            Self::Unchanged => ffi::SenderAccessResult::Unchanged.repr,
         }
     }
 }

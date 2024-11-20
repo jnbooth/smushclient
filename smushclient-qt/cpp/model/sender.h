@@ -13,6 +13,14 @@ class AbstractSenderModel : public QAbstractItemModel
   Q_OBJECT
 
 public:
+  enum EditResult
+  {
+    Unchanged = -1,
+    Failed = -2,
+    GroupChanged = -3,
+  };
+
+public:
   AbstractSenderModel(SmushClient &client, SenderType type, QObject *parent = nullptr);
   virtual ~AbstractSenderModel();
   bool addItem(QWidget *parent = nullptr);

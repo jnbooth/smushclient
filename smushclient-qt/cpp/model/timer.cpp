@@ -30,7 +30,7 @@ int TimerModel::addItem(SmushClient &client, QWidget *parent)
   Timer timer;
   TimerEdit edit(timer, parent);
   if (edit.exec() == QDialog::Rejected)
-    return -1;
+    return EditResult::Unchanged;
   return client.addWorldTimer(timer, *timekeeper);
 }
 
@@ -39,12 +39,14 @@ int TimerModel::editItem(SmushClient &client, size_t index, QWidget *parent)
   Timer timer(&client, index);
   TimerEdit edit(timer, parent);
   if (edit.exec() == QDialog::Rejected)
-    return -1;
+    return EditResult::Unchanged;
   const int result = client.replaceWorldTimer(index, timer, *timekeeper);
+  if (result == (int)SenderAccessResult::Unchanged)
+    return EditResult::Unchanged;
   if (result < 0)
-    return -3;
+    return EditResult::Failed;
   if (edit.groupChanged())
-    return -2;
+    return EditResult::GroupChanged;
   return result;
 }
 

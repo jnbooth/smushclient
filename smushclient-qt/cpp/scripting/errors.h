@@ -23,6 +23,7 @@ constexpr ApiCode convertClientResultCode(int code)
   switch (code)
   {
   case (int)SenderAccessResult::Ok:
+  case (int)SenderAccessResult::Unchanged:
     return ApiCode::OK;
   case (int)SenderAccessResult::NotFound:
     return NotFound;

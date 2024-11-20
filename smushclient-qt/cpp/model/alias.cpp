@@ -26,7 +26,7 @@ int AliasModel::addItem(SmushClient &client, QWidget *parent)
   Alias alias;
   AliasEdit edit(alias, parent);
   if (edit.exec() == QDialog::Rejected)
-    return -1;
+    return EditResult::Unchanged;
   return client.addWorldAlias(alias);
 }
 
@@ -35,12 +35,14 @@ int AliasModel::editItem(SmushClient &client, size_t index, QWidget *parent)
   Alias alias(&client, index);
   AliasEdit edit(alias, parent);
   if (edit.exec() == QDialog::Rejected)
-    return -1;
+    return EditResult::Unchanged;
   const int result = client.replaceWorldAlias(index, alias);
+  if (result == (int)SenderAccessResult::Unchanged)
+    return EditResult::Unchanged;
   if (result < 0)
-    return -3;
+    return EditResult::Failed;
   if (edit.groupChanged())
-    return -2;
+    return EditResult::GroupChanged;
   return result;
 }
 

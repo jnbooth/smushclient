@@ -74,9 +74,10 @@ pub mod ffi {
 
     #[repr(i32)]
     enum SenderAccessResult {
-        LabelConflict = -3,
-        BadParameter = -2,
-        NotFound = -1,
+        LabelConflict = -4,
+        BadParameter = -3,
+        NotFound = -2,
+        Unchanged = -1,
         Ok = 0,
     }
 

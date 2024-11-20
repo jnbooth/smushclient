@@ -81,10 +81,10 @@ bool AbstractSenderModel::editItem(const QModelIndex &modelIndex, QWidget *paren
     return true;
   }
 
-  if (newIndex == -1)
+  if (newIndex == EditResult::Unchanged || newIndex == EditResult::Failed)
     return false;
 
-  if (newIndex < 0)
+  if (newIndex == EditResult::GroupChanged)
   {
     beginResetModel();
     *needsRefresh = true;
