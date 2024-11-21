@@ -1,6 +1,4 @@
 #include "settings.h"
-#include <QtCore/QDir>
-#include <QtCore/QUuid>
 #include <QtGui/QColor>
 #include <QtGui/QFontDatabase>
 #include "environment.h"

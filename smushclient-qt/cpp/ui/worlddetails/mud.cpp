@@ -1,6 +1,7 @@
 #include "mud.h"
 #include "ui_mud.h"
 #include "../../fieldconnector.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 PrefsMud::PrefsMud(World &world, QWidget *parent)
     : QWidget(parent),

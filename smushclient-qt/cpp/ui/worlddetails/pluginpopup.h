@@ -1,15 +1,13 @@
-#ifndef PLUGINPOPUP_H
-#define PLUGINPOPUP_H
-
-#include <QDialog>
-
-class PluginDetails;
-class SmushClient;
+#pragma once
+#include <QtWidgets/QDialog>
 
 namespace Ui
 {
   class PluginPopup;
 }
+
+class PluginDetails;
+class SmushClient;
 
 class PluginPopup : public QDialog
 {
@@ -22,5 +20,3 @@ public:
 private:
   Ui::PluginPopup *ui;
 };
-
-#endif // PLUGINPOPUP_H

@@ -22,7 +22,6 @@
 #include "../settings.h"
 #include "../spans.h"
 #include "worlddetails/worlddetails.h"
-#include "rust/cxx.h"
 
 using std::nullopt;
 using std::string;

@@ -1,8 +1,6 @@
 #pragma once
 #include <QtCore/QSortFilterProxyModel>
-#include <QtGui/QStandardItemModel>
 #include <QtWidgets/QTreeView>
-#include <QtWidgets/QWidget>
 
 class SmushClient;
 class AbstractSenderModel;

@@ -8,6 +8,7 @@
 #include "qlua.h"
 #include "scriptapi.h"
 #include "scriptthread.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 extern "C"
 {
 #include "lauxlib.h"

@@ -7,6 +7,7 @@
 #include <QtCore/QUuid>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
+#include <QtNetwork/QTcpSocket>
 #include <QtGui/QTextCursor>
 #include "databaseconnection.h"
 #include "hotspot.h"
@@ -14,7 +15,6 @@
 #include "plugin.h"
 #include "scriptenums.h"
 #include "../audio.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
 
 #define SCRIPTING_VERSION "5.07"
 
@@ -24,8 +24,10 @@ class ImageFilter;
 class MudScrollBar;
 class MudStatusBar;
 class Notepads;
+enum class SendTarget;
 class SmushClient;
 class Timekeeper;
+enum class TriggerBool : uint8_t;
 class World;
 class WorldTab;
 struct lua_State;
@@ -70,8 +72,8 @@ public:
       QFlags<TriggerFlag> flags,
       const QColor &color,
       const QString &sound,
-      const QString &scriptName = QString(),
-      SendTarget target = SendTarget::World,
+      const QString &scriptName,
+      SendTarget target,
       int sequence = 100) const;
   ApiCode DeleteAlias(size_t plugin, const QString &name) const;
   size_t DeleteAliases(size_t plugin, const QString &group) const;

@@ -1,8 +1,6 @@
 #pragma once
-#include <QtCore/QList>
+#include <QtCore/QAbstractItemModel>
 #include <QtWidgets/QDialog>
-#include <QtWidgets/QListWidgetItem>
-#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {
@@ -12,8 +10,10 @@ namespace Ui
 class AliasModel;
 class PluginModel;
 class ScriptApi;
+class SmushClient;
 class TimerModel;
 class TriggerModel;
+class World;
 
 class WorldPrefs : public QDialog
 {

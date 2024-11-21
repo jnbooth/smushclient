@@ -1,13 +1,14 @@
 #pragma once
-#include <QtWidgets/QDialog>
 #include <QtMultimedia/QAudioOutput>
 #include <QtMultimedia/QMediaPlayer>
-#include "cxx-qt-gen/ffi.cxxqt.h"
+#include <QtWidgets/QDialog>
 
 namespace Ui
 {
   class TriggerEdit;
 }
+
+class Trigger;
 
 class TriggerEdit : public QDialog
 {

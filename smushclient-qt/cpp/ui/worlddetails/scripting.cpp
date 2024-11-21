@@ -5,6 +5,7 @@
 #include <QtWidgets/QFileDialog>
 #include "../../environment.h"
 #include "../../fieldconnector.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 constexpr const char *fileFilter = "Lua files (*.lua);;All Files (*.*)";
 

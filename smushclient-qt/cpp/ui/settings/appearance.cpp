@@ -3,6 +3,7 @@
 #include "settings.h"
 #include "notifier.h"
 #include "../../fieldconnector.h"
+#include "../../settings.h"
 
 // Public methods
 

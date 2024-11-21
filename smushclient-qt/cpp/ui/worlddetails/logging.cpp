@@ -3,6 +3,7 @@
 #include "specialhelp.h"
 #include "../../enumbuttongroup.h"
 #include "../../fieldconnector.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 PrefsLogging::PrefsLogging(World &world, QWidget *parent)
     : QWidget(parent),

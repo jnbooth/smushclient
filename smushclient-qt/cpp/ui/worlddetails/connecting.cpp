@@ -1,6 +1,7 @@
 #include "connecting.h"
 #include "ui_connecting.h"
 #include "../../fieldconnector.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 PrefsConnecting::PrefsConnecting(const World &world, QWidget *parent)
     : QWidget(parent),

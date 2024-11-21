@@ -1,6 +1,7 @@
 #include "errors.h"
 #include "luaapi.h"
 #include "scriptapi.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 extern "C"
 {
 #include "lualib.h"
@@ -75,4 +76,36 @@ int pushErrorHandler(lua_State *L)
 {
   lua_rawgetp(L, LUA_REGISTRYINDEX, errorHandlerKey);
   return 1;
+}
+
+template <ApiCode NotFound, ApiCode Conflict>
+constexpr ApiCode convertClientResultCode(int code) noexcept
+{
+  switch (code)
+  {
+  case (int)SenderAccessResult::Ok:
+  case (int)SenderAccessResult::Unchanged:
+    return ApiCode::OK;
+  case (int)SenderAccessResult::NotFound:
+    return NotFound;
+  case (int)SenderAccessResult::BadParameter:
+    return ApiCode::BadParameter;
+  default:
+    return code <= (int)SenderAccessResult::LabelConflict ? Conflict : ApiCode::OK;
+  }
+}
+
+ApiCode convertAliasCode(int code) noexcept
+{
+  return convertClientResultCode<ApiCode::AliasNotFound, ApiCode::AliasAlreadyExists>(code);
+}
+
+ApiCode convertTimerCode(int code) noexcept
+{
+  return convertClientResultCode<ApiCode::TimerNotFound, ApiCode::TimerAlreadyExists>(code);
+}
+
+ApiCode convertTriggerCode(int code) noexcept
+{
+  return convertClientResultCode<ApiCode::TriggerNotFound, ApiCode::TriggerAlreadyExists>(code);
 }

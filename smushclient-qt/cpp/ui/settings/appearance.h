@@ -1,13 +1,13 @@
 #pragma once
 #include <QtGui/QFont>
 #include <QtWidgets/QWidget>
-#include "../../settings.h"
 
 namespace Ui
 {
   class SettingsAppearance;
 }
 
+class Settings;
 class SettingsNotifier;
 
 class SettingsAppearance : public QWidget

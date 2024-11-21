@@ -1,6 +1,4 @@
 #include "iconlabel.h"
-#include <QtGui/QResizeEvent>
-#include <QtWidgets/QHBoxLayout>
 
 // Public methods
 

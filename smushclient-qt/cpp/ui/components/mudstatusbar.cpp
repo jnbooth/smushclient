@@ -1,6 +1,4 @@
 #include "mudstatusbar.h"
-#include <QtGui/QIcon>
-#include <QtWidgets/QHBoxLayout>
 #include "iconlabel.h"
 
 // Public methods

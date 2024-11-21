@@ -1,6 +1,7 @@
 #include "timekeeper.h"
 #include "../scripting/scriptapi.h"
 #include "../scripting/plugincallback.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 extern "C"
 {
 #include "lua.h"

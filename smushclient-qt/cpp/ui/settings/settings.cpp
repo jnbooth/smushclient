@@ -5,6 +5,7 @@
 #include "notifier.h"
 #include "../worldtab.h"
 #include "../ui_worldtab.h"
+#include "../../settings.h"
 
 static SettingsNotifier notifier;
 

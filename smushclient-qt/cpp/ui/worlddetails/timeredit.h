@@ -1,11 +1,13 @@
 #pragma once
 #include <QtWidgets/QDialog>
-#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {
   class TimerEdit;
 }
+
+enum class Occurrence;
+class Timer;
 
 class TimerEdit : public QDialog
 {

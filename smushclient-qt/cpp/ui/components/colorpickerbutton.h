@@ -1,4 +1,5 @@
 #pragma once
+#include <QtGui/QPaintEvent>
 #include <QtWidgets/QAbstractButton>
 
 class ColorPickerButton : public QAbstractButton

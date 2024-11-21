@@ -7,9 +7,10 @@
 #include <QtGui/QPolygonF>
 #include "miniwindow.h"
 #include "scriptenums.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
+#include "rust/cxx.h"
 
 struct lua_State;
+enum class SendTarget;
 
 namespace qlua
 {

@@ -3,6 +3,7 @@
 #include "ui_timers.h"
 #include "../../fieldconnector.h"
 #include "../../model/timer.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 PrefsTimers::PrefsTimers(const World &world, TimerModel *model, QWidget *parent)
     : AbstractPrefsTree(model, parent),

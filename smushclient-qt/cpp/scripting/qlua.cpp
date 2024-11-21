@@ -3,6 +3,7 @@
 #include <sstream>
 #include <QtCore/QUuid>
 #include "miniwindow.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 extern "C"
 {
 #include "lauxlib.h"

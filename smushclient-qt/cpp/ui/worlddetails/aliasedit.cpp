@@ -1,6 +1,7 @@
 #include "aliasedit.h"
 #include "ui_aliasedit.h"
 #include "../../fieldconnector.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 #define CONNECT(field) connectField(this, &alias, ui->field, alias.get##field(), &Alias::set##field);
 

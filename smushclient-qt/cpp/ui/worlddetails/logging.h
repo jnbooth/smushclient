@@ -1,11 +1,14 @@
 #pragma once
 #include <QtWidgets/QWidget>
-#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {
   class PrefsLogging;
 }
+
+class World;
+enum class LogFormat;
+enum class LogMode;
 
 class PrefsLogging : public QWidget
 {
@@ -23,7 +26,7 @@ private slots:
 
   void on_view_special_clicked();
 
-  private:
+private:
   Ui::PrefsLogging *ui;
   World &world;
 };

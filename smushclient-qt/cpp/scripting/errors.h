@@ -1,7 +1,6 @@
 #pragma once
 #include <QtCore/QString>
 #include "scriptenums.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
 
 struct lua_State;
 
@@ -17,34 +16,8 @@ int addErrorHandler(lua_State *L);
 
 int pushErrorHandler(lua_State *L);
 
-template <ApiCode NotFound, ApiCode Conflict>
-constexpr ApiCode convertClientResultCode(int code)
-{
-  switch (code)
-  {
-  case (int)SenderAccessResult::Ok:
-  case (int)SenderAccessResult::Unchanged:
-    return ApiCode::OK;
-  case (int)SenderAccessResult::NotFound:
-    return NotFound;
-  case (int)SenderAccessResult::BadParameter:
-    return ApiCode::BadParameter;
-  default:
-    return code <= (int)SenderAccessResult::LabelConflict ? Conflict : ApiCode::OK;
-  }
-}
+ApiCode convertAliasCode(int code) noexcept;
 
-constexpr ApiCode convertAliasCode(int code)
-{
-  return convertClientResultCode<ApiCode::AliasNotFound, ApiCode::AliasAlreadyExists>(code);
-}
+ApiCode convertTimerCode(int code) noexcept;
 
-constexpr ApiCode convertTimerCode(int code)
-{
-  return convertClientResultCode<ApiCode::TimerNotFound, ApiCode::TimerAlreadyExists>(code);
-}
-
-constexpr ApiCode convertTriggerCode(int code)
-{
-  return convertClientResultCode<ApiCode::TriggerNotFound, ApiCode::TriggerAlreadyExists>(code);
-}
+ApiCode convertTriggerCode(int code) noexcept;

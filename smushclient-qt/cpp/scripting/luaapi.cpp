@@ -8,6 +8,7 @@
 #include "scriptenums.h"
 #include "scriptthread.h"
 #include "worldproperties.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 extern "C"
 {
 #include "lua.h"

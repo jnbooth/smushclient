@@ -3,6 +3,7 @@
 #include "ui_triggers.h"
 #include "../../model/trigger.h"
 #include "../../fieldconnector.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 PrefsTriggers::PrefsTriggers(const World &world, TriggerModel *model, QWidget *parent)
     : AbstractPrefsTree(model, parent),

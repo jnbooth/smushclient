@@ -1,8 +1,7 @@
 #pragma once
-#include <QtWidgets/QWidget>
-#include <QtMultimedia/QMediaPlayer>
 #include <QtMultimedia/QAudioOutput>
-#include "cxx-qt-gen/ffi.cxxqt.h"
+#include <QtMultimedia/QMediaPlayer>
+#include <QtWidgets/QWidget>
 
 class ScriptApi;
 
@@ -10,6 +9,8 @@ namespace Ui
 {
   class PrefsOutput;
 }
+
+class World;
 
 class PrefsOutput : public QWidget
 {

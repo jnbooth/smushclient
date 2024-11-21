@@ -1,6 +1,5 @@
 #pragma once
 #include "abstractprefstree.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {
@@ -8,6 +7,7 @@ namespace Ui
 }
 
 class TimerModel;
+class World;
 
 class PrefsTimers : public AbstractPrefsTree
 {

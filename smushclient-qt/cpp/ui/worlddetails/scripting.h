@@ -1,11 +1,12 @@
 #pragma once
 #include <QtWidgets/QWidget>
-#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {
   class PrefsScripting;
 }
+
+class World;
 
 class PrefsScripting : public QWidget
 {

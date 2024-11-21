@@ -2,14 +2,17 @@
 #include <QtCore/QFileSystemWatcher>
 #include <QtCore/QPointer>
 #include <QtCore/QTimerEvent>
+#include <QtGui/QCloseEvent>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QMouseEvent>
 #include <QtGui/QResizeEvent>
 #include <QtNetwork/QTcpSocket>
 #include <QtWidgets/QSplitter>
+#include "../bridge/document.h"
 #include "../scripting/callbacktrigger.h"
 #include "../settings.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
 
-class Document;
 class Hotspot;
 class Notepads;
 class ScriptApi;

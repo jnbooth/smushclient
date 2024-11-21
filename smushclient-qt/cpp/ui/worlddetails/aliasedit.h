@@ -1,12 +1,12 @@
 #pragma once
 #include <QtWidgets/QDialog>
-#include <QtWidgets/QWidget>
-#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {
   class AliasEdit;
 }
+
+class Alias;
 
 class AliasEdit : public QDialog
 {

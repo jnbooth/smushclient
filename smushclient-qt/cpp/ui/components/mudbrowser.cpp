@@ -1,5 +1,4 @@
 #include "mudbrowser.h"
-#include <QtGui/QMouseEvent>
 #include "mudscrollbar.h"
 
 // Public methods

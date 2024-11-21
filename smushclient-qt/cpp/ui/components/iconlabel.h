@@ -1,5 +1,6 @@
 #pragma once
 #include <QtGui/QIcon>
+#include <QtGui/QPaintEvent>
 #include <QtGui/QResizeEvent>
 #include <QtWidgets/QLabel>
 

@@ -1,13 +1,12 @@
 #pragma once
 #include <QtWidgets/QDialog>
-#include <QtWidgets/QListWidgetItem>
-#include "../../settings.h"
 
 namespace Ui
 {
   class SettingsDialog;
 }
 
+class Settings;
 class WorldTab;
 
 class SettingsDialog : public QDialog

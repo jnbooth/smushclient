@@ -1,6 +1,7 @@
 #include "login.h"
 #include "ui_login.h"
 #include "../../fieldconnector.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 PrefsLogin::PrefsLogin(World &world, QWidget *parent)
     : QWidget(parent),
@@ -29,7 +30,8 @@ void PrefsLogin::on_ConnectText_textChanged()
   const QString text = ui->ConnectText->toPlainText();
   empty = text.isEmpty();
   world.setConnectText(text);
-  if (single) {
+  if (single)
+  {
     ui->ConnectText_lines->setNum(empty ? 0 : 1);
   }
 }

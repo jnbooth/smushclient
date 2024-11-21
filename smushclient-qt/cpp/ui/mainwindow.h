@@ -1,5 +1,6 @@
 #pragma once
 #include <QtGui/QAction>
+#include <QtGui/QCloseEvent>
 #include <QtWidgets/QMainWindow>
 #include "finddialog.h"
 #include "../settings.h"

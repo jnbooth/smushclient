@@ -1,7 +1,8 @@
 #include "history.h"
 #include "ui_history.h"
-#include "../../fieldconnector.h"
 #include "notifier.h"
+#include "../../fieldconnector.h"
+#include "../../settings.h"
 
 int getLimit(QCheckBox *checkbox, QSpinBox *spinbox)
 {

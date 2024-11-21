@@ -1,12 +1,12 @@
 #pragma once
 #include <QtWidgets/QWidget>
-#include "../../settings.h"
 
 namespace Ui
 {
   class History;
 }
 
+class Settings;
 class SettingsNotifier;
 
 class SettingsHistory : public QWidget

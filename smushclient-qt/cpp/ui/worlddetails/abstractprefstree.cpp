@@ -4,9 +4,8 @@
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QHeaderView>
 #include "../../settings.h"
-#include "rust/cxx.h"
 #include "../../model/sender.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
+#include "rust/cxx.h"
 
 using std::vector;
 

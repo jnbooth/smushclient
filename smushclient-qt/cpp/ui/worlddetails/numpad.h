@@ -1,11 +1,12 @@
 #pragma once
 #include <QtWidgets/QWidget>
-#include "cxx-qt-gen/ffi.cxxqt.h"
 
 namespace Ui
 {
   class PrefsNumpad;
 }
+
+class World;
 
 class PrefsNumpad : public QWidget
 {
@@ -15,9 +16,9 @@ public:
   explicit PrefsNumpad(const World &world, QWidget *parent = nullptr);
   ~PrefsNumpad();
 
-  private slots:
-  void on_show_mod_toggled(bool checked);
-
-  private:
+private:
   Ui::PrefsNumpad *ui;
+
+private slots:
+  void on_show_mod_toggled(bool checked);
 };

@@ -4,6 +4,7 @@
 #include "../../fieldconnector.h"
 #include "../../environment.h"
 #include "../../scripting/scriptapi.h"
+#include "cxx-qt-gen/ffi.cxxqt.h"
 
 using std::array;
 
