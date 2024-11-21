@@ -32,11 +32,13 @@ public:
   QColor getNotepadForeground() const;
 
   QFont getOutputFont() const;
-  bool getOutputLimit() const;
-  int getOutputLines() const;
   bool getOutputHistoryEnabled() const;
   bool getOutputHistoryLimit() const;
   int getOutputHistoryLines() const;
+  int getOutputInset() const;
+  bool getOutputLimit() const;
+  int getOutputLines() const;
+  double getOutputLineSpacing() const;
   bool getOutputWrapping() const;
 
   QStringList getRecentFiles() const;
@@ -67,11 +69,11 @@ public slots:
   void setNotepadForeground(const QColor &color);
 
   void setOutputFont(const QFont &font);
-  void setOutputLimit(bool limit);
-  void setOutputLines(int lines);
   void setOutputHistoryEnabled(bool enabled);
   void setOutputHistoryLimit(bool limit);
   void setOutputHistoryLines(int lines);
+  void setOutputLimit(bool limit);
+  void setOutputLines(int lines);
   void setOutputWrapping(bool wrapping);
 
   void setReconnectOnDisconnect(bool reconnect);
@@ -82,11 +84,4 @@ public slots:
 
 private:
   QSettings store;
-
-private:
-  template <typename T>
-  inline T value(QAnyStringView key, T defaultValue) const
-  {
-    return store.contains(key) ? store.value(key).value<T>() : defaultValue;
-  }
 };
