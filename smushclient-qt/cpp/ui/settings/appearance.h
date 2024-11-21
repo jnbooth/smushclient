@@ -32,4 +32,6 @@ private slots:
   void on_InputForeground_valueChanged(const QColor &color);
   void on_OutputFont_currentFontChanged(const QFont &font);
   void on_OutputFontSize_valueChanged(int size);
+  void on_OutputPadding_valueChanged(double padding);
+  void on_OutputLineSpacing_valueChanged(int spacing);
 };

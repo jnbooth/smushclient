@@ -15,13 +15,16 @@ SettingsAppearance::SettingsAppearance(Settings &settings, SettingsNotifier *not
       settings(settings)
 {
   ui->setupUi(this);
+
+  ui->InputBackground->setValue(settings.getInputBackground());
   ui->InputFont->setCurrentFont(inputFont);
   ui->InputFontSize->setValue(inputFont.pointSize());
+  ui->InputForeground->setValue(settings.getInputForeground());
+
   ui->OutputFont->setCurrentFont(outputFont);
   ui->OutputFontSize->setValue(outputFont.pointSize());
-
-  CONNECT_SETTINGS(InputBackground);
-  CONNECT_SETTINGS(InputForeground);
+  ui->OutputLineSpacing->setValue(settings.getOutputLineSpacing());
+  ui->OutputPadding->setValue(settings.getOutputPadding());
 }
 
 SettingsAppearance::~SettingsAppearance()
@@ -33,6 +36,7 @@ SettingsAppearance::~SettingsAppearance()
 
 void SettingsAppearance::on_InputBackground_valueChanged(const QColor &color)
 {
+  settings.setInputBackground(color);
   emit notifier->inputBackgroundChanged(color);
 }
 
@@ -58,6 +62,7 @@ void SettingsAppearance::on_InputFontSize_valueChanged(int size)
 
 void SettingsAppearance::on_InputForeground_valueChanged(const QColor &color)
 {
+  settings.setInputForeground(color);
   emit notifier->inputForegroundChanged(color);
 }
 
@@ -79,4 +84,17 @@ void SettingsAppearance::on_OutputFontSize_valueChanged(int size)
   outputFont.setPointSize(size);
   settings.setOutputFont(outputFont);
   emit notifier->outputFontChanged(outputFont);
+}
+
+void SettingsAppearance::on_OutputPadding_valueChanged(double padding)
+{
+  settings.setOutputPadding(padding);
+  emit notifier->outputPaddingChanged(padding);
+}
+
+void SettingsAppearance::on_OutputLineSpacing_valueChanged(int spacing)
+{
+  settings.setOutputLineSpacing(spacing);
+  const QTextBlockFormat fmt = settings.getOutputBlockFormat();
+  emit notifier->outputBlockFormatChanged(fmt);
 }

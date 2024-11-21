@@ -1,6 +1,7 @@
 #pragma once
 #include <QtCore/QSettings>
 #include <QtGui/QFont>
+#include <QtGui/QTextBlockFormat>
 
 typedef struct RecentFileResult
 {
@@ -16,6 +17,8 @@ public:
   explicit Settings(QObject *parent = nullptr);
 
   bool getAutoConnect() const;
+
+  QTextBlockFormat getOutputBlockFormat() const;
 
   QColor getInputBackground() const;
   QFont getInputFont() const;
@@ -35,10 +38,10 @@ public:
   bool getOutputHistoryEnabled() const;
   bool getOutputHistoryLimit() const;
   int getOutputHistoryLines() const;
-  int getOutputInset() const;
+  double getOutputPadding() const;
   bool getOutputLimit() const;
   int getOutputLines() const;
-  double getOutputLineSpacing() const;
+  int getOutputLineSpacing() const;
   bool getOutputWrapping() const;
 
   QStringList getRecentFiles() const;
@@ -72,8 +75,10 @@ public slots:
   void setOutputHistoryEnabled(bool enabled);
   void setOutputHistoryLimit(bool limit);
   void setOutputHistoryLines(int lines);
+  void setOutputPadding(double inset);
   void setOutputLimit(bool limit);
   void setOutputLines(int lines);
+  void setOutputLineSpacing(int spacing);
   void setOutputWrapping(bool wrapping);
 
   void setReconnectOnDisconnect(bool reconnect);

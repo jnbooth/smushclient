@@ -18,6 +18,8 @@ void SettingsDialog::connect(WorldTab *tab)
   tab->connect(&notifier, &SettingsNotifier::outputFontChanged, tab, &WorldTab::onOutputFontChanged);
   tab->connect(&notifier, &SettingsNotifier::inputHistoryLimitChanged, tab->ui->input, &MudInput::setMaxLogSize);
   tab->connect(&notifier, &SettingsNotifier::outputLimitChanged, tab->ui->output, &MudBrowser::setMaximumBlockCount);
+  tab->connect(&notifier, &SettingsNotifier::outputPaddingChanged, tab, &WorldTab::onOutputPaddingChanged);
+  tab->connect(&notifier, &SettingsNotifier::outputBlockFormatChanged, tab, &WorldTab::onOutputBlockFormatChanged);
 }
 
 // Public methods

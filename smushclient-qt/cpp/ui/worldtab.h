@@ -77,7 +77,9 @@ public slots:
   void onInputBackgroundChanged(const QColor &color);
   void onInputFontChanged(const QFont &font);
   void onInputForegroundChanged(const QColor &color);
+  void onOutputBlockFormatChanged(const QTextBlockFormat &format);
   void onOutputFontChanged(const QFont &font);
+  void onOutputPaddingChanged(double padding);
 
 signals:
   void connectionStatusChanged(bool connected);

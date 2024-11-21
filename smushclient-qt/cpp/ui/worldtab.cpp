@@ -117,6 +117,13 @@ WorldTab::WorldTab(Notepads *notepads, QWidget *parent)
           ? QTextEdit::LineWrapMode::WidgetWidth
           : QTextEdit::LineWrapMode::NoWrap;
   ui->output->setLineWrapMode(wrapMode);
+
+  QTextDocument *doc = ui->output->document();
+  doc->setDocumentMargin(settings.getOutputPadding());
+
+  QTextCursor formatCursor(doc);
+  formatCursor.select(QTextCursor::SelectionType::Document);
+  formatCursor.mergeBlockFormat(settings.getOutputBlockFormat());
 }
 
 WorldTab::~WorldTab()
@@ -389,9 +396,21 @@ void WorldTab::onInputForegroundChanged(const QColor &color)
   setColor(ui->input, QPalette::ColorRole::Text, color);
 }
 
+void WorldTab::onOutputBlockFormatChanged(const QTextBlockFormat &format)
+{
+  QTextCursor cursor(ui->output->document());
+  cursor.select(QTextCursor::SelectionType::Document);
+  cursor.mergeBlockFormat(format);
+}
+
 void WorldTab::onOutputFontChanged(const QFont &font)
 {
   ui->output->setFont(font);
+}
+
+void WorldTab::onOutputPaddingChanged(double padding)
+{
+  ui->output->document()->setDocumentMargin(padding);
 }
 
 // Protected overrides

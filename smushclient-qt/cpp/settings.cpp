@@ -111,6 +111,18 @@ RecentFileResult Settings::removeRecentFile(const QString &path)
   return RecentFileResult{.changed = true, .recentFiles = recent};
 }
 
+QTextBlockFormat Settings::getOutputBlockFormat() const
+{
+  const int spacing = getOutputLineSpacing();
+  const QTextBlockFormat::LineHeightTypes spacingType =
+      spacing == 100
+          ? QTextBlockFormat::LineHeightTypes::SingleHeight
+          : QTextBlockFormat::LineHeightTypes::ProportionalHeight;
+  QTextBlockFormat format;
+  format.setLineHeight(spacing, spacingType);
+  return format;
+}
+
 // Header state
 
 QByteArray Settings::getHeaderState(const QString &modelName) const
@@ -145,8 +157,10 @@ SETTING(OutputFont, QFont, getDefaultFont(12), "output/font");
 SETTING(OutputHistoryEnabled, bool, true, "output/history/enable");
 SETTING(OutputHistoryLimit, bool, false, "output/history/limit");
 SETTING(OutputHistoryLines, int, 1000, "output/history/lines");
+SETTING(OutputPadding, double, 0.0, "output/inset");
 SETTING(OutputLimit, bool, false, "output/limit");
 SETTING(OutputLines, int, 10000, "output/lines");
+SETTING(OutputLineSpacing, int, 100.0, "output/spacing");
 SETTING(OutputWrapping, bool, true, "output/wrap");
 
 SETTING(ReconnectOnDisconnect, bool, false, "connecting/reconnect");
