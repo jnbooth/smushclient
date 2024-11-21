@@ -10,15 +10,16 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QInputDialog>
 #include "ui_worldtab.h"
+#include "notepad.h"
+#include "finddialog.h"
 #include "worldtab.h"
+#include "settings/settings.h"
 #include "../environment.h"
 #include "../settings.h"
 #include "../spans.h"
 #include "../components/mudscrollbar.h"
+#include "../localization.h"
 #include "../scripting/listbox.h"
-#include "settings/settings.h"
-#include "notepad.h"
-#include "finddialog.h"
 
 MainWindow::MainWindow(Notepads *notepads, QWidget *parent)
     : QMainWindow(parent),
@@ -422,7 +423,7 @@ void MainWindow::on_action_open_world_triggered()
       this,
       ui->action_open_world->text(),
       QStringLiteral(WORLDS_DIR),
-      WorldTab::saveFilter());
+      FileFilter::world());
 
   if (filePath.isEmpty())
     return;
@@ -471,7 +472,7 @@ void MainWindow::on_action_save_selection_triggered()
       this,
       tr("Save as"),
       QString(),
-      tr("Text files (*.txt);;All Files (*.*)"));
+      FileFilter::text());
 
   if (path.isEmpty())
     return;

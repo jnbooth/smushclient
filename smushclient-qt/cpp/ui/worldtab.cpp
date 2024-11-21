@@ -12,16 +12,17 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMessageBox>
 #include "ui_worldtab.h"
+#include "worlddetails/worlddetails.h"
 #include "../bridge/document.h"
 #include "../environment.h"
 #include "../hotkeys.h"
+#include "../localization.h"
 #include "../scripting/hotspot.h"
 #include "../scripting/qlua.h"
 #include "../components/mudscrollbar.h"
 #include "../scripting/scriptapi.h"
 #include "../settings.h"
 #include "../spans.h"
-#include "worlddetails/worlddetails.h"
 
 using std::nullopt;
 using std::string;
@@ -59,13 +60,6 @@ void setColor(QWidget *widget, QPalette::ColorRole role, const QColor &color)
 inline void showRustError(const rust::Error &e)
 {
   QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
-}
-
-// Static public methods
-
-QString WorldTab::saveFilter()
-{
-  return tr("World files (*.smush);;All Files (*.*)");
 }
 
 // Public methods
@@ -291,7 +285,7 @@ QString WorldTab::saveWorldAsNew()
       this,
       tr("Save as"),
       QStringLiteral(WORLDS_DIR "/") + world.getName(),
-      saveFilter());
+      FileFilter::world());
 
   if (path.isEmpty())
     return path;

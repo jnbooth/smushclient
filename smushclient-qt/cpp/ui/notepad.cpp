@@ -10,6 +10,7 @@
 #include <QtWidgets/QErrorMessage>
 #include "finddialog.h"
 #include "settings/settings.h"
+#include "../localization.h"
 #include "../settings.h"
 
 constexpr int minFontSize = 5;
@@ -133,7 +134,7 @@ void Notepad::on_action_save_selection_triggered()
       this,
       tr("Save as"),
       QString(),
-      tr("Text files (*.txt);;All Files (*.*)"));
+      FileFilter::text());
 
   if (path.isEmpty())
     return;

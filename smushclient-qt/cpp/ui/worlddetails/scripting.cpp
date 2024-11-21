@@ -5,9 +5,8 @@
 #include <QtWidgets/QFileDialog>
 #include "../../environment.h"
 #include "../../fieldconnector.h"
+#include "../../localization.h"
 #include "cxx-qt-gen/ffi.cxxqt.h"
-
-constexpr const char *fileFilter = "Lua files (*.lua);;All Files (*.*)";
 
 // Public methods
 
@@ -46,7 +45,7 @@ void PrefsScripting::on_WorldScript_browse_clicked()
       this,
       tr("Select world script"),
       QStringLiteral(WORLDS_DIR),
-      tr(fileFilter));
+      FileFilter::lua());
 
   if (path.isEmpty())
     return;
@@ -60,7 +59,7 @@ void PrefsScripting::on_WorldScript_create_clicked()
       this,
       tr("Save as"),
       defaultScriptPath(),
-      tr(fileFilter));
+      FileFilter::lua());
 
   if (path.isEmpty())
     return;
@@ -85,7 +84,7 @@ void PrefsScripting::on_WorldScript_edit_clicked()
       this,
       tr("Create world script"),
       scriptPath.isEmpty() ? defaultScriptPath() : scriptPath,
-      tr(fileFilter));
+      FileFilter::lua());
 
   if (path.isEmpty())
   {

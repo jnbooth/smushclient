@@ -4,6 +4,7 @@
 #include "ui_plugins.h"
 #include "pluginpopup.h"
 #include "../../environment.h"
+#include "../../localization.h"
 #include "../../model/plugin.h"
 #include "../../scripting/scriptapi.h"
 #include "../../settings.h"
@@ -54,7 +55,7 @@ void PrefsPlugins::on_button_add_clicked()
       this,
       tr("Add Plugin"),
       QStringLiteral(PLUGINS_DIR),
-      tr("Plugin files (*.xml);;All Files(*.*)"));
+      FileFilter::plugin());
 
   if (filePath.isEmpty())
     return;
