@@ -3,42 +3,34 @@
 #include <QtGui/QFontDatabase>
 #include "environment.h"
 
-template <typename T>
-struct SettingInput
-{
-  using Type = T;
-};
+// clang-format off
+template <typename T> struct SettingInput    { typedef T Type; };
+template <> struct SettingInput<QColor>      { typedef const QColor &Type; };
+template <> struct SettingInput<QFont>       { typedef const QFont &Type; };
+template <> struct SettingInput<QString>     { typedef const QString &Type; };
+template <> struct SettingInput<QStringList> { typedef const QStringList &Type; };
+// clang-format on
 
-template <>
-struct SettingInput<QColor>
-{
-  using Type = const QColor &;
-};
+#define SETTING(NAME, T, DEFAULT, KEY)                                              \
+  static const QString key##NAME = QStringLiteral(KEY);                             \
+  void Settings::set##NAME(SettingInput<T>::Type value)                             \
+  {                                                                                 \
+    store.setValue(key##NAME, value);                                               \
+  }                                                                                 \
+  T Settings::get##NAME() const                                                     \
+  {                                                                                 \
+    return store.contains(key##NAME) ? store.value(key##NAME).value<T>() : DEFAULT; \
+  }
 
-template <>
-struct SettingInput<QFont>
-{
-  using Type = const QFont &;
-};
-
-template <>
-struct SettingInput<QString>
-{
-  using Type = const QString &;
-};
-
-template <>
-struct SettingInput<QStringList>
-{
-  using Type = const QStringList &;
-};
-
-#define SETTING(NAME, T, DEFAULT, KEY)                                                        \
-  static const QString key##NAME = QStringLiteral(KEY);                                       \
-  void Settings::set##NAME(SettingInput<T>::Type value) { store.setValue(key##NAME, value); } \
-  T Settings::get##NAME() const                                                               \
-  {                                                                                           \
-    return store.contains(key##NAME) ? store.value(key##NAME).value<T>() : DEFAULT;           \
+#define SETTING_ENUM(NAME, T, DEFAULT, KEY)                                            \
+  static const QString key##NAME = QStringLiteral(KEY);                                \
+  void Settings::set##NAME(SettingInput<T>::Type value)                                \
+  {                                                                                    \
+    store.setValue(key##NAME, (int)value);                                             \
+  }                                                                                    \
+  T Settings::get##NAME() const                                                        \
+  {                                                                                    \
+    return store.contains(key##NAME) ? (T)store.value(key##NAME).value<T>() : DEFAULT; \
   }
 
 // Private utils
@@ -62,6 +54,32 @@ const QString headerKey(const QString &modelName)
 Settings::Settings(QObject *parent)
     : QObject(parent),
       store() {}
+
+// Header state
+
+QByteArray Settings::getHeaderState(const QString &modelName) const
+{
+  return store.value(headerKey(modelName)).toByteArray();
+}
+
+void Settings::setHeaderState(const QString &modelName, const QByteArray &state)
+{
+  store.setValue(headerKey(modelName), state);
+}
+
+// Dynamic
+
+QTextBlockFormat Settings::getOutputBlockFormat() const
+{
+  const int spacing = getOutputLineSpacing();
+  const QTextBlockFormat::LineHeightTypes spacingType =
+      spacing == 100
+          ? QTextBlockFormat::LineHeightTypes::SingleHeight
+          : QTextBlockFormat::LineHeightTypes::ProportionalHeight;
+  QTextBlockFormat format;
+  format.setLineHeight(spacing, spacingType);
+  return format;
+}
 
 // Recent files
 
@@ -109,28 +127,17 @@ RecentFileResult Settings::removeRecentFile(const QString &path)
   return RecentFileResult{.changed = true, .recentFiles = recent};
 }
 
-QTextBlockFormat Settings::getOutputBlockFormat() const
+QStringList Settings::getStartupWorlds() const
 {
-  const int spacing = getOutputLineSpacing();
-  const QTextBlockFormat::LineHeightTypes spacingType =
-      spacing == 100
-          ? QTextBlockFormat::LineHeightTypes::SingleHeight
-          : QTextBlockFormat::LineHeightTypes::ProportionalHeight;
-  QTextBlockFormat format;
-  format.setLineHeight(spacing, spacingType);
-  return format;
-}
-
-// Header state
-
-QByteArray Settings::getHeaderState(const QString &modelName) const
-{
-  return store.value(headerKey(modelName)).toByteArray();
-}
-
-void Settings::setHeaderState(const QString &modelName, const QByteArray &state)
-{
-  store.setValue(headerKey(modelName), state);
+  switch (getStartupBehavior())
+  {
+  case StartupBehavior::Reopen:
+    return getLastFiles();
+  case StartupBehavior::None:
+    return QStringList();
+  case StartupBehavior::List:
+    return getOpenAtStartup();
+  }
 }
 
 // Generated
@@ -143,13 +150,15 @@ SETTING(InputForeground, QColor, QColor(Qt::GlobalColor::black), "input/foregrou
 SETTING(InputHistoryLimit, bool, false, "input/history/limit");
 SETTING(InputHistoryLines, int, 100, "input/history/lines");
 
-SETTING(LastFiles, QStringList, QStringList(), "reopen");
+SETTING(LastFiles, QStringList, QStringList(), "startup/reopen");
 
 SETTING(LoggingEnabled, bool, true, "logging/enable");
 
 SETTING(NotepadFont, QFont, getDefaultFont(12), "notepad/font");
 SETTING(NotepadBackground, QColor, QColor(Qt::GlobalColor::white), "notepad/background");
 SETTING(NotepadForeground, QColor, QColor(Qt::GlobalColor::black), "notepad/foreground");
+
+SETTING(OpenAtStartup, QStringList, QStringList(), "startup/list");
 
 SETTING(OutputFont, QFont, getDefaultFont(12), "output/font");
 SETTING(OutputHistoryEnabled, bool, true, "output/history/enable");
@@ -164,3 +173,5 @@ SETTING(OutputWrapping, bool, true, "output/wrap");
 SETTING(ReconnectOnDisconnect, bool, false, "connecting/reconnect");
 
 SETTING(ShowStatusBar, bool, true, "statusbar/visible");
+
+SETTING_ENUM(StartupBehavior, Settings::StartupBehavior, StartupBehavior::Reopen, "startup/behavior");

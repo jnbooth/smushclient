@@ -34,7 +34,7 @@ TimerEdit::TimerEdit(Timer &timer, QWidget *parent)
   CONNECT(ActiveClosed);
 
   ui->Text->setPlainText(timer.getText());
-  EnumButtonGroup(this, timer.getOccurrence(), &TimerEdit::on_OccurrenceChanged)
+  EnumButtonGroup(this, timer.getOccurrence(), &timer, &Timer::setOccurrence)
       .addButton(ui->Occurrence_Interval, Occurrence::Interval)
       .addButton(ui->Occurrence_Time, Occurrence::Time);
 }

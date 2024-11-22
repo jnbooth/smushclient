@@ -3,6 +3,7 @@
 #include "appearance.h"
 #include "history.h"
 #include "notifier.h"
+#include "startup.h"
 #include "../worldtab.h"
 #include "../ui_worldtab.h"
 #include "../../settings.h"
@@ -50,6 +51,8 @@ QWidget *SettingsDialog::paneForIndex(int n)
     return new SettingsAppearance(settings, &notifier, this);
   case 1:
     return new SettingsHistory(settings, &notifier, this);
+  case 2:
+    return new SettingsStartup(settings, this);
   default:
     return nullptr;
   }

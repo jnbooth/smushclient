@@ -35,7 +35,7 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>16</pointsize>
+         <pointsize>18</pointsize>
         </font>
        </property>
        <property name="editTriggers">
@@ -53,6 +53,9 @@
          <height>25</height>
         </size>
        </property>
+       <property name="spacing">
+        <number>5</number>
+       </property>
        <property name="viewMode">
         <enum>QListView::ViewMode::ListMode</enum>
        </property>
@@ -64,7 +67,8 @@
          <string>Appearance</string>
         </property>
         <property name="icon">
-         <iconset theme="QIcon::ThemeIcon::InsertText"/>
+         <iconset resource="../../../resources/resources.qrc">
+          <normaloff>:/icons/settings/appearance.svg</normaloff>:/icons/settings/appearance.svg</iconset>
         </property>
         <property name="flags">
          <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -75,8 +79,17 @@
          <string>History</string>
         </property>
         <property name="icon">
-         <iconset resource="../../resources/resources.qrc">
+         <iconset resource="../../../resources/resources.qrc">
           <normaloff>:/icons/settings/history.svg</normaloff>:/icons/settings/history.svg</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Startup</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../resources/resources.qrc">
+          <normaloff>:/icons/settings/startup.svg</normaloff>:/icons/settings/startup.svg</iconset>
         </property>
        </item>
       </widget>
@@ -89,7 +102,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../resources/resources.qrc"/>
+  <include location="../../../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

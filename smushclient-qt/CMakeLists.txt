@@ -145,6 +145,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/settings/history.h cpp/ui/settings/history.cpp cpp/ui/settings/history.ui
     cpp/ui/settings/notifier.h
     cpp/ui/settings/settings.h cpp/ui/settings/settings.cpp cpp/ui/settings/settings.ui
+    cpp/ui/settings/startup.h cpp/ui/settings/startup.cpp cpp/ui/settings/startup.ui
 
     cpp/ui/worlddetails/abstractprefstree.h cpp/ui/worlddetails/abstractprefstree.cpp
     cpp/ui/worlddetails/aliasedit.h cpp/ui/worlddetails/aliasedit.cpp cpp/ui/worlddetails/aliasedit.ui

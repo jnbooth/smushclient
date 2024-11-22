@@ -15,5 +15,7 @@
         <file>icons/world-details/scripting.svg</file>
         <file>icons/world-details/timers.svg</file>
         <file>icons/world-details/triggers.svg</file>
+        <file>icons/settings/startup.svg</file>
+        <file>icons/settings/appearance.svg</file>
     </qresource>
 </RCC>

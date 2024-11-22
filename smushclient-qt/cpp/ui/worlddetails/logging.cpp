@@ -25,12 +25,12 @@ PrefsLogging::PrefsLogging(World &world, QWidget *parent)
   ui->LogFilePreamble->setPlainText(world.getLogFilePreamble());
   ui->LogFilePostamble->setPlainText(world.getLogFilePostamble());
 
-  EnumButtonGroup(this, world.getLogFormat(), &PrefsLogging::on_LogFormatChanged)
+  EnumButtonGroup(this, world.getLogFormat(), &world, &World::setLogFormat)
       .addButton(ui->LogFormat_Text, LogFormat::Text)
       .addButton(ui->LogFormat_Html, LogFormat::Html)
       .addButton(ui->LogFormat_Raw, LogFormat::Raw);
 
-  EnumButtonGroup(this, world.getLogMode(), &PrefsLogging::on_LogModeChanged)
+  EnumButtonGroup(this, world.getLogMode(), &world, &World::setLogMode)
       .addButton(ui->LogMode_Append, LogMode::Append)
       .addButton(ui->LogMode_Overwrite, LogMode::Overwrite);
 }

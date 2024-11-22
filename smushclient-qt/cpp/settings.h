@@ -14,11 +14,21 @@ class Settings : public QObject
   Q_OBJECT
 
 public:
+  enum class StartupBehavior
+  {
+    None,
+    Reopen,
+    List,
+  };
+
+  Q_ENUM(StartupBehavior)
+
+public:
   explicit Settings(QObject *parent = nullptr);
 
   bool getAutoConnect() const;
 
-  QTextBlockFormat getOutputBlockFormat() const;
+  QByteArray getHeaderState(const QString &modelName) const;
 
   QColor getInputBackground() const;
   QFont getInputFont() const;
@@ -34,6 +44,9 @@ public:
   QColor getNotepadBackground() const;
   QColor getNotepadForeground() const;
 
+  QStringList getOpenAtStartup() const;
+
+  QTextBlockFormat getOutputBlockFormat() const;
   QFont getOutputFont() const;
   bool getOutputHistoryEnabled() const;
   bool getOutputHistoryLimit() const;
@@ -52,10 +65,13 @@ public:
 
   bool getShowStatusBar() const;
 
-  QByteArray getHeaderState(const QString &modelName) const;
+  StartupBehavior getStartupBehavior() const;
+  QStringList getStartupWorlds() const;
 
 public slots:
   void setAutoConnect(bool enabled);
+
+  void setHeaderState(const QString &modelName, const QByteArray &state);
 
   void setInputBackground(const QColor &color);
   void setInputFont(const QFont &font);
@@ -71,6 +87,8 @@ public slots:
   void setNotepadBackground(const QColor &color);
   void setNotepadForeground(const QColor &color);
 
+  void setOpenAtStartup(const QStringList &list);
+
   void setOutputFont(const QFont &font);
   void setOutputHistoryEnabled(bool enabled);
   void setOutputHistoryLimit(bool limit);
@@ -85,7 +103,7 @@ public slots:
 
   void setShowStatusBar(bool show);
 
-  void setHeaderState(const QString &modelName, const QByteArray &state);
+  void setStartupBehavior(StartupBehavior behavior);
 
 private:
   QSettings store;

@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
   Settings settings;
   Notepads *notepads = new Notepads;
   MainWindow *w = new MainWindow(notepads);
-  for (const QString &reopen : settings.getLastFiles())
+  for (const QString &reopen : settings.getStartupWorlds())
     w->openWorld(reopen);
   w->show();
   app.exec();
