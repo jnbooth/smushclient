@@ -11,7 +11,7 @@
 #include "../bridge/document.h"
 #include "../scripting/callbacktrigger.h"
 #include "../settings.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
+#include "smushclient_qt/src/bridge.cxxqt.h"
 
 class Hotspot;
 class Notepads;

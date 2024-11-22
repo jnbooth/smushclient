@@ -3,7 +3,7 @@ use std::ptr;
 use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike};
-use cxx_qt::Initialize;
+use cxx_qt::{CxxQtType, Initialize};
 use cxx_qt_lib::{QColor, QString, QTime};
 use enumeration::{Enum, EnumSet};
 use mud_transformer::mxp::RgbColor;
@@ -395,8 +395,8 @@ impl ffi::Alias {
     }
 
     #[allow(clippy::trivially_copy_pass_by_ref)]
-    pub fn set_user_send_to(self: Pin<&mut Self>, send_to: &ffi::UserSendTarget) {
-        self.cxx_qt_ffi_rust_mut().send_to = (*send_to).into();
+    pub fn set_user_send_to(self: Pin<&mut Self>, send_to: ffi::UserSendTarget) {
+        self.rust_mut().send_to = send_to.into();
     }
 }
 
@@ -406,8 +406,8 @@ impl ffi::Timer {
     }
 
     #[allow(clippy::trivially_copy_pass_by_ref)]
-    pub fn set_user_send_to(self: Pin<&mut Self>, send_to: &ffi::UserSendTarget) {
-        self.cxx_qt_ffi_rust_mut().send_to = (*send_to).into();
+    pub fn set_user_send_to(self: Pin<&mut Self>, send_to: ffi::UserSendTarget) {
+        self.rust_mut().send_to = send_to.into();
     }
 }
 
@@ -417,8 +417,8 @@ impl ffi::Trigger {
     }
 
     #[allow(clippy::trivially_copy_pass_by_ref)]
-    pub fn set_user_send_to(self: Pin<&mut Self>, send_to: &ffi::UserSendTarget) {
-        self.cxx_qt_ffi_rust_mut().send_to = (*send_to).into();
+    pub fn set_user_send_to(self: Pin<&mut Self>, send_to: ffi::UserSendTarget) {
+        self.rust_mut().send_to = send_to.into();
     }
 }
 

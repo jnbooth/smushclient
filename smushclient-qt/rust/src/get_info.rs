@@ -18,7 +18,10 @@ impl InfoVisitor for InfoVisitorQVariant {
     }
 
     fn visit_datetime(info: DateTime<Utc>) -> Self::Output {
-        QVariant::from(&QDateTime::from(info))
+        match QDateTime::try_from(info) {
+            Ok(datetime) => QVariant::from(&datetime),
+            Err(_) => QVariant::default(),
+        }
     }
 
     fn visit_double(info: f64) -> Self::Output {

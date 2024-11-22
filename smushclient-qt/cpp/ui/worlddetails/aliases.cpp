@@ -3,7 +3,7 @@
 #include "ui_aliases.h"
 #include "../../fieldconnector.h"
 #include "../../model/alias.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
+#include "smushclient_qt/src/bridge.cxxqt.h"
 
 PrefsAliases::PrefsAliases(const World &world, AliasModel *model, QWidget *parent)
     : AbstractPrefsTree(model, parent),

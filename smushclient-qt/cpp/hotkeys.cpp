@@ -1,5 +1,5 @@
 #include "hotkeys.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
+#include "smushclient_qt/src/bridge.cxxqt.h"
 
 // Private utils
 

@@ -1,5 +1,5 @@
 #include "plugin.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
+#include "smushclient_qt/src/bridge.cxxqt.h"
 
 using std::nullopt;
 using std::optional;

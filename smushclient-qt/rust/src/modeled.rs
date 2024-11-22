@@ -2,6 +2,7 @@ use std::pin::Pin;
 use std::ptr;
 
 use crate::ffi;
+use cxx_qt::CxxQtType;
 use cxx_qt_lib::{QDate, QString, QVariant};
 use smushclient::{SendIterable, SenderMap, SmushClient};
 use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Reaction, Timer, Trigger};
@@ -338,35 +339,34 @@ impl ffi::SenderMap {
         index: usize,
         column: i32,
     ) -> QString {
-        self.cxx_qt_ffi_rust()
-            .cell_text(&client.cxx_qt_ffi_rust().client, group, index, column)
+        self.rust()
+            .cell_text(&client.rust().client, group, index, column)
     }
 
     pub fn group_len(&self, group_index: usize) -> usize {
-        self.cxx_qt_ffi_rust().group_len(group_index)
+        self.rust().group_len(group_index)
     }
 
     #[allow(clippy::ptr_arg)]
     pub fn group_index(&self, group: &String) -> i32 {
-        self.cxx_qt_ffi_rust().group_index(group)
+        self.rust().group_index(group)
     }
 
     pub fn group_name(&self, group_index: usize) -> *const String {
-        self.cxx_qt_ffi_rust().group_name(group_index)
+        self.rust().group_name(group_index)
     }
 
     pub fn len(&self) -> usize {
-        self.cxx_qt_ffi_rust().len()
+        self.rust().len()
     }
 
     #[allow(clippy::ptr_arg)]
     pub fn position_in_group(&self, group: &String, index: usize) -> i32 {
-        self.cxx_qt_ffi_rust().position_in_group(group, index)
+        self.rust().position_in_group(group, index)
     }
 
     pub fn recalculate(self: Pin<&mut Self>, client: &ffi::SmushClient) {
-        self.cxx_qt_ffi_rust_mut()
-            .recalculate(&client.cxx_qt_ffi_rust().client);
+        self.rust_mut().recalculate(&client.rust().client);
     }
 
     #[allow(clippy::ptr_arg)]
@@ -377,17 +377,13 @@ impl ffi::SenderMap {
         start: usize,
         amount: usize,
     ) -> bool {
-        self.cxx_qt_ffi_rust().remove(
-            &mut client.cxx_qt_ffi_rust_mut().client,
-            group,
-            start,
-            amount,
-        )
+        self.rust()
+            .remove(&mut client.rust_mut().client, group, start, amount)
     }
 
     #[allow(clippy::ptr_arg)]
     pub fn sender_index(&self, group: &String, index: usize) -> i32 {
-        self.cxx_qt_ffi_rust().sender_index(group, index)
+        self.rust().sender_index(group, index)
     }
 
     #[allow(clippy::ptr_arg)]
@@ -399,8 +395,7 @@ impl ffi::SenderMap {
         column: i32,
         data: &QVariant,
     ) -> i32 {
-        let client = &mut client.cxx_qt_ffi_rust_mut().client;
-        self.cxx_qt_ffi_rust_mut()
-            .set_cell(client, group, index, column, data)
+        let client = &mut client.rust_mut().client;
+        self.rust_mut().set_cell(client, group, index, column, data)
     }
 }

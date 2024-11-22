@@ -14,7 +14,7 @@
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 #include "../../spans.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
+#include "smushclient_qt/src/bridge.cxxqt.h"
 
 using std::string;
 using std::string_view;

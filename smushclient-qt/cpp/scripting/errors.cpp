@@ -1,7 +1,7 @@
 #include "errors.h"
 #include "luaapi.h"
 #include "scriptapi.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
+#include "smushclient_qt/src/bridge.cxxqt.h"
 extern "C"
 {
 #include "lualib.h"

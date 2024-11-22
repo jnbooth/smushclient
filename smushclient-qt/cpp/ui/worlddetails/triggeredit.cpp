@@ -3,7 +3,7 @@
 #include <QtWidgets/QFileDialog>
 #include "../../environment.h"
 #include "../../fieldconnector.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
+#include "smushclient_qt/src/bridge.cxxqt.h"
 
 #define CONNECT(field) connectField(this, &trigger, ui->field, trigger.get##field(), &Trigger::set##field);
 

@@ -6,7 +6,7 @@
 #include "../../environment.h"
 #include "../../fieldconnector.h"
 #include "../../localization.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
+#include "smushclient_qt/src/bridge.cxxqt.h"
 
 // Public methods
 

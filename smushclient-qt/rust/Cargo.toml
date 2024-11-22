@@ -14,14 +14,14 @@ version = "0.4.38"
 features = ["serde"]
 
 [dependencies.cxx]
-version = "1.0.126"
+version = "1.0.130"
 
 [dependencies.cxx-qt]
-version = "0.6.1"
+version = "0.7.0"
 
 [dependencies.cxx-qt-lib]
-version = "0.6.1"
-features = ["chrono"]
+version = "0.7.0"
+features = ["chrono", "qt_gui"]
 
 [dependencies.enumeration]
 git = "https://github.com/jnbooth/enumeration"
@@ -38,7 +38,7 @@ path = "../../smushclient"
 path = "../../smushclient-plugins"
 
 [build-dependencies.cxx-qt-build]
-version = "0.6.1"
+version = "0.7.0"
 
 [features]
 # This feature must be enabled for `cargo test` when linking Qt 6 statically.

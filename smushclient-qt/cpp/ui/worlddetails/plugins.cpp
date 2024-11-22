@@ -8,7 +8,7 @@
 #include "../../model/plugin.h"
 #include "../../scripting/scriptapi.h"
 #include "../../settings.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
+#include "smushclient_qt/src/bridge.cxxqt.h"
 
 // Public methods
 

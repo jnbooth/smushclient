@@ -5,6 +5,7 @@
 #![allow(clippy::trivially_copy_pass_by_ref)]
 #![allow(clippy::unnecessary_box_returns)]
 #![allow(non_snake_case)]
+#![allow(unused_unsafe)]
 
 use std::mem;
 
@@ -135,6 +136,7 @@ pub mod ffi {
 
     extern "C++Qt" {
         include!(<QtNetwork/QTcpSocket>);
+        #[qobject]
         type QTcpSocket;
 
         unsafe fn flush(self: Pin<&mut QTcpSocket>) -> bool;
@@ -266,6 +268,7 @@ pub mod ffi {
         type AliasOutcomes = super::AliasOutcomes;
         type TextStyles = super::TextStyles;
 
+        #[qobject]
         type Document;
 
         #[rust_name = "append_html"]
@@ -367,6 +370,7 @@ pub mod ffi {
 
     extern "C++Qt" {
         include!("timekeeper.h");
+        #[qobject]
         type Timekeeper;
 
         #[rust_name = "send_timer"]
@@ -387,6 +391,7 @@ pub mod ffi {
         type SenderMap = super::SenderMapRust;
     }
 
+    #[auto_cxx_name]
     unsafe extern "RustQt" {
         pub fn cell_text(
             self: &SenderMap,
@@ -395,21 +400,21 @@ pub mod ffi {
             index: usize,
             column: i32,
         ) -> QString;
-        unsafe fn len(self: &SenderMap) -> usize;
-        unsafe fn group_len(self: &SenderMap, group_index: usize) -> usize;
-        unsafe fn group_index(self: &SenderMap, group: &String) -> i32;
-        unsafe fn group_name(self: &SenderMap, group_index: usize) -> *const String;
-        unsafe fn position_in_group(self: &SenderMap, group: &String, index: usize) -> i32;
-        unsafe fn recalculate(self: Pin<&mut SenderMap>, client: &SmushClient);
-        unsafe fn remove(
+        fn len(self: &SenderMap) -> usize;
+        fn group_len(self: &SenderMap, group_index: usize) -> usize;
+        fn group_index(self: &SenderMap, group: &String) -> i32;
+        fn group_name(self: &SenderMap, group_index: usize) -> *const String;
+        fn position_in_group(self: &SenderMap, group: &String, index: usize) -> i32;
+        fn recalculate(self: Pin<&mut SenderMap>, client: &SmushClient);
+        fn remove(
             self: &SenderMap,
             client: Pin<&mut SmushClient>,
             group: &String,
             first: usize,
             amount: usize,
         ) -> bool;
-        unsafe fn sender_index(self: &SenderMap, group: &String, index: usize) -> i32;
-        unsafe fn set_cell(
+        fn sender_index(self: &SenderMap, group: &String, index: usize) -> i32;
+        fn set_cell(
             self: Pin<&mut SenderMap>,
             client: Pin<&mut SmushClient>,
             group: &String,
@@ -420,8 +425,6 @@ pub mod ffi {
     }
 
     impl cxx_qt::Constructor<(SenderType,), NewArguments = (SenderType,)> for SenderMap {}
-
-    unsafe impl !cxx_qt::Locking for SmushClient {}
 
     enum PluginInfo {
         Aliases,
@@ -522,6 +525,7 @@ pub mod ffi {
         type SmushClient = super::SmushClientRust;
     }
 
+    #[auto_cxx_name]
     unsafe extern "RustQt" {
         fn load_world(
             self: Pin<&mut SmushClient>,
@@ -721,14 +725,13 @@ pub mod ffi {
         fn stop_triggers(self: Pin<&mut SmushClient>);
     }
 
-    unsafe impl !cxx_qt::Locking for SmushClient {}
-
     #[qenum(Timer)]
     enum Occurrence {
         Time,
         Interval,
     }
 
+    #[auto_cxx_name]
     extern "RustQt" {
         // Sender
         #[qobject]
@@ -754,12 +757,11 @@ pub mod ffi {
         type Timer = super::TimerRust;
     }
 
+    #[auto_cxx_name]
     unsafe extern "RustQt" {
         fn get_user_send_to(self: &Timer) -> UserSendTarget;
-        fn set_user_send_to(self: Pin<&mut Timer>, send_to: &UserSendTarget);
+        fn set_user_send_to(self: Pin<&mut Timer>, send_to: UserSendTarget);
     }
-
-    unsafe impl !cxx_qt::Locking for Timer {}
 
     impl cxx_qt::Constructor<(), NewArguments = ()> for Timer {}
     impl
@@ -768,6 +770,7 @@ pub mod ffi {
     {
     }
 
+    #[auto_cxx_name]
     extern "RustQt" {
         #[qobject]
         // Sender
@@ -797,12 +800,11 @@ pub mod ffi {
         type Alias = super::AliasRust;
     }
 
+    #[auto_cxx_name]
     unsafe extern "RustQt" {
         fn get_user_send_to(self: &Alias) -> UserSendTarget;
-        fn set_user_send_to(self: Pin<&mut Alias>, send_to: &UserSendTarget);
+        fn set_user_send_to(self: Pin<&mut Alias>, send_to: UserSendTarget);
     }
-
-    unsafe impl !cxx_qt::Locking for Alias {}
 
     impl cxx_qt::Constructor<(), NewArguments = ()> for Alias {}
     impl
@@ -811,6 +813,7 @@ pub mod ffi {
     {
     }
 
+    #[auto_cxx_name]
     extern "RustQt" {
         #[qobject]
         // Sender
@@ -849,12 +852,11 @@ pub mod ffi {
         type Trigger = super::TriggerRust;
     }
 
+    #[auto_cxx_name]
     unsafe extern "RustQt" {
         fn get_user_send_to(self: &Trigger) -> UserSendTarget;
-        fn set_user_send_to(self: Pin<&mut Trigger>, send_to: &UserSendTarget);
+        fn set_user_send_to(self: Pin<&mut Trigger>, send_to: UserSendTarget);
     }
-
-    unsafe impl !cxx_qt::Locking for Trigger {}
 
     impl cxx_qt::Constructor<(), NewArguments = ()> for Trigger {}
     impl
@@ -863,6 +865,7 @@ pub mod ffi {
     {
     }
 
+    #[auto_cxx_name]
     extern "RustQt" {
         #[qobject]
         // Connecting

@@ -1,6 +1,6 @@
 #include "timer.h"
 #include "../ui/worlddetails/timeredit.h"
-#include "cxx-qt-gen/ffi.cxxqt.h"
+#include "smushclient_qt/src/bridge.cxxqt.h"
 
 // Public methods
 
