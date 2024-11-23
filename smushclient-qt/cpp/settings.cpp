@@ -158,7 +158,7 @@ SETTING(DisplayDisconnect, bool, true, "connecting/display/disconnect");
 SETTING(InputBackground, QColor, QColor(Qt::GlobalColor::white), "input/background");
 SETTING(InputFont, QFont, getDefaultFont(12), "input/font");
 SETTING(InputForeground, QColor, QColor(Qt::GlobalColor::black), "input/foreground");
-SETTING(InputHistoryLimit, bool, false, "input/history/limit");
+SETTING(InputHistoryLimit, bool, true, "input/history/limit");
 SETTING(InputHistoryLines, int, 100, "input/history/lines");
 
 SETTING(LastFiles, QStringList, QStringList(), "startup/reopen");
@@ -173,7 +173,7 @@ SETTING(OpenAtStartup, QStringList, QStringList(), "startup/list");
 
 SETTING(OutputFont, QFont, getDefaultFont(12), "output/font");
 SETTING(OutputHistoryEnabled, bool, true, "output/history/enable");
-SETTING(OutputHistoryLimit, bool, false, "output/history/limit");
+SETTING(OutputHistoryLimit, bool, true, "output/history/limit");
 SETTING(OutputHistoryLines, int, 1000, "output/history/lines");
 SETTING(OutputPadding, double, 0.0, "output/inset");
 SETTING(OutputLimit, bool, false, "output/limit");
