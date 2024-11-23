@@ -30,6 +30,9 @@ public:
 
   QString getBellSound() const;
 
+  bool getDisplayConnect() const;
+  bool getDisplayDisconnect() const;
+
   QByteArray getHeaderState(const QString &modelName) const;
 
   QColor getInputBackground() const;
@@ -76,6 +79,9 @@ public slots:
   void setAutoConnect(bool enabled);
 
   void setBellSound(const QString &sound);
+
+  void setDisplayConnect(bool display);
+  void setDisplayDisconnect(bool display);
 
   void setHeaderState(const QString &modelName, const QByteArray &state);
 

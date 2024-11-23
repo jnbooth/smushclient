@@ -75,22 +75,13 @@
     <addaction name="action_wrap_output"/>
     <addaction name="action_pause_output"/>
    </widget>
-   <widget class="QMenu" name="menu_connection">
-    <property name="title">
-     <string>&amp;Connection</string>
-    </property>
-    <addaction name="action_connect"/>
-    <addaction name="action_disconnect"/>
-    <addaction name="separator"/>
-    <addaction name="action_auto_connect"/>
-    <addaction name="action_reconnect_on_disconnect"/>
-    <addaction name="separator"/>
-    <addaction name="action_connect_to_all_open_worlds"/>
-   </widget>
    <widget class="QMenu" name="menu_game">
     <property name="title">
      <string>&amp;Game</string>
     </property>
+    <addaction name="action_connect"/>
+    <addaction name="action_disconnect"/>
+    <addaction name="separator"/>
     <addaction name="action_go_to_line"/>
     <addaction name="separator"/>
     <addaction name="action_command_history"/>
@@ -155,7 +146,6 @@
    <addaction name="menu_file"/>
    <addaction name="menu_edit"/>
    <addaction name="menu_view"/>
-   <addaction name="menu_connection"/>
    <addaction name="menu_game"/>
    <addaction name="menu_window"/>
    <addaction name="menu_help"/>
@@ -439,30 +429,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+K</string>
-   </property>
-  </action>
-  <action name="action_auto_connect">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Auto Connect</string>
-   </property>
-  </action>
-  <action name="action_reconnect_on_disconnect">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Reconnect On Disconnect</string>
-   </property>
-  </action>
-  <action name="action_connect_to_all_open_worlds">
-   <property name="text">
-    <string>Connect To All Open &amp;Worlds</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Alt+K</string>
    </property>
   </action>
   <action name="action_command_history">

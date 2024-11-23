@@ -76,6 +76,15 @@
        </item>
        <item>
         <property name="text">
+         <string>Connecting</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../resources/resources.qrc">
+          <normaloff>:/icons/world-details/connecting.svg</normaloff>:/icons/world-details/connecting.svg</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>History</string>
         </property>
         <property name="icon">

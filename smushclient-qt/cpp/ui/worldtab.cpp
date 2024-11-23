@@ -723,16 +723,30 @@ bool WorldTab::loadPlugins()
 void WorldTab::onConnect()
 {
   client.handleConnect(*socket);
+  emit connectionStatusChanged(true);
+  if (Settings().getDisplayConnect())
+  {
+    const QString format = tr("'Connected on' dddd, MMMM d, yyyy 'at' h:mm AP");
+    api->appendText(QDateTime::currentDateTime().toString(format));
+    api->startLine();
+    ui->output->verticalScrollBar()->toEnd();
+  }
   api->setOpen(true);
   OnPluginConnect onConnect;
   api->sendCallback(onConnect);
-  emit connectionStatusChanged(true);
 }
 
 void WorldTab::onDisconnect()
 {
   client.handleDisconnect();
   api->setOpen(false);
+  if (Settings().getDisplayDisconnect())
+  {
+    const QString format = tr("'Disconnected on' dddd, MMMM d, yyyy 'at' h:mm AP");
+    api->appendText(QDateTime::currentDateTime().toString(format));
+    api->startLine();
+    ui->output->verticalScrollBar()->toEnd();
+  }
   OnPluginDisconnect onDisconnect;
   api->sendCallback(onDisconnect);
   emit connectionStatusChanged(false);

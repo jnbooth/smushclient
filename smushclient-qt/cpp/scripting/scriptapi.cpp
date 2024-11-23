@@ -118,8 +118,7 @@ void ScriptApi::appendText(const QString &text, const QTextCharFormat &format)
 
 void ScriptApi::appendText(const QString &text)
 {
-  flushLine();
-  cursor.insertText(text);
+  appendText(text, noteFormat);
 }
 
 void ScriptApi::applyWorld(const World &world)

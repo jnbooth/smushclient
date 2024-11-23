@@ -57,7 +57,6 @@ private slots:
   void on_action_close_all_notepad_windows_triggered();
   void on_action_close_world_triggered();
   void on_action_command_history_triggered();
-  void on_action_connect_to_all_open_worlds_triggered();
   void on_action_connect_triggered();
   void on_action_copy_triggered();
   void on_action_copy_as_html_triggered();

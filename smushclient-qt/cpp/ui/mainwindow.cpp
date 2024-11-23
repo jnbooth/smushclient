@@ -39,14 +39,10 @@ MainWindow::MainWindow(Notepads *notepads, QWidget *parent)
 
   ui->action_status_bar->setChecked(settings.getShowStatusBar());
   ui->action_wrap_output->setChecked(settings.getOutputWrapping());
-  ui->action_auto_connect->setChecked(settings.getAutoConnect());
-  ui->action_reconnect_on_disconnect->setChecked(settings.getReconnectOnDisconnect());
-  connect(ui->action_auto_connect, &QAction::triggered, &settings, &Settings::setAutoConnect);
   connect(ui->action_close_window, &QAction::triggered, this, &MainWindow::close);
   connect(ui->action_log_session, &QAction::triggered, &settings, &Settings::setLoggingEnabled);
   connect(ui->action_maximize, &QAction::triggered, this, &MainWindow::showMaximized);
   connect(ui->action_minimize, &QAction::triggered, this, &MainWindow::showMinimized);
-  connect(ui->action_reconnect_on_disconnect, &QAction::triggered, &settings, &Settings::setReconnectOnDisconnect);
   connect(ui->action_restore, &QAction::triggered, this, &MainWindow::showNormal);
   connect(ui->action_status_bar, &QAction::triggered, &settings, &Settings::setShowStatusBar);
   connect(ui->action_wrap_output, &QAction::triggered, &settings, &Settings::setOutputWrapping);
@@ -311,12 +307,6 @@ void MainWindow::on_action_copy_as_html_triggered()
 void MainWindow::on_action_cut_triggered()
 {
   worldtab()->copyableEditor()->cut();
-}
-
-void MainWindow::on_action_connect_to_all_open_worlds_triggered()
-{
-  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
-    worldtab(i)->connectToHost();
 }
 
 void MainWindow::on_action_connect_triggered()
