@@ -1,5 +1,5 @@
 use crate::handler::Handler;
-use crate::world::{Escaped, EscapedBrackets, LogBrackets, LogFormat, LogMode, World};
+use crate::world::{Escaped, EscapedBrackets, LogBrackets, LogFormat, World};
 use std::fs::{File, OpenOptions};
 use std::io::{self, BufWriter, Write};
 use std::mem;
@@ -22,12 +22,7 @@ impl LogFile {
         let Some(log_file_path) = &world.auto_log_file_name else {
             return Ok(Self::Closed);
         };
-        let mut options = OpenOptions::new();
-        match world.log_mode {
-            LogMode::Append => options.append(true),
-            LogMode::Overwrite => options.create(true).truncate(true),
-        };
-        let file = options.create(true).open(log_file_path)?;
+        let file = OpenOptions::from(world.log_mode).open(log_file_path)?;
         let mut file = BufWriter::new(file);
         if !preamble.is_empty() {
             writeln!(file, "{preamble}")?;

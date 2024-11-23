@@ -1,3 +1,5 @@
+use std::fs::OpenOptions;
+
 use enumeration::Enum;
 use mud_transformer::mxp::RgbColor;
 use serde::{Deserialize, Serialize};
@@ -41,6 +43,18 @@ impl Default for LogFormat {
 pub enum LogMode {
     Append,
     Overwrite,
+}
+
+impl From<LogMode> for OpenOptions {
+    fn from(value: LogMode) -> Self {
+        let mut options = Self::new();
+        match value {
+            LogMode::Append => options.append(true),
+            LogMode::Overwrite => options.write(true).truncate(true),
+        };
+        options.create(true);
+        options
+    }
 }
 
 #[derive(
