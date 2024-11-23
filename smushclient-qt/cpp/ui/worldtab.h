@@ -101,6 +101,7 @@ protected:
 private:
   bool alertNewActivity;
   ScriptApi *api;
+  QMetaObject::Connection autoScroll;
   QFont defaultFont;
   Document *document;
   QString filePath;
@@ -115,6 +116,7 @@ private:
   bool outputCopyAvailable;
   bool queuedConnect;
   int resizeTimerId;
+  int sessionStartBlock;
   QRegularExpression splitter;
   bool useSplitter;
   QFileSystemWatcher worldScriptWatcher;
@@ -132,6 +134,7 @@ private:
 private slots:
   void confirmReloadWorldScript(const QString &worldScriptPath);
   bool loadPlugins();
+  void onAutoScroll(int min, int max);
   void onConnect();
   void onDisconnect();
   void onNewActivity();

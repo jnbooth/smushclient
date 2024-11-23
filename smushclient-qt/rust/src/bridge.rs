@@ -702,12 +702,18 @@ pub mod ffi {
             key: &[c_char],
             value_size: *mut usize,
         ) -> *const c_char;
+        unsafe fn get_metavariable(
+            self: &SmushClient,
+            key: &[c_char],
+            value_size: *mut usize,
+        ) -> *const c_char;
         fn set_variable(
             self: Pin<&mut SmushClient>,
             index: usize,
             key: &[c_char],
             value: &[c_char],
         ) -> bool;
+        fn set_metavariable(self: Pin<&mut SmushClient>, key: &[c_char], value: &[c_char]) -> bool;
         fn start_timers(
             self: Pin<&mut SmushClient>,
             index: usize,

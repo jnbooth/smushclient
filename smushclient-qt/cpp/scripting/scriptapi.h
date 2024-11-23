@@ -24,6 +24,7 @@ class ImageFilter;
 class MudScrollBar;
 class MudStatusBar;
 class Notepads;
+struct OutputLayout;
 enum class SendTarget;
 class SmushClient;
 class Timekeeper;
@@ -137,6 +138,14 @@ public:
       const QColor &borderColor,
       int borderWidth,
       const QBrush &outsideFill) const;
+  ApiCode TextRectangle(const OutputLayout &layout) const;
+  ApiCode TextRectangle(
+      const QMargins &margins,
+      int borderOffset,
+      const QColor &borderColor,
+      int borderWidth,
+      const QBrush &outsideFill) const;
+  ApiCode TextRectangle() const;
   ApiCode WindowAddHotspot(
       size_t pluginIndex,
       std::string_view windowName,

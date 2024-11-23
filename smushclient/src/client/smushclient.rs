@@ -20,6 +20,7 @@ use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
 const BUF_LEN: usize = 1024 * 20;
 const BUF_MIDPOINT: usize = BUF_LEN / 2;
+const METAVARIABLES_KEY: &str = "\x01";
 
 #[derive(Debug)]
 pub struct SmushClient {
@@ -351,6 +352,10 @@ impl SmushClient {
         self.variables.get_variable(plugin_id, key)
     }
 
+    pub fn get_metavariable(&self, key: &LuaStr) -> Option<&LuaStr> {
+        self.variables.get_variable(METAVARIABLES_KEY, key)
+    }
+
     pub fn set_variable<K, V>(&mut self, index: PluginIndex, key: K, value: V) -> bool
     where
         K: Into<LuaString>,
@@ -361,6 +366,15 @@ impl SmushClient {
         };
         let plugin_id = &plugin.metadata.id;
         self.variables.set_variable(plugin_id, key, value);
+        true
+    }
+
+    pub fn set_metavariable<K, V>(&mut self, key: K, value: V) -> bool
+    where
+        K: Into<LuaString>,
+        V: Into<LuaString>,
+    {
+        self.variables.set_variable(METAVARIABLES_KEY, key, value);
         true
     }
 

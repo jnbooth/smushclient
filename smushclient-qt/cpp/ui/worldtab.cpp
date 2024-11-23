@@ -83,6 +83,7 @@ WorldTab::WorldTab(Notepads *notepads, QWidget *parent)
       outputCopyAvailable(false),
       queuedConnect(false),
       resizeTimerId(-1),
+      sessionStartBlock(0),
       splitter(),
       useSplitter(false),
       worldScriptWatcher(this)
@@ -210,7 +211,6 @@ bool WorldTab::openWorld(const QString &filename) &
     return false;
   }
   filePath = filename;
-  restoreHistory();
   ui->output->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
   return true;
 }
@@ -342,6 +342,10 @@ void WorldTab::start()
       showRustError(e);
     }
   }
+
+  api->TextRectangle();
+
+  restoreHistory();
 
   loadPlugins();
 
@@ -554,7 +558,15 @@ bool WorldTab::restoreHistory()
   if (file.error() != QFile::FileError::NoError || history.isEmpty())
     return false;
 
-  ui->output->setHtml(QString::fromUtf8(qUncompress(history)));
+  QTextDocument *doc = ui->output->document();
+  doc->setHtml(QString::fromUtf8(qUncompress(history)));
+  autoScroll = connect(
+      ui->output->verticalScrollBar(),
+      &MudScrollBar::rangeChanged,
+      this,
+      &WorldTab::onAutoScroll);
+
+  sessionStartBlock = doc->blockCount();
 
   return true;
 }
@@ -569,6 +581,8 @@ bool WorldTab::saveHistory() const
   if (!settings.getOutputHistoryEnabled())
     return false;
 
+  const int block = ui->output->document()->blockCount();
+
   if (settings.getOutputHistoryLimit())
     ui->output->document()->setMaximumBlockCount(settings.getOutputHistoryLines());
 
@@ -576,10 +590,13 @@ bool WorldTab::saveHistory() const
   if (!file.open(QSaveFile::WriteOnly))
     return false;
 
-  api->startLine();
-  api->appendHtml(QStringLiteral("<hr/>"));
-  api->startLine();
-  api->startLine();
+  if (block > sessionStartBlock + 1)
+  {
+    api->startLine();
+    api->appendHtml(QStringLiteral("<hr/>"));
+    api->startLine();
+    api->startLine();
+  }
 
   if (file.write(qCompress(ui->output->toHtml().toUtf8())) == -1)
     return false;
@@ -720,8 +737,14 @@ bool WorldTab::loadPlugins()
   return true;
 }
 
+void WorldTab::onAutoScroll(int, int max)
+{
+  ui->output->verticalScrollBar()->setValue(max);
+}
+
 void WorldTab::onConnect()
 {
+  disconnect(autoScroll);
   client.handleConnect(*socket);
   emit connectionStatusChanged(true);
   if (Settings().getDisplayConnect())

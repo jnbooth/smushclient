@@ -8,6 +8,7 @@
 #include "sqlite3.h"
 #include "miniwindow.h"
 #include "worldproperties.h"
+#include "../../layout.h"
 #include "../../spans.h"
 #include "../ui/components/mudstatusbar.h"
 #include "../ui/worldtab.h"
@@ -49,6 +50,11 @@ inline bool isEmptyList(const QVariant &variant)
   default:
     return false;
   }
+}
+
+inline rust::slice<const char> byteSlice(const QByteArray &bytes) noexcept
+{
+  return rust::slice<const char>(bytes.data(), bytes.size());
 }
 
 inline rust::slice<const char> stringSlice(string_view view) noexcept
@@ -334,7 +340,7 @@ void ScriptApi::Tell(const QString &text)
 }
 
 ApiCode ScriptApi::TextRectangle(
-    const QRect &rect,
+    const QMargins &margins,
     int borderOffset,
     const QColor &borderColor,
     int borderWidth,
@@ -342,12 +348,9 @@ ApiCode ScriptApi::TextRectangle(
 {
   WorldTab *worldtab = tab();
   Ui::WorldTab *ui = worldtab->ui;
-  const QSize size = ui->area->size();
-  ui->area->setContentsMargins(
-      rect.left(),
-      rect.top(),
-      size.width() - rect.right(),
-      size.height() - rect.bottom());
+  QTextDocument *doc = ui->output->document();
+  doc->setLayoutEnabled(false);
+  ui->area->setContentsMargins(margins);
   QPalette areaPalette = ui->area->palette();
   QBrush outsideBrush = outsideFill;
 
@@ -363,5 +366,60 @@ ApiCode ScriptApi::TextRectangle(
   borderPalette.setBrush(QPalette::ColorRole::Window, borderColorFill);
   ui->outputBorder->setPalette(borderPalette);
   ui->background->setContentsMargins(borderOffset, borderOffset, borderOffset, borderOffset);
+  doc->setLayoutEnabled(true);
   return ApiCode::OK;
+}
+
+ApiCode ScriptApi::TextRectangle(const OutputLayout &layout) const
+{
+  return TextRectangle(
+      layout.margins,
+      layout.borderOffset,
+      layout.borderColor,
+      layout.borderWidth,
+      layout.outsideFill);
+}
+
+inline rust::slice<const char> outputLayoutVariable() noexcept
+{
+  return stringSlice("output/layout");
+}
+
+ApiCode ScriptApi::TextRectangle(
+    const QRect &rect,
+    int borderOffset,
+    const QColor &borderColor,
+    int borderWidth,
+    const QBrush &outsideFill) const
+{
+  const QSize size = tab()->ui->area->size();
+  const QMargins margins(
+      rect.left(),
+      rect.top(),
+      size.width() - rect.right(),
+      size.height() - rect.bottom());
+  const OutputLayout layout{
+      .margins = margins,
+      .borderOffset = (int16_t)borderOffset,
+      .borderColor = borderColor,
+      .borderWidth = (int16_t)borderWidth,
+      .outsideFill = outsideFill,
+  };
+  client()->setMetavariable(outputLayoutVariable(), byteSlice(layout.save()));
+  return TextRectangle(layout);
+}
+
+ApiCode ScriptApi::TextRectangle() const
+{
+  size_t size;
+  const char *variable = client()->getMetavariable(outputLayoutVariable(), &size);
+  if (!variable)
+    return ApiCode::OK;
+
+  OutputLayout layout;
+  const QByteArray data = QByteArray::fromRawData(variable, size);
+  if (!layout.restore(data))
+    return ApiCode::VariableNotFound;
+
+  return TextRectangle(layout);
 }

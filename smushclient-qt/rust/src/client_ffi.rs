@@ -509,19 +509,33 @@ impl ffi::SmushClient {
     /// # Safety
     ///
     /// Refer to the safety documentation for [`std::slice::from_raw_parts`].
-    pub unsafe fn get_variable(
-        &self,
-        index: PluginIndex,
-        key: &[c_char],
-        value_size: *mut usize,
-    ) -> *const c_char {
-        let Some(value) = self.rust().client.get_variable(index, key) else {
+    unsafe fn provide_variable(value: Option<&[c_char]>, value_size: *mut usize) -> *const c_char {
+        let Some(value) = value else {
             return ptr::null();
         };
         if !value_size.is_null() {
             *value_size = value.len();
         }
         value.as_ptr()
+    }
+
+    /// # Safety
+    ///
+    /// Refer to the safety documentation for [`std::slice::from_raw_parts`].
+    pub unsafe fn get_variable(
+        &self,
+        index: PluginIndex,
+        key: &[c_char],
+        value_size: *mut usize,
+    ) -> *const c_char {
+        Self::provide_variable(self.rust().client.get_variable(index, key), value_size)
+    }
+
+    /// # Safety
+    ///
+    /// Refer to the safety documentation for [`std::slice::from_raw_parts`].
+    pub unsafe fn get_metavariable(&self, key: &[c_char], value_size: *mut usize) -> *const c_char {
+        Self::provide_variable(self.rust().client.get_metavariable(key), value_size)
     }
 
     pub fn set_variable(
@@ -533,6 +547,12 @@ impl ffi::SmushClient {
         self.rust_mut()
             .client
             .set_variable(index, key.to_vec(), value.to_vec())
+    }
+
+    pub fn set_metavariable(self: Pin<&mut Self>, key: &[c_char], value: &[c_char]) -> bool {
+        self.rust_mut()
+            .client
+            .set_metavariable(key.to_vec(), value.to_vec())
     }
 
     pub fn start_timers(
