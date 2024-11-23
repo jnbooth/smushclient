@@ -18,5 +18,6 @@
         <file>icons/settings/startup.svg</file>
         <file>icons/settings/appearance.svg</file>
         <file>icons/settings/sound.svg</file>
+        <file>icons/settings/closing.svg</file>
     </qresource>
 </RCC>

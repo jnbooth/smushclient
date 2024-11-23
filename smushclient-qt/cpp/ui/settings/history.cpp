@@ -14,8 +14,7 @@ int getLimit(QCheckBox *checkbox, QSpinBox *spinbox)
 SettingsHistory::SettingsHistory(Settings &settings, SettingsNotifier *notifier, QWidget *parent)
     : QWidget(parent),
       ui(new Ui::SettingsHistory),
-      notifier(notifier),
-      settings(settings)
+      notifier(notifier)
 {
   ui->setupUi(this);
   CONNECT_SETTINGS(InputHistoryLimit);

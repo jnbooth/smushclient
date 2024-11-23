@@ -170,6 +170,7 @@ qt_add_executable(${APP_NAME}
     resources/resources.qrc
     cpp/ui/settings/sound.h cpp/ui/settings/sound.cpp cpp/ui/settings/sound.ui
     cpp/ui/settings/connection.h cpp/ui/settings/connection.cpp cpp/ui/settings/connection.ui
+    cpp/ui/settings/closing.h cpp/ui/settings/closing.cpp cpp/ui/settings/closing.ui
 )
 
 target_link_libraries(${APP_NAME} PRIVATE lualibs ${CRATE}_qml)

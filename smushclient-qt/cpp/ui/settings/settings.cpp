@@ -1,6 +1,7 @@
 #include "settings.h"
 #include "ui_settings.h"
 #include "appearance.h"
+#include "closing.h"
 #include "connection.h"
 #include "history.h"
 #include "notifier.h"
@@ -52,12 +53,14 @@ QWidget *SettingsDialog::paneForIndex(int n)
   case 0:
     return new SettingsAppearance(settings, &notifier, this);
   case 1:
-    return new SettingsConnecting(settings, this);
+    return new SettingsClosing(settings, this);
   case 2:
-    return new SettingsHistory(settings, &notifier, this);
+    return new SettingsConnecting(settings, this);
   case 3:
-    return new SettingsSound(settings, this);
+    return new SettingsHistory(settings, &notifier, this);
   case 4:
+    return new SettingsSound(settings, this);
+  case 5:
     return new SettingsStartup(settings, this);
   default:
     return nullptr;

@@ -10,6 +10,7 @@
 #include "../ui/components/mudscrollbar.h"
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
+#include "../../settings.h"
 extern "C"
 {
 #include "lua.h"

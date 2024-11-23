@@ -76,6 +76,15 @@
        </item>
        <item>
         <property name="text">
+         <string>Closing</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../resources/resources.qrc">
+          <normaloff>:/icons/settings/closing.svg</normaloff>:/icons/settings/closing.svg</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>Connecting</string>
         </property>
         <property name="icon">

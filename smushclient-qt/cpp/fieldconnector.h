@@ -5,6 +5,7 @@
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QRadioButton>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QTimeEdit>

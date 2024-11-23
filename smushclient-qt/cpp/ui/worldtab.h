@@ -10,7 +10,6 @@
 #include <QtWidgets/QSplitter>
 #include "../bridge/document.h"
 #include "../scripting/callbacktrigger.h"
-#include "../settings.h"
 #include "smushclient_qt/src/bridge.cxxqt.h"
 
 class Hotspot;

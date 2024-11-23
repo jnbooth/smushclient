@@ -20,7 +20,6 @@ public:
 private:
   Ui::SettingsHistory *ui;
   SettingsNotifier *notifier;
-  Settings &settings;
 
 private slots:
   void updateInputHistoryLimit();

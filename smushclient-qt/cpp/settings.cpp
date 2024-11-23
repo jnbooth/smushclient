@@ -152,6 +152,8 @@ SETTING(AutoConnect, bool, true, "connecting/auto");
 
 SETTING(BellSound, QString, QString(), "sound/bell");
 
+SETTING(ConfirmQuit, bool, false, "closing/app");
+
 SETTING(DisplayConnect, bool, true, "connecting/display/connect");
 SETTING(DisplayDisconnect, bool, true, "connecting/display/disconnect");
 
@@ -187,3 +189,5 @@ SETTING(ShowStatusBar, bool, true, "statusbar/visible");
 
 SETTING_ENUM(StartupBehavior, Settings::StartupBehavior, StartupBehavior::Reopen, "startup/behavior");
 SETTING(StartupDirectory, QString, QString(), "startup/directory");
+
+SETTING_ENUM(WorldCloseBehavior, Settings::WorldCloseBehavior, WorldCloseBehavior::Save, "closing/world");

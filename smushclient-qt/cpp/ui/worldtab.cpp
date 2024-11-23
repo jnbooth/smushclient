@@ -240,6 +240,15 @@ bool WorldTab::promptSave()
 {
   if (!isWindowModified())
     return true;
+  switch (Settings().getWorldCloseBehavior())
+  {
+  case Settings::WorldCloseBehavior::Save:
+    return !saveWorld().isEmpty();
+  case Settings::WorldCloseBehavior::Discard:
+    return true;
+  case Settings::WorldCloseBehavior::Confirm:
+    break;
+  }
   QMessageBox msgBox;
   msgBox.setText(tr("Do you want to save the changes you made to %1?").arg(world.getName()));
   msgBox.setInformativeText(tr("Your changes will be lost if you don't save them."));

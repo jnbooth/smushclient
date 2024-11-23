@@ -9,6 +9,7 @@
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QInputDialog>
+#include <QtWidgets/QMessageBox>
 #include "ui_worldtab.h"
 #include "notepad.h"
 #include "finddialog.h"
@@ -89,6 +90,12 @@ void MainWindow::openWorld(const QString &filePath)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+  if (settings.getConfirmQuit() && QMessageBox::question(this, QString(), tr("Close all worlds and quit?"), QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel)
+  {
+    event->ignore();
+    return;
+  }
+
   QList<WorldTab *> tabs;
   const int tabCount = ui->world_tabs->count();
   tabs.reserve(tabCount);

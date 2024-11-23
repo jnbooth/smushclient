@@ -23,12 +23,23 @@ public:
 
   Q_ENUM(StartupBehavior)
 
+  enum class WorldCloseBehavior
+  {
+    Save,
+    Confirm,
+    Discard,
+  };
+
+  Q_ENUM(WorldCloseBehavior)
+
 public:
   explicit Settings(QObject *parent = nullptr);
 
   bool getAutoConnect() const;
 
   QString getBellSound() const;
+
+  bool getConfirmQuit() const;
 
   bool getDisplayConnect() const;
   bool getDisplayDisconnect() const;
@@ -75,10 +86,14 @@ public:
   QString getStartupDirectoryOrDefault() const;
   QStringList getStartupWorlds() const;
 
+  WorldCloseBehavior getWorldCloseBehavior() const;
+
 public slots:
   void setAutoConnect(bool enabled);
 
   void setBellSound(const QString &sound);
+
+  void setConfirmQuit(bool confirm);
 
   void setDisplayConnect(bool display);
   void setDisplayDisconnect(bool display);
@@ -117,6 +132,8 @@ public slots:
 
   void setStartupBehavior(StartupBehavior behavior);
   void setStartupDirectory(const QString &dir);
+
+  void setWorldCloseBehavior(WorldCloseBehavior behavior);
 
 private:
   QSettings store;
