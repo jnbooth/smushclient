@@ -15,6 +15,80 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Startup Directory</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLineEdit" name="StartupDirectory">
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="StartupDirectory_browse">
+          <property name="text">
+           <string>Browse</string>
+          </property>
+          <property name="icon">
+           <iconset theme="QIcon::ThemeIcon::DocumentOpen"/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="_layout">
+        <item>
+         <widget class="QPushButton" name="browse_worlds">
+          <property name="text">
+           <string>Worlds</string>
+          </property>
+          <property name="icon">
+           <iconset theme="QIcon::ThemeIcon::DocumentOpen"/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="browse_plugins">
+          <property name="text">
+           <string>Plugins</string>
+          </property>
+          <property name="icon">
+           <iconset theme="QIcon::ThemeIcon::DocumentOpen"/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="browse_sounds">
+          <property name="text">
+           <string>Sounds</string>
+          </property>
+          <property name="icon">
+           <iconset theme="QIcon::ThemeIcon::DocumentOpen"/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="browse_scripts">
+          <property name="text">
+           <string>Scripts</string>
+          </property>
+          <property name="icon">
+           <iconset theme="QIcon::ThemeIcon::DocumentOpen"/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="StartupBehavior">
      <property name="title">
       <string>Startup Behavior</string>

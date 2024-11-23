@@ -14,6 +14,7 @@ int main(int argc, char *argv[])
   QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/Dina-Bold.ttf"));
   QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/FixedSys.ttf"));
   Settings settings;
+  initializeStartupDirectory(settings.getStartupDirectoryOrDefault());
   Notepads *notepads = new Notepads;
   MainWindow *w = new MainWindow(notepads);
   for (const QString &reopen : settings.getStartupWorlds())

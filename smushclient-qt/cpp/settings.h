@@ -66,6 +66,8 @@ public:
   bool getShowStatusBar() const;
 
   StartupBehavior getStartupBehavior() const;
+  QString getStartupDirectory() const;
+  QString getStartupDirectoryOrDefault() const;
   QStringList getStartupWorlds() const;
 
 public slots:
@@ -104,6 +106,7 @@ public slots:
   void setShowStatusBar(bool show);
 
   void setStartupBehavior(StartupBehavior behavior);
+  void setStartupDirectory(const QString &dir);
 
 private:
   QSettings store;

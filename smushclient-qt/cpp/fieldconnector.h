@@ -55,6 +55,13 @@ QMetaObject::Connection connectField(QObject *object, const T *target, ColorPick
   return object->connect(input, &ColorPickerButton::valueChanged, target, setter);
 }
 
+template <typename T>
+QMetaObject::Connection connectField(QObject *object, const T *target, ColorPickerButton *input, const QColor &value, void (T::*&&setter)(const QColor &value))
+{
+  input->setValue(value);
+  return object->connect(input, &ColorPickerButton::valueChanged, target, setter);
+}
+
 // qstring
 template <typename T>
 QMetaObject::Connection connectField(QObject *object, const T *target, QLineEdit *input, const QString &value, void (T::*&&setter)(QString value))
@@ -63,9 +70,23 @@ QMetaObject::Connection connectField(QObject *object, const T *target, QLineEdit
   return object->connect(input, &QLineEdit::textChanged, target, setter);
 }
 
+template <typename T>
+QMetaObject::Connection connectField(QObject *object, const T *target, QLineEdit *input, const QString &value, void (T::*&&setter)(const QString &value))
+{
+  input->setText(value);
+  return object->connect(input, &QLineEdit::textChanged, target, setter);
+}
+
 // qtime
 template <typename T>
 QMetaObject::Connection connectField(QObject *object, const T *target, QTimeEdit *input, const QTime &value, void (T::*&&setter)(QTime value))
+{
+  input->setTime(value);
+  return object->connect(input, &QTimeEdit::timeChanged, target, setter);
+}
+
+template <typename T>
+QMetaObject::Connection connectField(QObject *object, const T *target, QTimeEdit *input, const QTime &value, void (T::*&&setter)(const QTime &value))
 {
   input->setTime(value);
   return object->connect(input, &QTimeEdit::timeChanged, target, setter);

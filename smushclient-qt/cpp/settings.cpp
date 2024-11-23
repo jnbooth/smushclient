@@ -140,6 +140,12 @@ QStringList Settings::getStartupWorlds() const
   }
 }
 
+QString Settings::getStartupDirectoryOrDefault() const
+{
+  const QString dir = getStartupDirectory();
+  return dir.isEmpty() ? defaultStartupDirectory() : dir;
+}
+
 // Generated
 
 SETTING(AutoConnect, bool, true, "connecting/auto");
@@ -175,3 +181,4 @@ SETTING(ReconnectOnDisconnect, bool, false, "connecting/reconnect");
 SETTING(ShowStatusBar, bool, true, "statusbar/visible");
 
 SETTING_ENUM(StartupBehavior, Settings::StartupBehavior, StartupBehavior::Reopen, "startup/behavior");
+SETTING(StartupDirectory, QString, QString(), "startup/directory");

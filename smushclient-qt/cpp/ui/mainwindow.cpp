@@ -33,13 +33,7 @@ MainWindow::MainWindow(Notepads *notepads, QWidget *parent)
 {
   setAttribute(Qt::WA_DeleteOnClose);
   findDialog = new FindDialog(this);
-  if (QDir::current().isRoot())
-  {
-    QString dirPath = QCoreApplication::applicationDirPath();
-    if (qsizetype i = dirPath.indexOf(QStringLiteral(".app")); i != -1)
-      dirPath.truncate(dirPath.lastIndexOf(QDir::separator(), i));
-    QDir::setCurrent(dirPath);
-  }
+  QDir::setCurrent(settings.getStartupDirectoryOrDefault());
 
   ui->setupUi(this);
 
