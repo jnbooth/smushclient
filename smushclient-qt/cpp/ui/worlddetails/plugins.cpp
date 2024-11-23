@@ -60,7 +60,7 @@ void PrefsPlugins::on_button_add_clicked()
   if (filePath.isEmpty())
     return;
 
-  model->addPlugin(filePath);
+  model->addPlugin(makePathRelative(filePath));
 }
 
 void PrefsPlugins::on_button_reinstall_clicked()

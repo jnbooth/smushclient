@@ -50,7 +50,7 @@ void PrefsScripting::on_WorldScript_browse_clicked()
   if (path.isEmpty())
     return;
 
-  ui->WorldScript->setText(path);
+  ui->WorldScript->setText(makePathRelative(path));
 }
 
 void PrefsScripting::on_WorldScript_create_clicked()
@@ -71,7 +71,7 @@ void PrefsScripting::on_WorldScript_create_clicked()
     return;
   }
   file.close();
-  ui->WorldScript->setText(path);
+  ui->WorldScript->setText(makePathRelative(path));
 }
 
 void PrefsScripting::on_WorldScript_edit_clicked()
@@ -100,7 +100,7 @@ void PrefsScripting::on_WorldScript_edit_clicked()
     return;
   }
   file.close();
-  ui->WorldScript->setText(path);
+  ui->WorldScript->setText(makePathRelative(path));
   QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 }
 
