@@ -145,11 +145,12 @@ void Document::beep() const
 void Document::begin() const
 {
   api->updateTimestamp();
+  scrollBar->setAutoScrollEnabled(false);
 }
 
 void Document::end(bool hadOutput)
 {
-  scrollBar->toEnd();
+  scrollBar->setAutoScrollEnabled(true);
   if (hadOutput)
     emit newActivity();
 }

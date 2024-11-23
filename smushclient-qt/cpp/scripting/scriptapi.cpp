@@ -107,7 +107,6 @@ void ScriptApi::appendTell(const QString &text, const QTextCharFormat &format)
   cursor.insertText(text, format);
   hasLine = true;
   lastTellPosition = cursor.position();
-  scrollToBottom();
 }
 
 void ScriptApi::appendText(const QString &text, const QTextCharFormat &format)
@@ -250,7 +249,6 @@ void ScriptApi::printError(const QString &error)
 {
   appendText(error, errorFormat);
   startLine();
-  scrollToBottom();
 }
 
 void ScriptApi::reloadWorldScript(const QString &worldScriptPath)
@@ -373,7 +371,6 @@ void ScriptApi::sendTo(
   case SendTarget::Output:
     appendText(text, noteFormat);
     startLine();
-    scrollToBottom();
     return;
   case SendTarget::Status:
     SetStatus(text);
@@ -544,11 +541,6 @@ void ScriptApi::flushLine()
 
   indentNext = false;
   cursor.insertText(indentText);
-}
-
-void ScriptApi::scrollToBottom() const
-{
-  scrollBar->toEnd();
 }
 
 inline WorldTab *ScriptApi::tab() const { return qobject_cast<WorldTab *>(parent()); }

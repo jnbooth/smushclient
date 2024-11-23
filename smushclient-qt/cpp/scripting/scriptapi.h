@@ -380,6 +380,5 @@ private:
   }
   MiniWindow *findWindow(const std::string_view windowName) const;
   void flushLine();
-  void scrollToBottom() const;
   WorldTab *tab() const;
 };

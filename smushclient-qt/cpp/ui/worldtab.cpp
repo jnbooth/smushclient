@@ -752,7 +752,6 @@ void WorldTab::onConnect()
     const QString format = tr("'Connected on' dddd, MMMM d, yyyy 'at' h:mm AP");
     api->appendText(QDateTime::currentDateTime().toString(format));
     api->startLine();
-    ui->output->verticalScrollBar()->toEnd();
   }
   api->setOpen(true);
   OnPluginConnect onConnect;
@@ -768,7 +767,6 @@ void WorldTab::onDisconnect()
     const QString format = tr("'Disconnected on' dddd, MMMM d, yyyy 'at' h:mm AP");
     api->appendText(QDateTime::currentDateTime().toString(format));
     api->startLine();
-    ui->output->verticalScrollBar()->toEnd();
   }
   OnPluginDisconnect onDisconnect;
   api->sendCallback(onDisconnect);

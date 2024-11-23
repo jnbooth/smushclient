@@ -17,14 +17,20 @@ public:
   }
 
 public slots:
+  void setAutoScrollEnabled(bool enabled = true);
   void setPaused(bool paused = true);
   void setPausingEnabled(bool enabled = true);
-  void toEnd();
+
+  inline void setAutoScrollDisabled(bool disabled = true)
+  {
+    setAutoScrollEnabled(!disabled);
+  }
 
   inline void setPausingDisabled(bool disabled = true)
   {
     setPausingEnabled(!disabled);
   }
+
   inline void setUnpaused(bool unpaused = true)
   {
     setPaused(!unpaused);
@@ -34,8 +40,10 @@ protected:
   virtual void sliderChange(QAbstractSlider::SliderChange change) override;
 
 private:
-  int lastValue;
+  bool autoScroll;
+  bool inInternalChange;
   bool isPaused;
+  int lastValue;
   bool pausingEnabled;
 
 private:

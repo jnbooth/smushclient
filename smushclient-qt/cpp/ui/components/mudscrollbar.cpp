@@ -23,11 +23,20 @@ QAbstractScrollArea *getScrollArea(const QObject *obj)
 
 MudScrollBar::MudScrollBar(QWidget *parent)
     : QScrollBar(parent),
-      lastValue(0),
+      autoScroll(true),
+      inInternalChange(false),
       isPaused(false),
+      lastValue(0),
       pausingEnabled(true) {}
 
 // Public slots
+
+void MudScrollBar::setAutoScrollEnabled(bool enabled)
+{
+  autoScroll = enabled;
+  if (autoScroll && !isPaused)
+    setValue(maximum());
+}
 
 void MudScrollBar::setPaused(bool paused)
 {
@@ -49,17 +58,24 @@ void MudScrollBar::setPausingEnabled(bool enabled)
   updateParentPolicy();
 }
 
-void MudScrollBar::toEnd()
-{
-  if (!isPaused)
-    setValue(maximum());
-}
-
 // Protected overrides
 
 void MudScrollBar::sliderChange(QAbstractSlider::SliderChange change)
 {
-  if (!pausingEnabled || change != QAbstractSlider::SliderChange::SliderValueChange)
+  if (autoScroll && !isPaused && change == QAbstractSlider::SliderChange::SliderRangeChange)
+  {
+    inInternalChange = true;
+    setValue(maximum());
+    return;
+  }
+  if (change != QAbstractSlider::SliderChange::SliderValueChange)
+    return;
+  if (inInternalChange)
+  {
+    inInternalChange = false;
+    return;
+  }
+  if (!pausingEnabled)
     return;
   const int previousValue = lastValue;
   lastValue = value();
