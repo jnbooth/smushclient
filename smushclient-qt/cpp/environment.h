@@ -2,6 +2,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QString>
 
+#define LOGS_DIR "logs"
+
 #define PLUGINS_DIR "plugins"
 
 #define SCRIPTS_DIR "lua"

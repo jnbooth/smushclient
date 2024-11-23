@@ -232,6 +232,9 @@ bool WorldTab::openWorldSettings()
   if (!world.getSaveWorldAutomatically())
     setWindowModified(true);
 
+  if (Settings().getLoggingEnabled())
+    openLog();
+
   applyWorld();
   return true;
 }
@@ -293,7 +296,7 @@ QString WorldTab::saveWorldAsNew()
   const QString path = QFileDialog::getSaveFileName(
       this,
       tr("Save as"),
-      QStringLiteral(WORLDS_DIR "/") + world.getName(),
+      QStringLiteral(WORLDS_DIR) + QDir::separator() + world.getName(),
       FileFilter::world());
 
   if (path.isEmpty())
@@ -302,7 +305,7 @@ QString WorldTab::saveWorldAsNew()
   if (!saveWorldAndState(path))
     return QString();
 
-  filePath = path;
+  filePath = makePathRelative(path);
   return filePath;
 }
 
@@ -434,6 +437,14 @@ void WorldTab::closeEvent(QCloseEvent *event)
   {
     saveState(filePath);
     saveHistory();
+  }
+  try
+  {
+    client.closeLog();
+  }
+  catch (rust::Error e)
+  {
+    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
   }
   event->accept();
 }

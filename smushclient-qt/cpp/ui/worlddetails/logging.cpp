@@ -1,8 +1,11 @@
 #include "logging.h"
 #include "ui_logging.h"
+#include <QtWidgets/QFileDialog>
 #include "specialhelp.h"
 #include "../../enumbuttongroup.h"
+#include "../../environment.h"
 #include "../../fieldconnector.h"
+#include "../../localization.h"
 #include "smushclient_qt/src/bridge.cxxqt.h"
 
 PrefsLogging::PrefsLogging(World &world, QWidget *parent)
@@ -42,14 +45,31 @@ PrefsLogging::~PrefsLogging()
 
 // Private methods
 
-void PrefsLogging::on_LogFilePreamble_textChanged()
+void PrefsLogging::on_AutoLogFileName_browse_clicked()
 {
-  world.setLogFilePreamble(ui->LogFilePreamble->toPlainText());
+  QString defaultPath = ui->AutoLogFileName->text();
+  if (defaultPath.isEmpty())
+    defaultPath = QStringLiteral(LOGS_DIR) + QDir::separator() + world.getName() + QStringLiteral(".txt");
+  const QString path = QFileDialog::getSaveFileName(
+      this,
+      tr("Select log file"),
+      defaultPath,
+      FileFilter::text());
+
+  if (path.isEmpty())
+    return;
+
+  ui->AutoLogFileName->setText(path);
 }
 
 void PrefsLogging::on_LogFilePostamble_textChanged()
 {
   world.setLogFilePostamble(ui->LogFilePostamble->toPlainText());
+}
+
+void PrefsLogging::on_LogFilePreamble_textChanged()
+{
+  world.setLogFilePreamble(ui->LogFilePreamble->toPlainText());
 }
 
 void PrefsLogging::on_LogFormatChanged(LogFormat value)

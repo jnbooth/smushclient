@@ -12,7 +12,8 @@ QString defaultStartupDirectory()
 bool initializeStartupDirectory(const QString &dirPath)
 {
   const QDir appDir(dirPath);
-  return appDir.mkpath(QStringLiteral(PLUGINS_DIR)) &&
+  return appDir.mkpath(QStringLiteral(LOGS_DIR)) &&
+         appDir.mkpath(QStringLiteral(PLUGINS_DIR)) &&
          appDir.mkpath(QStringLiteral(SCRIPTS_DIR)) &&
          appDir.mkpath(QStringLiteral(SOUNDS_DIR)) &&
          appDir.mkpath(QStringLiteral(WORLDS_DIR));
