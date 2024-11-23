@@ -28,6 +28,8 @@ public:
 
   bool getAutoConnect() const;
 
+  QString getBellSound() const;
+
   QByteArray getHeaderState(const QString &modelName) const;
 
   QColor getInputBackground() const;
@@ -72,6 +74,8 @@ public:
 
 public slots:
   void setAutoConnect(bool enabled);
+
+  void setBellSound(const QString &sound);
 
   void setHeaderState(const QString &modelName, const QByteArray &state);
 

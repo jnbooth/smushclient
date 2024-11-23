@@ -167,6 +167,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/worlddetails/worlddetails.h cpp/ui/worlddetails/worlddetails.cpp cpp/ui/worlddetails/worlddetails.ui
 
     resources/resources.qrc
+    cpp/ui/settings/sound.h cpp/ui/settings/sound.cpp cpp/ui/settings/sound.ui
 )
 
 target_link_libraries(${APP_NAME} PRIVATE lualibs ${CRATE}_qml)

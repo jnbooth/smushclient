@@ -150,6 +150,8 @@ QString Settings::getStartupDirectoryOrDefault() const
 
 SETTING(AutoConnect, bool, true, "connecting/auto");
 
+SETTING(BellSound, QString, QString(), "sound/bell");
+
 SETTING(InputBackground, QColor, QColor(Qt::GlobalColor::white), "input/background");
 SETTING(InputFont, QFont, getDefaultFont(12), "input/font");
 SETTING(InputForeground, QColor, QColor(Qt::GlobalColor::black), "input/foreground");

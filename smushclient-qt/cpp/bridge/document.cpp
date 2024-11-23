@@ -135,7 +135,12 @@ void Document::applyStyles(int start, int end, TextStyles style, const QColor &f
   cursor.mergeCharFormat(format);
 }
 
-void Document::beep() const {}
+void Document::beep() const
+{
+  const QString sound = Settings().getBellSound();
+  if (!sound.isEmpty())
+    api->PlaySound(0, sound);
+}
 
 void Document::begin() const
 {

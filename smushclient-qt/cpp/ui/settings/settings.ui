@@ -85,6 +85,15 @@
        </item>
        <item>
         <property name="text">
+         <string>Sound</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../resources/resources.qrc">
+          <normaloff>:/icons/settings/sound.svg</normaloff>:/icons/settings/sound.svg</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>Startup</string>
         </property>
         <property name="icon">

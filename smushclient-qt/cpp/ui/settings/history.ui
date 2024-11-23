@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>History</class>
- <widget class="QWidget" name="History">
+ <class>SettingsHistory</class>
+ <widget class="QWidget" name="SettingsHistory">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>327</height>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>History</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">

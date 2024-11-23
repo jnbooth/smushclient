@@ -3,7 +3,7 @@
 
 namespace Ui
 {
-  class History;
+  class SettingsHistory;
 }
 
 class Settings;
@@ -18,7 +18,7 @@ public:
   ~SettingsHistory();
 
 private:
-  Ui::History *ui;
+  Ui::SettingsHistory *ui;
   SettingsNotifier *notifier;
   Settings &settings;
 

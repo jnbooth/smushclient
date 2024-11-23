@@ -17,5 +17,6 @@
         <file>icons/world-details/triggers.svg</file>
         <file>icons/settings/startup.svg</file>
         <file>icons/settings/appearance.svg</file>
+        <file>icons/settings/sound.svg</file>
     </qresource>
 </RCC>
