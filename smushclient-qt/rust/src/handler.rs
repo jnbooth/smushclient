@@ -81,7 +81,7 @@ impl<'a> ClientHandler<'a> {
         self.doc.handle_mxp_entity(&entity);
     }
 
-    fn handle_telnet(&self, fragment: &TelnetFragment) {
+    fn handle_telnet(&mut self, fragment: &TelnetFragment) {
         match fragment {
             TelnetFragment::IacGa => self.doc.handle_telnet_iac_ga(),
             TelnetFragment::Mxp { enabled } => self.doc.handle_mxp_change(*enabled),
@@ -89,6 +89,9 @@ impl<'a> ClientHandler<'a> {
             TelnetFragment::Negotiation { source, verb, code } => {
                 self.doc.handle_telnet_negotiation(*source, *verb, *code);
             }
+            TelnetFragment::ServerStatus { variable, value } => self
+                .doc
+                .handle_server_status(&QByteArray::from(&**variable), &QByteArray::from(&**value)),
             TelnetFragment::SetEcho { .. } if self.no_echo_off => (),
             TelnetFragment::SetEcho { should_echo } => self.doc.set_suppress_echo(!should_echo),
             TelnetFragment::Subnegotiation { code, data } => self

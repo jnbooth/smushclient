@@ -51,6 +51,7 @@ public:
   void handleMxpChange(bool enabled) const;
   void handleMxpEntity(rust::str data) const;
   void handleMxpVariable(rust::str name, rust::str value) const;
+  void handleServerStatus(const QByteArray &variable, const QByteArray &value);
   void handleTelnetIacGa() const;
   void handleTelnetNaws() const;
   void handleTelnetNegotiation(TelnetSource source, TelnetVerb verb, uint8_t code) const;
@@ -61,6 +62,10 @@ public:
   void send(const SendScriptRequest &request) const;
   void setPalette(const QVector_QColor &palette);
   void setSuppressEcho(bool suppress) const;
+  constexpr const QHash<QString, QString> &serverStatus() const noexcept
+  {
+    return serverStatuses;
+  }
 
 signals:
   void newActivity();
@@ -74,6 +79,7 @@ private:
   int outputStart;
   MudScrollBar *scrollBar;
   bool serverExpiresLinks;
+  QHash<QString, QString> serverStatuses;
 
   std::vector<QTextCursor> &linksWithExpiration(rust::str expires);
 };

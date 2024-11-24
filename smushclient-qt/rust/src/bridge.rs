@@ -17,8 +17,8 @@ use crate::sender::{OutputSpan, TextSpan};
 use crate::world::WorldRust;
 use cxx::{type_id, ExternType};
 use cxx_qt_lib::{QByteArray, QColor, QVector};
-use mud_transformer::escape::telnet::naws;
 use mud_transformer::mxp::RgbColor;
+use mud_transformer::naws;
 use smushclient::AliasOutcome;
 
 pub fn ansi16() -> QVector<QColor> {
@@ -335,6 +335,13 @@ pub mod ffi {
 
         #[rust_name = "handle_mxp_variable"]
         unsafe fn handleMxpVariable(self: &Document, name: &str, value: &str);
+
+        #[rust_name = "handle_server_status"]
+        unsafe fn handleServerStatus(
+            self: Pin<&mut Document>,
+            variable: &QByteArray,
+            value: &QByteArray,
+        );
 
         #[rust_name = "handle_telnet_iac_ga"]
         unsafe fn handleTelnetIacGa(self: &Document);

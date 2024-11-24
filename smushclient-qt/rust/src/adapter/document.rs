@@ -120,6 +120,11 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.handle_mxp_variable(name, value) };
     }
 
+    pub fn handle_server_status(&mut self, variable: &QByteArray, value: &QByteArray) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.as_mut().handle_server_status(variable, value) };
+    }
+
     pub fn handle_telnet_iac_ga(&self) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.handle_telnet_iac_ga() };

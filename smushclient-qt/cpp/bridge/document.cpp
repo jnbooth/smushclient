@@ -223,6 +223,11 @@ void Document::handleMxpVariable(rust::str name, rust::str value) const
   api->sendCallback(onMxpSetVariable);
 }
 
+void Document::handleServerStatus(const QByteArray &variable, const QByteArray &value)
+{
+  serverStatuses.insert(QString::fromUtf8(variable), QString::fromUtf8(value));
+}
+
 void Document::handleTelnetIacGa() const
 {
   OnPluginIacGa onIacGa;

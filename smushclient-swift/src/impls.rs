@@ -391,6 +391,10 @@ impl From<TelnetFragment> for ffi::TelnetFragment {
                 code,
             },
             TelnetFragment::SetEcho { should_echo } => Self::SetEcho { should_echo },
+            TelnetFragment::ServerStatus { variable, value } => Self::ServerStatus {
+                variable: variable.into(),
+                value: value.into(),
+            },
             TelnetFragment::Subnegotiation { code, data } => Self::Subnegotiation {
                 code,
                 data: data.to_vec(),
@@ -409,6 +413,10 @@ impl Clone for ffi::TelnetFragment {
                 source: *source,
                 verb: *verb,
                 code: *code,
+            },
+            Self::ServerStatus { variable, value } => Self::ServerStatus {
+                variable: variable.clone(),
+                value: value.clone(),
             },
             Self::SetEcho { should_echo } => Self::SetEcho {
                 should_echo: *should_echo,

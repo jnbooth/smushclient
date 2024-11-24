@@ -103,6 +103,10 @@ pub mod ffi {
         SetEcho {
             should_echo: bool,
         },
+        ServerStatus {
+            variable: Vec<u8>,
+            value: Vec<u8>,
+        },
         Subnegotiation {
             code: u8,
             data: Vec<u8>,
