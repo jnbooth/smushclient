@@ -343,9 +343,10 @@ void ScriptApi::sendNaws() const
   const QFontMetrics metrics = browser->fontMetrics();
   const QMargins margins = browser->contentsMargins();
   const int advance = metrics.horizontalAdvance(QStringLiteral("0123456789"));
+  const QSize viewport = browser->maximumViewportSize();
   SendPacket(encodeNaws(
-      (browser->width() - margins.left() - margins.right() - scrollBar->width()) * 10 / advance,
-      (browser->height() - margins.top() - margins.bottom()) / metrics.lineSpacing() - 4));
+      (viewport.width() - margins.left() - margins.right()) * 10 / advance,
+      (viewport.height() - margins.top() - margins.bottom()) / metrics.lineSpacing() - 4));
 }
 
 void ScriptApi::sendTo(
