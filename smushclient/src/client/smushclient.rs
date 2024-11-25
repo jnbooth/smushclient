@@ -63,10 +63,7 @@ impl SmushClient {
     }
 
     pub fn reset_connection(&mut self) {
-        self.transformer = Transformer::new(TransformerConfig {
-            supports: self.supported_tags,
-            ..TransformerConfig::from(&self.world)
-        });
+        self.transformer = Transformer::new(self.create_config());
     }
 
     pub fn set_supported_tags(&mut self, supported_tags: EnumSet<Tag>) {
@@ -80,11 +77,15 @@ impl SmushClient {
     }
 
     fn update_config(&mut self) {
-        self.transformer.set_config(TransformerConfig {
+        self.transformer.set_config(self.create_config());
+    }
+
+    fn create_config(&self) -> TransformerConfig {
+        TransformerConfig {
             will: self.plugins.supported_protocols(),
             supports: self.supported_tags,
             ..TransformerConfig::from(&self.world)
-        });
+        }
     }
 
     pub fn world(&self) -> &World {
