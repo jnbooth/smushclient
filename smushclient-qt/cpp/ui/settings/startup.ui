@@ -46,9 +46,6 @@
         </item>
         <item>
          <widget class="QToolButton" name="StartupDirectory_browse">
-          <property name="text">
-           <string>Browse</string>
-          </property>
           <property name="icon">
            <iconset theme="QIcon::ThemeIcon::DocumentOpen"/>
           </property>
@@ -166,9 +163,6 @@
          </property>
          <item>
           <widget class="QToolButton" name="OpenAtStartup_add">
-           <property name="text">
-            <string>Add</string>
-           </property>
            <property name="icon">
             <iconset theme="QIcon::ThemeIcon::ListAdd"/>
            </property>
@@ -178,9 +172,6 @@
           <widget class="QToolButton" name="OpenAtStartup_remove">
            <property name="enabled">
             <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Remove</string>
            </property>
            <property name="icon">
             <iconset theme="QIcon::ThemeIcon::ListRemove"/>
@@ -192,9 +183,6 @@
            <property name="enabled">
             <bool>false</bool>
            </property>
-           <property name="text">
-            <string>Move Up</string>
-           </property>
            <property name="icon">
             <iconset theme="QIcon::ThemeIcon::GoUp"/>
            </property>
@@ -204,9 +192,6 @@
           <widget class="QToolButton" name="OpenAtStartup_down">
            <property name="enabled">
             <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Move down</string>
            </property>
            <property name="icon">
             <iconset theme="QIcon::ThemeIcon::GoDown"/>

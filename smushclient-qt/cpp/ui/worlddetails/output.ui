@@ -641,7 +641,7 @@
        <number>5</number>
       </property>
       <item>
-       <widget class="QToolButton" name="NewActivitySound_test">
+       <widget class="QPushButton" name="NewActivitySound_test">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -662,9 +662,6 @@
       </item>
       <item>
        <widget class="QToolButton" name="NewActivitySound_browse">
-        <property name="text">
-         <string>Browse...</string>
-        </property>
         <property name="icon">
          <iconset theme="document-open"/>
         </property>

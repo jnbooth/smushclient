@@ -355,7 +355,7 @@
           <item>
            <layout class="QHBoxLayout" name="_soundfile">
             <item>
-             <widget class="QToolButton" name="Sound_test">
+             <widget class="QPushButton" name="Sound_test">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -376,9 +376,6 @@
             </item>
             <item>
              <widget class="QToolButton" name="Sound_browse">
-              <property name="text">
-               <string>Browse...</string>
-              </property>
               <property name="icon">
                <iconset theme="document-open"/>
               </property>

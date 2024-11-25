@@ -62,9 +62,6 @@
         </item>
         <item>
          <widget class="QToolButton" name="WorldScript_browse">
-          <property name="text">
-           <string>Browse...</string>
-          </property>
           <property name="icon">
            <iconset theme="document-open"/>
           </property>

@@ -77,9 +77,6 @@
      </item>
      <item>
       <widget class="QToolButton" name="AutoLogFileName_browse">
-       <property name="text">
-        <string>&amp;Browse...</string>
-       </property>
        <property name="icon">
         <iconset theme="document-open"/>
        </property>

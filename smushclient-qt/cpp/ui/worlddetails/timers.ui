@@ -61,9 +61,6 @@
     <layout class="QHBoxLayout" name="_control">
      <item>
       <widget class="QToolButton" name="add">
-       <property name="text">
-        <string/>
-       </property>
        <property name="icon">
         <iconset theme="QIcon::ThemeIcon::ListAdd"/>
        </property>
@@ -74,9 +71,6 @@
        <property name="enabled">
         <bool>false</bool>
        </property>
-       <property name="text">
-        <string/>
-       </property>
        <property name="icon">
         <iconset theme="QIcon::ThemeIcon::ListRemove"/>
        </property>
@@ -86,9 +80,6 @@
       <widget class="QToolButton" name="edit">
        <property name="enabled">
         <bool>false</bool>
-       </property>
-       <property name="text">
-        <string/>
        </property>
        <property name="icon">
         <iconset theme="QIcon::ThemeIcon::MailMessageNew"/>
@@ -119,9 +110,6 @@
        <property name="enabled">
         <bool>false</bool>
        </property>
-       <property name="text">
-        <string/>
-       </property>
        <property name="icon">
         <iconset theme="QIcon::ThemeIcon::EditCopy"/>
        </property>
@@ -129,9 +117,6 @@
      </item>
      <item>
       <widget class="QToolButton" name="import_xml">
-       <property name="text">
-        <string/>
-       </property>
        <property name="icon">
         <iconset theme="QIcon::ThemeIcon::EditPaste"/>
        </property>
