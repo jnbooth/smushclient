@@ -2,7 +2,6 @@
 #include <QtCore/QMetaProperty>
 #include "smushclient_qt/src/bridge.cxxqt.h"
 
-using std::sort;
 using std::string;
 using std::unordered_map;
 using std::vector;
@@ -57,8 +56,8 @@ WorldProperties::WorldProperties()
   }
   numericProps.shrink_to_fit();
   stringProps.shrink_to_fit();
-  sort(numericProps.begin(), numericProps.end());
-  sort(stringProps.begin(), stringProps.end());
+  std::sort(numericProps.begin(), numericProps.end());
+  std::sort(stringProps.begin(), stringProps.end());
 }
 
 void WorldProperties::addProp(const string &prop, const QMetaType &type)

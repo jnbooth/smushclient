@@ -82,12 +82,14 @@ private slots:
   void on_action_save_world_details_as_triggered();
   void on_action_save_world_details_triggered();
   void on_action_select_all_triggered();
+  void on_action_server_status_triggered();
   void on_action_status_bar_triggered(bool checked);
   void on_action_stop_sound_playing_triggered();
   void on_action_wrap_output_triggered(bool checked);
   void on_action_visit_api_guide_triggered();
   void on_action_visit_bug_reports_triggered();
   void on_menu_file_aboutToShow();
+  void on_menu_help_aboutToShow();
   void on_menu_view_aboutToShow();
   void on_world_tabs_currentChanged(int index);
 

@@ -135,10 +135,10 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.handle_telnet_naws() };
     }
 
-    pub fn handle_telnet_negotiation(&self, source: TelnetSource, verb: TelnetVerb, code: u8) {
+    pub fn handle_telnet_negotiation(&mut self, source: TelnetSource, verb: TelnetVerb, code: u8) {
         // SAFETY: External call to safe method on opaque type.
         unsafe {
-            self.inner
+            self.as_mut()
                 .handle_telnet_negotiation(source.into(), verb.into(), code);
         }
     }

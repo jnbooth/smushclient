@@ -351,7 +351,7 @@ pub mod ffi {
 
         #[rust_name = "handle_telnet_negotiation"]
         unsafe fn handleTelnetNegotiation(
-            self: &Document,
+            self: Pin<&mut Document>,
             source: TelnetSource,
             verb: TelnetVerb,
             code: u8,

@@ -13,6 +13,7 @@
 #include "ui_worldtab.h"
 #include "notepad.h"
 #include "finddialog.h"
+#include "serverstatus.h"
 #include "worldtab.h"
 #include "settings/settings.h"
 #include "../environment.h"
@@ -233,6 +234,7 @@ void MainWindow::setWorldMenusEnabled(bool enabled) const
   ui->action_clear_output->setEnabled(enabled);
   ui->action_reset_all_timers->setEnabled(enabled);
   ui->action_stop_sound_playing->setEnabled(enabled);
+  ui->action_server_status->setEnabled(enabled);
 }
 
 WorldTab *MainWindow::worldtab() const
@@ -498,6 +500,11 @@ void MainWindow::on_action_select_all_triggered()
   worldtab()->ui->input->selectAll();
 }
 
+void MainWindow::on_action_server_status_triggered()
+{
+  ServerStatus(worldtab()->serverStatus(), this).exec();
+}
+
 void MainWindow::on_action_status_bar_triggered(bool checked)
 {
   ui->statusBar->setVisible(checked);
@@ -533,6 +540,12 @@ void MainWindow::on_menu_file_aboutToShow()
   const bool hasWorldScript = tab && !tab->world.getWorldScript().isEmpty();
   ui->action_edit_script_file->setEnabled(hasWorldScript);
   ui->action_reload_script_file->setEnabled(hasWorldScript);
+}
+
+void MainWindow::on_menu_help_aboutToShow()
+{
+  WorldTab *tab = worldtab();
+  ui->action_server_status->setEnabled(!tab->serverStatus().isEmpty());
 }
 
 void MainWindow::on_menu_view_aboutToShow()

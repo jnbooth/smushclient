@@ -781,6 +781,7 @@ void WorldTab::onConnect()
 void WorldTab::onDisconnect()
 {
   client.handleDisconnect();
+  document->resetServerStatus();
   api->setOpen(false);
   if (Settings().getDisplayDisconnect())
   {

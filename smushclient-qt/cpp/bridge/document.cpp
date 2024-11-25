@@ -22,6 +22,7 @@ using std::vector;
 using std::chrono::milliseconds;
 
 constexpr uint8_t telnetNAWS = 31;
+constexpr uint8_t telnetMSSP = 70;
 
 // Private utils
 
@@ -239,9 +240,19 @@ void Document::handleTelnetNaws() const
   api->sendNaws();
 }
 
-void Document::handleTelnetNegotiation(TelnetSource source, TelnetVerb verb, uint8_t code) const
+void Document::handleTelnetNegotiation(TelnetSource source, TelnetVerb verb, uint8_t code)
 {
-  if (source == TelnetSource::Server && code == telnetNAWS)
+  if (source == TelnetSource::Client)
+  {
+    if (verb != TelnetVerb::Do)
+      return;
+
+    OnPluginTelnetRequest onTelnetRequest(code, "SENT_DO");
+    api->sendCallback(onTelnetRequest);
+    return;
+  }
+
+  if (code == telnetNAWS)
   {
     if (verb == TelnetVerb::Do)
       api->setNawsEnabled(true);
@@ -249,16 +260,12 @@ void Document::handleTelnetNegotiation(TelnetSource source, TelnetVerb verb, uin
       api->setNawsEnabled(false);
   }
 
-  if (source == TelnetSource::Server && verb == TelnetVerb::Will)
+  if (code == telnetMSSP && (verb == TelnetVerb::Will || verb == TelnetVerb::Wont))
+    resetServerStatus();
+
+  if (verb == TelnetVerb::Will)
   {
     OnPluginTelnetRequest onTelnetRequest(code, "WILL");
-    api->sendCallback(onTelnetRequest);
-    return;
-  }
-
-  if (source == TelnetSource::Client && verb == TelnetVerb::Do)
-  {
-    OnPluginTelnetRequest onTelnetRequest(code, "SENT_DO");
     api->sendCallback(onTelnetRequest);
   }
 }
@@ -279,6 +286,11 @@ bool Document::permitLine(rust::str line) const
 void Document::playSound(const QString &filePath) const
 {
   api->PlaySound(0, filePath);
+}
+
+void Document::resetServerStatus()
+{
+  serverStatuses.clear();
 }
 
 void Document::send(const SendRequest &request) const

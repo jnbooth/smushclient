@@ -113,6 +113,7 @@
     <addaction name="action_visit_bug_reports"/>
     <addaction name="action_visit_api_guide"/>
     <addaction name="action_about"/>
+    <addaction name="action_server_status"/>
    </widget>
    <widget class="QMenu" name="menu_file">
     <property name="title">
@@ -646,6 +647,14 @@
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::AboutRole</enum>
+   </property>
+  </action>
+  <action name="action_server_status">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Server Status</string>
    </property>
   </action>
  </widget>

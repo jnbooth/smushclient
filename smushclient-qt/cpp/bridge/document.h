@@ -54,10 +54,11 @@ public:
   void handleServerStatus(const QByteArray &variable, const QByteArray &value);
   void handleTelnetIacGa() const;
   void handleTelnetNaws() const;
-  void handleTelnetNegotiation(TelnetSource source, TelnetVerb verb, uint8_t code) const;
+  void handleTelnetNegotiation(TelnetSource source, TelnetVerb verb, uint8_t code);
   void handleTelnetSubnegotiation(uint8_t code, const QByteArray &data) const;
   bool permitLine(rust::str line) const;
   void playSound(const QString &filePath) const;
+  void resetServerStatus();
   void send(const SendRequest &request) const;
   void send(const SendScriptRequest &request) const;
   void setPalette(const QVector_QColor &palette);

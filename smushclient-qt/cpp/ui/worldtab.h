@@ -57,6 +57,10 @@ public:
   void resetAllTimers() const;
   QString saveWorld();
   QString saveWorldAsNew();
+  constexpr const QHash<QString, QString> &serverStatus() const
+  {
+    return document->serverStatus();
+  }
   void setIsActive(bool active);
   void setOnDragMove(CallbackTrigger &&trigger);
   void setOnDragRelease(Hotspot *hotspot);
