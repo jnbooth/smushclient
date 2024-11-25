@@ -270,7 +270,7 @@
             <item row="0" column="0">
              <widget class="QCheckBox" name="ChangeForeground">
               <property name="text">
-               <string>Set foreground colour:</string>
+               <string>Set foreground color:</string>
               </property>
              </widget>
             </item>
@@ -290,7 +290,7 @@
             <item row="1" column="0">
              <widget class="QCheckBox" name="ChangeBackground">
               <property name="text">
-               <string>Set background colour:</string>
+               <string>Set background color:</string>
               </property>
              </widget>
             </item>

@@ -100,7 +100,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Colour</string>
+      <string>Color</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
@@ -548,7 +548,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Reset to &amp;ANSI colours</string>
+         <string>Reset to &amp;ANSI colors</string>
         </property>
         <property name="icon">
          <iconset theme="edit-undo"/>

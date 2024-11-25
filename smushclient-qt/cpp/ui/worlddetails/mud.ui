@@ -98,7 +98,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Ignore MXP colour effects</string>
+         <string>Ignore MXP color effects</string>
         </property>
        </widget>
       </item>
@@ -107,7 +107,7 @@
         <item>
          <widget class="QCheckBox" name="UseCustomLinkColour">
           <property name="text">
-           <string>Use custom link colour:</string>
+           <string>Use custom link color:</string>
           </property>
          </widget>
         </item>
@@ -139,7 +139,7 @@
       <item>
        <widget class="QCheckBox" name="MudCanChangeLinkColour">
         <property name="text">
-         <string>MUD can change link colour</string>
+         <string>MUD can change link color</string>
         </property>
        </widget>
       </item>

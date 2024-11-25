@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET 15.1)
 project(SmushClient VERSION 0.1 LANGUAGES CXX)
@@ -13,23 +13,26 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 endif()
 
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTORCC ON)
 
-find_package(
-  Qt6
-  COMPONENTS
+find_package(Qt6 REQUIRED COMPONENTS
   Core
   Gui
+  LinguistTools
   Multimedia
   Network
   Qml
   PrintSupport
   Widgets
-  REQUIRED)
+)
+
+qt_standard_project_setup(
+  REQUIRES 6.8.0
+  SUPPORTS_UP_TO 7
+  I18N_TRANSLATED_LANGUAGES en_GB
+)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -79,13 +82,8 @@ cxx_qt_import_qml_module(${CRATE}_qml
     SOURCE_CRATE ${CRATE}
 )
 
-set(PROJECT_SOURCES
-        cpp/main.cpp
-)
-
 qt_add_executable(${APP_NAME}
-    MANUAL_FINALIZATION
-    ${PROJECT_SOURCES}
+    cpp/main.cpp
     cpp/audio.h cpp/audio.cpp
     cpp/commandhistory.h cpp/commandhistory.cpp
     cpp/enumbuttongroup.h
@@ -174,6 +172,13 @@ qt_add_executable(${APP_NAME}
     cpp/ui/serverstatus.h cpp/ui/serverstatus.cpp cpp/ui/serverstatus.ui
 )
 
+qt_add_translations(
+  TARGETS ${APP_NAME}
+  SOURCE_TARGETS ${APP_NAME}
+  TS_FILE_DIR languages
+  LUPDATE_OPTIONS -no-obsolete
+)
+
 target_link_libraries(${APP_NAME} PRIVATE lualibs ${CRATE}_qml)
 
 add_compile_definitions(QT_NO_CAST_FROM_BYTEARRAY QT_NO_CAST_FROM_ASCII)
@@ -208,11 +213,15 @@ set_target_properties(${APP_NAME} PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-include(GNUInstallDirs)
 install(TARGETS ${APP_NAME}
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-qt_finalize_executable(${APP_NAME})
+qt_generate_deploy_app_script(
+  TARGET ${APP_NAME}
+  OUTPUT_SCRIPT deploy_script
+)
+
+install(SCRIPT ${deploy_script})

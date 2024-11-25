@@ -101,7 +101,7 @@
         </font>
        </property>
        <property name="text">
-        <string>🔍</string>
+        <string notr="true">🔍</string>
        </property>
       </widget>
      </item>
@@ -136,7 +136,7 @@
      <item>
       <widget class="QLabel" name="item_count">
        <property name="text">
-        <string>0</string>
+        <string notr="true">0</string>
        </property>
       </widget>
      </item>

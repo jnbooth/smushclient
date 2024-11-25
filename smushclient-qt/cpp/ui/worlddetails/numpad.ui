@@ -48,7 +48,7 @@
       <item row="9" column="1">
        <widget class="QLabel" name="NumpadMod2_label">
         <property name="text">
-         <string>&amp;2</string>
+         <string notr="true">&amp;2</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -68,7 +68,7 @@
       <item row="3" column="2">
        <widget class="QLabel" name="NumpadMod9_label">
         <property name="text">
-         <string>&amp;9</string>
+         <string notr="true">&amp;9</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -94,7 +94,7 @@
       <item row="6" column="0">
        <widget class="QLabel" name="NumpadMod4_label">
         <property name="text">
-         <string>&amp;4</string>
+         <string notr="true">&amp;4</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -114,7 +114,7 @@
       <item row="12" column="2">
        <widget class="QLabel" name="NumpadModPeriod_label">
         <property name="text">
-         <string>&amp;.</string>
+         <string notr="true">&amp;.</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -141,7 +141,7 @@
       <item row="6" column="2">
        <widget class="QLabel" name="NumpadMod6_label">
         <property name="text">
-         <string>&amp;6</string>
+         <string notr="true">&amp;6</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -201,7 +201,7 @@
       <item row="9" column="0">
        <widget class="QLabel" name="NumpadMod1_label">
         <property name="text">
-         <string>&amp;1</string>
+         <string notr="true">&amp;1</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -214,7 +214,7 @@
       <item row="12" column="1">
        <widget class="QLabel" name="NumpadMod0_label">
         <property name="text">
-         <string>&amp;0</string>
+         <string notr="true">&amp;0</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -227,7 +227,7 @@
       <item row="0" column="2">
        <widget class="QLabel" name="NumpadModAsterisk_label">
         <property name="text">
-         <string>&amp;*</string>
+         <string notr="true">&amp;*</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -240,7 +240,7 @@
       <item row="6" column="1">
        <widget class="QLabel" name="NumpadMod5_label">
         <property name="text">
-         <string>&amp;5</string>
+         <string notr="true">&amp;5</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -253,7 +253,7 @@
       <item row="3" column="3">
        <widget class="QLabel" name="NumpadModPlus_label">
         <property name="text">
-         <string>&amp;+</string>
+         <string notr="true">&amp;+</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -266,7 +266,7 @@
       <item row="3" column="0">
        <widget class="QLabel" name="NumpadMod7_label">
         <property name="text">
-         <string>&amp;7</string>
+         <string notr="true">&amp;7</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -279,7 +279,7 @@
       <item row="9" column="2">
        <widget class="QLabel" name="NumpadMod3_label">
         <property name="text">
-         <string>&amp;3</string>
+         <string notr="true">&amp;3</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -313,7 +313,7 @@
       <item row="0" column="1">
        <widget class="QLabel" name="NumpadModSlash_label">
         <property name="text">
-         <string>&amp;/</string>
+         <string notr="true">&amp;/</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -326,7 +326,7 @@
       <item row="0" column="3">
        <widget class="QLabel" name="NumpadModMinus_label">
         <property name="text">
-         <string>&amp;-</string>
+         <string notr="true">&amp;-</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -339,7 +339,7 @@
       <item row="3" column="1">
        <widget class="QLabel" name="NumpadMod8_label">
         <property name="text">
-         <string>&amp;8</string>
+         <string notr="true">&amp;8</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -425,7 +425,7 @@
       <item row="6" column="1">
        <widget class="QLabel" name="Numpad5_label">
         <property name="text">
-         <string>&amp;5</string>
+         <string notr="true">&amp;5</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -438,7 +438,7 @@
       <item row="9" column="2">
        <widget class="QLabel" name="Numpad3_label">
         <property name="text">
-         <string>&amp;3</string>
+         <string notr="true">&amp;3</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -458,7 +458,7 @@
       <item row="0" column="1">
        <widget class="QLabel" name="NumpadSlash_label">
         <property name="text">
-         <string>&amp;/</string>
+         <string notr="true">&amp;/</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -478,7 +478,7 @@
       <item row="12" column="1">
        <widget class="QLabel" name="Numpad0_label">
         <property name="text">
-         <string>&amp;0</string>
+         <string notr="true">&amp;0</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -498,7 +498,7 @@
       <item row="9" column="0">
        <widget class="QLabel" name="Numpad1_label">
         <property name="text">
-         <string>&amp;1</string>
+         <string notr="true">&amp;1</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -511,7 +511,7 @@
       <item row="6" column="0">
        <widget class="QLabel" name="Numpad4_label">
         <property name="text">
-         <string>&amp;4</string>
+         <string notr="true">&amp;4</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -551,7 +551,7 @@
       <item row="0" column="3">
        <widget class="QLabel" name="NumpadMinus_label">
         <property name="text">
-         <string>&amp;-</string>
+         <string notr="true">&amp;-</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -578,7 +578,7 @@
       <item row="12" column="2">
        <widget class="QLabel" name="NumpadPeriod_label">
         <property name="text">
-         <string>&amp;.</string>
+         <string notr="true">&amp;.</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -591,7 +591,7 @@
       <item row="3" column="1">
        <widget class="QLabel" name="Numpad8_label">
         <property name="text">
-         <string>&amp;8</string>
+         <string notr="true">&amp;8</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -604,7 +604,7 @@
       <item row="0" column="2">
        <widget class="QLabel" name="NumpadAsterisk_label">
         <property name="text">
-         <string>&amp;*</string>
+         <string notr="true">&amp;*</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -638,7 +638,7 @@
       <item row="3" column="2">
        <widget class="QLabel" name="Numpad9_label">
         <property name="text">
-         <string>&amp;9</string>
+         <string notr="true">&amp;9</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -651,7 +651,7 @@
       <item row="3" column="0">
        <widget class="QLabel" name="Numpad7_label">
         <property name="text">
-         <string>&amp;7</string>
+         <string notr="true">&amp;7</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -671,7 +671,7 @@
       <item row="6" column="2">
        <widget class="QLabel" name="Numpad6_label">
         <property name="text">
-         <string>&amp;6</string>
+         <string notr="true">&amp;6</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -691,7 +691,7 @@
       <item row="3" column="3">
        <widget class="QLabel" name="NumpadPlus_label">
         <property name="text">
-         <string>&amp;+</string>
+         <string notr="true">&amp;+</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -737,7 +737,7 @@
       <item row="9" column="1">
        <widget class="QLabel" name="Numpad2_label">
         <property name="text">
-         <string>&amp;2</string>
+         <string notr="true">&amp;2</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
