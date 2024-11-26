@@ -16,6 +16,7 @@ protected:
   int addItem(SmushClient &client, QWidget *parent) override;
   int editItem(SmushClient &client, size_t index, QWidget *parent) override;
   QString exportXml(const SmushClient &client) const override;
+  const std::array<QString, AbstractSenderModel::numColumns> &headers() const noexcept override;
   void importXml(SmushClient &client, const QString &xml) override;
 
 private:

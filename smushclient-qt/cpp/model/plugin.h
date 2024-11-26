@@ -43,7 +43,6 @@ private:
   static constexpr int numColumns = 6;
 
   SmushClient &client;
-  std::array<QString, numColumns> headers;
   int pluginCount;
   int worldIndex;
 

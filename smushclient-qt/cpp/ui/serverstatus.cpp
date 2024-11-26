@@ -229,9 +229,6 @@ ServerStatus::ServerStatus(const QHash<QString, QString> &status, QWidget *paren
 {
   ui->setupUi(this);
   variableFont.setBold(true);
-  no = tr("No");
-  none = tr("None");
-  yes = tr("Yes");
   QWidget *area = ui->scrollAreaWidgetContents;
   vector<StatusEntry> entries;
   entries.reserve(status.size());
@@ -363,6 +360,10 @@ QLabel *ServerStatus::valueLabel(const QString &text, QWidget *parent) const
 
 QLabel *ServerStatus::valueLabel(KnownVariable variable, const QString &value, QWidget *parent) const
 {
+  const static QString no = tr("No");
+  const static QString none = tr("None");
+  const static QString yes = tr("Yes");
+
   if (isBoolVariable(variable))
   {
     if (value == QStringLiteral("0"))

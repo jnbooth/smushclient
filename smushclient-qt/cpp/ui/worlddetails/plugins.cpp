@@ -53,7 +53,7 @@ void PrefsPlugins::on_button_add_clicked()
 {
   const QString filePath = QFileDialog::getOpenFileName(
       this,
-      tr("Add Plugin"),
+      tr("Add plugin"),
       QStringLiteral(PLUGINS_DIR),
       FileFilter::plugin());
 

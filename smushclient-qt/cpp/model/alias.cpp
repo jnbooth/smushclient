@@ -7,7 +7,6 @@
 AliasModel::AliasModel(SmushClient &client, QObject *parent)
     : AbstractSenderModel(client, SenderType::Alias, parent)
 {
-  setHeaders(tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text"));
   client.stopAliases();
 }
 
@@ -49,6 +48,16 @@ int AliasModel::editItem(SmushClient &client, size_t index, QWidget *parent)
 QString AliasModel::exportXml(const SmushClient &client) const
 {
   return client.exportWorldAliases();
+}
+
+const std::array<QString, 4> &AliasModel::headers() const noexcept
+{
+  const static std::array<QString, 4> headers{
+      tr("Group/Label"),
+      tr("Sequence"),
+      tr("Pattern"),
+      tr("Text")};
+  return headers;
 }
 
 void AliasModel::importXml(SmushClient &client, const QString &xml)

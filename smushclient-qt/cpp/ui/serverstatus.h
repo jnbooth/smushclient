@@ -23,9 +23,6 @@ private:
   Ui::ServerStatus *ui;
   QLabel *icon;
   QNetworkAccessManager downloader;
-  QString no;
-  QString none;
-  QString yes;
   QFont variableFont;
   QFont valueFont;
 

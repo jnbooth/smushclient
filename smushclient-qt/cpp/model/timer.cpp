@@ -8,7 +8,6 @@ TimerModel::TimerModel(SmushClient &client, Timekeeper *timekeeper, QObject *par
     : AbstractSenderModel(client, SenderType::Timer, parent),
       timekeeper(timekeeper)
 {
-  setHeaders(tr("Group/Label"), tr("Type"), tr("Occurrence"), tr("Text"));
   client.stopTimers();
 }
 
@@ -53,6 +52,16 @@ int TimerModel::editItem(SmushClient &client, size_t index, QWidget *parent)
 QString TimerModel::exportXml(const SmushClient &client) const
 {
   return client.exportWorldTimers();
+}
+
+const std::array<QString, 4> &TimerModel::headers() const noexcept
+{
+  const static std::array<QString, 4> headers{
+      tr("Group/Label"),
+      tr("Type"),
+      tr("Occurrence"),
+      tr("Text")};
+  return headers;
 }
 
 void TimerModel::importXml(SmushClient &client, const QString &xml)

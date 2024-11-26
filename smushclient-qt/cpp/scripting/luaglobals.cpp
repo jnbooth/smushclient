@@ -14,12 +14,6 @@ extern "C"
 using std::pair;
 using std::string;
 
-struct LocalizedString
-{
-  const char *data;
-  LocalizedString(const char *data) : data(data) {}
-};
-
 static const pair<string, AliasFlag>
     alias_flag[] =
         {{"Enabled", AliasFlag::Enabled},
@@ -112,7 +106,7 @@ static const pair<string, ApiCode> error_code[] =
      {"eNoSuchWindow", ApiCode::NoSuchWindow},
      {"eBrushStyleNotValid", ApiCode::BrushStyleNotValid}};
 
-static const pair<ApiCode, LocalizedString> error_desc[] =
+static const pair<ApiCode, string> error_desc[] =
     {{ApiCode::OK, "No error"},
      {ApiCode::WorldOpen, "The world is already open"},
      {ApiCode::WorldClosed, "The world is closed, this action cannot be performed"},
@@ -481,10 +475,6 @@ void pushValue(lua_State *L, int value)
 void pushValue(lua_State *L, const string &value)
 {
   qlua::pushString(L, value);
-}
-void pushValue(lua_State *L, LocalizedString string)
-{
-  qlua::pushQString(L, ScriptApi::tr(string.data));
 }
 #define IMPL_PUSH_ENUM(T) \
   void pushValue(lua_State *L, T value) { lua_pushinteger(L, (int)value); }

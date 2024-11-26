@@ -20,6 +20,9 @@ public:
     GroupChanged = -3,
   };
 
+protected:
+  static constexpr int numColumns = 4;
+
 public:
   AbstractSenderModel(SmushClient &client, SenderType type, QObject *parent = nullptr);
   virtual ~AbstractSenderModel();
@@ -48,17 +51,13 @@ protected:
   virtual int addItem(SmushClient &client, QWidget *parent) = 0;
   virtual int editItem(SmushClient &client, size_t index, QWidget *parent) = 0;
   virtual QString exportXml(const SmushClient &client) const = 0;
+  virtual const std::array<QString, numColumns> &headers() const noexcept = 0;
   virtual void importXml(SmushClient &client, const QString &xml) = 0;
-  void setHeaders(const QString &h1, const QString &h2, const QString &h3, const QString &h4);
 
 private:
-  static constexpr int numColumns = 4;
-
   SmushClient &client;
-  std::array<QString, numColumns> headers;
   SenderMap *map;
   bool *needsRefresh;
-  QString untitledGroupName;
 
 private:
   static constexpr bool isValidColumn(int column) noexcept

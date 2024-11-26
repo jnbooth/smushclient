@@ -34,7 +34,6 @@ AbstractSenderModel::AbstractSenderModel(SmushClient &client, SenderType type, Q
       client(client),
       needsRefresh(new bool(true))
 {
-  untitledGroupName = tr("(ungrouped)");
   map = new SenderMap(type);
   map->setParent(this);
 }
@@ -196,6 +195,8 @@ QVariant AbstractSenderModel::data(const QModelIndex &index, int role) const
   if (len)
     return QString::fromUtf8(parentGroup->data(), len);
 
+  static const QString untitledGroupName = tr("(ungrouped)");
+
   return untitledGroupName;
 }
 
@@ -212,7 +213,7 @@ QVariant AbstractSenderModel::headerData(int section, Qt::Orientation orientatio
   switch (role)
   {
   case Qt::DisplayRole:
-    return headers[section];
+    return headers()[section];
   default:
     return QVariant();
   }
@@ -324,13 +325,6 @@ bool AbstractSenderModel::setData(const QModelIndex &index, const QVariant &valu
 
   emit layoutChanged({}, QAbstractItemModel::LayoutChangeHint::VerticalSortHint);
   return true;
-}
-
-// Protected methods
-
-void AbstractSenderModel::setHeaders(const QString &h1, const QString &h2, const QString &h3, const QString &h4)
-{
-  headers = {h1, h2, h3, h4};
 }
 
 // Private methods

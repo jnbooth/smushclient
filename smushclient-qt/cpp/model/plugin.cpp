@@ -10,15 +10,7 @@ PluginModel::PluginModel(SmushClient &client, QObject *parent)
     : QAbstractItemModel(parent),
       client(client),
       pluginCount(client.pluginsLen() - 1),
-      worldIndex(client.worldPluginIndex())
-{
-  headers = {tr("Name"),
-             tr("Purpose"),
-             tr("Author"),
-             tr("Path"),
-             tr("Enabled"),
-             tr("Version")};
-}
+      worldIndex(client.worldPluginIndex()) {}
 
 bool PluginModel::addPlugin(const QString &filePath)
 {
@@ -151,6 +143,14 @@ QVariant PluginModel::headerData(int section, Qt::Orientation orientation, int r
 {
   if (orientation != Qt::Orientation::Horizontal || !isValidColumn(section))
     return QVariant();
+
+  const static std::array<QString, numColumns> headers{
+      tr("Name"),
+      tr("Purpose"),
+      tr("Author"),
+      tr("Path"),
+      tr("Enabled"),
+      tr("Version")};
 
   switch (role)
   {

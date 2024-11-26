@@ -7,7 +7,6 @@
 TriggerModel::TriggerModel(SmushClient &client, QObject *parent)
     : AbstractSenderModel(client, SenderType::Trigger, parent)
 {
-  setHeaders(tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text"));
   client.stopTriggers();
 }
 
@@ -49,6 +48,16 @@ int TriggerModel::editItem(SmushClient &client, size_t index, QWidget *parent)
 QString TriggerModel::exportXml(const SmushClient &client) const
 {
   return client.exportWorldTriggers();
+}
+
+const std::array<QString, 4> &TriggerModel::headers() const noexcept
+{
+  const static std::array<QString, 4> headers{
+      tr("Group/Label"),
+      tr("Sequence"),
+      tr("Pattern"),
+      tr("Text")};
+  return headers;
 }
 
 void TriggerModel::importXml(SmushClient &client, const QString &xml)
