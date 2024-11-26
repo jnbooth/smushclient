@@ -396,7 +396,6 @@ void ScriptApi::setNawsEnabled(bool enabled)
 
 void ScriptApi::setOpen(bool open) const
 {
-  statusBar->setConnected(open);
   timekeeper->setOpen(open);
 }
 
@@ -405,11 +404,6 @@ ActionSource ScriptApi::setSource(ActionSource source) noexcept
   const ActionSource previousSource = actionSource;
   actionSource = source;
   return previousSource;
-}
-
-void ScriptApi::setStatusBarVisible(bool visible) const
-{
-  statusBar->setVisible(visible);
 }
 
 void ScriptApi::setSuppressEcho(bool suppress) noexcept

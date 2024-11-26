@@ -18,6 +18,7 @@ public slots:
   void setConnected(bool connected);
   void setMessage(const QString &message);
   void setUsers(int users);
+  void setUsers(const QString &users);
 
 private:
   Ui::MudStatusBar *ui;

@@ -4,7 +4,8 @@
 // Public methods
 
 MudStatusBar::MudStatusBar(QWidget *parent)
-    : QWidget(parent), ui(new Ui::MudStatusBar)
+    : QWidget(parent),
+      ui(new Ui::MudStatusBar)
 {
   ui->setupUi(this);
   setAttribute(Qt::WA_TransparentForMouseEvents);
@@ -33,6 +34,11 @@ void MudStatusBar::setMessage(const QString &message)
 
 void MudStatusBar::setUsers(int users)
 {
-  ui->users->setText(QString::number(users));
+  setUsers(QString::number(users));
+}
+
+void MudStatusBar::setUsers(const QString &users)
+{
+  ui->users->setText(users);
   ui->users->show();
 }

@@ -12,6 +12,7 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMessageBox>
 #include "ui_worldtab.h"
+#include "mudstatusbar.h"
 #include "worlddetails/worlddetails.h"
 #include "../bridge/document.h"
 #include "../environment.h"
@@ -313,7 +314,7 @@ void WorldTab::setIsActive(bool active)
 {
   isActive = active;
   alertNewActivity = !active;
-  api->setStatusBarVisible(active);
+  api->statusBarWidgets()->setVisible(active);
   if (!active)
   {
     OnPluginLoseFocus onLoseFocus;
@@ -766,6 +767,7 @@ void WorldTab::onAutoScroll(int, int max)
 void WorldTab::onConnect()
 {
   disconnect(autoScroll);
+  api->statusBarWidgets()->setConnected(true);
   client.handleConnect(*socket);
   emit connectionStatusChanged(true);
   if (Settings().getDisplayConnect())
@@ -782,6 +784,7 @@ void WorldTab::onConnect()
 void WorldTab::onDisconnect()
 {
   client.handleDisconnect();
+  api->statusBarWidgets()->setConnected(false);
   document->resetServerStatus();
   api->setOpen(false);
   if (Settings().getDisplayDisconnect())

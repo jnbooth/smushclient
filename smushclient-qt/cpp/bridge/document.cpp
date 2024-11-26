@@ -8,6 +8,7 @@
 #include "../scripting/scriptapi.h"
 #include "../scripting/plugincallback.h"
 #include "../ui/components/mudscrollbar.h"
+#include "../ui/mudstatusbar.h"
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
 #include "../../settings.h"
@@ -224,9 +225,13 @@ void Document::handleMxpVariable(rust::str name, rust::str value) const
   api->sendCallback(onMxpSetVariable);
 }
 
-void Document::handleServerStatus(const QByteArray &variable, const QByteArray &value)
+void Document::handleServerStatus(const QByteArray &variableBytes, const QByteArray &valueBytes)
 {
-  serverStatuses.insert(QString::fromUtf8(variable), QString::fromUtf8(value));
+  const QString variable = QString::fromUtf8(variableBytes);
+  const QString value = QString::fromUtf8(valueBytes);
+  serverStatuses.insert(variable, value);
+  if (variable == QStringLiteral("PLAYERS"))
+    api->statusBarWidgets()->setUsers(value);
 }
 
 void Document::handleTelnetIacGa() const

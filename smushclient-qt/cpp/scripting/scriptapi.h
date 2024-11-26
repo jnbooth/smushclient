@@ -316,10 +316,13 @@ public:
   void setNawsEnabled(bool enabled);
   void setOpen(bool open) const;
   ActionSource setSource(ActionSource source) noexcept;
-  void setStatusBarVisible(bool visible) const;
   void setSuppressEcho(bool suppress) noexcept;
   void stackWindow(std::string_view windowName, MiniWindow *window) const;
   int startLine();
+  constexpr MudStatusBar *statusBarWidgets() const
+  {
+    return statusBar;
+  }
   void updateTimestamp();
 
   inline constexpr std::vector<Plugin>::const_iterator cbegin() const noexcept
