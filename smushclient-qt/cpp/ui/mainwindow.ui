@@ -151,7 +151,7 @@
    <addaction name="menu_window"/>
    <addaction name="menu_help"/>
   </widget>
-  <widget class="MudStatusBar" name="statusBar">
+  <widget class="QStatusBar" name="statusBar">
    <property name="palette">
     <palette>
      <active>
@@ -658,13 +658,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>MudStatusBar</class>
-   <extends>QStatusBar</extends>
-   <header>mudstatusbar.h</header>
-  </customwidget>
- </customwidgets>
- <resources/>
+ <customwidgets/>
  <connections/>
 </ui>

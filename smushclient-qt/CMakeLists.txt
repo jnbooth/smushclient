@@ -134,7 +134,6 @@ qt_add_executable(${APP_NAME}
     cpp/ui/components/mudbrowser.h cpp/ui/components/mudbrowser.cpp
     cpp/ui/components/mudinput.h cpp/ui/components/mudinput.cpp
     cpp/ui/components/mudscrollbar.h cpp/ui/components/mudscrollbar.cpp
-    cpp/ui/components/mudstatusbar.h cpp/ui/components/mudstatusbar.cpp
 
     cpp/ui/scripting/abstractscriptdialog.h cpp/ui/scripting/abstractscriptdialog.cpp
     cpp/ui/scripting/choose.h cpp/ui/scripting/choose.cpp cpp/ui/scripting/choose.ui
@@ -170,6 +169,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/settings/connection.h cpp/ui/settings/connection.cpp cpp/ui/settings/connection.ui
     cpp/ui/settings/closing.h cpp/ui/settings/closing.cpp cpp/ui/settings/closing.ui
     cpp/ui/serverstatus.h cpp/ui/serverstatus.cpp cpp/ui/serverstatus.ui
+    cpp/ui/mudstatusbar.h cpp/ui/mudstatusbar.cpp cpp/ui/mudstatusbar.ui
 )
 
 qt_add_translations(

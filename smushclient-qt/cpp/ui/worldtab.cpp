@@ -64,7 +64,7 @@ inline void showRustError(const rust::Error &e)
 
 // Public methods
 
-WorldTab::WorldTab(Notepads *notepads, QWidget *parent)
+WorldTab::WorldTab(MudStatusBar *statusBar, Notepads *notepads, QWidget *parent)
     : QSplitter(parent),
       ui(new Ui::WorldTab),
       client(),
@@ -93,7 +93,7 @@ WorldTab::WorldTab(Notepads *notepads, QWidget *parent)
   ui->input->setFocus();
   defaultFont.setPointSize(12);
   socket = new QTcpSocket(this);
-  api = new ScriptApi(notepads, this);
+  api = new ScriptApi(statusBar, notepads, this);
   document = new Document(this, api);
   connect(document, &Document::newActivity, this, &WorldTab::onNewActivity);
   connect(socket, &QTcpSocket::readyRead, this, &WorldTab::readFromSocket);
@@ -313,6 +313,7 @@ void WorldTab::setIsActive(bool active)
 {
   isActive = active;
   alertNewActivity = !active;
+  api->setStatusBarVisible(active);
   if (!active)
   {
     OnPluginLoseFocus onLoseFocus;

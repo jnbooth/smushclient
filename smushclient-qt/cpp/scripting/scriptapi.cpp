@@ -9,7 +9,7 @@
 #include "miniwindow.h"
 #include "../bridge/timekeeper.h"
 #include "../ui/components/mudscrollbar.h"
-#include "../ui/components/mudstatusbar.h"
+#include "../ui/mudstatusbar.h"
 #include "../ui/notepad.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
@@ -22,27 +22,9 @@ using std::variant;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
 
-// Private utils
-
-QMainWindow *getMainWindow(const QObject *obj)
-{
-  if (!obj)
-    return nullptr;
-
-  QObject *parent = obj->parent();
-  if (!parent)
-    return nullptr;
-
-  QMainWindow *window = qobject_cast<QMainWindow *>(parent);
-  if (window)
-    return window;
-
-  return getMainWindow(parent);
-}
-
 // Public methods
 
-ScriptApi::ScriptApi(Notepads *notepads, WorldTab *parent)
+ScriptApi::ScriptApi(MudStatusBar *statusBar, Notepads *notepads, WorldTab *parent)
     : QObject(parent),
       actionSource(ActionSource::Unknown),
       audioChannels{
@@ -76,17 +58,23 @@ ScriptApi::ScriptApi(Notepads *notepads, WorldTab *parent)
       scrollBar(parent->ui->output->verticalScrollBar()),
       sendQueue(),
       socket(parent->socket),
-      statusBar(qobject_cast<MudStatusBar *>(getMainWindow(parent)->statusBar())),
+      statusBar(statusBar),
       suppressEcho(false),
       whenConnected(QDateTime::currentDateTime()),
       windows(),
       worldScriptIndex(noSuchPlugin)
 {
+
   timekeeper = new Timekeeper(this);
   timekeeper->beginPolling(milliseconds(seconds{60}));
   setLineType(echoFormat, LineType::Input);
   setLineType(noteFormat, LineType::Note);
   applyWorld(parent->world);
+}
+
+ScriptApi::~ScriptApi()
+{
+  delete statusBar;
 }
 
 void ScriptApi::appendHtml(const QString &html)
@@ -408,6 +396,7 @@ void ScriptApi::setNawsEnabled(bool enabled)
 
 void ScriptApi::setOpen(bool open) const
 {
+  statusBar->setConnected(open);
   timekeeper->setOpen(open);
 }
 
@@ -416,6 +405,11 @@ ActionSource ScriptApi::setSource(ActionSource source) noexcept
   const ActionSource previousSource = actionSource;
   actionSource = source;
   return previousSource;
+}
+
+void ScriptApi::setStatusBarVisible(bool visible) const
+{
+  statusBar->setVisible(visible);
 }
 
 void ScriptApi::setSuppressEcho(bool suppress) noexcept

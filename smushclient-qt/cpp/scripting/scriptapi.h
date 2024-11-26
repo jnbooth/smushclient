@@ -47,7 +47,8 @@ class ScriptApi : public QObject
 public:
   static void SetClipboard(const QString &text);
 
-  ScriptApi(Notepads *notepads, WorldTab *parent);
+  ScriptApi(MudStatusBar *statusBar, Notepads *notepads, WorldTab *parent);
+  ~ScriptApi();
 
   ApiCode AddAlias(
       size_t plugin,
@@ -315,6 +316,7 @@ public:
   void setNawsEnabled(bool enabled);
   void setOpen(bool open) const;
   ActionSource setSource(ActionSource source) noexcept;
+  void setStatusBarVisible(bool visible) const;
   void setSuppressEcho(bool suppress) noexcept;
   void stackWindow(std::string_view windowName, MiniWindow *window) const;
   int startLine();

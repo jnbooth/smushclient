@@ -10,9 +10,11 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QInputDialog>
 #include <QtWidgets/QMessageBox>
+#include <QtWidgets/QStatusBar>
 #include "ui_worldtab.h"
-#include "notepad.h"
 #include "finddialog.h"
+#include "notepad.h"
+#include "../mudstatusbar.h"
 #include "serverstatus.h"
 #include "worldtab.h"
 #include "settings/settings.h"
@@ -70,8 +72,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::openWorld(const QString &filePath)
 {
-  WorldTab *tab = new WorldTab(notepads, ui->world_tabs);
-  tab->setAttribute(Qt::WA_DeleteOnClose);
+  WorldTab *tab = createWorldTab(ui->world_tabs);
   if (tab->openWorld(filePath))
   {
     connectTab(tab);
@@ -161,6 +162,16 @@ void MainWindow::addRecentFile(const QString &filePath)
     return;
 
   setupRecentFiles(result.recentFiles);
+}
+
+WorldTab *MainWindow::createWorldTab(QWidget *parent) const
+{
+  MudStatusBar *mudStatusBar = new MudStatusBar;
+  statusBar()->addPermanentWidget(mudStatusBar);
+  mudStatusBar->hide();
+  WorldTab *tab = new WorldTab(mudStatusBar, notepads, parent);
+  tab->setAttribute(Qt::WA_DeleteOnClose);
+  return tab;
 }
 
 void MainWindow::connectTab(WorldTab *tab) const
@@ -261,7 +272,6 @@ void MainWindow::onConnectionStatusChanged(bool connected)
 {
   ui->action_connect->setEnabled(!connected);
   ui->action_disconnect->setEnabled(connected);
-  ui->statusBar->setConnected(connected);
 }
 
 void MainWindow::onNewActivity(WorldTab *tab)
@@ -388,8 +398,7 @@ void MainWindow::on_action_log_session_triggered(bool checked)
 void MainWindow::on_action_new_triggered()
 {
   const int currentIndex = ui->world_tabs->currentIndex();
-  WorldTab *tab = new WorldTab(notepads, this);
-  tab->setAttribute(Qt::WA_DeleteOnClose);
+  WorldTab *tab = createWorldTab(this);
   tab->createWorld();
   const int tabIndex = ui->world_tabs->addTab(tab, tr("New world"));
   ui->world_tabs->setCurrentIndex(tabIndex);

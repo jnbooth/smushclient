@@ -10,7 +10,7 @@
 #include "worldproperties.h"
 #include "../../layout.h"
 #include "../../spans.h"
-#include "../ui/components/mudstatusbar.h"
+#include "../ui/mudstatusbar.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 
@@ -305,7 +305,7 @@ ApiCode ScriptApi::SetOption(string_view name, const QVariant &variant) const
 
 void ScriptApi::SetStatus(const QString &status) const
 {
-  statusBar->showMessage(status);
+  statusBar->setMessage(status);
 }
 
 bool ScriptApi::SetVariable(size_t index, string_view key, string_view value) const

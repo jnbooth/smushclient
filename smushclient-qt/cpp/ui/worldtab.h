@@ -13,6 +13,7 @@
 #include "smushclient_qt/src/bridge.cxxqt.h"
 
 class Hotspot;
+class MudStatusBar;
 class Notepads;
 class ScriptApi;
 
@@ -36,7 +37,7 @@ public:
   Q_ENUM(AvailableCopy)
 
 public:
-  explicit WorldTab(Notepads *notepads, QWidget *parent = nullptr);
+  explicit WorldTab(MudStatusBar *statusBar, Notepads *notepads, QWidget *parent = nullptr);
   ~WorldTab();
 
   static QString saveFilter();
