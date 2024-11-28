@@ -21,8 +21,7 @@ constexpr int minFontSize = 5;
 
 Notepad::Notepad(QWidget *parent)
     : QMainWindow(parent),
-      ui(new Ui::Notepad),
-      findDialog(nullptr)
+      ui(new Ui::Notepad)
 {
   ui->setupUi(this);
   setAttribute(Qt::WA_DeleteOnClose);

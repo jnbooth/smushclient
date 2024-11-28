@@ -70,23 +70,6 @@ WorldTab::WorldTab(MudStatusBar *statusBar, Notepads *notepads, QWidget *parent)
       ui(new Ui::WorldTab),
       client(),
       world(),
-      alertNewActivity(false),
-      defaultFont(QFontDatabase::systemFont(QFontDatabase::FixedFont)),
-      filePath(),
-      flushTimerId(-1),
-      handleKeypad(false),
-      initialized(false),
-      inputCopyAvailable(false),
-      isActive(true),
-      manualDisconnect(false),
-      onDragMove(nullopt),
-      onDragRelease(nullptr),
-      outputCopyAvailable(false),
-      queuedConnect(false),
-      resizeTimerId(-1),
-      sessionStartBlock(0),
-      splitter(),
-      useSplitter(false),
       worldScriptWatcher(this)
 {
   resizeTimerId = startTimer(1000);

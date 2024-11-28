@@ -349,32 +349,43 @@ protected:
   void timerEvent(QTimerEvent *event) override;
 
 private:
-  ActionSource actionSource;
-  std::array<AudioChannel, 10> audioChannels;
-  CallbackFilter callbackFilter;
+  ActionSource actionSource = ActionSource::Unknown;
+  std::array<AudioChannel, 10> audioChannels = {
+      AudioChannel(),
+      AudioChannel(),
+      AudioChannel(),
+      AudioChannel(),
+      AudioChannel(),
+      AudioChannel(),
+      AudioChannel(),
+      AudioChannel(),
+      AudioChannel(),
+      AudioChannel(),
+  };
+  CallbackFilter callbackFilter{};
   QTextCursor cursor;
-  string_map<DatabaseConnection> databases;
-  bool doNaws;
-  bool doesNaws;
-  QTextCharFormat echoFormat;
-  bool echoOnSameLine;
-  QTextCharFormat errorFormat;
-  bool hasLine;
-  bool indentNext;
-  QString indentText;
-  int lastTellPosition;
-  QTextCharFormat noteFormat;
+  string_map<DatabaseConnection> databases{};
+  bool doNaws = false;
+  bool doesNaws = false;
+  QTextCharFormat echoFormat{};
+  bool echoOnSameLine = false;
+  QTextCharFormat errorFormat{};
+  bool hasLine = false;
+  bool indentNext = false;
+  QString indentText{};
+  int lastTellPosition = -1;
+  QTextCharFormat noteFormat{};
   Notepads *notepads;
-  std::vector<Plugin> plugins;
-  string_map<size_t> pluginIndices;
+  std::vector<Plugin> plugins{};
+  string_map<size_t> pluginIndices{};
   MudScrollBar *scrollBar;
-  std::unordered_map<int, QueuedSend> sendQueue;
+  std::unordered_map<int, QueuedSend> sendQueue{};
   QTcpSocket *socket;
   MudStatusBar *statusBar;
-  bool suppressEcho;
+  bool suppressEcho = false;
   QDateTime whenConnected;
-  string_map<MiniWindow *> windows;
-  size_t worldScriptIndex;
+  string_map<MiniWindow *> windows{};
+  size_t worldScriptIndex = noSuchPlugin;
 
   AudioChannel &getAudioChannel(size_t index);
   DatabaseConnection *findDatabase(const std::string_view databaseID);

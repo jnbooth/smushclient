@@ -22,12 +22,7 @@ QAbstractScrollArea *getScrollArea(const QObject *obj)
 // Public methods
 
 MudScrollBar::MudScrollBar(QWidget *parent)
-    : QScrollBar(parent),
-      autoScroll(true),
-      inInternalChange(false),
-      isPaused(false),
-      lastValue(0),
-      pausingEnabled(true) {}
+    : QScrollBar(parent) {}
 
 // Public slots
 

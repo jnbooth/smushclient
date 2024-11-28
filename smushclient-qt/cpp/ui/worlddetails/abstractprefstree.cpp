@@ -13,9 +13,7 @@ using std::vector;
 
 AbstractPrefsTree::AbstractPrefsTree(AbstractSenderModel *model, QWidget *parent)
     : QWidget(parent),
-      filtering(false),
-      model(model),
-      tree(nullptr)
+      model(model)
 {
   proxy = new QSortFilterProxyModel(this);
   proxy->setSourceModel(model);

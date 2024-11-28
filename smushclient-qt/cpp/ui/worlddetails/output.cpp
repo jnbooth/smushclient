@@ -10,9 +10,7 @@ using std::array;
 
 PrefsOutput::PrefsOutput(const World &world, QWidget *parent)
     : QWidget(parent),
-      ui(new Ui::PrefsOutput),
-      audio(),
-      player()
+      ui(new Ui::PrefsOutput)
 {
   ui->setupUi(this);
   CONNECT_WORLD(ShowBold);

@@ -6,8 +6,6 @@
 PrefsLogin::PrefsLogin(World &world, QWidget *parent)
     : QWidget(parent),
       ui(new Ui::PrefsLogin),
-      empty(true),
-      single(true),
       world(world)
 {
   ui->setupUi(this);

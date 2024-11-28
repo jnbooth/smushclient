@@ -52,8 +52,7 @@ const QString headerKey(const QString &modelName)
 // Public methods
 
 Settings::Settings(QObject *parent)
-    : QObject(parent),
-      store() {}
+    : QObject(parent) {}
 
 // Header state
 

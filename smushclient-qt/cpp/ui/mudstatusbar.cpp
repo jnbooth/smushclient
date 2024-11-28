@@ -6,9 +6,7 @@
 
 MudStatusBar::MudStatusBar(QWidget *parent)
     : QWidget(parent),
-      ui(new Ui::MudStatusBar),
-      statsByEntity(),
-      statsByMax()
+      ui(new Ui::MudStatusBar)
 {
   ui->setupUi(this);
   setAttribute(Qt::WA_TransparentForMouseEvents);

@@ -31,10 +31,7 @@ private:
 };
 
 Timekeeper::Timekeeper(ScriptApi *parent)
-    : QObject(parent),
-      closed(true),
-      pollTimerId(-1),
-      queue() {}
+    : QObject(parent) {}
 
 void Timekeeper::beginPolling(milliseconds interval, Qt::TimerType timerType)
 {

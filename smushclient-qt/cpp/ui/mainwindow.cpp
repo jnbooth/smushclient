@@ -28,12 +28,7 @@
 MainWindow::MainWindow(Notepads *notepads, QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
-      activityIcon(QIcon::fromTheme(QIcon::ThemeIcon::DialogWarning)),
-      lastTabIndex(-1),
-      notepads(notepads),
-      recentFileActions(),
-      settings(),
-      socketConnection()
+      notepads(notepads)
 {
   setAttribute(Qt::WA_DeleteOnClose);
   findDialog = new FindDialog(this);

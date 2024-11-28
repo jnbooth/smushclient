@@ -20,8 +20,8 @@ public:
 
 private:
   Ui::SettingsSound *ui;
-  QAudioOutput audio;
-  QMediaPlayer player;
+  QAudioOutput audio{};
+  QMediaPlayer player{};
 
 private slots:
   void on_BellSound_browse_clicked();

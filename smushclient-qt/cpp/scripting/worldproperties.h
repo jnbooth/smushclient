@@ -24,9 +24,9 @@ private:
     return instance;
   }
 
-  std::vector<std::string> numericProps;
-  std::vector<std::string> stringProps;
-  string_map<std::string> names;
+  std::vector<std::string> numericProps{};
+  std::vector<std::string> stringProps{};
+  string_map<std::string> names{};
 
   WorldProperties();
   void addProp(const std::string &prop, const QMetaType &type);

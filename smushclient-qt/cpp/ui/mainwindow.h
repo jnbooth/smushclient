@@ -32,13 +32,13 @@ protected:
 
 private:
   Ui::MainWindow *ui;
-  QIcon activityIcon;
+  QIcon activityIcon = QIcon::fromTheme(QIcon::ThemeIcon::DialogWarning);
   FindDialog *findDialog;
-  int lastTabIndex;
+  int lastTabIndex = -1;
   Notepads *notepads;
-  QList<QAction *> recentFileActions;
-  Settings settings;
-  QMetaObject::Connection socketConnection;
+  QList<QAction *> recentFileActions{};
+  Settings settings{};
+  QMetaObject::Connection socketConnection{};
 
   void addRecentFile(const QString &filePath);
   WorldTab *createWorldTab(QWidget *parent) const;

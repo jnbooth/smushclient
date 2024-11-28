@@ -18,16 +18,11 @@ inline string replacePathSeparators(string_view path)
 // Public methods
 
 DatabaseConnection::DatabaseConnection(string_view filename)
-    : db(nullptr),
-      filename(replacePathSeparators(filename)),
-      moved(false),
-      stmt(nullptr),
-      validRow(false) {}
+    : filename(replacePathSeparators(filename)) {}
 
 DatabaseConnection::DatabaseConnection(DatabaseConnection &&other)
     : db(other.db),
       filename(std::move(other.filename)),
-      moved(false),
       stmt(other.stmt),
       validRow(other.validRow)
 {

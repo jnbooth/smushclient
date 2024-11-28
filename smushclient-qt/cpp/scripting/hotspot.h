@@ -68,8 +68,8 @@ protected:
 
 private:
   Callbacks callbacks;
-  bool hadDrag;
-  bool hadMouseDown;
+  bool hadDrag = false;
+  bool hadMouseDown = false;
   std::string id;
   const Plugin *plugin;
   WorldTab *tab;

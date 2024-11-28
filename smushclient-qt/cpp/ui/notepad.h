@@ -21,7 +21,7 @@ public:
 
 private:
   Ui::Notepad *ui;
-  FindDialog *findDialog;
+  FindDialog *findDialog = nullptr;
   qreal fontSize;
 
   void applyFontSize();

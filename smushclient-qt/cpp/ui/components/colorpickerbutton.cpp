@@ -6,8 +6,7 @@
 // Public methods
 
 ColorPickerButton::ColorPickerButton(QWidget *parent)
-    : QAbstractButton(parent),
-      currentValue()
+    : QAbstractButton(parent)
 {
   connect(this, &QAbstractButton::clicked, this, &ColorPickerButton::openColorPicker);
 }

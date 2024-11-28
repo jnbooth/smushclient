@@ -28,6 +28,6 @@ public slots:
 
 private:
   Ui::MudStatusBar *ui;
-  QHash<QString, StatusBarStat *> statsByEntity;
-  QMultiHash<QString, StatusBarStat *> statsByMax;
+  QHash<QString, StatusBarStat *> statsByEntity{};
+  QMultiHash<QString, StatusBarStat *> statsByMax{};
 };

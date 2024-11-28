@@ -26,9 +26,9 @@ private slots:
 
 private:
   Ui::FindDialog *ui;
-  bool filled;
-  QFlags<QTextDocument::FindFlag> flags;
-  bool isRegex;
-  QRegularExpression pattern;
-  QString text;
+  bool filled = false;
+  QFlags<QTextDocument::FindFlag> flags{};
+  bool isRegex = false;
+  QRegularExpression pattern{};
+  QString text{};
 };

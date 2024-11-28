@@ -64,12 +64,7 @@ Document::Document(WorldTab *parent, ScriptApi *api)
     : QObject(parent),
       api(api),
       doc(parent->ui->output->document()),
-      expireLinkFormat(),
-      formats(),
-      links(),
-      outputStart(0),
-      scrollBar(parent->ui->output->verticalScrollBar()),
-      serverExpiresLinks(false)
+      scrollBar(parent->ui->output->verticalScrollBar())
 {
   formats.fill(QTextCharFormat());
   expireLinkFormat.setAnchor(false);

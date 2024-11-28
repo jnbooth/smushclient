@@ -21,7 +21,7 @@ public:
 
 private:
   Ui::SettingsDialog *ui;
-  QWidget *pane;
+  QWidget *pane = nullptr;
   Settings &settings;
 
   QWidget *paneForIndex(int row);

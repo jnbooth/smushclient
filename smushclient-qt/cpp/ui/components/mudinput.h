@@ -32,5 +32,5 @@ protected:
 
 private:
   CommandHistory history;
-  bool ignoreKeypad;
+  bool ignoreKeypad = false;
 };

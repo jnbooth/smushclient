@@ -124,8 +124,6 @@ int OnPluginTelnetSubnegotiation::pushArguments(lua_State *L) const
   return 2;
 }
 
-CallbackFilter::CallbackFilter() : filter(0) {}
-
 void CallbackFilter::scan(lua_State *L)
 {
   static QByteArray emptyByteArray;

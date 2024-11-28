@@ -153,7 +153,7 @@ constexpr double convertVolume(double decibels) noexcept
 class Benchmarker
 {
 public:
-  Benchmarker(const char *name) : name(name), timer()
+  Benchmarker(const char *name) : name(name)
   {
     timer.start();
   }
@@ -166,7 +166,7 @@ public:
 
 private:
   const char *name;
-  QElapsedTimer timer;
+  QElapsedTimer timer{};
 };
 
 #define API(name) Benchmarker benchmarker(name);

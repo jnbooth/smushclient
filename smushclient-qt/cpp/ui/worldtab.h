@@ -103,26 +103,26 @@ protected:
   void timerEvent(QTimerEvent *event) override;
 
 private:
-  bool alertNewActivity;
+  bool alertNewActivity = false;
   ScriptApi *api;
   QMetaObject::Connection autoScroll;
-  QFont defaultFont;
+  QFont defaultFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
   Document *document;
-  QString filePath;
-  int flushTimerId;
-  bool handleKeypad;
-  bool initialized;
-  bool inputCopyAvailable;
-  bool isActive;
-  bool manualDisconnect;
-  std::optional<CallbackTrigger> onDragMove;
-  QPointer<Hotspot> onDragRelease;
-  bool outputCopyAvailable;
-  bool queuedConnect;
-  int resizeTimerId;
-  int sessionStartBlock;
-  QRegularExpression splitter;
-  bool useSplitter;
+  QString filePath{};
+  int flushTimerId = -1;
+  bool handleKeypad = false;
+  bool initialized = false;
+  bool inputCopyAvailable = false;
+  bool isActive = true;
+  bool manualDisconnect = false;
+  std::optional<CallbackTrigger> onDragMove = std::nullopt;
+  QPointer<Hotspot> onDragRelease = nullptr;
+  bool outputCopyAvailable = false;
+  bool queuedConnect = false;
+  int resizeTimerId = -1;
+  int sessionStartBlock = 0;
+  QRegularExpression splitter{};
+  bool useSplitter = false;
   QFileSystemWatcher worldScriptWatcher;
 
   void applyWorld();

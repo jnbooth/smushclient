@@ -28,5 +28,5 @@ protected:
   virtual void paintEvent(QPaintEvent *event) override;
 
 private:
-  QColor currentValue;
+  QColor currentValue{};
 };

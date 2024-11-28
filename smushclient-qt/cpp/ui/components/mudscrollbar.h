@@ -40,11 +40,11 @@ protected:
   virtual void sliderChange(QAbstractSlider::SliderChange change) override;
 
 private:
-  bool autoScroll;
-  bool inInternalChange;
-  bool isPaused;
-  int lastValue;
-  bool pausingEnabled;
+  bool autoScroll = true;
+  bool inInternalChange = false;
+  bool isPaused = false;
+  int lastValue = 0;
+  bool pausingEnabled = true;
 
 private:
   void updateParentPolicy() const;

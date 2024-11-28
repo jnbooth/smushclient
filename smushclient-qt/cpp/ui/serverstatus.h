@@ -21,10 +21,10 @@ public:
 
 private:
   Ui::ServerStatus *ui;
-  QLabel *icon;
-  QNetworkAccessManager downloader;
-  QFont variableFont;
-  QFont valueFont;
+  QLabel *icon = nullptr;
+  QNetworkAccessManager downloader{};
+  QFont variableFont{};
+  QFont valueFont{};
 
 private:
   QLabel *variableLabel(KnownVariable variable, const QString &label, QWidget *parent = nullptr) const;

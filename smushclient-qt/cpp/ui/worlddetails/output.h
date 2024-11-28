@@ -22,8 +22,8 @@ public:
 
 private:
   Ui::PrefsOutput *ui;
-  QAudioOutput audio;
-  QMediaPlayer player;
+  QAudioOutput audio{};
+  QMediaPlayer player{};
 
 private slots:
   void on_NewActivitySound_browse_clicked();

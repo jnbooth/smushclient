@@ -24,9 +24,9 @@ protected:
   void timerEvent(QTimerEvent *event) override;
 
 private:
-  bool closed;
-  int pollTimerId;
-  std::unordered_map<int, size_t> queue;
+  bool closed = true;
+  int pollTimerId = -1;
+  std::unordered_map<int, size_t> queue{};
 
   ScriptApi *getApi() const;
 };

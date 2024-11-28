@@ -9,9 +9,7 @@
 
 SettingsSound::SettingsSound(Settings &settings, QWidget *parent)
     : QWidget(parent),
-      ui(new Ui::SettingsSound),
-      audio(),
-      player()
+      ui(new Ui::SettingsSound)
 {
   ui->setupUi(this);
   player.setAudioOutput(&audio);

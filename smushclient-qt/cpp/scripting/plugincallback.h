@@ -268,7 +268,6 @@ public:
 class CallbackFilter
 {
 public:
-  CallbackFilter();
   inline void operator|=(const CallbackFilter &other) { filter |= other.filter; }
   inline void clear() { filter = 0; }
   inline constexpr bool includes(const PluginCallback &callback) const
@@ -281,7 +280,7 @@ private:
   bool setIfDefined(lua_State *L, const PluginCallback &callback);
 
 private:
-  size_t filter;
+  size_t filter = 0;
 };
 
 #undef CALLBACK

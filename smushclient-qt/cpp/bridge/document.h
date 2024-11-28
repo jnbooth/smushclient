@@ -76,13 +76,13 @@ signals:
 private:
   ScriptApi *api;
   QTextDocument *doc;
-  QTextCharFormat expireLinkFormat;
+  QTextCharFormat expireLinkFormat{};
   std::array<QTextCharFormat, 164> formats;
-  std::unordered_map<std::string, std::vector<QTextCursor>> links;
-  int outputStart;
+  std::unordered_map<std::string, std::vector<QTextCursor>> links{};
+  int outputStart = 0;
   MudScrollBar *scrollBar;
-  bool serverExpiresLinks;
-  QHash<QString, QString> serverStatuses;
+  bool serverExpiresLinks = false;
+  QHash<QString, QString> serverStatuses{};
 
   std::vector<QTextCursor> &linksWithExpiration(rust::str expires);
 };

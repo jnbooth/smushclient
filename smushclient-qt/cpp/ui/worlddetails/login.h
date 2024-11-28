@@ -22,7 +22,7 @@ private slots:
 
 private:
   Ui::PrefsLogin *ui;
-  bool empty;
-  bool single;
+  bool empty = true;
+  bool single = true;
   World &world;
 };

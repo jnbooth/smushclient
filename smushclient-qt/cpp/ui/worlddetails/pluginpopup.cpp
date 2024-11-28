@@ -3,7 +3,8 @@
 #include "smushclient_qt/src/bridge.cxxqt.h"
 
 PluginPopup::PluginPopup(const PluginDetails &plugin, QWidget *parent)
-    : QDialog(parent), ui(new Ui::PluginPopup)
+    : QDialog(parent),
+      ui(new Ui::PluginPopup)
 {
   ui->setupUi(this);
   ui->author->setText(plugin.getAuthor());

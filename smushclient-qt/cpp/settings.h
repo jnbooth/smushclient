@@ -136,5 +136,5 @@ public slots:
   void setWorldCloseBehavior(WorldCloseBehavior behavior);
 
 private:
-  QSettings store;
+  QSettings store{};
 };

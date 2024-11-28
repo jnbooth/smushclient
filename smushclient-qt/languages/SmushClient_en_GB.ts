@@ -221,7 +221,7 @@
 <context>
     <name>ColorPickerButton</name>
     <message>
-        <location filename="../cpp/ui/components/colorpickerbutton.cpp" line="17"/>
+        <location filename="../cpp/ui/components/colorpickerbutton.cpp" line="16"/>
         <source>Select Color</source>
         <translation>Select Colour</translation>
     </message>
@@ -1665,7 +1665,7 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/output.cpp" line="58"/>
+        <location filename="../cpp/ui/worlddetails/output.cpp" line="56"/>
         <source>Select sound file</source>
         <translation></translation>
     </message>
@@ -2479,7 +2479,7 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/settings/sound.cpp" line="33"/>
+        <location filename="../cpp/ui/settings/sound.cpp" line="31"/>
         <source>Select sound file</source>
         <translation></translation>
     </message>

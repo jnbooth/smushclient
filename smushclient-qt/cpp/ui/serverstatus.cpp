@@ -222,10 +222,7 @@ struct StatusEntry
 
 ServerStatus::ServerStatus(const QHash<QString, QString> &status, QWidget *parent)
     : QDialog(parent),
-      ui(new Ui::ServerStatus),
-      icon(nullptr),
-      variableFont(),
-      valueFont()
+      ui(new Ui::ServerStatus)
 {
   ui->setupUi(this);
   variableFont.setBold(true);

@@ -22,5 +22,5 @@ protected:
   virtual void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
-  bool ignoreKeypad;
+  bool ignoreKeypad = false;
 };

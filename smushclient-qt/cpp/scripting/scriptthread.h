@@ -16,6 +16,6 @@ public:
 
 private:
   lua_State *L;
-  bool moved;
+  bool moved = false;
   lua_State *parentL;
 };

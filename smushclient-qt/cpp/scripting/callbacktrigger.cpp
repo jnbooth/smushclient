@@ -6,8 +6,7 @@ extern "C"
 }
 
 CallbackTrigger::CallbackTrigger(lua_State *parentL, int nargs)
-    : moved(false),
-      nargs(nargs),
+    : nargs(nargs),
       thread(parentL),
       L(thread.state()),
       top(lua_gettop(L) + 1)
@@ -16,8 +15,7 @@ CallbackTrigger::CallbackTrigger(lua_State *parentL, int nargs)
 }
 
 CallbackTrigger::CallbackTrigger(CallbackTrigger &&other)
-    : moved(false),
-      nargs(other.nargs),
+    : nargs(other.nargs),
       thread(std::move(other.thread)),
       L(other.L),
       top(other.top)

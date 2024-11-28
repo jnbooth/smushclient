@@ -26,43 +26,12 @@ using std::chrono::seconds;
 
 ScriptApi::ScriptApi(MudStatusBar *statusBar, Notepads *notepads, WorldTab *parent)
     : QObject(parent),
-      actionSource(ActionSource::Unknown),
-      audioChannels{
-          AudioChannel(),
-          AudioChannel(),
-          AudioChannel(),
-          AudioChannel(),
-          AudioChannel(),
-          AudioChannel(),
-          AudioChannel(),
-          AudioChannel(),
-          AudioChannel(),
-          AudioChannel(),
-      },
-      callbackFilter(),
       cursor(parent->ui->output->document()),
-      databases(),
-      doNaws(false),
-      doesNaws(false),
-      echoFormat(),
-      echoOnSameLine(false),
-      errorFormat(),
-      hasLine(false),
-      indentNext(false),
-      indentText(),
-      lastTellPosition(-1),
-      noteFormat(),
       notepads(notepads),
-      plugins(),
-      pluginIndices(),
       scrollBar(parent->ui->output->verticalScrollBar()),
-      sendQueue(),
       socket(parent->socket),
       statusBar(statusBar),
-      suppressEcho(false),
-      whenConnected(QDateTime::currentDateTime()),
-      windows(),
-      worldScriptIndex(noSuchPlugin)
+      whenConnected(QDateTime::currentDateTime())
 {
 
   timekeeper = new Timekeeper(this);

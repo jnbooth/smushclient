@@ -7,18 +7,15 @@
 
 MudInput::MudInput(QWidget *parent)
     : QTextEdit(parent),
-      history(),
-      ignoreKeypad() {}
+      history() {}
 
 MudInput::MudInput(QWidget *parent, const QStringList &history)
     : QTextEdit(parent),
-      history(history),
-      ignoreKeypad() {}
+      history(history) {}
 
 MudInput::MudInput(const QStringList &history)
     : QTextEdit(),
-      history(history),
-      ignoreKeypad() {}
+      history(history) {}
 
 const QStringList &MudInput::log() const noexcept
 {

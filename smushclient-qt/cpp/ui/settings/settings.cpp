@@ -32,7 +32,6 @@ void SettingsDialog::connect(WorldTab *tab)
 SettingsDialog::SettingsDialog(Settings &settings, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::SettingsDialog),
-      pane(nullptr),
       settings(settings)
 {
   ui->setupUi(this);

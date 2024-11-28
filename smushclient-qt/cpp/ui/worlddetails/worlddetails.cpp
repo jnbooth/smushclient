@@ -25,8 +25,6 @@ WorldPrefs::WorldPrefs(World &world, SmushClient &client, ScriptApi *api, QWidge
       ui(new Ui::WorldPrefs),
       api(api),
       client(client),
-      dirty(false),
-      pane(nullptr),
       world(world)
 {
   ui->setupUi(this);

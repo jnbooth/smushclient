@@ -78,10 +78,7 @@ PluginMetadata::PluginMetadata(const PluginPack &pack, size_t index)
 // Public methods
 
 Plugin::Plugin(ScriptApi *api, const PluginPack &pack, size_t index)
-    : metadata(pack, index),
-      L(nullptr),
-      isDisabled(false),
-      moved(false)
+    : metadata(pack, index)
 {
   reset(api);
 }
@@ -89,8 +86,7 @@ Plugin::Plugin(ScriptApi *api, const PluginPack &pack, size_t index)
 Plugin::Plugin(Plugin &&other)
     : metadata(std::move(other.metadata)),
       L(other.L),
-      isDisabled(other.isDisabled),
-      moved(false)
+      isDisabled(other.isDisabled)
 {
   other.moved = true;
 }

@@ -19,9 +19,9 @@ public:
   int open(int flags);
 
 private:
-  sqlite3 *db;
+  sqlite3 *db = nullptr;
   std::string filename;
-  bool moved;
-  sqlite3_stmt *stmt;
-  bool validRow;
+  bool moved = false;
+  sqlite3_stmt *stmt = nullptr;
+  bool validRow = false;
 };

@@ -30,8 +30,8 @@ private:
   AliasModel *aliases;
   ScriptApi *api;
   SmushClient &client;
-  bool dirty;
-  QWidget *pane;
+  bool dirty = false;
+  QWidget *pane = nullptr;
   PluginModel *plugins;
   TimerModel *timers;
   TriggerModel *triggers;

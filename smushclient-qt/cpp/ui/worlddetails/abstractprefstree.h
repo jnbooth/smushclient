@@ -28,10 +28,10 @@ protected slots:
   void on_tree_doubleClicked(QModelIndex index);
 
 private:
-  bool filtering;
+  bool filtering = false;
   AbstractSenderModel *model;
   QSortFilterProxyModel *proxy;
-  QTreeView *tree;
+  QTreeView *tree = nullptr;
 
 private:
   QModelIndex mapIndex(const QModelIndex &index) const;

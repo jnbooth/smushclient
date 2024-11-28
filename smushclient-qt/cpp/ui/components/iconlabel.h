@@ -32,7 +32,7 @@ private:
   QIcon icon;
   QSize maxSize;
   QIcon::Mode mode;
-  bool needsUpdate;
+  bool needsUpdate = true;
   QIcon::State state;
 
 private:

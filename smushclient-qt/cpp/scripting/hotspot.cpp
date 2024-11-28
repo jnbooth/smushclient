@@ -91,8 +91,6 @@ Hotspot::Hotspot(
     Callbacks &&callbacksMoved)
     : QWidget(parent),
       callbacks(std::move(callbacksMoved)),
-      hadDrag(false),
-      hadMouseDown(false),
       id(id),
       plugin(plugin),
       tab(tab)

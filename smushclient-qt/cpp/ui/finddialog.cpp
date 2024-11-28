@@ -3,12 +3,7 @@
 
 FindDialog::FindDialog(QWidget *parent)
     : QDialog(parent),
-      ui(new Ui::FindDialog),
-      filled(false),
-      flags(),
-      isRegex(false),
-      pattern(),
-      text()
+      ui(new Ui::FindDialog)
 {
   ui->setupUi(this);
   ui->Direction_Up->setChecked(true);
