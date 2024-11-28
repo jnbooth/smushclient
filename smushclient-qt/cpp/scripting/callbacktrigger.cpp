@@ -18,10 +18,7 @@ CallbackTrigger::CallbackTrigger(CallbackTrigger &&other)
     : nargs(other.nargs),
       thread(std::move(other.thread)),
       L(other.L),
-      top(other.top)
-{
-  other.moved = true;
-}
+      top(other.top) {}
 
 bool CallbackTrigger::trigger()
 {

@@ -16,7 +16,6 @@ public:
   bool trigger();
 
 private:
-  bool moved = false;
   int nargs;
   ScriptThread thread;
   lua_State *L;

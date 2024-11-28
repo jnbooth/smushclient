@@ -16,17 +16,15 @@ ScriptThread::ScriptThread(lua_State *parentL)
 }
 
 ScriptThread::ScriptThread(ScriptThread &&other)
-    : L(other.L),
-      parentL(other.parentL)
-{
-  other.moved = true;
-}
+    : L(std::exchange(other.L, nullptr)),
+      parentL(std::exchange(other.parentL, nullptr)) {}
 
 ScriptThread::~ScriptThread()
 {
-  if (moved)
+  if (L)
+    lua_closethread(L, nullptr);
+  if (!parentL)
     return;
-  lua_closethread(L, nullptr);
   lua_pushnil(parentL);
   lua_rawsetp(parentL, LUA_REGISTRYINDEX, L);
 }

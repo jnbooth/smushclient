@@ -21,18 +21,13 @@ DatabaseConnection::DatabaseConnection(string_view filename)
     : filename(replacePathSeparators(filename)) {}
 
 DatabaseConnection::DatabaseConnection(DatabaseConnection &&other)
-    : db(other.db),
+    : db(std::exchange(other.db, nullptr)),
       filename(std::move(other.filename)),
-      stmt(other.stmt),
-      validRow(other.validRow)
-{
-  other.moved = true;
-}
+      stmt(std::exchange(other.stmt, nullptr)),
+      validRow(other.validRow) {}
 
 DatabaseConnection::~DatabaseConnection()
 {
-  if (moved)
-    return;
   close();
 }
 

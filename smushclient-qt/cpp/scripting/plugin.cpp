@@ -85,17 +85,13 @@ Plugin::Plugin(ScriptApi *api, const PluginPack &pack, size_t index)
 
 Plugin::Plugin(Plugin &&other)
     : metadata(std::move(other.metadata)),
-      L(other.L),
-      isDisabled(other.isDisabled)
-{
-  other.moved = true;
-}
+      L(std::exchange(other.L, nullptr)),
+      isDisabled(other.isDisabled) {}
 
 Plugin::~Plugin()
 {
-  if (moved)
-    return;
-  lua_close(L);
+  if (L)
+    lua_close(L);
 }
 
 void Plugin::disable()

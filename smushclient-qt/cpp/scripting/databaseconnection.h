@@ -21,7 +21,6 @@ public:
 private:
   sqlite3 *db = nullptr;
   std::string filename;
-  bool moved = false;
   sqlite3_stmt *stmt = nullptr;
   bool validRow = false;
 };

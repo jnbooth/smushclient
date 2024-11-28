@@ -53,7 +53,6 @@ public:
 private:
   lua_State *L = nullptr;
   bool isDisabled = false;
-  bool moved = false;
 
   bool findCallback(const PluginCallback &callback) const;
 };
