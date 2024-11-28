@@ -170,6 +170,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/settings/closing.h cpp/ui/settings/closing.cpp cpp/ui/settings/closing.ui
     cpp/ui/serverstatus.h cpp/ui/serverstatus.cpp cpp/ui/serverstatus.ui
     cpp/ui/mudstatusbar.h cpp/ui/mudstatusbar.cpp cpp/ui/mudstatusbar.ui
+    cpp/ui/statusbarstat.h cpp/ui/statusbarstat.cpp cpp/ui/statusbarstat.ui
 )
 
 qt_add_translations(

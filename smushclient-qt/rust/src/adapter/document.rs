@@ -80,6 +80,11 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.begin() };
     }
 
+    pub fn create_mxp_stat(&self, entity: &QString, caption: &QString, max: &QString) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.create_mxp_stat(entity, caption, max) };
+    }
+
     pub fn end(&mut self, had_output: bool) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.as_mut().end(had_output) };
@@ -171,5 +176,10 @@ impl<'a> DocumentAdapter<'a> {
     pub fn set_suppress_echo(&self, suppress: bool) {
         // SAFETY: External call to safe method on opaque type.
         unsafe { self.inner.set_suppress_echo(suppress) };
+    }
+
+    pub fn update_mxp_stat(&self, name: &QString, value: &QString) {
+        // SAFETY: External call to safe method on opaque type.
+        unsafe { self.inner.update_mxp_stat(name, value) };
     }
 }

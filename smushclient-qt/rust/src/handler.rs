@@ -1,12 +1,12 @@
 use crate::adapter::{DocumentAdapter, QColorPair};
 use crate::convert::Convert;
 use cxx_qt_lib::{QByteArray, QString};
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::mxp::{self, RgbColor};
 use mud_transformer::{
     EffectFragment, EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment,
 };
 use smushclient::{SendRequest, SendScriptRequest, SpanStyle};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::ops::Range;
 
 pub struct ClientHandler<'a> {
@@ -14,6 +14,7 @@ pub struct ClientHandler<'a> {
     pub palette: &'a HashMap<RgbColor, i32>,
     pub carriage_return_clears_line: bool,
     pub no_echo_off: bool,
+    pub stats: &'a mut HashSet<String>,
 }
 
 const ERROR_FORMAT_INDEX: i32 = 1;
@@ -57,6 +58,7 @@ impl<'a> ClientHandler<'a> {
             }
             EffectFragment::ExpireLinks(None) => self.doc.expire_links(""),
             EffectFragment::ExpireLinks(Some(expires)) => self.doc.expire_links(expires.as_str()),
+            EffectFragment::StatusBar(stat) => self.handle_mxp_stat(stat),
             _ => (),
         }
     }
@@ -79,6 +81,29 @@ impl<'a> ClientHandler<'a> {
         }
         let entity = format!("{name}={value}");
         self.doc.handle_mxp_entity(&entity);
+        if self.stats.contains(name) {
+            self.doc
+                .update_mxp_stat(&QString::from(name), &QString::from(value));
+        }
+    }
+
+    fn handle_mxp_stat(&mut self, stat: &mxp::Stat) {
+        let entity = QString::from(&stat.entity);
+        let max = stat.max.convert();
+        match &stat.caption {
+            Some(caption) => self
+                .doc
+                .create_mxp_stat(&entity, &QString::from(caption), &max),
+            None => self.doc.create_mxp_stat(&entity, &entity, &max),
+        };
+        if !self.stats.contains(&stat.entity) {
+            self.stats.insert(stat.entity.clone());
+        }
+        if let Some(max) = &stat.max {
+            if !self.stats.contains(max) {
+                self.stats.insert(max.clone());
+            }
+        }
     }
 
     fn handle_telnet(&mut self, fragment: &TelnetFragment) {

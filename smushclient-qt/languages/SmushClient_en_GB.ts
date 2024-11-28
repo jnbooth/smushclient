@@ -728,32 +728,32 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="96"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="95"/>
         <source>Close all worlds and quit?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="296"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="305"/>
         <source>Command History</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="370"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="379"/>
         <source>Go to line</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="370"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="379"/>
         <source>Enter line number</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="395"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="403"/>
         <source>New world</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="467"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="475"/>
         <source>Save as</source>
         <translation></translation>
     </message>
@@ -761,7 +761,7 @@
 <context>
     <name>MudStatusBar</name>
     <message>
-        <location filename="../cpp/ui/mudstatusbar.cpp" line="23"/>
+        <location filename="../cpp/ui/mudstatusbar.cpp" line="33"/>
         <source>Connected</source>
         <translation></translation>
     </message>
@@ -771,8 +771,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mudstatusbar.ui" line="23"/>
-        <location filename="../cpp/ui/mudstatusbar.cpp" line="23"/>
+        <location filename="../cpp/ui/mudstatusbar.ui" line="44"/>
+        <location filename="../cpp/ui/mudstatusbar.cpp" line="33"/>
         <source>Disconnected</source>
         <translation></translation>
     </message>
@@ -2638,6 +2638,14 @@ li.checked::marker { content: &quot;\2612&quot;; }
     </message>
 </context>
 <context>
+    <name>StatusBarStat</name>
+    <message>
+        <location filename="../cpp/ui/statusbarstat.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TimerEdit</name>
     <message>
         <location filename="../cpp/ui/worlddetails/timeredit.ui" line="20"/>
@@ -3120,42 +3128,42 @@ li.checked::marker { content: &quot;\2612&quot;; }
 <context>
     <name>WorldTab</name>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="187"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="188"/>
         <source>Failed to open file: %1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="256"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="257"/>
         <source>Do you want to save the changes you made to %1?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="257"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="258"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="298"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="299"/>
         <source>Save as</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="747"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="744"/>
         <source>World script changed</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="747"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="744"/>
         <source>Would you like to reload the world script?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="777"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="775"/>
         <source>&apos;Connected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="793"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="792"/>
         <source>&apos;Disconnected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
     </message>

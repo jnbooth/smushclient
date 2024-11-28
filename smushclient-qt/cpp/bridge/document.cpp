@@ -151,6 +151,11 @@ void Document::begin() const
   scrollBar->setAutoScrollEnabled(false);
 }
 
+void Document::createMxpStat(const QString &entity, const QString &caption, const QString &max) const
+{
+  api->statusBarWidgets()->createStat(entity, caption, max);
+}
+
 void Document::end(bool hadOutput)
 {
   scrollBar->setAutoScrollEnabled(true);
@@ -441,6 +446,11 @@ void Document::setPalette(const QVector_QColor &palette)
 void Document::setSuppressEcho(bool suppress) const
 {
   api->setSuppressEcho(suppress);
+}
+
+void Document::updateMxpStat(const QString &entity, const QString &value) const
+{
+  api->statusBarWidgets()->updateStat(entity, value);
 }
 
 // Private methods

@@ -313,6 +313,14 @@ pub mod ffi {
 
         unsafe fn begin(self: &Document);
 
+        #[rust_name = "create_mxp_stat"]
+        unsafe fn createMxpStat(
+            self: &Document,
+            entity: &QString,
+            caption: &QString,
+            max: &QString,
+        );
+
         unsafe fn end(self: Pin<&mut Document>, had_output: bool);
 
         #[rust_name = "erase_current_line"]
@@ -373,6 +381,9 @@ pub mod ffi {
 
         #[rust_name = "set_suppress_echo"]
         unsafe fn setSuppressEcho(self: &Document, suppress: bool);
+
+        #[rust_name = "update_mxp_stat"]
+        unsafe fn updateMxpStat(self: &Document, entity: &QString, value: &QString);
     }
 
     extern "C++Qt" {

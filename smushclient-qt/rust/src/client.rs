@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io;
 use std::io::Write;
@@ -48,6 +48,7 @@ pub struct SmushClientRust {
     input_lock: NonBlockingMutex,
     output_lock: NonBlockingMutex,
     send: Vec<QString>,
+    stats: HashSet<String>,
     timers: Timers<ffi::SendTimer>,
     palette: HashMap<RgbColor, i32>,
 }
@@ -59,6 +60,7 @@ impl Default for SmushClientRust {
             input_lock: NonBlockingMutex::default(),
             output_lock: NonBlockingMutex::default(),
             send: Vec::new(),
+            stats: HashSet::new(),
             timers: Timers::new(),
             palette: HashMap::with_capacity(164),
         }
@@ -136,6 +138,7 @@ impl SmushClientRust {
     }
 
     pub fn handle_disconnect(&mut self) {
+        self.stats.clear();
         self.client.reset_connection();
     }
 
@@ -188,6 +191,7 @@ impl SmushClientRust {
             palette: &self.palette,
             carriage_return_clears_line: world.carriage_return_clears_line,
             no_echo_off: world.no_echo_off,
+            stats: &mut self.stats,
         };
         let read_result = self.client.read(&mut socket);
         handler.doc.begin();
@@ -223,6 +227,7 @@ impl SmushClientRust {
             palette: &self.palette,
             carriage_return_clears_line: world.carriage_return_clears_line,
             no_echo_off: world.no_echo_off,
+            stats: &mut self.stats,
         };
         handler.doc.begin();
 
@@ -246,6 +251,7 @@ impl SmushClientRust {
             palette: &self.palette,
             carriage_return_clears_line: world.carriage_return_clears_line,
             no_echo_off: world.no_echo_off,
+            stats: &mut self.stats,
         };
         let outcome = self
             .client

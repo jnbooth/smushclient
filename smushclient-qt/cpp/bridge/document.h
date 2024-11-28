@@ -43,6 +43,7 @@ public:
   void applyStyles(int start, int end, TextStyles style, const QColor &foreground, const QColor &background) const;
   void beep() const;
   void begin() const;
+  void createMxpStat(const QString &entity, const QString &caption, const QString &max) const;
   void end(bool hadOutput);
   void eraseCurrentLine() const;
   void eraseLastCharacter() const;
@@ -67,6 +68,7 @@ public:
   {
     return serverStatuses;
   }
+  void updateMxpStat(const QString &entity, const QString &value) const;
 
 signals:
   void newActivity();
