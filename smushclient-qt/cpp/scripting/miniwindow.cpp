@@ -8,7 +8,6 @@
 
 using std::string;
 using std::string_view;
-using std::unordered_map;
 using std::vector;
 
 // Private utils
@@ -156,24 +155,6 @@ constexpr QRect calculateGeometry(MiniWindow::Position pos, const QSize &parent,
   }
 }
 
-Hotspot *findHotspotNeighbor(string_view hotspotID, const unordered_map<string, Hotspot *> hotspots)
-{
-  Hotspot *neighbor = nullptr;
-  string_view neighborID;
-  for (const auto &entry : hotspots)
-  {
-    const string_view entryID = (string_view)entry.first;
-    if (entryID == hotspotID)
-      return entry.second;
-    if (entryID > hotspotID && entryID < neighborID)
-    {
-      neighbor = entry.second;
-      neighborID = entryID;
-    }
-  }
-  return neighbor;
-}
-
 // Painter
 
 MiniWindow::Painter::Painter(MiniWindow *window)
@@ -281,7 +262,7 @@ void MiniWindow::clearHotspots()
 
 bool MiniWindow::deleteHotspot(string_view hotspotID)
 {
-  auto search = hotspots.find((string)hotspotID);
+  auto search = hotspots.find(hotspotID);
   if (search == hotspots.end())
     return false;
   delete search->second;
@@ -401,7 +382,7 @@ QVariant MiniWindow::execMenu(const QPoint &location, string_view menuString)
 
 Hotspot *MiniWindow::findHotspot(string_view hotspotID) const
 {
-  auto search = hotspots.find((string)hotspotID);
+  auto search = hotspots.find(hotspotID);
   if (search == hotspots.end())
     return nullptr;
   return search->second;
@@ -409,7 +390,7 @@ Hotspot *MiniWindow::findHotspot(string_view hotspotID) const
 
 const QFont *MiniWindow::findFont(string_view fontID) const
 {
-  auto search = fonts.find((string)fontID);
+  auto search = fonts.find(fontID);
   if (search == fonts.end())
     return nullptr;
   return &search->second;
@@ -417,7 +398,7 @@ const QFont *MiniWindow::findFont(string_view fontID) const
 
 const QPixmap *MiniWindow::findImage(string_view imageID) const
 {
-  auto search = images.find((string)imageID);
+  auto search = images.find(imageID);
   if (search == images.end())
     return nullptr;
   return &search->second;

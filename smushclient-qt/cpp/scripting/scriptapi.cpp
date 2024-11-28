@@ -495,7 +495,7 @@ inline SmushClient *ScriptApi::client() const
 
 DatabaseConnection *ScriptApi::findDatabase(string_view databaseID)
 {
-  auto search = databases.find((string)databaseID);
+  auto search = databases.find(databaseID);
   if (search == databases.end()) [[unlikely]]
     return nullptr;
   return &search->second;
@@ -511,7 +511,7 @@ size_t ScriptApi::findPluginIndex(const string &pluginID) const
 
 MiniWindow *ScriptApi::findWindow(string_view windowName) const
 {
-  auto search = windows.find((string)windowName);
+  auto search = windows.find(windowName);
   if (search == windows.end()) [[unlikely]]
     return nullptr;
   return search->second;

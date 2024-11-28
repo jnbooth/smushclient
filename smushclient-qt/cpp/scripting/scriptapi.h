@@ -2,7 +2,6 @@
 #include <optional>
 #include <string>
 #include <vector>
-#include <unordered_map>
 #include <QtCore/QMargins>
 #include <QtCore/QUuid>
 #include <QtCore/QPointer>
@@ -15,6 +14,7 @@
 #include "plugin.h"
 #include "scriptenums.h"
 #include "../audio.h"
+#include "../lookup.h"
 
 #define SCRIPTING_VERSION "5.07"
 
@@ -353,7 +353,7 @@ private:
   std::array<AudioChannel, 10> audioChannels;
   CallbackFilter callbackFilter;
   QTextCursor cursor;
-  std::unordered_map<std::string, DatabaseConnection> databases;
+  string_map<DatabaseConnection> databases;
   bool doNaws;
   bool doesNaws;
   QTextCharFormat echoFormat;
@@ -366,14 +366,14 @@ private:
   QTextCharFormat noteFormat;
   Notepads *notepads;
   std::vector<Plugin> plugins;
-  std::unordered_map<std::string, size_t> pluginIndices;
+  string_map<size_t> pluginIndices;
   MudScrollBar *scrollBar;
   std::unordered_map<int, QueuedSend> sendQueue;
   QTcpSocket *socket;
   MudStatusBar *statusBar;
   bool suppressEcho;
   QDateTime whenConnected;
-  std::unordered_map<std::string, MiniWindow *> windows;
+  string_map<MiniWindow *> windows;
   size_t worldScriptIndex;
 
   AudioChannel &getAudioChannel(size_t index);

@@ -25,11 +25,10 @@ using std::optional;
 using std::string;
 using std::string_view;
 using std::unordered_map;
-using stringmap = unordered_map<string, string>;
 
 using qlua::expectMaxArgs;
 
-static const unordered_map<string, TriggerBool> triggerBools =
+static const string_map<TriggerBool> triggerBools =
     {
         {"enabled", TriggerBool::Enabled},
         {"expand_variables", TriggerBool::ExpandVariables},
@@ -792,7 +791,7 @@ static int L_SetTriggerOption(lua_State *L)
   API("SetTriggerOption")
   expectMaxArgs(L, 3);
   const QString label = qlua::getQString(L, 1);
-  const string optionName = (string)qlua::getString(L, 2);
+  const string_view optionName = qlua::getString(L, 2);
   const size_t plugin = getPluginIndex(L);
   if (const auto search = triggerBools.find(optionName); search != triggerBools.end())
     return returnCode(

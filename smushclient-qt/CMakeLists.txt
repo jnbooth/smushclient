@@ -92,6 +92,7 @@ qt_add_executable(${APP_NAME}
     cpp/hotkeys.h cpp/hotkeys.cpp
     cpp/layout.h cpp/layout.cpp
     cpp/localization.h cpp/localization.cpp
+    cpp/lookup.h
     cpp/settings.h cpp/settings.cpp
     cpp/spans.h cpp/spans.cpp
 

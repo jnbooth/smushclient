@@ -10,8 +10,8 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QPolygon>
 #include <QtWidgets/QLabel>
-#include <unordered_map>
 #include "hotspot.h"
+#include "../lookup.h"
 
 class ImageFilter;
 class Plugin;
@@ -155,9 +155,9 @@ private:
   QColor background;
   QSize dimensions;
   QFlags<Flag> flags;
-  std::unordered_map<std::string, QFont> fonts;
-  std::unordered_map<std::string, Hotspot *> hotspots;
-  std::unordered_map<std::string, QPixmap> images;
+  string_map<QFont> fonts;
+  string_map<Hotspot *> hotspots;
+  string_map<QPixmap> images;
   QDateTime installed;
   QPoint location;
   QPixmap pixmap;

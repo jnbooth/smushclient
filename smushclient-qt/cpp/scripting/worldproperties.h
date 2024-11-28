@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <unordered_map>
 #include <QtCore/QMetaType>
+#include "../lookup.h"
 
 class WorldProperties
 {
@@ -26,7 +26,7 @@ private:
 
   std::vector<std::string> numericProps;
   std::vector<std::string> stringProps;
-  std::unordered_map<std::string, std::string> names;
+  string_map<std::string> names;
 
   WorldProperties();
   void addProp(const std::string &prop, const QMetaType &type);

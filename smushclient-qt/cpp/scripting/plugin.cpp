@@ -24,7 +24,6 @@ int luaopen_utils(lua_State *L);
 
 using std::string;
 using std::string_view;
-using std::unordered_map;
 
 // Private Lua functions
 

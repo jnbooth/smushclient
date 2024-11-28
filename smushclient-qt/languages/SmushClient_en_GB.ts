@@ -761,7 +761,7 @@
 <context>
     <name>MudStatusBar</name>
     <message>
-        <location filename="../cpp/ui/mudstatusbar.cpp" line="33"/>
+        <location filename="../cpp/ui/mudstatusbar.cpp" line="73"/>
         <source>Connected</source>
         <translation></translation>
     </message>
@@ -772,7 +772,7 @@
     </message>
     <message>
         <location filename="../cpp/ui/mudstatusbar.ui" line="44"/>
-        <location filename="../cpp/ui/mudstatusbar.cpp" line="33"/>
+        <location filename="../cpp/ui/mudstatusbar.cpp" line="73"/>
         <source>Disconnected</source>
         <translation></translation>
     </message>
@@ -1846,32 +1846,32 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="57"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="56"/>
         <source>Plugin ID (%1) is not installed</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="63"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="62"/>
         <source>Plugin &apos;%1&apos; (%2) is not enabled</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="70"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="69"/>
         <source>No function &apos;%1&apos; in plugin &apos;%2&apos; (%3)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="78"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="77"/>
         <source>Cannot pass argument #%1 (%2 type) to CallPlugin</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="85"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="84"/>
         <source>Runtime error in function &apos;%1&apos;, plugin &apos;%2&apos; (%3)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="93"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="92"/>
         <source>Cannot handle return value #%1 (%2 type) from function &apos;%3&apos; in plugin &apos;%4&apos; (%5)</source>
         <translation></translation>
     </message>

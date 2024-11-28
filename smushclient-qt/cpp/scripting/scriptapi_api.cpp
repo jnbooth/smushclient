@@ -92,7 +92,7 @@ void ScriptApi::ColourTell(const QColor &foreground, const QColor &background, c
 
 int ScriptApi::DatabaseClose(string_view databaseID)
 {
-  auto search = databases.find((string)databaseID);
+  auto search = databases.find(databaseID);
   if (search == databases.end()) [[unlikely]]
     return -1;
 

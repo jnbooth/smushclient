@@ -3,7 +3,7 @@
 #include "smushclient_qt/src/bridge.cxxqt.h"
 
 using std::string;
-using std::unordered_map;
+using std::string_view;
 using std::vector;
 
 // Private utils
@@ -101,9 +101,9 @@ void WorldProperties::addProp(const string &prop, const QMetaType &type)
   }
 }
 
-unordered_map<string, string> createNameMap()
+string_map<string> createNameMap()
 {
-  unordered_map<string, string> map;
+  string_map<string> map;
   const QMetaObject &metaObject = World::staticMetaObject;
   int offset = metaObject.propertyOffset();
   int count = metaObject.propertyCount();
@@ -121,9 +121,9 @@ unordered_map<string, string> createNameMap()
   return map;
 }
 
-const char *WorldProperties::canonicalName(std::string_view name)
+const char *WorldProperties::canonicalName(string_view name)
 {
-  const unordered_map<string, string> &names = getInstance().names;
-  auto search = names.find((string)name);
+  const string_map<string> &names = getInstance().names;
+  auto search = names.find(name);
   return (search == names.end()) ? nullptr : search->second.data();
 }
