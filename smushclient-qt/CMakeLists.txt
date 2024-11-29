@@ -205,8 +205,6 @@ else()
 )
 endif()
 
-qt_import_qml_plugins(${APP_NAME})
-
 set_target_properties(${APP_NAME} PROPERTIES
     ${BUNDLE_ID_OPTION}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
