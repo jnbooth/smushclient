@@ -1,4 +1,5 @@
 #include "spans.h"
+#include <QtCore/QRegularExpression>
 #include "smushclient_qt/src/bridge.cxxqt.h"
 
 using std::nullopt;

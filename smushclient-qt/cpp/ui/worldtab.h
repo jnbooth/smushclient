@@ -1,12 +1,15 @@
 #pragma once
 #include <QtCore/QFileSystemWatcher>
+#include <QtCore/QRegularExpression>
 #include <QtCore/QPointer>
+#include <QtGui/QFontDatabase>
 #include <QtCore/QTimerEvent>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QResizeEvent>
 #include <QtNetwork/QTcpSocket>
+#include <QtWidgets/QTextEdit>
 #include <QtWidgets/QSplitter>
 #include "../client.h"
 #include "../bridge/document.h"

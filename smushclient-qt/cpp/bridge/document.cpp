@@ -1,5 +1,6 @@
 #include "document.h"
 #include <string>
+#include <QtGui/QTextBlock>
 #include <QtGui/QTextDocumentFragment>
 #include <QtGui/QAbstractTextDocumentLayout>
 #include <QtWidgets/QStatusBar>

@@ -221,7 +221,7 @@
 <context>
     <name>ColorPickerButton</name>
     <message>
-        <location filename="../cpp/ui/components/colorpickerbutton.cpp" line="16"/>
+        <location filename="../cpp/ui/components/colorpickerbutton.cpp" line="19"/>
         <source>Select Color</source>
         <translation>Select Colour</translation>
     </message>
@@ -728,32 +728,32 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="90"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="91"/>
         <source>Close all worlds and quit?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="300"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="301"/>
         <source>Command History</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="374"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="375"/>
         <source>Go to line</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="374"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="375"/>
         <source>Enter line number</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="398"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="399"/>
         <source>New world</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="470"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="471"/>
         <source>Save as</source>
         <translation></translation>
     </message>
@@ -2669,6 +2669,11 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <source>Set Value Color...</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../cpp/ui/mudstatusbar/statusbarstat.ui" line="108"/>
+        <source>Reset Colors</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>TimerEdit</name>
@@ -3173,22 +3178,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="727"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="731"/>
         <source>World script changed</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="727"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="731"/>
         <source>Would you like to reload the world script?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="758"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="762"/>
         <source>&apos;Connected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="775"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="779"/>
         <source>&apos;Disconnected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
     </message>

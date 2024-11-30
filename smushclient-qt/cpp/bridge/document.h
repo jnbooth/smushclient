@@ -2,13 +2,7 @@
 #define DOCUMENT_H
 
 #include <QtCore/QVector>
-#include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
-#include <QtNetwork/QTcpSocket>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QMainWindow>
-#include <QtWidgets/QTextBrowser>
-#include <QtWidgets/QTreeWidgetItem>
 #include "rust/cxx.h"
 
 struct SendRequest;

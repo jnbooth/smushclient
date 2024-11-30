@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QtCore/QSaveFile>
 #include <QtGui/QClipboard>
+#include <QtGui/QTextBlock>
 #include <QtGui/QTextDocumentFragment>
 #include <QtGui/QDesktopServices>
 #include <QtPrintSupport/QPrintDialog>
