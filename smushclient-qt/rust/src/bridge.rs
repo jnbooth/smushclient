@@ -352,8 +352,8 @@ pub mod ffi {
             value: &QByteArray,
         );
 
-        #[rust_name = "handle_telnet_iac_ga"]
-        unsafe fn handleTelnetIacGa(self: &Document);
+        #[rust_name = "handle_telnet_go_ahead"]
+        unsafe fn handleTelnetGoAhead(self: &Document);
 
         #[rust_name = "handle_telnet_naws"]
         unsafe fn handleTelnetNaws(self: &Document);

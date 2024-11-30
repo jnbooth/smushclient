@@ -90,7 +90,7 @@ pub mod ffi {
     }
 
     enum TelnetFragment {
-        IacGa,
+        GoAhead,
         Mxp {
             enabled: bool,
         },

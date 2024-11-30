@@ -235,7 +235,7 @@ void Document::handleServerStatus(const QByteArray &variableBytes, const QByteAr
     api->statusBarWidgets()->setUsers(value);
 }
 
-void Document::handleTelnetIacGa() const
+void Document::handleTelnetGoAhead() const
 {
   OnPluginIacGa onIacGa;
   api->sendCallback(onIacGa);

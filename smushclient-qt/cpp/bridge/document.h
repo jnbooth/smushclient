@@ -47,7 +47,7 @@ public:
   void handleMxpEntity(rust::str data) const;
   void handleMxpVariable(rust::str name, rust::str value) const;
   void handleServerStatus(const QByteArray &variable, const QByteArray &value);
-  void handleTelnetIacGa() const;
+  void handleTelnetGoAhead() const;
   void handleTelnetNaws() const;
   void handleTelnetNegotiation(TelnetSource source, TelnetVerb verb, uint8_t code);
   void handleTelnetSubnegotiation(uint8_t code, const QByteArray &data) const;

@@ -108,7 +108,7 @@ impl<'a> ClientHandler<'a> {
 
     fn handle_telnet(&mut self, fragment: &TelnetFragment) {
         match fragment {
-            TelnetFragment::IacGa => self.doc.handle_telnet_iac_ga(),
+            TelnetFragment::GoAhead => self.doc.handle_telnet_go_ahead(),
             TelnetFragment::Mxp { enabled } => self.doc.handle_mxp_change(*enabled),
             TelnetFragment::Naws => self.doc.handle_telnet_naws(),
             TelnetFragment::Negotiation { source, verb, code } => {

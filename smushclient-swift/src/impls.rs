@@ -382,7 +382,7 @@ impl TryFrom<EffectFragment> for ffi::EffectFragment {
 impl From<TelnetFragment> for ffi::TelnetFragment {
     fn from(value: TelnetFragment) -> Self {
         match value {
-            TelnetFragment::IacGa => Self::IacGa,
+            TelnetFragment::GoAhead => Self::GoAhead,
             TelnetFragment::Mxp { enabled } => Self::Mxp { enabled },
             TelnetFragment::Naws => Self::Naws,
             TelnetFragment::Negotiation { source, verb, code } => Self::Negotiation {
@@ -406,7 +406,7 @@ impl From<TelnetFragment> for ffi::TelnetFragment {
 impl Clone for ffi::TelnetFragment {
     fn clone(&self) -> Self {
         match self {
-            Self::IacGa => Self::IacGa,
+            Self::GoAhead => Self::GoAhead,
             Self::Mxp { enabled } => Self::Mxp { enabled: *enabled },
             Self::Naws => Self::Naws,
             Self::Negotiation { source, verb, code } => Self::Negotiation {

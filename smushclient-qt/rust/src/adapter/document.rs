@@ -130,9 +130,9 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.as_mut().handle_server_status(variable, value) };
     }
 
-    pub fn handle_telnet_iac_ga(&self) {
+    pub fn handle_telnet_go_ahead(&self) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.inner.handle_telnet_iac_ga() };
+        unsafe { self.inner.handle_telnet_go_ahead() };
     }
 
     pub fn handle_telnet_naws(&self) {
