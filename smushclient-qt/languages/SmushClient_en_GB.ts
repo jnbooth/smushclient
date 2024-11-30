@@ -761,23 +761,23 @@
 <context>
     <name>MudStatusBar</name>
     <message>
-        <location filename="../cpp/ui/mudstatusbar/mudstatusbar.cpp" line="134"/>
+        <location filename="../cpp/ui/mudstatusbar/mudstatusbar.cpp" line="77"/>
         <source>Connected</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mudstatusbar/mudstatusbar.ui" line="50"/>
-        <location filename="../cpp/ui/mudstatusbar/mudstatusbar.cpp" line="134"/>
+        <location filename="../cpp/ui/mudstatusbar/mudstatusbar.ui" line="47"/>
+        <location filename="../cpp/ui/mudstatusbar/mudstatusbar.cpp" line="77"/>
         <source>Disconnected</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mudstatusbar/mudstatusbar.ui" line="92"/>
+        <location filename="../cpp/ui/mudstatusbar/mudstatusbar.ui" line="89"/>
         <source>Connection Status</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mudstatusbar/mudstatusbar.ui" line="103"/>
+        <location filename="../cpp/ui/mudstatusbar/mudstatusbar.ui" line="100"/>
         <source>Users Online</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1703,7 +1703,7 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/plugins.cpp" line="56"/>
+        <location filename="../cpp/ui/worlddetails/plugins.cpp" line="64"/>
         <source>Add plugin</source>
         <translation></translation>
     </message>
@@ -2643,6 +2643,34 @@ li.checked::marker { content: &quot;\2612&quot;; }
     </message>
 </context>
 <context>
+    <name>StatusBarStat</name>
+    <message>
+        <location filename="../cpp/ui/mudstatusbar/statusbarstat.ui" line="62"/>
+        <source>Display</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../cpp/ui/mudstatusbar/statusbarstat.ui" line="76"/>
+        <source>Show Max</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../cpp/ui/mudstatusbar/statusbarstat.ui" line="84"/>
+        <source>Set Color...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../cpp/ui/mudstatusbar/statusbarstat.ui" line="92"/>
+        <source>Set Label Color...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../cpp/ui/mudstatusbar/statusbarstat.ui" line="100"/>
+        <source>Set Value Color...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TimerEdit</name>
     <message>
         <location filename="../cpp/ui/worlddetails/timeredit.ui" line="20"/>
@@ -3145,22 +3173,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="730"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="727"/>
         <source>World script changed</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="730"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="727"/>
         <source>Would you like to reload the world script?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="761"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="758"/>
         <source>&apos;Connected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="778"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="775"/>
         <source>&apos;Disconnected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
     </message>

@@ -1,63 +1,82 @@
 #include "statusbarstat.h"
 #include "ui_statusbarstat.h"
+#include <QtCore/QSettings>
+#include <QtWidgets/QColorDialog>
 
-// Private constructor
+// Private utils
 
-StatusBarStat::StatusBarStat(QWidget *parent, const QString &maxEntity)
-    : QWidget(parent),
-      ui(new Ui::StatusBarStat),
-      maxEntityName(maxEntity)
+QColor saveColor(QWidget *widget, const QColor &baseColor)
 {
-  ui->setupUi(this);
-  menuAction = new QAction(this);
-  menuAction->setCheckable(true);
-  menuAction->setChecked(true);
-  menuAction->setVisible(false);
-  setVisible(false);
-  connect(menuAction, &QAction::toggled, this, &StatusBarStat::setVisible);
+  const QColor color = widget->palette().color(QPalette::ColorRole::WindowText);
+  return baseColor == color ? QColor() : color;
+}
+
+void setTextColor(QWidget *widget, const QColor &color)
+{
+  if (!color.isValid())
+    return;
+
+  QPalette palette = widget->palette();
+  palette.setColor(QPalette::ColorRole::WindowText, color);
+  widget->setPalette(palette);
 }
 
 // Public methods
 
-StatusBarStat::StatusBarStat(QWidget *parent)
-    : StatusBarStat(parent, QString()) {}
-
-StatusBarStat::StatusBarStat(const QString &caption, const QString &maxEntity, QWidget *parent)
-    : StatusBarStat(parent, maxEntity)
+StatusBarStat::StatusBarStat(
+    const QString &entity,
+    const QString &caption,
+    const QString &maxEntity,
+    QWidget *parent)
+    : QWidget(parent),
+      ui(new Ui::StatusBarStat),
+      entityName(entity),
+      maxEntityName(maxEntity)
 {
+  ui->setupUi(this);
+  setVisible(false);
+  displayMenu = new QMenu(this);
+  displayMenu->addAction(ui->action_display);
+  displayMenu->addAction(ui->action_show_max);
+  displayMenu->addAction(ui->action_set_color);
+  displayMenu->addAction(ui->action_set_caption_color);
+  displayMenu->addAction(ui->action_set_value_color);
+  displayMenu->addAction(ui->action_reset_colors);
   setCaption(caption);
+  restore(QSettings().value(settingsKey()).toByteArray());
 }
-
-StatusBarStat::StatusBarStat(const QString &caption, QWidget *parent)
-    : StatusBarStat(caption, QString(), parent) {}
 
 StatusBarStat::~StatusBarStat()
 {
+  QSettings().setValue(settingsKey(), save());
   delete ui;
 }
 
 // Public slots
 
+bool StatusBarStat::isToggled() const
+{
+  return ui->action_display->isChecked();
+}
+
 void StatusBarStat::setCaption(const QString &caption)
 {
   QString formattedCaption = caption.toLower() == caption ? caption.toUpper() : caption;
-  menuAction->setText(formattedCaption);
+  displayMenu->setTitle(formattedCaption);
   formattedCaption.push_back(QStringLiteral(": "));
   ui->caption->setText(formattedCaption);
 }
 
 void StatusBarStat::setMax(const QString &max)
 {
-  if (max.isEmpty())
-  {
-    ui->max->hide();
+  const bool hasMax = !max.isEmpty();
+  ui->action_show_max->setVisible(hasMax);
+  ui->max->setText(hasMax ? QStringLiteral("/") + max : QString());
+
+  const bool showMax = hasMax && ui->action_show_max->isChecked();
+  ui->max->setVisible(showMax);
+  if (!showMax)
     ui->value->setMinimumWidth(0);
-  }
-  else
-  {
-    ui->max->setText(QStringLiteral("/") + max);
-    ui->max->setVisible(true);
-  }
 }
 
 void StatusBarStat::setMaxEntity(const QString &maxEntity)
@@ -65,15 +84,116 @@ void StatusBarStat::setMaxEntity(const QString &maxEntity)
   maxEntityName = maxEntity;
 }
 
+void StatusBarStat::setToggled(bool toggled)
+{
+  ui->action_display->setChecked(toggled);
+}
+
 void StatusBarStat::setValue(const QString &value)
 {
   ui->value->setText(value);
+  if (value.isEmpty())
+  {
+    displayMenu->menuAction()->setVisible(false);
+    setVisible(false);
+  }
+  else
+  {
+    displayMenu->menuAction()->setVisible(true);
+    setVisible(ui->action_display->isChecked());
+  }
 }
 
-// Protected overries
+// Protected overrides
 
 void StatusBarStat::resizeEvent(QResizeEvent *)
 {
   if (ui->max->isVisible())
     ui->value->setMinimumWidth(ui->max->width());
+}
+
+// Private methods
+
+QPalette StatusBarStat::chooseColor(const QWidget *source)
+{
+  QPalette colorPalette = source->palette();
+  const QColor color = QColorDialog::getColor(
+      colorPalette.color(QPalette::ColorRole::WindowText),
+      this,
+      displayMenu->title(),
+      QColorDialog::ColorDialogOption::ShowAlphaChannel);
+
+  if (!color.isValid())
+    return color;
+
+  colorPalette.setColor(QPalette::ColorRole::WindowText, color);
+  return colorPalette;
+}
+
+bool StatusBarStat::restore(const QByteArray &data)
+{
+  if (data.isEmpty())
+    return false;
+
+  bool display;
+  bool showMax;
+  QColor captionColor;
+  QColor valueColor;
+
+  QDataStream stream(data);
+  stream >> display >> showMax >> captionColor >> valueColor;
+
+  ui->action_display->setChecked(display);
+  ui->action_show_max->setChecked(showMax);
+  setTextColor(ui->caption, captionColor);
+  setTextColor(ui->value, valueColor);
+  setTextColor(ui->max, valueColor);
+
+  return stream.status() == QDataStream::Status::Ok;
+}
+
+QByteArray StatusBarStat::save() const
+{
+  const QColor baseColor = palette().color(QPalette::ColorRole::WindowText);
+  QByteArray data;
+  QDataStream stream(&data, QIODevice::WriteOnly);
+  stream << ui->action_display->isChecked()
+         << saveColor(ui->caption, baseColor)
+         << saveColor(ui->value, baseColor);
+  return data;
+}
+
+QString StatusBarStat::settingsKey() const
+{
+  return QStringLiteral("state/stat/") + entityName;
+}
+
+// Private slots
+
+void StatusBarStat::on_action_reset_colors_triggered()
+{
+  ui->caption->setPalette(QPalette());
+  ui->value->setPalette(QPalette());
+  ui->max->setPalette(QPalette());
+}
+
+void StatusBarStat::on_action_set_caption_color_triggered()
+{
+  const QPalette palette = chooseColor(ui->caption);
+  ui->caption->setPalette(palette);
+}
+
+void StatusBarStat::on_action_set_color_triggered()
+{
+  const QPalette palette = chooseColor(ui->value);
+  ui->caption->setPalette(palette);
+  ui->value->setPalette(palette);
+  ui->max->setPalette(palette);
+}
+
+void StatusBarStat::on_action_set_value_color_triggered()
+{
+  const QPalette palette = chooseColor(ui->value);
+  ui->value->setPalette(palette);
+  ui->max->setPalette(palette);
 }

@@ -46,25 +46,13 @@ static const QFont defaultFont = getDefaultFont(12);
 
 const QString headerKey(const QString &modelName)
 {
-  return QStringLiteral("headers/%1").arg(modelName);
+  return QStringLiteral("headers/") + modelName;
 }
 
 // Public methods
 
 Settings::Settings(QObject *parent)
     : QObject(parent) {}
-
-// Header state
-
-QByteArray Settings::getHeaderState(const QString &modelName) const
-{
-  return store.value(headerKey(modelName)).toByteArray();
-}
-
-void Settings::setHeaderState(const QString &modelName, const QByteArray &state)
-{
-  store.setValue(headerKey(modelName), state);
-}
 
 // Dynamic
 

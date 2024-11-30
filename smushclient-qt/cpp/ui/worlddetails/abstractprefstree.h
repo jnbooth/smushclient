@@ -35,6 +35,7 @@ private:
 
 private:
   QModelIndex mapIndex(const QModelIndex &index) const;
+  QString settingsKey() const;
 
 private slots:
   void onSelectionChanged();

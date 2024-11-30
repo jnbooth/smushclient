@@ -1,4 +1,5 @@
 #include "plugins.h"
+#include <QtCore/QSettings>
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QFileDialog>
 #include "ui_plugins.h"
@@ -7,7 +8,6 @@
 #include "../../localization.h"
 #include "../../model/plugin.h"
 #include "../../scripting/scriptapi.h"
-#include "../../settings.h"
 #include "smushclient_qt/src/bridge.cxxqt.h"
 
 // Public methods
@@ -20,7 +20,7 @@ PrefsPlugins::PrefsPlugins(PluginModel *model, ScriptApi *api, QWidget *parent)
 {
   ui->setupUi(this);
   ui->table->setModel(model);
-  ui->table->horizontalHeader()->restoreState(Settings().getHeaderState(objectName()));
+  ui->table->horizontalHeader()->restoreState(QSettings().value(settingsKey()).toByteArray());
   connect(model, &PluginModel::clientError, this, &PrefsPlugins::onClientError);
   connect(model, &PluginModel::pluginOrderChanged, this, &PrefsPlugins::onPluginOrderChanged);
   connect(model, &PluginModel::pluginScriptChanged, this, &PrefsPlugins::onPluginScriptChanged);
@@ -28,8 +28,16 @@ PrefsPlugins::PrefsPlugins(PluginModel *model, ScriptApi *api, QWidget *parent)
 
 PrefsPlugins::~PrefsPlugins()
 {
-  Settings().setHeaderState(objectName(), ui->table->horizontalHeader()->saveState());
+  QSettings().setValue(settingsKey(), ui->table->horizontalHeader()->saveState());
   delete ui;
+}
+
+// Private methods
+
+const QString &PrefsPlugins::settingsKey()
+{
+  static const QString key = QStringLiteral("state/headers/plugins");
+  return key;
 }
 
 // Private slots

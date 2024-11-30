@@ -44,8 +44,6 @@ public:
   bool getDisplayConnect() const;
   bool getDisplayDisconnect() const;
 
-  QByteArray getHeaderState(const QString &modelName) const;
-
   QColor getInputBackground() const;
   QFont getInputFont() const;
   QColor getInputForeground() const;
@@ -97,8 +95,6 @@ public slots:
 
   void setDisplayConnect(bool display);
   void setDisplayDisconnect(bool display);
-
-  void setHeaderState(const QString &modelName, const QByteArray &state);
 
   void setInputBackground(const QColor &color);
   void setInputFont(const QFont &font);

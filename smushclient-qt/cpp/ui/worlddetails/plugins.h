@@ -25,6 +25,9 @@ private:
 private:
   PluginModel *model;
 
+private:
+  static const QString &settingsKey();
+
 private slots:
   void onClientError(const QString &error);
   void onPluginOrderChanged();

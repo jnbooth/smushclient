@@ -1,6 +1,7 @@
 #pragma once
-#include <QtWidgets/QFrame>
 #include <QtGui/QResizeEvent>
+#include <QtWidgets/QFrame>
+#include <QtWidgets/QMenu>
 
 namespace Ui
 {
@@ -12,20 +13,24 @@ class StatusBarStat : public QWidget
   Q_OBJECT
 
 public:
-  explicit StatusBarStat(QWidget *parent = nullptr);
-  explicit StatusBarStat(const QString &caption, QWidget *parent = nullptr);
-  StatusBarStat(const QString &caption, const QString &maxEntity, QWidget *parent = nullptr);
+  StatusBarStat(const QString &entity, const QString &caption, const QString &maxEntity, QWidget *parent = nullptr);
   ~StatusBarStat();
 
-  constexpr QAction *action() const
+  bool isToggled() const;
+  constexpr QMenu *menu() const noexcept
   {
-    return menuAction;
+    return displayMenu;
   }
-  constexpr const QString &maxEntity() const
+  constexpr const QString &entity() const noexcept
+  {
+    return entityName;
+  }
+  constexpr const QString &maxEntity() const noexcept
   {
     return maxEntityName;
   }
   void setMaxEntity(const QString &maxEntity);
+  void setToggled(bool toggled);
 
 public slots:
   void setCaption(const QString &caption);
@@ -35,10 +40,21 @@ public slots:
 protected:
   void resizeEvent(QResizeEvent *event) override;
 
-private:
-  StatusBarStat(QWidget *parent, const QString &maxEntity);
+private slots:
+  void on_action_reset_colors_triggered();
+  void on_action_set_caption_color_triggered();
+  void on_action_set_color_triggered();
+  void on_action_set_value_color_triggered();
 
+private:
   Ui::StatusBarStat *ui;
+  QString entityName;
   QString maxEntityName;
-  QAction *menuAction;
+  QMenu *displayMenu;
+
+private:
+  QPalette chooseColor(const QWidget *source);
+  bool restore(const QByteArray &data);
+  QByteArray save() const;
+  QString settingsKey() const;
 };

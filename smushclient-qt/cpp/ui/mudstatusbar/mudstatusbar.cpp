@@ -3,6 +3,7 @@
 #include "statusbarstat.h"
 #include <QtCore/QDataStream>
 #include <QtCore/QIODevice>
+#include <QtCore/QSettings>
 
 // Public methods
 
@@ -11,82 +12,40 @@ MudStatusBar::MudStatusBar(QWidget *parent)
       ui(new Ui::MudStatusBar)
 {
   ui->setupUi(this);
-  addAction(ui->action_connection_status);
-  addAction(ui->action_users_online);
+  menu = new QMenu(this);
+  menu->close();
+  menu->addAction(ui->action_connection_status);
+  menu->addAction(ui->action_users_online);
   ui->connection->setAttribute(Qt::WA_TransparentForMouseEvents);
   ui->users->setAttribute(Qt::WA_TransparentForMouseEvents);
   ui->connection->setVisible(false);
   ui->users->setVisible(false);
   setConnected(false);
+  restore(QSettings().value(settingsKey()).toByteArray());
 }
 
 MudStatusBar::~MudStatusBar()
 {
+  QSettings().setValue(settingsKey(), save());
   delete ui;
 }
 
-bool MudStatusBar::createStat(const QString &entity, const QString &caption, const QString &max)
+bool MudStatusBar::createStat(const QString &entity, const QString &caption, const QString &maxEntity)
 {
   auto search = statsByEntity.find(entity);
-  if (search == statsByEntity.end())
-  {
-    StatusBarStat *stat = new StatusBarStat(caption, max, this);
-    layout()->addWidget(stat);
-    statsByEntity[entity] = stat;
-    if (!max.isEmpty())
-      statsByMax.insert(max, stat);
-    QAction *action = stat->action();
-    addAction(action);
-    if (hiddenEntities.contains(entity))
-      action->setChecked(false);
-    return true;
-  }
-  StatusBarStat *stat = search.value();
-  stat->setCaption(caption);
-  const QString &currentMaxEntity = stat->maxEntity();
-  if (currentMaxEntity == max)
-    return false;
+  if (search != statsByEntity.end())
+    return recreateStat(search.value(), caption, maxEntity);
 
-  statsByMax.remove(currentMaxEntity, stat);
-  stat->setMaxEntity(max);
-  statsByMax.insert(max, stat);
+  StatusBarStat *stat = new StatusBarStat(entity, caption, maxEntity, this);
+  ui->horizontalLayout->insertWidget(ui->horizontalLayout->count() - 1, stat);
+  statsByEntity[entity] = stat;
+  if (!maxEntity.isEmpty())
+    statsByMax.insert(maxEntity, stat);
+  QMenu *statMenu = stat->menu();
+  menu->addMenu(statMenu);
+  statMenu->menuAction()->setVisible(false);
 
-  return false;
-}
-
-bool MudStatusBar::restore(const QByteArray &data)
-{
-  hiddenEntities.clear();
-  if (data.isEmpty())
-  {
-    ui->action_connection_status->setChecked(true);
-    ui->action_users_online->setChecked(true);
-    return true;
-  }
-  QDataStream stream(data);
-  bool showConnection;
-  bool showUsers;
-  stream >> showConnection >> showUsers >> hiddenEntities;
-  ui->action_connection_status->setChecked(showConnection);
-  ui->action_users_online->setChecked(showUsers);
-
-  return stream.status() == QDataStream::Status::Ok;
-}
-
-QByteArray MudStatusBar::save() const
-{
-  QSet<QString> entities = hiddenEntities;
-  for (auto iter = statsByEntity.cbegin(), end = statsByEntity.cend(); iter != end; ++iter)
-  {
-    if (iter.value()->isVisible())
-      entities.remove(iter.key());
-    else
-      entities.insert(iter.key());
-  }
-  QByteArray data;
-  QDataStream stream(&data, QIODevice::WriteOnly);
-  stream << ui->action_connection_status->isChecked() << ui->action_users_online->isChecked() << entities;
-  return data;
+  return true;
 }
 
 bool MudStatusBar::updateStat(const QString &entity, const QString &value)
@@ -99,16 +58,7 @@ bool MudStatusBar::updateStat(const QString &entity, const QString &value)
     return false;
 
   StatusBarStat *stat = search.value();
-  QAction *action = stat->action();
   stat->setValue(value);
-  if (value.isEmpty())
-  {
-    action->setVisible(false);
-    stat->setVisible(false);
-    return true;
-  }
-  action->setVisible(true);
-  stat->setVisible(action->isChecked());
   return true;
 }
 
@@ -116,13 +66,6 @@ bool MudStatusBar::updateStat(const QString &entity, const QString &value)
 
 void MudStatusBar::clearStats()
 {
-  for (auto iter = statsByEntity.cbegin(), end = statsByEntity.cend(); iter != end; ++iter)
-  {
-    if (iter.value()->action()->isChecked())
-      hiddenEntities.remove(iter.key());
-    else
-      hiddenEntities.insert(iter.key());
-  }
   qDeleteAll(statsByEntity.values());
   statsByEntity.clear();
   statsByMax.clear();
@@ -152,5 +95,68 @@ void MudStatusBar::setUsers(int users)
 void MudStatusBar::setUsers(const QString &users)
 {
   ui->users->setText(users);
-  ui->users->show();
+  ui->users->setVisible(ui->action_users_online->isChecked());
+}
+
+// Protected overrides
+
+void MudStatusBar::contextMenuEvent(QContextMenuEvent *event)
+{
+  menu->popup(event->globalPos());
+}
+
+// Private methods
+
+bool MudStatusBar::recreateStat(StatusBarStat *stat, const QString &caption, const QString &maxEntity)
+{
+  stat->setCaption(caption);
+  const QString &currentMaxEntity = stat->maxEntity();
+  if (currentMaxEntity == maxEntity)
+    return false;
+
+  statsByMax.remove(currentMaxEntity, stat);
+  stat->setMaxEntity(maxEntity);
+  statsByMax.insert(maxEntity, stat);
+  return true;
+}
+
+bool MudStatusBar::restore(const QByteArray &data)
+{
+  if (data.isEmpty())
+  {
+    for (QAction *action : stateActions())
+      action->setChecked(true);
+
+    return false;
+  }
+
+  bool check;
+  QDataStream stream(data);
+  for (QAction *action : stateActions())
+  {
+    stream >> check;
+    action->setChecked(check);
+  }
+
+  return stream.status() == QDataStream::Status::Ok;
+}
+
+QByteArray MudStatusBar::save() const
+{
+  QByteArray data;
+  QDataStream stream(&data, QIODevice::WriteOnly);
+  for (QAction *action : stateActions())
+    stream << action->isChecked();
+  return data;
+}
+
+const QString &MudStatusBar::settingsKey()
+{
+  static const QString key = QStringLiteral("state/stat");
+  return key;
+}
+
+QList<QAction *> MudStatusBar::stateActions() const
+{
+  return {ui->action_connection_status, ui->action_users_online};
 }

@@ -3,7 +3,6 @@
 #include <QtCore/QFileInfo>
 #include <QtGui/QGradient>
 #include <QtGui/QGuiApplication>
-#include <QtWidgets/QColorDialog>
 #include <QtWidgets/QStatusBar>
 #include "sqlite3.h"
 #include "miniwindow.h"

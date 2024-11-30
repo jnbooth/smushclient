@@ -13,11 +13,26 @@ ColorPickerButton::ColorPickerButton(QWidget *parent)
 
 void ColorPickerButton::openColorPicker()
 {
-  const QColor color = QColorDialog::getColor(currentValue, this, tr("Select Color"));
+  const QColor color = QColorDialog::getColor(
+      currentValue,
+      this,
+      tr("Select Color"),
+      isAlphaEnabled ? QColorDialog::ColorDialogOption::ShowAlphaChannel : 0);
+
   if (!color.isValid())
     return;
 
   setValue(color);
+}
+
+void ColorPicker::setAlphaDisabled(bool disabled)
+{
+  isAlphaEnabled = !disabled;
+}
+
+void ColorPicker::setAlphaEnabled(bool enabled)
+{
+  isAlphaEnabled = enabled;
 }
 
 void ColorPickerButton::setValue(const QColor &val)

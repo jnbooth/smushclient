@@ -65,6 +65,7 @@ public:
   void setIsActive(bool active);
   void setOnDragMove(CallbackTrigger &&trigger);
   void setOnDragRelease(Hotspot *hotspot);
+  void setStatusBarVisible(bool visible);
   void start();
   void stopSound() const;
   const QString &title() const noexcept;

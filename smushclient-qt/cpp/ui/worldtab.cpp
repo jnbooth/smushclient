@@ -297,7 +297,6 @@ void WorldTab::setIsActive(bool active)
 {
   isActive = active;
   alertNewActivity = !active;
-  api->statusBarWidgets()->setVisible(active);
   if (!active)
   {
     OnPluginLoseFocus onLoseFocus;
@@ -317,6 +316,11 @@ void WorldTab::setOnDragMove(CallbackTrigger &&trigger)
 void WorldTab::setOnDragRelease(Hotspot *hotspot)
 {
   onDragRelease = hotspot;
+}
+
+void WorldTab::setStatusBarVisible(bool visible)
+{
+  api->statusBarWidgets()->setVisible(visible);
 }
 
 void WorldTab::start()
@@ -339,8 +343,6 @@ void WorldTab::start()
       showRustError(e);
     }
   }
-
-  api->statusBarWidgets()->restore((QByteArray)client.getMetavariable("statusbar"));
 
   api->TextRectangle();
 
@@ -615,7 +617,6 @@ bool WorldTab::saveState(const QString &path)
 {
   OnPluginSaveState onSaveState;
   api->sendCallback(onSaveState);
-  client.setMetavariable("statusbar", api->statusBarWidgets()->save());
   try
   {
     client.saveVariables(variablesPath(path));

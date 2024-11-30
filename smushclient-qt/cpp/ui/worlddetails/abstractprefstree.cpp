@@ -1,9 +1,9 @@
 #include "abstractprefstree.h"
+#include <QtCore/QSettings>
 #include <QtGui/QClipboard>
 #include <QtGui/QGuiApplication>
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QHeaderView>
-#include "../../settings.h"
 #include "../../model/sender.h"
 #include "rust/cxx.h"
 
@@ -24,7 +24,7 @@ AbstractPrefsTree::AbstractPrefsTree(AbstractSenderModel *model, QWidget *parent
 
 AbstractPrefsTree::~AbstractPrefsTree()
 {
-  Settings().setHeaderState(objectName(), tree->header()->saveState());
+  QSettings().setValue(settingsKey(), tree->header()->saveState());
 }
 
 // Protected methods
@@ -32,7 +32,7 @@ AbstractPrefsTree::~AbstractPrefsTree()
 void AbstractPrefsTree::setTree(QTreeView *newTree)
 {
   tree = newTree;
-  tree->header()->restoreState(Settings().getHeaderState(objectName()));
+  tree->header()->restoreState(QSettings().value(settingsKey()).toByteArray());
   if (filtering)
     tree->setModel(proxy);
   else
@@ -116,6 +116,11 @@ void AbstractPrefsTree::on_tree_doubleClicked(QModelIndex modelIndex)
 QModelIndex AbstractPrefsTree::mapIndex(const QModelIndex &index) const
 {
   return filtering ? proxy->mapToSource(index) : index;
+}
+
+QString AbstractPrefsTree::settingsKey() const
+{
+  return QStringLiteral("state/headers/") + objectName();
 }
 
 // Private slots

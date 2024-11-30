@@ -562,7 +562,10 @@ void MainWindow::on_world_tabs_currentChanged(int index)
 {
   WorldTab *lastTab = worldtab(lastTabIndex);
   if (lastTab)
+  {
     lastTab->setIsActive(false);
+    lastTab->setStatusBarVisible(false);
+  }
   lastTabIndex = index;
   WorldTab *activeTab = worldtab(index);
   disconnect(socketConnection);
@@ -579,6 +582,7 @@ void MainWindow::on_world_tabs_currentChanged(int index)
   setWorldMenusEnabled(true);
   ui->action_pause_output->setChecked(activeTab->ui->output->verticalScrollBar()->paused());
   activeTab->setIsActive(true);
+  activeTab->setStatusBarVisible(true);
   const QString &title = activeTab->title();
   ui->world_tabs->tabBar()->setTabText(index, title);
   setWindowTitle(title + QStringLiteral("[*] - SmushClient"));
