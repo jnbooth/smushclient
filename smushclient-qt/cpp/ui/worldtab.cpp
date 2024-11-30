@@ -155,7 +155,9 @@ void WorldTab::connectToHost()
   if (socket->state() != QAbstractSocket::SocketState::UnconnectedState)
     return;
 
-  socket->connectToHost(world.getSite(), (uint16_t)world.getPort());
+  socket->connectToHostEncrypted(world.getSite(), (uint16_t)world.getPort());
+  if (!socket->waitForEncrypted() && socket->error() == QSslSocket::SslHandshakeFailedError)
+    socket->connectToHost(world.getSite(), (uint16_t)world.getPort());
 }
 
 void WorldTab::disconnectFromHost()
