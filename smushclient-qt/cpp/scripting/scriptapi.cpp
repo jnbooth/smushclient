@@ -9,7 +9,7 @@
 #include "miniwindow.h"
 #include "../bridge/timekeeper.h"
 #include "../ui/components/mudscrollbar.h"
-#include "../ui/mudstatusbar.h"
+#include "../ui/mudstatusbar/mudstatusbar.h"
 #include "../ui/notepad.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"

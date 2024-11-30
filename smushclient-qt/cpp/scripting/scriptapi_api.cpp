@@ -10,7 +10,7 @@
 #include "worldproperties.h"
 #include "../../layout.h"
 #include "../../spans.h"
-#include "../ui/mudstatusbar.h"
+#include "../ui/mudstatusbar/mudstatusbar.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 

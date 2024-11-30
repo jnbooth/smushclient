@@ -130,6 +130,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/finddialog.h cpp/ui/finddialog.cpp cpp/ui/finddialog.ui
     cpp/ui/mainwindow.h cpp/ui/mainwindow.cpp cpp/ui/mainwindow.ui
     cpp/ui/notepad.h cpp/ui/notepad.cpp cpp/ui/notepad.ui
+    cpp/ui/serverstatus.h cpp/ui/serverstatus.cpp cpp/ui/serverstatus.ui
     cpp/ui/worldtab.h cpp/ui/worldtab.cpp cpp/ui/worldtab.ui
 
     cpp/ui/components/colorpickerbutton.h cpp/ui/components/colorpickerbutton.cpp
@@ -138,14 +139,20 @@ qt_add_executable(${APP_NAME}
     cpp/ui/components/mudinput.h cpp/ui/components/mudinput.cpp
     cpp/ui/components/mudscrollbar.h cpp/ui/components/mudscrollbar.cpp
 
+    cpp/ui/mudstatusbar/mudstatusbar.h cpp/ui/mudstatusbar/mudstatusbar.cpp cpp/ui/mudstatusbar/mudstatusbar.ui
+    cpp/ui/mudstatusbar/statusbarstat.h cpp/ui/mudstatusbar/statusbarstat.cpp cpp/ui/mudstatusbar/statusbarstat.ui
+
     cpp/ui/scripting/abstractscriptdialog.h cpp/ui/scripting/abstractscriptdialog.cpp
     cpp/ui/scripting/choose.h cpp/ui/scripting/choose.cpp cpp/ui/scripting/choose.ui
     cpp/ui/scripting/listbox.h cpp/ui/scripting/listbox.cpp cpp/ui/scripting/listbox.ui
 
     cpp/ui/settings/appearance.h cpp/ui/settings/appearance.cpp cpp/ui/settings/appearance.ui
+    cpp/ui/settings/closing.h cpp/ui/settings/closing.cpp cpp/ui/settings/closing.ui
+    cpp/ui/settings/connection.h cpp/ui/settings/connection.cpp cpp/ui/settings/connection.ui
     cpp/ui/settings/history.h cpp/ui/settings/history.cpp cpp/ui/settings/history.ui
     cpp/ui/settings/notifier.h
     cpp/ui/settings/settings.h cpp/ui/settings/settings.cpp cpp/ui/settings/settings.ui
+    cpp/ui/settings/sound.h cpp/ui/settings/sound.cpp cpp/ui/settings/sound.ui
     cpp/ui/settings/startup.h cpp/ui/settings/startup.cpp cpp/ui/settings/startup.ui
 
     cpp/ui/worlddetails/abstractprefstree.h cpp/ui/worlddetails/abstractprefstree.cpp
@@ -168,12 +175,6 @@ qt_add_executable(${APP_NAME}
     cpp/ui/worlddetails/worlddetails.h cpp/ui/worlddetails/worlddetails.cpp cpp/ui/worlddetails/worlddetails.ui
 
     resources/resources.qrc
-    cpp/ui/settings/sound.h cpp/ui/settings/sound.cpp cpp/ui/settings/sound.ui
-    cpp/ui/settings/connection.h cpp/ui/settings/connection.cpp cpp/ui/settings/connection.ui
-    cpp/ui/settings/closing.h cpp/ui/settings/closing.cpp cpp/ui/settings/closing.ui
-    cpp/ui/serverstatus.h cpp/ui/serverstatus.cpp cpp/ui/serverstatus.ui
-    cpp/ui/mudstatusbar.h cpp/ui/mudstatusbar.cpp cpp/ui/mudstatusbar.ui
-    cpp/ui/statusbarstat.h cpp/ui/statusbarstat.cpp cpp/ui/statusbarstat.ui
 )
 
 qt_add_translations(

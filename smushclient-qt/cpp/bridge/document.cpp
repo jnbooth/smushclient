@@ -8,7 +8,7 @@
 #include "../scripting/scriptapi.h"
 #include "../scripting/plugincallback.h"
 #include "../ui/components/mudscrollbar.h"
-#include "../ui/mudstatusbar.h"
+#include "../ui/mudstatusbar/mudstatusbar.h"
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
 #include "../../settings.h"

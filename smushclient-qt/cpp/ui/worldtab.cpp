@@ -12,12 +12,12 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMessageBox>
 #include "ui_worldtab.h"
-#include "mudstatusbar.h"
 #include "worlddetails/worlddetails.h"
 #include "../bridge/document.h"
 #include "../environment.h"
 #include "../hotkeys.h"
 #include "../localization.h"
+#include "../mudstatusbar/mudstatusbar.h"
 #include "../scripting/hotspot.h"
 #include "../scripting/qlua.h"
 #include "../components/mudscrollbar.h"
