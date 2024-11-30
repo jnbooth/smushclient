@@ -8,7 +8,7 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QResizeEvent>
-#include <QtNetwork/QTcpSocket>
+#include <QtNetwork/QSslSocket>
 #include <QtWidgets/QTextEdit>
 #include <QtWidgets/QSplitter>
 #include "../client.h"
@@ -81,7 +81,7 @@ public:
 public:
   Ui::WorldTab *ui;
   SmushClient client;
-  QTcpSocket *socket;
+  QSslSocket *socket;
   World world;
 
 public slots:

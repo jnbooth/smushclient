@@ -135,13 +135,14 @@ pub mod ffi {
     }
 
     extern "C++Qt" {
-        include!(<QtNetwork/QTcpSocket>);
+        include!(<QtNetwork/QAbstractSocket>);
         #[qobject]
-        type QTcpSocket;
+        type QAbstractSocket;
 
-        unsafe fn flush(self: Pin<&mut QTcpSocket>) -> bool;
-        unsafe fn read(self: Pin<&mut QTcpSocket>, data: *mut c_char, max_size: i64) -> i64;
-        unsafe fn write(self: Pin<&mut QTcpSocket>, data: *const c_char, max_size: i64) -> i64;
+        unsafe fn flush(self: Pin<&mut QAbstractSocket>) -> bool;
+        unsafe fn read(self: Pin<&mut QAbstractSocket>, data: *mut c_char, max_size: i64) -> i64;
+        unsafe fn write(self: Pin<&mut QAbstractSocket>, data: *const c_char, max_size: i64)
+            -> i64;
     }
 
     extern "Rust" {
@@ -561,7 +562,7 @@ pub mod ffi {
         fn populate_world(self: &SmushClient, world: Pin<&mut World>);
         fn set_world(self: Pin<&mut SmushClient>, world: &World) -> bool;
         fn palette(self: &SmushClient) -> QVector_QColor;
-        fn handle_connect(self: &SmushClient, socket: Pin<&mut QTcpSocket>) -> QString;
+        fn handle_connect(self: &SmushClient, socket: Pin<&mut QAbstractSocket>) -> QString;
         fn handle_disconnect(self: Pin<&mut SmushClient>);
         fn alias(
             self: Pin<&mut SmushClient>,
@@ -580,7 +581,7 @@ pub mod ffi {
         fn reinstall_plugin(self: Pin<&mut SmushClient>, index: usize) -> Result<usize>;
         fn read(
             self: Pin<&mut SmushClient>,
-            device: Pin<&mut QTcpSocket>,
+            device: Pin<&mut QAbstractSocket>,
             doc: Pin<&mut Document>,
         ) -> i64;
         fn flush(self: Pin<&mut SmushClient>, doc: Pin<&mut Document>);

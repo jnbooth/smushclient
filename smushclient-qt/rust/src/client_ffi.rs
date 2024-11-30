@@ -70,7 +70,7 @@ impl ffi::SmushClient {
         QVector::from(&self.rust().palette())
     }
 
-    pub fn handle_connect(&self, socket: Pin<&mut ffi::QTcpSocket>) -> QString {
+    pub fn handle_connect(&self, socket: Pin<&mut ffi::QAbstractSocket>) -> QString {
         self.rust().handle_connect(socket.into())
     }
 
@@ -118,7 +118,7 @@ impl ffi::SmushClient {
 
     pub fn read(
         self: Pin<&mut Self>,
-        device: Pin<&mut ffi::QTcpSocket>,
+        device: Pin<&mut ffi::QAbstractSocket>,
         doc: Pin<&mut ffi::Document>,
     ) -> i64 {
         self.rust_mut().read(device.into(), doc.into())

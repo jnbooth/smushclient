@@ -76,13 +76,13 @@ WorldTab::WorldTab(MudStatusBar *statusBar, Notepads *notepads, QWidget *parent)
   ui->setupUi(this);
   ui->input->setFocus();
   defaultFont.setPointSize(12);
-  socket = new QTcpSocket(this);
+  socket = new QSslSocket(this);
   api = new ScriptApi(statusBar, notepads, this);
   document = new Document(this, api);
   connect(document, &Document::newActivity, this, &WorldTab::onNewActivity);
-  connect(socket, &QTcpSocket::readyRead, this, &WorldTab::readFromSocket);
-  connect(socket, &QTcpSocket::connected, this, &WorldTab::onConnect);
-  connect(socket, &QTcpSocket::disconnected, this, &WorldTab::onDisconnect);
+  connect(socket, &QSslSocket::readyRead, this, &WorldTab::readFromSocket);
+  connect(socket, &QSslSocket::connected, this, &WorldTab::onConnect);
+  connect(socket, &QSslSocket::disconnected, this, &WorldTab::onDisconnect);
   connect(&worldScriptWatcher, &QFileSystemWatcher::fileChanged, this, &WorldTab::confirmReloadWorldScript);
 
   const Settings settings;

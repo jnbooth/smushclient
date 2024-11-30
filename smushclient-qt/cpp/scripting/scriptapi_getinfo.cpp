@@ -3,7 +3,6 @@
 #include <QtGui/QTextDocumentFragment>
 #include <QtGui/QTextLayout>
 #include <QtGui/QTextLine>
-#include <QtNetwork/QTcpSocket>
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 #include "../../spans.h"

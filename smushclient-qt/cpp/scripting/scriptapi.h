@@ -6,7 +6,7 @@
 #include <QtCore/QUuid>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
-#include <QtNetwork/QTcpSocket>
+#include <QtNetwork/QAbstractSocket>
 #include <QtGui/QTextCursor>
 #include "databaseconnection.h"
 #include "hotspot.h"
@@ -381,7 +381,7 @@ private:
   string_map<size_t> pluginIndices{};
   MudScrollBar *scrollBar;
   std::unordered_map<int, QueuedSend> sendQueue{};
-  QTcpSocket *socket;
+  QAbstractSocket *socket;
   MudStatusBar *statusBar;
   bool suppressEcho = false;
   QDateTime whenConnected;

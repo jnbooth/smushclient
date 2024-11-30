@@ -3,7 +3,7 @@ use crate::ffi;
 use std::ffi::c_char;
 use std::io::{self, Read, Write};
 
-adapter!(SocketAdapter, ffi::QTcpSocket);
+adapter!(SocketAdapter, ffi::QAbstractSocket);
 
 impl<'a> Read for SocketAdapter<'a> {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
