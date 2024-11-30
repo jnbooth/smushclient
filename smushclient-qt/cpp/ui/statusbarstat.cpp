@@ -9,7 +9,12 @@ StatusBarStat::StatusBarStat(QWidget *parent, const QString &maxEntity)
       maxEntityName(maxEntity)
 {
   ui->setupUi(this);
+  menuAction = new QAction(this);
+  menuAction->setCheckable(true);
+  menuAction->setChecked(true);
+  menuAction->setVisible(false);
   setVisible(false);
+  connect(menuAction, &QAction::toggled, this, &StatusBarStat::setVisible);
 }
 
 // Public methods
@@ -35,7 +40,10 @@ StatusBarStat::~StatusBarStat()
 
 void StatusBarStat::setCaption(const QString &caption)
 {
-  ui->caption->setText((caption.toLower() == caption ? caption.toUpper() : caption) + QStringLiteral(": "));
+  QString formattedCaption = caption.toLower() == caption ? caption.toUpper() : caption;
+  menuAction->setText(formattedCaption);
+  formattedCaption.push_back(QStringLiteral(": "));
+  ui->caption->setText(formattedCaption);
 }
 
 void StatusBarStat::setMax(const QString &max)
@@ -60,7 +68,6 @@ void StatusBarStat::setMaxEntity(const QString &maxEntity)
 void StatusBarStat::setValue(const QString &value)
 {
   ui->value->setText(value);
-  setVisible(!value.isEmpty());
 }
 
 // Protected overries

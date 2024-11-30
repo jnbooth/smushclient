@@ -8,6 +8,7 @@
 #include "miniwindow.h"
 #include "scriptenums.h"
 #include "rust/cxx.h"
+#include "../variableview.h"
 
 struct lua_State;
 enum class SendTarget;
@@ -81,6 +82,7 @@ namespace qlua
   void pushRStrings(lua_State *L, rust::Slice<const rust::Str> strings);
   void pushRStrings(lua_State *L, const rust::Vec<rust::Str> &strings);
   void pushStrings(lua_State *L, const std::vector<std::string> &strings);
+  const char *pushVariable(lua_State *L, VariableView variable);
 
   bool copyValue(lua_State *fromL, lua_State *toL, int idx);
 

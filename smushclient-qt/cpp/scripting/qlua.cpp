@@ -614,6 +614,15 @@ void qlua::pushStrings(lua_State *L, const vector<string> &strings)
   return;
 }
 
+const char *qlua::pushVariable(lua_State *L, VariableView variable)
+{
+  if (variable)
+    return lua_pushlstring(L, variable.data(), variable.size());
+
+  lua_pushnil(L);
+  return nullptr;
+}
+
 bool qlua::copyValue(lua_State *fromL, lua_State *toL, int idx)
 {
   switch (lua_type(fromL, idx))

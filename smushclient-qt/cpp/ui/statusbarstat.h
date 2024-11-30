@@ -17,6 +17,10 @@ public:
   StatusBarStat(const QString &caption, const QString &maxEntity, QWidget *parent = nullptr);
   ~StatusBarStat();
 
+  constexpr QAction *action() const
+  {
+    return menuAction;
+  }
   constexpr const QString &maxEntity() const
   {
     return maxEntityName;
@@ -33,6 +37,8 @@ protected:
 
 private:
   StatusBarStat(QWidget *parent, const QString &maxEntity);
+
   Ui::StatusBarStat *ui;
   QString maxEntityName;
+  QAction *menuAction;
 };

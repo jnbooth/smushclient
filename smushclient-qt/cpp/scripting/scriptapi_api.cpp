@@ -150,17 +150,17 @@ QVariant ScriptApi::GetOption(string_view name) const
   return tab()->world.property(prop);
 }
 
-string_view ScriptApi::GetVariable(size_t index, string_view key) const
+VariableView ScriptApi::GetVariable(size_t index, string_view key) const
 {
 
   return client()->getVariable(index, key);
 }
 
-string_view ScriptApi::GetVariable(string_view pluginID, string_view key) const
+VariableView ScriptApi::GetVariable(string_view pluginID, string_view key) const
 {
   const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin)
-    return string_view(nullptr, 0);
+    return VariableView(nullptr, 0);
   return GetVariable(index, key);
 }
 
@@ -401,7 +401,7 @@ ApiCode ScriptApi::TextRectangle(
 
 ApiCode ScriptApi::TextRectangle() const
 {
-  const QByteArrayView variable = client()->getMetavariable("output/llayout");
+  const QByteArrayView variable = client()->getMetavariable("output/layout");
   if (!variable.data())
     return ApiCode::OK;
 

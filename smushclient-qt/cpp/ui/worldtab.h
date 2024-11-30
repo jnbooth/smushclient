@@ -129,7 +129,7 @@ private:
   void finishDrag();
   bool restoreHistory();
   bool saveHistory() const;
-  bool saveState(const QString &filePath) const;
+  bool saveState(const QString &filePath);
   bool saveWorldAndState(const QString &filePath);
   bool sendCommand(const QString &command, CommandSource source);
   void setupWorldScriptWatcher();

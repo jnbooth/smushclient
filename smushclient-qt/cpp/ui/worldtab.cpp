@@ -340,6 +340,8 @@ void WorldTab::start()
     }
   }
 
+  api->statusBarWidgets()->restore((QByteArray)client.getMetavariable("statusbar"));
+
   api->TextRectangle();
 
   restoreHistory();
@@ -609,10 +611,11 @@ bool WorldTab::saveHistory() const
   return file.commit();
 }
 
-bool WorldTab::saveState(const QString &path) const
+bool WorldTab::saveState(const QString &path)
 {
   OnPluginSaveState onSaveState;
   api->sendCallback(onSaveState);
+  client.setMetavariable("statusbar", api->statusBarWidgets()->save());
   try
   {
     client.saveVariables(variablesPath(path));

@@ -1,4 +1,5 @@
 #pragma once
+#include <QtCore/QByteArray>
 #include <QtWidgets/QWidget>
 
 namespace Ui
@@ -17,6 +18,8 @@ public:
   ~MudStatusBar();
 
   bool createStat(const QString &entity, const QString &caption, const QString &max);
+  bool restore(const QByteArray &data);
+  QByteArray save() const;
   bool updateStat(const QString &entity, const QString &value);
 
 public slots:
@@ -28,6 +31,7 @@ public slots:
 
 private:
   Ui::MudStatusBar *ui;
+  QSet<QString> hiddenEntities{};
   QHash<QString, StatusBarStat *> statsByEntity{};
   QMultiHash<QString, StatusBarStat *> statsByMax{};
 };
