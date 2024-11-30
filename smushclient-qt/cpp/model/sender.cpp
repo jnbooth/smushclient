@@ -3,7 +3,7 @@
 #include "../ui/worlddetails/aliasedit.h"
 #include "../ui/worlddetails/timeredit.h"
 #include "../ui/worlddetails/triggeredit.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "../client.h"
 
 using std::array;
 using std::vector;

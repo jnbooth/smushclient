@@ -1,6 +1,6 @@
 #include "alias.h"
 #include "../ui/worlddetails/aliasedit.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "../client.h"
 
 // Public methods
 

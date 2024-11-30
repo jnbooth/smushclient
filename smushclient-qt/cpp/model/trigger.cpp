@@ -1,6 +1,6 @@
 #include "trigger.h"
 #include "../ui/worlddetails/triggeredit.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "../client.h"
 
 // Public methods
 

@@ -4,6 +4,11 @@
 #include <QtCore/QList>
 #include <QtCore/QVariant>
 
+QDataStream &operator>>(QDataStream &stream, OutputLayout &layout)
+{
+  return stream >> layout.margins >> layout.borderOffset >> layout.borderColor >> layout.borderWidth >> layout.outsideFill;
+}
+
 QByteArray OutputLayout::save() const
 {
   QByteArray data;

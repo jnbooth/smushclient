@@ -100,8 +100,8 @@ public:
   QVariant GetLineInfo(int line, int infoType) const;
   int GetLinesInBufferCount() const;
   QVariant GetOption(std::string_view name) const;
-  std::optional<std::string_view> GetVariable(size_t pluginIndex, std::string_view key) const;
-  std::optional<std::string_view> GetVariable(std::string_view pluginID, std::string_view key) const;
+  std::string_view GetVariable(size_t pluginIndex, std::string_view key) const;
+  std::string_view GetVariable(std::string_view pluginID, std::string_view key) const;
   const std::string &GetPluginID(size_t pluginIndex) const;
   QVariant GetPluginInfo(std::string_view pluginID, int infoType) const;
   QVariant GetStyleInfo(int line, int style, int infoType) const;

@@ -85,6 +85,7 @@ cxx_qt_import_qml_module(${CRATE}_qml
 qt_add_executable(${APP_NAME}
     cpp/main.cpp
     cpp/audio.h cpp/audio.cpp
+    cpp/client.h cpp/client.cpp
     cpp/commandhistory.h cpp/commandhistory.cpp
     cpp/enumbuttongroup.h
     cpp/environment.h cpp/environment.cpp

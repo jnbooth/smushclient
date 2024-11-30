@@ -1,7 +1,7 @@
 #include "timekeeper.h"
 #include "../scripting/scriptapi.h"
 #include "../scripting/plugincallback.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "../client.h"
 extern "C"
 {
 #include "lua.h"

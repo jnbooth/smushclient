@@ -8,9 +8,9 @@
 #include <QtGui/QResizeEvent>
 #include <QtNetwork/QTcpSocket>
 #include <QtWidgets/QSplitter>
+#include "../client.h"
 #include "../bridge/document.h"
 #include "../scripting/callbacktrigger.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
 
 class Hotspot;
 class MudStatusBar;

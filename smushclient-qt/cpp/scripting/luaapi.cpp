@@ -856,11 +856,11 @@ static int L_GetVariable(lua_State *L)
 {
   API("GetVariable")
   expectMaxArgs(L, 1);
-  const optional<string_view> var = getApi(L).GetVariable(getPluginIndex(L), qlua::getString(L, 1));
-  if (!var)
+  const string_view var = getApi(L).GetVariable(getPluginIndex(L), qlua::getString(L, 1));
+  if (!var.data())
     lua_pushnil(L);
   else
-    qlua::pushString(L, *var);
+    qlua::pushString(L, var);
   return 1;
 }
 

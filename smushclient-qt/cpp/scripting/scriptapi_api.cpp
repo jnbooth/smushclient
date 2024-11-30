@@ -150,20 +150,17 @@ QVariant ScriptApi::GetOption(string_view name) const
   return tab()->world.property(prop);
 }
 
-optional<string_view> ScriptApi::GetVariable(size_t index, string_view key) const
+string_view ScriptApi::GetVariable(size_t index, string_view key) const
 {
-  size_t size;
-  const char *variable = client()->getVariable(index, stringSlice(key), &size);
-  if (!variable)
-    return nullopt;
-  return string_view(variable, size);
+
+  return client()->getVariable(index, key);
 }
 
-optional<string_view> ScriptApi::GetVariable(string_view pluginID, string_view key) const
+string_view ScriptApi::GetVariable(string_view pluginID, string_view key) const
 {
   const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin)
-    return nullopt;
+    return string_view(nullptr, 0);
   return GetVariable(index, key);
 }
 
@@ -310,7 +307,7 @@ void ScriptApi::SetStatus(const QString &status) const
 
 bool ScriptApi::SetVariable(size_t index, string_view key, string_view value) const
 {
-  return client()->setVariable(index, stringSlice(key), stringSlice(value));
+  return client()->setVariable(index, key, value);
 }
 
 void ScriptApi::StopEvaluatingTriggers() const
@@ -378,11 +375,6 @@ ApiCode ScriptApi::TextRectangle(const OutputLayout &layout) const
       layout.outsideFill);
 }
 
-inline rust::slice<const char> outputLayoutVariable() noexcept
-{
-  return stringSlice("output/layout");
-}
-
 ApiCode ScriptApi::TextRectangle(
     const QRect &rect,
     int borderOffset,
@@ -403,20 +395,18 @@ ApiCode ScriptApi::TextRectangle(
       .borderWidth = (int16_t)borderWidth,
       .outsideFill = outsideFill,
   };
-  client()->setMetavariable(outputLayoutVariable(), byteSlice(layout.save()));
+  client()->setMetavariable("output/layout", layout.save());
   return TextRectangle(layout);
 }
 
 ApiCode ScriptApi::TextRectangle() const
 {
-  size_t size;
-  const char *variable = client()->getMetavariable(outputLayoutVariable(), &size);
-  if (!variable)
+  const QByteArrayView variable = client()->getMetavariable("output/llayout");
+  if (!variable.data())
     return ApiCode::OK;
 
   OutputLayout layout;
-  const QByteArray data = QByteArray::fromRawData(variable, size);
-  if (!layout.restore(data))
+  if (!layout.restore(QByteArray(variable)))
     return ApiCode::VariableNotFound;
 
   return TextRectangle(layout);

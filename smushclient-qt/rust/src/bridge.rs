@@ -540,6 +540,7 @@ pub mod ffi {
 
     extern "RustQt" {
         #[qobject]
+        #[cxx_name = "SmushClientBase"]
         type SmushClient = super::SmushClientRust;
     }
 

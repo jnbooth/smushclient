@@ -1,5 +1,6 @@
 #pragma once
 #include <QtCore/QByteArray>
+#include <QtCore/QDataStream>
 #include <QtCore/QMargins>
 #include <QtGui/QBrush>
 #include <QtGui/QColor>

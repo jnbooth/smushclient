@@ -511,6 +511,7 @@ impl ffi::SmushClient {
     /// Refer to the safety documentation for [`std::slice::from_raw_parts`].
     unsafe fn provide_variable(value: Option<&[c_char]>, value_size: *mut usize) -> *const c_char {
         let Some(value) = value else {
+            *value_size = 0;
             return ptr::null();
         };
         if !value_size.is_null() {
