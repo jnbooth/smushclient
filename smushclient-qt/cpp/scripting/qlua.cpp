@@ -295,7 +295,7 @@ QVariant qlua::getQVariant(lua_State *L, int idx, int type)
   }
 }
 
-inline QVariant qlua::getQVariant(lua_State *L, int idx)
+QVariant qlua::getQVariant(lua_State *L, int idx)
 {
   return getQVariant(L, idx, lua_type(L, idx));
 }
@@ -347,7 +347,10 @@ QByteArray qlua::concatBytes(lua_State *L)
   bytes.reserve(messageSize);
   size_t chunkLen;
   for (int i = 1; i <= n; ++i)
-    bytes.append(lua_tolstring(L, i, &chunkLen), chunkLen);
+  {
+    const char *data = lua_tolstring(L, i, &chunkLen);
+    bytes.append(data, chunkLen);
+  }
 
   return bytes;
 }
@@ -377,7 +380,10 @@ QString qlua::concatStrings(lua_State *L, const QString &delimiter)
         text.append(QString::number(lua_tonumber(L, i)));
       break;
     case LUA_TSTRING:
-      text.append(QUtf8StringView(lua_tolstring(L, i, &sLen), sLen));
+      {
+        const char *data = lua_tolstring(L, i, &sLen);
+        text.append(QUtf8StringView(data, sLen));
+      }
       break;
     default:
       if (needsToString)
@@ -577,7 +583,7 @@ const char *qlua::pushString(lua_State *L, string_view string)
 
 void qlua::pushRStrings(lua_State *L, rust::Slice<const rust::Str> strings)
 {
-  lua_createtable(L, strings.size(), 0);
+  lua_createtable(L, (int)strings.size(), 0);
   int i = 1;
   for (rust::Str string : strings)
   {
@@ -590,7 +596,7 @@ void qlua::pushRStrings(lua_State *L, rust::Slice<const rust::Str> strings)
 
 void qlua::pushRStrings(lua_State *L, const rust::Vec<rust::Str> &strings)
 {
-  lua_createtable(L, strings.size(), 0);
+  lua_createtable(L, (int)strings.size(), 0);
   int i = 1;
   for (rust::Str string : strings)
   {
@@ -603,7 +609,7 @@ void qlua::pushRStrings(lua_State *L, const rust::Vec<rust::Str> &strings)
 
 void qlua::pushStrings(lua_State *L, const vector<string> &strings)
 {
-  lua_createtable(L, strings.size(), 0);
+  lua_createtable(L, (int)strings.size(), 0);
   int i = 1;
   for (const string &string : strings)
   {

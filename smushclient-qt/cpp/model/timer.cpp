@@ -12,6 +12,13 @@ TimerModel::TimerModel(SmushClient &client, Timekeeper *timekeeper, QObject *par
   client.stopTimers();
 }
 
+// Public overrides
+
+QString TimerModel::exportXml() const
+{
+  return client.exportWorldTimers();
+}
+
 Qt::ItemFlags TimerModel::flags(const QModelIndex &index) const
 {
   if (!index.constInternalPointer())
@@ -25,7 +32,7 @@ Qt::ItemFlags TimerModel::flags(const QModelIndex &index) const
 
 // Protected overrides
 
-int TimerModel::addItem(SmushClient &client, QWidget *parent)
+int TimerModel::add(QWidget *parent)
 {
   Timer timer;
   TimerEdit edit(timer, parent);
@@ -34,7 +41,7 @@ int TimerModel::addItem(SmushClient &client, QWidget *parent)
   return client.addWorldTimer(timer, *timekeeper);
 }
 
-int TimerModel::editItem(SmushClient &client, size_t index, QWidget *parent)
+int TimerModel::edit(size_t index, QWidget *parent)
 {
   Timer timer(&client, index);
   TimerEdit edit(timer, parent);
@@ -50,12 +57,7 @@ int TimerModel::editItem(SmushClient &client, size_t index, QWidget *parent)
   return result;
 }
 
-QString TimerModel::exportXml(const SmushClient &client) const
-{
-  return client.exportWorldTimers();
-}
-
-void TimerModel::importXml(SmushClient &client, const QString &xml)
+void TimerModel::import(const QString &xml)
 {
   client.importWorldTimers(xml, *timekeeper);
 }

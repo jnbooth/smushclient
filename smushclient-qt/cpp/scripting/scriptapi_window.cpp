@@ -24,7 +24,7 @@ ApiCode ScriptApi::WindowAddHotspot(
     const QRect &geometry,
     Hotspot::Callbacks &&callbacks,
     const QString &tooltip,
-    Qt::CursorShape cursor,
+    Qt::CursorShape cursorShape,
     Hotspot::Flags flags) const
 {
   MiniWindow *window = findWindow(windowName);
@@ -36,7 +36,7 @@ ApiCode ScriptApi::WindowAddHotspot(
     return ApiCode::HotspotPluginChanged;
   hotspot->setGeometry(geometry);
   hotspot->setToolTip(tooltip);
-  hotspot->setCursor(cursor);
+  hotspot->setCursor(cursorShape);
   hotspot->setMouseTracking(flags.testFlag(Hotspot::Flag::ReportAllMouseovers));
   return ApiCode::OK;
 }

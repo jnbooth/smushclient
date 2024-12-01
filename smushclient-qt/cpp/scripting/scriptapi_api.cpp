@@ -270,9 +270,9 @@ void ScriptApi::SetClipboard(const QString &text)
   QGuiApplication::clipboard()->setText(text);
 }
 
-ApiCode ScriptApi::SetCursor(Qt::CursorShape cursor) const
+ApiCode ScriptApi::SetCursor(Qt::CursorShape cursorShape) const
 {
-  tab()->ui->area->setCursor(cursor);
+  tab()->ui->area->setCursor(cursorShape);
   return ApiCode::OK;
 }
 
@@ -327,8 +327,8 @@ ApiCode ScriptApi::StopSound(size_t channel)
     audioChannels[channel - 1].stop();
     return ApiCode::OK;
   }
-  for (AudioChannel &channel : audioChannels)
-    channel.stop();
+  for (AudioChannel &audioChannel : audioChannels)
+    audioChannel.stop();
   return ApiCode::OK;
 }
 

@@ -11,6 +11,13 @@ AliasModel::AliasModel(SmushClient &client, QObject *parent)
   client.stopAliases();
 }
 
+// Public overrides
+
+QString AliasModel::exportXml() const
+{
+  return client.exportWorldAliases();
+}
+
 Qt::ItemFlags AliasModel::flags(const QModelIndex &index) const
 {
   if (!index.constInternalPointer())
@@ -21,7 +28,7 @@ Qt::ItemFlags AliasModel::flags(const QModelIndex &index) const
 
 // Protected overrides
 
-int AliasModel::addItem(SmushClient &client, QWidget *parent)
+int AliasModel::add(QWidget *parent)
 {
   Alias alias;
   AliasEdit edit(alias, parent);
@@ -30,7 +37,7 @@ int AliasModel::addItem(SmushClient &client, QWidget *parent)
   return client.addWorldAlias(alias);
 }
 
-int AliasModel::editItem(SmushClient &client, size_t index, QWidget *parent)
+int AliasModel::edit(size_t index, QWidget *parent)
 {
   Alias alias(&client, index);
   AliasEdit edit(alias, parent);
@@ -46,12 +53,7 @@ int AliasModel::editItem(SmushClient &client, size_t index, QWidget *parent)
   return result;
 }
 
-QString AliasModel::exportXml(const SmushClient &client) const
-{
-  return client.exportWorldAliases();
-}
-
-void AliasModel::importXml(SmushClient &client, const QString &xml)
+void AliasModel::import(const QString &xml)
 {
   client.importWorldAliases(xml);
 }

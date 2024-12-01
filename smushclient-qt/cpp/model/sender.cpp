@@ -46,7 +46,7 @@ AbstractSenderModel::~AbstractSenderModel()
 
 bool AbstractSenderModel::addItem(QWidget *parent)
 {
-  if (addItem(client, parent) < 0)
+  if (add(parent) < 0)
     return false;
 
   beginResetModel();
@@ -70,7 +70,7 @@ bool AbstractSenderModel::editItem(const QModelIndex &modelIndex, QWidget *paren
   if (index < 0)
     return false;
 
-  const int newIndex = editItem(client, index, parent);
+  const int newIndex = edit(index, parent);
 
   if (newIndex == index)
   {
@@ -121,15 +121,10 @@ bool AbstractSenderModel::editItem(const QModelIndex &modelIndex, QWidget *paren
   return true;
 }
 
-QString AbstractSenderModel::exportXml() const
-{
-  return exportXml(client);
-}
-
 void AbstractSenderModel::importXml(const QString &xml)
 {
   beginResetModel();
-  importXml(client, xml);
+  import(xml);
   *needsRefresh = true;
   endResetModel();
 }
@@ -245,9 +240,9 @@ QModelIndex AbstractSenderModel::index(int row, int column, const QModelIndex &p
 QMap<int, QVariant> AbstractSenderModel::itemData(const QModelIndex &index) const
 {
   refresh();
-  QMap<int, QVariant> map;
-  map.insert(Qt::DisplayRole, data(index, Qt::DisplayRole));
-  return map;
+  QMap<int, QVariant> dataMap;
+  dataMap.insert(Qt::DisplayRole, data(index, Qt::DisplayRole));
+  return dataMap;
 }
 
 QModelIndex AbstractSenderModel::parent(const QModelIndex &index) const
@@ -276,12 +271,12 @@ int AbstractSenderModel::rowCount(const QModelIndex &index) const
 {
   refresh();
   if (!index.isValid())
-    return map->len();
+    return (int)map->len();
 
   if (index.constInternalPointer())
     return 0;
 
-  return map->groupLen(index.row());
+  return (int)map->groupLen(index.row());
 }
 
 bool AbstractSenderModel::setData(const QModelIndex &index, const QVariant &value, int role)

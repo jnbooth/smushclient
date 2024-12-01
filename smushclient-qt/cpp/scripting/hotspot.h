@@ -53,7 +53,10 @@ public:
   Hotspot(MiniWindow *parent, WorldTab *tab, const Plugin *plugin, std::string_view id, Callbacks &&callbacks);
   const Callbacks &setCallbacks(Callbacks &&callbacks);
   const Callbacks &setCallbacks(CallbacksPartial &&callbacks);
-  inline bool belongsToPlugin(const Plugin *plugin) const noexcept { return plugin == this->plugin; }
+  inline bool belongsToPlugin(const Plugin *otherPlugin) const noexcept
+  {
+    return otherPlugin == plugin;
+  }
   void finishDrag();
   QVariant info(int infoType) const;
 

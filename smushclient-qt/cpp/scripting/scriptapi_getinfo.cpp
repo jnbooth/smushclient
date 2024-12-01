@@ -115,12 +115,12 @@ QVariant ScriptApi::GetInfo(int infoType) const
   }
 }
 
-QVariant ScriptApi::GetLineInfo(int line, int infoType) const
+QVariant ScriptApi::GetLineInfo(int lineNumber, int infoType) const
 {
-  const QTextBlock block = cursor.document()->findBlockByLineNumber(line);
+  const QTextBlock block = cursor.document()->findBlockByLineNumber(lineNumber);
   if (!block.isValid())
     return QVariant();
-  const int lineIndex = line - block.firstLineNumber();
+  const int lineIndex = lineNumber - block.firstLineNumber();
   switch (infoType)
   {
   case 1:
@@ -148,7 +148,7 @@ QVariant ScriptApi::GetLineInfo(int line, int infoType) const
   case 9:
     return getTimestamp(block.blockFormat());
   case 10:
-    return line;
+    return lineNumber;
   case 11:
   {
     const QTextLine line = block.layout()->lineAt(lineIndex);

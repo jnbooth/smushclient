@@ -61,8 +61,8 @@ inline bool buildMenu(QMenu *menu, string_view text)
         menus.pop_back();
       continue;
     }
-    QMenu *menu = menus.back();
-    QAction *action = new QAction(menu);
+    QMenu *buildingMenu = menus.back();
+    QAction *action = new QAction(buildingMenu);
 
     char *start = item.data();
     size_t size = item.size();
@@ -82,7 +82,7 @@ inline bool buildMenu(QMenu *menu, string_view text)
       break;
     }
     action->setText(QString::fromUtf8(start, size));
-    menu->addAction(action);
+    buildingMenu->addAction(action);
   }
   return returnsNumber;
 }
@@ -388,11 +388,11 @@ QRectF MiniWindow::drawText(
   return boundingRect;
 }
 
-QVariant MiniWindow::execMenu(const QPoint &location, string_view menuString)
+QVariant MiniWindow::execMenu(const QPoint &at, string_view menuString)
 {
   QMenu menu(this);
   const bool returnsNumber = buildMenu(&menu, menuString);
-  const QAction *choice = menu.exec(mapToGlobal(location));
+  const QAction *choice = menu.exec(mapToGlobal(at));
   if (!choice)
     return QStringLiteral("");
   const QString text = choice->text();
@@ -505,7 +505,7 @@ void MiniWindow::applyFlags()
     clearMask();
 }
 
-inline void MiniWindow::updateMask()
+void MiniWindow::updateMask()
 {
   if (flags.testFlag(Flag::Transparent)) [[unlikely]]
     setMask(pixmap.createMaskFromColor(background));

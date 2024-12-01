@@ -85,4 +85,4 @@ void Timekeeper::timerEvent(QTimerEvent *event)
 
 // Private methods
 
-inline ScriptApi *Timekeeper::getApi() const { return qobject_cast<ScriptApi *>(parent()); }
+ScriptApi *Timekeeper::getApi() const { return qobject_cast<ScriptApi *>(parent()); }

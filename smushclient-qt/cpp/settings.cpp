@@ -190,4 +190,4 @@ SETTING(ShowStatusBar, bool, true, "statusbar/visible");
 SETTING_ENUM(StartupBehavior, Settings::StartupBehavior, StartupBehavior::Reopen, "startup/behavior");
 SETTING(StartupDirectory, QString, QString(), "startup/directory");
 
-SETTING_ENUM(WorldCloseBehavior, Settings::WorldCloseBehavior, WorldCloseBehavior::Save, "closing/world");
+SETTING_ENUM(WorldCloseBehavior, Settings::WorldCloseBehavior, WorldCloseBehavior::Confirm, "closing/world");

@@ -321,7 +321,7 @@ public:
   {
     qlua::pushRString(L, senderName);
     qlua::pushRString(L, line);
-    lua_createtable(L, wildcards.size(), namedWildcards.size());
+    lua_createtable(L, (int)wildcards.size(), (int)namedWildcards.size());
     int i = 1;
     for (rust::Str wildcard : wildcards)
     {
@@ -364,8 +364,7 @@ public:
   int pushArguments(lua_State *L) const override
   {
     const int n = AliasCallback::pushArguments(L);
-    const size_t len = spans.length();
-    lua_createtable(L, len, 0);
+    lua_createtable(L, (int)spans.length(), 0);
     int i = 0;
 
     for (const OutputSpan &output : spans)
@@ -379,10 +378,10 @@ public:
       lua_pushinteger(L, span->background());
       lua_setfield(L, -2, "backcolour");
       const rust::Str text = span->text();
-      size_t len = text.length();
+      const int len = (int)text.length();
       lua_pushlstring(L, text.data(), len);
       lua_setfield(L, -2, "text");
-      lua_pushinteger(L, len);
+      lua_pushinteger(L, (int)len);
       lua_setfield(L, -2, "length");
       lua_pushinteger(L, span->style());
       lua_setfield(L, -2, "style");
@@ -440,7 +439,7 @@ void Document::setSuppressEcho(bool suppress) const
 
 // Private methods
 
-inline vector<QTextCursor> &Document::linksWithExpiration(rust::str expires)
+vector<QTextCursor> &Document::linksWithExpiration(rust::str expires)
 {
   return links[string(expires.data(), expires.length())];
 }

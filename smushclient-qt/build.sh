@@ -11,4 +11,4 @@ BUILDDIR="build/$CONFIG"
 
 cd "$(dirname "$0")"
 cmake -S . -B $BUILDDIR
-cmake --build $BUILDDIR --config $CONFIG --target update_translations --target all $@
+cmake --build $BUILDDIR --config $CONFIG --target update_translations --target SmushClient $@
