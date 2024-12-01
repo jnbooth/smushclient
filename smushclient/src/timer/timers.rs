@@ -72,10 +72,11 @@ impl<T: TimerConstructible> Timers<T> {
                 }
             }
             Occurrence::Interval(duration) => {
+                let id = send_timer.id;
                 let send_timer = RecurringTimer::new(send_timer, duration);
                 let milliseconds = send_timer.milliseconds;
-                let id = self.recurring.insert(send_timer);
-                handler.start_timer(id, milliseconds);
+                let index = self.recurring.insert(send_timer);
+                handler.start_timer(index, id, milliseconds);
             }
         }
     }

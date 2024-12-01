@@ -11,8 +11,8 @@ impl<'a> TimerHandler<ffi::SendTimer> for TimekeeperAdapter<'a> {
         unsafe { self.inner.send_timer(timer) };
     }
 
-    fn start_timer(&mut self, id: usize, milliseconds: u32) {
+    fn start_timer(&mut self, index: usize, timer: u16, milliseconds: u32) {
         // SAFETY: External call to safe method on opaque type.
-        unsafe { self.as_mut().start_send_timer(id, milliseconds) };
+        unsafe { self.as_mut().start_send_timer(index, timer, milliseconds) };
     }
 }

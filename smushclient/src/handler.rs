@@ -17,7 +17,7 @@ pub trait Handler {
 
 pub trait TimerHandler<T> {
     fn send_timer(&self, timer: &T);
-    fn start_timer(&mut self, id: usize, milliseconds: u32);
+    fn start_timer(&mut self, index: usize, timer: u16, milliseconds: u32);
 }
 
 pub trait HandlerExt {

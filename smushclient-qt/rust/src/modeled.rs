@@ -3,7 +3,7 @@ use std::ptr;
 
 use crate::ffi;
 use cxx_qt::CxxQtType;
-use cxx_qt_lib::{QDate, QString, QVariant};
+use cxx_qt_lib::{QDate, QSet, QString, QVariant};
 use smushclient::{SendIterable, SenderMap, SmushClient};
 use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Reaction, Timer, Trigger};
 
@@ -254,23 +254,37 @@ impl SenderMapRust {
         }
     }
 
-    pub fn remove(
-        &self,
-        client: &mut SmushClient,
-        group: &str,
-        start: usize,
-        amount: usize,
-    ) -> bool {
+    fn group_indices<'a>(&'a self, group: &str, start: usize, amount: usize) -> &'a [usize] {
         let indices = &self.inner[group];
         if start >= indices.len() {
-            return false;
+            return &[];
         }
         let end = start + amount;
-        let indices = if end >= indices.len() {
+        if end >= indices.len() {
             &indices[start..]
         } else {
             &indices[start..end]
-        };
+        }
+    }
+
+    pub fn timer_ids(
+        &self,
+        client: &SmushClient,
+        group: &str,
+        start: usize,
+        amount: usize,
+    ) -> QSet<u16> {
+        let mut set = QSet::default();
+        let timers = &client.world().timers;
+        for &index in self.group_indices(group, start, amount) {
+            if let Some(timer) = timers.get(index) {
+                set.insert(timer.id);
+            }
+        }
+        set
+    }
+
+    fn remove_indices(&self, client: &mut SmushClient, indices: &[usize]) -> bool {
         if indices.is_empty() {
             return false;
         }
@@ -281,6 +295,17 @@ impl SenderMapRust {
             _ => return false,
         }
         true
+    }
+
+    pub fn remove(
+        &self,
+        client: &mut SmushClient,
+        group: &str,
+        start: usize,
+        amount: usize,
+    ) -> bool {
+        let indices = self.group_indices(group, start, amount);
+        self.remove_indices(client, indices)
     }
 
     pub fn sender_index(&self, group: &str, index: usize) -> i32 {
@@ -397,5 +422,17 @@ impl ffi::SenderMap {
     ) -> i32 {
         let client = &mut client.rust_mut().client;
         self.rust_mut().set_cell(client, group, index, column, data)
+    }
+
+    #[allow(clippy::ptr_arg)]
+    pub fn timer_ids(
+        &self,
+        client: &ffi::SmushClient,
+        group: &String,
+        start: usize,
+        amount: usize,
+    ) -> QSet<u16> {
+        self.rust()
+            .timer_ids(&client.rust().client, group, start, amount)
     }
 }

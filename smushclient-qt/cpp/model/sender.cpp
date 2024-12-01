@@ -322,6 +322,9 @@ bool AbstractSenderModel::setData(const QModelIndex &index, const QVariant &valu
   return true;
 }
 
+// Protected methods
+void AbstractSenderModel::prepareRemove(SenderMap *, const rust::String &, int, int) {}
+
 // Private methods
 
 void AbstractSenderModel::refresh() const
@@ -341,6 +344,7 @@ bool AbstractSenderModel::removeRowsInternal(int row, int count, const QModelInd
   if (!group)
     return false;
 
+  prepareRemove(map, *group, row, count);
   beginRemoveRows(parent, row, row + count - 1);
   const bool succeeded = map->remove(client, *group, row, count);
   *needsRefresh = true;

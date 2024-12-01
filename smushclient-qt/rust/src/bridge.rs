@@ -105,6 +105,11 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
+        include!("cxx-qt-lib/qset.h");
+        type QSet_u16 = cxx_qt_lib::QSet<u16>;
+    }
+
+    unsafe extern "C++" {
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
     }
@@ -395,7 +400,12 @@ pub mod ffi {
         #[rust_name = "send_timer"]
         unsafe fn sendTimer(self: &Timekeeper, timer: &SendTimer);
         #[rust_name = "start_send_timer"]
-        unsafe fn startSendTimer(self: Pin<&mut Timekeeper>, id: usize, milliseconds: u32);
+        unsafe fn startSendTimer(
+            self: Pin<&mut Timekeeper>,
+            index: usize,
+            timer: u16,
+            milliseconds: u32,
+        );
     }
 
     #[qenum(SenderMap)]
@@ -441,6 +451,13 @@ pub mod ffi {
             column: i32,
             data: &QVariant,
         ) -> i32;
+        fn timer_ids(
+            self: &SenderMap,
+            client: &SmushClient,
+            group: &String,
+            first: usize,
+            amount: usize,
+        ) -> QSet_u16;
     }
 
     impl cxx_qt::Constructor<(SenderType,), NewArguments = (SenderType,)> for SenderMap {}

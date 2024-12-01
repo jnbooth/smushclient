@@ -7,6 +7,7 @@ extern "C"
 #include "lua.h"
 }
 
+using std::pair;
 using std::chrono::milliseconds;
 
 class TimerCallback : public PluginCallback
@@ -38,6 +39,12 @@ void Timekeeper::beginPolling(milliseconds interval, Qt::TimerType timerType)
   pollTimerId = startTimer(interval, timerType);
 }
 
+void Timekeeper::cancelTimers(const QSet<uint16_t> &timerIds)
+{
+  std::erase_if(queue, [timerIds](const pair<const int, Timekeeper::Item> &item)
+                { return timerIds.contains(item.second.timerId); });
+}
+
 void Timekeeper::sendTimer(const SendTimer &timer) const
 {
   if (closed && !timer.activeClosed)
@@ -55,9 +62,9 @@ void Timekeeper::sendTimer(const SendTimer &timer) const
   api->sendCallback(callback, timer.plugin);
 }
 
-void Timekeeper::startSendTimer(size_t id, uint ms)
+void Timekeeper::startSendTimer(size_t index, uint16_t timerId, uint ms)
 {
-  queue[startTimer(milliseconds{ms})] = id;
+  queue[startTimer(milliseconds{ms})] = {.index = index, .timerId = timerId};
 }
 
 // protected overrides
@@ -76,8 +83,11 @@ void Timekeeper::timerEvent(QTimerEvent *event)
     killTimer(id);
     return;
   }
-  if (getApi()->client()->finishTimer(search->second, *this))
-    killTimer(id);
+  if (!getApi()->client()->finishTimer(search->second.index, *this))
+    return;
+
+  killTimer(id);
+  queue.erase(search);
 }
 
 // Private methods
