@@ -129,9 +129,9 @@ bool MudStatusBar::recreateStat(StatusBarStat *stat, const QString &caption, con
   return true;
 }
 
-bool MudStatusBar::restore(const QByteArray &data)
+bool MudStatusBar::restore(const QByteArray &saveData)
 {
-  if (data.isEmpty())
+  if (saveData.isEmpty())
   {
     for (QAction *action : stateActions())
       action->setChecked(true);
@@ -140,7 +140,7 @@ bool MudStatusBar::restore(const QByteArray &data)
   }
 
   bool check;
-  QDataStream stream(data);
+  QDataStream stream(saveData);
   for (QAction *action : stateActions())
   {
     stream >> check;
@@ -152,11 +152,11 @@ bool MudStatusBar::restore(const QByteArray &data)
 
 QByteArray MudStatusBar::save() const
 {
-  QByteArray data;
-  QDataStream stream(&data, QIODevice::WriteOnly);
+  QByteArray saveData;
+  QDataStream stream(&saveData, QIODevice::WriteOnly);
   for (QAction *action : stateActions())
     stream << action->isChecked();
-  return data;
+  return saveData;
 }
 
 const QString &MudStatusBar::settingsKey()

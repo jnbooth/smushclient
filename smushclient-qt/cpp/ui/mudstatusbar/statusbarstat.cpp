@@ -128,9 +128,9 @@ QPalette StatusBarStat::chooseColor(const QWidget *source)
   return colorPalette;
 }
 
-bool StatusBarStat::restore(const QByteArray &data)
+bool StatusBarStat::restore(const QByteArray &saveData)
 {
-  if (data.isEmpty())
+  if (saveData.isEmpty())
     return false;
 
   bool display;
@@ -138,7 +138,7 @@ bool StatusBarStat::restore(const QByteArray &data)
   QColor captionColor;
   QColor valueColor;
 
-  QDataStream stream(data);
+  QDataStream stream(saveData);
   stream >> display >> showMax >> captionColor >> valueColor;
 
   ui->action_display->setChecked(display);
@@ -153,13 +153,13 @@ bool StatusBarStat::restore(const QByteArray &data)
 QByteArray StatusBarStat::save() const
 {
   const QColor baseColor = palette().color(QPalette::ColorRole::WindowText);
-  QByteArray data;
-  QDataStream stream(&data, QIODevice::WriteOnly);
+  QByteArray saveData;
+  QDataStream stream(&saveData, QIODevice::WriteOnly);
   stream << ui->action_display->isChecked()
          << ui->action_show_max->isChecked()
          << saveColor(ui->caption, baseColor)
          << saveColor(ui->value, baseColor);
-  return data;
+  return saveData;
 }
 
 QString StatusBarStat::settingsKey() const

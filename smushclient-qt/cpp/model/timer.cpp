@@ -71,7 +71,7 @@ void TimerModel::import(const QString &xml)
   return client.importWorldTimers(xml, *timekeeper);
 }
 
-void TimerModel::prepareRemove(SenderMap *map, const rust::String &group, int row, int count)
+void TimerModel::prepareRemove(SenderMap *senderMap, const rust::String &group, int row, int count)
 {
-  timekeeper->cancelTimers(map->timerIds(client, group, row, count));
+  timekeeper->cancelTimers(senderMap->timerIds(client, group, row, count));
 }

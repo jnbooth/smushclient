@@ -8,9 +8,9 @@ struct string_hash
   using hash_type = std::hash<std::string_view>;
   using is_transparent = void;
 
-  constexpr std::size_t operator()(const char *str) const { return hash_type{}(str); }
-  constexpr std::size_t operator()(std::string_view str) const { return hash_type{}(str); }
-  constexpr std::size_t operator()(std::string const &str) const { return hash_type{}(str); }
+  inline std::size_t operator()(const char *str) const { return hash_type{}(str); }
+  inline std::size_t operator()(std::string_view str) const { return hash_type{}(str); }
+  inline std::size_t operator()(std::string const &str) const { return hash_type{}(str); }
 };
 
 using string_set = std::unordered_set<std::string, string_hash, std::equal_to<>>;
