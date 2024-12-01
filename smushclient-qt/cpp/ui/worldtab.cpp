@@ -156,7 +156,9 @@ void WorldTab::connectToHost()
     return;
 
   socket->connectToHostEncrypted(world.getSite(), (uint16_t)world.getPort());
-  if (!socket->waitForEncrypted() && socket->error() == QSslSocket::SslHandshakeFailedError)
+  if (socket->waitForEncrypted())
+    api->statusBarWidgets()->setConnected(MudStatusBar::ConnectionStatus::Encrypted);
+  else if (socket->error() == QSslSocket::SslHandshakeFailedError)
     socket->connectToHost(world.getSite(), (uint16_t)world.getPort());
 }
 
@@ -757,7 +759,7 @@ void WorldTab::onAutoScroll(int, int max)
 void WorldTab::onConnect()
 {
   disconnect(autoScroll);
-  api->statusBarWidgets()->setConnected(true);
+  api->statusBarWidgets()->setConnected(MudStatusBar::ConnectionStatus::Connected);
   client.handleConnect(*socket);
   emit connectionStatusChanged(true);
   if (Settings().getDisplayConnect())
@@ -774,7 +776,7 @@ void WorldTab::onConnect()
 void WorldTab::onDisconnect()
 {
   client.handleDisconnect();
-  api->statusBarWidgets()->setConnected(false);
+  api->statusBarWidgets()->setConnected(MudStatusBar::ConnectionStatus::Disconnected);
   document->resetServerStatus();
   api->setOpen(false);
   if (Settings().getDisplayDisconnect())

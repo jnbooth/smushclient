@@ -19,5 +19,9 @@
         <file>icons/settings/appearance.svg</file>
         <file>icons/settings/sound.svg</file>
         <file>icons/settings/closing.svg</file>
+        <file>icons/status/encrypted.svg</file>
+        <file>icons/status/disconnected.svg</file>
+        <file>icons/status/connected.svg</file>
+        <file>icons/status/users.svg</file>
     </qresource>
 </RCC>

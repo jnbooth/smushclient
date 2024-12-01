@@ -5,11 +5,18 @@
 #include <QtCore/QIODevice>
 #include <QtCore/QSettings>
 
+// Private utils
+
 // Public methods
 
 MudStatusBar::MudStatusBar(QWidget *parent)
     : QWidget(parent),
-      ui(new Ui::MudStatusBar)
+      ui(new Ui::MudStatusBar),
+      connectionIcons({
+          QIcon(QString::fromUtf8(":/icons/status/disconnected.svg")),
+          QIcon(QString::fromUtf8(":/icons/status/connected.svg")),
+          QIcon(QString::fromUtf8(":/icons/status/encrypted.svg")),
+      })
 {
   ui->setupUi(this);
   menu = new QMenu(this);
@@ -20,7 +27,7 @@ MudStatusBar::MudStatusBar(QWidget *parent)
   ui->users->setAttribute(Qt::WA_TransparentForMouseEvents);
   ui->connection->setVisible(false);
   ui->users->setVisible(false);
-  setConnected(false);
+  setConnected(ConnectionStatus::Disconnected);
   restore(QSettings().value(settingsKey()).toByteArray());
 }
 
@@ -37,7 +44,7 @@ bool MudStatusBar::createStat(const QString &entity, const QString &caption, con
     return recreateStat(search.value(), caption, maxEntity);
 
   StatusBarStat *stat = new StatusBarStat(entity, caption, maxEntity, this);
-  ui->horizontalLayout->insertWidget(ui->horizontalLayout->count() - 1, stat);
+  ui->horizontalLayout->insertWidget(statsByEntity.size(), stat);
   statsByEntity[entity] = stat;
   if (!maxEntity.isEmpty())
     statsByMax.insert(maxEntity, stat);
@@ -71,10 +78,12 @@ void MudStatusBar::clearStats()
   statsByMax.clear();
 }
 
-void MudStatusBar::setConnected(bool connected)
+void MudStatusBar::setConnected(MudStatusBar::ConnectionStatus status)
 {
-  ui->connection->setEnabled(connected);
-  ui->connection->setText(connected ? tr("Connected") : tr("Disconnected"));
+  const bool connected = status != ConnectionStatus::Disconnected;
+  ui->connection->setText(status == ConnectionStatus::Disconnected ? tr("Disconnected") : tr("Connected"));
+  ui->connection->setIcon(connectionIcons.at((size_t)status));
+
   if (connected)
     return;
 

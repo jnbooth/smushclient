@@ -16,6 +16,13 @@ class MudStatusBar : public QWidget
   Q_OBJECT
 
 public:
+  enum class ConnectionStatus
+  {
+    Disconnected,
+    Connected,
+    Encrypted,
+  };
+
   explicit MudStatusBar(QWidget *parent = nullptr);
   ~MudStatusBar();
 
@@ -24,7 +31,7 @@ public:
 
 public slots:
   void clearStats();
-  void setConnected(bool connected);
+  void setConnected(ConnectionStatus status);
   void setMessage(const QString &message);
   void setUsers(int users);
   void setUsers(const QString &users);
@@ -34,6 +41,7 @@ protected:
 
 private:
   Ui::MudStatusBar *ui;
+  std::array<QIcon, 3> connectionIcons;
   QMenu *menu;
   QHash<QString, StatusBarStat *> statsByEntity{};
   QMultiHash<QString, StatusBarStat *> statsByMax{};

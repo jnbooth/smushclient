@@ -13,11 +13,9 @@ QColor saveColor(QWidget *widget, const QColor &baseColor)
 
 void setTextColor(QWidget *widget, const QColor &color)
 {
-  if (!color.isValid())
-    return;
-
-  QPalette palette = widget->palette();
-  palette.setColor(QPalette::ColorRole::WindowText, color);
+  QPalette palette;
+  if (color.isValid())
+    palette.setColor(QPalette::ColorRole::WindowText, color);
   widget->setPalette(palette);
 }
 
@@ -124,7 +122,7 @@ QPalette StatusBarStat::chooseColor(const QWidget *source)
       QColorDialog::ColorDialogOption::ShowAlphaChannel);
 
   if (!color.isValid())
-    return color;
+    return colorPalette;
 
   colorPalette.setColor(QPalette::ColorRole::WindowText, color);
   return colorPalette;
@@ -158,6 +156,7 @@ QByteArray StatusBarStat::save() const
   QByteArray data;
   QDataStream stream(&data, QIODevice::WriteOnly);
   stream << ui->action_display->isChecked()
+         << ui->action_show_max->isChecked()
          << saveColor(ui->caption, baseColor)
          << saveColor(ui->value, baseColor);
   return data;
