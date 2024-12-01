@@ -12,7 +12,7 @@ cd "$DIR"
 BUILDDIR="$(pwd)/build/$CONFIG"
 
 cmake -S . -B $BUILDDIR
-cmake --build $BUILDDIR --config $CONFIG $@
+cmake --build $BUILDDIR --config $CONFIG --target SmushClient $@
 
 mkdir -p ../environment
 cd ../environment
