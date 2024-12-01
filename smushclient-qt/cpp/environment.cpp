@@ -5,7 +5,11 @@
 
 QString defaultStartupDirectory()
 {
+#if defined(STANDALONE_CLIENT)
+  const static QString dir = QDir::currentPath();
+#else
   const static QString dir = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first();
+#endif
   return dir;
 }
 
