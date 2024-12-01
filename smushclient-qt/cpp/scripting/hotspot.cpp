@@ -241,7 +241,7 @@ private:
   const char *prop;
 };
 
-inline void Hotspot::runCallback(const string &callbackName, EventFlags flags)
+void Hotspot::runCallback(const string &callbackName, EventFlags flags)
 {
   HotspotCallback callback(callbackName, flags, id);
   plugin->runCallback(callback);

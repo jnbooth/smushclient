@@ -8,7 +8,11 @@
 
 int main(int argc, char *argv[])
 {
-  setenv("LUA_PATH", SCRIPTS_DIR "/?.lua;" LUA_PATH_DEFAULT, false);
+  #if defined(Q_OS_WINDOWS)
+  _putenv_s("LUA_PATH", SCRIPTS_DIR "/?.lua;" LUA_PATH_DEFAULT);
+  #else
+    setenv("LUA_PATH", SCRIPTS_DIR "/?.lua;" LUA_PATH_DEFAULT, false);
+  #endif
   QApplication app(argc, argv);
   QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/Dina.ttf"));
   QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/Dina-Bold.ttf"));

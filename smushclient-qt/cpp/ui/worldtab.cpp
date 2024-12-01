@@ -232,7 +232,8 @@ bool WorldTab::promptSave()
   switch (Settings().getWorldCloseBehavior())
   {
   case Settings::WorldCloseBehavior::Save:
-    return !saveWorld().isEmpty();
+    saveWorld();
+    return true;
   case Settings::WorldCloseBehavior::Discard:
     return true;
   case Settings::WorldCloseBehavior::Confirm:
@@ -545,7 +546,7 @@ void WorldTab::applyWorld()
   useSplitter = true;
 }
 
-inline void WorldTab::finishDrag()
+void WorldTab::finishDrag()
 {
   onDragMove.reset();
   if (onDragRelease) [[unlikely]]
@@ -882,7 +883,8 @@ void WorldTab::on_output_anchorClicked(const QUrl &url)
     return;
   }
 
-  int delimIndex, fnIndex;
+  int delimIndex = 0;
+  int fnIndex = 0;
   if (
       action.first(2) == QStringLiteral("!!") &&
       action.back() == u')' &&

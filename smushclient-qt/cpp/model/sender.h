@@ -28,7 +28,7 @@ public:
   virtual ~AbstractSenderModel();
   bool addItem(QWidget *parent = nullptr);
   bool editItem(const QModelIndex &index, QWidget *parent = nullptr);
-  QString exportXml() const;
+  virtual QString exportXml() const = 0;
   void importXml(const QString &xml);
   bool removeSelection(const QItemSelection &selection);
   int senderIndex(const QModelIndex &index) const;
@@ -48,14 +48,13 @@ public:
   bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
 protected:
-  virtual int addItem(SmushClient &client, QWidget *parent) = 0;
-  virtual int editItem(SmushClient &client, size_t index, QWidget *parent) = 0;
-  virtual QString exportXml(const SmushClient &client) const = 0;
+  SmushClient &client;
+  virtual int add(QWidget *parent) = 0;
+  virtual int edit(size_t index, QWidget *parent) = 0;
   virtual const std::array<QString, numColumns> &headers() const noexcept = 0;
-  virtual void importXml(SmushClient &client, const QString &xml) = 0;
+  virtual void import(const QString &xml) = 0;
 
 private:
-  SmushClient &client;
   SenderMap *map;
   bool *needsRefresh;
 

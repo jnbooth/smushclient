@@ -337,10 +337,10 @@ void ScriptApi::sendTo(
     return;
   case SendTarget::NotepadAppend:
   {
-    QTextCursor cursor = notepads->pad(destination)->textCursor();
-    if (!cursor.atBlockStart())
-      cursor.insertBlock();
-    cursor.insertText(text);
+    QTextCursor notepadCursor = notepads->pad(destination)->textCursor();
+    if (!notepadCursor.atBlockStart())
+      notepadCursor.insertBlock();
+    notepadCursor.insertText(text);
     return;
   }
   case SendTarget::NotepadReplace:
@@ -456,7 +456,7 @@ AudioChannel &ScriptApi::getAudioChannel(size_t index)
   return audioChannels[0];
 }
 
-inline SmushClient *ScriptApi::client() const
+SmushClient *ScriptApi::client() const
 {
   return &tab()->client;
 }
@@ -500,4 +500,4 @@ void ScriptApi::flushLine()
   cursor.insertText(indentText);
 }
 
-inline WorldTab *ScriptApi::tab() const { return qobject_cast<WorldTab *>(parent()); }
+WorldTab *ScriptApi::tab() const { return qobject_cast<WorldTab *>(parent()); }

@@ -39,12 +39,13 @@ FetchContent_Declare(
   CxxQt
   GIT_REPOSITORY https://github.com/kdab/cxx-qt-cmake.git
   GIT_TAG main
+  SYSTEM
 )
 
 FetchContent_Declare(
   lualibs
   GIT_REPOSITORY https://github.com/jnbooth/lua-batteries-included.git
-  GIT_TAG 84faa49f324b8dd5c1b249b73cf2bd59e1f3b97a
+  GIT_TAG 1031ea5b7a16e0365687c7e40c440dc9e1591274
 )
 
 FetchContent_MakeAvailable(
@@ -68,6 +69,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/cpp/bridge)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/cpp/ui/components)
 
 set(CRATE smushclient_qt)
+set(cargo_target_dir cargo/build)
 
 cxx_qt_import_crate(
   MANIFEST_PATH rust/Cargo.toml
@@ -186,7 +188,10 @@ qt_add_translations(
 
 target_link_libraries(${APP_NAME} PRIVATE lualibs ${CRATE}_qml)
 
-add_compile_definitions(QT_NO_CAST_FROM_BYTEARRAY QT_NO_CAST_FROM_ASCII)
+add_compile_definitions(
+  QT_NO_CAST_FROM_BYTEARRAY
+  QT_NO_CAST_FROM_ASCII
+)
 
 # Enable Lua benchmarking
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -195,8 +200,25 @@ else ()
 add_compile_definitions(BENCHMARK_LUA)
 endif()
 
+
 if(MSVC)
-  target_compile_options(${APP_NAME} PRIVATE /W4 /WX)
+  target_compile_definitions(lualibs PRIVATE strncasecmp=_strnicmp)
+  target_compile_options(
+    lualibs
+    PRIVATE
+    /wd4267
+    /wd4244
+    /wd4005
+    /wd4996
+    /wd4311
+  )
+  target_compile_options(
+    ${APP_NAME}
+    PRIVATE
+    /W4
+    /WX
+    /wd4715
+  )
 else()
   target_compile_options(
     ${APP_NAME}

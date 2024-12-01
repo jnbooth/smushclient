@@ -49,7 +49,8 @@ int execScriptDialog(lua_State *L, int idx, AbstractScriptDialog &dialog, const 
   while (lua_next(L, idx) != 0)
   {
     const QVariant key = qlua::getQVariant(L, -2);
-    const QString value = QString::fromUtf8(lua_tolstring(L, -1, &size), size);
+    const char *data = lua_tolstring(L, -1, &size);
+    const QString value = QString::fromUtf8(data, size);
     dialog.addItem(value, key, pred.isSelected(key));
     lua_pop(L, 1);
   }

@@ -4,7 +4,7 @@
 <context>
     <name>AbstractSenderModel</name>
     <message>
-        <location filename="../cpp/model/sender.cpp" line="198"/>
+        <location filename="../cpp/model/sender.cpp" line="193"/>
         <source>(ungrouped)</source>
         <translation></translation>
     </message>
@@ -185,22 +185,22 @@
 <context>
     <name>AliasModel</name>
     <message>
-        <location filename="../cpp/model/alias.cpp" line="56"/>
+        <location filename="../cpp/model/alias.cpp" line="58"/>
         <source>Group/Label</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/alias.cpp" line="57"/>
+        <location filename="../cpp/model/alias.cpp" line="59"/>
         <source>Sequence</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/alias.cpp" line="58"/>
+        <location filename="../cpp/model/alias.cpp" line="60"/>
         <source>Pattern</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/alias.cpp" line="59"/>
+        <location filename="../cpp/model/alias.cpp" line="61"/>
         <source>Text</source>
         <translation></translation>
     </message>
@@ -1058,32 +1058,32 @@
 <context>
     <name>PluginModel</name>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="148"/>
+        <location filename="../cpp/model/plugin.cpp" line="147"/>
         <source>Name</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="149"/>
+        <location filename="../cpp/model/plugin.cpp" line="148"/>
         <source>Purpose</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="150"/>
+        <location filename="../cpp/model/plugin.cpp" line="149"/>
         <source>Author</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="151"/>
+        <location filename="../cpp/model/plugin.cpp" line="150"/>
         <source>Path</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="152"/>
+        <location filename="../cpp/model/plugin.cpp" line="151"/>
         <source>Enabled</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="153"/>
+        <location filename="../cpp/model/plugin.cpp" line="152"/>
         <source>Version</source>
         <translation></translation>
     </message>
@@ -2637,9 +2637,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%9f&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; - Decimal fraction of a second; like &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%.9f&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; but without leading dot&lt;/span&gt;&lt;/p&gt;
 &lt;h2 style=&quot; margin-top:16px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:x-large; font-weight:700;&quot;&gt;Modification&lt;/span&gt;&lt;/h2&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%-?&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; - Suppresses all padding (e.g. &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%j&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; = 012, &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%-j&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; = 12)&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%_?&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; - Uses spaces as padding (e.g. &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%j&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; = 012, &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%_j&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; =&#xa0;&#xa0;12)&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%0?&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; - Uses zeros as padding (e.g. &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%e&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; =&#xa0;&#xa0;9, &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%0e&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; = 09)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%_?&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; - Uses spaces as padding (e.g. &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%j&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; = 012, &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%_j&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; = 12)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%0?&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; - Uses zeros as padding (e.g. &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%e&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; = 9, &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%0e&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; = 09)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2831,22 +2831,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
 <context>
     <name>TimerModel</name>
     <message>
-        <location filename="../cpp/model/timer.cpp" line="60"/>
+        <location filename="../cpp/model/timer.cpp" line="62"/>
         <source>Group/Label</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/timer.cpp" line="61"/>
+        <location filename="../cpp/model/timer.cpp" line="63"/>
         <source>Type</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/timer.cpp" line="62"/>
+        <location filename="../cpp/model/timer.cpp" line="64"/>
         <source>Occurrence</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/timer.cpp" line="63"/>
+        <location filename="../cpp/model/timer.cpp" line="65"/>
         <source>Text</source>
         <translation></translation>
     </message>
@@ -3072,22 +3072,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
 <context>
     <name>TriggerModel</name>
     <message>
-        <location filename="../cpp/model/trigger.cpp" line="56"/>
+        <location filename="../cpp/model/trigger.cpp" line="58"/>
         <source>Group/Label</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/trigger.cpp" line="57"/>
+        <location filename="../cpp/model/trigger.cpp" line="59"/>
         <source>Sequence</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/trigger.cpp" line="58"/>
+        <location filename="../cpp/model/trigger.cpp" line="60"/>
         <source>Pattern</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/trigger.cpp" line="59"/>
+        <location filename="../cpp/model/trigger.cpp" line="61"/>
         <source>Text</source>
         <translation></translation>
     </message>
@@ -3158,42 +3158,42 @@ li.checked::marker { content: &quot;\2612&quot;; }
 <context>
     <name>WorldTab</name>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="171"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="173"/>
         <source>Failed to open file: %1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="240"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="243"/>
         <source>Do you want to save the changes you made to %1?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="241"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="244"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="282"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="285"/>
         <source>Save as</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="731"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="734"/>
         <source>World script changed</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="731"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="734"/>
         <source>Would you like to reload the world script?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="762"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="765"/>
         <source>&apos;Connected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="779"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="782"/>
         <source>&apos;Disconnected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
     </message>

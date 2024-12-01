@@ -129,7 +129,7 @@ inline ScriptApi &getApi(lua_State *L)
 
 int setPluginIndex(lua_State *L, size_t index)
 {
-  lua_pushinteger(L, index);
+  lua_pushinteger(L, (int)index);
   lua_rawsetp(L, LUA_REGISTRYINDEX, indexRegKey);
   return 0;
 }
@@ -142,7 +142,7 @@ inline size_t getPluginIndex(lua_State *L)
   return index;
 }
 
-constexpr double convertVolume(double decibels) noexcept
+inline double convertVolume(double decibels) noexcept
 {
   return 1 / pow(2, decibels / -3);
 }
@@ -638,7 +638,7 @@ static int L_DeleteAliases(lua_State *L)
 {
   API("DeleteAliases")
   expectMaxArgs(L, 1);
-  lua_pushinteger(L, getApi(L).DeleteAliases(getPluginIndex(L), qlua::getQString(L, 1)));
+  lua_pushinteger(L, (int)getApi(L).DeleteAliases(getPluginIndex(L), qlua::getQString(L, 1)));
   return 1;
 }
 
@@ -653,7 +653,7 @@ static int L_DeleteTimers(lua_State *L)
 {
   API("DeleteTimers")
   expectMaxArgs(L, 1);
-  lua_pushinteger(L, getApi(L).DeleteTimers(getPluginIndex(L), qlua::getQString(L, 1)));
+  lua_pushinteger(L, (int)getApi(L).DeleteTimers(getPluginIndex(L), qlua::getQString(L, 1)));
   return 1;
 }
 
@@ -668,7 +668,7 @@ static int L_DeleteTriggers(lua_State *L)
 {
   API("DeleteTriggers")
   expectMaxArgs(L, 1);
-  lua_pushinteger(L, getApi(L).DeleteTriggers(getPluginIndex(L), qlua::getQString(L, 1)));
+  lua_pushinteger(L, (int)getApi(L).DeleteTriggers(getPluginIndex(L), qlua::getQString(L, 1)));
   return 1;
 }
 

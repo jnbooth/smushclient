@@ -10,6 +10,13 @@ TriggerModel::TriggerModel(SmushClient &client, QObject *parent)
   client.stopTriggers();
 }
 
+// Public overrides
+
+QString TriggerModel::exportXml() const
+{
+  return client.exportWorldTriggers();
+}
+
 Qt::ItemFlags TriggerModel::flags(const QModelIndex &index) const
 {
   if (!index.constInternalPointer())
@@ -20,7 +27,7 @@ Qt::ItemFlags TriggerModel::flags(const QModelIndex &index) const
 
 // Protected overrides
 
-int TriggerModel::addItem(SmushClient &client, QWidget *parent)
+int TriggerModel::add(QWidget *parent)
 {
   Trigger trigger;
   TriggerEdit edit(trigger, parent);
@@ -29,7 +36,7 @@ int TriggerModel::addItem(SmushClient &client, QWidget *parent)
   return client.addWorldTrigger(trigger);
 }
 
-int TriggerModel::editItem(SmushClient &client, size_t index, QWidget *parent)
+int TriggerModel::edit(size_t index, QWidget *parent)
 {
   Trigger trigger(&client, index);
   TriggerEdit edit(trigger, parent);
@@ -45,11 +52,6 @@ int TriggerModel::editItem(SmushClient &client, size_t index, QWidget *parent)
   return result;
 }
 
-QString TriggerModel::exportXml(const SmushClient &client) const
-{
-  return client.exportWorldTriggers();
-}
-
 const std::array<QString, 4> &TriggerModel::headers() const noexcept
 {
   const static std::array<QString, 4> headers{
@@ -60,7 +62,7 @@ const std::array<QString, 4> &TriggerModel::headers() const noexcept
   return headers;
 }
 
-void TriggerModel::importXml(SmushClient &client, const QString &xml)
+void TriggerModel::import(const QString &xml)
 {
   client.importWorldTriggers(xml);
 }

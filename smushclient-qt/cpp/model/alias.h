@@ -8,12 +8,12 @@ class AliasModel : public AbstractSenderModel
 public:
   AliasModel(SmushClient &client, QObject *parent = nullptr);
 
+  QString exportXml() const override;
   Qt::ItemFlags flags(const QModelIndex &index) const override;
 
 protected:
-  int addItem(SmushClient &client, QWidget *parent) override;
-  int editItem(SmushClient &client, size_t index, QWidget *parent) override;
-  QString exportXml(const SmushClient &client) const override;
+  int add(QWidget *parent) override;
+  int edit(size_t index, QWidget *parent) override;
   const std::array<QString, AbstractSenderModel::numColumns> &headers() const noexcept override;
-  void importXml(SmushClient &client, const QString &xml) override;
+  void import(const QString &xml) override;
 };

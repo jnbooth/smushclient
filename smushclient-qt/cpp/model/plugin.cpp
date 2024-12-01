@@ -9,15 +9,15 @@ using std::optional;
 PluginModel::PluginModel(SmushClient &client, QObject *parent)
     : QAbstractItemModel(parent),
       client(client),
-      pluginCount(client.pluginsLen() - 1),
-      worldIndex(client.worldPluginIndex()) {}
+      pluginCount((int)client.pluginsLen() - 1),
+      worldIndex((int)client.worldPluginIndex()) {}
 
 bool PluginModel::addPlugin(const QString &filePath)
 {
-  size_t pluginIndex;
+  int pluginIndex;
   try
   {
-    pluginIndex = client.addPlugin(filePath);
+    pluginIndex = (int)client.addPlugin(filePath);
   }
   catch (rust::Error e)
   {
@@ -26,14 +26,13 @@ bool PluginModel::addPlugin(const QString &filePath)
     return false;
   }
   emit layoutAboutToBeChanged();
-  if ((int)pluginIndex <= worldIndex)
+  if (pluginIndex <= worldIndex)
     worldIndex += 1;
   const int row = pluginIndexToRow(pluginIndex);
   beginInsertRows(createIndex(0, 0), row, row);
-  const size_t oldPluginCount = pluginCount;
   pluginCount += 1;
   endInsertRows();
-  if (pluginIndex != oldPluginCount)
+  if (pluginIndex + 1 != pluginCount)
     emit pluginOrderChanged();
   emit layoutChanged();
   return true;
@@ -80,7 +79,7 @@ bool PluginModel::reinstall(const QModelIndex &index)
     worldIndex += 1;
   else if (oldIndex < worldPluginIndex && newIndex >= worldPluginIndex)
     worldIndex -= 1;
-  const int newRow = pluginIndexToRow(newIndex);
+  const int newRow = pluginIndexToRow((int)newIndex);
   const QModelIndex parent = createIndex(0, 0);
 
   beginMoveRows(parent, row, row, parent, newRow);

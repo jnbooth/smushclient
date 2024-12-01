@@ -12,14 +12,14 @@ string toSnakeCase(const string &key)
 {
   size_t size = key.size();
   for (char c : key)
-    if (isupper(c) || isnumber(c))
+    if (isupper(c) || isdigit(c))
       ++size;
   std::string result;
   result.reserve(size);
   bool isFirst = false;
   for (char c : key)
   {
-    if (!isupper(c) && !isnumber(c))
+    if (!isupper(c) && !isdigit(c))
     {
       result.push_back(c);
       continue;

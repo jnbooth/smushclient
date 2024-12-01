@@ -1,4 +1,5 @@
 #include "commandhistory.h"
+#include <limits>
 
 const static QString emptyString;
 

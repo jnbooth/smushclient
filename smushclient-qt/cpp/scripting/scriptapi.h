@@ -19,7 +19,7 @@
 
 #define SCRIPTING_VERSION "5.07"
 
-constexpr size_t noSuchPlugin = SIZE_T_MAX;
+constexpr size_t noSuchPlugin = std::numeric_limits<size_t>::max();
 
 class ImageFilter;
 class MudScrollBar;

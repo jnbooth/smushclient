@@ -1,6 +1,10 @@
 #pragma once
 #include <QtCore/QStringList>
 
+#ifndef SSIZE_MAX
+constexpr auto SSIZE_MAX = std::numeric_limits<qsizetype>::max();
+#endif
+
 const static QString __emptyString;
 
 class CommandHistory
@@ -51,10 +55,10 @@ public:
 
   constexpr bool isEmpty() const noexcept
   {
-    return size() == 0;
+    return begin == end;
   }
 
-  constexpr bool isFull() const noexcept
+  inline bool isFull() const noexcept
   {
     return size() == max;
   }
@@ -69,7 +73,7 @@ public:
     return max;
   }
 
-  constexpr qsizetype size() const noexcept
+  inline qsizetype size() const noexcept
   {
     return end - begin;
   }
