@@ -88,7 +88,7 @@ set(app_icon_macos "${CMAKE_CURRENT_SOURCE_DIR}/resources/logo/${APP_NAME}.icns"
 set_source_files_properties(${app_icon_macos} PROPERTIES
   MACOSX_PACKAGE_LOCATION "Resources"
 )
-set(app_icon_resource_windows "{CMAKE_CURRENT_SOURCE_DIR}/resources/logo/${APP_NAME}.rc")
+set(app_icon_resource_windows "${CMAKE_CURRENT_SOURCE_DIR}/resources/logo/${APP_NAME}.rc")
 
 qt_add_executable(${APP_NAME}
     cpp/main.cpp
