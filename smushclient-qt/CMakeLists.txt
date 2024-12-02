@@ -84,6 +84,11 @@ cxx_qt_import_qml_module(${CRATE}_qml
     SOURCE_CRATE ${CRATE}
 )
 
+set(app_icon_macos "${CMAKE_CURRENT_SOURCE_DIR}/resources/logo/${APP_NAME}.icns")
+set_source_files_properties(${app_icon_macos} PROPERTIES
+  MACOSX_PACKAGE_LOCATION "Resources"
+)
+
 qt_add_executable(${APP_NAME}
     cpp/main.cpp
     cpp/audio.h cpp/audio.cpp
@@ -177,6 +182,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/worlddetails/worlddetails.h cpp/ui/worlddetails/worlddetails.cpp cpp/ui/worlddetails/worlddetails.ui
 
     resources/resources.qrc
+    ${app_icon_macos}
 )
 
 qt_add_translations(
@@ -231,7 +237,7 @@ else()
 endif()
 
 set_target_properties(${APP_NAME} PROPERTIES
-    ${BUNDLE_ID_OPTION}
+    MACOSX_BUNDLE_ICON_FILE ${APP_NAME}.icns
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE

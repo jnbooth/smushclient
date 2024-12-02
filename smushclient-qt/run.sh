@@ -14,16 +14,9 @@ BUILDDIR="$(pwd)/build/$CONFIG"
 cmake -S . -B $BUILDDIR
 cmake --build $BUILDDIR --config $CONFIG --target SmushClient $@
 
-mkdir -p ../environment
-cd ../environment
-mkdir -p lua
-mkdir -p plugins
-mkdir -p worlds
-
 if [[ "$OSTYPE" == "darwin"* ]]; then
     if [[ "$CONFIG" == "Release" ]]; then
-      cp -r "$BUILDDIR/SmushClient.app" .
-      open "SmushClient.app"
+      open "$BUILDDIR/SmushClient.app"
     else
       "$BUILDDIR/SmushClient.app/Contents/MacOS/SmushClient"
     fi
