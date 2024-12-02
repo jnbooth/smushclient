@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>appicon/appicon.svg</file>
         <file>fonts/Dina-Bold.ttf</file>
         <file>fonts/Dina.ttf</file>
         <file>fonts/FixedSys.ttf</file>
@@ -23,6 +24,5 @@
         <file>icons/status/disconnected.svg</file>
         <file>icons/status/connected.svg</file>
         <file>icons/status/users.svg</file>
-        <file>logo/logo.svg</file>
     </qresource>
 </RCC>
