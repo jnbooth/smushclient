@@ -1,5 +1,4 @@
 #include "plugin.h"
-#include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
 #include <QtWidgets/QErrorMessage>
 #include "errors.h"

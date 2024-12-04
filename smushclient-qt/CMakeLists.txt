@@ -196,6 +196,8 @@ target_link_libraries(${APP_NAME} PRIVATE lualibs ${CRATE}_qml)
 add_compile_definitions(
   QT_NO_CAST_FROM_BYTEARRAY
   QT_NO_CAST_FROM_ASCII
+  CMAKE_APP_NAME="${APP_NAME}"
+  CMAKE_APP_VERSION="${PROJECT_VERSION}"
 )
 
 # Enable Lua benchmarking

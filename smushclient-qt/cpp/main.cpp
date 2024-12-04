@@ -8,12 +8,14 @@
 
 int main(int argc, char *argv[])
 {
-  #if defined(Q_OS_WINDOWS)
+#if defined(Q_OS_WINDOWS)
   _putenv_s("LUA_PATH", SCRIPTS_DIR "/?.lua;" LUA_PATH_DEFAULT);
-  #else
-    setenv("LUA_PATH", SCRIPTS_DIR "/?.lua;" LUA_PATH_DEFAULT, false);
-  #endif
+#else
+  setenv("LUA_PATH", SCRIPTS_DIR "/?.lua;" LUA_PATH_DEFAULT, false);
+#endif
   QApplication app(argc, argv);
+  QCoreApplication::setApplicationName(QStringLiteral(CMAKE_APP_NAME));
+  QCoreApplication::setApplicationVersion(QStringLiteral(CMAKE_APP_VERSION));
   QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/Dina.ttf"));
   QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/Dina-Bold.ttf"));
   QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/FixedSys.ttf"));

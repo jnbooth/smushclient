@@ -347,7 +347,7 @@ void MainWindow::on_action_edit_world_details_triggered()
     setWindowModified(true);
   const QString &title = tab->title();
   ui->world_tabs->setTabText(ui->world_tabs->currentIndex(), title);
-  setWindowTitle(title + QStringLiteral("[*] - SmushClient"));
+  setWindowTitle(title + QStringLiteral("[*] - ") + QCoreApplication::applicationName());
 }
 
 void MainWindow::on_action_find_triggered()
@@ -586,7 +586,7 @@ void MainWindow::on_world_tabs_currentChanged(int index)
   activeTab->setStatusBarVisible(true);
   const QString &title = activeTab->title();
   ui->world_tabs->tabBar()->setTabText(index, title);
-  setWindowTitle(title + QStringLiteral("[*] - SmushClient"));
+  setWindowTitle(title + QStringLiteral("[*] - ") + QCoreApplication::applicationName());
   setWindowModified(activeTab->isWindowModified());
   onCopyAvailable(activeTab->availableCopy());
 }

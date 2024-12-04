@@ -69,7 +69,7 @@ static int L_choose(lua_State *L)
 {
   expectMaxArgs(L, 4);
   const QString message = qlua::getQString(L, 1, QString());
-  const QString title = qlua::getQString(L, 2, QStringLiteral("SmushClient"));
+  const QString title = qlua::getQString(L, 2, QCoreApplication::applicationName());
   luaL_argexpected(L, lua_type(L, 3) == LUA_TTABLE, 3, "table");
   const QVariant defaultKey = qlua::getQVariant(L, 4);
 
@@ -129,7 +129,7 @@ static int L_inputbox(lua_State *L)
 {
   expectMaxArgs(L, 6);
   const QString message = qlua::getQString(L, 1, QString());
-  const QString title = qlua::getQString(L, 2, QStringLiteral("SmushClient"));
+  const QString title = qlua::getQString(L, 2, QCoreApplication::applicationName());
   const QString defaultText = qlua::getQString(L, 3, QString());
   const QString fontFamily = qlua::getQString(L, 4, QString());
   const int fontSize = qlua::getInt(L, 5, -1);
@@ -153,7 +153,7 @@ static int L_listbox(lua_State *L)
 {
   expectMaxArgs(L, 4);
   const QString message = qlua::getQString(L, 1, QString());
-  const QString title = qlua::getQString(L, 2, QStringLiteral("SmushClient"));
+  const QString title = qlua::getQString(L, 2, QCoreApplication::applicationName());
   luaL_argexpected(L, lua_type(L, 3) == LUA_TTABLE, 3, "table");
   const QVariant defaultKey = qlua::getQVariant(L, 4);
 
@@ -166,7 +166,7 @@ static int L_multilistbox(lua_State *L)
 {
   expectMaxArgs(L, 4);
   const QString message = qlua::getQString(L, 1, QString());
-  const QString title = qlua::getQString(L, 2, QStringLiteral("SmushClient"));
+  const QString title = qlua::getQString(L, 2, QCoreApplication::applicationName());
   luaL_argexpected(L, lua_type(L, 3) == LUA_TTABLE, 3, "table");
   const int defaultType = lua_type(L, 3);
   luaL_argexpected(L, defaultType == LUA_TTABLE || defaultType == LUA_TNIL || defaultType == LUA_TNONE, 3, "table");
