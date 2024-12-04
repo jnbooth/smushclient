@@ -278,6 +278,16 @@ void MainWindow::onNewActivity(WorldTab *tab)
   ui->world_tabs->tabBar()->setTabText(index, tab->title() + QStringLiteral(" ⏺︎"));
 }
 
+void MainWindow::on_action_about_triggered()
+{
+  QMessageBox box(this);
+  box.setIconPixmap(QPixmap(QStringLiteral(":/appicon/appicon.svg")));
+  box.setWindowTitle(ui->action_about->text());
+  box.setText(QCoreApplication::applicationName());
+  box.setInformativeText(tr("Version: %1").arg(QCoreApplication::applicationVersion()));
+  box.exec();
+}
+
 void MainWindow::on_action_clear_output_triggered()
 {
   worldtab()->ui->output->clear();

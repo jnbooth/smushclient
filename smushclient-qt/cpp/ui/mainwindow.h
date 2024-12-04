@@ -54,6 +54,7 @@ private slots:
   void onConnectionStatusChanged(bool connected);
   void onNewActivity(WorldTab *tab);
 
+  void on_action_about_triggered();
   void on_action_clear_output_triggered();
   void on_action_close_all_notepad_windows_triggered();
   void on_action_close_world_triggered();

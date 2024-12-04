@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET 15.1)
-project(SmushClient VERSION 0.1 LANGUAGES CXX)
+project(SmushClient VERSION 0.1.0 LANGUAGES CXX)
 set(APP_NAME ${PROJECT_NAME})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -196,8 +196,8 @@ target_link_libraries(${APP_NAME} PRIVATE lualibs ${CRATE}_qml)
 add_compile_definitions(
   QT_NO_CAST_FROM_BYTEARRAY
   QT_NO_CAST_FROM_ASCII
-  CMAKE_APP_NAME="${APP_NAME}"
-  CMAKE_APP_VERSION="${PROJECT_VERSION}"
+  CMAKE_APP_NAME="${CMAKE_PROJECT_NAME}"
+  CMAKE_APP_VERSION="${CMAKE_PROJECT_VERSION}"
 )
 
 # Enable Lua benchmarking
