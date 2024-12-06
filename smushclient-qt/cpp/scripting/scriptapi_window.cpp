@@ -162,13 +162,7 @@ ApiCode ScriptApi::WindowFont(
   QFont font;
   font.setFamily(fontName);
   font.setStyleHint(hint);
-  if (fontName == QStringLiteral("FixedSys") || fontName == QStringLiteral("Dina"))
-  {
-    font.setPixelSize(16);
-    font.setStyleStrategy(QFont::StyleStrategy::NoAntialias);
-  }
-  else
-    font.setPointSizeF(pointSize);
+  font.setPointSizeF(pointSize);
   if (bold)
     font.setBold(true);
   if (italic)
