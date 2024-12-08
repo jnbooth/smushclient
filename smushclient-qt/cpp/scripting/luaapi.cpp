@@ -245,6 +245,17 @@ static int L_GetTimerInfo(lua_State *L)
   return 1;
 }
 
+static int L_GetUniqueNumber(lua_State *L)
+{
+  static int uniqueNumber = -1;
+  if (uniqueNumber == INT_MAX) [[unlikely]]
+    uniqueNumber = 0;
+  else
+    ++uniqueNumber;
+  lua_pushinteger(L, uniqueNumber);
+  return 1;
+}
+
 static int L_Version(lua_State *L)
 {
   API("Version")
@@ -1437,6 +1448,7 @@ static const struct luaL_Reg worldlib[] =
      {"GetPluginInfo", L_GetPluginInfo},
      {"GetStyleInfo", L_GetStyleInfo},
      {"GetTimerInfo", L_GetTimerInfo},
+     {"GetUniqueNumber", L_GetUniqueNumber},
      {"Version", L_Version},
      {"WindowFontInfo", L_WindowFontInfo},
      {"WindowInfo", L_WindowInfo},
