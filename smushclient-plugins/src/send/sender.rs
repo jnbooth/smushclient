@@ -18,6 +18,9 @@ pub struct Sender {
     pub temporary: bool,
     pub omit_from_output: bool,
     pub omit_from_log: bool,
+
+    #[serde(skip)]
+    pub userdata: i32,
 }
 
 impl Default for Sender {
@@ -34,6 +37,7 @@ impl Default for Sender {
             temporary: false,
             omit_from_output: false,
             omit_from_log: false,
+            userdata: 0,
         }
     }
 }

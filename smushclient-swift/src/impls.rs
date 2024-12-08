@@ -98,7 +98,8 @@ impl_convert_struct!(
     one_shot,
     temporary,
     omit_from_output,
-    omit_from_log
+    omit_from_log,
+    userdata
 );
 
 impl_convert_struct!(

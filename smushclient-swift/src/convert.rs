@@ -137,4 +137,4 @@ impl<T, Ffi: Convert<T>, const N: usize> Convert<[T; N]> for Vec<Ffi> {
     }
 }
 
-impl_convert_self!(bool, f32, f64, i16, String, u16, u32, u8, usize);
+impl_convert_self!(bool, f32, f64, i16, i32, String, u16, u32, u8, usize);

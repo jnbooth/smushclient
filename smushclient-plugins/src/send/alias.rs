@@ -136,6 +136,7 @@ impl TryFrom<AliasXml<'_>> for Alias {
         let send = in_place!(
             value,
             Sender {
+                    userdata: 0,
                     ..label,
                     ..text,
                     ..send_to,

@@ -146,6 +146,7 @@ impl From<TimerXml<'_>> for Timer {
         let send = in_place!(
             value,
             Sender {
+                    userdata: 0,
                     ..label,
                     ..text,
                     ..send_to,

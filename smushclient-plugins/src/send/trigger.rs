@@ -215,6 +215,7 @@ impl TryFrom<TriggerXml<'_>> for Trigger {
         let send = in_place!(
             value,
             Sender {
+                    userdata: 0,
                     ..label,
                     ..text,
                     ..send_to,

@@ -71,6 +71,8 @@ pub struct SenderRust {
     pub temporary: bool,
     pub omit_from_output: bool,
     pub omit_from_log: bool,
+
+    pub userdata: i32,
 }
 
 impl Default for SenderRust {
@@ -87,6 +89,7 @@ impl Default for SenderRust {
             temporary: false,
             omit_from_output: false,
             omit_from_log: false,
+            userdata: 0,
         }
     }
 }
@@ -105,6 +108,7 @@ impl From<&Sender> for SenderRust {
             temporary: sender.temporary,
             omit_from_output: sender.omit_from_output,
             omit_from_log: sender.omit_from_log,
+            userdata: sender.userdata,
         }
     }
 }
@@ -123,6 +127,7 @@ impl From<&SenderRust> for Sender {
             temporary: value.temporary,
             omit_from_output: value.omit_from_output,
             omit_from_log: value.omit_from_log,
+            userdata: value.userdata,
         }
     }
 }
