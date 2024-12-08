@@ -18,6 +18,11 @@ impl<T> ReuseVec<T> {
         }
     }
 
+    pub fn clear(&mut self) {
+        self.inner.clear();
+        self.holes.clear();
+    }
+
     pub fn get(&self, pos: usize) -> Option<&T> {
         self.inner.get(pos)
     }

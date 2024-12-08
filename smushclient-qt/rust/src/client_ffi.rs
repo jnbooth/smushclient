@@ -556,6 +556,10 @@ impl ffi::SmushClient {
             .set_metavariable(key.to_vec(), value.to_vec())
     }
 
+    pub fn timer_info(&self, index: PluginIndex, label: &QString, info_type: u8) -> QVariant {
+        self.rust().timer_info(index, label, info_type)
+    }
+
     pub fn start_timers(
         self: Pin<&mut Self>,
         index: PluginIndex,

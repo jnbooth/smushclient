@@ -1,7 +1,7 @@
 use std::fmt::{self, Display, Formatter};
 use std::time::Duration;
 
-use chrono::NaiveTime;
+use chrono::{NaiveTime, Timelike};
 use serde::{Deserialize, Serialize};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
@@ -26,6 +26,31 @@ impl From<NaiveTime> for Occurrence {
 impl From<Duration> for Occurrence {
     fn from(value: Duration) -> Self {
         Self::Interval(value)
+    }
+}
+
+impl Occurrence {
+    pub fn hour(&self) -> u32 {
+        match self {
+            Self::Time(time) => time.hour(),
+            Self::Interval(duration) => {
+                u32::try_from(duration.as_secs() / 3600).unwrap_or(u32::MAX)
+            }
+        }
+    }
+
+    pub fn minute(&self) -> u32 {
+        match self {
+            Self::Time(time) => time.minute(),
+            Self::Interval(duration) => u32::try_from(duration.as_secs() / 60).unwrap_or(u32::MAX),
+        }
+    }
+
+    pub fn second(&self) -> u32 {
+        match self {
+            Self::Time(time) => time.second(),
+            Self::Interval(duration) => u32::try_from(duration.as_secs()).unwrap_or(u32::MAX),
+        }
     }
 }
 

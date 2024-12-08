@@ -106,6 +106,7 @@ public:
   const std::string &GetPluginID(size_t pluginIndex) const;
   QVariant GetPluginInfo(std::string_view pluginID, int infoType) const;
   QVariant GetStyleInfo(int line, int style, int infoType) const;
+  QVariant GetTimerInfo(size_t pluginIndex, const QString &label, int infoType) const;
   void Hyperlink(
       const QString &action,
       const QString &text,

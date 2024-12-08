@@ -212,6 +212,19 @@ static int L_GetLineInfo(lua_State *L)
   return 1;
 }
 
+static int L_GetPluginInfo(lua_State *L)
+{
+  API("GetPluginInfo")
+  expectMaxArgs(L, 2);
+  const string_view pluginID = qlua::getString(L, 1);
+  const int infoType = qlua::getInt(L, 2);
+  if (infoType > UINT8_MAX) [[unlikely]]
+    lua_pushnil(L);
+  else
+    qlua::pushQVariant(L, getApi(L).GetPluginInfo(pluginID, (uint8_t)infoType));
+  return 1;
+}
+
 static int L_GetStyleInfo(lua_State *L)
 {
   API("GetStyleInfo")
@@ -219,6 +232,16 @@ static int L_GetStyleInfo(lua_State *L)
   qlua::pushQVariant(
       L,
       getApi(L).GetStyleInfo(qlua::getInt(L, 1), qlua::getInt(L, 2), qlua::getInt(L, 3)));
+  return 1;
+}
+
+static int L_GetTimerInfo(lua_State *L)
+{
+  API("GetTimerInfo")
+  expectMaxArgs(L, 2);
+  qlua::pushQVariant(
+      L,
+      getApi(L).GetTimerInfo(getPluginIndex(L), qlua::getQString(L, 1), qlua::getInt(L, 2)));
   return 1;
 }
 
@@ -538,19 +561,6 @@ static int L_GetPluginID(lua_State *L)
   API("GetPluginID")
   expectMaxArgs(L, 0);
   qlua::pushString(L, getApi(L).GetPluginID(getPluginIndex(L)));
-  return 1;
-}
-
-static int L_GetPluginInfo(lua_State *L)
-{
-  API("GetPluginInfo")
-  expectMaxArgs(L, 2);
-  const string_view pluginID = qlua::getString(L, 1);
-  const int infoType = qlua::getInt(L, 2);
-  if (infoType > UINT8_MAX) [[unlikely]]
-    lua_pushnil(L);
-  else
-    qlua::pushQVariant(L, getApi(L).GetPluginInfo(pluginID, (uint8_t)infoType));
   return 1;
 }
 
@@ -1430,7 +1440,9 @@ static const struct luaL_Reg worldlib[] =
      // info
      {"GetInfo", L_GetInfo},
      {"GetLineInfo", L_GetLineInfo},
+     {"GetPluginInfo", L_GetPluginInfo},
      {"GetStyleInfo", L_GetStyleInfo},
+     {"GetTimerInfo", L_GetTimerInfo},
      {"Version", L_Version},
      {"WindowFontInfo", L_WindowFontInfo},
      {"WindowInfo", L_WindowInfo},
@@ -1464,7 +1476,6 @@ static const struct luaL_Reg worldlib[] =
      {"CallPlugin", L_CallPlugin},
      {"EnablePlugin", L_EnablePlugin},
      {"GetPluginID", L_GetPluginID},
-     {"GetPluginInfo", L_GetPluginInfo},
      {"PluginSupports", L_PluginSupports},
      // senders
      {"AddAlias", L_AddAlias},

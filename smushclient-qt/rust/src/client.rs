@@ -261,6 +261,15 @@ impl SmushClientRust {
         outcome.into()
     }
 
+    pub fn timer_info(&self, index: PluginIndex, label: &QString, info_type: u8) -> QVariant {
+        self.client.timer_info::<InfoVisitorQVariant, _>(
+            index,
+            &String::from(label),
+            info_type,
+            &self.timers,
+        )
+    }
+
     pub fn start_timers(&mut self, index: PluginIndex, mut timekeeper: TimekeeperAdapter) {
         if !self.client.world().enable_timers {
             return;

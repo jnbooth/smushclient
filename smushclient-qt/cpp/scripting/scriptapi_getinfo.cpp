@@ -266,6 +266,23 @@ QVariant ScriptApi::GetStyleInfo(int line, int style, int infoType) const
   }
 }
 
+QVariant ScriptApi::GetTimerInfo(size_t pluginIndex, const QString &label, int infoType) const
+{
+  if (infoType < 0 || infoType > UINT8_MAX) [[unlikely]]
+    return QVariant();
+
+  switch (infoType)
+  {
+  case 26:
+  {
+    const QString scriptName = client()->timerInfo(pluginIndex, label, 5).toString();
+    return !scriptName.isEmpty() && plugins[pluginIndex].hasFunction(scriptName);
+  }
+  default:
+    return client()->timerInfo(pluginIndex, label, infoType);
+  }
+}
+
 // External implementations
 
 QVariant MiniWindow::info(int infoType) const
