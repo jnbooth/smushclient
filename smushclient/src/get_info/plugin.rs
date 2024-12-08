@@ -18,31 +18,31 @@ impl SmushClient {
             return V::visit_none();
         };
         match info_type {
-            1 => V::visit_str(&plugin.metadata.name),
-            2 => V::visit_str(&plugin.metadata.author),
-            3 => V::visit_str(&plugin.metadata.description),
-            4 => V::visit_str(&plugin.script),
-            5 => V::visit_str("lua"),
-            6 => V::visit_path(&plugin.metadata.path),
-            7 => V::visit_str(&plugin.metadata.id),
-            8 => V::visit_str(&plugin.metadata.purpose),
-            9 => V::visit_usize(plugin.triggers.len()),
-            10 => V::visit_usize(plugin.aliases.len()),
-            11 => V::visit_usize(plugin.timers.len()),
-            12 => V::visit_usize(self.variables_len(index).unwrap_or_default()),
-            13 => V::visit_date(plugin.metadata.written),
-            14 => V::visit_date(plugin.metadata.modified),
-            15 => V::visit_bool(false), // save state flag
+            1 => V::visit(&plugin.metadata.name),
+            2 => V::visit(&plugin.metadata.author),
+            3 => V::visit(&plugin.metadata.description),
+            4 => V::visit(&plugin.script),
+            5 => V::visit("lua"),
+            6 => V::visit(&plugin.metadata.path),
+            7 => V::visit(&plugin.metadata.id),
+            8 => V::visit(&plugin.metadata.purpose),
+            9 => V::visit(plugin.triggers.len()),
+            10 => V::visit(plugin.aliases.len()),
+            11 => V::visit(plugin.timers.len()),
+            12 => V::visit(self.variables_len(index).unwrap_or_default()),
+            13 => V::visit(plugin.metadata.written),
+            14 => V::visit(plugin.metadata.modified),
+            15 => V::visit(false), // save state flag
             // 16 - scripting enabled (handled by frontend)
-            17 => V::visit_bool(!plugin.disabled),
+            17 => V::visit(!plugin.disabled),
             18 => parse_double::<V>(&plugin.metadata.requires),
             19 => parse_double::<V>(&plugin.metadata.version),
-            20 => V::visit_path(plugin.metadata.path.parent().unwrap_or(Path::new(""))),
-            21 => V::visit_usize(index),
-            // 22 => V::visit_datetime(Utc::now()), // date/time plugin installed (handled by frontend)
+            20 => V::visit(plugin.metadata.path.parent().unwrap_or(Path::new(""))),
+            21 => V::visit(index),
+            // 22 => V::visittime(Utc::now()), // date/time plugin installed (handled by frontend)
             // 23 - during a CallPlugin call, the ID of the calling plugin (if any) (handled by frontend)
-            24 => V::visit_double(0.0), // Time spent on scripting in this plugin (seconds, double)
-            25 => V::visit_i16(plugin.metadata.sequence),
+            24 => V::visit(0.0), // Time spent on scripting in this plugin (seconds, double)
+            25 => V::visit(plugin.metadata.sequence),
             _ => V::visit_none(),
         }
     }

@@ -2,15 +2,40 @@ use std::path::Path;
 
 use chrono::{DateTime, NaiveDate, Utc};
 use cxx_qt_lib::{QByteArray, QDate, QDateTime, QString, QVariant};
+use mud_transformer::mxp::RgbColor;
 use smushclient::InfoVisitor;
+use smushclient_plugins::SendTarget;
+
+use crate::bridge::ffi;
+use crate::convert::Convert;
 
 pub struct InfoVisitorQVariant;
+
+macro_rules! impl_visit {
+    ($i:ident, $t:ty) => {
+        fn $i(info: $t) -> Self::Output {
+            QVariant::from(&info)
+        }
+    };
+}
 
 impl InfoVisitor for InfoVisitorQVariant {
     type Output = QVariant;
 
-    fn visit_bool(info: bool) -> Self::Output {
-        QVariant::from(&info)
+    impl_visit!(visit_bool, bool);
+    impl_visit!(visit_double, f64);
+    impl_visit!(visit_float, f32);
+    impl_visit!(visit_i8, i8);
+    impl_visit!(visit_i16, i16);
+    impl_visit!(visit_i32, i32);
+    impl_visit!(visit_i64, i64);
+    impl_visit!(visit_u8, u8);
+    impl_visit!(visit_u16, u16);
+    impl_visit!(visit_u32, u32);
+    impl_visit!(visit_u64, u64);
+
+    fn visit_color(info: RgbColor) -> Self::Output {
+        QVariant::from(&info.convert())
     }
 
     fn visit_date(info: NaiveDate) -> Self::Output {
@@ -24,14 +49,6 @@ impl InfoVisitor for InfoVisitorQVariant {
         }
     }
 
-    fn visit_double(info: f64) -> Self::Output {
-        QVariant::from(&info)
-    }
-
-    fn visit_i16(info: i16) -> Self::Output {
-        QVariant::from(&info)
-    }
-
     fn visit_none() -> Self::Output {
         QVariant::default()
     }
@@ -40,11 +57,11 @@ impl InfoVisitor for InfoVisitorQVariant {
         QVariant::from(&QByteArray::from(info.as_os_str().as_encoded_bytes()))
     }
 
-    fn visit_str(info: &str) -> Self::Output {
-        QVariant::from(&QString::from(info))
+    fn visit_send_target(info: SendTarget) -> Self::Output {
+        QVariant::from(&ffi::SendTarget::from(info).repr)
     }
 
-    fn visit_usize(info: usize) -> Self::Output {
-        QVariant::from(&u64::try_from(info).unwrap())
+    fn visit_str(info: &str) -> Self::Output {
+        QVariant::from(&QString::from(info))
     }
 }
