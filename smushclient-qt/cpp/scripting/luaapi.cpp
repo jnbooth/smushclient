@@ -1019,22 +1019,6 @@ static int L_WindowDrawImageAlpha(lua_State *L)
       getApi(L).WindowDrawImageAlpha(windowName, imageID, rect, opacity, origin));
 }
 
-static int L_WindowEllipse(lua_State *L)
-{
-  API("WindowEllipse")
-  expectMaxArgs(L, 15);
-  const string_view windowName = qlua::getString(L, 1);
-  const QRectF rect = qlua::getQRectF(L, 2, 3, 4, 5);
-  const optional<QPen> pen = qlua::getPen(L, 6, 7, 8);
-  const QColor fill = qlua::getQColor(L, 9);
-  const optional<Qt::BrushStyle> brush = qlua::getBrush(L, 9, Qt::BrushStyle::SolidPattern);
-  if (!pen) [[unlikely]]
-    return returnCode(L, ApiCode::PenStyleNotValid);
-  if (!brush) [[unlikely]]
-    return returnCode(L, ApiCode::BrushStyleNotValid);
-  return returnCode(L, getApi(L).WindowEllipse(windowName, rect, *pen, QBrush(fill, *brush)));
-}
-
 static int L_WindowFilter(lua_State *L)
 {
   API("WindowFilter")
@@ -1514,7 +1498,6 @@ static const struct luaL_Reg worldlib[] =
      {"WindowCreate", L_WindowCreate},
      {"WindowDrawImage", L_WindowDrawImage},
      {"WindowDrawImageAlpha", L_WindowDrawImageAlpha},
-     {"WindowEllipse", L_WindowEllipse},
      {"WindowFilter", L_WindowFilter},
      {"WindowFont", L_WindowFont},
      {"WindowGradient", L_WindowGradient},
