@@ -1,6 +1,7 @@
 #include "luaglobals.h"
 #include <string>
 #include <utility>
+#include "sqlite3.h"
 #include "qlua.h"
 #include "miniwindow.h"
 #include "scriptapi.h"
@@ -445,6 +446,43 @@ static const pair<string, SendTarget> sendto[] =
      {"immediate", SendTarget::WorldImmediate},
      {"scriptafteromit", SendTarget::ScriptAfterOmit}};
 
+static const pair<string, int> sqlite3_[] =
+    {{"OK", SQLITE_OK},
+     {"ERROR", SQLITE_ERROR},
+     {"INTERNAL", SQLITE_INTERNAL},
+     {"PERM", SQLITE_PERM},
+     {"ABORT", SQLITE_ABORT},
+     {"BUSY", SQLITE_BUSY},
+     {"LOCKED", SQLITE_LOCKED},
+     {"NOMEM", SQLITE_NOMEM},
+     {"READONLY", SQLITE_READONLY},
+     {"INTERRUPT", SQLITE_INTERRUPT},
+     {"IOERR", SQLITE_IOERR},
+     {"CORRUPT", SQLITE_CORRUPT},
+     {"NOTFOUND", SQLITE_NOTFOUND},
+     {"FULL", SQLITE_FULL},
+     {"CANTOPEN", SQLITE_CANTOPEN},
+     {"PROTOCOL", SQLITE_PROTOCOL},
+     {"EMPTY", SQLITE_EMPTY},
+     {"SCHEMA", SQLITE_SCHEMA},
+     {"TOOBIG", SQLITE_TOOBIG},
+     {"CONSTRAINT", SQLITE_CONSTRAINT},
+     {"MISMATCH", SQLITE_MISMATCH},
+     {"MISUSE", SQLITE_MISUSE},
+     {"NOLFS", SQLITE_NOLFS},
+     {"AUTH", SQLITE_AUTH},
+     {"FORMAT", SQLITE_FORMAT},
+     {"RANGE", SQLITE_RANGE},
+     {"NOTADB", SQLITE_NOTADB},
+     {"NOTICE", SQLITE_NOTICE},
+     {"WARNING", SQLITE_WARNING},
+     {"ROW", SQLITE_ROW},
+     {"DONE", SQLITE_DONE},
+     {"INTEGER", SQLITE_INTEGER},
+     {"FLOAT", SQLITE_FLOAT},
+     {"BLOB", SQLITE_BLOB},
+     {"TEXT", SQLITE_TEXT}};
+
 static const pair<string, TimerFlag> timer_flag[] =
     {{"Enabled", TimerFlag::Enabled},
      {"AtTime", TimerFlag::AtTime},
@@ -488,14 +526,20 @@ IMPL_PUSH_ENUM(TriggerFlag)
 template <typename K, typename V, size_t N>
 void registerTable(lua_State *L, const char *name, const pair<K, V> (&entries)[N])
 {
-  lua_createtable(L, 0, N);
+  const bool isNew = lua_getglobal(L, name) == LUA_TNIL;
+  if (isNew)
+  {
+    lua_pop(L, 1);
+    lua_createtable(L, 0, N);
+  }
   for (const pair<K, V> &entry : entries)
   {
     pushValue(L, entry.first);
     pushValue(L, entry.second);
     lua_rawset(L, -3);
   }
-  lua_setglobal(L, name);
+  if (isNew)
+    lua_setglobal(L, name);
 }
 
 int registerLuaGlobals(lua_State *L)
@@ -505,6 +549,7 @@ int registerLuaGlobals(lua_State *L)
   registerTable(L, "error_desc", error_desc);
   registerTable(L, "miniwin", miniwin);
   registerTable(L, "sendto", sendto);
+  registerTable(L, "sqlite3", sqlite3_);
   registerTable(L, "timer_flag", timer_flag);
   registerTable(L, "trigger_flag", trigger_flag);
   return 0;
