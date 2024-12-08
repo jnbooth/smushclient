@@ -380,11 +380,11 @@ QString qlua::concatStrings(lua_State *L, const QString &delimiter)
         text.append(QString::number(lua_tonumber(L, i)));
       break;
     case LUA_TSTRING:
-      {
-        const char *data = lua_tolstring(L, i, &sLen);
-        text.append(QUtf8StringView(data, sLen));
-      }
+    {
+      const char *data = lua_tolstring(L, i, &sLen);
+      text.append(QUtf8StringView(data, sLen));
       break;
+    }
     default:
       if (needsToString)
       {
