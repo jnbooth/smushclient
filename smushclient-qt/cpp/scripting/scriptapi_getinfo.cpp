@@ -97,6 +97,8 @@ QVariant ScriptApi::GetInfo(int infoType) const
     return !socket->isOpen();
   case 239:
     return (int)actionSource;
+  case 240:
+    return QFontMetrics(tab()->ui->output->font()).averageCharWidth();
   case 268:
 #if defined(Q_OS_WIN)
     return (int)OperatingSystem::Windows;
