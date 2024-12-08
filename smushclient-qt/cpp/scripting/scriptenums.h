@@ -147,6 +147,13 @@ enum struct ImageOp
   RoundedRectangle,
 };
 
+enum struct OperatingSystem
+{
+  Windows = 2,
+  MacOS = 100,
+  Linux = 200,
+};
+
 enum PenStyleFlag
 {
   SolidLine = 0,

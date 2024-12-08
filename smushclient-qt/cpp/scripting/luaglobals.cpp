@@ -429,6 +429,11 @@ static const pair<string, int> miniwin[] =
      {"wheel_got_alt", Hotspot::EventFlag::Alt},
      {"wheel_scroll_back", Hotspot::EventFlag::ScrollDown}};
 
+static const pair<string, OperatingSystem> operating_system[] =
+    {{"Windows", OperatingSystem::Windows},
+     {"MacOS", OperatingSystem::MacOS},
+     {"Linux", OperatingSystem::Linux}};
+
 static const pair<string, SendTarget> sendto[] =
     {{"world", SendTarget::World},
      {"command", SendTarget::Command},
@@ -519,6 +524,7 @@ void pushValue(lua_State *L, const string &value)
 
 IMPL_PUSH_ENUM(AliasFlag)
 IMPL_PUSH_ENUM(ApiCode)
+IMPL_PUSH_ENUM(OperatingSystem)
 IMPL_PUSH_ENUM(SendTarget)
 IMPL_PUSH_ENUM(TimerFlag)
 IMPL_PUSH_ENUM(TriggerFlag)
@@ -548,6 +554,7 @@ int registerLuaGlobals(lua_State *L)
   registerTable(L, "error_code", error_code);
   registerTable(L, "error_desc", error_desc);
   registerTable(L, "miniwin", miniwin);
+  registerTable(L, "operating_system", operating_system);
   registerTable(L, "sendto", sendto);
   registerTable(L, "sqlite3", sqlite3_);
   registerTable(L, "timer_flag", timer_flag);

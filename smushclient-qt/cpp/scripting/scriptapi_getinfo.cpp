@@ -97,6 +97,16 @@ QVariant ScriptApi::GetInfo(int infoType) const
     return !socket->isOpen();
   case 239:
     return (int)actionSource;
+  case 268:
+#if defined(Q_OS_WIN)
+    return (int)OperatingSystem::Windows;
+#elif defined(Q_OS_MACOS)
+    return (int)OperatingSystem::MacOS;
+#elif defined(Q_OS_LINUX)
+    return (int)OperatingSystem::Linux;
+#else
+    return QVariant();
+#endif
   case 272:
     return tab()->ui->area->contentsMargins().left();
   case 273:
