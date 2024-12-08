@@ -796,6 +796,14 @@ static int L_IsTrigger(lua_State *L)
   return returnCode(L, getApi(L).IsTrigger(getPluginIndex(L), qlua::getQString(L, 1)));
 }
 
+static int L_MakeRegularExpression(lua_State *L)
+{
+  API("MakeRegularExpression")
+  expectMaxArgs(L, 1);
+  qlua::pushQString(L, makeRegexFromWildcards(qlua::getQString(L, 1)));
+  return 1;
+}
+
 static int L_SetTriggerOption(lua_State *L)
 {
   API("SetTriggerOption")
@@ -1480,6 +1488,7 @@ static const struct luaL_Reg worldlib[] =
      {"IsAlias", L_IsAlias},
      {"IsTimer", L_IsTimer},
      {"IsTrigger", L_IsTrigger},
+     {"MakeRegularExpression", L_MakeRegularExpression},
      {"SetTriggerOption", L_SetTriggerOption},
      {"StopEvaluatingTriggers", L_StopEvaluatingTriggers},
      // sound

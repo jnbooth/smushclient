@@ -74,27 +74,32 @@ impl Reaction {
         !self.text.is_empty() || self.send_to == SendTarget::Variable
     }
 
-    pub fn make_regex(pattern: &str, is_regex: bool) -> Result<Regex, RegexError> {
+    pub fn make_regex_pattern(pattern: &str, buf: &mut String) {
         #[rustfmt::skip]
         fn is_special(c: char) -> bool {
             matches!(c, '\\'|'.'|'+'|'*'|'?'|'('|')'|'|'|'['|']'|'{'|'}'|'^'|'$'|'#')
         }
+        buf.reserve(pattern.len() * 4);
+        buf.push('^');
+        for c in pattern.chars() {
+            if c == '*' {
+                buf.push_str("(.*)");
+                continue;
+            }
+            if is_special(c) {
+                buf.push('\\');
+            }
+            buf.push(c);
+        }
+        buf.push('$');
+    }
+
+    pub fn make_regex(pattern: &str, is_regex: bool) -> Result<Regex, RegexError> {
         if is_regex {
             Regex::new(pattern)
         } else {
-            let mut buf = String::with_capacity(pattern.len() * 4);
-            buf.push('^');
-            for c in pattern.chars() {
-                if c == '*' {
-                    buf.push_str("(.*)");
-                    continue;
-                }
-                if is_special(c) {
-                    buf.push('\\');
-                }
-                buf.push(c);
-            }
-            buf.push('$');
+            let mut buf = String::new();
+            Self::make_regex_pattern(pattern, &mut buf);
             Regex::new(&buf)
         }
     }

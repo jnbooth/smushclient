@@ -16,10 +16,11 @@ use crate::sender::{AliasRust, TimerRust, TriggerRust};
 use crate::sender::{OutputSpan, TextSpan};
 use crate::world::WorldRust;
 use cxx::{type_id, ExternType};
-use cxx_qt_lib::{QByteArray, QColor, QVector};
+use cxx_qt_lib::{QByteArray, QColor, QString, QVector};
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::naws;
 use smushclient::AliasOutcome;
+use smushclient_plugins::Reaction;
 
 pub fn ansi16() -> QVector<QColor> {
     RgbColor::XTERM_16.to_vec().convert()
@@ -63,6 +64,12 @@ unsafe impl ExternType for TextStyles {
 
 fn encode_naws(width: u16, height: u16) -> QByteArray {
     QByteArray::from(naws(width, height).as_slice())
+}
+
+fn make_regex_from_wildcards(pattern: &QString) -> QString {
+    let mut buf = String::new();
+    Reaction::make_regex_pattern(&String::from(pattern), &mut buf);
+    QString::from(&buf)
 }
 
 #[cxx_qt::bridge]
@@ -153,6 +160,9 @@ pub mod ffi {
     extern "Rust" {
         #[cxx_name = "encodeNaws"]
         fn encode_naws(width: u16, height: u16) -> QByteArray;
+
+        #[cxx_name = "makeRegexFromWildcards"]
+        fn make_regex_from_wildcards(pattern: &QString) -> QString;
     }
 
     enum TelnetSource {
