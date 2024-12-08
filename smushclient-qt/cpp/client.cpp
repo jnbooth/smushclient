@@ -52,3 +52,13 @@ bool SmushClient::setMetavariable(string_view key, const QByteArray &value) noex
 {
   return SmushClientBase::setMetavariable(stringSlice(key), byteSlice(value));
 }
+
+bool SmushClient::unsetVariable(size_t index, string_view key) noexcept
+{
+  return SmushClientBase::unsetVariable(index, stringSlice(key));
+}
+
+bool SmushClient::unsetMetavariable(string_view key) noexcept
+{
+  return SmushClientBase::unsetMetavariable(stringSlice(key));
+}

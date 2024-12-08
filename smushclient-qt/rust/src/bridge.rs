@@ -762,7 +762,9 @@ pub mod ffi {
             key: &[c_char],
             value: &[c_char],
         ) -> bool;
+        fn unset_variable(self: Pin<&mut SmushClient>, index: usize, key: &[c_char]) -> bool;
         fn set_metavariable(self: Pin<&mut SmushClient>, key: &[c_char], value: &[c_char]) -> bool;
+        fn unset_metavariable(self: Pin<&mut SmushClient>, key: &[c_char]) -> bool;
         fn start_timers(
             self: Pin<&mut SmushClient>,
             index: usize,

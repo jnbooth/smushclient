@@ -130,6 +130,10 @@ impl PluginVariables {
         self.0.insert(plugin_id.to_owned(), variables);
     }
 
+    pub fn unset_variable(&mut self, plugin_id: &str, key: &LuaStr) -> Option<LuaString> {
+        self.0.get_mut(plugin_id)?.remove(key)
+    }
+
     pub fn save<W: Write>(&self, mut writer: W) -> Result<(), PersistError> {
         writer.write_all(&[CURRENT_VERSION])?;
         bincode::serialize_into(writer, self)?;

@@ -870,6 +870,13 @@ static int L_StopSound(lua_State *L)
 
 // variables
 
+static int L_DeleteVariable(lua_State *L)
+{
+  API("DeleteVariable")
+  expectMaxArgs(L, 1);
+  return returnCode(L, getApi(L).DeleteVariable(getPluginIndex(L), qlua::getString(L, 1)));
+}
+
 static int L_GetVariable(lua_State *L)
 {
   API("GetVariable")
@@ -1496,6 +1503,7 @@ static const struct luaL_Reg worldlib[] =
      {"PlaySoundMemory", L_PlaySoundMemory},
      {"StopSound", L_StopSound},
      // variables
+     {"DeleteVariable", L_DeleteVariable},
      {"GetVariable", L_GetVariable},
      {"GetPluginVariable", L_GetPluginVariable},
      {"SetVariable", L_SetVariable},

@@ -550,10 +550,18 @@ impl ffi::SmushClient {
             .set_variable(index, key.to_vec(), value.to_vec())
     }
 
+    pub fn unset_variable(self: Pin<&mut Self>, index: PluginIndex, key: &[c_char]) -> bool {
+        self.rust_mut().client.unset_variable(index, key).is_some()
+    }
+
     pub fn set_metavariable(self: Pin<&mut Self>, key: &[c_char], value: &[c_char]) -> bool {
         self.rust_mut()
             .client
             .set_metavariable(key.to_vec(), value.to_vec())
+    }
+
+    pub fn unset_metavariable(self: Pin<&mut Self>, key: &[c_char]) -> bool {
+        self.rust_mut().client.unset_metavariable(key).is_some()
     }
 
     pub fn timer_info(&self, index: PluginIndex, label: &QString, info_type: u8) -> QVariant {

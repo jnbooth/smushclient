@@ -18,4 +18,6 @@ public:
   bool setVariable(size_t index, std::string_view key, const QByteArray &value) noexcept;
   bool setMetavariable(std::string_view key, std::string_view value) noexcept;
   bool setMetavariable(std::string_view key, const QByteArray &value) noexcept;
+  bool unsetVariable(size_t index, std::string_view key) noexcept;
+  bool unsetMetavariable(std::string_view key) noexcept;
 };

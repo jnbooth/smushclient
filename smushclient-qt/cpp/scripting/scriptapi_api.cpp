@@ -115,6 +115,11 @@ int ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int fl
   return result;
 }
 
+ApiCode ScriptApi::DeleteVariable(size_t plugin, string_view key) const
+{
+  return client()->unsetVariable(plugin, key) ? ApiCode::OK : ApiCode::VariableNotFound;
+}
+
 ApiCode ScriptApi::DoAfter(size_t plugin, double seconds, const QString &text, SendTarget target)
 {
   if (seconds < 0.1 || seconds > 86399)

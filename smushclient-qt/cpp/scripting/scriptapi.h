@@ -78,16 +78,17 @@ public:
       const QString &scriptName,
       SendTarget target,
       int sequence = 100) const;
+  int BroadcastPlugin(size_t pluginIndex, int message, std::string_view text) const;
+  void ColourTell(const QColor &foreground, const QColor &background, const QString &text);
+  int DatabaseClose(std::string_view databaseID);
+  int DatabaseOpen(std::string_view databaseID, std::string_view filename, int flags);
   ApiCode DeleteAlias(size_t plugin, const QString &name) const;
   size_t DeleteAliases(size_t plugin, const QString &group) const;
   ApiCode DeleteTimer(size_t plugin, const QString &name) const;
   size_t DeleteTimers(size_t plugin, const QString &group) const;
   ApiCode DeleteTrigger(size_t plugin, const QString &name) const;
   size_t DeleteTriggers(size_t plugin, const QString &group) const;
-  int BroadcastPlugin(size_t pluginIndex, int message, std::string_view text) const;
-  void ColourTell(const QColor &foreground, const QColor &background, const QString &text);
-  int DatabaseClose(std::string_view databaseID);
-  int DatabaseOpen(std::string_view databaseID, std::string_view filename, int flags);
+  ApiCode DeleteVariable(size_t plugin, std::string_view key) const;
   ApiCode DoAfter(size_t plugin, double seconds, const QString &text, SendTarget target);
   ApiCode EnableAlias(size_t plugin, const QString &label, bool enabled) const;
   ApiCode EnableAliasGroup(size_t plugin, const QString &group, bool enabled) const;

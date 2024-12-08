@@ -370,6 +370,11 @@ impl SmushClient {
         true
     }
 
+    pub fn unset_variable(&mut self, index: PluginIndex, key: &LuaStr) -> Option<LuaString> {
+        let plugin_id = &self.plugins.get(index)?.metadata.id;
+        self.variables.unset_variable(plugin_id, key)
+    }
+
     pub fn set_metavariable<K, V>(&mut self, key: K, value: V) -> bool
     where
         K: Into<LuaString>,
@@ -377,6 +382,10 @@ impl SmushClient {
     {
         self.variables.set_variable(METAVARIABLES_KEY, key, value);
         true
+    }
+
+    pub fn unset_metavariable(&mut self, key: &LuaStr) -> Option<LuaString> {
+        self.variables.unset_variable(METAVARIABLES_KEY, key)
     }
 
     pub fn set_group_enabled<T: SendIterable>(
