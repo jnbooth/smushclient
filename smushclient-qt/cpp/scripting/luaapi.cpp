@@ -857,7 +857,7 @@ static int L_StopSound(lua_State *L)
 {
   API("StopSound")
   expectMaxArgs(L, 1);
-  return returnCode(L, getApi(L).StopSound(qlua::getInt(L, 1)));
+  return returnCode(L, getApi(L).StopSound(qlua::getInt(L, 1, 0)));
 }
 
 // variables
