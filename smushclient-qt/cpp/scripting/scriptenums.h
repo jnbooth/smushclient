@@ -101,15 +101,15 @@ enum struct ActionSource
 {
   Unknown,         // No particular reason, could be plugin saving
   UserTyping,      // User typed something in the command area and pressed <Enter>
-  UserMacro,       // User typed a macro (e.g. F2)
+  UserMacro,       // User typed a macro (e.g. F2) (unused)
   UserKeypad,      // User used the numeric keypad
-  UserAccelerator, // User used an accelerator key
+  UserAccelerator, // User used a hotkey (unused)
   UserMenuAction,  // Item chosen from pop-up menu
   TriggerFired,    // Trigger fired
   TimerFired,      // Timer fired
   InputFromServer, // Input arrived (eg. packet received)
   WorldAction,     // Some sort of world action (e.g. world open, connect, got focus)
-  LuaSandbox,      // Executing Lua sandbox
+  LuaSandbox,      // Executing Lua sandbox (unused)
   Hotspot,         // Hotspot callback
 };
 

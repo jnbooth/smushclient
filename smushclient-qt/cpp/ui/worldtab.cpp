@@ -676,11 +676,11 @@ bool WorldTab::sendCommand(const QString &command, CommandSource source)
     return true;
 
   QByteArray bytes = command.toUtf8();
-  OnPluginCommand onCommand(bytes);
+  OnPluginCommand onCommand(source, bytes);
   api->sendCallback(onCommand);
   if (onCommand.discarded())
     return true;
-  OnPluginCommandEntered onCommandEntered(bytes);
+  OnPluginCommandEntered onCommandEntered(source, bytes);
   api->sendCallback(onCommandEntered);
   if (bytes.size() == 1)
   {

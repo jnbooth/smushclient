@@ -3,6 +3,12 @@
 #include "scriptenums.h"
 
 struct lua_State;
+enum class CommandSource : uint8_t;
+
+constexpr ActionSource commandAction(CommandSource source) noexcept
+{
+  return (bool)source ? ActionSource::UserTyping : ActionSource::UserKeypad;
+}
 
 #define CALLBACK(idNumber, nameString, sourceAction)                                 \
   static const int ID = 1 << idNumber;                                               \
@@ -77,11 +83,15 @@ private:
 class OnPluginCommand : public DiscardCallback
 {
 public:
-  CALLBACK(1, "OnPluginCommand", ActionSource::UserTyping)
-  constexpr OnPluginCommand(const QByteArray &text) : DiscardCallback(), text(text) {}
+  CALLBACK(1, "OnPluginCommand", commandAction(commandSource))
+  constexpr OnPluginCommand(CommandSource commandSource, const QByteArray &text)
+      : DiscardCallback(),
+        commandSource(commandSource),
+        text(text) {}
   int pushArguments(lua_State *L) const override;
 
 private:
+  CommandSource commandSource;
   const QByteArray &text;
 };
 
@@ -100,8 +110,13 @@ public:
 class OnPluginCommandEntered : public ModifyTextCallback
 {
 public:
-  CALLBACK(4, "OnPluginCommandEntered", ActionSource::UserTyping)
-  constexpr OnPluginCommandEntered(QByteArray &text) : ModifyTextCallback(text) {}
+  CALLBACK(4, "OnPluginCommandEntered", commandAction(commandSource))
+  constexpr OnPluginCommandEntered(CommandSource commandSource, QByteArray &text)
+      : ModifyTextCallback(text),
+        commandSource(commandSource) {}
+
+private:
+  CommandSource commandSource;
 };
 
 class OnPluginConnect : public PluginCallback
