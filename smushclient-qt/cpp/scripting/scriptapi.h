@@ -101,12 +101,12 @@ public:
   QVariant GetLineInfo(int line, int infoType) const;
   int GetLinesInBufferCount() const;
   QVariant GetOption(std::string_view name) const;
-  VariableView GetVariable(size_t pluginIndex, std::string_view key) const;
-  VariableView GetVariable(std::string_view pluginID, std::string_view key) const;
   const std::string &GetPluginID(size_t pluginIndex) const;
   QVariant GetPluginInfo(std::string_view pluginID, int infoType) const;
   QVariant GetStyleInfo(int line, int style, int infoType) const;
   QVariant GetTimerInfo(size_t pluginIndex, const QString &label, int infoType) const;
+  VariableView GetVariable(size_t pluginIndex, std::string_view key) const;
+  VariableView GetVariable(std::string_view pluginID, std::string_view key) const;
   void Hyperlink(
       const QString &action,
       const QString &text,
