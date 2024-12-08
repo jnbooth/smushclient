@@ -17,15 +17,15 @@ class Hotspot : public QWidget
 public:
   enum EventFlag
   {
-    Shift = 0x01,        // Shift key down
-    Control = 0x02,      // Control key down
-    Alt = 0x04,          // Alt key down
-    MouseLeft = 0x10,    // LH mouse
-    MouseRight = 0x20,   // RH mouse
-    DoubleClick = 0x40,  // Double-click
-    Hover = 0x80,        // Mouse-over not first time
-    ScrollDown = 0x100,  // Scroll wheel scrolled (towards you)
-    MouseMiddle = 0x200, // Middle mouse
+    Shift = 1,         // Shift key down
+    Control = 2,       // Control key down
+    Alt = 4,           // Alt key down
+    MouseLeft = 16,    // LH mouse
+    MouseRight = 32,   // RH mouse
+    DoubleClick = 64,  // Double-click
+    Hover = 128,       // Mouse-over not first time
+    ScrollDown = 256,  // Scroll wheel scrolled (towards you)
+    MouseMiddle = 512, // Middle mouse
   };
   Q_DECLARE_FLAGS(EventFlags, EventFlag)
 

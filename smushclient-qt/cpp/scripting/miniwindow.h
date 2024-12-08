@@ -35,16 +35,16 @@ public:
     // Draw underneath. If set, the miniwindow is drawn beneath the scrolling text in the output window.
     //
     // WARNING: If you set the "draw underneath" flag then you cannot use hotspots, as the hotspots are underneath the text and will not be detected.
-    DrawUnderneath = 0x1,
+    DrawUnderneath = 1,
     // Absolute location. If set, the miniwindow is not subject to auto positioning (so the Position argument is ignored), and it is located exactly at the Left, Top position designated in the function call. By setting this bit you have absolute control over where the window will appear.
-    Absolute = 0x2,
+    Absolute = 2,
     // Transparent. If set, whenever a pixel in the contents of the window matches the BackgroundColour, it is not drawn, and the text underneath shows through. This lets you make odd-shape windows like stars or circles, by filling the outside (the part you don't want to see) with the background colour.
     // Ignore mouse. If set, this miniwindow is not considered for mouse-over, mouse-down, mouse-up events.
-    Transparent = 0x4,
+    Transparent = 4,
     // Ignore mouse. If set, this miniwindow is not considered for mouse-over, mouse-down, mouse-up events.
-    IgnoreMouse = 0x8,
+    IgnoreMouse = 8,
     // Keep existing hotspots. If set, hotspots are not deleted if you are recreating an existing miniwindow.
-    KeepHotspots = 0x10,
+    KeepHotspots = 16,
   };
   Q_DECLARE_FLAGS(Flags, Flag)
 
