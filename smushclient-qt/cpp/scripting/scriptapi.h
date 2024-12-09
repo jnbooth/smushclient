@@ -159,6 +159,11 @@ public:
       const QString &tooltip,
       Qt::CursorShape cursor,
       Hotspot::Flags flags) const;
+  ApiCode WindowButton(
+      std::string_view windowName,
+      const QRect &rect,
+      MiniWindow::ButtonFrame frame,
+      MiniWindow::ButtonFlags flags) const;
   ApiCode WindowCreate(
       size_t pluginIndex,
       std::string_view windowName,

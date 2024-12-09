@@ -48,6 +48,23 @@ public:
   };
   Q_DECLARE_FLAGS(Flags, Flag)
 
+  enum struct ButtonFrame
+  {
+    Raised = 5,
+    Etched = 6,
+    Bump = 9,
+    Sunken = 10,
+  };
+
+  enum ButtonFlag
+  {
+    Fill = 2048,
+    Soft = 4096,
+    Flat = 16384,
+    Monochrome = 32768,
+  };
+  Q_DECLARE_FLAGS(ButtonFlags, ButtonFlag)
+
   enum struct Position
   {
     OutputStretch, // Stretch to output view size
@@ -82,7 +99,7 @@ public:
   void applyFilter(const ImageFilter &filter, const QRect &rect = QRect());
   void clearHotspots();
   bool deleteHotspot(std::string_view hotspotID);
-  void drawLine(const QLineF &line, const QPen &pen);
+  void drawButton(const QRect &rect, ButtonFrame frame, ButtonFlags flags);
   void drawEllipse(const QRectF &rect, const QPen &pen, const QBrush &brush = QBrush());
   void drawFrame(const QRectF &rect, const QColor &color1, const QColor &color2);
   void drawGradient(const QRectF &rect, const QGradient &gradient);
@@ -92,6 +109,7 @@ public:
       const QRectF &sourceRect = QRectF(),
       DrawImageMode = DrawImageMode::Copy,
       qreal opacity = 1);
+  void drawLine(const QLineF &line, const QPen &pen);
   void drawPolygon(
       const QPolygonF &polygon,
       const QPen &pen,

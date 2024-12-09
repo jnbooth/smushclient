@@ -267,9 +267,47 @@ bool MiniWindow::deleteHotspot(string_view hotspotID)
   return true;
 }
 
-void MiniWindow::drawLine(const QLineF &line, const QPen &pen)
+void MiniWindow::drawButton(const QRect &rectBase, ButtonFrame frameType, ButtonFlags flags)
 {
-  Painter(this, pen).drawLine(line);
+  const QRect rect = normalizeRect(rectBase);
+  QFrame frame;
+  frame.setFixedSize(rect.size());
+  if (!flags.testFlag(ButtonFlag::Fill))
+  {
+    frame.setAttribute(Qt::WA_NoSystemBackground);
+    frame.setAttribute(Qt::WA_TranslucentBackground);
+  }
+  switch (frameType)
+  {
+  case ButtonFrame::Raised:
+    frame.setFrameShape(QFrame::Shape::Panel);
+    frame.setFrameShadow(QFrame::Shadow::Sunken);
+    break;
+  case ButtonFrame::Etched:
+    frame.setFrameShape(QFrame::Shape::Box);
+    frame.setFrameShadow(QFrame::Shadow::Raised);
+    break;
+  case ButtonFrame::Bump:
+    frame.setFrameShape(QFrame::Shape::Box);
+    frame.setFrameShadow(QFrame::Shadow::Sunken);
+    break;
+  case ButtonFrame::Sunken:
+    frame.setFrameShape(QFrame::Shape::Panel);
+    frame.setFrameShadow(QFrame::Shadow::Raised);
+    break;
+  }
+  if (flags.testAnyFlags(ButtonFlags(ButtonFlag::Flat | ButtonFlag::Monochrome)))
+    frame.setFrameShadow(QFrame::Shadow::Plain);
+
+  if (flags.testFlag(ButtonFlag::Flat))
+    frame.setLineWidth(1);
+  else if (flags.testFlag(ButtonFlag::Soft))
+    frame.setLineWidth(2);
+  else
+    frame.setLineWidth(3);
+
+  Painter painter(this);
+  frame.render(&painter, rect.topLeft());
 }
 
 void MiniWindow::drawEllipse(const QRectF &rect, const QPen &pen, const QBrush &brush)
@@ -322,6 +360,11 @@ void MiniWindow::drawImage(
     croppedImage.setMask(QBitmap::fromImage(std::move(qImage).createMaskFromColor(pixel)));
     Painter(this).drawPixmap(rect.topLeft(), croppedImage);
   }
+}
+
+void MiniWindow::drawLine(const QLineF &line, const QPen &pen)
+{
+  Painter(this, pen).drawLine(line);
 }
 
 void MiniWindow::drawPolygon(

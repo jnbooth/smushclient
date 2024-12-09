@@ -1271,6 +1271,16 @@ static int L_WindowRectOp(lua_State *L)
             qlua::getQColor(L, 7),
             qlua::getQColor(L, 8, Qt::GlobalColor::black)));
   case RectOp::Edge3D:
+    if (optional<MiniWindow::ButtonFrame> frame = qlua::getButtonFrame(L, 7); frame)
+      return returnCode(
+          L,
+          getApi(L).WindowButton(
+              windowName,
+              rect.toRect(),
+              *frame,
+              MiniWindow::ButtonFlags(qlua::getInt(L, 8))));
+    else
+      return returnCode(L, ApiCode::BadParameter);
   case RectOp::FloodFillBorder:
   case RectOp::FloodFillSurface:
     return returnCode(L, ApiCode::OK);

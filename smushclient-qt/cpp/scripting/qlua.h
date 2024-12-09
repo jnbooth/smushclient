@@ -97,6 +97,11 @@ namespace qlua
   QRect getQRect(lua_State *L, int idxLeft, int idxTop, int idxRight, int idxBottom);
   QRectF getQRectF(lua_State *L, int idxLeft, int idxTop, int idxRight, int idxBottom);
 
+  std::optional<MiniWindow::ButtonFrame> getButtonFrame(
+      lua_State *L,
+      int idx,
+      std::optional<MiniWindow::ButtonFrame> ifNil = std::nullopt);
+
   std::optional<Qt::BrushStyle> getBrush(
       lua_State *L,
       int idx,

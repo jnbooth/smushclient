@@ -185,11 +185,10 @@ enum RectOp
   Fill,      // Fill the entire rectangle
   Invert,    // The color on the miniwindow inside the rectangle is inverted
   Frame3D,   //  Draw a "3D-style" rectangle in two colors, a single pixel wide
+  Edge3D,    // Draws a 3D-style edge with optional fill.
 
   // NOT IMPLEMENTED
 
-  // Draws a 3D-style edge with optional fill.
-  Edge3D,
   // Fills to border specified by the first color parameter. The filling commences at the pixel
   // designated by Left, Top and continues until it runs out of pixels that color. The fill color
   // is specified by the second color parameter.
@@ -263,4 +262,3 @@ enum struct TriggerFlag
   OneShot = 32768,          // If set, only fires once
 };
 Q_DECLARE_FLAGS(TriggerFlags, TriggerFlag)
-

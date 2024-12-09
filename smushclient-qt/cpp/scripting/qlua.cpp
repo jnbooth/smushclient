@@ -743,6 +743,17 @@ inline optional<T> getEnum(lua_State *L, int idx, optional<T> ifNil = nullopt)
   return (T)val;
 }
 
+optional<MiniWindow::ButtonFrame> qlua::getButtonFrame(
+    lua_State *L,
+    int idx,
+    optional<MiniWindow::ButtonFrame> ifNil)
+{
+  return getEnum<
+      MiniWindow::ButtonFrame,
+      MiniWindow::ButtonFrame::Raised,
+      MiniWindow::ButtonFrame::Sunken>(L, idx, ifNil);
+}
+
 optional<Qt::BrushStyle> qlua::getBrush(lua_State *L, int idx, optional<Qt::BrushStyle> ifNil)
 {
   if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))

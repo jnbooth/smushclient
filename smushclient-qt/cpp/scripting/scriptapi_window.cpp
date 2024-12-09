@@ -40,6 +40,19 @@ ApiCode ScriptApi::WindowAddHotspot(
   return ApiCode::OK;
 }
 
+ApiCode ScriptApi::WindowButton(
+    std::string_view windowName,
+    const QRect &rect,
+    MiniWindow::ButtonFrame frame,
+    MiniWindow::ButtonFlags flags) const
+{
+  MiniWindow *window = findWindow(windowName);
+  if (!window) [[unlikely]]
+    return ApiCode::NoSuchWindow;
+  window->drawButton(rect, frame, flags);
+  return ApiCode::OK;
+}
+
 ApiCode ScriptApi::WindowCreate(
     size_t index,
     string_view name,
