@@ -175,7 +175,7 @@ void Plugin::reset(ScriptApi *api)
   luaopen_bit(L);
   setlib(L, "bit");
   luaopen_cjson(L);
-  setlib(L, "json");
+  setlib(L, "cjson");
   luaopen_lpeg(L);
   setlib(L, "lpeg");
   luaopen_rex_pcre2(L);
