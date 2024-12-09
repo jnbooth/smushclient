@@ -30,6 +30,26 @@ static const pair<string, AliasFlag>
          {"Temporary", AliasFlag::Temporary},
          {"OneShot", AliasFlag::OneShot}};
 
+static const pair<string, int> custom_colour[] =
+    {{"NoChange", -1},
+     {"Custom1", 0x8080FF},
+     {"Custom2", 0x80FFFF},
+     {"Custom3", 0x80FF80},
+     {"Custom4", 0xFFFF80},
+     {"Custom5", 0xFF8000},
+     {"Custom6", 0xC080FF},
+     {"Custom7", 0x0000FF},
+     {"Custom8", 0xC08000},
+     {"Custom9", 0xFF00FF},
+     {"Custom10", 0x404080},
+     {"Custom11", 0x4080FF},
+     {"Custom12", 0x808000},
+     {"Custom13", 0x804000},
+     {"Custom14", 0x8000FF},
+     {"Custom15", 0x008000},
+     {"Custom16", 0xFF0000},
+     {"CustomOther", -1}};
+
 static const pair<string, ApiCode> error_code[] =
     {{"eOK", ApiCode::OK},
      {"eWorldOpen", ApiCode::WorldOpen},
@@ -551,6 +571,7 @@ void registerTable(lua_State *L, const char *name, const pair<K, V> (&entries)[N
 int registerLuaGlobals(lua_State *L)
 {
   registerTable(L, "alias_flag", alias_flag);
+  registerTable(L, "custom_colour", custom_colour);
   registerTable(L, "error_code", error_code);
   registerTable(L, "error_desc", error_desc);
   registerTable(L, "miniwin", miniwin);
