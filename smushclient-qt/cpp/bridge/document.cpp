@@ -304,23 +304,21 @@ void Document::send(const SendRequest &request) const
   api->sendTo(request.plugin, request.send_to, request.text, request.destination);
 }
 
-class AliasCallback : public PluginCallback
+class AliasCallback : public DynamicPluginCallback
 {
 public:
   AliasCallback(
-      const string &callback,
+      rust::Str callback,
       rust::Str senderName,
       rust::Str line,
       const rust::Vec<rust::Str> &wildcards,
       const rust::Vec<NamedWildcard> &namedWildcards)
-      : PluginCallback(),
-        callback(callback.data()),
+      : DynamicPluginCallback(callback),
         senderName(senderName),
         line(line),
         wildcards(wildcards),
         namedWildcards(namedWildcards) {}
 
-  inline constexpr const char *name() const noexcept override { return callback; }
   inline constexpr ActionSource source() const noexcept override { return ActionSource::Unknown; }
 
   int pushArguments(lua_State *L) const override
@@ -345,7 +343,6 @@ public:
   }
 
 private:
-  const char *callback;
   rust::Str senderName;
   rust::Str line;
   const rust::Vec<rust::Str> &wildcards;
@@ -356,7 +353,7 @@ class TriggerCallback : public AliasCallback
 {
 public:
   TriggerCallback(
-      const string &callback,
+      rust::Str callback,
       rust::Str senderName,
       rust::Str line,
       const rust::Vec<rust::Str> &wildcards,
@@ -405,9 +402,8 @@ void Document::send(const SendScriptRequest &request) const
 {
   if (request.output.empty())
   {
-    const string callback(request.script.data(), request.script.size());
     AliasCallback aliasCallback(
-        callback,
+        request.script,
         request.label,
         request.line,
         request.wildcards,
@@ -416,9 +412,8 @@ void Document::send(const SendScriptRequest &request) const
   }
   else
   {
-    const string callback(request.script.data(), request.script.size());
     TriggerCallback triggerCallback(
-        callback,
+        request.script,
         request.label,
         request.line,
         request.wildcards,

@@ -220,7 +220,7 @@ ApiCode ScriptApi::PlaySoundMemory(size_t channel, const QByteArray &sound, bool
   return ApiCode::OK;
 }
 
-ApiCode ScriptApi::PluginSupports(string_view pluginID, string_view routine) const
+ApiCode ScriptApi::PluginSupports(string_view pluginID, PluginCallbackKey routine) const
 {
   const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin) [[unlikely]]

@@ -6,39 +6,51 @@ extern "C"
 #include "lua.h"
 }
 
+using std::pair;
+using std::string;
 using std::string_view;
+
+string_view qStringView(const QString &string)
+{
+  const QByteArray utf8 = string.toUtf8();
+  return string_view(utf8.data(), utf8.size());
+}
+
+PluginCallbackKey::PluginCallbackKey(const QString &name)
+    : PluginCallbackKey(qStringView(name)) {}
 
 // Abstract
 
-bool PluginCallback::findCallback(lua_State *L) const
+bool DynamicPluginCallback::findCallback(lua_State *L) const
 {
-  switch (lua_getglobal(L, name()))
+  const int type = lua_getglobal(L, name.c_str());
+  if (property.empty())
   {
-  case LUA_TFUNCTION:
-    return true;
-  case LUA_TTABLE:
-    break;
-  default:
+    if (type == LUA_TFUNCTION)
+      return true;
     lua_pop(L, 1);
     return false;
   }
-
-  const char *prop = property();
-
-  if (!prop) [[unlikely]]
+  if (type != LUA_TTABLE)
   {
     lua_pop(L, 1);
     return false;
   }
-
-  if (lua_getfield(L, -1, prop) != LUA_TFUNCTION) [[unlikely]]
+  if (lua_getfield(L, -1, property.c_str()) != LUA_TFUNCTION)
   {
     lua_pop(L, 2);
     return false;
   }
-
   lua_remove(L, -2);
   return true;
+}
+
+bool NamedPluginCallback::findCallback(lua_State *L) const
+{
+  if (lua_getglobal(L, name()) == LUA_TFUNCTION)
+    return true;
+  lua_pop(L, 1);
+  return false;
 }
 
 void DiscardCallback::collectReturned(lua_State *L)
@@ -184,10 +196,8 @@ void CallbackFilter::scan(lua_State *L)
   lua_settop(L, top);
 }
 
-bool CallbackFilter::setIfDefined(lua_State *L, const PluginCallback &callback)
+void CallbackFilter::setIfDefined(lua_State *L, const NamedPluginCallback &callback)
 {
-  const bool isDefined = lua_getglobal(L, callback.name()) == LUA_TFUNCTION;
-  if (isDefined)
+  if (lua_getglobal(L, callback.name()) == LUA_TFUNCTION)
     filter |= callback.id();
-  return isDefined;
 }

@@ -49,5 +49,5 @@ int DatabaseConnection::close()
 
 int DatabaseConnection::open(int flags)
 {
-  return sqlite3_open_v2(filename.data(), &db, flags, nullptr);
+  return sqlite3_open_v2(filename.c_str(), &db, flags, nullptr);
 }

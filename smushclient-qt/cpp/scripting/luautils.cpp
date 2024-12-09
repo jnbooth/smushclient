@@ -215,7 +215,7 @@ static int L_split(lua_State *L)
   const char *endPtr = input + inputLength;
   const char *sepPtr;
   int i = 1;
-  for (; i <= max && input < endPtr && (sepPtr = strchr(input, *sep)) != NULL; ++i)
+  for (; i <= max && input < endPtr && (sepPtr = strchr(input, *sep)); ++i)
   {
     lua_pushlstring(L, input, sepPtr - input);
     lua_rawseti(L, -2, i);

@@ -10,14 +10,13 @@ extern "C"
 using std::pair;
 using std::chrono::milliseconds;
 
-class TimerCallback : public PluginCallback
+class TimerCallback : public DynamicPluginCallback
 {
 public:
   TimerCallback(const rust::String &callback, const rust::String &label)
-      : callback(callback.data()),
+      : DynamicPluginCallback(callback),
         label(label) {}
 
-  inline constexpr const char *name() const noexcept override { return callback; }
   inline constexpr ActionSource source() const noexcept override { return ActionSource::TimerFired; }
 
   int pushArguments(lua_State *L) const override
@@ -27,7 +26,6 @@ public:
   }
 
 private:
-  const char *callback;
   const rust::String &label;
 };
 

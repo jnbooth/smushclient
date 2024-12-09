@@ -846,14 +846,13 @@ void WorldTab::on_input_textChanged()
   api->sendCallback(onCommandChanged);
 }
 
-class AnchorCallback : public PluginCallback
+class AnchorCallback : public DynamicPluginCallback
 {
 public:
   AnchorCallback(const string &callback, const QString &arg)
-      : callback(callback.data()),
+      : DynamicPluginCallback(callback),
         arg(arg) {}
 
-  inline constexpr const char *name() const noexcept override { return callback; }
   inline constexpr ActionSource source() const noexcept override { return ActionSource::UserMenuAction; }
 
   int pushArguments(lua_State *L) const override
@@ -863,7 +862,6 @@ public:
   }
 
 private:
-  const char *callback;
   const QString &arg;
 };
 

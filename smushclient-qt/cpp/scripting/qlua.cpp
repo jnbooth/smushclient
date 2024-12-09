@@ -300,20 +300,39 @@ QVariant qlua::getQVariant(lua_State *L, int idx)
   return getQVariant(L, idx, lua_type(L, idx));
 }
 
+inline bool isScriptName(lua_State *L, const char *name)
+{
+  const char *property = strchr(name, '.');
+  if (!property)
+  {
+    const bool isFunction = lua_getglobal(L, name);
+    lua_pop(L, 1);
+    return isFunction;
+  }
+  const string tableName(name, property - name);
+  if (lua_getglobal(L, tableName.c_str()) != LUA_TTABLE)
+  {
+    lua_pop(L, 1);
+    return false;
+  }
+  const bool isFunction = lua_getfield(L, -1, property + 1) == LUA_TFUNCTION;
+  lua_pop(L, 2);
+  return isFunction;
+}
+
 optional<QString> qlua::getScriptName(lua_State *L, int idx)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
   size_t len;
-  const char *message = lua_tolstring(L, idx, &len);
+  const char *name = lua_tolstring(L, idx, &len);
+
   if (len == 0)
     return QString();
 
-  const int globalType = lua_getglobal(L, message);
-  lua_pop(L, 1);
-  if (globalType != LUA_TFUNCTION)
-    return nullopt;
+  if (isScriptName(L, name))
+    return QString::fromUtf8(name, len);
 
-  return QString::fromUtf8(message, len);
+  return nullopt;
 }
 
 string_view qlua::toString(lua_State *L, int idx)

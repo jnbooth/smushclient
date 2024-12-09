@@ -103,11 +103,21 @@ void Plugin::enable()
   isDisabled = false;
 }
 
-bool Plugin::hasFunction(const char *name) const
+class CallbackFinder : public DynamicPluginCallback
 {
-  const bool isFunction = lua_getglobal(L, name) == LUA_TFUNCTION;
-  lua_pop(L, 1);
-  return isFunction;
+public:
+  inline CallbackFinder(PluginCallbackKey callback) : DynamicPluginCallback(callback) {}
+  inline constexpr ActionSource source() const noexcept override { return ActionSource::Unknown; }
+};
+
+bool Plugin::hasFunction(PluginCallbackKey routine) const
+{
+  if (CallbackFinder(routine).findCallback(L))
+  {
+    lua_pop(L, 1);
+    return true;
+  }
+  return false;
 }
 
 bool Plugin::install(const PluginPack &pack)

@@ -1,9 +1,41 @@
 #pragma once
 #include <QtCore/QByteArray>
 #include "scriptenums.h"
+#include "rust/cxx.h"
 
 struct lua_State;
 enum class CommandSource : uint8_t;
+
+class PluginCallbackKey
+{
+public:
+  constexpr PluginCallbackKey(std::string_view name) noexcept
+      : name(name),
+        property()
+  {
+    const size_t n = name.find('.');
+    if (n == std::string_view::npos)
+      return;
+
+    property = name.substr(n + 1);
+    name = name.substr(n);
+  }
+
+  constexpr PluginCallbackKey(const std::string &name) noexcept
+      : PluginCallbackKey(std::string_view(name)) {}
+
+  inline PluginCallbackKey(rust::Str name) noexcept
+      : PluginCallbackKey(std::string_view(name.data(), name.length())) {}
+
+  constexpr PluginCallbackKey(const rust::String &name) noexcept
+      : PluginCallbackKey(std::string_view(name.data(), name.length())) {}
+
+  PluginCallbackKey(const QString &name);
+
+public:
+  std::string_view name;
+  std::string_view property;
+};
 
 constexpr ActionSource commandAction(CommandSource source) noexcept
 {
@@ -21,18 +53,43 @@ constexpr ActionSource commandAction(CommandSource source) noexcept
 class PluginCallback
 {
 public:
-  virtual const char *name() const noexcept = 0;
-  virtual const char *property() const noexcept { return nullptr; }
-  virtual int id() const noexcept { return 0; }
+  virtual ~PluginCallback() {}
+
+  virtual int id() const noexcept = 0;
   virtual ActionSource source() const noexcept = 0;
   virtual int expectedSize() const noexcept { return 0; }
   virtual int pushArguments(lua_State *) const { return 0; }
+  virtual bool findCallback(lua_State *L) const = 0;
   virtual void collectReturned(lua_State *) {}
-
-  virtual bool findCallback(lua_State *L) const;
 };
 
-class DiscardCallback : public PluginCallback
+class DynamicPluginCallback : public PluginCallback
+{
+public:
+  constexpr DynamicPluginCallback(PluginCallbackKey name) noexcept
+      : name(name.name),
+        property(name.property) {}
+
+  virtual ~DynamicPluginCallback() {}
+
+  virtual int id() const noexcept override { return 0; }
+  virtual bool findCallback(lua_State *L) const override;
+
+private:
+  std::string name;
+  std::string property;
+};
+
+class NamedPluginCallback : public PluginCallback
+{
+public:
+  virtual ~NamedPluginCallback() {}
+
+  virtual const char *name() const noexcept = 0;
+  virtual bool findCallback(lua_State *L) const override;
+};
+
+class DiscardCallback : public NamedPluginCallback
 {
 public:
   inline constexpr int expectedSize() const noexcept override { return 1; }
@@ -44,7 +101,7 @@ private:
   bool processing;
 };
 
-class ModifyTextCallback : public PluginCallback
+class ModifyTextCallback : public NamedPluginCallback
 {
 public:
   inline constexpr int expectedSize() const noexcept override { return 1; }
@@ -58,7 +115,7 @@ private:
 
 // Concrete
 
-class OnPluginBroadcast : public PluginCallback
+class OnPluginBroadcast : public NamedPluginCallback
 {
 public:
   CALLBACK(0, "OnPluginBroadcast", ActionSource::Unknown)
@@ -95,13 +152,13 @@ private:
   const QByteArray &text;
 };
 
-class OnPluginCommandChanged : public PluginCallback
+class OnPluginCommandChanged : public NamedPluginCallback
 {
 public:
   CALLBACK(2, "OnPluginCommandChanged", ActionSource::UserTyping)
 };
 
-class OnPluginClose : public PluginCallback
+class OnPluginClose : public NamedPluginCallback
 {
 public:
   CALLBACK(3, "OnPluginClose", ActionSource::Unknown)
@@ -119,31 +176,31 @@ private:
   CommandSource commandSource;
 };
 
-class OnPluginConnect : public PluginCallback
+class OnPluginConnect : public NamedPluginCallback
 {
 public:
   CALLBACK(5, "OnPluginConnect", ActionSource::WorldAction)
 };
 
-class OnPluginDisconnect : public PluginCallback
+class OnPluginDisconnect : public NamedPluginCallback
 {
 public:
   CALLBACK(6, "OnPluginDisconnect", ActionSource::WorldAction)
 };
 
-class OnPluginGetFocus : public PluginCallback
+class OnPluginGetFocus : public NamedPluginCallback
 {
 public:
   CALLBACK(7, "OnPluginGetFocus", ActionSource::WorldAction)
 };
 
-class OnPluginIacGa : public PluginCallback
+class OnPluginIacGa : public NamedPluginCallback
 {
 public:
   CALLBACK(8, "OnPlugin_IAC_GA", ActionSource::Unknown)
 };
 
-class OnPluginInstall : public PluginCallback
+class OnPluginInstall : public NamedPluginCallback
 {
 public:
   CALLBACK(9, "OnPluginInstall", ActionSource::Unknown)
@@ -160,31 +217,31 @@ private:
   std::string_view line;
 };
 
-class OnPluginListChanged : public PluginCallback
+class OnPluginListChanged : public NamedPluginCallback
 {
 public:
   CALLBACK(11, "OnPluginListChanged", ActionSource::Unknown)
 };
 
-class OnPluginLoseFocus : public PluginCallback
+class OnPluginLoseFocus : public NamedPluginCallback
 {
 public:
   CALLBACK(12, "OnPluginLoseFocus", ActionSource::WorldAction)
 };
 
-class OnPluginMXPStart : public PluginCallback
+class OnPluginMXPStart : public NamedPluginCallback
 {
 public:
   CALLBACK(13, "OnPluginMXPstart", ActionSource::WorldAction)
 };
 
-class OnPluginMXPStop : public PluginCallback
+class OnPluginMXPStop : public NamedPluginCallback
 {
 public:
   CALLBACK(14, "OnPluginMXPstop", ActionSource::WorldAction)
 };
 
-class OnPluginMXPSetEntity : public PluginCallback
+class OnPluginMXPSetEntity : public NamedPluginCallback
 {
 public:
   CALLBACK(15, "OnPluginMXPsetEntity", ActionSource::WorldAction)
@@ -195,7 +252,7 @@ private:
   std::string_view value;
 };
 
-class OnPluginMXPSetVariable : public PluginCallback
+class OnPluginMXPSetVariable : public NamedPluginCallback
 {
 public:
   CALLBACK(16, "OnPluginMXPsetVariable", ActionSource::WorldAction)
@@ -209,7 +266,7 @@ private:
   std::string_view contents;
 };
 
-class OnPluginSaveState : public PluginCallback
+class OnPluginSaveState : public NamedPluginCallback
 {
 public:
   CALLBACK(17, "OnPluginSaveState", ActionSource::Unknown)
@@ -226,7 +283,7 @@ private:
   const QByteArray &text;
 };
 
-class OnPluginSent : public PluginCallback
+class OnPluginSent : public NamedPluginCallback
 {
 public:
   CALLBACK(19, "OnPluginSent", ActionSource::Unknown)
@@ -244,7 +301,7 @@ public:
   constexpr OnPluginTabComplete(QByteArray &text) : ModifyTextCallback(text) {}
 };
 
-class OnPluginTelnetRequest : public PluginCallback
+class OnPluginTelnetRequest : public NamedPluginCallback
 {
 public:
   CALLBACK(21, "OnPluginTelnetRequest", ActionSource::Unknown)
@@ -256,7 +313,7 @@ private:
   std::string_view message;
 };
 
-class OnPluginTelnetSubnegotiation : public PluginCallback
+class OnPluginTelnetSubnegotiation : public NamedPluginCallback
 {
 public:
   CALLBACK(22, "OnPluginTelnetSubnegotiation", ActionSource::Unknown)
@@ -268,13 +325,13 @@ private:
   const QByteArray &data;
 };
 
-class OnPluginWorldSave : public PluginCallback
+class OnPluginWorldSave : public NamedPluginCallback
 {
 public:
   CALLBACK(23, "OnPluginWorldSave", ActionSource::Unknown)
 };
 
-class OnPluginWorldOutputResized : public PluginCallback
+class OnPluginWorldOutputResized : public NamedPluginCallback
 {
 public:
   CALLBACK(24, "OnPluginWorldOutputResized", ActionSource::Unknown)
@@ -292,7 +349,7 @@ public:
   void scan(lua_State *L);
 
 private:
-  bool setIfDefined(lua_State *L, const PluginCallback &callback);
+  void setIfDefined(lua_State *L, const NamedPluginCallback &callback);
 
 private:
   size_t filter = 0;

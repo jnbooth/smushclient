@@ -122,7 +122,7 @@ public:
   QColor PickColour(const QColor &hint) const;
   ApiCode PlaySound(size_t channel, const QString &path, bool loop = false, float volume = 1.0);
   ApiCode PlaySoundMemory(size_t channel, const QByteArray &sound, bool loop = false, float volume = 1.0);
-  ApiCode PluginSupports(std::string_view pluginID, std::string_view routine) const;
+  ApiCode PluginSupports(std::string_view pluginID, PluginCallbackKey routine) const;
   ApiCode Send(QByteArray &bytes);
   ApiCode Send(const QString &text);
   ApiCode SendNoEcho(QByteArray &bytes);

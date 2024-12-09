@@ -125,5 +125,5 @@ const char *WorldProperties::canonicalName(string_view name)
 {
   const string_map<string> &names = getInstance().names;
   auto search = names.find(name);
-  return (search == names.end()) ? nullptr : search->second.data();
+  return (search == names.end()) ? nullptr : search->second.c_str();
 }
