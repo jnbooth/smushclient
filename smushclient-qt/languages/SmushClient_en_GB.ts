@@ -4,7 +4,7 @@
 <context>
     <name>AbstractSenderModel</name>
     <message>
-        <location filename="../cpp/model/sender.cpp" line="194"/>
+        <location filename="../cpp/model/sender.cpp" line="193"/>
         <source>(ungrouped)</source>
         <translation></translation>
     </message>
@@ -733,27 +733,32 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="301"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="287"/>
+        <source>Version: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../cpp/ui/mainwindow.cpp" line="311"/>
         <source>Command History</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="375"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="385"/>
         <source>Go to line</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="375"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="385"/>
         <source>Enter line number</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="399"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="409"/>
         <source>New world</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="471"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="481"/>
         <source>Save as</source>
         <translation></translation>
     </message>
