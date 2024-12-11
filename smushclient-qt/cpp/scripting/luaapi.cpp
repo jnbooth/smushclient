@@ -247,12 +247,7 @@ static int L_GetTimerInfo(lua_State *L)
 
 static int L_GetUniqueNumber(lua_State *L)
 {
-  static int uniqueNumber = -1;
-  if (uniqueNumber == INT_MAX) [[unlikely]]
-    uniqueNumber = 0;
-  else
-    ++uniqueNumber;
-  lua_pushinteger(L, uniqueNumber);
+  lua_pushinteger(L, ScriptApi::GetUniqueNumber());
   return 1;
 }
 
@@ -811,7 +806,7 @@ static int L_MakeRegularExpression(lua_State *L)
 {
   API("MakeRegularExpression")
   expectMaxArgs(L, 1);
-  qlua::pushQString(L, makeRegexFromWildcards(qlua::getQString(L, 1)));
+  qlua::pushQString(L, ScriptApi::MakeRegularExpression(qlua::getQString(L, 1)));
   return 1;
 }
 

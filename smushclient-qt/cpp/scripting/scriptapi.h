@@ -46,6 +46,8 @@ class ScriptApi : public QObject
   Q_OBJECT
 
 public:
+  static int GetUniqueNumber() noexcept;
+  static QString MakeRegularExpression(const QString &pattern) noexcept;
   static void SetClipboard(const QString &text);
 
   ScriptApi(MudStatusBar *statusBar, Notepads *notepads, WorldTab *parent);

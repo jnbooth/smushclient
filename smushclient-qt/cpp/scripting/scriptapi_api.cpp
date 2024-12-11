@@ -67,6 +67,28 @@ inline ApiCode updateWorld(WorldTab &worldtab)
   return worldtab.updateWorld() ? ApiCode::OK : ApiCode::OptionOutOfRange;
 }
 
+// Public static methods
+
+int ScriptApi::GetUniqueNumber() noexcept
+{
+  static int uniqueNumber = -1;
+  if (uniqueNumber == INT_MAX) [[unlikely]]
+    uniqueNumber = 0;
+  else
+    ++uniqueNumber;
+  return uniqueNumber;
+}
+
+QString ScriptApi::MakeRegularExpression(const QString &pattern) noexcept
+{
+  return makeRegexFromWildcards(pattern);
+}
+
+void ScriptApi::SetClipboard(const QString &text)
+{
+  QGuiApplication::clipboard()->setText(text);
+}
+
 // Public methods
 
 int ScriptApi::BroadcastPlugin(size_t index, int message, string_view text) const
@@ -265,11 +287,6 @@ ApiCode ScriptApi::SendPacket(QByteArrayView view) const
     return ApiCode::WorldClosed;
 
   return ApiCode::OK;
-}
-
-void ScriptApi::SetClipboard(const QString &text)
-{
-  QGuiApplication::clipboard()->setText(text);
 }
 
 ApiCode ScriptApi::SetCursor(Qt::CursorShape cursorShape) const
