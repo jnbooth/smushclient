@@ -175,7 +175,7 @@ ApiCode ScriptApi::WindowFont(
   QFont font;
   font.setFamily(fontName);
   font.setStyleHint(hint);
-  font.setPointSizeF(pointSize);
+  font.setPointSizeF(pointSize * window->devicePixelRatioF());
   if (bold)
     font.setBold(true);
   if (italic)
