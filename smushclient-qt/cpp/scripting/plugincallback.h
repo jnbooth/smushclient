@@ -9,16 +9,16 @@ enum class CommandSource : uint8_t;
 class PluginCallbackKey
 {
 public:
-  constexpr PluginCallbackKey(std::string_view name) noexcept
-      : name(name),
+  constexpr PluginCallbackKey(std::string_view callback) noexcept
+      : name(callback),
         property()
   {
-    const size_t n = name.find('.');
+    const size_t n = callback.find('.');
     if (n == std::string_view::npos)
       return;
 
-    property = name.substr(n + 1);
-    name = name.substr(n);
+    name = callback.substr(0, n);
+    property = callback.substr(n + 1);
   }
 
   constexpr PluginCallbackKey(const std::string &name) noexcept
