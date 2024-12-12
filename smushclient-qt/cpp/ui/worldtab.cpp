@@ -429,7 +429,7 @@ void WorldTab::closeEvent(QCloseEvent *event)
   }
   if (!filePath.isEmpty())
   {
-    saveState(filePath);
+    saveWorldAndState(filePath);
     saveHistory();
   }
   try
@@ -618,22 +618,6 @@ bool WorldTab::saveHistory() const
   return file.commit();
 }
 
-bool WorldTab::saveState(const QString &path)
-{
-  OnPluginSaveState onSaveState;
-  api->sendCallback(onSaveState);
-  try
-  {
-    client.saveVariables(variablesPath(path));
-    return true;
-  }
-  catch (const rust::Error &e)
-  {
-    showRustError(e);
-    return false;
-  }
-}
-
 bool WorldTab::saveWorldAndState(const QString &path)
 {
   OnPluginWorldSave onWorldSave;
@@ -648,7 +632,16 @@ bool WorldTab::saveWorldAndState(const QString &path)
     return false;
   }
   setWindowModified(false);
-  saveState(path);
+  OnPluginSaveState onSaveState;
+  api->sendCallback(onSaveState);
+  try
+  {
+    client.saveVariables(variablesPath(path));
+  }
+  catch (const rust::Error &e)
+  {
+    showRustError(e);
+  }
   return true;
 }
 
