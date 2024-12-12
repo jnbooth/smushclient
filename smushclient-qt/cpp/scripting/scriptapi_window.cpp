@@ -158,6 +158,20 @@ ApiCode ScriptApi::WindowFilter(
   return ApiCode::OK;
 }
 
+void assignFontFamily(QFont &font, const QString &fontName)
+{
+  font.setFamily(fontName);
+  if (font.exactMatch())
+    return;
+  if (fontName == QStringLiteral("FixedSys"))
+  {
+    font.setFamily(QStringLiteral("Fixedsys"));
+    if (font.exactMatch())
+      return;
+  }
+  font.setFamily(QFontDatabase::systemFont(QFontDatabase::SystemFont::FixedFont).family());
+}
+
 ApiCode ScriptApi::WindowFont(
     string_view windowName,
     string_view fontID,
@@ -173,9 +187,9 @@ ApiCode ScriptApi::WindowFont(
   if (!window) [[unlikely]]
     return ApiCode::NoSuchWindow;
   QFont font;
-  font.setFamily(fontName);
+  assignFontFamily(font, fontName);
   font.setStyleHint(hint);
-  font.setPointSizeF(pointSize * window->devicePixelRatioF());
+  font.setPointSizeF(pointSize);
   if (bold)
     font.setBold(true);
   if (italic)

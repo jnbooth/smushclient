@@ -1,10 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>appicon/appicon.svg</file>
-        <file>fonts/Dina-Bold.ttf</file>
-        <file>fonts/Dina.fon</file>
-        <file>fonts/Dina.ttf</file>
-        <file>fonts/FixedSys.ttf</file>
         <file>icons/settings/history.svg</file>
         <file>icons/world-details/aliases.svg</file>
         <file>icons/world-details/connecting.svg</file>
