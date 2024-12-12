@@ -33,6 +33,7 @@ public:
   constexpr bool disabled() const noexcept { return isDisabled; }
   void enable();
   bool hasFunction(PluginCallbackKey routine) const;
+  bool hasFunction(const QString &routine) const;
   constexpr const std::string &id() const noexcept { return metadata.id; }
   bool install(const PluginPack &pack);
   constexpr const QDateTime &installed() const noexcept { return metadata.installed; }

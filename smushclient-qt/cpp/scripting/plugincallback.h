@@ -9,28 +9,26 @@ enum class CommandSource : uint8_t;
 class PluginCallbackKey
 {
 public:
-  constexpr PluginCallbackKey(std::string_view callback) noexcept
-      : name(callback),
+  constexpr PluginCallbackKey(std::string_view routine) noexcept
+      : name(routine),
         property()
   {
-    const size_t n = callback.find('.');
+    const size_t n = routine.find('.');
     if (n == std::string_view::npos)
       return;
 
-    name = callback.substr(0, n);
-    property = callback.substr(n + 1);
+    name = routine.substr(0, n);
+    property = routine.substr(n + 1);
   }
 
-  constexpr PluginCallbackKey(const std::string &name) noexcept
-      : PluginCallbackKey(std::string_view(name)) {}
+  constexpr PluginCallbackKey(const std::string &routine) noexcept
+      : PluginCallbackKey(std::string_view(routine)) {}
 
-  inline PluginCallbackKey(rust::Str name) noexcept
-      : PluginCallbackKey(std::string_view(name.data(), name.length())) {}
+  inline PluginCallbackKey(rust::Str routine) noexcept
+      : PluginCallbackKey(std::string_view(routine.data(), routine.length())) {}
 
-  constexpr PluginCallbackKey(const rust::String &name) noexcept
-      : PluginCallbackKey(std::string_view(name.data(), name.length())) {}
-
-  PluginCallbackKey(const QString &name);
+  constexpr PluginCallbackKey(const rust::String &routine) noexcept
+      : PluginCallbackKey(std::string_view(routine.data(), routine.length())) {}
 
 public:
   std::string_view name;
@@ -66,9 +64,11 @@ public:
 class DynamicPluginCallback : public PluginCallback
 {
 public:
-  constexpr DynamicPluginCallback(PluginCallbackKey name) noexcept
-      : name(name.name),
-        property(name.property) {}
+  constexpr DynamicPluginCallback(PluginCallbackKey callback) noexcept
+      : name(callback.name),
+        property(callback.property) {}
+
+  DynamicPluginCallback(const QString &callback);
 
   virtual ~DynamicPluginCallback() {}
 

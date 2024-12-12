@@ -107,10 +107,21 @@ class CallbackFinder : public DynamicPluginCallback
 {
 public:
   inline CallbackFinder(PluginCallbackKey callback) : DynamicPluginCallback(callback) {}
+  inline CallbackFinder(const QString &callback) : DynamicPluginCallback(callback) {}
   inline constexpr ActionSource source() const noexcept override { return ActionSource::Unknown; }
 };
 
 bool Plugin::hasFunction(PluginCallbackKey routine) const
+{
+  if (CallbackFinder(routine).findCallback(L))
+  {
+    lua_pop(L, 1);
+    return true;
+  }
+  return false;
+}
+
+bool Plugin::hasFunction(const QString &routine) const
 {
   if (CallbackFinder(routine).findCallback(L))
   {

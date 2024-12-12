@@ -842,7 +842,7 @@ void WorldTab::on_input_textChanged()
 class AnchorCallback : public DynamicPluginCallback
 {
 public:
-  AnchorCallback(const string &callback, const QString &arg)
+  AnchorCallback(const QString &callback, const QString &arg)
       : DynamicPluginCallback(callback),
         arg(arg) {}
 
@@ -885,7 +885,7 @@ void WorldTab::on_output_anchorClicked(const QUrl &url)
       (fnIndex = action.indexOf(u'(', delimIndex)) != -1)
   {
     const QString pluginID = action.sliced(2, delimIndex - 2);
-    const string functionName = action.sliced(delimIndex + 1, fnIndex - delimIndex - 1).toStdString();
+    const QString functionName = action.sliced(delimIndex + 1, fnIndex - delimIndex - 1);
     const QString arg = action.sliced(fnIndex + 1, action.size() - fnIndex - 2);
     AnchorCallback callback(functionName, arg);
     api->sendCallback(callback, pluginID);

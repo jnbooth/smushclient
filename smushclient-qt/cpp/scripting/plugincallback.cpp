@@ -10,16 +10,20 @@ using std::pair;
 using std::string;
 using std::string_view;
 
-string_view qStringView(const QString &string)
-{
-  const QByteArray utf8 = string.toUtf8();
-  return string_view(utf8.data(), utf8.size());
-}
-
-PluginCallbackKey::PluginCallbackKey(const QString &name)
-    : PluginCallbackKey(qStringView(name)) {}
-
 // Abstract
+
+DynamicPluginCallback::DynamicPluginCallback(const QString &routine)
+    : property()
+{
+  const qsizetype n = routine.indexOf(u'.');
+  if (n == -1)
+  {
+    name = routine.toStdString();
+    return;
+  }
+  name = routine.first(n).toStdString();
+  property = routine.sliced(n + 1).toStdString();
+}
 
 bool DynamicPluginCallback::findCallback(lua_State *L) const
 {
