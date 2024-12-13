@@ -32,6 +32,13 @@ function utils.base64decode(encoded) end
 ---@return string
 function utils.base64encode(text) end
 
+---@param fontType? 0 | 1 | 2 | 3
+---@return string, integer
+function utils.getsystemfont(fontType) end
+
+---@type string | nil
+SMUSHCLIENT_VERSION = nil
+
 custom_colour = {
   NoChange = -1,
   Custom1 = 0x8080FF,

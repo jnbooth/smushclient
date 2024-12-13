@@ -570,6 +570,8 @@ void registerTable(lua_State *L, const char *name, const pair<K, V> (&entries)[N
 
 int registerLuaGlobals(lua_State *L)
 {
+  qlua::pushQString(L, QCoreApplication::applicationVersion());
+  lua_setglobal(L, "SMUSHCLIENT_VERSION");
   registerTable(L, "alias_flag", alias_flag);
   registerTable(L, "custom_colour", custom_colour);
   registerTable(L, "error_code", error_code);

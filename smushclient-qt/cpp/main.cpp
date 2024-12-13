@@ -16,13 +16,6 @@ int main(int argc, char *argv[])
   QApplication app(argc, argv);
   QCoreApplication::setApplicationName(QStringLiteral(CMAKE_APP_NAME));
   QCoreApplication::setApplicationVersion(QStringLiteral(CMAKE_APP_VERSION));
-#if defined(Q_OS_WINDOWS)
-  QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/Dina.fon"));
-#else
-  QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/Dina.ttf"));
-  QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/Dina-Bold.ttf"));
-  QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/FixedSys.ttf"));
-#endif
   Settings settings;
   initializeStartupDirectory(settings.getStartupDirectoryOrDefault());
   Notepads *notepads = new Notepads;

@@ -125,6 +125,21 @@ static int L_getfontfamilies(lua_State *L)
   return 1;
 }
 
+static int L_getsystemfont(lua_State *L)
+{
+  expectMaxArgs(L, 1);
+  const int font = qlua::getInt(L, 1, QFontDatabase::SystemFont::FixedFont);
+  if (font < QFontDatabase::SystemFont::GeneralFont || font > QFontDatabase::SystemFont::SmallestReadableFont)
+  {
+    lua_pushnil(L);
+    return 1;
+  }
+  const QFont systemFont = QFontDatabase::systemFont((QFontDatabase::SystemFont)font);
+  qlua::pushQString(L, systemFont.family());
+  lua_pushinteger(L, systemFont.pointSize());
+  return 2;
+}
+
 static int L_inputbox(lua_State *L)
 {
   expectMaxArgs(L, 6);
@@ -233,6 +248,7 @@ static const struct luaL_Reg utilslib[] =
     {{"choose", L_choose},
      {"directorypicker", L_directorypicker},
      {"getfontfamilies", L_getfontfamilies},
+     {"getsystemfont", L_getsystemfont},
      {"inputbox", L_inputbox},
      {"filepicker", L_filepicker},
      {"listbox", L_listbox},
