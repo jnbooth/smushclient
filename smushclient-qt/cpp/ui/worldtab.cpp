@@ -477,6 +477,8 @@ void WorldTab::resizeEvent(QResizeEvent *event)
 {
   if (resizeTimerId)
     killTimer(resizeTimerId);
+  else
+    ui->output->document()->setLayoutEnabled(false);
   resizeTimerId = startTimer(1000);
   QSplitter::resizeEvent(event);
 }
@@ -496,6 +498,7 @@ void WorldTab::timerEvent(QTimerEvent *event)
   if (id != resizeTimerId)
     return;
   resizeTimerId = 0;
+  ui->output->document()->setLayoutEnabled(true);
   initialized = true;
   OnPluginWorldOutputResized onWorldOutputResized;
   api->sendCallback(onWorldOutputResized);
