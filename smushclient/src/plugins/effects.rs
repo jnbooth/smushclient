@@ -93,49 +93,6 @@ impl TriggerEffects {
         self.omit_from_log |= trigger.omit_from_log;
         self.omit_from_output |= trigger.omit_from_output;
     }
-
-    /*
-    pub fn apply(&self, fragment: &mut TextFragment, world: &World) {
-        if fragment.flags.contains(TextStyle::Inverse) {
-            mem::swap(&mut fragment.foreground, &mut fragment.background);
-        }
-        if let Some(foreground) = self.foreground {
-            fragment.foreground = foreground;
-        }
-        if let Some(background) = self.background {
-            fragment.background = background;
-        }
-        if self.make_bold {
-            fragment.flags.insert(TextStyle::Bold);
-        } else if !world.show_bold {
-            fragment.flags.remove(TextStyle::Bold);
-        }
-        if self.make_italic {
-            fragment.flags.insert(TextStyle::Italic);
-        } else if !world.show_italic {
-            fragment.flags.remove(TextStyle::Italic);
-        }
-        if self.make_underline {
-            fragment.flags.insert(TextStyle::Underline);
-        } else if !world.show_underline {
-            fragment.flags.remove(TextStyle::Underline);
-        }
-        if fragment.action.is_none() {
-            return;
-        }
-        if world.underline_hyperlinks {
-            fragment.flags.insert(TextStyle::Underline);
-        }
-        if world.mud_can_change_link_colour {
-            return;
-        }
-        fragment.foreground = if world.use_custom_link_colour {
-            world.hyperlink_colour
-        } else {
-            RgbColor::rgb(43, 121, 162)
-        }
-    }
-    */
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
