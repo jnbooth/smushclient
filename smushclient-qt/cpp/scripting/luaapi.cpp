@@ -909,20 +909,6 @@ static int L_SetVariable(lua_State *L)
 
 // windows
 
-static int L_Redraw(lua_State *L)
-{
-  API("Redraw")
-  expectMaxArgs(L, 0);
-  return 0;
-}
-
-static int L_Repaint(lua_State *L)
-{
-  API("Repaint")
-  expectMaxArgs(L, 0);
-  return 0;
-}
-
 static int L_TextRectangle(lua_State *L)
 {
   API("TextRectangle")
@@ -1439,7 +1425,6 @@ static int L_WindowScrollwheelHandler(lua_State *L)
 
 static int L_noop(lua_State *L)
 {
-  API("noop")
   return returnCode(L, ApiCode::OK);
 }
 
@@ -1525,8 +1510,6 @@ static const struct luaL_Reg worldlib[] =
      {"GetPluginVariable", L_GetPluginVariable},
      {"SetVariable", L_SetVariable},
      // windows
-     {"Redraw", L_Redraw},
-     {"Repaint", L_Repaint},
      {"TextRectangle", L_TextRectangle},
      {"WindowCircleOp", L_WindowCircleOp},
      {"WindowCreate", L_WindowCreate},
@@ -1556,6 +1539,9 @@ static const struct luaL_Reg worldlib[] =
      // stubs
      {"SetBackgroundImage", L_noop},
      {"SetFrameBackgroundColour", L_noop},
+     {"Redraw", L_noop},
+     {"Repaint", L_noop},
+     {"ResetIP", L_noop},
 
      {NULL, NULL}};
 

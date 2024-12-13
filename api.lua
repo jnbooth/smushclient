@@ -1365,3 +1365,6 @@ function SetBackgroundImage(fileName, mode) end
 ---Sets the background colour of the client frame.
 ---@param colour ColourParam
 function SetFrameBackgroundColour(colour) end
+
+---Does nothing. SmushClient does not cache IP addresses.
+function ResetIP() end
