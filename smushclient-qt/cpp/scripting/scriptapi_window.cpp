@@ -158,15 +158,20 @@ ApiCode ScriptApi::WindowFilter(
   return ApiCode::OK;
 }
 
+bool isExactFontFamily(const QFont &font)
+{
+  return font.family() == QFontInfo(font).family();
+}
+
 void assignFontFamily(QFont &font, const QString &fontName)
 {
   font.setFamily(fontName);
-  if (font.exactMatch())
+  if (isExactFontFamily(font))
     return;
   if (fontName == QStringLiteral("FixedSys"))
   {
     font.setFamily(QStringLiteral("Fixedsys"));
-    if (font.exactMatch())
+  if (isExactFontFamily(font))
       return;
   }
   font.setFamily(QFontDatabase::systemFont(QFontDatabase::SystemFont::FixedFont).family());
