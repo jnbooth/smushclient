@@ -2,9 +2,10 @@
 #include "ui_mainwindow.h"
 #include <QtCore/QSaveFile>
 #include <QtGui/QClipboard>
+#include <QtGui/QDesktopServices>
+#include <QtGui/QScreen>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextDocumentFragment>
-#include <QtGui/QDesktopServices>
 #include <QtPrintSupport/QPrintDialog>
 #include <QtPrintSupport/QPrinter>
 #include <QtWidgets/QErrorMessage>
@@ -32,10 +33,15 @@ MainWindow::MainWindow(Notepads *notepads, QWidget *parent)
       notepads(notepads)
 {
   setAttribute(Qt::WA_DeleteOnClose);
+  ui->setupUi(this);
+  const QByteArray savedGeometry = QSettings().value(settingsKey()).toByteArray();
+  if (savedGeometry.isEmpty())
+    setGeometry(screen()->availableGeometry());
+  else
+    restoreGeometry(savedGeometry);
+
   findDialog = new FindDialog(this);
   QDir::setCurrent(settings.getStartupDirectoryOrDefault());
-
-  ui->setupUi(this);
 
   ui->action_status_bar->setChecked(settings.getShowStatusBar());
   ui->action_wrap_output->setChecked(settings.getOutputWrapping());
@@ -88,6 +94,8 @@ void MainWindow::openWorld(const QString &filePath)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+  QSettings().setValue(settingsKey(), saveGeometry());
+
   if (settings.getConfirmQuit() && QMessageBox::question(this, QString(), tr("Close all worlds and quit?"), QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel)
   {
     event->ignore();
@@ -144,6 +152,14 @@ bool MainWindow::event(QEvent *event)
   };
 
   return QMainWindow::event(event);
+}
+
+// Private static methods
+
+const QString &MainWindow::settingsKey()
+{
+  static const QString key = QStringLiteral("state/mainwindow");
+  return key;
 }
 
 // Private methods
