@@ -34,11 +34,6 @@ MainWindow::MainWindow(Notepads *notepads, QWidget *parent)
 {
   setAttribute(Qt::WA_DeleteOnClose);
   ui->setupUi(this);
-  const QByteArray savedGeometry = QSettings().value(settingsKey()).toByteArray();
-  if (savedGeometry.isEmpty())
-    setGeometry(screen()->availableGeometry());
-  else
-    restoreGeometry(savedGeometry);
 
   findDialog = new FindDialog(this);
   QDir::setCurrent(settings.getStartupDirectoryOrDefault());
@@ -65,10 +60,13 @@ MainWindow::MainWindow(Notepads *notepads, QWidget *parent)
   const QStringList recentFiles = settings.getRecentFiles();
   if (!recentFiles.empty())
     setupRecentFiles(recentFiles);
+
+  restore();
 }
 
 MainWindow::~MainWindow()
 {
+  save();
   delete ui;
 }
 
@@ -212,6 +210,23 @@ void MainWindow::openRecentFile(qsizetype index)
   }
 
   openWorld(recentFiles.at(index));
+}
+
+bool MainWindow::restore()
+{
+  const QByteArray saveData = QSettings().value(settingsKey()).toByteArray();
+  if (!saveData.isEmpty())
+    return restoreGeometry(saveData);
+
+  setGeometry(screen()->availableGeometry());
+  setWindowState(Qt::WindowState::WindowActive | Qt::WindowState::WindowMaximized);
+  return false;
+}
+
+void MainWindow::save() const
+{
+  const QByteArray saveData = saveGeometry();
+  QSettings().setValue(settingsKey(), saveData);
 }
 
 void MainWindow::setupRecentFiles(const QStringList &recentFiles) const

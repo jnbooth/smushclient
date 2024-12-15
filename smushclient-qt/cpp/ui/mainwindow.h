@@ -46,6 +46,8 @@ private:
   WorldTab *createWorldTab(QWidget *parent) const;
   void connectTab(WorldTab *tab) const;
   void openRecentFile(qsizetype index);
+  bool restore();
+  void save() const;
   void setupRecentFiles(const QStringList &recentFiles) const;
   void setWorldMenusEnabled(bool enabled) const;
   WorldTab *worldtab() const;
