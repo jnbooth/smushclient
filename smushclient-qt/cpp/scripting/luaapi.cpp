@@ -160,7 +160,7 @@ public:
   ~Benchmarker()
   {
     int64_t elapsed = timer.elapsed();
-    if (elapsed > 0)
+    if (elapsed > 2)
       qDebug() << name << elapsed << "ms";
   }
 
