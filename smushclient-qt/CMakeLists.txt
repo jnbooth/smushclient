@@ -4,6 +4,7 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET 15.1)
 project(SmushClient VERSION 0.1.0 LANGUAGES CXX)
 set(APP_NAME ${PROJECT_NAME})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+#set(CMAKE_BUILD_TYPE Release)
 
 # Rust always links against non-debug Windows runtime on *-msvc targets
 # Note it is best to set this on the command line to ensure all targets are consistent
@@ -45,7 +46,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   lualibs
   GIT_REPOSITORY https://github.com/jnbooth/lua-batteries-included.git
-  GIT_TAG 1031ea5b7a16e0365687c7e40c440dc9e1591274
+  GIT_TAG 35c022c11d740d5b3d0153df9413b8c0c52b7591
 )
 
 FetchContent_MakeAvailable(
@@ -209,6 +210,7 @@ endif()
 
 
 if(MSVC)
+  add_compile_definitions(STANDALONE_CLIENT)
   target_compile_definitions(lualibs PRIVATE strncasecmp=_strnicmp)
   target_compile_options(
     lualibs
