@@ -216,6 +216,12 @@ void MainWindow::openRecentFile(qsizetype index)
 
 void MainWindow::setupRecentFiles(const QStringList &recentFiles) const
 {
+  if (recentFiles.isEmpty())
+  {
+    ui->menu_open_recent_world->setVisible(false);
+    return;
+  }
+  ui->menu_open_recent_world->setVisible(true);
   auto i = recentFileActions.begin();
   auto end = recentFileActions.end();
   for (const QString &filePath : recentFiles)
