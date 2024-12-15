@@ -158,29 +158,26 @@ ApiCode ScriptApi::WindowFilter(
   return ApiCode::OK;
 }
 
-bool isExactFontFamily(const QFont &font)
+bool setExactFontFamily(QFont &font, const QString &family)
 {
-  return font.family() == QFontInfo(font).family();
+  font.setFamily(family);
+  return QFontInfo(font).family() == family;
 }
 
-void assignFontFamily(QFont &font, const QString &fontName)
+void assignFontFamily(QFont &font, const QString &family)
 {
-  font.setFamily(fontName);
-  if (isExactFontFamily(font))
+  if (setExactFontFamily(font, family))
     return;
-  if (fontName == QStringLiteral("FixedSys"))
-  {
-    font.setFamily(QStringLiteral("Fixedsys"));
-  if (isExactFontFamily(font))
-      return;
-  }
+  if (family == QStringLiteral("FixedSys") && setExactFontFamily(font, QStringLiteral("Fixedsys")))
+    return;
+  qDebug() << "Missing font:" << family;
   font.setFamily(QFontDatabase::systemFont(QFontDatabase::SystemFont::FixedFont).family());
 }
 
 ApiCode ScriptApi::WindowFont(
     string_view windowName,
     string_view fontID,
-    const QString &fontName,
+    const QString &family,
     qreal pointSize,
     bool bold,
     bool italic,
@@ -192,7 +189,6 @@ ApiCode ScriptApi::WindowFont(
   if (!window) [[unlikely]]
     return ApiCode::NoSuchWindow;
   QFont font;
-  assignFontFamily(font, fontName);
   font.setStyleHint(hint);
   font.setPointSizeF(pointSize);
   if (bold)
@@ -203,6 +199,7 @@ ApiCode ScriptApi::WindowFont(
     font.setUnderline(true);
   if (strikeout)
     font.setStrikeOut(true);
+  assignFontFamily(font, family);
   window->loadFont(fontID, font);
   return ApiCode::OK;
 }

@@ -199,7 +199,7 @@ public:
   ApiCode WindowFont(
       std::string_view windowName,
       std::string_view fontID,
-      const QString &fontName,
+      const QString &family,
       qreal pointSize,
       bool bold,
       bool italic,
