@@ -10,6 +10,7 @@ int main(int argc, char *argv[])
 {
 #if defined(Q_OS_WINDOWS)
   _putenv_s("LUA_PATH", SCRIPTS_DIR "/?.lua;" LUA_PATH_DEFAULT);
+  QCoreApplication::setOrganizationName(QStringLiteral(CMAKE_ORG_NAME));
 #else
   setenv("LUA_PATH", SCRIPTS_DIR "/?.lua;" LUA_PATH_DEFAULT, false);
 #endif
