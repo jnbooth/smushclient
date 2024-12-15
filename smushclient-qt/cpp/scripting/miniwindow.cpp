@@ -267,12 +267,12 @@ bool MiniWindow::deleteHotspot(string_view hotspotID)
   return true;
 }
 
-void MiniWindow::drawButton(const QRect &rectBase, ButtonFrame frameType, ButtonFlags flags)
+void MiniWindow::drawButton(const QRect &rectBase, ButtonFrame frameType, ButtonFlags buttonFlags)
 {
   const QRect rect = normalizeRect(rectBase);
   QFrame frame;
   frame.setFixedSize(rect.size());
-  if (!flags.testFlag(ButtonFlag::Fill))
+  if (!buttonFlags.testFlag(ButtonFlag::Fill))
   {
     frame.setAttribute(Qt::WA_NoSystemBackground);
     frame.setAttribute(Qt::WA_TranslucentBackground);
@@ -296,12 +296,12 @@ void MiniWindow::drawButton(const QRect &rectBase, ButtonFrame frameType, Button
     frame.setFrameShadow(QFrame::Shadow::Raised);
     break;
   }
-  if (flags.testAnyFlags(ButtonFlags(ButtonFlag::Flat | ButtonFlag::Monochrome)))
+  if (buttonFlags.testAnyFlags(ButtonFlags(ButtonFlag::Flat | ButtonFlag::Monochrome)))
     frame.setFrameShadow(QFrame::Shadow::Plain);
 
-  if (flags.testFlag(ButtonFlag::Flat))
+  if (buttonFlags.testFlag(ButtonFlag::Flat))
     frame.setLineWidth(1);
-  else if (flags.testFlag(ButtonFlag::Soft))
+  else if (buttonFlags.testFlag(ButtonFlag::Soft))
     frame.setLineWidth(2);
   else
     frame.setLineWidth(3);
