@@ -203,9 +203,9 @@ add_compile_definitions(
 
 # Enable Lua benchmarking
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-#add_compile_definitions(BENCHMARK_LUA)
+  #add_compile_definitions(BENCHMARK_LUA)
 else ()
-add_compile_definitions(BENCHMARK_LUA)
+  add_compile_definitions(BENCHMARK_LUA)
 endif()
 
 
@@ -244,8 +244,16 @@ set_target_properties(${APP_NAME} PROPERTIES
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
 )
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+  set_target_properties(${APP_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
+  add_compile_definitions(
+    QT_NO_DEBUG_OUTPUT
+    QT_NO_INFO_OUTPUT
+    QT_NO_WARNING_OUTPUT
+  )
+endif()
 
 install(TARGETS ${APP_NAME}
     BUNDLE DESTINATION .
