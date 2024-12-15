@@ -170,7 +170,6 @@ void assignFontFamily(QFont &font, const QString &family)
     return;
   if (family == QStringLiteral("FixedSys") && setExactFontFamily(font, QStringLiteral("Fixedsys")))
     return;
-  qDebug() << "Missing font:" << family;
   font.setFamily(QFontDatabase::systemFont(QFontDatabase::SystemFont::FixedFont).family());
 }
 
