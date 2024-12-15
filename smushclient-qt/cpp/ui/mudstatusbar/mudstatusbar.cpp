@@ -28,12 +28,12 @@ MudStatusBar::MudStatusBar(QWidget *parent)
   ui->connection->setVisible(false);
   ui->users->setVisible(false);
   setConnected(ConnectionStatus::Disconnected);
-  restore(QSettings().value(settingsKey()).toByteArray());
+  restore();
 }
 
 MudStatusBar::~MudStatusBar()
 {
-  QSettings().setValue(settingsKey(), save());
+  save();
   delete ui;
 }
 
@@ -129,8 +129,9 @@ bool MudStatusBar::recreateStat(StatusBarStat *stat, const QString &caption, con
   return true;
 }
 
-bool MudStatusBar::restore(const QByteArray &saveData)
+bool MudStatusBar::restore()
 {
+  const QByteArray saveData = QSettings().value(settingsKey()).toByteArray();
   if (saveData.isEmpty())
   {
     for (QAction *action : stateActions())
@@ -150,13 +151,13 @@ bool MudStatusBar::restore(const QByteArray &saveData)
   return stream.status() == QDataStream::Status::Ok;
 }
 
-QByteArray MudStatusBar::save() const
+void MudStatusBar::save() const
 {
   QByteArray saveData;
   QDataStream stream(&saveData, QIODevice::WriteOnly);
   for (QAction *action : stateActions())
     stream << action->isChecked();
-  return saveData;
+  QSettings().setValue(settingsKey(), saveData);
 }
 
 const QString &MudStatusBar::settingsKey()

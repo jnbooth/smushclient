@@ -41,12 +41,12 @@ StatusBarStat::StatusBarStat(
   displayMenu->addAction(ui->action_set_value_color);
   displayMenu->addAction(ui->action_reset_colors);
   setCaption(caption);
-  restore(QSettings().value(settingsKey()).toByteArray());
+  restore();
 }
 
 StatusBarStat::~StatusBarStat()
 {
-  QSettings().setValue(settingsKey(), save());
+  save();
   delete ui;
 }
 
@@ -128,8 +128,9 @@ QPalette StatusBarStat::chooseColor(const QWidget *source)
   return colorPalette;
 }
 
-bool StatusBarStat::restore(const QByteArray &saveData)
+bool StatusBarStat::restore()
 {
+  const QByteArray saveData = QSettings().value(settingsKey()).toByteArray();
   if (saveData.isEmpty())
     return false;
 
@@ -150,7 +151,7 @@ bool StatusBarStat::restore(const QByteArray &saveData)
   return stream.status() == QDataStream::Status::Ok;
 }
 
-QByteArray StatusBarStat::save() const
+void StatusBarStat::save() const
 {
   const QColor baseColor = palette().color(QPalette::ColorRole::WindowText);
   QByteArray saveData;
@@ -159,7 +160,7 @@ QByteArray StatusBarStat::save() const
          << ui->action_show_max->isChecked()
          << saveColor(ui->caption, baseColor)
          << saveColor(ui->value, baseColor);
-  return saveData;
+  QSettings().setValue(settingsKey(), saveData);
 }
 
 QString StatusBarStat::settingsKey() const

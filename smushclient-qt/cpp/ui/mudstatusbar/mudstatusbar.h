@@ -48,8 +48,8 @@ private:
 
 private:
   bool recreateStat(StatusBarStat *stat, const QString &caption, const QString &maxEntity);
-  bool restore(const QByteArray &data);
-  QByteArray save() const;
+  bool restore();
+  void save() const;
   static const QString &settingsKey();
   QList<QAction *> stateActions() const;
 };

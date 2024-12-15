@@ -1,4 +1,5 @@
 #pragma once
+#include <QtCore/QSettings>
 #include <QtGui/QResizeEvent>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QMenu>
@@ -54,7 +55,7 @@ private:
 
 private:
   QPalette chooseColor(const QWidget *source);
-  bool restore(const QByteArray &data);
-  QByteArray save() const;
+  bool restore();
+  void save() const;
   QString settingsKey() const;
 };
