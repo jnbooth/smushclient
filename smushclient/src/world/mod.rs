@@ -327,6 +327,12 @@ impl World {
             .nth(index)
     }
 
+    pub fn remove_temporary(&mut self) {
+        self.aliases.retain(|sender| !sender.temporary);
+        self.timers.retain(|sender| !sender.temporary);
+        self.triggers.retain(|sender| !sender.temporary);
+    }
+
     pub fn save<W: Write>(&self, mut writer: W) -> Result<(), PersistError> {
         writer.write_all(&CURRENT_VERSION.to_be_bytes())?;
         bincode::serialize_into(writer, self)?;

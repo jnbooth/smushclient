@@ -108,12 +108,20 @@ impl ffi::SmushClient {
         self.rust_mut().client.remove_plugin(index).is_some()
     }
 
-    pub fn plugin_scripts(&self) -> Vec<ffi::PluginPack> {
-        self.rust().plugin_scripts()
+    pub fn plugin(&self, index: PluginIndex) -> ffi::PluginPack {
+        self.rust().plugin(index)
+    }
+
+    pub fn reset_world_plugin(self: Pin<&mut Self>) {
+        self.rust_mut().reset_world_plugin();
+    }
+
+    pub fn reset_plugins(self: Pin<&mut Self>) -> Vec<ffi::PluginPack> {
+        self.rust_mut().reset_plugins()
     }
 
     pub fn reinstall_plugin(self: Pin<&mut Self>, index: PluginIndex) -> Result<usize, LoadError> {
-        self.rust_mut().client.reinstall_plugin(index)
+        self.rust_mut().reinstall_plugin(index)
     }
 
     pub fn read(

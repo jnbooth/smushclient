@@ -50,6 +50,31 @@ impl<T> Timers<T> {
         self.last_occurrences.clear();
     }
 
+    pub fn reset_plugin(&mut self, index: PluginIndex) {
+        for timer in self.recurring.extract_if(|timer| timer.plugin == index) {
+            self.next_occurrences.remove(&timer.id);
+            self.last_occurrences.remove(&timer.id);
+        }
+        let scheduled_len = self.scheduled.len();
+        self.scheduled.retain(|timer| {
+            if timer.plugin != index {
+                return true;
+            }
+            self.scheduled_times.remove(&timer.id);
+            false
+        });
+        let scheduled_len_new = self.scheduled.len();
+        if scheduled_len_new == scheduled_len {
+            return;
+        }
+        self.cursor_pos = match self
+            .scheduled
+            .binary_search_by_key(&Local::now().time(), |timer| timer.time)
+        {
+            Ok(pos) | Err(pos) => pos,
+        };
+    }
+
     pub fn last_occurrence(&self, timer_id: u16) -> Option<DateTime<Utc>> {
         self.last_occurrences.get(&timer_id).copied()
     }
@@ -90,10 +115,10 @@ impl<T: TimerConstructible> Timers<T> {
                 }
             }
             let send_timer = &self.scheduled[self.cursor_pos];
-            self.cursor_pos += 1;
             if send_timer.time > time {
                 break;
             }
+            self.cursor_pos += 1;
             handler.send_timer(&send_timer.timer);
             if send_timer.one_shot {
                 send_timer.remove(client);

@@ -21,7 +21,7 @@ use smushclient::{
     BoolProperty, CommandSource, Handler, SendIterable, SenderAccessError, SmushClient, Timers,
     World,
 };
-use smushclient_plugins::{Alias, PluginIndex, Timer, Trigger, XmlError};
+use smushclient_plugins::{Alias, LoadError, PluginIndex, Timer, Trigger, XmlError};
 
 const SUPPORTED_TAGS: EnumSet<Tag> = enums![
     Tag::Bold,
@@ -163,8 +163,24 @@ impl SmushClientRust {
             .unwrap()
     }
 
-    pub fn plugin_scripts(&self) -> Vec<ffi::PluginPack> {
+    pub fn plugin(&self, index: PluginIndex) -> ffi::PluginPack {
+        ffi::PluginPack::from(self.client.plugin(index).unwrap())
+    }
+
+    pub fn reset_world_plugin(&mut self) {
+        self.timers.reset_plugin(self.world_plugin_index());
+        self.client.reset_world_plugin();
+    }
+
+    pub fn reset_plugins(&mut self) -> Vec<ffi::PluginPack> {
+        self.client.reset_plugins();
+        self.timers.clear();
         self.client.plugins().map(ffi::PluginPack::from).collect()
+    }
+
+    pub fn reinstall_plugin(&mut self, index: PluginIndex) -> Result<usize, LoadError> {
+        self.timers.reset_plugin(index);
+        self.client.reinstall_plugin(index)
     }
 
     pub fn plugin_model_text(&self, index: PluginIndex, column: i32) -> QString {

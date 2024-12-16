@@ -604,7 +604,9 @@ pub mod ffi {
         fn plugin_enabled(self: &SmushClient, index: usize) -> bool;
         fn plugin_id(self: &SmushClient, index: usize) -> QString;
         fn plugin_model_text(self: &SmushClient, index: usize, column: i32) -> QString;
-        fn plugin_scripts(self: &SmushClient) -> Vec<PluginPack>;
+        fn plugin(self: &SmushClient, index: usize) -> PluginPack;
+        fn reset_world_plugin(self: Pin<&mut SmushClient>);
+        fn reset_plugins(self: Pin<&mut SmushClient>) -> Vec<PluginPack>;
         fn reinstall_plugin(self: Pin<&mut SmushClient>, index: usize) -> Result<usize>;
         fn read(
             self: Pin<&mut SmushClient>,

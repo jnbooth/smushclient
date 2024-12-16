@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use std::io::{self};
 use std::ops::{Deref, DerefMut};
 use std::path::Path;
+use std::{slice, vec};
 
 use super::effects::CommandSource;
 use super::effects::{AliasEffects, SpanStyle, TriggerEffects};
@@ -307,5 +308,35 @@ impl Deref for PluginEngine {
 impl DerefMut for PluginEngine {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.plugins
+    }
+}
+
+impl IntoIterator for PluginEngine {
+    type Item = Plugin;
+
+    type IntoIter = vec::IntoIter<Plugin>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.plugins.into_iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a PluginEngine {
+    type Item = &'a Plugin;
+
+    type IntoIter = slice::Iter<'a, Plugin>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.plugins.iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a mut PluginEngine {
+    type Item = &'a mut Plugin;
+
+    type IntoIter = slice::IterMut<'a, Plugin>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.plugins.iter_mut()
     }
 }

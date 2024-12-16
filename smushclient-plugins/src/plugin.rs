@@ -81,6 +81,12 @@ impl Plugin {
         this.metadata.path = path.to_path_buf();
         Ok(this)
     }
+
+    pub fn remove_temporary(&mut self) {
+        self.aliases.retain(|sender| !sender.temporary);
+        self.timers.retain(|sender| !sender.temporary);
+        self.triggers.retain(|sender| !sender.temporary);
+    }
 }
 
 /// Corresponds to a plugin .xml file.

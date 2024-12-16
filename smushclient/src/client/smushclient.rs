@@ -62,6 +62,20 @@ impl SmushClient {
         }
     }
 
+    pub fn reset_world_plugin(&mut self) {
+        self.world.remove_temporary();
+    }
+
+    pub fn reset_plugins(&mut self) {
+        for plugin in &mut self.plugins {
+            if plugin.metadata.is_world_plugin {
+                self.world.remove_temporary();
+            } else {
+                plugin.remove_temporary();
+            }
+        }
+    }
+
     pub fn reset_connection(&mut self) {
         self.transformer = Transformer::new(self.create_config());
     }
@@ -71,7 +85,7 @@ impl SmushClient {
     }
 
     pub fn stop_evaluating<T: SendIterable>(&mut self) {
-        for plugin in self.plugins.iter_mut() {
+        for plugin in &mut self.plugins {
             T::from_either_mut(plugin, &mut self.world).end();
         }
     }
@@ -458,9 +472,15 @@ impl SmushClient {
     pub fn add_sender<T: SendIterable>(
         &mut self,
         index: PluginIndex,
-        sender: T,
+        mut sender: T,
     ) -> Result<&T, SenderAccessError> {
-        let senders = self.senders_mut::<T>(index);
+        let plugin = &mut self.plugins[index];
+        let senders = if plugin.metadata.is_world_plugin {
+            T::from_world_mut(&mut self.world)
+        } else {
+            sender.as_mut().temporary = true;
+            T::from_plugin_mut(plugin)
+        };
         sender.assert_unique_label(senders)?;
         Ok(senders.insert(sender))
     }
