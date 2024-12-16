@@ -191,7 +191,7 @@ bool PluginModel::removeRows(int row, int count, const QModelIndex &parent)
     return false;
 
   emit layoutAboutToBeChanged();
-  beginRemoveRows(parent, row, count);
+  beginRemoveRows(parent, row, row + count - 1);
   bool succeeded = true;
   int i = 0;
   for (; i < count && succeeded; ++i)
