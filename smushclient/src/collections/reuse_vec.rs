@@ -31,17 +31,16 @@ impl<T> ReuseVec<T> {
     }
 
     pub fn insert(&mut self, timer: T) -> usize {
-        let Some(hole) = self.holes.pop() else {
-            self.inner.push(Some(timer));
-            return self.inner.len() - 1;
-        };
-        self.inner[hole] = Some(timer);
-        hole
+        if let Some(hole) = self.holes.pop() {
+            self.inner[hole] = Some(timer);
+            return hole;
+        }
+        self.inner.push(Some(timer));
+        self.inner.len() - 1
     }
 
     pub fn remove(&mut self, index: usize) -> Option<T> {
-        let slot = self.inner.get_mut(index)?;
-        let item = slot.take()?;
+        let item = self.inner.get_mut(index)?.take()?;
         self.holes.push(index);
         Some(item)
     }
