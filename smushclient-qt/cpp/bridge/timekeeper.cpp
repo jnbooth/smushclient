@@ -82,7 +82,6 @@ ScriptApi *Timekeeper::getApi() const { return qobject_cast<ScriptApi *>(parent(
 
 bool Timekeeper::finishTimer(const Timekeeper::Item &item)
 {
-  qDebug() << item.timerId;
   return getApi()->client()->finishTimer(item.index, *this);
 }
 
