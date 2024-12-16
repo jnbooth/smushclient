@@ -8,6 +8,7 @@
 #include "sqlite3.h"
 #include "miniwindow.h"
 #include "worldproperties.h"
+#include "../timer_map.h"
 #include "../../layout.h"
 #include "../../spans.h"
 #include "../ui/mudstatusbar/mudstatusbar.h"
@@ -147,7 +148,7 @@ ApiCode ScriptApi::DoAfter(size_t plugin, double seconds, const QString &text, S
   if (seconds < 0.1 || seconds > 86399)
     return ApiCode::TimeInvalid;
   const milliseconds duration = milliseconds{(int)(seconds * 1000.0)};
-  sendQueue[startTimer(duration)] = {.plugin = plugin, .target = target, .text = text};
+  sendQueue->start(duration, {.plugin = plugin, .target = target, .text = text});
   return ApiCode::OK;
 }
 

@@ -13,6 +13,7 @@
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 #include "../../spans.h"
+#include "../timer_map.h"
 #include "smushclient_qt/src/bridge.cxxqt.h"
 
 using std::string;
@@ -32,7 +33,8 @@ ScriptApi::ScriptApi(MudStatusBar *statusBar, Notepads *notepads, WorldTab *pare
       statusBar(statusBar),
       whenConnected(QDateTime::currentDateTime())
 {
-
+  std::unordered_map<int, QueuedSend> test;
+  sendQueue = new TimerMap<QueuedSend>(this, &ScriptApi::finishQueuedSend);
   timekeeper = new Timekeeper(this);
   timekeeper->beginPolling(milliseconds(seconds{60}));
   setLineType(echoFormat, LineType::Input);
@@ -142,12 +144,7 @@ void ScriptApi::initializePlugins()
   plugins.reserve(size);
   pluginIndices.clear();
   pluginIndices.reserve(size);
-  if (!sendQueue.empty())
-  {
-    for (const auto &entry : sendQueue)
-      killTimer(entry.first);
-    sendQueue.clear();
-  }
+  sendQueue->clear();
   QString error;
   size_t index = 0;
   for (auto start = pack.cbegin(), it = start, end = pack.cend(); it != end; ++it, ++index)
@@ -223,7 +220,7 @@ void ScriptApi::reloadWorldScript(const QString &worldScriptPath)
 
 void ScriptApi::resetAllTimers()
 {
-  sendQueue.clear();
+  sendQueue->clear();
   SmushClient *cli = client();
   for (size_t i = 0; i < plugins.size(); ++i)
     cli->startTimers(i, *timekeeper);
@@ -428,22 +425,6 @@ void ScriptApi::updateTimestamp()
   setTimestamp(cursor);
 }
 
-// protected overrides
-
-void ScriptApi::timerEvent(QTimerEvent *event)
-{
-  const int id = event->timerId();
-  killTimer(id);
-  auto search = sendQueue.find(id);
-  if (search == sendQueue.end()) [[unlikely]]
-    return;
-  const QueuedSend &send = search->second;
-  const ActionSource oldSource = actionSource;
-  actionSource = ActionSource::TimerFired;
-  sendTo(send.plugin, send.target, send.text);
-  actionSource = oldSource;
-}
-
 // Private methods
 
 AudioChannel &ScriptApi::getAudioChannel(size_t index)
@@ -483,6 +464,15 @@ MiniWindow *ScriptApi::findWindow(string_view windowName) const
   if (search == windows.end()) [[unlikely]]
     return nullptr;
   return search->second;
+}
+
+bool ScriptApi::finishQueuedSend(const QueuedSend &send)
+{
+  const ActionSource oldSource = actionSource;
+  actionSource = ActionSource::TimerFired;
+  sendTo(send.plugin, send.target, send.text);
+  actionSource = oldSource;
+  return true;
 }
 
 void ScriptApi::flushLine()

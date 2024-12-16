@@ -33,6 +33,8 @@ enum class TriggerBool : uint8_t;
 class World;
 class WorldTab;
 struct lua_State;
+template <typename T>
+class TimerMap;
 
 struct QueuedSend
 {
@@ -355,9 +357,6 @@ public:
 public:
   Timekeeper *timekeeper;
 
-protected:
-  void timerEvent(QTimerEvent *event) override;
-
 private:
   ActionSource actionSource = ActionSource::Unknown;
   std::array<AudioChannel, 10> audioChannels = {
@@ -389,7 +388,7 @@ private:
   std::vector<Plugin> plugins{};
   string_map<size_t> pluginIndices{};
   MudScrollBar *scrollBar;
-  std::unordered_map<int, QueuedSend> sendQueue{};
+  TimerMap<QueuedSend> *sendQueue;
   QAbstractSocket *socket;
   MudStatusBar *statusBar;
   bool suppressEcho = false;
@@ -405,6 +404,7 @@ private:
     return findPluginIndex((std::string)pluginID);
   }
   MiniWindow *findWindow(const std::string_view windowName) const;
+  bool finishQueuedSend(const QueuedSend &send);
   void flushLine();
   WorldTab *tab() const;
 };

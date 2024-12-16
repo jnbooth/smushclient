@@ -103,6 +103,7 @@ qt_add_executable(${APP_NAME}
     cpp/lookup.h
     cpp/settings.h cpp/settings.cpp
     cpp/spans.h cpp/spans.cpp
+    cpp/timer_map.h
     cpp/variableview.h
 
     cpp/bridge/document.h cpp/bridge/document.cpp

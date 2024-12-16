@@ -2,6 +2,7 @@
 #include "../scripting/scriptapi.h"
 #include "../scripting/plugincallback.h"
 #include "../client.h"
+#include "../timer_map.h"
 extern "C"
 {
 #include "lua.h"
@@ -9,6 +10,7 @@ extern "C"
 
 using std::pair;
 using std::chrono::milliseconds;
+using std::chrono::seconds;
 
 class TimerCallback : public DynamicPluginCallback
 {
@@ -30,17 +32,24 @@ private:
 };
 
 Timekeeper::Timekeeper(ScriptApi *parent)
-    : QObject(parent) {}
+    : QObject(parent)
+{
+  pollTimer = new QTimer(this);
+  queue = new TimerMap(this, &Timekeeper::finishTimer);
+  connect(pollTimer, &QTimer::timeout, this, &Timekeeper::pollTimers);
+}
 
 void Timekeeper::beginPolling(milliseconds interval, Qt::TimerType timerType)
 {
-  pollTimerId = startTimer(interval, timerType);
+  pollTimer->setInterval(interval);
+  pollTimer->setTimerType(timerType);
+  pollTimer->start();
 }
 
 void Timekeeper::cancelTimers(const QSet<uint16_t> &timerIds)
 {
-  std::erase_if(queue, [timerIds](const pair<const int, Timekeeper::Item> &item)
-                { return timerIds.contains(item.second.timerId); });
+  queue->erase_if([timerIds](const Timekeeper::Item &item)
+                  { return timerIds.contains(item.timerId); });
 }
 
 void Timekeeper::sendTimer(const SendTimer &timer) const
@@ -62,32 +71,22 @@ void Timekeeper::sendTimer(const SendTimer &timer) const
 
 void Timekeeper::startSendTimer(size_t index, uint16_t timerId, uint ms)
 {
-  queue[startTimer(milliseconds{ms})] = {.index = index, .timerId = timerId};
-}
-
-// protected overrides
-
-void Timekeeper::timerEvent(QTimerEvent *event)
-{
-  const int id = event->timerId();
-  if (id == pollTimerId)
-  {
-    getApi()->client()->pollTimers(*this);
-    return;
-  }
-  auto search = queue.find(id);
-  if (search == queue.end()) [[unlikely]]
-  {
-    killTimer(id);
-    return;
-  }
-  if (!getApi()->client()->finishTimer(search->second.index, *this))
-    return;
-
-  killTimer(id);
-  queue.erase(search);
+  queue->start(milliseconds{ms}, {.index = index, .timerId = timerId});
 }
 
 // Private methods
 
 ScriptApi *Timekeeper::getApi() const { return qobject_cast<ScriptApi *>(parent()); }
+
+// Private slots
+
+bool Timekeeper::finishTimer(const Timekeeper::Item &item)
+{
+  qDebug() << item.timerId;
+  return getApi()->client()->finishTimer(item.index, *this);
+}
+
+void Timekeeper::pollTimers()
+{
+  getApi()->client()->pollTimers(*this);
+}

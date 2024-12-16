@@ -27,6 +27,7 @@
 
 using std::nullopt;
 using std::string;
+using std::chrono::milliseconds;
 
 constexpr Qt::KeyboardModifiers numpadMods = Qt::KeyboardModifier::ControlModifier | Qt::KeyboardModifier::MetaModifier;
 
@@ -72,7 +73,14 @@ WorldTab::WorldTab(MudStatusBar *statusBar, Notepads *notepads, QWidget *parent)
       world(),
       worldScriptWatcher(this)
 {
-  resizeTimerId = startTimer(1000);
+  flushTimer = new QTimer(this);
+  flushTimer->setInterval(milliseconds{2000});
+  flushTimer->setSingleShot(true);
+  connect(flushTimer, &QTimer::timeout, this, &WorldTab::flushOutput);
+  resizeTimer = new QTimer(this);
+  resizeTimer->setInterval(milliseconds{1000});
+  resizeTimer->setSingleShot(true);
+  connect(resizeTimer, &QTimer::timeout, this, &WorldTab::finishResize);
   ui->setupUi(this);
   ui->input->setFocus();
   defaultFont.setPointSize(12);
@@ -475,38 +483,10 @@ void WorldTab::mouseReleaseEvent(QMouseEvent *)
 
 void WorldTab::resizeEvent(QResizeEvent *event)
 {
-  if (resizeTimerId)
-    killTimer(resizeTimerId);
-  else
+  if (!resizeTimer->isActive())
     ui->output->document()->setLayoutEnabled(false);
-  resizeTimerId = startTimer(1000);
+  resizeTimer->start();
   QSplitter::resizeEvent(event);
-}
-
-void WorldTab::timerEvent(QTimerEvent *event)
-{
-  const int id = event->timerId();
-  killTimer(id);
-  if (id == flushTimerId)
-  {
-    flushTimerId = 0;
-    const ActionSource currentSource = api->setSource(ActionSource::TriggerFired);
-    client.flush(*document);
-    api->setSource(currentSource);
-    return;
-  }
-  if (id != resizeTimerId)
-    return;
-  resizeTimerId = 0;
-  ui->output->document()->setLayoutEnabled(true);
-  initialized = true;
-  OnPluginWorldOutputResized onWorldOutputResized;
-  api->sendCallback(onWorldOutputResized);
-  if (queuedConnect)
-  {
-    queuedConnect = false;
-    connectToHost();
-  }
 }
 
 // Private methods
@@ -735,6 +715,26 @@ void WorldTab::confirmReloadWorldScript(const QString &worldScriptPath)
   api->reloadWorldScript(worldScriptPath);
 }
 
+void WorldTab::finishResize()
+{
+  ui->output->document()->setLayoutEnabled(true);
+  initialized = true;
+  OnPluginWorldOutputResized onWorldOutputResized;
+  api->sendCallback(onWorldOutputResized);
+  if (queuedConnect)
+  {
+    queuedConnect = false;
+    connectToHost();
+  }
+}
+
+void WorldTab::flushOutput()
+{
+  const ActionSource currentSource = api->setSource(ActionSource::TriggerFired);
+  client.flush(*document);
+  api->setSource(currentSource);
+}
+
 bool WorldTab::loadPlugins()
 {
   const QStringList errors = client.loadPlugins();
@@ -810,9 +810,9 @@ void WorldTab::readFromSocket()
   client.read(*socket, *document);
   api->setSource(currentSource);
   if (client.hasOutput())
-    flushTimerId = startTimer(2000);
+    flushTimer->start();
   else
-    flushTimerId = -1;
+    flushTimer->stop();
 }
 
 void WorldTab::on_input_copyAvailable(bool available)

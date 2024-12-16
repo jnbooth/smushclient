@@ -3,7 +3,7 @@
 #include <QtCore/QRegularExpression>
 #include <QtCore/QPointer>
 #include <QtGui/QFontDatabase>
-#include <QtCore/QTimerEvent>
+#include <QtCore/QTimer>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMouseEvent>
@@ -104,7 +104,6 @@ protected:
   void mouseMoveEvent(QMouseEvent *event) override;
   void mouseReleaseEvent(QMouseEvent *event) override;
   void resizeEvent(QResizeEvent *event) override;
-  void timerEvent(QTimerEvent *event) override;
 
 private:
   bool alertNewActivity = false;
@@ -113,7 +112,7 @@ private:
   QFont defaultFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
   Document *document;
   QString filePath{};
-  int flushTimerId = -1;
+  QTimer *flushTimer;
   bool handleKeypad = false;
   bool initialized = false;
   bool inputCopyAvailable = false;
@@ -123,7 +122,7 @@ private:
   QPointer<Hotspot> onDragRelease = nullptr;
   bool outputCopyAvailable = false;
   bool queuedConnect = false;
-  int resizeTimerId = -1;
+  QTimer *resizeTimer;
   int sessionStartBlock = 0;
   QRegularExpression splitter{};
   bool useSplitter = false;
@@ -140,6 +139,8 @@ private:
 
 private slots:
   void confirmReloadWorldScript(const QString &worldScriptPath);
+  void finishResize();
+  void flushOutput();
   bool loadPlugins();
   void onAutoScroll(int min, int max);
   void onConnect();

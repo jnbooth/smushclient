@@ -3,11 +3,13 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
-#include <QtCore/QTimerEvent>
+#include <QtCore/QTimer>
 
 class ScriptApi;
 enum class SendTarget;
 struct SendTimer;
+template <typename T>
+class TimerMap;
 
 class Timekeeper : public QObject
 {
@@ -28,15 +30,16 @@ public:
   void startSendTimer(size_t index, uint16_t timerId, uint milliseconds);
   inline void setOpen(bool open) { closed = !open; }
 
-protected:
-  void timerEvent(QTimerEvent *event) override;
-
 private:
   bool closed = true;
-  int pollTimerId = -1;
-  std::unordered_map<int, Item> queue{};
+  QTimer *pollTimer;
+  TimerMap<Item> *queue;
 
+  bool finishTimer(const Item &item);
   ScriptApi *getApi() const;
+
+private slots:
+  void pollTimers();
 };
 
 #endif // Timekeeper
