@@ -52,7 +52,7 @@ WorldProperties::WorldProperties()
       continue;
     const string key = toSnakeCase(name);
     addProp(key, prop.metaType());
-    names[key] = name;
+    names.emplace(key, std::move(name));
   }
   numericProps.shrink_to_fit();
   stringProps.shrink_to_fit();
@@ -115,8 +115,7 @@ string_map<string> createNameMap()
     const string name = prop.name();
     if (!name.rfind("ansi", 0))
       continue;
-    const string key = toSnakeCase(name);
-    map[key] = name;
+    map.emplace(toSnakeCase(name), std::move(name));
   }
   return map;
 }

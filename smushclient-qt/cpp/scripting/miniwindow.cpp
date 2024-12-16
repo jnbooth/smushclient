@@ -230,8 +230,8 @@ Hotspot *MiniWindow::addHotspot(
     }
   }
 
-  Hotspot *hotspot = new Hotspot(this, tab, plugin, hotspotID, std::move(callbacks));
-  hotspots[(string)hotspotID] = hotspot;
+  Hotspot *hotspot = hotspots[(string)hotspotID] =
+      new Hotspot(this, tab, plugin, hotspotID, std::move(callbacks));
   if (neighbor)
     hotspot->stackUnder(neighbor);
   return hotspot;
