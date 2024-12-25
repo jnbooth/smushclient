@@ -35,7 +35,7 @@ Timekeeper::Timekeeper(ScriptApi *parent)
     : QObject(parent)
 {
   pollTimer = new QTimer(this);
-  queue = new TimerMap(this, &Timekeeper::finishTimer);
+  queue = new TimerMap<Timekeeper::Item>(this, &Timekeeper::finishTimer);
   connect(pollTimer, &QTimer::timeout, this, &Timekeeper::pollTimers);
 }
 
