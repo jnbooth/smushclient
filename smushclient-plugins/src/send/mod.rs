@@ -61,8 +61,8 @@ mod tests {
         let equivalents = &[
             ("", "^$"),
             ("abc", "^abc$"),
-            ("*a", "^.*a$"),
-            ("^?{a*bc**#d", r"^\^\?\{a.*bc.*.*\#d$"),
+            ("*a", "^(.*)a$"),
+            ("^?{a*bc**#d", r"^\^\?\{a(.*)bc(.*)(.*)\#d$"),
         ];
         let non_regex: Vec<_> = equivalents
             .iter()
