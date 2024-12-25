@@ -8,24 +8,6 @@ use serde::de::DeserializeOwned;
 mod v1;
 pub use v1::World as V1;
 
-mod v2;
-pub use v2::World as V2;
-
-mod v3;
-pub use v3::World as V3;
-
-mod v4;
-pub use v4::World as V4;
-
-mod v5;
-pub use v5::World as V5;
-
-mod v6;
-pub use v6::World as V6;
-
-mod v7;
-pub use v7::World as V7;
-
 pub trait WorldVersion {
     fn migrate(reader: &mut dyn Read) -> Result<super::World, super::PersistError>;
 }

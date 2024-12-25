@@ -28,7 +28,7 @@ use mud_transformer::mxp::RgbColor;
 
 use crate::plugins::{SendIterable, SenderAccessError};
 
-const CURRENT_VERSION: u16 = 8;
+const CURRENT_VERSION: u16 = 2;
 
 fn skip_temporary<S, T>(vec: &[T], serializer: S) -> Result<S::Ok, S::Error>
 where
@@ -344,13 +344,7 @@ impl World {
         reader.read_exact(&mut version_buf)?;
         match u16::from_be_bytes(version_buf) {
             1 => versions::V1::migrate(&mut reader),
-            2 => versions::V2::migrate(&mut reader),
-            3 => versions::V3::migrate(&mut reader),
-            4 => versions::V4::migrate(&mut reader),
-            5 => versions::V5::migrate(&mut reader),
-            6 => versions::V6::migrate(&mut reader),
-            7 => versions::V7::migrate(&mut reader),
-            8 => bincode::deserialize_from(reader).map_err(Into::into),
+            2 => bincode::deserialize_from(reader).map_err(Into::into),
             _ => Err(PersistError::Invalid)?,
         }
     }
