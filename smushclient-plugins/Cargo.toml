@@ -17,10 +17,6 @@ version = "0.8.0"
 [dependencies.pcre2]
 version = "0.2.9"
 
-[dependencies.fancy-regex]
-git = "https://github.com/jnbooth/fancy-regex"
-rev = "8eb029d57fada825af701593e8dc73eee2019c99"
-
 [dependencies.mxp]
 git = "https://github.com/jnbooth/mxp"
 rev = "fc29a77168f785ec14e8e06d2e9f051812b1438d"
