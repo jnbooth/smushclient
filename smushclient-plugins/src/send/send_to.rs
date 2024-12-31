@@ -1,9 +1,6 @@
-use enumeration::Enum;
 use serde::{Deserialize, Serialize};
 
-#[derive(
-    Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize, Enum,
-)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum SendTarget {
     World,
     Command,
@@ -21,6 +18,8 @@ pub enum SendTarget {
     WorldImmediate,
     ScriptAfterOmit,
 }
+
+const SENDTARGET_MAX: SendTarget = SendTarget::ScriptAfterOmit;
 
 impl Default for SendTarget {
     fn default() -> Self {
@@ -54,14 +53,13 @@ impl SendTarget {
 }
 
 pub mod sendto_serde {
-    use enumeration::Enum;
     use serde::de::{Error as _, Unexpected};
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    use std::ops::RangeInclusive;
 
     use super::SendTarget;
-
-    const _: [(); 14] = [(); SendTarget::MAX as usize];
-    const EXPECTED: &str = "integer between 0 and 14";
+    use super::SENDTARGET_MAX;
+    use crate::error::ExpectedRange;
 
     #[allow(clippy::trivially_copy_pass_by_ref)]
     pub fn serialize<S: Serializer>(value: &SendTarget, serializer: S) -> Result<S::Ok, S::Error> {
@@ -69,10 +67,15 @@ pub mod sendto_serde {
     }
 
     pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<SendTarget, D::Error> {
-        let pos = <u8>::deserialize(deserializer)?;
-        SendTarget::from_index(pos as usize).ok_or(D::Error::invalid_value(
-            Unexpected::Unsigned(u64::from(pos)),
-            &EXPECTED,
-        ))
+        const RANGE: RangeInclusive<u8> = 0..=SENDTARGET_MAX as u8;
+        let value = <u8>::deserialize(deserializer)?;
+        if RANGE.contains(&value) {
+            Ok(unsafe { std::mem::transmute::<u8, SendTarget>(value) })
+        } else {
+            Err(D::Error::invalid_value(
+                Unexpected::Unsigned(u64::from(value)),
+                &ExpectedRange(RANGE),
+            ))
+        }
     }
 }

@@ -5,7 +5,7 @@ use crate::bridge::TextStyles;
 use crate::convert::Convert;
 use crate::sender::OutputSpan;
 use cxx_qt_lib::QString;
-use enumeration::EnumSet;
+use flagset::FlagSet;
 use mud_transformer::mxp::{Link, SendTo};
 use mud_transformer::{TelnetSource, TelnetVerb, TextStyle, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, ScriptRecompile};
@@ -239,17 +239,17 @@ impl From<&Plugin> for ffi::PluginPack {
     }
 }
 
-const _: [(); mem::size_of::<EnumSet<TextStyle>>()] = [(); mem::size_of::<TextStyles>()];
+const _: [(); mem::size_of::<FlagSet<TextStyle>>()] = [(); mem::size_of::<TextStyles>()];
 
-impl From<EnumSet<TextStyle>> for TextStyles {
-    fn from(value: EnumSet<TextStyle>) -> Self {
-        Self(value.to_raw())
+impl From<FlagSet<TextStyle>> for TextStyles {
+    fn from(value: FlagSet<TextStyle>) -> Self {
+        Self(value.bits())
     }
 }
 
 macro_rules! assert_textstyle {
     ($i:ident) => {
-        const _: [(); TextStyle::$i.bit() as usize] = [(); ffi::TextStyle::$i.repr as usize];
+        const _: [(); (1 << (TextStyle::$i as u16))] = [(); ffi::TextStyle::$i.repr as usize];
     };
 }
 

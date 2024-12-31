@@ -1,7 +1,7 @@
 use std::ops::Range;
 
 use cxx_qt_lib::{QByteArray, QColor, QString};
-use enumeration::EnumSet;
+use flagset::FlagSet;
 use mud_transformer::{TelnetSource, TelnetVerb, TextStyle};
 
 use crate::ffi;
@@ -31,7 +31,7 @@ impl<'a> DocumentAdapter<'a> {
         unsafe { self.inner.append_plaintext(text, palette) };
     }
 
-    pub fn append_text(&self, text: &QString, style: EnumSet<TextStyle>, color: &QColorPair) {
+    pub fn append_text(&self, text: &QString, style: FlagSet<TextStyle>, color: &QColorPair) {
         // SAFETY: External call to safe method on opaque type.
         unsafe {
             self.inner
@@ -42,7 +42,7 @@ impl<'a> DocumentAdapter<'a> {
     pub fn append_link(
         &mut self,
         text: &QString,
-        style: EnumSet<TextStyle>,
+        style: FlagSet<TextStyle>,
         color: &QColorPair,
         link: &ffi::Link,
     ) {
@@ -58,7 +58,7 @@ impl<'a> DocumentAdapter<'a> {
         }
     }
 
-    pub fn apply_styles(&self, range: Range<usize>, style: EnumSet<TextStyle>, color: &QColorPair) {
+    pub fn apply_styles(&self, range: Range<usize>, style: FlagSet<TextStyle>, color: &QColorPair) {
         unsafe {
             self.inner.apply_styles(
                 i32::try_from(range.start).unwrap_or(i32::MAX),

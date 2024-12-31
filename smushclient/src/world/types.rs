@@ -1,48 +1,42 @@
 use std::fs::OpenOptions;
 
-use enumeration::Enum;
+use flagset::flags;
 use mud_transformer::mxp::RgbColor;
 use serde::{Deserialize, Serialize};
 
-#[derive(
-    Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize, Enum,
-)]
-pub enum AutoConnect {
-    Mush,
-    Diku,
-    Mxp,
-}
+flags! {
+    #[derive(PartialOrd, Ord, Hash, Deserialize, Serialize)]
+    pub enum AutoConnect: u8 {
+        Mush,
+        Diku,
+        Mxp,
+    }
 
-#[derive(
-    Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize, Enum,
-)]
-pub enum ScriptRecompile {
-    Confirm,
-    Always,
-    Never,
-}
+    #[derive(PartialOrd, Ord, Hash, Deserialize, Serialize)]
+    pub enum ScriptRecompile: u8 {
+        Confirm,
+        Always,
+        Never,
+    }
 
-#[derive(
-    Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize, Enum,
-)]
-pub enum LogFormat {
-    Text,
-    Html,
-    Raw,
+    #[derive(PartialOrd, Ord, Hash, Deserialize, Serialize)]
+    pub enum LogFormat: u8 {
+        Text,
+        Html,
+        Raw,
+    }
+
+    #[derive(PartialOrd, Ord, Hash, Deserialize, Serialize)]
+    pub enum LogMode: u8 {
+        Append,
+        Overwrite,
+    }
 }
 
 impl Default for LogFormat {
     fn default() -> Self {
         Self::Text
     }
-}
-
-#[derive(
-    Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize, Enum,
-)]
-pub enum LogMode {
-    Append,
-    Overwrite,
 }
 
 impl From<LogMode> for OpenOptions {

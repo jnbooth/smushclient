@@ -1,8 +1,8 @@
 use std::borrow::Cow;
 
+use flagset::{flags, FlagSet};
 use mxp::RgbColor;
 
-use enumeration::{Enum, EnumSet};
 use quick_xml::DeError;
 use serde::{Deserialize, Serialize};
 
@@ -81,11 +81,13 @@ impl Trigger {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
-enum Change {
-    Both,
-    Fg,
-    Bg,
+flags! {
+    #[derive(PartialOrd, Ord, Hash)]
+    enum Change: u8 {
+        Both,
+        Fg,
+        Bg,
+    }
 }
 
 fn get_color(name: &str) -> Option<RgbColor> {
@@ -243,7 +245,7 @@ impl TryFrom<TriggerXml<'_>> for Trigger {
                 ..repeats,
             }
         );
-        let color_changes = EnumSet::from_raw(value.colour_change_type);
+        let color_changes = FlagSet::new_truncated(value.colour_change_type);
         Ok(in_place!(
             value,
             Self {
@@ -266,20 +268,20 @@ impl TryFrom<TriggerXml<'_>> for Trigger {
 }
 impl<'a> From<&'a Trigger> for TriggerXml<'a> {
     fn from(value: &'a Trigger) -> Self {
-        let mut color_changes = EnumSet::new();
+        let mut color_changes = FlagSet::default();
         let other_text_colour = if value.change_foreground {
-            color_changes.insert(Change::Fg);
+            color_changes |= Change::Fg;
             value.foreground_color.to_string()
         } else {
             String::new()
         };
         let other_back_colour = if value.change_background {
-            color_changes.insert(Change::Bg);
+            color_changes |= Change::Bg;
             value.background_color.to_string()
         } else {
             String::new()
         };
-        let colour_change_type = color_changes.to_raw();
+        let colour_change_type = color_changes.bits();
         in_place!(
             value,
             Self {

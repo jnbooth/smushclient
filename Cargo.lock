@@ -274,24 +274,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "60b1af1c220855b6ceac025d3f6ecdd2b7c4894bfe9cd9bda4fbb4bc7c0d4cf0"
 
 [[package]]
-name = "enumeration"
-version = "0.8.0"
-source = "git+https://github.com/jnbooth/enumeration#c1a02ea36351ee0b528bc5df2bd74628fbc9556d"
-dependencies = [
- "enumeration_derive",
-]
-
-[[package]]
-name = "enumeration_derive"
-version = "0.8.0"
-source = "git+https://github.com/jnbooth/enumeration#c1a02ea36351ee0b528bc5df2bd74628fbc9556d"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
 name = "errno"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -306,6 +288,15 @@ name = "fastrand"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9fc0510504f03c51ada170672ac806f1f105a88aa97a5281117e1ddc3368e51a"
+
+[[package]]
+name = "flagset"
+version = "0.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b3ea1ec5f8307826a5b71094dd91fc04d4ae75d5709b20ad351c7fb4815c86ec"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "flate2"
@@ -463,11 +454,11 @@ dependencies = [
 
 [[package]]
 name = "mud-transformer"
-version = "0.9.1"
-source = "git+https://github.com/jnbooth/mxp?rev=fc29a77168f785ec14e8e06d2e9f051812b1438d#fc29a77168f785ec14e8e06d2e9f051812b1438d"
+version = "0.10.0"
+source = "git+https://github.com/jnbooth/mxp?rev=e3cb450045e5d372e6fa1bc0871bc6256bf80692#e3cb450045e5d372e6fa1bc0871bc6256bf80692"
 dependencies = [
  "bytes",
- "enumeration",
+ "flagset",
  "flate2",
  "mxp",
  "serde",
@@ -475,11 +466,11 @@ dependencies = [
 
 [[package]]
 name = "mxp"
-version = "0.9.1"
-source = "git+https://github.com/jnbooth/mxp?rev=fc29a77168f785ec14e8e06d2e9f051812b1438d#fc29a77168f785ec14e8e06d2e9f051812b1438d"
+version = "0.10.0"
+source = "git+https://github.com/jnbooth/mxp?rev=e3cb450045e5d372e6fa1bc0871bc6256bf80692#e3cb450045e5d372e6fa1bc0871bc6256bf80692"
 dependencies = [
  "casefold",
- "enumeration",
+ "flagset",
  "serde",
 ]
 
@@ -717,7 +708,7 @@ version = "0.0.0"
 dependencies = [
  "bincode",
  "chrono",
- "enumeration",
+ "flagset",
  "mud-transformer",
  "serde",
  "smushclient-plugins",
@@ -729,7 +720,7 @@ name = "smushclient-plugins"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "enumeration",
+ "flagset",
  "mxp",
  "pcre2",
  "quick-xml",
@@ -741,7 +732,7 @@ name = "smushclient-swift"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "enumeration",
+ "flagset",
  "mud-transformer",
  "smushclient",
  "smushclient-plugins",
@@ -759,7 +750,7 @@ dependencies = [
  "cxx-qt",
  "cxx-qt-build",
  "cxx-qt-lib",
- "enumeration",
+ "flagset",
  "mud-transformer",
  "smushclient",
  "smushclient-plugins",

@@ -9,13 +9,13 @@ workspace = true
 [dependencies]
 bincode = "1.3.3"
 chrono = { version = "0.4.38", features = ["serde"] }
-enumeration = { git = "https://github.com/jnbooth/enumeration", version = "0.8.0" }
+flagset = { version = "0.4.6", features = ["serde"] }
 serde = "1.0.204"
 smushclient-plugins = { path = "../smushclient-plugins" }
 
 [dependencies.mud-transformer]
 git = "https://github.com/jnbooth/mxp"
-rev = "fc29a77168f785ec14e8e06d2e9f051812b1438d"
+rev = "e3cb450045e5d372e6fa1bc0871bc6256bf80692"
 features = ["serde"]
 
 [dependencies.tokio]

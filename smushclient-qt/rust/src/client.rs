@@ -13,7 +13,6 @@ use crate::modeled::Modeled;
 use crate::sync::NonBlockingMutex;
 use crate::world::WorldRust;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant};
-use enumeration::EnumSet;
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
@@ -22,26 +21,6 @@ use smushclient::{
     World,
 };
 use smushclient_plugins::{Alias, LoadError, PluginIndex, Timer, Trigger, XmlError};
-
-const SUPPORTED_TAGS: EnumSet<Tag> = enums![
-    Tag::Bold,
-    Tag::Color,
-    Tag::Expire,
-    Tag::Font,
-    Tag::H1,
-    Tag::H2,
-    Tag::H3,
-    Tag::H4,
-    Tag::H5,
-    Tag::H6,
-    Tag::Highlight,
-    Tag::Hr,
-    Tag::Hyperlink,
-    Tag::Italic,
-    Tag::Send,
-    Tag::Strikeout,
-    Tag::Underline
-];
 
 pub struct SmushClientRust {
     pub client: SmushClient,
@@ -56,7 +35,26 @@ pub struct SmushClientRust {
 impl Default for SmushClientRust {
     fn default() -> Self {
         Self {
-            client: SmushClient::new(World::default(), SUPPORTED_TAGS),
+            client: SmushClient::new(
+                World::default(),
+                Tag::Bold
+                    | Tag::Color
+                    | Tag::Expire
+                    | Tag::Font
+                    | Tag::H1
+                    | Tag::H2
+                    | Tag::H3
+                    | Tag::H4
+                    | Tag::H5
+                    | Tag::H6
+                    | Tag::Highlight
+                    | Tag::Hr
+                    | Tag::Hyperlink
+                    | Tag::Italic
+                    | Tag::Send
+                    | Tag::Strikeout
+                    | Tag::Underline,
+            ),
             input_lock: NonBlockingMutex::default(),
             output_lock: NonBlockingMutex::default(),
             send: Vec::new(),

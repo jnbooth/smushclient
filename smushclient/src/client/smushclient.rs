@@ -12,7 +12,7 @@ use crate::plugins::{
     TriggerEffects,
 };
 use crate::world::{PersistError, World};
-use enumeration::EnumSet;
+use flagset::FlagSet;
 use mud_transformer::{OutputFragment, Tag, Transformer, TransformerConfig};
 use smushclient_plugins::{CursorVec, LoadError, Plugin, PluginIndex, XmlError};
 #[cfg(feature = "async")]
@@ -29,7 +29,7 @@ pub struct SmushClient {
     logger: Logger,
     pub(crate) plugins: PluginEngine,
     read_buf: Vec<u8>,
-    supported_tags: EnumSet<Tag>,
+    supported_tags: FlagSet<Tag>,
     transformer: Transformer,
     variables: PluginVariables,
     world: World,
@@ -37,12 +37,12 @@ pub struct SmushClient {
 
 impl Default for SmushClient {
     fn default() -> Self {
-        Self::new(World::default(), EnumSet::new())
+        Self::new(World::default(), FlagSet::default())
     }
 }
 
 impl SmushClient {
-    pub fn new(world: World, supported_tags: EnumSet<Tag>) -> Self {
+    pub fn new(world: World, supported_tags: FlagSet<Tag>) -> Self {
         let mut plugins = PluginEngine::new();
         plugins.set_world_plugin(world.world_plugin());
         let transformer = Transformer::new(TransformerConfig {
@@ -80,7 +80,7 @@ impl SmushClient {
         self.transformer = Transformer::new(self.create_config());
     }
 
-    pub fn set_supported_tags(&mut self, supported_tags: EnumSet<Tag>) {
+    pub fn set_supported_tags(&mut self, supported_tags: FlagSet<Tag>) {
         self.supported_tags = supported_tags;
     }
 

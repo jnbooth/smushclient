@@ -1,4 +1,3 @@
-use enumeration::EnumSet;
 use mud_transformer::Tag;
 use std::fs::File;
 use std::path::Path;
@@ -10,25 +9,6 @@ use crate::error::StringifyResultError;
 use crate::stream::{RustAliasOutcome, RustOutputStream};
 use crate::sync::NonBlockingMutex;
 use smushclient::{CommandSource, SmushClient, World};
-
-const SUPPORTED_TAGS: EnumSet<Tag> = enums![
-    Tag::Bold,
-    Tag::Color,
-    Tag::Font,
-    Tag::H1,
-    Tag::H2,
-    Tag::H3,
-    Tag::H4,
-    Tag::H5,
-    Tag::H6,
-    Tag::Highlight,
-    Tag::Hr,
-    Tag::Hyperlink,
-    Tag::Italic,
-    Tag::Send,
-    Tag::Strikeout,
-    Tag::Underline
-];
 
 #[derive(Default)]
 pub struct RustMudBridge {
@@ -42,7 +22,25 @@ pub struct RustMudBridge {
 impl RustMudBridge {
     pub fn new(world: World) -> Self {
         Self {
-            client: SmushClient::new(world, SUPPORTED_TAGS),
+            client: SmushClient::new(
+                world,
+                Tag::Bold
+                    | Tag::Color
+                    | Tag::Font
+                    | Tag::H1
+                    | Tag::H2
+                    | Tag::H3
+                    | Tag::H4
+                    | Tag::H5
+                    | Tag::H6
+                    | Tag::Highlight
+                    | Tag::Hr
+                    | Tag::Hyperlink
+                    | Tag::Italic
+                    | Tag::Send
+                    | Tag::Strikeout
+                    | Tag::Underline,
+            ),
             ..Default::default()
         }
     }

@@ -1,11 +1,11 @@
-use enumeration::{Enum, EnumSet};
+use flagset::FlagSet;
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::TextStyle;
 use smushclient_plugins::{Alias, Trigger};
 
 use crate::world::World;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Enum)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum CommandSource {
     Hotkey,
     Link,
@@ -95,26 +95,16 @@ impl TriggerEffects {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
 pub struct SpanStyle {
-    pub flags: EnumSet<TextStyle>,
+    pub flags: FlagSet<TextStyle>,
     pub foreground: Option<RgbColor>,
     pub background: Option<RgbColor>,
 }
 
-impl Default for SpanStyle {
-    fn default() -> Self {
-        Self::null()
-    }
-}
-
 impl SpanStyle {
-    pub const fn null() -> Self {
-        Self {
-            flags: EnumSet::new(),
-            foreground: None,
-            background: None,
-        }
+    pub fn null() -> Self {
+        Self::default()
     }
 
     pub fn is_null(&self) -> bool {
@@ -124,15 +114,15 @@ impl SpanStyle {
 
 impl From<&Trigger> for SpanStyle {
     fn from(trigger: &Trigger) -> Self {
-        let mut flags = EnumSet::new();
+        let mut flags = FlagSet::default();
         if trigger.make_bold {
-            flags.insert(TextStyle::Bold);
+            flags |= TextStyle::Bold;
         }
         if trigger.make_italic {
-            flags.insert(TextStyle::Italic);
+            flags |= TextStyle::Italic;
         }
         if trigger.make_underline {
-            flags.insert(TextStyle::Underline);
+            flags |= TextStyle::Underline;
         }
         Self {
             flags,

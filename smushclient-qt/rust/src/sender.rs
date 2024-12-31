@@ -5,7 +5,7 @@ use std::time::Duration;
 use chrono::{NaiveTime, Timelike};
 use cxx_qt::{CxxQtType, Initialize};
 use cxx_qt_lib::{QColor, QString, QTime};
-use enumeration::{Enum, EnumSet};
+use flagset::{FlagSet, Flags};
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::{Output, OutputFragment, TextFragment, TextStyle};
 use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer, Trigger};
@@ -467,7 +467,7 @@ impl_constructor!(ffi::Trigger, (*const ffi::SmushClient, usize), {
 });
 
 #[inline(always)]
-fn if_contains<E: Enum>(set: EnumSet<E>, value: E, flag: u8) -> u8 {
+fn if_contains<E: Flags>(set: FlagSet<E>, value: E, flag: u8) -> u8 {
     if set.contains(value) {
         flag
     } else {
@@ -481,7 +481,7 @@ const fn color_code(color: RgbColor) -> i32 {
 }
 
 #[repr(transparent)]
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TextSpan {
     inner: TextFragment,
 }
@@ -508,7 +508,7 @@ impl TextSpan {
 }
 
 #[repr(transparent)]
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct OutputSpan {
     inner: Output,
 }

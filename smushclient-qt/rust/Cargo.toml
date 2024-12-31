@@ -25,13 +25,13 @@ git = "https://github.com/jnbooth/cxx-qt"
 rev = "331829f88a9148e3c0db5894c305645b263012c0"
 features = ["chrono", "qt_gui"]
 
-[dependencies.enumeration]
-git = "https://github.com/jnbooth/enumeration"
-version = "0.8.0"
+[dependencies.flagset]
+version = "0.4.6"
+features = ["serde"]
 
 [dependencies.mud-transformer]
 git = "https://github.com/jnbooth/mxp"
-rev = "fc29a77168f785ec14e8e06d2e9f051812b1438d"
+rev = "e3cb450045e5d372e6fa1bc0871bc6256bf80692"
 
 [dependencies.smushclient]
 path = "../../smushclient"

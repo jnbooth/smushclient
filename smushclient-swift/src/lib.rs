@@ -1,7 +1,4 @@
 #[macro_use]
-extern crate enumeration;
-
-#[macro_use]
 mod convert;
 
 mod bridge;
