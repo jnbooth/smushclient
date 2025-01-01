@@ -57,9 +57,7 @@ MainWindow::MainWindow(Notepads *notepads, QWidget *parent)
 
   ui->action_log_session->setChecked(settings.getLoggingEnabled());
 
-  const QStringList recentFiles = settings.getRecentFiles();
-  if (!recentFiles.empty())
-    setupRecentFiles(recentFiles);
+  setupRecentFiles(settings.getRecentFiles());
 
   restore();
 }
