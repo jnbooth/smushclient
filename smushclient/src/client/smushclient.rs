@@ -228,11 +228,19 @@ impl SmushClient {
                     _ => (),
                 }
             }
-            if until == 0 {
+            let has_break = until != 0;
+            if !has_break {
                 until = slice.len();
             }
             let output = &slice[..until];
             slice = &slice[until..];
+
+            if !has_break && self.line_text.is_empty() {
+                for fragment in output {
+                    handler.display(fragment);
+                }
+                continue;
+            }
 
             if !handler.permit_line(&self.line_text) {
                 for fragment in output {
@@ -259,8 +267,7 @@ impl SmushClient {
                 TriggerEffects::default()
             };
 
-            had_output =
-                had_output || !self.line_text.is_empty() && !trigger_effects.omit_from_output;
+            had_output = had_output || !trigger_effects.omit_from_output;
 
             if !trigger_effects.omit_from_log {
                 self.logger.log_output_line(self.line_text.as_bytes());
