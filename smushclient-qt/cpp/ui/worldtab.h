@@ -125,6 +125,7 @@ private:
   QTimer *resizeTimer;
   int sessionStartBlock = 0;
   QRegularExpression splitter{};
+  bool tryingSsl = false;
   bool useSplitter = false;
   QFileSystemWatcher worldScriptWatcher;
 
@@ -143,10 +144,11 @@ private slots:
   void flushOutput();
   bool loadPlugins();
   void onAutoScroll(int min, int max);
-  void onConnect();
-  void onDisconnect();
   void onNewActivity();
   void readFromSocket();
+  void onSocketConnect();
+  void onSocketDisconnect();
+  void onSocketError(QAbstractSocket::SocketError socketError);
 
   void on_input_copyAvailable(bool available);
   void on_input_submitted(const QString &text);

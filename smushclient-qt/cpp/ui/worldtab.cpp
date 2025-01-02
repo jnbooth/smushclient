@@ -27,6 +27,7 @@
 
 using std::nullopt;
 using std::string;
+using std::string_view;
 using std::chrono::milliseconds;
 
 constexpr Qt::KeyboardModifiers numpadMods = Qt::KeyboardModifier::ControlModifier | Qt::KeyboardModifier::MetaModifier;
@@ -89,8 +90,10 @@ WorldTab::WorldTab(MudStatusBar *statusBar, Notepads *notepads, QWidget *parent)
   document = new Document(this, api);
   connect(document, &Document::newActivity, this, &WorldTab::onNewActivity);
   connect(socket, &QSslSocket::readyRead, this, &WorldTab::readFromSocket);
-  connect(socket, &QSslSocket::connected, this, &WorldTab::onConnect);
-  connect(socket, &QSslSocket::disconnected, this, &WorldTab::onDisconnect);
+  connect(socket, &QSslSocket::connected, this, &WorldTab::onSocketConnect);
+  connect(socket, &QSslSocket::disconnected, this, &WorldTab::onSocketDisconnect);
+  connect(socket, &QSslSocket::encrypted, this, &WorldTab::onSocketConnect);
+  connect(socket, &QSslSocket::errorOccurred, this, &WorldTab::onSocketError);
   connect(&worldScriptWatcher, &QFileSystemWatcher::fileChanged, this, &WorldTab::confirmReloadWorldScript);
 
   const Settings settings;
@@ -163,11 +166,31 @@ void WorldTab::connectToHost()
   if (socket->state() != QAbstractSocket::SocketState::UnconnectedState)
     return;
 
-  socket->connectToHostEncrypted(world.getSite(), (uint16_t)world.getPort());
-  if (socket->waitForEncrypted())
-    api->statusBarWidgets()->setConnected(MudStatusBar::ConnectionStatus::Encrypted);
-  else if (socket->error() == QSslSocket::SslHandshakeFailedError)
-    socket->connectToHost(world.getSite(), (uint16_t)world.getPort());
+  const QString &site = world.getSite();
+  const uint16_t port = world.getPort();
+  const string addressString = (site + port).toStdString();
+  const string_view cachedAddressString = client.getMetavariable("server/no-ssl");
+
+  if (addressString == cachedAddressString)
+  {
+    socket->connectToHost(site, port);
+    return;
+  }
+
+  tryingSsl = true;
+  socket->connectToHostEncrypted(site, port);
+  const bool didSsl = socket->waitForEncrypted();
+  tryingSsl = false;
+
+  if (didSsl || socket->error() != QSslSocket::SslHandshakeFailedError)
+    return;
+
+  tryingSsl = false;
+  if (socket->state() != QAbstractSocket::SocketState::UnconnectedState)
+    socket->waitForDisconnected();
+
+  socket->connectToHost(site, port);
+  client.setMetavariable("server/no-ssl", addressString);
 }
 
 void WorldTab::disconnectFromHost()
@@ -752,10 +775,27 @@ void WorldTab::onAutoScroll(int, int max)
   ui->output->verticalScrollBar()->setValue(max);
 }
 
-void WorldTab::onConnect()
+void WorldTab::onNewActivity()
 {
+  if (!alertNewActivity)
+    return;
+  alertNewActivity = false;
+  emit newActivity(this);
+  const QString sound = world.getNewActivitySound();
+  if (!sound.isEmpty())
+    api->PlaySound(0, sound);
+}
+
+void WorldTab::onSocketConnect()
+{
+  const bool isEncrypted = socket->isEncrypted();
+  if (tryingSsl && !isEncrypted)
+    return;
+
   disconnect(autoScroll);
-  api->statusBarWidgets()->setConnected(MudStatusBar::ConnectionStatus::Connected);
+  api->statusBarWidgets()->setConnected(
+      isEncrypted ? MudStatusBar::ConnectionStatus::Encrypted
+                  : MudStatusBar::ConnectionStatus::Connected);
   client.handleConnect(*socket);
   emit connectionStatusChanged(true);
   if (Settings().getDisplayConnect())
@@ -769,8 +809,11 @@ void WorldTab::onConnect()
   api->sendCallback(onConnect);
 }
 
-void WorldTab::onDisconnect()
+void WorldTab::onSocketDisconnect()
 {
+  if (tryingSsl)
+    return;
+
   client.handleDisconnect();
   api->statusBarWidgets()->setConnected(MudStatusBar::ConnectionStatus::Disconnected);
   document->resetServerStatus();
@@ -793,15 +836,13 @@ void WorldTab::onDisconnect()
     connectToHost();
 }
 
-void WorldTab::onNewActivity()
+void WorldTab::onSocketError(QAbstractSocket::SocketError socketError)
 {
-  if (!alertNewActivity)
+  if (socketError == QAbstractSocket::SocketError::SslHandshakeFailedError ||
+      socketError == QAbstractSocket::SocketError::RemoteHostClosedError)
     return;
-  alertNewActivity = false;
-  emit newActivity(this);
-  const QString sound = world.getNewActivitySound();
-  if (!sound.isEmpty())
-    api->PlaySound(0, sound);
+  api->appendText(tr("Connection error: %1").arg(socket->errorString()));
+  api->startLine();
 }
 
 void WorldTab::readFromSocket()
