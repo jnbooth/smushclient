@@ -15,6 +15,7 @@
 #include "../../spans.h"
 #include "../timer_map.h"
 #include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/bridge_ffi.cxx.h"
 
 using std::string;
 using std::string_view;
@@ -296,7 +297,7 @@ void ScriptApi::sendNaws() const
   const QMargins margins = browser->contentsMargins();
   const int advance = metrics.horizontalAdvance(QStringLiteral("0123456789"));
   const QSize viewport = browser->maximumViewportSize();
-  SendPacket(encodeNaws(
+  SendPacket(ffi::encodeNaws(
       (viewport.width() - margins.left() - margins.right()) * 10 / advance,
       (viewport.height() - margins.top() - margins.bottom()) / metrics.lineSpacing() - 4));
 }

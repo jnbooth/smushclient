@@ -14,6 +14,7 @@
 #include "../ui/mudstatusbar/mudstatusbar.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
+#include "smushclient_qt/src/bridge_ffi.cxx.h"
 
 using std::nullopt;
 using std::optional;
@@ -82,7 +83,7 @@ int ScriptApi::GetUniqueNumber() noexcept
 
 QString ScriptApi::MakeRegularExpression(const QString &pattern) noexcept
 {
-  return makeRegexFromWildcards(pattern);
+  return ffi::makeRegexFromWildcards(pattern);
 }
 
 void ScriptApi::SetClipboard(const QString &text)

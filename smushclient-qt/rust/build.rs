@@ -26,7 +26,7 @@ fn main() {
         })
         .qml_module::<&str, &str>(QmlModule {
             uri: "com.jnbooth.smushclient",
-            rust_files: &["src/bridge.rs"],
+            rust_files: &["src/bridge.rs", "src/bridge_ffi.rs"],
             qml_files: &[],
             ..Default::default()
         })

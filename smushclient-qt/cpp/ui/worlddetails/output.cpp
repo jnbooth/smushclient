@@ -5,6 +5,7 @@
 #include "../../environment.h"
 #include "../../scripting/scriptapi.h"
 #include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/bridge_ffi.cxx.h"
 
 using std::array;
 
@@ -76,7 +77,7 @@ void PrefsOutput::on_NewActivitySound_textChanged(const QString &text)
 
 void PrefsOutput::on_reset_clicked()
 {
-  const QVector<QColor> ansiColors = ansi16();
+  const QVector<QColor> ansiColors = ffi::ansi16();
   array<ColorPickerButton *, 16> colorPickers{
       ui->Ansi0,
       ui->Ansi1,

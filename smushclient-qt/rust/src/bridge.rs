@@ -1,30 +1,15 @@
-#![allow(clippy::float_cmp)]
-#![allow(clippy::missing_safety_doc)]
 #![allow(clippy::needless_lifetimes)]
-#![allow(clippy::needless_pass_by_value)]
-#![allow(clippy::trivially_copy_pass_by_ref)]
 #![allow(clippy::unnecessary_box_returns)]
-#![allow(non_snake_case)]
-#![allow(unused_unsafe)]
 
 use std::mem;
 
 use crate::client::SmushClientRust;
-use crate::convert::Convert;
 use crate::modeled::{PluginDetailsRust, SenderMapRust};
 use crate::sender::{AliasRust, TimerRust, TriggerRust};
 use crate::sender::{OutputSpan, TextSpan};
 use crate::world::WorldRust;
 use cxx::{type_id, ExternType};
-use cxx_qt_lib::{QByteArray, QColor, QString, QVector};
-use mud_transformer::mxp::RgbColor;
-use mud_transformer::naws;
 use smushclient::AliasOutcome;
-use smushclient_plugins::Reaction;
-
-pub fn ansi16() -> QVector<QColor> {
-    RgbColor::XTERM_16.to_vec().convert()
-}
 
 const fn flag_if(flag: ffi::AliasOutcome, pred: bool) -> u8 {
     if pred {
@@ -60,16 +45,6 @@ const _: [(); mem::size_of::<TextStyles>()] = [(); mem::size_of::<ffi::TextStyle
 unsafe impl ExternType for TextStyles {
     type Id = type_id!("TextStyles");
     type Kind = cxx::kind::Trivial;
-}
-
-fn encode_naws(width: u16, height: u16) -> QByteArray {
-    QByteArray::from(naws(width, height).as_slice())
-}
-
-fn make_regex_from_wildcards(pattern: &QString) -> QString {
-    let mut buf = String::new();
-    Reaction::make_regex_pattern(&String::from(pattern), &mut buf);
-    QString::from(&buf)
 }
 
 #[cxx_qt::bridge]
@@ -155,14 +130,6 @@ pub mod ffi {
         unsafe fn read(self: Pin<&mut QAbstractSocket>, data: *mut c_char, max_size: i64) -> i64;
         unsafe fn write(self: Pin<&mut QAbstractSocket>, data: *const c_char, max_size: i64)
             -> i64;
-    }
-
-    extern "Rust" {
-        #[cxx_name = "encodeNaws"]
-        fn encode_naws(width: u16, height: u16) -> QByteArray;
-
-        #[cxx_name = "makeRegexFromWildcards"]
-        fn make_regex_from_wildcards(pattern: &QString) -> QString;
     }
 
     enum TelnetSource {
@@ -1087,9 +1054,5 @@ pub mod ffi {
         Confirm,
         Always,
         Never,
-    }
-
-    extern "Rust" {
-        fn ansi16() -> QVector_QColor;
     }
 }

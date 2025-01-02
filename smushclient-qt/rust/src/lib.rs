@@ -7,6 +7,7 @@ mod convert;
 mod adapter;
 mod bridge;
 use bridge::ffi;
+mod bridge_ffi;
 mod client;
 mod client_ffi;
 mod colors;

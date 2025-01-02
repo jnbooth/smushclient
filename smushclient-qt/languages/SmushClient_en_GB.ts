@@ -1675,7 +1675,7 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/output.cpp" line="56"/>
+        <location filename="../cpp/ui/worlddetails/output.cpp" line="57"/>
         <source>Select sound file</source>
         <translation></translation>
     </message>
