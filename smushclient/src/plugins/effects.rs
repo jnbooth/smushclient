@@ -82,7 +82,7 @@ impl Default for TriggerEffects {
 }
 
 impl TriggerEffects {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             omit_from_output: false,
             omit_from_log: false,
