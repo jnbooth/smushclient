@@ -728,37 +728,37 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="97"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="95"/>
         <source>Close all worlds and quit?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="324"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="322"/>
         <source>Version: %1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="348"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="346"/>
         <source>Command History</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="422"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="420"/>
         <source>Go to line</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="422"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="420"/>
         <source>Enter line number</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="446"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="444"/>
         <source>New world</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="518"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="516"/>
         <source>Save as</source>
         <translation></translation>
     </message>
@@ -779,12 +779,12 @@
     <message>
         <location filename="../cpp/ui/mudstatusbar/mudstatusbar.ui" line="96"/>
         <source>Connection Status</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../cpp/ui/mudstatusbar/mudstatusbar.ui" line="107"/>
         <source>Users Online</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -2644,7 +2644,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%-?&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; - Suppresses all padding (e.g. &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%j&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; = 012, &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%-j&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; = 12)&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%_?&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; - Uses spaces as padding (e.g. &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%j&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; = 012, &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%_j&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; = 12)&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%0?&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; - Uses zeros as padding (e.g. &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%e&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; = 9, &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Menlo&apos;; font-size:14pt;&quot;&gt;%0e&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; = 09)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -2652,32 +2652,32 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <message>
         <location filename="../cpp/ui/mudstatusbar/statusbarstat.ui" line="58"/>
         <source>Display</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../cpp/ui/mudstatusbar/statusbarstat.ui" line="72"/>
         <source>Show Max</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../cpp/ui/mudstatusbar/statusbarstat.ui" line="80"/>
         <source>Set Color...</source>
-        <translation type="unfinished"></translation>
+        <translation>Set Colour...</translation>
     </message>
     <message>
         <location filename="../cpp/ui/mudstatusbar/statusbarstat.ui" line="88"/>
         <source>Set Label Color...</source>
-        <translation type="unfinished"></translation>
+        <translation>Set Label Colour...</translation>
     </message>
     <message>
         <location filename="../cpp/ui/mudstatusbar/statusbarstat.ui" line="96"/>
         <source>Set Value Color...</source>
-        <translation type="unfinished"></translation>
+        <translation>Set Value Colour...</translation>
     </message>
     <message>
         <location filename="../cpp/ui/mudstatusbar/statusbarstat.ui" line="104"/>
         <source>Reset Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Reset Colours</translation>
     </message>
 </context>
 <context>
@@ -3163,44 +3163,49 @@ li.checked::marker { content: &quot;\2612&quot;; }
 <context>
     <name>WorldTab</name>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="183"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="206"/>
         <source>Failed to open file: %1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="253"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="276"/>
         <source>Do you want to save the changes you made to %1?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="254"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="277"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="295"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="318"/>
         <source>Save as</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="712"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="735"/>
         <source>World script changed</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="712"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="735"/>
         <source>Would you like to reload the world script?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="763"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="803"/>
         <source>&apos;Connected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="780"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="823"/>
         <source>&apos;Disconnected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
+    </message>
+    <message>
+        <location filename="../cpp/ui/worldtab.cpp" line="844"/>
+        <source>Connection error: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
