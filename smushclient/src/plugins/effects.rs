@@ -52,11 +52,21 @@ impl AliasEffects {
     }
 }
 
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AliasOutcome {
     pub display: bool,
     pub remember: bool,
     pub send: bool,
+}
+
+impl Default for AliasOutcome {
+    fn default() -> Self {
+        Self {
+            display: true,
+            remember: true,
+            send: true,
+        }
+    }
 }
 
 impl From<AliasEffects> for AliasOutcome {

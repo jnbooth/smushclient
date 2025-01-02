@@ -285,11 +285,7 @@ impl SmushClient {
         handler: &mut H,
     ) -> AliasOutcome {
         if !self.world.enable_aliases {
-            return AliasOutcome {
-                display: true,
-                remember: true,
-                send: true,
-            };
+            return AliasOutcome::default();
         }
         let outcome =
             self.plugins
