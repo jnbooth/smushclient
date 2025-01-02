@@ -114,6 +114,13 @@ impl PluginVariables {
         Some(self.0.get(plugin_id)?.get(key)?.inner.as_slice())
     }
 
+    pub fn has_variable(&self, plugin_id: &str, key: &LuaStr) -> bool {
+        match self.0.get(plugin_id) {
+            Some(variables) => variables.contains_key(key),
+            None => false,
+        }
+    }
+
     pub fn set_variable<K, V>(&mut self, plugin_id: &str, key: K, value: V)
     where
         K: Into<LuaString>,

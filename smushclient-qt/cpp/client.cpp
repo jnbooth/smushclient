@@ -33,6 +33,11 @@ VariableView SmushClient::getMetavariable(string_view key) const noexcept
   return VariableView(data, size);
 }
 
+bool SmushClient::hasMetavariable(string_view key) const noexcept
+{
+  return SmushClientBase::hasMetavariable(stringSlice(key));
+}
+
 bool SmushClient::setVariable(size_t index, string_view key, string_view value) noexcept
 {
   return SmushClientBase::setVariable(index, stringSlice(key), stringSlice(value));

@@ -371,6 +371,10 @@ impl SmushClient {
         self.variables.get_variable(METAVARIABLES_KEY, key)
     }
 
+    pub fn has_metavariable(&self, key: &LuaStr) -> bool {
+        self.variables.has_variable(METAVARIABLES_KEY, key)
+    }
+
     pub fn set_variable<K, V>(&mut self, index: PluginIndex, key: K, value: V) -> bool
     where
         K: Into<LuaString>,

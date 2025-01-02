@@ -547,6 +547,10 @@ impl ffi::SmushClient {
         Self::provide_variable(self.rust().client.get_metavariable(key), value_size)
     }
 
+    pub fn has_metavariable(&self, key: &[c_char]) -> bool {
+        self.rust().client.has_metavariable(key)
+    }
+
     pub fn set_variable(
         self: Pin<&mut Self>,
         index: PluginIndex,
