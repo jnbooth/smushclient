@@ -358,6 +358,19 @@ public:
   Timekeeper *timekeeper;
 
 private:
+  AudioChannel &getAudioChannel(size_t index);
+  DatabaseConnection *findDatabase(const std::string_view databaseID);
+  size_t findPluginIndex(const std::string &pluginID) const;
+  inline size_t findPluginIndex(const std::string_view pluginID) const
+  {
+    return findPluginIndex((std::string)pluginID);
+  }
+  MiniWindow *findWindow(const std::string_view windowName) const;
+  bool finishQueuedSend(const QueuedSend &send);
+  void flushLine();
+  WorldTab *tab() const;
+
+private:
   ActionSource actionSource = ActionSource::Unknown;
   std::array<AudioChannel, 10> audioChannels = {
       AudioChannel(),
@@ -395,16 +408,4 @@ private:
   QDateTime whenConnected;
   string_map<MiniWindow *> windows{};
   size_t worldScriptIndex = noSuchPlugin;
-
-  AudioChannel &getAudioChannel(size_t index);
-  DatabaseConnection *findDatabase(const std::string_view databaseID);
-  size_t findPluginIndex(const std::string &pluginID) const;
-  inline size_t findPluginIndex(const std::string_view pluginID) const
-  {
-    return findPluginIndex((std::string)pluginID);
-  }
-  MiniWindow *findWindow(const std::string_view windowName) const;
-  bool finishQueuedSend(const QueuedSend &send);
-  void flushLine();
-  WorldTab *tab() const;
 };

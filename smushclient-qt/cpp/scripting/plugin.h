@@ -51,8 +51,9 @@ public:
   PluginMetadata metadata;
 
 private:
+  bool findCallback(const PluginCallback &callback) const;
+
+private:
   lua_State *L = nullptr;
   bool isDisabled = false;
-
-  bool findCallback(const PluginCallback &callback) const;
 };

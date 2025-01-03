@@ -62,13 +62,13 @@ protected:
   }
 
 private:
-  std::unordered_map<Qt::TimerId, T> map{};
-  HandlerSlot<QObject> slot;
-  Qt::TimerType timerType;
-
-private:
   inline Qt::TimerId startTimerId(std::chrono::milliseconds duration)
   {
     return Qt::TimerId{startTimer(duration, timerType)};
   }
+
+private:
+  std::unordered_map<Qt::TimerId, T> map{};
+  HandlerSlot<QObject> slot;
+  Qt::TimerType timerType;
 };

@@ -20,10 +20,6 @@ public:
   QTextEdit *editor() const;
 
 private:
-  Ui::Notepad *ui;
-  FindDialog *findDialog = nullptr;
-  qreal fontSize;
-
   void applyFontSize();
 
 private slots:
@@ -38,6 +34,11 @@ private slots:
   void on_action_save_selection_triggered();
   void on_action_visit_api_guide_triggered();
   void on_action_visit_bug_reports_triggered();
+
+private:
+  Ui::Notepad *ui;
+  FindDialog *findDialog = nullptr;
+  qreal fontSize;
 };
 
 class Notepads : public QWidget
@@ -49,8 +50,6 @@ public:
 
   void closeAll();
   QTextEdit *pad(const QString &name = QString());
-
-public slots:
 
 private:
   Notepad *create(const QString &name);

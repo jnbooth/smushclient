@@ -15,13 +15,6 @@ class Timekeeper : public QObject
 {
   Q_OBJECT
 
-private:
-  struct Item
-  {
-    size_t index;
-    uint16_t timerId;
-  };
-
 public:
   Timekeeper(ScriptApi *parent);
   void beginPolling(std::chrono::milliseconds interval, Qt::TimerType timerType = Qt::CoarseTimer);
@@ -31,15 +24,23 @@ public:
   inline void setOpen(bool open) { closed = !open; }
 
 private:
-  bool closed = true;
-  QTimer *pollTimer;
-  TimerMap<Item> *queue;
+  struct Item
+  {
+    size_t index;
+    uint16_t timerId;
+  };
 
+private:
   bool finishTimer(const Item &item);
   ScriptApi *getApi() const;
 
 private slots:
   void pollTimers();
+
+private:
+  bool closed = true;
+  QTimer *pollTimer;
+  TimerMap<Item> *queue;
 };
 
 #endif // Timekeeper

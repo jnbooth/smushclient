@@ -43,8 +43,6 @@ public:
   explicit WorldTab(MudStatusBar *statusBar, Notepads *notepads, QWidget *parent = nullptr);
   ~WorldTab();
 
-  static QString saveFilter();
-
   AvailableCopy availableCopy() const;
   void closeLog();
   bool connected() const;
@@ -78,12 +76,6 @@ public:
     return filePath;
   }
 
-public:
-  Ui::WorldTab *ui;
-  SmushClient client;
-  QSslSocket *socket;
-  World world;
-
 public slots:
   void onInputBackgroundChanged(const QColor &color);
   void onInputFontChanged(const QFont &font);
@@ -97,6 +89,12 @@ signals:
   void copyAvailable(AvailableCopy available);
   void newActivity(WorldTab *self);
 
+public:
+  Ui::WorldTab *ui;
+  SmushClient client;
+  QSslSocket *socket;
+  World world;
+
 protected:
   void closeEvent(QCloseEvent *event) override;
   void leaveEvent(QEvent *event) override;
@@ -106,29 +104,6 @@ protected:
   void resizeEvent(QResizeEvent *event) override;
 
 private:
-  bool alertNewActivity = false;
-  ScriptApi *api;
-  QMetaObject::Connection autoScroll;
-  QFont defaultFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-  Document *document;
-  QString filePath{};
-  QTimer *flushTimer;
-  bool handleKeypad = false;
-  bool initialized = false;
-  bool inputCopyAvailable = false;
-  bool isActive = true;
-  bool manualDisconnect = false;
-  std::optional<CallbackTrigger> onDragMove = std::nullopt;
-  QPointer<Hotspot> onDragRelease = nullptr;
-  bool outputCopyAvailable = false;
-  bool queuedConnect = false;
-  QTimer *resizeTimer;
-  int sessionStartBlock = 0;
-  QRegularExpression splitter{};
-  bool tryingSsl = false;
-  bool useSplitter = false;
-  QFileSystemWatcher worldScriptWatcher;
-
   void applyWorld();
   void finishDrag();
   bool restoreHistory();
@@ -156,4 +131,28 @@ private slots:
   void on_output_anchorClicked(const QUrl &url);
   void on_output_copyAvailable(bool available);
   void on_output_customContextMenuRequested(const QPoint &pos);
+
+private:
+  bool alertNewActivity = false;
+  ScriptApi *api;
+  QMetaObject::Connection autoScroll;
+  QFont defaultFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+  Document *document;
+  QString filePath{};
+  QTimer *flushTimer;
+  bool handleKeypad = false;
+  bool initialized = false;
+  bool inputCopyAvailable = false;
+  bool isActive = true;
+  bool manualDisconnect = false;
+  std::optional<CallbackTrigger> onDragMove = std::nullopt;
+  QPointer<Hotspot> onDragRelease = nullptr;
+  bool outputCopyAvailable = false;
+  bool queuedConnect = false;
+  QTimer *resizeTimer;
+  int sessionStartBlock = 0;
+  QRegularExpression splitter{};
+  bool tryingSsl = false;
+  bool useSplitter = false;
+  QFileSystemWatcher worldScriptWatcher;
 };

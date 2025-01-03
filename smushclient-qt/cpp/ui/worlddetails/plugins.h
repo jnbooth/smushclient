@@ -19,13 +19,6 @@ public:
   ~PrefsPlugins();
 
 private:
-  Ui::PrefsPlugins *ui;
-  ScriptApi *api;
-
-private:
-  PluginModel *model;
-
-private:
   static const QString &settingsKey();
 
 private slots:
@@ -37,4 +30,9 @@ private slots:
   void on_button_remove_clicked();
   void on_button_showinfo_clicked();
   void on_table_clicked();
+
+private:
+  Ui::PrefsPlugins *ui;
+  ScriptApi *api;
+  PluginModel *model;
 };

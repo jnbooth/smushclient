@@ -28,15 +28,15 @@ protected slots:
   void on_tree_doubleClicked(QModelIndex index);
 
 private:
-  bool filtering = false;
-  AbstractSenderModel *model;
-  QSortFilterProxyModel *proxy;
-  QTreeView *tree = nullptr;
-
-private:
   QModelIndex mapIndex(const QModelIndex &index) const;
   QString settingsKey() const;
 
 private slots:
   void onSelectionChanged();
+
+private:
+  bool filtering = false;
+  AbstractSenderModel *model;
+  QSortFilterProxyModel *proxy;
+  QTreeView *tree = nullptr;
 };

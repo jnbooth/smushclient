@@ -70,6 +70,13 @@ Hotspot::Hotspot(
       plugin(plugin),
       tab(tab) {}
 
+void Hotspot::finishDrag()
+{
+  hadDrag = false;
+  if (hasCallback(callbacks.dragRelease))
+    runCallback(callbacks.dragRelease, getEventFlags());
+}
+
 const Hotspot::Callbacks &Hotspot::setCallbacks(Callbacks &&newCallbacks)
 {
   hadMouseDown = false;
@@ -97,13 +104,6 @@ const Hotspot::Callbacks &Hotspot::setCallbacks(CallbacksPartial &&partial)
   if (partial.scroll)
     callbacks.scroll = std::move(*partial.scroll);
   return callbacks;
-}
-
-void Hotspot::finishDrag()
-{
-  hadDrag = false;
-  if (hasCallback(callbacks.dragRelease))
-    runCallback(callbacks.dragRelease, getEventFlags());
 }
 
 // Protected overrides

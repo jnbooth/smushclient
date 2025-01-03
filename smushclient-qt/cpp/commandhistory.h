@@ -79,12 +79,12 @@ public:
   }
 
 private:
+  void resetIterators() noexcept;
+
+private:
   QStringList history;
   qsizetype max;
   QStringList::const_iterator begin;
   QStringList::const_iterator end;
   QStringList::const_iterator iterator;
-
-private:
-  void resetIterators() noexcept;
 };

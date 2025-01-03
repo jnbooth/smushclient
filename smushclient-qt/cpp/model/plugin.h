@@ -13,11 +13,11 @@ public:
   bool addPlugin(const QString &filePath);
   PluginDetails pluginDetails(const QModelIndex &index) const;
   QString pluginId(const QModelIndex &index) const;
-  bool reinstall(const QModelIndex &index);
   constexpr size_t pluginIndex(int row) const
   {
     return row >= worldIndex ? row + 1 : row;
   }
+  bool reinstall(const QModelIndex &index);
 
   int columnCount(const QModelIndex &) const override
   {
@@ -40,13 +40,6 @@ signals:
   void pluginScriptChanged(size_t pluginIndex);
 
 private:
-  static constexpr int numColumns = 6;
-
-  SmushClient &client;
-  int pluginCount;
-  int worldIndex;
-
-private:
   static constexpr bool isValidColumn(int column) noexcept
   {
     return column >= 0 && column < numColumns;
@@ -58,4 +51,11 @@ private:
   {
     return index > worldIndex ? index - 1 : index;
   }
+
+private:
+  static constexpr int numColumns = 6;
+
+  SmushClient &client;
+  int pluginCount;
+  int worldIndex;
 };

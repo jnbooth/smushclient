@@ -51,14 +51,14 @@ public:
   using CallbacksPartial = BasicCallbacks<std::optional<std::string>>;
 
   Hotspot(MiniWindow *parent, WorldTab *tab, const Plugin *plugin, std::string_view id, Callbacks &&callbacks);
-  const Callbacks &setCallbacks(Callbacks &&callbacks);
-  const Callbacks &setCallbacks(CallbacksPartial &&callbacks);
   inline bool belongsToPlugin(const Plugin *otherPlugin) const noexcept
   {
     return otherPlugin == plugin;
   }
   void finishDrag();
   QVariant info(int infoType) const;
+  const Callbacks &setCallbacks(Callbacks &&callbacks);
+  const Callbacks &setCallbacks(CallbacksPartial &&callbacks);
 
 protected:
   void enterEvent(QEnterEvent *event) override;
@@ -70,13 +70,14 @@ protected:
   void wheelEvent(QWheelEvent *event) override;
 
 private:
+  void runCallback(const std::string &callback, EventFlags flags);
+  void startDrag(QMouseEvent *event);
+
+private:
   Callbacks callbacks;
   bool hadDrag = false;
   bool hadMouseDown = false;
   std::string id;
   const Plugin *plugin;
   WorldTab *tab;
-
-  void runCallback(const std::string &callback, EventFlags flags);
-  void startDrag(QMouseEvent *event);
 };

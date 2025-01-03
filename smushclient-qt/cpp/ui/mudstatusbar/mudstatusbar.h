@@ -40,16 +40,16 @@ protected:
   void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
-  Ui::MudStatusBar *ui;
-  std::array<QIcon, 3> connectionIcons;
-  QMenu *menu;
-  QHash<QString, StatusBarStat *> statsByEntity{};
-  QMultiHash<QString, StatusBarStat *> statsByMax{};
-
-private:
   bool recreateStat(StatusBarStat *stat, const QString &caption, const QString &maxEntity);
   bool restore();
   void save() const;
   static const QString &settingsKey();
   QList<QAction *> stateActions() const;
+
+private:
+  Ui::MudStatusBar *ui;
+  std::array<QIcon, 3> connectionIcons;
+  QMenu *menu;
+  QHash<QString, StatusBarStat *> statsByEntity{};
+  QMultiHash<QString, StatusBarStat *> statsByMax{};
 };

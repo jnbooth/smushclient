@@ -21,9 +21,6 @@ public:
     GroupChanged = -3,
   };
 
-protected:
-  static constexpr int numColumns = 4;
-
 public:
   AbstractSenderModel(SmushClient &client, SenderType type, QObject *parent = nullptr);
   virtual ~AbstractSenderModel();
@@ -49,23 +46,26 @@ public:
   bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
 protected:
-  SmushClient &client;
+  static constexpr int numColumns = 4;
+
   virtual int add(QWidget *parent) = 0;
   virtual int edit(size_t index, QWidget *parent) = 0;
   virtual const std::array<QString, numColumns> &headers() const noexcept = 0;
   virtual void import(const QString &xml) = 0;
   virtual void prepareRemove(SenderMap *map, const rust::String &group, int row, int count);
 
-private:
-  SenderMap *map;
-  bool *needsRefresh;
+protected:
+  SmushClient &client;
 
 private:
   static constexpr bool isValidColumn(int column) noexcept
   {
     return column >= 0 && column < numColumns;
   }
-
   void refresh() const;
   bool removeRowsInternal(int row, int count, const QModelIndex &parent = QModelIndex());
+
+private:
+  SenderMap *map;
+  bool *needsRefresh;
 };

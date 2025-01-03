@@ -29,12 +29,12 @@ protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
 private:
+  int widthForHeight(int h) const;
+
+private:
   QIcon icon;
   QSize maxSize;
   QIcon::Mode mode;
   bool needsUpdate = true;
   QIcon::State state;
-
-private:
-  int widthForHeight(int h) const;
 };

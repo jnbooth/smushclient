@@ -31,15 +31,6 @@ protected:
   bool event(QEvent *event) override;
 
 private:
-  Ui::MainWindow *ui;
-  QIcon activityIcon = QIcon::fromTheme(QIcon::ThemeIcon::DialogWarning);
-  FindDialog *findDialog;
-  int lastTabIndex = -1;
-  Notepads *notepads;
-  QList<QAction *> recentFileActions{};
-  Settings settings{};
-  QMetaObject::Connection socketConnection{};
-
   static const QString &settingsKey();
 
   void addRecentFile(const QString &filePath);
@@ -105,4 +96,14 @@ private slots:
   void on_action_rec_4_triggered() { openRecentFile(3); }
   void on_action_rec_5_triggered() { openRecentFile(4); }
   void on_world_tabs_tabCloseRequested(int index);
+
+private:
+  Ui::MainWindow *ui;
+  QIcon activityIcon = QIcon::fromTheme(QIcon::ThemeIcon::DialogWarning);
+  FindDialog *findDialog;
+  int lastTabIndex = -1;
+  Notepads *notepads;
+  QList<QAction *> recentFileActions{};
+  Settings settings{};
+  QMetaObject::Connection socketConnection{};
 };

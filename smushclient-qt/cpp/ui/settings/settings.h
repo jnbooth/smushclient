@@ -20,12 +20,13 @@ public:
   ~SettingsDialog();
 
 private:
-  Ui::SettingsDialog *ui;
-  QWidget *pane = nullptr;
-  Settings &settings;
-
   QWidget *paneForIndex(int row);
 
 private slots:
   void on_settings_list_currentRowChanged(int row);
+
+private:
+  Ui::SettingsDialog *ui;
+  QWidget *pane = nullptr;
+  Settings &settings;
 };

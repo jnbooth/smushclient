@@ -17,12 +17,12 @@ public:
   explicit SettingsHistory(Settings &settings, SettingsNotifier *notifier, QWidget *parent = nullptr);
   ~SettingsHistory();
 
-private:
-  Ui::SettingsHistory *ui;
-  SettingsNotifier *notifier;
-
 private slots:
   void updateInputHistoryLimit();
   void updateOutputLimit();
   void updateOutputHistoryLimit();
+
+private:
+  Ui::SettingsHistory *ui;
+  SettingsNotifier *notifier;
 };

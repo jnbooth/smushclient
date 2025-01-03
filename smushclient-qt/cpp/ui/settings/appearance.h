@@ -18,13 +18,6 @@ public:
   explicit SettingsAppearance(Settings &settings, SettingsNotifier *notifier, QWidget *parent = nullptr);
   ~SettingsAppearance();
 
-private:
-  Ui::SettingsAppearance *ui;
-  QFont inputFont;
-  SettingsNotifier *notifier;
-  QFont outputFont;
-  Settings &settings;
-
 private slots:
   void on_InputBackground_valueChanged(const QColor &color);
   void on_InputFont_currentFontChanged(const QFont &font);
@@ -34,4 +27,11 @@ private slots:
   void on_OutputFontSize_valueChanged(int size);
   void on_OutputPadding_valueChanged(double padding);
   void on_OutputLineSpacing_valueChanged(int spacing);
+
+private:
+  Ui::SettingsAppearance *ui;
+  QFont inputFont;
+  SettingsNotifier *notifier;
+  QFont outputFont;
+  Settings &settings;
 };

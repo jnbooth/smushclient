@@ -16,9 +16,9 @@ public:
   explicit PrefsNumpad(const World &world, QWidget *parent = nullptr);
   ~PrefsNumpad();
 
-private:
-  Ui::PrefsNumpad *ui;
-
 private slots:
   void on_show_mod_toggled(bool checked);
+
+private:
+  Ui::PrefsNumpad *ui;
 };

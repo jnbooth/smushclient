@@ -68,6 +68,9 @@ signals:
   void newActivity();
 
 private:
+  std::vector<QTextCursor> &linksWithExpiration(rust::str expires);
+
+private:
   ScriptApi *api;
   QTextDocument *doc;
   QTextCharFormat expireLinkFormat{};
@@ -77,8 +80,6 @@ private:
   MudScrollBar *scrollBar;
   bool serverExpiresLinks = false;
   QHash<QString, QString> serverStatuses{};
-
-  std::vector<QTextCursor> &linksWithExpiration(rust::str expires);
 };
 
 #endif // DOCUMENT_H

@@ -24,10 +24,11 @@ private:
     return instance;
   }
 
+  WorldProperties();
+  void addProp(const std::string &prop, const QMetaType &type);
+
+private:
   std::vector<std::string> numericProps{};
   std::vector<std::string> stringProps{};
   string_map<std::string> names{};
-
-  WorldProperties();
-  void addProp(const std::string &prop, const QMetaType &type);
 };

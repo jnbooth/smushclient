@@ -26,6 +26,14 @@ public:
   constexpr bool isDirty() const { return dirty; }
 
 private:
+  void connectModel(QAbstractItemModel *model);
+  QWidget *paneForIndex(int row);
+
+private slots:
+  void markDirty();
+  void on_settings_list_currentRowChanged(int row);
+
+private:
   Ui::WorldPrefs *ui;
   AliasModel *aliases;
   ScriptApi *api;
@@ -36,12 +44,4 @@ private:
   TimerModel *timers;
   TriggerModel *triggers;
   World &world;
-
-private:
-  void connectModel(QAbstractItemModel *model);
-  QWidget *paneForIndex(int row);
-
-private slots:
-  void markDirty();
-  void on_settings_list_currentRowChanged(int row);
 };

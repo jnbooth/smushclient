@@ -170,19 +170,6 @@ protected:
   void paintEvent(QPaintEvent *event) override;
 
 private:
-  QColor background;
-  QSize dimensions;
-  QFlags<Flag> flags;
-  string_map<QFont> fonts{};
-  string_map<Hotspot *> hotspots{};
-  string_map<QPixmap> images{};
-  QDateTime installed;
-  QPoint location;
-  QPixmap pixmap;
-  std::string pluginID;
-  Position position;
-  int zOrder;
-
   void applyFlags();
   void updateMask();
 
@@ -209,6 +196,21 @@ private:
   inline QRect normalizeRect(const QRect &rect) const noexcept { return normalizeRect(rect, pixmap); }
   inline QRectF normalizeRect(const QRectF &rect) const noexcept { return normalizeRect(rect, pixmap); }
 
+private:
+  QColor background;
+  QSize dimensions;
+  QFlags<Flag> flags;
+  string_map<QFont> fonts{};
+  string_map<Hotspot *> hotspots{};
+  string_map<QPixmap> images{};
+  QDateTime installed;
+  QPoint location;
+  QPixmap pixmap;
+  std::string pluginID;
+  Position position;
+  int zOrder;
+
+private:
   class Painter : public QPainter
   {
   public:

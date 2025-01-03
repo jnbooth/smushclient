@@ -17,10 +17,6 @@ public:
   ~PrefsScripting();
 
 private:
-  Ui::PrefsScripting *ui;
-  World &world;
-
-private:
   QString defaultScriptPath() const;
 
 private slots:
@@ -28,4 +24,8 @@ private slots:
   void on_WorldScript_create_clicked();
   void on_WorldScript_edit_clicked();
   void on_WorldScript_textChanged(const QString &value);
+
+private:
+  Ui::PrefsScripting *ui;
+  World &world;
 };

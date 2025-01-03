@@ -17,10 +17,6 @@ public:
   ~SettingsStartup();
 
 private:
-  Ui::SettingsStartup *ui;
-  Settings &settings;
-
-private:
   QString currentStartupDirectory() const;
   bool openFolder(const QString &dir) const;
 
@@ -35,4 +31,8 @@ private slots:
   void on_OpenAtStartup_remove_clicked();
   void on_OpenAtStartup_up_clicked();
   void on_StartupDirectory_browse_clicked();
+
+private:
+  Ui::SettingsStartup *ui;
+  Settings &settings;
 };

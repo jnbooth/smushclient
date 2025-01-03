@@ -41,6 +41,12 @@ public slots:
 protected:
   void resizeEvent(QResizeEvent *event) override;
 
+private:
+  QPalette chooseColor(const QWidget *source);
+  bool restore();
+  void save() const;
+  QString settingsKey() const;
+
 private slots:
   void on_action_reset_colors_triggered();
   void on_action_set_caption_color_triggered();
@@ -52,10 +58,4 @@ private:
   QString entityName;
   QString maxEntityName;
   QMenu *displayMenu;
-
-private:
-  QPalette chooseColor(const QWidget *source);
-  bool restore();
-  void save() const;
-  QString settingsKey() const;
 };
