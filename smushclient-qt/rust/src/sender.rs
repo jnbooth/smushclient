@@ -399,7 +399,6 @@ impl ffi::Alias {
         self.send_to.into()
     }
 
-    #[allow(clippy::trivially_copy_pass_by_ref)]
     pub fn set_user_send_to(self: Pin<&mut Self>, send_to: ffi::UserSendTarget) {
         self.rust_mut().send_to = send_to.into();
     }
@@ -410,7 +409,6 @@ impl ffi::Timer {
         self.send_to.into()
     }
 
-    #[allow(clippy::trivially_copy_pass_by_ref)]
     pub fn set_user_send_to(self: Pin<&mut Self>, send_to: ffi::UserSendTarget) {
         self.rust_mut().send_to = send_to.into();
     }
@@ -421,7 +419,6 @@ impl ffi::Trigger {
         self.send_to.into()
     }
 
-    #[allow(clippy::trivially_copy_pass_by_ref)]
     pub fn set_user_send_to(self: Pin<&mut Self>, send_to: ffi::UserSendTarget) {
         self.rust_mut().send_to = send_to.into();
     }

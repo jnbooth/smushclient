@@ -38,8 +38,7 @@ impl<T: Ord> CursorVec<T> {
         self.evaluating = false;
     }
 
-    #[allow(clippy::should_implement_trait)]
-    pub fn next(&mut self) -> Option<&mut T> {
+    pub fn next_mut(&mut self) -> Option<&mut T> {
         if self.cursor >= self.inner.len() {
             self.end();
             return None;

@@ -1,6 +1,3 @@
-#![allow(clippy::float_cmp)]
-#![allow(clippy::needless_pass_by_value)]
-
 #[macro_use]
 mod convert;
 

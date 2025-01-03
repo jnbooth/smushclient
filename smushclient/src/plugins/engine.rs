@@ -149,7 +149,7 @@ impl PluginEngine {
                 &mut plugin.aliases
             };
             aliases.begin();
-            while let Some(alias) = aliases.next() {
+            while let Some(alias) = aliases.next_mut() {
                 if !alias.enabled {
                     continue;
                 }
@@ -228,7 +228,7 @@ impl PluginEngine {
                 &mut plugin.triggers
             };
             triggers.begin();
-            while let Some(trigger) = triggers.next() {
+            while let Some(trigger) = triggers.next_mut() {
                 if !trigger.enabled {
                     continue;
                 }

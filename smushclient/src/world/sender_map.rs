@@ -5,7 +5,7 @@ use smushclient_plugins::Sender;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct SenderMap {
-    #[allow(clippy::vec_box)]
+    #[allow(clippy::vec_box)] // need static addresses
     group_names: Vec<Box<String>>,
     group_indices: HashMap<String, usize>,
     sender_indices: HashMap<String, Vec<usize>>,

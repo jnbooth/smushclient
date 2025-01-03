@@ -1,4 +1,5 @@
 #![allow(clippy::needless_lifetimes)]
+#![allow(clippy::needless_pass_by_value)]
 #![allow(clippy::unnecessary_box_returns)]
 
 use std::mem;

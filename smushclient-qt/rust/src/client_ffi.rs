@@ -1,4 +1,3 @@
-#![allow(clippy::ptr_arg)]
 use std::ffi::c_char;
 use std::pin::Pin;
 use std::{io, ptr};

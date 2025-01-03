@@ -1,6 +1,3 @@
-#![allow(clippy::cast_possible_truncation)]
-#![allow(clippy::cast_possible_wrap)]
-
 macro_rules! adapter {
     ($rust:ident, $ffi:ty) => {
         #[repr(transparent)]

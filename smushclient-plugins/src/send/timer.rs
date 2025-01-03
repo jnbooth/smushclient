@@ -1,4 +1,3 @@
-#![allow(clippy::cast_sign_loss)]
 use std::borrow::Cow;
 use std::sync::atomic::{AtomicU16, Ordering};
 use std::time::Duration;
@@ -26,6 +25,7 @@ fn duration_from_hms(hour: u64, minute: u64, second: f64) -> Duration {
         "second must be a finite positive number"
     );
     #[allow(clippy::cast_possible_truncation)]
+    #[allow(clippy::cast_sign_loss)]
     Duration::from_nanos((NANOS_F * second) as u64 + NANOS * 60 * (minute + 60 * hour))
 }
 
@@ -169,21 +169,20 @@ impl From<TimerXml<'_>> for Timer {
     }
 }
 impl<'a> From<&'a Timer> for TimerXml<'a> {
-    #[allow(clippy::cast_lossless)]
     fn from(value: &'a Timer) -> Self {
         let (at_time, hour, minute, second) = match value.occurrence {
             Occurrence::Interval(every) => {
                 let secs = every.as_secs();
                 let hour = secs / 3600;
                 let minute = (secs % 3600) / 3600;
-                let second = every.subsec_nanos() as f64 / NANOS_F;
+                let second = f64::from(every.subsec_nanos()) / NANOS_F;
                 (false, hour, minute, second)
             }
             Occurrence::Time(time) => (
                 true,
                 u64::from(time.hour()),
                 u64::from(time.minute()),
-                time.second() as f64,
+                f64::from(time.second()),
             ),
         };
         in_place!(

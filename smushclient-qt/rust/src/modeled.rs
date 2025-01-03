@@ -355,8 +355,8 @@ impl_constructor!(ffi::SenderMap, (ffi::SenderType,), {
     }
 });
 
+#[allow(clippy::ptr_arg)]
 impl ffi::SenderMap {
-    #[allow(clippy::ptr_arg)]
     pub fn cell_text(
         &self,
         client: &ffi::SmushClient,
@@ -372,7 +372,6 @@ impl ffi::SenderMap {
         self.rust().group_len(group_index)
     }
 
-    #[allow(clippy::ptr_arg)]
     pub fn group_index(&self, group: &String) -> i32 {
         self.rust().group_index(group)
     }
@@ -385,7 +384,6 @@ impl ffi::SenderMap {
         self.rust().len()
     }
 
-    #[allow(clippy::ptr_arg)]
     pub fn position_in_group(&self, group: &String, index: usize) -> i32 {
         self.rust().position_in_group(group, index)
     }
@@ -394,7 +392,6 @@ impl ffi::SenderMap {
         self.rust_mut().recalculate(&client.rust().client);
     }
 
-    #[allow(clippy::ptr_arg)]
     pub fn remove(
         &self,
         client: Pin<&mut ffi::SmushClient>,
@@ -406,12 +403,10 @@ impl ffi::SenderMap {
             .remove(&mut client.rust_mut().client, group, start, amount)
     }
 
-    #[allow(clippy::ptr_arg)]
     pub fn sender_index(&self, group: &String, index: usize) -> i32 {
         self.rust().sender_index(group, index)
     }
 
-    #[allow(clippy::ptr_arg)]
     pub fn set_cell(
         self: Pin<&mut Self>,
         client: Pin<&mut ffi::SmushClient>,
@@ -424,7 +419,6 @@ impl ffi::SenderMap {
         self.rust_mut().set_cell(client, group, index, column, data)
     }
 
-    #[allow(clippy::ptr_arg)]
     pub fn timer_ids(
         &self,
         client: &ffi::SmushClient,
