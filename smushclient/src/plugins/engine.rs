@@ -134,6 +134,10 @@ impl PluginEngine {
     ) -> AliasEffects {
         let mut effects = AliasEffects::new(world, source);
 
+        if !world.enable_aliases {
+            return effects;
+        }
+
         for (plugin_index, plugin) in self.plugins.iter_mut().enumerate() {
             if plugin.disabled {
                 continue;
@@ -206,6 +210,9 @@ impl PluginEngine {
         variables: &mut PluginVariables,
         handler: &mut H,
     ) -> TriggerEffects {
+        if !world.enable_triggers {
+            return TriggerEffects::default();
+        }
         let mut effects = TriggerEffects::new();
         let mut style = SpanStyle::null();
         let mut has_style = false;

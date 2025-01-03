@@ -9,7 +9,6 @@ use crate::collections::SortOnDrop;
 use crate::handler::Handler;
 use crate::plugins::{
     AliasOutcome, CommandSource, LoadFailure, PluginEngine, SendIterable, SenderAccessError,
-    TriggerEffects,
 };
 use crate::world::{PersistError, World};
 use flagset::FlagSet;
@@ -211,11 +210,7 @@ impl SmushClient {
         };
         let mut had_output = false;
         let mut slice = drain.as_slice();
-        let enable_triggers = self.world.enable_triggers;
-        loop {
-            if slice.is_empty() {
-                break;
-            }
+        while !slice.is_empty() {
             self.line_text.clear();
             let mut until = 0;
             for (i, output) in slice.iter().enumerate() {
@@ -255,17 +250,13 @@ impl SmushClient {
                 handler.display(fragment);
             }
 
-            let trigger_effects = if enable_triggers {
-                self.plugins.trigger(
-                    &self.line_text,
-                    output,
-                    &mut self.world,
-                    &mut self.variables,
-                    handler,
-                )
-            } else {
-                TriggerEffects::default()
-            };
+            let trigger_effects = self.plugins.trigger(
+                &self.line_text,
+                output,
+                &mut self.world,
+                &mut self.variables,
+                handler,
+            );
 
             had_output = had_output || !trigger_effects.omit_from_output;
 
@@ -284,9 +275,6 @@ impl SmushClient {
         source: CommandSource,
         handler: &mut H,
     ) -> AliasOutcome {
-        if !self.world.enable_aliases {
-            return AliasOutcome::default();
-        }
         let outcome =
             self.plugins
                 .alias(input, source, &mut self.world, &mut self.variables, handler);
