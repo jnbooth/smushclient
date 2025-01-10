@@ -39,7 +39,6 @@ PrefsOutput::PrefsOutput(const World &world, QWidget *parent)
   CONNECT_WORLD(EchoBackgroundColour);
   CONNECT_WORLD(KeepCommandsOnSameLine);
   CONNECT_WORLD(NewActivitySound);
-  player.setAudioOutput(&audio);
 }
 
 PrefsOutput::~PrefsOutput()
@@ -65,14 +64,13 @@ void PrefsOutput::on_NewActivitySound_browse_clicked()
 
 void PrefsOutput::on_NewActivitySound_test_clicked()
 {
-  player.stop();
-  player.setSource(QUrl::fromLocalFile(ui->NewActivitySound->text()));
-  player.play();
+  audio.play();
 }
 
 void PrefsOutput::on_NewActivitySound_textChanged(const QString &text)
 {
   ui->NewActivitySound_test->setEnabled(!text.isEmpty());
+  audio.setFile(text);
 }
 
 void PrefsOutput::on_reset_clicked()

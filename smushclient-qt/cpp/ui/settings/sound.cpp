@@ -12,7 +12,6 @@ SettingsSound::SettingsSound(Settings &settings, QWidget *parent)
       ui(new Ui::SettingsSound)
 {
   ui->setupUi(this);
-  player.setAudioOutput(&audio);
   CONNECT_SETTINGS(BellSound);
 }
 
@@ -39,12 +38,11 @@ void SettingsSound::on_BellSound_browse_clicked()
 
 void SettingsSound::on_BellSound_test_clicked()
 {
-  player.stop();
-  player.setSource(QUrl::fromLocalFile(ui->BellSound->text()));
-  player.play();
+  audio.play();
 }
 
 void SettingsSound::on_BellSound_textChanged(const QString &text)
 {
   ui->BellSound_test->setEnabled(!text.isEmpty());
+  audio.setFile(text);
 }

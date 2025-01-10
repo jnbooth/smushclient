@@ -3,6 +3,7 @@ mod convert;
 
 mod adapter;
 mod bridge;
+mod bridge_audio;
 use bridge::ffi;
 mod bridge_ffi;
 mod client;

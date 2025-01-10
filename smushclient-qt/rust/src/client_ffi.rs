@@ -501,6 +501,30 @@ impl ffi::SmushClient {
             .code()
     }
 
+    pub fn play_buffer(
+        &self,
+        i: usize,
+        buf: &[u8],
+        volume: f32,
+        looping: bool,
+    ) -> ffi::SoundResult {
+        self.rust().play_buffer(i, buf, volume, looping)
+    }
+
+    pub fn play_file(
+        &self,
+        i: usize,
+        path: &QString,
+        volume: f32,
+        looping: bool,
+    ) -> ffi::SoundResult {
+        self.rust().play_file(i, path, volume, looping)
+    }
+
+    pub fn stop_sound(&self, i: usize) -> ffi::SoundResult {
+        self.rust().stop_sound(i)
+    }
+
     pub fn alias(
         self: Pin<&mut Self>,
         command: &QString,

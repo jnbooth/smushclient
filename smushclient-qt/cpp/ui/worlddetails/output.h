@@ -1,7 +1,6 @@
 #pragma once
-#include <QtMultimedia/QAudioOutput>
-#include <QtMultimedia/QMediaPlayer>
 #include <QtWidgets/QWidget>
+#include "smushclient_qt/src/bridge_audio.cxxqt.h"
 
 class ScriptApi;
 
@@ -28,6 +27,5 @@ private slots:
 
 private:
   Ui::PrefsOutput *ui;
-  QAudioOutput audio{};
-  QMediaPlayer player{};
+  RustPlayback audio{};
 };

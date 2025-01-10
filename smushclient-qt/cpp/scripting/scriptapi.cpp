@@ -427,16 +427,6 @@ void ScriptApi::updateTimestamp()
 
 // Private methods
 
-AudioChannel &ScriptApi::getAudioChannel(size_t index)
-{
-  if (index)
-    return audioChannels[index - 1];
-  for (AudioChannel &channel : audioChannels)
-    if (!channel.isPlaying())
-      return channel;
-  return audioChannels[0];
-}
-
 SmushClient *ScriptApi::client() const
 {
   return &tab()->client;

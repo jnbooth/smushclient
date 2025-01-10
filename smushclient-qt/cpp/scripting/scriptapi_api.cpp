@@ -54,14 +54,24 @@ inline bool isEmptyList(const QVariant &variant)
   }
 }
 
-inline rust::slice<const char> byteSlice(const QByteArray &bytes) noexcept
+constexpr ApiCode convertSoundResult(SoundResult result) noexcept
 {
-  return rust::slice<const char>(bytes.data(), bytes.size());
+  switch (result)
+  {
+  case SoundResult::Ok:
+    return ApiCode::OK;
+  case SoundResult::SoundError:
+    return ApiCode::CannotPlaySound;
+  case SoundResult::BadParameter:
+    return ApiCode::BadParameter;
+  case SoundResult::NotFound:
+    return ApiCode::FileNotFound;
+  }
 }
 
-inline rust::slice<const char> stringSlice(string_view view) noexcept
+inline rust::slice<const uint8_t> byteSlice(QByteArrayView bytes) noexcept
 {
-  return rust::slice<const char>(view.data(), view.size());
+  return rust::slice<const uint8_t>(reinterpret_cast<const uint8_t *>(bytes.data()), bytes.size());
 }
 
 inline ApiCode updateWorld(WorldTab &worldtab)
@@ -226,22 +236,12 @@ QColor ScriptApi::PickColour(const QColor &hint) const
 
 ApiCode ScriptApi::PlaySound(size_t channel, const QString &path, bool loop, float volume)
 {
-  if (channel < 0 || channel > audioChannels.size())
-    return ApiCode::BadParameter;
-
-  getAudioChannel(channel).playFile(path, loop, volume);
-
-  return ApiCode::OK;
+  return convertSoundResult(client()->playFile(channel, path, volume, loop));
 }
 
-ApiCode ScriptApi::PlaySoundMemory(size_t channel, const QByteArray &sound, bool loop, float volume)
+ApiCode ScriptApi::PlaySoundMemory(size_t channel, QByteArrayView sound, bool loop, float volume)
 {
-  if (channel < 0 || channel > audioChannels.size())
-    return ApiCode::BadParameter;
-
-  getAudioChannel(channel).playBuffer(sound, loop, volume);
-
-  return ApiCode::OK;
+  return convertSoundResult(client()->playBuffer(channel, byteSlice(sound), volume, loop));
 }
 
 ApiCode ScriptApi::PluginSupports(string_view pluginID, PluginCallbackKey routine) const
@@ -341,16 +341,7 @@ void ScriptApi::StopEvaluatingTriggers() const
 
 ApiCode ScriptApi::StopSound(size_t channel)
 {
-  if (channel < 0 || channel > audioChannels.size())
-    return ApiCode::BadParameter;
-  if (channel)
-  {
-    audioChannels[channel - 1].stop();
-    return ApiCode::OK;
-  }
-  for (AudioChannel &audioChannel : audioChannels)
-    audioChannel.stop();
-  return ApiCode::OK;
+  return convertSoundResult(client()->stopSound(channel));
 }
 
 void ScriptApi::Tell(const QString &text)

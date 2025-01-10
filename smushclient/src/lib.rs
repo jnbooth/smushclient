@@ -1,3 +1,8 @@
+#[cfg(feature = "audio")]
+mod audio;
+#[cfg(feature = "audio")]
+pub use audio::{AudioError, AudioPlayback, AudioSinks, PlayMode};
+
 mod client;
 pub use client::SmushClient;
 

@@ -35,6 +35,7 @@ rev = "e3cb450045e5d372e6fa1bc0871bc6256bf80692"
 
 [dependencies.smushclient]
 path = "../../smushclient"
+features = ["audio"]
 
 [dependencies.smushclient-plugins]
 path = "../../smushclient-plugins"

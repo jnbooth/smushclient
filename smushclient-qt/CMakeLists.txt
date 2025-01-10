@@ -22,7 +22,6 @@ find_package(Qt6 REQUIRED COMPONENTS
   Core
   Gui
   LinguistTools
-  Multimedia
   Network
   Qml
   PrintSupport
@@ -75,7 +74,7 @@ set(cargo_target_dir cargo/build)
 cxx_qt_import_crate(
   MANIFEST_PATH rust/Cargo.toml
   CRATES ${CRATE}
-  QT_MODULES Qt::Core Qt::Gui Qt::Multimedia Qt::Qml Qt::PrintSupport Qt::Widgets
+  QT_MODULES Qt::Core Qt::Gui Qt::Qml Qt::PrintSupport Qt::Widgets
 )
 
 corrosion_set_env_vars(${CRATE} "CMAKE_DIR=${CMAKE_CURRENT_BINARY_DIR}")
@@ -91,7 +90,6 @@ set_source_files_properties(resources/appicon/appicon.icns PROPERTIES
 
 qt_add_executable(${APP_NAME}
     cpp/main.cpp
-    cpp/audio.h cpp/audio.cpp
     cpp/client.h cpp/client.cpp
     cpp/commandhistory.h cpp/commandhistory.cpp
     cpp/enumbuttongroup.h
@@ -239,6 +237,13 @@ else()
     -Wpedantic
     -Wno-dollar-in-identifier-extension
 )
+endif()
+
+if(APPLE)
+  find_library(AUDIO_UNIT AudioUnit)
+  target_link_libraries(${APP_NAME} PRIVATE ${AUDIO_UNIT})
+  find_library(CORE_AUDIO CoreAudio)
+  target_link_libraries(${APP_NAME} PRIVATE ${CORE_AUDIO})
 endif()
 
 set_target_properties(${APP_NAME} PROPERTIES

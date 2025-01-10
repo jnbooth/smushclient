@@ -1,5 +1,7 @@
+use std::io;
+
 use crate::ffi;
-use smushclient::{SendIterable, SenderAccessError};
+use smushclient::{AudioError, SendIterable, SenderAccessError};
 
 pub trait IntoResultCode {
     fn code(self) -> i32;
@@ -53,6 +55,19 @@ impl<T: SendIterable> IntoErrorCode for Result<&T, SenderAccessError> {
         match self {
             Ok(_) => ffi::SenderAccessResult::Ok.repr,
             Err(e) => e.code(),
+        }
+    }
+}
+
+impl From<Result<(), AudioError>> for ffi::SoundResult {
+    fn from(value: Result<(), AudioError>) -> Self {
+        match value {
+            Ok(()) => Self::Ok,
+            Err(AudioError::FileError(error)) if error.kind() == io::ErrorKind::NotFound => {
+                Self::NotFound
+            }
+            Err(AudioError::SinkOutOfRange) => Self::BadParameter,
+            _ => Self::SoundError,
         }
     }
 }

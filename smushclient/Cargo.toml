@@ -18,6 +18,12 @@ git = "https://github.com/jnbooth/mxp"
 rev = "e3cb450045e5d372e6fa1bc0871bc6256bf80692"
 features = ["serde"]
 
+[dependencies.rodio]
+version = "0.20.1"
+default-features = false
+features = ["symphonia-all"]
+optional = true
+
 [dependencies.tokio]
 version = "1.38.0"
 features = ["io-util", "net"]
@@ -25,3 +31,4 @@ optional = true
 
 [features]
 async = ["tokio"]
+audio = ["rodio"]

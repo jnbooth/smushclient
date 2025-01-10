@@ -1,7 +1,6 @@
 #pragma once
-#include <QtMultimedia/QAudioOutput>
-#include <QtMultimedia/QMediaPlayer>
 #include <QtWidgets/QDialog>
+#include "smushclient_qt/src/bridge_audio.cxxqt.h"
 
 namespace Ui
 {
@@ -30,8 +29,7 @@ private slots:
 
 private:
   Ui::TriggerEdit *ui;
-  QAudioOutput audio;
-  QMediaPlayer player;
+  RustPlayback audio{};
   QString originalGroup;
   Trigger &trigger;
 };

@@ -65,6 +65,13 @@ pub mod ffi {
         Ok = 0,
     }
 
+    enum SoundResult {
+        Ok = 0,
+        SoundError = 1,
+        BadParameter = 2,
+        NotFound = 3,
+    }
+
     enum TextStyle {
         Blink = 1,
         Bold = 2,
@@ -559,6 +566,21 @@ pub mod ffi {
         fn palette(self: &SmushClient) -> QVector_QColor;
         fn handle_connect(self: &SmushClient, socket: Pin<&mut QAbstractSocket>) -> QString;
         fn handle_disconnect(self: Pin<&mut SmushClient>);
+        fn play_file(
+            self: &SmushClient,
+            i: usize,
+            path: &QString,
+            volume: f32,
+            looping: bool,
+        ) -> SoundResult;
+        fn play_buffer(
+            self: &SmushClient,
+            i: usize,
+            buf: &[u8],
+            volume: f32,
+            looping: bool,
+        ) -> SoundResult;
+        fn stop_sound(self: &SmushClient, i: usize) -> SoundResult;
         fn alias(
             self: Pin<&mut SmushClient>,
             command: &QString,

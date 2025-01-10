@@ -5,11 +5,12 @@ use mud_transformer::mxp::{self, RgbColor};
 use mud_transformer::{
     EffectFragment, EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment,
 };
-use smushclient::{SendRequest, SendScriptRequest, SpanStyle};
+use smushclient::{AudioSinks, PlayMode, SendRequest, SendScriptRequest, SpanStyle};
 use std::collections::{HashMap, HashSet};
 use std::ops::Range;
 
 pub struct ClientHandler<'a> {
+    pub audio: &'a AudioSinks,
     pub doc: DocumentAdapter<'a>,
     pub palette: &'a HashMap<RgbColor, i32>,
     pub carriage_return_clears_line: bool,
@@ -167,7 +168,9 @@ impl<'a> smushclient::Handler for ClientHandler<'a> {
     }
 
     fn play_sound(&mut self, path: &str) {
-        self.doc.play_sound(&QString::from(path));
+        if let Err(e) = self.audio.play_file(0, path, 1.0, PlayMode::Once) {
+            self.display_error(&e.to_string());
+        }
     }
 
     fn send(&mut self, request: SendRequest) {

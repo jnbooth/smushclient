@@ -10,8 +10,6 @@
 TriggerEdit::TriggerEdit(Trigger &trigger, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::TriggerEdit),
-      audio(),
-      player(),
       originalGroup(trigger.getGroup()),
       trigger(trigger)
 {
@@ -53,7 +51,6 @@ TriggerEdit::TriggerEdit(Trigger &trigger, QWidget *parent)
   CONNECT(LinesToMatch);
 
   ui->Text->setPlainText(trigger.getText());
-  player.setAudioOutput(&audio);
 }
 
 TriggerEdit::~TriggerEdit()
@@ -109,14 +106,13 @@ void TriggerEdit::on_Sound_browse_clicked()
 
 void TriggerEdit::on_Sound_test_clicked()
 {
-  player.stop();
-  player.setSource(QUrl::fromLocalFile(ui->Sound->text()));
-  player.play();
+  audio.play();
 }
 
 void TriggerEdit::on_Sound_textChanged(const QString &text)
 {
   ui->Sound_test->setEnabled(!text.isEmpty());
+  audio.setFile(text);
 }
 
 void TriggerEdit::on_Text_textChanged()

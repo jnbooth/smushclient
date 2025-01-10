@@ -13,7 +13,6 @@
 #include "miniwindow.h"
 #include "plugin.h"
 #include "scriptenums.h"
-#include "../audio.h"
 #include "../lookup.h"
 #include "../variableview.h"
 
@@ -125,7 +124,7 @@ public:
   ApiCode IsTrigger(size_t plugin, const QString &label) const;
   QColor PickColour(const QColor &hint) const;
   ApiCode PlaySound(size_t channel, const QString &path, bool loop = false, float volume = 1.0);
-  ApiCode PlaySoundMemory(size_t channel, const QByteArray &sound, bool loop = false, float volume = 1.0);
+  ApiCode PlaySoundMemory(size_t channel, QByteArrayView sound, bool loop = false, float volume = 1.0);
   ApiCode PluginSupports(std::string_view pluginID, PluginCallbackKey routine) const;
   ApiCode Send(QByteArray &bytes);
   ApiCode Send(const QString &text);
@@ -358,7 +357,6 @@ public:
   Timekeeper *timekeeper;
 
 private:
-  AudioChannel &getAudioChannel(size_t index);
   DatabaseConnection *findDatabase(const std::string_view databaseID);
   size_t findPluginIndex(const std::string &pluginID) const;
   inline size_t findPluginIndex(const std::string_view pluginID) const
@@ -372,18 +370,6 @@ private:
 
 private:
   ActionSource actionSource = ActionSource::Unknown;
-  std::array<AudioChannel, 10> audioChannels = {
-      AudioChannel(),
-      AudioChannel(),
-      AudioChannel(),
-      AudioChannel(),
-      AudioChannel(),
-      AudioChannel(),
-      AudioChannel(),
-      AudioChannel(),
-      AudioChannel(),
-      AudioChannel(),
-  };
   CallbackFilter callbackFilter{};
   QTextCursor cursor;
   string_map<DatabaseConnection> databases{};

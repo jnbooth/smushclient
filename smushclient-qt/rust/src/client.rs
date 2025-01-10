@@ -17,12 +17,13 @@ use mud_transformer::mxp::RgbColor;
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
-    BoolProperty, CommandSource, Handler, SendIterable, SenderAccessError, SmushClient, Timers,
-    World,
+    AudioSinks, BoolProperty, CommandSource, Handler, SendIterable, SenderAccessError, SmushClient,
+    Timers, World,
 };
 use smushclient_plugins::{Alias, LoadError, PluginIndex, Timer, Trigger, XmlError};
 
 pub struct SmushClientRust {
+    audio: AudioSinks,
     pub client: SmushClient,
     input_lock: NonBlockingMutex,
     output_lock: NonBlockingMutex,
@@ -35,6 +36,7 @@ pub struct SmushClientRust {
 impl Default for SmushClientRust {
     fn default() -> Self {
         Self {
+            audio: AudioSinks::try_default().unwrap(),
             client: SmushClient::new(
                 World::default(),
                 Tag::Bold
@@ -201,6 +203,7 @@ impl SmushClientRust {
         self.send.clear();
         let world = self.client.world();
         let mut handler = ClientHandler {
+            audio: &self.audio,
             doc,
             palette: &self.palette,
             carriage_return_clears_line: world.carriage_return_clears_line,
@@ -237,6 +240,7 @@ impl SmushClientRust {
         self.send.clear();
         let world = self.client.world();
         let mut handler = ClientHandler {
+            audio: &self.audio,
             doc,
             palette: &self.palette,
             carriage_return_clears_line: world.carriage_return_clears_line,
@@ -250,6 +254,37 @@ impl SmushClientRust {
         drop(output_lock);
     }
 
+    pub fn play_buffer(
+        &self,
+        i: usize,
+        buf: &[u8],
+        volume: f32,
+        looping: bool,
+    ) -> ffi::SoundResult {
+        self.audio
+            .play_buffer(i, buf.to_vec(), volume, looping.into())
+            .into()
+    }
+
+    pub fn play_file(
+        &self,
+        i: usize,
+        path: &QString,
+        volume: f32,
+        looping: bool,
+    ) -> ffi::SoundResult {
+        if path.is_empty() {
+            return self.audio.set_volume(i, volume).into();
+        }
+        self.audio
+            .play_file(i, String::from(path), volume, looping.into())
+            .into()
+    }
+
+    pub fn stop_sound(&self, i: usize) -> ffi::SoundResult {
+        self.audio.stop(i).into()
+    }
+
     pub fn alias(
         &mut self,
         command: &QString,
@@ -261,6 +296,7 @@ impl SmushClientRust {
         self.send.clear();
         let world = self.client.world();
         let mut handler = ClientHandler {
+            audio: &self.audio,
             doc,
             palette: &self.palette,
             carriage_return_clears_line: world.carriage_return_clears_line,
