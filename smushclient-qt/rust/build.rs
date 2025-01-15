@@ -2,7 +2,7 @@ use std::fs::{self, File};
 use std::io::Write;
 use std::path::PathBuf;
 
-use cxx_qt_build::{CxxQtBuilder, QmlModule};
+use cxx_qt_build::CxxQtBuilder;
 
 fn main() {
     let out_dir =
@@ -24,11 +24,8 @@ fn main() {
         .cc_builder(|cc| {
             cc.include(&header_dir);
         })
-        .qml_module::<&str, &str>(QmlModule {
-            uri: "com.jnbooth.smushclient",
-            rust_files: &["src/bridge.rs", "src/bridge_audio.rs", "src/bridge_ffi.rs"],
-            qml_files: &[],
-            ..Default::default()
-        })
+        .file("src/bridge.rs")
+        .file("src/bridge_audio.rs")
+        .file("src/bridge_ffi.rs")
         .build();
 }

@@ -23,7 +23,6 @@ find_package(Qt6 REQUIRED COMPONENTS
   Gui
   LinguistTools
   Network
-  Qml
   PrintSupport
   Widgets
 )
@@ -65,24 +64,22 @@ if(LUACONF_CONTENTS MATCHES "#define LUA_INT_TYPE	LUA_INT_DEFAULT")
   file(WRITE ${LUACONF_PATH} "${LUACONF_CONTENTS}")
 endif()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/cpp/bridge)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/cpp/ui/components)
-
 set(CRATE smushclient_qt)
 set(cargo_target_dir cargo/build)
+
+include_directories(
+  ${CMAKE_CURRENT_BINARY_DIR}/cxxqt/crates/${CRATE}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/cpp/bridge
+  ${CMAKE_CURRENT_SOURCE_DIR}/cpp/ui/components
+)
 
 cxx_qt_import_crate(
   MANIFEST_PATH rust/Cargo.toml
   CRATES ${CRATE}
-  QT_MODULES Qt::Core Qt::Gui Qt::Qml Qt::PrintSupport Qt::Widgets
+  QT_MODULES Qt::Core Qt::Gui Qt::Network Qt::PrintSupport Qt::Widgets
 )
 
 corrosion_set_env_vars(${CRATE} "CMAKE_DIR=${CMAKE_CURRENT_BINARY_DIR}")
-
-cxx_qt_import_qml_module(${CRATE}_qml
-    URI "com.jnbooth.smushclient"
-    SOURCE_CRATE ${CRATE}
-)
 
 set_source_files_properties(resources/appicon/appicon.icns PROPERTIES
   MACOSX_PACKAGE_LOCATION "Resources"
@@ -191,7 +188,7 @@ qt_add_translations(
   LUPDATE_OPTIONS -no-obsolete
 )
 
-target_link_libraries(${APP_NAME} PRIVATE lualibs ${CRATE}_qml)
+target_link_libraries(${APP_NAME} PRIVATE lualibs ${CRATE})
 
 add_compile_definitions(
   QT_NO_CAST_FROM_BYTEARRAY
