@@ -18,14 +18,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS
-  Core
-  Gui
-  LinguistTools
-  Network
-  PrintSupport
-  Widgets
-)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Network PrintSupport Widgets)
 
 qt_standard_project_setup(
   REQUIRES 6.8.0
@@ -181,12 +174,15 @@ qt_add_executable(${APP_NAME}
     resources/appicon/appicon.icns resources/appicon/appicon.rc
 )
 
-qt_add_translations(
-  TARGETS ${APP_NAME}
-  SOURCE_TARGETS ${APP_NAME}
-  TS_FILE_DIR languages
-  LUPDATE_OPTIONS -no-obsolete
-)
+if (TARGET update_translations)
+  find_package(Qt6 REQUIRED COMPONENTS LinguistTools)
+  qt_add_translations(
+    TARGETS ${APP_NAME}
+    SOURCE_TARGETS ${APP_NAME}
+    TS_FILE_DIR languages
+    LUPDATE_OPTIONS -no-obsolete
+  )
+endif()
 
 target_link_libraries(${APP_NAME} PRIVATE lualibs ${CRATE})
 
