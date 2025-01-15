@@ -8,15 +8,11 @@ workspace = true
 
 [dependencies]
 bincode = "1.3.3"
-chrono = { version = "0.4.38", features = ["serde"] }
-flagset = { version = "0.4.6", features = ["serde"] }
-serde = "1.0.204"
+chrono = { workspace = true }
+flagset = { workspace = true }
+mud-transformer = { workspace = true }
+serde = { workspace = true }
 smushclient-plugins = { path = "../smushclient-plugins" }
-
-[dependencies.mud-transformer]
-git = "https://github.com/jnbooth/mxp"
-rev = "e3cb450045e5d372e6fa1bc0871bc6256bf80692"
-features = ["serde"]
 
 [dependencies.rodio]
 version = "0.20.1"
@@ -25,7 +21,7 @@ features = ["symphonia-all"]
 optional = true
 
 [dependencies.tokio]
-version = "1.38.0"
+workspace = true
 features = ["io-util", "net"]
 optional = true
 

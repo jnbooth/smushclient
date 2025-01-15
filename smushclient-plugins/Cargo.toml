@@ -6,26 +6,10 @@ edition = "2021"
 [lints]
 workspace = true
 
-[dependencies.chrono]
-version = "0.4.38"
-features = ["serde"]
-
-[dependencies.flagset]
-version = "0.4.6"
-features = ["serde"]
-
-[dependencies.pcre2]
-version = "0.2.9"
-
-[dependencies.mxp]
-git = "https://github.com/jnbooth/mxp"
-rev = "e3cb450045e5d372e6fa1bc0871bc6256bf80692"
-features = ["serde"]
-
-[dependencies.quick-xml]
-version = "0.36.1"
-features = ["serialize"]
-
-[dependencies.serde]
-version = "1.0.204"
-features = ["derive"]
+[dependencies]
+chrono = { workspace = true }
+flagset = { workspace = true }
+mxp = { workspace = true }
+pcre2 = { version = "0.2.9" }
+quick-xml = { version = "0.36.1", features = ["serialize"] }
+serde = { workspace = true }

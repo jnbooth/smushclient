@@ -10,8 +10,7 @@ workspace = true
 crate-type = ["staticlib"]
 
 [dependencies.chrono]
-version = "0.4.38"
-features = ["serde"]
+workspace = true
 
 [dependencies.cxx]
 version = "1.0.130"
@@ -26,12 +25,10 @@ rev = "331829f88a9148e3c0db5894c305645b263012c0"
 features = ["chrono", "qt_gui"]
 
 [dependencies.flagset]
-version = "0.4.6"
-features = ["serde"]
+workspace = true
 
 [dependencies.mud-transformer]
-git = "https://github.com/jnbooth/mxp"
-rev = "e3cb450045e5d372e6fa1bc0871bc6256bf80692"
+workspace = true
 
 [dependencies.smushclient]
 path = "../../smushclient"
@@ -46,4 +43,7 @@ rev = "331829f88a9148e3c0db5894c305645b263012c0"
 
 [features]
 # This feature must be enabled for `cargo test` when linking Qt 6 statically.
-link_qt_object_files = ["cxx-qt-build/link_qt_object_files"]
+link_qt_object_files = [
+  "cxx-qt-build/link_qt_object_files",
+  "cxx-qt-lib/link_qt_object_files",
+]
