@@ -37,7 +37,6 @@ mod ffi {
 
     unsafe extern "C++" {
         include!("cxx-qt-lib/qvector.h");
-        include!("forward.h");
         type QVector_QColor = cxx_qt_lib::QVector<QColor>;
     }
 

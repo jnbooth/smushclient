@@ -424,7 +424,7 @@ void Document::send(const SendScriptRequest &request) const
   }
 }
 
-void Document::setPalette(const QVector_QColor &palette)
+void Document::setPalette(const QVector<QColor> &palette)
 {
   QTextCharFormat *format = &formats[0];
   for (QColor color : palette)

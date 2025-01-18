@@ -18,6 +18,5 @@ class Timekeeper;
 class World;
 
 using AliasOutcomes = QFlags<AliasOutcome>;
-using QVector_QColor = QVector<QColor>;
 
 #endif

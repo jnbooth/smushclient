@@ -20,7 +20,6 @@ struct OutputSpan;
 
 using AliasOutcomes = QFlags<AliasOutcome>;
 using TextStyles = QFlags<TextStyle>;
-using QVector_QColor = QVector<QColor>;
 
 class Document : public QObject
 {
@@ -56,7 +55,7 @@ public:
   void resetServerStatus();
   void send(const SendRequest &request) const;
   void send(const SendScriptRequest &request) const;
-  void setPalette(const QVector_QColor &palette);
+  void setPalette(const QVector<QColor> &palette);
   void setSuppressEcho(bool suppress) const;
   constexpr const QHash<QString, QString> &serverStatus() const noexcept
   {
