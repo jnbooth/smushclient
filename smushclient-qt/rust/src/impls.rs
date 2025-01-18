@@ -1,8 +1,8 @@
 use std::mem;
 
 use super::ffi;
-use crate::bridge::TextStyles;
 use crate::convert::Convert;
+use crate::ffi::TextStyles;
 use crate::sender::OutputSpan;
 use cxx_qt_lib::QString;
 use flagset::FlagSet;

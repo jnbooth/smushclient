@@ -14,6 +14,7 @@
 #include "../client.h"
 #include "../bridge/document.h"
 #include "../scripting/callbacktrigger.h"
+#include "smushclient_qt/src/ffi/world.cxxqt.h"
 
 class Hotspot;
 class MudStatusBar;

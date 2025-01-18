@@ -13,6 +13,7 @@
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
 #include "../../settings.h"
+#include "smushclient_qt/src/ffi/document.cxxqt.h"
 extern "C"
 {
 #include "lua.h"

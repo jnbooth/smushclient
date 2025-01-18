@@ -3,7 +3,7 @@
 #include "ui_triggers.h"
 #include "../../model/trigger.h"
 #include "../../fieldconnector.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/ffi/world.cxxqt.h"
 
 PrefsTriggers::PrefsTriggers(const World &world, TriggerModel *model, QWidget *parent)
     : AbstractPrefsTree(model, parent),

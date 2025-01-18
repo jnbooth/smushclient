@@ -1,7 +1,7 @@
 #include "aliasedit.h"
 #include "ui_aliasedit.h"
 #include "../../fieldconnector.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/ffi/sender.cxxqt.h"
 
 #define CONNECT(field) connectField(this, &alias, ui->field, alias.get##field(), &Alias::set##field);
 

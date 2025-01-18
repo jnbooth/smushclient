@@ -24,6 +24,8 @@
 #include "../scripting/scriptapi.h"
 #include "../settings.h"
 #include "../spans.h"
+#include "smushclient_qt/src/ffi/document.cxxqt.h"
+#include "smushclient_qt/src/ffi/sender.cxxqt.h"
 
 using std::nullopt;
 using std::string;

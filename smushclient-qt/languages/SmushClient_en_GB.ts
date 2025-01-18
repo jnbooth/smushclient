@@ -4,7 +4,7 @@
 <context>
     <name>AbstractSenderModel</name>
     <message>
-        <location filename="../cpp/model/sender.cpp" line="193"/>
+        <location filename="../cpp/model/sender.cpp" line="194"/>
         <source>(ungrouped)</source>
         <translation></translation>
     </message>
@@ -185,22 +185,22 @@
 <context>
     <name>AliasModel</name>
     <message>
-        <location filename="../cpp/model/alias.cpp" line="58"/>
+        <location filename="../cpp/model/alias.cpp" line="60"/>
         <source>Group/Label</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/alias.cpp" line="59"/>
+        <location filename="../cpp/model/alias.cpp" line="61"/>
         <source>Sequence</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/alias.cpp" line="60"/>
+        <location filename="../cpp/model/alias.cpp" line="62"/>
         <source>Pattern</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/alias.cpp" line="61"/>
+        <location filename="../cpp/model/alias.cpp" line="63"/>
         <source>Text</source>
         <translation></translation>
     </message>
@@ -1063,32 +1063,32 @@
 <context>
     <name>PluginModel</name>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="147"/>
+        <location filename="../cpp/model/plugin.cpp" line="148"/>
         <source>Name</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="148"/>
+        <location filename="../cpp/model/plugin.cpp" line="149"/>
         <source>Purpose</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="149"/>
+        <location filename="../cpp/model/plugin.cpp" line="150"/>
         <source>Author</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="150"/>
+        <location filename="../cpp/model/plugin.cpp" line="151"/>
         <source>Path</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="151"/>
+        <location filename="../cpp/model/plugin.cpp" line="152"/>
         <source>Enabled</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="152"/>
+        <location filename="../cpp/model/plugin.cpp" line="153"/>
         <source>Version</source>
         <translation></translation>
     </message>
@@ -1675,7 +1675,7 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/output.cpp" line="57"/>
+        <location filename="../cpp/ui/worlddetails/output.cpp" line="56"/>
         <source>Select sound file</source>
         <translation></translation>
     </message>
@@ -1856,32 +1856,32 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="56"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="57"/>
         <source>Plugin ID (%1) is not installed</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="62"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="63"/>
         <source>Plugin &apos;%1&apos; (%2) is not enabled</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="69"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="70"/>
         <source>No function &apos;%1&apos; in plugin &apos;%2&apos; (%3)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="77"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="78"/>
         <source>Cannot pass argument #%1 (%2 type) to CallPlugin</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="84"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="85"/>
         <source>Runtime error in function &apos;%1&apos;, plugin &apos;%2&apos; (%3)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="92"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="93"/>
         <source>Cannot handle return value #%1 (%2 type) from function &apos;%3&apos; in plugin &apos;%4&apos; (%5)</source>
         <translation></translation>
     </message>
@@ -2489,7 +2489,7 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/settings/sound.cpp" line="31"/>
+        <location filename="../cpp/ui/settings/sound.cpp" line="30"/>
         <source>Select sound file</source>
         <translation></translation>
     </message>
@@ -2836,22 +2836,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
 <context>
     <name>TimerModel</name>
     <message>
-        <location filename="../cpp/model/timer.cpp" line="62"/>
+        <location filename="../cpp/model/timer.cpp" line="64"/>
         <source>Group/Label</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/timer.cpp" line="63"/>
+        <location filename="../cpp/model/timer.cpp" line="65"/>
         <source>Type</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/timer.cpp" line="64"/>
+        <location filename="../cpp/model/timer.cpp" line="66"/>
         <source>Occurrence</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/timer.cpp" line="65"/>
+        <location filename="../cpp/model/timer.cpp" line="67"/>
         <source>Text</source>
         <translation></translation>
     </message>
@@ -3059,17 +3059,17 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.cpp" line="84"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.cpp" line="81"/>
         <source>Notepad:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.cpp" line="88"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.cpp" line="85"/>
         <source>Variable:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.cpp" line="101"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.cpp" line="98"/>
         <source>Select sound file</source>
         <translation></translation>
     </message>
@@ -3077,22 +3077,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
 <context>
     <name>TriggerModel</name>
     <message>
-        <location filename="../cpp/model/trigger.cpp" line="58"/>
+        <location filename="../cpp/model/trigger.cpp" line="60"/>
         <source>Group/Label</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/trigger.cpp" line="59"/>
+        <location filename="../cpp/model/trigger.cpp" line="61"/>
         <source>Sequence</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/trigger.cpp" line="60"/>
+        <location filename="../cpp/model/trigger.cpp" line="62"/>
         <source>Pattern</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/trigger.cpp" line="61"/>
+        <location filename="../cpp/model/trigger.cpp" line="63"/>
         <source>Text</source>
         <translation></translation>
     </message>
@@ -3163,47 +3163,47 @@ li.checked::marker { content: &quot;\2612&quot;; }
 <context>
     <name>WorldTab</name>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="206"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="208"/>
         <source>Failed to open file: %1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="276"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="278"/>
         <source>Do you want to save the changes you made to %1?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="277"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="279"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="318"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="320"/>
         <source>Save as</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="735"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="737"/>
         <source>World script changed</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="735"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="737"/>
         <source>Would you like to reload the world script?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="803"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="805"/>
         <source>&apos;Connected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="823"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="825"/>
         <source>&apos;Disconnected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="844"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="846"/>
         <source>Connection error: %1</source>
         <translation type="unfinished"></translation>
     </message>

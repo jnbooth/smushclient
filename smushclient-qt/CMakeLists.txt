@@ -174,15 +174,6 @@ qt_add_executable(${APP_NAME}
     resources/appicon/appicon.icns resources/appicon/appicon.rc
 )
 
-if (TARGET update_translations)
-  find_package(Qt6 REQUIRED COMPONENTS LinguistTools)
-  qt_add_translations(
-    TARGETS ${APP_NAME}
-    SOURCE_TARGETS ${APP_NAME}
-    TS_FILE_DIR languages
-    LUPDATE_OPTIONS -no-obsolete
-  )
-endif()
 
 target_link_libraries(${APP_NAME} PRIVATE lualibs ${CRATE})
 
@@ -222,6 +213,13 @@ if(MSVC)
     /wd4715
   )
 else()
+  find_package(Qt6 REQUIRED COMPONENTS LinguistTools)
+  qt_add_translations(
+    TARGETS ${APP_NAME}
+    SOURCE_TARGETS ${APP_NAME}
+    TS_FILE_DIR languages
+    LUPDATE_OPTIONS -no-obsolete
+  )
   target_compile_options(
     ${APP_NAME}
     PRIVATE

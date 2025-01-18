@@ -3,6 +3,7 @@
 #include "../scripting/plugincallback.h"
 #include "../client.h"
 #include "../timer_map.h"
+#include "smushclient_qt/src/ffi/timekeeper.cxxqt.h"
 extern "C"
 {
 #include "lua.h"

@@ -1,6 +1,8 @@
 #include "timer.h"
 #include "../ui/worlddetails/timeredit.h"
 #include "../client.h"
+#include "smushclient_qt/src/ffi/sender.cxxqt.h"
+#include "smushclient_qt/src/ffi/sender_map.cxxqt.h"
 
 // Public methods
 

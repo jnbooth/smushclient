@@ -3,7 +3,7 @@
 #include "bridge/document.h"
 #include "bridge/timekeeper.h"
 #include "variableview.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/ffi/client.cxxqt.h"
 
 class SmushClient : public SmushClientBase
 {

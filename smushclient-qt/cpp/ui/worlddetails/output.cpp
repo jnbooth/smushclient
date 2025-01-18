@@ -4,8 +4,8 @@
 #include "../../fieldconnector.h"
 #include "../../environment.h"
 #include "../../scripting/scriptapi.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
-#include "smushclient_qt/src/bridge_ffi.cxx.h"
+#include "smushclient_qt/src/ffi/world.cxxqt.h"
+#include "smushclient_qt/src/ffi/util.cxx.h"
 
 using std::array;
 

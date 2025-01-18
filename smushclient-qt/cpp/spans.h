@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <optional>
 #include <QString>
+#include <QtCore/QDateTime>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextFormat>
 

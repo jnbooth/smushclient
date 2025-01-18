@@ -1,4 +1,3 @@
-#![allow(clippy::unnecessary_box_returns)]
 use std::pin::Pin;
 
 use cxx_qt::CxxQtType;
@@ -6,7 +5,7 @@ use cxx_qt_lib::QString;
 use smushclient::{AudioError, AudioPlayback};
 
 #[cxx_qt::bridge]
-mod ffi {
+pub mod ffi {
     unsafe extern "C++" {
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;

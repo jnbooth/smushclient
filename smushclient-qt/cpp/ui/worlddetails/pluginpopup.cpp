@@ -1,6 +1,6 @@
 #include "pluginpopup.h"
 #include "ui_pluginpopup.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/ffi/plugin_details.cxxqt.h"
 
 PluginPopup::PluginPopup(const PluginDetails &plugin, QWidget *parent)
     : QDialog(parent),

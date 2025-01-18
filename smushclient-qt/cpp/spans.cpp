@@ -1,6 +1,6 @@
 #include "spans.h"
 #include <QtCore/QRegularExpression>
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/ffi/document.cxxqt.h"
 
 using std::nullopt;
 using std::optional;

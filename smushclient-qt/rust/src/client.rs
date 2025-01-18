@@ -4,9 +4,9 @@ use std::io;
 use std::io::Write;
 
 use crate::adapter::{DocumentAdapter, SocketAdapter, TimekeeperAdapter};
-use crate::bridge::AliasOutcomes;
 use crate::convert::Convert;
 use crate::ffi;
+use crate::ffi::AliasOutcomes;
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
 use crate::modeled::Modeled;

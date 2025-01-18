@@ -1,7 +1,7 @@
 #include "connecting.h"
 #include "ui_connecting.h"
 #include "../../fieldconnector.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/ffi/world.cxxqt.h"
 
 PrefsConnecting::PrefsConnecting(const World &world, QWidget *parent)
     : QWidget(parent),

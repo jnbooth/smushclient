@@ -6,7 +6,7 @@
 #include "../../environment.h"
 #include "../../fieldconnector.h"
 #include "../../localization.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/ffi/world.cxxqt.h"
 
 PrefsLogging::PrefsLogging(World &world, QWidget *parent)
     : QWidget(parent),

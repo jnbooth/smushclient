@@ -14,7 +14,8 @@
 #include "../ui/mudstatusbar/mudstatusbar.h"
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
-#include "smushclient_qt/src/bridge_ffi.cxx.h"
+#include "smushclient_qt/src/ffi/document.cxxqt.h"
+#include "smushclient_qt/src/ffi/util.cxx.h"
 
 using std::nullopt;
 using std::optional;

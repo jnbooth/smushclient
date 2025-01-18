@@ -6,6 +6,7 @@
 #include "../ui/worldtab.h"
 #include "../ui/ui_worldtab.h"
 #include "../../spans.h"
+#include "smushclient_qt/src/ffi/document.cxxqt.h"
 
 using std::optional;
 using std::string;

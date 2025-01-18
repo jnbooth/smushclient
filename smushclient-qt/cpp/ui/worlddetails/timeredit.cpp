@@ -2,7 +2,7 @@
 #include "ui_timeredit.h"
 #include "../../enumbuttongroup.h"
 #include "../../fieldconnector.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/ffi/sender.cxxqt.h"
 
 #define CONNECT(field) connectField(this, &timer, ui->field, timer.get##field(), &Timer::set##field);
 

@@ -16,7 +16,7 @@
 #include "../../model/plugin.h"
 #include "../../model/timer.h"
 #include "../../model/trigger.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/ffi/client.cxxqt.h"
 
 // Public methods
 

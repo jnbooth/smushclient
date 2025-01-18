@@ -4,7 +4,7 @@ use mud_transformer::mxp::RgbColor;
 use mud_transformer::naws;
 use smushclient_plugins::Reaction;
 
-pub fn ansi16() -> QVector<QColor> {
+fn ansi16() -> QVector<QColor> {
     RgbColor::XTERM_16.to_vec().convert()
 }
 
@@ -37,6 +37,7 @@ mod ffi {
 
     unsafe extern "C++" {
         include!("cxx-qt-lib/qvector.h");
+        include!("forward.h");
         type QVector_QColor = cxx_qt_lib::QVector<QColor>;
     }
 

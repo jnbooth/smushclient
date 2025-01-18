@@ -7,7 +7,7 @@
 #include "qlua.h"
 #include "scriptapi.h"
 #include "scriptthread.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/ffi/client.cxxqt.h"
 extern "C"
 {
 #include "lauxlib.h"

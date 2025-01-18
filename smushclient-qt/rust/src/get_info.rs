@@ -6,8 +6,8 @@ use mud_transformer::mxp::RgbColor;
 use smushclient::InfoVisitor;
 use smushclient_plugins::SendTarget;
 
-use crate::bridge::ffi;
 use crate::convert::Convert;
+use crate::ffi;
 
 pub struct InfoVisitorQVariant;
 

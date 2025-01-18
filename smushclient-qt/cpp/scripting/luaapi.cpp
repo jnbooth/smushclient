@@ -8,7 +8,8 @@
 #include "scriptenums.h"
 #include "scriptthread.h"
 #include "worldproperties.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/ffi/client.cxxqt.h"
+#include "smushclient_qt/src/ffi/sender.cxxqt.h"
 extern "C"
 {
 #include "lua.h"

@@ -3,7 +3,7 @@
 #include <sstream>
 #include <QtCore/QUuid>
 #include "miniwindow.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/ffi/sender.cxxqt.h"
 extern "C"
 {
 #include "lauxlib.h"

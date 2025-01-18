@@ -6,6 +6,7 @@
 #include "errors.h"
 #include "sqlite3.h"
 #include "../ui/worldtab.h"
+#include "smushclient_qt/src/ffi/sender.cxxqt.h"
 
 using std::nullopt;
 using std::optional;

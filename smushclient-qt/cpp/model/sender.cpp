@@ -4,6 +4,7 @@
 #include "../ui/worlddetails/timeredit.h"
 #include "../ui/worlddetails/triggeredit.h"
 #include "../client.h"
+#include "smushclient_qt/src/ffi/sender_map.cxxqt.h"
 
 using std::array;
 using std::vector;

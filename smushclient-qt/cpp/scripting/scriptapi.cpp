@@ -14,8 +14,9 @@
 #include "../ui/ui_worldtab.h"
 #include "../../spans.h"
 #include "../timer_map.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
-#include "smushclient_qt/src/bridge_ffi.cxx.h"
+#include "smushclient_qt/src/ffi/client.cxxqt.h"
+#include "smushclient_qt/src/ffi/sender.cxxqt.h"
+#include "smushclient_qt/src/ffi/util.cxx.h"
 
 using std::string;
 using std::string_view;

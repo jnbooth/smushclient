@@ -2,8 +2,8 @@ use std::ffi::c_char;
 use std::pin::Pin;
 use std::{io, ptr};
 
-use crate::bridge::AliasOutcomes;
 use crate::ffi;
+use crate::ffi::AliasOutcomes;
 use crate::results::{IntoErrorCode, IntoResultCode};
 use cxx_qt::CxxQtType;
 use cxx_qt_lib::{QColor, QString, QStringList, QVariant, QVector};

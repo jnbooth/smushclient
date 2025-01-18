@@ -1,5 +1,6 @@
 #include "plugin.h"
 #include "../client.h"
+#include "smushclient_qt/src/ffi/plugin_details.cxxqt.h"
 
 using std::nullopt;
 using std::optional;

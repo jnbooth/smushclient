@@ -1,6 +1,6 @@
 #pragma once
 #include <QtWidgets/QDialog>
-#include "smushclient_qt/src/bridge_audio.cxxqt.h"
+#include "smushclient_qt/src/ffi/audio.cxxqt.h"
 
 namespace Ui
 {

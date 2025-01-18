@@ -13,6 +13,7 @@ fn main() {
 
     for (file_contents, file_name) in [
         (include_str!("../cpp/bridge/document.h"), "document.h"),
+        (include_str!("../cpp/bridge/forward.h"), "forward.h"),
         (include_str!("../cpp/bridge/timekeeper.h"), "timekeeper.h"),
     ] {
         let h_path = header_dir.join(file_name);
@@ -24,8 +25,14 @@ fn main() {
         .cc_builder(|cc| {
             cc.include(&header_dir);
         })
-        .file("src/bridge.rs")
-        .file("src/bridge_audio.rs")
-        .file("src/bridge_ffi.rs")
+        .file("src/ffi/audio.rs")
+        .file("src/ffi/client.rs")
+        .file("src/ffi/document.rs")
+        .file("src/ffi/plugin_details.rs")
+        .file("src/ffi/sender.rs")
+        .file("src/ffi/sender_map.rs")
+        .file("src/ffi/timekeeper.rs")
+        .file("src/ffi/util.rs")
+        .file("src/ffi/world.rs")
         .build();
 }

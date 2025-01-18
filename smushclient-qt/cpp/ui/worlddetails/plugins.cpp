@@ -8,7 +8,7 @@
 #include "../../localization.h"
 #include "../../model/plugin.h"
 #include "../../scripting/scriptapi.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/ffi/plugin_details.cxxqt.h"
 
 // Public methods
 

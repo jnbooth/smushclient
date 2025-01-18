@@ -1,7 +1,7 @@
 #include "numpad.h"
 #include "ui_numpad.h"
 #include "../../fieldconnector.h"
-#include "smushclient_qt/src/bridge.cxxqt.h"
+#include "smushclient_qt/src/ffi/world.cxxqt.h"
 
 PrefsNumpad::PrefsNumpad(const World &world, QWidget *parent)
     : QWidget(parent),
