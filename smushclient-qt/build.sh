@@ -4,6 +4,7 @@ CONFIG="Debug"
 
 if [ "$1" = "--release" ]; then
   CONFIG="Release"
+  CMAKE_BUILD_TYPE="Release"
   shift
 fi
 
