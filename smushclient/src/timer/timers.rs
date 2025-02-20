@@ -140,47 +140,13 @@ impl<T: TimerConstructible> Timers<T> {
         }
         let send_timer = SendTimer::new(index, timer);
         match timer.occurrence {
-            Occurrence::Time(time) => {
-                let id = send_timer.id;
-                self.scheduled_times.insert(id, time);
-                let send_timer = ScheduledTimer::new(send_timer, time);
-                let mut pos = match self.scheduled.binary_search(&send_timer) {
-                    Err(pos) if !self.scheduled.get(pos).is_some_and(|timer| timer.id == id) => pos,
-                    Err(pos) | Ok(pos) => {
-                        self.scheduled[pos] = send_timer;
-                        return;
-                    }
-                };
-                if let Some(old_pos) = self
-                    .scheduled
-                    .iter()
-                    .position(|send_timer| send_timer.id == id)
-                {
-                    if old_pos < pos {
-                        pos -= 1;
-                    }
-                    if old_pos < self.cursor_pos {
-                        self.cursor_pos -= 1;
-                    }
-                    self.scheduled.remove(old_pos);
-                }
-                self.scheduled.insert(pos, send_timer);
-
-                if pos < self.cursor_pos || (pos == self.cursor_pos && time < Local::now().time()) {
-                    self.cursor_pos += 1;
-                }
-            }
+            Occurrence::Time(time) => self.insert_scheduled(ScheduledTimer::new(send_timer, time)),
             Occurrence::Interval(duration) => {
-                let id = send_timer.id;
                 let send_timer = RecurringTimer::new(send_timer, duration);
+                let id = send_timer.id;
                 let milliseconds = send_timer.milliseconds;
-                let index = self.recurring.insert(send_timer);
+                let index = self.insert_recurring(send_timer);
                 handler.start_timer(index, id, milliseconds);
-                let next_occurrence =
-                    Utc::now().checked_add_signed(TimeDelta::milliseconds(i64::from(milliseconds)));
-                if let Some(next_occurrence) = next_occurrence {
-                    self.next_occurrences.insert(id, next_occurrence);
-                }
             }
         }
     }
@@ -203,5 +169,53 @@ impl<T: TimerConstructible> Timers<T> {
         send_timer.remove(client);
         self.recurring.remove(id);
         true
+    }
+
+    fn insert_recurring(&mut self, timer: RecurringTimer<T>) -> usize {
+        let next_occurrence =
+            Utc::now().checked_add_signed(TimeDelta::milliseconds(i64::from(timer.milliseconds)));
+        if let Some(next_occurrence) = next_occurrence {
+            self.next_occurrences.insert(timer.id, next_occurrence);
+        }
+        self.recurring.insert(timer)
+    }
+
+    fn insert_scheduled(&mut self, timer: ScheduledTimer<T>) {
+        let time = timer.time;
+        self.scheduled_times.insert(timer.id, time);
+        let mut pos = match self.find_insert_index(&timer) {
+            Ok(pos) => pos,
+            Err(pos) => {
+                self.scheduled[pos] = timer;
+                return;
+            }
+        };
+        if let Some(old_pos) = self.find_index(&timer) {
+            if old_pos < pos {
+                pos -= 1;
+            }
+            if old_pos < self.cursor_pos {
+                self.cursor_pos -= 1;
+            }
+            self.scheduled.remove(old_pos);
+        }
+        self.scheduled.insert(pos, timer);
+
+        if pos < self.cursor_pos || (pos == self.cursor_pos && time < Local::now().time()) {
+            self.cursor_pos += 1;
+        }
+    }
+
+    fn find_insert_index(&self, timer: &ScheduledTimer<T>) -> Result<usize, usize> {
+        let id = timer.id;
+        match self.scheduled.binary_search(timer) {
+            Err(pos) if !self.scheduled.get(pos).is_some_and(|timer| timer.id == id) => Ok(pos),
+            Err(pos) | Ok(pos) => Err(pos),
+        }
+    }
+
+    fn find_index(&self, timer: &ScheduledTimer<T>) -> Option<usize> {
+        let id = timer.id;
+        self.scheduled.iter().position(|timer| timer.id == id)
     }
 }

@@ -16,35 +16,47 @@ impl<S> Escaped<S> {
     where
         S: From<&'a str> + From<String>,
     {
-        if message.len() <= 1 {
-            return Self {
-                message: message.into(),
-                has_chrono: false,
-            };
-        }
-        let mut has_world = false;
-        let mut has_player = false;
-        let mut has_chrono = false;
-        let mut in_escape = false;
-        for &byte in message.as_bytes() {
-            if in_escape {
-                match byte {
-                    b'N' => has_world = true,
-                    b'P' => has_player = true,
-                    _ => has_chrono = true,
+        // Reduce monomorphization
+        fn inner<'a>(message: &'a str, world: &World) -> Escaped<Cow<'a, str>> {
+            if message.len() <= 1 {
+                return Escaped {
+                    message: message.into(),
+                    has_chrono: false,
+                };
+            }
+            let mut has_world = false;
+            let mut has_player = false;
+            let mut has_chrono = false;
+            let mut in_escape = false;
+            for &byte in message.as_bytes() {
+                if in_escape {
+                    match byte {
+                        b'N' => has_world = true,
+                        b'P' => has_player = true,
+                        _ => has_chrono = true,
+                    }
+                    in_escape = false;
+                } else if byte == b'%' {
+                    in_escape = true;
                 }
-                in_escape = false;
-            } else if byte == b'%' {
-                in_escape = true;
+            }
+            let mut message = Cow::Borrowed(message);
+            if has_world {
+                message = message.replace("%N", &world.name).into();
+            }
+            if has_player {
+                message = message.replace("%P", &world.player).into();
+            }
+            Escaped {
+                message,
+                has_chrono,
             }
         }
-        let mut message = Cow::Borrowed(message);
-        if has_world {
-            message = message.replace("%N", &world.name).into();
-        }
-        if has_player {
-            message = message.replace("%P", &world.player).into();
-        }
+
+        let Escaped {
+            message,
+            has_chrono,
+        } = inner(message, world);
         Self {
             message: match message {
                 Cow::Borrowed(borrowed) => borrowed.into(),

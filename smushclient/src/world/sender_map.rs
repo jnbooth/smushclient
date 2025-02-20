@@ -62,6 +62,10 @@ impl SenderMap {
                 self.sender_indices.insert(group.clone(), vec![i]);
             }
         }
+        self.retain_nonempty();
+    }
+
+    fn retain_nonempty(&mut self) {
         self.group_names.retain(|group| {
             self.sender_indices
                 .get(group.as_str())
