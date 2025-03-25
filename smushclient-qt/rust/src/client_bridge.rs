@@ -128,11 +128,11 @@ impl ffi::SmushClient {
         device: Pin<&mut ffi::QAbstractSocket>,
         doc: Pin<&mut ffi::Document>,
     ) -> i64 {
-        self.rust_mut().read(device, doc.into())
+        self.rust_mut().read(device, doc)
     }
 
     pub fn flush(self: Pin<&mut Self>, doc: Pin<&mut ffi::Document>) {
-        self.rust_mut().flush(doc.into());
+        self.rust_mut().flush(doc);
     }
 
     pub fn has_output(&self) -> bool {
@@ -155,9 +155,7 @@ impl ffi::SmushClient {
         timekeeper: Pin<&mut ffi::Timekeeper>,
     ) -> i32 {
         let timer = Timer::from(timer.rust());
-        self.rust_mut()
-            .add_timer(index, timer, timekeeper.into())
-            .code()
+        self.rust_mut().add_timer(index, timer, timekeeper).code()
     }
 
     pub fn add_trigger(
@@ -251,7 +249,7 @@ impl ffi::SmushClient {
     ) -> i32 {
         let timer = Timer::from(timer.rust());
         self.rust_mut()
-            .replace_world_timer(index, timer, timekeeper.into())
+            .replace_world_timer(index, timer, timekeeper)
             .code()
     }
 
@@ -316,7 +314,7 @@ impl ffi::SmushClient {
         xml: &QString,
         timekeeper: Pin<&mut ffi::Timekeeper>,
     ) -> Result<(), XmlError> {
-        self.rust_mut().import_world_timers(xml, timekeeper.into())
+        self.rust_mut().import_world_timers(xml, timekeeper)
     }
 
     pub fn import_world_triggers(self: Pin<&mut Self>, xml: &QString) -> Result<(), XmlError> {
@@ -344,7 +342,7 @@ impl ffi::SmushClient {
     ) {
         let timer = Timer::from(timer.rust());
         self.rust_mut()
-            .add_or_replace_timer(index, timer, timekeeper.into());
+            .add_or_replace_timer(index, timer, timekeeper);
     }
 
     pub fn replace_trigger(
@@ -534,7 +532,7 @@ impl ffi::SmushClient {
         let Ok(source) = source.try_into() else {
             return AliasOutcomes(0);
         };
-        self.rust_mut().alias(command, source, doc.into())
+        self.rust_mut().alias(command, source, doc)
     }
 
     /// # Safety
@@ -608,7 +606,7 @@ impl ffi::SmushClient {
         index: PluginIndex,
         timekeeper: Pin<&mut ffi::Timekeeper>,
     ) {
-        self.rust_mut().start_timers(index, timekeeper.into());
+        self.rust_mut().start_timers(index, timekeeper);
     }
 
     pub fn finish_timer(
@@ -616,11 +614,11 @@ impl ffi::SmushClient {
         id: usize,
         timekeeper: Pin<&mut ffi::Timekeeper>,
     ) -> bool {
-        self.rust_mut().finish_timer(id, timekeeper.into())
+        self.rust_mut().finish_timer(id, timekeeper)
     }
 
     pub fn poll_timers(self: Pin<&mut Self>, timekeeper: Pin<&mut ffi::Timekeeper>) {
-        self.rust_mut().poll_timers(timekeeper.into());
+        self.rust_mut().poll_timers(timekeeper);
     }
 
     pub fn stop_senders(self: Pin<&mut Self>) {

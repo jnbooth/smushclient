@@ -3,10 +3,9 @@ use std::fs::File;
 use std::io::{self, Write};
 use std::pin::Pin;
 
-use crate::adapter::{DocumentAdapter, TimekeeperAdapter};
 use crate::convert::Convert;
-use crate::ffi;
-use crate::ffi::AliasOutcomes;
+use crate::ffi::{self, Document};
+use crate::ffi::{AliasOutcomes, Timekeeper};
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
 use crate::modeled::Modeled;
@@ -199,7 +198,7 @@ impl SmushClientRust {
         }
     }
 
-    pub fn read(&mut self, mut socket: Pin<&mut QAbstractSocket>, doc: DocumentAdapter) -> i64 {
+    pub fn read(&mut self, mut socket: Pin<&mut QAbstractSocket>, doc: Pin<&mut Document>) -> i64 {
         let output_lock = self.output_lock.lock();
         self.send.clear();
         let world = self.client.world();
@@ -215,7 +214,7 @@ impl SmushClientRust {
         handler.doc.begin();
 
         let had_output = self.client.drain_output(&mut handler);
-        handler.doc.end(had_output);
+        handler.doc.as_mut().end(had_output);
         drop(output_lock);
 
         let total_read = match read_result {
@@ -236,7 +235,7 @@ impl SmushClientRust {
         i64::try_from(total_read).unwrap()
     }
 
-    pub fn flush(&mut self, doc: DocumentAdapter) {
+    pub fn flush(&mut self, doc: Pin<&mut Document>) {
         let output_lock = self.output_lock.lock();
         self.send.clear();
         let world = self.client.world();
@@ -290,7 +289,7 @@ impl SmushClientRust {
         &mut self,
         command: &QString,
         source: CommandSource,
-        doc: DocumentAdapter,
+        doc: Pin<&mut Document>,
     ) -> AliasOutcomes {
         doc.begin();
         let output_lock = self.output_lock.lock();
@@ -321,7 +320,7 @@ impl SmushClientRust {
         )
     }
 
-    pub fn start_timers(&mut self, index: PluginIndex, mut timekeeper: TimekeeperAdapter) {
+    pub fn start_timers(&mut self, index: PluginIndex, mut timekeeper: Pin<&mut Timekeeper>) {
         if !self.client.world().enable_timers {
             return;
         }
@@ -330,11 +329,11 @@ impl SmushClientRust {
         }
     }
 
-    pub fn finish_timer(&mut self, id: usize, mut timekeeper: TimekeeperAdapter) -> bool {
+    pub fn finish_timer(&mut self, id: usize, mut timekeeper: Pin<&mut Timekeeper>) -> bool {
         self.timers.finish(id, &mut self.client, &mut timekeeper)
     }
 
-    pub fn poll_timers(&mut self, mut timekeeper: TimekeeperAdapter) {
+    pub fn poll_timers(&mut self, mut timekeeper: Pin<&mut Timekeeper>) {
         self.timers.poll(&mut self.client, &mut timekeeper);
     }
 
@@ -348,7 +347,7 @@ impl SmushClientRust {
         &mut self,
         index: PluginIndex,
         timer: Timer,
-        mut timekeeper: TimekeeperAdapter,
+        mut timekeeper: Pin<&mut Timekeeper>,
     ) -> Result<(), SenderAccessError> {
         let enable_timers = self.client.world().enable_timers;
         let timer = self.client.add_sender(index, timer)?;
@@ -362,7 +361,7 @@ impl SmushClientRust {
         &mut self,
         index: PluginIndex,
         timer: Timer,
-        mut timekeeper: TimekeeperAdapter,
+        mut timekeeper: Pin<&mut Timekeeper>,
     ) {
         let enable_timers = self.client.world().enable_timers;
         let timer = self.client.add_or_replace_sender(index, timer);
@@ -375,7 +374,7 @@ impl SmushClientRust {
         &mut self,
         index: usize,
         timer: Timer,
-        mut timekeeper: TimekeeperAdapter,
+        mut timekeeper: Pin<&mut Timekeeper>,
     ) -> Result<(), SenderAccessError> {
         let enable_timers = self.client.world().enable_timers;
         let world_index = self.world_plugin_index();
@@ -389,7 +388,7 @@ impl SmushClientRust {
     pub fn import_world_timers(
         &mut self,
         xml: &QString,
-        mut timekeeper: TimekeeperAdapter,
+        mut timekeeper: Pin<&mut Timekeeper>,
     ) -> Result<(), XmlError> {
         let enable_timers = self.client.world().enable_timers;
         let world_index = self.world_plugin_index();

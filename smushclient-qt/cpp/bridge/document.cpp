@@ -290,11 +290,6 @@ bool Document::permitLine(rust::str line) const
   return !onLineReceived.discarded();
 }
 
-void Document::playSound(const QString &filePath) const
-{
-  api->PlaySound(0, filePath);
-}
-
 void Document::resetServerStatus()
 {
   serverStatuses.clear();

@@ -1,3 +1,7 @@
+use std::pin::Pin;
+
+use smushclient::TimerHandler;
+
 #[cxx_qt::bridge]
 pub mod ffi {
     unsafe extern "C++" {
@@ -16,7 +20,7 @@ pub mod ffi {
         destination: QString,
     }
 
-    extern "C++Qt" {
+    unsafe extern "C++Qt" {
         include!("timekeeper.h");
         type SendTarget = crate::ffi::SendTarget;
 
@@ -24,13 +28,19 @@ pub mod ffi {
         type Timekeeper;
 
         #[rust_name = "send_timer"]
-        unsafe fn sendTimer(self: &Timekeeper, timer: &SendTimer);
+        fn sendTimer(self: &Timekeeper, timer: &SendTimer);
+
         #[rust_name = "start_send_timer"]
-        unsafe fn startSendTimer(
-            self: Pin<&mut Timekeeper>,
-            index: usize,
-            timer: u16,
-            milliseconds: u32,
-        );
+        fn startSendTimer(self: Pin<&mut Timekeeper>, index: usize, timer: u16, milliseconds: u32);
+    }
+}
+
+impl TimerHandler<ffi::SendTimer> for Pin<&mut ffi::Timekeeper> {
+    fn send_timer(&self, timer: &ffi::SendTimer) {
+        (**self).send_timer(timer);
+    }
+
+    fn start_timer(&mut self, index: usize, timer: u16, milliseconds: u32) {
+        self.as_mut().start_send_timer(index, timer, milliseconds);
     }
 }

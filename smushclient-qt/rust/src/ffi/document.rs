@@ -1,7 +1,13 @@
 use std::mem;
+use std::ops::Range;
+use std::pin::Pin;
 
+use crate::colors::QColorPair;
 use crate::sender::{OutputSpan, TextSpan};
 use cxx::{type_id, ExternType};
+use cxx_qt_lib::QString;
+use flagset::FlagSet;
+use mud_transformer::{TelnetSource, TelnetVerb, TextStyle};
 
 #[repr(transparent)]
 pub struct TextStyles(pub u16);
@@ -103,7 +109,7 @@ pub mod ffi {
         fn text_span(&self) -> *const TextSpan;
     }
 
-    extern "C++Qt" {
+    unsafe extern "C++Qt" {
         include!("document.h");
         type TextStyles = super::TextStyles;
         type SendTarget = crate::ffi::SendTarget;
@@ -112,16 +118,16 @@ pub mod ffi {
         type Document;
 
         #[rust_name = "append_html"]
-        unsafe fn appendHtml(self: &Document, text: &QString);
+        fn appendHtml(self: &Document, text: &QString);
 
         #[rust_name = "append_line"]
-        unsafe fn appendLine(self: Pin<&mut Document>);
+        fn appendLine(self: Pin<&mut Document>);
 
         #[rust_name = "append_plaintext"]
-        unsafe fn appendText(self: &Document, text: &QString, palette: i32);
+        fn appendText(self: &Document, text: &QString, palette: i32);
 
-        #[rust_name = "append_text"]
-        unsafe fn appendText(
+        #[rust_name = "append_text_internal"]
+        fn appendText(
             self: &Document,
             text: &QString,
             style: TextStyles,
@@ -129,8 +135,8 @@ pub mod ffi {
             background: &QColor,
         );
 
-        #[rust_name = "append_link"]
-        unsafe fn appendText(
+        #[rust_name = "append_link_internal"]
+        fn appendText(
             self: Pin<&mut Document>,
             text: &QString,
             style: TextStyles,
@@ -139,8 +145,8 @@ pub mod ffi {
             link: &Link,
         );
 
-        #[rust_name = "apply_styles"]
-        unsafe fn applyStyles(
+        #[rust_name = "apply_styles_internal"]
+        fn applyStyles(
             self: &Document,
             start: i32,
             end: i32,
@@ -149,56 +155,47 @@ pub mod ffi {
             background: &QColor,
         );
 
-        unsafe fn beep(self: &Document);
+        fn beep(self: &Document);
 
-        unsafe fn begin(self: &Document);
+        fn begin(self: &Document);
 
         #[rust_name = "create_mxp_stat"]
-        unsafe fn createMxpStat(
-            self: &Document,
-            entity: &QString,
-            caption: &QString,
-            max: &QString,
-        );
+        fn createMxpStat(self: &Document, entity: &QString, caption: &QString, max: &QString);
 
-        unsafe fn end(self: Pin<&mut Document>, had_output: bool);
+        fn end(self: Pin<&mut Document>, had_output: bool);
 
         #[rust_name = "erase_current_line"]
-        unsafe fn eraseCurrentLine(self: &Document);
+        fn eraseCurrentLine(self: &Document);
 
         #[rust_name = "erase_last_character"]
-        unsafe fn eraseLastCharacter(self: &Document);
+        fn eraseLastCharacter(self: &Document);
 
         #[rust_name = "erase_last_line"]
-        unsafe fn eraseLastLine(self: &Document);
+        fn eraseLastLine(self: &Document);
 
         #[rust_name = "expire_links"]
-        unsafe fn expireLinks(self: Pin<&mut Document>, expires: &str);
+        fn expireLinks(self: Pin<&mut Document>, expires: &str);
 
         #[rust_name = "handle_mxp_change"]
-        unsafe fn handleMxpChange(self: &Document, enabled: bool);
+        fn handleMxpChange(self: &Document, enabled: bool);
 
         #[rust_name = "handle_mxp_entity"]
-        unsafe fn handleMxpEntity(self: &Document, data: &str);
+        fn handleMxpEntity(self: &Document, data: &str);
 
         #[rust_name = "handle_mxp_variable"]
-        unsafe fn handleMxpVariable(self: &Document, name: &str, value: &str);
+        fn handleMxpVariable(self: &Document, name: &str, value: &str);
 
         #[rust_name = "handle_server_status"]
-        unsafe fn handleServerStatus(
-            self: Pin<&mut Document>,
-            variable: &QByteArray,
-            value: &QByteArray,
-        );
+        fn handleServerStatus(self: Pin<&mut Document>, variable: &QByteArray, value: &QByteArray);
 
         #[rust_name = "handle_telnet_go_ahead"]
-        unsafe fn handleTelnetGoAhead(self: &Document);
+        fn handleTelnetGoAhead(self: &Document);
 
         #[rust_name = "handle_telnet_naws"]
-        unsafe fn handleTelnetNaws(self: &Document);
+        fn handleTelnetNaws(self: &Document);
 
-        #[rust_name = "handle_telnet_negotiation"]
-        unsafe fn handleTelnetNegotiation(
+        #[rust_name = "handle_telnet_negotiation_internal"]
+        fn handleTelnetNegotiation(
             self: Pin<&mut Document>,
             source: TelnetSource,
             verb: TelnetVerb,
@@ -206,23 +203,61 @@ pub mod ffi {
         );
 
         #[rust_name = "handle_telnet_subnegotiation"]
-        unsafe fn handleTelnetSubnegotiation(self: &Document, code: u8, data: &QByteArray);
+        fn handleTelnetSubnegotiation(self: &Document, code: u8, data: &QByteArray);
 
         #[rust_name = "permit_line"]
-        unsafe fn permitLine(self: &Document, line: &str) -> bool;
+        fn permitLine(self: &Document, line: &str) -> bool;
 
-        #[rust_name = "play_sound"]
-        unsafe fn playSound(self: &Document, filePath: &QString);
-
-        unsafe fn send(self: &Document, request: &SendRequest);
+        fn send(self: &Document, request: &SendRequest);
 
         #[rust_name = "send_script"]
-        unsafe fn send(self: &Document, request: &SendScriptRequest);
+        fn send(self: &Document, request: &SendScriptRequest);
 
         #[rust_name = "set_suppress_echo"]
-        unsafe fn setSuppressEcho(self: &Document, suppress: bool);
+        fn setSuppressEcho(self: &Document, suppress: bool);
 
         #[rust_name = "update_mxp_stat"]
-        unsafe fn updateMxpStat(self: &Document, entity: &QString, value: &QString);
+        fn updateMxpStat(self: &Document, entity: &QString, value: &QString);
+    }
+}
+
+impl ffi::Document {
+    pub fn append_text(&self, text: &QString, style: FlagSet<TextStyle>, color: &QColorPair) {
+        self.append_text_internal(text, style.into(), &color.foreground, &color.background);
+    }
+
+    pub fn append_link(
+        self: Pin<&mut Self>,
+        text: &QString,
+        style: FlagSet<TextStyle>,
+        color: &QColorPair,
+        link: &ffi::Link,
+    ) {
+        self.append_link_internal(
+            text,
+            style.into(),
+            &color.foreground,
+            &color.background,
+            link,
+        );
+    }
+
+    pub fn apply_styles(&self, range: Range<usize>, style: FlagSet<TextStyle>, color: &QColorPair) {
+        self.apply_styles_internal(
+            i32::try_from(range.start).unwrap_or(i32::MAX),
+            i32::try_from(range.end - range.start).unwrap_or(i32::MAX),
+            style.into(),
+            &color.foreground,
+            &color.background,
+        );
+    }
+
+    pub fn handle_telnet_negotiation(
+        self: Pin<&mut Self>,
+        source: TelnetSource,
+        verb: TelnetVerb,
+        code: u8,
+    ) {
+        self.handle_telnet_negotiation_internal(source.into(), verb.into(), code);
     }
 }

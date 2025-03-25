@@ -1,7 +1,6 @@
 #[macro_use]
 mod convert;
 
-mod adapter;
 mod client;
 mod client_bridge;
 mod colors;
