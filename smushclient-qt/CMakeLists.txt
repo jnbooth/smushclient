@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 cmake_policy(SET CMP0091 NEW)
-set(CMAKE_OSX_DEPLOYMENT_TARGET 15.2)
+set(CMAKE_OSX_DEPLOYMENT_TARGET 15.3)
 set(VCPKG_HOST_TRIPLET x64-windows-static)
 set(VCPKG_TARGET_TRIPLET x64-windows-static)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
