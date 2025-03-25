@@ -29,13 +29,7 @@ pub mod ffi {
 
     extern "C++Qt" {
         include!(<QtNetwork/QAbstractSocket>);
-        #[qobject]
-        type QAbstractSocket;
-
-        unsafe fn flush(self: Pin<&mut QAbstractSocket>) -> bool;
-        unsafe fn read(self: Pin<&mut QAbstractSocket>, data: *mut c_char, max_size: i64) -> i64;
-        unsafe fn write(self: Pin<&mut QAbstractSocket>, data: *const c_char, max_size: i64)
-            -> i64;
+        type QAbstractSocket = cxx_qt_io::QAbstractSocket;
     }
 
     extern "C++" {

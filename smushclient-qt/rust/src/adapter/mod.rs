@@ -28,8 +28,5 @@ macro_rules! adapter {
 mod document;
 pub use document::{DocumentAdapter, QColorPair};
 
-mod socket;
-pub use socket::SocketAdapter;
-
 mod timekeeper;
 pub use timekeeper::TimekeeperAdapter;

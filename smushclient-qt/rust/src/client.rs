@@ -1,9 +1,9 @@
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
-use std::io;
-use std::io::Write;
+use std::io::{self, Write};
+use std::pin::Pin;
 
-use crate::adapter::{DocumentAdapter, SocketAdapter, TimekeeperAdapter};
+use crate::adapter::{DocumentAdapter, TimekeeperAdapter};
 use crate::convert::Convert;
 use crate::ffi;
 use crate::ffi::AliasOutcomes;
@@ -12,6 +12,7 @@ use crate::handler::ClientHandler;
 use crate::modeled::Modeled;
 use crate::sync::NonBlockingMutex;
 use crate::world::WorldRust;
+use cxx_qt_io::QAbstractSocket;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant};
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::Tag;
@@ -126,7 +127,7 @@ impl SmushClientRust {
         changed
     }
 
-    pub fn handle_connect(&self, mut socket: SocketAdapter) -> QString {
+    pub fn handle_connect(&self, mut socket: Pin<&mut QAbstractSocket>) -> QString {
         let input_lock = self.input_lock.lock();
         let connect_message = self.client.world().connect_message();
         let error = match socket.write_all(connect_message.as_bytes()) {
@@ -198,7 +199,7 @@ impl SmushClientRust {
         }
     }
 
-    pub fn read(&mut self, mut socket: SocketAdapter, doc: DocumentAdapter) -> i64 {
+    pub fn read(&mut self, mut socket: Pin<&mut QAbstractSocket>, doc: DocumentAdapter) -> i64 {
         let output_lock = self.output_lock.lock();
         self.send.clear();
         let world = self.client.world();
