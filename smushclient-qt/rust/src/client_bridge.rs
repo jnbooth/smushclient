@@ -8,8 +8,42 @@ use crate::results::{IntoErrorCode, IntoResultCode};
 use cxx_qt::CxxQtType;
 use cxx_qt_lib::{QColor, QString, QStringList, QVariant, QVector};
 use smushclient::world::PersistError;
-use smushclient::{AliasBool, SendIterable, TimerBool, TriggerBool};
+use smushclient::{AliasBool, LuaStr, LuaString, SendIterable, TimerBool, TriggerBool};
 use smushclient_plugins::{Alias, LoadError, PluginIndex, RegexError, Timer, Trigger, XmlError};
+
+trait AsLStr {
+    fn as_lstr(&self) -> &LuaStr;
+
+    fn to_lstring(&self) -> LuaString {
+        self.as_lstr().into()
+    }
+}
+impl AsLStr for [u8] {
+    fn as_lstr(&self) -> &LuaStr {
+        self
+    }
+}
+impl AsLStr for [i8] {
+    fn as_lstr(&self) -> &LuaStr {
+        // SAFETY: &[i8] safely converts to &[u8].
+        unsafe { &*(ptr::from_ref(self) as *const LuaStr) }
+    }
+}
+
+/// # Safety
+///
+/// `value_size` must be valid or null.
+unsafe fn provide_variable(value: Option<&[u8]>, value_size: *mut usize) -> *const c_char {
+    let (len, data) = match value {
+        Some(value) => (value.len(), value.as_ptr().cast()),
+        None => (0, ptr::null()),
+    };
+    if !value_size.is_null() {
+        // SAFETY: `value_size` is valid and non-null.
+        unsafe { *value_size = len };
+    }
+    data
+}
 
 impl ffi::SmushClient {
     pub fn world_sender<T: SendIterable>(&self, index: usize) -> Option<&T> {
@@ -530,46 +564,36 @@ impl ffi::SmushClient {
         doc: Pin<&mut ffi::Document>,
     ) -> AliasOutcomes {
         let Ok(source) = source.try_into() else {
-            return AliasOutcomes(0);
+            return AliasOutcomes::new();
         };
-        self.rust_mut().alias(command, source, doc)
+        ffi::AliasOutcome::to_qflags(self.rust_mut().alias(command, source, doc))
     }
 
     /// # Safety
     ///
-    /// Refer to the safety documentation for [`std::slice::from_raw_parts`].
-    unsafe fn provide_variable(value: Option<&[c_char]>, value_size: *mut usize) -> *const c_char {
-        let Some(value) = value else {
-            *value_size = 0;
-            return ptr::null();
-        };
-        if !value_size.is_null() {
-            *value_size = value.len();
-        }
-        value.as_ptr()
-    }
-
-    /// # Safety
-    ///
-    /// Refer to the safety documentation for [`std::slice::from_raw_parts`].
+    /// `value_size` must be valid or null.
     pub unsafe fn get_variable(
         &self,
         index: PluginIndex,
         key: &[c_char],
         value_size: *mut usize,
     ) -> *const c_char {
-        Self::provide_variable(self.rust().client.get_variable(index, key), value_size)
+        let value = self.rust().client.get_variable(index, key.as_lstr());
+        // SAFETY: `value_size` is valid or null.
+        unsafe { provide_variable(value, value_size) }
     }
 
     /// # Safety
     ///
-    /// Refer to the safety documentation for [`std::slice::from_raw_parts`].
+    /// `value_size` must be valid or null.
     pub unsafe fn get_metavariable(&self, key: &[c_char], value_size: *mut usize) -> *const c_char {
-        Self::provide_variable(self.rust().client.get_metavariable(key), value_size)
+        let value = self.rust().client.get_metavariable(key.as_lstr());
+        // SAFETY: `value_size` is valid or null.
+        unsafe { provide_variable(value, value_size) }
     }
 
     pub fn has_metavariable(&self, key: &[c_char]) -> bool {
-        self.rust().client.has_metavariable(key)
+        self.rust().client.has_metavariable(key.as_lstr())
     }
 
     pub fn set_variable(
@@ -580,21 +604,27 @@ impl ffi::SmushClient {
     ) -> bool {
         self.rust_mut()
             .client
-            .set_variable(index, key.to_vec(), value.to_vec())
+            .set_variable(index, key.to_lstring(), value.to_lstring())
     }
 
     pub fn unset_variable(self: Pin<&mut Self>, index: PluginIndex, key: &[c_char]) -> bool {
-        self.rust_mut().client.unset_variable(index, key).is_some()
+        self.rust_mut()
+            .client
+            .unset_variable(index, key.as_lstr())
+            .is_some()
     }
 
     pub fn set_metavariable(self: Pin<&mut Self>, key: &[c_char], value: &[c_char]) -> bool {
         self.rust_mut()
             .client
-            .set_metavariable(key.to_vec(), value.to_vec())
+            .set_metavariable(key.to_lstring(), value.to_lstring())
     }
 
     pub fn unset_metavariable(self: Pin<&mut Self>, key: &[c_char]) -> bool {
-        self.rust_mut().client.unset_metavariable(key).is_some()
+        self.rust_mut()
+            .client
+            .unset_metavariable(key.as_lstr())
+            .is_some()
     }
 
     pub fn timer_info(&self, index: PluginIndex, label: &QString, info_type: u8) -> QVariant {

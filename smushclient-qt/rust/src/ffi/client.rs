@@ -2,32 +2,17 @@ use crate::client::SmushClientRust;
 
 #[cxx_qt::bridge]
 pub mod ffi {
-    unsafe extern "C++" {
+    extern "C++" {
         include!("cxx-qt-lib/qcolor.h");
         type QColor = cxx_qt_lib::QColor;
-    }
-
-    unsafe extern "C++" {
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
-    }
-
-    unsafe extern "C++" {
         include!("cxx-qt-lib/qstringlist.h");
         type QStringList = cxx_qt_lib::QStringList;
-    }
-
-    unsafe extern "C++" {
         include!("cxx-qt-lib/qvariant.h");
         type QVariant = cxx_qt_lib::QVariant;
-    }
-
-    unsafe extern "C++" {
         include!("cxx-qt-lib/qvector.h");
         type QVector_QColor = cxx_qt_lib::QVector<QColor>;
-    }
-
-    extern "C++Qt" {
         include!(<QtNetwork/QAbstractSocket>);
         type QAbstractSocket = cxx_qt_io::QAbstractSocket;
     }
@@ -128,14 +113,12 @@ pub mod ffi {
         User,
     }
 
+    #[auto_cxx_name]
     extern "RustQt" {
         #[qobject]
         #[cxx_name = "SmushClientBase"]
         type SmushClient = super::SmushClientRust;
-    }
 
-    #[auto_cxx_name]
-    unsafe extern "RustQt" {
         fn load_world(
             self: Pin<&mut SmushClient>,
             path: &QString,

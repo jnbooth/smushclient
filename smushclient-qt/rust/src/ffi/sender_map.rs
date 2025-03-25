@@ -2,22 +2,16 @@ use crate::modeled::SenderMapRust;
 
 #[cxx_qt::bridge]
 pub mod ffi {
-    unsafe extern "C++" {
+    extern "C++" {
         include!("cxx-qt-lib/qset.h");
         type QSet_u16 = cxx_qt_lib::QSet<u16>;
-    }
-
-    unsafe extern "C++" {
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
-    }
-
-    unsafe extern "C++" {
         include!("cxx-qt-lib/qvariant.h");
         type QVariant = cxx_qt_lib::QVariant;
     }
 
-    unsafe extern "C++" {
+    extern "C++" {
         include!("forward.h");
         #[cxx_name = "SmushClientBase"]
         type SmushClient = crate::ffi::SmushClient;
@@ -30,13 +24,11 @@ pub mod ffi {
         Trigger,
     }
 
+    #[auto_cxx_name]
     extern "RustQt" {
         #[qobject]
         type SenderMap = super::SenderMapRust;
-    }
 
-    #[auto_cxx_name]
-    unsafe extern "RustQt" {
         pub fn cell_text(
             self: &SenderMap,
             client: &SmushClient,

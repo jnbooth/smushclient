@@ -4,7 +4,7 @@ mod audio;
 pub use audio::{AudioError, AudioPlayback, AudioSinks, PlayMode};
 
 mod client;
-pub use client::SmushClient;
+pub use client::{LuaStr, LuaString, SmushClient};
 
 mod collections;
 

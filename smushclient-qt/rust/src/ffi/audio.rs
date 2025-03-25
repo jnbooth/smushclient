@@ -6,18 +6,16 @@ use smushclient::{AudioError, AudioPlayback};
 
 #[cxx_qt::bridge]
 pub mod ffi {
-    unsafe extern "C++" {
+    extern "C++" {
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
     }
 
+    #[auto_cxx_name]
     extern "RustQt" {
         #[qobject]
         type RustPlayback = super::RustPlaybackRust;
-    }
 
-    #[auto_cxx_name]
-    unsafe extern "RustQt" {
         pub fn play(self: &RustPlayback);
         pub fn set_file(self: Pin<&mut RustPlayback>, file: &QString);
     }

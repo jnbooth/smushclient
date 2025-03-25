@@ -20,22 +20,13 @@ fn make_regex_from_wildcards(pattern: &QString) -> QString {
 
 #[cxx::bridge]
 mod ffi {
-    unsafe extern "C++" {
+    extern "C++" {
         include!("cxx-qt-lib/qbytearray.h");
         type QByteArray = cxx_qt_lib::QByteArray;
-    }
-
-    unsafe extern "C++" {
         include!("cxx-qt-lib/qcolor.h");
         type QColor = cxx_qt_lib::QColor;
-    }
-
-    unsafe extern "C++" {
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
-    }
-
-    unsafe extern "C++" {
         include!("cxx-qt-lib/qvector.h");
         type QVector_QColor = cxx_qt_lib::QVector<QColor>;
     }

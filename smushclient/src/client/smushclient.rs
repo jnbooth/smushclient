@@ -366,11 +366,7 @@ impl SmushClient {
         self.variables.has_variable(METAVARIABLES_KEY, key)
     }
 
-    pub fn set_variable<K, V>(&mut self, index: PluginIndex, key: K, value: V) -> bool
-    where
-        K: Into<LuaString>,
-        V: Into<LuaString>,
-    {
+    pub fn set_variable(&mut self, index: PluginIndex, key: LuaString, value: LuaString) -> bool {
         let Some(plugin) = self.plugins.get(index) else {
             return false;
         };
@@ -384,11 +380,7 @@ impl SmushClient {
         self.variables.unset_variable(plugin_id, key)
     }
 
-    pub fn set_metavariable<K, V>(&mut self, key: K, value: V) -> bool
-    where
-        K: Into<LuaString>,
-        V: Into<LuaString>,
-    {
+    pub fn set_metavariable(&mut self, key: LuaString, value: LuaString) -> bool {
         self.variables.set_variable(METAVARIABLES_KEY, key, value);
         true
     }

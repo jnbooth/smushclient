@@ -1,54 +1,20 @@
-use std::mem;
-
 use crate::sender::{AliasRust, TimerRust, TriggerRust};
-use cxx::{type_id, ExternType};
+use cxx::type_id;
+use cxx_qt_lib::{QFlag, QFlags};
 use smushclient::AliasOutcome;
-
-const fn flag_if(flag: ffi::AliasOutcome, pred: bool) -> u8 {
-    if pred {
-        flag.repr
-    } else {
-        0
-    }
-}
-
-#[repr(transparent)]
-pub struct AliasOutcomes(pub u8);
-const _: [(); mem::size_of::<AliasOutcomes>()] = [(); mem::size_of::<ffi::AliasOutcome>()];
-
-unsafe impl ExternType for AliasOutcomes {
-    type Id = type_id!("AliasOutcomes");
-    type Kind = cxx::kind::Trivial;
-}
-
-impl From<AliasOutcome> for AliasOutcomes {
-    fn from(value: AliasOutcome) -> Self {
-        Self(
-            flag_if(ffi::AliasOutcome::Remember, value.remember)
-                | flag_if(ffi::AliasOutcome::Send, value.send)
-                | flag_if(ffi::AliasOutcome::Display, value.display),
-        )
-    }
-}
 
 #[cxx_qt::bridge]
 pub mod ffi {
-    unsafe extern "C++" {
+    extern "C++" {
         include!("cxx-qt-lib/qcolor.h");
         type QColor = cxx_qt_lib::QColor;
-    }
-
-    unsafe extern "C++" {
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
-    }
-
-    unsafe extern "C++" {
         include!("cxx-qt-lib/qtime.h");
         type QTime = cxx_qt_lib::QTime;
     }
 
-    unsafe extern "C++" {
+    extern "C++" {
         include!("forward.h");
 
         #[cxx_name = "SmushClientBase"]
@@ -124,10 +90,7 @@ pub mod ffi {
         #[qproperty(u32, every_millisecond)]
         #[qproperty(bool, active_closed)]
         type Timer = super::TimerRust;
-    }
 
-    #[auto_cxx_name]
-    unsafe extern "RustQt" {
         fn get_user_send_to(self: &Timer) -> UserSendTarget;
         fn set_user_send_to(self: Pin<&mut Timer>, send_to: UserSendTarget);
     }
@@ -167,10 +130,7 @@ pub mod ffi {
         #[qproperty(bool, menu)]
         #[qproperty(bool, omit_from_command_history)]
         type Alias = super::AliasRust;
-    }
 
-    #[auto_cxx_name]
-    unsafe extern "RustQt" {
         fn get_user_send_to(self: &Alias) -> UserSendTarget;
         fn set_user_send_to(self: Pin<&mut Alias>, send_to: UserSendTarget);
     }
@@ -219,10 +179,7 @@ pub mod ffi {
         #[qproperty(bool, multi_line)]
         #[qproperty(i32, lines_to_match)]
         type Trigger = super::TriggerRust;
-    }
 
-    #[auto_cxx_name]
-    unsafe extern "RustQt" {
         fn get_user_send_to(self: &Trigger) -> UserSendTarget;
         fn set_user_send_to(self: Pin<&mut Trigger>, send_to: UserSendTarget);
     }
@@ -232,5 +189,33 @@ pub mod ffi {
         cxx_qt::Constructor<(*const SmushClient, usize), NewArguments = (*const SmushClient, usize)>
         for Trigger
     {
+    }
+}
+
+pub type AliasOutcomes = QFlags<ffi::AliasOutcome>;
+
+impl ffi::AliasOutcome {
+    pub fn to_qflags(outcome: AliasOutcome) -> AliasOutcomes {
+        let mut outcomes = AliasOutcomes::new();
+        if outcome.remember {
+            outcomes |= ffi::AliasOutcome::Remember;
+        }
+        if outcome.send {
+            outcomes |= ffi::AliasOutcome::Send;
+        }
+        if outcome.display {
+            outcomes |= ffi::AliasOutcome::Display;
+        }
+        outcomes
+    }
+}
+
+unsafe impl QFlag for ffi::AliasOutcome {
+    type TypeId = type_id!("AliasOutcomes");
+
+    type Repr = u8;
+
+    fn to_repr(self) -> Self::Repr {
+        self.repr
     }
 }

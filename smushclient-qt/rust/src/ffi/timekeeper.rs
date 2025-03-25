@@ -4,7 +4,7 @@ use smushclient::TimerHandler;
 
 #[cxx_qt::bridge]
 pub mod ffi {
-    unsafe extern "C++" {
+    extern "C++" {
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
     }

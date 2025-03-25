@@ -1,13 +1,9 @@
-use std::mem;
-
 use super::ffi;
 use crate::convert::Convert;
-use crate::ffi::TextStyles;
 use crate::sender::OutputSpan;
 use cxx_qt_lib::QString;
-use flagset::FlagSet;
 use mud_transformer::mxp::{Link, SendTo};
-use mud_transformer::{TelnetSource, TelnetVerb, TextStyle, UseMxp};
+use mud_transformer::{TelnetSource, TelnetVerb, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, ScriptRecompile};
 use smushclient::{
     AliasBool, CommandSource, SendRequest, SendScriptRequest, TimerBool, TimerConstructible,
@@ -238,26 +234,3 @@ impl From<&Plugin> for ffi::PluginPack {
         }
     }
 }
-
-const _: [(); mem::size_of::<FlagSet<TextStyle>>()] = [(); mem::size_of::<TextStyles>()];
-
-impl From<FlagSet<TextStyle>> for TextStyles {
-    fn from(value: FlagSet<TextStyle>) -> Self {
-        Self(value.bits())
-    }
-}
-
-macro_rules! assert_textstyle {
-    ($i:ident) => {
-        const _: [(); (1 << (TextStyle::$i as u16))] = [(); ffi::TextStyle::$i.repr as usize];
-    };
-}
-
-assert_textstyle!(Blink);
-assert_textstyle!(Bold);
-assert_textstyle!(Highlight);
-assert_textstyle!(NonProportional);
-assert_textstyle!(Small);
-assert_textstyle!(Strikeout);
-assert_textstyle!(Underline);
-assert_textstyle!(Inverse);

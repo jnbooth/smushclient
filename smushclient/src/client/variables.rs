@@ -1,11 +1,7 @@
-use std::borrow::Borrow;
 use std::collections::HashMap;
-use std::ffi::c_char;
 use std::fmt::{self, Display, Formatter};
 use std::io::{Read, Write};
-use std::mem::ManuallyDrop;
 use std::ops::{Deref, DerefMut};
-use std::ptr;
 
 use serde::{Deserialize, Serialize};
 
@@ -13,68 +9,8 @@ use crate::world::PersistError;
 
 const CURRENT_VERSION: u8 = 1;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-#[repr(transparent)]
-#[serde(transparent)]
-pub struct LuaString {
-    inner: Vec<c_char>,
-}
-
-pub type LuaStr = [c_char];
-
-impl Borrow<LuaStr> for LuaString {
-    fn borrow(&self) -> &LuaStr {
-        &self.inner
-    }
-}
-
-impl Display for LuaString {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        // SAFETY: Lua strings are signed or unsigned depending on the platform.
-        let bytes: &[u8] = unsafe { &*(ptr::from_ref(self.inner.as_slice()) as *const [u8]) };
-        f.write_str(&String::from_utf8_lossy(bytes))
-    }
-}
-
-impl From<LuaString> for Vec<c_char> {
-    fn from(value: LuaString) -> Self {
-        value.inner
-    }
-}
-
-// Note: both of the below implementations are required because c_char might be i8 or u8.
-
-impl From<Vec<u8>> for LuaString {
-    fn from(v: Vec<u8>) -> Self {
-        let mut v = ManuallyDrop::new(v);
-        let p = v.as_mut_ptr().cast::<c_char>();
-        let len = v.len();
-        let cap = v.capacity();
-        Self {
-            // SAFETY: Lossless conversion between Vec<u8> and Vec<i8>.
-            inner: unsafe { Vec::from_raw_parts(p, len, cap) },
-        }
-    }
-}
-
-impl From<Vec<i8>> for LuaString {
-    fn from(v: Vec<i8>) -> Self {
-        let mut v = ManuallyDrop::new(v);
-        let p = v.as_mut_ptr().cast::<c_char>();
-        let len = v.len();
-        let cap = v.capacity();
-        Self {
-            // SAFETY: Lossless conversion between Vec<i8> and Vec<u8>.
-            inner: unsafe { Vec::from_raw_parts(p, len, cap) },
-        }
-    }
-}
-
-impl From<String> for LuaString {
-    fn from(value: String) -> Self {
-        value.into_bytes().into()
-    }
-}
+pub type LuaString = Vec<u8>;
+pub type LuaStr = [u8];
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PluginVariables(HashMap<String, HashMap<LuaString, LuaString>>);
@@ -98,7 +34,9 @@ impl Display for PluginVariables {
         for (id, vars) in &self.0 {
             writeln!(f, "{id}:")?;
             for (key, val) in vars {
-                writeln!(f, "    {key}: {val}")?;
+                let utf8key = String::from_utf8_lossy(key);
+                let utf8val = String::from_utf8_lossy(val);
+                writeln!(f, "    {utf8key}: {utf8val}")?;
             }
         }
         Ok(())
@@ -111,7 +49,7 @@ impl PluginVariables {
     }
 
     pub fn get_variable(&self, plugin_id: &str, key: &LuaStr) -> Option<&LuaStr> {
-        Some(self.0.get(plugin_id)?.get(key)?.inner.as_slice())
+        Some(self.0.get(plugin_id)?.get(key)?.as_slice())
     }
 
     pub fn has_variable(&self, plugin_id: &str, key: &LuaStr) -> bool {
@@ -121,13 +59,7 @@ impl PluginVariables {
         }
     }
 
-    pub fn set_variable<K, V>(&mut self, plugin_id: &str, key: K, value: V)
-    where
-        K: Into<LuaString>,
-        V: Into<LuaString>,
-    {
-        let key = key.into();
-        let value = value.into();
+    pub fn set_variable(&mut self, plugin_id: &str, key: LuaString, value: LuaString) {
         if let Some(variables) = self.0.get_mut(plugin_id) {
             variables.insert(key, value);
             return;

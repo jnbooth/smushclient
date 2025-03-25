@@ -252,7 +252,7 @@ impl Convert<QByteArray> for PathBuf {
 
 impl Convert<PathBuf> for QByteArray {
     fn convert(&self) -> PathBuf {
-        // SAFETY: Paired with the as_encoded_bytes call above.
+        // SAFETY: Input values are produced by the above use of `as_encoded_bytes`.
         unsafe { OsStr::from_encoded_bytes_unchecked(self.as_slice()) }.into()
     }
 }

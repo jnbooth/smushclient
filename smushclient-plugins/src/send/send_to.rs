@@ -70,6 +70,7 @@ pub mod sendto_serde {
         const RANGE: RangeInclusive<u8> = 0..=SENDTARGET_MAX as u8;
         let value = <u8>::deserialize(deserializer)?;
         if RANGE.contains(&value) {
+            // SAFETY: Since `value` is contained in `RANGE`, it must be a valid value.
             Ok(unsafe { std::mem::transmute::<u8, SendTarget>(value) })
         } else {
             Err(D::Error::invalid_value(

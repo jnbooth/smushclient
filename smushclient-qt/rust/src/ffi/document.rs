@@ -1,36 +1,20 @@
-use std::mem;
 use std::ops::Range;
 use std::pin::Pin;
 
 use crate::colors::QColorPair;
 use crate::sender::{OutputSpan, TextSpan};
-use cxx::{type_id, ExternType};
-use cxx_qt_lib::QString;
+use cxx::type_id;
+use cxx_qt_lib::{QFlag, QFlags, QString};
 use flagset::FlagSet;
 use mud_transformer::{TelnetSource, TelnetVerb, TextStyle};
 
-#[repr(transparent)]
-pub struct TextStyles(pub u16);
-const _: [(); mem::size_of::<TextStyles>()] = [(); mem::size_of::<ffi::TextStyle>()];
-
-unsafe impl ExternType for TextStyles {
-    type Id = type_id!("TextStyles");
-    type Kind = cxx::kind::Trivial;
-}
-
 #[cxx_qt::bridge]
 pub mod ffi {
-    unsafe extern "C++" {
+    extern "C++" {
         include!("cxx-qt-lib/qbytearray.h");
         type QByteArray = cxx_qt_lib::QByteArray;
-    }
-
-    unsafe extern "C++" {
         include!("cxx-qt-lib/qcolor.h");
         type QColor = cxx_qt_lib::QColor;
-    }
-
-    unsafe extern "C++" {
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
     }
@@ -223,7 +207,12 @@ pub mod ffi {
 
 impl ffi::Document {
     pub fn append_text(&self, text: &QString, style: FlagSet<TextStyle>, color: &QColorPair) {
-        self.append_text_internal(text, style.into(), &color.foreground, &color.background);
+        self.append_text_internal(
+            text,
+            ffi::TextStyle::to_qflags(style),
+            &color.foreground,
+            &color.background,
+        );
     }
 
     pub fn append_link(
@@ -235,7 +224,7 @@ impl ffi::Document {
     ) {
         self.append_link_internal(
             text,
-            style.into(),
+            ffi::TextStyle::to_qflags(style),
             &color.foreground,
             &color.background,
             link,
@@ -246,7 +235,7 @@ impl ffi::Document {
         self.apply_styles_internal(
             i32::try_from(range.start).unwrap_or(i32::MAX),
             i32::try_from(range.end - range.start).unwrap_or(i32::MAX),
-            style.into(),
+            ffi::TextStyle::to_qflags(style),
             &color.foreground,
             &color.background,
         );
@@ -261,3 +250,36 @@ impl ffi::Document {
         self.handle_telnet_negotiation_internal(source.into(), verb.into(), code);
     }
 }
+
+pub type TextStyles = QFlags<ffi::TextStyle>;
+
+impl ffi::TextStyle {
+    pub fn to_qflags(styles: FlagSet<TextStyle>) -> TextStyles {
+        TextStyles::from_int(styles.bits().into())
+    }
+}
+
+unsafe impl QFlag for ffi::TextStyle {
+    type TypeId = type_id!("TextStyles");
+
+    type Repr = u16;
+
+    fn to_repr(self) -> Self::Repr {
+        self.repr
+    }
+}
+
+macro_rules! assert_textstyle {
+    ($i:ident) => {
+        const _: () = assert!(1 << (TextStyle::$i as u16) == ffi::TextStyle::$i.repr as usize);
+    };
+}
+
+assert_textstyle!(Blink);
+assert_textstyle!(Bold);
+assert_textstyle!(Highlight);
+assert_textstyle!(NonProportional);
+assert_textstyle!(Small);
+assert_textstyle!(Strikeout);
+assert_textstyle!(Underline);
+assert_textstyle!(Inverse);

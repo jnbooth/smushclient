@@ -4,8 +4,7 @@ use std::io::{self, Write};
 use std::pin::Pin;
 
 use crate::convert::Convert;
-use crate::ffi::{self, Document};
-use crate::ffi::{AliasOutcomes, Timekeeper};
+use crate::ffi::{self, Document, Timekeeper};
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
 use crate::modeled::Modeled;
@@ -17,8 +16,8 @@ use mud_transformer::mxp::RgbColor;
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
-    AudioSinks, BoolProperty, CommandSource, Handler, SendIterable, SenderAccessError, SmushClient,
-    Timers, World,
+    AliasOutcome, AudioSinks, BoolProperty, CommandSource, Handler, SendIterable,
+    SenderAccessError, SmushClient, Timers, World,
 };
 use smushclient_plugins::{Alias, LoadError, PluginIndex, Timer, Trigger, XmlError};
 
@@ -290,7 +289,7 @@ impl SmushClientRust {
         command: &QString,
         source: CommandSource,
         doc: Pin<&mut Document>,
-    ) -> AliasOutcomes {
+    ) -> AliasOutcome {
         doc.begin();
         let output_lock = self.output_lock.lock();
         self.send.clear();
@@ -308,7 +307,7 @@ impl SmushClientRust {
             .alias(&String::from(command), source, &mut handler);
         handler.doc.end(false);
         drop(output_lock);
-        outcome.into()
+        outcome
     }
 
     pub fn timer_info(&self, index: PluginIndex, label: &QString, info_type: u8) -> QVariant {

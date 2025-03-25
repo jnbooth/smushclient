@@ -166,8 +166,8 @@ impl PluginEngine {
                     if alias.send_to == SendTarget::Variable {
                         variables.set_variable(
                             &plugin.metadata.id,
-                            alias.variable.clone(),
-                            text.to_owned(),
+                            alias.variable.as_bytes().to_vec(),
+                            text.as_bytes().to_vec(),
                         );
                     } else if enable_scripts || !alias.send_to.is_script() {
                         handler.send(super::SendRequest {
@@ -252,8 +252,8 @@ impl PluginEngine {
                     if trigger.send_to == SendTarget::Variable {
                         variables.set_variable(
                             &plugin.metadata.id,
-                            trigger.variable.clone(),
-                            text.to_owned(),
+                            trigger.variable.as_bytes().to_vec(),
+                            text.as_bytes().to_vec(),
                         );
                     } else if enable_scripts || !trigger.send_to.is_script() {
                         handler.send(super::SendRequest {

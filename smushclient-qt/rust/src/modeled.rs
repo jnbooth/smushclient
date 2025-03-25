@@ -172,6 +172,7 @@ impl From<&PluginMetadata> for PluginDetailsRust {
 impl_constructor!(ffi::PluginDetails, (*const ffi::SmushClient, QString), {
     fn new((client, id): (*const ffi::SmushClient, QString)) -> PluginDetailsRust {
         let id = String::from(&id);
+        // SAFETY: The C++ caller must pass a valid pointer.
         let Some(plugin) = unsafe { &*client }
             .client
             .plugins()

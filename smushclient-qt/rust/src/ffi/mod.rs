@@ -12,16 +12,16 @@ pub use client::ffi::{
 
 mod document;
 pub use document::ffi::{
-    Document, Link, NamedWildcard, SendRequest, SendScriptRequest, SendTo, TelnetSource,
-    TelnetVerb, TextStyle,
+    Document, Link, NamedWildcard, SendRequest, SendScriptRequest, SendTo, TelnetSource, TelnetVerb,
 };
-pub use document::TextStyles;
 
 mod plugin_details;
 pub use plugin_details::ffi::PluginDetails;
 
 mod sender;
-pub use sender::ffi::{Alias, Occurrence, SendTarget, Timer, Trigger, UserSendTarget};
+pub use sender::ffi::{
+    Alias, AliasOutcome, Occurrence, SendTarget, Timer, Trigger, UserSendTarget,
+};
 pub use sender::AliasOutcomes;
 
 mod sender_map;

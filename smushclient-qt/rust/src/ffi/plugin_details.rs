@@ -2,17 +2,14 @@ use crate::modeled::PluginDetailsRust;
 
 #[cxx_qt::bridge]
 pub mod ffi {
-    unsafe extern "C++" {
+    extern "C++" {
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
-    }
-
-    unsafe extern "C++" {
         include!("cxx-qt-lib/qdate.h");
         type QDate = cxx_qt_lib::QDate;
     }
 
-    unsafe extern "C++" {
+    extern "C++" {
         include!("forward.h");
         #[cxx_name = "SmushClientBase"]
         type SmushClient = crate::ffi::SmushClient;
