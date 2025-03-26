@@ -10,7 +10,7 @@ use mud_transformer::mxp::RgbColor;
 use mud_transformer::{Output, OutputFragment, TextFragment, TextStyle};
 use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer, Trigger};
 
-use crate::convert::Convert;
+use crate::convert::{impl_constructor, impl_deref, Convert};
 use crate::ffi;
 
 const NANOSECONDS_PER_MILLISECOND: u32 = 1_000_000;

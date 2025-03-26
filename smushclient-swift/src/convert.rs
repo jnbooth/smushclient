@@ -16,12 +16,14 @@ macro_rules! impl_convert {
         }
     };
 }
+pub(crate) use impl_convert;
 
 macro_rules! impl_convert_self {
     ($($t:ty),+) => {
         $(impl_convert!($t, $t);)+
     }
 }
+pub(crate) use impl_convert_self;
 
 macro_rules! impl_convert_enum {
     ($ffi:ty, $rust:ty, $($variant:ident),+ $(,)?) => {
@@ -44,6 +46,7 @@ macro_rules! impl_convert_enum {
         impl_convert!($ffi, $rust);
     }
 }
+pub(crate) use impl_convert_enum;
 
 macro_rules! impl_convert_enum_opt {
     ($ffi:ty, $rust:ty, $($variant:ident),+ $(,)?) => {
@@ -68,6 +71,7 @@ macro_rules! impl_convert_enum_opt {
         impl_convert!($ffi, Option<$rust>);
     }
 }
+pub(crate) use impl_convert_enum_opt;
 
 macro_rules! impl_convert_struct {
     ($ffi:ty, $rust:ty, $($prop:ident),+ $(,)?) => {
@@ -88,6 +92,7 @@ macro_rules! impl_convert_struct {
         impl_convert!($ffi, $rust);
     }
 }
+pub(crate) use impl_convert_struct;
 
 impl Convert<Option<String>> for String {
     fn from_ffi(value: Self) -> Option<String> {

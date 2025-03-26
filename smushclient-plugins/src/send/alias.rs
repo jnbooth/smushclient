@@ -6,7 +6,7 @@ use super::reaction::Reaction;
 use super::send_to::{sendto_serde, SendTarget};
 use super::sender::Sender;
 use crate::constants::DEFAULT_SEQUENCE;
-use crate::in_place::InPlace;
+use crate::in_place::{in_place, InPlace};
 use quick_xml::DeError;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]

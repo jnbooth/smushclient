@@ -42,6 +42,7 @@ macro_rules! impl_deref {
         }
     };
 }
+pub(crate) use impl_deref;
 
 macro_rules! impl_convert_enum {
     ($ffi:ty, $rust:path, $($variant:ident),+ $(,)?) => {
@@ -64,6 +65,8 @@ macro_rules! impl_convert_enum {
         }
     }
 }
+pub(crate) use impl_convert_enum;
+
 macro_rules! impl_convert_enum_opt {
     ($ffi:ty, $rust:path, $fallback:ident, $($variant:ident),+ $(,)?) => {
         impl From<$rust> for $ffi {
@@ -99,6 +102,7 @@ macro_rules! impl_convert_enum_opt {
         }
     }
 }
+pub(crate) use impl_convert_enum_opt;
 
 macro_rules! impl_constructor {
     ($t:ty, $a:ty, { $i:item }) => {
@@ -121,6 +125,7 @@ macro_rules! impl_constructor {
         }
     };
 }
+pub(crate) use impl_constructor;
 
 pub trait Convert<T> {
     fn convert(&self) -> T;

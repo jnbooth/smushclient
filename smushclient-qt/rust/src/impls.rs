@@ -1,5 +1,5 @@
 use super::ffi;
-use crate::convert::Convert;
+use crate::convert::{impl_convert_enum, impl_convert_enum_opt, Convert};
 use crate::sender::OutputSpan;
 use cxx_qt_lib::QString;
 use mud_transformer::mxp::{Link, SendTo};

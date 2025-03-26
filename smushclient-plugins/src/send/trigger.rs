@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use super::reaction::Reaction;
 use super::send_to::{sendto_serde, SendTarget};
 use super::sender::Sender;
-use crate::in_place::InPlace;
+use crate::in_place::{in_place, InPlace};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Trigger {

@@ -2,7 +2,9 @@ use std::num::NonZeroU32;
 use std::path::PathBuf;
 use std::time::Duration;
 
-use crate::convert::Convert;
+use crate::convert::{
+    impl_convert, impl_convert_enum, impl_convert_enum_opt, impl_convert_struct, Convert,
+};
 use crate::error::UnsupportedError;
 use crate::ffi;
 use chrono::{NaiveTime, Timelike};

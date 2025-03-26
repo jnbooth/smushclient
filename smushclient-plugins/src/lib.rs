@@ -1,4 +1,3 @@
-#[macro_use]
 mod in_place;
 
 mod constants;

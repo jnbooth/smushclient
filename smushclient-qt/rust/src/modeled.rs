@@ -1,6 +1,7 @@
 use std::pin::Pin;
 use std::ptr;
 
+use crate::convert::impl_constructor;
 use crate::ffi;
 use cxx_qt::CxxQtType;
 use cxx_qt_lib::{QDate, QSet, QString, QVariant};

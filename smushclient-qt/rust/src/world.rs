@@ -1,5 +1,5 @@
 use crate::colors::Colors;
-use crate::convert::Convert;
+use crate::convert::{impl_deref, Convert};
 use crate::ffi;
 use cxx_qt_lib::{QColor, QString};
 use smushclient::world::{ColorPair, Numpad, NumpadMapping};
