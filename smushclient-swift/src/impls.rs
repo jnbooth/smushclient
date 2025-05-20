@@ -1,4 +1,4 @@
-use std::num::NonZeroU32;
+use std::num::NonZero;
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -347,7 +347,7 @@ impl From<ffi::Occurrence> for Occurrence {
 
 impl Convert<AudioRepetition> for u32 {
     fn from_ffi(value: Self) -> AudioRepetition {
-        match NonZeroU32::new(value) {
+        match NonZero::new(value) {
             Some(count) => AudioRepetition::Count(count),
             None => AudioRepetition::Forever,
         }
