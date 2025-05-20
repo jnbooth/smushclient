@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fmt::{self, Display, Formatter};
+use std::fmt;
 use std::io::{Read, Write};
 use std::ops::{Deref, DerefMut};
 
@@ -29,8 +29,8 @@ impl DerefMut for PluginVariables {
     }
 }
 
-impl Display for PluginVariables {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+impl fmt::Display for PluginVariables {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (id, vars) in &self.0 {
             writeln!(f, "{id}:")?;
             for (key, val) in vars {

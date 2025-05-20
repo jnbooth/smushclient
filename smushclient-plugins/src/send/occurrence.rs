@@ -1,4 +1,4 @@
-use std::fmt::{self, Display, Formatter};
+use std::fmt;
 use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike};
@@ -54,32 +54,36 @@ impl Occurrence {
     }
 }
 
-impl Display for Occurrence {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        match self {
-            Self::Interval(every) => {
-                let secs = every.as_secs();
-                let millis = every.subsec_millis();
-                if millis == 0 {
-                    write!(
-                        f,
-                        "{:02}:{:02}:{:02}",
-                        secs / 3600,
-                        (secs % 3600) / 60,
-                        secs % 60
-                    )
-                } else {
-                    write!(
-                        f,
-                        "{:02}:{:02}:{:02}.{:03}",
-                        secs / 3600,
-                        (secs % 3600) / 60,
-                        secs % 60,
-                        millis
-                    )
-                }
-            }
-            Self::Time(at) => write!(f, "{}", at.format("%-I:%M %p")),
+impl fmt::Display for Occurrence {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let interval = match self {
+            Self::Interval(interval) => interval,
+            Self::Time(time) => return time.format("%-I:%M %p").fmt(f),
+        };
+
+        if f.width().is_some() || f.precision().is_some() {
+            return f.pad(&self.to_string());
+        }
+
+        let secs = interval.as_secs();
+        let millis = interval.subsec_millis();
+        if millis == 0 {
+            write!(
+                f,
+                "{:02}:{:02}:{:02}",
+                secs / 3600,
+                (secs % 3600) / 60,
+                secs % 60
+            )
+        } else {
+            write!(
+                f,
+                "{:02}:{:02}:{:02}.{:03}",
+                secs / 3600,
+                (secs % 3600) / 60,
+                secs % 60,
+                millis
+            )
         }
     }
 }

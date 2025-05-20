@@ -1,11 +1,11 @@
 use std::error::Error;
-use std::fmt::{self, Display, Formatter};
+use std::fmt;
 
 pub trait StringifyResultError<T> {
     fn str(self) -> Result<T, String>;
 }
 
-impl<T, E: Display> StringifyResultError<T> for Result<T, E> {
+impl<T, E: fmt::Display> StringifyResultError<T> for Result<T, E> {
     fn str(self) -> Result<T, String> {
         self.map_err(|e| e.to_string())
     }
@@ -14,10 +14,9 @@ impl<T, E: Display> StringifyResultError<T> for Result<T, E> {
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct UnsupportedError(pub &'static str);
 
-impl Display for UnsupportedError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.write_str("Unsupported: ")?;
-        f.write_str(self.0)
+impl fmt::Display for UnsupportedError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Unsupported: {}", self.0)
     }
 }
 

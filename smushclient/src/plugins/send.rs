@@ -1,7 +1,7 @@
 use mud_transformer::Output;
 use smushclient_plugins::{Captures, PluginIndex, Regex, SendTarget};
 use std::error::Error;
-use std::fmt::{self, Display, Formatter};
+use std::fmt;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SendRequest<'a> {
@@ -34,8 +34,8 @@ impl From<usize> for SenderAccessError {
     }
 }
 
-impl Display for SenderAccessError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+impl fmt::Display for SenderAccessError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::LabelConflict(_) => f.write_str("sender name conflict"),
             Self::NotFound => f.write_str("sender not found"),

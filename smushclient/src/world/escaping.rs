@@ -1,5 +1,5 @@
 use chrono::{DateTime, Local, TimeZone};
-use std::fmt::{self, Display, Formatter};
+use std::fmt;
 use std::io::{self, Write};
 
 use crate::world::World;
@@ -97,15 +97,15 @@ impl Escaped<String> {
     }
 }
 
-impl<S> Display for Escaped<S>
+impl<S> fmt::Display for Escaped<S>
 where
     S: AsRef<str>,
 {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.has_chrono {
             Local::now().format(self.message.as_ref()).fmt(f)
         } else {
-            f.write_str(self.message.as_ref())
+            f.pad(self.message.as_ref())
         }
     }
 }
@@ -115,17 +115,17 @@ pub struct EscapedChrono<'a, S, Tz: TimeZone> {
     datetime: DateTime<Tz>,
 }
 
-impl<'a, S, Tz> Display for EscapedChrono<'a, S, Tz>
+impl<'a, S, Tz> fmt::Display for EscapedChrono<'a, S, Tz>
 where
     S: AsRef<str>,
     Tz: TimeZone,
-    Tz::Offset: Display,
+    Tz::Offset: fmt::Display,
 {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.escaped.has_chrono {
             self.datetime.format(self.escaped.message.as_ref()).fmt(f)
         } else {
-            f.write_str(self.escaped.message.as_ref())
+            f.pad(self.escaped.message.as_ref())
         }
     }
 }

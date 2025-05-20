@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::fmt::{self, Display, Formatter};
+use std::fmt;
 use std::io;
 
 use rodio::decoder::DecoderError;
@@ -14,8 +14,8 @@ pub enum AudioError {
     StreamError(StreamError),
 }
 
-impl Display for AudioError {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+impl fmt::Display for AudioError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::DecoderError(e) => e.fmt(f),
             Self::FileError(e) => e.fmt(f),

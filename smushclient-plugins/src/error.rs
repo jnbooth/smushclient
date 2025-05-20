@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::fmt::{self, Display, Formatter};
+use std::fmt;
 use std::io;
 use std::ops::RangeInclusive;
 
@@ -11,8 +11,8 @@ pub enum LoadError {
     Parse(quick_xml::DeError),
 }
 
-impl Display for LoadError {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+impl fmt::Display for LoadError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             LoadError::File(error) => error.fmt(f),
             LoadError::Parse(error) => error.fmt(f),
@@ -43,8 +43,8 @@ impl From<quick_xml::DeError> for LoadError {
 #[derive(Clone, Debug)]
 pub struct ExpectedRange<T>(pub RangeInclusive<T>);
 
-impl<T: Display> Expected for ExpectedRange<T> {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+impl<T: fmt::Display> Expected for ExpectedRange<T> {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         write!(
             formatter,
             "integer between {} and {}",

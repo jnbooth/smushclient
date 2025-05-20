@@ -4,15 +4,15 @@ use cxx_qt_lib::{QByteArray, QColor, QList, QString, QStringList, QVector};
 use mud_transformer::mxp::RgbColor;
 use std::error::Error;
 use std::ffi::OsStr;
-use std::fmt::{self, Display, Formatter};
+use std::fmt;
 use std::num::TryFromIntError;
 use std::path::PathBuf;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct OutOfRangeError;
 
-impl Display for OutOfRangeError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+impl fmt::Display for OutOfRangeError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.write_str("out of range")
     }
 }

@@ -1,4 +1,4 @@
-use std::fmt::{self, Display, Formatter};
+use std::fmt;
 use std::io;
 
 #[derive(Debug)]
@@ -8,8 +8,8 @@ pub enum PersistError {
     Invalid,
 }
 
-impl Display for PersistError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+impl fmt::Display for PersistError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::File(error) => error.fmt(f),
             Self::Serial(error) => error.fmt(f),
