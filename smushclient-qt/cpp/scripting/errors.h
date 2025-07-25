@@ -1,6 +1,6 @@
 #pragma once
-#include <QtCore/QString>
 #include "scriptenums.h"
+#include <QtCore/QString>
 
 struct lua_State;
 

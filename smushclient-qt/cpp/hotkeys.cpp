@@ -3,10 +3,8 @@
 
 // Private utils
 
-inline QString numpadBase(const World &world, Qt::Key key)
-{
-  switch (key)
-  {
+inline QString numpadBase(const World &world, Qt::Key key) {
+  switch (key) {
   case Qt::Key::Key_0:
     return world.getNumpad0();
   case Qt::Key::Key_1:
@@ -42,10 +40,8 @@ inline QString numpadBase(const World &world, Qt::Key key)
   }
 }
 
-inline QString numpadMod(const World &world, Qt::Key key)
-{
-  switch (key)
-  {
+inline QString numpadMod(const World &world, Qt::Key key) {
+  switch (key) {
   case Qt::Key::Key_0:
     return world.getNumpadMod0();
   case Qt::Key::Key_1:
@@ -83,7 +79,6 @@ inline QString numpadMod(const World &world, Qt::Key key)
 
 // Namespace
 
-QString hotkeys::numpad(const World &world, Qt::Key key, bool modified)
-{
+QString hotkeys::numpad(const World &world, Qt::Key key, bool modified) {
   return modified ? numpadMod(world, key) : numpadBase(world, key);
 }

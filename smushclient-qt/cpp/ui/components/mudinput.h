@@ -1,9 +1,8 @@
 #pragma once
-#include <QtWidgets/QTextEdit>
 #include "../../commandhistory.h"
+#include <QtWidgets/QTextEdit>
 
-class MudInput : public QTextEdit
-{
+class MudInput : public QTextEdit {
   Q_OBJECT
 
 public:

@@ -2,20 +2,19 @@
 #include <QtGui/QFont>
 #include <QtWidgets/QWidget>
 
-namespace Ui
-{
-  class SettingsAppearance;
+namespace Ui {
+class SettingsAppearance;
 }
 
 class Settings;
 class SettingsNotifier;
 
-class SettingsAppearance : public QWidget
-{
+class SettingsAppearance : public QWidget {
   Q_OBJECT
 
 public:
-  explicit SettingsAppearance(Settings &settings, SettingsNotifier *notifier, QWidget *parent = nullptr);
+  explicit SettingsAppearance(Settings &settings, SettingsNotifier *notifier,
+                              QWidget *parent = nullptr);
   ~SettingsAppearance();
 
 private slots:

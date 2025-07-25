@@ -1,17 +1,15 @@
 #include "timeredit.h"
-#include "ui_timeredit.h"
 #include "../../enumbuttongroup.h"
 #include "../../fieldconnector.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
+#include "ui_timeredit.h"
 
-#define CONNECT(field) connectField(this, &timer, ui->field, timer.get##field(), &Timer::set##field);
+#define CONNECT(field)                                                         \
+  connectField(this, &timer, ui->field, timer.get##field(), &Timer::set##field);
 
 TimerEdit::TimerEdit(Timer &timer, QWidget *parent)
-    : QDialog(parent),
-      ui(new Ui::TimerEdit),
-      originalGroup(timer.getGroup()),
-      timer(timer)
-{
+    : QDialog(parent), ui(new Ui::TimerEdit), originalGroup(timer.getGroup()),
+      timer(timer) {
   ui->setupUi(this);
 
   // Sender
@@ -39,32 +37,24 @@ TimerEdit::TimerEdit(Timer &timer, QWidget *parent)
       .addButton(ui->Occurrence_Time, Occurrence::Time);
 }
 
-TimerEdit::~TimerEdit()
-{
-  delete ui;
-}
+TimerEdit::~TimerEdit() { delete ui; }
 
-bool TimerEdit::groupChanged() const
-{
+bool TimerEdit::groupChanged() const {
   return originalGroup != ui->Group->text();
 }
 
 // Private slots
 
-void TimerEdit::on_OccurrenceChanged(Occurrence value)
-{
+void TimerEdit::on_OccurrenceChanged(Occurrence value) {
   timer.setOccurrence(value);
 }
 
-void TimerEdit::on_Label_textChanged(const QString &text)
-{
+void TimerEdit::on_Label_textChanged(const QString &text) {
   ui->Variable->setPlaceholderText(text);
 }
 
-void TimerEdit::on_UserSendTo_currentIndexChanged(int index)
-{
-  switch (index)
-  {
+void TimerEdit::on_UserSendTo_currentIndexChanged(int index) {
+  switch (index) {
   case (int)UserSendTarget::NotepadAppend:
   case (int)UserSendTarget::NotepadNew:
   case (int)UserSendTarget::NotepadReplace:
@@ -81,7 +71,6 @@ void TimerEdit::on_UserSendTo_currentIndexChanged(int index)
   }
 }
 
-void TimerEdit::on_Text_textChanged()
-{
+void TimerEdit::on_Text_textChanged() {
   timer.setText(ui->Text->toPlainText());
 }

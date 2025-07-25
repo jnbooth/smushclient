@@ -1,15 +1,13 @@
 #pragma once
 #include <QtWidgets/QWidget>
 
-namespace Ui
-{
-  class SettingsStartup;
+namespace Ui {
+class SettingsStartup;
 }
 
 class Settings;
 
-class SettingsStartup : public QWidget
-{
+class SettingsStartup : public QWidget {
   Q_OBJECT
 
 public:

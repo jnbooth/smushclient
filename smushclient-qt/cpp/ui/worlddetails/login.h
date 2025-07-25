@@ -1,15 +1,13 @@
 #pragma once
 #include <QtWidgets/QWidget>
 
-namespace Ui
-{
-  class PrefsLogin;
+namespace Ui {
+class PrefsLogin;
 }
 
 class World;
 
-class PrefsLogin : public QWidget
-{
+class PrefsLogin : public QWidget {
   Q_OBJECT
 
 public:

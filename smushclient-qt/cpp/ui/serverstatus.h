@@ -1,28 +1,29 @@
 #pragma once
-#include <QtWidgets/QDialog>
-#include <QtWidgets/QLabel>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
+#include <QtWidgets/QDialog>
+#include <QtWidgets/QLabel>
 
-namespace Ui
-{
-  class ServerStatus;
+namespace Ui {
+class ServerStatus;
 }
 
 enum class KnownVariable;
 
-class ServerStatus : public QDialog
-{
+class ServerStatus : public QDialog {
   Q_OBJECT
 
 public:
-  explicit ServerStatus(const QHash<QString, QString> &status, QWidget *parent = nullptr);
+  explicit ServerStatus(const QHash<QString, QString> &status,
+                        QWidget *parent = nullptr);
   ~ServerStatus();
 
 private:
-  QLabel *variableLabel(KnownVariable variable, const QString &label, QWidget *parent = nullptr) const;
+  QLabel *variableLabel(KnownVariable variable, const QString &label,
+                        QWidget *parent = nullptr) const;
   QLabel *variableLabel(const QString &label, QWidget *parent = nullptr) const;
-  QLabel *valueLabel(KnownVariable variable, const QString &value, QWidget *parent = nullptr) const;
+  QLabel *valueLabel(KnownVariable variable, const QString &value,
+                     QWidget *parent = nullptr) const;
   QLabel *valueLabel(const QString &value, QWidget *parent = nullptr) const;
   QString translateVariable(KnownVariable variable, const QString &raw) const;
 

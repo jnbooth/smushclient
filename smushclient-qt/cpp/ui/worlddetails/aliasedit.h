@@ -1,15 +1,13 @@
 #pragma once
 #include <QtWidgets/QDialog>
 
-namespace Ui
-{
-  class AliasEdit;
+namespace Ui {
+class AliasEdit;
 }
 
 class Alias;
 
-class AliasEdit : public QDialog
-{
+class AliasEdit : public QDialog {
   Q_OBJECT
 
 public:

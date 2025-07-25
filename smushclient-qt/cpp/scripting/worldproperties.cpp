@@ -1,6 +1,6 @@
 #include "worldproperties.h"
-#include <QtCore/QMetaProperty>
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
+#include <QtCore/QMetaProperty>
 
 using std::string;
 using std::string_view;
@@ -8,8 +8,7 @@ using std::vector;
 
 // Private utils
 
-string toSnakeCase(const string &key)
-{
+string toSnakeCase(const string &key) {
   size_t size = key.size();
   for (char c : key)
     if (isupper(c) || isdigit(c))
@@ -17,10 +16,8 @@ string toSnakeCase(const string &key)
   std::string result;
   result.reserve(size);
   bool isFirst = false;
-  for (char c : key)
-  {
-    if (!isupper(c) && !isdigit(c))
-    {
+  for (char c : key) {
+    if (!isupper(c) && !isdigit(c)) {
       result.push_back(c);
       continue;
     }
@@ -35,8 +32,7 @@ string toSnakeCase(const string &key)
 
 // Private methods
 
-WorldProperties::WorldProperties()
-{
+WorldProperties::WorldProperties() {
   const QMetaObject &metaObject = World::staticMetaObject;
   int offset = metaObject.propertyOffset();
   int count = metaObject.propertyCount();
@@ -44,8 +40,7 @@ WorldProperties::WorldProperties()
   names.reserve(size);
   numericProps.reserve(size);
   stringProps.reserve(size);
-  for (int i = offset; i < count; ++i)
-  {
+  for (int i = offset; i < count; ++i) {
     const QMetaProperty prop = metaObject.property(i);
     const string name = prop.name();
     if (!name.rfind("ansi", 0))
@@ -60,11 +55,9 @@ WorldProperties::WorldProperties()
   std::sort(stringProps.begin(), stringProps.end());
 }
 
-void WorldProperties::addProp(const string &prop, const QMetaType &type)
-{
+void WorldProperties::addProp(const string &prop, const QMetaType &type) {
   int id = type.id();
-  switch (id)
-  {
+  switch (id) {
   case QMetaType::Bool:
   case QMetaType::Int:
   case QMetaType::UInt:
@@ -101,16 +94,14 @@ void WorldProperties::addProp(const string &prop, const QMetaType &type)
   }
 }
 
-string_map<string> createNameMap()
-{
+string_map<string> createNameMap() {
   string_map<string> map;
   const QMetaObject &metaObject = World::staticMetaObject;
   int offset = metaObject.propertyOffset();
   int count = metaObject.propertyCount();
   size_t size = count - offset;
   map.reserve(size);
-  for (int i = offset; i < count; ++i)
-  {
+  for (int i = offset; i < count; ++i) {
     const QMetaProperty prop = metaObject.property(i);
     const string name = prop.name();
     if (!name.rfind("ansi", 0))
@@ -120,8 +111,7 @@ string_map<string> createNameMap()
   return map;
 }
 
-const char *WorldProperties::canonicalName(string_view name)
-{
+const char *WorldProperties::canonicalName(string_view name) {
   const string_map<string> &names = getInstance().names;
   auto search = names.find(name);
   return (search == names.end()) ? nullptr : search->second.c_str();

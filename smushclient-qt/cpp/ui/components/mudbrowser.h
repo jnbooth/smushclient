@@ -5,8 +5,7 @@
 
 class MudScrollBar;
 
-class MudBrowser : public QTextBrowser
-{
+class MudBrowser : public QTextBrowser {
 public:
   explicit MudBrowser(QWidget *parent = nullptr);
   virtual ~MudBrowser() {};

@@ -4,18 +4,21 @@
 #include <QtGui/QResizeEvent>
 #include <QtWidgets/QLabel>
 
-class IconLabel : public QLabel
-{
+class IconLabel : public QLabel {
   Q_OBJECT
 
 public:
   explicit IconLabel(const QIcon &icon, QWidget *parent = nullptr);
-  explicit IconLabel(const QIcon &icon, QIcon::Mode mode, QWidget *parent = nullptr);
-  explicit IconLabel(const QIcon &icon, QIcon::State state, QWidget *parent = nullptr);
-  explicit IconLabel(const QIcon &icon, QIcon::Mode mode, QIcon::State state, QWidget *parent = nullptr);
+  explicit IconLabel(const QIcon &icon, QIcon::Mode mode,
+                     QWidget *parent = nullptr);
+  explicit IconLabel(const QIcon &icon, QIcon::State state,
+                     QWidget *parent = nullptr);
+  explicit IconLabel(const QIcon &icon, QIcon::Mode mode, QIcon::State state,
+                     QWidget *parent = nullptr);
   virtual ~IconLabel() {}
 
-  void setIcon(const QIcon &icon, QIcon::Mode mode = QIcon::Normal, QIcon::State state = QIcon::On);
+  void setIcon(const QIcon &icon, QIcon::Mode mode = QIcon::Normal,
+               QIcon::State state = QIcon::On);
   void setFixedIconHeight(int height);
   void setMode(QIcon::Mode mode);
   void setState(QIcon::State state);

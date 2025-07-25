@@ -4,8 +4,7 @@
 class PluginDetails;
 class SmushClient;
 
-class PluginModel : public QAbstractItemModel
-{
+class PluginModel : public QAbstractItemModel {
   Q_OBJECT
 
 public:
@@ -13,26 +12,27 @@ public:
   bool addPlugin(const QString &filePath);
   PluginDetails pluginDetails(const QModelIndex &index) const;
   QString pluginId(const QModelIndex &index) const;
-  constexpr size_t pluginIndex(int row) const
-  {
+  constexpr size_t pluginIndex(int row) const {
     return row >= worldIndex ? row + 1 : row;
   }
   bool reinstall(const QModelIndex &index);
 
-  int columnCount(const QModelIndex &) const override
-  {
-    return numColumns;
-  }
-  QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+  int columnCount(const QModelIndex &) const override { return numColumns; }
+  QVariant data(const QModelIndex &index,
+                int role = Qt::DisplayRole) const override;
   Qt::ItemFlags flags(const QModelIndex &index) const override;
   bool hasChildren(const QModelIndex &index = QModelIndex()) const override;
-  QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-  QModelIndex index(int row, int column, const QModelIndex &parent) const override;
+  QVariant headerData(int section, Qt::Orientation orientation,
+                      int role = Qt::DisplayRole) const override;
+  QModelIndex index(int row, int column,
+                    const QModelIndex &parent) const override;
   QMap<int, QVariant> itemData(const QModelIndex &index) const override;
   QModelIndex parent(const QModelIndex &index) const override;
-  bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
+  bool removeRows(int row, int count,
+                  const QModelIndex &parent = QModelIndex()) override;
   int rowCount(const QModelIndex &index = QModelIndex()) const override;
-  bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+  bool setData(const QModelIndex &index, const QVariant &value,
+               int role = Qt::EditRole) override;
 
 signals:
   void clientError(const QString &error);
@@ -40,15 +40,13 @@ signals:
   void pluginScriptChanged(size_t pluginIndex);
 
 private:
-  static constexpr bool isValidColumn(int column) noexcept
-  {
+  static constexpr bool isValidColumn(int column) noexcept {
     return column >= 0 && column < numColumns;
   }
 
   bool isValidIndex(const QModelIndex &index) const noexcept;
 
-  constexpr int pluginIndexToRow(int index) const
-  {
+  constexpr int pluginIndexToRow(int index) const {
     return index > worldIndex ? index - 1 : index;
   }
 

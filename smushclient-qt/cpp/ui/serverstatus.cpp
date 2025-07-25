@@ -10,8 +10,7 @@ constexpr int iconSize = 32;
 
 // Private utils
 
-enum class KnownVariable
-{
+enum class KnownVariable {
   Unknown,
 
   // ABOUT
@@ -91,35 +90,32 @@ enum class KnownVariable
   Charset,  // ASCII, UTF-8, etc.
 
   // HIDDEN
-  CrawlDelay, // Preferred minimum number of hours between crawls, or -1 for default
+  CrawlDelay, // Preferred minimum number of hours between crawls, or -1 for
+              // default
   Referral,   // Other MUD servers with MSSP support (for crawler)
 };
 
 constexpr int knownVariablesSize = (int)KnownVariable::Referral;
 
-constexpr bool isBoolVariable(KnownVariable variable) noexcept
-{
-  return variable >= KnownVariable::AdultMaterial && variable <= KnownVariable::HiringCoders;
+constexpr bool isBoolVariable(KnownVariable variable) noexcept {
+  return variable >= KnownVariable::AdultMaterial &&
+         variable <= KnownVariable::HiringCoders;
 }
 
-constexpr bool isCounterVariable(KnownVariable variable) noexcept
-{
+constexpr bool isCounterVariable(KnownVariable variable) noexcept {
   return variable >= KnownVariable::DbSize && variable <= KnownVariable::Resets;
 }
 
-constexpr bool isHiddenVariable(KnownVariable variable) noexcept
-{
+constexpr bool isHiddenVariable(KnownVariable variable) noexcept {
   return variable >= KnownVariable::CrawlDelay;
 }
 
-QString variableName(KnownVariable variable)
-{
-#define KNOWN(VALUE, NAME)   \
-  case KnownVariable::VALUE: \
+QString variableName(KnownVariable variable) {
+#define KNOWN(VALUE, NAME)                                                     \
+  case KnownVariable::VALUE:                                                   \
     return QStringLiteral(NAME);
 
-  switch (variable)
-  {
+  switch (variable) {
     KNOWN(Unknown, "");
     KNOWN(AdultMaterial, "ADULT MATERIAL");
     KNOWN(Areas, "AREAS");
@@ -188,42 +184,37 @@ QString variableName(KnownVariable variable)
 #undef KNOWN
 }
 
-QHash<QString, KnownVariable> buildKnownVariables()
-{
+QHash<QString, KnownVariable> buildKnownVariables() {
   QHash<QString, KnownVariable> variables;
   variables.reserve(knownVariablesSize);
-  for (int i = 1; i <= knownVariablesSize; ++i)
-  {
+  for (int i = 1; i <= knownVariablesSize; ++i) {
     const KnownVariable variable = (KnownVariable)i;
     variables.insert(variableName(variable), variable);
   }
   return variables;
 }
 
-static const QHash<QString, KnownVariable> knownVariables = buildKnownVariables();
+static const QHash<QString, KnownVariable> knownVariables =
+    buildKnownVariables();
 
-struct StatusEntry
-{
+struct StatusEntry {
   bool isUnknown;
   KnownVariable variable;
   QString key;
   QString value;
 
   StatusEntry(KnownVariable variable, const QString &key, const QString &value)
-      : isUnknown(variable == KnownVariable::Unknown),
-        variable(variable),
-        key(key),
-        value(value) {}
+      : isUnknown(variable == KnownVariable::Unknown), variable(variable),
+        key(key), value(value) {}
 
   strong_ordering operator<=>(const StatusEntry &other) const = default;
 };
 
 // Public methods
 
-ServerStatus::ServerStatus(const QHash<QString, QString> &status, QWidget *parent)
-    : QDialog(parent),
-      ui(new Ui::ServerStatus)
-{
+ServerStatus::ServerStatus(const QHash<QString, QString> &status,
+                           QWidget *parent)
+    : QDialog(parent), ui(new Ui::ServerStatus) {
   ui->setupUi(this);
   variableFont.setBold(true);
   QWidget *area = ui->scrollAreaWidgetContents;
@@ -231,34 +222,30 @@ ServerStatus::ServerStatus(const QHash<QString, QString> &status, QWidget *paren
   entries.reserve(status.size());
   QStringList supported;
   QStringList unsupported;
-  for (auto [key, value] : status.asKeyValueRange())
-  {
+  for (auto [key, value] : status.asKeyValueRange()) {
     if (value.isEmpty())
       continue;
 
     const KnownVariable variable = knownVariables[key];
 
-    if (isHiddenVariable(variable) || (isCounterVariable(variable) && value == QStringLiteral("0")))
+    if (isHiddenVariable(variable) ||
+        (isCounterVariable(variable) && value == QStringLiteral("0")))
       continue;
 
-    switch (variable)
-    {
+    switch (variable) {
     case KnownVariable::Unknown:
-      if (value == QStringLiteral("0"))
-      {
+      if (value == QStringLiteral("0")) {
         unsupported.push_back(key);
         continue;
       }
-      if (value == QStringLiteral("1"))
-      {
+      if (value == QStringLiteral("1")) {
         supported.push_back(key);
         continue;
       }
       break;
 
     case KnownVariable::Icon:
-      if (QUrl url(value); url.isValid())
-      {
+      if (QUrl url(value); url.isValid()) {
         icon = new QLabel(area);
         icon->setFixedSize(iconSize, iconSize);
         ui->form->addWidget(icon);
@@ -286,37 +273,31 @@ ServerStatus::ServerStatus(const QHash<QString, QString> &status, QWidget *paren
 
   std::sort(entries.begin(), entries.end());
 
-  for (const StatusEntry &entry : entries)
-  {
+  for (const StatusEntry &entry : entries) {
     QLabel *label = variableLabel(entry.variable, entry.key, area);
-    if (!entry.value.contains(QChar(2)))
-    {
+    if (!entry.value.contains(QChar(2))) {
       ui->form->addRow(label, valueLabel(entry.variable, entry.value, area));
       continue;
     }
     const QStringList values = entry.value.split(QChar(2));
-    for (auto iter = values.crbegin(), end = values.crend(); iter < end; ++iter)
-    {
+    for (auto iter = values.crbegin(), end = values.crend(); iter < end;
+         ++iter) {
       ui->form->addRow(label, valueLabel(entry.variable, *iter, area));
       label = nullptr;
     }
   }
 
-  if (!supported.isEmpty())
-  {
+  if (!supported.isEmpty()) {
     QLabel *label = variableLabel(tr("Supports"), area);
-    for (const QString &item : supported)
-    {
+    for (const QString &item : supported) {
       ui->form->addRow(label, valueLabel(item, area));
       label = nullptr;
     }
   }
 
-  if (!unsupported.isEmpty())
-  {
+  if (!unsupported.isEmpty()) {
     QLabel *label = variableLabel(tr("Does Not Support"), area);
-    for (const QString &item : unsupported)
-    {
+    for (const QString &item : unsupported) {
       ui->form->addRow(label, valueLabel(item, area));
       label = nullptr;
     }
@@ -327,42 +308,38 @@ ServerStatus::ServerStatus(const QHash<QString, QString> &status, QWidget *paren
     setMaximumHeight(formHeight + 5);
 }
 
-ServerStatus::~ServerStatus()
-{
-  delete ui;
-}
+ServerStatus::~ServerStatus() { delete ui; }
 
 // Private methods
 
-QLabel *ServerStatus::variableLabel(KnownVariable variable, const QString &var, QWidget *parent) const
-{
+QLabel *ServerStatus::variableLabel(KnownVariable variable, const QString &var,
+                                    QWidget *parent) const {
   return variableLabel(translateVariable(variable, var), parent);
 }
 
-QLabel *ServerStatus::variableLabel(const QString &text, QWidget *parent) const
-{
+QLabel *ServerStatus::variableLabel(const QString &text,
+                                    QWidget *parent) const {
   QLabel *label = new QLabel(text, parent);
   label->setFont(variableFont);
   return label;
 }
 
-QLabel *ServerStatus::valueLabel(const QString &text, QWidget *parent) const
-{
+QLabel *ServerStatus::valueLabel(const QString &text, QWidget *parent) const {
   QLabel *label = new QLabel(text, parent);
   label->setFont(valueFont);
-  label->setTextInteractionFlags(Qt::TextInteractionFlag::TextBrowserInteraction);
+  label->setTextInteractionFlags(
+      Qt::TextInteractionFlag::TextBrowserInteraction);
   label->setOpenExternalLinks(true);
   return label;
 }
 
-QLabel *ServerStatus::valueLabel(KnownVariable variable, const QString &value, QWidget *parent) const
-{
+QLabel *ServerStatus::valueLabel(KnownVariable variable, const QString &value,
+                                 QWidget *parent) const {
   const static QString no = tr("No");
   const static QString none = tr("None");
   const static QString yes = tr("Yes");
 
-  if (isBoolVariable(variable))
-  {
+  if (isBoolVariable(variable)) {
     if (value == QStringLiteral("0"))
       return valueLabel(no, parent);
     if (value == QStringLiteral("1"))
@@ -370,13 +347,14 @@ QLabel *ServerStatus::valueLabel(KnownVariable variable, const QString &value, Q
     return valueLabel(value, parent);
   }
 
-  switch (variable)
-  {
+  switch (variable) {
   case KnownVariable::Uptime:
-    return valueLabel(QDateTime::fromSecsSinceEpoch(value.toLongLong()).toString(), parent);
+    return valueLabel(
+        QDateTime::fromSecsSinceEpoch(value.toLongLong()).toString(), parent);
 
   case KnownVariable::Contact:
-    return valueLabel(QStringLiteral("<a href=\"mailto:%1\">%1</a>").arg(value), parent);
+    return valueLabel(QStringLiteral("<a href=\"mailto:%1\">%1</a>").arg(value),
+                      parent);
 
   case KnownVariable::MinimumAge:
     if (value == QStringLiteral("0"))
@@ -385,17 +363,17 @@ QLabel *ServerStatus::valueLabel(KnownVariable variable, const QString &value, Q
 
   case KnownVariable::Discord:
   case KnownVariable::Website:
-    return valueLabel(QStringLiteral("<a href=\"%1\">%1</a>").arg(value), parent);
+    return valueLabel(QStringLiteral("<a href=\"%1\">%1</a>").arg(value),
+                      parent);
   default:
     break;
   }
   return valueLabel(value, parent);
 }
 
-QString ServerStatus::translateVariable(KnownVariable variable, const QString &raw) const
-{
-  switch (variable)
-  {
+QString ServerStatus::translateVariable(KnownVariable variable,
+                                        const QString &raw) const {
+  switch (variable) {
   case KnownVariable::Unknown:
     return raw;
   case KnownVariable::AdultMaterial:
@@ -527,9 +505,9 @@ QString ServerStatus::translateVariable(KnownVariable variable, const QString &r
 
 // Private slots
 
-void ServerStatus::displayImage(QNetworkReply *reply)
-{
+void ServerStatus::displayImage(QNetworkReply *reply) {
   if (!icon)
     return;
-  icon->setPixmap(QPixmap::fromImage(QImage::fromData(reply->readAll()).scaledToHeight(iconSize)));
+  icon->setPixmap(QPixmap::fromImage(
+      QImage::fromData(reply->readAll()).scaledToHeight(iconSize)));
 }

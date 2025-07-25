@@ -1,12 +1,12 @@
+#include "../../spans.h"
+#include "../ui/ui_worldtab.h"
+#include "../ui/worldtab.h"
 #include "scriptapi.h"
+#include "smushclient_qt/src/ffi/document.cxxqt.h"
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextDocumentFragment>
 #include <QtGui/QTextLayout>
 #include <QtGui/QTextLine>
-#include "../ui/worldtab.h"
-#include "../ui/ui_worldtab.h"
-#include "../../spans.h"
-#include "smushclient_qt/src/ffi/document.cxxqt.h"
 
 using std::optional;
 using std::string;
@@ -14,17 +14,14 @@ using std::string_view;
 
 // Private utils
 
-inline QString convertString(const string &s)
-{
+inline QString convertString(const string &s) {
   return QString::fromUtf8(s.data(), s.size());
 }
 
 // Public methods
 
-QVariant ScriptApi::FontInfo(const QFont &font, int infoType) const
-{
-  switch (infoType)
-  {
+QVariant ScriptApi::FontInfo(const QFont &font, int infoType) const {
+  switch (infoType) {
   case 1:
     return QFontMetrics(font).height();
   case 2:
@@ -61,11 +58,11 @@ QVariant ScriptApi::FontInfo(const QFont &font, int infoType) const
     if (hint == QFont::StyleHint::Monospace)
       return FontPitchFlag::Monospace;
 
-    const int pitchFlag =
-        QFontInfo(font).fixedPitch() ? FontPitchFlag::Fixed : FontPitchFlag::Variable;
+    const int pitchFlag = QFontInfo(font).fixedPitch()
+                              ? FontPitchFlag::Fixed
+                              : FontPitchFlag::Variable;
 
-    switch (hint)
-    {
+    switch (hint) {
     case QFont::StyleHint::Serif:
       return FontFamilyFlag::Roman | pitchFlag;
     case QFont::StyleHint::SansSerif:
@@ -88,10 +85,8 @@ QVariant ScriptApi::FontInfo(const QFont &font, int infoType) const
   }
 }
 
-QVariant ScriptApi::GetInfo(int infoType) const
-{
-  switch (infoType)
-  {
+QVariant ScriptApi::GetInfo(int infoType) const {
+  switch (infoType) {
   case 72:
     return QStringLiteral(SCRIPTING_VERSION);
   case 106:
@@ -127,16 +122,13 @@ QVariant ScriptApi::GetInfo(int infoType) const
   }
 }
 
-QVariant ScriptApi::GetLineInfo(int lineNumber, int infoType) const
-{
+QVariant ScriptApi::GetLineInfo(int lineNumber, int infoType) const {
   const QTextBlock block = cursor.document()->findBlockByLineNumber(lineNumber);
   if (!block.isValid())
     return QVariant();
   const int lineIndex = lineNumber - block.firstLineNumber();
-  switch (infoType)
-  {
-  case 1:
-  {
+  switch (infoType) {
+  case 1: {
     const QTextLine line = block.layout()->lineAt(lineIndex);
     return block.text().sliced(line.textStart(), line.textLength());
   }
@@ -152,23 +144,21 @@ QVariant ScriptApi::GetLineInfo(int lineNumber, int infoType) const
     return true;
   case 7: // true if bookmarked
     return false;
-  case 8:
-  {
+  case 8: {
     const QTextLine line = block.layout()->lineAt(lineIndex);
-    return block.text().sliced(line.textStart(), line.textLength()) == QStringLiteral("<hr>");
+    return block.text().sliced(line.textStart(), line.textLength()) ==
+           QStringLiteral("<hr>");
   }
   case 9:
     return getTimestamp(block.blockFormat());
   case 10:
     return lineNumber;
-  case 11:
-  {
+  case 11: {
     const QTextLine line = block.layout()->lineAt(lineIndex);
     int styleCount = 0;
     const int start = line.textStart();
     const int end = start + line.textLength();
-    for (const QTextLayout::FormatRange &range : block.textFormats())
-    {
+    for (const QTextLayout::FormatRange &range : block.textFormats()) {
       if (range.start > end)
         return styleCount;
       if (range.start + range.length >= start)
@@ -183,13 +173,12 @@ QVariant ScriptApi::GetLineInfo(int lineNumber, int infoType) const
   }
 }
 
-QVariant ScriptApi::GetPluginInfo(string_view pluginID, int infoType) const
-{
+QVariant ScriptApi::GetPluginInfo(string_view pluginID, int infoType) const {
   const size_t index = findPluginIndex(pluginID);
-  if (index == noSuchPlugin || infoType < 0 || infoType > UINT8_MAX) [[unlikely]]
+  if (index == noSuchPlugin || infoType < 0 || infoType > UINT8_MAX)
+      [[unlikely]]
     return QVariant();
-  switch (infoType)
-  {
+  switch (infoType) {
   case 16:
     return QVariant(!plugins[index].disabled());
   case 22:
@@ -199,8 +188,7 @@ QVariant ScriptApi::GetPluginInfo(string_view pluginID, int infoType) const
   }
 }
 
-QVariant ScriptApi::GetStyleInfo(int line, int style, int infoType) const
-{
+QVariant ScriptApi::GetStyleInfo(int line, int style, int infoType) const {
   const QTextDocument *doc = cursor.document();
   const QTextBlock block = doc->findBlockByLineNumber(line - 1);
   if (!block.isValid())
@@ -212,8 +200,7 @@ QVariant ScriptApi::GetStyleInfo(int line, int style, int infoType) const
   const QList<QTextLayout::FormatRange> styles = block.textFormats();
   auto iter = styles.cbegin();
   int styleOffset = style;
-  for (auto end = styles.cend();; ++iter)
-  {
+  for (auto end = styles.cend();; ++iter) {
     if (iter == end || iter->start > textEnd)
       return QVariant();
     if (iter->start + iter->length < textStart)
@@ -225,21 +212,18 @@ QVariant ScriptApi::GetStyleInfo(int line, int style, int infoType) const
   const QTextLayout::FormatRange &range = *iter;
   const int rangeStart = std::max(textStart, range.start);
   const int rangeEnd = std::min(textEnd, range.start + range.length);
-  switch (infoType)
-  {
+  switch (infoType) {
   case 1:
     return block.text().sliced(rangeStart, rangeEnd);
   case 2:
     return rangeEnd - rangeStart;
   case 3:
     return range.start - textStart;
-  case 4:
-  {
+  case 4: {
     optional<SendTo> sendto = getSendTo(range.format);
     if (!sendto)
       return 0;
-    switch (*sendto)
-    {
+    switch (*sendto) {
     case SendTo::Internet:
       return 2;
     case SendTo::World:
@@ -248,8 +232,7 @@ QVariant ScriptApi::GetStyleInfo(int line, int style, int infoType) const
       return 3;
     }
   }
-  case 5:
-  {
+  case 5: {
     QString link = range.format.anchorHref();
     if (!link.isEmpty())
       decodeLink(link);
@@ -279,17 +262,17 @@ QVariant ScriptApi::GetStyleInfo(int line, int style, int infoType) const
   }
 }
 
-QVariant ScriptApi::GetTimerInfo(size_t pluginIndex, const QString &label, int infoType) const
-{
+QVariant ScriptApi::GetTimerInfo(size_t pluginIndex, const QString &label,
+                                 int infoType) const {
   if (infoType < 0 || infoType > UINT8_MAX) [[unlikely]]
     return QVariant();
 
-  switch (infoType)
-  {
-  case 26:
-  {
-    const QString scriptName = client()->timerInfo(pluginIndex, label, 5).toString();
-    return !scriptName.isEmpty() && plugins[pluginIndex].hasFunction(scriptName);
+  switch (infoType) {
+  case 26: {
+    const QString scriptName =
+        client()->timerInfo(pluginIndex, label, 5).toString();
+    return !scriptName.isEmpty() &&
+           plugins[pluginIndex].hasFunction(scriptName);
   }
   default:
     return client()->timerInfo(pluginIndex, label, infoType);
@@ -298,10 +281,8 @@ QVariant ScriptApi::GetTimerInfo(size_t pluginIndex, const QString &label, int i
 
 // External implementations
 
-QVariant MiniWindow::info(int infoType) const
-{
-  switch (infoType)
-  {
+QVariant MiniWindow::info(int infoType) const {
+  switch (infoType) {
   case 1:
     return location.x();
   case 2:
@@ -353,10 +334,8 @@ QVariant MiniWindow::info(int infoType) const
   }
 }
 
-QVariant Hotspot::info(int infoType) const
-{
-  switch (infoType)
-  {
+QVariant Hotspot::info(int infoType) const {
+  switch (infoType) {
   case 1:
     return geometry().left();
   case 2:
@@ -378,8 +357,7 @@ QVariant Hotspot::info(int infoType) const
   case 10:
     return toolTip();
   case 11:
-    switch (cursor().shape())
-    {
+    switch (cursor().shape()) {
     case Qt::CursorShape::ArrowCursor:
       return 0;
     case Qt::CursorShape::BlankCursor:

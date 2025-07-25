@@ -1,15 +1,13 @@
 #pragma once
 #include <QtWidgets/QWidget>
 
-namespace Ui
-{
-  class PrefsMud;
+namespace Ui {
+class PrefsMud;
 }
 
 class World;
 
-class PrefsMud : public QWidget
-{
+class PrefsMud : public QWidget {
   Q_OBJECT
 
 public:

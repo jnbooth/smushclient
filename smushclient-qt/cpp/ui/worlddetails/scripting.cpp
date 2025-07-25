@@ -1,20 +1,17 @@
 #include "scripting.h"
-#include "ui_scripting.h"
-#include <QtGui/QDesktopServices>
-#include <QtWidgets/QErrorMessage>
-#include <QtWidgets/QFileDialog>
 #include "../../environment.h"
 #include "../../fieldconnector.h"
 #include "../../localization.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
+#include "ui_scripting.h"
+#include <QtGui/QDesktopServices>
+#include <QtWidgets/QErrorMessage>
+#include <QtWidgets/QFileDialog>
 
 // Public methods
 
 PrefsScripting::PrefsScripting(World &world, QWidget *parent)
-    : QWidget(parent),
-      ui(new Ui::PrefsScripting),
-      world(world)
-{
+    : QWidget(parent), ui(new Ui::PrefsScripting), world(world) {
   ui->setupUi(this);
   CONNECT_WORLD(EnableScripts);
   CONNECT_WORLD(WorldScript);
@@ -25,26 +22,19 @@ PrefsScripting::PrefsScripting(World &world, QWidget *parent)
   CONNECT_WORLD(ErrorBackgroundColour);
 }
 
-PrefsScripting::~PrefsScripting()
-{
-  delete ui;
-}
+PrefsScripting::~PrefsScripting() { delete ui; }
 
 // Private methods
 
-QString PrefsScripting::defaultScriptPath() const
-{
+QString PrefsScripting::defaultScriptPath() const {
   return QStringLiteral(WORLDS_DIR "/%1").arg(world.getName());
 }
 
 // Private slots
 
-void PrefsScripting::on_WorldScript_browse_clicked()
-{
+void PrefsScripting::on_WorldScript_browse_clicked() {
   const QString path = QFileDialog::getOpenFileName(
-      this,
-      tr("Select world script"),
-      QStringLiteral(WORLDS_DIR),
+      this, tr("Select world script"), QStringLiteral(WORLDS_DIR),
       FileFilter::lua());
 
   if (path.isEmpty())
@@ -53,20 +43,15 @@ void PrefsScripting::on_WorldScript_browse_clicked()
   ui->WorldScript->setText(makePathRelative(path));
 }
 
-void PrefsScripting::on_WorldScript_create_clicked()
-{
+void PrefsScripting::on_WorldScript_create_clicked() {
   const QString path = QFileDialog::getSaveFileName(
-      this,
-      tr("Save as"),
-      defaultScriptPath(),
-      FileFilter::lua());
+      this, tr("Save as"), defaultScriptPath(), FileFilter::lua());
 
   if (path.isEmpty())
     return;
 
   QFile file(path);
-  if (!file.open(QIODevice::WriteOnly))
-  {
+  if (!file.open(QIODevice::WriteOnly)) {
     QErrorMessage::qtHandler()->showMessage(file.errorString());
     return;
   }
@@ -74,27 +59,23 @@ void PrefsScripting::on_WorldScript_create_clicked()
   ui->WorldScript->setText(makePathRelative(path));
 }
 
-void PrefsScripting::on_WorldScript_edit_clicked()
-{
+void PrefsScripting::on_WorldScript_edit_clicked() {
   const QString &scriptPath = ui->WorldScript->text();
   if (QDesktopServices::openUrl(QUrl::fromLocalFile(scriptPath)))
     return;
 
   const QString path = QFileDialog::getSaveFileName(
-      this,
-      tr("Create world script"),
+      this, tr("Create world script"),
       scriptPath.isEmpty() ? defaultScriptPath() : scriptPath,
       FileFilter::lua());
 
-  if (path.isEmpty())
-  {
+  if (path.isEmpty()) {
     ui->WorldScript->setText(path);
     return;
   }
 
   QFile file(path);
-  if (!file.open(QIODevice::WriteOnly))
-  {
+  if (!file.open(QIODevice::WriteOnly)) {
     QErrorMessage::qtHandler()->showMessage(file.errorString());
     ui->WorldScript->setText(QString());
     return;
@@ -104,17 +85,14 @@ void PrefsScripting::on_WorldScript_edit_clicked()
   QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 }
 
-void PrefsScripting::on_WorldScript_textChanged(const QString &value)
-{
-  if (value.isEmpty())
-  {
+void PrefsScripting::on_WorldScript_textChanged(const QString &value) {
+  if (value.isEmpty()) {
     ui->WorldScript_edit->setEnabled(false);
     ui->fileNotFound->setVisible(false);
     return;
   }
 
-  if (QFileInfo(value).isReadable())
-  {
+  if (QFileInfo(value).isReadable()) {
     ui->WorldScript_edit->setEnabled(true);
     ui->fileNotFound->setVisible(false);
     return;

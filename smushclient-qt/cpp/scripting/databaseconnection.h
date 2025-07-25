@@ -4,8 +4,7 @@
 struct sqlite3;
 struct sqlite3_stmt;
 
-class DatabaseConnection
-{
+class DatabaseConnection {
 public:
   DatabaseConnection(std::string_view filename);
   DatabaseConnection(DatabaseConnection &&other);
@@ -15,7 +14,9 @@ public:
   DatabaseConnection &operator=(const DatabaseConnection &) = delete;
 
   int close();
-  inline constexpr bool isFile(std::string_view file) const noexcept { return filename == file; }
+  inline constexpr bool isFile(std::string_view file) const noexcept {
+    return filename == file;
+  }
   int open(int flags);
 
 private:

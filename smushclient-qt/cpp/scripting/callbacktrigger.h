@@ -4,8 +4,7 @@
 class PluginCallback;
 struct lua_State;
 
-class CallbackTrigger
-{
+class CallbackTrigger {
 public:
   CallbackTrigger(lua_State *L, int nargs);
   CallbackTrigger(CallbackTrigger &&other);

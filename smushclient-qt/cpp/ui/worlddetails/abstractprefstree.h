@@ -5,12 +5,12 @@
 class SmushClient;
 class AbstractSenderModel;
 
-class AbstractPrefsTree : public QWidget
-{
+class AbstractPrefsTree : public QWidget {
   Q_OBJECT
 
 public:
-  explicit AbstractPrefsTree(AbstractSenderModel *model, QWidget *parent = nullptr);
+  explicit AbstractPrefsTree(AbstractSenderModel *model,
+                             QWidget *parent = nullptr);
   virtual ~AbstractPrefsTree();
 
 protected:

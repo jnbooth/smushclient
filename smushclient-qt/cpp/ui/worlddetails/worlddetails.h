@@ -2,9 +2,8 @@
 #include <QtCore/QAbstractItemModel>
 #include <QtWidgets/QDialog>
 
-namespace Ui
-{
-  class WorldPrefs;
+namespace Ui {
+class WorldPrefs;
 }
 
 class AliasModel;
@@ -15,12 +14,12 @@ class TimerModel;
 class TriggerModel;
 class World;
 
-class WorldPrefs : public QDialog
-{
+class WorldPrefs : public QDialog {
   Q_OBJECT
 
 public:
-  WorldPrefs(World &world, SmushClient &client, ScriptApi *api, QWidget *parent = nullptr);
+  WorldPrefs(World &world, SmushClient &client, ScriptApi *api,
+             QWidget *parent = nullptr);
   ~WorldPrefs();
 
   constexpr bool isDirty() const { return dirty; }

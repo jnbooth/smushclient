@@ -1,5 +1,7 @@
 #include "settings.h"
-#include "ui_settings.h"
+#include "../../settings.h"
+#include "../ui_worldtab.h"
+#include "../worldtab.h"
 #include "appearance.h"
 #include "closing.h"
 #include "connection.h"
@@ -7,48 +9,45 @@
 #include "notifier.h"
 #include "sound.h"
 #include "startup.h"
-#include "../worldtab.h"
-#include "../ui_worldtab.h"
-#include "../../settings.h"
+#include "ui_settings.h"
 
 static SettingsNotifier notifier;
 
 // Static methods
 
-void SettingsDialog::connect(WorldTab *tab)
-{
-  tab->connect(&notifier, &SettingsNotifier::inputBackgroundChanged, tab, &WorldTab::onInputBackgroundChanged);
-  tab->connect(&notifier, &SettingsNotifier::inputForegroundChanged, tab, &WorldTab::onInputForegroundChanged);
-  tab->connect(&notifier, &SettingsNotifier::inputFontChanged, tab, &WorldTab::onInputFontChanged);
-  tab->connect(&notifier, &SettingsNotifier::outputFontChanged, tab, &WorldTab::onOutputFontChanged);
-  tab->connect(&notifier, &SettingsNotifier::inputHistoryLimitChanged, tab->ui->input, &MudInput::setMaxLogSize);
-  tab->connect(&notifier, &SettingsNotifier::outputLimitChanged, tab->ui->output, &MudBrowser::setMaximumBlockCount);
-  tab->connect(&notifier, &SettingsNotifier::outputPaddingChanged, tab, &WorldTab::onOutputPaddingChanged);
-  tab->connect(&notifier, &SettingsNotifier::outputBlockFormatChanged, tab, &WorldTab::onOutputBlockFormatChanged);
+void SettingsDialog::connect(WorldTab *tab) {
+  tab->connect(&notifier, &SettingsNotifier::inputBackgroundChanged, tab,
+               &WorldTab::onInputBackgroundChanged);
+  tab->connect(&notifier, &SettingsNotifier::inputForegroundChanged, tab,
+               &WorldTab::onInputForegroundChanged);
+  tab->connect(&notifier, &SettingsNotifier::inputFontChanged, tab,
+               &WorldTab::onInputFontChanged);
+  tab->connect(&notifier, &SettingsNotifier::outputFontChanged, tab,
+               &WorldTab::onOutputFontChanged);
+  tab->connect(&notifier, &SettingsNotifier::inputHistoryLimitChanged,
+               tab->ui->input, &MudInput::setMaxLogSize);
+  tab->connect(&notifier, &SettingsNotifier::outputLimitChanged,
+               tab->ui->output, &MudBrowser::setMaximumBlockCount);
+  tab->connect(&notifier, &SettingsNotifier::outputPaddingChanged, tab,
+               &WorldTab::onOutputPaddingChanged);
+  tab->connect(&notifier, &SettingsNotifier::outputBlockFormatChanged, tab,
+               &WorldTab::onOutputBlockFormatChanged);
 }
 
 // Public methods
 
 SettingsDialog::SettingsDialog(Settings &settings, QWidget *parent)
-    : QDialog(parent),
-      ui(new Ui::SettingsDialog),
-      settings(settings)
-{
+    : QDialog(parent), ui(new Ui::SettingsDialog), settings(settings) {
   ui->setupUi(this);
   ui->settings_list->setCurrentRow(0);
 }
 
-SettingsDialog::~SettingsDialog()
-{
-  delete ui;
-}
+SettingsDialog::~SettingsDialog() { delete ui; }
 
 // Private methods
 
-QWidget *SettingsDialog::paneForIndex(int n)
-{
-  switch (n)
-  {
+QWidget *SettingsDialog::paneForIndex(int n) {
+  switch (n) {
   case 0:
     return new SettingsAppearance(settings, &notifier, this);
   case 1:
@@ -68,8 +67,7 @@ QWidget *SettingsDialog::paneForIndex(int n)
 
 // Private slots
 
-void SettingsDialog::on_settings_list_currentRowChanged(int row)
-{
+void SettingsDialog::on_settings_list_currentRowChanged(int row) {
   if (row == -1)
     return;
 

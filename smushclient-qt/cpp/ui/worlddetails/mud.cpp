@@ -1,13 +1,10 @@
 #include "mud.h"
-#include "ui_mud.h"
 #include "../../fieldconnector.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
+#include "ui_mud.h"
 
 PrefsMud::PrefsMud(World &world, QWidget *parent)
-    : QWidget(parent),
-      ui(new Ui::PrefsMud),
-      world(world)
-{
+    : QWidget(parent), ui(new Ui::PrefsMud), world(world) {
   ui->setupUi(this);
 
   CONNECT_WORLD(UseMxp);
@@ -29,20 +26,15 @@ PrefsMud::PrefsMud(World &world, QWidget *parent)
   ui->CommandStackCharacter->setText(QChar(world.getCommandStackCharacter()));
 }
 
-PrefsMud::~PrefsMud()
-{
-  delete ui;
-}
+PrefsMud::~PrefsMud() { delete ui; }
 
-void PrefsMud::on_CommandStackCharacter_textChanged(const QString &character)
-{
+void PrefsMud::on_CommandStackCharacter_textChanged(const QString &character) {
   if (character.length() != 1)
     return;
   world.setCommandStackCharacter(character.front().unicode());
 }
 
-void PrefsMud::on_UseMxp_currentIndexChanged(int index)
-{
+void PrefsMud::on_UseMxp_currentIndexChanged(int index) {
   const bool enableMxp = index != (int)UseMxp::Never;
   ui->IgnoreMxpColourChanges->setEnabled(enableMxp);
   ui->UseCustomLinkColour->setEnabled(enableMxp);

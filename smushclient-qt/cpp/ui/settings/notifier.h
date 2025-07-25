@@ -4,8 +4,7 @@
 #include <QtGui/QFont>
 #include <QtGui/QTextBlockFormat>
 
-class SettingsNotifier : public QObject
-{
+class SettingsNotifier : public QObject {
   Q_OBJECT
 
 public:

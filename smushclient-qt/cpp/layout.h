@@ -5,8 +5,7 @@
 #include <QtGui/QBrush>
 #include <QtGui/QColor>
 
-struct OutputLayout
-{
+struct OutputLayout {
   QMargins margins;
   int16_t borderOffset;
   QColor borderColor;

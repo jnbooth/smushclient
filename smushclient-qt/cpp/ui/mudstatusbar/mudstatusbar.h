@@ -4,20 +4,17 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QWidget>
 
-namespace Ui
-{
-  class MudStatusBar;
+namespace Ui {
+class MudStatusBar;
 }
 
 class StatusBarStat;
 
-class MudStatusBar : public QWidget
-{
+class MudStatusBar : public QWidget {
   Q_OBJECT
 
 public:
-  enum class ConnectionStatus
-  {
+  enum class ConnectionStatus {
     Disconnected,
     Connected,
     Encrypted,
@@ -26,7 +23,8 @@ public:
   explicit MudStatusBar(QWidget *parent = nullptr);
   ~MudStatusBar();
 
-  bool createStat(const QString &entity, const QString &caption, const QString &maxEntity);
+  bool createStat(const QString &entity, const QString &caption,
+                  const QString &maxEntity);
   bool updateStat(const QString &entity, const QString &value);
 
 public slots:
@@ -40,7 +38,8 @@ protected:
   void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
-  bool recreateStat(StatusBarStat *stat, const QString &caption, const QString &maxEntity);
+  bool recreateStat(StatusBarStat *stat, const QString &caption,
+                    const QString &maxEntity);
   bool restore();
   void save() const;
   static const QString &settingsKey();

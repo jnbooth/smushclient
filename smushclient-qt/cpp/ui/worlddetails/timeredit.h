@@ -1,16 +1,14 @@
 #pragma once
 #include <QtWidgets/QDialog>
 
-namespace Ui
-{
-  class TimerEdit;
+namespace Ui {
+class TimerEdit;
 }
 
 enum class Occurrence;
 class Timer;
 
-class TimerEdit : public QDialog
-{
+class TimerEdit : public QDialog {
   Q_OBJECT
 
 public:

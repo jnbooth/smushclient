@@ -1,9 +1,9 @@
 #ifndef DOCUMENT_H
 #define DOCUMENT_H
 
+#include "rust/cxx.h"
 #include <QtCore/QVector>
 #include <QtGui/QTextCursor>
-#include "rust/cxx.h"
 
 struct SendRequest;
 struct SendScriptRequest;
@@ -21,8 +21,7 @@ struct OutputSpan;
 using AliasOutcomes = QFlags<AliasOutcome>;
 using TextStyles = QFlags<TextStyle>;
 
-class Document : public QObject
-{
+class Document : public QObject {
   Q_OBJECT
 
 public:
@@ -31,12 +30,17 @@ public:
   void appendHtml(const QString &html) const;
   void appendLine();
   void appendText(const QString &text, int format) const;
-  void appendText(const QString &text, TextStyles style, const QColor &foreground, const QColor &background, const Link &link);
-  void appendText(const QString &text, TextStyles style, const QColor &foreground, const QColor &background) const;
-  void applyStyles(int start, int end, TextStyles style, const QColor &foreground, const QColor &background) const;
+  void appendText(const QString &text, TextStyles style,
+                  const QColor &foreground, const QColor &background,
+                  const Link &link);
+  void appendText(const QString &text, TextStyles style,
+                  const QColor &foreground, const QColor &background) const;
+  void applyStyles(int start, int end, TextStyles style,
+                   const QColor &foreground, const QColor &background) const;
   void beep() const;
   void begin() const;
-  void createMxpStat(const QString &entity, const QString &caption, const QString &max) const;
+  void createMxpStat(const QString &entity, const QString &caption,
+                     const QString &max) const;
   void end(bool hadOutput);
   void eraseCurrentLine() const;
   void eraseLastCharacter() const;
@@ -48,7 +52,8 @@ public:
   void handleServerStatus(const QByteArray &variable, const QByteArray &value);
   void handleTelnetGoAhead() const;
   void handleTelnetNaws() const;
-  void handleTelnetNegotiation(TelnetSource source, TelnetVerb verb, uint8_t code);
+  void handleTelnetNegotiation(TelnetSource source, TelnetVerb verb,
+                               uint8_t code);
   void handleTelnetSubnegotiation(uint8_t code, const QByteArray &data) const;
   bool permitLine(rust::str line) const;
   void resetServerStatus();
@@ -56,8 +61,7 @@ public:
   void send(const SendScriptRequest &request) const;
   void setPalette(const QVector<QColor> &palette);
   void setSuppressEcho(bool suppress) const;
-  constexpr const QHash<QString, QString> &serverStatus() const noexcept
-  {
+  constexpr const QHash<QString, QString> &serverStatus() const noexcept {
     return serverStatuses;
   }
   void updateMxpStat(const QString &entity, const QString &value) const;

@@ -1,47 +1,45 @@
 #pragma once
+#include "../bridge/document.h"
+#include "../client.h"
+#include "../scripting/callbacktrigger.h"
+#include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include <QtCore/QFileSystemWatcher>
-#include <QtCore/QRegularExpression>
 #include <QtCore/QPointer>
-#include <QtGui/QFontDatabase>
+#include <QtCore/QRegularExpression>
 #include <QtCore/QTimer>
 #include <QtGui/QCloseEvent>
+#include <QtGui/QFontDatabase>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QResizeEvent>
 #include <QtNetwork/QSslSocket>
-#include <QtWidgets/QTextEdit>
 #include <QtWidgets/QSplitter>
-#include "../client.h"
-#include "../bridge/document.h"
-#include "../scripting/callbacktrigger.h"
-#include "smushclient_qt/src/ffi/world.cxxqt.h"
+#include <QtWidgets/QTextEdit>
 
 class Hotspot;
 class MudStatusBar;
 class Notepads;
 class ScriptApi;
 
-namespace Ui
-{
-  class WorldTab;
+namespace Ui {
+class WorldTab;
 }
 
-enum class AvailableCopy
-{
+enum class AvailableCopy {
   None,
   Input,
   Output,
 };
 
-class WorldTab : public QSplitter
-{
+class WorldTab : public QSplitter {
   Q_OBJECT
 
 public:
   Q_ENUM(AvailableCopy)
 
 public:
-  explicit WorldTab(MudStatusBar *statusBar, Notepads *notepads, QWidget *parent = nullptr);
+  explicit WorldTab(MudStatusBar *statusBar, Notepads *notepads,
+                    QWidget *parent = nullptr);
   ~WorldTab();
 
   AvailableCopy availableCopy() const;
@@ -60,8 +58,7 @@ public:
   void resetAllTimers() const;
   QString saveWorld();
   QString saveWorldAsNew();
-  constexpr const QHash<QString, QString> &serverStatus() const
-  {
+  constexpr const QHash<QString, QString> &serverStatus() const {
     return document->serverStatus();
   }
   void setIsActive(bool active);
@@ -72,10 +69,7 @@ public:
   void stopSound() const;
   const QString &title() const noexcept;
   bool updateWorld();
-  constexpr const QString &worldFilePath() const noexcept
-  {
-    return filePath;
-  }
+  constexpr const QString &worldFilePath() const noexcept { return filePath; }
 
 public slots:
   void onInputBackgroundChanged(const QColor &color);

@@ -1,32 +1,29 @@
 #include "worlddetails.h"
-#include "ui_worlddetails.h"
+#include "../../model/alias.h"
+#include "../../model/plugin.h"
+#include "../../model/timer.h"
+#include "../../model/trigger.h"
+#include "../../scripting/scriptapi.h"
 #include "aliases.h"
 #include "connecting.h"
-#include "login.h"
 #include "logging.h"
+#include "login.h"
 #include "mud.h"
 #include "numpad.h"
 #include "output.h"
 #include "plugins.h"
 #include "scripting.h"
+#include "smushclient_qt/src/ffi/client.cxxqt.h"
 #include "timers.h"
 #include "triggers.h"
-#include "../../scripting/scriptapi.h"
-#include "../../model/alias.h"
-#include "../../model/plugin.h"
-#include "../../model/timer.h"
-#include "../../model/trigger.h"
-#include "smushclient_qt/src/ffi/client.cxxqt.h"
+#include "ui_worlddetails.h"
 
 // Public methods
 
-WorldPrefs::WorldPrefs(World &world, SmushClient &client, ScriptApi *api, QWidget *parent)
-    : QDialog(parent),
-      ui(new Ui::WorldPrefs),
-      api(api),
-      client(client),
-      world(world)
-{
+WorldPrefs::WorldPrefs(World &world, SmushClient &client, ScriptApi *api,
+                       QWidget *parent)
+    : QDialog(parent), ui(new Ui::WorldPrefs), api(api), client(client),
+      world(world) {
   ui->setupUi(this);
   ui->settings_list->setCurrentRow(0);
   aliases = new AliasModel(client, this);
@@ -39,24 +36,20 @@ WorldPrefs::WorldPrefs(World &world, SmushClient &client, ScriptApi *api, QWidge
   connectModel(triggers);
 }
 
-WorldPrefs::~WorldPrefs()
-{
-  delete ui;
-}
+WorldPrefs::~WorldPrefs() { delete ui; }
 
 // Private methods
 
-void WorldPrefs::connectModel(QAbstractItemModel *model)
-{
-  connect(model, &QAbstractItemModel::dataChanged, this, &WorldPrefs::markDirty);
-  connect(model, &QAbstractItemModel::layoutChanged, this, &WorldPrefs::markDirty);
+void WorldPrefs::connectModel(QAbstractItemModel *model) {
+  connect(model, &QAbstractItemModel::dataChanged, this,
+          &WorldPrefs::markDirty);
+  connect(model, &QAbstractItemModel::layoutChanged, this,
+          &WorldPrefs::markDirty);
   connect(model, &QAbstractItemModel::modelReset, this, &WorldPrefs::markDirty);
 }
 
-QWidget *WorldPrefs::paneForIndex(int n)
-{
-  switch (n)
-  {
+QWidget *WorldPrefs::paneForIndex(int n) {
+  switch (n) {
   case 0:
     return new PrefsConnecting(world, this);
   case 1:
@@ -86,13 +79,9 @@ QWidget *WorldPrefs::paneForIndex(int n)
 
 // Private slots
 
-void WorldPrefs::markDirty()
-{
-  dirty = true;
-}
+void WorldPrefs::markDirty() { dirty = true; }
 
-void WorldPrefs::on_settings_list_currentRowChanged(int row)
-{
+void WorldPrefs::on_settings_list_currentRowChanged(int row) {
   if (row == -1)
     return;
 

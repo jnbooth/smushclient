@@ -1,20 +1,19 @@
 #pragma once
 #include "abstractprefstree.h"
 
-namespace Ui
-{
-  class PrefsAliases;
+namespace Ui {
+class PrefsAliases;
 }
 
 class AliasModel;
 class World;
 
-class PrefsAliases : public AbstractPrefsTree
-{
+class PrefsAliases : public AbstractPrefsTree {
   Q_OBJECT
 
 public:
-  PrefsAliases(const World &world, AliasModel *model, QWidget *parent = nullptr);
+  PrefsAliases(const World &world, AliasModel *model,
+               QWidget *parent = nullptr);
   ~PrefsAliases();
 
 protected:

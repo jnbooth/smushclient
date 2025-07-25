@@ -1,22 +1,20 @@
 #pragma once
-#include <optional>
-#include <string>
 #include <QtGui/QDragMoveEvent>
 #include <QtGui/QDropEvent>
 #include <QtGui/QEnterEvent>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QWheelEvent>
 #include <QtWidgets/QWidget>
+#include <optional>
+#include <string>
 
 class MiniWindow;
 class Plugin;
 class WorldTab;
 
-class Hotspot : public QWidget
-{
+class Hotspot : public QWidget {
 public:
-  enum EventFlag
-  {
+  enum EventFlag {
     Shift = 1,         // Shift key down
     Control = 2,       // Control key down
     Alt = 4,           // Alt key down
@@ -29,15 +27,12 @@ public:
   };
   Q_DECLARE_FLAGS(EventFlags, EventFlag)
 
-  enum Flag
-  {
+  enum Flag {
     ReportAllMouseovers = 0x01,
   };
   Q_DECLARE_FLAGS(Flags, Flag)
 
-  template <typename T>
-  struct BasicCallbacks
-  {
+  template <typename T> struct BasicCallbacks {
     T dragMove;
     T dragRelease;
     T mouseOver;
@@ -50,9 +45,9 @@ public:
   using Callbacks = BasicCallbacks<std::string>;
   using CallbacksPartial = BasicCallbacks<std::optional<std::string>>;
 
-  Hotspot(MiniWindow *parent, WorldTab *tab, const Plugin *plugin, std::string_view id, Callbacks &&callbacks);
-  inline bool belongsToPlugin(const Plugin *otherPlugin) const noexcept
-  {
+  Hotspot(MiniWindow *parent, WorldTab *tab, const Plugin *plugin,
+          std::string_view id, Callbacks &&callbacks);
+  inline bool belongsToPlugin(const Plugin *otherPlugin) const noexcept {
     return otherPlugin == plugin;
   }
   void finishDrag();

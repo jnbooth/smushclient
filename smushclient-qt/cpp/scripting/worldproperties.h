@@ -1,25 +1,21 @@
 #pragma once
+#include "../lookup.h"
+#include <QtCore/QMetaType>
 #include <string>
 #include <vector>
-#include <QtCore/QMetaType>
-#include "../lookup.h"
 
-class WorldProperties
-{
+class WorldProperties {
 public:
   static const char *canonicalName(std::string_view key);
-  inline static const std::vector<std::string> &numericOptions()
-  {
+  inline static const std::vector<std::string> &numericOptions() {
     return getInstance().numericProps;
   }
-  inline static const std::vector<std::string> &stringOptions()
-  {
+  inline static const std::vector<std::string> &stringOptions() {
     return getInstance().stringProps;
   }
 
 private:
-  static const WorldProperties &getInstance()
-  {
+  static const WorldProperties &getInstance() {
     static const WorldProperties instance;
     return instance;
   }

@@ -1,8 +1,7 @@
 #pragma once
 #include <QtWidgets/QScrollBar>
 
-class MudScrollBar : public QScrollBar
-{
+class MudScrollBar : public QScrollBar {
   Q_OBJECT
 
 public:
@@ -11,30 +10,22 @@ public:
 
   inline void disablePausing() { setPausingEnabled(false); }
   inline void enablePausing() { setPausingEnabled(true); }
-  constexpr bool paused() const
-  {
-    return isPaused;
-  }
+  constexpr bool paused() const { return isPaused; }
 
 public slots:
   void setAutoScrollEnabled(bool enabled = true);
   void setPaused(bool paused = true);
   void setPausingEnabled(bool enabled = true);
 
-  inline void setAutoScrollDisabled(bool disabled = true)
-  {
+  inline void setAutoScrollDisabled(bool disabled = true) {
     setAutoScrollEnabled(!disabled);
   }
 
-  inline void setPausingDisabled(bool disabled = true)
-  {
+  inline void setPausingDisabled(bool disabled = true) {
     setPausingEnabled(!disabled);
   }
 
-  inline void setUnpaused(bool unpaused = true)
-  {
-    setPaused(!unpaused);
-  }
+  inline void setUnpaused(bool unpaused = true) { setPaused(!unpaused); }
 
 protected:
   virtual void sliderChange(QAbstractSlider::SliderChange change) override;

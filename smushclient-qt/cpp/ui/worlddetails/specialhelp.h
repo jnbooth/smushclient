@@ -1,13 +1,11 @@
 #pragma once
 #include <QtWidgets/QDialog>
 
-namespace Ui
-{
-  class SpecialHelp;
+namespace Ui {
+class SpecialHelp;
 }
 
-class SpecialHelp : public QDialog
-{
+class SpecialHelp : public QDialog {
   Q_OBJECT
 
 public:

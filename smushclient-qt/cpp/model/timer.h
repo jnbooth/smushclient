@@ -3,12 +3,12 @@
 
 class Timekeeper;
 
-class TimerModel : public AbstractSenderModel
-{
+class TimerModel : public AbstractSenderModel {
   Q_OBJECT
 
 public:
-  TimerModel(SmushClient &client, Timekeeper *timekeeper, QObject *parent = nullptr);
+  TimerModel(SmushClient &client, Timekeeper *timekeeper,
+             QObject *parent = nullptr);
 
   QString exportXml() const override;
   Qt::ItemFlags flags(const QModelIndex &index) const override;
@@ -16,9 +16,11 @@ public:
 protected:
   int add(QWidget *parent) override;
   int edit(size_t index, QWidget *parent) override;
-  const std::array<QString, AbstractSenderModel::numColumns> &headers() const noexcept override;
+  const std::array<QString, AbstractSenderModel::numColumns> &
+  headers() const noexcept override;
   void import(const QString &xml) override;
-  void prepareRemove(SenderMap *map, const rust::String &group, int row, int count) override;
+  void prepareRemove(SenderMap *map, const rust::String &group, int row,
+                     int count) override;
 
 private:
   Timekeeper *timekeeper;

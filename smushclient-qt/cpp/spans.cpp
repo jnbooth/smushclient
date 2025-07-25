@@ -1,6 +1,6 @@
 #include "spans.h"
-#include <QtCore/QRegularExpression>
 #include "smushclient_qt/src/ffi/document.cxxqt.h"
+#include <QtCore/QRegularExpression>
 
 using std::nullopt;
 using std::optional;
@@ -17,10 +17,8 @@ static const QString inputPrefix = QStringLiteral("n:");
 
 // Private utils
 
-constexpr const QString &getPrefix(SendTo sendto)
-{
-  switch (sendto)
-  {
+constexpr const QString &getPrefix(SendTo sendto) {
+  switch (sendto) {
   case SendTo::Internet:
     return internetPrefix;
   case SendTo::World:
@@ -32,8 +30,7 @@ constexpr const QString &getPrefix(SendTo sendto)
 
 // Public functions
 
-void applyLink(QTextCharFormat &format, const Link &link)
-{
+void applyLink(QTextCharFormat &format, const Link &link) {
   format.setAnchor(true);
   format.setAnchorHref(encodeLink(link.sendto, link.action));
   if (!link.hint.isEmpty())
@@ -42,17 +39,14 @@ void applyLink(QTextCharFormat &format, const Link &link)
     format.setProperty(promptsProp, link.prompts);
 }
 
-QString encodeLink(SendTo sendto, const QString &action)
-{
+QString encodeLink(SendTo sendto, const QString &action) {
   QString link = action;
   link.prepend(getPrefix(sendto));
   return link;
 }
 
-SendTo decodeLink(QString &link)
-{
-  switch (link.front().toLatin1())
-  {
+SendTo decodeLink(QString &link) {
+  switch (link.front().toLatin1()) {
   case 'i':
     link.remove(0, 2);
     return SendTo::Internet;
@@ -67,13 +61,11 @@ SendTo decodeLink(QString &link)
   }
 }
 
-optional<SendTo> getSendTo(const QTextCharFormat &format)
-{
+optional<SendTo> getSendTo(const QTextCharFormat &format) {
   const QString href = format.anchorHref();
   if (href.isEmpty())
     return nullopt;
-  switch (href.front().toLatin1())
-  {
+  switch (href.front().toLatin1()) {
   case 'n':
     return SendTo::Input;
   case 'w':
@@ -83,8 +75,7 @@ optional<SendTo> getSendTo(const QTextCharFormat &format)
   }
 }
 
-void setStyles(QTextCharFormat &format, QFlags<TextStyle> styles)
-{
+void setStyles(QTextCharFormat &format, QFlags<TextStyle> styles) {
   format.setProperty(stylesProp, styles.toInt());
 
   if (styles.testFlag(TextStyle::Bold))
@@ -100,57 +91,50 @@ void setStyles(QTextCharFormat &format, QFlags<TextStyle> styles)
     format.setFontUnderline(true);
 }
 
-QFlags<TextStyle> getStyles(const QTextCharFormat &format)
-{
+QFlags<TextStyle> getStyles(const QTextCharFormat &format) {
   return QFlags<TextStyle>::fromInt(format.property(stylesProp).toUInt());
 }
 
-QString getPrompts(const QTextCharFormat &format)
-{
+QString getPrompts(const QTextCharFormat &format) {
   return format.property(promptsProp).toString();
 }
 
-void setLineType(QTextCharFormat &format, LineType type)
-{
+void setLineType(QTextCharFormat &format, LineType type) {
   format.setProperty(typeProp, (int)type);
 }
 
-LineType getLineType(const QTextCharFormat &format)
-{
+LineType getLineType(const QTextCharFormat &format) {
   return (LineType)format.property(typeProp).toInt();
 }
 
-void setTimestamp(QTextCursor &cursor)
-{
+void setTimestamp(QTextCursor &cursor) {
   QTextBlockFormat format;
   format.setProperty(timestampProp, QDateTime::currentDateTime());
   cursor.setBlockFormat(format);
 }
 
-QDateTime getTimestamp(const QTextBlockFormat &format)
-{
+QDateTime getTimestamp(const QTextBlockFormat &format) {
   return format.property(timestampProp).toDateTime();
 }
 
-QString &sanitizeHtml(QString &html)
-{
+QString &sanitizeHtml(QString &html) {
 #define Q QStringLiteral
 
   static const QString none;
-  static const QRegularExpression sanitize(Q(
-      "("
-      " ?(background-color:transparent|-qt-paragraph-type:empty|(\\w|-)+:0(px)?);? ?"
-      "|"
-      "<!--.*?-->"
-      ")"));
+  static const QRegularExpression sanitize(
+      Q("("
+        " ?(background-color:transparent|-qt-paragraph-type:empty|(\\w|-)+:0("
+        "px)?);? ?"
+        "|"
+        "<!--.*?-->"
+        ")"));
   static const QRegularExpression attributeWhitespace(Q("=\"\\s+"));
   static const QRegularExpression emptyAttribute(Q(" ?(\\w|-)+=\"\""));
 
   const qsizetype bodyStart = html.indexOf(Q("<body>")) + 6;
   const qsizetype bodyEnd = html.lastIndexOf(Q("</body>"));
 
-  return html
-      .slice(bodyStart, bodyEnd - bodyStart)
+  return html.slice(bodyStart, bodyEnd - bodyStart)
       .replace(sanitize, none)
       .replace(attributeWhitespace, Q("=\""))
       .replace(Q(" ?\\w+=\"\""), none)

@@ -1,8 +1,7 @@
 #pragma once
 #include "sender.h"
 
-class AliasModel : public AbstractSenderModel
-{
+class AliasModel : public AbstractSenderModel {
   Q_OBJECT
 
 public:
@@ -14,6 +13,7 @@ public:
 protected:
   int add(QWidget *parent) override;
   int edit(size_t index, QWidget *parent) override;
-  const std::array<QString, AbstractSenderModel::numColumns> &headers() const noexcept override;
+  const std::array<QString, AbstractSenderModel::numColumns> &
+  headers() const noexcept override;
   void import(const QString &xml) override;
 };

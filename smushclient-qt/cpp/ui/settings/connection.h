@@ -1,15 +1,13 @@
 #pragma once
 #include <QtWidgets/QWidget>
 
-namespace Ui
-{
-  class SettingsConnecting;
+namespace Ui {
+class SettingsConnecting;
 }
 
 class Settings;
 
-class SettingsConnecting : public QWidget
-{
+class SettingsConnecting : public QWidget {
   Q_OBJECT
 
 public:

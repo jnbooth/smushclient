@@ -1,16 +1,15 @@
 #pragma once
-#include <string>
-#include <QtCore/QPointer>
-#include <QtCore/QDateTime>
-#include <QtCore/QString>
 #include "plugincallback.h"
+#include <QtCore/QDateTime>
+#include <QtCore/QPointer>
+#include <QtCore/QString>
+#include <string>
 
 class ScriptApi;
 struct PluginPack;
 struct lua_State;
 
-struct PluginMetadata
-{
+struct PluginMetadata {
   std::string id;
   size_t index;
   QDateTime installed;
@@ -19,8 +18,7 @@ struct PluginMetadata
   PluginMetadata(const PluginPack &pack, size_t index);
 };
 
-class Plugin
-{
+class Plugin {
 public:
   Plugin(ScriptApi *api, const PluginPack &pack, size_t index);
   Plugin(Plugin &&other);
@@ -36,7 +34,9 @@ public:
   bool hasFunction(const QString &routine) const;
   constexpr const std::string &id() const noexcept { return metadata.id; }
   bool install(const PluginPack &pack);
-  constexpr const QDateTime &installed() const noexcept { return metadata.installed; }
+  constexpr const QDateTime &installed() const noexcept {
+    return metadata.installed;
+  }
   constexpr const std::string &name() const noexcept { return metadata.name; }
   void reset();
   void reset(ScriptApi *api);

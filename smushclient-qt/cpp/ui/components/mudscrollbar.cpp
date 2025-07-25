@@ -3,8 +3,7 @@
 
 // Private utils
 
-QAbstractScrollArea *getScrollArea(const QObject *obj)
-{
+QAbstractScrollArea *getScrollArea(const QObject *obj) {
   if (!obj)
     return nullptr;
 
@@ -21,52 +20,44 @@ QAbstractScrollArea *getScrollArea(const QObject *obj)
 
 // Public methods
 
-MudScrollBar::MudScrollBar(QWidget *parent)
-    : QScrollBar(parent) {}
+MudScrollBar::MudScrollBar(QWidget *parent) : QScrollBar(parent) {}
 
 // Public slots
 
-void MudScrollBar::setAutoScrollEnabled(bool enabled)
-{
+void MudScrollBar::setAutoScrollEnabled(bool enabled) {
   autoScroll = enabled;
   if (autoScroll && !isPaused)
     setValue(maximum());
 }
 
-void MudScrollBar::setPaused(bool paused)
-{
+void MudScrollBar::setPaused(bool paused) {
   isPaused = paused;
   if (!isPaused)
     setValue(maximum());
 }
 
-void MudScrollBar::setPausingEnabled(bool enabled)
-{
+void MudScrollBar::setPausingEnabled(bool enabled) {
   pausingEnabled = enabled;
-  if (pausingEnabled)
-  {
+  if (pausingEnabled) {
     lastValue = value();
     isPaused = lastValue != maximum();
-  }
-  else
+  } else
     isPaused = false;
   updateParentPolicy();
 }
 
 // Protected overrides
 
-void MudScrollBar::sliderChange(QAbstractSlider::SliderChange change)
-{
-  if (autoScroll && !isPaused && change == QAbstractSlider::SliderChange::SliderRangeChange)
-  {
+void MudScrollBar::sliderChange(QAbstractSlider::SliderChange change) {
+  if (autoScroll && !isPaused &&
+      change == QAbstractSlider::SliderChange::SliderRangeChange) {
     inInternalChange = true;
     setValue(maximum());
     return;
   }
   if (change != QAbstractSlider::SliderChange::SliderValueChange)
     return;
-  if (inInternalChange)
-  {
+  if (inInternalChange) {
     inInternalChange = false;
     return;
   }
@@ -74,14 +65,11 @@ void MudScrollBar::sliderChange(QAbstractSlider::SliderChange change)
     return;
   const int previousValue = lastValue;
   lastValue = value();
-  if (lastValue == maximum())
-  {
+  if (lastValue == maximum()) {
     if (!isPaused)
       return;
     isPaused = false;
-  }
-  else if (lastValue < previousValue)
-  {
+  } else if (lastValue < previousValue) {
     if (isPaused)
       return;
     isPaused = true;
@@ -91,8 +79,7 @@ void MudScrollBar::sliderChange(QAbstractSlider::SliderChange change)
 
 // Private methods
 
-void MudScrollBar::updateParentPolicy() const
-{
+void MudScrollBar::updateParentPolicy() const {
   QAbstractScrollArea *p = getScrollArea(parent());
   if (!p)
     return;

@@ -7,11 +7,11 @@ constexpr auto SSIZE_MAX = std::numeric_limits<qsizetype>::max();
 
 const static QString __emptyString;
 
-class CommandHistory
-{
+class CommandHistory {
 public:
   explicit CommandHistory(qsizetype max = SSIZE_MAX);
-  explicit CommandHistory(const QStringList &history, qsizetype max = SSIZE_MAX);
+  explicit CommandHistory(const QStringList &history,
+                          qsizetype max = SSIZE_MAX);
   CommandHistory(CommandHistory &&other);
   CommandHistory(const CommandHistory &other);
   CommandHistory &operator=(const CommandHistory &other);
@@ -23,60 +23,33 @@ public:
   void replace(const QStringList &history);
   void setMaxSize(qsizetype max);
 
-  constexpr const QString &previous() noexcept
-  {
+  constexpr const QString &previous() noexcept {
     return iterator == begin ? __emptyString : *--iterator;
   }
 
-  constexpr const QString &current() const noexcept
-  {
+  constexpr const QString &current() const noexcept {
     return iterator == end ? __emptyString : *iterator;
   }
 
-  constexpr const QString &next() noexcept
-  {
+  constexpr const QString &next() noexcept {
     return iterator == end || (++iterator == end) ? __emptyString : *iterator;
   }
 
-  constexpr bool atStart() const noexcept
-  {
-    return iterator == begin;
-  }
+  constexpr bool atStart() const noexcept { return iterator == begin; }
 
-  constexpr bool atLast() const noexcept
-  {
-    return iterator == end - 1;
-  }
+  constexpr bool atLast() const noexcept { return iterator == end - 1; }
 
-  constexpr bool atEnd() const noexcept
-  {
-    return iterator == end;
-  }
+  constexpr bool atEnd() const noexcept { return iterator == end; }
 
-  constexpr bool isEmpty() const noexcept
-  {
-    return begin == end;
-  }
+  constexpr bool isEmpty() const noexcept { return begin == end; }
 
-  inline bool isFull() const noexcept
-  {
-    return size() == max;
-  }
+  inline bool isFull() const noexcept { return size() == max; }
 
-  constexpr const QStringList &log() const noexcept
-  {
-    return history;
-  }
+  constexpr const QStringList &log() const noexcept { return history; }
 
-  constexpr qsizetype maxSize() const noexcept
-  {
-    return max;
-  }
+  constexpr qsizetype maxSize() const noexcept { return max; }
 
-  inline qsizetype size() const noexcept
-  {
-    return end - begin;
-  }
+  inline qsizetype size() const noexcept { return end - begin; }
 
 private:
   void resetIterators() noexcept;

@@ -2,8 +2,7 @@
 
 struct lua_State;
 
-class ScriptThread
-{
+class ScriptThread {
 public:
   ScriptThread(lua_State *L);
   ScriptThread(ScriptThread &&other);

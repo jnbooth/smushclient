@@ -1,17 +1,15 @@
 #pragma once
 #include <QtWidgets/QWidget>
 
-namespace Ui
-{
-  class PrefsLogging;
+namespace Ui {
+class PrefsLogging;
 }
 
 class World;
 enum class LogFormat;
 enum class LogMode;
 
-class PrefsLogging : public QWidget
-{
+class PrefsLogging : public QWidget {
   Q_OBJECT
 
 public:

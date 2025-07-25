@@ -1,18 +1,16 @@
 #pragma once
-#include <QtWidgets/QWidget>
 #include "smushclient_qt/src/ffi/audio.cxxqt.h"
+#include <QtWidgets/QWidget>
 
 class ScriptApi;
 
-namespace Ui
-{
-  class PrefsOutput;
+namespace Ui {
+class PrefsOutput;
 }
 
 class World;
 
-class PrefsOutput : public QWidget
-{
+class PrefsOutput : public QWidget {
   Q_OBJECT
 
 public:

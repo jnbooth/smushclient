@@ -1,33 +1,26 @@
 #include "sound.h"
-#include "ui_sound.h"
-#include <QtWidgets/QFileDialog>
 #include "../../environment.h"
 #include "../../fieldconnector.h"
 #include "../../settings.h"
+#include "ui_sound.h"
+#include <QtWidgets/QFileDialog>
 
 // Public methods
 
 SettingsSound::SettingsSound(Settings &settings, QWidget *parent)
-    : QWidget(parent),
-      ui(new Ui::SettingsSound)
-{
+    : QWidget(parent), ui(new Ui::SettingsSound) {
   ui->setupUi(this);
   CONNECT_SETTINGS(BellSound);
 }
 
-SettingsSound::~SettingsSound()
-{
-  delete ui;
-}
+SettingsSound::~SettingsSound() { delete ui; }
 
 // Private slots
 
-void SettingsSound::on_BellSound_browse_clicked()
-{
+void SettingsSound::on_BellSound_browse_clicked() {
   const QString currentFile = ui->BellSound->text();
   const QString path = QFileDialog::getOpenFileName(
-      this,
-      tr("Select sound file"),
+      this, tr("Select sound file"),
       currentFile.isEmpty() ? QStringLiteral(SOUNDS_DIR) : currentFile);
 
   if (path.isEmpty())
@@ -36,13 +29,9 @@ void SettingsSound::on_BellSound_browse_clicked()
   ui->BellSound->setText(makePathRelative(path));
 }
 
-void SettingsSound::on_BellSound_test_clicked()
-{
-  audio.play();
-}
+void SettingsSound::on_BellSound_test_clicked() { audio.play(); }
 
-void SettingsSound::on_BellSound_textChanged(const QString &text)
-{
+void SettingsSound::on_BellSound_textChanged(const QString &text) {
   ui->BellSound_test->setEnabled(!text.isEmpty());
   audio.setFile(text);
 }

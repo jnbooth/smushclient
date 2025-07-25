@@ -1,12 +1,10 @@
 #include "connection.h"
-#include "ui_connection.h"
 #include "../../fieldconnector.h"
 #include "../../settings.h"
+#include "ui_connection.h"
 
 SettingsConnecting::SettingsConnecting(Settings &settings, QWidget *parent)
-    : QWidget(parent),
-      ui(new Ui::SettingsConnecting)
-{
+    : QWidget(parent), ui(new Ui::SettingsConnecting) {
   ui->setupUi(this);
   CONNECT_SETTINGS(AutoConnect);
   CONNECT_SETTINGS(ReconnectOnDisconnect);
@@ -14,7 +12,4 @@ SettingsConnecting::SettingsConnecting(Settings &settings, QWidget *parent)
   CONNECT_SETTINGS(DisplayDisconnect);
 }
 
-SettingsConnecting::~SettingsConnecting()
-{
-  delete ui;
-}
+SettingsConnecting::~SettingsConnecting() { delete ui; }

@@ -1,11 +1,9 @@
 #pragma once
 #include <QtGui/QPixmap>
 
-class ImageFilter
-{
+class ImageFilter {
 public:
-  enum struct Channel
-  {
+  enum struct Channel {
     Blue = 0,
     Green = 1,
     Red = 2,
@@ -16,12 +14,11 @@ public:
   virtual void apply(QPixmap &pixmap) const = 0;
 };
 
-class BrightnessAddFilter : public ImageFilter
-{
+class BrightnessAddFilter : public ImageFilter {
 public:
-  inline explicit constexpr BrightnessAddFilter(int add, Channel channel = Channel::All)
-      : add(add),
-        channel(channel) {}
+  inline explicit constexpr BrightnessAddFilter(int add,
+                                                Channel channel = Channel::All)
+      : add(add), channel(channel) {}
 
   void apply(QPixmap &pixmap) const override;
 
@@ -30,12 +27,11 @@ private:
   Channel channel;
 };
 
-class BrightnessMultFilter : public ImageFilter
-{
+class BrightnessMultFilter : public ImageFilter {
 public:
-  inline explicit constexpr BrightnessMultFilter(float multiply, Channel channel = Channel::All)
-      : channel(channel),
-        multiply(multiply) {}
+  inline explicit constexpr BrightnessMultFilter(float multiply,
+                                                 Channel channel = Channel::All)
+      : channel(channel), multiply(multiply) {}
 
   void apply(QPixmap &pixmap) const override;
 
@@ -44,8 +40,7 @@ private:
   float multiply;
 };
 
-class GrayscaleFilter : public ImageFilter
-{
+class GrayscaleFilter : public ImageFilter {
 public:
   inline constexpr GrayscaleFilter() {};
 

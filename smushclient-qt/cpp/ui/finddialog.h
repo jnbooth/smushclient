@@ -3,13 +3,11 @@
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QTextEdit>
 
-namespace Ui
-{
-  class FindDialog;
+namespace Ui {
+class FindDialog;
 }
 
-class FindDialog : public QDialog
-{
+class FindDialog : public QDialog {
   Q_OBJECT
 
 public:

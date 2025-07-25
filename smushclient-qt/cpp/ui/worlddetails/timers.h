@@ -1,16 +1,14 @@
 #pragma once
 #include "abstractprefstree.h"
 
-namespace Ui
-{
-  class PrefsTimers;
+namespace Ui {
+class PrefsTimers;
 }
 
 class TimerModel;
 class World;
 
-class PrefsTimers : public AbstractPrefsTree
-{
+class PrefsTimers : public AbstractPrefsTree {
   Q_OBJECT
 
 public:

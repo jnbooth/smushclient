@@ -1,16 +1,14 @@
 #pragma once
 #include <QtWidgets/QDialog>
 
-namespace Ui
-{
-  class SettingsDialog;
+namespace Ui {
+class SettingsDialog;
 }
 
 class Settings;
 class WorldTab;
 
-class SettingsDialog : public QDialog
-{
+class SettingsDialog : public QDialog {
   Q_OBJECT
 
 public:

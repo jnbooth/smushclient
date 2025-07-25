@@ -1,18 +1,16 @@
 #include "aliasedit.h"
-#include "ui_aliasedit.h"
 #include "../../fieldconnector.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
+#include "ui_aliasedit.h"
 
-#define CONNECT(field) connectField(this, &alias, ui->field, alias.get##field(), &Alias::set##field);
+#define CONNECT(field)                                                         \
+  connectField(this, &alias, ui->field, alias.get##field(), &Alias::set##field);
 
 // Public methods
 
 AliasEdit::AliasEdit(Alias &alias, QWidget *parent)
-    : QDialog(parent),
-      ui(new Ui::AliasEdit),
-      alias(alias),
-      originalGroup(alias.getGroup())
-{
+    : QDialog(parent), ui(new Ui::AliasEdit), alias(alias),
+      originalGroup(alias.getGroup()) {
   ui->setupUi(this);
 
   // Sender
@@ -44,27 +42,20 @@ AliasEdit::AliasEdit(Alias &alias, QWidget *parent)
   ui->Text->setPlainText(alias.getText());
 }
 
-AliasEdit::~AliasEdit()
-{
-  delete ui;
-}
+AliasEdit::~AliasEdit() { delete ui; }
 
-bool AliasEdit::groupChanged() const
-{
+bool AliasEdit::groupChanged() const {
   return originalGroup != ui->Group->text();
 }
 
 // Private slots
 
-void AliasEdit::on_Label_textChanged(const QString &text)
-{
+void AliasEdit::on_Label_textChanged(const QString &text) {
   ui->Variable->setPlaceholderText(text);
 }
 
-void AliasEdit::on_UserSendTo_currentIndexChanged(int index)
-{
-  switch (index)
-  {
+void AliasEdit::on_UserSendTo_currentIndexChanged(int index) {
+  switch (index) {
   case (int)UserSendTarget::NotepadAppend:
   case (int)UserSendTarget::NotepadNew:
   case (int)UserSendTarget::NotepadReplace:
@@ -82,7 +73,6 @@ void AliasEdit::on_UserSendTo_currentIndexChanged(int index)
   }
 }
 
-void AliasEdit::on_Text_textChanged()
-{
+void AliasEdit::on_Text_textChanged() {
   alias.setText(ui->Text->toPlainText());
 }

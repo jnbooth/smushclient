@@ -1,12 +1,11 @@
 #include "hotspot.h"
-#include <QtGui/QGuiApplication>
+#include "../ui/worldtab.h"
 #include "miniwindow.h"
 #include "plugin.h"
 #include "plugincallback.h"
 #include "qlua.h"
-#include "../ui/worldtab.h"
-extern "C"
-{
+#include <QtGui/QGuiApplication>
+extern "C" {
 #include "lua.h"
 }
 
@@ -16,13 +15,11 @@ using std::string_view;
 
 // Private utils
 
-constexpr bool hasCallback(const std::string &callback)
-{
+constexpr bool hasCallback(const std::string &callback) {
   return !callback.empty();
 }
 
-inline bool hasCallback(const std::string &callback, QEvent *event)
-{
+inline bool hasCallback(const std::string &callback, QEvent *event) {
   const bool willHandle = hasCallback(callback);
   event->setAccepted(willHandle);
   return willHandle;
@@ -30,8 +27,8 @@ inline bool hasCallback(const std::string &callback, QEvent *event)
 
 // Public methods
 
-constexpr Hotspot::EventFlags getEventFlags(Qt::KeyboardModifiers modifiers, Qt::MouseButtons buttons) noexcept
-{
+constexpr Hotspot::EventFlags getEventFlags(Qt::KeyboardModifiers modifiers,
+                                            Qt::MouseButtons buttons) noexcept {
   Hotspot::EventFlags flags;
   if (modifiers.testFlag(Qt::KeyboardModifier::ShiftModifier))
     flags.setFlag(Hotspot::EventFlag::Shift);
@@ -48,44 +45,33 @@ constexpr Hotspot::EventFlags getEventFlags(Qt::KeyboardModifiers modifiers, Qt:
   return flags;
 }
 
-Hotspot::EventFlags getEventFlags(const QSinglePointEvent *event)
-{
+Hotspot::EventFlags getEventFlags(const QSinglePointEvent *event) {
   return getEventFlags(event->modifiers(), event->buttons() | event->button());
 }
 
-Hotspot::EventFlags getEventFlags()
-{
-  return getEventFlags(QGuiApplication::keyboardModifiers(), QGuiApplication::mouseButtons());
+Hotspot::EventFlags getEventFlags() {
+  return getEventFlags(QGuiApplication::keyboardModifiers(),
+                       QGuiApplication::mouseButtons());
 }
 
-Hotspot::Hotspot(
-    MiniWindow *parent,
-    WorldTab *tab,
-    const Plugin *plugin,
-    string_view id,
-    Callbacks &&callbacksMoved)
-    : QWidget(parent),
-      callbacks(std::move(callbacksMoved)),
-      id(id),
-      plugin(plugin),
-      tab(tab) {}
+Hotspot::Hotspot(MiniWindow *parent, WorldTab *tab, const Plugin *plugin,
+                 string_view id, Callbacks &&callbacksMoved)
+    : QWidget(parent), callbacks(std::move(callbacksMoved)), id(id),
+      plugin(plugin), tab(tab) {}
 
-void Hotspot::finishDrag()
-{
+void Hotspot::finishDrag() {
   hadDrag = false;
   if (hasCallback(callbacks.dragRelease))
     runCallback(callbacks.dragRelease, getEventFlags());
 }
 
-const Hotspot::Callbacks &Hotspot::setCallbacks(Callbacks &&newCallbacks)
-{
+const Hotspot::Callbacks &Hotspot::setCallbacks(Callbacks &&newCallbacks) {
   hadMouseDown = false;
   callbacks = std::move(newCallbacks);
   return callbacks;
 }
 
-const Hotspot::Callbacks &Hotspot::setCallbacks(CallbacksPartial &&partial)
-{
+const Hotspot::Callbacks &Hotspot::setCallbacks(CallbacksPartial &&partial) {
   hadMouseDown = false;
   if (partial.dragMove)
     callbacks.dragMove = std::move(*partial.dragMove);
@@ -108,20 +94,18 @@ const Hotspot::Callbacks &Hotspot::setCallbacks(CallbacksPartial &&partial)
 
 // Protected overrides
 
-void Hotspot::enterEvent(QEnterEvent *event)
-{
+void Hotspot::enterEvent(QEnterEvent *event) {
   if (hasCallback(callbacks.mouseOver, event))
     runCallback(callbacks.mouseOver, getEventFlags(event));
 }
 
-void Hotspot::leaveEvent(QEvent *event)
-{
+void Hotspot::leaveEvent(QEvent *event) {
   const bool hasCancelMouseOver = hasCallback(callbacks.cancelMouseOver);
-  const bool hasCancelMouseDown = hadMouseDown && hasCallback(callbacks.cancelMouseDown);
+  const bool hasCancelMouseDown =
+      hadMouseDown && hasCallback(callbacks.cancelMouseDown);
   hadMouseDown = false;
 
-  if (!hasCancelMouseOver && !hasCancelMouseDown)
-  {
+  if (!hasCancelMouseOver && !hasCancelMouseDown) {
     event->ignore();
     return;
   }
@@ -136,14 +120,13 @@ void Hotspot::leaveEvent(QEvent *event)
     runCallback(callbacks.cancelMouseDown, flags);
 }
 
-void Hotspot::mouseDoubleClickEvent(QMouseEvent *event)
-{
+void Hotspot::mouseDoubleClickEvent(QMouseEvent *event) {
   if (hasCallback(callbacks.mouseDown, event))
-    runCallback(callbacks.mouseDown, getEventFlags(event) | EventFlag::DoubleClick);
+    runCallback(callbacks.mouseDown,
+                getEventFlags(event) | EventFlag::DoubleClick);
 }
 
-void Hotspot::mouseMoveEvent(QMouseEvent *event)
-{
+void Hotspot::mouseMoveEvent(QMouseEvent *event) {
   if (hadMouseDown && !hadDrag)
     startDrag(event);
 
@@ -153,15 +136,13 @@ void Hotspot::mouseMoveEvent(QMouseEvent *event)
   event->ignore();
 }
 
-void Hotspot::mousePressEvent(QMouseEvent *event)
-{
+void Hotspot::mousePressEvent(QMouseEvent *event) {
   hadMouseDown = true;
   if (hasCallback(callbacks.mouseDown, event))
     runCallback(callbacks.mouseDown, getEventFlags(event));
 }
 
-void Hotspot::mouseReleaseEvent(QMouseEvent *event)
-{
+void Hotspot::mouseReleaseEvent(QMouseEvent *event) {
   hadMouseDown = false;
 
   if (hasCallback(callbacks.mouseUp))
@@ -170,8 +151,7 @@ void Hotspot::mouseReleaseEvent(QMouseEvent *event)
   event->ignore();
 }
 
-void Hotspot::wheelEvent(QWheelEvent *event)
-{
+void Hotspot::wheelEvent(QWheelEvent *event) {
   if (!hasCallback(callbacks.scroll, event))
     return;
 
@@ -184,18 +164,17 @@ void Hotspot::wheelEvent(QWheelEvent *event)
 
 // Private methods
 
-class HotspotCallback : public DynamicPluginCallback
-{
+class HotspotCallback : public DynamicPluginCallback {
 public:
-  HotspotCallback(const string &callback, Hotspot::EventFlags flags, const string &hotspotID)
-      : DynamicPluginCallback(callback),
-        flags(flags),
-        hotspotID(hotspotID) {}
+  HotspotCallback(const string &callback, Hotspot::EventFlags flags,
+                  const string &hotspotID)
+      : DynamicPluginCallback(callback), flags(flags), hotspotID(hotspotID) {}
 
-  inline constexpr ActionSource source() const noexcept override { return ActionSource::Hotspot; }
+  inline constexpr ActionSource source() const noexcept override {
+    return ActionSource::Hotspot;
+  }
 
-  int pushArguments(lua_State *L) const override
-  {
+  int pushArguments(lua_State *L) const override {
     lua_pushinteger(L, flags);
     qlua::pushString(L, hotspotID);
     return 2;
@@ -206,14 +185,12 @@ private:
   const string &hotspotID;
 };
 
-void Hotspot::runCallback(const string &callbackName, EventFlags flags)
-{
+void Hotspot::runCallback(const string &callbackName, EventFlags flags) {
   HotspotCallback callback(callbackName, flags, id);
   plugin->runCallback(callback);
 }
 
-void Hotspot::startDrag(QMouseEvent *event)
-{
+void Hotspot::startDrag(QMouseEvent *event) {
   hadDrag = true;
   tab->setOnDragRelease(this);
 

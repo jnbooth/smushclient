@@ -2,8 +2,7 @@
 #include <QtGui/QPaintEvent>
 #include <QtWidgets/QAbstractButton>
 
-class ColorPickerButton : public QAbstractButton
-{
+class ColorPickerButton : public QAbstractButton {
   Q_OBJECT
 
   Q_PROPERTY(QColor value READ value WRITE setValue NOTIFY valueChanged)

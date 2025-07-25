@@ -4,13 +4,11 @@
 
 class FindDialog;
 
-namespace Ui
-{
-  class Notepad;
+namespace Ui {
+class Notepad;
 }
 
-class Notepad : public QMainWindow
-{
+class Notepad : public QMainWindow {
   Q_OBJECT
 
 public:
@@ -41,8 +39,7 @@ private:
   qreal fontSize;
 };
 
-class Notepads : public QWidget
-{
+class Notepads : public QWidget {
   Q_OBJECT
 
 public:

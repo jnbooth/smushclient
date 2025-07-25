@@ -1,15 +1,13 @@
 #pragma once
 #include <QtWidgets/QWidget>
 
-namespace Ui
-{
-  class PrefsNumpad;
+namespace Ui {
+class PrefsNumpad;
 }
 
 class World;
 
-class PrefsNumpad : public QWidget
-{
+class PrefsNumpad : public QWidget {
   Q_OBJECT
 
 public:

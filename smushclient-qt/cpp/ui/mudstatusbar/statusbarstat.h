@@ -4,32 +4,22 @@
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QMenu>
 
-namespace Ui
-{
-  class StatusBarStat;
+namespace Ui {
+class StatusBarStat;
 }
 
-class StatusBarStat : public QWidget
-{
+class StatusBarStat : public QWidget {
   Q_OBJECT
 
 public:
-  StatusBarStat(const QString &entity, const QString &caption, const QString &maxEntity, QWidget *parent = nullptr);
+  StatusBarStat(const QString &entity, const QString &caption,
+                const QString &maxEntity, QWidget *parent = nullptr);
   ~StatusBarStat();
 
   bool isToggled() const;
-  constexpr QMenu *menu() const noexcept
-  {
-    return displayMenu;
-  }
-  constexpr const QString &entity() const noexcept
-  {
-    return entityName;
-  }
-  constexpr const QString &maxEntity() const noexcept
-  {
-    return maxEntityName;
-  }
+  constexpr QMenu *menu() const noexcept { return displayMenu; }
+  constexpr const QString &entity() const noexcept { return entityName; }
+  constexpr const QString &maxEntity() const noexcept { return maxEntityName; }
   void setMaxEntity(const QString &maxEntity);
   void setToggled(bool toggled);
 

@@ -1,13 +1,12 @@
+#include "./ui/mainwindow.h"
+#include "./ui/notepad.h"
+#include "environment.h"
+#include "lua.h"
+#include "settings.h"
 #include <QtGui/QFontDatabase>
 #include <QtWidgets/QApplication>
-#include "lua.h"
-#include "environment.h"
-#include "./ui/notepad.h"
-#include "./ui/mainwindow.h"
-#include "settings.h"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 #if defined(Q_OS_WINDOWS)
   _putenv_s("LUA_PATH", SCRIPTS_DIR "/?.lua;" LUA_PATH_DEFAULT);
   QCoreApplication::setOrganizationName(QStringLiteral(CMAKE_ORG_NAME));

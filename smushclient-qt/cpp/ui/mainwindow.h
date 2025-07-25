@@ -1,14 +1,13 @@
 #pragma once
+#include "../settings.h"
+#include "finddialog.h"
 #include <QtGui/QAction>
 #include <QtGui/QCloseEvent>
 #include <QtWidgets/QMainWindow>
-#include "finddialog.h"
-#include "../settings.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui
-{
-  class MainWindow;
+namespace Ui {
+class MainWindow;
 }
 QT_END_NAMESPACE
 
@@ -16,8 +15,7 @@ enum class AvailableCopy : int;
 class Notepads;
 class WorldTab;
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
   Q_OBJECT
 
 public:

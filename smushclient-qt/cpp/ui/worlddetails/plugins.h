@@ -1,17 +1,15 @@
 #pragma once
 #include <QtWidgets/QWidget>
 
-namespace Ui
-{
-  class PrefsPlugins;
+namespace Ui {
+class PrefsPlugins;
 }
 
 class PluginModel;
 class ScriptApi;
 class SmushClient;
 
-class PrefsPlugins : public QWidget
-{
+class PrefsPlugins : public QWidget {
   Q_OBJECT
 
 public:

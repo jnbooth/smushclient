@@ -3,19 +3,16 @@
 #include <QtGui/QFont>
 #include <QtGui/QTextBlockFormat>
 
-typedef struct RecentFileResult
-{
+typedef struct RecentFileResult {
   const bool changed;
   const QStringList recentFiles;
 } RecentFileResult;
 
-class Settings : public QObject
-{
+class Settings : public QObject {
   Q_OBJECT
 
 public:
-  enum class StartupBehavior
-  {
+  enum class StartupBehavior {
     None,
     Reopen,
     List,
@@ -23,8 +20,7 @@ public:
 
   Q_ENUM(StartupBehavior)
 
-  enum class WorldCloseBehavior
-  {
+  enum class WorldCloseBehavior {
     Save,
     Confirm,
     Discard,

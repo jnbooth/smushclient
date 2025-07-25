@@ -1,16 +1,14 @@
 #pragma once
-#include <QtWidgets/QWidget>
 #include "smushclient_qt/src/ffi/audio.cxxqt.h"
+#include <QtWidgets/QWidget>
 
-namespace Ui
-{
-  class SettingsSound;
+namespace Ui {
+class SettingsSound;
 }
 
 class Settings;
 
-class SettingsSound : public QWidget
-{
+class SettingsSound : public QWidget {
   Q_OBJECT
 
 public:
