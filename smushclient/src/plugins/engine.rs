@@ -68,6 +68,7 @@ impl PluginEngine {
         if self.plugins[index].metadata.id == id {
             return Ok(index);
         }
+        #[allow(clippy::unwrap_used)]
         Ok(self
             .plugins
             .iter()
@@ -89,6 +90,7 @@ impl PluginEngine {
         }
         self.load_plugin(path)?;
         self.plugins.sort_unstable();
+        #[allow(clippy::unwrap_used)]
         Ok(self
             .plugins
             .iter()
@@ -100,6 +102,7 @@ impl PluginEngine {
     fn load_plugin(&mut self, path: &Path) -> Result<&Plugin, LoadError> {
         let plugin = Plugin::load(path)?;
         self.plugins.push(plugin);
+        #[allow(clippy::unwrap_used)]
         Ok(self.plugins.last().unwrap())
     }
 

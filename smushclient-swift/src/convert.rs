@@ -129,6 +129,9 @@ impl<T, Ffi: Convert<T>> Convert<Vec<T>> for Vec<Ffi> {
 }
 
 impl<T, Ffi: Convert<T>, const N: usize> Convert<[T; N]> for Vec<Ffi> {
+    /// # Panics
+    ///
+    /// Panics if `self.len()` is not `N`.
     fn from_ffi(value: Self) -> [T; N] {
         let vec: Vec<T> = value.into_iter().map(Convert::from_ffi).collect();
         match vec.try_into() {

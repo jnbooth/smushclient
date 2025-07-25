@@ -28,6 +28,7 @@ impl DerefMut for Regex {
 
 impl Default for Regex {
     fn default() -> Self {
+        #[allow(clippy::unwrap_used)]
         Self(pcre2::bytes::Regex::new("^$").unwrap())
     }
 }
@@ -90,8 +91,12 @@ impl FromStr for Regex {
 }
 
 impl Regex {
+    /// # Panics
+    ///
+    /// Panics if `bytes` is not valid UTF-8.
+    #[track_caller]
     pub fn expect(bytes: &[u8]) -> &str {
-        str::from_utf8(bytes).expect("expansion is UTF-8")
+        str::from_utf8(bytes).expect("invalid UTF-8")
     }
 
     /// Compiles a regular expression. Once compiled, it can be used repeatedly

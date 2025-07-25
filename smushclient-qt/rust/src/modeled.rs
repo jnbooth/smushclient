@@ -59,7 +59,7 @@ impl Modeled for Alias {
             }
             3 => self.text = data_text(data)?,
             _ => return None,
-        };
+        }
         Some(())
     }
 }
@@ -87,7 +87,7 @@ impl Modeled for Plugin {
             4 => self.disabled = !data.value()?,
             5 => self.metadata.version = data_text(data)?,
             _ => return None,
-        };
+        }
         Some(())
     }
 }
@@ -110,7 +110,7 @@ impl Modeled for Timer {
             // 2 => self.occurrence = data_text(data)?,
             3 => self.text = data_text(data)?,
             _ => return None,
-        };
+        }
         Some(())
     }
 }
@@ -138,7 +138,7 @@ impl Modeled for Trigger {
             }
             3 => self.text = data_text(data)?,
             _ => return None,
-        };
+        }
         Some(())
     }
 }

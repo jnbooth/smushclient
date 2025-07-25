@@ -115,7 +115,7 @@ pub struct EscapedChrono<'a, S, Tz: TimeZone> {
     datetime: DateTime<Tz>,
 }
 
-impl<'a, S, Tz> fmt::Display for EscapedChrono<'a, S, Tz>
+impl<S, Tz> fmt::Display for EscapedChrono<'_, S, Tz>
 where
     S: AsRef<str>,
     Tz: TimeZone,

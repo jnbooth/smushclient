@@ -33,9 +33,13 @@ pub struct SmushClientRust {
 }
 
 impl Default for SmushClientRust {
+    /// # Panics
+    ///
+    /// Panics if audio initialization fails.
+    #[allow(clippy::expect_used)]
     fn default() -> Self {
         Self {
-            audio: AudioSinks::try_default().unwrap(),
+            audio: AudioSinks::try_default().expect("audio initialization failed"),
             client: SmushClient::new(
                 World::default(),
                 Tag::Bold
@@ -66,6 +70,8 @@ impl Default for SmushClientRust {
     }
 }
 
+#[allow(clippy::cast_possible_truncation)]
+#[allow(clippy::cast_possible_wrap)]
 impl SmushClientRust {
     pub fn load_world(&mut self, path: &QString) -> Result<WorldRust, PersistError> {
         let file = File::open(String::from(path).as_str())?;
@@ -81,7 +87,7 @@ impl SmushClientRust {
             return QStringList::default();
         };
         let mut list: QList<QString> = QList::default();
-        list.reserve(isize::try_from(errors.len() * 2).unwrap());
+        list.reserve(2 * errors.len() as isize);
         for error in &errors {
             list.append(QString::from(&*error.path.to_string_lossy()));
             list.append(QString::from(&error.error.to_string()));
@@ -159,11 +165,23 @@ impl SmushClientRust {
         self.client
             .plugins()
             .position(|plugin| plugin.metadata.is_world_plugin)
-            .unwrap()
+            .expect("world plugin is missing!")
     }
 
+    /// # Panics
+    ///
+    /// Panics if the index is out of bounds.
+    #[track_caller]
     pub fn plugin(&self, index: PluginIndex) -> ffi::PluginPack {
-        ffi::PluginPack::from(self.client.plugin(index).unwrap())
+        #[cold]
+        #[track_caller]
+        fn assert_failed(index: PluginIndex, len: usize) -> ! {
+            panic!("plugin index (is {index}) should be < len (is {len})");
+        }
+        match self.client.plugin(index) {
+            Some(plugin) => plugin.into(),
+            None => assert_failed(index, self.client.plugins_len()),
+        }
     }
 
     pub fn reset_world_plugin(&mut self) {
@@ -193,7 +211,7 @@ impl SmushClientRust {
         let world = self.client.world();
         self.palette.clear();
         for (i, color) in world.palette().iter().enumerate() {
-            self.palette.insert(*color, i32::try_from(i).unwrap());
+            self.palette.insert(*color, i as i32);
         }
     }
 
@@ -228,10 +246,10 @@ impl SmushClientRust {
         if let Err(e) = self.client.write(&mut socket) {
             handler.display_error(&e.to_string());
             return -1;
-        };
+        }
         drop(input_lock);
 
-        i64::try_from(total_read).unwrap()
+        total_read as i64
     }
 
     pub fn flush(&mut self, doc: Pin<&mut Document>) {

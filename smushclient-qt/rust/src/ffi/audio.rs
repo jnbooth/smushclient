@@ -36,9 +36,13 @@ pub struct RustPlaybackRust {
 }
 
 impl Default for RustPlaybackRust {
+    /// # Panics
+    ///
+    /// Panics if audio initialization fails.
+    #[allow(clippy::expect_used)]
     fn default() -> Self {
         Self {
-            inner: AudioPlayback::try_default().unwrap(),
+            inner: AudioPlayback::try_default().expect("audio initialization failed"),
         }
     }
 }

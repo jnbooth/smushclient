@@ -96,7 +96,7 @@ impl ffi::SmushClient {
     }
 
     pub fn set_world(self: Pin<&mut Self>, world: &ffi::World) -> bool {
-        return self.rust_mut().set_world(world.rust());
+        self.rust_mut().set_world(world.rust())
     }
 
     pub fn palette(&self) -> QVector<QColor> {

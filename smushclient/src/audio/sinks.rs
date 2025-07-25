@@ -43,7 +43,7 @@ trait PlaySound {
         match mode {
             PlayMode::Once => self.play_source(Decoder::new(reader)?, volume),
             PlayMode::Loop => self.play_source(Decoder::new_looped(reader)?, volume),
-        };
+        }
         Ok(())
     }
 }

@@ -1,3 +1,5 @@
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_sign_loss)]
 use std::borrow::Cow;
 use std::sync::atomic::{AtomicU16, Ordering};
 use std::time::Duration;
@@ -24,8 +26,6 @@ fn duration_from_hms(hour: u64, minute: u64, second: f64) -> Duration {
         second.is_finite() && (second == 0.0 || second.is_sign_positive()),
         "second must be a finite positive number"
     );
-    #[allow(clippy::cast_possible_truncation)]
-    #[allow(clippy::cast_sign_loss)]
     Duration::from_nanos((NANOS_F * second) as u64 + NANOS * 60 * (minute + 60 * hour))
 }
 
@@ -133,12 +133,11 @@ impl From<TimerXml<'_>> for Timer {
         let occurrence = if value.at_time {
             Occurrence::Time(
                 NaiveTime::from_hms_opt(
-                    u32::try_from(value.hour).unwrap(),
-                    u32::try_from(value.minute).unwrap(),
-                    #[allow(clippy::cast_possible_truncation)]
-                    u32::try_from(value.second as i64).unwrap(),
+                    value.hour as u32,
+                    value.minute as u32,
+                    value.second as u32,
                 )
-                .unwrap(),
+                .unwrap_or_default(),
             )
         } else {
             Occurrence::Interval(duration_from_hms(value.hour, value.minute, value.second))

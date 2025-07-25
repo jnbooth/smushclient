@@ -275,6 +275,7 @@ impl<'a> From<SendScriptRequest<'a>> for ffi::SendScriptRequest {
             Some(captures) => {
                 let mut wildcards = Vec::new();
                 for i in 1..captures.len() {
+                    #[allow(clippy::unwrap_used)]
                     wildcards.push(Regex::expect(captures.get(i).unwrap().as_bytes()).to_owned());
                 }
                 wildcards
@@ -310,6 +311,9 @@ impl From<Option<RgbColor>> for ffi::ColorOption {
 }
 
 impl Convert<Regex> for String {
+    /// # Panics
+    ///
+    /// Panics if the value is not a valid regular expression.
     fn from_ffi(value: Self) -> Regex {
         Regex::new(&value).expect("invalid regular expression")
     }
@@ -339,7 +343,7 @@ impl From<ffi::Occurrence> for Occurrence {
         match value {
             ffi::Occurrence::Interval { s } => Occurrence::Interval(Duration::from_secs(s)),
             ffi::Occurrence::Time { h, m, s } => {
-                Occurrence::Time(NaiveTime::from_hms_opt(h, m, s).unwrap())
+                Occurrence::Time(NaiveTime::from_hms_opt(h, m, s).unwrap_or_default())
             }
         }
     }

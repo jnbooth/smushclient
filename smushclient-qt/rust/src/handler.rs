@@ -22,7 +22,7 @@ pub struct ClientHandler<'a> {
 
 const ERROR_FORMAT_INDEX: i32 = 1;
 
-impl<'a> ClientHandler<'a> {
+impl ClientHandler<'_> {
     fn display_text(&mut self, fragment: &TextFragment) {
         let text = QString::from(&*fragment.text);
         if fragment.flags.is_empty()
@@ -47,7 +47,7 @@ impl<'a> ClientHandler<'a> {
             None => {
                 self.doc.append_text(&text, fragment.flags, &colors);
             }
-        };
+        }
     }
 
     fn handle_effect(&mut self, fragment: &EffectFragment) {
@@ -101,7 +101,7 @@ impl<'a> ClientHandler<'a> {
                 .doc
                 .create_mxp_stat(&entity, &QString::from(caption), &max),
             None => self.doc.create_mxp_stat(&entity, &entity, &max),
-        };
+        }
         if !self.stats.contains(&stat.entity) {
             self.stats.insert(stat.entity.clone());
         }
@@ -135,7 +135,7 @@ impl<'a> ClientHandler<'a> {
     }
 }
 
-impl<'a> smushclient::Handler for ClientHandler<'a> {
+impl smushclient::Handler for ClientHandler<'_> {
     fn apply_styles(&mut self, range: Range<usize>, style: SpanStyle) {
         self.doc.apply_styles(
             range,

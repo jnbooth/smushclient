@@ -7,10 +7,14 @@ pub struct NonBlockingMutex {
 }
 
 impl NonBlockingMutex {
+    /// # Panics
+    ///
+    /// Panics if the mutex is already locked.
     pub fn lock(&self) -> NonBlockingMutexGuard {
-        if self.locked.swap(true, Ordering::Relaxed) {
-            panic!("concurrent access");
-        }
+        assert!(
+            !self.locked.swap(true, Ordering::Relaxed),
+            "concurrent access"
+        );
         NonBlockingMutexGuard {
             locked: &self.locked,
         }
@@ -21,7 +25,7 @@ pub struct NonBlockingMutexGuard<'a> {
     locked: &'a AtomicBool,
 }
 
-impl<'a> Drop for NonBlockingMutexGuard<'a> {
+impl Drop for NonBlockingMutexGuard<'_> {
     fn drop(&mut self) {
         self.locked.store(false, Ordering::Relaxed);
     }

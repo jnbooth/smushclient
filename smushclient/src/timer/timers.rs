@@ -209,7 +209,7 @@ impl<T: TimerConstructible> Timers<T> {
     fn find_insert_index(&self, timer: &ScheduledTimer<T>) -> Result<usize, usize> {
         let id = timer.id;
         match self.scheduled.binary_search(timer) {
-            Err(pos) if !self.scheduled.get(pos).is_some_and(|timer| timer.id == id) => Ok(pos),
+            Err(pos) if self.scheduled.get(pos).is_none_or(|timer| timer.id != id) => Ok(pos),
             Err(pos) | Ok(pos) => Err(pos),
         }
     }

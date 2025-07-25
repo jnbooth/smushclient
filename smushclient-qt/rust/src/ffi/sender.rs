@@ -210,6 +210,7 @@ impl ffi::AliasOutcome {
     }
 }
 
+// SAFETY: Static checks on C++ side.
 unsafe impl QFlag for ffi::AliasOutcome {
     type TypeId = type_id!("AliasOutcomes");
 

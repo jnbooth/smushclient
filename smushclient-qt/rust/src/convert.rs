@@ -1,3 +1,6 @@
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_possible_wrap)]
+#![allow(clippy::cast_sign_loss)]
 use cxx::kind::Trivial;
 use cxx::ExternType;
 use cxx_qt_lib::{QByteArray, QColor, QList, QString, QStringList, QVector};
@@ -135,9 +138,9 @@ impl Convert<RgbColor> for QColor {
     fn convert(&self) -> RgbColor {
         let rgb = self.to_rgb();
         RgbColor {
-            r: u8::try_from(rgb.red()).unwrap(),
-            g: u8::try_from(rgb.green()).unwrap(),
-            b: u8::try_from(rgb.blue()).unwrap(),
+            r: rgb.red() as u8,
+            g: rgb.green() as u8,
+            b: rgb.blue() as u8,
         }
     }
 }
@@ -188,7 +191,7 @@ impl Convert<QString> for Option<String> {
 impl Convert<QList<QString>> for [String] {
     fn convert(&self) -> QList<QString> {
         let mut list = QList::default();
-        list.reserve(isize::try_from(self.len()).unwrap());
+        list.reserve(self.len() as isize);
         for item in self {
             list.append(QString::from(item));
         }
@@ -218,7 +221,7 @@ impl Convert<Vec<String>> for QStringList {
 impl Convert<QList<QString>> for [&str] {
     fn convert(&self) -> QList<QString> {
         let mut list = QList::default();
-        list.reserve(isize::try_from(self.len()).unwrap());
+        list.reserve(self.len() as isize);
         for item in self {
             list.append(QString::from(*item));
         }
@@ -234,6 +237,9 @@ impl Convert<QStringList> for [&str] {
 }
 
 impl<const N: usize> Convert<[String; N]> for QList<QString> {
+    /// # Panics
+    ///
+    /// Panics if `self.len()` is not `N`.
     fn convert(&self) -> [String; N] {
         let vec: Vec<String> = self.convert();
         match vec.try_into() {
@@ -275,6 +281,9 @@ impl<T, U, const N: usize> Convert<[T; N]> for QVector<U>
 where
     U: cxx_qt_lib::QVectorElement + Convert<T>,
 {
+    /// # Panics
+    ///
+    /// Panics if `self.len()` is not `N`.
     fn convert(&self) -> [T; N] {
         let vec: Vec<T> = self.convert();
         match vec.try_into() {
@@ -291,7 +300,7 @@ where
 {
     fn convert(&self) -> QVector<T> {
         let mut qvec = QVector::default();
-        qvec.reserve(isize::try_from(self.len()).unwrap());
+        qvec.reserve(self.len() as isize);
         for item in self {
             qvec.append(item.convert());
         }

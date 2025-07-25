@@ -62,6 +62,7 @@ impl fmt::Display for Occurrence {
         };
 
         if f.width().is_some() || f.precision().is_some() {
+            #[allow(clippy::recursive_format_impl)]
             return f.pad(&self.to_string());
         }
 

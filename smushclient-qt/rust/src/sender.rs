@@ -1,3 +1,6 @@
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_possible_wrap)]
+#![allow(clippy::cast_sign_loss)]
 use std::pin::Pin;
 use std::ptr;
 use std::time::Duration;
@@ -153,7 +156,7 @@ impl From<&Timer> for TimerRust {
 
         match timer.occurrence {
             Occurrence::Time(time) => {
-                let seconds = i32::try_from(time.num_seconds_from_midnight()).unwrap();
+                let seconds = time.num_seconds_from_midnight() as i32;
                 let msecs = seconds * MILLISECONDS_PER_SECOND;
                 Self {
                     send,
@@ -175,9 +178,9 @@ impl From<&Timer> for TimerRust {
                     occurrence: ffi::Occurrence::Interval,
                     at_time: QTime::default(),
                     every_millisecond: duration.subsec_millis(),
-                    every_second: i32::try_from(seconds % SECONDS_PER_MINUTE).unwrap(),
-                    every_minute: i32::try_from(minutes % MINUTES_PER_HOUR).unwrap(),
-                    every_hour: i32::try_from(minutes / MINUTES_PER_HOUR).unwrap(),
+                    every_second: (seconds % SECONDS_PER_MINUTE) as i32,
+                    every_minute: (minutes % MINUTES_PER_HOUR) as i32,
+                    every_hour: (minutes / MINUTES_PER_HOUR) as i32,
                     active_closed: timer.active_closed,
                     id: timer.id,
                 }
@@ -191,14 +194,15 @@ impl From<&TimerRust> for Timer {
         let occurrence = match value.occurrence {
             ffi::Occurrence::Time => {
                 let msecs = value.at_time.msecs_since_start_of_day();
-                let seconds = u32::try_from(msecs / MILLISECONDS_PER_SECOND).unwrap();
-                let time = NaiveTime::from_num_seconds_from_midnight_opt(seconds, 0).unwrap();
+                let seconds = (msecs / MILLISECONDS_PER_SECOND) as u32;
+                let time =
+                    NaiveTime::from_num_seconds_from_midnight_opt(seconds, 0).unwrap_or_default();
                 Occurrence::Time(time)
             }
             ffi::Occurrence::Interval => {
-                let seconds = u64::try_from(value.every_second).unwrap();
-                let minutes = u64::try_from(value.every_minute).unwrap();
-                let hours = u64::try_from(value.every_hour).unwrap();
+                let seconds = value.every_second as u64;
+                let minutes = value.every_minute as u64;
+                let hours = value.every_hour as u64;
                 let duration = seconds + SECONDS_PER_MINUTE * (minutes + MINUTES_PER_HOUR * hours);
                 Occurrence::Interval(Duration::new(
                     duration,
@@ -267,7 +271,7 @@ impl TryFrom<&ReactionRust> for Reaction {
         let pattern = String::from(&value.pattern);
         let regex = Reaction::make_regex(&pattern, value.is_regex)?;
         Ok(Self {
-            sequence: i16::try_from(value.sequence).unwrap(),
+            sequence: value.sequence as i16,
             pattern,
             send: Sender::from(&value.send),
             ignore_case: value.ignore_case,
@@ -389,7 +393,7 @@ impl TryFrom<&TriggerRust> for Trigger {
             sound_if_inactive: value.sound_if_inactive,
             lowercase_wildcard: value.lowercase_wildcard,
             multi_line: value.multi_line,
-            lines_to_match: u8::try_from(value.lines_to_match).unwrap(),
+            lines_to_match: value.lines_to_match as u8,
         })
     }
 }

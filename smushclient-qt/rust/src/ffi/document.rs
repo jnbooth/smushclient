@@ -1,3 +1,4 @@
+#![allow(clippy::elidable_lifetime_names)]
 use std::ops::Range;
 use std::pin::Pin;
 
@@ -259,6 +260,7 @@ impl ffi::TextStyle {
     }
 }
 
+// SAFETY: Static checks on C++ side.
 unsafe impl QFlag for ffi::TextStyle {
     type TypeId = type_id!("TextStyles");
 

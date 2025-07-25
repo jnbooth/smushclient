@@ -307,12 +307,18 @@ pub mod ffi {
             label: &QString,
             group: &QString,
         ) -> i32;
+        /// # Safety
+        ///
+        /// `value_size` must be valid or null.
         unsafe fn get_variable(
             self: &SmushClient,
             index: usize,
             key: &[c_char],
             value_size: *mut usize,
         ) -> *const c_char;
+        /// # Safety
+        ///
+        /// `value_size` must be valid or null.
         unsafe fn get_metavariable(
             self: &SmushClient,
             key: &[c_char],

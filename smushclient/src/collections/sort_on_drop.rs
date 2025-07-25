@@ -14,7 +14,7 @@ impl<'a, T: Ord> Deref for SortOnDrop<'a, T> {
     }
 }
 
-impl<'a, T: Ord> Drop for SortOnDrop<'a, T> {
+impl<T: Ord> Drop for SortOnDrop<'_, T> {
     fn drop(&mut self) {
         self.inner.sort_unstable();
     }
