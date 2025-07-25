@@ -5,14 +5,15 @@ use std::ops::{Deref, DerefMut};
 use std::path::Path;
 use std::{slice, vec};
 
+use mud_transformer::Output;
+use smushclient_plugins::{LoadError, Plugin, PluginIndex, SendTarget};
+
 use super::effects::CommandSource;
 use super::effects::{AliasEffects, SpanStyle, TriggerEffects};
 use super::error::LoadFailure;
 use crate::client::PluginVariables;
 use crate::handler::{Handler, HandlerExt};
 use crate::world::World;
-use mud_transformer::Output;
-use smushclient_plugins::{LoadError, Plugin, PluginIndex, SendTarget};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PluginEngine {

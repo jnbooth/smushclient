@@ -1,8 +1,9 @@
-use crate::convert::Convert;
 use cxx_qt_lib::{QByteArray, QColor, QString, QVector};
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::naws;
 use smushclient_plugins::Reaction;
+
+use crate::convert::Convert;
 
 fn ansi16() -> QVector<QColor> {
     RgbColor::XTERM_16.to_vec().convert()

@@ -1,8 +1,9 @@
 use std::ops::Range;
 
-use crate::plugins::{SendRequest, SendScriptRequest, SpanStyle};
 use mud_transformer::Output;
 use smushclient_plugins::{PluginIndex, Reaction};
+
+use crate::plugins::{SendRequest, SendScriptRequest, SpanStyle};
 
 pub trait Handler {
     fn apply_styles(&mut self, range: Range<usize>, style: SpanStyle);

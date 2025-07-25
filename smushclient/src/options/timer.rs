@@ -1,5 +1,6 @@
-use super::property::BoolProperty;
 use smushclient_plugins::Timer;
+
+use super::property::BoolProperty;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum TimerBool {

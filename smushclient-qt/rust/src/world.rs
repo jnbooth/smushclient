@@ -1,10 +1,11 @@
-use crate::colors::Colors;
-use crate::convert::{impl_deref, Convert};
-use crate::ffi;
 use cxx_qt_lib::{QColor, QString};
-use smushclient::world::{ColorPair, Numpad, NumpadMapping};
 use smushclient::World;
+use smushclient::world::{ColorPair, Numpad, NumpadMapping};
 use smushclient_plugins::CursorVec;
+
+use crate::colors::Colors;
+use crate::convert::{Convert, impl_deref};
+use crate::ffi;
 
 #[derive(Default)]
 pub struct WorldRust {

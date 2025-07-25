@@ -1,8 +1,9 @@
-use crate::handler::Handler;
-use crate::world::{Escaped, EscapedBrackets, LogBrackets, LogFormat, World};
 use std::fs::{File, OpenOptions};
 use std::io::{self, BufWriter, Write};
 use std::mem;
+
+use crate::handler::Handler;
+use crate::world::{Escaped, EscapedBrackets, LogBrackets, LogFormat, World};
 
 #[derive(Debug)]
 pub enum LogFile {

@@ -2,12 +2,13 @@
 use std::ops::Range;
 use std::pin::Pin;
 
-use crate::colors::QColorPair;
-use crate::sender::{OutputSpan, TextSpan};
 use cxx::type_id;
 use cxx_qt_lib::{QFlag, QFlags, QString};
 use flagset::FlagSet;
 use mud_transformer::{TelnetSource, TelnetVerb, TextStyle};
+
+use crate::colors::QColorPair;
+use crate::sender::{OutputSpan, TextSpan};
 
 #[cxx_qt::bridge]
 pub mod ffi {

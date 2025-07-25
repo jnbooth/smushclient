@@ -1,15 +1,14 @@
 use std::borrow::Cow;
 
-use flagset::{flags, FlagSet};
+use flagset::{FlagSet, flags};
 use mxp::RgbColor;
-
 use quick_xml::DeError;
 use serde::{Deserialize, Serialize};
 
 use super::reaction::Reaction;
-use super::send_to::{sendto_serde, SendTarget};
+use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
-use crate::in_place::{in_place, InPlace};
+use crate::in_place::{InPlace, in_place};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Trigger {

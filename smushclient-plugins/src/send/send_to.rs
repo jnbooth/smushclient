@@ -53,12 +53,13 @@ impl SendTarget {
 }
 
 pub mod sendto_serde {
-    use serde::de::{Error as _, Unexpected};
-    use serde::{Deserialize, Deserializer, Serialize, Serializer};
     use std::ops::RangeInclusive;
 
-    use super::SendTarget;
+    use serde::de::{Error as _, Unexpected};
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
     use super::SENDTARGET_MAX;
+    use super::SendTarget;
     use crate::error::ExpectedRange;
 
     #[allow(clippy::trivially_copy_pass_by_ref)]

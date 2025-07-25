@@ -1,15 +1,17 @@
-use crate::colors::QColorPair;
-use crate::convert::Convert;
-use crate::ffi::Document;
+use std::collections::{HashMap, HashSet};
+use std::ops::Range;
+use std::pin::Pin;
+
 use cxx_qt_lib::{QByteArray, QString};
 use mud_transformer::mxp::{self, RgbColor};
 use mud_transformer::{
     EffectFragment, EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment,
 };
 use smushclient::{AudioSinks, PlayMode, SendRequest, SendScriptRequest, SpanStyle};
-use std::collections::{HashMap, HashSet};
-use std::ops::Range;
-use std::pin::Pin;
+
+use crate::colors::QColorPair;
+use crate::convert::Convert;
+use crate::ffi::Document;
 
 pub struct ClientHandler<'a> {
     pub audio: &'a AudioSinks,

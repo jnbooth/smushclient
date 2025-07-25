@@ -1,8 +1,9 @@
+use chrono::Utc;
+use smushclient_plugins::{Occurrence, PluginIndex, SendTarget, Timer};
+
 use super::visitor::InfoVisitor;
 use crate::client::SmushClient;
 use crate::timer::Timers;
-use chrono::Utc;
-use smushclient_plugins::{Occurrence, PluginIndex, SendTarget, Timer};
 
 impl SmushClient {
     pub fn timer_info<V: InfoVisitor, T>(

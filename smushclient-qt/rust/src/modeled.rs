@@ -1,12 +1,13 @@
 use std::pin::Pin;
 use std::ptr;
 
-use crate::convert::impl_constructor;
-use crate::ffi;
 use cxx_qt::CxxQtType;
 use cxx_qt_lib::{QDate, QSet, QString, QVariant};
 use smushclient::{SendIterable, SenderMap, SmushClient};
 use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Reaction, Timer, Trigger};
+
+use crate::convert::impl_constructor;
+use crate::ffi;
 
 fn data_text(data: &QVariant) -> Option<String> {
     Some(String::from(&data.value::<QString>()?))

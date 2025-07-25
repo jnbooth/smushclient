@@ -1,9 +1,10 @@
-use chrono::{DateTime, Local, TimeZone};
+use std::borrow::Cow;
 use std::fmt;
 use std::io::{self, Write};
 
+use chrono::{DateTime, Local, TimeZone};
+
 use crate::world::World;
-use std::borrow::Cow;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Escaped<S = String> {

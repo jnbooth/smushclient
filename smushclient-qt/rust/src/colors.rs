@@ -32,6 +32,7 @@ pub struct Colors {
 
 impl From<&[RgbColor; 16]> for Colors {
     fn from(value: &[RgbColor; 16]) -> Self {
+        #[rustfmt::skip]
         let &[c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15] = value;
         Self {
             ansi_0: c0.convert(),

@@ -96,11 +96,7 @@ pub(crate) use impl_convert_struct;
 
 impl Convert<Option<String>> for String {
     fn from_ffi(value: Self) -> Option<String> {
-        if value.is_empty() {
-            None
-        } else {
-            Some(value)
-        }
+        if value.is_empty() { None } else { Some(value) }
     }
 
     fn to_ffi(value: Option<String>) -> Self {

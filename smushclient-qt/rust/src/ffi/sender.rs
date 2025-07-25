@@ -1,7 +1,8 @@
-use crate::sender::{AliasRust, TimerRust, TriggerRust};
 use cxx::type_id;
 use cxx_qt_lib::{QFlag, QFlags};
 use smushclient::AliasOutcome;
+
+use crate::sender::{AliasRust, TimerRust, TriggerRust};
 
 #[cxx_qt::bridge]
 pub mod ffi {

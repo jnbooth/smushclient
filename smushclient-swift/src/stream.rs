@@ -1,7 +1,8 @@
 use std::{mem, vec};
 
-use crate::ffi;
 use smushclient::AliasOutcome;
+
+use crate::ffi;
 
 pub struct RustAliasOutcome {
     outcome: AliasOutcome,

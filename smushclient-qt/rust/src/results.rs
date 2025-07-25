@@ -1,7 +1,8 @@
 use std::io;
 
-use crate::ffi;
 use smushclient::{AudioError, SendIterable, SenderAccessError};
+
+use crate::ffi;
 
 pub trait IntoResultCode {
     fn code(self) -> i32;

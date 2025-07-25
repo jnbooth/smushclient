@@ -1,7 +1,8 @@
-use mud_transformer::Output;
-use smushclient_plugins::{Captures, PluginIndex, Regex, SendTarget};
 use std::error::Error;
 use std::fmt;
+
+use mud_transformer::Output;
+use smushclient_plugins::{Captures, PluginIndex, Regex, SendTarget};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SendRequest<'a> {

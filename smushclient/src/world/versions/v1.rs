@@ -1,10 +1,9 @@
 use std::path::PathBuf;
 
 use mud_transformer::UseMxp;
+use mud_transformer::mxp::RgbColor;
 use serde::Deserialize;
 use smushclient_plugins::{Alias, Timer, Trigger};
-
-use mud_transformer::mxp::RgbColor;
 
 use super::super::types::*;
 

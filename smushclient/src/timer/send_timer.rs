@@ -3,9 +3,10 @@ use std::hash::{Hash, Hasher};
 use std::ops::{Deref, DerefMut};
 use std::time::Duration;
 
-use crate::client::SmushClient;
 use chrono::NaiveTime;
 use smushclient_plugins::{PluginIndex, Timer};
+
+use crate::client::SmushClient;
 
 pub trait TimerConstructible {
     fn construct(index: PluginIndex, timer: &Timer) -> Self;

@@ -176,7 +176,7 @@ pub mod ffi {
         fn flush(self: Pin<&mut SmushClient>, doc: Pin<&mut Document>);
         fn has_output(self: &SmushClient) -> bool;
         fn timer_info(self: &SmushClient, index: usize, label: &QString, info_type: u8)
-            -> QVariant;
+        -> QVariant;
         fn add_alias(self: Pin<&mut SmushClient>, index: usize, alias: &Alias) -> Result<i32>;
         fn add_timer(
             self: Pin<&mut SmushClient>,
@@ -185,7 +185,7 @@ pub mod ffi {
             timekeper: Pin<&mut Timekeeper>,
         ) -> i32;
         fn add_trigger(self: Pin<&mut SmushClient>, index: usize, trigger: &Trigger)
-            -> Result<i32>;
+        -> Result<i32>;
         fn remove_alias(self: Pin<&mut SmushClient>, index: usize, label: &QString) -> i32;
         fn remove_timer(self: Pin<&mut SmushClient>, index: usize, label: &QString) -> i32;
         fn remove_trigger(self: Pin<&mut SmushClient>, index: usize, label: &QString) -> i32;

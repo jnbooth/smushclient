@@ -7,6 +7,10 @@ members = [
   "smushclient-swift",
 ]
 
+[workspace.package]
+edition = "2024"
+repository = "https://github.com/jnbooth/smushclient/"
+
 [workspace.lints.rust]
 unsafe_op_in_unsafe_fn = "warn"
 

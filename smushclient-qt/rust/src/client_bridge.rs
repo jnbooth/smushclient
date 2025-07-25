@@ -2,14 +2,15 @@ use std::ffi::c_char;
 use std::pin::Pin;
 use std::{io, ptr};
 
-use crate::ffi;
-use crate::ffi::AliasOutcomes;
-use crate::results::{IntoErrorCode, IntoResultCode};
 use cxx_qt::CxxQtType;
 use cxx_qt_lib::{QColor, QString, QStringList, QVariant, QVector};
 use smushclient::world::PersistError;
 use smushclient::{AliasBool, LuaStr, LuaString, SendIterable, TimerBool, TriggerBool};
 use smushclient_plugins::{Alias, LoadError, PluginIndex, RegexError, Timer, Trigger, XmlError};
+
+use crate::ffi;
+use crate::ffi::AliasOutcomes;
+use crate::results::{IntoErrorCode, IntoResultCode};
 
 trait AsLStr {
     fn as_lstr(&self) -> &LuaStr;

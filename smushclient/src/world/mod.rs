@@ -11,8 +11,6 @@ mod types;
 pub use types::*;
 
 mod versions;
-use versions::WorldVersion;
-
 use std::borrow::Cow;
 use std::collections::HashSet;
 use std::fmt::Write as _;
@@ -20,11 +18,11 @@ use std::io::{Read, Write};
 use std::path::PathBuf;
 
 use chrono::Local;
+use mud_transformer::mxp::RgbColor;
 use mud_transformer::{TransformerConfig, UseMxp};
 use serde::{Deserialize, Serialize};
 use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Sender, Timer, Trigger};
-
-use mud_transformer::mxp::RgbColor;
+use versions::WorldVersion;
 
 use crate::plugins::{SendIterable, SenderAccessError};
 

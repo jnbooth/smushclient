@@ -2,9 +2,10 @@ use std::fs::File;
 use std::io::{BufReader, Cursor, Read, Seek};
 use std::path::Path;
 
-use super::error::AudioError;
 use rodio::cpal::FromSample;
 use rodio::{Decoder, OutputStream, Sample, Sink, Source};
+
+use super::error::AudioError;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum PlayMode {
@@ -14,11 +15,7 @@ pub enum PlayMode {
 
 impl From<bool> for PlayMode {
     fn from(value: bool) -> Self {
-        if value {
-            Self::Loop
-        } else {
-            Self::Once
-        }
+        if value { Self::Loop } else { Self::Once }
     }
 }
 

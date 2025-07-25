@@ -1,6 +1,6 @@
 use flagset::FlagSet;
-use mud_transformer::mxp::RgbColor;
 use mud_transformer::TextStyle;
+use mud_transformer::mxp::RgbColor;
 use smushclient_plugins::{Alias, Trigger};
 
 use crate::world::World;

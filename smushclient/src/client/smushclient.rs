@@ -2,6 +2,12 @@ use std::io::{self, Read, Write};
 use std::path::Path;
 use std::{env, mem, slice};
 
+use flagset::FlagSet;
+use mud_transformer::{OutputFragment, Tag, Transformer, TransformerConfig};
+use smushclient_plugins::{CursorVec, LoadError, Plugin, PluginIndex, XmlError};
+#[cfg(feature = "async")]
+use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
+
 use super::logger::Logger;
 use super::variables::PluginVariables;
 use super::variables::{LuaStr, LuaString};
@@ -11,11 +17,6 @@ use crate::plugins::{
     AliasOutcome, CommandSource, LoadFailure, PluginEngine, SendIterable, SenderAccessError,
 };
 use crate::world::{PersistError, World};
-use flagset::FlagSet;
-use mud_transformer::{OutputFragment, Tag, Transformer, TransformerConfig};
-use smushclient_plugins::{CursorVec, LoadError, Plugin, PluginIndex, XmlError};
-#[cfg(feature = "async")]
-use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
 const BUF_LEN: usize = 1024 * 20;
 const BUF_MIDPOINT: usize = BUF_LEN / 2;

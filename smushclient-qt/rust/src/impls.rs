@@ -1,6 +1,3 @@
-use super::ffi;
-use crate::convert::{impl_convert_enum, impl_convert_enum_opt, Convert};
-use crate::sender::OutputSpan;
 use cxx_qt_lib::QString;
 use mud_transformer::mxp::{Link, SendTo};
 use mud_transformer::{TelnetSource, TelnetVerb, UseMxp};
@@ -10,6 +7,10 @@ use smushclient::{
     TriggerBool,
 };
 use smushclient_plugins::{Plugin, PluginIndex, Regex, SendTarget, Timer};
+
+use super::ffi;
+use crate::convert::{Convert, impl_convert_enum, impl_convert_enum_opt};
+use crate::sender::OutputSpan;
 
 impl_convert_enum!(ffi::SendTo, SendTo, Internet, World, Input);
 

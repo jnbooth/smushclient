@@ -13,7 +13,7 @@ use mud_transformer::mxp::RgbColor;
 use mud_transformer::{Output, OutputFragment, TextFragment, TextStyle};
 use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer, Trigger};
 
-use crate::convert::{impl_constructor, impl_deref, Convert};
+use crate::convert::{Convert, impl_constructor, impl_deref};
 use crate::ffi;
 
 const NANOSECONDS_PER_MILLISECOND: u32 = 1_000_000;
@@ -472,11 +472,7 @@ impl_constructor!(ffi::Trigger, (*const ffi::SmushClient, usize), {
 
 #[inline(always)]
 fn if_contains<E: Flags>(set: FlagSet<E>, value: E, flag: u8) -> u8 {
-    if set.contains(value) {
-        flag
-    } else {
-        0
-    }
+    if set.contains(value) { flag } else { 0 }
 }
 
 #[inline(always)]

@@ -1,6 +1,8 @@
-use mud_transformer::Tag;
 use std::fs::File;
 use std::path::Path;
+
+use mud_transformer::Tag;
+use smushclient::{CommandSource, SmushClient, World};
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 
@@ -8,7 +10,6 @@ use crate::client::{AliasHandler, ClientHandler};
 use crate::error::StringifyResultError;
 use crate::stream::{RustAliasOutcome, RustOutputStream};
 use crate::sync::NonBlockingMutex;
-use smushclient::{CommandSource, SmushClient, World};
 
 #[derive(Default)]
 pub struct RustMudBridge {
@@ -108,7 +109,7 @@ impl RustMudBridge {
     }
 
     pub async fn receive(&mut self) -> Result<RustOutputStream, String> {
-        let Some(ref mut stream) = &mut self.stream else {
+        let Some(stream) = &mut self.stream else {
             return Ok(RustOutputStream::new(Vec::new().into_iter()));
         };
         let lock = self.output_lock.lock();

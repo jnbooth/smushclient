@@ -19,10 +19,10 @@ mod plugin_details;
 pub use plugin_details::ffi::PluginDetails;
 
 mod sender;
+pub use sender::AliasOutcomes;
 pub use sender::ffi::{
     Alias, AliasOutcome, Occurrence, SendTarget, Timer, Trigger, UserSendTarget,
 };
-pub use sender::AliasOutcomes;
 
 mod sender_map;
 pub use sender_map::ffi::{SenderMap, SenderType};
