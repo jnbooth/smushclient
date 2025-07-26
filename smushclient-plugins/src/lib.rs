@@ -13,9 +13,8 @@ mod plugin;
 pub use plugin::{Plugin, PluginIndex, PluginLoadError, PluginMetadata};
 
 mod regex;
-pub use regex::{Regex, RegexError};
+pub use regex::{CaptureMatches, Captures, Match, Regex, RegexError};
 
 mod send;
-pub use pcre2::bytes::{CaptureMatches, Captures, Match};
 pub use quick_xml::DeError as XmlError;
 pub use send::{Alias, Occurrence, Reaction, SendTarget, Sender, Timer, Trigger};

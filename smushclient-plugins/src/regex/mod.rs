@@ -1,9 +1,10 @@
+mod captures;
 use std::cmp::Ordering;
 use std::fmt;
 use std::hash::{Hash, Hasher};
-use std::ops::{Deref, DerefMut};
 use std::str::{self, FromStr};
 
+pub use captures::{CaptureMatches, Captures, Match};
 use serde::de::{Error as _, Unexpected};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -12,19 +13,6 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 pub struct Regex(pcre2::bytes::Regex);
 
 pub type RegexError = pcre2::Error;
-
-impl Deref for Regex {
-    type Target = pcre2::bytes::Regex;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-impl DerefMut for Regex {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
 
 impl Default for Regex {
     fn default() -> Self {
@@ -91,19 +79,26 @@ impl FromStr for Regex {
 }
 
 impl Regex {
-    /// # Panics
-    ///
-    /// Panics if `bytes` is not valid UTF-8.
-    #[track_caller]
-    pub fn expect(bytes: &[u8]) -> &str {
-        str::from_utf8(bytes).expect("invalid UTF-8")
-    }
-
     /// Compiles a regular expression. Once compiled, it can be used repeatedly
     /// to search, split or replace text in a string.
     ///
     /// If an invalid expression is given, then an error is returned.
     pub fn new(re: &str) -> Result<Self, RegexError> {
         pcre2::bytes::Regex::new(re).map(Self)
+    }
+
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
+
+    pub fn captures_iter<'s>(&self, subject: &'s str) -> CaptureMatches<'_, 's> {
+        CaptureMatches {
+            subject,
+            inner: self.0.captures_iter(subject.as_bytes()),
+        }
+    }
+
+    pub fn capture_names(&self) -> &[Option<String>] {
+        self.0.capture_names()
     }
 }

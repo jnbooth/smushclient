@@ -275,9 +275,8 @@ impl<'a> From<SendScriptRequest<'a>> for ffi::SendScriptRequest {
         let wildcards = match value.wildcards {
             Some(captures) => {
                 let mut wildcards = Vec::new();
-                for i in 1..captures.len() {
-                    #[allow(clippy::unwrap_used)]
-                    wildcards.push(Regex::expect(captures.get(i).unwrap().as_bytes()).to_owned());
+                for capture in &captures {
+                    wildcards.push(capture.to_owned());
                 }
                 wildcards
             }

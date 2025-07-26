@@ -18,8 +18,8 @@ use crate::world::World;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PluginEngine {
     plugins: Vec<Plugin>,
-    alias_buf: Vec<u8>,
-    trigger_buf: Vec<u8>,
+    alias_buf: String,
+    trigger_buf: String,
 }
 
 impl Default for PluginEngine {
@@ -32,8 +32,8 @@ impl PluginEngine {
     pub const fn new() -> Self {
         Self {
             plugins: Vec::new(),
-            alias_buf: Vec::new(),
-            trigger_buf: Vec::new(),
+            alias_buf: String::new(),
+            trigger_buf: String::new(),
         }
     }
 
@@ -158,7 +158,7 @@ impl PluginEngine {
                     continue;
                 }
                 let mut matched = false;
-                for captures in alias.regex.captures_iter(line.as_bytes()) {
+                for captures in alias.regex.captures_iter(line) {
                     let Ok(captures) = captures else {
                         continue;
                     };
@@ -237,7 +237,7 @@ impl PluginEngine {
                     continue;
                 }
                 let mut matched = false;
-                for captures in trigger.regex.captures_iter(line.as_bytes()) {
+                for captures in trigger.regex.captures_iter(line) {
                     let Ok(captures) = captures else {
                         continue;
                     };

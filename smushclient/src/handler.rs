@@ -39,7 +39,7 @@ impl<H: Handler> HandlerExt for H {
         line: &str,
         output: &[Output],
     ) {
-        for captures in reaction.regex.captures_iter(line.as_bytes()) {
+        for captures in reaction.regex.captures_iter(line) {
             let Ok(captures) = captures else {
                 continue;
             };

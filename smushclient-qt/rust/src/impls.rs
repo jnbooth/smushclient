@@ -6,7 +6,7 @@ use smushclient::{
     AliasBool, CommandSource, SendRequest, SendScriptRequest, TimerBool, TimerConstructible,
     TriggerBool,
 };
-use smushclient_plugins::{Plugin, PluginIndex, Regex, SendTarget, Timer};
+use smushclient_plugins::{Plugin, PluginIndex, SendTarget, Timer};
 
 use super::ffi;
 use crate::convert::{Convert, impl_convert_enum, impl_convert_enum_opt};
@@ -175,11 +175,8 @@ impl<'a> From<SendScriptRequest<'a>> for ffi::SendScriptRequest<'a> {
         let (wildcards, named_wildcards) = match value.wildcards {
             Some(captures) => {
                 let mut wildcards = Vec::new();
-                for i in 1..captures.len() {
-                    match captures.get(i) {
-                        Some(captures) => wildcards.push(Regex::expect(captures.as_bytes())),
-                        None => wildcards.push(""),
-                    }
+                for capture in &captures {
+                    wildcards.push(capture);
                 }
                 let named_wildcards = value
                     .regex
@@ -190,7 +187,7 @@ impl<'a> From<SendScriptRequest<'a>> for ffi::SendScriptRequest<'a> {
                         let value = captures.name(name)?;
                         Some(ffi::NamedWildcard {
                             name,
-                            value: Regex::expect(value.as_bytes()),
+                            value: value.as_str(),
                         })
                     })
                     .collect();

@@ -1,9 +1,11 @@
-use pcre2::bytes::Captures;
+use std::iter;
+use std::str::CharIndices;
+
 use serde::{Deserialize, Serialize};
 
 use super::send_to::SendTarget;
 use super::sender::Sender;
-use crate::regex::{Regex, RegexError};
+use crate::regex::{Captures, Regex, RegexError};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Reaction {
@@ -43,31 +45,59 @@ impl Default for Reaction {
 impl Reaction {
     pub const DEFAULT_SEQUENCE: i16 = crate::constants::DEFAULT_SEQUENCE;
 
-    pub fn expand_text<'a>(&self, buf: &'a mut Vec<u8>, captures: &Captures) -> &'a str {
+    pub fn expand_text<'a>(&self, buf: &'a mut String, captures: &Captures) -> &'a str {
+        #[inline]
+        fn collect_int(iter: &mut iter::Peekable<CharIndices>, max: usize) -> Option<usize> {
+            let mut value = 0;
+            let mut valid = false;
+            while let Some((_, c)) = iter.next_if(|(_, c)| c.is_ascii_digit()) {
+                valid = true;
+                if value < max {
+                    value = value * 10 + (c as usize - '0' as usize);
+                }
+            }
+            valid.then_some(value)
+        }
+
+        #[inline]
+        fn collect_group<'a>(
+            iter: &mut iter::Peekable<CharIndices>,
+            captures: &'a Captures,
+            max: usize,
+        ) -> Option<&'a str> {
+            let Some(group) = collect_int(iter, max) else {
+                iter.next_if(|(_, c)| *c == '%')?;
+                return Some("%");
+            };
+            Some(match captures.get(group) {
+                Some(capture) => capture.as_str(),
+                None => "",
+            })
+        }
+
         buf.clear();
-        let mut chars = self.text.as_bytes().iter().copied();
-        while let Some(c) = chars.next() {
-            if c != b'%' {
-                buf.push(c);
+        buf.reserve(self.text.len());
+        let captures_len = captures.len();
+        let mut start = 0;
+
+        let mut iter = self.text.char_indices().peekable();
+
+        while let Some((i, c)) = iter.next() {
+            if c != '%' {
                 continue;
             }
-            let mut replace = 0usize;
-            let mut leftover = b'0';
-            for c in chars.by_ref() {
-                if !c.is_ascii_digit() {
-                    leftover = c;
-                    break;
-                }
-                replace = replace * 10 + usize::from(c - b'0');
-            }
-            if let Some(capture) = captures.get(replace) {
-                buf.extend_from_slice(capture.as_bytes());
-            }
-            if leftover != b'0' {
-                buf.push(leftover);
-            }
+            let Some(group) = collect_group(&mut iter, captures, captures_len) else {
+                continue;
+            };
+            buf.push_str(&self.text[start..i]);
+            buf.push_str(group);
+            start = match iter.peek() {
+                Some((start, _)) => *start,
+                None => return buf.as_str(),
+            };
         }
-        Regex::expect(buf)
+        buf.push_str(&self.text[start..]);
+        buf.as_str()
     }
 
     pub fn has_send(&self) -> bool {
@@ -75,10 +105,8 @@ impl Reaction {
     }
 
     pub fn make_regex_pattern(pattern: &str, buf: &mut String) {
-        #[rustfmt::skip]
-        fn is_special(c: char) -> bool {
-            matches!(c, '\\'|'.'|'+'|'*'|'?'|'('|')'|'|'|'['|']'|'{'|'}'|'^'|'$'|'#')
-        }
+        const SPECIAL_CHARS: &str = "\\.+?()|[]{}^$#";
+
         buf.reserve(pattern.len() * 4);
         buf.push('^');
         for c in pattern.chars() {
@@ -86,7 +114,7 @@ impl Reaction {
                 buf.push_str("(.*)");
                 continue;
             }
-            if is_special(c) {
+            if SPECIAL_CHARS.contains(c) {
                 buf.push('\\');
             }
             buf.push(c);
@@ -102,5 +130,30 @@ impl Reaction {
             Self::make_regex_pattern(pattern, &mut buf);
             Regex::new(&buf)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_expand() {
+        let pattern = "(.e).(.)(.*)q(\\d+)".to_owned();
+        let mut reaction = Reaction {
+            regex: Regex::new(&pattern).unwrap(),
+            pattern,
+            ..Default::default()
+        };
+        reaction.text = "z%c%%%1 %3%2%20%4h".to_owned();
+        let captures = reaction
+            .regex
+            .captures_iter("abedegeq55!")
+            .next()
+            .unwrap()
+            .unwrap();
+        let mut buf = String::new();
+        let expanded = reaction.expand_text(&mut buf, &captures);
+        assert_eq!(expanded, "z%c%be gee55h");
     }
 }
