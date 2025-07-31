@@ -41,7 +41,9 @@ unsafe fn provide_variable(value: Option<&[u8]>, value_size: *mut usize) -> *con
     };
     if !value_size.is_null() {
         // SAFETY: `value_size` is valid and non-null.
-        unsafe { *value_size = len };
+        unsafe {
+            *value_size = len;
+        }
     }
     data
 }
@@ -142,6 +144,9 @@ impl ffi::SmushClient {
         self.rust_mut().client.remove_plugin(index).is_some()
     }
 
+    /// # Panics
+    ///
+    /// Panics if the index is out of bounds.
     pub fn plugin(&self, index: PluginIndex) -> ffi::PluginPack {
         self.rust().plugin(index)
     }
