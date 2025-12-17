@@ -4,7 +4,7 @@
 <context>
     <name>AbstractSenderModel</name>
     <message>
-        <location filename="../cpp/model/sender.cpp" line="194"/>
+        <location filename="../cpp/model/sender.cpp" line="178"/>
         <source>(ungrouped)</source>
         <translation></translation>
     </message>
@@ -172,12 +172,12 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/aliasedit.cpp" line="72"/>
+        <location filename="../cpp/ui/worlddetails/aliasedit.cpp" line="63"/>
         <source>Notepad:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/aliasedit.cpp" line="76"/>
+        <location filename="../cpp/ui/worlddetails/aliasedit.cpp" line="67"/>
         <source>Variable:</source>
         <translation></translation>
     </message>
@@ -185,22 +185,22 @@
 <context>
     <name>AliasModel</name>
     <message>
-        <location filename="../cpp/model/alias.cpp" line="60"/>
+        <location filename="../cpp/model/alias.cpp" line="52"/>
         <source>Group/Label</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/alias.cpp" line="61"/>
+        <location filename="../cpp/model/alias.cpp" line="52"/>
         <source>Sequence</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/alias.cpp" line="62"/>
+        <location filename="../cpp/model/alias.cpp" line="53"/>
         <source>Pattern</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/alias.cpp" line="63"/>
+        <location filename="../cpp/model/alias.cpp" line="53"/>
         <source>Text</source>
         <translation></translation>
     </message>
@@ -221,7 +221,7 @@
 <context>
     <name>ColorPickerButton</name>
     <message>
-        <location filename="../cpp/ui/components/colorpickerbutton.cpp" line="19"/>
+        <location filename="../cpp/ui/components/colorpickerbutton.cpp" line="16"/>
         <source>Select Color</source>
         <translation>Select Colour</translation>
     </message>
@@ -229,22 +229,22 @@
 <context>
     <name>FileFilter</name>
     <message>
-        <location filename="../cpp/localization.cpp" line="5"/>
+        <location filename="../cpp/localization.cpp" line="3"/>
         <source>Lua files (*.lua);;All Files (*.*)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/localization.cpp" line="10"/>
+        <location filename="../cpp/localization.cpp" line="6"/>
         <source>Plugin files (*.xml);;All Files(*.*)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/localization.cpp" line="15"/>
+        <location filename="../cpp/localization.cpp" line="9"/>
         <source>Text files (*.txt);;All Files (*.*)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/localization.cpp" line="20"/>
+        <location filename="../cpp/localization.cpp" line="12"/>
         <source>World files (*.smush);;All Files (*.*)</source>
         <translation></translation>
     </message>
@@ -728,37 +728,37 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="95"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="93"/>
         <source>Close all worlds and quit?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="322"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="299"/>
         <source>Version: %1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="346"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="319"/>
         <source>Command History</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="420"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="383"/>
         <source>Go to line</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="420"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="383"/>
         <source>Enter line number</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="444"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="406"/>
         <source>New world</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/mainwindow.cpp" line="516"/>
+        <location filename="../cpp/ui/mainwindow.cpp" line="461"/>
         <source>Save as</source>
         <translation></translation>
     </message>
@@ -766,13 +766,13 @@
 <context>
     <name>MudStatusBar</name>
     <message>
-        <location filename="../cpp/ui/mudstatusbar/mudstatusbar.cpp" line="84"/>
+        <location filename="../cpp/ui/mudstatusbar/mudstatusbar.cpp" line="81"/>
         <source>Connected</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../cpp/ui/mudstatusbar/mudstatusbar.ui" line="77"/>
-        <location filename="../cpp/ui/mudstatusbar/mudstatusbar.cpp" line="84"/>
+        <location filename="../cpp/ui/mudstatusbar/mudstatusbar.cpp" line="80"/>
         <source>Disconnected</source>
         <translation></translation>
     </message>
@@ -1055,7 +1055,7 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/notepad.cpp" line="134"/>
+        <location filename="../cpp/ui/notepad.cpp" line="117"/>
         <source>Save as</source>
         <translation></translation>
     </message>
@@ -1063,32 +1063,32 @@
 <context>
     <name>PluginModel</name>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="148"/>
+        <location filename="../cpp/model/plugin.cpp" line="133"/>
         <source>Name</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="149"/>
+        <location filename="../cpp/model/plugin.cpp" line="133"/>
         <source>Purpose</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="150"/>
+        <location filename="../cpp/model/plugin.cpp" line="133"/>
         <source>Author</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="151"/>
+        <location filename="../cpp/model/plugin.cpp" line="134"/>
         <source>Path</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="152"/>
+        <location filename="../cpp/model/plugin.cpp" line="134"/>
         <source>Enabled</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/plugin.cpp" line="153"/>
+        <location filename="../cpp/model/plugin.cpp" line="134"/>
         <source>Version</source>
         <translation></translation>
     </message>
@@ -1341,7 +1341,7 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/logging.cpp" line="55"/>
+        <location filename="../cpp/ui/worlddetails/logging.cpp" line="48"/>
         <source>Select log file</source>
         <translation></translation>
     </message>
@@ -1675,7 +1675,7 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/output.cpp" line="56"/>
+        <location filename="../cpp/ui/worlddetails/output.cpp" line="49"/>
         <source>Select sound file</source>
         <translation></translation>
     </message>
@@ -1708,7 +1708,7 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/plugins.cpp" line="64"/>
+        <location filename="../cpp/ui/worlddetails/plugins.cpp" line="55"/>
         <source>Add plugin</source>
         <translation></translation>
     </message>
@@ -1787,17 +1787,17 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/scripting.cpp" line="46"/>
+        <location filename="../cpp/ui/worlddetails/scripting.cpp" line="37"/>
         <source>Select world script</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/scripting.cpp" line="60"/>
+        <location filename="../cpp/ui/worlddetails/scripting.cpp" line="48"/>
         <source>Save as</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/scripting.cpp" line="85"/>
+        <location filename="../cpp/ui/worlddetails/scripting.cpp" line="68"/>
         <source>Create world script</source>
         <translation></translation>
     </message>
@@ -1841,47 +1841,47 @@
 <context>
     <name>ScriptApi</name>
     <message>
-        <location filename="../cpp/scripting/errors.cpp" line="40"/>
+        <location filename="../cpp/scripting/errors.cpp" line="35"/>
         <source>Compile error: %1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/errors.cpp" line="45"/>
+        <location filename="../cpp/scripting/errors.cpp" line="39"/>
         <source>PANIC: unprotected error in call to Lua API: %1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/errors.cpp" line="50"/>
+        <location filename="../cpp/scripting/errors.cpp" line="44"/>
         <source>Runtime error: %1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="57"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="53"/>
         <source>Plugin ID (%1) is not installed</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="63"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="57"/>
         <source>Plugin &apos;%1&apos; (%2) is not enabled</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="70"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="63"/>
         <source>No function &apos;%1&apos; in plugin &apos;%2&apos; (%3)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="78"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="70"/>
         <source>Cannot pass argument #%1 (%2 type) to CallPlugin</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="85"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="76"/>
         <source>Runtime error in function &apos;%1&apos;, plugin &apos;%2&apos; (%3)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/scripting/luaapi.cpp" line="93"/>
+        <location filename="../cpp/scripting/luaapi.cpp" line="84"/>
         <source>Cannot handle return value #%1 (%2 type) from function &apos;%3&apos; in plugin &apos;%4&apos; (%5)</source>
         <translation></translation>
     </message>
@@ -1894,337 +1894,337 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="360"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="338"/>
         <source>No</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="361"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="339"/>
         <source>None</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="362"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="340"/>
         <source>Yes</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="307"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="291"/>
         <source>Supports</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="317"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="299"/>
         <source>Does Not Support</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="402"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="380"/>
         <source>Adult Material</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="404"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="382"/>
         <source>Areas</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="406"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="384"/>
         <source>Character Set</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="408"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="386"/>
         <source>Classes</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="410"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="388"/>
         <source>Codebase</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="412"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="390"/>
         <source>Contact</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="414"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="392"/>
         <source>CrawlDelay</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="416"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="394"/>
         <source>Created</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="418"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="396"/>
         <source>Database Size</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="420"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="398"/>
         <source>Description</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="422"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="400"/>
         <source>Discord Server</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="424"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="402"/>
         <source>Equipment System</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="426"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="404"/>
         <source>Exits</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="428"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="406"/>
         <source>Extra Descriptions</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="430"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="408"/>
         <source>Codebase Family</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="432"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="410"/>
         <source>Gameplay</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="434"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="412"/>
         <source>Game System</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="436"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="414"/>
         <source>Genre</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="438"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="416"/>
         <source>Helpfiles</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="440"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="418"/>
         <source>Hiring Builders</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="442"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="420"/>
         <source>Hiring Coders</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="444"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="422"/>
         <source>Hostname</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="446"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="424"/>
         <source>Icon</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="448"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="426"/>
         <source>InterMUD</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="450"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="428"/>
         <source>IP Address</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="452"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="430"/>
         <source>IPv6 Address</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="454"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="432"/>
         <source>Language</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="456"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="434"/>
         <source>Levels</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="458"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="436"/>
         <source>Server Location</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="460"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="438"/>
         <source>Minimum Age</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="462"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="440"/>
         <source>Mobiles</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="464"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="442"/>
         <source>MUD Programs</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="466"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="444"/>
         <source>MUD Triggers</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="468"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="446"/>
         <source>Multiclassing</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="470"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="448"/>
         <source>Multiplaying</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="472"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="450"/>
         <source>Name</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="474"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="452"/>
         <source>Newbie Friendly</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="476"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="454"/>
         <source>Objects</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="478"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="456"/>
         <source>Pay for Perks</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="480"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="458"/>
         <source>Pay to Play</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="482"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="460"/>
         <source>Player Cities</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="484"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="462"/>
         <source>Player Clans</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="486"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="464"/>
         <source>Player Crafting</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="488"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="466"/>
         <source>Player Guilds</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="490"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="468"/>
         <source>Playerkilling</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="492"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="470"/>
         <source>Connected Players</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="494"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="472"/>
         <source>Port</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="496"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="474"/>
         <source>Quest System</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="498"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="476"/>
         <source>Races</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="500"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="478"/>
         <source>Related Servers</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="502"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="480"/>
         <source>Resets</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="504"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="482"/>
         <source>Roleplaying</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="506"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="484"/>
         <source>Rooms</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="508"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="486"/>
         <source>Skills</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="510"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="488"/>
         <source>Encrypted Port</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="512"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="490"/>
         <source>Game Status</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="514"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="492"/>
         <source>Subgenre</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="516"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="494"/>
         <source>Training System</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="518"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="496"/>
         <source>Started</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="520"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="498"/>
         <source>Website</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="522"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="500"/>
         <source>World Originality</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/serverstatus.cpp" line="524"/>
+        <location filename="../cpp/ui/serverstatus.cpp" line="502"/>
         <source>Worlds</source>
         <translation></translation>
     </message>
@@ -2489,7 +2489,7 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/settings/sound.cpp" line="30"/>
+        <location filename="../cpp/ui/settings/sound.cpp" line="23"/>
         <source>Select sound file</source>
         <translation></translation>
     </message>
@@ -2547,12 +2547,12 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/settings/startup.cpp" line="92"/>
+        <location filename="../cpp/ui/settings/startup.cpp" line="81"/>
         <source>Add world</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/settings/startup.cpp" line="154"/>
+        <location filename="../cpp/ui/settings/startup.cpp" line="135"/>
         <source>Select startup directory</source>
         <translation></translation>
     </message>
@@ -2823,12 +2823,12 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/timeredit.cpp" line="72"/>
+        <location filename="../cpp/ui/worlddetails/timeredit.cpp" line="62"/>
         <source>Notepad:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/timeredit.cpp" line="76"/>
+        <location filename="../cpp/ui/worlddetails/timeredit.cpp" line="66"/>
         <source>Variable:</source>
         <translation></translation>
     </message>
@@ -2836,22 +2836,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
 <context>
     <name>TimerModel</name>
     <message>
-        <location filename="../cpp/model/timer.cpp" line="64"/>
+        <location filename="../cpp/model/timer.cpp" line="59"/>
         <source>Group/Label</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/timer.cpp" line="65"/>
+        <location filename="../cpp/model/timer.cpp" line="59"/>
         <source>Type</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/timer.cpp" line="66"/>
+        <location filename="../cpp/model/timer.cpp" line="60"/>
         <source>Occurrence</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/timer.cpp" line="67"/>
+        <location filename="../cpp/model/timer.cpp" line="60"/>
         <source>Text</source>
         <translation></translation>
     </message>
@@ -3059,17 +3059,17 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.cpp" line="81"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.cpp" line="73"/>
         <source>Notepad:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.cpp" line="85"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.cpp" line="77"/>
         <source>Variable:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.cpp" line="98"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.cpp" line="88"/>
         <source>Select sound file</source>
         <translation></translation>
     </message>
@@ -3077,22 +3077,22 @@ li.checked::marker { content: &quot;\2612&quot;; }
 <context>
     <name>TriggerModel</name>
     <message>
-        <location filename="../cpp/model/trigger.cpp" line="60"/>
+        <location filename="../cpp/model/trigger.cpp" line="52"/>
         <source>Group/Label</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/trigger.cpp" line="61"/>
+        <location filename="../cpp/model/trigger.cpp" line="52"/>
         <source>Sequence</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/trigger.cpp" line="62"/>
+        <location filename="../cpp/model/trigger.cpp" line="53"/>
         <source>Pattern</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/model/trigger.cpp" line="63"/>
+        <location filename="../cpp/model/trigger.cpp" line="53"/>
         <source>Text</source>
         <translation></translation>
     </message>
@@ -3163,47 +3163,47 @@ li.checked::marker { content: &quot;\2612&quot;; }
 <context>
     <name>WorldTab</name>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="208"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="190"/>
         <source>Failed to open file: %1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="278"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="249"/>
         <source>Do you want to save the changes you made to %1?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="279"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="252"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="320"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="286"/>
         <source>Save as</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="737"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="636"/>
         <source>World script changed</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="737"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="637"/>
         <source>Would you like to reload the world script?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="805"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="697"/>
         <source>&apos;Connected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="825"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="717"/>
         <source>&apos;Disconnected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="846"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="736"/>
         <source>Connection error: %1</source>
         <translation type="unfinished"></translation>
     </message>

@@ -25,12 +25,12 @@ public:
     ScrollDown = 256,  // Scroll wheel scrolled (towards you)
     MouseMiddle = 512, // Middle mouse
   };
-  Q_DECLARE_FLAGS(EventFlags, EventFlag)
+  typedef QFlags<EventFlag> EventFlags;
 
   enum Flag {
     ReportAllMouseovers = 0x01,
   };
-  Q_DECLARE_FLAGS(Flags, Flag)
+  typedef QFlags<Flag> Flags;
 
   template <typename T> struct BasicCallbacks {
     T dragMove;

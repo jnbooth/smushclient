@@ -6,9 +6,10 @@ use std::path::PathBuf;
 use cxx_qt_build::CxxQtBuilder;
 
 fn main() {
-    let out_dir =
-        std::env::var_os("CMAKE_DIR").unwrap_or_else(|| std::env::var_os("OUT_DIR").unwrap());
-    let header_dir = PathBuf::from(out_dir).join("rust-gen");
+    let out_dir = std::env::var_os("OUT_DIR").unwrap();
+    let header_dir = PathBuf::from(out_dir)
+        .join("include")
+        .join("smushclient-qt");
 
     fs::create_dir_all(&header_dir).expect("Could not create header dir");
 
@@ -26,14 +27,16 @@ fn main() {
         .cc_builder(|cc| {
             cc.include(&header_dir);
         })
-        .file("src/ffi/audio.rs")
-        .file("src/ffi/client.rs")
-        .file("src/ffi/document.rs")
-        .file("src/ffi/plugin_details.rs")
-        .file("src/ffi/sender.rs")
-        .file("src/ffi/sender_map.rs")
-        .file("src/ffi/timekeeper.rs")
-        .file("src/ffi/util.rs")
-        .file("src/ffi/world.rs")
+        .files([
+            "src/ffi/audio.rs",
+            "src/ffi/client.rs",
+            "src/ffi/document.rs",
+            "src/ffi/plugin_details.rs",
+            "src/ffi/sender.rs",
+            "src/ffi/sender_map.rs",
+            "src/ffi/timekeeper.rs",
+            "src/ffi/util.rs",
+            "src/ffi/world.rs",
+        ])
         .build();
 }

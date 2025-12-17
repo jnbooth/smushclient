@@ -9,7 +9,7 @@ pub mod ffi {
         type QString = cxx_qt_lib::QString;
     }
 
-    #[qenum(World)]
+    #[repr(i32)]
     enum AutoConnect {
         None,
         Mush,
@@ -17,20 +17,20 @@ pub mod ffi {
         Mxp,
     }
 
-    #[qenum(World)]
+    #[repr(i32)]
     enum LogFormat {
         Text,
         Html,
         Raw,
     }
 
-    #[qenum(World)]
+    #[repr(i32)]
     enum LogMode {
         Append,
         Overwrite,
     }
 
-    #[qenum(World)]
+    #[repr(i32)]
     enum UseMxp {
         Command,
         Query,
@@ -38,7 +38,7 @@ pub mod ffi {
         Never,
     }
 
-    #[qenum(World)]
+    #[repr(i32)]
     enum ScriptRecompile {
         Confirm,
         Always,

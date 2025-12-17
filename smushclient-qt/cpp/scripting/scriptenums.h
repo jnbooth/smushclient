@@ -1,4 +1,5 @@
 #pragma once
+#include <QtCore/QFlags>
 
 enum struct ApiCode {
   OK = 0,              // No error
@@ -106,7 +107,7 @@ enum struct AliasFlag {
   Temporary = 16384, // Temporary - do not save to world file
   OneShot = 32768,   // If set, only fires once
 };
-Q_DECLARE_FLAGS(AliasFlags, AliasFlag)
+typedef QFlags<AliasFlag> AliasFlags;
 
 enum struct ActionSource {
   Unknown,    // No particular reason, could be plugin saving
@@ -240,7 +241,7 @@ enum struct TimerFlag {
   Replace = 1024,        // Replace existing of same name
   Temporary = 16384,     // Temporary - do not save to world file
 };
-Q_DECLARE_FLAGS(TimerFlags, TimerFlag)
+typedef QFlags<TimerFlag> TimerFlags;
 
 enum struct TriggerFlag {
   Enabled = 1,              // Enable
@@ -255,4 +256,4 @@ enum struct TriggerFlag {
   Temporary = 16384,        // Temporary - do not save to world file
   OneShot = 32768,          // If set, only fires once
 };
-Q_DECLARE_FLAGS(TriggerFlags, TriggerFlag)
+typedef QFlags<TriggerFlag> TriggerFlags;

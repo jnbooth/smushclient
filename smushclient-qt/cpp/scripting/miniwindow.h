@@ -64,7 +64,7 @@ public:
     // recreating an existing miniwindow.
     KeepHotspots = 16,
   };
-  Q_DECLARE_FLAGS(Flags, Flag)
+  typedef QFlags<Flag> Flags;
 
   enum struct ButtonFrame {
     Raised = 5,
@@ -79,7 +79,7 @@ public:
     Flat = 16384,
     Monochrome = 32768,
   };
-  Q_DECLARE_FLAGS(ButtonFlags, ButtonFlag)
+  typedef QFlags<ButtonFlag> ButtonFlags;
 
   enum struct Position {
     OutputStretch, // Stretch to output view size

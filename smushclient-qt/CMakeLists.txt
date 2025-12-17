@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.24)
 
 cmake_policy(SET CMP0091 NEW)
-set(CMAKE_OSX_DEPLOYMENT_TARGET 15.3)
+set(CMAKE_OSX_DEPLOYMENT_TARGET 26.2)
 set(VCPKG_HOST_TRIPLET x64-windows-static)
 set(VCPKG_TARGET_TRIPLET x64-windows-static)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
@@ -12,6 +12,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Network PrintSupport Widgets)
@@ -33,7 +34,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   lualibs
   GIT_REPOSITORY https://github.com/jnbooth/lua-batteries-included.git
-  GIT_TAG 475f5e04abf2c238077ad5cffb513c6231045714
+  GIT_TAG 912afb1004044585b9495106e45dd3427871309a
 )
 
 FetchContent_MakeAvailable(
@@ -54,13 +55,7 @@ if (LUACONF_CONTENTS MATCHES "#define LUA_INT_TYPE	LUA_INT_DEFAULT")
 endif ()
 
 set(CRATE smushclient_qt)
-set(cargo_target_dir cargo/build)
-
-include_directories(
-  ${CMAKE_CURRENT_BINARY_DIR}/cxxqt/crates/${CRATE}/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/cpp/bridge
-  ${CMAKE_CURRENT_SOURCE_DIR}/cpp/ui/components
-)
+#set(CARGO_TARGET_DIR "${CMAKE_BINARY_DIR}/${BUILD_DIR}/cargo/build")
 
 if (MSVC)
   set(CRATE_FEATURES link_qt_object_files)
@@ -72,8 +67,6 @@ cxx_qt_import_crate(
   FEATURES ${CRATE_FEATURES}
   QT_MODULES Qt::Core Qt::Gui Qt::Network Qt::PrintSupport Qt::Widgets
 )
-
-corrosion_set_env_vars(${CRATE} "CMAKE_DIR=${CMAKE_CURRENT_BINARY_DIR}")
 
 set_source_files_properties(resources/appicon/appicon.icns PROPERTIES
   MACOSX_PACKAGE_LOCATION "Resources"
@@ -175,7 +168,22 @@ qt_add_executable(${APP_NAME}
     resources/appicon/appicon.icns resources/appicon/appicon.rc
 )
 
-target_link_libraries(${APP_NAME} PRIVATE lualibs ${CRATE})
+target_include_directories(${APP_NAME}
+  PRIVATE
+  cpp/bridge
+  cpp/ui/components
+)
+
+target_link_libraries(${APP_NAME}
+  PRIVATE
+  lualibs
+  ${CRATE}
+  Qt::Core
+  Qt::Gui
+  Qt::Network
+  Qt::PrintSupport
+  Qt::Widgets
+)
 
 add_compile_definitions(
   QT_NO_CAST_FROM_BYTEARRAY
@@ -221,9 +229,8 @@ endif ()
 
 if (APPLE)
   find_library(AUDIO_UNIT AudioUnit)
-  target_link_libraries(${APP_NAME} PRIVATE ${AUDIO_UNIT})
   find_library(CORE_AUDIO CoreAudio)
-  target_link_libraries(${APP_NAME} PRIVATE ${CORE_AUDIO})
+  target_link_libraries(${APP_NAME} PRIVATE ${AUDIO_UNIT} ${CORE_AUDIO})
 elseif (WIN32)
   target_link_libraries(${APP_NAME} PRIVATE propsys.lib)
 endif ()

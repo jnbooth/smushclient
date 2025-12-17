@@ -17,7 +17,7 @@ pub mod ffi {
         type SmushClient = crate::ffi::SmushClient;
     }
 
-    #[qenum(SenderMap)]
+    #[repr(i32)]
     enum SenderType {
         Alias,
         Timer,

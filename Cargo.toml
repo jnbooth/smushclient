@@ -37,16 +37,16 @@ features = ["serde"]
 
 [workspace.dependencies.mud-transformer]
 git = "https://github.com/jnbooth/mxp"
-rev = "e3cb450045e5d372e6fa1bc0871bc6256bf80692"
+rev = "94b9442d3ba43f28cd11c62ee56d02d1d3f6e273"
 features = ["serde"]
 
 [workspace.dependencies.mxp]
 git = "https://github.com/jnbooth/mxp"
-rev = "e3cb450045e5d372e6fa1bc0871bc6256bf80692"
+rev = "94b9442d3ba43f28cd11c62ee56d02d1d3f6e273"
 features = ["serde"]
 
 [workspace.dependencies.serde]
-version = "1.0.204"
+version = "1.0.228"
 features = ["derive"]
 
 [workspace.dependencies.tokio]

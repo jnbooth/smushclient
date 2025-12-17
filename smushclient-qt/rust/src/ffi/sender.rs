@@ -61,7 +61,7 @@ pub mod ffi {
         Script,
     }
 
-    #[qenum(Timer)]
+    #[repr(i32)]
     enum Occurrence {
         Time,
         Interval,
