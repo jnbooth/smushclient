@@ -17,19 +17,19 @@ workspace = true
 version = "1.0.192"
 
 [dependencies.cxx-qt]
-git = "https://github.com/jnbooth/cxx-qt"
-rev = "37ebd3be62fcca469c4ce98b004c4b7ca99f1905"
+git = "https://github.com/KDAB/cxx-qt"
+version = "0.7.2"
 
 [dependencies.cxx-qt-lib]
-git = "https://github.com/jnbooth/cxx-qt"
-rev = "37ebd3be62fcca469c4ce98b004c4b7ca99f1905"
+git = "https://github.com/KDAB/cxx-qt"
+version = "0.7.2"
 features = ["chrono", "qt_gui"]
 
 [dependencies.cxx-qt-io]
 git = "https://github.com/jnbooth/cxx-qt-io"
-rev = "4b456cd53865579ee5644b5d13351f9971bf4025"
+rev = "1d4bfd732ca78273c0dcccaa75dd0425b1e4a1c8"
 version = "0.2.0"
-features = ["full"]
+features = ["net"]
 
 [dependencies.flagset]
 workspace = true
@@ -45,8 +45,8 @@ features = ["audio"]
 path = "../../smushclient-plugins"
 
 [build-dependencies.cxx-qt-build]
-git = "https://github.com/jnbooth/cxx-qt"
-rev = "37ebd3be62fcca469c4ce98b004c4b7ca99f1905"
+git = "https://github.com/KDAB/cxx-qt"
+version = "0.7.2"
 
 [features]
 link_qt_object_files = [
