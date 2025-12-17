@@ -22,18 +22,17 @@ use mud_transformer::mxp::RgbColor;
 use mud_transformer::{TransformerConfig, UseMxp};
 use serde::{Deserialize, Serialize};
 use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Sender, Timer, Trigger};
-use versions::WorldVersion;
 
 use crate::plugins::{SendIterable, SenderAccessError};
 
-const CURRENT_VERSION: u16 = 2;
+const CURRENT_VERSION: u16 = 3;
 
 fn skip_temporary<S, T>(vec: &[T], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
     T: serde::Serialize + AsRef<Sender>,
 {
-    // must collect in a vec because bincode needs to know the size ahead of time
+    // must collect in a vec because serialization needs to know the size ahead of time
     let filtered: Vec<&T> = vec.iter().filter(|x| !x.as_ref().temporary).collect();
     serializer.collect_seq(filtered)
 }
@@ -333,16 +332,22 @@ impl World {
 
     pub fn save<W: Write>(&self, mut writer: W) -> Result<(), PersistError> {
         writer.write_all(&CURRENT_VERSION.to_be_bytes())?;
-        bincode::serialize_into(writer, self)?;
+        postcard::to_io(self, writer)?;
         Ok(())
     }
 
     pub fn load<R: Read>(mut reader: R) -> Result<Self, PersistError> {
         let mut version_buf = [0; 2];
         reader.read_exact(&mut version_buf)?;
-        match u16::from_be_bytes(version_buf) {
+        let mut buf = Vec::new();
+        let version = u16::from_be_bytes(version_buf);
+        if version > 2 {
+            reader.read_to_end(&mut buf)?;
+        }
+        match version {
             1 => versions::V1::migrate(&mut reader),
-            2 => bincode::deserialize_from(reader).map_err(Into::into),
+            2 => versions::V2::migrate(&mut reader),
+            3 => postcard::from_bytes(&buf).map_err(Into::into),
             _ => Err(PersistError::Invalid)?,
         }
     }
@@ -398,7 +403,7 @@ impl World {
             }
             let len = sender.label.len();
             for i in 0.. {
-                write!(sender.label, "{i}").expect("formatting error");
+                write!(sender.label, "{i}").expect("format error");
                 if !labels.contains(&sender.label) {
                     labels.insert(&sender.label);
                     break;

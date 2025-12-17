@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::world::PersistError;
 
-const CURRENT_VERSION: u8 = 1;
+const CURRENT_VERSION: u8 = 2;
 
 pub type LuaString = Vec<u8>;
 pub type LuaStr = [u8];
@@ -75,15 +75,21 @@ impl PluginVariables {
 
     pub fn save<W: Write>(&self, mut writer: W) -> Result<(), PersistError> {
         writer.write_all(&[CURRENT_VERSION])?;
-        bincode::serialize_into(writer, self)?;
+        postcard::to_io(self, writer)?;
         Ok(())
     }
 
     pub fn load<R: Read>(mut reader: R) -> Result<Self, PersistError> {
         let mut version_buf = [0; 1];
         reader.read_exact(&mut version_buf)?;
-        match version_buf[0] {
+        let mut buf = Vec::new();
+        let version = version_buf[0];
+        if version > 1 {
+            reader.read_to_end(&mut buf)?;
+        }
+        match version {
             1 => bincode::deserialize_from(reader).map_err(Into::into),
+            2 => postcard::from_bytes(&buf).map_err(Into::into),
             _ => Err(PersistError::Invalid),
         }
     }

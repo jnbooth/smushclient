@@ -3,15 +3,24 @@ use std::path::PathBuf;
 
 use mud_transformer::UseMxp;
 use mud_transformer::mxp::RgbColor;
-use serde::Deserialize;
-use smushclient_plugins::{Alias, Timer, Trigger};
+use serde::{Deserialize, Serialize};
+use smushclient_plugins::{Alias, CursorVec, Sender, Timer, Trigger};
 
-use super::super::types::*;
 use crate::world::PersistError;
 
-#[derive(Deserialize)]
+fn skip_temporary<S, T>(vec: &[T], serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+    T: serde::Serialize + AsRef<Sender>,
+{
+    // must collect in a vec because bincode needs to know the size ahead of time
+    let filtered: Vec<&T> = vec.iter().filter(|x| !x.as_ref().temporary).collect();
+    serializer.collect_seq(filtered)
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct World {
-    // IP address
+    // Connecting
     pub name: String,
     pub site: String,
     pub port: u16,
@@ -22,20 +31,20 @@ pub struct World {
     pub proxy_password: String,
     pub save_world_automatically: bool,
 
-    // Connecting
+    // Login
     pub player: String,
     pub password: String,
-    pub connect_method: Option<AutoConnect>,
+    pub connect_method: Option<crate::world::AutoConnect>,
     pub connect_text: String,
 
     // Logging
     pub log_file_preamble: String,
     pub log_file_postamble: String,
-    pub log_format: LogFormat,
+    pub log_format: crate::world::LogFormat,
     pub log_output: bool,
     pub log_input: bool,
     pub log_notes: bool,
-    pub log_mode: LogMode,
+    pub log_mode: crate::world::LogMode,
     pub auto_log_file_name: Option<String>,
     pub log_preamble_output: String,
     pub log_preamble_input: String,
@@ -46,7 +55,7 @@ pub struct World {
 
     // Timers
     #[serde(serialize_with = "skip_temporary")]
-    pub timers: Vec<Timer>,
+    pub timers: CursorVec<Timer>,
     pub enable_timers: bool,
 
     // Output
@@ -54,9 +63,9 @@ pub struct World {
     pub show_italic: bool,
     pub show_underline: bool,
     pub indent_paras: u8,
-    pub ansi_colors: [RgbColor; 16],
+    pub ansi_colours: [RgbColor; 16],
     pub display_my_input: bool,
-    pub echo_colors: ColorPair,
+    pub echo_colours: crate::world::ColorPair,
     pub keep_commands_on_same_line: bool,
     pub new_activity_sound: Option<String>,
 
@@ -81,26 +90,26 @@ pub struct World {
 
     // Triggers
     #[serde(serialize_with = "skip_temporary")]
-    pub triggers: Vec<Trigger>,
+    pub triggers: CursorVec<Trigger>,
     pub enable_triggers: bool,
 
     // Aliases
     #[serde(serialize_with = "skip_temporary")]
-    pub aliases: Vec<Alias>,
+    pub aliases: CursorVec<Alias>,
     pub enable_aliases: bool,
 
-    // Numpad
-    pub numpad_shortcuts: NumpadMapping,
+    // Keypad
+    pub numpad_shortcuts: crate::world::NumpadMapping,
     pub numpad_enable: bool,
     pub hotkey_adds_to_command_history: bool,
     pub echo_hotkey_in_output_window: bool,
 
-    // Scripts
+    // Scripting
     pub enable_scripts: bool,
     pub world_script: Option<String>,
-    pub script_reload_option: ScriptRecompile,
-    pub note_text_colour: RgbColor,
-    pub error_colour: RgbColor,
+    pub script_reload_option: crate::world::ScriptRecompile,
+    pub note_colours: crate::world::ColorPair,
+    pub error_colours: crate::world::ColorPair,
 
     // Hidden
     pub plugins: Vec<PathBuf>,
@@ -139,17 +148,17 @@ impl From<World> for super::super::World {
             log_postamble_input: value.log_postamble_input,
             log_postamble_notes: value.log_postamble_notes,
 
-            timers: value.timers.into(),
+            timers: value.timers,
             enable_timers: value.enable_timers,
 
             show_bold: value.show_bold,
             show_italic: value.show_italic,
             show_underline: value.show_underline,
             indent_paras: value.indent_paras,
-            ansi_colours: value.ansi_colors,
+            ansi_colours: value.ansi_colours,
             display_my_input: value.display_my_input,
             keep_commands_on_same_line: value.keep_commands_on_same_line,
-            echo_colours: value.echo_colors,
+            echo_colours: value.echo_colours,
             new_activity_sound: value.new_activity_sound,
 
             use_mxp: value.use_mxp,
@@ -170,13 +179,13 @@ impl From<World> for super::super::World {
             enable_command_stack: value.enable_command_stack,
             command_stack_character: value.command_stack_character,
 
-            triggers: value.triggers.into(),
+            triggers: value.triggers,
             enable_triggers: value.enable_triggers,
 
-            aliases: value.aliases.into(),
+            aliases: value.aliases,
             enable_aliases: value.enable_aliases,
 
-            numpad_shortcuts: NumpadMapping::navigation(),
+            numpad_shortcuts: value.numpad_shortcuts,
             numpad_enable: value.numpad_enable,
             hotkey_adds_to_command_history: false,
             echo_hotkey_in_output_window: true,
@@ -184,8 +193,8 @@ impl From<World> for super::super::World {
             enable_scripts: value.enable_scripts,
             world_script: None,
             script_reload_option: value.script_reload_option,
-            note_colours: ColorPair::foreground(value.note_text_colour),
-            error_colours: ColorPair::foreground(value.error_colour),
+            note_colours: value.note_colours,
+            error_colours: value.error_colours,
 
             plugins: value.plugins,
         }

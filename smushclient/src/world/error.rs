@@ -4,7 +4,8 @@ use std::io;
 #[derive(Debug)]
 pub enum PersistError {
     File(io::Error),
-    Serial(bincode::Error),
+    Serial(postcard::Error),
+    Bincode(bincode::Error),
     Invalid,
 }
 
@@ -13,6 +14,7 @@ impl fmt::Display for PersistError {
         match self {
             Self::File(error) => error.fmt(f),
             Self::Serial(error) => error.fmt(f),
+            Self::Bincode(error) => error.fmt(f),
             Self::Invalid => f.write_str("invalid savefile"),
         }
     }
@@ -28,8 +30,14 @@ impl From<io::Error> for PersistError {
     }
 }
 
+impl From<postcard::Error> for PersistError {
+    fn from(value: postcard::Error) -> Self {
+        Self::Serial(value)
+    }
+}
+
 impl From<bincode::Error> for PersistError {
     fn from(value: bincode::Error) -> Self {
-        Self::Serial(value)
+        Self::Bincode(value)
     }
 }

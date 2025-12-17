@@ -55,7 +55,6 @@ if (LUACONF_CONTENTS MATCHES "#define LUA_INT_TYPE	LUA_INT_DEFAULT")
 endif ()
 
 set(CRATE smushclient_qt)
-#set(CARGO_TARGET_DIR "${CMAKE_BINARY_DIR}/${BUILD_DIR}/cargo/build")
 
 if (MSVC)
   set(CRATE_FEATURES link_qt_object_files)
