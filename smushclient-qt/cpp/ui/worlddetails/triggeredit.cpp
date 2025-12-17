@@ -98,7 +98,7 @@ void TriggerEdit::on_Sound_test_clicked() { audio.play(); }
 
 void TriggerEdit::on_Sound_textChanged(const QString &text) {
   ui->Sound_test->setEnabled(!text.isEmpty());
-  audio.setFile(text);
+  ui->SoundError->setText(audio.setFile(text));
 }
 
 void TriggerEdit::on_Text_textChanged() {

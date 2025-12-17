@@ -25,5 +25,5 @@ private slots:
 
 private:
   Ui::PrefsOutput *ui;
-  RustPlayback audio{};
+  RustFilePlayback audio{};
 };

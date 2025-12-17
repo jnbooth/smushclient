@@ -33,5 +33,5 @@ void SettingsSound::on_BellSound_test_clicked() { audio.play(); }
 
 void SettingsSound::on_BellSound_textChanged(const QString &text) {
   ui->BellSound_test->setEnabled(!text.isEmpty());
-  audio.setFile(text);
+  ui->SoundError->setText(audio.setFile(text));
 }

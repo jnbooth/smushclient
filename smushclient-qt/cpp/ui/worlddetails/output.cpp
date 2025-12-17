@@ -59,7 +59,7 @@ void PrefsOutput::on_NewActivitySound_test_clicked() { audio.play(); }
 
 void PrefsOutput::on_NewActivitySound_textChanged(const QString &text) {
   ui->NewActivitySound_test->setEnabled(!text.isEmpty());
-  audio.setFile(text);
+  ui->SoundError->setText(audio.setFile(text));
 }
 
 void PrefsOutput::on_reset_clicked() {

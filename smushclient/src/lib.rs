@@ -1,7 +1,7 @@
 #[cfg(feature = "audio")]
 mod audio;
 #[cfg(feature = "audio")]
-pub use audio::{AudioError, AudioPlayback, AudioSinks, PlayMode};
+pub use audio::{AudioError, AudioFilePlayback, AudioSinks, PlayMode, StreamError};
 
 mod client;
 pub use client::{LuaStr, LuaString, SmushClient};

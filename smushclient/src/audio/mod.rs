@@ -1,8 +1,10 @@
 mod error;
-pub use error::AudioError;
+pub use error::{AudioError, StreamError};
 
-mod playback;
-pub use playback::AudioPlayback;
+mod file_playback;
+pub use file_playback::AudioFilePlayback;
+
+mod looping;
 
 mod sinks;
 pub use sinks::{AudioSinks, PlayMode};

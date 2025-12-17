@@ -1,11 +1,12 @@
 use std::fs::File;
-use std::io::{BufReader, Cursor, Read, Seek};
+use std::io::Cursor;
 use std::path::Path;
 
 use rodio::cpal::FromSample;
-use rodio::{Decoder, OutputStream, Sample, Sink, Source};
+use rodio::{Decoder, OutputStream, OutputStreamBuilder, Source, StreamError};
 
 use super::error::AudioError;
+use super::looping::LoopingSink;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum PlayMode {
@@ -20,59 +21,25 @@ impl From<bool> for PlayMode {
 }
 
 pub struct AudioSinks {
-    sinks: [Sink; 10],
+    sinks: [LoopingSink; 10],
     _stream: OutputStream,
 }
 
-trait PlaySound {
-    fn play_source<S>(&self, source: S, volume: f32)
-    where
-        S: Source + Send + 'static,
-        f32: FromSample<S::Item>,
-        S::Item: Sample + Send;
-
-    fn play_sound<R: Read + Seek + Send + Sync + 'static>(
-        &self,
-        reader: R,
-        volume: f32,
-        mode: PlayMode,
-    ) -> Result<(), AudioError> {
-        match mode {
-            PlayMode::Once => self.play_source(Decoder::new(reader)?, volume),
-            PlayMode::Loop => self.play_source(Decoder::new_looped(reader)?, volume),
-        }
-        Ok(())
-    }
-}
-
-impl PlaySound for Sink {
-    fn play_source<S>(&self, source: S, volume: f32)
-    where
-        S: Source + Send + 'static,
-        f32: FromSample<S::Item>,
-        S::Item: Sample + Send,
-    {
-        self.stop();
-        self.set_volume(volume);
-        self.append(source);
-        self.play();
-    }
-}
-
 impl AudioSinks {
-    pub fn try_default() -> Result<Self, AudioError> {
-        let (stream, handle) = OutputStream::try_default()?;
+    pub fn try_default() -> Result<Self, StreamError> {
+        let stream = OutputStreamBuilder::open_default_stream()?;
+        let mixer = stream.mixer();
         let sinks = [
-            Sink::try_new(&handle)?,
-            Sink::try_new(&handle)?,
-            Sink::try_new(&handle)?,
-            Sink::try_new(&handle)?,
-            Sink::try_new(&handle)?,
-            Sink::try_new(&handle)?,
-            Sink::try_new(&handle)?,
-            Sink::try_new(&handle)?,
-            Sink::try_new(&handle)?,
-            Sink::try_new(&handle)?,
+            LoopingSink::connect_new(mixer),
+            LoopingSink::connect_new(mixer),
+            LoopingSink::connect_new(mixer),
+            LoopingSink::connect_new(mixer),
+            LoopingSink::connect_new(mixer),
+            LoopingSink::connect_new(mixer),
+            LoopingSink::connect_new(mixer),
+            LoopingSink::connect_new(mixer),
+            LoopingSink::connect_new(mixer),
+            LoopingSink::connect_new(mixer),
         ];
         Ok(Self {
             sinks,
@@ -80,7 +47,7 @@ impl AudioSinks {
         })
     }
 
-    fn get(&self, i: usize) -> Result<&Sink, AudioError> {
+    fn get(&self, i: usize) -> Result<&LoopingSink, AudioError> {
         if i != 0 {
             return self.sinks.get(i - 1).ok_or(AudioError::SinkOutOfRange);
         }
@@ -90,14 +57,18 @@ impl AudioSinks {
         }
     }
 
-    pub fn play<R: Read + Seek + Send + Sync + 'static>(
-        &self,
-        i: usize,
-        reader: R,
-        volume: f32,
-        mode: PlayMode,
-    ) -> Result<(), AudioError> {
-        self.get(i)?.play_sound(reader, volume, mode)
+    fn play<S>(&self, i: usize, source: S, volume: f32, mode: PlayMode) -> Result<(), AudioError>
+    where
+        S: Source + Send + 'static,
+        f32: FromSample<S::Item>,
+    {
+        let sink = self.get(i)?;
+        sink.clear();
+        sink.set_volume(volume);
+        sink.set_looping(mode == PlayMode::Loop);
+        sink.append_looping(source);
+        sink.play();
+        Ok(())
     }
 
     #[inline(always)] // avoid move operation on buffer
@@ -108,7 +79,8 @@ impl AudioSinks {
         volume: f32,
         mode: PlayMode,
     ) -> Result<(), AudioError> {
-        self.get(i)?.play_sound(Cursor::new(buffer), volume, mode)
+        let decoder = Decoder::try_from(Cursor::new(buffer))?;
+        self.play(i, decoder, volume, mode)
     }
 
     pub fn play_file<P: AsRef<Path>>(
@@ -118,23 +90,26 @@ impl AudioSinks {
         volume: f32,
         mode: PlayMode,
     ) -> Result<(), AudioError> {
-        self.get(i)?
-            .play_sound(BufReader::new(File::open(path)?), volume, mode)
+        let file = File::open(path)?;
+        let decoder = Decoder::try_from(file)?;
+        self.play(i, decoder, volume, mode)
     }
 
-    pub fn set_volume(&self, i: usize, volume: f32) -> Result<(), AudioError> {
-        self.get(i)?.set_volume(volume);
+    pub fn configure_sink(&self, i: usize, volume: f32, mode: PlayMode) -> Result<(), AudioError> {
+        let sink = self.get(i)?;
+        sink.set_volume(volume);
+        sink.set_looping(mode == PlayMode::Loop);
         Ok(())
     }
 
     pub fn stop(&self, i: usize) -> Result<(), AudioError> {
         if i == 0 {
             for sink in &self.sinks {
-                sink.stop();
+                sink.clear();
             }
             return Ok(());
         }
-        self.get(i)?.stop();
+        self.get(i)?.clear();
         Ok(())
     }
 }

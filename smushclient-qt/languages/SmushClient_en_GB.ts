@@ -2994,67 +2994,67 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="419"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="426"/>
         <source>En&amp;abled</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="429"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="436"/>
         <source>O&amp;mit from output</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="436"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="443"/>
         <source>&amp;Omit from log file</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="443"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="450"/>
         <source>One-shot</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="450"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="457"/>
         <source>Temporary</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="457"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="464"/>
         <source>&amp;Ignore case</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="464"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="471"/>
         <source>&amp;Keep evaluating</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="471"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="478"/>
         <source>Expand variables</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="478"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="485"/>
         <source>Make wildcards lower-case</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="485"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="492"/>
         <source>Regular expression</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="495"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="502"/>
         <source>Repeat on same line</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="505"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="512"/>
         <source>Multi-line</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="524"/>
+        <location filename="../cpp/ui/worlddetails/triggeredit.ui" line="531"/>
         <source>Lines:</source>
         <translation></translation>
     </message>

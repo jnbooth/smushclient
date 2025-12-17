@@ -2,7 +2,7 @@ use std::pin::Pin;
 
 use cxx_qt::CxxQtType;
 use cxx_qt_lib::QString;
-use smushclient::{AudioError, AudioPlayback};
+use smushclient::AudioFilePlayback;
 
 #[cxx_qt::bridge]
 pub mod ffi {
@@ -14,56 +14,54 @@ pub mod ffi {
     #[auto_cxx_name]
     extern "RustQt" {
         #[qobject]
-        type RustPlayback = super::RustPlaybackRust;
+        type RustFilePlayback = super::RustFilePlaybackRust;
 
-        pub fn play(self: &RustPlayback);
-        pub fn set_file(self: Pin<&mut RustPlayback>, file: &QString);
+        pub fn play(self: &RustFilePlayback);
+        pub fn set_file(self: Pin<&mut RustFilePlayback>, file: &QString) -> QString;
     }
 }
 
-impl ffi::RustPlayback {
+impl ffi::RustFilePlayback {
     pub fn play(&self) {
         self.rust().play();
     }
 
-    pub fn set_file(self: Pin<&mut Self>, path: &QString) {
-        self.rust_mut().set_file(path);
+    pub fn set_file(self: Pin<&mut Self>, path: &QString) -> QString {
+        self.rust_mut().set_file(path)
     }
 }
 
-pub struct RustPlaybackRust {
-    inner: AudioPlayback,
+pub struct RustFilePlaybackRust {
+    inner: AudioFilePlayback,
 }
 
-impl Default for RustPlaybackRust {
+impl Default for RustFilePlaybackRust {
     /// # Panics
     ///
     /// Panics if audio initialization fails.
     #[allow(clippy::expect_used)]
     fn default() -> Self {
         Self {
-            inner: AudioPlayback::try_default().expect("audio initialization failed"),
+            inner: AudioFilePlayback::try_default().expect("audio initialization failed"),
         }
     }
 }
 
-impl RustPlaybackRust {
-    fn handle(result: Result<(), AudioError>) {
-        if let Err(e) = result {
-            eprintln!("audio error: {e}");
-        }
-    }
-
+impl RustFilePlaybackRust {
     pub fn play(&self) {
-        Self::handle(self.inner.play());
+        self.inner.play();
     }
 
-    pub fn set_file(&mut self, path: &QString) {
+    pub fn set_file(&mut self, path: &QString) -> QString {
         let path = String::from(path);
         if path.is_empty() {
             self.inner.clear();
-            return;
+            return QString::default();
         }
-        Self::handle(self.inner.set_file(path));
+        if let Err(e) = self.inner.set_file(path) {
+            QString::from(&e.to_string())
+        } else {
+            QString::default()
+        }
     }
 }

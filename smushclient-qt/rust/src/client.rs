@@ -291,11 +291,12 @@ impl SmushClientRust {
         volume: f32,
         looping: bool,
     ) -> ffi::SoundResult {
+        let looping = looping.into();
         if path.is_empty() {
-            return self.audio.set_volume(i, volume).into();
+            return self.audio.configure_sink(i, volume, looping).into();
         }
         self.audio
-            .play_file(i, String::from(path), volume, looping.into())
+            .play_file(i, String::from(path), volume, looping)
             .into()
     }
 
