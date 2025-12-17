@@ -75,7 +75,7 @@ impl<S: AsRef<str>> Escaped<S> {
 }
 
 impl<S> Escaped<S> {
-    pub fn with_datetime<Tz>(&self, datetime: DateTime<Tz>) -> EscapedChrono<S, Tz>
+    pub fn with_datetime<Tz>(&self, datetime: DateTime<Tz>) -> EscapedChrono<'_, S, Tz>
     where
         Tz: TimeZone,
     {

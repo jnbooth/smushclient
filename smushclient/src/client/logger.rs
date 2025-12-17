@@ -5,17 +5,12 @@ use std::mem;
 use crate::handler::Handler;
 use crate::world::{Escaped, EscapedBrackets, LogBrackets, LogFormat, World};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub enum LogFile {
+    #[default]
     Closed,
     Failed(io::Error),
     Open(BufWriter<File>),
-}
-
-impl Default for LogFile {
-    fn default() -> Self {
-        Self::Closed
-    }
 }
 
 impl LogFile {

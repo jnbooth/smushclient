@@ -321,7 +321,7 @@ impl SmushClient {
         self.plugins.reinstall_plugin(index)
     }
 
-    pub fn plugins(&self) -> slice::Iter<Plugin> {
+    pub fn plugins(&self) -> slice::Iter<'_, Plugin> {
         self.plugins.iter()
     }
 
@@ -524,7 +524,7 @@ impl SmushClient {
     pub fn import_world_senders<T: SendIterable>(
         &mut self,
         xml: &str,
-    ) -> Result<SortOnDrop<T>, XmlError> {
+    ) -> Result<SortOnDrop<'_, T>, XmlError> {
         let mut senders = T::from_xml_str(xml)?;
         Ok(self.world.import_senders(&mut senders).into())
     }

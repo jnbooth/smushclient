@@ -30,11 +30,10 @@ impl ClientHandler<'_> {
         if fragment.flags.is_empty()
             && fragment.background == RgbColor::BLACK
             && fragment.action.is_none()
+            && let Some(&index) = self.palette.get(&fragment.foreground)
         {
-            if let Some(&index) = self.palette.get(&fragment.foreground) {
-                self.doc.append_plaintext(&text, index);
-                return;
-            }
+            self.doc.append_plaintext(&text, index);
+            return;
         }
         let colors = QColorPair {
             foreground: fragment.foreground.convert(),
@@ -107,10 +106,10 @@ impl ClientHandler<'_> {
         if !self.stats.contains(&stat.entity) {
             self.stats.insert(stat.entity.clone());
         }
-        if let Some(max) = &stat.max {
-            if !self.stats.contains(max) {
-                self.stats.insert(max.clone());
-            }
+        if let Some(max) = &stat.max
+            && !self.stats.contains(max)
+        {
+            self.stats.insert(max.clone());
         }
     }
 

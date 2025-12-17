@@ -10,7 +10,7 @@ impl NonBlockingMutex {
     /// # Panics
     ///
     /// Panics if the mutex is already locked.
-    pub fn lock(&self) -> NonBlockingMutexGuard {
+    pub fn lock(&self) -> NonBlockingMutexGuard<'_> {
         assert!(
             !self.locked.swap(true, Ordering::Relaxed),
             "concurrent access"

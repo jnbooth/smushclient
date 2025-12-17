@@ -89,10 +89,10 @@ impl<T> Timers<T> {
         let LocalResult::Single(next_date) = now.with_time(next_time) else {
             return None;
         };
-        if next_date < now {
-            if let Some(next_date) = next_date.checked_add_days(Days::new(1)) {
-                return Some(next_date.to_utc());
-            }
+        if next_date < now
+            && let Some(next_date) = next_date.checked_add_days(Days::new(1))
+        {
+            return Some(next_date.to_utc());
         }
         Some(next_date.to_utc())
     }

@@ -246,10 +246,8 @@ impl PluginEngine {
                         style = SpanStyle::from(&*trigger);
                         has_style = !style.is_null();
                     }
-                    if has_style {
-                        if let Some(capture) = captures.get(0) {
-                            handler.apply_styles(capture.start()..capture.end(), style);
-                        }
+                    if has_style && let Some(capture) = captures.get(0) {
+                        handler.apply_styles(capture.start()..capture.end(), style);
                     }
                     self.trigger_buf.clear();
                     let text = trigger.expand_text(&mut self.trigger_buf, &captures);

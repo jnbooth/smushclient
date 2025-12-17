@@ -19,8 +19,9 @@ flags! {
         Never,
     }
 
-    #[derive(PartialOrd, Ord, Hash, Deserialize, Serialize)]
+    #[derive(Default, PartialOrd, Ord, Hash, Deserialize, Serialize)]
     pub enum LogFormat: u8 {
+        #[default]
         Text,
         Html,
         Raw,
@@ -30,12 +31,6 @@ flags! {
     pub enum LogMode: u8 {
         Append,
         Overwrite,
-    }
-}
-
-impl Default for LogFormat {
-    fn default() -> Self {
-        Self::Text
     }
 }
 

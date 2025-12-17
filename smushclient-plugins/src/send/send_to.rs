@@ -1,8 +1,11 @@
 use serde::{Deserialize, Serialize};
 
 #[repr(u8)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(
+    Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
+)]
 pub enum SendTarget {
+    #[default]
     World,
     Command,
     Output,
@@ -21,12 +24,6 @@ pub enum SendTarget {
 }
 
 const SENDTARGET_MAX: SendTarget = SendTarget::ScriptAfterOmit;
-
-impl Default for SendTarget {
-    fn default() -> Self {
-        Self::World
-    }
-}
 
 impl SendTarget {
     pub const fn ignore_empty(self) -> bool {

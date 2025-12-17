@@ -23,7 +23,6 @@ macro_rules! impl_convert_self {
         $(impl_convert!($t, $t);)+
     }
 }
-pub(crate) use impl_convert_self;
 
 macro_rules! impl_convert_enum {
     ($ffi:ty, $rust:ty, $($variant:ident),+ $(,)?) => {
