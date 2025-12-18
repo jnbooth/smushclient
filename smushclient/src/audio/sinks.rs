@@ -22,36 +22,32 @@ impl From<bool> for PlayMode {
 
 pub struct AudioSinks {
     sinks: [LoopingSink; 10],
-    _stream: OutputStream,
+    stream: OutputStream,
 }
 
 impl AudioSinks {
     pub fn try_default() -> Result<Self, StreamError> {
         let stream = OutputStreamBuilder::open_default_stream()?;
-        let mixer = stream.mixer();
         let sinks = [
-            LoopingSink::connect_new(mixer),
-            LoopingSink::connect_new(mixer),
-            LoopingSink::connect_new(mixer),
-            LoopingSink::connect_new(mixer),
-            LoopingSink::connect_new(mixer),
-            LoopingSink::connect_new(mixer),
-            LoopingSink::connect_new(mixer),
-            LoopingSink::connect_new(mixer),
-            LoopingSink::connect_new(mixer),
-            LoopingSink::connect_new(mixer),
+            LoopingSink::new(),
+            LoopingSink::new(),
+            LoopingSink::new(),
+            LoopingSink::new(),
+            LoopingSink::new(),
+            LoopingSink::new(),
+            LoopingSink::new(),
+            LoopingSink::new(),
+            LoopingSink::new(),
+            LoopingSink::new(),
         ];
-        Ok(Self {
-            sinks,
-            _stream: stream,
-        })
+        Ok(Self { sinks, stream })
     }
 
     fn get(&self, i: usize) -> Result<&LoopingSink, AudioError> {
         if i != 0 {
             return self.sinks.get(i - 1).ok_or(AudioError::SinkOutOfRange);
         }
-        match self.sinks.iter().find(|sink| sink.empty()) {
+        match self.sinks.iter().find(|sink| sink.done()) {
             Some(sink) => Ok(sink),
             None => self.sinks.first().ok_or(AudioError::SinkOutOfRange),
         }
@@ -63,11 +59,10 @@ impl AudioSinks {
         f32: FromSample<S::Item>,
     {
         let sink = self.get(i)?;
-        sink.clear();
+        sink.stop();
         sink.set_volume(volume);
         sink.set_looping(mode == PlayMode::Loop);
-        sink.append_looping(source);
-        sink.play();
+        sink.play(source, self.stream.mixer());
         Ok(())
     }
 
@@ -105,11 +100,11 @@ impl AudioSinks {
     pub fn stop(&self, i: usize) -> Result<(), AudioError> {
         if i == 0 {
             for sink in &self.sinks {
-                sink.clear();
+                sink.stop();
             }
             return Ok(());
         }
-        self.get(i)?.clear();
+        self.get(i)?.stop();
         Ok(())
     }
 }

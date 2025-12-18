@@ -1,25 +1,44 @@
-use std::ops::{Deref, DerefMut};
-use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU32, AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use rodio::cpal::FromSample;
 use rodio::mixer::Mixer;
-use rodio::source::SeekError;
-use rodio::{ChannelCount, SampleRate, Sink, Source};
+use rodio::source::{Done, SeekError};
+use rodio::{ChannelCount, SampleRate, Source};
+
+struct Controls {
+    current: AtomicU32,
+    volume: Mutex<f32>,
+}
 
 pub struct LoopingSink {
-    inner: Sink,
+    controls: Arc<Controls>,
     looping: Arc<AtomicBool>,
+    sound_count: Arc<AtomicUsize>,
 }
 
 impl LoopingSink {
     #[inline]
-    pub fn connect_new(mixer: &Mixer) -> Self {
+    pub fn new() -> Self {
         Self {
-            inner: Sink::connect_new(mixer),
+            controls: Arc::new(Controls {
+                current: AtomicU32::new(0),
+                volume: Mutex::new(1.0),
+            }),
             looping: Arc::default(),
+            sound_count: Arc::default(),
         }
+    }
+
+    #[inline]
+    pub fn done(&self) -> bool {
+        self.sound_count.load(Ordering::Relaxed) == 0
+    }
+
+    #[inline]
+    pub fn stop(&self) {
+        self.controls.current.fetch_add(1, Ordering::Relaxed);
     }
 
     #[inline]
@@ -28,29 +47,32 @@ impl LoopingSink {
     }
 
     #[inline]
-    pub fn append_looping<S>(&self, source: S)
+    pub fn set_volume(&self, value: f32) {
+        *self.controls.volume.lock().expect("mutex error") = value;
+    }
+
+    #[inline]
+    pub fn play<S>(&self, source: S, mixer: &Mixer)
     where
         S: Source + Send + 'static,
         f32: FromSample<S::Item>,
     {
-        self.inner
-            .append(Looping::new(source, self.looping.clone()));
-    }
-}
-
-impl Deref for LoopingSink {
-    type Target = Sink;
-
-    #[inline]
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
-impl DerefMut for LoopingSink {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
+        let controls = self.controls.clone();
+        let source_index = controls.current.fetch_add(1, Ordering::Relaxed) + 1;
+        let source = Looping::new(source, self.looping.clone())
+            .amplify(1.0)
+            .skippable()
+            .periodic_access(Duration::from_millis(100), move |src| {
+                if controls.current.load(Ordering::Relaxed) != source_index {
+                    src.skip();
+                    return;
+                }
+                let volume = *controls.volume.lock().expect("mutex error");
+                src.inner_mut().set_factor(volume);
+            });
+        self.sound_count.fetch_add(1, Ordering::Relaxed);
+        let source = Done::new(source, self.sound_count.clone());
+        mixer.add(source);
     }
 }
 
