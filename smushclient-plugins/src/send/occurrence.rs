@@ -61,11 +61,6 @@ impl fmt::Display for Occurrence {
             Self::Time(time) => return time.format("%-I:%M %p").fmt(f),
         };
 
-        if f.width().is_some() || f.precision().is_some() {
-            #[allow(clippy::recursive_format_impl)]
-            return f.pad(&self.to_string());
-        }
-
         let secs = interval.as_secs();
         let millis = interval.subsec_millis();
         if millis == 0 {

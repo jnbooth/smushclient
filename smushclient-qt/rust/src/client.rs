@@ -27,7 +27,6 @@ pub struct SmushClientRust {
     pub client: SmushClient,
     input_lock: NonBlockingMutex,
     output_lock: NonBlockingMutex,
-    send: Vec<QString>,
     stats: HashSet<String>,
     timers: Timers<ffi::SendTimer>,
     palette: HashMap<RgbColor, i32>,
@@ -63,7 +62,6 @@ impl Default for SmushClientRust {
             ),
             input_lock: NonBlockingMutex::default(),
             output_lock: NonBlockingMutex::default(),
-            send: Vec::new(),
             stats: HashSet::new(),
             timers: Timers::new(),
             palette: HashMap::with_capacity(164),
@@ -218,7 +216,6 @@ impl SmushClientRust {
 
     pub fn read(&mut self, mut socket: Pin<&mut QAbstractSocket>, doc: Pin<&mut Document>) -> i64 {
         let output_lock = self.output_lock.lock();
-        self.send.clear();
         let world = self.client.world();
         let mut handler = ClientHandler {
             audio: &self.audio,
@@ -255,7 +252,6 @@ impl SmushClientRust {
 
     pub fn flush(&mut self, doc: Pin<&mut Document>) {
         let output_lock = self.output_lock.lock();
-        self.send.clear();
         let world = self.client.world();
         let mut handler = ClientHandler {
             audio: &self.audio,
@@ -310,9 +306,7 @@ impl SmushClientRust {
         source: CommandSource,
         doc: Pin<&mut Document>,
     ) -> AliasOutcome {
-        doc.begin();
         let output_lock = self.output_lock.lock();
-        self.send.clear();
         let world = self.client.world();
         let mut handler = ClientHandler {
             audio: &self.audio,
@@ -322,6 +316,7 @@ impl SmushClientRust {
             no_echo_off: world.no_echo_off,
             stats: &mut self.stats,
         };
+        handler.doc.begin();
         let outcome = self
             .client
             .alias(&String::from(command), source, &mut handler);

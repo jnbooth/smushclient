@@ -49,7 +49,7 @@ impl AudioSinks {
         }
         match self.sinks.iter().find(|sink| sink.done()) {
             Some(sink) => Ok(sink),
-            None => self.sinks.first().ok_or(AudioError::SinkOutOfRange),
+            None => Ok(&self.sinks[0]),
         }
     }
 

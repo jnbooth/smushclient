@@ -47,12 +47,12 @@ impl Hash for Regex {
 
 impl fmt::Display for Regex {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.pad(self.as_str())
+        self.as_str().fmt(f)
     }
 }
 impl fmt::Debug for Regex {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.pad(self.as_str())
+        self.as_str().fmt(f)
     }
 }
 

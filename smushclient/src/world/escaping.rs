@@ -106,7 +106,7 @@ where
         if self.has_chrono {
             Local::now().format(self.message.as_ref()).fmt(f)
         } else {
-            f.pad(self.message.as_ref())
+            self.message.as_ref().fmt(f)
         }
     }
 }
@@ -126,7 +126,7 @@ where
         if self.escaped.has_chrono {
             self.datetime.format(self.escaped.message.as_ref()).fmt(f)
         } else {
-            f.pad(self.escaped.message.as_ref())
+            self.escaped.message.as_ref().fmt(f)
         }
     }
 }
