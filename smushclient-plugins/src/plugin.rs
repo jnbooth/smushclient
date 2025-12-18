@@ -9,6 +9,7 @@ use std::str;
 
 use chrono::{Local, NaiveDate, NaiveDateTime};
 pub use quick_xml::DeError as PluginLoadError;
+use quick_xml::SeError;
 use serde::{Deserialize, Serialize};
 
 use crate::cursor_vec::CursorVec;
@@ -65,11 +66,12 @@ impl Plugin {
         quick_xml::de::from_str(s)
     }
 
-    pub fn to_xml<W: Write>(&self, writer: W) -> Result<(), PluginLoadError> {
-        quick_xml::se::to_writer(writer, self)
+    pub fn to_xml<W: Write>(&self, writer: W) -> Result<(), SeError> {
+        quick_xml::se::to_writer(writer, self)?;
+        Ok(())
     }
 
-    pub fn to_xml_string(&self) -> Result<String, PluginLoadError> {
+    pub fn to_xml_string(&self) -> Result<String, SeError> {
         quick_xml::se::to_string(self)
     }
 

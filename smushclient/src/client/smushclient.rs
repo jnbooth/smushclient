@@ -4,7 +4,7 @@ use std::{env, mem, slice};
 
 use flagset::FlagSet;
 use mud_transformer::{OutputFragment, Tag, Transformer, TransformerConfig};
-use smushclient_plugins::{CursorVec, LoadError, Plugin, PluginIndex, XmlError};
+use smushclient_plugins::{CursorVec, LoadError, Plugin, PluginIndex, XmlError, XmlSerError};
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
@@ -529,7 +529,7 @@ impl SmushClient {
         Ok(self.world.import_senders(&mut senders).into())
     }
 
-    pub fn export_world_senders<T: SendIterable>(&self) -> Result<String, XmlError> {
+    pub fn export_world_senders<T: SendIterable>(&self) -> Result<String, XmlSerError> {
         T::to_xml_string(T::from_world(&self.world))
     }
 

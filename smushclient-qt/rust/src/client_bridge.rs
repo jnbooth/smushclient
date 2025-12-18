@@ -6,7 +6,9 @@ use cxx_qt::CxxQtType;
 use cxx_qt_lib::{QColor, QString, QStringList, QVariant, QVector};
 use smushclient::world::PersistError;
 use smushclient::{AliasBool, LuaStr, LuaString, SendIterable, TimerBool, TriggerBool};
-use smushclient_plugins::{Alias, LoadError, PluginIndex, RegexError, Timer, Trigger, XmlError};
+use smushclient_plugins::{
+    Alias, LoadError, PluginIndex, RegexError, Timer, Trigger, XmlError, XmlSerError,
+};
 
 use crate::ffi;
 use crate::ffi::AliasOutcomes;
@@ -327,17 +329,17 @@ impl ffi::SmushClient {
             .is_ok()
     }
 
-    pub fn export_world_aliases(&self) -> Result<QString, XmlError> {
+    pub fn export_world_aliases(&self) -> Result<QString, XmlSerError> {
         let xml = self.rust().client.export_world_senders::<Alias>()?;
         Ok(QString::from(&xml))
     }
 
-    pub fn export_world_timers(&self) -> Result<QString, XmlError> {
+    pub fn export_world_timers(&self) -> Result<QString, XmlSerError> {
         let xml = self.rust().client.export_world_senders::<Timer>()?;
         Ok(QString::from(&xml))
     }
 
-    pub fn export_world_triggers(&self) -> Result<QString, XmlError> {
+    pub fn export_world_triggers(&self) -> Result<QString, XmlSerError> {
         let xml = self.rust().client.export_world_senders::<Trigger>()?;
         Ok(QString::from(&xml))
     }

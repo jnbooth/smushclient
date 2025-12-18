@@ -1068,9 +1068,9 @@ dependencies = [
 
 [[package]]
 name = "quick-xml"
-version = "0.36.2"
+version = "0.38.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7649a7b4df05aed9ea7ec6f628c67c9953a43869b8bc50929569b2999d443fe"
+checksum = "b66c2058c55a409d601666cffe35f04333cf1013010882cec174a7467cd4e21c"
 dependencies = [
  "memchr",
  "serde",
@@ -1339,8 +1339,9 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "swift-bridge"
-version = "0.1.55"
-source = "git+https://github.com/jnbooth/swift-bridge?rev=d6090a0e0641101260c2e9d5d31b0a8195f6c138#d6090a0e0641101260c2e9d5d31b0a8195f6c138"
+version = "0.1.58"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "906ac80315f2b4458a2d86187b105390d72f9d03dc397a8e0d746df13a264d7d"
 dependencies = [
  "once_cell",
  "swift-bridge-build",
@@ -1350,8 +1351,9 @@ dependencies = [
 
 [[package]]
 name = "swift-bridge-build"
-version = "0.1.55"
-source = "git+https://github.com/jnbooth/swift-bridge?rev=d6090a0e0641101260c2e9d5d31b0a8195f6c138#d6090a0e0641101260c2e9d5d31b0a8195f6c138"
+version = "0.1.58"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cb5a18540f6d418339940a257f1e94ad4ef93e1c631a5d1345cbe028dd565516"
 dependencies = [
  "proc-macro2",
  "swift-bridge-ir",
@@ -1361,8 +1363,9 @@ dependencies = [
 
 [[package]]
 name = "swift-bridge-ir"
-version = "0.1.55"
-source = "git+https://github.com/jnbooth/swift-bridge?rev=d6090a0e0641101260c2e9d5d31b0a8195f6c138#d6090a0e0641101260c2e9d5d31b0a8195f6c138"
+version = "0.1.58"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "717bdc64f74525b938d29cda5c2d721c593a05bafc1d69066b04f7deb3f5fe5e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1371,8 +1374,9 @@ dependencies = [
 
 [[package]]
 name = "swift-bridge-macro"
-version = "0.1.55"
-source = "git+https://github.com/jnbooth/swift-bridge?rev=d6090a0e0641101260c2e9d5d31b0a8195f6c138#d6090a0e0641101260c2e9d5d31b0a8195f6c138"
+version = "0.1.58"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da276fe2b7f4aa0221ccd8cee5514f2d48a95b5789e2c9558dedbc49c6e99671"
 dependencies = [
  "proc-macro2",
  "quote",

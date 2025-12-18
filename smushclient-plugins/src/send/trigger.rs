@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use flagset::{FlagSet, flags};
 use mxp::RgbColor;
-use quick_xml::DeError;
+use quick_xml::{DeError, SeError};
 use serde::{Deserialize, Serialize};
 
 use super::reaction::Reaction;
@@ -73,7 +73,7 @@ impl Trigger {
             .collect()
     }
 
-    pub fn to_xml_string<'a, I: IntoIterator<Item = &'a Self>>(iter: I) -> Result<String, DeError> {
+    pub fn to_xml_string<'a, I: IntoIterator<Item = &'a Self>>(iter: I) -> Result<String, SeError> {
         let nodes: Vec<TriggerXml<'a>> = iter.into_iter().map(TriggerXml::from).collect();
         let xml = quick_xml::se::to_string(&TriggersXml { trigger: nodes })?;
         Ok(xml[3..xml.len() - 4].to_owned())

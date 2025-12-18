@@ -1,10 +1,12 @@
-use smushclient_plugins::{Alias, CursorVec, Plugin, Sender, Timer, Trigger, XmlError};
+use smushclient_plugins::{
+    Alias, CursorVec, Plugin, Sender, Timer, Trigger, XmlError, XmlSerError,
+};
 
 use crate::world::World;
 
 pub trait SendIterable: AsRef<Sender> + AsMut<Sender> + Eq + Ord + Sized {
     fn from_xml_str(s: &str) -> Result<Vec<Self>, XmlError>;
-    fn to_xml_string<'a, I: IntoIterator<Item = &'a Self>>(iter: I) -> Result<String, XmlError>
+    fn to_xml_string<'a, I: IntoIterator<Item = &'a Self>>(iter: I) -> Result<String, XmlSerError>
     where
         Self: 'a;
     fn from_plugin(plugin: &Plugin) -> &CursorVec<Self>;
@@ -48,7 +50,7 @@ macro_rules! impl_send_iterable {
             }
             fn to_xml_string<'a, I: IntoIterator<Item = &'a Self>>(
                 iter: I,
-            ) -> Result<String, XmlError> {
+            ) -> Result<String, XmlSerError> {
                 Self::to_xml_string(iter)
             }
             fn from_plugin(plugin: &Plugin) -> &CursorVec<Self> {
