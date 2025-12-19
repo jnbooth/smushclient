@@ -10,7 +10,7 @@ use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
 use crate::in_place::{InPlace, in_place};
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Trigger {
     // Note: this is at the top for Ord-deriving purposes.
     pub reaction: Reaction,
@@ -26,42 +26,6 @@ pub struct Trigger {
     pub lowercase_wildcard: bool,
     pub multi_line: bool,
     pub lines_to_match: u8,
-}
-
-impl Clone for Trigger {
-    fn clone(&self) -> Self {
-        Self {
-            reaction: self.reaction.clone(),
-            change_foreground: self.change_foreground,
-            foreground_color: self.foreground_color,
-            change_background: self.change_background,
-            background_color: self.background_color,
-            make_bold: self.make_bold,
-            make_italic: self.make_italic,
-            make_underline: self.make_underline,
-            sound: self.sound.clone(),
-            sound_if_inactive: self.sound_if_inactive,
-            lowercase_wildcard: self.lowercase_wildcard,
-            multi_line: self.multi_line,
-            lines_to_match: self.lines_to_match,
-        }
-    }
-
-    fn clone_from(&mut self, source: &Self) {
-        self.reaction.clone_from(&source.reaction);
-        self.change_foreground = source.change_foreground;
-        self.foreground_color = source.foreground_color;
-        self.change_background = source.change_background;
-        self.background_color = source.background_color;
-        self.make_bold = source.make_bold;
-        self.make_italic = source.make_italic;
-        self.make_underline = source.make_underline;
-        self.sound.clone_from(&source.sound);
-        self.sound_if_inactive = source.sound_if_inactive;
-        self.lowercase_wildcard = source.lowercase_wildcard;
-        self.multi_line = source.multi_line;
-        self.lines_to_match = source.lines_to_match;
-    }
 }
 
 impl Default for Trigger {

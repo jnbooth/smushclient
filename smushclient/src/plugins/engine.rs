@@ -7,7 +7,7 @@ use std::path::Path;
 use std::{slice, vec};
 
 use mud_transformer::Output;
-use smushclient_plugins::{Alias, LoadError, Plugin, PluginIndex, SendTarget, Trigger};
+use smushclient_plugins::{LoadError, Plugin, PluginIndex, Reaction, SendTarget};
 
 use super::effects::CommandSource;
 use super::effects::{AliasEffects, SpanStyle, TriggerEffects};
@@ -141,7 +141,7 @@ impl PluginEngine {
         }
 
         let mut text_buf = String::new();
-        let mut alias_buf = Alias::default();
+        let mut reaction_buf = Reaction::default();
 
         for (plugin_index, plugin) in self.plugins.iter().enumerate() {
             if plugin.disabled.get() {
@@ -184,7 +184,7 @@ impl PluginEngine {
                             );
                             false
                         } else if enable_scripts || !alias.send_to.is_script() {
-                            alias_buf.clone_from(&alias);
+                            reaction_buf.clone_from(&alias);
                             true
                         } else {
                             false
@@ -193,9 +193,9 @@ impl PluginEngine {
                     if send_request {
                         handler.send(super::SendRequest {
                             plugin: plugin_index,
-                            send_to: alias_buf.send_to,
-                            text: alias_buf.expand_text(&mut text_buf, &captures),
-                            destination: alias_buf.destination(),
+                            send_to: reaction_buf.send_to,
+                            text: reaction_buf.expand_text(&mut text_buf, &captures),
+                            destination: reaction_buf.destination(),
                         });
                     }
                     if !alias.borrow().repeats {
@@ -210,12 +210,12 @@ impl PluginEngine {
                     if alias.script.is_empty() {
                         false
                     } else {
-                        alias_buf.clone_from(&alias);
+                        reaction_buf.clone_from(&alias);
                         true
                     }
                 };
                 if send_script {
-                    handler.send_scripts(plugin_index, &alias_buf, line, &[]);
+                    handler.send_scripts(plugin_index, &reaction_buf, line, &[]);
                 }
                 let (one_shot, keep_evaluating) = {
                     let alias = alias.borrow();
@@ -248,7 +248,7 @@ impl PluginEngine {
         }
 
         let mut text_buf = String::new();
-        let mut trigger_buf = Trigger::default();
+        let mut reaction_buf = Reaction::default();
         let mut effects = TriggerEffects::new();
         let mut style = SpanStyle::null();
         let mut has_style = false;
@@ -285,6 +285,7 @@ impl PluginEngine {
                     if has_style && let Some(capture) = captures.get(0) {
                         handler.apply_styles(capture.start()..capture.end(), style);
                     }
+                    text_buf.clear();
                     let send_request = {
                         let trigger = trigger.borrow();
                         if trigger.send_to == SendTarget::Variable {
@@ -298,7 +299,7 @@ impl PluginEngine {
                             );
                             false
                         } else if enable_scripts || !trigger.send_to.is_script() {
-                            trigger_buf.clone_from(&trigger);
+                            reaction_buf.clone_from(&trigger);
                             true
                         } else {
                             false
@@ -307,9 +308,9 @@ impl PluginEngine {
                     if send_request {
                         handler.send(super::SendRequest {
                             plugin: plugin_index,
-                            send_to: trigger_buf.send_to,
-                            text: trigger_buf.expand_text(&mut text_buf, &captures),
-                            destination: trigger_buf.destination(),
+                            send_to: reaction_buf.send_to,
+                            text: reaction_buf.expand_text(&mut text_buf, &captures),
+                            destination: reaction_buf.destination(),
                         });
                     }
                     if !trigger.borrow().repeats {
@@ -321,12 +322,12 @@ impl PluginEngine {
                     if trigger.script.is_empty() {
                         false
                     } else {
-                        trigger_buf.clone_from(&trigger);
+                        reaction_buf.clone_from(&trigger);
                         true
                     }
                 };
                 if send_script {
-                    handler.send_scripts(plugin_index, &trigger_buf, line, output);
+                    handler.send_scripts(plugin_index, &reaction_buf, line, output);
                 }
                 let (one_shot, keep_evaluating) = {
                     let trigger = trigger.borrow();

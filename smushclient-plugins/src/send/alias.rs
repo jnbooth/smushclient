@@ -9,7 +9,7 @@ use super::sender::Sender;
 use crate::constants::DEFAULT_SEQUENCE;
 use crate::in_place::{InPlace, in_place};
 
-#[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Alias {
     // Note: This is at the top for Ord-deriving purposes.
     pub reaction: Reaction,
@@ -21,24 +21,6 @@ pub struct Alias {
 impl_deref!(Alias, Reaction, reaction);
 impl_asref!(Alias, Reaction);
 impl_asref!(Alias, Sender);
-
-impl Clone for Alias {
-    fn clone(&self) -> Self {
-        Self {
-            reaction: self.reaction.clone(),
-            echo_alias: self.echo_alias,
-            menu: self.menu,
-            omit_from_command_history: self.omit_from_command_history,
-        }
-    }
-
-    fn clone_from(&mut self, source: &Self) {
-        self.reaction.clone_from(&source.reaction);
-        self.echo_alias = source.echo_alias;
-        self.menu = source.menu;
-        self.omit_from_command_history = source.omit_from_command_history;
-    }
-}
 
 #[derive(Debug, Serialize)]
 #[serde(rename = "X")]
