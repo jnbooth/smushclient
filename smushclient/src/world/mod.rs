@@ -391,7 +391,7 @@ impl World {
                 }
                 let len = sender.label.len();
                 for i in 0.. {
-                    write!(sender.label, "{i}").expect("format error");
+                    write!(sender.label, "{i}").unwrap();
                     if !labels.contains(&sender.label) {
                         labels.insert(&sender.label);
                         break;

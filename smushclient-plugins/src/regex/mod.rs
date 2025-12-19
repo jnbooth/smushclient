@@ -16,7 +16,6 @@ pub type RegexError = pcre2::Error;
 
 impl Default for Regex {
     fn default() -> Self {
-        #[allow(clippy::unwrap_used)]
         Self(pcre2::bytes::Regex::new("^$").unwrap())
     }
 }

@@ -1,4 +1,3 @@
-#![cfg_attr(test, allow(clippy::unwrap_used))]
 mod in_place;
 
 mod constants;

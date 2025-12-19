@@ -25,7 +25,6 @@ struct_excessive_bools = "allow"
 too_many_lines = "allow"
 undocumented_unsafe_blocks = "warn"
 unnecessary_safety_doc = "warn"
-unwrap_used = "warn"
 
 [workspace.dependencies.chrono]
 version = "0.4.42"
