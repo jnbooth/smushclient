@@ -126,7 +126,7 @@ pub mod ffi {
         ) -> Result<()>;
         fn save_world(self: &SmushClient, path: &QString) -> Result<()>;
         fn open_log(self: Pin<&mut SmushClient>) -> Result<()>;
-        fn close_log(self: Pin<&mut SmushClient>);
+        fn close_log(self: &SmushClient);
         fn load_plugins(self: Pin<&mut SmushClient>) -> QStringList;
         fn world_plugin_index(self: &SmushClient) -> usize;
         fn load_variables(self: &SmushClient, path: &QString) -> Result<bool>;
@@ -243,7 +243,7 @@ pub mod ffi {
             group: &QString,
             enable: bool,
         ) -> bool;
-        fn set_plugin_enabled(self: Pin<&mut SmushClient>, index: usize, enable: bool) -> bool;
+        fn set_plugin_enabled(self: &SmushClient, index: usize, enable: bool) -> bool;
         fn set_timer_enabled(
             self: &SmushClient,
             index: usize,
@@ -319,6 +319,7 @@ pub mod ffi {
         fn set_metavariable(self: &SmushClient, key: &[c_char], value: &[c_char]) -> bool;
         fn unset_metavariable(self: &SmushClient, key: &[c_char]) -> bool;
         fn start_timers(self: &SmushClient, index: usize, timekeeper: Pin<&mut Timekeeper>);
+        fn start_all_timers(self: &SmushClient, timekeeper: Pin<&mut Timekeeper>);
         fn finish_timer(self: &SmushClient, id: usize, timekeeper: &Timekeeper) -> bool;
         fn poll_timers(self: &SmushClient, timekeeper: &Timekeeper);
         fn stop_senders(self: &SmushClient);

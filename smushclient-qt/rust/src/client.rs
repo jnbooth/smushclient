@@ -206,23 +206,26 @@ impl SmushClientRust {
     }
 
     fn apply_world(&mut self) {
-        let world = self.client.world();
         self.palette.clear();
-        for (i, color) in world.palette().iter().enumerate() {
+        for (i, color) in self.client.world().palette().iter().enumerate() {
             self.palette.insert(*color, i as i32);
         }
     }
 
-    pub fn read(&self, mut socket: Pin<&mut QAbstractSocket>, doc: Pin<&mut Document>) -> i64 {
+    fn handler<'a>(&'a self, doc: Pin<&'a mut Document>) -> ClientHandler<'a> {
         let world = self.client.world();
-        let mut handler = ClientHandler {
+        ClientHandler {
             audio: &self.audio,
             doc,
             palette: &self.palette,
             carriage_return_clears_line: world.carriage_return_clears_line,
             no_echo_off: world.no_echo_off,
             stats: &self.stats,
-        };
+        }
+    }
+
+    pub fn read(&self, mut socket: Pin<&mut QAbstractSocket>, doc: Pin<&mut Document>) -> i64 {
+        let mut handler = self.handler(doc);
         let read_result = self
             .client
             .read(&mut socket, &mut self.read_buf.borrow_mut());
@@ -248,15 +251,7 @@ impl SmushClientRust {
     }
 
     pub fn flush(&self, doc: Pin<&mut Document>) {
-        let world = self.client.world();
-        let mut handler = ClientHandler {
-            audio: &self.audio,
-            doc,
-            palette: &self.palette,
-            carriage_return_clears_line: world.carriage_return_clears_line,
-            no_echo_off: world.no_echo_off,
-            stats: &self.stats,
-        };
+        let mut handler = self.handler(doc);
         handler.doc.begin();
 
         let had_output = self.client.flush_output(&mut handler);
@@ -301,15 +296,7 @@ impl SmushClientRust {
         source: CommandSource,
         doc: Pin<&mut Document>,
     ) -> AliasOutcome {
-        let world = self.client.world();
-        let mut handler = ClientHandler {
-            audio: &self.audio,
-            doc,
-            palette: &self.palette,
-            carriage_return_clears_line: world.carriage_return_clears_line,
-            no_echo_off: world.no_echo_off,
-            stats: &self.stats,
-        };
+        let mut handler = self.handler(doc);
         handler.doc.begin();
         let outcome = self
             .client
@@ -345,6 +332,28 @@ impl SmushClientRust {
         }
     }
 
+    pub fn start_all_timers(&self, mut timekeeper: Pin<&mut Timekeeper>) {
+        if !self.client.world().enable_timers {
+            return;
+        }
+        let mut timer_starts = Vec::new();
+        {
+            let mut timers = self.timers.borrow_mut();
+            for index in 0..self.client.plugins_len() {
+                timer_starts.extend(
+                    self.client
+                        .senders::<Timer>(index)
+                        .borrow()
+                        .iter()
+                        .filter_map(|timer| timers.start(index, timer)),
+                );
+            }
+        };
+        for timer_start in &timer_starts {
+            timekeeper.as_mut().start(timer_start);
+        }
+    }
+
     pub fn finish_timer(&self, id: usize, timekeeper: &Timekeeper) -> bool {
         let result = self.timers.borrow_mut().finish(id, &self.client);
         if let Some(timer) = result.timer {
@@ -372,8 +381,14 @@ impl SmushClientRust {
         timekeeper: Pin<&mut Timekeeper>,
     ) -> Result<(), SenderAccessError> {
         let enable_timers = self.client.world().enable_timers;
-        let timer = self.client.add_sender(index, timer)?;
-        if enable_timers && let Some(start) = self.timers.borrow_mut().start(index, &timer) {
+        let start = {
+            let timer = self.client.add_sender(index, timer)?;
+            if !enable_timers {
+                return Ok(());
+            }
+            self.timers.borrow_mut().start(index, &timer)
+        };
+        if let Some(start) = start {
             timekeeper.start(&start);
         }
         Ok(())
@@ -386,8 +401,14 @@ impl SmushClientRust {
         timekeeper: Pin<&mut Timekeeper>,
     ) {
         let enable_timers = self.client.world().enable_timers;
-        let timer = self.client.add_or_replace_sender(index, timer);
-        if enable_timers && let Some(start) = self.timers.borrow_mut().start(index, &timer) {
+        let start = {
+            let timer = self.client.add_or_replace_sender(index, timer);
+            if !enable_timers {
+                return;
+            }
+            self.timers.borrow_mut().start(index, &timer)
+        };
+        if let Some(start) = start {
             timekeeper.start(&start);
         }
     }
@@ -400,8 +421,14 @@ impl SmushClientRust {
     ) -> Result<(), SenderAccessError> {
         let enable_timers = self.client.world().enable_timers;
         let world_index = self.world_plugin_index();
-        let (_, timer) = self.client.replace_world_sender(index, timer)?;
-        if enable_timers && let Some(mut start) = self.timers.borrow_mut().start(index, &timer) {
+        let start = {
+            let (_, timer) = self.client.replace_world_sender(index, timer)?;
+            if !enable_timers {
+                return Ok(());
+            }
+            self.timers.borrow_mut().start(index, &timer)
+        };
+        if let Some(mut start) = start {
             start.index = world_index;
             timekeeper.start(&start);
         }
@@ -441,7 +468,7 @@ impl SmushClientRust {
     {
         let mut sender = self
             .client
-            .find_sender_mut::<P::Target>(index, &String::from(label))?;
+            .borrow_sender_mut::<P::Target>(index, &String::from(label))?;
         *prop.get_mut(&mut sender) = value;
         Ok(())
     }
@@ -454,7 +481,7 @@ impl SmushClientRust {
     ) -> Result<(), SenderAccessError> {
         let mut sender = self
             .client
-            .find_sender_mut::<T>(index, &String::from(label))?;
+            .borrow_sender_mut::<T>(index, &String::from(label))?;
         sender.as_mut().group = String::from(group);
         Ok(())
     }

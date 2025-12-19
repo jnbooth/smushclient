@@ -63,7 +63,7 @@ impl PluginEngine {
     pub fn reinstall_plugin(&mut self, index: PluginIndex) -> Result<usize, LoadError> {
         let plugin = self.plugins.get_mut(index).ok_or(io::ErrorKind::NotFound)?;
         let path = plugin.metadata.path.clone();
-        plugin.disabled = true;
+        plugin.disabled.set(true);
         *plugin = Plugin::load(&path)?;
         let id = plugin.metadata.id.clone();
         self.plugins.sort_unstable();
@@ -147,7 +147,7 @@ impl PluginEngine {
         let mut alias_buf = Alias::default();
 
         for (plugin_index, plugin) in self.plugins.iter().enumerate() {
-            if plugin.disabled {
+            if plugin.disabled.get() {
                 continue;
             }
             let enable_scripts = !plugin.metadata.is_world_plugin || world.enable_scripts;
@@ -257,7 +257,7 @@ impl PluginEngine {
         let mut has_style = false;
 
         for (plugin_index, plugin) in self.plugins.iter().enumerate() {
-            if plugin.disabled {
+            if plugin.disabled.get() {
                 continue;
             }
             let enable_scripts = !plugin.metadata.is_world_plugin || world.enable_scripts;

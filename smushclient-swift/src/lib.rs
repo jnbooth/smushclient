@@ -10,4 +10,3 @@ mod io;
 mod mud;
 mod output;
 mod stream;
-mod sync;

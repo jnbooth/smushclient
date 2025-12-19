@@ -85,7 +85,7 @@ impl Modeled for Plugin {
             1 => self.metadata.purpose = data_text(data)?,
             2 => self.metadata.author = data_text(data)?,
             3 => self.metadata.path = data_text(data)?.into(),
-            4 => self.disabled = !data.value()?,
+            4 => self.disabled.set(!data.value()?),
             5 => self.metadata.version = data_text(data)?,
             _ => return None,
         }

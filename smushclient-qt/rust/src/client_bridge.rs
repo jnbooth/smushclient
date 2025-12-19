@@ -52,7 +52,7 @@ unsafe fn provide_variable(value: Option<Ref<[u8]>>, value_size: *mut usize) -> 
 }
 
 impl ffi::SmushClient {
-    pub fn world_sender<T: SendIterable>(&self, index: usize) -> Option<Ref<'_, T>> {
+    pub fn borrow_world_sender<T: SendIterable>(&self, index: usize) -> Option<Ref<'_, T>> {
         T::from_world(self.rust().client.world()).get(index)
     }
 
@@ -69,8 +69,8 @@ impl ffi::SmushClient {
         self.rust_mut().client.open_log()
     }
 
-    pub fn close_log(self: Pin<&mut Self>) {
-        self.rust_mut().client.close_log();
+    pub fn close_log(&self) {
+        self.rust().client.close_log();
     }
 
     pub fn load_plugins(self: Pin<&mut Self>) -> QStringList {
@@ -125,7 +125,7 @@ impl ffi::SmushClient {
         self.rust()
             .client
             .plugin(index)
-            .is_some_and(|plugin| !plugin.disabled)
+            .is_some_and(|plugin| !plugin.disabled.get())
     }
 
     pub fn plugin_id(&self, index: PluginIndex) -> QString {
@@ -360,21 +360,21 @@ impl ffi::SmushClient {
     pub fn is_alias(&self, index: PluginIndex, label: &QString) -> bool {
         self.rust()
             .client
-            .find_sender::<Alias>(index, &String::from(label))
+            .borrow_sender::<Alias>(index, &String::from(label))
             .is_some()
     }
 
     pub fn is_timer(&self, index: PluginIndex, label: &QString) -> bool {
         self.rust()
             .client
-            .find_sender::<Timer>(index, &String::from(label))
+            .borrow_sender::<Timer>(index, &String::from(label))
             .is_some()
     }
 
     pub fn is_trigger(&self, index: PluginIndex, label: &QString) -> bool {
         self.rust()
             .client
-            .find_sender::<Trigger>(index, &String::from(label))
+            .borrow_sender::<Trigger>(index, &String::from(label))
             .is_some()
     }
 
@@ -391,8 +391,8 @@ impl ffi::SmushClient {
             .set_group_enabled::<Alias>(index, &String::from(group), enabled)
     }
 
-    pub fn set_plugin_enabled(self: Pin<&mut Self>, index: PluginIndex, enabled: bool) -> bool {
-        self.rust_mut().client.set_plugin_enabled(index, enabled)
+    pub fn set_plugin_enabled(&self, index: PluginIndex, enabled: bool) -> bool {
+        self.rust().client.set_plugin_enabled(index, enabled)
     }
 
     pub fn set_timer_enabled(&self, index: PluginIndex, label: &QString, enabled: bool) -> i32 {
@@ -561,6 +561,10 @@ impl ffi::SmushClient {
 
     pub fn start_timers(&self, index: PluginIndex, timekeeper: Pin<&mut ffi::Timekeeper>) {
         self.rust().start_timers(index, timekeeper);
+    }
+
+    pub fn start_all_timers(&self, timekeeper: Pin<&mut ffi::Timekeeper>) {
+        self.rust().start_all_timers(timekeeper);
     }
 
     pub fn finish_timer(&self, id: usize, timekeeper: &ffi::Timekeeper) -> bool {

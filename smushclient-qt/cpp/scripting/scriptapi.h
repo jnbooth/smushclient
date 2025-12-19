@@ -223,7 +223,7 @@ public:
   void appendText(const QString &text, const QTextCharFormat &format);
   void appendText(const QString &text);
   void applyWorld(const World &world);
-  SmushClient *client() const;
+  const SmushClient *client() const;
   void echo(const QString &text);
   void finishNote();
   const Plugin *getPlugin(std::string_view pluginID) const;

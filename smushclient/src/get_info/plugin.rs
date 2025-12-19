@@ -34,7 +34,7 @@ impl SmushClient {
             14 => V::visit(plugin.metadata.modified),
             15 => V::visit(false), // save state flag
             // 16 - scripting enabled (handled by frontend)
-            17 => V::visit(!plugin.disabled),
+            17 => V::visit(!plugin.disabled.get()),
             18 => parse_double::<V>(&plugin.metadata.requires),
             19 => parse_double::<V>(&plugin.metadata.version),
             20 => V::visit(plugin.metadata.path.parent().unwrap_or(Path::new(""))),

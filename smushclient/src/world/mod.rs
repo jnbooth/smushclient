@@ -12,7 +12,7 @@ pub use types::*;
 
 mod versions;
 use std::borrow::Cow;
-use std::cell::{Ref, RefMut};
+use std::cell::{Cell, Ref, RefMut};
 use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::io::{Read, Write};
@@ -254,7 +254,7 @@ impl World {
             None => PathBuf::new(),
         };
         Plugin {
-            disabled: !self.enable_scripts,
+            disabled: Cell::new(!self.enable_scripts),
             metadata: PluginMetadata {
                 name: format!("World Script: {}", self.name),
                 written: today,
@@ -280,9 +280,11 @@ impl World {
         sender: T,
     ) -> Result<(usize, Ref<'_, T>), SenderAccessError> {
         let senders = T::from_world(self);
-        let current = senders.get(index).ok_or(SenderAccessError::NotFound)?;
-        if *current == sender {
-            return Err(SenderAccessError::Unchanged);
+        {
+            let current = senders.get(index).ok_or(SenderAccessError::NotFound)?;
+            if *current == sender {
+                return Err(SenderAccessError::Unchanged);
+            }
         }
         match sender.assert_unique_label(senders) {
             Err(pos) if pos != index => Err(pos),
@@ -307,22 +309,6 @@ impl World {
             .iter()
             .filter(|sender| sender.as_ref().group == group)
             .count()
-    }
-
-    pub fn nth_sender<T: SendIterable>(
-        &self,
-        group: &str,
-        index: usize,
-    ) -> Option<(usize, Ref<'_, T>)> {
-        let senders = T::from_world(self).borrow();
-        let i = senders
-            .iter()
-            .enumerate()
-            .filter(|(_, sender)| sender.as_ref().group == group)
-            .nth(index)
-            .map(|(i, _)| i)?;
-
-        Some((i, Ref::map(senders, |senders| &senders[i])))
     }
 
     pub fn remove_temporary(&self) {

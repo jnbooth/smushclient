@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::cell::Cell;
 use std::cmp::Ordering;
 use std::fmt::Write;
 use std::fs::File;
@@ -23,7 +24,7 @@ pub type PluginIndex = usize;
 #[serde(try_from = "PluginFile")]
 pub struct Plugin {
     pub metadata: PluginMetadata,
-    pub disabled: bool,
+    pub disabled: Cell<bool>,
     pub triggers: CursorVec<Trigger>,
     pub aliases: CursorVec<Alias>,
     pub timers: CursorVec<Timer>,
@@ -118,7 +119,7 @@ impl TryFrom<PluginFile<'_>> for Plugin {
         timers.sort_unstable();
         Ok(Self {
             metadata: value.plugin,
-            disabled: false,
+            disabled: Cell::new(false),
             triggers: triggers.into(),
             aliases: aliases.into(),
             timers: timers.into(),

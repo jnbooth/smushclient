@@ -9,7 +9,6 @@ use tokio::net::TcpStream;
 use crate::client::{AliasHandler, ClientHandler};
 use crate::error::StringifyResultError;
 use crate::stream::{RustAliasOutcome, RustOutputStream};
-use crate::sync::NonBlockingMutex;
 
 const BUF_LEN: usize = 1024 * 20;
 
@@ -17,16 +16,15 @@ const BUF_LEN: usize = 1024 * 20;
 pub struct RustMudBridge {
     stream: Option<TcpStream>,
     read_buf: Vec<u8>,
+    write_buf: Vec<u8>,
     client: SmushClient,
-    input_lock: NonBlockingMutex,
-    output_lock: NonBlockingMutex,
-    stream_lock: NonBlockingMutex,
 }
 
 impl RustMudBridge {
     pub fn new(world: World) -> Self {
         Self {
             read_buf: vec![0; BUF_LEN],
+            write_buf: Vec::new(),
             client: SmushClient::new(
                 world,
                 Tag::Bold
@@ -75,11 +73,9 @@ impl RustMudBridge {
     #[allow(clippy::needless_pass_by_value)]
     pub fn alias(&mut self, command: String) -> RustAliasOutcome {
         let mut handler = AliasHandler::new();
-        let lock = self.output_lock.lock();
         let outcome = self
             .client
             .alias(&command, CommandSource::User, &mut handler);
-        drop(lock);
         RustAliasOutcome::new(outcome, handler.into())
     }
 
@@ -88,40 +84,25 @@ impl RustMudBridge {
         let stream = TcpStream::connect((world.site.clone(), world.port))
             .await
             .str()?;
-        let locks = (
-            self.stream_lock.lock(),
-            self.output_lock.lock(),
-            self.input_lock.lock(),
-        );
         self.stream = Some(stream);
-        drop(locks);
         Ok(())
     }
 
     pub async fn disconnect(&mut self) -> Result<(), String> {
-        let locks = (
-            self.stream_lock.lock(),
-            self.output_lock.lock(),
-            self.input_lock.lock(),
-        );
-        let result = match self.stream {
+        match self.stream {
             Some(ref mut stream) => stream.shutdown().await.str(),
             None => Ok(()),
-        };
-        drop(locks);
-        result
+        }
     }
 
     pub async fn receive(&mut self) -> Result<RustOutputStream, String> {
         let Some(stream) = &mut self.stream else {
             return Ok(RustOutputStream::new(Vec::new().into_iter()));
         };
-        let lock = self.output_lock.lock();
         let read_result = self.client.read_async(stream, &mut self.read_buf).await;
 
         let mut handler = ClientHandler::new();
         self.client.flush_output(&mut handler);
-        drop(lock);
 
         if let Err(e) = read_result {
             let output = handler.into_iter();
@@ -130,22 +111,22 @@ impl RustMudBridge {
             }
             return Ok(RustOutputStream::new(output));
         }
-        let lock = self.input_lock.lock();
-        if let Err(e) = self.client.write_async(stream).await {
-            return Err(e.to_string());
-        }
-        drop(lock);
+        self.write_buf.clear();
+        self.client
+            .write(&mut self.write_buf)
+            .map_err(|e| e.to_string())?;
+        stream
+            .write_all(&self.write_buf)
+            .await
+            .map_err(|e| e.to_string())?;
         Ok(RustOutputStream::new(handler.into_iter()))
     }
 
     pub async fn send(&mut self, input: String) -> Result<(), String> {
         let input = input.as_bytes();
-        let lock = self.input_lock.lock();
-        let result = match self.stream {
+        match self.stream {
             Some(ref mut stream) => stream.write_all(input).await.str(),
             None => Ok(()),
-        };
-        drop(lock);
-        result
+        }
     }
 }

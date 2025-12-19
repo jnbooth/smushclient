@@ -225,11 +225,16 @@ impl<T: Ord> CursorVec<T> {
     }
 
     pub fn retain<P: FnMut(&T) -> bool>(&self, mut pred: P) -> usize {
-        let mut removed = 0;
         let mut inner = self.inner.borrow_mut();
         let mut removals = self.removals.borrow_mut();
         let evaluating = self.evaluating.get();
         let cursor = self.cursor.get();
+        if !evaluating {
+            let len = inner.len();
+            inner.retain(pred);
+            return len - inner.len();
+        }
+        let mut removed = 0;
         let mut i = 0;
         inner.retain(|item| {
             i += 1;
@@ -237,7 +242,7 @@ impl<T: Ord> CursorVec<T> {
                 return true;
             }
             removed += 1;
-            if evaluating && i < cursor {
+            if i < cursor {
                 removals.push(i - 1);
                 return true;
             }

@@ -443,7 +443,7 @@ impl Initialize for ffi::Trigger {
 impl_constructor!(ffi::Alias, (*const ffi::SmushClient, usize), {
     fn new((client, i): (*const ffi::SmushClient, usize)) -> AliasRust {
         // SAFETY: The C++ caller must pass a valid pointer.
-        match unsafe { &*client }.world_sender::<Alias>(i) {
+        match unsafe { &*client }.borrow_world_sender::<Alias>(i) {
             Some(alias) => AliasRust::from(&*alias),
             None => AliasRust::default(),
         }
@@ -453,7 +453,7 @@ impl_constructor!(ffi::Alias, (*const ffi::SmushClient, usize), {
 impl_constructor!(ffi::Timer, (*const ffi::SmushClient, usize), {
     fn new((client, i): (*const ffi::SmushClient, usize)) -> TimerRust {
         // SAFETY: The C++ caller must pass a valid pointer.
-        match unsafe { &*client }.world_sender::<Timer>(i) {
+        match unsafe { &*client }.borrow_world_sender::<Timer>(i) {
             Some(timer) => TimerRust::from(&*timer),
             None => TimerRust::default(),
         }
@@ -463,7 +463,7 @@ impl_constructor!(ffi::Timer, (*const ffi::SmushClient, usize), {
 impl_constructor!(ffi::Trigger, (*const ffi::SmushClient, usize), {
     fn new((client, i): (*const ffi::SmushClient, usize)) -> TriggerRust {
         // SAFETY: The C++ caller must pass a valid pointer.
-        match unsafe { &*client }.world_sender::<Trigger>(i) {
+        match unsafe { &*client }.borrow_world_sender::<Trigger>(i) {
             Some(trigger) => TriggerRust::from(&*trigger),
             None => TriggerRust::default(),
         }

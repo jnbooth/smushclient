@@ -35,30 +35,31 @@ bool SmushClient::hasMetavariable(string_view key) const noexcept {
 }
 
 bool SmushClient::setVariable(size_t index, string_view key,
-                              string_view value) noexcept {
+                              string_view value) const noexcept {
   return SmushClientBase::setVariable(index, stringSlice(key),
                                       stringSlice(value));
 }
 
 bool SmushClient::setVariable(size_t index, string_view key,
-                              const QByteArray &value) noexcept {
+                              const QByteArray &value) const noexcept {
   return SmushClientBase::setVariable(index, stringSlice(key),
                                       byteSlice(value));
 }
 
-bool SmushClient::setMetavariable(string_view key, string_view value) noexcept {
+bool SmushClient::setMetavariable(string_view key,
+                                  string_view value) const noexcept {
   return SmushClientBase::setMetavariable(stringSlice(key), stringSlice(value));
 }
 
 bool SmushClient::setMetavariable(string_view key,
-                                  const QByteArray &value) noexcept {
+                                  const QByteArray &value) const noexcept {
   return SmushClientBase::setMetavariable(stringSlice(key), byteSlice(value));
 }
 
-bool SmushClient::unsetVariable(size_t index, string_view key) noexcept {
+bool SmushClient::unsetVariable(size_t index, string_view key) const noexcept {
   return SmushClientBase::unsetVariable(index, stringSlice(key));
 }
 
-bool SmushClient::unsetMetavariable(string_view key) noexcept {
+bool SmushClient::unsetMetavariable(string_view key) const noexcept {
   return SmushClientBase::unsetMetavariable(stringSlice(key));
 }

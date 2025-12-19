@@ -7,7 +7,7 @@ use flagset::FlagSet;
 use mud_transformer::{OutputFragment, Tag, Transformer, TransformerConfig};
 use smushclient_plugins::{CursorVec, LoadError, Plugin, PluginIndex, XmlError, XmlSerError};
 #[cfg(feature = "async")]
-use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
+use tokio::io::{AsyncRead, AsyncReadExt};
 
 use super::logger::Logger;
 use super::variables::PluginVariables;
@@ -30,8 +30,6 @@ pub struct SmushClient {
     transformer: RefCell<Transformer>,
     variables: RefCell<PluginVariables>,
     world: World,
-    #[cfg(feature = "async")]
-    write_buf: Vec<u8>,
 }
 
 impl Default for SmushClient {
@@ -56,8 +54,6 @@ impl SmushClient {
             transformer,
             variables: RefCell::new(PluginVariables::new()),
             world,
-            #[cfg(feature = "async")]
-            write_buf: Vec::new(),
         }
     }
 
@@ -76,7 +72,8 @@ impl SmushClient {
     }
 
     pub fn reset_connection(&self) {
-        *self.transformer.borrow_mut() = Transformer::new(self.create_config());
+        self.transformer
+            .replace(Transformer::new(self.create_config()));
     }
 
     pub fn set_supported_tags(&mut self, supported_tags: FlagSet<Tag>) {
@@ -125,10 +122,13 @@ impl SmushClient {
         world.timers = timers;
         world.triggers = triggers;
         self.world = world;
+        if !changed {
+            return false;
+        }
         self.plugins.set_world_plugin(self.world.world_plugin());
         self.logger.borrow_mut().apply_world(&self.world);
         self.update_config();
-        changed
+        true
     }
 
     pub fn open_log(&mut self) -> io::Result<()> {
@@ -137,12 +137,11 @@ impl SmushClient {
         } else if self.logger.borrow().is_open() {
             return Ok(());
         }
-        self.last_log_file_name = self.world.auto_log_file_name.clone();
-        *self.logger.borrow_mut() = Logger::open(&self.world)?;
+        self.logger.replace(Logger::open(&self.world)?);
         Ok(())
     }
 
-    pub fn close_log(&mut self) {
+    pub fn close_log(&self) {
         self.logger.borrow_mut().close();
     }
 
@@ -189,19 +188,6 @@ impl SmushClient {
             return Ok(());
         };
         drain.write_all_to(writer)
-    }
-
-    #[cfg(feature = "async")]
-    pub async fn write_async<W: AsyncWrite + Unpin>(&mut self, mut writer: W) -> io::Result<()> {
-        {
-            let mut transformer = self.transformer.borrow_mut();
-            let Some(mut drain) = transformer.drain_input() else {
-                return Ok(());
-            };
-            self.write_buf.clear();
-            drain.write_all_to(&mut self.write_buf)?;
-        }
-        writer.write_all(&self.write_buf).await
     }
 
     pub fn has_output(&self) -> bool {
@@ -360,12 +346,12 @@ impl SmushClient {
     }
 
     pub fn load_variables<R: Read>(&self, reader: R) -> Result<(), PersistError> {
-        *self.variables.borrow_mut() = PluginVariables::load(reader)?;
+        self.variables.replace(PluginVariables::load(reader)?);
         Ok(())
     }
 
     pub fn save_variables<W: Write>(&self, writer: W) -> Result<(), PersistError> {
-        self.variables.borrow_mut().save(writer)
+        self.variables.borrow().save(writer)
     }
 
     pub fn borrow_variable(&self, index: PluginIndex, key: &LuaStr) -> Option<Ref<'_, LuaStr>> {
@@ -435,15 +421,15 @@ impl SmushClient {
         found_group
     }
 
-    pub fn set_plugin_enabled(&mut self, index: PluginIndex, enabled: bool) -> bool {
-        let Some(plugin) = self.plugins.get_mut(index) else {
+    pub fn set_plugin_enabled(&self, index: PluginIndex, enabled: bool) -> bool {
+        let Some(plugin) = self.plugins.get(index) else {
             return false;
         };
-        plugin.disabled = !enabled;
+        plugin.disabled.set(!enabled);
         true
     }
 
-    pub fn find_sender<T: SendIterable>(
+    pub fn borrow_sender<T: SendIterable>(
         &self,
         index: PluginIndex,
         label: &str,
@@ -452,7 +438,7 @@ impl SmushClient {
             .find(|sender| sender.as_ref().label == label)
     }
 
-    pub fn find_sender_mut<T: SendIterable>(
+    pub fn borrow_sender_mut<T: SendIterable>(
         &self,
         index: PluginIndex,
         label: &str,
@@ -468,7 +454,7 @@ impl SmushClient {
         label: &str,
         enabled: bool,
     ) -> Result<(), SenderAccessError> {
-        self.find_sender_mut::<T>(index, label)?.as_mut().enabled = enabled;
+        self.borrow_sender_mut::<T>(index, label)?.as_mut().enabled = enabled;
         Ok(())
     }
 

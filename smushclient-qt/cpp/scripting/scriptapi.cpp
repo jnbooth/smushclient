@@ -194,9 +194,7 @@ void ScriptApi::reloadWorldScript(const QString &worldScriptPath) {
 
 void ScriptApi::resetAllTimers() {
   sendQueue->clear();
-  SmushClient *cli = client();
-  for (size_t i = 0; i < plugins.size(); ++i)
-    cli->startTimers(i, *timekeeper);
+  client()->startAllTimers(*timekeeper);
 }
 
 bool ScriptApi::runScript(const QString &pluginID,
@@ -376,7 +374,7 @@ void ScriptApi::updateTimestamp() { setTimestamp(cursor); }
 
 // Private methods
 
-SmushClient *ScriptApi::client() const { return &tab()->client; }
+const SmushClient *ScriptApi::client() const { return &tab()->client; }
 
 DatabaseConnection *ScriptApi::findDatabase(string_view databaseID) {
   auto search = databases.find(databaseID);

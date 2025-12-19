@@ -15,11 +15,13 @@ public:
   VariableView getMetavariable(std::string_view key) const noexcept;
   bool hasMetavariable(std::string_view key) const noexcept;
   bool setVariable(size_t index, std::string_view key,
-                   std::string_view value) noexcept;
+                   std::string_view value) const noexcept;
   bool setVariable(size_t index, std::string_view key,
-                   const QByteArray &value) noexcept;
-  bool setMetavariable(std::string_view key, std::string_view value) noexcept;
-  bool setMetavariable(std::string_view key, const QByteArray &value) noexcept;
-  bool unsetVariable(size_t index, std::string_view key) noexcept;
-  bool unsetMetavariable(std::string_view key) noexcept;
+                   const QByteArray &value) const noexcept;
+  bool setMetavariable(std::string_view key,
+                       std::string_view value) const noexcept;
+  bool setMetavariable(std::string_view key,
+                       const QByteArray &value) const noexcept;
+  bool unsetVariable(size_t index, std::string_view key) const noexcept;
+  bool unsetMetavariable(std::string_view key) const noexcept;
 };
