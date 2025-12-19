@@ -3163,47 +3163,47 @@ li.checked::marker { content: &quot;\2612&quot;; }
 <context>
     <name>WorldTab</name>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="190"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="196"/>
         <source>Failed to open file: %1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="249"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="259"/>
         <source>Do you want to save the changes you made to %1?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="252"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="262"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="286"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="296"/>
         <source>Save as</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="636"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="642"/>
         <source>World script changed</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="637"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="643"/>
         <source>Would you like to reload the world script?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="697"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="703"/>
         <source>&apos;Connected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="717"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="723"/>
         <source>&apos;Disconnected on&apos; dddd, MMMM d, yyyy &apos;at&apos; h:mm AP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../cpp/ui/worldtab.cpp" line="736"/>
+        <location filename="../cpp/ui/worldtab.cpp" line="742"/>
         <source>Connection error: %1</source>
         <translation type="unfinished"></translation>
     </message>

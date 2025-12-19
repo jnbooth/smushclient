@@ -26,7 +26,7 @@ pub struct SmushClient {
     logger: RefCell<Logger>,
     pub(crate) plugins: PluginEngine,
     supported_tags: FlagSet<Tag>,
-    transformer: RefCell<Transformer>,
+    transformer: Transformer,
     variables: RefCell<PluginVariables>,
     world: World,
 }
@@ -41,10 +41,10 @@ impl SmushClient {
     pub fn new(world: World, supported_tags: FlagSet<Tag>) -> Self {
         let mut plugins = PluginEngine::new();
         plugins.set_world_plugin(world.world_plugin());
-        let transformer = RefCell::new(Transformer::new(TransformerConfig {
+        let transformer = Transformer::new(TransformerConfig {
             supports: supported_tags,
             ..TransformerConfig::from(&world)
-        }));
+        });
         Self {
             logger: RefCell::new(Logger::new(&world)),
             plugins,
@@ -69,9 +69,8 @@ impl SmushClient {
         }
     }
 
-    pub fn reset_connection(&self) {
-        self.transformer
-            .replace(Transformer::new(self.create_config()));
+    pub fn reset_connection(&mut self) {
+        self.transformer = Transformer::new(self.create_config());
     }
 
     pub fn set_supported_tags(&mut self, supported_tags: FlagSet<Tag>) {
@@ -84,10 +83,8 @@ impl SmushClient {
         }
     }
 
-    fn update_config(&self) {
-        self.transformer
-            .borrow_mut()
-            .set_config(self.create_config());
+    fn update_config(&mut self) {
+        self.transformer.set_config(self.create_config());
     }
 
     fn create_config(&self) -> TransformerConfig {
@@ -137,9 +134,8 @@ impl SmushClient {
         self.logger.borrow_mut().close()
     }
 
-    pub fn read<R: Read>(&self, mut reader: R, read_buf: &mut [u8]) -> io::Result<usize> {
+    pub fn read<R: Read>(&mut self, mut reader: R, read_buf: &mut [u8]) -> io::Result<usize> {
         let mut logger = self.logger.borrow_mut();
-        let mut transformer = self.transformer.borrow_mut();
         let midpoint = read_buf.len() / 2;
         let mut total_read = 0;
         loop {
@@ -149,7 +145,7 @@ impl SmushClient {
             }
             let (received, buf) = read_buf.split_at_mut(n);
             let _ = logger.log_raw(received);
-            transformer.receive(received, buf)?;
+            self.transformer.receive(received, buf)?;
             total_read += n;
         }
     }
@@ -169,37 +165,35 @@ impl SmushClient {
             }
             let (received, buf) = read_buf.split_at_mut(n);
             let _ = self.logger.borrow_mut().log_raw(buf);
-            self.transformer.borrow_mut().receive(received, buf)?;
+            self.transformer.receive(received, buf)?;
             total_read += n;
         }
     }
 
-    pub fn write<W: Write>(&self, writer: &mut W) -> io::Result<()> {
-        let mut transformer = self.transformer.borrow_mut();
-        let Some(mut drain) = transformer.drain_input() else {
+    pub fn write<W: Write>(&mut self, writer: &mut W) -> io::Result<()> {
+        let Some(mut drain) = self.transformer.drain_input() else {
             return Ok(());
         };
         drain.write_all_to(writer)
     }
 
     pub fn has_output(&self) -> bool {
-        self.transformer.borrow().has_output()
+        self.transformer.has_output()
     }
 
-    pub fn drain_output<H: Handler>(&self, handler: &mut H) -> bool {
+    pub fn drain_output<H: Handler>(&mut self, handler: &mut H) -> bool {
         self.process_output(handler, false)
     }
 
-    pub fn flush_output<H: Handler>(&self, handler: &mut H) -> bool {
+    pub fn flush_output<H: Handler>(&mut self, handler: &mut H) -> bool {
         self.process_output(handler, true)
     }
 
-    fn process_output<H: Handler>(&self, handler: &mut H, flush: bool) -> bool {
-        let mut transformer = self.transformer.borrow_mut();
+    fn process_output<H: Handler>(&mut self, handler: &mut H, flush: bool) -> bool {
         let drain = if flush {
-            transformer.flush_output()
+            self.transformer.flush_output()
         } else {
-            transformer.drain_output()
+            self.transformer.drain_output()
         };
         let mut had_output = false;
         let mut slice = drain.as_slice();

@@ -135,7 +135,7 @@ pub mod ffi {
         fn set_world(self: Pin<&mut SmushClient>, world: &World) -> Result<bool>;
         fn palette(self: &SmushClient) -> QVector_QColor;
         fn handle_connect(self: &SmushClient, socket: Pin<&mut QAbstractSocket>) -> QString;
-        fn handle_disconnect(self: &SmushClient);
+        fn handle_disconnect(self: Pin<&mut SmushClient>);
         fn play_file(
             self: &SmushClient,
             i: usize,
@@ -169,11 +169,11 @@ pub mod ffi {
         fn reset_plugins(self: &SmushClient) -> Vec<PluginPack>;
         fn reinstall_plugin(self: Pin<&mut SmushClient>, index: usize) -> Result<usize>;
         fn read(
-            self: &SmushClient,
+            self: Pin<&mut SmushClient>,
             device: Pin<&mut QAbstractSocket>,
             doc: Pin<&mut Document>,
         ) -> i64;
-        fn flush(self: &SmushClient, doc: Pin<&mut Document>);
+        fn flush(self: Pin<&mut SmushClient>, doc: Pin<&mut Document>);
         fn has_output(self: &SmushClient) -> bool;
         fn timer_info(self: &SmushClient, index: usize, label: &QString, info_type: u8)
         -> QVariant;

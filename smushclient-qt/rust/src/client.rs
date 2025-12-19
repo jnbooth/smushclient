@@ -137,7 +137,7 @@ impl SmushClientRust {
         }
     }
 
-    pub fn handle_disconnect(&self) {
+    pub fn handle_disconnect(&mut self) {
         self.stats.borrow_mut().clear();
         self.client.reset_connection();
     }
@@ -211,20 +211,16 @@ impl SmushClientRust {
         }
     }
 
-    fn handler<'a>(&'a self, doc: Pin<&'a mut Document>) -> ClientHandler<'a> {
+    pub fn read(&mut self, mut socket: Pin<&mut QAbstractSocket>, doc: Pin<&mut Document>) -> i64 {
         let world = self.client.world();
-        ClientHandler {
+        let mut handler = ClientHandler {
             audio: &self.audio,
             doc,
             palette: &self.palette,
             carriage_return_clears_line: world.carriage_return_clears_line,
             no_echo_off: world.no_echo_off,
             stats: &self.stats,
-        }
-    }
-
-    pub fn read(&self, mut socket: Pin<&mut QAbstractSocket>, doc: Pin<&mut Document>) -> i64 {
-        let mut handler = self.handler(doc);
+        };
         let read_result = self
             .client
             .read(&mut socket, &mut self.read_buf.borrow_mut());
@@ -249,8 +245,16 @@ impl SmushClientRust {
         total_read as i64
     }
 
-    pub fn flush(&self, doc: Pin<&mut Document>) {
-        let mut handler = self.handler(doc);
+    pub fn flush(&mut self, doc: Pin<&mut Document>) {
+        let world = self.client.world();
+        let mut handler = ClientHandler {
+            audio: &self.audio,
+            doc,
+            palette: &self.palette,
+            carriage_return_clears_line: world.carriage_return_clears_line,
+            no_echo_off: world.no_echo_off,
+            stats: &self.stats,
+        };
         handler.doc.begin();
 
         let had_output = self.client.flush_output(&mut handler);
@@ -295,7 +299,15 @@ impl SmushClientRust {
         source: CommandSource,
         doc: Pin<&mut Document>,
     ) -> AliasOutcome {
-        let mut handler = self.handler(doc);
+        let world = self.client.world();
+        let mut handler = ClientHandler {
+            audio: &self.audio,
+            doc,
+            palette: &self.palette,
+            carriage_return_clears_line: world.carriage_return_clears_line,
+            no_echo_off: world.no_echo_off,
+            stats: &self.stats,
+        };
         handler.doc.begin();
         let outcome = self
             .client

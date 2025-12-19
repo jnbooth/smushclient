@@ -113,8 +113,8 @@ impl ffi::SmushClient {
         self.rust().handle_connect(socket)
     }
 
-    pub fn handle_disconnect(&self) {
-        self.rust().handle_disconnect();
+    pub fn handle_disconnect(self: Pin<&mut Self>) {
+        self.rust_mut().handle_disconnect();
     }
 
     pub fn plugin_info(&self, index: PluginIndex, info_type: u8) -> QVariant {
@@ -167,15 +167,15 @@ impl ffi::SmushClient {
     }
 
     pub fn read(
-        &self,
+        self: Pin<&mut Self>,
         device: Pin<&mut ffi::QAbstractSocket>,
         doc: Pin<&mut ffi::Document>,
     ) -> i64 {
-        self.rust().read(device, doc)
+        self.rust_mut().read(device, doc)
     }
 
-    pub fn flush(&self, doc: Pin<&mut ffi::Document>) {
-        self.rust().flush(doc);
+    pub fn flush(self: Pin<&mut Self>, doc: Pin<&mut ffi::Document>) {
+        self.rust_mut().flush(doc);
     }
 
     pub fn has_output(&self) -> bool {
