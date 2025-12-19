@@ -126,13 +126,13 @@ pub mod ffi {
         ) -> Result<()>;
         fn save_world(self: &SmushClient, path: &QString) -> Result<()>;
         fn open_log(self: Pin<&mut SmushClient>) -> Result<()>;
-        fn close_log(self: &SmushClient);
+        fn close_log(self: &SmushClient) -> Result<()>;
         fn load_plugins(self: Pin<&mut SmushClient>) -> QStringList;
         fn world_plugin_index(self: &SmushClient) -> usize;
         fn load_variables(self: &SmushClient, path: &QString) -> Result<bool>;
         fn save_variables(self: &SmushClient, path: &QString) -> Result<bool>;
         fn populate_world(self: &SmushClient, world: Pin<&mut World>);
-        fn set_world(self: Pin<&mut SmushClient>, world: &World) -> bool;
+        fn set_world(self: Pin<&mut SmushClient>, world: &World) -> Result<bool>;
         fn palette(self: &SmushClient) -> QVector_QColor;
         fn handle_connect(self: &SmushClient, socket: Pin<&mut QAbstractSocket>) -> QString;
         fn handle_disconnect(self: &SmushClient);

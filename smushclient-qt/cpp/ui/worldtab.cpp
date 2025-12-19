@@ -126,7 +126,13 @@ AvailableCopy WorldTab::availableCopy() const {
   return AvailableCopy::None;
 }
 
-void WorldTab::closeLog() { client.closeLog(); }
+void WorldTab::closeLog() {
+  try {
+    client.closeLog();
+  } catch (const rust::Error &e) {
+    showRustError(e);
+  }
+}
 
 QTextEdit *WorldTab::copyableEditor() const {
   if (outputCopyAvailable)
@@ -220,8 +226,12 @@ bool WorldTab::openWorldSettings() {
   if (worlddetails.isDirty())
     setWindowModified(true);
 
-  if (!client.setWorld(world))
-    return false;
+  try {
+    if (!client.setWorld(world))
+      return false;
+  } catch (const rust::Error &e) {
+    showRustError(e);
+  }
 
   if (!world.getSaveWorldAutomatically())
     setWindowModified(true);
@@ -402,11 +412,7 @@ void WorldTab::closeEvent(QCloseEvent *event) {
     saveWorldAndState(filePath);
     saveHistory();
   }
-  try {
-    client.closeLog();
-  } catch (rust::Error e) {
-    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
-  }
+  closeLog();
   event->accept();
 }
 

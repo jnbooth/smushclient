@@ -69,8 +69,8 @@ impl ffi::SmushClient {
         self.rust_mut().client.open_log()
     }
 
-    pub fn close_log(&self) {
-        self.rust().client.close_log();
+    pub fn close_log(&self) -> io::Result<()> {
+        self.rust().client.close_log()
     }
 
     pub fn load_plugins(self: Pin<&mut Self>) -> QStringList {
@@ -101,7 +101,7 @@ impl ffi::SmushClient {
         self.rust().populate_world(&mut world.rust_mut());
     }
 
-    pub fn set_world(self: Pin<&mut Self>, world: &ffi::World) -> bool {
+    pub fn set_world(self: Pin<&mut Self>, world: &ffi::World) -> io::Result<bool> {
         self.rust_mut().set_world(world.rust())
     }
 

@@ -23,7 +23,6 @@ const METAVARIABLES_KEY: &str = "\x01";
 
 #[derive(Debug)]
 pub struct SmushClient {
-    last_log_file_name: Option<String>,
     logger: RefCell<Logger>,
     pub(crate) plugins: PluginEngine,
     supported_tags: FlagSet<Tag>,
@@ -47,8 +46,7 @@ impl SmushClient {
             ..TransformerConfig::from(&world)
         }));
         Self {
-            last_log_file_name: world.auto_log_file_name.clone(),
-            logger: RefCell::new(Logger::default()),
+            logger: RefCell::new(Logger::new(&world)),
             plugins,
             supported_tags,
             transformer,
@@ -107,11 +105,11 @@ impl SmushClient {
     pub fn set_world(&mut self, world: World) {
         self.world = world;
         self.plugins.set_world_plugin(self.world.world_plugin());
-        self.logger.borrow_mut().apply_world(&self.world);
         self.update_config();
+        self.logger.replace(Logger::new(&self.world));
     }
 
-    pub fn update_world(&mut self, mut world: World) -> bool {
+    pub fn update_world(&mut self, mut world: World) -> io::Result<bool> {
         let plugins = mem::take(&mut self.world.plugins);
         let aliases = mem::take(&mut self.world.aliases);
         let timers = mem::take(&mut self.world.timers);
@@ -123,26 +121,20 @@ impl SmushClient {
         world.triggers = triggers;
         self.world = world;
         if !changed {
-            return false;
+            return Ok(false);
         }
         self.plugins.set_world_plugin(self.world.world_plugin());
-        self.logger.borrow_mut().apply_world(&self.world);
         self.update_config();
-        true
+        self.logger.borrow_mut().apply_world(&self.world)?;
+        Ok(true)
     }
 
-    pub fn open_log(&mut self) -> io::Result<()> {
-        if self.world.auto_log_file_name != self.last_log_file_name {
-            self.last_log_file_name = self.world.auto_log_file_name.clone();
-        } else if self.logger.borrow().is_open() {
-            return Ok(());
-        }
-        self.logger.replace(Logger::open(&self.world)?);
-        Ok(())
+    pub fn open_log(&self) -> io::Result<()> {
+        self.logger.borrow_mut().open()
     }
 
-    pub fn close_log(&self) {
-        self.logger.borrow_mut().close();
+    pub fn close_log(&self) -> io::Result<()> {
+        self.logger.borrow_mut().close()
     }
 
     pub fn read<R: Read>(&self, mut reader: R, read_buf: &mut [u8]) -> io::Result<usize> {
@@ -156,7 +148,7 @@ impl SmushClient {
                 return Ok(total_read);
             }
             let (received, buf) = read_buf.split_at_mut(n);
-            logger.log_raw(received);
+            let _ = logger.log_raw(received);
             transformer.receive(received, buf)?;
             total_read += n;
         }
@@ -176,7 +168,7 @@ impl SmushClient {
                 return Ok(total_read);
             }
             let (received, buf) = read_buf.split_at_mut(n);
-            self.logger.borrow_mut().log_raw(buf);
+            let _ = self.logger.borrow_mut().log_raw(buf);
             self.transformer.borrow_mut().receive(received, buf)?;
             total_read += n;
         }
@@ -203,7 +195,6 @@ impl SmushClient {
     }
 
     fn process_output<H: Handler>(&self, handler: &mut H, flush: bool) -> bool {
-        self.logger.borrow_mut().log_error(handler);
         let mut transformer = self.transformer.borrow_mut();
         let drain = if flush {
             transformer.flush_output()
@@ -259,10 +250,10 @@ impl SmushClient {
 
             had_output = had_output || !trigger_effects.omit_from_output;
 
-            if !trigger_effects.omit_from_log {
-                let mut logger = self.logger.borrow_mut();
-                logger.log_output_line(line_text.as_bytes());
-                logger.log_error(handler);
+            if !trigger_effects.omit_from_log
+                && let Err(e) = self.logger.borrow_mut().log_output_line(&line_text)
+            {
+                handler.display_error(&format!("Log error: {e}"));
             }
         }
 
@@ -278,16 +269,18 @@ impl SmushClient {
         let outcome = self
             .plugins
             .alias(input, source, &self.world, &self.variables, handler);
-        if !outcome.omit_from_log {
-            let mut logger = self.logger.borrow_mut();
-            logger.log_input_line(input.as_bytes());
-            logger.log_error(handler);
+        if !outcome.omit_from_log
+            && let Err(e) = self.logger.borrow_mut().log_input_line(input)
+        {
+            handler.display_error(&format!("Log error: {e}"));
         }
         outcome.into()
     }
 
-    pub fn log_note(&self, note: &[u8]) {
-        self.logger.borrow_mut().log_note(note);
+    pub fn log_note<H: Handler>(&self, note: &[u8], handler: &mut H) {
+        if let Err(e) = self.logger.borrow_mut().log_note(note) {
+            handler.display_error(&format!("Log error: {e}"));
+        }
     }
 
     pub fn load_plugins(&mut self) -> Result<(), Vec<LoadFailure>> {

@@ -1,3 +1,5 @@
+mod log_file;
+
 mod logger;
 
 mod smushclient;

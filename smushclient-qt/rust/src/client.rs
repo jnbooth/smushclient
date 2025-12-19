@@ -121,13 +121,12 @@ impl SmushClientRust {
         *world = WorldRust::from(self.client.world());
     }
 
-    pub fn set_world(&mut self, world: &WorldRust) -> bool {
+    pub fn set_world(&mut self, world: &WorldRust) -> io::Result<bool> {
         let Ok(world) = World::try_from(world) else {
-            return false;
+            return Ok(false);
         };
-        let changed = self.client.update_world(world);
         self.apply_world();
-        changed
+        self.client.update_world(world)
     }
 
     pub fn handle_connect(&self, mut socket: Pin<&mut QAbstractSocket>) -> QString {

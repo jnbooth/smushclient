@@ -446,7 +446,7 @@ pub mod ffi {
         #[swift_bridge(return_into)]
         fn world(&self) -> World;
         #[swift_bridge(args_into = (world))]
-        fn set_world(&mut self, world: World);
+        fn set_world(&mut self, world: World) -> Result<bool, String>;
         fn connected(&self) -> bool;
         fn alias(&mut self, command: String) -> RustAliasOutcome;
         async fn connect(&mut self) -> Result<(), String>;
