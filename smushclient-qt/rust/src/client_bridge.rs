@@ -11,9 +11,13 @@ use smushclient_plugins::{
     Alias, LoadError, PluginIndex, RegexError, Timer, Trigger, XmlError, XmlSerError,
 };
 
+use crate::convert::Convert;
 use crate::ffi;
 use crate::ffi::AliasOutcomes;
+use crate::get_info::InfoVisitorQVariant;
+use crate::modeled::Modeled;
 use crate::results::{IntoErrorCode, IntoResultCode};
+use crate::world::WorldRust;
 
 trait AsLStr {
     fn as_lstr(&self) -> &LuaStr;
@@ -77,7 +81,7 @@ impl ffi::SmushClient {
         self.rust_mut().load_plugins()
     }
 
-    pub fn world_plugin_index(&self) -> usize {
+    pub fn world_plugin_index(&self) -> PluginIndex {
         self.rust().world_plugin_index()
     }
 
@@ -98,7 +102,7 @@ impl ffi::SmushClient {
     }
 
     pub fn populate_world(&self, world: Pin<&mut ffi::World>) {
-        self.rust().populate_world(&mut world.rust_mut());
+        *world.rust_mut() = WorldRust::from(self.rust().client.world());
     }
 
     pub fn set_world(self: Pin<&mut Self>, world: &ffi::World) -> io::Result<bool> {
@@ -106,7 +110,13 @@ impl ffi::SmushClient {
     }
 
     pub fn palette(&self) -> QVector<QColor> {
-        QVector::from(&self.rust().palette())
+        self.rust()
+            .client
+            .world()
+            .palette()
+            .iter()
+            .map(Convert::convert)
+            .collect()
     }
 
     pub fn handle_connect(&self, socket: Pin<&mut ffi::QAbstractSocket>) -> QString {
@@ -118,7 +128,9 @@ impl ffi::SmushClient {
     }
 
     pub fn plugin_info(&self, index: PluginIndex, info_type: u8) -> QVariant {
-        self.rust().plugin_info(index, info_type)
+        self.rust()
+            .client
+            .plugin_info::<InfoVisitorQVariant>(index, info_type)
     }
 
     pub fn plugin_enabled(&self, index: PluginIndex) -> bool {
@@ -136,7 +148,10 @@ impl ffi::SmushClient {
     }
 
     pub fn plugin_model_text(&self, index: PluginIndex, column: i32) -> QString {
-        self.rust().plugin_model_text(index, column)
+        let Some(plugin) = self.rust().client.plugin(index) else {
+            return QString::default();
+        };
+        plugin.cell_text(column)
     }
 
     pub fn add_plugin(self: Pin<&mut Self>, path: &QString) -> Result<PluginIndex, LoadError> {

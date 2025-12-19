@@ -5,7 +5,7 @@ use std::io::{self, Write};
 use std::pin::Pin;
 
 use cxx_qt_io::QAbstractSocket;
-use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant};
+use cxx_qt_lib::{QList, QString, QStringList, QVariant};
 use mud_transformer::Tag;
 use mud_transformer::mxp::RgbColor;
 use smushclient::world::PersistError;
@@ -15,11 +15,9 @@ use smushclient::{
 };
 use smushclient_plugins::{Alias, LoadError, PluginIndex, Timer, Trigger, XmlError};
 
-use crate::convert::Convert;
 use crate::ffi::{self, Document, Timekeeper};
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
-use crate::modeled::Modeled;
 use crate::world::WorldRust;
 
 const BUF_LEN: usize = 1024 * 20;
@@ -117,10 +115,6 @@ impl SmushClientRust {
         Ok(true)
     }
 
-    pub fn populate_world(&self, world: &mut WorldRust) {
-        *world = WorldRust::from(self.client.world());
-    }
-
     pub fn set_world(&mut self, world: &WorldRust) -> io::Result<bool> {
         let Ok(world) = World::try_from(world) else {
             return Ok(false);
@@ -140,20 +134,6 @@ impl SmushClientRust {
     pub fn handle_disconnect(&mut self) {
         self.stats.borrow_mut().clear();
         self.client.reset_connection();
-    }
-
-    pub fn palette(&self) -> Vec<QColor> {
-        self.client
-            .world()
-            .palette()
-            .iter()
-            .map(Convert::convert)
-            .collect()
-    }
-
-    pub fn plugin_info(&self, index: PluginIndex, info_type: u8) -> QVariant {
-        self.client
-            .plugin_info::<InfoVisitorQVariant>(index, info_type)
     }
 
     pub fn world_plugin_index(&self) -> PluginIndex {
@@ -195,13 +175,6 @@ impl SmushClientRust {
     pub fn reinstall_plugin(&mut self, index: PluginIndex) -> Result<usize, LoadError> {
         self.timers.borrow_mut().reset_plugin(index);
         self.client.reinstall_plugin(index)
-    }
-
-    pub fn plugin_model_text(&self, index: PluginIndex, column: i32) -> QString {
-        let Some(plugin) = self.client.plugin(index) else {
-            return QString::default();
-        };
-        plugin.cell_text(column)
     }
 
     fn apply_world(&mut self) {
