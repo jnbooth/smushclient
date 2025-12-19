@@ -1,5 +1,5 @@
 use std::ops::Deref;
-use std::slice;
+use std::{ptr, slice};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
@@ -10,7 +10,7 @@ pub struct SortOnDrop<T: Ord> {
 impl<T: Ord> SortOnDrop<T> {
     pub const fn borrow_mut(s: &mut [T]) -> &mut Self {
         // SAFETY: #[repr(transparent)]
-        unsafe { &mut *(std::ptr::from_mut(s) as *mut Self) }
+        unsafe { &mut *(ptr::from_mut(s) as *mut Self) }
     }
 }
 

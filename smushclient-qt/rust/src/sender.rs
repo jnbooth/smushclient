@@ -523,6 +523,6 @@ impl OutputSpan {
         let OutputFragment::Text(fragment) = &self.inner.fragment else {
             return ptr::null();
         };
-        ptr::from_ref(fragment).cast::<TextSpan>()
+        ptr::from_ref(fragment).cast()
     }
 }
