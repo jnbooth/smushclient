@@ -10,5 +10,4 @@ mod impls;
 mod modeled;
 mod results;
 mod sender;
-mod sync;
 mod world;

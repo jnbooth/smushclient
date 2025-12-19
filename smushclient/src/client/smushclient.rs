@@ -1,4 +1,4 @@
-use std::cell::{Ref, RefMut};
+use std::cell::{Ref, RefCell, RefMut};
 use std::io::{self, Read, Write};
 use std::path::Path;
 use std::{env, mem, slice};
@@ -19,20 +19,19 @@ use crate::plugins::{
 };
 use crate::world::{PersistError, World};
 
-const BUF_LEN: usize = 1024 * 20;
-const BUF_MIDPOINT: usize = BUF_LEN / 2;
 const METAVARIABLES_KEY: &str = "\x01";
 
 #[derive(Debug)]
 pub struct SmushClient {
     last_log_file_name: Option<String>,
-    logger: Logger,
+    logger: RefCell<Logger>,
     pub(crate) plugins: PluginEngine,
-    read_buf: Vec<u8>,
     supported_tags: FlagSet<Tag>,
-    transformer: Transformer,
-    variables: PluginVariables,
+    transformer: RefCell<Transformer>,
+    variables: RefCell<PluginVariables>,
     world: World,
+    #[cfg(feature = "async")]
+    write_buf: Vec<u8>,
 }
 
 impl Default for SmushClient {
@@ -45,19 +44,20 @@ impl SmushClient {
     pub fn new(world: World, supported_tags: FlagSet<Tag>) -> Self {
         let mut plugins = PluginEngine::new();
         plugins.set_world_plugin(world.world_plugin());
-        let transformer = Transformer::new(TransformerConfig {
+        let transformer = RefCell::new(Transformer::new(TransformerConfig {
             supports: supported_tags,
             ..TransformerConfig::from(&world)
-        });
+        }));
         Self {
             last_log_file_name: world.auto_log_file_name.clone(),
-            logger: Logger::default(),
+            logger: RefCell::new(Logger::default()),
             plugins,
-            read_buf: vec![0; BUF_LEN],
             supported_tags,
             transformer,
-            variables: PluginVariables::new(),
+            variables: RefCell::new(PluginVariables::new()),
             world,
+            #[cfg(feature = "async")]
+            write_buf: Vec::new(),
         }
     }
 
@@ -75,8 +75,8 @@ impl SmushClient {
         }
     }
 
-    pub fn reset_connection(&mut self) {
-        self.transformer = Transformer::new(self.create_config());
+    pub fn reset_connection(&self) {
+        *self.transformer.borrow_mut() = Transformer::new(self.create_config());
     }
 
     pub fn set_supported_tags(&mut self, supported_tags: FlagSet<Tag>) {
@@ -89,8 +89,10 @@ impl SmushClient {
         }
     }
 
-    fn update_config(&mut self) {
-        self.transformer.set_config(self.create_config());
+    fn update_config(&self) {
+        self.transformer
+            .borrow_mut()
+            .set_config(self.create_config());
     }
 
     fn create_config(&self) -> TransformerConfig {
@@ -108,7 +110,7 @@ impl SmushClient {
     pub fn set_world(&mut self, world: World) {
         self.world = world;
         self.plugins.set_world_plugin(self.world.world_plugin());
-        self.logger.apply_world(&self.world);
+        self.logger.borrow_mut().apply_world(&self.world);
         self.update_config();
     }
 
@@ -124,7 +126,7 @@ impl SmushClient {
         world.triggers = triggers;
         self.world = world;
         self.plugins.set_world_plugin(self.world.world_plugin());
-        self.logger.apply_world(&self.world);
+        self.logger.borrow_mut().apply_world(&self.world);
         self.update_config();
         changed
     }
@@ -132,49 +134,58 @@ impl SmushClient {
     pub fn open_log(&mut self) -> io::Result<()> {
         if self.world.auto_log_file_name != self.last_log_file_name {
             self.last_log_file_name = self.world.auto_log_file_name.clone();
-        } else if self.logger.is_open() {
+        } else if self.logger.borrow().is_open() {
             return Ok(());
         }
         self.last_log_file_name = self.world.auto_log_file_name.clone();
-        self.logger = Logger::open(&self.world)?;
+        *self.logger.borrow_mut() = Logger::open(&self.world)?;
         Ok(())
     }
 
     pub fn close_log(&mut self) {
-        self.logger.close();
+        self.logger.borrow_mut().close();
     }
 
-    pub fn read<R: Read>(&mut self, mut reader: R) -> io::Result<usize> {
+    pub fn read<R: Read>(&self, mut reader: R, read_buf: &mut [u8]) -> io::Result<usize> {
+        let mut logger = self.logger.borrow_mut();
+        let mut transformer = self.transformer.borrow_mut();
+        let midpoint = read_buf.len() / 2;
         let mut total_read = 0;
         loop {
-            let n = reader.read(&mut self.read_buf[..BUF_MIDPOINT])?;
+            let n = reader.read(&mut read_buf[..midpoint])?;
             if n == 0 {
                 return Ok(total_read);
             }
-            let (received, buf) = self.read_buf.split_at_mut(n);
-            self.logger.log_raw(received);
-            self.transformer.receive(received, buf)?;
+            let (received, buf) = read_buf.split_at_mut(n);
+            logger.log_raw(received);
+            transformer.receive(received, buf)?;
             total_read += n;
         }
     }
 
     #[cfg(feature = "async")]
-    pub async fn read_async<R: AsyncRead + Unpin>(&mut self, reader: &mut R) -> io::Result<usize> {
+    pub async fn read_async<R: AsyncRead + Unpin>(
+        &mut self,
+        reader: &mut R,
+        read_buf: &mut [u8],
+    ) -> io::Result<usize> {
+        let midpoint = read_buf.len() / 2;
         let mut total_read = 0;
         loop {
-            let n = reader.read(&mut self.read_buf[..BUF_MIDPOINT]).await?;
+            let n = reader.read(&mut read_buf[..midpoint]).await?;
             if n == 0 {
                 return Ok(total_read);
             }
-            let (received, buf) = self.read_buf.split_at_mut(n);
-            self.logger.log_raw(buf);
-            self.transformer.receive(received, buf)?;
+            let (received, buf) = read_buf.split_at_mut(n);
+            self.logger.borrow_mut().log_raw(buf);
+            self.transformer.borrow_mut().receive(received, buf)?;
             total_read += n;
         }
     }
 
-    pub fn write<W: Write>(&mut self, writer: &mut W) -> io::Result<()> {
-        let Some(mut drain) = self.transformer.drain_input() else {
+    pub fn write<W: Write>(&self, writer: &mut W) -> io::Result<()> {
+        let mut transformer = self.transformer.borrow_mut();
+        let Some(mut drain) = transformer.drain_input() else {
             return Ok(());
         };
         drain.write_all_to(writer)
@@ -182,31 +193,36 @@ impl SmushClient {
 
     #[cfg(feature = "async")]
     pub async fn write_async<W: AsyncWrite + Unpin>(&mut self, mut writer: W) -> io::Result<()> {
-        if let Some(mut drain) = self.transformer.drain_input() {
-            writer.write_all_buf(&mut drain).await
-        } else {
-            Ok(())
+        {
+            let mut transformer = self.transformer.borrow_mut();
+            let Some(mut drain) = transformer.drain_input() else {
+                return Ok(());
+            };
+            self.write_buf.clear();
+            drain.write_all_to(&mut self.write_buf)?;
         }
+        writer.write_all(&self.write_buf).await
     }
 
     pub fn has_output(&self) -> bool {
-        self.transformer.has_output()
+        self.transformer.borrow().has_output()
     }
 
-    pub fn drain_output<H: Handler>(&mut self, handler: &mut H) -> bool {
+    pub fn drain_output<H: Handler>(&self, handler: &mut H) -> bool {
         self.process_output(handler, false)
     }
 
-    pub fn flush_output<H: Handler>(&mut self, handler: &mut H) -> bool {
+    pub fn flush_output<H: Handler>(&self, handler: &mut H) -> bool {
         self.process_output(handler, true)
     }
 
-    fn process_output<H: Handler>(&mut self, handler: &mut H, flush: bool) -> bool {
-        self.logger.log_error(handler);
+    fn process_output<H: Handler>(&self, handler: &mut H, flush: bool) -> bool {
+        self.logger.borrow_mut().log_error(handler);
+        let mut transformer = self.transformer.borrow_mut();
         let drain = if flush {
-            self.transformer.flush_output()
+            transformer.flush_output()
         } else {
-            self.transformer.drain_output()
+            transformer.drain_output()
         };
         let mut had_output = false;
         let mut slice = drain.as_slice();
@@ -251,19 +267,16 @@ impl SmushClient {
                 handler.display(fragment);
             }
 
-            let trigger_effects = self.plugins.trigger(
-                &line_text,
-                output,
-                &self.world,
-                &mut self.variables,
-                handler,
-            );
+            let trigger_effects =
+                self.plugins
+                    .trigger(&line_text, output, &self.world, &self.variables, handler);
 
             had_output = had_output || !trigger_effects.omit_from_output;
 
             if !trigger_effects.omit_from_log {
-                self.logger.log_output_line(line_text.as_bytes());
-                self.logger.log_error(handler);
+                let mut logger = self.logger.borrow_mut();
+                logger.log_output_line(line_text.as_bytes());
+                logger.log_error(handler);
             }
         }
 
@@ -271,23 +284,24 @@ impl SmushClient {
     }
 
     pub fn alias<H: Handler>(
-        &mut self,
+        &self,
         input: &str,
         source: CommandSource,
         handler: &mut H,
     ) -> AliasOutcome {
         let outcome = self
             .plugins
-            .alias(input, source, &self.world, &mut self.variables, handler);
+            .alias(input, source, &self.world, &self.variables, handler);
         if !outcome.omit_from_log {
-            self.logger.log_input_line(input.as_bytes());
-            self.logger.log_error(handler);
+            let mut logger = self.logger.borrow_mut();
+            logger.log_input_line(input.as_bytes());
+            logger.log_error(handler);
         }
         outcome.into()
     }
 
-    pub fn log_note(&mut self, note: &[u8]) {
-        self.logger.log_note(note);
+    pub fn log_note(&self, note: &[u8]) {
+        self.logger.borrow_mut().log_note(note);
     }
 
     pub fn load_plugins(&mut self) -> Result<(), Vec<LoadFailure>> {
@@ -335,59 +349,71 @@ impl SmushClient {
 
     pub fn has_variables(&self) -> bool {
         self.variables
+            .borrow()
             .values()
             .any(|variables| !variables.is_empty())
     }
 
     pub fn variables_len(&self, index: PluginIndex) -> Option<usize> {
         let plugin_id = &self.plugins.get(index)?.metadata.id;
-        let variables = self.variables.get(plugin_id)?;
-        Some(variables.len())
+        Some(self.variables.borrow().get(plugin_id)?.len())
     }
 
-    pub fn load_variables<R: Read>(&mut self, reader: R) -> Result<(), PersistError> {
-        self.variables = PluginVariables::load(reader)?;
+    pub fn load_variables<R: Read>(&self, reader: R) -> Result<(), PersistError> {
+        *self.variables.borrow_mut() = PluginVariables::load(reader)?;
         Ok(())
     }
 
     pub fn save_variables<W: Write>(&self, writer: W) -> Result<(), PersistError> {
-        self.variables.save(writer)
+        self.variables.borrow_mut().save(writer)
     }
 
-    pub fn get_variable(&self, index: PluginIndex, key: &LuaStr) -> Option<&LuaStr> {
+    pub fn borrow_variable(&self, index: PluginIndex, key: &LuaStr) -> Option<Ref<'_, LuaStr>> {
         let plugin_id = &self.plugins.get(index)?.metadata.id;
-        self.variables.get_variable(plugin_id, key)
+        Ref::filter_map(self.variables.borrow(), |vars| {
+            vars.get_variable(plugin_id, key)
+        })
+        .ok()
     }
 
-    pub fn get_metavariable(&self, key: &LuaStr) -> Option<&LuaStr> {
-        self.variables.get_variable(METAVARIABLES_KEY, key)
+    pub fn borrow_metavariable(&self, key: &LuaStr) -> Option<Ref<'_, LuaStr>> {
+        Ref::filter_map(self.variables.borrow(), |vars| {
+            vars.get_variable(METAVARIABLES_KEY, key)
+        })
+        .ok()
     }
 
     pub fn has_metavariable(&self, key: &LuaStr) -> bool {
-        self.variables.has_variable(METAVARIABLES_KEY, key)
+        self.variables.borrow().has_variable(METAVARIABLES_KEY, key)
     }
 
-    pub fn set_variable(&mut self, index: PluginIndex, key: LuaString, value: LuaString) -> bool {
+    pub fn set_variable(&self, index: PluginIndex, key: LuaString, value: LuaString) -> bool {
         let Some(plugin) = self.plugins.get(index) else {
             return false;
         };
         let plugin_id = &plugin.metadata.id;
-        self.variables.set_variable(plugin_id, key, value);
+        self.variables
+            .borrow_mut()
+            .set_variable(plugin_id, key, value);
         true
     }
 
-    pub fn unset_variable(&mut self, index: PluginIndex, key: &LuaStr) -> Option<LuaString> {
+    pub fn unset_variable(&self, index: PluginIndex, key: &LuaStr) -> Option<LuaString> {
         let plugin_id = &self.plugins.get(index)?.metadata.id;
-        self.variables.unset_variable(plugin_id, key)
+        self.variables.borrow_mut().unset_variable(plugin_id, key)
     }
 
-    pub fn set_metavariable(&mut self, key: LuaString, value: LuaString) -> bool {
-        self.variables.set_variable(METAVARIABLES_KEY, key, value);
+    pub fn set_metavariable(&self, key: LuaString, value: LuaString) -> bool {
+        self.variables
+            .borrow_mut()
+            .set_variable(METAVARIABLES_KEY, key, value);
         true
     }
 
-    pub fn unset_metavariable(&mut self, key: &LuaStr) -> Option<LuaString> {
-        self.variables.unset_variable(METAVARIABLES_KEY, key)
+    pub fn unset_metavariable(&self, key: &LuaStr) -> Option<LuaString> {
+        self.variables
+            .borrow_mut()
+            .unset_variable(METAVARIABLES_KEY, key)
     }
 
     pub fn set_group_enabled<T: SendIterable>(

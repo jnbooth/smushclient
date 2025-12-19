@@ -1,6 +1,6 @@
 use std::pin::Pin;
 
-use smushclient::TimerHandler;
+use smushclient::TimerStart;
 
 #[cxx_qt::bridge]
 pub mod ffi {
@@ -35,12 +35,8 @@ pub mod ffi {
     }
 }
 
-impl TimerHandler<ffi::SendTimer> for Pin<&mut ffi::Timekeeper> {
-    fn send_timer(&self, timer: &ffi::SendTimer) {
-        (**self).send_timer(timer);
-    }
-
-    fn start_timer(&mut self, index: usize, timer: u16, milliseconds: u32) {
-        self.as_mut().start_send_timer(index, timer, milliseconds);
+impl ffi::Timekeeper {
+    pub fn start(self: Pin<&mut Self>, start: &TimerStart) {
+        self.start_send_timer(start.index, start.timer, start.milliseconds);
     }
 }

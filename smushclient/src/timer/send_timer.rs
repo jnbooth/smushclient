@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 use std::ops::{Deref, DerefMut};
+use std::rc::Rc;
 use std::time::Duration;
 
 use chrono::NaiveTime;
@@ -12,12 +13,12 @@ pub trait TimerConstructible {
     fn construct(index: PluginIndex, timer: &Timer) -> Self;
 }
 
-#[derive(Copy, Clone, Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct SendTimer<T> {
     pub plugin: PluginIndex,
     pub id: u16,
     pub one_shot: bool,
-    pub timer: T,
+    pub timer: Rc<T>,
 }
 
 impl<T> PartialEq for SendTimer<T> {
@@ -52,7 +53,7 @@ impl<T: TimerConstructible> SendTimer<T> {
             plugin,
             id: timer.id,
             one_shot: timer.one_shot,
-            timer: T::construct(plugin, timer),
+            timer: Rc::new(T::construct(plugin, timer)),
         }
     }
 
@@ -67,7 +68,7 @@ impl<T: TimerConstructible> SendTimer<T> {
     }
 }
 
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct RecurringTimer<T> {
     inner: SendTimer<T>,
     pub milliseconds: u32,
@@ -95,7 +96,7 @@ impl<T> DerefMut for RecurringTimer<T> {
     }
 }
 
-#[derive(Copy, Clone, Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct ScheduledTimer<T> {
     pub time: NaiveTime,
     inner: SendTimer<T>,

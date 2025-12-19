@@ -11,9 +11,12 @@ use crate::error::StringifyResultError;
 use crate::stream::{RustAliasOutcome, RustOutputStream};
 use crate::sync::NonBlockingMutex;
 
+const BUF_LEN: usize = 1024 * 20;
+
 #[derive(Default)]
 pub struct RustMudBridge {
     stream: Option<TcpStream>,
+    read_buf: Vec<u8>,
     client: SmushClient,
     input_lock: NonBlockingMutex,
     output_lock: NonBlockingMutex,
@@ -23,6 +26,7 @@ pub struct RustMudBridge {
 impl RustMudBridge {
     pub fn new(world: World) -> Self {
         Self {
+            read_buf: vec![0; BUF_LEN],
             client: SmushClient::new(
                 world,
                 Tag::Bold
@@ -113,7 +117,7 @@ impl RustMudBridge {
             return Ok(RustOutputStream::new(Vec::new().into_iter()));
         };
         let lock = self.output_lock.lock();
-        let read_result = self.client.read_async(stream).await;
+        let read_result = self.client.read_async(stream, &mut self.read_buf).await;
 
         let mut handler = ClientHandler::new();
         self.client.flush_output(&mut handler);

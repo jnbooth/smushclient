@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::ops::Range;
 use std::pin::Pin;
@@ -19,7 +20,7 @@ pub struct ClientHandler<'a> {
     pub palette: &'a HashMap<RgbColor, i32>,
     pub carriage_return_clears_line: bool,
     pub no_echo_off: bool,
-    pub stats: &'a mut HashSet<String>,
+    pub stats: &'a RefCell<HashSet<String>>,
 }
 
 const ERROR_FORMAT_INDEX: i32 = 1;
@@ -88,13 +89,13 @@ impl ClientHandler<'_> {
         }
         let entity = format!("{name}={value}");
         self.doc.handle_mxp_entity(&entity);
-        if self.stats.contains(name) {
+        if self.stats.borrow().contains(name) {
             self.doc
                 .update_mxp_stat(&QString::from(name), &QString::from(value));
         }
     }
 
-    fn handle_mxp_stat(&mut self, stat: &mxp::Stat) {
+    fn handle_mxp_stat(&self, stat: &mxp::Stat) {
         let entity = QString::from(&stat.entity);
         let max = stat.max.convert();
         match &stat.caption {
@@ -103,13 +104,14 @@ impl ClientHandler<'_> {
                 .create_mxp_stat(&entity, &QString::from(caption), &max),
             None => self.doc.create_mxp_stat(&entity, &entity, &max),
         }
-        if !self.stats.contains(&stat.entity) {
-            self.stats.insert(stat.entity.clone());
+        let mut stats = self.stats.borrow_mut();
+        if !stats.contains(&stat.entity) {
+            stats.insert(stat.entity.clone());
         }
         if let Some(max) = &stat.max
-            && !self.stats.contains(max)
+            && !stats.contains(max)
         {
-            self.stats.insert(max.clone());
+            stats.insert(max.clone());
         }
     }
 

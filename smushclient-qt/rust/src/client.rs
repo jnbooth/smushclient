@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{self, Write};
@@ -19,16 +20,16 @@ use crate::ffi::{self, Document, Timekeeper};
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
 use crate::modeled::Modeled;
-use crate::sync::NonBlockingMutex;
 use crate::world::WorldRust;
+
+const BUF_LEN: usize = 1024 * 20;
 
 pub struct SmushClientRust {
     audio: AudioSinks,
     pub client: SmushClient,
-    input_lock: NonBlockingMutex,
-    output_lock: NonBlockingMutex,
-    stats: HashSet<String>,
-    timers: Timers<ffi::SendTimer>,
+    read_buf: RefCell<Vec<u8>>,
+    stats: RefCell<HashSet<String>>,
+    timers: RefCell<Timers<ffi::SendTimer>>,
     palette: HashMap<RgbColor, i32>,
 }
 
@@ -40,6 +41,10 @@ impl Default for SmushClientRust {
     fn default() -> Self {
         Self {
             audio: AudioSinks::try_default().expect("audio initialization failed"),
+            read_buf: RefCell::new(vec![0; BUF_LEN]),
+            stats: RefCell::new(HashSet::new()),
+            timers: RefCell::new(Timers::new()),
+            palette: HashMap::with_capacity(164),
             client: SmushClient::new(
                 World::default(),
                 Tag::Bold
@@ -60,11 +65,6 @@ impl Default for SmushClientRust {
                     | Tag::Strikeout
                     | Tag::Underline,
             ),
-            input_lock: NonBlockingMutex::default(),
-            output_lock: NonBlockingMutex::default(),
-            stats: HashSet::new(),
-            timers: Timers::new(),
-            palette: HashMap::with_capacity(164),
         }
     }
 }
@@ -76,9 +76,7 @@ impl SmushClientRust {
         let file = File::open(String::from(path).as_str())?;
         let worldfile = World::load(file)?;
         let world = WorldRust::from(&worldfile);
-        let output_lock = self.output_lock.lock();
         self.client.set_world(worldfile);
-        drop(output_lock);
         self.apply_world();
         Ok(world)
     }
@@ -101,7 +99,7 @@ impl SmushClientRust {
         self.client.world().save(file)
     }
 
-    pub fn load_variables(&mut self, path: &QString) -> Result<bool, PersistError> {
+    pub fn load_variables(&self, path: &QString) -> Result<bool, PersistError> {
         let file = match File::open(String::from(path).as_str()) {
             Err(err) if err.kind() == io::ErrorKind::NotFound => return Ok(false),
             file => file?,
@@ -134,17 +132,14 @@ impl SmushClientRust {
 
     pub fn handle_connect(&self, mut socket: Pin<&mut QAbstractSocket>) -> QString {
         let connect_message = self.client.world().connect_message();
-        let input_lock = self.input_lock.lock();
-        let error = match socket.write_all(connect_message.as_bytes()) {
+        match socket.write_all(connect_message.as_bytes()) {
             Ok(()) => QString::default(),
             Err(e) => QString::from(&e.to_string()),
-        };
-        drop(input_lock);
-        error
+        }
     }
 
-    pub fn handle_disconnect(&mut self) {
-        self.stats.clear();
+    pub fn handle_disconnect(&self) {
+        self.stats.borrow_mut().clear();
         self.client.reset_connection();
     }
 
@@ -185,19 +180,21 @@ impl SmushClientRust {
         }
     }
 
-    pub fn reset_world_plugin(&mut self) {
-        self.timers.reset_plugin(self.world_plugin_index());
+    pub fn reset_world_plugin(&self) {
+        self.timers
+            .borrow_mut()
+            .reset_plugin(self.world_plugin_index());
         self.client.reset_world_plugin();
     }
 
-    pub fn reset_plugins(&mut self) -> Vec<ffi::PluginPack> {
+    pub fn reset_plugins(&self) -> Vec<ffi::PluginPack> {
         self.client.reset_plugins();
-        self.timers.clear();
+        self.timers.borrow_mut().clear();
         self.client.plugins().map(ffi::PluginPack::from).collect()
     }
 
     pub fn reinstall_plugin(&mut self, index: PluginIndex) -> Result<usize, LoadError> {
-        self.timers.reset_plugin(index);
+        self.timers.borrow_mut().reset_plugin(index);
         self.client.reinstall_plugin(index)
     }
 
@@ -210,16 +207,13 @@ impl SmushClientRust {
 
     fn apply_world(&mut self) {
         let world = self.client.world();
-        let output_lock = self.output_lock.lock();
         self.palette.clear();
         for (i, color) in world.palette().iter().enumerate() {
             self.palette.insert(*color, i as i32);
         }
-        drop(output_lock);
     }
 
-    pub fn read(&mut self, mut socket: Pin<&mut QAbstractSocket>, doc: Pin<&mut Document>) -> i64 {
-        let output_lock = self.output_lock.lock();
+    pub fn read(&self, mut socket: Pin<&mut QAbstractSocket>, doc: Pin<&mut Document>) -> i64 {
         let world = self.client.world();
         let mut handler = ClientHandler {
             audio: &self.audio,
@@ -227,14 +221,15 @@ impl SmushClientRust {
             palette: &self.palette,
             carriage_return_clears_line: world.carriage_return_clears_line,
             no_echo_off: world.no_echo_off,
-            stats: &mut self.stats,
+            stats: &self.stats,
         };
-        let read_result = self.client.read(&mut socket);
+        let read_result = self
+            .client
+            .read(&mut socket, &mut self.read_buf.borrow_mut());
         handler.doc.begin();
 
         let had_output = self.client.drain_output(&mut handler);
         handler.doc.as_mut().end(had_output);
-        drop(output_lock);
 
         let total_read = match read_result {
             Ok(total_read) => total_read,
@@ -244,18 +239,15 @@ impl SmushClientRust {
             }
         };
 
-        let input_lock = self.input_lock.lock();
         if let Err(e) = self.client.write(&mut socket) {
             handler.display_error(&e.to_string());
             return -1;
         }
-        drop(input_lock);
 
         total_read as i64
     }
 
-    pub fn flush(&mut self, doc: Pin<&mut Document>) {
-        let output_lock = self.output_lock.lock();
+    pub fn flush(&self, doc: Pin<&mut Document>) {
         let world = self.client.world();
         let mut handler = ClientHandler {
             audio: &self.audio,
@@ -263,13 +255,12 @@ impl SmushClientRust {
             palette: &self.palette,
             carriage_return_clears_line: world.carriage_return_clears_line,
             no_echo_off: world.no_echo_off,
-            stats: &mut self.stats,
+            stats: &self.stats,
         };
         handler.doc.begin();
 
         let had_output = self.client.flush_output(&mut handler);
         handler.doc.end(had_output);
-        drop(output_lock);
     }
 
     pub fn play_buffer(
@@ -305,12 +296,11 @@ impl SmushClientRust {
     }
 
     pub fn alias(
-        &mut self,
+        &self,
         command: &QString,
         source: CommandSource,
         doc: Pin<&mut Document>,
     ) -> AliasOutcome {
-        let output_lock = self.output_lock.lock();
         let world = self.client.world();
         let mut handler = ClientHandler {
             audio: &self.audio,
@@ -318,14 +308,13 @@ impl SmushClientRust {
             palette: &self.palette,
             carriage_return_clears_line: world.carriage_return_clears_line,
             no_echo_off: world.no_echo_off,
-            stats: &mut self.stats,
+            stats: &self.stats,
         };
         handler.doc.begin();
         let outcome = self
             .client
             .alias(&String::from(command), source, &mut handler);
         handler.doc.end(false);
-        drop(output_lock);
         outcome
     }
 
@@ -334,78 +323,93 @@ impl SmushClientRust {
             index,
             &String::from(label),
             info_type,
-            &self.timers,
+            &self.timers.borrow(),
         )
     }
 
-    pub fn start_timers(&mut self, index: PluginIndex, mut timekeeper: Pin<&mut Timekeeper>) {
+    pub fn start_timers(&self, index: PluginIndex, mut timekeeper: Pin<&mut Timekeeper>) {
         if !self.client.world().enable_timers {
             return;
         }
-        let timers = self.client.senders::<Timer>(index).borrow();
-        for timer in &*timers {
-            self.timers.start(index, timer, &mut timekeeper);
+        let timer_starts = {
+            let mut timers = self.timers.borrow_mut();
+            self.client
+                .senders::<Timer>(index)
+                .borrow()
+                .iter()
+                .filter_map(|timer| timers.start(index, timer))
+                .collect::<Vec<_>>()
+        };
+        for timer_start in &timer_starts {
+            timekeeper.as_mut().start(timer_start);
         }
     }
 
-    pub fn finish_timer(&mut self, id: usize, mut timekeeper: Pin<&mut Timekeeper>) -> bool {
-        self.timers.finish(id, &mut self.client, &mut timekeeper)
+    pub fn finish_timer(&self, id: usize, timekeeper: &Timekeeper) -> bool {
+        let result = self.timers.borrow_mut().finish(id, &self.client);
+        if let Some(timer) = result.timer {
+            timekeeper.send_timer(&timer);
+        }
+        result.done
     }
 
-    pub fn poll_timers(&mut self, mut timekeeper: Pin<&mut Timekeeper>) {
-        self.timers.poll(&mut self.client, &mut timekeeper);
+    pub fn poll_timers(&self, timekeeper: &Timekeeper) {
+        for timer in self.timers.borrow_mut().poll(&self.client) {
+            timekeeper.send_timer(&timer);
+        }
     }
 
-    pub fn stop_senders(&mut self) {
+    pub fn stop_senders(&self) {
         self.client.stop_evaluating::<Alias>();
         self.client.stop_evaluating::<Timer>();
         self.client.stop_evaluating::<Trigger>();
     }
 
     pub fn add_timer(
-        &mut self,
+        &self,
         index: PluginIndex,
         timer: Timer,
-        mut timekeeper: Pin<&mut Timekeeper>,
+        timekeeper: Pin<&mut Timekeeper>,
     ) -> Result<(), SenderAccessError> {
         let enable_timers = self.client.world().enable_timers;
         let timer = self.client.add_sender(index, timer)?;
-        if enable_timers {
-            self.timers.start(index, &timer, &mut timekeeper);
+        if enable_timers && let Some(start) = self.timers.borrow_mut().start(index, &timer) {
+            timekeeper.start(&start);
         }
         Ok(())
     }
 
     pub fn add_or_replace_timer(
-        &mut self,
+        &self,
         index: PluginIndex,
         timer: Timer,
-        mut timekeeper: Pin<&mut Timekeeper>,
+        timekeeper: Pin<&mut Timekeeper>,
     ) {
         let enable_timers = self.client.world().enable_timers;
         let timer = self.client.add_or_replace_sender(index, timer);
-        if enable_timers {
-            self.timers.start(index, &timer, &mut timekeeper);
+        if enable_timers && let Some(start) = self.timers.borrow_mut().start(index, &timer) {
+            timekeeper.start(&start);
         }
     }
 
     pub fn replace_world_timer(
-        &mut self,
+        &self,
         index: usize,
         timer: Timer,
-        mut timekeeper: Pin<&mut Timekeeper>,
+        timekeeper: Pin<&mut Timekeeper>,
     ) -> Result<(), SenderAccessError> {
         let enable_timers = self.client.world().enable_timers;
         let world_index = self.world_plugin_index();
         let (_, timer) = self.client.replace_world_sender(index, timer)?;
-        if enable_timers {
-            self.timers.start(world_index, &timer, &mut timekeeper);
+        if enable_timers && let Some(mut start) = self.timers.borrow_mut().start(index, &timer) {
+            start.index = world_index;
+            timekeeper.start(&start);
         }
         Ok(())
     }
 
     pub fn import_world_timers(
-        &mut self,
+        &self,
         xml: &QString,
         mut timekeeper: Pin<&mut Timekeeper>,
     ) -> Result<(), XmlError> {
@@ -416,14 +420,16 @@ impl SmushClientRust {
             .import_world_senders::<Timer>(&String::from(xml))?;
         if enable_timers {
             for timer in &*timers {
-                self.timers.start(world_index, timer, &mut timekeeper);
+                if let Some(start) = self.timers.borrow_mut().start(world_index, timer) {
+                    timekeeper.as_mut().start(&start);
+                }
             }
         }
         Ok(())
     }
 
     pub fn set_bool<P>(
-        &mut self,
+        &self,
         index: PluginIndex,
         label: &QString,
         prop: P,
@@ -441,7 +447,7 @@ impl SmushClientRust {
     }
 
     pub fn set_sender_group<T: SendIterable>(
-        &mut self,
+        &self,
         index: PluginIndex,
         label: &QString,
         group: &QString,

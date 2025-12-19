@@ -12,7 +12,7 @@ mod get_info;
 pub use get_info::InfoVisitor;
 
 mod handler;
-pub use handler::{Handler, TimerHandler};
+pub use handler::Handler;
 
 mod options;
 pub use options::{AliasBool, BoolProperty, TimerBool, TriggerBool};
@@ -24,7 +24,7 @@ pub use plugins::{
 };
 
 mod timer;
-pub use timer::{TimerConstructible, Timers};
+pub use timer::{TimerConstructible, TimerFinish, TimerStart, Timers};
 
 pub mod world;
 pub use world::{SenderMap, World};

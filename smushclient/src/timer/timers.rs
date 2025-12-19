@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::rc::Rc;
 
 use chrono::offset::LocalResult;
 use chrono::{DateTime, Days, Local, NaiveDate, NaiveTime, TimeDelta, Utc};
@@ -7,7 +8,6 @@ use smushclient_plugins::{Occurrence, PluginIndex, Timer};
 use super::send_timer::{RecurringTimer, ScheduledTimer, SendTimer, TimerConstructible};
 use crate::client::SmushClient;
 use crate::collections::ReuseVec;
-use crate::handler::TimerHandler;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Timers<T> {
@@ -38,6 +38,19 @@ impl<T> Timers<T> {
             last_occurrences: HashMap::new(),
         }
     }
+}
+
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct TimerStart {
+    pub index: usize,
+    pub timer: u16,
+    pub milliseconds: u32,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct TimerFinish<T> {
+    pub done: bool,
+    pub timer: Option<Rc<T>>,
 }
 
 impl<T> Timers<T> {
@@ -99,13 +112,14 @@ impl<T> Timers<T> {
 }
 
 impl<T: TimerConstructible> Timers<T> {
-    pub fn poll<H: TimerHandler<T>>(&mut self, client: &mut SmushClient, handler: &mut H) {
+    pub fn poll(&mut self, client: &SmushClient) -> Vec<Rc<T>> {
         if self.scheduled.is_empty() {
-            return;
+            return Vec::new();
         }
         let now = Local::now();
         let today = now.date_naive();
         let time = now.time();
+        let mut triggered = Vec::new();
         loop {
             if self.cursor_pos >= self.scheduled.len() {
                 if today > self.cursor_date {
@@ -120,7 +134,7 @@ impl<T: TimerConstructible> Timers<T> {
                 break;
             }
             self.cursor_pos += 1;
-            handler.send_timer(&send_timer.timer);
+            triggered.push(send_timer.timer.clone());
             if send_timer.one_shot {
                 send_timer.remove(client);
                 self.cursor_pos -= 1;
@@ -128,49 +142,53 @@ impl<T: TimerConstructible> Timers<T> {
                 self.scheduled.remove(self.cursor_pos);
             }
         }
+        triggered
     }
 
-    pub fn start<H: TimerHandler<T>>(
-        &mut self,
-        index: PluginIndex,
-        timer: &Timer,
-        handler: &mut H,
-    ) {
+    pub fn start(&mut self, index: PluginIndex, timer: &Timer) -> Option<TimerStart> {
         if !timer.enabled {
-            return;
+            return None;
         }
         let occurrence = timer.occurrence;
         let send_timer = SendTimer::new(index, timer);
         match occurrence {
-            Occurrence::Time(time) => self.insert_scheduled(ScheduledTimer::new(send_timer, time)),
+            Occurrence::Time(time) => {
+                self.insert_scheduled(ScheduledTimer::new(send_timer, time));
+                None
+            }
             Occurrence::Interval(duration) => {
                 let send_timer = RecurringTimer::new(send_timer, duration);
-                let id = send_timer.id;
-                let milliseconds = send_timer.milliseconds;
-                let index = self.insert_recurring(send_timer);
-                handler.start_timer(index, id, milliseconds);
+                Some(TimerStart {
+                    timer: send_timer.id,
+                    milliseconds: send_timer.milliseconds,
+                    index: self.insert_recurring(send_timer),
+                })
             }
         }
     }
 
-    pub fn finish<H: TimerHandler<T>>(
-        &mut self,
-        id: usize,
-        client: &mut SmushClient,
-        handler: &mut H,
-    ) -> bool {
+    pub fn finish(&mut self, id: usize, client: &SmushClient) -> TimerFinish<T> {
         let Some(send_timer) = self.recurring.get(id) else {
-            return true;
+            return TimerFinish {
+                done: true,
+                timer: None,
+            };
         };
         self.next_occurrences.remove(&send_timer.id);
-        handler.send_timer(&send_timer.timer);
+        let timer = send_timer.timer.clone();
         if !send_timer.one_shot {
             self.last_occurrences.insert(send_timer.id, Utc::now());
-            return false;
+            return TimerFinish {
+                done: false,
+                timer: Some(timer),
+            };
         }
         send_timer.remove(client);
         self.recurring.remove(id);
-        true
+        TimerFinish {
+            done: true,
+            timer: Some(timer),
+        }
     }
 
     fn insert_recurring(&mut self, timer: RecurringTimer<T>) -> usize {

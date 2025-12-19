@@ -16,11 +16,6 @@ pub trait Handler {
     fn play_sound(&mut self, path: &str);
 }
 
-pub trait TimerHandler<T> {
-    fn send_timer(&self, timer: &T);
-    fn start_timer(&mut self, index: usize, timer: u16, milliseconds: u32);
-}
-
 pub trait HandlerExt {
     fn send_scripts(
         &mut self,

@@ -1,4 +1,5 @@
 use core::str;
+use std::cell::RefCell;
 use std::collections::HashSet;
 use std::io::{self};
 use std::ops::{Deref, DerefMut};
@@ -129,11 +130,11 @@ impl PluginEngine {
     }
 
     pub fn alias<H: Handler>(
-        &mut self,
+        &self,
         line: &str,
         source: CommandSource,
         world: &World,
-        variables: &mut PluginVariables,
+        variables: &RefCell<PluginVariables>,
         handler: &mut H,
     ) -> AliasEffects {
         let mut effects = AliasEffects::new(world, source);
@@ -145,7 +146,7 @@ impl PluginEngine {
         let mut text_buf = String::new();
         let mut alias_buf = Alias::default();
 
-        for (plugin_index, plugin) in self.plugins.iter_mut().enumerate() {
+        for (plugin_index, plugin) in self.plugins.iter().enumerate() {
             if plugin.disabled {
                 continue;
             }
@@ -176,7 +177,7 @@ impl PluginEngine {
                     let send_request = {
                         let alias = alias.borrow();
                         if alias.send_to == SendTarget::Variable {
-                            variables.set_variable(
+                            variables.borrow_mut().set_variable(
                                 &plugin.metadata.id,
                                 alias.variable.as_bytes().to_vec(),
                                 alias
@@ -238,11 +239,11 @@ impl PluginEngine {
     }
 
     pub fn trigger<H: Handler>(
-        &mut self,
+        &self,
         line: &str,
         output: &[Output],
         world: &World,
-        variables: &mut PluginVariables,
+        variables: &RefCell<PluginVariables>,
         handler: &mut H,
     ) -> TriggerEffects {
         if !world.enable_triggers {
@@ -255,7 +256,7 @@ impl PluginEngine {
         let mut style = SpanStyle::null();
         let mut has_style = false;
 
-        for (plugin_index, plugin) in self.plugins.iter_mut().enumerate() {
+        for (plugin_index, plugin) in self.plugins.iter().enumerate() {
             if plugin.disabled {
                 continue;
             }
@@ -287,11 +288,10 @@ impl PluginEngine {
                     if has_style && let Some(capture) = captures.get(0) {
                         handler.apply_styles(capture.start()..capture.end(), style);
                     }
-                    self.trigger_buf.clear();
                     let send_request = {
                         let trigger = trigger.borrow();
                         if trigger.send_to == SendTarget::Variable {
-                            variables.set_variable(
+                            variables.borrow_mut().set_variable(
                                 &plugin.metadata.id,
                                 trigger.variable.as_bytes().to_vec(),
                                 trigger
