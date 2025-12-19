@@ -84,7 +84,7 @@ impl Plugin {
         Ok(this)
     }
 
-    pub fn remove_temporary(&mut self) {
+    pub fn remove_temporary(&self) {
         self.aliases.retain(|sender| !sender.temporary);
         self.timers.retain(|sender| !sender.temporary);
         self.triggers.retain(|sender| !sender.temporary);
@@ -110,39 +110,25 @@ impl TryFrom<PluginFile<'_>> for Plugin {
     type Error = crate::regex::RegexError;
 
     fn try_from(value: PluginFile) -> Result<Self, Self::Error> {
-        let mut plugin = Self {
+        let mut triggers = XmlList::try_collect(value.triggers)?;
+        let mut aliases = XmlList::try_collect(value.aliases)?;
+        let mut timers = XmlList::collect(value.timers);
+        triggers.sort_unstable();
+        aliases.sort_unstable();
+        timers.sort_unstable();
+        Ok(Self {
             metadata: value.plugin,
             disabled: false,
-            triggers: XmlList::try_collect(value.triggers)?.into(),
-            aliases: XmlList::try_collect(value.aliases)?.into(),
-            timers: XmlList::collect(value.timers).into(),
+            triggers: triggers.into(),
+            aliases: aliases.into(),
+            timers: timers.into(),
             script: value.script.in_place(),
-        };
-        plugin.aliases.sort_unstable();
-        plugin.timers.sort_unstable();
-        plugin.triggers.sort_unstable();
-        Ok(plugin)
-    }
-}
-
-impl<'a> From<&'a Plugin> for PluginFile<'a> {
-    fn from(value: &'a Plugin) -> Self {
-        Self {
-            plugin: value.metadata.clone(),
-            triggers: vec![XmlList::from_children(&value.triggers)],
-            aliases: vec![XmlList::from_children(&value.aliases)],
-            timers: vec![XmlList::from_children(&value.timers)],
-            script: value.script.in_place(),
-        }
+        })
     }
 }
 
 trait XmlList: Sized {
     type Item;
-
-    fn from_children<'a, T>(children: &'a [T]) -> Self
-    where
-        Self::Item: From<&'a T>;
 
     fn into_children(self) -> Vec<Self::Item>;
 
@@ -182,18 +168,6 @@ macro_rules! xml_list {
         }
         impl<'a> XmlList for $t<'a> {
             type Item = $item<'a>;
-
-            fn from_children<'b, T>(children: &'b [T]) -> Self
-            where
-                Self::Item: From<&'b T>,
-            {
-                Self {
-                    muclient_version: None,
-                    world_file_version: None,
-                    date_saved: None,
-                    children: children.iter().map(Self::Item::from).collect(),
-                }
-            }
 
             fn into_children(self) -> Vec<Self::Item> {
                 self.children
@@ -277,34 +251,5 @@ impl Default for PluginMetadata {
             protocols: Vec::new(),
             is_world_plugin: false,
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_plugin_roundtrip() {
-        let metadata = PluginMetadata {
-            name: "Test Plugin".to_owned(),
-            author: "Test".to_owned(),
-            id: "0".to_owned(),
-            protocols: vec![201],
-            ..Default::default()
-        };
-        let plugin = Plugin {
-            metadata,
-            disabled: false,
-            triggers: vec![Trigger::default()].into(),
-            aliases: vec![Alias::default()].into(),
-            timers: vec![Timer::default()].into(),
-            script: String::new(),
-        };
-        let to_file =
-            quick_xml::se::to_string(&PluginFile::from(&plugin)).expect("error serializing plugin");
-        let from_file: Plugin =
-            quick_xml::de::from_str(&to_file).expect("error deserializing plugin");
-        assert_eq!(from_file, plugin);
     }
 }

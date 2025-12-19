@@ -38,7 +38,7 @@ impl<T, Ffi: Convert<T>> Convert<CursorVec<T>> for Vec<Ffi> {
     }
 
     fn to_ffi(value: CursorVec<T>) -> Self {
-        value.into_iter().map(Convert::to_ffi).collect()
+        Vec::from(value).into_iter().map(Convert::to_ffi).collect()
     }
 }
 

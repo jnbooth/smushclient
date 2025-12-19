@@ -1,3 +1,4 @@
+use std::cell::Ref;
 use std::io;
 
 use smushclient::{AudioError, SendIterable, SenderAccessError};
@@ -51,7 +52,7 @@ pub trait IntoErrorCode {
     fn code(self) -> i32;
 }
 
-impl<T: SendIterable> IntoErrorCode for Result<&T, SenderAccessError> {
+impl<T: SendIterable> IntoErrorCode for Result<Ref<'_, T>, SenderAccessError> {
     fn code(self) -> i32 {
         match self {
             Ok(_) => ffi::SenderAccessResult::Ok.repr,

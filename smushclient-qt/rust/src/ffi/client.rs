@@ -215,9 +215,6 @@ pub mod ffi {
             index: usize,
             trigger: &Trigger,
         ) -> Result<i32>;
-        fn remove_world_alias(self: Pin<&mut SmushClient>, i: usize) -> bool;
-        fn remove_world_timer(self: Pin<&mut SmushClient>, i: usize) -> bool;
-        fn remove_world_trigger(self: Pin<&mut SmushClient>, i: usize) -> bool;
         fn export_world_aliases(self: &SmushClient) -> Result<QString>;
         fn export_world_timers(self: &SmushClient) -> Result<QString>;
         fn export_world_triggers(self: &SmushClient) -> Result<QString>;

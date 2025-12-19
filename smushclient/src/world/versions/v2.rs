@@ -8,13 +8,14 @@ use smushclient_plugins::{Alias, CursorVec, Sender, Timer, Trigger};
 
 use crate::world::PersistError;
 
-fn skip_temporary<S, T>(vec: &[T], serializer: S) -> Result<S::Ok, S::Error>
+fn skip_temporary<S, T>(vec: &CursorVec<T>, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
-    T: serde::Serialize + AsRef<Sender>,
+    T: serde::Serialize + AsRef<Sender> + Ord,
 {
+    let items = vec.borrow();
     // must collect in a vec because bincode needs to know the size ahead of time
-    let filtered: Vec<&T> = vec.iter().filter(|x| !x.as_ref().temporary).collect();
+    let filtered: Vec<&T> = items.iter().filter(|x| !x.as_ref().temporary).collect();
     serializer.collect_seq(filtered)
 }
 

@@ -7,7 +7,7 @@ use super::send_to::SendTarget;
 use super::sender::Sender;
 use crate::regex::{Captures, Regex, RegexError};
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Reaction {
     // Note: this is at the top for Ord-deriving purposes.
     pub sequence: i16,
@@ -25,6 +25,34 @@ pub struct Reaction {
 
 impl_deref!(Reaction, Sender, send);
 impl_asref!(Reaction, Sender);
+
+impl Clone for Reaction {
+    fn clone(&self) -> Self {
+        Self {
+            sequence: self.sequence,
+            pattern: self.pattern.clone(),
+            send: self.send.clone(),
+            ignore_case: self.ignore_case,
+            keep_evaluating: self.keep_evaluating,
+            is_regex: self.is_regex,
+            expand_variables: self.expand_variables,
+            repeats: self.repeats,
+            regex: self.regex.clone(),
+        }
+    }
+
+    fn clone_from(&mut self, source: &Self) {
+        self.sequence = source.sequence;
+        self.pattern.clone_from(&source.pattern);
+        self.send.clone_from(&source.send);
+        self.ignore_case = source.ignore_case;
+        self.keep_evaluating = source.keep_evaluating;
+        self.is_regex = source.is_regex;
+        self.expand_variables = source.expand_variables;
+        self.repeats = source.repeats;
+        self.regex.clone_from(&source.regex);
+    }
+}
 
 impl Default for Reaction {
     fn default() -> Self {

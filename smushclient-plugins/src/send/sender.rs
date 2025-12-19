@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::send_to::SendTarget;
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 #[serde(default)]
 pub struct Sender {
     // Note: these two fields are at the top for Ord-deriving purposes.
@@ -21,6 +21,40 @@ pub struct Sender {
 
     #[serde(skip)]
     pub userdata: i32,
+}
+
+impl Clone for Sender {
+    fn clone(&self) -> Self {
+        Self {
+            group: self.group.clone(),
+            label: self.label.clone(),
+            send_to: self.send_to,
+            script: self.script.clone(),
+            variable: self.variable.clone(),
+            text: self.text.clone(),
+            enabled: self.enabled,
+            one_shot: self.one_shot,
+            temporary: self.temporary,
+            omit_from_output: self.omit_from_output,
+            omit_from_log: self.omit_from_log,
+            userdata: self.userdata,
+        }
+    }
+
+    fn clone_from(&mut self, source: &Self) {
+        self.group.clone_from(&source.group);
+        self.label.clone_from(&source.label);
+        self.send_to = source.send_to;
+        self.script.clone_from(&source.script);
+        self.variable.clone_from(&source.variable);
+        self.text.clone_from(&source.text);
+        self.enabled = source.enabled;
+        self.one_shot = source.one_shot;
+        self.temporary = source.temporary;
+        self.omit_from_output = source.omit_from_output;
+        self.omit_from_log = source.omit_from_log;
+        self.userdata = source.userdata;
+    }
 }
 
 impl Default for Sender {

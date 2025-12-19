@@ -250,7 +250,7 @@ impl TryFrom<&WorldRust> for World {
     type Error = crate::convert::OutOfRangeError;
 
     fn try_from(value: &WorldRust) -> Result<Self, Self::Error> {
-        let mut world = Self {
+        Ok(Self {
             name: String::from(&value.name),
             site: String::from(&value.site),
             port: u16::try_from(value.port)?,
@@ -374,10 +374,6 @@ impl TryFrom<&WorldRust> for World {
             },
 
             plugins: Vec::new(),
-        };
-        world.aliases.sort_unstable();
-        world.timers.sort_unstable();
-        world.triggers.sort_unstable();
-        Ok(world)
+        })
     }
 }

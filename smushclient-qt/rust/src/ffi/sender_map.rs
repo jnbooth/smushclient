@@ -44,7 +44,7 @@ pub mod ffi {
         fn recalculate(self: Pin<&mut SenderMap>, client: &SmushClient);
         fn remove(
             self: &SenderMap,
-            client: Pin<&mut SmushClient>,
+            client: &SmushClient,
             group: &String,
             first: usize,
             amount: usize,
@@ -52,7 +52,7 @@ pub mod ffi {
         fn sender_index(self: &SenderMap, group: &String, index: usize) -> i32;
         fn set_cell(
             self: Pin<&mut SenderMap>,
-            client: Pin<&mut SmushClient>,
+            client: &SmushClient,
             group: &String,
             index: usize,
             column: i32,

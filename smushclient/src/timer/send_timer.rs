@@ -56,9 +56,12 @@ impl<T: TimerConstructible> SendTimer<T> {
         }
     }
 
-    pub fn remove(&self, client: &mut SmushClient) -> Option<usize> {
-        let timers = client.senders_mut::<Timer>(self.plugin);
-        let i = timers.iter().position(|timer| timer.id == self.id)?;
+    pub fn remove(&self, client: &SmushClient) -> Option<usize> {
+        let timers = client.senders::<Timer>(self.plugin);
+        let i = timers
+            .borrow()
+            .iter()
+            .position(|timer| timer.id == self.id)?;
         timers.remove(i);
         Some(i)
     }

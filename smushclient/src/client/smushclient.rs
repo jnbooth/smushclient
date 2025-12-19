@@ -1,3 +1,4 @@
+use std::cell::{Ref, RefMut};
 use std::io::{self, Read, Write};
 use std::path::Path;
 use std::{env, mem, slice};
@@ -25,7 +26,6 @@ const METAVARIABLES_KEY: &str = "\x01";
 #[derive(Debug)]
 pub struct SmushClient {
     last_log_file_name: Option<String>,
-    line_text: String,
     logger: Logger,
     pub(crate) plugins: PluginEngine,
     read_buf: Vec<u8>,
@@ -51,7 +51,6 @@ impl SmushClient {
         });
         Self {
             last_log_file_name: world.auto_log_file_name.clone(),
-            line_text: String::new(),
             logger: Logger::default(),
             plugins,
             read_buf: vec![0; BUF_LEN],
@@ -62,12 +61,12 @@ impl SmushClient {
         }
     }
 
-    pub fn reset_world_plugin(&mut self) {
+    pub fn reset_world_plugin(&self) {
         self.world.remove_temporary();
     }
 
-    pub fn reset_plugins(&mut self) {
-        for plugin in &mut self.plugins {
+    pub fn reset_plugins(&self) {
+        for plugin in &self.plugins {
             if plugin.metadata.is_world_plugin {
                 self.world.remove_temporary();
             } else {
@@ -84,9 +83,9 @@ impl SmushClient {
         self.supported_tags = supported_tags;
     }
 
-    pub fn stop_evaluating<T: SendIterable>(&mut self) {
-        for plugin in &mut self.plugins {
-            T::from_either_mut(plugin, &mut self.world).end();
+    pub fn stop_evaluating<T: SendIterable>(&self) {
+        for plugin in &self.plugins {
+            T::from_either(plugin, &self.world).end();
         }
     }
 
@@ -211,12 +210,13 @@ impl SmushClient {
         };
         let mut had_output = false;
         let mut slice = drain.as_slice();
+        let mut line_text = String::new();
         while !slice.is_empty() {
-            self.line_text.clear();
+            line_text.clear();
             let mut until = 0;
             for (i, output) in slice.iter().enumerate() {
                 match &output.fragment {
-                    OutputFragment::Text(fragment) => self.line_text.push_str(&fragment.text),
+                    OutputFragment::Text(fragment) => line_text.push_str(&fragment.text),
                     OutputFragment::Hr | OutputFragment::LineBreak | OutputFragment::PageBreak => {
                         until = i + 1;
                         break;
@@ -231,14 +231,14 @@ impl SmushClient {
             let output = &slice[..until];
             slice = &slice[until..];
 
-            if !has_break && self.line_text.is_empty() {
+            if !has_break && line_text.is_empty() {
                 for fragment in output {
                     handler.display(fragment);
                 }
                 continue;
             }
 
-            if !handler.permit_line(&self.line_text) {
+            if !handler.permit_line(&line_text) {
                 for fragment in output {
                     if !fragment.fragment.is_visual() {
                         handler.display(fragment);
@@ -252,9 +252,9 @@ impl SmushClient {
             }
 
             let trigger_effects = self.plugins.trigger(
-                &self.line_text,
+                &line_text,
                 output,
-                &mut self.world,
+                &self.world,
                 &mut self.variables,
                 handler,
             );
@@ -262,7 +262,7 @@ impl SmushClient {
             had_output = had_output || !trigger_effects.omit_from_output;
 
             if !trigger_effects.omit_from_log {
-                self.logger.log_output_line(self.line_text.as_bytes());
+                self.logger.log_output_line(line_text.as_bytes());
                 self.logger.log_error(handler);
             }
         }
@@ -276,9 +276,9 @@ impl SmushClient {
         source: CommandSource,
         handler: &mut H,
     ) -> AliasOutcome {
-        let outcome =
-            self.plugins
-                .alias(input, source, &mut self.world, &mut self.variables, handler);
+        let outcome = self
+            .plugins
+            .alias(input, source, &self.world, &mut self.variables, handler);
         if !outcome.omit_from_log {
             self.logger.log_input_line(input.as_bytes());
             self.logger.log_error(handler);
@@ -391,19 +391,19 @@ impl SmushClient {
     }
 
     pub fn set_group_enabled<T: SendIterable>(
-        &mut self,
+        &self,
         index: PluginIndex,
         group: &str,
         enabled: bool,
     ) -> bool {
         let mut found_group = false;
         for sender in self
-            .senders_mut::<T>(index)
+            .senders::<T>(index)
+            .borrow_mut()
             .iter_mut()
-            .map(AsMut::as_mut)
-            .filter(|sender| sender.group == group)
+            .filter(|sender| sender.as_ref().group == group)
         {
-            sender.enabled = enabled;
+            sender.as_mut().enabled = enabled;
             found_group = true;
         }
         found_group
@@ -417,26 +417,27 @@ impl SmushClient {
         true
     }
 
-    pub fn find_sender<T: SendIterable>(&self, index: PluginIndex, label: &str) -> Option<&T> {
+    pub fn find_sender<T: SendIterable>(
+        &self,
+        index: PluginIndex,
+        label: &str,
+    ) -> Option<Ref<'_, T>> {
         self.senders::<T>(index)
             .find(|sender| sender.as_ref().label == label)
     }
 
     pub fn find_sender_mut<T: SendIterable>(
-        &mut self,
+        &self,
         index: PluginIndex,
         label: &str,
-    ) -> Result<&mut T, SenderAccessError> {
-        let sender = self
-            .senders_mut::<T>(index)
-            .iter_mut()
-            .find(|sender| sender.as_ref().label == label)
-            .ok_or(SenderAccessError::NotFound)?;
-        Ok(sender)
+    ) -> Result<RefMut<'_, T>, SenderAccessError> {
+        self.senders::<T>(index)
+            .find_mut(|sender| sender.as_ref().label == label)
+            .ok_or(SenderAccessError::NotFound)
     }
 
     pub fn set_sender_enabled<T: SendIterable>(
-        &mut self,
+        &self,
         index: PluginIndex,
         label: &str,
         enabled: bool,
@@ -449,36 +450,32 @@ impl SmushClient {
         T::from_either(&self.plugins[index], &self.world)
     }
 
-    pub(crate) fn senders_mut<T: SendIterable>(&mut self, index: PluginIndex) -> &mut CursorVec<T> {
-        T::from_either_mut(&mut self.plugins[index], &mut self.world)
-    }
-
-    pub fn world_senders_mut<T: SendIterable>(&mut self) -> &mut CursorVec<T> {
-        T::from_world_mut(&mut self.world)
+    pub fn world_senders<T: SendIterable>(&self) -> &CursorVec<T> {
+        T::from_world(&self.world)
     }
 
     pub fn add_sender<T: SendIterable>(
-        &mut self,
+        &self,
         index: PluginIndex,
         mut sender: T,
-    ) -> Result<&T, SenderAccessError> {
-        let plugin = &mut self.plugins[index];
+    ) -> Result<Ref<'_, T>, SenderAccessError> {
+        let plugin = &self.plugins[index];
         let senders = if plugin.metadata.is_world_plugin {
-            T::from_world_mut(&mut self.world)
+            T::from_world(&self.world)
         } else {
             sender.as_mut().temporary = true;
-            T::from_plugin_mut(plugin)
+            T::from_plugin(plugin)
         };
         sender.assert_unique_label(senders)?;
         Ok(senders.insert(sender))
     }
 
     pub fn remove_sender<T: SendIterable>(
-        &mut self,
+        &self,
         index: PluginIndex,
         label: &str,
     ) -> Result<(), SenderAccessError> {
-        let senders = self.senders_mut::<T>(index);
+        let senders = self.senders::<T>(index);
         let pos = senders
             .position(|sender| sender.as_ref().label == label)
             .ok_or(SenderAccessError::NotFound)?;
@@ -486,13 +483,17 @@ impl SmushClient {
         Ok(())
     }
 
-    pub fn remove_senders<T: SendIterable>(&mut self, index: PluginIndex, group: &str) -> usize {
-        self.senders_mut::<T>(index)
+    pub fn remove_senders<T: SendIterable>(&self, index: PluginIndex, group: &str) -> usize {
+        self.senders::<T>(index)
             .retain(|sender: &T| sender.as_ref().group != group)
     }
 
-    pub fn add_or_replace_sender<T: SendIterable>(&mut self, index: PluginIndex, sender: T) -> &T {
-        let senders = self.senders_mut::<T>(index);
+    pub fn add_or_replace_sender<T: SendIterable>(
+        &self,
+        index: PluginIndex,
+        sender: T,
+    ) -> Ref<'_, T> {
+        let senders = self.senders::<T>(index);
         match sender.assert_unique_label(senders) {
             Ok(()) => senders.insert(sender),
             Err(replace_at) => senders.replace(replace_at, sender).1,
@@ -500,37 +501,30 @@ impl SmushClient {
     }
 
     pub fn add_world_sender<T: SendIterable>(
-        &mut self,
+        &self,
         sender: T,
-    ) -> Result<&T, SenderAccessError> {
+    ) -> Result<Ref<'_, T>, SenderAccessError> {
         self.world.add_sender(sender)
     }
 
     pub fn replace_world_sender<T: SendIterable>(
-        &mut self,
+        &self,
         index: usize,
         sender: T,
-    ) -> Result<(usize, &T), SenderAccessError> {
+    ) -> Result<(usize, Ref<'_, T>), SenderAccessError> {
         self.world.replace_sender(index, sender)
     }
 
-    pub fn remove_world_sender<T: SendIterable>(
-        &mut self,
-        index: usize,
-    ) -> Result<(), SenderAccessError> {
-        self.world.remove_sender::<T>(index)
-    }
-
     pub fn import_world_senders<T: SendIterable>(
-        &mut self,
+        &self,
         xml: &str,
-    ) -> Result<SortOnDrop<'_, T>, XmlError> {
+    ) -> Result<RefMut<'_, SortOnDrop<T>>, XmlError> {
         let mut senders = T::from_xml_str(xml)?;
-        Ok(self.world.import_senders(&mut senders).into())
+        Ok(self.world.import_senders(&mut senders))
     }
 
     pub fn export_world_senders<T: SendIterable>(&self) -> Result<String, XmlSerError> {
-        T::to_xml_string(T::from_world(&self.world))
+        T::to_xml_string(&*T::from_world(&self.world).borrow())
     }
 
     fn update_world_plugins(&mut self) {

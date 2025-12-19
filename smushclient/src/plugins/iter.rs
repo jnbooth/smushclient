@@ -10,24 +10,12 @@ pub trait SendIterable: AsRef<Sender> + AsMut<Sender> + Eq + Ord + Sized {
     where
         Self: 'a;
     fn from_plugin(plugin: &Plugin) -> &CursorVec<Self>;
-    fn from_plugin_mut(plugin: &mut Plugin) -> &mut CursorVec<Self>;
     fn from_world(world: &World) -> &CursorVec<Self>;
-    fn from_world_mut(world: &mut World) -> &mut CursorVec<Self>;
     fn from_either<'a>(plugin: &'a Plugin, world: &'a World) -> &'a CursorVec<Self> {
         if plugin.metadata.is_world_plugin {
             Self::from_world(world)
         } else {
             Self::from_plugin(plugin)
-        }
-    }
-    fn from_either_mut<'a>(
-        plugin: &'a mut Plugin,
-        world: &'a mut World,
-    ) -> &'a mut CursorVec<Self> {
-        if plugin.metadata.is_world_plugin {
-            Self::from_world_mut(world)
-        } else {
-            Self::from_plugin_mut(plugin)
         }
     }
     fn assert_unique_label(&self, senders: &CursorVec<Self>) -> Result<(), usize> {
@@ -56,14 +44,8 @@ macro_rules! impl_send_iterable {
             fn from_plugin(plugin: &Plugin) -> &CursorVec<Self> {
                 &plugin.$i
             }
-            fn from_plugin_mut(plugin: &mut Plugin) -> &mut CursorVec<Self> {
-                &mut plugin.$i
-            }
             fn from_world(plugin: &World) -> &CursorVec<Self> {
                 &plugin.$i
-            }
-            fn from_world_mut(world: &mut World) -> &mut CursorVec<Self> {
-                &mut world.$i
             }
         }
     };

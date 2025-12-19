@@ -1,3 +1,4 @@
+use std::cell::Ref;
 use std::ffi::c_char;
 use std::pin::Pin;
 use std::{io, ptr};
@@ -51,7 +52,7 @@ unsafe fn provide_variable(value: Option<&[u8]>, value_size: *mut usize) -> *con
 }
 
 impl ffi::SmushClient {
-    pub fn world_sender<T: SendIterable>(&self, index: usize) -> Option<&T> {
+    pub fn world_sender<T: SendIterable>(&self, index: usize) -> Option<Ref<'_, T>> {
         T::from_world(self.rust().client.world()).get(index)
     }
 
@@ -306,27 +307,6 @@ impl ffi::SmushClient {
             .client
             .replace_world_sender(index, trigger)
             .code())
-    }
-
-    pub fn remove_world_alias(self: Pin<&mut Self>, i: usize) -> bool {
-        self.rust_mut()
-            .client
-            .remove_world_sender::<Alias>(i)
-            .is_ok()
-    }
-
-    pub fn remove_world_timer(self: Pin<&mut Self>, i: usize) -> bool {
-        self.rust_mut()
-            .client
-            .remove_world_sender::<Timer>(i)
-            .is_ok()
-    }
-
-    pub fn remove_world_trigger(self: Pin<&mut Self>, i: usize) -> bool {
-        self.rust_mut()
-            .client
-            .remove_world_sender::<Trigger>(i)
-            .is_ok()
     }
 
     pub fn export_world_aliases(&self) -> Result<QString, XmlSerError> {

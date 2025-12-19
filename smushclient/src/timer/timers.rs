@@ -139,8 +139,9 @@ impl<T: TimerConstructible> Timers<T> {
         if !timer.enabled {
             return;
         }
+        let occurrence = timer.occurrence;
         let send_timer = SendTimer::new(index, timer);
-        match timer.occurrence {
+        match occurrence {
             Occurrence::Time(time) => self.insert_scheduled(ScheduledTimer::new(send_timer, time)),
             Occurrence::Interval(duration) => {
                 let send_timer = RecurringTimer::new(send_timer, duration);

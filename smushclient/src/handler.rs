@@ -39,6 +39,9 @@ impl<H: Handler> HandlerExt for H {
         line: &str,
         output: &[Output],
     ) {
+        if reaction.script.is_empty() {
+            return;
+        }
         for captures in reaction.regex.captures_iter(line) {
             let Ok(captures) = captures else {
                 continue;

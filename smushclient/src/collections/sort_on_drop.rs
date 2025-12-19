@@ -1,32 +1,34 @@
 use std::ops::Deref;
 use std::slice;
 
-#[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct SortOnDrop<'a, T: Ord> {
-    inner: &'a mut [T],
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
+pub struct SortOnDrop<T: Ord> {
+    inner: [T],
 }
 
-impl<'a, T: Ord> Deref for SortOnDrop<'a, T> {
-    type Target = &'a mut [T];
+impl<T: Ord> SortOnDrop<T> {
+    pub const fn borrow_mut(s: &mut [T]) -> &mut Self {
+        // SAFETY: #[repr(transparent)]
+        unsafe { &mut *(std::ptr::from_mut(s) as *mut Self) }
+    }
+}
+
+impl<T: Ord> Deref for SortOnDrop<T> {
+    type Target = [T];
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl<T: Ord> Drop for SortOnDrop<'_, T> {
+impl<T: Ord> Drop for SortOnDrop<T> {
     fn drop(&mut self) {
         self.inner.sort_unstable();
     }
 }
 
-impl<'a, T: Ord> From<&'a mut [T]> for SortOnDrop<'a, T> {
-    fn from(value: &'a mut [T]) -> Self {
-        Self { inner: value }
-    }
-}
-
-impl<'a, T: Ord> IntoIterator for &'a SortOnDrop<'a, T> {
+impl<'a, T: Ord> IntoIterator for &'a SortOnDrop<T> {
     type Item = &'a T;
 
     type IntoIter = slice::Iter<'a, T>;

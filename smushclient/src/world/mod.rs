@@ -12,6 +12,7 @@ pub use types::*;
 
 mod versions;
 use std::borrow::Cow;
+use std::cell::{Ref, RefMut};
 use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::io::{Read, Write};
@@ -23,17 +24,19 @@ use mud_transformer::{TransformerConfig, UseMxp};
 use serde::{Deserialize, Serialize};
 use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Sender, Timer, Trigger};
 
+use crate::collections::SortOnDrop;
 use crate::plugins::{SendIterable, SenderAccessError};
 
 const CURRENT_VERSION: u16 = 3;
 
-fn skip_temporary<S, T>(vec: &[T], serializer: S) -> Result<S::Ok, S::Error>
+fn skip_temporary<S, T>(vec: &CursorVec<T>, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
-    T: serde::Serialize + AsRef<Sender>,
+    T: serde::Serialize + AsRef<Sender> + Ord,
 {
+    let items = vec.borrow();
     // must collect in a vec because serialization needs to know the size ahead of time
-    let filtered: Vec<&T> = vec.iter().filter(|x| !x.as_ref().temporary).collect();
+    let filtered: Vec<&T> = items.iter().filter(|x| !x.as_ref().temporary).collect();
     serializer.collect_seq(filtered)
 }
 
@@ -265,20 +268,20 @@ impl World {
         }
     }
 
-    pub fn add_sender<T: SendIterable>(&mut self, sender: T) -> Result<&T, SenderAccessError> {
-        let senders = T::from_world_mut(self);
+    pub fn add_sender<T: SendIterable>(&self, sender: T) -> Result<Ref<'_, T>, SenderAccessError> {
+        let senders = T::from_world(self);
         sender.assert_unique_label(senders)?;
         Ok(senders.insert(sender))
     }
 
     pub fn replace_sender<T: SendIterable>(
-        &mut self,
+        &self,
         index: usize,
         sender: T,
-    ) -> Result<(usize, &T), SenderAccessError> {
-        let senders = T::from_world_mut(self);
+    ) -> Result<(usize, Ref<'_, T>), SenderAccessError> {
+        let senders = T::from_world(self);
         let current = senders.get(index).ok_or(SenderAccessError::NotFound)?;
-        if current == &sender {
+        if *current == sender {
             return Err(SenderAccessError::Unchanged);
         }
         match sender.assert_unique_label(senders) {
@@ -288,20 +291,9 @@ impl World {
         Ok(senders.replace(index, sender))
     }
 
-    pub fn remove_sender<T: SendIterable>(
-        &mut self,
-        index: usize,
-    ) -> Result<(), SenderAccessError> {
-        let senders = T::from_world_mut(self);
-        if index >= senders.len() {
-            return Err(SenderAccessError::NotFound);
-        }
-        senders.remove(index);
-        Ok(())
-    }
-
     pub fn sender_groups<T: SendIterable>(&self) -> Vec<String> {
         T::from_world(self)
+            .borrow()
             .iter()
             .map(|sender| sender.as_ref().group.clone())
             .collect::<HashSet<_>>()
@@ -311,20 +303,29 @@ impl World {
 
     pub fn senders_group_len<T: SendIterable>(&self, group: &str) -> usize {
         T::from_world(self)
+            .borrow()
             .iter()
             .filter(|sender| sender.as_ref().group == group)
             .count()
     }
 
-    pub fn nth_sender<T: SendIterable>(&self, group: &str, index: usize) -> Option<(usize, &T)> {
-        T::from_world(self)
+    pub fn nth_sender<T: SendIterable>(
+        &self,
+        group: &str,
+        index: usize,
+    ) -> Option<(usize, Ref<'_, T>)> {
+        let senders = T::from_world(self).borrow();
+        let i = senders
             .iter()
             .enumerate()
             .filter(|(_, sender)| sender.as_ref().group == group)
             .nth(index)
+            .map(|(i, _)| i)?;
+
+        Some((i, Ref::map(senders, |senders| &senders[i])))
     }
 
-    pub fn remove_temporary(&mut self) {
+    pub fn remove_temporary(&self) {
         self.aliases.retain(|sender| !sender.temporary);
         self.timers.retain(|sender| !sender.temporary);
         self.triggers.retain(|sender| !sender.temporary);
@@ -384,34 +385,38 @@ impl World {
         }
     }
 
-    pub fn import_senders<T: SendIterable>(&mut self, imported: &mut Vec<T>) -> &mut [T] {
-        let senders = T::from_world_mut(self);
+    pub fn import_senders<T: SendIterable>(
+        &self,
+        imported: &mut Vec<T>,
+    ) -> RefMut<'_, SortOnDrop<T>> {
+        let mut senders = T::from_world(self).borrow_mut();
         let senders_len = senders.len();
         let need_relabeling = !imported
             .iter()
             .all(|sender| sender.as_ref().label.is_empty());
         senders.append(imported);
-        if !need_relabeling {
-            return &mut senders[senders_len..];
-        }
-        let mut labels = HashSet::new();
-        for sender in senders.iter_mut() {
-            let sender = sender.as_mut();
-            if !labels.contains(&sender.label) {
-                labels.insert(&sender.label);
-                continue;
-            }
-            let len = sender.label.len();
-            for i in 0.. {
-                write!(sender.label, "{i}").expect("format error");
+        if need_relabeling {
+            let mut labels = HashSet::new();
+            for sender in senders.iter_mut() {
+                let sender = sender.as_mut();
                 if !labels.contains(&sender.label) {
                     labels.insert(&sender.label);
-                    break;
+                    continue;
                 }
-                sender.label.truncate(len);
+                let len = sender.label.len();
+                for i in 0.. {
+                    write!(sender.label, "{i}").expect("format error");
+                    if !labels.contains(&sender.label) {
+                        labels.insert(&sender.label);
+                        break;
+                    }
+                    sender.label.truncate(len);
+                }
             }
         }
-        &mut senders[senders_len..]
+        RefMut::map(senders, |senders| {
+            SortOnDrop::borrow_mut(&mut senders[senders_len..])
+        })
     }
 }
 

@@ -76,7 +76,9 @@ impl SmushClientRust {
         let file = File::open(String::from(path).as_str())?;
         let worldfile = World::load(file)?;
         let world = WorldRust::from(&worldfile);
+        let output_lock = self.output_lock.lock();
         self.client.set_world(worldfile);
+        drop(output_lock);
         self.apply_world();
         Ok(world)
     }
@@ -131,8 +133,8 @@ impl SmushClientRust {
     }
 
     pub fn handle_connect(&self, mut socket: Pin<&mut QAbstractSocket>) -> QString {
-        let input_lock = self.input_lock.lock();
         let connect_message = self.client.world().connect_message();
+        let input_lock = self.input_lock.lock();
         let error = match socket.write_all(connect_message.as_bytes()) {
             Ok(()) => QString::default(),
             Err(e) => QString::from(&e.to_string()),
@@ -208,10 +210,12 @@ impl SmushClientRust {
 
     fn apply_world(&mut self) {
         let world = self.client.world();
+        let output_lock = self.output_lock.lock();
         self.palette.clear();
         for (i, color) in world.palette().iter().enumerate() {
             self.palette.insert(*color, i as i32);
         }
+        drop(output_lock);
     }
 
     pub fn read(&mut self, mut socket: Pin<&mut QAbstractSocket>, doc: Pin<&mut Document>) -> i64 {
@@ -338,7 +342,8 @@ impl SmushClientRust {
         if !self.client.world().enable_timers {
             return;
         }
-        for timer in self.client.senders::<Timer>(index) {
+        let timers = self.client.senders::<Timer>(index).borrow();
+        for timer in &*timers {
             self.timers.start(index, timer, &mut timekeeper);
         }
     }
@@ -366,7 +371,7 @@ impl SmushClientRust {
         let enable_timers = self.client.world().enable_timers;
         let timer = self.client.add_sender(index, timer)?;
         if enable_timers {
-            self.timers.start(index, timer, &mut timekeeper);
+            self.timers.start(index, &timer, &mut timekeeper);
         }
         Ok(())
     }
@@ -380,7 +385,7 @@ impl SmushClientRust {
         let enable_timers = self.client.world().enable_timers;
         let timer = self.client.add_or_replace_sender(index, timer);
         if enable_timers {
-            self.timers.start(index, timer, &mut timekeeper);
+            self.timers.start(index, &timer, &mut timekeeper);
         }
     }
 
@@ -394,7 +399,7 @@ impl SmushClientRust {
         let world_index = self.world_plugin_index();
         let (_, timer) = self.client.replace_world_sender(index, timer)?;
         if enable_timers {
-            self.timers.start(world_index, timer, &mut timekeeper);
+            self.timers.start(world_index, &timer, &mut timekeeper);
         }
         Ok(())
     }
@@ -410,7 +415,7 @@ impl SmushClientRust {
             .client
             .import_world_senders::<Timer>(&String::from(xml))?;
         if enable_timers {
-            for timer in &timers {
+            for timer in &*timers {
                 self.timers.start(world_index, timer, &mut timekeeper);
             }
         }
@@ -428,10 +433,10 @@ impl SmushClientRust {
         P: BoolProperty,
         P::Target: SendIterable,
     {
-        let sender = self
+        let mut sender = self
             .client
             .find_sender_mut::<P::Target>(index, &String::from(label))?;
-        *prop.get_mut(sender) = value;
+        *prop.get_mut(&mut sender) = value;
         Ok(())
     }
 
@@ -441,7 +446,7 @@ impl SmushClientRust {
         label: &QString,
         group: &QString,
     ) -> Result<(), SenderAccessError> {
-        let sender = self
+        let mut sender = self
             .client
             .find_sender_mut::<T>(index, &String::from(label))?;
         sender.as_mut().group = String::from(group);

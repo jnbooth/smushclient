@@ -18,7 +18,7 @@ pub trait Modeled {
     fn set_cell(&mut self, column: i32, data: &QVariant) -> Option<()>;
 
     fn update_in_world(
-        client: &mut SmushClient,
+        client: &SmushClient,
         index: usize,
         column: i32,
         data: &QVariant,
@@ -26,7 +26,7 @@ pub trait Modeled {
     where
         Self: Clone + Eq + SendIterable,
     {
-        let senders = client.world_senders_mut::<Self>();
+        let mut senders = client.world_senders::<Self>().borrow_mut();
         senders[index].set_cell(column, data)?;
         if senders.is_sorted() {
             return Some(index);
@@ -186,9 +186,10 @@ impl_constructor!(ffi::PluginDetails, (*const ffi::SmushClient, QString), {
     }
 });
 
-fn remove_all<T: Ord>(senders: &mut CursorVec<T>, indices: &[usize]) {
+fn remove_all<T: Ord>(senders: &CursorVec<T>, indices: &[usize]) {
+    let mut senders_mut = senders.borrow_mut();
     for &index in indices.iter().rev() {
-        senders.remove(index);
+        senders_mut.remove(index);
     }
 }
 
@@ -211,9 +212,9 @@ impl SenderMapRust {
         };
         let world = client.world();
         match self.sender_type {
-            ffi::SenderType::Alias => world.aliases[index].cell_text(column),
-            ffi::SenderType::Timer => world.timers[index].cell_text(column),
-            ffi::SenderType::Trigger => world.triggers[index].cell_text(column),
+            ffi::SenderType::Alias => world.aliases.borrow()[index].cell_text(column),
+            ffi::SenderType::Timer => world.timers.borrow()[index].cell_text(column),
+            ffi::SenderType::Trigger => world.triggers.borrow()[index].cell_text(column),
             _ => QString::default(),
         }
     }
@@ -250,9 +251,9 @@ impl SenderMapRust {
     pub fn recalculate(&mut self, client: &SmushClient) {
         let world = client.world();
         match self.sender_type {
-            ffi::SenderType::Alias => self.inner.recalculate(&world.aliases),
-            ffi::SenderType::Timer => self.inner.recalculate(&world.timers),
-            ffi::SenderType::Trigger => self.inner.recalculate(&world.triggers),
+            ffi::SenderType::Alias => self.inner.recalculate(&*world.aliases.borrow()),
+            ffi::SenderType::Timer => self.inner.recalculate(&*world.timers.borrow()),
+            ffi::SenderType::Trigger => self.inner.recalculate(&*world.triggers.borrow()),
             _ => (),
         }
     }
@@ -287,26 +288,20 @@ impl SenderMapRust {
         set
     }
 
-    fn remove_indices(&self, client: &mut SmushClient, indices: &[usize]) -> bool {
+    fn remove_indices(&self, client: &SmushClient, indices: &[usize]) -> bool {
         if indices.is_empty() {
             return false;
         }
         match self.sender_type {
-            ffi::SenderType::Alias => remove_all(client.world_senders_mut::<Alias>(), indices),
-            ffi::SenderType::Timer => remove_all(client.world_senders_mut::<Timer>(), indices),
-            ffi::SenderType::Trigger => remove_all(client.world_senders_mut::<Trigger>(), indices),
+            ffi::SenderType::Alias => remove_all(client.world_senders::<Alias>(), indices),
+            ffi::SenderType::Timer => remove_all(client.world_senders::<Timer>(), indices),
+            ffi::SenderType::Trigger => remove_all(client.world_senders::<Trigger>(), indices),
             _ => return false,
         }
         true
     }
 
-    pub fn remove(
-        &self,
-        client: &mut SmushClient,
-        group: &str,
-        start: usize,
-        amount: usize,
-    ) -> bool {
+    pub fn remove(&self, client: &SmushClient, group: &str, start: usize, amount: usize) -> bool {
         let indices = self.group_indices(group, start, amount);
         self.remove_indices(client, indices)
     }
@@ -320,7 +315,7 @@ impl SenderMapRust {
 
     pub fn set_cell(
         &mut self,
-        client: &mut SmushClient,
+        client: &SmushClient,
         group: &str,
         row: usize,
         column: i32,
@@ -397,13 +392,13 @@ impl ffi::SenderMap {
 
     pub fn remove(
         &self,
-        client: Pin<&mut ffi::SmushClient>,
+        client: &ffi::SmushClient,
         group: &String,
         start: usize,
         amount: usize,
     ) -> bool {
         self.rust()
-            .remove(&mut client.rust_mut().client, group, start, amount)
+            .remove(&client.rust().client, group, start, amount)
     }
 
     pub fn sender_index(&self, group: &String, index: usize) -> i32 {
@@ -412,13 +407,13 @@ impl ffi::SenderMap {
 
     pub fn set_cell(
         self: Pin<&mut Self>,
-        client: Pin<&mut ffi::SmushClient>,
+        client: &ffi::SmushClient,
         group: &String,
         index: usize,
         column: i32,
         data: &QVariant,
     ) -> i32 {
-        let client = &mut client.rust_mut().client;
+        let client = &client.rust().client;
         self.rust_mut().set_cell(client, group, index, column, data)
     }
 

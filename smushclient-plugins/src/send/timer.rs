@@ -29,7 +29,7 @@ fn duration_from_hms(hour: u64, minute: u64, second: f64) -> Duration {
     Duration::from_nanos((NANOS_F * second) as u64 + NANOS * 60 * (minute + 60 * hour))
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Timer {
     // Note: this is at the top for Ord-deriving purposes.
     pub send: Sender,
@@ -37,6 +37,24 @@ pub struct Timer {
     pub active_closed: bool,
     #[serde(skip, default = "get_id")]
     pub id: u16,
+}
+
+impl Clone for Timer {
+    fn clone(&self) -> Self {
+        Self {
+            send: self.send.clone(),
+            occurrence: self.occurrence,
+            active_closed: self.active_closed,
+            id: self.id,
+        }
+    }
+
+    fn clone_from(&mut self, source: &Self) {
+        self.send.clone_from(&source.send);
+        self.occurrence = source.occurrence;
+        self.active_closed = source.active_closed;
+        self.id = source.id;
+    }
 }
 
 impl Default for Timer {
