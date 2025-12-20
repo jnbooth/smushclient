@@ -57,7 +57,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_make_regex() {
+    fn make_regex() {
         let equivalents = &[
             ("", "^$"),
             ("abc", "^abc$"),

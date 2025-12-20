@@ -12,6 +12,7 @@ use super::occurrence::Occurrence;
 use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
 use crate::in_place::{InPlace, in_place};
+use crate::xml::bool_serde;
 
 const NANOS: u64 = 1_000_000_000;
 const NANOS_F: f64 = 1_000_000_000.0;
@@ -89,9 +90,9 @@ pub struct TimerXml<'a> {
         skip_serializing_if = "str::is_empty"
     )]
     script: Cow<'a, str>,
-    #[serde(rename = "@enabled")]
+    #[serde(rename = "@enabled", with = "bool_serde")]
     enabled: bool,
-    #[serde(rename = "@at_time")]
+    #[serde(rename = "@at_time", with = "bool_serde")]
     at_time: bool,
     #[serde(
         borrow,
@@ -107,15 +108,15 @@ pub struct TimerXml<'a> {
         skip_serializing_if = "str::is_empty"
     )]
     variable: Cow<'a, str>,
-    #[serde(rename = "@one_shot")]
+    #[serde(rename = "@one_shot", with = "bool_serde")]
     one_shot: bool,
-    #[serde(rename = "@active_closed")]
+    #[serde(rename = "@active_closed", with = "bool_serde")]
     active_closed: bool,
     #[serde(with = "sendto_serde", rename = "@send_to")]
     send_to: SendTarget,
-    #[serde(rename = "@omit_from_output")]
+    #[serde(rename = "@omit_from_output", with = "bool_serde")]
     omit_from_output: bool,
-    #[serde(rename = "@omit_from_log")]
+    #[serde(rename = "@omit_from_log", with = "bool_serde")]
     omit_from_log: bool,
     #[serde(rename = "@hour")]
     hour: u64,
@@ -123,7 +124,7 @@ pub struct TimerXml<'a> {
     minute: u64,
     #[serde(rename = "@second")]
     second: f64,
-    #[serde(rename = "@temporary")]
+    #[serde(rename = "@temporary", with = "bool_serde")]
     temporary: bool,
     #[serde(borrow, default, rename = "send")]
     text: Vec<Cow<'a, str>>,
@@ -205,5 +206,22 @@ impl<'a> From<&'a Timer> for TimerXml<'a> {
                 ..active_closed,
             }
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn xml_roundtrip() {
+        let timer = Timer::default();
+        let to_xml =
+            quick_xml::se::to_string(&TimerXml::from(&timer)).expect("error serializing trigger");
+        let from_xml: TimerXml =
+            quick_xml::de::from_str(&to_xml).expect("error deserializing trigger");
+        let mut roundtrip = Timer::from(from_xml);
+        roundtrip.id = timer.id;
+        assert_eq!(roundtrip, timer);
     }
 }

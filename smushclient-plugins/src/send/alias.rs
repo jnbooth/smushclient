@@ -7,6 +7,7 @@ use super::reaction::Reaction;
 use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
 use crate::in_place::{InPlace, in_place};
+use crate::xml::bool_serde;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Alias {
@@ -73,11 +74,11 @@ pub struct AliasXml<'a> {
         skip_serializing_if = "str::is_empty"
     )]
     pattern: Cow<'a, str>,
-    #[serde(rename = "@enabled")]
+    #[serde(rename = "@enabled", with = "bool_serde")]
     enabled: bool,
-    #[serde(rename = "@echo_alias")]
+    #[serde(rename = "@echo_alias", with = "bool_serde")]
     echo_alias: bool,
-    #[serde(rename = "@expand_variables")]
+    #[serde(rename = "@expand_variables", with = "bool_serde")]
     expand_variables: bool,
     #[serde(
         borrow,
@@ -93,27 +94,27 @@ pub struct AliasXml<'a> {
         skip_serializing_if = "str::is_empty"
     )]
     variable: Cow<'a, str>,
-    #[serde(rename = "@omit_from_command_history")]
+    #[serde(rename = "@omit_from_command_history", with = "bool_serde")]
     omit_from_command_history: bool,
-    #[serde(rename = "@omit_from_log")]
+    #[serde(rename = "@omit_from_log", with = "bool_serde")]
     omit_from_log: bool,
-    #[serde(rename = "@regexp")]
+    #[serde(rename = "@regexp", with = "bool_serde")]
     is_regex: bool,
     #[serde(with = "sendto_serde", rename = "@send_to")]
     send_to: SendTarget,
-    #[serde(rename = "@omit_from_output")]
+    #[serde(rename = "@omit_from_output", with = "bool_serde")]
     omit_from_output: bool,
-    #[serde(rename = "@one_shot")]
+    #[serde(rename = "@one_shot", with = "bool_serde")]
     one_shot: bool,
-    #[serde(rename = "@menu")]
+    #[serde(rename = "@menu", with = "bool_serde")]
     menu: bool,
-    #[serde(rename = "@ignore_case")]
+    #[serde(rename = "@ignore_case", with = "bool_serde")]
     ignore_case: bool,
-    #[serde(rename = "@keep_evaluating")]
+    #[serde(rename = "@keep_evaluating", with = "bool_serde")]
     keep_evaluating: bool,
     #[serde(rename = "@sequence")]
     sequence: i16,
-    #[serde(rename = "@temporary")]
+    #[serde(rename = "@temporary", with = "bool_serde")]
     temporary: bool,
     #[serde(borrow, default, rename = "send")]
     text: Vec<Cow<'a, str>>,
@@ -201,5 +202,21 @@ impl<'a> From<&'a Alias> for AliasXml<'a> {
                 ..omit_from_command_history,
             }
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn xml_roundtrip() {
+        let alias = Alias::default();
+        let to_xml =
+            quick_xml::se::to_string(&AliasXml::from(&alias)).expect("error serializing alias");
+        let from_xml: AliasXml =
+            quick_xml::de::from_str(&to_xml).expect("error deserializing alias");
+        let roundtrip = Alias::try_from(from_xml).expect("error converting alias");
+        assert_eq!(roundtrip, alias);
     }
 }

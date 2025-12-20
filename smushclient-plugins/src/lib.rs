@@ -15,3 +15,5 @@ pub use regex::{CaptureMatches, Captures, Match, Regex, RegexError};
 mod send;
 pub use quick_xml::{DeError as XmlError, SeError as XmlSerError};
 pub use send::{Alias, Occurrence, Reaction, SendTarget, Sender, Timer, Trigger};
+
+mod xml;

@@ -9,6 +9,7 @@ use super::reaction::Reaction;
 use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
 use crate::in_place::{InPlace, in_place};
+use crate::xml::bool_serde;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Trigger {
@@ -107,9 +108,9 @@ pub struct TriggerXml<'a> {
     /// See [`Change`].
     #[serde(rename = "@color_change_type", skip_serializing_if = "is_zero")]
     colour_change_type: u8,
-    #[serde(rename = "@enabled")]
+    #[serde(rename = "@enabled", with = "bool_serde")]
     enabled: bool,
-    #[serde(rename = "@expand_variables")]
+    #[serde(rename = "@expand_variables", with = "bool_serde")]
     expand_variables: bool,
     #[serde(
         borrow,
@@ -118,17 +119,17 @@ pub struct TriggerXml<'a> {
         skip_serializing_if = "str::is_empty"
     )]
     group: Cow<'a, str>,
-    #[serde(rename = "@ignore_case")]
+    #[serde(rename = "@ignore_case", with = "bool_serde")]
     ignore_case: bool,
     #[serde(rename = "@lines_to_match")]
     lines_to_match: u8,
-    #[serde(rename = "@keep_evaluating")]
+    #[serde(rename = "@keep_evaluating", with = "bool_serde")]
     keep_evaluating: bool,
-    #[serde(rename = "@make_bold")]
+    #[serde(rename = "@make_bold", with = "bool_serde")]
     make_bold: bool,
-    #[serde(rename = "@make_italic")]
+    #[serde(rename = "@make_italic", with = "bool_serde")]
     make_italic: bool,
-    #[serde(rename = "@make_underline")]
+    #[serde(rename = "@make_underline", with = "bool_serde")]
     make_underline: bool,
     #[serde(
         borrow,
@@ -137,7 +138,7 @@ pub struct TriggerXml<'a> {
         skip_serializing_if = "str::is_empty"
     )]
     pattern: Cow<'a, str>,
-    #[serde(rename = "@multi_line")]
+    #[serde(rename = "@multi_line", with = "bool_serde")]
     multi_line: bool,
     #[serde(
         borrow,
@@ -146,15 +147,15 @@ pub struct TriggerXml<'a> {
         skip_serializing_if = "str::is_empty"
     )]
     label: Cow<'a, str>,
-    #[serde(rename = "@one_shot")]
+    #[serde(rename = "@one_shot", with = "bool_serde")]
     one_shot: bool,
-    #[serde(rename = "@omit_from_log")]
+    #[serde(rename = "@omit_from_log", with = "bool_serde")]
     omit_from_log: bool,
-    #[serde(rename = "@omit_from_output")]
+    #[serde(rename = "@omit_from_output", with = "bool_serde")]
     omit_from_output: bool,
-    #[serde(rename = "@regexp")]
+    #[serde(rename = "@regexp", with = "bool_serde")]
     is_regex: bool,
-    #[serde(rename = "@repeats")]
+    #[serde(rename = "@repeats", with = "bool_serde")]
     repeats: bool,
     #[serde(
         borrow,
@@ -174,11 +175,11 @@ pub struct TriggerXml<'a> {
         skip_serializing_if = "str::is_empty"
     )]
     sound: Cow<'a, str>,
-    #[serde(rename = "@sound_if_inactive")]
+    #[serde(rename = "@sound_if_inactive", with = "bool_serde")]
     sound_if_inactive: bool,
-    #[serde(rename = "@lowercase_wildcard")]
+    #[serde(rename = "@lowercase_wildcard", with = "bool_serde")]
     lowercase_wildcard: bool,
-    #[serde(rename = "@temporary")]
+    #[serde(rename = "@temporary", with = "bool_serde")]
     temporary: bool,
     #[serde(
         borrow,
@@ -315,5 +316,21 @@ impl<'a> From<&'a Trigger> for TriggerXml<'a> {
                 ..lines_to_match,
             }
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn xml_roundtrip() {
+        let trigger = Trigger::default();
+        let to_xml = quick_xml::se::to_string(&TriggerXml::from(&trigger))
+            .expect("error serializing trigger");
+        let from_xml: TriggerXml =
+            quick_xml::de::from_str(&to_xml).expect("error deserializing trigger");
+        let roundtrip = Trigger::try_from(from_xml).expect("error converting trigger");
+        assert_eq!(roundtrip, trigger);
     }
 }

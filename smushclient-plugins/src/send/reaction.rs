@@ -166,7 +166,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_expand() {
+    fn expand() {
         let pattern = "(.e).(.)(.*)q(\\d+)".to_owned();
         let mut reaction = Reaction {
             regex: Regex::new(&pattern).unwrap(),
