@@ -33,7 +33,7 @@ pub struct SmushClient {
 
 impl Default for SmushClient {
     fn default() -> Self {
-        Self::new(World::default(), FlagSet::default())
+        Self::new(World::default(), FlagSet::empty())
     }
 }
 

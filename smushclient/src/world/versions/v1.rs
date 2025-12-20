@@ -194,9 +194,6 @@ impl From<World> for super::super::World {
 
 impl World {
     pub fn migrate(reader: &mut dyn Read) -> Result<crate::world::World, PersistError> {
-        match bincode::deserialize_from::<&mut dyn Read, World>(reader) {
-            Ok(world) => Ok(world.into()),
-            Err(e) => Err(e.into()),
-        }
+        Ok(bincode::deserialize_from::<&mut dyn Read, World>(reader)?.into())
     }
 }

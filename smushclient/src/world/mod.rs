@@ -280,35 +280,15 @@ impl World {
         sender: T,
     ) -> Result<(usize, Ref<'_, T>), SenderAccessError> {
         let senders = T::from_world(self);
-        {
-            let current = senders.get(index).ok_or(SenderAccessError::NotFound)?;
-            if *current == sender {
-                return Err(SenderAccessError::Unchanged);
-            }
+        if *senders.get(index).ok_or(SenderAccessError::NotFound)? == sender {
+            return Err(SenderAccessError::Unchanged);
         }
-        match sender.assert_unique_label(senders) {
-            Err(pos) if pos != index => Err(pos),
-            _ => Ok(()),
-        }?;
+        if let Err(pos) = sender.assert_unique_label(senders)
+            && pos != index
+        {
+            return Err(pos.into());
+        }
         Ok(senders.replace(index, sender))
-    }
-
-    pub fn sender_groups<T: SendIterable>(&self) -> Vec<String> {
-        T::from_world(self)
-            .borrow()
-            .iter()
-            .map(|sender| sender.as_ref().group.clone())
-            .collect::<HashSet<_>>()
-            .into_iter()
-            .collect()
-    }
-
-    pub fn senders_group_len<T: SendIterable>(&self, group: &str) -> usize {
-        T::from_world(self)
-            .borrow()
-            .iter()
-            .filter(|sender| sender.as_ref().group == group)
-            .count()
     }
 
     pub fn remove_temporary(&self) {

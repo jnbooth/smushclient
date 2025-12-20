@@ -296,7 +296,7 @@ impl SmushClientRust {
         )
     }
 
-    pub fn start_timers(&self, index: PluginIndex, mut timekeeper: Pin<&mut Timekeeper>) {
+    pub fn start_timers(&self, index: PluginIndex, timekeeper: &Timekeeper) {
         if !self.client.world().enable_timers {
             return;
         }
@@ -310,11 +310,11 @@ impl SmushClientRust {
                 .collect::<Vec<_>>()
         };
         for timer_start in &timer_starts {
-            timekeeper.as_mut().start(timer_start);
+            timekeeper.start(timer_start);
         }
     }
 
-    pub fn start_all_timers(&self, mut timekeeper: Pin<&mut Timekeeper>) {
+    pub fn start_all_timers(&self, timekeeper: &Timekeeper) {
         if !self.client.world().enable_timers {
             return;
         }
@@ -332,7 +332,7 @@ impl SmushClientRust {
             }
         };
         for timer_start in &timer_starts {
-            timekeeper.as_mut().start(timer_start);
+            timekeeper.start(timer_start);
         }
     }
 

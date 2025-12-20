@@ -64,7 +64,7 @@ impl ClientHandler<'_> {
             }
             EffectFragment::ExpireLinks(None) => self.doc.as_mut().expire_links(""),
             EffectFragment::ExpireLinks(Some(expires)) => {
-                self.doc.as_mut().expire_links(expires.as_str());
+                self.doc.as_mut().expire_links(expires);
             }
             EffectFragment::StatusBar(stat) => self.handle_mxp_stat(stat),
             _ => (),

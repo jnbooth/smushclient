@@ -273,13 +273,7 @@ impl<'a> From<SendRequest<'a>> for ffi::SendRequest {
 impl<'a> From<SendScriptRequest<'a>> for ffi::SendScriptRequest {
     fn from(value: SendScriptRequest<'a>) -> Self {
         let wildcards = match value.wildcards {
-            Some(captures) => {
-                let mut wildcards = Vec::new();
-                for capture in &captures {
-                    wildcards.push(capture.to_owned());
-                }
-                wildcards
-            }
+            Some(captures) => captures.iter().map(ToOwned::to_owned).collect(),
             None => Vec::new(),
         };
         Self {

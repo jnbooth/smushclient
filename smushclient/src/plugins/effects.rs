@@ -128,7 +128,7 @@ impl SpanStyle {
 
 impl From<&Trigger> for SpanStyle {
     fn from(trigger: &Trigger) -> Self {
-        let mut flags = FlagSet::default();
+        let mut flags = FlagSet::empty();
         if trigger.make_bold {
             flags |= TextStyle::Bold;
         }

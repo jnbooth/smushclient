@@ -309,8 +309,8 @@ pub mod ffi {
         fn unset_variable(self: &SmushClient, index: usize, key: &[c_char]) -> bool;
         fn set_metavariable(self: &SmushClient, key: &[c_char], value: &[c_char]) -> bool;
         fn unset_metavariable(self: &SmushClient, key: &[c_char]) -> bool;
-        fn start_timers(self: &SmushClient, index: usize, timekeeper: Pin<&mut Timekeeper>);
-        fn start_all_timers(self: &SmushClient, timekeeper: Pin<&mut Timekeeper>);
+        fn start_timers(self: &SmushClient, index: usize, timekeeper: &Timekeeper);
+        fn start_all_timers(self: &SmushClient, timekeeper: &Timekeeper);
         fn finish_timer(self: &SmushClient, id: usize, timekeeper: &Timekeeper) -> bool;
         fn poll_timers(self: &SmushClient, timekeeper: &Timekeeper);
         fn stop_senders(self: &SmushClient);

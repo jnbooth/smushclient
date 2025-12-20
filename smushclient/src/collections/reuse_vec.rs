@@ -55,10 +55,7 @@ impl<T> ReuseVec<T> {
                 .inner
                 .iter_mut()
                 .enumerate()
-                .filter(move |(_, slot)| match slot {
-                    Some(item) => pred(item),
-                    None => false,
-                }),
+                .filter(move |(_, slot)| slot.as_ref().is_some_and(&mut pred)),
         }
     }
 }

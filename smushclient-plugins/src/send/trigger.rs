@@ -267,7 +267,7 @@ impl TryFrom<TriggerXml<'_>> for Trigger {
 }
 impl<'a> From<&'a Trigger> for TriggerXml<'a> {
     fn from(value: &'a Trigger) -> Self {
-        let mut color_changes = FlagSet::default();
+        let mut color_changes = FlagSet::empty();
         let other_text_colour = if value.change_foreground {
             color_changes |= Change::Fg;
             value.foreground_color.to_string()

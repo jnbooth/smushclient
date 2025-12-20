@@ -570,11 +570,11 @@ impl ffi::SmushClient {
         self.rust().timer_info(index, label, info_type)
     }
 
-    pub fn start_timers(&self, index: PluginIndex, timekeeper: Pin<&mut ffi::Timekeeper>) {
+    pub fn start_timers(&self, index: PluginIndex, timekeeper: &ffi::Timekeeper) {
         self.rust().start_timers(index, timekeeper);
     }
 
-    pub fn start_all_timers(&self, timekeeper: Pin<&mut ffi::Timekeeper>) {
+    pub fn start_all_timers(&self, timekeeper: &ffi::Timekeeper) {
         self.rust().start_all_timers(timekeeper);
     }
 

@@ -53,10 +53,9 @@ impl PluginVariables {
     }
 
     pub fn has_variable(&self, plugin_id: &str, key: &LuaStr) -> bool {
-        match self.0.get(plugin_id) {
-            Some(variables) => variables.contains_key(key),
-            None => false,
-        }
+        self.0
+            .get(plugin_id)
+            .is_some_and(|variables| variables.contains_key(key))
     }
 
     pub fn set_variable(&mut self, plugin_id: &str, key: LuaString, value: LuaString) {

@@ -151,10 +151,7 @@ impl<'a> From<&'a Link> for ffi::Link<'a> {
             hint: value.hint.convert(),
             prompts: QString::from(&value.prompts.join("|")),
             sendto: value.sendto.into(),
-            expires: match &value.expires {
-                Some(expires) => expires.as_str(),
-                None => "",
-            },
+            expires: value.expires.as_deref().unwrap_or_default(),
         }
     }
 }
