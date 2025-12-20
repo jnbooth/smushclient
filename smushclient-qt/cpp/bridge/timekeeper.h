@@ -19,7 +19,7 @@ public:
                     Qt::TimerType timerType = Qt::CoarseTimer);
   void cancelTimers(const QSet<uint16_t> &timerIds);
   void sendTimer(const SendTimer &timer) const;
-  void startSendTimer(size_t index, uint16_t timerId, uint milliseconds);
+  void startSendTimer(size_t index, uint16_t timerId, uint milliseconds) const;
   inline void setOpen(bool open) { closed = !open; }
 
 private:

@@ -25,7 +25,7 @@ const BUF_LEN: usize = 1024 * 20;
 pub struct SmushClientRust {
     audio: AudioSinks,
     pub client: SmushClient,
-    read_buf: RefCell<Vec<u8>>,
+    read_buf: Vec<u8>,
     stats: RefCell<HashSet<String>>,
     timers: RefCell<Timers<ffi::SendTimer>>,
     palette: HashMap<RgbColor, i32>,
@@ -39,7 +39,7 @@ impl Default for SmushClientRust {
     fn default() -> Self {
         Self {
             audio: AudioSinks::try_default().expect("audio initialization failed"),
-            read_buf: RefCell::new(vec![0; BUF_LEN]),
+            read_buf: vec![0; BUF_LEN],
             stats: RefCell::new(HashSet::new()),
             timers: RefCell::new(Timers::new()),
             palette: HashMap::with_capacity(164),
@@ -194,9 +194,7 @@ impl SmushClientRust {
             no_echo_off: world.no_echo_off,
             stats: &self.stats,
         };
-        let read_result = self
-            .client
-            .read(&mut socket, &mut self.read_buf.borrow_mut());
+        let read_result = self.client.read(&mut socket, &mut self.read_buf);
         handler.doc.begin();
 
         let had_output = self.client.drain_output(&mut handler);
@@ -362,12 +360,11 @@ impl SmushClientRust {
         &self,
         index: PluginIndex,
         timer: Timer,
-        timekeeper: Pin<&mut Timekeeper>,
+        timekeeper: &Timekeeper,
     ) -> Result<(), SenderAccessError> {
-        let enable_timers = self.client.world().enable_timers;
         let start = {
             let timer = self.client.add_sender(index, timer)?;
-            if !enable_timers {
+            if !self.client.world().enable_timers {
                 return Ok(());
             }
             self.timers.borrow_mut().start(index, &timer)
@@ -378,16 +375,10 @@ impl SmushClientRust {
         Ok(())
     }
 
-    pub fn add_or_replace_timer(
-        &self,
-        index: PluginIndex,
-        timer: Timer,
-        timekeeper: Pin<&mut Timekeeper>,
-    ) {
-        let enable_timers = self.client.world().enable_timers;
+    pub fn add_or_replace_timer(&self, index: PluginIndex, timer: Timer, timekeeper: &Timekeeper) {
         let start = {
             let timer = self.client.add_or_replace_sender(index, timer);
-            if !enable_timers {
+            if !self.client.world().enable_timers {
                 return;
             }
             self.timers.borrow_mut().start(index, &timer)
@@ -401,19 +392,17 @@ impl SmushClientRust {
         &self,
         index: usize,
         timer: Timer,
-        timekeeper: Pin<&mut Timekeeper>,
+        timekeeper: &Timekeeper,
     ) -> Result<(), SenderAccessError> {
-        let enable_timers = self.client.world().enable_timers;
-        let world_index = self.world_plugin_index();
         let start = {
             let (_, timer) = self.client.replace_world_sender(index, timer)?;
-            if !enable_timers {
+            if !self.client.world().enable_timers {
                 return Ok(());
             }
-            self.timers.borrow_mut().start(index, &timer)
+            let world_index = self.world_plugin_index();
+            self.timers.borrow_mut().start(world_index, &timer)
         };
-        if let Some(mut start) = start {
-            start.index = world_index;
+        if let Some(start) = start {
             timekeeper.start(&start);
         }
         Ok(())
@@ -422,18 +411,19 @@ impl SmushClientRust {
     pub fn import_world_timers(
         &self,
         xml: &QString,
-        mut timekeeper: Pin<&mut Timekeeper>,
+        timekeeper: &Timekeeper,
     ) -> Result<(), XmlError> {
-        let enable_timers = self.client.world().enable_timers;
         let world_index = self.world_plugin_index();
-        let timers = self
+        let imported_timers = self
             .client
             .import_world_senders::<Timer>(&String::from(xml))?;
-        if enable_timers {
-            for timer in &*timers {
-                if let Some(start) = self.timers.borrow_mut().start(world_index, timer) {
-                    timekeeper.as_mut().start(&start);
-                }
+        if !self.client.world().enable_timers {
+            return Ok(());
+        }
+        let mut timers = self.timers.borrow_mut();
+        for timer in &*imported_timers {
+            if let Some(start) = timers.start(world_index, timer) {
+                timekeeper.start(&start);
             }
         }
         Ok(())

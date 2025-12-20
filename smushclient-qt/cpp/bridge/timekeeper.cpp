@@ -64,7 +64,7 @@ void Timekeeper::sendTimer(const SendTimer &timer) const {
   api->sendCallback(callback, timer.plugin);
 }
 
-void Timekeeper::startSendTimer(size_t index, uint16_t timerId, uint ms) {
+void Timekeeper::startSendTimer(size_t index, uint16_t timerId, uint ms) const {
   queue->start(milliseconds{ms}, {.index = index, .timerId = timerId});
 }
 

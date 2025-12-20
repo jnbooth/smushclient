@@ -206,7 +206,7 @@ impl ffi::SmushClient {
         &self,
         index: PluginIndex,
         timer: &ffi::Timer,
-        timekeeper: Pin<&mut ffi::Timekeeper>,
+        timekeeper: &ffi::Timekeeper,
     ) -> i32 {
         let timer = Timer::from(timer.rust());
         self.rust().add_timer(index, timer, timekeeper).code()
@@ -265,11 +265,7 @@ impl ffi::SmushClient {
         Ok(self.rust().client.add_world_sender(alias).code())
     }
 
-    pub fn add_world_timer(
-        &self,
-        timer: &ffi::Timer,
-        timekeeper: Pin<&mut ffi::Timekeeper>,
-    ) -> i32 {
+    pub fn add_world_timer(&self, timer: &ffi::Timer, timekeeper: &ffi::Timekeeper) -> i32 {
         let index = self.rust().world_plugin_index();
         self.add_timer(index, timer, timekeeper)
     }
@@ -288,7 +284,7 @@ impl ffi::SmushClient {
         &self,
         index: usize,
         timer: &ffi::Timer,
-        timekeeper: Pin<&mut ffi::Timekeeper>,
+        timekeeper: &ffi::Timekeeper,
     ) -> i32 {
         let timer = Timer::from(timer.rust());
         self.rust()
@@ -334,7 +330,7 @@ impl ffi::SmushClient {
     pub fn import_world_timers(
         &self,
         xml: &QString,
-        timekeeper: Pin<&mut ffi::Timekeeper>,
+        timekeeper: &ffi::Timekeeper,
     ) -> Result<(), XmlError> {
         self.rust().import_world_timers(xml, timekeeper)
     }
@@ -356,7 +352,7 @@ impl ffi::SmushClient {
         &self,
         index: PluginIndex,
         timer: &ffi::Timer,
-        timekeeper: Pin<&mut ffi::Timekeeper>,
+        timekeeper: &ffi::Timekeeper,
     ) {
         let timer = Timer::from(timer.rust());
         self.rust().add_or_replace_timer(index, timer, timekeeper);

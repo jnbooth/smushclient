@@ -42,7 +42,7 @@ impl<T> Timers<T> {
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct TimerStart {
-    pub index: usize,
+    pub plugin: PluginIndex,
     pub timer: u16,
     pub milliseconds: u32,
 }
@@ -158,11 +158,13 @@ impl<T: TimerConstructible> Timers<T> {
             }
             Occurrence::Interval(duration) => {
                 let send_timer = RecurringTimer::new(send_timer, duration);
-                Some(TimerStart {
+                let start = TimerStart {
+                    plugin: index,
                     timer: send_timer.id,
                     milliseconds: send_timer.milliseconds,
-                    index: self.insert_recurring(send_timer),
-                })
+                };
+                self.insert_recurring(send_timer);
+                Some(start)
             }
         }
     }

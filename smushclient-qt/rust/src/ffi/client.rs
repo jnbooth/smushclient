@@ -182,7 +182,7 @@ pub mod ffi {
             self: &SmushClient,
             index: usize,
             timer: &Timer,
-            timekeeper: Pin<&mut Timekeeper>,
+            timekeeper: &Timekeeper,
         ) -> i32;
         fn add_trigger(self: &SmushClient, index: usize, trigger: &Trigger) -> Result<i32>;
         fn remove_alias(self: &SmushClient, index: usize, label: &QString) -> i32;
@@ -192,18 +192,14 @@ pub mod ffi {
         fn remove_timers(self: &SmushClient, index: usize, group: &QString) -> usize;
         fn remove_triggers(self: &SmushClient, index: usize, group: &QString) -> usize;
         fn add_world_alias(self: &SmushClient, alias: &Alias) -> Result<i32>;
-        fn add_world_timer(
-            self: &SmushClient,
-            timer: &Timer,
-            timekeeper: Pin<&mut Timekeeper>,
-        ) -> i32;
+        fn add_world_timer(self: &SmushClient, timer: &Timer, timekeeper: &Timekeeper) -> i32;
         fn add_world_trigger(self: &SmushClient, trigger: &Trigger) -> Result<i32>;
         fn replace_world_alias(self: &SmushClient, index: usize, alias: &Alias) -> Result<i32>;
         fn replace_world_timer(
             self: &SmushClient,
             index: usize,
             timer: &Timer,
-            timekeeper: Pin<&mut Timekeeper>,
+            timekeeper: &Timekeeper,
         ) -> i32;
         fn replace_world_trigger(
             self: &SmushClient,
@@ -217,16 +213,11 @@ pub mod ffi {
         fn import_world_timers(
             self: &SmushClient,
             xml: &QString,
-            timekeeper: Pin<&mut Timekeeper>,
+            timekeeper: &Timekeeper,
         ) -> Result<()>;
         fn import_world_triggers(self: &SmushClient, xml: &QString) -> Result<()>;
         fn replace_alias(self: &SmushClient, index: usize, alias: &Alias) -> Result<()>;
-        fn replace_timer(
-            self: &SmushClient,
-            index: usize,
-            timer: &Timer,
-            timekeeper: Pin<&mut Timekeeper>,
-        );
+        fn replace_timer(self: &SmushClient, index: usize, timer: &Timer, timekeeper: &Timekeeper);
         fn replace_trigger(self: &SmushClient, index: usize, trigger: &Trigger) -> Result<()>;
         fn is_alias(self: &SmushClient, index: usize, label: &QString) -> bool;
         fn is_timer(self: &SmushClient, index: usize, label: &QString) -> bool;
