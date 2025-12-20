@@ -212,9 +212,9 @@ impl SenderMapRust {
         };
         let world = client.world();
         match self.sender_type {
-            ffi::SenderType::Alias => world.aliases.borrow()[index].cell_text(column),
-            ffi::SenderType::Timer => world.timers.borrow()[index].cell_text(column),
-            ffi::SenderType::Trigger => world.triggers.borrow()[index].cell_text(column),
+            ffi::SenderType::Alias => world.aliases.get(index).unwrap().cell_text(column),
+            ffi::SenderType::Timer => world.timers.get(index).unwrap().cell_text(column),
+            ffi::SenderType::Trigger => world.triggers.get(index).unwrap().cell_text(column),
             _ => QString::default(),
         }
     }

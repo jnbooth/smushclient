@@ -10,7 +10,8 @@ pub struct CursorVec<T> {
     inner: RefCell<Vec<T>>,
     cursor: Cell<usize>,
     removals: RefCell<Vec<usize>>,
-    additions_index: Cell<usize>,
+    sorted_until: Cell<usize>,
+    need_full_resort: Cell<bool>,
     evaluating: Cell<bool>,
 }
 
@@ -20,11 +21,33 @@ impl<T> CursorVec<T> {
             inner: RefCell::new(Vec::new()),
             cursor: Cell::new(0),
             removals: RefCell::new(Vec::new()),
-            additions_index: Cell::new(0),
+            sorted_until: Cell::new(0),
+            need_full_resort: Cell::new(false),
             evaluating: Cell::new(false),
         }
     }
 }
+
+#[derive(Debug)]
+pub struct CursorVecScan<'a, T: Ord> {
+    vec: &'a CursorVec<T>,
+}
+
+impl<T: Ord> Drop for CursorVecScan<'_, T> {
+    fn drop(&mut self) {
+        self.vec.end();
+    }
+}
+
+impl<'a, T: Ord> Iterator for CursorVecScan<'a, T> {
+    type Item = CursorVecRef<'a, T>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.vec.next()
+    }
+}
+
+impl<T: Ord> FusedIterator for CursorVecScan<'_, T> {}
 
 impl<T: Ord> CursorVec<T> {
     pub fn is_empty(&self) -> bool {
@@ -33,6 +56,10 @@ impl<T: Ord> CursorVec<T> {
 
     pub fn borrow(&self) -> Ref<'_, Vec<T>> {
         self.inner.borrow()
+    }
+
+    pub fn len(&self) -> usize {
+        self.inner.borrow().len()
     }
 
     pub fn borrow_mut(&self) -> RefMut<'_, Vec<T>> {
@@ -47,30 +74,85 @@ impl<T: Ord> CursorVec<T> {
         self.into_iter()
     }
 
-    pub fn begin(&self) {
-        self.apply_pending(true);
+    pub fn scan(&self) -> CursorVecScan<'_, T> {
+        #[track_caller]
+        #[cold]
+        fn panic_already_open() -> ! {
+            panic!("CursorVec already scanning");
+        }
+        if self.evaluating.get() {
+            panic_already_open();
+        }
         self.evaluating.set(true);
-        self.additions_index.set(self.inner.borrow().len());
+        self.sorted_until.set(self.inner.borrow().len());
         self.cursor.set(0);
+        self.need_full_resort.set(false);
+        CursorVecScan { vec: self }
     }
 
     pub fn end(&self) {
-        self.apply_pending(true);
-        self.evaluating.set(false);
+        if !self.evaluating.replace(false) {
+            return;
+        }
+        let mut inner = self.inner.borrow_mut();
+        let mut removals = self.removals.borrow_mut();
+        let mut sorted_until = self.sorted_until.get();
+        for &i in removals.iter().rev() {
+            inner.remove(i);
+            sorted_until -= 1;
+        }
+        removals.clear();
+        if self.need_full_resort.get() {
+            inner.sort_unstable();
+            return;
+        }
+        while sorted_until < inner.len() {
+            let Some(item) = inner.pop() else {
+                break;
+            };
+            if Self::do_insert_into(&mut inner, sorted_until, item).is_err() {
+                sorted_until += 1;
+            }
+        }
     }
 
-    pub fn next(&self) -> Option<CursorVecRef<'_, T>> {
+    fn next(&self) -> Option<CursorVecRef<'_, T>> {
         if !self.evaluating.get() {
             return None;
         }
-        let cursor = self.cursor.get();
-        if cursor >= self.inner.borrow().len() {
-            self.end();
+        let mut inner = self.inner.borrow_mut();
+        let mut cursor = self.cursor.get();
+        if cursor >= inner.len() {
             return None;
         }
-        self.apply_pending(false);
-        self.cursor.set(cursor + 1);
-        self.additions_index.set(self.inner.borrow().len());
+        let mut removals = self.removals.borrow_mut();
+        let mut sorted_until = self.sorted_until.get();
+        for &i in removals.iter().rev() {
+            inner.remove(i);
+            sorted_until -= 1;
+            if i <= cursor {
+                cursor -= 1;
+            }
+        }
+        removals.clear();
+        while sorted_until < inner.len() {
+            let Some(item) = inner.pop() else {
+                break;
+            };
+            let Err(pos) = Self::do_insert_into(&mut inner, sorted_until, item) else {
+                continue;
+            };
+            sorted_until += 1;
+            if pos < cursor {
+                cursor += 1;
+            }
+        }
+        cursor += 1;
+        self.cursor.set(cursor);
+        if cursor >= inner.len() {
+            return None;
+        }
+        self.sorted_until.set(inner.len());
         Some(CursorVecRef {
             vec: self,
             index: cursor,
@@ -79,44 +161,6 @@ impl<T: Ord> CursorVec<T> {
 
     pub fn append(&self, other: &mut Vec<T>) {
         self.inner.borrow_mut().append(other);
-    }
-
-    fn apply_pending(&self, done: bool) {
-        let mut inner = self.inner.borrow_mut();
-        let mut removals = self.removals.borrow_mut();
-        for &i in removals.iter().rev() {
-            inner.remove(i);
-            self.additions_index.update(|i| i - 1);
-            self.cursor.update(|cursor| {
-                if done || i > cursor {
-                    cursor
-                } else {
-                    cursor - 1
-                }
-            });
-        }
-        removals.clear();
-        if !self.evaluating.get() {
-            return;
-        }
-        let mut additions_index = self.additions_index.get();
-        while additions_index < inner.len() {
-            let Some(item) = inner.pop() else {
-                break;
-            };
-            let Err(pos) = Self::do_insert_into(&mut inner, additions_index, item) else {
-                continue;
-            };
-            additions_index += 1;
-            self.cursor.update(|cursor| {
-                if done || pos >= cursor {
-                    cursor
-                } else {
-                    cursor + 1
-                }
-            });
-        }
-        self.additions_index.set(additions_index);
     }
 
     pub fn insert(&self, item: T) -> Ref<'_, T> {
@@ -147,39 +191,43 @@ impl<T: Ord> CursorVec<T> {
     }
 
     pub fn replace(&self, i: usize, item: T) -> (usize, Ref<'_, T>) {
+        let pos = self.do_replace(i, item);
+        let item = Ref::map(self.inner.borrow(), |inner| &inner[pos]);
+        (pos, item)
+    }
+
+    fn do_replace(&self, i: usize, item: T) -> usize {
         let mut inner = self.inner.borrow_mut();
-        let mut removals = self.removals.borrow_mut();
         let evaluating = self.evaluating.get();
         let sorted_slice = if evaluating {
-            &inner[..self.additions_index.get()]
+            &inner[..self.sorted_until.get()]
         } else {
             &inner
         };
+        if i >= sorted_slice.len() {
+            inner[i] = item;
+            return i;
+        }
         let mut pos = match sorted_slice.binary_search(&item) {
             Ok(pos) | Err(pos) => pos,
         };
+        inner[i] = item;
         if pos == i || pos == i + 1 {
-            let entry = &mut inner[i];
-            *entry = item;
-            pos = i;
-        } else if evaluating {
-            removals.push(i);
-            pos = inner.len();
-            inner.push(item);
-        } else {
-            inner[i] = item;
-            if pos == inner.len() {
-                pos -= 1;
-            }
-            match i.cmp(&pos) {
-                Ordering::Less => inner[i..=pos].rotate_left(1),
-                Ordering::Equal => (),
-                Ordering::Greater => inner[pos..=i].rotate_right(1),
-            }
+            return i;
         }
-        let inner = self.inner.borrow();
-        let item = Ref::map(inner, |inner| &inner[pos]);
-        (pos, item)
+        if evaluating && i <= self.cursor.get() {
+            self.need_full_resort.set(true);
+            return i;
+        }
+        if pos == inner.len() {
+            pos -= 1;
+        }
+        match i.cmp(&pos) {
+            Ordering::Less => inner[i..=pos].rotate_left(1),
+            Ordering::Equal => (),
+            Ordering::Greater => inner[pos..=i].rotate_right(1),
+        }
+        pos
     }
 
     pub fn remove(&self, i: usize) {
@@ -193,6 +241,9 @@ impl<T: Ord> CursorVec<T> {
     pub fn find<P: FnMut(&T) -> bool>(&self, mut pred: P) -> Option<Ref<'_, T>> {
         let removals = self.removals.borrow();
         Ref::filter_map(self.inner.borrow(), |inner| {
+            if removals.is_empty() {
+                return inner.iter().find(|item| pred(item));
+            }
             inner
                 .iter()
                 .enumerate()
@@ -205,6 +256,9 @@ impl<T: Ord> CursorVec<T> {
     pub fn find_mut<P: FnMut(&T) -> bool>(&self, mut pred: P) -> Option<RefMut<'_, T>> {
         let removals = self.removals.borrow();
         RefMut::filter_map(self.inner.borrow_mut(), |inner| {
+            if removals.is_empty() {
+                return inner.iter_mut().find(|item| pred(item));
+            }
             inner
                 .iter_mut()
                 .enumerate()
@@ -216,6 +270,9 @@ impl<T: Ord> CursorVec<T> {
 
     pub fn position<P: FnMut(&T) -> bool>(&self, mut pred: P) -> Option<usize> {
         let removals = self.removals.borrow();
+        if removals.is_empty() {
+            return self.inner.borrow().iter().position(pred);
+        }
         self.inner
             .borrow()
             .iter()
@@ -226,14 +283,13 @@ impl<T: Ord> CursorVec<T> {
 
     pub fn retain<P: FnMut(&T) -> bool>(&self, mut pred: P) -> usize {
         let mut inner = self.inner.borrow_mut();
-        let mut removals = self.removals.borrow_mut();
-        let evaluating = self.evaluating.get();
-        let cursor = self.cursor.get();
-        if !evaluating {
+        if !self.evaluating.get() {
             let len = inner.len();
             inner.retain(pred);
             return len - inner.len();
         }
+        let cursor = self.cursor.get();
+        let mut removals = self.removals.borrow_mut();
         let mut removed = 0;
         let mut i = 0;
         inner.retain(|item| {

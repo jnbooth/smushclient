@@ -113,8 +113,12 @@ pub struct SpanStyle {
 }
 
 impl SpanStyle {
-    pub fn null() -> Self {
-        Self::default()
+    pub const fn null() -> Self {
+        Self {
+            flags: FlagSet::empty(),
+            foreground: None,
+            background: None,
+        }
     }
 
     pub fn is_null(&self) -> bool {

@@ -7,11 +7,12 @@ use std::path::Path;
 use std::{slice, vec};
 
 use mud_transformer::Output;
-use smushclient_plugins::{LoadError, Plugin, PluginIndex, Reaction, SendTarget};
+use smushclient_plugins::{Alias, LoadError, Plugin, PluginIndex, Reaction, SendTarget, Trigger};
 
 use super::effects::CommandSource;
 use super::effects::{AliasEffects, SpanStyle, TriggerEffects};
 use super::error::LoadFailure;
+use super::iter::ReactionIterable;
 use crate::client::PluginVariables;
 use crate::handler::{Handler, HandlerExt};
 use crate::world::World;
@@ -126,6 +127,14 @@ impl PluginEngine {
         self.plugins.sort_unstable();
     }
 
+    pub fn supported_protocols(&self) -> HashSet<u8> {
+        self.plugins
+            .iter()
+            .flat_map(|plugin| plugin.metadata.protocols.iter())
+            .copied()
+            .collect()
+    }
+
     pub fn alias<H: Handler>(
         &self,
         line: &str,
@@ -135,103 +144,7 @@ impl PluginEngine {
         handler: &mut H,
     ) -> AliasEffects {
         let mut effects = AliasEffects::new(world, source);
-
-        if !world.enable_aliases {
-            return effects;
-        }
-
-        let mut text_buf = String::new();
-        let mut reaction_buf = Reaction::default();
-
-        for (plugin_index, plugin) in self.plugins.iter().enumerate() {
-            if plugin.disabled.get() {
-                continue;
-            }
-            let enable_scripts = !plugin.metadata.is_world_plugin || world.enable_scripts;
-            let aliases = if plugin.metadata.is_world_plugin {
-                &world.aliases
-            } else {
-                &plugin.aliases
-            };
-            aliases.begin();
-            while let Some(alias) = aliases.next() {
-                let mut matched = false;
-                let regex = {
-                    let alias = alias.borrow();
-                    if !alias.enabled {
-                        continue;
-                    }
-                    alias.regex.clone()
-                };
-                for captures in regex.captures_iter(line) {
-                    let Ok(captures) = captures else {
-                        continue;
-                    };
-                    if !matched {
-                        matched = true;
-                    }
-                    text_buf.clear();
-                    let send_request = {
-                        let alias = alias.borrow();
-                        if alias.send_to == SendTarget::Variable {
-                            variables.borrow_mut().set_variable(
-                                &plugin.metadata.id,
-                                alias.variable.as_bytes().to_vec(),
-                                alias
-                                    .expand_text(&mut text_buf, &captures)
-                                    .as_bytes()
-                                    .to_vec(),
-                            );
-                            false
-                        } else if enable_scripts || !alias.send_to.is_script() {
-                            reaction_buf.clone_from(&alias);
-                            true
-                        } else {
-                            false
-                        }
-                    };
-                    if send_request {
-                        handler.send(super::SendRequest {
-                            plugin: plugin_index,
-                            send_to: reaction_buf.send_to,
-                            text: reaction_buf.expand_text(&mut text_buf, &captures),
-                            destination: reaction_buf.destination(),
-                        });
-                    }
-                    if !alias.borrow().repeats {
-                        break;
-                    }
-                }
-                if !matched {
-                    continue;
-                }
-                let send_script = enable_scripts && {
-                    let alias = alias.borrow();
-                    if alias.script.is_empty() {
-                        false
-                    } else {
-                        reaction_buf.clone_from(&alias);
-                        true
-                    }
-                };
-                if send_script {
-                    handler.send_scripts(plugin_index, &reaction_buf, line, &[]);
-                }
-                let (one_shot, keep_evaluating) = {
-                    let alias = alias.borrow();
-                    effects.add_effects(&alias);
-                    (alias.one_shot, alias.keep_evaluating)
-                };
-                if one_shot {
-                    alias.remove();
-                }
-                if !keep_evaluating {
-                    break;
-                }
-            }
-            aliases.end();
-        }
-
+        self.process_matches::<Alias, _>(line, &[], world, variables, handler, &mut effects);
         effects
     }
 
@@ -243,13 +156,28 @@ impl PluginEngine {
         variables: &RefCell<PluginVariables>,
         handler: &mut H,
     ) -> TriggerEffects {
-        if !world.enable_triggers {
-            return TriggerEffects::default();
+        let mut effects = TriggerEffects::new();
+        self.process_matches::<Trigger, _>(line, output, world, variables, handler, &mut effects);
+        if effects.omit_from_output {
+            handler.erase_last_line();
         }
+        effects
+    }
 
+    fn process_matches<T: ReactionIterable, H: Handler>(
+        &self,
+        line: &str,
+        output: &[Output],
+        world: &World,
+        variables: &RefCell<PluginVariables>,
+        handler: &mut H,
+        effects: &mut T::Effects,
+    ) {
+        if !T::enabled(world) {
+            return;
+        }
         let mut text_buf = String::new();
         let mut reaction_buf = Reaction::default();
-        let mut effects = TriggerEffects::new();
         let mut style = SpanStyle::null();
         let mut has_style = false;
 
@@ -258,48 +186,48 @@ impl PluginEngine {
                 continue;
             }
             let enable_scripts = !plugin.metadata.is_world_plugin || world.enable_scripts;
-            let triggers = if plugin.metadata.is_world_plugin {
-                &world.triggers
+            let senders = if plugin.metadata.is_world_plugin {
+                T::from_world(world)
             } else {
-                &plugin.triggers
+                T::from_plugin(plugin)
             };
-            triggers.begin();
-            while let Some(trigger) = triggers.next() {
+            for sender in senders.scan() {
                 let mut matched = false;
                 let regex = {
-                    let trigger = trigger.borrow();
-                    if !trigger.enabled {
+                    let sender = sender.borrow();
+                    let reaction = sender.reaction();
+                    if !reaction.enabled {
                         continue;
                     }
-                    trigger.regex.clone()
+                    reaction.regex.clone()
                 };
-                for captures in regex.captures_iter(line) {
-                    let Ok(captures) = captures else {
-                        continue;
-                    };
+                for captures in regex.captures_iter(line).filter_map(Result::ok) {
                     if !matched {
                         matched = true;
-                        style = SpanStyle::from(&*trigger.borrow());
-                        has_style = !style.is_null();
+                        if T::AFFECTS_STYLE {
+                            style = sender.borrow().style();
+                            has_style = !style.is_null();
+                        }
                     }
                     if has_style && let Some(capture) = captures.get(0) {
                         handler.apply_styles(capture.start()..capture.end(), style);
                     }
                     text_buf.clear();
                     let send_request = {
-                        let trigger = trigger.borrow();
-                        if trigger.send_to == SendTarget::Variable {
+                        let sender = sender.borrow();
+                        let reaction = sender.reaction();
+                        if reaction.send_to == SendTarget::Variable {
                             variables.borrow_mut().set_variable(
                                 &plugin.metadata.id,
-                                trigger.variable.as_bytes().to_vec(),
-                                trigger
+                                reaction.variable.as_bytes().to_vec(),
+                                reaction
                                     .expand_text(&mut text_buf, &captures)
                                     .as_bytes()
                                     .to_vec(),
                             );
                             false
-                        } else if enable_scripts || !trigger.send_to.is_script() {
-                            reaction_buf.clone_from(&trigger);
+                        } else if enable_scripts || !reaction.send_to.is_script() {
+                            reaction_buf.clone_from(reaction);
                             true
                         } else {
                             false
@@ -313,16 +241,21 @@ impl PluginEngine {
                             destination: reaction_buf.destination(),
                         });
                     }
-                    if !trigger.borrow().repeats {
+                    // fresh borrow in case the handler changed the reaction's settings
+                    if !sender.borrow().reaction().repeats {
                         break;
                     }
                 }
+                if !matched {
+                    continue;
+                }
                 let send_script = enable_scripts && {
-                    let trigger = trigger.borrow();
-                    if trigger.script.is_empty() {
+                    let sender = sender.borrow();
+                    let reaction = sender.reaction();
+                    if reaction.script.is_empty() {
                         false
                     } else {
-                        reaction_buf.clone_from(&trigger);
+                        reaction_buf.clone_from(reaction);
                         true
                     }
                 };
@@ -330,36 +263,22 @@ impl PluginEngine {
                     handler.send_scripts(plugin_index, &reaction_buf, line, output);
                 }
                 let (one_shot, keep_evaluating) = {
-                    let trigger = trigger.borrow();
-                    if !trigger.sound.is_empty() {
-                        handler.play_sound(&trigger.sound);
+                    let sender = sender.borrow();
+                    if let Some(sound) = sender.sound() {
+                        handler.play_sound(sound);
                     }
-                    effects.add_effects(&trigger);
-                    (trigger.one_shot, trigger.keep_evaluating)
+                    sender.add_effects(effects);
+                    let reaction = sender.reaction();
+                    (reaction.one_shot, reaction.keep_evaluating)
                 };
                 if one_shot {
-                    trigger.remove();
+                    sender.remove();
                 }
                 if !keep_evaluating {
                     break;
                 }
             }
-            triggers.end();
         }
-
-        if effects.omit_from_output {
-            handler.erase_last_line();
-        }
-
-        effects
-    }
-
-    pub fn supported_protocols(&self) -> HashSet<u8> {
-        self.plugins
-            .iter()
-            .flat_map(|plugin| plugin.metadata.protocols.iter())
-            .copied()
-            .collect()
     }
 }
 

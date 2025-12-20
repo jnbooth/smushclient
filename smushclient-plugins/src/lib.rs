@@ -3,7 +3,7 @@ mod in_place;
 mod constants;
 
 pub mod cursor_vec;
-pub use cursor_vec::{CursorVec, CursorVecRef};
+pub use cursor_vec::{CursorVec, CursorVecRef, CursorVecScan};
 
 mod error;
 pub use error::LoadError;
