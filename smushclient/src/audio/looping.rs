@@ -18,6 +18,12 @@ pub struct LoopingSink {
     sound_count: Arc<AtomicUsize>,
 }
 
+impl Default for LoopingSink {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LoopingSink {
     #[inline]
     pub fn new() -> Self {

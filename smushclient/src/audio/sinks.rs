@@ -28,19 +28,10 @@ pub struct AudioSinks {
 impl AudioSinks {
     pub fn try_default() -> Result<Self, StreamError> {
         let stream = OutputStreamBuilder::open_default_stream()?;
-        let sinks = [
-            LoopingSink::new(),
-            LoopingSink::new(),
-            LoopingSink::new(),
-            LoopingSink::new(),
-            LoopingSink::new(),
-            LoopingSink::new(),
-            LoopingSink::new(),
-            LoopingSink::new(),
-            LoopingSink::new(),
-            LoopingSink::new(),
-        ];
-        Ok(Self { sinks, stream })
+        Ok(Self {
+            sinks: Default::default(),
+            stream,
+        })
     }
 
     fn get(&self, i: usize) -> Result<&LoopingSink, AudioError> {
