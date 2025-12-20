@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 use super::reaction::Reaction;
 use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
-use crate::constants::DEFAULT_SEQUENCE;
 use crate::in_place::{InPlace, in_place};
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
@@ -123,7 +122,7 @@ impl AliasXml<'_> {
     fn template() -> Self {
         Self {
             enabled: true,
-            sequence: DEFAULT_SEQUENCE,
+            sequence: Reaction::DEFAULT_SEQUENCE,
             ..Default::default()
         }
     }

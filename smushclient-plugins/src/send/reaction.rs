@@ -71,7 +71,7 @@ impl Default for Reaction {
 }
 
 impl Reaction {
-    pub const DEFAULT_SEQUENCE: i16 = crate::constants::DEFAULT_SEQUENCE;
+    pub const DEFAULT_SEQUENCE: i16 = 100;
 
     pub fn expand_text<'a>(&self, buf: &'a mut String, captures: &Captures) -> &'a str {
         #[inline]
