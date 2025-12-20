@@ -194,7 +194,9 @@ impl PluginEngine {
             for sender in senders.scan() {
                 let mut matched = false;
                 let regex = {
-                    let sender = sender.borrow();
+                    let Some(sender) = sender.borrow() else {
+                        continue;
+                    };
                     let reaction = sender.reaction();
                     if !reaction.enabled {
                         continue;
@@ -205,7 +207,10 @@ impl PluginEngine {
                     if !matched {
                         matched = true;
                         if T::AFFECTS_STYLE {
-                            style = sender.borrow().style();
+                            let Some(sender) = sender.borrow() else {
+                                break;
+                            };
+                            style = sender.style();
                             has_style = !style.is_null();
                         }
                     }
@@ -214,7 +219,9 @@ impl PluginEngine {
                     }
                     text_buf.clear();
                     let send_request = {
-                        let sender = sender.borrow();
+                        let Some(sender) = sender.borrow() else {
+                            break;
+                        };
                         let reaction = sender.reaction();
                         if reaction.send_to == SendTarget::Variable {
                             variables.borrow_mut().set_variable(
@@ -242,7 +249,10 @@ impl PluginEngine {
                         });
                     }
                     // fresh borrow in case the handler changed the reaction's settings
-                    if !sender.borrow().reaction().repeats {
+                    if !sender
+                        .borrow()
+                        .is_some_and(|sender| sender.reaction().repeats)
+                    {
                         break;
                     }
                 }
@@ -250,7 +260,9 @@ impl PluginEngine {
                     continue;
                 }
                 let send_script = enable_scripts && {
-                    let sender = sender.borrow();
+                    let Some(sender) = sender.borrow() else {
+                        continue;
+                    };
                     let reaction = sender.reaction();
                     if reaction.script.is_empty() {
                         false
@@ -263,7 +275,9 @@ impl PluginEngine {
                     handler.send_scripts(plugin_index, &reaction_buf, line, output);
                 }
                 let (one_shot, keep_evaluating) = {
-                    let sender = sender.borrow();
+                    let Some(sender) = sender.borrow() else {
+                        continue;
+                    };
                     if let Some(sound) = sender.sound() {
                         handler.play_sound(sound);
                     }
