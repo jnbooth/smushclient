@@ -59,13 +59,18 @@ pub struct AliasOutcome {
     pub send: bool,
 }
 
-impl Default for AliasOutcome {
-    fn default() -> Self {
+impl AliasOutcome {
+    pub const fn new() -> Self {
         Self {
             display: true,
             remember: true,
             send: true,
         }
+    }
+}
+impl Default for AliasOutcome {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

@@ -514,12 +514,12 @@ pub struct OutputSpan {
 }
 
 impl OutputSpan {
-    pub fn cast(output: &[Output]) -> &[Self] {
+    pub const fn cast(output: &[Output]) -> &[Self] {
         // SAFETY: #[repr(transparent)]
         unsafe { &*(ptr::from_ref(output) as *const [Self]) }
     }
 
-    pub fn text_span(&self) -> *const TextSpan {
+    pub const fn text_span(&self) -> *const TextSpan {
         let OutputFragment::Text(fragment) = &self.inner.fragment else {
             return ptr::null();
         };

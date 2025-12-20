@@ -21,7 +21,7 @@ fn get_id() -> u16 {
     ID_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
-fn duration_from_hms(hour: u64, minute: u64, second: f64) -> Duration {
+const fn duration_from_hms(hour: u64, minute: u64, second: f64) -> Duration {
     debug_assert!(
         second.is_finite() && (second == 0.0 || second.is_sign_positive()),
         "second must be a finite positive number"

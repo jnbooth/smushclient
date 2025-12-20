@@ -59,6 +59,12 @@ impl Clone for Sender {
 
 impl Default for Sender {
     fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Sender {
+    pub const fn new() -> Self {
         Self {
             text: String::new(),
             send_to: SendTarget::World,
@@ -74,10 +80,8 @@ impl Default for Sender {
             userdata: 0,
         }
     }
-}
 
-impl Sender {
-    pub fn destination(&self) -> &str {
+    pub const fn destination(&self) -> &str {
         if self.variable.is_empty() {
             self.label.as_str()
         } else {

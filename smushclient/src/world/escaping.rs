@@ -138,7 +138,7 @@ pub struct EscapedBrackets<S = String> {
 }
 
 impl<S> EscapedBrackets<S> {
-    pub fn new(before: Escaped<S>, after: Escaped<S>) -> Self {
+    pub const fn new(before: Escaped<S>, after: Escaped<S>) -> Self {
         Self { before, after }
     }
 
