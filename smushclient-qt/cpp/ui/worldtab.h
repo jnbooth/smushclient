@@ -112,7 +112,7 @@ private slots:
   void confirmReloadWorldScript(const QString &worldScriptPath);
   void finishResize();
   void flushOutput();
-  bool loadPlugins();
+  void loadPlugins();
   void onAutoScroll(int min, int max);
   void onNewActivity();
   void readFromSocket();

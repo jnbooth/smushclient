@@ -664,14 +664,12 @@ void WorldTab::flushOutput() {
   api->setSource(currentSource);
 }
 
-bool WorldTab::loadPlugins() {
+void WorldTab::loadPlugins() {
   const QStringList errors = client.loadPlugins();
   if (!errors.empty()) {
     QErrorMessage::qtHandler()->showMessage(errors.join(u'\n'));
-    return false;
   }
   api->initializePlugins();
-  return true;
 }
 
 void WorldTab::onAutoScroll(int, int max) {
