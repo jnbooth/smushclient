@@ -1,13 +1,12 @@
 use std::borrow::Cow;
 
-use quick_xml::{DeError, SeError};
 use serde::{Deserialize, Serialize};
 
 use super::reaction::Reaction;
 use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
 use crate::in_place::{InPlace, in_place};
-use crate::xml::bool_serde;
+use crate::xml::{XmlIterable, bool_serde};
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Alias {
@@ -22,32 +21,9 @@ impl_deref!(Alias, Reaction, reaction);
 impl_asref!(Alias, Reaction);
 impl_asref!(Alias, Sender);
 
-#[derive(Debug, Serialize)]
-#[serde(rename = "X")]
-struct AliasesXml<'a> {
-    alias: Vec<AliasXml<'a>>,
-}
-
-impl Alias {
-    pub fn from_xml_str<T: FromIterator<Self>>(s: &str) -> Result<T, DeError> {
-        let nodes: Vec<AliasXml> = quick_xml::de::from_str(s)?;
-        nodes
-            .into_iter()
-            .enumerate()
-            .map(|(i, node)| {
-                Self::try_from(node).map_err(|err| {
-                    let n = i + 1;
-                    DeError::Custom(format!("Invalid regular expression in item {n}: {err}"))
-                })
-            })
-            .collect()
-    }
-
-    pub fn to_xml_string<'a, I: IntoIterator<Item = &'a Self>>(iter: I) -> Result<String, SeError> {
-        let nodes: Vec<AliasXml<'a>> = iter.into_iter().map(AliasXml::from).collect();
-        let xml = quick_xml::se::to_string(&AliasesXml { alias: nodes })?;
-        Ok(xml[3..xml.len() - 4].to_owned())
-    }
+impl XmlIterable for Alias {
+    const TAG: &'static str = "alias";
+    type Xml<'a> = AliasXml<'a>;
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]

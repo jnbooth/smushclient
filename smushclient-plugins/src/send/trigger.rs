@@ -2,14 +2,13 @@ use std::borrow::Cow;
 
 use flagset::{FlagSet, flags};
 use mxp::RgbColor;
-use quick_xml::{DeError, SeError};
 use serde::{Deserialize, Serialize};
 
 use super::reaction::Reaction;
 use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
 use crate::in_place::{InPlace, in_place};
-use crate::xml::bool_serde;
+use crate::xml::{XmlIterable, bool_serde};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Trigger {
@@ -53,32 +52,9 @@ impl_deref!(Trigger, Reaction, reaction);
 impl_asref!(Trigger, Reaction);
 impl_asref!(Trigger, Sender);
 
-#[derive(Debug, Serialize)]
-#[serde(rename = "X")]
-struct TriggersXml<'a> {
-    trigger: Vec<TriggerXml<'a>>,
-}
-
-impl Trigger {
-    pub fn from_xml_str<T: FromIterator<Self>>(s: &str) -> Result<T, DeError> {
-        let nodes: Vec<TriggerXml> = quick_xml::de::from_str(s)?;
-        nodes
-            .into_iter()
-            .enumerate()
-            .map(|(i, node)| {
-                Self::try_from(node).map_err(|err| {
-                    let n = i + 1;
-                    DeError::Custom(format!("Invalid regular expression in item {n}: {err}"))
-                })
-            })
-            .collect()
-    }
-
-    pub fn to_xml_string<'a, I: IntoIterator<Item = &'a Self>>(iter: I) -> Result<String, SeError> {
-        let nodes: Vec<TriggerXml<'a>> = iter.into_iter().map(TriggerXml::from).collect();
-        let xml = quick_xml::se::to_string(&TriggersXml { trigger: nodes })?;
-        Ok(xml[3..xml.len() - 4].to_owned())
-    }
+impl XmlIterable for Trigger {
+    const TAG: &'static str = "trigger";
+    type Xml<'a> = TriggerXml<'a>;
 }
 
 flags! {

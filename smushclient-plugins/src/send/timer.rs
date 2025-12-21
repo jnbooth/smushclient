@@ -5,14 +5,13 @@ use std::sync::atomic::{AtomicU16, Ordering};
 use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike};
-use quick_xml::{DeError, SeError};
 use serde::{Deserialize, Serialize};
 
 use super::occurrence::Occurrence;
 use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
 use crate::in_place::{InPlace, in_place};
-use crate::xml::bool_serde;
+use crate::xml::{XmlIterable, bool_serde};
 
 const NANOS: u64 = 1_000_000_000;
 const NANOS_F: f64 = 1_000_000_000.0;
@@ -54,23 +53,9 @@ impl Default for Timer {
 impl_deref!(Timer, Sender, send);
 impl_asref!(Timer, Sender);
 
-#[derive(Debug, Serialize)]
-#[serde(rename = "X")]
-struct TimersXml<'a> {
-    timer: Vec<TimerXml<'a>>,
-}
-
-impl Timer {
-    pub fn from_xml_str(s: &str) -> Result<Vec<Self>, DeError> {
-        let nodes: Vec<TimerXml> = quick_xml::de::from_str(s)?;
-        Ok(nodes.into_iter().map(Self::from).collect())
-    }
-
-    pub fn to_xml_string<'a, I: IntoIterator<Item = &'a Self>>(iter: I) -> Result<String, SeError> {
-        let nodes: Vec<TimerXml<'a>> = iter.into_iter().map(TimerXml::from).collect();
-        let xml = quick_xml::se::to_string(&TimersXml { timer: nodes })?;
-        Ok(xml[3..xml.len() - 4].to_owned())
-    }
+impl XmlIterable for Timer {
+    const TAG: &'static str = "timer";
+    type Xml<'a> = TimerXml<'a>;
 }
 
 #[derive(Clone, Debug, Default, PartialEq, PartialOrd, Deserialize, Serialize)]
