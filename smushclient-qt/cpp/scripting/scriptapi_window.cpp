@@ -28,7 +28,7 @@ ApiCode ScriptApi::WindowAddHotspot(size_t index, string_view windowName,
     return ApiCode::NoSuchWindow;
   const Plugin *plugin = &plugins[index];
   Hotspot *hotspot =
-      window->addHotspot(hotspotID, tab(), plugin, std::move(callbacks));
+      window->addHotspot(hotspotID, tab, plugin, std::move(callbacks));
   if (!hotspot) [[unlikely]]
     return ApiCode::HotspotPluginChanged;
   hotspot->setGeometry(geometry);
@@ -61,7 +61,7 @@ ApiCode ScriptApi::WindowCreate(size_t index, string_view name,
   MiniWindow *window = windows[windowName];
   if (!window)
     window = windows[windowName] =
-        new MiniWindow(tab()->ui->area, location, size, position, flags, fill,
+        new MiniWindow(tab->ui->area, location, size, position, flags, fill,
                        plugins[index].id());
   else {
     window->setPosition(location, position, flags);

@@ -30,7 +30,7 @@ ScriptApi::ScriptApi(MudStatusBar *statusBar, Notepads *notepads,
                      WorldTab *parent)
     : QObject(parent), cursor(parent->ui->output->document()),
       notepads(notepads), scrollBar(parent->ui->output->verticalScrollBar()),
-      socket(parent->socket), statusBar(statusBar),
+      socket(parent->socket), statusBar(statusBar), tab(parent),
       whenConnected(QDateTime::currentDateTime()) {
   sendQueue = new TimerMap<QueuedSend>(this, &ScriptApi::finishQueuedSend);
   timekeeper = new Timekeeper(this);
@@ -257,7 +257,7 @@ bool ScriptApi::sendCallback(PluginCallback &callback,
 void ScriptApi::sendNaws() const {
   if (!doesNaws || !doNaws)
     return;
-  MudBrowser *browser = tab()->ui->output;
+  MudBrowser *browser = tab->ui->output;
   const QFontMetrics metrics = browser->fontMetrics();
   const QMargins margins = browser->contentsMargins();
   const int advance = metrics.horizontalAdvance(QStringLiteral("0123456789"));
@@ -282,7 +282,7 @@ void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text,
     Send(text);
     return;
   case SendTarget::Command:
-    tab()->ui->input->setText(text);
+    tab->ui->input->setText(text);
     return;
   case SendTarget::Output:
     appendText(text, noteFormat);
@@ -357,7 +357,7 @@ void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const {
   if (neighbor)
     window->stackUnder(neighbor);
   else if (drawsUnderneath)
-    window->stackUnder(tab()->ui->outputBorder);
+    window->stackUnder(tab->ui->outputBorder);
 }
 
 int ScriptApi::startLine() {
@@ -373,7 +373,7 @@ void ScriptApi::updateTimestamp() { setTimestamp(cursor); }
 
 // Private methods
 
-const SmushClient *ScriptApi::client() const { return &tab()->client; }
+const SmushClient *ScriptApi::client() const { return &tab->client; }
 
 DatabaseConnection *ScriptApi::findDatabase(string_view databaseID) {
   auto search = databases.find(databaseID);
@@ -417,5 +417,3 @@ void ScriptApi::flushLine() {
   indentNext = false;
   cursor.insertText(indentText);
 }
-
-WorldTab *ScriptApi::tab() const { return qobject_cast<WorldTab *>(parent()); }

@@ -30,13 +30,13 @@ private:
 
 private:
   bool finishTimer(const Item &item);
-  ScriptApi *getApi() const;
 
 private slots:
   void pollTimers();
 
 private:
   bool closed = true;
+  ScriptApi *api;
   QTimer *pollTimer;
   TimerMap<Item> *queue;
 };

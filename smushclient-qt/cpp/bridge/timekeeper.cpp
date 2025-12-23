@@ -30,7 +30,7 @@ private:
   const rust::String &label;
 };
 
-Timekeeper::Timekeeper(ScriptApi *parent) : QObject(parent) {
+Timekeeper::Timekeeper(ScriptApi *parent) : QObject(parent), api(parent) {
   pollTimer = new QTimer(this);
   queue = new TimerMap<Timekeeper::Item>(this, &Timekeeper::finishTimer);
   connect(pollTimer, &QTimer::timeout, this, &Timekeeper::pollTimers);
@@ -52,7 +52,6 @@ void Timekeeper::sendTimer(const SendTimer &timer) const {
   if (closed && !timer.activeClosed)
     return;
 
-  ScriptApi *api = getApi();
   const ActionSource oldSource = api->setSource(ActionSource::TimerFired);
   api->sendTo(timer.plugin, timer.target, timer.text);
   api->setSource(oldSource);
@@ -68,16 +67,10 @@ void Timekeeper::startSendTimer(size_t index, uint16_t timerId, uint ms) const {
   queue->start(milliseconds{ms}, {.index = index, .timerId = timerId});
 }
 
-// Private methods
-
-ScriptApi *Timekeeper::getApi() const {
-  return qobject_cast<ScriptApi *>(parent());
-}
-
 // Private slots
 
 bool Timekeeper::finishTimer(const Timekeeper::Item &item) {
-  return getApi()->client()->finishTimer(item.index, *this);
+  return api->client()->finishTimer(item.index, *this);
 }
 
-void Timekeeper::pollTimers() { getApi()->client()->pollTimers(*this); }
+void Timekeeper::pollTimers() { api->client()->pollTimers(*this); }

@@ -279,7 +279,6 @@ private:
   MiniWindow *findWindow(const std::string_view windowName) const;
   bool finishQueuedSend(const QueuedSend &send);
   void flushLine();
-  WorldTab *tab() const;
 
 private:
   ActionSource actionSource = ActionSource::Unknown;
@@ -304,6 +303,7 @@ private:
   QAbstractSocket *socket;
   MudStatusBar *statusBar;
   bool suppressEcho = false;
+  WorldTab *tab;
   QDateTime whenConnected;
   string_map<MiniWindow *> windows{};
   size_t worldScriptIndex = noSuchPlugin;

@@ -176,7 +176,7 @@ QVariant ScriptApi::GetOption(string_view name) const {
   if (!prop)
     return QVariant();
 
-  return tab()->world.property(prop);
+  return tab->world.property(prop);
 }
 
 VariableView ScriptApi::GetVariable(size_t index, string_view key) const {
@@ -214,7 +214,7 @@ void ScriptApi::Hyperlink(const QString &action, const QString &text,
 }
 
 QColor ScriptApi::PickColour(const QColor &hint) const {
-  return QColorDialog::getColor(hint, tab());
+  return QColorDialog::getColor(hint, tab);
 }
 
 ApiCode ScriptApi::PlaySound(size_t channel, const QString &path, bool loop,
@@ -273,31 +273,30 @@ ApiCode ScriptApi::SendPacket(QByteArrayView view) const {
 }
 
 ApiCode ScriptApi::SetCursor(Qt::CursorShape cursorShape) const {
-  tab()->ui->area->setCursor(cursorShape);
+  tab->ui->area->setCursor(cursorShape);
   return ApiCode::OK;
 }
 
 ApiCode ScriptApi::SetOption(string_view name, const QVariant &variant) const {
-  WorldTab &worldtab = *tab();
-  World &world = worldtab.world;
+  World &world = tab->world;
   const char *prop = WorldProperties::canonicalName(name);
   if (!prop) [[unlikely]]
     return ApiCode::UnknownOption;
   QVariant property = world.property(prop);
   if (world.setProperty(prop, variant))
-    return updateWorld(worldtab);
+    return updateWorld(*tab);
 
   switch (property.typeId()) {
   case QMetaType::QColor:
     if (QColor color = getColorFromVariant(variant);
         color.isValid() && world.setProperty(prop, color))
-      return updateWorld(worldtab);
+      return updateWorld(*tab);
   case QMetaType::QVariantHash:
     if (isEmptyList(variant) && world.setProperty(prop, QVariantHash()))
-      return updateWorld(worldtab);
+      return updateWorld(*tab);
   case QMetaType::QVariantMap:
     if (isEmptyList(variant) && world.setProperty(prop, QVariantMap()))
-      return updateWorld(worldtab);
+      return updateWorld(*tab);
   }
 
   return ApiCode::OptionOutOfRange;
@@ -325,8 +324,7 @@ void ScriptApi::Tell(const QString &text) { appendTell(text, noteFormat); }
 ApiCode ScriptApi::TextRectangle(const QMargins &margins, int borderOffset,
                                  const QColor &borderColor, int borderWidth,
                                  const QBrush &outsideFill) const {
-  WorldTab *worldtab = tab();
-  Ui::WorldTab *ui = worldtab->ui;
+  Ui::WorldTab *ui = tab->ui;
   QTextDocument *doc = ui->output->document();
   doc->setLayoutEnabled(false);
   ui->area->setContentsMargins(margins);
@@ -334,7 +332,7 @@ ApiCode ScriptApi::TextRectangle(const QMargins &margins, int borderOffset,
   QBrush outsideBrush = outsideFill;
 
   if (!outsideBrush.color().isValid())
-    outsideBrush.setColor(worldtab->world.getAnsi0());
+    outsideBrush.setColor(tab->world.getAnsi0());
 
   const QColor &borderColorFill =
       borderColor.isValid() ? borderColor : outsideBrush.color();
@@ -360,7 +358,7 @@ ApiCode ScriptApi::TextRectangle(const OutputLayout &layout) const {
 ApiCode ScriptApi::TextRectangle(const QRect &rect, int borderOffset,
                                  const QColor &borderColor, int borderWidth,
                                  const QBrush &outsideFill) const {
-  const QSize size = tab()->ui->area->size();
+  const QSize size = tab->ui->area->size();
   const QMargins margins(rect.left(), rect.top(), size.width() - rect.right(),
                          size.height() - rect.bottom());
   const OutputLayout layout{
