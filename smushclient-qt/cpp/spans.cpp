@@ -30,15 +30,6 @@ constexpr const QString &getPrefix(SendTo sendto) {
 
 // Public functions
 
-void applyLink(QTextCharFormat &format, const Link &link) {
-  format.setAnchor(true);
-  format.setAnchorHref(encodeLink(link.sendto, link.action));
-  if (!link.hint.isEmpty())
-    format.setToolTip(link.hint);
-  if (!link.prompts.isEmpty())
-    format.setProperty(promptsProp, link.prompts);
-}
-
 QString encodeLink(SendTo sendto, const QString &action) {
   QString link = action;
   link.prepend(getPrefix(sendto));
@@ -73,22 +64,6 @@ optional<SendTo> getSendTo(const QTextCharFormat &format) {
   default:
     return SendTo::Internet;
   }
-}
-
-void setStyles(QTextCharFormat &format, QFlags<TextStyle> styles) {
-  format.setProperty(stylesProp, styles.toInt());
-
-  if (styles.testFlag(TextStyle::Bold))
-    format.setFontWeight(QFont::Weight::Bold);
-
-  if (styles.testFlag(TextStyle::Italic))
-    format.setFontItalic(true);
-
-  if (styles.testFlag(TextStyle::Strikeout))
-    format.setFontStrikeOut(true);
-
-  if (styles.testFlag(TextStyle::Underline))
-    format.setFontUnderline(true);
 }
 
 QFlags<TextStyle> getStyles(const QTextCharFormat &format) {

@@ -452,7 +452,6 @@ void WorldTab::applyWorld() {
   handleKeypad = world.getNumpadEnable();
   ui->input->setIgnoreKeypad(handleKeypad);
   ui->output->setIgnoreKeypad(handleKeypad);
-  document->setPalette(client.palette());
   setColors(ui->background, world.getAnsi7(), world.getAnsi0());
   if (world.getUseProxy())
     socket->setProxy(QNetworkProxy(QNetworkProxy::ProxyType::Socks5Proxy,

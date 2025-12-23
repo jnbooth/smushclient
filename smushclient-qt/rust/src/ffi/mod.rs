@@ -12,7 +12,7 @@ pub use client::ffi::{
 
 mod document;
 pub use document::ffi::{
-    Document, Link, NamedWildcard, SendRequest, SendScriptRequest, SendTo, TelnetSource, TelnetVerb,
+    Document, NamedWildcard, SendRequest, SendScriptRequest, SendTo, TelnetSource, TelnetVerb,
 };
 
 mod plugin_details;

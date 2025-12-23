@@ -3,12 +3,6 @@ use mud_transformer::mxp::RgbColor;
 
 use crate::convert::Convert;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub struct QColorPair {
-    pub foreground: QColor,
-    pub background: QColor,
-}
-
 #[allow(clippy::struct_field_names)]
 #[derive(Debug, Default)]
 pub struct Colors {

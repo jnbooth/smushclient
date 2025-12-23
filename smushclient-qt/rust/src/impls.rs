@@ -1,5 +1,5 @@
 use cxx_qt_lib::QString;
-use mud_transformer::mxp::{Link, SendTo};
+use mud_transformer::mxp::SendTo;
 use mud_transformer::{TelnetSource, TelnetVerb, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, ScriptRecompile};
 use smushclient::{
@@ -9,7 +9,7 @@ use smushclient::{
 use smushclient_plugins::{Plugin, PluginIndex, SendTarget, Timer};
 
 use super::ffi;
-use crate::convert::{Convert, impl_convert_enum, impl_convert_enum_opt};
+use crate::convert::{impl_convert_enum, impl_convert_enum_opt};
 use crate::sender::OutputSpan;
 
 impl_convert_enum!(ffi::SendTo, SendTo, Internet, World, Input);
@@ -141,18 +141,6 @@ impl Default for ffi::LogMode {
 impl Default for ffi::UseMxp {
     fn default() -> Self {
         Self::Command
-    }
-}
-
-impl<'a> From<&'a Link> for ffi::Link<'a> {
-    fn from(value: &'a Link) -> Self {
-        Self {
-            action: QString::from(&value.action),
-            hint: value.hint.convert(),
-            prompts: QString::from(&value.prompts.join("|")),
-            sendto: value.sendto.into(),
-            expires: value.expires.as_deref().unwrap_or_default(),
-        }
     }
 }
 

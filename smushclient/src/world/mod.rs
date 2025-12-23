@@ -319,15 +319,6 @@ impl World {
         }
     }
 
-    pub fn palette(&self) -> [RgbColor; 164] {
-        let mut palette = [RgbColor::BLACK; 164];
-        palette[0..16].copy_from_slice(&self.ansi_colours);
-        for (slot, (_name, color)) in palette[17..].iter_mut().zip(RgbColor::iter_named()) {
-            *slot = color;
-        }
-        palette
-    }
-
     pub fn connect_message(&self) -> String {
         let player = &self.player;
         let password = &self.password;

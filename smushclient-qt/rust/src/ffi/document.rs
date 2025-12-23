@@ -1,13 +1,8 @@
 #![allow(clippy::elidable_lifetime_names)]
-use std::ops::Range;
 use std::pin::Pin;
 
-use cxx::type_id;
-use cxx_qt_lib::{QFlag, QFlags, QString};
-use flagset::FlagSet;
 use mud_transformer::{TelnetSource, TelnetVerb, TextStyle};
 
-use crate::colors::QColorPair;
 use crate::sender::{OutputSpan, TextSpan};
 
 #[cxx_qt::bridge]
@@ -51,14 +46,6 @@ pub mod ffi {
         Input,
     }
 
-    struct Link<'a> {
-        action: QString,
-        hint: QString,
-        prompts: QString,
-        sendto: SendTo,
-        expires: &'a str,
-    }
-
     struct SendRequest {
         plugin: usize,
         send_to: SendTarget,
@@ -82,6 +69,11 @@ pub mod ffi {
         output: &'a [OutputSpan],
     }
 
+    extern "C++" {
+        include!("smushclient-qt-lib/qtextcharformat.h");
+        type QTextCharFormat = smushclient_qt_lib::QTextCharFormat;
+    }
+
     extern "Rust" {
         type TextSpan;
         fn foreground(&self) -> i32;
@@ -97,7 +89,6 @@ pub mod ffi {
 
     unsafe extern "C++Qt" {
         include!("document.h");
-        type TextStyles = super::TextStyles;
         type SendTarget = crate::ffi::SendTarget;
 
         #[qobject]
@@ -109,37 +100,19 @@ pub mod ffi {
         #[rust_name = "append_line"]
         fn appendLine(self: Pin<&mut Document>);
 
-        #[rust_name = "append_plaintext"]
-        fn appendText(self: &Document, text: &QString, palette: i32);
-
-        #[rust_name = "append_text_internal"]
-        fn appendText(
-            self: &Document,
-            text: &QString,
-            style: TextStyles,
-            foreground: &QColor,
-            background: &QColor,
-        );
-
-        #[rust_name = "append_link_internal"]
-        fn appendText(
+        #[rust_name = "append_expiring_link"]
+        fn appendExpiringLink(
             self: Pin<&mut Document>,
             text: &QString,
-            style: TextStyles,
-            foreground: &QColor,
-            background: &QColor,
-            link: &Link,
+            format: &QTextCharFormat,
+            expires: &str,
         );
 
-        #[rust_name = "apply_styles_internal"]
-        fn applyStyles(
-            self: &Document,
-            start: i32,
-            end: i32,
-            style: TextStyles,
-            foreground: &QColor,
-            background: &QColor,
-        );
+        #[rust_name = "append_text"]
+        fn appendText(self: &Document, text: &QString, format: &QTextCharFormat);
+
+        #[rust_name = "apply_styles"]
+        fn applyStyles(self: &Document, start: i32, end: i32, format: &QTextCharFormat);
 
         fn beep(self: &Document);
 
@@ -208,41 +181,6 @@ pub mod ffi {
 }
 
 impl ffi::Document {
-    pub fn append_text(&self, text: &QString, style: FlagSet<TextStyle>, color: &QColorPair) {
-        self.append_text_internal(
-            text,
-            ffi::TextStyle::to_qflags(style),
-            &color.foreground,
-            &color.background,
-        );
-    }
-
-    pub fn append_link(
-        self: Pin<&mut Self>,
-        text: &QString,
-        style: FlagSet<TextStyle>,
-        color: &QColorPair,
-        link: &ffi::Link,
-    ) {
-        self.append_link_internal(
-            text,
-            ffi::TextStyle::to_qflags(style),
-            &color.foreground,
-            &color.background,
-            link,
-        );
-    }
-
-    pub fn apply_styles(&self, range: Range<usize>, style: FlagSet<TextStyle>, color: &QColorPair) {
-        self.apply_styles_internal(
-            i32::try_from(range.start).unwrap_or(i32::MAX),
-            i32::try_from(range.end - range.start).unwrap_or(i32::MAX),
-            ffi::TextStyle::to_qflags(style),
-            &color.foreground,
-            &color.background,
-        );
-    }
-
     pub fn handle_telnet_negotiation(
         self: Pin<&mut Self>,
         source: TelnetSource,
@@ -250,25 +188,6 @@ impl ffi::Document {
         code: u8,
     ) {
         self.handle_telnet_negotiation_internal(source.into(), verb.into(), code);
-    }
-}
-
-pub type TextStyles = QFlags<ffi::TextStyle>;
-
-impl ffi::TextStyle {
-    pub fn to_qflags(styles: FlagSet<TextStyle>) -> TextStyles {
-        TextStyles::from_int(styles.bits().into())
-    }
-}
-
-// SAFETY: Static checks on C++ side.
-unsafe impl QFlag for ffi::TextStyle {
-    type TypeId = type_id!("TextStyles");
-
-    type Repr = u16;
-
-    fn to_repr(self) -> Self::Repr {
-        self.repr
     }
 }
 

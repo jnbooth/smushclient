@@ -32,7 +32,6 @@ ScriptApi::ScriptApi(MudStatusBar *statusBar, Notepads *notepads,
       notepads(notepads), scrollBar(parent->ui->output->verticalScrollBar()),
       socket(parent->socket), statusBar(statusBar),
       whenConnected(QDateTime::currentDateTime()) {
-  std::unordered_map<int, QueuedSend> test;
   sendQueue = new TimerMap<QueuedSend>(this, &ScriptApi::finishQueuedSend);
   timekeeper = new Timekeeper(this);
   timekeeper->beginPolling(milliseconds(seconds{60}));

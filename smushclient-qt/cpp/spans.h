@@ -16,15 +16,11 @@ enum class LineType {
   Note,
 };
 
-void applyLink(QTextCharFormat &format, const Link &link);
-
 QString encodeLink(SendTo sendto, const QString &action);
 
 SendTo decodeLink(QString &link);
 
 std::optional<SendTo> getSendTo(const QTextCharFormat &format);
-
-void setStyles(QTextCharFormat &format, QFlags<TextStyle> styles);
 
 QFlags<TextStyle> getStyles(const QTextCharFormat &format);
 

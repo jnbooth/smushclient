@@ -13,7 +13,7 @@ pub mod ffi {
         type QVariant = cxx_qt_lib::QVariant;
         include!("cxx-qt-lib/qvector.h");
         type QVector_QColor = cxx_qt_lib::QVector<QColor>;
-        include!(<QtNetwork/QAbstractSocket>);
+        include!("cxx-qt-io/qabstractsocket.h");
         type QAbstractSocket = cxx_qt_io::QAbstractSocket;
     }
 
@@ -133,7 +133,6 @@ pub mod ffi {
         fn save_variables(self: &SmushClient, path: &QString) -> Result<bool>;
         fn populate_world(self: &SmushClient, world: Pin<&mut World>);
         fn set_world(self: Pin<&mut SmushClient>, world: &World) -> Result<bool>;
-        fn palette(self: &SmushClient) -> QVector_QColor;
         fn handle_connect(self: &SmushClient, socket: Pin<&mut QAbstractSocket>) -> QString;
         fn handle_disconnect(self: Pin<&mut SmushClient>);
         fn play_file(

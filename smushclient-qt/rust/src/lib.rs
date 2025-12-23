@@ -10,4 +10,5 @@ mod impls;
 mod modeled;
 mod results;
 mod sender;
+mod text_formatter;
 mod world;

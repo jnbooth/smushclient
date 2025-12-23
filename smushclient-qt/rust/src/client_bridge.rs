@@ -4,14 +4,13 @@ use std::pin::Pin;
 use std::{io, ptr};
 
 use cxx_qt::CxxQtType;
-use cxx_qt_lib::{QColor, QString, QStringList, QVariant, QVector};
+use cxx_qt_lib::{QString, QStringList, QVariant};
 use smushclient::world::PersistError;
 use smushclient::{AliasBool, LuaStr, LuaString, SendIterable, TimerBool, TriggerBool};
 use smushclient_plugins::{
     Alias, LoadError, PluginIndex, RegexError, Timer, Trigger, XmlError, XmlSerError,
 };
 
-use crate::convert::Convert;
 use crate::ffi;
 use crate::ffi::AliasOutcomes;
 use crate::get_info::InfoVisitorQVariant;
@@ -107,16 +106,6 @@ impl ffi::SmushClient {
 
     pub fn set_world(self: Pin<&mut Self>, world: &ffi::World) -> io::Result<bool> {
         self.rust_mut().set_world(world.rust())
-    }
-
-    pub fn palette(&self) -> QVector<QColor> {
-        self.rust()
-            .client
-            .world()
-            .palette()
-            .iter()
-            .map(Convert::convert)
-            .collect()
     }
 
     pub fn handle_connect(&self, socket: Pin<&mut ffi::QAbstractSocket>) -> QString {

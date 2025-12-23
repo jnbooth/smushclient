@@ -1318,6 +1318,7 @@ dependencies = [
  "mud-transformer",
  "smushclient",
  "smushclient-plugins",
+ "smushclient-qt-lib",
 ]
 
 [[package]]

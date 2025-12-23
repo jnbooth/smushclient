@@ -28,28 +28,7 @@ constexpr uint8_t telnetMSSP = 70;
 
 // Private utils
 
-inline void mergeStyles(QTextCharFormat &format, TextStyles style,
-                        const QColor &foreground, const QColor &background) {
-  setStyles(format, style);
-  if (foreground.isValid())
-    format.setForeground(QBrush(foreground));
-
-  if (!background.isValid())
-    return;
-
-  int red, green, blue;
-  background.getRgb(&red, &green, &blue);
-  if (red + green + blue != 0)
-    format.setBackground(QBrush(background));
-}
-
-inline QTextCharFormat foregroundFormat(const QColor &foreground) {
-  QTextCharFormat format;
-  format.setForeground(QBrush(foreground));
-  return format;
-}
-
-inline string_view strView(rust::str str) noexcept {
+inline string_view strView(rust::Str str) noexcept {
   return string_view(str.data(), str.length());
 }
 
@@ -58,7 +37,6 @@ inline string_view strView(rust::str str) noexcept {
 Document::Document(WorldTab *parent, ScriptApi *api)
     : QObject(parent), api(api), doc(parent->ui->output->document()),
       scrollBar(parent->ui->output->verticalScrollBar()) {
-  formats.fill(QTextCharFormat());
   expireLinkFormat.setAnchor(false);
   expireLinkFormat.setAnchorHref(QString());
 }
@@ -70,30 +48,16 @@ void Document::appendLine() {
   api->startLine();
 }
 
-void Document::appendText(const QString &text, int foreground) const {
-  api->appendText(text, formats[foreground]);
-}
-
-void Document::appendText(const QString &text, TextStyles style,
-                          const QColor &foreground,
-                          const QColor &background) const {
-  QTextCharFormat format;
-  mergeStyles(format, style, foreground, background);
+void Document::appendText(const QString &text,
+                          const QTextCharFormat &format) const {
   api->appendText(text, format);
 }
 
-void Document::appendText(const QString &text, TextStyles style,
-                          const QColor &foreground, const QColor &background,
-                          const Link &link) {
-  QTextCharFormat format;
-  mergeStyles(format, style, foreground, background);
-  applyLink(format, link);
+void Document::appendExpiringLink(const QString &text,
+                                  const QTextCharFormat &format,
+                                  const rust::Str expires) {
   const int position = doc->characterCount();
   api->appendText(text, format);
-
-  if (!serverExpiresLinks || link.expires.empty())
-    return;
-
   QTextCursor cursor(doc);
   cursor.setPosition(position - 1);
   if (cursor.atBlockEnd())
@@ -101,14 +65,11 @@ void Document::appendText(const QString &text, TextStyles style,
   cursor.movePosition(QTextCursor::MoveOperation::End,
                       QTextCursor::MoveMode::KeepAnchor);
   cursor.setKeepPositionOnInsert(true);
-  linksWithExpiration(link.expires).push_back(cursor);
+  linksWithExpiration(expires).push_back(cursor);
 }
 
-void Document::applyStyles(int start, int end, TextStyles style,
-                           const QColor &foreground,
-                           const QColor &background) const {
-  QTextCharFormat format;
-  mergeStyles(format, style, foreground, background);
+void Document::applyStyles(int start, int end,
+                           const QTextCharFormat &format) const {
   QTextCursor cursor(doc->findBlockByNumber(outputStart));
   cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, start);
   cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, end);
@@ -150,7 +111,7 @@ void Document::eraseLastCharacter() const {
   cursor.removeSelectedText();
 }
 
-void Document::expireLinks(rust::str expires) {
+void Document::expireLinks(rust::Str expires) {
   serverExpiresLinks = true;
   if (!expires.empty()) {
     std::vector<QTextCursor> &expiredLinks = linksWithExpiration(expires);
@@ -183,12 +144,12 @@ void Document::handleMxpChange(bool enabled) const {
   }
 }
 
-void Document::handleMxpEntity(rust::str data) const {
+void Document::handleMxpEntity(rust::Str data) const {
   OnPluginMXPSetEntity onMxpSetEntity(strView(data));
   api->sendCallback(onMxpSetEntity);
 }
 
-void Document::handleMxpVariable(rust::str name, rust::str value) const {
+void Document::handleMxpVariable(rust::Str name, rust::Str value) const {
   OnPluginMXPSetVariable onMxpSetVariable(strView(name), strView(value));
   api->sendCallback(onMxpSetVariable);
 }
@@ -243,7 +204,7 @@ void Document::handleTelnetSubnegotiation(uint8_t code,
   api->sendCallback(onTelnetSubnegotiation);
 }
 
-bool Document::permitLine(rust::str line) const {
+bool Document::permitLine(rust::Str line) const {
   OnPluginLineReceived onLineReceived(strView(line));
   api->sendCallback(onLineReceived);
   return !onLineReceived.discarded();
@@ -351,14 +312,6 @@ void Document::send(const SendScriptRequest &request) const {
   }
 }
 
-void Document::setPalette(const QVector<QColor> &palette) {
-  QTextCharFormat *format = &formats[0];
-  for (QColor color : palette) {
-    format->setForeground(color);
-    ++format;
-  }
-}
-
 void Document::setSuppressEcho(bool suppress) const {
   api->setSuppressEcho(suppress);
 }
@@ -370,6 +323,6 @@ void Document::updateMxpStat(const QString &entity,
 
 // Private methods
 
-vector<QTextCursor> &Document::linksWithExpiration(rust::str expires) {
+vector<QTextCursor> &Document::linksWithExpiration(rust::Str expires) {
   return links[string(expires.data(), expires.length())];
 }

@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, Write};
 use std::pin::Pin;
@@ -7,7 +7,6 @@ use std::pin::Pin;
 use cxx_qt_io::QAbstractSocket;
 use cxx_qt_lib::{QList, QString, QStringList, QVariant};
 use mud_transformer::Tag;
-use mud_transformer::mxp::RgbColor;
 use smushclient::world::PersistError;
 use smushclient::{
     AliasOutcome, AudioSinks, BoolProperty, CommandSource, Handler, SendIterable,
@@ -18,6 +17,7 @@ use smushclient_plugins::{Alias, LoadError, PluginIndex, Timer, Trigger, XmlErro
 use crate::ffi::{self, Document, Timekeeper};
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
+use crate::text_formatter::TextFormatter;
 use crate::world::WorldRust;
 
 const BUF_LEN: usize = 1024 * 20;
@@ -28,21 +28,20 @@ pub struct SmushClientRust {
     read_buf: Vec<u8>,
     stats: RefCell<HashSet<String>>,
     timers: RefCell<Timers<ffi::SendTimer>>,
-    palette: HashMap<RgbColor, i32>,
+    formatter: TextFormatter,
 }
 
 impl Default for SmushClientRust {
     /// # Panics
     ///
     /// Panics if audio initialization fails.
-    #[allow(clippy::expect_used)]
     fn default() -> Self {
         Self {
             audio: AudioSinks::try_default().expect("audio initialization failed"),
             read_buf: vec![0; BUF_LEN],
             stats: RefCell::new(HashSet::new()),
             timers: RefCell::new(Timers::new()),
-            palette: HashMap::with_capacity(164),
+            formatter: TextFormatter::default(),
             client: SmushClient::new(
                 World::default(),
                 Tag::Bold
@@ -178,10 +177,7 @@ impl SmushClientRust {
     }
 
     fn apply_world(&mut self) {
-        self.palette.clear();
-        for (i, color) in self.client.world().palette().iter().enumerate() {
-            self.palette.insert(*color, i as i32);
-        }
+        self.formatter.apply_world(self.client.world());
     }
 
     pub fn read(&mut self, mut socket: Pin<&mut QAbstractSocket>, doc: Pin<&mut Document>) -> i64 {
@@ -189,7 +185,7 @@ impl SmushClientRust {
         let mut handler = ClientHandler {
             audio: &self.audio,
             doc,
-            palette: &self.palette,
+            formatter: &self.formatter,
             carriage_return_clears_line: world.carriage_return_clears_line,
             no_echo_off: world.no_echo_off,
             stats: &self.stats,
@@ -221,7 +217,7 @@ impl SmushClientRust {
         let mut handler = ClientHandler {
             audio: &self.audio,
             doc,
-            palette: &self.palette,
+            formatter: &self.formatter,
             carriage_return_clears_line: world.carriage_return_clears_line,
             no_echo_off: world.no_echo_off,
             stats: &self.stats,
@@ -274,7 +270,7 @@ impl SmushClientRust {
         let mut handler = ClientHandler {
             audio: &self.audio,
             doc,
-            palette: &self.palette,
+            formatter: &self.formatter,
             carriage_return_clears_line: world.carriage_return_clears_line,
             no_echo_off: world.no_echo_off,
             stats: &self.stats,

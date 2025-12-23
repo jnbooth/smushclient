@@ -1,54 +1,42 @@
 use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::ops::Range;
 use std::pin::Pin;
 
 use cxx_qt_lib::{QByteArray, QString};
-use mud_transformer::mxp::{self, RgbColor};
+use mud_transformer::mxp;
 use mud_transformer::{
     EffectFragment, EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment,
 };
 use smushclient::{AudioSinks, PlayMode, SendRequest, SendScriptRequest, SpanStyle};
 
-use crate::colors::QColorPair;
 use crate::convert::Convert;
 use crate::ffi::Document;
+use crate::text_formatter::TextFormatter;
 
 pub struct ClientHandler<'a> {
     pub audio: &'a AudioSinks,
     pub doc: Pin<&'a mut Document>,
-    pub palette: &'a HashMap<RgbColor, i32>,
+    pub formatter: &'a TextFormatter,
     pub carriage_return_clears_line: bool,
     pub no_echo_off: bool,
     pub stats: &'a RefCell<HashSet<String>>,
 }
 
-const ERROR_FORMAT_INDEX: i32 = 1;
-
 impl ClientHandler<'_> {
     fn display_text(&mut self, fragment: &TextFragment) {
         let text = QString::from(&*fragment.text);
-        if fragment.flags.is_empty()
-            && fragment.background == RgbColor::BLACK
-            && fragment.action.is_none()
-            && let Some(&index) = self.palette.get(&fragment.foreground)
+        let format = self.formatter.text_format(fragment);
+        match fragment
+            .action
+            .as_ref()
+            .and_then(|action| action.expires.as_ref())
         {
-            self.doc.append_plaintext(&text, index);
-            return;
-        }
-        let colors = QColorPair {
-            foreground: fragment.foreground.convert(),
-            background: fragment.background.convert(),
-        };
-        match &fragment.action {
-            Some(link) => {
-                self.doc
-                    .as_mut()
-                    .append_link(&text, fragment.flags, &colors, &link.into());
-            }
-            None => {
-                self.doc.append_text(&text, fragment.flags, &colors);
-            }
+            Some(expires) => self
+                .doc
+                .as_mut()
+                .append_expiring_link(&text, &format, expires),
+            None => self.doc.append_text(&text, &format),
         }
     }
 
@@ -139,14 +127,13 @@ impl ClientHandler<'_> {
 }
 
 impl smushclient::Handler for ClientHandler<'_> {
+    #[allow(clippy::cast_possible_truncation)]
+    #[allow(clippy::cast_possible_wrap)]
     fn apply_styles(&mut self, range: Range<usize>, style: SpanStyle) {
         self.doc.apply_styles(
-            range,
-            style.flags,
-            &QColorPair {
-                foreground: style.foreground.convert(),
-                background: style.background.convert(),
-            },
+            range.start as i32,
+            (range.end as i32) - (range.start as i32),
+            &self.formatter.span_format(&style),
         );
     }
 
@@ -168,7 +155,7 @@ impl smushclient::Handler for ClientHandler<'_> {
     fn display_error(&mut self, error: &str) {
         self.doc.as_mut().append_line();
         self.doc
-            .append_plaintext(&QString::from(error), ERROR_FORMAT_INDEX);
+            .append_text(&QString::from(error), self.formatter.error_format());
         self.doc.as_mut().append_line();
     }
 
