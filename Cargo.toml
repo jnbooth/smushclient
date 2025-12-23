@@ -4,6 +4,7 @@ members = [
   "smushclient",
   "smushclient-plugins",
   "smushclient-qt/rust",
+  "smushclient-qt-lib",
   "smushclient-swift",
 ]
 
@@ -29,6 +30,22 @@ unnecessary_safety_doc = "warn"
 [workspace.dependencies.chrono]
 version = "0.4.42"
 features = ["serde"]
+
+[workspace.dependencies.cxx]
+version = "1.0.192"
+
+[workspace.dependencies.cxx-qt]
+git = "https://github.com/KDAB/cxx-qt"
+version = "0.7.2"
+
+[workspace.dependencies.cxx-qt-build]
+git = "https://github.com/KDAB/cxx-qt"
+version = "0.7.2"
+
+[workspace.dependencies.cxx-qt-lib]
+git = "https://github.com/KDAB/cxx-qt"
+version = "0.7.2"
+features = ["chrono", "qt_gui"]
 
 [workspace.dependencies.flagset]
 version = "0.4.7"
