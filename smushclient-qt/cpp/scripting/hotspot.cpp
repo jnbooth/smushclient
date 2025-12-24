@@ -205,5 +205,5 @@ void Hotspot::startDrag(QMouseEvent *event) {
 
   const int nargs = callback.pushArguments(L);
 
-  tab->setOnDragMove(CallbackTrigger(L, nargs));
+  tab->setOnDragMove(CallbackTrigger(L, nargs, this));
 }
