@@ -213,7 +213,7 @@ bool Document::permitLine(rust::Str line) const {
 void Document::resetServerStatus() { serverStatuses.clear(); }
 
 void Document::send(const SendRequest &request) const {
-  api->sendTo(request.plugin, request.send_to, request.text,
+  api->sendTo(request.plugin, request.sendTo, request.text,
               request.destination);
 }
 

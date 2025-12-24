@@ -49,8 +49,10 @@ pub mod ffi {
         id: QString,
         name: QString,
         path: QString,
-        scriptData: *const u8,
-        scriptSize: usize,
+        #[cxx_name = "scriptData"]
+        script_data: *const u8,
+        #[cxx_name = "scriptSize"]
+        script_size: usize,
     }
 
     enum AliasBool {

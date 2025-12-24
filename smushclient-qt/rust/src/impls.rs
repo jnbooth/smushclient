@@ -212,8 +212,8 @@ impl From<&Plugin> for ffi::PluginPack {
             id: QString::from(&value.metadata.id),
             name: QString::from(&value.metadata.name),
             path: QString::from(&*value.metadata.path.to_string_lossy()),
-            scriptData: value.script.as_ptr(),
-            scriptSize: value.script.len(),
+            script_data: value.script.as_ptr(),
+            script_size: value.script.len(),
         }
     }
 }

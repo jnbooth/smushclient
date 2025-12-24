@@ -48,6 +48,7 @@ pub mod ffi {
 
     struct SendRequest {
         plugin: usize,
+        #[cxx_name = "sendTo"]
         send_to: SendTarget,
         text: QString,
         destination: QString,
@@ -64,8 +65,8 @@ pub mod ffi {
         label: &'a str,
         line: &'a str,
         wildcards: Vec<&'a str>,
-        #[rust_name = "named_wildcards"]
-        namedWildcards: Vec<NamedWildcard<'a>>,
+        #[cxx_name = "namedWildcards"]
+        named_wildcards: Vec<NamedWildcard<'a>>,
         output: &'a [OutputSpan],
     }
 

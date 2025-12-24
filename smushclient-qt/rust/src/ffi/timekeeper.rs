@@ -8,8 +8,8 @@ pub mod ffi {
     }
 
     struct SendTimer {
-        #[rust_name = "active_closed"]
-        activeClosed: bool,
+        #[cxx_name = "activeClosed"]
+        active_closed: bool,
         label: String,
         plugin: usize,
         script: String,
