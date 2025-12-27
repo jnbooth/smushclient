@@ -1,7 +1,6 @@
 use std::cell::Ref;
-use std::ffi::c_char;
+use std::io;
 use std::pin::Pin;
-use std::{io, ptr};
 
 use cxx_qt::CxxQtType;
 use cxx_qt_lib::{QString, QStringList, QVariant};
@@ -17,12 +16,6 @@ use crate::get_info::InfoVisitorQVariant;
 use crate::modeled::Modeled;
 use crate::results::{IntoErrorCode, IntoResultCode};
 use crate::world::WorldRust;
-
-#[inline(always)]
-const fn unsigned(bytes: &[c_char]) -> &[u8] {
-    // SAFETY: &[i8] safely converts to &[u8].
-    unsafe { &*(ptr::from_ref(bytes) as *const [u8]) }
-}
 
 impl ffi::SmushClient {
     pub fn borrow_world_sender<T: SendIterable>(&self, index: usize) -> Option<Ref<'_, T>> {
@@ -439,11 +432,11 @@ impl ffi::SmushClient {
     pub fn play_buffer(
         &self,
         i: usize,
-        buf: &[c_char],
+        buf: &[u8],
         volume: f32,
         looping: bool,
     ) -> ffi::SoundResult {
-        self.rust().play_buffer(i, unsigned(buf), volume, looping)
+        self.rust().play_buffer(i, buf, volume, looping)
     }
 
     pub fn play_file(
@@ -472,45 +465,36 @@ impl ffi::SmushClient {
         ffi::AliasOutcome::to_qflags(self.rust().alias(command, source, doc))
     }
 
-    pub fn get_variable(&self, index: PluginIndex, key: &[c_char]) -> VariableView {
+    pub fn get_variable(&self, index: PluginIndex, key: &[u8]) -> VariableView {
+        self.rust().client.borrow_variable(index, key).into()
+    }
+
+    pub fn get_metavariable(&self, key: &[u8]) -> VariableView {
+        self.rust().client.borrow_metavariable(key).into()
+    }
+
+    pub fn has_metavariable(&self, key: &[u8]) -> bool {
+        self.rust().client.has_metavariable(key)
+    }
+
+    pub fn set_variable(&self, index: PluginIndex, key: &[u8], value: &[u8]) -> bool {
         self.rust()
             .client
-            .borrow_variable(index, unsigned(key))
-            .into()
+            .set_variable(index, key.to_vec(), value.to_vec())
     }
 
-    pub fn get_metavariable(&self, key: &[c_char]) -> VariableView {
-        self.rust().client.borrow_metavariable(unsigned(key)).into()
+    pub fn unset_variable(&self, index: PluginIndex, key: &[u8]) -> bool {
+        self.rust().client.unset_variable(index, key).is_some()
     }
 
-    pub fn has_metavariable(&self, key: &[c_char]) -> bool {
-        self.rust().client.has_metavariable(unsigned(key))
-    }
-
-    pub fn set_variable(&self, index: PluginIndex, key: &[c_char], value: &[c_char]) -> bool {
+    pub fn set_metavariable(&self, key: &[u8], value: &[u8]) -> bool {
         self.rust()
             .client
-            .set_variable(index, unsigned(key).to_vec(), unsigned(value).to_vec())
+            .set_metavariable(key.to_vec(), value.to_vec())
     }
 
-    pub fn unset_variable(&self, index: PluginIndex, key: &[c_char]) -> bool {
-        self.rust()
-            .client
-            .unset_variable(index, unsigned(key))
-            .is_some()
-    }
-
-    pub fn set_metavariable(&self, key: &[c_char], value: &[c_char]) -> bool {
-        self.rust()
-            .client
-            .set_metavariable(unsigned(key).to_vec(), unsigned(value).to_vec())
-    }
-
-    pub fn unset_metavariable(&self, key: &[c_char]) -> bool {
-        self.rust()
-            .client
-            .unset_metavariable(unsigned(key))
-            .is_some()
+    pub fn unset_metavariable(&self, key: &[u8]) -> bool {
+        self.rust().client.unset_metavariable(key).is_some()
     }
 
     pub fn timer_info(&self, index: PluginIndex, label: &QString, info_type: u8) -> QVariant {

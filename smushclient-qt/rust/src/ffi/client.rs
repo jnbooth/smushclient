@@ -149,7 +149,7 @@ pub mod ffi {
         fn play_buffer(
             self: &SmushClient,
             i: usize,
-            buf: &[c_char],
+            buf: &[u8],
             volume: f32,
             looping: bool,
         ) -> SoundResult;
@@ -289,14 +289,13 @@ pub mod ffi {
             label: &QString,
             group: &QString,
         ) -> i32;
-        fn get_variable(self: &SmushClient, index: usize, key: &[c_char]) -> VariableView;
-        fn get_metavariable(self: &SmushClient, key: &[c_char]) -> VariableView;
-        fn has_metavariable(self: &SmushClient, key: &[c_char]) -> bool;
-        fn set_variable(self: &SmushClient, index: usize, key: &[c_char], value: &[c_char])
-        -> bool;
-        fn unset_variable(self: &SmushClient, index: usize, key: &[c_char]) -> bool;
-        fn set_metavariable(self: &SmushClient, key: &[c_char], value: &[c_char]) -> bool;
-        fn unset_metavariable(self: &SmushClient, key: &[c_char]) -> bool;
+        fn get_variable(self: &SmushClient, index: usize, key: &[u8]) -> VariableView;
+        fn get_metavariable(self: &SmushClient, key: &[u8]) -> VariableView;
+        fn has_metavariable(self: &SmushClient, key: &[u8]) -> bool;
+        fn set_variable(self: &SmushClient, index: usize, key: &[u8], value: &[u8]) -> bool;
+        fn unset_variable(self: &SmushClient, index: usize, key: &[u8]) -> bool;
+        fn set_metavariable(self: &SmushClient, key: &[u8], value: &[u8]) -> bool;
+        fn unset_metavariable(self: &SmushClient, key: &[u8]) -> bool;
         fn start_timers(self: &SmushClient, index: usize, timekeeper: &Timekeeper);
         fn start_all_timers(self: &SmushClient, timekeeper: &Timekeeper);
         fn finish_timer(self: &SmushClient, id: usize, timekeeper: &Timekeeper) -> bool;

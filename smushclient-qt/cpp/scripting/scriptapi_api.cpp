@@ -273,7 +273,7 @@ ScriptApi::PlaySoundMemory(size_t channel,
                            float volume)
 {
   return convertSoundResult(
-    client()->playBuffer(channel, rust::Slice(sound), volume, loop));
+    client()->playBuffer(channel, byteSlice(sound), volume, loop));
 }
 
 ApiCode
