@@ -782,8 +782,7 @@ static int L_PlaySoundMemory(lua_State *L) {
   API("PlaySoundMemory")
   expectMaxArgs(L, 5);
   return returnCode(
-      L, getApi(L).PlaySoundMemory(qlua::getInt(L, 1),
-                                   qlua::getBytes(L, 2).toByteArray(),
+      L, getApi(L).PlaySoundMemory(qlua::getInt(L, 1), qlua::getBytes(L, 2),
                                    qlua::getBool(L, 3, false),
                                    convertVolume(qlua::getNumber(L, 4, 0.0))));
   // qlua::getDouble(L, 5) pan

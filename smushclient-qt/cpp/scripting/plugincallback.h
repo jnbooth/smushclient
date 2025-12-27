@@ -306,10 +306,10 @@ public:
 
 class CallbackFilter {
 public:
-  inline void operator|=(const CallbackFilter &other) {
+  inline constexpr void operator|=(const CallbackFilter &other) {
     filter |= other.filter;
   }
-  inline void clear() { filter = 0; }
+  inline constexpr void clear() { filter = 0; }
   inline constexpr bool includes(const PluginCallback &callback) const {
     return filter & callback.id();
   }

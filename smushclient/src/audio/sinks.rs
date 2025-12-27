@@ -27,7 +27,8 @@ pub struct AudioSinks {
 
 impl AudioSinks {
     pub fn try_default() -> Result<Self, StreamError> {
-        let stream = OutputStreamBuilder::open_default_stream()?;
+        let mut stream = OutputStreamBuilder::open_default_stream()?;
+        stream.log_on_drop(false);
         Ok(Self {
             sinks: Default::default(),
             stream,

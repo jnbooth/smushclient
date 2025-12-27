@@ -115,9 +115,9 @@ bool Plugin::hasFunction(const QString &routine) const {
 }
 
 bool Plugin::install(const PluginPack &pack) {
-  if (pack.scriptSize &&
-      !runScript(string_view(reinterpret_cast<const char *>(pack.scriptData),
-                             pack.scriptSize))) {
+  string_view script(reinterpret_cast<const char *>(pack.scriptData),
+                     pack.scriptSize);
+  if (pack.scriptSize && !runScript(script)) {
     disable();
     return false;
   }

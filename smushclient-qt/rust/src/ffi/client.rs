@@ -19,7 +19,6 @@ pub mod ffi {
 
     extern "C++" {
         include!("forward.h");
-
         type Alias = crate::ffi::Alias;
         type AliasOutcomes = crate::ffi::AliasOutcomes;
         type Document = crate::ffi::Document;
@@ -27,6 +26,9 @@ pub mod ffi {
         type Timer = crate::ffi::Timer;
         type Trigger = crate::ffi::Trigger;
         type World = crate::ffi::World;
+
+        include!("variableview.h");
+        type VariableView = crate::ffi::VariableView;
     }
 
     #[repr(i32)]
@@ -147,7 +149,7 @@ pub mod ffi {
         fn play_buffer(
             self: &SmushClient,
             i: usize,
-            buf: &[u8],
+            buf: &[c_char],
             volume: f32,
             looping: bool,
         ) -> SoundResult;
@@ -287,23 +289,8 @@ pub mod ffi {
             label: &QString,
             group: &QString,
         ) -> i32;
-        /// # Safety
-        ///
-        /// `value_size` must be valid or null.
-        unsafe fn get_variable(
-            self: &SmushClient,
-            index: usize,
-            key: &[c_char],
-            value_size: *mut usize,
-        ) -> *const c_char;
-        /// # Safety
-        ///
-        /// `value_size` must be valid or null.
-        unsafe fn get_metavariable(
-            self: &SmushClient,
-            key: &[c_char],
-            value_size: *mut usize,
-        ) -> *const c_char;
+        fn get_variable(self: &SmushClient, index: usize, key: &[c_char]) -> VariableView;
+        fn get_metavariable(self: &SmushClient, key: &[c_char]) -> VariableView;
         fn has_metavariable(self: &SmushClient, key: &[c_char]) -> bool;
         fn set_variable(self: &SmushClient, index: usize, key: &[c_char], value: &[c_char])
         -> bool;

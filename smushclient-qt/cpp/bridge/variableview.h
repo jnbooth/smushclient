@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VARIABLEVIEW_H
+#define VARIABLEVIEW_H
 #include <QtCore/QByteArray>
 
 class VariableView {
@@ -16,14 +17,16 @@ public:
   constexpr operator QByteArrayView() const noexcept {
     return QByteArrayView(data_, size_);
   }
-  constexpr explicit operator std::string() const {
-    return std::string(data_, size_);
-  }
+  explicit operator std::string() const { return std::string(data_, size_); }
   inline explicit operator QByteArray() const {
     return QByteArray::fromRawData(data_, size_);
   }
 
+  // DO NOT EDIT THESE FIELDS
+  // They must be consistent with smushclient-qt/rust/src/ffi/variable_views.rs
 private:
   const char *data_;
   size_t size_;
 };
+
+#endif // VARIABLEVIEW_H

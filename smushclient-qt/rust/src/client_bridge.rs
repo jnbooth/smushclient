@@ -6,52 +6,22 @@ use std::{io, ptr};
 use cxx_qt::CxxQtType;
 use cxx_qt_lib::{QString, QStringList, QVariant};
 use smushclient::world::PersistError;
-use smushclient::{AliasBool, LuaStr, LuaString, SendIterable, TimerBool, TriggerBool};
+use smushclient::{AliasBool, SendIterable, TimerBool, TriggerBool};
 use smushclient_plugins::{
     Alias, LoadError, PluginIndex, RegexError, Timer, Trigger, XmlError, XmlSerError,
 };
 
-use crate::ffi;
 use crate::ffi::AliasOutcomes;
+use crate::ffi::{self, VariableView};
 use crate::get_info::InfoVisitorQVariant;
 use crate::modeled::Modeled;
 use crate::results::{IntoErrorCode, IntoResultCode};
 use crate::world::WorldRust;
 
-trait AsLStr {
-    fn as_lstr(&self) -> &LuaStr;
-
-    fn to_lstring(&self) -> LuaString {
-        self.as_lstr().into()
-    }
-}
-impl AsLStr for [u8] {
-    fn as_lstr(&self) -> &LuaStr {
-        self
-    }
-}
-impl AsLStr for [i8] {
-    fn as_lstr(&self) -> &LuaStr {
-        // SAFETY: &[i8] safely converts to &[u8].
-        unsafe { &*(ptr::from_ref(self) as *const LuaStr) }
-    }
-}
-
-/// # Safety
-///
-/// `value_size` must be valid or null.
-unsafe fn provide_variable(value: Option<Ref<[u8]>>, value_size: *mut usize) -> *const c_char {
-    let (len, data) = match value {
-        Some(value) => (value.len(), value.as_ptr().cast()),
-        None => (0, ptr::null()),
-    };
-    if !value_size.is_null() {
-        // SAFETY: `value_size` is valid and non-null.
-        unsafe {
-            *value_size = len;
-        }
-    }
-    data
+#[inline(always)]
+const fn unsigned(bytes: &[c_char]) -> &[u8] {
+    // SAFETY: &[i8] safely converts to &[u8].
+    unsafe { &*(ptr::from_ref(bytes) as *const [u8]) }
 }
 
 impl ffi::SmushClient {
@@ -469,11 +439,11 @@ impl ffi::SmushClient {
     pub fn play_buffer(
         &self,
         i: usize,
-        buf: &[u8],
+        buf: &[c_char],
         volume: f32,
         looping: bool,
     ) -> ffi::SoundResult {
-        self.rust().play_buffer(i, buf, volume, looping)
+        self.rust().play_buffer(i, unsigned(buf), volume, looping)
     }
 
     pub fn play_file(
@@ -502,56 +472,44 @@ impl ffi::SmushClient {
         ffi::AliasOutcome::to_qflags(self.rust().alias(command, source, doc))
     }
 
-    /// # Safety
-    ///
-    /// `value_size` must be valid or null.
-    pub unsafe fn get_variable(
-        &self,
-        index: PluginIndex,
-        key: &[c_char],
-        value_size: *mut usize,
-    ) -> *const c_char {
-        let value = self.rust().client.borrow_variable(index, key.as_lstr());
-        // SAFETY: `value_size` is valid or null.
-        unsafe { provide_variable(value, value_size) }
+    pub fn get_variable(&self, index: PluginIndex, key: &[c_char]) -> VariableView {
+        self.rust()
+            .client
+            .borrow_variable(index, unsigned(key))
+            .into()
     }
 
-    /// # Safety
-    ///
-    /// `value_size` must be valid or null.
-    pub unsafe fn get_metavariable(&self, key: &[c_char], value_size: *mut usize) -> *const c_char {
-        let value = self.rust().client.borrow_metavariable(key.as_lstr());
-        // SAFETY: `value_size` is valid or null.
-        unsafe { provide_variable(value, value_size) }
+    pub fn get_metavariable(&self, key: &[c_char]) -> VariableView {
+        self.rust().client.borrow_metavariable(unsigned(key)).into()
     }
 
     pub fn has_metavariable(&self, key: &[c_char]) -> bool {
-        self.rust().client.has_metavariable(key.as_lstr())
+        self.rust().client.has_metavariable(unsigned(key))
     }
 
     pub fn set_variable(&self, index: PluginIndex, key: &[c_char], value: &[c_char]) -> bool {
         self.rust()
             .client
-            .set_variable(index, key.to_lstring(), value.to_lstring())
+            .set_variable(index, unsigned(key).to_vec(), unsigned(value).to_vec())
     }
 
     pub fn unset_variable(&self, index: PluginIndex, key: &[c_char]) -> bool {
         self.rust()
             .client
-            .unset_variable(index, key.as_lstr())
+            .unset_variable(index, unsigned(key))
             .is_some()
     }
 
     pub fn set_metavariable(&self, key: &[c_char], value: &[c_char]) -> bool {
         self.rust()
             .client
-            .set_metavariable(key.to_lstring(), value.to_lstring())
+            .set_metavariable(unsigned(key).to_vec(), unsigned(value).to_vec())
     }
 
     pub fn unset_metavariable(&self, key: &[c_char]) -> bool {
         self.rust()
             .client
-            .unset_metavariable(key.as_lstr())
+            .unset_metavariable(unsigned(key))
             .is_some()
     }
 

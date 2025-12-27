@@ -53,7 +53,7 @@ private:
   void resetIterators() noexcept;
 
 private:
-  const static QString __emptyString;
+  static const QString __emptyString;
   QStringList history;
   qsizetype max;
   QStringList::const_iterator begin;

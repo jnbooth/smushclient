@@ -65,11 +65,6 @@ constexpr ApiCode convertSoundResult(SoundResult result) noexcept {
   }
 }
 
-inline rust::slice<const uint8_t> byteSlice(QByteArrayView bytes) noexcept {
-  return rust::slice<const uint8_t>(
-      reinterpret_cast<const uint8_t *>(bytes.data()), bytes.size());
-}
-
 inline ApiCode updateWorld(WorldTab &worldtab) {
   return worldtab.updateWorld() ? ApiCode::OK : ApiCode::OptionOutOfRange;
 }
@@ -225,7 +220,7 @@ ApiCode ScriptApi::PlaySound(size_t channel, const QString &path, bool loop,
 ApiCode ScriptApi::PlaySoundMemory(size_t channel, QByteArrayView sound,
                                    bool loop, float volume) {
   return convertSoundResult(
-      client()->playBuffer(channel, byteSlice(sound), volume, loop));
+      client()->playBuffer(channel, rust::Slice(sound), volume, loop));
 }
 
 ApiCode ScriptApi::PluginSupports(string_view pluginID,

@@ -3,6 +3,8 @@
 
 // Public methods
 
+const QString CommandHistory::__emptyString = QString();
+
 CommandHistory::CommandHistory(qsizetype max)
     : history(), max(max), begin(history.cbegin()), end(history.cend()),
       iterator(end) {}

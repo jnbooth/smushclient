@@ -452,6 +452,7 @@ impl QTextFormat {
         self.property_int(property_id.repr)
     }
 
+    /// Sets the value of the property given by `property_id` to `value`.
     pub fn set_property<T>(&mut self, property_id: QTextFormatProperty, value: T)
     where
         T: Into<QVariant>,
@@ -459,6 +460,7 @@ impl QTextFormat {
         self.set_property_int(property_id.repr, &value.into());
     }
 
+    /// Clears the value of the property given by `property_id`.
     pub fn clear_property(&mut self, property_id: QTextFormatProperty) {
         self.clear_property_int(property_id.repr);
     }

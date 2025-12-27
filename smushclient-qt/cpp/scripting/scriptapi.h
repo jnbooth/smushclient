@@ -1,6 +1,6 @@
 #pragma once
+#include "../bridge/variableview.h"
 #include "../lookup.h"
-#include "../variableview.h"
 #include "databaseconnection.h"
 #include "hotspot.h"
 #include "miniwindow.h"

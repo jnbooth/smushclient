@@ -16,6 +16,10 @@ fn main() {
         (include_str!("../cpp/bridge/document.h"), "document.h"),
         (include_str!("../cpp/bridge/forward.h"), "forward.h"),
         (include_str!("../cpp/bridge/timekeeper.h"), "timekeeper.h"),
+        (
+            include_str!("../cpp/bridge/variableview.h"),
+            "variableview.h",
+        ),
     ] {
         let h_path = header_dir.join(file_name);
         let mut header = File::create(h_path).expect("Could not create header");
@@ -36,6 +40,7 @@ fn main() {
             "src/ffi/timekeeper.rs",
             "src/ffi/util.rs",
             "src/ffi/world.rs",
+            "src/ffi/variable_view.rs",
         ])
         .build();
 }

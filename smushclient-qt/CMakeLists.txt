@@ -73,7 +73,7 @@ set_source_files_properties(resources/appicon/appicon.icns PROPERTIES
 
 qt_add_executable(${APP_NAME}
     cpp/main.cpp
-    cpp/client.h cpp/client.cpp
+    cpp/client.h
     cpp/commandhistory.h cpp/commandhistory.cpp
     cpp/enumbuttongroup.h
     cpp/environment.h cpp/environment.cpp
@@ -85,10 +85,10 @@ qt_add_executable(${APP_NAME}
     cpp/settings.h cpp/settings.cpp
     cpp/spans.h cpp/spans.cpp
     cpp/timer_map.h
-    cpp/variableview.h
 
     cpp/bridge/document.h cpp/bridge/document.cpp
     cpp/bridge/timekeeper.h cpp/bridge/timekeeper.cpp
+    cpp/bridge/variableview.h
 
     cpp/model/alias.h cpp/model/alias.cpp
     cpp/model/plugin.h cpp/model/plugin.cpp
