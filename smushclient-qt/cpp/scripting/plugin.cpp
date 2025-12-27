@@ -74,7 +74,7 @@ Plugin::Plugin(ScriptApi *api, const PluginPack &pack, size_t index)
   reset(api);
 }
 
-Plugin::Plugin(Plugin &&other)
+Plugin::Plugin(Plugin &&other) noexcept
     : metadata(std::move(other.metadata)), L(std::exchange(other.L, nullptr)),
       isDisabled(other.isDisabled) {}
 

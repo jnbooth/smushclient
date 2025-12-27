@@ -1,8 +1,6 @@
 #include "commandhistory.h"
 #include <limits>
 
-const static QString emptyString;
-
 // Public methods
 
 CommandHistory::CommandHistory(qsizetype max)
@@ -13,7 +11,7 @@ CommandHistory::CommandHistory(const QStringList &borrowHistory, qsizetype max)
     : history(borrowHistory), max(max), begin(history.cbegin()),
       end(history.cend()), iterator(end) {}
 
-CommandHistory::CommandHistory(CommandHistory &&other)
+CommandHistory::CommandHistory(CommandHistory &&other) noexcept
     : CommandHistory(std::move(other.history), other.max) {}
 
 CommandHistory::CommandHistory(const CommandHistory &other)

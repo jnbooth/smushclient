@@ -7,7 +7,7 @@ struct sqlite3_stmt;
 class DatabaseConnection {
 public:
   DatabaseConnection(std::string_view filename);
-  DatabaseConnection(DatabaseConnection &&other);
+  DatabaseConnection(DatabaseConnection &&other) noexcept;
   ~DatabaseConnection();
 
   DatabaseConnection(const DatabaseConnection &) = delete;

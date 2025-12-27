@@ -10,7 +10,7 @@ CallbackTrigger::CallbackTrigger(lua_State *parentL, int nargs, QObject *parent)
   lua_xmove(parentL, thread.state(), nargs + 1);
 }
 
-CallbackTrigger::CallbackTrigger(CallbackTrigger &&other)
+CallbackTrigger::CallbackTrigger(CallbackTrigger &&other) noexcept
     : nargs(other.nargs), parent(std::move(other.parent)),
       thread(std::move(other.thread)), top(other.top) {}
 

@@ -21,7 +21,7 @@ struct PluginMetadata {
 class Plugin {
 public:
   Plugin(ScriptApi *api, const PluginPack &pack, size_t index);
-  Plugin(Plugin &&other);
+  Plugin(Plugin &&other) noexcept;
   ~Plugin();
 
   Plugin(const Plugin &) = delete;

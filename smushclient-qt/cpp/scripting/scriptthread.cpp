@@ -12,7 +12,7 @@ ScriptThread::ScriptThread(lua_State *parentL)
   pushErrorHandler(L);
 }
 
-ScriptThread::ScriptThread(ScriptThread &&other)
+ScriptThread::ScriptThread(ScriptThread &&other) noexcept
     : L(std::exchange(other.L, nullptr)),
       parentL(std::exchange(other.parentL, nullptr)) {}
 

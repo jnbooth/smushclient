@@ -5,7 +5,7 @@ struct lua_State;
 class ScriptThread {
 public:
   ScriptThread(lua_State *L);
-  ScriptThread(ScriptThread &&other);
+  ScriptThread(ScriptThread &&other) noexcept;
   ~ScriptThread();
 
   ScriptThread(const ScriptThread &) = delete;

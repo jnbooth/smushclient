@@ -5,14 +5,12 @@
 constexpr auto SSIZE_MAX = std::numeric_limits<qsizetype>::max();
 #endif
 
-const static QString __emptyString;
-
 class CommandHistory {
 public:
   explicit CommandHistory(qsizetype max = SSIZE_MAX);
   explicit CommandHistory(const QStringList &history,
                           qsizetype max = SSIZE_MAX);
-  CommandHistory(CommandHistory &&other);
+  CommandHistory(CommandHistory &&other) noexcept;
   CommandHistory(const CommandHistory &other);
   CommandHistory &operator=(const CommandHistory &other);
   CommandHistory &operator=(const QStringList &history);
@@ -55,6 +53,7 @@ private:
   void resetIterators() noexcept;
 
 private:
+  const static QString __emptyString;
   QStringList history;
   qsizetype max;
   QStringList::const_iterator begin;

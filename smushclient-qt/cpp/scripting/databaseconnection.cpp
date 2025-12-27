@@ -19,7 +19,7 @@ inline string replacePathSeparators(string_view path) {
 DatabaseConnection::DatabaseConnection(string_view filename)
     : filename(replacePathSeparators(filename)) {}
 
-DatabaseConnection::DatabaseConnection(DatabaseConnection &&other)
+DatabaseConnection::DatabaseConnection(DatabaseConnection &&other) noexcept
     : db(std::exchange(other.db, nullptr)), filename(std::move(other.filename)),
       stmt(std::exchange(other.stmt, nullptr)), validRow(other.validRow) {}
 

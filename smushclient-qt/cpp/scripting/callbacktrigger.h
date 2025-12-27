@@ -8,7 +8,7 @@ struct lua_State;
 class CallbackTrigger {
 public:
   CallbackTrigger(lua_State *L, int nargs, QObject *parent);
-  CallbackTrigger(CallbackTrigger &&other);
+  CallbackTrigger(CallbackTrigger &&other) noexcept;
 
   CallbackTrigger(const CallbackTrigger &) = delete;
   CallbackTrigger &operator=(const CallbackTrigger &) = delete;
