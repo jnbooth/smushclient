@@ -50,9 +50,6 @@ fn main() {
     header_dir.create_header_dir();
     header_dir.write_headers(&[
         include_header!("include/core/qlist/qlist_private.h"),
-        include_header!("include/core/qlist/qlist_qbrush.h"),
-        include_header!("include/core/qlist/qlist_qtextcharformat.h"),
-        include_header!("include/core/qlist/qlist_qtextformat.h"),
         include_header!("include/core/qlist/qlist_qtextlength.h"),
         include_header!("include/core/qlist/qlist.h"),
         include_header!("include/core/qmap/qmap_i32_qvariant.h"),
@@ -80,9 +77,6 @@ fn main() {
 
     let rust_files = &[
         "src/core/qmap/qmap_i32_qvariant.rs",
-        "src/core/qlist/qlist_qbrush.rs",
-        "src/core/qlist/qlist_qtextcharformat.rs",
-        "src/core/qlist/qlist_qtextformat.rs",
         "src/core/qlist/qlist_qtextlength.rs",
         "src/core/qt.rs",
         "src/core/qvariant/qvariant_qbrush.rs",

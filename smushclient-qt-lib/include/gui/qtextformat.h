@@ -4,6 +4,7 @@
 
 #include "rust/cxx.h"
 
+using QFontWeight = QFont::Weight;
 using QTextFormatFormatType = QTextFormat::FormatType;
 using QTextFormatObjectTypes = QTextFormat::ObjectTypes;
 using QTextFormatPageBreakFlag = QTextFormat::PageBreakFlag;
@@ -15,6 +16,4 @@ template<>
 struct IsRelocatable<QTextFormat> : ::std::true_type
 {};
 
-namespace smushclientqtlib1 {
-}
 } // namespace rust

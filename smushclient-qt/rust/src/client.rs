@@ -5,7 +5,7 @@ use std::io::{self, Write};
 use std::pin::Pin;
 
 use cxx_qt_io::QAbstractSocket;
-use cxx_qt_lib::{QList, QString, QStringList, QVariant};
+use cxx_qt_lib::{QString, QStringList, QVariant};
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
@@ -82,13 +82,13 @@ impl SmushClientRust {
         let Err(errors) = self.client.load_plugins() else {
             return QStringList::default();
         };
-        let mut list: QList<QString> = QList::default();
+        let mut list: QStringList = QStringList::default();
         list.reserve(2 * errors.len() as isize);
         for error in &errors {
             list.append(QString::from(&*error.path.to_string_lossy()));
             list.append(QString::from(&error.error.to_string()));
         }
-        QStringList::from(&list)
+        list
     }
 
     pub fn save_world(&self, path: &QString) -> Result<(), PersistError> {
@@ -417,7 +417,7 @@ impl SmushClientRust {
             return Ok(());
         }
         let mut timers = self.timers.borrow_mut();
-        for timer in &*imported_timers {
+        for timer in &imported_timers {
             if let Some(start) = timers.start(world_index, timer) {
                 timekeeper.start(&start);
             }

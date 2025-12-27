@@ -1,7 +1,5 @@
 #![allow(clippy::trivially_copy_pass_by_ref)]
 #![allow(clippy::undocumented_unsafe_blocks)]
-mod enums;
-
 use cxx::type_id;
 use cxx_qt_lib::{QList, QListElement};
 
@@ -71,11 +69,4 @@ macro_rules! impl_qlist_element {
     };
 }
 
-impl_qlist_element!(crate::QBrush, qlist_qbrush, "QList_QBrush");
-impl_qlist_element!(
-    crate::QTextCharFormat,
-    qlist_qtextcharformat,
-    "QList_QTextCharFormat"
-);
-impl_qlist_element!(crate::QTextFormat, qlist_qtextformat, "QList_QTextFormat");
 impl_qlist_element!(crate::QTextLength, qlist_qtextlength, "QList_QTextLength");

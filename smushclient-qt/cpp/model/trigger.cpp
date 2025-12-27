@@ -45,7 +45,7 @@ TriggerModel::add(QWidget* parent)
 int
 TriggerModel::edit(size_t index, QWidget* parent)
 {
-  Trigger trigger(&client, index);
+  Trigger trigger(client, index);
   TriggerEdit edit(trigger, parent);
   if (edit.exec() == QDialog::Rejected)
     return EditResult::Unchanged;

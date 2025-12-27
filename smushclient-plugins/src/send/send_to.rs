@@ -23,8 +23,6 @@ pub enum SendTarget {
     ScriptAfterOmit,
 }
 
-const SENDTARGET_MAX: SendTarget = SendTarget::ScriptAfterOmit;
-
 impl SendTarget {
     pub const fn ignore_empty(self) -> bool {
         !matches!(
@@ -51,12 +49,9 @@ impl SendTarget {
 }
 
 pub mod sendto_serde {
-    use std::ops::RangeInclusive;
-
     use serde::de::{Error as _, Unexpected};
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-    use super::SENDTARGET_MAX;
     use super::SendTarget;
     use crate::error::ExpectedRange;
 
@@ -66,16 +61,29 @@ pub mod sendto_serde {
     }
 
     pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<SendTarget, D::Error> {
-        const RANGE: RangeInclusive<u8> = 0..=SENDTARGET_MAX as u8;
         let value = <u8>::deserialize(deserializer)?;
-        if RANGE.contains(&value) {
-            // SAFETY: Since `value` is contained in `RANGE`, it must be a valid value.
-            Ok(unsafe { std::mem::transmute::<u8, SendTarget>(value) })
-        } else {
-            Err(D::Error::invalid_value(
-                Unexpected::Unsigned(u64::from(value)),
-                &ExpectedRange(RANGE),
-            ))
-        }
+        Ok(match value {
+            0 => SendTarget::World,
+            1 => SendTarget::Command,
+            2 => SendTarget::Output,
+            3 => SendTarget::Status,
+            4 => SendTarget::NotepadNew,
+            5 => SendTarget::NotepadAppend,
+            6 => SendTarget::Log,
+            7 => SendTarget::NotepadReplace,
+            8 => SendTarget::WorldDelay,
+            9 => SendTarget::Variable,
+            10 => SendTarget::Execute,
+            11 => SendTarget::Speedwalk,
+            12 => SendTarget::Script,
+            13 => SendTarget::WorldImmediate,
+            14 => SendTarget::ScriptAfterOmit,
+            _ => {
+                return Err(D::Error::invalid_value(
+                    Unexpected::Unsigned(u64::from(value)),
+                    &ExpectedRange(0..=14),
+                ));
+            }
+        })
     }
 }

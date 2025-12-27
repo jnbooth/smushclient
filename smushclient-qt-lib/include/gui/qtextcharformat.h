@@ -6,7 +6,6 @@
 
 using QTextCharFormatUnderlineStyle = QTextCharFormat::UnderlineStyle;
 using QTextCharFormatVerticalAlignment = QTextCharFormat::VerticalAlignment;
-using QFontWeight = QFont::Weight;
 
 namespace rust {
 template<>

@@ -104,8 +104,8 @@ macro_rules! impl_convert_enum_opt {
 pub(crate) use impl_convert_enum_opt;
 
 macro_rules! impl_constructor {
-    ($t:ty, $a:ty, { $i:item }) => {
-        impl cxx_qt::Constructor<$a> for $t {
+    (<$($l:lifetime),*>, $t:ty, $a:ty, { $i:item }) => {
+        impl <$($l),*> cxx_qt::Constructor<$a> for $t {
             type BaseArguments = ();
             type InitializeArguments = ();
             type NewArguments = $a;

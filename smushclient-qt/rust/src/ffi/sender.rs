@@ -1,3 +1,4 @@
+#![allow(clippy::elidable_lifetime_names)]
 use cxx::type_id;
 use cxx_qt_lib::{QFlag, QFlags};
 use smushclient::AliasOutcome;
@@ -97,8 +98,7 @@ pub mod ffi {
     }
 
     impl cxx_qt::Constructor<(), NewArguments = ()> for Timer {}
-    impl
-        cxx_qt::Constructor<(*const SmushClient, usize), NewArguments = (*const SmushClient, usize)>
+    impl<'a> cxx_qt::Constructor<(&'a SmushClient, usize), NewArguments = (&'a SmushClient, usize)>
         for Timer
     {
     }
@@ -137,8 +137,7 @@ pub mod ffi {
     }
 
     impl cxx_qt::Constructor<(), NewArguments = ()> for Alias {}
-    impl
-        cxx_qt::Constructor<(*const SmushClient, usize), NewArguments = (*const SmushClient, usize)>
+    impl<'a> cxx_qt::Constructor<(&'a SmushClient, usize), NewArguments = (&'a SmushClient, usize)>
         for Alias
     {
     }
@@ -186,8 +185,7 @@ pub mod ffi {
     }
 
     impl cxx_qt::Constructor<(), NewArguments = ()> for Trigger {}
-    impl
-        cxx_qt::Constructor<(*const SmushClient, usize), NewArguments = (*const SmushClient, usize)>
+    impl<'a> cxx_qt::Constructor<(&'a SmushClient, usize), NewArguments = (&'a SmushClient, usize)>
         for Trigger
     {
     }

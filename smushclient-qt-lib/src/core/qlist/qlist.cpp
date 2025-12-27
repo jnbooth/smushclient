@@ -21,7 +21,4 @@
   static_assert(::std::is_copy_assignable<name>::value);                       \
   static_assert(::std::is_copy_constructible<name>::value);
 
-CXX_QT_IO_QLIST_ASSERTS(QBrush);
-CXX_QT_IO_QLIST_ASSERTS(QTextCharFormat);
-CXX_QT_IO_QLIST_ASSERTS(QTextFormat);
 CXX_QT_IO_QLIST_ASSERTS(QTextLength);

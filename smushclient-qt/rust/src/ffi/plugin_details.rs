@@ -1,3 +1,4 @@
+#![allow(clippy::elidable_lifetime_names)]
 use crate::modeled::PluginDetailsRust;
 
 #[cxx_qt::bridge]
@@ -28,11 +29,9 @@ pub mod ffi {
         type PluginDetails = super::PluginDetailsRust;
     }
 
-    impl
-        cxx_qt::Constructor<
-            (*const SmushClient, QString),
-            NewArguments = (*const SmushClient, QString),
-        > for PluginDetails
+    impl<'a>
+        cxx_qt::Constructor<(&'a SmushClient, QString), NewArguments = (&'a SmushClient, QString)>
+        for PluginDetails
     {
     }
 }

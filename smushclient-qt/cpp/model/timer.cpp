@@ -53,7 +53,7 @@ TimerModel::add(QWidget* parent)
 int
 TimerModel::edit(size_t index, QWidget* parent)
 {
-  Timer timer(&client, index);
+  Timer timer(client, index);
   TimerEdit edit(timer, parent);
   if (edit.exec() == QDialog::Rejected)
     return EditResult::Unchanged;

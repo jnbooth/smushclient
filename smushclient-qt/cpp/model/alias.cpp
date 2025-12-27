@@ -45,7 +45,7 @@ AliasModel::add(QWidget* parent)
 int
 AliasModel::edit(size_t index, QWidget* parent)
 {
-  Alias alias(&client, index);
+  Alias alias(client, index);
   AliasEdit edit(alias, parent);
   if (edit.exec() == QDialog::Rejected)
     return EditResult::Unchanged;

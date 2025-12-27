@@ -171,11 +171,10 @@ impl From<&PluginMetadata> for PluginDetailsRust {
     }
 }
 
-impl_constructor!(ffi::PluginDetails, (*const ffi::SmushClient, QString), {
-    fn new((client, id): (*const ffi::SmushClient, QString)) -> PluginDetailsRust {
+impl_constructor!(<'a>, ffi::PluginDetails, (&'a ffi::SmushClient, QString), {
+    fn new((client, id): (&'a ffi::SmushClient, QString)) -> PluginDetailsRust {
         let id = String::from(&id);
-        // SAFETY: The C++ caller must pass a valid pointer.
-        let Some(plugin) = unsafe { &*client }
+        let Some(plugin) = client
             .client
             .plugins()
             .find(|plugin| plugin.metadata.id == id)
@@ -344,7 +343,7 @@ impl SenderMapRust {
     }
 }
 
-impl_constructor!(ffi::SenderMap, (ffi::SenderType,), {
+impl_constructor!(<>, ffi::SenderMap, (ffi::SenderType,), {
     fn new((sender_type,): (ffi::SenderType,)) -> SenderMapRust {
         SenderMapRust {
             inner: SenderMap::default(),

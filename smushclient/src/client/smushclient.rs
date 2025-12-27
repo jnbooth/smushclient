@@ -517,7 +517,7 @@ impl SmushClient {
     pub fn import_world_senders<T: SendIterable>(
         &self,
         xml: &str,
-    ) -> Result<RefMut<'_, SortOnDrop<T>>, XmlError> {
+    ) -> Result<SortOnDrop<'_, T>, XmlError> {
         let mut senders = T::from_xml_str(xml)?;
         Ok(self.world.import_senders(&mut senders))
     }

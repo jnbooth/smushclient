@@ -9,6 +9,4 @@ template<>
 struct IsRelocatable<QBrush> : ::std::true_type
 {};
 
-namespace smushclientqtlib1 {
-}
 } // namespace rust

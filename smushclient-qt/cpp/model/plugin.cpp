@@ -42,7 +42,7 @@ PluginModel::addPlugin(const QString& filePath)
 PluginDetails
 PluginModel::pluginDetails(const QModelIndex& index) const
 {
-  return PluginDetails(&client, pluginId(index));
+  return PluginDetails(client, pluginId(index));
 }
 
 QString

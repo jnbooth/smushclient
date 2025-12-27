@@ -136,7 +136,7 @@ EOF
     rustfmt "$SCRIPTPATH/qlist_$LOWER.rs"
 }
 
-generate_bridge "QBrush"
-generate_bridge "QTextCharFormat"
-generate_bridge "QTextFormat"
+#generate_bridge "QBrush"
+#generate_bridge "QTextCharFormat"
+#generate_bridge "QTextFormat"
 generate_bridge "QTextLength"

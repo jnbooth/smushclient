@@ -12,7 +12,7 @@ pub use types::*;
 
 mod versions;
 use std::borrow::Cow;
-use std::cell::{Cell, Ref, RefMut};
+use std::cell::{Cell, Ref};
 use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::io::{Read, Write};
@@ -342,10 +342,7 @@ impl World {
         }
     }
 
-    pub fn import_senders<T: SendIterable>(
-        &self,
-        imported: &mut Vec<T>,
-    ) -> RefMut<'_, SortOnDrop<T>> {
+    pub fn import_senders<T: SendIterable>(&self, imported: &mut Vec<T>) -> SortOnDrop<'_, T> {
         let mut senders = T::from_world(self).borrow_mut();
         let senders_len = senders.len();
         let need_relabeling = !imported
@@ -371,9 +368,7 @@ impl World {
                 }
             }
         }
-        RefMut::map(senders, |senders| {
-            SortOnDrop::borrow_mut(&mut senders[senders_len..])
-        })
+        SortOnDrop::new(senders, senders_len)
     }
 }
 
