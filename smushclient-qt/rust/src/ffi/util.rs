@@ -6,7 +6,7 @@ use smushclient_plugins::Reaction;
 use crate::convert::Convert;
 
 fn ansi16() -> QVector<QColor> {
-    RgbColor::XTERM_16.to_vec().convert()
+    RgbColor::XTERM_16.iter().map(Convert::convert).collect()
 }
 
 fn encode_naws(width: u16, height: u16) -> QByteArray {

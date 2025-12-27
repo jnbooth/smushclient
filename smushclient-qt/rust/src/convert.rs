@@ -1,15 +1,10 @@
 #![allow(clippy::cast_possible_truncation)]
-#![allow(clippy::cast_possible_wrap)]
 #![allow(clippy::cast_sign_loss)]
 use std::error::Error;
-use std::ffi::OsStr;
 use std::fmt;
 use std::num::TryFromIntError;
-use std::path::PathBuf;
 
-use cxx::ExternType;
-use cxx::kind::Trivial;
-use cxx_qt_lib::{QByteArray, QColor, QList, QString, QStringList, QVector};
+use cxx_qt_lib::{QColor, QString};
 use mud_transformer::mxp::RgbColor;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -186,125 +181,5 @@ impl Convert<QString> for Option<String> {
             Some(s) => QString::from(s),
             None => QString::default(),
         }
-    }
-}
-
-impl Convert<QList<QString>> for [String] {
-    fn convert(&self) -> QList<QString> {
-        let mut list = QList::default();
-        list.reserve(self.len() as isize);
-        for item in self {
-            list.append(QString::from(item));
-        }
-        list
-    }
-}
-
-impl Convert<QStringList> for [String] {
-    fn convert(&self) -> QStringList {
-        let list: QList<QString> = self.convert();
-        QStringList::from(&list)
-    }
-}
-
-impl Convert<Vec<String>> for QList<QString> {
-    fn convert(&self) -> Vec<String> {
-        self.iter().map(String::from).collect()
-    }
-}
-
-impl Convert<Vec<String>> for QStringList {
-    fn convert(&self) -> Vec<String> {
-        QList::from(self).convert()
-    }
-}
-
-impl Convert<QList<QString>> for [&str] {
-    fn convert(&self) -> QList<QString> {
-        let mut list = QList::default();
-        list.reserve(self.len() as isize);
-        for item in self {
-            list.append(QString::from(*item));
-        }
-        list
-    }
-}
-
-impl Convert<QStringList> for [&str] {
-    fn convert(&self) -> QStringList {
-        let list: QList<QString> = self.convert();
-        QStringList::from(&list)
-    }
-}
-
-impl<const N: usize> Convert<[String; N]> for QList<QString> {
-    /// # Panics
-    ///
-    /// Panics if `self.len()` is not `N`.
-    fn convert(&self) -> [String; N] {
-        let vec: Vec<String> = self.convert();
-        match vec.try_into() {
-            Ok(array) => array,
-            Err(e) => panic!("expected length {N}, got length {}", e.len()),
-        }
-    }
-}
-
-impl<const N: usize> Convert<[String; N]> for QStringList {
-    fn convert(&self) -> [String; N] {
-        QList::from(self).convert()
-    }
-}
-
-impl Convert<QByteArray> for PathBuf {
-    fn convert(&self) -> QByteArray {
-        QByteArray::from(self.as_os_str().as_encoded_bytes())
-    }
-}
-
-impl Convert<PathBuf> for QByteArray {
-    fn convert(&self) -> PathBuf {
-        // SAFETY: Input values are produced by the above use of `as_encoded_bytes`.
-        unsafe { OsStr::from_encoded_bytes_unchecked(self.as_slice()) }.into()
-    }
-}
-
-impl<T, U> Convert<Vec<T>> for QVector<U>
-where
-    U: cxx_qt_lib::QVectorElement + Convert<T>,
-{
-    fn convert(&self) -> Vec<T> {
-        self.iter().map(Convert::convert).collect()
-    }
-}
-
-impl<T, U, const N: usize> Convert<[T; N]> for QVector<U>
-where
-    U: cxx_qt_lib::QVectorElement + Convert<T>,
-{
-    /// # Panics
-    ///
-    /// Panics if `self.len()` is not `N`.
-    fn convert(&self) -> [T; N] {
-        let vec: Vec<T> = self.convert();
-        match vec.try_into() {
-            Ok(array) => array,
-            Err(e) => panic!("expected length {N}, got length {}", e.len()),
-        }
-    }
-}
-
-impl<T, U> Convert<QVector<T>> for [U]
-where
-    T: ExternType<Kind = Trivial> + cxx_qt_lib::QVectorElement,
-    U: Convert<T>,
-{
-    fn convert(&self) -> QVector<T> {
-        let mut qvec = QVector::default();
-        qvec.reserve(self.len() as isize);
-        for item in self {
-            qvec.append(item.convert());
-        }
-        qvec
     }
 }
