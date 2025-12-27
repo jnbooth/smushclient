@@ -8,7 +8,9 @@ using std::vector;
 
 // Private utils
 
-string toSnakeCase(const string &key) {
+string
+toSnakeCase(const string& key)
+{
   size_t size = key.size();
   for (char c : key)
     if (isupper(c) || isdigit(c))
@@ -32,8 +34,9 @@ string toSnakeCase(const string &key) {
 
 // Private methods
 
-WorldProperties::WorldProperties() {
-  const QMetaObject &metaObject = World::staticMetaObject;
+WorldProperties::WorldProperties()
+{
+  const QMetaObject& metaObject = World::staticMetaObject;
   int offset = metaObject.propertyOffset();
   int count = metaObject.propertyCount();
   size_t size = count - offset;
@@ -55,48 +58,52 @@ WorldProperties::WorldProperties() {
   std::sort(stringProps.begin(), stringProps.end());
 }
 
-void WorldProperties::addProp(const string &prop, const QMetaType &type) {
+void
+WorldProperties::addProp(const string& prop, const QMetaType& type)
+{
   int id = type.id();
   switch (id) {
-  case QMetaType::Bool:
-  case QMetaType::Int:
-  case QMetaType::UInt:
-  case QMetaType::Long:
-  case QMetaType::LongLong:
-  case QMetaType::Short:
-  case QMetaType::ULong:
-  case QMetaType::ULongLong:
-  case QMetaType::UShort:
-  case QMetaType::Double:
-  case QMetaType::Float:
-  case QMetaType::Float16:
-    numericProps.push_back(prop);
-    break;
-  case QMetaType::QChar:
-  case QMetaType::QString:
-  case QMetaType::QByteArray:
-  case QMetaType::Char:
-  case QMetaType::Char16:
-  case QMetaType::Char32:
-  case QMetaType::SChar:
-  case QMetaType::UChar:
-  case QMetaType::QUuid:
-  case QMetaType::QStringList:
-    stringProps.push_back(prop);
-    break;
-  case QMetaType::QColor:
-    numericProps.push_back(prop);
-    stringProps.push_back(prop);
-    break;
-  default:
-    if (type.flags().testFlag(QMetaType::IsEnumeration))
+    case QMetaType::Bool:
+    case QMetaType::Int:
+    case QMetaType::UInt:
+    case QMetaType::Long:
+    case QMetaType::LongLong:
+    case QMetaType::Short:
+    case QMetaType::ULong:
+    case QMetaType::ULongLong:
+    case QMetaType::UShort:
+    case QMetaType::Double:
+    case QMetaType::Float:
+    case QMetaType::Float16:
       numericProps.push_back(prop);
+      break;
+    case QMetaType::QChar:
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
+    case QMetaType::Char:
+    case QMetaType::Char16:
+    case QMetaType::Char32:
+    case QMetaType::SChar:
+    case QMetaType::UChar:
+    case QMetaType::QUuid:
+    case QMetaType::QStringList:
+      stringProps.push_back(prop);
+      break;
+    case QMetaType::QColor:
+      numericProps.push_back(prop);
+      stringProps.push_back(prop);
+      break;
+    default:
+      if (type.flags().testFlag(QMetaType::IsEnumeration))
+        numericProps.push_back(prop);
   }
 }
 
-string_map<string> createNameMap() {
+string_map<string>
+createNameMap()
+{
   string_map<string> map;
-  const QMetaObject &metaObject = World::staticMetaObject;
+  const QMetaObject& metaObject = World::staticMetaObject;
   int offset = metaObject.propertyOffset();
   int count = metaObject.propertyCount();
   size_t size = count - offset;
@@ -111,8 +118,10 @@ string_map<string> createNameMap() {
   return map;
 }
 
-const char *WorldProperties::canonicalName(string_view name) {
-  const string_map<string> &names = getInstance().names;
+const char*
+WorldProperties::canonicalName(string_view name)
+{
+  const string_map<string>& names = getInstance().names;
   auto search = names.find(name);
   return (search == names.end()) ? nullptr : search->second.c_str();
 }

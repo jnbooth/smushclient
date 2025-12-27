@@ -2,18 +2,19 @@
 
 struct lua_State;
 
-class ScriptThread {
+class ScriptThread
+{
 public:
-  ScriptThread(lua_State *L);
-  ScriptThread(ScriptThread &&other) noexcept;
+  ScriptThread(lua_State* L);
+  ScriptThread(ScriptThread&& other) noexcept;
   ~ScriptThread();
 
-  ScriptThread(const ScriptThread &) = delete;
-  ScriptThread &operator=(const ScriptThread &) = delete;
+  ScriptThread(const ScriptThread&) = delete;
+  ScriptThread& operator=(const ScriptThread&) = delete;
 
-  inline lua_State *state() const noexcept { return L; }
+  inline lua_State* state() const noexcept { return L; }
 
 private:
-  lua_State *L;
-  lua_State *parentL;
+  lua_State* L;
+  lua_State* parentL;
 };

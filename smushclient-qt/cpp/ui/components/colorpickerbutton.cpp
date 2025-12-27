@@ -5,17 +5,22 @@
 
 // Public methods
 
-ColorPickerButton::ColorPickerButton(QWidget *parent)
-    : QAbstractButton(parent) {
-  connect(this, &QAbstractButton::clicked, this,
-          &ColorPickerButton::openColorPicker);
+ColorPickerButton::ColorPickerButton(QWidget* parent)
+  : QAbstractButton(parent)
+{
+  connect(
+    this, &QAbstractButton::clicked, this, &ColorPickerButton::openColorPicker);
 }
 
-void ColorPickerButton::openColorPicker() {
+void
+ColorPickerButton::openColorPicker()
+{
   const QColor color = QColorDialog::getColor(
-      currentValue, this, tr("Select Color"),
-      isAlphaEnabled ? QColorDialog::ColorDialogOption::ShowAlphaChannel
-                     : QColorDialog::ColorDialogOptions());
+    currentValue,
+    this,
+    tr("Select Color"),
+    isAlphaEnabled ? QColorDialog::ColorDialogOption::ShowAlphaChannel
+                   : QColorDialog::ColorDialogOptions());
 
   if (!color.isValid())
     return;
@@ -23,15 +28,21 @@ void ColorPickerButton::openColorPicker() {
   setValue(color);
 }
 
-void ColorPickerButton::setAlphaDisabled(bool disabled) {
+void
+ColorPickerButton::setAlphaDisabled(bool disabled)
+{
   isAlphaEnabled = !disabled;
 }
 
-void ColorPickerButton::setAlphaEnabled(bool enabled) {
+void
+ColorPickerButton::setAlphaEnabled(bool enabled)
+{
   isAlphaEnabled = enabled;
 }
 
-void ColorPickerButton::setValue(const QColor &val) {
+void
+ColorPickerButton::setValue(const QColor& val)
+{
   if (currentValue == val)
     return;
 
@@ -40,27 +51,41 @@ void ColorPickerButton::setValue(const QColor &val) {
   update();
 }
 
-const QColor &ColorPickerButton::value() const & { return currentValue; }
+const QColor&
+ColorPickerButton::value() const&
+{
+  return currentValue;
+}
 
 // Public overrides
 
-QSize ColorPickerButton::minimumSizeHint() const { return minimumSize(); }
+QSize
+ColorPickerButton::minimumSizeHint() const
+{
+  return minimumSize();
+}
 
-QSize ColorPickerButton::sizeHint() const { return baseSize(); }
+QSize
+ColorPickerButton::sizeHint() const
+{
+  return baseSize();
+}
 
 // Protected overrides
 
-void ColorPickerButton::paintEvent(QPaintEvent *event) {
+void
+ColorPickerButton::paintEvent(QPaintEvent* event)
+{
   static const QPen borderDownPen(QBrush(Qt::GlobalColor::white), 1);
   static const QPen borderUpPen(QBrush(Qt::GlobalColor::black), 1);
   static const QPen borderFocusedPen(QBrush(Qt::GlobalColor::darkBlue), 1);
 
-  const QRect &eventRect = event->rect();
+  const QRect& eventRect = event->rect();
 
   QPainter painter(this);
   painter.setClipRegion(event->region());
   painter.fillRect(eventRect, currentValue);
-  const QPen &pen = isDown()     ? borderDownPen
+  const QPen& pen = isDown()     ? borderDownPen
                     : hasFocus() ? borderFocusedPen
                                  : borderUpPen;
   painter.setPen(pen);

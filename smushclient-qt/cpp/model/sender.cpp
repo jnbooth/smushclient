@@ -9,32 +9,50 @@
 using std::array;
 using std::vector;
 
-struct SelectionRegion {
+struct SelectionRegion
+{
   int top;
   int height;
-  const void *parentPtr;
+  const void* parentPtr;
 
-  bool operator==(const SelectionRegion &) const = default;
+  bool operator==(const SelectionRegion&) const = default;
 
-  SelectionRegion() : top(-1), height(-1), parentPtr(nullptr) {}
+  SelectionRegion()
+    : top(-1)
+    , height(-1)
+    , parentPtr(nullptr)
+  {
+  }
 
-  SelectionRegion(const QItemSelectionRange &range, const QModelIndex &parent)
-      : top(range.top()), height(range.height()),
-        parentPtr(parent.constInternalPointer()) {}
+  SelectionRegion(const QItemSelectionRange& range, const QModelIndex& parent)
+    : top(range.top())
+    , height(range.height())
+    , parentPtr(parent.constInternalPointer())
+  {
+  }
 };
 
 // Public methods
 
-AbstractSenderModel::AbstractSenderModel(SmushClient &client, SenderType type,
-                                         QObject *parent)
-    : QAbstractItemModel(parent), client(client), needsRefresh(new bool(true)) {
+AbstractSenderModel::AbstractSenderModel(SmushClient& client,
+                                         SenderType type,
+                                         QObject* parent)
+  : QAbstractItemModel(parent)
+  , client(client)
+  , needsRefresh(new bool(true))
+{
   map = new SenderMap(type);
   map->setParent(this);
 }
 
-AbstractSenderModel::~AbstractSenderModel() { delete needsRefresh; }
+AbstractSenderModel::~AbstractSenderModel()
+{
+  delete needsRefresh;
+}
 
-bool AbstractSenderModel::addItem(QWidget *parent) {
+bool
+AbstractSenderModel::addItem(QWidget* parent)
+{
   if (add(parent) < 0)
     return false;
 
@@ -44,11 +62,12 @@ bool AbstractSenderModel::addItem(QWidget *parent) {
   return true;
 }
 
-bool AbstractSenderModel::editItem(const QModelIndex &modelIndex,
-                                   QWidget *parent) {
+bool
+AbstractSenderModel::editItem(const QModelIndex& modelIndex, QWidget* parent)
+{
   refresh();
-  const rust::String *group =
-      static_cast<const rust::String *>(modelIndex.constInternalPointer());
+  const rust::String* group =
+    static_cast<const rust::String*>(modelIndex.constInternalPointer());
   if (!group)
     return false;
 
@@ -65,7 +84,7 @@ bool AbstractSenderModel::editItem(const QModelIndex &modelIndex,
   if (newIndex == index) {
     emit dataChanged(modelIndex.siblingAtColumn(0),
                      modelIndex.siblingAtColumn(numColumns - 1),
-                     {Qt::DisplayRole});
+                     { Qt::DisplayRole });
     return true;
   }
 
@@ -86,12 +105,12 @@ bool AbstractSenderModel::editItem(const QModelIndex &modelIndex,
   if (newRow == modelIndex.row()) {
     emit dataChanged(modelIndex.siblingAtColumn(0),
                      modelIndex.siblingAtColumn(numColumns - 1),
-                     {Qt::DisplayRole, Qt::EditRole});
+                     { Qt::DisplayRole, Qt::EditRole });
     return true;
   }
 
   emit layoutAboutToBeChanged(
-      {}, QAbstractItemModel::LayoutChangeHint::VerticalSortHint);
+    {}, QAbstractItemModel::LayoutChangeHint::VerticalSortHint);
 
   const QModelIndex parentIndex = modelIndex.parent();
 
@@ -100,21 +119,25 @@ bool AbstractSenderModel::editItem(const QModelIndex &modelIndex,
 
   emit dataChanged(modelIndex.sibling(newRow, 0),
                    modelIndex.sibling(newRow, numColumns - 1),
-                   {Qt::DisplayRole, Qt::EditRole});
+                   { Qt::DisplayRole, Qt::EditRole });
 
   emit layoutChanged({},
                      QAbstractItemModel::LayoutChangeHint::VerticalSortHint);
   return true;
 }
 
-void AbstractSenderModel::importXml(const QString &xml) {
+void
+AbstractSenderModel::importXml(const QString& xml)
+{
   beginResetModel();
   import(xml);
   *needsRefresh = true;
   endResetModel();
 }
 
-bool AbstractSenderModel::removeSelection(const QItemSelection &selection) {
+bool
+AbstractSenderModel::removeSelection(const QItemSelection& selection)
+{
   if (selection.isEmpty())
     return false;
 
@@ -123,7 +146,7 @@ bool AbstractSenderModel::removeSelection(const QItemSelection &selection) {
   SelectionRegion lastRegion;
   emit layoutAboutToBeChanged({});
   for (auto it = selection.crbegin(), end = selection.crend(); it < end; ++it) {
-    const QItemSelectionRange &range = *it;
+    const QItemSelectionRange& range = *it;
     const QModelIndex parent = range.parent();
 
     const SelectionRegion currentRegion(range, parent);
@@ -138,10 +161,12 @@ bool AbstractSenderModel::removeSelection(const QItemSelection &selection) {
   return succeeded;
 }
 
-int AbstractSenderModel::senderIndex(const QModelIndex &index) const {
+int
+AbstractSenderModel::senderIndex(const QModelIndex& index) const
+{
   refresh();
-  const rust::String *group =
-      static_cast<const rust::String *>(index.constInternalPointer());
+  const rust::String* group =
+    static_cast<const rust::String*>(index.constInternalPointer());
   if (!group)
     return -1;
 
@@ -154,20 +179,22 @@ int AbstractSenderModel::senderIndex(const QModelIndex &index) const {
 
 // Public overrides
 
-QVariant AbstractSenderModel::data(const QModelIndex &index, int role) const {
+QVariant
+AbstractSenderModel::data(const QModelIndex& index, int role) const
+{
   refresh();
   if (role != Qt::DisplayRole && role != Qt::EditRole)
     return QVariant();
 
-  const rust::String *group =
-      static_cast<const rust::String *>(index.constInternalPointer());
+  const rust::String* group =
+    static_cast<const rust::String*>(index.constInternalPointer());
   if (group)
     return map->cellText(client, *group, index.row(), index.column());
 
   if (index.column())
     return QVariant();
 
-  const rust::String *parentGroup = map->groupName(index.row());
+  const rust::String* parentGroup = map->groupName(index.row());
   if (!parentGroup)
     return QString();
 
@@ -180,26 +207,31 @@ QVariant AbstractSenderModel::data(const QModelIndex &index, int role) const {
   return untitledGroupName;
 }
 
-bool AbstractSenderModel::hasChildren(const QModelIndex &index) const {
+bool
+AbstractSenderModel::hasChildren(const QModelIndex& index) const
+{
   return !index.constInternalPointer();
 }
 
-QVariant AbstractSenderModel::headerData(int section,
-                                         Qt::Orientation orientation,
-                                         int role) const {
+QVariant
+AbstractSenderModel::headerData(int section,
+                                Qt::Orientation orientation,
+                                int role) const
+{
   if (orientation != Qt::Orientation::Horizontal || !isValidColumn(section))
     return QVariant();
 
   switch (role) {
-  case Qt::DisplayRole:
-    return headers()[section];
-  default:
-    return QVariant();
+    case Qt::DisplayRole:
+      return headers()[section];
+    default:
+      return QVariant();
   }
 }
 
-QModelIndex AbstractSenderModel::index(int row, int column,
-                                       const QModelIndex &parent) const {
+QModelIndex
+AbstractSenderModel::index(int row, int column, const QModelIndex& parent) const
+{
   refresh();
 
   if (row < 0 || !isValidColumn(column))
@@ -215,7 +247,7 @@ QModelIndex AbstractSenderModel::index(int row, int column,
   if (parentRow < 0)
     return QModelIndex();
 
-  const rust::String *groupName = map->groupName(parentRow);
+  const rust::String* groupName = map->groupName(parentRow);
   if (!groupName)
     return QModelIndex();
 
@@ -223,17 +255,20 @@ QModelIndex AbstractSenderModel::index(int row, int column,
 }
 
 QMap<int, QVariant>
-AbstractSenderModel::itemData(const QModelIndex &index) const {
+AbstractSenderModel::itemData(const QModelIndex& index) const
+{
   refresh();
   QMap<int, QVariant> dataMap;
   dataMap.insert(Qt::DisplayRole, data(index, Qt::DisplayRole));
   return dataMap;
 }
 
-QModelIndex AbstractSenderModel::parent(const QModelIndex &index) const {
+QModelIndex
+AbstractSenderModel::parent(const QModelIndex& index) const
+{
   refresh();
-  const rust::String *group =
-      static_cast<const rust::String *>(index.constInternalPointer());
+  const rust::String* group =
+    static_cast<const rust::String*>(index.constInternalPointer());
   if (!group)
     return QModelIndex();
 
@@ -243,8 +278,9 @@ QModelIndex AbstractSenderModel::parent(const QModelIndex &index) const {
   return createIndex(row, 0);
 }
 
-bool AbstractSenderModel::removeRows(int row, int count,
-                                     const QModelIndex &parent) {
+bool
+AbstractSenderModel::removeRows(int row, int count, const QModelIndex& parent)
+{
   refresh();
   emit layoutAboutToBeChanged({});
   const bool succeeded = removeRowsInternal(row, count, parent);
@@ -252,7 +288,9 @@ bool AbstractSenderModel::removeRows(int row, int count,
   return succeeded;
 }
 
-int AbstractSenderModel::rowCount(const QModelIndex &index) const {
+int
+AbstractSenderModel::rowCount(const QModelIndex& index) const
+{
   refresh();
   if (!index.isValid())
     return (int)map->len();
@@ -263,15 +301,18 @@ int AbstractSenderModel::rowCount(const QModelIndex &index) const {
   return (int)map->groupLen(index.row());
 }
 
-bool AbstractSenderModel::setData(const QModelIndex &index,
-                                  const QVariant &value, int role) {
+bool
+AbstractSenderModel::setData(const QModelIndex& index,
+                             const QVariant& value,
+                             int role)
+{
   if (role != Qt::EditRole)
     return false;
 
   refresh();
 
-  const rust::String *group =
-      static_cast<const rust::String *>(index.constInternalPointer());
+  const rust::String* group =
+    static_cast<const rust::String*>(index.constInternalPointer());
   if (!group)
     return false;
 
@@ -283,7 +324,7 @@ bool AbstractSenderModel::setData(const QModelIndex &index,
   if (newRow < 0)
     return false;
 
-  static const QList<int> changedRoles{Qt::DisplayRole, Qt::EditRole};
+  static const QList<int> changedRoles{ Qt::DisplayRole, Qt::EditRole };
 
   if (newRow == row) {
     emit dataChanged(index, index, changedRoles);
@@ -291,7 +332,7 @@ bool AbstractSenderModel::setData(const QModelIndex &index,
   }
 
   emit layoutAboutToBeChanged(
-      {}, QAbstractItemModel::LayoutChangeHint::VerticalSortHint);
+    {}, QAbstractItemModel::LayoutChangeHint::VerticalSortHint);
 
   const QModelIndex parentIndex = index.parent();
 
@@ -308,24 +349,31 @@ bool AbstractSenderModel::setData(const QModelIndex &index,
 }
 
 // Protected methods
-void AbstractSenderModel::prepareRemove(SenderMap *, const rust::String &, int,
-                                        int) {}
+void
+AbstractSenderModel::prepareRemove(SenderMap*, const rust::String&, int, int)
+{
+}
 
 // Private methods
 
-void AbstractSenderModel::refresh() const {
+void
+AbstractSenderModel::refresh() const
+{
   if (!*needsRefresh)
     return;
   *needsRefresh = false;
   map->recalculate(client);
 }
 
-bool AbstractSenderModel::removeRowsInternal(int row, int count,
-                                             const QModelIndex &parent) {
+bool
+AbstractSenderModel::removeRowsInternal(int row,
+                                        int count,
+                                        const QModelIndex& parent)
+{
   if (row < 0 || count <= 0)
     return false;
 
-  const rust::String *group = map->groupName(parent.row());
+  const rust::String* group = map->groupName(parent.row());
   if (!group)
     return false;
 

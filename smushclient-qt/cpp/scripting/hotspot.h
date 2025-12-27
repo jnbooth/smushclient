@@ -12,9 +12,11 @@ class MiniWindow;
 class Plugin;
 class WorldTab;
 
-class Hotspot : public QWidget {
+class Hotspot : public QWidget
+{
 public:
-  enum EventFlag {
+  enum EventFlag
+  {
     Shift = 1,         // Shift key down
     Control = 2,       // Control key down
     Alt = 4,           // Alt key down
@@ -27,12 +29,15 @@ public:
   };
   typedef QFlags<EventFlag> EventFlags;
 
-  enum Flag {
+  enum Flag
+  {
     ReportAllMouseovers = 0x01,
   };
   typedef QFlags<Flag> Flags;
 
-  template <typename T> struct BasicCallbacks {
+  template<typename T>
+  struct BasicCallbacks
+  {
     T dragMove;
     T dragRelease;
     T mouseOver;
@@ -45,34 +50,38 @@ public:
   using Callbacks = BasicCallbacks<std::string>;
   using CallbacksPartial = BasicCallbacks<std::optional<std::string>>;
 
-  Hotspot(MiniWindow *parent, WorldTab *tab, const Plugin *plugin,
-          std::string_view id, Callbacks &&callbacks);
-  inline bool belongsToPlugin(const Plugin *otherPlugin) const noexcept {
+  Hotspot(MiniWindow* parent,
+          WorldTab* tab,
+          const Plugin* plugin,
+          std::string_view id,
+          Callbacks&& callbacks);
+  inline bool belongsToPlugin(const Plugin* otherPlugin) const noexcept
+  {
     return otherPlugin == plugin;
   }
   void finishDrag();
   QVariant info(int infoType) const;
-  const Callbacks &setCallbacks(Callbacks &&callbacks);
-  const Callbacks &setCallbacks(CallbacksPartial &&callbacks);
+  const Callbacks& setCallbacks(Callbacks&& callbacks);
+  const Callbacks& setCallbacks(CallbacksPartial&& callbacks);
 
 protected:
-  void enterEvent(QEnterEvent *event) override;
-  void leaveEvent(QEvent *event) override;
-  void mouseDoubleClickEvent(QMouseEvent *event) override;
-  void mouseMoveEvent(QMouseEvent *event) override;
-  void mousePressEvent(QMouseEvent *event) override;
-  void mouseReleaseEvent(QMouseEvent *event) override;
-  void wheelEvent(QWheelEvent *event) override;
+  void enterEvent(QEnterEvent* event) override;
+  void leaveEvent(QEvent* event) override;
+  void mouseDoubleClickEvent(QMouseEvent* event) override;
+  void mouseMoveEvent(QMouseEvent* event) override;
+  void mousePressEvent(QMouseEvent* event) override;
+  void mouseReleaseEvent(QMouseEvent* event) override;
+  void wheelEvent(QWheelEvent* event) override;
 
 private:
-  void runCallback(const std::string &callback, EventFlags flags);
-  void startDrag(QMouseEvent *event);
+  void runCallback(const std::string& callback, EventFlags flags);
+  void startDrag(QMouseEvent* event);
 
 private:
   Callbacks callbacks;
   bool hadDrag = false;
   bool hadMouseDown = false;
   std::string id;
-  const Plugin *plugin;
-  WorldTab *tab;
+  const Plugin* plugin;
+  WorldTab* tab;
 };

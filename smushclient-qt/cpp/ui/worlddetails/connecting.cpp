@@ -3,8 +3,10 @@
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_connecting.h"
 
-PrefsConnecting::PrefsConnecting(const World &world, QWidget *parent)
-    : QWidget(parent), ui(new Ui::PrefsConnecting) {
+PrefsConnecting::PrefsConnecting(const World& world, QWidget* parent)
+  : QWidget(parent)
+  , ui(new Ui::PrefsConnecting)
+{
   ui->setupUi(this);
   CONNECT_WORLD(Name);
   CONNECT_WORLD(Site);
@@ -17,4 +19,7 @@ PrefsConnecting::PrefsConnecting(const World &world, QWidget *parent)
   CONNECT_WORLD(SaveWorldAutomatically);
 }
 
-PrefsConnecting::~PrefsConnecting() { delete ui; }
+PrefsConnecting::~PrefsConnecting()
+{
+  delete ui;
+}

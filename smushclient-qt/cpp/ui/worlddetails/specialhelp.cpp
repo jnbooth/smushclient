@@ -2,8 +2,10 @@
 #include "../../fieldconnector.h"
 #include "ui_specialhelp.h"
 
-SpecialHelp::SpecialHelp(QWidget *parent)
-    : QDialog(parent), ui(new Ui::SpecialHelp) {
+SpecialHelp::SpecialHelp(QWidget* parent)
+  : QDialog(parent)
+  , ui(new Ui::SpecialHelp)
+{
   ui->setupUi(this);
   QPalette palette = ui->textEdit->palette();
   palette.setColor(QPalette::ColorRole::Base,
@@ -11,4 +13,7 @@ SpecialHelp::SpecialHelp(QWidget *parent)
   ui->textEdit->setPalette(palette);
 }
 
-SpecialHelp::~SpecialHelp() { delete ui; }
+SpecialHelp::~SpecialHelp()
+{
+  delete ui;
+}

@@ -28,7 +28,9 @@ using std::chrono::seconds;
 
 // Private utils
 
-inline QColor getColorFromVariant(const QVariant &variant) {
+inline QColor
+getColorFromVariant(const QVariant& variant)
+{
   if (variant.canConvert<QString>()) {
     QString colorName = variant.toString();
     return colorName.isEmpty() ? QColor::fromRgb(0, 0, 0, 0)
@@ -41,37 +43,45 @@ inline QColor getColorFromVariant(const QVariant &variant) {
   return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
 }
 
-inline bool isEmptyList(const QVariant &variant) {
+inline bool
+isEmptyList(const QVariant& variant)
+{
   switch (variant.typeId()) {
-  case QMetaType::QStringList:
-    return variant.toStringList().isEmpty();
-  case QMetaType::QVariantList:
-    return variant.toList().isEmpty();
-  default:
-    return false;
+    case QMetaType::QStringList:
+      return variant.toStringList().isEmpty();
+    case QMetaType::QVariantList:
+      return variant.toList().isEmpty();
+    default:
+      return false;
   }
 }
 
-constexpr ApiCode convertSoundResult(SoundResult result) noexcept {
+constexpr ApiCode
+convertSoundResult(SoundResult result) noexcept
+{
   switch (result) {
-  case SoundResult::Ok:
-    return ApiCode::OK;
-  case SoundResult::SoundError:
-    return ApiCode::CannotPlaySound;
-  case SoundResult::BadParameter:
-    return ApiCode::BadParameter;
-  case SoundResult::NotFound:
-    return ApiCode::FileNotFound;
+    case SoundResult::Ok:
+      return ApiCode::OK;
+    case SoundResult::SoundError:
+      return ApiCode::CannotPlaySound;
+    case SoundResult::BadParameter:
+      return ApiCode::BadParameter;
+    case SoundResult::NotFound:
+      return ApiCode::FileNotFound;
   }
 }
 
-inline ApiCode updateWorld(WorldTab &worldtab) {
+inline ApiCode
+updateWorld(WorldTab& worldtab)
+{
   return worldtab.updateWorld() ? ApiCode::OK : ApiCode::OptionOutOfRange;
 }
 
 // Public static methods
 
-int ScriptApi::GetUniqueNumber() noexcept {
+int
+ScriptApi::GetUniqueNumber() noexcept
+{
   static int uniqueNumber = -1;
   if (uniqueNumber == INT_MAX) [[unlikely]]
     uniqueNumber = 0;
@@ -80,30 +90,38 @@ int ScriptApi::GetUniqueNumber() noexcept {
   return uniqueNumber;
 }
 
-QString ScriptApi::MakeRegularExpression(const QString &pattern) noexcept {
+QString
+ScriptApi::MakeRegularExpression(const QString& pattern) noexcept
+{
   return ffi::makeRegexFromWildcards(pattern);
 }
 
-void ScriptApi::SetClipboard(const QString &text) {
+void
+ScriptApi::SetClipboard(const QString& text)
+{
   QGuiApplication::clipboard()->setText(text);
 }
 
 // Public methods
 
-int ScriptApi::BroadcastPlugin(size_t index, int message,
-                               string_view text) const {
-  const Plugin &callingPlugin = plugins[index];
+int
+ScriptApi::BroadcastPlugin(size_t index, int message, string_view text) const
+{
+  const Plugin& callingPlugin = plugins[index];
   int calledPlugins = 0;
-  OnPluginBroadcast onBroadcast(message, callingPlugin.id(),
-                                callingPlugin.name(), text);
-  for (const Plugin &plugin : plugins)
+  OnPluginBroadcast onBroadcast(
+    message, callingPlugin.id(), callingPlugin.name(), text);
+  for (const Plugin& plugin : plugins)
     if (&plugin != &callingPlugin)
       calledPlugins += plugin.runCallbackThreaded(onBroadcast);
   return calledPlugins;
 }
 
-void ScriptApi::ColourTell(const QColor &foreground, const QColor &background,
-                           const QString &text) {
+void
+ScriptApi::ColourTell(const QColor& foreground,
+                      const QColor& background,
+                      const QString& text)
+{
   QTextCharFormat format = cursor.charFormat();
   if (foreground.isValid())
     format.setForeground(QBrush(foreground));
@@ -112,7 +130,9 @@ void ScriptApi::ColourTell(const QColor &foreground, const QColor &background,
   appendTell(text, format);
 }
 
-int ScriptApi::DatabaseClose(string_view databaseID) {
+int
+ScriptApi::DatabaseClose(string_view databaseID)
+{
   auto search = databases.find(databaseID);
   if (search == databases.end()) [[unlikely]]
     return -1;
@@ -122,10 +142,11 @@ int ScriptApi::DatabaseClose(string_view databaseID) {
   return result;
 }
 
-int ScriptApi::DatabaseOpen(string_view databaseID, string_view filename,
-                            int flags) {
+int
+ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
+{
   auto search = databases.emplace((string)databaseID, filename);
-  DatabaseConnection &db = search.first->second;
+  DatabaseConnection& db = search.first->second;
   if (!search.second)
     return db.isFile(databaseID) ? SQLITE_OK : -6;
 
@@ -136,22 +157,30 @@ int ScriptApi::DatabaseOpen(string_view databaseID, string_view filename,
   return result;
 }
 
-ApiCode ScriptApi::DeleteVariable(size_t plugin, string_view key) const {
+ApiCode
+ScriptApi::DeleteVariable(size_t plugin, string_view key) const
+{
   return client()->unsetVariable(plugin, key) ? ApiCode::OK
                                               : ApiCode::VariableNotFound;
 }
 
-ApiCode ScriptApi::DoAfter(size_t plugin, double seconds, const QString &text,
-                           SendTarget target) {
+ApiCode
+ScriptApi::DoAfter(size_t plugin,
+                   double seconds,
+                   const QString& text,
+                   SendTarget target)
+{
   if (seconds < 0.1 || seconds > 86399)
     return ApiCode::TimeInvalid;
-  const milliseconds duration = milliseconds{(int)(seconds * 1000.0)};
+  const milliseconds duration = milliseconds{ (int)(seconds * 1000.0) };
   sendQueue->start(duration,
-                   {.plugin = plugin, .target = target, .text = text});
+                   { .plugin = plugin, .target = target, .text = text });
   return ApiCode::OK;
 }
 
-ApiCode ScriptApi::EnablePlugin(string_view pluginID, bool enabled) {
+ApiCode
+ScriptApi::EnablePlugin(string_view pluginID, bool enabled)
+{
   const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin)
     return ApiCode::NoSuchPlugin;
@@ -162,42 +191,56 @@ ApiCode ScriptApi::EnablePlugin(string_view pluginID, bool enabled) {
   return ApiCode::OK;
 }
 
-int ScriptApi::GetLinesInBufferCount() const {
+int
+ScriptApi::GetLinesInBufferCount() const
+{
   return cursor.document()->lineCount();
 }
 
-QVariant ScriptApi::GetOption(string_view name) const {
-  const char *prop = WorldProperties::canonicalName(name);
+QVariant
+ScriptApi::GetOption(string_view name) const
+{
+  const char* prop = WorldProperties::canonicalName(name);
   if (!prop)
     return QVariant();
 
   return tab->world.property(prop);
 }
 
-VariableView ScriptApi::GetVariable(size_t index, string_view key) const {
+VariableView
+ScriptApi::GetVariable(size_t index, string_view key) const
+{
 
   return client()->getVariable(index, key);
 }
 
-VariableView ScriptApi::GetVariable(string_view pluginID,
-                                    string_view key) const {
+VariableView
+ScriptApi::GetVariable(string_view pluginID, string_view key) const
+{
   const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin)
     return VariableView(nullptr, 0);
   return GetVariable(index, key);
 }
 
-const string &ScriptApi::GetPluginID(size_t index) const {
+const string&
+ScriptApi::GetPluginID(size_t index) const
+{
   return plugins.at(index).id();
 }
 
-void ScriptApi::Hyperlink(const QString &action, const QString &text,
-                          const QString &hint, const QColor &foreground,
-                          const QColor &background, bool url,
-                          bool noUnderline) {
+void
+ScriptApi::Hyperlink(const QString& action,
+                     const QString& text,
+                     const QString& hint,
+                     const QColor& foreground,
+                     const QColor& background,
+                     bool url,
+                     bool noUnderline)
+{
   QTextCharFormat format;
   format.setAnchorHref(
-      encodeLink(url ? SendTo::Internet : SendTo::World, action));
+    encodeLink(url ? SendTo::Internet : SendTo::World, action));
   format.setToolTip(hint.isEmpty() ? action : hint);
   if (foreground.isValid())
     format.setForeground(foreground);
@@ -208,23 +251,34 @@ void ScriptApi::Hyperlink(const QString &action, const QString &text,
   appendTell(text, format);
 }
 
-QColor ScriptApi::PickColour(const QColor &hint) const {
+QColor
+ScriptApi::PickColour(const QColor& hint) const
+{
   return QColorDialog::getColor(hint, tab);
 }
 
-ApiCode ScriptApi::PlaySound(size_t channel, const QString &path, bool loop,
-                             float volume) {
+ApiCode
+ScriptApi::PlaySound(size_t channel,
+                     const QString& path,
+                     bool loop,
+                     float volume)
+{
   return convertSoundResult(client()->playFile(channel, path, volume, loop));
 }
 
-ApiCode ScriptApi::PlaySoundMemory(size_t channel, QByteArrayView sound,
-                                   bool loop, float volume) {
+ApiCode
+ScriptApi::PlaySoundMemory(size_t channel,
+                           QByteArrayView sound,
+                           bool loop,
+                           float volume)
+{
   return convertSoundResult(
-      client()->playBuffer(channel, rust::Slice(sound), volume, loop));
+    client()->playBuffer(channel, rust::Slice(sound), volume, loop));
 }
 
-ApiCode ScriptApi::PluginSupports(string_view pluginID,
-                                  PluginCallbackKey routine) const {
+ApiCode
+ScriptApi::PluginSupports(string_view pluginID, PluginCallbackKey routine) const
+{
   const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin) [[unlikely]]
     return ApiCode::NoSuchPlugin;
@@ -232,18 +286,24 @@ ApiCode ScriptApi::PluginSupports(string_view pluginID,
                                              : ApiCode::NoSuchRoutine;
 }
 
-ApiCode ScriptApi::Send(QByteArray &bytes) {
+ApiCode
+ScriptApi::Send(QByteArray& bytes)
+{
   echo(QString::fromUtf8(bytes));
   return SendNoEcho(bytes);
 }
 
-ApiCode ScriptApi::Send(const QString &text) {
+ApiCode
+ScriptApi::Send(const QString& text)
+{
   echo(text);
   QByteArray bytes = text.toUtf8();
   return SendNoEcho(bytes);
 }
 
-ApiCode ScriptApi::SendNoEcho(QByteArray &bytes) {
+ApiCode
+ScriptApi::SendNoEcho(QByteArray& bytes)
+{
   OnPluginSend onSend(bytes);
   sendCallback(onSend);
   if (onSend.discarded())
@@ -260,21 +320,27 @@ ApiCode ScriptApi::SendNoEcho(QByteArray &bytes) {
   return ApiCode::OK;
 }
 
-ApiCode ScriptApi::SendPacket(QByteArrayView view) const {
+ApiCode
+ScriptApi::SendPacket(QByteArrayView view) const
+{
   if (socket->write(view.data(), view.size()) == -1) [[unlikely]]
     return ApiCode::WorldClosed;
 
   return ApiCode::OK;
 }
 
-ApiCode ScriptApi::SetCursor(Qt::CursorShape cursorShape) const {
+ApiCode
+ScriptApi::SetCursor(Qt::CursorShape cursorShape) const
+{
   tab->ui->area->setCursor(cursorShape);
   return ApiCode::OK;
 }
 
-ApiCode ScriptApi::SetOption(string_view name, const QVariant &variant) const {
-  World &world = tab->world;
-  const char *prop = WorldProperties::canonicalName(name);
+ApiCode
+ScriptApi::SetOption(string_view name, const QVariant& variant) const
+{
+  World& world = tab->world;
+  const char* prop = WorldProperties::canonicalName(name);
   if (!prop) [[unlikely]]
     return ApiCode::UnknownOption;
   QVariant property = world.property(prop);
@@ -282,45 +348,60 @@ ApiCode ScriptApi::SetOption(string_view name, const QVariant &variant) const {
     return updateWorld(*tab);
 
   switch (property.typeId()) {
-  case QMetaType::QColor:
-    if (QColor color = getColorFromVariant(variant);
-        color.isValid() && world.setProperty(prop, color))
-      return updateWorld(*tab);
-  case QMetaType::QVariantHash:
-    if (isEmptyList(variant) && world.setProperty(prop, QVariantHash()))
-      return updateWorld(*tab);
-  case QMetaType::QVariantMap:
-    if (isEmptyList(variant) && world.setProperty(prop, QVariantMap()))
-      return updateWorld(*tab);
+    case QMetaType::QColor:
+      if (QColor color = getColorFromVariant(variant);
+          color.isValid() && world.setProperty(prop, color))
+        return updateWorld(*tab);
+    case QMetaType::QVariantHash:
+      if (isEmptyList(variant) && world.setProperty(prop, QVariantHash()))
+        return updateWorld(*tab);
+    case QMetaType::QVariantMap:
+      if (isEmptyList(variant) && world.setProperty(prop, QVariantMap()))
+        return updateWorld(*tab);
   }
 
   return ApiCode::OptionOutOfRange;
 }
 
-void ScriptApi::SetStatus(const QString &status) const {
+void
+ScriptApi::SetStatus(const QString& status) const
+{
   statusBar->setMessage(status);
 }
 
-bool ScriptApi::SetVariable(size_t index, string_view key,
-                            string_view value) const {
+bool
+ScriptApi::SetVariable(size_t index, string_view key, string_view value) const
+{
   return client()->setVariable(index, key, value);
 }
 
-void ScriptApi::StopEvaluatingTriggers() const {
+void
+ScriptApi::StopEvaluatingTriggers() const
+{
   return client()->stopTriggers();
 }
 
-ApiCode ScriptApi::StopSound(size_t channel) {
+ApiCode
+ScriptApi::StopSound(size_t channel)
+{
   return convertSoundResult(client()->stopSound(channel));
 }
 
-void ScriptApi::Tell(const QString &text) { appendTell(text, noteFormat); }
+void
+ScriptApi::Tell(const QString& text)
+{
+  appendTell(text, noteFormat);
+}
 
-ApiCode ScriptApi::TextRectangle(const QMargins &margins, int borderOffset,
-                                 const QColor &borderColor, int borderWidth,
-                                 const QBrush &outsideFill) const {
-  Ui::WorldTab *ui = tab->ui;
-  QTextDocument *doc = ui->output->document();
+ApiCode
+ScriptApi::TextRectangle(const QMargins& margins,
+                         int borderOffset,
+                         const QColor& borderColor,
+                         int borderWidth,
+                         const QBrush& outsideFill) const
+{
+  Ui::WorldTab* ui = tab->ui;
+  QTextDocument* doc = ui->output->document();
   doc->setLayoutEnabled(false);
   ui->area->setContentsMargins(margins);
   QPalette areaPalette = ui->area->palette();
@@ -329,45 +410,58 @@ ApiCode ScriptApi::TextRectangle(const QMargins &margins, int borderOffset,
   if (!outsideBrush.color().isValid())
     outsideBrush.setColor(tab->world.getAnsi0());
 
-  const QColor &borderColorFill =
-      borderColor.isValid() ? borderColor : outsideBrush.color();
+  const QColor& borderColorFill =
+    borderColor.isValid() ? borderColor : outsideBrush.color();
 
   areaPalette.setBrush(QPalette::ColorRole::Window, outsideBrush);
   ui->area->setPalette(areaPalette);
-  ui->outputBorder->setContentsMargins(borderWidth, borderWidth, borderWidth,
-                                       borderWidth);
+  ui->outputBorder->setContentsMargins(
+    borderWidth, borderWidth, borderWidth, borderWidth);
   QPalette borderPalette = ui->outputBorder->palette();
   borderPalette.setBrush(QPalette::ColorRole::Window, borderColorFill);
   ui->outputBorder->setPalette(borderPalette);
-  ui->background->setContentsMargins(borderOffset, borderOffset, borderOffset,
-                                     borderOffset);
+  ui->background->setContentsMargins(
+    borderOffset, borderOffset, borderOffset, borderOffset);
   doc->setLayoutEnabled(true);
   return ApiCode::OK;
 }
 
-ApiCode ScriptApi::TextRectangle(const OutputLayout &layout) const {
-  return TextRectangle(layout.margins, layout.borderOffset, layout.borderColor,
-                       layout.borderWidth, layout.outsideFill);
+ApiCode
+ScriptApi::TextRectangle(const OutputLayout& layout) const
+{
+  return TextRectangle(layout.margins,
+                       layout.borderOffset,
+                       layout.borderColor,
+                       layout.borderWidth,
+                       layout.outsideFill);
 }
 
-ApiCode ScriptApi::TextRectangle(const QRect &rect, int borderOffset,
-                                 const QColor &borderColor, int borderWidth,
-                                 const QBrush &outsideFill) const {
+ApiCode
+ScriptApi::TextRectangle(const QRect& rect,
+                         int borderOffset,
+                         const QColor& borderColor,
+                         int borderWidth,
+                         const QBrush& outsideFill) const
+{
   const QSize size = tab->ui->area->size();
-  const QMargins margins(rect.left(), rect.top(), size.width() - rect.right(),
+  const QMargins margins(rect.left(),
+                         rect.top(),
+                         size.width() - rect.right(),
                          size.height() - rect.bottom());
   const OutputLayout layout{
-      .margins = margins,
-      .borderOffset = (int16_t)borderOffset,
-      .borderColor = borderColor,
-      .borderWidth = (int16_t)borderWidth,
-      .outsideFill = outsideFill,
+    .margins = margins,
+    .borderOffset = (int16_t)borderOffset,
+    .borderColor = borderColor,
+    .borderWidth = (int16_t)borderWidth,
+    .outsideFill = outsideFill,
   };
   client()->setMetavariable("output/layout", layout.save());
   return TextRectangle(layout);
 }
 
-ApiCode ScriptApi::TextRectangle() const {
+ApiCode
+ScriptApi::TextRectangle() const
+{
   const QByteArrayView variable = client()->getMetavariable("output/layout");
   if (!variable.data())
     return ApiCode::OK;

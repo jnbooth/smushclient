@@ -9,13 +9,15 @@
 
 // Public methods
 
-MudStatusBar::MudStatusBar(QWidget *parent)
-    : QWidget(parent), ui(new Ui::MudStatusBar),
-      connectionIcons({
-          QIcon(QString::fromUtf8(":/icons/status/disconnected.svg")),
-          QIcon(QString::fromUtf8(":/icons/status/connected.svg")),
-          QIcon(QString::fromUtf8(":/icons/status/encrypted.svg")),
-      }) {
+MudStatusBar::MudStatusBar(QWidget* parent)
+  : QWidget(parent)
+  , ui(new Ui::MudStatusBar)
+  , connectionIcons({
+      QIcon(QString::fromUtf8(":/icons/status/disconnected.svg")),
+      QIcon(QString::fromUtf8(":/icons/status/connected.svg")),
+      QIcon(QString::fromUtf8(":/icons/status/encrypted.svg")),
+    })
+{
   ui->setupUi(this);
   menu = new QMenu(this);
   menu->close();
@@ -29,56 +31,67 @@ MudStatusBar::MudStatusBar(QWidget *parent)
   restore();
 }
 
-MudStatusBar::~MudStatusBar() {
+MudStatusBar::~MudStatusBar()
+{
   save();
   delete ui;
 }
 
-bool MudStatusBar::createStat(const QString &entity, const QString &caption,
-                              const QString &maxEntity) {
+bool
+MudStatusBar::createStat(const QString& entity,
+                         const QString& caption,
+                         const QString& maxEntity)
+{
   auto search = statsByEntity.find(entity);
   if (search != statsByEntity.end())
     return recreateStat(search.value(), caption, maxEntity);
 
-  StatusBarStat *stat = new StatusBarStat(entity, caption, maxEntity, this);
+  StatusBarStat* stat = new StatusBarStat(entity, caption, maxEntity, this);
   ui->horizontalLayout->insertWidget(statsByEntity.size(), stat);
   statsByEntity[entity] = stat;
   if (!maxEntity.isEmpty())
     statsByMax.insert(maxEntity, stat);
-  QMenu *statMenu = stat->menu();
+  QMenu* statMenu = stat->menu();
   menu->addMenu(statMenu);
   statMenu->menuAction()->setVisible(false);
 
   return true;
 }
 
-bool MudStatusBar::updateStat(const QString &entity, const QString &value) {
+bool
+MudStatusBar::updateStat(const QString& entity, const QString& value)
+{
   for (auto iter = statsByMax.find(entity), end = statsByMax.end();
-       iter != end && iter.key() == entity; ++iter)
+       iter != end && iter.key() == entity;
+       ++iter)
     iter.value()->setMax(value);
 
   auto search = statsByEntity.find(entity);
   if (search == statsByEntity.end()) [[unlikely]]
     return false;
 
-  StatusBarStat *stat = search.value();
+  StatusBarStat* stat = search.value();
   stat->setValue(value);
   return true;
 }
 
 // Public slots
 
-void MudStatusBar::clearStats() {
+void
+MudStatusBar::clearStats()
+{
   qDeleteAll(statsByEntity.values());
   statsByEntity.clear();
   statsByMax.clear();
 }
 
-void MudStatusBar::setConnected(MudStatusBar::ConnectionStatus status) {
+void
+MudStatusBar::setConnected(MudStatusBar::ConnectionStatus status)
+{
   const bool connected = status != ConnectionStatus::Disconnected;
   ui->connection->setText(status == ConnectionStatus::Disconnected
-                              ? tr("Disconnected")
-                              : tr("Connected"));
+                            ? tr("Disconnected")
+                            : tr("Connected"));
   ui->connection->setIcon(connectionIcons.at((size_t)status));
 
   if (connected)
@@ -88,29 +101,42 @@ void MudStatusBar::setConnected(MudStatusBar::ConnectionStatus status) {
   clearStats();
 }
 
-void MudStatusBar::setMessage(const QString &message) {
+void
+MudStatusBar::setMessage(const QString& message)
+{
   ui->message->setText(message);
 }
 
-void MudStatusBar::setUsers(int users) { setUsers(QString::number(users)); }
+void
+MudStatusBar::setUsers(int users)
+{
+  setUsers(QString::number(users));
+}
 
-void MudStatusBar::setUsers(const QString &users) {
+void
+MudStatusBar::setUsers(const QString& users)
+{
   ui->users->setText(users);
   ui->users->setVisible(ui->action_users_online->isChecked());
 }
 
 // Protected overrides
 
-void MudStatusBar::contextMenuEvent(QContextMenuEvent *event) {
+void
+MudStatusBar::contextMenuEvent(QContextMenuEvent* event)
+{
   menu->popup(event->globalPos());
 }
 
 // Private methods
 
-bool MudStatusBar::recreateStat(StatusBarStat *stat, const QString &caption,
-                                const QString &maxEntity) {
+bool
+MudStatusBar::recreateStat(StatusBarStat* stat,
+                           const QString& caption,
+                           const QString& maxEntity)
+{
   stat->setCaption(caption);
-  const QString &currentMaxEntity = stat->maxEntity();
+  const QString& currentMaxEntity = stat->maxEntity();
   if (currentMaxEntity == maxEntity)
     return false;
 
@@ -120,10 +146,12 @@ bool MudStatusBar::recreateStat(StatusBarStat *stat, const QString &caption,
   return true;
 }
 
-bool MudStatusBar::restore() {
+bool
+MudStatusBar::restore()
+{
   const QByteArray saveData = QSettings().value(settingsKey()).toByteArray();
   if (saveData.isEmpty()) {
-    for (QAction *action : stateActions())
+    for (QAction* action : stateActions())
       action->setChecked(true);
 
     return false;
@@ -131,7 +159,7 @@ bool MudStatusBar::restore() {
 
   bool check;
   QDataStream stream(saveData);
-  for (QAction *action : stateActions()) {
+  for (QAction* action : stateActions()) {
     stream >> check;
     action->setChecked(check);
   }
@@ -139,19 +167,25 @@ bool MudStatusBar::restore() {
   return stream.status() == QDataStream::Status::Ok;
 }
 
-void MudStatusBar::save() const {
+void
+MudStatusBar::save() const
+{
   QByteArray saveData;
   QDataStream stream(&saveData, QIODevice::WriteOnly);
-  for (QAction *action : stateActions())
+  for (QAction* action : stateActions())
     stream << action->isChecked();
   QSettings().setValue(settingsKey(), saveData);
 }
 
-const QString &MudStatusBar::settingsKey() {
+const QString&
+MudStatusBar::settingsKey()
+{
   static const QString key = QStringLiteral("state/stat");
   return key;
 }
 
-QList<QAction *> MudStatusBar::stateActions() const {
-  return {ui->action_connection_status, ui->action_users_online};
+QList<QAction*>
+MudStatusBar::stateActions() const
+{
+  return { ui->action_connection_status, ui->action_users_online };
 }

@@ -7,16 +7,17 @@ class SettingsStartup;
 
 class Settings;
 
-class SettingsStartup : public QWidget {
+class SettingsStartup : public QWidget
+{
   Q_OBJECT
 
 public:
-  explicit SettingsStartup(Settings &settings, QWidget *parent = nullptr);
+  explicit SettingsStartup(Settings& settings, QWidget* parent = nullptr);
   ~SettingsStartup();
 
 private:
   QString currentStartupDirectory() const;
-  bool openFolder(const QString &dir) const;
+  bool openFolder(const QString& dir) const;
 
 private slots:
   void on_browse_plugins_clicked();
@@ -31,6 +32,6 @@ private slots:
   void on_StartupDirectory_browse_clicked();
 
 private:
-  Ui::SettingsStartup *ui;
-  Settings &settings;
+  Ui::SettingsStartup* ui;
+  Settings& settings;
 };

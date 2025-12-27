@@ -5,7 +5,10 @@
 #include "rust/cxx.h"
 
 namespace rust {
-template <> struct IsRelocatable<QBrush> : ::std::true_type {};
+template<>
+struct IsRelocatable<QBrush> : ::std::true_type
+{};
 
-namespace smushclientqtlib1 {}
+namespace smushclientqtlib1 {
+}
 } // namespace rust

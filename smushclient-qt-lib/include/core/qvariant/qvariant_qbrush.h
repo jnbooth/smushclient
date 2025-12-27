@@ -8,7 +8,8 @@
 namespace rust {
 namespace cxxqtlib1 {
 namespace qvariant {
-bool qvariantCanConvertQBrush(const QVariant &variant);
+bool
+qvariantCanConvertQBrush(const QVariant& variant);
 }
 } // namespace cxxqtlib1
 } // namespace rust

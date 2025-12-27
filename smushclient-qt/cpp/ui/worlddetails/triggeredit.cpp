@@ -6,12 +6,15 @@
 #include <QtWidgets/QFileDialog>
 
 #define CONNECT(field)                                                         \
-  connectField(this, &trigger, ui->field, trigger.get##field(),                \
-               &Trigger::set##field);
+  connectField(                                                                \
+    this, &trigger, ui->field, trigger.get##field(), &Trigger::set##field);
 
-TriggerEdit::TriggerEdit(Trigger &trigger, QWidget *parent)
-    : QDialog(parent), ui(new Ui::TriggerEdit),
-      originalGroup(trigger.getGroup()), trigger(trigger) {
+TriggerEdit::TriggerEdit(Trigger& trigger, QWidget* parent)
+  : QDialog(parent)
+  , ui(new Ui::TriggerEdit)
+  , originalGroup(trigger.getGroup())
+  , trigger(trigger)
+{
   ui->setupUi(this);
 
   // Sender
@@ -52,41 +55,53 @@ TriggerEdit::TriggerEdit(Trigger &trigger, QWidget *parent)
   ui->Text->setPlainText(trigger.getText());
 }
 
-TriggerEdit::~TriggerEdit() { delete ui; }
+TriggerEdit::~TriggerEdit()
+{
+  delete ui;
+}
 
-bool TriggerEdit::groupChanged() const {
+bool
+TriggerEdit::groupChanged() const
+{
   return originalGroup != ui->Group->text();
 }
 
 // Private slots
 
-void TriggerEdit::on_Label_textChanged(const QString &text) {
+void
+TriggerEdit::on_Label_textChanged(const QString& text)
+{
   ui->Variable->setPlaceholderText(text);
 }
 
-void TriggerEdit::on_UserSendTo_currentIndexChanged(int index) {
+void
+TriggerEdit::on_UserSendTo_currentIndexChanged(int index)
+{
   switch (index) {
-  case (int)UserSendTarget::NotepadAppend:
-  case (int)UserSendTarget::NotepadNew:
-  case (int)UserSendTarget::NotepadReplace:
-    ui->Variable->show();
-    ui->Variable_label->setText(tr("Notepad:"));
-    return;
-  case (int)UserSendTarget::Variable:
-    ui->Variable->show();
-    ui->Variable_label->setText(tr("Variable:"));
-    return;
-  default:
-    ui->Variable->hide();
-    ui->Variable_label->clear();
+    case (int)UserSendTarget::NotepadAppend:
+    case (int)UserSendTarget::NotepadNew:
+    case (int)UserSendTarget::NotepadReplace:
+      ui->Variable->show();
+      ui->Variable_label->setText(tr("Notepad:"));
+      return;
+    case (int)UserSendTarget::Variable:
+      ui->Variable->show();
+      ui->Variable_label->setText(tr("Variable:"));
+      return;
+    default:
+      ui->Variable->hide();
+      ui->Variable_label->clear();
   }
 }
 
-void TriggerEdit::on_Sound_browse_clicked() {
+void
+TriggerEdit::on_Sound_browse_clicked()
+{
   const QString currentFile = ui->Sound->text();
   const QString path = QFileDialog::getOpenFileName(
-      this, tr("Select sound file"),
-      currentFile.isEmpty() ? QStringLiteral(SOUNDS_DIR) : currentFile);
+    this,
+    tr("Select sound file"),
+    currentFile.isEmpty() ? QStringLiteral(SOUNDS_DIR) : currentFile);
 
   if (path.isEmpty())
     return;
@@ -94,13 +109,21 @@ void TriggerEdit::on_Sound_browse_clicked() {
   ui->Sound->setText(makePathRelative(path));
 }
 
-void TriggerEdit::on_Sound_test_clicked() { audio.play(); }
+void
+TriggerEdit::on_Sound_test_clicked()
+{
+  audio.play();
+}
 
-void TriggerEdit::on_Sound_textChanged(const QString &text) {
+void
+TriggerEdit::on_Sound_textChanged(const QString& text)
+{
   ui->Sound_test->setEnabled(!text.isEmpty());
   ui->SoundError->setText(audio.setFile(text));
 }
 
-void TriggerEdit::on_Text_textChanged() {
+void
+TriggerEdit::on_Text_textChanged()
+{
   trigger.setText(ui->Text->toPlainText());
 }

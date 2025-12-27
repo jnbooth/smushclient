@@ -5,12 +5,17 @@
 namespace rust {
 namespace smushclientqtlib1 {
 namespace qmap {
-template <typename K, typename V> void qmapClear(QMap<K, V> &map) {
+template<typename K, typename V>
+void
+qmapClear(QMap<K, V>& map)
+{
   map.clear();
 }
 
-template <typename K, typename V>
-bool qmapContains(const QMap<K, V> &map, const K &item) {
+template<typename K, typename V>
+bool
+qmapContains(const QMap<K, V>& map, const K& item)
+{
   return map.contains(item);
 }
 } // namespace qmap

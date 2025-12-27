@@ -2,4 +2,5 @@
 
 struct lua_State;
 
-int registerLuaGlobals(lua_State *L);
+int
+registerLuaGlobals(lua_State* L);

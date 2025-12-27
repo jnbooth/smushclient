@@ -25,91 +25,95 @@ namespace Ui {
 class WorldTab;
 }
 
-enum class AvailableCopy {
+enum class AvailableCopy
+{
   None,
   Input,
   Output,
 };
 
-class WorldTab : public QSplitter {
+class WorldTab : public QSplitter
+{
   Q_OBJECT
 
 public:
   Q_ENUM(AvailableCopy)
 
 public:
-  explicit WorldTab(MudStatusBar *statusBar, Notepads *notepads,
-                    QWidget *parent = nullptr);
+  explicit WorldTab(MudStatusBar* statusBar,
+                    Notepads* notepads,
+                    QWidget* parent = nullptr);
   ~WorldTab();
 
   AvailableCopy availableCopy() const;
   void closeLog();
   bool connected() const;
   void connectToHost();
-  QTextEdit *copyableEditor() const;
+  QTextEdit* copyableEditor() const;
   void createWorld() &;
   void disconnectFromHost();
   void editWorldScript();
   void openLog();
-  bool openWorld(const QString &filename) &;
+  bool openWorld(const QString& filename) &;
   bool openWorldSettings();
   bool promptSave();
   void reloadWorldScript() const;
   void resetAllTimers() const;
   QString saveWorld();
   QString saveWorldAsNew();
-  constexpr const QHash<QString, QString> &serverStatus() const {
+  constexpr const QHash<QString, QString>& serverStatus() const
+  {
     return document->serverStatus();
   }
   void setIsActive(bool active);
-  void setOnDragMove(CallbackTrigger &&trigger);
-  void setOnDragRelease(Hotspot *hotspot);
+  void setOnDragMove(CallbackTrigger&& trigger);
+  void setOnDragRelease(Hotspot* hotspot);
   void setStatusBarVisible(bool visible);
   void start();
   void stopSound() const;
-  const QString &title() const noexcept;
+  const QString& title() const noexcept;
   bool updateWorld();
-  constexpr const QString &worldFilePath() const noexcept { return filePath; }
+  constexpr const QString& worldFilePath() const noexcept { return filePath; }
 
 public slots:
-  void onInputBackgroundChanged(const QColor &color);
-  void onInputFontChanged(const QFont &font);
-  void onInputForegroundChanged(const QColor &color);
-  void onOutputBlockFormatChanged(const QTextBlockFormat &format);
-  void onOutputFontChanged(const QFont &font);
+  void onInputBackgroundChanged(const QColor& color);
+  void onInputFontChanged(const QFont& font);
+  void onInputForegroundChanged(const QColor& color);
+  void onOutputBlockFormatChanged(const QTextBlockFormat& format);
+  void onOutputFontChanged(const QFont& font);
   void onOutputPaddingChanged(double padding);
 
 signals:
   void connectionStatusChanged(bool connected);
   void copyAvailable(AvailableCopy available);
-  void newActivity(WorldTab *self);
+  void newActivity(WorldTab* self);
 
 public:
-  Ui::WorldTab *ui;
+  Ui::WorldTab* ui;
   SmushClient client;
-  QSslSocket *socket;
+  QSslSocket* socket;
   World world;
 
 protected:
-  void closeEvent(QCloseEvent *event) override;
-  void leaveEvent(QEvent *event) override;
-  void keyPressEvent(QKeyEvent *event) override;
-  void mouseMoveEvent(QMouseEvent *event) override;
-  void mouseReleaseEvent(QMouseEvent *event) override;
-  void resizeEvent(QResizeEvent *event) override;
+  void closeEvent(QCloseEvent* event) override;
+  void leaveEvent(QEvent* event) override;
+  void keyPressEvent(QKeyEvent* event) override;
+  void mouseMoveEvent(QMouseEvent* event) override;
+  void mouseReleaseEvent(QMouseEvent* event) override;
+  void resizeEvent(QResizeEvent* event) override;
 
 private:
   void applyWorld();
   void finishDrag();
   bool restoreHistory();
   bool saveHistory() const;
-  bool saveWorldAndState(const QString &filePath);
-  bool sendCommand(const QString &command, CommandSource source);
+  bool saveWorldAndState(const QString& filePath);
+  bool sendCommand(const QString& command, CommandSource source);
   void setupWorldScriptWatcher();
   void updateWorldScript();
 
 private slots:
-  void confirmReloadWorldScript(const QString &worldScriptPath);
+  void confirmReloadWorldScript(const QString& worldScriptPath);
   void finishResize();
   void flushOutput();
   void loadPlugins();
@@ -121,20 +125,20 @@ private slots:
   void onSocketError(QAbstractSocket::SocketError socketError);
 
   void on_input_copyAvailable(bool available);
-  void on_input_submitted(const QString &text);
+  void on_input_submitted(const QString& text);
   void on_input_textChanged();
-  void on_output_anchorClicked(const QUrl &url);
+  void on_output_anchorClicked(const QUrl& url);
   void on_output_copyAvailable(bool available);
-  void on_output_customContextMenuRequested(const QPoint &pos);
+  void on_output_customContextMenuRequested(const QPoint& pos);
 
 private:
   bool alertNewActivity = false;
-  ScriptApi *api;
+  ScriptApi* api;
   QMetaObject::Connection autoScroll;
   QFont defaultFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-  Document *document;
+  Document* document;
   QString filePath{};
-  QTimer *flushTimer;
+  QTimer* flushTimer;
   bool handleKeypad = false;
   bool initialized = false;
   bool inputCopyAvailable = false;
@@ -144,7 +148,7 @@ private:
   QPointer<Hotspot> onDragRelease = nullptr;
   bool outputCopyAvailable = false;
   bool queuedConnect = false;
-  QTimer *resizeTimer;
+  QTimer* resizeTimer;
   int sessionStartBlock = 0;
   QRegularExpression splitter{};
   bool tryingSsl = false;

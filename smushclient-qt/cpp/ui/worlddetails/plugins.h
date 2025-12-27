@@ -9,18 +9,19 @@ class PluginModel;
 class ScriptApi;
 class SmushClient;
 
-class PrefsPlugins : public QWidget {
+class PrefsPlugins : public QWidget
+{
   Q_OBJECT
 
 public:
-  PrefsPlugins(PluginModel *model, ScriptApi *api, QWidget *parent = nullptr);
+  PrefsPlugins(PluginModel* model, ScriptApi* api, QWidget* parent = nullptr);
   ~PrefsPlugins();
 
 private:
-  static const QString &settingsKey();
+  static const QString& settingsKey();
 
 private slots:
-  void onClientError(const QString &error);
+  void onClientError(const QString& error);
   void onPluginOrderChanged();
   void onPluginScriptChanged(size_t pluginIndex);
   void on_button_add_clicked();
@@ -30,7 +31,7 @@ private slots:
   void on_table_clicked();
 
 private:
-  Ui::PrefsPlugins *ui;
-  ScriptApi *api;
-  PluginModel *model;
+  Ui::PrefsPlugins* ui;
+  ScriptApi* api;
+  PluginModel* model;
 };

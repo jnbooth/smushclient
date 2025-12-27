@@ -9,11 +9,12 @@ class World;
 enum class LogFormat;
 enum class LogMode;
 
-class PrefsLogging : public QWidget {
+class PrefsLogging : public QWidget
+{
   Q_OBJECT
 
 public:
-  explicit PrefsLogging(World &world, QWidget *parent = nullptr);
+  explicit PrefsLogging(World& world, QWidget* parent = nullptr);
   ~PrefsLogging();
 
 private slots:
@@ -25,6 +26,6 @@ private slots:
   void on_view_special_clicked();
 
 private:
-  Ui::PrefsLogging *ui;
-  World &world;
+  Ui::PrefsLogging* ui;
+  World& world;
 };

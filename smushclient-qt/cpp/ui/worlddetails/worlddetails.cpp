@@ -20,10 +20,16 @@
 
 // Public methods
 
-WorldPrefs::WorldPrefs(World &world, SmushClient &client, ScriptApi *api,
-                       QWidget *parent)
-    : QDialog(parent), ui(new Ui::WorldPrefs), api(api), client(client),
-      world(world) {
+WorldPrefs::WorldPrefs(World& world,
+                       SmushClient& client,
+                       ScriptApi* api,
+                       QWidget* parent)
+  : QDialog(parent)
+  , ui(new Ui::WorldPrefs)
+  , api(api)
+  , client(client)
+  , world(world)
+{
   ui->setupUi(this);
   ui->settings_list->setCurrentRow(0);
   aliases = new AliasModel(client, this);
@@ -36,52 +42,65 @@ WorldPrefs::WorldPrefs(World &world, SmushClient &client, ScriptApi *api,
   connectModel(triggers);
 }
 
-WorldPrefs::~WorldPrefs() { delete ui; }
+WorldPrefs::~WorldPrefs()
+{
+  delete ui;
+}
 
 // Private methods
 
-void WorldPrefs::connectModel(QAbstractItemModel *model) {
-  connect(model, &QAbstractItemModel::dataChanged, this,
-          &WorldPrefs::markDirty);
-  connect(model, &QAbstractItemModel::layoutChanged, this,
-          &WorldPrefs::markDirty);
+void
+WorldPrefs::connectModel(QAbstractItemModel* model)
+{
+  connect(
+    model, &QAbstractItemModel::dataChanged, this, &WorldPrefs::markDirty);
+  connect(
+    model, &QAbstractItemModel::layoutChanged, this, &WorldPrefs::markDirty);
   connect(model, &QAbstractItemModel::modelReset, this, &WorldPrefs::markDirty);
 }
 
-QWidget *WorldPrefs::paneForIndex(int n) {
+QWidget*
+WorldPrefs::paneForIndex(int n)
+{
   switch (n) {
-  case 0:
-    return new PrefsConnecting(world, this);
-  case 1:
-    return new PrefsLogin(world, this);
-  case 2:
-    return new PrefsOutput(world, this);
-  case 3:
-    return new PrefsMud(world, this);
-  case 4:
-    return new PrefsLogging(world, this);
-  case 5:
-    return new PrefsNumpad(world, this);
-  case 6:
-    return new PrefsAliases(world, aliases, this);
-  case 7:
-    return new PrefsTimers(world, timers, this);
-  case 8:
-    return new PrefsTriggers(world, triggers, this);
-  case 9:
-    return new PrefsScripting(world, this);
-  case 10:
-    return new PrefsPlugins(plugins, api, this);
-  default:
-    return nullptr;
+    case 0:
+      return new PrefsConnecting(world, this);
+    case 1:
+      return new PrefsLogin(world, this);
+    case 2:
+      return new PrefsOutput(world, this);
+    case 3:
+      return new PrefsMud(world, this);
+    case 4:
+      return new PrefsLogging(world, this);
+    case 5:
+      return new PrefsNumpad(world, this);
+    case 6:
+      return new PrefsAliases(world, aliases, this);
+    case 7:
+      return new PrefsTimers(world, timers, this);
+    case 8:
+      return new PrefsTriggers(world, triggers, this);
+    case 9:
+      return new PrefsScripting(world, this);
+    case 10:
+      return new PrefsPlugins(plugins, api, this);
+    default:
+      return nullptr;
   }
 }
 
 // Private slots
 
-void WorldPrefs::markDirty() { dirty = true; }
+void
+WorldPrefs::markDirty()
+{
+  dirty = true;
+}
 
-void WorldPrefs::on_settings_list_currentRowChanged(int row) {
+void
+WorldPrefs::on_settings_list_currentRowChanged(int row)
+{
   if (row == -1)
     return;
 

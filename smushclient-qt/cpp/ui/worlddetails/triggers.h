@@ -8,12 +8,14 @@ class PrefsTriggers;
 class TriggerModel;
 class World;
 
-class PrefsTriggers : public AbstractPrefsTree {
+class PrefsTriggers : public AbstractPrefsTree
+{
   Q_OBJECT
 
 public:
-  explicit PrefsTriggers(const World &world, TriggerModel *model,
-                         QWidget *parent = nullptr);
+  explicit PrefsTriggers(const World& world,
+                         TriggerModel* model,
+                         QWidget* parent = nullptr);
   ~PrefsTriggers();
 
 protected:
@@ -21,5 +23,5 @@ protected:
   void enableMultiButtons(bool enabled) override;
 
 private:
-  Ui::PrefsTriggers *ui;
+  Ui::PrefsTriggers* ui;
 };

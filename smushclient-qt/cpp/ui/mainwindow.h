@@ -15,37 +15,38 @@ enum class AvailableCopy : int;
 class Notepads;
 class WorldTab;
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
   Q_OBJECT
 
 public:
-  explicit MainWindow(Notepads *notepads, QWidget *parent = nullptr);
+  explicit MainWindow(Notepads* notepads, QWidget* parent = nullptr);
   ~MainWindow();
 
-  void openWorld(const QString &filePath);
+  void openWorld(const QString& filePath);
 
 protected:
-  void closeEvent(QCloseEvent *event) override;
-  bool event(QEvent *event) override;
+  void closeEvent(QCloseEvent* event) override;
+  bool event(QEvent* event) override;
 
 private:
-  static const QString &settingsKey();
+  static const QString& settingsKey();
 
-  void addRecentFile(const QString &filePath);
-  WorldTab *createWorldTab(QWidget *parent) const;
-  void connectTab(WorldTab *tab) const;
+  void addRecentFile(const QString& filePath);
+  WorldTab* createWorldTab(QWidget* parent) const;
+  void connectTab(WorldTab* tab) const;
   void openRecentFile(qsizetype index);
   bool restore();
   void save() const;
-  void setupRecentFiles(const QStringList &recentFiles) const;
+  void setupRecentFiles(const QStringList& recentFiles) const;
   void setWorldMenusEnabled(bool enabled) const;
-  WorldTab *worldtab() const;
-  WorldTab *worldtab(int index) const;
+  WorldTab* worldtab() const;
+  WorldTab* worldtab(int index) const;
 
 private slots:
   void onCopyAvailable(AvailableCopy copy);
   void onConnectionStatusChanged(bool connected);
-  void onNewActivity(WorldTab *tab);
+  void onNewActivity(WorldTab* tab);
 
   void on_action_about_triggered();
   void on_action_clear_output_triggered();
@@ -96,12 +97,12 @@ private slots:
   void on_world_tabs_tabCloseRequested(int index);
 
 private:
-  Ui::MainWindow *ui;
+  Ui::MainWindow* ui;
   QIcon activityIcon = QIcon::fromTheme(QIcon::ThemeIcon::DialogWarning);
-  FindDialog *findDialog;
+  FindDialog* findDialog;
   int lastTabIndex = -1;
-  Notepads *notepads;
-  QList<QAction *> recentFileActions{};
+  Notepads* notepads;
+  QList<QAction*> recentFileActions{};
   Settings settings{};
   QMetaObject::Connection socketConnection{};
 };

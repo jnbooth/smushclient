@@ -4,5 +4,6 @@
 class World;
 
 namespace hotkeys {
-QString numpad(const World &world, Qt::Key key, bool modified = false);
+QString
+numpad(const World& world, Qt::Key key, bool modified = false);
 };

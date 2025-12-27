@@ -4,15 +4,21 @@
 #include "notifier.h"
 #include "ui_history.h"
 
-int getLimit(QCheckBox *checkbox, QSpinBox *spinbox) {
+int
+getLimit(QCheckBox* checkbox, QSpinBox* spinbox)
+{
   return checkbox->isChecked() ? spinbox->value() : -1;
 }
 
 // Public methods
 
-SettingsHistory::SettingsHistory(Settings &settings, SettingsNotifier *notifier,
-                                 QWidget *parent)
-    : QWidget(parent), ui(new Ui::SettingsHistory), notifier(notifier) {
+SettingsHistory::SettingsHistory(Settings& settings,
+                                 SettingsNotifier* notifier,
+                                 QWidget* parent)
+  : QWidget(parent)
+  , ui(new Ui::SettingsHistory)
+  , notifier(notifier)
+{
   ui->setupUi(this);
   CONNECT_SETTINGS(InputHistoryLimit);
   CONNECT_SETTINGS(InputHistoryLines);
@@ -22,35 +28,56 @@ SettingsHistory::SettingsHistory(Settings &settings, SettingsNotifier *notifier,
   CONNECT_SETTINGS(OutputHistoryLimit);
   CONNECT_SETTINGS(OutputHistoryLines);
 
-  connect(ui->InputHistoryLimit, &QCheckBox::toggled, this,
+  connect(ui->InputHistoryLimit,
+          &QCheckBox::toggled,
+          this,
           &SettingsHistory::updateInputHistoryLimit);
-  connect(ui->InputHistoryLines, &QSpinBox::valueChanged, this,
+  connect(ui->InputHistoryLines,
+          &QSpinBox::valueChanged,
+          this,
           &SettingsHistory::updateInputHistoryLimit);
-  connect(ui->OutputLimit, &QCheckBox::toggled, this,
+  connect(ui->OutputLimit,
+          &QCheckBox::toggled,
+          this,
           &SettingsHistory::updateOutputLimit);
-  connect(ui->OutputLines, &QSpinBox::valueChanged, this,
+  connect(ui->OutputLines,
+          &QSpinBox::valueChanged,
+          this,
           &SettingsHistory::updateOutputLimit);
-  connect(ui->OutputHistoryLimit, &QCheckBox::toggled, this,
+  connect(ui->OutputHistoryLimit,
+          &QCheckBox::toggled,
+          this,
           &SettingsHistory::updateOutputHistoryLimit);
-  connect(ui->OutputHistoryLines, &QSpinBox::valueChanged, this,
+  connect(ui->OutputHistoryLines,
+          &QSpinBox::valueChanged,
+          this,
           &SettingsHistory::updateOutputHistoryLimit);
 }
 
-SettingsHistory::~SettingsHistory() { delete ui; }
+SettingsHistory::~SettingsHistory()
+{
+  delete ui;
+}
 
 // Private slots
 
-void SettingsHistory::updateInputHistoryLimit() {
+void
+SettingsHistory::updateInputHistoryLimit()
+{
   const int limit = getLimit(ui->InputHistoryLimit, ui->InputHistoryLines);
   emit notifier->inputHistoryLimitChanged(limit);
 }
 
-void SettingsHistory::updateOutputLimit() {
+void
+SettingsHistory::updateOutputLimit()
+{
   const int limit = getLimit(ui->OutputLimit, ui->OutputLines);
   emit notifier->outputLimitChanged(limit);
 }
 
-void SettingsHistory::updateOutputHistoryLimit() {
+void
+SettingsHistory::updateOutputHistoryLimit()
+{
   const int limit = getLimit(ui->OutputHistoryLimit, ui->OutputHistoryLines);
   emit notifier->outputHistoryLimitChanged(limit);
 }

@@ -8,13 +8,14 @@ class PluginPopup;
 class PluginDetails;
 class SmushClient;
 
-class PluginPopup : public QDialog {
+class PluginPopup : public QDialog
+{
   Q_OBJECT
 
 public:
-  PluginPopup(const PluginDetails &plugin, QWidget *parent = nullptr);
+  PluginPopup(const PluginDetails& plugin, QWidget* parent = nullptr);
   ~PluginPopup();
 
 private:
-  Ui::PluginPopup *ui;
+  Ui::PluginPopup* ui;
 };

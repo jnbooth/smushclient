@@ -8,12 +8,14 @@ class PrefsAliases;
 class AliasModel;
 class World;
 
-class PrefsAliases : public AbstractPrefsTree {
+class PrefsAliases : public AbstractPrefsTree
+{
   Q_OBJECT
 
 public:
-  PrefsAliases(const World &world, AliasModel *model,
-               QWidget *parent = nullptr);
+  PrefsAliases(const World& world,
+               AliasModel* model,
+               QWidget* parent = nullptr);
   ~PrefsAliases();
 
 protected:
@@ -21,5 +23,5 @@ protected:
   void enableMultiButtons(bool enabled) override;
 
 private:
-  Ui::PrefsAliases *ui;
+  Ui::PrefsAliases* ui;
 };

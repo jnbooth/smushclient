@@ -8,14 +8,15 @@ namespace Ui {
 class Notepad;
 }
 
-class Notepad : public QMainWindow {
+class Notepad : public QMainWindow
+{
   Q_OBJECT
 
 public:
-  explicit Notepad(QWidget *parent = nullptr);
+  explicit Notepad(QWidget* parent = nullptr);
   ~Notepad();
 
-  QTextEdit *editor() const;
+  QTextEdit* editor() const;
 
 private:
   void applyFontSize();
@@ -34,20 +35,21 @@ private slots:
   void on_action_visit_bug_reports_triggered();
 
 private:
-  Ui::Notepad *ui;
-  FindDialog *findDialog = nullptr;
+  Ui::Notepad* ui;
+  FindDialog* findDialog = nullptr;
   qreal fontSize;
 };
 
-class Notepads : public QWidget {
+class Notepads : public QWidget
+{
   Q_OBJECT
 
 public:
-  explicit Notepads(QWidget *parent = nullptr);
+  explicit Notepads(QWidget* parent = nullptr);
 
   void closeAll();
-  QTextEdit *pad(const QString &name = QString());
+  QTextEdit* pad(const QString& name = QString());
 
 private:
-  Notepad *create(const QString &name);
+  Notepad* create(const QString& name);
 };

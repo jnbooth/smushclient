@@ -1,7 +1,8 @@
 #pragma once
 #include <QtCore/QObject>
 
-class FileFilter : public QObject {
+class FileFilter : public QObject
+{
   Q_OBJECT
 
 public:

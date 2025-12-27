@@ -1,11 +1,12 @@
 #pragma once
 #include <QtWidgets/QScrollBar>
 
-class MudScrollBar : public QScrollBar {
+class MudScrollBar : public QScrollBar
+{
   Q_OBJECT
 
 public:
-  explicit MudScrollBar(QWidget *parent = nullptr);
+  explicit MudScrollBar(QWidget* parent = nullptr);
   virtual ~MudScrollBar() {}
 
   inline void disablePausing() { setPausingEnabled(false); }
@@ -17,11 +18,13 @@ public slots:
   void setPaused(bool paused = true);
   void setPausingEnabled(bool enabled = true);
 
-  inline void setAutoScrollDisabled(bool disabled = true) {
+  inline void setAutoScrollDisabled(bool disabled = true)
+  {
     setAutoScrollEnabled(!disabled);
   }
 
-  inline void setPausingDisabled(bool disabled = true) {
+  inline void setPausingDisabled(bool disabled = true)
+  {
     setPausingEnabled(!disabled);
   }
 

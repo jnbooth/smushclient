@@ -4,24 +4,28 @@
 #include <string>
 #include <vector>
 
-class WorldProperties {
+class WorldProperties
+{
 public:
-  static const char *canonicalName(std::string_view key);
-  inline static const std::vector<std::string> &numericOptions() {
+  static const char* canonicalName(std::string_view key);
+  inline static const std::vector<std::string>& numericOptions()
+  {
     return getInstance().numericProps;
   }
-  inline static const std::vector<std::string> &stringOptions() {
+  inline static const std::vector<std::string>& stringOptions()
+  {
     return getInstance().stringProps;
   }
 
 private:
-  static const WorldProperties &getInstance() {
+  static const WorldProperties& getInstance()
+  {
     static const WorldProperties instance;
     return instance;
   }
 
   WorldProperties();
-  void addProp(const std::string &prop, const QMetaType &type);
+  void addProp(const std::string& prop, const QMetaType& type);
 
 private:
   std::vector<std::string> numericProps{};

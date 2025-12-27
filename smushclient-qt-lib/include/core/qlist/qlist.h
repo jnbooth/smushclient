@@ -11,7 +11,7 @@ using QList_QBrush = QList<QBrush>;
 
 using QList_QTextCharFormat = QList<QTextCharFormat>;
 using QList_QTextCharFormatVerticalAlignment =
-    QList<QTextCharFormat::VerticalAlignment>;
+  QList<QTextCharFormat::VerticalAlignment>;
 
 using QList_QTextFormat = QList<QTextFormat>;
 using QList_QTextFormatFormatType = QList<QTextFormat::FormatType>;

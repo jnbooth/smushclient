@@ -26,28 +26,41 @@ using std::chrono::seconds;
 
 // Public methods
 
-ScriptApi::ScriptApi(MudStatusBar *statusBar, Notepads *notepads,
-                     WorldTab *parent)
-    : QObject(parent), cursor(parent->ui->output->document()),
-      notepads(notepads), scrollBar(parent->ui->output->verticalScrollBar()),
-      socket(parent->socket), statusBar(statusBar), tab(parent),
-      whenConnected(QDateTime::currentDateTime()) {
+ScriptApi::ScriptApi(MudStatusBar* statusBar,
+                     Notepads* notepads,
+                     WorldTab* parent)
+  : QObject(parent)
+  , cursor(parent->ui->output->document())
+  , notepads(notepads)
+  , scrollBar(parent->ui->output->verticalScrollBar())
+  , socket(parent->socket)
+  , statusBar(statusBar)
+  , tab(parent)
+  , whenConnected(QDateTime::currentDateTime())
+{
   sendQueue = new TimerMap<QueuedSend>(this, &ScriptApi::finishQueuedSend);
   timekeeper = new Timekeeper(this);
-  timekeeper->beginPolling(milliseconds(seconds{60}));
+  timekeeper->beginPolling(milliseconds(seconds{ 60 }));
   setLineType(echoFormat, LineType::Input);
   setLineType(noteFormat, LineType::Note);
   applyWorld(parent->world);
 }
 
-ScriptApi::~ScriptApi() { delete statusBar; }
+ScriptApi::~ScriptApi()
+{
+  delete statusBar;
+}
 
-void ScriptApi::appendHtml(const QString &html) {
+void
+ScriptApi::appendHtml(const QString& html)
+{
   flushLine();
   cursor.insertHtml(html);
 }
 
-void ScriptApi::appendTell(const QString &text, const QTextCharFormat &format) {
+void
+ScriptApi::appendTell(const QString& text, const QTextCharFormat& format)
+{
   if (text.isEmpty())
     return;
   if (cursor.position() != lastTellPosition) {
@@ -59,16 +72,22 @@ void ScriptApi::appendTell(const QString &text, const QTextCharFormat &format) {
   lastTellPosition = cursor.position();
 }
 
-void ScriptApi::appendText(const QString &text, const QTextCharFormat &format) {
+void
+ScriptApi::appendText(const QString& text, const QTextCharFormat& format)
+{
   flushLine();
   cursor.insertText(text, format);
 }
 
-void ScriptApi::appendText(const QString &text) {
+void
+ScriptApi::appendText(const QString& text)
+{
   appendText(text, noteFormat);
 }
 
-void ScriptApi::applyWorld(const World &world) {
+void
+ScriptApi::applyWorld(const World& world)
+{
   doNaws = world.getNaws();
   echoOnSameLine = world.getKeepCommandsOnSameLine();
   if (world.getNoEchoOff())
@@ -91,7 +110,9 @@ void ScriptApi::applyWorld(const World &world) {
     plugins[worldScriptIndex].disable();
 }
 
-void ScriptApi::echo(const QString &text) {
+void
+ScriptApi::echo(const QString& text)
+{
   if (suppressEcho) [[unlikely]]
     return;
   if (echoOnSameLine) {
@@ -102,20 +123,28 @@ void ScriptApi::echo(const QString &text) {
   startLine();
 }
 
-void ScriptApi::finishNote() { lastTellPosition = -1; }
+void
+ScriptApi::finishNote()
+{
+  lastTellPosition = -1;
+}
 
-const Plugin *ScriptApi::getPlugin(string_view pluginID) const {
+const Plugin*
+ScriptApi::getPlugin(string_view pluginID) const
+{
   const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin) [[unlikely]]
     return nullptr;
   return &plugins[index];
 }
 
-void ScriptApi::initializePlugins() {
+void
+ScriptApi::initializePlugins()
+{
   const rust::Vec<PluginPack> pack = client()->resetPlugins();
   worldScriptIndex = noSuchPlugin;
   if (!windows.empty()) {
-    for (const auto &entry : windows)
+    for (const auto& entry : windows)
       delete entry.second;
     windows.clear();
   }
@@ -134,7 +163,7 @@ void ScriptApi::initializePlugins() {
     if (metadata.id.empty())
       worldScriptIndex = index;
     pluginIndices[metadata.id] = index;
-    Plugin &plugin = plugins.emplace_back(this, *it, index);
+    Plugin& plugin = plugins.emplace_back(this, *it, index);
     if (plugin.metadata.id.empty())
       worldScriptIndex = index;
     pluginIndices[plugin.metadata.id] = index;
@@ -149,18 +178,20 @@ void ScriptApi::initializePlugins() {
   sendCallback(onListChanged);
 }
 
-void ScriptApi::reinstallPlugin(size_t index) {
+void
+ScriptApi::reinstallPlugin(size_t index)
+{
   const PluginPack pack = client()->plugin(index);
   const string pluginId = pack.id.toStdString();
   if (!windows.empty()) {
     for (auto it = windows.begin(); it != windows.end();)
-      if (MiniWindow *window = it->second; window->getPluginId() == pluginId) {
+      if (MiniWindow* window = it->second; window->getPluginId() == pluginId) {
         delete window;
         it = windows.erase(it);
       } else
         ++it;
   }
-  Plugin &plugin = plugins[index];
+  Plugin& plugin = plugins[index];
   plugin.metadata = PluginMetadata(pack, index);
   plugin.reset();
   if (!plugin.install(pack))
@@ -173,15 +204,19 @@ void ScriptApi::reinstallPlugin(size_t index) {
   sendCallback(onListChanged);
 }
 
-void ScriptApi::printError(const QString &error) {
+void
+ScriptApi::printError(const QString& error)
+{
   appendText(error, errorFormat);
   startLine();
 }
 
-void ScriptApi::reloadWorldScript(const QString &worldScriptPath) {
+void
+ScriptApi::reloadWorldScript(const QString& worldScriptPath)
+{
   if (worldScriptIndex == noSuchPlugin)
     return;
-  Plugin &worldPlugin = plugins[worldScriptIndex];
+  Plugin& worldPlugin = plugins[worldScriptIndex];
   worldPlugin.reset();
 
   if (worldScriptPath.isEmpty())
@@ -191,26 +226,31 @@ void ScriptApi::reloadWorldScript(const QString &worldScriptPath) {
     worldPlugin.disable();
 }
 
-void ScriptApi::resetAllTimers() {
+void
+ScriptApi::resetAllTimers()
+{
   sendQueue->clear();
   client()->startAllTimers(*timekeeper);
 }
 
-bool ScriptApi::runScript(const QString &pluginID,
-                          const QString &script) const {
+bool
+ScriptApi::runScript(const QString& pluginID, const QString& script) const
+{
   const size_t index = findPluginIndex(pluginID.toStdString());
   if (index == noSuchPlugin) [[unlikely]]
     return false;
   return runScript(index, script);
 }
 
-void ScriptApi::sendCallback(PluginCallback &callback) {
+void
+ScriptApi::sendCallback(PluginCallback& callback)
+{
   switch (callback.id()) {
-  case OnPluginWorldOutputResized::ID:
-    for (const auto &window : windows)
-      window.second->updatePosition();
-    sendNaws();
-    break;
+    case OnPluginWorldOutputResized::ID:
+      for (const auto& window : windows)
+        window.second->updatePosition();
+      sendNaws();
+      break;
   }
 
   if (!callbackFilter.includes(callback))
@@ -218,7 +258,7 @@ void ScriptApi::sendCallback(PluginCallback &callback) {
 
   const ActionSource callbackSource = callback.source();
   if (callbackSource == ActionSource::Unknown) {
-    for (const Plugin &plugin : plugins)
+    for (const Plugin& plugin : plugins)
       plugin.runCallback(callback);
     return;
   }
@@ -226,13 +266,15 @@ void ScriptApi::sendCallback(PluginCallback &callback) {
   const ActionSource initialSource = actionSource;
   actionSource = callbackSource;
 
-  for (const Plugin &plugin : plugins)
+  for (const Plugin& plugin : plugins)
     plugin.runCallback(callback);
 
   actionSource = initialSource;
 }
 
-bool ScriptApi::sendCallback(PluginCallback &callback, size_t index) {
+bool
+ScriptApi::sendCallback(PluginCallback& callback, size_t index)
+{
   const ActionSource callbackSource = callback.source();
 
   if (callbackSource == ActionSource::Unknown)
@@ -245,8 +287,9 @@ bool ScriptApi::sendCallback(PluginCallback &callback, size_t index) {
   return succeeded;
 }
 
-bool ScriptApi::sendCallback(PluginCallback &callback,
-                             const QString &pluginID) {
+bool
+ScriptApi::sendCallback(PluginCallback& callback, const QString& pluginID)
+{
   const size_t index = findPluginIndex(pluginID.toStdString());
   if (index == noSuchPlugin) [[unlikely]]
     return false;
@@ -254,99 +297,120 @@ bool ScriptApi::sendCallback(PluginCallback &callback,
   return sendCallback(callback, index);
 }
 
-void ScriptApi::sendNaws() const {
+void
+ScriptApi::sendNaws() const
+{
   if (!doesNaws || !doNaws)
     return;
-  MudBrowser *browser = tab->ui->output;
+  MudBrowser* browser = tab->ui->output;
   const QFontMetrics metrics = browser->fontMetrics();
   const QMargins margins = browser->contentsMargins();
   const int advance = metrics.horizontalAdvance(QStringLiteral("0123456789"));
   const QSize viewport = browser->maximumViewportSize();
   SendPacket(ffi::encodeNaws(
-      (viewport.width() - margins.left() - margins.right()) * 10 / advance,
-      (viewport.height() - margins.top() - margins.bottom()) /
-              metrics.lineSpacing() -
-          4));
+    (viewport.width() - margins.left() - margins.right()) * 10 / advance,
+    (viewport.height() - margins.top() - margins.bottom()) /
+        metrics.lineSpacing() -
+      4));
 }
 
-void ScriptApi::sendTo(size_t plugin, SendTarget target, const QString &text,
-                       const QString &destination) {
+void
+ScriptApi::sendTo(size_t plugin,
+                  SendTarget target,
+                  const QString& text,
+                  const QString& destination)
+{
   if (text.isEmpty())
     return;
   switch (target) {
-  case SendTarget::World:
-  case SendTarget::WorldDelay:
-  case SendTarget::Execute:
-  case SendTarget::Speedwalk:
-  case SendTarget::WorldImmediate:
-    Send(text);
-    return;
-  case SendTarget::Command:
-    tab->ui->input->setText(text);
-    return;
-  case SendTarget::Output:
-    appendText(text, noteFormat);
-    startLine();
-    return;
-  case SendTarget::Status:
-    SetStatus(text);
-    return;
-  case SendTarget::NotepadNew:
-    notepads->pad()->insertPlainText(text);
-    return;
-  case SendTarget::NotepadAppend: {
-    QTextCursor notepadCursor = notepads->pad(destination)->textCursor();
-    if (!notepadCursor.atBlockStart())
-      notepadCursor.insertBlock();
-    notepadCursor.insertText(text);
-    return;
-  }
-  case SendTarget::NotepadReplace:
-    notepads->pad(destination)->setPlainText(text);
-    return;
-  case SendTarget::Log:
-    return;
-  case SendTarget::Variable:
-    return;
-  case SendTarget::Script:
-  case SendTarget::ScriptAfterOmit:
-    runScript(plugin, text);
-    return;
+    case SendTarget::World:
+    case SendTarget::WorldDelay:
+    case SendTarget::Execute:
+    case SendTarget::Speedwalk:
+    case SendTarget::WorldImmediate:
+      Send(text);
+      return;
+    case SendTarget::Command:
+      tab->ui->input->setText(text);
+      return;
+    case SendTarget::Output:
+      appendText(text, noteFormat);
+      startLine();
+      return;
+    case SendTarget::Status:
+      SetStatus(text);
+      return;
+    case SendTarget::NotepadNew:
+      notepads->pad()->insertPlainText(text);
+      return;
+    case SendTarget::NotepadAppend: {
+      QTextCursor notepadCursor = notepads->pad(destination)->textCursor();
+      if (!notepadCursor.atBlockStart())
+        notepadCursor.insertBlock();
+      notepadCursor.insertText(text);
+      return;
+    }
+    case SendTarget::NotepadReplace:
+      notepads->pad(destination)->setPlainText(text);
+      return;
+    case SendTarget::Log:
+      return;
+    case SendTarget::Variable:
+      return;
+    case SendTarget::Script:
+    case SendTarget::ScriptAfterOmit:
+      runScript(plugin, text);
+      return;
   }
 }
 
-void ScriptApi::setNawsEnabled(bool enabled) { doesNaws = enabled; }
+void
+ScriptApi::setNawsEnabled(bool enabled)
+{
+  doesNaws = enabled;
+}
 
-void ScriptApi::setOpen(bool open) const { timekeeper->setOpen(open); }
+void
+ScriptApi::setOpen(bool open) const
+{
+  timekeeper->setOpen(open);
+}
 
-ActionSource ScriptApi::setSource(ActionSource source) noexcept {
+ActionSource
+ScriptApi::setSource(ActionSource source) noexcept
+{
   const ActionSource previousSource = actionSource;
   actionSource = source;
   return previousSource;
 }
 
-void ScriptApi::setSuppressEcho(bool suppress) noexcept {
+void
+ScriptApi::setSuppressEcho(bool suppress) noexcept
+{
   suppressEcho = suppress;
 }
 
-struct WindowCompare {
+struct WindowCompare
+{
   int zOrder;
   string_view name;
-  std::strong_ordering operator<=>(const WindowCompare &) const = default;
+  std::strong_ordering operator<=>(const WindowCompare&) const = default;
 };
 
-void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const {
+void
+ScriptApi::stackWindow(string_view windowName, MiniWindow* window) const
+{
   const bool drawsUnderneath = window->drawsUnderneath();
-  const WindowCompare compare{-window->getZOrder(), windowName};
-  MiniWindow *neighbor = nullptr;
+  const WindowCompare compare{ -window->getZOrder(), windowName };
+  MiniWindow* neighbor = nullptr;
   WindowCompare neighborCompare;
 
-  for (const auto &entry : windows) {
+  for (const auto& entry : windows) {
     if (entry.second == window ||
         entry.second->drawsUnderneath() != drawsUnderneath)
       continue;
-    WindowCompare entryCompare{entry.second->getZOrder(),
-                               (string_view)entry.first};
+    WindowCompare entryCompare{ entry.second->getZOrder(),
+                                (string_view)entry.first };
     if (entryCompare > compare &&
         (!neighbor || entryCompare < neighborCompare)) {
       neighbor = entry.second;
@@ -360,7 +424,9 @@ void ScriptApi::stackWindow(string_view windowName, MiniWindow *window) const {
     window->stackUnder(tab->ui->outputBorder);
 }
 
-int ScriptApi::startLine() {
+int
+ScriptApi::startLine()
+{
   if (hasLine) [[unlikely]] {
     cursor.insertBlock();
     indentNext = !indentText.isEmpty();
@@ -369,34 +435,50 @@ int ScriptApi::startLine() {
   return cursor.position();
 }
 
-void ScriptApi::updateTimestamp() { setTimestamp(cursor); }
+void
+ScriptApi::updateTimestamp()
+{
+  setTimestamp(cursor);
+}
 
 // Private methods
 
-const SmushClient *ScriptApi::client() const { return &tab->client; }
+const SmushClient*
+ScriptApi::client() const
+{
+  return &tab->client;
+}
 
-DatabaseConnection *ScriptApi::findDatabase(string_view databaseID) {
+DatabaseConnection*
+ScriptApi::findDatabase(string_view databaseID)
+{
   auto search = databases.find(databaseID);
   if (search == databases.end()) [[unlikely]]
     return nullptr;
   return &search->second;
 }
 
-size_t ScriptApi::findPluginIndex(const string &pluginID) const {
+size_t
+ScriptApi::findPluginIndex(const string& pluginID) const
+{
   auto search = pluginIndices.find(pluginID);
   if (search == pluginIndices.end()) [[unlikely]]
     return noSuchPlugin;
   return search->second;
 }
 
-MiniWindow *ScriptApi::findWindow(string_view windowName) const {
+MiniWindow*
+ScriptApi::findWindow(string_view windowName) const
+{
   auto search = windows.find(windowName);
   if (search == windows.end()) [[unlikely]]
     return nullptr;
   return search->second;
 }
 
-bool ScriptApi::finishQueuedSend(const QueuedSend &send) {
+bool
+ScriptApi::finishQueuedSend(const QueuedSend& send)
+{
   const ActionSource oldSource = actionSource;
   actionSource = ActionSource::TimerFired;
   sendTo(send.plugin, send.target, send.text);
@@ -404,7 +486,9 @@ bool ScriptApi::finishQueuedSend(const QueuedSend &send) {
   return true;
 }
 
-void ScriptApi::flushLine() {
+void
+ScriptApi::flushLine()
+{
   if (!hasLine) [[likely]]
     return;
 

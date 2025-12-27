@@ -1,7 +1,8 @@
 #include "smushclient-qt-lib/qvariant.h"
 
 #define CXX_QT_QVARIANT_CAN_CONVERT_IMPL(typeName, name)                       \
-  bool qvariantCanConvert##name(const QVariant &variant) {                     \
+  bool qvariantCanConvert##name(const QVariant& variant)                       \
+  {                                                                            \
     return variant.canConvert<typeName>();                                     \
   }
 

@@ -6,7 +6,9 @@
 #include <QtGui/QFontDatabase>
 #include <QtWidgets/QApplication>
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char* argv[])
+{
 #if defined(Q_OS_WINDOWS)
   _putenv_s("LUA_PATH", SCRIPTS_DIR "/?.lua;" LUA_PATH_DEFAULT);
   QCoreApplication::setOrganizationName(QStringLiteral(CMAKE_ORG_NAME));
@@ -18,9 +20,9 @@ int main(int argc, char *argv[]) {
   QCoreApplication::setApplicationVersion(QStringLiteral(CMAKE_APP_VERSION));
   Settings settings;
   initializeStartupDirectory(settings.getStartupDirectoryOrDefault());
-  Notepads *notepads = new Notepads;
-  MainWindow *w = new MainWindow(notepads);
-  for (const QString &reopen : settings.getStartupWorlds())
+  Notepads* notepads = new Notepads;
+  MainWindow* w = new MainWindow(notepads);
+  for (const QString& reopen : settings.getStartupWorlds())
     w->openWorld(reopen);
   w->show();
   app.exec();

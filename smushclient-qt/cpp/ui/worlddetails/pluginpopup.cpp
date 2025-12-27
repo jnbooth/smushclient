@@ -2,8 +2,10 @@
 #include "smushclient_qt/src/ffi/plugin_details.cxxqt.h"
 #include "ui_pluginpopup.h"
 
-PluginPopup::PluginPopup(const PluginDetails &plugin, QWidget *parent)
-    : QDialog(parent), ui(new Ui::PluginPopup) {
+PluginPopup::PluginPopup(const PluginDetails& plugin, QWidget* parent)
+  : QDialog(parent)
+  , ui(new Ui::PluginPopup)
+{
   ui->setupUi(this);
   ui->author->setText(plugin.getAuthor());
   ui->description->setText(plugin.getDescription());
@@ -15,4 +17,7 @@ PluginPopup::PluginPopup(const PluginDetails &plugin, QWidget *parent)
   ui->written->setText(plugin.getWritten().toString());
 }
 
-PluginPopup::~PluginPopup() { delete ui; }
+PluginPopup::~PluginPopup()
+{
+  delete ui;
+}

@@ -6,16 +6,23 @@
 
 // Public methods
 
-TriggerModel::TriggerModel(SmushClient &client, QObject *parent)
-    : AbstractSenderModel(client, SenderType::Trigger, parent) {
+TriggerModel::TriggerModel(SmushClient& client, QObject* parent)
+  : AbstractSenderModel(client, SenderType::Trigger, parent)
+{
   client.stopTriggers();
 }
 
 // Public overrides
 
-QString TriggerModel::exportXml() const { return client.exportWorldTriggers(); }
+QString
+TriggerModel::exportXml() const
+{
+  return client.exportWorldTriggers();
+}
 
-Qt::ItemFlags TriggerModel::flags(const QModelIndex &index) const {
+Qt::ItemFlags
+TriggerModel::flags(const QModelIndex& index) const
+{
   if (!index.constInternalPointer())
     return Qt::ItemFlag::ItemIsEnabled;
 
@@ -25,7 +32,9 @@ Qt::ItemFlags TriggerModel::flags(const QModelIndex &index) const {
 
 // Protected overrides
 
-int TriggerModel::add(QWidget *parent) {
+int
+TriggerModel::add(QWidget* parent)
+{
   Trigger trigger;
   TriggerEdit edit(trigger, parent);
   if (edit.exec() == QDialog::Rejected)
@@ -33,7 +42,9 @@ int TriggerModel::add(QWidget *parent) {
   return client.addWorldTrigger(trigger);
 }
 
-int TriggerModel::edit(size_t index, QWidget *parent) {
+int
+TriggerModel::edit(size_t index, QWidget* parent)
+{
   Trigger trigger(&client, index);
   TriggerEdit edit(trigger, parent);
   if (edit.exec() == QDialog::Rejected)
@@ -48,12 +59,17 @@ int TriggerModel::edit(size_t index, QWidget *parent) {
   return result;
 }
 
-const std::array<QString, 4> &TriggerModel::headers() const noexcept {
-  const static std::array<QString, 4> headers{tr("Group/Label"), tr("Sequence"),
-                                              tr("Pattern"), tr("Text")};
+const std::array<QString, 4>&
+TriggerModel::headers() const noexcept
+{
+  const static std::array<QString, 4> headers{
+    tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text")
+  };
   return headers;
 }
 
-void TriggerModel::import(const QString &xml) {
+void
+TriggerModel::import(const QString& xml)
+{
   client.importWorldTriggers(xml);
 }

@@ -4,20 +4,26 @@
 #include <QtGui/QResizeEvent>
 #include <QtWidgets/QLabel>
 
-class IconLabel : public QLabel {
+class IconLabel : public QLabel
+{
   Q_OBJECT
 
 public:
-  explicit IconLabel(const QIcon &icon, QWidget *parent = nullptr);
-  explicit IconLabel(const QIcon &icon, QIcon::Mode mode,
-                     QWidget *parent = nullptr);
-  explicit IconLabel(const QIcon &icon, QIcon::State state,
-                     QWidget *parent = nullptr);
-  explicit IconLabel(const QIcon &icon, QIcon::Mode mode, QIcon::State state,
-                     QWidget *parent = nullptr);
+  explicit IconLabel(const QIcon& icon, QWidget* parent = nullptr);
+  explicit IconLabel(const QIcon& icon,
+                     QIcon::Mode mode,
+                     QWidget* parent = nullptr);
+  explicit IconLabel(const QIcon& icon,
+                     QIcon::State state,
+                     QWidget* parent = nullptr);
+  explicit IconLabel(const QIcon& icon,
+                     QIcon::Mode mode,
+                     QIcon::State state,
+                     QWidget* parent = nullptr);
   virtual ~IconLabel() {}
 
-  void setIcon(const QIcon &icon, QIcon::Mode mode = QIcon::Normal,
+  void setIcon(const QIcon& icon,
+               QIcon::Mode mode = QIcon::Normal,
                QIcon::State state = QIcon::On);
   void setFixedIconHeight(int height);
   void setMode(QIcon::Mode mode);
@@ -28,8 +34,8 @@ public:
   virtual QSize sizeHint() const override;
 
 protected:
-  virtual void paintEvent(QPaintEvent *event) override;
-  virtual void resizeEvent(QResizeEvent *event) override;
+  virtual void paintEvent(QPaintEvent* event) override;
+  virtual void resizeEvent(QResizeEvent* event) override;
 
 private:
   int widthForHeight(int h) const;

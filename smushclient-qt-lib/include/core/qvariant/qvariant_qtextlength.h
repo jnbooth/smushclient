@@ -8,7 +8,8 @@
 namespace rust {
 namespace cxxqtlib1 {
 namespace qvariant {
-bool qvariantCanConvertQTextLength(const QVariant &variant);
+bool
+qvariantCanConvertQTextLength(const QVariant& variant);
 }
 } // namespace cxxqtlib1
 } // namespace rust

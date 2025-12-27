@@ -3,8 +3,10 @@
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_numpad.h"
 
-PrefsNumpad::PrefsNumpad(const World &world, QWidget *parent)
-    : QWidget(parent), ui(new Ui::PrefsNumpad) {
+PrefsNumpad::PrefsNumpad(const World& world, QWidget* parent)
+  : QWidget(parent)
+  , ui(new Ui::PrefsNumpad)
+{
   ui->setupUi(this);
   CONNECT_WORLD(Numpad0);
   CONNECT_WORLD(Numpad1);
@@ -41,9 +43,14 @@ PrefsNumpad::PrefsNumpad(const World &world, QWidget *parent)
   CONNECT_WORLD(EchoHotkeyInOutputWindow);
 }
 
-PrefsNumpad::~PrefsNumpad() { delete ui; }
+PrefsNumpad::~PrefsNumpad()
+{
+  delete ui;
+}
 
-void PrefsNumpad::on_show_mod_toggled(bool checked) {
+void
+PrefsNumpad::on_show_mod_toggled(bool checked)
+{
   if (checked) {
     ui->NumpadGroup->hide();
     ui->NumpadModGroup->show();

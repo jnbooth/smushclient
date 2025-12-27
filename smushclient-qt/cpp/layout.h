@@ -5,13 +5,14 @@
 #include <QtGui/QBrush>
 #include <QtGui/QColor>
 
-struct OutputLayout {
+struct OutputLayout
+{
   QMargins margins;
   int16_t borderOffset;
   QColor borderColor;
   int16_t borderWidth;
   QBrush outsideFill;
 
-  bool restore(const QByteArray &data);
+  bool restore(const QByteArray& data);
   QByteArray save() const;
 };

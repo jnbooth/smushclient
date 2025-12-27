@@ -7,14 +7,15 @@ namespace Ui {
 class FindDialog;
 }
 
-class FindDialog : public QDialog {
+class FindDialog : public QDialog
+{
   Q_OBJECT
 
 public:
-  explicit FindDialog(QWidget *parent = nullptr);
+  explicit FindDialog(QWidget* parent = nullptr);
   ~FindDialog();
 
-  void find(QTextEdit *edit) const;
+  void find(QTextEdit* edit) const;
   constexpr bool isFilled() const { return filled; }
 
 private slots:
@@ -22,7 +23,7 @@ private slots:
   void on_buttonBox_rejected();
 
 private:
-  Ui::FindDialog *ui;
+  Ui::FindDialog* ui;
   bool filled = false;
   QFlags<QTextDocument::FindFlag> flags{};
   bool isRegex = false;

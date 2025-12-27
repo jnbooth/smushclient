@@ -7,13 +7,14 @@ class SettingsClosing;
 
 class Settings;
 
-class SettingsClosing : public QWidget {
+class SettingsClosing : public QWidget
+{
   Q_OBJECT
 
 public:
-  explicit SettingsClosing(Settings &settings, QWidget *parent = nullptr);
+  explicit SettingsClosing(Settings& settings, QWidget* parent = nullptr);
   ~SettingsClosing();
 
 private:
-  Ui::SettingsClosing *ui;
+  Ui::SettingsClosing* ui;
 };

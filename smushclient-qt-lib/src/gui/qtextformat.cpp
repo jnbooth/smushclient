@@ -12,5 +12,6 @@ static_assert(::std::is_move_constructible<QTextFormat>::value);
 static_assert(QTypeInfo<QTextFormat>::isRelocatable);
 
 namespace rust {
-namespace smushclientqtlib1 {}
+namespace smushclientqtlib1 {
+}
 } // namespace rust

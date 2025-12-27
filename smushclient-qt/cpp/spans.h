@@ -10,28 +10,39 @@ struct Link;
 enum class SendTo : uint8_t;
 enum class TextStyle : uint16_t;
 
-enum class LineType {
+enum class LineType
+{
   Output,
   Input,
   Note,
 };
 
-QString encodeLink(SendTo sendto, const QString &action);
+QString
+encodeLink(SendTo sendto, const QString& action);
 
-SendTo decodeLink(QString &link);
+SendTo
+decodeLink(QString& link);
 
-std::optional<SendTo> getSendTo(const QTextCharFormat &format);
+std::optional<SendTo>
+getSendTo(const QTextCharFormat& format);
 
-QFlags<TextStyle> getStyles(const QTextCharFormat &format);
+QFlags<TextStyle>
+getStyles(const QTextCharFormat& format);
 
-QString getPrompts(const QTextCharFormat &format);
+QString
+getPrompts(const QTextCharFormat& format);
 
-void setLineType(QTextCharFormat &format, LineType type);
+void
+setLineType(QTextCharFormat& format, LineType type);
 
-LineType getLineType(const QTextCharFormat &format);
+LineType
+getLineType(const QTextCharFormat& format);
 
-void setTimestamp(QTextCursor &cursor);
+void
+setTimestamp(QTextCursor& cursor);
 
-QDateTime getTimestamp(const QTextBlockFormat &format);
+QDateTime
+getTimestamp(const QTextBlockFormat& format);
 
-QString &sanitizeHtml(QString &html);
+QString&
+sanitizeHtml(QString& html);

@@ -17,92 +17,114 @@ static const QString inputPrefix = QStringLiteral("n:");
 
 // Private utils
 
-constexpr const QString &getPrefix(SendTo sendto) {
+constexpr const QString&
+getPrefix(SendTo sendto)
+{
   switch (sendto) {
-  case SendTo::Internet:
-    return internetPrefix;
-  case SendTo::World:
-    return worldPrefix;
-  case SendTo::Input:
-    return inputPrefix;
+    case SendTo::Internet:
+      return internetPrefix;
+    case SendTo::World:
+      return worldPrefix;
+    case SendTo::Input:
+      return inputPrefix;
   }
 }
 
 // Public functions
 
-QString encodeLink(SendTo sendto, const QString &action) {
+QString
+encodeLink(SendTo sendto, const QString& action)
+{
   QString link = action;
   link.prepend(getPrefix(sendto));
   return link;
 }
 
-SendTo decodeLink(QString &link) {
+SendTo
+decodeLink(QString& link)
+{
   switch (link.front().toLatin1()) {
-  case 'i':
-    link.remove(0, 2);
-    return SendTo::Internet;
-  case 'n':
-    link.remove(0, 2);
-    return SendTo::Input;
-  case 'w':
-    link.remove(0, 2);
-    return SendTo::World;
-  default:
-    return SendTo::Internet;
+    case 'i':
+      link.remove(0, 2);
+      return SendTo::Internet;
+    case 'n':
+      link.remove(0, 2);
+      return SendTo::Input;
+    case 'w':
+      link.remove(0, 2);
+      return SendTo::World;
+    default:
+      return SendTo::Internet;
   }
 }
 
-optional<SendTo> getSendTo(const QTextCharFormat &format) {
+optional<SendTo>
+getSendTo(const QTextCharFormat& format)
+{
   const QString href = format.anchorHref();
   if (href.isEmpty())
     return nullopt;
   switch (href.front().toLatin1()) {
-  case 'n':
-    return SendTo::Input;
-  case 'w':
-    return SendTo::World;
-  default:
-    return SendTo::Internet;
+    case 'n':
+      return SendTo::Input;
+    case 'w':
+      return SendTo::World;
+    default:
+      return SendTo::Internet;
   }
 }
 
-QFlags<TextStyle> getStyles(const QTextCharFormat &format) {
+QFlags<TextStyle>
+getStyles(const QTextCharFormat& format)
+{
   return QFlags<TextStyle>::fromInt(format.property(stylesProp).toUInt());
 }
 
-QString getPrompts(const QTextCharFormat &format) {
+QString
+getPrompts(const QTextCharFormat& format)
+{
   return format.property(promptsProp).toString();
 }
 
-void setLineType(QTextCharFormat &format, LineType type) {
+void
+setLineType(QTextCharFormat& format, LineType type)
+{
   format.setProperty(typeProp, (int)type);
 }
 
-LineType getLineType(const QTextCharFormat &format) {
+LineType
+getLineType(const QTextCharFormat& format)
+{
   return (LineType)format.property(typeProp).toInt();
 }
 
-void setTimestamp(QTextCursor &cursor) {
+void
+setTimestamp(QTextCursor& cursor)
+{
   QTextBlockFormat format;
   format.setProperty(timestampProp, QDateTime::currentDateTime());
   cursor.setBlockFormat(format);
 }
 
-QDateTime getTimestamp(const QTextBlockFormat &format) {
+QDateTime
+getTimestamp(const QTextBlockFormat& format)
+{
   return format.property(timestampProp).toDateTime();
 }
 
-QString &sanitizeHtml(QString &html) {
+QString&
+sanitizeHtml(QString& html)
+{
 #define Q QStringLiteral
 
   static const QString none;
   static const QRegularExpression sanitize(
-      Q("("
-        " ?(background-color:transparent|-qt-paragraph-type:empty|(\\w|-)+:0("
-        "px)?);? ?"
-        "|"
-        "<!--.*?-->"
-        ")"));
+    Q("("
+      " ?(background-color:transparent|-qt-paragraph-type:empty|(\\w|-)+:0("
+      "px)?);? ?"
+      "|"
+      "<!--.*?-->"
+      ")"));
   static const QRegularExpression attributeWhitespace(Q("=\"\\s+"));
   static const QRegularExpression emptyAttribute(Q(" ?(\\w|-)+=\"\""));
 
@@ -110,11 +132,11 @@ QString &sanitizeHtml(QString &html) {
   const qsizetype bodyEnd = html.lastIndexOf(Q("</body>"));
 
   return html.slice(bodyStart, bodyEnd - bodyStart)
-      .replace(sanitize, none)
-      .replace(attributeWhitespace, Q("=\""))
-      .replace(Q(" ?\\w+=\"\""), none)
-      .replace(emptyAttribute, none)
-      .replace(Q("href=\"w:"), Q("href=\""));
+    .replace(sanitize, none)
+    .replace(attributeWhitespace, Q("=\""))
+    .replace(Q(" ?\\w+=\"\""), none)
+    .replace(emptyAttribute, none)
+    .replace(Q("href=\"w:"), Q("href=\""));
 
 #undef Q
 }

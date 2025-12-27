@@ -9,8 +9,10 @@
 
 using std::array;
 
-PrefsOutput::PrefsOutput(const World &world, QWidget *parent)
-    : QWidget(parent), ui(new Ui::PrefsOutput) {
+PrefsOutput::PrefsOutput(const World& world, QWidget* parent)
+  : QWidget(parent)
+  , ui(new Ui::PrefsOutput)
+{
   ui->setupUi(this);
   CONNECT_WORLD(ShowBold);
   CONNECT_WORLD(ShowItalic);
@@ -39,15 +41,21 @@ PrefsOutput::PrefsOutput(const World &world, QWidget *parent)
   CONNECT_WORLD(NewActivitySound);
 }
 
-PrefsOutput::~PrefsOutput() { delete ui; }
+PrefsOutput::~PrefsOutput()
+{
+  delete ui;
+}
 
 // Private slots
 
-void PrefsOutput::on_NewActivitySound_browse_clicked() {
+void
+PrefsOutput::on_NewActivitySound_browse_clicked()
+{
   const QString currentFile = ui->NewActivitySound->text();
   const QString path = QFileDialog::getOpenFileName(
-      this, tr("Select sound file"),
-      currentFile.isEmpty() ? QStringLiteral(SOUNDS_DIR) : currentFile);
+    this,
+    tr("Select sound file"),
+    currentFile.isEmpty() ? QStringLiteral(SOUNDS_DIR) : currentFile);
 
   if (path.isEmpty())
     return;
@@ -55,21 +63,31 @@ void PrefsOutput::on_NewActivitySound_browse_clicked() {
   ui->NewActivitySound->setText(makePathRelative(path));
 }
 
-void PrefsOutput::on_NewActivitySound_test_clicked() { audio.play(); }
+void
+PrefsOutput::on_NewActivitySound_test_clicked()
+{
+  audio.play();
+}
 
-void PrefsOutput::on_NewActivitySound_textChanged(const QString &text) {
+void
+PrefsOutput::on_NewActivitySound_textChanged(const QString& text)
+{
   ui->NewActivitySound_test->setEnabled(!text.isEmpty());
   ui->SoundError->setText(audio.setFile(text));
 }
 
-void PrefsOutput::on_reset_clicked() {
+void
+PrefsOutput::on_reset_clicked()
+{
   const QVector<QColor> ansiColors = ffi::ansi16();
-  array<ColorPickerButton *, 16> colorPickers{
-      ui->Ansi0,  ui->Ansi1,  ui->Ansi2,  ui->Ansi3, ui->Ansi4,  ui->Ansi5,
-      ui->Ansi6,  ui->Ansi7,  ui->Ansi8,  ui->Ansi9, ui->Ansi10, ui->Ansi11,
-      ui->Ansi12, ui->Ansi13, ui->Ansi14, ui->Ansi15};
+  array<ColorPickerButton*, 16> colorPickers{
+    ui->Ansi0,  ui->Ansi1,  ui->Ansi2,  ui->Ansi3, ui->Ansi4,  ui->Ansi5,
+    ui->Ansi6,  ui->Ansi7,  ui->Ansi8,  ui->Ansi9, ui->Ansi10, ui->Ansi11,
+    ui->Ansi12, ui->Ansi13, ui->Ansi14, ui->Ansi15
+  };
   auto ansi = ansiColors.cbegin();
   for (auto picker = colorPickers.cbegin(), end = colorPickers.cend();
-       picker != end; ++picker, ++ansi)
+       picker != end;
+       ++picker, ++ansi)
     (*picker)->setValue(*ansi);
 }

@@ -6,11 +6,11 @@
   assert_alignment_and_size(QMap_##combinedName, { ::std::size_t a0; });       \
                                                                                \
   static_assert(                                                               \
-      !::std::is_trivially_copy_assignable<QMap_##combinedName>::value);       \
+    !::std::is_trivially_copy_assignable<QMap_##combinedName>::value);         \
   static_assert(                                                               \
-      !::std::is_trivially_copy_constructible<QMap_##combinedName>::value);    \
+    !::std::is_trivially_copy_constructible<QMap_##combinedName>::value);      \
   static_assert(                                                               \
-      !::std::is_trivially_destructible<QMap_##combinedName>::value);          \
+    !::std::is_trivially_destructible<QMap_##combinedName>::value);            \
                                                                                \
   static_assert(QTypeInfo<QMap_##combinedName>::isRelocatable);                \
                                                                                \

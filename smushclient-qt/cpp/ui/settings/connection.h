@@ -7,13 +7,14 @@ class SettingsConnecting;
 
 class Settings;
 
-class SettingsConnecting : public QWidget {
+class SettingsConnecting : public QWidget
+{
   Q_OBJECT
 
 public:
-  explicit SettingsConnecting(Settings &settings, QWidget *parent = nullptr);
+  explicit SettingsConnecting(Settings& settings, QWidget* parent = nullptr);
   ~SettingsConnecting();
 
 private:
-  Ui::SettingsConnecting *ui;
+  Ui::SettingsConnecting* ui;
 };

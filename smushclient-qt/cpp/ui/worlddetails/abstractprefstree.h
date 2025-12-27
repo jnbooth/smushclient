@@ -5,18 +5,19 @@
 class SmushClient;
 class AbstractSenderModel;
 
-class AbstractPrefsTree : public QWidget {
+class AbstractPrefsTree : public QWidget
+{
   Q_OBJECT
 
 public:
-  explicit AbstractPrefsTree(AbstractSenderModel *model,
-                             QWidget *parent = nullptr);
+  explicit AbstractPrefsTree(AbstractSenderModel* model,
+                             QWidget* parent = nullptr);
   virtual ~AbstractPrefsTree();
 
 protected:
   virtual void enableSingleButtons(bool enabled) = 0;
   virtual void enableMultiButtons(bool enabled) = 0;
-  void setTree(QTreeView *tree);
+  void setTree(QTreeView* tree);
 
 protected slots:
   void on_add_clicked();
@@ -24,11 +25,11 @@ protected slots:
   void on_export_xml_clicked();
   void on_import_xml_clicked();
   void on_remove_clicked();
-  void on_search_textChanged(const QString &text);
+  void on_search_textChanged(const QString& text);
   void on_tree_doubleClicked(QModelIndex index);
 
 private:
-  QModelIndex mapIndex(const QModelIndex &index) const;
+  QModelIndex mapIndex(const QModelIndex& index) const;
   QString settingsKey() const;
 
 private slots:
@@ -36,7 +37,7 @@ private slots:
 
 private:
   bool filtering = false;
-  AbstractSenderModel *model;
-  QSortFilterProxyModel *proxy;
-  QTreeView *tree = nullptr;
+  AbstractSenderModel* model;
+  QSortFilterProxyModel* proxy;
+  QTreeView* tree = nullptr;
 };

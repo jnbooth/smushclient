@@ -3,16 +3,19 @@
 #include <QtGui/QFont>
 #include <QtGui/QTextBlockFormat>
 
-typedef struct RecentFileResult {
+typedef struct RecentFileResult
+{
   const bool changed;
   const QStringList recentFiles;
 } RecentFileResult;
 
-class Settings : public QObject {
+class Settings : public QObject
+{
   Q_OBJECT
 
 public:
-  enum class StartupBehavior {
+  enum class StartupBehavior
+  {
     None,
     Reopen,
     List,
@@ -20,7 +23,8 @@ public:
 
   Q_ENUM(StartupBehavior)
 
-  enum class WorldCloseBehavior {
+  enum class WorldCloseBehavior
+  {
     Save,
     Confirm,
     Discard,
@@ -29,7 +33,7 @@ public:
   Q_ENUM(WorldCloseBehavior)
 
 public:
-  explicit Settings(QObject *parent = nullptr);
+  explicit Settings(QObject* parent = nullptr);
 
   bool getAutoConnect() const;
 
@@ -68,8 +72,8 @@ public:
   bool getOutputWrapping() const;
 
   QStringList getRecentFiles() const;
-  RecentFileResult addRecentFile(const QString &path);
-  RecentFileResult removeRecentFile(const QString &path);
+  RecentFileResult addRecentFile(const QString& path);
+  RecentFileResult removeRecentFile(const QString& path);
 
   bool getReconnectOnDisconnect() const;
 
@@ -85,30 +89,30 @@ public:
 public slots:
   void setAutoConnect(bool enabled);
 
-  void setBellSound(const QString &sound);
+  void setBellSound(const QString& sound);
 
   void setConfirmQuit(bool confirm);
 
   void setDisplayConnect(bool display);
   void setDisplayDisconnect(bool display);
 
-  void setInputBackground(const QColor &color);
-  void setInputFont(const QFont &font);
-  void setInputForeground(const QColor &color);
+  void setInputBackground(const QColor& color);
+  void setInputFont(const QFont& font);
+  void setInputForeground(const QColor& color);
   void setInputHistoryLimit(bool limit);
   void setInputHistoryLines(int lines);
 
-  void setLastFiles(const QStringList &files);
+  void setLastFiles(const QStringList& files);
 
   void setLoggingEnabled(bool enabled);
 
-  void setNotepadFont(const QFont &font);
-  void setNotepadBackground(const QColor &color);
-  void setNotepadForeground(const QColor &color);
+  void setNotepadFont(const QFont& font);
+  void setNotepadBackground(const QColor& color);
+  void setNotepadForeground(const QColor& color);
 
-  void setOpenAtStartup(const QStringList &list);
+  void setOpenAtStartup(const QStringList& list);
 
-  void setOutputFont(const QFont &font);
+  void setOutputFont(const QFont& font);
   void setOutputHistoryEnabled(bool enabled);
   void setOutputHistoryLimit(bool limit);
   void setOutputHistoryLines(int lines);
@@ -123,7 +127,7 @@ public slots:
   void setShowStatusBar(bool show);
 
   void setStartupBehavior(StartupBehavior behavior);
-  void setStartupDirectory(const QString &dir);
+  void setStartupDirectory(const QString& dir);
 
   void setWorldCloseBehavior(WorldCloseBehavior behavior);
 

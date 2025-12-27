@@ -7,11 +7,12 @@ class PrefsScripting;
 
 class World;
 
-class PrefsScripting : public QWidget {
+class PrefsScripting : public QWidget
+{
   Q_OBJECT
 
 public:
-  explicit PrefsScripting(World &world, QWidget *parent = nullptr);
+  explicit PrefsScripting(World& world, QWidget* parent = nullptr);
   ~PrefsScripting();
 
 private:
@@ -21,9 +22,9 @@ private slots:
   void on_WorldScript_browse_clicked();
   void on_WorldScript_create_clicked();
   void on_WorldScript_edit_clicked();
-  void on_WorldScript_textChanged(const QString &value);
+  void on_WorldScript_textChanged(const QString& value);
 
 private:
-  Ui::PrefsScripting *ui;
-  World &world;
+  Ui::PrefsScripting* ui;
+  World& world;
 };

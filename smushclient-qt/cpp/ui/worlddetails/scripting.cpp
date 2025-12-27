@@ -10,8 +10,11 @@
 
 // Public methods
 
-PrefsScripting::PrefsScripting(World &world, QWidget *parent)
-    : QWidget(parent), ui(new Ui::PrefsScripting), world(world) {
+PrefsScripting::PrefsScripting(World& world, QWidget* parent)
+  : QWidget(parent)
+  , ui(new Ui::PrefsScripting)
+  , world(world)
+{
   ui->setupUi(this);
   CONNECT_WORLD(EnableScripts);
   CONNECT_WORLD(WorldScript);
@@ -22,20 +25,28 @@ PrefsScripting::PrefsScripting(World &world, QWidget *parent)
   CONNECT_WORLD(ErrorBackgroundColour);
 }
 
-PrefsScripting::~PrefsScripting() { delete ui; }
+PrefsScripting::~PrefsScripting()
+{
+  delete ui;
+}
 
 // Private methods
 
-QString PrefsScripting::defaultScriptPath() const {
+QString
+PrefsScripting::defaultScriptPath() const
+{
   return QStringLiteral(WORLDS_DIR "/%1").arg(world.getName());
 }
 
 // Private slots
 
-void PrefsScripting::on_WorldScript_browse_clicked() {
-  const QString path = QFileDialog::getOpenFileName(
-      this, tr("Select world script"), QStringLiteral(WORLDS_DIR),
-      FileFilter::lua());
+void
+PrefsScripting::on_WorldScript_browse_clicked()
+{
+  const QString path = QFileDialog::getOpenFileName(this,
+                                                    tr("Select world script"),
+                                                    QStringLiteral(WORLDS_DIR),
+                                                    FileFilter::lua());
 
   if (path.isEmpty())
     return;
@@ -43,9 +54,11 @@ void PrefsScripting::on_WorldScript_browse_clicked() {
   ui->WorldScript->setText(makePathRelative(path));
 }
 
-void PrefsScripting::on_WorldScript_create_clicked() {
+void
+PrefsScripting::on_WorldScript_create_clicked()
+{
   const QString path = QFileDialog::getSaveFileName(
-      this, tr("Save as"), defaultScriptPath(), FileFilter::lua());
+    this, tr("Save as"), defaultScriptPath(), FileFilter::lua());
 
   if (path.isEmpty())
     return;
@@ -59,15 +72,18 @@ void PrefsScripting::on_WorldScript_create_clicked() {
   ui->WorldScript->setText(makePathRelative(path));
 }
 
-void PrefsScripting::on_WorldScript_edit_clicked() {
-  const QString &scriptPath = ui->WorldScript->text();
+void
+PrefsScripting::on_WorldScript_edit_clicked()
+{
+  const QString& scriptPath = ui->WorldScript->text();
   if (QDesktopServices::openUrl(QUrl::fromLocalFile(scriptPath)))
     return;
 
   const QString path = QFileDialog::getSaveFileName(
-      this, tr("Create world script"),
-      scriptPath.isEmpty() ? defaultScriptPath() : scriptPath,
-      FileFilter::lua());
+    this,
+    tr("Create world script"),
+    scriptPath.isEmpty() ? defaultScriptPath() : scriptPath,
+    FileFilter::lua());
 
   if (path.isEmpty()) {
     ui->WorldScript->setText(path);
@@ -85,7 +101,9 @@ void PrefsScripting::on_WorldScript_edit_clicked() {
   QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 }
 
-void PrefsScripting::on_WorldScript_textChanged(const QString &value) {
+void
+PrefsScripting::on_WorldScript_textChanged(const QString& value)
+{
   if (value.isEmpty()) {
     ui->WorldScript_edit->setEnabled(false);
     ui->fileNotFound->setVisible(false);

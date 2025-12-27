@@ -14,14 +14,19 @@ static_assert(QTypeInfo<QTextCharFormat>::isRelocatable);
 
 namespace rust {
 namespace smushclientqtlib1 {
-void qtextcharformatSetFont(QTextCharFormat &format, const QFont &font) {
+void
+qtextcharformatSetFont(QTextCharFormat& format, const QFont& font)
+{
   format.setFont(font);
 }
-void qtextcharformatSetFontWithSpecified(QTextCharFormat &format,
-                                         const QFont &font) {
+void
+qtextcharformatSetFontWithSpecified(QTextCharFormat& format, const QFont& font)
+{
   format.setFont(font, QTextCharFormat::FontPropertiesSpecifiedOnly);
 }
-QTextCharFormat qtextformatToCharFormat(const QTextFormat &format) {
+QTextCharFormat
+qtextformatToCharFormat(const QTextFormat& format)
+{
   return format.toCharFormat();
 }
 } // namespace smushclientqtlib1

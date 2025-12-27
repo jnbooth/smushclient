@@ -8,31 +8,37 @@
 #include "smushclient_qt/src/ffi/client.cxxqt.h"
 #include <QtCore/QFileInfo>
 #include <QtWidgets/QErrorMessage>
-extern "C" {
+extern "C"
+{
 #include "lauxlib.h"
 #include "lualib.h"
-LUALIB_API int luaopen_bc(lua_State *L);
-LUALIB_API int luaopen_bit(lua_State *L);
-LUALIB_API int luaopen_cjson(lua_State *L);
-LUALIB_API int luaopen_lpeg(lua_State *L);
-LUALIB_API int luaopen_rex_pcre2(lua_State *L);
-LUALIB_API int luaopen_lsqlite3(lua_State *L);
+  LUALIB_API int luaopen_bc(lua_State* L);
+  LUALIB_API int luaopen_bit(lua_State* L);
+  LUALIB_API int luaopen_cjson(lua_State* L);
+  LUALIB_API int luaopen_lpeg(lua_State* L);
+  LUALIB_API int luaopen_rex_pcre2(lua_State* L);
+  LUALIB_API int luaopen_lsqlite3(lua_State* L);
 }
-int luaopen_utils(lua_State *L);
+int
+luaopen_utils(lua_State* L);
 
 using std::string;
 using std::string_view;
 
 // Private Lua functions
 
-static int L_panic(lua_State *L) {
+static int
+L_panic(lua_State* L)
+{
   const QString message = formatPanic(L);
   qCritical() << "panic(" << message << ")";
   QErrorMessage::qtHandler()->showMessage(message);
   return 0;
 }
 
-static int L_print(lua_State *L) {
+static int
+L_print(lua_State* L)
+{
   const QString output = qlua::concatStrings(L);
 #ifdef NDEBUG
   getApi(L).Tell(output);
@@ -43,18 +49,22 @@ static int L_print(lua_State *L) {
 
 // Private utils
 
-inline bool checkError(int status) {
+inline bool
+checkError(int status)
+{
   switch (status) {
-  case LUA_OK:
-    return false;
-  case LUA_ERRMEM:
-    throw std::bad_alloc();
-  default:
-    return true;
+    case LUA_OK:
+      return false;
+    case LUA_ERRMEM:
+      throw std::bad_alloc();
+    default:
+      return true;
   }
 }
 
-void setlib(lua_State *L, const char *name) {
+void
+setlib(lua_State* L, const char* name)
+{
   lua_pushvalue(L, -1);
   lua_setglobal(L, name);
   lua_setfield(L, 1, name);
@@ -62,43 +72,67 @@ void setlib(lua_State *L, const char *name) {
 
 // Metadata
 
-PluginMetadata::PluginMetadata(const PluginPack &pack, size_t index)
-    : id(pack.id.toStdString()), index(index),
-      installed(QDateTime::currentDateTimeUtc()),
-      name(pack.name.toStdString()) {}
+PluginMetadata::PluginMetadata(const PluginPack& pack, size_t index)
+  : id(pack.id.toStdString())
+  , index(index)
+  , installed(QDateTime::currentDateTimeUtc())
+  , name(pack.name.toStdString())
+{
+}
 
 // Public methods
 
-Plugin::Plugin(ScriptApi *api, const PluginPack &pack, size_t index)
-    : metadata(pack, index) {
+Plugin::Plugin(ScriptApi* api, const PluginPack& pack, size_t index)
+  : metadata(pack, index)
+{
   reset(api);
 }
 
-Plugin::Plugin(Plugin &&other) noexcept
-    : metadata(std::move(other.metadata)), L(std::exchange(other.L, nullptr)),
-      isDisabled(other.isDisabled) {}
+Plugin::Plugin(Plugin&& other) noexcept
+  : metadata(std::move(other.metadata))
+  , L(std::exchange(other.L, nullptr))
+  , isDisabled(other.isDisabled)
+{
+}
 
-Plugin::~Plugin() {
+Plugin::~Plugin()
+{
   if (L)
     lua_close(L);
 }
 
-void Plugin::disable() { isDisabled = true; }
+void
+Plugin::disable()
+{
+  isDisabled = true;
+}
 
-void Plugin::enable() { isDisabled = false; }
+void
+Plugin::enable()
+{
+  isDisabled = false;
+}
 
-class CallbackFinder : public DynamicPluginCallback {
+class CallbackFinder : public DynamicPluginCallback
+{
 public:
   inline CallbackFinder(PluginCallbackKey callback)
-      : DynamicPluginCallback(callback) {}
-  inline CallbackFinder(const QString &callback)
-      : DynamicPluginCallback(callback) {}
-  inline constexpr ActionSource source() const noexcept override {
+    : DynamicPluginCallback(callback)
+  {
+  }
+  inline CallbackFinder(const QString& callback)
+    : DynamicPluginCallback(callback)
+  {
+  }
+  inline constexpr ActionSource source() const noexcept override
+  {
     return ActionSource::Unknown;
   }
 };
 
-bool Plugin::hasFunction(PluginCallbackKey routine) const {
+bool
+Plugin::hasFunction(PluginCallbackKey routine) const
+{
   if (CallbackFinder(routine).findCallback(L)) {
     lua_pop(L, 1);
     return true;
@@ -106,7 +140,9 @@ bool Plugin::hasFunction(PluginCallbackKey routine) const {
   return false;
 }
 
-bool Plugin::hasFunction(const QString &routine) const {
+bool
+Plugin::hasFunction(const QString& routine) const
+{
   if (CallbackFinder(routine).findCallback(L)) {
     lua_pop(L, 1);
     return true;
@@ -114,8 +150,10 @@ bool Plugin::hasFunction(const QString &routine) const {
   return false;
 }
 
-bool Plugin::install(const PluginPack &pack) {
-  string_view script(reinterpret_cast<const char *>(pack.scriptData),
+bool
+Plugin::install(const PluginPack& pack)
+{
+  string_view script(reinterpret_cast<const char*>(pack.scriptData),
                      pack.scriptSize);
   if (pack.scriptSize && !runScript(script)) {
     disable();
@@ -136,13 +174,19 @@ bool Plugin::install(const PluginPack &pack) {
   return true;
 }
 
-void Plugin::reset() { reset(&getApi(L)); }
+void
+Plugin::reset()
+{
+  reset(&getApi(L));
+}
 
-void Plugin::reset(ScriptApi *api) {
+void
+Plugin::reset(ScriptApi* api)
+{
   isDisabled = false;
 
   if (L) {
-    lua_State *oldL = L;
+    lua_State* oldL = L;
     L = nullptr;
     lua_close(oldL);
   }
@@ -180,7 +224,9 @@ void Plugin::reset(ScriptApi *api) {
   addErrorHandler(L);
 }
 
-bool Plugin::runCallback(PluginCallback &callback) const {
+bool
+Plugin::runCallback(PluginCallback& callback) const
+{
   if (!findCallback(callback))
     return false;
   if (!api_pcall(L, callback.pushArguments(L), callback.expectedSize()))
@@ -189,11 +235,13 @@ bool Plugin::runCallback(PluginCallback &callback) const {
   return true;
 }
 
-bool Plugin::runCallbackThreaded(PluginCallback &callback) const {
+bool
+Plugin::runCallbackThreaded(PluginCallback& callback) const
+{
   if (!findCallback(callback))
     return false;
   const ScriptThread thread(L);
-  lua_State *L2 = thread.state();
+  lua_State* L2 = thread.state();
   lua_xmove(L, L2, 1);
   if (!api_pcall(L2, callback.pushArguments(L2), callback.expectedSize()))
     return false;
@@ -201,7 +249,9 @@ bool Plugin::runCallbackThreaded(PluginCallback &callback) const {
   return true;
 }
 
-bool Plugin::runFile(const QString &string) const {
+bool
+Plugin::runFile(const QString& string) const
+{
   if (isDisabled) [[unlikely]]
     return false;
 
@@ -214,7 +264,9 @@ bool Plugin::runFile(const QString &string) const {
   return api_pcall(L, 0, 0);
 }
 
-bool Plugin::runScript(const QString &script) const {
+bool
+Plugin::runScript(const QString& script) const
+{
   if (isDisabled || script.isEmpty()) [[unlikely]]
     return false;
 
@@ -227,7 +279,9 @@ bool Plugin::runScript(const QString &script) const {
   return api_pcall(L, 0, 0);
 }
 
-bool Plugin::runScript(string_view script) const {
+bool
+Plugin::runScript(string_view script) const
+{
   if (isDisabled || script.empty()) [[unlikely]]
     return false;
 
@@ -242,7 +296,9 @@ bool Plugin::runScript(string_view script) const {
 
 // Private methods
 
-bool Plugin::findCallback(const PluginCallback &callback) const {
+bool
+Plugin::findCallback(const PluginCallback& callback) const
+{
   if (isDisabled) [[unlikely]]
     return false;
 

@@ -7,11 +7,12 @@ class PrefsLogin;
 
 class World;
 
-class PrefsLogin : public QWidget {
+class PrefsLogin : public QWidget
+{
   Q_OBJECT
 
 public:
-  explicit PrefsLogin(World &world, QWidget *parent = nullptr);
+  explicit PrefsLogin(World& world, QWidget* parent = nullptr);
   ~PrefsLogin();
 
 private slots:
@@ -19,8 +20,8 @@ private slots:
   void on_ConnectText_blockCountChanged(int count);
 
 private:
-  Ui::PrefsLogin *ui;
+  Ui::PrefsLogin* ui;
   bool empty = true;
   bool single = true;
-  World &world;
+  World& world;
 };

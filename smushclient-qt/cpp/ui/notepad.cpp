@@ -19,7 +19,10 @@ constexpr int minFontSize = 5;
 
 // Public methods
 
-Notepad::Notepad(QWidget *parent) : QMainWindow(parent), ui(new Ui::Notepad) {
+Notepad::Notepad(QWidget* parent)
+  : QMainWindow(parent)
+  , ui(new Ui::Notepad)
+{
   ui->setupUi(this);
   setAttribute(Qt::WA_DeleteOnClose);
   Settings settings;
@@ -36,23 +39,34 @@ Notepad::Notepad(QWidget *parent) : QMainWindow(parent), ui(new Ui::Notepad) {
   connect(ui->action_close_window, &QAction::triggered, this, &Notepad::close);
   connect(ui->action_copy, &QAction::triggered, ui->editor, &QTextEdit::copy);
   connect(ui->action_cut, &QAction::triggered, ui->editor, &QTextEdit::cut);
-  connect(ui->action_maximize, &QAction::triggered, this,
-          &Notepad::showMaximized);
-  connect(ui->action_minimize, &QAction::triggered, this,
-          &Notepad::showMinimized);
+  connect(
+    ui->action_maximize, &QAction::triggered, this, &Notepad::showMaximized);
+  connect(
+    ui->action_minimize, &QAction::triggered, this, &Notepad::showMinimized);
   connect(ui->action_paste, &QAction::triggered, ui->editor, &QTextEdit::paste);
   connect(ui->action_restore, &QAction::triggered, this, &Notepad::showNormal);
-  connect(ui->action_select_all, &QAction::triggered, ui->editor,
+  connect(ui->action_select_all,
+          &QAction::triggered,
+          ui->editor,
           &QTextEdit::selectAll);
 }
 
-Notepad::~Notepad() { delete ui; }
+Notepad::~Notepad()
+{
+  delete ui;
+}
 
-QTextEdit *Notepad::editor() const { return ui->editor; }
+QTextEdit*
+Notepad::editor() const
+{
+  return ui->editor;
+}
 
 // Private methods
 
-void Notepad::applyFontSize() {
+void
+Notepad::applyFontSize()
+{
   QTextCharFormat format;
   format.setFontPointSize(fontSize);
   QTextCursor cursor = ui->editor->textCursor();
@@ -62,42 +76,56 @@ void Notepad::applyFontSize() {
 
 // Private slots
 
-void Notepad::on_action_close_all_notepad_windows_triggered() {
-  qobject_cast<Notepads *>(parent())->closeAll();
+void
+Notepad::on_action_close_all_notepad_windows_triggered()
+{
+  qobject_cast<Notepads*>(parent())->closeAll();
 }
 
-void Notepad::on_action_decrease_size_triggered() {
+void
+Notepad::on_action_decrease_size_triggered()
+{
   fontSize -= 1;
   if (fontSize <= minFontSize)
     ui->action_decrease_size->setEnabled(false);
   applyFontSize();
 }
 
-void Notepad::on_action_find_triggered() {
+void
+Notepad::on_action_find_triggered()
+{
   if (!findDialog)
     findDialog = new FindDialog(this);
   if (findDialog->exec() == QDialog::Accepted)
     findDialog->find(ui->editor);
 }
 
-void Notepad::on_action_find_again_triggered() {
+void
+Notepad::on_action_find_again_triggered()
+{
   if (findDialog->isFilled() || findDialog->exec() == QDialog::Accepted)
     findDialog->find(ui->editor);
 }
 
-void Notepad::on_action_global_preferences_triggered() {
+void
+Notepad::on_action_global_preferences_triggered()
+{
   Settings settings;
   SettingsDialog(settings, this).exec();
 }
 
-void Notepad::on_action_increase_size_triggered() {
+void
+Notepad::on_action_increase_size_triggered()
+{
   if (fontSize <= minFontSize)
     ui->action_decrease_size->setEnabled(true);
   fontSize += 1;
   applyFontSize();
 }
 
-void Notepad::on_action_print_triggered() {
+void
+Notepad::on_action_print_triggered()
+{
 
   QPrinter printer;
   QPrintDialog dialog(&printer, this);
@@ -106,15 +134,19 @@ void Notepad::on_action_print_triggered() {
   ui->editor->print(&printer);
 }
 
-void Notepad::on_action_reset_size_triggered() {
+void
+Notepad::on_action_reset_size_triggered()
+{
   fontSize = ui->editor->document()->defaultFont().pointSizeF();
   ui->action_decrease_size->setEnabled(fontSize > minFontSize);
   applyFontSize();
 }
 
-void Notepad::on_action_save_selection_triggered() {
+void
+Notepad::on_action_save_selection_triggered()
+{
   const QString path = QFileDialog::getSaveFileName(
-      this, tr("Save as"), QString(), FileFilter::text());
+    this, tr("Save as"), QString(), FileFilter::text());
 
   if (path.isEmpty())
     return;
@@ -129,32 +161,44 @@ void Notepad::on_action_save_selection_triggered() {
   return;
 }
 
-void Notepad::on_action_visit_api_guide_triggered() {
+void
+Notepad::on_action_visit_api_guide_triggered()
+{
   QDesktopServices::openUrl(QStringLiteral(
-      "https://www.gammon.com.au/scripts/doc.php?general=function_list"));
+    "https://www.gammon.com.au/scripts/doc.php?general=function_list"));
 }
 
-void Notepad::on_action_visit_bug_reports_triggered() {
+void
+Notepad::on_action_visit_bug_reports_triggered()
+{
   QDesktopServices::openUrl(
-      QStringLiteral("https://github.com/jnbooth/smushclient/issues"));
+    QStringLiteral("https://github.com/jnbooth/smushclient/issues"));
 }
 
 // Notepads
 
 // Public methods
 
-Notepads::Notepads(QWidget *parent) : QWidget(parent) { hide(); }
+Notepads::Notepads(QWidget* parent)
+  : QWidget(parent)
+{
+  hide();
+}
 
-void Notepads::closeAll() {
-  for (QObject *child : children())
+void
+Notepads::closeAll()
+{
+  for (QObject* child : children())
     delete child;
 }
 
-QTextEdit *Notepads::pad(const QString &name) {
+QTextEdit*
+Notepads::pad(const QString& name)
+{
   if (name.isEmpty())
     return create(name)->editor();
 
-  Notepad *notepad = findChild<Notepad *>(name, Qt::FindDirectChildrenOnly);
+  Notepad* notepad = findChild<Notepad*>(name, Qt::FindDirectChildrenOnly);
 
   if (!notepad) {
     notepad = create(name);
@@ -166,9 +210,11 @@ QTextEdit *Notepads::pad(const QString &name) {
 
 // Private methods
 
-Notepad *Notepads::create(const QString &name) {
-  QWidget *active = QApplication::activeWindow();
-  Notepad *notepad = new Notepad(this);
+Notepad*
+Notepads::create(const QString& name)
+{
+  QWidget* active = QApplication::activeWindow();
+  Notepad* notepad = new Notepad(this);
   notepad->setObjectName(name);
   notepad->show();
   if (active)

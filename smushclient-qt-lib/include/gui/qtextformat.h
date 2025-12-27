@@ -11,7 +11,10 @@ using QTextFormatPageBreakFlags = QTextFormat::PageBreakFlags;
 using QTextFormatProperty = QTextFormat::Property;
 
 namespace rust {
-template <> struct IsRelocatable<QTextFormat> : ::std::true_type {};
+template<>
+struct IsRelocatable<QTextFormat> : ::std::true_type
+{};
 
-namespace smushclientqtlib1 {}
+namespace smushclientqtlib1 {
+}
 } // namespace rust

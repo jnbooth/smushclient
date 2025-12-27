@@ -5,9 +5,17 @@
 namespace rust {
 namespace smushclientqtlib1 {
 namespace qlist {
-template <typename T> void qlistClear(QList<T> &list) { list.clear(); }
+template<typename T>
+void
+qlistClear(QList<T>& list)
+{
+  list.clear();
+}
 
-template <typename T> bool qlistContains(const QList<T> &list, const T &item) {
+template<typename T>
+bool
+qlistContains(const QList<T>& list, const T& item)
+{
   return list.contains(item);
 }
 } // namespace qlist
