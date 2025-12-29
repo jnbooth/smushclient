@@ -107,19 +107,25 @@ impl SmushClient {
     }
 
     pub fn update_world(&mut self, mut world: World) -> io::Result<bool> {
+        if self.world == world {
+            return Ok(false);
+        }
         let plugins = mem::take(&mut self.world.plugins);
         let aliases = mem::take(&mut self.world.aliases);
         let timers = mem::take(&mut self.world.timers);
         let triggers = mem::take(&mut self.world.triggers);
-        let changed = self.world != world;
+        if self.world == world {
+            self.world.plugins = plugins;
+            self.world.aliases = aliases;
+            self.world.timers = timers;
+            self.world.triggers = triggers;
+            return Ok(false);
+        }
         world.plugins = plugins;
         world.aliases = aliases;
         world.timers = timers;
         world.triggers = triggers;
         self.world = world;
-        if !changed {
-            return Ok(false);
-        }
         self.plugins.set_world_plugin(self.world.world_plugin());
         self.update_config();
         self.logger.borrow_mut().apply_world(&self.world)?;
