@@ -38,7 +38,7 @@ PrefsNumpad::PrefsNumpad(const World& world, QWidget* parent)
   CONNECT_WORLD(NumpadModAsterisk);
   CONNECT_WORLD(NumpadModMinus);
   CONNECT_WORLD(NumpadModPlus);
-  CONNECT_WORLD(NumpadEnable);
+  CONNECT_WORLD(KeypadEnable);
   CONNECT_WORLD(HotkeyAddsToCommandHistory);
   CONNECT_WORLD(EchoHotkeyInOutputWindow);
 }

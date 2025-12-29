@@ -23,11 +23,12 @@ use mud_transformer::mxp::RgbColor;
 use mud_transformer::{TransformerConfig, UseMxp};
 use serde::{Deserialize, Serialize};
 use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Sender, Timer, Trigger};
+use versions::Migrate;
 
 use crate::collections::SortOnDrop;
 use crate::plugins::{SendIterable, SenderAccessError};
 
-const CURRENT_VERSION: u16 = 3;
+const CURRENT_VERSION: u16 = 2;
 
 fn skip_temporary<S, T>(vec: &CursorVec<T>, serializer: S) -> Result<S::Ok, S::Error>
 where
@@ -68,12 +69,14 @@ pub struct World {
     pub log_notes: bool,
     pub log_mode: LogMode,
     pub auto_log_file_name: Option<String>,
+    pub write_world_name_to_log: bool,
     pub log_preamble_output: String,
     pub log_preamble_input: String,
     pub log_preamble_notes: String,
     pub log_postamble_output: String,
     pub log_postamble_input: String,
     pub log_postamble_notes: String,
+    pub log_script_errors: bool,
 
     // Timers
     #[serde(serialize_with = "skip_temporary")]
@@ -86,10 +89,13 @@ pub struct World {
     pub show_underline: bool,
     pub indent_paras: u8,
     pub ansi_colours: [RgbColor; 16],
+    pub use_default_colours: bool,
     pub display_my_input: bool,
-    pub echo_colours: ColorPair,
+    pub echo_colour: Option<RgbColor>,
+    pub echo_background_colour: Option<RgbColor>,
     pub keep_commands_on_same_line: bool,
     pub new_activity_sound: Option<String>,
+    pub line_information: bool,
 
     // MUD
     pub use_mxp: UseMxp,
@@ -98,6 +104,7 @@ pub struct World {
     pub hyperlink_colour: RgbColor,
     pub mud_can_change_link_colour: bool,
     pub underline_hyperlinks: bool,
+    pub mud_can_remove_underline: bool,
     pub hyperlink_adds_to_command_history: bool,
     pub echo_hyperlink_in_output_window: bool,
     pub terminal_identification: String,
@@ -109,11 +116,13 @@ pub struct World {
     pub no_echo_off: bool,
     pub enable_command_stack: bool,
     pub command_stack_character: u16,
+    pub mxp_debug_level: MXPDebugLevel,
 
     // Triggers
     #[serde(serialize_with = "skip_temporary")]
     pub triggers: CursorVec<Trigger>,
     pub enable_triggers: bool,
+    pub enable_trigger_sounds: bool,
 
     // Aliases
     #[serde(serialize_with = "skip_temporary")]
@@ -122,7 +131,7 @@ pub struct World {
 
     // Keypad
     pub numpad_shortcuts: NumpadMapping,
-    pub numpad_enable: bool,
+    pub keypad_enable: bool,
     pub hotkey_adds_to_command_history: bool,
     pub echo_hotkey_in_output_window: bool,
 
@@ -130,8 +139,11 @@ pub struct World {
     pub enable_scripts: bool,
     pub world_script: Option<String>,
     pub script_reload_option: ScriptRecompile,
-    pub note_colours: ColorPair,
-    pub error_colours: ColorPair,
+    pub note_text_colour: Option<RgbColor>,
+    pub note_background_colour: Option<RgbColor>,
+    pub script_errors_to_output_window: bool,
+    pub error_text_colour: Option<RgbColor>,
+    pub error_background_colour: Option<RgbColor>,
 
     // Hidden
     pub plugins: Vec<PathBuf>,
@@ -172,12 +184,14 @@ impl World {
             log_notes: true,
             log_mode: LogMode::Append,
             auto_log_file_name: None,
+            write_world_name_to_log: false,
             log_preamble_output: String::new(),
             log_preamble_input: String::new(),
             log_preamble_notes: String::new(),
             log_postamble_output: String::new(),
             log_postamble_input: String::new(),
             log_postamble_notes: String::new(),
+            log_script_errors: false,
 
             // Timers
             timers: CursorVec::new(),
@@ -189,10 +203,13 @@ impl World {
             show_underline: true,
             indent_paras: 0,
             ansi_colours: *RgbColor::XTERM_16,
+            use_default_colours: false,
             display_my_input: true,
-            echo_colours: ColorPair::foreground(RgbColor::rgb(128, 128, 128)),
+            echo_colour: Some(RgbColor::rgb(128, 128, 128)),
+            echo_background_colour: None,
             keep_commands_on_same_line: false,
             new_activity_sound: None,
+            line_information: false,
 
             // MUD
             use_mxp: UseMxp::Command,
@@ -201,6 +218,7 @@ impl World {
             hyperlink_colour: RgbColor::rgb(43, 121, 162),
             mud_can_change_link_colour: true,
             underline_hyperlinks: true,
+            mud_can_remove_underline: false,
             hyperlink_adds_to_command_history: true,
             echo_hyperlink_in_output_window: true,
             terminal_identification: "mushclient".to_owned(),
@@ -212,10 +230,12 @@ impl World {
             no_echo_off: false,
             enable_command_stack: false,
             command_stack_character: u16::from(b';'),
+            mxp_debug_level: MXPDebugLevel::None,
 
             // Triggers
             triggers: CursorVec::new(),
             enable_triggers: true,
+            enable_trigger_sounds: true,
 
             // Aliases
             aliases: CursorVec::new(),
@@ -223,7 +243,7 @@ impl World {
 
             // Keypad
             numpad_shortcuts: NumpadMapping::navigation(),
-            numpad_enable: true,
+            keypad_enable: true,
             hotkey_adds_to_command_history: false,
             echo_hotkey_in_output_window: true,
 
@@ -231,8 +251,11 @@ impl World {
             enable_scripts: true,
             world_script: None,
             script_reload_option: ScriptRecompile::Confirm,
-            note_colours: ColorPair::foreground(RgbColor::rgb(0, 128, 255)),
-            error_colours: ColorPair::foreground(RgbColor::rgb(127, 0, 0)),
+            note_text_colour: Some(RgbColor::rgb(0, 128, 255)),
+            note_background_colour: None,
+            script_errors_to_output_window: false,
+            error_text_colour: Some(RgbColor::rgb(127, 0, 0)),
+            error_background_colour: None,
 
             // Hidden
             plugins: Vec::new(),
@@ -304,17 +327,13 @@ impl World {
     }
 
     pub fn load<R: Read>(mut reader: R) -> Result<Self, PersistError> {
-        let mut version_buf = [0; 2];
-        reader.read_exact(&mut version_buf)?;
         let mut buf = Vec::new();
-        let version = u16::from_be_bytes(version_buf);
-        if version > 2 {
-            reader.read_to_end(&mut buf)?;
-        }
+        reader.read_to_end(&mut buf)?;
+        let (version, bytes) = buf.split_at_checked(2).ok_or(PersistError::Invalid)?;
+        let version = u16::from_be_bytes(version.try_into()?);
         match version {
-            1 => versions::V1::migrate(&mut reader),
-            2 => versions::V2::migrate(&mut reader),
-            3 => postcard::from_bytes(&buf).map_err(Into::into),
+            1 | 3 => versions::V1::migrate(bytes),
+            2 => postcard::from_bytes(bytes).map_err(Into::into),
             _ => Err(PersistError::Invalid)?,
         }
     }

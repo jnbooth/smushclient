@@ -1,6 +1,6 @@
 use cxx_qt_lib::{QColor, QString};
 use smushclient::World;
-use smushclient::world::{ColorPair, Numpad, NumpadMapping};
+use smushclient::world::{Numpad, NumpadMapping};
 use smushclient_plugins::CursorVec;
 
 use crate::colors::Colors;
@@ -35,12 +35,14 @@ pub struct WorldRust {
     pub log_notes: bool,
     pub log_mode: ffi::LogMode,
     pub auto_log_file_name: QString,
+    pub write_world_name_to_log: bool,
     pub log_preamble_output: QString,
     pub log_preamble_input: QString,
     pub log_preamble_notes: QString,
     pub log_postamble_output: QString,
     pub log_postamble_input: QString,
     pub log_postamble_notes: QString,
+    pub log_script_errors: bool,
 
     // Timers
     pub enable_timers: bool,
@@ -51,11 +53,13 @@ pub struct WorldRust {
     pub show_underline: bool,
     pub indent_paras: i32,
     pub ansi_colours: Colors,
+    pub use_default_colours: bool,
     pub display_my_input: bool,
-    pub echo_text_colour: QColor,
+    pub echo_colour: QColor,
     pub echo_background_colour: QColor,
     pub keep_commands_on_same_line: bool,
     pub new_activity_sound: QString,
+    pub line_information: bool,
 
     // MUD
     pub use_mxp: ffi::UseMxp,
@@ -64,6 +68,7 @@ pub struct WorldRust {
     pub hyperlink_colour: QColor,
     pub mud_can_change_link_colour: bool,
     pub underline_hyperlinks: bool,
+    pub mud_can_remove_underline: bool,
     pub hyperlink_adds_to_command_history: bool,
     pub echo_hyperlink_in_output_window: bool,
     pub terminal_identification: QString,
@@ -75,9 +80,11 @@ pub struct WorldRust {
     pub no_echo_off: bool,
     pub enable_command_stack: bool,
     pub command_stack_character: u16,
+    pub mxp_debug_level: ffi::MXPDebugLevel,
 
     // Triggers
     pub enable_triggers: bool,
+    pub enable_trigger_sounds: bool,
 
     // Aliases
     pub enable_aliases: bool,
@@ -113,7 +120,7 @@ pub struct WorldRust {
     pub numpad_mod_asterisk: QString,
     pub numpad_mod_minus: QString,
     pub numpad_mod_plus: QString,
-    pub numpad_enable: bool,
+    pub keypad_enable: bool,
     pub hotkey_adds_to_command_history: bool,
     pub echo_hotkey_in_output_window: bool,
 
@@ -123,6 +130,7 @@ pub struct WorldRust {
     pub script_reload_option: ffi::ScriptRecompile,
     pub note_text_colour: QColor,
     pub note_background_colour: QColor,
+    pub script_errors_to_output_window: bool,
     pub error_text_colour: QColor,
     pub error_background_colour: QColor,
 }
@@ -159,12 +167,14 @@ impl From<&World> for WorldRust {
             log_notes: world.log_notes,
             log_mode: world.log_mode.into(),
             auto_log_file_name: world.auto_log_file_name.convert(),
+            write_world_name_to_log: world.write_world_name_to_log,
             log_preamble_output: QString::from(&world.log_preamble_output),
             log_preamble_input: QString::from(&world.log_preamble_input),
             log_preamble_notes: QString::from(&world.log_preamble_notes),
             log_postamble_output: QString::from(&world.log_postamble_output),
             log_postamble_input: QString::from(&world.log_postamble_input),
             log_postamble_notes: QString::from(&world.log_postamble_notes),
+            log_script_errors: world.log_script_errors,
 
             enable_timers: world.enable_timers,
 
@@ -173,11 +183,13 @@ impl From<&World> for WorldRust {
             show_underline: world.show_underline,
             indent_paras: i32::from(world.indent_paras),
             ansi_colours: Colors::from(&world.ansi_colours),
+            use_default_colours: world.use_default_colours,
             display_my_input: world.display_my_input,
-            echo_text_colour: world.echo_colours.foreground.convert(),
-            echo_background_colour: world.echo_colours.background.convert(),
+            echo_colour: world.echo_colour.convert(),
+            echo_background_colour: world.echo_background_colour.convert(),
             keep_commands_on_same_line: world.keep_commands_on_same_line,
             new_activity_sound: world.new_activity_sound.convert(),
+            line_information: world.line_information,
 
             use_mxp: world.use_mxp.into(),
             ignore_mxp_colour_changes: world.ignore_mxp_colour_changes,
@@ -185,6 +197,7 @@ impl From<&World> for WorldRust {
             hyperlink_colour: world.hyperlink_colour.convert(),
             mud_can_change_link_colour: world.mud_can_change_link_colour,
             underline_hyperlinks: world.underline_hyperlinks,
+            mud_can_remove_underline: world.mud_can_remove_underline,
             hyperlink_adds_to_command_history: world.hyperlink_adds_to_command_history,
             echo_hyperlink_in_output_window: world.echo_hyperlink_in_output_window,
             terminal_identification: QString::from(&world.terminal_identification),
@@ -196,8 +209,10 @@ impl From<&World> for WorldRust {
             no_echo_off: world.no_echo_off,
             enable_command_stack: world.enable_command_stack,
             command_stack_character: world.command_stack_character,
+            mxp_debug_level: world.mxp_debug_level.into(),
 
             enable_triggers: world.enable_triggers,
+            enable_trigger_sounds: world.enable_trigger_sounds,
 
             enable_aliases: world.enable_aliases,
 
@@ -231,17 +246,18 @@ impl From<&World> for WorldRust {
             numpad_mod_asterisk: QString::from(&numpad_mod.key_asterisk),
             numpad_mod_minus: QString::from(&numpad_mod.key_minus),
             numpad_mod_plus: QString::from(&numpad_mod.key_plus),
-            numpad_enable: world.numpad_enable,
+            keypad_enable: world.keypad_enable,
             hotkey_adds_to_command_history: world.hotkey_adds_to_command_history,
             echo_hotkey_in_output_window: world.echo_hotkey_in_output_window,
 
             enable_scripts: world.enable_scripts,
             world_script: world.world_script.convert(),
             script_reload_option: world.script_reload_option.into(),
-            note_text_colour: world.note_colours.foreground.convert(),
-            note_background_colour: world.note_colours.background.convert(),
-            error_text_colour: world.error_colours.foreground.convert(),
-            error_background_colour: world.error_colours.background.convert(),
+            note_text_colour: world.note_text_colour.convert(),
+            note_background_colour: world.note_background_colour.convert(),
+            script_errors_to_output_window: world.script_errors_to_output_window,
+            error_text_colour: world.error_text_colour.convert(),
+            error_background_colour: world.error_background_colour.convert(),
         }
     }
 }
@@ -274,12 +290,14 @@ impl TryFrom<&WorldRust> for World {
             log_notes: value.log_notes,
             log_mode: value.log_mode.try_into()?,
             auto_log_file_name: value.auto_log_file_name.convert(),
+            write_world_name_to_log: value.write_world_name_to_log,
             log_preamble_output: String::from(&value.log_preamble_output),
             log_preamble_input: String::from(&value.log_preamble_input),
             log_preamble_notes: String::from(&value.log_preamble_notes),
             log_postamble_output: String::from(&value.log_postamble_output),
             log_postamble_input: String::from(&value.log_postamble_input),
             log_postamble_notes: String::from(&value.log_postamble_notes),
+            log_script_errors: value.log_script_errors,
 
             timers: CursorVec::new(),
             enable_timers: value.enable_timers,
@@ -289,19 +307,20 @@ impl TryFrom<&WorldRust> for World {
             show_underline: value.show_underline,
             indent_paras: u8::try_from(value.indent_paras)?,
             ansi_colours: (&value.ansi_colours).into(),
+            use_default_colours: value.use_default_colours,
             display_my_input: value.display_my_input,
-            echo_colours: ColorPair {
-                foreground: value.echo_text_colour.convert(),
-                background: value.echo_background_colour.convert(),
-            },
+            echo_colour: value.echo_colour.convert(),
+            echo_background_colour: value.echo_background_colour.convert(),
             keep_commands_on_same_line: value.keep_commands_on_same_line,
             new_activity_sound: value.new_activity_sound.convert(),
+            line_information: value.line_information,
 
             use_mxp: value.use_mxp.try_into()?,
             ignore_mxp_colour_changes: value.ignore_mxp_colour_changes,
             use_custom_link_colour: value.use_custom_link_colour,
             hyperlink_colour: value.hyperlink_colour.convert(),
             mud_can_change_link_colour: value.mud_can_change_link_colour,
+            mud_can_remove_underline: value.mud_can_remove_underline,
             underline_hyperlinks: value.underline_hyperlinks,
             hyperlink_adds_to_command_history: value.hyperlink_adds_to_command_history,
             echo_hyperlink_in_output_window: value.echo_hyperlink_in_output_window,
@@ -314,9 +333,11 @@ impl TryFrom<&WorldRust> for World {
             no_echo_off: value.no_echo_off,
             enable_command_stack: value.enable_command_stack,
             command_stack_character: value.command_stack_character,
+            mxp_debug_level: value.mxp_debug_level.try_into()?,
 
             triggers: CursorVec::new(),
             enable_triggers: value.enable_triggers,
+            enable_trigger_sounds: value.enable_trigger_sounds,
 
             aliases: CursorVec::new(),
             enable_aliases: value.enable_aliases,
@@ -357,21 +378,18 @@ impl TryFrom<&WorldRust> for World {
                     key_plus: String::from(&value.numpad_mod_plus),
                 },
             },
-            numpad_enable: value.numpad_enable,
+            keypad_enable: value.keypad_enable,
             hotkey_adds_to_command_history: value.hotkey_adds_to_command_history,
             echo_hotkey_in_output_window: value.echo_hotkey_in_output_window,
 
             enable_scripts: value.enable_scripts,
             world_script: value.world_script.convert(),
             script_reload_option: value.script_reload_option.try_into()?,
-            note_colours: ColorPair {
-                foreground: value.note_text_colour.convert(),
-                background: value.note_background_colour.convert(),
-            },
-            error_colours: ColorPair {
-                foreground: value.error_text_colour.convert(),
-                background: value.error_background_colour.convert(),
-            },
+            note_text_colour: value.note_text_colour.convert(),
+            note_background_colour: value.note_background_colour.convert(),
+            script_errors_to_output_window: value.script_errors_to_output_window,
+            error_text_colour: value.error_text_colour.convert(),
+            error_background_colour: value.error_background_colour.convert(),
 
             plugins: Vec::new(),
         })

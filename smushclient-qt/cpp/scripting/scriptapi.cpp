@@ -94,7 +94,7 @@ ScriptApi::applyWorld(const World& world)
     suppressEcho = false;
 
   indentText = QStringLiteral(" ").repeated(world.getIndentParas());
-  echoFormat.setForeground(QBrush(world.getEchoTextColour()));
+  echoFormat.setForeground(QBrush(world.getEchoColour()));
   echoFormat.setBackground(QBrush(world.getEchoBackgroundColour()));
   errorFormat.setForeground(QBrush(world.getErrorTextColour()));
   errorFormat.setBackground(QBrush(world.getErrorBackgroundColour()));

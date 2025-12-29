@@ -79,16 +79,13 @@ impl PluginVariables {
     }
 
     pub fn load<R: Read>(mut reader: R) -> Result<Self, PersistError> {
-        let mut version_buf = [0; 1];
-        reader.read_exact(&mut version_buf)?;
         let mut buf = Vec::new();
-        let version = version_buf[0];
-        if version > 1 {
-            reader.read_to_end(&mut buf)?;
-        }
+        reader.read_to_end(&mut buf)?;
+        let [version, bytes @ ..] = &*buf else {
+            return Err(PersistError::Invalid);
+        };
         match version {
-            1 => bincode::deserialize_from(reader).map_err(Into::into),
-            2 => postcard::from_bytes(&buf).map_err(Into::into),
+            2 => postcard::from_bytes(bytes).map_err(Into::into),
             _ => Err(PersistError::Invalid),
         }
     }

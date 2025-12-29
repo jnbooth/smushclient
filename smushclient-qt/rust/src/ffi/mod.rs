@@ -33,7 +33,9 @@ pub use timekeeper::ffi::{SendTimer, Timekeeper};
 mod util;
 
 mod world;
-pub use world::ffi::{AutoConnect, LogFormat, LogMode, ScriptRecompile, UseMxp, World};
+pub use world::ffi::{
+    AutoConnect, LogFormat, LogMode, MXPDebugLevel, ScriptRecompile, UseMxp, World,
+};
 
 mod variable_view;
 pub use variable_view::VariableView;

@@ -554,7 +554,7 @@ WorldTab::resizeEvent(QResizeEvent* event)
 void
 WorldTab::applyWorld()
 {
-  handleKeypad = world.getNumpadEnable();
+  handleKeypad = world.getKeypadEnable();
   ui->input->setIgnoreKeypad(handleKeypad);
   ui->output->setIgnoreKeypad(handleKeypad);
   setColors(ui->background, world.getAnsi7(), world.getAnsi0());

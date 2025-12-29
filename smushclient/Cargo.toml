@@ -8,7 +8,6 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
-bincode = "1.3.3"
 chrono = { workspace = true }
 flagset = { workspace = true }
 mud-transformer = { workspace = true }

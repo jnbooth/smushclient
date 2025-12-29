@@ -758,7 +758,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="NumpadEnable">
+    <widget class="QCheckBox" name="KeypadEnable">
      <property name="text">
       <string>&amp;Enable keypad actions</string>
      </property>

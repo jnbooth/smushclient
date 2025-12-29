@@ -54,7 +54,9 @@ impl TextFormatter {
 
     pub fn apply_world(&mut self, world: &World) {
         self.error_format
-            .set_foreground(&QBrush::from(&world.ansi_colours[1].convert()));
+            .set_foreground(&QBrush::from(&world.error_text_colour.convert()));
+        self.error_format
+            .set_background(&QBrush::from(&world.error_background_colour.convert()));
 
         self.ansi.clear();
         for &color in &world.ansi_colours {

@@ -57,6 +57,14 @@ pub mod ffi {
         Overwrite,
     }
 
+    enum MXPDebugLevel {
+        None,
+        Error,
+        Warning,
+        Info,
+        All,
+    }
+
     enum UseMxp {
         Command,
         Query,
@@ -117,13 +125,6 @@ pub mod ffi {
     enum ColorOption {
         None,
         Some(RgbColor),
-    }
-
-    #[derive(Copy, Clone)]
-    #[swift_bridge(swift_repr = "struct")]
-    struct ColorPair {
-        foreground: ColorOption,
-        background: ColorOption,
     }
 
     enum Occurrence {
@@ -288,12 +289,14 @@ pub mod ffi {
         log_notes: bool,
         log_mode: LogMode,
         auto_log_file_name: String,
+        write_world_name_to_log: bool,
         log_preamble_output: String,
         log_preamble_input: String,
         log_preamble_notes: String,
         log_postamble_output: String,
         log_postamble_input: String,
         log_postamble_notes: String,
+        log_script_errors: bool,
 
         timers: Vec<Timer>,
         enable_timers: bool,
@@ -301,12 +304,15 @@ pub mod ffi {
         show_bold: bool,
         show_italic: bool,
         show_underline: bool,
-        ansi_colours: Vec<RgbColor>,
         indent_paras: u8,
+        ansi_colours: Vec<RgbColor>,
+        use_default_colours: bool,
         display_my_input: bool,
-        echo_colours: ColorPair,
+        echo_colour: ColorOption,
+        echo_background_colour: ColorOption,
         keep_commands_on_same_line: bool,
         new_activity_sound: String,
+        line_information: bool,
 
         use_mxp: UseMxp,
         ignore_mxp_colour_changes: bool,
@@ -314,6 +320,7 @@ pub mod ffi {
         hyperlink_colour: RgbColor,
         mud_can_change_link_colour: bool,
         underline_hyperlinks: bool,
+        mud_can_remove_underline: bool,
         hyperlink_adds_to_command_history: bool,
         echo_hyperlink_in_output_window: bool,
         terminal_identification: String,
@@ -325,23 +332,28 @@ pub mod ffi {
         no_echo_off: bool,
         enable_command_stack: bool,
         command_stack_character: u16,
+        mxp_debug_level: MXPDebugLevel,
 
         triggers: Vec<Trigger>,
         enable_triggers: bool,
+        enable_trigger_sounds: bool,
 
         aliases: Vec<Alias>,
         enable_aliases: bool,
 
         numpad_shortcuts: NumpadMapping,
-        numpad_enable: bool,
+        keypad_enable: bool,
         hotkey_adds_to_command_history: bool,
         echo_hotkey_in_output_window: bool,
 
         enable_scripts: bool,
         world_script: String,
         script_reload_option: ScriptRecompile,
-        note_colours: ColorPair,
-        error_colours: ColorPair,
+        note_text_colour: ColorOption,
+        note_background_colour: ColorOption,
+        script_errors_to_output_window: bool,
+        error_text_colour: ColorOption,
+        error_background_colour: ColorOption,
 
         plugins: Vec<String>,
     }

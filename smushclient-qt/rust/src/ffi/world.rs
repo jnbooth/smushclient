@@ -31,6 +31,15 @@ pub mod ffi {
     }
 
     #[repr(i32)]
+    enum MXPDebugLevel {
+        None,
+        Error,
+        Warning,
+        Info,
+        All,
+    }
+
+    #[repr(i32)]
     enum UseMxp {
         Command,
         Query,
@@ -72,12 +81,14 @@ pub mod ffi {
         #[qproperty(bool, log_notes)]
         #[qproperty(LogMode, log_mode)]
         #[qproperty(QString, auto_log_file_name)]
+        #[qproperty(bool, write_world_name_to_log)]
         #[qproperty(QString, log_preamble_output)]
         #[qproperty(QString, log_preamble_input)]
         #[qproperty(QString, log_preamble_notes)]
         #[qproperty(QString, log_postamble_output)]
         #[qproperty(QString, log_postamble_input)]
         #[qproperty(QString, log_postamble_notes)]
+        #[qproperty(bool, log_script_errors)]
         // Timers
         #[qproperty(bool, enable_timers)]
         // Output
@@ -101,11 +112,13 @@ pub mod ffi {
         #[qproperty(QColor, ansi_13)]
         #[qproperty(QColor, ansi_14)]
         #[qproperty(QColor, ansi_15)]
+        #[qproperty(bool, use_default_colours)]
         #[qproperty(bool, display_my_input)]
-        #[qproperty(QColor, echo_text_colour)]
+        #[qproperty(QColor, echo_colour)]
         #[qproperty(QColor, echo_background_colour)]
         #[qproperty(bool, keep_commands_on_same_line)]
         #[qproperty(QString, new_activity_sound)]
+        #[qproperty(bool, line_information)]
         // MUD
         #[qproperty(UseMxp, use_mxp)]
         #[qproperty(bool, ignore_mxp_colour_changes)]
@@ -113,6 +126,7 @@ pub mod ffi {
         #[qproperty(QColor, hyperlink_colour)]
         #[qproperty(bool, mud_can_change_link_colour)]
         #[qproperty(bool, underline_hyperlinks)]
+        #[qproperty(bool, mud_can_remove_underline)]
         #[qproperty(bool, hyperlink_adds_to_command_history)]
         #[qproperty(bool, echo_hyperlink_in_output_window)]
         #[qproperty(bool, naws)]
@@ -124,8 +138,10 @@ pub mod ffi {
         #[qproperty(bool, no_echo_off)]
         #[qproperty(bool, enable_command_stack)]
         #[qproperty(u16, command_stack_character)]
+        #[qproperty(MXPDebugLevel, mxp_debug_level)]
         // Triggers
         #[qproperty(bool, enable_triggers)]
+        #[qproperty(bool, enable_trigger_sounds)]
         // Aliases
         #[qproperty(bool, enable_aliases)]
         // Keypad
@@ -159,7 +175,7 @@ pub mod ffi {
         #[qproperty(QString, numpad_mod_asterisk)]
         #[qproperty(QString, numpad_mod_minus)]
         #[qproperty(QString, numpad_mod_plus)]
-        #[qproperty(bool, numpad_enable)]
+        #[qproperty(bool, keypad_enable)]
         #[qproperty(bool, hotkey_adds_to_command_history)]
         #[qproperty(bool, echo_hotkey_in_output_window)]
         // Scripting
@@ -168,6 +184,7 @@ pub mod ffi {
         #[qproperty(ScriptRecompile, script_reload_option)]
         #[qproperty(QColor, note_text_colour)]
         #[qproperty(QColor, note_background_colour)]
+        #[qproperty(bool, script_errors_to_output_window)]
         #[qproperty(QColor, error_text_colour)]
         #[qproperty(QColor, error_background_colour)]
         type World = super::WorldRust;

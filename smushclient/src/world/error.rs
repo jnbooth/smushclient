@@ -1,3 +1,4 @@
+use std::array::TryFromSliceError;
 use std::fmt;
 use std::io;
 
@@ -5,7 +6,6 @@ use std::io;
 pub enum PersistError {
     File(io::Error),
     Serial(postcard::Error),
-    Bincode(bincode::Error),
     Invalid,
 }
 
@@ -14,7 +14,6 @@ impl fmt::Display for PersistError {
         match self {
             Self::File(error) => error.fmt(f),
             Self::Serial(error) => error.fmt(f),
-            Self::Bincode(error) => error.fmt(f),
             Self::Invalid => f.write_str("invalid savefile"),
         }
     }
@@ -22,11 +21,7 @@ impl fmt::Display for PersistError {
 
 impl From<io::Error> for PersistError {
     fn from(value: io::Error) -> Self {
-        if value.kind() == io::ErrorKind::UnexpectedEof {
-            Self::Invalid
-        } else {
-            Self::File(value)
-        }
+        Self::File(value)
     }
 }
 
@@ -36,8 +31,8 @@ impl From<postcard::Error> for PersistError {
     }
 }
 
-impl From<bincode::Error> for PersistError {
-    fn from(value: bincode::Error) -> Self {
-        Self::Bincode(value)
+impl From<TryFromSliceError> for PersistError {
+    fn from(_: TryFromSliceError) -> Self {
+        Self::Invalid
     }
 }

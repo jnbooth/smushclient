@@ -1,37 +1,49 @@
 use std::fs::OpenOptions;
 
-use flagset::flags;
-use mud_transformer::mxp::RgbColor;
 use serde::{Deserialize, Serialize};
 
-flags! {
-    #[derive(PartialOrd, Ord, Hash, Deserialize, Serialize)]
-    pub enum AutoConnect: u8 {
-        Mush,
-        Diku,
-        Mxp,
-    }
+#[repr(u8)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+pub enum AutoConnect {
+    Mush,
+    Diku,
+    Mxp,
+}
 
-    #[derive(PartialOrd, Ord, Hash, Deserialize, Serialize)]
-    pub enum ScriptRecompile: u8 {
-        Confirm,
-        Always,
-        Never,
-    }
+#[repr(u8)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+pub enum ScriptRecompile {
+    Confirm,
+    Always,
+    Never,
+}
 
-    #[derive(Default, PartialOrd, Ord, Hash, Deserialize, Serialize)]
-    pub enum LogFormat: u8 {
-        #[default]
-        Text,
-        Html,
-        Raw,
-    }
+#[repr(u8)]
+#[derive(
+    Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize,
+)]
+pub enum LogFormat {
+    #[default]
+    Text,
+    Html,
+    Raw,
+}
 
-    #[derive(PartialOrd, Ord, Hash, Deserialize, Serialize)]
-    pub enum LogMode: u8 {
-        Append,
-        Overwrite,
-    }
+#[repr(u8)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+pub enum LogMode {
+    Append,
+    Overwrite,
+}
+
+#[repr(u8)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+pub enum MXPDebugLevel {
+    None,
+    Error,
+    Warning,
+    Info,
+    All,
 }
 
 impl From<LogMode> for OpenOptions {
@@ -43,23 +55,6 @@ impl From<LogMode> for OpenOptions {
         };
         options.create(true);
         options
-    }
-}
-
-#[derive(
-    Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize,
-)]
-pub struct ColorPair {
-    pub foreground: Option<RgbColor>,
-    pub background: Option<RgbColor>,
-}
-
-impl ColorPair {
-    pub fn foreground(color: RgbColor) -> Self {
-        Self {
-            foreground: Some(color),
-            background: None,
-        }
     }
 }
 

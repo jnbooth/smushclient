@@ -9,7 +9,7 @@ use mud_transformer::{
     UseMxp,
 };
 use smushclient::world::{
-    AutoConnect, ColorPair, LogFormat, LogMode, Numpad, NumpadMapping, ScriptRecompile,
+    AutoConnect, LogFormat, LogMode, MXPDebugLevel, Numpad, NumpadMapping, ScriptRecompile,
 };
 use smushclient::{SendRequest, SendScriptRequest, World};
 use smushclient_plugins::{
@@ -80,7 +80,15 @@ impl_convert_enum!(
 
 impl_convert!(ffi::ColorOption, Option<RgbColor>);
 
-impl_convert_struct!(ffi::ColorPair, ColorPair, foreground, background,);
+impl_convert_enum!(
+    ffi::MXPDebugLevel,
+    MXPDebugLevel,
+    None,
+    Error,
+    Warning,
+    Info,
+    All
+);
 
 impl_convert_enum!(ffi::SendTo, SendTo, World, Input, Internet);
 
@@ -201,12 +209,14 @@ impl_convert_struct!(
     log_notes,
     log_mode,
     auto_log_file_name,
+    write_world_name_to_log,
     log_preamble_output,
     log_preamble_input,
     log_preamble_notes,
     log_postamble_output,
     log_postamble_input,
     log_postamble_notes,
+    log_script_errors,
     // Timers
     timers,
     enable_timers,
@@ -216,10 +226,13 @@ impl_convert_struct!(
     show_underline,
     indent_paras,
     ansi_colours,
+    use_default_colours,
     display_my_input,
-    echo_colours,
+    echo_colour,
+    echo_background_colour,
     keep_commands_on_same_line,
     new_activity_sound,
+    line_information,
     //MUD
     use_mxp,
     ignore_mxp_colour_changes,
@@ -227,6 +240,7 @@ impl_convert_struct!(
     hyperlink_colour,
     mud_can_change_link_colour,
     underline_hyperlinks,
+    mud_can_remove_underline,
     hyperlink_adds_to_command_history,
     echo_hyperlink_in_output_window,
     terminal_identification,
@@ -238,23 +252,28 @@ impl_convert_struct!(
     no_echo_off,
     enable_command_stack,
     command_stack_character,
+    mxp_debug_level,
     // Triggers
     triggers,
     enable_triggers,
+    enable_trigger_sounds,
     // Aliases
     aliases,
     enable_aliases,
     // Numpad
     numpad_shortcuts,
-    numpad_enable,
+    keypad_enable,
     hotkey_adds_to_command_history,
     echo_hotkey_in_output_window,
     // Scripting
     enable_scripts,
     world_script,
     script_reload_option,
-    note_colours,
-    error_colours,
+    note_text_colour,
+    note_background_colour,
+    script_errors_to_output_window,
+    error_text_colour,
+    error_background_colour,
     // Hidden
     plugins
 );

@@ -55,7 +55,7 @@ macro_rules! impl_convert_enum {
         impl TryFrom<$ffi> for $rust {
             type Error = crate::convert::OutOfRangeError;
 
-            fn try_from(value: $ffi) -> Result<Self, Self::Error> {
+            fn try_from(value: $ffi) -> Result<Self, crate::convert::OutOfRangeError> {
                 match value {
                     $(<$ffi>::$variant => Ok(Self::$variant)),+,
                     _ => Err(crate::convert::OutOfRangeError)

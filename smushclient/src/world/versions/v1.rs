@@ -1,17 +1,21 @@
-use std::io::Read;
 use std::path::PathBuf;
 
 use mud_transformer::UseMxp;
 use mud_transformer::mxp::RgbColor;
 use serde::Deserialize;
-use smushclient_plugins::{Alias, Timer, Trigger};
+use smushclient_plugins::{Alias, CursorVec, Timer, Trigger};
 
 use super::super::types::*;
-use crate::world::PersistError;
 
 #[derive(Deserialize)]
-pub struct World {
-    // IP address
+pub(crate) struct ColorPair {
+    pub foreground: Option<RgbColor>,
+    pub background: Option<RgbColor>,
+}
+
+#[derive(Deserialize)]
+pub(crate) struct World {
+    // Connecting
     pub name: String,
     pub site: String,
     pub port: u16,
@@ -22,7 +26,7 @@ pub struct World {
     pub proxy_password: String,
     pub save_world_automatically: bool,
 
-    // Connecting
+    // Login
     pub player: String,
     pub password: String,
     pub connect_method: Option<AutoConnect>,
@@ -45,8 +49,7 @@ pub struct World {
     pub log_postamble_notes: String,
 
     // Timers
-    #[serde(serialize_with = "skip_temporary")]
-    pub timers: Vec<Timer>,
+    pub timers: CursorVec<Timer>,
     pub enable_timers: bool,
 
     // Output
@@ -54,9 +57,9 @@ pub struct World {
     pub show_italic: bool,
     pub show_underline: bool,
     pub indent_paras: u8,
-    pub ansi_colors: [RgbColor; 16],
+    pub ansi_colours: [RgbColor; 16],
     pub display_my_input: bool,
-    pub echo_colors: ColorPair,
+    pub echo_colours: ColorPair,
     pub keep_commands_on_same_line: bool,
     pub new_activity_sound: Option<String>,
 
@@ -80,27 +83,25 @@ pub struct World {
     pub command_stack_character: u16,
 
     // Triggers
-    #[serde(serialize_with = "skip_temporary")]
-    pub triggers: Vec<Trigger>,
+    pub triggers: CursorVec<Trigger>,
     pub enable_triggers: bool,
 
     // Aliases
-    #[serde(serialize_with = "skip_temporary")]
-    pub aliases: Vec<Alias>,
+    pub aliases: CursorVec<Alias>,
     pub enable_aliases: bool,
 
-    // Numpad
+    // Keypad
     pub numpad_shortcuts: NumpadMapping,
     pub numpad_enable: bool,
     pub hotkey_adds_to_command_history: bool,
     pub echo_hotkey_in_output_window: bool,
 
-    // Scripts
+    // Scripting
     pub enable_scripts: bool,
     pub world_script: Option<String>,
     pub script_reload_option: ScriptRecompile,
-    pub note_text_colour: RgbColor,
-    pub error_colour: RgbColor,
+    pub note_colours: ColorPair,
+    pub error_colours: ColorPair,
 
     // Hidden
     pub plugins: Vec<PathBuf>,
@@ -108,92 +109,159 @@ pub struct World {
 
 impl From<World> for super::super::World {
     fn from(value: World) -> Self {
+        let World {
+            name,
+            site,
+            port,
+            use_proxy,
+            proxy_server,
+            proxy_port,
+            proxy_username,
+            proxy_password,
+            save_world_automatically,
+            player,
+            password,
+            connect_method,
+            connect_text,
+            log_file_preamble,
+            log_file_postamble,
+            log_format,
+            log_output,
+            log_input,
+            log_notes,
+            log_mode,
+            auto_log_file_name,
+            log_preamble_output,
+            log_preamble_input,
+            log_preamble_notes,
+            log_postamble_output,
+            log_postamble_input,
+            log_postamble_notes,
+            timers,
+            enable_timers,
+            show_bold,
+            show_italic,
+            show_underline,
+            indent_paras,
+            ansi_colours,
+            display_my_input,
+            echo_colours,
+            keep_commands_on_same_line,
+            new_activity_sound,
+            use_mxp,
+            ignore_mxp_colour_changes,
+            use_custom_link_colour,
+            hyperlink_colour,
+            mud_can_change_link_colour,
+            underline_hyperlinks,
+            hyperlink_adds_to_command_history,
+            echo_hyperlink_in_output_window,
+            terminal_identification,
+            disable_compression,
+            naws,
+            carriage_return_clears_line,
+            utf_8,
+            convert_ga_to_newline,
+            no_echo_off,
+            enable_command_stack,
+            command_stack_character,
+            triggers,
+            enable_triggers,
+            aliases,
+            enable_aliases,
+            numpad_shortcuts,
+            numpad_enable,
+            hotkey_adds_to_command_history,
+            echo_hotkey_in_output_window,
+            enable_scripts,
+            world_script,
+            script_reload_option,
+            note_colours,
+            error_colours,
+            plugins,
+        } = value;
+
         Self {
-            name: value.name,
-            site: value.site,
-            port: value.port,
-            use_proxy: value.use_proxy,
-            proxy_server: value.proxy_server,
-            proxy_port: value.proxy_port,
-            proxy_username: value.proxy_username,
-            proxy_password: value.proxy_password,
-            save_world_automatically: value.save_world_automatically,
-
-            player: value.player,
-            password: value.password,
-            connect_method: value.connect_method,
-            connect_text: value.connect_text,
-
-            log_file_preamble: value.log_file_preamble,
-            log_file_postamble: value.log_file_postamble,
-            log_format: value.log_format,
-            log_output: value.log_output,
-            log_input: value.log_input,
-            log_notes: value.log_notes,
-            log_mode: value.log_mode,
-            auto_log_file_name: value.auto_log_file_name,
-            log_preamble_output: value.log_preamble_output,
-            log_preamble_input: value.log_preamble_input,
-            log_preamble_notes: value.log_preamble_notes,
-            log_postamble_output: value.log_postamble_output,
-            log_postamble_input: value.log_postamble_input,
-            log_postamble_notes: value.log_postamble_notes,
-
-            timers: value.timers.into(),
-            enable_timers: value.enable_timers,
-
-            show_bold: value.show_bold,
-            show_italic: value.show_italic,
-            show_underline: value.show_underline,
-            indent_paras: value.indent_paras,
-            ansi_colours: value.ansi_colors,
-            display_my_input: value.display_my_input,
-            keep_commands_on_same_line: value.keep_commands_on_same_line,
-            echo_colours: value.echo_colors,
-            new_activity_sound: value.new_activity_sound,
-
-            use_mxp: value.use_mxp,
-            ignore_mxp_colour_changes: value.ignore_mxp_colour_changes,
-            use_custom_link_colour: value.use_custom_link_colour,
-            hyperlink_colour: value.hyperlink_colour,
-            mud_can_change_link_colour: value.mud_can_change_link_colour,
-            underline_hyperlinks: value.underline_hyperlinks,
-            hyperlink_adds_to_command_history: value.hyperlink_adds_to_command_history,
-            echo_hyperlink_in_output_window: value.echo_hyperlink_in_output_window,
-            terminal_identification: value.terminal_identification,
-            disable_compression: value.disable_compression,
-            naws: value.naws,
-            carriage_return_clears_line: value.carriage_return_clears_line,
-            utf_8: value.utf_8,
-            convert_ga_to_newline: value.convert_ga_to_newline,
-            no_echo_off: value.no_echo_off,
-            enable_command_stack: value.enable_command_stack,
-            command_stack_character: value.command_stack_character,
-
-            triggers: value.triggers.into(),
-            enable_triggers: value.enable_triggers,
-
-            aliases: value.aliases.into(),
-            enable_aliases: value.enable_aliases,
-
-            numpad_shortcuts: NumpadMapping::navigation(),
-            numpad_enable: value.numpad_enable,
-            hotkey_adds_to_command_history: false,
-            echo_hotkey_in_output_window: true,
-
-            enable_scripts: value.enable_scripts,
-            world_script: None,
-            script_reload_option: value.script_reload_option,
-            note_colours: ColorPair::foreground(value.note_text_colour),
-            error_colours: ColorPair::foreground(value.error_colour),
-
-            plugins: value.plugins,
+            name,
+            site,
+            port,
+            use_proxy,
+            proxy_server,
+            proxy_port,
+            proxy_username,
+            proxy_password,
+            save_world_automatically,
+            player,
+            password,
+            connect_method,
+            connect_text,
+            log_file_preamble,
+            log_file_postamble,
+            log_format,
+            log_output,
+            log_input,
+            log_notes,
+            log_mode,
+            auto_log_file_name,
+            write_world_name_to_log: false,
+            log_preamble_output,
+            log_preamble_input,
+            log_preamble_notes,
+            log_postamble_output,
+            log_postamble_input,
+            log_postamble_notes,
+            log_script_errors: false,
+            timers,
+            enable_timers,
+            show_bold,
+            show_italic,
+            show_underline,
+            indent_paras,
+            ansi_colours,
+            use_default_colours: false,
+            display_my_input,
+            keep_commands_on_same_line,
+            echo_colour: echo_colours.foreground,
+            echo_background_colour: echo_colours.background,
+            new_activity_sound,
+            line_information: false,
+            use_mxp,
+            ignore_mxp_colour_changes,
+            use_custom_link_colour,
+            hyperlink_colour,
+            mud_can_change_link_colour,
+            underline_hyperlinks,
+            mud_can_remove_underline: false,
+            hyperlink_adds_to_command_history,
+            echo_hyperlink_in_output_window,
+            terminal_identification,
+            disable_compression,
+            naws,
+            carriage_return_clears_line,
+            utf_8,
+            convert_ga_to_newline,
+            no_echo_off,
+            enable_command_stack,
+            command_stack_character,
+            mxp_debug_level: MXPDebugLevel::None,
+            triggers,
+            enable_triggers,
+            enable_trigger_sounds: true,
+            aliases,
+            enable_aliases,
+            numpad_shortcuts,
+            keypad_enable: numpad_enable,
+            hotkey_adds_to_command_history,
+            echo_hotkey_in_output_window,
+            enable_scripts,
+            world_script,
+            script_reload_option,
+            note_text_colour: note_colours.foreground,
+            note_background_colour: note_colours.background,
+            script_errors_to_output_window: false,
+            error_text_colour: error_colours.foreground,
+            error_background_colour: error_colours.background,
+            plugins,
         }
-    }
-}
-
-impl World {
-    pub fn migrate(reader: &mut dyn Read) -> Result<crate::world::World, PersistError> {
-        Ok(bincode::deserialize_from::<&mut dyn Read, World>(reader)?.into())
     }
 }
