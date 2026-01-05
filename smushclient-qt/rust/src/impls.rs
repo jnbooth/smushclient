@@ -9,7 +9,7 @@ use smushclient::{
 use smushclient_plugins::{Plugin, PluginIndex, SendTarget, Timer};
 
 use super::ffi;
-use crate::convert::{impl_convert_enum, impl_convert_enum_opt};
+use crate::convert::impl_convert_enum;
 use crate::sender::OutputSpan;
 
 impl_convert_enum!(ffi::SendTo, SendTo, Internet, World, Input);
@@ -18,7 +18,7 @@ impl_convert_enum!(ffi::TelnetSource, TelnetSource, Client, Server);
 
 impl_convert_enum!(ffi::TelnetVerb, TelnetVerb, Do, Dont, Will, Wont);
 
-impl_convert_enum_opt!(ffi::AutoConnect, AutoConnect, None, Mush, Diku, Mxp);
+impl_convert_enum!(ffi::AutoConnect, AutoConnect, None, Mush, Diku, Mxp);
 
 impl_convert_enum!(
     ffi::ScriptRecompile,
@@ -157,6 +157,12 @@ impl Default for ffi::MXPDebugLevel {
 impl Default for ffi::UseMxp {
     fn default() -> Self {
         Self::Command
+    }
+}
+
+impl Default for ffi::AutoConnect {
+    fn default() -> Self {
+        Self::None
     }
 }
 

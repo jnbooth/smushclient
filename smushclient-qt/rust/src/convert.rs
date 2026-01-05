@@ -66,43 +66,6 @@ macro_rules! impl_convert_enum {
 }
 pub(crate) use impl_convert_enum;
 
-macro_rules! impl_convert_enum_opt {
-    ($ffi:ty, $rust:path, $fallback:ident, $($variant:ident),+ $(,)?) => {
-        impl From<$rust> for $ffi {
-            fn from(value: $rust) -> Self {
-                match value {
-                    $(<$rust>::$variant => Self::$variant),+
-                }
-            }
-        }
-        impl From<Option<$rust>> for $ffi {
-            fn from(value: Option<$rust>) -> Self {
-                match value {
-                    None => Self::$fallback,
-                    Some(value) => <$ffi>::from(value),
-                }
-            }
-        }
-        impl TryFrom<$ffi> for Option<$rust> {
-            type Error = crate::convert::OutOfRangeError;
-
-            fn try_from(value: $ffi) -> Result<Self, Self::Error> {
-                match value {
-                    <$ffi>::$fallback => Ok(None),
-                    $(<$ffi>::$variant => Ok(Some(<$rust>::$variant))),+,
-                    _ => Err(crate::convert::OutOfRangeError),
-                }
-            }
-        }
-        impl Default for $ffi {
-            fn default() -> Self {
-                Self::$fallback
-            }
-        }
-    }
-}
-pub(crate) use impl_convert_enum_opt;
-
 macro_rules! impl_constructor {
     (<$($l:lifetime),*>, $t:ty, $a:ty, { $i:item }) => {
         impl <$($l),*> cxx_qt::Constructor<$a> for $t {

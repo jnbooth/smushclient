@@ -13,6 +13,27 @@ pub(crate) struct ColorPair {
     pub background: Option<RgbColor>,
 }
 
+#[repr(u8)]
+#[derive(Deserialize)]
+pub(crate) enum AutoConnect {
+    Mush,
+    Diku,
+    Mxp,
+}
+
+impl From<Option<AutoConnect>> for super::super::types::AutoConnect {
+    fn from(value: Option<AutoConnect>) -> Self {
+        let Some(value) = value else {
+            return Self::None;
+        };
+        match value {
+            AutoConnect::Mush => Self::Mush,
+            AutoConnect::Diku => Self::Diku,
+            AutoConnect::Mxp => Self::Mxp,
+        }
+    }
+}
+
 #[derive(Deserialize)]
 pub(crate) struct World {
     // Connecting
@@ -193,23 +214,24 @@ impl From<World> for super::super::World {
             save_world_automatically,
             player,
             password,
-            connect_method,
+            connect_method: connect_method.into(),
             connect_text,
             log_file_preamble,
             log_file_postamble,
             log_format,
+            log_in_colour: false,
             log_output,
             log_input,
             log_notes,
             log_mode,
             auto_log_file_name,
             write_world_name_to_log: false,
-            log_preamble_output,
-            log_preamble_input,
-            log_preamble_notes,
-            log_postamble_output,
-            log_postamble_input,
-            log_postamble_notes,
+            log_line_preamble_output: log_preamble_output,
+            log_line_preamble_input: log_preamble_input,
+            log_line_preamble_notes: log_preamble_notes,
+            log_line_postamble_output: log_postamble_output,
+            log_line_postamble_input: log_postamble_input,
+            log_line_postamble_notes: log_postamble_notes,
             log_script_errors: false,
             timers,
             enable_timers,

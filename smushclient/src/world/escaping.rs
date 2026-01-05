@@ -4,7 +4,7 @@ use std::io::{self, Write};
 
 use chrono::{DateTime, Local, TimeZone};
 
-use crate::world::World;
+use super::World;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Escaped<S = String> {
@@ -182,16 +182,16 @@ impl From<&World> for LogBrackets {
             Escaped::new(&world.log_file_postamble, world),
         );
         let mut output = EscapedBrackets::new(
-            Escaped::new(&world.log_preamble_output, world),
-            Escaped::new(&world.log_postamble_output, world),
+            Escaped::new(&world.log_line_preamble_output, world),
+            Escaped::new(&world.log_line_postamble_output, world),
         );
         let mut input = EscapedBrackets::new(
-            Escaped::new(&world.log_preamble_input, world),
-            Escaped::new(&world.log_postamble_input, world),
+            Escaped::new(&world.log_line_preamble_input, world),
+            Escaped::new(&world.log_line_postamble_input, world),
         );
         let mut notes = EscapedBrackets::new(
-            Escaped::new(&world.log_preamble_notes, world),
-            Escaped::new(&world.log_postamble_notes, world),
+            Escaped::new(&world.log_line_preamble_notes, world),
+            Escaped::new(&world.log_line_postamble_notes, world),
         );
         if !file.before.message.is_empty() {
             file.before.message.push('\n');

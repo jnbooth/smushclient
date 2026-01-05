@@ -57,25 +57,26 @@ pub struct World {
     // Login
     pub player: String,
     pub password: String,
-    pub connect_method: Option<AutoConnect>,
+    pub connect_method: AutoConnect,
     pub connect_text: String,
 
     // Logging
     pub log_file_preamble: String,
     pub log_file_postamble: String,
     pub log_format: LogFormat,
+    pub log_in_colour: bool,
     pub log_output: bool,
     pub log_input: bool,
     pub log_notes: bool,
     pub log_mode: LogMode,
     pub auto_log_file_name: Option<String>,
     pub write_world_name_to_log: bool,
-    pub log_preamble_output: String,
-    pub log_preamble_input: String,
-    pub log_preamble_notes: String,
-    pub log_postamble_output: String,
-    pub log_postamble_input: String,
-    pub log_postamble_notes: String,
+    pub log_line_preamble_output: String,
+    pub log_line_preamble_input: String,
+    pub log_line_preamble_notes: String,
+    pub log_line_postamble_output: String,
+    pub log_line_postamble_input: String,
+    pub log_line_postamble_notes: String,
     pub log_script_errors: bool,
 
     // Timers
@@ -172,25 +173,26 @@ impl World {
             // Login
             player: String::new(),
             password: String::new(),
-            connect_method: None,
+            connect_method: AutoConnect::None,
             connect_text: String::new(),
 
             // Logging
             log_file_preamble: String::new(),
             log_file_postamble: String::new(),
             log_format: LogFormat::Text,
+            log_in_colour: false,
             log_output: true,
             log_input: true,
             log_notes: true,
             log_mode: LogMode::Append,
             auto_log_file_name: None,
             write_world_name_to_log: false,
-            log_preamble_output: String::new(),
-            log_preamble_input: String::new(),
-            log_preamble_notes: String::new(),
-            log_postamble_output: String::new(),
-            log_postamble_input: String::new(),
-            log_postamble_notes: String::new(),
+            log_line_preamble_output: String::new(),
+            log_line_preamble_input: String::new(),
+            log_line_preamble_notes: String::new(),
+            log_line_postamble_output: String::new(),
+            log_line_postamble_input: String::new(),
+            log_line_postamble_notes: String::new(),
             log_script_errors: false,
 
             // Timers
@@ -354,10 +356,10 @@ impl World {
             text
         };
         match self.connect_method {
-            Some(AutoConnect::Diku) if password.is_empty() => format!("{player}\r\n{text}"),
-            Some(AutoConnect::Diku) => format!("{player}\r\n{password}\r\n{text}"),
-            Some(AutoConnect::Mush) => format!("connect {player} {password}\r\n{text}"),
-            Some(AutoConnect::Mxp) | None => text,
+            AutoConnect::Diku if password.is_empty() => format!("{player}\r\n{text}"),
+            AutoConnect::Diku => format!("{player}\r\n{password}\r\n{text}"),
+            AutoConnect::Mush => format!("connect {player} {password}\r\n{text}"),
+            AutoConnect::Mxp | AutoConnect::None => text,
         }
     }
 
@@ -393,7 +395,7 @@ impl World {
 
 impl From<&World> for TransformerConfig {
     fn from(value: &World) -> Self {
-        let (player, password) = if value.connect_method == Some(AutoConnect::Mxp) {
+        let (player, password) = if value.connect_method == AutoConnect::Mxp {
             (value.player.clone(), value.password.clone())
         } else {
             (String::new(), String::new())

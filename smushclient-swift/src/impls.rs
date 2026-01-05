@@ -16,9 +16,7 @@ use smushclient_plugins::{
     Alias, CursorVec, Occurrence, Reaction, Regex, SendTarget, Sender, Timer, Trigger,
 };
 
-use crate::convert::{
-    Convert, impl_convert, impl_convert_enum, impl_convert_enum_opt, impl_convert_struct,
-};
+use crate::convert::{Convert, impl_convert, impl_convert_enum, impl_convert_struct};
 use crate::error::UnsupportedError;
 use crate::ffi;
 
@@ -42,7 +40,7 @@ impl<T, Ffi: Convert<T>> Convert<CursorVec<T>> for Vec<Ffi> {
     }
 }
 
-impl_convert_enum_opt!(ffi::AutoConnect, AutoConnect, Mush, Diku, Mxp);
+impl_convert_enum!(ffi::AutoConnect, AutoConnect, None, Mush, Diku, Mxp);
 
 impl_convert_enum!(
     ffi::ScriptRecompile,
@@ -204,18 +202,19 @@ impl_convert_struct!(
     log_file_preamble,
     log_file_postamble,
     log_format,
+    log_in_colour,
     log_output,
     log_input,
     log_notes,
     log_mode,
     auto_log_file_name,
     write_world_name_to_log,
-    log_preamble_output,
-    log_preamble_input,
-    log_preamble_notes,
-    log_postamble_output,
-    log_postamble_input,
-    log_postamble_notes,
+    log_line_preamble_output,
+    log_line_preamble_input,
+    log_line_preamble_notes,
+    log_line_postamble_output,
+    log_line_postamble_input,
+    log_line_postamble_notes,
     log_script_errors,
     // Timers
     timers,

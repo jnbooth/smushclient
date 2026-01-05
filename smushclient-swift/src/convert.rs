@@ -47,31 +47,6 @@ macro_rules! impl_convert_enum {
 }
 pub(crate) use impl_convert_enum;
 
-macro_rules! impl_convert_enum_opt {
-    ($ffi:ty, $rust:ty, $($variant:ident),+ $(,)?) => {
-        impl From<Option<$rust>> for $ffi {
-            fn from(value: Option<$rust>) -> Self {
-                match value {
-                    None => Self::None,
-                    $(Some(<$rust>::$variant) => Self::$variant),+
-                }
-            }
-        }
-        impl From<$ffi> for Option<$rust> {
-            fn from(value: $ffi) -> Self {
-                match value {
-                    <$ffi>::None => None,
-                    $(<$ffi>::$variant => Some(<$rust>::$variant)),+,
-                    #[allow(unreachable_patterns)]
-                    _ => unreachable!()
-                }
-            }
-        }
-        impl_convert!($ffi, Option<$rust>);
-    }
-}
-pub(crate) use impl_convert_enum_opt;
-
 macro_rules! impl_convert_struct {
     ($ffi:ty, $rust:ty, $($prop:ident),+ $(,)?) => {
         impl From<$rust> for $ffi {

@@ -310,16 +310,16 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="LogPreambleInput"/>
+      <widget class="QLineEdit" name="LogLinePreambleInput"/>
      </item>
      <item row="3" column="1">
-      <widget class="QLineEdit" name="LogPreambleNotes"/>
+      <widget class="QLineEdit" name="LogLinePreambleNotes"/>
      </item>
      <item row="3" column="2">
-      <widget class="QLineEdit" name="LogPostambleNotes"/>
+      <widget class="QLineEdit" name="LogLinePostambleNotes"/>
      </item>
      <item row="2" column="2">
-      <widget class="QLineEdit" name="LogPostambleInput"/>
+      <widget class="QLineEdit" name="LogLinePostambleInput"/>
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="Notes_label">
@@ -329,7 +329,7 @@
       </widget>
      </item>
      <item row="1" column="2">
-      <widget class="QLineEdit" name="LogPostambleOutput"/>
+      <widget class="QLineEdit" name="LogLinePostambleOutput"/>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_output">
@@ -357,7 +357,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="LogPreambleOutput"/>
+      <widget class="QLineEdit" name="LogLinePreambleOutput"/>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="label_input">
