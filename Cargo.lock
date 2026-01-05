@@ -110,8 +110,8 @@ checksum = "b35204fbdc0b3f4446b89fc1ac2cf84a8a68971995d0bf2e925ec7cd960f9cb3"
 
 [[package]]
 name = "casefold"
-version = "0.2.0"
-source = "git+https://github.com/jnbooth/casefold#3e4a278863b417ce09367ed8e4b2a5d67e6f8ccf"
+version = "0.4.0"
+source = "git+https://github.com/jnbooth/casefold#e02a01167ad51827c4c53fd5ac31aba127ab7609"
 
 [[package]]
 name = "cc"
@@ -588,6 +588,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "htmlentity"
+version = "1.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd54ae4f69adcc1a43637dcff230852832c3ad50df31a90e0cb5f001dd441359"
+dependencies = [
+ "anyhow",
+ "lazy_static",
+ "thiserror 1.0.69",
+]
+
+[[package]]
 name = "iana-time-zone"
 version = "0.1.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -758,8 +769,8 @@ dependencies = [
 
 [[package]]
 name = "mud-transformer"
-version = "0.10.0"
-source = "git+https://github.com/jnbooth/mxp?rev=d2dbc708af037bbb638c5529519521fc96c41c87#d2dbc708af037bbb638c5529519521fc96c41c87"
+version = "0.11.0"
+source = "git+https://github.com/jnbooth/mxp#d11a99c7d407c1708c290840ababcc1ff8ea2958"
 dependencies = [
  "bytes",
  "flagset",
@@ -770,11 +781,12 @@ dependencies = [
 
 [[package]]
 name = "mxp"
-version = "0.10.0"
-source = "git+https://github.com/jnbooth/mxp?rev=d2dbc708af037bbb638c5529519521fc96c41c87#d2dbc708af037bbb638c5529519521fc96c41c87"
+version = "0.11.0"
+source = "git+https://github.com/jnbooth/mxp#d11a99c7d407c1708c290840ababcc1ff8ea2958"
 dependencies = [
  "casefold",
  "flagset",
+ "htmlentity",
  "serde",
 ]
 
