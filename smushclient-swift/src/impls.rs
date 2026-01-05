@@ -187,6 +187,7 @@ impl_convert_struct!(
     name,
     site,
     port,
+    use_ssl,
     use_proxy,
     proxy_server,
     proxy_port,

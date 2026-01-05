@@ -269,6 +269,7 @@ pub mod ffi {
         name: String,
         site: String,
         port: u16,
+        use_ssl: bool,
         use_proxy: bool,
         proxy_server: String,
         proxy_port: u16,

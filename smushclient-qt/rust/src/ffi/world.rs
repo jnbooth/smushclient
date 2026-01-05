@@ -61,6 +61,7 @@ pub mod ffi {
         #[qproperty(QString, name)]
         #[qproperty(QString, site)]
         #[qproperty(i32, port)]
+        #[qproperty(bool, use_ssl)]
         #[qproperty(bool, use_proxy)]
         #[qproperty(QString, proxy_server)]
         #[qproperty(i32, proxy_port)]

@@ -28,7 +28,7 @@ use versions::Migrate;
 use crate::collections::SortOnDrop;
 use crate::plugins::{SendIterable, SenderAccessError};
 
-const CURRENT_VERSION: u16 = 2;
+const CURRENT_VERSION: u16 = 3;
 
 fn skip_temporary<S, T>(vec: &CursorVec<T>, serializer: S) -> Result<S::Ok, S::Error>
 where
@@ -47,6 +47,7 @@ pub struct World {
     pub name: String,
     pub site: String,
     pub port: u16,
+    pub use_ssl: bool,
     pub use_proxy: bool,
     pub proxy_server: String,
     pub proxy_port: u16,
@@ -163,6 +164,7 @@ impl World {
             name: String::new(),
             site: String::new(),
             port: 4000,
+            use_ssl: false,
             use_proxy: false,
             proxy_server: String::new(),
             proxy_port: 1080,
@@ -334,8 +336,9 @@ impl World {
         let (version, bytes) = buf.split_at_checked(2).ok_or(PersistError::Invalid)?;
         let version = u16::from_be_bytes(version.try_into()?);
         match version {
-            1 | 3 => versions::V1::migrate(bytes),
-            2 => postcard::from_bytes(bytes).map_err(Into::into),
+            1 => versions::V1::migrate(bytes),
+            2 => versions::V2::migrate(bytes),
+            3 => postcard::from_bytes(bytes).map_err(Into::into),
             _ => Err(PersistError::Invalid)?,
         }
     }

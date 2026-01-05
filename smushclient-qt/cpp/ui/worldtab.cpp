@@ -93,16 +93,20 @@ WorldTab::WorldTab(MudStatusBar* statusBar, Notepads* notepads, QWidget* parent)
   ui->setupUi(this);
   ui->input->setFocus();
   defaultFont.setPointSize(12);
+#ifdef QT_NO_SSL
+  socket = new QTcpSocket(this);
+#else
   socket = new QSslSocket(this);
-  api = new ScriptApi(statusBar, notepads, this);
-  document = new Document(this, api);
-  connect(document, &Document::newActivity, this, &WorldTab::onNewActivity);
   connect(socket, &QSslSocket::readyRead, this, &WorldTab::readFromSocket);
   connect(socket, &QSslSocket::connected, this, &WorldTab::onSocketConnect);
   connect(
     socket, &QSslSocket::disconnected, this, &WorldTab::onSocketDisconnect);
   connect(socket, &QSslSocket::encrypted, this, &WorldTab::onSocketConnect);
   connect(socket, &QSslSocket::errorOccurred, this, &WorldTab::onSocketError);
+#endif
+  api = new ScriptApi(statusBar, notepads, this);
+  document = new Document(this, api);
+  connect(document, &Document::newActivity, this, &WorldTab::onNewActivity);
   connect(&worldScriptWatcher,
           &QFileSystemWatcher::fileChanged,
           this,
@@ -189,29 +193,13 @@ WorldTab::connectToHost()
 
   const QString& site = world.getSite();
   const uint16_t port = world.getPort();
-  const string addressString = (site + port).toStdString();
-  const string_view cachedAddressString =
-    client.getMetavariable("server/no-ssl");
 
-  if (addressString == cachedAddressString) {
+#ifndef QT_NO_SSL
+  if (world.getUseSsl() && QSslSocket::supportsSsl())
+    socket->connectToHostEncrypted(site, port);
+  else
+#endif
     socket->connectToHost(site, port);
-    return;
-  }
-
-  tryingSsl = true;
-  socket->connectToHostEncrypted(site, port);
-  const bool didSsl = socket->waitForEncrypted();
-  tryingSsl = false;
-
-  if (didSsl || socket->error() != QSslSocket::SslHandshakeFailedError)
-    return;
-
-  tryingSsl = false;
-  if (socket->state() != QAbstractSocket::SocketState::UnconnectedState)
-    socket->waitForDisconnected();
-
-  socket->connectToHost(site, port);
-  client.setMetavariable("server/no-ssl", addressString);
 }
 
 void
@@ -586,6 +574,20 @@ WorldTab::finishDrag()
   }
 }
 
+void
+WorldTab::handleConnect()
+{
+  client.handleConnect(*socket);
+  if (Settings().getDisplayConnect()) {
+    const QString format = tr("'Connected on' dddd, MMMM d, yyyy 'at' h:mm AP");
+    api->appendText(QDateTime::currentDateTime().toString(format));
+    api->startLine();
+  }
+  api->setOpen(true);
+  OnPluginConnect onConnect;
+  api->sendCallback(onConnect);
+}
+
 bool
 WorldTab::restoreHistory()
 {
@@ -812,32 +814,23 @@ WorldTab::onNewActivity()
 void
 WorldTab::onSocketConnect()
 {
-  const bool isEncrypted = socket->isEncrypted();
-  if (tryingSsl && !isEncrypted)
-    return;
-
   disconnect(autoScroll);
+#ifdef QT_NO_SSL
   api->statusBarWidgets()->setConnected(
-    isEncrypted ? MudStatusBar::ConnectionStatus::Encrypted
-                : MudStatusBar::ConnectionStatus::Connected);
-  client.handleConnect(*socket);
+    MudStatusBar::ConnectionStatus::Encrypted);
+#else
+  api->statusBarWidgets()->setConnected(
+    socket->isEncrypted() ? MudStatusBar::ConnectionStatus::Encrypted
+                          : MudStatusBar::ConnectionStatus::Connected);
+#endif
   emit connectionStatusChanged(true);
-  if (Settings().getDisplayConnect()) {
-    const QString format = tr("'Connected on' dddd, MMMM d, yyyy 'at' h:mm AP");
-    api->appendText(QDateTime::currentDateTime().toString(format));
-    api->startLine();
-  }
-  api->setOpen(true);
-  OnPluginConnect onConnect;
-  api->sendCallback(onConnect);
+  if (!world.getUseSsl())
+    handleConnect();
 }
 
 void
 WorldTab::onSocketDisconnect()
 {
-  if (tryingSsl)
-    return;
-
   client.handleDisconnect();
   api->statusBarWidgets()->setConnected(
     MudStatusBar::ConnectionStatus::Disconnected);
@@ -859,6 +852,16 @@ WorldTab::onSocketDisconnect()
   if (Settings().getReconnectOnDisconnect())
     connectToHost();
 }
+
+#ifndef QT_NO_SSL
+void
+WorldTab::onSocketEncrypted()
+{
+  api->statusBarWidgets()->setConnected(
+    MudStatusBar::ConnectionStatus::Encrypted);
+  handleConnect();
+}
+#endif
 
 void
 WorldTab::onSocketError(QAbstractSocket::SocketError socketError)

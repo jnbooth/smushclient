@@ -8,34 +8,7 @@ use smushclient_plugins::{Alias, CursorVec, Timer, Trigger};
 use super::super::types::*;
 
 #[derive(Deserialize)]
-pub(crate) struct ColorPair {
-    pub foreground: Option<RgbColor>,
-    pub background: Option<RgbColor>,
-}
-
-#[repr(u8)]
-#[derive(Deserialize)]
-pub(crate) enum AutoConnect {
-    Mush,
-    Diku,
-    Mxp,
-}
-
-impl From<Option<AutoConnect>> for super::super::types::AutoConnect {
-    fn from(value: Option<AutoConnect>) -> Self {
-        let Some(value) = value else {
-            return Self::None;
-        };
-        match value {
-            AutoConnect::Mush => Self::Mush,
-            AutoConnect::Diku => Self::Diku,
-            AutoConnect::Mxp => Self::Mxp,
-        }
-    }
-}
-
-#[derive(Deserialize)]
-pub(crate) struct World {
+pub struct World {
     // Connecting
     pub name: String,
     pub site: String,
@@ -50,26 +23,30 @@ pub(crate) struct World {
     // Login
     pub player: String,
     pub password: String,
-    pub connect_method: Option<AutoConnect>,
+    pub connect_method: AutoConnect,
     pub connect_text: String,
 
     // Logging
     pub log_file_preamble: String,
     pub log_file_postamble: String,
     pub log_format: LogFormat,
+    pub log_in_colour: bool,
     pub log_output: bool,
     pub log_input: bool,
     pub log_notes: bool,
     pub log_mode: LogMode,
     pub auto_log_file_name: Option<String>,
-    pub log_preamble_output: String,
-    pub log_preamble_input: String,
-    pub log_preamble_notes: String,
-    pub log_postamble_output: String,
-    pub log_postamble_input: String,
-    pub log_postamble_notes: String,
+    pub write_world_name_to_log: bool,
+    pub log_line_preamble_output: String,
+    pub log_line_preamble_input: String,
+    pub log_line_preamble_notes: String,
+    pub log_line_postamble_output: String,
+    pub log_line_postamble_input: String,
+    pub log_line_postamble_notes: String,
+    pub log_script_errors: bool,
 
     // Timers
+    #[serde(serialize_with = "skip_temporary")]
     pub timers: CursorVec<Timer>,
     pub enable_timers: bool,
 
@@ -79,10 +56,13 @@ pub(crate) struct World {
     pub show_underline: bool,
     pub indent_paras: u8,
     pub ansi_colours: [RgbColor; 16],
+    pub use_default_colours: bool,
     pub display_my_input: bool,
-    pub echo_colours: ColorPair,
+    pub echo_colour: Option<RgbColor>,
+    pub echo_background_colour: Option<RgbColor>,
     pub keep_commands_on_same_line: bool,
     pub new_activity_sound: Option<String>,
+    pub line_information: bool,
 
     // MUD
     pub use_mxp: UseMxp,
@@ -91,6 +71,7 @@ pub(crate) struct World {
     pub hyperlink_colour: RgbColor,
     pub mud_can_change_link_colour: bool,
     pub underline_hyperlinks: bool,
+    pub mud_can_remove_underline: bool,
     pub hyperlink_adds_to_command_history: bool,
     pub echo_hyperlink_in_output_window: bool,
     pub terminal_identification: String,
@@ -101,19 +82,23 @@ pub(crate) struct World {
     pub convert_ga_to_newline: bool,
     pub no_echo_off: bool,
     pub enable_command_stack: bool,
-    pub command_stack_character: u16,
+    pub command_stack_character: u8,
+    pub mxp_debug_level: MXPDebugLevel,
 
     // Triggers
+    #[serde(serialize_with = "skip_temporary")]
     pub triggers: CursorVec<Trigger>,
     pub enable_triggers: bool,
+    pub enable_trigger_sounds: bool,
 
     // Aliases
+    #[serde(serialize_with = "skip_temporary")]
     pub aliases: CursorVec<Alias>,
     pub enable_aliases: bool,
 
     // Keypad
     pub numpad_shortcuts: NumpadMapping,
-    pub numpad_enable: bool,
+    pub keypad_enable: bool,
     pub hotkey_adds_to_command_history: bool,
     pub echo_hotkey_in_output_window: bool,
 
@@ -121,20 +106,17 @@ pub(crate) struct World {
     pub enable_scripts: bool,
     pub world_script: Option<String>,
     pub script_reload_option: ScriptRecompile,
-    pub note_colours: ColorPair,
-    pub error_colours: ColorPair,
+    pub note_text_colour: Option<RgbColor>,
+    pub note_background_colour: Option<RgbColor>,
+    pub script_errors_to_output_window: bool,
+    pub error_text_colour: Option<RgbColor>,
+    pub error_background_colour: Option<RgbColor>,
 
     // Hidden
     pub plugins: Vec<PathBuf>,
 }
 
 impl From<World> for super::super::World {
-    fn from(value: World) -> Self {
-        super::v2::World::from(value).into()
-    }
-}
-
-impl From<World> for super::v2::World {
     fn from(value: World) -> Self {
         let World {
             name,
@@ -153,17 +135,20 @@ impl From<World> for super::v2::World {
             log_file_preamble,
             log_file_postamble,
             log_format,
+            log_in_colour,
             log_output,
             log_input,
             log_notes,
             log_mode,
             auto_log_file_name,
-            log_preamble_output,
-            log_preamble_input,
-            log_preamble_notes,
-            log_postamble_output,
-            log_postamble_input,
-            log_postamble_notes,
+            write_world_name_to_log,
+            log_line_preamble_output,
+            log_line_preamble_input,
+            log_line_preamble_notes,
+            log_line_postamble_output,
+            log_line_postamble_input,
+            log_line_postamble_notes,
+            log_script_errors,
             timers,
             enable_timers,
             show_bold,
@@ -171,16 +156,20 @@ impl From<World> for super::v2::World {
             show_underline,
             indent_paras,
             ansi_colours,
+            use_default_colours,
             display_my_input,
-            echo_colours,
+            echo_colour,
+            echo_background_colour,
             keep_commands_on_same_line,
             new_activity_sound,
+            line_information,
             use_mxp,
             ignore_mxp_colour_changes,
             use_custom_link_colour,
             hyperlink_colour,
             mud_can_change_link_colour,
             underline_hyperlinks,
+            mud_can_remove_underline,
             hyperlink_adds_to_command_history,
             echo_hyperlink_in_output_window,
             terminal_identification,
@@ -192,19 +181,24 @@ impl From<World> for super::v2::World {
             no_echo_off,
             enable_command_stack,
             command_stack_character,
+            mxp_debug_level,
             triggers,
             enable_triggers,
+            enable_trigger_sounds,
             aliases,
             enable_aliases,
             numpad_shortcuts,
-            numpad_enable,
+            keypad_enable,
             hotkey_adds_to_command_history,
             echo_hotkey_in_output_window,
             enable_scripts,
             world_script,
             script_reload_option,
-            note_colours,
-            error_colours,
+            note_text_colour,
+            note_background_colour,
+            script_errors_to_output_window,
+            error_text_colour,
+            error_background_colour,
             plugins,
         } = value;
 
@@ -212,6 +206,7 @@ impl From<World> for super::v2::World {
             name,
             site,
             port,
+            use_ssl: false,
             use_proxy,
             proxy_server,
             proxy_port,
@@ -220,25 +215,25 @@ impl From<World> for super::v2::World {
             save_world_automatically,
             player,
             password,
-            connect_method: connect_method.into(),
+            connect_method,
             connect_text,
             log_file_preamble,
             log_file_postamble,
             log_format,
-            log_in_colour: false,
+            log_in_colour,
             log_output,
             log_input,
             log_notes,
             log_mode,
             auto_log_file_name,
-            write_world_name_to_log: false,
-            log_line_preamble_output: log_preamble_output,
-            log_line_preamble_input: log_preamble_input,
-            log_line_preamble_notes: log_preamble_notes,
-            log_line_postamble_output: log_postamble_output,
-            log_line_postamble_input: log_postamble_input,
-            log_line_postamble_notes: log_postamble_notes,
-            log_script_errors: false,
+            write_world_name_to_log,
+            log_line_preamble_output,
+            log_line_preamble_input,
+            log_line_preamble_notes,
+            log_line_postamble_output,
+            log_line_postamble_input,
+            log_line_postamble_notes,
+            log_script_errors,
             timers,
             enable_timers,
             show_bold,
@@ -246,20 +241,20 @@ impl From<World> for super::v2::World {
             show_underline,
             indent_paras,
             ansi_colours,
-            use_default_colours: false,
+            use_default_colours,
             display_my_input,
+            echo_colour,
+            echo_background_colour,
             keep_commands_on_same_line,
-            echo_colour: echo_colours.foreground,
-            echo_background_colour: echo_colours.background,
             new_activity_sound,
-            line_information: false,
+            line_information,
             use_mxp,
             ignore_mxp_colour_changes,
             use_custom_link_colour,
             hyperlink_colour,
             mud_can_change_link_colour,
             underline_hyperlinks,
-            mud_can_remove_underline: false,
+            mud_can_remove_underline,
             hyperlink_adds_to_command_history,
             echo_hyperlink_in_output_window,
             terminal_identification,
@@ -270,25 +265,25 @@ impl From<World> for super::v2::World {
             convert_ga_to_newline,
             no_echo_off,
             enable_command_stack,
-            command_stack_character: u8::try_from(command_stack_character).unwrap_or(b';'),
-            mxp_debug_level: MXPDebugLevel::None,
+            command_stack_character,
+            mxp_debug_level,
             triggers,
             enable_triggers,
-            enable_trigger_sounds: true,
+            enable_trigger_sounds,
             aliases,
             enable_aliases,
             numpad_shortcuts,
-            keypad_enable: numpad_enable,
+            keypad_enable,
             hotkey_adds_to_command_history,
             echo_hotkey_in_output_window,
             enable_scripts,
             world_script,
             script_reload_option,
-            note_text_colour: note_colours.foreground,
-            note_background_colour: note_colours.background,
-            script_errors_to_output_window: false,
-            error_text_colour: error_colours.foreground,
-            error_background_colour: error_colours.background,
+            note_text_colour,
+            note_background_colour,
+            script_errors_to_output_window,
+            error_text_colour,
+            error_background_colour,
             plugins,
         }
     }

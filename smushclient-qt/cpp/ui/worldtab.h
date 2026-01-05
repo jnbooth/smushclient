@@ -12,9 +12,14 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QResizeEvent>
-#include <QtNetwork/QSslSocket>
 #include <QtWidgets/QSplitter>
 #include <QtWidgets/QTextEdit>
+
+#ifdef QT_NO_SSL
+#include <QtNetwork/QTcpSocket>
+#else
+#include <QtNetwork/QSslSocket>
+#endif
 
 class Hotspot;
 class MudStatusBar;
@@ -91,7 +96,11 @@ signals:
 public:
   Ui::WorldTab* ui;
   SmushClient client;
+#ifdef QT_NO_SSL
+  QTcpSocket* socket;
+#else
   QSslSocket* socket;
+#endif
   World world;
 
 protected:
@@ -105,6 +114,7 @@ protected:
 private:
   void applyWorld();
   void finishDrag();
+  void handleConnect();
   bool restoreHistory();
   bool saveHistory() const;
   bool saveWorldAndState(const QString& filePath);
@@ -122,6 +132,9 @@ private slots:
   void readFromSocket();
   void onSocketConnect();
   void onSocketDisconnect();
+#ifndef QT_NO_SSL
+  void onSocketEncrypted();
+#endif
   void onSocketError(QAbstractSocket::SocketError socketError);
 
   void on_input_copyAvailable(bool available);
@@ -151,6 +164,5 @@ private:
   QTimer* resizeTimer;
   int sessionStartBlock = 0;
   QChar splitOn{ u'\n' };
-  bool tryingSsl = false;
   QFileSystemWatcher worldScriptWatcher;
 };
