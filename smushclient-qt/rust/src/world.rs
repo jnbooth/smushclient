@@ -80,7 +80,7 @@ pub struct WorldRust {
     pub convert_ga_to_newline: bool,
     pub no_echo_off: bool,
     pub enable_command_stack: bool,
-    pub command_stack_character: u16,
+    pub command_stack_character: u8,
     pub mxp_debug_level: ffi::MXPDebugLevel,
 
     // Triggers

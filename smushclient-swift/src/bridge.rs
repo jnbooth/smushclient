@@ -332,7 +332,7 @@ pub mod ffi {
         convert_ga_to_newline: bool,
         no_echo_off: bool,
         enable_command_stack: bool,
-        command_stack_character: u16,
+        command_stack_character: u8,
         mxp_debug_level: MXPDebugLevel,
 
         triggers: Vec<Trigger>,

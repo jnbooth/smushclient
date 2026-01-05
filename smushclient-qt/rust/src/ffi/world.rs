@@ -138,7 +138,7 @@ pub mod ffi {
         #[qproperty(bool, disable_compression)]
         #[qproperty(bool, no_echo_off)]
         #[qproperty(bool, enable_command_stack)]
-        #[qproperty(u16, command_stack_character)]
+        #[qproperty(u8, command_stack_character)]
         #[qproperty(MXPDebugLevel, mxp_debug_level)]
         // Triggers
         #[qproperty(bool, enable_triggers)]

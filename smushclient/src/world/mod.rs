@@ -116,7 +116,7 @@ pub struct World {
     pub convert_ga_to_newline: bool,
     pub no_echo_off: bool,
     pub enable_command_stack: bool,
-    pub command_stack_character: u16,
+    pub command_stack_character: u8,
     pub mxp_debug_level: MXPDebugLevel,
 
     // Triggers
@@ -231,7 +231,7 @@ impl World {
             convert_ga_to_newline: false,
             no_echo_off: false,
             enable_command_stack: false,
-            command_stack_character: u16::from(b';'),
+            command_stack_character: b';',
             mxp_debug_level: MXPDebugLevel::None,
 
             // Triggers

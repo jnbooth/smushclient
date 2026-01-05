@@ -571,19 +571,9 @@ WorldTab::applyWorld()
 
   api->applyWorld(world);
   updateWorldScript();
-  if (!world.getEnableCommandStack()) {
-    useSplitter = false;
-    return;
-  }
-  const QChar splitOn(world.getCommandStackCharacter());
-  if (splitOn == u']') {
-    QChar chars[] = { u'[', u'\n', u'\\', splitOn, u']' };
-    splitter.setPattern(QString(chars, 5));
-  } else {
-    QChar chars[] = { u'[', u'\n', splitOn, u']' };
-    splitter.setPattern(QString(chars, 4));
-  }
-  useSplitter = true;
+  splitOn = world.getEnableCommandStack()
+              ? QChar(QLatin1Char(world.getCommandStackCharacter()))
+              : QChar(u'\n');
 }
 
 void
@@ -904,8 +894,7 @@ WorldTab::on_input_submitted(const QString& text)
 {
   ui->output->verticalScrollBar()->setPaused(false);
 
-  const QStringList commands =
-    useSplitter ? text.split(splitter) : text.split(u'\n');
+  const QStringList commands = text.split(splitOn);
 
   bool eraseInput = commands.length() > 1;
 

@@ -264,7 +264,7 @@ impl From<World> for super::super::World {
             convert_ga_to_newline,
             no_echo_off,
             enable_command_stack,
-            command_stack_character,
+            command_stack_character: u8::try_from(command_stack_character).unwrap_or(b';'),
             mxp_debug_level: MXPDebugLevel::None,
             triggers,
             enable_triggers,

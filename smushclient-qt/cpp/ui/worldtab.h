@@ -150,8 +150,7 @@ private:
   bool queuedConnect = false;
   QTimer* resizeTimer;
   int sessionStartBlock = 0;
-  QRegularExpression splitter{};
+  QChar splitOn{ u'\n' };
   bool tryingSsl = false;
-  bool useSplitter = false;
   QFileSystemWatcher worldScriptWatcher;
 };

@@ -26,7 +26,8 @@ PrefsMud::PrefsMud(World& world, QWidget* parent)
   CONNECT_WORLD(ConvertGaToNewline);
   CONNECT_WORLD(NoEchoOff);
   CONNECT_WORLD(EnableCommandStack);
-  ui->CommandStackCharacter->setText(QChar(world.getCommandStackCharacter()));
+  ui->CommandStackCharacter->setText(
+    QChar(QLatin1Char(world.getCommandStackCharacter())));
 }
 
 PrefsMud::~PrefsMud()
@@ -39,7 +40,7 @@ PrefsMud::on_CommandStackCharacter_textChanged(const QString& character)
 {
   if (character.length() != 1)
     return;
-  world.setCommandStackCharacter(character.front().unicode());
+  world.setCommandStackCharacter(character.toUtf8().front());
 }
 
 void
