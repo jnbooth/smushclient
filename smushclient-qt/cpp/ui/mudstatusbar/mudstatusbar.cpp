@@ -13,9 +13,9 @@ MudStatusBar::MudStatusBar(QWidget* parent)
   : QWidget(parent)
   , ui(new Ui::MudStatusBar)
   , connectionIcons({
-      QIcon(QString::fromUtf8(":/icons/status/disconnected.svg")),
-      QIcon(QString::fromUtf8(":/icons/status/connected.svg")),
-      QIcon(QString::fromUtf8(":/icons/status/encrypted.svg")),
+      QIcon(QStringLiteral(":/icons/status/disconnected.svg")),
+      QIcon(QStringLiteral(":/icons/status/connected.svg")),
+      QIcon(QStringLiteral(":/icons/status/encrypted.svg")),
     })
 {
   ui->setupUi(this);

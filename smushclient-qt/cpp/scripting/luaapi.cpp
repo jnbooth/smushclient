@@ -32,13 +32,7 @@ using qlua::expectMaxArgs;
 // Private localization
 
 QString
-convertStdString(const string& s)
-{
-  return QString::fromUtf8(s.data(), s.size());
-}
-
-QString
-fmtNoSuchPlugin(const QString& id)
+fmtNoSuchPlugin(string_view id)
 {
   return ScriptApi::tr("Plugin ID (%1) is not installed").arg(id);
 }
@@ -47,17 +41,17 @@ QString
 fmtPluginDisabled(const Plugin& plugin)
 {
   return ScriptApi::tr("Plugin '%1' (%2) is not enabled")
-    .arg(convertStdString(plugin.name()))
-    .arg(convertStdString(plugin.id()));
+    .arg(plugin.name())
+    .arg(plugin.id());
 }
 
 QString
 fmtNoSuchRoutine(const Plugin& plugin, string_view routine)
 {
   return ScriptApi::tr("No function '%1' in plugin '%2' (%3)")
-    .arg(QString::fromUtf8(routine.data(), routine.size()))
-    .arg(convertStdString(plugin.name()))
-    .arg(convertStdString(plugin.id()));
+    .arg(routine)
+    .arg(plugin.name())
+    .arg(plugin.id());
 }
 
 QString
@@ -65,16 +59,16 @@ fmtBadParam(int idx, const char* type)
 {
   return ScriptApi::tr("Cannot pass argument #%1 (%2 type) to CallPlugin")
     .arg(idx)
-    .arg(QString::fromUtf8(type));
+    .arg(type);
 }
 
 QString
 fmtCallError(const Plugin& plugin, string_view routine)
 {
   return ScriptApi::tr("Runtime error in function '%1', plugin '%2' (%3)")
-    .arg(QString::fromUtf8(routine.data(), routine.size()))
-    .arg(convertStdString(plugin.name()))
-    .arg(convertStdString(plugin.id()));
+    .arg(routine)
+    .arg(plugin.name())
+    .arg(plugin.id());
 }
 
 QString
@@ -86,10 +80,10 @@ fmtBadReturn(const Plugin& plugin,
   return ScriptApi::tr("Cannot handle return value #%1 (%2 type) from function "
                        "'%3' in plugin '%4' (%5)")
     .arg(idx)
-    .arg(QString::fromUtf8(type))
-    .arg(QString::fromUtf8(routine.data(), routine.size()))
-    .arg(convertStdString(plugin.name()))
-    .arg(convertStdString(plugin.id()));
+    .arg(type)
+    .arg(routine)
+    .arg(plugin.name())
+    .arg(plugin.id());
 }
 
 // Private utils
@@ -254,7 +248,7 @@ L_GetTimerInfo(lua_State* L)
   expectMaxArgs(L, 2);
   qlua::pushQVariant(L,
                      getApi(L).GetTimerInfo(getPluginIndex(L),
-                                            qlua::getQString(L, 1),
+                                            qlua::getString(L, 1),
                                             qlua::getInt(L, 2)));
   return 1;
 }
@@ -544,7 +538,7 @@ L_CallPlugin(lua_State* L)
   const Plugin* pluginRef = getApi(L).getPlugin(qlua::getString(L, 1));
   if (!pluginRef) [[unlikely]]
     return returnCode(
-      L, ApiCode::NoSuchPlugin, fmtNoSuchPlugin(qlua::getQString(L, 1)));
+      L, ApiCode::NoSuchPlugin, fmtNoSuchPlugin(qlua::getString(L, 1)));
 
   const Plugin& plugin = *pluginRef;
   if (plugin.disabled()) [[unlikely]]
@@ -630,11 +624,11 @@ L_AddAlias(lua_State* L)
 {
   API("AddAlias")
   expectMaxArgs(L, 5);
-  const QString name = qlua::getQString(L, 1);
-  const QString pattern = qlua::getQString(L, 2);
-  const QString text = qlua::getQString(L, 3);
+  const string_view name = qlua::getString(L, 1);
+  const string_view pattern = qlua::getString(L, 2);
+  const string_view text = qlua::getString(L, 3);
   const QFlags<AliasFlag> flags = (QFlags<AliasFlag>)qlua::getInt(L, 4);
-  const optional<QString> script = qlua::getScriptName(L, 5);
+  const optional<string_view> script = qlua::getScriptName(L, 5);
 
   if (!script)
     return returnCode(L, ApiCode::ScriptNameNotLocated);
@@ -649,13 +643,13 @@ L_AddTimer(lua_State* L)
 {
   API("AddTimer")
   expectMaxArgs(L, 7);
-  const QString name = qlua::getQString(L, 1);
+  const string_view name = qlua::getString(L, 1);
   const int hour = qlua::getInt(L, 2);
   const int minute = qlua::getInt(L, 3);
   const double second = qlua::getNumber(L, 4);
-  const QString text = qlua::getQString(L, 5);
+  const string_view text = qlua::getString(L, 5);
   const QFlags<TimerFlag> flags = (QFlags<TimerFlag>)qlua::getInt(L, 6);
-  const optional<QString> script = qlua::getScriptName(L, 7);
+  const optional<string_view> script = qlua::getScriptName(L, 7);
 
   if (!script)
     return returnCode(L, ApiCode::ScriptNameNotLocated);
@@ -671,14 +665,14 @@ L_AddTrigger(lua_State* L)
 {
   API("AddTrigger")
   expectMaxArgs(L, 10);
-  const QString name = qlua::getQString(L, 1);
-  const QString pattern = qlua::getQString(L, 2);
-  const QString text = qlua::getQString(L, 3);
+  const string_view name = qlua::getString(L, 1);
+  const string_view pattern = qlua::getString(L, 2);
+  const string_view text = qlua::getString(L, 3);
   const QFlags<TriggerFlag> flags = (QFlags<TriggerFlag>)qlua::getInt(L, 4);
   const QColor color = qlua::getCustomColor(L, 5);
   // const int wildcardIndex = qlua::getInt(L, 6);
-  const QString soundFile = qlua::getQString(L, 7);
-  const optional<QString> script = qlua::getScriptName(L, 8);
+  const string_view soundFile = qlua::getString(L, 7);
+  const optional<string_view> script = qlua::getScriptName(L, 8);
   const optional<SendTarget> target =
     qlua::getSendTarget(L, 9, SendTarget::World);
   const int sequence = qlua::getInt(L, 10, 100);
@@ -708,7 +702,7 @@ L_DeleteAlias(lua_State* L)
   API("DeleteAlias")
   expectMaxArgs(L, 1);
   return returnCode(
-    L, getApi(L).DeleteAlias(getPluginIndex(L), qlua::getQString(L, 1)));
+    L, getApi(L).DeleteAlias(getPluginIndex(L), qlua::getString(L, 1)));
 }
 
 static int
@@ -717,7 +711,7 @@ L_DeleteAliases(lua_State* L)
   API("DeleteAliases")
   expectMaxArgs(L, 1);
   lua_pushinteger(
-    L, (int)getApi(L).DeleteAliases(getPluginIndex(L), qlua::getQString(L, 1)));
+    L, (int)getApi(L).DeleteAliases(getPluginIndex(L), qlua::getString(L, 1)));
   return 1;
 }
 
@@ -727,7 +721,7 @@ L_DeleteTimer(lua_State* L)
   API("DeleteTimer")
   expectMaxArgs(L, 1);
   return returnCode(
-    L, getApi(L).DeleteTimer(getPluginIndex(L), qlua::getQString(L, 1)));
+    L, getApi(L).DeleteTimer(getPluginIndex(L), qlua::getString(L, 1)));
 }
 
 static int
@@ -736,7 +730,7 @@ L_DeleteTimers(lua_State* L)
   API("DeleteTimers")
   expectMaxArgs(L, 1);
   lua_pushinteger(
-    L, (int)getApi(L).DeleteTimers(getPluginIndex(L), qlua::getQString(L, 1)));
+    L, (int)getApi(L).DeleteTimers(getPluginIndex(L), qlua::getString(L, 1)));
   return 1;
 }
 
@@ -746,7 +740,7 @@ L_DeleteTrigger(lua_State* L)
   API("DeleteTrigger")
   expectMaxArgs(L, 1);
   return returnCode(
-    L, getApi(L).DeleteTrigger(getPluginIndex(L), qlua::getQString(L, 1)));
+    L, getApi(L).DeleteTrigger(getPluginIndex(L), qlua::getString(L, 1)));
 }
 
 static int
@@ -755,8 +749,7 @@ L_DeleteTriggers(lua_State* L)
   API("DeleteTriggers")
   expectMaxArgs(L, 1);
   lua_pushinteger(
-    L,
-    (int)getApi(L).DeleteTriggers(getPluginIndex(L), qlua::getQString(L, 1)));
+    L, (int)getApi(L).DeleteTriggers(getPluginIndex(L), qlua::getString(L, 1)));
   return 1;
 }
 
@@ -816,7 +809,7 @@ L_EnableAlias(lua_State* L)
   expectMaxArgs(L, 2);
   return returnCode(L,
                     getApi(L).EnableAlias(getPluginIndex(L),
-                                          qlua::getQString(L, 1),
+                                          qlua::getString(L, 1),
                                           qlua::getBool(L, 2, true)));
 }
 
@@ -827,7 +820,7 @@ L_EnableAliasGroup(lua_State* L)
   expectMaxArgs(L, 2);
   return returnCode(L,
                     getApi(L).EnableAliasGroup(getPluginIndex(L),
-                                               qlua::getQString(L, 1),
+                                               qlua::getString(L, 1),
                                                qlua::getBool(L, 2, true)));
 }
 
@@ -838,7 +831,7 @@ L_EnableTimer(lua_State* L)
   expectMaxArgs(L, 2);
   return returnCode(L,
                     getApi(L).EnableTimer(getPluginIndex(L),
-                                          qlua::getQString(L, 1),
+                                          qlua::getString(L, 1),
                                           qlua::getBool(L, 2, true)));
 }
 
@@ -849,7 +842,7 @@ L_EnableTimerGroup(lua_State* L)
   expectMaxArgs(L, 2);
   return returnCode(L,
                     getApi(L).EnableTimerGroup(getPluginIndex(L),
-                                               qlua::getQString(L, 1),
+                                               qlua::getString(L, 1),
                                                qlua::getBool(L, 2, true)));
 }
 
@@ -860,7 +853,7 @@ L_EnableTrigger(lua_State* L)
   expectMaxArgs(L, 2);
   return returnCode(L,
                     getApi(L).EnableTrigger(getPluginIndex(L),
-                                            qlua::getQString(L, 1),
+                                            qlua::getString(L, 1),
                                             qlua::getBool(L, 2, true)));
 }
 
@@ -871,7 +864,7 @@ L_EnableTriggerGroup(lua_State* L)
   expectMaxArgs(L, 2);
   return returnCode(L,
                     getApi(L).EnableTrigger(getPluginIndex(L),
-                                            qlua::getQString(L, 1),
+                                            qlua::getString(L, 1),
                                             qlua::getBool(L, 2, true)));
 }
 
@@ -881,7 +874,7 @@ L_GetAliasOption(lua_State* L)
   API("GetAliasOption")
   expectMaxArgs(L, 2);
   const size_t plugin = getPluginIndex(L);
-  const QString label = qlua::getQString(L, 1);
+  const string_view label = qlua::getString(L, 1);
   const string_view option = qlua::getString(L, 2);
   qlua::pushQVariant(L, getApi(L).GetAliasOption(plugin, label, option));
   return 1;
@@ -893,7 +886,7 @@ L_GetTimerOption(lua_State* L)
   API("GetTimerOption")
   expectMaxArgs(L, 2);
   const size_t plugin = getPluginIndex(L);
-  const QString label = qlua::getQString(L, 1);
+  const string_view label = qlua::getString(L, 1);
   const string_view option = qlua::getString(L, 2);
   qlua::pushQVariant(L, getApi(L).GetTimerOption(plugin, label, option));
   return 1;
@@ -905,7 +898,7 @@ L_GetTriggerOption(lua_State* L)
   API("GetTriggerOption")
   expectMaxArgs(L, 2);
   const size_t plugin = getPluginIndex(L);
-  const QString label = qlua::getQString(L, 1);
+  const string_view label = qlua::getString(L, 1);
   const string_view option = qlua::getString(L, 2);
   qlua::pushQVariant(L, getApi(L).GetTriggerOption(plugin, label, option));
   return 1;
@@ -917,7 +910,7 @@ L_IsAlias(lua_State* L)
   API("IsAlias")
   expectMaxArgs(L, 1);
   return returnCode(
-    L, getApi(L).IsAlias(getPluginIndex(L), qlua::getQString(L, 1)));
+    L, getApi(L).IsAlias(getPluginIndex(L), qlua::getString(L, 1)));
 }
 
 static int
@@ -926,7 +919,7 @@ L_IsTimer(lua_State* L)
   API("IsTimer")
   expectMaxArgs(L, 1);
   return returnCode(
-    L, getApi(L).IsTimer(getPluginIndex(L), qlua::getQString(L, 1)));
+    L, getApi(L).IsTimer(getPluginIndex(L), qlua::getString(L, 1)));
 }
 
 static int
@@ -935,7 +928,7 @@ L_IsTrigger(lua_State* L)
   API("IsTrigger")
   expectMaxArgs(L, 1);
   return returnCode(
-    L, getApi(L).IsTrigger(getPluginIndex(L), qlua::getQString(L, 1)));
+    L, getApi(L).IsTrigger(getPluginIndex(L), qlua::getString(L, 1)));
 }
 
 static int
@@ -943,8 +936,7 @@ L_MakeRegularExpression(lua_State* L)
 {
   API("MakeRegularExpression")
   expectMaxArgs(L, 1);
-  qlua::pushQString(L,
-                    ScriptApi::MakeRegularExpression(qlua::getQString(L, 1)));
+  qlua::pushQString(L, ScriptApi::MakeRegularExpression(qlua::getString(L, 1)));
   return 1;
 }
 
@@ -954,7 +946,7 @@ L_SetAliasOption(lua_State* L)
   API("SetAliasOption")
   expectMaxArgs(L, 3);
   const size_t plugin = getPluginIndex(L);
-  const QString label = qlua::getQString(L, 1);
+  const string_view label = qlua::getString(L, 1);
   const string_view option = qlua::getString(L, 2);
   const int idx = 3;
   ApiCode code;
@@ -980,7 +972,7 @@ L_SetTimerOption(lua_State* L)
   API("SetTimerOption")
   expectMaxArgs(L, 3);
   const size_t plugin = getPluginIndex(L);
-  const QString label = qlua::getQString(L, 1);
+  const string_view label = qlua::getString(L, 1);
   const string_view option = qlua::getString(L, 2);
   const int idx = 3;
   ApiCode code;
@@ -1006,7 +998,7 @@ L_SetTriggerOption(lua_State* L)
   API("SetTriggerOption")
   expectMaxArgs(L, 3);
   const size_t plugin = getPluginIndex(L);
-  const QString label = qlua::getQString(L, 1);
+  const string_view label = qlua::getString(L, 1);
   const string_view option = qlua::getString(L, 2);
   const int idx = 3;
   ApiCode code;
@@ -1047,7 +1039,7 @@ L_PlaySound(lua_State* L)
   return returnCode(
     L,
     getApi(L).PlaySound(qlua::getInt(L, 1),
-                        qlua::getQString(L, 2),
+                        qlua::getString(L, 2),
                         qlua::getBool(L, 3, false),
                         convertVolume(qlua::getNumber(L, 4, 0.0))));
   // qlua::getDouble(L, 5) pan
@@ -1533,16 +1525,12 @@ L_WindowText(lua_State* L)
 {
   API("WindowText")
   expectMaxArgs(L, 9);
-  const string_view windowName = qlua::getString(L, 1);
-  const string_view fontID = qlua::getString(L, 2);
-  const string_view view = qlua::toString(L, 3);
-  const QRectF rect = qlua::getQRectF(L, 4, 5, 6, 7);
-  const QColor color = qlua::getQColor(L, 8);
-  const bool unicode = qlua::getBool(L, 9, false);
-  const QString text = unicode ? QString::fromUtf8(view.data(), view.size())
-                               : QString::fromLatin1(view.data(), view.size());
-  const qreal width =
-    getApi(L).WindowText(windowName, fontID, text, rect, color);
+  const qreal width = getApi(L).WindowText(qlua::getString(L, 1),
+                                           qlua::getString(L, 2),
+                                           qlua::toString(L, 3),
+                                           qlua::getQRectF(L, 4, 5, 6, 7),
+                                           qlua::getQColor(L, 8),
+                                           qlua::getBool(L, 9, false));
   lua_pushinteger(L, width);
   return 1;
 }
@@ -1552,13 +1540,10 @@ L_WindowTextWidth(lua_State* L)
 {
   API("WindowTextWidth")
   expectMaxArgs(L, 4);
-  const string_view windowName = qlua::getString(L, 1);
-  const string_view fontID = qlua::getString(L, 2);
-  const string_view view = qlua::getString(L, 3);
-  const bool unicode = qlua::getBool(L, 4, false);
-  const QString text = unicode ? QString::fromUtf8(view.data(), view.size())
-                               : QString::fromLatin1(view.data(), view.size());
-  const int width = getApi(L).WindowTextWidth(windowName, fontID, text);
+  const int width = getApi(L).WindowTextWidth(qlua::getString(L, 1),
+                                              qlua::getString(L, 2),
+                                              qlua::getString(L, 3),
+                                              qlua::getBool(L, 4, false));
   lua_pushinteger(L, width);
   return 1;
 }
@@ -1583,7 +1568,7 @@ L_WindowAddHotspot(lua_State* L)
     .mouseUp = (string)qlua::getString(L, 11, ""),
     .scroll = "",
   };
-  const QString& tooltip = qlua::getQString(L, 12, QString());
+  const QString tooltip = qlua::getQString(L, 12, QString());
   const optional<Qt::CursorShape> cursor =
     qlua::getCursor(L, 13, Qt::CursorShape::ArrowCursor);
   const Hotspot::Flags flags = (Hotspot::Flags)qlua::getInt(L, 14, 0);

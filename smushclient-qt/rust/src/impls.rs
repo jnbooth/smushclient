@@ -176,8 +176,8 @@ impl TimerConstructible for ffi::SendTimer {
 impl From<&Plugin> for ffi::PluginPack {
     fn from(value: &Plugin) -> Self {
         Self {
-            id: QString::from(&value.metadata.id),
-            name: QString::from(&value.metadata.name),
+            id: value.metadata.id.clone(),
+            name: value.metadata.name.clone(),
             path: QString::from(&*value.metadata.path.to_string_lossy()),
             script_data: value.script.as_ptr(),
             script_size: value.script.len(),

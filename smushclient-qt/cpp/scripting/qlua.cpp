@@ -334,7 +334,7 @@ isScriptName(lua_State* L, const char* name)
   return isFunction;
 }
 
-optional<QString>
+optional<string_view>
 qlua::getScriptName(lua_State* L, int idx)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
@@ -342,10 +342,10 @@ qlua::getScriptName(lua_State* L, int idx)
   const char* name = lua_tolstring(L, idx, &len);
 
   if (len == 0)
-    return QString();
+    return string_view();
 
   if (isScriptName(L, name))
-    return QString::fromUtf8(name, len);
+    return string_view(name, len);
 
   return nullopt;
 }

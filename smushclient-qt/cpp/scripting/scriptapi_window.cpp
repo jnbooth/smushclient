@@ -465,9 +465,10 @@ ScriptApi::WindowShow(string_view windowName, bool show) const
 qreal
 ScriptApi::WindowText(string_view windowName,
                       string_view fontID,
-                      const QString& text,
+                      string_view text,
                       const QRectF& rect,
-                      const QColor& color) const
+                      const QColor& color,
+                      bool unicode) const
 {
   MiniWindow* window = findWindow(windowName);
   if (!window) [[unlikely]]
@@ -475,13 +476,16 @@ ScriptApi::WindowText(string_view windowName,
   const QFont* font = window->findFont(fontID);
   if (!font) [[unlikely]]
     return -2;
-  return window->drawText(*font, text, rect, color).width();
+  const QString qtext = unicode ? QString::fromUtf8(text.data(), text.size())
+                                : QString::fromLatin1(text.data(), text.size());
+  return window->drawText(*font, qtext, rect, color).width();
 }
 
 int
 ScriptApi::WindowTextWidth(string_view windowName,
                            string_view fontID,
-                           const QString& text) const
+                           string_view text,
+                           bool unicode) const
 {
   MiniWindow* window = findWindow(windowName);
   if (!window) [[unlikely]]
@@ -490,7 +494,9 @@ ScriptApi::WindowTextWidth(string_view windowName,
   if (!font) [[unlikely]]
     return -2;
   QFontMetrics fm(*font);
-  return fm.horizontalAdvance(text);
+  const QString qtext = unicode ? QString::fromUtf8(text.data(), text.size())
+                                : QString::fromLatin1(text.data(), text.size());
+  return fm.horizontalAdvance(qtext);
 }
 
 ApiCode

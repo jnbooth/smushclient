@@ -182,7 +182,7 @@ void
 ScriptApi::reinstallPlugin(size_t index)
 {
   const PluginPack pack = client()->plugin(index);
-  const string pluginId = pack.id.toStdString();
+  const string pluginId(pack.id.data(), pack.id.size());
   if (!windows.empty()) {
     for (auto it = windows.begin(); it != windows.end();)
       if (MiniWindow* window = it->second; window->getPluginId() == pluginId) {
@@ -231,15 +231,6 @@ ScriptApi::resetAllTimers()
 {
   sendQueue->clear();
   client()->startAllTimers(*timekeeper);
-}
-
-bool
-ScriptApi::runScript(const QString& pluginID, const QString& script) const
-{
-  const size_t index = findPluginIndex(pluginID.toStdString());
-  if (index == noSuchPlugin) [[unlikely]]
-    return false;
-  return runScript(index, script);
 }
 
 void
@@ -359,7 +350,8 @@ ScriptApi::sendTo(size_t plugin,
       return;
     case SendTarget::Script:
     case SendTarget::ScriptAfterOmit:
-      runScript(plugin, text);
+      const QByteArray utf8 = text.toUtf8();
+      runScript(plugin, string_view(utf8.data(), utf8.size()));
       return;
   }
 }

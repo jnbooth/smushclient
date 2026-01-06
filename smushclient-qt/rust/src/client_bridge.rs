@@ -4,8 +4,8 @@ use std::pin::Pin;
 
 use cxx_qt::CxxQtType;
 use cxx_qt_lib::{QString, QStringList, QVariant};
-use smushclient::SendIterable;
 use smushclient::world::PersistError;
+use smushclient::{LuaStr, SendIterable};
 use smushclient_plugins::{
     Alias, LoadError, PluginIndex, RegexError, Timer, Trigger, XmlError, XmlSerError,
 };
@@ -27,7 +27,7 @@ impl ffi::SmushClient {
         path: &QString,
         world: Pin<&mut ffi::World>,
     ) -> Result<(), PersistError> {
-        *world.rust_mut() = self.rust_mut().load_world(path)?;
+        *world.rust_mut() = self.rust_mut().load_world(String::from(path))?;
         Ok(())
     }
 
@@ -52,15 +52,15 @@ impl ffi::SmushClient {
     }
 
     pub fn save_world(&self, path: &QString) -> Result<(), PersistError> {
-        self.rust().save_world(path)
+        self.rust().save_world(String::from(path))
     }
 
     pub fn load_variables(&self, path: &QString) -> Result<bool, PersistError> {
-        self.rust().load_variables(path)
+        self.rust().load_variables(String::from(path))
     }
 
     pub fn save_variables(&self, path: &QString) -> Result<bool, PersistError> {
-        self.rust().save_variables(path)
+        self.rust().save_variables(String::from(path))
     }
 
     pub fn populate_world(&self, world: Pin<&mut ffi::World>) {
@@ -178,43 +178,43 @@ impl ffi::SmushClient {
             .code::<Trigger>()
     }
 
-    pub fn remove_alias(&self, index: PluginIndex, name: &QString) -> ffi::ApiCode {
+    pub fn remove_alias(&self, index: PluginIndex, name: &LuaStr) -> ffi::ApiCode {
         self.rust()
             .client
-            .remove_sender::<Alias>(index, &String::from(name))
+            .remove_sender::<Alias>(index, &String::from_utf8_lossy(name))
             .code::<Alias>()
     }
 
-    pub fn remove_timer(&self, index: PluginIndex, name: &QString) -> ffi::ApiCode {
+    pub fn remove_timer(&self, index: PluginIndex, name: &LuaStr) -> ffi::ApiCode {
         self.rust()
             .client
-            .remove_sender::<Timer>(index, &String::from(name))
+            .remove_sender::<Timer>(index, &String::from_utf8_lossy(name))
             .code::<Timer>()
     }
 
-    pub fn remove_trigger(&self, index: PluginIndex, name: &QString) -> ffi::ApiCode {
+    pub fn remove_trigger(&self, index: PluginIndex, name: &LuaStr) -> ffi::ApiCode {
         self.rust()
             .client
-            .remove_sender::<Trigger>(index, &String::from(name))
+            .remove_sender::<Trigger>(index, &String::from_utf8_lossy(name))
             .code::<Trigger>()
     }
 
-    pub fn remove_aliases(&self, index: PluginIndex, name: &QString) -> usize {
+    pub fn remove_aliases(&self, index: PluginIndex, name: &LuaStr) -> usize {
         self.rust()
             .client
-            .remove_senders::<Alias>(index, &String::from(name))
+            .remove_senders::<Alias>(index, &String::from_utf8_lossy(name))
     }
 
-    pub fn remove_timers(&self, index: PluginIndex, group: &QString) -> usize {
+    pub fn remove_timers(&self, index: PluginIndex, group: &LuaStr) -> usize {
         self.rust()
             .client
-            .remove_senders::<Timer>(index, &String::from(group))
+            .remove_senders::<Timer>(index, &String::from_utf8_lossy(group))
     }
 
-    pub fn remove_triggers(&self, index: PluginIndex, group: &QString) -> usize {
+    pub fn remove_triggers(&self, index: PluginIndex, group: &LuaStr) -> usize {
         self.rust()
             .client
-            .remove_senders::<Trigger>(index, &String::from(group))
+            .remove_senders::<Trigger>(index, &String::from_utf8_lossy(group))
     }
 
     pub fn add_world_alias(&self, alias: &ffi::Alias) -> Result<ffi::ApiCode, RegexError> {
@@ -293,7 +293,8 @@ impl ffi::SmushClient {
         xml: &QString,
         timekeeper: &ffi::Timekeeper,
     ) -> Result<(), XmlError> {
-        self.rust().import_world_timers(xml, timekeeper)
+        self.rust()
+            .import_world_timers(&String::from(xml), timekeeper)
     }
 
     pub fn import_world_triggers(&self, xml: &QString) -> Result<(), XmlError> {
@@ -330,43 +331,45 @@ impl ffi::SmushClient {
         ffi::ApiCode::OK
     }
 
-    pub fn is_alias(&self, index: PluginIndex, label: &QString) -> bool {
+    pub fn is_alias(&self, index: PluginIndex, label: &LuaStr) -> bool {
         self.rust()
             .client
-            .borrow_sender::<Alias>(index, &String::from(label))
+            .borrow_sender::<Alias>(index, &String::from_utf8_lossy(label))
             .is_some()
     }
 
-    pub fn is_timer(&self, index: PluginIndex, label: &QString) -> bool {
+    pub fn is_timer(&self, index: PluginIndex, label: &LuaStr) -> bool {
         self.rust()
             .client
-            .borrow_sender::<Timer>(index, &String::from(label))
+            .borrow_sender::<Timer>(index, &String::from_utf8_lossy(label))
             .is_some()
     }
 
-    pub fn is_trigger(&self, index: PluginIndex, label: &QString) -> bool {
+    pub fn is_trigger(&self, index: PluginIndex, label: &LuaStr) -> bool {
         self.rust()
             .client
-            .borrow_sender::<Trigger>(index, &String::from(label))
+            .borrow_sender::<Trigger>(index, &String::from_utf8_lossy(label))
             .is_some()
     }
 
     pub fn set_alias_enabled(
         &self,
         index: PluginIndex,
-        label: &QString,
+        label: &LuaStr,
         enabled: bool,
     ) -> ffi::ApiCode {
         self.rust()
             .client
-            .set_sender_enabled::<Alias>(index, &String::from(label), enabled)
+            .set_sender_enabled::<Alias>(index, &String::from_utf8_lossy(label), enabled)
             .code::<Alias>()
     }
 
-    pub fn set_aliases_enabled(&self, index: PluginIndex, group: &QString, enabled: bool) -> bool {
-        self.rust()
-            .client
-            .set_group_enabled::<Alias>(index, &String::from(group), enabled)
+    pub fn set_aliases_enabled(&self, index: PluginIndex, group: &LuaStr, enabled: bool) -> bool {
+        self.rust().client.set_group_enabled::<Alias>(
+            index,
+            &String::from_utf8_lossy(group),
+            enabled,
+        )
     }
 
     pub fn set_plugin_enabled(&self, index: PluginIndex, enabled: bool) -> bool {
@@ -376,90 +379,106 @@ impl ffi::SmushClient {
     pub fn set_timer_enabled(
         &self,
         index: PluginIndex,
-        label: &QString,
+        label: &LuaStr,
         enabled: bool,
     ) -> ffi::ApiCode {
         self.rust()
             .client
-            .set_sender_enabled::<Timer>(index, &String::from(label), enabled)
+            .set_sender_enabled::<Timer>(index, &String::from_utf8_lossy(label), enabled)
             .code::<Timer>()
     }
 
-    pub fn set_timers_enabled(&self, index: PluginIndex, group: &QString, enabled: bool) -> bool {
-        self.rust()
-            .client
-            .set_group_enabled::<Timer>(index, &String::from(group), enabled)
+    pub fn set_timers_enabled(&self, index: PluginIndex, group: &LuaStr, enabled: bool) -> bool {
+        self.rust().client.set_group_enabled::<Timer>(
+            index,
+            &String::from_utf8_lossy(group),
+            enabled,
+        )
     }
 
     pub fn set_trigger_enabled(
         &self,
         index: PluginIndex,
-        label: &QString,
+        label: &LuaStr,
         enabled: bool,
     ) -> ffi::ApiCode {
         self.rust()
             .client
-            .set_sender_enabled::<Trigger>(index, &String::from(label), enabled)
+            .set_sender_enabled::<Trigger>(index, &String::from_utf8_lossy(label), enabled)
             .code::<Trigger>()
     }
 
-    pub fn set_triggers_enabled(&self, index: PluginIndex, group: &QString, enabled: bool) -> bool {
+    pub fn set_triggers_enabled(&self, index: PluginIndex, group: &LuaStr, enabled: bool) -> bool {
+        self.rust().client.set_group_enabled::<Trigger>(
+            index,
+            &String::from_utf8_lossy(group),
+            enabled,
+        )
+    }
+
+    pub fn get_alias_option(
+        &self,
+        index: PluginIndex,
+        label: &LuaStr,
+        option: &LuaStr,
+    ) -> QVariant {
         self.rust()
-            .client
-            .set_group_enabled::<Trigger>(index, &String::from(group), enabled)
+            .get_sender_option::<Alias>(index, &String::from_utf8_lossy(label), option)
     }
 
-    pub fn get_alias_option(&self, index: PluginIndex, label: &QString, option: &[u8]) -> QVariant {
-        self.rust().get_sender_option::<Alias>(index, label, option)
-    }
-
-    pub fn get_timer_option(&self, index: PluginIndex, label: &QString, option: &[u8]) -> QVariant {
-        self.rust().get_sender_option::<Timer>(index, label, option)
+    pub fn get_timer_option(
+        &self,
+        index: PluginIndex,
+        label: &LuaStr,
+        option: &LuaStr,
+    ) -> QVariant {
+        self.rust()
+            .get_sender_option::<Timer>(index, &String::from_utf8_lossy(label), option)
     }
 
     pub fn get_trigger_option(
         &self,
         index: PluginIndex,
-        label: &QString,
-        option: &[u8],
+        label: &LuaStr,
+        option: &LuaStr,
     ) -> QVariant {
         self.rust()
-            .get_sender_option::<Trigger>(index, label, option)
+            .get_sender_option::<Trigger>(index, &String::from_utf8_lossy(label), option)
     }
 
     pub fn set_alias_option(
         &self,
         index: PluginIndex,
-        label: &QString,
-        option: &[u8],
-        value: &[u8],
+        label: &LuaStr,
+        option: &LuaStr,
+        value: &LuaStr,
     ) -> ffi::ApiCode {
         self.rust()
-            .set_sender_option::<Alias>(index, label, option, value)
+            .set_sender_option::<Alias>(index, &String::from_utf8_lossy(label), option, value)
             .code()
     }
 
     pub fn set_timer_option(
         &self,
         index: PluginIndex,
-        label: &QString,
-        option: &[u8],
-        value: &[u8],
+        label: &LuaStr,
+        option: &LuaStr,
+        value: &LuaStr,
     ) -> ffi::ApiCode {
         self.rust()
-            .set_sender_option::<Timer>(index, label, option, value)
+            .set_sender_option::<Timer>(index, &String::from_utf8_lossy(label), option, value)
             .code()
     }
 
     pub fn set_trigger_option(
         &self,
         index: PluginIndex,
-        label: &QString,
-        option: &[u8],
-        value: &[u8],
+        label: &LuaStr,
+        option: &LuaStr,
+        value: &LuaStr,
     ) -> ffi::ApiCode {
         self.rust()
-            .set_sender_option::<Trigger>(index, label, option, value)
+            .set_sender_option::<Trigger>(index, &String::from_utf8_lossy(label), option, value)
             .code()
     }
 
@@ -467,8 +486,9 @@ impl ffi::SmushClient {
         self.rust().play_buffer(i, buf, volume, looping)
     }
 
-    pub fn play_file(&self, i: usize, path: &QString, volume: f32, looping: bool) -> ffi::ApiCode {
-        self.rust().play_file(i, path, volume, looping)
+    pub fn play_file(&self, i: usize, path: &LuaStr, volume: f32, looping: bool) -> ffi::ApiCode {
+        self.rust()
+            .play_file(i, &*String::from_utf8_lossy(path), volume, looping)
     }
 
     pub fn stop_sound(&self, i: usize) -> ffi::ApiCode {
@@ -484,43 +504,44 @@ impl ffi::SmushClient {
         let Ok(source) = source.try_into() else {
             return AliasOutcomes::new();
         };
-        ffi::AliasOutcome::to_qflags(self.rust().alias(command, source, doc))
+        ffi::AliasOutcome::to_qflags(self.rust().alias(&String::from(command), source, doc))
     }
 
-    pub fn get_variable(&self, index: PluginIndex, key: &[u8]) -> VariableView {
+    pub fn get_variable(&self, index: PluginIndex, key: &LuaStr) -> VariableView {
         self.rust().client.borrow_variable(index, key).into()
     }
 
-    pub fn get_metavariable(&self, key: &[u8]) -> VariableView {
+    pub fn get_metavariable(&self, key: &LuaStr) -> VariableView {
         self.rust().client.borrow_metavariable(key).into()
     }
 
-    pub fn has_metavariable(&self, key: &[u8]) -> bool {
+    pub fn has_metavariable(&self, key: &LuaStr) -> bool {
         self.rust().client.has_metavariable(key)
     }
 
-    pub fn set_variable(&self, index: PluginIndex, key: &[u8], value: &[u8]) -> bool {
+    pub fn set_variable(&self, index: PluginIndex, key: &LuaStr, value: &LuaStr) -> bool {
         self.rust()
             .client
             .set_variable(index, key.to_vec(), value.to_vec())
     }
 
-    pub fn unset_variable(&self, index: PluginIndex, key: &[u8]) -> bool {
+    pub fn unset_variable(&self, index: PluginIndex, key: &LuaStr) -> bool {
         self.rust().client.unset_variable(index, key).is_some()
     }
 
-    pub fn set_metavariable(&self, key: &[u8], value: &[u8]) -> bool {
+    pub fn set_metavariable(&self, key: &LuaStr, value: &LuaStr) -> bool {
         self.rust()
             .client
             .set_metavariable(key.to_vec(), value.to_vec())
     }
 
-    pub fn unset_metavariable(&self, key: &[u8]) -> bool {
+    pub fn unset_metavariable(&self, key: &LuaStr) -> bool {
         self.rust().client.unset_metavariable(key).is_some()
     }
 
-    pub fn timer_info(&self, index: PluginIndex, label: &QString, info_type: u8) -> QVariant {
-        self.rust().timer_info(index, label, info_type)
+    pub fn timer_info(&self, index: PluginIndex, label: &LuaStr, info_type: u8) -> QVariant {
+        self.rust()
+            .timer_info(index, &String::from_utf8_lossy(label), info_type)
     }
 
     pub fn start_timers(&self, index: PluginIndex, timekeeper: &ffi::Timekeeper) {

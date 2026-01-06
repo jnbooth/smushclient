@@ -75,7 +75,7 @@ getQVariant(lua_State* L, int idx, int type);
 QVariant
 getQVariant(lua_State* L, int idx);
 
-std::optional<QString>
+std::optional<std::string_view>
 getScriptName(lua_State* L, int idx);
 
 std::string_view

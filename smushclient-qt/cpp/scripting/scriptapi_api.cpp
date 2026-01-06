@@ -76,9 +76,9 @@ ScriptApi::GetUniqueNumber() noexcept
 }
 
 QString
-ScriptApi::MakeRegularExpression(const QString& pattern) noexcept
+ScriptApi::MakeRegularExpression(string_view pattern) noexcept
 {
-  return ffi::makeRegexFromWildcards(pattern);
+  return ffi::makeRegexFromWildcards(byteSlice(pattern));
 }
 
 void
@@ -244,11 +244,11 @@ ScriptApi::PickColour(const QColor& hint) const
 
 ApiCode
 ScriptApi::PlaySound(size_t channel,
-                     const QString& path,
+                     std::string_view path,
                      bool loop,
                      float volume)
 {
-  return client()->playFile(channel, path, volume, loop);
+  return client()->playFile(channel, byteSlice(path), volume, loop);
 }
 
 ApiCode
@@ -271,10 +271,10 @@ ScriptApi::PluginSupports(string_view pluginID, PluginCallbackKey routine) const
 }
 
 ApiCode
-ScriptApi::Send(QByteArray& bytes)
+ScriptApi::Send(string_view text)
 {
-  echo(QString::fromUtf8(bytes));
-  return SendNoEcho(bytes);
+  QByteArray bytes(text.data(), text.size());
+  return Send(bytes);
 }
 
 ApiCode
@@ -282,6 +282,13 @@ ScriptApi::Send(const QString& text)
 {
   echo(text);
   QByteArray bytes = text.toUtf8();
+  return SendNoEcho(bytes);
+}
+
+ApiCode
+ScriptApi::Send(QByteArray& bytes)
+{
+  echo(QString::fromUtf8(bytes));
   return SendNoEcho(bytes);
 }
 

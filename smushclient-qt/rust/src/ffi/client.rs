@@ -35,8 +35,8 @@ pub mod ffi {
     }
 
     struct PluginPack {
-        id: QString,
-        name: QString,
+        id: String,
+        name: String,
         path: QString,
         #[cxx_name = "scriptData"]
         script_data: *const u8,
@@ -84,7 +84,7 @@ pub mod ffi {
         fn play_file(
             self: &SmushClient,
             i: usize,
-            path: &QString,
+            path: &[u8],
             volume: f32,
             looping: bool,
         ) -> ApiCode;
@@ -120,8 +120,7 @@ pub mod ffi {
         ) -> i64;
         fn flush(self: Pin<&mut SmushClient>, doc: Pin<&mut Document>);
         fn has_output(self: &SmushClient) -> bool;
-        fn timer_info(self: &SmushClient, index: usize, label: &QString, info_type: u8)
-        -> QVariant;
+        fn timer_info(self: &SmushClient, index: usize, label: &[u8], info_type: u8) -> QVariant;
         fn add_alias(self: &SmushClient, index: usize, alias: &Alias) -> ApiCode;
         fn add_timer(
             self: &SmushClient,
@@ -130,12 +129,12 @@ pub mod ffi {
             timekeeper: &Timekeeper,
         ) -> ApiCode;
         fn add_trigger(self: &SmushClient, index: usize, trigger: &Trigger) -> ApiCode;
-        fn remove_alias(self: &SmushClient, index: usize, label: &QString) -> ApiCode;
-        fn remove_timer(self: &SmushClient, index: usize, label: &QString) -> ApiCode;
-        fn remove_trigger(self: &SmushClient, index: usize, label: &QString) -> ApiCode;
-        fn remove_aliases(self: &SmushClient, index: usize, group: &QString) -> usize;
-        fn remove_timers(self: &SmushClient, index: usize, group: &QString) -> usize;
-        fn remove_triggers(self: &SmushClient, index: usize, group: &QString) -> usize;
+        fn remove_alias(self: &SmushClient, index: usize, label: &[u8]) -> ApiCode;
+        fn remove_timer(self: &SmushClient, index: usize, label: &[u8]) -> ApiCode;
+        fn remove_trigger(self: &SmushClient, index: usize, label: &[u8]) -> ApiCode;
+        fn remove_aliases(self: &SmushClient, index: usize, group: &[u8]) -> usize;
+        fn remove_timers(self: &SmushClient, index: usize, group: &[u8]) -> usize;
+        fn remove_triggers(self: &SmushClient, index: usize, group: &[u8]) -> usize;
         fn add_world_alias(self: &SmushClient, alias: &Alias) -> Result<ApiCode>;
         fn add_world_timer(self: &SmushClient, timer: &Timer, timekeeper: &Timekeeper) -> ApiCode;
         fn add_world_trigger(self: &SmushClient, trigger: &Trigger) -> Result<ApiCode>;
@@ -165,82 +164,78 @@ pub mod ffi {
             timekeeper: &Timekeeper,
         ) -> ApiCode;
         fn replace_trigger(self: &SmushClient, index: usize, trigger: &Trigger) -> ApiCode;
-        fn is_alias(self: &SmushClient, index: usize, label: &QString) -> bool;
-        fn is_timer(self: &SmushClient, index: usize, label: &QString) -> bool;
-        fn is_trigger(self: &SmushClient, index: usize, label: &QString) -> bool;
+        fn is_alias(self: &SmushClient, index: usize, label: &[u8]) -> bool;
+        fn is_timer(self: &SmushClient, index: usize, label: &[u8]) -> bool;
+        fn is_trigger(self: &SmushClient, index: usize, label: &[u8]) -> bool;
         fn set_alias_enabled(
             self: &SmushClient,
             index: usize,
-            label: &QString,
+            label: &[u8],
             enable: bool,
         ) -> ApiCode;
         fn set_aliases_enabled(
             self: &SmushClient,
             index: usize,
-            group: &QString,
+            group: &[u8],
             enable: bool,
         ) -> bool;
         fn set_plugin_enabled(self: &SmushClient, index: usize, enable: bool) -> bool;
         fn set_timer_enabled(
             self: &SmushClient,
             index: usize,
-            label: &QString,
+            label: &[u8],
             enable: bool,
         ) -> ApiCode;
-        fn set_timers_enabled(
-            self: &SmushClient,
-            index: usize,
-            group: &QString,
-            enable: bool,
-        ) -> bool;
+        fn set_timers_enabled(self: &SmushClient, index: usize, group: &[u8], enable: bool)
+        -> bool;
         fn set_trigger_enabled(
             self: &SmushClient,
             index: usize,
-            label: &QString,
+            label: &[u8],
             enable: bool,
         ) -> ApiCode;
         fn set_triggers_enabled(
             self: &SmushClient,
             index: usize,
-            group: &QString,
+            group: &[u8],
             enable: bool,
         ) -> bool;
         fn get_alias_option(
             self: &SmushClient,
             index: usize,
-            label: &QString,
+            label: &[u8],
             option: &[u8],
         ) -> QVariant;
         fn get_timer_option(
             self: &SmushClient,
             index: usize,
-            label: &QString,
+            label: &[u8],
             option: &[u8],
         ) -> QVariant;
         fn get_trigger_option(
             self: &SmushClient,
             index: usize,
-            label: &QString,
+            label: &[u8],
             option: &[u8],
         ) -> QVariant;
         fn set_alias_option(
             self: &SmushClient,
             index: usize,
-            label: &QString,
+            label: &[u8],
             option: &[u8],
             value: &[u8],
         ) -> ApiCode;
         fn set_timer_option(
             self: &SmushClient,
             index: usize,
-            label: &QString,
+            label: &[u8],
             option: &[u8],
             value: &[u8],
         ) -> ApiCode;
         fn set_trigger_option(
             self: &SmushClient,
             index: usize,
-            label: &QString,
+            label: &[u8],
             option: &[u8],
             value: &[u8],
         ) -> ApiCode;

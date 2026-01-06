@@ -47,34 +47,34 @@ class ScriptApi : public QObject
 
 public:
   static int GetUniqueNumber() noexcept;
-  static QString MakeRegularExpression(const QString& pattern) noexcept;
+  static QString MakeRegularExpression(std::string_view pattern) noexcept;
   static void SetClipboard(const QString& text);
 
   ScriptApi(MudStatusBar* statusBar, Notepads* notepads, WorldTab* parent);
   ~ScriptApi();
 
   ApiCode AddAlias(size_t plugin,
-                   const QString& name,
-                   const QString& pattern,
-                   const QString& text,
+                   std::string_view name,
+                   std::string_view pattern,
+                   std::string_view text,
                    QFlags<AliasFlag> flags,
-                   const QString& scriptName = QString()) const;
+                   std::string_view scriptName = std::string_view()) const;
   ApiCode AddTimer(size_t plugin,
-                   const QString& name,
+                   std::string_view name,
                    int hour,
                    int minute,
                    double second,
-                   const QString& text,
+                   std::string_view text,
                    QFlags<TimerFlag> flags,
-                   const QString& scriptName = QString()) const;
+                   std::string_view scriptName = std::string_view()) const;
   ApiCode AddTrigger(size_t plugin,
-                     const QString& name,
-                     const QString& pattern,
-                     const QString& text,
+                     std::string_view name,
+                     std::string_view pattern,
+                     std::string_view text,
                      QFlags<TriggerFlag> flags,
                      const QColor& color,
-                     const QString& sound,
-                     const QString& scriptName,
+                     std::string_view sound,
+                     std::string_view scriptName,
                      SendTarget target,
                      int sequence = 100) const;
   int BroadcastPlugin(size_t pluginIndex,
@@ -87,35 +87,39 @@ public:
   int DatabaseOpen(std::string_view databaseID,
                    std::string_view filename,
                    int flags);
-  ApiCode DeleteAlias(size_t plugin, const QString& name) const;
-  size_t DeleteAliases(size_t plugin, const QString& group) const;
-  ApiCode DeleteTimer(size_t plugin, const QString& name) const;
-  size_t DeleteTimers(size_t plugin, const QString& group) const;
-  ApiCode DeleteTrigger(size_t plugin, const QString& name) const;
-  size_t DeleteTriggers(size_t plugin, const QString& group) const;
+  ApiCode DeleteAlias(size_t plugin, std::string_view name) const;
+  size_t DeleteAliases(size_t plugin, std::string_view group) const;
+  ApiCode DeleteTimer(size_t plugin, std::string_view name) const;
+  size_t DeleteTimers(size_t plugin, std::string_view group) const;
+  ApiCode DeleteTrigger(size_t plugin, std::string_view name) const;
+  size_t DeleteTriggers(size_t plugin, std::string_view group) const;
   ApiCode DeleteVariable(size_t plugin, std::string_view key) const;
   ApiCode DoAfter(size_t plugin,
                   double seconds,
                   const QString& text,
                   SendTarget target);
-  ApiCode EnableAlias(size_t plugin, const QString& label, bool enabled) const;
+  ApiCode EnableAlias(size_t plugin,
+                      std::string_view label,
+                      bool enabled) const;
   ApiCode EnableAliasGroup(size_t plugin,
-                           const QString& group,
+                           std::string_view group,
                            bool enabled) const;
   ApiCode EnablePlugin(std::string_view pluginID, bool enabled);
-  ApiCode EnableTimer(size_t plugin, const QString& label, bool enabled) const;
+  ApiCode EnableTimer(size_t plugin,
+                      std::string_view label,
+                      bool enabled) const;
   ApiCode EnableTimerGroup(size_t plugin,
-                           const QString& group,
+                           std::string_view group,
                            bool enabled) const;
   ApiCode EnableTrigger(size_t plugin,
-                        const QString& label,
+                        std::string_view label,
                         bool enabled) const;
   ApiCode EnableTriggerGroup(size_t plugin,
-                             const QString& group,
+                             std::string_view group,
                              bool enabled) const;
   QVariant FontInfo(const QFont& font, int infoType) const;
   QVariant GetAliasOption(size_t plugin,
-                          const QString& label,
+                          std::string_view label,
                           std::string_view option) const;
   QVariant GetInfo(int infoType) const;
   QVariant GetLineInfo(int line, int infoType) const;
@@ -125,13 +129,13 @@ public:
   QVariant GetPluginInfo(std::string_view pluginID, int infoType) const;
   QVariant GetStyleInfo(int line, int style, int infoType) const;
   QVariant GetTimerInfo(size_t pluginIndex,
-                        const QString& label,
+                        std::string_view label,
                         int infoType) const;
   QVariant GetTimerOption(size_t plugin,
-                          const QString& label,
+                          std::string_view label,
                           std::string_view option) const;
   QVariant GetTriggerOption(size_t plugin,
-                            const QString& label,
+                            std::string_view label,
                             std::string_view option) const;
   VariableView GetVariable(size_t pluginIndex, std::string_view key) const;
   VariableView GetVariable(std::string_view pluginID,
@@ -143,37 +147,47 @@ public:
                  const QColor& background,
                  bool url,
                  bool noUnderline);
-  ApiCode IsAlias(size_t plugin, const QString& label) const;
-  ApiCode IsTimer(size_t plugin, const QString& label) const;
-  ApiCode IsTrigger(size_t plugin, const QString& label) const;
+  ApiCode IsAlias(size_t plugin, std::string_view label) const;
+  ApiCode IsTimer(size_t plugin, std::string_view label) const;
+  ApiCode IsTrigger(size_t plugin, std::string_view label) const;
   QColor PickColour(const QColor& hint) const;
   ApiCode PlaySound(size_t channel,
-                    const QString& path,
+                    std::string_view path,
                     bool loop = false,
                     float volume = 1.0);
+  inline ApiCode PlaySound(size_t channel,
+                           const QString& path,
+                           bool loop = false,
+                           float volume = 1.0)
+  {
+    const QByteArray utf8 = path.toUtf8();
+    return PlaySound(
+      channel, std::string_view(utf8.data(), utf8.size()), loop, volume);
+  }
   ApiCode PlaySoundMemory(size_t channel,
                           QByteArrayView sound,
                           bool loop = false,
                           float volume = 1.0);
   ApiCode PluginSupports(std::string_view pluginID,
                          PluginCallbackKey routine) const;
-  ApiCode Send(QByteArray& bytes);
+  ApiCode Send(std::string_view text);
   ApiCode Send(const QString& text);
+  ApiCode Send(QByteArray& bytes);
   ApiCode SendNoEcho(QByteArray& bytes);
   ApiCode SendPacket(QByteArrayView bytes) const;
   ApiCode SetAliasOption(size_t plugin,
-                         const QString& label,
+                         std::string_view label,
                          std::string_view option,
                          std::string_view value) const;
   ApiCode SetCursor(Qt::CursorShape cursor) const;
   ApiCode SetOption(std::string_view name, const QVariant& variant) const;
   void SetStatus(const QString& status) const;
   ApiCode SetTimerOption(size_t plugin,
-                         const QString& label,
+                         std::string_view label,
                          std::string_view option,
                          std::string_view value) const;
   ApiCode SetTriggerOption(size_t plugin,
-                           const QString& label,
+                           std::string_view label,
                            std::string_view option,
                            std::string_view value) const;
   bool SetVariable(size_t pluginIndex,
@@ -300,12 +314,14 @@ public:
   ApiCode WindowShow(std::string_view windowName, bool show) const;
   qreal WindowText(std::string_view windowName,
                    std::string_view fontID,
-                   const QString& text,
+                   std::string_view text,
                    const QRectF& rect,
-                   const QColor& color) const;
+                   const QColor& color,
+                   bool unicode) const;
   int WindowTextWidth(std::string_view windowName,
                       std::string_view fontID,
-                      const QString& text) const;
+                      std::string_view text,
+                      bool unicode) const;
   ApiCode WindowUpdateHotspot(size_t pluginIndex,
                               std::string_view windowName,
                               std::string_view hotspotID,
@@ -333,11 +349,10 @@ public:
   void printError(const QString& message);
   void reloadWorldScript(const QString& worldScriptPath);
   void resetAllTimers();
-  inline bool runScript(size_t plugin, const QString& script) const
+  inline bool runScript(size_t plugin, std::string_view script) const
   {
     return plugins[plugin].runScript(script);
   }
-  bool runScript(const QString& pluginID, const QString& script) const;
   void sendCallback(PluginCallback& callback);
   bool sendCallback(PluginCallback& callback, size_t plugin);
   bool sendCallback(PluginCallback& callback, const QString& pluginID);
@@ -376,13 +391,13 @@ public:
   Timekeeper* timekeeper;
 
 private:
-  DatabaseConnection* findDatabase(const std::string_view databaseID);
+  DatabaseConnection* findDatabase(std::string_view databaseID);
   size_t findPluginIndex(const std::string& pluginID) const;
-  inline size_t findPluginIndex(const std::string_view pluginID) const
+  inline size_t findPluginIndex(std::string_view pluginID) const
   {
     return findPluginIndex((std::string)pluginID);
   }
-  MiniWindow* findWindow(const std::string_view windowName) const;
+  MiniWindow* findWindow(std::string_view windowName) const;
   bool finishQueuedSend(const QueuedSend& send);
   void flushLine();
 

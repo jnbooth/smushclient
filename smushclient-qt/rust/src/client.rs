@@ -2,6 +2,7 @@ use std::cell::RefCell;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, Write};
+use std::path::Path;
 use std::pin::Pin;
 
 use cxx_qt_io::QAbstractSocket;
@@ -70,8 +71,8 @@ impl Default for SmushClientRust {
 #[allow(clippy::cast_possible_truncation)]
 #[allow(clippy::cast_possible_wrap)]
 impl SmushClientRust {
-    pub fn load_world(&mut self, path: &QString) -> Result<WorldRust, PersistError> {
-        let file = File::open(String::from(path).as_str())?;
+    pub fn load_world<P: AsRef<Path>>(&mut self, path: P) -> Result<WorldRust, PersistError> {
+        let file = File::open(path)?;
         let worldfile = World::load(file)?;
         let world = WorldRust::from(&worldfile);
         self.client.set_world(worldfile);
@@ -92,13 +93,13 @@ impl SmushClientRust {
         list
     }
 
-    pub fn save_world(&self, path: &QString) -> Result<(), PersistError> {
-        let file = File::create(String::from(path).as_str())?;
+    pub fn save_world<P: AsRef<Path>>(&self, path: P) -> Result<(), PersistError> {
+        let file = File::create(path)?;
         self.client.world().save(file)
     }
 
-    pub fn load_variables(&self, path: &QString) -> Result<bool, PersistError> {
-        let file = match File::open(String::from(path).as_str()) {
+    pub fn load_variables<P: AsRef<Path>>(&self, path: P) -> Result<bool, PersistError> {
+        let file = match File::open(path) {
             Err(err) if err.kind() == io::ErrorKind::NotFound => return Ok(false),
             file => file?,
         };
@@ -106,11 +107,11 @@ impl SmushClientRust {
         Ok(true)
     }
 
-    pub fn save_variables(&self, path: &QString) -> Result<bool, PersistError> {
+    pub fn save_variables<P: AsRef<Path>>(&self, path: P) -> Result<bool, PersistError> {
         if !self.client.has_variables() {
             return Ok(false);
         }
-        let file = File::create(String::from(path).as_str())?;
+        let file = File::create(path)?;
         self.client.save_variables(file)?;
         Ok(true)
     }
@@ -235,14 +236,19 @@ impl SmushClientRust {
             .code()
     }
 
-    pub fn play_file(&self, i: usize, path: &QString, volume: f32, looping: bool) -> ffi::ApiCode {
+    pub fn play_file<P: AsRef<Path>>(
+        &self,
+        i: usize,
+        path: P,
+        volume: f32,
+        looping: bool,
+    ) -> ffi::ApiCode {
         let looping = looping.into();
-        if path.is_empty() {
+        let path = path.as_ref();
+        if path.as_os_str().is_empty() {
             return self.audio.configure_sink(i, volume, looping).code();
         }
-        self.audio
-            .play_file(i, String::from(path), volume, looping)
-            .code()
+        self.audio.play_file(i, path, volume, looping).code()
     }
 
     pub fn stop_sound(&self, i: usize) -> ffi::ApiCode {
@@ -251,7 +257,7 @@ impl SmushClientRust {
 
     pub fn alias(
         &self,
-        command: &QString,
+        command: &str,
         source: CommandSource,
         doc: Pin<&mut Document>,
     ) -> AliasOutcome {
@@ -265,17 +271,15 @@ impl SmushClientRust {
             stats: &self.stats,
         };
         handler.doc.begin();
-        let outcome = self
-            .client
-            .alias(&String::from(command), source, &mut handler);
+        let outcome = self.client.alias(command, source, &mut handler);
         handler.doc.end(false);
         outcome
     }
 
-    pub fn timer_info(&self, index: PluginIndex, label: &QString, info_type: u8) -> QVariant {
+    pub fn timer_info(&self, index: PluginIndex, label: &str, info_type: u8) -> QVariant {
         self.client.timer_info::<InfoVisitorQVariant, _>(
             index,
-            &String::from(label),
+            label,
             info_type,
             &self.timers.borrow(),
         )
@@ -373,15 +377,9 @@ impl SmushClientRust {
         }
     }
 
-    pub fn import_world_timers(
-        &self,
-        xml: &QString,
-        timekeeper: &Timekeeper,
-    ) -> Result<(), XmlError> {
+    pub fn import_world_timers(&self, xml: &str, timekeeper: &Timekeeper) -> Result<(), XmlError> {
         let world_index = self.world_plugin_index();
-        let imported_timers = self
-            .client
-            .import_world_senders::<Timer>(&String::from(xml))?;
+        let imported_timers = self.client.import_world_senders::<Timer>(xml)?;
         if !self.client.world().enable_timers {
             return Ok(());
         }
@@ -451,10 +449,10 @@ impl SmushClientRust {
     pub fn get_sender_option<T: SendIterable + Optionable>(
         &self,
         index: PluginIndex,
-        label: &QString,
+        label: &str,
         option: &LuaStr,
     ) -> QVariant {
-        let Some(sender) = self.client.borrow_sender::<T>(index, &String::from(label)) else {
+        let Some(sender) = self.client.borrow_sender::<T>(index, label) else {
             return QVariant::default();
         };
         match sender.get_option(option) {
@@ -470,12 +468,12 @@ impl SmushClientRust {
     pub fn set_sender_option<T: SendIterable + Optionable>(
         &self,
         index: PluginIndex,
-        label: &QString,
+        label: &str,
         option: &LuaStr,
         value: &LuaStr,
     ) -> Result<(), OptionError> {
         self.client
-            .borrow_sender_mut::<T>(index, &String::from(label))?
+            .borrow_sender_mut::<T>(index, label)?
             .set_option(option, value)
     }
 }

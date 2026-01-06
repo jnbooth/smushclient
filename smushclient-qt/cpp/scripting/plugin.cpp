@@ -73,10 +73,10 @@ setlib(lua_State* L, const char* name)
 // Metadata
 
 PluginMetadata::PluginMetadata(const PluginPack& pack, size_t index)
-  : id(pack.id.toStdString())
+  : id(pack.id.data(), pack.id.size())
   , index(index)
   , installed(QDateTime::currentDateTimeUtc())
-  , name(pack.name.toStdString())
+  , name(pack.name.data(), pack.name.size())
 {
 }
 
@@ -163,7 +163,7 @@ Plugin::install(const PluginPack& pack)
   if (scriptPath.isEmpty())
     return true;
 
-  if (!pack.id.isEmpty())
+  if (!pack.id.empty())
     scriptPath.replace(scriptPath.size() - 3, 3, QStringLiteral("lua"));
 
   const QFileInfo info(scriptPath);
@@ -256,21 +256,6 @@ Plugin::runFile(const QString& string) const
     return false;
 
   if (checkError(luaL_loadfile(L, string.toUtf8().data()))) [[unlikely]] {
-    getApi(L).printError(formatCompileError(L));
-    lua_pop(L, 1);
-    return false;
-  }
-
-  return api_pcall(L, 0, 0);
-}
-
-bool
-Plugin::runScript(const QString& script) const
-{
-  if (isDisabled || script.isEmpty()) [[unlikely]]
-    return false;
-
-  if (checkError(qlua::loadQString(L, script))) [[unlikely]] {
     getApi(L).printError(formatCompileError(L));
     lua_pop(L, 1);
     return false;

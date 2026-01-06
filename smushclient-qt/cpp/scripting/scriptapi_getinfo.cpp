@@ -276,7 +276,7 @@ ScriptApi::GetStyleInfo(int line, int style, int infoType) const
 
 QVariant
 ScriptApi::GetTimerInfo(size_t pluginIndex,
-                        const QString& label,
+                        std::string_view label,
                         int infoType) const
 {
   if (infoType < 0 || infoType > UINT8_MAX) [[unlikely]]
@@ -285,12 +285,12 @@ ScriptApi::GetTimerInfo(size_t pluginIndex,
   switch (infoType) {
     case 26: {
       const QString scriptName =
-        client()->timerInfo(pluginIndex, label, 5).toString();
+        client()->timerInfo(pluginIndex, byteSlice(label), 5).toString();
       return !scriptName.isEmpty() &&
              plugins[pluginIndex].hasFunction(scriptName);
     }
     default:
-      return client()->timerInfo(pluginIndex, label, infoType);
+      return client()->timerInfo(pluginIndex, byteSlice(label), infoType);
   }
 }
 

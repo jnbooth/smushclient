@@ -1,6 +1,7 @@
 use cxx_qt_lib::{QByteArray, QColor, QString, QVector};
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::naws;
+use smushclient::LuaStr;
 use smushclient_plugins::{Reaction, Regex};
 
 use crate::convert::Convert;
@@ -13,9 +14,9 @@ fn encode_naws(width: u16, height: u16) -> QByteArray {
     QByteArray::from(naws(width, height).as_slice())
 }
 
-fn make_regex_from_wildcards(pattern: &QString) -> QString {
+fn make_regex_from_wildcards(pattern: &LuaStr) -> QString {
     let mut buf = String::new();
-    Reaction::make_regex_pattern(&String::from(pattern), &mut buf);
+    Reaction::make_regex_pattern(&String::from_utf8_lossy(pattern), &mut buf);
     QString::from(&buf)
 }
 
@@ -81,7 +82,7 @@ mod ffi {
         fn encode_naws(width: u16, height: u16) -> QByteArray;
 
         #[cxx_name = "makeRegexFromWildcards"]
-        fn make_regex_from_wildcards(pattern: &QString) -> QString;
+        fn make_regex_from_wildcards(pattern: &[u8]) -> QString;
 
         #[cxx_name = "validateRegex"]
         fn validate_regex(pattern: &QString) -> RegexError;
