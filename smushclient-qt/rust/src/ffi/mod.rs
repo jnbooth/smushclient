@@ -9,8 +9,7 @@ mod audio;
 
 mod client;
 pub use client::ffi::{
-    AliasBool, CommandSource, PluginPack, QAbstractSocket, ReplaceSenderResult, SmushClient,
-    TimerBool, TriggerBool,
+    CommandSource, PluginPack, QAbstractSocket, ReplaceSenderResult, SmushClient,
 };
 
 mod document;

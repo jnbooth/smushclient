@@ -28,7 +28,6 @@ struct OutputLayout;
 enum class SendTarget;
 class SmushClient;
 class Timekeeper;
-enum class TriggerBool : uint8_t;
 class World;
 class WorldTab;
 struct lua_State;
@@ -115,6 +114,9 @@ public:
                              const QString& group,
                              bool enabled) const;
   QVariant FontInfo(const QFont& font, int infoType) const;
+  QVariant GetAliasOption(size_t plugin,
+                          const QString& label,
+                          std::string_view option) const;
   QVariant GetInfo(int infoType) const;
   QVariant GetLineInfo(int line, int infoType) const;
   int GetLinesInBufferCount() const;
@@ -125,6 +127,12 @@ public:
   QVariant GetTimerInfo(size_t pluginIndex,
                         const QString& label,
                         int infoType) const;
+  QVariant GetTimerOption(size_t plugin,
+                          const QString& label,
+                          std::string_view option) const;
+  QVariant GetTriggerOption(size_t plugin,
+                            const QString& label,
+                            std::string_view option) const;
   VariableView GetVariable(size_t pluginIndex, std::string_view key) const;
   VariableView GetVariable(std::string_view pluginID,
                            std::string_view key) const;
@@ -153,16 +161,21 @@ public:
   ApiCode Send(const QString& text);
   ApiCode SendNoEcho(QByteArray& bytes);
   ApiCode SendPacket(QByteArrayView bytes) const;
+  ApiCode SetAliasOption(size_t plugin,
+                         const QString& label,
+                         std::string_view option,
+                         std::string_view value) const;
   ApiCode SetCursor(Qt::CursorShape cursor) const;
   ApiCode SetOption(std::string_view name, const QVariant& variant) const;
   void SetStatus(const QString& status) const;
-  ApiCode SetTriggerGroup(size_t plugin,
-                          const QString& label,
-                          const QString& group) const;
+  ApiCode SetTimerOption(size_t plugin,
+                         const QString& label,
+                         std::string_view option,
+                         std::string_view value) const;
   ApiCode SetTriggerOption(size_t plugin,
                            const QString& label,
-                           TriggerBool option,
-                           bool value) const;
+                           std::string_view option,
+                           std::string_view value) const;
   bool SetVariable(size_t pluginIndex,
                    std::string_view key,
                    std::string_view value) const;

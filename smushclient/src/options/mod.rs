@@ -1,11 +1,20 @@
 mod alias;
-pub use alias::AliasBool;
 
-mod property;
-pub use property::BoolProperty;
+mod decode;
+
+mod encode;
+pub use encode::OptionValue;
+
+mod error;
+pub use error::OptionError;
+
+mod optionable;
+pub use optionable::Optionable;
+
+mod sender;
+
+mod reaction;
 
 mod timer;
-pub use timer::TimerBool;
 
 mod trigger;
-pub use trigger::TriggerBool;

@@ -1,41 +1,24 @@
 use smushclient_plugins::Timer;
 
-use super::property::BoolProperty;
+use super::decode::DecodeOption;
+use super::encode::{EncodeOption, OptionValue};
+use super::error::OptionError;
+use super::optionable::Optionable;
+use crate::LuaStr;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum TimerBool {
-    // Sender
-    Enabled,
-    OneShot,
-    Temporary,
-    OmitFromOutput,
-    OmitFromLog,
-    // Timer
-    ActiveClosed,
-}
-
-impl BoolProperty for TimerBool {
-    type Target = Timer;
-
-    fn get(self, timer: &Timer) -> bool {
-        match self {
-            Self::Enabled => timer.enabled,
-            Self::OneShot => timer.one_shot,
-            Self::Temporary => timer.temporary,
-            Self::OmitFromOutput => timer.omit_from_output,
-            Self::OmitFromLog => timer.omit_from_log,
-            Self::ActiveClosed => timer.active_closed,
+impl Optionable for Timer {
+    fn get_option(&self, name: &LuaStr) -> OptionValue<'_> {
+        match name {
+            b"active_closed" => self.active_closed.encode(),
+            _ => self.send.get_option(name),
         }
     }
 
-    fn get_mut(self, timer: &mut Timer) -> &mut bool {
-        match self {
-            Self::Enabled => &mut timer.enabled,
-            Self::OneShot => &mut timer.one_shot,
-            Self::Temporary => &mut timer.temporary,
-            Self::OmitFromOutput => &mut timer.omit_from_output,
-            Self::OmitFromLog => &mut timer.omit_from_log,
-            Self::ActiveClosed => &mut timer.active_closed,
+    fn set_option(&mut self, name: &LuaStr, value: &LuaStr) -> Result<(), OptionError> {
+        match name {
+            b"active_closed" => self.active_closed = value.decode()?,
+            _ => self.send.set_option(name, value)?,
         }
+        Ok(())
     }
 }

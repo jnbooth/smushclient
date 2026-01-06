@@ -4,7 +4,7 @@ use std::ptr;
 use cxx_qt::CxxQtType;
 use cxx_qt_lib::{QDate, QSet, QString, QVariant};
 use smushclient::{SendIterable, SenderMap, SmushClient};
-use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Reaction, Timer, Trigger};
+use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Timer, Trigger};
 
 use crate::convert::impl_constructor;
 use crate::ffi;
@@ -54,9 +54,7 @@ impl Modeled for Alias {
             1 => self.sequence = data.value()?,
             2 => {
                 let text = data_text(data)?;
-                let regex = Reaction::make_regex(&text, self.is_regex).ok()?;
-                self.pattern = text;
-                self.regex = regex;
+                self.set_pattern(text).ok()?;
             }
             3 => self.text = data_text(data)?,
             _ => return None,
@@ -133,9 +131,7 @@ impl Modeled for Trigger {
             1 => self.sequence = data.value()?,
             2 => {
                 let text = data_text(data)?;
-                let regex = Reaction::make_regex(&text, self.is_regex).ok()?;
-                self.pattern = text;
-                self.regex = regex;
+                self.set_pattern(text).ok()?;
             }
             3 => self.text = data_text(data)?,
             _ => return None,

@@ -2,10 +2,7 @@ use cxx_qt_lib::QString;
 use mud_transformer::mxp::SendTo;
 use mud_transformer::{TelnetSource, TelnetVerb, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, MXPDebugLevel, ScriptRecompile};
-use smushclient::{
-    AliasBool, CommandSource, SendRequest, SendScriptRequest, TimerBool, TimerConstructible,
-    TriggerBool,
-};
+use smushclient::{CommandSource, SendRequest, SendScriptRequest, TimerConstructible};
 use smushclient_plugins::{Plugin, PluginIndex, SendTarget, Timer};
 
 use super::ffi;
@@ -62,58 +59,6 @@ impl_convert_enum!(
     Script,
     WorldImmediate,
     ScriptAfterOmit,
-);
-
-impl_convert_enum!(
-    ffi::AliasBool,
-    AliasBool,
-    Enabled,
-    OneShot,
-    Temporary,
-    OmitFromOutput,
-    OmitFromLog,
-    IgnoreCase,
-    KeepEvaluating,
-    IsRegex,
-    ExpandVariables,
-    Repeats,
-    EchoAlias,
-    Menu,
-    OmitFromCommandHistory,
-);
-
-impl_convert_enum!(
-    ffi::TimerBool,
-    TimerBool,
-    Enabled,
-    OneShot,
-    Temporary,
-    OmitFromOutput,
-    OmitFromLog,
-    ActiveClosed,
-);
-
-impl_convert_enum!(
-    ffi::TriggerBool,
-    TriggerBool,
-    Enabled,
-    OneShot,
-    Temporary,
-    OmitFromOutput,
-    OmitFromLog,
-    IgnoreCase,
-    KeepEvaluating,
-    IsRegex,
-    ExpandVariables,
-    Repeats,
-    ChangeForeground,
-    ChangeBackground,
-    MakeBold,
-    MakeItalic,
-    MakeUnderline,
-    SoundIfInactive,
-    LowercaseWildcard,
-    MultiLine
 );
 
 impl_convert_enum!(ffi::CommandSource, CommandSource, Hotkey, Link, User);

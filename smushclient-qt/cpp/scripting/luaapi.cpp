@@ -29,21 +29,6 @@ using std::unordered_map;
 
 using qlua::expectMaxArgs;
 
-static const string_map<TriggerBool> triggerBools = {
-  { "enabled", TriggerBool::Enabled },
-  { "expand_variables", TriggerBool::ExpandVariables },
-  { "ignore_case", TriggerBool::IgnoreCase },
-  { "keep_evaluating", TriggerBool::KeepEvaluating },
-  { "lowercase_wildcard", TriggerBool::LowercaseWildcard },
-  { "multi_line", TriggerBool::MultiLine },
-  { "omit_from_log", TriggerBool::OmitFromLog },
-  { "omit_from_output", TriggerBool::OmitFromOutput },
-  { "one_shot", TriggerBool::OneShot },
-  { "regexp", TriggerBool::IsRegex },
-  { "repeat", TriggerBool::Repeats },
-  { "sound_if_inactive", TriggerBool::SoundIfInactive },
-};
-
 // Private localization
 
 QString
@@ -891,6 +876,42 @@ L_EnableTriggerGroup(lua_State* L)
 }
 
 static int
+L_GetAliasOption(lua_State* L)
+{
+  API("GetAliasOption")
+  expectMaxArgs(L, 2);
+  const size_t plugin = getPluginIndex(L);
+  const QString label = qlua::getQString(L, 1);
+  const string_view option = qlua::getString(L, 2);
+  qlua::pushQVariant(L, getApi(L).GetAliasOption(plugin, label, option));
+  return 1;
+}
+
+static int
+L_GetTimerOption(lua_State* L)
+{
+  API("GetTimerOption")
+  expectMaxArgs(L, 2);
+  const size_t plugin = getPluginIndex(L);
+  const QString label = qlua::getQString(L, 1);
+  const string_view option = qlua::getString(L, 2);
+  qlua::pushQVariant(L, getApi(L).GetTimerOption(plugin, label, option));
+  return 1;
+}
+
+static int
+L_GetTriggerOption(lua_State* L)
+{
+  API("GetTriggerOption")
+  expectMaxArgs(L, 2);
+  const size_t plugin = getPluginIndex(L);
+  const QString label = qlua::getQString(L, 1);
+  const string_view option = qlua::getString(L, 2);
+  qlua::pushQVariant(L, getApi(L).GetTriggerOption(plugin, label, option));
+  return 1;
+}
+
+static int
 L_IsAlias(lua_State* L)
 {
   API("IsAlias")
@@ -928,24 +949,81 @@ L_MakeRegularExpression(lua_State* L)
 }
 
 static int
+L_SetAliasOption(lua_State* L)
+{
+  API("SetAliasOption")
+  expectMaxArgs(L, 3);
+  const size_t plugin = getPluginIndex(L);
+  const QString label = qlua::getQString(L, 1);
+  const string_view option = qlua::getString(L, 2);
+  const int idx = 3;
+  ApiCode code;
+  switch (lua_type(L, idx)) {
+    case LUA_TBOOLEAN:
+      code = getApi(L).SetAliasOption(
+        plugin, label, option, lua_toboolean(L, idx) ? "1" : "0");
+      break;
+    case LUA_TNUMBER:
+    case LUA_TSTRING:
+      code =
+        getApi(L).SetAliasOption(plugin, label, option, qlua::toString(L, idx));
+      break;
+    default:
+      code = ApiCode::OptionOutOfRange;
+  }
+  return returnCode(L, code);
+}
+
+static int
+L_SetTimerOption(lua_State* L)
+{
+  API("SetTimerOption")
+  expectMaxArgs(L, 3);
+  const size_t plugin = getPluginIndex(L);
+  const QString label = qlua::getQString(L, 1);
+  const string_view option = qlua::getString(L, 2);
+  const int idx = 3;
+  ApiCode code;
+  switch (lua_type(L, idx)) {
+    case LUA_TBOOLEAN:
+      code = getApi(L).SetTimerOption(
+        plugin, label, option, lua_toboolean(L, idx) ? "1" : "0");
+      break;
+    case LUA_TNUMBER:
+    case LUA_TSTRING:
+      code =
+        getApi(L).SetTimerOption(plugin, label, option, qlua::toString(L, idx));
+      break;
+    default:
+      code = ApiCode::OptionOutOfRange;
+  }
+  return returnCode(L, code);
+}
+
+static int
 L_SetTriggerOption(lua_State* L)
 {
   API("SetTriggerOption")
   expectMaxArgs(L, 3);
-  const QString label = qlua::getQString(L, 1);
-  const string_view optionName = qlua::getString(L, 2);
   const size_t plugin = getPluginIndex(L);
-  if (const auto search = triggerBools.find(optionName);
-      search != triggerBools.end())
-    return returnCode(L,
-                      getApi(L).SetTriggerOption(
-                        plugin, label, search->second, qlua::getBool(L, 3)));
-
-  if (optionName == "group")
-    return returnCode(
-      L, getApi(L).SetTriggerGroup(plugin, label, qlua::getQString(L, 3)));
-
-  return returnCode(L, ApiCode::PluginCannotSetOption);
+  const QString label = qlua::getQString(L, 1);
+  const string_view option = qlua::getString(L, 2);
+  const int idx = 3;
+  ApiCode code;
+  switch (lua_type(L, idx)) {
+    case LUA_TBOOLEAN:
+      code = getApi(L).SetTriggerOption(
+        plugin, label, option, lua_toboolean(L, idx) ? "1" : "0");
+      break;
+    case LUA_TNUMBER:
+    case LUA_TSTRING:
+      code = getApi(L).SetTriggerOption(
+        plugin, label, option, qlua::toString(L, idx));
+      break;
+    default:
+      code = ApiCode::OptionOutOfRange;
+  }
+  return returnCode(L, code);
 }
 
 static int
@@ -1661,10 +1739,15 @@ static const struct luaL_Reg worldlib[] =
     { "EnableTimerGroup", L_EnableTimerGroup },
     { "EnableTrigger", L_EnableTrigger },
     { "EnableTriggerGroup", L_EnableTriggerGroup },
+    { "GetAliasOption", L_GetAliasOption },
+    { "GetTimerOption", L_GetTimerOption },
+    { "GetTriggerOption", L_GetTriggerOption },
     { "IsAlias", L_IsAlias },
     { "IsTimer", L_IsTimer },
     { "IsTrigger", L_IsTrigger },
     { "MakeRegularExpression", L_MakeRegularExpression },
+    { "SetAliasOption", L_SetAliasOption },
+    { "SetTimerOption", L_SetTimerOption },
     { "SetTriggerOption", L_SetTriggerOption },
     { "StopEvaluatingTriggers", L_StopEvaluatingTriggers },
     // sound

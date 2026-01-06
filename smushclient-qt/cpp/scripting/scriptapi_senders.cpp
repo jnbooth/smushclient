@@ -240,6 +240,30 @@ ScriptApi::EnableTriggerGroup(size_t plugin,
            : ApiCode::TriggerNotFound;
 }
 
+QVariant
+ScriptApi::GetAliasOption(size_t plugin,
+                          const QString& label,
+                          string_view option) const
+{
+  return client()->getAliasOption(plugin, label, byteSlice(option));
+}
+
+QVariant
+ScriptApi::GetTimerOption(size_t plugin,
+                          const QString& label,
+                          string_view option) const
+{
+  return client()->getTimerOption(plugin, label, byteSlice(option));
+}
+
+QVariant
+ScriptApi::GetTriggerOption(size_t plugin,
+                            const QString& label,
+                            string_view option) const
+{
+  return client()->getTriggerOption(plugin, label, byteSlice(option));
+}
+
 ApiCode
 ScriptApi::IsAlias(size_t plugin, const QString& label) const
 {
@@ -262,18 +286,31 @@ ScriptApi::IsTrigger(size_t plugin, const QString& label) const
 }
 
 ApiCode
-ScriptApi::SetTriggerGroup(size_t plugin,
-                           const QString& label,
-                           const QString& group) const
+ScriptApi::SetAliasOption(size_t plugin,
+                          const QString& label,
+                          string_view option,
+                          string_view value) const
 {
-  return client()->setTriggerGroup(plugin, label, group);
+  return client()->setAliasOption(
+    plugin, label, byteSlice(option), byteSlice(value));
+}
+
+ApiCode
+ScriptApi::SetTimerOption(size_t plugin,
+                          const QString& label,
+                          string_view option,
+                          string_view value) const
+{
+  return client()->setTimerOption(
+    plugin, label, byteSlice(option), byteSlice(value));
 }
 
 ApiCode
 ScriptApi::SetTriggerOption(size_t plugin,
                             const QString& label,
-                            TriggerBool option,
-                            bool value) const
+                            string_view option,
+                            string_view value) const
 {
-  return client()->setTriggerBool(plugin, label, option, value);
+  return client()->setTriggerOption(
+    plugin, label, byteSlice(option), byteSlice(value));
 }

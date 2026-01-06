@@ -15,7 +15,7 @@ mod handler;
 pub use handler::Handler;
 
 mod options;
-pub use options::{AliasBool, BoolProperty, TimerBool, TriggerBool};
+pub use options::{OptionError, OptionValue, Optionable};
 
 mod plugins;
 pub use plugins::{

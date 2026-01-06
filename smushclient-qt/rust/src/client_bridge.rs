@@ -4,8 +4,8 @@ use std::pin::Pin;
 
 use cxx_qt::CxxQtType;
 use cxx_qt_lib::{QString, QStringList, QVariant};
+use smushclient::SendIterable;
 use smushclient::world::PersistError;
-use smushclient::{AliasBool, SendIterable, TimerBool, TriggerBool};
 use smushclient_plugins::{
     Alias, LoadError, PluginIndex, RegexError, Timer, Trigger, XmlError, XmlSerError,
 };
@@ -14,7 +14,7 @@ use crate::ffi::AliasOutcomes;
 use crate::ffi::{self, VariableView};
 use crate::get_info::InfoVisitorQVariant;
 use crate::modeled::Modeled;
-use crate::results::{IntoCode, IntoSenderAccessCode};
+use crate::results::{IntoApiCode, IntoCode, IntoSenderAccessCode};
 use crate::world::WorldRust;
 
 impl ffi::SmushClient {
@@ -409,60 +409,58 @@ impl ffi::SmushClient {
             .set_group_enabled::<Trigger>(index, &String::from(group), enabled)
     }
 
-    pub fn set_alias_bool(
-        &self,
-        index: PluginIndex,
-        label: &QString,
-        option: ffi::AliasBool,
-        value: bool,
-    ) -> ffi::ApiCode {
-        let Ok(option) = AliasBool::try_from(option) else {
-            return ffi::ApiCode::BadParameter;
-        };
-        self.rust()
-            .set_bool(index, label, option, value)
-            .code::<Alias>()
+    pub fn get_alias_option(&self, index: PluginIndex, label: &QString, option: &[u8]) -> QVariant {
+        self.rust().get_sender_option::<Alias>(index, label, option)
     }
 
-    pub fn set_timer_bool(
-        &self,
-        index: PluginIndex,
-        label: &QString,
-        option: ffi::TimerBool,
-        value: bool,
-    ) -> ffi::ApiCode {
-        let Ok(option) = TimerBool::try_from(option) else {
-            return ffi::ApiCode::BadParameter;
-        };
-        self.rust()
-            .set_bool(index, label, option, value)
-            .code::<Timer>()
+    pub fn get_timer_option(&self, index: PluginIndex, label: &QString, option: &[u8]) -> QVariant {
+        self.rust().get_sender_option::<Timer>(index, label, option)
     }
 
-    pub fn set_trigger_bool(
+    pub fn get_trigger_option(
         &self,
         index: PluginIndex,
         label: &QString,
-        option: ffi::TriggerBool,
-        value: bool,
-    ) -> ffi::ApiCode {
-        let Ok(option) = TriggerBool::try_from(option) else {
-            return ffi::ApiCode::BadParameter;
-        };
+        option: &[u8],
+    ) -> QVariant {
         self.rust()
-            .set_bool(index, label, option, value)
-            .code::<Trigger>()
+            .get_sender_option::<Trigger>(index, label, option)
     }
 
-    pub fn set_trigger_group(
+    pub fn set_alias_option(
         &self,
         index: PluginIndex,
         label: &QString,
-        group: &QString,
+        option: &[u8],
+        value: &[u8],
     ) -> ffi::ApiCode {
         self.rust()
-            .set_sender_group::<Trigger>(index, label, group)
-            .code::<Trigger>()
+            .set_sender_option::<Alias>(index, label, option, value)
+            .code()
+    }
+
+    pub fn set_timer_option(
+        &self,
+        index: PluginIndex,
+        label: &QString,
+        option: &[u8],
+        value: &[u8],
+    ) -> ffi::ApiCode {
+        self.rust()
+            .set_sender_option::<Timer>(index, label, option, value)
+            .code()
+    }
+
+    pub fn set_trigger_option(
+        &self,
+        index: PluginIndex,
+        label: &QString,
+        option: &[u8],
+        value: &[u8],
+    ) -> ffi::ApiCode {
+        self.rust()
+            .set_sender_option::<Trigger>(index, label, option, value)
+            .code()
     }
 
     pub fn play_buffer(&self, i: usize, buf: &[u8], volume: f32, looping: bool) -> ffi::ApiCode {

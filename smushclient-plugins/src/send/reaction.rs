@@ -73,6 +73,18 @@ impl Default for Reaction {
 impl Reaction {
     pub const DEFAULT_SEQUENCE: i16 = 100;
 
+    pub fn set_is_regex(&mut self, is_regex: bool) -> Result<(), RegexError> {
+        self.regex = Self::make_regex(&self.pattern, is_regex)?;
+        self.is_regex = is_regex;
+        Ok(())
+    }
+
+    pub fn set_pattern(&mut self, pattern: String) -> Result<(), RegexError> {
+        self.regex = Self::make_regex(&pattern, self.is_regex)?;
+        self.pattern = pattern;
+        Ok(())
+    }
+
     pub fn expand_text<'a>(&self, buf: &'a mut String, captures: &Captures) -> &'a str {
         #[inline]
         fn collect_int(iter: &mut iter::Peekable<CharIndices>, max: usize) -> Option<usize> {

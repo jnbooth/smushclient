@@ -44,60 +44,6 @@ pub mod ffi {
         script_size: usize,
     }
 
-    enum AliasBool {
-        // Sender
-        Enabled,
-        OneShot,
-        Temporary,
-        OmitFromOutput,
-        OmitFromLog,
-        // Reaction
-        IgnoreCase,
-        KeepEvaluating,
-        IsRegex,
-        ExpandVariables,
-        Repeats,
-        // Alias
-        EchoAlias,
-        Menu,
-        OmitFromCommandHistory,
-    }
-
-    enum TimerBool {
-        // Sender
-        Enabled,
-        OneShot,
-        Temporary,
-        OmitFromOutput,
-        OmitFromLog,
-        // Timer
-        ActiveClosed,
-    }
-
-    enum TriggerBool {
-        // Sender
-        Enabled,
-        OneShot,
-        Temporary,
-        OmitFromOutput,
-        OmitFromLog,
-        // Reaction
-        IgnoreCase,
-        KeepEvaluating,
-        IsRegex,
-        ExpandVariables,
-        Repeats,
-        // Trigger
-        ChangeForeground,
-        ChangeBackground,
-        MakeBold,
-        MakeItalic,
-        MakeUnderline,
-        SoundIfInactive,
-        LowercaseWildcard,
-        MultiLine,
-    }
-
     enum CommandSource {
         Hotkey,
         Link,
@@ -259,32 +205,44 @@ pub mod ffi {
             group: &QString,
             enable: bool,
         ) -> bool;
-        fn set_alias_bool(
+        fn get_alias_option(
             self: &SmushClient,
             index: usize,
             label: &QString,
-            option: AliasBool,
-            value: bool,
+            option: &[u8],
+        ) -> QVariant;
+        fn get_timer_option(
+            self: &SmushClient,
+            index: usize,
+            label: &QString,
+            option: &[u8],
+        ) -> QVariant;
+        fn get_trigger_option(
+            self: &SmushClient,
+            index: usize,
+            label: &QString,
+            option: &[u8],
+        ) -> QVariant;
+        fn set_alias_option(
+            self: &SmushClient,
+            index: usize,
+            label: &QString,
+            option: &[u8],
+            value: &[u8],
         ) -> ApiCode;
-        fn set_timer_bool(
+        fn set_timer_option(
             self: &SmushClient,
             index: usize,
             label: &QString,
-            option: TimerBool,
-            value: bool,
+            option: &[u8],
+            value: &[u8],
         ) -> ApiCode;
-        fn set_trigger_bool(
+        fn set_trigger_option(
             self: &SmushClient,
             index: usize,
             label: &QString,
-            option: TriggerBool,
-            value: bool,
-        ) -> ApiCode;
-        fn set_trigger_group(
-            self: &SmushClient,
-            index: usize,
-            label: &QString,
-            group: &QString,
+            option: &[u8],
+            value: &[u8],
         ) -> ApiCode;
         fn get_variable(self: &SmushClient, index: usize, key: &[u8]) -> VariableView;
         fn get_metavariable(self: &SmushClient, key: &[u8]) -> VariableView;

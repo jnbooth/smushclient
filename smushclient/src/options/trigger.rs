@@ -1,78 +1,64 @@
 use smushclient_plugins::Trigger;
 
-use super::property::BoolProperty;
+use super::decode::DecodeOption;
+use super::encode::{EncodeOption, OptionValue};
+use super::error::OptionError;
+use super::optionable::Optionable;
+use crate::LuaStr;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum TriggerBool {
-    // Sender
-    Enabled,
-    OneShot,
-    Temporary,
-    OmitFromOutput,
-    OmitFromLog,
-    // Reaction
-    IgnoreCase,
-    KeepEvaluating,
-    IsRegex,
-    ExpandVariables,
-    Repeats,
-    // Trigger
-    ChangeForeground,
-    ChangeBackground,
-    MakeBold,
-    MakeItalic,
-    MakeUnderline,
-    SoundIfInactive,
-    LowercaseWildcard,
-    MultiLine,
-}
-
-impl BoolProperty for TriggerBool {
-    type Target = Trigger;
-
-    fn get(self, trigger: &Trigger) -> bool {
-        match self {
-            Self::Enabled => trigger.enabled,
-            Self::OneShot => trigger.one_shot,
-            Self::Temporary => trigger.temporary,
-            Self::OmitFromOutput => trigger.omit_from_output,
-            Self::OmitFromLog => trigger.omit_from_log,
-            Self::IgnoreCase => trigger.ignore_case,
-            Self::KeepEvaluating => trigger.keep_evaluating,
-            Self::IsRegex => trigger.is_regex,
-            Self::ExpandVariables => trigger.expand_variables,
-            Self::Repeats => trigger.repeats,
-            Self::ChangeForeground => trigger.change_foreground,
-            Self::ChangeBackground => trigger.change_background,
-            Self::MakeBold => trigger.make_bold,
-            Self::MakeItalic => trigger.make_italic,
-            Self::MakeUnderline => trigger.make_underline,
-            Self::SoundIfInactive => trigger.sound_if_inactive,
-            Self::LowercaseWildcard => trigger.lowercase_wildcard,
-            Self::MultiLine => trigger.multi_line,
+impl Optionable for Trigger {
+    fn get_option(&self, name: &LuaStr) -> OptionValue<'_> {
+        match name {
+            b"italic" => self.make_italic.encode(),
+            b"lines_to_match" => self.lines_to_match.encode(),
+            b"lowercase_wildcard" => self.lowercase_wildcard.encode(),
+            b"multi_line" => self.multi_line.encode(),
+            b"new_style" => {
+                let mut changes: i32 = 0;
+                if self.make_bold {
+                    changes |= 1;
+                }
+                if self.make_underline {
+                    changes |= 2;
+                }
+                if self.make_italic {
+                    changes |= 4;
+                }
+                changes.encode()
+            }
+            b"other_back_colour" => self.background_color.encode(),
+            b"other_text_colour" => self.foreground_color.encode(),
+            b"sound" => self.sound.encode(),
+            b"sound_if_inactive" => self.sound_if_inactive.encode(),
+            _ => self.reaction.get_option(name),
         }
     }
 
-    fn get_mut(self, trigger: &mut Trigger) -> &mut bool {
-        match self {
-            Self::Enabled => &mut trigger.enabled,
-            Self::OneShot => &mut trigger.one_shot,
-            Self::Temporary => &mut trigger.temporary,
-            Self::OmitFromOutput => &mut trigger.omit_from_output,
-            Self::OmitFromLog => &mut trigger.omit_from_log,
-            Self::IgnoreCase => &mut trigger.ignore_case,
-            Self::KeepEvaluating => &mut trigger.keep_evaluating,
-            Self::IsRegex => &mut trigger.is_regex,
-            Self::ExpandVariables => &mut trigger.expand_variables,
-            Self::Repeats => &mut trigger.repeats,
-            Self::ChangeForeground => &mut trigger.change_foreground,
-            Self::ChangeBackground => &mut trigger.change_background,
-            Self::MakeBold => &mut trigger.make_bold,
-            Self::MakeItalic => &mut trigger.make_italic,
-            Self::MakeUnderline => &mut trigger.make_underline,
-            Self::SoundIfInactive => &mut trigger.sound_if_inactive,
-            Self::LowercaseWildcard => &mut trigger.lowercase_wildcard,
-            Self::MultiLine => &mut trigger.multi_line,
+    fn set_option(&mut self, name: &LuaStr, value: &LuaStr) -> Result<(), OptionError> {
+        match name {
+            b"italic" => self.make_italic = value.decode()?,
+            b"lines_to_match" => self.lines_to_match = value.decode()?,
+            b"lowercase_wildcard" => self.lowercase_wildcard = value.decode()?,
+            b"match" => {
+                let pattern: String = value.decode()?;
+                if pattern.is_empty() {
+                    return Err(OptionError::TriggerCannotBeEmpty);
+                }
+                self.set_pattern(pattern)?;
+            }
+            b"multi_line" => self.multi_line = value.decode()?,
+            b"new_style" => {
+                let flags: u8 = value.decode()?;
+                self.make_bold = (flags & 1) != 0;
+                self.make_underline = (flags & 2) != 0;
+                self.make_italic = (flags & 4) != 0;
+            }
+            b"other_back_colour" => self.background_color = value.decode()?,
+            b"other_text_colour" => self.foreground_color = value.decode()?,
+            b"sound" => self.sound = value.decode()?,
+            b"sound_if_inactive" => self.sound_if_inactive = value.decode()?,
+            _ => self.reaction.set_option(name, value)?,
         }
+        Ok(())
     }
 }

@@ -1,63 +1,35 @@
 use smushclient_plugins::Alias;
 
-use super::property::BoolProperty;
+use super::decode::DecodeOption;
+use super::encode::{EncodeOption, OptionValue};
+use super::error::OptionError;
+use super::optionable::Optionable;
+use crate::LuaStr;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum AliasBool {
-    // Sender
-    Enabled,
-    OneShot,
-    Temporary,
-    OmitFromOutput,
-    OmitFromLog,
-    // Reaction
-    IgnoreCase,
-    KeepEvaluating,
-    IsRegex,
-    ExpandVariables,
-    Repeats,
-    // Alias
-    EchoAlias,
-    Menu,
-    OmitFromCommandHistory,
-}
-
-impl BoolProperty for AliasBool {
-    type Target = Alias;
-
-    fn get(self, alias: &Alias) -> bool {
-        match self {
-            Self::Enabled => alias.enabled,
-            Self::OneShot => alias.one_shot,
-            Self::Temporary => alias.temporary,
-            Self::OmitFromOutput => alias.omit_from_output,
-            Self::OmitFromLog => alias.omit_from_log,
-            Self::IgnoreCase => alias.ignore_case,
-            Self::KeepEvaluating => alias.keep_evaluating,
-            Self::IsRegex => alias.is_regex,
-            Self::ExpandVariables => alias.expand_variables,
-            Self::Repeats => alias.repeats,
-            Self::EchoAlias => alias.echo_alias,
-            Self::Menu => alias.menu,
-            Self::OmitFromCommandHistory => alias.omit_from_command_history,
+impl Optionable for Alias {
+    fn get_option(&self, name: &LuaStr) -> OptionValue<'_> {
+        match name {
+            b"echo_alias" => self.echo_alias.encode(),
+            b"menu" => self.menu.encode(),
+            b"omit_from_command_history" => self.omit_from_command_history.encode(),
+            _ => self.reaction.get_option(name),
         }
     }
 
-    fn get_mut(self, alias: &mut Alias) -> &mut bool {
-        match self {
-            Self::Enabled => &mut alias.enabled,
-            Self::OneShot => &mut alias.one_shot,
-            Self::Temporary => &mut alias.temporary,
-            Self::OmitFromOutput => &mut alias.omit_from_output,
-            Self::OmitFromLog => &mut alias.omit_from_log,
-            Self::IgnoreCase => &mut alias.ignore_case,
-            Self::KeepEvaluating => &mut alias.keep_evaluating,
-            Self::IsRegex => &mut alias.is_regex,
-            Self::ExpandVariables => &mut alias.expand_variables,
-            Self::Repeats => &mut alias.repeats,
-            Self::EchoAlias => &mut alias.echo_alias,
-            Self::Menu => &mut alias.menu,
-            Self::OmitFromCommandHistory => &mut alias.omit_from_command_history,
+    fn set_option(&mut self, name: &LuaStr, value: &LuaStr) -> Result<(), OptionError> {
+        match name {
+            b"echo_alias" => self.echo_alias = value.decode()?,
+            b"match" => {
+                let pattern: String = value.decode()?;
+                if pattern.is_empty() {
+                    return Err(OptionError::AliasCannotBeEmpty);
+                }
+                self.set_pattern(pattern)?;
+            }
+            b"menu" => self.menu = value.decode()?,
+            b"omit_from_command_history" => self.omit_from_command_history = value.decode()?,
+            _ => self.reaction.set_option(name, value)?,
         }
+        Ok(())
     }
 }

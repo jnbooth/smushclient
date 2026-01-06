@@ -5,18 +5,19 @@ use std::io::{self, Write};
 use std::pin::Pin;
 
 use cxx_qt_io::QAbstractSocket;
-use cxx_qt_lib::{QString, QStringList, QVariant};
+use cxx_qt_lib::{QByteArray, QString, QStringList, QVariant};
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
-    AliasOutcome, AudioSinks, BoolProperty, CommandSource, Handler, SendIterable,
-    SenderAccessError, SmushClient, Timers, World,
+    AliasOutcome, AudioSinks, CommandSource, Handler, LuaStr, OptionError, Optionable,
+    SendIterable, SenderAccessError, SmushClient, Timers, World,
 };
 use smushclient_plugins::{Alias, LoadError, PluginIndex, Timer, Trigger, XmlError};
 
 use crate::ffi::{self, Document, Timekeeper};
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
+use crate::results::IntoApiCode;
 use crate::text_formatter::TextFormatter;
 use crate::world::WorldRust;
 
@@ -231,21 +232,21 @@ impl SmushClientRust {
     pub fn play_buffer(&self, i: usize, buf: &[u8], volume: f32, looping: bool) -> ffi::ApiCode {
         self.audio
             .play_buffer(i, buf.to_vec(), volume, looping.into())
-            .into()
+            .code()
     }
 
     pub fn play_file(&self, i: usize, path: &QString, volume: f32, looping: bool) -> ffi::ApiCode {
         let looping = looping.into();
         if path.is_empty() {
-            return self.audio.configure_sink(i, volume, looping).into();
+            return self.audio.configure_sink(i, volume, looping).code();
         }
         self.audio
             .play_file(i, String::from(path), volume, looping)
-            .into()
+            .code()
     }
 
     pub fn stop_sound(&self, i: usize) -> ffi::ApiCode {
-        self.audio.stop(i).into()
+        self.audio.stop(i).code()
     }
 
     pub fn alias(
@@ -447,34 +448,34 @@ impl SmushClientRust {
         result
     }
 
-    pub fn set_bool<P>(
+    pub fn get_sender_option<T: SendIterable + Optionable>(
         &self,
         index: PluginIndex,
         label: &QString,
-        prop: P,
-        value: bool,
-    ) -> Result<(), SenderAccessError>
-    where
-        P: BoolProperty,
-        P::Target: SendIterable,
-    {
-        let mut sender = self
-            .client
-            .borrow_sender_mut::<P::Target>(index, &String::from(label))?;
-        *prop.get_mut(&mut sender) = value;
-        Ok(())
+        option: &LuaStr,
+    ) -> QVariant {
+        let Some(sender) = self.client.borrow_sender::<T>(index, &String::from(label)) else {
+            return QVariant::default();
+        };
+        match sender.get_option(option) {
+            smushclient::OptionValue::Null => QVariant::default(),
+            smushclient::OptionValue::Alpha(s) => (&QByteArray::from(s)).into(),
+            smushclient::OptionValue::Color(color) => {
+                (&QByteArray::from(&color.to_string())).into()
+            }
+            smushclient::OptionValue::Numeric(i) => (&i).into(),
+        }
     }
 
-    pub fn set_sender_group<T: SendIterable>(
+    pub fn set_sender_option<T: SendIterable + Optionable>(
         &self,
         index: PluginIndex,
         label: &QString,
-        group: &QString,
-    ) -> Result<(), SenderAccessError> {
-        let mut sender = self
-            .client
-            .borrow_sender_mut::<T>(index, &String::from(label))?;
-        sender.as_mut().group = String::from(group);
-        Ok(())
+        option: &LuaStr,
+        value: &LuaStr,
+    ) -> Result<(), OptionError> {
+        self.client
+            .borrow_sender_mut::<T>(index, &String::from(label))?
+            .set_option(option, value)
     }
 }
