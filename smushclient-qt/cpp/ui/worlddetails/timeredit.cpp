@@ -10,7 +10,6 @@
 TimerEdit::TimerEdit(Timer& timer, QWidget* parent)
   : QDialog(parent)
   , ui(new Ui::TimerEdit)
-  , originalGroup(timer.getGroup())
   , timer(timer)
 {
   ui->setupUi(this);
@@ -43,12 +42,6 @@ TimerEdit::TimerEdit(Timer& timer, QWidget* parent)
 TimerEdit::~TimerEdit()
 {
   delete ui;
-}
-
-bool
-TimerEdit::groupChanged() const
-{
-  return originalGroup != ui->Group->text();
 }
 
 // Private slots

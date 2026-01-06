@@ -40,14 +40,14 @@ TimerModel::flags(const QModelIndex& index) const
 
 // Protected overrides
 
-int
+bool
 TimerModel::add(QWidget* parent)
 {
   Timer timer;
   TimerEdit edit(timer, parent);
   if (edit.exec() == QDialog::Rejected)
-    return EditResult::Unchanged;
-  return client.addWorldTimer(timer, *timekeeper);
+    return false;
+  return client.addWorldTimer(timer, *timekeeper) == ApiCode::OK;
 }
 
 int
@@ -56,15 +56,8 @@ TimerModel::edit(size_t index, QWidget* parent)
   Timer timer(client, index);
   TimerEdit edit(timer, parent);
   if (edit.exec() == QDialog::Rejected)
-    return EditResult::Unchanged;
-  const int result = client.replaceWorldTimer(index, timer, *timekeeper);
-  if (result == (int)SenderAccessResult::Unchanged)
-    return EditResult::Unchanged;
-  if (result < 0)
-    return EditResult::Failed;
-  if (edit.groupChanged())
-    return EditResult::GroupChanged;
-  return result;
+    return (int)ReplaceSenderResult::Unchanged;
+  return client.replaceWorldTimer(index, timer, *timekeeper);
 }
 
 const std::array<QString, 4>&

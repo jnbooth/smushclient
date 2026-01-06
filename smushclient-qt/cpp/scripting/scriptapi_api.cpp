@@ -56,21 +56,6 @@ isEmptyList(const QVariant& variant)
   }
 }
 
-constexpr ApiCode
-convertSoundResult(SoundResult result) noexcept
-{
-  switch (result) {
-    case SoundResult::Ok:
-      return ApiCode::OK;
-    case SoundResult::SoundError:
-      return ApiCode::CannotPlaySound;
-    case SoundResult::BadParameter:
-      return ApiCode::BadParameter;
-    case SoundResult::NotFound:
-      return ApiCode::FileNotFound;
-  }
-}
-
 inline ApiCode
 updateWorld(WorldTab& worldtab)
 {
@@ -263,7 +248,7 @@ ScriptApi::PlaySound(size_t channel,
                      bool loop,
                      float volume)
 {
-  return convertSoundResult(client()->playFile(channel, path, volume, loop));
+  return client()->playFile(channel, path, volume, loop);
 }
 
 ApiCode
@@ -272,8 +257,7 @@ ScriptApi::PlaySoundMemory(size_t channel,
                            bool loop,
                            float volume)
 {
-  return convertSoundResult(
-    client()->playBuffer(channel, byteSlice(sound), volume, loop));
+  return client()->playBuffer(channel, byteSlice(sound), volume, loop);
 }
 
 ApiCode
@@ -384,7 +368,7 @@ ScriptApi::StopEvaluatingTriggers() const
 ApiCode
 ScriptApi::StopSound(size_t channel)
 {
-  return convertSoundResult(client()->stopSound(channel));
+  return client()->stopSound(channel);
 }
 
 void

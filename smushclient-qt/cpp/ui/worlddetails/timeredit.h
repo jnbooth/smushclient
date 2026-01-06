@@ -16,8 +16,6 @@ public:
   explicit TimerEdit(Timer& timer, QWidget* parent = nullptr);
   ~TimerEdit();
 
-  bool groupChanged() const;
-
 private slots:
   void on_OccurrenceChanged(Occurrence value);
 

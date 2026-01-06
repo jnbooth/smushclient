@@ -2,12 +2,15 @@
 #![allow(clippy::needless_pass_by_value)]
 #![allow(clippy::unnecessary_box_returns)]
 
+mod api_code;
+pub use api_code::ffi::ApiCode;
+
 mod audio;
 
 mod client;
 pub use client::ffi::{
-    AliasBool, CommandSource, PluginPack, QAbstractSocket, SenderAccessResult, SmushClient,
-    SoundResult, TimerBool, TriggerBool,
+    AliasBool, CommandSource, PluginPack, QAbstractSocket, ReplaceSenderResult, SmushClient,
+    TimerBool, TriggerBool,
 };
 
 mod document;

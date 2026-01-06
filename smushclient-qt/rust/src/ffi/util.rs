@@ -1,7 +1,7 @@
 use cxx_qt_lib::{QByteArray, QColor, QString, QVector};
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::naws;
-use smushclient_plugins::Reaction;
+use smushclient_plugins::{Reaction, Regex};
 
 use crate::convert::Convert;
 
@@ -17,6 +17,13 @@ fn make_regex_from_wildcards(pattern: &QString) -> QString {
     let mut buf = String::new();
     Reaction::make_regex_pattern(&String::from(pattern), &mut buf);
     QString::from(&buf)
+}
+
+fn validate_regex(pattern: &QString) -> QString {
+    match Regex::new(&String::from(pattern)) {
+        Ok(_) => QString::default(),
+        Err(e) => QString::from(e.to_string()),
+    }
 }
 
 #[cxx::bridge]
@@ -41,5 +48,8 @@ mod ffi {
 
         #[cxx_name = "makeRegexFromWildcards"]
         fn make_regex_from_wildcards(pattern: &QString) -> QString;
+
+        #[cxx_name = "validateRegex"]
+        fn validate_regex(pattern: &QString) -> QString;
     }
 }

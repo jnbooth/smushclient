@@ -1,7 +1,9 @@
 #include "aliasedit.h"
 #include "../../fieldconnector.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
+#include "smushclient_qt/src/ffi/util.cxx.h"
 #include "ui_aliasedit.h"
+#include <QtWidgets/QErrorMessage>
 
 #define CONNECT(field)                                                         \
   connectField(this, &alias, ui->field, alias.get##field(), &Alias::set##field);
@@ -12,7 +14,6 @@ AliasEdit::AliasEdit(Alias& alias, QWidget* parent)
   : QDialog(parent)
   , ui(new Ui::AliasEdit)
   , alias(alias)
-  , originalGroup(alias.getGroup())
 {
   ui->setupUi(this);
 
@@ -50,10 +51,19 @@ AliasEdit::~AliasEdit()
   delete ui;
 }
 
-bool
-AliasEdit::groupChanged() const
+// Public slots
+
+void
+AliasEdit::accept()
 {
-  return originalGroup != ui->Group->text();
+  if (ui->IsRegex->isChecked()) {
+    const QString error = ffi::validateRegex(ui->Pattern->text());
+    if (!error.isEmpty()) {
+      QErrorMessage::qtHandler()->showMessage(error);
+      return;
+    }
+  }
+  QDialog::accept();
 }
 
 // Private slots

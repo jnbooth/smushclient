@@ -53,7 +53,7 @@ AbstractSenderModel::~AbstractSenderModel()
 bool
 AbstractSenderModel::addItem(QWidget* parent)
 {
-  if (add(parent) < 0)
+  if (!add(parent))
     return false;
 
   beginResetModel();
@@ -88,15 +88,15 @@ AbstractSenderModel::editItem(const QModelIndex& modelIndex, QWidget* parent)
     return true;
   }
 
-  if (newIndex == EditResult::Unchanged || newIndex == EditResult::Failed)
-    return false;
-
-  if (newIndex == EditResult::GroupChanged) {
+  if (newIndex == (int)ReplaceSenderResult::GroupChanged) {
     beginResetModel();
     *needsRefresh = true;
     endResetModel();
     return true;
   }
+
+  if (newIndex < 0)
+    return false;
 
   *needsRefresh = true;
   refresh();

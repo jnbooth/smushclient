@@ -21,12 +21,3 @@ addErrorHandler(lua_State* L);
 
 int
 pushErrorHandler(lua_State* L);
-
-ApiCode
-convertAliasCode(int code) noexcept;
-
-ApiCode
-convertTimerCode(int code) noexcept;
-
-ApiCode
-convertTriggerCode(int code) noexcept;

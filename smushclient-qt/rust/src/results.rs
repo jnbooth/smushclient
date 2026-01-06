@@ -1,75 +1,91 @@
-use std::cell::Ref;
 use std::io;
 
-use smushclient::{AudioError, SendIterable, SenderAccessError};
+use smushclient::{AudioError, SenderAccessError};
+use smushclient_plugins::{Alias, Timer, Trigger};
 
 use crate::ffi;
 
-pub trait IntoResultCode {
+pub trait IntoCode {
     fn code(self) -> i32;
 }
 
-impl IntoResultCode for SenderAccessError {
+impl IntoCode for Result<usize, ffi::ReplaceSenderResult> {
     fn code(self) -> i32 {
         match self {
-            Self::NotFound => ffi::SenderAccessResult::NotFound.repr,
-            Self::LabelConflict(pos) => {
-                ffi::SenderAccessResult::LabelConflict.repr - i32::try_from(pos).unwrap_or(i32::MAX)
-            }
-            Self::Unchanged => ffi::SenderAccessResult::Unchanged.repr,
+            #[allow(clippy::cast_possible_truncation)]
+            #[allow(clippy::cast_possible_wrap)]
+            Self::Ok(index) => index as i32,
+            Self::Err(e) => e.repr,
         }
     }
 }
 
-impl IntoResultCode for Result<usize, SenderAccessError> {
-    fn code(self) -> i32 {
-        match self {
-            Ok(val) => i32::try_from(val).unwrap_or(i32::MAX),
-            Err(e) => e.code(),
+impl From<SenderAccessError> for ffi::ReplaceSenderResult {
+    fn from(value: SenderAccessError) -> Self {
+        match value {
+            SenderAccessError::LabelConflict(_) => Self::Conflict,
+            SenderAccessError::NotFound => Self::NotFound,
+            SenderAccessError::Unchanged => Self::Unchanged,
         }
     }
 }
 
-impl<T> IntoResultCode for Result<(usize, T), SenderAccessError> {
-    fn code(self) -> i32 {
-        match self {
-            Ok((val, _)) => i32::try_from(val).unwrap_or(i32::MAX),
-            Err(e) => e.code(),
+pub trait SenderAccessCode {
+    fn code(error: SenderAccessError) -> ffi::ApiCode;
+}
+
+impl SenderAccessCode for Alias {
+    fn code(error: SenderAccessError) -> ffi::ApiCode {
+        match error {
+            SenderAccessError::NotFound => ffi::ApiCode::AliasNotFound,
+            SenderAccessError::LabelConflict(_) => ffi::ApiCode::AliasAlreadyExists,
+            SenderAccessError::Unchanged => ffi::ApiCode::OK,
         }
     }
 }
 
-impl IntoResultCode for Result<(), SenderAccessError> {
-    fn code(self) -> i32 {
-        match self {
-            Ok(()) => ffi::SenderAccessResult::Ok.repr,
-            Err(e) => e.code(),
+impl SenderAccessCode for Timer {
+    fn code(error: SenderAccessError) -> ffi::ApiCode {
+        match error {
+            SenderAccessError::NotFound => ffi::ApiCode::TimerNotFound,
+            SenderAccessError::LabelConflict(_) => ffi::ApiCode::TimerAlreadyExists,
+            SenderAccessError::Unchanged => ffi::ApiCode::OK,
         }
     }
 }
 
-pub trait IntoErrorCode {
-    fn code(self) -> i32;
-}
-
-impl<T: SendIterable> IntoErrorCode for Result<Ref<'_, T>, SenderAccessError> {
-    fn code(self) -> i32 {
-        match self {
-            Ok(_) => ffi::SenderAccessResult::Ok.repr,
-            Err(e) => e.code(),
+impl SenderAccessCode for Trigger {
+    fn code(error: SenderAccessError) -> ffi::ApiCode {
+        match error {
+            SenderAccessError::NotFound => ffi::ApiCode::TriggerNotFound,
+            SenderAccessError::LabelConflict(_) => ffi::ApiCode::TriggerAlreadyExists,
+            SenderAccessError::Unchanged => ffi::ApiCode::OK,
         }
     }
 }
 
-impl From<Result<(), AudioError>> for ffi::SoundResult {
+pub trait IntoSenderAccessCode {
+    fn code<T: SenderAccessCode>(self) -> ffi::ApiCode;
+}
+
+impl<R> IntoSenderAccessCode for Result<R, SenderAccessError> {
+    fn code<T: SenderAccessCode>(self) -> ffi::ApiCode {
+        match self {
+            Self::Ok(_) => ffi::ApiCode::OK,
+            Self::Err(e) => T::code(e),
+        }
+    }
+}
+
+impl From<Result<(), AudioError>> for ffi::ApiCode {
     fn from(value: Result<(), AudioError>) -> Self {
         match value {
-            Ok(()) => Self::Ok,
+            Ok(()) => Self::OK,
             Err(AudioError::FileError(error)) if error.kind() == io::ErrorKind::NotFound => {
-                Self::NotFound
+                Self::FileNotFound
             }
             Err(AudioError::SinkOutOfRange) => Self::BadParameter,
-            _ => Self::SoundError,
+            _ => Self::CannotPlaySound,
         }
     }
 }

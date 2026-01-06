@@ -14,7 +14,7 @@ use crate::ffi::AliasOutcomes;
 use crate::ffi::{self, VariableView};
 use crate::get_info::InfoVisitorQVariant;
 use crate::modeled::Modeled;
-use crate::results::{IntoErrorCode, IntoResultCode};
+use crate::results::{IntoCode, IntoSenderAccessCode};
 use crate::world::WorldRust;
 
 impl ffi::SmushClient {
@@ -149,9 +149,11 @@ impl ffi::SmushClient {
         self.rust().client.has_output()
     }
 
-    pub fn add_alias(&self, index: PluginIndex, alias: &ffi::Alias) -> Result<i32, RegexError> {
-        let alias = Alias::try_from(alias.rust())?;
-        Ok(self.rust().client.add_sender(index, alias).code())
+    pub fn add_alias(&self, index: PluginIndex, alias: &ffi::Alias) -> ffi::ApiCode {
+        let Ok(alias) = Alias::try_from(alias.rust()) else {
+            return ffi::ApiCode::BadRegularExpression;
+        };
+        self.rust().client.add_sender(index, alias).code::<Alias>()
     }
 
     pub fn add_timer(
@@ -159,39 +161,42 @@ impl ffi::SmushClient {
         index: PluginIndex,
         timer: &ffi::Timer,
         timekeeper: &ffi::Timekeeper,
-    ) -> i32 {
+    ) -> ffi::ApiCode {
         let timer = Timer::from(timer.rust());
-        self.rust().add_timer(index, timer, timekeeper).code()
+        self.rust()
+            .add_timer(index, timer, timekeeper)
+            .code::<Timer>()
     }
 
-    pub fn add_trigger(
-        &self,
-        index: PluginIndex,
-        trigger: &ffi::Trigger,
-    ) -> Result<i32, RegexError> {
-        let trigger = Trigger::try_from(trigger.rust())?;
-        Ok(self.rust().client.add_sender(index, trigger).code())
+    pub fn add_trigger(&self, index: PluginIndex, trigger: &ffi::Trigger) -> ffi::ApiCode {
+        let Ok(trigger) = Trigger::try_from(trigger.rust()) else {
+            return ffi::ApiCode::BadRegularExpression;
+        };
+        self.rust()
+            .client
+            .add_sender(index, trigger)
+            .code::<Trigger>()
     }
 
-    pub fn remove_alias(&self, index: PluginIndex, name: &QString) -> i32 {
+    pub fn remove_alias(&self, index: PluginIndex, name: &QString) -> ffi::ApiCode {
         self.rust()
             .client
             .remove_sender::<Alias>(index, &String::from(name))
-            .code()
+            .code::<Alias>()
     }
 
-    pub fn remove_timer(&self, index: PluginIndex, name: &QString) -> i32 {
+    pub fn remove_timer(&self, index: PluginIndex, name: &QString) -> ffi::ApiCode {
         self.rust()
             .client
             .remove_sender::<Timer>(index, &String::from(name))
-            .code()
+            .code::<Timer>()
     }
 
-    pub fn remove_trigger(&self, index: PluginIndex, name: &QString) -> i32 {
+    pub fn remove_trigger(&self, index: PluginIndex, name: &QString) -> ffi::ApiCode {
         self.rust()
             .client
             .remove_sender::<Trigger>(index, &String::from(name))
-            .code()
+            .code::<Trigger>()
     }
 
     pub fn remove_aliases(&self, index: PluginIndex, name: &QString) -> usize {
@@ -212,24 +217,34 @@ impl ffi::SmushClient {
             .remove_senders::<Trigger>(index, &String::from(group))
     }
 
-    pub fn add_world_alias(&self, alias: &ffi::Alias) -> Result<i32, RegexError> {
+    pub fn add_world_alias(&self, alias: &ffi::Alias) -> Result<ffi::ApiCode, RegexError> {
         let alias = Alias::try_from(alias.rust())?;
-        Ok(self.rust().client.add_world_sender(alias).code())
+        Ok(self.rust().client.add_world_sender(alias).code::<Alias>())
     }
 
-    pub fn add_world_timer(&self, timer: &ffi::Timer, timekeeper: &ffi::Timekeeper) -> i32 {
+    pub fn add_world_timer(
+        &self,
+        timer: &ffi::Timer,
+        timekeeper: &ffi::Timekeeper,
+    ) -> ffi::ApiCode {
         let index = self.rust().world_plugin_index();
         self.add_timer(index, timer, timekeeper)
     }
 
-    pub fn add_world_trigger(&self, trigger: &ffi::Trigger) -> Result<i32, RegexError> {
+    pub fn add_world_trigger(&self, trigger: &ffi::Trigger) -> Result<ffi::ApiCode, RegexError> {
         let trigger = Trigger::try_from(trigger.rust())?;
-        Ok(self.rust().client.add_world_sender(trigger).code())
+        Ok(self
+            .rust()
+            .client
+            .add_world_sender(trigger)
+            .code::<Trigger>())
     }
 
-    pub fn replace_world_alias(&self, index: usize, alias: &ffi::Alias) -> Result<i32, RegexError> {
-        let alias = Alias::try_from(alias.rust())?;
-        Ok(self.rust().client.replace_world_sender(index, alias).code())
+    pub fn replace_world_alias(&self, index: usize, alias: &ffi::Alias) -> i32 {
+        let Ok(alias) = Alias::try_from(alias.rust()) else {
+            return ffi::ReplaceSenderResult::BadRegularExpression.repr;
+        };
+        self.rust().replace_world_alias(index, alias).code()
     }
 
     pub fn replace_world_timer(
@@ -244,17 +259,11 @@ impl ffi::SmushClient {
             .code()
     }
 
-    pub fn replace_world_trigger(
-        &self,
-        index: usize,
-        trigger: &ffi::Trigger,
-    ) -> Result<i32, RegexError> {
-        let trigger = Trigger::try_from(trigger.rust())?;
-        Ok(self
-            .rust()
-            .client
-            .replace_world_sender(index, trigger)
-            .code())
+    pub fn replace_world_trigger(&self, index: usize, trigger: &ffi::Trigger) -> i32 {
+        let Ok(trigger) = Trigger::try_from(trigger.rust()) else {
+            return ffi::ReplaceSenderResult::BadRegularExpression.repr;
+        };
+        self.rust().replace_world_trigger(index, trigger).code()
     }
 
     pub fn export_world_aliases(&self) -> Result<QString, XmlSerError> {
@@ -294,10 +303,12 @@ impl ffi::SmushClient {
         Ok(())
     }
 
-    pub fn replace_alias(&self, index: PluginIndex, alias: &ffi::Alias) -> Result<(), RegexError> {
-        let alias = Alias::try_from(alias.rust())?;
+    pub fn replace_alias(&self, index: PluginIndex, alias: &ffi::Alias) -> ffi::ApiCode {
+        let Ok(alias) = Alias::try_from(alias.rust()) else {
+            return ffi::ApiCode::BadRegularExpression;
+        };
         self.rust().client.add_or_replace_sender(index, alias);
-        Ok(())
+        ffi::ApiCode::OK
     }
 
     pub fn replace_timer(
@@ -305,19 +316,18 @@ impl ffi::SmushClient {
         index: PluginIndex,
         timer: &ffi::Timer,
         timekeeper: &ffi::Timekeeper,
-    ) {
+    ) -> ffi::ApiCode {
         let timer = Timer::from(timer.rust());
         self.rust().add_or_replace_timer(index, timer, timekeeper);
+        ffi::ApiCode::OK
     }
 
-    pub fn replace_trigger(
-        &self,
-        index: PluginIndex,
-        trigger: &ffi::Trigger,
-    ) -> Result<(), RegexError> {
-        let trigger = Trigger::try_from(trigger.rust())?;
+    pub fn replace_trigger(&self, index: PluginIndex, trigger: &ffi::Trigger) -> ffi::ApiCode {
+        let Ok(trigger) = Trigger::try_from(trigger.rust()) else {
+            return ffi::ApiCode::BadRegularExpression;
+        };
         self.rust().client.add_or_replace_sender(index, trigger);
-        Ok(())
+        ffi::ApiCode::OK
     }
 
     pub fn is_alias(&self, index: PluginIndex, label: &QString) -> bool {
@@ -341,11 +351,16 @@ impl ffi::SmushClient {
             .is_some()
     }
 
-    pub fn set_alias_enabled(&self, index: PluginIndex, label: &QString, enabled: bool) -> i32 {
+    pub fn set_alias_enabled(
+        &self,
+        index: PluginIndex,
+        label: &QString,
+        enabled: bool,
+    ) -> ffi::ApiCode {
         self.rust()
             .client
             .set_sender_enabled::<Alias>(index, &String::from(label), enabled)
-            .code()
+            .code::<Alias>()
     }
 
     pub fn set_aliases_enabled(&self, index: PluginIndex, group: &QString, enabled: bool) -> bool {
@@ -358,11 +373,16 @@ impl ffi::SmushClient {
         self.rust().client.set_plugin_enabled(index, enabled)
     }
 
-    pub fn set_timer_enabled(&self, index: PluginIndex, label: &QString, enabled: bool) -> i32 {
+    pub fn set_timer_enabled(
+        &self,
+        index: PluginIndex,
+        label: &QString,
+        enabled: bool,
+    ) -> ffi::ApiCode {
         self.rust()
             .client
             .set_sender_enabled::<Timer>(index, &String::from(label), enabled)
-            .code()
+            .code::<Timer>()
     }
 
     pub fn set_timers_enabled(&self, index: PluginIndex, group: &QString, enabled: bool) -> bool {
@@ -371,11 +391,16 @@ impl ffi::SmushClient {
             .set_group_enabled::<Timer>(index, &String::from(group), enabled)
     }
 
-    pub fn set_trigger_enabled(&self, index: PluginIndex, label: &QString, enabled: bool) -> i32 {
+    pub fn set_trigger_enabled(
+        &self,
+        index: PluginIndex,
+        label: &QString,
+        enabled: bool,
+    ) -> ffi::ApiCode {
         self.rust()
             .client
             .set_sender_enabled::<Trigger>(index, &String::from(label), enabled)
-            .code()
+            .code::<Trigger>()
     }
 
     pub fn set_triggers_enabled(&self, index: PluginIndex, group: &QString, enabled: bool) -> bool {
@@ -390,11 +415,13 @@ impl ffi::SmushClient {
         label: &QString,
         option: ffi::AliasBool,
         value: bool,
-    ) -> i32 {
+    ) -> ffi::ApiCode {
         let Ok(option) = AliasBool::try_from(option) else {
-            return ffi::SenderAccessResult::BadParameter.repr;
+            return ffi::ApiCode::BadParameter;
         };
-        self.rust().set_bool(index, label, option, value).code()
+        self.rust()
+            .set_bool(index, label, option, value)
+            .code::<Alias>()
     }
 
     pub fn set_timer_bool(
@@ -403,11 +430,13 @@ impl ffi::SmushClient {
         label: &QString,
         option: ffi::TimerBool,
         value: bool,
-    ) -> i32 {
+    ) -> ffi::ApiCode {
         let Ok(option) = TimerBool::try_from(option) else {
-            return -3;
+            return ffi::ApiCode::BadParameter;
         };
-        self.rust().set_bool(index, label, option, value).code()
+        self.rust()
+            .set_bool(index, label, option, value)
+            .code::<Timer>()
     }
 
     pub fn set_trigger_bool(
@@ -416,40 +445,35 @@ impl ffi::SmushClient {
         label: &QString,
         option: ffi::TriggerBool,
         value: bool,
-    ) -> i32 {
+    ) -> ffi::ApiCode {
         let Ok(option) = TriggerBool::try_from(option) else {
-            return -3;
+            return ffi::ApiCode::BadParameter;
         };
-        self.rust().set_bool(index, label, option, value).code()
+        self.rust()
+            .set_bool(index, label, option, value)
+            .code::<Trigger>()
     }
 
-    pub fn set_trigger_group(&self, index: PluginIndex, label: &QString, group: &QString) -> i32 {
+    pub fn set_trigger_group(
+        &self,
+        index: PluginIndex,
+        label: &QString,
+        group: &QString,
+    ) -> ffi::ApiCode {
         self.rust()
             .set_sender_group::<Trigger>(index, label, group)
-            .code()
+            .code::<Trigger>()
     }
 
-    pub fn play_buffer(
-        &self,
-        i: usize,
-        buf: &[u8],
-        volume: f32,
-        looping: bool,
-    ) -> ffi::SoundResult {
+    pub fn play_buffer(&self, i: usize, buf: &[u8], volume: f32, looping: bool) -> ffi::ApiCode {
         self.rust().play_buffer(i, buf, volume, looping)
     }
 
-    pub fn play_file(
-        &self,
-        i: usize,
-        path: &QString,
-        volume: f32,
-        looping: bool,
-    ) -> ffi::SoundResult {
+    pub fn play_file(&self, i: usize, path: &QString, volume: f32, looping: bool) -> ffi::ApiCode {
         self.rust().play_file(i, path, volume, looping)
     }
 
-    pub fn stop_sound(&self, i: usize) -> ffi::SoundResult {
+    pub fn stop_sound(&self, i: usize) -> ffi::ApiCode {
         self.rust().stop_sound(i)
     }
 

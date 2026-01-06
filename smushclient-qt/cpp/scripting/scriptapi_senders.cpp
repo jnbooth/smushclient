@@ -51,7 +51,7 @@ ScriptApi::AddAlias(size_t plugin,
 
   try {
     if (!flags.testFlag(AliasFlag::Replace))
-      return convertAliasCode(client()->addAlias(plugin, alias));
+      return client()->addAlias(plugin, alias);
 
     client()->replaceAlias(plugin, alias);
     return ApiCode::OK;
@@ -98,7 +98,7 @@ ScriptApi::AddTimer(size_t plugin,
   timer.setText(text);
 
   if (!flags.testFlag(TimerFlag::Replace))
-    return convertTimerCode(client()->addTimer(plugin, timer, *timekeeper));
+    return client()->addTimer(plugin, timer, *timekeeper);
 
   client()->replaceTimer(plugin, timer, *timekeeper);
   return ApiCode::OK;
@@ -145,7 +145,7 @@ ScriptApi::AddTrigger(size_t plugin,
 
   try {
     if (!flags.testFlag(TriggerFlag::Replace))
-      return convertTriggerCode(client()->addTrigger(plugin, trigger));
+      return client()->addTrigger(plugin, trigger);
 
     client()->replaceTrigger(plugin, trigger);
     return ApiCode::OK;
@@ -157,7 +157,7 @@ ScriptApi::AddTrigger(size_t plugin,
 ApiCode
 ScriptApi::DeleteAlias(size_t index, const QString& name) const
 {
-  return convertAliasCode(client()->removeAlias(index, name));
+  return client()->removeAlias(index, name);
 }
 
 size_t
@@ -169,7 +169,7 @@ ScriptApi::DeleteAliases(size_t index, const QString& group) const
 ApiCode
 ScriptApi::DeleteTimer(size_t index, const QString& name) const
 {
-  return convertTimerCode(client()->removeTimer(index, name));
+  return client()->removeTimer(index, name);
 }
 
 size_t
@@ -181,7 +181,7 @@ ScriptApi::DeleteTimers(size_t index, const QString& group) const
 ApiCode
 ScriptApi::DeleteTrigger(size_t index, const QString& name) const
 {
-  return convertTriggerCode(client()->removeTrigger(index, name));
+  return client()->removeTrigger(index, name);
 }
 
 size_t
@@ -193,7 +193,7 @@ ScriptApi::DeleteTriggers(size_t index, const QString& group) const
 ApiCode
 ScriptApi::EnableAlias(size_t plugin, const QString& label, bool enabled) const
 {
-  return convertAliasCode(client()->setAliasEnabled(plugin, label, enabled));
+  return client()->setAliasEnabled(plugin, label, enabled);
 }
 
 ApiCode
@@ -209,7 +209,7 @@ ScriptApi::EnableAliasGroup(size_t plugin,
 ApiCode
 ScriptApi::EnableTimer(size_t plugin, const QString& label, bool enabled) const
 {
-  return convertTimerCode(client()->setTimerEnabled(plugin, label, enabled));
+  return client()->setTimerEnabled(plugin, label, enabled);
 }
 
 ApiCode
@@ -227,8 +227,7 @@ ScriptApi::EnableTrigger(size_t plugin,
                          const QString& label,
                          bool enabled) const
 {
-  return convertTriggerCode(
-    client()->setTriggerEnabled(plugin, label, enabled));
+  return client()->setTriggerEnabled(plugin, label, enabled);
 }
 
 ApiCode
@@ -267,7 +266,7 @@ ScriptApi::SetTriggerGroup(size_t plugin,
                            const QString& label,
                            const QString& group) const
 {
-  return convertTriggerCode(client()->setTriggerGroup(plugin, label, group));
+  return client()->setTriggerGroup(plugin, label, group);
 }
 
 ApiCode
@@ -276,6 +275,5 @@ ScriptApi::SetTriggerOption(size_t plugin,
                             TriggerBool option,
                             bool value) const
 {
-  return convertTriggerCode(
-    client()->setTriggerBool(plugin, label, option, value));
+  return client()->setTriggerBool(plugin, label, option, value);
 }

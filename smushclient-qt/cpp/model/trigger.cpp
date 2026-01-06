@@ -32,14 +32,14 @@ TriggerModel::flags(const QModelIndex& index) const
 
 // Protected overrides
 
-int
+bool
 TriggerModel::add(QWidget* parent)
 {
   Trigger trigger;
   TriggerEdit edit(trigger, parent);
   if (edit.exec() == QDialog::Rejected)
-    return EditResult::Unchanged;
-  return client.addWorldTrigger(trigger);
+    return false;
+  return client.addWorldTrigger(trigger) == ApiCode::OK;
 }
 
 int
@@ -48,15 +48,8 @@ TriggerModel::edit(size_t index, QWidget* parent)
   Trigger trigger(client, index);
   TriggerEdit edit(trigger, parent);
   if (edit.exec() == QDialog::Rejected)
-    return EditResult::Unchanged;
-  const int result = client.replaceWorldTrigger(index, trigger);
-  if (result == (int)SenderAccessResult::Unchanged)
-    return EditResult::Unchanged;
-  if (result < 0)
-    return EditResult::Failed;
-  if (edit.groupChanged())
-    return EditResult::GroupChanged;
-  return result;
+    return (int)ReplaceSenderResult::Unchanged;
+  return client.replaceWorldTrigger(index, trigger);
 }
 
 const std::array<QString, 4>&

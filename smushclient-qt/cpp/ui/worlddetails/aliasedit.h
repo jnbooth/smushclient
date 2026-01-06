@@ -15,7 +15,8 @@ public:
   explicit AliasEdit(Alias& alias, QWidget* parent = nullptr);
   ~AliasEdit();
 
-  bool groupChanged() const;
+public slots:
+  void accept() override;
 
 private slots:
   void on_Label_textChanged(const QString& text);
@@ -25,5 +26,4 @@ private slots:
 private:
   Ui::AliasEdit* ui;
   Alias& alias;
-  QString originalGroup;
 };

@@ -32,14 +32,14 @@ AliasModel::flags(const QModelIndex& index) const
 
 // Protected overrides
 
-int
+bool
 AliasModel::add(QWidget* parent)
 {
   Alias alias;
   AliasEdit edit(alias, parent);
   if (edit.exec() == QDialog::Rejected)
-    return EditResult::Unchanged;
-  return client.addWorldAlias(alias);
+    return false;
+  return client.addWorldAlias(alias) == ApiCode::OK;
 }
 
 int
@@ -48,15 +48,8 @@ AliasModel::edit(size_t index, QWidget* parent)
   Alias alias(client, index);
   AliasEdit edit(alias, parent);
   if (edit.exec() == QDialog::Rejected)
-    return EditResult::Unchanged;
-  const int result = client.replaceWorldAlias(index, alias);
-  if (result == (int)SenderAccessResult::Unchanged)
-    return EditResult::Unchanged;
-  if (result < 0)
-    return EditResult::Failed;
-  if (edit.groupChanged())
-    return EditResult::GroupChanged;
-  return result;
+    return (int)ReplaceSenderResult::Unchanged;
+  return client.replaceWorldAlias(index, alias);
 }
 
 const std::array<QString, 4>&

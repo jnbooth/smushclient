@@ -16,7 +16,7 @@ public:
   Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 protected:
-  int add(QWidget* parent) override;
+  bool add(QWidget* parent) override;
   int edit(size_t index, QWidget* parent) override;
   const std::array<QString, AbstractSenderModel::numColumns>& headers()
     const noexcept override;

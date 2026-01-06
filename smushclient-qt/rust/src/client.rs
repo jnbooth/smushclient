@@ -228,25 +228,13 @@ impl SmushClientRust {
         handler.doc.end(had_output);
     }
 
-    pub fn play_buffer(
-        &self,
-        i: usize,
-        buf: &[u8],
-        volume: f32,
-        looping: bool,
-    ) -> ffi::SoundResult {
+    pub fn play_buffer(&self, i: usize, buf: &[u8], volume: f32, looping: bool) -> ffi::ApiCode {
         self.audio
             .play_buffer(i, buf.to_vec(), volume, looping.into())
             .into()
     }
 
-    pub fn play_file(
-        &self,
-        i: usize,
-        path: &QString,
-        volume: f32,
-        looping: bool,
-    ) -> ffi::SoundResult {
+    pub fn play_file(&self, i: usize, path: &QString, volume: f32, looping: bool) -> ffi::ApiCode {
         let looping = looping.into();
         if path.is_empty() {
             return self.audio.configure_sink(i, volume, looping).into();
@@ -256,7 +244,7 @@ impl SmushClientRust {
             .into()
     }
 
-    pub fn stop_sound(&self, i: usize) -> ffi::SoundResult {
+    pub fn stop_sound(&self, i: usize) -> ffi::ApiCode {
         self.audio.stop(i).into()
     }
 
@@ -384,26 +372,6 @@ impl SmushClientRust {
         }
     }
 
-    pub fn replace_world_timer(
-        &self,
-        index: usize,
-        timer: Timer,
-        timekeeper: &Timekeeper,
-    ) -> Result<(), SenderAccessError> {
-        let start = {
-            let (_, timer) = self.client.replace_world_sender(index, timer)?;
-            if !self.client.world().enable_timers {
-                return Ok(());
-            }
-            let world_index = self.world_plugin_index();
-            self.timers.borrow_mut().start(world_index, &timer)
-        };
-        if let Some(start) = start {
-            timekeeper.start(&start);
-        }
-        Ok(())
-    }
-
     pub fn import_world_timers(
         &self,
         xml: &QString,
@@ -423,6 +391,60 @@ impl SmushClientRust {
             }
         }
         Ok(())
+    }
+
+    pub fn replace_world_alias(
+        &self,
+        index: usize,
+        alias: Alias,
+    ) -> Result<usize, ffi::ReplaceSenderResult> {
+        let group = alias.group.clone();
+        let (i, alias) = self.client.replace_world_sender(index, alias)?;
+        if alias.group == group {
+            Ok(i)
+        } else {
+            Err(ffi::ReplaceSenderResult::GroupChanged)
+        }
+    }
+
+    pub fn replace_world_trigger(
+        &self,
+        index: usize,
+        trigger: Trigger,
+    ) -> Result<usize, ffi::ReplaceSenderResult> {
+        let group = trigger.group.clone();
+        let (i, trigger) = self.client.replace_world_sender(index, trigger)?;
+        if trigger.group == group {
+            Ok(i)
+        } else {
+            Err(ffi::ReplaceSenderResult::GroupChanged)
+        }
+    }
+
+    pub fn replace_world_timer(
+        &self,
+        index: usize,
+        timer: Timer,
+        timekeeper: &Timekeeper,
+    ) -> Result<usize, ffi::ReplaceSenderResult> {
+        let group = timer.group.clone();
+        let (result, start) = {
+            let (i, timer) = self.client.replace_world_sender(index, timer)?;
+            let result = if timer.group == group {
+                Ok(i)
+            } else {
+                Err(ffi::ReplaceSenderResult::GroupChanged)
+            };
+            if !self.client.world().enable_timers {
+                return result;
+            }
+            let world_index = self.world_plugin_index();
+            (result, self.timers.borrow_mut().start(world_index, &timer))
+        };
+        if let Some(start) = start {
+            timekeeper.start(&start);
+        }
+        result
     }
 
     pub fn set_bool<P>(

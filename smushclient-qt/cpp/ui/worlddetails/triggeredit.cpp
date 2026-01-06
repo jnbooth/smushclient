@@ -12,7 +12,6 @@
 TriggerEdit::TriggerEdit(Trigger& trigger, QWidget* parent)
   : QDialog(parent)
   , ui(new Ui::TriggerEdit)
-  , originalGroup(trigger.getGroup())
   , trigger(trigger)
 {
   ui->setupUi(this);
@@ -58,12 +57,6 @@ TriggerEdit::TriggerEdit(Trigger& trigger, QWidget* parent)
 TriggerEdit::~TriggerEdit()
 {
   delete ui;
-}
-
-bool
-TriggerEdit::groupChanged() const
-{
-  return originalGroup != ui->Group->text();
 }
 
 // Private slots

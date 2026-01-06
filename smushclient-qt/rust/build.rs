@@ -31,6 +31,7 @@ fn main() {
             cc.include(&header_dir);
         })
         .files([
+            "src/ffi/api_code.rs",
             "src/ffi/audio.rs",
             "src/ffi/client.rs",
             "src/ffi/document.rs",
