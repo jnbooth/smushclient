@@ -19,10 +19,39 @@ fn make_regex_from_wildcards(pattern: &QString) -> QString {
     QString::from(&buf)
 }
 
-fn validate_regex(pattern: &QString) -> QString {
+fn validate_regex(pattern: &QString) -> ffi::RegexError {
+    fn find_split(message: &str) -> Option<usize> {
+        const SKIP: usize = "PCRE2: ".len();
+        const DELIM: &str = ": ";
+        const OFFSET: usize = SKIP + DELIM.len();
+        let message = message.get(SKIP..)?;
+        let index = message.find(DELIM)?;
+        Some(OFFSET + index)
+    }
+
+    fn format_error(mut message: &mut str) -> &str {
+        let Some(split) = find_split(message) else {
+            return message;
+        };
+        message = &mut message[split..];
+        if let Some(first) = message.get_mut(0..1) {
+            first.make_ascii_uppercase();
+        }
+        message
+    }
+
     match Regex::new(&String::from(pattern)) {
-        Ok(_) => QString::default(),
-        Err(e) => QString::from(e.to_string()),
+        Ok(_) => ffi::RegexError {
+            message: QString::default(),
+            offset: -1,
+        },
+        Err(e) => ffi::RegexError {
+            message: QString::from(format_error(&mut e.to_string())),
+            offset: match e.offset() {
+                None => -1,
+                Some(offset) => i32::try_from(offset).unwrap_or(i32::MAX),
+            },
+        },
     }
 }
 
@@ -39,6 +68,11 @@ mod ffi {
         type QVector_QColor = cxx_qt_lib::QVector<QColor>;
     }
 
+    struct RegexError {
+        message: QString,
+        offset: i32,
+    }
+
     #[namespace = "ffi"]
     extern "Rust" {
         fn ansi16() -> QVector_QColor;
@@ -50,6 +84,6 @@ mod ffi {
         fn make_regex_from_wildcards(pattern: &QString) -> QString;
 
         #[cxx_name = "validateRegex"]
-        fn validate_regex(pattern: &QString) -> QString;
+        fn validate_regex(pattern: &QString) -> RegexError;
     }
 }

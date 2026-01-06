@@ -1,7 +1,9 @@
 #include "triggeredit.h"
 #include "../../environment.h"
 #include "../../fieldconnector.h"
+#include "regexdialog.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
+#include "smushclient_qt/src/ffi/util.cxx.h"
 #include "ui_triggeredit.h"
 #include <QtWidgets/QFileDialog>
 
@@ -57,6 +59,23 @@ TriggerEdit::TriggerEdit(Trigger& trigger, QWidget* parent)
 TriggerEdit::~TriggerEdit()
 {
   delete ui;
+}
+
+// Public slots
+
+void
+TriggerEdit::accept()
+{
+  if (ui->IsRegex->isChecked()) {
+    const QString pattern = ui->Pattern->text();
+    const RegexError error = ffi::validateRegex(pattern);
+    if (!error.message.isEmpty()) {
+      RegexDialog dialog(error.message, error.offset, pattern, this);
+      dialog.exec();
+      return;
+    }
+  }
+  QDialog::accept();
 }
 
 // Private slots

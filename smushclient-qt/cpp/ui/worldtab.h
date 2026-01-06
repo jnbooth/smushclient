@@ -148,7 +148,6 @@ private:
   bool alertNewActivity = false;
   ScriptApi* api;
   QMetaObject::Connection autoScroll;
-  QFont defaultFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
   Document* document;
   QString filePath{};
   QTimer* flushTimer;

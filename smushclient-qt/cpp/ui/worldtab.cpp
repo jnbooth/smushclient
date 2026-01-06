@@ -92,7 +92,6 @@ WorldTab::WorldTab(MudStatusBar* statusBar, Notepads* notepads, QWidget* parent)
   connect(resizeTimer, &QTimer::timeout, this, &WorldTab::finishResize);
   ui->setupUi(this);
   ui->input->setFocus();
-  defaultFont.setPointSize(12);
 #ifdef QT_NO_SSL
   socket = new QTcpSocket(this);
 #else

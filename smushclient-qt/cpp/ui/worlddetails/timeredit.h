@@ -25,6 +25,5 @@ private slots:
 
 private:
   Ui::TimerEdit* ui;
-  QString originalGroup;
   Timer& timer;
 };

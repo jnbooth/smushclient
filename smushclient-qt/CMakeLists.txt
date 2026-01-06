@@ -155,6 +155,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/worlddetails/output.h cpp/ui/worlddetails/output.cpp cpp/ui/worlddetails/output.ui
     cpp/ui/worlddetails/pluginpopup.h cpp/ui/worlddetails/pluginpopup.cpp cpp/ui/worlddetails/pluginpopup.ui
     cpp/ui/worlddetails/plugins.h cpp/ui/worlddetails/plugins.cpp cpp/ui/worlddetails/plugins.ui
+    cpp/ui/worlddetails/regexdialog.h cpp/ui/worlddetails/regexdialog.cpp cpp/ui/worlddetails/regexdialog.ui
     cpp/ui/worlddetails/scripting.h cpp/ui/worlddetails/scripting.cpp cpp/ui/worlddetails/scripting.ui
     cpp/ui/worlddetails/specialhelp.h cpp/ui/worlddetails/specialhelp.cpp cpp/ui/worlddetails/specialhelp.ui
     cpp/ui/worlddetails/timeredit.h cpp/ui/worlddetails/timeredit.cpp cpp/ui/worlddetails/timeredit.ui
@@ -165,6 +166,7 @@ qt_add_executable(${APP_NAME}
 
     resources/resources.qrc
     resources/appicon/appicon.icns resources/appicon/appicon.rc
+    cpp/ui/worlddetails/regexdialog.h cpp/ui/worlddetails/regexdialog.cpp cpp/ui/worlddetails/regexdialog.ui
 )
 
 target_include_directories(${APP_NAME}
