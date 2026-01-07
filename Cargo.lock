@@ -341,8 +341,8 @@ dependencies = [
 
 [[package]]
 name = "cxx-qt"
-version = "0.7.2"
-source = "git+https://github.com/KDAB/cxx-qt#e0608cba60f5282d0e0efe1a46de34d697291742"
+version = "0.8.0"
+source = "git+https://github.com/KDAB/cxx-qt#c98fb6204d17c257a8f22594c88a2ac3350f6859"
 dependencies = [
  "cxx",
  "cxx-qt-build",
@@ -354,8 +354,8 @@ dependencies = [
 
 [[package]]
 name = "cxx-qt-build"
-version = "0.7.2"
-source = "git+https://github.com/KDAB/cxx-qt#e0608cba60f5282d0e0efe1a46de34d697291742"
+version = "0.8.0"
+source = "git+https://github.com/KDAB/cxx-qt#c98fb6204d17c257a8f22594c88a2ac3350f6859"
 dependencies = [
  "cc",
  "codespan-reporting 0.11.1",
@@ -370,8 +370,8 @@ dependencies = [
 
 [[package]]
 name = "cxx-qt-gen"
-version = "0.7.2"
-source = "git+https://github.com/KDAB/cxx-qt#e0608cba60f5282d0e0efe1a46de34d697291742"
+version = "0.8.0"
+source = "git+https://github.com/KDAB/cxx-qt#c98fb6204d17c257a8f22594c88a2ac3350f6859"
 dependencies = [
  "clang-format",
  "convert_case",
@@ -384,8 +384,8 @@ dependencies = [
 
 [[package]]
 name = "cxx-qt-io"
-version = "0.2.0"
-source = "git+https://github.com/jnbooth/cxx-qt-io?rev=1d4bfd732ca78273c0dcccaa75dd0425b1e4a1c8#1d4bfd732ca78273c0dcccaa75dd0425b1e4a1c8"
+version = "0.3.1"
+source = "git+https://github.com/jnbooth/cxx-qt-io#187115d9155a2e9f23a00a1959dbf7efae94280d"
 dependencies = [
  "cxx",
  "cxx-qt",
@@ -397,8 +397,8 @@ dependencies = [
 
 [[package]]
 name = "cxx-qt-lib"
-version = "0.7.2"
-source = "git+https://github.com/KDAB/cxx-qt#e0608cba60f5282d0e0efe1a46de34d697291742"
+version = "0.8.0"
+source = "git+https://github.com/KDAB/cxx-qt#c98fb6204d17c257a8f22594c88a2ac3350f6859"
 dependencies = [
  "chrono",
  "cxx",
@@ -409,8 +409,8 @@ dependencies = [
 
 [[package]]
 name = "cxx-qt-macro"
-version = "0.7.2"
-source = "git+https://github.com/KDAB/cxx-qt#e0608cba60f5282d0e0efe1a46de34d697291742"
+version = "0.8.0"
+source = "git+https://github.com/KDAB/cxx-qt#c98fb6204d17c257a8f22594c88a2ac3350f6859"
 dependencies = [
  "cxx-qt-gen",
  "proc-macro2",
@@ -500,7 +500,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -1059,8 +1059,8 @@ dependencies = [
 
 [[package]]
 name = "qt-build-utils"
-version = "0.7.2"
-source = "git+https://github.com/KDAB/cxx-qt#e0608cba60f5282d0e0efe1a46de34d697291742"
+version = "0.8.0"
+source = "git+https://github.com/KDAB/cxx-qt#c98fb6204d17c257a8f22594c88a2ac3350f6859"
 dependencies = [
  "anyhow",
  "cc",
@@ -1134,7 +1134,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -1634,7 +1634,7 @@ dependencies = [
  "getrandom",
  "once_cell",
  "rustix",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -1867,7 +1867,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
