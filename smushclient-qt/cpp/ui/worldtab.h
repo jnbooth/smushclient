@@ -82,7 +82,6 @@ public:
   void start();
   void stopSound() const;
   constexpr const QString& title() const { return worldName; };
-  bool updateWorld();
   constexpr const QString& worldFilePath() const noexcept { return filePath; }
 
 public slots:

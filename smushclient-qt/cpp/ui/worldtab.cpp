@@ -442,12 +442,6 @@ WorldTab::stopSound() const
   api->StopSound();
 }
 
-bool
-WorldTab::updateWorld()
-{
-  return false;
-}
-
 // Public slots
 
 void

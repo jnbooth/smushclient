@@ -371,9 +371,10 @@ ScriptApi::SetOption(std::string_view name, int value)
     noteFormat.setForeground(QColor(value));
   else if (name == "note_background_colour")
     noteFormat.setBackground(QColor(value));
-  else if (name == "no_echo_off")
-    suppressEcho = value == 0;
-  else if (name == "enable_scripts") {
+  else if (name == "no_echo_off") {
+    if (value == 1)
+      suppressEcho = false;
+  } else if (name == "enable_scripts") {
     if (worldScriptIndex == noSuchPlugin)
       ;
     else if (value == 1)
