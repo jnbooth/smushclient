@@ -278,7 +278,9 @@ impl PluginEngine {
                     let Some(sender) = sender.borrow() else {
                         continue;
                     };
-                    if let Some(sound) = sender.sound() {
+                    if let Some(sound) = sender.sound()
+                        && world.enable_trigger_sounds
+                    {
                         handler.play_sound(sound);
                     }
                     sender.add_effects(effects);
