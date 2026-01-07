@@ -54,6 +54,7 @@ impl From<TryFromSliceError> for PersistError {
 pub enum SetOptionError {
     UnknownOption,
     OptionOutOfRange,
+    PluginCannotSetOption,
     LogError(io::Error),
 }
 
@@ -62,6 +63,7 @@ impl fmt::Display for SetOptionError {
         match self {
             Self::UnknownOption => f.write_str("unknown option"),
             Self::OptionOutOfRange => f.write_str("option out of range"),
+            Self::PluginCannotSetOption => f.write_str("plugin cannot set option"),
             Self::LogError(e) => e.fmt(f),
         }
     }

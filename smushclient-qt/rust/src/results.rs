@@ -111,6 +111,7 @@ impl From<SetOptionError> for ApiCode {
             SetOptionError::LogError(_) => Self::OK,
             SetOptionError::OptionOutOfRange => Self::OptionOutOfRange,
             SetOptionError::UnknownOption => Self::UnknownOption,
+            SetOptionError::PluginCannotSetOption => Self::PluginCannotSetOption,
         }
     }
 }

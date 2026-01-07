@@ -55,12 +55,6 @@ isEmptyList(const QVariant& variant)
   }
 }
 
-inline ApiCode
-updateWorld(WorldTab& worldtab)
-{
-  return worldtab.updateWorld() ? ApiCode::OK : ApiCode::OptionOutOfRange;
-}
-
 // Public static methods
 
 QStringList
@@ -188,9 +182,9 @@ ScriptApi::EnablePlugin(string_view pluginID, bool enabled)
 }
 
 VariableView
-ScriptApi::GetAlphaOption(string_view name) const
+ScriptApi::GetAlphaOption(size_t plugin, string_view name) const
 {
-  return client()->worldAlphaOption(byteSlice(name));
+  return client()->worldAlphaOption(plugin, byteSlice(name));
 }
 
 int
@@ -199,10 +193,16 @@ ScriptApi::GetLinesInBufferCount() const
   return cursor.document()->lineCount();
 }
 
-int
-ScriptApi::GetOption(string_view name) const
+QVariant
+ScriptApi::GetCurrentValue(size_t pluginIndex, string_view option) const
 {
-  return client()->worldOption(byteSlice(name));
+  return client()->worldVariantOption(pluginIndex, byteSlice(option));
+}
+
+int
+ScriptApi::GetOption(size_t plugin, string_view name) const
+{
+  return client()->worldOption(plugin, byteSlice(name));
 }
 
 VariableView
@@ -256,10 +256,7 @@ ScriptApi::PickColour(const QColor& hint) const
 }
 
 ApiCode
-ScriptApi::PlaySound(size_t channel,
-                     std::string_view path,
-                     bool loop,
-                     float volume)
+ScriptApi::PlaySound(size_t channel, string_view path, bool loop, float volume)
 {
   return client()->playFile(channel, byteSlice(path), volume, loop);
 }
@@ -334,9 +331,9 @@ ScriptApi::SendPacket(QByteArrayView view) const
 }
 
 ApiCode
-ScriptApi::SetAlphaOption(std::string_view name, std::string_view value)
+ScriptApi::SetAlphaOption(size_t plugin, string_view name, string_view value)
 {
-  return tab->setWorldAlphaOption(name, value);
+  return tab->setWorldAlphaOption(plugin, name, value);
 }
 
 ApiCode
@@ -347,9 +344,9 @@ ScriptApi::SetCursor(Qt::CursorShape cursorShape) const
 }
 
 ApiCode
-ScriptApi::SetOption(std::string_view name, int value)
+ScriptApi::SetOption(size_t plugin, string_view name, int value)
 {
-  const ApiCode code = tab->setWorldOption(name, value);
+  const ApiCode code = tab->setWorldOption(plugin, name, value);
   if (code != ApiCode::OK)
     return code;
 

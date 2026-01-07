@@ -123,11 +123,12 @@ public:
   QVariant GetAliasOption(size_t plugin,
                           std::string_view label,
                           std::string_view option) const;
-  VariableView GetAlphaOption(std::string_view name) const;
+  VariableView GetAlphaOption(size_t plugin, std::string_view name) const;
+  QVariant GetCurrentValue(size_t pluginIndex, std::string_view option) const;
   QVariant GetInfo(int infoType) const;
   QVariant GetLineInfo(int line, int infoType) const;
   int GetLinesInBufferCount() const;
-  int GetOption(std::string_view name) const;
+  int GetOption(size_t plugin, std::string_view name) const;
   const std::string& GetPluginID(size_t pluginIndex) const;
   QVariant GetPluginInfo(std::string_view pluginID, int infoType) const;
   QVariant GetStyleInfo(int line, int style, int infoType) const;
@@ -182,9 +183,11 @@ public:
                          std::string_view label,
                          std::string_view option,
                          std::string_view value) const;
-  ApiCode SetAlphaOption(std::string_view name, std::string_view value);
+  ApiCode SetAlphaOption(size_t plugin,
+                         std::string_view name,
+                         std::string_view value);
   ApiCode SetCursor(Qt::CursorShape cursor) const;
-  ApiCode SetOption(std::string_view name, int value);
+  ApiCode SetOption(size_t plugin, std::string_view name, int value);
   void SetStatus(const QString& status) const;
   ApiCode SetTimerOption(size_t plugin,
                          std::string_view label,

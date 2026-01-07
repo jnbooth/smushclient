@@ -77,8 +77,10 @@ public:
   void setOnDragMove(CallbackTrigger&& trigger);
   void setOnDragRelease(Hotspot* hotspot);
   void setStatusBarVisible(bool visible);
-  ApiCode setWorldOption(std::string_view name, int value);
-  ApiCode setWorldAlphaOption(std::string_view name, std::string_view value);
+  ApiCode setWorldOption(size_t pluginIndex, std::string_view name, int value);
+  ApiCode setWorldAlphaOption(size_t pluginIndex,
+                              std::string_view name,
+                              std::string_view value);
   void start();
   void stopSound() const;
   constexpr const QString& title() const { return worldName; };

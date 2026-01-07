@@ -3,7 +3,9 @@ use smushclient_plugins::SendTarget;
 
 use crate::LuaStr;
 
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum OptionValue<'a> {
+    #[default]
     Null,
     Alpha(&'a LuaStr),
     Color(RgbColor),

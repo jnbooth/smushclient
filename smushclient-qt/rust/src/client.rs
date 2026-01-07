@@ -7,7 +7,7 @@ use std::pin::Pin;
 
 use cxx_qt::casting::Downcast;
 use cxx_qt_io::{QAbstractSocket, QIODevice, QNetworkProxy, QNetworkProxyProxyType, QSslSocket};
-use cxx_qt_lib::{QByteArray, QString, QStringList, QVariant};
+use cxx_qt_lib::{QString, QStringList, QVariant};
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
@@ -16,6 +16,7 @@ use smushclient::{
 };
 use smushclient_plugins::{Alias, LoadError, PluginIndex, Timer, Trigger, XmlError};
 
+use crate::convert::Convert;
 use crate::ffi::{self, Document, Timekeeper};
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
@@ -491,14 +492,7 @@ impl SmushClientRust {
         let Some(sender) = self.client.borrow_sender::<T>(index, label) else {
             return QVariant::default();
         };
-        match sender.get_option(option) {
-            smushclient::OptionValue::Null => QVariant::default(),
-            smushclient::OptionValue::Alpha(s) => (&QByteArray::from(s)).into(),
-            smushclient::OptionValue::Color(color) => {
-                (&QByteArray::from(&color.to_string())).into()
-            }
-            smushclient::OptionValue::Numeric(i) => (&i).into(),
-        }
+        sender.get_option(option).convert()
     }
 
     pub fn set_sender_option<T: SendIterable + Optionable>(

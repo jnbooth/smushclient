@@ -108,7 +108,7 @@ pushQString(lua_State* L, const QString& string);
 void
 pushQStrings(lua_State* L, const QStringList& strings);
 void
-pushQVariant(lua_State* L, const QVariant& variant, bool intBools = false);
+pushQVariant(lua_State* L, const QVariant& variant);
 void
 pushQVariants(lua_State* L, const QVariantList& variants);
 const char*

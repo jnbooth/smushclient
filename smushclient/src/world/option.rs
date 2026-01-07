@@ -21,6 +21,13 @@ const fn code_color(code: i32) -> Result<RgbColor, SetOptionError> {
     }
 }
 
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum OptionCaller {
+    #[default]
+    WorldScript,
+    Plugin,
+}
+
 impl World {
     pub const INT_OPTIONS: &[&str] = &[
         "carriage_return_clears_line",
@@ -71,8 +78,8 @@ impl World {
         "write_world_name_to_log",
     ];
 
-    pub fn option_int(&self, option: &LuaStr) -> i32 {
-        match option {
+    pub fn option_int(&self, _: OptionCaller, option: &LuaStr) -> Option<i32> {
+        Some(match option {
             b"carriage_return_clears_line" => self.carriage_return_clears_line.into(),
             b"convert_ga_to_newline" => self.convert_ga_to_newline.into(),
             b"connect_method" => self.connect_method as i32,
@@ -119,11 +126,16 @@ impl World {
             b"use_mxp" => self.use_mxp as i32,
             b"utf_8" => self.utf_8.into(),
             b"write_world_name_to_log" => self.write_world_name_to_log.into(),
-            _ => -1,
-        }
+            _ => return None,
+        })
     }
 
-    pub fn set_option_int(&mut self, option: &LuaStr, value: i32) -> Result<(), SetOptionError> {
+    pub fn set_option_int(
+        &mut self,
+        caller: OptionCaller,
+        option: &LuaStr,
+        value: i32,
+    ) -> Result<(), SetOptionError> {
         let on = match value {
             0 => Ok(false),
             1 => Ok(true),
@@ -192,8 +204,6 @@ impl World {
             b"naws" => self.naws = on?,
             b"note_text_colour" => self.note_text_colour = Some(code_color(value)?),
             b"no_echo_off" => self.no_echo_off = on?,
-            b"port" => self.port = u16::try_from(value)?,
-            b"proxy_port" => self.proxy_port = u16::try_from(value)?,
             b"save_world_automatically" => self.save_world_automatically = on?,
             b"script_errors_to_output_window" => self.script_errors_to_output_window = on?,
             b"script_reload_option" => {
@@ -221,6 +231,11 @@ impl World {
             }
             b"utf_8" => self.utf_8 = on?,
             b"write_world_name_to_log" => self.write_world_name_to_log = on?,
+            _ if caller == OptionCaller::Plugin => {
+                return Err(SetOptionError::PluginCannotSetOption);
+            }
+            b"port" => self.port = u16::try_from(value)?,
+            b"proxy_port" => self.proxy_port = u16::try_from(value)?,
             _ => return Err(SetOptionError::UnknownOption),
         }
         Ok(())
@@ -249,35 +264,41 @@ impl World {
         "terminal_identification",
     ];
 
-    pub fn option_str(&self, option: &LuaStr) -> &LuaStr {
-        match option {
-            b"auto_log_file_name" => self.auto_log_file_name.as_deref().unwrap_or_default(),
-            b"command_stack_character" => return slice::from_ref(&self.command_stack_character),
-            b"connect_text" => &self.connect_text,
-            b"log_file_postamble" => &self.log_file_postamble,
-            b"log_file_preamble" => &self.log_file_preamble,
-            b"log_line_postamble_input" => &self.log_line_postamble_input,
-            b"log_line_postamble_notes" => &self.log_line_postamble_notes,
-            b"log_line_postamble_output" => &self.log_line_postamble_output,
-            b"log_line_preamble_input" => &self.log_line_preamble_input,
-            b"log_line_preamble_notes" => &self.log_line_preamble_notes,
-            b"log_line_preamble_output" => &self.log_line_preamble_output,
-            b"name" => &self.name,
-            b"new_activity_sound" => self.new_activity_sound.as_deref().unwrap_or_default(),
-            b"password" => &self.password,
-            b"player" => &self.player,
-            b"proxy_server" => &self.proxy_server,
-            b"proxy_username" => &self.proxy_username,
-            b"proxy_password" => &self.proxy_password,
-            b"site" => &self.site,
-            b"terminal_identification" => &self.terminal_identification,
-            _ => "",
-        }
-        .as_bytes()
+    pub fn option_str(&self, caller: OptionCaller, option: &LuaStr) -> Option<&LuaStr> {
+        Some(
+            match option {
+                b"auto_log_file_name" => self.auto_log_file_name.as_deref().unwrap_or_default(),
+                b"command_stack_character" => {
+                    return Some(slice::from_ref(&self.command_stack_character));
+                }
+                b"connect_text" => &self.connect_text,
+                b"log_file_postamble" => &self.log_file_postamble,
+                b"log_file_preamble" => &self.log_file_preamble,
+                b"log_line_postamble_input" => &self.log_line_postamble_input,
+                b"log_line_postamble_notes" => &self.log_line_postamble_notes,
+                b"log_line_postamble_output" => &self.log_line_postamble_output,
+                b"log_line_preamble_input" => &self.log_line_preamble_input,
+                b"log_line_preamble_notes" => &self.log_line_preamble_notes,
+                b"log_line_preamble_output" => &self.log_line_preamble_output,
+                b"name" => &self.name,
+                b"new_activity_sound" => self.new_activity_sound.as_deref().unwrap_or_default(),
+                b"player" => &self.player,
+                b"proxy_username" => &self.proxy_username,
+                b"site" => &self.site,
+                b"terminal_identification" => &self.terminal_identification,
+                _ if caller == OptionCaller::Plugin => return None,
+                b"password" => &self.password,
+                b"proxy_password" => &self.proxy_password,
+                b"proxy_server" => &self.proxy_server,
+                _ => return None,
+            }
+            .as_bytes(),
+        )
     }
 
     pub fn set_option_str(
         &mut self,
+        caller: OptionCaller,
         option: &LuaStr,
         value: LuaString,
     ) -> Result<(), SetOptionError> {
@@ -299,17 +320,20 @@ impl World {
             b"log_line_preamble_input" => self.log_line_preamble_input = value,
             b"log_line_preamble_notes" => self.log_line_preamble_notes = value,
             b"log_line_preamble_output" => self.log_line_preamble_output = value,
-            b"name" => self.name = value,
             b"new_activity_sound" => {
                 self.new_activity_sound = if value.is_empty() { None } else { Some(value) }
             }
+            b"terminal_identification" => self.terminal_identification = value,
+            _ if caller == OptionCaller::Plugin => {
+                return Err(SetOptionError::PluginCannotSetOption);
+            }
+            b"name" => self.name = value,
             b"password" => self.password = value,
             b"player" => self.player = value,
             b"proxy_server" => self.proxy_server = value,
             b"proxy_username" => self.proxy_username = value,
             b"proxy_password" => self.proxy_password = value,
             b"site" => self.site = value,
-            b"terminal_identification" => self.terminal_identification = value,
             _ => return Err(SetOptionError::UnknownOption),
         }
         Ok(())

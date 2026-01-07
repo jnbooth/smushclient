@@ -370,9 +370,10 @@ WorldTab::setStatusBarVisible(bool visible)
 }
 
 ApiCode
-WorldTab::setWorldOption(std::string_view name, int value)
+WorldTab::setWorldOption(size_t pluginIndex, std::string_view name, int value)
 {
-  const ApiCode result = client.setWorldOption(byteSlice(name), value);
+  const ApiCode result =
+    client.setWorldOption(pluginIndex, byteSlice(name), value);
   if (result != ApiCode::OK)
     return result;
 
@@ -389,10 +390,12 @@ WorldTab::setWorldOption(std::string_view name, int value)
 }
 
 ApiCode
-WorldTab::setWorldAlphaOption(std::string_view name, std::string_view value)
+WorldTab::setWorldAlphaOption(size_t pluginIndex,
+                              std::string_view name,
+                              std::string_view value)
 {
   const ApiCode result =
-    client.setWorldAlphaOption(byteSlice(name), byteSlice(value));
+    client.setWorldAlphaOption(pluginIndex, byteSlice(name), byteSlice(value));
   if (result != ApiCode::OK)
     return result;
 

@@ -5,6 +5,7 @@ mod escaping;
 pub use escaping::{Escaped, EscapedBrackets, LogBrackets};
 
 mod option;
+pub use option::OptionCaller;
 
 mod sender_map;
 pub use sender_map::SenderMap;

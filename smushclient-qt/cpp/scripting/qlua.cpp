@@ -510,7 +510,7 @@ qlua::pushQStrings(lua_State* L, const QStringList& strings)
 }
 
 void
-qlua::pushQVariant(lua_State* L, const QVariant& variant, bool intBools)
+qlua::pushQVariant(lua_State* L, const QVariant& variant)
 {
   QMetaType type = variant.metaType();
   switch (type.id()) {
@@ -519,10 +519,7 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant, bool intBools)
       lua_pushnil(L);
       return;
     case QMetaType::Bool:
-      if (intBools)
-        lua_pushinteger(L, variant.toBool());
-      else
-        lua_pushboolean(L, variant.toBool());
+      lua_pushboolean(L, variant.toBool());
       return;
     case QMetaType::Int:
     case QMetaType::UInt:

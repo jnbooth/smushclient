@@ -77,11 +77,18 @@ pub mod ffi {
         fn connect_to_host(self: &SmushClient, socket: Pin<&mut QAbstractSocket>);
         fn handle_connect(self: &SmushClient, socket: Pin<&mut QAbstractSocket>) -> QString;
         fn handle_disconnect(self: Pin<&mut SmushClient>);
-        fn world_option(self: &SmushClient, option: &[u8]) -> i32;
-        fn world_alpha_option(self: &SmushClient, option: &[u8]) -> VariableView;
-        fn set_world_option(self: Pin<&mut SmushClient>, option: &[u8], value: i32) -> ApiCode;
+        fn world_option(self: &SmushClient, index: usize, option: &[u8]) -> i32;
+        fn world_alpha_option(self: &SmushClient, index: usize, option: &[u8]) -> VariableView;
+        fn world_variant_option(self: &SmushClient, index: usize, option: &[u8]) -> QVariant;
+        fn set_world_option(
+            self: Pin<&mut SmushClient>,
+            index: usize,
+            option: &[u8],
+            value: i32,
+        ) -> ApiCode;
         fn set_world_alpha_option(
             self: Pin<&mut SmushClient>,
+            index: usize,
             option: &[u8],
             value: &[u8],
         ) -> ApiCode;

@@ -12,12 +12,13 @@ use tokio::io::{AsyncRead, AsyncReadExt};
 use super::logger::Logger;
 use super::variables::PluginVariables;
 use super::variables::{LuaStr, LuaString};
+use crate::OptionValue;
 use crate::collections::SortOnDrop;
 use crate::handler::Handler;
 use crate::plugins::{
     AliasOutcome, CommandSource, LoadFailure, PluginEngine, SendIterable, SenderAccessError,
 };
-use crate::world::{PersistError, SetOptionError, World};
+use crate::world::{OptionCaller, PersistError, SetOptionError, World};
 
 const METAVARIABLES_KEY: &str = "\x01";
 
@@ -136,16 +137,46 @@ impl SmushClient {
         Ok(true)
     }
 
-    pub fn world_option(&self, option: &LuaStr) -> i32 {
-        self.world.option_int(option)
+    fn option_caller(&self, index: PluginIndex) -> OptionCaller {
+        let Some(plugin) = self.plugin(index) else {
+            return OptionCaller::WorldScript;
+        };
+        if plugin.metadata.is_world_plugin {
+            OptionCaller::WorldScript
+        } else {
+            OptionCaller::Plugin
+        }
     }
 
-    pub fn world_alpha_option(&self, option: &LuaStr) -> &LuaStr {
-        self.world.option_str(option)
+    pub fn world_option(&self, index: PluginIndex, option: &LuaStr) -> Option<i32> {
+        let caller = self.option_caller(index);
+        self.world.option_int(caller, option)
     }
 
-    pub fn set_world_option(&mut self, option: &LuaStr, value: i32) -> Result<(), SetOptionError> {
-        self.world.set_option_int(option, value)?;
+    pub fn world_alpha_option(&self, index: PluginIndex, option: &LuaStr) -> Option<&LuaStr> {
+        let caller = self.option_caller(index);
+        self.world.option_str(caller, option)
+    }
+
+    pub fn world_variant_option(&self, index: PluginIndex, option: &LuaStr) -> OptionValue<'_> {
+        let caller = self.option_caller(index);
+        if let Some(value) = self.world.option_int(caller, option) {
+            OptionValue::Numeric(value)
+        } else if let Some(value) = self.world.option_str(caller, option) {
+            OptionValue::Alpha(value)
+        } else {
+            OptionValue::Null
+        }
+    }
+
+    pub fn set_world_option(
+        &mut self,
+        index: PluginIndex,
+        option: &LuaStr,
+        value: i32,
+    ) -> Result<(), SetOptionError> {
+        let caller = self.option_caller(index);
+        self.world.set_option_int(caller, option, value)?;
         match option {
             b"connect_method"
             | b"convert_ga_to_newline"
@@ -163,10 +194,12 @@ impl SmushClient {
 
     pub fn set_world_alpha_option(
         &mut self,
+        index: PluginIndex,
         option: &LuaStr,
         value: LuaString,
     ) -> Result<(), SetOptionError> {
-        self.world.set_option_str(option, value)?;
+        let caller = self.option_caller(index);
+        self.world.set_option_str(caller, option, value)?;
         if option.starts_with(b"log_") {
             self.update_logger()?;
             return Ok(());

@@ -311,7 +311,8 @@ L_GetAlphaOption(lua_State* L)
 {
   API("GetAlphaOption")
   expectMaxArgs(L, 1);
-  const QVariant option = getApi(L).GetOption(qlua::getString(L, 1));
+  const QVariant option =
+    getApi(L).GetOption(getPluginIndex(L), qlua::getString(L, 1));
   QString value = option.toString();
   if (value.isEmpty() && option.canConvert<QColor>())
     value = option.value<QColor>().name();
@@ -333,7 +334,8 @@ L_GetCurrentValue(lua_State* L)
 {
   API("GetCurrentValue")
   expectMaxArgs(L, 1);
-  qlua::pushQVariant(L, getApi(L).GetOption(qlua::getString(L, 1)), true);
+  qlua::pushQVariant(
+    L, getApi(L).GetCurrentValue(getPluginIndex(L), qlua::getString(L, 1)));
   return 1;
 }
 
@@ -342,7 +344,8 @@ L_GetOption(lua_State* L)
 {
   API("GetOption")
   expectMaxArgs(L, 1);
-  const QVariant option = getApi(L).GetOption(qlua::getString(L, 1));
+  const QVariant option =
+    getApi(L).GetOption(getPluginIndex(L), qlua::getString(L, 1));
   const QMetaType type = option.metaType();
   switch (type.id()) {
     case QMetaType::Double:
@@ -376,7 +379,8 @@ L_SetAlphaOption(lua_State* L)
 {
   API("SetAlphaOption")
   expectMaxArgs(L, 2);
-  getApi(L).SetAlphaOption(qlua::getString(L, 1), qlua::getString(L, 2));
+  getApi(L).SetAlphaOption(
+    getPluginIndex(L), qlua::getString(L, 1), qlua::getString(L, 2));
   return 1;
 }
 
@@ -385,7 +389,8 @@ L_SetOption(lua_State* L)
 {
   API("SetOption")
   expectMaxArgs(L, 2);
-  getApi(L).SetOption(qlua::getString(L, 1), qlua::getNumberOrBool(L, 2, 0));
+  getApi(L).SetOption(
+    getPluginIndex(L), qlua::getString(L, 1), qlua::getNumberOrBool(L, 2, 0));
   return 1;
 }
 

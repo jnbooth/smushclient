@@ -11,6 +11,7 @@ use smushclient_plugins::{
     Alias, LoadError, PluginIndex, RegexError, Timer, Trigger, XmlError, XmlSerError,
 };
 
+use crate::convert::Convert;
 use crate::ffi::AliasOutcomes;
 use crate::ffi::{self, VariableView};
 use crate::get_info::InfoVisitorQVariant;
@@ -74,29 +75,46 @@ impl ffi::SmushClient {
         self.rust_mut().handle_disconnect();
     }
 
-    pub fn world_alpha_option(&self, option: &LuaStr) -> VariableView {
-        self.rust().client.world_alpha_option(option).into()
+    pub fn world_alpha_option(&self, index: PluginIndex, option: &LuaStr) -> VariableView {
+        self.rust()
+            .client
+            .world_alpha_option(index, option)
+            .unwrap_or(b"")
+            .into()
     }
 
-    pub fn world_option(&self, option: &LuaStr) -> i32 {
-        self.rust().client.world_option(option)
+    pub fn world_option(&self, index: PluginIndex, option: &LuaStr) -> i32 {
+        self.rust().client.world_option(index, option).unwrap_or(-1)
+    }
+
+    pub fn world_variant_option(&self, index: PluginIndex, option: &LuaStr) -> QVariant {
+        self.rust()
+            .client
+            .world_variant_option(index, option)
+            .convert()
     }
 
     pub fn set_world_alpha_option(
         self: Pin<&mut Self>,
+        index: PluginIndex,
         option: &LuaStr,
         value: &LuaStr,
     ) -> ffi::ApiCode {
         self.rust_mut()
             .client
-            .set_world_alpha_option(option, value.to_vec())
+            .set_world_alpha_option(index, option, value.to_vec())
             .code()
     }
 
-    pub fn set_world_option(self: Pin<&mut Self>, option: &LuaStr, value: i32) -> ffi::ApiCode {
+    pub fn set_world_option(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+        option: &LuaStr,
+        value: i32,
+    ) -> ffi::ApiCode {
         self.rust_mut()
             .client
-            .set_world_option(option, value)
+            .set_world_option(index, option, value)
             .code()
     }
 
