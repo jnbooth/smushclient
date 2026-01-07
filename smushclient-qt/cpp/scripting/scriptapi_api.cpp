@@ -9,7 +9,6 @@
 #include "smushclient_qt/src/ffi/document.cxxqt.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
 #include "sqlite3.h"
-#include "worldproperties.h"
 #include <QtCore/QFile>
 #include <QtGui/QClipboard>
 #include <QtGui/QGradient>
@@ -64,6 +63,18 @@ updateWorld(WorldTab& worldtab)
 
 // Public static methods
 
+QStringList
+ScriptApi::GetAlphaOptionList() noexcept
+{
+  return ffi::getAlphaOptionList();
+}
+
+QStringList
+ScriptApi::GetOptionList() noexcept
+{
+  return ffi::getOptionList();
+}
+
 int
 ScriptApi::GetUniqueNumber() noexcept
 {
@@ -109,9 +120,9 @@ ScriptApi::ColourTell(const QColor& foreground,
 {
   QTextCharFormat format = cursor.charFormat();
   if (foreground.isValid())
-    format.setForeground(QBrush(foreground));
+    format.setForeground(foreground);
   if (background.isValid())
-    format.setBackground(QBrush(background));
+    format.setBackground(background);
   appendTell(text, format);
 }
 
@@ -176,16 +187,22 @@ ScriptApi::EnablePlugin(string_view pluginID, bool enabled)
   return ApiCode::OK;
 }
 
+VariableView
+ScriptApi::GetAlphaOption(string_view name) const
+{
+  return client()->worldAlphaOption(byteSlice(name));
+}
+
 int
 ScriptApi::GetLinesInBufferCount() const
 {
   return cursor.document()->lineCount();
 }
 
-QVariant
+int
 ScriptApi::GetOption(string_view name) const
 {
-  return QVariant();
+  return client()->worldOption(byteSlice(name));
 }
 
 VariableView
@@ -317,6 +334,12 @@ ScriptApi::SendPacket(QByteArrayView view) const
 }
 
 ApiCode
+ScriptApi::SetAlphaOption(std::string_view name, std::string_view value)
+{
+  return tab->setWorldAlphaOption(name, value);
+}
+
+ApiCode
 ScriptApi::SetCursor(Qt::CursorShape cursorShape) const
 {
   tab->ui->area->setCursor(cursorShape);
@@ -324,9 +347,42 @@ ScriptApi::SetCursor(Qt::CursorShape cursorShape) const
 }
 
 ApiCode
-ScriptApi::SetOption(string_view name, const QVariant& variant) const
+ScriptApi::SetOption(std::string_view name, int value)
 {
-  return ApiCode::OptionOutOfRange;
+  const ApiCode code = tab->setWorldOption(name, value);
+  if (code != ApiCode::OK)
+    return code;
+
+  if (name == "echo_colour")
+    echoFormat.setForeground(QColor(value));
+  else if (name == "echo_background_colour")
+    echoFormat.setBackground(QColor(value));
+  else if (name == "error_text_colour")
+    errorFormat.setForeground(QColor(value));
+  else if (name == "error_background_colour")
+    errorFormat.setBackground(QColor(value));
+  else if (name == "indent_paras")
+    indentText = QStringLiteral(" ").repeated(value);
+  else if (name == "keep_commands_on_same_line")
+    echoOnSameLine = value == 1;
+  else if (name == "naws")
+    doNaws = value == 1;
+  else if (name == "note_text_colour")
+    noteFormat.setForeground(QColor(value));
+  else if (name == "note_background_colour")
+    noteFormat.setBackground(QColor(value));
+  else if (name == "no_echo_off")
+    suppressEcho = value == 0;
+  else if (name == "enable_scripts") {
+    if (worldScriptIndex == noSuchPlugin)
+      ;
+    else if (value == 1)
+      plugins[worldScriptIndex].enable();
+    else
+      plugins[worldScriptIndex].disable();
+  }
+
+  return code;
 }
 
 void

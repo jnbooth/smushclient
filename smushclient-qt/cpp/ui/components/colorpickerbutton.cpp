@@ -76,9 +76,9 @@ ColorPickerButton::sizeHint() const
 void
 ColorPickerButton::paintEvent(QPaintEvent* event)
 {
-  static const QPen borderDownPen(QBrush(Qt::GlobalColor::white), 1);
-  static const QPen borderUpPen(QBrush(Qt::GlobalColor::black), 1);
-  static const QPen borderFocusedPen(QBrush(Qt::GlobalColor::darkBlue), 1);
+  static const QPen borderDownPen(Qt::GlobalColor::white, 1);
+  static const QPen borderUpPen(Qt::GlobalColor::black, 1);
+  static const QPen borderFocusedPen(Qt::GlobalColor::darkBlue, 1);
 
   const QRect& eventRect = event->rect();
 

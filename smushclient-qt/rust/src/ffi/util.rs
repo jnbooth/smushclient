@@ -1,4 +1,4 @@
-use cxx_qt_lib::{QByteArray, QColor, QString, QVector};
+use cxx_qt_lib::{QByteArray, QColor, QString, QStringList, QVector};
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::naws;
 use smushclient::LuaStr;
@@ -12,6 +12,26 @@ fn ansi16() -> QVector<QColor> {
 
 fn encode_naws(width: u16, height: u16) -> QByteArray {
     QByteArray::from(naws(width, height).as_slice())
+}
+
+fn get_alpha_option_list() -> QStringList {
+    let mut list = QStringList::default();
+    list.extend(
+        smushclient::World::STR_OPTIONS
+            .iter()
+            .map(|&s| QString::from(s)),
+    );
+    list
+}
+
+fn get_option_list() -> QStringList {
+    let mut list = QStringList::default();
+    list.extend(
+        smushclient::World::INT_OPTIONS
+            .iter()
+            .map(|&s| QString::from(s)),
+    );
+    list
 }
 
 fn make_regex_from_wildcards(pattern: &LuaStr) -> QString {
@@ -65,6 +85,8 @@ mod ffi {
         type QColor = cxx_qt_lib::QColor;
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
+        include!("cxx-qt-lib/qstringlist.h");
+        type QStringList = cxx_qt_lib::QStringList;
         include!("cxx-qt-lib/qvector.h");
         type QVector_QColor = cxx_qt_lib::QVector<QColor>;
     }
@@ -80,6 +102,12 @@ mod ffi {
 
         #[cxx_name = "encodeNaws"]
         fn encode_naws(width: u16, height: u16) -> QByteArray;
+
+        #[cxx_name = "getAlphaOptionList"]
+        fn get_alpha_option_list() -> QStringList;
+
+        #[cxx_name = "getOptionList"]
+        fn get_option_list() -> QStringList;
 
         #[cxx_name = "makeRegexFromWildcards"]
         fn make_regex_from_wildcards(pattern: &[u8]) -> QString;

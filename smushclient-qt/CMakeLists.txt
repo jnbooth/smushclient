@@ -114,7 +114,6 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/scriptapi_window.cpp
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
     cpp/scripting/scriptthread.h cpp/scripting/scriptthread.cpp
-    cpp/scripting/worldproperties.h cpp/scripting/worldproperties.cpp
 
     cpp/ui/finddialog.h cpp/ui/finddialog.cpp cpp/ui/finddialog.ui
     cpp/ui/mainwindow.h cpp/ui/mainwindow.cpp cpp/ui/mainwindow.ui

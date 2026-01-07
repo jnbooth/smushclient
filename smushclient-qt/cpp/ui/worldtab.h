@@ -3,6 +3,7 @@
 #include "../client.h"
 #include "../hotkeys.h"
 #include "../scripting/callbacktrigger.h"
+#include "../scripting/scriptenums.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include <QtCore/QFileSystemWatcher>
 #include <QtCore/QPointer>
@@ -76,6 +77,8 @@ public:
   void setOnDragMove(CallbackTrigger&& trigger);
   void setOnDragRelease(Hotspot* hotspot);
   void setStatusBarVisible(bool visible);
+  ApiCode setWorldOption(std::string_view name, int value);
+  ApiCode setWorldAlphaOption(std::string_view name, std::string_view value);
   void start();
   void stopSound() const;
   constexpr const QString& title() const { return worldName; };

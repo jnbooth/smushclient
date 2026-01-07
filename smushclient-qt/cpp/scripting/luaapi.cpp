@@ -7,7 +7,6 @@
 #include "scriptthread.h"
 #include "smushclient_qt/src/ffi/client.cxxqt.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
-#include "worldproperties.h"
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QPointer>
 extern "C"
@@ -325,7 +324,7 @@ L_GetAlphaOptionList(lua_State* L)
 {
   API("GetAlphaOptionList")
   expectMaxArgs(L, 0);
-  qlua::pushStrings(L, WorldProperties::stringOptions());
+  qlua::pushQStrings(L, ScriptApi::GetAlphaOptionList());
   return 1;
 }
 
@@ -368,7 +367,7 @@ L_GetOptionList(lua_State* L)
 {
   API("GetOptionList")
   expectMaxArgs(L, 0);
-  qlua::pushStrings(L, WorldProperties::numericOptions());
+  qlua::pushQStrings(L, ScriptApi::GetOptionList());
   return 1;
 }
 
@@ -377,7 +376,7 @@ L_SetAlphaOption(lua_State* L)
 {
   API("SetAlphaOption")
   expectMaxArgs(L, 2);
-  getApi(L).SetOption(qlua::getString(L, 1), qlua::getQString(L, 2));
+  getApi(L).SetAlphaOption(qlua::getString(L, 1), qlua::getString(L, 2));
   return 1;
 }
 

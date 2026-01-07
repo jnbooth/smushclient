@@ -77,6 +77,14 @@ pub mod ffi {
         fn connect_to_host(self: &SmushClient, socket: Pin<&mut QAbstractSocket>);
         fn handle_connect(self: &SmushClient, socket: Pin<&mut QAbstractSocket>) -> QString;
         fn handle_disconnect(self: Pin<&mut SmushClient>);
+        fn world_option(self: &SmushClient, option: &[u8]) -> i32;
+        fn world_alpha_option(self: &SmushClient, option: &[u8]) -> VariableView;
+        fn set_world_option(self: Pin<&mut SmushClient>, option: &[u8], value: i32) -> ApiCode;
+        fn set_world_alpha_option(
+            self: Pin<&mut SmushClient>,
+            option: &[u8],
+            value: &[u8],
+        ) -> ApiCode;
         fn play_file(
             self: &SmushClient,
             i: usize,
@@ -251,5 +259,6 @@ pub mod ffi {
         fn stop_aliases(self: &SmushClient);
         fn stop_timers(self: &SmushClient);
         fn stop_triggers(self: &SmushClient);
+        fn command_splitter(self: &SmushClient) -> u8;
     }
 }

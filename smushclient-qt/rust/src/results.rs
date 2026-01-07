@@ -1,5 +1,6 @@
 use std::io;
 
+use smushclient::world::SetOptionError;
 use smushclient::{AudioError, OptionError, SenderAccessError};
 use smushclient_plugins::{Alias, Timer, Trigger};
 
@@ -92,14 +93,24 @@ impl From<AudioError> for ApiCode {
 impl From<OptionError> for ApiCode {
     fn from(value: OptionError) -> Self {
         match value {
-            OptionError::InvalidObjectLabel => ApiCode::InvalidObjectLabel,
-            OptionError::AliasCannotBeEmpty => ApiCode::AliasCannotBeEmpty,
-            OptionError::TriggerCannotBeEmpty => ApiCode::TriggerCannotBeEmpty,
-            OptionError::ScriptNameNotLocated => ApiCode::ScriptNameNotLocated,
-            OptionError::BadRegularExpression => ApiCode::BadRegularExpression,
-            OptionError::PluginCannotSetOption => ApiCode::PluginCannotSetOption,
-            OptionError::OptionOutOfRange => ApiCode::OptionOutOfRange,
-            OptionError::UnknownOption => ApiCode::UnknownOption,
+            OptionError::InvalidObjectLabel => Self::InvalidObjectLabel,
+            OptionError::AliasCannotBeEmpty => Self::AliasCannotBeEmpty,
+            OptionError::TriggerCannotBeEmpty => Self::TriggerCannotBeEmpty,
+            OptionError::ScriptNameNotLocated => Self::ScriptNameNotLocated,
+            OptionError::BadRegularExpression => Self::BadRegularExpression,
+            OptionError::PluginCannotSetOption => Self::PluginCannotSetOption,
+            OptionError::OptionOutOfRange => Self::OptionOutOfRange,
+            OptionError::UnknownOption => Self::UnknownOption,
+        }
+    }
+}
+
+impl From<SetOptionError> for ApiCode {
+    fn from(value: SetOptionError) -> Self {
+        match value {
+            SetOptionError::LogError(_) => Self::OK,
+            SetOptionError::OptionOutOfRange => Self::OptionOutOfRange,
+            SetOptionError::UnknownOption => Self::UnknownOption,
         }
     }
 }

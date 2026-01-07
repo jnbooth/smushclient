@@ -74,6 +74,32 @@ impl ffi::SmushClient {
         self.rust_mut().handle_disconnect();
     }
 
+    pub fn world_alpha_option(&self, option: &LuaStr) -> VariableView {
+        self.rust().client.world_alpha_option(option).into()
+    }
+
+    pub fn world_option(&self, option: &LuaStr) -> i32 {
+        self.rust().client.world_option(option)
+    }
+
+    pub fn set_world_alpha_option(
+        self: Pin<&mut Self>,
+        option: &LuaStr,
+        value: &LuaStr,
+    ) -> ffi::ApiCode {
+        self.rust_mut()
+            .client
+            .set_world_alpha_option(option, value.to_vec())
+            .code()
+    }
+
+    pub fn set_world_option(self: Pin<&mut Self>, option: &LuaStr, value: i32) -> ffi::ApiCode {
+        self.rust_mut()
+            .client
+            .set_world_option(option, value)
+            .code()
+    }
+
     pub fn plugin_info(&self, index: PluginIndex, info_type: u8) -> QVariant {
         self.rust()
             .client
@@ -573,5 +599,14 @@ impl ffi::SmushClient {
 
     pub fn stop_triggers(&self) {
         self.rust().client.stop_evaluating::<Trigger>();
+    }
+
+    pub fn command_splitter(&self) -> u8 {
+        let world = self.rust().client.world();
+        if world.enable_command_stack {
+            world.command_stack_character
+        } else {
+            b'\n'
+        }
     }
 }

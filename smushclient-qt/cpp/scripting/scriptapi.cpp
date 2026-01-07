@@ -93,12 +93,12 @@ ScriptApi::applyWorld(const World& world)
     suppressEcho = false;
 
   indentText = QStringLiteral(" ").repeated(world.getIndentParas());
-  echoFormat.setForeground(QBrush(world.getEchoColour()));
-  echoFormat.setBackground(QBrush(world.getEchoBackgroundColour()));
-  errorFormat.setForeground(QBrush(world.getErrorTextColour()));
-  errorFormat.setBackground(QBrush(world.getErrorBackgroundColour()));
-  noteFormat.setForeground(QBrush(world.getNoteTextColour()));
-  noteFormat.setBackground(QBrush(world.getNoteBackgroundColour()));
+  echoFormat.setForeground(world.getEchoColour());
+  echoFormat.setBackground(world.getEchoBackgroundColour());
+  errorFormat.setForeground(world.getErrorTextColour());
+  errorFormat.setBackground(world.getErrorBackgroundColour());
+  noteFormat.setForeground(world.getNoteTextColour());
+  noteFormat.setBackground(world.getNoteBackgroundColour());
 
   if (worldScriptIndex == noSuchPlugin)
     return;

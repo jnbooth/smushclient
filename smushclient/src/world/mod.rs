@@ -1,8 +1,10 @@
 mod error;
-pub use error::PersistError;
+pub use error::{PersistError, SetOptionError};
 
 mod escaping;
 pub use escaping::{Escaped, EscapedBrackets, LogBrackets};
+
+mod option;
 
 mod sender_map;
 pub use sender_map::SenderMap;

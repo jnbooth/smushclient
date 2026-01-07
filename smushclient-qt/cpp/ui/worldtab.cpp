@@ -369,6 +369,43 @@ WorldTab::setStatusBarVisible(bool visible)
   api->statusBarWidgets()->setVisible(visible);
 }
 
+ApiCode
+WorldTab::setWorldOption(std::string_view name, int value)
+{
+  const ApiCode result = client.setWorldOption(byteSlice(name), value);
+  if (result != ApiCode::OK)
+    return result;
+
+  if (name == "keypad_enable") {
+    handleKeypad = value == 1;
+    ui->input->setIgnoreKeypad(handleKeypad);
+    ui->output->setIgnoreKeypad(handleKeypad);
+  } else if (name == "enable_command_stack")
+    splitOn = QLatin1Char(client.commandSplitter());
+  else if (name == "script_reload_option")
+    scriptReloadOption = (ScriptRecompile)value;
+
+  return result;
+}
+
+ApiCode
+WorldTab::setWorldAlphaOption(std::string_view name, std::string_view value)
+{
+  const ApiCode result =
+    client.setWorldAlphaOption(byteSlice(name), byteSlice(value));
+  if (result != ApiCode::OK)
+    return result;
+
+  if (name == "command_stack_character")
+    splitOn = QLatin1Char(client.commandSplitter());
+  else if (name == "name")
+    worldName = QString::fromUtf8(value.data(), value.size());
+  else if (name == "script_path")
+    worldScriptPath = QString::fromUtf8(value.data(), value.size());
+
+  return result;
+}
+
 void
 WorldTab::start()
 {
@@ -532,9 +569,7 @@ WorldTab::applyWorld(const World& world)
   hotkeys.applyWorld(world);
   api->applyWorld(world);
   updateWorldScript();
-  splitOn = world.getEnableCommandStack()
-              ? QChar(QLatin1Char(world.getCommandStackCharacter()))
-              : QChar(u'\n');
+  splitOn = QLatin1Char(client.commandSplitter());
 }
 
 void

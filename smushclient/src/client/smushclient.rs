@@ -17,7 +17,7 @@ use crate::handler::Handler;
 use crate::plugins::{
     AliasOutcome, CommandSource, LoadFailure, PluginEngine, SendIterable, SenderAccessError,
 };
-use crate::world::{PersistError, World};
+use crate::world::{PersistError, SetOptionError, World};
 
 const METAVARIABLES_KEY: &str = "\x01";
 
@@ -83,6 +83,10 @@ impl SmushClient {
         }
     }
 
+    fn update_logger(&self) -> io::Result<()> {
+        self.logger.borrow_mut().apply_world(&self.world)
+    }
+
     fn update_config(&mut self) {
         self.transformer.set_config(self.create_config());
     }
@@ -128,8 +132,51 @@ impl SmushClient {
         self.world = world;
         self.plugins.set_world_plugin(self.world.world_plugin());
         self.update_config();
-        self.logger.borrow_mut().apply_world(&self.world)?;
+        self.update_logger()?;
         Ok(true)
+    }
+
+    pub fn world_option(&self, option: &LuaStr) -> i32 {
+        self.world.option_int(option)
+    }
+
+    pub fn world_alpha_option(&self, option: &LuaStr) -> &LuaStr {
+        self.world.option_str(option)
+    }
+
+    pub fn set_world_option(&mut self, option: &LuaStr, value: i32) -> Result<(), SetOptionError> {
+        self.world.set_option_int(option, value)?;
+        match option {
+            b"connect_method"
+            | b"convert_ga_to_newline"
+            | b"disable_compression"
+            | b"disable_utf8"
+            | b"ignore_mxp_colors"
+            | b"naws"
+            | b"no_echo_off"
+            | b"use_mxp" => self.update_config(),
+            b"log_format" | b"log_mode" => self.update_logger()?,
+            _ => (),
+        }
+        Ok(())
+    }
+
+    pub fn set_world_alpha_option(
+        &mut self,
+        option: &LuaStr,
+        value: LuaString,
+    ) -> Result<(), SetOptionError> {
+        self.world.set_option_str(option, value)?;
+        if option.starts_with(b"log_") {
+            self.update_logger()?;
+            return Ok(());
+        }
+        match option {
+            b"password" | b"player" | b"terminal_identification" => self.update_config(),
+            b"auto_log_file_name" => self.update_logger()?,
+            _ => (),
+        }
+        Ok(())
     }
 
     pub fn open_log(&self) -> io::Result<()> {
