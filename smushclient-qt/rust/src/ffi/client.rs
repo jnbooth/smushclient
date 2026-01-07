@@ -65,11 +65,7 @@ pub mod ffi {
         #[cxx_name = "SmushClientBase"]
         type SmushClient = super::SmushClientRust;
 
-        fn load_world(
-            self: Pin<&mut SmushClient>,
-            path: &QString,
-            world: Pin<&mut World>,
-        ) -> Result<()>;
+        fn load_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<()>;
         fn save_world(self: &SmushClient, path: &QString) -> Result<()>;
         fn open_log(self: Pin<&mut SmushClient>) -> Result<()>;
         fn close_log(self: &SmushClient) -> Result<()>;
@@ -77,7 +73,6 @@ pub mod ffi {
         fn world_plugin_index(self: &SmushClient) -> usize;
         fn load_variables(self: &SmushClient, path: &QString) -> Result<bool>;
         fn save_variables(self: &SmushClient, path: &QString) -> Result<bool>;
-        fn populate_world(self: &SmushClient, world: Pin<&mut World>);
         fn set_world(self: Pin<&mut SmushClient>, world: &World) -> Result<bool>;
         fn connect_to_host(self: &SmushClient, socket: Pin<&mut QAbstractSocket>);
         fn handle_connect(self: &SmushClient, socket: Pin<&mut QAbstractSocket>) -> QString;
@@ -120,6 +115,7 @@ pub mod ffi {
             doc: Pin<&mut Document>,
         ) -> i64;
         fn flush(self: Pin<&mut SmushClient>, doc: Pin<&mut Document>);
+        fn handle_alert(self: &SmushClient) -> ApiCode;
         fn has_output(self: &SmushClient) -> bool;
         fn timer_info(self: &SmushClient, index: usize, label: &[u8], info_type: u8) -> QVariant;
         fn add_alias(self: &SmushClient, index: usize, alias: &Alias) -> ApiCode;

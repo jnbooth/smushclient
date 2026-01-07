@@ -43,7 +43,6 @@ ScriptApi::ScriptApi(MudStatusBar* statusBar,
   timekeeper->beginPolling(milliseconds(seconds{ 60 }));
   setLineType(echoFormat, LineType::Input);
   setLineType(noteFormat, LineType::Note);
-  applyWorld(parent->world);
 }
 
 ScriptApi::~ScriptApi()

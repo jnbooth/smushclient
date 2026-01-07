@@ -16,20 +16,14 @@ use crate::ffi::{self, VariableView};
 use crate::get_info::InfoVisitorQVariant;
 use crate::modeled::Modeled;
 use crate::results::{IntoApiCode, IntoCode, IntoSenderAccessCode};
-use crate::world::WorldRust;
 
 impl ffi::SmushClient {
     pub fn borrow_world_sender<T: SendIterable>(&self, index: usize) -> Option<Ref<'_, T>> {
         T::from_world(self.rust().client.world()).get(index)
     }
 
-    pub fn load_world(
-        self: Pin<&mut Self>,
-        path: &QString,
-        world: Pin<&mut ffi::World>,
-    ) -> Result<(), PersistError> {
-        *world.rust_mut() = self.rust_mut().load_world(String::from(path))?;
-        Ok(())
+    pub fn load_world(self: Pin<&mut Self>, path: &QString) -> Result<(), PersistError> {
+        self.rust_mut().load_world(String::from(path))
     }
 
     pub fn open_log(self: Pin<&mut Self>) -> io::Result<()> {
@@ -62,10 +56,6 @@ impl ffi::SmushClient {
 
     pub fn save_variables(&self, path: &QString) -> Result<bool, PersistError> {
         self.rust().save_variables(String::from(path))
-    }
-
-    pub fn populate_world(&self, world: Pin<&mut ffi::World>) {
-        *world.rust_mut() = WorldRust::from(self.rust().client.world());
     }
 
     pub fn set_world(self: Pin<&mut Self>, world: &ffi::World) -> io::Result<bool> {
@@ -148,6 +138,10 @@ impl ffi::SmushClient {
 
     pub fn flush(self: Pin<&mut Self>, doc: Pin<&mut ffi::Document>) {
         self.rust_mut().flush(doc);
+    }
+
+    pub fn handle_alert(&self) -> ffi::ApiCode {
+        self.rust().handle_alert()
     }
 
     pub fn has_output(&self) -> bool {

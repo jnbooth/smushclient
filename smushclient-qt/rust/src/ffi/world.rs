@@ -1,3 +1,9 @@
+#![allow(clippy::elidable_lifetime_names)]
+use std::pin::Pin;
+
+use cxx_qt::Initialize;
+
+use crate::convert::impl_constructor;
 use crate::world::WorldRust;
 
 #[cxx_qt::bridge]
@@ -7,6 +13,13 @@ pub mod ffi {
         type QColor = cxx_qt_lib::QColor;
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
+    }
+
+    extern "C++" {
+        include!("forward.h");
+
+        #[cxx_name = "SmushClientBase"]
+        type SmushClient = crate::ffi::SmushClient;
     }
 
     #[repr(i32)]
@@ -191,4 +204,17 @@ pub mod ffi {
         #[qproperty(QColor, error_background_colour)]
         type World = super::WorldRust;
     }
+
+    impl cxx_qt::Constructor<(), NewArguments = ()> for World {}
+    impl<'a> cxx_qt::Constructor<(&'a SmushClient,), NewArguments = (&'a SmushClient,)> for World {}
 }
+
+impl Initialize for ffi::World {
+    fn initialize(self: Pin<&mut Self>) {}
+}
+
+impl_constructor!(<'a>, ffi::World, (&'a ffi::SmushClient,), {
+    fn new((client,): (&'a ffi::SmushClient,)) -> WorldRust {
+        client.get_world()
+    }
+});

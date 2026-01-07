@@ -185,11 +185,7 @@ ScriptApi::GetLinesInBufferCount() const
 QVariant
 ScriptApi::GetOption(string_view name) const
 {
-  const char* prop = WorldProperties::canonicalName(name);
-  if (!prop)
-    return QVariant();
-
-  return tab->world.property(prop);
+  return QVariant();
 }
 
 VariableView
@@ -330,27 +326,6 @@ ScriptApi::SetCursor(Qt::CursorShape cursorShape) const
 ApiCode
 ScriptApi::SetOption(string_view name, const QVariant& variant) const
 {
-  World& world = tab->world;
-  const char* prop = WorldProperties::canonicalName(name);
-  if (!prop) [[unlikely]]
-    return ApiCode::UnknownOption;
-  QVariant property = world.property(prop);
-  if (world.setProperty(prop, variant))
-    return updateWorld(*tab);
-
-  switch (property.typeId()) {
-    case QMetaType::QColor:
-      if (QColor color = getColorFromVariant(variant);
-          color.isValid() && world.setProperty(prop, color))
-        return updateWorld(*tab);
-    case QMetaType::QVariantHash:
-      if (isEmptyList(variant) && world.setProperty(prop, QVariantHash()))
-        return updateWorld(*tab);
-    case QMetaType::QVariantMap:
-      if (isEmptyList(variant) && world.setProperty(prop, QVariantMap()))
-        return updateWorld(*tab);
-  }
-
   return ApiCode::OptionOutOfRange;
 }
 
@@ -399,7 +374,7 @@ ScriptApi::TextRectangle(const QMargins& margins,
   QBrush outsideBrush = outsideFill;
 
   if (!outsideBrush.color().isValid())
-    outsideBrush.setColor(tab->world.getAnsi0());
+    outsideBrush.setColor(ui->background->palette().color(QPalette::Base));
 
   const QColor& borderColorFill =
     borderColor.isValid() ? borderColor : outsideBrush.color();

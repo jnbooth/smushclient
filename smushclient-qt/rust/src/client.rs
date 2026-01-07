@@ -11,7 +11,7 @@ use cxx_qt_lib::{QByteArray, QString, QStringList, QVariant};
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
-    AliasOutcome, AudioSinks, CommandSource, Handler, LuaStr, OptionError, Optionable,
+    AliasOutcome, AudioSinks, CommandSource, Handler, LuaStr, OptionError, Optionable, PlayMode,
     SendIterable, SenderAccessError, SmushClient, Timers, World,
 };
 use smushclient_plugins::{Alias, LoadError, PluginIndex, Timer, Trigger, XmlError};
@@ -72,13 +72,12 @@ impl Default for SmushClientRust {
 #[allow(clippy::cast_possible_truncation)]
 #[allow(clippy::cast_possible_wrap)]
 impl SmushClientRust {
-    pub fn load_world<P: AsRef<Path>>(&mut self, path: P) -> Result<WorldRust, PersistError> {
+    pub fn load_world<P: AsRef<Path>>(&mut self, path: P) -> Result<(), PersistError> {
         let file = File::open(path)?;
-        let worldfile = World::load(file)?;
-        let world = WorldRust::from(&worldfile);
-        self.client.set_world(worldfile);
+        let world = World::load(file)?;
+        self.client.set_world(world);
         self.apply_world();
-        Ok(world)
+        Ok(())
     }
 
     pub fn load_plugins(&mut self) -> QStringList {
@@ -123,6 +122,10 @@ impl SmushClientRust {
         };
         self.apply_world();
         self.client.update_world(world)
+    }
+
+    pub fn get_world(&self) -> WorldRust {
+        WorldRust::from(self.client.world())
     }
 
     pub fn connect_to_host(&self, mut socket: Pin<&mut QAbstractSocket>) {
@@ -254,6 +257,13 @@ impl SmushClientRust {
 
         let had_output = self.client.flush_output(&mut handler);
         handler.doc.end(had_output);
+    }
+
+    pub fn handle_alert(&self) -> ffi::ApiCode {
+        let Some(sound) = &self.client.world().new_activity_sound else {
+            return ffi::ApiCode::OK;
+        };
+        self.audio.play_file(0, sound, 1.0, PlayMode::Once).code()
     }
 
     pub fn play_buffer(&self, i: usize, buf: &[u8], volume: f32, looping: bool) -> ffi::ApiCode {

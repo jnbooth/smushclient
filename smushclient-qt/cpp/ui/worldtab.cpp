@@ -79,7 +79,6 @@ WorldTab::WorldTab(MudStatusBar* statusBar, Notepads* notepads, QWidget* parent)
   : QSplitter(parent)
   , ui(new Ui::WorldTab)
   , client()
-  , world()
   , worldScriptWatcher(this)
 {
   flushTimer = new QTimer(this);
@@ -170,7 +169,6 @@ WorldTab::copyableEditor() const
 void
 WorldTab::createWorld() &
 {
-  client.populateWorld(world);
 }
 
 bool
@@ -203,10 +201,9 @@ WorldTab::disconnectFromHost()
 void
 WorldTab::editWorldScript()
 {
-  const QString& scriptPath = world.getWorldScript();
-  if (!QDesktopServices::openUrl(QUrl::fromLocalFile(scriptPath)))
+  if (!QDesktopServices::openUrl(QUrl::fromLocalFile(worldScriptPath)))
     QErrorMessage::qtHandler()->showMessage(
-      tr("Failed to open file: %1").arg(scriptPath));
+      tr("Failed to open file: %1").arg(worldScriptPath));
 }
 
 void
@@ -223,7 +220,7 @@ bool
 WorldTab::openWorld(const QString& filename) &
 {
   try {
-    client.loadWorld(filename, world);
+    client.loadWorld(filename);
   } catch (const rust::Error& e) {
     showRustError(e);
     return false;
@@ -237,9 +234,9 @@ WorldTab::openWorld(const QString& filename) &
 bool
 WorldTab::openWorldSettings()
 {
+  World world(client);
   WorldPrefs worlddetails(world, client, api, this);
   if (worlddetails.exec() != QDialog::Accepted) {
-    client.populateWorld(world);
     return false;
   }
   if (worlddetails.isDirty())
@@ -258,7 +255,7 @@ WorldTab::openWorldSettings()
   if (Settings().getLoggingEnabled())
     openLog();
 
-  applyWorld();
+  applyWorld(world);
   return true;
 }
 
@@ -278,7 +275,7 @@ WorldTab::promptSave()
   }
   QMessageBox msgBox;
   msgBox.setText(
-    tr("Do you want to save the changes you made to %1?").arg(world.getName()));
+    tr("Do you want to save the changes you made to %1?").arg(worldName));
   msgBox.setInformativeText(
     tr("Your changes will be lost if you don't save them."));
   msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard |
@@ -299,7 +296,7 @@ WorldTab::promptSave()
 void
 WorldTab::reloadWorldScript() const
 {
-  api->reloadWorldScript(world.getWorldScript());
+  api->reloadWorldScript(worldScriptPath);
 }
 
 void
@@ -326,7 +323,7 @@ WorldTab::saveWorldAsNew()
   const QString path = QFileDialog::getSaveFileName(
     this,
     tr("Save as"),
-    QStringLiteral(WORLDS_DIR) + QDir::separator() + world.getName(),
+    QStringLiteral(WORLDS_DIR) + QDir::separator() + worldName,
     FileFilter::world());
 
   if (path.isEmpty())
@@ -377,8 +374,6 @@ WorldTab::start()
 {
   Settings settings;
 
-  setupWorldScriptWatcher();
-
   if (settings.getLoggingEnabled())
     openLog();
 
@@ -396,7 +391,9 @@ WorldTab::start()
 
   loadPlugins();
 
-  applyWorld();
+  applyWorld(World(client));
+
+  setupWorldScriptWatcher();
 
   if (settings.getAutoConnect())
     connectToHost();
@@ -408,20 +405,9 @@ WorldTab::stopSound() const
   api->StopSound();
 }
 
-const QString&
-WorldTab::title() const noexcept
-{
-  return world.getName();
-}
-
 bool
 WorldTab::updateWorld()
 {
-  if (client.setWorld(world)) {
-    applyWorld();
-    return true;
-  }
-  client.populateWorld(world);
   return false;
 }
 
@@ -531,8 +517,11 @@ WorldTab::resizeEvent(QResizeEvent* event)
 // Private methods
 
 void
-WorldTab::applyWorld()
+WorldTab::applyWorld(const World& world)
 {
+  scriptReloadOption = world.getScriptReloadOption();
+  worldName = world.getName();
+  worldScriptPath = world.getWorldScript();
   handleKeypad = world.getKeypadEnable();
   ui->input->setIgnoreKeypad(handleKeypad);
   ui->output->setIgnoreKeypad(handleKeypad);
@@ -703,7 +692,6 @@ WorldTab::setupWorldScriptWatcher()
   const QStringList watchedScripts = worldScriptWatcher.files();
   if (!watchedScripts.isEmpty())
     worldScriptWatcher.removePaths(watchedScripts);
-  const QString& worldScriptPath = world.getWorldScript();
   if (!worldScriptPath.isEmpty())
     worldScriptWatcher.addPath(worldScriptPath);
 }
@@ -711,7 +699,6 @@ WorldTab::setupWorldScriptWatcher()
 void
 WorldTab::updateWorldScript()
 {
-  const QString& worldScriptPath = world.getWorldScript();
   const QStringList watchedScripts = worldScriptWatcher.files();
   if (watchedScripts.value(0) == worldScriptPath)
     return;
@@ -730,7 +717,7 @@ WorldTab::confirmReloadWorldScript(const QString& worldScriptPath)
   QFileInfo info(worldScriptPath);
   if (!info.isFile() || !info.isReadable())
     return;
-  switch (world.getScriptReloadOption()) {
+  switch (scriptReloadOption) {
     case ScriptRecompile::Always:
       break;
     case ScriptRecompile::Never:
@@ -790,9 +777,7 @@ WorldTab::onNewActivity()
     return;
   alertNewActivity = false;
   emit newActivity(this);
-  const QString sound = world.getNewActivitySound();
-  if (!sound.isEmpty())
-    api->PlaySound(0, sound);
+  client.handleAlert();
 }
 
 void
@@ -801,15 +786,17 @@ WorldTab::onSocketConnect()
   disconnect(autoScroll);
 #ifdef QT_NO_SSL
   api->statusBarWidgets()->setConnected(
-    MudStatusBar::ConnectionStatus::Encrypted);
+    MudStatusBar::ConnectionStatus::Connected);
+  emit connectionStatusChanged(true);
+  handleConnect();
 #else
   api->statusBarWidgets()->setConnected(
     socket->isEncrypted() ? MudStatusBar::ConnectionStatus::Encrypted
                           : MudStatusBar::ConnectionStatus::Connected);
-#endif
   emit connectionStatusChanged(true);
-  if (!world.getUseSsl())
+  if (socket->mode() == QSslSocket::UnencryptedMode)
     handleConnect();
+#endif
 }
 
 void

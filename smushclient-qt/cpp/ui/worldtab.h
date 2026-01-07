@@ -59,6 +59,7 @@ public:
   void createWorld() &;
   void disconnectFromHost();
   void editWorldScript();
+  constexpr bool hasWorldScript() const { return !worldScriptPath.isEmpty(); }
   void openLog();
   bool openWorld(const QString& filename) &;
   bool openWorldSettings();
@@ -77,7 +78,7 @@ public:
   void setStatusBarVisible(bool visible);
   void start();
   void stopSound() const;
-  const QString& title() const noexcept;
+  constexpr const QString& title() const { return worldName; };
   bool updateWorld();
   constexpr const QString& worldFilePath() const noexcept { return filePath; }
 
@@ -102,7 +103,6 @@ public:
 #else
   QSslSocket* socket;
 #endif
-  World world;
 
 protected:
   void closeEvent(QCloseEvent* event) override;
@@ -113,7 +113,7 @@ protected:
   void resizeEvent(QResizeEvent* event) override;
 
 private:
-  void applyWorld();
+  void applyWorld(const World& world);
   void finishDrag();
   void handleConnect();
   bool restoreHistory();
@@ -163,7 +163,10 @@ private:
   bool outputCopyAvailable = false;
   bool queuedConnect = false;
   QTimer* resizeTimer;
+  ScriptRecompile scriptReloadOption = ScriptRecompile::Never;
   int sessionStartBlock = 0;
   QChar splitOn{ u'\n' };
+  QString worldName{};
+  QString worldScriptPath{};
   QFileSystemWatcher worldScriptWatcher;
 };

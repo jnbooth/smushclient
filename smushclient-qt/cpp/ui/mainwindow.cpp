@@ -656,7 +656,7 @@ void
 MainWindow::on_menu_file_aboutToShow()
 {
   WorldTab* tab = worldtab();
-  const bool hasWorldScript = tab && !tab->world.getWorldScript().isEmpty();
+  const bool hasWorldScript = tab && tab->hasWorldScript();
   ui->action_edit_script_file->setEnabled(hasWorldScript);
   ui->action_reload_script_file->setEnabled(hasWorldScript);
 }
