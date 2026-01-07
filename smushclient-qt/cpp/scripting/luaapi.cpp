@@ -311,12 +311,9 @@ L_GetAlphaOption(lua_State* L)
 {
   API("GetAlphaOption")
   expectMaxArgs(L, 1);
-  const QVariant option =
-    getApi(L).GetOption(getPluginIndex(L), qlua::getString(L, 1));
-  QString value = option.toString();
-  if (value.isEmpty() && option.canConvert<QColor>())
-    value = option.value<QColor>().name();
-  qlua::pushQString(L, value);
+  const string_view option =
+    getApi(L).GetAlphaOption(getPluginIndex(L), qlua::getString(L, 1));
+  qlua::pushString(L, option);
   return 1;
 }
 
@@ -344,24 +341,9 @@ L_GetOption(lua_State* L)
 {
   API("GetOption")
   expectMaxArgs(L, 1);
-  const QVariant option =
+  const int option =
     getApi(L).GetOption(getPluginIndex(L), qlua::getString(L, 1));
-  const QMetaType type = option.metaType();
-  switch (type.id()) {
-    case QMetaType::Double:
-    case QMetaType::Float:
-    case QMetaType::Float16:
-      lua_pushnumber(L, option.toDouble());
-      break;
-    case QMetaType::QColor:
-      qlua::pushQColor(L, option.value<QColor>());
-      break;
-    default:
-      if (option.canConvert<int>())
-        lua_pushinteger(L, option.value<int>());
-      else
-        lua_pushinteger(L, -1);
-  }
+  lua_pushinteger(L, option);
   return 1;
 }
 
