@@ -1,6 +1,7 @@
 #pragma once
 #include "../bridge/document.h"
 #include "../client.h"
+#include "../hotkeys.h"
 #include "../scripting/callbacktrigger.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include <QtCore/QFileSystemWatcher>
@@ -152,6 +153,7 @@ private:
   QString filePath{};
   QTimer* flushTimer;
   bool handleKeypad = false;
+  Hotkeys hotkeys{};
   bool initialized = false;
   bool inputCopyAvailable = false;
   bool isActive = true;

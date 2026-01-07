@@ -506,8 +506,8 @@ WorldTab::keyPressEvent(QKeyEvent* event)
     QSplitter::keyPressEvent(event);
     return;
   }
-  QString action = hotkeys::numpad(
-    world, Qt::Key(event->key()), modifiers.testAnyFlags(numpadMods));
+  QString action =
+    hotkeys.get(Qt::Key(event->key()), modifiers.testAnyFlags(numpadMods));
   if (action.isEmpty())
     return;
   sendCommand(action, CommandSource::Hotkey);
@@ -540,6 +540,7 @@ WorldTab::applyWorld()
   if (world.getSaveWorldAutomatically())
     saveWorldAndState(filePath);
 
+  hotkeys.applyWorld(world);
   api->applyWorld(world);
   updateWorldScript();
   splitOn = world.getEnableCommandStack()
