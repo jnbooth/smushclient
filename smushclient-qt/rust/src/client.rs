@@ -5,7 +5,8 @@ use std::io::{self, Write};
 use std::path::Path;
 use std::pin::Pin;
 
-use cxx_qt_io::QAbstractSocket;
+use cxx_qt::casting::Downcast;
+use cxx_qt_io::{QAbstractSocket, QIODevice, QNetworkProxy, QNetworkProxyProxyType, QSslSocket};
 use cxx_qt_lib::{QByteArray, QString, QStringList, QVariant};
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
@@ -122,6 +123,31 @@ impl SmushClientRust {
         };
         self.apply_world();
         self.client.update_world(world)
+    }
+
+    pub fn connect_to_host(&self, mut socket: Pin<&mut QAbstractSocket>) {
+        let world = self.client.world();
+        if world.use_proxy {
+            let mut proxy = QNetworkProxy::default();
+            proxy.set_host_name(&QString::from(&world.proxy_server));
+            proxy.set_port(world.proxy_port);
+            proxy.set_user(&QString::from(&world.proxy_username));
+            proxy.set_password(&QString::from(&world.proxy_password));
+            proxy.set_proxy_type(QNetworkProxyProxyType::Socks5Proxy);
+            socket.as_mut().set_proxy(&proxy);
+        } else {
+            socket
+                .as_mut()
+                .set_proxy(&QNetworkProxyProxyType::NoProxy.into());
+        }
+        if world.use_ssl
+            && QSslSocket::supports_ssl()
+            && let Some(socket) = socket.as_mut().downcast_pin::<QSslSocket>()
+        {
+            socket.connect_to_host_encrypted((&world.site, world.port), QIODevice::ReadWrite);
+        } else {
+            socket.connect_to_host((&world.site, world.port), QIODevice::ReadWrite);
+        }
     }
 
     pub fn handle_connect(&self, mut socket: Pin<&mut QAbstractSocket>) -> QString {

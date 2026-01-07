@@ -190,15 +190,7 @@ WorldTab::connectToHost()
   if (socket->state() != QAbstractSocket::SocketState::UnconnectedState)
     return;
 
-  const QString& site = world.getSite();
-  const uint16_t port = world.getPort();
-
-#ifndef QT_NO_SSL
-  if (world.getUseSsl() && QSslSocket::supportsSsl())
-    socket->connectToHostEncrypted(site, port);
-  else
-#endif
-    socket->connectToHost(site, port);
+  client.connectToHost(*socket);
 }
 
 void
@@ -545,14 +537,6 @@ WorldTab::applyWorld()
   ui->input->setIgnoreKeypad(handleKeypad);
   ui->output->setIgnoreKeypad(handleKeypad);
   setColors(ui->background, world.getAnsi7(), world.getAnsi0());
-  if (world.getUseProxy())
-    socket->setProxy(QNetworkProxy(QNetworkProxy::ProxyType::Socks5Proxy,
-                                   world.getProxyServer(),
-                                   world.getProxyPort(),
-                                   world.getProxyUsername(),
-                                   world.getProxyPassword()));
-  else
-    socket->setProxy(QNetworkProxy::NoProxy);
   if (world.getSaveWorldAutomatically())
     saveWorldAndState(filePath);
 

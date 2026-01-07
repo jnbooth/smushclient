@@ -79,6 +79,7 @@ pub mod ffi {
         fn save_variables(self: &SmushClient, path: &QString) -> Result<bool>;
         fn populate_world(self: &SmushClient, world: Pin<&mut World>);
         fn set_world(self: Pin<&mut SmushClient>, world: &World) -> Result<bool>;
+        fn connect_to_host(self: &SmushClient, socket: Pin<&mut QAbstractSocket>);
         fn handle_connect(self: &SmushClient, socket: Pin<&mut QAbstractSocket>) -> QString;
         fn handle_disconnect(self: Pin<&mut SmushClient>);
         fn play_file(

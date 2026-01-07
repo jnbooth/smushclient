@@ -3,6 +3,7 @@ use std::io;
 use std::pin::Pin;
 
 use cxx_qt::CxxQtType;
+use cxx_qt_io::QAbstractSocket;
 use cxx_qt_lib::{QString, QStringList, QVariant};
 use smushclient::world::PersistError;
 use smushclient::{LuaStr, SendIterable};
@@ -69,6 +70,10 @@ impl ffi::SmushClient {
 
     pub fn set_world(self: Pin<&mut Self>, world: &ffi::World) -> io::Result<bool> {
         self.rust_mut().set_world(world.rust())
+    }
+
+    pub fn connect_to_host(&self, socket: Pin<&mut QAbstractSocket>) {
+        self.rust().connect_to_host(socket);
     }
 
     pub fn handle_connect(&self, socket: Pin<&mut ffi::QAbstractSocket>) -> QString {
