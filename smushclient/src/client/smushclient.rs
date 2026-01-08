@@ -205,7 +205,11 @@ impl SmushClient {
             return Ok(());
         }
         match option {
-            b"password" | b"player" | b"terminal_identification" => self.update_config(),
+            b"name" | b"player" => {
+                self.update_config();
+                self.update_logger()?;
+            }
+            b"password" | b"terminal_identification" => self.update_config(),
             b"auto_log_file_name" => self.update_logger()?,
             _ => (),
         }

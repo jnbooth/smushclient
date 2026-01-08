@@ -14,7 +14,7 @@ impl Logger {
     pub fn new(world: &World) -> Self {
         let brackets = world.brackets();
         Self {
-            file: LogFile::new(world, &brackets),
+            file: LogFile::new(world, brackets.file.clone()),
             format: world.log_format,
             brackets: world.brackets(),
         }
@@ -27,7 +27,7 @@ impl Logger {
     pub fn apply_world(&mut self, world: &World) -> io::Result<()> {
         self.brackets = world.brackets();
         self.format = world.log_format;
-        self.file.apply_world(world, &self.brackets)
+        self.file.apply_world(world, self.brackets.file.clone())
     }
 
     pub fn close(&mut self) -> io::Result<()> {

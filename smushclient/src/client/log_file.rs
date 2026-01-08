@@ -1,14 +1,13 @@
 use std::fs::{File, OpenOptions};
 use std::io::{self, BufWriter, Write};
 
-use crate::world::{LogBrackets, LogMode, World};
+use crate::world::{EscapedBrackets, LogMode, World};
 
 #[derive(Debug)]
 pub struct LogFile {
     mode: LogMode,
     path: Option<String>,
-    preamble: Vec<u8>,
-    postamble: Vec<u8>,
+    brackets: EscapedBrackets,
     file: Option<BufWriter<File>>,
 }
 
@@ -17,27 +16,17 @@ const fn is_retryable(kind: io::ErrorKind) -> bool {
 }
 
 impl LogFile {
-    pub fn new(world: &World, brackets: &LogBrackets) -> Self {
-        let mut this = Self {
+    pub fn new(world: &World, brackets: EscapedBrackets) -> Self {
+        Self {
             mode: world.log_mode,
             path: world.auto_log_file_name.clone(),
-            preamble: Vec::new(),
-            postamble: Vec::new(),
+            brackets,
             file: None,
-        };
-        this.write_brackets(brackets);
-        this
+        }
     }
 
-    fn write_brackets(&mut self, brackets: &LogBrackets) {
-        self.preamble.clear();
-        self.postamble.clear();
-        writeln!(self.preamble, "{}", brackets.file.before()).unwrap();
-        writeln!(self.postamble, "{}", brackets.file.after()).unwrap();
-    }
-
-    pub fn apply_world(&mut self, world: &World, brackets: &LogBrackets) -> io::Result<()> {
-        self.write_brackets(brackets);
+    pub fn apply_world(&mut self, world: &World, brackets: EscapedBrackets) -> io::Result<()> {
+        self.brackets = brackets;
         if self.mode == world.log_mode && self.path == world.auto_log_file_name {
             return Ok(());
         }
@@ -73,9 +62,7 @@ impl LogFile {
         let file = OpenOptions::from(self.mode).open(path)?;
         file.try_lock()?;
         let mut file = BufWriter::new(file);
-        if !self.preamble.is_empty() {
-            file.write_all(&self.preamble)?;
-        }
+        write!(file, "{}", self.brackets.before())?;
         self.file = Some(file);
         Ok(())
     }
@@ -84,10 +71,7 @@ impl LogFile {
         let Some(mut file) = self.file.take() else {
             return Ok(());
         };
-        if self.postamble.is_empty() {
-            return Ok(());
-        }
-        file.write_all(&self.postamble)
+        write!(file, "{}", self.brackets.after())
     }
 
     fn do_io<T, F>(&mut self, mut f: F) -> io::Result<T>

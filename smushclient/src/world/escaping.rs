@@ -96,6 +96,20 @@ impl Escaped<String> {
     pub fn new(message: &str, world: &World) -> Self {
         Self::create(message, world)
     }
+
+    pub fn to_string(&self) -> Cow<'_, str> {
+        if self.has_chrono {
+            let mut result = String::new();
+            #[allow(clippy::missing_panics_doc)]
+            Local::now()
+                .format(self.message.as_ref())
+                .write_to(&mut result)
+                .unwrap();
+            Cow::Owned(result)
+        } else {
+            Cow::Borrowed(self.message.as_ref())
+        }
+    }
 }
 
 impl<S> fmt::Display for Escaped<S>
@@ -103,10 +117,14 @@ where
     S: AsRef<str>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let message = self.message.as_ref();
+        if message.is_empty() {
+            return Ok(());
+        }
         if self.has_chrono {
-            Local::now().format(self.message.as_ref()).fmt(f)
+            Local::now().format(message).fmt(f)
         } else {
-            self.message.as_ref().fmt(f)
+            message.fmt(f)
         }
     }
 }
@@ -123,10 +141,14 @@ where
     Tz::Offset: fmt::Display,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let message = self.escaped.message.as_ref();
+        if message.is_empty() {
+            return Ok(());
+        }
         if self.escaped.has_chrono {
-            self.datetime.format(self.escaped.message.as_ref()).fmt(f)
+            self.datetime.format(message).fmt(f)
         } else {
-            self.escaped.message.as_ref().fmt(f)
+            message.fmt(f)
         }
     }
 }
