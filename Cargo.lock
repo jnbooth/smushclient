@@ -500,7 +500,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -588,14 +588,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "htmlentity"
-version = "1.3.2"
+name = "html-escape"
+version = "0.2.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd54ae4f69adcc1a43637dcff230852832c3ad50df31a90e0cb5f001dd441359"
+checksum = "6d1ad449764d627e22bfd7cd5e8868264fc9236e07c752972b4080cd351cb476"
 dependencies = [
- "anyhow",
- "lazy_static",
- "thiserror 1.0.69",
+ "utf8-width",
 ]
 
 [[package]]
@@ -769,24 +767,25 @@ dependencies = [
 
 [[package]]
 name = "mud-transformer"
-version = "0.11.0"
-source = "git+https://github.com/jnbooth/mxp#d11a99c7d407c1708c290840ababcc1ff8ea2958"
+version = "0.11.3"
+source = "git+https://github.com/jnbooth/mxp#66585b07d9d87a27472e60f371b8857c5d226982"
 dependencies = [
  "bytes",
  "flagset",
  "flate2",
+ "html-escape",
  "mxp",
  "serde",
 ]
 
 [[package]]
 name = "mxp"
-version = "0.11.0"
-source = "git+https://github.com/jnbooth/mxp#d11a99c7d407c1708c290840ababcc1ff8ea2958"
+version = "0.11.3"
+source = "git+https://github.com/jnbooth/mxp#66585b07d9d87a27472e60f371b8857c5d226982"
 dependencies = [
  "casefold",
  "flagset",
- "htmlentity",
+ "html-escape",
  "serde",
 ]
 
@@ -1134,7 +1133,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1261,6 +1260,7 @@ version = "0.0.0"
 dependencies = [
  "chrono",
  "flagset",
+ "html-escape",
  "mud-transformer",
  "postcard",
  "rodio",
@@ -1634,7 +1634,7 @@ dependencies = [
  "getrandom",
  "once_cell",
  "rustix",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1769,6 +1769,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b4ac048d71ede7ee76d585517add45da530660ef4390e49b098733c6e897f254"
 
 [[package]]
+name = "utf8-width"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1292c0d970b54115d14f2492fe0170adf21d68a1de108eebc51c1df4f346a091"
+
+[[package]]
 name = "walkdir"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1867,7 +1873,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

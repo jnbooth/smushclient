@@ -203,6 +203,7 @@ impl PluginEngine {
                     }
                     reaction.regex.clone()
                 };
+                text_buf.clear();
                 for captures in regex.captures_iter(line).filter_map(Result::ok) {
                     if !matched {
                         matched = true;
@@ -217,7 +218,6 @@ impl PluginEngine {
                     if has_style && let Some(capture) = captures.get(0) {
                         handler.apply_styles(capture.start()..capture.end(), style);
                     }
-                    text_buf.clear();
                     let send_request = {
                         let Some(sender) = sender.borrow() else {
                             break;

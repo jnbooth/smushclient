@@ -10,6 +10,7 @@ workspace = true
 [dependencies]
 chrono = { workspace = true }
 flagset = { workspace = true }
+html-escape = "0.2.13"
 mud-transformer = { workspace = true }
 serde = { workspace = true }
 smushclient-plugins = { path = "../smushclient-plugins" }

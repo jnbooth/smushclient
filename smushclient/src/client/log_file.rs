@@ -1,11 +1,12 @@
 use std::fs::{File, OpenOptions};
 use std::io::{self, BufWriter, Write};
 
-use crate::world::{EscapedBrackets, LogMode, World};
+use crate::world::{Escaped, EscapedBrackets, LogFormat, LogMode, World};
 
 #[derive(Debug)]
 pub struct LogFile {
     mode: LogMode,
+    format: LogFormat,
     path: Option<String>,
     brackets: EscapedBrackets,
     file: Option<BufWriter<File>>,
@@ -19,6 +20,7 @@ impl LogFile {
     pub fn new(world: &World, brackets: EscapedBrackets) -> Self {
         Self {
             mode: world.log_mode,
+            format: world.log_format,
             path: world.auto_log_file_name.clone(),
             brackets,
             file: None,
@@ -52,6 +54,20 @@ impl LogFile {
         !metadata.permissions().readonly()
     }
 
+    fn write_bracket(&self, bracket: &Escaped, file: &mut BufWriter<File>) -> io::Result<()> {
+        if bracket.is_empty() {
+            return Ok(());
+        }
+        let mut buf = String::new();
+        let text = bracket.format(&mut buf, None);
+        if self.format == LogFormat::Html {
+            html_escape::encode_safe_to_writer(text, file)?;
+        } else {
+            file.write_all(text.as_bytes())?;
+        }
+        file.write_all(b"\n")
+    }
+
     pub fn open(&mut self) -> io::Result<()> {
         if self.can_write() {
             return Ok(());
@@ -62,7 +78,7 @@ impl LogFile {
         let file = OpenOptions::from(self.mode).open(path)?;
         file.try_lock()?;
         let mut file = BufWriter::new(file);
-        write!(file, "{}", self.brackets.before())?;
+        self.write_bracket(self.brackets.before(), &mut file)?;
         self.file = Some(file);
         Ok(())
     }
@@ -71,7 +87,7 @@ impl LogFile {
         let Some(mut file) = self.file.take() else {
             return Ok(());
         };
-        write!(file, "{}", self.brackets.after())
+        self.write_bracket(self.brackets.after(), &mut file)
     }
 
     fn do_io<T, F>(&mut self, mut f: F) -> io::Result<T>

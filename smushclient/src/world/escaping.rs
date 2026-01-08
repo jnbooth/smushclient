@@ -1,10 +1,13 @@
 use std::borrow::Cow;
-use std::fmt;
+use std::fmt::Write as _;
 use std::io::{self, Write};
 
-use chrono::{DateTime, Local, TimeZone};
+use chrono::{DateTime, Local};
+use mud_transformer::mxp::RgbColor;
+use mud_transformer::{Output, OutputFragment};
 
 use super::World;
+use crate::world::LogFormat;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Escaped<S = String> {
@@ -12,57 +15,59 @@ pub struct Escaped<S = String> {
     has_chrono: bool,
 }
 
-impl<S> Escaped<S> {
-    pub fn create<'a>(message: &'a str, world: &World) -> Self
-    where
-        S: From<&'a str> + From<String>,
-    {
-        // Reduce monomorphization
-        fn inner<'a>(message: &'a str, world: &World) -> Escaped<Cow<'a, str>> {
-            if message.len() <= 1 {
-                return Escaped {
-                    message: message.into(),
-                    has_chrono: false,
-                };
-            }
-            let mut has_world = false;
-            let mut has_player = false;
-            let mut has_chrono = false;
-            let mut in_escape = false;
-            for &byte in message.as_bytes() {
-                if in_escape {
-                    match byte {
-                        b'N' => has_world = true,
-                        b'P' => has_player = true,
-                        _ => has_chrono = true,
-                    }
-                    in_escape = false;
-                } else if byte == b'%' {
-                    in_escape = true;
+impl<'a> Escaped<Cow<'a, str>> {
+    pub fn borrow(message: &'a str, world: &World) -> Self {
+        if message.len() <= 1 {
+            return Escaped {
+                message: message.into(),
+                has_chrono: false,
+            };
+        }
+        let mut has_world = false;
+        let mut has_player = false;
+        let mut has_chrono = false;
+        let mut in_escape = false;
+        for &byte in message.as_bytes() {
+            if in_escape {
+                match byte {
+                    b'N' => has_world = true,
+                    b'P' => has_player = true,
+                    _ => has_chrono = true,
                 }
-            }
-            let mut message = Cow::Borrowed(message);
-            if has_world {
-                message = message.replace("%N", &world.name).into();
-            }
-            if has_player {
-                message = message.replace("%P", &world.player).into();
-            }
-            Escaped {
-                message,
-                has_chrono,
+                in_escape = false;
+            } else if byte == b'%' {
+                in_escape = true;
             }
         }
+        let mut message = Cow::Borrowed(message);
+        if has_world {
+            message = message.replace("%N", &world.name).into();
+        }
+        if has_player {
+            message = message.replace("%P", &world.player).into();
+        }
+        Escaped {
+            message,
+            has_chrono,
+        }
+    }
+}
 
+impl Escaped<String> {
+    pub fn for_log(message: &str, world: &World) -> Self {
         let Escaped {
             message,
             has_chrono,
-        } = inner(message, world);
+        } = Escaped::borrow(message, world);
+        let message = if world.log_format == LogFormat::Html
+            && let Cow::Owned(escaped) = html_escape::encode_text(&message)
+        {
+            escaped
+        } else {
+            message.into_owned()
+        };
         Self {
-            message: match message {
-                Cow::Borrowed(borrowed) => borrowed.into(),
-                Cow::Owned(owned) => owned.into(),
-            },
+            message,
             has_chrono,
         }
     }
@@ -72,163 +77,143 @@ impl<S: AsRef<str>> Escaped<S> {
     pub fn is_empty(&self) -> bool {
         self.message.as_ref().is_empty()
     }
-}
 
-impl<S> Escaped<S> {
-    pub fn with_datetime<Tz>(&self, datetime: DateTime<Tz>) -> EscapedChrono<'_, S, Tz>
-    where
-        Tz: TimeZone,
-    {
-        EscapedChrono {
-            escaped: self,
-            datetime,
-        }
-    }
-}
-
-impl<'a> Escaped<Cow<'a, str>> {
-    pub fn borrow(message: &'a str, world: &World) -> Self {
-        Self::create(message, world)
-    }
-}
-
-impl Escaped<String> {
-    pub fn new(message: &str, world: &World) -> Self {
-        Self::create(message, world)
-    }
-
-    pub fn to_string(&self) -> Cow<'_, str> {
-        if self.has_chrono {
-            let mut result = String::new();
-            #[allow(clippy::missing_panics_doc)]
-            Local::now()
-                .format(self.message.as_ref())
-                .write_to(&mut result)
-                .unwrap();
-            Cow::Owned(result)
-        } else {
-            Cow::Borrowed(self.message.as_ref())
-        }
-    }
-}
-
-impl<S> fmt::Display for Escaped<S>
-where
-    S: AsRef<str>,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    pub fn format<'a>(&'a self, buf: &'a mut String, now: Option<DateTime<Local>>) -> &'a str {
         let message = self.message.as_ref();
-        if message.is_empty() {
-            return Ok(());
+        if !self.has_chrono {
+            return message;
         }
-        if self.has_chrono {
-            Local::now().format(message).fmt(f)
-        } else {
-            message.fmt(f)
-        }
+        let len = buf.len();
+        now.unwrap_or_else(Local::now)
+            .format(message)
+            .write_to(buf)
+            .unwrap();
+        &buf[len..]
     }
 }
 
-pub struct EscapedChrono<'a, S, Tz: TimeZone> {
-    escaped: &'a Escaped<S>,
-    datetime: DateTime<Tz>,
-}
-
-impl<S, Tz> fmt::Display for EscapedChrono<'_, S, Tz>
-where
-    S: AsRef<str>,
-    Tz: TimeZone,
-    Tz::Offset: fmt::Display,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let message = self.escaped.message.as_ref();
-        if message.is_empty() {
-            return Ok(());
-        }
-        if self.escaped.has_chrono {
-            self.datetime.format(message).fmt(f)
-        } else {
-            message.fmt(f)
-        }
-    }
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+enum EscapeMode {
+    #[default]
+    Text,
+    Html,
+    HtmlColor,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct EscapedBrackets<S = String> {
-    before: Escaped<S>,
-    after: Escaped<S>,
+pub struct EscapedBrackets {
+    before: Escaped<String>,
+    after: Escaped<String>,
+    escape_mode: EscapeMode,
 }
 
-impl<S> EscapedBrackets<S> {
-    pub const fn new(before: Escaped<S>, after: Escaped<S>) -> Self {
-        Self { before, after }
-    }
-
-    pub const fn before(&self) -> &Escaped<S> {
+impl EscapedBrackets {
+    pub const fn before(&self) -> &Escaped {
         &self.before
     }
 
-    pub const fn after(&self) -> &Escaped<S> {
+    pub const fn after(&self) -> &Escaped {
         &self.after
     }
 
-    pub fn write<W: Write>(&self, mut writer: W, line: &[u8]) -> io::Result<()>
-    where
-        S: AsRef<str>,
-    {
-        let Self { before, after } = self;
-        if !before.has_chrono && !after.has_chrono {
-            writer.write_all(before.message.as_ref().as_bytes())?;
-            writer.write_all(line)?;
-            return writer.write_all(after.message.as_ref().as_bytes());
+    pub fn set_color(&mut self, color: RgbColor) {
+        write!(self.before.message, "<span style=\"color:#{color:X}\">").unwrap();
+        self.after.message = format!("</span>{}", self.after.message);
+    }
+
+    fn get_now(&self) -> Option<DateTime<Local>> {
+        if self.before.has_chrono || self.after.has_chrono {
+            Some(Local::now())
+        } else {
+            None
         }
-        let now = Local::now();
-        write!(writer, "{}", before.with_datetime(now))?;
-        writer.write_all(line)?;
-        write!(writer, "{}", after.with_datetime(now))
+    }
+
+    pub fn write<W: Write>(&self, mut writer: W, line: &str, buf: &mut String) -> io::Result<()> {
+        let now = self.get_now();
+        writer.write_all(self.before.format(buf, now).as_bytes())?;
+        if self.escape_mode == EscapeMode::Text {
+            writer.write_all(line.as_bytes())?;
+        } else {
+            html_escape::encode_safe_to_writer(line, &mut writer)?;
+        }
+        writer.write_all(self.after.format(buf, now).as_bytes())
+    }
+
+    pub fn write_output<W: Write>(
+        &self,
+        mut writer: W,
+        output: &[Output],
+        buf: &mut String,
+    ) -> io::Result<()> {
+        let now = self.get_now();
+        writer.write_all(self.before.format(buf, now).as_bytes())?;
+        for output_item in output {
+            match &output_item.fragment {
+                OutputFragment::Hr => writer.write_all(b"<hr>")?,
+                OutputFragment::LineBreak => writer.write_all(b"<br>")?,
+                OutputFragment::Text(fragment) if self.escape_mode != EscapeMode::HtmlColor => {
+                    html_escape::encode_text_to_writer(&fragment.text, &mut writer)?;
+                }
+                OutputFragment::Text(fragment) => write!(writer, "{}", fragment.html())?,
+                _ => (),
+            }
+        }
+        writer.write_all(self.after.format(buf, now).as_bytes())
     }
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct LogBrackets {
-    pub file: EscapedBrackets<String>,
-    pub output: EscapedBrackets<String>,
-    pub input: EscapedBrackets<String>,
-    pub notes: EscapedBrackets<String>,
+    pub file: EscapedBrackets,
+    pub output: EscapedBrackets,
+    pub input: EscapedBrackets,
+    pub notes: EscapedBrackets,
 }
 
 impl From<&World> for LogBrackets {
     fn from(world: &World) -> Self {
-        let mut file = EscapedBrackets::new(
-            Escaped::new(&world.log_file_preamble, world),
-            Escaped::new(&world.log_file_postamble, world),
-        );
-        let mut output = EscapedBrackets::new(
-            Escaped::new(&world.log_line_preamble_output, world),
-            Escaped::new(&world.log_line_postamble_output, world),
-        );
-        let mut input = EscapedBrackets::new(
-            Escaped::new(&world.log_line_preamble_input, world),
-            Escaped::new(&world.log_line_postamble_input, world),
-        );
-        let mut notes = EscapedBrackets::new(
-            Escaped::new(&world.log_line_preamble_notes, world),
-            Escaped::new(&world.log_line_postamble_notes, world),
-        );
-        if !file.before.message.is_empty() {
-            file.before.message.push('\n');
+        let escape_mode = if world.log_format != LogFormat::Html {
+            EscapeMode::Text
+        } else if world.log_in_colour {
+            EscapeMode::HtmlColor
+        } else {
+            EscapeMode::Html
+        };
+        let mut this = Self {
+            file: EscapedBrackets {
+                before: Escaped::for_log(&world.log_file_preamble, world),
+                after: Escaped::for_log(&world.log_file_postamble, world),
+                escape_mode,
+            },
+            output: EscapedBrackets {
+                before: Escaped::for_log(&world.log_line_preamble_output, world),
+                after: Escaped::for_log(&world.log_line_postamble_output, world),
+                escape_mode,
+            },
+            input: EscapedBrackets {
+                before: Escaped::for_log(&world.log_line_preamble_input, world),
+                after: Escaped::for_log(&world.log_line_postamble_input, world),
+                escape_mode,
+            },
+            notes: EscapedBrackets {
+                before: Escaped::for_log(&world.log_line_preamble_notes, world),
+                after: Escaped::for_log(&world.log_line_postamble_notes, world),
+                escape_mode,
+            },
+        };
+        this.output.after.message.push('\n');
+        this.input.after.message.push('\n');
+        this.notes.after.message.push('\n');
+        if escape_mode != EscapeMode::HtmlColor {
+            return this;
         }
-        if !file.after.message.is_empty() {
-            file.after.message.push('\n');
+        if let Some(echo_colour) = world.echo_colour {
+            this.input.set_color(echo_colour);
         }
-        output.after.message.push('\n');
-        input.after.message.push('\n');
-        notes.after.message.push('\n');
-        Self {
-            file,
-            output,
-            input,
-            notes,
+        if let Some(note_text_colour) = world.note_text_colour {
+            this.notes.set_color(note_text_colour);
         }
+        this
     }
 }

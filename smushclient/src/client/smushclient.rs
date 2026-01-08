@@ -186,7 +186,9 @@ impl SmushClient {
             | b"naws"
             | b"no_echo_off"
             | b"use_mxp" => self.update_config(),
-            b"log_format" | b"log_mode" => self.update_logger()?,
+            b"echo_colour" | b"log_format" | b"log_in_colour" | b"log_mode" | b"note_colour" => {
+                self.update_logger()?;
+            }
             _ => (),
         }
         Ok(())
@@ -335,7 +337,7 @@ impl SmushClient {
             had_output = had_output || !trigger_effects.omit_from_output;
 
             if !trigger_effects.omit_from_log
-                && let Err(e) = self.logger.borrow_mut().log_output_line(&line_text)
+                && let Err(e) = self.logger.borrow_mut().log_output_line(&line_text, output)
             {
                 handler.display_error(&format!("Log error: {e}"));
             }
@@ -361,7 +363,7 @@ impl SmushClient {
         outcome.into()
     }
 
-    pub fn log_note<H: Handler>(&self, note: &[u8], handler: &mut H) {
+    pub fn log_note<H: Handler>(&self, note: &str, handler: &mut H) {
         if let Err(e) = self.logger.borrow_mut().log_note(note) {
             handler.display_error(&format!("Log error: {e}"));
         }

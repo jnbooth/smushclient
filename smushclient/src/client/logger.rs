@@ -1,5 +1,7 @@
 use std::io::{self, Write};
 
+use mud_transformer::Output;
+
 use super::log_file::LogFile;
 use crate::world::{LogBrackets, LogFormat, World};
 
@@ -8,6 +10,7 @@ pub struct Logger {
     brackets: LogBrackets,
     format: LogFormat,
     file: LogFile,
+    buf: String,
 }
 
 impl Logger {
@@ -17,6 +20,7 @@ impl Logger {
             file: LogFile::new(world, brackets.file.clone()),
             format: world.log_format,
             brackets: world.brackets(),
+            buf: String::new(),
         }
     }
 
@@ -41,25 +45,42 @@ impl Logger {
         self.file.write_all(bytes)
     }
 
-    pub fn log_input_line<S: AsRef<[u8]>>(&mut self, line: S) -> io::Result<()> {
-        if self.format != LogFormat::Text {
+    pub fn log_input_line(&mut self, line: &str) -> io::Result<()> {
+        if self.format == LogFormat::Raw {
             return Ok(());
         }
-        self.brackets.input.write(&mut self.file, line.as_ref())
+        self.buf.clear();
+        self.brackets
+            .input
+            .write(&mut self.file, line, &mut self.buf)
     }
 
-    pub fn log_note<S: AsRef<[u8]>>(&mut self, line: S) -> io::Result<()> {
-        if self.format != LogFormat::Text {
+    pub fn log_note(&mut self, line: &str) -> io::Result<()> {
+        if self.format == LogFormat::Raw {
             return Ok(());
         }
-        self.brackets.notes.write(&mut self.file, line.as_ref())
+        self.buf.clear();
+        self.brackets
+            .notes
+            .write(&mut self.file, line, &mut self.buf)
     }
 
-    pub fn log_output_line<S: AsRef<[u8]>>(&mut self, line: S) -> io::Result<()> {
-        if self.format != LogFormat::Text {
-            return Ok(());
+    pub fn log_output_line(&mut self, line: &str, fragments: &[Output]) -> io::Result<()> {
+        match self.format {
+            LogFormat::Raw => Ok(()),
+            LogFormat::Html => {
+                self.buf.clear();
+                self.brackets
+                    .output
+                    .write_output(&mut self.file, fragments, &mut self.buf)
+            }
+            LogFormat::Text => {
+                self.buf.clear();
+                self.brackets
+                    .output
+                    .write(&mut self.file, line, &mut self.buf)
+            }
         }
-        self.brackets.output.write(&mut self.file, line.as_ref())
     }
 }
 

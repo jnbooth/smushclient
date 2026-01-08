@@ -115,7 +115,7 @@ impl Reaction {
             })
         }
 
-        buf.clear();
+        let len = buf.len();
         buf.reserve(self.text.len());
         let captures_len = captures.len();
         let mut start = 0;
@@ -133,11 +133,11 @@ impl Reaction {
             buf.push_str(group);
             start = match iter.peek() {
                 Some((start, _)) => *start,
-                None => return buf.as_str(),
+                None => return &buf[len..],
             };
         }
         buf.push_str(&self.text[start..]);
-        buf.as_str()
+        &buf[len..]
     }
 
     pub fn has_send(&self) -> bool {
