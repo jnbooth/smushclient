@@ -1,3 +1,5 @@
+use std::num::NonZero;
+
 use mud_transformer::mxp::RgbColor;
 use smushclient_plugins::SendTarget;
 
@@ -71,8 +73,7 @@ macro_rules! impl_parse {
     ($t:ty) => {
         impl FromOption for $t {
             fn from_option(option: &LuaStr) -> Option<Self> {
-                let value = str::from_utf8(option).ok()?;
-                value.parse().ok()
+                str::from_utf8(option).ok()?.parse().ok()
             }
         }
     };
@@ -81,3 +82,9 @@ macro_rules! impl_parse {
 impl_parse!(u8);
 impl_parse!(i16);
 impl_parse!(i32);
+
+impl FromOption for Option<NonZero<u8>> {
+    fn from_option(option: &LuaStr) -> Option<Self> {
+        u8::from_option(option).map(NonZero::new)
+    }
+}

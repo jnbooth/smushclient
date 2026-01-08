@@ -47,7 +47,7 @@ impl_convert_enum!(
     ScriptRecompile,
     Confirm,
     Always,
-    Never
+    Never,
 );
 
 impl_convert_enum!(ffi::UseMxp, UseMxp, Command, Query, Always, Never);
@@ -85,7 +85,7 @@ impl_convert_enum!(
     Error,
     Warning,
     Info,
-    All
+    All,
 );
 
 impl_convert_enum!(ffi::SendTo, SendTo, World, Input, Internet);
@@ -108,7 +108,7 @@ impl_convert_struct!(
     temporary,
     omit_from_output,
     omit_from_log,
-    userdata
+    userdata,
 );
 
 impl_convert_struct!(
@@ -122,7 +122,7 @@ impl_convert_struct!(
     is_regex,
     expand_variables,
     repeats,
-    regex
+    regex,
 );
 
 impl_convert_struct!(
@@ -131,7 +131,7 @@ impl_convert_struct!(
     reaction,
     echo_alias,
     menu,
-    omit_from_command_history
+    omit_from_command_history,
 );
 
 impl_convert_struct!(
@@ -149,7 +149,8 @@ impl_convert_struct!(
     sound_if_inactive,
     lowercase_wildcard,
     multi_line,
-    lines_to_match
+    lines_to_match,
+    clipboard_arg,
 );
 
 impl_convert!(ffi::Occurrence, Occurrence);
@@ -275,7 +276,7 @@ impl_convert_struct!(
     error_text_colour,
     error_background_colour,
     // Hidden
-    plugins
+    plugins,
 );
 
 impl<'a> From<SendRequest<'a>> for ffi::SendRequest {

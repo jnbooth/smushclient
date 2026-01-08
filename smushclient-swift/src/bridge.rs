@@ -225,6 +225,7 @@ pub mod ffi {
         lowercase_wildcard: bool,
         multi_line: bool,
         lines_to_match: u8,
+        clipboard_arg: u8,
     }
 
     #[swift_bridge(swift_repr = "struct")]

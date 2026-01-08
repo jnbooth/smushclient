@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::num::NonZero;
 
 use flagset::{FlagSet, flags};
 use mxp::RgbColor;
@@ -26,6 +27,7 @@ pub struct Trigger {
     pub lowercase_wildcard: bool,
     pub multi_line: bool,
     pub lines_to_match: u8,
+    pub clipboard_arg: Option<NonZero<u8>>,
 }
 
 impl Default for Trigger {
@@ -44,6 +46,7 @@ impl Default for Trigger {
             lowercase_wildcard: false,
             multi_line: false,
             lines_to_match: 0,
+            clipboard_arg: None,
         }
     }
 }
@@ -174,6 +177,8 @@ pub struct TriggerXml<'a> {
         skip_serializing_if = "String::is_empty"
     )]
     other_back_colour: String,
+    #[serde(rename = "@clipboard_arg", default, skip_serializing_if = "is_zero")]
+    clipboard_arg: u8,
     #[serde(borrow, default, rename = "send")]
     text: Vec<Cow<'a, str>>,
 }
@@ -238,6 +243,7 @@ impl TryFrom<TriggerXml<'_>> for Trigger {
                 ..lowercase_wildcard,
                 ..multi_line,
                 ..lines_to_match,
+                ..clipboard_arg,
             }
         ))
     }
@@ -290,6 +296,7 @@ impl<'a> From<&'a Trigger> for TriggerXml<'a> {
                 ..lowercase_wildcard,
                 ..multi_line,
                 ..lines_to_match,
+                ..clipboard_arg,
             }
         )
     }

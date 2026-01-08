@@ -1,3 +1,5 @@
+use std::num::NonZero;
+
 use smushclient_plugins::{
     Alias, CursorVec, Plugin, Reaction, Sender, Timer, Trigger, XmlIterable,
 };
@@ -73,6 +75,7 @@ pub trait ReactionIterable: SendIterable {
     fn reaction(&self) -> &Reaction;
     fn sound(&self) -> Option<&str>;
     fn style(&self) -> SpanStyle;
+    fn clipboard_arg(&self) -> Option<NonZero<u8>>;
     fn add_effects(&self, effects: &mut Self::Effects);
 }
 
@@ -88,6 +91,9 @@ impl ReactionIterable for Alias {
     }
     fn style(&self) -> SpanStyle {
         SpanStyle::null()
+    }
+    fn clipboard_arg(&self) -> Option<NonZero<u8>> {
+        None
     }
     fn add_effects(&self, effects: &mut Self::Effects) {
         effects.add_effects(self);
@@ -110,6 +116,9 @@ impl ReactionIterable for Trigger {
     }
     fn style(&self) -> SpanStyle {
         SpanStyle::from(self)
+    }
+    fn clipboard_arg(&self) -> Option<NonZero<u8>> {
+        self.clipboard_arg
     }
     fn add_effects(&self, effects: &mut Self::Effects) {
         effects.add_effects(self);

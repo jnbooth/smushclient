@@ -9,6 +9,7 @@ use crate::LuaStr;
 impl Optionable for Trigger {
     fn get_option(&self, name: &LuaStr) -> OptionValue<'_> {
         match name {
+            b"clipboard_arg" => self.clipboard_arg.encode(),
             b"italic" => self.make_italic.encode(),
             b"lines_to_match" => self.lines_to_match.encode(),
             b"lowercase_wildcard" => self.lowercase_wildcard.encode(),
@@ -36,6 +37,7 @@ impl Optionable for Trigger {
 
     fn set_option(&mut self, name: &LuaStr, value: &LuaStr) -> Result<(), OptionError> {
         match name {
+            b"clipboard_arg" => self.clipboard_arg = value.decode()?,
             b"italic" => self.make_italic = value.decode()?,
             b"lines_to_match" => self.lines_to_match = value.decode()?,
             b"lowercase_wildcard" => self.lowercase_wildcard = value.decode()?,

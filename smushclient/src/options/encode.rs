@@ -1,3 +1,5 @@
+use std::num::NonZero;
+
 use mud_transformer::mxp::RgbColor;
 use smushclient_plugins::SendTarget;
 
@@ -54,5 +56,14 @@ impl<'a> EncodeOption<'a> for &'a str {
 impl<'a> EncodeOption<'a> for &'a String {
     fn encode(self) -> OptionValue<'a> {
         OptionValue::Alpha(self.as_bytes())
+    }
+}
+
+impl EncodeOption<'static> for Option<NonZero<u8>> {
+    fn encode(self) -> OptionValue<'static> {
+        match self {
+            Some(value) => OptionValue::Numeric(i32::from(value.get())),
+            None => OptionValue::Numeric(0),
+        }
     }
 }

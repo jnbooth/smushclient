@@ -16,6 +16,8 @@ macro_rules! impl_convert {
         }
     };
 }
+use std::num::NonZero;
+
 pub(crate) use impl_convert;
 
 macro_rules! impl_convert_self {
@@ -75,6 +77,19 @@ impl Convert<Option<String>> for String {
 
     fn to_ffi(value: Option<String>) -> Self {
         value.unwrap_or_default()
+    }
+}
+
+impl Convert<Option<NonZero<u8>>> for u8 {
+    fn from_ffi(value: Self) -> Option<NonZero<u8>> {
+        NonZero::new(value)
+    }
+
+    fn to_ffi(value: Option<NonZero<u8>>) -> Self {
+        match value {
+            Some(value) => value.get(),
+            None => 0,
+        }
     }
 }
 

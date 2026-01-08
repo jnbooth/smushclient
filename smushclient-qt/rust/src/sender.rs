@@ -1,6 +1,7 @@
 #![allow(clippy::cast_possible_truncation)]
 #![allow(clippy::cast_possible_wrap)]
 #![allow(clippy::cast_sign_loss)]
+use std::num::NonZero;
 use std::pin::Pin;
 use std::ptr;
 use std::time::Duration;
@@ -332,6 +333,7 @@ pub struct TriggerRust {
     pub lowercase_wildcard: bool,
     pub multi_line: bool,
     pub lines_to_match: i32,
+    pub clipboard_arg: i32,
 }
 
 impl_deref!(TriggerRust, ReactionRust, reaction);
@@ -352,6 +354,7 @@ impl Default for TriggerRust {
             lowercase_wildcard: false,
             multi_line: false,
             lines_to_match: 0,
+            clipboard_arg: 0,
         }
     }
 }
@@ -372,6 +375,10 @@ impl From<&Trigger> for TriggerRust {
             lowercase_wildcard: trigger.lowercase_wildcard,
             multi_line: trigger.multi_line,
             lines_to_match: i32::from(trigger.lines_to_match),
+            clipboard_arg: match trigger.clipboard_arg {
+                Some(n) => i32::from(n.get()),
+                None => 0,
+            },
         }
     }
 }
@@ -393,7 +400,10 @@ impl TryFrom<&TriggerRust> for Trigger {
             sound_if_inactive: value.sound_if_inactive,
             lowercase_wildcard: value.lowercase_wildcard,
             multi_line: value.multi_line,
-            lines_to_match: value.lines_to_match as u8,
+            lines_to_match: u8::try_from(value.lines_to_match).unwrap_or(u8::MAX),
+            clipboard_arg: u8::try_from(value.clipboard_arg)
+                .ok()
+                .and_then(NonZero::new),
         })
     }
 }

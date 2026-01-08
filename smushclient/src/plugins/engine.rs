@@ -6,6 +6,7 @@ use std::ops::{Deref, DerefMut};
 use std::path::Path;
 use std::{slice, vec};
 
+use arboard::Clipboard;
 use mud_transformer::Output;
 use smushclient_plugins::{Alias, LoadError, Plugin, PluginIndex, Reaction, SendTarget, Trigger};
 
@@ -222,6 +223,12 @@ impl PluginEngine {
                         let Some(sender) = sender.borrow() else {
                             break;
                         };
+                        if let Some(clipboard_arg) = sender.clipboard_arg()
+                            && let Some(capture) = captures.get(clipboard_arg.get().into())
+                            && let Ok(mut clipboard) = Clipboard::new()
+                        {
+                            clipboard.set_text(capture.as_str()).ok();
+                        }
                         let reaction = sender.reaction();
                         if reaction.send_to == SendTarget::Variable {
                             variables.borrow_mut().set_variable(
