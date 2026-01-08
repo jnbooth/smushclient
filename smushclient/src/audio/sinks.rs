@@ -82,6 +82,13 @@ impl AudioSinks {
         self.play(i, decoder, volume, mode)
     }
 
+    pub fn play_file_raw<P: AsRef<Path>>(&self, path: P) -> Result<(), AudioError> {
+        let file = File::open(path)?;
+        let decoder = Decoder::try_from(file)?;
+        self.stream.mixer().add(decoder);
+        Ok(())
+    }
+
     pub fn configure_sink(&self, i: usize, volume: f32, mode: PlayMode) -> Result<(), AudioError> {
         let sink = self.get(i)?;
         sink.set_volume(volume);

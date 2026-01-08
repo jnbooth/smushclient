@@ -8,7 +8,7 @@ use mud_transformer::mxp;
 use mud_transformer::{
     EffectFragment, EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment,
 };
-use smushclient::{AudioSinks, PlayMode, SendRequest, SendScriptRequest, SpanStyle};
+use smushclient::{AudioSinks, SendRequest, SendScriptRequest, SpanStyle};
 
 use crate::convert::Convert;
 use crate::ffi::Document;
@@ -168,7 +168,7 @@ impl smushclient::Handler for ClientHandler<'_> {
     }
 
     fn play_sound(&mut self, path: &str) {
-        if let Err(e) = self.audio.play_file(0, path, 1.0, PlayMode::Once) {
+        if let Err(e) = self.audio.play_file_raw(path) {
             self.display_error(&e.to_string());
         }
     }

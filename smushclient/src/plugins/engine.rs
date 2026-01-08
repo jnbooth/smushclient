@@ -21,8 +21,6 @@ use crate::world::World;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PluginEngine {
     plugins: Vec<Plugin>,
-    alias_buf: String,
-    trigger_buf: String,
 }
 
 impl Default for PluginEngine {
@@ -35,8 +33,6 @@ impl PluginEngine {
     pub const fn new() -> Self {
         Self {
             plugins: Vec::new(),
-            alias_buf: String::new(),
-            trigger_buf: String::new(),
         }
     }
 

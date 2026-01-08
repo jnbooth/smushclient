@@ -11,7 +11,7 @@ use cxx_qt_lib::{QString, QStringList, QVariant};
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
-    AliasOutcome, AudioSinks, CommandSource, Handler, LuaStr, OptionError, Optionable, PlayMode,
+    AliasOutcome, AudioSinks, CommandSource, Handler, LuaStr, OptionError, Optionable,
     SendIterable, SenderAccessError, SmushClient, Timers, World,
 };
 use smushclient_plugins::{Alias, LoadError, PluginIndex, Timer, Trigger, XmlError};
@@ -264,7 +264,7 @@ impl SmushClientRust {
         let Some(sound) = &self.client.world().new_activity_sound else {
             return ffi::ApiCode::OK;
         };
-        self.audio.play_file(0, sound, 1.0, PlayMode::Once).code()
+        self.audio.play_file_raw(sound).code()
     }
 
     pub fn play_buffer(&self, i: usize, buf: &[u8], volume: f32, looping: bool) -> ffi::ApiCode {
