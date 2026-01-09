@@ -35,6 +35,10 @@ impl ffi::SmushClient {
         self.rust().client.close_log()
     }
 
+    pub fn log_note(&self, note: &QString) {
+        let _ = self.rust().client.log_note(&String::from(note));
+    }
+
     pub fn load_plugins(self: Pin<&mut Self>) -> QStringList {
         self.rust_mut().load_plugins()
     }

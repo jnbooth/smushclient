@@ -69,6 +69,7 @@ pub mod ffi {
         fn save_world(self: &SmushClient, path: &QString) -> Result<()>;
         fn open_log(self: Pin<&mut SmushClient>) -> Result<()>;
         fn close_log(self: &SmushClient) -> Result<()>;
+        fn log_note(self: &SmushClient, note: &QString);
         fn load_plugins(self: Pin<&mut SmushClient>) -> QStringList;
         fn world_plugin_index(self: &SmushClient) -> usize;
         fn load_variables(self: &SmushClient, path: &QString) -> Result<bool>;

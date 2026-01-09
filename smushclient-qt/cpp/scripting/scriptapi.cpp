@@ -16,6 +16,7 @@
 #include <QtCore/QFileInfo>
 #include <QtGui/QGradient>
 #include <QtGui/QGuiApplication>
+#include <QtGui/QTextBlock>
 #include <QtWidgets/QStatusBar>
 
 using std::string;
@@ -69,6 +70,8 @@ ScriptApi::appendTell(const QString& text, const QTextCharFormat& format)
   cursor.insertText(text, format);
   hasLine = true;
   lastTellPosition = cursor.position();
+  if (logNotes) {
+  }
 }
 
 void
@@ -88,6 +91,7 @@ void
 ScriptApi::applyWorld(const World& world)
 {
   doNaws = world.getNaws();
+  logNotes = world.getLogNotes();
   echoOnSameLine = world.getKeepCommandsOnSameLine();
   if (world.getNoEchoOff())
     suppressEcho = false;
@@ -498,6 +502,16 @@ ScriptApi::flushLine()
 
   indentNext = false;
   cursor.insertText(indentText);
+}
+
+void
+ScriptApi::insertBlock()
+{
+  if (logNotes && lastTellPosition >= lastLinePosition) {
+    client()->logNote(cursor.block().text());
+  }
+  cursor.insertBlock();
+  lastLinePosition = cursor.position();
 }
 
 ApiCode

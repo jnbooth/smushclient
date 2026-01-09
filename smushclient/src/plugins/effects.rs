@@ -15,7 +15,6 @@ pub enum CommandSource {
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct AliasEffects {
     pub omit_from_command_history: bool,
-    pub omit_from_log: bool,
     pub suppress: bool,
 }
 
@@ -24,17 +23,14 @@ impl AliasEffects {
         match source {
             CommandSource::Hotkey => Self {
                 omit_from_command_history: !world.hotkey_adds_to_command_history,
-                omit_from_log: false,
                 suppress: false,
             },
             CommandSource::Link => Self {
                 omit_from_command_history: !world.hyperlink_adds_to_command_history,
-                omit_from_log: false,
                 suppress: false,
             },
             CommandSource::User => Self {
                 omit_from_command_history: false,
-                omit_from_log: false,
                 suppress: false,
             },
         }
@@ -42,7 +38,6 @@ impl AliasEffects {
 
     pub fn add_effects(&mut self, alias: &Alias) {
         self.omit_from_command_history |= alias.omit_from_command_history;
-        self.omit_from_log |= alias.omit_from_log;
         self.suppress |= !alias.keep_evaluating;
     }
 }

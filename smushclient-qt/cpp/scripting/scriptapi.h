@@ -416,6 +416,7 @@ private:
   MiniWindow* findWindow(std::string_view windowName) const;
   bool finishQueuedSend(const SendRequest& request);
   void flushLine();
+  void insertBlock();
   ApiCode sendToWorld(QByteArray& bytes, const QString& text, bool echo);
 
 private:
@@ -432,6 +433,8 @@ private:
   bool indentNext = false;
   QString indentText{};
   int lastTellPosition = -1;
+  int lastLinePosition = -1;
+  bool logNotes = false;
   QTextCharFormat noteFormat{};
   Notepads* notepads;
   std::vector<Plugin> plugins{};

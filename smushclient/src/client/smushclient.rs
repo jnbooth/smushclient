@@ -291,8 +291,12 @@ impl SmushClient {
         had_output
     }
 
-    pub fn log_note<H: Handler>(&self, note: &str, handler: &mut H) {
-        if let Err(e) = self.logger.borrow_mut().log_note(note) {
+    pub fn log_note(&self, note: &str) -> io::Result<()> {
+        self.logger.borrow_mut().log_note(note)
+    }
+
+    fn log_input<H: Handler>(&self, input: &str, handler: &mut H) {
+        if let Err(e) = self.logger.borrow_mut().log_input_line(input) {
             handler.display_error(&format!("Log error: {e}"));
         }
     }
@@ -673,11 +677,8 @@ impl SmushClient {
             CommandSource::User => true,
         };
         self.process_matches::<Alias, _>(input, &[], echo, handler, &mut effects);
-        if !effects.omit_from_log
-            && !effects.suppress
-            && let Err(e) = self.logger.borrow_mut().log_input_line(input)
-        {
-            handler.display_error(&format!("Log error: {e}"));
+        if !effects.suppress {
+            self.log_input(input, handler);
         }
         effects.into()
     }
@@ -779,12 +780,15 @@ impl SmushClient {
                         }
                     };
                     if send_request {
+                        let text = reaction_buf.expand_text(&mut text_buf, &captures);
+                        if !reaction_buf.omit_from_log {
+                            self.log_input(text, handler);
+                        }
                         handler.send(SendRequest {
                             plugin: plugin_index,
                             send_to: reaction_buf.send_to,
                             echo: permit_echo && reaction_buf.should_echo(),
-                            log: !reaction_buf.omit_from_log,
-                            text: reaction_buf.expand_text(&mut text_buf, &captures),
+                            text,
                             destination: reaction_buf.destination(),
                         });
                     }

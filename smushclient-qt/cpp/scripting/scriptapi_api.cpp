@@ -324,6 +324,8 @@ ScriptApi::SetOption(size_t plugin, string_view name, int value)
     indentText = QStringLiteral(" ").repeated(value);
   else if (name == "keep_commands_on_same_line")
     echoOnSameLine = value == 1;
+  else if (name == "log_notes")
+    logNotes = value == 1;
   else if (name == "naws")
     doNaws = value == 1;
   else if (name == "note_text_colour")
