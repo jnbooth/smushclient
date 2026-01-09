@@ -1,10 +1,12 @@
 use std::cell::{Ref, RefCell, RefMut};
-use std::io::{self, Read, Write};
+use std::fs::File;
+use std::io::{self, Cursor, Read, Write};
 use std::path::Path;
 use std::{env, mem, slice};
 
 use flagset::FlagSet;
 use mud_transformer::{OutputFragment, Tag, Transformer, TransformerConfig};
+use rodio::Decoder;
 use smushclient_plugins::{CursorVec, LoadError, Plugin, PluginIndex, XmlError, XmlSerError};
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt};
@@ -12,9 +14,10 @@ use tokio::io::{AsyncRead, AsyncReadExt};
 use super::logger::Logger;
 use super::variables::PluginVariables;
 use super::variables::{LuaStr, LuaString};
-use crate::OptionValue;
+use crate::audio::{AudioError, AudioSinks, PlayMode};
 use crate::collections::SortOnDrop;
 use crate::handler::Handler;
+use crate::options::OptionValue;
 use crate::plugins::{
     AliasOutcome, CommandSource, LoadFailure, PluginEngine, SendIterable, SenderAccessError,
 };
@@ -22,7 +25,6 @@ use crate::world::{OptionCaller, PersistError, SetOptionError, World};
 
 const METAVARIABLES_KEY: &str = "\x01";
 
-#[derive(Debug)]
 pub struct SmushClient {
     logger: RefCell<Logger>,
     pub(crate) plugins: PluginEngine,
@@ -30,6 +32,7 @@ pub struct SmushClient {
     transformer: Transformer,
     variables: RefCell<PluginVariables>,
     world: World,
+    audio: AudioSinks,
 }
 
 impl Default for SmushClient {
@@ -39,6 +42,9 @@ impl Default for SmushClient {
 }
 
 impl SmushClient {
+    /// # Panics
+    ///
+    /// Panics if audio initialization fails.
     pub fn new(world: World, supported_tags: FlagSet<Tag>) -> Self {
         let mut plugins = PluginEngine::new();
         plugins.set_world_plugin(world.world_plugin());
@@ -53,6 +59,7 @@ impl SmushClient {
             transformer,
             variables: RefCell::new(PluginVariables::new()),
             world,
+            audio: AudioSinks::try_default().expect("audio initialization error"),
         }
     }
 
@@ -146,76 +153,6 @@ impl SmushClient {
         } else {
             OptionCaller::Plugin
         }
-    }
-
-    pub fn world_option(&self, index: PluginIndex, option: &LuaStr) -> Option<i32> {
-        let caller = self.option_caller(index);
-        self.world.option_int(caller, option)
-    }
-
-    pub fn world_alpha_option(&self, index: PluginIndex, option: &LuaStr) -> Option<&LuaStr> {
-        let caller = self.option_caller(index);
-        self.world.option_str(caller, option)
-    }
-
-    pub fn world_variant_option(&self, index: PluginIndex, option: &LuaStr) -> OptionValue<'_> {
-        let caller = self.option_caller(index);
-        if let Some(value) = self.world.option_int(caller, option) {
-            OptionValue::Numeric(value)
-        } else if let Some(value) = self.world.option_str(caller, option) {
-            OptionValue::Alpha(value)
-        } else {
-            OptionValue::Null
-        }
-    }
-
-    pub fn set_world_option(
-        &mut self,
-        index: PluginIndex,
-        option: &LuaStr,
-        value: i32,
-    ) -> Result<(), SetOptionError> {
-        let caller = self.option_caller(index);
-        self.world.set_option_int(caller, option, value)?;
-        match option {
-            b"connect_method"
-            | b"convert_ga_to_newline"
-            | b"disable_compression"
-            | b"disable_utf8"
-            | b"ignore_mxp_colors"
-            | b"naws"
-            | b"no_echo_off"
-            | b"use_mxp" => self.update_config(),
-            b"echo_colour" | b"log_format" | b"log_in_colour" | b"log_mode" | b"note_colour" => {
-                self.update_logger()?;
-            }
-            _ => (),
-        }
-        Ok(())
-    }
-
-    pub fn set_world_alpha_option(
-        &mut self,
-        index: PluginIndex,
-        option: &LuaStr,
-        value: LuaString,
-    ) -> Result<(), SetOptionError> {
-        let caller = self.option_caller(index);
-        self.world.set_option_str(caller, option, value)?;
-        if option.starts_with(b"log_") {
-            self.update_logger()?;
-            return Ok(());
-        }
-        match option {
-            b"name" | b"player" => {
-                self.update_config();
-                self.update_logger()?;
-            }
-            b"password" | b"terminal_identification" => self.update_config(),
-            b"auto_log_file_name" => self.update_logger()?,
-            _ => (),
-        }
-        Ok(())
     }
 
     pub fn open_log(&self) -> io::Result<()> {
@@ -330,9 +267,14 @@ impl SmushClient {
                 handler.display(fragment);
             }
 
-            let trigger_effects =
-                self.plugins
-                    .trigger(&line_text, output, &self.world, &self.variables, handler);
+            let trigger_effects = self.plugins.trigger(
+                &line_text,
+                output,
+                &self.world,
+                &self.variables,
+                self.audio.stream(),
+                handler,
+            );
 
             had_output = had_output || !trigger_effects.omit_from_output;
 
@@ -352,9 +294,14 @@ impl SmushClient {
         source: CommandSource,
         handler: &mut H,
     ) -> AliasOutcome {
-        let outcome = self
-            .plugins
-            .alias(input, source, &self.world, &self.variables, handler);
+        let outcome = self.plugins.alias(
+            input,
+            source,
+            &self.world,
+            &self.variables,
+            self.audio.stream(),
+            handler,
+        );
         if !outcome.omit_from_log
             && let Err(e) = self.logger.borrow_mut().log_input_line(input)
         {
@@ -410,6 +357,50 @@ impl SmushClient {
 
     pub fn plugins_len(&self) -> usize {
         self.plugins.len()
+    }
+
+    pub fn configure_audio_sink(
+        &self,
+        i: usize,
+        volume: f32,
+        mode: PlayMode,
+    ) -> Result<(), AudioError> {
+        self.audio.configure_sink(i, volume, mode)
+    }
+
+    #[inline(always)] // avoid move operation on buffer
+    pub fn play_buffer(
+        &self,
+        i: usize,
+        buffer: Vec<u8>,
+        volume: f32,
+        mode: PlayMode,
+    ) -> Result<(), AudioError> {
+        let decoder = Decoder::try_from(Cursor::new(buffer))?;
+        self.audio.play(i, decoder, volume, mode)
+    }
+
+    pub fn play_file<P: AsRef<Path>>(
+        &self,
+        i: usize,
+        path: P,
+        volume: f32,
+        mode: PlayMode,
+    ) -> Result<(), AudioError> {
+        let file = File::open(path)?;
+        let decoder = Decoder::try_from(file)?;
+        self.audio.play(i, decoder, volume, mode)
+    }
+
+    pub fn play_file_raw<P: AsRef<Path>>(&self, path: P) -> Result<(), AudioError> {
+        let file = File::open(path)?;
+        let decoder = Decoder::try_from(file)?;
+        self.audio.stream().mixer().add(decoder);
+        Ok(())
+    }
+
+    pub fn stop_sound(&self, i: usize) -> Result<(), AudioError> {
+        self.audio.stop(i)
     }
 
     pub fn has_variables(&self) -> bool {
@@ -616,6 +607,76 @@ impl SmushClient {
 
     pub fn export_world_senders<T: SendIterable>(&self) -> Result<String, XmlSerError> {
         T::to_xml_string(&*T::from_world(&self.world).borrow())
+    }
+
+    pub fn world_option(&self, index: PluginIndex, option: &LuaStr) -> Option<i32> {
+        let caller = self.option_caller(index);
+        self.world.option_int(caller, option)
+    }
+
+    pub fn world_alpha_option(&self, index: PluginIndex, option: &LuaStr) -> Option<&LuaStr> {
+        let caller = self.option_caller(index);
+        self.world.option_str(caller, option)
+    }
+
+    pub fn world_variant_option(&self, index: PluginIndex, option: &LuaStr) -> OptionValue<'_> {
+        let caller = self.option_caller(index);
+        if let Some(value) = self.world.option_int(caller, option) {
+            OptionValue::Numeric(value)
+        } else if let Some(value) = self.world.option_str(caller, option) {
+            OptionValue::Alpha(value)
+        } else {
+            OptionValue::Null
+        }
+    }
+
+    pub fn set_world_option(
+        &mut self,
+        index: PluginIndex,
+        option: &LuaStr,
+        value: i32,
+    ) -> Result<(), SetOptionError> {
+        let caller = self.option_caller(index);
+        self.world.set_option_int(caller, option, value)?;
+        match option {
+            b"connect_method"
+            | b"convert_ga_to_newline"
+            | b"disable_compression"
+            | b"disable_utf8"
+            | b"ignore_mxp_colors"
+            | b"naws"
+            | b"no_echo_off"
+            | b"use_mxp" => self.update_config(),
+            b"echo_colour" | b"log_format" | b"log_in_colour" | b"log_mode" | b"note_colour" => {
+                self.update_logger()?;
+            }
+            _ => (),
+        }
+        Ok(())
+    }
+
+    pub fn set_world_alpha_option(
+        &mut self,
+        index: PluginIndex,
+        option: &LuaStr,
+        value: LuaString,
+    ) -> Result<(), SetOptionError> {
+        let caller = self.option_caller(index);
+        self.world.set_option_str(caller, option, value)?;
+        if option.starts_with(b"log_") {
+            self.update_logger()?;
+            return Ok(());
+        }
+        match option {
+            b"name" | b"player" => {
+                self.update_config();
+                self.update_logger()?;
+            }
+            b"password" | b"terminal_identification" => self.update_config(),
+            b"auto_log_file_name" => self.update_logger()?,
+            _ => (),
+        }
+        Ok(())
     }
 
     fn update_world_plugins(&mut self) {

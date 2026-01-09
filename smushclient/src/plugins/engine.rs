@@ -1,6 +1,7 @@
 use core::str;
 use std::cell::RefCell;
 use std::collections::HashSet;
+use std::fs::File;
 use std::io::{self};
 use std::ops::{Deref, DerefMut};
 use std::path::Path;
@@ -8,12 +9,14 @@ use std::{slice, vec};
 
 use arboard::Clipboard;
 use mud_transformer::Output;
+use rodio::Decoder;
 use smushclient_plugins::{Alias, LoadError, Plugin, PluginIndex, Reaction, SendTarget, Trigger};
 
 use super::effects::CommandSource;
 use super::effects::{AliasEffects, SpanStyle, TriggerEffects};
 use super::error::LoadFailure;
 use super::iter::ReactionIterable;
+use crate::audio::AudioStream;
 use crate::client::PluginVariables;
 use crate::handler::{Handler, HandlerExt};
 use crate::world::World;
@@ -138,10 +141,11 @@ impl PluginEngine {
         source: CommandSource,
         world: &World,
         variables: &RefCell<PluginVariables>,
+        audio: &AudioStream,
         handler: &mut H,
     ) -> AliasEffects {
         let mut effects = AliasEffects::new(world, source);
-        self.process_matches::<Alias, _>(line, &[], world, variables, handler, &mut effects);
+        self.process_matches::<Alias, _>(line, &[], world, variables, audio, handler, &mut effects);
         effects
     }
 
@@ -151,22 +155,33 @@ impl PluginEngine {
         output: &[Output],
         world: &World,
         variables: &RefCell<PluginVariables>,
+        audio: &AudioStream,
         handler: &mut H,
     ) -> TriggerEffects {
         let mut effects = TriggerEffects::new();
-        self.process_matches::<Trigger, _>(line, output, world, variables, handler, &mut effects);
+        self.process_matches::<Trigger, _>(
+            line,
+            output,
+            world,
+            variables,
+            audio,
+            handler,
+            &mut effects,
+        );
         if effects.omit_from_output {
             handler.erase_last_line();
         }
         effects
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn process_matches<T: ReactionIterable, H: Handler>(
         &self,
         line: &str,
         output: &[Output],
         world: &World,
         variables: &RefCell<PluginVariables>,
+        audio: &AudioStream,
         handler: &mut H,
         effects: &mut T::Effects,
     ) {
@@ -283,8 +298,10 @@ impl PluginEngine {
                     };
                     if let Some(sound) = sender.sound()
                         && world.enable_trigger_sounds
+                        && let Ok(file) = File::open(sound)
+                        && let Ok(decoder) = Decoder::try_from(file)
                     {
-                        handler.play_sound(sound);
+                        audio.mixer().add(decoder);
                     }
                     sender.add_effects(effects);
                     let reaction = sender.reaction();

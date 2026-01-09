@@ -3,28 +3,26 @@ use std::io::BufReader;
 use std::path::Path;
 
 use rodio::source::Buffered;
-use rodio::{Decoder, OutputStream, OutputStreamBuilder, Sink, Source, StreamError};
+use rodio::{Decoder, Sink, Source, StreamError};
 
 use super::error::AudioError;
+use super::stream::AudioStream;
 
 /// Plays a single file.
 /// In a settings UI for selecting a sound file, `AudioFilePlayback` provides the ability to play
 /// back the file.
 pub struct AudioFilePlayback {
-    _stream: OutputStream,
+    _stream: AudioStream,
     sink: Sink,
     source: Option<Buffered<Decoder<BufReader<File>>>>,
 }
 
 impl AudioFilePlayback {
     pub fn try_default() -> Result<Self, StreamError> {
-        let mut stream = OutputStreamBuilder::open_default_stream()?;
-        stream.log_on_drop(false);
-        let mixer = stream.mixer();
-        let sink = Sink::connect_new(mixer);
+        let stream = AudioStream::open_default_stream()?;
         Ok(Self {
+            sink: Sink::connect_new(stream.mixer()),
             _stream: stream,
-            sink,
             source: None,
         })
     }

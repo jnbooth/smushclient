@@ -8,14 +8,13 @@ use mud_transformer::mxp;
 use mud_transformer::{
     EffectFragment, EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment,
 };
-use smushclient::{AudioSinks, SendRequest, SendScriptRequest, SpanStyle};
+use smushclient::{SendRequest, SendScriptRequest, SpanStyle};
 
 use crate::convert::Convert;
 use crate::ffi::Document;
 use crate::text_formatter::TextFormatter;
 
 pub struct ClientHandler<'a> {
-    pub audio: &'a AudioSinks,
     pub doc: Pin<&'a mut Document>,
     pub formatter: &'a TextFormatter,
     pub carriage_return_clears_line: bool,
@@ -165,12 +164,6 @@ impl smushclient::Handler for ClientHandler<'_> {
 
     fn permit_line(&mut self, line: &str) -> bool {
         self.doc.permit_line(line)
-    }
-
-    fn play_sound(&mut self, path: &str) {
-        if let Err(e) = self.audio.play_file_raw(path) {
-            self.display_error(&e.to_string());
-        }
     }
 
     fn send(&mut self, request: SendRequest) {

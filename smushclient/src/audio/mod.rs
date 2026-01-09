@@ -8,3 +8,6 @@ mod looping;
 
 mod sinks;
 pub use sinks::{AudioSinks, PlayMode};
+
+mod stream;
+pub use stream::AudioStream;

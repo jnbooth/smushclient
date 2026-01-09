@@ -1,12 +1,9 @@
-use std::fs::File;
-use std::io::Cursor;
-use std::path::Path;
-
 use rodio::cpal::FromSample;
-use rodio::{Decoder, OutputStream, OutputStreamBuilder, Source, StreamError};
+use rodio::{Source, StreamError};
 
 use super::error::AudioError;
 use super::looping::LoopingSink;
+use super::stream::AudioStream;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum PlayMode {
@@ -22,17 +19,19 @@ impl From<bool> for PlayMode {
 
 pub struct AudioSinks {
     sinks: [LoopingSink; 10],
-    stream: OutputStream,
+    stream: AudioStream,
 }
 
 impl AudioSinks {
     pub fn try_default() -> Result<Self, StreamError> {
-        let mut stream = OutputStreamBuilder::open_default_stream()?;
-        stream.log_on_drop(false);
         Ok(Self {
             sinks: Default::default(),
-            stream,
+            stream: AudioStream::open_default_stream()?,
         })
+    }
+
+    pub fn stream(&self) -> &AudioStream {
+        &self.stream
     }
 
     fn get(&self, i: usize) -> Result<&LoopingSink, AudioError> {
@@ -45,7 +44,13 @@ impl AudioSinks {
         }
     }
 
-    fn play<S>(&self, i: usize, source: S, volume: f32, mode: PlayMode) -> Result<(), AudioError>
+    pub fn play<S>(
+        &self,
+        i: usize,
+        source: S,
+        volume: f32,
+        mode: PlayMode,
+    ) -> Result<(), AudioError>
     where
         S: Source + Send + 'static,
         f32: FromSample<S::Item>,
@@ -55,37 +60,6 @@ impl AudioSinks {
         sink.set_volume(volume);
         sink.set_looping(mode == PlayMode::Loop);
         sink.play(source, self.stream.mixer());
-        Ok(())
-    }
-
-    #[inline(always)] // avoid move operation on buffer
-    pub fn play_buffer(
-        &self,
-        i: usize,
-        buffer: Vec<u8>,
-        volume: f32,
-        mode: PlayMode,
-    ) -> Result<(), AudioError> {
-        let decoder = Decoder::try_from(Cursor::new(buffer))?;
-        self.play(i, decoder, volume, mode)
-    }
-
-    pub fn play_file<P: AsRef<Path>>(
-        &self,
-        i: usize,
-        path: P,
-        volume: f32,
-        mode: PlayMode,
-    ) -> Result<(), AudioError> {
-        let file = File::open(path)?;
-        let decoder = Decoder::try_from(file)?;
-        self.play(i, decoder, volume, mode)
-    }
-
-    pub fn play_file_raw<P: AsRef<Path>>(&self, path: P) -> Result<(), AudioError> {
-        let file = File::open(path)?;
-        let decoder = Decoder::try_from(file)?;
-        self.stream.mixer().add(decoder);
         Ok(())
     }
 

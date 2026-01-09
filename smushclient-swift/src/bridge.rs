@@ -427,7 +427,6 @@ pub mod ffi {
         },
         PageBreak,
         Send(SendRequest),
-        Sound(String),
         Telnet(TelnetFragment),
         Text(RustTextFragment),
     }

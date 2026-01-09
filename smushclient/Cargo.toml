@@ -24,7 +24,6 @@ features = ["use-std"]
 version = "0.21.1"
 default-features = false
 features = ["playback", "symphonia-all"]
-optional = true
 
 [dependencies.tokio]
 workspace = true
@@ -33,4 +32,3 @@ optional = true
 
 [features]
 async = ["tokio"]
-audio = ["rodio"]

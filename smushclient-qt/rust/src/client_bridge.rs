@@ -526,16 +526,23 @@ impl ffi::SmushClient {
     }
 
     pub fn play_buffer(&self, i: usize, buf: &[u8], volume: f32, looping: bool) -> ffi::ApiCode {
-        self.rust().play_buffer(i, buf, volume, looping)
+        self.client
+            .play_buffer(i, buf.to_vec(), volume, looping.into())
+            .code()
     }
 
     pub fn play_file(&self, i: usize, path: &LuaStr, volume: f32, looping: bool) -> ffi::ApiCode {
-        self.rust()
-            .play_file(i, &*String::from_utf8_lossy(path), volume, looping)
+        let client = &self.rust().client;
+        if path.is_empty() {
+            client.configure_audio_sink(i, volume, looping.into())
+        } else {
+            client.play_file(i, &*String::from_utf8_lossy(path), volume, looping.into())
+        }
+        .code()
     }
 
     pub fn stop_sound(&self, i: usize) -> ffi::ApiCode {
-        self.rust().stop_sound(i)
+        self.rust().client.stop_sound(i).code()
     }
 
     pub fn alias(

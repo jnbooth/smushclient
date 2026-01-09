@@ -60,8 +60,6 @@ impl smushclient::Handler for AliasHandler {
     fn permit_line(&mut self, _line: &str) -> bool {
         true
     }
-
-    fn play_sound(&mut self, _path: &str) {}
 }
 
 pub struct ClientHandler {
@@ -104,11 +102,6 @@ impl smushclient::Handler for ClientHandler {
     }
 
     fn erase_last_line(&mut self) {}
-
-    fn play_sound(&mut self, path: &str) {
-        self.output
-            .push(ffi::OutputFragment::Sound(path.to_owned()));
-    }
 
     fn permit_line(&mut self, _line: &str) -> bool {
         true

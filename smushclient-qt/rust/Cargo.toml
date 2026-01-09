@@ -18,7 +18,7 @@ cxx-qt-lib = { workspace = true }
 flagset = { workspace = true }
 mud-transformer = { workspace = true }
 
-smushclient = { path = "../../smushclient", features = ["audio"] }
+smushclient = { path = "../../smushclient" }
 smushclient-plugins = { path = "../../smushclient-plugins" }
 smushclient-qt-lib = { path = "../../smushclient-qt-lib" }
 
