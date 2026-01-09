@@ -10,6 +10,7 @@ pub struct CursorVec<T> {
     cursor: Cell<usize>,
     unsorted: Cell<bool>,
     evaluating: Cell<bool>,
+    scan_id: Cell<u32>,
     current_deleted: Cell<bool>,
 }
 
@@ -20,6 +21,7 @@ impl<T> CursorVec<T> {
             cursor: Cell::new(0),
             unsorted: Cell::new(false),
             evaluating: Cell::new(false),
+            scan_id: Cell::new(0),
             current_deleted: Cell::new(false),
         }
     }
@@ -47,23 +49,18 @@ impl<T: Ord> CursorVec<T> {
     }
 
     pub fn scan(&self) -> CursorVecScan<'_, T> {
-        #[track_caller]
-        #[cold]
-        fn panic_already_open() -> ! {
-            panic!("CursorVec already scanning");
-        }
-        if self.evaluating.get() {
-            panic_already_open();
-        }
+        let scan_id = self.scan_id.get() + 1;
+        self.scan_id.set(scan_id);
         self.evaluating.set(true);
         self.cursor.set(usize::MAX);
-        CursorVecScan { vec: self }
+        CursorVecScan { vec: self, scan_id }
     }
 
     pub fn end(&self) {
         if !self.evaluating.replace(false) {
             return;
         }
+        self.scan_id.update(|n| n + 1);
         if self.unsorted.replace(false) {
             self.inner.borrow_mut().sort_unstable();
         }
@@ -221,6 +218,7 @@ impl<'de, T: Deserialize<'de>> Deserialize<'de> for CursorVec<T> {
 #[derive(Debug)]
 pub struct CursorVecScan<'a, T: Ord> {
     vec: &'a CursorVec<T>,
+    scan_id: u32,
 }
 
 impl<T: Ord> Drop for CursorVecScan<'_, T> {
@@ -233,7 +231,7 @@ impl<'a, T: Ord> Iterator for CursorVecScan<'a, T> {
     type Item = CursorVecRef<'a, T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if !self.vec.evaluating.get() {
+        if self.vec.scan_id.get() != self.scan_id {
             return None;
         }
         let cursor = if self.vec.current_deleted.get() {
