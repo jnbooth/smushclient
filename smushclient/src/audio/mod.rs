@@ -11,4 +11,3 @@ pub(crate) use sinks::AudioSinks;
 pub use sinks::PlayMode;
 
 mod stream;
-pub use stream::AudioStream;

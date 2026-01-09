@@ -1,4 +1,5 @@
 use rodio::cpal::FromSample;
+use rodio::mixer::Mixer;
 use rodio::{Source, StreamError};
 
 use super::error::AudioError;
@@ -30,8 +31,8 @@ impl AudioSinks {
         })
     }
 
-    pub fn stream(&self) -> &AudioStream {
-        &self.stream
+    pub fn mixer(&self) -> &Mixer {
+        self.stream.mixer()
     }
 
     fn get(&self, i: usize) -> Result<&LoopingSink, AudioError> {

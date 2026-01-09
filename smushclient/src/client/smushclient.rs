@@ -272,7 +272,7 @@ impl SmushClient {
                 output,
                 &self.world,
                 &self.variables,
-                self.audio.stream(),
+                self.audio.mixer(),
                 handler,
             );
 
@@ -299,7 +299,7 @@ impl SmushClient {
             source,
             &self.world,
             &self.variables,
-            self.audio.stream(),
+            self.audio.mixer(),
             handler,
         );
         if !outcome.omit_from_log
@@ -395,7 +395,7 @@ impl SmushClient {
     pub fn play_file_raw<P: AsRef<Path>>(&self, path: P) -> Result<(), AudioError> {
         let file = File::open(path)?;
         let decoder = Decoder::try_from(file)?;
-        self.audio.stream().mixer().add(decoder);
+        self.audio.mixer().add(decoder);
         Ok(())
     }
 

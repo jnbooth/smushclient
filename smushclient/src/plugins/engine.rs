@@ -10,13 +10,13 @@ use std::{slice, vec};
 use arboard::Clipboard;
 use mud_transformer::Output;
 use rodio::Decoder;
+use rodio::mixer::Mixer;
 use smushclient_plugins::{Alias, LoadError, Plugin, PluginIndex, Reaction, SendTarget, Trigger};
 
 use super::effects::CommandSource;
 use super::effects::{AliasEffects, SpanStyle, TriggerEffects};
 use super::error::LoadFailure;
 use super::iter::ReactionIterable;
-use crate::audio::AudioStream;
 use crate::client::PluginVariables;
 use crate::handler::{Handler, HandlerExt};
 use crate::world::World;
@@ -141,7 +141,7 @@ impl PluginEngine {
         source: CommandSource,
         world: &World,
         variables: &RefCell<PluginVariables>,
-        audio: &AudioStream,
+        audio: &Mixer,
         handler: &mut H,
     ) -> AliasEffects {
         let mut effects = AliasEffects::new(world, source);
@@ -155,7 +155,7 @@ impl PluginEngine {
         output: &[Output],
         world: &World,
         variables: &RefCell<PluginVariables>,
-        audio: &AudioStream,
+        audio: &Mixer,
         handler: &mut H,
     ) -> TriggerEffects {
         let mut effects = TriggerEffects::new();
@@ -181,7 +181,7 @@ impl PluginEngine {
         output: &[Output],
         world: &World,
         variables: &RefCell<PluginVariables>,
-        audio: &AudioStream,
+        audio: &Mixer,
         handler: &mut H,
         effects: &mut T::Effects,
     ) {
@@ -301,7 +301,7 @@ impl PluginEngine {
                         && let Ok(file) = File::open(sound)
                         && let Ok(decoder) = Decoder::try_from(file)
                     {
-                        audio.mixer().add(decoder);
+                        audio.add(decoder);
                     }
                     sender.add_effects(effects);
                     let reaction = sender.reaction();
