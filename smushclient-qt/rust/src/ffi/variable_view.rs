@@ -19,8 +19,18 @@ pub struct VariableView {
     size_: usize,
 }
 
+impl VariableView {
+    const EMPTY: Self = Self {
+        data_: ptr::null(),
+        size_: 0,
+    };
+}
+
 impl From<&[u8]> for VariableView {
     fn from(value: &[u8]) -> Self {
+        if value.is_empty() {
+            return Self::EMPTY;
+        }
         Self {
             data_: value.as_ptr().cast(),
             size_: value.len(),
@@ -38,10 +48,7 @@ impl From<Option<Ref<'_, LuaStr>>> for VariableView {
     fn from(value: Option<Ref<'_, LuaStr>>) -> Self {
         match value {
             Some(value) => Self::from(&*value),
-            None => Self {
-                data_: ptr::null(),
-                size_: 0,
-            },
+            None => Self::EMPTY,
         }
     }
 }
