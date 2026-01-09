@@ -23,7 +23,7 @@ impl Optionable for Reaction {
     fn set_option(&mut self, name: &LuaStr, value: &LuaStr) -> Result<(), OptionError> {
         match name {
             b"expand_variables" => self.expand_variables = value.decode()?,
-            b"ignore_case" => self.ignore_case = value.decode()?,
+            b"ignore_case" => self.set_ignore_case(value.decode()?)?,
             b"keep_evaluating" => self.keep_evaluating = value.decode()?,
             b"regexp" => self.set_is_regex(value.decode()?)?,
             b"repeat" => self.repeats = value.decode()?,

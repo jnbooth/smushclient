@@ -35,9 +35,8 @@ fn get_option_list() -> QStringList {
 }
 
 fn make_regex_from_wildcards(pattern: &LuaStr) -> QString {
-    let mut buf = String::new();
-    Reaction::make_regex_pattern(&String::from_utf8_lossy(pattern), &mut buf);
-    QString::from(&buf)
+    let pattern = String::from_utf8_lossy(pattern);
+    QString::from(&Reaction::make_regex_pattern(&pattern))
 }
 
 fn validate_regex(pattern: &QString) -> ffi::RegexError {

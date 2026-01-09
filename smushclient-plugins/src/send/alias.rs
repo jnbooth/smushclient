@@ -108,7 +108,7 @@ impl TryFrom<AliasXml<'_>> for Alias {
     type Error = crate::regex::RegexError;
 
     fn try_from(value: AliasXml) -> Result<Self, Self::Error> {
-        let regex = Reaction::make_regex(&value.pattern, value.is_regex)?;
+        let regex = Reaction::make_regex(&value.pattern, value.is_regex, value.ignore_case)?;
         let send = in_place!(
             value,
             Sender {

@@ -1,12 +1,16 @@
-mod captures;
 use std::cmp::Ordering;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::str::{self, FromStr};
 
-pub use captures::{CaptureMatches, Captures, Match};
 use serde::de::{Error as _, Unexpected};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+mod builder;
+pub(crate) use builder::RegexBuilder;
+
+mod captures;
+pub use captures::{CaptureMatches, Captures, Match};
 
 /// A wrapper around [`pcre2::bytes::Regex`] providing additional trait implementations.
 #[derive(Clone)]

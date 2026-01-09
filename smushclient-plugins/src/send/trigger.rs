@@ -194,7 +194,7 @@ impl TryFrom<TriggerXml<'_>> for Trigger {
     type Error = crate::regex::RegexError;
 
     fn try_from(value: TriggerXml) -> Result<Self, Self::Error> {
-        let regex = Reaction::make_regex(&value.pattern, value.is_regex)?;
+        let regex = Reaction::make_regex(&value.pattern, value.is_regex, value.ignore_case)?;
         let send = in_place!(
             value,
             Sender {

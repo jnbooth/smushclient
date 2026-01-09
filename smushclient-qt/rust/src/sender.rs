@@ -270,7 +270,7 @@ impl TryFrom<&ReactionRust> for Reaction {
 
     fn try_from(value: &ReactionRust) -> Result<Self, Self::Error> {
         let pattern = String::from(&value.pattern);
-        let regex = Reaction::make_regex(&pattern, value.is_regex)?;
+        let regex = Reaction::make_regex(&pattern, value.is_regex, value.ignore_case)?;
         Ok(Self {
             sequence: value.sequence as i16,
             pattern,

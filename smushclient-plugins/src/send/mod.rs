@@ -66,11 +66,11 @@ mod tests {
         ];
         let non_regex: Vec<_> = equivalents
             .iter()
-            .map(|(pat, _)| Reaction::make_regex(pat, false).unwrap())
+            .map(|(pat, _)| Reaction::make_regex(pat, false, false).unwrap())
             .collect();
         let regex: Vec<_> = equivalents
             .iter()
-            .map(|(_, pat)| Reaction::make_regex(pat, true).unwrap())
+            .map(|(_, pat)| Reaction::make_regex(pat, true, false).unwrap())
             .collect();
         assert_eq!(non_regex, regex);
     }

@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use super::send_to::SendTarget;
 use super::sender::Sender;
-use crate::regex::{Captures, Regex, RegexError};
+use crate::regex::{Captures, Regex, RegexBuilder, RegexError};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Reaction {
@@ -73,14 +73,20 @@ impl Default for Reaction {
 impl Reaction {
     pub const DEFAULT_SEQUENCE: i16 = 100;
 
+    pub fn set_ignore_case(&mut self, ignore_case: bool) -> Result<(), RegexError> {
+        self.regex = Self::make_regex(&self.pattern, self.is_regex, ignore_case)?;
+        self.ignore_case = ignore_case;
+        Ok(())
+    }
+
     pub fn set_is_regex(&mut self, is_regex: bool) -> Result<(), RegexError> {
-        self.regex = Self::make_regex(&self.pattern, is_regex)?;
+        self.regex = Self::make_regex(&self.pattern, is_regex, self.ignore_case)?;
         self.is_regex = is_regex;
         Ok(())
     }
 
     pub fn set_pattern(&mut self, pattern: String) -> Result<(), RegexError> {
-        self.regex = Self::make_regex(&pattern, self.is_regex)?;
+        self.regex = Self::make_regex(&pattern, self.is_regex, self.ignore_case)?;
         self.pattern = pattern;
         Ok(())
     }
@@ -144,10 +150,9 @@ impl Reaction {
         !self.text.is_empty() || self.send_to == SendTarget::Variable
     }
 
-    pub fn make_regex_pattern(pattern: &str, buf: &mut String) {
+    pub fn make_regex_pattern(pattern: &str) -> String {
         const SPECIAL_CHARS: &str = "\\.+?()|[]{}^$#";
-
-        buf.reserve(pattern.len() * 4);
+        let mut buf = String::with_capacity(pattern.len() * 4);
         buf.push('^');
         for c in pattern.chars() {
             if c == '*' {
@@ -160,15 +165,20 @@ impl Reaction {
             buf.push(c);
         }
         buf.push('$');
+        buf
     }
 
-    pub fn make_regex(pattern: &str, is_regex: bool) -> Result<Regex, RegexError> {
+    pub fn make_regex(
+        pattern: &str,
+        is_regex: bool,
+        ignore_case: bool,
+    ) -> Result<Regex, RegexError> {
+        let mut builder = RegexBuilder::new();
+        builder.caseless(ignore_case);
         if is_regex {
-            Regex::new(pattern)
+            builder.build(pattern)
         } else {
-            let mut buf = String::new();
-            Self::make_regex_pattern(pattern, &mut buf);
-            Regex::new(&buf)
+            builder.build(&Self::make_regex_pattern(pattern))
         }
     }
 }
