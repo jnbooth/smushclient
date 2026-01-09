@@ -6,4 +6,5 @@ mod smushclient;
 pub use smushclient::SmushClient;
 
 mod variables;
-pub use variables::{LuaStr, LuaString, PluginVariables};
+pub(crate) use variables::PluginVariables;
+pub use variables::{LuaStr, LuaString};

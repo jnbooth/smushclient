@@ -22,7 +22,7 @@ use crate::handler::{Handler, HandlerExt};
 use crate::world::World;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct PluginEngine {
+pub(crate) struct PluginEngine {
     plugins: Vec<Plugin>,
 }
 

@@ -68,7 +68,7 @@ impl SendIterable for Trigger {
     }
 }
 
-pub trait ReactionIterable: SendIterable {
+pub(crate) trait ReactionIterable: SendIterable {
     const AFFECTS_STYLE: bool;
     type Effects;
 

@@ -115,7 +115,7 @@ impl SmushClient {
         self.world = world;
         self.plugins.set_world_plugin(self.world.world_plugin());
         self.update_config();
-        self.logger.replace(Logger::new(&self.world));
+        *self.logger.borrow_mut() = Logger::new(&self.world);
     }
 
     pub fn update_world(&mut self, mut world: World) -> io::Result<bool> {
@@ -416,7 +416,7 @@ impl SmushClient {
     }
 
     pub fn load_variables<R: Read>(&self, reader: R) -> Result<(), PersistError> {
-        self.variables.replace(PluginVariables::load(reader)?);
+        *self.variables.borrow_mut() = PluginVariables::load(reader)?;
         Ok(())
     }
 

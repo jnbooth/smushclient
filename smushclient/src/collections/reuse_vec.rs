@@ -1,5 +1,5 @@
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct ReuseVec<T> {
+pub(crate) struct ReuseVec<T> {
     inner: Vec<Option<T>>,
     holes: Vec<usize>,
 }

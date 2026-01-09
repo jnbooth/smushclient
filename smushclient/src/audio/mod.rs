@@ -7,7 +7,8 @@ pub use file_playback::AudioFilePlayback;
 mod looping;
 
 mod sinks;
-pub use sinks::{AudioSinks, PlayMode};
+pub(crate) use sinks::AudioSinks;
+pub use sinks::PlayMode;
 
 mod stream;
 pub use stream::AudioStream;

@@ -1,5 +1,5 @@
 mod engine;
-pub use engine::PluginEngine;
+pub(crate) use engine::PluginEngine;
 
 mod effects;
 pub use effects::{AliasOutcome, CommandSource, SpanStyle};

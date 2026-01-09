@@ -13,7 +13,7 @@ pub enum CommandSource {
 }
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct AliasEffects {
+pub(crate) struct AliasEffects {
     pub omit_from_command_history: bool,
     pub omit_from_log: bool,
     pub omit_from_output: bool,
@@ -85,7 +85,7 @@ impl From<AliasEffects> for AliasOutcome {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct TriggerEffects {
+pub(crate) struct TriggerEffects {
     pub omit_from_output: bool,
     pub omit_from_log: bool,
 }

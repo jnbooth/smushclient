@@ -5,6 +5,7 @@ mod client;
 pub use client::{LuaStr, LuaString, SmushClient};
 
 mod collections;
+pub use collections::SortOnDrop;
 
 mod get_info;
 pub use get_info::InfoVisitor;

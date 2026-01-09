@@ -13,7 +13,7 @@ pub type LuaString = Vec<u8>;
 pub type LuaStr = [u8];
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-pub struct PluginVariables(HashMap<String, HashMap<LuaString, LuaString>>);
+pub(crate) struct PluginVariables(HashMap<String, HashMap<LuaString, LuaString>>);
 
 impl Deref for PluginVariables {
     type Target = HashMap<String, HashMap<LuaString, LuaString>>;

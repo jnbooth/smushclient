@@ -17,7 +17,7 @@ impl From<bool> for PlayMode {
     }
 }
 
-pub struct AudioSinks {
+pub(crate) struct AudioSinks {
     sinks: [LoopingSink; 10],
     stream: AudioStream,
 }
