@@ -7,15 +7,17 @@ pub mod ffi {
         type QString = cxx_qt_lib::QString;
     }
 
+    extern "C++" {
+        include!("smushclient_qt/src/ffi/send_request.cxx.h");
+        type SendRequest = super::super::send_request::ffi::SendRequest;
+    }
+
     struct SendTimer {
         #[cxx_name = "activeClosed"]
         active_closed: bool,
         label: String,
-        plugin: usize,
         script: String,
-        target: SendTarget,
-        text: QString,
-        destination: QString,
+        request: SendRequest,
     }
 
     unsafe extern "C++Qt" {

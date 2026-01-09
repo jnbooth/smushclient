@@ -164,7 +164,10 @@ ScriptApi::DoAfter(size_t plugin,
     return ApiCode::TimeInvalid;
   const milliseconds duration = milliseconds{ (int)(seconds * 1000.0) };
   sendQueue->start(duration,
-                   { .plugin = plugin, .target = target, .text = text });
+                   { .plugin = plugin,
+                     .sendTo = target,
+                     .text = text,
+                     .destination = QString() });
   return ApiCode::OK;
 }
 
@@ -278,47 +281,6 @@ ScriptApi::PluginSupports(string_view pluginID, PluginCallbackKey routine) const
     return ApiCode::NoSuchPlugin;
   return plugins[index].hasFunction(routine) ? ApiCode::OK
                                              : ApiCode::NoSuchRoutine;
-}
-
-ApiCode
-ScriptApi::Send(string_view text)
-{
-  QByteArray bytes(text.data(), text.size());
-  return Send(bytes);
-}
-
-ApiCode
-ScriptApi::Send(const QString& text)
-{
-  echo(text);
-  QByteArray bytes = text.toUtf8();
-  return SendNoEcho(bytes);
-}
-
-ApiCode
-ScriptApi::Send(QByteArray& bytes)
-{
-  echo(QString::fromUtf8(bytes));
-  return SendNoEcho(bytes);
-}
-
-ApiCode
-ScriptApi::SendNoEcho(QByteArray& bytes)
-{
-  OnPluginSend onSend(bytes);
-  sendCallback(onSend);
-  if (onSend.discarded())
-    return ApiCode::OK;
-  bytes.append("\r\n");
-
-  const qsizetype size = bytes.size();
-  if (socket->write(bytes.constData(), size) == -1) [[unlikely]]
-    return ApiCode::WorldClosed;
-  bytes.truncate(size - 2);
-
-  OnPluginSent onSent(bytes);
-  sendCallback(onSent);
-  return ApiCode::OK;
 }
 
 ApiCode

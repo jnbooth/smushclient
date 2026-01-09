@@ -6,6 +6,7 @@
 #include "miniwindow.h"
 #include "plugin.h"
 #include "scriptenums.h"
+#include "smushclient_qt/src/ffi/send_request.cxx.h"
 #include <QtCore/QMargins>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
@@ -33,13 +34,6 @@ class WorldTab;
 struct lua_State;
 template<typename T>
 class TimerMap;
-
-struct QueuedSend
-{
-  size_t plugin;
-  SendTarget target;
-  QString text;
-};
 
 class ScriptApi : public QObject
 {
@@ -174,10 +168,18 @@ public:
                           float volume = 1.0);
   ApiCode PluginSupports(std::string_view pluginID,
                          PluginCallbackKey routine) const;
-  ApiCode Send(std::string_view text);
-  ApiCode Send(const QString& text);
-  ApiCode Send(QByteArray& bytes);
-  ApiCode SendNoEcho(QByteArray& bytes);
+  inline ApiCode Send(std::string_view text)
+  {
+    QByteArray bytes(text.data(), text.size());
+    return sendToWorld(bytes, true);
+  }
+  inline ApiCode Send(const QString& text)
+  {
+    QByteArray bytes = text.toUtf8();
+    return sendToWorld(bytes, true);
+  }
+  inline ApiCode Send(QByteArray& bytes) { return sendToWorld(bytes, true); }
+  ApiCode SendNoEcho(QByteArray& bytes) { return sendToWorld(bytes, false); }
   ApiCode SendPacket(QByteArrayView bytes) const;
   ApiCode SetAliasOption(size_t plugin,
                          std::string_view label,
@@ -347,12 +349,14 @@ public:
   void echo(const QString& text);
   void finishNote();
   const Plugin* getPlugin(std::string_view pluginID) const;
+  void handleSendRequest(const SendRequest& request);
   void initializePlugins();
   void reinstallPlugin(size_t index);
   inline bool isPluginEnabled(size_t plugin) const
   {
     return !plugins[plugin].disabled();
   }
+  ApiCode playFileRaw(const QString& path);
   void printError(const QString& message);
   void reloadWorldScript(const QString& worldScriptPath);
   void resetAllTimers();
@@ -364,10 +368,15 @@ public:
   bool sendCallback(PluginCallback& callback, size_t plugin);
   bool sendCallback(PluginCallback& callback, const QString& pluginID);
   void sendNaws() const;
-  void sendTo(size_t plugin,
-              SendTarget target,
-              const QString& text,
-              const QString& destination = QString());
+  inline ApiCode sendToWorld(QByteArray& bytes, bool echo)
+  {
+    return sendToWorld(bytes, QString::fromUtf8(bytes), echo);
+  }
+  inline ApiCode sendToWorld(const QString& text, bool echo)
+  {
+    QByteArray bytes = text.toUtf8();
+    return sendToWorld(bytes, text, echo);
+  }
   void setNawsEnabled(bool enabled);
   void setOpen(bool open) const;
   ActionSource setSource(ActionSource source) noexcept;
@@ -405,8 +414,9 @@ private:
     return findPluginIndex((std::string)pluginID);
   }
   MiniWindow* findWindow(std::string_view windowName) const;
-  bool finishQueuedSend(const QueuedSend& send);
+  bool finishQueuedSend(const SendRequest& request);
   void flushLine();
+  ApiCode sendToWorld(QByteArray& bytes, const QString& text, bool echo);
 
 private:
   ActionSource actionSource = ActionSource::Unknown;
@@ -427,7 +437,7 @@ private:
   std::vector<Plugin> plugins{};
   string_map<size_t> pluginIndices{};
   MudScrollBar* scrollBar;
-  TimerMap<QueuedSend>* sendQueue;
+  TimerMap<SendRequest>* sendQueue;
   QAbstractSocket* socket;
   MudStatusBar* statusBar;
   bool suppressEcho = false;

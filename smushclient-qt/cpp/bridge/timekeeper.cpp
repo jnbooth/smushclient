@@ -69,14 +69,14 @@ Timekeeper::sendTimer(const SendTimer& timer) const
     return;
 
   const ActionSource oldSource = api->setSource(ActionSource::TimerFired);
-  api->sendTo(timer.plugin, timer.target, timer.text);
+  api->handleSendRequest(timer.request);
   api->setSource(oldSource);
 
   if (timer.script.empty())
     return;
 
   TimerCallback callback(timer.script, timer.label);
-  api->sendCallback(callback, timer.plugin);
+  api->sendCallback(callback, timer.request.plugin);
 }
 
 void

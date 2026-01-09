@@ -23,29 +23,15 @@ pub mod ffi {
         type SmushClient = crate::ffi::SmushClient;
     }
 
+    extern "C++" {
+        include!("smushclient_qt/src/ffi/send_request.cxx.h");
+        type SendTarget = super::super::send_request::ffi::SendTarget;
+        type SendRequest = super::super::send_request::ffi::SendRequest;
+    }
+
     enum AliasOutcome {
         Remember = 1,
         Send = 2,
-        Display = 4,
-    }
-
-    #[repr(i32)]
-    enum SendTarget {
-        World,
-        Command,
-        Output,
-        Status,
-        NotepadNew,
-        NotepadAppend,
-        Log,
-        NotepadReplace,
-        WorldDelay,
-        Variable,
-        Execute,
-        Speedwalk,
-        Script,
-        WorldImmediate,
-        ScriptAfterOmit,
     }
 
     #[repr(i32)]
@@ -201,9 +187,6 @@ impl ffi::AliasOutcome {
         }
         if outcome.send {
             outcomes |= ffi::AliasOutcome::Send;
-        }
-        if outcome.display {
-            outcomes |= ffi::AliasOutcome::Display;
         }
         outcomes
     }

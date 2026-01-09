@@ -14,7 +14,7 @@ pub use client::ffi::{
 
 mod document;
 pub use document::ffi::{
-    Document, NamedWildcard, SendRequest, SendScriptRequest, SendTo, TelnetSource, TelnetVerb,
+    Document, NamedWildcard, SendScriptRequest, SendTo, TelnetSource, TelnetVerb,
 };
 
 mod plugin_details;
@@ -22,12 +22,13 @@ pub use plugin_details::ffi::PluginDetails;
 
 mod sender;
 pub use sender::AliasOutcomes;
-pub use sender::ffi::{
-    Alias, AliasOutcome, Occurrence, SendTarget, Timer, Trigger, UserSendTarget,
-};
+pub use sender::ffi::{Alias, AliasOutcome, Occurrence, Timer, Trigger, UserSendTarget};
 
 mod sender_map;
 pub use sender_map::ffi::{SenderMap, SenderType};
+
+mod send_request;
+pub use send_request::ffi::{SendRequest, SendTarget};
 
 mod timekeeper;
 pub use timekeeper::ffi::{SendTimer, Timekeeper};

@@ -92,13 +92,6 @@ pub mod ffi {
             option: &[u8],
             value: &[u8],
         ) -> ApiCode;
-        fn play_file(
-            self: &SmushClient,
-            i: usize,
-            path: &[u8],
-            volume: f32,
-            looping: bool,
-        ) -> ApiCode;
         fn play_buffer(
             self: &SmushClient,
             i: usize,
@@ -106,6 +99,14 @@ pub mod ffi {
             volume: f32,
             looping: bool,
         ) -> ApiCode;
+        fn play_file(
+            self: &SmushClient,
+            i: usize,
+            path: &[u8],
+            volume: f32,
+            looping: bool,
+        ) -> ApiCode;
+        fn play_file_raw(self: &SmushClient, path: &[u8]) -> ApiCode;
         fn stop_sound(self: &SmushClient, i: usize) -> ApiCode;
         fn alias(
             self: &SmushClient,

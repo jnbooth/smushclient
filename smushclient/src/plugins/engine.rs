@@ -19,6 +19,7 @@ use super::error::LoadFailure;
 use super::iter::ReactionIterable;
 use crate::client::PluginVariables;
 use crate::handler::{Handler, HandlerExt};
+use crate::plugins::SendRequest;
 use crate::world::World;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -145,7 +146,21 @@ impl PluginEngine {
         handler: &mut H,
     ) -> AliasEffects {
         let mut effects = AliasEffects::new(world, source);
-        self.process_matches::<Alias, _>(line, &[], world, variables, audio, handler, &mut effects);
+        let echo = match source {
+            CommandSource::Hotkey => world.echo_hotkey_in_output_window,
+            CommandSource::Link => world.echo_hyperlink_in_output_window,
+            CommandSource::User => true,
+        };
+        self.process_matches::<Alias, _>(
+            line,
+            &[],
+            echo,
+            world,
+            variables,
+            audio,
+            handler,
+            &mut effects,
+        );
         effects
     }
 
@@ -162,6 +177,7 @@ impl PluginEngine {
         self.process_matches::<Trigger, _>(
             line,
             output,
+            true,
             world,
             variables,
             audio,
@@ -179,6 +195,7 @@ impl PluginEngine {
         &self,
         line: &str,
         output: &[Output],
+        permit_echo: bool,
         world: &World,
         variables: &RefCell<PluginVariables>,
         audio: &Mixer,
@@ -259,9 +276,11 @@ impl PluginEngine {
                         }
                     };
                     if send_request {
-                        handler.send(super::SendRequest {
+                        handler.send(SendRequest {
                             plugin: plugin_index,
                             send_to: reaction_buf.send_to,
+                            echo: permit_echo && reaction_buf.should_echo(),
+                            log: !reaction_buf.omit_from_log,
                             text: reaction_buf.expand_text(&mut text_buf, &captures),
                             destination: reaction_buf.destination(),
                         });

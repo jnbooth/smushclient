@@ -541,6 +541,13 @@ impl ffi::SmushClient {
         .code()
     }
 
+    pub fn play_file_raw(&self, path: &LuaStr) -> ffi::ApiCode {
+        self.rust()
+            .client
+            .play_file_raw(&*String::from_utf8_lossy(path))
+            .code()
+    }
+
     pub fn stop_sound(&self, i: usize) -> ffi::ApiCode {
         self.rust().client.stop_sound(i).code()
     }

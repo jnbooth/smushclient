@@ -16,6 +16,11 @@ pub mod ffi {
         type QString = cxx_qt_lib::QString;
     }
 
+    extern "C++" {
+        include!("smushclient_qt/src/ffi/send_request.cxx.h");
+        type SendRequest = super::super::send_request::ffi::SendRequest;
+    }
+
     enum TextStyle {
         Blink = 1,
         Bold = 2,
@@ -44,14 +49,6 @@ pub mod ffi {
         Internet,
         World,
         Input,
-    }
-
-    struct SendRequest {
-        plugin: usize,
-        #[cxx_name = "sendTo"]
-        send_to: SendTarget,
-        text: QString,
-        destination: QString,
     }
 
     struct NamedWildcard<'a> {

@@ -679,19 +679,7 @@ WorldTab::saveWorldAndState(const QString& path)
 bool
 WorldTab::sendCommand(const QString& command, CommandSource source)
 {
-  QTextCursor cursor(ui->output->document());
-  cursor.movePosition(QTextCursor::End);
-  int echoStart = cursor.position();
-  api->echo(command);
-  int echoEnd = cursor.position();
-
-  const auto aliasOutcome = client.alias(command, source, *document);
-
-  if (!aliasOutcome.testFlag(AliasOutcome::Display)) {
-    cursor.setPosition(echoStart);
-    cursor.setPosition(echoEnd, QTextCursor::KeepAnchor);
-    cursor.removeSelectedText();
-  }
+  const AliasOutcomes aliasOutcome = client.alias(command, source, *document);
 
   if (aliasOutcome.testFlag(AliasOutcome::Remember))
     ui->input->remember(command);
@@ -714,7 +702,7 @@ WorldTab::sendCommand(const QString& command, CommandSource source)
         return false;
     }
   }
-  api->SendNoEcho(bytes);
+  api->sendToWorld(bytes, true);
   return true;
 }
 
@@ -1002,6 +990,5 @@ WorldTab::on_output_customContextMenuRequested(const QPoint& pos)
   const QAction* chosen = menu.exec(mouse);
   if (!chosen)
     return;
-
-  api->Send(chosen->text());
+  api->sendToWorld(chosen->text(), true);
 }

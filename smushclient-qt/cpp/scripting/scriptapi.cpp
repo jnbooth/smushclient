@@ -38,7 +38,7 @@ ScriptApi::ScriptApi(MudStatusBar* statusBar,
   , tab(parent)
   , whenConnected(QDateTime::currentDateTime())
 {
-  sendQueue = new TimerMap<QueuedSend>(this, &ScriptApi::finishQueuedSend);
+  sendQueue = new TimerMap<SendRequest>(this, &ScriptApi::finishQueuedSend);
   timekeeper = new Timekeeper(this);
   timekeeper->beginPolling(milliseconds(seconds{ 60 }));
   setLineType(echoFormat, LineType::Input);
@@ -177,6 +177,13 @@ ScriptApi::initializePlugins()
   sendCallback(onListChanged);
 }
 
+ApiCode
+ScriptApi::playFileRaw(const QString& path)
+{
+  const QByteArray utf8 = path.toUtf8();
+  return client()->playFileRaw(byteSlice(utf8));
+}
+
 void
 ScriptApi::reinstallPlugin(size_t index)
 {
@@ -305,43 +312,43 @@ ScriptApi::sendNaws() const
 }
 
 void
-ScriptApi::sendTo(size_t plugin,
-                  SendTarget target,
-                  const QString& text,
-                  const QString& destination)
+ScriptApi::handleSendRequest(const SendRequest& request)
 {
-  if (text.isEmpty())
+  if (request.text.isEmpty())
     return;
-  switch (target) {
+  if (request.echo)
+    echo(request.text);
+  switch (request.sendTo) {
     case SendTarget::World:
     case SendTarget::WorldDelay:
     case SendTarget::Execute:
     case SendTarget::Speedwalk:
     case SendTarget::WorldImmediate:
-      Send(text);
+      sendToWorld(request.text, request.echo);
       return;
     case SendTarget::Command:
-      tab->ui->input->setText(text);
+      tab->ui->input->setText(request.text);
       return;
     case SendTarget::Output:
-      appendText(text, noteFormat);
+      appendText(request.text, noteFormat);
       startLine();
       return;
     case SendTarget::Status:
-      SetStatus(text);
+      SetStatus(request.text);
       return;
     case SendTarget::NotepadNew:
-      notepads->pad()->insertPlainText(text);
+      notepads->pad()->insertPlainText(request.text);
       return;
     case SendTarget::NotepadAppend: {
-      QTextCursor notepadCursor = notepads->pad(destination)->textCursor();
+      QTextCursor notepadCursor =
+        notepads->pad(request.destination)->textCursor();
       if (!notepadCursor.atBlockStart())
         notepadCursor.insertBlock();
-      notepadCursor.insertText(text);
+      notepadCursor.insertText(request.text);
       return;
     }
     case SendTarget::NotepadReplace:
-      notepads->pad(destination)->setPlainText(text);
+      notepads->pad(request.destination)->setPlainText(request.text);
       return;
     case SendTarget::Log:
       return;
@@ -349,8 +356,8 @@ ScriptApi::sendTo(size_t plugin,
       return;
     case SendTarget::Script:
     case SendTarget::ScriptAfterOmit:
-      const QByteArray utf8 = text.toUtf8();
-      runScript(plugin, string_view(utf8.data(), utf8.size()));
+      const QByteArray utf8 = request.text.toUtf8();
+      runScript(request.plugin, string_view(utf8.data(), utf8.size()));
       return;
   }
 }
@@ -468,11 +475,11 @@ ScriptApi::findWindow(string_view windowName) const
 }
 
 bool
-ScriptApi::finishQueuedSend(const QueuedSend& send)
+ScriptApi::finishQueuedSend(const SendRequest& request)
 {
   const ActionSource oldSource = actionSource;
   actionSource = ActionSource::TimerFired;
-  sendTo(send.plugin, send.target, send.text);
+  handleSendRequest(request);
   actionSource = oldSource;
   return true;
 }
@@ -491,4 +498,28 @@ ScriptApi::flushLine()
 
   indentNext = false;
   cursor.insertText(indentText);
+}
+
+ApiCode
+ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, bool shouldEcho)
+{
+  OnPluginSend onSend(bytes);
+  sendCallback(onSend);
+  if (onSend.discarded())
+    return ApiCode::OK;
+
+  if (shouldEcho) {
+    echo(text);
+  }
+
+  bytes.append("\r\n");
+
+  const qsizetype size = bytes.size();
+  if (socket->write(bytes.constData(), size) == -1) [[unlikely]]
+    return ApiCode::WorldClosed;
+  bytes.truncate(size - 2);
+
+  OnPluginSent onSent(bytes);
+  sendCallback(onSent);
+  return ApiCode::OK;
 }

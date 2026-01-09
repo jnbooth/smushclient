@@ -97,7 +97,7 @@ Document::beep() const
 {
   const QString sound = Settings().getBellSound();
   if (!sound.isEmpty())
-    api->PlaySound(0, sound);
+    api->playFileRaw(sound);
 }
 
 void
@@ -272,8 +272,7 @@ Document::resetServerStatus()
 void
 Document::send(const SendRequest& request) const
 {
-  api->sendTo(
-    request.plugin, request.sendTo, request.text, request.destination);
+  api->handleSendRequest(request);
 }
 
 class AliasCallback : public DynamicPluginCallback
