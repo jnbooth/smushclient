@@ -4,10 +4,14 @@ use std::io::{self, Cursor, Read, Write};
 use std::path::Path;
 use std::{env, mem, slice};
 
+use arboard::Clipboard;
 use flagset::FlagSet;
-use mud_transformer::{OutputFragment, Tag, Transformer, TransformerConfig};
+use mud_transformer::{Output, OutputFragment, Tag, Transformer, TransformerConfig};
 use rodio::Decoder;
-use smushclient_plugins::{CursorVec, LoadError, Plugin, PluginIndex, XmlError, XmlSerError};
+use smushclient_plugins::{
+    Alias, CursorVec, LoadError, Plugin, PluginIndex, Reaction, SendTarget, Trigger, XmlError,
+    XmlSerError,
+};
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt};
 
@@ -16,10 +20,11 @@ use super::variables::PluginVariables;
 use super::variables::{LuaStr, LuaString};
 use crate::audio::{AudioError, AudioSinks, PlayMode};
 use crate::collections::SortOnDrop;
-use crate::handler::Handler;
+use crate::handler::{Handler, HandlerExt};
 use crate::options::OptionValue;
 use crate::plugins::{
-    AliasOutcome, CommandSource, LoadFailure, PluginEngine, SendIterable, SenderAccessError,
+    AliasEffects, AliasOutcome, CommandSource, LoadFailure, PluginEngine, ReactionIterable,
+    SendIterable, SendRequest, SenderAccessError, SpanStyle, TriggerEffects,
 };
 use crate::world::{OptionCaller, PersistError, SetOptionError, World};
 
@@ -29,7 +34,7 @@ pub struct SmushClient {
     logger: RefCell<Logger>,
     pub(crate) plugins: PluginEngine,
     supported_tags: FlagSet<Tag>,
-    transformer: Transformer,
+    transformer: RefCell<Transformer>,
     variables: RefCell<PluginVariables>,
     world: World,
     audio: AudioSinks,
@@ -56,7 +61,7 @@ impl SmushClient {
             logger: RefCell::new(Logger::new(&world)),
             plugins,
             supported_tags,
-            transformer,
+            transformer: RefCell::new(transformer),
             variables: RefCell::new(PluginVariables::new()),
             world,
             audio: AudioSinks::try_default().expect("audio initialization error"),
@@ -78,7 +83,7 @@ impl SmushClient {
     }
 
     pub fn reset_connection(&mut self) {
-        self.transformer = Transformer::new(self.create_config());
+        *self.transformer.borrow_mut() = Transformer::new(self.create_config());
     }
 
     pub fn set_supported_tags(&mut self, supported_tags: FlagSet<Tag>) {
@@ -96,7 +101,9 @@ impl SmushClient {
     }
 
     fn update_config(&mut self) {
-        self.transformer.set_config(self.create_config());
+        self.transformer
+            .borrow_mut()
+            .set_config(self.create_config());
     }
 
     fn create_config(&self) -> TransformerConfig {
@@ -164,6 +171,7 @@ impl SmushClient {
     }
 
     pub fn read<R: Read>(&mut self, mut reader: R, read_buf: &mut [u8]) -> io::Result<usize> {
+        let mut transformer = self.transformer.borrow_mut();
         let mut logger = self.logger.borrow_mut();
         let midpoint = read_buf.len() / 2;
         let mut total_read = 0;
@@ -174,7 +182,7 @@ impl SmushClient {
             }
             let (received, buf) = read_buf.split_at_mut(n);
             let _ = logger.log_raw(received);
-            self.transformer.receive(received, buf)?;
+            transformer.receive(received, buf)?;
             total_read += n;
         }
     }
@@ -194,20 +202,21 @@ impl SmushClient {
             }
             let (received, buf) = read_buf.split_at_mut(n);
             let _ = self.logger.borrow_mut().log_raw(buf);
-            self.transformer.receive(received, buf)?;
+            self.transformer.borrow_mut().receive(received, buf)?;
             total_read += n;
         }
     }
 
     pub fn write<W: Write>(&mut self, writer: &mut W) -> io::Result<()> {
-        let Some(mut drain) = self.transformer.drain_input() else {
+        let mut transformer = self.transformer.borrow_mut();
+        let Some(mut drain) = transformer.drain_input() else {
             return Ok(());
         };
         drain.write_all_to(writer)
     }
 
     pub fn has_output(&self) -> bool {
-        self.transformer.has_output()
+        self.transformer.borrow().has_output()
     }
 
     pub fn drain_output<H: Handler>(&mut self, handler: &mut H) -> bool {
@@ -218,11 +227,12 @@ impl SmushClient {
         self.process_output(handler, true)
     }
 
-    fn process_output<H: Handler>(&mut self, handler: &mut H, flush: bool) -> bool {
+    fn process_output<H: Handler>(&self, handler: &mut H, flush: bool) -> bool {
+        let mut transformer = self.transformer.borrow_mut();
         let drain = if flush {
-            self.transformer.flush_output()
+            transformer.flush_output()
         } else {
-            self.transformer.drain_output()
+            transformer.drain_output()
         };
         let mut had_output = false;
         let mut slice = drain.as_slice();
@@ -267,14 +277,7 @@ impl SmushClient {
                 handler.display(fragment);
             }
 
-            let trigger_effects = self.plugins.trigger(
-                &line_text,
-                output,
-                &self.world,
-                &self.variables,
-                self.audio.mixer(),
-                handler,
-            );
+            let trigger_effects = self.trigger(&line_text, output, handler);
 
             had_output = had_output || !trigger_effects.omit_from_output;
 
@@ -286,28 +289,6 @@ impl SmushClient {
         }
 
         had_output
-    }
-
-    pub fn alias<H: Handler>(
-        &self,
-        input: &str,
-        source: CommandSource,
-        handler: &mut H,
-    ) -> AliasOutcome {
-        let outcome = self.plugins.alias(
-            input,
-            source,
-            &self.world,
-            &self.variables,
-            self.audio.mixer(),
-            handler,
-        );
-        if !outcome.omit_from_log
-            && let Err(e) = self.logger.borrow_mut().log_input_line(input)
-        {
-            handler.display_error(&format!("Log error: {e}"));
-        }
-        outcome.into()
     }
 
     pub fn log_note<H: Handler>(&self, note: &str, handler: &mut H) {
@@ -677,6 +658,185 @@ impl SmushClient {
             _ => (),
         }
         Ok(())
+    }
+
+    pub fn alias<H: Handler>(
+        &self,
+        input: &str,
+        source: CommandSource,
+        handler: &mut H,
+    ) -> AliasOutcome {
+        let mut effects = AliasEffects::new(&self.world, source);
+        let echo = match source {
+            CommandSource::Hotkey => self.world.echo_hotkey_in_output_window,
+            CommandSource::Link => self.world.echo_hyperlink_in_output_window,
+            CommandSource::User => true,
+        };
+        self.process_matches::<Alias, _>(input, &[], echo, handler, &mut effects);
+        if !effects.omit_from_log
+            && !effects.suppress
+            && let Err(e) = self.logger.borrow_mut().log_input_line(input)
+        {
+            handler.display_error(&format!("Log error: {e}"));
+        }
+        effects.into()
+    }
+
+    fn trigger<H: Handler>(
+        &self,
+        line: &str,
+        output: &[Output],
+        handler: &mut H,
+    ) -> TriggerEffects {
+        let mut effects = TriggerEffects::new();
+        self.process_matches::<Trigger, _>(line, output, true, handler, &mut effects);
+        if effects.omit_from_output {
+            handler.erase_last_line();
+        }
+        effects
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn process_matches<T: ReactionIterable, H: Handler>(
+        &self,
+        line: &str,
+        output: &[Output],
+        permit_echo: bool,
+        handler: &mut H,
+        effects: &mut T::Effects,
+    ) {
+        if !T::enabled(&self.world) {
+            return;
+        }
+        let mut text_buf = String::new();
+        let mut reaction_buf = Reaction::default();
+        let mut style = SpanStyle::null();
+        let mut has_style = false;
+
+        for (plugin_index, plugin) in self.plugins.iter().enumerate() {
+            if plugin.disabled.get() {
+                continue;
+            }
+            let enable_scripts = !plugin.metadata.is_world_plugin || self.world.enable_scripts;
+            let senders = if plugin.metadata.is_world_plugin {
+                T::from_world(&self.world)
+            } else {
+                T::from_plugin(plugin)
+            };
+            for sender in senders.scan() {
+                let mut matched = false;
+                let regex = {
+                    let Some(sender) = sender.borrow() else {
+                        continue;
+                    };
+                    let reaction = sender.reaction();
+                    if !reaction.enabled {
+                        continue;
+                    }
+                    reaction.regex.clone()
+                };
+                text_buf.clear();
+                for captures in regex.captures_iter(line).filter_map(Result::ok) {
+                    if !matched {
+                        matched = true;
+                        if T::AFFECTS_STYLE {
+                            let Some(sender) = sender.borrow() else {
+                                break;
+                            };
+                            style = sender.style();
+                            has_style = !style.is_null();
+                        }
+                    }
+                    if has_style && let Some(capture) = captures.get(0) {
+                        handler.apply_styles(capture.start()..capture.end(), style);
+                    }
+                    let send_request = {
+                        let Some(sender) = sender.borrow() else {
+                            break;
+                        };
+                        if let Some(clipboard_arg) = sender.clipboard_arg()
+                            && let Some(capture) = captures.get(clipboard_arg.get().into())
+                            && let Ok(mut clipboard) = Clipboard::new()
+                        {
+                            clipboard.set_text(capture.as_str()).ok();
+                        }
+                        let reaction = sender.reaction();
+                        if reaction.send_to == SendTarget::Variable {
+                            self.variables.borrow_mut().set_variable(
+                                &plugin.metadata.id,
+                                reaction.variable.as_bytes().to_vec(),
+                                reaction
+                                    .expand_text(&mut text_buf, &captures)
+                                    .as_bytes()
+                                    .to_vec(),
+                            );
+                            false
+                        } else if enable_scripts || !reaction.send_to.is_script() {
+                            reaction_buf.clone_from(reaction);
+                            true
+                        } else {
+                            false
+                        }
+                    };
+                    if send_request {
+                        handler.send(SendRequest {
+                            plugin: plugin_index,
+                            send_to: reaction_buf.send_to,
+                            echo: permit_echo && reaction_buf.should_echo(),
+                            log: !reaction_buf.omit_from_log,
+                            text: reaction_buf.expand_text(&mut text_buf, &captures),
+                            destination: reaction_buf.destination(),
+                        });
+                    }
+                    // fresh borrow in case the handler changed the reaction's settings
+                    if !sender
+                        .borrow()
+                        .is_some_and(|sender| sender.reaction().repeats)
+                    {
+                        break;
+                    }
+                }
+                if !matched {
+                    continue;
+                }
+                let send_script = enable_scripts && {
+                    let Some(sender) = sender.borrow() else {
+                        continue;
+                    };
+                    let reaction = sender.reaction();
+                    if reaction.script.is_empty() {
+                        false
+                    } else {
+                        reaction_buf.clone_from(reaction);
+                        true
+                    }
+                };
+                if send_script {
+                    handler.send_scripts(plugin_index, &reaction_buf, line, output);
+                }
+                let (one_shot, keep_evaluating) = {
+                    let Some(sender) = sender.borrow() else {
+                        continue;
+                    };
+                    if let Some(sound) = sender.sound()
+                        && self.world.enable_trigger_sounds
+                        && let Ok(file) = File::open(sound)
+                        && let Ok(decoder) = Decoder::try_from(file)
+                    {
+                        self.audio.mixer().add(decoder);
+                    }
+                    sender.add_effects(effects);
+                    let reaction = sender.reaction();
+                    (reaction.one_shot, reaction.keep_evaluating)
+                };
+                if one_shot {
+                    sender.remove();
+                }
+                if !keep_evaluating {
+                    break;
+                }
+            }
+        }
     }
 
     fn update_world_plugins(&mut self) {
