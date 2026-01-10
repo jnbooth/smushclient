@@ -1,4 +1,5 @@
 use std::cell::{Ref, RefCell, RefMut};
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, Cursor, Read, Write};
 use std::path::Path;
@@ -715,6 +716,7 @@ impl SmushClient {
         let mut reaction_buf = Reaction::default();
         let mut style = SpanStyle::null();
         let mut has_style = false;
+        let mut one_shots = HashSet::new();
 
         for (plugin_index, plugin) in self.plugins.iter().enumerate() {
             if plugin.disabled.get() {
@@ -809,25 +811,26 @@ impl SmushClient {
                 if send_script {
                     handler.send_scripts(plugin_index, &reaction_buf, line, output);
                 }
-                let (one_shot, keep_evaluating) = {
-                    let sender = sender.borrow();
-                    if let Some(sound) = sender.sound()
-                        && self.world.enable_trigger_sounds
-                        && let Ok(file) = File::open(sound)
-                        && let Ok(decoder) = Decoder::try_from(file)
-                    {
-                        self.audio.mixer().add(decoder);
-                    }
-                    sender.add_effects(effects);
-                    let reaction = sender.reaction();
-                    (reaction.one_shot, reaction.keep_evaluating)
-                };
-                if one_shot {
-                    sender.remove();
+                let sender = sender.borrow();
+                if let Some(sound) = sender.sound()
+                    && self.world.enable_trigger_sounds
+                    && let Ok(file) = File::open(sound)
+                    && let Ok(decoder) = Decoder::try_from(file)
+                {
+                    self.audio.mixer().add(decoder);
                 }
-                if !keep_evaluating {
+                sender.add_effects(effects);
+                let reaction = sender.reaction();
+                if reaction.one_shot {
+                    one_shots.insert(reaction.id);
+                }
+                if !reaction.keep_evaluating {
                     break;
                 }
+            }
+            if !one_shots.is_empty() {
+                senders.retain(|sender| !one_shots.contains(&sender.as_ref().id));
+                one_shots.clear();
             }
         }
     }

@@ -262,10 +262,4 @@ impl<T: Ord> CursorVecRef<'_, T> {
         let cursor = self.vec.cursor.get();
         RefMut::map(self.vec.inner.borrow_mut(), |vec| &mut vec[cursor])
     }
-
-    pub fn remove(self) {
-        let cursor = self.vec.cursor.get();
-        self.vec.remove(cursor);
-        self.vec.cursor.set(cursor.wrapping_sub(1));
-    }
 }
