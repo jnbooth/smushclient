@@ -534,6 +534,16 @@ WorldTab::keyPressEvent(QKeyEvent* event)
 }
 
 void
+WorldTab::mousePressEvent(QMouseEvent* event)
+{
+  if (event->buttons() == Qt::MouseButton::LeftButton &&
+      event->modifiers() == Qt::KeyboardModifier::ControlModifier) {
+    showAliasMenu();
+    event->accept();
+  }
+}
+
+void
 WorldTab::mouseReleaseEvent(QMouseEvent*)
 {
   finishDrag();
@@ -714,6 +724,26 @@ WorldTab::setupWorldScriptWatcher()
     worldScriptWatcher.removePaths(watchedScripts);
   if (!worldScriptPath.isEmpty())
     worldScriptWatcher.addPath(worldScriptPath);
+}
+
+void
+WorldTab::showAliasMenu()
+{
+  const rust::Vec<AliasMenuItem> items = client.aliasMenu();
+  if (items.empty())
+    return;
+  QMenu menu(this);
+  for (const AliasMenuItem& item : items) {
+    QAction* action = new QAction(&menu);
+    action->setText(item.text);
+    action->setData(QPoint(item.plugin, item.id));
+    menu.addAction(action);
+  }
+  const QAction* choice = menu.exec(QCursor::pos());
+  if (!choice)
+    return;
+  const QPoint data = choice->data().toPoint();
+  client.invokeAlias(data.x(), data.y(), *document);
 }
 
 void

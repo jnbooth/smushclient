@@ -878,7 +878,7 @@ qlua::getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil)
     case (int)ScriptCursor::ForbiddenCursor:
       return Qt::CursorShape::ForbiddenCursor;
     case (int)ScriptCursor::WhatsThisCursor:
-      return Qt::WhatsThisCursor;
+      return Qt::CursorShape::WhatsThisCursor;
     default:
       return nullopt;
   }

@@ -119,7 +119,8 @@ MudInput::keyPressEvent(QKeyEvent* event)
       break;
 
     default:
-      if (ignoreKeypad && event->modifiers().testFlag(Qt::KeypadModifier))
+      if (ignoreKeypad &&
+          event->modifiers().testFlag(Qt::KeyboardModifier::KeypadModifier))
         [[unlikely]] {
         event->ignore();
         return;

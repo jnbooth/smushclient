@@ -1333,7 +1333,8 @@ L_WindowGradient(lua_State* L)
   const QColor color1 = qlua::getQColor(L, 6);
   const QColor color2 = qlua::getQColor(L, 7);
   const int mode = qlua::getInt(L, 8);
-  if (mode != Qt::Horizontal && mode != Qt::Vertical) [[unlikely]]
+  if (mode != Qt::Orientation::Horizontal && mode != Qt::Orientation::Vertical)
+    [[unlikely]]
     return returnCode(L, ApiCode::UnknownOption);
   return returnCode(L,
                     getApi(L).WindowGradient(

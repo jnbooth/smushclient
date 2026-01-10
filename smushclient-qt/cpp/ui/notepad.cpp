@@ -198,7 +198,8 @@ Notepads::pad(const QString& name)
   if (name.isEmpty())
     return create(name)->editor();
 
-  Notepad* notepad = findChild<Notepad*>(name, Qt::FindDirectChildrenOnly);
+  Notepad* notepad =
+    findChild<Notepad*>(name, Qt::FindChildOption::FindDirectChildrenOnly);
 
   if (!notepad) {
     notepad = create(name);

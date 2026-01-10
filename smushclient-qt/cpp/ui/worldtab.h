@@ -113,6 +113,7 @@ protected:
   void leaveEvent(QEvent* event) override;
   void keyPressEvent(QKeyEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
+  void mousePressEvent(QMouseEvent* event) override;
   void mouseReleaseEvent(QMouseEvent* event) override;
   void resizeEvent(QResizeEvent* event) override;
 
@@ -125,6 +126,7 @@ private:
   bool saveWorldAndState(const QString& filePath);
   bool sendCommand(const QString& command, CommandSource source);
   void setupWorldScriptWatcher();
+  void showAliasMenu();
   void updateWorldScript();
 
 private slots:

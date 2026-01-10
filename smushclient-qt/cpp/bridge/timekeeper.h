@@ -18,7 +18,7 @@ class Timekeeper : public QObject
 public:
   Timekeeper(ScriptApi* parent);
   void beginPolling(std::chrono::milliseconds interval,
-                    Qt::TimerType timerType = Qt::CoarseTimer);
+                    Qt::TimerType timerType = Qt::TimerType::CoarseTimer);
   void cancelTimers(const QSet<uint16_t>& timerIds);
   void sendTimer(const SendTimer& timer) const;
   void startSendTimer(size_t index, uint16_t timerId, uint milliseconds) const;

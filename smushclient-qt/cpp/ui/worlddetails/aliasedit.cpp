@@ -45,6 +45,7 @@ AliasEdit::AliasEdit(Alias& alias, QWidget* parent)
   CONNECT(OmitFromCommandHistory);
 
   ui->Text->setPlainText(alias.getText());
+  ui->Menu->setEnabled(!alias.getLabel().isEmpty());
 }
 
 AliasEdit::~AliasEdit()
@@ -74,6 +75,7 @@ AliasEdit::accept()
 void
 AliasEdit::on_Label_textChanged(const QString& text)
 {
+  ui->Menu->setEnabled(!text.isEmpty());
   ui->Variable->setPlaceholderText(text);
 }
 

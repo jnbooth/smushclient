@@ -668,6 +668,22 @@ impl SmushClient {
         Ok(())
     }
 
+    pub fn build_alias_menu<F>(&self, mut f: F)
+    where
+        F: FnMut(PluginIndex, u16, &str),
+    {
+        for (plugin_index, plugin) in self.plugins.iter().enumerate() {
+            if plugin.disabled.get() {
+                continue;
+            }
+            for alias in &*Alias::from_either(plugin, &self.world).borrow() {
+                if alias.menu && !alias.label.is_empty() {
+                    f(plugin_index, alias.id, &alias.label);
+                }
+            }
+        }
+    }
+
     pub fn alias<H: Handler>(
         &self,
         input: &str,
@@ -685,6 +701,78 @@ impl SmushClient {
             self.log_input(input, handler);
         }
         effects.into()
+    }
+
+    pub fn invoke_alias<H>(&self, plugin_index: PluginIndex, id: u16, handler: &mut H) -> bool
+    where
+        H: Handler,
+    {
+        let Some(plugin) = self.plugins.get(plugin_index) else {
+            return false;
+        };
+        let aliases = Alias::from_either(plugin, &self.world);
+        let mut buffers = self.buffers.borrow_mut();
+        let (text_buf, destination_buf, _) = &mut *buffers;
+        let (send_request, has_script) = {
+            let alias = match aliases.find(|alias| alias.id == id) {
+                Some(alias) if alias.enabled => alias,
+                _ => return false,
+            };
+            let enable_scripts = !plugin.metadata.is_world_plugin || self.world.enable_scripts;
+            let text = alias.expand_text_captureless().into_owned();
+            if alias.send_to == SendTarget::Variable {
+                self.variables.borrow_mut().set_variable(
+                    &plugin.metadata.id,
+                    alias.variable.as_bytes().to_vec(),
+                    text.into_bytes(),
+                );
+                (None, !alias.script.is_empty())
+            } else if !enable_scripts && alias.send_to.is_script() {
+                (None, !alias.script.is_empty())
+            } else {
+                *text_buf = text;
+                destination_buf.clone_from(alias.destination());
+                (
+                    Some(SendRequest {
+                        plugin: plugin_index,
+                        send_to: alias.send_to,
+                        echo: alias.should_echo(),
+                        text: text_buf,
+                        destination: destination_buf,
+                    }),
+                    !alias.script.is_empty(),
+                )
+            }
+        };
+        if let Some(send_request) = send_request {
+            handler.send(send_request);
+        }
+        if !has_script {
+            return true;
+        }
+        let regex = {
+            // fresh borrow in case the handler changed the reaction's settings
+            let alias = match aliases.find(|alias| alias.id == id) {
+                Some(alias) if alias.enabled => alias,
+                _ => return true,
+            };
+            if alias.script.is_empty() {
+                return true;
+            }
+            destination_buf.clone_from(&alias.script);
+            text_buf.clone_from(&alias.label);
+            alias.regex.clone()
+        };
+        handler.send_script(SendScriptRequest {
+            plugin: plugin_index,
+            script: destination_buf,
+            label: text_buf,
+            line: "",
+            regex: &regex,
+            wildcards: None,
+            output: &[],
+        });
+        true
     }
 
     fn trigger<H: Handler>(

@@ -568,6 +568,14 @@ impl ffi::SmushClient {
         ffi::AliasOutcome::to_qflags(self.rust().alias(&String::from(command), source, doc))
     }
 
+    pub fn invoke_alias(&self, index: PluginIndex, id: u16, doc: Pin<&mut ffi::Document>) -> bool {
+        self.rust().invoke_alias(index, id, doc)
+    }
+
+    pub fn alias_menu(&self) -> Vec<ffi::AliasMenuItem> {
+        self.rust().alias_menu()
+    }
+
     pub fn get_variable(&self, index: PluginIndex, key: &LuaStr) -> VariableView {
         self.rust().client.borrow_variable(index, key).into()
     }

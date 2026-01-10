@@ -27,7 +27,7 @@ AliasModel::flags(const QModelIndex& index) const
     return Qt::ItemFlag::ItemIsEnabled;
 
   return Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEnabled |
-         Qt::ItemFlag::ItemNeverHasChildren | Qt::ItemIsEditable;
+         Qt::ItemFlag::ItemNeverHasChildren | Qt::ItemFlag::ItemIsEditable;
 }
 
 // Protected overrides

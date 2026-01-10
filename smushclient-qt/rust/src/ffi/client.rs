@@ -34,6 +34,12 @@ pub mod ffi {
         type ApiCode = crate::ffi::ApiCode;
     }
 
+    struct AliasMenuItem {
+        plugin: usize,
+        id: u16,
+        text: QString,
+    }
+
     struct PluginPack {
         id: String,
         name: String,
@@ -115,6 +121,9 @@ pub mod ffi {
             source: CommandSource,
             doc: Pin<&mut Document>,
         ) -> AliasOutcomes;
+        fn invoke_alias(self: &SmushClient, index: usize, id: u16, doc: Pin<&mut Document>)
+        -> bool;
+        fn alias_menu(self: &SmushClient) -> Vec<AliasMenuItem>;
         fn plugin_info(self: &SmushClient, index: usize, info_type: u8) -> QVariant;
         fn plugins_len(self: &SmushClient) -> usize;
         fn add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> Result<usize>;

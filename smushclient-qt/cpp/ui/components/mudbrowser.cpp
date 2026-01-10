@@ -34,8 +34,8 @@ MudBrowser::setMaximumBlockCount(int maximum)
 void
 MudBrowser::keyPressEvent(QKeyEvent* event)
 {
-  if (ignoreKeypad && event->modifiers().testFlag(Qt::KeypadModifier))
-    [[unlikely]] {
+  if (ignoreKeypad && event->modifiers().testFlag(
+                        Qt::KeyboardModifier::KeypadModifier)) [[unlikely]] {
     event->ignore();
     return;
   }
@@ -47,4 +47,15 @@ MudBrowser::mouseMoveEvent(QMouseEvent* event)
 {
   QTextBrowser::mouseMoveEvent(event);
   event->ignore();
+}
+
+void
+MudBrowser::mousePressEvent(QMouseEvent* event)
+{
+  if (event->buttons() == Qt::MouseButton::LeftButton &&
+      event->modifiers() == Qt::KeyboardModifier::ControlModifier) {
+    event->ignore();
+    return;
+  }
+  QTextBrowser::mousePressEvent(event);
 }

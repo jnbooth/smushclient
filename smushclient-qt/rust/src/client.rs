@@ -17,7 +17,7 @@ use smushclient::{
 use smushclient_plugins::{Alias, LoadError, PluginIndex, Timer, Trigger, XmlError};
 
 use crate::convert::Convert;
-use crate::ffi::{self, Document, Timekeeper};
+use crate::ffi::{self, AliasMenuItem, Document, Timekeeper};
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
 use crate::results::IntoApiCode;
@@ -281,6 +281,33 @@ impl SmushClientRust {
         let outcome = self.client.alias(command, source, &mut handler);
         handler.doc.end(false);
         outcome
+    }
+
+    pub fn invoke_alias(&self, index: PluginIndex, id: u16, doc: Pin<&mut Document>) -> bool {
+        let world = self.client.world();
+        let mut handler = ClientHandler {
+            doc,
+            formatter: &self.formatter,
+            carriage_return_clears_line: world.carriage_return_clears_line,
+            no_echo_off: world.no_echo_off,
+            stats: &self.stats,
+        };
+        handler.doc.begin();
+        let succeeded = self.client.invoke_alias(index, id, &mut handler);
+        handler.doc.end(false);
+        succeeded
+    }
+
+    pub fn alias_menu(&self) -> Vec<AliasMenuItem> {
+        let mut menu = Vec::new();
+        self.client.build_alias_menu(|plugin, id, label| {
+            menu.push(AliasMenuItem {
+                plugin,
+                id,
+                text: QString::from(label),
+            });
+        });
+        menu
     }
 
     pub fn timer_info(&self, index: PluginIndex, label: &str, info_type: u8) -> QVariant {
