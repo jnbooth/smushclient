@@ -15,3 +15,6 @@ pcre2 = { version = "0.2.11" }
 quick-xml = { version = "0.38.4", features = ["serialize"] }
 serde = { workspace = true }
 serde-this-or-that = "0.5.0"
+
+[features]
+send = []

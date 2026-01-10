@@ -269,7 +269,7 @@ impl TryFrom<&ReactionRust> for Reaction {
             is_regex: value.is_regex,
             expand_variables: value.expand_variables,
             repeats: value.repeats,
-            regex,
+            regex: regex.into(),
         })
     }
 }

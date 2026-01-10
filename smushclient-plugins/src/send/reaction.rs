@@ -1,5 +1,9 @@
 use std::iter;
+#[cfg(not(feature = "send"))]
+use std::rc::Rc;
 use std::str::CharIndices;
+#[cfg(feature = "send")]
+use std::sync::Arc as Rc;
 
 use serde::{Deserialize, Serialize};
 
@@ -20,7 +24,8 @@ pub struct Reaction {
     pub expand_variables: bool,
     pub repeats: bool,
 
-    pub regex: Regex,
+    #[serde(with = "regex_serde")]
+    pub regex: Rc<Regex>,
 }
 
 impl_deref!(Reaction, Sender, send);
@@ -37,7 +42,7 @@ impl Default for Reaction {
             is_regex: false,
             expand_variables: false,
             repeats: false,
-            regex: Regex::default(),
+            regex: Rc::new(Regex::default()),
         }
     }
 }
@@ -45,20 +50,28 @@ impl Default for Reaction {
 impl Reaction {
     pub const DEFAULT_SEQUENCE: i16 = 100;
 
+    fn set_regex(&mut self, regex: Regex) {
+        if let Some(rc) = Rc::get_mut(&mut self.regex) {
+            *rc = regex;
+        } else {
+            self.regex = Rc::new(regex);
+        }
+    }
+
     pub fn set_ignore_case(&mut self, ignore_case: bool) -> Result<(), RegexError> {
-        self.regex = Self::make_regex(&self.pattern, self.is_regex, ignore_case)?;
+        self.set_regex(Self::make_regex(&self.pattern, self.is_regex, ignore_case)?);
         self.ignore_case = ignore_case;
         Ok(())
     }
 
     pub fn set_is_regex(&mut self, is_regex: bool) -> Result<(), RegexError> {
-        self.regex = Self::make_regex(&self.pattern, is_regex, self.ignore_case)?;
+        self.set_regex(Self::make_regex(&self.pattern, is_regex, self.ignore_case)?);
         self.is_regex = is_regex;
         Ok(())
     }
 
     pub fn set_pattern(&mut self, pattern: String) -> Result<(), RegexError> {
-        self.regex = Self::make_regex(&pattern, self.is_regex, self.ignore_case)?;
+        self.set_regex(Self::make_regex(&pattern, self.is_regex, self.ignore_case)?);
         self.pattern = pattern;
         Ok(())
     }
@@ -155,6 +168,21 @@ impl Reaction {
     }
 }
 
+mod regex_serde {
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+    use super::{Rc, Regex};
+
+    #[allow(clippy::ref_option)]
+    pub fn serialize<S: Serializer>(value: &Rc<Regex>, serializer: S) -> Result<S::Ok, S::Error> {
+        (*value).serialize(serializer)
+    }
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Rc<Regex>, D::Error> {
+        Regex::deserialize(deserializer).map(Rc::new)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -163,7 +191,7 @@ mod tests {
     fn expand() {
         let pattern = "(.e).(.)(.*)q(\\d+)".to_owned();
         let mut reaction = Reaction {
-            regex: Regex::new(&pattern).unwrap(),
+            regex: Rc::new(Regex::new(&pattern).unwrap()),
             pattern,
             ..Default::default()
         };

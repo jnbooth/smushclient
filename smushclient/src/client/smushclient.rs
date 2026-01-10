@@ -729,7 +729,7 @@ impl SmushClient {
             };
             for sender in senders.scan() {
                 let mut matched = false;
-                let regex = {
+                let regex_rc = {
                     let sender = sender.borrow();
                     let reaction = sender.reaction();
                     if !reaction.enabled {
@@ -737,6 +737,7 @@ impl SmushClient {
                     }
                     reaction.regex.clone()
                 };
+                let regex = &*regex_rc;
                 text_buf.clear();
                 for captures in regex.captures_iter(line).filter_map(Result::ok) {
                     if !matched {
@@ -815,7 +816,7 @@ impl SmushClient {
                             script: &destination_buf,
                             label: &text_buf,
                             line,
-                            regex: &regex,
+                            regex,
                             wildcards: Some(captures),
                             output,
                         });

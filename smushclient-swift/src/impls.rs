@@ -1,5 +1,6 @@
 use std::num::NonZero;
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike};
@@ -13,7 +14,7 @@ use smushclient::world::{
 };
 use smushclient::{SendRequest, SendScriptRequest, World};
 use smushclient_plugins::{
-    Alias, CursorVec, Occurrence, Reaction, Regex, SendTarget, Sender, Timer, Trigger,
+    Alias, CursorVec, Occurrence, Reaction, SendTarget, Sender, Timer, Trigger,
 };
 
 use crate::convert::{Convert, impl_convert, impl_convert_enum, impl_convert_struct};
@@ -112,19 +113,46 @@ impl_convert_struct!(
     userdata,
 );
 
-impl_convert_struct!(
-    ffi::Reaction,
-    Reaction,
-    sequence,
-    pattern,
-    send,
-    ignore_case,
-    keep_evaluating,
-    is_regex,
-    expand_variables,
-    repeats,
-    regex,
-);
+impl From<Reaction> for ffi::Reaction {
+    fn from(value: Reaction) -> Self {
+        Self {
+            sequence: value.sequence,
+            pattern: value.pattern,
+            send: value.send.into(),
+            ignore_case: value.ignore_case,
+            keep_evaluating: value.keep_evaluating,
+            is_regex: value.is_regex,
+            expand_variables: value.expand_variables,
+            repeats: value.repeats,
+        }
+    }
+}
+impl From<ffi::Reaction> for Reaction {
+    fn from(value: ffi::Reaction) -> Self {
+        Self {
+            regex: Arc::new(
+                Reaction::make_regex(&value.pattern, value.is_regex, value.ignore_case)
+                    .expect("invalid regular expression"),
+            ),
+            sequence: value.sequence,
+            pattern: value.pattern,
+            send: value.send.into(),
+            ignore_case: value.ignore_case,
+            keep_evaluating: value.keep_evaluating,
+            is_regex: value.is_regex,
+            expand_variables: value.expand_variables,
+            repeats: value.repeats,
+        }
+    }
+}
+impl Convert<Reaction> for ffi::Reaction {
+    fn from_ffi(value: Self) -> Reaction {
+        <Reaction>::from(value)
+    }
+    fn to_ffi(value: Reaction) -> Self {
+        Self::from(value)
+    }
+}
 
 impl_convert_struct!(
     ffi::Alias,
@@ -322,19 +350,6 @@ impl From<Option<RgbColor>> for ffi::ColorOption {
             Some(color) => ffi::ColorOption::Some(color.into()),
             None => ffi::ColorOption::None,
         }
-    }
-}
-
-impl Convert<Regex> for String {
-    /// # Panics
-    ///
-    /// Panics if the value is not a valid regular expression.
-    fn from_ffi(value: Self) -> Regex {
-        Regex::new(&value).expect("invalid regular expression")
-    }
-
-    fn to_ffi(value: Regex) -> Self {
-        value.to_string()
     }
 }
 

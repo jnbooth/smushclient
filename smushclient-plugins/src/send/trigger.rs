@@ -217,7 +217,7 @@ impl TryFrom<TriggerXml<'_>> for Trigger {
             value,
             Reaction {
                 send,
-                regex,
+                regex: regex.into(),
                 ..sequence,
                 ..pattern,
                 ..is_regex,

@@ -131,7 +131,7 @@ impl TryFrom<AliasXml<'_>> for Alias {
             value,
             Reaction {
                 send,
-                regex,
+                regex: regex.into(),
                 repeats: false,
                 ..sequence,
                 ..pattern,

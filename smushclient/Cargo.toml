@@ -31,4 +31,4 @@ features = ["io-util", "net"]
 optional = true
 
 [features]
-async = ["tokio"]
+async = ["tokio", "smushclient-plugins/send"]

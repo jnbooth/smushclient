@@ -198,7 +198,6 @@ pub mod ffi {
         is_regex: bool,
         expand_variables: bool,
         repeats: bool,
-        regex: String,
     }
 
     #[swift_bridge(swift_repr = "struct")]
