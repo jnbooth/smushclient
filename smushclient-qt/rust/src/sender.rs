@@ -76,25 +76,13 @@ pub struct SenderRust {
     pub omit_from_output: bool,
     pub omit_from_log: bool,
 
+    pub id: u16,
     pub userdata: i32,
 }
 
 impl Default for SenderRust {
     fn default() -> Self {
-        Self {
-            text: QString::default(),
-            send_to: ffi::SendTarget::World,
-            label: QString::default(),
-            script: QString::default(),
-            group: QString::default(),
-            variable: QString::default(),
-            enabled: true,
-            one_shot: false,
-            temporary: false,
-            omit_from_output: false,
-            omit_from_log: false,
-            userdata: 0,
-        }
+        Self::from(&Sender::default())
     }
 }
 
@@ -112,6 +100,7 @@ impl From<&Sender> for SenderRust {
             temporary: sender.temporary,
             omit_from_output: sender.omit_from_output,
             omit_from_log: sender.omit_from_log,
+            id: sender.id,
             userdata: sender.userdata,
         }
     }
@@ -131,6 +120,7 @@ impl From<&SenderRust> for Sender {
             temporary: value.temporary,
             omit_from_output: value.omit_from_output,
             omit_from_log: value.omit_from_log,
+            id: value.id,
             userdata: value.userdata,
         }
     }
@@ -216,7 +206,6 @@ impl From<&TimerRust> for Timer {
             send: Sender::from(&value.send),
             occurrence,
             active_closed: value.active_closed,
-            id: value.id,
         }
     }
 }

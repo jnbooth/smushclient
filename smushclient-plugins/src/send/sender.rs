@@ -1,3 +1,5 @@
+use std::sync::atomic::{AtomicU16, Ordering};
+
 use serde::{Deserialize, Serialize};
 
 use super::send_to::SendTarget;
@@ -19,6 +21,8 @@ pub struct Sender {
     pub omit_from_output: bool,
     pub omit_from_log: bool,
 
+    #[serde(skip, default = "Sender::get_id")]
+    pub id: u16,
     #[serde(skip)]
     pub userdata: i32,
 }
@@ -37,6 +41,7 @@ impl Clone for Sender {
             temporary: self.temporary,
             omit_from_output: self.omit_from_output,
             omit_from_log: self.omit_from_log,
+            id: self.id,
             userdata: self.userdata,
         }
     }
@@ -53,6 +58,7 @@ impl Clone for Sender {
         self.temporary = source.temporary;
         self.omit_from_output = source.omit_from_output;
         self.omit_from_log = source.omit_from_log;
+        self.id = source.id;
         self.userdata = source.userdata;
     }
 }
@@ -64,7 +70,12 @@ impl Default for Sender {
 }
 
 impl Sender {
-    pub const fn new() -> Self {
+    pub(super) fn get_id() -> u16 {
+        static ID_COUNTER: AtomicU16 = AtomicU16::new(0);
+        ID_COUNTER.fetch_add(1, Ordering::Relaxed)
+    }
+
+    pub fn new() -> Self {
         Self {
             text: String::new(),
             send_to: SendTarget::World,
@@ -77,11 +88,12 @@ impl Sender {
             temporary: false,
             omit_from_output: false,
             omit_from_log: false,
+            id: Self::get_id(),
             userdata: 0,
         }
     }
 
-    pub const fn destination(&self) -> &str {
+    pub fn destination(&self) -> &str {
         if self.variable.is_empty() {
             self.label.as_str()
         } else {
@@ -89,7 +101,7 @@ impl Sender {
         }
     }
 
-    pub const fn should_echo(&self) -> bool {
+    pub fn should_echo(&self) -> bool {
         !self.omit_from_output
             && matches!(
                 self.send_to,

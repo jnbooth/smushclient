@@ -183,6 +183,7 @@ pub mod ffi {
         temporary: bool,
         omit_from_output: bool,
         omit_from_log: bool,
+        id: u16,
         userdata: i32,
     }
 
@@ -234,7 +235,6 @@ pub mod ffi {
         send: Sender,
         occurrence: Occurrence,
         active_closed: bool,
-        id: u16,
     }
 
     #[swift_bridge(swift_repr = "struct")]

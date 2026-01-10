@@ -112,6 +112,7 @@ impl TryFrom<AliasXml<'_>> for Alias {
         let send = in_place!(
             value,
             Sender {
+                    id: Sender::get_id(),
                     userdata: 0,
                     ..label,
                     ..text,

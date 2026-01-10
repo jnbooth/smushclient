@@ -108,6 +108,7 @@ impl_convert_struct!(
     temporary,
     omit_from_output,
     omit_from_log,
+    id,
     userdata,
 );
 
@@ -155,7 +156,7 @@ impl_convert_struct!(
 
 impl_convert!(ffi::Occurrence, Occurrence);
 
-impl_convert_struct!(ffi::Timer, Timer, send, occurrence, active_closed, id);
+impl_convert_struct!(ffi::Timer, Timer, send, occurrence, active_closed);
 
 impl_convert_struct!(ffi::RgbColor, RgbColor, r, g, b);
 
