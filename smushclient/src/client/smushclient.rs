@@ -38,6 +38,7 @@ pub struct SmushClient {
     variables: RefCell<PluginVariables>,
     world: World,
     audio: AudioSinks,
+    buffers: RefCell<(String, String, HashSet<u16>)>,
 }
 
 impl Default for SmushClient {
@@ -65,6 +66,7 @@ impl SmushClient {
             variables: RefCell::new(PluginVariables::new()),
             world,
             audio: AudioSinks::try_default().expect("audio initialization error"),
+            buffers: RefCell::new((String::new(), String::new(), HashSet::new())),
         }
     }
 
@@ -711,11 +713,10 @@ impl SmushClient {
         if !T::enabled(&self.world) {
             return;
         }
-        let mut text_buf = String::new();
-        let mut destination_buf = String::new();
+        let mut buffers = self.buffers.borrow_mut();
+        let (text_buf, destination_buf, one_shots) = &mut *buffers;
         let mut style = SpanStyle::null();
         let mut has_style = false;
-        let mut one_shots = HashSet::new();
 
         for (plugin_index, plugin) in self.plugins.iter().enumerate() {
             if plugin.disabled.get() {
@@ -765,7 +766,7 @@ impl SmushClient {
                                 &plugin.metadata.id,
                                 reaction.variable.as_bytes().to_vec(),
                                 reaction
-                                    .expand_text(&mut text_buf, &captures)
+                                    .expand_text(text_buf, &captures)
                                     .as_bytes()
                                     .to_vec(),
                             );
@@ -773,7 +774,7 @@ impl SmushClient {
                         } else if !enable_scripts && reaction.send_to.is_script() {
                             None
                         } else {
-                            let text = reaction.expand_text(&mut text_buf, &captures);
+                            let text = reaction.expand_text(text_buf, &captures);
                             destination_buf.clone_from(reaction.destination());
                             if !reaction.omit_from_log {
                                 self.log_input(text, handler);
@@ -783,7 +784,7 @@ impl SmushClient {
                                 send_to: reaction.send_to,
                                 echo: permit_echo && reaction.should_echo(),
                                 text,
-                                destination: &destination_buf,
+                                destination: destination_buf,
                             })
                         }
                     };
@@ -813,8 +814,8 @@ impl SmushClient {
                     for captures in regex.captures_iter(line).filter_map(Result::ok) {
                         handler.send_script(SendScriptRequest {
                             plugin: plugin_index,
-                            script: &destination_buf,
-                            label: &text_buf,
+                            script: destination_buf,
+                            label: text_buf,
                             line,
                             regex,
                             wildcards: Some(captures),
