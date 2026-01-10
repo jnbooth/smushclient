@@ -10,8 +10,7 @@ use flagset::FlagSet;
 use mud_transformer::{Output, OutputFragment, Tag, Transformer, TransformerConfig};
 use rodio::Decoder;
 use smushclient_plugins::{
-    Alias, CursorVec, LoadError, Plugin, PluginIndex, Reaction, SendTarget, Trigger, XmlError,
-    XmlSerError,
+    Alias, CursorVec, LoadError, Plugin, PluginIndex, SendTarget, Trigger, XmlError, XmlSerError,
 };
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt};
@@ -21,11 +20,11 @@ use super::variables::PluginVariables;
 use super::variables::{LuaStr, LuaString};
 use crate::audio::{AudioError, AudioSinks, PlayMode};
 use crate::collections::SortOnDrop;
-use crate::handler::{Handler, HandlerExt};
+use crate::handler::Handler;
 use crate::options::OptionValue;
 use crate::plugins::{
     AliasEffects, AliasOutcome, CommandSource, LoadFailure, PluginEngine, ReactionIterable,
-    SendIterable, SendRequest, SenderAccessError, SpanStyle, TriggerEffects,
+    SendIterable, SendRequest, SendScriptRequest, SenderAccessError, SpanStyle, TriggerEffects,
 };
 use crate::world::{OptionCaller, PersistError, SetOptionError, World};
 
@@ -713,7 +712,7 @@ impl SmushClient {
             return;
         }
         let mut text_buf = String::new();
-        let mut reaction_buf = Reaction::default();
+        let mut destination_buf = String::new();
         let mut style = SpanStyle::null();
         let mut has_style = false;
         let mut one_shots = HashSet::new();
@@ -769,26 +768,26 @@ impl SmushClient {
                                     .as_bytes()
                                     .to_vec(),
                             );
-                            false
-                        } else if enable_scripts || !reaction.send_to.is_script() {
-                            reaction_buf.clone_from(reaction);
-                            true
+                            None
+                        } else if !enable_scripts && reaction.send_to.is_script() {
+                            None
                         } else {
-                            false
+                            let text = reaction.expand_text(&mut text_buf, &captures);
+                            destination_buf.clone_from(reaction.destination());
+                            if !reaction.omit_from_log {
+                                self.log_input(text, handler);
+                            }
+                            Some(SendRequest {
+                                plugin: plugin_index,
+                                send_to: reaction.send_to,
+                                echo: permit_echo && reaction.should_echo(),
+                                text,
+                                destination: &destination_buf,
+                            })
                         }
                     };
-                    if send_request {
-                        let text = reaction_buf.expand_text(&mut text_buf, &captures);
-                        if !reaction_buf.omit_from_log {
-                            self.log_input(text, handler);
-                        }
-                        handler.send(SendRequest {
-                            plugin: plugin_index,
-                            send_to: reaction_buf.send_to,
-                            echo: permit_echo && reaction_buf.should_echo(),
-                            text,
-                            destination: reaction_buf.destination(),
-                        });
+                    if let Some(send_request) = send_request {
+                        handler.send(send_request);
                     }
                     // fresh borrow in case the handler changed the reaction's settings
                     if !sender.borrow().reaction().repeats {
@@ -804,12 +803,23 @@ impl SmushClient {
                     if reaction.script.is_empty() {
                         false
                     } else {
-                        reaction_buf.clone_from(reaction);
+                        destination_buf.clone_from(&reaction.script);
+                        text_buf.clone_from(&reaction.label);
                         true
                     }
                 };
                 if send_script {
-                    handler.send_scripts(plugin_index, &reaction_buf, line, output);
+                    for captures in regex.captures_iter(line).filter_map(Result::ok) {
+                        handler.send_script(SendScriptRequest {
+                            plugin: plugin_index,
+                            script: &destination_buf,
+                            label: &text_buf,
+                            line,
+                            regex: &regex,
+                            wildcards: Some(captures),
+                            output,
+                        });
+                    }
                 }
                 let sender = sender.borrow();
                 if let Some(sound) = sender.sound()
