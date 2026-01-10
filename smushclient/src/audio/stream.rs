@@ -35,7 +35,3 @@ impl DerefMut for AudioStream {
 // SAFETY: `OutputStream` contains an `Arc<Mutex<StreamInner>>`, but `StreamInner` contains `*mut`s,
 // causing Rust to mark it as !Send and !Sync. Nevertheless, its usage is safe.
 unsafe impl Send for AudioStream {}
-
-// SAFETY: `OutputStream` contains an `Arc<Mutex<StreamInner>>`, but `StreamInner` contains `*mut`s,
-// causing Rust to mark it as !Send and !Sync. Nevertheless, its usage is safe.
-unsafe impl Sync for AudioStream {}
