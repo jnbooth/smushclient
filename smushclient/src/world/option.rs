@@ -267,7 +267,7 @@ impl World {
     pub fn option_str(&self, caller: OptionCaller, option: &LuaStr) -> Option<&LuaStr> {
         Some(
             match option {
-                b"auto_log_file_name" => self.auto_log_file_name.as_deref().unwrap_or_default(),
+                b"auto_log_file_name" => &self.auto_log_file_name,
                 b"command_stack_character" => {
                     return Some(slice::from_ref(&self.command_stack_character));
                 }
@@ -281,7 +281,7 @@ impl World {
                 b"log_line_preamble_notes" => &self.log_line_preamble_notes,
                 b"log_line_preamble_output" => &self.log_line_preamble_output,
                 b"name" => &self.name,
-                b"new_activity_sound" => self.new_activity_sound.as_deref().unwrap_or_default(),
+                b"new_activity_sound" => &self.new_activity_sound,
                 b"player" => &self.player,
                 b"proxy_username" => &self.proxy_username,
                 b"site" => &self.site,
@@ -304,9 +304,7 @@ impl World {
     ) -> Result<(), SetOptionError> {
         let value = String::from_utf8(value)?;
         match option {
-            b"auto_log_file_name" => {
-                self.auto_log_file_name = if value.is_empty() { None } else { Some(value) }
-            }
+            b"auto_log_file_name" => self.auto_log_file_name = value,
             b"command_stack_character" => match value.as_bytes() {
                 [c] if c.is_ascii() => self.command_stack_character = *c,
                 _ => return Err(SetOptionError::OptionOutOfRange),
@@ -320,9 +318,7 @@ impl World {
             b"log_line_preamble_input" => self.log_line_preamble_input = value,
             b"log_line_preamble_notes" => self.log_line_preamble_notes = value,
             b"log_line_preamble_output" => self.log_line_preamble_output = value,
-            b"new_activity_sound" => {
-                self.new_activity_sound = if value.is_empty() { None } else { Some(value) }
-            }
+            b"new_activity_sound" => self.new_activity_sound = value,
             b"terminal_identification" => self.terminal_identification = value,
             _ if caller == OptionCaller::Plugin => {
                 return Err(SetOptionError::PluginCannotSetOption);

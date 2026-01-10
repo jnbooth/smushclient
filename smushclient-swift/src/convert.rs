@@ -70,16 +70,6 @@ macro_rules! impl_convert_struct {
 }
 pub(crate) use impl_convert_struct;
 
-impl Convert<Option<String>> for String {
-    fn from_ffi(value: Self) -> Option<String> {
-        if value.is_empty() { None } else { Some(value) }
-    }
-
-    fn to_ffi(value: Option<String>) -> Self {
-        value.unwrap_or_default()
-    }
-}
-
 impl Convert<Option<NonZero<u8>>> for u8 {
     fn from_ffi(value: Self) -> Option<NonZero<u8>> {
         NonZero::new(value)

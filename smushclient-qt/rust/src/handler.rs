@@ -10,7 +10,6 @@ use mud_transformer::{
 };
 use smushclient::{SendRequest, SendScriptRequest, SpanStyle};
 
-use crate::convert::Convert;
 use crate::ffi::Document;
 use crate::text_formatter::TextFormatter;
 
@@ -84,7 +83,10 @@ impl ClientHandler<'_> {
 
     fn handle_mxp_stat(&self, stat: &mxp::Stat) {
         let entity = QString::from(&stat.entity);
-        let max = stat.max.convert();
+        let max = match &stat.max {
+            Some(max) => QString::from(max),
+            None => QString::default(),
+        };
         match &stat.caption {
             Some(caption) => self
                 .doc

@@ -13,6 +13,7 @@ pub struct World {
     pub name: String,
     pub site: String,
     pub port: u16,
+    pub use_ssl: bool,
     pub use_proxy: bool,
     pub proxy_server: String,
     pub proxy_port: u16,
@@ -118,16 +119,11 @@ pub struct World {
 
 impl From<World> for super::super::World {
     fn from(value: World) -> Self {
-        super::v3::World::from(value).into()
-    }
-}
-
-impl From<World> for super::v3::World {
-    fn from(value: World) -> Self {
         let World {
             name,
             site,
             port,
+            use_ssl,
             use_proxy,
             proxy_server,
             proxy_port,
@@ -212,7 +208,7 @@ impl From<World> for super::v3::World {
             name,
             site,
             port,
-            use_ssl: false,
+            use_ssl,
             use_proxy,
             proxy_server,
             proxy_port,
@@ -231,7 +227,7 @@ impl From<World> for super::v3::World {
             log_input,
             log_notes,
             log_mode,
-            auto_log_file_name,
+            auto_log_file_name: auto_log_file_name.unwrap_or_default(),
             write_world_name_to_log,
             log_line_preamble_output,
             log_line_preamble_input,
@@ -252,7 +248,7 @@ impl From<World> for super::v3::World {
             echo_colour,
             echo_background_colour,
             keep_commands_on_same_line,
-            new_activity_sound,
+            new_activity_sound: new_activity_sound.unwrap_or_default(),
             line_information,
             use_mxp,
             ignore_mxp_colour_changes,
@@ -283,7 +279,7 @@ impl From<World> for super::v3::World {
             hotkey_adds_to_command_history,
             echo_hotkey_in_output_window,
             enable_scripts,
-            world_script,
+            world_script: world_script.unwrap_or_default(),
             script_reload_option,
             note_text_colour,
             note_background_colour,

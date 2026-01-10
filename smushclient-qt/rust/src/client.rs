@@ -257,9 +257,10 @@ impl SmushClientRust {
     }
 
     pub fn handle_alert(&self) -> ffi::ApiCode {
-        let Some(sound) = &self.client.world().new_activity_sound else {
+        let sound = &self.client.world().new_activity_sound;
+        if sound.is_empty() {
             return ffi::ApiCode::OK;
-        };
+        }
         self.client.play_file_raw(sound).code()
     }
 

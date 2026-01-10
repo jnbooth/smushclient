@@ -4,7 +4,7 @@ use std::error::Error;
 use std::fmt;
 use std::num::TryFromIntError;
 
-use cxx_qt_lib::{QByteArray, QColor, QString, QVariant};
+use cxx_qt_lib::{QByteArray, QColor, QVariant};
 use mud_transformer::mxp::RgbColor;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -125,25 +125,6 @@ impl Convert<QColor> for Option<RgbColor> {
         match self {
             Some(color) => color.convert(),
             None => QColor::from_rgba(0, 0, 0, 0),
-        }
-    }
-}
-
-impl Convert<Option<String>> for QString {
-    fn convert(&self) -> Option<String> {
-        if self.is_empty() {
-            None
-        } else {
-            Some(String::from(self))
-        }
-    }
-}
-
-impl Convert<QString> for Option<String> {
-    fn convert(&self) -> QString {
-        match self {
-            Some(s) => QString::from(s),
-            None => QString::default(),
         }
     }
 }

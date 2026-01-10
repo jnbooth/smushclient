@@ -170,7 +170,7 @@ impl From<&World> for WorldRust {
             log_input: world.log_input,
             log_notes: world.log_notes,
             log_mode: world.log_mode.into(),
-            auto_log_file_name: world.auto_log_file_name.convert(),
+            auto_log_file_name: QString::from(&world.auto_log_file_name),
             write_world_name_to_log: world.write_world_name_to_log,
             log_line_preamble_output: QString::from(&world.log_line_preamble_output),
             log_line_preamble_input: QString::from(&world.log_line_preamble_input),
@@ -192,7 +192,7 @@ impl From<&World> for WorldRust {
             echo_colour: world.echo_colour.convert(),
             echo_background_colour: world.echo_background_colour.convert(),
             keep_commands_on_same_line: world.keep_commands_on_same_line,
-            new_activity_sound: world.new_activity_sound.convert(),
+            new_activity_sound: QString::from(&world.new_activity_sound),
             line_information: world.line_information,
 
             use_mxp: world.use_mxp.into(),
@@ -255,7 +255,7 @@ impl From<&World> for WorldRust {
             echo_hotkey_in_output_window: world.echo_hotkey_in_output_window,
 
             enable_scripts: world.enable_scripts,
-            world_script: world.world_script.convert(),
+            world_script: QString::from(&world.world_script),
             script_reload_option: world.script_reload_option.into(),
             note_text_colour: world.note_text_colour.convert(),
             note_background_colour: world.note_background_colour.convert(),
@@ -295,7 +295,7 @@ impl TryFrom<&WorldRust> for World {
             log_input: value.log_input,
             log_notes: value.log_notes,
             log_mode: value.log_mode.try_into()?,
-            auto_log_file_name: value.auto_log_file_name.convert(),
+            auto_log_file_name: String::from(&value.auto_log_file_name),
             write_world_name_to_log: value.write_world_name_to_log,
             log_line_preamble_output: String::from(&value.log_line_preamble_output),
             log_line_preamble_input: String::from(&value.log_line_preamble_input),
@@ -318,7 +318,7 @@ impl TryFrom<&WorldRust> for World {
             echo_colour: value.echo_colour.convert(),
             echo_background_colour: value.echo_background_colour.convert(),
             keep_commands_on_same_line: value.keep_commands_on_same_line,
-            new_activity_sound: value.new_activity_sound.convert(),
+            new_activity_sound: String::from(&value.new_activity_sound),
             line_information: value.line_information,
 
             use_mxp: value.use_mxp.try_into()?,
@@ -389,7 +389,7 @@ impl TryFrom<&WorldRust> for World {
             echo_hotkey_in_output_window: value.echo_hotkey_in_output_window,
 
             enable_scripts: value.enable_scripts,
-            world_script: value.world_script.convert(),
+            world_script: String::from(&value.world_script),
             script_reload_option: value.script_reload_option.try_into()?,
             note_text_colour: value.note_text_colour.convert(),
             note_background_colour: value.note_background_colour.convert(),

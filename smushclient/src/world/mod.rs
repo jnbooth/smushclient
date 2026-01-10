@@ -74,7 +74,7 @@ pub struct World {
     pub log_input: bool,
     pub log_notes: bool,
     pub log_mode: LogMode,
-    pub auto_log_file_name: Option<String>,
+    pub auto_log_file_name: String,
     pub write_world_name_to_log: bool,
     pub log_line_preamble_output: String,
     pub log_line_preamble_input: String,
@@ -100,7 +100,7 @@ pub struct World {
     pub echo_colour: Option<RgbColor>,
     pub echo_background_colour: Option<RgbColor>,
     pub keep_commands_on_same_line: bool,
-    pub new_activity_sound: Option<String>,
+    pub new_activity_sound: String,
     pub line_information: bool,
 
     // MUD
@@ -143,7 +143,7 @@ pub struct World {
 
     // Scripting
     pub enable_scripts: bool,
-    pub world_script: Option<String>,
+    pub world_script: String,
     pub script_reload_option: ScriptRecompile,
     pub note_text_colour: Option<RgbColor>,
     pub note_background_colour: Option<RgbColor>,
@@ -191,7 +191,7 @@ impl World {
             log_input: true,
             log_notes: true,
             log_mode: LogMode::Append,
-            auto_log_file_name: None,
+            auto_log_file_name: String::new(),
             write_world_name_to_log: false,
             log_line_preamble_output: String::new(),
             log_line_preamble_input: String::new(),
@@ -216,7 +216,7 @@ impl World {
             echo_colour: Some(RgbColor::rgb(128, 128, 128)),
             echo_background_colour: None,
             keep_commands_on_same_line: false,
-            new_activity_sound: None,
+            new_activity_sound: String::new(),
             line_information: false,
 
             // MUD
@@ -257,7 +257,7 @@ impl World {
 
             // Scripting
             enable_scripts: true,
-            world_script: None,
+            world_script: String::new(),
             script_reload_option: ScriptRecompile::Confirm,
             note_text_colour: Some(RgbColor::rgb(0, 128, 255)),
             note_background_colour: None,
@@ -280,10 +280,6 @@ impl World {
 
     pub fn world_plugin(&self) -> Plugin {
         let today = Local::now().date_naive();
-        let path = match &self.world_script {
-            Some(world_script) => PathBuf::from(&world_script),
-            None => PathBuf::new(),
-        };
         Plugin {
             disabled: Cell::new(!self.enable_scripts),
             metadata: PluginMetadata {
@@ -292,7 +288,7 @@ impl World {
                 modified: today,
                 is_world_plugin: true,
                 sequence: -1,
-                path,
+                path: PathBuf::from(&self.world_script),
                 ..Default::default()
             },
             ..Default::default()
@@ -342,7 +338,8 @@ impl World {
         match version {
             1 => versions::V1::migrate(bytes),
             2 => versions::V2::migrate(bytes),
-            3 => postcard::from_bytes(bytes).map_err(Into::into),
+            3 => versions::V3::migrate(bytes),
+            4 => postcard::from_bytes(bytes).map_err(Into::into),
             _ => Err(PersistError::Invalid)?,
         }
     }

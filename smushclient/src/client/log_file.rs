@@ -7,7 +7,7 @@ use crate::world::{Escaped, EscapedBrackets, LogFormat, LogMode, World};
 pub struct LogFile {
     mode: LogMode,
     format: LogFormat,
-    path: Option<String>,
+    path: String,
     brackets: EscapedBrackets,
     file: Option<BufWriter<File>>,
 }
@@ -37,7 +37,7 @@ impl LogFile {
         if self.file.is_none() {
             return Ok(());
         }
-        if self.path.is_none() {
+        if self.path.is_empty() {
             self.file = None;
             return Ok(());
         }
@@ -72,10 +72,10 @@ impl LogFile {
         if self.can_write() {
             return Ok(());
         }
-        let Some(path) = &self.path else {
+        if self.path.is_empty() {
             return Ok(());
-        };
-        let file = OpenOptions::from(self.mode).open(path)?;
+        }
+        let file = OpenOptions::from(self.mode).open(&self.path)?;
         file.try_lock()?;
         let mut file = BufWriter::new(file);
         self.write_bracket(self.brackets.before(), &mut file)?;
