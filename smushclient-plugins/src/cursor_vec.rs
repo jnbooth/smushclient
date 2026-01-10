@@ -11,7 +11,6 @@ pub struct CursorVec<T> {
     unsorted: Cell<bool>,
     evaluating: Cell<bool>,
     scan_id: Cell<u32>,
-    current_deleted: Cell<bool>,
 }
 
 impl<T> CursorVec<T> {
@@ -22,7 +21,6 @@ impl<T> CursorVec<T> {
             unsorted: Cell::new(false),
             evaluating: Cell::new(false),
             scan_id: Cell::new(0),
-            current_deleted: Cell::new(false),
         }
     }
 }
@@ -121,17 +119,19 @@ impl<T: Ord> CursorVec<T> {
         pos
     }
 
-    pub fn remove(&self, i: usize) {
-        self.inner.borrow_mut().remove(i);
+    pub fn remove(&self, i: usize) -> bool {
         if !self.evaluating.get() {
-            return;
+            self.inner.borrow_mut().remove(i);
+            return true;
         }
         let cursor = self.cursor.get();
         match i.cmp(&cursor) {
             Ordering::Less => self.cursor.set(cursor - 1),
-            Ordering::Equal => self.current_deleted.set(true),
+            Ordering::Equal => return false,
             Ordering::Greater => (),
         }
+        self.inner.borrow_mut().remove(i);
+        true
     }
 
     pub fn find<P: FnMut(&T) -> bool>(&self, mut pred: P) -> Option<Ref<'_, T>> {
@@ -163,8 +163,9 @@ impl<T: Ord> CursorVec<T> {
         let len = inner.len();
         let mut i = 0;
         inner.retain(|item| {
-            i += 1;
-            if pred(item) {
+            // can't remove current sender
+            if pred(item) || i == cursor {
+                i += 1;
                 return true;
             }
             if i < cursor {
@@ -172,6 +173,7 @@ impl<T: Ord> CursorVec<T> {
             }
             false
         });
+        self.cursor.set(cursor);
         len - inner.len()
     }
 }
@@ -234,11 +236,7 @@ impl<'a, T: Ord> Iterator for CursorVecScan<'a, T> {
         if self.vec.scan_id.get() != self.scan_id {
             return None;
         }
-        let cursor = if self.vec.current_deleted.get() {
-            self.vec.cursor.get()
-        } else {
-            self.vec.cursor.get().wrapping_add(1)
-        };
+        let cursor = self.vec.cursor.get().wrapping_add(1);
         if cursor >= self.vec.inner.borrow().len() {
             return None;
         }
@@ -255,28 +253,19 @@ pub struct CursorVecRef<'a, T> {
 }
 
 impl<T: Ord> CursorVecRef<'_, T> {
-    pub fn borrow(&self) -> Option<Ref<'_, T>> {
-        if self.vec.current_deleted.get() {
-            return None;
-        }
+    pub fn borrow(&self) -> Ref<'_, T> {
         let cursor = self.vec.cursor.get();
-        Some(Ref::map(self.vec.inner.borrow(), |vec| &vec[cursor]))
+        Ref::map(self.vec.inner.borrow(), |vec| &vec[cursor])
     }
 
-    pub fn borrow_mut(&self) -> Option<RefMut<'_, T>> {
-        if self.vec.current_deleted.get() {
-            return None;
-        }
+    pub fn borrow_mut(&self) -> RefMut<'_, T> {
         let cursor = self.vec.cursor.get();
-        Some(RefMut::map(self.vec.inner.borrow_mut(), |vec| {
-            &mut vec[cursor]
-        }))
+        RefMut::map(self.vec.inner.borrow_mut(), |vec| &mut vec[cursor])
     }
 
     pub fn remove(self) {
-        if self.vec.current_deleted.get() {
-            return;
-        }
-        self.vec.remove(self.vec.cursor.get());
+        let cursor = self.vec.cursor.get();
+        self.vec.remove(cursor);
+        self.vec.cursor.set(cursor.wrapping_sub(1));
     }
 }

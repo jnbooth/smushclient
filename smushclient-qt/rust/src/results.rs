@@ -24,7 +24,7 @@ impl IntoCode for Result<usize, ffi::ReplaceSenderResult> {
 impl From<SenderAccessError> for ffi::ReplaceSenderResult {
     fn from(value: SenderAccessError) -> Self {
         match value {
-            SenderAccessError::LabelConflict(_) => Self::Conflict,
+            SenderAccessError::LabelConflict(_) | SenderAccessError::ItemInUse => Self::Conflict,
             SenderAccessError::NotFound => Self::NotFound,
             SenderAccessError::Unchanged => Self::Unchanged,
         }
@@ -40,6 +40,7 @@ impl SenderAccessCode for Alias {
         match error {
             SenderAccessError::NotFound => ApiCode::AliasNotFound,
             SenderAccessError::LabelConflict(_) => ApiCode::AliasAlreadyExists,
+            SenderAccessError::ItemInUse => ApiCode::ItemInUse,
             SenderAccessError::Unchanged => ApiCode::OK,
         }
     }
@@ -50,6 +51,7 @@ impl SenderAccessCode for Timer {
         match error {
             SenderAccessError::NotFound => ApiCode::TimerNotFound,
             SenderAccessError::LabelConflict(_) => ApiCode::TimerAlreadyExists,
+            SenderAccessError::ItemInUse => ApiCode::ItemInUse,
             SenderAccessError::Unchanged => ApiCode::OK,
         }
     }
@@ -60,6 +62,7 @@ impl SenderAccessCode for Trigger {
         match error {
             SenderAccessError::NotFound => ApiCode::TriggerNotFound,
             SenderAccessError::LabelConflict(_) => ApiCode::TriggerAlreadyExists,
+            SenderAccessError::ItemInUse => ApiCode::ItemInUse,
             SenderAccessError::Unchanged => ApiCode::OK,
         }
     }

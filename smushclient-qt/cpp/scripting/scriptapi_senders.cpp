@@ -161,9 +161,9 @@ ScriptApi::DeleteAlias(size_t index, std::string_view name) const
 }
 
 size_t
-ScriptApi::DeleteAliases(size_t index, std::string_view group) const
+ScriptApi::DeleteAliasGroup(size_t index, std::string_view group) const
 {
-  return client()->removeAliases(index, byteSlice(group));
+  return client()->removeAliasGroup(index, byteSlice(group));
 }
 
 ApiCode
@@ -173,9 +173,9 @@ ScriptApi::DeleteTimer(size_t index, std::string_view name) const
 }
 
 size_t
-ScriptApi::DeleteTimers(size_t index, std::string_view group) const
+ScriptApi::DeleteTimerGroup(size_t index, std::string_view group) const
 {
-  return client()->removeTimers(index, byteSlice(group));
+  return client()->removeTimerGroup(index, byteSlice(group));
 }
 
 ApiCode
@@ -185,9 +185,9 @@ ScriptApi::DeleteTrigger(size_t index, std::string_view name) const
 }
 
 size_t
-ScriptApi::DeleteTriggers(size_t index, std::string_view group) const
+ScriptApi::DeleteTriggerGroup(size_t index, std::string_view group) const
 {
-  return client()->removeTriggers(index, byteSlice(group));
+  return client()->removeTriggerGroup(index, byteSlice(group));
 }
 
 ApiCode

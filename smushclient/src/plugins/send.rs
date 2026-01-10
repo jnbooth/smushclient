@@ -26,6 +26,7 @@ pub struct SendScriptRequest<'a> {
 #[derive(Clone, Debug)]
 pub enum SenderAccessError {
     LabelConflict(usize),
+    ItemInUse,
     NotFound,
     Unchanged,
 }
@@ -40,6 +41,7 @@ impl fmt::Display for SenderAccessError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::LabelConflict(_) => f.write_str("sender name conflict"),
+            Self::ItemInUse => f.write_str("item in use"),
             Self::NotFound => f.write_str("sender not found"),
             Self::Unchanged => f.write_str("attempted to replace with the same value"),
         }

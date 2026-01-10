@@ -692,12 +692,13 @@ L_DeleteAlias(lua_State* L)
 }
 
 static int
-L_DeleteAliases(lua_State* L)
+L_DeleteAliasGroup(lua_State* L)
 {
-  API("DeleteAliases")
+  API("DeleteAliasGroup")
   expectMaxArgs(L, 1);
   lua_pushinteger(
-    L, (int)getApi(L).DeleteAliases(getPluginIndex(L), qlua::getString(L, 1)));
+    L,
+    (int)getApi(L).DeleteAliasGroup(getPluginIndex(L), qlua::getString(L, 1)));
   return 1;
 }
 
@@ -711,12 +712,13 @@ L_DeleteTimer(lua_State* L)
 }
 
 static int
-L_DeleteTimers(lua_State* L)
+L_DeleteTimerGroup(lua_State* L)
 {
-  API("DeleteTimers")
+  API("DeleteTimerGroup")
   expectMaxArgs(L, 1);
   lua_pushinteger(
-    L, (int)getApi(L).DeleteTimers(getPluginIndex(L), qlua::getString(L, 1)));
+    L,
+    (int)getApi(L).DeleteTimerGroup(getPluginIndex(L), qlua::getString(L, 1)));
   return 1;
 }
 
@@ -730,12 +732,13 @@ L_DeleteTrigger(lua_State* L)
 }
 
 static int
-L_DeleteTriggers(lua_State* L)
+L_DeleteTriggerGroup(lua_State* L)
 {
-  API("DeleteTriggers")
+  API("DeleteTriggerGroup")
   expectMaxArgs(L, 1);
-  lua_pushinteger(
-    L, (int)getApi(L).DeleteTriggers(getPluginIndex(L), qlua::getString(L, 1)));
+  lua_pushinteger(L,
+                  (int)getApi(L).DeleteTriggerGroup(getPluginIndex(L),
+                                                    qlua::getString(L, 1)));
   return 1;
 }
 
@@ -1695,11 +1698,11 @@ static const struct luaL_Reg worldlib[] =
     { "AddTrigger", L_AddTrigger },
     { "AddTriggerEx", L_AddTrigger },
     { "DeleteAlias", L_DeleteAlias },
-    { "DeleteAliases", L_DeleteAliases },
+    { "DeleteAliasGroup", L_DeleteAliasGroup },
     { "DeleteTimer", L_DeleteTimer },
-    { "DeleteTimers", L_DeleteTimers },
+    { "DeleteTimerGroup", L_DeleteTimerGroup },
     { "DeleteTrigger", L_DeleteTrigger },
-    { "DeleteTriggers", L_DeleteTriggers },
+    { "DeleteTriggerGroup", L_DeleteTriggerGroup },
     { "DoAfter", L_DoAfter },
     { "DoAfterNote", L_DoAfterNote },
     { "DoAfterSpeedwalk", L_DoAfterSpeedwalk },

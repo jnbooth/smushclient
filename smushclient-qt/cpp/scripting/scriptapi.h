@@ -84,11 +84,11 @@ public:
                    std::string_view filename,
                    int flags);
   ApiCode DeleteAlias(size_t plugin, std::string_view name) const;
-  size_t DeleteAliases(size_t plugin, std::string_view group) const;
+  size_t DeleteAliasGroup(size_t plugin, std::string_view group) const;
   ApiCode DeleteTimer(size_t plugin, std::string_view name) const;
-  size_t DeleteTimers(size_t plugin, std::string_view group) const;
+  size_t DeleteTimerGroup(size_t plugin, std::string_view group) const;
   ApiCode DeleteTrigger(size_t plugin, std::string_view name) const;
-  size_t DeleteTriggers(size_t plugin, std::string_view group) const;
+  size_t DeleteTriggerGroup(size_t plugin, std::string_view group) const;
   ApiCode DeleteVariable(size_t plugin, std::string_view key) const;
   ApiCode DoAfter(size_t plugin,
                   double seconds,

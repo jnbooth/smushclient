@@ -897,7 +897,7 @@ function DeleteAlias(name) end
 ---Deletes aliases by group.
 ---@param group string
 ---@return integer -- Number of deleted aliases.
-function DeleteAliases(group) end
+function DeleteAliasGroup(group) end
 
 ---Deletes a timer by name.
 ---@param name string
@@ -907,7 +907,7 @@ function DeleteTimer(name) end
 ---Deletes timers by group.
 ---@param group string
 ---@return integer -- Number of deleted timers.
-function DeleteTimers(group) end
+function DeleteTimerGroup(group) end
 
 ---Deletes a trigger by name.
 ---@param name string
@@ -917,7 +917,7 @@ function DeleteTrigger(name) end
 ---Deletes triggers by group.
 ---@param group string
 ---@return integer -- Number of deleted triggers.
-function DeleteTriggers(group) end
+function DeleteTriggerGroup(group) end
 
 ---Deletes a persistent variable.
 ---@param key string

@@ -146,9 +146,9 @@ pub mod ffi {
         fn remove_alias(self: &SmushClient, index: usize, label: &[u8]) -> ApiCode;
         fn remove_timer(self: &SmushClient, index: usize, label: &[u8]) -> ApiCode;
         fn remove_trigger(self: &SmushClient, index: usize, label: &[u8]) -> ApiCode;
-        fn remove_aliases(self: &SmushClient, index: usize, group: &[u8]) -> usize;
-        fn remove_timers(self: &SmushClient, index: usize, group: &[u8]) -> usize;
-        fn remove_triggers(self: &SmushClient, index: usize, group: &[u8]) -> usize;
+        fn remove_alias_group(self: &SmushClient, index: usize, group: &[u8]) -> usize;
+        fn remove_timer_group(self: &SmushClient, index: usize, group: &[u8]) -> usize;
+        fn remove_trigger_group(self: &SmushClient, index: usize, group: &[u8]) -> usize;
         fn add_world_alias(self: &SmushClient, alias: &Alias) -> Result<ApiCode>;
         fn add_world_timer(self: &SmushClient, timer: &Timer, timekeeper: &Timekeeper) -> ApiCode;
         fn add_world_trigger(self: &SmushClient, trigger: &Trigger) -> Result<ApiCode>;

@@ -546,11 +546,13 @@ impl SmushClient {
         let pos = senders
             .position(|sender| sender.as_ref().label == label)
             .ok_or(SenderAccessError::NotFound)?;
-        senders.remove(pos);
+        if !senders.remove(pos) {
+            return Err(SenderAccessError::ItemInUse);
+        }
         Ok(())
     }
 
-    pub fn remove_senders<T: SendIterable>(&self, index: PluginIndex, group: &str) -> usize {
+    pub fn remove_sender_group<T: SendIterable>(&self, index: PluginIndex, group: &str) -> usize {
         self.senders::<T>(index)
             .retain(|sender: &T| sender.as_ref().group != group)
     }
@@ -727,9 +729,7 @@ impl SmushClient {
             for sender in senders.scan() {
                 let mut matched = false;
                 let regex = {
-                    let Some(sender) = sender.borrow() else {
-                        continue;
-                    };
+                    let sender = sender.borrow();
                     let reaction = sender.reaction();
                     if !reaction.enabled {
                         continue;
@@ -741,9 +741,7 @@ impl SmushClient {
                     if !matched {
                         matched = true;
                         if T::AFFECTS_STYLE {
-                            let Some(sender) = sender.borrow() else {
-                                break;
-                            };
+                            let sender = sender.borrow();
                             style = sender.style();
                             has_style = !style.is_null();
                         }
@@ -752,9 +750,7 @@ impl SmushClient {
                         handler.apply_styles(capture.start()..capture.end(), style);
                     }
                     let send_request = {
-                        let Some(sender) = sender.borrow() else {
-                            break;
-                        };
+                        let sender = sender.borrow();
                         if let Some(clipboard_arg) = sender.clipboard_arg()
                             && let Some(capture) = captures.get(clipboard_arg.get().into())
                             && let Ok(mut clipboard) = Clipboard::new()
@@ -793,10 +789,7 @@ impl SmushClient {
                         });
                     }
                     // fresh borrow in case the handler changed the reaction's settings
-                    if !sender
-                        .borrow()
-                        .is_some_and(|sender| sender.reaction().repeats)
-                    {
+                    if !sender.borrow().reaction().repeats {
                         break;
                     }
                 }
@@ -804,9 +797,7 @@ impl SmushClient {
                     continue;
                 }
                 let send_script = enable_scripts && {
-                    let Some(sender) = sender.borrow() else {
-                        continue;
-                    };
+                    let sender = sender.borrow();
                     let reaction = sender.reaction();
                     if reaction.script.is_empty() {
                         false
@@ -819,9 +810,7 @@ impl SmushClient {
                     handler.send_scripts(plugin_index, &reaction_buf, line, output);
                 }
                 let (one_shot, keep_evaluating) = {
-                    let Some(sender) = sender.borrow() else {
-                        continue;
-                    };
+                    let sender = sender.borrow();
                     if let Some(sound) = sender.sound()
                         && self.world.enable_trigger_sounds
                         && let Ok(file) = File::open(sound)

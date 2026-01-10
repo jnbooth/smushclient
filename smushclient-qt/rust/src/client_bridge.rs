@@ -246,22 +246,22 @@ impl ffi::SmushClient {
             .code::<Trigger>()
     }
 
-    pub fn remove_aliases(&self, index: PluginIndex, name: &LuaStr) -> usize {
+    pub fn remove_alias_group(&self, index: PluginIndex, name: &LuaStr) -> usize {
         self.rust()
             .client
-            .remove_senders::<Alias>(index, &String::from_utf8_lossy(name))
+            .remove_sender_group::<Alias>(index, &String::from_utf8_lossy(name))
     }
 
-    pub fn remove_timers(&self, index: PluginIndex, group: &LuaStr) -> usize {
+    pub fn remove_timer_group(&self, index: PluginIndex, group: &LuaStr) -> usize {
         self.rust()
             .client
-            .remove_senders::<Timer>(index, &String::from_utf8_lossy(group))
+            .remove_sender_group::<Timer>(index, &String::from_utf8_lossy(group))
     }
 
-    pub fn remove_triggers(&self, index: PluginIndex, group: &LuaStr) -> usize {
+    pub fn remove_trigger_group(&self, index: PluginIndex, group: &LuaStr) -> usize {
         self.rust()
             .client
-            .remove_senders::<Trigger>(index, &String::from_utf8_lossy(group))
+            .remove_sender_group::<Trigger>(index, &String::from_utf8_lossy(group))
     }
 
     pub fn add_world_alias(&self, alias: &ffi::Alias) -> Result<ffi::ApiCode, RegexError> {
