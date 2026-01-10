@@ -104,6 +104,10 @@ WorldTab::WorldTab(MudStatusBar* statusBar, Notepads* notepads, QWidget* parent)
 #endif
   api = new ScriptApi(statusBar, notepads, this);
   document = new Document(this, api);
+  connect(ui->output,
+          &MudBrowser::aliasMenuRequested,
+          this,
+          &WorldTab::onAliasMenuRequested);
   connect(document, &Document::newActivity, this, &WorldTab::onNewActivity);
   connect(&worldScriptWatcher,
           &QFileSystemWatcher::fileChanged,
@@ -534,16 +538,6 @@ WorldTab::keyPressEvent(QKeyEvent* event)
 }
 
 void
-WorldTab::mousePressEvent(QMouseEvent* event)
-{
-  if (event->buttons() == Qt::MouseButton::LeftButton &&
-      event->modifiers() == Qt::KeyboardModifier::ControlModifier) {
-    showAliasMenu();
-    event->accept();
-  }
-}
-
-void
 WorldTab::mouseReleaseEvent(QMouseEvent*)
 {
   finishDrag();
@@ -812,6 +806,13 @@ WorldTab::loadPlugins()
     QErrorMessage::qtHandler()->showMessage(errors.join(u'\n'));
   }
   api->initializePlugins();
+}
+
+void
+WorldTab::onAliasMenuRequested(const QString& word)
+{
+  api->setWordUnderMenu(word);
+  showAliasMenu();
 }
 
 void

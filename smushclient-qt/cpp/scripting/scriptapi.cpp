@@ -142,6 +142,57 @@ ScriptApi::getPlugin(string_view pluginID) const
 }
 
 void
+ScriptApi::handleSendRequest(const SendRequest& request)
+{
+  if (request.text.isEmpty())
+    return;
+  if (request.echo)
+    echo(request.text);
+  switch (request.sendTo) {
+    case SendTarget::World:
+    case SendTarget::WorldDelay:
+    case SendTarget::Execute:
+    case SendTarget::Speedwalk:
+    case SendTarget::WorldImmediate:
+      sendToWorld(request.text, request.echo);
+      return;
+    case SendTarget::Command:
+      tab->ui->input->setText(request.text);
+      return;
+    case SendTarget::Output:
+      appendText(request.text, noteFormat);
+      startLine();
+      return;
+    case SendTarget::Status:
+      SetStatus(request.text);
+      return;
+    case SendTarget::NotepadNew:
+      notepads->pad()->insertPlainText(request.text);
+      return;
+    case SendTarget::NotepadAppend: {
+      QTextCursor notepadCursor =
+        notepads->pad(request.destination)->textCursor();
+      if (!notepadCursor.atBlockStart())
+        notepadCursor.insertBlock();
+      notepadCursor.insertText(request.text);
+      return;
+    }
+    case SendTarget::NotepadReplace:
+      notepads->pad(request.destination)->setPlainText(request.text);
+      return;
+    case SendTarget::Log:
+      return;
+    case SendTarget::Variable:
+      return;
+    case SendTarget::Script:
+    case SendTarget::ScriptAfterOmit:
+      const QByteArray utf8 = request.text.toUtf8();
+      runScript(request.plugin, string_view(utf8.data(), utf8.size()));
+      return;
+  }
+}
+
+void
 ScriptApi::initializePlugins()
 {
   const rust::Vec<PluginPack> pack = client()->resetPlugins();
@@ -313,57 +364,6 @@ ScriptApi::sendNaws() const
     (viewport.height() - margins.top() - margins.bottom()) /
         metrics.lineSpacing() -
       4));
-}
-
-void
-ScriptApi::handleSendRequest(const SendRequest& request)
-{
-  if (request.text.isEmpty())
-    return;
-  if (request.echo)
-    echo(request.text);
-  switch (request.sendTo) {
-    case SendTarget::World:
-    case SendTarget::WorldDelay:
-    case SendTarget::Execute:
-    case SendTarget::Speedwalk:
-    case SendTarget::WorldImmediate:
-      sendToWorld(request.text, request.echo);
-      return;
-    case SendTarget::Command:
-      tab->ui->input->setText(request.text);
-      return;
-    case SendTarget::Output:
-      appendText(request.text, noteFormat);
-      startLine();
-      return;
-    case SendTarget::Status:
-      SetStatus(request.text);
-      return;
-    case SendTarget::NotepadNew:
-      notepads->pad()->insertPlainText(request.text);
-      return;
-    case SendTarget::NotepadAppend: {
-      QTextCursor notepadCursor =
-        notepads->pad(request.destination)->textCursor();
-      if (!notepadCursor.atBlockStart())
-        notepadCursor.insertBlock();
-      notepadCursor.insertText(request.text);
-      return;
-    }
-    case SendTarget::NotepadReplace:
-      notepads->pad(request.destination)->setPlainText(request.text);
-      return;
-    case SendTarget::Log:
-      return;
-    case SendTarget::Variable:
-      return;
-    case SendTarget::Script:
-    case SendTarget::ScriptAfterOmit:
-      const QByteArray utf8 = request.text.toUtf8();
-      runScript(request.plugin, string_view(utf8.data(), utf8.size()));
-      return;
-  }
 }
 
 void

@@ -381,6 +381,7 @@ public:
   void setOpen(bool open) const;
   ActionSource setSource(ActionSource source) noexcept;
   void setSuppressEcho(bool suppress) noexcept;
+  inline void setWordUnderMenu(const QString& word) { wordUnderMenu = word; }
   void stackWindow(std::string_view windowName, MiniWindow* window) const;
   int startLine();
   constexpr MudStatusBar* statusBarWidgets() const { return statusBar; }
@@ -447,5 +448,6 @@ private:
   WorldTab* tab;
   QDateTime whenConnected;
   string_map<MiniWindow*> windows{};
+  QString wordUnderMenu{};
   size_t worldScriptIndex = noSuchPlugin;
 };

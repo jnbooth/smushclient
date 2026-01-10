@@ -54,7 +54,10 @@ MudBrowser::mousePressEvent(QMouseEvent* event)
 {
   if (event->buttons() == Qt::MouseButton::LeftButton &&
       event->modifiers() == Qt::KeyboardModifier::ControlModifier) {
-    event->ignore();
+    QTextCursor tc = textCursor();
+    tc.select(QTextCursor::WordUnderCursor);
+    const QString word = tc.selectedText();
+    emit aliasMenuRequested(word);
     return;
   }
   QTextBrowser::mousePressEvent(event);

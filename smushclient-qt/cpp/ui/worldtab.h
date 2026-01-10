@@ -113,7 +113,6 @@ protected:
   void leaveEvent(QEvent* event) override;
   void keyPressEvent(QKeyEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
-  void mousePressEvent(QMouseEvent* event) override;
   void mouseReleaseEvent(QMouseEvent* event) override;
   void resizeEvent(QResizeEvent* event) override;
 
@@ -134,6 +133,7 @@ private slots:
   void finishResize();
   void flushOutput();
   void loadPlugins();
+  void onAliasMenuRequested(const QString& word);
   void onAutoScroll(int min, int max);
   void onNewActivity();
   void readFromSocket();

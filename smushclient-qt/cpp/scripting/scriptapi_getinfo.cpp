@@ -95,6 +95,8 @@ ScriptApi::GetInfo(int infoType) const
   switch (infoType) {
     case 72:
       return QStringLiteral(SCRIPTING_VERSION);
+    case 86:
+      return wordUnderMenu;
     case 106:
       return !socket->isOpen();
     case 239:

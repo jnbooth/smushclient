@@ -7,6 +7,8 @@ class MudScrollBar;
 
 class MudBrowser : public QTextBrowser
 {
+  Q_OBJECT
+
 public:
   explicit MudBrowser(QWidget* parent = nullptr);
   virtual ~MudBrowser() {};
@@ -16,6 +18,9 @@ public:
 public slots:
   void setIgnoreKeypad(bool ignore);
   void setMaximumBlockCount(int maximum);
+
+signals:
+  void aliasMenuRequested(const QString& word);
 
 protected:
   virtual void keyPressEvent(QKeyEvent* event) override;
