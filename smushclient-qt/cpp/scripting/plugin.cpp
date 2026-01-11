@@ -91,7 +91,7 @@ Plugin::Plugin(ScriptApi* api, const PluginPack& pack, size_t index)
 Plugin::Plugin(Plugin&& other) noexcept
   : metadata(std::move(other.metadata))
   , L(std::exchange(other.L, nullptr))
-  , isDisabled(other.isDisabled)
+  , disabled(other.disabled)
 {
 }
 
@@ -104,13 +104,13 @@ Plugin::~Plugin()
 void
 Plugin::disable()
 {
-  isDisabled = true;
+  disabled = true;
 }
 
 void
 Plugin::enable()
 {
-  isDisabled = false;
+  disabled = false;
 }
 
 class CallbackFinder : public DynamicPluginCallback
@@ -183,7 +183,7 @@ Plugin::reset()
 void
 Plugin::reset(ScriptApi* api)
 {
-  isDisabled = false;
+  disabled = false;
 
   if (L) {
     lua_State* oldL = L;
@@ -252,7 +252,7 @@ Plugin::runCallbackThreaded(PluginCallback& callback) const
 bool
 Plugin::runFile(const QString& string) const
 {
-  if (isDisabled) [[unlikely]]
+  if (disabled) [[unlikely]]
     return false;
 
   if (checkError(luaL_loadfile(L, string.toUtf8().data()))) [[unlikely]] {
@@ -267,7 +267,7 @@ Plugin::runFile(const QString& string) const
 bool
 Plugin::runScript(string_view script) const
 {
-  if (isDisabled || script.empty()) [[unlikely]]
+  if (disabled || script.empty()) [[unlikely]]
     return false;
 
   if (checkError(qlua::loadString(L, script))) [[unlikely]] {
@@ -284,7 +284,7 @@ Plugin::runScript(string_view script) const
 bool
 Plugin::findCallback(const PluginCallback& callback) const
 {
-  if (isDisabled) [[unlikely]]
+  if (disabled) [[unlikely]]
     return false;
 
   return callback.findCallback(L);

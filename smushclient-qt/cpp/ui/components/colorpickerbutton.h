@@ -12,7 +12,7 @@ public:
   explicit ColorPickerButton(QWidget* parent = nullptr);
   virtual ~ColorPickerButton() {};
 
-  constexpr bool alphaEnabled() const noexcept { return isAlphaEnabled; }
+  constexpr bool isAlphaEnabled() const noexcept { return alphaEnabled; }
   const QColor& value() const&;
 
   QSize sizeHint() const override;
@@ -32,5 +32,5 @@ protected:
 
 private:
   QColor currentValue{};
-  bool isAlphaEnabled = true;
+  bool alphaEnabled = true;
 };

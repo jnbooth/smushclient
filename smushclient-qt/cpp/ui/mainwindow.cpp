@@ -673,7 +673,7 @@ MainWindow::on_menu_view_aboutToShow()
 {
   WorldTab* tab = worldtab();
   ui->action_pause_output->setChecked(
-    tab && tab->ui->output->verticalScrollBar()->paused());
+    tab && tab->ui->output->verticalScrollBar()->isPaused());
 }
 
 void
@@ -698,10 +698,10 @@ MainWindow::on_world_tabs_currentChanged(int index)
                              &WorldTab::connectionStatusChanged,
                              this,
                              &MainWindow::onConnectionStatusChanged);
-  onConnectionStatusChanged(activeTab->connected());
+  onConnectionStatusChanged(activeTab->isConnected());
   setWorldMenusEnabled(true);
   ui->action_pause_output->setChecked(
-    activeTab->ui->output->verticalScrollBar()->paused());
+    activeTab->ui->output->verticalScrollBar()->isPaused());
   activeTab->setIsActive(true);
   activeTab->setStatusBarVisible(true);
   const QString& title = activeTab->title();

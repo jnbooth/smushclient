@@ -55,7 +55,7 @@ public:
           const Plugin* plugin,
           std::string_view id,
           Callbacks&& callbacks);
-  inline bool belongsToPlugin(const Plugin* otherPlugin) const noexcept
+  constexpr bool belongsToPlugin(const Plugin* otherPlugin) const noexcept
   {
     return otherPlugin == plugin;
   }

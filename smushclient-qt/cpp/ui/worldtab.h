@@ -54,13 +54,14 @@ public:
 
   AvailableCopy availableCopy() const;
   void closeLog();
-  bool connected() const;
   void connectToHost();
   QTextEdit* copyableEditor() const;
   void createWorld() &;
   void disconnectFromHost();
   void editWorldScript();
   constexpr bool hasWorldScript() const { return !worldScriptPath.isEmpty(); }
+  constexpr bool isActive() const { return active; }
+  bool isConnected() const;
   void openLog();
   bool openWorld(const QString& filename) &;
   bool openWorldSettings();
@@ -83,7 +84,7 @@ public:
                               std::string_view value);
   void start();
   void stopSound() const;
-  constexpr const QString& title() const { return worldName; };
+  constexpr const QString& title() const noexcept { return worldName; };
   constexpr const QString& worldFilePath() const noexcept { return filePath; }
 
 public slots:
@@ -152,6 +153,7 @@ private slots:
   void on_output_customContextMenuRequested(const QPoint& pos);
 
 private:
+  bool active = true;
   bool alertNewActivity = false;
   ScriptApi* api;
   QMetaObject::Connection autoScroll;
@@ -162,7 +164,6 @@ private:
   Hotkeys hotkeys{};
   bool initialized = false;
   bool inputCopyAvailable = false;
-  bool isActive = true;
   bool manualDisconnect = false;
   std::optional<CallbackTrigger> onDragMove = std::nullopt;
   QPointer<Hotspot> onDragRelease = nullptr;

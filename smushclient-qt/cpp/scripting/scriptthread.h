@@ -12,7 +12,7 @@ public:
   ScriptThread(const ScriptThread&) = delete;
   ScriptThread& operator=(const ScriptThread&) = delete;
 
-  inline lua_State* state() const noexcept { return L; }
+  constexpr lua_State* state() const noexcept { return L; }
 
 private:
   lua_State* L;

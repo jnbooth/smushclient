@@ -354,7 +354,7 @@ public:
   void reinstallPlugin(size_t index);
   inline bool isPluginEnabled(size_t plugin) const
   {
-    return !plugins[plugin].disabled();
+    return !plugins[plugin].isDisabled();
   }
   ApiCode playFileRaw(const QString& path);
   void printError(const QString& message);
@@ -384,7 +384,10 @@ public:
   inline void setWordUnderMenu(const QString& word) { wordUnderMenu = word; }
   void stackWindow(std::string_view windowName, MiniWindow* window) const;
   int startLine();
-  constexpr MudStatusBar* statusBarWidgets() const { return statusBar; }
+  constexpr MudStatusBar* statusBarWidgets() const noexcept
+  {
+    return statusBar;
+  }
   void updateTimestamp();
 
   inline constexpr std::vector<Plugin>::const_iterator cbegin() const noexcept

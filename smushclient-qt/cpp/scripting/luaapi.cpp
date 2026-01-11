@@ -527,7 +527,7 @@ L_CallPlugin(lua_State* L)
       L, ApiCode::NoSuchPlugin, fmtNoSuchPlugin(qlua::getString(L, 1)));
 
   const Plugin& plugin = *pluginRef;
-  if (plugin.disabled()) [[unlikely]]
+  if (plugin.isDisabled()) [[unlikely]]
     return returnCode(L, ApiCode::PluginDisabled, fmtPluginDisabled(plugin));
 
   const string_view routine = qlua::getString(L, 2);

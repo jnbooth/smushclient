@@ -30,7 +30,6 @@ public:
   Plugin& operator=(const Plugin&) = delete;
 
   void disable();
-  constexpr bool disabled() const noexcept { return isDisabled; }
   void enable();
   bool hasFunction(PluginCallbackKey routine) const;
   bool hasFunction(const QString& routine) const;
@@ -40,6 +39,7 @@ public:
   {
     return metadata.installed;
   }
+  constexpr bool isDisabled() const noexcept { return disabled; }
   constexpr const std::string& name() const noexcept { return metadata.name; }
   void reset();
   void reset(ScriptApi* api);
@@ -57,5 +57,5 @@ private:
 
 private:
   lua_State* L = nullptr;
-  bool isDisabled = false;
+  bool disabled = false;
 };

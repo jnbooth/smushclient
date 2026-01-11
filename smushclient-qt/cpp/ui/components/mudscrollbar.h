@@ -11,7 +11,7 @@ public:
 
   inline void disablePausing() { setPausingEnabled(false); }
   inline void enablePausing() { setPausingEnabled(true); }
-  constexpr bool paused() const { return isPaused; }
+  constexpr bool isPaused() const { return paused; }
 
 public slots:
   void setAutoScrollEnabled(bool enabled = true);
@@ -39,7 +39,7 @@ private:
 private:
   bool autoScroll = true;
   bool inInternalChange = false;
-  bool isPaused = false;
   int lastValue = 0;
+  bool paused = false;
   bool pausingEnabled = true;
 };

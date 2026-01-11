@@ -175,12 +175,6 @@ WorldTab::createWorld() &
 {
 }
 
-bool
-WorldTab::connected() const
-{
-  return socket->state() != QAbstractSocket::SocketState::UnconnectedState;
-}
-
 void
 WorldTab::connectToHost()
 {
@@ -208,6 +202,12 @@ WorldTab::editWorldScript()
   if (!QDesktopServices::openUrl(QUrl::fromLocalFile(worldScriptPath)))
     QErrorMessage::qtHandler()->showMessage(
       tr("Failed to open file: %1").arg(worldScriptPath));
+}
+
+bool
+WorldTab::isConnected() const
+{
+  return socket->state() != QAbstractSocket::SocketState::UnconnectedState;
 }
 
 void
@@ -341,11 +341,11 @@ WorldTab::saveWorldAsNew()
 }
 
 void
-WorldTab::setIsActive(bool active)
+WorldTab::setIsActive(bool isActive)
 {
-  isActive = active;
-  alertNewActivity = !active;
-  if (!active) {
+  active = isActive;
+  alertNewActivity = !isActive;
+  if (!isActive) {
     OnPluginLoseFocus onLoseFocus;
     api->sendCallback(onLoseFocus);
     return;

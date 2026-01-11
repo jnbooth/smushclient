@@ -192,7 +192,7 @@ ScriptApi::GetPluginInfo(string_view pluginID, int infoType) const
     return QVariant();
   switch (infoType) {
     case 16:
-      return QVariant(!plugins[index].disabled());
+      return QVariant(!plugins[index].isDisabled());
     case 22:
       return QVariant(plugins[index].installed());
     default:

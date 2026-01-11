@@ -149,7 +149,7 @@ public:
                   const QString& text,
                   const QRectF& rect,
                   const QColor& color);
-  inline bool drawsUnderneath() const noexcept
+  constexpr bool drawsUnderneath() const noexcept
   {
     return flags.testFlag(Flag::DrawUnderneath);
   }

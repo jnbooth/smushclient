@@ -19,8 +19,8 @@ ColorPickerButton::openColorPicker()
     currentValue,
     this,
     tr("Select Color"),
-    isAlphaEnabled ? QColorDialog::ColorDialogOption::ShowAlphaChannel
-                   : QColorDialog::ColorDialogOptions());
+    alphaEnabled ? QColorDialog::ColorDialogOption::ShowAlphaChannel
+                 : QColorDialog::ColorDialogOptions());
 
   if (!color.isValid())
     return;
@@ -31,13 +31,13 @@ ColorPickerButton::openColorPicker()
 void
 ColorPickerButton::setAlphaDisabled(bool disabled)
 {
-  isAlphaEnabled = !disabled;
+  alphaEnabled = !disabled;
 }
 
 void
 ColorPickerButton::setAlphaEnabled(bool enabled)
 {
-  isAlphaEnabled = enabled;
+  alphaEnabled = enabled;
 }
 
 void
