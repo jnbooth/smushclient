@@ -391,15 +391,12 @@ impl SmushClient {
     }
 
     pub fn has_variables(&self) -> bool {
-        self.variables
-            .borrow()
-            .values()
-            .any(|variables| !variables.is_empty())
+        !self.variables.borrow().is_empty()
     }
 
     pub fn variables_len(&self, index: PluginIndex) -> Option<usize> {
         let plugin_id = &self.plugins.get(index)?.metadata.id;
-        Some(self.variables.borrow().get(plugin_id)?.len())
+        Some(self.variables.borrow().count_variables(plugin_id))
     }
 
     pub fn load_variables<R: Read>(&self, reader: R) -> Result<(), PersistError> {

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::fmt;
 use std::io::{Read, Write};
-use std::ops::{Deref, DerefMut};
 
 use serde::{Deserialize, Serialize};
 
@@ -14,20 +13,6 @@ pub type LuaStr = [u8];
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub(crate) struct PluginVariables(HashMap<String, HashMap<LuaString, LuaString>>);
-
-impl Deref for PluginVariables {
-    type Target = HashMap<String, HashMap<LuaString, LuaString>>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl DerefMut for PluginVariables {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
 
 impl fmt::Display for PluginVariables {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -46,6 +31,17 @@ impl fmt::Display for PluginVariables {
 impl PluginVariables {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.values().all(HashMap::is_empty)
+    }
+
+    pub fn count_variables(&self, plugin_id: &str) -> usize {
+        match self.0.get(plugin_id) {
+            Some(vars) => vars.len(),
+            None => 0,
+        }
     }
 
     pub fn get_variable(&self, plugin_id: &str, key: &LuaStr) -> Option<&LuaStr> {
