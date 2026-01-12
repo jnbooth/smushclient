@@ -808,11 +808,7 @@ impl SmushClient {
                 continue;
             }
             let enable_scripts = !plugin.metadata.is_world_plugin || self.world.enable_scripts;
-            let senders = if plugin.metadata.is_world_plugin {
-                T::from_world(&self.world)
-            } else {
-                T::from_plugin(plugin)
-            };
+            let senders = T::from_either(plugin, &self.world);
             for sender in senders.scan() {
                 let mut matched = false;
                 let (echo_input, regex_rc) = {
