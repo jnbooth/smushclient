@@ -1,13 +1,15 @@
 use std::fs::{File, OpenOptions};
 use std::io::{self, BufWriter, Write};
 
+use chrono::Local;
+
 use crate::world::{Escaped, EscapedBrackets, LogFormat, LogMode, World};
 
 #[derive(Debug)]
 pub struct LogFile {
     mode: LogMode,
     format: LogFormat,
-    path: String,
+    path_template: String,
     brackets: EscapedBrackets,
     file: Option<BufWriter<File>>,
 }
@@ -21,7 +23,7 @@ impl LogFile {
         Self {
             mode: world.log_mode,
             format: world.log_format,
-            path: world.auto_log_file_name.clone(),
+            path_template: world.auto_log_file_name.clone(),
             brackets,
             file: None,
         }
@@ -29,18 +31,15 @@ impl LogFile {
 
     pub fn apply_world(&mut self, world: &World, brackets: EscapedBrackets) -> io::Result<()> {
         self.brackets = brackets;
-        if self.mode == world.log_mode && self.path == world.auto_log_file_name {
+        self.mode = world.log_mode;
+        if self.path_template == world.auto_log_file_name {
             return Ok(());
         }
-        self.mode = world.log_mode;
-        self.path.clone_from(&world.auto_log_file_name);
+        self.path_template.clone_from(&world.auto_log_file_name);
         if self.file.is_none() {
             return Ok(());
         }
-        if self.path.is_empty() {
-            self.file = None;
-            return Ok(());
-        }
+        self.file = None;
         self.open()
     }
 
@@ -72,10 +71,12 @@ impl LogFile {
         if self.can_write() {
             return Ok(());
         }
-        if self.path.is_empty() {
-            return Ok(());
-        }
-        let file = OpenOptions::from(self.mode).open(&self.path)?;
+        let mut path = String::new();
+        Local::now()
+            .format(&self.path_template)
+            .write_to(&mut path)
+            .unwrap();
+        let file = OpenOptions::from(self.mode).open(&path)?;
         file.try_lock()?;
         let mut file = BufWriter::new(file);
         self.write_bracket(self.brackets.before(), &mut file)?;

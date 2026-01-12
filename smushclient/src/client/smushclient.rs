@@ -164,7 +164,16 @@ impl SmushClient {
         }
     }
 
-    pub fn open_log(&self) -> io::Result<()> {
+    pub fn open_log(&mut self) -> io::Result<()> {
+        if self.world.auto_log_file_name.is_empty() {
+            self.world.auto_log_file_name = self
+                .world
+                .name
+                .chars()
+                .filter(|&c| !"<>\"|?:#%;/\\".contains(c))
+                .collect();
+            self.world.auto_log_file_name.push_str(" log.txt");
+        }
         self.logger.borrow_mut().open()
     }
 
