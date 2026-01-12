@@ -35,6 +35,10 @@ impl ffi::SmushClient {
         self.rust().client.close_log()
     }
 
+    pub fn log_input(&self, note: &QString) {
+        let _ = self.rust().client.log_input(&String::from(note));
+    }
+
     pub fn log_note(&self, note: &QString) {
         let _ = self.rust().client.log_note(&String::from(note));
     }

@@ -29,9 +29,11 @@ pub mod ffi {
         type SendRequest = super::super::send_request::ffi::SendRequest;
     }
 
+    #[repr(i32)]
     enum AliasOutcome {
-        Remember = 1,
-        Send = 2,
+        Echo = 1,
+        Remember = 2,
+        Send = 4,
     }
 
     #[repr(i32)]
@@ -182,6 +184,9 @@ pub type AliasOutcomes = QFlags<ffi::AliasOutcome>;
 impl ffi::AliasOutcome {
     pub fn to_qflags(outcome: AliasOutcome) -> AliasOutcomes {
         let mut outcomes = AliasOutcomes::new();
+        if outcome.echo {
+            outcomes |= ffi::AliasOutcome::Echo;
+        }
         if outcome.remember {
             outcomes |= ffi::AliasOutcome::Remember;
         }
@@ -196,7 +201,7 @@ impl ffi::AliasOutcome {
 unsafe impl QFlag for ffi::AliasOutcome {
     type TypeId = type_id!("AliasOutcomes");
 
-    type Repr = u8;
+    type Repr = i32;
 
     fn to_repr(self) -> Self::Repr {
         self.repr

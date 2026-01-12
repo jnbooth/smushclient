@@ -14,36 +14,45 @@ pub enum CommandSource {
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct AliasEffects {
+    pub echo: bool,
     pub omit_from_command_history: bool,
-    pub suppress: bool,
+    pub matched: bool,
 }
 
 impl AliasEffects {
     pub const fn new(world: &World, source: CommandSource) -> Self {
         match source {
             CommandSource::Hotkey => Self {
+                echo: world.echo_hotkey_in_output_window,
                 omit_from_command_history: !world.hotkey_adds_to_command_history,
-                suppress: false,
+                matched: false,
             },
             CommandSource::Link => Self {
+                echo: world.echo_hyperlink_in_output_window,
                 omit_from_command_history: !world.hyperlink_adds_to_command_history,
-                suppress: false,
+                matched: false,
             },
             CommandSource::User => Self {
+                echo: true,
                 omit_from_command_history: false,
-                suppress: false,
+                matched: false,
             },
         }
     }
 
     pub fn add_effects(&mut self, alias: &Alias) {
+        if !self.matched {
+            self.echo = false;
+            self.matched = true;
+        }
         self.omit_from_command_history |= alias.omit_from_command_history;
-        self.suppress |= !alias.keep_evaluating;
+        self.echo |= alias.echo_alias;
     }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AliasOutcome {
+    pub echo: bool,
     pub remember: bool,
     pub send: bool,
 }
@@ -51,6 +60,7 @@ pub struct AliasOutcome {
 impl Default for AliasOutcome {
     fn default() -> Self {
         Self {
+            echo: true,
             remember: true,
             send: true,
         }
@@ -60,8 +70,9 @@ impl Default for AliasOutcome {
 impl From<AliasEffects> for AliasOutcome {
     fn from(value: AliasEffects) -> Self {
         Self {
+            echo: value.echo,
             remember: !value.omit_from_command_history,
-            send: !value.suppress,
+            send: !value.matched,
         }
     }
 }

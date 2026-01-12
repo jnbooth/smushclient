@@ -93,6 +93,8 @@ ScriptApi::applyWorld(const World& world)
   doNaws = world.getNaws();
   logNotes = world.getLogNotes();
   echoOnSameLine = world.getKeepCommandsOnSameLine();
+  echoInput = world.getDisplayMyInput();
+
   if (world.getNoEchoOff())
     suppressEcho = false;
 
@@ -146,15 +148,19 @@ ScriptApi::handleSendRequest(const SendRequest& request)
 {
   if (request.text.isEmpty())
     return;
-  if (request.echo)
-    echo(request.text);
   switch (request.sendTo) {
     case SendTarget::World:
     case SendTarget::WorldDelay:
     case SendTarget::Execute:
     case SendTarget::Speedwalk:
-    case SendTarget::WorldImmediate:
-      sendToWorld(request.text, request.echo);
+    case SendTarget::WorldImmediate: {
+      SendFlags flags;
+      if (request.echo)
+        flags |= SendFlag::Echo;
+      if (request.log)
+        flags |= SendFlag::Log;
+      sendToWorld(request.text, flags);
+    }
       return;
     case SendTarget::Command:
       tab->ui->input->setText(request.text);
@@ -515,15 +521,19 @@ ScriptApi::insertBlock()
 }
 
 ApiCode
-ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, bool shouldEcho)
+ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
 {
   OnPluginSend onSend(bytes);
   sendCallback(onSend);
   if (onSend.discarded())
     return ApiCode::OK;
 
-  if (shouldEcho) {
+  if (echoInput && flags.testFlag(SendFlag::Echo)) {
     echo(text);
+  }
+
+  if (flags.testFlag(SendFlag::Log)) {
+    client()->logInput(text);
   }
 
   bytes.append("\r\n");

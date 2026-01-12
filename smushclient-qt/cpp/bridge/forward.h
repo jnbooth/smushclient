@@ -9,7 +9,7 @@ class Alias;
 class Timer;
 class Trigger;
 
-enum class AliasOutcome : uint8_t;
+enum class AliasOutcome;
 enum class SendTarget;
 
 class Document;

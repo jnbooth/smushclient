@@ -160,6 +160,10 @@ impl smushclient::Handler for ClientHandler<'_> {
         self.doc.as_mut().append_line();
     }
 
+    fn echo(&mut self, input: &str) {
+        self.doc.echo(&QString::from(input));
+    }
+
     fn erase_last_line(&mut self) {
         self.doc.erase_last_line();
     }

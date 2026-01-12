@@ -64,12 +64,4 @@ impl Sender {
             &self.variable
         }
     }
-
-    pub fn should_echo(&self) -> bool {
-        !self.omit_from_output
-            && matches!(
-                self.send_to,
-                SendTarget::World | SendTarget::WorldImmediate | SendTarget::Speedwalk
-            )
-    }
 }

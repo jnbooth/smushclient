@@ -10,7 +10,7 @@ struct SendScriptRequest;
 class MudScrollBar;
 class ScriptApi;
 class WorldTab;
-enum class AliasOutcome : uint8_t;
+enum class AliasOutcome;
 enum class SendTarget;
 enum class TelnetSource : uint8_t;
 enum class TelnetVerb : uint8_t;
@@ -39,6 +39,7 @@ public:
   void createMxpStat(const QString& entity,
                      const QString& caption,
                      const QString& max) const;
+  void echo(const QString& text) const;
   void end(bool hadOutput);
   void eraseCurrentLine() const;
   void eraseLastCharacter() const;

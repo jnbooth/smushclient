@@ -9,6 +9,7 @@ pub struct SendRequest<'a> {
     pub plugin: PluginIndex,
     pub send_to: SendTarget,
     pub echo: bool,
+    pub log: bool,
     pub text: &'a str,
     pub destination: &'a str,
 }

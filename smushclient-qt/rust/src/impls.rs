@@ -117,6 +117,7 @@ impl<'a> From<SendRequest<'a>> for ffi::SendRequest {
             plugin: value.plugin,
             send_to: value.send_to.into(),
             echo: value.echo,
+            log: value.log,
             text: QString::from(value.text),
             destination: QString::from(value.destination),
         }
@@ -169,7 +170,8 @@ impl TimerConstructible for ffi::SendTimer {
             request: ffi::SendRequest {
                 plugin,
                 send_to: timer.send_to.into(),
-                echo: timer.should_echo(),
+                echo: !timer.omit_from_output,
+                log: !timer.omit_from_log,
                 text: QString::from(&timer.text),
                 destination: QString::from(timer.destination()),
             },

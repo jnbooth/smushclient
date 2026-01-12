@@ -316,6 +316,8 @@ ScriptApi::SetOption(size_t plugin, string_view name, int value)
     echoFormat.setForeground(QColor(value));
   else if (name == "echo_background_colour")
     echoFormat.setBackground(QColor(value));
+  else if (name == "display_my_input")
+    echoInput = value == 1;
   else if (name == "error_text_colour")
     errorFormat.setForeground(QColor(value));
   else if (name == "error_background_colour")

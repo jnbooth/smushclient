@@ -116,6 +116,12 @@ Document::createMxpStat(const QString& entity,
 }
 
 void
+Document::echo(const QString& text) const
+{
+  api->echo(text);
+}
+
+void
 Document::end(bool hadOutput)
 {
   scrollBar->setAutoScrollEnabled(true);

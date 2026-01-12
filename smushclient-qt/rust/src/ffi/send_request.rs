@@ -29,6 +29,7 @@ pub mod ffi {
         #[cxx_name = "sendTo"]
         send_to: SendTarget,
         echo: bool,
+        log: bool,
         text: QString,
         destination: QString,
     }

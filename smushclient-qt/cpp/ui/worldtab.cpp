@@ -688,8 +688,9 @@ WorldTab::sendCommand(const QString& command, CommandSource source)
   if (aliasOutcome.testFlag(AliasOutcome::Remember))
     ui->input->remember(command);
 
-  if (!aliasOutcome.testFlag(AliasOutcome::Send))
+  if (!aliasOutcome.testFlag(AliasOutcome::Send)) {
     return true;
+  }
 
   QByteArray bytes = command.toUtf8();
   OnPluginCommand onCommand(source, bytes);
@@ -706,7 +707,10 @@ WorldTab::sendCommand(const QString& command, CommandSource source)
         return false;
     }
   }
-  api->sendToWorld(bytes, true);
+  SendFlags flags = SendFlag::Log;
+  if (aliasOutcome.testFlag(AliasOutcome::Echo))
+    flags |= SendFlag::Echo;
+  api->sendToWorld(bytes, flags);
   return true;
 }
 
@@ -1021,5 +1025,5 @@ WorldTab::on_output_customContextMenuRequested(const QPoint& pos)
   const QAction* chosen = menu.exec(mouse);
   if (!chosen)
     return;
-  api->sendToWorld(chosen->text(), true);
+  api->sendToWorld(chosen->text(), SendFlag::Echo | SendFlag::Log);
 }

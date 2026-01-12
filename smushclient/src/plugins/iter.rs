@@ -72,6 +72,7 @@ pub(crate) trait ReactionIterable: SendIterable {
     const AFFECTS_STYLE: bool;
     type Effects;
 
+    fn echo_input(&self) -> bool;
     fn reaction(&self) -> &Reaction;
     fn sound(&self) -> Option<&str>;
     fn style(&self) -> SpanStyle;
@@ -83,6 +84,9 @@ impl ReactionIterable for Alias {
     const AFFECTS_STYLE: bool = false;
     type Effects = AliasEffects;
 
+    fn echo_input(&self) -> bool {
+        self.echo_alias
+    }
     fn reaction(&self) -> &Reaction {
         &self.reaction
     }
@@ -104,6 +108,9 @@ impl ReactionIterable for Trigger {
     const AFFECTS_STYLE: bool = true;
     type Effects = TriggerEffects;
 
+    fn echo_input(&self) -> bool {
+        false
+    }
     fn reaction(&self) -> &Reaction {
         &self.reaction
     }

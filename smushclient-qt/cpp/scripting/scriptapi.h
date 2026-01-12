@@ -35,6 +35,15 @@ struct lua_State;
 template<typename T>
 class TimerMap;
 
+enum class SendFlag
+{
+  Echo = 1,
+  Log = 2,
+};
+
+Q_DECLARE_FLAGS(SendFlags, SendFlag);
+Q_DECLARE_OPERATORS_FOR_FLAGS(SendFlags);
+
 class ScriptApi : public QObject
 {
   Q_OBJECT
@@ -171,15 +180,21 @@ public:
   inline ApiCode Send(std::string_view text)
   {
     QByteArray bytes(text.data(), text.size());
-    return sendToWorld(bytes, true);
+    return sendToWorld(bytes, SendFlag::Echo);
   }
   inline ApiCode Send(const QString& text)
   {
     QByteArray bytes = text.toUtf8();
-    return sendToWorld(bytes, true);
+    return sendToWorld(bytes, SendFlag::Echo);
   }
-  inline ApiCode Send(QByteArray& bytes) { return sendToWorld(bytes, true); }
-  ApiCode SendNoEcho(QByteArray& bytes) { return sendToWorld(bytes, false); }
+  inline ApiCode Send(QByteArray& bytes)
+  {
+    return sendToWorld(bytes, SendFlag::Echo);
+  }
+  ApiCode SendNoEcho(QByteArray& bytes)
+  {
+    return sendToWorld(bytes, SendFlags());
+  }
   ApiCode SendPacket(QByteArrayView bytes) const;
   ApiCode SetAliasOption(size_t plugin,
                          std::string_view label,
@@ -368,14 +383,14 @@ public:
   bool sendCallback(PluginCallback& callback, size_t plugin);
   bool sendCallback(PluginCallback& callback, const QString& pluginID);
   void sendNaws() const;
-  inline ApiCode sendToWorld(QByteArray& bytes, bool echo)
+  inline ApiCode sendToWorld(QByteArray& bytes, SendFlags flags)
   {
-    return sendToWorld(bytes, QString::fromUtf8(bytes), echo);
+    return sendToWorld(bytes, QString::fromUtf8(bytes), flags);
   }
-  inline ApiCode sendToWorld(const QString& text, bool echo)
+  inline ApiCode sendToWorld(const QString& text, SendFlags flags)
   {
     QByteArray bytes = text.toUtf8();
-    return sendToWorld(bytes, text, echo);
+    return sendToWorld(bytes, text, flags);
   }
   void setNawsEnabled(bool enabled);
   void setOpen(bool open) const;
@@ -421,7 +436,7 @@ private:
   bool finishQueuedSend(const SendRequest& request);
   void flushLine();
   void insertBlock();
-  ApiCode sendToWorld(QByteArray& bytes, const QString& text, bool echo);
+  ApiCode sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags);
 
 private:
   ActionSource actionSource = ActionSource::Unknown;
@@ -431,6 +446,7 @@ private:
   bool doNaws = false;
   bool doesNaws = false;
   QTextCharFormat echoFormat{};
+  bool echoInput;
   bool echoOnSameLine = false;
   QTextCharFormat errorFormat{};
   bool hasLine = false;

@@ -297,10 +297,8 @@ impl SmushClient {
         self.logger.borrow_mut().log_note(note)
     }
 
-    fn log_input<H: Handler>(&self, input: &str, handler: &mut H) {
-        if let Err(e) = self.logger.borrow_mut().log_input_line(input) {
-            handler.display_error(&format!("Log error: {e}"));
-        }
+    pub fn log_input(&self, input: &str) -> io::Result<()> {
+        self.logger.borrow_mut().log_input_line(input)
     }
 
     pub fn load_plugins(&mut self) -> Result<(), Vec<LoadFailure>> {
@@ -688,15 +686,7 @@ impl SmushClient {
         handler: &mut H,
     ) -> AliasOutcome {
         let mut effects = AliasEffects::new(&self.world, source);
-        let echo = match source {
-            CommandSource::Hotkey => self.world.echo_hotkey_in_output_window,
-            CommandSource::Link => self.world.echo_hyperlink_in_output_window,
-            CommandSource::User => true,
-        };
-        self.process_matches::<Alias, _>(input, &[], echo, handler, &mut effects);
-        if !effects.suppress {
-            self.log_input(input, handler);
-        }
+        self.process_matches::<Alias, _>(input, &[], handler, &mut effects);
         effects.into()
     }
 
@@ -733,7 +723,8 @@ impl SmushClient {
                     Some(SendRequest {
                         plugin: plugin_index,
                         send_to: alias.send_to,
-                        echo: alias.should_echo(),
+                        echo: !alias.omit_from_output,
+                        log: !alias.omit_from_log,
                         text: text_buf,
                         destination: destination_buf,
                     }),
@@ -779,7 +770,7 @@ impl SmushClient {
         handler: &mut H,
     ) -> TriggerEffects {
         let mut effects = TriggerEffects::new();
-        self.process_matches::<Trigger, _>(line, output, true, handler, &mut effects);
+        self.process_matches::<Trigger, _>(line, output, handler, &mut effects);
         if effects.omit_from_output {
             handler.erase_last_line();
         }
@@ -791,7 +782,6 @@ impl SmushClient {
         &self,
         line: &str,
         output: &[Output],
-        permit_echo: bool,
         handler: &mut H,
         effects: &mut T::Effects,
     ) {
@@ -800,6 +790,7 @@ impl SmushClient {
         }
         let mut buffers = self.buffers.borrow_mut();
         let (text_buf, destination_buf, one_shots) = &mut *buffers;
+        let mut can_echo = true;
         let mut style = SpanStyle::null();
         let mut has_style = false;
 
@@ -815,19 +806,23 @@ impl SmushClient {
             };
             for sender in senders.scan() {
                 let mut matched = false;
-                let regex_rc = {
+                let (echo_input, regex_rc) = {
                     let sender = sender.borrow();
                     let reaction = sender.reaction();
                     if !reaction.enabled {
                         continue;
                     }
-                    reaction.regex.clone()
+                    (can_echo && sender.echo_input(), reaction.regex.clone())
                 };
                 let regex = &*regex_rc;
                 text_buf.clear();
                 for captures in regex.captures_iter(line).filter_map(Result::ok) {
                     if !matched {
                         matched = true;
+                        if echo_input {
+                            handler.echo(line);
+                            can_echo = false;
+                        }
                         if T::AFFECTS_STYLE {
                             let sender = sender.borrow();
                             style = sender.style();
@@ -861,13 +856,11 @@ impl SmushClient {
                         } else {
                             let text = reaction.expand_text(text_buf, &captures);
                             destination_buf.clone_from(reaction.destination());
-                            if !reaction.omit_from_log {
-                                self.log_input(text, handler);
-                            }
                             Some(SendRequest {
                                 plugin: plugin_index,
                                 send_to: reaction.send_to,
-                                echo: permit_echo && reaction.should_echo(),
+                                echo: !reaction.omit_from_output,
+                                log: !reaction.omit_from_log,
                                 text,
                                 destination: destination_buf,
                             })

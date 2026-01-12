@@ -119,6 +119,8 @@ pub mod ffi {
         #[rust_name = "create_mxp_stat"]
         fn createMxpStat(self: &Document, entity: &QString, caption: &QString, max: &QString);
 
+        fn echo(self: &Document, text: &QString);
+
         fn end(self: Pin<&mut Document>, had_output: bool);
 
         #[rust_name = "erase_current_line"]
