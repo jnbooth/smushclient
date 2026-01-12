@@ -803,7 +803,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>NumpadEnable</sender>
+   <sender>KeypadEnable</sender>
    <signal>toggled(bool)</signal>
    <receiver>HotkeyAddsToCommandHistory</receiver>
    <slot>setEnabled(bool)</slot>
@@ -819,7 +819,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>NumpadEnable</sender>
+   <sender>KeypadEnable</sender>
    <signal>toggled(bool)</signal>
    <receiver>EchoHotkeyInOutputWindow</receiver>
    <slot>setEnabled(bool)</slot>
@@ -835,7 +835,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>NumpadEnable</sender>
+   <sender>KeypadEnable</sender>
    <signal>toggled(bool)</signal>
    <receiver>NumpadModGroup</receiver>
    <slot>setEnabled(bool)</slot>
@@ -851,7 +851,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>NumpadEnable</sender>
+   <sender>KeypadEnable</sender>
    <signal>toggled(bool)</signal>
    <receiver>NumpadGroup</receiver>
    <slot>setEnabled(bool)</slot>
