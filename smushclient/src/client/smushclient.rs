@@ -786,6 +786,17 @@ impl SmushClient {
         effects
     }
 
+    pub fn simulate_output<H: Handler>(&self, line: &str, handler: &mut H) {
+        self.trigger(
+            line,
+            &[
+                OutputFragment::Text(line.into()).into(),
+                OutputFragment::LineBreak.into(),
+            ],
+            handler,
+        );
+    }
+
     #[allow(clippy::too_many_arguments)]
     fn process_matches<T: ReactionIterable, H: Handler>(
         &self,

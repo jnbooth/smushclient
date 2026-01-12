@@ -374,7 +374,7 @@ WorldTab::setStatusBarVisible(bool visible)
 }
 
 ApiCode
-WorldTab::setWorldOption(size_t pluginIndex, std::string_view name, int value)
+WorldTab::setWorldOption(size_t pluginIndex, string_view name, int value)
 {
   const ApiCode result =
     client.setWorldOption(pluginIndex, byteSlice(name), value);
@@ -395,8 +395,8 @@ WorldTab::setWorldOption(size_t pluginIndex, std::string_view name, int value)
 
 ApiCode
 WorldTab::setWorldAlphaOption(size_t pluginIndex,
-                              std::string_view name,
-                              std::string_view value)
+                              string_view name,
+                              string_view value)
 {
   const ApiCode result =
     client.setWorldAlphaOption(pluginIndex, byteSlice(name), byteSlice(value));
@@ -411,6 +411,12 @@ WorldTab::setWorldAlphaOption(size_t pluginIndex,
     worldScriptPath = QString::fromUtf8(value.data(), value.size());
 
   return result;
+}
+
+void
+WorldTab::simulateOutput(string_view output) const
+{
+  client.simulate(byteSlice(output), *document);
 }
 
 void

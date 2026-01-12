@@ -217,6 +217,7 @@ public:
   bool SetVariable(size_t pluginIndex,
                    std::string_view key,
                    std::string_view value) const;
+  void Simulate(std::string_view output) const;
   void StopEvaluatingTriggers() const;
   ApiCode StopSound(size_t channel = 0);
   void Tell(const QString& text);

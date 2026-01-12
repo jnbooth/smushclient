@@ -83,6 +83,11 @@ impl ffi::SmushClient {
         self.rust_mut().handle_disconnect();
     }
 
+    pub fn simulate(&self, line: &LuaStr, doc: Pin<&mut ffi::Document>) {
+        let line = String::from_utf8_lossy(line);
+        self.rust().simulate(&line, doc);
+    }
+
     pub fn world_alpha_option(&self, index: PluginIndex, option: &LuaStr) -> VariableView {
         self.rust()
             .client

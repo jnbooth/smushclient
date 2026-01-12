@@ -82,6 +82,7 @@ public:
   ApiCode setWorldAlphaOption(size_t pluginIndex,
                               std::string_view name,
                               std::string_view value);
+  void simulateOutput(std::string_view line) const;
   void start();
   void stopSound() const;
   constexpr const QString& title() const noexcept { return worldName; };

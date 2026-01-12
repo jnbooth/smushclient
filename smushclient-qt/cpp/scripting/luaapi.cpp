@@ -495,6 +495,15 @@ L_SetStatus(lua_State* L)
 }
 
 static int
+L_Simulate(lua_State* L)
+{
+  API("Simulate")
+  expectMaxArgs(L, 1);
+  getApi(L).Simulate(qlua::getString(L, 1));
+  return 0;
+}
+
+static int
 L_Tell(lua_State* L)
 {
   API("Tell")
@@ -1685,6 +1694,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetClipboard", L_SetClipboard },
     { "SetCursor", L_SetCursor },
     { "SetStatus", L_SetStatus },
+    { "Simulate", L_Simulate },
     { "Tell", L_Tell },
     // plugins
     { "BroadcastPlugin", L_BroadcastPlugin },

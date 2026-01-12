@@ -362,6 +362,12 @@ ScriptApi::SetVariable(size_t index, string_view key, string_view value) const
 }
 
 void
+ScriptApi::Simulate(string_view line) const
+{
+  tab->simulateOutput(line);
+}
+
+void
 ScriptApi::StopEvaluatingTriggers() const
 {
   return client()->stopTriggers();
