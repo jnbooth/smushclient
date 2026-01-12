@@ -51,7 +51,7 @@ class ScriptApi : public QObject
 public:
   static QStringList GetAlphaOptionList() noexcept;
   static QStringList GetOptionList() noexcept;
-  static int GetUniqueNumber() noexcept;
+  static long GetUniqueNumber() noexcept;
   static QString MakeRegularExpression(std::string_view pattern) noexcept;
   static void SetClipboard(const QString& text);
 
@@ -82,9 +82,9 @@ public:
                      std::string_view scriptName,
                      SendTarget target,
                      int sequence = 100) const;
-  int BroadcastPlugin(size_t pluginIndex,
-                      int message,
-                      std::string_view text) const;
+  long BroadcastPlugin(size_t pluginIndex,
+                       long message,
+                       std::string_view text) const;
   void ColourTell(const QColor& foreground,
                   const QColor& background,
                   const QString& text);
@@ -122,22 +122,22 @@ public:
   ApiCode EnableTriggerGroup(size_t plugin,
                              std::string_view group,
                              bool enabled) const;
-  QVariant FontInfo(const QFont& font, int infoType) const;
+  QVariant FontInfo(const QFont& font, long infoType) const;
   QVariant GetAliasOption(size_t plugin,
                           std::string_view label,
                           std::string_view option) const;
   VariableView GetAlphaOption(size_t plugin, std::string_view name) const;
   QVariant GetCurrentValue(size_t pluginIndex, std::string_view option) const;
-  QVariant GetInfo(int infoType) const;
-  QVariant GetLineInfo(int line, int infoType) const;
+  QVariant GetInfo(long infoType) const;
+  QVariant GetLineInfo(int line, long infoType) const;
   int GetLinesInBufferCount() const;
-  int GetOption(size_t plugin, std::string_view name) const;
+  long GetOption(size_t plugin, std::string_view name) const;
   const std::string& GetPluginID(size_t pluginIndex) const;
-  QVariant GetPluginInfo(std::string_view pluginID, int infoType) const;
-  QVariant GetStyleInfo(int line, int style, int infoType) const;
+  QVariant GetPluginInfo(std::string_view pluginID, long infoType) const;
+  QVariant GetStyleInfo(int line, long style, long infoType) const;
   QVariant GetTimerInfo(size_t pluginIndex,
                         std::string_view label,
-                        int infoType) const;
+                        long infoType) const;
   QVariant GetTimerOption(size_t plugin,
                           std::string_view label,
                           std::string_view option) const;
@@ -204,7 +204,7 @@ public:
                          std::string_view name,
                          std::string_view value);
   ApiCode SetCursor(Qt::CursorShape cursor) const;
-  ApiCode SetOption(size_t plugin, std::string_view name, int value);
+  ApiCode SetOption(size_t plugin, std::string_view name, long value);
   void SetStatus(const QString& status) const;
   ApiCode SetTimerOption(size_t plugin,
                          std::string_view label,
@@ -281,7 +281,7 @@ public:
                      QFont::StyleHint hint) const;
   QVariant WindowFontInfo(std::string_view windowName,
                           std::string_view fontID,
-                          int infoType) const;
+                          long infoType) const;
   ApiCode WindowFrame(std::string_view windowName,
                       const QRectF& rect,
                       const QColor& color1,
@@ -293,11 +293,11 @@ public:
                          Qt::Orientation direction) const;
   QVariant WindowHotspotInfo(std::string_view windowName,
                              std::string_view hotspotID,
-                             int infoType) const;
+                             long infoType) const;
   ApiCode WindowImageFromWindow(std::string_view windowName,
                                 std::string_view imageID,
                                 std::string_view sourceWindow) const;
-  QVariant WindowInfo(std::string_view windowName, int infoType) const;
+  QVariant WindowInfo(std::string_view windowName, long infoType) const;
   ApiCode WindowInvert(std::string_view windowName, const QRect& rect) const;
   ApiCode WindowLine(std::string_view windowName,
                      const QLineF& line,

@@ -216,7 +216,7 @@ ScriptApi::WindowFont(string_view windowName,
 QVariant
 ScriptApi::WindowFontInfo(string_view windowName,
                           string_view fontID,
-                          int infoType) const
+                          long infoType) const
 {
   MiniWindow* window = findWindow(windowName);
   if (!window) [[unlikely]]
@@ -230,7 +230,7 @@ ScriptApi::WindowFontInfo(string_view windowName,
 QVariant
 ScriptApi::WindowHotspotInfo(string_view windowName,
                              string_view hotspotID,
-                             int infoType) const
+                             long infoType) const
 {
 
   MiniWindow* window = findWindow(windowName);
@@ -288,7 +288,7 @@ ScriptApi::WindowImageFromWindow(string_view windowName,
 }
 
 QVariant
-ScriptApi::WindowInfo(std::string_view windowName, int infoType) const
+ScriptApi::WindowInfo(std::string_view windowName, long infoType) const
 {
   MiniWindow* window = findWindow(windowName);
   if (!window) [[unlikely]]

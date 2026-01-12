@@ -42,18 +42,6 @@ FetchContent_MakeAvailable(
   lualibs
 )
 
-set(LUACONF_PATH ${lualibs_SOURCE_DIR}/lua/lua-5.4.7/include/luaconf.h)
-file(READ ${LUACONF_PATH} LUACONF_CONTENTS)
-if (LUACONF_CONTENTS MATCHES "#define LUA_INT_TYPE	LUA_INT_DEFAULT")
-  string(REPLACE
-    "#define LUA_INT_TYPE	LUA_INT_DEFAULT"
-    "#define LUA_INT_TYPE	LUA_INT_INT"
-    LUACONF_CONTENTS
-    "${LUACONF_CONTENTS}"
-  )
-  file(WRITE ${LUACONF_PATH} "${LUACONF_CONTENTS}")
-endif ()
-
 set(CRATE smushclient_qt)
 
 if (MSVC)

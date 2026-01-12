@@ -10,7 +10,6 @@ use chrono::{NaiveTime, Timelike};
 use cxx_qt::{CxxQtType, Initialize};
 use cxx_qt_lib::{QColor, QString, QTime};
 use flagset::{FlagSet, Flags};
-use mud_transformer::mxp::RgbColor;
 use mud_transformer::{Output, OutputFragment, TextFragment, TextStyle};
 use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer, Trigger};
 
@@ -77,7 +76,7 @@ pub struct SenderRust {
     pub omit_from_log: bool,
 
     pub id: u16,
-    pub userdata: i32,
+    pub userdata: i64,
 }
 
 impl Default for SenderRust {
@@ -471,11 +470,6 @@ fn if_contains<E: Flags>(set: FlagSet<E>, value: E, flag: u8) -> u8 {
     if set.contains(value) { flag } else { 0 }
 }
 
-#[inline(always)]
-const fn color_code(color: RgbColor) -> i32 {
-    ((color.b as i32) << 16) | ((color.g as i32) << 8) | (color.r as i32)
-}
-
 #[repr(transparent)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TextSpan {
@@ -484,11 +478,11 @@ pub struct TextSpan {
 
 impl TextSpan {
     pub fn foreground(&self) -> i32 {
-        color_code(self.inner.foreground)
+        self.inner.foreground.code() as i32
     }
 
     pub fn background(&self) -> i32 {
-        color_code(self.inner.background)
+        self.inner.background.code() as i32
     }
 
     pub fn text(&self) -> &str {

@@ -116,7 +116,7 @@ impl Convert<Option<RgbColor>> for QColor {
 
 impl Convert<QColor> for RgbColor {
     fn convert(&self) -> QColor {
-        QColor::from_rgb(i32::from(self.r), i32::from(self.g), i32::from(self.b))
+        QColor::from_rgb(self.r.into(), self.g.into(), self.b.into())
     }
 }
 

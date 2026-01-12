@@ -91,7 +91,7 @@ impl ffi::SmushClient {
             .into()
     }
 
-    pub fn world_option(&self, index: PluginIndex, option: &LuaStr) -> i32 {
+    pub fn world_option(&self, index: PluginIndex, option: &LuaStr) -> i64 {
         self.rust().client.world_option(index, option).unwrap_or(-1)
     }
 
@@ -118,7 +118,7 @@ impl ffi::SmushClient {
         self: Pin<&mut Self>,
         index: PluginIndex,
         option: &LuaStr,
-        value: i32,
+        value: i64,
     ) -> ffi::ApiCode {
         self.rust_mut()
             .client

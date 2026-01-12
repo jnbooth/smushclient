@@ -20,17 +20,17 @@ pub trait InfoVisitor {
     fn visit_u64(info: u64) -> Self::Output;
 
     fn visit_float(info: f32) -> Self::Output {
-        Self::visit_double(f64::from(info))
+        Self::visit_double(info.into())
     }
 
     fn visit_i8(info: i8) -> Self::Output {
-        Self::visit_i64(i64::from(info))
+        Self::visit_i64(info.into())
     }
     fn visit_i16(info: i16) -> Self::Output {
-        Self::visit_i64(i64::from(info))
+        Self::visit_i64(info.into())
     }
     fn visit_i32(info: i32) -> Self::Output {
-        Self::visit_i64(i64::from(info))
+        Self::visit_i64(info.into())
     }
     fn visit_isize(info: isize) -> Self::Output {
         Self::visit_i64(match i64::try_from(info) {
@@ -41,16 +41,16 @@ pub trait InfoVisitor {
     }
 
     fn visit_u8(info: u8) -> Self::Output {
-        Self::visit_u64(u64::from(info))
+        Self::visit_u64(info.into())
     }
     fn visit_u16(info: u16) -> Self::Output {
-        Self::visit_u64(u64::from(info))
+        Self::visit_u64(info.into())
     }
     fn visit_u32(info: u32) -> Self::Output {
-        Self::visit_u64(u64::from(info))
+        Self::visit_u64(info.into())
     }
     fn visit_usize(info: usize) -> Self::Output {
-        Self::visit_u64(u64::try_from(info).unwrap_or(u64::MAX))
+        Self::visit_u64(info.try_into().unwrap_or(u64::MAX))
     }
 
     fn visit<I: VisitorInfo>(info: I) -> Self::Output {

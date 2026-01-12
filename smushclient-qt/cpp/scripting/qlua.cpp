@@ -52,26 +52,13 @@ checkIsSome(lua_State* L, int idx, int type, const char* name)
   return true;
 }
 
-int
+lua_Integer
 toInt(lua_State* L, int idx)
 {
   int isInt;
-  const int result = lua_tointegerx(L, idx, &isInt);
+  const lua_Integer result = lua_tointegerx(L, idx, &isInt);
   luaL_argexpected(L, isInt, idx, "integer");
   return result;
-}
-
-QColor
-toColor(lua_State* L, int idx)
-{
-  size_t len;
-  const char* message = lua_tolstring(L, idx, &len);
-  if (len == 0)
-    return QColor();
-
-  const QColor color = QColor::fromString(QAnyStringView(message, len));
-  luaL_argcheck(L, color.isValid(), idx, "valid color");
-  return color;
 }
 
 QString
@@ -127,12 +114,7 @@ qlua::getBool(lua_State* L, int idx)
       return lua_toboolean(L, idx);
     case LUA_TNUMBER:
       if (int isInt, value = lua_tointegerx(L, idx, &isInt); isInt)
-        switch (value) {
-          case 0:
-            return false;
-          case 1:
-            return true;
-        }
+        return value != 0;
     case LUA_TSTRING: {
       const string_view message = toString(L, idx);
       if (message == "n" || message == "N" || message == "0")
@@ -156,12 +138,7 @@ qlua::getBool(lua_State* L, int idx, bool ifNil)
       return lua_toboolean(L, idx);
     case LUA_TNUMBER:
       if (int isInt, value = lua_tointegerx(L, idx, &isInt); isInt)
-        switch (value) {
-          case 0:
-            return false;
-          case 1:
-            return true;
-        }
+        return value != 0;
     case LUA_TSTRING: {
       const string_view message = toString(L, idx);
       if (message == "n" || message == "N" || message == "0")
@@ -183,34 +160,34 @@ qlua::getBytes(lua_State* L, int idx)
   return QByteArrayView(message, len);
 }
 
-int
+lua_Integer
 qlua::getInt(lua_State* L, int idx)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TNUMBER, idx, "integer");
   return toInt(L, idx);
 }
 
-int
-qlua::getInt(lua_State* L, int idx, int ifNil)
+lua_Integer
+qlua::getInt(lua_State* L, int idx, lua_Integer ifNil)
 {
   return (checkIsSome(L, idx, LUA_TNUMBER, "integer")) ? toInt(L, idx) : ifNil;
 }
 
-double
+lua_Number
 qlua::getNumber(lua_State* L, int idx)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TNUMBER, idx, "number");
   return lua_tonumber(L, idx);
 }
 
-double
-qlua::getNumber(lua_State* L, int idx, double ifNil)
+lua_Number
+qlua::getNumber(lua_State* L, int idx, lua_Number ifNil)
 {
   return checkIsSome(L, idx, LUA_TNUMBER, "number") ? lua_tonumber(L, idx)
                                                     : ifNil;
 }
 
-double
+lua_Number
 qlua::getNumberOrBool(lua_State* L, int idx)
 {
   switch (lua_type(L, idx)) {
@@ -223,8 +200,8 @@ qlua::getNumberOrBool(lua_State* L, int idx)
   return 0;                         // unreachable
 }
 
-double
-qlua::getNumberOrBool(lua_State* L, int idx, double ifNil)
+lua_Number
+qlua::getNumberOrBool(lua_State* L, int idx, lua_Number ifNil)
 {
   switch (lua_type(L, idx)) {
     case LUA_TNONE:
@@ -240,33 +217,50 @@ qlua::getNumberOrBool(lua_State* L, int idx, double ifNil)
 }
 
 QColor
-qlua::getQColor(lua_State* L, int idx)
-{
-  int type = lua_type(L, idx);
-  if (type == LUA_TNUMBER)
-    return rgbCodeToColor(toInt(L, idx));
-  luaL_argexpected(L, type == LUA_TSTRING, idx, "color name or code");
-  return toColor(L, idx);
-}
-
-QColor
 qlua::getCustomColor(lua_State* L, int idx)
 {
-  const int colorIndex = getInt(L, idx);
+  const lua_Integer colorIndex = getInt(L, idx);
   return (colorIndex < 0 || colorIndex >= 16) ? QColor()
                                               : customColors[colorIndex];
 }
 
 QColor
+toQColor(lua_State* L, int idx, int ltype)
+{
+  switch (ltype) {
+    case LUA_TSTRING: {
+      size_t len;
+      const char* message = lua_tolstring(L, idx, &len);
+      if (len == 0)
+        return QColor();
+      const QColor color = QColor::fromString(QAnyStringView(message, len));
+      luaL_argcheck(L, color.isValid(), idx, "valid color");
+      return color;
+    }
+    case LUA_TNUMBER: {
+      int isInt;
+      const lua_Integer rgb = lua_tointegerx(L, idx, &isInt);
+      if (isInt) {
+        luaL_argcheck(L, rgb >= 0 && rgb <= 0xFFFFFF, idx, "valid color");
+        return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
+      }
+    }
+  }
+  luaL_typeerror(L, idx, "string or integer");
+  return QColor();
+}
+
+QColor
+qlua::getQColor(lua_State* L, int idx)
+{
+  return toQColor(L, idx, lua_type(L, idx));
+}
+
+QColor
 qlua::getQColor(lua_State* L, int idx, const QColor& ifNil)
 {
-  int type = lua_type(L, idx);
-  if (type <= 0)
-    return ifNil;
-  if (type == LUA_TNUMBER)
-    return rgbCodeToColor(toInt(L, idx));
-  luaL_argexpected(L, type == LUA_TSTRING, idx, "color name or code");
-  return toColor(L, idx);
+  const int type = lua_type(L, idx);
+  return type >= 0 ? toQColor(L, idx, type) : ifNil;
 }
 
 QString
@@ -290,10 +284,11 @@ qlua::getQVariant(lua_State* L, int idx, int type)
       return QVariant();
     case LUA_TNIL:
       return QVariant(QMetaType::fromType<std::nullptr_t>());
-    case LUA_TNUMBER:
-      if (int isInt, result = lua_tointegerx(L, idx, &isInt); isInt)
-        return QVariant(result);
-      return QVariant(lua_tonumber(L, idx));
+    case LUA_TNUMBER: {
+      int isInt;
+      const lua_Integer intResult = lua_tointegerx(L, idx, &isInt);
+      return isInt ? QVariant(intResult) : QVariant(lua_tonumber(L, idx));
+    }
     case LUA_TBOOLEAN:
       return QVariant(lua_toboolean(L, idx));
     case LUA_TSTRING:
@@ -409,12 +404,13 @@ qlua::concatStrings(lua_State* L, const QString& delimiter)
         text.append(lua_toboolean(L, i) ? QStringLiteral("true")
                                         : QStringLiteral("false"));
         break;
-      case LUA_TNUMBER:
-        if (int isInt, result = lua_tointegerx(L, i, &isInt); isInt)
-          text.append(QString::number(result));
-        else
-          text.append(QString::number(lua_tonumber(L, i)));
+      case LUA_TNUMBER: {
+        int isInt;
+        const lua_Integer result = lua_tointegerx(L, i, &isInt);
+        text.append(isInt ? QString::number(result)
+                          : QString::number(lua_tonumber(L, i)));
         break;
+      }
       case LUA_TSTRING: {
         const char* data = lua_tolstring(L, i, &sLen);
         text.append(QUtf8StringView(data, sLen));
@@ -529,7 +525,7 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant)
     case QMetaType::ULong:
     case QMetaType::ULongLong:
     case QMetaType::UShort:
-      lua_pushinteger(L, variant.toInt());
+      lua_pushinteger(L, variant.toLongLong());
       return;
     case QMetaType::Double:
     case QMetaType::Float:
@@ -586,8 +582,8 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant)
         pushQVariants(L, variant.toList());
       return;
     default:
-      if (type.flags().testFlag(QMetaType::IsEnumeration))
-        lua_pushinteger(L, variant.toInt());
+      if (variant.canConvert<qlonglong>())
+        lua_pushinteger(L, variant.toLongLong());
       else
         lua_pushnil(L);
       return;
@@ -679,12 +675,15 @@ qlua::copyValue(lua_State* fromL, lua_State* toL, int idx)
     case LUA_TBOOLEAN:
       lua_pushboolean(toL, lua_toboolean(fromL, idx));
       return true;
-    case LUA_TNUMBER:
-      if (int isInt, result = lua_tointegerx(fromL, idx, &isInt); isInt)
-        lua_pushinteger(toL, result);
+    case LUA_TNUMBER: {
+      int isInt;
+      const lua_Integer intResult = lua_tointegerx(fromL, idx, &isInt);
+      if (isInt)
+        lua_pushinteger(toL, intResult);
       else
         lua_pushnumber(toL, lua_tonumber(fromL, idx));
       return true;
+    }
     case LUA_TSTRING: {
       size_t len;
       const char* s = lua_tolstring(fromL, idx, &len);
@@ -790,8 +789,8 @@ getEnum(lua_State* L, int idx, optional<T> ifNil = nullopt)
 {
   if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))
     return ifNil;
-  const int val = toInt(L, idx);
-  if (val < (int)MIN || val > (int)MAX) [[unlikely]]
+  const lua_Integer val = toInt(L, idx);
+  if (val < (lua_Integer)MIN || val > (lua_Integer)MAX) [[unlikely]]
     return nullopt;
   return (T)val;
 }
@@ -813,31 +812,31 @@ qlua::getBrush(lua_State* L, int idx, optional<Qt::BrushStyle> ifNil)
     return ifNil;
 
   switch (toInt(L, idx)) {
-    case (int)ScriptBrush::SolidPattern:
+    case (lua_Integer)ScriptBrush::SolidPattern:
       return Qt::BrushStyle::SolidPattern;
-    case (int)ScriptBrush::NoBrush:
+    case (lua_Integer)ScriptBrush::NoBrush:
       return Qt::BrushStyle::NoBrush;
-    case (int)ScriptBrush::HorPattern:
+    case (lua_Integer)ScriptBrush::HorPattern:
       return Qt::BrushStyle::HorPattern;
-    case (int)ScriptBrush::VerPattern:
+    case (lua_Integer)ScriptBrush::VerPattern:
       return Qt::BrushStyle::VerPattern;
-    case (int)ScriptBrush::FDiagPattern:
+    case (lua_Integer)ScriptBrush::FDiagPattern:
       return Qt::BrushStyle::FDiagPattern;
-    case (int)ScriptBrush::BDiagPattern:
+    case (lua_Integer)ScriptBrush::BDiagPattern:
       return Qt::BrushStyle::BDiagPattern;
-    case (int)ScriptBrush::CrossPattern:
+    case (lua_Integer)ScriptBrush::CrossPattern:
       return Qt::BrushStyle::CrossPattern;
-    case (int)ScriptBrush::DiagCrossPattern:
+    case (lua_Integer)ScriptBrush::DiagCrossPattern:
       return Qt::BrushStyle::DiagCrossPattern;
-    case (int)ScriptBrush::Dense4Pattern:
+    case (lua_Integer)ScriptBrush::Dense4Pattern:
       return Qt::BrushStyle::Dense4Pattern;
-    case (int)ScriptBrush::Dense2Pattern:
+    case (lua_Integer)ScriptBrush::Dense2Pattern:
       return Qt::BrushStyle::Dense2Pattern;
-    case (int)ScriptBrush::Dense1Pattern:
+    case (lua_Integer)ScriptBrush::Dense1Pattern:
       return Qt::BrushStyle::Dense1Pattern;
-    case (int)ScriptBrush::HorWaves:
+    case (lua_Integer)ScriptBrush::HorWaves:
       return Qt::BrushStyle::HorPattern;
-    case (int)ScriptBrush::VerWaves:
+    case (lua_Integer)ScriptBrush::VerWaves:
       return Qt::BrushStyle::VerPattern;
     default:
       return nullopt;
@@ -851,33 +850,33 @@ qlua::getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil)
     return ifNil;
 
   switch (toInt(L, idx)) {
-    case (int)ScriptCursor::BlankCursor:
+    case (lua_Integer)ScriptCursor::BlankCursor:
       return Qt::CursorShape::BlankCursor;
-    case (int)ScriptCursor::ArrowCursor:
+    case (lua_Integer)ScriptCursor::ArrowCursor:
       return Qt::CursorShape::ArrowCursor;
-    case (int)ScriptCursor::OpenHandCursor:
+    case (lua_Integer)ScriptCursor::OpenHandCursor:
       return Qt::CursorShape::OpenHandCursor;
-    case (int)ScriptCursor::IBeamCursor:
+    case (lua_Integer)ScriptCursor::IBeamCursor:
       return Qt::CursorShape::IBeamCursor;
-    case (int)ScriptCursor::CrossCursor:
+    case (lua_Integer)ScriptCursor::CrossCursor:
       return Qt::CursorShape::CrossCursor;
-    case (int)ScriptCursor::WaitCursor:
+    case (lua_Integer)ScriptCursor::WaitCursor:
       return Qt::CursorShape::WaitCursor;
-    case (int)ScriptCursor::UpArrowCursor:
+    case (lua_Integer)ScriptCursor::UpArrowCursor:
       return Qt::CursorShape::UpArrowCursor;
-    case (int)ScriptCursor::SizeFDiagCursor:
+    case (lua_Integer)ScriptCursor::SizeFDiagCursor:
       return Qt::CursorShape::SizeFDiagCursor;
-    case (int)ScriptCursor::SizeBDiagCursor:
+    case (lua_Integer)ScriptCursor::SizeBDiagCursor:
       return Qt::CursorShape::SizeBDiagCursor;
-    case (int)ScriptCursor::SizeHorCursor:
+    case (lua_Integer)ScriptCursor::SizeHorCursor:
       return Qt::CursorShape::SizeHorCursor;
-    case (int)ScriptCursor::SizeVerCursor:
+    case (lua_Integer)ScriptCursor::SizeVerCursor:
       return Qt::CursorShape::SizeVerCursor;
-    case (int)ScriptCursor::SizeAllCursor:
+    case (lua_Integer)ScriptCursor::SizeAllCursor:
       return Qt::CursorShape::SizeAllCursor;
-    case (int)ScriptCursor::ForbiddenCursor:
+    case (lua_Integer)ScriptCursor::ForbiddenCursor:
       return Qt::CursorShape::ForbiddenCursor;
-    case (int)ScriptCursor::WhatsThisCursor:
+    case (lua_Integer)ScriptCursor::WhatsThisCursor:
       return Qt::CursorShape::WhatsThisCursor;
     default:
       return nullopt;
@@ -906,7 +905,7 @@ qlua::getFontHint(lua_State* L, int idx, optional<QFont::StyleHint> ifNil)
   if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))
     return ifNil;
 
-  const int style = toInt(L, idx);
+  const lua_Integer style = toInt(L, idx);
   switch (style & 0xF) // pitch
   {
     case FontPitchFlag::Default:
@@ -936,7 +935,7 @@ qlua::getFontHint(lua_State* L, int idx, optional<QFont::StyleHint> ifNil)
 }
 
 constexpr Qt::PenStyle
-getPenStyle(int style) noexcept
+getPenStyle(lua_Integer style) noexcept
 {
   switch (style & 0xFF) {
     case PenStyleFlag::SolidLine:
@@ -959,7 +958,7 @@ getPenStyle(int style) noexcept
 }
 
 constexpr Qt::PenCapStyle
-getPenCap(int style) noexcept
+getPenCap(lua_Integer style) noexcept
 {
   switch (style & 0xF00) {
     case PenCapFlag::RoundCap:
@@ -974,7 +973,7 @@ getPenCap(int style) noexcept
 }
 
 constexpr Qt::PenJoinStyle
-getPenJoin(int style) noexcept
+getPenJoin(lua_Integer style) noexcept
 {
   switch (style & ~0XFFF) {
     case PenJoinFlag::RoundJoin:
@@ -992,8 +991,8 @@ optional<QPen>
 qlua::getPen(lua_State* L, int idxColor, int idxStyle, int idxWidth)
 {
   const QColor color = getQColor(L, idxColor);
-  const int style = getInt(L, idxStyle);
-  const double width = getNumber(L, idxWidth);
+  const lua_Integer style = getInt(L, idxStyle);
+  const lua_Number width = getNumber(L, idxWidth);
   if (style < 0 || width < 0) [[unlikely]]
     return nullopt;
 

@@ -69,11 +69,11 @@ ScriptApi::GetOptionList() noexcept
   return ffi::getOptionList();
 }
 
-int
+long
 ScriptApi::GetUniqueNumber() noexcept
 {
-  static int uniqueNumber = -1;
-  if (uniqueNumber == INT_MAX) [[unlikely]]
+  static long uniqueNumber = -1;
+  if (uniqueNumber == INT64_MAX) [[unlikely]]
     uniqueNumber = 0;
   else
     ++uniqueNumber;
@@ -94,11 +94,11 @@ ScriptApi::SetClipboard(const QString& text)
 
 // Public methods
 
-int
-ScriptApi::BroadcastPlugin(size_t index, int message, string_view text) const
+long
+ScriptApi::BroadcastPlugin(size_t index, long message, string_view text) const
 {
   const Plugin& callingPlugin = plugins[index];
-  int calledPlugins = 0;
+  long calledPlugins = 0;
   OnPluginBroadcast onBroadcast(
     message, callingPlugin.id(), callingPlugin.name(), text);
   for (const Plugin& plugin : plugins)
@@ -202,7 +202,7 @@ ScriptApi::GetCurrentValue(size_t pluginIndex, string_view option) const
   return client()->worldVariantOption(pluginIndex, byteSlice(option));
 }
 
-int
+long
 ScriptApi::GetOption(size_t plugin, string_view name) const
 {
   return client()->worldOption(plugin, byteSlice(name));
@@ -306,7 +306,7 @@ ScriptApi::SetCursor(Qt::CursorShape cursorShape) const
 }
 
 ApiCode
-ScriptApi::SetOption(size_t plugin, string_view name, int value)
+ScriptApi::SetOption(size_t plugin, string_view name, long value)
 {
   const ApiCode code = tab->setWorldOption(plugin, name, value);
   if (code != ApiCode::OK)

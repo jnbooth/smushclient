@@ -5,21 +5,21 @@
 #include "smushclient_qt/src/ffi/client.cxxqt.h"
 #include <QtCore/QDataStream>
 
-inline rust::Slice<const std::uint8_t>
-byteSlice(const std::uint8_t* data, std::size_t size) noexcept
+inline rust::Slice<const uint8_t>
+byteSlice(const uint8_t* data, size_t size) noexcept
 {
   return rust::Slice(data, size);
 }
 
-inline rust::Slice<const std::uint8_t>
-byteSlice(const char* data, std::size_t size) noexcept
+inline rust::Slice<const uint8_t>
+byteSlice(const char* data, size_t size) noexcept
 {
-  return rust::Slice(reinterpret_cast<const std::uint8_t*>(data), size);
+  return rust::Slice(reinterpret_cast<const uint8_t*>(data), size);
 }
 
 template<typename C,
          std::enable_if_t<std::is_trivially_copyable_v<C>, bool> = true>
-inline rust::Slice<const std::uint8_t>
+inline rust::Slice<const uint8_t>
 byteSlice(C c) noexcept
 {
   return byteSlice(c.data(), c.size());
@@ -27,7 +27,7 @@ byteSlice(C c) noexcept
 
 template<typename C,
          std::enable_if_t<!std::is_trivially_copyable_v<C>, bool> = true>
-inline rust::Slice<const std::uint8_t>
+inline rust::Slice<const uint8_t>
 byteSlice(const C& c) noexcept
 {
   return byteSlice(c.data(), c.size());

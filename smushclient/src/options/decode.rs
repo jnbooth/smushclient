@@ -82,6 +82,7 @@ macro_rules! impl_parse {
 impl_parse!(u8);
 impl_parse!(i16);
 impl_parse!(i32);
+impl_parse!(i64);
 
 impl FromOption for Option<NonZero<u8>> {
     fn from_option(option: &LuaStr) -> Option<Self> {

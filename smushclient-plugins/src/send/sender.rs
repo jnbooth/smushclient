@@ -24,7 +24,7 @@ pub struct Sender {
     #[serde(skip, default = "Sender::get_id")]
     pub id: u16,
     #[serde(skip)]
-    pub userdata: i32,
+    pub userdata: i64,
 }
 
 impl Default for Sender {

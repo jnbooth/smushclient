@@ -60,7 +60,7 @@ public:
     return otherPlugin == plugin;
   }
   void finishDrag();
-  QVariant info(int infoType) const;
+  QVariant info(long infoType) const;
   const Callbacks& setCallbacks(Callbacks&& callbacks);
   const Callbacks& setCallbacks(CallbacksPartial&& callbacks);
 

@@ -9,20 +9,24 @@
 #include <QtGui/QPolygonF>
 #include <optional>
 #include <string>
+extern "C"
+{
+#include "lua.h"
+}
 
 struct lua_State;
 enum class SendTarget;
 
 namespace qlua {
 inline constexpr QColor
-rgbCodeToColor(int rgb) noexcept
+rgbCodeToColor(lua_Integer rgb) noexcept
 {
-  if (rgb == -1) [[unlikely]]
+  if (rgb == -1 || rgb > 0xFFFFFF) [[unlikely]]
     return QColor();
   return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
 }
 
-inline int
+inline lua_Integer
 colorToRgbCode(const QColor& color)
 {
   if (!color.isValid()) [[unlikely]]
@@ -43,20 +47,20 @@ getBool(lua_State* L, int idx, bool ifNil);
 QByteArrayView
 getBytes(lua_State* L, int idx);
 
-int
+lua_Integer
 getInt(lua_State* L, int idx);
-int
-getInt(lua_State* L, int idx, int ifNil);
+lua_Integer
+getInt(lua_State* L, int idx, lua_Integer ifNil);
 
-double
+lua_Number
 getNumber(lua_State* L, int idx);
-double
-getNumber(lua_State* L, int idx, double ifNil);
+lua_Number
+getNumber(lua_State* L, int idx, lua_Number ifNil);
 
-double
+lua_Number
 getNumberOrBool(lua_State* L, int idx);
-double
-getNumberOrBool(lua_State* L, int idx, double ifNil);
+lua_Number
+getNumberOrBool(lua_State* L, int idx, lua_Number ifNil);
 
 QColor
 getQColor(lua_State* L, int idx);
@@ -64,6 +68,19 @@ QColor
 getQColor(lua_State* L, int idx, const QColor& ifNil);
 QColor
 getCustomColor(lua_State* L, int idx);
+
+template<typename T>
+inline QFlags<T>
+getFlags(lua_State* L, int idx)
+{
+  return (QFlags<T>)(int)getInt(L, idx);
+}
+template<typename T>
+inline QFlags<T>
+getFlags(lua_State* L, int idx, QFlags<T> ifNil)
+{
+  return (QFlags<T>)(int)getInt(L, idx, (lua_Integer)ifNil);
+}
 
 QString
 getQString(lua_State* L, int idx);

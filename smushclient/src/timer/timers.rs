@@ -195,7 +195,7 @@ impl<T: TimerConstructible> Timers<T> {
 
     fn insert_recurring(&mut self, timer: RecurringTimer<T>) -> usize {
         let next_occurrence =
-            Utc::now().checked_add_signed(TimeDelta::milliseconds(i64::from(timer.milliseconds)));
+            Utc::now().checked_add_signed(TimeDelta::milliseconds(timer.milliseconds.into()));
         if let Some(next_occurrence) = next_occurrence {
             self.next_occurrences.insert(timer.id, next_occurrence);
         }

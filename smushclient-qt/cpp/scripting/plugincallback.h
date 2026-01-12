@@ -143,7 +143,7 @@ class OnPluginBroadcast : public NamedPluginCallback
 {
 public:
   CALLBACK(0, "OnPluginBroadcast", ActionSource::Unknown)
-  constexpr OnPluginBroadcast(int message,
+  constexpr OnPluginBroadcast(long message,
                               std::string_view pluginID,
                               std::string_view pluginName,
                               std::string_view text)
@@ -156,7 +156,7 @@ public:
   int pushArguments(lua_State* L) const override;
 
 private:
-  int message;
+  long message;
   std::string_view pluginID;
   std::string_view pluginName;
   std::string_view text;
@@ -363,7 +363,7 @@ public:
   int pushArguments(lua_State* L) const override;
 
 private:
-  int code;
+  uint8_t code;
   std::string_view message;
 };
 
@@ -379,7 +379,7 @@ public:
   int pushArguments(lua_State* L) const override;
 
 private:
-  int code;
+  uint8_t code;
   const QByteArray& data;
 };
 

@@ -8,17 +8,14 @@ use super::error::SetOptionError;
 use super::types::{AutoConnect, LogFormat, MXPDebugLevel, ScriptRecompile};
 use crate::{LuaStr, LuaString};
 
-const fn color_code(color: RgbColor) -> i32 {
-    i32::from_le_bytes([color.r, color.b, color.g, 0])
-}
-
-const fn code_color(code: i32) -> Result<RgbColor, SetOptionError> {
-    let [r, g, b, o] = code.to_le_bytes();
-    if o == 0 {
-        Ok(RgbColor { r, g, b })
-    } else {
-        Err(SetOptionError::OptionOutOfRange)
+const fn code_color(code: i64) -> Result<RgbColor, SetOptionError> {
+    #[allow(clippy::unreadable_literal)]
+    if code < 0 || code > 0xFFFFFF {
+        return Err(SetOptionError::OptionOutOfRange);
     }
+    #[allow(clippy::cast_possible_truncation)]
+    #[allow(clippy::cast_sign_loss)]
+    Ok(RgbColor::hex(code as u32))
 }
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -78,11 +75,11 @@ impl World {
         "write_world_name_to_log",
     ];
 
-    pub fn option_int(&self, _: OptionCaller, option: &LuaStr) -> Option<i32> {
+    pub fn option_int(&self, _: OptionCaller, option: &LuaStr) -> Option<i64> {
         Some(match option {
             b"carriage_return_clears_line" => self.carriage_return_clears_line.into(),
             b"convert_ga_to_newline" => self.convert_ga_to_newline.into(),
-            b"connect_method" => self.connect_method as i32,
+            b"connect_method" => self.connect_method as _,
             b"disable_compression" => self.disable_compression.into(),
             b"display_my_input" => self.display_my_input.into(),
             b"echo_hyperlink_in_output_window" => self.echo_hyperlink_in_output_window.into(),
@@ -93,7 +90,7 @@ impl World {
             b"enable_triggers" => self.enable_triggers.into(),
             b"enable_trigger_sounds" => self.enable_trigger_sounds.into(),
             b"hyperlink_adds_to_command_history" => self.hyperlink_adds_to_command_history.into(),
-            b"hyperlink_colour" => color_code(self.hyperlink_colour),
+            b"hyperlink_colour" => self.hyperlink_colour.code().into(),
             b"ignore_mxp_colour_changes" => self.ignore_mxp_colour_changes.into(),
             b"indent_paras" => self.indent_paras.into(),
             b"keep_commands_on_same_line" => self.keep_commands_on_same_line.into(),
@@ -108,22 +105,22 @@ impl World {
             b"log_script_errors" => self.log_script_errors.into(),
             b"mud_can_change_link_colour" => self.mud_can_change_link_colour.into(),
             b"mud_can_remove_underline" => self.mud_can_remove_underline.into(),
-            b"mxp_debug_level" => self.mxp_debug_level as i32,
+            b"mxp_debug_level" => self.mxp_debug_level as _,
             b"naws" => self.naws.into(),
-            b"note_text_colour" => color_code(self.note_text_colour.unwrap_or_default()),
+            b"note_text_colour" => self.note_text_colour.unwrap_or_default().code().into(),
             b"no_echo_off" => self.no_echo_off.into(),
             b"port" => self.port.into(),
             b"proxy_port" => self.proxy_port.into(),
             b"save_world_automatically" => self.save_world_automatically.into(),
             b"script_errors_to_output_window" => self.script_errors_to_output_window.into(),
-            b"script_reload_option" => self.script_reload_option as i32,
+            b"script_reload_option" => self.script_reload_option as _,
             b"show_bold" => self.show_bold.into(),
             b"show_italic" => self.show_italic.into(),
             b"show_underline" => self.show_underline.into(),
             b"underline_hyperlinks" => self.underline_hyperlinks.into(),
             b"use_custom_link_colour" => self.use_custom_link_colour.into(),
             b"use_default_colours" => self.use_default_colours.into(),
-            b"use_mxp" => self.use_mxp as i32,
+            b"use_mxp" => self.use_mxp as _,
             b"utf_8" => self.utf_8.into(),
             b"write_world_name_to_log" => self.write_world_name_to_log.into(),
             _ => return None,
@@ -134,7 +131,7 @@ impl World {
         &mut self,
         caller: OptionCaller,
         option: &LuaStr,
-        value: i32,
+        value: i64,
     ) -> Result<(), SetOptionError> {
         let on = match value {
             0 => Ok(false),

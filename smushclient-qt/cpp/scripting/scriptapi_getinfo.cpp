@@ -23,7 +23,7 @@ convertString(const string& s)
 // Public methods
 
 QVariant
-ScriptApi::FontInfo(const QFont& font, int infoType) const
+ScriptApi::FontInfo(const QFont& font, long infoType) const
 {
   switch (infoType) {
     case 1:
@@ -90,7 +90,7 @@ ScriptApi::FontInfo(const QFont& font, int infoType) const
 }
 
 QVariant
-ScriptApi::GetInfo(int infoType) const
+ScriptApi::GetInfo(long infoType) const
 {
   switch (infoType) {
     case 72:
@@ -131,7 +131,7 @@ ScriptApi::GetInfo(int infoType) const
 }
 
 QVariant
-ScriptApi::GetLineInfo(int lineNumber, int infoType) const
+ScriptApi::GetLineInfo(int lineNumber, long infoType) const
 {
   const QTextBlock block = cursor.document()->findBlockByLineNumber(lineNumber);
   if (!block.isValid())
@@ -184,7 +184,7 @@ ScriptApi::GetLineInfo(int lineNumber, int infoType) const
 }
 
 QVariant
-ScriptApi::GetPluginInfo(string_view pluginID, int infoType) const
+ScriptApi::GetPluginInfo(string_view pluginID, long infoType) const
 {
   const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin || infoType < 0 || infoType > UINT8_MAX)
@@ -201,7 +201,7 @@ ScriptApi::GetPluginInfo(string_view pluginID, int infoType) const
 }
 
 QVariant
-ScriptApi::GetStyleInfo(int line, int style, int infoType) const
+ScriptApi::GetStyleInfo(int line, long style, long infoType) const
 {
   const QTextDocument* doc = cursor.document();
   const QTextBlock block = doc->findBlockByLineNumber(line - 1);
@@ -213,7 +213,7 @@ ScriptApi::GetStyleInfo(int line, int style, int infoType) const
   const int textEnd = textStart + textLine.textLength();
   const QList<QTextLayout::FormatRange> styles = block.textFormats();
   auto iter = styles.cbegin();
-  int styleOffset = style;
+  long styleOffset = style;
   for (auto end = styles.cend();; ++iter) {
     if (iter == end || iter->start > textEnd)
       return QVariant();
@@ -279,7 +279,7 @@ ScriptApi::GetStyleInfo(int line, int style, int infoType) const
 QVariant
 ScriptApi::GetTimerInfo(size_t pluginIndex,
                         std::string_view label,
-                        int infoType) const
+                        long infoType) const
 {
   if (infoType < 0 || infoType > UINT8_MAX) [[unlikely]]
     return QVariant();
@@ -299,7 +299,7 @@ ScriptApi::GetTimerInfo(size_t pluginIndex,
 // External implementations
 
 QVariant
-MiniWindow::info(int infoType) const
+MiniWindow::info(long infoType) const
 {
   switch (infoType) {
     case 1:
@@ -354,7 +354,7 @@ MiniWindow::info(int infoType) const
 }
 
 QVariant
-Hotspot::info(int infoType) const
+Hotspot::info(long infoType) const
 {
   switch (infoType) {
     case 1:

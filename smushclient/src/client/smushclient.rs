@@ -602,7 +602,7 @@ impl SmushClient {
         T::to_xml_string(&*T::from_world(&self.world).borrow())
     }
 
-    pub fn world_option(&self, index: PluginIndex, option: &LuaStr) -> Option<i32> {
+    pub fn world_option(&self, index: PluginIndex, option: &LuaStr) -> Option<i64> {
         let caller = self.option_caller(index);
         self.world.option_int(caller, option)
     }
@@ -627,7 +627,7 @@ impl SmushClient {
         &mut self,
         index: PluginIndex,
         option: &LuaStr,
-        value: i32,
+        value: i64,
     ) -> Result<(), SetOptionError> {
         let caller = self.option_caller(index);
         self.world.set_option_int(caller, option, value)?;

@@ -158,7 +158,7 @@ public:
   constexpr const std::string& getPluginId() const noexcept { return pluginID; }
   constexpr const QPixmap& getPixmap() const noexcept { return pixmap; }
   constexpr int getZOrder() const noexcept { return zOrder; }
-  QVariant info(int infoType) const;
+  QVariant info(long infoType) const;
   void invert(const QRect& rect,
               QImage::InvertMode mode = QImage::InvertMode::InvertRgb);
   void reset();

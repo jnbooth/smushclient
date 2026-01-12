@@ -80,7 +80,7 @@ pub mod sendto_serde {
             14 => SendTarget::ScriptAfterOmit,
             _ => {
                 return Err(D::Error::invalid_value(
-                    Unexpected::Unsigned(u64::from(value)),
+                    Unexpected::Unsigned(value.into()),
                     &ExpectedRange(0..=14),
                 ));
             }

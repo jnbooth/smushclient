@@ -146,9 +146,9 @@ impl<'a> From<&'a Timer> for TimerXml<'a> {
             }
             Occurrence::Time(time) => (
                 true,
-                u64::from(time.hour()),
-                u64::from(time.minute()),
-                f64::from(time.second()),
+                time.hour().into(),
+                time.minute().into(),
+                time.second().into(),
             ),
         };
         in_place!(

@@ -184,7 +184,7 @@ pub mod ffi {
         omit_from_output: bool,
         omit_from_log: bool,
         id: u16,
-        userdata: i32,
+        userdata: i64,
     }
 
     #[swift_bridge(swift_repr = "struct")]

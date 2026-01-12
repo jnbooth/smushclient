@@ -11,7 +11,7 @@ pub enum OptionValue<'a> {
     Null,
     Alpha(&'a LuaStr),
     Color(RgbColor),
-    Numeric(i32),
+    Numeric(i64),
 }
 
 pub trait EncodeOption<'a> {
@@ -23,7 +23,7 @@ macro_rules! impl_numeric {
         impl EncodeOption<'static> for $t {
             fn encode(self) -> OptionValue<'static> {
                 #[allow(clippy::cast_lossless)]
-                OptionValue::Numeric(self as i32)
+                OptionValue::Numeric(self as _)
             }
         }
     };
@@ -33,6 +33,7 @@ impl_numeric!(bool);
 impl_numeric!(u8);
 impl_numeric!(i16);
 impl_numeric!(i32);
+impl_numeric!(i64);
 impl_numeric!(SendTarget);
 
 impl EncodeOption<'static> for RgbColor {
@@ -62,7 +63,7 @@ impl<'a> EncodeOption<'a> for &'a String {
 impl EncodeOption<'static> for Option<NonZero<u8>> {
     fn encode(self) -> OptionValue<'static> {
         match self {
-            Some(value) => OptionValue::Numeric(i32::from(value.get())),
+            Some(value) => OptionValue::Numeric(value.get().into()),
             None => OptionValue::Numeric(0),
         }
     }
