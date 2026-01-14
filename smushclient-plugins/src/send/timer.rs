@@ -41,38 +41,19 @@ impl XmlIterable for Timer {
 
 #[derive(Clone, Debug, Default, PartialEq, PartialOrd, Deserialize, Serialize)]
 #[serde(default)]
+#[rustfmt::skip]
 pub struct TimerXml<'a> {
-    #[serde(
-        borrow,
-        default,
-        rename = "@name",
-        skip_serializing_if = "str::is_empty"
-    )]
+    #[serde(rename = "@name", borrow, default, skip_serializing_if = "str::is_empty")]
     label: Cow<'a, str>,
-    #[serde(
-        borrow,
-        default,
-        rename = "@script",
-        skip_serializing_if = "str::is_empty"
-    )]
+    #[serde(rename = "@script", borrow, default, skip_serializing_if = "str::is_empty")]
     script: Cow<'a, str>,
     #[serde(rename = "@enabled", with = "bool_serde")]
     enabled: bool,
     #[serde(rename = "@at_time", with = "bool_serde")]
     at_time: bool,
-    #[serde(
-        borrow,
-        default,
-        rename = "@group",
-        skip_serializing_if = "str::is_empty"
-    )]
+    #[serde(rename = "@group", borrow, default, skip_serializing_if = "str::is_empty")]
     group: Cow<'a, str>,
-    #[serde(
-        borrow,
-        default,
-        rename = "@variable",
-        skip_serializing_if = "str::is_empty"
-    )]
+    #[serde(rename = "@variable", borrow, default, skip_serializing_if = "str::is_empty")]
     variable: Cow<'a, str>,
     #[serde(rename = "@one_shot", with = "bool_serde")]
     one_shot: bool,

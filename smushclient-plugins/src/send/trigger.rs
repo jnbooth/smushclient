@@ -82,6 +82,7 @@ const fn is_zero(n: &u8) -> bool {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 #[serde(default = "TriggerXml::template")]
+#[rustfmt::skip]
 pub struct TriggerXml<'a> {
     /// See [`Change`].
     #[serde(rename = "@color_change_type", skip_serializing_if = "is_zero")]
@@ -90,12 +91,7 @@ pub struct TriggerXml<'a> {
     enabled: bool,
     #[serde(rename = "@expand_variables", with = "bool_serde")]
     expand_variables: bool,
-    #[serde(
-        borrow,
-        default,
-        rename = "@group",
-        skip_serializing_if = "str::is_empty"
-    )]
+    #[serde(rename = "@group", borrow, default, skip_serializing_if = "str::is_empty")]
     group: Cow<'a, str>,
     #[serde(rename = "@ignore_case", with = "bool_serde")]
     ignore_case: bool,
@@ -109,21 +105,11 @@ pub struct TriggerXml<'a> {
     make_italic: bool,
     #[serde(rename = "@make_underline", with = "bool_serde")]
     make_underline: bool,
-    #[serde(
-        borrow,
-        default,
-        rename = "@match",
-        skip_serializing_if = "str::is_empty"
-    )]
+    #[serde(rename = "@match", borrow, default, skip_serializing_if = "str::is_empty")]
     pattern: Cow<'a, str>,
     #[serde(rename = "@multi_line", with = "bool_serde")]
     multi_line: bool,
-    #[serde(
-        borrow,
-        default,
-        rename = "@name",
-        skip_serializing_if = "str::is_empty"
-    )]
+    #[serde(rename = "@name", borrow, default, skip_serializing_if = "str::is_empty")]
     label: Cow<'a, str>,
     #[serde(rename = "@one_shot", with = "bool_serde")]
     one_shot: bool,
@@ -135,23 +121,13 @@ pub struct TriggerXml<'a> {
     is_regex: bool,
     #[serde(rename = "@repeats", with = "bool_serde")]
     repeats: bool,
-    #[serde(
-        borrow,
-        default,
-        rename = "@script",
-        skip_serializing_if = "str::is_empty"
-    )]
+    #[serde(rename = "@script", borrow, default, skip_serializing_if = "str::is_empty")]
     script: Cow<'a, str>,
     #[serde(with = "sendto_serde", rename = "@send_to")]
     send_to: SendTarget,
     #[serde(rename = "@sequence")]
     sequence: i16,
-    #[serde(
-        borrow,
-        default,
-        rename = "@sound",
-        skip_serializing_if = "str::is_empty"
-    )]
+    #[serde(rename = "@sound", borrow, default, skip_serializing_if = "str::is_empty")]
     sound: Cow<'a, str>,
     #[serde(rename = "@sound_if_inactive", with = "bool_serde")]
     sound_if_inactive: bool,
@@ -159,22 +135,11 @@ pub struct TriggerXml<'a> {
     lowercase_wildcard: bool,
     #[serde(rename = "@temporary", with = "bool_serde")]
     temporary: bool,
-    #[serde(
-        borrow,
-        default,
-        rename = "@variable",
-        skip_serializing_if = "str::is_empty"
-    )]
+    #[serde(rename = "@variable", borrow, default, skip_serializing_if = "str::is_empty")]
     variable: Cow<'a, str>,
-    #[serde(
-        rename = "@other_text_colour",
-        skip_serializing_if = "String::is_empty"
-    )]
+    #[serde(rename = "@other_text_colour", skip_serializing_if = "String::is_empty")]
     other_text_colour: String,
-    #[serde(
-        rename = "@other_back_colour",
-        skip_serializing_if = "String::is_empty"
-    )]
+    #[serde(rename = "@other_back_colour", skip_serializing_if = "String::is_empty")]
     other_back_colour: String,
     #[serde(rename = "@clipboard_arg", default, skip_serializing_if = "is_zero")]
     clipboard_arg: u8,

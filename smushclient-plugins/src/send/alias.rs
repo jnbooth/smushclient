@@ -28,27 +28,13 @@ impl XmlIterable for Alias {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 #[serde(default = "AliasXml::template")]
+#[rustfmt::skip]
 pub struct AliasXml<'a> {
-    #[serde(
-        borrow,
-        default,
-        rename = "@name",
-        skip_serializing_if = "str::is_empty"
-    )]
+    #[serde(rename = "@name", borrow, default, skip_serializing_if = "str::is_empty")]
     label: Cow<'a, str>,
-    #[serde(
-        borrow,
-        default,
-        rename = "@script",
-        skip_serializing_if = "str::is_empty"
-    )]
+    #[serde(rename = "@script", borrow, default, skip_serializing_if = "str::is_empty")]
     script: Cow<'a, str>,
-    #[serde(
-        borrow,
-        default,
-        rename = "@match",
-        skip_serializing_if = "str::is_empty"
-    )]
+    #[serde(rename = "@match", borrow, default, skip_serializing_if = "str::is_empty")]
     pattern: Cow<'a, str>,
     #[serde(rename = "@enabled", with = "bool_serde")]
     enabled: bool,
@@ -56,19 +42,9 @@ pub struct AliasXml<'a> {
     echo_alias: bool,
     #[serde(rename = "@expand_variables", with = "bool_serde")]
     expand_variables: bool,
-    #[serde(
-        borrow,
-        default,
-        rename = "@group",
-        skip_serializing_if = "str::is_empty"
-    )]
+    #[serde(rename = "@group", borrow, default, skip_serializing_if = "str::is_empty")]
     group: Cow<'a, str>,
-    #[serde(
-        borrow,
-        default,
-        rename = "@variable",
-        skip_serializing_if = "str::is_empty"
-    )]
+    #[serde(rename = "@variable", borrow, default, skip_serializing_if = "str::is_empty")]
     variable: Cow<'a, str>,
     #[serde(rename = "@omit_from_command_history", with = "bool_serde")]
     omit_from_command_history: bool,
