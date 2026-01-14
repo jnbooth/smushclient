@@ -126,6 +126,7 @@ pub mod ffi {
         fn invoke_alias(self: &SmushClient, index: usize, id: u16, doc: Pin<&mut Document>)
         -> bool;
         fn alias_menu(self: &SmushClient) -> Vec<AliasMenuItem>;
+        fn get_info(self: &SmushClient, info_type: i32) -> QVariant;
         fn plugin_info(self: &SmushClient, index: usize, info_type: u8) -> QVariant;
         fn plugins_len(self: &SmushClient) -> usize;
         fn add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> Result<usize>;

@@ -10,6 +10,7 @@ pub struct LogFile {
     mode: LogMode,
     format: LogFormat,
     path_template: String,
+    path: Option<String>,
     brackets: EscapedBrackets,
     file: Option<BufWriter<File>>,
 }
@@ -24,9 +25,14 @@ impl LogFile {
             mode: world.log_mode,
             format: world.log_format,
             path_template: world.auto_log_file_name.clone(),
+            path: None,
             brackets,
             file: None,
         }
+    }
+
+    pub fn path(&self) -> Option<&str> {
+        self.path.as_deref()
     }
 
     pub fn apply_world(&mut self, world: &World, brackets: EscapedBrackets) -> io::Result<()> {
@@ -71,6 +77,7 @@ impl LogFile {
         if self.can_write() {
             return Ok(());
         }
+        self.path = None;
         let mut path = String::new();
         Local::now()
             .format(&self.path_template)
@@ -81,6 +88,7 @@ impl LogFile {
         let mut file = BufWriter::new(file);
         self.write_bracket(self.brackets.before(), &mut file)?;
         self.file = Some(file);
+        self.path = Some(path);
         Ok(())
     }
 
@@ -88,7 +96,17 @@ impl LogFile {
         let Some(mut file) = self.file.take() else {
             return Ok(());
         };
+        self.path = None;
         self.write_bracket(self.brackets.after(), &mut file)
+    }
+
+    pub fn len(&mut self) -> io::Result<Option<u64>> {
+        let Some(file) = &mut self.file else {
+            return Ok(None);
+        };
+        file.flush()?;
+        let metadata = file.get_ref().metadata()?;
+        Ok(Some(metadata.len()))
     }
 
     fn do_io<T, F>(&mut self, mut f: F) -> io::Result<T>

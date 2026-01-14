@@ -29,6 +29,7 @@ public:
                   const QString& caption,
                   const QString& maxEntity);
   bool updateStat(const QString& entity, const QString& value);
+  QString message() const;
 
 public slots:
   void clearStats();

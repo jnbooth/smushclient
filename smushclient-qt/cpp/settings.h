@@ -35,6 +35,8 @@ public:
 public:
   explicit Settings(QObject* parent = nullptr);
 
+  QString fileName() const;
+
   bool getAutoConnect() const;
 
   QString getBellSound() const;

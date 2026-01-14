@@ -28,10 +28,10 @@ PluginModel::addPlugin(const QString& filePath)
   }
   emit layoutAboutToBeChanged();
   if (pluginIndex <= worldIndex)
-    worldIndex += 1;
+    ++worldIndex;
   const int row = pluginIndexToRow(pluginIndex);
   beginInsertRows(createIndex(0, 0), row, row);
-  pluginCount += 1;
+  ++pluginCount;
   endInsertRows();
   if (pluginIndex + 1 != pluginCount)
     emit pluginOrderChanged();
@@ -79,9 +79,9 @@ PluginModel::reinstall(const QModelIndex& index)
 
   const size_t worldPluginIndex = worldIndex;
   if (oldIndex > worldPluginIndex && newIndex <= worldPluginIndex)
-    worldIndex += 1;
+    ++worldIndex;
   else if (oldIndex < worldPluginIndex && newIndex >= worldPluginIndex)
-    worldIndex -= 1;
+    --worldIndex;
   const int newRow = pluginIndexToRow((int)newIndex);
   const QModelIndex parent = createIndex(0, 0);
 

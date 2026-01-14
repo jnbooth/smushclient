@@ -17,14 +17,23 @@ macro_rules! impl_visit {
             QVariant::from(&info)
         }
     };
+
+    ($i:ident, $t:ty, $f:ty) => {
+        fn $i(info: $t) -> Self::Output {
+            QVariant::from(&<$f>::from(info))
+        }
+    };
 }
 
 impl InfoVisitor for InfoVisitorQVariant {
     type Output = QVariant;
 
     impl_visit!(visit_bool, bool);
+    impl_visit!(visit_bytes, &[u8], QByteArray);
+    impl_visit!(visit_date, NaiveDate, QDate);
     impl_visit!(visit_double, f64);
     impl_visit!(visit_float, f32);
+    impl_visit!(visit_str, &str, QString);
     impl_visit!(visit_i8, i8);
     impl_visit!(visit_i16, i16);
     impl_visit!(visit_i32, i32);
@@ -36,10 +45,6 @@ impl InfoVisitor for InfoVisitorQVariant {
 
     fn visit_color(info: RgbColor) -> Self::Output {
         QVariant::from(&info.convert())
-    }
-
-    fn visit_date(info: NaiveDate) -> Self::Output {
-        QVariant::from(&QDate::from(info))
     }
 
     fn visit_datetime(info: DateTime<Utc>) -> Self::Output {
@@ -59,9 +64,5 @@ impl InfoVisitor for InfoVisitorQVariant {
 
     fn visit_send_target(info: SendTarget) -> Self::Output {
         QVariant::from(&ffi::SendTarget::from(info).repr)
-    }
-
-    fn visit_str(info: &str) -> Self::Output {
-        QVariant::from(&QString::from(info))
     }
 }

@@ -49,7 +49,7 @@ impl SmushClient {
             23 => V::visit(timer.omit_from_output),
             24 => V::visit(timer.omit_from_log),
             // 25 => is executing
-            // 26 => script is valid (handled by client)
+            // 26 => script is valid (handled by frontend)
             _ => V::visit_none(),
         }
     }

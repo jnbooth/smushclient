@@ -284,8 +284,9 @@ ScriptApi::PluginSupports(string_view pluginID, PluginCallbackKey routine) const
 }
 
 ApiCode
-ScriptApi::SendPacket(QByteArrayView view) const
+ScriptApi::SendPacket(QByteArrayView view)
 {
+  ++totalPacketsSent;
   if (socket->write(view.data(), view.size()) == -1) [[unlikely]]
     return ApiCode::WorldClosed;
 
@@ -433,13 +434,15 @@ ScriptApi::TextRectangle(const QRect& rect,
                          int borderOffset,
                          const QColor& borderColor,
                          int borderWidth,
-                         const QBrush& outsideFill) const
+                         const QBrush& outsideFill)
 {
+  assignedTextRectangle = rect;
   const QSize size = tab->ui->area->size();
-  const QMargins margins(rect.left(),
-                         rect.top(),
-                         size.width() - rect.right(),
-                         size.height() - rect.bottom());
+  const QMargins margins(
+    rect.left(),
+    rect.top(),
+    rect.right() > 0 ? size.width() - rect.right() : -rect.right(),
+    rect.bottom() > 0 ? size.height() - rect.bottom() : -rect.bottom());
   const OutputLayout layout{
     .margins = margins,
     .borderOffset = (int16_t)borderOffset,

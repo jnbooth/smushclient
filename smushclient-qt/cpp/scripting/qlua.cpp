@@ -560,6 +560,8 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant)
     case QMetaType::UChar:
       pushQString(L, charString((char)variant.value<unsigned char>()));
       return;
+    case QMetaType::QBrush:
+      pushQColor(L, variant.value<QBrush>().color());
     case QMetaType::QColor:
       pushQColor(L, variant.value<QColor>());
       return;

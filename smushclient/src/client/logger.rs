@@ -24,6 +24,14 @@ impl Logger {
         }
     }
 
+    pub fn len(&mut self) -> io::Result<Option<u64>> {
+        self.file.len()
+    }
+
+    pub fn path(&self) -> Option<&str> {
+        self.file.path()
+    }
+
     pub fn open(&mut self) -> io::Result<()> {
         self.file.open()
     }

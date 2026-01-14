@@ -41,7 +41,7 @@ enum class SendFlag
   Log = 2,
 };
 
-Q_DECLARE_FLAGS(SendFlags, SendFlag);
+typedef QFlags<SendFlag> SendFlags;
 Q_DECLARE_OPERATORS_FOR_FLAGS(SendFlags);
 
 class ScriptApi : public QObject
@@ -195,7 +195,7 @@ public:
   {
     return sendToWorld(bytes, SendFlags());
   }
-  ApiCode SendPacket(QByteArrayView bytes) const;
+  ApiCode SendPacket(QByteArrayView bytes);
   ApiCode SetAliasOption(size_t plugin,
                          std::string_view label,
                          std::string_view option,
@@ -225,7 +225,7 @@ public:
                         int borderOffset,
                         const QColor& borderColor,
                         int borderWidth,
-                        const QBrush& outsideFill) const;
+                        const QBrush& outsideFill);
   ApiCode TextRectangle(const OutputLayout& layout) const;
   ApiCode TextRectangle(const QMargins& margins,
                         int borderOffset,
@@ -383,7 +383,7 @@ public:
   void sendCallback(PluginCallback& callback);
   bool sendCallback(PluginCallback& callback, size_t plugin);
   bool sendCallback(PluginCallback& callback, const QString& pluginID);
-  void sendNaws() const;
+  void sendNaws();
   inline ApiCode sendToWorld(QByteArray& bytes, SendFlags flags)
   {
     return sendToWorld(bytes, QString::fromUtf8(bytes), flags);
@@ -453,6 +453,7 @@ private:
   bool hasLine = false;
   bool indentNext = false;
   QString indentText{};
+  QByteArray lastCommandSent{};
   int lastTellPosition = -1;
   int lastLinePosition = -1;
   bool logNotes = false;
@@ -466,6 +467,9 @@ private:
   MudStatusBar* statusBar;
   bool suppressEcho = false;
   WorldTab* tab;
+  QRect assignedTextRectangle{};
+  long long totalLinesSent = 0;
+  long long totalPacketsSent = 0;
   QDateTime whenConnected;
   string_map<MiniWindow*> windows{};
   QString wordUnderMenu{};

@@ -60,6 +60,12 @@ Settings::Settings(QObject* parent)
 {
 }
 
+QString
+Settings::fileName() const
+{
+  return store.fileName();
+}
+
 // Dynamic
 
 QTextBlockFormat

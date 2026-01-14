@@ -8,6 +8,7 @@ pub trait InfoVisitor {
     type Output;
 
     fn visit_bool(info: bool) -> Self::Output;
+    fn visit_bytes(info: &[u8]) -> Self::Output;
     fn visit_color(info: RgbColor) -> Self::Output;
     fn visit_date(info: NaiveDate) -> Self::Output;
     fn visit_datetime(info: DateTime<Utc>) -> Self::Output;
@@ -82,6 +83,7 @@ macro_rules! impl_info {
 }
 
 impl_info!(bool, visit_bool);
+impl_info!(&[u8], visit_bytes);
 impl_info!(RgbColor, visit_color);
 impl_info!(NaiveDate, visit_date);
 impl_info!(DateTime<Utc>, visit_datetime);
@@ -102,3 +104,9 @@ impl_info!(u8, visit_u8);
 impl_info!(u16, visit_u16);
 impl_info!(u32, visit_u32);
 impl_info!(usize, visit_usize);
+
+impl VisitorInfo for &Option<String> {
+    fn visit<V: InfoVisitor + ?Sized>(self) -> V::Output {
+        V::visit_str(self.as_deref().unwrap_or_default())
+    }
+}

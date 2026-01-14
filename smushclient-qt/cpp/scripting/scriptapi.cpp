@@ -356,7 +356,7 @@ ScriptApi::sendCallback(PluginCallback& callback, const QString& pluginID)
 }
 
 void
-ScriptApi::sendNaws() const
+ScriptApi::sendNaws()
 {
   if (!doesNaws || !doNaws)
     return;
@@ -532,6 +532,8 @@ ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
     echo(text);
   }
 
+  lastCommandSent = bytes;
+
   if (flags.testFlag(SendFlag::Log)) {
     client()->logInput(text);
   }
@@ -539,6 +541,8 @@ ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
   bytes.append("\r\n");
 
   const qsizetype size = bytes.size();
+  totalLinesSent += bytes.count('\n');
+  totalPacketsSent += 1;
   if (socket->write(bytes.constData(), size) == -1) [[unlikely]]
     return ApiCode::WorldClosed;
   bytes.truncate(size - 2);

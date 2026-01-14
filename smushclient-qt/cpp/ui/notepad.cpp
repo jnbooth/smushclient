@@ -119,7 +119,7 @@ Notepad::on_action_increase_size_triggered()
 {
   if (fontSize <= minFontSize)
     ui->action_decrease_size->setEnabled(true);
-  fontSize += 1;
+  ++fontSize;
   applyFontSize();
 }
 

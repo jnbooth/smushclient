@@ -131,6 +131,12 @@ impl ffi::SmushClient {
             .code()
     }
 
+    pub fn get_info(&self, info_type: i32) -> QVariant {
+        self.rust()
+            .client
+            .get_info::<InfoVisitorQVariant>(info_type)
+    }
+
     pub fn plugin_info(&self, index: PluginIndex, info_type: u8) -> QVariant {
         self.rust()
             .client

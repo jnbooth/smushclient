@@ -75,6 +75,12 @@ MudStatusBar::updateStat(const QString& entity, const QString& value)
   return true;
 }
 
+QString
+MudStatusBar::message() const
+{
+  return ui->message->text();
+}
+
 // Public slots
 
 void

@@ -7,19 +7,24 @@ use std::{env, mem, slice};
 
 use arboard::Clipboard;
 use flagset::FlagSet;
-use mud_transformer::{Output, OutputFragment, Tag, Transformer, TransformerConfig};
+use mud_transformer::{
+    Output, OutputFragment, Tag, TelnetFragment, Transformer, TransformerConfig,
+};
 use rodio::Decoder;
 use smushclient_plugins::{
-    Alias, CursorVec, LoadError, Plugin, PluginIndex, SendTarget, Trigger, XmlError, XmlSerError,
+    Alias, CursorVec, LoadError, Plugin, PluginIndex, SendTarget, Timer, Trigger, XmlError,
+    XmlSerError,
 };
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt};
 
+use super::info::ClientInfo;
 use super::logger::Logger;
 use super::variables::PluginVariables;
 use super::variables::{LuaStr, LuaString};
 use crate::audio::{AudioError, AudioSinks, PlayMode};
 use crate::collections::SortOnDrop;
+use crate::get_info::InfoVisitor;
 use crate::handler::Handler;
 use crate::options::OptionValue;
 use crate::plugins::{
@@ -39,6 +44,7 @@ pub struct SmushClient {
     world: World,
     audio: AudioSinks,
     buffers: RefCell<(String, String, HashSet<u16>)>,
+    info: ClientInfo,
 }
 
 impl Default for SmushClient {
@@ -63,10 +69,11 @@ impl SmushClient {
             plugins,
             supported_tags,
             transformer: RefCell::new(transformer),
-            variables: RefCell::new(PluginVariables::new()),
+            variables: RefCell::default(),
             world,
             audio: AudioSinks::try_default().expect("audio initialization error"),
-            buffers: RefCell::new((String::new(), String::new(), HashSet::new())),
+            buffers: RefCell::default(),
+            info: ClientInfo::default(),
         }
     }
 
@@ -86,6 +93,7 @@ impl SmushClient {
 
     pub fn reset_connection(&mut self) {
         *self.transformer.borrow_mut() = Transformer::new(self.create_config());
+        self.info.reset();
     }
 
     pub fn set_supported_tags(&mut self, supported_tags: FlagSet<Tag>) {
@@ -182,6 +190,7 @@ impl SmushClient {
     }
 
     pub fn read<R: Read>(&mut self, mut reader: R, read_buf: &mut [u8]) -> io::Result<usize> {
+        self.info.packets_received.update(|n| n + 1);
         let mut transformer = self.transformer.borrow_mut();
         let mut logger = self.logger.borrow_mut();
         let midpoint = read_buf.len() / 2;
@@ -204,6 +213,7 @@ impl SmushClient {
         reader: &mut R,
         read_buf: &mut [u8],
     ) -> io::Result<usize> {
+        self.info.packets_received.update(|n| n + 1);
         let midpoint = read_buf.len() / 2;
         let mut total_read = 0;
         loop {
@@ -248,18 +258,47 @@ impl SmushClient {
         let mut had_output = false;
         let mut slice = drain.as_slice();
         let mut line_text = String::new();
+        let mut lines_received = 0;
+        for output in slice {
+            match &output.fragment {
+                OutputFragment::LineBreak | OutputFragment::PageBreak => lines_received += 1,
+                OutputFragment::Hr => lines_received += 2,
+                _ => (),
+            }
+        }
+        if lines_received != 0 {
+            self.info.lines_received.update(|n| n + lines_received);
+        }
         while !slice.is_empty() {
             line_text.clear();
             let mut until = 0;
+            let mut last_subnegotiation = None;
             for (i, output) in slice.iter().enumerate() {
                 match &output.fragment {
                     OutputFragment::Text(fragment) => line_text.push_str(&fragment.text),
-                    OutputFragment::Hr | OutputFragment::LineBreak | OutputFragment::PageBreak => {
+                    OutputFragment::Hr => {
+                        self.info.lines_displayed.update(|n| n + 2);
                         until = i + 1;
                         break;
                     }
+                    OutputFragment::LineBreak | OutputFragment::PageBreak => {
+                        self.info.lines_displayed.update(|n| n + 1);
+                        until = i + 1;
+                        break;
+                    }
+                    OutputFragment::Telnet(TelnetFragment::Subnegotiation { data, .. }) => {
+                        last_subnegotiation = Some(data);
+                    }
+                    OutputFragment::Telnet(TelnetFragment::GoAhead) => {
+                        self.info
+                            .last_line_with_iac_ga
+                            .set(self.info.lines_displayed.get());
+                    }
                     _ => (),
                 }
+            }
+            if let Some(last_subnegotation) = last_subnegotiation {
+                *self.info.last_subnegotiation.borrow_mut() = last_subnegotation.clone();
             }
             let has_break = until != 0;
             if !has_break {
@@ -408,11 +447,14 @@ impl SmushClient {
 
     pub fn load_variables<R: Read>(&self, reader: R) -> Result<(), PersistError> {
         *self.variables.borrow_mut() = PluginVariables::load(reader)?;
+        self.info.variables_dirty.set(false);
         Ok(())
     }
 
     pub fn save_variables<W: Write>(&self, writer: W) -> Result<(), PersistError> {
-        self.variables.borrow().save(writer)
+        self.variables.borrow().save(writer)?;
+        self.info.variables_dirty.set(false);
+        Ok(())
     }
 
     pub fn borrow_variable(&self, index: PluginIndex, key: &LuaStr) -> Option<Ref<'_, LuaStr>> {
@@ -438,6 +480,7 @@ impl SmushClient {
         let Some(plugin) = self.plugins.get(index) else {
             return false;
         };
+        self.info.variables_dirty.set(true);
         let plugin_id = &plugin.metadata.id;
         self.variables
             .borrow_mut()
@@ -446,11 +489,13 @@ impl SmushClient {
     }
 
     pub fn unset_variable(&self, index: PluginIndex, key: &LuaStr) -> Option<LuaString> {
+        self.info.variables_dirty.set(true);
         let plugin_id = &self.plugins.get(index)?.metadata.id;
         self.variables.borrow_mut().unset_variable(plugin_id, key)
     }
 
     pub fn set_metavariable(&self, key: LuaString, value: LuaString) -> bool {
+        self.info.variables_dirty.set(true);
         self.variables
             .borrow_mut()
             .set_variable(METAVARIABLES_KEY, key, value);
@@ -458,6 +503,7 @@ impl SmushClient {
     }
 
     pub fn unset_metavariable(&self, key: &LuaStr) -> Option<LuaString> {
+        self.info.variables_dirty.set(true);
         self.variables
             .borrow_mut()
             .unset_variable(METAVARIABLES_KEY, key)
@@ -787,6 +833,7 @@ impl SmushClient {
     }
 
     pub fn simulate_output<H: Handler>(&self, line: &str, handler: &mut H) {
+        self.info.simulating.set(true);
         self.trigger(
             line,
             &[
@@ -795,6 +842,7 @@ impl SmushClient {
             ],
             handler,
         );
+        self.info.simulating.set(false);
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -949,5 +997,64 @@ impl SmushClient {
                 .filter(|plugin| !plugin.metadata.is_world_plugin)
                 .map(|plugin| plugin.metadata.path.clone()),
         );
+    }
+
+    fn count_senders<T: SendIterable>(&self) -> usize {
+        let world = &self.world;
+        self.plugins
+            .iter()
+            .map(|plugin| T::from_either(plugin, world).len())
+            .sum()
+    }
+
+    pub fn get_info<V: InfoVisitor>(&self, info_type: i32) -> V::Output {
+        let info = &self.info;
+        let world = &self.world;
+        match info_type {
+            1 => V::visit(&world.site),
+            2 => V::visit(&world.name),
+            3 => V::visit(&world.player),
+            9 => V::visit(&world.new_activity_sound),
+            11 => V::visit(&world.log_file_preamble),
+            12 => V::visit(&world.log_file_postamble),
+            13 => V::visit(&world.log_line_preamble_input),
+            14 => V::visit(&world.log_line_preamble_notes),
+            15 => V::visit(&world.log_line_preamble_output),
+            16 => V::visit(&world.log_line_postamble_input),
+            17 => V::visit(&world.log_line_postamble_notes),
+            18 => V::visit(&world.log_line_postamble_output),
+            22 => V::visit(&world.connect_text),
+            28 => V::visit("lua"),
+            35 => V::visit(&world.world_script),
+            40 => V::visit(&world.auto_log_file_name),
+            42 => V::visit(&world.terminal_identification),
+            51 => V::visit(self.logger.borrow().path().unwrap_or_default()),
+            75 => V::visit(&**info.last_subnegotiation.borrow()),
+            103 => V::visit(self.transformer.borrow().decompressing()),
+            104 => V::visit(self.transformer.borrow().mxp_active()),
+            105 => V::visit(false),
+            118 => V::visit(info.variables_dirty.get()),
+            123 => V::visit(info.simulating.get()),
+            201 => V::visit(info.lines_received.get()),
+            202 => V::visit(info.lines_received.get() - info.lines_displayed.get()),
+            204 => V::visit(info.packets_received.get()),
+            208 => V::visit(if self.transformer.borrow().decompressing() {
+                2
+            } else {
+                0
+            }),
+            218 => V::visit(self.variables.borrow().len()),
+            219 => V::visit(self.count_senders::<Trigger>()),
+            220 => V::visit(self.count_senders::<Timer>()),
+            221 => V::visit(self.count_senders::<Alias>()),
+            225 => V::visit(self.transformer.borrow().count_custom_mxp_elements()),
+            226 => V::visit(self.transformer.borrow().count_custom_mxp_entities()),
+            231 => V::visit(match self.logger.borrow_mut().len() {
+                Ok(Some(len)) => len,
+                _ => 0,
+            }),
+            289 => V::visit(info.last_line_with_iac_ga.get()),
+            _ => V::visit_none(),
+        }
     }
 }

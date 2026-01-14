@@ -29,12 +29,12 @@ impl fmt::Display for PluginVariables {
 }
 
 impl PluginVariables {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
     pub fn is_empty(&self) -> bool {
         self.0.values().all(HashMap::is_empty)
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.values().map(HashMap::len).sum()
     }
 
     pub fn count_variables(&self, plugin_id: &str) -> usize {
