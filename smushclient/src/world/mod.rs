@@ -32,7 +32,7 @@ pub use types::*;
 mod versions;
 use versions::Migrate;
 
-const CURRENT_VERSION: u16 = 3;
+const CURRENT_VERSION: u16 = 4;
 
 fn skip_temporary<S, T>(vec: &CursorVec<T>, serializer: S) -> Result<S::Ok, S::Error>
 where

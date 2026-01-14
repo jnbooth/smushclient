@@ -1,7 +1,6 @@
 #![allow(clippy::cast_possible_truncation)]
 #![allow(clippy::cast_possible_wrap)]
 #![allow(clippy::cast_sign_loss)]
-use std::num::NonZero;
 use std::pin::Pin;
 use std::ptr;
 use std::time::Duration;
@@ -363,10 +362,7 @@ impl From<&Trigger> for TriggerRust {
             lowercase_wildcard: trigger.lowercase_wildcard,
             multi_line: trigger.multi_line,
             lines_to_match: i32::from(trigger.lines_to_match),
-            clipboard_arg: match trigger.clipboard_arg {
-                Some(n) => i32::from(n.get()),
-                None => 0,
-            },
+            clipboard_arg: trigger.clipboard_arg.into(),
         }
     }
 }
@@ -389,9 +385,7 @@ impl TryFrom<&TriggerRust> for Trigger {
             lowercase_wildcard: value.lowercase_wildcard,
             multi_line: value.multi_line,
             lines_to_match: u8::try_from(value.lines_to_match).unwrap_or(u8::MAX),
-            clipboard_arg: u8::try_from(value.clipboard_arg)
-                .ok()
-                .and_then(NonZero::new),
+            clipboard_arg: u8::try_from(value.clipboard_arg).unwrap_or_default(),
         })
     }
 }

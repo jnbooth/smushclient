@@ -16,7 +16,6 @@ macro_rules! impl_convert {
         }
     };
 }
-use std::num::NonZero;
 
 pub(crate) use impl_convert;
 
@@ -69,19 +68,6 @@ macro_rules! impl_convert_struct {
     }
 }
 pub(crate) use impl_convert_struct;
-
-impl Convert<Option<NonZero<u8>>> for u8 {
-    fn from_ffi(value: Self) -> Option<NonZero<u8>> {
-        NonZero::new(value)
-    }
-
-    fn to_ffi(value: Option<NonZero<u8>>) -> Self {
-        match value {
-            Some(value) => value.get(),
-            None => 0,
-        }
-    }
-}
 
 impl<T, Ffi: Convert<T>> Convert<Option<T>> for Option<Ffi> {
     fn from_ffi(value: Self) -> Option<T> {

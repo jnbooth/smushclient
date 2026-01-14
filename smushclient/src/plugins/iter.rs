@@ -125,7 +125,7 @@ impl ReactionIterable for Trigger {
         SpanStyle::from(self)
     }
     fn clipboard_arg(&self) -> Option<NonZero<u8>> {
-        self.clipboard_arg
+        NonZero::new(self.clipboard_arg)
     }
     fn add_effects(&self, effects: &mut Self::Effects) {
         effects.add_effects(self);

@@ -1,5 +1,4 @@
 use std::borrow::Cow;
-use std::num::NonZero;
 
 use flagset::{FlagSet, flags};
 use mxp::RgbColor;
@@ -27,7 +26,7 @@ pub struct Trigger {
     pub lowercase_wildcard: bool,
     pub multi_line: bool,
     pub lines_to_match: u8,
-    pub clipboard_arg: Option<NonZero<u8>>,
+    pub clipboard_arg: u8,
 }
 
 impl Default for Trigger {
@@ -46,7 +45,7 @@ impl Default for Trigger {
             lowercase_wildcard: false,
             multi_line: false,
             lines_to_match: 0,
-            clipboard_arg: None,
+            clipboard_arg: 0,
         }
     }
 }

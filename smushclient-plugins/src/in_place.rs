@@ -1,5 +1,4 @@
 use std::borrow::Cow;
-use std::num::NonZero;
 
 pub trait InPlace<T> {
     fn in_place(self) -> T;
@@ -36,21 +35,6 @@ impl InPlace<String> for Vec<Cow<'_, str>> {
 impl<'a> InPlace<Vec<Cow<'a, str>>> for &'a String {
     fn in_place(self) -> Vec<Cow<'a, str>> {
         vec![Cow::Borrowed(self)]
-    }
-}
-
-impl InPlace<Option<NonZero<u8>>> for u8 {
-    fn in_place(self) -> Option<NonZero<u8>> {
-        NonZero::new(self)
-    }
-}
-
-impl InPlace<u8> for Option<NonZero<u8>> {
-    fn in_place(self) -> u8 {
-        match self {
-            Some(n) => n.get(),
-            None => 0,
-        }
     }
 }
 

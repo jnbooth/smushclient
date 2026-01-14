@@ -1,5 +1,3 @@
-use std::num::NonZero;
-
 use mud_transformer::mxp::RgbColor;
 use smushclient_plugins::SendTarget;
 
@@ -83,9 +81,3 @@ impl_parse!(u8);
 impl_parse!(i16);
 impl_parse!(i32);
 impl_parse!(i64);
-
-impl FromOption for Option<NonZero<u8>> {
-    fn from_option(option: &LuaStr) -> Option<Self> {
-        u8::from_option(option).map(NonZero::new)
-    }
-}
