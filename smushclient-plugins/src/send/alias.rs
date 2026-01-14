@@ -26,7 +26,7 @@ impl XmlIterable for Alias {
     type Xml<'a> = AliasXml<'a>;
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(default = "AliasXml::template")]
 #[rustfmt::skip]
 pub struct AliasXml<'a> {

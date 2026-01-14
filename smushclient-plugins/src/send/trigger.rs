@@ -80,7 +80,7 @@ const fn is_zero(n: &u8) -> bool {
     *n == 0
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(default = "TriggerXml::template")]
 #[rustfmt::skip]
 pub struct TriggerXml<'a> {

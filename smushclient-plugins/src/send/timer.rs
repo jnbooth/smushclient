@@ -39,7 +39,7 @@ impl XmlIterable for Timer {
     type Xml<'a> = TimerXml<'a>;
 }
 
-#[derive(Clone, Debug, Default, PartialEq, PartialOrd, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(default)]
 #[rustfmt::skip]
 pub struct TimerXml<'a> {

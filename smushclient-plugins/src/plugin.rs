@@ -93,7 +93,7 @@ impl Plugin {
 }
 
 /// Corresponds to a plugin .xml file.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename = "muclient")]
 struct PluginFile<'a> {
     plugin: PluginMetadata,
@@ -152,7 +152,7 @@ trait XmlList: Sized {
 
 macro_rules! xml_list {
     ($t:ident, $item:tt, $children:literal) => {
-        #[derive(Clone, Debug, Default, Deserialize, Serialize)]
+        #[derive(Debug, Default, Deserialize, Serialize)]
         #[serde(default)]
         struct $t<'a> {
             #[serde(rename = "@muclient_version", skip_serializing_if = "Option::is_none")]
