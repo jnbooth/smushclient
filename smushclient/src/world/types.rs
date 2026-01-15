@@ -39,7 +39,7 @@ pub enum LogMode {
 
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
-pub enum MXPDebugLevel {
+pub enum MxpDebugLevel {
     None,
     Error,
     Warning,

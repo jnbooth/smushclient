@@ -271,7 +271,7 @@ impl From<World> for super::v2::World {
             no_echo_off,
             enable_command_stack,
             command_stack_character: u8::try_from(command_stack_character).unwrap_or(b';'),
-            mxp_debug_level: MXPDebugLevel::None,
+            mxp_debug_level: MxpDebugLevel::None,
             triggers,
             enable_triggers,
             enable_trigger_sounds: true,

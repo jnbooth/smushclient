@@ -84,7 +84,7 @@ pub struct World {
     pub no_echo_off: bool,
     pub enable_command_stack: bool,
     pub command_stack_character: u8,
-    pub mxp_debug_level: MXPDebugLevel,
+    pub mxp_debug_level: MxpDebugLevel,
 
     // Triggers
     #[serde(serialize_with = "skip_temporary")]

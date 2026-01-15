@@ -10,7 +10,7 @@ use mud_transformer::{
     UseMxp,
 };
 use smushclient::world::{
-    AutoConnect, LogFormat, LogMode, MXPDebugLevel, Numpad, NumpadMapping, ScriptRecompile,
+    AutoConnect, LogFormat, LogMode, MxpDebugLevel, Numpad, NumpadMapping, ScriptRecompile,
 };
 use smushclient::{SendRequest, SendScriptRequest, World};
 use smushclient_plugins::{
@@ -81,7 +81,7 @@ impl_convert!(ffi::ColorOption, Option<RgbColor>);
 
 impl_convert_enum!(
     ffi::MXPDebugLevel,
-    MXPDebugLevel,
+    MxpDebugLevel,
     None,
     Error,
     Warning,

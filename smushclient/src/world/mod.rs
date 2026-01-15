@@ -122,7 +122,7 @@ pub struct World {
     pub no_echo_off: bool,
     pub enable_command_stack: bool,
     pub command_stack_character: u8,
-    pub mxp_debug_level: MXPDebugLevel,
+    pub mxp_debug_level: MxpDebugLevel,
 
     // Triggers
     #[serde(serialize_with = "skip_temporary")]
@@ -238,7 +238,7 @@ impl World {
             no_echo_off: false,
             enable_command_stack: false,
             command_stack_character: b';',
-            mxp_debug_level: MXPDebugLevel::None,
+            mxp_debug_level: MxpDebugLevel::None,
 
             // Triggers
             triggers: CursorVec::new(),

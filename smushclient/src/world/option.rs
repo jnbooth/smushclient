@@ -5,7 +5,7 @@ use mud_transformer::mxp::RgbColor;
 
 use super::World;
 use super::error::SetOptionError;
-use super::types::{AutoConnect, LogFormat, MXPDebugLevel, ScriptRecompile};
+use super::types::{AutoConnect, LogFormat, MxpDebugLevel, ScriptRecompile};
 use crate::{LuaStr, LuaString};
 
 const fn code_color(code: i64) -> Result<RgbColor, SetOptionError> {
@@ -190,11 +190,11 @@ impl World {
             b"mud_can_remove_underline" => self.mud_can_remove_underline = on?,
             b"mxp_debug_level" => {
                 self.mxp_debug_level = match value {
-                    0 => MXPDebugLevel::None,
-                    1 => MXPDebugLevel::Error,
-                    2 => MXPDebugLevel::Warning,
-                    3 => MXPDebugLevel::Info,
-                    4 => MXPDebugLevel::All,
+                    0 => MxpDebugLevel::None,
+                    1 => MxpDebugLevel::Error,
+                    2 => MxpDebugLevel::Warning,
+                    3 => MxpDebugLevel::Info,
+                    4 => MxpDebugLevel::All,
                     _ => return Err(SetOptionError::OptionOutOfRange),
                 }
             }

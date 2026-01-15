@@ -1,7 +1,7 @@
 use cxx_qt_lib::QString;
 use mud_transformer::mxp::SendTo;
 use mud_transformer::{TelnetSource, TelnetVerb, UseMxp};
-use smushclient::world::{AutoConnect, LogFormat, LogMode, MXPDebugLevel, ScriptRecompile};
+use smushclient::world::{AutoConnect, LogFormat, LogMode, MxpDebugLevel, ScriptRecompile};
 use smushclient::{CommandSource, SendRequest, SendScriptRequest, TimerConstructible};
 use smushclient_plugins::{Plugin, PluginIndex, SendTarget, Timer};
 
@@ -31,7 +31,7 @@ impl_convert_enum!(ffi::LogMode, LogMode, Append, Overwrite);
 
 impl_convert_enum!(
     ffi::MXPDebugLevel,
-    MXPDebugLevel,
+    MxpDebugLevel,
     None,
     Error,
     Warning,
