@@ -3,8 +3,8 @@ use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::str::{self, FromStr};
 
-use serde::de::{Error as _, Unexpected};
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::de::{self, Deserialize, Deserializer, Unexpected, Visitor};
+use serde::ser::{Serialize, Serializer};
 
 mod builder;
 pub(crate) use builder::RegexBuilder;
@@ -67,9 +67,22 @@ impl Serialize for Regex {
 
 impl<'de> Deserialize<'de> for Regex {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let s = String::deserialize(deserializer)?;
-        Regex::new(&s)
-            .map_err(|_| D::Error::invalid_value(Unexpected::Str(&s), &"valid regular expression"))
+        struct RegexVisitor;
+
+        impl Visitor<'_> for RegexVisitor {
+            type Value = Regex;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("a string")
+            }
+
+            fn visit_str<E: de::Error>(self, s: &str) -> Result<Self::Value, E> {
+                Regex::new(s)
+                    .map_err(|_| E::invalid_value(Unexpected::Str(s), &"valid regular expression"))
+            }
+        }
+
+        deserializer.deserialize_str(RegexVisitor)
     }
 }
 

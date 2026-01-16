@@ -49,11 +49,10 @@ impl SendTarget {
 }
 
 pub mod sendto_serde {
-    use serde::de::{Error as _, Unexpected};
-    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    use serde::de::{self, Deserialize, Deserializer, Unexpected};
+    use serde::ser::{Serialize, Serializer};
 
     use super::SendTarget;
-    use crate::error::ExpectedRange;
 
     #[allow(clippy::trivially_copy_pass_by_ref)]
     pub fn serialize<S: Serializer>(value: &SendTarget, serializer: S) -> Result<S::Ok, S::Error> {
@@ -62,28 +61,26 @@ pub mod sendto_serde {
 
     pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<SendTarget, D::Error> {
         let value = <u8>::deserialize(deserializer)?;
-        Ok(match value {
-            0 => SendTarget::World,
-            1 => SendTarget::Command,
-            2 => SendTarget::Output,
-            3 => SendTarget::Status,
-            4 => SendTarget::NotepadNew,
-            5 => SendTarget::NotepadAppend,
-            6 => SendTarget::Log,
-            7 => SendTarget::NotepadReplace,
-            8 => SendTarget::WorldDelay,
-            9 => SendTarget::Variable,
-            10 => SendTarget::Execute,
-            11 => SendTarget::Speedwalk,
-            12 => SendTarget::Script,
-            13 => SendTarget::WorldImmediate,
-            14 => SendTarget::ScriptAfterOmit,
-            _ => {
-                return Err(D::Error::invalid_value(
-                    Unexpected::Unsigned(value.into()),
-                    &ExpectedRange(0..=14),
-                ));
-            }
-        })
+        match value {
+            0 => Ok(SendTarget::World),
+            1 => Ok(SendTarget::Command),
+            2 => Ok(SendTarget::Output),
+            3 => Ok(SendTarget::Status),
+            4 => Ok(SendTarget::NotepadNew),
+            5 => Ok(SendTarget::NotepadAppend),
+            6 => Ok(SendTarget::Log),
+            7 => Ok(SendTarget::NotepadReplace),
+            8 => Ok(SendTarget::WorldDelay),
+            9 => Ok(SendTarget::Variable),
+            10 => Ok(SendTarget::Execute),
+            11 => Ok(SendTarget::Speedwalk),
+            12 => Ok(SendTarget::Script),
+            13 => Ok(SendTarget::WorldImmediate),
+            14 => Ok(SendTarget::ScriptAfterOmit),
+            _ => Err(de::Error::invalid_value(
+                Unexpected::Unsigned(value.into()),
+                &"an integer between 0 and 14",
+            )),
+        }
     }
 }

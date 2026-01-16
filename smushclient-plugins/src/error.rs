@@ -1,9 +1,6 @@
 use std::error::Error;
 use std::fmt;
 use std::io;
-use std::ops::RangeInclusive;
-
-use serde::de::Expected;
 
 #[derive(Debug)]
 pub enum LoadError {
@@ -37,19 +34,5 @@ impl From<io::ErrorKind> for LoadError {
 impl From<quick_xml::DeError> for LoadError {
     fn from(value: quick_xml::DeError) -> Self {
         Self::Parse(value)
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct ExpectedRange<T>(pub RangeInclusive<T>);
-
-impl<T: fmt::Display> Expected for ExpectedRange<T> {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            formatter,
-            "integer between {} and {}",
-            self.0.start(),
-            self.0.end()
-        )
     }
 }
