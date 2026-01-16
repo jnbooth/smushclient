@@ -13,8 +13,7 @@ const fn code_color(code: i64) -> Result<RgbColor, SetOptionError> {
     if code < 0 || code > 0xFFFFFF {
         return Err(SetOptionError::OptionOutOfRange);
     }
-    #[allow(clippy::cast_possible_truncation)]
-    #[allow(clippy::cast_sign_loss)]
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     Ok(RgbColor::hex(code as u32))
 }
 

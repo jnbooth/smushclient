@@ -128,8 +128,7 @@ impl ClientHandler<'_> {
 }
 
 impl smushclient::Handler for ClientHandler<'_> {
-    #[allow(clippy::cast_possible_truncation)]
-    #[allow(clippy::cast_possible_wrap)]
+    #[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
     fn apply_styles(&mut self, range: Range<usize>, style: SpanStyle) {
         self.doc.apply_styles(
             range.start as i32,

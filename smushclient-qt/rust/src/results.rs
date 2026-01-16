@@ -13,8 +13,7 @@ pub trait IntoCode {
 impl IntoCode for Result<usize, ffi::ReplaceSenderResult> {
     fn code(self) -> i32 {
         match self {
-            #[allow(clippy::cast_possible_truncation)]
-            #[allow(clippy::cast_possible_wrap)]
+            #[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
             Self::Ok(index) => index as i32,
             Self::Err(e) => e.repr,
         }
