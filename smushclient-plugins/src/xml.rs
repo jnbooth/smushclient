@@ -1,7 +1,10 @@
 use std::{fmt, iter};
 
-use serde::de::{Deserialize, SeqAccess};
-use serde::ser::{Serialize, SerializeStruct, Serializer};
+use serde::de::SeqAccess;
+use serde::ser::{SerializeStruct, Serializer};
+use serde::{Deserialize, Serialize};
+
+use crate::cursor_vec::CursorVec;
 
 pub trait XmlIterable: Sized + 'static {
     const TAG: &'static str;
@@ -64,6 +67,77 @@ pub mod bool_serde {
     }
 }
 
+#[inline]
+pub fn is_default<T: Default + PartialEq>(value: &T) -> bool {
+    value == &T::default()
+}
+
+#[inline]
+#[allow(clippy::trivially_copy_pass_by_ref)]
+pub fn is_true(value: &bool) -> bool {
+    *value
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+#[serde(default)]
+pub struct XmlVec<T> {
+    #[serde(rename = "@muclient_version")]
+    pub muclient_version: Option<String>,
+    #[serde(rename = "@world_file_version")]
+    pub world_file_version: Option<u32>,
+    #[serde(rename = "@date_saved")]
+    pub date_saved: Option<String>,
+    #[serde(rename = "$value")]
+    pub elements: Vec<T>,
+}
+
+impl<T> Default for XmlVec<T> {
+    fn default() -> Self {
+        Self {
+            muclient_version: None,
+            world_file_version: None,
+            date_saved: None,
+            elements: Vec::new(),
+        }
+    }
+}
+
+impl<T> XmlVec<T> {
+    pub const fn is_empty(&self) -> bool {
+        self.elements.is_empty()
+    }
+}
+
+impl<'a, T, U> From<&'a [T]> for XmlVec<U>
+where
+    T: Ord,
+    U: From<&'a T>,
+{
+    fn from(value: &'a [T]) -> Self {
+        Self {
+            elements: value.iter().map(U::from).collect(),
+            ..Default::default()
+        }
+    }
+}
+
+impl<T, U: Ord> TryFrom<XmlVec<T>> for CursorVec<U>
+where
+    U: TryFrom<T>,
+{
+    type Error = <U as TryFrom<T>>::Error;
+
+    fn try_from(value: XmlVec<T>) -> Result<Self, Self::Error> {
+        let mut items: Vec<U> = value
+            .elements
+            .into_iter()
+            .map(U::try_from)
+            .collect::<Result<_, _>>()?;
+        items.sort_unstable();
+        Ok(items.into())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -73,8 +147,10 @@ mod tests {
     fn xml_roundtrip() {
         let triggers = vec![Trigger::default(), Trigger::default()];
         let to_xml = XmlIterable::to_xml_string(&triggers).expect("error serializing triggers");
-        let from_xml: Vec<Trigger> =
+        let mut from_xml: Vec<Trigger> =
             XmlIterable::from_xml_str(&to_xml).expect("error deserializing triggers");
+        from_xml[0].id = triggers[0].id;
+        from_xml[1].id = triggers[1].id;
         assert_eq!(from_xml, triggers);
     }
 }

@@ -6,7 +6,7 @@ use cxx_qt::CxxQtType;
 use cxx_qt_io::QAbstractSocket;
 use cxx_qt_lib::{QString, QStringList, QVariant};
 use smushclient::world::PersistError;
-use smushclient::{LuaStr, SendIterable};
+use smushclient::{ImportError, LuaStr, SendIterable};
 use smushclient_plugins::{
     Alias, LoadError, PluginIndex, RegexError, Timer, Trigger, XmlError, XmlSerError,
 };
@@ -25,6 +25,10 @@ impl ffi::SmushClient {
 
     pub fn load_world(self: Pin<&mut Self>, path: &QString) -> Result<(), PersistError> {
         self.rust_mut().load_world(String::from(path))
+    }
+
+    pub fn import_world(self: Pin<&mut Self>, path: &QString) -> Result<(), ImportError> {
+        self.rust_mut().import_world(String::from(path))
     }
 
     pub fn open_log(self: Pin<&mut Self>) -> io::Result<()> {

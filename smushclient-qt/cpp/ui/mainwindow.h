@@ -35,6 +35,7 @@ private:
   void addRecentFile(const QString& filePath);
   WorldTab* createWorldTab(QWidget* parent) const;
   void connectTab(WorldTab* tab) const;
+  void importWorld(const QString& filePath);
   void openRecentFile(qsizetype index);
   bool restore();
   void save() const;
@@ -64,6 +65,7 @@ private slots:
   void on_action_find_again_triggered();
   void on_action_global_preferences_triggered();
   void on_action_go_to_line_triggered();
+  void on_action_import_world_triggered();
   void on_action_log_session_triggered(bool checked);
   void on_action_new_triggered();
   void on_action_new_window_triggered();

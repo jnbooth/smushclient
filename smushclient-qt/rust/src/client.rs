@@ -11,8 +11,8 @@ use cxx_qt_lib::{QString, QStringList, QVariant};
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
-    AliasOutcome, CommandSource, Handler, LuaStr, OptionError, Optionable, SendIterable,
-    SenderAccessError, SmushClient, Timers, World,
+    AliasOutcome, CommandSource, Handler, ImportError, LuaStr, OptionError, Optionable,
+    SendIterable, SenderAccessError, SmushClient, Timers, World,
 };
 use smushclient_plugins::{Alias, LoadError, PluginIndex, Timer, Trigger, XmlError};
 
@@ -72,9 +72,7 @@ impl Default for SmushClientRust {
 #[allow(clippy::cast_possible_wrap)]
 impl SmushClientRust {
     pub fn load_world<P: AsRef<Path>>(&mut self, path: P) -> Result<(), PersistError> {
-        let file = File::open(path)?;
-        let world = World::load(file)?;
-        self.client.set_world(world);
+        self.client.load_world(File::open(path)?)?;
         self.apply_world();
         Ok(())
     }
@@ -113,6 +111,13 @@ impl SmushClientRust {
         let file = File::create(path)?;
         self.client.save_variables(file)?;
         Ok(true)
+    }
+
+    pub fn import_world<P: AsRef<Path>>(&mut self, path: P) -> Result<(), ImportError> {
+        let file = File::open(path)?;
+        self.client.import_world(file)?;
+        self.apply_world();
+        Ok(())
     }
 
     pub fn set_world(&mut self, world: &WorldRust) -> io::Result<bool> {

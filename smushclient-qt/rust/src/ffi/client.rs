@@ -73,6 +73,7 @@ pub mod ffi {
 
         fn load_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<()>;
         fn save_world(self: &SmushClient, path: &QString) -> Result<()>;
+        fn import_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<()>;
         fn open_log(self: Pin<&mut SmushClient>) -> Result<()>;
         fn close_log(self: &SmushClient) -> Result<()>;
         fn log_input(self: &SmushClient, input: &QString);

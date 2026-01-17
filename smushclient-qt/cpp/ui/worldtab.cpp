@@ -171,11 +171,6 @@ WorldTab::copyableEditor() const
 }
 
 void
-WorldTab::createWorld() &
-{
-}
-
-void
 WorldTab::connectToHost()
 {
   if (!initialized) {
@@ -202,6 +197,20 @@ WorldTab::editWorldScript()
   if (!QDesktopServices::openUrl(QUrl::fromLocalFile(worldScriptPath)))
     QErrorMessage::qtHandler()->showMessage(
       tr("Failed to open file: %1").arg(worldScriptPath));
+}
+
+bool
+WorldTab::importWorld(const QString& filename) &
+{
+  try {
+    client.importWorld(filename);
+  } catch (const rust::Error& e) {
+    showRustError(e);
+    return false;
+  }
+  ui->output->setVerticalScrollBarPolicy(
+    Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+  return true;
 }
 
 bool

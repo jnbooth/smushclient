@@ -5,10 +5,11 @@ use smushclient_plugins::{Alias, Trigger};
 
 use crate::world::World;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum CommandSource {
     Hotkey,
     Link,
+    #[default]
     User,
 }
 

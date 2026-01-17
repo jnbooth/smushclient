@@ -6,8 +6,9 @@ use super::error::AudioError;
 use super::looping::LoopingSink;
 use super::stream::AudioStream;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum PlayMode {
+    #[default]
     Once,
     Loop,
 }

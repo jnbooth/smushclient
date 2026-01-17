@@ -5,8 +5,7 @@ use serde::{Deserialize, Serialize};
 use super::reaction::Reaction;
 use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
-use crate::in_place::{InPlace, in_place};
-use crate::xml::{XmlIterable, bool_serde};
+use crate::xml::{XmlIterable, bool_serde, is_default, is_true};
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Alias {
@@ -23,55 +22,57 @@ impl_asref!(Alias, Sender);
 
 impl XmlIterable for Alias {
     const TAG: &'static str = "alias";
-    type Xml<'a> = AliasXml<'a>;
+    type Xml<'a> = XmlAlias<'a>;
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
-#[serde(default = "AliasXml::template")]
+#[serde(rename = "alias", default = "XmlAlias::template")]
 #[rustfmt::skip]
-pub struct AliasXml<'a> {
-    #[serde(rename = "@name", borrow, default, skip_serializing_if = "str::is_empty")]
-    label: Cow<'a, str>,
-    #[serde(rename = "@script", borrow, default, skip_serializing_if = "str::is_empty")]
-    script: Cow<'a, str>,
-    #[serde(rename = "@match", borrow, default, skip_serializing_if = "str::is_empty")]
-    pattern: Cow<'a, str>,
-    #[serde(rename = "@enabled", with = "bool_serde")]
-    enabled: bool,
-    #[serde(rename = "@echo_alias", with = "bool_serde")]
-    echo_alias: bool,
-    #[serde(rename = "@expand_variables", with = "bool_serde")]
-    expand_variables: bool,
-    #[serde(rename = "@group", borrow, default, skip_serializing_if = "str::is_empty")]
-    group: Cow<'a, str>,
-    #[serde(rename = "@variable", borrow, default, skip_serializing_if = "str::is_empty")]
-    variable: Cow<'a, str>,
-    #[serde(rename = "@omit_from_command_history", with = "bool_serde")]
-    omit_from_command_history: bool,
-    #[serde(rename = "@omit_from_log", with = "bool_serde")]
-    omit_from_log: bool,
-    #[serde(rename = "@regexp", with = "bool_serde")]
-    is_regex: bool,
-    #[serde(with = "sendto_serde", rename = "@send_to")]
-    send_to: SendTarget,
-    #[serde(rename = "@omit_from_output", with = "bool_serde")]
-    omit_from_output: bool,
-    #[serde(rename = "@one_shot", with = "bool_serde")]
-    one_shot: bool,
-    #[serde(rename = "@menu", with = "bool_serde")]
-    menu: bool,
-    #[serde(rename = "@ignore_case", with = "bool_serde")]
-    ignore_case: bool,
-    #[serde(rename = "@keep_evaluating", with = "bool_serde")]
-    keep_evaluating: bool,
+pub struct XmlAlias<'a> {
+    #[serde(rename = "@echo_alias", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub echo_alias: bool,
+    #[serde(rename = "@enabled", with = "bool_serde", skip_serializing_if = "is_true")]
+    pub enabled: bool,
+    #[serde(rename = "@expand_variables", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub expand_variables: bool,
+    #[serde(rename = "@group", borrow, skip_serializing_if = "is_default")]
+    pub group: Cow<'a, str>,
+    #[serde(rename = "@ignore_case", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub ignore_case: bool,
+    #[serde(rename = "@keep_evaluating", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub keep_evaluating: bool,
+    #[serde(rename = "@match", borrow, skip_serializing_if = "is_default")]
+    pub pattern: Cow<'a, str>,
+    #[serde(rename = "@menu", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub menu: bool,
+    #[serde(rename = "@name", borrow, skip_serializing_if = "is_default")]
+    pub name: Cow<'a, str>,
+    #[serde(rename = "@omit_from_command_history", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub omit_from_command_history: bool,
+    #[serde(rename = "@omit_from_log", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub omit_from_log: bool,
+    #[serde(rename = "@omit_from_output", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub omit_from_output: bool,
+    #[serde(rename = "@one_shot", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub one_shot: bool,
+    #[serde(rename = "@regexp", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub regexp: bool,
+    #[serde(rename = "@script", borrow, skip_serializing_if = "is_default")]
+    pub script: Cow<'a, str>,
+    #[serde(borrow, skip_serializing_if = "is_default")]
+    pub send: Cow<'a, str>,
+    #[serde(rename = "@send_to", with = "sendto_serde", skip_serializing_if = "is_default")]
+    pub send_to: SendTarget,
     #[serde(rename = "@sequence")]
-    sequence: i16,
-    #[serde(rename = "@temporary", with = "bool_serde")]
-    temporary: bool,
-    #[serde(borrow, default, rename = "send")]
-    text: Vec<Cow<'a, str>>,
+    pub sequence: i16,
+    #[serde(rename = "@temporary", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub temporary: bool,
+    #[serde(rename = "@user", skip_serializing_if = "is_default")]
+    pub user: i64,
+    #[serde(rename = "@variable", borrow, skip_serializing_if = "is_default")]
+    pub variable: Cow<'a, str>,
 }
-impl AliasXml<'_> {
+impl XmlAlias<'_> {
     fn template() -> Self {
         Self {
             enabled: true,
@@ -80,81 +81,68 @@ impl AliasXml<'_> {
         }
     }
 }
-impl TryFrom<AliasXml<'_>> for Alias {
+impl TryFrom<XmlAlias<'_>> for Alias {
     type Error = crate::regex::RegexError;
 
-    fn try_from(value: AliasXml) -> Result<Self, Self::Error> {
-        let regex = Reaction::make_regex(&value.pattern, value.is_regex, value.ignore_case)?;
-        let send = in_place!(
-            value,
-            Sender {
-                    id: Sender::get_id(),
-                    userdata: 0,
-                    ..label,
-                    ..text,
-                    ..send_to,
-                    ..script,
-                    ..group,
-                    ..variable,
-                    ..enabled,
-                    ..one_shot,
-                    ..temporary,
-                    ..omit_from_output,
-                    ..omit_from_log,
-            }
-        );
-        let reaction = in_place!(
-            value,
-            Reaction {
-                send,
-                regex: regex.into(),
+    fn try_from(value: XmlAlias) -> Result<Self, Self::Error> {
+        let regex = Reaction::make_regex(&value.pattern, value.regexp, value.ignore_case)?;
+        Ok(Self {
+            echo_alias: value.echo_alias,
+            menu: value.menu,
+            omit_from_command_history: value.omit_from_command_history,
+            reaction: Reaction {
+                sequence: value.sequence,
+                pattern: value.pattern.into(),
+                ignore_case: value.ignore_case,
+                keep_evaluating: value.keep_evaluating,
+                is_regex: value.regexp,
+                expand_variables: value.expand_variables,
                 repeats: false,
-                ..sequence,
-                ..pattern,
-                ..is_regex,
-                ..ignore_case,
-                ..keep_evaluating,
-                ..expand_variables,
-            }
-        );
-        Ok(in_place!(
-            value,
-            Self {
-                reaction,
-                ..echo_alias,
-                ..menu,
-                ..omit_from_command_history,
-            }
-        ))
+                regex: regex.into(),
+                send: Sender {
+                    group: value.group.into(),
+                    label: value.name.into(),
+                    send_to: value.send_to,
+                    script: value.script.into(),
+                    variable: value.variable.into(),
+                    text: value.send.into(),
+                    enabled: value.enabled,
+                    one_shot: value.one_shot,
+                    temporary: value.temporary,
+                    omit_from_output: value.omit_from_output,
+                    omit_from_log: value.omit_from_log,
+                    id: Sender::get_id(),
+                    userdata: value.user,
+                },
+            },
+        })
     }
 }
-impl<'a> From<&'a Alias> for AliasXml<'a> {
+impl<'a> From<&'a Alias> for XmlAlias<'a> {
     fn from(value: &'a Alias) -> Self {
-        in_place!(
-            value,
-            Self {
-                ..label,
-                ..text,
-                ..send_to,
-                ..script,
-                ..group,
-                ..variable,
-                ..enabled,
-                ..one_shot,
-                ..temporary,
-                ..omit_from_output,
-                ..omit_from_log,
-                ..sequence,
-                ..pattern,
-                ..is_regex,
-                ..ignore_case,
-                ..keep_evaluating,
-                ..expand_variables,
-                ..echo_alias,
-                ..menu,
-                ..omit_from_command_history,
-            }
-        )
+        Self {
+            echo_alias: value.echo_alias,
+            enabled: value.enabled,
+            expand_variables: value.expand_variables,
+            group: (&value.group).into(),
+            ignore_case: value.ignore_case,
+            keep_evaluating: value.keep_evaluating,
+            menu: value.menu,
+            name: (&value.label).into(),
+            omit_from_command_history: value.omit_from_command_history,
+            omit_from_log: value.omit_from_log,
+            omit_from_output: value.omit_from_output,
+            one_shot: value.one_shot,
+            pattern: (&value.pattern).into(),
+            regexp: value.is_regex,
+            script: (&value.script).into(),
+            send_to: value.send_to,
+            send: (&value.text).into(),
+            sequence: value.sequence,
+            temporary: value.temporary,
+            variable: (&value.variable).into(),
+            user: value.userdata,
+        }
     }
 }
 
@@ -166,10 +154,11 @@ mod tests {
     fn xml_roundtrip() {
         let alias = Alias::default();
         let to_xml =
-            quick_xml::se::to_string(&AliasXml::from(&alias)).expect("error serializing alias");
-        let from_xml: AliasXml =
+            quick_xml::se::to_string(&XmlAlias::from(&alias)).expect("error serializing alias");
+        let from_xml: XmlAlias =
             quick_xml::de::from_str(&to_xml).expect("error deserializing alias");
-        let roundtrip = Alias::try_from(from_xml).expect("error converting alias");
+        let mut roundtrip = Alias::try_from(from_xml).expect("error converting alias");
+        roundtrip.id = alias.id;
         assert_eq!(roundtrip, alias);
     }
 }

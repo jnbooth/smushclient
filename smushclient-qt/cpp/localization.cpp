@@ -1,6 +1,12 @@
 #include "localization.h"
 
 QString
+FileFilter::import()
+{
+  return tr("MUSHclient world files (*.MCL);;All Files (*.*)");
+}
+
+QString
 FileFilter::lua()
 {
   return tr("Lua files (*.lua);;All Files (*.*)");

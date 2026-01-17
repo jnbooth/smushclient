@@ -14,6 +14,7 @@
 #include "ui_worldtab.h"
 #include "worldtab.h"
 #include <QtCore/QSaveFile>
+#include <QtCore/QStandardPaths>
 #include <QtGui/QClipboard>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QScreen>
@@ -84,18 +85,15 @@ void
 MainWindow::openWorld(const QString& filePath)
 {
   WorldTab* tab = createWorldTab(ui->world_tabs);
-  if (tab->openWorld(filePath)) {
-    connectTab(tab);
-    const int tabIndex = ui->world_tabs->addTab(tab, tab->title());
-    ui->world_tabs->setCurrentIndex(tabIndex);
-    addRecentFile(filePath);
-    tab->start();
+  if (!tab->openWorld(filePath)) {
+    delete tab;
     return;
   }
-  delete tab;
-  const RecentFileResult result = settings.removeRecentFile(filePath);
-  if (result.changed)
-    setupRecentFiles(result.recentFiles);
+  connectTab(tab);
+  const int tabIndex = ui->world_tabs->addTab(tab, tab->title());
+  ui->world_tabs->setCurrentIndex(tabIndex);
+  addRecentFile(filePath);
+  tab->start();
 }
 
 // Protected methods
@@ -205,6 +203,22 @@ MainWindow::connectTab(WorldTab* tab) const
   connect(tab, &WorldTab::copyAvailable, this, &MainWindow::onCopyAvailable);
   connect(tab, &WorldTab::newActivity, this, &MainWindow::onNewActivity);
   SettingsDialog::connect(tab);
+}
+
+void
+MainWindow::importWorld(const QString& filePath)
+{
+  WorldTab* tab = createWorldTab(ui->world_tabs);
+  if (!tab->importWorld(filePath)) {
+    delete tab;
+    return;
+  }
+  const int tabIndex = ui->world_tabs->addTab(tab, tab->title());
+  ui->world_tabs->setCurrentIndex(tabIndex);
+  setWindowModified(true);
+  tab->openWorldSettings();
+  connectTab(tab);
+  tab->start();
 }
 
 void
@@ -472,6 +486,21 @@ MainWindow::on_action_go_to_line_triggered()
 }
 
 void
+MainWindow::on_action_import_world_triggered()
+{
+  const QString filePath = QFileDialog::getOpenFileName(
+    this,
+    ui->action_import_world->text(),
+    QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+    FileFilter::import());
+
+  if (filePath.isEmpty())
+    return;
+
+  importWorld(filePath);
+}
+
+void
 MainWindow::on_action_log_session_triggered(bool checked)
 {
   for (int i = 0, end = ui->world_tabs->count(); i < end; ++i) {
@@ -487,17 +516,16 @@ MainWindow::on_action_new_triggered()
 {
   const int currentIndex = ui->world_tabs->currentIndex();
   WorldTab* tab = createWorldTab(this);
-  tab->createWorld();
   const int tabIndex = ui->world_tabs->addTab(tab, tr("New world"));
   ui->world_tabs->setCurrentIndex(tabIndex);
-  if (tab->openWorldSettings()) {
-    setWindowModified(true);
-    connectTab(tab);
-    tab->start();
+  if (!tab->openWorldSettings()) {
+    delete tab;
+    ui->world_tabs->setCurrentIndex(currentIndex);
     return;
   }
-  delete tab;
-  ui->world_tabs->setCurrentIndex(currentIndex);
+  setWindowModified(true);
+  connectTab(tab);
+  tab->start();
 }
 
 void

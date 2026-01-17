@@ -32,7 +32,7 @@ macro_rules! impl_asref {
 }
 
 mod alias;
-pub use alias::{Alias, AliasXml};
+pub use alias::{Alias, XmlAlias};
 
 mod occurrence;
 pub use occurrence::Occurrence;
@@ -47,10 +47,10 @@ mod sender;
 pub use sender::Sender;
 
 mod timer;
-pub use timer::{Timer, TimerXml};
+pub use timer::{Timer, XmlTimer};
 
 mod trigger;
-pub use trigger::{Trigger, TriggerXml};
+pub use trigger::{Trigger, XmlTrigger};
 
 #[cfg(test)]
 mod tests {

@@ -9,8 +9,7 @@ use serde::{Deserialize, Serialize};
 use super::occurrence::Occurrence;
 use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
-use crate::in_place::{InPlace, in_place};
-use crate::xml::{XmlIterable, bool_serde};
+use crate::xml::{XmlIterable, bool_serde, is_default, is_true};
 
 const NANOS: u64 = 1_000_000_000;
 const NANOS_F: f64 = 1_000_000_000.0;
@@ -36,48 +35,61 @@ impl_asref!(Timer, Sender);
 
 impl XmlIterable for Timer {
     const TAG: &'static str = "timer";
-    type Xml<'a> = TimerXml<'a>;
+    type Xml<'a> = XmlTimer<'a>;
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
-#[serde(default)]
+#[serde(rename = "timer", default = "XmlTimer::template")]
 #[rustfmt::skip]
-pub struct TimerXml<'a> {
-    #[serde(rename = "@name", borrow, default, skip_serializing_if = "str::is_empty")]
-    label: Cow<'a, str>,
-    #[serde(rename = "@script", borrow, default, skip_serializing_if = "str::is_empty")]
-    script: Cow<'a, str>,
-    #[serde(rename = "@enabled", with = "bool_serde")]
-    enabled: bool,
-    #[serde(rename = "@at_time", with = "bool_serde")]
-    at_time: bool,
-    #[serde(rename = "@group", borrow, default, skip_serializing_if = "str::is_empty")]
-    group: Cow<'a, str>,
-    #[serde(rename = "@variable", borrow, default, skip_serializing_if = "str::is_empty")]
-    variable: Cow<'a, str>,
-    #[serde(rename = "@one_shot", with = "bool_serde")]
-    one_shot: bool,
-    #[serde(rename = "@active_closed", with = "bool_serde")]
-    active_closed: bool,
-    #[serde(with = "sendto_serde", rename = "@send_to")]
-    send_to: SendTarget,
-    #[serde(rename = "@omit_from_output", with = "bool_serde")]
-    omit_from_output: bool,
-    #[serde(rename = "@omit_from_log", with = "bool_serde")]
-    omit_from_log: bool,
-    #[serde(rename = "@hour")]
-    hour: u64,
-    #[serde(rename = "@minute")]
-    minute: u64,
-    #[serde(rename = "@second")]
-    second: f64,
-    #[serde(rename = "@temporary", with = "bool_serde")]
-    temporary: bool,
-    #[serde(borrow, default, rename = "send")]
-    text: Vec<Cow<'a, str>>,
+pub struct XmlTimer<'a> {
+    #[serde(rename = "@active_closed", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub active_closed: bool,
+    #[serde(rename = "@at_time", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub at_time: bool,
+    #[serde(rename = "@enabled", with = "bool_serde", skip_serializing_if = "is_true")]
+    pub enabled: bool,
+    #[serde(rename = "@group", borrow, skip_serializing_if = "is_default")]
+    pub group: Cow<'a, str>,
+    #[serde(rename = "@hour", skip_serializing_if = "is_default")]
+    pub hour: u64,
+    #[serde(rename = "@minute", skip_serializing_if = "is_default")]
+    pub minute: u64,
+    #[serde(rename = "@name", borrow, skip_serializing_if = "is_default")]
+    pub name: Cow<'a, str>,
+    // pub offset_hour: u64,
+    // pub offset_minute: u64,
+    // pub offset_second: f64,
+    #[serde(rename = "@omit_from_log", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub omit_from_log: bool,
+    #[serde(rename = "@omit_from_output", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub omit_from_output: bool,
+    #[serde(rename = "@one_shot", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub one_shot: bool,
+    #[serde(rename = "@script", borrow, skip_serializing_if = "is_default")]
+    pub script: Cow<'a, str>,
+    #[serde(rename = "@second", skip_serializing_if = "is_default")]
+    pub second: f64,
+    #[serde(borrow, skip_serializing_if = "is_default")]
+    pub send: Cow<'a, str>,
+    #[serde(with = "sendto_serde", rename = "@send_to", skip_serializing_if = "is_default")]
+    pub send_to: SendTarget,
+    #[serde(rename = "@temporary", with = "bool_serde", skip_serializing_if = "is_default")]
+    pub temporary: bool,
+    #[serde(rename = "@user", skip_serializing_if = "is_default")]
+    pub user: i64,
+    #[serde(rename = "@variable", borrow, skip_serializing_if = "is_default")]
+    pub variable: Cow<'a, str>,
 }
-impl From<TimerXml<'_>> for Timer {
-    fn from(value: TimerXml) -> Self {
+impl XmlTimer<'_> {
+    fn template() -> Self {
+        Self {
+            enabled: true,
+            ..Default::default()
+        }
+    }
+}
+impl From<XmlTimer<'_>> for Timer {
+    fn from(value: XmlTimer) -> Self {
         let occurrence = if value.at_time {
             Occurrence::Time(
                 NaiveTime::from_hms_opt(
@@ -90,32 +102,28 @@ impl From<TimerXml<'_>> for Timer {
         } else {
             Occurrence::Interval(duration_from_hms(value.hour, value.minute, value.second))
         };
-        let send = in_place!(
-            value,
-            Sender {
-                    id: Sender::get_id(),
-                    userdata: 0,
-                    ..label,
-                    ..text,
-                    ..send_to,
-                    ..script,
-                    ..group,
-                    ..variable,
-                    ..enabled,
-                    ..one_shot,
-                    ..temporary,
-                    ..omit_from_output,
-                    ..omit_from_log,
-            }
-        );
         Self {
             occurrence,
-            send,
             active_closed: value.active_closed,
+            send: Sender {
+                group: value.group.into(),
+                label: value.name.into(),
+                send_to: value.send_to,
+                script: value.script.into(),
+                variable: value.variable.into(),
+                text: value.send.into(),
+                enabled: value.enabled,
+                one_shot: value.one_shot,
+                temporary: value.temporary,
+                omit_from_output: value.omit_from_output,
+                omit_from_log: value.omit_from_log,
+                id: Sender::get_id(),
+                userdata: value.user,
+            },
         }
     }
 }
-impl<'a> From<&'a Timer> for TimerXml<'a> {
+impl<'a> From<&'a Timer> for XmlTimer<'a> {
     fn from(value: &'a Timer) -> Self {
         let (at_time, hour, minute, second) = match value.occurrence {
             Occurrence::Interval(every) => {
@@ -132,27 +140,25 @@ impl<'a> From<&'a Timer> for TimerXml<'a> {
                 time.second().into(),
             ),
         };
-        in_place!(
-            value,
-            Self {
-                at_time,
-                hour,
-                minute,
-                second,
-                ..label,
-                ..text,
-                ..send_to,
-                ..script,
-                ..group,
-                ..variable,
-                ..enabled,
-                ..one_shot,
-                ..temporary,
-                ..omit_from_output,
-                ..omit_from_log,
-                ..active_closed,
-            }
-        )
+        Self {
+            active_closed: value.active_closed,
+            at_time,
+            enabled: value.enabled,
+            group: (&value.group).into(),
+            hour,
+            minute,
+            name: (&value.label).into(),
+            omit_from_log: value.omit_from_log,
+            omit_from_output: value.omit_from_output,
+            one_shot: value.one_shot,
+            script: (&value.script).into(),
+            second,
+            send_to: value.send_to,
+            send: (&value.text).into(),
+            temporary: value.temporary,
+            variable: (&value.variable).into(),
+            user: value.userdata,
+        }
     }
 }
 
@@ -164,8 +170,8 @@ mod tests {
     fn xml_roundtrip() {
         let timer = Timer::default();
         let to_xml =
-            quick_xml::se::to_string(&TimerXml::from(&timer)).expect("error serializing trigger");
-        let from_xml: TimerXml =
+            quick_xml::se::to_string(&XmlTimer::from(&timer)).expect("error serializing trigger");
+        let from_xml: XmlTimer =
             quick_xml::de::from_str(&to_xml).expect("error deserializing trigger");
         let mut roundtrip = Timer::from(from_xml);
         roundtrip.id = timer.id;

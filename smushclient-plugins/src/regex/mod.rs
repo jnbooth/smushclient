@@ -73,12 +73,11 @@ impl<'de> Deserialize<'de> for Regex {
             type Value = Regex;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("a string")
+                formatter.write_str("a valid regular expression string")
             }
 
             fn visit_str<E: de::Error>(self, s: &str) -> Result<Self::Value, E> {
-                Regex::new(s)
-                    .map_err(|_| E::invalid_value(Unexpected::Str(s), &"valid regular expression"))
+                Regex::new(s).map_err(|_| E::invalid_value(Unexpected::Str(s), &self))
             }
         }
 

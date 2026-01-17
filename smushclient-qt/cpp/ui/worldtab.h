@@ -56,14 +56,14 @@ public:
   void closeLog();
   void connectToHost();
   QTextEdit* copyableEditor() const;
-  void createWorld() &;
   void disconnectFromHost();
   void editWorldScript();
   constexpr bool hasWorldScript() const { return !worldScriptPath.isEmpty(); }
   constexpr bool isActive() const { return active; }
+  bool importWorld(const QString& filePath) &;
   bool isConnected() const;
   void openLog();
-  bool openWorld(const QString& filename) &;
+  bool openWorld(const QString& filePath) &;
   bool openWorldSettings();
   bool promptSave();
   void reloadWorldScript() const;

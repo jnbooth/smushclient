@@ -8,4 +8,5 @@ pub use smushclient::SmushClient;
 mod info;
 
 mod variables;
+pub(crate) use variables::PluginVariables;
 pub use variables::{LuaStr, LuaString};

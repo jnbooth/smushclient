@@ -93,6 +93,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
+name = "base64"
+version = "0.22.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
+
+[[package]]
 name = "bitflags"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -888,8 +894,8 @@ dependencies = [
 
 [[package]]
 name = "mud-transformer"
-version = "0.11.6"
-source = "git+https://github.com/jnbooth/mxp#a711f595b9771a7a328080ad91e9885e204ecf7c"
+version = "0.12.3"
+source = "git+https://github.com/jnbooth/mxp#3ab122cda007b80b568c0e8ebc067a984ed2965e"
 dependencies = [
  "bytes",
  "flagset",
@@ -901,8 +907,8 @@ dependencies = [
 
 [[package]]
 name = "mxp"
-version = "0.11.6"
-source = "git+https://github.com/jnbooth/mxp#a711f595b9771a7a328080ad91e9885e204ecf7c"
+version = "0.12.3"
+source = "git+https://github.com/jnbooth/mxp#3ab122cda007b80b568c0e8ebc067a984ed2965e"
 dependencies = [
  "casefold",
  "flagset",
@@ -1452,13 +1458,16 @@ name = "smushclient"
 version = "0.0.0"
 dependencies = [
  "arboard",
+ "base64",
  "chrono",
  "flagset",
  "html-escape",
  "mud-transformer",
  "postcard",
+ "quick-xml",
  "rodio",
  "serde",
+ "serde-this-or-that",
  "smushclient-plugins",
  "tokio",
 ]

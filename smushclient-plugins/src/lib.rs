@@ -1,5 +1,3 @@
-mod in_place;
-
 pub mod cursor_vec;
 pub use cursor_vec::{CursorVec, CursorVecRef, CursorVecScan};
 
@@ -17,4 +15,4 @@ pub use send::{Alias, Occurrence, Reaction, SendTarget, Sender, Timer, Trigger};
 
 mod xml;
 pub use quick_xml::{DeError as XmlError, SeError as XmlSerError};
-pub use xml::XmlIterable;
+pub use xml::{XmlIterable, XmlVec};

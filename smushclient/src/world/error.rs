@@ -10,6 +10,7 @@ pub enum PersistError {
     File(io::Error),
     Serial(postcard::Error),
     Invalid,
+    UnsupportedVersion,
 }
 
 impl fmt::Display for PersistError {
@@ -18,6 +19,7 @@ impl fmt::Display for PersistError {
             Self::File(error) => error.fmt(f),
             Self::Serial(error) => error.fmt(f),
             Self::Invalid => f.write_str("invalid savefile"),
+            Self::UnsupportedVersion => f.write_str("unsupported world version"),
         }
     }
 }
@@ -27,7 +29,7 @@ impl Error for PersistError {
         match self {
             Self::File(e) => Some(e),
             Self::Serial(e) => Some(e),
-            Self::Invalid => None,
+            Self::Invalid | Self::UnsupportedVersion => None,
         }
     }
 }

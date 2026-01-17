@@ -6,6 +6,8 @@ class FileFilter : public QObject
   Q_OBJECT
 
 public:
+  static QString import();
+
   static QString lua();
 
   static QString plugin();

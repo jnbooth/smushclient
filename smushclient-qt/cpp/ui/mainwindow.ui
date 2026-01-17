@@ -44,7 +44,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>758</width>
+     <width>1920</width>
      <height>37</height>
     </rect>
    </property>
@@ -122,6 +122,7 @@
     <addaction name="action_new"/>
     <addaction name="action_open_world"/>
     <addaction name="menu_open_recent_world"/>
+    <addaction name="action_import_world"/>
     <addaction name="action_close_world"/>
     <addaction name="separator"/>
     <addaction name="action_save_world_details"/>
@@ -657,7 +658,12 @@
     <string>Server Status</string>
    </property>
   </action>
+  <action name="action_import_world">
+   <property name="text">
+    <string>Import World...</string>
+   </property>
+  </action>
  </widget>
- <customwidgets/>
+ <resources/>
  <connections/>
 </ui>

@@ -3,8 +3,11 @@ use std::fs::OpenOptions;
 use serde::{Deserialize, Serialize};
 
 #[repr(u8)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+#[derive(
+    Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize,
+)]
 pub enum AutoConnect {
+    #[default]
     None,
     Mush,
     Diku,
@@ -12,8 +15,11 @@ pub enum AutoConnect {
 }
 
 #[repr(u8)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+#[derive(
+    Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize,
+)]
 pub enum ScriptRecompile {
+    #[default]
     Confirm,
     Always,
     Never,
@@ -31,15 +37,21 @@ pub enum LogFormat {
 }
 
 #[repr(u8)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+#[derive(
+    Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize,
+)]
 pub enum LogMode {
+    #[default]
     Append,
     Overwrite,
 }
 
 #[repr(u8)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
+#[derive(
+    Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize,
+)]
 pub enum MxpDebugLevel {
+    #[default]
     None,
     Error,
     Warning,

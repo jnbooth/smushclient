@@ -340,7 +340,7 @@ impl World {
             2 => versions::V2::migrate(bytes),
             3 => versions::V3::migrate(bytes),
             4 => postcard::from_bytes(bytes).map_err(Into::into),
-            _ => Err(PersistError::Invalid)?,
+            _ => Err(PersistError::UnsupportedVersion)?,
         }
     }
 

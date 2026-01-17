@@ -1,7 +1,7 @@
 use std::cell::{Ref, RefCell, RefMut};
 use std::collections::HashSet;
 use std::fs::File;
-use std::io::{self, Cursor, Read, Write};
+use std::io::{self, BufReader, Cursor, Read, Write};
 use std::path::Path;
 use std::{env, mem, slice};
 
@@ -26,6 +26,7 @@ use crate::audio::{AudioError, AudioSinks, PlayMode};
 use crate::collections::SortOnDrop;
 use crate::get_info::InfoVisitor;
 use crate::handler::Handler;
+use crate::import::{ImportError, ImportedWorld};
 use crate::options::OptionValue;
 use crate::plugins::{
     AliasEffects, AliasOutcome, CommandSource, LoadFailure, PluginEngine, ReactionIterable,
@@ -75,6 +76,19 @@ impl SmushClient {
             buffers: RefCell::default(),
             info: ClientInfo::default(),
         }
+    }
+
+    pub fn load_world<R: Read>(&mut self, reader: R) -> Result<(), PersistError> {
+        self.set_world(World::load(reader)?);
+        Ok(())
+    }
+
+    pub fn import_world<R: Read>(&mut self, reader: R) -> Result<(), ImportError> {
+        let reader = BufReader::new(reader);
+        let ImportedWorld { world, variables } = ImportedWorld::from_xml(reader)?;
+        self.set_world(world);
+        *self.variables.borrow_mut() = variables;
+        Ok(())
     }
 
     pub fn reset_world_plugin(&self) {
@@ -645,7 +659,12 @@ impl SmushClient {
     }
 
     pub fn export_world_senders<T: SendIterable>(&self) -> Result<String, XmlSerError> {
-        T::to_xml_string(&*T::from_world(&self.world).borrow())
+        T::to_xml_string(
+            T::from_world(&self.world)
+                .borrow()
+                .iter()
+                .filter(|sender| !sender.as_ref().temporary),
+        )
     }
 
     pub fn world_option(&self, index: PluginIndex, option: &LuaStr) -> Option<i64> {
