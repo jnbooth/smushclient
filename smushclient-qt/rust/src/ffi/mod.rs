@@ -20,6 +20,9 @@ pub use document::ffi::{
 mod plugin_details;
 pub use plugin_details::ffi::PluginDetails;
 
+mod regex;
+pub use regex::ffi::RegexParse;
+
 mod sender;
 pub use sender::AliasOutcomes;
 pub use sender::ffi::{Alias, AliasOutcome, Occurrence, Timer, Trigger, UserSendTarget};

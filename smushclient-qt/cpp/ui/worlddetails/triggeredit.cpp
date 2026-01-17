@@ -2,8 +2,8 @@
 #include "../../environment.h"
 #include "../../fieldconnector.h"
 #include "regexdialog.h"
+#include "smushclient_qt/src/ffi/regex.cxx.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
-#include "smushclient_qt/src/ffi/util.cxx.h"
 #include "ui_triggeredit.h"
 #include <QtWidgets/QFileDialog>
 
@@ -68,9 +68,9 @@ TriggerEdit::accept()
 {
   if (ui->IsRegex->isChecked()) {
     const QString pattern = ui->Pattern->text();
-    const RegexError error = ffi::validateRegex(pattern);
-    if (!error.message.isEmpty()) {
-      RegexDialog dialog(error.message, error.offset, pattern, this);
+    const RegexParse result = ffi::validateRegex(pattern);
+    if (!result.success) {
+      RegexDialog dialog(result, this);
       dialog.exec();
       return;
     }

@@ -13,6 +13,7 @@
 #include "smushclient_qt/src/ffi/document.cxxqt.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "ui_worldtab.h"
+#include "worlddetails/regexdialog.h"
 #include "worlddetails/worlddetails.h"
 #include <QtCore/QSaveFile>
 #include <QtCore/QUrl>
@@ -203,7 +204,12 @@ bool
 WorldTab::importWorld(const QString& filename) &
 {
   try {
-    client.importWorld(filename);
+    const RegexParse result = client.importWorld(filename);
+    if (!result.success) {
+      RegexDialog dialog(result, this);
+      dialog.exec();
+      return false;
+    }
   } catch (const rust::Error& e) {
     showRustError(e);
     return false;
@@ -414,9 +420,10 @@ WorldTab::setWorldAlphaOption(size_t pluginIndex,
 
   if (name == "command_stack_character")
     splitOn = QLatin1Char(client.commandSplitter());
-  else if (name == "name")
+  else if (name == "name") {
     worldName = QString::fromUtf8(value.data(), value.size());
-  else if (name == "script_path")
+    emit titleChanged(this, worldName);
+  } else if (name == "script_path")
     worldScriptPath = QString::fromUtf8(value.data(), value.size());
 
   return result;
@@ -574,6 +581,7 @@ WorldTab::applyWorld(const World& world)
 {
   scriptReloadOption = world.getScriptReloadOption();
   worldName = world.getName();
+  emit titleChanged(this, worldName);
   worldScriptPath = world.getWorldScript();
   handleKeypad = world.getKeypadEnable();
   ui->input->setIgnoreKeypad(handleKeypad);

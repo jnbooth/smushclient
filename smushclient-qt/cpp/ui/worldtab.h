@@ -100,6 +100,7 @@ signals:
   void connectionStatusChanged(bool connected);
   void copyAvailable(AvailableCopy available);
   void newActivity(WorldTab* self);
+  void titleChanged(WorldTab* self, const QString& title);
 
 public:
   Ui::WorldTab* ui;

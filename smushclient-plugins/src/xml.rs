@@ -1,31 +1,29 @@
-use std::{fmt, iter};
+use std::iter;
 
 use serde::de::SeqAccess;
 use serde::ser::{SerializeStruct, Serializer};
 use serde::{Deserialize, Serialize};
 
 use crate::cursor_vec::CursorVec;
+use crate::error::ImportError;
 
 pub trait XmlIterable: Sized + 'static {
     const TAG: &'static str;
 
-    type Xml<'a>: From<&'a Self> + TryInto<Self, Error: fmt::Display> + Deserialize<'a> + Serialize;
+    type Xml<'a>: From<&'a Self>
+        + TryInto<Self, Error: Into<ImportError>>
+        + Deserialize<'a>
+        + Serialize;
 
-    fn from_xml_str<T>(s: &str) -> Result<T, quick_xml::DeError>
+    fn from_xml_str<T>(s: &str) -> Result<T, ImportError>
     where
         T: FromIterator<Self>,
     {
         let mut deserializer = &mut quick_xml::de::Deserializer::from_str(s);
         iter::from_fn(move || match deserializer.next_element::<Self::Xml<'_>>() {
-            Err(e) => Some(Err(e)),
-            Ok(Some(value)) => Some(Ok(value)),
+            Err(e) => Some(Err(e.into())),
             Ok(None) => None,
-        })
-        .enumerate()
-        .map(|(n, item)| {
-            item?.try_into().map_err(|e| {
-                quick_xml::DeError::Custom(format!("Invalid pattern in item {}: {e}", n + 1))
-            })
+            Ok(Some(value)) => Some(value.try_into().map_err(Into::into)),
         })
         .collect()
     }

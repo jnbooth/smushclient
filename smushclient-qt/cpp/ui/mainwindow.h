@@ -48,6 +48,7 @@ private slots:
   void onCopyAvailable(AvailableCopy copy);
   void onConnectionStatusChanged(bool connected);
   void onNewActivity(WorldTab* tab);
+  void onTitleChanged(WorldTab* tab, const QString& title);
 
   void on_action_about_triggered();
   void on_action_clear_output_triggered();

@@ -61,8 +61,8 @@ AliasModel::headers() const noexcept
   return headers;
 }
 
-void
+RegexParse
 AliasModel::import(const QString& xml)
 {
-  client.importWorldAliases(xml);
+  return client.importWorldAliases(xml);
 }

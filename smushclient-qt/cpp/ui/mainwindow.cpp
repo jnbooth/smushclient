@@ -28,6 +28,17 @@
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QStatusBar>
 
+// Private utilities
+
+QString
+formatWindowTitle(WorldTab* tab)
+{
+  return tab->title() + QStringLiteral("[*] - ") +
+         QCoreApplication::applicationName();
+}
+
+// Public methods
+
 MainWindow::MainWindow(Notepads* notepads, QWidget* parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
@@ -94,6 +105,7 @@ MainWindow::openWorld(const QString& filePath)
   ui->world_tabs->setCurrentIndex(tabIndex);
   addRecentFile(filePath);
   tab->start();
+  ui->world_tabs->setTabText(tabIndex, tab->title());
 }
 
 // Protected methods
@@ -202,6 +214,7 @@ MainWindow::connectTab(WorldTab* tab) const
 {
   connect(tab, &WorldTab::copyAvailable, this, &MainWindow::onCopyAvailable);
   connect(tab, &WorldTab::newActivity, this, &MainWindow::onNewActivity);
+  connect(tab, &WorldTab::titleChanged, this, &MainWindow::onTitleChanged);
   SettingsDialog::connect(tab);
 }
 
@@ -353,6 +366,17 @@ MainWindow::onNewActivity(WorldTab* tab)
 }
 
 void
+MainWindow::onTitleChanged(WorldTab* tab, const QString& title)
+{
+  const int index = ui->world_tabs->indexOf(tab);
+  if (index == -1)
+    return;
+  ui->world_tabs->setTabText(index, title);
+  if (index == ui->world_tabs->currentIndex())
+    setWindowTitle(formatWindowTitle(tab));
+}
+
+void
 MainWindow::on_action_about_triggered()
 {
   QMessageBox box(this);
@@ -443,10 +467,7 @@ MainWindow::on_action_edit_world_details_triggered()
   tab->openWorldSettings();
   if (tab->isWindowModified())
     setWindowModified(true);
-  const QString& title = tab->title();
-  ui->world_tabs->setTabText(ui->world_tabs->currentIndex(), title);
-  setWindowTitle(title + QStringLiteral("[*] - ") +
-                 QCoreApplication::applicationName());
+  setWindowTitle(formatWindowTitle(tab));
 }
 
 void
@@ -732,10 +753,8 @@ MainWindow::on_world_tabs_currentChanged(int index)
     activeTab->ui->output->verticalScrollBar()->isPaused());
   activeTab->setIsActive(true);
   activeTab->setStatusBarVisible(true);
-  const QString& title = activeTab->title();
-  ui->world_tabs->tabBar()->setTabText(index, title);
-  setWindowTitle(title + QStringLiteral("[*] - ") +
-                 QCoreApplication::applicationName());
+  ui->world_tabs->tabBar()->setTabText(index, activeTab->title());
+  setWindowTitle(formatWindowTitle(activeTab));
   setWindowModified(activeTab->isWindowModified());
   onCopyAvailable(activeTab->availableCopy());
 }

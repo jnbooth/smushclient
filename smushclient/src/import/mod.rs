@@ -4,7 +4,7 @@ use base64::Engine;
 use mud_transformer::UseMxp;
 use mud_transformer::mxp::RgbColor;
 use serde::Deserialize;
-use smushclient_plugins::{Alias, RegexError, Timer, Trigger, XmlIterable, XmlVec};
+use smushclient_plugins::{Alias, ImportError, RegexError, Timer, Trigger, XmlIterable, XmlVec};
 
 use crate::client::PluginVariables;
 use crate::world::{AutoConnect, LogFormat, LogMode, MxpDebugLevel, ScriptRecompile, World};
@@ -15,9 +15,6 @@ mod bool_serde {
 
 mod color;
 use color::Colours;
-
-mod error;
-pub use error::ImportError;
 
 mod types;
 use types::{Include, Key, Variable};

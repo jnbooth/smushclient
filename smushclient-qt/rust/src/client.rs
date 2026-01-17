@@ -11,10 +11,10 @@ use cxx_qt_lib::{QString, QStringList, QVariant};
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
-    AliasOutcome, CommandSource, Handler, ImportError, LuaStr, OptionError, Optionable,
-    SendIterable, SenderAccessError, SmushClient, Timers, World,
+    AliasOutcome, CommandSource, Handler, LuaStr, OptionError, Optionable, SendIterable,
+    SenderAccessError, SmushClient, Timers, World,
 };
-use smushclient_plugins::{Alias, LoadError, PluginIndex, Timer, Trigger, XmlError};
+use smushclient_plugins::{Alias, ImportError, LoadError, PluginIndex, Timer, Trigger};
 
 use crate::convert::Convert;
 use crate::ffi::{self, AliasMenuItem, Document, Timekeeper};
@@ -419,7 +419,11 @@ impl SmushClientRust {
         }
     }
 
-    pub fn import_world_timers(&self, xml: &str, timekeeper: &Timekeeper) -> Result<(), XmlError> {
+    pub fn import_world_timers(
+        &self,
+        xml: &str,
+        timekeeper: &Timekeeper,
+    ) -> Result<(), ImportError> {
         let world_index = self.world_plugin_index();
         let imported_timers = self.client.import_world_senders::<Timer>(xml)?;
         if !self.client.world().enable_timers {

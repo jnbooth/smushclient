@@ -2,7 +2,7 @@ pub mod cursor_vec;
 pub use cursor_vec::{CursorVec, CursorVecRef, CursorVecScan};
 
 mod error;
-pub use error::LoadError;
+pub use error::{ImportError, LoadError};
 
 mod plugin;
 pub use plugin::{Plugin, PluginIndex, PluginLoadError, PluginMetadata};

@@ -6,9 +6,9 @@ use cxx_qt::CxxQtType;
 use cxx_qt_io::QAbstractSocket;
 use cxx_qt_lib::{QString, QStringList, QVariant};
 use smushclient::world::PersistError;
-use smushclient::{ImportError, LuaStr, SendIterable};
+use smushclient::{LuaStr, SendIterable};
 use smushclient_plugins::{
-    Alias, LoadError, PluginIndex, RegexError, Timer, Trigger, XmlError, XmlSerError,
+    Alias, ImportError, LoadError, PluginIndex, RegexError, Timer, Trigger, XmlSerError,
 };
 
 use crate::convert::Convert;
@@ -17,6 +17,14 @@ use crate::ffi::{self, VariableView};
 use crate::get_info::InfoVisitorQVariant;
 use crate::modeled::Modeled;
 use crate::results::{IntoApiCode, IntoCode, IntoSenderAccessCode};
+
+fn handle_import_error<T>(res: Result<T, ImportError>) -> Result<ffi::RegexParse, ImportError> {
+    match res {
+        Ok(_) => Ok(ffi::RegexParse::default()),
+        Err(ImportError::Regex(e)) => Ok(e.into()),
+        Err(e) => Err(e),
+    }
+}
 
 impl ffi::SmushClient {
     pub fn borrow_world_sender<T: SendIterable>(&self, index: usize) -> Option<Ref<'_, T>> {
@@ -27,8 +35,11 @@ impl ffi::SmushClient {
         self.rust_mut().load_world(String::from(path))
     }
 
-    pub fn import_world(self: Pin<&mut Self>, path: &QString) -> Result<(), ImportError> {
-        self.rust_mut().import_world(String::from(path))
+    pub fn import_world(
+        self: Pin<&mut Self>,
+        path: &QString,
+    ) -> Result<ffi::RegexParse, ImportError> {
+        handle_import_error(self.rust_mut().import_world(String::from(path)))
     }
 
     pub fn open_log(self: Pin<&mut Self>) -> io::Result<()> {
@@ -347,27 +358,31 @@ impl ffi::SmushClient {
         Ok(QString::from(&xml))
     }
 
-    pub fn import_world_aliases(&self, xml: &QString) -> Result<(), XmlError> {
-        self.rust()
-            .client
-            .import_world_senders::<Alias>(&String::from(xml))?;
-        Ok(())
+    pub fn import_world_aliases(&self, xml: &QString) -> Result<ffi::RegexParse, ImportError> {
+        handle_import_error(
+            self.rust()
+                .client
+                .import_world_senders::<Alias>(&String::from(xml)),
+        )
     }
 
     pub fn import_world_timers(
         &self,
         xml: &QString,
         timekeeper: &ffi::Timekeeper,
-    ) -> Result<(), XmlError> {
-        self.rust()
-            .import_world_timers(&String::from(xml), timekeeper)
+    ) -> Result<ffi::RegexParse, ImportError> {
+        handle_import_error(
+            self.rust()
+                .import_world_timers(&String::from(xml), timekeeper),
+        )
     }
 
-    pub fn import_world_triggers(&self, xml: &QString) -> Result<(), XmlError> {
-        self.rust()
-            .client
-            .import_world_senders::<Trigger>(&String::from(xml))?;
-        Ok(())
+    pub fn import_world_triggers(&self, xml: &QString) -> Result<ffi::RegexParse, ImportError> {
+        handle_import_error(
+            self.rust()
+                .client
+                .import_world_senders::<Trigger>(&String::from(xml)),
+        )
     }
 
     pub fn replace_alias(&self, index: PluginIndex, alias: &ffi::Alias) -> ffi::ApiCode {

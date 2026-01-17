@@ -353,7 +353,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Yellow</string>
+           <string>Green</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -517,7 +517,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Green</string>
+           <string>Yellow</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignmentFlag::AlignCenter</set>

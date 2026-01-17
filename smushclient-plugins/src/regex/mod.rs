@@ -12,11 +12,14 @@ pub(crate) use builder::RegexBuilder;
 mod captures;
 pub use captures::{CaptureMatches, Captures, Match};
 
+mod error;
+pub use error::RegexError;
+
 /// A wrapper around [`pcre2::bytes::Regex`] providing additional trait implementations.
 #[derive(Clone)]
-pub struct Regex(pcre2::bytes::Regex);
+pub struct Regex(pub(super) pcre2::bytes::Regex);
 
-pub type RegexError = pcre2::Error;
+// pub type RegexError = pcre2::Error;
 
 impl Default for Regex {
     fn default() -> Self {
@@ -88,8 +91,9 @@ impl<'de> Deserialize<'de> for Regex {
 impl FromStr for Regex {
     type Err = RegexError;
 
+    #[inline]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        pcre2::bytes::Regex::new(s).map(Self)
+        Self::new(s)
     }
 }
 
@@ -99,7 +103,13 @@ impl Regex {
     ///
     /// If an invalid expression is given, then an error is returned.
     pub fn new(re: &str) -> Result<Self, RegexError> {
-        pcre2::bytes::Regex::new(re).map(Self)
+        match pcre2::bytes::Regex::new(re) {
+            Ok(re) => Ok(Self(re)),
+            Err(e) => Err(RegexError {
+                inner: e,
+                target: re.to_owned(),
+            }),
+        }
     }
 
     pub fn as_str(&self) -> &str {

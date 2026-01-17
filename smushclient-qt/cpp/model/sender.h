@@ -1,6 +1,7 @@
 #pragma once
 #include "../scripting/scriptenums.h"
 #include "rust/cxx.h"
+#include "smushclient_qt/src/ffi/regex.cxx.h"
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QItemSelection>
 #include <QtCore/QStringList>
@@ -22,7 +23,7 @@ public:
   bool addItem(QWidget* parent = nullptr);
   bool editItem(const QModelIndex& index, QWidget* parent = nullptr);
   virtual QString exportXml() const = 0;
-  void importXml(const QString& xml);
+  RegexParse importXml(const QString& xml);
   bool removeSelection(const QItemSelection& selection);
   int senderIndex(const QModelIndex& index) const;
 
@@ -52,7 +53,7 @@ protected:
   virtual bool add(QWidget* parent) = 0;
   virtual int edit(size_t index, QWidget* parent) = 0;
   virtual const std::array<QString, numColumns>& headers() const noexcept = 0;
-  virtual void import(const QString& xml) = 0;
+  virtual RegexParse import(const QString& xml) = 0;
   virtual void prepareRemove(SenderMap* map,
                              const rust::String& group,
                              int row,

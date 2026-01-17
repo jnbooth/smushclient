@@ -32,6 +32,8 @@ pub mod ffi {
 
         include!("smushclient_qt/src/ffi/api_code.cxx.h");
         type ApiCode = crate::ffi::ApiCode;
+        include!("smushclient_qt/src/ffi/regex.cxx.h");
+        type RegexParse = crate::ffi::RegexParse;
     }
 
     struct AliasMenuItem {
@@ -73,7 +75,7 @@ pub mod ffi {
 
         fn load_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<()>;
         fn save_world(self: &SmushClient, path: &QString) -> Result<()>;
-        fn import_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<()>;
+        fn import_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<RegexParse>;
         fn open_log(self: Pin<&mut SmushClient>) -> Result<()>;
         fn close_log(self: &SmushClient) -> Result<()>;
         fn log_input(self: &SmushClient, input: &QString);
@@ -176,13 +178,13 @@ pub mod ffi {
         fn export_world_aliases(self: &SmushClient) -> Result<QString>;
         fn export_world_timers(self: &SmushClient) -> Result<QString>;
         fn export_world_triggers(self: &SmushClient) -> Result<QString>;
-        fn import_world_aliases(self: &SmushClient, xml: &QString) -> Result<()>;
+        fn import_world_aliases(self: &SmushClient, xml: &QString) -> Result<RegexParse>;
         fn import_world_timers(
             self: &SmushClient,
             xml: &QString,
             timekeeper: &Timekeeper,
-        ) -> Result<()>;
-        fn import_world_triggers(self: &SmushClient, xml: &QString) -> Result<()>;
+        ) -> Result<RegexParse>;
+        fn import_world_triggers(self: &SmushClient, xml: &QString) -> Result<RegexParse>;
         fn replace_alias(self: &SmushClient, index: usize, alias: &Alias) -> ApiCode;
         fn replace_timer(
             self: &SmushClient,

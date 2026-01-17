@@ -1,6 +1,7 @@
 use std::ops::{Deref, DerefMut};
 
-use super::{Regex, RegexError};
+use super::Regex;
+use super::error::RegexError;
 
 #[derive(Clone, Debug)]
 pub(crate) struct RegexBuilder(pcre2::bytes::RegexBuilder);
@@ -17,7 +18,13 @@ impl RegexBuilder {
     }
 
     pub fn build(self, pattern: &str) -> Result<Regex, RegexError> {
-        self.0.build(pattern).map(Regex)
+        match self.0.build(pattern) {
+            Ok(re) => Ok(Regex(re)),
+            Err(e) => Err(RegexError {
+                inner: e,
+                target: pattern.to_owned(),
+            }),
+        }
     }
 }
 

@@ -1,5 +1,4 @@
 use std::num::NonZero;
-use std::{slice, vec};
 
 use mud_transformer::mxp::RgbColor;
 use serde::Deserialize;
@@ -44,19 +43,24 @@ pub(super) struct Colours {
 impl From<ColoursXml> for Colours {
     fn from(value: ColoursXml) -> Self {
         let mut ansi = *RgbColor::XTERM_16;
-        for color in value.ansi.normal.into_iter().chain(value.ansi.bold) {
+        for color in value.ansi.normal.elements {
             if let Some(slot) = ansi.get_mut(color.seq.get() - 1) {
                 *slot = color.rgb;
             }
         }
-        let Some(max_seq) = value.custom.iter().map(|color| color.seq).max() else {
+        for color in value.ansi.bold.elements {
+            if let Some(slot) = ansi.get_mut(color.seq.get() - 1 + 8) {
+                *slot = color.rgb;
+            }
+        }
+        let Some(max_seq) = value.custom.elements.iter().map(|color| color.seq).max() else {
             return Self {
                 ansi,
                 custom: CustomColours::default(),
             };
         };
         let mut pairs = vec![None; max_seq.get()];
-        for color in value.custom {
+        for color in value.custom.elements {
             pairs[color.seq.get() - 1] = Some(ColorPair {
                 text: color.text,
                 back: color.back,
@@ -124,20 +128,5 @@ impl<T> Default for XmlList<T> {
         Self {
             elements: Vec::new(),
         }
-    }
-}
-
-impl<T> XmlList<T> {
-    pub fn iter(&self) -> slice::Iter<'_, T> {
-        self.elements.iter()
-    }
-}
-
-impl<T> IntoIterator for XmlList<T> {
-    type Item = T;
-    type IntoIter = vec::IntoIter<T>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.elements.into_iter()
     }
 }

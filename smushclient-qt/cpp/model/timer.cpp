@@ -69,7 +69,7 @@ TimerModel::headers() const noexcept
   return headers;
 }
 
-void
+RegexParse
 TimerModel::import(const QString& xml)
 {
   return client.importWorldTimers(xml, *timekeeper);

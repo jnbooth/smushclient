@@ -12,7 +12,7 @@ use mud_transformer::{
 };
 use rodio::Decoder;
 use smushclient_plugins::{
-    Alias, CursorVec, LoadError, Plugin, PluginIndex, SendTarget, Timer, Trigger, XmlError,
+    Alias, CursorVec, ImportError, LoadError, Plugin, PluginIndex, SendTarget, Timer, Trigger,
     XmlSerError,
 };
 #[cfg(feature = "async")]
@@ -26,7 +26,7 @@ use crate::audio::{AudioError, AudioSinks, PlayMode};
 use crate::collections::SortOnDrop;
 use crate::get_info::InfoVisitor;
 use crate::handler::Handler;
-use crate::import::{ImportError, ImportedWorld};
+use crate::import::ImportedWorld;
 use crate::options::OptionValue;
 use crate::plugins::{
     AliasEffects, AliasOutcome, CommandSource, LoadFailure, PluginEngine, ReactionIterable,
@@ -653,7 +653,7 @@ impl SmushClient {
     pub fn import_world_senders<T: SendIterable>(
         &self,
         xml: &str,
-    ) -> Result<SortOnDrop<'_, T>, XmlError> {
+    ) -> Result<SortOnDrop<'_, T>, ImportError> {
         let mut senders = T::from_xml_str(xml)?;
         Ok(self.world.import_senders(&mut senders))
     }

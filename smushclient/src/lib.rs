@@ -14,7 +14,6 @@ mod handler;
 pub use handler::Handler;
 
 mod import;
-pub use import::ImportError;
 
 mod options;
 pub use options::{OptionError, OptionValue, Optionable};

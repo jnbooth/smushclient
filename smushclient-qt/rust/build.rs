@@ -42,6 +42,7 @@ fn main() {
             "src/ffi/client.rs",
             "src/ffi/document.rs",
             "src/ffi/plugin_details.rs",
+            "src/ffi/regex.rs",
             "src/ffi/sender.rs",
             "src/ffi/sender_map.rs",
             "src/ffi/send_request.rs",

@@ -61,8 +61,8 @@ TriggerModel::headers() const noexcept
   return headers;
 }
 
-void
+RegexParse
 TriggerModel::import(const QString& xml)
 {
-  client.importWorldTriggers(xml);
+  return client.importWorldTriggers(xml);
 }

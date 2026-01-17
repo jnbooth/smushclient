@@ -16,5 +16,5 @@ protected:
   int edit(size_t index, QWidget* parent) override;
   const std::array<QString, AbstractSenderModel::numColumns>& headers()
     const noexcept override;
-  void import(const QString& xml) override;
+  RegexParse import(const QString& xml) override;
 };
