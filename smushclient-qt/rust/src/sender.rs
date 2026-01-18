@@ -9,6 +9,7 @@ use chrono::{NaiveTime, Timelike};
 use cxx_qt::{CxxQtType, Initialize};
 use cxx_qt_lib::{QColor, QString, QTime};
 use flagset::{FlagSet, Flags};
+use mud_transformer::mxp::RgbColor;
 use mud_transformer::{Output, OutputFragment, TextFragment, TextStyle};
 use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer, Trigger};
 
@@ -470,13 +471,20 @@ pub struct TextSpan {
     inner: TextFragment,
 }
 
+fn color_code(color: Option<RgbColor>) -> i32 {
+    match color {
+        Some(color) => color.code() as i32,
+        None => -1,
+    }
+}
+
 impl TextSpan {
     pub fn foreground(&self) -> i32 {
-        self.inner.foreground.code() as i32
+        color_code(self.inner.foreground)
     }
 
     pub fn background(&self) -> i32 {
-        self.inner.background.code() as i32
+        color_code(self.inner.background)
     }
 
     pub fn text(&self) -> &str {

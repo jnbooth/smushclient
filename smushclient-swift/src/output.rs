@@ -60,12 +60,12 @@ impl RustTextFragment {
     }
 
     #[inline(always)]
-    pub fn foreground(&self) -> RgbColor {
+    pub fn foreground(&self) -> Option<RgbColor> {
         self.inner.foreground
     }
 
     #[inline(always)]
-    pub fn background(&self) -> RgbColor {
+    pub fn background(&self) -> Option<RgbColor> {
         self.inner.background
     }
 

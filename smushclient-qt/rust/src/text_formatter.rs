@@ -1,20 +1,19 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 
-use cxx_qt_lib::QString;
+use cxx_qt_lib::{QColor, QString};
 use flagset::FlagSet;
 use mud_transformer::mxp::{Link, RgbColor, SendTo};
 use mud_transformer::{TextFragment, TextStyle};
 use smushclient::{SpanStyle, World};
 use smushclient_qt_lib::{QBrush, QFontWeight, QTextCharFormat, QTextFormatProperty};
 
-use crate::convert::Convert;
-
 pub const STYLES_PROPERTY: QTextFormatProperty = QTextFormatProperty::user(0);
 pub const PROMPTS_PROPERTY: QTextFormatProperty = QTextFormatProperty::user(1);
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TextFormatter {
+    base: QTextCharFormat,
     ansi: HashMap<RgbColor, QTextCharFormat>,
     named: HashMap<RgbColor, QTextCharFormat>,
     error_format: QTextCharFormat,
@@ -24,6 +23,41 @@ impl Default for TextFormatter {
     fn default() -> Self {
         Self::new()
     }
+}
+
+fn apply_flags(format: &mut QTextCharFormat, flags: FlagSet<TextStyle>) {
+    format.set_property(STYLES_PROPERTY, &i32::from(flags.bits()));
+    if flags.contains(TextStyle::Bold) {
+        format.set_font_weight(QFontWeight::Bold);
+    }
+    if flags.contains(TextStyle::Italic) {
+        format.set_font_italic(true);
+    }
+    if flags.contains(TextStyle::Strikeout) {
+        format.set_font_strike_out(true);
+    }
+    if flags.contains(TextStyle::Underline) {
+        format.set_font_underline(true);
+    }
+}
+
+fn apply_link(format: &mut QTextCharFormat, link: &Link) {
+    format.set_anchor(true);
+    format.set_anchor_href(&QString::from(&encode_link(link.sendto, &link.action)));
+    if let Some(hint) = &link.hint {
+        format.set_tool_tip(&QString::from(hint));
+    }
+    if !link.prompts.is_empty() {
+        format.set_property(PROMPTS_PROPERTY, &QString::from(&link.prompts.join("|")));
+    }
+}
+
+fn brush(color: RgbColor) -> QBrush {
+    QBrush::from(&QColor::from_rgb(
+        color.r.into(),
+        color.g.into(),
+        color.b.into(),
+    ))
 }
 
 fn encode_link(sendto: SendTo, action: &str) -> String {
@@ -36,7 +70,7 @@ fn encode_link(sendto: SendTo, action: &str) -> String {
 
 fn foreground_format(color: RgbColor) -> QTextCharFormat {
     let mut format = QTextCharFormat::default();
-    format.set_foreground(&QBrush::from(&color.convert()));
+    format.set_foreground(&brush(color));
     format
 }
 
@@ -46,105 +80,73 @@ impl TextFormatter {
             .map(|(_, color)| (color, foreground_format(color)))
             .collect();
         Self {
-            ansi: HashMap::with_capacity(17),
+            base: QTextCharFormat::default(),
+            ansi: HashMap::with_capacity(16),
             named,
             error_format: QTextCharFormat::default(),
         }
     }
 
     pub fn apply_world(&mut self, world: &World) {
-        self.error_format
-            .set_foreground(&QBrush::from(&world.error_text_colour.convert()));
-        self.error_format
-            .set_background(&QBrush::from(&world.error_background_colour.convert()));
+        if let Some(color) = world.error_text_colour {
+            self.error_format.set_foreground(&brush(color));
+        } else {
+            self.error_format.clear_foreground();
+        }
+        if let Some(color) = world.error_background_colour {
+            self.error_format.set_background(&brush(color));
+        } else {
+            self.error_format.clear_background();
+        }
 
         self.ansi.clear();
         for &color in &world.ansi_colours {
             self.ansi.insert(color, foreground_format(color));
         }
-        self.ansi
-            .insert(RgbColor::BLACK, QTextCharFormat::default());
     }
 
     pub fn error_format(&self) -> &QTextCharFormat {
         &self.error_format
     }
 
-    fn builder(&self, foreground: RgbColor) -> FormatBuilder<'_> {
-        match self.ansi.get(&foreground) {
-            Some(format) => FormatBuilder(Cow::Borrowed(format)),
-            None => match self.named.get(&foreground) {
-                Some(format) => FormatBuilder(Cow::Borrowed(format)),
-                None => FormatBuilder(Cow::Owned(foreground_format(foreground))),
-            },
-        }
-    }
-
     pub fn span_format(&self, style: &SpanStyle) -> Cow<'_, QTextCharFormat> {
-        let mut format = self.builder(style.foreground.unwrap_or(RgbColor::WHITE));
-        if let Some(background) = style.background {
-            format.background(background);
-        }
-        format.flags(style.flags);
-        format.build()
+        self.get_format(style.foreground, style.background, style.flags)
     }
 
     pub fn text_format(&self, fragment: &TextFragment) -> Cow<'_, QTextCharFormat> {
-        let mut format = self.builder(fragment.foreground);
-        format.background(fragment.background);
-        format.flags(fragment.flags);
+        let mut format = self.get_format(fragment.foreground, fragment.background, fragment.flags);
         if let Some(link) = &fragment.action {
-            format.link(link);
+            apply_link(format.to_mut(), link);
         }
-        format.build()
-    }
-}
-
-struct FormatBuilder<'a>(Cow<'a, QTextCharFormat>);
-
-impl<'a> FormatBuilder<'a> {
-    pub fn background(&mut self, background: RgbColor) {
-        if background == RgbColor::WHITE {
-            return;
-        }
-        self.0
-            .to_mut()
-            .set_background(&QBrush::from(&background.convert()));
+        format
     }
 
-    pub fn flags(&mut self, flags: FlagSet<TextStyle>) {
-        if flags.is_empty() {
-            return;
+    fn get_format(
+        &self,
+        foreground: Option<RgbColor>,
+        background: Option<RgbColor>,
+        flags: FlagSet<TextStyle>,
+    ) -> Cow<'_, QTextCharFormat> {
+        let mut format = self.get_foreground_format(foreground);
+        if let Some(background) = background {
+            format.to_mut().set_background(&brush(background));
         }
-        let format = self.0.to_mut();
-        format.set_property(STYLES_PROPERTY, &i32::from(flags.bits()));
-        if flags.contains(TextStyle::Bold) {
-            format.set_font_weight(QFontWeight::Bold);
+        if !flags.is_empty() {
+            apply_flags(format.to_mut(), flags);
         }
-        if flags.contains(TextStyle::Italic) {
-            format.set_font_italic(true);
-        }
-        if flags.contains(TextStyle::Strikeout) {
-            format.set_font_strike_out(true);
-        }
-        if flags.contains(TextStyle::Underline) {
-            format.set_font_underline(true);
-        }
+        format
     }
 
-    pub fn link(&mut self, link: &Link) {
-        let format = self.0.to_mut();
-        format.set_anchor(true);
-        format.set_anchor_href(&QString::from(&encode_link(link.sendto, &link.action)));
-        if let Some(hint) = &link.hint {
-            format.set_tool_tip(&QString::from(hint));
+    fn get_foreground_format(&self, foreground: Option<RgbColor>) -> Cow<'_, QTextCharFormat> {
+        let Some(foreground) = foreground else {
+            return Cow::Borrowed(&self.base);
+        };
+        if let Some(format) = self.ansi.get(&foreground) {
+            return Cow::Borrowed(format);
         }
-        if !link.prompts.is_empty() {
-            format.set_property(PROMPTS_PROPERTY, &QString::from(&link.prompts.join("|")));
+        if let Some(format) = self.named.get(&foreground) {
+            return Cow::Borrowed(format);
         }
-    }
-
-    pub fn build(self) -> Cow<'a, QTextCharFormat> {
-        self.0
+        Cow::Owned(foreground_format(foreground))
     }
 }

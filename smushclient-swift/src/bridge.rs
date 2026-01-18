@@ -388,10 +388,10 @@ pub mod ffi {
     extern "Rust" {
         type RustTextFragment;
         fn text(&self) -> &str;
-        #[swift_bridge(return_into)]
-        fn foreground(&self) -> RgbColor;
-        #[swift_bridge(return_into)]
-        fn background(&self) -> RgbColor;
+        #[swift_bridge(return_with = convert_opt)]
+        fn foreground(&self) -> Option<RgbColor>;
+        #[swift_bridge(return_with = convert_opt)]
+        fn background(&self) -> Option<RgbColor>;
         #[swift_bridge(swift_name = "isBlink")]
         fn is_blink(&self) -> bool;
         #[swift_bridge(swift_name = "isBold")]
