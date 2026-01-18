@@ -26,10 +26,7 @@ Notepad::Notepad(QWidget* parent)
   ui->setupUi(this);
   setAttribute(Qt::WA_DeleteOnClose);
   Settings settings;
-  QPalette palette = ui->editor->palette();
-  palette.setBrush(QPalette::ColorRole::Text, settings.getNotepadForeground());
-  palette.setBrush(QPalette::ColorRole::Base, settings.getNotepadBackground());
-  ui->editor->setPalette(palette);
+  ui->editor->setPalette(settings.getNotepadPalette());
   const QFont font = settings.getNotepadFont();
   fontSize = font.pointSizeF();
   QTextCharFormat format;

@@ -396,23 +396,17 @@ ScriptApi::TextRectangle(const QMargins& margins,
   Ui::WorldTab* ui = tab->ui;
   QTextDocument* doc = ui->output->document();
   doc->setLayoutEnabled(false);
+  QPalette palette;
+
+  palette.setBrush(QPalette::ColorRole::Window, outsideFill);
+  ui->area->setPalette(palette);
   ui->area->setContentsMargins(margins);
-  QPalette areaPalette = ui->area->palette();
-  QBrush outsideBrush = outsideFill;
 
-  if (!outsideBrush.color().isValid())
-    outsideBrush.setColor(ui->background->palette().color(QPalette::Base));
-
-  const QColor& borderColorFill =
-    borderColor.isValid() ? borderColor : outsideBrush.color();
-
-  areaPalette.setBrush(QPalette::ColorRole::Window, outsideBrush);
-  ui->area->setPalette(areaPalette);
+  palette.setBrush(QPalette::ColorRole::Window, borderColor);
+  ui->outputBorder->setPalette(palette);
   ui->outputBorder->setContentsMargins(
     borderWidth, borderWidth, borderWidth, borderWidth);
-  QPalette borderPalette = ui->outputBorder->palette();
-  borderPalette.setBrush(QPalette::ColorRole::Window, borderColorFill);
-  ui->outputBorder->setPalette(borderPalette);
+
   ui->background->setContentsMargins(
     borderOffset, borderOffset, borderOffset, borderOffset);
   doc->setLayoutEnabled(true);

@@ -1,6 +1,7 @@
 #pragma once
 #include <QtCore/QSettings>
 #include <QtGui/QFont>
+#include <QtGui/QPalette>
 #include <QtGui/QTextBlockFormat>
 
 typedef struct RecentFileResult
@@ -51,6 +52,7 @@ public:
   QColor getInputForeground() const;
   bool getInputHistoryLimit() const;
   int getInputHistoryLines() const;
+  QPalette getInputPalette() const;
 
   QStringList getLastFiles() const;
 
@@ -59,6 +61,7 @@ public:
   QFont getNotepadFont() const;
   QColor getNotepadBackground() const;
   QColor getNotepadForeground() const;
+  QPalette getNotepadPalette() const;
 
   QStringList getOpenAtStartup() const;
 

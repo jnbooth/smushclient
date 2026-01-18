@@ -80,6 +80,24 @@ Settings::getOutputBlockFormat() const
   return format;
 }
 
+QPalette
+Settings::getInputPalette() const
+{
+  QPalette palette;
+  palette.setColor(QPalette::ColorRole::Text, getInputForeground());
+  palette.setColor(QPalette::ColorRole::Base, getInputBackground());
+  return palette;
+}
+
+QPalette
+Settings::getNotepadPalette() const
+{
+  QPalette palette;
+  palette.setColor(QPalette::ColorRole::Text, getNotepadForeground());
+  palette.setColor(QPalette::ColorRole::Base, getNotepadBackground());
+  return palette;
+}
+
 // Recent files
 
 static const QString recentFilesKey = QStringLiteral("recent");

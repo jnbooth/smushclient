@@ -50,24 +50,6 @@ variablesPath(const QString& path)
   return path + QStringLiteral(".vars");
 }
 
-void
-setColors(QWidget* widget, const QColor& foreground, const QColor& background)
-{
-  QPalette palette(widget->palette());
-  palette.setColor(QPalette::Text, foreground);
-  palette.setColor(QPalette::Base, background);
-  palette.setColor(QPalette::AlternateBase, background);
-  widget->setPalette(palette);
-}
-
-void
-setColor(QWidget* widget, QPalette::ColorRole role, const QColor& color)
-{
-  QPalette palette(widget->palette());
-  palette.setColor(role, color);
-  widget->setPalette(palette);
-}
-
 inline void
 showRustError(const rust::Error& e)
 {
@@ -116,8 +98,7 @@ WorldTab::WorldTab(MudStatusBar* statusBar, Notepads* notepads, QWidget* parent)
           &WorldTab::confirmReloadWorldScript);
 
   const Settings settings;
-  setColors(
-    ui->input, settings.getInputForeground(), settings.getInputBackground());
+  ui->input->setPalette(settings.getInputPalette());
   ui->input->setFont(settings.getInputFont());
   ui->output->setFont(settings.getOutputFont());
 
@@ -476,7 +457,9 @@ WorldTab::stopSound() const
 void
 WorldTab::onInputBackgroundChanged(const QColor& color)
 {
-  setColor(ui->input, QPalette::ColorRole::Base, color);
+  QPalette palette = ui->input->palette();
+  palette.setColor(QPalette::ColorRole::Base, color);
+  ui->input->setPalette(palette);
 }
 
 void
@@ -488,7 +471,9 @@ WorldTab::onInputFontChanged(const QFont& font)
 void
 WorldTab::onInputForegroundChanged(const QColor& color)
 {
-  setColor(ui->input, QPalette::ColorRole::Text, color);
+  QPalette palette = ui->input->palette();
+  palette.setColor(QPalette::ColorRole::Text, color);
+  ui->input->setPalette(palette);
 }
 
 void
@@ -586,7 +571,10 @@ WorldTab::applyWorld(const World& world)
   handleKeypad = world.getKeypadEnable();
   ui->input->setIgnoreKeypad(handleKeypad);
   ui->output->setIgnoreKeypad(handleKeypad);
-  setColors(ui->background, world.getAnsi7(), world.getAnsi0());
+  QPalette palette;
+  palette.setColor(QPalette::Text, world.getAnsi7());
+  palette.setColor(QPalette::Base, world.getAnsi0());
+  ui->background->setPalette(palette);
   if (world.getSaveWorldAutomatically())
     saveWorldAndState(filePath);
 
