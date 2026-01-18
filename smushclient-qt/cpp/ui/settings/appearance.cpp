@@ -19,15 +19,18 @@ SettingsAppearance::SettingsAppearance(Settings& settings,
 {
   ui->setupUi(this);
 
-  ui->InputBackground->setValue(settings.getInputBackground());
+  CONNECT_SETTINGS(InputBackground);
+  CONNECT_SETTINGS(InputForeground);
+  CONNECT_SETTINGS(OutputPadding);
+
   ui->InputFont->setCurrentFont(inputFont);
   ui->InputFontSize->setValue(inputFont.pointSize());
-  ui->InputForeground->setValue(settings.getInputForeground());
 
   ui->OutputFont->setCurrentFont(outputFont);
   ui->OutputFontSize->setValue(outputFont.pointSize());
   ui->OutputLineSpacing->setValue(settings.getOutputLineSpacing());
-  ui->OutputPadding->setValue(settings.getOutputPadding());
+
+  QMetaObject::connectSlotsByName(this);
 }
 
 SettingsAppearance::~SettingsAppearance()
@@ -40,7 +43,6 @@ SettingsAppearance::~SettingsAppearance()
 void
 SettingsAppearance::on_InputBackground_valueChanged(const QColor& color)
 {
-  settings.setInputBackground(color);
   emit notifier->inputBackgroundChanged(color);
 }
 
@@ -69,7 +71,6 @@ SettingsAppearance::on_InputFontSize_valueChanged(int size)
 void
 SettingsAppearance::on_InputForeground_valueChanged(const QColor& color)
 {
-  settings.setInputForeground(color);
   emit notifier->inputForegroundChanged(color);
 }
 
@@ -98,7 +99,6 @@ SettingsAppearance::on_OutputFontSize_valueChanged(int size)
 void
 SettingsAppearance::on_OutputPadding_valueChanged(double padding)
 {
-  settings.setOutputPadding(padding);
   emit notifier->outputPaddingChanged(padding);
 }
 

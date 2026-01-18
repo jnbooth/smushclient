@@ -1,6 +1,5 @@
 #include "closing.h"
 #include "../../enumbuttongroup.h"
-#include "../../fieldconnector.h"
 #include "../../settings.h"
 #include "ui_closing.h"
 

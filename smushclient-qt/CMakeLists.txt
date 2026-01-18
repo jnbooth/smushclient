@@ -156,6 +156,8 @@ qt_add_executable(${APP_NAME}
     cpp/ui/worlddetails/regexdialog.h cpp/ui/worlddetails/regexdialog.cpp cpp/ui/worlddetails/regexdialog.ui
 )
 
+set_property(SOURCE cpp/ui/settings/appearance.ui PROPERTY AUTOUIC_OPTIONS "--no-autoconnection")
+
 target_include_directories(${APP_NAME}
   PRIVATE
   cpp/bridge

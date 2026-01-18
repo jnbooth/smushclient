@@ -29,7 +29,7 @@ SettingsHistory::SettingsHistory(Settings& settings,
   CONNECT_SETTINGS(OutputHistoryLines);
 
   connect(ui->InputHistoryLimit,
-          &QCheckBox::toggled,
+          &QCheckBox::checkStateChanged,
           this,
           &SettingsHistory::updateInputHistoryLimit);
   connect(ui->InputHistoryLines,
@@ -37,7 +37,7 @@ SettingsHistory::SettingsHistory(Settings& settings,
           this,
           &SettingsHistory::updateInputHistoryLimit);
   connect(ui->OutputLimit,
-          &QCheckBox::toggled,
+          &QCheckBox::checkStateChanged,
           this,
           &SettingsHistory::updateOutputLimit);
   connect(ui->OutputLines,
@@ -45,7 +45,7 @@ SettingsHistory::SettingsHistory(Settings& settings,
           this,
           &SettingsHistory::updateOutputLimit);
   connect(ui->OutputHistoryLimit,
-          &QCheckBox::toggled,
+          &QCheckBox::checkStateChanged,
           this,
           &SettingsHistory::updateOutputHistoryLimit);
   connect(ui->OutputHistoryLines,
