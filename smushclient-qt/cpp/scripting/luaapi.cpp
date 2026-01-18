@@ -1114,12 +1114,18 @@ L_TextRectangle(lua_State* L)
   expectMaxArgs(L, 9);
   const QRect rect = qlua::getQRect(L, 1, 2, 3, 4);
   const int offset = qlua::getInt(L, 5);
-  const QColor borderColor = qlua::getQColor(L, 6);
+  QColor borderColor = qlua::getQColor(L, 6);
   const int borderWidth = qlua::getInt(L, 7);
-  const QColor outsideColor = qlua::getQColor(L, 8);
+  QColor outsideColor = qlua::getQColor(L, 8);
   const optional<Qt::BrushStyle> outsideFillStyle = qlua::getBrush(L, 9);
   if (!outsideFillStyle) [[unlikely]]
     return returnCode(L, ApiCode::BrushStyleNotValid);
+  if (borderColor == Qt::GlobalColor::black) {
+    borderColor = Qt::GlobalColor::transparent;
+  }
+  if (outsideColor == Qt::GlobalColor::black) {
+    outsideColor = Qt::GlobalColor::transparent;
+  }
   return returnCode(
     L,
     getApi(L).TextRectangle(rect,
