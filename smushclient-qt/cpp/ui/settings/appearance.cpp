@@ -5,6 +5,8 @@
 #include "settings.h"
 #include "ui_appearance.h"
 
+using std::nullopt;
+
 // Public methods
 
 SettingsAppearance::SettingsAppearance(Settings& settings,
@@ -30,6 +32,13 @@ SettingsAppearance::SettingsAppearance(Settings& settings,
   ui->OutputFontSize->setValue(outputFont.pointSize());
   ui->OutputLineSpacing->setValue(settings.getOutputLineSpacing());
 
+#if defined(Q_OS_MAC)
+  CONNECT_SETTINGS(BackgroundTransparent);
+  CONNECT_SETTINGS(BackgroundMaterial);
+#else
+  ui->backgroundGroup->hide();
+#endif
+
   QMetaObject::connectSlotsByName(this);
 }
 
@@ -39,6 +48,21 @@ SettingsAppearance::~SettingsAppearance()
 }
 
 // Private slots
+
+void
+SettingsAppearance::on_BackgroundTransparent_toggled(bool checked)
+{
+  if (checked)
+    emit notifier->backgroundMaterialChanged(settings.getBackgroundMaterial());
+  else
+    emit notifier->backgroundMaterialChanged(nullopt);
+}
+
+void
+SettingsAppearance::on_BackgroundMaterial_currentIndexChanged(int index)
+{
+  emit notifier->backgroundMaterialChanged(index);
+}
 
 void
 SettingsAppearance::on_InputBackground_valueChanged(const QColor& color)

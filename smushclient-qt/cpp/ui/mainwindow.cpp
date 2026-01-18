@@ -3,6 +3,7 @@
 #include "../environment.h"
 #include "../localization.h"
 #include "../mudstatusbar/mudstatusbar.h"
+#include "../native/native.h"
 #include "../scripting/listbox.h"
 #include "../settings.h"
 #include "../spans.h"
@@ -28,6 +29,8 @@
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QStatusBar>
 
+using std::optional;
+
 // Private utilities
 
 QString
@@ -44,14 +47,18 @@ MainWindow::MainWindow(Notepads* notepads, QWidget* parent)
   , ui(new Ui::MainWindow)
   , notepads(notepads)
 {
-  setAttribute(Qt::WA_DeleteOnClose);
   ui->setupUi(this);
+  setWindowFlags(Qt::Window);
+  setAttribute(Qt::WA_DeleteOnClose);
+  if (settings.getBackgroundTransparent())
+    onBackgroundMaterialChanged(settings.getBackgroundMaterial());
 
   findDialog = new FindDialog(this);
   QDir::setCurrent(settings.getStartupDirectoryOrDefault());
 
   ui->action_status_bar->setChecked(settings.getShowStatusBar());
   ui->action_wrap_output->setChecked(settings.getOutputWrapping());
+  SettingsDialog::connect(this);
   connect(
     ui->action_close_window, &QAction::triggered, this, &MainWindow::close);
   connect(ui->action_log_session,
@@ -106,6 +113,21 @@ MainWindow::openWorld(const QString& filePath)
   addRecentFile(filePath);
   tab->start();
   ui->world_tabs->setTabText(tabIndex, tab->title());
+}
+
+// Public slots
+
+void
+MainWindow::onBackgroundMaterialChanged(optional<int> material)
+{
+  if (!material) {
+    native::unsetBackgroundMaterial(this);
+    repaint();
+    return;
+  }
+  if (int error = native::setBackgroundMaterial(this, *material))
+    qWarning() << "Setting background material failed with code " << error;
+  repaint();
 }
 
 // Protected methods

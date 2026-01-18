@@ -5,6 +5,7 @@ namespace Ui {
 class SettingsDialog;
 }
 
+class MainWindow;
 class Settings;
 class WorldTab;
 
@@ -13,6 +14,7 @@ class SettingsDialog : public QDialog
   Q_OBJECT
 
 public:
+  static void connect(MainWindow* window);
   static void connect(WorldTab* tab);
 
   explicit SettingsDialog(Settings& settings, QWidget* parent = nullptr);

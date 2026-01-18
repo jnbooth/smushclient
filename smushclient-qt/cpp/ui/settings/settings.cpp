@@ -1,5 +1,6 @@
 #include "settings.h"
 #include "../../settings.h"
+#include "../mainwindow.h"
 #include "../ui_worldtab.h"
 #include "../worldtab.h"
 #include "appearance.h"
@@ -14,6 +15,15 @@
 static SettingsNotifier notifier;
 
 // Static methods
+
+void
+SettingsDialog::connect(MainWindow* window)
+{
+  window->connect(&notifier,
+                  &SettingsNotifier::backgroundMaterialChanged,
+                  window,
+                  &MainWindow::onBackgroundMaterialChanged);
+}
 
 void
 SettingsDialog::connect(WorldTab* tab)

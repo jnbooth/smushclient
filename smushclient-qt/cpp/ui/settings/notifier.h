@@ -15,6 +15,7 @@ public:
   }
 
 signals:
+  void backgroundMaterialChanged(std::optional<int> material);
   void inputBackgroundChanged(const QColor& color);
   void inputForegroundChanged(const QColor& color);
   void inputFontChanged(const QFont& font);

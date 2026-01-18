@@ -17,6 +17,10 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Network PrintSupport Widgets)
 
+if(APPLE)
+  enable_language(OBJCXX)
+endif()
+
 qt_standard_project_setup(
   REQUIRES 6.8.0
   SUPPORTS_UP_TO 7
@@ -83,6 +87,10 @@ qt_add_executable(${APP_NAME}
     cpp/model/sender.h cpp/model/sender.cpp
     cpp/model/timer.h cpp/model/timer.cpp
     cpp/model/trigger.h cpp/model/trigger.cpp
+
+    cpp/native/native.h cpp/native/native.cpp
+    cpp/native/result.h
+    cpp/native/window.h
 
     cpp/scripting/callbacktrigger.h cpp/scripting/callbacktrigger.cpp
     cpp/scripting/databaseconnection.h cpp/scripting/databaseconnection.cpp
@@ -157,6 +165,16 @@ qt_add_executable(${APP_NAME}
 )
 
 set_property(SOURCE cpp/ui/settings/appearance.ui PROPERTY AUTOUIC_OPTIONS "--no-autoconnection")
+
+if (APPLE)
+  target_sources(${APP_NAME} PRIVATE cpp/native/window.mm)
+
+
+    find_library(APPKIT_LIBRARY AppKit)
+    find_library(FOUNDATION_LIBRARY Foundation)
+
+    target_link_libraries(${APP_NAME} PRIVATE ${APPKIT_LIBRARY} ${FOUNDATION_LIBRARY})
+endif()
 
 target_include_directories(${APP_NAME}
   PRIVATE

@@ -171,6 +171,9 @@ Settings::getStartupDirectoryOrDefault() const
 
 SETTING(AutoConnect, bool, true, "connecting/auto");
 
+SETTING(BackgroundMaterial, int, 12, "background/material");
+SETTING(BackgroundTransparent, bool, false, "background/transparent");
+
 SETTING(BellSound, QString, QString(), "sound/bell");
 
 SETTING(ConfirmQuit, bool, false, "closing/app");

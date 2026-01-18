@@ -20,6 +20,8 @@ public:
   ~SettingsAppearance();
 
 private slots:
+  void on_BackgroundTransparent_toggled(bool checked);
+  void on_BackgroundMaterial_currentIndexChanged(int index);
   void on_InputBackground_valueChanged(const QColor& color);
   void on_InputFont_currentFontChanged(const QFont& font);
   void on_InputFontSize_valueChanged(int size);

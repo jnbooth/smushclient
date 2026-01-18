@@ -40,6 +40,9 @@ public:
 
   bool getAutoConnect() const;
 
+  int getBackgroundMaterial() const;
+  bool getBackgroundTransparent() const;
+
   QString getBellSound() const;
 
   bool getConfirmQuit() const;
@@ -93,6 +96,9 @@ public:
 
 public slots:
   void setAutoConnect(bool enabled);
+
+  void setBackgroundMaterial(int material);
+  void setBackgroundTransparent(bool enabled);
 
   void setBellSound(const QString& sound);
 

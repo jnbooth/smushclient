@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>400</height>
+    <height>469</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -236,6 +236,109 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="backgroundGroup">
+     <property name="title">
+      <string>Background</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="BackgroundTransparent">
+        <property name="text">
+         <string>Use transparent background</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="BackgroundMaterial_label">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Material</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="BackgroundMaterial">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <item>
+         <property name="text">
+          <string>Titlebar</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Selection</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Menu</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Popover</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Sidebar</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Header View</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Sheet</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Window Background</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>HUD Window</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Full Screen UI</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Tool Tip</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Content Background</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Under Window Background</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Under Page Background</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Orientation::Vertical</enum>
@@ -261,5 +364,38 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>BackgroundTransparent</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>BackgroundMaterial</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>231</x>
+     <y>391</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>227</x>
+     <y>421</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>BackgroundTransparent</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>BackgroundMaterial_label</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>231</x>
+     <y>391</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>38</x>
+     <y>420</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

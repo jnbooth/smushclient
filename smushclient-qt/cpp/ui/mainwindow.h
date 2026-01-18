@@ -25,6 +25,9 @@ public:
 
   void openWorld(const QString& filePath);
 
+public slots:
+  void onBackgroundMaterialChanged(std::optional<int> material);
+
 protected:
   void closeEvent(QCloseEvent* event) override;
   bool event(QEvent* event) override;

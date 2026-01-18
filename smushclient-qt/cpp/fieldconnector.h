@@ -36,6 +36,19 @@ connectField(QObject* object,
                          reinterpret_cast<Setter>(setter));
 }
 
+template<typename T>
+inline QMetaObject::Connection
+connectField(QObject* object,
+             const T* target,
+             QComboBox* input,
+             int value,
+             void (T::*&& setter)(int value))
+{
+  input->setCurrentIndex(value);
+  return object->connect(
+    input, &QComboBox::currentIndexChanged, target, setter);
+}
+
 // bool
 template<typename T>
 QMetaObject::Connection

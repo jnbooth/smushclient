@@ -296,7 +296,7 @@ qlua::getQVariant(lua_State* L, int idx, int type)
     case LUA_TTABLE:
       if (int len = lua_rawlen(L, idx))
         return QVariant(toQVariants(L, idx, len));
-      if (const QVariantHash hash = toQHash(L, idx); hash.size())
+      if (QVariantHash hash = toQHash(L, idx); hash.size())
         return QVariant(hash);
       return QVariant(QVariantList(0));
     default:
