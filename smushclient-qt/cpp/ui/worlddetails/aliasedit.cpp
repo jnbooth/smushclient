@@ -7,7 +7,8 @@
 #include <QtWidgets/QErrorMessage>
 
 #define CONNECT(field)                                                         \
-  connectField(this, &alias, ui->field, alias.get##field(), &Alias::set##field);
+  FieldConnector::connect(                                                     \
+    this, &alias, ui->field, alias.get##field(), &Alias::set##field);
 
 // Public methods
 

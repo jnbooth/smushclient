@@ -12,155 +12,153 @@
 #include <QtWidgets/QTimeEdit>
 
 #define CONNECT_SETTINGS(field)                                                \
-  connectField(                                                                \
+  FieldConnector::connect(                                                     \
     this, &settings, ui->field, settings.get##field(), &Settings::set##field);
 
 #define CONNECT_WORLD(field)                                                   \
-  connectField(this, &world, ui->field, world.get##field(), &World::set##field);
+  FieldConnector::connect(                                                     \
+    this, &world, ui->field, world.get##field(), &World::set##field);
 
-template<typename T, typename Enum>
-inline QMetaObject::Connection
-connectField(QObject* object,
-             const T* target,
-             QComboBox* input,
-             const Enum value,
-             void (T::*&& setter)(Enum value))
+class FieldConnector
 {
-  static_assert(std::is_same_v<std::underlying_type_t<Enum>, int>,
-                "enum must be represented by int");
-  typedef void (T::* && Setter)(const int& value);
-  input->setCurrentIndex((int)value);
-  return object->connect(input,
-                         &QComboBox::currentIndexChanged,
-                         target,
-                         reinterpret_cast<Setter>(setter));
-}
+  template<typename Source, typename Value>
+  using Setter = void (Source::*&&)(Value);
 
-template<typename T>
-inline QMetaObject::Connection
-connectField(QObject* object,
-             const T* target,
-             QComboBox* input,
-             int value,
-             void (T::*&& setter)(int value))
-{
-  input->setCurrentIndex(value);
-  return object->connect(
-    input, &QComboBox::currentIndexChanged, target, setter);
-}
+public:
+  template<typename T, typename Enum>
+  static QMetaObject::Connection connect(QObject* object,
+                                         const T* target,
+                                         QComboBox* input,
+                                         const Enum value,
+                                         Setter<T, Enum> setter)
+  {
+    static_assert(std::is_same_v<std::underlying_type_t<Enum>, int>,
+                  "enum must be represented by int");
+    input->setCurrentIndex((int)value);
+    return object->connect(input,
+                           &QComboBox::currentIndexChanged,
+                           target,
+                           reinterpret_cast<Setter<T, int>>(setter));
+  }
 
-// bool
-template<typename T>
-QMetaObject::Connection
-connectField(QObject* object,
-             const T* target,
-             QCheckBox* input,
-             const bool value,
-             void (T::*&& setter)(bool value))
-{
-  input->setChecked(value);
-  return object->connect(input, &QCheckBox::checkStateChanged, target, setter);
-}
+  template<typename T>
+  static QMetaObject::Connection connect(QObject* object,
+                                         const T* target,
+                                         QComboBox* input,
+                                         int value,
+                                         Setter<T, int> setter)
+  {
+    input->setCurrentIndex(value);
+    return object->connect(
+      input, &QComboBox::currentIndexChanged, target, setter);
+  }
 
-// double
-template<typename T>
-QMetaObject::Connection
-connectField(QObject* object,
-             const T* target,
-             QDoubleSpinBox* input,
-             const double value,
-             void (T::*&& setter)(double value))
-{
-  input->setValue(value);
-  return object->connect(input, &QDoubleSpinBox::valueChanged, target, setter);
-}
+  // bool
+  template<typename T>
+  static QMetaObject::Connection connect(QObject* object,
+                                         const T* target,
+                                         QCheckBox* input,
+                                         const bool value,
+                                         Setter<T, bool> setter)
+  {
+    input->setChecked(value);
+    return object->connect(
+      input, &QCheckBox::checkStateChanged, target, setter);
+  }
 
-// int
-template<typename T>
-QMetaObject::Connection
-connectField(QObject* object,
-             const T* target,
-             QSpinBox* input,
-             const int value,
-             void (T::*&& setter)(int value))
-{
-  input->setValue(value);
-  return object->connect(input, &QSpinBox::valueChanged, target, setter);
-}
+  // double
+  template<typename T>
+  static QMetaObject::Connection connect(QObject* object,
+                                         const T* target,
+                                         QDoubleSpinBox* input,
+                                         const double value,
+                                         Setter<T, double> setter)
+  {
+    input->setValue(value);
+    return object->connect(
+      input, &QDoubleSpinBox::valueChanged, target, setter);
+  }
 
-// qcolor
-template<typename T>
-QMetaObject::Connection
-connectField(QObject* object,
-             const T* target,
-             ColorPickerButton* input,
-             const QColor& value,
-             void (T::*&& setter)(QColor value))
-{
-  input->setValue(value);
-  return object->connect(
-    input, &ColorPickerButton::valueChanged, target, setter);
-}
+  // int
+  template<typename T>
+  static QMetaObject::Connection connect(QObject* object,
+                                         const T* target,
+                                         QSpinBox* input,
+                                         const int value,
+                                         Setter<T, int> setter)
+  {
+    input->setValue(value);
+    return object->connect(input, &QSpinBox::valueChanged, target, setter);
+  }
 
-template<typename T>
-QMetaObject::Connection
-connectField(QObject* object,
-             const T* target,
-             ColorPickerButton* input,
-             const QColor& value,
-             void (T::*&& setter)(const QColor& value))
-{
-  input->setValue(value);
-  return object->connect(
-    input, &ColorPickerButton::valueChanged, target, setter);
-}
+  // qcolor
+  template<typename T>
+  static QMetaObject::Connection connect(QObject* object,
+                                         const T* target,
+                                         ColorPickerButton* input,
+                                         const QColor& value,
+                                         Setter<T, QColor> setter)
+  {
+    input->setValue(value);
+    return object->connect(
+      input, &ColorPickerButton::valueChanged, target, setter);
+  }
 
-// qstring
-template<typename T>
-QMetaObject::Connection
-connectField(QObject* object,
-             const T* target,
-             QLineEdit* input,
-             const QString& value,
-             void (T::*&& setter)(QString value))
-{
-  input->setText(value);
-  return object->connect(input, &QLineEdit::textChanged, target, setter);
-}
+  template<typename T>
+  static QMetaObject::Connection connect(QObject* object,
+                                         const T* target,
+                                         ColorPickerButton* input,
+                                         const QColor& value,
+                                         Setter<T, const QColor&> setter)
+  {
+    input->setValue(value);
+    return object->connect(
+      input, &ColorPickerButton::valueChanged, target, setter);
+  }
 
-template<typename T>
-QMetaObject::Connection
-connectField(QObject* object,
-             const T* target,
-             QLineEdit* input,
-             const QString& value,
-             void (T::*&& setter)(const QString& value))
-{
-  input->setText(value);
-  return object->connect(input, &QLineEdit::textChanged, target, setter);
-}
+  // qstring
+  template<typename T>
+  static QMetaObject::Connection connect(QObject* object,
+                                         const T* target,
+                                         QLineEdit* input,
+                                         const QString& value,
+                                         Setter<T, QString> setter)
+  {
+    input->setText(value);
+    return object->connect(input, &QLineEdit::textChanged, target, setter);
+  }
 
-// qtime
-template<typename T>
-QMetaObject::Connection
-connectField(QObject* object,
-             const T* target,
-             QTimeEdit* input,
-             const QTime& value,
-             void (T::*&& setter)(QTime value))
-{
-  input->setTime(value);
-  return object->connect(input, &QTimeEdit::timeChanged, target, setter);
-}
+  template<typename T>
+  static QMetaObject::Connection connect(QObject* object,
+                                         const T* target,
+                                         QLineEdit* input,
+                                         const QString& value,
+                                         Setter<T, const QString&> setter)
+  {
+    input->setText(value);
+    return object->connect(input, &QLineEdit::textChanged, target, setter);
+  }
 
-template<typename T>
-QMetaObject::Connection
-connectField(QObject* object,
-             const T* target,
-             QTimeEdit* input,
-             const QTime& value,
-             void (T::*&& setter)(const QTime& value))
-{
-  input->setTime(value);
-  return object->connect(input, &QTimeEdit::timeChanged, target, setter);
-}
+  // qtime
+  template<typename T>
+  static QMetaObject::Connection connect(QObject* object,
+                                         const T* target,
+                                         QTimeEdit* input,
+                                         const QTime& value,
+                                         Setter<T, QTime> setter)
+  {
+    input->setTime(value);
+    return object->connect(input, &QTimeEdit::timeChanged, target, setter);
+  }
+
+  template<typename T>
+  static QMetaObject::Connection connect(QObject* object,
+                                         const T* target,
+                                         QTimeEdit* input,
+                                         const QTime& value,
+                                         Setter<T, const QTime&> setter)
+  {
+    input->setTime(value);
+    return object->connect(input, &QTimeEdit::timeChanged, target, setter);
+  }
+};

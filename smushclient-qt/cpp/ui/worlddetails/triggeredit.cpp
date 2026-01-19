@@ -8,7 +8,7 @@
 #include <QtWidgets/QFileDialog>
 
 #define CONNECT(field)                                                         \
-  connectField(                                                                \
+  FieldConnector::connect(                                                     \
     this, &trigger, ui->field, trigger.get##field(), &Trigger::set##field);
 
 TriggerEdit::TriggerEdit(Trigger& trigger, QWidget* parent)

@@ -5,7 +5,8 @@
 #include "ui_timeredit.h"
 
 #define CONNECT(field)                                                         \
-  connectField(this, &timer, ui->field, timer.get##field(), &Timer::set##field);
+  FieldConnector::connect(                                                     \
+    this, &timer, ui->field, timer.get##field(), &Timer::set##field);
 
 TimerEdit::TimerEdit(Timer& timer, QWidget* parent)
   : QDialog(parent)
