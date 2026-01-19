@@ -4,7 +4,7 @@
 
 namespace Ui {
 class SettingsSound;
-}
+} // namespace Ui
 
 class Settings;
 

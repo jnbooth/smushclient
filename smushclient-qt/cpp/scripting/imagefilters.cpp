@@ -2,6 +2,7 @@
 
 // Private utils
 
+namespace {
 constexpr int
 rgbaOffset(ImageFilter::Channel channel) noexcept
 {
@@ -20,6 +21,7 @@ rgbaIncrement(ImageFilter::Channel channel) noexcept
 {
   return channel == ImageFilter::Channel::All ? 1 : 4;
 }
+} // namespace
 
 // Public methods
 

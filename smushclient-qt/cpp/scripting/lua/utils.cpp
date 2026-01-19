@@ -53,6 +53,7 @@ private:
   const QList<QVariant>& selection;
 };
 
+namespace {
 int
 execScriptDialog(lua_State* L,
                  int idx,
@@ -80,6 +81,7 @@ execScriptDialog(lua_State* L,
 
   return 1;
 }
+} // namespace
 
 static int
 L_choose(lua_State* L)

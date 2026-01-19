@@ -4,7 +4,7 @@
 
 namespace Ui {
 class WorldPrefs;
-}
+} // namespace Ui
 
 class AliasModel;
 class PluginModel;

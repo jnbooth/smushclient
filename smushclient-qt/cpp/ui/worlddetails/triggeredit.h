@@ -4,7 +4,7 @@
 
 namespace Ui {
 class TriggerEdit;
-}
+} // namespace Ui
 
 class Trigger;
 

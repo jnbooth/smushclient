@@ -4,11 +4,15 @@
 #include "notifier.h"
 #include "ui_history.h"
 
+// Private utils
+
+namespace {
 int
 getLimit(QCheckBox* checkbox, QSpinBox* spinbox)
 {
   return checkbox->isChecked() ? spinbox->value() : -1;
 }
+} // namespace
 
 // Public methods
 

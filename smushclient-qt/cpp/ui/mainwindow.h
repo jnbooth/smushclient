@@ -5,11 +5,9 @@
 #include <QtGui/QCloseEvent>
 #include <QtWidgets/QMainWindow>
 
-QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
-}
-QT_END_NAMESPACE
+} // namespace Ui
 
 enum class AvailableCopy : int;
 class Notepads;

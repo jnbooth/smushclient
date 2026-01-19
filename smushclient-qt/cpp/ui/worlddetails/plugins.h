@@ -3,7 +3,7 @@
 
 namespace Ui {
 class PrefsPlugins;
-}
+} // namespace Ui
 
 class PluginModel;
 class ScriptApi;

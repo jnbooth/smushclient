@@ -97,6 +97,7 @@ enum class KnownVariable
 
 constexpr int knownVariablesSize = (int)KnownVariable::Referral;
 
+namespace {
 constexpr bool
 isBoolVariable(KnownVariable variable) noexcept
 {
@@ -206,6 +207,7 @@ buildKnownVariables()
 
 static const QHash<QString, KnownVariable> knownVariables =
   buildKnownVariables();
+} // namespace
 
 struct StatusEntry
 {

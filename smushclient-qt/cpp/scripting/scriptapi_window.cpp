@@ -13,6 +13,31 @@
 using std::string;
 using std::string_view;
 
+// Private utils
+
+namespace {
+bool
+setExactFontFamily(QFont& font, const QString& family)
+{
+  font.setFamily(family);
+  return QFontInfo(font).family() == family;
+}
+
+void
+assignFontFamily(QFont& font, const QString& family)
+{
+  if (setExactFontFamily(font, family)) {
+    return;
+  }
+  if (family == QStringLiteral("FixedSys") &&
+      setExactFontFamily(font, QStringLiteral("Fixedsys"))) {
+    return;
+  }
+  font.setFamily(
+    QFontDatabase::systemFont(QFontDatabase::SystemFont::FixedFont).family());
+}
+} // namespace
+
 // Public methods
 
 ApiCode
@@ -174,27 +199,6 @@ ScriptApi::WindowFilter(string_view windowName,
   }
   window->applyFilter(filter, rect);
   return ApiCode::OK;
-}
-
-bool
-setExactFontFamily(QFont& font, const QString& family)
-{
-  font.setFamily(family);
-  return QFontInfo(font).family() == family;
-}
-
-void
-assignFontFamily(QFont& font, const QString& family)
-{
-  if (setExactFontFamily(font, family)) {
-    return;
-  }
-  if (family == QStringLiteral("FixedSys") &&
-      setExactFontFamily(font, QStringLiteral("Fixedsys"))) {
-    return;
-  }
-  font.setFamily(
-    QFontDatabase::systemFont(QFontDatabase::SystemFont::FixedFont).family());
 }
 
 ApiCode

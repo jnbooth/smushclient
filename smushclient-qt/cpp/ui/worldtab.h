@@ -29,7 +29,7 @@ class ScriptApi;
 
 namespace Ui {
 class WorldTab;
-}
+} // namespace Ui
 
 enum class AvailableCopy
 {

@@ -39,6 +39,7 @@ constexpr Qt::KeyboardModifiers numpadMods =
 
 // Private utilities
 
+namespace {
 QString
 historyPath(const QString& path)
 {
@@ -56,6 +57,7 @@ showRustError(const rust::Error& e)
 {
   QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
 }
+} // namespace
 
 // Public methods
 

@@ -3,7 +3,7 @@
 
 namespace Ui {
 class PrefsTimers;
-}
+} // namespace Ui
 
 class TimerModel;
 class World;

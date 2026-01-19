@@ -28,11 +28,13 @@ constexpr uint8_t telnetMSSP = 70;
 
 // Private utils
 
+namespace {
 inline string_view
 strView(rust::Str str) noexcept
 {
   return string_view(str.data(), str.length());
 }
+} // namespace
 
 // Public methods
 

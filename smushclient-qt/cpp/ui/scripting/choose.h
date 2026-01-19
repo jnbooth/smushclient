@@ -3,7 +3,7 @@
 
 namespace Ui {
 class Choose;
-}
+} // namespace Ui
 
 class Choose : public AbstractScriptDialog
 {

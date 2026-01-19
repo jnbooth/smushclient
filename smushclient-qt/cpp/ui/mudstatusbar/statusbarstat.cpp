@@ -5,6 +5,7 @@
 
 // Private utils
 
+namespace {
 QColor
 saveColor(QWidget* widget, const QColor& baseColor)
 {
@@ -21,6 +22,7 @@ setTextColor(QWidget* widget, const QColor& color)
   }
   widget->setPalette(palette);
 }
+} // namespace
 
 // Public methods
 

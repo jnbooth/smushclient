@@ -27,6 +27,7 @@ using qlua::expectMaxArgs;
 
 // Private localization
 
+namespace {
 QString
 fmtNoSuchPlugin(string_view id)
 {
@@ -99,6 +100,33 @@ returnCode(lua_State* L, ApiCode code, const QString& reason)
   return 2;
 }
 
+inline size_t
+getPluginIndex(lua_State* L)
+{
+  lua_rawgetp(L, LUA_REGISTRYINDEX, indexRegKey);
+  const size_t index = lua_tointeger(L, -1);
+  lua_pop(L, 1);
+  return index;
+}
+
+inline void
+insertTextTriples(lua_State* L, ScriptApi& api)
+{
+  int n = lua_gettop(L);
+  for (int i = 1; i <= n; i += 3) {
+    api.ColourTell(qlua::getQColor(L, i),
+                   qlua::getQColor(L, i + 1),
+                   qlua::getQString(L, i + 2));
+  }
+}
+
+inline constexpr lua_Number
+convertVolume(lua_Number decibels)
+{
+  return 1 / pow(2, decibels / -3);
+}
+} // namespace
+
 int
 setLuaApi(lua_State* L, ScriptApi* api)
 {
@@ -122,21 +150,6 @@ setPluginIndex(lua_State* L, size_t index)
   lua_pushinteger(L, (lua_Integer)index);
   lua_rawsetp(L, LUA_REGISTRYINDEX, indexRegKey);
   return 0;
-}
-
-inline size_t
-getPluginIndex(lua_State* L)
-{
-  lua_rawgetp(L, LUA_REGISTRYINDEX, indexRegKey);
-  const size_t index = lua_tointeger(L, -1);
-  lua_pop(L, 1);
-  return index;
-}
-
-inline constexpr lua_Number
-convertVolume(lua_Number decibels)
-{
-  return 1 / pow(2, decibels / -3);
 }
 
 // benchmarking
@@ -375,17 +388,6 @@ L_SetOption(lua_State* L)
 }
 
 // output
-
-inline void
-insertTextTriples(lua_State* L, ScriptApi& api)
-{
-  int n = lua_gettop(L);
-  for (int i = 1; i <= n; i += 3) {
-    api.ColourTell(qlua::getQColor(L, i),
-                   qlua::getQColor(L, i + 1),
-                   qlua::getQString(L, i + 2));
-  }
-}
 
 static int
 L_ColourNameToRGB(lua_State* L)

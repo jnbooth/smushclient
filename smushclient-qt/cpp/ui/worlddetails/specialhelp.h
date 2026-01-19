@@ -3,7 +3,7 @@
 
 namespace Ui {
 class SpecialHelp;
-}
+} // namespace Ui
 
 class SpecialHelp : public QDialog
 {

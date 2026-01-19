@@ -3,7 +3,7 @@
 
 namespace Ui {
 class PrefsTriggers;
-}
+} // namespace Ui
 
 class TriggerModel;
 class World;

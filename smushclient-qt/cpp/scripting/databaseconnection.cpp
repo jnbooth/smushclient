@@ -6,6 +6,7 @@ using std::string_view;
 
 // Private utils
 
+namespace {
 inline string
 replacePathSeparators(string_view path)
 {
@@ -17,6 +18,7 @@ replacePathSeparators(string_view path)
   }
   return file;
 }
+} // namespace
 
 // Public methods
 

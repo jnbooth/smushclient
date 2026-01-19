@@ -25,6 +25,7 @@ static const QColor customColors[16] = {
   QColor(0, 0, 255),
 };
 
+namespace {
 inline QString
 charString(char c)
 {
@@ -50,6 +51,25 @@ checkIsSome(lua_State* L, int idx, int type, const char* name)
   }
   luaL_argexpected(L, actualType == type, idx, name);
   return true;
+}
+
+inline bool
+isScriptName(lua_State* L, const char* name)
+{
+  const char* property = strchr(name, '.');
+  if (!property) {
+    const bool isFunction = lua_getglobal(L, name);
+    lua_pop(L, 1);
+    return isFunction;
+  }
+  const string tableName(name, property - name);
+  if (lua_getglobal(L, tableName.c_str()) != LUA_TTABLE) {
+    lua_pop(L, 1);
+    return false;
+  }
+  const bool isFunction = lua_getfield(L, -1, property + 1) == LUA_TFUNCTION;
+  lua_pop(L, 2);
+  return isFunction;
 }
 
 lua_Integer
@@ -92,6 +112,101 @@ toQVariants(lua_State* L, int idx, qsizetype size)
   }
   return variants;
 }
+
+QColor
+toQColor(lua_State* L, int idx, int ltype)
+{
+  switch (ltype) {
+    case LUA_TSTRING: {
+      size_t len;
+      const char* message = lua_tolstring(L, idx, &len);
+      if (len == 0) {
+        return QColor();
+      }
+      const QColor color = QColor::fromString(QAnyStringView(message, len));
+      luaL_argcheck(L, color.isValid(), idx, "valid color");
+      return color;
+    }
+    case LUA_TNUMBER: {
+      int isInt;
+      const lua_Integer rgb = lua_tointegerx(L, idx, &isInt);
+      if (isInt) {
+        luaL_argcheck(L, rgb >= 0 && rgb <= 0xFFFFFF, idx, "valid color");
+        return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
+      }
+    }
+  }
+  luaL_typeerror(L, idx, "string or integer");
+  return QColor();
+}
+
+template<typename T, T MIN, T MAX>
+inline optional<T>
+getEnum(lua_State* L, int idx, optional<T> ifNil = nullopt)
+{
+  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer")) {
+    return ifNil;
+  }
+  const lua_Integer val = toInt(L, idx);
+  if (val < (lua_Integer)MIN || val > (lua_Integer)MAX) [[unlikely]] {
+    return nullopt;
+  }
+  return (T)val;
+}
+
+constexpr Qt::PenStyle
+getPenStyle(lua_Integer style) noexcept
+{
+  switch (style & 0xFF) {
+    case PenStyleFlag::SolidLine:
+      return Qt::PenStyle::SolidLine;
+    case PenStyleFlag::DashLine:
+      return Qt::PenStyle::DashLine;
+    case PenStyleFlag::DotLine:
+      return Qt::PenStyle::DotLine;
+    case PenStyleFlag::DashDotLine:
+      return Qt::PenStyle::DashDotLine;
+    case PenStyleFlag::DashDotDotLine:
+      return Qt::PenStyle::DashDotDotLine;
+    case PenStyleFlag::NoPen:
+      return Qt::PenStyle::NoPen;
+    case PenStyleFlag::InsideFrame:
+      return Qt::PenStyle::SolidLine;
+    default:
+      return Qt::PenStyle::MPenStyle;
+  }
+}
+
+constexpr Qt::PenCapStyle
+getPenCap(lua_Integer style) noexcept
+{
+  switch (style & 0xF00) {
+    case PenCapFlag::RoundCap:
+      return Qt::PenCapStyle::RoundCap;
+    case PenCapFlag::SquareCap:
+      return Qt::PenCapStyle::SquareCap;
+    case PenCapFlag::FlatCap:
+      return Qt::PenCapStyle::FlatCap;
+    default:
+      return Qt::PenCapStyle::MPenCapStyle;
+  }
+}
+
+constexpr Qt::PenJoinStyle
+getPenJoin(lua_Integer style) noexcept
+{
+  switch (style & ~0XFFF) {
+    case PenJoinFlag::RoundJoin:
+      return Qt::PenJoinStyle::RoundJoin;
+    case PenJoinFlag::BevelJoin:
+      return Qt::PenJoinStyle::BevelJoin;
+    case PenJoinFlag::MiterJoin:
+      return Qt::PenJoinStyle::MiterJoin;
+    default:
+      return Qt::PenJoinStyle::MPenJoinStyle;
+  }
+}
+} // namespace
 
 // Public functions
 
@@ -231,33 +346,6 @@ qlua::getCustomColor(lua_State* L, int idx)
 }
 
 QColor
-toQColor(lua_State* L, int idx, int ltype)
-{
-  switch (ltype) {
-    case LUA_TSTRING: {
-      size_t len;
-      const char* message = lua_tolstring(L, idx, &len);
-      if (len == 0) {
-        return QColor();
-      }
-      const QColor color = QColor::fromString(QAnyStringView(message, len));
-      luaL_argcheck(L, color.isValid(), idx, "valid color");
-      return color;
-    }
-    case LUA_TNUMBER: {
-      int isInt;
-      const lua_Integer rgb = lua_tointegerx(L, idx, &isInt);
-      if (isInt) {
-        luaL_argcheck(L, rgb >= 0 && rgb <= 0xFFFFFF, idx, "valid color");
-        return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
-      }
-    }
-  }
-  luaL_typeerror(L, idx, "string or integer");
-  return QColor();
-}
-
-QColor
 qlua::getQColor(lua_State* L, int idx)
 {
   return toQColor(L, idx, lua_type(L, idx));
@@ -317,25 +405,6 @@ QVariant
 qlua::getQVariant(lua_State* L, int idx)
 {
   return getQVariant(L, idx, lua_type(L, idx));
-}
-
-inline bool
-isScriptName(lua_State* L, const char* name)
-{
-  const char* property = strchr(name, '.');
-  if (!property) {
-    const bool isFunction = lua_getglobal(L, name);
-    lua_pop(L, 1);
-    return isFunction;
-  }
-  const string tableName(name, property - name);
-  if (lua_getglobal(L, tableName.c_str()) != LUA_TTABLE) {
-    lua_pop(L, 1);
-    return false;
-  }
-  const bool isFunction = lua_getfield(L, -1, property + 1) == LUA_TFUNCTION;
-  lua_pop(L, 2);
-  return isFunction;
 }
 
 optional<string_view>
@@ -802,20 +871,6 @@ qlua::getQRectF(lua_State* L,
                 QPointF(getNumber(L, idxRight), getNumber(L, idxBottom)));
 }
 
-template<typename T, T MIN, T MAX>
-inline optional<T>
-getEnum(lua_State* L, int idx, optional<T> ifNil = nullopt)
-{
-  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer")) {
-    return ifNil;
-  }
-  const lua_Integer val = toInt(L, idx);
-  if (val < (lua_Integer)MIN || val > (lua_Integer)MAX) [[unlikely]] {
-    return nullopt;
-  }
-  return (T)val;
-}
-
 optional<MiniWindow::ButtonFrame>
 qlua::getButtonFrame(lua_State* L,
                      int idx,
@@ -955,59 +1010,6 @@ qlua::getFontHint(lua_State* L, int idx, optional<QFont::StyleHint> ifNil)
       return QFont::StyleHint::Decorative;
     default:
       return nullopt;
-  }
-}
-
-constexpr Qt::PenStyle
-getPenStyle(lua_Integer style) noexcept
-{
-  switch (style & 0xFF) {
-    case PenStyleFlag::SolidLine:
-      return Qt::PenStyle::SolidLine;
-    case PenStyleFlag::DashLine:
-      return Qt::PenStyle::DashLine;
-    case PenStyleFlag::DotLine:
-      return Qt::PenStyle::DotLine;
-    case PenStyleFlag::DashDotLine:
-      return Qt::PenStyle::DashDotLine;
-    case PenStyleFlag::DashDotDotLine:
-      return Qt::PenStyle::DashDotDotLine;
-    case PenStyleFlag::NoPen:
-      return Qt::PenStyle::NoPen;
-    case PenStyleFlag::InsideFrame:
-      return Qt::PenStyle::SolidLine;
-    default:
-      return Qt::PenStyle::MPenStyle;
-  }
-}
-
-constexpr Qt::PenCapStyle
-getPenCap(lua_Integer style) noexcept
-{
-  switch (style & 0xF00) {
-    case PenCapFlag::RoundCap:
-      return Qt::PenCapStyle::RoundCap;
-    case PenCapFlag::SquareCap:
-      return Qt::PenCapStyle::SquareCap;
-    case PenCapFlag::FlatCap:
-      return Qt::PenCapStyle::FlatCap;
-    default:
-      return Qt::PenCapStyle::MPenCapStyle;
-  }
-}
-
-constexpr Qt::PenJoinStyle
-getPenJoin(lua_Integer style) noexcept
-{
-  switch (style & ~0XFFF) {
-    case PenJoinFlag::RoundJoin:
-      return Qt::PenJoinStyle::RoundJoin;
-    case PenJoinFlag::BevelJoin:
-      return Qt::PenJoinStyle::BevelJoin;
-    case PenJoinFlag::MiterJoin:
-      return Qt::PenJoinStyle::MiterJoin;
-    default:
-      return Qt::PenJoinStyle::MPenJoinStyle;
   }
 }
 

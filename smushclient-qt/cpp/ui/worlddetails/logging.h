@@ -3,7 +3,7 @@
 
 namespace Ui {
 class PrefsLogging;
-}
+} // namespace Ui
 
 class World;
 enum class LogFormat;

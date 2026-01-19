@@ -6,7 +6,7 @@ class ScriptApi;
 
 namespace Ui {
 class PrefsOutput;
-}
+} // namespace Ui
 
 class World;
 

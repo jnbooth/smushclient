@@ -28,35 +28,6 @@ using std::chrono::seconds;
 
 // Private utils
 
-inline QColor
-getColorFromVariant(const QVariant& variant)
-{
-  if (variant.canConvert<QString>()) {
-    QString colorName = variant.toString();
-    return colorName.isEmpty() ? QColor::fromRgb(0, 0, 0, 0)
-                               : QColor::fromString(colorName);
-  }
-  bool ok;
-  int rgb = variant.toInt(&ok);
-  if (!ok || rgb < 0 || rgb > 0xFFFFFF) {
-    return QColor();
-  }
-  return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
-}
-
-inline bool
-isEmptyList(const QVariant& variant)
-{
-  switch (variant.typeId()) {
-    case QMetaType::QStringList:
-      return variant.toStringList().isEmpty();
-    case QMetaType::QVariantList:
-      return variant.toList().isEmpty();
-    default:
-      return false;
-  }
-}
-
 // Public static methods
 
 QStringList

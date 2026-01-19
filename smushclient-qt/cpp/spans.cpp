@@ -17,6 +17,7 @@ static const QString inputPrefix = QStringLiteral("n:");
 
 // Private utils
 
+namespace {
 constexpr const QString&
 getPrefix(SendTo sendto)
 {
@@ -29,6 +30,7 @@ getPrefix(SendTo sendto)
       return inputPrefix;
   }
 }
+} // namespace
 
 // Public functions
 

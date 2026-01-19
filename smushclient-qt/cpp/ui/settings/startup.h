@@ -3,7 +3,7 @@
 
 namespace Ui {
 class SettingsStartup;
-}
+} // namespace Ui
 
 class Settings;
 

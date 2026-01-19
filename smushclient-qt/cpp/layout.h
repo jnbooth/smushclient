@@ -16,3 +16,10 @@ struct OutputLayout
   bool restore(const QByteArray& data);
   QByteArray save() const;
 };
+
+inline QDataStream&
+operator>>(QDataStream& stream, OutputLayout& layout)
+{
+  return stream >> layout.margins >> layout.borderOffset >>
+         layout.borderColor >> layout.borderWidth >> layout.outsideFill;
+}

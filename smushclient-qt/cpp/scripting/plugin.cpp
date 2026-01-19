@@ -17,6 +17,7 @@ using std::string_view;
 
 // Private utils
 
+namespace {
 inline bool
 checkError(int status)
 {
@@ -29,14 +30,7 @@ checkError(int status)
       return true;
   }
 }
-
-void
-setlib(lua_State* L, const char* name)
-{
-  lua_pushvalue(L, -1);
-  lua_setglobal(L, name);
-  lua_setfield(L, 1, name);
-}
+} // namespace
 
 // Metadata
 

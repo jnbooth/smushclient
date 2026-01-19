@@ -8,4 +8,4 @@ setBackgroundMaterial(QWidget* widget, int material);
 
 SetBackgroundMaterialResult
 unsetBackgroundMaterial(QWidget* widget);
-}
+} // namespace native

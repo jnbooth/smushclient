@@ -10,6 +10,7 @@ static const char* errorHandlerKey = "trace";
 
 // Private utils
 
+namespace {
 inline bool
 checkError(int status)
 {
@@ -23,8 +24,6 @@ checkError(int status)
   }
 }
 
-// Private utils
-
 QLatin1StringView
 getError(lua_State* L)
 {
@@ -32,6 +31,7 @@ getError(lua_State* L)
   const char* message = lua_tolstring(L, -1, &len);
   return QLatin1StringView(message, len);
 }
+} // namespace
 
 // Public functions
 

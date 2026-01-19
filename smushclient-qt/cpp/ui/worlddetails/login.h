@@ -3,7 +3,7 @@
 
 namespace Ui {
 class PrefsLogin;
-}
+} // namespace Ui
 
 class World;
 

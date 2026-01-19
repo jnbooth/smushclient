@@ -3,7 +3,7 @@
 
 namespace Ui {
 class AliasEdit;
-}
+} // namespace Ui
 
 class Alias;
 

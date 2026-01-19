@@ -3,7 +3,7 @@
 
 namespace Ui {
 class PrefsConnecting;
-}
+} // namespace Ui
 
 class World;
 

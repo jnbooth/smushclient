@@ -3,7 +3,7 @@
 
 namespace Ui {
 class SettingsDialog;
-}
+} // namespace Ui
 
 class MainWindow;
 class Settings;

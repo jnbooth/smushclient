@@ -6,7 +6,7 @@ class FindDialog;
 
 namespace Ui {
 class Notepad;
-}
+} // namespace Ui
 
 class Notepad : public QMainWindow
 {

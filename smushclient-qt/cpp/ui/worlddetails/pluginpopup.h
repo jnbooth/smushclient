@@ -3,7 +3,7 @@
 
 namespace Ui {
 class PluginPopup;
-}
+} // namespace Ui
 
 class PluginDetails;
 class SmushClient;

@@ -6,7 +6,7 @@
 
 namespace Ui {
 class StatusBarStat;
-}
+} // namespace Ui
 
 class StatusBarStat : public QWidget
 {

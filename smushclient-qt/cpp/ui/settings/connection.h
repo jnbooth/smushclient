@@ -3,7 +3,7 @@
 
 namespace Ui {
 class SettingsConnecting;
-}
+} // namespace Ui
 
 class Settings;
 

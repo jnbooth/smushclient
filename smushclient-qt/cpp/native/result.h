@@ -9,4 +9,4 @@ enum SetBackgroundMaterialResult
   NoSuperview,
   InvalidMaterial,
 };
-}
+} // namespace native

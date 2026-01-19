@@ -15,6 +15,7 @@ using std::string_view;
 
 // Private utils
 
+namespace {
 constexpr bool
 hasCallback(const std::string& callback)
 {
@@ -28,8 +29,6 @@ hasCallback(const std::string& callback, QEvent* event)
   event->setAccepted(willHandle);
   return willHandle;
 }
-
-// Public methods
 
 constexpr Hotspot::EventFlags
 getEventFlags(Qt::KeyboardModifiers modifiers,
@@ -69,6 +68,9 @@ getEventFlags()
   return getEventFlags(QGuiApplication::keyboardModifiers(),
                        QGuiApplication::mouseButtons());
 }
+} // namespace
+
+// Public methods
 
 Hotspot::Hotspot(MiniWindow* parent,
                  WorldTab* tab,

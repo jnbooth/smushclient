@@ -5,7 +5,7 @@
 
 namespace Ui {
 class FindDialog;
-}
+} // namespace Ui
 
 class FindDialog : public QDialog
 {

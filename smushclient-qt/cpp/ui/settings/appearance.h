@@ -4,7 +4,7 @@
 
 namespace Ui {
 class SettingsAppearance;
-}
+} // namespace Ui
 
 class Settings;
 class SettingsNotifier;

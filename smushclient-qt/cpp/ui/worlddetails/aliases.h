@@ -3,7 +3,7 @@
 
 namespace Ui {
 class PrefsAliases;
-}
+} // namespace Ui
 
 class AliasModel;
 class World;

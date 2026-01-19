@@ -3,6 +3,7 @@
 
 // Private utils
 
+namespace {
 QAbstractScrollArea*
 getScrollArea(const QObject* obj)
 {
@@ -22,6 +23,7 @@ getScrollArea(const QObject* obj)
 
   return getScrollArea(parent);
 }
+} // namespace
 
 // Public methods
 

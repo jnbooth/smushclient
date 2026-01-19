@@ -551,6 +551,7 @@ static const pair<string, TriggerFlag> trigger_flag[] = {
   { "OneShot", TriggerFlag::OneShot }
 };
 
+namespace {
 void
 pushValue(lua_State* L, int value)
 {
@@ -592,6 +593,7 @@ registerTable(lua_State* L, const char* name, const pair<K, V> (&entries)[N])
     lua_setglobal(L, name);
   }
 }
+} // namespace
 
 int
 registerLuaGlobals(lua_State* L)

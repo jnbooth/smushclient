@@ -24,6 +24,97 @@ using std::optional;
 using std::string;
 using std::string_view;
 
+// Private utils
+
+enum ModifierFlag : long long
+{
+  Shift = 0x00001,
+  Ctrl = 0x00002,
+  Alt = 0x00004,
+  LeftShift = 0x00008,
+  RightShift = 0x00010,
+  LeftCtrl = 0x00020,
+  RightCtrl = 0x00040,
+  LeftAlt = 0x00080,
+  RightAlt = 0x00100,
+  CapsLock = 0x00200,
+  NumLock = 0x00400,
+  ScrollLock = 0x00800,
+  CapsLockToggled = 0x02000,
+  NumLockToggled = 0x04000,
+  ScrollLockToggled = 0x08000,
+  LeftMouse = 0x10000,
+  RightMouse = 0x20000,
+  MiddleMouse = 0x40000,
+};
+
+namespace {
+QString
+defaultPath(const QString& name)
+{
+  return QDir::currentPath() + QDir::separator() + name;
+}
+
+constexpr long long
+getModifierFlags(Qt::KeyboardModifiers mods, Qt::MouseButtons buttons)
+{
+  long long flags = 0;
+
+  if (mods.testFlag(Qt::KeyboardModifier::ShiftModifier)) {
+    flags |= ModifierFlag::Shift | ModifierFlag::LeftShift;
+  }
+  if (mods.testFlag(Qt::KeyboardModifier::ControlModifier)) {
+    flags |= ModifierFlag::Ctrl | ModifierFlag::LeftCtrl;
+  }
+  if (mods.testFlag(Qt::KeyboardModifier::AltModifier)) {
+    flags |= ModifierFlag::Alt | ModifierFlag::LeftAlt;
+  }
+
+  if (buttons.testFlag(Qt::MouseButton::LeftButton)) {
+    flags |= ModifierFlag::LeftMouse;
+  }
+  if (buttons.testFlag(Qt::MouseButton::RightButton)) {
+    flags |= ModifierFlag::RightMouse;
+  }
+  if (buttons.testFlag(Qt::MouseButton::MiddleButton)) {
+    flags |= ModifierFlag::MiddleMouse;
+  }
+
+  return flags;
+}
+
+constexpr ScriptBrush
+getBrushStyle(const QBrush& brush)
+{
+  switch (brush.style()) {
+    case Qt::BrushStyle::SolidPattern:
+      return ScriptBrush::SolidPattern;
+    case Qt::BrushStyle::NoBrush:
+      return ScriptBrush::NoBrush;
+    case Qt::BrushStyle::HorPattern:
+      return ScriptBrush::HorPattern;
+    case Qt::BrushStyle::VerPattern:
+      return ScriptBrush::VerPattern;
+    case Qt::BrushStyle::FDiagPattern:
+      return ScriptBrush::FDiagPattern;
+    case Qt::BrushStyle::BDiagPattern:
+      return ScriptBrush::BDiagPattern;
+    case Qt::BrushStyle::CrossPattern:
+      return ScriptBrush::CrossPattern;
+    case Qt::BrushStyle::DiagCrossPattern:
+      return ScriptBrush::DiagCrossPattern;
+    case Qt::BrushStyle::Dense4Pattern:
+      return ScriptBrush::Dense4Pattern;
+    case Qt::BrushStyle::Dense2Pattern:
+      return ScriptBrush::Dense2Pattern;
+    case Qt::BrushStyle::Dense1Pattern:
+      return ScriptBrush::Dense1Pattern;
+    default:
+      return ScriptBrush::SolidPattern;
+  }
+}
+} // namespace
+
 // Public methods
 
 QVariant
@@ -91,93 +182,6 @@ ScriptApi::FontInfo(const QFont& font, long infoType) const
       return QFontInfo(font).family();
     default:
       return QVariant();
-  }
-}
-
-QString
-defaultPath(const QString& name)
-{
-  return QDir::currentPath() + QDir::separator() + name;
-}
-
-enum ModifierFlag : long long
-{
-  Shift = 0x00001,
-  Ctrl = 0x00002,
-  Alt = 0x00004,
-  LeftShift = 0x00008,
-  RightShift = 0x00010,
-  LeftCtrl = 0x00020,
-  RightCtrl = 0x00040,
-  LeftAlt = 0x00080,
-  RightAlt = 0x00100,
-  CapsLock = 0x00200,
-  NumLock = 0x00400,
-  ScrollLock = 0x00800,
-  CapsLockToggled = 0x02000,
-  NumLockToggled = 0x04000,
-  ScrollLockToggled = 0x08000,
-  LeftMouse = 0x10000,
-  RightMouse = 0x20000,
-  MiddleMouse = 0x40000,
-};
-
-constexpr long long
-getModifierFlags(Qt::KeyboardModifiers mods, Qt::MouseButtons buttons)
-{
-  long long flags = 0;
-
-  if (mods.testFlag(Qt::KeyboardModifier::ShiftModifier)) {
-    flags |= ModifierFlag::Shift | ModifierFlag::LeftShift;
-  }
-  if (mods.testFlag(Qt::KeyboardModifier::ControlModifier)) {
-    flags |= ModifierFlag::Ctrl | ModifierFlag::LeftCtrl;
-  }
-  if (mods.testFlag(Qt::KeyboardModifier::AltModifier)) {
-    flags |= ModifierFlag::Alt | ModifierFlag::LeftAlt;
-  }
-
-  if (buttons.testFlag(Qt::MouseButton::LeftButton)) {
-    flags |= ModifierFlag::LeftMouse;
-  }
-  if (buttons.testFlag(Qt::MouseButton::RightButton)) {
-    flags |= ModifierFlag::RightMouse;
-  }
-  if (buttons.testFlag(Qt::MouseButton::MiddleButton)) {
-    flags |= ModifierFlag::MiddleMouse;
-  }
-
-  return flags;
-}
-
-constexpr ScriptBrush
-getBrushStyle(const QBrush& brush)
-{
-  switch (brush.style()) {
-    case Qt::BrushStyle::SolidPattern:
-      return ScriptBrush::SolidPattern;
-    case Qt::BrushStyle::NoBrush:
-      return ScriptBrush::NoBrush;
-    case Qt::BrushStyle::HorPattern:
-      return ScriptBrush::HorPattern;
-    case Qt::BrushStyle::VerPattern:
-      return ScriptBrush::VerPattern;
-    case Qt::BrushStyle::FDiagPattern:
-      return ScriptBrush::FDiagPattern;
-    case Qt::BrushStyle::BDiagPattern:
-      return ScriptBrush::BDiagPattern;
-    case Qt::BrushStyle::CrossPattern:
-      return ScriptBrush::CrossPattern;
-    case Qt::BrushStyle::DiagCrossPattern:
-      return ScriptBrush::DiagCrossPattern;
-    case Qt::BrushStyle::Dense4Pattern:
-      return ScriptBrush::Dense4Pattern;
-    case Qt::BrushStyle::Dense2Pattern:
-      return ScriptBrush::Dense2Pattern;
-    case Qt::BrushStyle::Dense1Pattern:
-      return ScriptBrush::Dense1Pattern;
-    default:
-      return ScriptBrush::SolidPattern;
   }
 }
 

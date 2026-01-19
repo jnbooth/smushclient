@@ -6,7 +6,7 @@
 
 namespace Ui {
 class MudStatusBar;
-}
+} // namespace Ui
 
 class StatusBarStat;
 

@@ -3,7 +3,7 @@
 
 namespace Ui {
 class TimerEdit;
-}
+} // namespace Ui
 
 enum class Occurrence;
 class Timer;

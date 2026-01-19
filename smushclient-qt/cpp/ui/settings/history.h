@@ -3,7 +3,7 @@
 
 namespace Ui {
 class SettingsHistory;
-}
+} // namespace Ui
 
 class Settings;
 class SettingsNotifier;

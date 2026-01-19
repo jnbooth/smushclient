@@ -37,6 +37,7 @@ template <> struct SettingInput<QStringList> { typedef const QStringList &Type; 
 
 // Private utils
 
+namespace {
 QFont
 getDefaultFont(int pointSize)
 {
@@ -46,12 +47,7 @@ getDefaultFont(int pointSize)
 }
 
 static const QFont defaultFont = getDefaultFont(12);
-
-const QString
-headerKey(const QString& modelName)
-{
-  return QStringLiteral("headers/") + modelName;
-}
+} // namespace
 
 // Public methods
 

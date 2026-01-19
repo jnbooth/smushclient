@@ -4,7 +4,7 @@
 
 namespace Ui {
 class RegexDialog;
-}
+} // namespace Ui
 
 struct RegexParse;
 

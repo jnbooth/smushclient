@@ -4,7 +4,7 @@
 
 namespace Ui {
 class ListBox;
-}
+} // namespace Ui
 
 class ListBox : public AbstractScriptDialog
 {

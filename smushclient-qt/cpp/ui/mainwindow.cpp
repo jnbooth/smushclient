@@ -33,12 +33,14 @@ using std::optional;
 
 // Private utilities
 
+namespace {
 QString
 formatWindowTitle(WorldTab* tab)
 {
   return tab->title() + QStringLiteral("[*] - ") +
          QCoreApplication::applicationName();
 }
+} // namespace
 
 // Public methods
 

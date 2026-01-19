@@ -3,7 +3,7 @@
 
 namespace Ui {
 class PrefsNumpad;
-}
+} // namespace Ui
 
 class World;
 

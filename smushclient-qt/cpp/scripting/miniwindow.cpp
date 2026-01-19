@@ -12,6 +12,7 @@ using std::vector;
 
 // Private utils
 
+namespace {
 inline bool
 isNotSpace(char c)
 {
@@ -168,6 +169,7 @@ calculateGeometry(MiniWindow::Position pos,
                    child);
   }
 }
+} // namespace
 
 // Painter
 
