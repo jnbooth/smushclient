@@ -109,8 +109,9 @@ Settings::getRecentFiles() const
 {
   QStringList recent = store.value(recentFilesKey).toStringList();
   // Should never happen, but just in case.
-  if (recent.size() > recentFilesMax)
+  if (recent.size() > recentFilesMax) {
     recent.resize(recentFilesMax);
+  }
   return recent;
 }
 
@@ -120,13 +121,15 @@ Settings::addRecentFile(const QString& path)
   QString relativePath = makePathRelative(path);
   QStringList recent = getRecentFiles();
   qsizetype index = recent.indexOf(relativePath);
-  if (index == 0)
+  if (index == 0) {
     return RecentFileResult{ .changed = false, .recentFiles = recent };
+  }
 
-  if (index != -1)
+  if (index != -1) {
     recent.remove(index);
-  else if (recent.size() == recentFilesMax)
+  } else if (recent.size() == recentFilesMax) {
     recent.removeLast();
+  }
 
   recent.prepend(relativePath);
   store.setValue(recentFilesKey, recent);
@@ -139,8 +142,9 @@ Settings::removeRecentFile(const QString& path)
   QString relativePath = makePathRelative(path);
   QStringList recent = getRecentFiles();
   qsizetype index = recent.indexOf(relativePath);
-  if (index == -1)
+  if (index == -1) {
     return RecentFileResult{ .changed = false, .recentFiles = recent };
+  }
 
   recent.remove(index);
   store.setValue(recentFilesKey, recent);

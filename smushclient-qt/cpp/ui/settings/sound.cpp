@@ -31,8 +31,9 @@ SettingsSound::on_BellSound_browse_clicked()
     tr("Select sound file"),
     currentFile.isEmpty() ? QStringLiteral(SOUNDS_DIR) : currentFile);
 
-  if (path.isEmpty())
+  if (path.isEmpty()) {
     return;
+  }
 
   ui->BellSound->setText(makePathRelative(path));
 }

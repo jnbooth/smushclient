@@ -24,8 +24,9 @@ OutputLayout::save() const
 bool
 OutputLayout::restore(const QByteArray& data)
 {
-  if (data.isEmpty())
+  if (data.isEmpty()) {
     return false;
+  }
 
   QDataStream stream(data);
   stream >> margins >> borderOffset >> borderColor >> borderWidth >>

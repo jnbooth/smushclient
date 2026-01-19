@@ -17,8 +17,9 @@ SettingsStartup::SettingsStartup(Settings& settings, QWidget* parent)
 {
   ui->setupUi(this);
 
-  for (const QString& file : settings.getOpenAtStartup())
+  for (const QString& file : settings.getOpenAtStartup()) {
     ui->OpenAtStartup->addItem(file);
+  }
 
   EnumButtonGroup(this,
                   settings.getStartupBehavior(),
@@ -38,8 +39,9 @@ SettingsStartup::~SettingsStartup()
   const int count = ui->OpenAtStartup->count();
   QStringList openAtStartup;
   openAtStartup.reserve(count);
-  for (int i = 0; i < count; ++i)
+  for (int i = 0; i < count; ++i) {
     openAtStartup.push_back(ui->OpenAtStartup->item(i)->text());
+  }
   settings.setOpenAtStartup(openAtStartup);
 
   const QString startupDir = currentStartupDirectory();
@@ -100,18 +102,21 @@ SettingsStartup::on_OpenAtStartup_add_clicked()
   const QStringList filePaths = QFileDialog::getOpenFileNames(
     this, tr("Add world"), QStringLiteral(WORLDS_DIR), FileFilter::world());
 
-  if (filePaths.isEmpty())
+  if (filePaths.isEmpty()) {
     return;
+  }
 
-  for (const QString& filePath : filePaths)
+  for (const QString& filePath : filePaths) {
     ui->OpenAtStartup->addItem(makePathRelative(filePath));
+  }
 }
 
 void
 SettingsStartup::on_OpenAtStartup_remove_clicked()
 {
-  for (QListWidgetItem* item : ui->OpenAtStartup->selectedItems())
+  for (QListWidgetItem* item : ui->OpenAtStartup->selectedItems()) {
     delete item;
+  }
 }
 
 void
@@ -164,8 +169,9 @@ SettingsStartup::on_StartupDirectory_browse_clicked()
   const QString path = QFileDialog::getExistingDirectory(
     this, tr("Select startup directory"), currentStartupDirectory());
 
-  if (path.isEmpty())
+  if (path.isEmpty()) {
     return;
+  }
 
   ui->StartupDirectory->setText(path);
 }

@@ -6,16 +6,19 @@
 QAbstractScrollArea*
 getScrollArea(const QObject* obj)
 {
-  if (!obj)
+  if (!obj) {
     return nullptr;
+  }
 
   QObject* parent = obj->parent();
-  if (!parent)
+  if (!parent) {
     return nullptr;
+  }
 
   QAbstractScrollArea* area = qobject_cast<QAbstractScrollArea*>(parent);
-  if (area)
+  if (area) {
     return area;
+  }
 
   return getScrollArea(parent);
 }
@@ -33,16 +36,18 @@ void
 MudScrollBar::setAutoScrollEnabled(bool enabled)
 {
   autoScroll = enabled;
-  if (autoScroll && !paused)
+  if (autoScroll && !paused) {
     setValue(maximum());
+  }
 }
 
 void
 MudScrollBar::setPaused(bool isPaused)
 {
   paused = isPaused;
-  if (!paused)
+  if (!paused) {
     setValue(maximum());
+  }
 }
 
 void
@@ -52,8 +57,9 @@ MudScrollBar::setPausingEnabled(bool enabled)
   if (pausingEnabled) {
     lastValue = value();
     paused = lastValue != maximum();
-  } else
+  } else {
     paused = false;
+  }
   updateParentPolicy();
 }
 
@@ -68,23 +74,27 @@ MudScrollBar::sliderChange(QAbstractSlider::SliderChange change)
     setValue(maximum());
     return;
   }
-  if (change != QAbstractSlider::SliderChange::SliderValueChange)
+  if (change != QAbstractSlider::SliderChange::SliderValueChange) {
     return;
+  }
   if (inInternalChange) {
     inInternalChange = false;
     return;
   }
-  if (!pausingEnabled)
+  if (!pausingEnabled) {
     return;
+  }
   const int previousValue = lastValue;
   lastValue = value();
   if (lastValue == maximum()) {
-    if (!paused)
+    if (!paused) {
       return;
+    }
     paused = false;
   } else if (lastValue < previousValue) {
-    if (paused)
+    if (paused) {
       return;
+    }
     paused = true;
   }
   updateParentPolicy();
@@ -96,8 +106,9 @@ void
 MudScrollBar::updateParentPolicy() const
 {
   QAbstractScrollArea* p = getScrollArea(parent());
-  if (!p)
+  if (!p) {
     return;
+  }
 
   p->setVerticalScrollBarPolicy(
     !pausingEnabled ? Qt::ScrollBarPolicy::ScrollBarAsNeeded

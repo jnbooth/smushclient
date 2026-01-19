@@ -36,10 +36,11 @@ AbstractPrefsTree::setTree(QTreeView* newTree)
 {
   tree = newTree;
   tree->header()->restoreState(QSettings().value(settingsKey()).toByteArray());
-  if (filtering)
+  if (filtering) {
     tree->setModel(proxy);
-  else
+  } else {
     tree->setModel(model);
+  }
   tree->expandAll();
   connect(tree->selectionModel(),
           &QItemSelectionModel::selectionChanged,
@@ -93,8 +94,9 @@ void
 AbstractPrefsTree::on_remove_clicked()
 {
   QItemSelection selection = tree->selectionModel()->selection();
-  if (filtering)
+  if (filtering) {
     selection = proxy->mapSelectionToSource(selection);
+  }
   model->removeSelection(selection);
 }
 
@@ -102,14 +104,16 @@ void
 AbstractPrefsTree::on_search_textChanged(const QString& text)
 {
   proxy->setFilterFixedString(text);
-  if (filtering == !text.isEmpty())
+  if (filtering == !text.isEmpty()) {
     return;
+  }
 
   filtering = !filtering;
-  if (filtering)
+  if (filtering) {
     tree->setModel(proxy);
-  else
+  } else {
     tree->setModel(model);
+  }
   tree->expandAll();
 }
 

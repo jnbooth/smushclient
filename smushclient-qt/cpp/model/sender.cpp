@@ -53,8 +53,9 @@ AbstractSenderModel::~AbstractSenderModel()
 bool
 AbstractSenderModel::addItem(QWidget* parent)
 {
-  if (!add(parent))
+  if (!add(parent)) {
     return false;
+  }
 
   beginResetModel();
   *needsRefresh = true;
@@ -68,16 +69,19 @@ AbstractSenderModel::editItem(const QModelIndex& modelIndex, QWidget* parent)
   refresh();
   const rust::String* group =
     static_cast<const rust::String*>(modelIndex.constInternalPointer());
-  if (!group)
+  if (!group) {
     return false;
+  }
 
   const int row = modelIndex.row();
-  if (row < 0)
+  if (row < 0) {
     return false;
+  }
 
   const int index = map->senderIndex(*group, row);
-  if (index < 0)
+  if (index < 0) {
     return false;
+  }
 
   const int newIndex = edit(index, parent);
 
@@ -95,8 +99,9 @@ AbstractSenderModel::editItem(const QModelIndex& modelIndex, QWidget* parent)
     return true;
   }
 
-  if (newIndex < 0)
+  if (newIndex < 0) {
     return false;
+  }
 
   *needsRefresh = true;
   refresh();
@@ -139,8 +144,9 @@ AbstractSenderModel::importXml(const QString& xml)
 bool
 AbstractSenderModel::removeSelection(const QItemSelection& selection)
 {
-  if (selection.isEmpty())
+  if (selection.isEmpty()) {
     return false;
+  }
 
   refresh();
   bool succeeded = false;
@@ -151,8 +157,9 @@ AbstractSenderModel::removeSelection(const QItemSelection& selection)
     const QModelIndex parent = range.parent();
 
     const SelectionRegion currentRegion(range, parent);
-    if (currentRegion == lastRegion)
+    if (currentRegion == lastRegion) {
       continue;
+    }
     lastRegion = currentRegion;
 
     succeeded = removeRowsInternal(lastRegion.top, lastRegion.height, parent) ||
@@ -168,12 +175,14 @@ AbstractSenderModel::senderIndex(const QModelIndex& index) const
   refresh();
   const rust::String* group =
     static_cast<const rust::String*>(index.constInternalPointer());
-  if (!group)
+  if (!group) {
     return -1;
+  }
 
   const int row = index.row();
-  if (row < 0)
+  if (row < 0) {
     return -1;
+  }
 
   return map->senderIndex(*group, row);
 }
@@ -184,24 +193,29 @@ QVariant
 AbstractSenderModel::data(const QModelIndex& index, int role) const
 {
   refresh();
-  if (role != Qt::DisplayRole && role != Qt::EditRole)
+  if (role != Qt::DisplayRole && role != Qt::EditRole) {
     return QVariant();
+  }
 
   const rust::String* group =
     static_cast<const rust::String*>(index.constInternalPointer());
-  if (group)
+  if (group) {
     return map->cellText(client, *group, index.row(), index.column());
+  }
 
-  if (index.column())
+  if (index.column()) {
     return QVariant();
+  }
 
   const rust::String* parentGroup = map->groupName(index.row());
-  if (!parentGroup)
+  if (!parentGroup) {
     return QString();
+  }
 
   size_t len = parentGroup->length();
-  if (len)
+  if (len) {
     return QString::fromUtf8(parentGroup->data(), len);
+  }
 
   static const QString untitledGroupName = tr("(ungrouped)");
 
@@ -219,8 +233,9 @@ AbstractSenderModel::headerData(int section,
                                 Qt::Orientation orientation,
                                 int role) const
 {
-  if (orientation != Qt::Orientation::Horizontal || !isValidColumn(section))
+  if (orientation != Qt::Orientation::Horizontal || !isValidColumn(section)) {
     return QVariant();
+  }
 
   switch (role) {
     case Qt::DisplayRole:
@@ -235,22 +250,27 @@ AbstractSenderModel::index(int row, int column, const QModelIndex& parent) const
 {
   refresh();
 
-  if (row < 0 || !isValidColumn(column))
+  if (row < 0 || !isValidColumn(column)) {
     return QModelIndex();
+  }
 
-  if (!parent.isValid())
+  if (!parent.isValid()) {
     return map->groupName(row) ? createIndex(row, column) : QModelIndex();
+  }
 
-  if (parent.column() || parent.constInternalPointer())
+  if (parent.column() || parent.constInternalPointer()) {
     return QModelIndex();
+  }
 
   const int parentRow = parent.row();
-  if (parentRow < 0)
+  if (parentRow < 0) {
     return QModelIndex();
+  }
 
   const rust::String* groupName = map->groupName(parentRow);
-  if (!groupName)
+  if (!groupName) {
     return QModelIndex();
+  }
 
   return createIndex(row, column, groupName);
 }
@@ -270,12 +290,14 @@ AbstractSenderModel::parent(const QModelIndex& index) const
   refresh();
   const rust::String* group =
     static_cast<const rust::String*>(index.constInternalPointer());
-  if (!group)
+  if (!group) {
     return QModelIndex();
+  }
 
   const int row = map->groupIndex(*group);
-  if (row == -1)
+  if (row == -1) {
     return QModelIndex();
+  }
   return createIndex(row, 0);
 }
 
@@ -293,11 +315,13 @@ int
 AbstractSenderModel::rowCount(const QModelIndex& index) const
 {
   refresh();
-  if (!index.isValid())
+  if (!index.isValid()) {
     return (int)map->len();
+  }
 
-  if (index.constInternalPointer())
+  if (index.constInternalPointer()) {
     return 0;
+  }
 
   return (int)map->groupLen(index.row());
 }
@@ -307,23 +331,27 @@ AbstractSenderModel::setData(const QModelIndex& index,
                              const QVariant& value,
                              int role)
 {
-  if (role != Qt::EditRole)
+  if (role != Qt::EditRole) {
     return false;
+  }
 
   refresh();
 
   const rust::String* group =
     static_cast<const rust::String*>(index.constInternalPointer());
-  if (!group)
+  if (!group) {
     return false;
+  }
 
   const int row = index.row();
-  if (row < 0)
+  if (row < 0) {
     return false;
+  }
 
   const int newRow = map->setCell(client, *group, row, index.column(), value);
-  if (newRow < 0)
+  if (newRow < 0) {
     return false;
+  }
 
   static const QList<int> changedRoles{ Qt::DisplayRole, Qt::EditRole };
 
@@ -360,8 +388,9 @@ AbstractSenderModel::prepareRemove(SenderMap*, const rust::String&, int, int)
 void
 AbstractSenderModel::refresh() const
 {
-  if (!*needsRefresh)
+  if (!*needsRefresh) {
     return;
+  }
   *needsRefresh = false;
   map->recalculate(client);
 }
@@ -371,12 +400,14 @@ AbstractSenderModel::removeRowsInternal(int row,
                                         int count,
                                         const QModelIndex& parent)
 {
-  if (row < 0 || count <= 0)
+  if (row < 0 || count <= 0) {
     return false;
+  }
 
   const rust::String* group = map->groupName(parent.row());
-  if (!group)
+  if (!group) {
     return false;
+  }
 
   prepareRemove(map, *group, row, count);
   beginRemoveRows(parent, row, row + count - 1);

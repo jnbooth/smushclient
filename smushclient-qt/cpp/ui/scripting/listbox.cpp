@@ -43,8 +43,9 @@ ListBox::addItem(const QString& text, const QVariant& value, bool active)
 {
   QListWidgetItem* item = new QListWidgetItem(text, ui->items);
   item->setData(Qt::UserRole, value);
-  if (active)
+  if (active) {
     item->setSelected(true);
+  }
 }
 
 void
@@ -64,8 +65,9 @@ ListBox::value() const
   QList<QListWidgetItem*> choices = ui->items->selectedItems();
   QList<QVariant> values;
   values.reserve(choices.size());
-  for (const QListWidgetItem* item : choices)
+  for (const QListWidgetItem* item : choices) {
     values.push_back(item->data(Qt::UserRole));
+  }
   return values;
 }
 

@@ -24,8 +24,9 @@ public:
 
   const EnumButtonGroup<T>& addButton(QAbstractButton* button, T id) const
   {
-    if (id == currentValue)
+    if (id == currentValue) {
       button->setChecked(true);
+    }
     group->addButton(button, (int)id);
     return *this;
   }

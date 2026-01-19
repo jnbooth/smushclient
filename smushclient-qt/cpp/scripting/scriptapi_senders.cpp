@@ -27,8 +27,9 @@ ScriptApi::AddAlias(size_t plugin,
                     QFlags<AliasFlag> flags,
                     string_view scriptName) const
 {
-  if (pattern.empty())
+  if (pattern.empty()) {
     return ApiCode::TriggerCannotBeEmpty;
+  }
 
   const SendTarget target =
     flags.testFlag(AliasFlag::AliasSpeedWalk) ? SendTarget::Speedwalk
@@ -50,8 +51,9 @@ ScriptApi::AddAlias(size_t plugin,
   alias.setTemporary(flags.testFlag(AliasFlag::Temporary));
 
   try {
-    if (!flags.testFlag(AliasFlag::Replace))
+    if (!flags.testFlag(AliasFlag::Replace)) {
       return client()->addAlias(plugin, alias);
+    }
 
     client()->replaceAlias(plugin, alias);
     return ApiCode::OK;
@@ -70,12 +72,14 @@ ScriptApi::AddTimer(size_t plugin,
                     QFlags<TimerFlag> flags,
                     string_view scriptName) const
 {
-  if (flags.testFlag(TimerFlag::AtTime))
+  if (flags.testFlag(TimerFlag::AtTime)) {
     return ApiCode::OK;
+  }
 
   if (hour < 0 || minute < 0 || second < 0 || hour >= 24 || minute >= 60 ||
-      second >= 60)
+      second >= 60) {
     return ApiCode::TimeInvalid;
+  }
 
   const SendTarget target =
     flags.testFlag(TimerFlag::TimerSpeedWalk) ? SendTarget::Speedwalk
@@ -97,8 +101,9 @@ ScriptApi::AddTimer(size_t plugin,
   timer.setTemporary(flags.testFlag(TimerFlag::Temporary));
   timer.setText(QString::fromUtf8(text.data(), text.size()));
 
-  if (!flags.testFlag(TimerFlag::Replace))
+  if (!flags.testFlag(TimerFlag::Replace)) {
     return client()->addTimer(plugin, timer, *timekeeper);
+  }
 
   client()->replaceTimer(plugin, timer, *timekeeper);
   return ApiCode::OK;
@@ -116,11 +121,13 @@ ScriptApi::AddTrigger(size_t plugin,
                       SendTarget target,
                       int sequence) const
 {
-  if (pattern.empty())
+  if (pattern.empty()) {
     return ApiCode::TriggerCannotBeEmpty;
+  }
 
-  if (sequence < 0 || sequence > 10000)
+  if (sequence < 0 || sequence > 10000) {
     return ApiCode::TriggerSequenceOutOfRange;
+  }
 
   Trigger trigger;
   trigger.setEnabled(flags.testFlag(TriggerFlag::Enabled));
@@ -144,8 +151,9 @@ ScriptApi::AddTrigger(size_t plugin,
   }
 
   try {
-    if (!flags.testFlag(TriggerFlag::Replace))
+    if (!flags.testFlag(TriggerFlag::Replace)) {
       return client()->addTrigger(plugin, trigger);
+    }
 
     client()->replaceTrigger(plugin, trigger);
     return ApiCode::OK;

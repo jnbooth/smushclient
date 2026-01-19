@@ -22,8 +22,9 @@ ColorPickerButton::openColorPicker()
     alphaEnabled ? QColorDialog::ColorDialogOption::ShowAlphaChannel
                  : QColorDialog::ColorDialogOptions());
 
-  if (!color.isValid())
+  if (!color.isValid()) {
     return;
+  }
 
   setValue(color);
 }
@@ -43,8 +44,9 @@ ColorPickerButton::setAlphaEnabled(bool enabled)
 void
 ColorPickerButton::setValue(const QColor& val)
 {
-  if (currentValue == val)
+  if (currentValue == val) {
     return;
+  }
 
   currentValue = QColor(val);
   emit valueChanged(currentValue);

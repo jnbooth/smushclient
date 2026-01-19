@@ -46,8 +46,9 @@ bool
 checkIsSome(lua_State* L, int idx, int type, const char* name)
 {
   const int actualType = lua_type(L, idx);
-  if (actualType <= 0)
+  if (actualType <= 0) {
     return false;
+  }
   luaL_argexpected(L, actualType == type, idx, name);
   return true;
 }
@@ -113,14 +114,17 @@ qlua::getBool(lua_State* L, int idx)
     case LUA_TBOOLEAN:
       return lua_toboolean(L, idx);
     case LUA_TNUMBER:
-      if (int isInt, value = lua_tointegerx(L, idx, &isInt); isInt)
+      if (int isInt, value = lua_tointegerx(L, idx, &isInt); isInt) {
         return value != 0;
+      }
     case LUA_TSTRING: {
       const string_view message = toString(L, idx);
-      if (message == "n" || message == "N" || message == "0")
+      if (message == "n" || message == "N" || message == "0") {
         return false;
-      if (message == "y" || message == "Y" || message == "1")
+      }
+      if (message == "y" || message == "Y" || message == "1") {
         return true;
+      }
     }
   }
   luaL_typeerror(L, idx, "boolean"); // exits function
@@ -137,14 +141,17 @@ qlua::getBool(lua_State* L, int idx, bool ifNil)
     case LUA_TBOOLEAN:
       return lua_toboolean(L, idx);
     case LUA_TNUMBER:
-      if (int isInt, value = lua_tointegerx(L, idx, &isInt); isInt)
+      if (int isInt, value = lua_tointegerx(L, idx, &isInt); isInt) {
         return value != 0;
+      }
     case LUA_TSTRING: {
       const string_view message = toString(L, idx);
-      if (message == "n" || message == "N" || message == "0")
+      if (message == "n" || message == "N" || message == "0") {
         return false;
-      if (message == "y" || message == "Y" || message == "1")
+      }
+      if (message == "y" || message == "Y" || message == "1") {
         return true;
+      }
     }
   }
   luaL_typeerror(L, idx, "boolean"); // exits function
@@ -231,8 +238,9 @@ toQColor(lua_State* L, int idx, int ltype)
     case LUA_TSTRING: {
       size_t len;
       const char* message = lua_tolstring(L, idx, &len);
-      if (len == 0)
+      if (len == 0) {
         return QColor();
+      }
       const QColor color = QColor::fromString(QAnyStringView(message, len));
       luaL_argcheck(L, color.isValid(), idx, "valid color");
       return color;
@@ -294,10 +302,12 @@ qlua::getQVariant(lua_State* L, int idx, int type)
     case LUA_TSTRING:
       return QVariant(getQString(L, idx));
     case LUA_TTABLE:
-      if (int len = lua_rawlen(L, idx))
+      if (int len = lua_rawlen(L, idx)) {
         return QVariant(toQVariants(L, idx, len));
-      if (QVariantHash hash = toQHash(L, idx); hash.size())
+      }
+      if (QVariantHash hash = toQHash(L, idx); hash.size()) {
         return QVariant(hash);
+      }
       return QVariant(QVariantList(0));
     default:
       return QVariant();
@@ -336,11 +346,13 @@ qlua::getScriptName(lua_State* L, int idx)
   size_t len;
   const char* name = lua_tolstring(L, idx, &len);
 
-  if (len == 0)
+  if (len == 0) {
     return string_view();
+  }
 
-  if (isScriptName(L, name))
+  if (isScriptName(L, name)) {
     return string_view(name, len);
+  }
 
   return nullopt;
 }
@@ -394,8 +406,9 @@ qlua::concatStrings(lua_State* L, const QString& delimiter)
   QString text;
   size_t sLen;
   for (int i = 1; i <= n; ++i) {
-    if (i > 1)
+    if (i > 1) {
       text.append(delimiter);
+    }
     switch (lua_type(L, i)) {
       case LUA_TNIL:
         text.append(QStringLiteral("nil"));
@@ -433,8 +446,9 @@ qlua::concatStrings(lua_State* L, const QString& delimiter)
         lua_error(L);
     }
   }
-  if (!needsToString)
+  if (!needsToString) {
     lua_pop(L, 1);
+  }
   return text;
 }
 
@@ -578,16 +592,18 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant)
       pushQMap(L, variant.toMap());
       return;
     case QMetaType::QVariantList:
-      if (variant.canConvert<QStringList>())
+      if (variant.canConvert<QStringList>()) {
         pushQStrings(L, variant.toStringList());
-      else
+      } else {
         pushQVariants(L, variant.toList());
+      }
       return;
     default:
-      if (variant.canConvert<qlonglong>())
+      if (variant.canConvert<qlonglong>()) {
         lua_pushinteger(L, variant.toLongLong());
-      else
+      } else {
         lua_pushnil(L);
+      }
       return;
   }
 }
@@ -658,8 +674,9 @@ qlua::pushStrings(lua_State* L, const vector<string>& strings)
 const char*
 qlua::pushVariable(lua_State* L, VariableView variable)
 {
-  if (variable)
+  if (variable) {
     return lua_pushlstring(L, variable.data(), variable.size());
+  }
 
   lua_pushnil(L);
   return nullptr;
@@ -680,10 +697,11 @@ qlua::copyValue(lua_State* fromL, lua_State* toL, int idx)
     case LUA_TNUMBER: {
       int isInt;
       const lua_Integer intResult = lua_tointegerx(fromL, idx, &isInt);
-      if (isInt)
+      if (isInt) {
         lua_pushinteger(toL, intResult);
-      else
+      } else {
         lua_pushnumber(toL, lua_tonumber(fromL, idx));
+      }
       return true;
     }
     case LUA_TSTRING: {
@@ -789,11 +807,13 @@ template<typename T, T MIN, T MAX>
 inline optional<T>
 getEnum(lua_State* L, int idx, optional<T> ifNil = nullopt)
 {
-  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))
+  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer")) {
     return ifNil;
+  }
   const lua_Integer val = toInt(L, idx);
-  if (val < (lua_Integer)MIN || val > (lua_Integer)MAX) [[unlikely]]
+  if (val < (lua_Integer)MIN || val > (lua_Integer)MAX) [[unlikely]] {
     return nullopt;
+  }
   return (T)val;
 }
 
@@ -810,8 +830,9 @@ qlua::getButtonFrame(lua_State* L,
 optional<Qt::BrushStyle>
 qlua::getBrush(lua_State* L, int idx, optional<Qt::BrushStyle> ifNil)
 {
-  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))
+  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer")) {
     return ifNil;
+  }
 
   switch (toInt(L, idx)) {
     case (lua_Integer)ScriptBrush::SolidPattern:
@@ -848,8 +869,9 @@ qlua::getBrush(lua_State* L, int idx, optional<Qt::BrushStyle> ifNil)
 optional<Qt::CursorShape>
 qlua::getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil)
 {
-  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))
+  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer")) {
     return ifNil;
+  }
 
   switch (toInt(L, idx)) {
     case (lua_Integer)ScriptCursor::BlankCursor:
@@ -904,8 +926,9 @@ qlua::getDrawImageMode(lua_State* L,
 optional<QFont::StyleHint>
 qlua::getFontHint(lua_State* L, int idx, optional<QFont::StyleHint> ifNil)
 {
-  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer"))
+  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer")) {
     return ifNil;
+  }
 
   const lua_Integer style = toInt(L, idx);
   switch (style & 0xF) // pitch
@@ -995,23 +1018,26 @@ qlua::getPen(lua_State* L, int idxColor, int idxStyle, int idxWidth)
   const QColor color = getQColor(L, idxColor);
   const lua_Integer style = getInt(L, idxStyle);
   const lua_Number width = getNumber(L, idxWidth);
-  if (style < 0 || width < 0) [[unlikely]]
+  if (style < 0 || width < 0) [[unlikely]] {
     return nullopt;
+  }
 
-  if (style == 0)
+  if (style == 0) {
     return QPen(color,
                 width,
                 Qt::PenStyle::SolidLine,
                 Qt::PenCapStyle::RoundCap,
                 Qt::PenJoinStyle::RoundJoin);
+  }
 
   const Qt::PenStyle penStyle = getPenStyle(style);
   const Qt::PenCapStyle capStyle = getPenCap(style);
   const Qt::PenJoinStyle joinStyle = getPenJoin(style);
   if (penStyle == Qt::PenStyle::MPenStyle ||
       capStyle == Qt::PenCapStyle::MPenCapStyle ||
-      joinStyle == Qt::PenJoinStyle::MPenJoinStyle) [[unlikely]]
+      joinStyle == Qt::PenJoinStyle::MPenJoinStyle) [[unlikely]] {
     return nullopt;
+  }
 
   return QPen(color, width, penStyle, capStyle, joinStyle);
 }
@@ -1021,8 +1047,9 @@ qlua::getQPolygonF(lua_State* L, int idx)
 {
   const string_view s = getString(L, idx);
   const qsizetype commaCount = std::count(s.cbegin(), s.cend(), ',');
-  if (commaCount % 2 == 0 || commaCount < 3) [[unlikely]]
+  if (commaCount % 2 == 0 || commaCount < 3) [[unlikely]] {
     return nullopt;
+  }
   QList<QPointF> points;
   points.reserve((commaCount + 1) / 2);
   std::istringstream stream((string)s);
@@ -1030,8 +1057,9 @@ qlua::getQPolygonF(lua_State* L, int idx)
        std::getline(stream, sX, ',') && std::getline(stream, sY, ',');) {
     qreal dX = stod(sX);
     qreal dY = stod(sY);
-    if (!std::isfinite(dX) || !std::isfinite(dY)) [[unlikely]]
+    if (!std::isfinite(dX) || !std::isfinite(dY)) [[unlikely]] {
       return nullopt;
+    }
     points.append(QPointF(dX, dY));
   }
   return QPolygonF(points);

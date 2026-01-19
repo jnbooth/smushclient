@@ -125,10 +125,12 @@ WorldTab::~WorldTab()
 AvailableCopy
 WorldTab::availableCopy() const
 {
-  if (outputCopyAvailable)
+  if (outputCopyAvailable) {
     return AvailableCopy::Output;
-  if (inputCopyAvailable)
+  }
+  if (inputCopyAvailable) {
     return AvailableCopy::Input;
+  }
   return AvailableCopy::None;
 }
 
@@ -145,10 +147,12 @@ WorldTab::closeLog()
 QTextEdit*
 WorldTab::copyableEditor() const
 {
-  if (outputCopyAvailable)
+  if (outputCopyAvailable) {
     return ui->output;
-  if (inputCopyAvailable)
+  }
+  if (inputCopyAvailable) {
     return ui->input;
+  }
   return nullptr;
 }
 
@@ -160,8 +164,9 @@ WorldTab::connectToHost()
     return;
   }
 
-  if (socket->state() != QAbstractSocket::SocketState::UnconnectedState)
+  if (socket->state() != QAbstractSocket::SocketState::UnconnectedState) {
     return;
+  }
 
   client.connectToHost(*socket);
 }
@@ -176,9 +181,10 @@ WorldTab::disconnectFromHost()
 void
 WorldTab::editWorldScript()
 {
-  if (!QDesktopServices::openUrl(QUrl::fromLocalFile(worldScriptPath)))
+  if (!QDesktopServices::openUrl(QUrl::fromLocalFile(worldScriptPath))) {
     QErrorMessage::qtHandler()->showMessage(
       tr("Failed to open file: %1").arg(worldScriptPath));
+  }
 }
 
 bool
@@ -239,21 +245,25 @@ WorldTab::openWorldSettings()
   if (worlddetails.exec() != QDialog::Accepted) {
     return false;
   }
-  if (worlddetails.isDirty())
+  if (worlddetails.isDirty()) {
     setWindowModified(true);
+  }
 
   try {
-    if (!client.setWorld(world))
+    if (!client.setWorld(world)) {
       return false;
+    }
   } catch (const rust::Error& e) {
     showRustError(e);
   }
 
-  if (!world.getSaveWorldAutomatically())
+  if (!world.getSaveWorldAutomatically()) {
     setWindowModified(true);
+  }
 
-  if (Settings().getLoggingEnabled())
+  if (Settings().getLoggingEnabled()) {
     openLog();
+  }
 
   applyWorld(world);
   return true;
@@ -262,8 +272,9 @@ WorldTab::openWorldSettings()
 bool
 WorldTab::promptSave()
 {
-  if (!isWindowModified())
+  if (!isWindowModified()) {
     return true;
+  }
   switch (Settings().getWorldCloseBehavior()) {
     case Settings::WorldCloseBehavior::Save:
       saveWorld();
@@ -308,11 +319,13 @@ WorldTab::resetAllTimers() const
 QString
 WorldTab::saveWorld()
 {
-  if (filePath.isEmpty())
+  if (filePath.isEmpty()) {
     return saveWorldAsNew();
+  }
 
-  if (!saveWorldAndState(filePath))
+  if (!saveWorldAndState(filePath)) {
     return QString();
+  }
 
   return filePath;
 }
@@ -326,11 +339,13 @@ WorldTab::saveWorldAsNew()
     QStringLiteral(WORLDS_DIR) + QDir::separator() + worldName,
     FileFilter::world());
 
-  if (path.isEmpty())
+  if (path.isEmpty()) {
     return path;
+  }
 
-  if (!saveWorldAndState(path))
+  if (!saveWorldAndState(path)) {
     return QString();
+  }
 
   filePath = makePathRelative(path);
   return filePath;
@@ -374,17 +389,19 @@ WorldTab::setWorldOption(size_t pluginIndex, string_view name, int value)
 {
   const ApiCode result =
     client.setWorldOption(pluginIndex, byteSlice(name), value);
-  if (result != ApiCode::OK)
+  if (result != ApiCode::OK) {
     return result;
+  }
 
   if (name == "keypad_enable") {
     handleKeypad = value == 1;
     ui->input->setIgnoreKeypad(handleKeypad);
     ui->output->setIgnoreKeypad(handleKeypad);
-  } else if (name == "enable_command_stack")
+  } else if (name == "enable_command_stack") {
     splitOn = QLatin1Char(client.commandSplitter());
-  else if (name == "script_reload_option")
+  } else if (name == "script_reload_option") {
     scriptReloadOption = (ScriptRecompile)value;
+  }
 
   return result;
 }
@@ -396,16 +413,18 @@ WorldTab::setWorldAlphaOption(size_t pluginIndex,
 {
   const ApiCode result =
     client.setWorldAlphaOption(pluginIndex, byteSlice(name), byteSlice(value));
-  if (result != ApiCode::OK)
+  if (result != ApiCode::OK) {
     return result;
+  }
 
-  if (name == "command_stack_character")
+  if (name == "command_stack_character") {
     splitOn = QLatin1Char(client.commandSplitter());
-  else if (name == "name") {
+  } else if (name == "name") {
     worldName = QString::fromUtf8(value.data(), value.size());
     emit titleChanged(this, worldName);
-  } else if (name == "script_path")
+  } else if (name == "script_path") {
     worldScriptPath = QString::fromUtf8(value.data(), value.size());
+  }
 
   return result;
 }
@@ -421,8 +440,9 @@ WorldTab::start()
 {
   Settings settings;
 
-  if (settings.getLoggingEnabled())
+  if (settings.getLoggingEnabled()) {
     openLog();
+  }
 
   if (!filePath.isEmpty()) {
     try {
@@ -442,8 +462,9 @@ WorldTab::start()
 
   setupWorldScriptWatcher();
 
-  if (settings.getAutoConnect())
+  if (settings.getAutoConnect()) {
     connectToHost();
+  }
 }
 
 void
@@ -524,8 +545,9 @@ WorldTab::leaveEvent(QEvent*)
 void
 WorldTab::mouseMoveEvent(QMouseEvent*)
 {
-  if (onDragMove) [[unlikely]]
+  if (onDragMove) [[unlikely]] {
     onDragMove->trigger();
+  }
 }
 
 void
@@ -539,8 +561,9 @@ WorldTab::keyPressEvent(QKeyEvent* event)
   }
   QString action =
     hotkeys.get(Qt::Key(event->key()), modifiers.testAnyFlags(numpadMods));
-  if (action.isEmpty())
+  if (action.isEmpty()) {
     return;
+  }
   sendCommand(action, CommandSource::Hotkey);
 }
 
@@ -553,8 +576,9 @@ WorldTab::mouseReleaseEvent(QMouseEvent*)
 void
 WorldTab::resizeEvent(QResizeEvent* event)
 {
-  if (!resizeTimer->isActive())
+  if (!resizeTimer->isActive()) {
     ui->output->document()->setLayoutEnabled(false);
+  }
   resizeTimer->start();
   QSplitter::resizeEvent(event);
 }
@@ -575,8 +599,9 @@ WorldTab::applyWorld(const World& world)
   palette.setColor(QPalette::Text, world.getAnsi7());
   palette.setColor(QPalette::Base, world.getAnsi0());
   ui->background->setPalette(palette);
-  if (world.getSaveWorldAutomatically())
+  if (world.getSaveWorldAutomatically()) {
     saveWorldAndState(filePath);
+  }
 
   hotkeys.applyWorld(world);
   api->applyWorld(world);
@@ -611,17 +636,20 @@ WorldTab::handleConnect()
 bool
 WorldTab::restoreHistory()
 {
-  if (filePath.isEmpty())
+  if (filePath.isEmpty()) {
     return false;
+  }
 
   QFile file(historyPath(filePath));
-  if (!file.open(QFile::ReadOnly))
+  if (!file.open(QFile::ReadOnly)) {
     return false;
+  }
 
   const QByteArray history = file.readAll();
 
-  if (file.error() != QFile::FileError::NoError || history.isEmpty())
+  if (file.error() != QFile::FileError::NoError || history.isEmpty()) {
     return false;
+  }
 
   QTextDocument* doc = ui->output->document();
   doc->setHtml(QString::fromUtf8(qUncompress(history)));
@@ -638,23 +666,27 @@ WorldTab::restoreHistory()
 bool
 WorldTab::saveHistory() const
 {
-  if (filePath.isEmpty())
+  if (filePath.isEmpty()) {
     return false;
+  }
 
   Settings settings;
 
-  if (!settings.getOutputHistoryEnabled())
+  if (!settings.getOutputHistoryEnabled()) {
     return false;
+  }
 
   const int block = ui->output->document()->blockCount();
 
-  if (settings.getOutputHistoryLimit())
+  if (settings.getOutputHistoryLimit()) {
     ui->output->document()->setMaximumBlockCount(
       settings.getOutputHistoryLines());
+  }
 
   QSaveFile file(historyPath(filePath));
-  if (!file.open(QSaveFile::WriteOnly))
+  if (!file.open(QSaveFile::WriteOnly)) {
     return false;
+  }
 
   if (block > sessionStartBlock + 1) {
     api->startLine();
@@ -663,8 +695,9 @@ WorldTab::saveHistory() const
     api->startLine();
   }
 
-  if (file.write(qCompress(ui->output->toHtml().toUtf8())) == -1)
+  if (file.write(qCompress(ui->output->toHtml().toUtf8())) == -1) {
     return false;
+  }
 
   return file.commit();
 }
@@ -696,8 +729,9 @@ WorldTab::sendCommand(const QString& command, CommandSource source)
 {
   const AliasOutcomes aliasOutcome = client.alias(command, source, *document);
 
-  if (aliasOutcome.testFlag(AliasOutcome::Remember))
+  if (aliasOutcome.testFlag(AliasOutcome::Remember)) {
     ui->input->remember(command);
+  }
 
   if (!aliasOutcome.testFlag(AliasOutcome::Send)) {
     return true;
@@ -706,8 +740,9 @@ WorldTab::sendCommand(const QString& command, CommandSource source)
   QByteArray bytes = command.toUtf8();
   OnPluginCommand onCommand(source, bytes);
   api->sendCallback(onCommand);
-  if (onCommand.discarded())
+  if (onCommand.discarded()) {
     return true;
+  }
   OnPluginCommandEntered onCommandEntered(source, bytes);
   api->sendCallback(onCommandEntered);
   if (bytes.size() == 1) {
@@ -719,8 +754,9 @@ WorldTab::sendCommand(const QString& command, CommandSource source)
     }
   }
   SendFlags flags = SendFlag::Log;
-  if (aliasOutcome.testFlag(AliasOutcome::Echo))
+  if (aliasOutcome.testFlag(AliasOutcome::Echo)) {
     flags |= SendFlag::Echo;
+  }
   api->sendToWorld(bytes, flags);
   return true;
 }
@@ -729,18 +765,21 @@ void
 WorldTab::setupWorldScriptWatcher()
 {
   const QStringList watchedScripts = worldScriptWatcher.files();
-  if (!watchedScripts.isEmpty())
+  if (!watchedScripts.isEmpty()) {
     worldScriptWatcher.removePaths(watchedScripts);
-  if (!worldScriptPath.isEmpty())
+  }
+  if (!worldScriptPath.isEmpty()) {
     worldScriptWatcher.addPath(worldScriptPath);
+  }
 }
 
 void
 WorldTab::showAliasMenu()
 {
   const rust::Vec<AliasMenuItem> items = client.aliasMenu();
-  if (items.empty())
+  if (items.empty()) {
     return;
+  }
   QMenu menu(this);
   for (const AliasMenuItem& item : items) {
     QAction* action = new QAction(&menu);
@@ -749,8 +788,9 @@ WorldTab::showAliasMenu()
     menu.addAction(action);
   }
   const QAction* choice = menu.exec(QCursor::pos());
-  if (!choice)
+  if (!choice) {
     return;
+  }
   const QPoint data = choice->data().toPoint();
   client.invokeAlias(data.x(), data.y(), *document);
 }
@@ -759,12 +799,15 @@ void
 WorldTab::updateWorldScript()
 {
   const QStringList watchedScripts = worldScriptWatcher.files();
-  if (watchedScripts.value(0) == worldScriptPath)
+  if (watchedScripts.value(0) == worldScriptPath) {
     return;
-  if (!watchedScripts.isEmpty())
+  }
+  if (!watchedScripts.isEmpty()) {
     worldScriptWatcher.removePaths(watchedScripts);
-  if (!worldScriptPath.isEmpty())
+  }
+  if (!worldScriptPath.isEmpty()) {
     worldScriptWatcher.addPath(worldScriptPath);
+  }
   confirmReloadWorldScript(worldScriptPath);
 }
 
@@ -774,8 +817,9 @@ void
 WorldTab::confirmReloadWorldScript(const QString& worldScriptPath)
 {
   QFileInfo info(worldScriptPath);
-  if (!info.isFile() || !info.isReadable())
+  if (!info.isFile() || !info.isReadable()) {
     return;
+  }
   switch (scriptReloadOption) {
     case ScriptRecompile::Always:
       break;
@@ -786,8 +830,9 @@ WorldTab::confirmReloadWorldScript(const QString& worldScriptPath)
             this,
             tr("World script changed"),
             tr("Would you like to reload the world script?")) !=
-          QMessageBox::StandardButton::Yes)
+          QMessageBox::StandardButton::Yes) {
         return;
+      }
   }
   api->reloadWorldScript(worldScriptPath);
 }
@@ -839,8 +884,9 @@ WorldTab::onAutoScroll(int, int max)
 void
 WorldTab::onNewActivity()
 {
-  if (!alertNewActivity)
+  if (!alertNewActivity) {
     return;
+  }
   alertNewActivity = false;
   emit newActivity(this);
   client.handleAlert();
@@ -860,8 +906,9 @@ WorldTab::onSocketConnect()
     socket->isEncrypted() ? MudStatusBar::ConnectionStatus::Encrypted
                           : MudStatusBar::ConnectionStatus::Connected);
   emit connectionStatusChanged(true);
-  if (socket->mode() == QSslSocket::UnencryptedMode)
+  if (socket->mode() == QSslSocket::UnencryptedMode) {
     handleConnect();
+  }
 #endif
 }
 
@@ -886,8 +933,9 @@ WorldTab::onSocketDisconnect()
     manualDisconnect = false;
     return;
   }
-  if (Settings().getReconnectOnDisconnect())
+  if (Settings().getReconnectOnDisconnect()) {
     connectToHost();
+  }
 }
 
 #ifndef QT_NO_SSL
@@ -904,8 +952,9 @@ void
 WorldTab::onSocketError(QAbstractSocket::SocketError socketError)
 {
   if (socketError == QAbstractSocket::SocketError::SslHandshakeFailedError ||
-      socketError == QAbstractSocket::SocketError::RemoteHostClosedError)
+      socketError == QAbstractSocket::SocketError::RemoteHostClosedError) {
     return;
+  }
   api->appendText(tr("Connection error: %1").arg(socket->errorString()));
   api->startLine();
 }
@@ -916,10 +965,11 @@ WorldTab::readFromSocket()
   const ActionSource currentSource = api->setSource(ActionSource::TriggerFired);
   client.read(*socket, *document);
   api->setSource(currentSource);
-  if (client.hasOutput())
+  if (client.hasOutput()) {
     flushTimer->start();
-  else
+  } else {
     flushTimer->stop();
+  }
 }
 
 void
@@ -938,11 +988,13 @@ WorldTab::on_input_submitted(const QString& text)
 
   bool eraseInput = commands.length() > 1;
 
-  for (const QString& command : commands)
+  for (const QString& command : commands) {
     eraseInput = sendCommand(command, CommandSource::User) || eraseInput;
+  }
 
-  if (eraseInput)
+  if (eraseInput) {
     ui->input->clear();
+  }
 }
 
 void
@@ -980,8 +1032,9 @@ void
 WorldTab::on_output_anchorClicked(const QUrl& url)
 {
   QString action = url.toString(QUrl::None);
-  if (action.isEmpty())
+  if (action.isEmpty()) {
     return;
+  }
 
   switch (decodeLink(action)) {
     case SendTo::Internet:
@@ -1030,11 +1083,13 @@ WorldTab::on_output_customContextMenuRequested(const QPoint& pos)
     return;
   }
   QMenu menu(ui->output);
-  for (const QString& prompt : prompts.split(QStringLiteral("|")))
+  for (const QString& prompt : prompts.split(QStringLiteral("|"))) {
     menu.addAction(prompt);
+  }
 
   const QAction* chosen = menu.exec(mouse);
-  if (!chosen)
+  if (!chosen) {
     return;
+  }
   api->sendToWorld(chosen->text(), SendFlag::Echo | SendFlag::Log);
 }

@@ -72,10 +72,11 @@ execScriptDialog(lua_State* L,
 
   dialog.sortItems();
 
-  if (dialog.exec() == QDialog::Accepted)
+  if (dialog.exec() == QDialog::Accepted) {
     qlua::pushQVariant(L, dialog.value());
-  else
+  } else {
     lua_pushnil(L);
+  }
 
   return 1;
 }
@@ -103,10 +104,11 @@ L_directorypicker(lua_State* L)
   const QString defaultName = qlua::getQString(L, 2, QString());
   const QString path =
     QFileDialog::getExistingDirectory(nullptr, title, defaultName);
-  if (path.isEmpty())
+  if (path.isEmpty()) {
     lua_pushnil(L);
-  else
+  } else {
     qlua::pushQString(L, path);
+  }
   return 1;
 }
 
@@ -121,10 +123,11 @@ L_filepicker(lua_State* L)
   const QString path =
     isSave ? QFileDialog::getSaveFileName(nullptr, title, defaultName)
            : QFileDialog::getOpenFileName(nullptr, title, defaultName);
-  if (path.isEmpty())
+  if (path.isEmpty()) {
     lua_pushnil(L);
-  else
+  } else {
     qlua::pushQString(L, path);
+  }
   return 1;
 }
 
@@ -135,8 +138,9 @@ L_getfontfamilies(lua_State* L)
   const QStringList families = QFontDatabase::families();
   lua_createtable(L, 0, families.size());
   for (const QString& family : families) {
-    if (family.startsWith(u'.'))
+    if (family.startsWith(u'.')) {
       continue;
+    }
     qlua::pushQString(L, family);
     lua_pushboolean(L, true);
     lua_rawset(L, -3);
@@ -176,13 +180,15 @@ L_inputbox(lua_State* L)
   dialog.setWindowTitle(title);
   dialog.setLabelText(message);
   dialog.setTextValue(defaultText);
-  if (!fontFamily.isEmpty())
+  if (!fontFamily.isEmpty()) {
     dialog.setFont(QFont(fontFamily, fontSize));
+  }
 
-  if (dialog.exec() == QDialog::Accepted)
+  if (dialog.exec() == QDialog::Accepted) {
     qlua::pushQString(L, dialog.textValue());
-  else
+  } else {
     lua_pushnil(L);
+  }
 
   return 1;
 }

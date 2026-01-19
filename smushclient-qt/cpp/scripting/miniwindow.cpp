@@ -34,8 +34,9 @@ buildMenu(QMenu* menu, string_view text)
   menus.push_back(menu);
   std::istringstream stream((string)text);
   const bool returnsNumber = stream.peek() == '!';
-  if (returnsNumber)
+  if (returnsNumber) {
     stream.get();
+  }
   if (stream.peek() == '~') {
     stream.get(); // ~
     stream.get(); // horizontal alignment
@@ -56,8 +57,9 @@ buildMenu(QMenu* menu, string_view text)
       continue;
     }
     if (first == '<') {
-      if (menus.size() > 1)
+      if (menus.size() > 1) {
         menus.pop_back();
+      }
       continue;
     }
     QMenu* buildingMenu = menus.back();
@@ -87,11 +89,13 @@ buildMenu(QMenu* menu, string_view text)
 const QWidget*
 getParentWidget(const QWidget* widget)
 {
-  if (!widget) [[unlikely]]
+  if (!widget) [[unlikely]] {
     return widget;
+  }
   const QWidget* parent = widget->parentWidget();
-  if (!parent) [[unlikely]]
+  if (!parent) [[unlikely]] {
     return widget;
+  }
   return parent;
 }
 
@@ -229,8 +233,9 @@ MiniWindow::addHotspot(string_view hotspotID,
     const string_view entryID = (string_view)entry.first;
     if (entryID == hotspotID) {
       Hotspot* hotspot = entry.second;
-      if (!hotspot->belongsToPlugin(plugin))
+      if (!hotspot->belongsToPlugin(plugin)) {
         return nullptr;
+      }
       hotspot->setCallbacks(std::move(callbacks));
       return hotspot;
     }
@@ -242,8 +247,9 @@ MiniWindow::addHotspot(string_view hotspotID,
 
   Hotspot* hotspot = hotspots[(string)hotspotID] =
     new Hotspot(this, tab, plugin, hotspotID, std::move(callbacks));
-  if (neighbor)
+  if (neighbor) {
     hotspot->stackUnder(neighbor);
+  }
   return hotspot;
 }
 
@@ -263,8 +269,9 @@ MiniWindow::applyFilter(const ImageFilter& filter, const QRect& rectBase)
 void
 MiniWindow::clearHotspots()
 {
-  for (const auto& entry : hotspots)
+  for (const auto& entry : hotspots) {
     delete entry.second;
+  }
   hotspots.clear();
 }
 
@@ -272,8 +279,9 @@ bool
 MiniWindow::deleteHotspot(string_view hotspotID)
 {
   auto search = hotspots.find(hotspotID);
-  if (search == hotspots.end())
+  if (search == hotspots.end()) {
     return false;
+  }
   delete search->second;
   hotspots.erase(search);
   return true;
@@ -310,15 +318,17 @@ MiniWindow::drawButton(const QRect& rectBase,
       break;
   }
   if (buttonFlags.testAnyFlags(
-        ButtonFlags(ButtonFlag::Flat | ButtonFlag::Monochrome)))
+        ButtonFlags(ButtonFlag::Flat | ButtonFlag::Monochrome))) {
     frame.setFrameShadow(QFrame::Shadow::Plain);
+  }
 
-  if (buttonFlags.testFlag(ButtonFlag::Flat))
+  if (buttonFlags.testFlag(ButtonFlag::Flat)) {
     frame.setLineWidth(1);
-  else if (buttonFlags.testFlag(ButtonFlag::Soft))
+  } else if (buttonFlags.testFlag(ButtonFlag::Soft)) {
     frame.setLineWidth(2);
-  else
+  } else {
     frame.setLineWidth(3);
+  }
 
   Painter painter(this);
   frame.render(&painter, rect.topLeft());
@@ -373,8 +383,9 @@ MiniWindow::drawImage(const QPixmap& image,
       return;
     case DrawImageMode::CopyTransparent:
       QPixmap croppedImage = image.copy(sourceRect.toRect());
-      if (croppedImage.isNull())
+      if (croppedImage.isNull()) {
         return;
+      }
       const QImage qImage =
         image.toImage().convertToFormat(QImage::Format_RGB32);
       const QRgb pixel = qImage.pixel(0, 0);
@@ -441,8 +452,9 @@ MiniWindow::execMenu(const QPoint& at, string_view menuString)
   QMenu menu(this);
   const bool returnsNumber = buildMenu(&menu, menuString);
   const QAction* choice = menu.exec(mapToGlobal(at));
-  if (!choice)
+  if (!choice) {
     return QStringLiteral("");
+  }
   const QString text = choice->text();
   return returnsNumber ? QVariant(text.toDouble()) : QVariant(text);
 }
@@ -451,8 +463,9 @@ Hotspot*
 MiniWindow::findHotspot(string_view hotspotID) const
 {
   auto search = hotspots.find(hotspotID);
-  if (search == hotspots.end())
+  if (search == hotspots.end()) {
     return nullptr;
+  }
   return search->second;
 }
 
@@ -460,8 +473,9 @@ const QFont*
 MiniWindow::findFont(string_view fontID) const
 {
   auto search = fonts.find(fontID);
-  if (search == fonts.end())
+  if (search == fonts.end()) {
     return nullptr;
+  }
   return &search->second;
 }
 
@@ -469,8 +483,9 @@ const QPixmap*
 MiniWindow::findImage(string_view imageID) const
 {
   auto search = images.find(imageID);
-  if (search == images.end())
+  if (search == images.end()) {
     return nullptr;
+  }
   return &search->second;
 }
 
@@ -486,8 +501,9 @@ MiniWindow::invert(const QRect& rectBase, QImage::InvertMode mode)
 void
 MiniWindow::reset()
 {
-  if (!flags.testFlag(Flag::KeepHotspots))
+  if (!flags.testFlag(Flag::KeepHotspots)) {
     clearHotspots();
+  }
 }
 
 void
@@ -557,15 +573,17 @@ MiniWindow::applyFlags()
   setAttribute(Qt::WA_TransparentForMouseEvents,
                flags.testAnyFlags(Flag::DrawUnderneath | Flag::IgnoreMouse));
 
-  if (flags.testFlag(Flag::Transparent))
+  if (flags.testFlag(Flag::Transparent)) {
     updateMask();
-  else
+  } else {
     clearMask();
+  }
 }
 
 void
 MiniWindow::updateMask()
 {
-  if (flags.testFlag(Flag::Transparent)) [[unlikely]]
+  if (flags.testFlag(Flag::Transparent)) [[unlikely]] {
     setMask(pixmap.createMaskFromColor(background));
+  }
 }

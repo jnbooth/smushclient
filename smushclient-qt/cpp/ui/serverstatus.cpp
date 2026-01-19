@@ -241,14 +241,16 @@ ServerStatus::ServerStatus(const QHash<QString, QString>& status,
   QStringList supported;
   QStringList unsupported;
   for (auto [key, value] : status.asKeyValueRange()) {
-    if (value.isEmpty())
+    if (value.isEmpty()) {
       continue;
+    }
 
     const KnownVariable variable = knownVariables[key];
 
     if (isHiddenVariable(variable) ||
-        (isCounterVariable(variable) && value == QStringLiteral("0")))
+        (isCounterVariable(variable) && value == QStringLiteral("0"))) {
       continue;
+    }
 
     switch (variable) {
       case KnownVariable::Unknown:
@@ -273,14 +275,16 @@ ServerStatus::ServerStatus(const QHash<QString, QString>& status,
 
       case KnownVariable::EquipmentSystem:
       case KnownVariable::TrainingSystem:
-        if (value != QStringLiteral("Both"))
+        if (value != QStringLiteral("Both")) {
           break;
+        }
         entries.emplace_back(variable, key, QStringLiteral("Skill\x02Level"));
         continue;
 
       case KnownVariable::Worlds:
-        if (value == QStringLiteral("1"))
+        if (value == QStringLiteral("1")) {
           continue;
+        }
         break;
 
       default:
@@ -322,8 +326,9 @@ ServerStatus::ServerStatus(const QHash<QString, QString>& status,
   }
 
   const int formHeight = ui->form->sizeHint().height();
-  if (height() > formHeight)
+  if (height() > formHeight) {
     setMaximumHeight(formHeight + 5);
+  }
 }
 
 ServerStatus::~ServerStatus()
@@ -370,10 +375,12 @@ ServerStatus::valueLabel(KnownVariable variable,
   const static QString yes = tr("Yes");
 
   if (isBoolVariable(variable)) {
-    if (value == QStringLiteral("0"))
+    if (value == QStringLiteral("0")) {
       return valueLabel(no, parent);
-    if (value == QStringLiteral("1"))
+    }
+    if (value == QStringLiteral("1")) {
       return valueLabel(yes, parent);
+    }
     return valueLabel(value, parent);
   }
 
@@ -387,8 +394,9 @@ ServerStatus::valueLabel(KnownVariable variable,
         QStringLiteral("<a href=\"mailto:%1\">%1</a>").arg(value), parent);
 
     case KnownVariable::MinimumAge:
-      if (value == QStringLiteral("0"))
+      if (value == QStringLiteral("0")) {
         return valueLabel(none, parent);
+      }
       break;
 
     case KnownVariable::Discord:
@@ -540,8 +548,9 @@ ServerStatus::translateVariable(KnownVariable variable,
 void
 ServerStatus::displayImage(QNetworkReply* reply)
 {
-  if (!icon)
+  if (!icon) {
     return;
+  }
   icon->setPixmap(QPixmap::fromImage(
     QImage::fromData(reply->readAll()).scaledToHeight(iconSize)));
 }

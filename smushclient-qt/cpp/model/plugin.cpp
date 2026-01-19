@@ -27,14 +27,16 @@ PluginModel::addPlugin(const QString& filePath)
     return false;
   }
   emit layoutAboutToBeChanged();
-  if (pluginIndex <= worldIndex)
+  if (pluginIndex <= worldIndex) {
     ++worldIndex;
+  }
   const int row = pluginIndexToRow(pluginIndex);
   beginInsertRows(createIndex(0, 0), row, row);
   ++pluginCount;
   endInsertRows();
-  if (pluginIndex + 1 != pluginCount)
+  if (pluginIndex + 1 != pluginCount) {
     emit pluginOrderChanged();
+  }
   emit layoutChanged();
   return true;
 }
@@ -54,8 +56,9 @@ PluginModel::pluginId(const QModelIndex& index) const
 bool
 PluginModel::reinstall(const QModelIndex& index)
 {
-  if (!isValidIndex(index))
+  if (!isValidIndex(index)) {
     return false;
+  }
   const int row = index.row();
   const size_t oldIndex = pluginIndex(row);
   size_t newIndex;
@@ -78,10 +81,11 @@ PluginModel::reinstall(const QModelIndex& index)
     {}, QAbstractItemModel::LayoutChangeHint::VerticalSortHint);
 
   const size_t worldPluginIndex = worldIndex;
-  if (oldIndex > worldPluginIndex && newIndex <= worldPluginIndex)
+  if (oldIndex > worldPluginIndex && newIndex <= worldPluginIndex) {
     ++worldIndex;
-  else if (oldIndex < worldPluginIndex && newIndex >= worldPluginIndex)
+  } else if (oldIndex < worldPluginIndex && newIndex >= worldPluginIndex) {
     --worldIndex;
+  }
   const int newRow = pluginIndexToRow((int)newIndex);
   const QModelIndex parent = createIndex(0, 0);
 
@@ -104,15 +108,17 @@ PluginModel::reinstall(const QModelIndex& index)
 QVariant
 PluginModel::data(const QModelIndex& index, int role) const
 {
-  if (!isValidIndex(index))
+  if (!isValidIndex(index)) {
     return QVariant();
+  }
 
   switch (role) {
     case Qt::DisplayRole:
       return client.pluginModelText(pluginIndex(index.row()), index.column());
     case Qt::CheckStateRole:
-      if (index.column() != 4)
+      if (index.column() != 4) {
         return QVariant();
+      }
       return client.pluginEnabled(pluginIndex(index.row()))
                ? Qt::CheckState::Checked
                : Qt::CheckState::Unchecked;
@@ -126,15 +132,17 @@ PluginModel::data(const QModelIndex& index, int role) const
 Qt::ItemFlags
 PluginModel::flags(const QModelIndex& index) const
 {
-  if (!isValidIndex(index))
+  if (!isValidIndex(index)) {
     return Qt::ItemFlag::NoItemFlags;
+  }
 
   const Qt::ItemFlags flags = Qt::ItemFlag::ItemIsSelectable |
                               Qt::ItemFlag::ItemIsEnabled |
                               Qt::ItemFlag::ItemNeverHasChildren;
 
-  if (index.column() != 4)
+  if (index.column() != 4) {
     return flags;
+  }
 
   return flags | Qt::ItemFlag::ItemIsUserCheckable;
 }
@@ -150,8 +158,9 @@ PluginModel::headerData(int section,
                         Qt::Orientation orientation,
                         int role) const
 {
-  if (orientation != Qt::Orientation::Horizontal || !isValidColumn(section))
+  if (orientation != Qt::Orientation::Horizontal || !isValidColumn(section)) {
     return QVariant();
+  }
 
   const static std::array<QString, numColumns> headers{
     tr("Name"), tr("Purpose"), tr("Author"),
@@ -169,8 +178,9 @@ PluginModel::headerData(int section,
 QModelIndex
 PluginModel::index(int row, int column, const QModelIndex& parent) const
 {
-  if (!isValidColumn(column) || (row < 0) || (row >= rowCount(parent)))
+  if (!isValidColumn(column) || (row < 0) || (row >= rowCount(parent))) {
     return QModelIndex();
+  }
 
   return createIndex(row, column);
 }
@@ -178,8 +188,9 @@ PluginModel::index(int row, int column, const QModelIndex& parent) const
 QMap<int, QVariant>
 PluginModel::itemData(const QModelIndex& index) const
 {
-  if (!isValidIndex(index))
+  if (!isValidIndex(index)) {
     return QMap<int, QVariant>();
+  }
 
   QMap<int, QVariant> map;
   map.insert(Qt::DisplayRole, data(index, Qt::DisplayRole));
@@ -198,17 +209,18 @@ bool
 PluginModel::removeRows(int row, int count, const QModelIndex& parent)
 {
   if (row < 0 || count <= 0 || row + count > pluginCount ||
-      parent.constInternalPointer())
+      parent.constInternalPointer()) {
     return false;
+  }
 
   emit layoutAboutToBeChanged();
   beginRemoveRows(parent, row, row + count - 1);
   bool succeeded = true;
   int i = 0;
   for (; i < count && succeeded; ++i) {
-    if (row >= worldIndex)
+    if (row >= worldIndex) {
       succeeded = client.removePlugin(row + 1);
-    else {
+    } else {
       succeeded = client.removePlugin(row);
       worldIndex -= 1;
     }
@@ -230,8 +242,9 @@ bool
 PluginModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
   if (role != Qt::CheckStateRole || index.column() != 4 || index.row() < 0 ||
-      index.row() >= pluginCount || index.constInternalPointer())
+      index.row() >= pluginCount || index.constInternalPointer()) {
     return false;
+  }
 
   switch (value.toInt()) {
     case Qt::CheckState::Checked:

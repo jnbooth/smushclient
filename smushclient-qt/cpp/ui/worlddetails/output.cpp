@@ -57,8 +57,9 @@ PrefsOutput::on_NewActivitySound_browse_clicked()
     tr("Select sound file"),
     currentFile.isEmpty() ? QStringLiteral(SOUNDS_DIR) : currentFile);
 
-  if (path.isEmpty())
+  if (path.isEmpty()) {
     return;
+  }
 
   ui->NewActivitySound->setText(makePathRelative(path));
 }
@@ -88,6 +89,7 @@ PrefsOutput::on_reset_clicked()
   auto ansi = ansiColors.cbegin();
   for (auto picker = colorPickers.cbegin(), end = colorPickers.cend();
        picker != end;
-       ++picker, ++ansi)
+       ++picker, ++ansi) {
     (*picker)->setValue(*ansi);
+  }
 }

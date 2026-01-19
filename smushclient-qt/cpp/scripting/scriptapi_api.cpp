@@ -37,8 +37,9 @@ getColorFromVariant(const QVariant& variant)
   }
   bool ok;
   int rgb = variant.toInt(&ok);
-  if (!ok || rgb < 0 || rgb > 0xFFFFFF)
+  if (!ok || rgb < 0 || rgb > 0xFFFFFF) {
     return QColor();
+  }
   return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
 }
 
@@ -73,10 +74,11 @@ long
 ScriptApi::GetUniqueNumber() noexcept
 {
   static long uniqueNumber = -1;
-  if (uniqueNumber == INT64_MAX) [[unlikely]]
+  if (uniqueNumber == INT64_MAX) [[unlikely]] {
     uniqueNumber = 0;
-  else
+  } else {
     ++uniqueNumber;
+  }
   return uniqueNumber;
 }
 
@@ -101,9 +103,11 @@ ScriptApi::BroadcastPlugin(size_t index, long message, string_view text) const
   long calledPlugins = 0;
   OnPluginBroadcast onBroadcast(
     message, callingPlugin.id(), callingPlugin.name(), text);
-  for (const Plugin& plugin : plugins)
-    if (&plugin != &callingPlugin)
+  for (const Plugin& plugin : plugins) {
+    if (&plugin != &callingPlugin) {
       calledPlugins += plugin.runCallbackThreaded(onBroadcast);
+    }
+  }
   return calledPlugins;
 }
 
@@ -113,10 +117,12 @@ ScriptApi::ColourTell(const QColor& foreground,
                       const QString& text)
 {
   QTextCharFormat format = cursor.charFormat();
-  if (foreground.isValid())
+  if (foreground.isValid()) {
     format.setForeground(foreground);
-  if (background.isValid())
+  }
+  if (background.isValid()) {
     format.setBackground(background);
+  }
   appendTell(text, format);
 }
 
@@ -124,8 +130,9 @@ int
 ScriptApi::DatabaseClose(string_view databaseID)
 {
   auto search = databases.find(databaseID);
-  if (search == databases.end()) [[unlikely]]
+  if (search == databases.end()) [[unlikely]] {
     return -1;
+  }
 
   const int result = search->second.close();
   databases.erase(search);
@@ -137,12 +144,14 @@ ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
 {
   auto search = databases.emplace((string)databaseID, filename);
   DatabaseConnection& db = search.first->second;
-  if (!search.second)
+  if (!search.second) {
     return db.isFile(databaseID) ? SQLITE_OK : -6;
+  }
 
   const int result = db.open(flags);
-  if (result != SQLITE_OK)
+  if (result != SQLITE_OK) {
     databases.erase(search.first);
+  }
 
   return result;
 }
@@ -160,8 +169,9 @@ ScriptApi::DoAfter(size_t plugin,
                    const QString& text,
                    SendTarget target)
 {
-  if (seconds < 0.1 || seconds > 86399)
+  if (seconds < 0.1 || seconds > 86399) {
     return ApiCode::TimeInvalid;
+  }
   const milliseconds duration = milliseconds{ (int)(seconds * 1000.0) };
   sendQueue->start(duration,
                    { .plugin = plugin,
@@ -175,8 +185,9 @@ ApiCode
 ScriptApi::EnablePlugin(string_view pluginID, bool enabled)
 {
   const size_t index = findPluginIndex(pluginID);
-  if (index == noSuchPlugin)
+  if (index == noSuchPlugin) {
     return ApiCode::NoSuchPlugin;
+  }
   plugins[index].disable();
   client()->setPluginEnabled(index, enabled);
   OnPluginListChanged onListChanged;
@@ -219,8 +230,9 @@ VariableView
 ScriptApi::GetVariable(string_view pluginID, string_view key) const
 {
   const size_t index = findPluginIndex(pluginID);
-  if (index == noSuchPlugin)
+  if (index == noSuchPlugin) {
     return VariableView(nullptr, 0);
+  }
   return GetVariable(index, key);
 }
 
@@ -243,12 +255,15 @@ ScriptApi::Hyperlink(const QString& action,
   format.setAnchorHref(
     encodeLink(url ? SendTo::Internet : SendTo::World, action));
   format.setToolTip(hint.isEmpty() ? action : hint);
-  if (foreground.isValid())
+  if (foreground.isValid()) {
     format.setForeground(foreground);
-  if (background.isValid())
+  }
+  if (background.isValid()) {
     format.setBackground(background);
-  if (!noUnderline)
+  }
+  if (!noUnderline) {
     format.setAnchor(true);
+  }
   appendTell(text, format);
 }
 
@@ -277,8 +292,9 @@ ApiCode
 ScriptApi::PluginSupports(string_view pluginID, PluginCallbackKey routine) const
 {
   const size_t index = findPluginIndex(pluginID);
-  if (index == noSuchPlugin) [[unlikely]]
+  if (index == noSuchPlugin) [[unlikely]] {
     return ApiCode::NoSuchPlugin;
+  }
   return plugins[index].hasFunction(routine) ? ApiCode::OK
                                              : ApiCode::NoSuchRoutine;
 }
@@ -287,8 +303,9 @@ ApiCode
 ScriptApi::SendPacket(QByteArrayView view)
 {
   ++totalPacketsSent;
-  if (socket->write(view.data(), view.size()) == -1) [[unlikely]]
+  if (socket->write(view.data(), view.size()) == -1) [[unlikely]] {
     return ApiCode::WorldClosed;
+  }
 
   return ApiCode::OK;
 }
@@ -310,41 +327,44 @@ ApiCode
 ScriptApi::SetOption(size_t plugin, string_view name, long value)
 {
   const ApiCode code = tab->setWorldOption(plugin, name, value);
-  if (code != ApiCode::OK)
+  if (code != ApiCode::OK) {
     return code;
+  }
 
-  if (name == "echo_colour")
+  if (name == "echo_colour") {
     echoFormat.setForeground(QColor(value));
-  else if (name == "echo_background_colour")
+  } else if (name == "echo_background_colour") {
     echoFormat.setBackground(QColor(value));
-  else if (name == "display_my_input")
+  } else if (name == "display_my_input") {
     echoInput = value == 1;
-  else if (name == "error_text_colour")
+  } else if (name == "error_text_colour") {
     errorFormat.setForeground(QColor(value));
-  else if (name == "error_background_colour")
+  } else if (name == "error_background_colour") {
     errorFormat.setBackground(QColor(value));
-  else if (name == "indent_paras")
+  } else if (name == "indent_paras") {
     indentText = QStringLiteral(" ").repeated(value);
-  else if (name == "keep_commands_on_same_line")
+  } else if (name == "keep_commands_on_same_line") {
     echoOnSameLine = value == 1;
-  else if (name == "log_notes")
+  } else if (name == "log_notes") {
     logNotes = value == 1;
-  else if (name == "naws")
+  } else if (name == "naws") {
     doNaws = value == 1;
-  else if (name == "note_text_colour")
+  } else if (name == "note_text_colour") {
     noteFormat.setForeground(QColor(value));
-  else if (name == "note_background_colour")
+  } else if (name == "note_background_colour") {
     noteFormat.setBackground(QColor(value));
-  else if (name == "no_echo_off") {
-    if (value == 1)
+  } else if (name == "no_echo_off") {
+    if (value == 1) {
       suppressEcho = false;
+    }
   } else if (name == "enable_scripts") {
     if (worldScriptIndex == noSuchPlugin)
       ;
-    else if (value == 1)
+    else if (value == 1) {
       plugins[worldScriptIndex].enable();
-    else
+    } else {
       plugins[worldScriptIndex].disable();
+    }
   }
 
   return code;
@@ -452,12 +472,14 @@ ApiCode
 ScriptApi::TextRectangle() const
 {
   const QByteArrayView variable = client()->getMetavariable("output/layout");
-  if (!variable.data())
+  if (!variable.data()) {
     return ApiCode::OK;
+  }
 
   OutputLayout layout;
-  if (!layout.restore(QByteArray(variable)))
+  if (!layout.restore(QByteArray(variable))) {
     return ApiCode::VariableNotFound;
+  }
 
   return TextRectangle(layout);
 }

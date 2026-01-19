@@ -156,8 +156,9 @@ public:
   ~Benchmarker()
   {
     int64_t elapsed = timer.elapsed();
-    if (elapsed > 2)
+    if (elapsed > 2) {
       qDebug() << name << elapsed << "ms";
+    }
   }
 
 private:
@@ -221,10 +222,11 @@ L_GetPluginInfo(lua_State* L)
   expectMaxArgs(L, 2);
   const string_view pluginID = qlua::getString(L, 1);
   const lua_Integer infoType = qlua::getInt(L, 2);
-  if (infoType > UINT8_MAX) [[unlikely]]
+  if (infoType > UINT8_MAX) [[unlikely]] {
     lua_pushnil(L);
-  else
+  } else {
     qlua::pushQVariant(L, getApi(L).GetPluginInfo(pluginID, (uint8_t)infoType));
+  }
   return 1;
 }
 
@@ -381,10 +383,11 @@ inline void
 insertTextTriples(lua_State* L, ScriptApi& api)
 {
   int n = lua_gettop(L);
-  for (int i = 1; i <= n; i += 3)
+  for (int i = 1; i <= n; i += 3) {
     api.ColourTell(qlua::getQColor(L, i),
                    qlua::getQColor(L, i + 1),
                    qlua::getQString(L, i + 2));
+  }
 }
 
 static int
@@ -480,8 +483,9 @@ L_SetCursor(lua_State* L)
   expectMaxArgs(L, 1);
   const optional<Qt::CursorShape> cursor =
     qlua::getCursor(L, 1, Qt::CursorShape::ArrowCursor);
-  if (!cursor)
+  if (!cursor) {
     return returnCode(L, ApiCode::BadParameter);
+  }
   return returnCode(L, getApi(L).SetCursor(*cursor));
 }
 
@@ -530,13 +534,15 @@ L_CallPlugin(lua_State* L)
 {
   API("CallPlugin")
   const Plugin* pluginRef = getApi(L).getPlugin(qlua::getString(L, 1));
-  if (!pluginRef) [[unlikely]]
+  if (!pluginRef) [[unlikely]] {
     return returnCode(
       L, ApiCode::NoSuchPlugin, fmtNoSuchPlugin(qlua::getString(L, 1)));
+  }
 
   const Plugin& plugin = *pluginRef;
-  if (plugin.isDisabled()) [[unlikely]]
+  if (plugin.isDisabled()) [[unlikely]] {
     return returnCode(L, ApiCode::PluginDisabled, fmtPluginDisabled(plugin));
+  }
 
   const string_view routine = qlua::getString(L, 2);
 
@@ -554,12 +560,13 @@ L_CallPlugin(lua_State* L)
 
   const int topBefore = lua_gettop(L2) - 1;
 
-  for (int i = 1; i <= nargs; ++i)
+  for (int i = 1; i <= nargs; ++i) {
     if (!qlua::copyValue(L, L2, i + 2)) {
       lua_settop(L, 0);
       return returnCode(
         L, ApiCode::BadParameter, fmtBadParam(i - 2, luaL_typename(L, i)));
     }
+  }
 
   if (!api_pcall(L2, nargs, LUA_MULTRET)) {
     lua_settop(L, 0);
@@ -575,11 +582,13 @@ L_CallPlugin(lua_State* L)
   lua_settop(L, 0);
   luaL_checkstack(L, nresults + 1, nullptr);
   lua_pushinteger(L, (lua_Integer)ApiCode::OK);
-  for (int i = topBefore + 1; i <= topAfter; ++i)
-    if (!qlua::copyValue(L2, L, i))
+  for (int i = topBefore + 1; i <= topAfter; ++i) {
+    if (!qlua::copyValue(L2, L, i)) {
       return returnCode(L,
                         ApiCode::ErrorCallingPluginRoutine,
                         fmtBadReturn(plugin, routine, i, luaL_typename(L2, i)));
+    }
+  }
   return nresults + 1;
 }
 
@@ -624,8 +633,9 @@ L_AddAlias(lua_State* L)
   const QFlags<AliasFlag> flags = qlua::getFlags<AliasFlag>(L, 4);
   const optional<string_view> script = qlua::getScriptName(L, 5);
 
-  if (!script)
+  if (!script) {
     return returnCode(L, ApiCode::ScriptNameNotLocated);
+  }
 
   return returnCode(
     L,
@@ -645,8 +655,9 @@ L_AddTimer(lua_State* L)
   const QFlags<TimerFlag> flags = qlua::getFlags<TimerFlag>(L, 6);
   const optional<string_view> script = qlua::getScriptName(L, 7);
 
-  if (!script)
+  if (!script) {
     return returnCode(L, ApiCode::ScriptNameNotLocated);
+  }
 
   return returnCode(
     L,
@@ -671,11 +682,13 @@ L_AddTrigger(lua_State* L)
     qlua::getSendTarget(L, 9, SendTarget::World);
   const lua_Integer sequence = qlua::getInt(L, 10, 100);
 
-  if (!script)
+  if (!script) {
     return returnCode(L, ApiCode::ScriptNameNotLocated);
+  }
 
-  if (!target)
+  if (!target) {
     return returnCode(L, ApiCode::TriggerSendToInvalid);
+  }
 
   return returnCode(L,
                     getApi(L).AddTrigger(getPluginIndex(L),
@@ -781,8 +794,9 @@ L_DoAfterSpecial(lua_State* L)
   const lua_Number seconds = qlua::getNumber(L, 1);
   const QString text = qlua::getQString(L, 2);
   const optional<SendTarget> target = qlua::getSendTarget(L, 3);
-  if (!target) [[unlikely]]
+  if (!target) [[unlikely]] {
     return returnCode(L, ApiCode::OptionOutOfRange);
+  }
   return returnCode(
     L, getApi(L).DoAfter(getPluginIndex(L), seconds, text, *target));
 }
@@ -1118,8 +1132,9 @@ L_TextRectangle(lua_State* L)
   const int borderWidth = qlua::getInt(L, 7);
   QColor outsideColor = qlua::getQColor(L, 8);
   const optional<Qt::BrushStyle> outsideFillStyle = qlua::getBrush(L, 9);
-  if (!outsideFillStyle) [[unlikely]]
+  if (!outsideFillStyle) [[unlikely]] {
     return returnCode(L, ApiCode::BrushStyleNotValid);
+  }
   if (borderColor == Qt::GlobalColor::black) {
     borderColor = Qt::GlobalColor::transparent;
   }
@@ -1147,12 +1162,15 @@ L_WindowCircleOp(lua_State* L)
   const QColor brushColor = qlua::getQColor(L, 10);
   const optional<Qt::BrushStyle> brushStyle =
     qlua::getBrush(L, 11, Qt::BrushStyle::SolidPattern);
-  if (!action) [[unlikely]]
+  if (!action) [[unlikely]] {
     return returnCode(L, ApiCode::UnknownOption);
-  if (!pen) [[unlikely]]
+  }
+  if (!pen) [[unlikely]] {
     return returnCode(L, ApiCode::PenStyleNotValid);
-  if (!brushStyle) [[unlikely]]
+  }
+  if (!brushStyle) [[unlikely]] {
     return returnCode(L, ApiCode::BrushStyleNotValid);
+  }
   const QBrush brush(brushColor, *brushStyle);
 
   switch (*action) {
@@ -1186,8 +1204,9 @@ L_WindowCreate(lua_State* L)
   const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 6);
   const MiniWindow::Flags flags = qlua::getFlags<MiniWindow::Flag>(L, 7);
   const QColor bg = qlua::getQColor(L, 8);
-  if (!position) [[unlikely]]
+  if (!position) [[unlikely]] {
     return returnCode(L, ApiCode::BadParameter);
+  }
   return returnCode(
     L,
     getApi(L).WindowCreate(
@@ -1206,8 +1225,9 @@ L_WindowDrawImage(lua_State* L)
     qlua::getDrawImageMode(L, 7, MiniWindow::DrawImageMode::Copy);
   const QRectF sourceRect =
     n >= 8 ? qlua::getQRectF(L, 8, 9, 10, 11) : QRectF();
-  if (!mode)
+  if (!mode) {
     return returnCode(L, ApiCode::BadParameter);
+  }
   return returnCode(
     L, getApi(L).WindowDrawImage(windowName, imageID, rect, *mode, sourceRect));
 }
@@ -1302,8 +1322,9 @@ L_WindowFont(lua_State* L)
   const string_view fontID = qlua::getString(L, 2);
   const QString fontName = qlua::getQString(L, 3);
   const lua_Number pointSize = qlua::getNumber(L, 4);
-  if (pointSize == 0 && fontName.isEmpty()) [[unlikely]]
+  if (pointSize == 0 && fontName.isEmpty()) [[unlikely]] {
     return returnCode(L, getApi(L).WindowUnloadFont(windowName, fontID));
+  }
   const bool bold = qlua::getBool(L, 5, false);
   const bool italic = qlua::getBool(L, 6, false);
   const bool underline = qlua::getBool(L, 7, false);
@@ -1311,8 +1332,9 @@ L_WindowFont(lua_State* L)
   // const short charset = qlua::getInt(L, 9);
   const optional<QFont::StyleHint> hint =
     qlua::getFontHint(L, 10, QFont::StyleHint::AnyStyle);
-  if (!hint) [[unlikely]]
+  if (!hint) [[unlikely]] {
     return returnCode(L, ApiCode::BadParameter);
+  }
   return returnCode(L,
                     getApi(L).WindowFont(windowName,
                                          fontID,
@@ -1348,8 +1370,9 @@ L_WindowGradient(lua_State* L)
   const QColor color2 = qlua::getQColor(L, 7);
   const lua_Integer mode = qlua::getInt(L, 8);
   if (mode != Qt::Orientation::Horizontal && mode != Qt::Orientation::Vertical)
-    [[unlikely]]
+    [[unlikely]] {
     return returnCode(L, ApiCode::UnknownOption);
+  }
   return returnCode(L,
                     getApi(L).WindowGradient(
                       windowName, rect, color1, color2, (Qt::Orientation)mode));
@@ -1375,8 +1398,9 @@ L_WindowLine(lua_State* L)
   const string_view windowName = qlua::getString(L, 1);
   const QLineF line = qlua::getQLineF(L, 2, 3, 4, 5);
   const optional<QPen> pen = qlua::getPen(L, 6, 7, 8);
-  if (!pen) [[unlikely]]
+  if (!pen) [[unlikely]] {
     return returnCode(L, ApiCode::PenStyleNotValid);
+  }
   return returnCode(L, getApi(L).WindowLine(windowName, line, *pen));
 }
 
@@ -1388,8 +1412,9 @@ L_WindowLoadImage(lua_State* L)
   const string_view windowName = qlua::getString(L, 1);
   const string_view imageID = qlua::getString(L, 2);
   const QString filename = qlua::getQString(L, 3);
-  if (filename.isEmpty()) [[unlikely]]
+  if (filename.isEmpty()) [[unlikely]] {
     return returnCode(L, getApi(L).WindowUnloadImage(windowName, imageID));
+  }
   return returnCode(L,
                     getApi(L).WindowLoadImage(windowName, imageID, filename));
 }
@@ -1417,12 +1442,15 @@ L_WindowPolygon(lua_State* L)
   const optional<Qt::BrushStyle> brushStyle = qlua::getBrush(L, 7);
   const bool close = qlua::getBool(L, 8, false);
   const bool winding = qlua::getBool(L, 9, false);
-  if (!polygon) [[unlikely]]
+  if (!polygon) [[unlikely]] {
     return returnCode(L, ApiCode::InvalidNumberOfPoints);
-  if (!pen) [[unlikely]]
+  }
+  if (!pen) [[unlikely]] {
     return returnCode(L, ApiCode::PenStyleNotValid);
-  if (!brushStyle) [[unlikely]]
+  }
+  if (!brushStyle) [[unlikely]] {
     return returnCode(L, ApiCode::BrushStyleNotValid);
+  }
   return returnCode(L,
                     getApi(L).WindowPolygon(windowName,
                                             *polygon,
@@ -1443,8 +1471,9 @@ L_WindowPosition(lua_State* L)
   const QPoint location = qlua::getQPoint(L, 2, 3);
   const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 4);
   const MiniWindow::Flags flags = qlua::getFlags<MiniWindow::Flag>(L, 5);
-  if (!position) [[unlikely]]
+  if (!position) [[unlikely]] {
     return returnCode(L, ApiCode::BadParameter);
+  }
   return returnCode(
     L, getApi(L).WindowPosition(windowName, location, *position, flags));
 }
@@ -1457,8 +1486,9 @@ L_WindowRectOp(lua_State* L)
   const string_view windowName = qlua::getString(L, 1);
   const optional<RectOp> action = qlua::getRectOp(L, 2);
   const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
-  if (!action) [[unlikely]]
+  if (!action) [[unlikely]] {
     return returnCode(L, ApiCode::UnknownOption);
+  }
 
   switch (*action) {
     case RectOp::Frame:
@@ -1480,15 +1510,16 @@ L_WindowRectOp(lua_State* L)
                               qlua::getQColor(L, 8, Qt::GlobalColor::black)));
     case RectOp::Edge3D:
       if (optional<MiniWindow::ButtonFrame> frame = qlua::getButtonFrame(L, 7);
-          frame)
+          frame) {
         return returnCode(
           L,
           getApi(L).WindowButton(windowName,
                                  rect.toRect(),
                                  *frame,
                                  qlua::getFlags<MiniWindow::ButtonFlag>(L, 8)));
-      else
+      } else {
         return returnCode(L, ApiCode::BadParameter);
+      }
     case RectOp::FloodFillBorder:
     case RectOp::FloodFillSurface:
       return returnCode(L, ApiCode::OK);
@@ -1576,8 +1607,9 @@ L_WindowAddHotspot(lua_State* L)
   const optional<Qt::CursorShape> cursor =
     qlua::getCursor(L, 13, Qt::CursorShape::ArrowCursor);
   const Hotspot::Flags flags = qlua::getFlags(L, 14, Hotspot::Flags());
-  if (!cursor) [[unlikely]]
+  if (!cursor) [[unlikely]] {
     return returnCode(L, ApiCode::BadParameter);
+  }
   return returnCode(L,
                     getApi(L).WindowAddHotspot(getPluginIndex(L),
                                                windowName,
@@ -1809,8 +1841,9 @@ registerLuaWorld(lua_State* L)
   lua_setglobal(L, worldLibKey);
 
   lua_pushglobaltable(L);
-  if (lua_getmetatable(L, -1) == LUA_TNIL)
+  if (lua_getmetatable(L, -1) == LUA_TNIL) {
     lua_newtable(L);
+  }
 
   lua_getglobal(L, worldLibKey);
   lua_setfield(L, -2, "__index");

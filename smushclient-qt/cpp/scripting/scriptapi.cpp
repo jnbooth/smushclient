@@ -61,8 +61,9 @@ ScriptApi::appendHtml(const QString& html)
 void
 ScriptApi::appendTell(const QString& text, const QTextCharFormat& format)
 {
-  if (text.isEmpty())
+  if (text.isEmpty()) {
     return;
+  }
   if (cursor.position() != lastTellPosition) {
     flushLine();
     updateTimestamp();
@@ -95,8 +96,9 @@ ScriptApi::applyWorld(const World& world)
   echoOnSameLine = world.getKeepCommandsOnSameLine();
   echoInput = world.getDisplayMyInput();
 
-  if (world.getNoEchoOff())
+  if (world.getNoEchoOff()) {
     suppressEcho = false;
+  }
 
   indentText = QStringLiteral(" ").repeated(world.getIndentParas());
   echoFormat.setForeground(world.getEchoColour());
@@ -106,20 +108,23 @@ ScriptApi::applyWorld(const World& world)
   noteFormat.setForeground(world.getNoteTextColour());
   noteFormat.setBackground(world.getNoteBackgroundColour());
 
-  if (worldScriptIndex == noSuchPlugin)
+  if (worldScriptIndex == noSuchPlugin) {
     return;
+  }
 
-  if (world.getEnableScripts())
+  if (world.getEnableScripts()) {
     plugins[worldScriptIndex].enable();
-  else
+  } else {
     plugins[worldScriptIndex].disable();
+  }
 }
 
 void
 ScriptApi::echo(const QString& text)
 {
-  if (suppressEcho) [[unlikely]]
+  if (suppressEcho) [[unlikely]] {
     return;
+  }
   if (echoOnSameLine) {
     cursor.insertText(text, echoFormat);
     return;
@@ -138,16 +143,18 @@ const Plugin*
 ScriptApi::getPlugin(string_view pluginID) const
 {
   const size_t index = findPluginIndex(pluginID);
-  if (index == noSuchPlugin) [[unlikely]]
+  if (index == noSuchPlugin) [[unlikely]] {
     return nullptr;
+  }
   return &plugins[index];
 }
 
 void
 ScriptApi::handleSendRequest(const SendRequest& request)
 {
-  if (request.text.isEmpty())
+  if (request.text.isEmpty()) {
     return;
+  }
   switch (request.sendTo) {
     case SendTarget::World:
     case SendTarget::WorldDelay:
@@ -155,10 +162,12 @@ ScriptApi::handleSendRequest(const SendRequest& request)
     case SendTarget::Speedwalk:
     case SendTarget::WorldImmediate: {
       SendFlags flags;
-      if (request.echo)
+      if (request.echo) {
         flags |= SendFlag::Echo;
-      if (request.log)
+      }
+      if (request.log) {
         flags |= SendFlag::Log;
+      }
       sendToWorld(request.text, flags);
     }
       return;
@@ -178,8 +187,9 @@ ScriptApi::handleSendRequest(const SendRequest& request)
     case SendTarget::NotepadAppend: {
       QTextCursor notepadCursor =
         notepads->pad(request.destination)->textCursor();
-      if (!notepadCursor.atBlockStart())
+      if (!notepadCursor.atBlockStart()) {
         notepadCursor.insertBlock();
+      }
       notepadCursor.insertText(request.text);
       return;
     }
@@ -204,8 +214,9 @@ ScriptApi::initializePlugins()
   const rust::Vec<PluginPack> pack = client()->resetPlugins();
   worldScriptIndex = noSuchPlugin;
   if (!windows.empty()) {
-    for (const auto& entry : windows)
+    for (const auto& entry : windows) {
       delete entry.second;
+    }
     windows.clear();
   }
   const size_t size = pack.size();
@@ -220,12 +231,14 @@ ScriptApi::initializePlugins()
   for (auto start = pack.cbegin(), it = start, end = pack.cend(); it != end;
        ++it, ++index) {
     PluginMetadata metadata(*it, index);
-    if (metadata.id.empty())
+    if (metadata.id.empty()) {
       worldScriptIndex = index;
+    }
     pluginIndices[metadata.id] = index;
     Plugin& plugin = plugins.emplace_back(this, *it, index);
-    if (plugin.metadata.id.empty())
+    if (plugin.metadata.id.empty()) {
       worldScriptIndex = index;
+    }
     pluginIndices[plugin.metadata.id] = index;
     if (plugin.install(*it)) {
       callbackFilter.scan(plugin.state());
@@ -251,18 +264,21 @@ ScriptApi::reinstallPlugin(size_t index)
   const PluginPack pack = client()->plugin(index);
   const string pluginId(pack.id.data(), pack.id.size());
   if (!windows.empty()) {
-    for (auto it = windows.begin(); it != windows.end();)
+    for (auto it = windows.begin(); it != windows.end();) {
       if (MiniWindow* window = it->second; window->getPluginId() == pluginId) {
         delete window;
         it = windows.erase(it);
-      } else
+      } else {
         ++it;
+      }
+    }
   }
   Plugin& plugin = plugins[index];
   plugin.metadata = PluginMetadata(pack, index);
   plugin.reset();
-  if (!plugin.install(pack))
+  if (!plugin.install(pack)) {
     return;
+  }
   callbackFilter.scan(plugin.state());
   client()->startTimers(index, *timekeeper);
   OnPluginInstall onInstall;
@@ -281,16 +297,19 @@ ScriptApi::printError(const QString& error)
 void
 ScriptApi::reloadWorldScript(const QString& worldScriptPath)
 {
-  if (worldScriptIndex == noSuchPlugin)
+  if (worldScriptIndex == noSuchPlugin) {
     return;
+  }
   Plugin& worldPlugin = plugins[worldScriptIndex];
   worldPlugin.reset();
 
-  if (worldScriptPath.isEmpty())
+  if (worldScriptPath.isEmpty()) {
     return;
+  }
 
-  if (!worldPlugin.runFile(worldScriptPath))
+  if (!worldPlugin.runFile(worldScriptPath)) {
     worldPlugin.disable();
+  }
 }
 
 void
@@ -305,27 +324,31 @@ ScriptApi::sendCallback(PluginCallback& callback)
 {
   switch (callback.id()) {
     case OnPluginWorldOutputResized::ID:
-      for (const auto& window : windows)
+      for (const auto& window : windows) {
         window.second->updatePosition();
+      }
       sendNaws();
       break;
   }
 
-  if (!callbackFilter.includes(callback))
+  if (!callbackFilter.includes(callback)) {
     return;
+  }
 
   const ActionSource callbackSource = callback.source();
   if (callbackSource == ActionSource::Unknown) {
-    for (const Plugin& plugin : plugins)
+    for (const Plugin& plugin : plugins) {
       plugin.runCallback(callback);
+    }
     return;
   }
 
   const ActionSource initialSource = actionSource;
   actionSource = callbackSource;
 
-  for (const Plugin& plugin : plugins)
+  for (const Plugin& plugin : plugins) {
     plugin.runCallback(callback);
+  }
 
   actionSource = initialSource;
 }
@@ -335,8 +358,9 @@ ScriptApi::sendCallback(PluginCallback& callback, size_t index)
 {
   const ActionSource callbackSource = callback.source();
 
-  if (callbackSource == ActionSource::Unknown)
+  if (callbackSource == ActionSource::Unknown) {
     return plugins[index].runCallback(callback);
+  }
 
   const ActionSource initialSource = actionSource;
   actionSource = callbackSource;
@@ -349,8 +373,9 @@ bool
 ScriptApi::sendCallback(PluginCallback& callback, const QString& pluginID)
 {
   const size_t index = findPluginIndex(pluginID.toStdString());
-  if (index == noSuchPlugin) [[unlikely]]
+  if (index == noSuchPlugin) [[unlikely]] {
     return false;
+  }
 
   return sendCallback(callback, index);
 }
@@ -358,8 +383,9 @@ ScriptApi::sendCallback(PluginCallback& callback, const QString& pluginID)
 void
 ScriptApi::sendNaws()
 {
-  if (!doesNaws || !doNaws)
+  if (!doesNaws || !doNaws) {
     return;
+  }
   MudBrowser* browser = tab->ui->output;
   const QFontMetrics metrics = browser->fontMetrics();
   const QMargins margins = browser->contentsMargins();
@@ -415,8 +441,9 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow* window) const
 
   for (const auto& entry : windows) {
     if (entry.second == window ||
-        entry.second->drawsUnderneath() != drawsUnderneath)
+        entry.second->drawsUnderneath() != drawsUnderneath) {
       continue;
+    }
     WindowCompare entryCompare{ entry.second->getZOrder(),
                                 (string_view)entry.first };
     if (entryCompare > compare &&
@@ -426,10 +453,11 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow* window) const
     }
   }
 
-  if (neighbor)
+  if (neighbor) {
     window->stackUnder(neighbor);
-  else if (drawsUnderneath)
+  } else if (drawsUnderneath) {
     window->stackUnder(tab->ui->outputBorder);
+  }
 }
 
 int
@@ -438,8 +466,9 @@ ScriptApi::startLine()
   if (hasLine) [[unlikely]] {
     cursor.insertBlock();
     indentNext = !indentText.isEmpty();
-  } else
+  } else {
     hasLine = true;
+  }
   return cursor.position();
 }
 
@@ -461,8 +490,9 @@ DatabaseConnection*
 ScriptApi::findDatabase(string_view databaseID)
 {
   auto search = databases.find(databaseID);
-  if (search == databases.end()) [[unlikely]]
+  if (search == databases.end()) [[unlikely]] {
     return nullptr;
+  }
   return &search->second;
 }
 
@@ -470,8 +500,9 @@ size_t
 ScriptApi::findPluginIndex(const string& pluginID) const
 {
   auto search = pluginIndices.find(pluginID);
-  if (search == pluginIndices.end()) [[unlikely]]
+  if (search == pluginIndices.end()) [[unlikely]] {
     return noSuchPlugin;
+  }
   return search->second;
 }
 
@@ -479,8 +510,9 @@ MiniWindow*
 ScriptApi::findWindow(string_view windowName) const
 {
   auto search = windows.find(windowName);
-  if (search == windows.end()) [[unlikely]]
+  if (search == windows.end()) [[unlikely]] {
     return nullptr;
+  }
   return search->second;
 }
 
@@ -497,14 +529,16 @@ ScriptApi::finishQueuedSend(const SendRequest& request)
 void
 ScriptApi::flushLine()
 {
-  if (!hasLine) [[likely]]
+  if (!hasLine) [[likely]] {
     return;
+  }
 
   hasLine = false;
   cursor.insertBlock();
 
-  if (!indentNext) [[likely]]
+  if (!indentNext) [[likely]] {
     return;
+  }
 
   indentNext = false;
   cursor.insertText(indentText);
@@ -525,8 +559,9 @@ ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
 {
   OnPluginSend onSend(bytes);
   sendCallback(onSend);
-  if (onSend.discarded())
+  if (onSend.discarded()) {
     return ApiCode::OK;
+  }
 
   if (echoInput && flags.testFlag(SendFlag::Echo)) {
     echo(text);
@@ -543,8 +578,9 @@ ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
   const qsizetype size = bytes.size();
   totalLinesSent += bytes.count('\n');
   totalPacketsSent += 1;
-  if (socket->write(bytes.constData(), size) == -1) [[unlikely]]
+  if (socket->write(bytes.constData(), size) == -1) [[unlikely]] {
     return ApiCode::WorldClosed;
+  }
   bytes.truncate(size - 2);
 
   OnPluginSent onSent(bytes);

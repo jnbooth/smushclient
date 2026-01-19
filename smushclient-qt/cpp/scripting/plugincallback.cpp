@@ -29,8 +29,9 @@ DynamicPluginCallback::findCallback(lua_State* L) const
 {
   const int type = lua_getglobal(L, name.c_str());
   if (property.empty()) {
-    if (type == LUA_TFUNCTION)
+    if (type == LUA_TFUNCTION) {
       return true;
+    }
     lua_pop(L, 1);
     return false;
   }
@@ -49,8 +50,9 @@ DynamicPluginCallback::findCallback(lua_State* L) const
 bool
 NamedPluginCallback::findCallback(lua_State* L) const
 {
-  if (lua_getglobal(L, name()) == LUA_TFUNCTION)
+  if (lua_getglobal(L, name()) == LUA_TFUNCTION) {
     return true;
+  }
   lua_pop(L, 1);
   return false;
 }
@@ -58,8 +60,9 @@ NamedPluginCallback::findCallback(lua_State* L) const
 void
 DiscardCallback::collectReturned(lua_State* L)
 {
-  if (processing && !lua_isnil(L, -1) && !lua_toboolean(L, -1))
+  if (processing && !lua_isnil(L, -1) && !lua_toboolean(L, -1)) {
     processing = false;
+  }
 }
 
 void
@@ -67,8 +70,9 @@ ModifyTextCallback::collectReturned(lua_State* L)
 {
   size_t len;
   const char* message = lua_tolstring(L, -1, &len);
-  if (!message)
+  if (!message) {
     return;
+  }
   text.clear();
   text.append(message, len);
 }
@@ -216,6 +220,7 @@ CallbackFilter::scan(lua_State* L)
 void
 CallbackFilter::setIfDefined(lua_State* L, const NamedPluginCallback& callback)
 {
-  if (lua_getglobal(L, callback.name()) == LUA_TFUNCTION)
+  if (lua_getglobal(L, callback.name()) == LUA_TFUNCTION) {
     filter |= callback.id();
+  }
 }

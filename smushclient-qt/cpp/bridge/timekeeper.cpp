@@ -65,15 +65,17 @@ Timekeeper::cancelTimers(const QSet<uint16_t>& timerIds)
 void
 Timekeeper::sendTimer(const SendTimer& timer) const
 {
-  if (closed && !timer.activeClosed)
+  if (closed && !timer.activeClosed) {
     return;
+  }
 
   const ActionSource oldSource = api->setSource(ActionSource::TimerFired);
   api->handleSendRequest(timer.request);
   api->setSource(oldSource);
 
-  if (timer.script.empty())
+  if (timer.script.empty()) {
     return;
+  }
 
   TimerCallback callback(timer.script, timer.label);
   api->sendCallback(callback, timer.request.plugin);

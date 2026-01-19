@@ -23,11 +23,13 @@ public:
 
   inline void clear() noexcept
   {
-    if (map.empty())
+    if (map.empty()) {
       return;
+    }
 
-    for (const auto& entry : map)
+    for (const auto& entry : map) {
       killTimer(entry.first);
+    }
     map.clear();
   }
 
@@ -57,10 +59,12 @@ protected:
   {
     const Qt::TimerId id = event->id();
     auto search = map.find(id);
-    if (search == map.end()) [[unlikely]]
+    if (search == map.end()) [[unlikely]] {
       return;
-    if (!(*parent().*slot)(search->second))
+    }
+    if (!(*parent().*slot)(search->second)) {
       return;
+    }
     killTimer(id);
     map.erase(search);
   }

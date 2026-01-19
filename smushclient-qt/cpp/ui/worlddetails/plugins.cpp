@@ -75,8 +75,9 @@ PrefsPlugins::on_button_add_clicked()
   const QString filePath = QFileDialog::getOpenFileName(
     this, tr("Add plugin"), QStringLiteral(PLUGINS_DIR), FileFilter::plugin());
 
-  if (filePath.isEmpty())
+  if (filePath.isEmpty()) {
     return;
+  }
 
   model->addPlugin(makePathRelative(filePath));
 }

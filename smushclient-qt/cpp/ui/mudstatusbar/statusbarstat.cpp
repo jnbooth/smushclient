@@ -16,8 +16,9 @@ void
 setTextColor(QWidget* widget, const QColor& color)
 {
   QPalette palette;
-  if (color.isValid())
+  if (color.isValid()) {
     palette.setColor(QPalette::ColorRole::WindowText, color);
+  }
   widget->setPalette(palette);
 }
 
@@ -78,8 +79,9 @@ StatusBarStat::setMax(const QString& max)
 
   const bool showMax = hasMax && ui->action_show_max->isChecked();
   ui->max->setVisible(showMax);
-  if (!showMax)
+  if (!showMax) {
     ui->value->setMinimumWidth(0);
+  }
 }
 
 void
@@ -112,8 +114,9 @@ StatusBarStat::setValue(const QString& value)
 void
 StatusBarStat::resizeEvent(QResizeEvent*)
 {
-  if (ui->max->isVisible())
+  if (ui->max->isVisible()) {
     ui->value->setMinimumWidth(ui->max->width());
+  }
 }
 
 // Private methods
@@ -128,8 +131,9 @@ StatusBarStat::chooseColor(const QWidget* source)
                            displayMenu->title(),
                            QColorDialog::ColorDialogOption::ShowAlphaChannel);
 
-  if (!color.isValid())
+  if (!color.isValid()) {
     return colorPalette;
+  }
 
   colorPalette.setColor(QPalette::ColorRole::WindowText, color);
   return colorPalette;
@@ -139,8 +143,9 @@ bool
 StatusBarStat::restore()
 {
   const QByteArray saveData = QSettings().value(settingsKey()).toByteArray();
-  if (saveData.isEmpty())
+  if (saveData.isEmpty()) {
     return false;
+  }
 
   bool display;
   bool showMax;

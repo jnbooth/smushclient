@@ -75,8 +75,9 @@ Document::appendExpiringLink(const QString& text,
   api->appendText(text, format);
   QTextCursor cursor(doc);
   cursor.setPosition(position - 1);
-  if (cursor.atBlockEnd())
+  if (cursor.atBlockEnd()) {
     cursor.movePosition(QTextCursor::MoveOperation::NextBlock);
+  }
   cursor.movePosition(QTextCursor::MoveOperation::End,
                       QTextCursor::MoveMode::KeepAnchor);
   cursor.setKeepPositionOnInsert(true);
@@ -96,8 +97,9 @@ void
 Document::beep() const
 {
   const QString sound = Settings().getBellSound();
-  if (!sound.isEmpty())
+  if (!sound.isEmpty()) {
     api->playFileRaw(sound);
+  }
 }
 
 void
@@ -125,8 +127,9 @@ void
 Document::end(bool hadOutput)
 {
   scrollBar->setAutoScrollEnabled(true);
-  if (hadOutput)
+  if (hadOutput) {
     emit newActivity();
+  }
 }
 
 void
@@ -152,15 +155,17 @@ Document::expireLinks(rust::Str expires)
   serverExpiresLinks = true;
   if (!expires.empty()) {
     std::vector<QTextCursor>& expiredLinks = linksWithExpiration(expires);
-    for (QTextCursor& cursor : expiredLinks)
+    for (QTextCursor& cursor : expiredLinks) {
       cursor.mergeCharFormat(expireLinkFormat);
+    }
     expiredLinks.clear();
     return;
   }
   for (auto& pair : links) {
     std::vector<QTextCursor>& expiredLinks = pair.second;
-    for (QTextCursor& cursor : expiredLinks)
+    for (QTextCursor& cursor : expiredLinks) {
       cursor.mergeCharFormat(expireLinkFormat);
+    }
     expiredLinks.clear();
   }
 }
@@ -206,8 +211,9 @@ Document::handleServerStatus(const QByteArray& variableBytes,
   const QString variable = QString::fromUtf8(variableBytes);
   const QString value = QString::fromUtf8(valueBytes);
   serverStatuses.insert(variable, value);
-  if (variable == QStringLiteral("PLAYERS"))
+  if (variable == QStringLiteral("PLAYERS")) {
     api->statusBarWidgets()->setUsers(value);
+  }
 }
 
 void
@@ -229,8 +235,9 @@ Document::handleTelnetNegotiation(TelnetSource source,
                                   uint8_t code)
 {
   if (source == TelnetSource::Client) {
-    if (verb != TelnetVerb::Do)
+    if (verb != TelnetVerb::Do) {
       return;
+    }
 
     OnPluginTelnetRequest onTelnetRequest(code, "SENT_DO");
     api->sendCallback(onTelnetRequest);
@@ -238,15 +245,17 @@ Document::handleTelnetNegotiation(TelnetSource source,
   }
 
   if (code == telnetNAWS) {
-    if (verb == TelnetVerb::Do)
+    if (verb == TelnetVerb::Do) {
       api->setNawsEnabled(true);
-    else if (verb == TelnetVerb::Dont)
+    } else if (verb == TelnetVerb::Dont) {
       api->setNawsEnabled(false);
+    }
   }
 
   if (code == telnetMSSP &&
-      (verb == TelnetVerb::Will || verb == TelnetVerb::Wont))
+      (verb == TelnetVerb::Will || verb == TelnetVerb::Wont)) {
     resetServerStatus();
+  }
 
   if (verb == TelnetVerb::Will) {
     OnPluginTelnetRequest onTelnetRequest(code, "WILL");
@@ -355,8 +364,9 @@ public:
 
     for (const OutputSpan& output : spans) {
       const TextSpan* span = output.text_span();
-      if (!span)
+      if (!span) {
         continue;
+      }
       lua_createtable(L, 0, 5);
       lua_pushinteger(L, span->foreground());
       lua_setfield(L, -2, "textcolour");

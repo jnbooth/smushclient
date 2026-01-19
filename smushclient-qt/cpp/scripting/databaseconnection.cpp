@@ -10,9 +10,11 @@ inline string
 replacePathSeparators(string_view path)
 {
   string file = (string)path;
-  for (auto iter = file.begin(), end = file.end(); iter != end; ++iter)
-    if (*iter == '\\')
+  for (auto iter = file.begin(), end = file.end(); iter != end; ++iter) {
+    if (*iter == '\\') {
       *iter = '/';
+    }
+  }
   return file;
 }
 
@@ -44,8 +46,9 @@ DatabaseConnection::close()
     stmt = nullptr;
   }
 
-  if (!db)
+  if (!db) {
     return -2;
+  }
 
   const int result = sqlite3_close(db);
   db = nullptr;

@@ -52,10 +52,11 @@ SettingsAppearance::~SettingsAppearance()
 void
 SettingsAppearance::on_BackgroundTransparent_toggled(bool checked)
 {
-  if (checked)
+  if (checked) {
     emit notifier->backgroundMaterialChanged(settings.getBackgroundMaterial());
-  else
+  } else {
     emit notifier->backgroundMaterialChanged(nullopt);
+  }
 }
 
 void
@@ -73,8 +74,9 @@ SettingsAppearance::on_InputBackground_valueChanged(const QColor& color)
 void
 SettingsAppearance::on_InputFont_currentFontChanged(const QFont& font)
 {
-  if (inputFont == font)
+  if (inputFont == font) {
     return;
+  }
   const int pointSize = inputFont.pointSize();
   inputFont = font;
   inputFont.setPointSize(pointSize);
@@ -85,8 +87,9 @@ SettingsAppearance::on_InputFont_currentFontChanged(const QFont& font)
 void
 SettingsAppearance::on_InputFontSize_valueChanged(int size)
 {
-  if (inputFont.pointSize() == size)
+  if (inputFont.pointSize() == size) {
     return;
+  }
   inputFont.setPointSize(size);
   settings.setInputFont(inputFont);
   emit notifier->inputFontChanged(inputFont);
@@ -101,8 +104,9 @@ SettingsAppearance::on_InputForeground_valueChanged(const QColor& color)
 void
 SettingsAppearance::on_OutputFont_currentFontChanged(const QFont& font)
 {
-  if (outputFont == font)
+  if (outputFont == font) {
     return;
+  }
   const int pointSize = outputFont.pointSize();
   outputFont = font;
   outputFont.setPointSize(pointSize);
@@ -113,8 +117,9 @@ SettingsAppearance::on_OutputFont_currentFontChanged(const QFont& font)
 void
 SettingsAppearance::on_OutputFontSize_valueChanged(int size)
 {
-  if (outputFont.pointSize() == size)
+  if (outputFont.pointSize() == size) {
     return;
+  }
   outputFont.setPointSize(size);
   settings.setOutputFont(outputFont);
   emit notifier->outputFontChanged(outputFont);

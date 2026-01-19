@@ -589,8 +589,9 @@ registerTable(lua_State* L, const char* name, const pair<K, V> (&entries)[N])
     pushValue(L, entry.second);
     lua_rawset(L, -3);
   }
-  if (isNew)
+  if (isNew) {
     lua_setglobal(L, name);
+  }
 }
 
 int

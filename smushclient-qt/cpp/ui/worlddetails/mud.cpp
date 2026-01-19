@@ -38,8 +38,9 @@ PrefsMud::~PrefsMud()
 void
 PrefsMud::on_CommandStackCharacter_textChanged(const QString& character)
 {
-  if (character.length() != 1)
+  if (character.length() != 1) {
     return;
+  }
   world.setCommandStackCharacter(character.toUtf8().front());
 }
 

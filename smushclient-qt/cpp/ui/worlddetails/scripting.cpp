@@ -48,8 +48,9 @@ PrefsScripting::on_WorldScript_browse_clicked()
                                                     QStringLiteral(WORLDS_DIR),
                                                     FileFilter::lua());
 
-  if (path.isEmpty())
+  if (path.isEmpty()) {
     return;
+  }
 
   ui->WorldScript->setText(makePathRelative(path));
 }
@@ -60,8 +61,9 @@ PrefsScripting::on_WorldScript_create_clicked()
   const QString path = QFileDialog::getSaveFileName(
     this, tr("Save as"), defaultScriptPath(), FileFilter::lua());
 
-  if (path.isEmpty())
+  if (path.isEmpty()) {
     return;
+  }
 
   QFile file(path);
   if (!file.open(QIODevice::WriteOnly)) {
@@ -76,8 +78,9 @@ void
 PrefsScripting::on_WorldScript_edit_clicked()
 {
   const QString& scriptPath = ui->WorldScript->text();
-  if (QDesktopServices::openUrl(QUrl::fromLocalFile(scriptPath)))
+  if (QDesktopServices::openUrl(QUrl::fromLocalFile(scriptPath))) {
     return;
+  }
 
   const QString path = QFileDialog::getSaveFileName(
     this,

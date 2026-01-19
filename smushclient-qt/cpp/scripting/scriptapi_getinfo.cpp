@@ -70,8 +70,9 @@ ScriptApi::FontInfo(const QFont& font, long infoType) const
     case 19: // pitch and family
     {
       const QFont::StyleHint hint = font.styleHint();
-      if (hint == QFont::StyleHint::Monospace)
+      if (hint == QFont::StyleHint::Monospace) {
         return FontPitchFlag::Monospace;
+      }
 
       const int pitchFlag = QFontInfo(font).fixedPitch()
                               ? FontPitchFlag::Fixed
@@ -133,19 +134,25 @@ getModifierFlags(Qt::KeyboardModifiers mods, Qt::MouseButtons buttons)
 {
   long long flags = 0;
 
-  if (mods.testFlag(Qt::KeyboardModifier::ShiftModifier))
+  if (mods.testFlag(Qt::KeyboardModifier::ShiftModifier)) {
     flags |= ModifierFlag::Shift | ModifierFlag::LeftShift;
-  if (mods.testFlag(Qt::KeyboardModifier::ControlModifier))
+  }
+  if (mods.testFlag(Qt::KeyboardModifier::ControlModifier)) {
     flags |= ModifierFlag::Ctrl | ModifierFlag::LeftCtrl;
-  if (mods.testFlag(Qt::KeyboardModifier::AltModifier))
+  }
+  if (mods.testFlag(Qt::KeyboardModifier::AltModifier)) {
     flags |= ModifierFlag::Alt | ModifierFlag::LeftAlt;
+  }
 
-  if (buttons.testFlag(Qt::MouseButton::LeftButton))
+  if (buttons.testFlag(Qt::MouseButton::LeftButton)) {
     flags |= ModifierFlag::LeftMouse;
-  if (buttons.testFlag(Qt::MouseButton::RightButton))
+  }
+  if (buttons.testFlag(Qt::MouseButton::RightButton)) {
     flags |= ModifierFlag::RightMouse;
-  if (buttons.testFlag(Qt::MouseButton::MiddleButton))
+  }
+  if (buttons.testFlag(Qt::MouseButton::MiddleButton)) {
     flags |= ModifierFlag::MiddleMouse;
+  }
 
   return flags;
 }
@@ -329,12 +336,15 @@ ScriptApi::GetInfo(long infoType) const
     }
     case 238: {
       QWidget* window = tab->window();
-      if (window->isHidden())
+      if (window->isHidden()) {
         return 0;
-      if (window->isMinimized())
+      }
+      if (window->isMinimized()) {
         return 6;
-      if (window->isMaximized())
+      }
+      if (window->isMaximized()) {
         return 3;
+      }
       return 1;
     }
     case 239:
@@ -434,8 +444,9 @@ QVariant
 ScriptApi::GetLineInfo(int lineNumber, long infoType) const
 {
   const QTextBlock block = cursor.document()->findBlockByLineNumber(lineNumber);
-  if (!block.isValid())
+  if (!block.isValid()) {
     return QVariant();
+  }
   const int lineIndex = lineNumber - block.firstLineNumber();
   switch (infoType) {
     case 1: {
@@ -469,10 +480,12 @@ ScriptApi::GetLineInfo(int lineNumber, long infoType) const
       const int start = line.textStart();
       const int end = start + line.textLength();
       for (const QTextLayout::FormatRange& range : block.textFormats()) {
-        if (range.start > end)
+        if (range.start > end) {
           return styleCount;
-        if (range.start + range.length >= start)
+        }
+        if (range.start + range.length >= start) {
           ++styleCount;
+        }
       }
     }
     // case 12: // ticks - exact value from the high-performance timer
@@ -488,8 +501,9 @@ ScriptApi::GetPluginInfo(string_view pluginID, long infoType) const
 {
   const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin || infoType < 0 || infoType > UINT8_MAX)
-    [[unlikely]]
+    [[unlikely]] {
     return QVariant();
+  }
   switch (infoType) {
     case 16:
       return QVariant(!plugins[index].isDisabled());
@@ -505,8 +519,9 @@ ScriptApi::GetStyleInfo(int line, long style, long infoType) const
 {
   const QTextDocument* doc = cursor.document();
   const QTextBlock block = doc->findBlockByLineNumber(line - 1);
-  if (!block.isValid())
+  if (!block.isValid()) {
     return QVariant();
+  }
   const QTextLayout* layout = block.layout();
   const QTextLine textLine = layout->lineAt(line - block.firstLineNumber());
   const int textStart = textLine.textStart();
@@ -515,12 +530,15 @@ ScriptApi::GetStyleInfo(int line, long style, long infoType) const
   auto iter = styles.cbegin();
   long styleOffset = style;
   for (auto end = styles.cend();; ++iter) {
-    if (iter == end || iter->start > textEnd)
+    if (iter == end || iter->start > textEnd) {
       return QVariant();
-    if (iter->start + iter->length < textStart)
+    }
+    if (iter->start + iter->length < textStart) {
       continue;
-    if (styleOffset == 0)
+    }
+    if (styleOffset == 0) {
       break;
+    }
     --styleOffset;
   }
   const QTextLayout::FormatRange& range = *iter;
@@ -535,8 +553,9 @@ ScriptApi::GetStyleInfo(int line, long style, long infoType) const
       return range.start - textStart;
     case 4: {
       optional<SendTo> sendto = getSendTo(range.format);
-      if (!sendto)
+      if (!sendto) {
         return 0;
+      }
       switch (*sendto) {
         case SendTo::Internet:
           return 2;
@@ -548,8 +567,9 @@ ScriptApi::GetStyleInfo(int line, long style, long infoType) const
     }
     case 5: {
       QString link = range.format.anchorHref();
-      if (!link.isEmpty())
+      if (!link.isEmpty()) {
         decodeLink(link);
+      }
       return link;
     }
     case 6:
@@ -581,8 +601,9 @@ ScriptApi::GetTimerInfo(size_t pluginIndex,
                         std::string_view label,
                         long infoType) const
 {
-  if (infoType < 0 || infoType > UINT8_MAX) [[unlikely]]
+  if (infoType < 0 || infoType > UINT8_MAX) [[unlikely]] {
     return QVariant();
+  }
 
   switch (infoType) {
     case 26: {

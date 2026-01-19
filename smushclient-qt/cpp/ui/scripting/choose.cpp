@@ -23,8 +23,9 @@ void
 Choose::addItem(const QString& text, const QVariant& value, bool active)
 {
   ui->items->addItem(text, value);
-  if (active)
+  if (active) {
     ui->items->setCurrentIndex(ui->items->count() - 1);
+  }
 }
 
 void

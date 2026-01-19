@@ -14,8 +14,9 @@ public:
     , property()
   {
     const size_t n = routine.find('.');
-    if (n == std::string_view::npos)
+    if (n == std::string_view::npos) {
       return;
+    }
 
     name = routine.substr(0, n);
     property = routine.substr(n + 1);

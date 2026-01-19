@@ -83,22 +83,26 @@ MudInput::keyPressEvent(QKeyEvent* event)
 {
   switch (event->key()) {
     case Qt::Key::Key_Up:
-      if (history.atStart())
+      if (history.atStart()) {
         break;
+      }
       if (int lines = document()->lineCount();
-          lines > 1 && !textCursor().atStart())
+          lines > 1 && !textCursor().atStart()) {
         break;
+      }
       if ((history.atEnd() || history.atLast()) && !document()->isEmpty() &&
-          history.push(toPlainText()))
+          history.push(toPlainText())) {
         history.previous();
+      }
       setText(history.previous());
       moveCursor(QTextCursor::MoveOperation::End);
       return;
 
     case Qt::Key::Key_Down:
       if (int lines = document()->lineCount();
-          lines > 1 && !textCursor().atEnd())
+          lines > 1 && !textCursor().atEnd()) {
         break;
+      }
       setText(history.next());
       moveCursor(QTextCursor::MoveOperation::End);
       return;

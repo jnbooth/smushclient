@@ -50,8 +50,9 @@ MainWindow::MainWindow(Notepads* notepads, QWidget* parent)
   ui->setupUi(this);
   setWindowFlags(Qt::Window);
   setAttribute(Qt::WA_DeleteOnClose);
-  if (settings.getBackgroundTransparent())
+  if (settings.getBackgroundTransparent()) {
     onBackgroundMaterialChanged(settings.getBackgroundMaterial());
+  }
 
   findDialog = new FindDialog(this);
   QDir::setCurrent(settings.getStartupDirectoryOrDefault());
@@ -125,8 +126,9 @@ MainWindow::onBackgroundMaterialChanged(optional<int> material)
     repaint();
     return;
   }
-  if (int error = native::setBackgroundMaterial(this, *material))
+  if (int error = native::setBackgroundMaterial(this, *material)) {
     qWarning() << "Setting background material failed with code " << error;
+  }
   repaint();
 }
 
@@ -160,8 +162,9 @@ MainWindow::closeEvent(QCloseEvent* event)
       return;
     }
     const QString& worldFilePath = tab->worldFilePath();
-    if (!worldFilePath.isEmpty())
+    if (!worldFilePath.isEmpty()) {
       lastFiles.push_back(worldFilePath);
+    }
     tabs.push_back(tab);
   }
 
@@ -180,13 +183,15 @@ MainWindow::event(QEvent* event)
 
   switch (event->type()) {
     case QEvent::WindowActivate:
-      if (WorldTab* tab = worldtab(); tab)
+      if (WorldTab* tab = worldtab(); tab) {
         tab->setIsActive(true);
+      }
       break;
 
     case QEvent::WindowDeactivate:
-      if (WorldTab* tab = worldtab(); tab)
+      if (WorldTab* tab = worldtab(); tab) {
         tab->setIsActive(false);
+      }
       break;
 
     default:
@@ -210,12 +215,14 @@ MainWindow::settingsKey()
 void
 MainWindow::addRecentFile(const QString& filePath)
 {
-  if (filePath.isEmpty())
+  if (filePath.isEmpty()) {
     return;
+  }
 
   const RecentFileResult result = settings.addRecentFile(filePath);
-  if (!result.changed)
+  if (!result.changed) {
     return;
+  }
 
   setupRecentFiles(result.recentFiles);
 }
@@ -260,8 +267,9 @@ void
 MainWindow::openRecentFile(qsizetype index)
 {
   const QStringList recentFiles = settings.getRecentFiles();
-  if (index >= recentFiles.length())
+  if (index >= recentFiles.length()) {
     return;
+  }
 
   const QString& filePath = recentFiles.at(index);
 
@@ -280,8 +288,9 @@ bool
 MainWindow::restore()
 {
   const QByteArray saveData = QSettings().value(settingsKey()).toByteArray();
-  if (!saveData.isEmpty())
+  if (!saveData.isEmpty()) {
     return restoreGeometry(saveData);
+  }
 
   setGeometry(screen()->availableGeometry());
   setWindowState(Qt::WindowState::WindowActive |
@@ -381,8 +390,9 @@ void
 MainWindow::onNewActivity(WorldTab* tab)
 {
   const int index = ui->world_tabs->indexOf(tab);
-  if (index == -1 || index == ui->world_tabs->currentIndex())
+  if (index == -1 || index == ui->world_tabs->currentIndex()) {
     return;
+  }
   ui->world_tabs->tabBar()->setTabText(index,
                                        tab->title() + QStringLiteral(" ⏺︎"));
 }
@@ -391,11 +401,13 @@ void
 MainWindow::onTitleChanged(WorldTab* tab, const QString& title)
 {
   const int index = ui->world_tabs->indexOf(tab);
-  if (index == -1)
+  if (index == -1) {
     return;
+  }
   ui->world_tabs->setTabText(index, title);
-  if (index == ui->world_tabs->currentIndex())
+  if (index == ui->world_tabs->currentIndex()) {
     setWindowTitle(formatWindowTitle(tab));
+  }
 }
 
 void
@@ -426,8 +438,9 @@ void
 MainWindow::on_action_close_world_triggered()
 {
   QWidget* tab = ui->world_tabs->currentWidget();
-  if (tab)
+  if (tab) {
     tab->close();
+  }
 }
 
 void
@@ -436,11 +449,13 @@ MainWindow::on_action_command_history_triggered()
   MudInput* input = worldtab()->ui->input;
   ListBox listbox(tr("Command History"), QString(), this);
   listbox.addItems(input->log());
-  if (listbox.exec() != QDialog::Accepted)
+  if (listbox.exec() != QDialog::Accepted) {
     return;
+  }
   QString text = listbox.text();
-  if (text.isEmpty())
+  if (text.isEmpty()) {
     return;
+  }
   input->setText(text);
 }
 
@@ -487,23 +502,26 @@ MainWindow::on_action_edit_world_details_triggered()
 {
   WorldTab* tab = worldtab();
   tab->openWorldSettings();
-  if (tab->isWindowModified())
+  if (tab->isWindowModified()) {
     setWindowModified(true);
+  }
   setWindowTitle(formatWindowTitle(tab));
 }
 
 void
 MainWindow::on_action_find_triggered()
 {
-  if (findDialog->exec() == QDialog::Accepted)
+  if (findDialog->exec() == QDialog::Accepted) {
     findDialog->find(worldtab()->ui->output);
+  }
 }
 
 void
 MainWindow::on_action_find_again_triggered()
 {
-  if (findDialog->isFilled() || findDialog->exec() == QDialog::Accepted)
+  if (findDialog->isFilled() || findDialog->exec() == QDialog::Accepted) {
     findDialog->find(worldtab()->ui->output);
+  }
 }
 
 void
@@ -521,8 +539,9 @@ MainWindow::on_action_go_to_line_triggered()
   const int choice = QInputDialog::getInt(
     this, tr("Go to line"), tr("Enter line number"), blockCount, 1, blockCount);
   QTextCursor cursor(doc->findBlockByNumber(choice - 1));
-  if (cursor.columnNumber())
+  if (cursor.columnNumber()) {
     cursor.movePosition(QTextCursor::MoveOperation::NextRow);
+  }
   cursor.movePosition(QTextCursor::MoveOperation::EndOfBlock,
                       QTextCursor::MoveMode::KeepAnchor);
   output->setTextCursor(cursor);
@@ -537,8 +556,9 @@ MainWindow::on_action_import_world_triggered()
     QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
     FileFilter::import());
 
-  if (filePath.isEmpty())
+  if (filePath.isEmpty()) {
     return;
+  }
 
   importWorld(filePath);
 }
@@ -547,10 +567,11 @@ void
 MainWindow::on_action_log_session_triggered(bool checked)
 {
   for (int i = 0, end = ui->world_tabs->count(); i < end; ++i) {
-    if (checked)
+    if (checked) {
       worldtab(i)->openLog();
-    else
+    } else {
       worldtab(i)->closeLog();
+    }
   }
 }
 
@@ -587,8 +608,9 @@ MainWindow::on_action_open_world_triggered()
                                  QStringLiteral(WORLDS_DIR),
                                  FileFilter::world());
 
-  if (filePath.isEmpty())
+  if (filePath.isEmpty()) {
     return;
+  }
 
   openWorld(filePath);
 }
@@ -610,8 +632,9 @@ MainWindow::on_action_print_triggered()
 {
   QPrinter printer;
   QPrintDialog dialog(&printer, this);
-  if (dialog.exec() != QDialog::Accepted)
+  if (dialog.exec() != QDialog::Accepted) {
     return;
+  }
   worldtab()->ui->output->document()->print(&printer);
 }
 
@@ -630,8 +653,9 @@ MainWindow::on_action_reload_script_file_triggered()
 void
 MainWindow::on_action_reset_all_timers_triggered()
 {
-  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
+  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i) {
     worldtab(i)->resetAllTimers();
+  }
 }
 
 void
@@ -640,8 +664,9 @@ MainWindow::on_action_save_selection_triggered()
   const QString path = QFileDialog::getSaveFileName(
     this, tr("Save as"), QString(), FileFilter::text());
 
-  if (path.isEmpty())
+  if (path.isEmpty()) {
     return;
+  }
 
   QSaveFile file(path);
   if (file.open(QSaveFile::WriteOnly)) {
@@ -651,8 +676,9 @@ MainWindow::on_action_save_selection_triggered()
                  .selection()
                  .toPlainText()
                  .toUtf8());
-    if (file.commit())
+    if (file.commit()) {
       return;
+    }
   }
   QErrorMessage::qtHandler()->showMessage(file.errorString());
   return;
@@ -695,8 +721,9 @@ MainWindow::on_action_status_bar_triggered(bool checked)
 void
 MainWindow::on_action_stop_sound_playing_triggered()
 {
-  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
+  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i) {
     worldtab(i)->stopSound();
+  }
 }
 
 void
@@ -705,8 +732,9 @@ MainWindow::on_action_wrap_output_triggered(bool checked)
   const QTextEdit::LineWrapMode mode = checked
                                          ? QTextEdit::LineWrapMode::WidgetWidth
                                          : QTextEdit::LineWrapMode::NoWrap;
-  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i)
+  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i) {
     worldtab(i)->ui->output->setLineWrapMode(mode);
+  }
 }
 
 void

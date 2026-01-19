@@ -17,8 +17,9 @@ native::setBackgroundMaterial(QWidget* widget, int material)
 SetBackgroundMaterialResult
 native::unsetBackgroundMaterial(QWidget* widget)
 {
-  if (!widget->testAttribute(Qt::WA_NativeWindow))
+  if (!widget->testAttribute(Qt::WA_NativeWindow)) {
     return SetBackgroundMaterialResult::OK;
+  }
 
   widget->setAttribute(Qt::WA_TranslucentBackground, false);
   widget->setAttribute(Qt::WA_NoSystemBackground, false);

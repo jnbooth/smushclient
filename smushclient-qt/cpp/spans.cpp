@@ -62,8 +62,9 @@ optional<SendTo>
 getSendTo(const QTextCharFormat& format)
 {
   const QString href = format.anchorHref();
-  if (href.isEmpty())
+  if (href.isEmpty()) {
     return nullopt;
+  }
   switch (href.front().toLatin1()) {
     case 'n':
       return SendTo::Input;

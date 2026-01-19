@@ -49,14 +49,16 @@ void
 PrefsLogging::on_AutoLogFileName_browse_clicked()
 {
   QString defaultPath = ui->AutoLogFileName->text();
-  if (defaultPath.isEmpty())
+  if (defaultPath.isEmpty()) {
     defaultPath = QStringLiteral(LOGS_DIR) + QDir::separator() +
                   world.getName() + QStringLiteral(".txt");
+  }
   const QString path = QFileDialog::getSaveFileName(
     this, tr("Select log file"), defaultPath, FileFilter::text());
 
-  if (path.isEmpty())
+  if (path.isEmpty()) {
     return;
+  }
 
   ui->AutoLogFileName->setText(path);
 }

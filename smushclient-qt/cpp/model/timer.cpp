@@ -26,8 +26,9 @@ TimerModel::exportXml() const
 Qt::ItemFlags
 TimerModel::flags(const QModelIndex& index) const
 {
-  if (!index.constInternalPointer())
+  if (!index.constInternalPointer()) {
     return Qt::ItemFlag::ItemIsEnabled;
+  }
 
   const Qt::ItemFlags flags = Qt::ItemFlag::ItemIsSelectable |
                               Qt::ItemFlag::ItemIsEnabled |
@@ -45,8 +46,9 @@ TimerModel::add(QWidget* parent)
 {
   Timer timer;
   TimerEdit edit(timer, parent);
-  if (edit.exec() == QDialog::Rejected)
+  if (edit.exec() == QDialog::Rejected) {
     return false;
+  }
   return client.addWorldTimer(timer, *timekeeper) == ApiCode::OK;
 }
 
@@ -55,8 +57,9 @@ TimerModel::edit(size_t index, QWidget* parent)
 {
   Timer timer(client, index);
   TimerEdit edit(timer, parent);
-  if (edit.exec() == QDialog::Rejected)
+  if (edit.exec() == QDialog::Rejected) {
     return (int)ReplaceSenderResult::Unchanged;
+  }
   return client.replaceWorldTimer(index, timer, *timekeeper);
 }
 

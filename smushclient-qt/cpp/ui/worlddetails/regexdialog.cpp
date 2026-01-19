@@ -13,8 +13,9 @@ RegexDialog::RegexDialog(const RegexParse& parse, QWidget* parent)
   font.setPointSize(14);
   ui->Pattern->setFont(font);
   ui->Pattern->setText(parse.target);
-  if (parse.offset == -1)
+  if (parse.offset == -1) {
     return;
+  }
 
   ui->Offset->setText(tr("Error occurred at offset %1").arg(parse.offset));
   QTextCursor cursor = ui->Pattern->textCursor();

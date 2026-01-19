@@ -23,8 +23,9 @@ AliasModel::exportXml() const
 Qt::ItemFlags
 AliasModel::flags(const QModelIndex& index) const
 {
-  if (!index.constInternalPointer())
+  if (!index.constInternalPointer()) {
     return Qt::ItemFlag::ItemIsEnabled;
+  }
 
   return Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEnabled |
          Qt::ItemFlag::ItemNeverHasChildren | Qt::ItemFlag::ItemIsEditable;
@@ -37,8 +38,9 @@ AliasModel::add(QWidget* parent)
 {
   Alias alias;
   AliasEdit edit(alias, parent);
-  if (edit.exec() == QDialog::Rejected)
+  if (edit.exec() == QDialog::Rejected) {
     return false;
+  }
   return client.addWorldAlias(alias) == ApiCode::OK;
 }
 
@@ -47,8 +49,9 @@ AliasModel::edit(size_t index, QWidget* parent)
 {
   Alias alias(client, index);
   AliasEdit edit(alias, parent);
-  if (edit.exec() == QDialog::Rejected)
+  if (edit.exec() == QDialog::Rejected) {
     return (int)ReplaceSenderResult::Unchanged;
+  }
   return client.replaceWorldAlias(index, alias);
 }
 

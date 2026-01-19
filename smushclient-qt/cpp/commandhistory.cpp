@@ -69,11 +69,13 @@ bool
 CommandHistory::push(const QString& command)
 {
   const qsizetype currentSize = size();
-  if (currentSize && *(end - 1) == command)
+  if (currentSize && *(end - 1) == command) {
     return false;
+  }
 
-  if (currentSize == max)
+  if (currentSize == max) {
     history.removeFirst();
+  }
 
   history.append(command);
 
@@ -100,8 +102,9 @@ CommandHistory::setMaxSize(qsizetype newMax)
 
   max = newMax;
   const qsizetype currentSize = size();
-  if (currentSize <= max)
+  if (currentSize <= max) {
     return;
+  }
 
   history.remove(0, currentSize - max);
   resetIterators();

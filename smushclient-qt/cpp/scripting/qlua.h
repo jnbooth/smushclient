@@ -21,16 +21,18 @@ namespace qlua {
 inline constexpr QColor
 rgbCodeToColor(lua_Integer rgb) noexcept
 {
-  if (rgb == -1 || rgb > 0xFFFFFF) [[unlikely]]
+  if (rgb == -1 || rgb > 0xFFFFFF) [[unlikely]] {
     return QColor();
+  }
   return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
 }
 
 inline lua_Integer
 colorToRgbCode(const QColor& color)
 {
-  if (!color.isValid()) [[unlikely]]
+  if (!color.isValid()) [[unlikely]] {
     return -1;
+  }
   int r, g, b;
   color.getRgb(&r, &g, &b);
   return b << 16 | g << 8 | r;

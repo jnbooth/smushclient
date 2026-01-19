@@ -106,11 +106,13 @@ SettingsDialog::paneForIndex(int n)
 void
 SettingsDialog::on_settings_list_currentRowChanged(int row)
 {
-  if (row == -1)
+  if (row == -1) {
     return;
+  }
 
-  if (pane)
+  if (pane) {
     delete pane;
+  }
 
   pane = paneForIndex(row);
   ui->contents->addWidget(pane);

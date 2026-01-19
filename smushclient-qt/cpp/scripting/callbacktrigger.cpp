@@ -25,12 +25,14 @@ CallbackTrigger::CallbackTrigger(CallbackTrigger&& other) noexcept
 bool
 CallbackTrigger::trigger()
 {
-  if (parent.isNull())
+  if (parent.isNull()) {
     return false;
+  }
 
   lua_State* L = thread.state();
-  for (int i = top; i <= top + nargs; ++i)
+  for (int i = top; i <= top + nargs; ++i) {
     lua_pushvalue(L, i);
+  }
 
   return api_pcall(L, nargs, 0);
 }

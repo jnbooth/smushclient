@@ -18,10 +18,11 @@ FindDialog::~FindDialog()
 void
 FindDialog::find(QTextEdit* edit) const
 {
-  if (isRegex)
+  if (isRegex) {
     edit->find(pattern, flags);
-  else
+  } else {
     edit->find(text, flags);
+  }
 }
 
 void
@@ -34,8 +35,9 @@ FindDialog::on_buttonBox_accepted()
   isRegex = ui->RegularExpression->isChecked();
   text = ui->Find->text();
   filled = !text.isEmpty();
-  if (isRegex && filled)
+  if (isRegex && filled) {
     pattern = QRegularExpression(text);
+  }
 }
 
 void

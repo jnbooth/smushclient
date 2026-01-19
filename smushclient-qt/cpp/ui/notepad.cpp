@@ -83,25 +83,29 @@ void
 Notepad::on_action_decrease_size_triggered()
 {
   fontSize -= 1;
-  if (fontSize <= minFontSize)
+  if (fontSize <= minFontSize) {
     ui->action_decrease_size->setEnabled(false);
+  }
   applyFontSize();
 }
 
 void
 Notepad::on_action_find_triggered()
 {
-  if (!findDialog)
+  if (!findDialog) {
     findDialog = new FindDialog(this);
-  if (findDialog->exec() == QDialog::Accepted)
+  }
+  if (findDialog->exec() == QDialog::Accepted) {
     findDialog->find(ui->editor);
+  }
 }
 
 void
 Notepad::on_action_find_again_triggered()
 {
-  if (findDialog->isFilled() || findDialog->exec() == QDialog::Accepted)
+  if (findDialog->isFilled() || findDialog->exec() == QDialog::Accepted) {
     findDialog->find(ui->editor);
+  }
 }
 
 void
@@ -114,8 +118,9 @@ Notepad::on_action_global_preferences_triggered()
 void
 Notepad::on_action_increase_size_triggered()
 {
-  if (fontSize <= minFontSize)
+  if (fontSize <= minFontSize) {
     ui->action_decrease_size->setEnabled(true);
+  }
   ++fontSize;
   applyFontSize();
 }
@@ -126,8 +131,9 @@ Notepad::on_action_print_triggered()
 
   QPrinter printer;
   QPrintDialog dialog(&printer, this);
-  if (dialog.exec() != QDialog::Accepted)
+  if (dialog.exec() != QDialog::Accepted) {
     return;
+  }
   ui->editor->print(&printer);
 }
 
@@ -145,14 +151,16 @@ Notepad::on_action_save_selection_triggered()
   const QString path = QFileDialog::getSaveFileName(
     this, tr("Save as"), QString(), FileFilter::text());
 
-  if (path.isEmpty())
+  if (path.isEmpty()) {
     return;
+  }
 
   QSaveFile file(path);
   if (file.open(QSaveFile::WriteOnly)) {
     file.write(ui->editor->textCursor().selection().toPlainText().toUtf8());
-    if (file.commit())
+    if (file.commit()) {
       return;
+    }
   }
   QErrorMessage::qtHandler()->showMessage(file.errorString());
   return;
@@ -185,15 +193,17 @@ Notepads::Notepads(QWidget* parent)
 void
 Notepads::closeAll()
 {
-  for (QObject* child : children())
+  for (QObject* child : children()) {
     delete child;
+  }
 }
 
 QTextEdit*
 Notepads::pad(const QString& name)
 {
-  if (name.isEmpty())
+  if (name.isEmpty()) {
     return create(name)->editor();
+  }
 
   Notepad* notepad =
     findChild<Notepad*>(name, Qt::FindChildOption::FindDirectChildrenOnly);
@@ -215,7 +225,8 @@ Notepads::create(const QString& name)
   Notepad* notepad = new Notepad(this);
   notepad->setObjectName(name);
   notepad->show();
-  if (active)
+  if (active) {
     active->activateWindow();
+  }
   return notepad;
 }

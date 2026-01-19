@@ -9,10 +9,11 @@ SettingsClosing::SettingsClosing(Settings& settings, QWidget* parent)
 {
   ui->setupUi(this);
 
-  if (settings.getConfirmQuit())
+  if (settings.getConfirmQuit()) {
     ui->ConfirmQuit->toggle();
-  else
+  } else {
     ui->ConfirmQuit_false->toggle();
+  }
   connect(ui->ConfirmQuit,
           &QRadioButton::toggled,
           &settings,

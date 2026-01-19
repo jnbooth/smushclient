@@ -97,8 +97,9 @@ Plugin::Plugin(Plugin&& other) noexcept
 
 Plugin::~Plugin()
 {
-  if (L)
+  if (L) {
     lua_close(L);
+  }
 }
 
 void
@@ -160,11 +161,13 @@ Plugin::install(const PluginPack& pack)
     return false;
   }
   QString scriptPath = pack.path;
-  if (scriptPath.isEmpty())
+  if (scriptPath.isEmpty()) {
     return true;
+  }
 
-  if (!pack.id.empty())
+  if (!pack.id.empty()) {
     scriptPath.replace(scriptPath.size() - 3, 3, QStringLiteral("lua"));
+  }
 
   const QFileInfo info(scriptPath);
   if (info.isFile() && info.isReadable() && !runFile(scriptPath)) {
@@ -193,8 +196,9 @@ Plugin::reset(ScriptApi* api)
 
   L = luaL_newstate();
 
-  if (!L)
+  if (!L) {
     throw std::bad_alloc();
+  }
 
   lua_atpanic(L, &L_panic);
   lua_pushcfunction(L, L_print);
@@ -227,10 +231,12 @@ Plugin::reset(ScriptApi* api)
 bool
 Plugin::runCallback(PluginCallback& callback) const
 {
-  if (!findCallback(callback))
+  if (!findCallback(callback)) {
     return false;
-  if (!api_pcall(L, callback.pushArguments(L), callback.expectedSize()))
+  }
+  if (!api_pcall(L, callback.pushArguments(L), callback.expectedSize())) {
     return false;
+  }
   callback.collectReturned(L);
   return true;
 }
@@ -238,13 +244,15 @@ Plugin::runCallback(PluginCallback& callback) const
 bool
 Plugin::runCallbackThreaded(PluginCallback& callback) const
 {
-  if (!findCallback(callback))
+  if (!findCallback(callback)) {
     return false;
+  }
   const ScriptThread thread(L);
   lua_State* L2 = thread.state();
   lua_xmove(L, L2, 1);
-  if (!api_pcall(L2, callback.pushArguments(L2), callback.expectedSize()))
+  if (!api_pcall(L2, callback.pushArguments(L2), callback.expectedSize())) {
     return false;
+  }
   callback.collectReturned(L2);
   return true;
 }
@@ -252,8 +260,9 @@ Plugin::runCallbackThreaded(PluginCallback& callback) const
 bool
 Plugin::runFile(const QString& string) const
 {
-  if (disabled) [[unlikely]]
+  if (disabled) [[unlikely]] {
     return false;
+  }
 
   if (checkError(luaL_loadfile(L, string.toUtf8().data()))) [[unlikely]] {
     getApi(L).printError(formatCompileError(L));
@@ -267,8 +276,9 @@ Plugin::runFile(const QString& string) const
 bool
 Plugin::runScript(string_view script) const
 {
-  if (disabled || script.empty()) [[unlikely]]
+  if (disabled || script.empty()) [[unlikely]] {
     return false;
+  }
 
   if (checkError(qlua::loadString(L, script))) [[unlikely]] {
     getApi(L).printError(formatCompileError(L));
@@ -284,8 +294,9 @@ Plugin::runScript(string_view script) const
 bool
 Plugin::findCallback(const PluginCallback& callback) const
 {
-  if (disabled) [[unlikely]]
+  if (disabled) [[unlikely]] {
     return false;
+  }
 
   return callback.findCallback(L);
 }

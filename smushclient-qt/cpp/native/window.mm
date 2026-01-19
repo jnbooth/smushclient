@@ -45,8 +45,9 @@ SetEffectViewBackground(void* nativeViewPtr, int materialIndex)
 
   RUN_ON_MAIN(^{
     NSView* rootView = reinterpret_cast<NSView*>(nativeViewPtr);
-    if (!rootView)
+    if (!rootView) {
       return;
+    }
 
     NSView* container = [rootView superview];
 
@@ -103,8 +104,9 @@ UnsetEffectViewBackground(void* nativeViewPtr)
 
   RUN_ON_MAIN(^{
     NSView* rootView = reinterpret_cast<NSView*>(nativeViewPtr);
-    if (!rootView)
+    if (!rootView) {
       return;
+    }
 
     NSView* container = [rootView superview];
 
@@ -122,8 +124,9 @@ UnsetEffectViewBackground(void* nativeViewPtr)
 
     NSVisualEffectView* backgroundView =
       objc_getAssociatedObject(rootView, kBackgroundKey);
-    if (backgroundView)
+    if (backgroundView) {
       [backgroundView removeFromSuperview];
+    }
 
     objc_setAssociatedObject(
       rootView, kBackgroundKey, nil, OBJC_ASSOCIATION_COPY);

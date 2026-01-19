@@ -23,8 +23,9 @@ TriggerModel::exportXml() const
 Qt::ItemFlags
 TriggerModel::flags(const QModelIndex& index) const
 {
-  if (!index.constInternalPointer())
+  if (!index.constInternalPointer()) {
     return Qt::ItemFlag::ItemIsEnabled;
+  }
 
   return Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEnabled |
          Qt::ItemFlag::ItemNeverHasChildren | Qt::ItemFlag::ItemIsEditable;
@@ -37,8 +38,9 @@ TriggerModel::add(QWidget* parent)
 {
   Trigger trigger;
   TriggerEdit edit(trigger, parent);
-  if (edit.exec() == QDialog::Rejected)
+  if (edit.exec() == QDialog::Rejected) {
     return false;
+  }
   return client.addWorldTrigger(trigger) == ApiCode::OK;
 }
 
@@ -47,8 +49,9 @@ TriggerModel::edit(size_t index, QWidget* parent)
 {
   Trigger trigger(client, index);
   TriggerEdit edit(trigger, parent);
-  if (edit.exec() == QDialog::Rejected)
+  if (edit.exec() == QDialog::Rejected) {
     return (int)ReplaceSenderResult::Unchanged;
+  }
   return client.replaceWorldTrigger(index, trigger);
 }
 

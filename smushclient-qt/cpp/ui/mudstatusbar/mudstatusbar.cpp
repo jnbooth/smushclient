@@ -43,14 +43,16 @@ MudStatusBar::createStat(const QString& entity,
                          const QString& maxEntity)
 {
   auto search = statsByEntity.find(entity);
-  if (search != statsByEntity.end())
+  if (search != statsByEntity.end()) {
     return recreateStat(search.value(), caption, maxEntity);
+  }
 
   StatusBarStat* stat = new StatusBarStat(entity, caption, maxEntity, this);
   ui->horizontalLayout->insertWidget(statsByEntity.size(), stat);
   statsByEntity[entity] = stat;
-  if (!maxEntity.isEmpty())
+  if (!maxEntity.isEmpty()) {
     statsByMax.insert(maxEntity, stat);
+  }
   QMenu* statMenu = stat->menu();
   menu->addMenu(statMenu);
   statMenu->menuAction()->setVisible(false);
@@ -63,12 +65,14 @@ MudStatusBar::updateStat(const QString& entity, const QString& value)
 {
   for (auto iter = statsByMax.find(entity), end = statsByMax.end();
        iter != end && iter.key() == entity;
-       ++iter)
+       ++iter) {
     iter.value()->setMax(value);
+  }
 
   auto search = statsByEntity.find(entity);
-  if (search == statsByEntity.end()) [[unlikely]]
+  if (search == statsByEntity.end()) [[unlikely]] {
     return false;
+  }
 
   StatusBarStat* stat = search.value();
   stat->setValue(value);
@@ -100,8 +104,9 @@ MudStatusBar::setConnected(MudStatusBar::ConnectionStatus status)
                             : tr("Connected"));
   ui->connection->setIcon(connectionIcons.at((size_t)status));
 
-  if (connected)
+  if (connected) {
     return;
+  }
 
   ui->users->hide();
   clearStats();
@@ -143,8 +148,9 @@ MudStatusBar::recreateStat(StatusBarStat* stat,
 {
   stat->setCaption(caption);
   const QString& currentMaxEntity = stat->maxEntity();
-  if (currentMaxEntity == maxEntity)
+  if (currentMaxEntity == maxEntity) {
     return false;
+  }
 
   statsByMax.remove(currentMaxEntity, stat);
   stat->setMaxEntity(maxEntity);
@@ -157,8 +163,9 @@ MudStatusBar::restore()
 {
   const QByteArray saveData = QSettings().value(settingsKey()).toByteArray();
   if (saveData.isEmpty()) {
-    for (QAction* action : stateActions())
+    for (QAction* action : stateActions()) {
       action->setChecked(true);
+    }
 
     return false;
   }
@@ -178,8 +185,9 @@ MudStatusBar::save() const
 {
   QByteArray saveData;
   QDataStream stream(&saveData, QIODevice::WriteOnly);
-  for (QAction* action : stateActions())
+  for (QAction* action : stateActions()) {
     stream << action->isChecked();
+  }
   QSettings().setValue(settingsKey(), saveData);
 }
 
