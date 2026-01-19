@@ -1,5 +1,4 @@
-#ifndef REGEXDIALOG_H
-#define REGEXDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -20,5 +19,3 @@ public:
 private:
   Ui::RegexDialog* ui;
 };
-
-#endif // REGEXDIALOG_H

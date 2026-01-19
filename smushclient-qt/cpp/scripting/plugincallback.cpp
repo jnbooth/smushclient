@@ -6,7 +6,6 @@ extern "C"
 #include "lua.h"
 }
 
-using std::pair;
 using std::string;
 using std::string_view;
 

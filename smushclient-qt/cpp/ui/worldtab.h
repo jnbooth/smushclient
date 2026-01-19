@@ -3,7 +3,6 @@
 #include "../client.h"
 #include "../hotkeys.h"
 #include "../scripting/callbacktrigger.h"
-#include "../scripting/scriptenums.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include <QtCore/QFileSystemWatcher>
 #include <QtCore/QPointer>

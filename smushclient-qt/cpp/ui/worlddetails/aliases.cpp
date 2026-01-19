@@ -1,7 +1,6 @@
 #include "aliases.h"
 #include "../../fieldconnector.h"
 #include "../../model/alias.h"
-#include "aliasedit.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_aliases.h"
 

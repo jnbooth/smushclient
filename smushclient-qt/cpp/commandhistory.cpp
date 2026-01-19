@@ -1,5 +1,4 @@
 #include "commandhistory.h"
-#include <limits>
 
 // Public methods
 

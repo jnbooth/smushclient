@@ -9,7 +9,6 @@ extern "C"
 #include "lua.h"
 }
 
-using std::pair;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
 

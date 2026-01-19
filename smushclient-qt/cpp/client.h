@@ -1,6 +1,4 @@
 #pragma once
-#include "bridge/document.h"
-#include "bridge/timekeeper.h"
 #include "bridge/variableview.h"
 #include "bytes.h"
 #include "smushclient_qt/src/ffi/client.cxxqt.h"

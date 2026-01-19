@@ -2,7 +2,6 @@
 #include "../../fieldconnector.h"
 #include "../../model/timer.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
-#include "timeredit.h"
 #include "ui_timers.h"
 
 PrefsTimers::PrefsTimers(const World& world, TimerModel* model, QWidget* parent)

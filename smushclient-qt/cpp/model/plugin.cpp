@@ -2,9 +2,6 @@
 #include "../client.h"
 #include "smushclient_qt/src/ffi/plugin_details.cxxqt.h"
 
-using std::nullopt;
-using std::optional;
-
 // Public methods
 
 PluginModel::PluginModel(SmushClient& client, QObject* parent)

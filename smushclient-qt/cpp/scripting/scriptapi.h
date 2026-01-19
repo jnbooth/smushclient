@@ -13,7 +13,6 @@
 #include <QtCore/QUuid>
 #include <QtGui/QTextCursor>
 #include <QtNetwork/QAbstractSocket>
-#include <optional>
 #include <string>
 #include <vector>
 

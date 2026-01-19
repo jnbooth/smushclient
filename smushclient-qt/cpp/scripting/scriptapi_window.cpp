@@ -10,8 +10,6 @@
 #include <QtGui/QGuiApplication>
 #include <QtWidgets/QStatusBar>
 
-using std::nullopt;
-using std::optional;
 using std::string;
 using std::string_view;
 

@@ -1,10 +1,13 @@
 #include "./ui/mainwindow.h"
 #include "./ui/notepad.h"
 #include "environment.h"
-#include "lua.h"
 #include "settings.h"
 #include <QtGui/QFontDatabase>
 #include <QtWidgets/QApplication>
+extern "C"
+{
+#include "lua.h"
+}
 
 int
 main(int argc, char* argv[])

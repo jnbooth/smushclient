@@ -5,8 +5,6 @@
 #include "../scriptenums.h"
 #include "../scriptthread.h"
 #include "errors.h"
-#include "smushclient_qt/src/ffi/client.cxxqt.h"
-#include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QPointer>
 extern "C"
@@ -24,7 +22,6 @@ using std::nullopt;
 using std::optional;
 using std::string;
 using std::string_view;
-using std::unordered_map;
 
 using qlua::expectMaxArgs;
 

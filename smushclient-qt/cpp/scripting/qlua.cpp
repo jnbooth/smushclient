@@ -2,7 +2,6 @@
 #include "miniwindow.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include <QtCore/QUuid>
-#include <iostream>
 #include <sstream>
 extern "C"
 {

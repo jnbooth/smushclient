@@ -1,6 +1,6 @@
-#include "../../layout.h"
-#include "../../spans.h"
 #include "../bytes.h"
+#include "../layout.h"
+#include "../spans.h"
 #include "../timer_map.h"
 #include "../ui/mudstatusbar/mudstatusbar.h"
 #include "../ui/ui_worldtab.h"

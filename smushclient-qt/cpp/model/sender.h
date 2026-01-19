@@ -1,5 +1,4 @@
 #pragma once
-#include "../scripting/scriptenums.h"
 #include "rust/cxx.h"
 #include "smushclient_qt/src/ffi/regex.cxx.h"
 #include <QtCore/QAbstractItemModel>

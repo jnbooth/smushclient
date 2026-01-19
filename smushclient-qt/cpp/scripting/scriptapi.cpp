@@ -1,16 +1,13 @@
 #include "scriptapi.h"
-#include "../../spans.h"
 #include "../bridge/timekeeper.h"
 #include "../bytes.h"
+#include "../spans.h"
 #include "../timer_map.h"
-#include "../ui/components/mudscrollbar.h"
 #include "../ui/mudstatusbar/mudstatusbar.h"
 #include "../ui/notepad.h"
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
 #include "miniwindow.h"
-#include "smushclient_qt/src/ffi/client.cxxqt.h"
-#include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
 #include "sqlite3.h"
 #include <QtCore/QFile>
@@ -22,7 +19,6 @@
 
 using std::string;
 using std::string_view;
-using std::variant;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
 

@@ -1,6 +1,5 @@
 #include "../bytes.h"
 #include "../ui/worldtab.h"
-#include "lua/errors.h"
 #include "scriptapi.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "sqlite3.h"
@@ -9,8 +8,6 @@
 #include <QtGui/QGuiApplication>
 #include <QtWidgets/QStatusBar>
 
-using std::nullopt;
-using std::optional;
 using std::string;
 using std::string_view;
 using std::chrono::hours;

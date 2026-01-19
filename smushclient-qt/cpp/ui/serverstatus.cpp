@@ -2,7 +2,6 @@
 #include "ui_serverstatus.h"
 #include <QtCore/QDateTime>
 
-using std::reverse_iterator;
 using std::strong_ordering;
 using std::vector;
 

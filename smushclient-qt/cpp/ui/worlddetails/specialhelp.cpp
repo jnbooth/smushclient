@@ -1,5 +1,4 @@
 #include "specialhelp.h"
-#include "../../fieldconnector.h"
 #include "ui_specialhelp.h"
 
 SpecialHelp::SpecialHelp(QWidget* parent)

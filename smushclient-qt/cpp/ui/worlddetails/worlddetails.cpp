@@ -13,7 +13,6 @@
 #include "output.h"
 #include "plugins.h"
 #include "scripting.h"
-#include "smushclient_qt/src/ffi/client.cxxqt.h"
 #include "timers.h"
 #include "triggers.h"
 #include "ui_worlddetails.h"

@@ -3,7 +3,6 @@
 #include "../qlua.h"
 #include "../scriptapi.h"
 #include "../scriptenums.h"
-#include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "sqlite3.h"
 #include <string>
 #include <utility>

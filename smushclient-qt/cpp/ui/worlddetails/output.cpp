@@ -1,7 +1,6 @@
 #include "output.h"
 #include "../../environment.h"
 #include "../../fieldconnector.h"
-#include "../../scripting/scriptapi.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_output.h"

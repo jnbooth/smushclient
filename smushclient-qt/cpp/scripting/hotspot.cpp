@@ -10,7 +10,6 @@ extern "C"
 #include "lua.h"
 }
 
-using std::optional;
 using std::string;
 using std::string_view;
 

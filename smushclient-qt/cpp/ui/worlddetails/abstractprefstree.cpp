@@ -8,8 +8,6 @@
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QHeaderView>
 
-using std::vector;
-
 // Public methods
 
 AbstractPrefsTree::AbstractPrefsTree(AbstractSenderModel* model,
