@@ -2,36 +2,9 @@
 #include "bridge/document.h"
 #include "bridge/timekeeper.h"
 #include "bridge/variableview.h"
+#include "bytes.h"
 #include "smushclient_qt/src/ffi/client.cxxqt.h"
 #include <QtCore/QDataStream>
-
-inline rust::Slice<const uint8_t>
-byteSlice(const uint8_t* data, size_t size) noexcept
-{
-  return rust::Slice(data, size);
-}
-
-inline rust::Slice<const uint8_t>
-byteSlice(const char* data, size_t size) noexcept
-{
-  return rust::Slice(reinterpret_cast<const uint8_t*>(data), size);
-}
-
-template<typename C,
-         std::enable_if_t<std::is_trivially_copyable_v<C>, bool> = true>
-inline rust::Slice<const uint8_t>
-byteSlice(C c) noexcept
-{
-  return byteSlice(c.data(), c.size());
-}
-
-template<typename C,
-         std::enable_if_t<!std::is_trivially_copyable_v<C>, bool> = true>
-inline rust::Slice<const uint8_t>
-byteSlice(const C& c) noexcept
-{
-  return byteSlice(c.data(), c.size());
-}
 
 class SmushClient : public SmushClientBase
 {
@@ -46,17 +19,17 @@ public:
   inline VariableView getVariable(size_t index,
                                   std::string_view key) const noexcept
   {
-    return SmushClientBase::getVariable(index, byteSlice(key));
+    return SmushClientBase::getVariable(index, bytes::slice(key));
   }
 
   inline VariableView getMetavariable(std::string_view key) const noexcept
   {
-    return SmushClientBase::getMetavariable(byteSlice(key));
+    return SmushClientBase::getMetavariable(bytes::slice(key));
   }
 
   inline bool hasMetavariable(std::string_view key) const noexcept
   {
-    return SmushClientBase::hasMetavariable(byteSlice(key));
+    return SmushClientBase::hasMetavariable(bytes::slice(key));
   }
 
   inline bool setVariable(size_t index,
@@ -64,34 +37,36 @@ public:
                           std::string_view value) const noexcept
   {
     return SmushClientBase::setVariable(
-      index, byteSlice(key), byteSlice(value));
+      index, bytes::slice(key), bytes::slice(value));
   }
   inline bool setVariable(size_t index,
                           std::string_view key,
                           const QByteArray& value) const noexcept
   {
     return SmushClientBase::setVariable(
-      index, byteSlice(key), byteSlice(value));
+      index, bytes::slice(key), bytes::slice(value));
   }
 
   inline bool setMetavariable(std::string_view key,
                               std::string_view value) const noexcept
   {
-    return SmushClientBase::setMetavariable(byteSlice(key), byteSlice(value));
+    return SmushClientBase::setMetavariable(bytes::slice(key),
+                                            bytes::slice(value));
   }
   inline bool setMetavariable(std::string_view key,
                               const QByteArray& value) const noexcept
   {
-    return SmushClientBase::setMetavariable(byteSlice(key), byteSlice(value));
+    return SmushClientBase::setMetavariable(bytes::slice(key),
+                                            bytes::slice(value));
   }
 
   inline bool unsetVariable(size_t index, std::string_view key) const noexcept
   {
-    return SmushClientBase::unsetVariable(index, byteSlice(key));
+    return SmushClientBase::unsetVariable(index, bytes::slice(key));
   }
 
   inline bool unsetMetavariable(std::string_view key) const noexcept
   {
-    return SmushClientBase::unsetMetavariable(byteSlice(key));
+    return SmushClientBase::unsetMetavariable(bytes::slice(key));
   }
 };

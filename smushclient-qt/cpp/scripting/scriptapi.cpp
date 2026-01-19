@@ -1,6 +1,7 @@
 #include "scriptapi.h"
 #include "../../spans.h"
 #include "../bridge/timekeeper.h"
+#include "../bytes.h"
 #include "../timer_map.h"
 #include "../ui/components/mudscrollbar.h"
 #include "../ui/mudstatusbar/mudstatusbar.h"
@@ -255,7 +256,7 @@ ApiCode
 ScriptApi::playFileRaw(const QString& path)
 {
   const QByteArray utf8 = path.toUtf8();
-  return client()->playFileRaw(byteSlice(utf8));
+  return client()->playFileRaw(bytes::slice(utf8));
 }
 
 void

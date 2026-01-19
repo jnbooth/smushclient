@@ -1,5 +1,6 @@
 #include "../../settings.h"
 #include "../../spans.h"
+#include "../bytes.h"
 #include "../environment.h"
 #include "../ui/components/mudscrollbar.h"
 #include "../ui/mudstatusbar/mudstatusbar.h"
@@ -22,14 +23,6 @@
 using std::optional;
 using std::string;
 using std::string_view;
-
-// Private utils
-
-inline QString
-convertString(const string& s)
-{
-  return QString::fromUtf8(s.data(), s.size());
-}
 
 // Public methods
 
@@ -608,12 +601,12 @@ ScriptApi::GetTimerInfo(size_t pluginIndex,
   switch (infoType) {
     case 26: {
       const QString scriptName =
-        client()->timerInfo(pluginIndex, byteSlice(label), 5).toString();
+        client()->timerInfo(pluginIndex, bytes::slice(label), 5).toString();
       return !scriptName.isEmpty() &&
              plugins[pluginIndex].hasFunction(scriptName);
     }
     default:
-      return client()->timerInfo(pluginIndex, byteSlice(label), infoType);
+      return client()->timerInfo(pluginIndex, bytes::slice(label), infoType);
   }
 }
 
@@ -668,7 +661,7 @@ MiniWindow::info(long infoType) const
     case 22:
       return zOrder;
     case 23:
-      return QString::fromUtf8(pluginID.data(), pluginID.size());
+      return bytes::utf8(pluginID);
     default:
       return QVariant();
   }
@@ -687,15 +680,15 @@ Hotspot::info(long infoType) const
     case 4:
       return geometry().bottom();
     case 5:
-      return convertString(callbacks.mouseOver);
+      return bytes::utf8(callbacks.mouseOver);
     case 6:
-      return convertString(callbacks.cancelMouseOver);
+      return bytes::utf8(callbacks.cancelMouseOver);
     case 7:
-      return convertString(callbacks.mouseDown);
+      return bytes::utf8(callbacks.mouseDown);
     case 8:
-      return convertString(callbacks.cancelMouseDown);
+      return bytes::utf8(callbacks.cancelMouseDown);
     case 9:
-      return convertString(callbacks.mouseUp);
+      return bytes::utf8(callbacks.mouseUp);
     case 10:
       return toolTip();
     case 11:
@@ -734,9 +727,9 @@ Hotspot::info(long infoType) const
     case 12:
       return (underMouse() ? 0x80 : 0) + (int)hasMouseTracking();
     case 13:
-      return convertString(callbacks.dragMove);
+      return bytes::utf8(callbacks.dragMove);
     case 14:
-      return convertString(callbacks.dragRelease);
+      return bytes::utf8(callbacks.dragRelease);
     case 15: // DragHandler flags
       return 0;
     default:

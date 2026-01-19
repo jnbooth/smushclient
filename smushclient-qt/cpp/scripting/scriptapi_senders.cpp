@@ -1,3 +1,4 @@
+#include "../bytes.h"
 #include "../ui/worldtab.h"
 #include "errors.h"
 #include "scriptapi.h"
@@ -38,10 +39,10 @@ ScriptApi::AddAlias(size_t plugin,
 
   Alias alias;
   alias.setSendTo(target);
-  alias.setLabel(QString::fromUtf8(name.data(), name.size()));
-  alias.setPattern(QString::fromUtf8(pattern.data(), pattern.size()));
-  alias.setText(QString::fromUtf8(text.data(), text.size()));
-  alias.setScript(QString::fromUtf8(scriptName.data(), scriptName.size()));
+  alias.setLabel(bytes::utf8(name));
+  alias.setPattern(bytes::utf8(pattern));
+  alias.setText(bytes::utf8(text));
+  alias.setScript(bytes::utf8(scriptName));
   alias.setEnabled(flags.testFlag(AliasFlag::Enabled));
   alias.setKeepEvaluating(flags.testFlag(AliasFlag::KeepEvaluating));
   alias.setOmitFromLog(flags.testFlag(AliasFlag::OmitFromLogFile));
@@ -93,13 +94,13 @@ ScriptApi::AddTimer(size_t plugin,
   timer.setEveryMillisecond((int)(second / 1000));
   timer.setEveryMinute(minute);
   timer.setEverySecond((int)second);
-  timer.setLabel(QString::fromUtf8(name.data(), name.size()));
+  timer.setLabel(bytes::utf8(name));
   timer.setOccurrence(Occurrence::Interval);
   timer.setOneShot(flags.testFlag(TimerFlag::OneShot));
-  timer.setScript(QString::fromUtf8(scriptName.data(), scriptName.size()));
+  timer.setScript(bytes::utf8(scriptName));
   timer.setSendTo(target);
   timer.setTemporary(flags.testFlag(TimerFlag::Temporary));
-  timer.setText(QString::fromUtf8(text.data(), text.size()));
+  timer.setText(bytes::utf8(text));
 
   if (!flags.testFlag(TimerFlag::Replace)) {
     return client()->addTimer(plugin, timer, *timekeeper);
@@ -135,16 +136,16 @@ ScriptApi::AddTrigger(size_t plugin,
   trigger.setIgnoreCase(flags.testFlag(TriggerFlag::IgnoreCase));
   trigger.setIsRegex(flags.testFlag(TriggerFlag::RegularExpression));
   trigger.setKeepEvaluating(flags.testFlag(TriggerFlag::KeepEvaluating));
-  trigger.setLabel(QString::fromUtf8(name.data(), name.size()));
+  trigger.setLabel(bytes::utf8(name));
   trigger.setLowercaseWildcard(flags.testFlag(TriggerFlag::LowercaseWildcard));
   trigger.setOmitFromLog(flags.testFlag(TriggerFlag::OmitFromLog));
   trigger.setOmitFromOutput(flags.testFlag(TriggerFlag::OmitFromOutput));
-  trigger.setPattern(QString::fromUtf8(pattern.data(), pattern.size()));
-  trigger.setScript(QString::fromUtf8(script.data(), script.size()));
+  trigger.setPattern(bytes::utf8(pattern));
+  trigger.setScript(bytes::utf8(script));
   trigger.setSendTo(target);
   trigger.setSequence(sequence);
-  trigger.setSound(QString::fromUtf8(sound.data(), sound.size()));
-  trigger.setText(QString::fromUtf8(text.data(), text.size()));
+  trigger.setSound(bytes::utf8(sound));
+  trigger.setText(bytes::utf8(text));
   if (color.isValid()) {
     trigger.setChangeForeground(true);
     trigger.setForegroundColor(color);
@@ -165,37 +166,37 @@ ScriptApi::AddTrigger(size_t plugin,
 ApiCode
 ScriptApi::DeleteAlias(size_t index, std::string_view name) const
 {
-  return client()->removeAlias(index, byteSlice(name));
+  return client()->removeAlias(index, bytes::slice(name));
 }
 
 size_t
 ScriptApi::DeleteAliasGroup(size_t index, std::string_view group) const
 {
-  return client()->removeAliasGroup(index, byteSlice(group));
+  return client()->removeAliasGroup(index, bytes::slice(group));
 }
 
 ApiCode
 ScriptApi::DeleteTimer(size_t index, std::string_view name) const
 {
-  return client()->removeTimer(index, byteSlice(name));
+  return client()->removeTimer(index, bytes::slice(name));
 }
 
 size_t
 ScriptApi::DeleteTimerGroup(size_t index, std::string_view group) const
 {
-  return client()->removeTimerGroup(index, byteSlice(group));
+  return client()->removeTimerGroup(index, bytes::slice(group));
 }
 
 ApiCode
 ScriptApi::DeleteTrigger(size_t index, std::string_view name) const
 {
-  return client()->removeTrigger(index, byteSlice(name));
+  return client()->removeTrigger(index, bytes::slice(name));
 }
 
 size_t
 ScriptApi::DeleteTriggerGroup(size_t index, std::string_view group) const
 {
-  return client()->removeTriggerGroup(index, byteSlice(group));
+  return client()->removeTriggerGroup(index, bytes::slice(group));
 }
 
 ApiCode
@@ -203,7 +204,7 @@ ScriptApi::EnableAlias(size_t plugin,
                        std::string_view label,
                        bool enabled) const
 {
-  return client()->setAliasEnabled(plugin, byteSlice(label), enabled);
+  return client()->setAliasEnabled(plugin, bytes::slice(label), enabled);
 }
 
 ApiCode
@@ -211,7 +212,7 @@ ScriptApi::EnableAliasGroup(size_t plugin,
                             std::string_view group,
                             bool enabled) const
 {
-  return client()->setAliasesEnabled(plugin, byteSlice(group), enabled)
+  return client()->setAliasesEnabled(plugin, bytes::slice(group), enabled)
            ? ApiCode::OK
            : ApiCode::AliasNotFound;
 }
@@ -221,7 +222,7 @@ ScriptApi::EnableTimer(size_t plugin,
                        std::string_view label,
                        bool enabled) const
 {
-  return client()->setTimerEnabled(plugin, byteSlice(label), enabled);
+  return client()->setTimerEnabled(plugin, bytes::slice(label), enabled);
 }
 
 ApiCode
@@ -229,7 +230,7 @@ ScriptApi::EnableTimerGroup(size_t plugin,
                             std::string_view group,
                             bool enabled) const
 {
-  return client()->setTimersEnabled(plugin, byteSlice(group), enabled)
+  return client()->setTimersEnabled(plugin, bytes::slice(group), enabled)
            ? ApiCode::OK
            : ApiCode::TimerNotFound;
 }
@@ -239,7 +240,7 @@ ScriptApi::EnableTrigger(size_t plugin,
                          std::string_view label,
                          bool enabled) const
 {
-  return client()->setTriggerEnabled(plugin, byteSlice(label), enabled);
+  return client()->setTriggerEnabled(plugin, bytes::slice(label), enabled);
 }
 
 ApiCode
@@ -247,7 +248,7 @@ ScriptApi::EnableTriggerGroup(size_t plugin,
                               std::string_view group,
                               bool enabled) const
 {
-  return client()->setTriggersEnabled(plugin, byteSlice(group), enabled)
+  return client()->setTriggersEnabled(plugin, bytes::slice(group), enabled)
            ? ApiCode::OK
            : ApiCode::TriggerNotFound;
 }
@@ -257,7 +258,8 @@ ScriptApi::GetAliasOption(size_t plugin,
                           std::string_view label,
                           string_view option) const
 {
-  return client()->getAliasOption(plugin, byteSlice(label), byteSlice(option));
+  return client()->getAliasOption(
+    plugin, bytes::slice(label), bytes::slice(option));
 }
 
 QVariant
@@ -265,7 +267,8 @@ ScriptApi::GetTimerOption(size_t plugin,
                           std::string_view label,
                           string_view option) const
 {
-  return client()->getTimerOption(plugin, byteSlice(label), byteSlice(option));
+  return client()->getTimerOption(
+    plugin, bytes::slice(label), bytes::slice(option));
 }
 
 QVariant
@@ -274,27 +277,29 @@ ScriptApi::GetTriggerOption(size_t plugin,
                             string_view option) const
 {
   return client()->getTriggerOption(
-    plugin, byteSlice(label), byteSlice(option));
+    plugin, bytes::slice(label), bytes::slice(option));
 }
 
 ApiCode
 ScriptApi::IsAlias(size_t plugin, std::string_view label) const
 {
-  return client()->isAlias(plugin, byteSlice(label)) ? ApiCode::OK
-                                                     : ApiCode::AliasNotFound;
+  return client()->isAlias(plugin, bytes::slice(label))
+           ? ApiCode::OK
+           : ApiCode::AliasNotFound;
 }
 
 ApiCode
 ScriptApi::IsTimer(size_t plugin, std::string_view label) const
 {
-  return client()->isTimer(plugin, byteSlice(label)) ? ApiCode::OK
-                                                     : ApiCode::TimerNotFound;
+  return client()->isTimer(plugin, bytes::slice(label))
+           ? ApiCode::OK
+           : ApiCode::TimerNotFound;
 }
 
 ApiCode
 ScriptApi::IsTrigger(size_t plugin, std::string_view label) const
 {
-  return client()->isTrigger(plugin, byteSlice(label))
+  return client()->isTrigger(plugin, bytes::slice(label))
            ? ApiCode::OK
            : ApiCode::TriggerNotFound;
 }
@@ -306,7 +311,7 @@ ScriptApi::SetAliasOption(size_t plugin,
                           string_view value) const
 {
   return client()->setAliasOption(
-    plugin, byteSlice(label), byteSlice(option), byteSlice(value));
+    plugin, bytes::slice(label), bytes::slice(option), bytes::slice(value));
 }
 
 ApiCode
@@ -316,7 +321,7 @@ ScriptApi::SetTimerOption(size_t plugin,
                           string_view value) const
 {
   return client()->setTimerOption(
-    plugin, byteSlice(label), byteSlice(option), byteSlice(value));
+    plugin, bytes::slice(label), bytes::slice(option), bytes::slice(value));
 }
 
 ApiCode
@@ -326,5 +331,5 @@ ScriptApi::SetTriggerOption(size_t plugin,
                             string_view value) const
 {
   return client()->setTriggerOption(
-    plugin, byteSlice(label), byteSlice(option), byteSlice(value));
+    plugin, bytes::slice(label), bytes::slice(option), bytes::slice(value));
 }

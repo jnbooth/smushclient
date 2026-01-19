@@ -1,5 +1,6 @@
 #include "worldtab.h"
 #include "../bridge/document.h"
+#include "../bytes.h"
 #include "../components/mudscrollbar.h"
 #include "../environment.h"
 #include "../hotkeys.h"
@@ -388,7 +389,7 @@ ApiCode
 WorldTab::setWorldOption(size_t pluginIndex, string_view name, int value)
 {
   const ApiCode result =
-    client.setWorldOption(pluginIndex, byteSlice(name), value);
+    client.setWorldOption(pluginIndex, bytes::slice(name), value);
   if (result != ApiCode::OK) {
     return result;
   }
@@ -411,8 +412,8 @@ WorldTab::setWorldAlphaOption(size_t pluginIndex,
                               string_view name,
                               string_view value)
 {
-  const ApiCode result =
-    client.setWorldAlphaOption(pluginIndex, byteSlice(name), byteSlice(value));
+  const ApiCode result = client.setWorldAlphaOption(
+    pluginIndex, bytes::slice(name), bytes::slice(value));
   if (result != ApiCode::OK) {
     return result;
   }
@@ -420,10 +421,10 @@ WorldTab::setWorldAlphaOption(size_t pluginIndex,
   if (name == "command_stack_character") {
     splitOn = QLatin1Char(client.commandSplitter());
   } else if (name == "name") {
-    worldName = QString::fromUtf8(value.data(), value.size());
+    worldName = bytes::utf8(value);
     emit titleChanged(this, worldName);
   } else if (name == "script_path") {
-    worldScriptPath = QString::fromUtf8(value.data(), value.size());
+    worldScriptPath = bytes::utf8(value);
   }
 
   return result;
@@ -432,7 +433,7 @@ WorldTab::setWorldAlphaOption(size_t pluginIndex,
 void
 WorldTab::simulateOutput(string_view output) const
 {
-  client.simulate(byteSlice(output), *document);
+  client.simulate(bytes::slice(output), *document);
 }
 
 void

@@ -1,5 +1,6 @@
 #include "../../layout.h"
 #include "../../spans.h"
+#include "../bytes.h"
 #include "../timer_map.h"
 #include "../ui/mudstatusbar/mudstatusbar.h"
 #include "../ui/ui_worldtab.h"
@@ -85,7 +86,7 @@ ScriptApi::GetUniqueNumber() noexcept
 QString
 ScriptApi::MakeRegularExpression(string_view pattern) noexcept
 {
-  return ffi::makeRegexFromWildcards(byteSlice(pattern));
+  return ffi::makeRegexFromWildcards(bytes::slice(pattern));
 }
 
 void
@@ -198,7 +199,7 @@ ScriptApi::EnablePlugin(string_view pluginID, bool enabled)
 VariableView
 ScriptApi::GetAlphaOption(size_t plugin, string_view name) const
 {
-  return client()->worldAlphaOption(plugin, byteSlice(name));
+  return client()->worldAlphaOption(plugin, bytes::slice(name));
 }
 
 int
@@ -210,13 +211,13 @@ ScriptApi::GetLinesInBufferCount() const
 QVariant
 ScriptApi::GetCurrentValue(size_t pluginIndex, string_view option) const
 {
-  return client()->worldVariantOption(pluginIndex, byteSlice(option));
+  return client()->worldVariantOption(pluginIndex, bytes::slice(option));
 }
 
 long
 ScriptApi::GetOption(size_t plugin, string_view name) const
 {
-  return client()->worldOption(plugin, byteSlice(name));
+  return client()->worldOption(plugin, bytes::slice(name));
 }
 
 VariableView
@@ -276,7 +277,7 @@ ScriptApi::PickColour(const QColor& hint) const
 ApiCode
 ScriptApi::PlaySound(size_t channel, string_view path, bool loop, float volume)
 {
-  return client()->playFile(channel, byteSlice(path), volume, loop);
+  return client()->playFile(channel, bytes::slice(path), volume, loop);
 }
 
 ApiCode
@@ -285,7 +286,7 @@ ScriptApi::PlaySoundMemory(size_t channel,
                            bool loop,
                            float volume)
 {
-  return client()->playBuffer(channel, byteSlice(sound), volume, loop);
+  return client()->playBuffer(channel, bytes::slice(sound), volume, loop);
 }
 
 ApiCode

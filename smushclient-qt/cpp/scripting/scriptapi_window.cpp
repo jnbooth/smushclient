@@ -1,3 +1,4 @@
+#include "../bytes.h"
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
 #include "miniwindow.h"
@@ -523,8 +524,7 @@ ScriptApi::WindowText(string_view windowName,
   if (!font) [[unlikely]] {
     return -2;
   }
-  const QString qtext = unicode ? QString::fromUtf8(text.data(), text.size())
-                                : QString::fromLatin1(text.data(), text.size());
+  const QString qtext = unicode ? bytes::utf8(text) : bytes::latin1(text);
   return window->drawText(*font, qtext, rect, color).width();
 }
 
@@ -543,8 +543,7 @@ ScriptApi::WindowTextWidth(string_view windowName,
     return -2;
   }
   QFontMetrics fm(*font);
-  const QString qtext = unicode ? QString::fromUtf8(text.data(), text.size())
-                                : QString::fromLatin1(text.data(), text.size());
+  const QString qtext = unicode ? bytes::utf8(text) : bytes::latin1(text);
   return fm.horizontalAdvance(qtext);
 }
 

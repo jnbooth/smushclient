@@ -65,6 +65,7 @@ set_source_files_properties(resources/appicon/appicon.icns PROPERTIES
 
 qt_add_executable(${APP_NAME}
     cpp/main.cpp
+    cpp/bytes.h
     cpp/client.h
     cpp/commandhistory.h cpp/commandhistory.cpp
     cpp/enumbuttongroup.h
