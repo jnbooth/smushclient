@@ -1,6 +1,6 @@
 #include "errors.h"
-#include "luaapi.h"
-#include "scriptapi.h"
+#include "../scriptapi.h"
+#include "api.h"
 #include "smushclient_qt/src/ffi/client.cxxqt.h"
 extern "C"
 {

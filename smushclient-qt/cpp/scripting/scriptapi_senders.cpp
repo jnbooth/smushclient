@@ -1,6 +1,6 @@
 #include "../bytes.h"
 #include "../ui/worldtab.h"
-#include "errors.h"
+#include "lua/errors.h"
 #include "scriptapi.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "sqlite3.h"

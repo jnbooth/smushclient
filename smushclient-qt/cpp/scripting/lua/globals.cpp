@@ -1,8 +1,8 @@
-#include "luaglobals.h"
-#include "miniwindow.h"
-#include "qlua.h"
-#include "scriptapi.h"
-#include "scriptenums.h"
+#include "globals.h"
+#include "../miniwindow.h"
+#include "../qlua.h"
+#include "../scriptapi.h"
+#include "../scriptenums.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "sqlite3.h"
 #include <string>

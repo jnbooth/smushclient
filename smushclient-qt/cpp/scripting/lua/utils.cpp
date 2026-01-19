@@ -1,6 +1,7 @@
-#include "../ui/scripting/choose.h"
-#include "../ui/scripting/listbox.h"
-#include "qlua.h"
+#include "utils.h"
+#include "../../ui/scripting/choose.h"
+#include "../../ui/scripting/listbox.h"
+#include "../qlua.h"
 #include <QtGui/QFontDatabase>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QInputDialog>
@@ -10,7 +11,6 @@ extern "C"
   LUALIB_API int luaopen_base64(lua_State* L);
 }
 
-using std::optional;
 using std::string_view;
 
 using qlua::expectMaxArgs;

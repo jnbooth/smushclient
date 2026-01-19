@@ -1,5 +1,5 @@
 #include "scriptthread.h"
-#include "errors.h"
+#include "lua/errors.h"
 extern "C"
 {
 #include "lua.h"

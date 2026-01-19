@@ -95,12 +95,8 @@ qt_add_executable(${APP_NAME}
 
     cpp/scripting/callbacktrigger.h cpp/scripting/callbacktrigger.cpp
     cpp/scripting/databaseconnection.h cpp/scripting/databaseconnection.cpp
-    cpp/scripting/errors.h cpp/scripting/errors.cpp
     cpp/scripting/hotspot.h cpp/scripting/hotspot.cpp
     cpp/scripting/imagefilters.h cpp/scripting/imagefilters.cpp
-    cpp/scripting/luaapi.h cpp/scripting/luaapi.cpp
-    cpp/scripting/luaglobals.h cpp/scripting/luaglobals.cpp
-    cpp/scripting/luautils.cpp
     cpp/scripting/miniwindow.h cpp/scripting/miniwindow.cpp
     cpp/scripting/plugin.h cpp/scripting/plugin.cpp
     cpp/scripting/plugincallback.h cpp/scripting/plugincallback.cpp
@@ -111,6 +107,12 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/scriptapi_window.cpp
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
     cpp/scripting/scriptthread.h cpp/scripting/scriptthread.cpp
+
+    cpp/scripting/lua/api.h cpp/scripting/lua/api.cpp
+    cpp/scripting/lua/errors.h cpp/scripting/lua/errors.cpp
+    cpp/scripting/lua/globals.h cpp/scripting/lua/globals.cpp
+    cpp/scripting/lua/init.h cpp/scripting/lua/init.cpp
+    cpp/scripting/lua/utils.h cpp/scripting/lua/utils.cpp
 
     cpp/ui/finddialog.h cpp/ui/finddialog.cpp cpp/ui/finddialog.ui
     cpp/ui/mainwindow.h cpp/ui/mainwindow.cpp cpp/ui/mainwindow.ui
