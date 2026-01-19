@@ -234,7 +234,7 @@ class HotspotCallback : public DynamicPluginCallback
 public:
   HotspotCallback(const string& callback,
                   Hotspot::EventFlags flags,
-                  const string& hotspotID)
+                  string_view hotspotID)
     : DynamicPluginCallback(callback)
     , flags(flags)
     , hotspotID(hotspotID)
@@ -255,7 +255,7 @@ public:
 
 private:
   Hotspot::EventFlags flags;
-  const string& hotspotID;
+  string_view hotspotID;
 };
 
 void

@@ -31,7 +31,7 @@ public:
   void appendLine();
   void appendExpiringLink(const QString& text,
                           const QTextCharFormat& format,
-                          const rust::Str expires);
+                          rust::Str expires);
   void appendText(const QString& text, const QTextCharFormat& format) const;
   void applyStyles(int start, int end, const QTextCharFormat& format) const;
   void beep() const;
@@ -75,12 +75,12 @@ private:
 private:
   ScriptApi* api;
   QTextDocument* doc;
-  QTextCharFormat expireLinkFormat{};
-  std::unordered_map<std::string, std::vector<QTextCursor>> links{};
+  QTextCharFormat expireLinkFormat;
+  std::unordered_map<std::string, std::vector<QTextCursor>> links;
   int outputStart = 0;
   MudScrollBar* scrollBar;
   bool serverExpiresLinks = false;
-  QHash<QString, QString> serverStatuses{};
+  QHash<QString, QString> serverStatuses;
 };
 
 #endif // DOCUMENT_H

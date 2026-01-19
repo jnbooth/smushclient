@@ -554,7 +554,7 @@ ScriptApi::insertBlock()
 ApiCode
 ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
 {
-  OnPluginSend onSend(bytes);
+  OnPluginSend onSend(&bytes);
   sendCallback(onSend);
   if (onSend.discarded()) {
     return ApiCode::OK;
@@ -580,7 +580,7 @@ ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
   }
   bytes.truncate(size - 2);
 
-  OnPluginSent onSent(bytes);
+  OnPluginSent onSent(&bytes);
   sendCallback(onSent);
   return ApiCode::OK;
 }

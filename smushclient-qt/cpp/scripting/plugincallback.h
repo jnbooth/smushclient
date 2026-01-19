@@ -127,7 +127,7 @@ class ModifyTextCallback : public NamedPluginCallback
 {
 public:
   inline constexpr int expectedSize() const noexcept override { return 1; }
-  constexpr ModifyTextCallback(QByteArray& text)
+  constexpr ModifyTextCallback(QByteArray* text)
     : text(text)
   {
   }
@@ -135,7 +135,7 @@ public:
   int pushArguments(lua_State* L) const override;
 
 private:
-  QByteArray& text;
+  QByteArray* text;
 };
 
 // Concrete
@@ -167,7 +167,7 @@ class OnPluginCommand : public DiscardCallback
 {
 public:
   CALLBACK(1, "OnPluginCommand", commandAction(commandSource))
-  constexpr OnPluginCommand(CommandSource commandSource, const QByteArray& text)
+  constexpr OnPluginCommand(CommandSource commandSource, const QByteArray* text)
     : DiscardCallback()
     , commandSource(commandSource)
     , text(text)
@@ -177,7 +177,7 @@ public:
 
 private:
   CommandSource commandSource;
-  const QByteArray& text;
+  const QByteArray* text;
 };
 
 class OnPluginCommandChanged : public NamedPluginCallback
@@ -197,7 +197,7 @@ class OnPluginCommandEntered : public ModifyTextCallback
 public:
   CALLBACK(4, "OnPluginCommandEntered", commandAction(commandSource))
   constexpr OnPluginCommandEntered(CommandSource commandSource,
-                                   QByteArray& text)
+                                   QByteArray* text)
     : ModifyTextCallback(text)
     , commandSource(commandSource)
   {
@@ -317,7 +317,7 @@ class OnPluginSend : public DiscardCallback
 {
 public:
   CALLBACK(18, "OnPluginSend", ActionSource::Unknown)
-  constexpr OnPluginSend(const QByteArray& text)
+  constexpr OnPluginSend(const QByteArray* text)
     : DiscardCallback()
     , text(text)
   {
@@ -325,28 +325,28 @@ public:
   int pushArguments(lua_State* L) const override;
 
 private:
-  const QByteArray& text;
+  const QByteArray* text;
 };
 
 class OnPluginSent : public NamedPluginCallback
 {
 public:
   CALLBACK(19, "OnPluginSent", ActionSource::Unknown)
-  constexpr OnPluginSent(const QByteArray& text)
+  constexpr OnPluginSent(const QByteArray* text)
     : text(text)
   {
   }
   int pushArguments(lua_State* L) const override;
 
 private:
-  const QByteArray& text;
+  const QByteArray* text;
 };
 
 class OnPluginTabComplete : public ModifyTextCallback
 {
 public:
   CALLBACK(20, "OnPluginTabComplete", ActionSource::UserTyping)
-  constexpr OnPluginTabComplete(QByteArray& text)
+  constexpr OnPluginTabComplete(QByteArray* text)
     : ModifyTextCallback(text)
   {
   }
@@ -372,7 +372,7 @@ class OnPluginTelnetSubnegotiation : public NamedPluginCallback
 {
 public:
   CALLBACK(22, "OnPluginTelnetSubnegotiation", ActionSource::Unknown)
-  constexpr OnPluginTelnetSubnegotiation(uint8_t code, const QByteArray& data)
+  constexpr OnPluginTelnetSubnegotiation(uint8_t code, const QByteArray* data)
     : code(code)
     , data(data)
   {
@@ -381,7 +381,7 @@ public:
 
 private:
   uint8_t code;
-  const QByteArray& data;
+  const QByteArray* data;
 };
 
 class OnPluginWorldSave : public NamedPluginCallback

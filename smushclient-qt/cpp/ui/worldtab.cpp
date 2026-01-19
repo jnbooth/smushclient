@@ -142,7 +142,7 @@ WorldTab::closeLog()
 {
   try {
     client.closeLog();
-  } catch (const rust::Error& e) {
+  } catch (rust::Error& e) {
     showRustError(e);
   }
 }
@@ -200,7 +200,7 @@ WorldTab::importWorld(const QString& filename) &
       dialog.exec();
       return false;
     }
-  } catch (const rust::Error& e) {
+  } catch (rust::Error& e) {
     showRustError(e);
     return false;
   }
@@ -220,7 +220,7 @@ WorldTab::openLog()
 {
   try {
     client.openLog();
-  } catch (const rust::Error& e) {
+  } catch (rust::Error& e) {
     showRustError(e);
   }
 }
@@ -230,7 +230,7 @@ WorldTab::openWorld(const QString& filename) &
 {
   try {
     client.loadWorld(filename);
-  } catch (const rust::Error& e) {
+  } catch (rust::Error& e) {
     showRustError(e);
     return false;
   }
@@ -256,7 +256,7 @@ WorldTab::openWorldSettings()
     if (!client.setWorld(world)) {
       return false;
     }
-  } catch (const rust::Error& e) {
+  } catch (rust::Error& e) {
     showRustError(e);
   }
 
@@ -450,7 +450,7 @@ WorldTab::start()
   if (!filePath.isEmpty()) {
     try {
       client.loadVariables(variablesPath(filePath));
-    } catch (const rust::Error& e) {
+    } catch (rust::Error& e) {
       showRustError(e);
     }
   }
@@ -712,7 +712,7 @@ WorldTab::saveWorldAndState(const QString& path)
   api->sendCallback(onWorldSave);
   try {
     client.saveWorld(path);
-  } catch (const rust::Error& e) {
+  } catch (rust::Error& e) {
     showRustError(e);
     return false;
   }
@@ -721,7 +721,7 @@ WorldTab::saveWorldAndState(const QString& path)
   api->sendCallback(onSaveState);
   try {
     client.saveVariables(variablesPath(path));
-  } catch (const rust::Error& e) {
+  } catch (rust::Error& e) {
     showRustError(e);
   }
   return true;
@@ -741,12 +741,12 @@ WorldTab::sendCommand(const QString& command, CommandSource source)
   }
 
   QByteArray bytes = command.toUtf8();
-  OnPluginCommand onCommand(source, bytes);
+  OnPluginCommand onCommand(source, &bytes);
   api->sendCallback(onCommand);
   if (onCommand.discarded()) {
     return true;
   }
-  OnPluginCommandEntered onCommandEntered(source, bytes);
+  OnPluginCommandEntered onCommandEntered(source, &bytes);
   api->sendCallback(onCommandEntered);
   if (bytes.size() == 1) {
     switch (bytes.front()) {
@@ -1010,7 +1010,7 @@ WorldTab::on_input_textChanged()
 class AnchorCallback : public DynamicPluginCallback
 {
 public:
-  AnchorCallback(const QString& callback, const QString& arg)
+  AnchorCallback(const QString& callback, const QString* arg)
     : DynamicPluginCallback(callback)
     , arg(arg)
   {
@@ -1023,12 +1023,12 @@ public:
 
   int pushArguments(lua_State* L) const override
   {
-    qlua::pushQString(L, arg);
+    qlua::pushQString(L, *arg);
     return 1;
   }
 
 private:
-  const QString& arg;
+  const QString* arg;
 };
 
 void
@@ -1059,7 +1059,7 @@ WorldTab::on_output_anchorClicked(const QUrl& url)
     const QString functionName =
       action.sliced(delimIndex + 1, fnIndex - delimIndex - 1);
     const QString arg = action.sliced(fnIndex + 1, action.size() - fnIndex - 2);
-    AnchorCallback callback(functionName, arg);
+    AnchorCallback callback(functionName, &arg);
     api->sendCallback(callback, pluginID);
     return;
   }

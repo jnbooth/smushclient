@@ -156,7 +156,7 @@ ScriptApi::WindowDrawImageAlpha(std::string_view windowName,
                                 std::string_view imageID,
                                 const QRectF& rect,
                                 qreal opacity,
-                                const QPointF origin) const
+                                const QPointF& origin) const
 {
   MiniWindow* window = findWindow(windowName);
   if (!window) [[unlikely]] {

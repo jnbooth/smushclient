@@ -72,14 +72,14 @@ ModifyTextCallback::collectReturned(lua_State* L)
   if (!message) {
     return;
   }
-  text.clear();
-  text.append(message, len);
+  text->clear();
+  text->append(message, len);
 }
 
 int
 ModifyTextCallback::pushArguments(lua_State* L) const
 {
-  qlua::pushBytes(L, text);
+  qlua::pushBytes(L, *text);
   return 1;
 }
 
@@ -98,7 +98,7 @@ OnPluginBroadcast::pushArguments(lua_State* L) const
 int
 OnPluginCommand::pushArguments(lua_State* L) const
 {
-  qlua::pushBytes(L, text);
+  qlua::pushBytes(L, *text);
   return 1;
 }
 
@@ -127,14 +127,14 @@ OnPluginMXPSetVariable::pushArguments(lua_State* L) const
 int
 OnPluginSend::pushArguments(lua_State* L) const
 {
-  qlua::pushBytes(L, text);
+  qlua::pushBytes(L, *text);
   return 1;
 }
 
 int
 OnPluginSent::pushArguments(lua_State* L) const
 {
-  qlua::pushBytes(L, text);
+  qlua::pushBytes(L, *text);
   return 1;
 }
 
@@ -150,7 +150,7 @@ int
 OnPluginTelnetSubnegotiation::pushArguments(lua_State* L) const
 {
   lua_pushinteger(L, code);
-  qlua::pushBytes(L, data);
+  qlua::pushBytes(L, *data);
   return 2;
 }
 
@@ -159,11 +159,11 @@ CallbackFilter::scan(lua_State* L)
 {
   static QByteArray emptyByteArray;
   const static OnPluginBroadcast onBroadcast(0, "", "", "");
-  const static OnPluginCommand onCommand(CommandSource::User, emptyByteArray);
+  const static OnPluginCommand onCommand(CommandSource::User, &emptyByteArray);
   const static OnPluginCommandChanged onCommandChanged;
   const static OnPluginClose onClose;
   const static OnPluginCommandEntered onCommandEntered(CommandSource::User,
-                                                       emptyByteArray);
+                                                       &emptyByteArray);
   const static OnPluginConnect onConnect;
   const static OnPluginDisconnect onDisconnect;
   const static OnPluginGetFocus onGetFocus;
@@ -177,12 +177,12 @@ CallbackFilter::scan(lua_State* L)
   const static OnPluginMXPSetEntity onMxpSetEntity("");
   const static OnPluginMXPSetVariable onMxpSetVariable("", "");
   const static OnPluginSaveState onSaveState;
-  const static OnPluginSend onSend(emptyByteArray);
-  const static OnPluginSent onSent(emptyByteArray);
-  const static OnPluginTabComplete onTabComplete(emptyByteArray);
+  const static OnPluginSend onSend(&emptyByteArray);
+  const static OnPluginSent onSent(&emptyByteArray);
+  const static OnPluginTabComplete onTabComplete(&emptyByteArray);
   const static OnPluginTelnetRequest onTelnetRequest(0, "");
   const static OnPluginTelnetSubnegotiation onTelnetSubnegotiation(
-    0, emptyByteArray);
+    0, &emptyByteArray);
   const static OnPluginWorldSave onWorldSave;
   const static OnPluginWorldOutputResized onWorldOutputResized;
   const int top = lua_gettop(L);

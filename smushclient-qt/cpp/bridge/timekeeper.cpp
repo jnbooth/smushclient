@@ -15,7 +15,7 @@ using std::chrono::seconds;
 class TimerCallback : public DynamicPluginCallback
 {
 public:
-  TimerCallback(const rust::String& callback, const rust::String& label)
+  TimerCallback(const rust::String& callback, const rust::String* label)
     : DynamicPluginCallback(callback)
     , label(label)
   {
@@ -28,12 +28,12 @@ public:
 
   int pushArguments(lua_State* L) const override
   {
-    lua_pushlstring(L, label.data(), label.size());
+    lua_pushlstring(L, label->data(), label->size());
     return 1;
   }
 
 private:
-  const rust::String& label;
+  const rust::String* label;
 };
 
 Timekeeper::Timekeeper(ScriptApi* parent)
@@ -76,7 +76,7 @@ Timekeeper::sendTimer(const SendTimer& timer) const
     return;
   }
 
-  TimerCallback callback(timer.script, timer.label);
+  TimerCallback callback(timer.script, &timer.label);
   api->sendCallback(callback, timer.request.plugin);
 }
 

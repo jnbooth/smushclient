@@ -267,7 +267,7 @@ Document::handleTelnetNegotiation(TelnetSource source,
 void
 Document::handleTelnetSubnegotiation(uint8_t code, const QByteArray& data) const
 {
-  OnPluginTelnetSubnegotiation onTelnetSubnegotiation(code, data);
+  OnPluginTelnetSubnegotiation onTelnetSubnegotiation(code, &data);
   api->sendCallback(onTelnetSubnegotiation);
 }
 
@@ -297,8 +297,8 @@ public:
   AliasCallback(rust::Str callback,
                 rust::Str senderName,
                 rust::Str line,
-                const rust::Vec<rust::Str>& wildcards,
-                const rust::Vec<NamedWildcard>& namedWildcards)
+                const rust::Vec<rust::Str>* wildcards,
+                const rust::Vec<NamedWildcard>* namedWildcards)
     : DynamicPluginCallback(callback)
     , senderName(senderName)
     , line(line)
@@ -316,14 +316,14 @@ public:
   {
     qlua::pushRString(L, senderName);
     qlua::pushRString(L, line);
-    lua_createtable(L, (int)wildcards.size(), (int)namedWildcards.size());
+    lua_createtable(L, (int)wildcards->size(), (int)namedWildcards->size());
     int i = 1;
-    for (rust::Str wildcard : wildcards) {
+    for (rust::Str wildcard : *wildcards) {
       qlua::pushRString(L, wildcard);
       lua_rawseti(L, -2, i);
       ++i;
     }
-    for (const NamedWildcard& wildcard : namedWildcards) {
+    for (const NamedWildcard& wildcard : *namedWildcards) {
       qlua::pushRString(L, wildcard.name);
       qlua::pushRString(L, wildcard.value);
       lua_rawset(L, -3);
@@ -334,8 +334,8 @@ public:
 private:
   rust::Str senderName;
   rust::Str line;
-  const rust::Vec<rust::Str>& wildcards;
-  const rust::Vec<NamedWildcard>& namedWildcards;
+  const rust::Vec<rust::Str>* wildcards;
+  const rust::Vec<NamedWildcard>* namedWildcards;
 };
 
 class TriggerCallback : public AliasCallback
@@ -344,8 +344,8 @@ public:
   TriggerCallback(rust::Str callback,
                   rust::Str senderName,
                   rust::Str line,
-                  const rust::Vec<rust::Str>& wildcards,
-                  const rust::Vec<NamedWildcard>& namedWildcards,
+                  const rust::Vec<rust::Str>* wildcards,
+                  const rust::Vec<NamedWildcard>* namedWildcards,
                   rust::Slice<const OutputSpan> spans)
     : AliasCallback(callback, senderName, line, wildcards, namedWildcards)
     , spans(spans)
@@ -398,15 +398,15 @@ Document::send(const SendScriptRequest& request) const
     AliasCallback aliasCallback(request.script,
                                 request.label,
                                 request.line,
-                                request.wildcards,
-                                request.namedWildcards);
+                                &request.wildcards,
+                                &request.namedWildcards);
     api->sendCallback(aliasCallback, request.plugin);
   } else {
     TriggerCallback triggerCallback(request.script,
                                     request.label,
                                     request.line,
-                                    request.wildcards,
-                                    request.namedWildcards,
+                                    &request.wildcards,
+                                    &request.namedWildcards,
                                     request.output);
     api->sendCallback(triggerCallback, request.plugin);
   }

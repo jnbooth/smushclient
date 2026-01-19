@@ -262,7 +262,7 @@ public:
                                std::string_view imageID,
                                const QRectF& rect,
                                qreal opacity,
-                               const QPointF origin) const;
+                               const QPointF& origin) const;
   ApiCode WindowEllipse(std::string_view windowName,
                         const QRectF& rect,
                         const QPen& pen,

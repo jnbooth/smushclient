@@ -66,7 +66,7 @@ AbstractPrefsTree::on_export_xml_clicked()
 {
   try {
     QGuiApplication::clipboard()->setText(model->exportXml());
-  } catch (const rust::Error& e) {
+  } catch (rust::Error& e) {
     QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
   }
 }
@@ -83,7 +83,7 @@ AbstractPrefsTree::on_import_xml_clicked()
       return;
     }
 
-  } catch (const rust::Error& e) {
+  } catch (rust::Error& e) {
     QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
   }
 }

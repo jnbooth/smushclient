@@ -18,7 +18,7 @@ PluginModel::addPlugin(const QString& filePath)
   int pluginIndex;
   try {
     pluginIndex = (int)client.addPlugin(filePath);
-  } catch (rust::Error e) {
+  } catch (rust::Error& e) {
     const QString error = QString::fromUtf8(e.what());
     emit clientError(error);
     return false;
@@ -61,7 +61,7 @@ PluginModel::reinstall(const QModelIndex& index)
   size_t newIndex;
   try {
     newIndex = client.reinstallPlugin(oldIndex);
-  } catch (rust::Error e) {
+  } catch (rust::Error& e) {
     const QString error = QString::fromUtf8(e.what());
     emit clientError(error);
     return false;

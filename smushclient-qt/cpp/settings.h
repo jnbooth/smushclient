@@ -6,8 +6,8 @@
 
 typedef struct RecentFileResult
 {
-  const bool changed;
-  const QStringList recentFiles;
+  bool changed;
+  QStringList recentFiles;
 } RecentFileResult;
 
 class Settings : public QObject
