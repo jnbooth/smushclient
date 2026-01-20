@@ -29,5 +29,5 @@ main(int argc, char* argv[])
     w->openWorld(reopen);
   }
   w->show();
-  app.exec();
+  app.exec(); // NOLINT(readability-static-accessed-through-instance)
 }

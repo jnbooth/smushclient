@@ -17,9 +17,10 @@ MudStatusBar::MudStatusBar(QWidget* parent)
       QIcon(QStringLiteral(":/icons/status/connected.svg")),
       QIcon(QStringLiteral(":/icons/status/encrypted.svg")),
     })
+  , menu(new QMenu(this))
 {
   ui->setupUi(this);
-  menu = new QMenu(this);
+
   menu->close();
   menu->addAction(ui->action_connection_status);
   menu->addAction(ui->action_users_online);

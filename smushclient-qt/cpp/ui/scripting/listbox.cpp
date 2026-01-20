@@ -72,7 +72,7 @@ ListBox::value() const
 }
 
 void
-ListBox::on_items_itemDoubleClicked(QListWidgetItem*)
+ListBox::on_items_itemDoubleClicked(QListWidgetItem* /*item*/)
 {
   accept();
 }

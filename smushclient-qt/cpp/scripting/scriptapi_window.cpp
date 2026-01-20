@@ -99,13 +99,13 @@ ScriptApi::WindowCreate(size_t index,
   const string windowName = string(name);
   MiniWindow* window = windows[windowName];
   if (window == nullptr) {
-    window = windows[windowName] = new MiniWindow(tab->ui->area,
-                                                  location,
+    window = windows[windowName] = new MiniWindow(location,
                                                   size,
                                                   position,
                                                   flags,
                                                   fill,
-                                                  plugins[index].id());
+                                                  plugins[index].id(),
+                                                  tab->ui->area);
   } else {
     window->setPosition(location, position, flags);
     window->setSize(size, fill);
@@ -238,7 +238,7 @@ ScriptApi::WindowFont(string_view windowName,
 QVariant
 ScriptApi::WindowFontInfo(string_view windowName,
                           string_view fontID,
-                          long infoType) const
+                          int64_t infoType) const
 {
   MiniWindow* window = findWindow(windowName);
   if (window == nullptr) [[unlikely]] {
@@ -254,7 +254,7 @@ ScriptApi::WindowFontInfo(string_view windowName,
 QVariant
 ScriptApi::WindowHotspotInfo(string_view windowName,
                              string_view hotspotID,
-                             long infoType) const
+                             int64_t infoType) const
 {
 
   MiniWindow* window = findWindow(windowName);
@@ -317,7 +317,7 @@ ScriptApi::WindowImageFromWindow(string_view windowName,
 }
 
 QVariant
-ScriptApi::WindowInfo(std::string_view windowName, long infoType) const
+ScriptApi::WindowInfo(std::string_view windowName, int64_t infoType) const
 {
   MiniWindow* window = findWindow(windowName);
   if (window == nullptr) [[unlikely]] {
@@ -360,7 +360,7 @@ ScriptApi::WindowLoadImage(string_view windowName,
   if (window == nullptr) [[unlikely]] {
     return ApiCode::NoSuchWindow;
   }
-  const QPixmap image(filename);
+  QPixmap image(filename);
   if (!image.isNull()) [[likely]] {
     window->loadImage(imageID, std::move(image));
     return ApiCode::OK;
@@ -487,7 +487,7 @@ ScriptApi::WindowResize(string_view windowName,
 }
 
 ApiCode
-ScriptApi::WindowSetZOrder(string_view windowName, long long order) const
+ScriptApi::WindowSetZOrder(string_view windowName, int64_t order) const
 {
   MiniWindow* window = findWindow(windowName);
   if (window == nullptr) [[unlikely]] {

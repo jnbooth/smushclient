@@ -29,6 +29,6 @@ private slots:
 
 private:
   Ui::TriggerEdit* ui;
-  RustFilePlayback audio{};
+  RustFilePlayback audio;
   Trigger& trigger;
 };

@@ -13,6 +13,7 @@ public:
 
   DatabaseConnection(const DatabaseConnection&) = delete;
   DatabaseConnection& operator=(const DatabaseConnection&) = delete;
+  DatabaseConnection& operator=(DatabaseConnection&&) = delete;
 
   int close();
   constexpr bool isFile(std::string_view file) const noexcept

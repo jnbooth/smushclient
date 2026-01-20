@@ -2,11 +2,10 @@
 
 // Public methods
 
-const QString CommandHistory::__emptyString = QString();
+const QString CommandHistory::_emptyString = QString();
 
 CommandHistory::CommandHistory(qsizetype max)
-  : history()
-  , max(max)
+  : max(max)
   , begin(history.cbegin())
   , end(history.cend())
   , iterator(end)
@@ -23,7 +22,11 @@ CommandHistory::CommandHistory(const QStringList& borrowHistory, qsizetype max)
 }
 
 CommandHistory::CommandHistory(CommandHistory&& other) noexcept
-  : CommandHistory(std::move(other.history), other.max)
+  : history(std::move(other.history))
+  , max(other.max)
+  , begin(history.cbegin())
+  , end(history.cend())
+  , iterator(end)
 {
 }
 

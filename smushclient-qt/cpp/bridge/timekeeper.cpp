@@ -39,9 +39,9 @@ private:
 Timekeeper::Timekeeper(ScriptApi* parent)
   : QObject(parent)
   , api(parent)
+  , pollTimer(new QTimer(this))
+  , queue(new TimerMap<Timekeeper::Item>(this, &Timekeeper::finishTimer))
 {
-  pollTimer = new QTimer(this);
-  queue = new TimerMap<Timekeeper::Item>(this, &Timekeeper::finishTimer);
   connect(pollTimer, &QTimer::timeout, this, &Timekeeper::pollTimers);
 }
 
@@ -81,9 +81,9 @@ Timekeeper::sendTimer(const SendTimer& timer) const
 }
 
 void
-Timekeeper::startSendTimer(size_t index, uint16_t timerId, uint ms) const
+Timekeeper::startSendTimer(size_t index, uint16_t timerId, uint millis) const
 {
-  queue->start(milliseconds{ ms }, { .index = index, .timerId = timerId });
+  queue->start(milliseconds{ millis }, { .index = index, .timerId = timerId });
 }
 
 // Private slots

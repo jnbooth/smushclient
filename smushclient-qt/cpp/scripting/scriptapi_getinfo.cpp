@@ -25,7 +25,7 @@ using std::string_view;
 
 // Private utils
 
-enum ModifierFlag : long long
+enum ModifierFlag : int64_t
 {
   Shift = 0x00001,
   Ctrl = 0x00002,
@@ -54,10 +54,10 @@ defaultPath(const QString& name)
   return QDir::currentPath() + QDir::separator() + name;
 }
 
-constexpr long long
+constexpr int64_t
 getModifierFlags(Qt::KeyboardModifiers mods, Qt::MouseButtons buttons)
 {
-  long long flags = 0;
+  int64_t flags = 0;
 
   if (mods.testFlag(Qt::KeyboardModifier::ShiftModifier)) {
     flags |= ModifierFlag::Shift | ModifierFlag::LeftShift;
@@ -117,7 +117,7 @@ getBrushStyle(const QBrush& brush)
 // Public static methods
 
 QVariant
-ScriptApi::FontInfo(const QFont& font, long infoType)
+ScriptApi::FontInfo(const QFont& font, int64_t infoType)
 {
   switch (infoType) {
     case 1:
@@ -187,7 +187,7 @@ ScriptApi::FontInfo(const QFont& font, long infoType)
 // Public methods
 
 QVariant
-ScriptApi::GetInfo(long infoType) const
+ScriptApi::GetInfo(int64_t infoType) const
 {
   switch (infoType) {
     case 20:
@@ -439,7 +439,7 @@ ScriptApi::GetInfo(long infoType) const
 }
 
 QVariant
-ScriptApi::GetLineInfo(int lineNumber, long infoType) const
+ScriptApi::GetLineInfo(int lineNumber, int64_t infoType) const
 {
   const QTextBlock block = cursor.document()->findBlockByLineNumber(lineNumber);
   if (!block.isValid()) {
@@ -495,7 +495,7 @@ ScriptApi::GetLineInfo(int lineNumber, long infoType) const
 }
 
 QVariant
-ScriptApi::GetPluginInfo(string_view pluginID, long infoType) const
+ScriptApi::GetPluginInfo(string_view pluginID, int64_t infoType) const
 {
   const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin || infoType < 0 || infoType > UINT8_MAX)
@@ -513,7 +513,7 @@ ScriptApi::GetPluginInfo(string_view pluginID, long infoType) const
 }
 
 QVariant
-ScriptApi::GetStyleInfo(int line, long style, long infoType) const
+ScriptApi::GetStyleInfo(int line, int64_t style, int64_t infoType) const
 {
   const QTextDocument* doc = cursor.document();
   const QTextBlock block = doc->findBlockByLineNumber(line - 1);
@@ -526,7 +526,7 @@ ScriptApi::GetStyleInfo(int line, long style, long infoType) const
   const int textEnd = textStart + textLine.textLength();
   const QList<QTextLayout::FormatRange> styles = block.textFormats();
   auto iter = styles.cbegin();
-  long styleOffset = style;
+  int64_t styleOffset = style;
   for (auto end = styles.cend();; ++iter) {
     if (iter == end || iter->start > textEnd) {
       return QVariant();
@@ -582,7 +582,6 @@ ScriptApi::GetStyleInfo(int line, long style, long infoType) const
     case 11:
       return getStyles(range.format).testFlag(TextStyle::Inverse);
     case 12: // changed by trigger from original
-      return false;
     case 13: // true if start of a tag (action is tag name)
       return false;
     case 14:
@@ -597,28 +596,25 @@ ScriptApi::GetStyleInfo(int line, long style, long infoType) const
 QVariant
 ScriptApi::GetTimerInfo(size_t pluginIndex,
                         std::string_view label,
-                        long infoType) const
+                        int64_t infoType) const
 {
   if (infoType < 0 || infoType > UINT8_MAX) [[unlikely]] {
     return QVariant();
   }
 
-  switch (infoType) {
-    case 26: {
-      const QString scriptName =
-        client()->timerInfo(pluginIndex, bytes::slice(label), 5).toString();
-      return !scriptName.isEmpty() &&
-             plugins[pluginIndex].hasFunction(scriptName);
-    }
-    default:
-      return client()->timerInfo(pluginIndex, bytes::slice(label), infoType);
+  if (infoType == 26) {
+    const QString scriptName =
+      client()->timerInfo(pluginIndex, bytes::slice(label), 5).toString();
+    return !scriptName.isEmpty() &&
+           plugins[pluginIndex].hasFunction(scriptName);
   }
+  return client()->timerInfo(pluginIndex, bytes::slice(label), infoType);
 }
 
 // External implementations
 
 QVariant
-MiniWindow::info(long infoType) const
+MiniWindow::info(int64_t infoType) const
 {
   switch (infoType) {
     case 1:
@@ -657,10 +653,9 @@ MiniWindow::info(long infoType) const
       return parentWidget()->mapFromGlobal(QCursor::pos()).x();
     case 18:
       return parentWidget()->mapFromGlobal(QCursor::pos()).y();
-    case 19:
-      return QString(); // hotspot currently being moused-over in
-    case 20:
-      return QString(); // hotspot currently being moused-down in
+    case 19: // hotspot currently being moused-over in
+    case 20: // hotspot currently being moused-down in
+      return QString();
     case 21:
       return installed;
     case 22:
@@ -673,7 +668,7 @@ MiniWindow::info(long infoType) const
 }
 
 QVariant
-Hotspot::info(long infoType) const
+Hotspot::info(int64_t infoType) const
 {
   switch (infoType) {
     case 1:

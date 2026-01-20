@@ -34,10 +34,11 @@ StatusBarStat::StatusBarStat(const QString& entity,
   , ui(new Ui::StatusBarStat)
   , entityName(entity)
   , maxEntityName(maxEntity)
+  , displayMenu(new QMenu(this))
 {
   ui->setupUi(this);
   setVisible(false);
-  displayMenu = new QMenu(this);
+
   displayMenu->addAction(ui->action_display);
   displayMenu->addAction(ui->action_show_max);
   displayMenu->addAction(ui->action_set_color);
@@ -114,7 +115,7 @@ StatusBarStat::setValue(const QString& value)
 // Protected overrides
 
 void
-StatusBarStat::resizeEvent(QResizeEvent*)
+StatusBarStat::resizeEvent(QResizeEvent* /*event*/)
 {
   if (ui->max->isVisible()) {
     ui->value->setMinimumWidth(ui->max->width());

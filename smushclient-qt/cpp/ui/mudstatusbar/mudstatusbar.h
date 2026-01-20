@@ -54,6 +54,6 @@ private:
   Ui::MudStatusBar* ui;
   std::array<QIcon, 3> connectionIcons;
   QMenu* menu;
-  QHash<QString, StatusBarStat*> statsByEntity{};
-  QMultiHash<QString, StatusBarStat*> statsByMax{};
+  QHash<QString, StatusBarStat*> statsByEntity;
+  QMultiHash<QString, StatusBarStat*> statsByMax;
 };

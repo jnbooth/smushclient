@@ -19,7 +19,7 @@ using std::vector;
 constexpr int FALSE = 0;
 constexpr int TRUE = 1;
 
-static const QColor customColors[16] = {
+static const std::array<QColor, 16> customColors{
   QColor(255, 128, 128), QColor(255, 255, 128), QColor(128, 255, 128),
   QColor(128, 255, 255), QColor(0, 128, 255),   QColor(255, 128, 192),
   QColor(255, 0, 0),     QColor(0, 128, 192),   QColor(255, 0, 255),
@@ -54,7 +54,9 @@ isScriptName(lua_State* L, const char* name)
     lua_pop(L, 1);
     return false;
   }
+  // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const bool isFunction = lua_getfield(L, -1, property + 1) == LUA_TFUNCTION;
+  // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   lua_pop(L, 2);
   return isFunction;
 }
@@ -382,7 +384,7 @@ qlua::getCustomColor(lua_State* L, int idx)
 {
   const lua_Integer colorIndex = getInteger(L, idx);
   return (colorIndex < 0 || colorIndex >= 16) ? QColor()
-                                              : customColors[colorIndex];
+                                              : customColors.at(colorIndex);
 }
 
 QColor
@@ -406,7 +408,7 @@ qlua::getQString(lua_State* L, int idx)
 }
 
 QString
-qlua::getQString(lua_State* L, int idx, QString ifNil)
+qlua::getQString(lua_State* L, int idx, const QString& ifNil)
 {
   return checkIsSome(L, idx, LUA_TSTRING, "string") ? toQString(L, idx) : ifNil;
 }
@@ -641,7 +643,7 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant)
       return;
     case QMetaType::QDate:
     case QMetaType::QDateTime:
-      lua_pushinteger(L, variant.toDateTime().currentSecsSinceEpoch());
+      lua_pushinteger(L, variant.toDateTime().toSecsSinceEpoch());
       return;
     case QMetaType::QByteArray:
       pushBytes(L, variant.toByteArray());
@@ -739,7 +741,6 @@ qlua::pushRStrings(lua_State* L, rust::Slice<const rust::Str> strings)
     lua_rawseti(L, -2, i);
     ++i;
   }
-  return;
 }
 
 void
@@ -752,7 +753,6 @@ qlua::pushRStrings(lua_State* L, const rust::Vec<rust::Str>& strings)
     lua_rawseti(L, -2, i);
     ++i;
   }
-  return;
 }
 
 void
@@ -765,7 +765,6 @@ qlua::pushStrings(lua_State* L, const vector<string>& strings)
     lua_rawseti(L, -2, i);
     ++i;
   }
-  return;
 }
 
 const char*

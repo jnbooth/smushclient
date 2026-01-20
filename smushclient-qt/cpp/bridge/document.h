@@ -7,6 +7,7 @@
 
 struct SendRequest;
 struct SendScriptRequest;
+class MudBrowser;
 class MudScrollBar;
 class ScriptApi;
 class WorldTab;
@@ -25,7 +26,7 @@ class Document : public QObject
   Q_OBJECT
 
 public:
-  Document(WorldTab* parent, ScriptApi* api);
+  Document(MudBrowser* output, ScriptApi* api, QObject* parent = nullptr);
 
   void appendHtml(const QString& html) const;
   void appendLine();

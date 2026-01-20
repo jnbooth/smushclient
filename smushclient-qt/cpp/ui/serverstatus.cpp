@@ -475,10 +475,10 @@ ServerStatus::translateVariable(KnownVariable variable, const QString& raw)
 
 QLabel*
 ServerStatus::variableLabel(KnownVariable variable,
-                            const QString& var,
+                            const QString& text,
                             QWidget* parent) const
 {
-  return variableLabel(translateVariable(variable, var), parent);
+  return variableLabel(translateVariable(variable, text), parent);
 }
 
 QLabel*
@@ -502,46 +502,42 @@ ServerStatus::valueLabel(const QString& text, QWidget* parent) const
 
 QLabel*
 ServerStatus::valueLabel(KnownVariable variable,
-                         const QString& value,
+                         const QString& text,
                          QWidget* parent) const
 {
-  const static QString no = tr("No");
-  const static QString none = tr("None");
-  const static QString yes = tr("Yes");
-
   if (isBoolVariable(variable)) {
-    if (value == QStringLiteral("0")) {
-      return valueLabel(no, parent);
+    if (text == QStringLiteral("0")) {
+      return valueLabel(tr("No"), parent);
     }
-    if (value == QStringLiteral("1")) {
-      return valueLabel(yes, parent);
+    if (text == QStringLiteral("1")) {
+      return valueLabel(tr("Yes"), parent);
     }
-    return valueLabel(value, parent);
+    return valueLabel(text, parent);
   }
 
   switch (variable) {
     case KnownVariable::Uptime:
       return valueLabel(
-        QDateTime::fromSecsSinceEpoch(value.toLongLong()).toString(), parent);
+        QDateTime::fromSecsSinceEpoch(text.toLongLong()).toString(), parent);
 
     case KnownVariable::Contact:
       return valueLabel(
-        QStringLiteral("<a href=\"mailto:%1\">%1</a>").arg(value), parent);
+        QStringLiteral("<a href=\"mailto:%1\">%1</a>").arg(text), parent);
 
     case KnownVariable::MinimumAge:
-      if (value == QStringLiteral("0")) {
-        return valueLabel(none, parent);
+      if (text == QStringLiteral("0")) {
+        return valueLabel(text, parent);
       }
       break;
 
     case KnownVariable::Discord:
     case KnownVariable::Website:
-      return valueLabel(QStringLiteral("<a href=\"%1\">%1</a>").arg(value),
+      return valueLabel(QStringLiteral("<a href=\"%1\">%1</a>").arg(text),
                         parent);
     default:
       break;
   }
-  return valueLabel(value, parent);
+  return valueLabel(text, parent);
 }
 
 // Private slots

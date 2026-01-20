@@ -23,5 +23,5 @@ private slots:
 
 private:
   Ui::SettingsSound* ui;
-  RustFilePlayback audio{};
+  RustFilePlayback audio;
 };

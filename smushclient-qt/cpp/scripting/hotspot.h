@@ -50,19 +50,19 @@ public:
   using Callbacks = BasicCallbacks<std::string>;
   using CallbacksPartial = BasicCallbacks<std::optional<std::string>>;
 
-  Hotspot(MiniWindow* parent,
-          WorldTab* tab,
+  Hotspot(WorldTab* tab,
           const Plugin* plugin,
           std::string_view id,
-          Callbacks&& callbacks);
+          Callbacks&& callbacks,
+          QWidget* parent = nullptr);
   constexpr bool belongsToPlugin(const Plugin* otherPlugin) const noexcept
   {
     return otherPlugin == plugin;
   }
   void finishDrag();
-  QVariant info(long infoType) const;
+  QVariant info(int64_t infoType) const;
   const Callbacks& setCallbacks(Callbacks&& callbacks);
-  const Callbacks& setCallbacks(CallbacksPartial&& callbacks);
+  const Callbacks& setCallbacks(CallbacksPartial&& partial);
 
 protected:
   void enterEvent(QEnterEvent* event) override;

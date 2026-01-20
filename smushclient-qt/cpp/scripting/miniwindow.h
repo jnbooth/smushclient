@@ -20,7 +20,7 @@ class WorldTab;
 class MiniWindow : public QWidget
 {
 public:
-  enum class DrawImageMode : long long
+  enum class DrawImageMode : int64_t
   {
     // Copy without stretching to the destination position. The image is not
     // clipped, so only the Left and Top parameters are used - the full image is
@@ -69,7 +69,7 @@ public:
   };
   Q_DECLARE_FLAGS(Flags, Flag)
 
-  enum ButtonFrame : long long
+  enum ButtonFrame : int64_t
   {
     Raised = 5,
     Etched = 6,
@@ -86,7 +86,7 @@ public:
   };
   Q_DECLARE_FLAGS(ButtonFlags, ButtonFlag)
 
-  enum Position : long long
+  enum Position : int64_t
   {
     OutputStretch, // Stretch to output view size
     OutputScale,   // Scale to output view with aspect ratio
@@ -104,13 +104,13 @@ public:
     Tile,
   };
 
-  MiniWindow(QWidget* parent,
-             const QPoint& location,
+  MiniWindow(const QPoint& location,
              const QSize& size,
              Position position,
              Flags flags,
              const QColor& fill,
-             const std::string& pluginID = std::string());
+             std::string_view pluginID,
+             QWidget* parent = nullptr);
   Hotspot* addHotspot(std::string_view hotspotID,
                       WorldTab* tab,
                       const Plugin* plugin,
@@ -157,8 +157,8 @@ public:
   Hotspot* findHotspot(std::string_view hotspotID) const;
   constexpr const std::string& getPluginId() const noexcept { return pluginID; }
   constexpr const QPixmap& getPixmap() const noexcept { return pixmap; }
-  constexpr long long getZOrder() const noexcept { return zOrder; }
-  QVariant info(long infoType) const;
+  constexpr int64_t getZOrder() const noexcept { return zOrder; }
+  QVariant info(int64_t infoType) const;
   void invert(const QRect& rect,
               QImage::InvertMode mode = QImage::InvertMode::InvertRgb);
   void reset();
@@ -166,7 +166,7 @@ public:
                    Position position,
                    Flags flags) noexcept;
   void setSize(const QSize& size, const QColor& fill) noexcept;
-  void setZOrder(long long zOrder) noexcept;
+  void setZOrder(int64_t zOrder) noexcept;
   void updatePosition();
 
   const QFont* findFont(std::string_view fontID) const;
@@ -229,15 +229,15 @@ private:
   QColor background;
   QSize dimensions;
   QFlags<Flag> flags;
-  string_map<QFont> fonts{};
-  string_map<Hotspot*> hotspots{};
-  string_map<QPixmap> images{};
+  string_map<QFont> fonts;
+  string_map<Hotspot*> hotspots;
+  string_map<QPixmap> images;
   QDateTime installed;
   QPoint location;
   QPixmap pixmap;
   std::string pluginID;
   Position position;
-  long long zOrder;
+  int64_t zOrder = 0;
 
 private:
   class Painter : public QPainter

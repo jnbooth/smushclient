@@ -47,6 +47,7 @@ formatWindowTitle(WorldTab* tab)
 MainWindow::MainWindow(Notepads* notepads, QWidget* parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
+  , findDialog(new FindDialog(this))
   , notepads(notepads)
 {
   ui->setupUi(this);
@@ -56,7 +57,6 @@ MainWindow::MainWindow(Notepads* notepads, QWidget* parent)
     onBackgroundMaterialChanged(settings.getBackgroundMaterial());
   }
 
-  findDialog = new FindDialog(this);
   QDir::setCurrent(settings.getStartupDirectoryOrDefault());
 
   ui->action_status_bar->setChecked(settings.getShowStatusBar());
@@ -683,7 +683,6 @@ MainWindow::on_action_save_selection_triggered()
     }
   }
   QErrorMessage::qtHandler()->showMessage(file.errorString());
-  return;
 }
 
 void

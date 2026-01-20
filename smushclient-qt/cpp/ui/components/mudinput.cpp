@@ -7,7 +7,6 @@
 
 MudInput::MudInput(QWidget* parent)
   : QTextEdit(parent)
-  , history()
 {
 }
 
@@ -18,8 +17,7 @@ MudInput::MudInput(QWidget* parent, const QStringList& history)
 }
 
 MudInput::MudInput(const QStringList& history)
-  : QTextEdit()
-  , history(history)
+  : history(history)
 {
 }
 

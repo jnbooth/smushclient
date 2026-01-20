@@ -14,6 +14,7 @@ public:
   constexpr const char* data() const noexcept { return data_; }
   constexpr size_t size() const noexcept { return size_; };
 
+  // NOLINTBEGIN(google-explicit-constructor, hicpp-explicit-conversions)
   constexpr operator bool() const noexcept { return data_ != nullptr; }
   constexpr operator std::string_view() const noexcept
   {
@@ -23,6 +24,7 @@ public:
   {
     return QByteArrayView(data_, static_cast<qsizetype>(size_));
   }
+  // NOLINTEND(google-explicit-constructor, hicpp-explicit-conversions)
   explicit operator std::string() const { return std::string(data_, size_); }
   explicit operator QByteArray() const
   {

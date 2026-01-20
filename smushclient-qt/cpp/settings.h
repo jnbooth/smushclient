@@ -4,11 +4,11 @@
 #include <QtGui/QPalette>
 #include <QtGui/QTextBlockFormat>
 
-typedef struct RecentFileResult
+struct RecentFileResult
 {
-  bool changed;
+  bool changed = false;
   QStringList recentFiles;
-} RecentFileResult;
+};
 
 class Settings : public QObject
 {
@@ -143,5 +143,5 @@ public slots:
   void setWorldCloseBehavior(WorldCloseBehavior behavior);
 
 private:
-  QSettings store{};
+  QSettings store;
 };

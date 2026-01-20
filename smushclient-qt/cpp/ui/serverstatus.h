@@ -23,13 +23,13 @@ private:
   static QString translateVariable(KnownVariable variable, const QString& raw);
 
   QLabel* variableLabel(KnownVariable variable,
-                        const QString& label,
+                        const QString& text,
                         QWidget* parent = nullptr) const;
-  QLabel* variableLabel(const QString& label, QWidget* parent = nullptr) const;
+  QLabel* variableLabel(const QString& text, QWidget* parent = nullptr) const;
   QLabel* valueLabel(KnownVariable variable,
-                     const QString& value,
+                     const QString& text,
                      QWidget* parent = nullptr) const;
-  QLabel* valueLabel(const QString& value, QWidget* parent = nullptr) const;
+  QLabel* valueLabel(const QString& text, QWidget* parent = nullptr) const;
 
 private slots:
   void displayImage(QNetworkReply* reply);
@@ -37,7 +37,7 @@ private slots:
 private:
   Ui::ServerStatus* ui;
   QLabel* icon = nullptr;
-  QNetworkAccessManager downloader{};
-  QFont variableFont{};
-  QFont valueFont{};
+  QNetworkAccessManager downloader;
+  QFont variableFont;
+  QFont valueFont;
 };

@@ -24,9 +24,11 @@ PrefsConnecting::PrefsConnecting(const World& world, QWidget* parent)
   CONNECT_WORLD(SaveWorldAutomatically);
 
 #ifndef QT_NO_SSL
-  if (!QSslSocket::supportsSsl())
+  if (QSslSocket::supportsSsl()) {
+    return;
+  }
 #endif
-    ui->UseSsl->setDisabled(true);
+  ui->UseSsl->setDisabled(true);
 }
 
 PrefsConnecting::~PrefsConnecting()

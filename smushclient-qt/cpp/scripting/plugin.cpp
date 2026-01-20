@@ -198,13 +198,13 @@ Plugin::runCallbackThreaded(PluginCallback& callback) const
 }
 
 bool
-Plugin::runFile(const QString& string) const
+Plugin::runFile(const QString& path) const
 {
   if (disabled) [[unlikely]] {
     return false;
   }
 
-  if (checkError(luaL_loadfile(L, string.toUtf8().data()))) [[unlikely]] {
+  if (checkError(luaL_loadfile(L, path.toUtf8().data()))) [[unlikely]] {
     getApi(L).printError(formatCompileError(L));
     lua_pop(L, 1);
     return false;

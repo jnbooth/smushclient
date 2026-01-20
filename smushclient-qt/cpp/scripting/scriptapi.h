@@ -22,6 +22,7 @@ constexpr size_t noSuchPlugin = std::numeric_limits<size_t>::max();
 
 class ImageFilter;
 class MudScrollBar;
+class MudBrowser;
 class MudStatusBar;
 class Notepads;
 struct OutputLayout;
@@ -47,14 +48,18 @@ class ScriptApi : public QObject
   Q_OBJECT
 
 public:
-  static long GetUniqueNumber() noexcept;
+  static int64_t GetUniqueNumber() noexcept;
   static QString MakeRegularExpression(std::string_view pattern) noexcept;
   static QStringList GetAlphaOptionList() noexcept;
   static QStringList GetOptionList() noexcept;
-  static QVariant FontInfo(const QFont& font, long infoType);
+  static QVariant FontInfo(const QFont& font, int64_t infoType);
   static void SetClipboard(const QString& text);
 
-  ScriptApi(MudStatusBar* statusBar, Notepads* notepads, WorldTab* parent);
+  ScriptApi(QAbstractSocket* socket,
+            MudBrowser* output,
+            MudStatusBar* statusBar,
+            Notepads* notepads,
+            WorldTab* parent);
   ~ScriptApi() override;
 
   ApiCode AddAlias(size_t plugin,
@@ -81,9 +86,9 @@ public:
                      std::string_view scriptName,
                      SendTarget target,
                      int sequence = 100) const;
-  long BroadcastPlugin(size_t pluginIndex,
-                       long message,
-                       std::string_view text) const;
+  int64_t BroadcastPlugin(size_t pluginIndex,
+                          int64_t message,
+                          std::string_view text) const;
   void ColourTell(const QColor& foreground,
                   const QColor& background,
                   const QString& text);
@@ -126,16 +131,16 @@ public:
                           std::string_view option) const;
   VariableView GetAlphaOption(size_t plugin, std::string_view name) const;
   QVariant GetCurrentValue(size_t pluginIndex, std::string_view option) const;
-  QVariant GetInfo(long infoType) const;
-  QVariant GetLineInfo(int line, long infoType) const;
+  QVariant GetInfo(int64_t infoType) const;
+  QVariant GetLineInfo(int line, int64_t infoType) const;
   int GetLinesInBufferCount() const;
-  long GetOption(size_t plugin, std::string_view name) const;
+  int64_t GetOption(size_t plugin, std::string_view name) const;
   const std::string& GetPluginID(size_t pluginIndex) const;
-  QVariant GetPluginInfo(std::string_view pluginID, long infoType) const;
-  QVariant GetStyleInfo(int line, long style, long infoType) const;
+  QVariant GetPluginInfo(std::string_view pluginID, int64_t infoType) const;
+  QVariant GetStyleInfo(int line, int64_t style, int64_t infoType) const;
   QVariant GetTimerInfo(size_t pluginIndex,
                         std::string_view label,
-                        long infoType) const;
+                        int64_t infoType) const;
   QVariant GetTimerOption(size_t plugin,
                           std::string_view label,
                           std::string_view option) const;
@@ -199,7 +204,7 @@ public:
                          std::string_view name,
                          std::string_view value);
   ApiCode SetCursor(Qt::CursorShape cursor) const;
-  ApiCode SetOption(size_t plugin, std::string_view name, long value);
+  ApiCode SetOption(size_t plugin, std::string_view name, int64_t value);
   void SetStatus(const QString& status) const;
   ApiCode SetTimerOption(size_t plugin,
                          std::string_view label,
@@ -277,7 +282,7 @@ public:
                      QFont::StyleHint hint) const;
   QVariant WindowFontInfo(std::string_view windowName,
                           std::string_view fontID,
-                          long infoType) const;
+                          int64_t infoType) const;
   ApiCode WindowFrame(std::string_view windowName,
                       const QRectF& rect,
                       const QColor& color1,
@@ -289,11 +294,11 @@ public:
                          Qt::Orientation direction) const;
   QVariant WindowHotspotInfo(std::string_view windowName,
                              std::string_view hotspotID,
-                             long infoType) const;
+                             int64_t infoType) const;
   ApiCode WindowImageFromWindow(std::string_view windowName,
                                 std::string_view imageID,
                                 std::string_view sourceWindow) const;
-  QVariant WindowInfo(std::string_view windowName, long infoType) const;
+  QVariant WindowInfo(std::string_view windowName, int64_t infoType) const;
   ApiCode WindowInvert(std::string_view windowName, const QRect& rect) const;
   ApiCode WindowLine(std::string_view windowName,
                      const QLineF& line,
@@ -330,7 +335,7 @@ public:
   ApiCode WindowResize(std::string_view windowName,
                        const QSize& size,
                        const QColor& fill) const;
-  ApiCode WindowSetZOrder(std::string_view windowName, long long zOrder) const;
+  ApiCode WindowSetZOrder(std::string_view windowName, int64_t zOrder) const;
   ApiCode WindowShow(std::string_view windowName, bool show) const;
   qreal WindowText(std::string_view windowName,
                    std::string_view fontID,
@@ -438,35 +443,35 @@ private:
   ActionSource actionSource = ActionSource::Unknown;
   CallbackFilter callbackFilter{};
   QTextCursor cursor;
-  string_map<DatabaseConnection> databases{};
+  string_map<DatabaseConnection> databases;
   bool doNaws = false;
   bool doesNaws = false;
-  QTextCharFormat echoFormat{};
-  bool echoInput;
+  QTextCharFormat echoFormat;
+  bool echoInput = false;
   bool echoOnSameLine = false;
-  QTextCharFormat errorFormat{};
+  QTextCharFormat errorFormat;
   bool hasLine = false;
   bool indentNext = false;
-  QString indentText{};
-  QByteArray lastCommandSent{};
+  QString indentText;
+  QByteArray lastCommandSent;
   int lastTellPosition = -1;
   int lastLinePosition = -1;
   bool logNotes = false;
-  QTextCharFormat noteFormat{};
+  QTextCharFormat noteFormat;
   Notepads* notepads;
-  std::vector<Plugin> plugins{};
-  string_map<size_t> pluginIndices{};
+  std::vector<Plugin> plugins;
+  string_map<size_t> pluginIndices;
   MudScrollBar* scrollBar;
   TimerMap<SendRequest>* sendQueue;
   QAbstractSocket* socket;
   MudStatusBar* statusBar;
   bool suppressEcho = false;
   WorldTab* tab;
-  QRect assignedTextRectangle{};
-  long long totalLinesSent = 0;
-  long long totalPacketsSent = 0;
+  QRect assignedTextRectangle;
+  int64_t totalLinesSent = 0;
+  int64_t totalPacketsSent = 0;
   QDateTime whenConnected;
-  string_map<MiniWindow*> windows{};
-  QString wordUnderMenu{};
+  string_map<MiniWindow*> windows;
+  QString wordUnderMenu;
   size_t worldScriptIndex = noSuchPlugin;
 };

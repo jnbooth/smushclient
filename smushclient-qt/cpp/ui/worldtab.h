@@ -59,10 +59,10 @@ public:
   void editWorldScript();
   constexpr bool hasWorldScript() const { return !worldScriptPath.isEmpty(); }
   constexpr bool isActive() const { return active; }
-  bool importWorld(const QString& filePath) &;
+  bool importWorld(const QString& filename) &;
   bool isConnected() const;
   void openLog();
-  bool openWorld(const QString& filePath) &;
+  bool openWorld(const QString& filename) &;
   bool openWorldSettings();
   bool promptSave();
   void reloadWorldScript() const;
@@ -79,11 +79,11 @@ public:
   void setStatusBarVisible(bool visible);
   ApiCode setWorldOption(size_t pluginIndex,
                          std::string_view name,
-                         long long value);
+                         int64_t value);
   ApiCode setWorldAlphaOption(size_t pluginIndex,
                               std::string_view name,
                               std::string_view value);
-  void simulateOutput(std::string_view line) const;
+  void simulateOutput(std::string_view output) const;
   void start();
   void stopSound() const;
   constexpr const QString& title() const noexcept { return worldName; };
@@ -161,7 +161,7 @@ private:
   ScriptApi* api;
   QMetaObject::Connection autoScroll;
   Document* document;
-  QString filePath{};
+  QString filePath;
   QTimer* flushTimer;
   bool handleKeypad = false;
   Hotkeys hotkeys{};
@@ -176,7 +176,7 @@ private:
   ScriptRecompile scriptReloadOption = ScriptRecompile::Never;
   int sessionStartBlock = 0;
   QChar splitOn{ u'\n' };
-  QString worldName{};
-  QString worldScriptPath{};
+  QString worldName;
+  QString worldScriptPath;
   QFileSystemWatcher worldScriptWatcher;
 };

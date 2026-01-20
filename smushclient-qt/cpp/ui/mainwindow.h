@@ -106,7 +106,7 @@ private:
   FindDialog* findDialog;
   int lastTabIndex = -1;
   Notepads* notepads;
-  QList<QAction*> recentFileActions{};
-  Settings settings{};
-  QMetaObject::Connection socketConnection{};
+  QList<QAction*> recentFileActions;
+  Settings settings;
+  QMetaObject::Connection socketConnection;
 };

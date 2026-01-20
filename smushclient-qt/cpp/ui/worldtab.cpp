@@ -63,23 +63,24 @@ showRustError(const rust::Error& e)
 WorldTab::WorldTab(MudStatusBar* statusBar, Notepads* notepads, QWidget* parent)
   : QSplitter(parent)
   , ui(new Ui::WorldTab)
-  , client()
+#ifdef QT_NO_SSL
+  , socket(new QTcpSocket(this))
+#else
+  , socket(new QSslSocket(this))
+#endif
+  , flushTimer(new QTimer(this))
+  , resizeTimer(new QTimer(this))
   , worldScriptWatcher(this)
 {
-  flushTimer = new QTimer(this);
-  flushTimer->setInterval(milliseconds{ 2000 });
-  flushTimer->setSingleShot(true);
-  connect(flushTimer, &QTimer::timeout, this, &WorldTab::flushOutput);
-  resizeTimer = new QTimer(this);
-  resizeTimer->setInterval(milliseconds{ 1000 });
-  resizeTimer->setSingleShot(true);
-  connect(resizeTimer, &QTimer::timeout, this, &WorldTab::finishResize);
   ui->setupUi(this);
-  ui->input->setFocus();
-#ifdef QT_NO_SSL
-  socket = new QTcpSocket(this);
-#else
-  socket = new QSslSocket(this);
+  // NOLINTBEGIN(cppcoreguidelines-prefer-member-initializer,
+  // cppcoreguidelines-prefer-member-initializer)
+  api = new ScriptApi(socket, ui->output, statusBar, notepads, this);
+  document = new Document(ui->output, api, this);
+  // NOLINTEND(cppcoreguidelines-prefer-member-initializer,
+  // cppcoreguidelines-prefer-member-initializer)
+
+#ifndef QT_NO_SSL
   connect(socket, &QSslSocket::readyRead, this, &WorldTab::readFromSocket);
   connect(socket, &QSslSocket::connected, this, &WorldTab::onSocketConnect);
   connect(
@@ -87,8 +88,14 @@ WorldTab::WorldTab(MudStatusBar* statusBar, Notepads* notepads, QWidget* parent)
   connect(socket, &QSslSocket::encrypted, this, &WorldTab::onSocketConnect);
   connect(socket, &QSslSocket::errorOccurred, this, &WorldTab::onSocketError);
 #endif
-  api = new ScriptApi(statusBar, notepads, this);
-  document = new Document(this, api);
+
+  flushTimer->setInterval(milliseconds{ 2000 });
+  flushTimer->setSingleShot(true);
+  connect(flushTimer, &QTimer::timeout, this, &WorldTab::flushOutput);
+
+  resizeTimer->setInterval(milliseconds{ 1000 });
+  resizeTimer->setSingleShot(true);
+  connect(resizeTimer, &QTimer::timeout, this, &WorldTab::finishResize);
   connect(ui->output,
           &MudBrowser::aliasMenuRequested,
           this,
@@ -98,6 +105,8 @@ WorldTab::WorldTab(MudStatusBar* statusBar, Notepads* notepads, QWidget* parent)
           &QFileSystemWatcher::fileChanged,
           this,
           &WorldTab::confirmReloadWorldScript);
+
+  ui->input->setFocus();
 
   const Settings settings;
   ui->input->setPalette(settings.getInputPalette());
@@ -341,11 +350,7 @@ WorldTab::saveWorldAsNew()
     QStringLiteral(WORLDS_DIR) + QDir::separator() + worldName,
     FileFilter::world());
 
-  if (path.isEmpty()) {
-    return path;
-  }
-
-  if (!saveWorldAndState(path)) {
+  if (path.isEmpty() || !saveWorldAndState(path)) {
     return QString();
   }
 
@@ -387,7 +392,7 @@ WorldTab::setStatusBarVisible(bool visible)
 }
 
 ApiCode
-WorldTab::setWorldOption(size_t pluginIndex, string_view name, long long value)
+WorldTab::setWorldOption(size_t pluginIndex, string_view name, int64_t value)
 {
   const ApiCode result =
     client.setWorldOption(pluginIndex, bytes::slice(name), value);
@@ -539,13 +544,13 @@ WorldTab::closeEvent(QCloseEvent* event)
 }
 
 void
-WorldTab::leaveEvent(QEvent*)
+WorldTab::leaveEvent(QEvent* /*event*/)
 {
   finishDrag();
 }
 
 void
-WorldTab::mouseMoveEvent(QMouseEvent*)
+WorldTab::mouseMoveEvent(QMouseEvent* /*event*/)
 {
   if (onDragMove) [[unlikely]] {
     onDragMove->trigger();
@@ -570,7 +575,7 @@ WorldTab::keyPressEvent(QKeyEvent* event)
 }
 
 void
-WorldTab::mouseReleaseEvent(QMouseEvent*)
+WorldTab::mouseReleaseEvent(QMouseEvent* /*event*/)
 {
   finishDrag();
 }
@@ -880,7 +885,7 @@ WorldTab::onAliasMenuRequested(const QString& word)
 }
 
 void
-WorldTab::onAutoScroll(int, int max) const
+WorldTab::onAutoScroll(int /*min*/, int max) const
 {
   ui->output->verticalScrollBar()->setValue(max);
 }

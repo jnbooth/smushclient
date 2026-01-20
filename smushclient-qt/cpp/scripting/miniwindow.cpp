@@ -5,7 +5,10 @@
 #include <QtGui/QPainter>
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QMenu>
+#include <algorithm>
+#include <ranges>
 
+using std::span;
 using std::string;
 using std::string_view;
 using std::vector;
@@ -22,8 +25,9 @@ isNotSpace(char c)
 inline void
 trim(string& s)
 {
-  s.erase(s.begin(), std::find_if(s.begin(), s.end(), isNotSpace));
-  s.erase(std::find_if(s.rbegin(), s.rend(), isNotSpace).base(), s.end());
+  s.erase(s.begin(), std::ranges::find_if(s, isNotSpace));
+  s.erase(std::ranges::find_if(std::ranges::reverse_view(s), isNotSpace).base(),
+          s.end());
 }
 
 inline bool
@@ -52,7 +56,7 @@ buildMenu(QMenu* menu, string_view text)
     const char first = item.front();
     if (first == '>') // nested menu
     {
-      const QString menuTitle = QString::fromUtf8(std::span(item).subspan(1));
+      const QString menuTitle = QString::fromUtf8(span(item).subspan(1));
       menus.push_back(menus.back()->addMenu(menuTitle));
       continue;
     }
@@ -82,7 +86,7 @@ buildMenu(QMenu* menu, string_view text)
       }
       break;
     }
-    action->setText(QString::fromUtf8(std::span(item).subspan(offset)));
+    action->setText(QString::fromUtf8(span(item).subspan(offset)));
     buildingMenu->addAction(action);
   }
   return returnsNumber;
@@ -202,13 +206,13 @@ MiniWindow::Painter::~Painter()
 
 // Public methods
 
-MiniWindow::MiniWindow(QWidget* parent,
-                       const QPoint& location,
+MiniWindow::MiniWindow(const QPoint& location,
                        const QSize& size,
                        Position position,
                        Flags flags,
                        const QColor& fill,
-                       const std::string& pluginID)
+                       string_view pluginID,
+                       QWidget* parent)
   : QWidget(parent)
   , background(fill)
   , dimensions(size)
@@ -250,7 +254,7 @@ MiniWindow::addHotspot(string_view hotspotID,
   }
 
   Hotspot* hotspot = hotspots[string(hotspotID)] =
-    new Hotspot(this, tab, plugin, hotspotID, std::move(callbacks));
+    new Hotspot(tab, plugin, hotspotID, std::move(callbacks), this);
   if (neighbor != nullptr) {
     hotspot->stackUnder(neighbor);
   }
@@ -451,11 +455,11 @@ MiniWindow::drawText(const QFont& font,
 }
 
 QVariant
-MiniWindow::execMenu(const QPoint& at, string_view menuString)
+MiniWindow::execMenu(const QPoint& location, string_view menuString)
 {
   QMenu menu(this);
   const bool returnsNumber = buildMenu(&menu, menuString);
-  const QAction* choice = menu.exec(mapToGlobal(at));
+  const QAction* choice = menu.exec(mapToGlobal(location));
   if (choice == nullptr) {
     return QStringLiteral("");
   }
@@ -529,7 +533,7 @@ MiniWindow::setSize(const QSize& size, const QColor& fill) noexcept
 }
 
 void
-MiniWindow::setZOrder(long long order) noexcept
+MiniWindow::setZOrder(int64_t order) noexcept
 {
   zOrder = order;
 }

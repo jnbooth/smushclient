@@ -30,6 +30,6 @@ protected:
   void paintEvent(QPaintEvent* event) override;
 
 private:
-  QColor currentValue{};
+  QColor currentValue;
   bool alphaEnabled = true;
 };

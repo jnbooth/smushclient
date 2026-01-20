@@ -154,7 +154,7 @@ PluginModel::flags(const QModelIndex& index) const
 }
 
 bool
-PluginModel::hasChildren(const QModelIndex&) const
+PluginModel::hasChildren(const QModelIndex& /*index*/) const
 {
   return false;
 }
@@ -173,12 +173,11 @@ PluginModel::headerData(int section,
     tr("Path"), tr("Enabled"), tr("Version")
   };
 
-  switch (role) {
-    case Qt::DisplayRole:
-      return headers[section];
-    default:
-      return QVariant();
+  if (role == Qt::DisplayRole) {
+    return headers.at(section);
   }
+
+  return QVariant();
 }
 
 QModelIndex
@@ -206,7 +205,7 @@ PluginModel::itemData(const QModelIndex& index) const
 }
 
 QModelIndex
-PluginModel::parent(const QModelIndex&) const
+PluginModel::parent(const QModelIndex& /*index*/) const
 {
   return QModelIndex();
 }

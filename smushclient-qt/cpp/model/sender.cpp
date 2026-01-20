@@ -43,9 +43,10 @@ AbstractSenderModel::AbstractSenderModel(SmushClient& client,
                                          QObject* parent)
   : QAbstractItemModel(parent)
   , client(client)
+  , map(new SenderMap(type))
   , needsRefresh(new bool(true))
 {
-  map = new SenderMap(type);
+
   map->setParent(this);
 }
 
@@ -238,12 +239,10 @@ AbstractSenderModel::headerData(int section,
     return QVariant();
   }
 
-  switch (role) {
-    case Qt::DisplayRole:
-      return headers()[section];
-    default:
-      return QVariant();
+  if (role == Qt::DisplayRole) {
+    return headers().at(section);
   }
+  return QVariant();
 }
 
 QModelIndex
@@ -375,12 +374,6 @@ AbstractSenderModel::setData(const QModelIndex& index,
   emit layoutChanged({},
                      QAbstractItemModel::LayoutChangeHint::VerticalSortHint);
   return true;
-}
-
-// Protected methods
-void
-AbstractSenderModel::prepareRemove(SenderMap*, const rust::String&, int, int)
-{
 }
 
 // Private methods

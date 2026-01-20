@@ -3,9 +3,9 @@
 #include "../scripting/qlua.h"
 #include "../scripting/scriptapi.h"
 #include "../settings.h"
+#include "../ui/components/mudbrowser.h"
 #include "../ui/components/mudscrollbar.h"
 #include "../ui/mudstatusbar/mudstatusbar.h"
-#include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
 #include "smushclient_qt/src/ffi/document.cxxqt.h"
 #include <QtGui/QAbstractTextDocumentLayout>
@@ -38,11 +38,11 @@ strView(rust::Str str) noexcept
 
 // Public methods
 
-Document::Document(WorldTab* parent, ScriptApi* api)
+Document::Document(MudBrowser* output, ScriptApi* api, QObject* parent)
   : QObject(parent)
   , api(api)
-  , doc(parent->ui->output->document())
-  , scrollBar(parent->ui->output->verticalScrollBar())
+  , doc(output->document())
+  , scrollBar(output->verticalScrollBar())
 {
   expireLinkFormat.setAnchor(false);
   expireLinkFormat.setAnchorHref(QString());

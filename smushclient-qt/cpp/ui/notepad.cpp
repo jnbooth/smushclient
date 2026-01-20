@@ -163,7 +163,6 @@ Notepad::on_action_save_selection_triggered()
     }
   }
   QErrorMessage::qtHandler()->showMessage(file.errorString());
-  return;
 }
 
 void

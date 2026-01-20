@@ -265,6 +265,7 @@ L_split(lua_State* L)
   lua_newtable(L);
   const lua_Integer max = count == 0 ? INT_MAX : count;
 
+  // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const char* endPtr = input + inputLength;
   const char* sepPtr;
   lua_Integer i = 1;
@@ -280,6 +281,7 @@ L_split(lua_State* L)
     lua_rawseti(L, -2, i);
   }
   return 1;
+  // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 }
 
 static const struct luaL_Reg utilslib[] = {
@@ -292,10 +294,7 @@ static const struct luaL_Reg utilslib[] = {
   { "listbox", L_listbox },
   { "multilistbox", L_multilistbox },
   { "split", L_split },
-
-  { NULL, NULL }, // for base64.decode
-  { NULL, NULL }, // for base64.encode
-  { NULL, NULL }
+  { nullptr, nullptr }
 };
 
 int

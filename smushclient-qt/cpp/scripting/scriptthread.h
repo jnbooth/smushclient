@@ -11,6 +11,7 @@ public:
 
   ScriptThread(const ScriptThread&) = delete;
   ScriptThread& operator=(const ScriptThread&) = delete;
+  ScriptThread& operator=(ScriptThread&&) = delete;
 
   constexpr lua_State* state() const noexcept { return L; }
 

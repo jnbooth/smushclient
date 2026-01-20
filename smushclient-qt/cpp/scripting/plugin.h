@@ -28,6 +28,7 @@ public:
 
   Plugin(const Plugin&) = delete;
   Plugin& operator=(const Plugin&) = delete;
+  Plugin& operator=(Plugin&&) = delete;
 
   void disable();
   void enable();

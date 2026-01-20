@@ -11,16 +11,15 @@ using std::string_view;
 
 // Abstract
 
-DynamicPluginCallback::DynamicPluginCallback(const QString& routine)
-  : property()
+DynamicPluginCallback::DynamicPluginCallback(const QString& callback)
 {
-  const qsizetype n = routine.indexOf(u'.');
+  const qsizetype n = callback.indexOf(u'.');
   if (n == -1) {
-    name = routine.toStdString();
+    name = callback.toStdString();
     return;
   }
-  name = routine.first(n).toStdString();
-  property = routine.sliced(n + 1).toStdString();
+  name = callback.first(n).toStdString();
+  property = callback.sliced(n + 1).toStdString();
 }
 
 bool

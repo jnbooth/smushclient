@@ -4,11 +4,11 @@
 #include <QtGui/QFontDatabase>
 
 // clang-format off
-template <typename T> struct SettingInput    { typedef T Type; };
-template <> struct SettingInput<QColor>      { typedef const QColor &Type; };
-template <> struct SettingInput<QFont>       { typedef const QFont &Type; };
-template <> struct SettingInput<QString>     { typedef const QString &Type; };
-template <> struct SettingInput<QStringList> { typedef const QStringList &Type; };
+template <typename T> struct SettingInput    { using Type = T; };
+template <> struct SettingInput<QColor>      { using Type = const QColor &; };
+template <> struct SettingInput<QFont>       { using Type = const QFont &; };
+template <> struct SettingInput<QString>     { using Type = const QString &; };
+template <> struct SettingInput<QStringList> { using Type = const QStringList &; };
 // clang-format on
 
 #define SETTING(NAME, T, DEFAULT, KEY)                                         \
@@ -20,7 +20,7 @@ template <> struct SettingInput<QStringList> { typedef const QStringList &Type; 
   T Settings::get##NAME() const                                                \
   {                                                                            \
     return store.contains(key##NAME) ? store.value(key##NAME).value<T>()       \
-                                     : DEFAULT;                                \
+                                     : (DEFAULT);                              \
   }
 
 #define SETTING_ENUM(NAME, T, DEFAULT, KEY)                                    \
@@ -32,7 +32,7 @@ template <> struct SettingInput<QStringList> { typedef const QStringList &Type; 
   T Settings::get##NAME() const                                                \
   {                                                                            \
     return store.contains(key##NAME) ? (T)store.value(key##NAME).value<T>()    \
-                                     : DEFAULT;                                \
+                                     : (DEFAULT);                              \
   }
 
 // Private utils

@@ -25,16 +25,17 @@ WorldPrefs::WorldPrefs(World& world,
                        QWidget* parent)
   : QDialog(parent)
   , ui(new Ui::WorldPrefs)
+  , aliases(new AliasModel(client, this))
   , api(api)
   , client(client)
+  , plugins(new PluginModel(client, this))
+  , timers(new TimerModel(client, api->timekeeper, this))
+  , triggers(new TriggerModel(client, this))
   , world(world)
 {
   ui->setupUi(this);
   ui->settings_list->setCurrentRow(0);
-  aliases = new AliasModel(client, this);
-  plugins = new PluginModel(client, this);
-  timers = new TimerModel(client, api->timekeeper, this);
-  triggers = new TriggerModel(client, this);
+
   connectModel(aliases);
   connectModel(plugins);
   connectModel(timers);
@@ -59,9 +60,9 @@ WorldPrefs::connectModel(QAbstractItemModel* model) const
 }
 
 QWidget*
-WorldPrefs::paneForIndex(int n)
+WorldPrefs::paneForIndex(int row)
 {
-  switch (n) {
+  switch (row) {
     case 0:
       return new PrefsConnecting(world, this);
     case 1:

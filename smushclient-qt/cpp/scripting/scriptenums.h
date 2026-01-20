@@ -38,7 +38,7 @@ enum class ActionSource
   Hotspot,         // Hotspot callback
 };
 
-enum class CircleOp : long long
+enum class CircleOp : int64_t
 {
   Ellipse = 1,
   Rectangle,
@@ -47,7 +47,7 @@ enum class CircleOp : long long
   Pie,
 };
 
-enum FontPitchFlag : long long
+enum FontPitchFlag : int64_t
 {
   Default = 0,
   Fixed = 1,
@@ -55,7 +55,7 @@ enum FontPitchFlag : long long
   Monospace = 8
 };
 
-enum FontFamilyFlag : long long
+enum FontFamilyFlag : int64_t
 {
   AnyFamily = 0,
   Roman = 16,
@@ -65,21 +65,21 @@ enum FontFamilyFlag : long long
   Decorative = 80,
 };
 
-enum class ImageOp : long long
+enum class ImageOp : int64_t
 {
   Ellipse = 1,
   Rectangle,
   RoundedRectangle,
 };
 
-enum class OperatingSystem : long long
+enum class OperatingSystem : int64_t
 {
   Windows = 2,
   MacOS = 100,
   Linux = 200,
 };
 
-enum PenStyleFlag : long long
+enum PenStyleFlag : int64_t
 {
   SolidLine = 0,
   DashLine = 1,
@@ -90,21 +90,21 @@ enum PenStyleFlag : long long
   InsideFrame = 6,
 };
 
-enum PenCapFlag : long long
+enum PenCapFlag : int64_t
 {
   RoundCap = 0x000,
   SquareCap = 0x100,
   FlatCap = 0x200,
 };
 
-enum PenJoinFlag : long long
+enum PenJoinFlag : int64_t
 {
   RoundJoin = 0x0000,
   BevelJoin = 0x1000,
   MiterJoin = 0x2000,
 };
 
-enum class RectOp : long long
+enum class RectOp : int64_t
 {
   Frame = 1, // Frame by a single pixel wide line
   Fill,      // Fill the entire rectangle
@@ -125,7 +125,7 @@ enum class RectOp : long long
   FloodFillSurface,
 };
 
-enum class ScriptBrush : long long
+enum class ScriptBrush : int64_t
 {
   SolidPattern,
   NoBrush,
@@ -142,7 +142,7 @@ enum class ScriptBrush : long long
   VerWaves,
 };
 
-enum class ScriptCursor : long long
+enum class ScriptCursor : int64_t
 {
   BlankCursor = -1,
   ArrowCursor,

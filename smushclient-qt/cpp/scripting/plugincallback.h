@@ -9,9 +9,9 @@ enum class CommandSource : uint8_t;
 class PluginCallbackKey
 {
 public:
+  // NOLINTBEGIN(google-explicit-constructor, hicpp-explicit-conversions)
   constexpr PluginCallbackKey(std::string_view routine) noexcept
     : name(routine)
-    , property()
   {
     const size_t n = routine.find('.');
     if (n == std::string_view::npos) {
@@ -36,6 +36,7 @@ public:
     : PluginCallbackKey(std::string_view(routine.data(), routine.length()))
   {
   }
+  // NOLINTEND(google-explicit-constructor, hicpp-explicit-conversions)
 
 public:
   std::string_view name;
@@ -50,10 +51,10 @@ commandAction(CommandSource source) noexcept
 }
 
 #define CALLBACK(idNumber, nameString, sourceAction)                           \
-  static const uint ID = 1 << idNumber;                                        \
+  static const uint ID = 1 << (idNumber);                                      \
   inline constexpr uint id() const noexcept override                           \
   {                                                                            \
-    return 1 << idNumber;                                                      \
+    return 1 << (idNumber);                                                    \
   }                                                                            \
   inline constexpr const char* name() const noexcept override                  \
   {                                                                            \
@@ -74,9 +75,9 @@ public:
   virtual uint id() const noexcept = 0;
   virtual ActionSource source() const noexcept = 0;
   virtual int expectedSize() const noexcept { return 0; }
-  virtual int pushArguments(lua_State*) const { return 0; }
+  virtual int pushArguments(lua_State* /*L*/) const { return 0; }
   virtual bool findCallback(lua_State* L) const = 0;
-  virtual void collectReturned(lua_State*) {}
+  virtual void collectReturned(lua_State* /*L*/) {}
 };
 
 class DynamicPluginCallback : public PluginCallback
@@ -109,15 +110,12 @@ class DiscardCallback : public NamedPluginCallback
 {
 public:
   constexpr int expectedSize() const noexcept override { return 1; }
-  constexpr DiscardCallback()
-    : processing(true)
-  {
-  }
+  constexpr DiscardCallback() = default;
   void collectReturned(lua_State* L) override;
   constexpr bool discarded() const { return !processing; }
 
 private:
-  bool processing;
+  bool processing = true;
 };
 
 class ModifyTextCallback : public NamedPluginCallback
@@ -141,7 +139,7 @@ class OnPluginBroadcast : public NamedPluginCallback
 {
 public:
   CALLBACK(0, "OnPluginBroadcast", ActionSource::Unknown)
-  constexpr OnPluginBroadcast(long message,
+  constexpr OnPluginBroadcast(int64_t message,
                               std::string_view pluginID,
                               std::string_view pluginName,
                               std::string_view text)
@@ -154,7 +152,7 @@ public:
   int pushArguments(lua_State* L) const override;
 
 private:
-  long message;
+  int64_t message;
   std::string_view pluginID;
   std::string_view pluginName;
   std::string_view text;
@@ -165,8 +163,7 @@ class OnPluginCommand : public DiscardCallback
 public:
   CALLBACK(1, "OnPluginCommand", commandAction(commandSource))
   constexpr OnPluginCommand(CommandSource commandSource, const QByteArray* text)
-    : DiscardCallback()
-    , commandSource(commandSource)
+    : commandSource(commandSource)
     , text(text)
   {
   }
@@ -239,8 +236,7 @@ class OnPluginLineReceived : public DiscardCallback
 public:
   CALLBACK(10, "OnPluginLineReceived", ActionSource::InputFromServer)
   constexpr explicit OnPluginLineReceived(std::string_view line)
-    : DiscardCallback()
-    , line(line)
+    : line(line)
   {
   }
   int pushArguments(lua_State* L) const override;
@@ -315,8 +311,7 @@ class OnPluginSend : public DiscardCallback
 public:
   CALLBACK(18, "OnPluginSend", ActionSource::Unknown)
   constexpr explicit OnPluginSend(const QByteArray* text)
-    : DiscardCallback()
-    , text(text)
+    : text(text)
   {
   }
   int pushArguments(lua_State* L) const override;

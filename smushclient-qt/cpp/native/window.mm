@@ -7,7 +7,7 @@
 #include <objc/message.h>
 #include <objc/runtime.h>
 
-static char kBackgroundKey;
+static char kBackgroundKey; // NOLINT
 
 #define RUN_ON_MAIN(block)                                                     \
   if ([NSThread isMainThread]) {                                               \
@@ -19,7 +19,7 @@ static char kBackgroundKey;
 extern "C" SetBackgroundMaterialResult
 SetEffectViewBackground(void* nativeViewPtr, int materialIndex)
 {
-  static const NSVisualEffectMaterial materials[14]{
+  static const std::array<NSVisualEffectMaterial, 14> materials{
     NSVisualEffectMaterialTitlebar,
     NSVisualEffectMaterialSelection,
     NSVisualEffectMaterialMenu,
@@ -38,7 +38,7 @@ SetEffectViewBackground(void* nativeViewPtr, int materialIndex)
   if (materialIndex < 0 || materialIndex >= 14) {
     return SetBackgroundMaterialResult::InvalidMaterial;
   }
-  const NSVisualEffectMaterial material = materials[materialIndex];
+  const NSVisualEffectMaterial material = materials.at(materialIndex);
 
   __block SetBackgroundMaterialResult result =
     SetBackgroundMaterialResult::PassedNullPointer;

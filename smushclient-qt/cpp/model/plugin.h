@@ -19,7 +19,10 @@ public:
   }
   bool reinstall(const QModelIndex& index);
 
-  int columnCount(const QModelIndex&) const override { return numColumns; }
+  int columnCount(const QModelIndex& /*index*/) const override
+  {
+    return numColumns;
+  }
   QVariant data(const QModelIndex& index, int role) const override;
   Qt::ItemFlags flags(const QModelIndex& index) const override;
   bool hasChildren(const QModelIndex& index) const override;

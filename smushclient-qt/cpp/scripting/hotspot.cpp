@@ -72,11 +72,11 @@ getEventFlags()
 
 // Public methods
 
-Hotspot::Hotspot(MiniWindow* parent,
-                 WorldTab* tab,
+Hotspot::Hotspot(WorldTab* tab,
                  const Plugin* plugin,
                  string_view id,
-                 Callbacks&& callbacksMoved)
+                 Callbacks&& callbacksMoved,
+                 QWidget* parent)
   : QWidget(parent)
   , callbacks(std::move(callbacksMoved))
   , id(id)

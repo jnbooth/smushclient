@@ -1,0 +1,89 @@
+Hover:
+  ShowAKA: true
+Diagnostics:
+  ClangTidy:
+    Add:
+      - bugprone-*
+      - cppcoreguidelines-*
+      - cppcoreguidelines-*
+      - google-*
+      - hicpp-*
+      - llvm-*
+      - misc-*
+      - modernize-*
+      - obcj-*
+      - performance-*
+      - readability-*
+    Remove:
+      # Faulty checks
+      - cppcoreguidelines-avoid-magic-numbers # Breaks switch statements
+      - hicpp-signed-bitwise # Shouldn't exist
+      - readability-magic-numbers # Breaks switch statements
+      # Incompatible with Qt
+      - cppcoreguidelines-owning-memory # Qt has its own memory model
+      - readability-redundant-access-specifiers # Declaration of slots
+      # Not useful
+      - bugprone-easily-swappable-parameters
+      - cppcoreguidelines-macro-usage
+      - misc-no-recursion
+      - readability-function-cognitive-complexity
+      - readability-isolate-declaration
+      - readability-suspicious-call-argument
+      # Differing style
+      - google-objc-function-naming
+      - hicpp-use-auto
+      - modernize-return-braced-init-list
+      - modernize-use-auto
+      - modernize-use-nodiscard
+      - modernize-use-trailing-return-type
+      # Too many false positives
+      - cppcoreguidelines-init-variables # Especially in Lua
+      - cppcoreguidelines-non-private-member-variables-in-classes
+      - cppcoreguidelines-pro-type-reinterpret-cast # Needed for interop
+      - misc-non-private-member-variables-in-classes
+      - performance-enum-size
+      - readability-identifier-length
+      # Subjective
+      - bugprone-assignment-in-if-condition
+      - bugprone-inc-dec-in-conditions
+      - readability-avoid-nested-conditional-operator
+      - readability-math-missing-parentheses
+    CheckOptions:
+      cppcoreguidelines-rvalue-reference-param-not-moved.AllowPartialMove: true
+      cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: true
+      hicpp-special-member-functions.AllowSoleDefaultDtor: true
+  UnusedIncludes: Strict
+  Includes:
+    IgnoreHeader:
+      - include/lua\.h
+      - \.cxx\.h
+      - \.cxxqt\.h
+---
+If:
+  PathMatch:
+    - smushclient-qt/.*
+CompileFlags:
+  CompilationDatabase: smushclient-qt/build/Debug
+---
+If:
+  PathMatch:
+    - smushclient-qt/.*/scripting/lua/.*\.cpp
+Diagnostics:
+  ClangTidy:
+    Remove:
+      - cppcoreguidelines-avoid-c-arrays
+      - cppcoreguidelines-avoid-non-const-global-variables
+      - cppcoreguidelines-pro-bounds-array-to-pointer-decay
+      - hicpp-avoid-c-arrays
+      - hicpp-no-array-decay
+      - misc-use-anonymous-namespace
+      - modernize-avoid-c-arrays
+      - modernize-use-designated-initializers
+---
+If:
+  PathMatch:
+    - smushclient-qt/.*/native/.*
+Diagnostics:
+  ClangTidy:
+    Remove:
+      - performance-no-int-to-ptr

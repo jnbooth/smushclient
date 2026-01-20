@@ -24,20 +24,22 @@ using std::chrono::seconds;
 
 // Public methods
 
-ScriptApi::ScriptApi(MudStatusBar* statusBar,
+ScriptApi::ScriptApi(QAbstractSocket* socket,
+                     MudBrowser* output,
+                     MudStatusBar* statusBar,
                      Notepads* notepads,
                      WorldTab* parent)
   : QObject(parent)
-  , cursor(parent->ui->output->document())
+  , timekeeper(new Timekeeper(this))
+  , cursor(output->document())
   , notepads(notepads)
-  , scrollBar(parent->ui->output->verticalScrollBar())
-  , socket(parent->socket)
+  , scrollBar(output->verticalScrollBar())
+  , sendQueue(new TimerMap<SendRequest>(this, &ScriptApi::finishQueuedSend))
+  , socket(socket)
   , statusBar(statusBar)
   , tab(parent)
   , whenConnected(QDateTime::currentDateTime())
 {
-  sendQueue = new TimerMap<SendRequest>(this, &ScriptApi::finishQueuedSend);
-  timekeeper = new Timekeeper(this);
   timekeeper->beginPolling(milliseconds(seconds{ 60 }));
   setLineType(echoFormat, LineType::Input);
   setLineType(noteFormat, LineType::Note);
@@ -194,7 +196,6 @@ ScriptApi::handleSendRequest(const SendRequest& request)
       notepads->pad(request.destination)->setPlainText(request.text);
       return;
     case SendTarget::Log:
-      return;
     case SendTarget::Variable:
       return;
     case SendTarget::Script:
@@ -285,9 +286,9 @@ ScriptApi::reinstallPlugin(size_t index)
 }
 
 void
-ScriptApi::printError(const QString& error)
+ScriptApi::printError(const QString& message)
 {
-  appendText(error, errorFormat);
+  appendText(message, errorFormat);
   startLine();
 }
 
@@ -353,17 +354,17 @@ ScriptApi::sendCallback(PluginCallback& callback)
 }
 
 bool
-ScriptApi::sendCallback(PluginCallback& callback, size_t index)
+ScriptApi::sendCallback(PluginCallback& callback, size_t plugin)
 {
   const ActionSource callbackSource = callback.source();
 
   if (callbackSource == ActionSource::Unknown) {
-    return plugins[index].runCallback(callback);
+    return plugins[plugin].runCallback(callback);
   }
 
   const ActionSource initialSource = actionSource;
   actionSource = callbackSource;
-  const bool succeeded = plugins[index].runCallback(callback);
+  const bool succeeded = plugins[plugin].runCallback(callback);
   actionSource = initialSource;
   return succeeded;
 }
@@ -425,7 +426,7 @@ ScriptApi::setSuppressEcho(bool suppress) noexcept
 
 struct WindowCompare
 {
-  long long zOrder;
+  int64_t zOrder = 0;
   string_view name;
   std::strong_ordering operator<=>(const WindowCompare&) const = default;
 };
@@ -434,7 +435,8 @@ void
 ScriptApi::stackWindow(string_view windowName, MiniWindow* window) const
 {
   const bool drawsUnderneath = window->drawsUnderneath();
-  const WindowCompare compare{ -window->getZOrder(), windowName };
+  const WindowCompare compare{ .zOrder = -window->getZOrder(),
+                               .name = windowName };
   MiniWindow* neighbor = nullptr;
   WindowCompare neighborCompare;
 
@@ -443,7 +445,8 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow* window) const
         entry.second->drawsUnderneath() != drawsUnderneath) {
       continue;
     }
-    WindowCompare entryCompare{ entry.second->getZOrder(), entry.first };
+    WindowCompare entryCompare{ .zOrder = entry.second->getZOrder(),
+                                .name = entry.first };
     if (entryCompare > compare &&
         ((neighbor == nullptr) || entryCompare < neighborCompare)) {
       neighbor = entry.second;

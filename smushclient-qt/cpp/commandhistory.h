@@ -13,8 +13,11 @@ public:
                           qsizetype max = SSIZE_MAX);
   CommandHistory(CommandHistory&& other) noexcept;
   CommandHistory(const CommandHistory& other);
+  ~CommandHistory() = default;
+
   CommandHistory& operator=(const CommandHistory& other);
-  CommandHistory& operator=(const QStringList& history);
+  CommandHistory& operator=(const QStringList& other);
+  CommandHistory& operator=(CommandHistory&&) = delete;
 
   void clear();
   void pop() noexcept;
@@ -24,17 +27,17 @@ public:
 
   constexpr const QString& previous() noexcept
   {
-    return iterator == begin ? __emptyString : *--iterator;
+    return iterator == begin ? _emptyString : *--iterator;
   }
 
   constexpr const QString& current() const noexcept
   {
-    return iterator == end ? __emptyString : *iterator;
+    return iterator == end ? _emptyString : *iterator;
   }
 
   constexpr const QString& next() noexcept
   {
-    return iterator == end || (++iterator == end) ? __emptyString : *iterator;
+    return iterator == end || (++iterator == end) ? _emptyString : *iterator;
   }
 
   constexpr bool atStart() const noexcept { return iterator == begin; }
@@ -57,7 +60,7 @@ private:
   void resetIterators() noexcept;
 
 private:
-  static const QString __emptyString;
+  static const QString _emptyString;
   QStringList history;
   qsizetype max;
   QStringList::const_iterator begin;

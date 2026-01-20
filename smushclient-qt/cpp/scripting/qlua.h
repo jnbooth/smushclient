@@ -94,7 +94,7 @@ getFlags(lua_State* L, int idx, QFlags<T> ifNil)
 QString
 getQString(lua_State* L, int idx);
 QString
-getQString(lua_State* L, int idx, QString ifNil);
+getQString(lua_State* L, int idx, const QString& ifNil);
 
 QVariant
 getQVariant(lua_State* L, int idx, int type);

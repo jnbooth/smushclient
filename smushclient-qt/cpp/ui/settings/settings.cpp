@@ -16,6 +16,8 @@ SettingsNotifier SettingsDialog::notifier = SettingsNotifier();
 
 // Static methods
 
+// NOLINTBEGIN(readability-static-accessed-through-instance)
+
 void
 SettingsDialog::connect(MainWindow* window)
 {
@@ -62,6 +64,8 @@ SettingsDialog::connect(WorldTab* tab)
                &WorldTab::onOutputBlockFormatChanged);
 }
 
+// NOLINTEND(readability-static-accessed-through-instance)
+
 // Public methods
 
 SettingsDialog::SettingsDialog(Settings& settings, QWidget* parent)
@@ -81,9 +85,9 @@ SettingsDialog::~SettingsDialog()
 // Private methods
 
 QWidget*
-SettingsDialog::paneForIndex(int n)
+SettingsDialog::paneForIndex(int row)
 {
-  switch (n) {
+  switch (row) {
     case 0:
       return new SettingsAppearance(settings, &notifier, this);
     case 1:

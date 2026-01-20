@@ -14,8 +14,9 @@ AbstractPrefsTree::AbstractPrefsTree(AbstractSenderModel* model,
                                      QWidget* parent)
   : QWidget(parent)
   , model(model)
+  , proxy(new QSortFilterProxyModel(this))
 {
-  proxy = new QSortFilterProxyModel(this);
+
   proxy->setSourceModel(model);
   proxy->setFilterCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
   proxy->setRecursiveFilteringEnabled(true);

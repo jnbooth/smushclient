@@ -161,39 +161,39 @@ ScriptApi::AddTrigger(size_t plugin,
 }
 
 ApiCode
-ScriptApi::DeleteAlias(size_t index, std::string_view name) const
+ScriptApi::DeleteAlias(size_t plugin, std::string_view name) const
 {
-  return client()->removeAlias(index, bytes::slice(name));
+  return client()->removeAlias(plugin, bytes::slice(name));
 }
 
 size_t
-ScriptApi::DeleteAliasGroup(size_t index, std::string_view group) const
+ScriptApi::DeleteAliasGroup(size_t plugin, std::string_view group) const
 {
-  return client()->removeAliasGroup(index, bytes::slice(group));
+  return client()->removeAliasGroup(plugin, bytes::slice(group));
 }
 
 ApiCode
-ScriptApi::DeleteTimer(size_t index, std::string_view name) const
+ScriptApi::DeleteTimer(size_t plugin, std::string_view name) const
 {
-  return client()->removeTimer(index, bytes::slice(name));
+  return client()->removeTimer(plugin, bytes::slice(name));
 }
 
 size_t
-ScriptApi::DeleteTimerGroup(size_t index, std::string_view group) const
+ScriptApi::DeleteTimerGroup(size_t plugin, std::string_view group) const
 {
-  return client()->removeTimerGroup(index, bytes::slice(group));
+  return client()->removeTimerGroup(plugin, bytes::slice(group));
 }
 
 ApiCode
-ScriptApi::DeleteTrigger(size_t index, std::string_view name) const
+ScriptApi::DeleteTrigger(size_t plugin, std::string_view name) const
 {
-  return client()->removeTrigger(index, bytes::slice(name));
+  return client()->removeTrigger(plugin, bytes::slice(name));
 }
 
 size_t
-ScriptApi::DeleteTriggerGroup(size_t index, std::string_view group) const
+ScriptApi::DeleteTriggerGroup(size_t plugin, std::string_view group) const
 {
-  return client()->removeTriggerGroup(index, bytes::slice(group));
+  return client()->removeTriggerGroup(plugin, bytes::slice(group));
 }
 
 ApiCode

@@ -11,9 +11,9 @@ inline string
 replacePathSeparators(string_view path)
 {
   string file(path);
-  for (auto iter = file.begin(), end = file.end(); iter != end; ++iter) {
-    if (*iter == '\\') {
-      *iter = '/';
+  for (char& iter : file) {
+    if (iter == '\\') {
+      iter = '/';
     }
   }
   return file;

@@ -1,5 +1,7 @@
 #include "imagefilters.h"
 
+using std::span;
+
 // Private utils
 
 namespace {
@@ -21,6 +23,12 @@ rgbaIncrement(ImageFilter::Channel channel) noexcept
 {
   return channel == ImageFilter::Channel::All ? 1 : 4;
 }
+
+span<uchar>
+getImageBits(QImage& image, ImageFilter::Channel channel)
+{
+  return span(image.bits(), image.sizeInBytes()).subspan(rgbaOffset(channel));
+}
 } // namespace
 
 // Public methods
@@ -29,12 +37,13 @@ void
 BrightnessAddFilter::apply(QPixmap& pixmap) const
 {
   QImage qImage = pixmap.toImage().convertToFormat(QImage::Format_RGB32);
-  for (uchar *byte = qImage.bits() + rgbaOffset(channel),
-             *end = byte + qImage.sizeInBytes();
-       byte < end;
-       byte += rgbaIncrement(channel)) {
-    *byte = static_cast<uchar>(
-      std::clamp(static_cast<int>(*byte) + add, 0, UCHAR_MAX));
+  span<uchar> imageBits =
+    span(qImage.bits(), qImage.sizeInBytes()).subspan(rgbaOffset(channel));
+  const int increment = rgbaIncrement(channel);
+  for (auto iter = imageBits.begin(), end = imageBits.end(); iter < end;
+       iter += increment) {
+    *iter = static_cast<uchar>(
+      std::clamp(static_cast<int>(*iter) + add, 0, UCHAR_MAX));
   }
   pixmap.convertFromImage(qImage);
 }
@@ -46,12 +55,12 @@ BrightnessMultFilter::apply(QPixmap& pixmap) const
     return;
   }
   QImage qImage = pixmap.toImage().convertToFormat(QImage::Format_RGB32);
-  for (uchar *byte = qImage.bits() + rgbaOffset(channel),
-             *end = byte + qImage.sizeInBytes();
-       byte < end;
-       byte += rgbaIncrement(channel)) {
-    *byte = static_cast<uchar>(
-      std::min((*byte * multiply), static_cast<qreal>(UCHAR_MAX)));
+  const int increment = rgbaIncrement(channel);
+  span<uchar> imageBits = getImageBits(qImage, channel);
+  for (auto iter = imageBits.begin(), end = imageBits.end(); iter < end;
+       iter += increment) {
+    *iter = static_cast<uchar>(
+      std::min((*iter * multiply), static_cast<qreal>(UCHAR_MAX)));
   }
   pixmap.convertFromImage(qImage);
 }

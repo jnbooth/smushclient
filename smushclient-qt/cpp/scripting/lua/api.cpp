@@ -185,10 +185,14 @@ public:
       qDebug() << name << elapsed << "ms";
     }
   }
+  Benchmarker(const Benchmarker&) = default;
+  Benchmarker& operator=(const Benchmarker&) = default;
+  Benchmarker(Benchmarker&&) = delete;
+  Benchmarker& operator=(Benchmarker&&) = delete;
 
 private:
   const char* name;
-  QElapsedTimer timer{};
+  QElapsedTimer timer;
 };
 
 #define API(name) Benchmarker benchmarker(name);
@@ -567,7 +571,8 @@ L_CallPlugin(lua_State* L)
   const int nargs = lua_gettop(L) - 2;
   luaL_checkstack(L2, nargs + 1, nullptr);
 
-  if (lua_getglobal(L2, routine.data()) != LUA_TFUNCTION) {
+  const char* data = routine.data();
+  if (lua_getglobal(L2, data) != LUA_TFUNCTION) {
     lua_pop(L2, 1);
     return returnCode(
       L, ApiCode::NoSuchRoutine, fmtNoSuchRoutine(plugin, routine));
@@ -1028,8 +1033,8 @@ static int
 L_PlaySound(lua_State* L)
 {
   API("PlaySound")
-  // long PlaySound(short Buffer, BSTR FileName, BOOL Loop, double Volume,
-  // double Pan);
+  // lua_Integer PlaySound(short Buffer, BSTR FileName, BOOL Loop, double
+  // Volume, double Pan);
   expectMaxArgs(L, 5);
   return returnCode(
     L,
@@ -1798,7 +1803,7 @@ static const struct luaL_Reg worldlib[] =
     { "Repaint", L_noop },
     { "ResetIP", L_noop },
 
-    { NULL, NULL } };
+    { nullptr, nullptr } };
 
 static int
 L_world_tostring(lua_State* L)
@@ -1810,7 +1815,7 @@ L_world_tostring(lua_State* L)
 
 static const struct luaL_Reg worldlib_meta[] = { { "__tostring",
                                                    L_world_tostring },
-                                                 { NULL, NULL } };
+                                                 { nullptr, nullptr } };
 
 int
 registerLuaWorld(lua_State* L)

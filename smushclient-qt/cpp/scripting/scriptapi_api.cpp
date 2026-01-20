@@ -40,10 +40,10 @@ ScriptApi::GetOptionList() noexcept
   return ffi::getOptionList();
 }
 
-long
+int64_t
 ScriptApi::GetUniqueNumber() noexcept
 {
-  static long uniqueNumber = -1;
+  static int64_t uniqueNumber = -1;
   if (uniqueNumber == INT64_MAX) [[unlikely]] {
     uniqueNumber = 0;
   } else {
@@ -66,11 +66,13 @@ ScriptApi::SetClipboard(const QString& text)
 
 // Public methods
 
-long
-ScriptApi::BroadcastPlugin(size_t index, long message, string_view text) const
+int64_t
+ScriptApi::BroadcastPlugin(size_t index,
+                           int64_t message,
+                           string_view text) const
 {
   const Plugin& callingPlugin = plugins[index];
-  long calledPlugins = 0;
+  int64_t calledPlugins = 0;
   OnPluginBroadcast onBroadcast(
     message, callingPlugin.id(), callingPlugin.name(), text);
   for (const Plugin& plugin : plugins) {
@@ -184,7 +186,7 @@ ScriptApi::GetCurrentValue(size_t pluginIndex, string_view option) const
   return client()->worldVariantOption(pluginIndex, bytes::slice(option));
 }
 
-long
+int64_t
 ScriptApi::GetOption(size_t plugin, string_view name) const
 {
   return client()->worldOption(plugin, bytes::slice(name));
@@ -274,10 +276,10 @@ ScriptApi::PluginSupports(string_view pluginID, PluginCallbackKey routine) const
 }
 
 ApiCode
-ScriptApi::SendPacket(QByteArrayView view)
+ScriptApi::SendPacket(QByteArrayView bytes)
 {
   ++totalPacketsSent;
-  if (socket->write(view.data(), view.size()) == -1) [[unlikely]] {
+  if (socket->write(bytes.data(), bytes.size()) == -1) [[unlikely]] {
     return ApiCode::WorldClosed;
   }
 
@@ -298,7 +300,7 @@ ScriptApi::SetCursor(Qt::CursorShape cursorShape) const
 }
 
 ApiCode
-ScriptApi::SetOption(size_t plugin, string_view name, long value)
+ScriptApi::SetOption(size_t plugin, string_view name, int64_t value)
 {
   const ApiCode code = tab->setWorldOption(plugin, name, value);
   if (code != ApiCode::OK) {
@@ -332,9 +334,8 @@ ScriptApi::SetOption(size_t plugin, string_view name, long value)
       suppressEcho = false;
     }
   } else if (name == "enable_scripts") {
-    if (worldScriptIndex == noSuchPlugin)
-      ;
-    else if (value == 1) {
+    if (worldScriptIndex == noSuchPlugin) {
+    } else if (value == 1) {
       plugins[worldScriptIndex].enable();
     } else {
       plugins[worldScriptIndex].disable();
@@ -357,15 +358,15 @@ ScriptApi::SetVariable(size_t index, string_view key, string_view value) const
 }
 
 void
-ScriptApi::Simulate(string_view line) const
+ScriptApi::Simulate(string_view output) const
 {
-  tab->simulateOutput(line);
+  tab->simulateOutput(output);
 }
 
 void
 ScriptApi::StopEvaluatingTriggers() const
 {
-  return client()->stopTriggers();
+  client()->stopTriggers();
 }
 
 ApiCode

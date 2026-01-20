@@ -14,7 +14,7 @@ class Notepad : public QMainWindow
 
 public:
   explicit Notepad(QWidget* parent = nullptr);
-  ~Notepad();
+  ~Notepad() override;
 
   QTextEdit* editor() const;
 
