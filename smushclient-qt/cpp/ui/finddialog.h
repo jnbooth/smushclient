@@ -13,7 +13,7 @@ class FindDialog : public QDialog
 
 public:
   explicit FindDialog(QWidget* parent = nullptr);
-  ~FindDialog();
+  ~FindDialog() override;
 
   void find(QTextEdit* edit) const;
   constexpr bool isFilled() const { return filled; }

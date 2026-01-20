@@ -15,13 +15,13 @@ class PrefsPlugins : public QWidget
 
 public:
   PrefsPlugins(PluginModel* model, ScriptApi* api, QWidget* parent = nullptr);
-  ~PrefsPlugins();
+  ~PrefsPlugins() override;
 
 private:
   static const QString& settingsKey();
 
 private slots:
-  void onClientError(const QString& error);
+  static void onClientError(const QString& error);
   void onPluginOrderChanged();
   void onPluginScriptChanged(size_t pluginIndex);
   void on_button_add_clicked();

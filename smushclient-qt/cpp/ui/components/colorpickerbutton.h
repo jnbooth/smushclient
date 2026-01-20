@@ -10,7 +10,6 @@ class ColorPickerButton : public QAbstractButton
 
 public:
   explicit ColorPickerButton(QWidget* parent = nullptr);
-  virtual ~ColorPickerButton() {};
 
   constexpr bool isAlphaEnabled() const noexcept { return alphaEnabled; }
   const QColor& value() const&;
@@ -28,7 +27,7 @@ signals:
   void valueChanged(const QColor& value);
 
 protected:
-  virtual void paintEvent(QPaintEvent* event) override;
+  void paintEvent(QPaintEvent* event) override;
 
 private:
   QColor currentValue{};

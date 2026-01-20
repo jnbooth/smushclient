@@ -13,7 +13,7 @@ class AliasEdit : public QDialog
 
 public:
   explicit AliasEdit(Alias& alias, QWidget* parent = nullptr);
-  ~AliasEdit();
+  ~AliasEdit() override;
 
 public slots:
   void accept() override;

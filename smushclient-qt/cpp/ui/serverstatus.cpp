@@ -205,8 +205,7 @@ buildKnownVariables()
   return variables;
 }
 
-static const QHash<QString, KnownVariable> knownVariables =
-  buildKnownVariables();
+const QHash<QString, KnownVariable> knownVariables = buildKnownVariables();
 } // namespace
 
 struct StatusEntry
@@ -337,82 +336,10 @@ ServerStatus::~ServerStatus()
   delete ui;
 }
 
-// Private methods
-
-QLabel*
-ServerStatus::variableLabel(KnownVariable variable,
-                            const QString& var,
-                            QWidget* parent) const
-{
-  return variableLabel(translateVariable(variable, var), parent);
-}
-
-QLabel*
-ServerStatus::variableLabel(const QString& text, QWidget* parent) const
-{
-  QLabel* label = new QLabel(text, parent);
-  label->setFont(variableFont);
-  return label;
-}
-
-QLabel*
-ServerStatus::valueLabel(const QString& text, QWidget* parent) const
-{
-  QLabel* label = new QLabel(text, parent);
-  label->setFont(valueFont);
-  label->setTextInteractionFlags(
-    Qt::TextInteractionFlag::TextBrowserInteraction);
-  label->setOpenExternalLinks(true);
-  return label;
-}
-
-QLabel*
-ServerStatus::valueLabel(KnownVariable variable,
-                         const QString& value,
-                         QWidget* parent) const
-{
-  const static QString no = tr("No");
-  const static QString none = tr("None");
-  const static QString yes = tr("Yes");
-
-  if (isBoolVariable(variable)) {
-    if (value == QStringLiteral("0")) {
-      return valueLabel(no, parent);
-    }
-    if (value == QStringLiteral("1")) {
-      return valueLabel(yes, parent);
-    }
-    return valueLabel(value, parent);
-  }
-
-  switch (variable) {
-    case KnownVariable::Uptime:
-      return valueLabel(
-        QDateTime::fromSecsSinceEpoch(value.toLongLong()).toString(), parent);
-
-    case KnownVariable::Contact:
-      return valueLabel(
-        QStringLiteral("<a href=\"mailto:%1\">%1</a>").arg(value), parent);
-
-    case KnownVariable::MinimumAge:
-      if (value == QStringLiteral("0")) {
-        return valueLabel(none, parent);
-      }
-      break;
-
-    case KnownVariable::Discord:
-    case KnownVariable::Website:
-      return valueLabel(QStringLiteral("<a href=\"%1\">%1</a>").arg(value),
-                        parent);
-    default:
-      break;
-  }
-  return valueLabel(value, parent);
-}
+// Private static methods
 
 QString
-ServerStatus::translateVariable(KnownVariable variable,
-                                const QString& raw) const
+ServerStatus::translateVariable(KnownVariable variable, const QString& raw)
 {
   switch (variable) {
     case KnownVariable::Unknown:
@@ -542,6 +469,79 @@ ServerStatus::translateVariable(KnownVariable variable,
     case KnownVariable::Worlds:
       return tr("Worlds");
   }
+}
+
+// Private methods
+
+QLabel*
+ServerStatus::variableLabel(KnownVariable variable,
+                            const QString& var,
+                            QWidget* parent) const
+{
+  return variableLabel(translateVariable(variable, var), parent);
+}
+
+QLabel*
+ServerStatus::variableLabel(const QString& text, QWidget* parent) const
+{
+  QLabel* label = new QLabel(text, parent);
+  label->setFont(variableFont);
+  return label;
+}
+
+QLabel*
+ServerStatus::valueLabel(const QString& text, QWidget* parent) const
+{
+  QLabel* label = new QLabel(text, parent);
+  label->setFont(valueFont);
+  label->setTextInteractionFlags(
+    Qt::TextInteractionFlag::TextBrowserInteraction);
+  label->setOpenExternalLinks(true);
+  return label;
+}
+
+QLabel*
+ServerStatus::valueLabel(KnownVariable variable,
+                         const QString& value,
+                         QWidget* parent) const
+{
+  const static QString no = tr("No");
+  const static QString none = tr("None");
+  const static QString yes = tr("Yes");
+
+  if (isBoolVariable(variable)) {
+    if (value == QStringLiteral("0")) {
+      return valueLabel(no, parent);
+    }
+    if (value == QStringLiteral("1")) {
+      return valueLabel(yes, parent);
+    }
+    return valueLabel(value, parent);
+  }
+
+  switch (variable) {
+    case KnownVariable::Uptime:
+      return valueLabel(
+        QDateTime::fromSecsSinceEpoch(value.toLongLong()).toString(), parent);
+
+    case KnownVariable::Contact:
+      return valueLabel(
+        QStringLiteral("<a href=\"mailto:%1\">%1</a>").arg(value), parent);
+
+    case KnownVariable::MinimumAge:
+      if (value == QStringLiteral("0")) {
+        return valueLabel(none, parent);
+      }
+      break;
+
+    case KnownVariable::Discord:
+    case KnownVariable::Website:
+      return valueLabel(QStringLiteral("<a href=\"%1\">%1</a>").arg(value),
+                        parent);
+    default:
+      break;
+  }
+  return valueLabel(value, parent);
 }
 
 // Private slots

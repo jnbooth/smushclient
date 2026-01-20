@@ -16,7 +16,7 @@ class PrefsOutput : public QWidget
 
 public:
   explicit PrefsOutput(const World& world, QWidget* parent = nullptr);
-  ~PrefsOutput();
+  ~PrefsOutput() override;
 
 private slots:
   void on_NewActivitySound_browse_clicked();

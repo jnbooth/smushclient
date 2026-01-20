@@ -14,7 +14,7 @@ class SettingsSound : public QWidget
 
 public:
   explicit SettingsSound(Settings& settings, QWidget* parent = nullptr);
-  ~SettingsSound();
+  ~SettingsSound() override;
 
 private slots:
   void on_BellSound_browse_clicked();

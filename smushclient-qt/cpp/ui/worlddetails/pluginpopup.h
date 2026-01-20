@@ -14,7 +14,7 @@ class PluginPopup : public QDialog
 
 public:
   explicit PluginPopup(const PluginDetails& plugin, QWidget* parent = nullptr);
-  ~PluginPopup();
+  ~PluginPopup() override;
 
 private:
   Ui::PluginPopup* ui;

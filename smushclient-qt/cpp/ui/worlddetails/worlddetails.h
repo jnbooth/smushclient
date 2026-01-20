@@ -23,12 +23,12 @@ public:
              SmushClient& client,
              ScriptApi* api,
              QWidget* parent = nullptr);
-  ~WorldPrefs();
+  ~WorldPrefs() override;
 
   constexpr bool isDirty() const { return dirty; }
 
 private:
-  void connectModel(QAbstractItemModel* model);
+  void connectModel(QAbstractItemModel* model) const;
   QWidget* paneForIndex(int row);
 
 private slots:

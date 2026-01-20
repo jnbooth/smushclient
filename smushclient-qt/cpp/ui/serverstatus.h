@@ -17,9 +17,11 @@ class ServerStatus : public QDialog
 public:
   explicit ServerStatus(const QHash<QString, QString>& status,
                         QWidget* parent = nullptr);
-  ~ServerStatus();
+  ~ServerStatus() override;
 
 private:
+  static QString translateVariable(KnownVariable variable, const QString& raw);
+
   QLabel* variableLabel(KnownVariable variable,
                         const QString& label,
                         QWidget* parent = nullptr) const;
@@ -28,7 +30,6 @@ private:
                      const QString& value,
                      QWidget* parent = nullptr) const;
   QLabel* valueLabel(const QString& value, QWidget* parent = nullptr) const;
-  QString translateVariable(KnownVariable variable, const QString& raw) const;
 
 private slots:
   void displayImage(QNetworkReply* reply);

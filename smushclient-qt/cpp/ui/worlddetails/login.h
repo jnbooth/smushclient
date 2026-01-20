@@ -13,7 +13,7 @@ class PrefsLogin : public QWidget
 
 public:
   explicit PrefsLogin(World& world, QWidget* parent = nullptr);
-  ~PrefsLogin();
+  ~PrefsLogin() override;
 
 private slots:
   void on_ConnectText_textChanged();

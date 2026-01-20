@@ -15,7 +15,7 @@ public:
   DatabaseConnection& operator=(const DatabaseConnection&) = delete;
 
   int close();
-  inline constexpr bool isFile(std::string_view file) const noexcept
+  constexpr bool isFile(std::string_view file) const noexcept
   {
     return filename == file;
   }

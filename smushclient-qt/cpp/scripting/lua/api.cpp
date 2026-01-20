@@ -135,7 +135,7 @@ insertTextTriples(lua_State* L, ScriptApi& api)
   }
 }
 
-inline constexpr float
+constexpr float
 convertVolume(lua_Number decibels)
 {
   return static_cast<float>(1 / pow(2, decibels / -3));

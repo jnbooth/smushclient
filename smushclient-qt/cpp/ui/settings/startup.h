@@ -13,7 +13,7 @@ class SettingsStartup : public QWidget
 
 public:
   explicit SettingsStartup(Settings& settings, QWidget* parent = nullptr);
-  ~SettingsStartup();
+  ~SettingsStartup() override;
 
 private:
   QString currentStartupDirectory() const;

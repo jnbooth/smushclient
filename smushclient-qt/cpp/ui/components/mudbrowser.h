@@ -11,7 +11,6 @@ class MudBrowser : public QTextBrowser
 
 public:
   explicit MudBrowser(QWidget* parent = nullptr);
-  virtual ~MudBrowser() {};
 
   MudScrollBar* verticalScrollBar() const;
 
@@ -23,9 +22,9 @@ signals:
   void aliasMenuRequested(const QString& word);
 
 protected:
-  virtual void keyPressEvent(QKeyEvent* event) override;
-  virtual void mouseMoveEvent(QMouseEvent* event) override;
-  virtual void mousePressEvent(QMouseEvent* event) override;
+  void keyPressEvent(QKeyEvent* event) override;
+  void mouseMoveEvent(QMouseEvent* event) override;
+  void mousePressEvent(QMouseEvent* event) override;
 
 private:
   bool ignoreKeypad = false;

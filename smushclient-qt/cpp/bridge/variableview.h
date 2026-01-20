@@ -24,7 +24,7 @@ public:
     return QByteArrayView(data_, static_cast<qsizetype>(size_));
   }
   explicit operator std::string() const { return std::string(data_, size_); }
-  inline explicit operator QByteArray() const
+  explicit operator QByteArray() const
   {
     return QByteArray::fromRawData(data_, static_cast<qsizetype>(size_));
   }

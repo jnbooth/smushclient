@@ -9,7 +9,7 @@ class SettingsNotifier : public QObject
   Q_OBJECT
 
 public:
-  explicit inline SettingsNotifier(QObject* parent = nullptr)
+  explicit SettingsNotifier(QObject* parent = nullptr)
     : QObject(parent)
   {
   }

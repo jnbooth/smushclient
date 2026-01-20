@@ -49,7 +49,7 @@ public:
   explicit WorldTab(MudStatusBar* statusBar,
                     Notepads* notepads,
                     QWidget* parent = nullptr);
-  ~WorldTab();
+  ~WorldTab() override;
 
   AvailableCopy availableCopy() const;
   void closeLog();
@@ -90,12 +90,12 @@ public:
   constexpr const QString& worldFilePath() const noexcept { return filePath; }
 
 public slots:
-  void onInputBackgroundChanged(const QColor& color);
-  void onInputFontChanged(const QFont& font);
-  void onInputForegroundChanged(const QColor& color);
-  void onOutputBlockFormatChanged(const QTextBlockFormat& format);
-  void onOutputFontChanged(const QFont& font);
-  void onOutputPaddingChanged(qreal padding);
+  void onInputBackgroundChanged(const QColor& color) const;
+  void onInputFontChanged(const QFont& font) const;
+  void onInputForegroundChanged(const QColor& color) const;
+  void onOutputBlockFormatChanged(const QTextBlockFormat& format) const;
+  void onOutputFontChanged(const QFont& font) const;
+  void onOutputPaddingChanged(qreal padding) const;
 
 signals:
   void connectionStatusChanged(bool connected);
@@ -138,7 +138,7 @@ private slots:
   void flushOutput();
   void loadPlugins();
   void onAliasMenuRequested(const QString& word);
-  void onAutoScroll(int min, int max);
+  void onAutoScroll(int min, int max) const;
   void onNewActivity();
   void readFromSocket();
   void onSocketConnect();

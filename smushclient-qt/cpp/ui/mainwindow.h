@@ -19,7 +19,7 @@ class MainWindow : public QMainWindow
 
 public:
   explicit MainWindow(Notepads* notepads, QWidget* parent = nullptr);
-  ~MainWindow();
+  ~MainWindow() override;
 
   void openWorld(const QString& filePath);
 
@@ -75,7 +75,7 @@ private slots:
   void on_action_paste_triggered();
   void on_action_pause_output_triggered(bool checked);
   void on_action_print_triggered();
-  void on_action_quit_triggered();
+  static void on_action_quit_triggered();
   void on_action_reload_script_file_triggered();
   void on_action_reset_all_timers_triggered();
   void on_action_save_selection_triggered();
@@ -86,8 +86,8 @@ private slots:
   void on_action_status_bar_triggered(bool checked);
   void on_action_stop_sound_playing_triggered();
   void on_action_wrap_output_triggered(bool checked);
-  void on_action_visit_api_guide_triggered();
-  void on_action_visit_bug_reports_triggered();
+  static void on_action_visit_api_guide_triggered();
+  static void on_action_visit_bug_reports_triggered();
   void on_menu_file_aboutToShow();
   void on_menu_help_aboutToShow();
   void on_menu_view_aboutToShow();

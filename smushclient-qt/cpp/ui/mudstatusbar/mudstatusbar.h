@@ -23,7 +23,7 @@ public:
   };
 
   explicit MudStatusBar(QWidget* parent = nullptr);
-  ~MudStatusBar();
+  ~MudStatusBar() override;
 
   bool createStat(const QString& entity,
                   const QString& caption,

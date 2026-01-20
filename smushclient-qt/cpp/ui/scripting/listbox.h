@@ -14,7 +14,7 @@ public:
   explicit ListBox(const QString& title,
                    const QString& message,
                    QWidget* parent = nullptr);
-  ~ListBox();
+  ~ListBox() override;
 
   void addItems(const QStringList& items);
   void setMode(QListWidget::SelectionMode mode);
@@ -22,7 +22,7 @@ public:
 
   void addItem(const QString& text,
                const QVariant& value,
-               bool active = false) override;
+               bool active) override;
   void sortItems() override;
   QVariant value() const override;
 

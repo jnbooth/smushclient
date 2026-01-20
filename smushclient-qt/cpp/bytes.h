@@ -3,7 +3,7 @@
 #include <QtCore/QString>
 
 namespace bytes {
-inline constexpr QChar
+constexpr QChar
 qChar(uint8_t byte) noexcept
 {
   return QChar::fromLatin1(static_cast<char>(byte));

@@ -114,10 +114,10 @@ getBrushStyle(const QBrush& brush)
 }
 } // namespace
 
-// Public methods
+// Public static methods
 
 QVariant
-ScriptApi::FontInfo(const QFont& font, long infoType) const
+ScriptApi::FontInfo(const QFont& font, long infoType)
 {
   switch (infoType) {
     case 1:
@@ -183,6 +183,8 @@ ScriptApi::FontInfo(const QFont& font, long infoType) const
       return QVariant();
   }
 }
+
+// Public methods
 
 QVariant
 ScriptApi::GetInfo(long infoType) const

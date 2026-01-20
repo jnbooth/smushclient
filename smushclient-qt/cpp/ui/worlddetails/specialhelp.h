@@ -11,7 +11,7 @@ class SpecialHelp : public QDialog
 
 public:
   explicit SpecialHelp(QWidget* parent = nullptr);
-  ~SpecialHelp();
+  ~SpecialHelp() override;
 
 private:
   Ui::SpecialHelp* ui;

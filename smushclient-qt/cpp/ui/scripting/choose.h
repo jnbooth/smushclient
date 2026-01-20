@@ -13,11 +13,11 @@ public:
   explicit Choose(const QString& title,
                   const QString& message,
                   QWidget* parent = nullptr);
-  ~Choose();
+  ~Choose() override;
 
   void addItem(const QString& text,
                const QVariant& value,
-               bool active = false) override;
+               bool active) override;
   void sortItems() override;
   QVariant value() const override;
 

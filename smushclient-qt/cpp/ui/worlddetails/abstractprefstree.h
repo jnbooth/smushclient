@@ -12,7 +12,7 @@ class AbstractPrefsTree : public QWidget
 public:
   explicit AbstractPrefsTree(AbstractSenderModel* model,
                              QWidget* parent = nullptr);
-  virtual ~AbstractPrefsTree();
+  ~AbstractPrefsTree() override;
 
 protected:
   virtual void enableSingleButtons(bool enabled) = 0;

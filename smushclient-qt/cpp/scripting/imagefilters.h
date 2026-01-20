@@ -12,15 +12,15 @@ public:
     All = 4,
   };
 
-  virtual ~ImageFilter() {};
+  virtual ~ImageFilter() = default;
   virtual void apply(QPixmap& pixmap) const = 0;
 };
 
 class BrightnessAddFilter : public ImageFilter
 {
 public:
-  inline explicit constexpr BrightnessAddFilter(int add,
-                                                Channel channel = Channel::All)
+  explicit constexpr BrightnessAddFilter(int add,
+                                         Channel channel = Channel::All)
     : add(add)
     , channel(channel)
   {
@@ -36,8 +36,8 @@ private:
 class BrightnessMultFilter : public ImageFilter
 {
 public:
-  inline explicit constexpr BrightnessMultFilter(qreal multiply,
-                                                 Channel channel = Channel::All)
+  explicit constexpr BrightnessMultFilter(qreal multiply,
+                                          Channel channel = Channel::All)
     : channel(channel)
     , multiply(multiply)
   {
@@ -53,7 +53,7 @@ private:
 class GrayscaleFilter : public ImageFilter
 {
 public:
-  inline constexpr GrayscaleFilter() {};
+  constexpr GrayscaleFilter() = default;
 
   void apply(QPixmap& pixmap) const override;
 };

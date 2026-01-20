@@ -170,27 +170,22 @@ public:
   void updatePosition();
 
   const QFont* findFont(std::string_view fontID) const;
-  inline const QFont& loadFont(std::string_view fontID, const QFont& font)
+  const QFont& loadFont(std::string_view fontID, const QFont& font)
   {
     return fonts[std::string(fontID)] = font;
   }
-  inline void unloadFont(std::string_view fontID)
-  {
-    fonts.erase(std::string(fontID));
-  }
+  void unloadFont(std::string_view fontID) { fonts.erase(std::string(fontID)); }
 
   const QPixmap* findImage(std::string_view imageID) const;
-  inline const QPixmap& loadImage(std::string_view imageID,
-                                  const QPixmap&& image)
+  const QPixmap& loadImage(std::string_view imageID, const QPixmap&& image)
   {
     return images[std::string(imageID)] = image;
   }
-  inline const QPixmap& loadImage(std::string_view imageID,
-                                  const QPixmap& image)
+  const QPixmap& loadImage(std::string_view imageID, const QPixmap& image)
   {
     return images[std::string(imageID)] = image;
   }
-  inline void unloadImage(std::string_view imageID)
+  void unloadImage(std::string_view imageID)
   {
     images.erase(std::string(imageID));
   }
@@ -202,8 +197,7 @@ private:
   void applyFlags();
   void updateMask();
 
-  static inline QRect normalizeRect(const QRect& rect,
-                                    const QPixmap& pixmap) noexcept
+  static QRect normalizeRect(const QRect& rect, const QPixmap& pixmap) noexcept
   {
     int x, y, w, h;
     rect.getRect(&x, &y, &w, &h);
@@ -212,8 +206,8 @@ private:
                  w > 0 ? w : pixmap.width() - w - x,
                  h > 0 ? h : pixmap.height() - h - y);
   }
-  static inline QRectF normalizeRect(const QRectF& rect,
-                                     const QPixmap& pixmap) noexcept
+  static QRectF normalizeRect(const QRectF& rect,
+                              const QPixmap& pixmap) noexcept
   {
     qreal x, y, w, h;
     rect.getRect(&x, &y, &w, &h);
@@ -222,11 +216,11 @@ private:
                   w > 0 ? w : pixmap.width() - w - x,
                   h > 0 ? h : pixmap.height() - h - y);
   }
-  inline QRect normalizeRect(const QRect& rect) const noexcept
+  QRect normalizeRect(const QRect& rect) const noexcept
   {
     return normalizeRect(rect, pixmap);
   }
-  inline QRectF normalizeRect(const QRectF& rect) const noexcept
+  QRectF normalizeRect(const QRectF& rect) const noexcept
   {
     return normalizeRect(rect, pixmap);
   }

@@ -13,7 +13,7 @@ class PrefsConnecting : public QWidget
 
 public:
   explicit PrefsConnecting(const World& world, QWidget* parent = nullptr);
-  ~PrefsConnecting();
+  ~PrefsConnecting() override;
 
 private:
   Ui::PrefsConnecting* ui;

@@ -17,7 +17,7 @@ public:
   explicit SettingsAppearance(Settings& settings,
                               SettingsNotifier* notifier,
                               QWidget* parent = nullptr);
-  ~SettingsAppearance();
+  ~SettingsAppearance() override;
 
 private slots:
   void on_BackgroundTransparent_toggled(bool checked);

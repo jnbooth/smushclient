@@ -1,4 +1,5 @@
 #pragma once
+#include "notifier.h"
 #include <QtWidgets/QDialog>
 
 namespace Ui {
@@ -18,7 +19,7 @@ public:
   static void connect(WorldTab* tab);
 
   explicit SettingsDialog(Settings& settings, QWidget* parent = nullptr);
-  ~SettingsDialog();
+  ~SettingsDialog() override;
 
 private:
   QWidget* paneForIndex(int row);
@@ -27,6 +28,8 @@ private slots:
   void on_settings_list_currentRowChanged(int row);
 
 private:
+  static SettingsNotifier notifier;
+
   Ui::SettingsDialog* ui;
   QWidget* pane = nullptr;
   Settings& settings;

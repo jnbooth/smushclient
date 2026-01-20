@@ -7,10 +7,9 @@ class MudScrollBar : public QScrollBar
 
 public:
   explicit MudScrollBar(QWidget* parent = nullptr);
-  virtual ~MudScrollBar() {}
 
-  inline void disablePausing() { setPausingEnabled(false); }
-  inline void enablePausing() { setPausingEnabled(true); }
+  void disablePausing() { setPausingEnabled(false); }
+  void enablePausing() { setPausingEnabled(true); }
   constexpr bool isPaused() const { return paused; }
 
 public slots:
@@ -18,20 +17,20 @@ public slots:
   void setPaused(bool paused = true);
   void setPausingEnabled(bool enabled = true);
 
-  inline void setAutoScrollDisabled(bool disabled = true)
+  void setAutoScrollDisabled(bool disabled = true)
   {
     setAutoScrollEnabled(!disabled);
   }
 
-  inline void setPausingDisabled(bool disabled = true)
+  void setPausingDisabled(bool disabled = true)
   {
     setPausingEnabled(!disabled);
   }
 
-  inline void setUnpaused(bool unpaused = true) { setPaused(!unpaused); }
+  void setUnpaused(bool unpaused = true) { setPaused(!unpaused); }
 
 protected:
-  virtual void sliderChange(QAbstractSlider::SliderChange change) override;
+  void sliderChange(QAbstractSlider::SliderChange change) override;
 
 private:
   void updateParentPolicy() const;

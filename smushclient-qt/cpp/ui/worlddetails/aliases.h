@@ -16,7 +16,7 @@ public:
   PrefsAliases(const World& world,
                AliasModel* model,
                QWidget* parent = nullptr);
-  ~PrefsAliases();
+  ~PrefsAliases() override;
 
 protected:
   void enableSingleButtons(bool enabled) override;

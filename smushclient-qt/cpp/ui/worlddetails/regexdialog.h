@@ -14,7 +14,7 @@ class RegexDialog : public QDialog
 
 public:
   explicit RegexDialog(const RegexParse& parse, QWidget* parent = nullptr);
-  ~RegexDialog();
+  ~RegexDialog() override;
 
 private:
   Ui::RegexDialog* ui;

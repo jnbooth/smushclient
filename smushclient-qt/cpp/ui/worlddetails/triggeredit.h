@@ -14,7 +14,7 @@ class TriggerEdit : public QDialog
 
 public:
   explicit TriggerEdit(Trigger& trigger, QWidget* parent = nullptr);
-  ~TriggerEdit();
+  ~TriggerEdit() override;
 
 public slots:
   void accept() override;

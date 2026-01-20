@@ -15,7 +15,7 @@ class PrefsLogging : public QWidget
 
 public:
   explicit PrefsLogging(World& world, QWidget* parent = nullptr);
-  ~PrefsLogging();
+  ~PrefsLogging() override;
 
 private slots:
   void on_AutoLogFileName_browse_clicked();

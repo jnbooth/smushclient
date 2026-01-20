@@ -129,7 +129,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/mudstatusbar/mudstatusbar.h cpp/ui/mudstatusbar/mudstatusbar.cpp cpp/ui/mudstatusbar/mudstatusbar.ui
     cpp/ui/mudstatusbar/statusbarstat.h cpp/ui/mudstatusbar/statusbarstat.cpp cpp/ui/mudstatusbar/statusbarstat.ui
 
-    cpp/ui/scripting/abstractscriptdialog.h cpp/ui/scripting/abstractscriptdialog.cpp
+    cpp/ui/scripting/abstractscriptdialog.h
     cpp/ui/scripting/choose.h cpp/ui/scripting/choose.cpp cpp/ui/scripting/choose.ui
     cpp/ui/scripting/listbox.h cpp/ui/scripting/listbox.cpp cpp/ui/scripting/listbox.ui
 

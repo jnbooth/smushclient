@@ -27,7 +27,7 @@ public:
   {
   }
 
-  inline PluginCallbackKey(rust::Str routine) noexcept
+  PluginCallbackKey(rust::Str routine) noexcept
     : PluginCallbackKey(std::string_view(routine.data(), routine.length()))
   {
   }
@@ -69,7 +69,7 @@ commandAction(CommandSource source) noexcept
 class PluginCallback
 {
 public:
-  virtual ~PluginCallback() {}
+  virtual ~PluginCallback() = default;
 
   virtual uint id() const noexcept = 0;
   virtual ActionSource source() const noexcept = 0;
@@ -90,10 +90,8 @@ public:
 
   explicit DynamicPluginCallback(const QString& callback);
 
-  virtual ~DynamicPluginCallback() {}
-
-  virtual uint id() const noexcept override { return 0; }
-  virtual bool findCallback(lua_State* L) const override;
+  uint id() const noexcept override { return 0; }
+  bool findCallback(lua_State* L) const override;
 
 private:
   std::string name;
@@ -103,22 +101,20 @@ private:
 class NamedPluginCallback : public PluginCallback
 {
 public:
-  virtual ~NamedPluginCallback() {}
-
   virtual const char* name() const noexcept = 0;
-  virtual bool findCallback(lua_State* L) const override;
+  bool findCallback(lua_State* L) const override;
 };
 
 class DiscardCallback : public NamedPluginCallback
 {
 public:
-  inline constexpr int expectedSize() const noexcept override { return 1; }
+  constexpr int expectedSize() const noexcept override { return 1; }
   constexpr DiscardCallback()
     : processing(true)
   {
   }
   void collectReturned(lua_State* L) override;
-  inline constexpr bool discarded() const { return !processing; }
+  constexpr bool discarded() const { return !processing; }
 
 private:
   bool processing;
@@ -127,7 +123,7 @@ private:
 class ModifyTextCallback : public NamedPluginCallback
 {
 public:
-  inline constexpr int expectedSize() const noexcept override { return 1; }
+  constexpr int expectedSize() const noexcept override { return 1; }
   constexpr explicit ModifyTextCallback(QByteArray* text)
     : text(text)
   {
@@ -400,12 +396,12 @@ public:
 class CallbackFilter
 {
 public:
-  inline constexpr void operator|=(const CallbackFilter& other)
+  constexpr void operator|=(const CallbackFilter& other)
   {
     filter |= other.filter;
   }
-  inline constexpr void clear() { filter = 0; }
-  inline constexpr bool includes(const PluginCallback& callback) const
+  constexpr void clear() { filter = 0; }
+  constexpr bool includes(const PluginCallback& callback) const
   {
     return (filter & callback.id()) != 0;
   }

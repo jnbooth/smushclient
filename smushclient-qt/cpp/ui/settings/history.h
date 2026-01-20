@@ -16,7 +16,7 @@ public:
   explicit SettingsHistory(Settings& settings,
                            SettingsNotifier* notifier,
                            QWidget* parent = nullptr);
-  ~SettingsHistory();
+  ~SettingsHistory() override;
 
 private slots:
   void updateInputHistoryLimit();

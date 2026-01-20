@@ -14,7 +14,7 @@ class TimerEdit : public QDialog
 
 public:
   explicit TimerEdit(Timer& timer, QWidget* parent = nullptr);
-  ~TimerEdit();
+  ~TimerEdit() override;
 
 private slots:
   void on_OccurrenceChanged(Occurrence value);

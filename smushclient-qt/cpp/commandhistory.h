@@ -45,13 +45,13 @@ public:
 
   constexpr bool isEmpty() const noexcept { return begin == end; }
 
-  inline bool isFull() const noexcept { return size() == max; }
+  bool isFull() const noexcept { return size() == max; }
 
   constexpr const QStringList& log() const noexcept { return history; }
 
   constexpr qsizetype maxSize() const noexcept { return max; }
 
-  inline qsizetype size() const noexcept { return end - begin; }
+  qsizetype size() const noexcept { return end - begin; }
 
 private:
   void resetIterators() noexcept;

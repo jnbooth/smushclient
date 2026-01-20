@@ -21,7 +21,7 @@ public:
   {
   }
 
-  inline constexpr ActionSource source() const noexcept override
+  constexpr ActionSource source() const noexcept override
   {
     return ActionSource::TimerFired;
   }

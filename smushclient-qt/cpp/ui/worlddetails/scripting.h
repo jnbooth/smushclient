@@ -13,7 +13,7 @@ class PrefsScripting : public QWidget
 
 public:
   explicit PrefsScripting(World& world, QWidget* parent = nullptr);
-  ~PrefsScripting();
+  ~PrefsScripting() override;
 
 private:
   QString defaultScriptPath() const;

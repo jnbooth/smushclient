@@ -46,7 +46,7 @@ getDefaultFont(int pointSize)
   return defaultFont;
 }
 
-static const QFont defaultFont = getDefaultFont(12);
+const QFont defaultFont = getDefaultFont(12);
 } // namespace
 
 // Public methods

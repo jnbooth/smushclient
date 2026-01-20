@@ -249,7 +249,7 @@ ScriptApi::initializePlugins()
 }
 
 ApiCode
-ScriptApi::playFileRaw(const QString& path)
+ScriptApi::playFileRaw(const QString& path) const
 {
   const QByteArray utf8 = path.toUtf8();
   return client()->playFileRaw(bytes::slice(utf8));

@@ -13,7 +13,7 @@ class PrefsMud : public QWidget
 
 public:
   explicit PrefsMud(World& world, QWidget* parent = nullptr);
-  ~PrefsMud();
+  ~PrefsMud() override;
 
 private slots:
   void on_CommandStackCharacter_textChanged(const QString& character);

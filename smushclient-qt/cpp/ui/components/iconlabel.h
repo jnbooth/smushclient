@@ -20,7 +20,6 @@ public:
                      QIcon::Mode mode,
                      QIcon::State state,
                      QWidget* parent = nullptr);
-  virtual ~IconLabel() {}
 
   void setIcon(const QIcon& icon,
                QIcon::Mode mode = QIcon::Normal,
@@ -29,13 +28,13 @@ public:
   void setMode(QIcon::Mode mode);
   void setState(QIcon::State state);
 
-  virtual bool hasHeightForWidth() const override;
-  virtual int heightForWidth(int w) const override;
-  virtual QSize sizeHint() const override;
+  bool hasHeightForWidth() const override;
+  int heightForWidth(int w) const override;
+  QSize sizeHint() const override;
 
 protected:
-  virtual void paintEvent(QPaintEvent* event) override;
-  virtual void resizeEvent(QResizeEvent* event) override;
+  void paintEvent(QPaintEvent* event) override;
+  void resizeEvent(QResizeEvent* event) override;
 
 private:
   int widthForHeight(int h) const;

@@ -17,7 +17,7 @@ public:
                 const QString& caption,
                 const QString& maxEntity,
                 QWidget* parent = nullptr);
-  ~StatusBarStat();
+  ~StatusBarStat() override;
 
   bool isToggled() const;
   constexpr QMenu* menu() const noexcept { return displayMenu; }

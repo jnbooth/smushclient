@@ -13,7 +13,7 @@ class SettingsConnecting : public QWidget
 
 public:
   explicit SettingsConnecting(Settings& settings, QWidget* parent = nullptr);
-  ~SettingsConnecting();
+  ~SettingsConnecting() override;
 
 private:
   Ui::SettingsConnecting* ui;

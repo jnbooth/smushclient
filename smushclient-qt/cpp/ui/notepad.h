@@ -31,8 +31,8 @@ private slots:
   void on_action_print_triggered();
   void on_action_reset_size_triggered();
   void on_action_save_selection_triggered();
-  void on_action_visit_api_guide_triggered();
-  void on_action_visit_bug_reports_triggered();
+  static void on_action_visit_api_guide_triggered();
+  static void on_action_visit_bug_reports_triggered();
 
 private:
   Ui::Notepad* ui;

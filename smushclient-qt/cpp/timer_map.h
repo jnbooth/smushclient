@@ -12,16 +12,16 @@ private:
 
 public:
   template<typename Parent>
-  inline TimerMap(Parent* parent,
-                  HandlerSlot<Parent> slot,
-                  Qt::TimerType timerType = Qt::TimerType::CoarseTimer)
+  TimerMap(Parent* parent,
+           HandlerSlot<Parent> slot,
+           Qt::TimerType timerType = Qt::TimerType::CoarseTimer)
     : QObject(parent)
     , slot(static_cast<HandlerSlot<QObject>>(slot))
     , timerType(timerType)
   {
   }
 
-  inline void clear() noexcept
+  void clear() noexcept
   {
     if (map.empty()) {
       return;
@@ -34,7 +34,7 @@ public:
   }
 
   template<class Predicate>
-  inline size_t erase_if(Predicate pred)
+  size_t erase_if(Predicate pred)
   {
     return std::erase_if(map,
                          [pred](const std::pair<const Qt::TimerId, T>& item) {
@@ -43,19 +43,19 @@ public:
   }
 
   template<class... Args>
-  inline T& start(std::chrono::milliseconds duration, Args&&... args)
+  T& start(std::chrono::milliseconds duration, Args&&... args)
   {
     return map.emplace(startTimerId(duration), std::forward<Args>(args)...)
       .second;
   }
 
-  inline T& start(std::chrono::milliseconds duration, T item)
+  T& start(std::chrono::milliseconds duration, T item)
   {
     return map[startTimerId(duration)] = item;
   }
 
 protected:
-  inline void timerEvent(QTimerEvent* event) override
+  void timerEvent(QTimerEvent* event) override
   {
     const Qt::TimerId id = event->id();
     auto search = map.find(id);
@@ -70,7 +70,7 @@ protected:
   }
 
 private:
-  inline Qt::TimerId startTimerId(std::chrono::milliseconds duration)
+  Qt::TimerId startTimerId(std::chrono::milliseconds duration)
   {
     return Qt::TimerId{ startTimer(duration, timerType) };
   }

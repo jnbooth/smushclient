@@ -16,7 +16,7 @@ public:
   explicit PrefsTriggers(const World& world,
                          TriggerModel* model,
                          QWidget* parent = nullptr);
-  ~PrefsTriggers();
+  ~PrefsTriggers() override;
 
 protected:
   void enableSingleButtons(bool enabled) override;

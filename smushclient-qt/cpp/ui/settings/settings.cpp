@@ -12,7 +12,7 @@
 #include "startup.h"
 #include "ui_settings.h"
 
-static SettingsNotifier notifier;
+SettingsNotifier SettingsDialog::notifier = SettingsNotifier();
 
 // Static methods
 

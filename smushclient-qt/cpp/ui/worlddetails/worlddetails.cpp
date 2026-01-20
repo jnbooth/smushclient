@@ -49,7 +49,7 @@ WorldPrefs::~WorldPrefs()
 // Private methods
 
 void
-WorldPrefs::connectModel(QAbstractItemModel* model)
+WorldPrefs::connectModel(QAbstractItemModel* model) const
 {
   connect(
     model, &QAbstractItemModel::dataChanged, this, &WorldPrefs::markDirty);

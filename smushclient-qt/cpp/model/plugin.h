@@ -20,25 +20,22 @@ public:
   bool reinstall(const QModelIndex& index);
 
   int columnCount(const QModelIndex&) const override { return numColumns; }
-  QVariant data(const QModelIndex& index,
-                int role = Qt::DisplayRole) const override;
+  QVariant data(const QModelIndex& index, int role) const override;
   Qt::ItemFlags flags(const QModelIndex& index) const override;
-  bool hasChildren(const QModelIndex& index = QModelIndex()) const override;
+  bool hasChildren(const QModelIndex& index) const override;
   QVariant headerData(int section,
                       Qt::Orientation orientation,
-                      int role = Qt::DisplayRole) const override;
+                      int role) const override;
   QModelIndex index(int row,
                     int column,
                     const QModelIndex& parent) const override;
   QMap<int, QVariant> itemData(const QModelIndex& index) const override;
   QModelIndex parent(const QModelIndex& index) const override;
-  bool removeRows(int row,
-                  int count,
-                  const QModelIndex& parent = QModelIndex()) override;
-  int rowCount(const QModelIndex& index = QModelIndex()) const override;
+  bool removeRows(int row, int count, const QModelIndex& parent) override;
+  int rowCount(const QModelIndex& index) const override;
   bool setData(const QModelIndex& index,
                const QVariant& value,
-               int role = Qt::EditRole) override;
+               int role) override;
 
 signals:
   void clientError(const QString& error);

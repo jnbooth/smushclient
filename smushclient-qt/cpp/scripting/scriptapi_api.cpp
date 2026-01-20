@@ -17,8 +17,6 @@
 #include <QtWidgets/QColorDialog>
 #include <QtWidgets/QStatusBar>
 
-using std::nullopt;
-using std::optional;
 using std::string;
 using std::string_view;
 using std::chrono::hours;
@@ -247,7 +245,10 @@ ScriptApi::PickColour(const QColor& hint) const
 }
 
 ApiCode
-ScriptApi::PlaySound(size_t channel, string_view path, bool loop, float volume)
+ScriptApi::PlaySound(size_t channel,
+                     string_view path,
+                     bool loop,
+                     float volume) const
 {
   return client()->playFile(channel, bytes::slice(path), volume, loop);
 }
@@ -256,7 +257,7 @@ ApiCode
 ScriptApi::PlaySoundMemory(size_t channel,
                            QByteArrayView sound,
                            bool loop,
-                           float volume)
+                           float volume) const
 {
   return client()->playBuffer(channel, bytes::slice(sound), volume, loop);
 }
@@ -368,7 +369,7 @@ ScriptApi::StopEvaluatingTriggers() const
 }
 
 ApiCode
-ScriptApi::StopSound(size_t channel)
+ScriptApi::StopSound(size_t channel) const
 {
   return client()->stopSound(channel);
 }

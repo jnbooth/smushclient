@@ -47,14 +47,15 @@ class ScriptApi : public QObject
   Q_OBJECT
 
 public:
-  static QStringList GetAlphaOptionList() noexcept;
-  static QStringList GetOptionList() noexcept;
   static long GetUniqueNumber() noexcept;
   static QString MakeRegularExpression(std::string_view pattern) noexcept;
+  static QStringList GetAlphaOptionList() noexcept;
+  static QStringList GetOptionList() noexcept;
+  static QVariant FontInfo(const QFont& font, long infoType);
   static void SetClipboard(const QString& text);
 
   ScriptApi(MudStatusBar* statusBar, Notepads* notepads, WorldTab* parent);
-  ~ScriptApi();
+  ~ScriptApi() override;
 
   ApiCode AddAlias(size_t plugin,
                    std::string_view name,
@@ -120,7 +121,6 @@ public:
   ApiCode EnableTriggerGroup(size_t plugin,
                              std::string_view group,
                              bool enabled) const;
-  QVariant FontInfo(const QFont& font, long infoType) const;
   QVariant GetAliasOption(size_t plugin,
                           std::string_view label,
                           std::string_view option) const;
@@ -159,11 +159,11 @@ public:
   ApiCode PlaySound(size_t channel,
                     std::string_view path,
                     bool loop = false,
-                    float volume = 1.0);
-  inline ApiCode PlaySound(size_t channel,
-                           const QString& path,
-                           bool loop = false,
-                           float volume = 1.0)
+                    float volume = 1.0) const;
+  ApiCode PlaySound(size_t channel,
+                    const QString& path,
+                    bool loop = false,
+                    float volume = 1.0) const
   {
     const QByteArray utf8 = path.toUtf8();
     return PlaySound(
@@ -172,23 +172,20 @@ public:
   ApiCode PlaySoundMemory(size_t channel,
                           QByteArrayView sound,
                           bool loop = false,
-                          float volume = 1.0);
+                          float volume = 1.0) const;
   ApiCode PluginSupports(std::string_view pluginID,
                          PluginCallbackKey routine) const;
-  inline ApiCode Send(std::string_view text)
+  ApiCode Send(std::string_view text)
   {
     QByteArray bytes(text);
     return sendToWorld(bytes, SendFlag::Echo);
   }
-  inline ApiCode Send(const QString& text)
+  ApiCode Send(const QString& text)
   {
     QByteArray bytes = text.toUtf8();
     return sendToWorld(bytes, SendFlag::Echo);
   }
-  inline ApiCode Send(QByteArray& bytes)
-  {
-    return sendToWorld(bytes, SendFlag::Echo);
-  }
+  ApiCode Send(QByteArray& bytes) { return sendToWorld(bytes, SendFlag::Echo); }
   ApiCode SendNoEcho(QByteArray& bytes)
   {
     return sendToWorld(bytes, SendFlags());
@@ -217,7 +214,7 @@ public:
                    std::string_view value) const;
   void Simulate(std::string_view output) const;
   void StopEvaluatingTriggers() const;
-  ApiCode StopSound(size_t channel = 0);
+  ApiCode StopSound(size_t channel = 0) const;
   void Tell(const QString& text);
   ApiCode TextRectangle(const QRect& rect,
                         int borderOffset,
@@ -366,15 +363,15 @@ public:
   void handleSendRequest(const SendRequest& request);
   void initializePlugins();
   void reinstallPlugin(size_t index);
-  inline bool isPluginEnabled(size_t plugin) const
+  bool isPluginEnabled(size_t plugin) const
   {
     return !plugins[plugin].isDisabled();
   }
-  ApiCode playFileRaw(const QString& path);
+  ApiCode playFileRaw(const QString& path) const;
   void printError(const QString& message);
   void reloadWorldScript(const QString& worldScriptPath);
   void resetAllTimers();
-  inline bool runScript(size_t plugin, std::string_view script) const
+  bool runScript(size_t plugin, std::string_view script) const
   {
     return plugins[plugin].runScript(script);
   }
@@ -382,11 +379,11 @@ public:
   bool sendCallback(PluginCallback& callback, size_t plugin);
   bool sendCallback(PluginCallback& callback, const QString& pluginID);
   void sendNaws();
-  inline ApiCode sendToWorld(QByteArray& bytes, SendFlags flags)
+  ApiCode sendToWorld(QByteArray& bytes, SendFlags flags)
   {
     return sendToWorld(bytes, QString::fromUtf8(bytes), flags);
   }
-  inline ApiCode sendToWorld(const QString& text, SendFlags flags)
+  ApiCode sendToWorld(const QString& text, SendFlags flags)
   {
     QByteArray bytes = text.toUtf8();
     return sendToWorld(bytes, text, flags);
@@ -395,7 +392,7 @@ public:
   void setOpen(bool open) const;
   ActionSource setSource(ActionSource source) noexcept;
   void setSuppressEcho(bool suppress) noexcept;
-  inline void setWordUnderMenu(const QString& word) { wordUnderMenu = word; }
+  void setWordUnderMenu(const QString& word) { wordUnderMenu = word; }
   void stackWindow(std::string_view windowName, MiniWindow* window) const;
   int startLine();
   constexpr MudStatusBar* statusBarWidgets() const noexcept
@@ -404,19 +401,19 @@ public:
   }
   void updateTimestamp();
 
-  inline constexpr std::vector<Plugin>::const_iterator cbegin() const noexcept
+  constexpr std::vector<Plugin>::const_iterator cbegin() const noexcept
   {
     return plugins.cbegin();
   }
-  inline constexpr std::vector<Plugin>::const_iterator begin() const noexcept
+  constexpr std::vector<Plugin>::const_iterator begin() const noexcept
   {
     return plugins.begin();
   }
-  inline constexpr std::vector<Plugin>::const_iterator cend() const noexcept
+  constexpr std::vector<Plugin>::const_iterator cend() const noexcept
   {
     return plugins.cend();
   }
-  inline constexpr std::vector<Plugin>::const_iterator end() const noexcept
+  constexpr std::vector<Plugin>::const_iterator end() const noexcept
   {
     return plugins.end();
   }
@@ -427,7 +424,7 @@ public:
 private:
   DatabaseConnection* findDatabase(std::string_view databaseID);
   size_t findPluginIndex(const std::string& pluginID) const;
-  inline size_t findPluginIndex(std::string_view pluginID) const
+  size_t findPluginIndex(std::string_view pluginID) const
   {
     return findPluginIndex(std::string(pluginID));
   }

@@ -18,6 +18,7 @@ using qlua::expectMaxArgs;
 class SelectionPredicate
 {
 public:
+  virtual ~SelectionPredicate() = default;
   virtual bool isSelected(const QVariant& value) const = 0;
 };
 

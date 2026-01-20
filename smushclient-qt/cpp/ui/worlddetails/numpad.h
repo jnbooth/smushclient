@@ -13,7 +13,7 @@ class PrefsNumpad : public QWidget
 
 public:
   explicit PrefsNumpad(const World& world, QWidget* parent = nullptr);
-  ~PrefsNumpad();
+  ~PrefsNumpad() override;
 
 private slots:
   void on_show_mod_toggled(bool checked);

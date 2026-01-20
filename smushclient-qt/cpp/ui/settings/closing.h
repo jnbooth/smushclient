@@ -13,7 +13,7 @@ class SettingsClosing : public QWidget
 
 public:
   explicit SettingsClosing(Settings& settings, QWidget* parent = nullptr);
-  ~SettingsClosing();
+  ~SettingsClosing() override;
 
 private:
   Ui::SettingsClosing* ui;

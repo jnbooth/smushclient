@@ -14,7 +14,7 @@ class PrefsTimers : public AbstractPrefsTree
 
 public:
   PrefsTimers(const World& world, TimerModel* model, QWidget* parent = nullptr);
-  ~PrefsTimers();
+  ~PrefsTimers() override;
 
 protected:
   void enableSingleButtons(bool enabled) override;

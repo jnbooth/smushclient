@@ -29,7 +29,6 @@
 #include <QtWidgets/QMessageBox>
 #include <string>
 
-using std::nullopt;
 using std::string;
 using std::string_view;
 using std::chrono::milliseconds;
@@ -479,7 +478,7 @@ WorldTab::stopSound() const
 // Public slots
 
 void
-WorldTab::onInputBackgroundChanged(const QColor& color)
+WorldTab::onInputBackgroundChanged(const QColor& color) const
 {
   QPalette palette = ui->input->palette();
   palette.setColor(QPalette::ColorRole::Base, color);
@@ -487,13 +486,13 @@ WorldTab::onInputBackgroundChanged(const QColor& color)
 }
 
 void
-WorldTab::onInputFontChanged(const QFont& font)
+WorldTab::onInputFontChanged(const QFont& font) const
 {
   ui->input->setFont(font);
 }
 
 void
-WorldTab::onInputForegroundChanged(const QColor& color)
+WorldTab::onInputForegroundChanged(const QColor& color) const
 {
   QPalette palette = ui->input->palette();
   palette.setColor(QPalette::ColorRole::Text, color);
@@ -501,7 +500,7 @@ WorldTab::onInputForegroundChanged(const QColor& color)
 }
 
 void
-WorldTab::onOutputBlockFormatChanged(const QTextBlockFormat& format)
+WorldTab::onOutputBlockFormatChanged(const QTextBlockFormat& format) const
 {
   QTextCursor cursor(ui->output->document());
   cursor.select(QTextCursor::SelectionType::Document);
@@ -509,13 +508,13 @@ WorldTab::onOutputBlockFormatChanged(const QTextBlockFormat& format)
 }
 
 void
-WorldTab::onOutputFontChanged(const QFont& font)
+WorldTab::onOutputFontChanged(const QFont& font) const
 {
   ui->output->setFont(font);
 }
 
 void
-WorldTab::onOutputPaddingChanged(qreal padding)
+WorldTab::onOutputPaddingChanged(qreal padding) const
 {
   ui->output->document()->setDocumentMargin(padding);
 }
@@ -881,7 +880,7 @@ WorldTab::onAliasMenuRequested(const QString& word)
 }
 
 void
-WorldTab::onAutoScroll(int, int max)
+WorldTab::onAutoScroll(int, int max) const
 {
   ui->output->verticalScrollBar()->setValue(max);
 }
@@ -1018,7 +1017,7 @@ public:
   {
   }
 
-  inline constexpr ActionSource source() const noexcept override
+  constexpr ActionSource source() const noexcept override
   {
     return ActionSource::UserMenuAction;
   }

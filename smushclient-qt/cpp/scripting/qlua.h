@@ -18,7 +18,7 @@ struct lua_State;
 enum class SendTarget;
 
 namespace qlua {
-inline constexpr QColor
+constexpr QColor
 rgbCodeToColor(lua_Integer rgb) noexcept
 {
   if (rgb == -1 || rgb > 0xFFFFFF) [[unlikely]] {
