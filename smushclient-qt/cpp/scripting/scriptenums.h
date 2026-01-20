@@ -2,7 +2,7 @@
 #include "smushclient_qt/src/ffi/api_code.cxx.h"
 #include <QtCore/QFlags>
 
-enum struct AliasFlag
+enum class AliasFlag
 {
   Enabled = 1,             // Enable
   KeepEvaluating = 8,      // Keep evaluating
@@ -18,9 +18,10 @@ enum struct AliasFlag
   Temporary = 16384, // Temporary - do not save to world file
   OneShot = 32768,   // If set, only fires once
 };
-typedef QFlags<AliasFlag> AliasFlags;
+Q_DECLARE_FLAGS(AliasFlags, AliasFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(AliasFlags)
 
-enum struct ActionSource
+enum class ActionSource
 {
   Unknown,    // No particular reason, could be plugin saving
   UserTyping, // User typed something in the command area and pressed <Enter>
@@ -37,7 +38,7 @@ enum struct ActionSource
   Hotspot,         // Hotspot callback
 };
 
-enum struct CircleOp
+enum class CircleOp : long long
 {
   Ellipse = 1,
   Rectangle,
@@ -46,7 +47,7 @@ enum struct CircleOp
   Pie,
 };
 
-enum FontPitchFlag
+enum FontPitchFlag : long long
 {
   Default = 0,
   Fixed = 1,
@@ -54,7 +55,7 @@ enum FontPitchFlag
   Monospace = 8
 };
 
-enum FontFamilyFlag
+enum FontFamilyFlag : long long
 {
   AnyFamily = 0,
   Roman = 16,
@@ -64,21 +65,21 @@ enum FontFamilyFlag
   Decorative = 80,
 };
 
-enum struct ImageOp
+enum class ImageOp : long long
 {
   Ellipse = 1,
   Rectangle,
   RoundedRectangle,
 };
 
-enum struct OperatingSystem
+enum class OperatingSystem : long long
 {
   Windows = 2,
   MacOS = 100,
   Linux = 200,
 };
 
-enum PenStyleFlag
+enum PenStyleFlag : long long
 {
   SolidLine = 0,
   DashLine = 1,
@@ -89,21 +90,21 @@ enum PenStyleFlag
   InsideFrame = 6,
 };
 
-enum PenCapFlag
+enum PenCapFlag : long long
 {
   RoundCap = 0x000,
   SquareCap = 0x100,
   FlatCap = 0x200,
 };
 
-enum PenJoinFlag
+enum PenJoinFlag : long long
 {
   RoundJoin = 0x0000,
   BevelJoin = 0x1000,
   MiterJoin = 0x2000,
 };
 
-enum RectOp
+enum class RectOp : long long
 {
   Frame = 1, // Frame by a single pixel wide line
   Fill,      // Fill the entire rectangle
@@ -124,7 +125,7 @@ enum RectOp
   FloodFillSurface,
 };
 
-enum struct ScriptBrush
+enum class ScriptBrush : long long
 {
   SolidPattern,
   NoBrush,
@@ -141,7 +142,7 @@ enum struct ScriptBrush
   VerWaves,
 };
 
-enum struct ScriptCursor
+enum class ScriptCursor : long long
 {
   BlankCursor = -1,
   ArrowCursor,
@@ -159,7 +160,7 @@ enum struct ScriptCursor
   WhatsThisCursor,
 };
 
-enum struct TimerFlag
+enum class TimerFlag
 {
   Enabled = 1,           // Enable
   AtTime = 2,            // If not set, time is "every"
@@ -170,9 +171,10 @@ enum struct TimerFlag
   Replace = 1024,        // Replace existing of same name
   Temporary = 16384,     // Temporary - do not save to world file
 };
-typedef QFlags<TimerFlag> TimerFlags;
+Q_DECLARE_FLAGS(TimerFlags, TimerFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(TimerFlags)
 
-enum struct TriggerFlag
+enum class TriggerFlag
 {
   Enabled = 1,              // Enable
   OmitFromLog = 2,          // Omit from log file
@@ -186,4 +188,5 @@ enum struct TriggerFlag
   Temporary = 16384,        // Temporary - do not save to world file
   OneShot = 32768,          // If set, only fires once
 };
-typedef QFlags<TriggerFlag> TriggerFlags;
+Q_DECLARE_FLAGS(TriggerFlags, TriggerFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(TriggerFlags)

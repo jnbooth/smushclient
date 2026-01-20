@@ -23,7 +23,7 @@ TriggerModel::exportXml() const
 Qt::ItemFlags
 TriggerModel::flags(const QModelIndex& index) const
 {
-  if (!index.constInternalPointer()) {
+  if (hasChildren(index)) {
     return Qt::ItemFlag::ItemIsEnabled;
   }
 
@@ -50,7 +50,7 @@ TriggerModel::edit(size_t index, QWidget* parent)
   Trigger trigger(client, index);
   TriggerEdit edit(trigger, parent);
   if (edit.exec() == QDialog::Rejected) {
-    return (int)ReplaceSenderResult::Unchanged;
+    return static_cast<int>(ReplaceSenderResult::Unchanged);
   }
   return client.replaceWorldTrigger(index, trigger);
 }

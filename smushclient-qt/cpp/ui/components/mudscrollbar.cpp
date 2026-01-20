@@ -7,17 +7,17 @@ namespace {
 QAbstractScrollArea*
 getScrollArea(const QObject* obj)
 {
-  if (!obj) {
+  if (obj == nullptr) {
     return nullptr;
   }
 
   QObject* parent = obj->parent();
-  if (!parent) {
+  if (parent == nullptr) {
     return nullptr;
   }
 
   QAbstractScrollArea* area = qobject_cast<QAbstractScrollArea*>(parent);
-  if (area) {
+  if (area != nullptr) {
     return area;
   }
 
@@ -108,7 +108,7 @@ void
 MudScrollBar::updateParentPolicy() const
 {
   QAbstractScrollArea* p = getScrollArea(parent());
-  if (!p) {
+  if (p == nullptr) {
     return;
   }
 

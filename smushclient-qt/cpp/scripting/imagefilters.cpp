@@ -10,9 +10,9 @@ rgbaOffset(ImageFilter::Channel channel) noexcept
     return 0;
   }
   if constexpr (std::endian::native == std::endian::big) {
-    return 2 - ((int)channel); // A R G B
+    return 2 - channel; // A R G B
   } else {
-    return ((int)channel); // B G R A
+    return channel; // B G R A
   }
 }
 
@@ -33,7 +33,8 @@ BrightnessAddFilter::apply(QPixmap& pixmap) const
              *end = byte + qImage.sizeInBytes();
        byte < end;
        byte += rgbaIncrement(channel)) {
-    *byte = (uchar)std::clamp((int)*byte + add, 0, UCHAR_MAX);
+    *byte = static_cast<uchar>(
+      std::clamp(static_cast<int>(*byte) + add, 0, UCHAR_MAX));
   }
   pixmap.convertFromImage(qImage);
 }
@@ -49,7 +50,8 @@ BrightnessMultFilter::apply(QPixmap& pixmap) const
              *end = byte + qImage.sizeInBytes();
        byte < end;
        byte += rgbaIncrement(channel)) {
-    *byte = (uchar)std::min((*byte * multiply), (float)UCHAR_MAX);
+    *byte = static_cast<uchar>(
+      std::min((*byte * multiply), static_cast<qreal>(UCHAR_MAX)));
   }
   pixmap.convertFromImage(qImage);
 }

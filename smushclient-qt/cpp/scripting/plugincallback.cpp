@@ -59,7 +59,8 @@ NamedPluginCallback::findCallback(lua_State* L) const
 void
 DiscardCallback::collectReturned(lua_State* L)
 {
-  if (processing && !lua_isnil(L, -1) && !lua_toboolean(L, -1)) {
+  if (processing && !lua_isnil(L, -1) &&
+      !static_cast<bool>(lua_toboolean(L, -1))) {
     processing = false;
   }
 }
@@ -69,11 +70,11 @@ ModifyTextCallback::collectReturned(lua_State* L)
 {
   size_t len;
   const char* message = lua_tolstring(L, -1, &len);
-  if (!message) {
+  if (message == nullptr) {
     return;
   }
   text->clear();
-  text->append(message, len);
+  text->append(message, static_cast<qsizetype>(len));
 }
 
 int

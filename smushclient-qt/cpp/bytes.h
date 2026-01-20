@@ -3,6 +3,12 @@
 #include <QtCore/QString>
 
 namespace bytes {
+inline constexpr QChar
+qChar(uint8_t byte) noexcept
+{
+  return QChar::fromLatin1(static_cast<char>(byte));
+}
+
 inline rust::Slice<const uint8_t>
 slice(const uint8_t* data, size_t size) noexcept
 {
@@ -31,38 +37,6 @@ slice(const C& c) noexcept
 {
   return rust::Slice(reinterpret_cast<const uint8_t*>(c.data()),
                      static_cast<size_t>(c.size()));
-}
-
-template<typename C>
-inline QString
-latin1(C c) noexcept
-  requires(std::is_trivially_copyable_v<C>)
-{
-  return QString::fromLatin1(c.data(), static_cast<qsizetype>(c.size()));
-}
-
-template<typename C>
-inline QString
-latin1(const C& c) noexcept
-  requires(!std::is_trivially_copyable_v<C>)
-{
-  return QString::fromLatin1(c.data(), static_cast<qsizetype>(c.size()));
-}
-
-template<typename C>
-inline QString
-utf8(C c) noexcept
-  requires(std::is_trivially_copyable_v<C>)
-{
-  return QString::fromUtf8(c.data(), static_cast<qsizetype>(c.size()));
-}
-
-template<typename C>
-inline QString
-utf8(const C& c) noexcept
-  requires(!std::is_trivially_copyable_v<C>)
-{
-  return QString::fromUtf8(c.data(), static_cast<qsizetype>(c.size()));
 }
 
 } // namespace bytes

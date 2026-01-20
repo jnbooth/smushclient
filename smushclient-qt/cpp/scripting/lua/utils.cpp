@@ -24,7 +24,7 @@ public:
 class SingleSelectionPredicate : public SelectionPredicate
 {
 public:
-  SingleSelectionPredicate(const QVariant* selection)
+  explicit SingleSelectionPredicate(const QVariant* selection)
     : selection(selection)
   {
   }
@@ -40,7 +40,7 @@ private:
 class MultiSelectionPredicate : public SelectionPredicate
 {
 public:
-  MultiSelectionPredicate(const QList<QVariant>* selection)
+  explicit MultiSelectionPredicate(const QList<QVariant>* selection)
     : selection(selection)
   {
   }
@@ -66,7 +66,7 @@ execScriptDialog(lua_State* L,
   while (lua_next(L, idx) != 0) {
     const QVariant key = qlua::getQVariant(L, -2);
     const char* data = lua_tolstring(L, -1, &size);
-    const QString value = QString::fromUtf8(data, size);
+    const QString value = QString::fromUtf8(data, static_cast<qsizetype>(size));
     dialog.addItem(value, key, pred.isSelected(key));
     lua_pop(L, 1);
   }
@@ -138,13 +138,13 @@ L_getfontfamilies(lua_State* L)
 {
   expectMaxArgs(L, 0);
   const QStringList families = QFontDatabase::families();
-  lua_createtable(L, 0, families.size());
+  lua_createtable(L, 0, static_cast<int>(families.size()));
   for (const QString& family : families) {
     if (family.startsWith(u'.')) {
       continue;
     }
     qlua::pushQString(L, family);
-    lua_pushboolean(L, true);
+    qlua::pushBool(L, true);
     lua_rawset(L, -3);
   }
   return 1;
@@ -154,14 +154,15 @@ static int
 L_getsystemfont(lua_State* L)
 {
   expectMaxArgs(L, 1);
-  const int font = qlua::getInt(L, 1, QFontDatabase::SystemFont::FixedFont);
+  const lua_Integer font =
+    qlua::getInteger(L, 1, QFontDatabase::SystemFont::FixedFont);
   if (font < QFontDatabase::SystemFont::GeneralFont ||
       font > QFontDatabase::SystemFont::SmallestReadableFont) {
     lua_pushnil(L);
     return 1;
   }
   const QFont systemFont =
-    QFontDatabase::systemFont((QFontDatabase::SystemFont)font);
+    QFontDatabase::systemFont(static_cast<QFontDatabase::SystemFont>(font));
   qlua::pushQString(L, systemFont.family());
   lua_pushinteger(L, systemFont.pointSize());
   return 2;
@@ -227,7 +228,7 @@ L_multilistbox(lua_State* L)
 
   QList<QVariant> defaults;
   if (defaultType == LUA_TTABLE) {
-    defaults.reserve(lua_rawlen(L, 4));
+    defaults.reserve(static_cast<qsizetype>(lua_rawlen(L, 4)));
     lua_pushnil(L); // first key
 
     while (lua_next(L, 4) != 0) {
@@ -250,7 +251,7 @@ L_split(lua_State* L)
   const char* input = luaL_checklstring(L, 1, &inputLength);
   size_t sepLength;
   const char* sep = luaL_checklstring(L, 2, &sepLength);
-  const int count = qlua::getInt(L, 3, 0);
+  const lua_Integer count = qlua::getInteger(L, 3, 0);
   if (sepLength != 1) {
     qlua::pushString(L, "Separator must be a single character");
     lua_error(L);
@@ -261,12 +262,14 @@ L_split(lua_State* L)
   }
 
   lua_newtable(L);
-  const int max = count == 0 ? INT_MAX : count;
+  const lua_Integer max = count == 0 ? INT_MAX : count;
 
   const char* endPtr = input + inputLength;
   const char* sepPtr;
-  int i = 1;
-  for (; i <= max && input < endPtr && (sepPtr = strchr(input, *sep)); ++i) {
+  lua_Integer i = 1;
+  for (; i <= max && input < endPtr &&
+         ((sepPtr = strchr(input, *sep)) != nullptr);
+       ++i) {
     lua_pushlstring(L, input, sepPtr - input);
     lua_rawseti(L, -2, i);
     input = sepPtr + 1;

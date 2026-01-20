@@ -95,7 +95,7 @@ enum class KnownVariable
   Referral,   // Other MUD servers with MSSP support (for crawler)
 };
 
-constexpr int knownVariablesSize = (int)KnownVariable::Referral;
+constexpr int knownVariablesSize = static_cast<int>(KnownVariable::Referral);
 
 namespace {
 constexpr bool
@@ -199,7 +199,7 @@ buildKnownVariables()
   QHash<QString, KnownVariable> variables;
   variables.reserve(knownVariablesSize);
   for (int i = 1; i <= knownVariablesSize; ++i) {
-    const KnownVariable variable = (KnownVariable)i;
+    const KnownVariable variable = static_cast<KnownVariable>(i);
     variables.insert(variableName(variable), variable);
   }
   return variables;
@@ -549,7 +549,7 @@ ServerStatus::translateVariable(KnownVariable variable,
 void
 ServerStatus::displayImage(QNetworkReply* reply)
 {
-  if (!icon) {
+  if (icon == nullptr) {
     return;
   }
   icon->setPixmap(QPixmap::fromImage(

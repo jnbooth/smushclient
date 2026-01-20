@@ -14,19 +14,19 @@ public:
   constexpr const char* data() const noexcept { return data_; }
   constexpr size_t size() const noexcept { return size_; };
 
-  constexpr operator bool() const noexcept { return data_; }
+  constexpr operator bool() const noexcept { return data_ != nullptr; }
   constexpr operator std::string_view() const noexcept
   {
     return std::string_view(data_, size_);
   }
   constexpr operator QByteArrayView() const noexcept
   {
-    return QByteArrayView(data_, size_);
+    return QByteArrayView(data_, static_cast<qsizetype>(size_));
   }
   explicit operator std::string() const { return std::string(data_, size_); }
   inline explicit operator QByteArray() const
   {
-    return QByteArray::fromRawData(data_, size_);
+    return QByteArray::fromRawData(data_, static_cast<qsizetype>(size_));
   }
 
   // DO NOT EDIT THESE FIELDS

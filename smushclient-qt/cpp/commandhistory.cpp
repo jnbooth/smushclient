@@ -68,7 +68,7 @@ bool
 CommandHistory::push(const QString& command)
 {
   const qsizetype currentSize = size();
-  if (currentSize && *(end - 1) == command) {
+  if ((currentSize != 0) && *(end - 1) == command) {
     return false;
   }
 

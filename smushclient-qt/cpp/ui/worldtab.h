@@ -77,7 +77,9 @@ public:
   void setOnDragMove(CallbackTrigger&& trigger);
   void setOnDragRelease(Hotspot* hotspot);
   void setStatusBarVisible(bool visible);
-  ApiCode setWorldOption(size_t pluginIndex, std::string_view name, int value);
+  ApiCode setWorldOption(size_t pluginIndex,
+                         std::string_view name,
+                         long long value);
   ApiCode setWorldAlphaOption(size_t pluginIndex,
                               std::string_view name,
                               std::string_view value);
@@ -93,7 +95,7 @@ public slots:
   void onInputForegroundChanged(const QColor& color);
   void onOutputBlockFormatChanged(const QTextBlockFormat& format);
   void onOutputFontChanged(const QFont& font);
-  void onOutputPaddingChanged(double padding);
+  void onOutputPaddingChanged(qreal padding);
 
 signals:
   void connectionStatusChanged(bool connected);

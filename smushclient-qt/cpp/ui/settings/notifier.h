@@ -23,6 +23,6 @@ signals:
   void outputBlockFormatChanged(const QTextBlockFormat& format);
   void outputFontChanged(const QFont& font);
   void outputHistoryLimitChanged(int limit);
-  void outputPaddingChanged(int inset);
+  void outputPaddingChanged(qreal inset);
   void outputLimitChanged(int limit);
 };

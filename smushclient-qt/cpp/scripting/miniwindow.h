@@ -20,7 +20,7 @@ class WorldTab;
 class MiniWindow : public QWidget
 {
 public:
-  enum struct DrawImageMode
+  enum class DrawImageMode : long long
   {
     // Copy without stretching to the destination position. The image is not
     // clipped, so only the Left and Top parameters are used - the full image is
@@ -67,9 +67,9 @@ public:
     // recreating an existing miniwindow.
     KeepHotspots = 16,
   };
-  typedef QFlags<Flag> Flags;
+  Q_DECLARE_FLAGS(Flags, Flag)
 
-  enum struct ButtonFrame
+  enum ButtonFrame : long long
   {
     Raised = 5,
     Etched = 6,
@@ -84,9 +84,9 @@ public:
     Flat = 16384,
     Monochrome = 32768,
   };
-  typedef QFlags<ButtonFlag> ButtonFlags;
+  Q_DECLARE_FLAGS(ButtonFlags, ButtonFlag)
 
-  enum struct Position
+  enum Position : long long
   {
     OutputStretch, // Stretch to output view size
     OutputScale,   // Scale to output view with aspect ratio
@@ -157,7 +157,7 @@ public:
   Hotspot* findHotspot(std::string_view hotspotID) const;
   constexpr const std::string& getPluginId() const noexcept { return pluginID; }
   constexpr const QPixmap& getPixmap() const noexcept { return pixmap; }
-  constexpr int getZOrder() const noexcept { return zOrder; }
+  constexpr long long getZOrder() const noexcept { return zOrder; }
   QVariant info(long infoType) const;
   void invert(const QRect& rect,
               QImage::InvertMode mode = QImage::InvertMode::InvertRgb);
@@ -166,33 +166,33 @@ public:
                    Position position,
                    Flags flags) noexcept;
   void setSize(const QSize& size, const QColor& fill) noexcept;
-  void setZOrder(int zOrder) noexcept;
+  void setZOrder(long long zOrder) noexcept;
   void updatePosition();
 
   const QFont* findFont(std::string_view fontID) const;
   inline const QFont& loadFont(std::string_view fontID, const QFont& font)
   {
-    return fonts[(std::string)fontID] = font;
+    return fonts[std::string(fontID)] = font;
   }
   inline void unloadFont(std::string_view fontID)
   {
-    fonts.erase((std::string)fontID);
+    fonts.erase(std::string(fontID));
   }
 
   const QPixmap* findImage(std::string_view imageID) const;
   inline const QPixmap& loadImage(std::string_view imageID,
                                   const QPixmap&& image)
   {
-    return images[(std::string)imageID] = image;
+    return images[std::string(imageID)] = image;
   }
   inline const QPixmap& loadImage(std::string_view imageID,
                                   const QPixmap& image)
   {
-    return images[(std::string)imageID] = image;
+    return images[std::string(imageID)] = image;
   }
   inline void unloadImage(std::string_view imageID)
   {
-    images.erase((std::string)imageID);
+    images.erase(std::string(imageID));
   }
 
 protected:
@@ -243,7 +243,7 @@ private:
   QPixmap pixmap;
   std::string pluginID;
   Position position;
-  int zOrder;
+  long long zOrder;
 
 private:
   class Painter : public QPainter
@@ -259,4 +259,5 @@ private:
   };
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(MiniWindow::ButtonFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(MiniWindow::Flags)

@@ -1,4 +1,3 @@
-#include "../bytes.h"
 #include "../environment.h"
 #include "../settings.h"
 #include "../spans.h"
@@ -345,7 +344,7 @@ ScriptApi::GetInfo(long infoType) const
       return 1;
     }
     case 239:
-      return (int)actionSource;
+      return static_cast<int>(actionSource);
     case 240:
       return QFontMetrics(tab->ui->output->font()).averageCharWidth();
     case 241:
@@ -368,11 +367,11 @@ ScriptApi::GetInfo(long infoType) const
       return tab->ui->outputBorder->width();
     case 268:
 #if defined(Q_OS_WIN)
-      return (int)OperatingSystem::Windows;
+      return static_cast<int>(OperatingSystem::Windows);
 #elif defined(Q_OS_MACOS)
-      return (int)OperatingSystem::MacOS;
+      return static_cast<int>(OperatingSystem::MacOS);
 #elif defined(Q_OS_LINUX)
-      return (int)OperatingSystem::Linux;
+      return static_cast<int>(OperatingSystem::Linux);
 #else
       return QVariant();
 #endif
@@ -397,8 +396,8 @@ ScriptApi::GetInfo(long infoType) const
         .brush(QPalette::ColorRole::Window)
         .color();
     case 279:
-      return (int)getBrushStyle(
-        tab->ui->area->palette().brush(QPalette::ColorRole::Window));
+      return static_cast<int>(getBrushStyle(
+        tab->ui->area->palette().brush(QPalette::ColorRole::Window)));
     case 280:
       return tab->ui->area->height();
     case 281:
@@ -633,9 +632,9 @@ MiniWindow::info(long infoType) const
     case 6:
       return isHidden();
     case 7:
-      return (int)position;
+      return static_cast<int>(position);
     case 8:
-      return (int)flags;
+      return static_cast<int>(flags);
     case 9:
       return background;
     case 10:
@@ -665,7 +664,7 @@ MiniWindow::info(long infoType) const
     case 22:
       return zOrder;
     case 23:
-      return bytes::utf8(pluginID);
+      return QString::fromUtf8(pluginID);
     default:
       return QVariant();
   }
@@ -684,15 +683,15 @@ Hotspot::info(long infoType) const
     case 4:
       return geometry().bottom();
     case 5:
-      return bytes::utf8(callbacks.mouseOver);
+      return QString::fromUtf8(callbacks.mouseOver);
     case 6:
-      return bytes::utf8(callbacks.cancelMouseOver);
+      return QString::fromUtf8(callbacks.cancelMouseOver);
     case 7:
-      return bytes::utf8(callbacks.mouseDown);
+      return QString::fromUtf8(callbacks.mouseDown);
     case 8:
-      return bytes::utf8(callbacks.cancelMouseDown);
+      return QString::fromUtf8(callbacks.cancelMouseDown);
     case 9:
-      return bytes::utf8(callbacks.mouseUp);
+      return QString::fromUtf8(callbacks.mouseUp);
     case 10:
       return toolTip();
     case 11:
@@ -729,11 +728,11 @@ Hotspot::info(long infoType) const
           return 0;
       }
     case 12:
-      return (underMouse() ? 0x80 : 0) + (int)hasMouseTracking();
+      return (underMouse() ? 0x80 : 0) + (hasMouseTracking() ? 1 : 0);
     case 13:
-      return bytes::utf8(callbacks.dragMove);
+      return QString::fromUtf8(callbacks.dragMove);
     case 14:
-      return bytes::utf8(callbacks.dragRelease);
+      return QString::fromUtf8(callbacks.dragRelease);
     case 15: // DragHandler flags
       return 0;
     default:

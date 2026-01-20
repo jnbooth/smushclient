@@ -27,13 +27,13 @@ public:
     ScrollDown = 256,  // Scroll wheel scrolled (towards you)
     MouseMiddle = 512, // Middle mouse
   };
-  typedef QFlags<EventFlag> EventFlags;
+  Q_DECLARE_FLAGS(EventFlags, EventFlag)
 
   enum Flag
   {
     ReportAllMouseovers = 0x01,
   };
-  typedef QFlags<Flag> Flags;
+  Q_DECLARE_FLAGS(Flags, Flag)
 
   template<typename T>
   struct BasicCallbacks
@@ -85,3 +85,6 @@ private:
   const Plugin* plugin;
   WorldTab* tab;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Hotspot::EventFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Hotspot::Flags)

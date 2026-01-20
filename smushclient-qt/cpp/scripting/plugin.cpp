@@ -59,7 +59,7 @@ Plugin::Plugin(Plugin&& other) noexcept
 
 Plugin::~Plugin()
 {
-  if (L) {
+  if (L != nullptr) {
     lua_close(L);
   }
 }
@@ -79,11 +79,11 @@ Plugin::enable()
 class CallbackFinder : public DynamicPluginCallback
 {
 public:
-  inline CallbackFinder(PluginCallbackKey callback)
+  inline explicit CallbackFinder(PluginCallbackKey callback)
     : DynamicPluginCallback(callback)
   {
   }
-  inline CallbackFinder(const QString& callback)
+  inline explicit CallbackFinder(const QString& callback)
     : DynamicPluginCallback(callback)
   {
   }
@@ -118,7 +118,7 @@ Plugin::install(const PluginPack& pack)
 {
   string_view script(reinterpret_cast<const char*>(pack.scriptData),
                      pack.scriptSize);
-  if (pack.scriptSize && !runScript(script)) {
+  if (pack.scriptSize != 0 && !runScript(script)) {
     disable();
     return false;
   }
@@ -150,7 +150,7 @@ Plugin::reset(ScriptApi* api)
 {
   disabled = false;
 
-  if (L) {
+  if (L != nullptr) {
     lua_State* oldL = L;
     L = nullptr;
     lua_close(oldL);
@@ -158,7 +158,7 @@ Plugin::reset(ScriptApi* api)
 
   L = luaL_newstate();
 
-  if (!L) {
+  if (L == nullptr) {
     throw std::bad_alloc();
   }
 

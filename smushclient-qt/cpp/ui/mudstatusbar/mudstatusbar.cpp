@@ -48,7 +48,8 @@ MudStatusBar::createStat(const QString& entity,
   }
 
   StatusBarStat* stat = new StatusBarStat(entity, caption, maxEntity, this);
-  ui->horizontalLayout->insertWidget(statsByEntity.size(), stat);
+  ui->horizontalLayout->insertWidget(static_cast<int>(statsByEntity.size()),
+                                     stat);
   statsByEntity[entity] = stat;
   if (!maxEntity.isEmpty()) {
     statsByMax.insert(maxEntity, stat);
@@ -102,7 +103,7 @@ MudStatusBar::setConnected(MudStatusBar::ConnectionStatus status)
   ui->connection->setText(status == ConnectionStatus::Disconnected
                             ? tr("Disconnected")
                             : tr("Connected"));
-  ui->connection->setIcon(connectionIcons.at((size_t)status));
+  ui->connection->setIcon(connectionIcons.at(static_cast<size_t>(status)));
 
   if (connected) {
     return;

@@ -5,7 +5,7 @@ struct lua_State;
 class ScriptThread
 {
 public:
-  ScriptThread(lua_State* L);
+  explicit ScriptThread(lua_State* L);
   ScriptThread(ScriptThread&& other) noexcept;
   ~ScriptThread();
 

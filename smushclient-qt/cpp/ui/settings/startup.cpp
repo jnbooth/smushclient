@@ -151,7 +151,7 @@ SettingsStartup::on_OpenAtStartup_itemSelectionChanged()
   const QModelIndexList indexes =
     ui->OpenAtStartup->selectionModel()->selectedIndexes();
   const qsizetype selectionSize = indexes.size();
-  ui->OpenAtStartup_remove->setEnabled(selectionSize);
+  ui->OpenAtStartup_remove->setEnabled(selectionSize != 0);
   if (selectionSize != 1) {
     ui->OpenAtStartup_down->setEnabled(false);
     ui->OpenAtStartup_up->setEnabled(false);

@@ -6,7 +6,7 @@ class TriggerModel : public AbstractSenderModel
   Q_OBJECT
 
 public:
-  TriggerModel(SmushClient& client, QObject* parent = nullptr);
+  explicit TriggerModel(SmushClient& client, QObject* parent = nullptr);
 
   QString exportXml() const override;
   Qt::ItemFlags flags(const QModelIndex& index) const override;

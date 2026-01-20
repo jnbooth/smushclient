@@ -23,7 +23,7 @@ AliasModel::exportXml() const
 Qt::ItemFlags
 AliasModel::flags(const QModelIndex& index) const
 {
-  if (!index.constInternalPointer()) {
+  if (index.constInternalPointer() == nullptr) {
     return Qt::ItemFlag::ItemIsEnabled;
   }
 
@@ -50,7 +50,7 @@ AliasModel::edit(size_t index, QWidget* parent)
   Alias alias(client, index);
   AliasEdit edit(alias, parent);
   if (edit.exec() == QDialog::Rejected) {
-    return (int)ReplaceSenderResult::Unchanged;
+    return static_cast<int>(ReplaceSenderResult::Unchanged);
   }
   return client.replaceWorldAlias(index, alias);
 }

@@ -92,13 +92,13 @@ getPrompts(const QTextCharFormat& format)
 void
 setLineType(QTextCharFormat& format, LineType type)
 {
-  format.setProperty(typeProp, (int)type);
+  format.setProperty(typeProp, static_cast<int>(type));
 }
 
 LineType
 getLineType(const QTextCharFormat& format)
 {
-  return (LineType)format.property(typeProp).toInt();
+  return static_cast<LineType>(format.property(typeProp).toInt());
 }
 
 void

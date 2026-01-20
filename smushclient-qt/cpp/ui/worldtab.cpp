@@ -388,7 +388,7 @@ WorldTab::setStatusBarVisible(bool visible)
 }
 
 ApiCode
-WorldTab::setWorldOption(size_t pluginIndex, string_view name, int value)
+WorldTab::setWorldOption(size_t pluginIndex, string_view name, long long value)
 {
   const ApiCode result =
     client.setWorldOption(pluginIndex, bytes::slice(name), value);
@@ -401,9 +401,9 @@ WorldTab::setWorldOption(size_t pluginIndex, string_view name, int value)
     ui->input->setIgnoreKeypad(handleKeypad);
     ui->output->setIgnoreKeypad(handleKeypad);
   } else if (name == "enable_command_stack") {
-    splitOn = QLatin1Char(client.commandSplitter());
+    splitOn = bytes::qChar(client.commandSplitter());
   } else if (name == "script_reload_option") {
-    scriptReloadOption = (ScriptRecompile)value;
+    scriptReloadOption = static_cast<ScriptRecompile>(value);
   }
 
   return result;
@@ -421,12 +421,12 @@ WorldTab::setWorldAlphaOption(size_t pluginIndex,
   }
 
   if (name == "command_stack_character") {
-    splitOn = QLatin1Char(client.commandSplitter());
+    splitOn = bytes::qChar(client.commandSplitter());
   } else if (name == "name") {
-    worldName = bytes::utf8(value);
+    worldName = QString::fromUtf8(value);
     emit titleChanged(this, worldName);
   } else if (name == "script_path") {
-    worldScriptPath = bytes::utf8(value);
+    worldScriptPath = QString::fromUtf8(value);
   }
 
   return result;
@@ -515,7 +515,7 @@ WorldTab::onOutputFontChanged(const QFont& font)
 }
 
 void
-WorldTab::onOutputPaddingChanged(double padding)
+WorldTab::onOutputPaddingChanged(qreal padding)
 {
   ui->output->document()->setDocumentMargin(padding);
 }
@@ -609,7 +609,7 @@ WorldTab::applyWorld(const World& world)
   hotkeys.applyWorld(world);
   api->applyWorld(world);
   updateWorldScript();
-  splitOn = QLatin1Char(client.commandSplitter());
+  splitOn = bytes::qChar(client.commandSplitter());
 }
 
 void
@@ -754,6 +754,8 @@ WorldTab::sendCommand(const QString& command, CommandSource source)
         return true;
       case '\r':
         return false;
+      default:
+        break;
     }
   }
   SendFlags flags = SendFlag::Log;
@@ -787,11 +789,11 @@ WorldTab::showAliasMenu()
   for (const AliasMenuItem& item : items) {
     QAction* action = new QAction(&menu);
     action->setText(item.text);
-    action->setData(QPoint(item.plugin, item.id));
+    action->setData(QPoint(static_cast<int>(item.plugin), item.id));
     menu.addAction(action);
   }
   const QAction* choice = menu.exec(QCursor::pos());
-  if (!choice) {
+  if (choice == nullptr) {
     return;
   }
   const QPoint data = choice->data().toPoint();
@@ -1050,8 +1052,8 @@ WorldTab::on_output_anchorClicked(const QUrl& url)
       return;
   }
 
-  int delimIndex = 0;
-  int fnIndex = 0;
+  qsizetype delimIndex = 0;
+  qsizetype fnIndex = 0;
   if (action.first(2) == QStringLiteral("!!") && action.back() == u')' &&
       (delimIndex = action.indexOf(u':')) != -1 &&
       (fnIndex = action.indexOf(u'(', delimIndex)) != -1) {
@@ -1091,7 +1093,7 @@ WorldTab::on_output_customContextMenuRequested(const QPoint& pos)
   }
 
   const QAction* chosen = menu.exec(mouse);
-  if (!chosen) {
+  if (chosen == nullptr) {
     return;
   }
   api->sendToWorld(chosen->text(), SendFlag::Echo | SendFlag::Log);

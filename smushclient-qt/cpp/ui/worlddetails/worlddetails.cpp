@@ -104,9 +104,7 @@ WorldPrefs::on_settings_list_currentRowChanged(int row)
     return;
   }
 
-  if (pane) {
-    delete pane;
-  }
+  delete pane;
 
   pane = paneForIndex(row);
   ui->contents->addWidget(pane);

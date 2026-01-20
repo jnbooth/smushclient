@@ -16,7 +16,7 @@ main(int argc, char* argv[])
   _putenv_s("LUA_PATH", SCRIPTS_DIR "/?.lua;" LUA_PATH_DEFAULT);
   QCoreApplication::setOrganizationName(QStringLiteral(CMAKE_ORG_NAME));
 #else
-  setenv("LUA_PATH", SCRIPTS_DIR "/?.lua;" LUA_PATH_DEFAULT, false);
+  setenv("LUA_PATH", SCRIPTS_DIR "/?.lua;" LUA_PATH_DEFAULT, 0);
 #endif
   QApplication app(argc, argv);
   QCoreApplication::setApplicationName(QStringLiteral(CMAKE_APP_NAME));

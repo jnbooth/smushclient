@@ -39,9 +39,8 @@ enum class SendFlag
   Echo = 1,
   Log = 2,
 };
-
-typedef QFlags<SendFlag> SendFlags;
-Q_DECLARE_OPERATORS_FOR_FLAGS(SendFlags);
+Q_DECLARE_FLAGS(SendFlags, SendFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(SendFlags)
 
 class ScriptApi : public QObject
 {
@@ -178,7 +177,7 @@ public:
                          PluginCallbackKey routine) const;
   inline ApiCode Send(std::string_view text)
   {
-    QByteArray bytes(text.data(), text.size());
+    QByteArray bytes(text);
     return sendToWorld(bytes, SendFlag::Echo);
   }
   inline ApiCode Send(const QString& text)
@@ -334,7 +333,7 @@ public:
   ApiCode WindowResize(std::string_view windowName,
                        const QSize& size,
                        const QColor& fill) const;
-  ApiCode WindowSetZOrder(std::string_view windowName, int zOrder) const;
+  ApiCode WindowSetZOrder(std::string_view windowName, long long zOrder) const;
   ApiCode WindowShow(std::string_view windowName, bool show) const;
   qreal WindowText(std::string_view windowName,
                    std::string_view fontID,
@@ -430,7 +429,7 @@ private:
   size_t findPluginIndex(const std::string& pluginID) const;
   inline size_t findPluginIndex(std::string_view pluginID) const
   {
-    return findPluginIndex((std::string)pluginID);
+    return findPluginIndex(std::string(pluginID));
   }
   MiniWindow* findWindow(std::string_view windowName) const;
   bool finishQueuedSend(const SendRequest& request);

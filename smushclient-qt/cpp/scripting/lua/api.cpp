@@ -88,14 +88,14 @@ fmtBadReturn(const Plugin& plugin,
 inline int
 returnCode(lua_State* L, ApiCode code)
 {
-  lua_pushinteger(L, (lua_Integer)code);
+  lua_pushinteger(L, static_cast<lua_Integer>(code));
   return 1;
 }
 
 inline int
 returnCode(lua_State* L, ApiCode code, const QString& reason)
 {
-  lua_pushinteger(L, (lua_Integer)code);
+  lua_pushinteger(L, static_cast<lua_Integer>(code));
   qlua::pushQString(L, reason);
   return 2;
 }
@@ -109,6 +109,21 @@ getPluginIndex(lua_State* L)
   return index;
 }
 
+inline optional<string_view>
+getSenderOption(lua_State* L, int idx)
+{
+  switch (lua_type(L, idx)) {
+    case LUA_TBOOLEAN:
+      return static_cast<bool>(lua_toboolean(L, idx)) ? "1" : "0";
+    case LUA_TNUMBER:
+    case LUA_TSTRING:
+      return qlua::toString(L, idx);
+      break;
+    default:
+      return nullopt;
+  }
+}
+
 inline void
 insertTextTriples(lua_State* L, ScriptApi& api)
 {
@@ -120,10 +135,10 @@ insertTextTriples(lua_State* L, ScriptApi& api)
   }
 }
 
-inline constexpr lua_Number
+inline constexpr float
 convertVolume(lua_Number decibels)
 {
-  return 1 / pow(2, decibels / -3);
+  return static_cast<float>(1 / pow(2, decibels / -3));
 }
 } // namespace
 
@@ -147,7 +162,7 @@ getApi(lua_State* L)
 int
 setPluginIndex(lua_State* L, size_t index)
 {
-  lua_pushinteger(L, (lua_Integer)index);
+  lua_pushinteger(L, static_cast<lua_Integer>(index));
   lua_rawsetp(L, LUA_REGISTRYINDEX, indexRegKey);
   return 0;
 }
@@ -158,7 +173,7 @@ setPluginIndex(lua_State* L, size_t index)
 class Benchmarker
 {
 public:
-  Benchmarker(const char* name)
+  explicit Benchmarker(const char* name)
     : name(name)
   {
     timer.start();
@@ -211,7 +226,7 @@ L_GetInfo(lua_State* L)
 {
   API("GetInfo")
   expectMaxArgs(L, 1);
-  qlua::pushQVariant(L, getApi(L).GetInfo(qlua::getInt(L, 1)));
+  qlua::pushQVariant(L, getApi(L).GetInfo(qlua::getInteger(L, 1)));
   return 1;
 }
 
@@ -221,7 +236,7 @@ L_GetLineInfo(lua_State* L)
   API("GetLineInfo")
   expectMaxArgs(L, 2);
   qlua::pushQVariant(
-    L, getApi(L).GetLineInfo(qlua::getInt(L, 1) - 1, qlua::getInt(L, 2)));
+    L, getApi(L).GetLineInfo(qlua::getInt(L, 1) - 1, qlua::getInteger(L, 2)));
   return 1;
 }
 
@@ -231,11 +246,12 @@ L_GetPluginInfo(lua_State* L)
   API("GetPluginInfo")
   expectMaxArgs(L, 2);
   const string_view pluginID = qlua::getString(L, 1);
-  const lua_Integer infoType = qlua::getInt(L, 2);
+  const lua_Integer infoType = qlua::getInteger(L, 2);
   if (infoType > UINT8_MAX) [[unlikely]] {
     lua_pushnil(L);
   } else {
-    qlua::pushQVariant(L, getApi(L).GetPluginInfo(pluginID, (uint8_t)infoType));
+    qlua::pushQVariant(
+      L, getApi(L).GetPluginInfo(pluginID, static_cast<uint8_t>(infoType)));
   }
   return 1;
 }
@@ -247,8 +263,8 @@ L_GetStyleInfo(lua_State* L)
   expectMaxArgs(L, 3);
   qlua::pushQVariant(L,
                      getApi(L).GetStyleInfo(qlua::getInt(L, 1),
-                                            qlua::getInt(L, 2),
-                                            qlua::getInt(L, 3)));
+                                            qlua::getInteger(L, 2),
+                                            qlua::getInteger(L, 3)));
   return 1;
 }
 
@@ -260,7 +276,7 @@ L_GetTimerInfo(lua_State* L)
   qlua::pushQVariant(L,
                      getApi(L).GetTimerInfo(getPluginIndex(L),
                                             qlua::getString(L, 1),
-                                            qlua::getInt(L, 2)));
+                                            qlua::getInteger(L, 2)));
   return 1;
 }
 
@@ -286,7 +302,7 @@ L_WindowInfo(lua_State* L)
   API("WindowInfo")
   expectMaxArgs(L, 2);
   qlua::pushQVariant(
-    L, getApi(L).WindowInfo(qlua::getString(L, 1), qlua::getInt(L, 2)));
+    L, getApi(L).WindowInfo(qlua::getString(L, 1), qlua::getInteger(L, 2)));
   return 1;
 }
 
@@ -383,7 +399,7 @@ L_SetOption(lua_State* L)
   API("SetOption")
   expectMaxArgs(L, 2);
   getApi(L).SetOption(
-    getPluginIndex(L), qlua::getString(L, 1), qlua::getNumberOrBool(L, 2, 0));
+    getPluginIndex(L), qlua::getString(L, 1), qlua::getIntegerOrBool(L, 2, 0));
   return 1;
 }
 
@@ -463,7 +479,7 @@ L_RGBColourToName(lua_State* L)
 {
   API("RGBColourToName")
   expectMaxArgs(L, 1);
-  qlua::pushQString(L, qlua::rgbCodeToColor(qlua::getInt(L, 1)).name());
+  qlua::pushQString(L, qlua::rgbCodeToColor(qlua::getInteger(L, 1)).name());
   return 1;
 }
 
@@ -523,7 +539,7 @@ L_BroadcastPlugin(lua_State* L)
   expectMaxArgs(L, 2);
   lua_pushinteger(L,
                   getApi(L).BroadcastPlugin(getPluginIndex(L),
-                                            qlua::getInt(L, 1),
+                                            qlua::getInteger(L, 1),
                                             qlua::getString(L, 2)));
   return 1;
 }
@@ -533,7 +549,7 @@ L_CallPlugin(lua_State* L)
 {
   API("CallPlugin")
   const Plugin* pluginRef = getApi(L).getPlugin(qlua::getString(L, 1));
-  if (!pluginRef) [[unlikely]] {
+  if (pluginRef == nullptr) [[unlikely]] {
     return returnCode(
       L, ApiCode::NoSuchPlugin, fmtNoSuchPlugin(qlua::getString(L, 1)));
   }
@@ -569,7 +585,8 @@ L_CallPlugin(lua_State* L)
 
   if (!api_pcall(L2, nargs, LUA_MULTRET)) {
     lua_settop(L, 0);
-    lua_pushinteger(L, (lua_Integer)ApiCode::ErrorCallingPluginRoutine);
+    lua_pushinteger(
+      L, static_cast<lua_Integer>(ApiCode::ErrorCallingPluginRoutine));
     qlua::pushQString(L, fmtCallError(plugin, routine));
     size_t size = 0;
     lua_pushlstring(L, lua_tolstring(L2, -1, &size), size);
@@ -580,7 +597,7 @@ L_CallPlugin(lua_State* L)
   const int nresults = topAfter - topBefore;
   lua_settop(L, 0);
   luaL_checkstack(L, nresults + 1, nullptr);
-  lua_pushinteger(L, (lua_Integer)ApiCode::OK);
+  lua_pushinteger(L, static_cast<lua_Integer>(ApiCode::OK));
   for (int i = topBefore + 1; i <= topAfter; ++i) {
     if (!qlua::copyValue(L2, L, i)) {
       return returnCode(L,
@@ -647,8 +664,8 @@ L_AddTimer(lua_State* L)
   API("AddTimer")
   expectMaxArgs(L, 7);
   const string_view name = qlua::getString(L, 1);
-  const lua_Integer hour = qlua::getInt(L, 2);
-  const lua_Integer minute = qlua::getInt(L, 3);
+  const int hour = qlua::getInt(L, 2);
+  const int minute = qlua::getInt(L, 3);
   const lua_Number second = qlua::getNumber(L, 4);
   const string_view text = qlua::getString(L, 5);
   const QFlags<TimerFlag> flags = qlua::getFlags<TimerFlag>(L, 6);
@@ -679,7 +696,7 @@ L_AddTrigger(lua_State* L)
   const optional<string_view> script = qlua::getScriptName(L, 8);
   const optional<SendTarget> target =
     qlua::getSendTarget(L, 9, SendTarget::World);
-  const lua_Integer sequence = qlua::getInt(L, 10, 100);
+  const int sequence = qlua::getInt(L, 10, 100);
 
   if (!script) {
     return returnCode(L, ApiCode::ScriptNameNotLocated);
@@ -717,8 +734,8 @@ L_DeleteAliasGroup(lua_State* L)
   API("DeleteAliasGroup")
   expectMaxArgs(L, 1);
   lua_pushinteger(L,
-                  (lua_Integer)getApi(L).DeleteAliasGroup(
-                    getPluginIndex(L), qlua::getString(L, 1)));
+                  static_cast<lua_Integer>(getApi(L).DeleteAliasGroup(
+                    getPluginIndex(L), qlua::getString(L, 1))));
   return 1;
 }
 
@@ -737,8 +754,8 @@ L_DeleteTimerGroup(lua_State* L)
   API("DeleteTimerGroup")
   expectMaxArgs(L, 1);
   lua_pushinteger(L,
-                  (lua_Integer)getApi(L).DeleteTimerGroup(
-                    getPluginIndex(L), qlua::getString(L, 1)));
+                  static_cast<lua_Integer>(getApi(L).DeleteTimerGroup(
+                    getPluginIndex(L), qlua::getString(L, 1))));
   return 1;
 }
 
@@ -757,8 +774,8 @@ L_DeleteTriggerGroup(lua_State* L)
   API("DeleteTriggerGroup")
   expectMaxArgs(L, 1);
   lua_pushinteger(L,
-                  (lua_Integer)getApi(L).DeleteTriggerGroup(
-                    getPluginIndex(L), qlua::getString(L, 1)));
+                  static_cast<lua_Integer>(getApi(L).DeleteTriggerGroup(
+                    getPluginIndex(L), qlua::getString(L, 1))));
   return 1;
 }
 
@@ -958,22 +975,11 @@ L_SetAliasOption(lua_State* L)
   const size_t plugin = getPluginIndex(L);
   const string_view label = qlua::getString(L, 1);
   const string_view option = qlua::getString(L, 2);
-  const int idx = 3;
-  ApiCode code;
-  switch (lua_type(L, idx)) {
-    case LUA_TBOOLEAN:
-      code = getApi(L).SetAliasOption(
-        plugin, label, option, lua_toboolean(L, idx) ? "1" : "0");
-      break;
-    case LUA_TNUMBER:
-    case LUA_TSTRING:
-      code =
-        getApi(L).SetAliasOption(plugin, label, option, qlua::toString(L, idx));
-      break;
-    default:
-      code = ApiCode::OptionOutOfRange;
+  const optional<string_view> value = getSenderOption(L, 3);
+  if (!value) {
+    return returnCode(L, ApiCode::OptionOutOfRange);
   }
-  return returnCode(L, code);
+  return returnCode(L, getApi(L).SetAliasOption(plugin, label, option, *value));
 }
 
 static int
@@ -984,22 +990,11 @@ L_SetTimerOption(lua_State* L)
   const size_t plugin = getPluginIndex(L);
   const string_view label = qlua::getString(L, 1);
   const string_view option = qlua::getString(L, 2);
-  const int idx = 3;
-  ApiCode code;
-  switch (lua_type(L, idx)) {
-    case LUA_TBOOLEAN:
-      code = getApi(L).SetTimerOption(
-        plugin, label, option, lua_toboolean(L, idx) ? "1" : "0");
-      break;
-    case LUA_TNUMBER:
-    case LUA_TSTRING:
-      code =
-        getApi(L).SetTimerOption(plugin, label, option, qlua::toString(L, idx));
-      break;
-    default:
-      code = ApiCode::OptionOutOfRange;
+  const optional<string_view> value = getSenderOption(L, 3);
+  if (!value) {
+    return returnCode(L, ApiCode::OptionOutOfRange);
   }
-  return returnCode(L, code);
+  return returnCode(L, getApi(L).SetTimerOption(plugin, label, option, *value));
 }
 
 static int
@@ -1010,22 +1005,12 @@ L_SetTriggerOption(lua_State* L)
   const size_t plugin = getPluginIndex(L);
   const string_view label = qlua::getString(L, 1);
   const string_view option = qlua::getString(L, 2);
-  const int idx = 3;
-  ApiCode code;
-  switch (lua_type(L, idx)) {
-    case LUA_TBOOLEAN:
-      code = getApi(L).SetTriggerOption(
-        plugin, label, option, lua_toboolean(L, idx) ? "1" : "0");
-      break;
-    case LUA_TNUMBER:
-    case LUA_TSTRING:
-      code = getApi(L).SetTriggerOption(
-        plugin, label, option, qlua::toString(L, idx));
-      break;
-    default:
-      code = ApiCode::OptionOutOfRange;
+  const optional<string_view> value = getSenderOption(L, 3);
+  if (!value) {
+    return returnCode(L, ApiCode::OptionOutOfRange);
   }
-  return returnCode(L, code);
+  return returnCode(L,
+                    getApi(L).SetTriggerOption(plugin, label, option, *value));
 }
 
 static int
@@ -1048,7 +1033,7 @@ L_PlaySound(lua_State* L)
   expectMaxArgs(L, 5);
   return returnCode(
     L,
-    getApi(L).PlaySound(qlua::getInt(L, 1),
+    getApi(L).PlaySound(qlua::getInteger(L, 1),
                         qlua::getString(L, 2),
                         qlua::getBool(L, 3, false),
                         convertVolume(qlua::getNumber(L, 4, 0.0))));
@@ -1062,7 +1047,7 @@ L_PlaySoundMemory(lua_State* L)
   expectMaxArgs(L, 5);
   return returnCode(
     L,
-    getApi(L).PlaySoundMemory(qlua::getInt(L, 1),
+    getApi(L).PlaySoundMemory(qlua::getInteger(L, 1),
                               qlua::getBytes(L, 2),
                               qlua::getBool(L, 3, false),
                               convertVolume(qlua::getNumber(L, 4, 0.0))));
@@ -1074,7 +1059,7 @@ L_StopSound(lua_State* L)
 {
   API("StopSound")
   expectMaxArgs(L, 1);
-  return returnCode(L, getApi(L).StopSound(qlua::getInt(L, 1, 0)));
+  return returnCode(L, getApi(L).StopSound(qlua::getInteger(L, 1, 0)));
 }
 
 // variables
@@ -1157,7 +1142,7 @@ L_WindowCircleOp(lua_State* L)
   const string_view windowName = qlua::getString(L, 1);
   const optional<CircleOp> action = qlua::getCircleOp(L, 2);
   const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
-  const optional<QPen> pen = qlua::getPen(L, 7, 8, 9);
+  const optional<QPen> pen = qlua::getQPen(L, 7, 8, 9);
   const QColor brushColor = qlua::getQColor(L, 10);
   const optional<Qt::BrushStyle> brushStyle =
     qlua::getBrush(L, 11, Qt::BrushStyle::SolidPattern);
@@ -1255,7 +1240,7 @@ L_WindowFilter(lua_State* L)
   const ScriptApi& api = getApi(L);
   const string_view windowName = qlua::getString(L, 1);
   const QRect rect = qlua::getQRect(L, 2, 3, 4, 5);
-  switch (qlua::getInt(L, 6)) {
+  switch (qlua::getInteger(L, 6)) {
     case 7:
       return returnCode(
         L,
@@ -1354,7 +1339,7 @@ L_WindowFontInfo(lua_State* L)
   qlua::pushQVariant(L,
                      getApi(L).WindowFontInfo(qlua::getString(L, 1),
                                               qlua::getString(L, 2),
-                                              qlua::getInt(L, 3)));
+                                              qlua::getInteger(L, 3)));
   return 1;
 }
 
@@ -1367,14 +1352,12 @@ L_WindowGradient(lua_State* L)
   const QRectF rect = qlua::getQRectF(L, 2, 3, 4, 5);
   const QColor color1 = qlua::getQColor(L, 6);
   const QColor color2 = qlua::getQColor(L, 7);
-  const lua_Integer mode = qlua::getInt(L, 8);
-  if (mode != Qt::Orientation::Horizontal && mode != Qt::Orientation::Vertical)
-    [[unlikely]] {
+  const optional<Qt::Orientation> mode = qlua::getOrientation(L, 8);
+  if (!mode) [[unlikely]] {
     return returnCode(L, ApiCode::UnknownOption);
   }
-  return returnCode(L,
-                    getApi(L).WindowGradient(
-                      windowName, rect, color1, color2, (Qt::Orientation)mode));
+  return returnCode(
+    L, getApi(L).WindowGradient(windowName, rect, color1, color2, *mode));
 }
 
 static int
@@ -1396,7 +1379,7 @@ L_WindowLine(lua_State* L)
   expectMaxArgs(L, 8);
   const string_view windowName = qlua::getString(L, 1);
   const QLineF line = qlua::getQLineF(L, 2, 3, 4, 5);
-  const optional<QPen> pen = qlua::getPen(L, 6, 7, 8);
+  const optional<QPen> pen = qlua::getQPen(L, 6, 7, 8);
   if (!pen) [[unlikely]] {
     return returnCode(L, ApiCode::PenStyleNotValid);
   }
@@ -1436,7 +1419,7 @@ L_WindowPolygon(lua_State* L)
   expectMaxArgs(L, 9);
   const string_view windowName = qlua::getString(L, 1);
   const optional<QPolygonF> polygon = qlua::getQPolygonF(L, 2);
-  const optional<QPen> pen = qlua::getPen(L, 3, 4, 5);
+  const optional<QPen> pen = qlua::getQPen(L, 3, 4, 5);
   const QColor brushColor = qlua::getQColor(L, 6);
   const optional<Qt::BrushStyle> brushStyle = qlua::getBrush(L, 7);
   const bool close = qlua::getBool(L, 8, false);
@@ -1542,7 +1525,8 @@ L_WindowSetZOrder(lua_State* L)
   API("WindowSetZOrder")
   expectMaxArgs(L, 2);
   return returnCode(
-    L, getApi(L).WindowSetZOrder(qlua::getString(L, 1), qlua::getInt(L, 2)));
+    L,
+    getApi(L).WindowSetZOrder(qlua::getString(L, 1), qlua::getInteger(L, 2)));
 }
 
 static int
@@ -1565,7 +1549,7 @@ L_WindowText(lua_State* L)
                                            qlua::getQRectF(L, 4, 5, 6, 7),
                                            qlua::getQColor(L, 8),
                                            qlua::getBool(L, 9, false));
-  lua_pushinteger(L, width);
+  lua_pushinteger(L, static_cast<lua_Integer>(width));
   return 1;
 }
 
@@ -1595,11 +1579,11 @@ L_WindowAddHotspot(lua_State* L)
   Hotspot::Callbacks callbacks{
     .dragMove = "",
     .dragRelease = "",
-    .mouseOver = (string)qlua::getString(L, 7, ""),
-    .cancelMouseOver = (string)qlua::getString(L, 8, ""),
-    .mouseDown = (string)qlua::getString(L, 9, ""),
-    .cancelMouseDown = (string)qlua::getString(L, 10, ""),
-    .mouseUp = (string)qlua::getString(L, 11, ""),
+    .mouseOver = string(qlua::getString(L, 7, "")),
+    .cancelMouseOver = string(qlua::getString(L, 8, "")),
+    .mouseDown = string(qlua::getString(L, 9, "")),
+    .cancelMouseDown = string(qlua::getString(L, 10, "")),
+    .mouseUp = string(qlua::getString(L, 11, "")),
     .scroll = "",
   };
   const QString tooltip = qlua::getQString(L, 12, QString());
@@ -1641,8 +1625,8 @@ L_WindowDragHandler(lua_State* L)
                       qlua::getString(L, 1),
                       qlua::getString(L, 2),
                       Hotspot::CallbacksPartial{
-                        .dragMove = (string)qlua::getString(L, 3, ""),
-                        .dragRelease = (string)qlua::getString(L, 4, ""),
+                        .dragMove = string(qlua::getString(L, 3, "")),
+                        .dragRelease = string(qlua::getString(L, 4, "")),
                         .mouseOver = nullopt,
                         .cancelMouseOver = nullopt,
                         .mouseDown = nullopt,
@@ -1682,7 +1666,7 @@ L_WindowScrollwheelHandler(lua_State* L)
                         .mouseDown = nullopt,
                         .cancelMouseDown = nullopt,
                         .mouseUp = nullopt,
-                        .scroll = (string)qlua::getString(L, 3, "") }));
+                        .scroll = string(qlua::getString(L, 3, "")) }));
 }
 
 // userdata

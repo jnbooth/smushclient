@@ -24,7 +24,8 @@ rgbCodeToColor(lua_Integer rgb) noexcept
   if (rgb == -1 || rgb > 0xFFFFFF) [[unlikely]] {
     return QColor();
   }
-  return QColor(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF);
+  const int code = static_cast<int>(rgb);
+  return QColor(code & 0xFF, (code >> 8) & 0xFF, (code >> 16) & 0xFF);
 }
 
 inline lua_Integer
@@ -50,19 +51,24 @@ QByteArrayView
 getBytes(lua_State* L, int idx);
 
 lua_Integer
-getInt(lua_State* L, int idx);
+getInteger(lua_State* L, int idx);
 lua_Integer
-getInt(lua_State* L, int idx, lua_Integer ifNil);
+getInteger(lua_State* L, int idx, lua_Integer ifNil);
+
+int
+getInt(lua_State* L, int idx);
+int
+getInt(lua_State* L, int idx, int ifNil);
+
+lua_Integer
+getIntegerOrBool(lua_State* L, int idx);
+lua_Integer
+getIntegerOrBool(lua_State* L, int idx, lua_Integer ifNil);
 
 lua_Number
 getNumber(lua_State* L, int idx);
 lua_Number
 getNumber(lua_State* L, int idx, lua_Number ifNil);
-
-lua_Number
-getNumberOrBool(lua_State* L, int idx);
-lua_Number
-getNumberOrBool(lua_State* L, int idx, lua_Number ifNil);
 
 QColor
 getQColor(lua_State* L, int idx);
@@ -75,13 +81,14 @@ template<typename T>
 inline QFlags<T>
 getFlags(lua_State* L, int idx)
 {
-  return (QFlags<T>)(int)getInt(L, idx);
+  return static_cast<QFlags<T>>(getInt(L, idx));
 }
 template<typename T>
 inline QFlags<T>
 getFlags(lua_State* L, int idx, QFlags<T> ifNil)
 {
-  return (QFlags<T>)(int)getInt(L, idx, (lua_Integer)ifNil);
+  return static_cast<QFlags<T>>(
+    getInt(L, idx, static_cast<lua_Integer>(ifNil)));
 }
 
 QString
@@ -114,6 +121,8 @@ loadQString(lua_State* L, const QString& chunk);
 int
 loadString(lua_State* L, std::string_view chunk);
 
+void
+pushBool(lua_State* L, bool value);
 const char*
 pushBytes(lua_State* L, const QByteArray& bytes);
 void
@@ -171,15 +180,21 @@ getQRect(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom);
 QRectF
 getQRectF(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom);
 
-std::optional<MiniWindow::ButtonFrame>
-getButtonFrame(lua_State* L,
-               int idx,
-               std::optional<MiniWindow::ButtonFrame> ifNil = std::nullopt);
+std::optional<QPen>
+getQPen(lua_State* L, int idxColor, int idxStyle, int idxWidth);
+
+std::optional<QPolygonF>
+getQPolygonF(lua_State* L, int idx);
 
 std::optional<Qt::BrushStyle>
 getBrush(lua_State* L,
          int idx,
          std::optional<Qt::BrushStyle> ifNil = std::nullopt);
+
+std::optional<MiniWindow::ButtonFrame>
+getButtonFrame(lua_State* L,
+               int idx,
+               std::optional<MiniWindow::ButtonFrame> ifNil = std::nullopt);
 
 std::optional<CircleOp>
 getCircleOp(lua_State* L, int idx);
@@ -199,11 +214,10 @@ getFontHint(lua_State* L,
             int idx,
             std::optional<QFont::StyleHint> ifNil = std::nullopt);
 
-std::optional<QPen>
-getPen(lua_State* L, int idxColor, int idxStyle, int idxWidth);
-
-std::optional<QPolygonF>
-getQPolygonF(lua_State* L, int idx);
+std::optional<Qt::Orientation>
+getOrientation(lua_State* L,
+               int idx,
+               std::optional<Qt::Orientation> ifNil = std::nullopt);
 
 std::optional<RectOp>
 getRectOp(lua_State* L, int idx);

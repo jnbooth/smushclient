@@ -33,7 +33,7 @@ QString
 ListBox::text() const
 {
   QListWidgetItem* item = ui->items->currentItem();
-  return item ? item->text() : QString();
+  return (item != nullptr) ? item->text() : QString();
 }
 
 // Public overrides
@@ -60,7 +60,7 @@ ListBox::value() const
   if (ui->items->selectionMode() ==
       QListWidget::SelectionMode::SingleSelection) {
     QListWidgetItem* item = ui->items->currentItem();
-    return item ? item->data(Qt::UserRole) : QVariant();
+    return (item != nullptr) ? item->data(Qt::UserRole) : QVariant();
   }
   QList<QListWidgetItem*> choices = ui->items->selectedItems();
   QList<QVariant> values;

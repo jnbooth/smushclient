@@ -31,7 +31,7 @@ public:
     if (id == currentValue) {
       button->setChecked(true);
     }
-    group->addButton(button, (int)id);
+    group->addButton(button, static_cast<int>(id));
     return *this;
   }
 

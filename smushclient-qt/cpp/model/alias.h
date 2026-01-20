@@ -6,7 +6,7 @@ class AliasModel : public AbstractSenderModel
   Q_OBJECT
 
 public:
-  AliasModel(SmushClient& client, QObject* parent = nullptr);
+  explicit AliasModel(SmushClient& client, QObject* parent = nullptr);
 
   QString exportXml() const override;
   Qt::ItemFlags flags(const QModelIndex& index) const override;

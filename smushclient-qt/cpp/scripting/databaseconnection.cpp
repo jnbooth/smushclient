@@ -10,7 +10,7 @@ namespace {
 inline string
 replacePathSeparators(string_view path)
 {
-  string file = (string)path;
+  string file(path);
   for (auto iter = file.begin(), end = file.end(); iter != end; ++iter) {
     if (*iter == '\\') {
       *iter = '/';
@@ -43,12 +43,12 @@ DatabaseConnection::~DatabaseConnection()
 int
 DatabaseConnection::close()
 {
-  if (stmt) {
+  if (stmt != nullptr) {
     sqlite3_finalize(stmt);
     stmt = nullptr;
   }
 
-  if (!db) {
+  if (db == nullptr) {
     return -2;
   }
 

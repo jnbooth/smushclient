@@ -440,7 +440,7 @@ void
 MainWindow::on_action_close_world_triggered()
 {
   QWidget* tab = ui->world_tabs->currentWidget();
-  if (tab) {
+  if (tab != nullptr) {
     tab->close();
   }
 }
@@ -541,7 +541,7 @@ MainWindow::on_action_go_to_line_triggered()
   const int choice = QInputDialog::getInt(
     this, tr("Go to line"), tr("Enter line number"), blockCount, 1, blockCount);
   QTextCursor cursor(doc->findBlockByNumber(choice - 1));
-  if (cursor.columnNumber()) {
+  if (cursor.columnNumber() != 0) {
     cursor.movePosition(QTextCursor::MoveOperation::NextRow);
   }
   cursor.movePosition(QTextCursor::MoveOperation::EndOfBlock,
@@ -757,7 +757,7 @@ void
 MainWindow::on_menu_file_aboutToShow()
 {
   WorldTab* tab = worldtab();
-  const bool hasWorldScript = tab && tab->hasWorldScript();
+  const bool hasWorldScript = (tab != nullptr) && tab->hasWorldScript();
   ui->action_edit_script_file->setEnabled(hasWorldScript);
   ui->action_reload_script_file->setEnabled(hasWorldScript);
 }
@@ -774,21 +774,21 @@ MainWindow::on_menu_view_aboutToShow()
 {
   WorldTab* tab = worldtab();
   ui->action_pause_output->setChecked(
-    tab && tab->ui->output->verticalScrollBar()->isPaused());
+    (tab != nullptr) && tab->ui->output->verticalScrollBar()->isPaused());
 }
 
 void
 MainWindow::on_world_tabs_currentChanged(int index)
 {
   WorldTab* lastTab = worldtab(lastTabIndex);
-  if (lastTab) {
+  if (lastTab != nullptr) {
     lastTab->setIsActive(false);
     lastTab->setStatusBarVisible(false);
   }
   lastTabIndex = index;
   WorldTab* activeTab = worldtab(index);
   disconnect(socketConnection);
-  if (!activeTab) {
+  if (activeTab == nullptr) {
     setWorldMenusEnabled(false);
     ui->action_connect->setEnabled(false);
     ui->action_disconnect->setEnabled(false);

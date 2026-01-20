@@ -16,7 +16,7 @@ public:
                   HandlerSlot<Parent> slot,
                   Qt::TimerType timerType = Qt::TimerType::CoarseTimer)
     : QObject(parent)
-    , slot((HandlerSlot<QObject>)slot)
+    , slot(static_cast<HandlerSlot<QObject>>(slot))
     , timerType(timerType)
   {
   }

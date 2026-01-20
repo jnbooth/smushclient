@@ -23,10 +23,10 @@ ScriptThread::ScriptThread(ScriptThread&& other) noexcept
 
 ScriptThread::~ScriptThread()
 {
-  if (L) {
+  if (L != nullptr) {
     lua_closethread(L, nullptr);
   }
-  if (!parentL) {
+  if (parentL == nullptr) {
     return;
   }
   lua_pushnil(parentL);

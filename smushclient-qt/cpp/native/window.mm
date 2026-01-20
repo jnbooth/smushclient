@@ -7,7 +7,7 @@
 #include <objc/message.h>
 #include <objc/runtime.h>
 
-static const void* kBackgroundKey = &kBackgroundKey;
+static char kBackgroundKey;
 
 #define RUN_ON_MAIN(block)                                                     \
   if ([NSThread isMainThread]) {                                               \
@@ -67,7 +67,7 @@ SetEffectViewBackground(void* nativeViewPtr, int materialIndex)
     }
 
     NSVisualEffectView* backgroundView =
-      objc_getAssociatedObject(rootView, kBackgroundKey);
+      objc_getAssociatedObject(rootView, &kBackgroundKey);
 
     if (backgroundView) {
       backgroundView.material = material;
@@ -89,7 +89,7 @@ SetEffectViewBackground(void* nativeViewPtr, int materialIndex)
                relativeTo:rootView];
 
     objc_setAssociatedObject(
-      rootView, kBackgroundKey, backgroundView, OBJC_ASSOCIATION_RETAIN);
+      rootView, &kBackgroundKey, backgroundView, OBJC_ASSOCIATION_RETAIN);
     result = SetBackgroundMaterialResult::OK;
   });
 
@@ -123,13 +123,13 @@ UnsetEffectViewBackground(void* nativeViewPtr)
     }
 
     NSVisualEffectView* backgroundView =
-      objc_getAssociatedObject(rootView, kBackgroundKey);
+      objc_getAssociatedObject(rootView, &kBackgroundKey);
     if (backgroundView) {
       [backgroundView removeFromSuperview];
     }
 
     objc_setAssociatedObject(
-      rootView, kBackgroundKey, nil, OBJC_ASSOCIATION_COPY);
+      rootView, &kBackgroundKey, nil, OBJC_ASSOCIATION_COPY);
     result = SetBackgroundMaterialResult::OK;
   });
 

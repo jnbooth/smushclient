@@ -76,8 +76,8 @@ ScriptApi::BroadcastPlugin(size_t index, long message, string_view text) const
   OnPluginBroadcast onBroadcast(
     message, callingPlugin.id(), callingPlugin.name(), text);
   for (const Plugin& plugin : plugins) {
-    if (&plugin != &callingPlugin) {
-      calledPlugins += plugin.runCallbackThreaded(onBroadcast);
+    if (&plugin != &callingPlugin && plugin.runCallbackThreaded(onBroadcast)) {
+      ++calledPlugins;
     }
   }
   return calledPlugins;
@@ -114,7 +114,7 @@ ScriptApi::DatabaseClose(string_view databaseID)
 int
 ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
 {
-  auto search = databases.emplace((string)databaseID, filename);
+  auto search = databases.emplace(string(databaseID), filename);
   DatabaseConnection& db = search.first->second;
   if (!search.second) {
     return db.isFile(databaseID) ? SQLITE_OK : -6;
@@ -144,7 +144,8 @@ ScriptApi::DoAfter(size_t plugin,
   if (seconds < 0.1 || seconds > 86399) {
     return ApiCode::TimeInvalid;
   }
-  const milliseconds duration = milliseconds{ (int)(seconds * 1000.0) };
+  const milliseconds duration =
+    milliseconds{ static_cast<int>(seconds * 1000.0) };
   sendQueue->start(duration,
                    { .plugin = plugin,
                      .sendTo = target,
@@ -431,9 +432,9 @@ ScriptApi::TextRectangle(const QRect& rect,
     rect.bottom() > 0 ? size.height() - rect.bottom() : -rect.bottom());
   const OutputLayout layout{
     .margins = margins,
-    .borderOffset = (int16_t)borderOffset,
+    .borderOffset = static_cast<int16_t>(borderOffset),
     .borderColor = borderColor,
-    .borderWidth = (int16_t)borderWidth,
+    .borderWidth = static_cast<int16_t>(borderWidth),
     .outsideFill = outsideFill,
   };
   client()->setMetavariable("output/layout", layout.save());
@@ -444,7 +445,7 @@ ApiCode
 ScriptApi::TextRectangle() const
 {
   const QByteArrayView variable = client()->getMetavariable("output/layout");
-  if (!variable.data()) {
+  if (variable.isNull()) {
     return ApiCode::OK;
   }
 

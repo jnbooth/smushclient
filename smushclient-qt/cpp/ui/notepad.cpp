@@ -92,7 +92,7 @@ Notepad::on_action_decrease_size_triggered()
 void
 Notepad::on_action_find_triggered()
 {
-  if (!findDialog) {
+  if (findDialog == nullptr) {
     findDialog = new FindDialog(this);
   }
   if (findDialog->exec() == QDialog::Accepted) {
@@ -208,7 +208,7 @@ Notepads::pad(const QString& name)
   Notepad* notepad =
     findChild<Notepad*>(name, Qt::FindChildOption::FindDirectChildrenOnly);
 
-  if (!notepad) {
+  if (notepad == nullptr) {
     notepad = create(name);
     notepad->setWindowTitle(name);
   }
@@ -225,7 +225,7 @@ Notepads::create(const QString& name)
   Notepad* notepad = new Notepad(this);
   notepad->setObjectName(name);
   notepad->show();
-  if (active) {
+  if (active != nullptr) {
     active->activateWindow();
   }
   return notepad;

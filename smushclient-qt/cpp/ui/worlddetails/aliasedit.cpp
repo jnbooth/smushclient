@@ -83,14 +83,15 @@ AliasEdit::on_Label_textChanged(const QString& text)
 void
 AliasEdit::on_UserSendTo_currentIndexChanged(int index)
 {
-  switch (index) {
-    case (int)UserSendTarget::NotepadAppend:
-    case (int)UserSendTarget::NotepadNew:
-    case (int)UserSendTarget::NotepadReplace:
+  const UserSendTarget value = static_cast<UserSendTarget>(index);
+  switch (value) {
+    case UserSendTarget::NotepadAppend:
+    case UserSendTarget::NotepadNew:
+    case UserSendTarget::NotepadReplace:
       ui->Variable->show();
       ui->Variable_label->setText(tr("Notepad:"));
       return;
-    case (int)UserSendTarget::Variable:
+    case UserSendTarget::Variable:
       ui->Variable->show();
       ui->Variable_label->setText(tr("Variable:"));
       return;

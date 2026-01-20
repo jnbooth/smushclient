@@ -13,7 +13,7 @@ class PluginPopup : public QDialog
   Q_OBJECT
 
 public:
-  PluginPopup(const PluginDetails& plugin, QWidget* parent = nullptr);
+  explicit PluginPopup(const PluginDetails& plugin, QWidget* parent = nullptr);
   ~PluginPopup();
 
 private:

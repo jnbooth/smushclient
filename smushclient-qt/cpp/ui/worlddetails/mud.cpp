@@ -1,4 +1,5 @@
 #include "mud.h"
+#include "../../bytes.h"
 #include "../../fieldconnector.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_mud.h"
@@ -27,7 +28,7 @@ PrefsMud::PrefsMud(World& world, QWidget* parent)
   CONNECT_WORLD(NoEchoOff);
   CONNECT_WORLD(EnableCommandStack);
   ui->CommandStackCharacter->setText(
-    QChar(QLatin1Char(world.getCommandStackCharacter())));
+    bytes::qChar(world.getCommandStackCharacter()));
 }
 
 PrefsMud::~PrefsMud()
@@ -47,7 +48,8 @@ PrefsMud::on_CommandStackCharacter_textChanged(const QString& character)
 void
 PrefsMud::on_UseMxp_currentIndexChanged(int index)
 {
-  const bool enableMxp = index != (int)UseMxp::Never;
+  const UseMxp value = static_cast<UseMxp>(index);
+  const bool enableMxp = value != UseMxp::Never;
   ui->IgnoreMxpColourChanges->setEnabled(enableMxp);
   ui->UseCustomLinkColour->setEnabled(enableMxp);
   ui->MudCanChangeLinkColour->setEnabled(enableMxp);

@@ -45,12 +45,13 @@ public:
 constexpr ActionSource
 commandAction(CommandSource source) noexcept
 {
-  return (bool)source ? ActionSource::UserTyping : ActionSource::UserKeypad;
+  return static_cast<bool>(source) ? ActionSource::UserTyping
+                                   : ActionSource::UserKeypad;
 }
 
 #define CALLBACK(idNumber, nameString, sourceAction)                           \
-  static const int ID = 1 << idNumber;                                         \
-  inline constexpr int id() const noexcept override                            \
+  static const uint ID = 1 << idNumber;                                        \
+  inline constexpr uint id() const noexcept override                           \
   {                                                                            \
     return 1 << idNumber;                                                      \
   }                                                                            \
@@ -70,7 +71,7 @@ class PluginCallback
 public:
   virtual ~PluginCallback() {}
 
-  virtual int id() const noexcept = 0;
+  virtual uint id() const noexcept = 0;
   virtual ActionSource source() const noexcept = 0;
   virtual int expectedSize() const noexcept { return 0; }
   virtual int pushArguments(lua_State*) const { return 0; }
@@ -81,17 +82,17 @@ public:
 class DynamicPluginCallback : public PluginCallback
 {
 public:
-  constexpr DynamicPluginCallback(PluginCallbackKey callback) noexcept
+  constexpr explicit DynamicPluginCallback(PluginCallbackKey callback) noexcept
     : name(callback.name)
     , property(callback.property)
   {
   }
 
-  DynamicPluginCallback(const QString& callback);
+  explicit DynamicPluginCallback(const QString& callback);
 
   virtual ~DynamicPluginCallback() {}
 
-  virtual int id() const noexcept override { return 0; }
+  virtual uint id() const noexcept override { return 0; }
   virtual bool findCallback(lua_State* L) const override;
 
 private:
@@ -127,7 +128,7 @@ class ModifyTextCallback : public NamedPluginCallback
 {
 public:
   inline constexpr int expectedSize() const noexcept override { return 1; }
-  constexpr ModifyTextCallback(QByteArray* text)
+  constexpr explicit ModifyTextCallback(QByteArray* text)
     : text(text)
   {
   }
@@ -241,7 +242,7 @@ class OnPluginLineReceived : public DiscardCallback
 {
 public:
   CALLBACK(10, "OnPluginLineReceived", ActionSource::InputFromServer)
-  constexpr OnPluginLineReceived(std::string_view line)
+  constexpr explicit OnPluginLineReceived(std::string_view line)
     : DiscardCallback()
     , line(line)
   {
@@ -280,7 +281,7 @@ class OnPluginMXPSetEntity : public NamedPluginCallback
 {
 public:
   CALLBACK(15, "OnPluginMXPsetEntity", ActionSource::WorldAction)
-  constexpr OnPluginMXPSetEntity(std::string_view value)
+  constexpr explicit OnPluginMXPSetEntity(std::string_view value)
     : value(value)
   {
   }
@@ -317,7 +318,7 @@ class OnPluginSend : public DiscardCallback
 {
 public:
   CALLBACK(18, "OnPluginSend", ActionSource::Unknown)
-  constexpr OnPluginSend(const QByteArray* text)
+  constexpr explicit OnPluginSend(const QByteArray* text)
     : DiscardCallback()
     , text(text)
   {
@@ -332,7 +333,7 @@ class OnPluginSent : public NamedPluginCallback
 {
 public:
   CALLBACK(19, "OnPluginSent", ActionSource::Unknown)
-  constexpr OnPluginSent(const QByteArray* text)
+  constexpr explicit OnPluginSent(const QByteArray* text)
     : text(text)
   {
   }
@@ -346,7 +347,7 @@ class OnPluginTabComplete : public ModifyTextCallback
 {
 public:
   CALLBACK(20, "OnPluginTabComplete", ActionSource::UserTyping)
-  constexpr OnPluginTabComplete(QByteArray* text)
+  constexpr explicit OnPluginTabComplete(QByteArray* text)
     : ModifyTextCallback(text)
   {
   }
@@ -406,7 +407,7 @@ public:
   inline constexpr void clear() { filter = 0; }
   inline constexpr bool includes(const PluginCallback& callback) const
   {
-    return filter & callback.id();
+    return (filter & callback.id()) != 0;
   }
   void scan(lua_State* L);
 
@@ -414,7 +415,7 @@ private:
   void setIfDefined(lua_State* L, const NamedPluginCallback& callback);
 
 private:
-  size_t filter = 0;
+  uint filter = 0;
 };
 
 #undef CALLBACK

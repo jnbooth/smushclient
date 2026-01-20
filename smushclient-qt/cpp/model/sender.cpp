@@ -26,6 +26,16 @@ struct SelectionRegion
   }
 };
 
+// Private utils
+
+namespace {
+const rust::String*
+getGroup(const QModelIndex& modelIndex)
+{
+  return static_cast<const rust::String*>(modelIndex.constInternalPointer());
+}
+} // namespace
+
 // Public methods
 
 AbstractSenderModel::AbstractSenderModel(SmushClient& client,
@@ -61,9 +71,8 @@ bool
 AbstractSenderModel::editItem(const QModelIndex& modelIndex, QWidget* parent)
 {
   refresh();
-  const rust::String* group =
-    static_cast<const rust::String*>(modelIndex.constInternalPointer());
-  if (!group) {
+  const rust::String* group = getGroup(modelIndex);
+  if (group == nullptr) {
     return false;
   }
 
@@ -86,7 +95,7 @@ AbstractSenderModel::editItem(const QModelIndex& modelIndex, QWidget* parent)
     return true;
   }
 
-  if (newIndex == (int)ReplaceSenderResult::GroupChanged) {
+  if (newIndex == static_cast<int>(ReplaceSenderResult::GroupChanged)) {
     beginResetModel();
     *needsRefresh = true;
     endResetModel();
@@ -167,9 +176,8 @@ int
 AbstractSenderModel::senderIndex(const QModelIndex& index) const
 {
   refresh();
-  const rust::String* group =
-    static_cast<const rust::String*>(index.constInternalPointer());
-  if (!group) {
+  const rust::String* group = getGroup(index);
+  if (group == nullptr) {
     return -1;
   }
 
@@ -191,24 +199,23 @@ AbstractSenderModel::data(const QModelIndex& index, int role) const
     return QVariant();
   }
 
-  const rust::String* group =
-    static_cast<const rust::String*>(index.constInternalPointer());
-  if (group) {
+  const rust::String* group = getGroup(index);
+  if (group != nullptr) {
     return map->cellText(client, *group, index.row(), index.column());
   }
 
-  if (index.column()) {
+  if (index.column() != 0) {
     return QVariant();
   }
 
   const rust::String* parentGroup = map->groupName(index.row());
-  if (!parentGroup) {
+  if (parentGroup == nullptr) {
     return QString();
   }
 
-  size_t len = parentGroup->length();
-  if (len) {
-    return QString::fromUtf8(parentGroup->data(), len);
+  const size_t len = parentGroup->length();
+  if (len != 0) {
+    return QString::fromUtf8(parentGroup->data(), static_cast<qsizetype>(len));
   }
 
   static const QString untitledGroupName = tr("(ungrouped)");
@@ -219,7 +226,7 @@ AbstractSenderModel::data(const QModelIndex& index, int role) const
 bool
 AbstractSenderModel::hasChildren(const QModelIndex& index) const
 {
-  return !index.constInternalPointer();
+  return index.constInternalPointer() == nullptr;
 }
 
 QVariant
@@ -249,10 +256,11 @@ AbstractSenderModel::index(int row, int column, const QModelIndex& parent) const
   }
 
   if (!parent.isValid()) {
-    return map->groupName(row) ? createIndex(row, column) : QModelIndex();
+    return (map->groupName(row) != nullptr) ? createIndex(row, column)
+                                            : QModelIndex();
   }
 
-  if (parent.column() || parent.constInternalPointer()) {
+  if ((parent.column() != 0) || (parent.constInternalPointer() != nullptr)) {
     return QModelIndex();
   }
 
@@ -262,7 +270,7 @@ AbstractSenderModel::index(int row, int column, const QModelIndex& parent) const
   }
 
   const rust::String* groupName = map->groupName(parentRow);
-  if (!groupName) {
+  if (groupName == nullptr) {
     return QModelIndex();
   }
 
@@ -282,9 +290,8 @@ QModelIndex
 AbstractSenderModel::parent(const QModelIndex& index) const
 {
   refresh();
-  const rust::String* group =
-    static_cast<const rust::String*>(index.constInternalPointer());
-  if (!group) {
+  const rust::String* group = getGroup(index);
+  if (group == nullptr) {
     return QModelIndex();
   }
 
@@ -310,14 +317,14 @@ AbstractSenderModel::rowCount(const QModelIndex& index) const
 {
   refresh();
   if (!index.isValid()) {
-    return (int)map->len();
+    return static_cast<int>(map->len());
   }
 
-  if (index.constInternalPointer()) {
+  if (index.constInternalPointer() != nullptr) {
     return 0;
   }
 
-  return (int)map->groupLen(index.row());
+  return static_cast<int>(map->groupLen(index.row()));
 }
 
 bool
@@ -331,9 +338,8 @@ AbstractSenderModel::setData(const QModelIndex& index,
 
   refresh();
 
-  const rust::String* group =
-    static_cast<const rust::String*>(index.constInternalPointer());
-  if (!group) {
+  const rust::String* group = getGroup(index);
+  if (group == nullptr) {
     return false;
   }
 
@@ -399,7 +405,7 @@ AbstractSenderModel::removeRowsInternal(int row,
   }
 
   const rust::String* group = map->groupName(parent.row());
-  if (!group) {
+  if (group == nullptr) {
     return false;
   }
 

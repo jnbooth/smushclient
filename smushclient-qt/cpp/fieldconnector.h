@@ -34,7 +34,7 @@ public:
   {
     static_assert(std::is_same_v<std::underlying_type_t<Enum>, int>,
                   "enum must be represented by int");
-    input->setCurrentIndex((int)value);
+    input->setCurrentIndex(static_cast<int>(value));
     return object->connect(input,
                            &QComboBox::currentIndexChanged,
                            target,

@@ -46,10 +46,10 @@ bool
 openDirectoryExternally(const QString& dirPath)
 {
 #if defined(Q_OS_LINUX)
-  return QProcess::execute(QStringLiteral("xdg-open"), { dirPath });
+  return QProcess::execute(QStringLiteral("xdg-open"), { dirPath }) == 0;
 #elif defined(Q_OS_MACOS)
-  return QProcess::execute(QStringLiteral("open"), { dirPath });
+  return QProcess::execute(QStringLiteral("open"), { dirPath }) == 0;
 #elif defined(Q_OS_WIN)
-  return QProcess::startDetached(QStringLiteral("explorer"), { dirPath });
+  return QProcess::startDetached(QStringLiteral("explorer"), { dirPath }) == 0;
 #endif
 }

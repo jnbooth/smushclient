@@ -1026,7 +1026,7 @@ impl SmushClient {
             .sum()
     }
 
-    pub fn get_info<V: InfoVisitor>(&self, info_type: i32) -> V::Output {
+    pub fn get_info<V: InfoVisitor>(&self, info_type: i64) -> V::Output {
         let info = &self.info;
         let world = &self.world;
         match info_type {

@@ -4,7 +4,7 @@
 class ImageFilter
 {
 public:
-  enum struct Channel
+  enum Channel : int
   {
     Blue = 0,
     Green = 1,
@@ -36,7 +36,7 @@ private:
 class BrightnessMultFilter : public ImageFilter
 {
 public:
-  inline explicit constexpr BrightnessMultFilter(float multiply,
+  inline explicit constexpr BrightnessMultFilter(qreal multiply,
                                                  Channel channel = Channel::All)
     : channel(channel)
     , multiply(multiply)
@@ -47,7 +47,7 @@ public:
 
 private:
   Channel channel;
-  float multiply;
+  qreal multiply;
 };
 
 class GrayscaleFilter : public ImageFilter

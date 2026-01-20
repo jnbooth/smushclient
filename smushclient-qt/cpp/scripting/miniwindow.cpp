@@ -16,7 +16,7 @@ namespace {
 inline bool
 isNotSpace(char c)
 {
-  return !std::isspace(c);
+  return static_cast<bool>(std::isspace(c));
 }
 
 inline void
@@ -33,7 +33,7 @@ buildMenu(QMenu* menu, string_view text)
   vector<QMenu*> menus;
   menus.reserve(menuCount);
   menus.push_back(menu);
-  std::istringstream stream((string)text);
+  std::istringstream stream((string(text)));
   const bool returnsNumber = stream.peek() == '!';
   if (returnsNumber) {
     stream.get();
@@ -52,8 +52,7 @@ buildMenu(QMenu* menu, string_view text)
     const char first = item.front();
     if (first == '>') // nested menu
     {
-      const QString menuTitle =
-        QString::fromUtf8(item.data() + 1, item.size() - 1);
+      const QString menuTitle = QString::fromUtf8(std::span(item).subspan(1));
       menus.push_back(menus.back()->addMenu(menuTitle));
       continue;
     }
@@ -66,22 +65,24 @@ buildMenu(QMenu* menu, string_view text)
     QMenu* buildingMenu = menus.back();
     QAction* action = new QAction(buildingMenu);
 
-    char* start = item.data();
-    size_t size = item.size();
-
-    for (; size; ++start, --size) {
-      switch (*start) {
+    size_t offset = 0;
+    for (const char& c : item) {
+      switch (c) {
         case '+':
+          ++offset;
           action->setCheckable(true);
           action->setChecked(true);
           continue;
         case '^':
+          ++offset;
           action->setDisabled(true);
           continue;
+        default:
+          break;
       }
       break;
     }
-    action->setText(QString::fromUtf8(start, size));
+    action->setText(QString::fromUtf8(std::span(item).subspan(offset)));
     buildingMenu->addAction(action);
   }
   return returnsNumber;
@@ -90,11 +91,11 @@ buildMenu(QMenu* menu, string_view text)
 const QWidget*
 getParentWidget(const QWidget* widget)
 {
-  if (!widget) [[unlikely]] {
+  if (widget == nullptr) [[unlikely]] {
     return widget;
   }
   const QWidget* parent = widget->parentWidget();
-  if (!parent) [[unlikely]] {
+  if (parent == nullptr) [[unlikely]] {
     return widget;
   }
   return parent;
@@ -232,7 +233,7 @@ MiniWindow::addHotspot(string_view hotspotID,
   Hotspot* neighbor = nullptr;
   string_view neighborID;
   for (const auto& entry : hotspots) {
-    const string_view entryID = (string_view)entry.first;
+    const string_view entryID = entry.first;
     if (entryID == hotspotID) {
       Hotspot* hotspot = entry.second;
       if (!hotspot->belongsToPlugin(plugin)) {
@@ -241,15 +242,16 @@ MiniWindow::addHotspot(string_view hotspotID,
       hotspot->setCallbacks(std::move(callbacks));
       return hotspot;
     }
-    if (entryID < hotspotID && (!neighbor || entryID > neighborID)) {
+    if (entryID < hotspotID &&
+        ((neighbor == nullptr) || entryID > neighborID)) {
       neighbor = entry.second;
       neighborID = entryID;
     }
   }
 
-  Hotspot* hotspot = hotspots[(string)hotspotID] =
+  Hotspot* hotspot = hotspots[string(hotspotID)] =
     new Hotspot(this, tab, plugin, hotspotID, std::move(callbacks));
-  if (neighbor) {
+  if (neighbor != nullptr) {
     hotspot->stackUnder(neighbor);
   }
   return hotspot;
@@ -454,7 +456,7 @@ MiniWindow::execMenu(const QPoint& at, string_view menuString)
   QMenu menu(this);
   const bool returnsNumber = buildMenu(&menu, menuString);
   const QAction* choice = menu.exec(mapToGlobal(at));
-  if (!choice) {
+  if (choice == nullptr) {
     return QStringLiteral("");
   }
   const QString text = choice->text();
@@ -527,7 +529,7 @@ MiniWindow::setSize(const QSize& size, const QColor& fill) noexcept
 }
 
 void
-MiniWindow::setZOrder(int order) noexcept
+MiniWindow::setZOrder(long long order) noexcept
 {
   zOrder = order;
 }

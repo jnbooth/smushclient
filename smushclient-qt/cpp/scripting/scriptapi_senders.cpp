@@ -36,10 +36,10 @@ ScriptApi::AddAlias(size_t plugin,
 
   Alias alias;
   alias.setSendTo(target);
-  alias.setLabel(bytes::utf8(name));
-  alias.setPattern(bytes::utf8(pattern));
-  alias.setText(bytes::utf8(text));
-  alias.setScript(bytes::utf8(scriptName));
+  alias.setLabel(QString::fromUtf8(name));
+  alias.setPattern(QString::fromUtf8(pattern));
+  alias.setText(QString::fromUtf8(text));
+  alias.setScript(QString::fromUtf8(scriptName));
   alias.setEnabled(flags.testFlag(AliasFlag::Enabled));
   alias.setKeepEvaluating(flags.testFlag(AliasFlag::KeepEvaluating));
   alias.setOmitFromLog(flags.testFlag(AliasFlag::OmitFromLogFile));
@@ -88,16 +88,16 @@ ScriptApi::AddTimer(size_t plugin,
   timer.setActiveClosed(flags.testFlag(TimerFlag::ActiveWhenClosed));
   timer.setEnabled(flags.testFlag(TimerFlag::Enabled));
   timer.setEveryHour(hour);
-  timer.setEveryMillisecond((int)(second / 1000));
+  timer.setEveryMillisecond(static_cast<int>(second / 1000));
   timer.setEveryMinute(minute);
-  timer.setEverySecond((int)second);
-  timer.setLabel(bytes::utf8(name));
+  timer.setEverySecond(static_cast<int>(second));
+  timer.setLabel(QString::fromUtf8(name));
   timer.setOccurrence(Occurrence::Interval);
   timer.setOneShot(flags.testFlag(TimerFlag::OneShot));
-  timer.setScript(bytes::utf8(scriptName));
+  timer.setScript(QString::fromUtf8(scriptName));
   timer.setSendTo(target);
   timer.setTemporary(flags.testFlag(TimerFlag::Temporary));
-  timer.setText(bytes::utf8(text));
+  timer.setText(QString::fromUtf8(text));
 
   if (!flags.testFlag(TimerFlag::Replace)) {
     return client()->addTimer(plugin, timer, *timekeeper);
@@ -133,16 +133,16 @@ ScriptApi::AddTrigger(size_t plugin,
   trigger.setIgnoreCase(flags.testFlag(TriggerFlag::IgnoreCase));
   trigger.setIsRegex(flags.testFlag(TriggerFlag::RegularExpression));
   trigger.setKeepEvaluating(flags.testFlag(TriggerFlag::KeepEvaluating));
-  trigger.setLabel(bytes::utf8(name));
+  trigger.setLabel(QString::fromUtf8(name));
   trigger.setLowercaseWildcard(flags.testFlag(TriggerFlag::LowercaseWildcard));
   trigger.setOmitFromLog(flags.testFlag(TriggerFlag::OmitFromLog));
   trigger.setOmitFromOutput(flags.testFlag(TriggerFlag::OmitFromOutput));
-  trigger.setPattern(bytes::utf8(pattern));
-  trigger.setScript(bytes::utf8(script));
+  trigger.setPattern(QString::fromUtf8(pattern));
+  trigger.setScript(QString::fromUtf8(script));
   trigger.setSendTo(target);
   trigger.setSequence(sequence);
-  trigger.setSound(bytes::utf8(sound));
-  trigger.setText(bytes::utf8(text));
+  trigger.setSound(QString::fromUtf8(sound));
+  trigger.setText(QString::fromUtf8(text));
   if (color.isValid()) {
     trigger.setChangeForeground(true);
     trigger.setForegroundColor(color);

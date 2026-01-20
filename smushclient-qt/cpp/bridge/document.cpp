@@ -316,8 +316,10 @@ public:
   {
     qlua::pushRString(L, senderName);
     qlua::pushRString(L, line);
-    lua_createtable(L, (int)wildcards->size(), (int)namedWildcards->size());
-    int i = 1;
+    lua_createtable(L,
+                    static_cast<int>(wildcards->size()),
+                    static_cast<int>(namedWildcards->size()));
+    lua_Integer i = 1;
     for (rust::Str wildcard : *wildcards) {
       qlua::pushRString(L, wildcard);
       lua_rawseti(L, -2, i);
@@ -360,12 +362,12 @@ public:
   int pushArguments(lua_State* L) const override
   {
     const int n = AliasCallback::pushArguments(L);
-    lua_createtable(L, (int)spans.length(), 0);
-    int i = 0;
+    lua_createtable(L, static_cast<int>(spans.length()), 0);
+    lua_Integer i = 0;
 
     for (const OutputSpan& output : spans) {
       const TextSpan* span = output.text_span();
-      if (!span) {
+      if (span == nullptr) {
         continue;
       }
       lua_createtable(L, 0, 5);
@@ -374,10 +376,10 @@ public:
       lua_pushinteger(L, span->background());
       lua_setfield(L, -2, "backcolour");
       const rust::Str text = span->text();
-      const int len = (int)text.length();
+      const lua_Integer len = static_cast<lua_Integer>(text.length());
       lua_pushlstring(L, text.data(), len);
       lua_setfield(L, -2, "text");
-      lua_pushinteger(L, (int)len);
+      lua_pushinteger(L, len);
       lua_setfield(L, -2, "length");
       lua_pushinteger(L, span->style());
       lua_setfield(L, -2, "style");

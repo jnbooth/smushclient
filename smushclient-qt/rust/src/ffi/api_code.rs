@@ -1,5 +1,6 @@
 #[cxx::bridge]
 pub mod ffi {
+    #[repr(i64)]
     enum ApiCode {
         OK = 0,                            // No error
         WorldOpen = 30001,                 // The world is already open

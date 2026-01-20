@@ -27,7 +27,7 @@ TimerModel::exportXml() const
 Qt::ItemFlags
 TimerModel::flags(const QModelIndex& index) const
 {
-  if (!index.constInternalPointer()) {
+  if (hasChildren(index)) {
     return Qt::ItemFlag::ItemIsEnabled;
   }
 
@@ -59,7 +59,7 @@ TimerModel::edit(size_t index, QWidget* parent)
   Timer timer(client, index);
   TimerEdit edit(timer, parent);
   if (edit.exec() == QDialog::Rejected) {
-    return (int)ReplaceSenderResult::Unchanged;
+    return static_cast<int>(ReplaceSenderResult::Unchanged);
   }
   return client.replaceWorldTimer(index, timer, *timekeeper);
 }

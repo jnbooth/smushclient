@@ -2,13 +2,22 @@
 #include "../client.h"
 #include "smushclient_qt/src/ffi/plugin_details.cxxqt.h"
 
+// Private utils
+namespace {
+inline bool
+isLeaf(const QModelIndex& index) noexcept
+{
+  return index.constInternalPointer() != nullptr;
+}
+} // namespace
+
 // Public methods
 
 PluginModel::PluginModel(SmushClient& client, QObject* parent)
   : QAbstractItemModel(parent)
   , client(client)
-  , pluginCount((int)client.pluginsLen() - 1)
-  , worldIndex((int)client.worldPluginIndex())
+  , pluginCount(static_cast<int>(client.pluginsLen()) - 1)
+  , worldIndex(static_cast<int>(client.worldPluginIndex()))
 {
 }
 
@@ -17,7 +26,7 @@ PluginModel::addPlugin(const QString& filePath)
 {
   int pluginIndex;
   try {
-    pluginIndex = (int)client.addPlugin(filePath);
+    pluginIndex = static_cast<int>(client.addPlugin(filePath));
   } catch (rust::Error& e) {
     const QString error = QString::fromUtf8(e.what());
     emit clientError(error);
@@ -83,7 +92,7 @@ PluginModel::reinstall(const QModelIndex& index)
   } else if (oldIndex < worldPluginIndex && newIndex >= worldPluginIndex) {
     --worldIndex;
   }
-  const int newRow = pluginIndexToRow((int)newIndex);
+  const int newRow = pluginIndexToRow(static_cast<int>(newIndex));
   const QModelIndex parent = createIndex(0, 0);
 
   beginMoveRows(parent, row, row, parent, newRow);
@@ -120,7 +129,7 @@ PluginModel::data(const QModelIndex& index, int role) const
                ? Qt::CheckState::Checked
                : Qt::CheckState::Unchecked;
     case Qt::InitialSortOrderRole:
-      return (int)pluginIndex(index.row());
+      return static_cast<int>(pluginIndex(index.row()));
     default:
       return QVariant();
   }
@@ -205,8 +214,7 @@ PluginModel::parent(const QModelIndex&) const
 bool
 PluginModel::removeRows(int row, int count, const QModelIndex& parent)
 {
-  if (row < 0 || count <= 0 || row + count > pluginCount ||
-      parent.constInternalPointer()) {
+  if (row < 0 || count <= 0 || row + count > pluginCount || isLeaf(parent)) {
     return false;
   }
 
@@ -232,14 +240,14 @@ PluginModel::removeRows(int row, int count, const QModelIndex& parent)
 int
 PluginModel::rowCount(const QModelIndex& index) const
 {
-  return index.constInternalPointer() ? 0 : pluginCount;
+  return isLeaf(index) ? 0 : pluginCount;
 }
 
 bool
 PluginModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
   if (role != Qt::CheckStateRole || index.column() != 4 || index.row() < 0 ||
-      index.row() >= pluginCount || index.constInternalPointer()) {
+      index.row() >= pluginCount || isLeaf(index)) {
     return false;
   }
 
@@ -262,5 +270,5 @@ bool
 PluginModel::isValidIndex(const QModelIndex& index) const noexcept
 {
   return isValidColumn(index.column()) && index.row() >= 0 &&
-         index.row() < pluginCount && index.constInternalPointer() == nullptr;
+         index.row() < pluginCount && !isLeaf(index);
 }

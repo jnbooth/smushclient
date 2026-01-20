@@ -326,6 +326,8 @@ ScriptApi::sendCallback(PluginCallback& callback)
       }
       sendNaws();
       break;
+    default:
+      break;
   }
 
   if (!callbackFilter.includes(callback)) {
@@ -423,7 +425,7 @@ ScriptApi::setSuppressEcho(bool suppress) noexcept
 
 struct WindowCompare
 {
-  int zOrder;
+  long long zOrder;
   string_view name;
   std::strong_ordering operator<=>(const WindowCompare&) const = default;
 };
@@ -441,16 +443,15 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow* window) const
         entry.second->drawsUnderneath() != drawsUnderneath) {
       continue;
     }
-    WindowCompare entryCompare{ entry.second->getZOrder(),
-                                (string_view)entry.first };
+    WindowCompare entryCompare{ entry.second->getZOrder(), entry.first };
     if (entryCompare > compare &&
-        (!neighbor || entryCompare < neighborCompare)) {
+        ((neighbor == nullptr) || entryCompare < neighborCompare)) {
       neighbor = entry.second;
       neighborCompare = entryCompare;
     }
   }
 
-  if (neighbor) {
+  if (neighbor != nullptr) {
     window->stackUnder(neighbor);
   } else if (drawsUnderneath) {
     window->stackUnder(tab->ui->outputBorder);
