@@ -49,14 +49,13 @@ public:
   bool runFile(const QString& path) const;
   bool runScript(std::string_view script) const;
   constexpr lua_State* state() const noexcept { return L; }
-
-public:
-  PluginMetadata metadata;
+  void updateMetadata(const PluginPack& pack, size_t index);
 
 private:
   bool findCallback(const PluginCallback& callback) const;
 
 private:
-  lua_State* L = nullptr;
   bool disabled = false;
+  lua_State* L = nullptr;
+  PluginMetadata metadata;
 };

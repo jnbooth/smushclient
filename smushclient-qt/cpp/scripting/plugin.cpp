@@ -51,9 +51,9 @@ Plugin::Plugin(ScriptApi* api, const PluginPack& pack, size_t index)
 }
 
 Plugin::Plugin(Plugin&& other) noexcept
-  : metadata(std::move(other.metadata))
+  : disabled(other.disabled)
   , L(std::exchange(other.L, nullptr))
-  , disabled(other.disabled)
+  , metadata(std::move(other.metadata))
 {
 }
 
@@ -227,6 +227,12 @@ Plugin::runScript(string_view script) const
   }
 
   return api_pcall(L, 0, 0);
+}
+
+void
+Plugin::updateMetadata(const PluginPack& pack, size_t index)
+{
+  metadata = PluginMetadata(pack, index);
 }
 
 // Private methods

@@ -234,13 +234,14 @@ ScriptApi::initializePlugins()
     }
     pluginIndices[metadata.id] = index;
     Plugin& plugin = plugins.emplace_back(this, *it, index);
-    if (plugin.metadata.id.empty()) {
+    const string& pluginId = plugin.id();
+    if (pluginId.empty()) {
       worldScriptIndex = index;
     }
-    pluginIndices[plugin.metadata.id] = index;
+    pluginIndices[pluginId] = index;
     if (plugin.install(*it)) {
       callbackFilter.scan(plugin.state());
-      client()->startTimers(index, *timekeeper);
+      client->startTimers(index, *timekeeper);
     }
   }
   OnPluginInstall onInstall;
@@ -272,7 +273,7 @@ ScriptApi::reinstallPlugin(size_t index)
     }
   }
   Plugin& plugin = plugins[index];
-  plugin.metadata = PluginMetadata(pack, index);
+  plugin.updateMetadata(pack, index);
   plugin.reset();
   if (!plugin.install(pack)) {
     return;
