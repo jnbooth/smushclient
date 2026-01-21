@@ -1055,7 +1055,7 @@ WorldTab::on_output_anchorClicked(const QUrl& url)
     return;
   }
 
-  switch (decodeLink(action)) {
+  switch (spans::decodeLink(action)) {
     case SendTo::Internet:
       QDesktopServices::openUrl(QUrl(action));
       return;
@@ -1096,7 +1096,7 @@ WorldTab::on_output_customContextMenuRequested(const QPoint& pos)
   const QTextCharFormat format =
     ui->output->cursorForPosition(pos).charFormat();
   const QPoint mouse = ui->output->mapToGlobal(pos);
-  const QString prompts = getPrompts(format);
+  const QString prompts = spans::getPrompts(format);
   if (prompts.isEmpty()) {
     ui->output->createStandardContextMenu(mouse)->exec(mouse);
     return;

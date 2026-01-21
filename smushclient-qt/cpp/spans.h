@@ -12,6 +12,7 @@ enum class LineType
   Note,
 };
 
+namespace spans {
 QString
 encodeLink(SendTo sendto, const QString& action);
 
@@ -41,3 +42,4 @@ getTimestamp(const QTextBlockFormat& format);
 
 QString&
 sanitizeHtml(QString& html);
+} // namespace spans

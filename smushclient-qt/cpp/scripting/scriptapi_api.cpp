@@ -227,7 +227,7 @@ ScriptApi::Hyperlink(const QString& action,
 {
   QTextCharFormat format;
   format.setAnchorHref(
-    encodeLink(url ? SendTo::Internet : SendTo::World, action));
+    spans::encodeLink(url ? SendTo::Internet : SendTo::World, action));
   format.setToolTip(hint.isEmpty() ? action : hint);
   if (foreground.isValid()) {
     format.setForeground(foreground);

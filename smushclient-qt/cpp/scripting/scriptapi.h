@@ -13,8 +13,6 @@
 
 #define SCRIPTING_VERSION "5.07"
 
-constexpr size_t noSuchPlugin = std::numeric_limits<size_t>::max();
-
 class ImageFilter;
 class MudScrollBar;
 class MudBrowser;
@@ -435,6 +433,8 @@ private:
   ApiCode sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags);
 
 private:
+  static constexpr size_t noSuchPlugin = std::numeric_limits<size_t>::max();
+
   ActionSource actionSource = ActionSource::Unknown;
   CallbackFilter callbackFilter;
   const SmushClient* client;

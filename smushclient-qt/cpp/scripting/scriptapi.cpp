@@ -45,8 +45,8 @@ ScriptApi::ScriptApi(const SmushClient* client,
   , whenConnected(QDateTime::currentDateTime())
 {
   timekeeper->beginPolling(milliseconds(seconds{ 60 }));
-  setLineType(echoFormat, LineType::Input);
-  setLineType(noteFormat, LineType::Note);
+  spans::setLineType(echoFormat, LineType::Input);
+  spans::setLineType(noteFormat, LineType::Note);
 }
 
 ScriptApi::~ScriptApi()
@@ -481,7 +481,7 @@ ScriptApi::startLine()
 void
 ScriptApi::updateTimestamp()
 {
-  setTimestamp(cursor);
+  spans::setTimestamp(cursor);
 }
 
 // Private methods

@@ -457,9 +457,9 @@ ScriptApi::GetLineInfo(int lineNumber, int64_t infoType) const
     case 3:
       return lineIndex == block.lineCount() - 1;
     case 4:
-      return getLineType(block.charFormat()) == LineType::Note;
+      return spans::getLineType(block.charFormat()) == LineType::Note;
     case 5:
-      return getLineType(block.charFormat()) == LineType::Input;
+      return spans::getLineType(block.charFormat()) == LineType::Input;
     case 6: // true if line logged
       return true;
     case 7: // true if bookmarked
@@ -470,7 +470,7 @@ ScriptApi::GetLineInfo(int lineNumber, int64_t infoType) const
              QStringLiteral("<hr>");
     }
     case 9:
-      return getTimestamp(block.blockFormat());
+      return spans::getTimestamp(block.blockFormat());
     case 10:
       return lineNumber;
     case 11: {
@@ -489,7 +489,7 @@ ScriptApi::GetLineInfo(int lineNumber, int64_t infoType) const
     }
     // case 12: // ticks - exact value from the high-performance timer
     case 13:
-      return whenConnected.secsTo(getTimestamp(block.blockFormat()));
+      return whenConnected.secsTo(spans::getTimestamp(block.blockFormat()));
     default:
       return QVariant();
   }
@@ -551,7 +551,7 @@ ScriptApi::GetStyleInfo(int line, int64_t style, int64_t infoType) const
     case 3:
       return range.start - textStart;
     case 4: {
-      optional<SendTo> sendto = getSendTo(range.format);
+      optional<SendTo> sendto = spans::getSendTo(range.format);
       if (!sendto) {
         return 0;
       }
@@ -567,7 +567,7 @@ ScriptApi::GetStyleInfo(int line, int64_t style, int64_t infoType) const
     case 5: {
       QString link = range.format.anchorHref();
       if (!link.isEmpty()) {
-        decodeLink(link);
+        spans::decodeLink(link);
       }
       return link;
     }
@@ -579,9 +579,9 @@ ScriptApi::GetStyleInfo(int line, int64_t style, int64_t infoType) const
     case 9:
       return range.format.fontUnderline();
     case 10:
-      return getStyles(range.format).testFlag(TextStyle::Blink);
+      return spans::getStyles(range.format).testFlag(TextStyle::Blink);
     case 11:
-      return getStyles(range.format).testFlag(TextStyle::Inverse);
+      return spans::getStyles(range.format).testFlag(TextStyle::Inverse);
     case 12: // changed by trigger from original
     case 13: // true if start of a tag (action is tag name)
       return false;

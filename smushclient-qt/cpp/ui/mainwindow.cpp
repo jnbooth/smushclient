@@ -472,7 +472,7 @@ MainWindow::on_action_copy_as_html_triggered()
 {
   QString html =
     worldtab()->copyableEditor()->textCursor().selection().toHtml();
-  QGuiApplication::clipboard()->setText(sanitizeHtml(html));
+  QGuiApplication::clipboard()->setText(spans::sanitizeHtml(html));
 }
 
 void

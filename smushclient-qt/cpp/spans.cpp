@@ -35,6 +35,8 @@ getPrefix(SendTo sendto)
 
 // Public functions
 
+namespace spans {
+
 QString
 encodeLink(SendTo sendto, const QString& action)
 {
@@ -144,3 +146,4 @@ sanitizeHtml(QString& html)
 
 #undef Q
 }
+} // namespace spans

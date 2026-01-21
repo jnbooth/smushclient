@@ -5,13 +5,6 @@
 struct lua_State;
 enum class CommandSource : uint8_t;
 
-constexpr ActionSource
-commandAction(CommandSource source) noexcept
-{
-  return static_cast<bool>(source) ? ActionSource::UserTyping
-                                   : ActionSource::UserKeypad;
-}
-
 #define CALLBACK(idNumber, nameString, sourceAction)                           \
   static const unsigned int ID = 1 << (idNumber);                              \
   inline constexpr unsigned int id() const noexcept override                   \
@@ -40,6 +33,12 @@ public:
   virtual int pushArguments(lua_State* /*L*/) const { return 0; }
   virtual bool findCallback(lua_State* L) const = 0;
   virtual void collectReturned(lua_State* /*L*/) {}
+
+  static constexpr ActionSource commandAction(CommandSource source) noexcept
+  {
+    return static_cast<bool>(source) ? ActionSource::UserTyping
+                                     : ActionSource::UserKeypad;
+  }
 };
 
 class DynamicPluginCallback : public PluginCallback
