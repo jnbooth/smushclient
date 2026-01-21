@@ -9,6 +9,7 @@ mod ffi {
     /// This enum describes the text item a [`QTextFormat`] object is formatting.
     #[repr(i32)]
     #[derive(Debug)]
+    #[namespace = "rust::smushclientqtlib1"]
     enum QTextFormatFormatType {
         /// An invalid format as created by the default constructor
         InvalidFormat = -1,
@@ -25,6 +26,7 @@ mod ffi {
 
     /// This enum describes the different properties a format can have.
     #[repr(i32)]
+    #[namespace = "rust::smushclientqtlib1"]
     enum QTextFormatProperty {
         ObjectIndex = 0x0,
 
@@ -175,6 +177,7 @@ mod ffi {
     /// This enum describes what kind of `QTextObject` this format is associated with.
     #[repr(i32)]
     #[derive(Debug)]
+    #[namespace = "rust::smushclientqtlib1"]
     enum QTextFormatObjectTypes {
         NoObject,
         ImageObject,
@@ -186,6 +189,7 @@ mod ffi {
 
     /// This enum describes how page breaking is performed when printing. It maps to the corresponding css properties.
     #[repr(i32)]
+    #[namespace = "rust::smushclientqtlib1"]
     enum QTextFormatPageBreakFlag {
         /// The page break is determined automatically depending on the available space on the current page
         PageBreak_Auto = 0,
@@ -228,6 +232,7 @@ mod ffi {
         type LayoutDirection = cxx_qt_lib::LayoutDirection;
     }
 
+    #[namespace = "rust::smushclientqtlib1"]
     extern "C++" {
         include!("smushclient-qt-lib/qtextformat.h");
         type QFontWeight;
@@ -396,7 +401,10 @@ use crate::{QBrush, QTextCharFormat, QTextLength};
 
 /// [`QFlags`] of [`QTextFormatPageBreakFlag`].
 pub type QTextFormatPageBreakFlags = QFlags<QTextFormatPageBreakFlag>;
-unsafe_impl_qflag!(QTextFormatPageBreakFlag, "QTextFormatPageBreakFlags");
+unsafe_impl_qflag!(
+    QTextFormatPageBreakFlag,
+    "rust::smushclientqtlib1::QTextFormatPageBreakFlags"
+);
 
 /// The `QTextFormat` class provides formatting information for a `QTextDocument`.
 ///

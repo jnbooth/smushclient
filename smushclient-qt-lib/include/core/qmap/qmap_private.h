@@ -19,7 +19,5 @@ qmapContains(const QMap<K, V>& map, const K& item)
   return map.contains(item);
 }
 } // namespace qmap
-
 } // namespace smushclientqtlib1
-
 } // namespace rust

@@ -4,15 +4,15 @@
 
 #include "rust/cxx.h"
 
-using QTextCharFormatUnderlineStyle = QTextCharFormat::UnderlineStyle;
-using QTextCharFormatVerticalAlignment = QTextCharFormat::VerticalAlignment;
-
 namespace rust {
 template<>
 struct IsRelocatable<QTextCharFormat> : ::std::true_type
 {};
 
 namespace smushclientqtlib1 {
+using QTextCharFormatUnderlineStyle = QTextCharFormat::UnderlineStyle;
+using QTextCharFormatVerticalAlignment = QTextCharFormat::VerticalAlignment;
+
 void
 qtextcharformatSetFont(QTextCharFormat& format, const QFont& font);
 void

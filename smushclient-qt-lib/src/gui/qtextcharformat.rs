@@ -15,6 +15,7 @@ use crate::{QTextFormat, QTextFormatProperty};
 mod ffi {
     #[doc(hidden)]
     #[repr(i32)]
+    #[namespace = "rust::smushclientqtlib1"]
     enum QFontWeight {
         Thin = 100,
         ExtraLight = 200,
@@ -30,6 +31,7 @@ mod ffi {
     /// This enum describes the different ways drawing underlined text.
     #[repr(i32)]
     #[derive(Debug)]
+    #[namespace = "rust::smushclientqtlib1"]
     enum QTextCharFormatUnderlineStyle {
         /// Text is draw without any underlining decoration.
         NoUnderline,
@@ -52,6 +54,7 @@ mod ffi {
     /// This enum describes the ways that adjacent characters can be vertically aligned.
     #[repr(i32)]
     #[derive(Debug)]
+    #[namespace = "rust::smushclientqtlib1"]
     enum QTextCharFormatVerticalAlignment {
         /// Adjacent characters are positioned in the standard way for text in the writing system in use.
         AlignNormal,
@@ -100,6 +103,7 @@ mod ffi {
         type QFontWeight;
     }
 
+    #[namespace = "rust::smushclientqtlib1"]
     extern "C++" {
         include!("smushclient-qt-lib/qtextcharformat.h");
         type QTextCharFormatUnderlineStyle;

@@ -22,9 +22,9 @@ namespace rust {
 namespace cxxqtlib1 {
 namespace qvariant {
 bool qvariantCanConvert$1(const QVariant& variant);
-}
-}
-}
+} // namespace qvariant
+} // namespace cxxqtlib1
+} // namespace rust
 EOF
     clang-format -i "$SCRIPTPATH/../../../include/core/qvariant/qvariant_$LOWER.h"
 

@@ -389,7 +389,8 @@ dependencies = [
 [[package]]
 name = "cxx-qt"
 version = "0.8.0"
-source = "git+https://github.com/KDAB/cxx-qt#c98fb6204d17c257a8f22594c88a2ac3350f6859"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec7c6dea4b551221e1df4349af7ae6af2c906c16860bdab5cada5a957b43cbbc"
 dependencies = [
  "cxx",
  "cxx-qt-build",
@@ -402,7 +403,8 @@ dependencies = [
 [[package]]
 name = "cxx-qt-build"
 version = "0.8.0"
-source = "git+https://github.com/KDAB/cxx-qt#c98fb6204d17c257a8f22594c88a2ac3350f6859"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c70cbc19fb351a0413632b326ad4862baea7f50d641d2d360b29ad0f772547bc"
 dependencies = [
  "cc",
  "codespan-reporting 0.11.1",
@@ -418,7 +420,8 @@ dependencies = [
 [[package]]
 name = "cxx-qt-gen"
 version = "0.8.0"
-source = "git+https://github.com/KDAB/cxx-qt#c98fb6204d17c257a8f22594c88a2ac3350f6859"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33744d84f696836347071ad73da233f758f98e5c0b348e2855140173b36bffa2"
 dependencies = [
  "clang-format",
  "convert_case",
@@ -431,8 +434,8 @@ dependencies = [
 
 [[package]]
 name = "cxx-qt-io"
-version = "0.3.1"
-source = "git+https://github.com/jnbooth/cxx-qt-io#187115d9155a2e9f23a00a1959dbf7efae94280d"
+version = "0.3.2"
+source = "git+https://github.com/jnbooth/cxx-qt-io#0aee27cd3abe38e58bb5316a23ce1d8e3c00c7ed"
 dependencies = [
  "cxx",
  "cxx-qt",
@@ -445,7 +448,8 @@ dependencies = [
 [[package]]
 name = "cxx-qt-lib"
 version = "0.8.0"
-source = "git+https://github.com/KDAB/cxx-qt#c98fb6204d17c257a8f22594c88a2ac3350f6859"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7eacfc219a287c422619b7704166bfd3b9b842367bd9124ad5557e6150a2d658"
 dependencies = [
  "chrono",
  "cxx",
@@ -457,7 +461,8 @@ dependencies = [
 [[package]]
 name = "cxx-qt-macro"
 version = "0.8.0"
-source = "git+https://github.com/KDAB/cxx-qt#c98fb6204d17c257a8f22594c88a2ac3350f6859"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3cb8ce32a983d56470101ff8e61c8a700ba37805b6e942186c6f3dd5d6ad44f6"
 dependencies = [
  "cxx-qt-gen",
  "proc-macro2",
@@ -547,7 +552,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -1252,7 +1257,8 @@ dependencies = [
 [[package]]
 name = "qt-build-utils"
 version = "0.8.0"
-source = "git+https://github.com/KDAB/cxx-qt#c98fb6204d17c257a8f22594c88a2ac3350f6859"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0cfd41d4f115dfc940ea3ea31b3aed77233ad09ab8859a227ed61323025590af"
 dependencies = [
  "anyhow",
  "cc",
@@ -1332,7 +1338,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -1837,7 +1843,7 @@ dependencies = [
  "getrandom",
  "once_cell",
  "rustix",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -2096,7 +2102,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]

@@ -19,7 +19,5 @@ qlistContains(const QList<T>& list, const T& item)
   return list.contains(item);
 }
 } // namespace qlist
-
 } // namespace smushclientqtlib1
-
 } // namespace rust

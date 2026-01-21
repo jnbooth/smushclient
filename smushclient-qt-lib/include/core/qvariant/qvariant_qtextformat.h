@@ -10,6 +10,6 @@ namespace cxxqtlib1 {
 namespace qvariant {
 bool
 qvariantCanConvertQTextFormat(const QVariant& variant);
-}
+} // namespace qvariant
 } // namespace cxxqtlib1
 } // namespace rust
