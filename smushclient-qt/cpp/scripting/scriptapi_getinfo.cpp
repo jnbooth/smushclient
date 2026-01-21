@@ -434,7 +434,7 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 298:
       return sqlite3_libversion_number();
     default:
-      return client()->getInfo(infoType);
+      return client->getInfo(infoType);
   }
 }
 
@@ -508,7 +508,7 @@ ScriptApi::GetPluginInfo(string_view pluginID, int64_t infoType) const
     case 22:
       return QVariant(plugins[index].installed());
     default:
-      return client()->pluginInfo(index, infoType);
+      return client->pluginInfo(index, infoType);
   }
 }
 
@@ -604,11 +604,11 @@ ScriptApi::GetTimerInfo(size_t pluginIndex,
 
   if (infoType == 26) {
     const QString scriptName =
-      client()->timerInfo(pluginIndex, bytes::slice(label), 5).toString();
+      client->timerInfo(pluginIndex, bytes::slice(label), 5).toString();
     return !scriptName.isEmpty() &&
            plugins[pluginIndex].hasFunction(scriptName);
   }
-  return client()->timerInfo(pluginIndex, bytes::slice(label), infoType);
+  return client->timerInfo(pluginIndex, bytes::slice(label), infoType);
 }
 
 // External implementations

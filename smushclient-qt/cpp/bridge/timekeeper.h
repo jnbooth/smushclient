@@ -8,6 +8,7 @@
 class ScriptApi;
 enum class SendTarget;
 struct SendTimer;
+class SmushClient;
 template<typename T>
 class TimerMap;
 
@@ -16,7 +17,7 @@ class Timekeeper : public QObject
   Q_OBJECT
 
 public:
-  explicit Timekeeper(ScriptApi* parent);
+  explicit Timekeeper(const SmushClient* client, ScriptApi* parent);
   void beginPolling(std::chrono::milliseconds interval,
                     Qt::TimerType timerType = Qt::TimerType::CoarseTimer);
   void cancelTimers(const QSet<uint16_t>& timerIds);
@@ -38,8 +39,9 @@ private slots:
   void pollTimers();
 
 private:
-  bool closed = true;
   ScriptApi* api;
+  const SmushClient* client;
+  bool closed = true;
   QTimer* pollTimer;
   TimerMap<Item>* queue;
 };

@@ -131,8 +131,8 @@ ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
 ApiCode
 ScriptApi::DeleteVariable(size_t plugin, string_view key) const
 {
-  return client()->unsetVariable(plugin, key) ? ApiCode::OK
-                                              : ApiCode::VariableNotFound;
+  return client->unsetVariable(plugin, key) ? ApiCode::OK
+                                            : ApiCode::VariableNotFound;
 }
 
 ApiCode
@@ -162,7 +162,7 @@ ScriptApi::EnablePlugin(string_view pluginID, bool enabled)
     return ApiCode::NoSuchPlugin;
   }
   plugins[index].disable();
-  client()->setPluginEnabled(index, enabled);
+  client->setPluginEnabled(index, enabled);
   OnPluginListChanged onListChanged;
   sendCallback(onListChanged);
   return ApiCode::OK;
@@ -171,7 +171,7 @@ ScriptApi::EnablePlugin(string_view pluginID, bool enabled)
 VariableView
 ScriptApi::GetAlphaOption(size_t plugin, string_view name) const
 {
-  return client()->worldAlphaOption(plugin, bytes::slice(name));
+  return client->worldAlphaOption(plugin, bytes::slice(name));
 }
 
 int
@@ -183,20 +183,20 @@ ScriptApi::GetLinesInBufferCount() const
 QVariant
 ScriptApi::GetCurrentValue(size_t pluginIndex, string_view option) const
 {
-  return client()->worldVariantOption(pluginIndex, bytes::slice(option));
+  return client->worldVariantOption(pluginIndex, bytes::slice(option));
 }
 
 int64_t
 ScriptApi::GetOption(size_t plugin, string_view name) const
 {
-  return client()->worldOption(plugin, bytes::slice(name));
+  return client->worldOption(plugin, bytes::slice(name));
 }
 
 VariableView
 ScriptApi::GetVariable(size_t index, string_view key) const
 {
 
-  return client()->getVariable(index, key);
+  return client->getVariable(index, key);
 }
 
 VariableView
@@ -252,7 +252,7 @@ ScriptApi::PlaySound(size_t channel,
                      bool loop,
                      float volume) const
 {
-  return client()->playFile(channel, bytes::slice(path), volume, loop);
+  return client->playFile(channel, bytes::slice(path), volume, loop);
 }
 
 ApiCode
@@ -261,7 +261,7 @@ ScriptApi::PlaySoundMemory(size_t channel,
                            bool loop,
                            float volume) const
 {
-  return client()->playBuffer(channel, bytes::slice(sound), volume, loop);
+  return client->playBuffer(channel, bytes::slice(sound), volume, loop);
 }
 
 ApiCode
@@ -354,7 +354,7 @@ ScriptApi::SetStatus(const QString& status) const
 bool
 ScriptApi::SetVariable(size_t index, string_view key, string_view value) const
 {
-  return client()->setVariable(index, key, value);
+  return client->setVariable(index, key, value);
 }
 
 void
@@ -366,13 +366,13 @@ ScriptApi::Simulate(string_view output) const
 void
 ScriptApi::StopEvaluatingTriggers() const
 {
-  client()->stopTriggers();
+  client->stopTriggers();
 }
 
 ApiCode
 ScriptApi::StopSound(size_t channel) const
 {
-  return client()->stopSound(channel);
+  return client->stopSound(channel);
 }
 
 void
@@ -439,14 +439,14 @@ ScriptApi::TextRectangle(const QRect& rect,
     .borderWidth = static_cast<int16_t>(borderWidth),
     .outsideFill = outsideFill,
   };
-  client()->setMetavariable("output/layout", layout.save());
+  client->setMetavariable("output/layout", layout.save());
   return TextRectangle(layout);
 }
 
 ApiCode
 ScriptApi::TextRectangle() const
 {
-  const QByteArrayView variable = client()->getMetavariable("output/layout");
+  const QByteArrayView variable = client->getMetavariable("output/layout");
   if (variable.isNull()) {
     return ApiCode::OK;
   }

@@ -36,9 +36,10 @@ private:
   const rust::String* label;
 };
 
-Timekeeper::Timekeeper(ScriptApi* parent)
+Timekeeper::Timekeeper(const SmushClient* client, ScriptApi* parent)
   : QObject(parent)
   , api(parent)
+  , client(client)
   , pollTimer(new QTimer(this))
   , queue(new TimerMap<Timekeeper::Item>(this, &Timekeeper::finishTimer))
 {
@@ -91,11 +92,11 @@ Timekeeper::startSendTimer(size_t index, uint16_t timerId, uint millis) const
 bool
 Timekeeper::finishTimer(const Timekeeper::Item& item)
 {
-  return api->client()->finishTimer(item.index, *this);
+  return client->finishTimer(item.index, *this);
 }
 
 void
 Timekeeper::pollTimers()
 {
-  api->client()->pollTimers(*this);
+  client->pollTimers(*this);
 }

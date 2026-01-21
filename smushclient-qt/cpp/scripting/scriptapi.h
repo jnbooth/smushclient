@@ -55,7 +55,8 @@ public:
   static QVariant FontInfo(const QFont& font, int64_t infoType);
   static void SetClipboard(const QString& text);
 
-  ScriptApi(QAbstractSocket* socket,
+  ScriptApi(const SmushClient* client,
+            QAbstractSocket* socket,
             MudBrowser* output,
             MudStatusBar* statusBar,
             Notepads* notepads,
@@ -361,7 +362,6 @@ public:
   void appendText(const QString& text, const QTextCharFormat& format);
   void appendText(const QString& text);
   void applyWorld(const World& world);
-  const SmushClient* client() const;
   void echo(const QString& text);
   void finishNote();
   const Plugin* getPlugin(std::string_view pluginID) const;
@@ -442,6 +442,7 @@ private:
 private:
   ActionSource actionSource = ActionSource::Unknown;
   CallbackFilter callbackFilter{};
+  const SmushClient* client;
   QTextCursor cursor;
   string_map<DatabaseConnection> databases;
   bool doNaws = false;

@@ -105,12 +105,6 @@ signals:
 
 public:
   Ui::WorldTab* ui;
-  SmushClient client;
-#ifdef QT_NO_SSL
-  QTcpSocket* socket;
-#else
-  QSslSocket* socket;
-#endif
 
 protected:
   void closeEvent(QCloseEvent* event) override;
@@ -160,6 +154,7 @@ private:
   bool alertNewActivity = false;
   ScriptApi* api;
   QMetaObject::Connection autoScroll;
+  SmushClient client;
   Document* document;
   QString filePath;
   QTimer* flushTimer;
@@ -174,6 +169,11 @@ private:
   bool queuedConnect = false;
   QTimer* resizeTimer;
   ScriptRecompile scriptReloadOption = ScriptRecompile::Never;
+#ifdef QT_NO_SSL
+  QTcpSocket* socket;
+#else
+  QSslSocket* socket;
+#endif
   int sessionStartBlock = 0;
   QChar splitOn{ u'\n' };
   QString worldName;

@@ -63,19 +63,19 @@ showRustError(const rust::Error& e)
 WorldTab::WorldTab(MudStatusBar* statusBar, Notepads* notepads, QWidget* parent)
   : QSplitter(parent)
   , ui(new Ui::WorldTab)
+  , flushTimer(new QTimer(this))
+  , resizeTimer(new QTimer(this))
 #ifdef QT_NO_SSL
   , socket(new QTcpSocket(this))
 #else
   , socket(new QSslSocket(this))
 #endif
-  , flushTimer(new QTimer(this))
-  , resizeTimer(new QTimer(this))
   , worldScriptWatcher(this)
 {
   ui->setupUi(this);
   // NOLINTBEGIN(cppcoreguidelines-prefer-member-initializer,
   // cppcoreguidelines-prefer-member-initializer)
-  api = new ScriptApi(socket, ui->output, statusBar, notepads, this);
+  api = new ScriptApi(&client, socket, ui->output, statusBar, notepads, this);
   document = new Document(ui->output, api, this);
   // NOLINTEND(cppcoreguidelines-prefer-member-initializer,
   // cppcoreguidelines-prefer-member-initializer)

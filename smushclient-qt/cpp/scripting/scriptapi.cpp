@@ -24,13 +24,15 @@ using std::chrono::seconds;
 
 // Public methods
 
-ScriptApi::ScriptApi(QAbstractSocket* socket,
+ScriptApi::ScriptApi(const SmushClient* client,
+                     QAbstractSocket* socket,
                      MudBrowser* output,
                      MudStatusBar* statusBar,
                      Notepads* notepads,
                      WorldTab* parent)
   : QObject(parent)
-  , timekeeper(new Timekeeper(this))
+  , timekeeper(new Timekeeper(client, this))
+  , client(client)
   , cursor(output->document())
   , notepads(notepads)
   , scrollBar(output->verticalScrollBar())
@@ -209,7 +211,7 @@ ScriptApi::handleSendRequest(const SendRequest& request)
 void
 ScriptApi::initializePlugins()
 {
-  const rust::Vec<PluginPack> pack = client()->resetPlugins();
+  const rust::Vec<PluginPack> pack = client->resetPlugins();
   worldScriptIndex = noSuchPlugin;
   if (!windows.empty()) {
     for (const auto& entry : windows) {
@@ -254,13 +256,13 @@ ApiCode
 ScriptApi::playFileRaw(const QString& path) const
 {
   const QByteArray utf8 = path.toUtf8();
-  return client()->playFileRaw(bytes::slice(utf8));
+  return client->playFileRaw(bytes::slice(utf8));
 }
 
 void
 ScriptApi::reinstallPlugin(size_t index)
 {
-  const PluginPack pack = client()->plugin(index);
+  const PluginPack pack = client->plugin(index);
   const string pluginId(pack.id.data(), pack.id.size());
   if (!windows.empty()) {
     for (auto it = windows.begin(); it != windows.end();) {
@@ -279,7 +281,7 @@ ScriptApi::reinstallPlugin(size_t index)
     return;
   }
   callbackFilter.scan(plugin.state());
-  client()->startTimers(index, *timekeeper);
+  client->startTimers(index, *timekeeper);
   OnPluginInstall onInstall;
   sendCallback(onInstall, index);
   OnPluginListChanged onListChanged;
@@ -315,7 +317,7 @@ void
 ScriptApi::resetAllTimers()
 {
   sendQueue->clear();
-  client()->startAllTimers(*timekeeper);
+  client->startAllTimers(*timekeeper);
 }
 
 void
@@ -482,12 +484,6 @@ ScriptApi::updateTimestamp()
 
 // Private methods
 
-const SmushClient*
-ScriptApi::client() const
-{
-  return &tab->client;
-}
-
 DatabaseConnection*
 ScriptApi::findDatabase(string_view databaseID)
 {
@@ -550,7 +546,7 @@ void
 ScriptApi::insertBlock()
 {
   if (logNotes && lastTellPosition >= lastLinePosition) {
-    client()->logNote(cursor.block().text());
+    client->logNote(cursor.block().text());
   }
   cursor.insertBlock();
   lastLinePosition = cursor.position();
@@ -572,7 +568,7 @@ ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
   lastCommandSent = bytes;
 
   if (flags.testFlag(SendFlag::Log)) {
-    client()->logInput(text);
+    client->logInput(text);
   }
 
   bytes.append("\r\n");
