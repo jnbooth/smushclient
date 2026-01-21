@@ -3,16 +3,14 @@
 CONFIG="Debug"
 if [ "$1" = "--release" ]; then
   CONFIG="Release"
-  CMAKE_BUILD_TYPE="Release"
   shift
 fi
 
-DIR="$(dirname "$0")"
-cd "$DIR"
+cd "$(dirname "$0")"
+BUILDDIR="build/$CONFIG"
 
-BUILDDIR="$(pwd)/build/$CONFIG"
-
-cmake -S . -B $BUILDDIR
+cmake -DCMAKE_BUILD_TYPE=$CONFIG -S . -B $BUILDDIR
+# shellcheck disable=SC2068
 cmake --build $BUILDDIR --config $CONFIG --target SmushClient $@
 
 if [[ "$OSTYPE" == "darwin"* ]]; then

@@ -3,6 +3,9 @@
 #include "api.h"
 #include "errors.h"
 #include "globals.h"
+#ifdef NDEBUG
+#include "../scriptapi.h"
+#endif
 #include "utils.h"
 #include <QtCore/QString>
 #include <QtWidgets/QErrorMessage>
