@@ -1,8 +1,5 @@
 #pragma once
-#include <QtCore/QByteArray>
-#include <QtGui/QContextMenuEvent>
 #include <QtWidgets/QMenu>
-#include <QtWidgets/QWidget>
 
 namespace Ui {
 class MudStatusBar;

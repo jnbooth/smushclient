@@ -1,5 +1,6 @@
 #include "spans.h"
 #include "smushclient_qt/src/ffi/document.cxxqt.h"
+#include <QtCore/QDateTime>
 #include <QtCore/QRegularExpression>
 
 using std::nullopt;

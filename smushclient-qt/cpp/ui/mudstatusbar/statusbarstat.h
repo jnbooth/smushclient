@@ -1,7 +1,4 @@
 #pragma once
-#include <QtCore/QSettings>
-#include <QtGui/QResizeEvent>
-#include <QtWidgets/QFrame>
 #include <QtWidgets/QMenu>
 
 namespace Ui {

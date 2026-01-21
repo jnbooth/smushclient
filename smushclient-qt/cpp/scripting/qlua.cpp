@@ -1,5 +1,4 @@
 #include "qlua.h"
-#include "miniwindow.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include <QtCore/QUuid>
 #include <sstream>

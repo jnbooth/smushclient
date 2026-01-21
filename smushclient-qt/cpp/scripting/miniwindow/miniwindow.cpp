@@ -3,6 +3,7 @@
 #include "imagefilters.h"
 #include <QtGui/QPaintEvent>
 #include <QtGui/QPainter>
+#include <QtWidgets/QFrame>
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QMenu>
 #include <algorithm>

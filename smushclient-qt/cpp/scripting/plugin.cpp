@@ -1,4 +1,5 @@
 #include "plugin.h"
+#include "callback/plugincallback.h"
 #include "lua/api.h"
 #include "lua/errors.h"
 #include "lua/init.h"

@@ -1,18 +1,8 @@
 #pragma once
-#include "../bridge/document.h"
 #include "../client.h"
 #include "../hotkeys.h"
-#include "../scripting/callbacktrigger.h"
-#include "smushclient_qt/src/ffi/world.cxxqt.h"
+#include "../scripting/callback/trigger.h"
 #include <QtCore/QFileSystemWatcher>
-#include <QtCore/QPointer>
-#include <QtCore/QRegularExpression>
-#include <QtCore/QTimer>
-#include <QtGui/QCloseEvent>
-#include <QtGui/QFontDatabase>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QResizeEvent>
 #include <QtWidgets/QSplitter>
 #include <QtWidgets/QTextEdit>
 
@@ -22,14 +12,15 @@
 #include <QtNetwork/QSslSocket>
 #endif
 
+namespace Ui {
+class WorldTab;
+} // namespace Ui
+
+enum class ScriptRecompile : int32_t;
 class Hotspot;
 class MudStatusBar;
 class Notepads;
 class ScriptApi;
-
-namespace Ui {
-class WorldTab;
-} // namespace Ui
 
 enum class AvailableCopy
 {
@@ -69,10 +60,7 @@ public:
   void resetAllTimers() const;
   QString saveWorld();
   QString saveWorldAsNew();
-  constexpr const QHash<QString, QString>& serverStatus() const
-  {
-    return document->serverStatus();
-  }
+  const QHash<QString, QString>& serverStatus() const;
   void setIsActive(bool active);
   void setOnDragMove(CallbackTrigger&& trigger);
   void setOnDragRelease(Hotspot* hotspot);
@@ -159,7 +147,7 @@ private:
   QString filePath;
   QTimer* flushTimer;
   bool handleKeypad = false;
-  Hotkeys hotkeys{};
+  Hotkeys hotkeys;
   bool initialized = false;
   bool inputCopyAvailable = false;
   bool manualDisconnect = false;
@@ -168,7 +156,7 @@ private:
   bool outputCopyAvailable = false;
   bool queuedConnect = false;
   QTimer* resizeTimer;
-  ScriptRecompile scriptReloadOption = ScriptRecompile::Never;
+  ScriptRecompile scriptReloadOption;
 #ifdef QT_NO_SSL
   QTcpSocket* socket;
 #else

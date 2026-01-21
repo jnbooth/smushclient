@@ -3,7 +3,6 @@
 #include "smushclient_qt/src/ffi/regex.cxx.h"
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QItemSelection>
-#include <QtCore/QStringList>
 
 class SenderMap;
 enum class SenderType;

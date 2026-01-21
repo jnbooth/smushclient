@@ -1,6 +1,6 @@
 #pragma once
 #include "rust/cxx.h"
-#include <QtCore/QString>
+#include <QtCore/QChar>
 
 namespace bytes {
 constexpr QChar

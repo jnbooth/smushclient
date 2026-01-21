@@ -1,5 +1,5 @@
 #include "globals.h"
-#include "../miniwindow.h"
+#include "../miniwindow/miniwindow.h"
 #include "../qlua.h"
 #include "../scriptapi.h"
 #include "../scriptenums.h"

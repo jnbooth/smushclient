@@ -6,17 +6,20 @@
 #include "../hotkeys.h"
 #include "../localization.h"
 #include "../mudstatusbar/mudstatusbar.h"
-#include "../scripting/hotspot.h"
+#include "../scripting/callback/plugincallback.h"
+#include "../scripting/miniwindow/hotspot.h"
 #include "../scripting/qlua.h"
 #include "../scripting/scriptapi.h"
 #include "../settings.h"
 #include "../spans.h"
 #include "smushclient_qt/src/ffi/document.cxxqt.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
+#include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_worldtab.h"
 #include "worlddetails/regexdialog.h"
 #include "worlddetails/worlddetails.h"
 #include <QtCore/QSaveFile>
+#include <QtCore/QTimer>
 #include <QtCore/QUrl>
 #include <QtGui/QAction>
 #include <QtGui/QDesktopServices>
@@ -65,6 +68,7 @@ WorldTab::WorldTab(MudStatusBar* statusBar, Notepads* notepads, QWidget* parent)
   , ui(new Ui::WorldTab)
   , flushTimer(new QTimer(this))
   , resizeTimer(new QTimer(this))
+  , scriptReloadOption(ScriptRecompile::Never)
 #ifdef QT_NO_SSL
   , socket(new QTcpSocket(this))
 #else
@@ -356,6 +360,12 @@ WorldTab::saveWorldAsNew()
 
   filePath = makePathRelative(path);
   return filePath;
+}
+
+const QHash<QString, QString>&
+WorldTab::serverStatus() const
+{
+  return document->serverStatus();
 }
 
 void

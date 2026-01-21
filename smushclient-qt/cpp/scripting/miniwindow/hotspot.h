@@ -1,12 +1,8 @@
 #pragma once
-#include <QtGui/QDragMoveEvent>
-#include <QtGui/QDropEvent>
 #include <QtGui/QEnterEvent>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QWheelEvent>
 #include <QtWidgets/QWidget>
-#include <optional>
-#include <string>
 
 class MiniWindow;
 class Plugin;

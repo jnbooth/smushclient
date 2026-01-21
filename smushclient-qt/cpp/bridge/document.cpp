@@ -1,5 +1,5 @@
 #include "document.h"
-#include "../scripting/plugincallback.h"
+#include "../scripting/callback/plugincallback.h"
 #include "../scripting/qlua.h"
 #include "../scripting/scriptapi.h"
 #include "../settings.h"

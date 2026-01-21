@@ -1,5 +1,5 @@
 #include "api.h"
-#include "../imagefilters.h"
+#include "../miniwindow/imagefilters.h"
 #include "../qlua.h"
 #include "../scriptapi.h"
 #include "../scriptenums.h"

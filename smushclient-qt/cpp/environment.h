@@ -1,6 +1,7 @@
 #pragma once
-#include <QtCore/QDir>
-#include <QtCore/QString>
+
+class QDir;
+class QString;
 
 #define LOGS_DIR "logs"
 
@@ -24,10 +25,7 @@ QString
 makePathRelative(const QString& filePath, const QString& relativeTo);
 
 bool
-openDirectoryExternally(const QString& dirPath);
+openDirectoryExternally(const QDir& dir);
 
-inline bool
-openDirectoryExternally(const QDir& dir)
-{
-  return openDirectoryExternally(dir.absolutePath());
-}
+bool
+openDirectoryExternally(const QString& dirPath);

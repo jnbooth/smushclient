@@ -1,20 +1,13 @@
 #pragma once
 #include "../bridge/variableview.h"
-#include "miniwindow.h"
+#include "miniwindow/miniwindow.h"
 #include "rust/cxx.h"
 #include "scriptenums.h"
-#include <QtCore/QVariant>
-#include <QtGui/QColor>
-#include <QtGui/QPen>
-#include <QtGui/QPolygonF>
-#include <optional>
-#include <string>
 extern "C"
 {
 #include "lua.h"
 }
 
-struct lua_State;
 enum class SendTarget;
 
 namespace qlua {

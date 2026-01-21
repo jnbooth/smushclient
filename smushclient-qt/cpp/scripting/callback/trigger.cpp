@@ -1,5 +1,5 @@
-#include "callbacktrigger.h"
-#include "lua/errors.h"
+#include "trigger.h"
+#include "../lua/errors.h"
 extern "C"
 {
 #include "lua.h"

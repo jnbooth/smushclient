@@ -1,8 +1,6 @@
 #ifndef TIMEKEEPER_H
 #define TIMEKEEPER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
 #include <QtCore/QTimer>
 
 class ScriptApi;
@@ -22,7 +20,9 @@ public:
                     Qt::TimerType timerType = Qt::TimerType::CoarseTimer);
   void cancelTimers(const QSet<uint16_t>& timerIds);
   void sendTimer(const SendTimer& timer) const;
-  void startSendTimer(size_t index, uint16_t timerId, uint millis) const;
+  void startSendTimer(size_t index,
+                      uint16_t timerId,
+                      unsigned int millis) const;
   void setOpen(bool open) { closed = !open; }
 
 private:

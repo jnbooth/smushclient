@@ -2,7 +2,6 @@
 #define DOCUMENT_H
 
 #include "rust/cxx.h"
-#include <QtCore/QVector>
 #include <QtGui/QTextCursor>
 
 struct SendRequest;

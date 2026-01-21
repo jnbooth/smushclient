@@ -1,7 +1,4 @@
 #pragma once
-#include <QtCore/QObject>
-#include <QtGui/QColor>
-#include <QtGui/QFont>
 #include <QtGui/QTextBlockFormat>
 
 class SettingsNotifier : public QObject

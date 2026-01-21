@@ -1,4 +1,5 @@
 #include "colorpickerbutton.h"
+#include <QtGui/QPaintEvent>
 #include <QtGui/QPainter>
 #include <QtGui/QPen>
 #include <QtWidgets/QColorDialog>

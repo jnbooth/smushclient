@@ -1,3 +1,4 @@
+#include "../bytes.h"
 #include "../environment.h"
 #include "../settings.h"
 #include "../spans.h"

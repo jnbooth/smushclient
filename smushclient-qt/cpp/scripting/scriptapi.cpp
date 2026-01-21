@@ -7,8 +7,10 @@
 #include "../ui/notepad.h"
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
-#include "miniwindow.h"
+#include "callback/plugincallback.h"
+#include "miniwindow/miniwindow.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
+#include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "sqlite3.h"
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
@@ -334,7 +336,7 @@ ScriptApi::sendCallback(PluginCallback& callback)
       break;
   }
 
-  if (!callbackFilter.includes(callback)) {
+  if (!callbackFilter.includes(callback.id())) {
     return;
   }
 

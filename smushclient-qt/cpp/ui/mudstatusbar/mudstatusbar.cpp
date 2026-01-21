@@ -2,8 +2,8 @@
 #include "statusbarstat.h"
 #include "ui_mudstatusbar.h"
 #include <QtCore/QDataStream>
-#include <QtCore/QIODevice>
 #include <QtCore/QSettings>
+#include <QtGui/QContextMenuEvent>
 
 // Private utils
 

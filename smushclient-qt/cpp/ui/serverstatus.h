@@ -1,5 +1,4 @@
 #pragma once
-#include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QLabel>

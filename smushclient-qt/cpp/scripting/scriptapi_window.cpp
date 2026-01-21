@@ -1,6 +1,6 @@
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
-#include "miniwindow.h"
+#include "miniwindow/miniwindow.h"
 #include "scriptapi.h"
 #include "sqlite3.h"
 #include <QtCore/QFile>

@@ -1,5 +1,5 @@
 #pragma once
-#include "scriptthread.h"
+#include "../scriptthread.h"
 #include <QtCore/QPointer>
 
 class PluginCallback;

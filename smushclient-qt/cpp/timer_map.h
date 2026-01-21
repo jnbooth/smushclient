@@ -1,6 +1,4 @@
 #pragma once
-#include <QtCore/QMetaObject>
-#include <QtCore/QObject>
 #include <QtCore/QTimerEvent>
 
 template<typename T>

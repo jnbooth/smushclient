@@ -1,20 +1,15 @@
 #pragma once
 #include "../bridge/variableview.h"
 #include "../lookup.h"
+#include "callback/filter.h"
+#include "callback/key.h"
 #include "databaseconnection.h"
-#include "hotspot.h"
-#include "miniwindow.h"
+#include "miniwindow/miniwindow.h"
 #include "plugin.h"
 #include "scriptenums.h"
 #include "smushclient_qt/src/ffi/send_request.cxx.h"
-#include <QtCore/QMargins>
-#include <QtCore/QPointer>
-#include <QtCore/QString>
-#include <QtCore/QUuid>
 #include <QtGui/QTextCursor>
 #include <QtNetwork/QAbstractSocket>
-#include <string>
-#include <vector>
 
 #define SCRIPTING_VERSION "5.07"
 
@@ -441,7 +436,7 @@ private:
 
 private:
   ActionSource actionSource = ActionSource::Unknown;
-  CallbackFilter callbackFilter{};
+  CallbackFilter callbackFilter;
   const SmushClient* client;
   QTextCursor cursor;
   string_map<DatabaseConnection> databases;

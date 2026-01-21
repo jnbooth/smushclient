@@ -66,7 +66,7 @@ set_source_files_properties(resources/appicon/appicon.icns PROPERTIES
 qt_add_executable(${APP_NAME}
     cpp/main.cpp
     cpp/bytes.h
-    cpp/client.h
+    cpp/client.h cpp/client.cpp
     cpp/commandhistory.h cpp/commandhistory.cpp
     cpp/enumbuttongroup.h
     cpp/environment.h cpp/environment.cpp
@@ -93,13 +93,8 @@ qt_add_executable(${APP_NAME}
     cpp/native/result.h
     cpp/native/window.h
 
-    cpp/scripting/callbacktrigger.h cpp/scripting/callbacktrigger.cpp
     cpp/scripting/databaseconnection.h cpp/scripting/databaseconnection.cpp
-    cpp/scripting/hotspot.h cpp/scripting/hotspot.cpp
-    cpp/scripting/imagefilters.h cpp/scripting/imagefilters.cpp
-    cpp/scripting/miniwindow.h cpp/scripting/miniwindow.cpp
     cpp/scripting/plugin.h cpp/scripting/plugin.cpp
-    cpp/scripting/plugincallback.h cpp/scripting/plugincallback.cpp
     cpp/scripting/qlua.h cpp/scripting/qlua.cpp
     cpp/scripting/scriptapi_api.cpp
     cpp/scripting/scriptapi_getinfo.cpp
@@ -107,6 +102,15 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/scriptapi_window.cpp
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
     cpp/scripting/scriptthread.h cpp/scripting/scriptthread.cpp
+
+    cpp/scripting/miniwindow/hotspot.h cpp/scripting/miniwindow/hotspot.cpp
+    cpp/scripting/miniwindow/imagefilters.h cpp/scripting/miniwindow/imagefilters.cpp
+    cpp/scripting/miniwindow/miniwindow.h cpp/scripting/miniwindow/miniwindow.cpp
+
+    cpp/scripting/callback/filter.h cpp/scripting/callback/filter.cpp
+    cpp/scripting/callback/key.h
+    cpp/scripting/callback/plugincallback.h cpp/scripting/callback/plugincallback.cpp
+    cpp/scripting/callback/trigger.h cpp/scripting/callback/trigger.cpp
 
     cpp/scripting/lua/api.h cpp/scripting/lua/api.cpp
     cpp/scripting/lua/errors.h cpp/scripting/lua/errors.cpp

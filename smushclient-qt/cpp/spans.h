@@ -1,10 +1,5 @@
 #pragma once
-#include <QString>
-#include <QtCore/QDateTime>
 #include <QtGui/QTextCursor>
-#include <QtGui/QTextFormat>
-#include <cstdint>
-#include <optional>
 
 struct Link;
 enum class SendTo : uint8_t;

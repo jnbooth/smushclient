@@ -1,6 +1,6 @@
 #include "timekeeper.h"
 #include "../client.h"
-#include "../scripting/plugincallback.h"
+#include "../scripting/callback/plugincallback.h"
 #include "../scripting/scriptapi.h"
 #include "../timer_map.h"
 #include "smushclient_qt/src/ffi/timekeeper.cxxqt.h"

@@ -1,47 +1,9 @@
 #pragma once
-#include "rust/cxx.h"
-#include "scriptenums.h"
-#include <QtCore/QByteArray>
+#include "../scriptenums.h"
+#include "key.h"
 
 struct lua_State;
 enum class CommandSource : uint8_t;
-
-class PluginCallbackKey
-{
-public:
-  // NOLINTBEGIN(google-explicit-constructor, hicpp-explicit-conversions)
-  constexpr PluginCallbackKey(std::string_view routine) noexcept
-    : name(routine)
-  {
-    const size_t n = routine.find('.');
-    if (n == std::string_view::npos) {
-      return;
-    }
-
-    name = routine.substr(0, n);
-    property = routine.substr(n + 1);
-  }
-
-  constexpr PluginCallbackKey(const std::string& routine) noexcept
-    : PluginCallbackKey(std::string_view(routine))
-  {
-  }
-
-  PluginCallbackKey(rust::Str routine) noexcept
-    : PluginCallbackKey(std::string_view(routine.data(), routine.length()))
-  {
-  }
-
-  constexpr PluginCallbackKey(const rust::String& routine) noexcept
-    : PluginCallbackKey(std::string_view(routine.data(), routine.length()))
-  {
-  }
-  // NOLINTEND(google-explicit-constructor, hicpp-explicit-conversions)
-
-public:
-  std::string_view name;
-  std::string_view property;
-};
 
 constexpr ActionSource
 commandAction(CommandSource source) noexcept
@@ -51,8 +13,8 @@ commandAction(CommandSource source) noexcept
 }
 
 #define CALLBACK(idNumber, nameString, sourceAction)                           \
-  static const uint ID = 1 << (idNumber);                                      \
-  inline constexpr uint id() const noexcept override                           \
+  static const unsigned int ID = 1 << (idNumber);                              \
+  inline constexpr unsigned int id() const noexcept override                   \
   {                                                                            \
     return 1 << (idNumber);                                                    \
   }                                                                            \
@@ -72,7 +34,7 @@ class PluginCallback
 public:
   virtual ~PluginCallback() = default;
 
-  virtual uint id() const noexcept = 0;
+  virtual unsigned int id() const noexcept = 0;
   virtual ActionSource source() const noexcept = 0;
   virtual int expectedSize() const noexcept { return 0; }
   virtual int pushArguments(lua_State* /*L*/) const { return 0; }
@@ -91,7 +53,7 @@ public:
 
   explicit DynamicPluginCallback(const QString& callback);
 
-  uint id() const noexcept override { return 0; }
+  unsigned int id() const noexcept override { return 0; }
   bool findCallback(lua_State* L) const override;
 
 private:
@@ -387,26 +349,4 @@ class OnPluginWorldOutputResized : public NamedPluginCallback
 public:
   CALLBACK(24, "OnPluginWorldOutputResized", ActionSource::Unknown)
 };
-
-class CallbackFilter
-{
-public:
-  constexpr void operator|=(const CallbackFilter& other)
-  {
-    filter |= other.filter;
-  }
-  constexpr void clear() { filter = 0; }
-  constexpr bool includes(const PluginCallback& callback) const
-  {
-    return (filter & callback.id()) != 0;
-  }
-  void scan(lua_State* L);
-
-private:
-  void setIfDefined(lua_State* L, const NamedPluginCallback& callback);
-
-private:
-  uint filter = 0;
-};
-
 #undef CALLBACK

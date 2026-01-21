@@ -1,8 +1,5 @@
 #pragma once
 #include "../settings.h"
-#include "finddialog.h"
-#include <QtGui/QAction>
-#include <QtGui/QCloseEvent>
 #include <QtWidgets/QMainWindow>
 
 namespace Ui {
@@ -11,6 +8,7 @@ class MainWindow;
 
 enum class AvailableCopy : int;
 class Notepads;
+class FindDialog;
 class WorldTab;
 
 class MainWindow : public QMainWindow

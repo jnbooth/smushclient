@@ -1,9 +1,9 @@
 #include "hotspot.h"
+#include "../callback/plugincallback.h"
+#include "../plugin.h"
+#include "../qlua.h"
 #include "../ui/worldtab.h"
 #include "miniwindow.h"
-#include "plugin.h"
-#include "plugincallback.h"
-#include "qlua.h"
 #include <QtGui/QGuiApplication>
 extern "C"
 {

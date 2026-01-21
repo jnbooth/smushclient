@@ -2,6 +2,7 @@
 #include <QtCore/QStringList>
 
 #ifndef SSIZE_MAX
+#include <limits>
 constexpr auto SSIZE_MAX = std::numeric_limits<qsizetype>::max();
 #endif
 

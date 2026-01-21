@@ -43,6 +43,12 @@ makePathRelative(const QString& filePath, const QString& relativeTo)
 }
 
 bool
+openDirectoryExternally(const QDir& dir)
+{
+  return openDirectoryExternally(dir.absolutePath());
+}
+
+bool
 openDirectoryExternally(const QString& dirPath)
 {
 #if defined(Q_OS_LINUX)

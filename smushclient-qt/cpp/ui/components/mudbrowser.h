@@ -1,6 +1,4 @@
 #pragma once
-#include <QtGui/QKeyEvent>
-#include <QtGui/QMouseEvent>
 #include <QtWidgets/QTextBrowser>
 
 class MudScrollBar;

@@ -2,8 +2,6 @@
 #define FORWARD_H
 
 #include <QtCore/QFlags>
-#include <QtCore/QVector>
-#include <QtGui/QColor>
 
 class Alias;
 class Timer;

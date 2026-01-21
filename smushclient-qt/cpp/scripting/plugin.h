@@ -1,12 +1,10 @@
 #pragma once
-#include "plugincallback.h"
+#include "callback/key.h"
 #include <QtCore/QDateTime>
-#include <QtCore/QPointer>
-#include <QtCore/QString>
-#include <string>
 
-class ScriptApi;
+class PluginCallback;
 struct PluginPack;
+class ScriptApi;
 struct lua_State;
 
 struct PluginMetadata

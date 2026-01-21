@@ -2,16 +2,7 @@
 #include "../lookup.h"
 #include "hotspot.h"
 #include <QtCore/QDateTime>
-#include <QtCore/QLine>
-#include <QtCore/QPoint>
-#include <QtCore/QRect>
-#include <QtCore/QSize>
 #include <QtGui/QPainter>
-#include <QtGui/QPen>
-#include <QtGui/QPixmap>
-#include <QtGui/QPolygon>
-#include <QtWidgets/QLabel>
-#include <string>
 
 class ImageFilter;
 class Plugin;
