@@ -143,7 +143,7 @@ Plugin::install(const PluginPack& pack)
 void
 Plugin::reset()
 {
-  reset(&getApi(L));
+  reset(getApi(L));
 }
 
 void
@@ -206,7 +206,7 @@ Plugin::runFile(const QString& path) const
   }
 
   if (checkError(luaL_loadfile(L, path.toUtf8().data()))) [[unlikely]] {
-    getApi(L).printError(formatCompileError(L));
+    getApi(L)->printError(formatCompileError(L));
     lua_pop(L, 1);
     return false;
   }
@@ -222,7 +222,7 @@ Plugin::runScript(string_view script) const
   }
 
   if (checkError(qlua::loadString(L, script))) [[unlikely]] {
-    getApi(L).printError(formatCompileError(L));
+    getApi(L)->printError(formatCompileError(L));
     lua_pop(L, 1);
     return false;
   }

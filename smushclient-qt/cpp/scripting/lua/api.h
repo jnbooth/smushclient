@@ -4,7 +4,7 @@
 class ScriptApi;
 struct lua_State;
 
-ScriptApi&
+ScriptApi*
 getApi(lua_State* L);
 int
 registerLuaWorld(lua_State* L);
