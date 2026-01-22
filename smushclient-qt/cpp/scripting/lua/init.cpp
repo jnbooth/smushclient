@@ -76,7 +76,7 @@ initLuaState(lua_State* L)
   setlib(L, "utils");
   registerLuaGlobals(L);
   registerLuaWorld(L);
-  addErrorHandler(L);
   lua_settop(L, 0);
-  return 0;
+  addErrorHandler(L);
+  return 1;
 }

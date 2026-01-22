@@ -166,7 +166,6 @@ Plugin::reset(ScriptApi* api)
   initLuaState(L);
   setPluginIndex(L, metadata.index);
   setLuaApi(L, api);
-  lua_settop(L, 0);
 }
 
 bool
