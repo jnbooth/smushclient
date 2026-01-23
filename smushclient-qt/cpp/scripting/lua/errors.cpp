@@ -6,7 +6,9 @@ extern "C"
 #include "lualib.h"
 }
 
-static const char* errorHandlerKey = "trace";
+namespace {
+const char* const errorHandlerKey = "trace";
+} // namespace
 
 // Private utils
 

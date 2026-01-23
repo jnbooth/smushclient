@@ -72,11 +72,9 @@ Diagnostics:
   ClangTidy:
     Remove:
       - cppcoreguidelines-avoid-c-arrays
-      - cppcoreguidelines-avoid-non-const-global-variables
       - cppcoreguidelines-pro-bounds-array-to-pointer-decay
       - hicpp-avoid-c-arrays
       - hicpp-no-array-decay
-      - misc-use-anonymous-namespace
       - modernize-avoid-c-arrays
       - modernize-use-designated-initializers
 ---

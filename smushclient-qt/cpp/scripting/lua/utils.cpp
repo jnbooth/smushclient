@@ -84,7 +84,8 @@ execScriptDialog(lua_State* L,
 }
 } // namespace
 
-static int
+namespace {
+int
 L_choose(lua_State* L)
 {
   expectMaxArgs(L, 4);
@@ -99,7 +100,7 @@ L_choose(lua_State* L)
   return execScriptDialog(L, 3, dialog, pred);
 }
 
-static int
+int
 L_directorypicker(lua_State* L)
 {
   expectMaxArgs(L, 2);
@@ -115,7 +116,7 @@ L_directorypicker(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_filepicker(lua_State* L)
 {
   expectMaxArgs(L, 5);
@@ -134,7 +135,7 @@ L_filepicker(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_getfontfamilies(lua_State* L)
 {
   expectMaxArgs(L, 0);
@@ -151,7 +152,7 @@ L_getfontfamilies(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_getsystemfont(lua_State* L)
 {
   expectMaxArgs(L, 1);
@@ -169,7 +170,7 @@ L_getsystemfont(lua_State* L)
   return 2;
 }
 
-static int
+int
 L_inputbox(lua_State* L)
 {
   expectMaxArgs(L, 6);
@@ -197,7 +198,7 @@ L_inputbox(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_listbox(lua_State* L)
 {
   expectMaxArgs(L, 4);
@@ -212,7 +213,7 @@ L_listbox(lua_State* L)
   return execScriptDialog(L, 3, dialog, pred);
 }
 
-static int
+int
 L_multilistbox(lua_State* L)
 {
   expectMaxArgs(L, 4);
@@ -244,7 +245,7 @@ L_multilistbox(lua_State* L)
   return execScriptDialog(L, 3, dialog, pred);
 }
 
-static int
+int
 L_split(lua_State* L)
 {
   expectMaxArgs(L, 3);
@@ -283,6 +284,7 @@ L_split(lua_State* L)
   return 1;
   // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 }
+} // namespace
 
 static const struct luaL_Reg utilslib[] = {
   { "choose", L_choose },

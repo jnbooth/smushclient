@@ -13,17 +13,19 @@ extern "C"
 #include "lua.h"
 }
 
-static const char* apiRegKey = "smushclient.api";
-static const char* indexRegKey = "smushclient.plugin";
-static const char* worldRegKey = "smushclient.world";
-static const char* worldLibKey = "world";
-
 using std::nullopt;
 using std::optional;
 using std::string;
 using std::string_view;
 
 using qlua::expectMaxArgs;
+
+namespace {
+const char* const apiRegKey = "smushclient.api";
+const char* const indexRegKey = "smushclient.plugin";
+const char* const worldRegKey = "smushclient.world";
+const char* const worldLibKey = "world";
+} // namespace
 
 // Private localization
 
@@ -200,9 +202,11 @@ private:
 #define BENCHMARK
 #endif
 
+namespace {
+
 // database
 
-static int
+int
 L_DatabaseClose(lua_State* L)
 {
   BENCHMARK
@@ -211,7 +215,7 @@ L_DatabaseClose(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_DatabaseOpen(lua_State* L)
 {
   BENCHMARK
@@ -225,7 +229,7 @@ L_DatabaseOpen(lua_State* L)
 
 // info
 
-static int
+int
 L_GetInfo(lua_State* L)
 {
   BENCHMARK
@@ -234,7 +238,7 @@ L_GetInfo(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_GetLineInfo(lua_State* L)
 {
   BENCHMARK
@@ -244,7 +248,7 @@ L_GetLineInfo(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_GetPluginInfo(lua_State* L)
 {
   BENCHMARK
@@ -260,7 +264,7 @@ L_GetPluginInfo(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_GetStyleInfo(lua_State* L)
 {
   BENCHMARK
@@ -272,7 +276,7 @@ L_GetStyleInfo(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_GetTimerInfo(lua_State* L)
 {
   BENCHMARK
@@ -284,14 +288,14 @@ L_GetTimerInfo(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_GetUniqueNumber(lua_State* L)
 {
   lua_pushinteger(L, ScriptApi::GetUniqueNumber());
   return 1;
 }
 
-static int
+int
 L_Version(lua_State* L)
 {
   BENCHMARK
@@ -300,7 +304,7 @@ L_Version(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_WindowInfo(lua_State* L)
 {
   BENCHMARK
@@ -312,7 +316,7 @@ L_WindowInfo(lua_State* L)
 
 // input
 
-static int
+int
 L_Send(lua_State* L)
 {
   BENCHMARK
@@ -320,7 +324,7 @@ L_Send(lua_State* L)
   return returnCode(L, getApi(L)->Send(bytes));
 }
 
-static int
+int
 L_SendNoEcho(lua_State* L)
 {
   BENCHMARK
@@ -328,7 +332,7 @@ L_SendNoEcho(lua_State* L)
   return returnCode(L, getApi(L)->SendNoEcho(bytes));
 }
 
-static int
+int
 L_SendPkt(lua_State* L)
 {
   BENCHMARK
@@ -338,7 +342,7 @@ L_SendPkt(lua_State* L)
 
 // options
 
-static int
+int
 L_GetAlphaOption(lua_State* L)
 {
   BENCHMARK
@@ -349,7 +353,7 @@ L_GetAlphaOption(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_GetAlphaOptionList(lua_State* L)
 {
   BENCHMARK
@@ -358,7 +362,7 @@ L_GetAlphaOptionList(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_GetCurrentValue(lua_State* L)
 {
   BENCHMARK
@@ -368,7 +372,7 @@ L_GetCurrentValue(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_GetOption(lua_State* L)
 {
   BENCHMARK
@@ -378,7 +382,7 @@ L_GetOption(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_GetOptionList(lua_State* L)
 {
   BENCHMARK
@@ -387,7 +391,7 @@ L_GetOptionList(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_SetAlphaOption(lua_State* L)
 {
   BENCHMARK
@@ -397,7 +401,7 @@ L_SetAlphaOption(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_SetOption(lua_State* L)
 {
   BENCHMARK
@@ -409,7 +413,7 @@ L_SetOption(lua_State* L)
 
 // output
 
-static int
+int
 L_ColourNameToRGB(lua_State* L)
 {
   BENCHMARK
@@ -418,7 +422,7 @@ L_ColourNameToRGB(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_ColourNote(lua_State* L)
 {
   BENCHMARK
@@ -428,7 +432,7 @@ L_ColourNote(lua_State* L)
   return 0;
 }
 
-static int
+int
 L_ColourTell(lua_State* L)
 {
   BENCHMARK
@@ -436,7 +440,7 @@ L_ColourTell(lua_State* L)
   return 0;
 }
 
-static int
+int
 L_GetLinesInBufferCount(lua_State* L)
 {
   BENCHMARK
@@ -445,7 +449,7 @@ L_GetLinesInBufferCount(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_Hyperlink(lua_State* L)
 {
   BENCHMARK
@@ -460,7 +464,7 @@ L_Hyperlink(lua_State* L)
   return 0;
 }
 
-static int
+int
 L_Note(lua_State* L)
 {
   BENCHMARK
@@ -470,7 +474,7 @@ L_Note(lua_State* L)
   return 0;
 }
 
-static int
+int
 L_PickColour(lua_State* L)
 {
   BENCHMARK
@@ -478,7 +482,7 @@ L_PickColour(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_RGBColourToName(lua_State* L)
 {
   BENCHMARK
@@ -487,7 +491,7 @@ L_RGBColourToName(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_SetClipboard(lua_State* L)
 {
   BENCHMARK
@@ -495,7 +499,7 @@ L_SetClipboard(lua_State* L)
   return 0;
 }
 
-static int
+int
 L_SetCursor(lua_State* L)
 {
   BENCHMARK
@@ -508,7 +512,7 @@ L_SetCursor(lua_State* L)
   return returnCode(L, getApi(L)->SetCursor(*cursor));
 }
 
-static int
+int
 L_SetStatus(lua_State* L)
 {
   BENCHMARK
@@ -517,7 +521,7 @@ L_SetStatus(lua_State* L)
   return 0;
 }
 
-static int
+int
 L_Simulate(lua_State* L)
 {
   BENCHMARK
@@ -526,7 +530,7 @@ L_Simulate(lua_State* L)
   return 0;
 }
 
-static int
+int
 L_Tell(lua_State* L)
 {
   BENCHMARK
@@ -536,7 +540,7 @@ L_Tell(lua_State* L)
 
 // plugins
 
-static int
+int
 L_BroadcastPlugin(lua_State* L)
 {
   BENCHMARK
@@ -548,7 +552,7 @@ L_BroadcastPlugin(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_CallPlugin(lua_State* L)
 {
   BENCHMARK
@@ -613,7 +617,7 @@ L_CallPlugin(lua_State* L)
   return nresults + 1;
 }
 
-static int
+int
 L_EnablePlugin(lua_State* L)
 {
   BENCHMARK
@@ -623,7 +627,7 @@ L_EnablePlugin(lua_State* L)
     getApi(L)->EnablePlugin(qlua::getString(L, 1), qlua::getBool(L, 2, true)));
 }
 
-static int
+int
 L_GetPluginID(lua_State* L)
 {
   BENCHMARK
@@ -632,7 +636,7 @@ L_GetPluginID(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_PluginSupports(lua_State* L)
 {
   BENCHMARK
@@ -643,7 +647,7 @@ L_PluginSupports(lua_State* L)
 
 // senders
 
-static int
+int
 L_AddAlias(lua_State* L)
 {
   BENCHMARK
@@ -663,7 +667,7 @@ L_AddAlias(lua_State* L)
                       getPluginIndex(L), name, pattern, text, flags, *script));
 }
 
-static int
+int
 L_AddTimer(lua_State* L)
 {
   BENCHMARK
@@ -686,7 +690,7 @@ L_AddTimer(lua_State* L)
       getPluginIndex(L), name, hour, minute, second, text, flags, *script));
 }
 
-static int
+int
 L_AddTrigger(lua_State* L)
 {
   BENCHMARK
@@ -724,7 +728,7 @@ L_AddTrigger(lua_State* L)
                                           sequence));
 }
 
-static int
+int
 L_DeleteAlias(lua_State* L)
 {
   BENCHMARK
@@ -733,7 +737,7 @@ L_DeleteAlias(lua_State* L)
     L, getApi(L)->DeleteAlias(getPluginIndex(L), qlua::getString(L, 1)));
 }
 
-static int
+int
 L_DeleteAliasGroup(lua_State* L)
 {
   BENCHMARK
@@ -744,7 +748,7 @@ L_DeleteAliasGroup(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_DeleteTimer(lua_State* L)
 {
   BENCHMARK
@@ -753,7 +757,7 @@ L_DeleteTimer(lua_State* L)
     L, getApi(L)->DeleteTimer(getPluginIndex(L), qlua::getString(L, 1)));
 }
 
-static int
+int
 L_DeleteTimerGroup(lua_State* L)
 {
   BENCHMARK
@@ -764,7 +768,7 @@ L_DeleteTimerGroup(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_DeleteTrigger(lua_State* L)
 {
   BENCHMARK
@@ -773,7 +777,7 @@ L_DeleteTrigger(lua_State* L)
     L, getApi(L)->DeleteTrigger(getPluginIndex(L), qlua::getString(L, 1)));
 }
 
-static int
+int
 L_DeleteTriggerGroup(lua_State* L)
 {
   BENCHMARK
@@ -784,7 +788,7 @@ L_DeleteTriggerGroup(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_DoAfter(lua_State* L)
 {
   BENCHMARK
@@ -796,7 +800,7 @@ L_DoAfter(lua_State* L)
     getApi(L)->DoAfter(getPluginIndex(L), seconds, text, SendTarget::Command));
 }
 
-static int
+int
 L_DoAfterNote(lua_State* L)
 {
   BENCHMARK
@@ -808,7 +812,7 @@ L_DoAfterNote(lua_State* L)
     getApi(L)->DoAfter(getPluginIndex(L), seconds, text, SendTarget::Output));
 }
 
-static int
+int
 L_DoAfterSpecial(lua_State* L)
 {
   BENCHMARK
@@ -823,7 +827,7 @@ L_DoAfterSpecial(lua_State* L)
     L, getApi(L)->DoAfter(getPluginIndex(L), seconds, text, *target));
 }
 
-static int
+int
 L_DoAfterSpeedwalk(lua_State* L)
 {
   BENCHMARK
@@ -835,7 +839,7 @@ L_DoAfterSpeedwalk(lua_State* L)
                       getPluginIndex(L), seconds, text, SendTarget::Speedwalk));
 }
 
-static int
+int
 L_EnableAlias(lua_State* L)
 {
   BENCHMARK
@@ -846,7 +850,7 @@ L_EnableAlias(lua_State* L)
                                            qlua::getBool(L, 2, true)));
 }
 
-static int
+int
 L_EnableAliasGroup(lua_State* L)
 {
   BENCHMARK
@@ -857,7 +861,7 @@ L_EnableAliasGroup(lua_State* L)
                                                 qlua::getBool(L, 2, true)));
 }
 
-static int
+int
 L_EnableTimer(lua_State* L)
 {
   BENCHMARK
@@ -868,7 +872,7 @@ L_EnableTimer(lua_State* L)
                                            qlua::getBool(L, 2, true)));
 }
 
-static int
+int
 L_EnableTimerGroup(lua_State* L)
 {
   BENCHMARK
@@ -879,7 +883,7 @@ L_EnableTimerGroup(lua_State* L)
                                                 qlua::getBool(L, 2, true)));
 }
 
-static int
+int
 L_EnableTrigger(lua_State* L)
 {
   BENCHMARK
@@ -890,7 +894,7 @@ L_EnableTrigger(lua_State* L)
                                              qlua::getBool(L, 2, true)));
 }
 
-static int
+int
 L_EnableTriggerGroup(lua_State* L)
 {
   BENCHMARK
@@ -901,7 +905,7 @@ L_EnableTriggerGroup(lua_State* L)
                                              qlua::getBool(L, 2, true)));
 }
 
-static int
+int
 L_GetAliasOption(lua_State* L)
 {
   BENCHMARK
@@ -913,7 +917,7 @@ L_GetAliasOption(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_GetTimerOption(lua_State* L)
 {
   BENCHMARK
@@ -925,7 +929,7 @@ L_GetTimerOption(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_GetTriggerOption(lua_State* L)
 {
   BENCHMARK
@@ -937,7 +941,7 @@ L_GetTriggerOption(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_IsAlias(lua_State* L)
 {
   BENCHMARK
@@ -946,7 +950,7 @@ L_IsAlias(lua_State* L)
     L, getApi(L)->IsAlias(getPluginIndex(L), qlua::getString(L, 1)));
 }
 
-static int
+int
 L_IsTimer(lua_State* L)
 {
   BENCHMARK
@@ -955,7 +959,7 @@ L_IsTimer(lua_State* L)
     L, getApi(L)->IsTimer(getPluginIndex(L), qlua::getString(L, 1)));
 }
 
-static int
+int
 L_IsTrigger(lua_State* L)
 {
   BENCHMARK
@@ -964,7 +968,7 @@ L_IsTrigger(lua_State* L)
     L, getApi(L)->IsTrigger(getPluginIndex(L), qlua::getString(L, 1)));
 }
 
-static int
+int
 L_MakeRegularExpression(lua_State* L)
 {
   BENCHMARK
@@ -973,7 +977,7 @@ L_MakeRegularExpression(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_SetAliasOption(lua_State* L)
 {
   BENCHMARK
@@ -989,7 +993,7 @@ L_SetAliasOption(lua_State* L)
                     getApi(L)->SetAliasOption(plugin, label, option, *value));
 }
 
-static int
+int
 L_SetTimerOption(lua_State* L)
 {
   BENCHMARK
@@ -1005,7 +1009,7 @@ L_SetTimerOption(lua_State* L)
                     getApi(L)->SetTimerOption(plugin, label, option, *value));
 }
 
-static int
+int
 L_SetTriggerOption(lua_State* L)
 {
   BENCHMARK
@@ -1021,7 +1025,7 @@ L_SetTriggerOption(lua_State* L)
                     getApi(L)->SetTriggerOption(plugin, label, option, *value));
 }
 
-static int
+int
 L_StopEvaluatingTriggers(lua_State* L)
 {
   BENCHMARK
@@ -1032,7 +1036,7 @@ L_StopEvaluatingTriggers(lua_State* L)
 
 // sound
 
-static int
+int
 L_PlaySound(lua_State* L)
 {
   BENCHMARK
@@ -1048,7 +1052,7 @@ L_PlaySound(lua_State* L)
   // qlua::getDouble(L, 5) pan
 }
 
-static int
+int
 L_PlaySoundMemory(lua_State* L)
 {
   BENCHMARK
@@ -1062,7 +1066,7 @@ L_PlaySoundMemory(lua_State* L)
   // qlua::getDouble(L, 5) pan
 }
 
-static int
+int
 L_StopSound(lua_State* L)
 {
   BENCHMARK
@@ -1072,7 +1076,7 @@ L_StopSound(lua_State* L)
 
 // variables
 
-static int
+int
 L_DeleteVariable(lua_State* L)
 {
   BENCHMARK
@@ -1081,7 +1085,7 @@ L_DeleteVariable(lua_State* L)
     L, getApi(L)->DeleteVariable(getPluginIndex(L), qlua::getString(L, 1)));
 }
 
-static int
+int
 L_GetVariable(lua_State* L)
 {
   BENCHMARK
@@ -1091,7 +1095,7 @@ L_GetVariable(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_GetPluginVariable(lua_State* L)
 {
   BENCHMARK
@@ -1101,7 +1105,7 @@ L_GetPluginVariable(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_SetVariable(lua_State* L)
 {
   BENCHMARK
@@ -1113,7 +1117,7 @@ L_SetVariable(lua_State* L)
 
 // windows
 
-static int
+int
 L_TextRectangle(lua_State* L)
 {
   BENCHMARK
@@ -1142,7 +1146,7 @@ L_TextRectangle(lua_State* L)
                              QBrush(outsideColor, *outsideFillStyle)));
 }
 
-static int
+int
 L_WindowCircleOp(lua_State* L)
 {
   BENCHMARK
@@ -1186,7 +1190,7 @@ L_WindowCircleOp(lua_State* L)
   }
 }
 
-static int
+int
 L_WindowCreate(lua_State* L)
 {
   BENCHMARK
@@ -1206,7 +1210,7 @@ L_WindowCreate(lua_State* L)
       getPluginIndex(L), windowName, location, size, *position, flags, bg));
 }
 
-static int
+int
 L_WindowDrawImage(lua_State* L)
 {
   BENCHMARK
@@ -1226,7 +1230,7 @@ L_WindowDrawImage(lua_State* L)
     getApi(L)->WindowDrawImage(windowName, imageID, rect, *mode, sourceRect));
 }
 
-static int
+int
 L_WindowDrawImageAlpha(lua_State* L)
 {
   BENCHMARK
@@ -1241,7 +1245,7 @@ L_WindowDrawImageAlpha(lua_State* L)
                       windowName, imageID, rect, opacity, origin));
 }
 
-static int
+int
 L_WindowFilter(lua_State* L)
 {
   BENCHMARK
@@ -1308,7 +1312,7 @@ L_WindowFilter(lua_State* L)
   }
 }
 
-static int
+int
 L_WindowFont(lua_State* L)
 {
   BENCHMARK
@@ -1342,7 +1346,7 @@ L_WindowFont(lua_State* L)
                                           *hint));
 }
 
-static int
+int
 L_WindowFontInfo(lua_State* L)
 {
   BENCHMARK
@@ -1354,7 +1358,7 @@ L_WindowFontInfo(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_WindowGradient(lua_State* L)
 {
   BENCHMARK
@@ -1371,7 +1375,7 @@ L_WindowGradient(lua_State* L)
     L, getApi(L)->WindowGradient(windowName, rect, color1, color2, *mode));
 }
 
-static int
+int
 L_WindowImageFromWindow(lua_State* L)
 {
   BENCHMARK
@@ -1383,7 +1387,7 @@ L_WindowImageFromWindow(lua_State* L)
     L, getApi(L)->WindowImageFromWindow(windowName, imageID, sourceWindow));
 }
 
-static int
+int
 L_WindowLine(lua_State* L)
 {
   BENCHMARK
@@ -1397,7 +1401,7 @@ L_WindowLine(lua_State* L)
   return returnCode(L, getApi(L)->WindowLine(windowName, line, *pen));
 }
 
-static int
+int
 L_WindowLoadImage(lua_State* L)
 {
   BENCHMARK
@@ -1412,7 +1416,7 @@ L_WindowLoadImage(lua_State* L)
                     getApi(L)->WindowLoadImage(windowName, imageID, filename));
 }
 
-static int
+int
 L_WindowMenu(lua_State* L)
 {
   BENCHMARK
@@ -1423,7 +1427,7 @@ L_WindowMenu(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_WindowPolygon(lua_State* L)
 {
   BENCHMARK
@@ -1455,7 +1459,7 @@ L_WindowPolygon(lua_State* L)
                                                : Qt::FillRule::OddEvenFill));
 }
 
-static int
+int
 L_WindowPosition(lua_State* L)
 {
   BENCHMARK
@@ -1471,7 +1475,7 @@ L_WindowPosition(lua_State* L)
     L, getApi(L)->WindowPosition(windowName, location, *position, flags));
 }
 
-static int
+int
 L_WindowRectOp(lua_State* L)
 {
   BENCHMARK
@@ -1519,7 +1523,7 @@ L_WindowRectOp(lua_State* L)
   }
 }
 
-static int
+int
 L_WindowResize(lua_State* L)
 {
   BENCHMARK
@@ -1530,7 +1534,7 @@ L_WindowResize(lua_State* L)
                                             qlua::getQColor(L, 4)));
 }
 
-static int
+int
 L_WindowSetZOrder(lua_State* L)
 {
   BENCHMARK
@@ -1540,7 +1544,7 @@ L_WindowSetZOrder(lua_State* L)
     getApi(L)->WindowSetZOrder(qlua::getString(L, 1), qlua::getInteger(L, 2)));
 }
 
-static int
+int
 L_WindowShow(lua_State* L)
 {
   BENCHMARK
@@ -1549,7 +1553,7 @@ L_WindowShow(lua_State* L)
     L, getApi(L)->WindowShow(qlua::getString(L, 1), qlua::getBool(L, 2, true)));
 }
 
-static int
+int
 L_WindowText(lua_State* L)
 {
   BENCHMARK
@@ -1564,7 +1568,7 @@ L_WindowText(lua_State* L)
   return 1;
 }
 
-static int
+int
 L_WindowTextWidth(lua_State* L)
 {
   BENCHMARK
@@ -1579,7 +1583,7 @@ L_WindowTextWidth(lua_State* L)
 
 // window hotspots
 
-static int
+int
 L_WindowAddHotspot(lua_State* L)
 {
   BENCHMARK
@@ -1615,7 +1619,7 @@ L_WindowAddHotspot(lua_State* L)
                                                 flags));
 }
 
-static int
+int
 L_WindowDeleteHotspot(lua_State* L)
 {
   BENCHMARK
@@ -1625,7 +1629,7 @@ L_WindowDeleteHotspot(lua_State* L)
                                                    qlua::getString(L, 2)));
 }
 
-static int
+int
 L_WindowDragHandler(lua_State* L)
 {
   BENCHMARK
@@ -1646,7 +1650,7 @@ L_WindowDragHandler(lua_State* L)
                         .scroll = nullopt }));
 }
 
-static int
+int
 L_WindowMoveHotspot(lua_State* L)
 {
   BENCHMARK
@@ -1659,7 +1663,7 @@ L_WindowMoveHotspot(lua_State* L)
       QRect(qlua::getQPoint(L, 3, 4), qlua::getQPoint(L, 5, 6))));
 }
 
-static int
+int
 L_WindowScrollwheelHandler(lua_State* L)
 {
   BENCHMARK
@@ -1682,11 +1686,12 @@ L_WindowScrollwheelHandler(lua_State* L)
 
 // userdata
 
-static int
+int
 L_noop(lua_State* L)
 {
   return returnCode(L, ApiCode::OK);
 }
+} // namespace
 
 static const struct luaL_Reg worldlib[] =
   // database
@@ -1811,13 +1816,15 @@ static const struct luaL_Reg worldlib[] =
 
     { nullptr, nullptr } };
 
-static int
+namespace {
+int
 L_world_tostring(lua_State* L)
 {
   BENCHMARK
   lua_pushliteral(L, "world");
   return 1;
 }
+} // namespace
 
 static const struct luaL_Reg worldlib_meta[] = { { "__tostring",
                                                    L_world_tostring },

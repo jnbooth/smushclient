@@ -31,7 +31,8 @@ setlib(lua_State* L, const char* name)
 }
 } // namespace
 
-static int
+namespace {
+int
 L_panic(lua_State* L)
 {
   const QString message = formatPanic(L);
@@ -40,7 +41,7 @@ L_panic(lua_State* L)
   return 0;
 }
 
-static int
+int
 L_print(lua_State* L)
 {
   const QString output = qlua::concatStrings(L);
@@ -50,6 +51,7 @@ L_print(lua_State* L)
   qInfo() << "print(" << output << ")";
   return 0;
 }
+} // namespace
 
 int
 initLuaState(lua_State* L)
