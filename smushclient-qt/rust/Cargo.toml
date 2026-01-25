@@ -24,7 +24,7 @@ smushclient-qt-lib = { path = "../../smushclient-qt-lib" }
 
 [dependencies.cxx-qt-io]
 git = "https://github.com/jnbooth/cxx-qt-io"
-version = "0.3.2"
+version = "0.3.3"
 features = ["net", "ssl"]
 
 [build-dependencies]

@@ -18,7 +18,7 @@ pub mod ffi {
     }
 
     extern "C++" {
-        include!("forward.h");
+        include!("smushclient_qt/forward.h");
         type Alias = crate::ffi::Alias;
         type AliasOutcomes = crate::ffi::AliasOutcomes;
         type Document = crate::ffi::Document;
@@ -27,7 +27,7 @@ pub mod ffi {
         type Trigger = crate::ffi::Trigger;
         type World = crate::ffi::World;
 
-        include!("variableview.h");
+        include!("smushclient_qt/variableview.h");
         type VariableView = crate::ffi::VariableView;
 
         include!("smushclient_qt/src/ffi/api_code.cxx.h");

@@ -86,7 +86,7 @@ pub mod ffi {
     }
 
     unsafe extern "C++Qt" {
-        include!("document.h");
+        include!("smushclient_qt/document.h");
         type SendTarget = crate::ffi::SendTarget;
 
         #[qobject]

@@ -8,7 +8,7 @@ use smushclient::LuaStr;
 #[cxx::bridge]
 mod ffi {
     extern "C++" {
-        include!("variableview.h");
+        include!("smushclient_qt/variableview.h");
         type VariableView;
     }
 }

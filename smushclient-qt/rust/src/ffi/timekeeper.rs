@@ -21,7 +21,7 @@ pub mod ffi {
     }
 
     unsafe extern "C++Qt" {
-        include!("timekeeper.h");
+        include!("smushclient_qt/timekeeper.h");
         type SendTarget = crate::ffi::SendTarget;
 
         #[qobject]

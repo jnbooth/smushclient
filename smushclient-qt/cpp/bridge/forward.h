@@ -4,17 +4,13 @@
 #include <QtCore/QFlags>
 
 class Alias;
+enum class AliasOutcome;
+using AliasOutcomes = QFlags<AliasOutcome>;
+class Document;
+enum class SendTarget;
+class Timekeeper;
 class Timer;
 class Trigger;
-
-enum class AliasOutcome;
-enum class SendTarget;
-
-class Document;
-class SmushClientBase;
-class Timekeeper;
 class World;
-
-using AliasOutcomes = QFlags<AliasOutcome>;
 
 #endif

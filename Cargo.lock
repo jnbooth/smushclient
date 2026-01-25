@@ -434,8 +434,8 @@ dependencies = [
 
 [[package]]
 name = "cxx-qt-io"
-version = "0.3.2"
-source = "git+https://github.com/jnbooth/cxx-qt-io#0aee27cd3abe38e58bb5316a23ce1d8e3c00c7ed"
+version = "0.3.3"
+source = "git+https://github.com/jnbooth/cxx-qt-io#05892a9a05cda4ef19b2acf00738bf60b107a873"
 dependencies = [
  "cxx",
  "cxx-qt",
@@ -552,7 +552,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1338,7 +1338,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1843,7 +1843,7 @@ dependencies = [
  "getrandom",
  "once_cell",
  "rustix",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2102,7 +2102,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
