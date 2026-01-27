@@ -146,7 +146,7 @@ impl From<&Timer> for TimerRust {
 
         match timer.occurrence {
             Occurrence::Time(time) => {
-                let seconds = time.num_seconds_from_midnight() as i32;
+                let seconds = time.num_seconds_from_midnight().cast_signed();
                 let msecs = seconds * MILLISECONDS_PER_SECOND;
                 Self {
                     send,
@@ -184,7 +184,7 @@ impl From<&TimerRust> for Timer {
         let occurrence = match value.occurrence {
             ffi::Occurrence::Time => {
                 let msecs = value.at_time.msecs_since_start_of_day();
-                let seconds = (msecs / MILLISECONDS_PER_SECOND) as u32;
+                let seconds = (msecs / MILLISECONDS_PER_SECOND).cast_unsigned();
                 let time =
                     NaiveTime::from_num_seconds_from_midnight_opt(seconds, 0).unwrap_or_default();
                 Occurrence::Time(time)
@@ -473,7 +473,7 @@ pub struct TextSpan {
 
 fn color_code(color: Option<RgbColor>) -> i32 {
     match color {
-        Some(color) => color.code() as i32,
+        Some(color) => color.code().cast_signed(),
         None => -1,
     }
 }
