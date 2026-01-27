@@ -27,7 +27,7 @@ public:
   {
   }
 
-  constexpr PluginCallbackKey(const rust::String& routine) noexcept
+  PluginCallbackKey(const rust::String& routine) noexcept
     : PluginCallbackKey(std::string_view(routine.data(), routine.length()))
   {
   }
