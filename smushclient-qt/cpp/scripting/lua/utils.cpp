@@ -85,7 +85,11 @@ execScriptDialog(lua_State* L,
 
 template<typename T>
 inline void
-splitLua(lua_State* L, string_view input, T sep, lua_Integer max)
+splitLua(lua_State* L,
+         string_view input,
+         T sep,
+         size_t sepSize,
+         lua_Integer max)
 {
   size_t last = 0;
   size_t next = 0;
@@ -93,7 +97,7 @@ splitLua(lua_State* L, string_view input, T sep, lua_Integer max)
   for (; i <= max && (next = input.find(sep, last)) != string_view::npos; ++i) {
     qlua::pushString(L, input.substr(last, next - last));
     lua_rawseti(L, -2, i);
-    last = next + 1;
+    last = next + sepSize;
   }
   if (string_view rest = input.substr(last); !rest.empty()) {
     qlua::pushString(L, rest);
@@ -282,10 +286,11 @@ L_split(lua_State* L)
   lua_newtable(L);
   const lua_Integer max = count == 0 ? INT_MAX : count;
 
-  if (sep.size() == 1) {
-    splitLua(L, input, sep[0], max);
+  const size_t sepSize = sep.size();
+  if (sepSize == 1) {
+    splitLua(L, input, sep[0], 1, max);
   } else {
-    splitLua(L, input, sep, max);
+    splitLua(L, input, sep, sepSize, max);
   }
 
   return 1;
