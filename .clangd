@@ -1,5 +1,3 @@
-Hover:
-  ShowAKA: true
 Diagnostics:
   ClangTidy:
     Add:
