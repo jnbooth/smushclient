@@ -96,7 +96,7 @@ ScriptApi::WindowCreate(size_t index,
     return ApiCode::BadParameter;
   }
 
-  const string windowName = string(name);
+  const string windowName(name);
   MiniWindow* window = windows[windowName];
   if (window == nullptr) {
     window = windows[windowName] = new MiniWindow(location,

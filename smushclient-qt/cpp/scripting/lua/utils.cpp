@@ -82,6 +82,24 @@ execScriptDialog(lua_State* L,
 
   return 1;
 }
+
+template<typename T>
+inline void
+splitLua(lua_State* L, string_view input, T sep, lua_Integer max)
+{
+  size_t last = 0;
+  size_t next = 0;
+  lua_Integer i = 1;
+  for (; i <= max && (next = input.find(sep, last)) != string_view::npos; ++i) {
+    qlua::pushString(L, input.substr(last, next - last));
+    lua_rawseti(L, -2, i);
+    last = next + 1;
+  }
+  if (string_view rest = input.substr(last); !rest.empty()) {
+    qlua::pushString(L, rest);
+    lua_rawseti(L, -2, i);
+  }
+}
 } // namespace
 
 namespace {
@@ -249,13 +267,11 @@ int
 L_split(lua_State* L)
 {
   expectMaxArgs(L, 3);
-  size_t inputLength;
-  const char* input = luaL_checklstring(L, 1, &inputLength);
-  size_t sepLength;
-  const char* sep = luaL_checklstring(L, 2, &sepLength);
+  const string_view input = qlua::getString(L, 1);
+  const string_view sep = qlua::getString(L, 2);
   const lua_Integer count = qlua::getInteger(L, 3, 0);
-  if (sepLength != 1) {
-    qlua::pushString(L, "Separator must be a single character");
+  if (sep.empty()) {
+    qlua::pushString(L, "Separator must not be an empty string");
     lua_error(L);
   }
   if (count < 0) {
@@ -266,23 +282,13 @@ L_split(lua_State* L)
   lua_newtable(L);
   const lua_Integer max = count == 0 ? INT_MAX : count;
 
-  // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-  const char* endPtr = input + inputLength;
-  const char* sepPtr;
-  lua_Integer i = 1;
-  for (; i <= max && input < endPtr &&
-         ((sepPtr = strchr(input, *sep)) != nullptr);
-       ++i) {
-    lua_pushlstring(L, input, sepPtr - input);
-    lua_rawseti(L, -2, i);
-    input = sepPtr + 1;
+  if (sep.size() == 1) {
+    splitLua(L, input, sep[0], max);
+  } else {
+    splitLua(L, input, sep, max);
   }
-  if (input < endPtr) {
-    lua_pushlstring(L, input, endPtr - input);
-    lua_rawseti(L, -2, i);
-  }
+
   return 1;
-  // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 }
 } // namespace
 

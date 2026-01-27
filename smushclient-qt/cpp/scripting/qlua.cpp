@@ -40,22 +40,22 @@ checkIsSome(lua_State* L, int idx, int type, const char* name)
 }
 
 inline bool
-isScriptName(lua_State* L, const char* name)
+isScriptName(lua_State* L, string_view name)
 {
-  const char* property = strchr(name, '.');
-  if (property == nullptr) {
-    const bool isFunction = lua_getglobal(L, name) != LUA_TNIL;
+  const size_t dotIndex = name.find('.');
+  if (dotIndex == string_view::npos) {
+    const char* namePtr = name.data();
+    const bool isFunction = lua_getglobal(L, namePtr) != LUA_TNIL;
     lua_pop(L, 1);
     return isFunction;
   }
-  const string tableName(name, property - name);
+  const string tableName(name.substr(0, dotIndex));
   if (lua_getglobal(L, tableName.c_str()) != LUA_TTABLE) {
     lua_pop(L, 1);
     return false;
   }
-  // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-  const bool isFunction = lua_getfield(L, -1, property + 1) == LUA_TFUNCTION;
-  // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+  const char* propertyPtr = name.substr(dotIndex + 1).data();
+  const bool isFunction = lua_getfield(L, -1, propertyPtr) == LUA_TFUNCTION;
   lua_pop(L, 2);
   return isFunction;
 }
@@ -421,16 +421,10 @@ qlua::getQVariant(lua_State* L, int idx)
 optional<string_view>
 qlua::getScriptName(lua_State* L, int idx)
 {
-  luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
-  size_t len;
-  const char* name = lua_tolstring(L, idx, &len);
+  const string_view name = qlua::getString(L, idx);
 
-  if (len == 0) {
-    return string_view();
-  }
-
-  if (isScriptName(L, name)) {
-    return string_view(name, len);
+  if (name.empty() || isScriptName(L, name)) {
+    return name;
   }
 
   return nullopt;

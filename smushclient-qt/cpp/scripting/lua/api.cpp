@@ -176,7 +176,7 @@ class Benchmarker
 {
 public:
   explicit Benchmarker(const char* name)
-    : name(name + 2) // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    : name(name)
   {
     timer.start();
   }
@@ -184,7 +184,8 @@ public:
   {
     int64_t elapsed = timer.elapsed();
     if (elapsed > 2) {
-      qDebug() << name << elapsed << "ms";
+      const string_view sName = string_view(name).substr(2);
+      qDebug() << QString::fromUtf8(sName) << elapsed << "ms";
     }
   }
   Benchmarker(const Benchmarker&) = default;
