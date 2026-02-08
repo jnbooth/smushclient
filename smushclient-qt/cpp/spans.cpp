@@ -51,10 +51,10 @@ decodeLink(QString& link)
   switch (link.front().toLatin1()) {
     case 'i':
       link.remove(0, 2);
-      return SendTo::Internet;
+      return SendTo::Input;
     case 'n':
       link.remove(0, 2);
-      return SendTo::Input;
+      return SendTo::Internet;
     case 'w':
       link.remove(0, 2);
       return SendTo::World;
