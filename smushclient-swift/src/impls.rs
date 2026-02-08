@@ -6,8 +6,8 @@ use std::time::Duration;
 use chrono::{NaiveTime, Timelike};
 use mud_transformer::mxp::{AudioRepetition, Heading, RgbColor, SendTo};
 use mud_transformer::{
-    EffectFragment, EntityFragment, OutputFragment, TelnetFragment, TelnetSource, TelnetVerb,
-    UseMxp,
+    ControlFragment, EntityFragment, MxpFragment, OutputFragment, TelnetFragment, TelnetSource,
+    TelnetVerb, UseMxp,
 };
 use smushclient::world::{
     AutoConnect, LogFormat, LogMode, MxpDebugLevel, Numpad, NumpadMapping, ScriptRecompile,
@@ -395,23 +395,14 @@ impl Convert<AudioRepetition> for u32 {
     }
 }
 
-impl TryFrom<EffectFragment> for ffi::EffectFragment {
+impl TryFrom<ControlFragment> for ffi::ControlFragment {
     type Error = UnsupportedError;
 
-    fn try_from(value: EffectFragment) -> Result<Self, Self::Error> {
+    fn try_from(value: ControlFragment) -> Result<Self, Self::Error> {
         match value {
-            EffectFragment::Backspace => Ok(Self::Backspace),
-            EffectFragment::Beep => Ok(Self::Beep),
-            EffectFragment::CarriageReturn => Ok(Self::CarriageReturn),
-            EffectFragment::EraseCharacter => Ok(Self::EraseCharacter),
-            EffectFragment::EraseLine => Ok(Self::EraseLine),
-            EffectFragment::ExpireLinks(_) => Err(UnsupportedError("<expire>")),
-            EffectFragment::FileFilter(_) => Err(UnsupportedError("<filter>")),
-            EffectFragment::Gauge(_) => Err(UnsupportedError("<gauge>")),
-            EffectFragment::Music(_) | EffectFragment::MusicOff => Err(UnsupportedError("<music>")),
-            EffectFragment::Relocate(_) => Err(UnsupportedError("<relocate>")),
-            EffectFragment::Sound(_) | EffectFragment::SoundOff => Err(UnsupportedError("<sound>")),
-            EffectFragment::StatusBar(_) => Err(UnsupportedError("<stat>")),
+            ControlFragment::Beep => Ok(Self::Beep),
+            ControlFragment::CarriageReturn => Ok(Self::CarriageReturn),
+            _ => Err(UnsupportedError("control fragment")),
         }
     }
 }
@@ -419,6 +410,15 @@ impl TryFrom<EffectFragment> for ffi::EffectFragment {
 impl From<TelnetFragment> for ffi::TelnetFragment {
     fn from(value: TelnetFragment) -> Self {
         match value {
+            TelnetFragment::Msdp { name, value } => Self::Msdp {
+                name: String::from_utf8_lossy(&name).into_owned(),
+                value: match value {
+                    mud_transformer::MsdpValue::String(s) => {
+                        String::from_utf8_lossy(&s).into_owned()
+                    }
+                    _ => String::new(),
+                },
+            },
             TelnetFragment::GoAhead => Self::GoAhead,
             TelnetFragment::Mxp { enabled } => Self::Mxp { enabled },
             TelnetFragment::Naws => Self::Naws,
@@ -443,6 +443,10 @@ impl From<TelnetFragment> for ffi::TelnetFragment {
 impl Clone for ffi::TelnetFragment {
     fn clone(&self) -> Self {
         match self {
+            Self::Msdp { name, value } => Self::Msdp {
+                name: name.clone(),
+                value: value.clone(),
+            },
             Self::GoAhead => Self::GoAhead,
             Self::Mxp { enabled } => Self::Mxp { enabled: *enabled },
             Self::Naws => Self::Naws,
@@ -468,31 +472,54 @@ impl Clone for ffi::TelnetFragment {
 
 impl_convert_enum!(ffi::Heading, Heading, H1, H2, H3, H4, H5, H6);
 
-impl TryFrom<OutputFragment> for ffi::OutputFragment {
-    type Error = UnsupportedError;
-
-    fn try_from(value: OutputFragment) -> Result<Self, Self::Error> {
-        Ok(match value {
-            OutputFragment::Effect(effect) => Self::Effect(effect.try_into()?),
-            OutputFragment::Frame(_) => return Err(UnsupportedError("<frame>")),
-            OutputFragment::Hr => Self::Hr,
-            OutputFragment::Image(_) => return Err(UnsupportedError("<image>")),
-            OutputFragment::LineBreak => Self::LineBreak,
-            OutputFragment::MxpEntity(EntityFragment::Set {
+impl From<EntityFragment> for ffi::EntityFragment {
+    fn from(value: EntityFragment) -> Self {
+        match value {
+            EntityFragment::Set {
                 name,
                 value,
                 publish,
                 is_variable,
-            }) => Self::MxpEntitySet {
+            } => Self::Set {
                 name,
                 value,
                 publish,
                 is_variable,
             },
-            OutputFragment::MxpEntity(EntityFragment::Unset { name, is_variable }) => {
-                Self::MxpEntityUnset { name, is_variable }
-            }
-            OutputFragment::MxpError(error) => Self::MxpError(error.to_string()),
+            EntityFragment::Unset { name, is_variable } => Self::Unset { name, is_variable },
+        }
+    }
+}
+
+impl TryFrom<MxpFragment> for ffi::MxpFragment {
+    type Error = UnsupportedError;
+
+    fn try_from(value: MxpFragment) -> Result<Self, UnsupportedError> {
+        match value {
+            MxpFragment::Entity(fragment) => Ok(Self::Entity(fragment.into())),
+            MxpFragment::Error(error) => Ok(Self::Error(error.to_string())),
+            MxpFragment::ExpireLinks(_) => Err(UnsupportedError("<EXPIRE>")),
+            MxpFragment::FileFilter(_) => Err(UnsupportedError("<FILTER>")),
+            MxpFragment::Gauge(_) => Err(UnsupportedError("<GAUGE>")),
+            MxpFragment::Music(_) | MxpFragment::MusicOff => Err(UnsupportedError("<MUSIC>")),
+            MxpFragment::Relocate(_) => Err(UnsupportedError("<RELOCATE>")),
+            MxpFragment::Sound(_) | MxpFragment::SoundOff => Err(UnsupportedError("<SOUND>")),
+            MxpFragment::StatusBar(_) => Err(UnsupportedError("<STAT>")),
+        }
+    }
+}
+
+impl TryFrom<OutputFragment> for ffi::OutputFragment {
+    type Error = UnsupportedError;
+
+    fn try_from(value: OutputFragment) -> Result<Self, Self::Error> {
+        Ok(match value {
+            OutputFragment::Control(fragment) => Self::Control(fragment.try_into()?),
+            OutputFragment::Frame(_) => return Err(UnsupportedError("<frame>")),
+            OutputFragment::Hr => Self::Hr,
+            OutputFragment::Image(_) => return Err(UnsupportedError("<image>")),
+            OutputFragment::LineBreak => Self::LineBreak,
+            OutputFragment::Mxp(fragment) => Self::Mxp(fragment.try_into()?),
             OutputFragment::PageBreak => Self::PageBreak,
             OutputFragment::Telnet(telnet) => Self::Telnet(telnet.into()),
             OutputFragment::Text(text) => Self::Text(text.into()),

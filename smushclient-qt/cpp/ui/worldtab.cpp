@@ -1102,13 +1102,18 @@ WorldTab::on_output_customContextMenuRequested(const QPoint& pos)
     return;
   }
   QMenu menu(ui->output);
-  for (const QString& prompt : prompts.split(QStringLiteral("|"))) {
-    menu.addAction(prompt);
+  for (const QString& prompt : prompts.split(u'\x1E')) {
+    const qsizetype index = prompt.indexOf(u'\x1F');
+    if (index == -1) {
+      menu.addAction(prompt)->setData(prompt);
+    } else {
+      menu.addAction(prompt.first(index))->setData(prompt.sliced(index + 1));
+    }
   }
 
   const QAction* chosen = menu.exec(mouse);
   if (chosen == nullptr) {
     return;
   }
-  api->sendToWorld(chosen->text(), SendFlag::Echo | SendFlag::Log);
+  api->sendToWorld(chosen->data().toString(), SendFlag::Echo | SendFlag::Log);
 }

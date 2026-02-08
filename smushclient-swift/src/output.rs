@@ -25,7 +25,11 @@ impl RustMxpLink {
     }
 
     pub fn prompts(&self) -> Vec<String> {
-        self.inner.prompts.clone()
+        self.inner
+            .prompts
+            .iter()
+            .map(|prompt| prompt.action.clone())
+            .collect()
     }
 
     pub fn sendto(&self) -> SendTo {

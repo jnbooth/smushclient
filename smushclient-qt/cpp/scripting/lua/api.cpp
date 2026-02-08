@@ -131,8 +131,8 @@ insertTextTriples(lua_State* L, ScriptApi* api)
 {
   int n = lua_gettop(L);
   for (int i = 1; i <= n; i += 3) {
-    api->ColourTell(qlua::getQColor(L, i),
-                    qlua::getQColor(L, i + 1),
+    api->ColourTell(qlua::getQColor(L, i, QColor()),
+                    qlua::getQColor(L, i + 1, QColor()),
                     qlua::getQString(L, i + 2));
   }
 }

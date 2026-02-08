@@ -4,10 +4,11 @@ use std::ops::Range;
 use std::pin::Pin;
 
 use cxx_qt_lib::{QByteArray, QString};
-use mud_transformer::mxp;
+use mud_transformer::term::{self, CursorEffect};
 use mud_transformer::{
-    EffectFragment, EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment,
+    ControlFragment, EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment,
 };
+use mud_transformer::{MxpFragment, mxp};
 use smushclient::{SendRequest, SendScriptRequest, SpanStyle};
 
 use crate::ffi::Document;
@@ -38,21 +39,53 @@ impl ClientHandler<'_> {
         }
     }
 
-    fn handle_effect(&mut self, fragment: &EffectFragment) {
+    fn handle_control(&mut self, fragment: &ControlFragment) {
         match fragment {
-            EffectFragment::Backspace | EffectFragment::EraseCharacter => {
-                self.doc.erase_last_character();
-            }
-            EffectFragment::Beep => self.doc.beep(),
-            EffectFragment::CarriageReturn if !self.carriage_return_clears_line => (),
-            EffectFragment::CarriageReturn | EffectFragment::EraseLine => {
+            ControlFragment::Beep => self.doc.beep(),
+            ControlFragment::Cursor(effect) => self.handle_cursor(*effect),
+            ControlFragment::CarriageReturn if self.carriage_return_clears_line => {
                 self.doc.erase_current_line();
             }
-            EffectFragment::ExpireLinks(None) => self.doc.as_mut().expire_links(""),
-            EffectFragment::ExpireLinks(Some(expires)) => {
+            ControlFragment::EraseCharacters(n) => self.handle_cursor(CursorEffect::Back(*n)),
+            ControlFragment::Erase { target, range, .. } => self.handle_erase(*target, *range),
+            ControlFragment::VerticalTab => self.handle_cursor(CursorEffect::Down(1)),
+            _ => (),
+        }
+    }
+
+    fn handle_cursor(&mut self, effect: CursorEffect) {
+        use smushclient_qt_lib::QTextCursorMoveOperation as Move;
+
+        match effect {
+            CursorEffect::Back(n) => self.doc.move_cursor(Move::Left, n.into()),
+            CursorEffect::Down(n) => self.doc.move_cursor(Move::Down, n.into()),
+            CursorEffect::Forward(n) => self.doc.move_cursor(Move::Right, n.into()),
+            CursorEffect::Index => self.doc.move_cursor(Move::Down, 1),
+            CursorEffect::ReverseIndex => self.doc.move_cursor(Move::Up, 1),
+            CursorEffect::Up(n) => self.doc.erase_characters(Move::Up, n.into()),
+            _ => (),
+        }
+    }
+
+    fn handle_erase(&mut self, target: term::EraseTarget, range: term::EraseRange) {
+        if range == term::EraseRange::AfterCursor {
+            return;
+        }
+        match target {
+            term::EraseTarget::Display => self.doc.clear(),
+            term::EraseTarget::Line => self.doc.erase_current_line(),
+        }
+    }
+
+    fn handle_mxp(&mut self, fragment: &MxpFragment) {
+        match fragment {
+            MxpFragment::Entity(fragment) => self.handle_mxp_entity(fragment),
+            MxpFragment::Error(error) => eprintln!("MXP error: {error}"),
+            MxpFragment::ExpireLinks(expires) => {
+                let expires = expires.as_deref().unwrap_or_default();
                 self.doc.as_mut().expire_links(expires);
             }
-            EffectFragment::StatusBar(stat) => self.handle_mxp_stat(stat),
+            MxpFragment::StatusBar(stat) => self.handle_mxp_stat(stat),
             _ => (),
         }
     }
@@ -106,6 +139,7 @@ impl ClientHandler<'_> {
 
     fn handle_telnet(&mut self, fragment: &TelnetFragment) {
         match fragment {
+            TelnetFragment::Msdp { .. } => (),
             TelnetFragment::GoAhead => self.doc.handle_telnet_go_ahead(),
             TelnetFragment::Mxp { enabled } => self.doc.handle_mxp_change(*enabled),
             TelnetFragment::Naws => self.doc.handle_telnet_naws(),
@@ -139,13 +173,12 @@ impl smushclient::Handler for ClientHandler<'_> {
 
     fn display(&mut self, output: &Output) {
         match &output.fragment {
-            OutputFragment::Effect(effect) => self.handle_effect(effect),
+            OutputFragment::Control(effect) => self.handle_control(effect),
             OutputFragment::Hr => self.doc.append_html(&QString::from("<hr>")),
             OutputFragment::LineBreak | OutputFragment::PageBreak => {
                 self.doc.as_mut().append_line();
             }
-            OutputFragment::MxpEntity(entity) => self.handle_mxp_entity(entity),
-            OutputFragment::MxpError(error) => eprintln!("MXP error: {error}"),
+            OutputFragment::Mxp(fragment) => self.handle_mxp(fragment),
             OutputFragment::Telnet(telnet) => self.handle_telnet(telnet),
             OutputFragment::Text(text) => self.display_text(text),
             OutputFragment::Frame(_) | OutputFragment::Image(_) => (),

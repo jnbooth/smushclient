@@ -22,15 +22,17 @@ pub mod ffi {
     }
 
     enum TextStyle {
-        Blink = 1,
+        NonProportional = 1,
         Bold = 2,
-        Highlight = 4,
+        Faint = 4,
         Italic = 8,
-        NonProportional = 16,
-        Small = 32,
-        Strikeout = 64,
-        Underline = 128,
-        Inverse = 256,
+        Underline = 16,
+        Blink = 32,
+        Small = 64,
+        Inverse = 128,
+        Conceal = 256,
+        Strikeout = 512,
+        Highlight = 1024,
     }
 
     enum TelnetSource {
@@ -72,6 +74,13 @@ pub mod ffi {
         type QTextCharFormat = smushclient_qt_lib::QTextCharFormat;
     }
 
+    #[namespace = "rust::smushclientqtlib1"]
+    extern "C++" {
+
+        include!("smushclient-qt-lib/qtextcursor.h");
+        type QTextCursorMoveOperation = smushclient_qt_lib::QTextCursorMoveOperation;
+    }
+
     extern "Rust" {
         type TextSpan;
         fn foreground(&self) -> i32;
@@ -95,9 +104,6 @@ pub mod ffi {
         #[rust_name = "append_html"]
         fn appendHtml(self: &Document, text: &QString);
 
-        #[rust_name = "append_line"]
-        fn appendLine(self: Pin<&mut Document>);
-
         #[rust_name = "append_expiring_link"]
         fn appendExpiringLink(
             self: Pin<&mut Document>,
@@ -105,6 +111,9 @@ pub mod ffi {
             format: &QTextCharFormat,
             expires: &str,
         );
+
+        #[rust_name = "append_line"]
+        fn appendLine(self: Pin<&mut Document>);
 
         #[rust_name = "append_text"]
         fn appendText(self: &Document, text: &QString, format: &QTextCharFormat);
@@ -116,6 +125,8 @@ pub mod ffi {
 
         fn begin(self: &Document);
 
+        fn clear(self: &Document);
+
         #[rust_name = "create_mxp_stat"]
         fn createMxpStat(self: &Document, entity: &QString, caption: &QString, max: &QString);
 
@@ -126,8 +137,8 @@ pub mod ffi {
         #[rust_name = "erase_current_line"]
         fn eraseCurrentLine(self: &Document);
 
-        #[rust_name = "erase_last_character"]
-        fn eraseLastCharacter(self: &Document);
+        #[rust_name = "erase_characters"]
+        fn eraseCharacters(self: &Document, direction: QTextCursorMoveOperation, n: i32);
 
         #[rust_name = "erase_last_line"]
         fn eraseLastLine(self: &Document);
@@ -164,6 +175,9 @@ pub mod ffi {
         #[rust_name = "handle_telnet_subnegotiation"]
         fn handleTelnetSubnegotiation(self: &Document, code: u8, data: &QByteArray);
 
+        #[rust_name = "move_cursor"]
+        fn moveCursor(self: &Document, op: QTextCursorMoveOperation, count: i32);
+
         #[rust_name = "permit_line"]
         fn permitLine(self: &Document, line: &str) -> bool;
 
@@ -197,11 +211,14 @@ macro_rules! assert_textstyle {
     };
 }
 
-assert_textstyle!(Blink);
-assert_textstyle!(Bold);
-assert_textstyle!(Highlight);
 assert_textstyle!(NonProportional);
-assert_textstyle!(Small);
-assert_textstyle!(Strikeout);
+assert_textstyle!(Bold);
+assert_textstyle!(Faint);
+assert_textstyle!(Italic);
 assert_textstyle!(Underline);
+assert_textstyle!(Blink);
+assert_textstyle!(Small);
 assert_textstyle!(Inverse);
+assert_textstyle!(Conceal);
+assert_textstyle!(Strikeout);
+assert_textstyle!(Highlight);

@@ -141,6 +141,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b35204fbdc0b3f4446b89fc1ac2cf84a8a68971995d0bf2e925ec7cd960f9cb3"
 
 [[package]]
+name = "bytestring"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "113b4343b5f6617e7ad401ced8de3cc8b012e73a594347c307b90db3e9271289"
+dependencies = [
+ "bytes",
+]
+
+[[package]]
 name = "casefold"
 version = "0.4.0"
 source = "git+https://github.com/jnbooth/casefold#e02a01167ad51827c4c53fd5ac31aba127ab7609"
@@ -899,10 +908,11 @@ dependencies = [
 
 [[package]]
 name = "mud-transformer"
-version = "0.13.1"
-source = "git+https://github.com/jnbooth/mxp#bf272744bf1699824645ff76bb9802924ace5c78"
+version = "0.16.0"
+source = "git+https://github.com/jnbooth/mxp#069d98ec6598510d1d39d102739af1af0853e784"
 dependencies = [
  "bytes",
+ "bytestring",
  "flagset",
  "flate2",
  "html-escape",
@@ -912,8 +922,8 @@ dependencies = [
 
 [[package]]
 name = "mxp"
-version = "0.13.1"
-source = "git+https://github.com/jnbooth/mxp#bf272744bf1699824645ff76bb9802924ace5c78"
+version = "0.16.0"
+source = "git+https://github.com/jnbooth/mxp#069d98ec6598510d1d39d102739af1af0853e784"
 dependencies = [
  "casefold",
  "flagset",

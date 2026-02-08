@@ -28,21 +28,22 @@ public:
   Document(MudBrowser* output, ScriptApi* api, QObject* parent = nullptr);
 
   void appendHtml(const QString& html) const;
-  void appendLine();
   void appendExpiringLink(const QString& text,
                           const QTextCharFormat& format,
                           rust::Str expires);
+  void appendLine();
   void appendText(const QString& text, const QTextCharFormat& format) const;
   void applyStyles(int start, int end, const QTextCharFormat& format) const;
   void beep() const;
   void begin() const;
+  void clear() const;
   void createMxpStat(const QString& entity,
                      const QString& caption,
                      const QString& max) const;
   void echo(const QString& text) const;
   void end(bool hadOutput);
+  void eraseCharacters(QTextCursor::MoveOperation direction, int n) const;
   void eraseCurrentLine() const;
-  void eraseLastCharacter() const;
   void eraseLastLine() const;
   void expireLinks(rust::Str expires);
   void handleMxpChange(bool enabled) const;
@@ -55,6 +56,7 @@ public:
                                TelnetVerb verb,
                                uint8_t code);
   void handleTelnetSubnegotiation(uint8_t code, const QByteArray& data) const;
+  void moveCursor(QTextCursor::MoveOperation op, int count) const;
   bool permitLine(rust::Str line) const;
   void resetServerStatus();
   void send(const SendRequest& request) const;

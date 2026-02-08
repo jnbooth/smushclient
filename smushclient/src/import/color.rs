@@ -42,7 +42,7 @@ pub(super) struct Colours {
 
 impl From<ColoursXml> for Colours {
     fn from(value: ColoursXml) -> Self {
-        let mut ansi = *RgbColor::XTERM_16;
+        let mut ansi = RgbColor::XTERM_16;
         for color in value.ansi.normal.elements {
             if let Some(slot) = ansi.get_mut(color.seq.get() - 1) {
                 *slot = color.rgb;

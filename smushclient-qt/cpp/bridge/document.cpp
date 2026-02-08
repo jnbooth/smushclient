@@ -111,6 +111,12 @@ Document::begin() const
 }
 
 void
+Document::clear() const
+{
+  doc->clear();
+}
+
+void
 Document::createMxpStat(const QString& entity,
                         const QString& caption,
                         const QString& max) const
@@ -134,19 +140,18 @@ Document::end(bool hadOutput)
 }
 
 void
-Document::eraseCurrentLine() const
+Document::eraseCharacters(QTextCursor::MoveOperation direction, int n) const
 {
   QTextCursor cursor(doc);
-  cursor.select(QTextCursor::SelectionType::BlockUnderCursor);
+  cursor.movePosition(direction, QTextCursor::MoveMode::KeepAnchor, n);
   cursor.removeSelectedText();
 }
 
 void
-Document::eraseLastCharacter() const
+Document::eraseCurrentLine() const
 {
   QTextCursor cursor(doc);
-  cursor.movePosition(QTextCursor::MoveOperation::PreviousCharacter,
-                      QTextCursor::MoveMode::KeepAnchor);
+  cursor.select(QTextCursor::SelectionType::BlockUnderCursor);
   cursor.removeSelectedText();
 }
 
@@ -269,6 +274,12 @@ Document::handleTelnetSubnegotiation(uint8_t code, const QByteArray& data) const
 {
   OnPluginTelnetSubnegotiation onTelnetSubnegotiation(code, &data);
   api->sendCallback(onTelnetSubnegotiation);
+}
+
+void
+Document::moveCursor(QTextCursor::MoveOperation op, int count) const
+{
+  api->moveCursor(op, count);
 }
 
 bool

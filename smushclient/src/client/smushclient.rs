@@ -291,12 +291,11 @@ impl SmushClient {
                 match &output.fragment {
                     OutputFragment::Text(fragment) => line_text.push_str(&fragment.text),
                     OutputFragment::Hr => {
-                        self.info.lines_displayed.update(|n| n + 2);
+                        self.info.lines_displayed.update(|n| n + 1);
                         until = i + 1;
                         break;
                     }
                     OutputFragment::LineBreak | OutputFragment::PageBreak => {
-                        self.info.lines_displayed.update(|n| n + 1);
                         until = i + 1;
                         break;
                     }
@@ -330,7 +329,7 @@ impl SmushClient {
 
             if !handler.permit_line(&line_text) {
                 for fragment in output {
-                    if !fragment.fragment.is_visual() {
+                    if !matches!(fragment.fragment, OutputFragment::Text(_)) {
                         handler.display(fragment);
                     }
                 }
@@ -339,6 +338,10 @@ impl SmushClient {
 
             for fragment in output {
                 handler.display(fragment);
+            }
+
+            if has_break {
+                self.info.lines_displayed.update(|n| n + 1);
             }
 
             let trigger_effects = self.trigger(&line_text, output, handler);

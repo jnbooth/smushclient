@@ -210,7 +210,7 @@ impl World {
             show_italic: true,
             show_underline: true,
             indent_paras: 0,
-            ansi_colours: *RgbColor::XTERM_16,
+            ansi_colours: RgbColor::XTERM_16,
             use_default_colours: false,
             display_my_input: true,
             echo_colour: Some(RgbColor::rgb(128, 128, 128)),

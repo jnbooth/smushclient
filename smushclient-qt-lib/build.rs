@@ -46,6 +46,7 @@ fn main() {
         include_header!("include/core/qvariant/qvariant_qtextlength.h"),
         include_header!("include/gui/qbrush.h"),
         include_header!("include/gui/qtextcharformat.h"),
+        include_header!("include/gui/qtextcursor.h"),
         include_header!("include/gui/qtextformat.h"),
         include_header!("include/gui/qtextlength.h"),
     ];
@@ -81,6 +82,7 @@ fn main() {
             "src/core/qvariant/qvariant_qtextlength.rs",
             "src/gui/qbrush.rs",
             "src/gui/qtextcharformat.rs",
+            "src/gui/qtextcursor.rs",
             "src/gui/qtextformat.rs",
             "src/gui/qtextlength.rs",
         ])

@@ -360,6 +360,7 @@ public:
   const Plugin* getPlugin(std::string_view pluginID) const;
   void handleSendRequest(const SendRequest& request);
   void initializePlugins();
+  void moveCursor(QTextCursor::MoveOperation op, int count);
   void reinstallPlugin(size_t index);
   bool isPluginEnabled(size_t plugin) const
   {
@@ -430,6 +431,7 @@ private:
   bool finishQueuedSend(const SendRequest& request);
   void flushLine();
   void insertBlock();
+  void insertText(const QString& text, const QTextCharFormat& format);
   ApiCode sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags);
 
 private:

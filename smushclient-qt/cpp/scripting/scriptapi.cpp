@@ -262,6 +262,43 @@ ScriptApi::playFileRaw(const QString& path) const
 }
 
 void
+ScriptApi::moveCursor(QTextCursor::MoveOperation op, int count)
+{
+  switch (op) {
+    case QTextCursor::MoveOperation::Right: {
+      const int position = cursor.position();
+      cursor.movePosition(op, QTextCursor::MoveMode::MoveAnchor, count);
+      count -= cursor.position() - position;
+      if (count == 0) {
+        break;
+      }
+      flushLine();
+      insertText(QStringLiteral(" ").repeated(count), QTextCharFormat());
+      break;
+    }
+    case QTextCursor::MoveOperation::Down: {
+      const int position = cursor.blockNumber();
+      cursor.movePosition(op, QTextCursor::MoveMode::MoveAnchor, count);
+      count -= cursor.blockNumber() - position;
+      if (count == 0) {
+        break;
+      }
+      for (int i = 0; i < count; ++i) {
+        startLine();
+      }
+      if (position != 0) {
+        flushLine();
+        insertText(QStringLiteral(" ").repeated(count), QTextCharFormat());
+      }
+      break;
+    }
+    default:
+      cursor.movePosition(op, QTextCursor::MoveMode::KeepAnchor, count);
+      break;
+  }
+}
+
+void
 ScriptApi::reinstallPlugin(size_t index)
 {
   const PluginPack pack = client->plugin(index);
@@ -552,6 +589,18 @@ ScriptApi::insertBlock()
   }
   cursor.insertBlock();
   lastLinePosition = cursor.position();
+}
+
+void
+ScriptApi::insertText(const QString& text, const QTextCharFormat& format)
+{
+  if (!cursor.atBlockEnd()) {
+    cursor.movePosition(QTextCursor::MoveOperation::NextCharacter,
+                        QTextCursor::MoveMode::KeepAnchor,
+                        static_cast<int>(text.size()));
+    cursor.removeSelectedText();
+  }
+  cursor.insertText(text, format);
 }
 
 ApiCode

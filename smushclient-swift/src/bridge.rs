@@ -90,16 +90,12 @@ pub mod ffi {
         Wont,
     }
 
-    enum EffectFragment {
-        Backspace,
-        Beep,
-        CarriageReturn,
-        EraseCharacter,
-        EraseLine,
-    }
-
     enum TelnetFragment {
         GoAhead,
+        Msdp {
+            name: String,
+            value: String,
+        },
         Mxp {
             enabled: bool,
         },
@@ -120,6 +116,29 @@ pub mod ffi {
             code: u8,
             data: Vec<u8>,
         },
+    }
+
+    enum ControlFragment {
+        Beep,
+        CarriageReturn,
+    }
+
+    enum EntityFragment {
+        Set {
+            name: String,
+            value: String,
+            publish: bool,
+            is_variable: bool,
+        },
+        Unset {
+            name: String,
+            is_variable: bool,
+        },
+    }
+
+    enum MxpFragment {
+        Entity(EntityFragment),
+        Error(String),
     }
 
     enum ColorOption {
@@ -410,20 +429,10 @@ pub mod ffi {
     }
 
     enum OutputFragment {
-        Effect(EffectFragment),
+        Control(ControlFragment),
         Hr,
         LineBreak,
-        MxpError(String),
-        MxpEntitySet {
-            name: String,
-            value: String,
-            publish: bool,
-            is_variable: bool,
-        },
-        MxpEntityUnset {
-            name: String,
-            is_variable: bool,
-        },
+        Mxp(MxpFragment),
         PageBreak,
         Send(SendRequest),
         Telnet(TelnetFragment),

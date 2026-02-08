@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use cxx_qt_lib::{QColor, QString};
 use flagset::FlagSet;
-use mud_transformer::mxp::{Link, RgbColor, SendTo};
+use mud_transformer::mxp::{Link, LinkPrompt, RgbColor, SendTo};
 use mud_transformer::{TextFragment, TextStyle};
 use smushclient::{SpanStyle, World};
 use smushclient_qt_lib::{QBrush, QFontWeight, QTextCharFormat, QTextFormatProperty};
@@ -41,15 +41,33 @@ fn apply_flags(format: &mut QTextCharFormat, flags: FlagSet<TextStyle>) {
     }
 }
 
+fn link_prompt_len(prompt: &LinkPrompt) -> usize {
+    match &prompt.label {
+        Some(label) => label.len() + prompt.action.len() + 1,
+        None => prompt.action.len() + 1,
+    }
+}
+
 fn apply_link(format: &mut QTextCharFormat, link: &Link) {
     format.set_anchor(true);
     format.set_anchor_href(&QString::from(&encode_link(link.sendto, &link.action)));
     if let Some(hint) = &link.hint {
         format.set_tool_tip(&QString::from(hint));
     }
-    if !link.prompts.is_empty() {
-        format.set_property(PROMPTS_PROPERTY, &QString::from(&link.prompts.join("|")));
+    if link.prompts.is_empty() {
+        return;
     }
+    let len = link.prompts.iter().map(link_prompt_len).sum();
+    let mut s = String::with_capacity(len);
+    for prompt in &link.prompts {
+        s.push('\x1E');
+        s.push_str(&prompt.action);
+        if let Some(label) = &prompt.label {
+            s.push('\x1F');
+            s.push_str(label);
+        }
+    }
+    format.set_property(PROMPTS_PROPERTY, &QString::from(&s[1..]));
 }
 
 fn brush(color: RgbColor) -> QBrush {
