@@ -121,6 +121,9 @@ toQColor(lua_State* L, int idx, int ltype)
       if (isInt == FALSE) {
         break;
       }
+      if (rgb == -1) {
+        return QColor();
+      }
       luaL_argcheck(L, rgb >= 0 && rgb <= 0xFFFFFF, idx, "valid color");
       const int code = static_cast<int>(rgb);
       return QColor(code & 0xFF, (code >> 8) & 0xFF, (code >> 16) & 0xFF);
