@@ -132,6 +132,9 @@
             <property name="sizeAdjustPolicy">
              <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContentsOnFirstShow</enum>
             </property>
+            <property name="horizontalScrollBarPolicy">
+              <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+            </property>
             <property name="openExternalLinks">
              <bool>false</bool>
             </property>
