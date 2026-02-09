@@ -25,7 +25,7 @@ getSendTo(const QTextCharFormat& format);
 QFlags<TextStyle>
 getStyles(const QTextCharFormat& format);
 
-QString
+QStringList
 getPrompts(const QTextCharFormat& format);
 
 void

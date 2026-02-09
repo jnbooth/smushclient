@@ -18,8 +18,8 @@ func setupActionAttributes(
   attributes: inout [NSAttributedString.Key: Any]
 ) {
   let action = link.action().toString()
-  let sendto = link.sendto()
-  switch sendto {
+  let send_to = link.send_to()
+  switch send_to {
   case .Input:
     attributes[.link] = action + sendToInputSuffix
   case .Internet:

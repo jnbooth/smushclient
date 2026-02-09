@@ -32,8 +32,8 @@ impl RustMxpLink {
             .collect()
     }
 
-    pub fn sendto(&self) -> SendTo {
-        self.inner.sendto
+    pub fn send_to(&self) -> SendTo {
+        self.inner.send_to
     }
 }
 

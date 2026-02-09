@@ -53,9 +53,9 @@ pub mod ffi {
     }
 
     enum CommandSource {
+        User,
         Hotkey,
         Link,
-        User,
     }
 
     #[repr(i32)]

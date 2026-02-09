@@ -1,7 +1,7 @@
 #![allow(clippy::elidable_lifetime_names)]
 use std::pin::Pin;
 
-use mud_transformer::{TelnetSource, TelnetVerb, TextStyle};
+use mud_transformer::{TelnetSource, TelnetVerb};
 
 use crate::sender::{OutputSpan, TextSpan};
 
@@ -19,20 +19,8 @@ pub mod ffi {
     extern "C++" {
         include!("smushclient_qt/src/ffi/send_request.cxx.h");
         type SendRequest = super::super::send_request::ffi::SendRequest;
-    }
-
-    enum TextStyle {
-        NonProportional = 1,
-        Bold = 2,
-        Faint = 4,
-        Italic = 8,
-        Underline = 16,
-        Blink = 32,
-        Small = 64,
-        Inverse = 128,
-        Conceal = 256,
-        Strikeout = 512,
-        Highlight = 1024,
+        include!("smushclient_qt/src/ffi/spans.cxx.h");
+        type SendTo = super::super::spans::SendTo;
     }
 
     enum TelnetSource {
@@ -41,16 +29,10 @@ pub mod ffi {
     }
 
     enum TelnetVerb {
+        Will = 0xFB,
+        Wont,
         Do,
         Dont,
-        Will,
-        Wont,
-    }
-
-    enum SendTo {
-        Internet,
-        World,
-        Input,
     }
 
     struct NamedWildcard<'a> {
@@ -204,21 +186,3 @@ impl ffi::Document {
         self.handle_telnet_negotiation_internal(source.into(), verb.into(), code);
     }
 }
-
-macro_rules! assert_textstyle {
-    ($i:ident) => {
-        const _: () = assert!(1 << (TextStyle::$i as u16) == ffi::TextStyle::$i.repr as usize);
-    };
-}
-
-assert_textstyle!(NonProportional);
-assert_textstyle!(Bold);
-assert_textstyle!(Faint);
-assert_textstyle!(Italic);
-assert_textstyle!(Underline);
-assert_textstyle!(Blink);
-assert_textstyle!(Small);
-assert_textstyle!(Inverse);
-assert_textstyle!(Conceal);
-assert_textstyle!(Strikeout);
-assert_textstyle!(Highlight);

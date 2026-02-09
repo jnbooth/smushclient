@@ -13,6 +13,7 @@ fn main() {
             "src/ffi/sender.rs",
             "src/ffi/sender_map.rs",
             "src/ffi/send_request.rs",
+            "src/ffi/spans.rs",
             "src/ffi/timekeeper.rs",
             "src/ffi/util.rs",
             "src/ffi/world.rs",

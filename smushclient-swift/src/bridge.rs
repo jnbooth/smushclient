@@ -73,8 +73,8 @@ pub mod ffi {
     }
 
     enum SendTo {
+        World = 1,
         Internet,
-        World,
         Input,
     }
 
@@ -84,10 +84,10 @@ pub mod ffi {
     }
 
     enum TelnetVerb {
+        Will = 0xFB,
+        Wont,
         Do,
         Dont,
-        Will,
-        Wont,
     }
 
     enum TelnetFragment {
@@ -380,7 +380,7 @@ pub mod ffi {
     }
 
     enum Heading {
-        H1,
+        H1 = 1,
         H2,
         H3,
         H4,
@@ -401,7 +401,7 @@ pub mod ffi {
         fn hint(&self) -> Option<&str>;
         fn prompts(&self) -> Vec<String>;
         #[swift_bridge(return_into)]
-        fn sendto(&self) -> SendTo;
+        fn send_to(&self) -> SendTo;
     }
 
     extern "Rust" {

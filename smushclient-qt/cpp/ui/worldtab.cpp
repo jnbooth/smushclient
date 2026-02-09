@@ -1096,19 +1096,14 @@ WorldTab::on_output_customContextMenuRequested(const QPoint& pos)
   const QTextCharFormat format =
     ui->output->cursorForPosition(pos).charFormat();
   const QPoint mouse = ui->output->mapToGlobal(pos);
-  const QString prompts = spans::getPrompts(format);
+  const QStringList prompts = spans::getPrompts(format);
   if (prompts.isEmpty()) {
     ui->output->createStandardContextMenu(mouse)->exec(mouse);
     return;
   }
   QMenu menu(ui->output);
-  for (const QString& prompt : prompts.split(u'\x1E')) {
-    const qsizetype index = prompt.indexOf(u'\x1F');
-    if (index == -1) {
-      menu.addAction(prompt)->setData(prompt);
-    } else {
-      menu.addAction(prompt.first(index))->setData(prompt.sliced(index + 1));
-    }
+  for (auto it = prompts.cbegin(), end = prompts.cend(); it != end; ++it) {
+    menu.addAction(*it)->setData(*++it);
   }
 
   const QAction* chosen = menu.exec(mouse);

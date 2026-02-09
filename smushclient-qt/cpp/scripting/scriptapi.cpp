@@ -230,8 +230,7 @@ ScriptApi::initializePlugins()
   sendQueue->clear();
   QString error;
   size_t index = 0;
-  for (auto start = pack.cbegin(), it = start, end = pack.cend(); it != end;
-       ++it, ++index) {
+  for (auto it = pack.cbegin(), end = pack.cend(); it != end; ++it, ++index) {
     PluginMetadata metadata(*it, index);
     if (metadata.id.empty()) {
       worldScriptIndex = index;

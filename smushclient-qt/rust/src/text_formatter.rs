@@ -1,15 +1,14 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 
-use cxx_qt_lib::{QColor, QString};
+use cxx_qt_lib::QColor;
 use flagset::FlagSet;
-use mud_transformer::mxp::{Link, LinkPrompt, RgbColor, SendTo};
+use mud_transformer::mxp::RgbColor;
 use mud_transformer::{TextFragment, TextStyle};
 use smushclient::{SpanStyle, World};
-use smushclient_qt_lib::{QBrush, QFontWeight, QTextCharFormat, QTextFormatProperty};
+use smushclient_qt_lib::{QBrush, QTextCharFormat};
 
-pub const STYLES_PROPERTY: QTextFormatProperty = QTextFormatProperty::user(0);
-pub const PROMPTS_PROPERTY: QTextFormatProperty = QTextFormatProperty::user(1);
+use crate::ffi::spans;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TextFormatter {
@@ -25,65 +24,12 @@ impl Default for TextFormatter {
     }
 }
 
-fn apply_flags(format: &mut QTextCharFormat, flags: FlagSet<TextStyle>) {
-    format.set_property(STYLES_PROPERTY, &i32::from(flags.bits()));
-    if flags.contains(TextStyle::Bold) {
-        format.set_font_weight(QFontWeight::Bold);
-    }
-    if flags.contains(TextStyle::Italic) {
-        format.set_font_italic(true);
-    }
-    if flags.contains(TextStyle::Strikeout) {
-        format.set_font_strike_out(true);
-    }
-    if flags.contains(TextStyle::Underline) {
-        format.set_font_underline(true);
-    }
-}
-
-fn link_prompt_len(prompt: &LinkPrompt) -> usize {
-    match &prompt.label {
-        Some(label) => label.len() + prompt.action.len() + 1,
-        None => prompt.action.len() + 1,
-    }
-}
-
-fn apply_link(format: &mut QTextCharFormat, link: &Link) {
-    format.set_anchor(true);
-    format.set_anchor_href(&QString::from(&encode_link(link.sendto, &link.action)));
-    if let Some(hint) = &link.hint {
-        format.set_tool_tip(&QString::from(hint));
-    }
-    if link.prompts.is_empty() {
-        return;
-    }
-    let len = link.prompts.iter().map(link_prompt_len).sum();
-    let mut s = String::with_capacity(len);
-    for prompt in &link.prompts {
-        s.push('\x1E');
-        s.push_str(&prompt.action);
-        if let Some(label) = &prompt.label {
-            s.push('\x1F');
-            s.push_str(label);
-        }
-    }
-    format.set_property(PROMPTS_PROPERTY, &QString::from(&s[1..]));
-}
-
 fn brush(color: RgbColor) -> QBrush {
     QBrush::from(&QColor::from_rgb(
         color.r.into(),
         color.g.into(),
         color.b.into(),
     ))
-}
-
-fn encode_link(sendto: SendTo, action: &str) -> String {
-    match sendto {
-        SendTo::Input => format!("i:{action}"),
-        SendTo::World => format!("w:{action}"),
-        SendTo::Internet => format!("n:{action}"),
-    }
 }
 
 fn foreground_format(color: RgbColor) -> QTextCharFormat {
@@ -134,7 +80,7 @@ impl TextFormatter {
     pub fn text_format(&self, fragment: &TextFragment) -> Cow<'_, QTextCharFormat> {
         let mut format = self.get_format(fragment.foreground, fragment.background, fragment.flags);
         if let Some(link) = &fragment.action {
-            apply_link(format.to_mut(), link);
+            spans::apply_link(format.to_mut(), link);
         }
         format
     }
@@ -150,7 +96,7 @@ impl TextFormatter {
             format.to_mut().set_background(&brush(background));
         }
         if !flags.is_empty() {
-            apply_flags(format.to_mut(), flags);
+            spans::apply_styles(format.to_mut(), flags);
         }
         format
     }

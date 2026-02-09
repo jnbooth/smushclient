@@ -1,37 +1,14 @@
 #include "spans.h"
-#include "smushclient_qt/src/ffi/document.cxxqt.h"
+#include "smushclient_qt/src/ffi/spans.cxx.h"
 #include <QtCore/QDateTime>
 #include <QtCore/QRegularExpression>
 
 using std::nullopt;
 using std::optional;
 
-constexpr int stylesProp = QTextCharFormat::UserProperty;
-constexpr int promptsProp = QTextCharFormat::UserProperty + 1;
-constexpr int typeProp = QTextCharFormat::UserProperty + 2;
+constexpr int typeProp = QTextCharFormat::UserProperty + 10;
 
 constexpr int timestampProp = QTextBlockFormat::UserProperty;
-
-static const QString internetPrefix = QStringLiteral("i:");
-static const QString worldPrefix = QStringLiteral("w:");
-static const QString inputPrefix = QStringLiteral("n:");
-
-// Private utils
-
-namespace {
-constexpr const QString&
-getPrefix(SendTo sendto)
-{
-  switch (sendto) {
-    case SendTo::Internet:
-      return internetPrefix;
-    case SendTo::World:
-      return worldPrefix;
-    case SendTo::Input:
-      return inputPrefix;
-  }
-}
-} // namespace
 
 // Public functions
 
@@ -41,55 +18,36 @@ QString
 encodeLink(SendTo sendto, const QString& action)
 {
   QString link = action;
-  link.prepend(getPrefix(sendto));
+  ffi::encode_link(sendto, link);
   return link;
 }
 
 SendTo
 decodeLink(QString& link)
 {
-  switch (link.front().toLatin1()) {
-    case 'i':
-      link.remove(0, 2);
-      return SendTo::Input;
-    case 'n':
-      link.remove(0, 2);
-      return SendTo::Internet;
-    case 'w':
-      link.remove(0, 2);
-      return SendTo::World;
-    default:
-      return SendTo::Internet;
-  }
+  return ffi::get_send_to(link);
 }
 
 optional<SendTo>
 getSendTo(const QTextCharFormat& format)
 {
-  const QString href = format.anchorHref();
+  QString href = format.anchorHref();
   if (href.isEmpty()) {
     return nullopt;
   }
-  switch (href.front().toLatin1()) {
-    case 'n':
-      return SendTo::Input;
-    case 'w':
-      return SendTo::World;
-    default:
-      return SendTo::Internet;
-  }
+  return decodeLink(href);
 }
 
 QFlags<TextStyle>
 getStyles(const QTextCharFormat& format)
 {
-  return QFlags<TextStyle>::fromInt(format.property(stylesProp).toUInt());
+  return QFlags<TextStyle>::fromInt(ffi::get_styles(format));
 }
 
-QString
+QStringList
 getPrompts(const QTextCharFormat& format)
 {
-  return format.property(promptsProp).toString();
+  return ffi::get_prompts(format);
 }
 
 void

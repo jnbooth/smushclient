@@ -7,10 +7,10 @@ use crate::world::World;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum CommandSource {
-    Hotkey,
-    Link,
     #[default]
     User,
+    Hotkey,
+    Link,
 }
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -23,6 +23,11 @@ pub(crate) struct AliasEffects {
 impl AliasEffects {
     pub const fn new(world: &World, source: CommandSource) -> Self {
         match source {
+            CommandSource::User => Self {
+                echo: true,
+                omit_from_command_history: false,
+                matched: false,
+            },
             CommandSource::Hotkey => Self {
                 echo: world.echo_hotkey_in_output_window,
                 omit_from_command_history: !world.hotkey_adds_to_command_history,
@@ -31,11 +36,6 @@ impl AliasEffects {
             CommandSource::Link => Self {
                 echo: world.echo_hyperlink_in_output_window,
                 omit_from_command_history: !world.hyperlink_adds_to_command_history,
-                matched: false,
-            },
-            CommandSource::User => Self {
-                echo: true,
-                omit_from_command_history: false,
                 matched: false,
             },
         }

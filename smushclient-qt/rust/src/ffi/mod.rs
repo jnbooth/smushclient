@@ -13,9 +13,7 @@ pub use client::ffi::{
 };
 
 mod document;
-pub use document::ffi::{
-    Document, NamedWildcard, SendScriptRequest, SendTo, TelnetSource, TelnetVerb,
-};
+pub use document::ffi::{Document, NamedWildcard, SendScriptRequest, TelnetSource, TelnetVerb};
 
 mod plugin_details;
 pub use plugin_details::ffi::PluginDetails;
@@ -32,6 +30,9 @@ pub use sender_map::ffi::{SenderMap, SenderType};
 
 mod send_request;
 pub use send_request::ffi::{SendRequest, SendTarget};
+
+pub mod spans;
+pub use spans::SendTo;
 
 mod timekeeper;
 pub use timekeeper::ffi::{SendTimer, Timekeeper};
