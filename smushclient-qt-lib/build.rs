@@ -34,12 +34,14 @@ fn main() {
     fs::create_dir_all(&header_dir).expect("Failed to create include directory");
 
     let header_files: &[(&[u8], &OsStr)] = &[
+        include_header!("include/core/qchar.h"),
         include_header!("include/core/qlist/qlist_private.h"),
         include_header!("include/core/qlist/qlist_qtextlength.h"),
         include_header!("include/core/qlist/qlist.h"),
         include_header!("include/core/qmap/qmap_i32_qvariant.h"),
         include_header!("include/core/qmap/qmap_private.h"),
         include_header!("include/core/qmap/qmap.h"),
+        include_header!("include/core/qstringext.h"),
         include_header!("include/core/qvariant/qvariant.h"),
         include_header!("include/core/qvariant/qvariant_qbrush.h"),
         include_header!("include/core/qvariant/qvariant_qtextformat.h"),
@@ -74,8 +76,10 @@ fn main() {
             "src/gui/qtextlength.cpp",
         ])
         .files(&[
-            "src/core/qmap/qmap_i32_qvariant.rs",
+            "src/core/qchar.rs",
             "src/core/qlist/qlist_qtextlength.rs",
+            "src/core/qmap/qmap_i32_qvariant.rs",
+            "src/core/qstringext.rs",
             "src/core/qt.rs",
             "src/core/qvariant/qvariant_qbrush.rs",
             "src/core/qvariant/qvariant_qtextformat.rs",
