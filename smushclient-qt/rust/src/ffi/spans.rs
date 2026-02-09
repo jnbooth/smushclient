@@ -121,15 +121,11 @@ const INPUT: QChar = QChar::new(ffi::SendTo::Input.repr as u16);
 const INTERNET: QChar = QChar::new(ffi::SendTo::Internet.repr as u16);
 
 fn get_send_to(link: &mut QString) -> ffi::SendTo {
-    println!("Link: {link}");
     let send_to = match link.back() {
         Some(WORLD) => ffi::SendTo::World,
         Some(INPUT) => ffi::SendTo::Input,
         Some(INTERNET) => ffi::SendTo::Internet,
-        _ => {
-            println!("Unrecognized link: {link}");
-            return ffi::SendTo::Internet;
-        }
+        _ => return ffi::SendTo::Internet,
     };
     link.remove_last();
     send_to
