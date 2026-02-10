@@ -72,14 +72,14 @@ ModifyTextCallback::collectReturned(lua_State* L)
   if (message == nullptr) {
     return;
   }
-  text->clear();
-  text->append(message, static_cast<qsizetype>(len));
+  text.clear();
+  text.append(message, static_cast<qsizetype>(len));
 }
 
 int
 ModifyTextCallback::pushArguments(lua_State* L) const
 {
-  qlua::pushBytes(L, *text);
+  qlua::pushBytes(L, text);
   return 1;
 }
 
@@ -98,7 +98,7 @@ OnPluginBroadcast::pushArguments(lua_State* L) const
 int
 OnPluginCommand::pushArguments(lua_State* L) const
 {
-  qlua::pushBytes(L, *text);
+  qlua::pushBytes(L, text);
   return 1;
 }
 
@@ -127,14 +127,14 @@ OnPluginMXPSetVariable::pushArguments(lua_State* L) const
 int
 OnPluginSend::pushArguments(lua_State* L) const
 {
-  qlua::pushBytes(L, *text);
+  qlua::pushBytes(L, text);
   return 1;
 }
 
 int
 OnPluginSent::pushArguments(lua_State* L) const
 {
-  qlua::pushBytes(L, *text);
+  qlua::pushBytes(L, text);
   return 1;
 }
 
@@ -150,6 +150,6 @@ int
 OnPluginTelnetSubnegotiation::pushArguments(lua_State* L) const
 {
   lua_pushinteger(L, code);
-  qlua::pushBytes(L, *data);
+  qlua::pushBytes(L, data);
   return 2;
 }

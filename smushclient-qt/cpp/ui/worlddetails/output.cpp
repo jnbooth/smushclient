@@ -86,9 +86,8 @@ PrefsOutput::on_reset_clicked()
     ui->Ansi12, ui->Ansi13, ui->Ansi14, ui->Ansi15
   };
   auto ansi = ansiColors.cbegin();
-  for (auto picker = colorPickers.cbegin(), end = colorPickers.cend();
-       picker != end;
-       ++picker, ++ansi) {
-    (*picker)->setValue(*ansi);
+  for (ColorPickerButton* picker : colorPickers) {
+    picker->setValue(*ansi);
+    ++ansi;
   }
 }

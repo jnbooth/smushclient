@@ -18,40 +18,48 @@ using qlua::expectMaxArgs;
 class SelectionPredicate
 {
 public:
+  SelectionPredicate() = default;
   virtual ~SelectionPredicate() = default;
+
+  SelectionPredicate(const SelectionPredicate&) = delete;
+  SelectionPredicate& operator=(const SelectionPredicate&) = delete;
+  SelectionPredicate& operator=(SelectionPredicate&&) = delete;
+
+  SelectionPredicate(SelectionPredicate&& other) = delete;
+
   virtual bool isSelected(const QVariant& value) const = 0;
 };
 
 class SingleSelectionPredicate : public SelectionPredicate
 {
 public:
-  explicit SingleSelectionPredicate(const QVariant* selection)
+  explicit SingleSelectionPredicate(const QVariant& selection)
     : selection(selection)
   {
   }
   bool isSelected(const QVariant& value) const override
   {
-    return value == *selection;
+    return value == selection;
   }
 
 private:
-  const QVariant* selection;
+  const QVariant& selection;
 };
 
 class MultiSelectionPredicate : public SelectionPredicate
 {
 public:
-  explicit MultiSelectionPredicate(const QList<QVariant>* selection)
+  explicit MultiSelectionPredicate(const QList<QVariant>& selection)
     : selection(selection)
   {
   }
   bool isSelected(const QVariant& value) const override
   {
-    return selection->contains(value);
+    return selection.contains(value);
   }
 
 private:
-  const QList<QVariant>* selection;
+  const QList<QVariant>& selection;
 };
 
 namespace {
@@ -117,7 +125,7 @@ L_choose(lua_State* L)
   luaL_argexpected(L, lua_type(L, 3) == LUA_TTABLE, 3, "table");
   const QVariant defaultKey = qlua::getQVariant(L, 4);
 
-  SingleSelectionPredicate pred(&defaultKey);
+  SingleSelectionPredicate pred(defaultKey);
   Choose dialog(title, message);
   return execScriptDialog(L, 3, dialog, pred);
 }
@@ -230,7 +238,7 @@ L_listbox(lua_State* L)
   luaL_argexpected(L, lua_type(L, 3) == LUA_TTABLE, 3, "table");
   const QVariant defaultKey = qlua::getQVariant(L, 4);
 
-  SingleSelectionPredicate pred(&defaultKey);
+  SingleSelectionPredicate pred(defaultKey);
   ListBox dialog(title, message);
   return execScriptDialog(L, 3, dialog, pred);
 }
@@ -261,7 +269,7 @@ L_multilistbox(lua_State* L)
     }
   }
 
-  MultiSelectionPredicate pred(&defaults);
+  MultiSelectionPredicate pred(defaults);
   ListBox dialog(title, message);
   dialog.setMode(QListWidget::SelectionMode::MultiSelection);
   return execScriptDialog(L, 3, dialog, pred);

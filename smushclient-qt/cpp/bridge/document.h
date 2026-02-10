@@ -25,7 +25,7 @@ class Document : public QObject
   Q_OBJECT
 
 public:
-  Document(MudBrowser* output, ScriptApi* api, QObject* parent = nullptr);
+  Document(MudBrowser& output, ScriptApi& api, QObject* parent = nullptr);
 
   void appendHtml(const QString& html) const;
   void appendExpiringLink(const QString& text,
@@ -75,12 +75,12 @@ private:
   std::vector<QTextCursor>& linksWithExpiration(rust::Str expires);
 
 private:
-  ScriptApi* api;
-  QTextDocument* doc;
+  ScriptApi& api;
+  QTextDocument& doc;
   QTextCharFormat expireLinkFormat;
   std::unordered_map<std::string, std::vector<QTextCursor>> links;
   int outputStart = 0;
-  MudScrollBar* scrollBar;
+  MudScrollBar& scrollBar;
   bool serverExpiresLinks = false;
   QHash<QString, QString> serverStatuses;
 };

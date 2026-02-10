@@ -46,7 +46,7 @@ L_print(lua_State* L)
 {
   const QString output = qlua::concatStrings(L);
 #ifdef NDEBUG
-  getApi(L)->Tell(output);
+  getApi(L).Tell(output);
 #endif
   qInfo() << "print(" << output << ")";
   return 0;

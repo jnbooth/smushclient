@@ -24,7 +24,7 @@ main(int argc, char* argv[])
   Settings settings;
   initializeStartupDirectory(settings.getStartupDirectoryOrDefault());
   Notepads* notepads = new Notepads;
-  MainWindow* w = new MainWindow(notepads);
+  MainWindow* w = new MainWindow(*notepads);
   for (const QString& reopen : settings.getStartupWorlds()) {
     w->openWorld(reopen);
   }

@@ -37,9 +37,7 @@ public:
   Q_ENUM(AvailableCopy)
 
 public:
-  explicit WorldTab(MudStatusBar* statusBar,
-                    Notepads* notepads,
-                    QWidget* parent = nullptr);
+  explicit WorldTab(Notepads& notepads, QWidget* parent = nullptr);
   ~WorldTab() override;
 
   AvailableCopy availableCopy() const;
@@ -73,6 +71,7 @@ public:
                               std::string_view value);
   void simulateOutput(std::string_view output) const;
   void start();
+  MudStatusBar& statusBar() const;
   void stopSound() const;
   constexpr const QString& title() const noexcept { return worldName; };
   constexpr const QString& worldFilePath() const noexcept { return filePath; }

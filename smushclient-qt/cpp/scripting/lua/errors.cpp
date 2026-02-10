@@ -60,7 +60,7 @@ bool
 api_pcall(lua_State* L, int nargs, int nreturn)
 {
   if (checkError(lua_pcall(L, nargs, nreturn, 1))) [[unlikely]] {
-    getApi(L)->printError(formatRuntimeError(L));
+    getApi(L).printError(formatRuntimeError(L));
     lua_pop(L, 1);
     return false;
   }

@@ -5,7 +5,7 @@
 #include "ui_triggers.h"
 
 PrefsTriggers::PrefsTriggers(const World& world,
-                             TriggerModel* model,
+                             TriggerModel& model,
                              QWidget* parent)
   : AbstractPrefsTree(model, parent)
   , ui(new Ui::PrefsTriggers)

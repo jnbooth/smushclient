@@ -5,7 +5,7 @@
 #include "ui_aliases.h"
 
 PrefsAliases::PrefsAliases(const World& world,
-                           AliasModel* model,
+                           AliasModel& model,
                            QWidget* parent)
   : AbstractPrefsTree(model, parent)
   , ui(new Ui::PrefsAliases)

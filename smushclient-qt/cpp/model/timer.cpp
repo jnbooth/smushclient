@@ -8,7 +8,7 @@
 // Public methods
 
 TimerModel::TimerModel(SmushClient& client,
-                       Timekeeper* timekeeper,
+                       Timekeeper& timekeeper,
                        QObject* parent)
   : AbstractSenderModel(client, SenderType::Timer, parent)
   , timekeeper(timekeeper)
@@ -50,7 +50,7 @@ TimerModel::add(QWidget* parent)
   if (edit.exec() == QDialog::Rejected) {
     return false;
   }
-  return client.addWorldTimer(timer, *timekeeper) == ApiCode::OK;
+  return client.addWorldTimer(timer, timekeeper) == ApiCode::OK;
 }
 
 int
@@ -61,7 +61,7 @@ TimerModel::edit(size_t index, QWidget* parent)
   if (edit.exec() == QDialog::Rejected) {
     return static_cast<int>(ReplaceSenderResult::Unchanged);
   }
-  return client.replaceWorldTimer(index, timer, *timekeeper);
+  return client.replaceWorldTimer(index, timer, timekeeper);
 }
 
 const std::array<QString, 4>&
@@ -76,14 +76,14 @@ TimerModel::headers() const noexcept
 RegexParse
 TimerModel::import(const QString& xml)
 {
-  return client.importWorldTimers(xml, *timekeeper);
+  return client.importWorldTimers(xml, timekeeper);
 }
 
 void
-TimerModel::prepareRemove(SenderMap* senderMap,
+TimerModel::prepareRemove(SenderMap& senderMap,
                           const rust::String& group,
                           int row,
                           int count)
 {
-  timekeeper->cancelTimers(senderMap->timerIds(client, group, row, count));
+  timekeeper.cancelTimers(senderMap.timerIds(client, group, row, count));
 }

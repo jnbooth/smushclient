@@ -10,14 +10,14 @@
 
 // Public methods
 
-AbstractPrefsTree::AbstractPrefsTree(AbstractSenderModel* model,
+AbstractPrefsTree::AbstractPrefsTree(AbstractSenderModel& model,
                                      QWidget* parent)
   : QWidget(parent)
   , model(model)
   , proxy(new QSortFilterProxyModel(this))
 {
 
-  proxy->setSourceModel(model);
+  proxy->setSourceModel(&model);
   proxy->setFilterCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
   proxy->setRecursiveFilteringEnabled(true);
   proxy->setFilterKeyColumn(-1);
@@ -38,7 +38,7 @@ AbstractPrefsTree::setTree(QTreeView* newTree)
   if (filtering) {
     tree->setModel(proxy);
   } else {
-    tree->setModel(model);
+    tree->setModel(&model);
   }
   tree->expandAll();
   connect(tree->selectionModel(),
@@ -52,13 +52,13 @@ AbstractPrefsTree::setTree(QTreeView* newTree)
 void
 AbstractPrefsTree::on_add_clicked()
 {
-  model->addItem(this);
+  model.addItem(this);
 }
 
 void
 AbstractPrefsTree::on_edit_clicked()
 {
-  model->editItem(mapIndex(tree->currentIndex()), this);
+  model.editItem(mapIndex(tree->currentIndex()), this);
   tree->expandAll();
 }
 
@@ -66,8 +66,8 @@ void
 AbstractPrefsTree::on_export_xml_clicked()
 {
   try {
-    QGuiApplication::clipboard()->setText(model->exportXml());
-  } catch (rust::Error& e) {
+    QGuiApplication::clipboard()->setText(model.exportXml());
+  } catch (const rust::Error& e) {
     QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
   }
 }
@@ -77,14 +77,14 @@ AbstractPrefsTree::on_import_xml_clicked()
 {
   try {
     const RegexParse result =
-      model->importXml(QGuiApplication::clipboard()->text());
+      model.importXml(QGuiApplication::clipboard()->text());
     if (!result.success) {
       RegexDialog dialog(result, this);
       dialog.exec();
       return;
     }
 
-  } catch (rust::Error& e) {
+  } catch (const rust::Error& e) {
     QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
   }
 }
@@ -96,7 +96,7 @@ AbstractPrefsTree::on_remove_clicked()
   if (filtering) {
     selection = proxy->mapSelectionToSource(selection);
   }
-  model->removeSelection(selection);
+  model.removeSelection(selection);
 }
 
 void
@@ -111,7 +111,7 @@ AbstractPrefsTree::on_search_textChanged(const QString& text)
   if (filtering) {
     tree->setModel(proxy);
   } else {
-    tree->setModel(model);
+    tree->setModel(&model);
   }
   tree->expandAll();
 }
@@ -119,13 +119,13 @@ AbstractPrefsTree::on_search_textChanged(const QString& text)
 void
 AbstractPrefsTree::on_tree_doubleClicked(QModelIndex modelIndex)
 {
-  QItemSelectionModel* selection = tree->selectionModel();
+  QItemSelectionModel& selection = *tree->selectionModel();
   QItemSelection itemSelection;
-  const int columns = model->columnCount(modelIndex);
+  const int columns = model.columnCount(modelIndex);
   itemSelection.select(modelIndex.siblingAtColumn(0),
                        modelIndex.siblingAtColumn(columns - 1));
-  selection->select(itemSelection, QItemSelectionModel::SelectionFlag::Select);
-  model->editItem(mapIndex(modelIndex), this);
+  selection.select(itemSelection, QItemSelectionModel::SelectionFlag::Select);
+  model.editItem(mapIndex(modelIndex), this);
   tree->expandAll();
 }
 
@@ -148,12 +148,12 @@ AbstractPrefsTree::settingsKey() const
 void
 AbstractPrefsTree::onSelectionChanged()
 {
-  const QItemSelectionModel* selection = tree->selectionModel();
-  if (!selection->hasSelection()) {
+  const QItemSelectionModel& selection = *tree->selectionModel();
+  if (!selection.hasSelection()) {
     enableSingleButtons(false);
     enableMultiButtons(false);
     return;
   }
-  enableSingleButtons(selection->selectedRows().length() == 1);
+  enableSingleButtons(selection.selectedRows().length() == 1);
   enableMultiButtons(true);
 }

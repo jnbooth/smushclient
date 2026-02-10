@@ -13,7 +13,7 @@ class PrefsTimers : public AbstractPrefsTree
   Q_OBJECT
 
 public:
-  PrefsTimers(const World& world, TimerModel* model, QWidget* parent = nullptr);
+  PrefsTimers(const World& world, TimerModel& model, QWidget* parent = nullptr);
   ~PrefsTimers() override;
 
 protected:

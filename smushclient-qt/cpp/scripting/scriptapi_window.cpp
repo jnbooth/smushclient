@@ -53,9 +53,8 @@ ScriptApi::WindowAddHotspot(size_t index,
   if (window == nullptr) [[unlikely]] {
     return ApiCode::NoSuchWindow;
   }
-  const Plugin* plugin = &plugins[index];
   Hotspot* hotspot =
-    window->addHotspot(hotspotID, tab, plugin, std::move(callbacks));
+    window->addHotspot(hotspotID, tab, plugins[index], std::move(callbacks));
   if (hotspot == nullptr) [[unlikely]] {
     return ApiCode::HotspotPluginChanged;
   }
@@ -99,20 +98,15 @@ ScriptApi::WindowCreate(size_t index,
   const string windowName(name);
   MiniWindow* window = windows[windowName];
   if (window == nullptr) {
-    window = windows[windowName] = new MiniWindow(location,
-                                                  size,
-                                                  position,
-                                                  flags,
-                                                  fill,
-                                                  plugins[index].id(),
-                                                  tab->ui->area);
+    window = windows[windowName] = new MiniWindow(
+      location, size, position, flags, fill, plugins[index].id(), tab.ui->area);
   } else {
     window->setPosition(location, position, flags);
     window->setSize(size, fill);
     window->reset();
   }
   window->updatePosition();
-  stackWindow(name, window);
+  stackWindow(name, *window);
   window->hide();
   return ApiCode::OK;
 }
@@ -432,7 +426,7 @@ ScriptApi::WindowPosition(string_view windowName,
   }
   window->setPosition(location, position, flags);
   window->updatePosition();
-  stackWindow(windowName, window);
+  stackWindow(windowName, *window);
   return ApiCode::OK;
 }
 
@@ -494,7 +488,7 @@ ScriptApi::WindowSetZOrder(string_view windowName, int64_t order) const
     return ApiCode::NoSuchWindow;
   }
   window->setZOrder(order);
-  stackWindow(windowName, window);
+  stackWindow(windowName, *window);
   return ApiCode::OK;
 }
 
@@ -586,7 +580,7 @@ ScriptApi::WindowUpdateHotspot(size_t index,
   if (hotspot == nullptr) [[unlikely]] {
     return ApiCode::HotspotNotInstalled;
   }
-  if (!hotspot->belongsToPlugin(&plugins[index])) {
+  if (!hotspot->belongsToPlugin(plugins[index])) {
     return ApiCode::HotspotPluginChanged;
   }
   hotspot->setCallbacks(std::move(callbacks));

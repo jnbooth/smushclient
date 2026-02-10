@@ -46,14 +46,14 @@ public:
   using Callbacks = BasicCallbacks<std::string>;
   using CallbacksPartial = BasicCallbacks<std::optional<std::string>>;
 
-  Hotspot(WorldTab* tab,
-          const Plugin* plugin,
+  Hotspot(WorldTab& tab,
+          const Plugin& plugin,
           std::string_view id,
           Callbacks&& callbacks,
           QWidget* parent = nullptr);
-  constexpr bool belongsToPlugin(const Plugin* otherPlugin) const noexcept
+  constexpr bool belongsToPlugin(const Plugin& otherPlugin) const noexcept
   {
-    return otherPlugin == plugin;
+    return &otherPlugin == &plugin;
   }
   void finishDrag();
   QVariant info(int64_t infoType) const;
@@ -78,8 +78,8 @@ private:
   bool hadDrag = false;
   bool hadMouseDown = false;
   std::string id;
-  const Plugin* plugin;
-  WorldTab* tab;
+  const Plugin& plugin;
+  WorldTab& tab;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Hotspot::EventFlags)

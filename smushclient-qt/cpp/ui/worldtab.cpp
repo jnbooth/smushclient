@@ -63,7 +63,7 @@ showRustError(const rust::Error& e)
 
 // Public methods
 
-WorldTab::WorldTab(MudStatusBar* statusBar, Notepads* notepads, QWidget* parent)
+WorldTab::WorldTab(Notepads& notepads, QWidget* parent)
   : QSplitter(parent)
   , ui(new Ui::WorldTab)
   , flushTimer(new QTimer(this))
@@ -79,8 +79,8 @@ WorldTab::WorldTab(MudStatusBar* statusBar, Notepads* notepads, QWidget* parent)
   ui->setupUi(this);
   // NOLINTBEGIN(cppcoreguidelines-prefer-member-initializer,
   // cppcoreguidelines-prefer-member-initializer)
-  api = new ScriptApi(&client, socket, ui->output, statusBar, notepads, this);
-  document = new Document(ui->output, api, this);
+  api = new ScriptApi(client, *socket, *ui->output, notepads, *this);
+  document = new Document(*ui->output, *api, this);
   // NOLINTEND(cppcoreguidelines-prefer-member-initializer,
   // cppcoreguidelines-prefer-member-initializer)
 
@@ -122,10 +122,10 @@ WorldTab::WorldTab(MudStatusBar* statusBar, Notepads* notepads, QWidget* parent)
                                  : QTextEdit::LineWrapMode::NoWrap;
   ui->output->setLineWrapMode(wrapMode);
 
-  QTextDocument* doc = ui->output->document();
-  doc->setDocumentMargin(settings.getOutputPadding());
+  QTextDocument& doc = *ui->output->document();
+  doc.setDocumentMargin(settings.getOutputPadding());
 
-  QTextCursor formatCursor(doc);
+  QTextCursor formatCursor(&doc);
   formatCursor.select(QTextCursor::SelectionType::Document);
   formatCursor.mergeBlockFormat(settings.getOutputBlockFormat());
 }
@@ -154,7 +154,7 @@ WorldTab::closeLog()
 {
   try {
     client.closeLog();
-  } catch (rust::Error& e) {
+  } catch (const rust::Error& e) {
     showRustError(e);
   }
 }
@@ -212,7 +212,7 @@ WorldTab::importWorld(const QString& filename) &
       dialog.exec();
       return false;
     }
-  } catch (rust::Error& e) {
+  } catch (const rust::Error& e) {
     showRustError(e);
     return false;
   }
@@ -232,7 +232,7 @@ WorldTab::openLog()
 {
   try {
     client.openLog();
-  } catch (rust::Error& e) {
+  } catch (const rust::Error& e) {
     showRustError(e);
   }
 }
@@ -242,7 +242,7 @@ WorldTab::openWorld(const QString& filename) &
 {
   try {
     client.loadWorld(filename);
-  } catch (rust::Error& e) {
+  } catch (const rust::Error& e) {
     showRustError(e);
     return false;
   }
@@ -256,7 +256,7 @@ bool
 WorldTab::openWorldSettings()
 {
   World world(client);
-  WorldPrefs worlddetails(world, client, api, this);
+  WorldPrefs worlddetails(world, client, *api, this);
   if (worlddetails.exec() != QDialog::Accepted) {
     return false;
   }
@@ -268,7 +268,7 @@ WorldTab::openWorldSettings()
     if (!client.setWorld(world)) {
       return false;
     }
-  } catch (rust::Error& e) {
+  } catch (const rust::Error& e) {
     showRustError(e);
   }
 
@@ -398,7 +398,7 @@ WorldTab::setOnDragRelease(Hotspot* hotspot)
 void
 WorldTab::setStatusBarVisible(bool visible)
 {
-  api->statusBarWidgets()->setVisible(visible);
+  api->statusBarWidgets().setVisible(visible);
 }
 
 ApiCode
@@ -464,7 +464,7 @@ WorldTab::start()
   if (!filePath.isEmpty()) {
     try {
       client.loadVariables(variablesPath(filePath));
-    } catch (rust::Error& e) {
+    } catch (const rust::Error& e) {
       showRustError(e);
     }
   }
@@ -482,6 +482,12 @@ WorldTab::start()
   if (settings.getAutoConnect()) {
     connectToHost();
   }
+}
+
+MudStatusBar&
+WorldTab::statusBar() const
+{
+  return api->statusBarWidgets();
 }
 
 void
@@ -668,14 +674,14 @@ WorldTab::restoreHistory()
     return false;
   }
 
-  QTextDocument* doc = ui->output->document();
-  doc->setHtml(QString::fromUtf8(qUncompress(history)));
+  QTextDocument& doc = *ui->output->document();
+  doc.setHtml(QString::fromUtf8(qUncompress(history)));
   autoScroll = connect(ui->output->verticalScrollBar(),
                        &MudScrollBar::rangeChanged,
                        this,
                        &WorldTab::onAutoScroll);
 
-  sessionStartBlock = doc->blockCount();
+  sessionStartBlock = doc.blockCount();
 
   return true;
 }
@@ -726,7 +732,7 @@ WorldTab::saveWorldAndState(const QString& path)
   api->sendCallback(onWorldSave);
   try {
     client.saveWorld(path);
-  } catch (rust::Error& e) {
+  } catch (const rust::Error& e) {
     showRustError(e);
     return false;
   }
@@ -735,7 +741,7 @@ WorldTab::saveWorldAndState(const QString& path)
   api->sendCallback(onSaveState);
   try {
     client.saveVariables(variablesPath(path));
-  } catch (rust::Error& e) {
+  } catch (const rust::Error& e) {
     showRustError(e);
   }
   return true;
@@ -755,12 +761,12 @@ WorldTab::sendCommand(const QString& command, CommandSource source)
   }
 
   QByteArray bytes = command.toUtf8();
-  OnPluginCommand onCommand(source, &bytes);
+  OnPluginCommand onCommand(source, bytes);
   api->sendCallback(onCommand);
   if (onCommand.discarded()) {
     return true;
   }
-  OnPluginCommandEntered onCommandEntered(source, &bytes);
+  OnPluginCommandEntered onCommandEntered(source, bytes);
   api->sendCallback(onCommandEntered);
   if (bytes.size() == 1) {
     switch (bytes.front()) {
@@ -921,7 +927,7 @@ WorldTab::onSocketConnect()
   emit connectionStatusChanged(true);
   handleConnect();
 #else
-  api->statusBarWidgets()->setConnected(
+  api->statusBarWidgets().setConnected(
     socket->isEncrypted() ? MudStatusBar::ConnectionStatus::Encrypted
                           : MudStatusBar::ConnectionStatus::Connected);
   emit connectionStatusChanged(true);
@@ -935,7 +941,7 @@ void
 WorldTab::onSocketDisconnect()
 {
   client.handleDisconnect();
-  api->statusBarWidgets()->setConnected(
+  api->statusBarWidgets().setConnected(
     MudStatusBar::ConnectionStatus::Disconnected);
   document->resetServerStatus();
   api->setOpen(false);
@@ -961,7 +967,7 @@ WorldTab::onSocketDisconnect()
 void
 WorldTab::onSocketEncrypted()
 {
-  api->statusBarWidgets()->setConnected(
+  api->statusBarWidgets().setConnected(
     MudStatusBar::ConnectionStatus::Encrypted);
   handleConnect();
 }
@@ -1026,7 +1032,7 @@ WorldTab::on_input_textChanged()
 class AnchorCallback : public DynamicPluginCallback
 {
 public:
-  AnchorCallback(const QString& callback, const QString* arg)
+  AnchorCallback(const QString& callback, const QString& arg)
     : DynamicPluginCallback(callback)
     , arg(arg)
   {
@@ -1039,12 +1045,12 @@ public:
 
   int pushArguments(lua_State* L) const override
   {
-    qlua::pushQString(L, *arg);
+    qlua::pushQString(L, arg);
     return 1;
   }
 
 private:
-  const QString* arg;
+  const QString& arg;
 };
 
 void
@@ -1075,7 +1081,7 @@ WorldTab::on_output_anchorClicked(const QUrl& url)
     const QString functionName =
       action.sliced(delimIndex + 1, fnIndex - delimIndex - 1);
     const QString arg = action.sliced(fnIndex + 1, action.size() - fnIndex - 2);
-    AnchorCallback callback(functionName, &arg);
+    AnchorCallback callback(functionName, arg);
     api->sendCallback(callback, pluginID);
     return;
   }

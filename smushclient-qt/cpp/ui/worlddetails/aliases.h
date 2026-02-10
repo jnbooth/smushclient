@@ -14,7 +14,7 @@ class PrefsAliases : public AbstractPrefsTree
 
 public:
   PrefsAliases(const World& world,
-               AliasModel* model,
+               AliasModel& model,
                QWidget* parent = nullptr);
   ~PrefsAliases() override;
 

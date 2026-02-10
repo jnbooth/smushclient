@@ -103,8 +103,8 @@ public:
              std::string_view pluginID,
              QWidget* parent = nullptr);
   Hotspot* addHotspot(std::string_view hotspotID,
-                      WorldTab* tab,
-                      const Plugin* plugin,
+                      WorldTab& tab,
+                      const Plugin& plugin,
                       Hotspot::Callbacks&& callbacks);
   void applyFilter(const ImageFilter& filter, const QRect& rect = QRect());
   void clearHotspots();

@@ -132,8 +132,8 @@ ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
 ApiCode
 ScriptApi::DeleteVariable(size_t plugin, string_view key) const
 {
-  return client->unsetVariable(plugin, key) ? ApiCode::OK
-                                            : ApiCode::VariableNotFound;
+  return client.unsetVariable(plugin, key) ? ApiCode::OK
+                                           : ApiCode::VariableNotFound;
 }
 
 ApiCode
@@ -163,7 +163,7 @@ ScriptApi::EnablePlugin(string_view pluginID, bool enabled)
     return ApiCode::NoSuchPlugin;
   }
   plugins[index].disable();
-  client->setPluginEnabled(index, enabled);
+  client.setPluginEnabled(index, enabled);
   OnPluginListChanged onListChanged;
   sendCallback(onListChanged);
   return ApiCode::OK;
@@ -172,7 +172,7 @@ ScriptApi::EnablePlugin(string_view pluginID, bool enabled)
 VariableView
 ScriptApi::GetAlphaOption(size_t plugin, string_view name) const
 {
-  return client->worldAlphaOption(plugin, bytes::slice(name));
+  return client.worldAlphaOption(plugin, bytes::slice(name));
 }
 
 int
@@ -184,20 +184,20 @@ ScriptApi::GetLinesInBufferCount() const
 QVariant
 ScriptApi::GetCurrentValue(size_t pluginIndex, string_view option) const
 {
-  return client->worldVariantOption(pluginIndex, bytes::slice(option));
+  return client.worldVariantOption(pluginIndex, bytes::slice(option));
 }
 
 int64_t
 ScriptApi::GetOption(size_t plugin, string_view name) const
 {
-  return client->worldOption(plugin, bytes::slice(name));
+  return client.worldOption(plugin, bytes::slice(name));
 }
 
 VariableView
 ScriptApi::GetVariable(size_t index, string_view key) const
 {
 
-  return client->getVariable(index, key);
+  return client.getVariable(index, key);
 }
 
 VariableView
@@ -244,7 +244,7 @@ ScriptApi::Hyperlink(const QString& action,
 QColor
 ScriptApi::PickColour(const QColor& hint) const
 {
-  return QColorDialog::getColor(hint, tab);
+  return QColorDialog::getColor(hint, &tab);
 }
 
 ApiCode
@@ -253,7 +253,7 @@ ScriptApi::PlaySound(size_t channel,
                      bool loop,
                      float volume) const
 {
-  return client->playFile(channel, bytes::slice(path), volume, loop);
+  return client.playFile(channel, bytes::slice(path), volume, loop);
 }
 
 ApiCode
@@ -262,7 +262,7 @@ ScriptApi::PlaySoundMemory(size_t channel,
                            bool loop,
                            float volume) const
 {
-  return client->playBuffer(channel, bytes::slice(sound), volume, loop);
+  return client.playBuffer(channel, bytes::slice(sound), volume, loop);
 }
 
 ApiCode
@@ -280,7 +280,7 @@ ApiCode
 ScriptApi::SendPacket(QByteArrayView bytes)
 {
   ++totalPacketsSent;
-  if (socket->write(bytes.data(), bytes.size()) == -1) [[unlikely]] {
+  if (socket.write(bytes.data(), bytes.size()) == -1) [[unlikely]] {
     return ApiCode::WorldClosed;
   }
 
@@ -290,20 +290,20 @@ ScriptApi::SendPacket(QByteArrayView bytes)
 ApiCode
 ScriptApi::SetAlphaOption(size_t plugin, string_view name, string_view value)
 {
-  return tab->setWorldAlphaOption(plugin, name, value);
+  return tab.setWorldAlphaOption(plugin, name, value);
 }
 
 ApiCode
 ScriptApi::SetCursor(Qt::CursorShape cursorShape) const
 {
-  tab->ui->area->setCursor(cursorShape);
+  tab.ui->area->setCursor(cursorShape);
   return ApiCode::OK;
 }
 
 ApiCode
 ScriptApi::SetOption(size_t plugin, string_view name, int64_t value)
 {
-  const ApiCode code = tab->setWorldOption(plugin, name, value);
+  const ApiCode code = tab.setWorldOption(plugin, name, value);
   if (code != ApiCode::OK) {
     return code;
   }
@@ -355,25 +355,25 @@ ScriptApi::SetStatus(const QString& status) const
 bool
 ScriptApi::SetVariable(size_t index, string_view key, string_view value) const
 {
-  return client->setVariable(index, key, value);
+  return client.setVariable(index, key, value);
 }
 
 void
 ScriptApi::Simulate(string_view output) const
 {
-  tab->simulateOutput(output);
+  tab.simulateOutput(output);
 }
 
 void
 ScriptApi::StopEvaluatingTriggers() const
 {
-  client->stopTriggers();
+  client.stopTriggers();
 }
 
 ApiCode
 ScriptApi::StopSound(size_t channel) const
 {
-  return client->stopSound(channel);
+  return client.stopSound(channel);
 }
 
 void
@@ -389,23 +389,23 @@ ScriptApi::TextRectangle(const QMargins& margins,
                          int borderWidth,
                          const QBrush& outsideFill) const
 {
-  Ui::WorldTab* ui = tab->ui;
-  QTextDocument* doc = ui->output->document();
-  doc->setLayoutEnabled(false);
+  Ui::WorldTab& ui = *tab.ui;
+  QTextDocument& doc = *ui.output->document();
+  doc.setLayoutEnabled(false);
   QPalette palette;
 
   palette.setBrush(QPalette::ColorRole::Window, outsideFill);
-  ui->area->setPalette(palette);
-  ui->area->setContentsMargins(margins);
+  ui.area->setPalette(palette);
+  ui.area->setContentsMargins(margins);
 
   palette.setBrush(QPalette::ColorRole::Window, borderColor);
-  ui->outputBorder->setPalette(palette);
-  ui->outputBorder->setContentsMargins(
+  ui.outputBorder->setPalette(palette);
+  ui.outputBorder->setContentsMargins(
     borderWidth, borderWidth, borderWidth, borderWidth);
 
-  ui->background->setContentsMargins(
+  ui.background->setContentsMargins(
     borderOffset, borderOffset, borderOffset, borderOffset);
-  doc->setLayoutEnabled(true);
+  doc.setLayoutEnabled(true);
   return ApiCode::OK;
 }
 
@@ -427,7 +427,7 @@ ScriptApi::TextRectangle(const QRect& rect,
                          const QBrush& outsideFill)
 {
   assignedTextRectangle = rect;
-  const QSize size = tab->ui->area->size();
+  const QSize size = tab.ui->area->size();
   const QMargins margins(
     rect.left(),
     rect.top(),
@@ -440,14 +440,14 @@ ScriptApi::TextRectangle(const QRect& rect,
     .borderWidth = static_cast<int16_t>(borderWidth),
     .outsideFill = outsideFill,
   };
-  client->setMetavariable("output/layout", layout.save());
+  client.setMetavariable("output/layout", layout.save());
   return TextRectangle(layout);
 }
 
 ApiCode
 ScriptApi::TextRectangle() const
 {
-  const QByteArrayView variable = client->getMetavariable("output/layout");
+  const QByteArrayView variable = client.getMetavariable("output/layout");
   if (variable.isNull()) {
     return ApiCode::OK;
   }

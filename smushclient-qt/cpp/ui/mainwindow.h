@@ -16,7 +16,7 @@ class MainWindow : public QMainWindow
   Q_OBJECT
 
 public:
-  explicit MainWindow(Notepads* notepads, QWidget* parent = nullptr);
+  explicit MainWindow(Notepads& notepads, QWidget* parent = nullptr);
   ~MainWindow() override;
 
   void openWorld(const QString& filePath);
@@ -103,7 +103,7 @@ private:
   QIcon activityIcon = QIcon::fromTheme(QIcon::ThemeIcon::DialogWarning);
   FindDialog* findDialog;
   int lastTabIndex = -1;
-  Notepads* notepads;
+  Notepads& notepads;
   QList<QAction*> recentFileActions;
   Settings settings;
   QMetaObject::Connection socketConnection;

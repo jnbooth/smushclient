@@ -14,7 +14,7 @@ class SettingsAppearance : public QWidget
 
 public:
   explicit SettingsAppearance(Settings& settings,
-                              SettingsNotifier* notifier,
+                              SettingsNotifier& notifier,
                               QWidget* parent = nullptr);
   ~SettingsAppearance() override;
 
@@ -33,7 +33,7 @@ private slots:
 private:
   Ui::SettingsAppearance* ui;
   QFont inputFont;
-  SettingsNotifier* notifier;
+  SettingsNotifier& notifier;
   QFont outputFont;
   Settings& settings;
 };

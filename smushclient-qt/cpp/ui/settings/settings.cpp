@@ -89,13 +89,13 @@ SettingsDialog::paneForIndex(int row)
 {
   switch (row) {
     case 0:
-      return new SettingsAppearance(settings, &notifier, this);
+      return new SettingsAppearance(settings, notifier, this);
     case 1:
       return new SettingsClosing(settings, this);
     case 2:
       return new SettingsConnecting(settings, this);
     case 3:
-      return new SettingsHistory(settings, &notifier, this);
+      return new SettingsHistory(settings, notifier, this);
     case 4:
       return new SettingsSound(settings, this);
     case 5:

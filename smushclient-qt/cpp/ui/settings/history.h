@@ -14,7 +14,7 @@ class SettingsHistory : public QWidget
 
 public:
   explicit SettingsHistory(Settings& settings,
-                           SettingsNotifier* notifier,
+                           SettingsNotifier& notifier,
                            QWidget* parent = nullptr);
   ~SettingsHistory() override;
 
@@ -25,5 +25,5 @@ private slots:
 
 private:
   Ui::SettingsHistory* ui;
-  SettingsNotifier* notifier;
+  SettingsNotifier& notifier;
 };

@@ -32,12 +32,12 @@ trim(string& s)
 }
 
 inline bool
-buildMenu(QMenu* menu, string_view text)
+buildMenu(QMenu& menu, string_view text)
 {
   const size_t menuCount = 1 + std::count(text.cbegin(), text.cend(), '>');
   vector<QMenu*> menus;
   menus.reserve(menuCount);
-  menus.push_back(menu);
+  menus.push_back(&menu);
   std::istringstream stream((string(text)));
   const bool returnsNumber = stream.peek() == '!';
   if (returnsNumber) {
@@ -231,8 +231,8 @@ MiniWindow::MiniWindow(const QPoint& location,
 
 Hotspot*
 MiniWindow::addHotspot(string_view hotspotID,
-                       WorldTab* tab,
-                       const Plugin* plugin,
+                       WorldTab& tab,
+                       const Plugin& plugin,
                        Hotspot::Callbacks&& callbacks)
 {
   Hotspot* neighbor = nullptr;
@@ -459,7 +459,7 @@ QVariant
 MiniWindow::execMenu(const QPoint& location, string_view menuString)
 {
   QMenu menu(this);
-  const bool returnsNumber = buildMenu(&menu, menuString);
+  const bool returnsNumber = buildMenu(menu, menuString);
   const QAction* choice = menu.exec(mapToGlobal(location));
   if (choice == nullptr) {
     return QStringLiteral("");

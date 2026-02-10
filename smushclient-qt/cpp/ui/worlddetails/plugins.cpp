@@ -12,22 +12,23 @@
 
 // Public methods
 
-PrefsPlugins::PrefsPlugins(PluginModel* model, ScriptApi* api, QWidget* parent)
+PrefsPlugins::PrefsPlugins(PluginModel& model, ScriptApi& api, QWidget* parent)
   : QWidget(parent)
   , ui(new Ui::PrefsPlugins)
   , api(api)
   , model(model)
 {
   ui->setupUi(this);
-  ui->table->setModel(model);
+  ui->table->setModel(&model);
   ui->table->horizontalHeader()->restoreState(
     QSettings().value(settingsKey()).toByteArray());
-  connect(model, &PluginModel::clientError, this, &PrefsPlugins::onClientError);
-  connect(model,
+  connect(
+    &model, &PluginModel::clientError, this, &PrefsPlugins::onClientError);
+  connect(&model,
           &PluginModel::pluginOrderChanged,
           this,
           &PrefsPlugins::onPluginOrderChanged);
-  connect(model,
+  connect(&model,
           &PluginModel::pluginScriptChanged,
           this,
           &PrefsPlugins::onPluginScriptChanged);
@@ -60,13 +61,13 @@ PrefsPlugins::onClientError(const QString& error)
 void
 PrefsPlugins::onPluginOrderChanged()
 {
-  api->initializePlugins();
+  api.initializePlugins();
 }
 
 void
 PrefsPlugins::onPluginScriptChanged(size_t index)
 {
-  api->reinstallPlugin(index);
+  api.reinstallPlugin(index);
 }
 
 void
@@ -79,25 +80,25 @@ PrefsPlugins::on_button_add_clicked()
     return;
   }
 
-  model->addPlugin(makePathRelative(filePath));
+  model.addPlugin(makePathRelative(filePath));
 }
 
 void
 PrefsPlugins::on_button_reinstall_clicked()
 {
-  model->reinstall(ui->table->currentIndex());
+  model.reinstall(ui->table->currentIndex());
 }
 
 void
 PrefsPlugins::on_button_remove_clicked()
 {
-  model->removeRow(ui->table->currentIndex().row());
+  model.removeRow(ui->table->currentIndex().row());
 }
 
 void
 PrefsPlugins::on_button_showinfo_clicked()
 {
-  PluginPopup(model->pluginDetails(ui->table->currentIndex()), this).exec();
+  PluginPopup(model.pluginDetails(ui->table->currentIndex()), this).exec();
 }
 
 void

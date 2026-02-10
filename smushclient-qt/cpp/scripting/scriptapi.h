@@ -48,12 +48,11 @@ public:
   static QVariant FontInfo(const QFont& font, int64_t infoType);
   static void SetClipboard(const QString& text);
 
-  ScriptApi(const SmushClient* client,
-            QAbstractSocket* socket,
-            MudBrowser* output,
-            MudStatusBar* statusBar,
-            Notepads* notepads,
-            WorldTab* parent);
+  ScriptApi(const SmushClient& client,
+            QAbstractSocket& socket,
+            MudBrowser& output,
+            Notepads& notepads,
+            WorldTab& parent);
   ~ScriptApi() override;
 
   ApiCode AddAlias(size_t plugin,
@@ -358,6 +357,7 @@ public:
   void echo(const QString& text);
   void finishNote();
   const Plugin* getPlugin(std::string_view pluginID) const;
+  constexpr Timekeeper& getTimekeeper() { return *timekeeper; }
   void handleSendRequest(const SendRequest& request);
   void initializePlugins();
   void moveCursor(QTextCursor::MoveOperation op, int count);
@@ -392,11 +392,11 @@ public:
   ActionSource setSource(ActionSource source) noexcept;
   void setSuppressEcho(bool suppress) noexcept;
   void setWordUnderMenu(const QString& word) { wordUnderMenu = word; }
-  void stackWindow(std::string_view windowName, MiniWindow* window) const;
+  void stackWindow(std::string_view windowName, MiniWindow& window) const;
   int startLine();
-  constexpr MudStatusBar* statusBarWidgets() const noexcept
+  constexpr MudStatusBar& statusBarWidgets() const noexcept
   {
-    return statusBar;
+    return *statusBar;
   }
   void updateTimestamp();
 
@@ -417,9 +417,6 @@ public:
     return plugins.end();
   }
 
-public:
-  Timekeeper* timekeeper;
-
 private:
   DatabaseConnection* findDatabase(std::string_view databaseID);
   size_t findPluginIndex(const std::string& pluginID) const;
@@ -438,8 +435,9 @@ private:
   static constexpr size_t noSuchPlugin = std::numeric_limits<size_t>::max();
 
   ActionSource actionSource = ActionSource::Unknown;
+  QRect assignedTextRectangle;
   CallbackFilter callbackFilter;
-  const SmushClient* client;
+  const SmushClient& client;
   QTextCursor cursor;
   string_map<DatabaseConnection> databases;
   bool doNaws = false;
@@ -456,16 +454,16 @@ private:
   int lastLinePosition = -1;
   bool logNotes = false;
   QTextCharFormat noteFormat;
-  Notepads* notepads;
+  Notepads& notepads;
   std::vector<Plugin> plugins;
   string_map<size_t> pluginIndices;
-  MudScrollBar* scrollBar;
+  MudScrollBar& scrollBar;
   TimerMap<SendRequest>* sendQueue;
-  QAbstractSocket* socket;
+  QAbstractSocket& socket;
   MudStatusBar* statusBar;
   bool suppressEcho = false;
-  WorldTab* tab;
-  QRect assignedTextRectangle;
+  WorldTab& tab;
+  Timekeeper* timekeeper;
   int64_t totalLinesSent = 0;
   int64_t totalPacketsSent = 0;
   QDateTime whenConnected;

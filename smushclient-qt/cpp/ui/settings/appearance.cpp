@@ -10,7 +10,7 @@ using std::nullopt;
 // Public methods
 
 SettingsAppearance::SettingsAppearance(Settings& settings,
-                                       SettingsNotifier* notifier,
+                                       SettingsNotifier& notifier,
                                        QWidget* parent)
   : QWidget(parent)
   , ui(new Ui::SettingsAppearance)
@@ -53,22 +53,22 @@ void
 SettingsAppearance::on_BackgroundTransparent_toggled(bool checked)
 {
   if (checked) {
-    emit notifier->backgroundMaterialChanged(settings.getBackgroundMaterial());
+    emit notifier.backgroundMaterialChanged(settings.getBackgroundMaterial());
   } else {
-    emit notifier->backgroundMaterialChanged(nullopt);
+    emit notifier.backgroundMaterialChanged(nullopt);
   }
 }
 
 void
 SettingsAppearance::on_BackgroundMaterial_currentIndexChanged(int index)
 {
-  emit notifier->backgroundMaterialChanged(index);
+  emit notifier.backgroundMaterialChanged(index);
 }
 
 void
 SettingsAppearance::on_InputBackground_valueChanged(const QColor& color)
 {
-  emit notifier->inputBackgroundChanged(color);
+  emit notifier.inputBackgroundChanged(color);
 }
 
 void
@@ -81,7 +81,7 @@ SettingsAppearance::on_InputFont_currentFontChanged(const QFont& font)
   inputFont = font;
   inputFont.setPointSize(pointSize);
   settings.setInputFont(inputFont);
-  emit notifier->inputFontChanged(inputFont);
+  emit notifier.inputFontChanged(inputFont);
 }
 
 void
@@ -92,13 +92,13 @@ SettingsAppearance::on_InputFontSize_valueChanged(int size)
   }
   inputFont.setPointSize(size);
   settings.setInputFont(inputFont);
-  emit notifier->inputFontChanged(inputFont);
+  emit notifier.inputFontChanged(inputFont);
 }
 
 void
 SettingsAppearance::on_InputForeground_valueChanged(const QColor& color)
 {
-  emit notifier->inputForegroundChanged(color);
+  emit notifier.inputForegroundChanged(color);
 }
 
 void
@@ -111,7 +111,7 @@ SettingsAppearance::on_OutputFont_currentFontChanged(const QFont& font)
   outputFont = font;
   outputFont.setPointSize(pointSize);
   settings.setOutputFont(outputFont);
-  emit notifier->outputFontChanged(outputFont);
+  emit notifier.outputFontChanged(outputFont);
 }
 
 void
@@ -122,13 +122,13 @@ SettingsAppearance::on_OutputFontSize_valueChanged(int size)
   }
   outputFont.setPointSize(size);
   settings.setOutputFont(outputFont);
-  emit notifier->outputFontChanged(outputFont);
+  emit notifier.outputFontChanged(outputFont);
 }
 
 void
 SettingsAppearance::on_OutputPadding_valueChanged(double padding)
 {
-  emit notifier->outputPaddingChanged(padding);
+  emit notifier.outputPaddingChanged(padding);
 }
 
 void
@@ -136,5 +136,5 @@ SettingsAppearance::on_OutputLineSpacing_valueChanged(int spacing)
 {
   settings.setOutputLineSpacing(spacing);
   const QTextBlockFormat fmt = settings.getOutputBlockFormat();
-  emit notifier->outputBlockFormatChanged(fmt);
+  emit notifier.outputBlockFormatChanged(fmt);
 }

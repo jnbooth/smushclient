@@ -17,7 +17,7 @@ getLimit(QCheckBox* checkbox, QSpinBox* spinbox)
 // Public methods
 
 SettingsHistory::SettingsHistory(Settings& settings,
-                                 SettingsNotifier* notifier,
+                                 SettingsNotifier& notifier,
                                  QWidget* parent)
   : QWidget(parent)
   , ui(new Ui::SettingsHistory)
@@ -69,19 +69,19 @@ void
 SettingsHistory::updateInputHistoryLimit()
 {
   const int limit = getLimit(ui->InputHistoryLimit, ui->InputHistoryLines);
-  emit notifier->inputHistoryLimitChanged(limit);
+  emit notifier.inputHistoryLimitChanged(limit);
 }
 
 void
 SettingsHistory::updateOutputLimit()
 {
   const int limit = getLimit(ui->OutputLimit, ui->OutputLines);
-  emit notifier->outputLimitChanged(limit);
+  emit notifier.outputLimitChanged(limit);
 }
 
 void
 SettingsHistory::updateOutputHistoryLimit()
 {
   const int limit = getLimit(ui->OutputHistoryLimit, ui->OutputHistoryLines);
-  emit notifier->outputHistoryLimitChanged(limit);
+  emit notifier.outputHistoryLimitChanged(limit);
 }

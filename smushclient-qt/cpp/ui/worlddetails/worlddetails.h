@@ -21,7 +21,7 @@ class WorldPrefs : public QDialog
 public:
   WorldPrefs(World& world,
              SmushClient& client,
-             ScriptApi* api,
+             ScriptApi& api,
              QWidget* parent = nullptr);
   ~WorldPrefs() override;
 
@@ -38,8 +38,7 @@ private slots:
 private:
   Ui::WorldPrefs* ui;
   AliasModel* aliases;
-  ScriptApi* api;
-  SmushClient& client;
+  ScriptApi& api;
   bool dirty = false;
   QWidget* pane = nullptr;
   PluginModel* plugins;

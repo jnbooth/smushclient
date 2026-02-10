@@ -72,8 +72,8 @@ getEventFlags()
 
 // Public methods
 
-Hotspot::Hotspot(WorldTab* tab,
-                 const Plugin* plugin,
+Hotspot::Hotspot(WorldTab& tab,
+                 const Plugin& plugin,
                  string_view id,
                  Callbacks&& callbacksMoved,
                  QWidget* parent)
@@ -234,7 +234,7 @@ class HotspotCallback : public DynamicPluginCallback
 public:
   HotspotCallback(const string& callback,
                   Hotspot::EventFlags flags,
-                  string_view hotspotID)
+                  const string& hotspotID)
     : DynamicPluginCallback(callback)
     , flags(flags)
     , hotspotID(hotspotID)
@@ -255,28 +255,28 @@ public:
 
 private:
   Hotspot::EventFlags flags;
-  string_view hotspotID;
+  const string& hotspotID;
 };
 
 void
 Hotspot::runCallback(const string& callbackName, EventFlags flags)
 {
   HotspotCallback callback(callbackName, flags, id);
-  plugin->runCallback(callback);
+  plugin.runCallback(callback);
 }
 
 void
 Hotspot::startDrag(QMouseEvent* event)
 {
   hadDrag = true;
-  tab->setOnDragRelease(this);
+  tab.setOnDragRelease(this);
 
   if (!hasCallback(callbacks.dragMove)) {
     return;
   }
 
   HotspotCallback callback(callbacks.dragMove, getEventFlags(event), id);
-  lua_State* L = plugin->state();
+  lua_State* L = plugin.state();
 
   if (!callback.findCallback(L)) {
     return;
@@ -284,5 +284,5 @@ Hotspot::startDrag(QMouseEvent* event)
 
   const int nargs = callback.pushArguments(L);
 
-  tab->setOnDragMove(CallbackTrigger(L, nargs, this));
+  tab.setOnDragMove(CallbackTrigger(L, nargs, this));
 }

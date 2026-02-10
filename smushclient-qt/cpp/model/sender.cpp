@@ -397,7 +397,7 @@ AbstractSenderModel::removeRowsInternal(int row,
     return false;
   }
 
-  prepareRemove(map, *group, row, count);
+  prepareRemove(*map, *group, row, count);
   beginRemoveRows(parent, row, row + count - 1);
   const bool succeeded = map->remove(client, *group, row, count);
   *needsRefresh = true;

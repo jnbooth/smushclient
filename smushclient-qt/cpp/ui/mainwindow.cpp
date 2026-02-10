@@ -35,16 +35,16 @@ using std::optional;
 
 namespace {
 QString
-formatWindowTitle(WorldTab* tab)
+formatWindowTitle(WorldTab& tab)
 {
-  return tab->title() + QStringLiteral("[*] - ") +
+  return tab.title() + QStringLiteral("[*] - ") +
          QCoreApplication::applicationName();
 }
 } // namespace
 
 // Public methods
 
-MainWindow::MainWindow(Notepads* notepads, QWidget* parent)
+MainWindow::MainWindow(Notepads& notepads, QWidget* parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
   , findDialog(new FindDialog(this))
@@ -232,10 +232,10 @@ MainWindow::addRecentFile(const QString& filePath)
 WorldTab*
 MainWindow::createWorldTab(QWidget* parent) const
 {
-  MudStatusBar* mudStatusBar = new MudStatusBar;
-  statusBar()->addPermanentWidget(mudStatusBar);
-  mudStatusBar->hide();
-  WorldTab* tab = new WorldTab(mudStatusBar, notepads, parent);
+  WorldTab* tab = new WorldTab(notepads, parent);
+  MudStatusBar& mudStatusBar = tab->statusBar();
+  statusBar()->addPermanentWidget(&mudStatusBar);
+  mudStatusBar.hide();
   tab->setAttribute(Qt::WA_DeleteOnClose);
   return tab;
 }
@@ -276,9 +276,9 @@ MainWindow::openRecentFile(qsizetype index)
   const QString& filePath = recentFiles.at(index);
 
   for (int i = 0, end = ui->world_tabs->count(); i < end; ++i) {
-    WorldTab* tab = worldtab(i);
-    if (tab->worldFilePath() == filePath) {
-      ui->world_tabs->setCurrentWidget(tab);
+    WorldTab& tab = *worldtab(i);
+    if (tab.worldFilePath() == filePath) {
+      ui->world_tabs->setCurrentWidget(&tab);
       return;
     }
   }
@@ -408,7 +408,7 @@ MainWindow::onTitleChanged(WorldTab* tab, const QString& title)
   }
   ui->world_tabs->setTabText(index, title);
   if (index == ui->world_tabs->currentIndex()) {
-    setWindowTitle(formatWindowTitle(tab));
+    setWindowTitle(formatWindowTitle(*tab));
   }
 }
 
@@ -427,13 +427,15 @@ MainWindow::on_action_about_triggered()
 void
 MainWindow::on_action_clear_output_triggered()
 {
-  worldtab()->ui->output->clear();
+  if (WorldTab* tab = worldtab(); tab != nullptr) {
+    tab->ui->output->clear();
+  }
 }
 
 void
 MainWindow::on_action_close_all_notepad_windows_triggered()
 {
-  notepads->closeAll();
+  notepads.closeAll();
 }
 
 void
@@ -448,9 +450,13 @@ MainWindow::on_action_close_world_triggered()
 void
 MainWindow::on_action_command_history_triggered()
 {
-  MudInput* input = worldtab()->ui->input;
+  WorldTab* tab = worldtab();
+  if (tab == nullptr) {
+    return;
+  }
+  MudInput& input = *tab->ui->input;
   ListBox listbox(tr("Command History"), QString(), this);
-  listbox.addItems(input->log());
+  listbox.addItems(input.log());
   if (listbox.exec() != QDialog::Accepted) {
     return;
   }
@@ -458,71 +464,89 @@ MainWindow::on_action_command_history_triggered()
   if (text.isEmpty()) {
     return;
   }
-  input->setText(text);
+  input.setText(text);
 }
 
 void
 MainWindow::on_action_copy_triggered()
 {
-  worldtab()->copyableEditor()->copy();
+  if (WorldTab* tab = worldtab(); tab != nullptr) {
+    tab->copyableEditor()->copy();
+  }
 }
 
 void
 MainWindow::on_action_copy_as_html_triggered()
 {
-  QString html =
-    worldtab()->copyableEditor()->textCursor().selection().toHtml();
-  QGuiApplication::clipboard()->setText(spans::sanitizeHtml(html));
+  if (WorldTab* tab = worldtab(); tab != nullptr) {
+    QString html =
+      worldtab()->copyableEditor()->textCursor().selection().toHtml();
+    QGuiApplication::clipboard()->setText(spans::sanitizeHtml(html));
+  }
 }
 
 void
 MainWindow::on_action_cut_triggered()
 {
-  worldtab()->copyableEditor()->cut();
+  if (WorldTab* tab = worldtab(); tab != nullptr) {
+    tab->copyableEditor()->cut();
+  }
 }
 
 void
 MainWindow::on_action_connect_triggered()
 {
-  worldtab()->connectToHost();
+  if (WorldTab* tab = worldtab(); tab != nullptr) {
+    tab->connectToHost();
+  }
 }
 
 void
 MainWindow::on_action_disconnect_triggered()
 {
-  worldtab()->disconnectFromHost();
+  if (WorldTab* tab = worldtab(); tab != nullptr) {
+    tab->disconnectFromHost();
+  }
 }
 
 void
 MainWindow::on_action_edit_script_file_triggered()
 {
-  worldtab()->editWorldScript();
+  if (WorldTab* tab = worldtab(); tab != nullptr) {
+    tab->editWorldScript();
+  }
 }
 
 void
 MainWindow::on_action_edit_world_details_triggered()
 {
   WorldTab* tab = worldtab();
+  if (tab == nullptr) {
+    return;
+  }
   tab->openWorldSettings();
   if (tab->isWindowModified()) {
     setWindowModified(true);
   }
-  setWindowTitle(formatWindowTitle(tab));
+  setWindowTitle(formatWindowTitle(*tab));
 }
 
 void
 MainWindow::on_action_find_triggered()
 {
-  if (findDialog->exec() == QDialog::Accepted) {
-    findDialog->find(worldtab()->ui->output);
+  if (WorldTab* tab = worldtab();
+      tab != nullptr && findDialog->exec() == QDialog::Accepted) {
+    findDialog->find(tab->ui->output);
   }
 }
 
 void
 MainWindow::on_action_find_again_triggered()
 {
-  if (findDialog->isFilled() || findDialog->exec() == QDialog::Accepted) {
-    findDialog->find(worldtab()->ui->output);
+  if (WorldTab* tab = worldtab();
+      tab != nullptr &&
+      (findDialog->isFilled() || findDialog->exec() == QDialog::Accepted)) {
+    findDialog->find(tab->ui->output);
   }
 }
 
@@ -535,18 +559,22 @@ MainWindow::on_action_global_preferences_triggered()
 void
 MainWindow::on_action_go_to_line_triggered()
 {
-  QTextEdit* output = worldtab()->ui->output;
-  QTextDocument* doc = output->document();
-  const int blockCount = doc->blockCount();
+  WorldTab* tab = worldtab();
+  if (tab == nullptr) {
+    return;
+  }
+  QTextEdit& output = *tab->ui->output;
+  QTextDocument& doc = *output.document();
+  const int blockCount = doc.blockCount();
   const int choice = QInputDialog::getInt(
     this, tr("Go to line"), tr("Enter line number"), blockCount, 1, blockCount);
-  QTextCursor cursor(doc->findBlockByNumber(choice - 1));
+  QTextCursor cursor(doc.findBlockByNumber(choice - 1));
   if (cursor.columnNumber() != 0) {
     cursor.movePosition(QTextCursor::MoveOperation::NextRow);
   }
   cursor.movePosition(QTextCursor::MoveOperation::EndOfBlock,
                       QTextCursor::MoveMode::KeepAnchor);
-  output->setTextCursor(cursor);
+  output.setTextCursor(cursor);
 }
 
 void
@@ -689,6 +717,9 @@ void
 MainWindow::on_action_save_world_details_as_triggered()
 {
   WorldTab* tab = worldtab();
+  if (tab == nullptr) {
+    return;
+  }
   addRecentFile(tab->saveWorldAsNew());
   setWindowModified(tab->isWindowModified());
 }
@@ -697,6 +728,9 @@ void
 MainWindow::on_action_save_world_details_triggered()
 {
   WorldTab* tab = worldtab();
+  if (tab == nullptr) {
+    return;
+  }
   addRecentFile(tab->saveWorld());
   setWindowModified(tab->isWindowModified());
 }
@@ -765,7 +799,8 @@ void
 MainWindow::on_menu_help_aboutToShow()
 {
   WorldTab* tab = worldtab();
-  ui->action_server_status->setEnabled(!tab->serverStatus().isEmpty());
+  ui->action_server_status->setEnabled((tab != nullptr) &&
+                                       !tab->serverStatus().isEmpty());
 }
 
 void
@@ -785,8 +820,8 @@ MainWindow::on_world_tabs_currentChanged(int index)
     lastTab->setStatusBarVisible(false);
   }
   lastTabIndex = index;
-  WorldTab* activeTab = worldtab(index);
   disconnect(socketConnection);
+  WorldTab* activeTab = worldtab(index);
   if (activeTab == nullptr) {
     setWorldMenusEnabled(false);
     ui->action_connect->setEnabled(false);
@@ -805,7 +840,7 @@ MainWindow::on_world_tabs_currentChanged(int index)
   activeTab->setIsActive(true);
   activeTab->setStatusBarVisible(true);
   ui->world_tabs->tabBar()->setTabText(index, activeTab->title());
-  setWindowTitle(formatWindowTitle(activeTab));
+  setWindowTitle(formatWindowTitle(*activeTab));
   setWindowModified(activeTab->isWindowModified());
   onCopyAvailable(activeTab->availableCopy());
 }

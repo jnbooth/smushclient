@@ -14,7 +14,7 @@ class PrefsTriggers : public AbstractPrefsTree
 
 public:
   explicit PrefsTriggers(const World& world,
-                         TriggerModel* model,
+                         TriggerModel& model,
                          QWidget* parent = nullptr);
   ~PrefsTriggers() override;
 

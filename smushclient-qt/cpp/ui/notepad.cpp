@@ -220,11 +220,10 @@ Notepads::pad(const QString& name)
 Notepad*
 Notepads::create(const QString& name)
 {
-  QWidget* active = QApplication::activeWindow();
   Notepad* notepad = new Notepad(this);
   notepad->setObjectName(name);
   notepad->show();
-  if (active != nullptr) {
+  if (QWidget* active = QApplication::activeWindow(); active != nullptr) {
     active->activateWindow();
   }
   return notepad;

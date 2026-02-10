@@ -38,11 +38,11 @@ strView(rust::Str str) noexcept
 
 // Public methods
 
-Document::Document(MudBrowser* output, ScriptApi* api, QObject* parent)
+Document::Document(MudBrowser& output, ScriptApi& api, QObject* parent)
   : QObject(parent)
   , api(api)
-  , doc(output->document())
-  , scrollBar(output->verticalScrollBar())
+  , doc(*output.document())
+  , scrollBar(*output.verticalScrollBar())
 {
   expireLinkFormat.setAnchor(false);
   expireLinkFormat.setAnchorHref(QString());
@@ -51,20 +51,20 @@ Document::Document(MudBrowser* output, ScriptApi* api, QObject* parent)
 void
 Document::appendHtml(const QString& html) const
 {
-  api->appendHtml(html);
+  api.appendHtml(html);
 }
 
 void
 Document::appendLine()
 {
-  outputStart = doc->blockCount() - 1;
-  api->startLine();
+  outputStart = doc.blockCount() - 1;
+  api.startLine();
 }
 
 void
 Document::appendText(const QString& text, const QTextCharFormat& format) const
 {
-  api->appendText(text, format);
+  api.appendText(text, format);
 }
 
 void
@@ -72,9 +72,9 @@ Document::appendExpiringLink(const QString& text,
                              const QTextCharFormat& format,
                              const rust::Str expires)
 {
-  const int position = doc->characterCount();
-  api->appendText(text, format);
-  QTextCursor cursor(doc);
+  const int position = doc.characterCount();
+  api.appendText(text, format);
+  QTextCursor cursor(&doc);
   cursor.setPosition(position - 1);
   if (cursor.atBlockEnd()) {
     cursor.movePosition(QTextCursor::MoveOperation::NextBlock);
@@ -88,7 +88,7 @@ Document::appendExpiringLink(const QString& text,
 void
 Document::applyStyles(int start, int end, const QTextCharFormat& format) const
 {
-  QTextCursor cursor(doc->findBlockByNumber(outputStart));
+  QTextCursor cursor(doc.findBlockByNumber(outputStart));
   cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, start);
   cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, end);
   cursor.mergeCharFormat(format);
@@ -99,21 +99,21 @@ Document::beep() const
 {
   const QString sound = Settings().getBellSound();
   if (!sound.isEmpty()) {
-    api->playFileRaw(sound);
+    api.playFileRaw(sound);
   }
 }
 
 void
 Document::begin() const
 {
-  api->updateTimestamp();
-  scrollBar->setAutoScrollEnabled(false);
+  api.updateTimestamp();
+  scrollBar.setAutoScrollEnabled(false);
 }
 
 void
 Document::clear() const
 {
-  doc->clear();
+  doc.clear();
 }
 
 void
@@ -121,19 +121,19 @@ Document::createMxpStat(const QString& entity,
                         const QString& caption,
                         const QString& max) const
 {
-  api->statusBarWidgets()->createStat(entity, caption, max);
+  api.statusBarWidgets().createStat(entity, caption, max);
 }
 
 void
 Document::echo(const QString& text) const
 {
-  api->echo(text);
+  api.echo(text);
 }
 
 void
 Document::end(bool hadOutput)
 {
-  scrollBar->setAutoScrollEnabled(true);
+  scrollBar.setAutoScrollEnabled(true);
   if (hadOutput) {
     emit newActivity();
   }
@@ -142,7 +142,7 @@ Document::end(bool hadOutput)
 void
 Document::eraseCharacters(QTextCursor::MoveOperation direction, int n) const
 {
-  QTextCursor cursor(doc);
+  QTextCursor cursor(&doc);
   cursor.movePosition(direction, QTextCursor::MoveMode::KeepAnchor, n);
   cursor.removeSelectedText();
 }
@@ -150,7 +150,7 @@ Document::eraseCharacters(QTextCursor::MoveOperation direction, int n) const
 void
 Document::eraseCurrentLine() const
 {
-  QTextCursor cursor(doc);
+  QTextCursor cursor(&doc);
   cursor.select(QTextCursor::SelectionType::BlockUnderCursor);
   cursor.removeSelectedText();
 }
@@ -179,7 +179,7 @@ Document::expireLinks(rust::Str expires)
 void
 Document::eraseLastLine() const
 {
-  QTextCursor cursor(doc->findBlockByLineNumber(outputStart));
+  QTextCursor cursor(doc.findBlockByLineNumber(outputStart));
   cursor.select(QTextCursor::SelectionType::BlockUnderCursor);
   cursor.removeSelectedText();
 }
@@ -189,10 +189,10 @@ Document::handleMxpChange(bool enabled) const
 {
   if (enabled) {
     OnPluginMXPStart onMxpStart;
-    api->sendCallback(onMxpStart);
+    api.sendCallback(onMxpStart);
   } else {
     OnPluginMXPStop onMxpStop;
-    api->sendCallback(onMxpStop);
+    api.sendCallback(onMxpStop);
   }
 }
 
@@ -200,14 +200,14 @@ void
 Document::handleMxpEntity(rust::Str data) const
 {
   OnPluginMXPSetEntity onMxpSetEntity(strView(data));
-  api->sendCallback(onMxpSetEntity);
+  api.sendCallback(onMxpSetEntity);
 }
 
 void
 Document::handleMxpVariable(rust::Str name, rust::Str value) const
 {
   OnPluginMXPSetVariable onMxpSetVariable(strView(name), strView(value));
-  api->sendCallback(onMxpSetVariable);
+  api.sendCallback(onMxpSetVariable);
 }
 
 void
@@ -218,7 +218,7 @@ Document::handleServerStatus(const QByteArray& variableBytes,
   const QString value = QString::fromUtf8(valueBytes);
   serverStatuses.insert(variable, value);
   if (variable == QStringLiteral("PLAYERS")) {
-    api->statusBarWidgets()->setUsers(value);
+    api.statusBarWidgets().setUsers(value);
   }
 }
 
@@ -226,13 +226,13 @@ void
 Document::handleTelnetGoAhead() const
 {
   OnPluginIacGa onIacGa;
-  api->sendCallback(onIacGa);
+  api.sendCallback(onIacGa);
 }
 
 void
 Document::handleTelnetNaws() const
 {
-  api->sendNaws();
+  api.sendNaws();
 }
 
 void
@@ -246,15 +246,15 @@ Document::handleTelnetNegotiation(TelnetSource source,
     }
 
     OnPluginTelnetRequest onTelnetRequest(code, "SENT_DO");
-    api->sendCallback(onTelnetRequest);
+    api.sendCallback(onTelnetRequest);
     return;
   }
 
   if (code == telnetNAWS) {
     if (verb == TelnetVerb::Do) {
-      api->setNawsEnabled(true);
+      api.setNawsEnabled(true);
     } else if (verb == TelnetVerb::Dont) {
-      api->setNawsEnabled(false);
+      api.setNawsEnabled(false);
     }
   }
 
@@ -265,28 +265,28 @@ Document::handleTelnetNegotiation(TelnetSource source,
 
   if (verb == TelnetVerb::Will) {
     OnPluginTelnetRequest onTelnetRequest(code, "WILL");
-    api->sendCallback(onTelnetRequest);
+    api.sendCallback(onTelnetRequest);
   }
 }
 
 void
 Document::handleTelnetSubnegotiation(uint8_t code, const QByteArray& data) const
 {
-  OnPluginTelnetSubnegotiation onTelnetSubnegotiation(code, &data);
-  api->sendCallback(onTelnetSubnegotiation);
+  OnPluginTelnetSubnegotiation onTelnetSubnegotiation(code, data);
+  api.sendCallback(onTelnetSubnegotiation);
 }
 
 void
 Document::moveCursor(QTextCursor::MoveOperation op, int count) const
 {
-  api->moveCursor(op, count);
+  api.moveCursor(op, count);
 }
 
 bool
 Document::permitLine(rust::Str line) const
 {
   OnPluginLineReceived onLineReceived(strView(line));
-  api->sendCallback(onLineReceived);
+  api.sendCallback(onLineReceived);
   return !onLineReceived.discarded();
 }
 
@@ -299,7 +299,7 @@ Document::resetServerStatus()
 void
 Document::send(const SendRequest& request) const
 {
-  api->handleSendRequest(request);
+  api.handleSendRequest(request);
 }
 
 class AliasCallback : public DynamicPluginCallback
@@ -308,8 +308,8 @@ public:
   AliasCallback(rust::Str callback,
                 rust::Str senderName,
                 rust::Str line,
-                const rust::Vec<rust::Str>* wildcards,
-                const rust::Vec<NamedWildcard>* namedWildcards)
+                const rust::Vec<rust::Str>& wildcards,
+                const rust::Vec<NamedWildcard>& namedWildcards)
     : DynamicPluginCallback(callback)
     , senderName(senderName)
     , line(line)
@@ -328,15 +328,15 @@ public:
     qlua::pushRString(L, senderName);
     qlua::pushRString(L, line);
     lua_createtable(L,
-                    static_cast<int>(wildcards->size()),
-                    static_cast<int>(namedWildcards->size()));
+                    static_cast<int>(wildcards.size()),
+                    static_cast<int>(namedWildcards.size()));
     lua_Integer i = 1;
-    for (rust::Str wildcard : *wildcards) {
+    for (rust::Str wildcard : wildcards) {
       qlua::pushRString(L, wildcard);
       lua_rawseti(L, -2, i);
       ++i;
     }
-    for (const NamedWildcard& wildcard : *namedWildcards) {
+    for (const NamedWildcard& wildcard : namedWildcards) {
       qlua::pushRString(L, wildcard.name);
       qlua::pushRString(L, wildcard.value);
       lua_rawset(L, -3);
@@ -347,8 +347,8 @@ public:
 private:
   rust::Str senderName;
   rust::Str line;
-  const rust::Vec<rust::Str>* wildcards;
-  const rust::Vec<NamedWildcard>* namedWildcards;
+  const rust::Vec<rust::Str>& wildcards;
+  const rust::Vec<NamedWildcard>& namedWildcards;
 };
 
 class TriggerCallback : public AliasCallback
@@ -357,8 +357,8 @@ public:
   TriggerCallback(rust::Str callback,
                   rust::Str senderName,
                   rust::Str line,
-                  const rust::Vec<rust::Str>* wildcards,
-                  const rust::Vec<NamedWildcard>* namedWildcards,
+                  const rust::Vec<rust::Str>& wildcards,
+                  const rust::Vec<NamedWildcard>& namedWildcards,
                   rust::Slice<const OutputSpan> spans)
     : AliasCallback(callback, senderName, line, wildcards, namedWildcards)
     , spans(spans)
@@ -411,30 +411,30 @@ Document::send(const SendScriptRequest& request) const
     AliasCallback aliasCallback(request.script,
                                 request.label,
                                 request.line,
-                                &request.wildcards,
-                                &request.namedWildcards);
-    api->sendCallback(aliasCallback, request.plugin);
+                                request.wildcards,
+                                request.namedWildcards);
+    api.sendCallback(aliasCallback, request.plugin);
   } else {
     TriggerCallback triggerCallback(request.script,
                                     request.label,
                                     request.line,
-                                    &request.wildcards,
-                                    &request.namedWildcards,
+                                    request.wildcards,
+                                    request.namedWildcards,
                                     request.output);
-    api->sendCallback(triggerCallback, request.plugin);
+    api.sendCallback(triggerCallback, request.plugin);
   }
 }
 
 void
 Document::setSuppressEcho(bool suppress) const
 {
-  api->setSuppressEcho(suppress);
+  api.setSuppressEcho(suppress);
 }
 
 void
 Document::updateMxpStat(const QString& entity, const QString& value) const
 {
-  api->statusBarWidgets()->updateStat(entity, value);
+  api.statusBarWidgets().updateStat(entity, value);
 }
 
 // Private methods

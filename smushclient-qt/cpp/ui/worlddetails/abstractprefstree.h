@@ -10,7 +10,7 @@ class AbstractPrefsTree : public QWidget
   Q_OBJECT
 
 public:
-  explicit AbstractPrefsTree(AbstractSenderModel* model,
+  explicit AbstractPrefsTree(AbstractSenderModel& model,
                              QWidget* parent = nullptr);
   ~AbstractPrefsTree() override;
 
@@ -37,7 +37,7 @@ private slots:
 
 private:
   bool filtering = false;
-  AbstractSenderModel* model;
+  AbstractSenderModel& model;
   QSortFilterProxyModel* proxy;
   QTreeView* tree = nullptr;
 };

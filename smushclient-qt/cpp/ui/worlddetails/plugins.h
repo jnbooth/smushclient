@@ -14,7 +14,7 @@ class PrefsPlugins : public QWidget
   Q_OBJECT
 
 public:
-  PrefsPlugins(PluginModel* model, ScriptApi* api, QWidget* parent = nullptr);
+  PrefsPlugins(PluginModel& model, ScriptApi& api, QWidget* parent = nullptr);
   ~PrefsPlugins() override;
 
 private:
@@ -32,6 +32,6 @@ private slots:
 
 private:
   Ui::PrefsPlugins* ui;
-  ScriptApi* api;
-  PluginModel* model;
+  ScriptApi& api;
+  PluginModel& model;
 };

@@ -20,7 +20,7 @@ struct PluginMetadata
 class Plugin
 {
 public:
-  Plugin(ScriptApi* api, const PluginPack& pack, size_t index);
+  Plugin(ScriptApi& api, const PluginPack& pack, size_t index);
   Plugin(Plugin&& other) noexcept;
   ~Plugin();
 
@@ -41,7 +41,7 @@ public:
   constexpr bool isDisabled() const noexcept { return disabled; }
   constexpr const std::string& name() const noexcept { return metadata.name; }
   void reset();
-  void reset(ScriptApi* api);
+  void reset(ScriptApi& api);
   bool runCallback(PluginCallback& callback) const;
   bool runCallbackThreaded(PluginCallback& callback) const;
   bool runFile(const QString& path) const;

@@ -17,7 +17,7 @@ public:
   ~StatusBarStat() override;
 
   bool isToggled() const;
-  constexpr QMenu* menu() const noexcept { return displayMenu; }
+  constexpr QMenu& menu() const noexcept { return *displayMenu; }
   constexpr const QString& entity() const noexcept { return entityName; }
   constexpr const QString& maxEntity() const noexcept { return maxEntityName; }
   void setMaxEntity(const QString& maxEntity);

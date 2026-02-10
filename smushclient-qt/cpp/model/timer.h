@@ -9,7 +9,7 @@ class TimerModel : public AbstractSenderModel
 
 public:
   TimerModel(SmushClient& client,
-             Timekeeper* timekeeper,
+             Timekeeper& timekeeper,
              QObject* parent = nullptr);
 
   QString exportXml() const override;
@@ -21,11 +21,11 @@ protected:
   const std::array<QString, AbstractSenderModel::numColumns>& headers()
     const noexcept override;
   RegexParse import(const QString& xml) override;
-  void prepareRemove(SenderMap* map,
+  void prepareRemove(SenderMap& map,
                      const rust::String& group,
                      int row,
                      int count) override;
 
 private:
-  Timekeeper* timekeeper;
+  Timekeeper& timekeeper;
 };

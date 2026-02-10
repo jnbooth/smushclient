@@ -26,22 +26,21 @@ using std::chrono::seconds;
 
 // Public methods
 
-ScriptApi::ScriptApi(const SmushClient* client,
-                     QAbstractSocket* socket,
-                     MudBrowser* output,
-                     MudStatusBar* statusBar,
-                     Notepads* notepads,
-                     WorldTab* parent)
-  : QObject(parent)
-  , timekeeper(new Timekeeper(client, this))
+ScriptApi::ScriptApi(const SmushClient& client,
+                     QAbstractSocket& socket,
+                     MudBrowser& output,
+                     Notepads& notepads,
+                     WorldTab& parent)
+  : QObject(&parent)
   , client(client)
-  , cursor(output->document())
+  , cursor(output.document())
   , notepads(notepads)
-  , scrollBar(output->verticalScrollBar())
+  , scrollBar(*output.verticalScrollBar())
   , sendQueue(new TimerMap<SendRequest>(this, &ScriptApi::finishQueuedSend))
   , socket(socket)
-  , statusBar(statusBar)
+  , statusBar(new MudStatusBar)
   , tab(parent)
+  , timekeeper(new Timekeeper(client, *this))
   , whenConnected(QDateTime::currentDateTime())
 {
   timekeeper->beginPolling(milliseconds(seconds{ 60 }));
@@ -175,7 +174,7 @@ ScriptApi::handleSendRequest(const SendRequest& request)
     }
       return;
     case SendTarget::Command:
-      tab->ui->input->setText(request.text);
+      tab.ui->input->setText(request.text);
       return;
     case SendTarget::Output:
       appendText(request.text, noteFormat);
@@ -185,11 +184,11 @@ ScriptApi::handleSendRequest(const SendRequest& request)
       SetStatus(request.text);
       return;
     case SendTarget::NotepadNew:
-      notepads->pad()->insertPlainText(request.text);
+      notepads.pad()->insertPlainText(request.text);
       return;
     case SendTarget::NotepadAppend: {
       QTextCursor notepadCursor =
-        notepads->pad(request.destination)->textCursor();
+        notepads.pad(request.destination)->textCursor();
       if (!notepadCursor.atBlockStart()) {
         notepadCursor.insertBlock();
       }
@@ -197,7 +196,7 @@ ScriptApi::handleSendRequest(const SendRequest& request)
       return;
     }
     case SendTarget::NotepadReplace:
-      notepads->pad(request.destination)->setPlainText(request.text);
+      notepads.pad(request.destination)->setPlainText(request.text);
       return;
     case SendTarget::Log:
     case SendTarget::Variable:
@@ -213,7 +212,7 @@ ScriptApi::handleSendRequest(const SendRequest& request)
 void
 ScriptApi::initializePlugins()
 {
-  const rust::Vec<PluginPack> pack = client->resetPlugins();
+  const rust::Vec<PluginPack> pack = client.resetPlugins();
   worldScriptIndex = noSuchPlugin;
   if (!windows.empty()) {
     for (const auto& entry : windows) {
@@ -236,7 +235,7 @@ ScriptApi::initializePlugins()
       worldScriptIndex = index;
     }
     pluginIndices[metadata.id] = index;
-    Plugin& plugin = plugins.emplace_back(this, *it, index);
+    Plugin& plugin = plugins.emplace_back(*this, *it, index);
     const string& pluginId = plugin.id();
     if (pluginId.empty()) {
       worldScriptIndex = index;
@@ -244,7 +243,7 @@ ScriptApi::initializePlugins()
     pluginIndices[pluginId] = index;
     if (plugin.install(*it)) {
       callbackFilter.scan(plugin.state());
-      client->startTimers(index, *timekeeper);
+      client.startTimers(index, *timekeeper);
     }
   }
   OnPluginInstall onInstall;
@@ -257,7 +256,7 @@ ApiCode
 ScriptApi::playFileRaw(const QString& path) const
 {
   const QByteArray utf8 = path.toUtf8();
-  return client->playFileRaw(bytes::slice(utf8));
+  return client.playFileRaw(bytes::slice(utf8));
 }
 
 void
@@ -300,7 +299,7 @@ ScriptApi::moveCursor(QTextCursor::MoveOperation op, int count)
 void
 ScriptApi::reinstallPlugin(size_t index)
 {
-  const PluginPack pack = client->plugin(index);
+  const PluginPack pack = client.plugin(index);
   const string pluginId(pack.id.data(), pack.id.size());
   if (!windows.empty()) {
     for (auto it = windows.begin(); it != windows.end();) {
@@ -319,7 +318,7 @@ ScriptApi::reinstallPlugin(size_t index)
     return;
   }
   callbackFilter.scan(plugin.state());
-  client->startTimers(index, *timekeeper);
+  client.startTimers(index, *timekeeper);
   OnPluginInstall onInstall;
   sendCallback(onInstall, index);
   OnPluginListChanged onListChanged;
@@ -355,7 +354,7 @@ void
 ScriptApi::resetAllTimers()
 {
   sendQueue->clear();
-  client->startAllTimers(*timekeeper);
+  client.startAllTimers(*timekeeper);
 }
 
 void
@@ -427,11 +426,11 @@ ScriptApi::sendNaws()
   if (!doesNaws || !doNaws) {
     return;
   }
-  MudBrowser* browser = tab->ui->output;
-  const QFontMetrics metrics = browser->fontMetrics();
-  const QMargins margins = browser->contentsMargins();
+  MudBrowser& browser = *tab.ui->output;
+  const QFontMetrics metrics = browser.fontMetrics();
+  const QMargins margins = browser.contentsMargins();
   const int advance = metrics.horizontalAdvance(QStringLiteral("0123456789"));
-  const QSize viewport = browser->maximumViewportSize();
+  const QSize viewport = browser.maximumViewportSize();
   SendPacket(ffi::encodeNaws(
     (viewport.width() - margins.left() - margins.right()) * 10 / advance,
     (viewport.height() - margins.top() - margins.bottom()) /
@@ -469,20 +468,21 @@ struct WindowCompare
 {
   int64_t zOrder = 0;
   string_view name;
+
   std::strong_ordering operator<=>(const WindowCompare&) const = default;
 };
 
 void
-ScriptApi::stackWindow(string_view windowName, MiniWindow* window) const
+ScriptApi::stackWindow(string_view windowName, MiniWindow& window) const
 {
-  const bool drawsUnderneath = window->drawsUnderneath();
-  const WindowCompare compare{ .zOrder = -window->getZOrder(),
+  const bool drawsUnderneath = window.drawsUnderneath();
+  const WindowCompare compare{ .zOrder = -window.getZOrder(),
                                .name = windowName };
   MiniWindow* neighbor = nullptr;
   WindowCompare neighborCompare;
 
   for (const auto& entry : windows) {
-    if (entry.second == window ||
+    if (entry.second == &window ||
         entry.second->drawsUnderneath() != drawsUnderneath) {
       continue;
     }
@@ -496,9 +496,9 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow* window) const
   }
 
   if (neighbor != nullptr) {
-    window->stackUnder(neighbor);
+    window.stackUnder(neighbor);
   } else if (drawsUnderneath) {
-    window->stackUnder(tab->ui->outputBorder);
+    window.stackUnder(tab.ui->outputBorder);
   }
 }
 
@@ -584,7 +584,7 @@ void
 ScriptApi::insertBlock()
 {
   if (logNotes && lastTellPosition >= lastLinePosition) {
-    client->logNote(cursor.block().text());
+    client.logNote(cursor.block().text());
   }
   cursor.insertBlock();
   lastLinePosition = cursor.position();
@@ -605,7 +605,7 @@ ScriptApi::insertText(const QString& text, const QTextCharFormat& format)
 ApiCode
 ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
 {
-  OnPluginSend onSend(&bytes);
+  OnPluginSend onSend(bytes);
   sendCallback(onSend);
   if (onSend.discarded()) {
     return ApiCode::OK;
@@ -618,7 +618,7 @@ ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
   lastCommandSent = bytes;
 
   if (flags.testFlag(SendFlag::Log)) {
-    client->logInput(text);
+    client.logInput(text);
   }
 
   bytes.append("\r\n");
@@ -626,12 +626,12 @@ ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
   const qsizetype size = bytes.size();
   totalLinesSent += bytes.count('\n');
   totalPacketsSent += 1;
-  if (socket->write(bytes.constData(), size) == -1) [[unlikely]] {
+  if (socket.write(bytes.constData(), size) == -1) [[unlikely]] {
     return ApiCode::WorldClosed;
   }
   bytes.truncate(size - 2);
 
-  OnPluginSent onSent(&bytes);
+  OnPluginSent onSent(bytes);
   sendCallback(onSent);
   return ApiCode::OK;
 }

@@ -21,15 +21,14 @@
 
 WorldPrefs::WorldPrefs(World& world,
                        SmushClient& client,
-                       ScriptApi* api,
+                       ScriptApi& api,
                        QWidget* parent)
   : QDialog(parent)
   , ui(new Ui::WorldPrefs)
   , aliases(new AliasModel(client, this))
   , api(api)
-  , client(client)
   , plugins(new PluginModel(client, this))
-  , timers(new TimerModel(client, api->timekeeper, this))
+  , timers(new TimerModel(client, api.getTimekeeper(), this))
   , triggers(new TriggerModel(client, this))
   , world(world)
 {
@@ -76,15 +75,15 @@ WorldPrefs::paneForIndex(int row)
     case 5:
       return new PrefsNumpad(world, this);
     case 6:
-      return new PrefsAliases(world, aliases, this);
+      return new PrefsAliases(world, *aliases, this);
     case 7:
-      return new PrefsTimers(world, timers, this);
+      return new PrefsTimers(world, *timers, this);
     case 8:
-      return new PrefsTriggers(world, triggers, this);
+      return new PrefsTriggers(world, *triggers, this);
     case 9:
       return new PrefsScripting(world, this);
     case 10:
-      return new PrefsPlugins(plugins, api, this);
+      return new PrefsPlugins(*plugins, api, this);
     default:
       return nullptr;
   }

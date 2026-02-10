@@ -192,17 +192,17 @@ ScriptApi::GetInfo(int64_t infoType) const
 {
   switch (infoType) {
     case 20:
-      return tab->ui->output->fontFamily();
+      return tab.ui->output->fontFamily();
     case 23:
-      return tab->ui->input->fontFamily();
+      return tab.ui->input->fontFamily();
     case 50:
       return Settings().getBellSound();
     case 53:
       return statusBar->message();
     case 54:
-      return tab->worldFilePath();
+      return tab.worldFilePath();
     case 55:
-      return tab->title();
+      return tab.title();
     case 56:
       return QCoreApplication::applicationFilePath();
     case 57:
@@ -214,9 +214,9 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 60:
       return defaultPath(QStringLiteral(PLUGINS_DIR));
     case 61:
-      return socket->peerAddress().toString();
+      return socket.peerAddress().toString();
     case 62:
-      return socket->proxy().hostName();
+      return socket.proxy().hostName();
     case 63:
       return QHostInfo::localHostName();
     case 64:
@@ -224,7 +224,7 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 66:
       return QCoreApplication::applicationDirPath();
     case 67:
-      return QFileInfo(tab->worldFilePath()).absoluteDir().path();
+      return QFileInfo(tab.worldFilePath()).absoluteDir().path();
     case 68:
       return QDir::currentPath(); // initial directory
     case 69:
@@ -261,52 +261,51 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 101:
       return suppressEcho;
     case 106:
-      return !socket->isOpen();
+      return !socket.isOpen();
     case 107:
-      return socket->state() == QAbstractSocket::SocketState::ConnectingState;
+      return socket.state() == QAbstractSocket::SocketState::ConnectingState;
     case 108: // OK to disconnect
       return true;
     case 111:
-      return tab->isWindowModified();
+      return tab.isWindowModified();
     // case 112: Automapper active
     case 113:
-      return tab->isActive();
+      return tab.isActive();
     case 114:
-      return scrollBar->isPaused();
+      return scrollBar.isPaused();
     // case 115: Localization active
     case 119: // Script engine is active
       return true;
     case 120:
-      return scrollBar->isVisible();
+      return scrollBar.isVisible();
     case 121: // High-resolution timer is available
       return true;
     case 122:
       return sqlite3_threadsafe() != 0;
     case 125:
-      return tab->isFullScreen();
+      return tab.isFullScreen();
     case 203:
       return totalLinesSent;
     case 204:
       return totalPacketsSent;
     case 212:
-      return QFontMetrics(tab->ui->output->font()).height();
+      return QFontMetrics(tab.ui->output->font()).height();
     case 213:
-      return QFontMetrics(tab->ui->output->font()).maxWidth();
+      return QFontMetrics(tab.ui->output->font()).maxWidth();
     case 214:
-      return QFontMetrics(tab->ui->input->font()).height();
+      return QFontMetrics(tab.ui->input->font()).height();
     case 215:
-      return QFontMetrics(tab->ui->input->font()).maxWidth();
+      return QFontMetrics(tab.ui->input->font()).maxWidth();
     case 224: {
-      MudBrowser* output = tab->ui->output;
-      const QRect rect = output->rect();
-      const QTextCursor firstVisible =
-        output->cursorForPosition(rect.topLeft());
+      MudBrowser& output = *tab.ui->output;
+      const QRect rect = output.rect();
+      const QTextCursor firstVisible = output.cursorForPosition(rect.topLeft());
       const QTextCursor lastVisible =
-        output->cursorForPosition(rect.bottomRight());
+        output.cursorForPosition(rect.bottomRight());
       return lastVisible.blockNumber() - firstVisible.blockNumber();
     }
     case 227:
-      switch (socket->state()) {
+      switch (socket.state()) {
         case QAbstractSocket::SocketState::HostLookupState:
           return 1;
         case QAbstractSocket::SocketState::ConnectingState:
@@ -318,30 +317,30 @@ ScriptApi::GetInfo(int64_t infoType) const
       }
     case 228: {
       bool isOk;
-      const uint32_t ipv4 = socket->peerAddress().toIPv4Address(&isOk);
+      const uint32_t ipv4 = socket.peerAddress().toIPv4Address(&isOk);
       return isOk ? ipv4 : QVariant();
     }
     // case 229: Proxy IP address as number
     // case 230: Script execution depth
     case 235:
-      return qobject_cast<QTabWidget*>(tab->parent())->count();
+      return qobject_cast<QTabWidget*>(tab.parent())->count();
     case 236: {
-      const QTextCursor inputCursor = tab->ui->input->textCursor();
+      const QTextCursor inputCursor = tab.ui->input->textCursor();
       return std::min(inputCursor.anchor(), inputCursor.position());
     }
     case 237: {
-      const QTextCursor inputCursor = tab->ui->input->textCursor();
+      const QTextCursor inputCursor = tab.ui->input->textCursor();
       return std::max(inputCursor.anchor(), inputCursor.position());
     }
     case 238: {
-      QWidget* window = tab->window();
-      if (window->isHidden()) {
+      QWidget& window = *tab.window();
+      if (window.isHidden()) {
         return 0;
       }
-      if (window->isMinimized()) {
+      if (window.isMinimized()) {
         return 6;
       }
-      if (window->isMaximized()) {
+      if (window.isMaximized()) {
         return 3;
       }
       return 1;
@@ -349,25 +348,25 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 239:
       return static_cast<int>(actionSource);
     case 240:
-      return QFontMetrics(tab->ui->output->font()).averageCharWidth();
+      return QFontMetrics(tab.ui->output->font()).averageCharWidth();
     case 241:
-      return QFontMetrics(tab->ui->output->font()).height();
+      return QFontMetrics(tab.ui->output->font()).height();
     case 249:
-      return tab->window()->height();
+      return tab.window()->height();
     case 250:
-      return tab->window()->width();
+      return tab.window()->width();
     case 259:
       return statusBar->height();
     case 260:
       return statusBar->width();
     case 261:
-      return tab->ui->outputBorder->height();
+      return tab.ui->outputBorder->height();
     case 262:
-      return tab->ui->outputBorder->width();
+      return tab.ui->outputBorder->width();
     case 263:
-      return tab->ui->outputBorder->height();
+      return tab.ui->outputBorder->height();
     case 264:
-      return tab->ui->outputBorder->width();
+      return tab.ui->outputBorder->width();
     case 268:
 #if defined(Q_OS_WIN)
       return static_cast<int>(OperatingSystem::Windows);
@@ -379,9 +378,7 @@ ScriptApi::GetInfo(int64_t infoType) const
       return QVariant();
 #endif
     case 271:
-      return tab->ui->output->palette()
-        .brush(QPalette::ColorRole::Base)
-        .color();
+      return tab.ui->output->palette().brush(QPalette::ColorRole::Base).color();
     case 272:
       return assignedTextRectangle.left();
     case 273:
@@ -391,51 +388,49 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 275:
       return assignedTextRectangle.bottom();
     case 276:
-      return tab->ui->background->contentsMargins().left();
+      return tab.ui->background->contentsMargins().left();
     case 277:
-      return tab->ui->outputBorder->contentsMargins().left();
+      return tab.ui->outputBorder->contentsMargins().left();
     case 278:
-      return tab->ui->area->palette()
-        .brush(QPalette::ColorRole::Window)
-        .color();
+      return tab.ui->area->palette().brush(QPalette::ColorRole::Window).color();
     case 279:
       return static_cast<int>(getBrushStyle(
-        tab->ui->area->palette().brush(QPalette::ColorRole::Window)));
+        tab.ui->area->palette().brush(QPalette::ColorRole::Window)));
     case 280:
-      return tab->ui->area->height();
+      return tab.ui->area->height();
     case 281:
-      return tab->ui->area->width();
+      return tab.ui->area->width();
     case 282:
-      return tab->ui->outputBorder->palette()
+      return tab.ui->outputBorder->palette()
         .brush(QPalette::ColorRole::Window)
         .color();
     case 283:
-      return tab->ui->area->mapFromGlobal(QCursor::pos()).x();
+      return tab.ui->area->mapFromGlobal(QCursor::pos()).x();
     case 284:
-      return tab->ui->area->mapFromGlobal(QCursor::pos()).y();
+      return tab.ui->area->mapFromGlobal(QCursor::pos()).y();
     case 285: // Is output window
       return true;
     case 290:
-      return tab->ui->area->contentsMargins().left();
+      return tab.ui->area->contentsMargins().left();
     case 291:
-      return tab->ui->area->contentsMargins().top();
+      return tab.ui->area->contentsMargins().top();
     case 292: {
-      QWidget* area = tab->ui->area;
-      return area->width() - area->contentsMargins().right();
+      QWidget& area = *tab.ui->area;
+      return area.width() - area.contentsMargins().right();
     }
     case 293: {
-      QWidget* area = tab->ui->area;
-      return area->height() - area->contentsMargins().bottom();
+      QWidget& area = *tab.ui->area;
+      return area.height() - area.contentsMargins().bottom();
     }
     case 294:
       return getModifierFlags(QGuiApplication::keyboardModifiers(),
                               QGuiApplication::mouseButtons());
     case 296:
-      return scrollBar->sliderPosition();
+      return scrollBar.sliderPosition();
     case 298:
       return sqlite3_libversion_number();
     default:
-      return client->getInfo(infoType);
+      return client.getInfo(infoType);
   }
 }
 
@@ -509,19 +504,22 @@ ScriptApi::GetPluginInfo(string_view pluginID, int64_t infoType) const
     case 22:
       return QVariant(plugins[index].installed());
     default:
-      return client->pluginInfo(index, infoType);
+      return client.pluginInfo(index, infoType);
   }
 }
 
 QVariant
 ScriptApi::GetStyleInfo(int line, int64_t style, int64_t infoType) const
 {
-  const QTextDocument* doc = cursor.document();
-  const QTextBlock block = doc->findBlockByLineNumber(line - 1);
+  const QTextDocument& doc = *cursor.document();
+  const QTextBlock block = doc.findBlockByLineNumber(line - 1);
   if (!block.isValid()) {
     return QVariant();
   }
   const QTextLayout* layout = block.layout();
+  if (layout == nullptr) [[unlikely]] {
+    return QVariant();
+  }
   const QTextLine textLine = layout->lineAt(line - block.firstLineNumber());
   const int textStart = textLine.textStart();
   const int textEnd = textStart + textLine.textLength();
@@ -605,11 +603,11 @@ ScriptApi::GetTimerInfo(size_t pluginIndex,
 
   if (infoType == 26) {
     const QString scriptName =
-      client->timerInfo(pluginIndex, bytes::slice(label), 5).toString();
+      client.timerInfo(pluginIndex, bytes::slice(label), 5).toString();
     return !scriptName.isEmpty() &&
            plugins[pluginIndex].hasFunction(scriptName);
   }
-  return client->timerInfo(pluginIndex, bytes::slice(label), infoType);
+  return client.timerInfo(pluginIndex, bytes::slice(label), infoType);
 }
 
 // External implementations

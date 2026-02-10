@@ -45,7 +45,7 @@ PluginMetadata::PluginMetadata(const PluginPack& pack, size_t index)
 
 // Public methods
 
-Plugin::Plugin(ScriptApi* api, const PluginPack& pack, size_t index)
+Plugin::Plugin(ScriptApi& api, const PluginPack& pack, size_t index)
   : metadata(pack, index)
 {
   reset(api);
@@ -147,7 +147,7 @@ Plugin::reset()
 }
 
 void
-Plugin::reset(ScriptApi* api)
+Plugin::reset(ScriptApi& api)
 {
   disabled = false;
 
@@ -205,7 +205,7 @@ Plugin::runFile(const QString& path) const
   }
 
   if (checkError(luaL_loadfile(L, path.toUtf8().data()))) [[unlikely]] {
-    getApi(L)->printError(formatCompileError(L));
+    getApi(L).printError(formatCompileError(L));
     lua_pop(L, 1);
     return false;
   }
@@ -221,7 +221,7 @@ Plugin::runScript(string_view script) const
   }
 
   if (checkError(qlua::loadString(L, script))) [[unlikely]] {
-    getApi(L)->printError(formatCompileError(L));
+    getApi(L).printError(formatCompileError(L));
     lua_pop(L, 1);
     return false;
   }

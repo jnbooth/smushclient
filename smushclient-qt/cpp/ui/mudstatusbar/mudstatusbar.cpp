@@ -55,9 +55,9 @@ MudStatusBar::createStat(const QString& entity,
   if (!maxEntity.isEmpty()) {
     statsByMax.insert(maxEntity, stat);
   }
-  QMenu* statMenu = stat->menu();
-  menu->addMenu(statMenu);
-  statMenu->menuAction()->setVisible(false);
+  QMenu& statMenu = stat->menu();
+  menu->addMenu(&statMenu);
+  statMenu.menuAction()->setVisible(false);
 
   return true;
 }
@@ -76,8 +76,8 @@ MudStatusBar::updateStat(const QString& entity, const QString& value)
     return false;
   }
 
-  StatusBarStat* stat = search.value();
-  stat->setValue(value);
+  StatusBarStat& stat = *search.value();
+  stat.setValue(value);
   return true;
 }
 
