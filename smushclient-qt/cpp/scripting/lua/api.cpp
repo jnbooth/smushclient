@@ -1642,13 +1642,7 @@ L_WindowDragHandler(lua_State* L)
                       qlua::getString(L, 2),
                       Hotspot::CallbacksPartial{
                         .dragMove = string(qlua::getString(L, 3, "")),
-                        .dragRelease = string(qlua::getString(L, 4, "")),
-                        .mouseOver = nullopt,
-                        .cancelMouseOver = nullopt,
-                        .mouseDown = nullopt,
-                        .cancelMouseDown = nullopt,
-                        .mouseUp = nullopt,
-                        .scroll = nullopt }));
+                        .dragRelease = string(qlua::getString(L, 4, "")) }));
 }
 
 int
@@ -1675,13 +1669,6 @@ L_WindowScrollwheelHandler(lua_State* L)
                       qlua::getString(L, 1),
                       qlua::getString(L, 2),
                       Hotspot::CallbacksPartial{
-                        .dragMove = nullopt,
-                        .dragRelease = nullopt,
-                        .mouseOver = nullopt,
-                        .cancelMouseOver = nullopt,
-                        .mouseDown = nullopt,
-                        .cancelMouseDown = nullopt,
-                        .mouseUp = nullopt,
                         .scroll = string(qlua::getString(L, 3, "")) }));
 }
 

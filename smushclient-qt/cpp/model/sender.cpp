@@ -5,18 +5,11 @@
 
 struct SelectionRegion
 {
-  int top;
-  int height;
-  const void* parentPtr;
+  int top = -1;
+  int height = -1;
+  const void* parentPtr = nullptr;
 
-  bool operator==(const SelectionRegion&) const = default;
-
-  SelectionRegion()
-    : top(-1)
-    , height(-1)
-    , parentPtr(nullptr)
-  {
-  }
+  SelectionRegion() = default;
 
   SelectionRegion(const QItemSelectionRange& range, const QModelIndex& parent)
     : top(range.top())
@@ -24,6 +17,8 @@ struct SelectionRegion
     , parentPtr(parent.constInternalPointer())
   {
   }
+
+  bool operator==(const SelectionRegion&) const = default;
 };
 
 // Private utils

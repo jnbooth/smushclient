@@ -8,9 +8,9 @@
 struct OutputLayout
 {
   QMargins margins;
-  int16_t borderOffset;
+  int16_t borderOffset = 0;
   QColor borderColor;
-  int16_t borderWidth;
+  int16_t borderWidth = 0;
   QBrush outsideFill;
 
   bool restore(const QByteArray& data);

@@ -74,7 +74,7 @@ private:
   }
 
 private:
-  std::unordered_map<Qt::TimerId, T> map{};
+  std::unordered_map<Qt::TimerId, T> map;
   HandlerSlot<QObject> slot;
   Qt::TimerType timerType;
 };

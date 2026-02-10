@@ -34,14 +34,14 @@ public:
   template<typename T>
   struct BasicCallbacks
   {
-    T dragMove;
-    T dragRelease;
-    T mouseOver;
-    T cancelMouseOver;
-    T mouseDown;
-    T cancelMouseDown;
-    T mouseUp;
-    T scroll;
+    T dragMove{};
+    T dragRelease{};
+    T mouseOver{};
+    T cancelMouseOver{};
+    T mouseDown{};
+    T cancelMouseDown{};
+    T mouseUp{};
+    T scroll{};
   };
   using Callbacks = BasicCallbacks<std::string>;
   using CallbacksPartial = BasicCallbacks<std::optional<std::string>>;
