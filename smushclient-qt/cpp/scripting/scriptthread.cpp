@@ -5,30 +5,38 @@ extern "C"
 #include "lua.h"
 }
 
+using std::shared_ptr;
+
 // Public methods
 
-ScriptThread::ScriptThread(lua_State* parentL)
-  : L(lua_newthread(parentL))
-  , parentL(parentL)
+ScriptThread::ScriptThread(const shared_ptr<lua_State>& parentL)
+  : L(lua_newthread(parentL.get()))
+  , parentL_(parentL)
 {
-  lua_rawsetp(parentL, LUA_REGISTRYINDEX, L);
+  lua_rawsetp(parentL.get(), LUA_REGISTRYINDEX, L);
   pushErrorHandler(L);
 }
 
 ScriptThread::ScriptThread(ScriptThread&& other) noexcept
   : L(std::exchange(other.L, nullptr))
-  , parentL(std::exchange(other.parentL, nullptr))
+  , parentL_(std::move(other.parentL_))
 {
 }
 
 ScriptThread::~ScriptThread()
 {
-  if (L != nullptr) {
-    lua_closethread(L, nullptr);
+  if (L == nullptr) {
+    return;
   }
+  auto parentLock = parentL_.lock();
+  if (!parentLock) {
+    return;
+  }
+  lua_State* parentL = parentLock.get();
   if (parentL == nullptr) {
     return;
   }
   lua_pushnil(parentL);
   lua_rawsetp(parentL, LUA_REGISTRYINDEX, L);
+  lua_closethread(L, nullptr);
 }

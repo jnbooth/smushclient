@@ -9,6 +9,7 @@
 #include "smushclient_qt/src/ffi/client.cxxqt.h"
 #include <QtCore/QFileInfo>
 #include <QtWidgets/QErrorMessage>
+#include <memory>
 extern "C"
 {
 #include "lauxlib.h"
@@ -53,16 +54,9 @@ Plugin::Plugin(ScriptApi& api, const PluginPack& pack, size_t index)
 
 Plugin::Plugin(Plugin&& other) noexcept
   : disabled(other.disabled)
-  , L(std::exchange(other.L, nullptr))
+  , L_(std::move(other.L_))
   , metadata(std::move(other.metadata))
 {
-}
-
-Plugin::~Plugin()
-{
-  if (L != nullptr) {
-    lua_close(L);
-  }
 }
 
 class CallbackFinder : public DynamicPluginCallback
@@ -85,6 +79,7 @@ public:
 bool
 Plugin::hasFunction(PluginCallbackKey routine) const
 {
+  lua_State* L = L_.get();
   if (CallbackFinder(routine).findCallback(L)) {
     lua_pop(L, 1);
     return true;
@@ -95,6 +90,7 @@ Plugin::hasFunction(PluginCallbackKey routine) const
 bool
 Plugin::hasFunction(const QString& routine) const
 {
+  lua_State* L = L_.get();
   if (CallbackFinder(routine).findCallback(L)) {
     lua_pop(L, 1);
     return true;
@@ -131,6 +127,7 @@ Plugin::install(const PluginPack& pack)
 void
 Plugin::reset()
 {
+  lua_State* L = L_.get();
   reset(getApi(L));
 }
 
@@ -139,13 +136,9 @@ Plugin::reset(ScriptApi& api)
 {
   disabled = false;
 
-  if (L != nullptr) {
-    lua_State* oldL = L;
-    L = nullptr;
-    lua_close(oldL);
-  }
+  L_.reset(luaL_newstate(), lua_close);
 
-  L = luaL_newstate();
+  lua_State* L = L_.get();
 
   if (L == nullptr) {
     throw std::bad_alloc();
@@ -159,7 +152,8 @@ Plugin::reset(ScriptApi& api)
 bool
 Plugin::runCallback(PluginCallback& callback) const
 {
-  if (!findCallback(callback)) {
+  lua_State* L = L_.get();
+  if (disabled || !callback.findCallback(L)) {
     return false;
   }
   if (!api_pcall(L, callback.pushArguments(L), callback.expectedSize())) {
@@ -172,10 +166,11 @@ Plugin::runCallback(PluginCallback& callback) const
 bool
 Plugin::runCallbackThreaded(PluginCallback& callback) const
 {
-  if (!findCallback(callback)) {
+  lua_State* L = L_.get();
+  if (disabled || !callback.findCallback(L)) {
     return false;
   }
-  const ScriptThread thread(L);
+  const ScriptThread thread(L_);
   lua_State* L2 = thread.state();
   lua_xmove(L, L2, 1);
   if (!api_pcall(L2, callback.pushArguments(L2), callback.expectedSize())) {
@@ -192,6 +187,7 @@ Plugin::runFile(const QString& path) const
     return false;
   }
 
+  lua_State* L = L_.get();
   if (checkError(luaL_loadfile(L, path.toUtf8().data()))) [[unlikely]] {
     getApi(L).printError(formatCompileError(L));
     lua_pop(L, 1);
@@ -208,6 +204,7 @@ Plugin::runScript(string_view script) const
     return false;
   }
 
+  lua_State* L = L_.get();
   if (checkError(qlua::loadString(L, script))) [[unlikely]] {
     getApi(L).printError(formatCompileError(L));
     lua_pop(L, 1);
@@ -223,20 +220,14 @@ Plugin::setEnabled(bool enable)
   disabled = !enable;
 }
 
+ScriptThread
+Plugin::spawnThread() const
+{
+  return ScriptThread(L_);
+}
+
 void
 Plugin::updateMetadata(const PluginPack& pack, size_t index)
 {
   metadata = PluginMetadata(pack, index);
-}
-
-// Private methods
-
-bool
-Plugin::findCallback(const PluginCallback& callback) const
-{
-  if (disabled) [[unlikely]] {
-    return false;
-  }
-
-  return callback.findCallback(L);
 }

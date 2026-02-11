@@ -3,7 +3,6 @@
 #include "../qlua.h"
 #include "../scriptapi.h"
 #include "../scriptenums.h"
-#include "../scriptthread.h"
 #include "errors.h"
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QPointer>
@@ -570,7 +569,7 @@ L_CallPlugin(lua_State* L)
 
   const string_view routine = qlua::getString(L, 2);
 
-  const ScriptThread thread(plugin.state());
+  const ScriptThread thread = plugin.spawnThread();
   lua_State* L2 = thread.state();
 
   const int nargs = lua_gettop(L) - 2;

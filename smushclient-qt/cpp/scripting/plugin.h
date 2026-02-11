@@ -1,5 +1,6 @@
 #pragma once
 #include "callback/key.h"
+#include "scriptthread.h"
 #include <QtCore/QDateTime>
 
 class PluginCallback;
@@ -22,7 +23,7 @@ class Plugin
 public:
   Plugin(ScriptApi& api, const PluginPack& pack, size_t index);
   Plugin(Plugin&& other) noexcept;
-  ~Plugin();
+  ~Plugin() = default;
 
   Plugin(const Plugin&) = delete;
   Plugin& operator=(const Plugin&) = delete;
@@ -45,14 +46,12 @@ public:
   bool runFile(const QString& path) const;
   bool runScript(std::string_view script) const;
   void setEnabled(bool enable = true);
-  constexpr lua_State* state() const noexcept { return L; }
+  ScriptThread spawnThread() const;
+  constexpr lua_State* state() const noexcept { return L_.get(); }
   void updateMetadata(const PluginPack& pack, size_t index);
 
 private:
-  bool findCallback(const PluginCallback& callback) const;
-
-private:
   bool disabled = false;
-  lua_State* L = nullptr;
+  std::shared_ptr<lua_State> L_ = nullptr;
   PluginMetadata metadata;
 };

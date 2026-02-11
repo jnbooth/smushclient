@@ -12,11 +12,12 @@ CallbackTrigger::CallbackTrigger(const Plugin& plugin,
                                  QObject* parent)
   : parent(parent)
   , plugin(&plugin)
-  , thread(plugin.state())
-  , top(lua_gettop(thread.state()) + 1)
-  , isValid(callback.findCallback(thread.state()))
-  , nargs(callback.pushArguments(thread.state()))
+  , thread(plugin.spawnThread())
 {
+  lua_State* L = thread.state();
+  top = lua_gettop(L) + 1;
+  isValid = callback.findCallback(L);
+  nargs = callback.pushArguments(L);
 }
 
 CallbackTrigger::CallbackTrigger(CallbackTrigger&& other) noexcept
@@ -32,12 +33,13 @@ CallbackTrigger::CallbackTrigger(CallbackTrigger&& other) noexcept
 bool
 CallbackTrigger::trigger()
 {
-  if (parent.isNull() || plugin->isDisabled() ||
-      !thread.isChildOf(plugin->state())) [[unlikely]] {
+  if (parent.isNull() || plugin->isDisabled()) [[unlikely]] {
     return false;
   }
-
   lua_State* L = thread.state();
+  if (L == nullptr) {
+    return false;
+  }
   for (int i = top; i <= top + nargs; ++i) {
     lua_pushvalue(L, i);
   }

@@ -1,11 +1,12 @@
 #pragma once
 
+#include <memory>
 struct lua_State;
 
 class ScriptThread
 {
 public:
-  explicit ScriptThread(lua_State* L);
+  explicit ScriptThread(const std::shared_ptr<lua_State>& parentL);
   ScriptThread(ScriptThread&& other) noexcept;
   ~ScriptThread();
 
@@ -13,13 +14,9 @@ public:
   ScriptThread& operator=(const ScriptThread&) = delete;
   ScriptThread& operator=(ScriptThread&&) = delete;
 
-  constexpr bool isChildOf(lua_State* state) const noexcept
-  {
-    return state == parentL;
-  }
-  constexpr lua_State* state() const noexcept { return L; }
+  lua_State* state() const noexcept { return parentL_.expired() ? nullptr : L; }
 
 private:
   lua_State* L;
-  lua_State* parentL;
+  std::weak_ptr<lua_State> parentL_;
 };
