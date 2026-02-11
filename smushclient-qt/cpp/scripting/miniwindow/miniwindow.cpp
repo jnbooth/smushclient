@@ -7,7 +7,6 @@
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QMenu>
 #include <algorithm>
-#include <ranges>
 
 using std::span;
 using std::string;
@@ -17,18 +16,12 @@ using std::vector;
 // Private utils
 
 namespace {
-inline bool
-isNotSpace(char c)
+constexpr span<const char>
+trim(const string& s) noexcept
 {
-  return static_cast<bool>(std::isspace(c));
-}
-
-inline void
-trim(string& s)
-{
-  s.erase(s.begin(), std::ranges::find_if(s, isNotSpace));
-  s.erase(std::ranges::find_if(std::ranges::reverse_view(s), isNotSpace).base(),
-          s.end());
+  const size_t start = s.find_first_not_of(' ');
+  const size_t end = s.find_last_not_of(' ');
+  return span(s).subspan(start, end + 1 - start);
 }
 
 inline bool
@@ -48,25 +41,34 @@ buildMenu(QMenu& menu, string_view text)
     stream.get(); // horizontal alignment
     stream.get(); // vertical alignment
   }
-  for (string item; std::getline(stream, item, '|');) {
-    trim(item);
-    if (item == "-" || item == "") {
+  for (string untrimmed; std::getline(stream, untrimmed, '|');) {
+    const span<const char> item = trim(untrimmed);
+    if (item.empty()) {
       menus.back()->addSeparator();
       continue;
     }
     const char first = item.front();
-    if (first == '>') // nested menu
-    {
-      const QString menuTitle = QString::fromUtf8(span(item).subspan(1));
-      menus.push_back(menus.back()->addMenu(menuTitle));
-      continue;
-    }
-    if (first == '<') {
-      if (menus.size() > 1) {
-        menus.pop_back();
+    switch (first) {
+      case '-':
+        if (item.size() == 1) {
+          menus.back()->addSeparator();
+          continue;
+        }
+        break;
+      case '<': // un-nest
+        if (menus.size() > 1) {
+          menus.pop_back();
+        }
+        continue;
+      case '>': // nested menu
+      {
+        const QString menuTitle = QString::fromUtf8(item.subspan(1));
+        menus.push_back(menus.back()->addMenu(menuTitle));
+        continue;
       }
-      continue;
-    }
+      default:
+        break;
+    };
     QMenu* buildingMenu = menus.back();
     QAction* action = new QAction(buildingMenu);
 
@@ -85,9 +87,8 @@ buildMenu(QMenu& menu, string_view text)
         default:
           break;
       }
-      break;
     }
-    action->setText(QString::fromUtf8(span(item).subspan(offset)));
+    action->setText(QString::fromUtf8(item.subspan(offset)));
     buildingMenu->addAction(action);
   }
   return returnsNumber;
