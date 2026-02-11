@@ -20,7 +20,6 @@ using std::string_view;
 using qlua::expectMaxArgs;
 
 namespace {
-const char* const apiRegKey = "smushclient.api";
 const char* const indexRegKey = "smushclient.plugin";
 const char* const worldRegKey = "smushclient.world";
 const char* const worldLibKey = "world";
@@ -141,23 +140,26 @@ convertVolume(lua_Number decibels)
 {
   return static_cast<float>(1 / pow(2, decibels / -3));
 }
+
+inline ScriptApi**
+apiSlot(lua_State* L) noexcept
+{
+  return static_cast<ScriptApi**>(lua_getextraspace(L)); // NOLINT
+}
+
 } // namespace
 
 int
 setLuaApi(lua_State* L, ScriptApi& api)
 {
-  lua_pushlightuserdata(L, &api);
-  lua_rawsetp(L, LUA_REGISTRYINDEX, apiRegKey);
+  *apiSlot(L) = &api;
   return 0;
 }
 
 inline ScriptApi&
 getApi(lua_State* L)
 {
-  lua_rawgetp(L, LUA_REGISTRYINDEX, apiRegKey);
-  void* api = lua_touserdata(L, -1);
-  lua_pop(L, 1);
-  return *static_cast<ScriptApi*>(api);
+  return **apiSlot(L);
 }
 
 int
