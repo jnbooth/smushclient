@@ -1,17 +1,10 @@
 #pragma once
+#include "channel.h"
 #include <QtGui/QPixmap>
 
 class ImageFilter
 {
 public:
-  enum Channel : int
-  {
-    Blue = 0,
-    Green = 1,
-    Red = 2,
-    All = 4,
-  };
-
   virtual ~ImageFilter() = default;
   virtual void apply(QPixmap& pixmap) const = 0;
 };
@@ -19,8 +12,9 @@ public:
 class BrightnessAddFilter : public ImageFilter
 {
 public:
-  explicit constexpr BrightnessAddFilter(int add,
-                                         Channel channel = Channel::All)
+  explicit constexpr BrightnessAddFilter(
+    int add,
+    ColorChannel channel = ColorChannel::All)
     : add(add)
     , channel(channel)
   {
@@ -30,14 +24,15 @@ public:
 
 private:
   int add;
-  Channel channel;
+  ColorChannel channel;
 };
 
 class BrightnessMultFilter : public ImageFilter
 {
 public:
-  explicit constexpr BrightnessMultFilter(qreal multiply,
-                                          Channel channel = Channel::All)
+  explicit constexpr BrightnessMultFilter(
+    qreal multiply,
+    ColorChannel channel = ColorChannel::All)
     : channel(channel)
     , multiply(multiply)
   {
@@ -46,7 +41,7 @@ public:
   void apply(QPixmap& pixmap) const override;
 
 private:
-  Channel channel;
+  ColorChannel channel;
   qreal multiply;
 };
 

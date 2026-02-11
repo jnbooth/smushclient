@@ -1242,66 +1242,66 @@ L_WindowDrawImageAlpha(lua_State* L)
 }
 
 int
+applyFilter(lua_State* L,
+            string_view windowName,
+            const ImageFilter& filter,
+            const QRect& rect)
+{
+  return returnCode(L, getApi(L).WindowFilter(windowName, filter, rect));
+}
+
+int
 L_WindowFilter(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 7);
-  using Channel = ImageFilter::Channel;
-  const ScriptApi& api = getApi(L);
   const string_view windowName = qlua::getString(L, 1);
   const QRect rect = qlua::getQRect(L, 2, 3, 4, 5);
   switch (qlua::getInteger(L, 6)) {
     case 7:
-      return returnCode(
-        L,
-        api.WindowFilter(
-          windowName, BrightnessAddFilter(qlua::getInt(L, 7)), rect));
+      return applyFilter(
+        L, windowName, BrightnessAddFilter(qlua::getInt(L, 7)), rect);
     case 10:
-      return returnCode(
+      return applyFilter(
         L,
-        api.WindowFilter(windowName,
-                         BrightnessAddFilter(qlua::getInt(L, 7), Channel::Red),
-                         rect));
+        windowName,
+        BrightnessAddFilter(qlua::getInt(L, 7), ColorChannel::Red),
+        rect);
     case 13:
-      return returnCode(L,
-                        api.WindowFilter(windowName,
-                                         BrightnessAddFilter(qlua::getInt(L, 7),
-                                                             Channel::Green),
-                                         rect));
+      return applyFilter(
+        L,
+        windowName,
+        BrightnessAddFilter(qlua::getInt(L, 7), ColorChannel::Green),
+        rect);
     case 16:
-      return returnCode(
+      return applyFilter(
         L,
-        api.WindowFilter(windowName,
-                         BrightnessAddFilter(qlua::getInt(L, 7), Channel::Blue),
-                         rect));
+        windowName,
+        BrightnessAddFilter(qlua::getInt(L, 7), ColorChannel::Blue),
+        rect);
     case 19:
-      return returnCode(L,
-                        api.WindowFilter(windowName, GrayscaleFilter(), rect));
+      return applyFilter(L, windowName, GrayscaleFilter(), rect);
     case 21:
-      return returnCode(
-        L,
-        api.WindowFilter(
-          windowName, BrightnessMultFilter(qlua::getNumber(L, 7)), rect));
+      return applyFilter(
+        L, windowName, BrightnessMultFilter(qlua::getNumber(L, 7)), rect);
     case 22:
-      return returnCode(L,
-                        api.WindowFilter(windowName,
-                                         BrightnessMultFilter(
-                                           qlua::getNumber(L, 7), Channel::Red),
-                                         rect));
+      return applyFilter(
+        L,
+        windowName,
+        BrightnessMultFilter(qlua::getNumber(L, 7), ColorChannel::Red),
+        rect);
     case 23:
-      return returnCode(
+      return applyFilter(
         L,
-        api.WindowFilter(
-          windowName,
-          BrightnessMultFilter(qlua::getNumber(L, 7), Channel::Green),
-          rect));
+        windowName,
+        BrightnessMultFilter(qlua::getNumber(L, 7), ColorChannel::Green),
+        rect);
     case 24:
-      return returnCode(
+      return applyFilter(
         L,
-        api.WindowFilter(
-          windowName,
-          BrightnessMultFilter(qlua::getNumber(L, 7), Channel::Blue),
-          rect));
+        windowName,
+        BrightnessMultFilter(qlua::getNumber(L, 7), ColorChannel::Blue),
+        rect);
     default:
       return returnCode(L, ApiCode::UnknownOption);
   }
