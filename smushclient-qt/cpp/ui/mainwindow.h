@@ -1,5 +1,6 @@
 #pragma once
 #include "../settings.h"
+#include "worldtab.h"
 #include <QtWidgets/QMainWindow>
 
 namespace Ui {
@@ -9,7 +10,6 @@ class MainWindow;
 enum class AvailableCopy : int;
 class Notepads;
 class FindDialog;
-class WorldTab;
 
 class MainWindow : public QMainWindow
 {
