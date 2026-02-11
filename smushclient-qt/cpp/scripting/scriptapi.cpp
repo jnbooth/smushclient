@@ -245,12 +245,12 @@ ScriptApi::initializePlugins()
       callbackFilter.scan(plugin.state());
       client.startTimers(index, *timekeeper);
     }
+    ++index;
   }
   OnPluginInstall onInstall;
   sendCallback(onInstall);
   OnPluginListChanged onListChanged;
   sendCallback(onListChanged);
-  ++index;
 }
 
 ApiCode
