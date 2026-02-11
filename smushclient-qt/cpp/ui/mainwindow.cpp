@@ -118,6 +118,12 @@ MainWindow::openWorld(const QString& filePath)
   ui->world_tabs->setTabText(tabIndex, tab->title());
 }
 
+MainWindow::WorldTabRange
+MainWindow::worldtabs()
+{
+  return WorldTabRange(ui->world_tabs);
+}
+
 // Public slots
 
 void
@@ -157,17 +163,17 @@ MainWindow::closeEvent(QCloseEvent* event)
   QStringList lastFiles;
   lastFiles.reserve(tabCount);
 
-  for (int i = 0; i < tabCount; ++i) {
-    WorldTab* tab = qobject_cast<WorldTab*>(ui->world_tabs->widget(i));
-    if (!tab->promptSave()) {
+  for (WorldTab& tab : worldtabs()) {
+    if (!tab.promptSave()) {
       event->ignore();
       return;
     }
-    const QString& worldFilePath = tab->worldFilePath();
+
+    const QString& worldFilePath = tab.worldFilePath();
     if (!worldFilePath.isEmpty()) {
       lastFiles.push_back(worldFilePath);
     }
-    tabs.push_back(tab);
+    tabs.push_back(&tab);
   }
 
   for (WorldTab* tab : tabs) {
@@ -275,8 +281,7 @@ MainWindow::openRecentFile(qsizetype index)
 
   const QString& filePath = recentFiles.at(index);
 
-  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i) {
-    WorldTab& tab = *worldtab(i);
+  for (WorldTab& tab : worldtabs()) {
     if (tab.worldFilePath() == filePath) {
       ui->world_tabs->setCurrentWidget(&tab);
       return;
@@ -596,11 +601,11 @@ MainWindow::on_action_import_world_triggered()
 void
 MainWindow::on_action_log_session_triggered(bool checked)
 {
-  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i) {
+  for (WorldTab& tab : worldtabs()) {
     if (checked) {
-      worldtab(i)->openLog();
+      tab.openLog();
     } else {
-      worldtab(i)->closeLog();
+      tab.closeLog();
     }
   }
 }
@@ -683,8 +688,8 @@ MainWindow::on_action_reload_script_file_triggered()
 void
 MainWindow::on_action_reset_all_timers_triggered()
 {
-  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i) {
-    worldtab(i)->resetAllTimers();
+  for (WorldTab& tab : worldtabs()) {
+    tab.resetAllTimers();
   }
 }
 
@@ -756,8 +761,8 @@ MainWindow::on_action_status_bar_triggered(bool checked)
 void
 MainWindow::on_action_stop_sound_playing_triggered()
 {
-  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i) {
-    worldtab(i)->stopSound();
+  for (WorldTab& tab : worldtabs()) {
+    tab.stopSound();
   }
 }
 
@@ -767,8 +772,8 @@ MainWindow::on_action_wrap_output_triggered(bool checked)
   const QTextEdit::LineWrapMode mode = checked
                                          ? QTextEdit::LineWrapMode::WidgetWidth
                                          : QTextEdit::LineWrapMode::NoWrap;
-  for (int i = 0, end = ui->world_tabs->count(); i < end; ++i) {
-    worldtab(i)->ui->output->setLineWrapMode(mode);
+  for (WorldTab& tab : worldtabs()) {
+    tab.ui->output->setLineWrapMode(mode);
   }
 }
 

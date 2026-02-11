@@ -107,4 +107,58 @@ private:
   QList<QAction*> recentFileActions;
   Settings settings;
   QMetaObject::Connection socketConnection;
+
+public:
+  class WorldTabRange;
+
+  class iterator
+  {
+    friend class WorldTabRange;
+
+  public:
+    bool operator==(const iterator&) const = default;
+    bool operator!=(const iterator&) const = default;
+    constexpr iterator& operator++()
+    {
+      ++index;
+      return *this;
+    }
+    WorldTab& operator*() const
+    {
+      return *qobject_cast<WorldTab*>(tabs->widget(index));
+    }
+    WorldTab* operator->() const
+    {
+      return qobject_cast<WorldTab*>(tabs->widget(index));
+    }
+
+  private:
+    constexpr iterator(QTabWidget* tabs, int index)
+      : tabs(tabs)
+      , index(index)
+    {
+    }
+
+    QTabWidget* tabs;
+    int index;
+  };
+
+  class WorldTabRange
+  {
+    friend class MainWindow;
+
+  private:
+    constexpr explicit WorldTabRange(QTabWidget* tabs)
+      : tabs(tabs)
+    {
+    }
+
+    iterator begin() { return iterator(tabs, 0); }
+    iterator end() { return iterator(tabs, tabs->count()); }
+
+  private:
+    QTabWidget* tabs;
+  };
+
+  WorldTabRange worldtabs();
 };
