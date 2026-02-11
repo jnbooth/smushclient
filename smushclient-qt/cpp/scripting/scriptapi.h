@@ -389,6 +389,7 @@ public:
   }
   void setNawsEnabled(bool enabled);
   void setOpen(bool open) const;
+  void setPluginEnabled(size_t plugin, bool enable = true);
   ActionSource setSource(ActionSource source) noexcept;
   void setSuppressEcho(bool suppress) noexcept;
   void setWordUnderMenu(const QString& word) { wordUnderMenu = word; }

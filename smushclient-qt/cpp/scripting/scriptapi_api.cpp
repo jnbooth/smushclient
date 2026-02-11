@@ -163,10 +163,8 @@ ScriptApi::EnablePlugin(string_view pluginID, bool enabled)
   if (index == noSuchPlugin) {
     return ApiCode::NoSuchPlugin;
   }
-  plugins[index].disable();
+  setPluginEnabled(index, enabled);
   client.setPluginEnabled(index, enabled);
-  OnPluginListChanged onListChanged;
-  sendCallback(onListChanged);
   return ApiCode::OK;
 }
 
@@ -335,13 +333,8 @@ ScriptApi::SetOption(size_t plugin, string_view name, int64_t value)
     if (value == 1) {
       suppressEcho = false;
     }
-  } else if (name == "enable_scripts") {
-    if (worldScriptIndex == noSuchPlugin) {
-    } else if (value == 1) {
-      plugins[worldScriptIndex].enable();
-    } else {
-      plugins[worldScriptIndex].disable();
-    }
+  } else if (name == "enable_scripts" && worldScriptIndex != noSuchPlugin) {
+    setPluginEnabled(worldScriptIndex, value == 1);
   }
 
   return code;

@@ -110,14 +110,8 @@ ScriptApi::applyWorld(const World& world)
   noteFormat.setForeground(world.getNoteTextColour());
   noteFormat.setBackground(world.getNoteBackgroundColour());
 
-  if (worldScriptIndex == noSuchPlugin) {
-    return;
-  }
-
-  if (world.getEnableScripts()) {
-    plugins[worldScriptIndex].enable();
-  } else {
-    plugins[worldScriptIndex].disable();
+  if (worldScriptIndex != noSuchPlugin) {
+    setPluginEnabled(worldScriptIndex, world.getEnableScripts());
   }
 }
 
@@ -347,7 +341,7 @@ ScriptApi::reloadWorldScript(const QString& worldScriptPath)
   }
 
   if (!worldPlugin.runFile(worldScriptPath)) {
-    worldPlugin.disable();
+    setPluginEnabled(worldScriptIndex, false);
   }
 }
 
@@ -449,6 +443,18 @@ void
 ScriptApi::setOpen(bool open) const
 {
   timekeeper->setOpen(open);
+}
+
+void
+ScriptApi::setPluginEnabled(size_t plugin, bool enable)
+{
+  Plugin& target = plugins[plugin];
+  if (target.isDisabled() == !enable) {
+    return;
+  }
+  target.setEnabled(enable);
+  OnPluginListChanged onListChanged;
+  sendCallback(onListChanged);
 }
 
 ActionSource

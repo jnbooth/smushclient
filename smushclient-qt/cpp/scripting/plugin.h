@@ -28,8 +28,6 @@ public:
   Plugin& operator=(const Plugin&) = delete;
   Plugin& operator=(Plugin&&) = delete;
 
-  void disable();
-  void enable();
   bool hasFunction(PluginCallbackKey routine) const;
   bool hasFunction(const QString& routine) const;
   constexpr const std::string& id() const noexcept { return metadata.id; }
@@ -46,6 +44,7 @@ public:
   bool runCallbackThreaded(PluginCallback& callback) const;
   bool runFile(const QString& path) const;
   bool runScript(std::string_view script) const;
+  void setEnabled(bool enable = true);
   constexpr lua_State* state() const noexcept { return L; }
   void updateMetadata(const PluginPack& pack, size_t index);
 

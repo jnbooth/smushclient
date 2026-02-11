@@ -65,18 +65,6 @@ Plugin::~Plugin()
   }
 }
 
-void
-Plugin::disable()
-{
-  disabled = true;
-}
-
-void
-Plugin::enable()
-{
-  disabled = false;
-}
-
 class CallbackFinder : public DynamicPluginCallback
 {
 public:
@@ -120,7 +108,7 @@ Plugin::install(const PluginPack& pack)
   string_view script(reinterpret_cast<const char*>(pack.scriptData),
                      pack.scriptSize);
   if (pack.scriptSize != 0 && !runScript(script)) {
-    disable();
+    setEnabled(false);
     return false;
   }
   QString scriptPath = pack.path;
@@ -134,7 +122,7 @@ Plugin::install(const PluginPack& pack)
 
   const QFileInfo info(scriptPath);
   if (info.isFile() && info.isReadable() && !runFile(scriptPath)) {
-    disable();
+    setEnabled(false);
     return false;
   }
   return true;
@@ -227,6 +215,12 @@ Plugin::runScript(string_view script) const
   }
 
   return api_pcall(L, 0, 0);
+}
+
+void
+Plugin::setEnabled(bool enable)
+{
+  disabled = !enable;
 }
 
 void
