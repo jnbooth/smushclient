@@ -41,6 +41,8 @@ public:
   ~WorldTab() override;
 
   AvailableCopy availableCopy() const;
+  void clearCallbacks();
+  void clearCallbacks(const Plugin& plugin);
   void closeLog();
   void connectToHost();
   QTextEdit* copyableEditor() const;
@@ -60,7 +62,9 @@ public:
   QString saveWorldAsNew();
   const QHash<QString, QString>& serverStatus() const;
   void setIsActive(bool active);
-  void setOnDragMove(CallbackTrigger&& trigger);
+  void setOnDragMove(const Plugin& plugin,
+                     const PluginCallback& callback,
+                     QObject* parent);
   void setOnDragRelease(Hotspot* hotspot);
   void setStatusBarVisible(bool visible);
   ApiCode setWorldOption(size_t pluginIndex,

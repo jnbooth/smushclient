@@ -276,13 +276,5 @@ Hotspot::startDrag(QMouseEvent* event)
   }
 
   HotspotCallback callback(callbacks.dragMove, getEventFlags(event), id);
-  lua_State* L = plugin.state();
-
-  if (!callback.findCallback(L)) {
-    return;
-  }
-
-  const int nargs = callback.pushArguments(L);
-
-  tab.setOnDragMove(CallbackTrigger(L, nargs, this));
+  tab.setOnDragMove(plugin, callback, this);
 }

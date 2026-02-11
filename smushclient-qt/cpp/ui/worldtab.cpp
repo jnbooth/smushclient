@@ -32,6 +32,7 @@
 #include <QtWidgets/QMessageBox>
 #include <string>
 
+using std::nullopt;
 using std::string;
 using std::string_view;
 using std::chrono::milliseconds;
@@ -147,6 +148,24 @@ WorldTab::availableCopy() const
     return AvailableCopy::Input;
   }
   return AvailableCopy::None;
+}
+
+void
+WorldTab::clearCallbacks()
+{
+  onDragMove = nullopt;
+  onDragRelease = nullptr;
+}
+
+void
+WorldTab::clearCallbacks(const Plugin& plugin)
+{
+  if (onDragMove && onDragMove->belongsToPlugin(plugin)) {
+    onDragMove = nullopt;
+  }
+  if (onDragRelease != nullptr && onDragRelease->belongsToPlugin(plugin)) {
+    onDragRelease = nullptr;
+  }
 }
 
 void
@@ -384,8 +403,14 @@ WorldTab::setIsActive(bool isActive)
 }
 
 void
-WorldTab::setOnDragMove(CallbackTrigger&& trigger)
+WorldTab::setOnDragMove(const Plugin& plugin,
+                        const PluginCallback& callback,
+                        QObject* parent)
 {
+  CallbackTrigger trigger(plugin, callback, parent);
+  if (!trigger.valid()) {
+    return;
+  }
   onDragMove.emplace(std::move(trigger));
 }
 

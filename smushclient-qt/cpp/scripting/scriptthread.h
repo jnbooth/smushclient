@@ -13,6 +13,10 @@ public:
   ScriptThread& operator=(const ScriptThread&) = delete;
   ScriptThread& operator=(ScriptThread&&) = delete;
 
+  constexpr bool isChildOf(lua_State* state) const noexcept
+  {
+    return state == parentL;
+  }
   constexpr lua_State* state() const noexcept { return L; }
 
 private:

@@ -1,31 +1,39 @@
 #include "trigger.h"
 #include "../lua/errors.h"
+#include "../plugin.h"
+#include "plugincallback.h"
 extern "C"
 {
 #include "lua.h"
 }
 
-CallbackTrigger::CallbackTrigger(lua_State* parentL, int nargs, QObject* parent)
-  : nargs(nargs)
-  , parent(parent)
-  , thread(parentL)
+CallbackTrigger::CallbackTrigger(const Plugin& plugin,
+                                 const PluginCallback& callback,
+                                 QObject* parent)
+  : parent(parent)
+  , plugin(&plugin)
+  , thread(plugin.state())
   , top(lua_gettop(thread.state()) + 1)
+  , isValid(callback.findCallback(thread.state()))
+  , nargs(callback.pushArguments(thread.state()))
 {
-  lua_xmove(parentL, thread.state(), nargs + 1);
 }
 
 CallbackTrigger::CallbackTrigger(CallbackTrigger&& other) noexcept
-  : nargs(other.nargs)
-  , parent(std::move(other.parent))
+  : parent(std::move(other.parent))
+  , plugin(other.plugin)
   , thread(std::move(other.thread))
   , top(other.top)
+  , isValid(other.isValid)
+  , nargs(other.nargs)
 {
 }
 
 bool
 CallbackTrigger::trigger()
 {
-  if (parent.isNull()) {
+  if (parent.isNull() || plugin->isDisabled() ||
+      !thread.isChildOf(plugin->state())) [[unlikely]] {
     return false;
   }
 

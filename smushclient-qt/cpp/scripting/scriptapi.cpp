@@ -19,6 +19,7 @@
 #include <QtGui/QTextBlock>
 #include <QtWidgets/QStatusBar>
 
+using std::pair;
 using std::string;
 using std::string_view;
 using std::chrono::milliseconds;
@@ -206,6 +207,7 @@ ScriptApi::handleSendRequest(const SendRequest& request)
 void
 ScriptApi::initializePlugins()
 {
+  tab.clearCallbacks();
   const rust::Vec<PluginPack> pack = client.resetPlugins();
   worldScriptIndex = noSuchPlugin;
   if (!windows.empty()) {
@@ -294,19 +296,17 @@ ScriptApi::moveCursor(QTextCursor::MoveOperation op, int count)
 void
 ScriptApi::reinstallPlugin(size_t index)
 {
+  Plugin& plugin = plugins[index];
+  tab.clearCallbacks(plugin);
   const PluginPack pack = client.plugin(index);
   const string pluginId(pack.id.data(), pack.id.size());
-  if (!windows.empty()) {
-    for (auto it = windows.begin(); it != windows.end();) {
-      if (MiniWindow* window = it->second; window->getPluginId() == pluginId) {
-        delete window;
-        it = windows.erase(it);
-      } else {
-        ++it;
-      }
+  std::erase_if(windows, [pluginId](const pair<string, MiniWindow*>& item) {
+    if (item.second->getPluginId() == pluginId) {
+      delete item.second;
+      return true;
     }
-  }
-  Plugin& plugin = plugins[index];
+    return false;
+  });
   plugin.updateMetadata(pack, index);
   plugin.reset();
   if (!plugin.install(pack)) {
