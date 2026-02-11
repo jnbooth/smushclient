@@ -1,4 +1,5 @@
 #include "../bytes.h"
+#include "../casting.h"
 #include "../ui/worldtab.h"
 #include "scriptapi.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
@@ -88,9 +89,9 @@ ScriptApi::AddTimer(size_t plugin,
   timer.setActiveClosed(flags.testFlag(TimerFlag::ActiveWhenClosed));
   timer.setEnabled(flags.testFlag(TimerFlag::Enabled));
   timer.setEveryHour(hour);
-  timer.setEveryMillisecond(static_cast<int>(second / 1000));
+  timer.setEveryMillisecond(clamped_cast<int>(second / 1000));
   timer.setEveryMinute(minute);
-  timer.setEverySecond(static_cast<int>(second));
+  timer.setEverySecond(clamped_cast<int>(second));
   timer.setLabel(QString::fromUtf8(name));
   timer.setOccurrence(Occurrence::Interval);
   timer.setOneShot(flags.testFlag(TimerFlag::OneShot));

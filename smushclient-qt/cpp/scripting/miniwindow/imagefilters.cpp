@@ -1,4 +1,5 @@
 #include "imagefilters.h"
+#include "../../casting.h"
 #include "imagebits.h"
 
 // Public methods
@@ -8,8 +9,7 @@ BrightnessAddFilter::apply(QPixmap& pixmap) const
 {
   QImage qImage = pixmap.toImage().convertToFormat(QImage::Format_RGB32);
   for (uchar& imageBit : ImageBitsRange(qImage, channel)) {
-    imageBit = static_cast<uchar>(
-      std::clamp(static_cast<int>(imageBit) + add, 0, UCHAR_MAX));
+    imageBit = clamped_cast<uchar>(static_cast<int>(imageBit) + add);
   }
   pixmap.convertFromImage(qImage);
 }
@@ -22,8 +22,7 @@ BrightnessMultFilter::apply(QPixmap& pixmap) const
   }
   QImage qImage = pixmap.toImage().convertToFormat(QImage::Format_RGB32);
   for (uchar& imageBit : ImageBitsRange(qImage, channel)) {
-    imageBit = static_cast<uchar>(
-      std::min((imageBit * multiply), static_cast<qreal>(UCHAR_MAX)));
+    imageBit = clamped_cast<uchar>(imageBit * multiply);
   }
   pixmap.convertFromImage(qImage);
 }

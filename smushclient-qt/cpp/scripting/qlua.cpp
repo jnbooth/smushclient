@@ -1,4 +1,5 @@
 #include "qlua.h"
+#include "../casting.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include <QtCore/QUuid>
 #include <sstream>
@@ -92,7 +93,7 @@ toBool(lua_State* L, int idx, int type)
 }
 
 lua_Integer
-toInt(lua_State* L, int idx)
+toInteger(lua_State* L, int idx)
 {
   int isInt;
   const lua_Integer result = lua_tointegerx(L, idx, &isInt);
@@ -195,11 +196,12 @@ getEnum(lua_State* L, int idx, optional<T> ifNil = nullopt)
   if (!checkIsSome(L, idx, LUA_TNUMBER, "integer")) {
     return ifNil;
   }
-  const T value = static_cast<T>(toInt(L, idx));
-  if (value < MIN || value > MAX) [[unlikely]] {
+  const lua_Integer value = toInteger(L, idx);
+  if (value < static_cast<lua_Integer>(MIN) ||
+      value > static_cast<lua_Integer>(MAX)) [[unlikely]] {
     return nullopt;
   }
-  return value;
+  return static_cast<T>(value);
 }
 
 constexpr Qt::PenStyle
@@ -298,27 +300,28 @@ lua_Integer
 qlua::getInteger(lua_State* L, int idx)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TNUMBER, idx, "integer");
-  return toInt(L, idx);
+  return toInteger(L, idx);
 }
 
 lua_Integer
 qlua::getInteger(lua_State* L, int idx, lua_Integer ifNil)
 {
-  return (checkIsSome(L, idx, LUA_TNUMBER, "integer")) ? toInt(L, idx) : ifNil;
+  return (checkIsSome(L, idx, LUA_TNUMBER, "integer")) ? toInteger(L, idx)
+                                                       : ifNil;
 }
 
 int
 qlua::getInt(lua_State* L, int idx)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TNUMBER, idx, "integer");
-  return static_cast<int>(toInt(L, idx));
+  return clamped_cast<int>(toInteger(L, idx));
 }
 
 int
 qlua::getInt(lua_State* L, int idx, int ifNil)
 {
   return (checkIsSome(L, idx, LUA_TNUMBER, "integer"))
-           ? static_cast<int>(toInt(L, idx))
+           ? clamped_cast<int>(toInteger(L, idx))
            : ifNil;
 }
 
@@ -957,7 +960,7 @@ qlua::getButtonFrame(lua_State* L,
     return ifNil;
   }
   const MiniWindow::ButtonFrame value =
-    static_cast<MiniWindow::ButtonFrame>(toInt(L, idx));
+    static_cast<MiniWindow::ButtonFrame>(toInteger(L, idx));
 
   if (value == MiniWindow::ButtonFrame::Raised ||
       value == MiniWindow::ButtonFrame::Etched ||
@@ -975,7 +978,7 @@ qlua::getBrush(lua_State* L, int idx, optional<Qt::BrushStyle> ifNil)
     return ifNil;
   }
 
-  switch (static_cast<ScriptBrush>(toInt(L, idx))) {
+  switch (static_cast<ScriptBrush>(toInteger(L, idx))) {
     case ScriptBrush::SolidPattern:
       return Qt::BrushStyle::SolidPattern;
     case ScriptBrush::NoBrush:
@@ -1014,7 +1017,7 @@ qlua::getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil)
     return ifNil;
   }
 
-  switch (static_cast<ScriptCursor>(toInt(L, idx))) {
+  switch (static_cast<ScriptCursor>(toInteger(L, idx))) {
     case ScriptCursor::BlankCursor:
       return Qt::CursorShape::BlankCursor;
     case ScriptCursor::ArrowCursor:
@@ -1071,7 +1074,7 @@ qlua::getFontHint(lua_State* L, int idx, optional<QFont::StyleHint> ifNil)
     return ifNil;
   }
 
-  const lua_Integer style = toInt(L, idx);
+  const lua_Integer style = toInteger(L, idx);
   switch (style & 0xF) // pitch
   {
     case FontPitchFlag::Default:

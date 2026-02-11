@@ -1,4 +1,5 @@
 #include "../bytes.h"
+#include "../casting.h"
 #include "../layout.h"
 #include "../spans.h"
 #include "../timer_map.h"
@@ -146,7 +147,7 @@ ScriptApi::DoAfter(size_t plugin,
     return ApiCode::TimeInvalid;
   }
   const milliseconds duration =
-    milliseconds{ static_cast<int>(seconds * 1000.0) };
+    milliseconds{ clamped_cast<int64_t>(seconds * 1000.0) };
   sendQueue->start(duration,
                    { .plugin = plugin,
                      .sendTo = target,
@@ -435,9 +436,9 @@ ScriptApi::TextRectangle(const QRect& rect,
     rect.bottom() > 0 ? size.height() - rect.bottom() : -rect.bottom());
   const OutputLayout layout{
     .margins = margins,
-    .borderOffset = static_cast<int16_t>(borderOffset),
+    .borderOffset = clamped_cast<int16_t>(borderOffset),
     .borderColor = borderColor,
-    .borderWidth = static_cast<int16_t>(borderWidth),
+    .borderWidth = clamped_cast<int16_t>(borderWidth),
     .outsideFill = outsideFill,
   };
   client.setMetavariable("output/layout", layout.save());

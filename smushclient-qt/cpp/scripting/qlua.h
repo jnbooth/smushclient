@@ -80,8 +80,7 @@ template<typename T>
 inline QFlags<T>
 getFlags(lua_State* L, int idx, QFlags<T> ifNil)
 {
-  return static_cast<QFlags<T>>(
-    getInt(L, idx, static_cast<lua_Integer>(ifNil)));
+  return static_cast<QFlags<T>>(getInt(L, idx, static_cast<int>(ifNil)));
 }
 
 QString
