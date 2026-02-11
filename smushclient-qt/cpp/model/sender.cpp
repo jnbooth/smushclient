@@ -151,8 +151,7 @@ AbstractSenderModel::removeSelection(const QItemSelection& selection)
   bool succeeded = false;
   SelectionRegion lastRegion;
   emit layoutAboutToBeChanged({});
-  for (auto it = selection.crbegin(), end = selection.crend(); it < end; ++it) {
-    const QItemSelectionRange& range = *it;
+  for (const QItemSelectionRange& range : selection) {
     const QModelIndex parent = range.parent();
 
     const SelectionRegion currentRegion(range, parent);

@@ -302,9 +302,8 @@ ServerStatus::ServerStatus(const QHash<QString, QString>& status,
       continue;
     }
     const QStringList values = entry.value.split(QChar(2));
-    for (auto iter = values.crbegin(), end = values.crend(); iter < end;
-         ++iter) {
-      ui->form->addRow(label, valueLabel(entry.variable, *iter, area));
+    for (const QString& text : values) {
+      ui->form->addRow(label, valueLabel(entry.variable, text, area));
       label = nullptr;
     }
   }

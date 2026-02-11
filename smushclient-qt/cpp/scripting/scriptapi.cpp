@@ -229,19 +229,19 @@ ScriptApi::initializePlugins()
   sendQueue->clear();
   QString error;
   size_t index = 0;
-  for (auto it = pack.cbegin(), end = pack.cend(); it != end; ++it, ++index) {
-    PluginMetadata metadata(*it, index);
+  for (const PluginPack& pluginPack : pack) {
+    PluginMetadata metadata(pluginPack, index);
     if (metadata.id.empty()) {
       worldScriptIndex = index;
     }
     pluginIndices[metadata.id] = index;
-    Plugin& plugin = plugins.emplace_back(*this, *it, index);
+    Plugin& plugin = plugins.emplace_back(*this, pluginPack, index);
     const string& pluginId = plugin.id();
     if (pluginId.empty()) {
       worldScriptIndex = index;
     }
     pluginIndices[pluginId] = index;
-    if (plugin.install(*it)) {
+    if (plugin.install(pluginPack)) {
       callbackFilter.scan(plugin.state());
       client.startTimers(index, *timekeeper);
     }
@@ -250,6 +250,7 @@ ScriptApi::initializePlugins()
   sendCallback(onInstall);
   OnPluginListChanged onListChanged;
   sendCallback(onListChanged);
+  ++index;
 }
 
 ApiCode
