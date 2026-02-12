@@ -57,8 +57,7 @@ int
 initLuaState(lua_State* L)
 {
   lua_atpanic(L, &L_panic);
-  lua_pushcfunction(L, L_print);
-  lua_setglobal(L, "print");
+  lua_register(L, "print", L_print);
   luaL_openlibs(L);
   lua_settop(L, 0);
   lua_getfield(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE);

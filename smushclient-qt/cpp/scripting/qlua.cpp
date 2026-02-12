@@ -524,7 +524,8 @@ qlua::concatStrings(lua_State* L, const QString& delimiter)
           lua_pop(L, 1);
           break;
         }
-        lua_pushstring(L, "'tostring' must return a string to be concatenated");
+        lua_pushliteral(L,
+                        "'tostring' must return a string to be concatenated");
         lua_error(L);
     }
   }
