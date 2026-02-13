@@ -426,11 +426,10 @@ ScriptApi::sendNaws()
   const QMargins margins = browser.contentsMargins();
   const int advance = metrics.horizontalAdvance(QStringLiteral("0123456789"));
   const QSize viewport = browser.maximumViewportSize();
-  SendPacket(ffi::util::encodeNaws(
-    (viewport.width() - margins.left() - margins.right()) * 10 / advance,
-    (viewport.height() - margins.top() - margins.bottom()) /
-        metrics.lineSpacing() -
-      4));
+  const int clientWidth = viewport.width() - margins.left() - margins.right();
+  const int clientHeight = viewport.height() - margins.top() - margins.bottom();
+  SendPacket(ffi::util::encodeNaws(clientWidth * 10 / advance,
+                                   clientHeight / metrics.lineSpacing() - 4));
 }
 
 void
