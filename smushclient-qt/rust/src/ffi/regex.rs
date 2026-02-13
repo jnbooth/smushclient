@@ -18,15 +18,12 @@ pub mod ffi {
 
     #[namespace = "ffi::regex"]
     extern "Rust" {
-        #[cxx_name = "fromWildcards"]
-        fn make_regex_from_wildcards(pattern: &[u8]) -> QString;
-
-        #[cxx_name = "validate"]
-        fn validate_regex(pattern: &QString) -> RegexParse;
+        fn from_wildcards(pattern: &[u8]) -> QString;
+        fn validate(pattern: &QString) -> RegexParse;
     }
 }
 
-fn make_regex_from_wildcards(pattern: &LuaStr) -> QString {
+fn from_wildcards(pattern: &LuaStr) -> QString {
     let pattern = String::from_utf8_lossy(pattern);
     QString::from(&Reaction::make_regex_pattern(&pattern))
 }
@@ -76,7 +73,7 @@ impl From<RegexError> for ffi::RegexParse {
     }
 }
 
-fn validate_regex(pattern: &QString) -> ffi::RegexParse {
+fn validate(pattern: &QString) -> ffi::RegexParse {
     match Regex::new(&String::from(pattern)) {
         Ok(_) => ffi::RegexParse::default(),
         Err(e) => ffi::RegexParse::from(e),

@@ -428,8 +428,8 @@ ScriptApi::sendNaws()
   const QSize viewport = browser.maximumViewportSize();
   const int clientWidth = viewport.width() - margins.left() - margins.right();
   const int clientHeight = viewport.height() - margins.top() - margins.bottom();
-  SendPacket(ffi::util::encodeNaws(clientWidth * 10 / advance,
-                                   clientHeight / metrics.lineSpacing() - 4));
+  SendPacket(ffi::util::encode_naws(clientWidth * 10 / advance,
+                                    clientHeight / metrics.lineSpacing() - 4));
 }
 
 void

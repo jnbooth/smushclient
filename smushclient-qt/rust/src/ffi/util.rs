@@ -22,14 +22,8 @@ mod ffi {
     #[namespace = "ffi::util"]
     extern "Rust" {
         fn ansi16() -> QVector_QColor;
-
-        #[cxx_name = "encodeNaws"]
         fn encode_naws(width: u16, height: u16) -> QByteArray;
-
-        #[cxx_name = "getAlphaOptionList"]
         fn get_alpha_option_list() -> QStringList;
-
-        #[cxx_name = "getOptionList"]
         fn get_option_list() -> QStringList;
     }
 }
