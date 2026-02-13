@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
   "smushclient",
+  "smushclient-graphics",
   "smushclient-plugins",
   "smushclient-qt/rust",
   "smushclient-qt-lib",

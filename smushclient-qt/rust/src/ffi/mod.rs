@@ -15,6 +15,8 @@ pub use client::ffi::{
 mod document;
 pub use document::ffi::{Document, NamedWildcard, SendScriptRequest, TelnetSource, TelnetVerb};
 
+mod filter;
+
 mod plugin_details;
 pub use plugin_details::ffi::PluginDetails;
 

@@ -1058,6 +1058,16 @@ qlua::getCircleOp(lua_State* L, int idx)
   return getEnum<CircleOp, CircleOp::Ellipse, CircleOp::Pie>(L, idx, nullopt);
 }
 
+optional<ffi::filter::Directions>
+qlua::getDirections(lua_State* L,
+                    int idx,
+                    optional<ffi::filter::Directions> ifNil)
+{
+  return getEnum<ffi::filter::Directions,
+                 ffi::filter::Directions::Both,
+                 ffi::filter::Directions::Vertical>(L, idx, ifNil);
+}
+
 optional<MiniWindow::DrawImageMode>
 qlua::getDrawImageMode(lua_State* L,
                        int idx,

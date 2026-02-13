@@ -8,6 +8,7 @@ fn main() {
             "src/ffi/audio.rs",
             "src/ffi/client.rs",
             "src/ffi/document.rs",
+            "src/ffi/filter.rs",
             "src/ffi/plugin_details.rs",
             "src/ffi/regex.rs",
             "src/ffi/sender.rs",

@@ -19,6 +19,7 @@ flagset = { workspace = true }
 mud-transformer = { workspace = true }
 
 smushclient = { path = "../../smushclient" }
+smushclient-graphics = { path = "../../smushclient-graphics" }
 smushclient-plugins = { path = "../../smushclient-plugins" }
 smushclient-qt-lib = { path = "../../smushclient-qt-lib" }
 

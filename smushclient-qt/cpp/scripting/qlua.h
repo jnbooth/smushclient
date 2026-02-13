@@ -3,6 +3,7 @@
 #include "miniwindow/miniwindow.h"
 #include "rust/cxx.h"
 #include "scriptenums.h"
+#include "smushclient_qt/src/ffi/filter.cxx.h"
 extern "C"
 {
 #include "lua.h"
@@ -195,6 +196,11 @@ std::optional<Qt::CursorShape>
 getCursor(lua_State* L,
           int idx,
           std::optional<Qt::CursorShape> ifNil = std::nullopt);
+
+std::optional<ffi::filter::Directions>
+getDirections(lua_State* L,
+              int idx,
+              std::optional<ffi::filter::Directions> ifNil = std::nullopt);
 
 std::optional<MiniWindow::DrawImageMode>
 getDrawImageMode(lua_State* L,

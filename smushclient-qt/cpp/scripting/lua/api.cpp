@@ -1241,68 +1241,100 @@ L_WindowDrawImageAlpha(lua_State* L)
     L,
     getApi(L).WindowDrawImageAlpha(windowName, imageID, rect, opacity, origin));
 }
-
-int
-applyFilter(lua_State* L,
-            string_view windowName,
-            const ImageFilter& filter,
-            const QRect& rect)
+struct FilterParams
 {
-  return returnCode(L, getApi(L).WindowFilter(windowName, filter, rect));
-}
+  lua_State* L;
+  string_view windowName;
+  QRect rect;
+
+  int filter(const ImageFilter& filter) const
+  {
+    return returnCode(L, getApi(L).WindowFilter(windowName, filter, rect));
+  }
+
+  template<typename T>
+  int convolve() const
+  {
+    const auto directions =
+      qlua::getDirections(L, 7, ImageFilter::Directions::Both);
+    if (!directions) [[unlikely]] {
+      return returnCode(L, ApiCode::BadParameter);
+    }
+    return filter(T(*directions));
+  }
+};
 
 int
 L_WindowFilter(lua_State* L)
 {
   BENCHMARK
+  using ImageFilter::ColorChannel::Blue;
+  using ImageFilter::ColorChannel::Green;
+  using ImageFilter::ColorChannel::Red;
   expectMaxArgs(L, 7);
   const string_view windowName = qlua::getString(L, 1);
   const QRect rect = qlua::getQRect(L, 2, 3, 4, 5);
+  const FilterParams params{ .L = L, .windowName = windowName, .rect = rect };
   switch (qlua::getInteger(L, 6)) {
+    case 1:
+      return params.filter(ImageFilter::Noise(qlua::getNumber(L, 7)));
+    case 2:
+      return params.filter(ImageFilter::MonoNoise(qlua::getNumber(L, 7)));
+    case 3:
+      return params.convolve<ImageFilter::Blur>();
+    case 4:
+      return params.convolve<ImageFilter::Sharpen>();
+    case 5:
+      return params.convolve<ImageFilter::EdgeDetect>();
+    case 6:
+      return params.convolve<ImageFilter::Emboss>();
     case 7:
-      return applyFilter(
-        L, windowName, BrightnessAddFilter(qlua::getInt(L, 7)), rect);
+      return params.filter(ImageFilter::BrightnessAdd(qlua::getInt(L, 7)));
+    case 8:
+      return params.filter(ImageFilter::Contrast(qlua::getNumber(L, 7)));
+    case 9:
+      return params.filter(ImageFilter::Gamma(qlua::getNumber(L, 7)));
     case 10:
-      return applyFilter(
-        L,
-        windowName,
-        BrightnessAddFilter(qlua::getInt(L, 7), ColorChannel::Red),
-        rect);
+      return params.filter(ImageFilter::BrightnessAdd(qlua::getInt(L, 7), Red));
+    case 11:
+      return params.filter(ImageFilter::Contrast(qlua::getNumber(L, 7), Red));
+    case 12:
+      return params.filter(ImageFilter::Gamma(qlua::getNumber(L, 7), Red));
     case 13:
-      return applyFilter(
-        L,
-        windowName,
-        BrightnessAddFilter(qlua::getInt(L, 7), ColorChannel::Green),
-        rect);
+      return params.filter(
+        ImageFilter::BrightnessAdd(qlua::getInt(L, 7), Green));
+    case 14:
+      return params.filter(ImageFilter::Contrast(qlua::getNumber(L, 7), Green));
+    case 15:
+      return params.filter(ImageFilter::Gamma(qlua::getNumber(L, 7), Green));
     case 16:
-      return applyFilter(
-        L,
-        windowName,
-        BrightnessAddFilter(qlua::getInt(L, 7), ColorChannel::Blue),
-        rect);
+      return params.filter(
+        ImageFilter::BrightnessAdd(qlua::getInt(L, 7), Blue));
+    case 17:
+      return params.filter(ImageFilter::Contrast(qlua::getNumber(L, 7), Blue));
+    case 18:
+      return params.filter(ImageFilter::Gamma(qlua::getNumber(L, 7), Blue));
     case 19:
-      return applyFilter(L, windowName, GrayscaleFilter(), rect);
+      return params.filter(ImageFilter::GrayscaleLinear());
+    case 20:
+      return params.filter(ImageFilter::GrayscalePerceptual());
     case 21:
-      return applyFilter(
-        L, windowName, BrightnessMultFilter(qlua::getNumber(L, 7)), rect);
+      return params.filter(ImageFilter::BrightnessMult(qlua::getNumber(L, 7)));
     case 22:
-      return applyFilter(
-        L,
-        windowName,
-        BrightnessMultFilter(qlua::getNumber(L, 7), ColorChannel::Red),
-        rect);
+      return params.filter(
+        ImageFilter::BrightnessMult(qlua::getNumber(L, 7), Red));
     case 23:
-      return applyFilter(
-        L,
-        windowName,
-        BrightnessMultFilter(qlua::getNumber(L, 7), ColorChannel::Green),
-        rect);
+      return params.filter(
+        ImageFilter::BrightnessMult(qlua::getNumber(L, 7), Green));
     case 24:
-      return applyFilter(
-        L,
-        windowName,
-        BrightnessMultFilter(qlua::getNumber(L, 7), ColorChannel::Blue),
-        rect);
+      return params.filter(
+        ImageFilter::BrightnessMult(qlua::getNumber(L, 7), Blue));
+    case 25:
+      return params.convolve<ImageFilter::LesserBlur>();
+    case 26:
+      return params.convolve<ImageFilter::MinorBlur>();
+    case 27:
+      return params.filter(ImageFilter::Average());
     default:
       return returnCode(L, ApiCode::UnknownOption);
   }

@@ -104,9 +104,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
     cpp/scripting/scriptthread.h cpp/scripting/scriptthread.cpp
 
-    cpp/scripting/miniwindow/channel.h
     cpp/scripting/miniwindow/hotspot.h cpp/scripting/miniwindow/hotspot.cpp
-    cpp/scripting/miniwindow/imagebits.h cpp/scripting/miniwindow/imagebits.cpp
     cpp/scripting/miniwindow/imagefilters.h cpp/scripting/miniwindow/imagefilters.cpp
     cpp/scripting/miniwindow/miniwindow.h cpp/scripting/miniwindow/miniwindow.cpp
 
@@ -171,7 +169,6 @@ qt_add_executable(${APP_NAME}
 
     resources/resources.qrc
     resources/appicon/appicon.icns resources/appicon/appicon.rc
-    cpp/ui/worlddetails/regexdialog.h cpp/ui/worlddetails/regexdialog.cpp cpp/ui/worlddetails/regexdialog.ui
 )
 
 set_property(SOURCE cpp/ui/settings/appearance.ui PROPERTY AUTOUIC_OPTIONS "--no-autoconnection")
