@@ -61,7 +61,7 @@ AliasEdit::accept()
 {
   if (ui->IsRegex->isChecked()) {
     const QString pattern = ui->Pattern->text();
-    const RegexParse result = ffi::validateRegex(pattern);
+    const RegexParse result = ffi::regex::validate(pattern);
     if (!result.success) {
       RegexDialog dialog(result, this);
       dialog.exec();

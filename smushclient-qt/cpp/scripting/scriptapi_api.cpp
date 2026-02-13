@@ -33,13 +33,13 @@ using std::chrono::seconds;
 QStringList
 ScriptApi::GetAlphaOptionList() noexcept
 {
-  return ffi::getAlphaOptionList();
+  return ffi::util::getAlphaOptionList();
 }
 
 QStringList
 ScriptApi::GetOptionList() noexcept
 {
-  return ffi::getOptionList();
+  return ffi::util::getOptionList();
 }
 
 int64_t
@@ -57,7 +57,7 @@ ScriptApi::GetUniqueNumber() noexcept
 QString
 ScriptApi::MakeRegularExpression(string_view pattern) noexcept
 {
-  return ffi::makeRegexFromWildcards(bytes::slice(pattern));
+  return ffi::regex::fromWildcards(bytes::slice(pattern));
 }
 
 void

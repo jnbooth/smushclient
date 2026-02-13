@@ -19,7 +19,7 @@ mod ffi {
         type QVector_QColor = cxx_qt_lib::QVector<QColor>;
     }
 
-    #[namespace = "ffi"]
+    #[namespace = "ffi::util"]
     extern "Rust" {
         fn ansi16() -> QVector_QColor;
 

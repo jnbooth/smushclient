@@ -18,14 +18,14 @@ QString
 encodeLink(SendTo sendto, const QString& action)
 {
   QString link = action;
-  ffi::encode_link(sendto, link);
+  ffi::spans::encode_link(sendto, link);
   return link;
 }
 
 SendTo
 decodeLink(QString& link)
 {
-  return ffi::get_send_to(link);
+  return ffi::spans::get_send_to(link);
 }
 
 optional<SendTo>
@@ -41,13 +41,13 @@ getSendTo(const QTextCharFormat& format)
 QFlags<TextStyle>
 getStyles(const QTextCharFormat& format)
 {
-  return QFlags<TextStyle>::fromInt(ffi::get_styles(format));
+  return QFlags<TextStyle>::fromInt(ffi::spans::get_styles(format));
 }
 
 QStringList
 getPrompts(const QTextCharFormat& format)
 {
-  return ffi::get_prompts(format);
+  return ffi::spans::get_prompts(format);
 }
 
 void

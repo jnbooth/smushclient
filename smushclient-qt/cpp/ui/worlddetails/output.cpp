@@ -79,7 +79,7 @@ PrefsOutput::on_NewActivitySound_textChanged(const QString& text)
 void
 PrefsOutput::on_reset_clicked()
 {
-  const QVector<QColor> ansiColors = ffi::ansi16();
+  const QVector<QColor> ansiColors = ffi::util::ansi16();
   array<ColorPickerButton*, 16> colorPickers{
     ui->Ansi0,  ui->Ansi1,  ui->Ansi2,  ui->Ansi3, ui->Ansi4,  ui->Ansi5,
     ui->Ansi6,  ui->Ansi7,  ui->Ansi8,  ui->Ansi9, ui->Ansi10, ui->Ansi11,

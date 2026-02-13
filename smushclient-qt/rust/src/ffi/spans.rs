@@ -41,7 +41,7 @@ mod ffi {
         type QTextCharFormat = smushclient_qt_lib::QTextCharFormat;
     }
 
-    #[namespace = "ffi"]
+    #[namespace = "ffi::spans"]
     extern "Rust" {
         fn encode_link(send_to: SendTo, action: &mut QString);
         fn get_prompts(format: &QTextCharFormat) -> QStringList;

@@ -16,12 +16,12 @@ pub mod ffi {
         offset: i32,
     }
 
-    #[namespace = "ffi"]
+    #[namespace = "ffi::regex"]
     extern "Rust" {
-        #[cxx_name = "makeRegexFromWildcards"]
+        #[cxx_name = "fromWildcards"]
         fn make_regex_from_wildcards(pattern: &[u8]) -> QString;
 
-        #[cxx_name = "validateRegex"]
+        #[cxx_name = "validate"]
         fn validate_regex(pattern: &QString) -> RegexParse;
     }
 }
