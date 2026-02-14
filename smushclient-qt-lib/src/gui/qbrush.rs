@@ -94,25 +94,6 @@ mod ffi {
     }
 }
 
-/// A [`QBrush`]'s color can be specified by a [`GlobalColor`] or a [`QColor`].
-#[derive(Copy, Clone, PartialEq, Eq)]
-pub enum QBrushColor<'a> {
-    GlobalColor(GlobalColor),
-    QColor(&'a QColor),
-}
-
-impl From<GlobalColor> for QBrushColor<'static> {
-    fn from(value: GlobalColor) -> Self {
-        Self::GlobalColor(value)
-    }
-}
-
-impl<'a> From<&'a QColor> for QBrushColor<'a> {
-    fn from(value: &'a QColor) -> Self {
-        Self::QColor(value)
-    }
-}
-
 /// The `QBrush` class defines the fill pattern of shapes drawn by [`QPainter`](cxx_qt_lib::QPainter).
 ///
 /// Qt Documentation: [QBrush](https://doc.qt.io/qt-6/qbrush.html#details)
@@ -184,25 +165,13 @@ impl From<&QColor> for QBrush {
 
 impl QBrush {
     /// Constructs a brush with the given `color` and `style`.
-    pub fn new<'a, T>(color: T, style: BrushStyle) -> Self
-    where
-        T: Into<QBrushColor<'a>>,
-    {
-        match color.into() {
-            QBrushColor::GlobalColor(color) => ffi::qbrush_init_globalcolor(color, style),
-            QBrushColor::QColor(color) => ffi::qbrush_init_qcolor(color, style),
-        }
+    pub fn new<T: QBrushColor>(color: T, style: BrushStyle) -> Self {
+        color.new_brush(style)
     }
 
     /// Sets the brush color to the given `color`.
-    pub fn set_color<'a, T>(&mut self, color: T)
-    where
-        T: Into<QBrushColor<'a>>,
-    {
-        match color.into() {
-            QBrushColor::GlobalColor(color) => self.set_color_globalcolor(color),
-            QBrushColor::QColor(color) => self.set_color_qcolor(color),
-        }
+    pub fn set_color<T: QBrushColor>(&mut self, color: T) {
+        color.set_color(self);
     }
 
     /// Returns the custom brush pattern, or `None` if no custom brush pattern has been set.
@@ -216,4 +185,38 @@ impl QBrush {
 unsafe impl ExternType for QBrush {
     type Id = type_id!("QBrush");
     type Kind = cxx::kind::Trivial;
+}
+
+mod private {
+    pub trait Sealed {}
+}
+
+/// A [`QBrush`]'s color can be specified by a [`GlobalColor`] or a [`QColor`].
+pub trait QBrushColor: private::Sealed {
+    fn new_brush(self, style: BrushStyle) -> QBrush;
+    fn set_color(self, brush: &mut QBrush);
+}
+
+impl private::Sealed for GlobalColor {}
+
+impl QBrushColor for GlobalColor {
+    fn new_brush(self, style: BrushStyle) -> QBrush {
+        ffi::qbrush_init_globalcolor(self, style)
+    }
+
+    fn set_color(self, brush: &mut QBrush) {
+        brush.set_color_globalcolor(self);
+    }
+}
+
+impl private::Sealed for &QColor {}
+
+impl QBrushColor for &QColor {
+    fn new_brush(self, style: BrushStyle) -> QBrush {
+        ffi::qbrush_init_qcolor(self, style)
+    }
+
+    fn set_color(self, brush: &mut QBrush) {
+        brush.set_color_qcolor(self);
+    }
 }
