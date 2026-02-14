@@ -16,13 +16,13 @@ const fn is_rgb_column(index: usize) -> bool {
     index & 3 != ColorChannel::Alpha as usize
 }
 
-pub(crate) fn convolve(data: &mut [u32], width: usize, directions: Directions, matrix: &[f64]) {
+pub(crate) fn convolve(data: &mut [u32], width: usize, directions: Directions, kernel: &[f64]) {
     #[cfg(target_endian = "little")]
     const RGB_CHANNELS: Range<usize> = 0..3;
     #[cfg(target_endian = "big")]
     const RGB_CHANNELS: Range<usize> = 1..4;
 
-    debug_assert!(matrix.len() % 2 == 1, "matrix length is even");
+    debug_assert!(kernel.len() % 2 == 1, "kernel length is even");
 
     let mut input_buf = Vec::new();
     let mut output = SubpixelImage::from_argb(data, width);
@@ -30,7 +30,7 @@ pub(crate) fn convolve(data: &mut [u32], width: usize, directions: Directions, m
     if directions != Directions::Horizontal {
         for col in 0..output.width() {
             if is_rgb_column(col) {
-                convolve_line(&input.column(col), &mut output.column_mut(col), matrix);
+                convolve_line(&input.column(col), &mut output.column_mut(col), kernel);
             }
         }
     }
@@ -40,7 +40,7 @@ pub(crate) fn convolve(data: &mut [u32], width: usize, directions: Directions, m
     if directions != Directions::Vertical {
         for row in 0..output.height() {
             for ch in RGB_CHANNELS {
-                convolve_line(&input.row(row, ch), &mut output.row_mut(row, ch), matrix);
+                convolve_line(&input.row(row, ch), &mut output.row_mut(row, ch), kernel);
             }
         }
     }
@@ -75,14 +75,14 @@ impl FloatConvert for u8 {
 }
 
 #[inline]
-fn convolve_line<I, O>(input: &StepSlice<I>, output: &mut StepSliceMut<O>, matrix: &[f64])
+fn convolve_line<I, O>(input: &StepSlice<I>, output: &mut StepSliceMut<O>, kernel: &[f64])
 where
     I: FloatConvert,
     O: FloatConvert,
 {
-    let midpoint = 1 + matrix.len() / 2;
+    let midpoint = 1 + kernel.len() / 2;
     for (position, subpixel) in output.into_iter().enumerate() {
-        let total = matrix
+        let total = kernel
             .iter()
             .enumerate()
             .map(|(i, weight)| {

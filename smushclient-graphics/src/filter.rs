@@ -32,23 +32,23 @@ pub fn mono_noise(data: &mut [u32], threshold: f64) {
 }
 
 pub fn blur(data: &mut [u32], width: usize, directions: Directions) {
-    const MATRIX: [f64; 5] = [0.2, 0.2, 0.2, 0.2, 0.2];
-    convolve(data, width, directions, &MATRIX);
+    const KERNEL: [f64; 5] = [0.2, 0.2, 0.2, 0.2, 0.2];
+    convolve(data, width, directions, &KERNEL);
 }
 
 pub fn sharpen(data: &mut [u32], width: usize, directions: Directions) {
-    const MATRIX: [f64; 5] = [-1.0 / 3.0, -1.0 / 3.0, 7.0 / 3.0, -1.0 / 3.0, -1.0 / 3.0];
-    convolve(data, width, directions, &MATRIX);
+    const KERNEL: [f64; 5] = [-1.0 / 3.0, -1.0 / 3.0, 7.0 / 3.0, -1.0 / 3.0, -1.0 / 3.0];
+    convolve(data, width, directions, &KERNEL);
 }
 
 pub fn edge_detect(data: &mut [u32], width: usize, directions: Directions) {
-    const MATRIX: [f64; 5] = [0.0, 2.5, -6.0, 2.5, 0.0];
-    convolve(data, width, directions, &MATRIX);
+    const KERNEL: [f64; 5] = [0.0, 2.5, -6.0, 2.5, 0.0];
+    convolve(data, width, directions, &KERNEL);
 }
 
 pub fn emboss(data: &mut [u32], width: usize, directions: Directions) {
-    const MATRIX: [f64; 5] = [1.0, 2.0, 1.0, -1.0, -2.0];
-    convolve(data, width, directions, &MATRIX);
+    const KERNEL: [f64; 5] = [1.0, 2.0, 1.0, -1.0, -2.0];
+    convolve(data, width, directions, &KERNEL);
 }
 
 pub fn brightness_add(data: &mut [u32], add: i32, channel: Option<ColorChannel>) {
@@ -102,13 +102,13 @@ pub fn brightness_mult(data: &mut [u32], mult: f64, channel: Option<ColorChannel
 }
 
 pub fn lesser_blur(data: &mut [u32], width: usize, directions: Directions) {
-    const MATRIX: [f64; 5] = [0.0, 1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0, 0.0];
-    convolve(data, width, directions, &MATRIX);
+    const KERNEL: [f64; 5] = [0.0, 1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0, 0.0];
+    convolve(data, width, directions, &KERNEL);
 }
 
 pub fn minor_blur(data: &mut [u32], width: usize, directions: Directions) {
-    const MATRIX: [f64; 5] = [0.0, 0.25, 0.5, 0.25, 0.0];
-    convolve(data, width, directions, &MATRIX);
+    const KERNEL: [f64; 5] = [0.0, 0.25, 0.5, 0.25, 0.0];
+    convolve(data, width, directions, &KERNEL);
 }
 
 pub fn average(data: &mut [u32]) {
