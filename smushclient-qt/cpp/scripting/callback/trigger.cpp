@@ -20,16 +20,6 @@ CallbackTrigger::CallbackTrigger(const Plugin& plugin,
   nargs = callback.pushArguments(L);
 }
 
-CallbackTrigger::CallbackTrigger(CallbackTrigger&& other) noexcept
-  : parent(std::move(other.parent))
-  , plugin(other.plugin)
-  , thread(std::move(other.thread))
-  , top(other.top)
-  , isValid(other.isValid)
-  , nargs(other.nargs)
-{
-}
-
 bool
 CallbackTrigger::trigger()
 {

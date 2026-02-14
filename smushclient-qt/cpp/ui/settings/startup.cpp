@@ -114,9 +114,7 @@ SettingsStartup::on_OpenAtStartup_add_clicked()
 void
 SettingsStartup::on_OpenAtStartup_remove_clicked()
 {
-  for (QListWidgetItem* item : ui->OpenAtStartup->selectedItems()) {
-    delete item;
-  }
+  qDeleteAll(ui->OpenAtStartup->selectedItems());
 }
 
 void

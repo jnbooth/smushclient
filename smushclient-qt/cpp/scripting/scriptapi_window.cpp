@@ -8,6 +8,7 @@
 #include <QtGui/QGradient>
 #include <QtGui/QGuiApplication>
 #include <QtWidgets/QStatusBar>
+#include <memory>
 
 using std::string;
 using std::string_view;
@@ -97,9 +98,9 @@ ScriptApi::WindowCreate(size_t index,
   }
 
   const string windowName(name);
-  MiniWindow* window = windows[windowName];
+  std::unique_ptr<MiniWindow>& window = windows[windowName];
   if (window == nullptr) {
-    window = windows[windowName] = new MiniWindow(
+    window = std::make_unique<MiniWindow>(
       location, size, position, flags, fill, plugins[index].id(), tab.ui->area);
   } else {
     window->setPosition(location, position, flags);

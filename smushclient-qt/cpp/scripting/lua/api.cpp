@@ -181,6 +181,7 @@ public:
   {
     timer.start();
   }
+
   ~Benchmarker()
   {
     int64_t elapsed = timer.elapsed();

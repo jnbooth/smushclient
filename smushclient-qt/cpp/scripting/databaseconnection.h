@@ -1,4 +1,5 @@
 #pragma once
+#include "sqlite3.h"
 #include <string>
 
 struct sqlite3;
@@ -8,12 +9,6 @@ class DatabaseConnection
 {
 public:
   explicit DatabaseConnection(std::string_view filename);
-  DatabaseConnection(DatabaseConnection&& other) noexcept;
-  ~DatabaseConnection();
-
-  DatabaseConnection(const DatabaseConnection&) = delete;
-  DatabaseConnection& operator=(const DatabaseConnection&) = delete;
-  DatabaseConnection& operator=(DatabaseConnection&&) = delete;
 
   int close();
   constexpr bool isFile(std::string_view file) const noexcept
@@ -23,8 +18,7 @@ public:
   int open(int flags);
 
 private:
-  sqlite3* db = nullptr;
+  std::unique_ptr<sqlite3, int (*)(sqlite3*)> db;
   std::string filename;
-  sqlite3_stmt* stmt = nullptr;
-  bool validRow = false;
+  std::unique_ptr<sqlite3_stmt, int (*)(sqlite3_stmt*)> stmt;
 };

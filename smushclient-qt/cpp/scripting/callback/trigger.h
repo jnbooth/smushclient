@@ -12,7 +12,7 @@ public:
   CallbackTrigger(const Plugin& plugin,
                   const PluginCallback& callback,
                   QObject* parent);
-  CallbackTrigger(CallbackTrigger&& other) noexcept;
+  CallbackTrigger(CallbackTrigger&& other) noexcept = default;
   ~CallbackTrigger() = default;
 
   CallbackTrigger(const CallbackTrigger&) = delete;

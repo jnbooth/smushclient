@@ -53,7 +53,6 @@ public:
             MudBrowser& output,
             Notepads& notepads,
             WorldTab& parent);
-  ~ScriptApi() override;
 
   ApiCode AddAlias(size_t plugin,
                    std::string_view name,
@@ -461,14 +460,14 @@ private:
   MudScrollBar& scrollBar;
   TimerMap<SendRequest>* sendQueue;
   QAbstractSocket& socket;
-  MudStatusBar* statusBar;
+  std::unique_ptr<MudStatusBar> statusBar;
   bool suppressEcho = false;
   WorldTab& tab;
   Timekeeper* timekeeper;
   int64_t totalLinesSent = 0;
   int64_t totalPacketsSent = 0;
   QDateTime whenConnected;
-  string_map<MiniWindow*> windows;
+  string_map<std::unique_ptr<MiniWindow>> windows;
   QString wordUnderMenu;
   size_t worldScriptIndex = noSuchPlugin;
 };

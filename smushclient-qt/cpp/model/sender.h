@@ -17,7 +17,6 @@ public:
   AbstractSenderModel(SmushClient& client,
                       SenderType type,
                       QObject* parent = nullptr);
-  ~AbstractSenderModel() override;
   bool addItem(QWidget* parent = nullptr);
   bool editItem(const QModelIndex& index, QWidget* parent = nullptr);
   virtual QString exportXml() const = 0;
@@ -72,5 +71,5 @@ private:
 
 private:
   SenderMap* map;
-  bool* needsRefresh;
+  std::unique_ptr<bool> needsRefresh;
 };

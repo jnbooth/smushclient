@@ -221,7 +221,7 @@ private:
   QSize dimensions;
   QFlags<Flag> flags;
   string_map<QFont> fonts;
-  string_map<Hotspot*> hotspots;
+  string_map<std::unique_ptr<Hotspot>> hotspots;
   string_map<QPixmap> images;
   QDateTime installed;
   QPoint location;

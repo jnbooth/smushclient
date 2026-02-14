@@ -116,15 +116,15 @@ ScriptApi::DatabaseClose(string_view databaseID)
 int
 ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
 {
-  auto search = databases.emplace(string(databaseID), filename);
-  DatabaseConnection& db = search.first->second;
-  if (!search.second) {
+  auto entry = databases.emplace(string(databaseID), filename);
+  DatabaseConnection& db = entry.first->second;
+  if (!entry.second) {
     return db.isFile(databaseID) ? SQLITE_OK : -6;
   }
 
   const int result = db.open(flags);
   if (result != SQLITE_OK) {
-    databases.erase(search.first);
+    databases.erase(entry.first);
   }
 
   return result;

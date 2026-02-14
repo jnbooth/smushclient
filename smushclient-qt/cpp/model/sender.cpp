@@ -39,15 +39,9 @@ AbstractSenderModel::AbstractSenderModel(SmushClient& client,
   : QAbstractItemModel(parent)
   , client(client)
   , map(new SenderMap(type))
-  , needsRefresh(new bool(true))
+  , needsRefresh(std::make_unique<bool>(true))
 {
-
   map->setParent(this);
-}
-
-AbstractSenderModel::~AbstractSenderModel()
-{
-  delete needsRefresh;
 }
 
 bool

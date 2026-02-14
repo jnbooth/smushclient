@@ -52,13 +52,6 @@ Plugin::Plugin(ScriptApi& api, const PluginPack& pack, size_t index)
   reset(api);
 }
 
-Plugin::Plugin(Plugin&& other) noexcept
-  : disabled(other.disabled)
-  , L_(std::move(other.L_))
-  , metadata(std::move(other.metadata))
-{
-}
-
 class CallbackFinder : public DynamicPluginCallback
 {
 public:

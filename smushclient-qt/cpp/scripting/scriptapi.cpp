@@ -19,7 +19,6 @@
 #include <QtGui/QTextBlock>
 #include <QtWidgets/QStatusBar>
 
-using std::pair;
 using std::string;
 using std::string_view;
 using std::chrono::milliseconds;
@@ -47,11 +46,6 @@ ScriptApi::ScriptApi(const SmushClient& client,
   timekeeper->beginPolling(milliseconds(seconds{ 60 }));
   spans::setLineType(echoFormat, LineType::Input);
   spans::setLineType(noteFormat, LineType::Note);
-}
-
-ScriptApi::~ScriptApi()
-{
-  delete statusBar;
 }
 
 void
@@ -210,12 +204,7 @@ ScriptApi::initializePlugins()
   tab.clearCallbacks();
   const rust::Vec<PluginPack> pack = client.resetPlugins();
   worldScriptIndex = noSuchPlugin;
-  if (!windows.empty()) {
-    for (const auto& entry : windows) {
-      delete entry.second;
-    }
-    windows.clear();
-  }
+  windows.clear();
   const size_t size = pack.size();
   callbackFilter.clear();
   plugins.clear();
@@ -300,12 +289,8 @@ ScriptApi::reinstallPlugin(size_t index)
   tab.clearCallbacks(plugin);
   const PluginPack pack = client.plugin(index);
   const string pluginId(pack.id.data(), pack.id.size());
-  std::erase_if(windows, [pluginId](const pair<string, MiniWindow*>& item) {
-    if (item.second->getPluginId() == pluginId) {
-      delete item.second;
-      return true;
-    }
-    return false;
+  std::erase_if(windows, [pluginId](const auto& item) {
+    return item.second->getPluginId() == pluginId;
   });
   plugin.updateMetadata(pack, index);
   plugin.reset();
@@ -488,7 +473,7 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow& window) const
   WindowCompare neighborCompare;
 
   for (const auto& entry : windows) {
-    if (entry.second == &window ||
+    if (&*entry.second == &window ||
         entry.second->drawsUnderneath() != drawsUnderneath) {
       continue;
     }
@@ -496,7 +481,7 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow& window) const
                                 .name = entry.first };
     if (entryCompare > compare &&
         ((neighbor == nullptr) || entryCompare < neighborCompare)) {
-      neighbor = entry.second;
+      neighbor = &*entry.second;
       neighborCompare = entryCompare;
     }
   }
@@ -555,7 +540,7 @@ ScriptApi::findWindow(string_view windowName) const
   if (search == windows.end()) [[unlikely]] {
     return nullptr;
   }
-  return search->second;
+  return &*search->second;
 }
 
 bool

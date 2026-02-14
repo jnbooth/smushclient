@@ -241,7 +241,7 @@ MiniWindow::addHotspot(string_view hotspotID,
   for (const auto& entry : hotspots) {
     const string_view entryID = entry.first;
     if (entryID == hotspotID) {
-      Hotspot* hotspot = entry.second;
+      Hotspot* hotspot = &*entry.second;
       if (!hotspot->belongsToPlugin(plugin)) {
         return nullptr;
       }
@@ -250,17 +250,17 @@ MiniWindow::addHotspot(string_view hotspotID,
     }
     if (entryID < hotspotID &&
         ((neighbor == nullptr) || entryID > neighborID)) {
-      neighbor = entry.second;
+      neighbor = &*entry.second;
       neighborID = entryID;
     }
   }
 
-  Hotspot* hotspot = hotspots[string(hotspotID)] =
-    new Hotspot(tab, plugin, hotspotID, std::move(callbacks), this);
+  auto& hotspot = hotspots[string(hotspotID)] = std::make_unique<Hotspot>(
+    tab, plugin, hotspotID, std::move(callbacks), this);
   if (neighbor != nullptr) {
     hotspot->stackUnder(neighbor);
   }
-  return hotspot;
+  return &*hotspot;
 }
 
 void
@@ -279,9 +279,6 @@ MiniWindow::applyFilter(const ImageFilter& filter, const QRect& rectBase)
 void
 MiniWindow::clearHotspots()
 {
-  for (const auto& entry : hotspots) {
-    delete entry.second;
-  }
   hotspots.clear();
 }
 
@@ -292,7 +289,6 @@ MiniWindow::deleteHotspot(string_view hotspotID)
   if (search == hotspots.end()) {
     return false;
   }
-  delete search->second;
   hotspots.erase(search);
   return true;
 }
@@ -476,7 +472,7 @@ MiniWindow::findHotspot(string_view hotspotID) const
   if (search == hotspots.end()) {
     return nullptr;
   }
-  return search->second;
+  return &*search->second;
 }
 
 const QFont*

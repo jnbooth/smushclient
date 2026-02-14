@@ -23,42 +23,31 @@ replacePathSeparators(string_view path)
 // Public methods
 
 DatabaseConnection::DatabaseConnection(string_view filename)
-  : filename(replacePathSeparators(filename))
+  : db(nullptr, sqlite3_close_v2)
+  , filename(replacePathSeparators(filename))
+  , stmt(nullptr, sqlite3_finalize)
 {
-}
-
-DatabaseConnection::DatabaseConnection(DatabaseConnection&& other) noexcept
-  : db(std::exchange(other.db, nullptr))
-  , filename(std::move(other.filename))
-  , stmt(std::exchange(other.stmt, nullptr))
-  , validRow(other.validRow)
-{
-}
-
-DatabaseConnection::~DatabaseConnection()
-{
-  close();
 }
 
 int
 DatabaseConnection::close()
 {
-  if (stmt != nullptr) {
-    sqlite3_finalize(stmt);
-    stmt = nullptr;
-  }
+  stmt.reset();
 
-  if (db == nullptr) {
+  sqlite3* dbptr = db.release();
+
+  if (dbptr == nullptr) {
     return -2;
   }
 
-  const int result = sqlite3_close(db);
-  db = nullptr;
-  return result;
+  return sqlite3_close_v2(dbptr);
 }
 
 int
 DatabaseConnection::open(int flags)
 {
-  return sqlite3_open_v2(filename.c_str(), &db, flags, nullptr);
+  sqlite3* dbptr = nullptr;
+  const int result = sqlite3_open_v2(filename.c_str(), &dbptr, flags, nullptr);
+  db.reset(dbptr);
+  return result;
 }

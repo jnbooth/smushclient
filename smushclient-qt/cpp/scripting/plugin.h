@@ -22,12 +22,6 @@ class Plugin
 {
 public:
   Plugin(ScriptApi& api, const PluginPack& pack, size_t index);
-  Plugin(Plugin&& other) noexcept;
-  ~Plugin() = default;
-
-  Plugin(const Plugin&) = delete;
-  Plugin& operator=(const Plugin&) = delete;
-  Plugin& operator=(Plugin&&) = delete;
 
   bool hasFunction(PluginCallbackKey routine) const;
   bool hasFunction(const QString& routine) const;

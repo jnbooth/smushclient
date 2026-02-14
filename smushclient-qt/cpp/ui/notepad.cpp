@@ -192,9 +192,7 @@ Notepads::Notepads(QWidget* parent)
 void
 Notepads::closeAll()
 {
-  for (QObject* child : children()) {
-    delete child;
-  }
+  qDeleteAll(children());
 }
 
 QTextEdit*
