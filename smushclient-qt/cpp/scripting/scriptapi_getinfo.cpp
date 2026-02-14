@@ -8,6 +8,7 @@
 #include "../ui/worldtab.h"
 #include "scriptapi.h"
 #include "smushclient_qt/src/ffi/document.cxxqt.h"
+#include "smushclient_qt/src/ffi/util.cxx.h"
 #include "sqlite3.h"
 #include <QtCore/QDir>
 #include <QtCore/QOperatingSystemVersion>
@@ -120,68 +121,30 @@ getBrushStyle(const QBrush& brush)
 QVariant
 ScriptApi::FontInfo(const QFont& font, int64_t infoType)
 {
-  switch (infoType) {
-    case 1:
-      return QFontMetrics(font).height();
-    case 2:
-      return QFontMetrics(font).ascent();
-    case 3:
-      return QFontMetrics(font).descent();
-    case 4: // internal leading
-      return QFontMetrics(font).leading();
-    case 5: // external leading
-      return 0;
-    case 6:
-      return QFontMetrics(font).averageCharWidth();
-    case 7:
-      return QFontMetrics(font).maxWidth();
-    case 8:
-      return font.weight();
-    case 9: // overhang
-      return QFontMetrics(font).leftBearing(u'l');
-    // case 10: digitized aspect X
-    // case 11: digitized aspect Y
-    // case 12: first character defined in font
-    // case 13: last character defined in font
-    // case 14: default character substituted for those not in font
-    // case 15: character used to define word breaks
-    case 16:
-      return QFontInfo(font).italic();
-    case 17:
-      return QFontInfo(font).underline();
-    case 18:
-      return QFontInfo(font).strikeOut();
-    case 19: // pitch and family
-    {
-      const QFont::StyleHint hint = font.styleHint();
-      if (hint == QFont::StyleHint::Monospace) {
-        return FontPitchFlag::Monospace;
-      }
+  if (infoType != 19) {
+    return ffi::util::font_info(font, infoType);
+  }
+  const QFont::StyleHint hint = font.styleHint();
+  if (hint == QFont::StyleHint::Monospace) {
+    return FontPitchFlag::Monospace;
+  }
 
-      const int pitchFlag = QFontInfo(font).fixedPitch()
-                              ? FontPitchFlag::Fixed
-                              : FontPitchFlag::Variable;
+  const int pitchFlag = QFontInfo(font).fixedPitch() ? FontPitchFlag::Fixed
+                                                     : FontPitchFlag::Variable;
 
-      switch (hint) {
-        case QFont::StyleHint::Serif:
-          return FontFamilyFlag::Roman | pitchFlag;
-        case QFont::StyleHint::SansSerif:
-          return FontFamilyFlag::Swiss | pitchFlag;
-        case QFont::StyleHint::TypeWriter:
-          return FontFamilyFlag::Modern | pitchFlag;
-        case QFont::StyleHint::Cursive:
-          return FontFamilyFlag::Script | pitchFlag;
-        case QFont::StyleHint::Decorative:
-          return FontFamilyFlag::Decorative | pitchFlag;
-        default:
-          return FontFamilyFlag::AnyFamily | pitchFlag;
-      }
-    }
-    // case 20: character set
-    case 21:
-      return QFontInfo(font).family();
+  switch (hint) {
+    case QFont::StyleHint::Serif:
+      return FontFamilyFlag::Roman | pitchFlag;
+    case QFont::StyleHint::SansSerif:
+      return FontFamilyFlag::Swiss | pitchFlag;
+    case QFont::StyleHint::TypeWriter:
+      return FontFamilyFlag::Modern | pitchFlag;
+    case QFont::StyleHint::Cursive:
+      return FontFamilyFlag::Script | pitchFlag;
+    case QFont::StyleHint::Decorative:
+      return FontFamilyFlag::Decorative | pitchFlag;
     default:
-      return QVariant();
+      return FontFamilyFlag::AnyFamily | pitchFlag;
   }
 }
 

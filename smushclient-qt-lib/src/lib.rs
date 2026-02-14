@@ -8,3 +8,6 @@ pub use core::*;
 
 mod gui;
 pub use gui::*;
+
+mod widgets;
+pub use widgets::*;

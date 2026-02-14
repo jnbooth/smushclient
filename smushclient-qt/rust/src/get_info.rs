@@ -1,10 +1,11 @@
 use std::path::Path;
 
 use chrono::{DateTime, NaiveDate, Utc};
-use cxx_qt_lib::{QByteArray, QDate, QDateTime, QString, QVariant};
+use cxx_qt_lib::{QByteArray, QDate, QDateTime, QFont, QString, QVariant};
 use mud_transformer::mxp::RgbColor;
 use smushclient::InfoVisitor;
 use smushclient_plugins::SendTarget;
+use smushclient_qt_lib::{QChar, QFontInfo, QFontMetrics};
 
 use crate::convert::Convert;
 use crate::ffi;
@@ -64,5 +65,44 @@ impl InfoVisitor for InfoVisitorQVariant {
 
     fn visit_send_target(info: SendTarget) -> Self::Output {
         QVariant::from(&ffi::SendTarget::from(info).repr)
+    }
+}
+
+pub fn font_info(font: &QFont, info_type: i64) -> QVariant {
+    const OVERHANG_SAMPLE: QChar = QChar::from_char('l').unwrap();
+
+    macro_rules! info {
+        ($i:ident) => {
+            (&QFontInfo::new(font).$i()).into()
+        };
+    }
+    macro_rules! metric {
+        ($i:ident) => {
+            (&QFontMetrics::new(font).$i()).into()
+        };
+    }
+    match info_type {
+        1 => metric!(height),
+        2 => metric!(ascent),
+        3 => metric!(descent),
+        4 => metric!(leading),
+        5 => (&0).into(), // external leading
+        6 => metric!(average_char_width),
+        7 => metric!(max_width),
+        8 => info!(weight),
+        9 => (&QFontMetrics::new(font).left_bearing(OVERHANG_SAMPLE)).into(),
+        // 10 => digitized aspect X
+        // 11 => digitized aspect Y
+        // 12 => first character defined in font
+        // 13 => last character defined in font
+        14 => (&QString::from("�")).into(),
+        // 15 => character used to define word breaks
+        16 => info!(italic),
+        17 => info!(underline),
+        18 => info!(strike_out),
+        // 19 => pitch and family (handled by frontend)
+        // 20 => character set
+        21 => info!(family),
+        _ => QVariant::default(),
     }
 }

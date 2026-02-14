@@ -407,15 +407,7 @@ ScriptApi::sendNaws()
   if (!doesNaws || !doNaws) {
     return;
   }
-  MudBrowser& browser = *tab.ui->output;
-  const QFontMetrics metrics = browser.fontMetrics();
-  const QMargins margins = browser.contentsMargins();
-  const int advance = metrics.horizontalAdvance(QStringLiteral("0123456789"));
-  const QSize viewport = browser.maximumViewportSize();
-  const int clientWidth = viewport.width() - margins.left() - margins.right();
-  const int clientHeight = viewport.height() - margins.top() - margins.bottom();
-  SendPacket(ffi::util::encode_naws(clientWidth * 10 / advance,
-                                    clientHeight / metrics.lineSpacing() - 4));
+  SendPacket(ffi::util::encode_naws(*tab.ui->output));
 }
 
 void

@@ -47,10 +47,14 @@ fn main() {
         include_header!("include/core/qvariant/qvariant_qtextformat.h"),
         include_header!("include/core/qvariant/qvariant_qtextlength.h"),
         include_header!("include/gui/qbrush.h"),
+        include_header!("include/gui/qfontinfo.h"),
+        include_header!("include/gui/qfontmetrics.h"),
         include_header!("include/gui/qtextcharformat.h"),
         include_header!("include/gui/qtextcursor.h"),
         include_header!("include/gui/qtextformat.h"),
         include_header!("include/gui/qtextlength.h"),
+        include_header!("include/widgets/qabstractscrollarea.h"),
+        include_header!("include/widgets/qwidget.h"),
     ];
 
     for &(file_contents, file_name) in header_files {
@@ -66,11 +70,14 @@ fn main() {
         .crate_include_root(Some("include/".to_owned()))
         .include_dir(&header_dir)
         .qt_module("Gui")
+        .qt_module("Widgets")
         .cpp_files(&[
             "src/core/qlist/qlist.cpp",
             "src/core/qmap/qmap.cpp",
             "src/core/qvariant/qvariant.cpp",
             "src/gui/qbrush.cpp",
+            "src/gui/qfontinfo.cpp",
+            "src/gui/qfontmetrics.cpp",
             "src/gui/qtextcharformat.cpp",
             "src/gui/qtextformat.cpp",
             "src/gui/qtextlength.cpp",
@@ -85,10 +92,14 @@ fn main() {
             "src/core/qvariant/qvariant_qtextformat.rs",
             "src/core/qvariant/qvariant_qtextlength.rs",
             "src/gui/qbrush.rs",
+            "src/gui/qfontinfo.rs",
+            "src/gui/qfontmetrics.rs",
             "src/gui/qtextcharformat.rs",
             "src/gui/qtextcursor.rs",
             "src/gui/qtextformat.rs",
             "src/gui/qtextlength.rs",
+            "src/widgets/qabstractscrollarea.rs",
+            "src/widgets/qwidget.rs",
         ])
         .build()
         .reexport_dependency("cxx-qt-lib")
