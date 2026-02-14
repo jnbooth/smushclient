@@ -18,7 +18,7 @@ asPixels(QImage& image)
 void
 ImageFilter::PixelFilter::apply(QPixmap& pixmap) const
 {
-  if (isNoop()) {
+  if (isNoop() || pixmap.isNull()) {
     return;
   }
   QImage image = pixmap.toImage().convertToFormat(QImage::Format_RGB32);

@@ -38,7 +38,7 @@ impl<T> SubpixelImage<'_, T> {
     fn row_range(&self, i: usize, channel: usize) -> Range<usize> {
         debug_assert!(i < self.height);
         let start = i * self.width;
-        start + channel..start + self.width + channel - 3
+        start + channel..start + channel + self.width - 3
     }
 
     #[inline(always)]
@@ -47,6 +47,10 @@ impl<T> SubpixelImage<'_, T> {
         i..i + self.data.len() + 1 - self.width
     }
 
+    /// # Panics
+    ///
+    /// Panics if `data` is empty.
+    ///
     /// `i` is assumed to be less than `self.height`, and `channel` is assumed to be less than 4.
     /// If that is not the case, logic errors or panics may occur.
     #[inline]
@@ -58,6 +62,10 @@ impl<T> SubpixelImage<'_, T> {
         }
     }
 
+    /// # Panics
+    ///
+    /// Panics if `data` is empty.
+    ///
     /// `i` is assumed to be less than `self.height`, and `channel` is assumed to be less than 4.
     /// If that is not the case, logic errors or panics may occur.
     #[inline]
@@ -69,6 +77,10 @@ impl<T> SubpixelImage<'_, T> {
         }
     }
 
+    /// # Panics
+    ///
+    /// Panics if `data` is empty.
+    ///
     /// `i` is assumed to be less than `self.width`. If that is not the case, logic errors or
     /// panics may occur.
     #[inline]
@@ -80,6 +92,10 @@ impl<T> SubpixelImage<'_, T> {
         }
     }
 
+    /// # Panics
+    ///
+    /// Panics if `data` is empty.
+    ///
     /// `i` is assumed to be less than `self.width`. If that is not the case, logic errors or
     /// panics may occur.
     #[inline]
