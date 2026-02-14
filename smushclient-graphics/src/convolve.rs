@@ -1,3 +1,6 @@
+use std::ops::Range;
+
+use crate::channel::ColorChannel;
 use crate::dimensions::{StepSlice, StepSliceMut, SubpixelImage};
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
@@ -8,13 +11,25 @@ pub enum Directions {
     Vertical,
 }
 
+#[inline(always)]
+const fn is_rgb_column(index: usize) -> bool {
+    index & 3 != ColorChannel::Alpha as usize
+}
+
 pub(crate) fn convolve(data: &mut [u32], width: usize, directions: Directions, matrix: &[f64]) {
+    #[cfg(target_endian = "little")]
+    const RGB_CHANNELS: Range<usize> = 0..3;
+    #[cfg(target_endian = "big")]
+    const RGB_CHANNELS: Range<usize> = 1..4;
+
     let mut input_buf = Vec::new();
     let mut output = SubpixelImage::from_argb(data, width);
     let mut input = output.encode_f64(&mut input_buf);
     if directions != Directions::Horizontal {
         for col in 0..output.width() {
-            convolve_line(&input.column(col), &mut output.column_mut(col), matrix);
+            if is_rgb_column(col) {
+                convolve_line(&input.column(col), &mut output.column_mut(col), matrix);
+            }
         }
     }
     if directions == Directions::Both {
@@ -22,7 +37,7 @@ pub(crate) fn convolve(data: &mut [u32], width: usize, directions: Directions, m
     }
     if directions != Directions::Vertical {
         for row in 0..output.height() {
-            for ch in 0..4 {
+            for ch in RGB_CHANNELS {
                 convolve_line(&input.row(row, ch), &mut output.row_mut(row, ch), matrix);
             }
         }

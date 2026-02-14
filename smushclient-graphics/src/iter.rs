@@ -11,7 +11,7 @@ const fn is_rgb_channel(index: usize) -> bool {
 
 pub(crate) fn adjust_subpixels<F>(data: &mut [u32], channel: Option<ColorChannel>, f: F)
 where
-    F: Fn(u8) -> u8 + Send + Sync,
+    F: Fn(u8) -> u8,
 {
     adjust_subpixels_with_state(data, channel, f);
 }
@@ -45,7 +45,7 @@ pub(crate) fn adjust_subpixels_with_state<F>(
 #[allow(clippy::cast_possible_truncation)]
 pub(crate) fn adjust_subpixels_cached<F>(data: &mut [u32], channel: Option<ColorChannel>, f: F)
 where
-    F: Fn(u8) -> u8 + Send + Sync,
+    F: Fn(u8) -> u8,
 {
     let mut cache = [0; 256];
     for (i, value) in cache.iter_mut().enumerate() {
@@ -59,7 +59,7 @@ where
 
 pub(crate) fn adjust_pixels<F>(data: &mut [u32], f: F)
 where
-    F: Fn(Pixel) -> Pixel + Send + Sync,
+    F: Fn(Pixel) -> Pixel,
 {
     adjust_pixels_with_state(data, f);
 }
