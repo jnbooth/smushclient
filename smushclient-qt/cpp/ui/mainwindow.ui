@@ -111,6 +111,8 @@
     <addaction name="separator"/>
     <addaction name="action_wrap_output"/>
     <addaction name="action_pause_output"/>
+    <addaction name="separator"/>
+    <addaction name="action_show_filter_preview"/>
    </widget>
    <widget class="QMenu" name="menu_game">
     <property name="title">
@@ -698,6 +700,11 @@
   <action name="action_import_world">
    <property name="text">
     <string>Import World...</string>
+   </property>
+  </action>
+  <action name="action_show_filter_preview">
+   <property name="text">
+    <string>Show Filter Preview</string>
    </property>
   </action>
  </widget>

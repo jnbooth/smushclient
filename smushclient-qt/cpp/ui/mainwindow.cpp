@@ -7,6 +7,7 @@
 #include "../scripting/listbox.h"
 #include "../settings.h"
 #include "../spans.h"
+#include "filterdemo.h"
 #include "finddialog.h"
 #include "notepad.h"
 #include "serverstatus.h"
@@ -750,6 +751,14 @@ void
 MainWindow::on_action_server_status_triggered()
 {
   ServerStatus(worldtab()->serverStatus(), this).exec();
+}
+
+void
+MainWindow::on_action_show_filter_preview_triggered()
+{
+  FilterDemo* demo = new FilterDemo(this);
+  demo->setAttribute(Qt::WA_DeleteOnClose);
+  demo->show();
 }
 
 void

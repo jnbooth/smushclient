@@ -1,6 +1,12 @@
 #include "localization.h"
 
 QString
+FileFilter::image()
+{
+  return tr("Images (*.png *.jpeg *.jpg *.bmp *.svg);;All Files (*.*)");
+}
+
+QString
 FileFilter::import()
 {
   return tr("MUSHclient world files (*.MCL);;All Files (*.*)");

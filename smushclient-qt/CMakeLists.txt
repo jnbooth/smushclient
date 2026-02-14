@@ -120,6 +120,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/lua/utils.h cpp/scripting/lua/utils.cpp
 
     cpp/ui/finddialog.h cpp/ui/finddialog.cpp cpp/ui/finddialog.ui
+    cpp/ui/filterdemo.h cpp/ui/filterdemo.cpp cpp/ui/filterdemo.ui
     cpp/ui/mainwindow.h cpp/ui/mainwindow.cpp cpp/ui/mainwindow.ui
     cpp/ui/notepad.h cpp/ui/notepad.cpp cpp/ui/notepad.ui
     cpp/ui/serverstatus.h cpp/ui/serverstatus.cpp cpp/ui/serverstatus.ui

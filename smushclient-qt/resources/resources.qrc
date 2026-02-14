@@ -21,5 +21,6 @@
         <file>icons/status/disconnected.svg</file>
         <file>icons/status/connected.svg</file>
         <file>icons/status/users.svg</file>
+        <file>image/filterdemo.png</file>
     </qresource>
 </RCC>

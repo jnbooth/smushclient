@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FilterDemo</class>
+ <widget class="QDialog" name="FilterDemo">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>434</width>
+    <height>367</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Preview Filters</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="image">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>257</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>0</width>
+         <height>257</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="../../resources/resources.qrc">:/image/filterdemo.png</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QPushButton" name="upload">
+       <property name="text">
+        <string>Select Image...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QComboBox" name="filter">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="currentIndex">
+        <number>11</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>Colour Noise</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Monochrome Noise</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Blur</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Sharpen</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Edge-Detect</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Emboss</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Adjust Brightness (additive)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Adjust Contrast</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Adjust Gamma</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Grayscale (linear)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Grayscale (perceptual)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Adjust Brightness (multiplicative)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Lesser Blur</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Minor Blur</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Average</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="optionColor">
+       <item>
+        <property name="text">
+         <string>All Channels</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Red Channel</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Green Channel</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Blue Channel</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="optionDirection">
+       <item>
+        <property name="text">
+         <string>Both</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Horizontal</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Vertical</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="optionFloat"/>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="optionInt"/>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../resources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>
