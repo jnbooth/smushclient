@@ -13,7 +13,7 @@ pub(crate) fn convolve(data: &mut [u32], width: usize, directions: Directions, m
     let mut output = SubpixelImage::from_argb(data, width);
     let mut input = output.encode_f64(&mut input_buf);
     if directions != Directions::Horizontal {
-        for col in 0..output.width {
+        for col in 0..output.width() {
             convolve_line(&input.column(col), &mut output.column_mut(col), matrix);
         }
     }
@@ -21,7 +21,7 @@ pub(crate) fn convolve(data: &mut [u32], width: usize, directions: Directions, m
         input = output.encode_f64(&mut input_buf);
     }
     if directions != Directions::Vertical {
-        for row in 0..output.height {
+        for row in 0..output.height() {
             for ch in 0..4 {
                 convolve_line(&input.row(row, ch), &mut output.row_mut(row, ch), matrix);
             }

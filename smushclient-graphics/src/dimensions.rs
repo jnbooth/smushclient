@@ -4,9 +4,9 @@ use std::{iter, slice};
 use crate::casting::as_bytes_mut;
 
 pub(crate) struct SubpixelImage<'a, T> {
-    pub data: &'a mut [T],
-    pub width: usize,
-    pub height: usize,
+    data: &'a mut [T],
+    width: usize,
+    height: usize,
 }
 
 impl<'a> SubpixelImage<'a, u8> {
@@ -35,6 +35,16 @@ impl SubpixelImage<'_, u8> {
 
 impl<T> SubpixelImage<'_, T> {
     #[inline(always)]
+    pub const fn width(&self) -> usize {
+        self.width
+    }
+
+    #[inline(always)]
+    pub const fn height(&self) -> usize {
+        self.height
+    }
+
+    #[inline(always)]
     fn row_range(&self, i: usize, channel: usize) -> Range<usize> {
         debug_assert!(i < self.height);
         let start = i * self.width;
@@ -49,7 +59,7 @@ impl<T> SubpixelImage<'_, T> {
 
     /// # Panics
     ///
-    /// Panics if `data` is empty.
+    /// Panics if the image data is empty.
     ///
     /// `i` is assumed to be less than `self.height`, and `channel` is assumed to be less than 4.
     /// If that is not the case, logic errors or panics may occur.
@@ -64,7 +74,7 @@ impl<T> SubpixelImage<'_, T> {
 
     /// # Panics
     ///
-    /// Panics if `data` is empty.
+    /// Panics if the image data is empty.
     ///
     /// `i` is assumed to be less than `self.height`, and `channel` is assumed to be less than 4.
     /// If that is not the case, logic errors or panics may occur.
@@ -79,7 +89,7 @@ impl<T> SubpixelImage<'_, T> {
 
     /// # Panics
     ///
-    /// Panics if `data` is empty.
+    /// Panics if the image data is empty.
     ///
     /// `i` is assumed to be less than `self.width`. If that is not the case, logic errors or
     /// panics may occur.
@@ -94,7 +104,7 @@ impl<T> SubpixelImage<'_, T> {
 
     /// # Panics
     ///
-    /// Panics if `data` is empty.
+    /// Panics if the image data is empty.
     ///
     /// `i` is assumed to be less than `self.width`. If that is not the case, logic errors or
     /// panics may occur.
