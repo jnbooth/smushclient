@@ -22,6 +22,8 @@ pub(crate) fn convolve(data: &mut [u32], width: usize, directions: Directions, m
     #[cfg(target_endian = "big")]
     const RGB_CHANNELS: Range<usize> = 1..4;
 
+    debug_assert!(matrix.len() % 2 == 1, "matrix length is even");
+
     let mut input_buf = Vec::new();
     let mut output = SubpixelImage::from_argb(data, width);
     let mut input = output.encode_f64(&mut input_buf);
@@ -78,7 +80,6 @@ where
     I: FloatConvert,
     O: FloatConvert,
 {
-    debug_assert!(matrix.len() % 2 == 1, "matrix length is even");
     let midpoint = 1 + matrix.len() / 2;
     for (position, subpixel) in output.into_iter().enumerate() {
         let total = matrix
