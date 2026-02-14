@@ -26,8 +26,6 @@ using std::chrono::milliseconds;
 using std::chrono::minutes;
 using std::chrono::seconds;
 
-// Private utils
-
 // Public static methods
 
 QStringList
@@ -105,7 +103,7 @@ ScriptApi::DatabaseClose(string_view databaseID)
 {
   auto search = databases.find(databaseID);
   if (search == databases.end()) [[unlikely]] {
-    return -1;
+    return DatabaseConnection::Error::IdNotFound;
   }
 
   const int result = search->second.close();
@@ -119,7 +117,9 @@ ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
   auto entry = databases.emplace(string(databaseID), filename);
   DatabaseConnection& db = entry.first->second;
   if (!entry.second) {
-    return db.isFile(databaseID) ? SQLITE_OK : -6;
+    return db.isFile(databaseID)
+             ? SQLITE_OK
+             : DatabaseConnection::Error::DatabaseAlreadyExists;
   }
 
   const int result = db.open(flags);

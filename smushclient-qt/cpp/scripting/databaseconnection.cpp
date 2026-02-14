@@ -25,19 +25,16 @@ replacePathSeparators(string_view path)
 DatabaseConnection::DatabaseConnection(string_view filename)
   : db(nullptr, sqlite3_close_v2)
   , filename(replacePathSeparators(filename))
-  , stmt(nullptr, sqlite3_finalize)
 {
 }
 
 int
 DatabaseConnection::close()
 {
-  stmt.reset();
-
   sqlite3* dbptr = db.release();
 
   if (dbptr == nullptr) {
-    return -2;
+    return Error::NotOpen;
   }
 
   return sqlite3_close_v2(dbptr);
