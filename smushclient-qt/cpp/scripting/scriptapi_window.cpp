@@ -11,6 +11,7 @@
 
 using std::string;
 using std::string_view;
+using std::unique_ptr;
 
 // Private utils
 
@@ -66,7 +67,7 @@ ScriptApi::WindowAddHotspot(size_t index,
 }
 
 ApiCode
-ScriptApi::WindowButton(std::string_view windowName,
+ScriptApi::WindowButton(string_view windowName,
                         const QRect& rect,
                         MiniWindow::ButtonFrame frame,
                         MiniWindow::ButtonFlags flags) const
@@ -126,8 +127,8 @@ ScriptApi::WindowDeleteHotspot(string_view windowName,
 }
 
 ApiCode
-ScriptApi::WindowDrawImage(std::string_view windowName,
-                           std::string_view imageID,
+ScriptApi::WindowDrawImage(string_view windowName,
+                           string_view imageID,
                            const QRectF& rect,
                            MiniWindow::DrawImageMode mode,
                            const QRectF& sourceRect) const
@@ -145,8 +146,8 @@ ScriptApi::WindowDrawImage(std::string_view windowName,
 }
 
 ApiCode
-ScriptApi::WindowDrawImageAlpha(std::string_view windowName,
-                                std::string_view imageID,
+ScriptApi::WindowDrawImageAlpha(string_view windowName,
+                                string_view imageID,
                                 const QRectF& rect,
                                 qreal opacity,
                                 const QPointF& origin) const
@@ -311,7 +312,7 @@ ScriptApi::WindowImageFromWindow(string_view windowName,
 }
 
 QVariant
-ScriptApi::WindowInfo(std::string_view windowName, int64_t infoType) const
+ScriptApi::WindowInfo(string_view windowName, int64_t infoType) const
 {
   MiniWindow* window = findWindow(windowName);
   if (window == nullptr) [[unlikely]] {
@@ -366,9 +367,9 @@ ScriptApi::WindowLoadImage(string_view windowName,
 }
 
 QVariant
-ScriptApi::WindowMenu(std::string_view windowName,
+ScriptApi::WindowMenu(string_view windowName,
                       const QPoint& location,
-                      std::string_view menuString) const
+                      string_view menuString) const
 {
   MiniWindow* window = findWindow(windowName);
   if (window == nullptr) [[unlikely]] {

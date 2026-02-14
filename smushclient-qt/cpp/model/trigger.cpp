@@ -4,6 +4,8 @@
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "smushclient_qt/src/ffi/sender_map.cxxqt.h"
 
+using std::array;
+
 // Public methods
 
 TriggerModel::TriggerModel(SmushClient& client, QObject* parent)
@@ -55,10 +57,10 @@ TriggerModel::edit(size_t index, QWidget* parent)
   return client.replaceWorldTrigger(index, trigger);
 }
 
-const std::array<QString, 4>&
+const array<QString, 4>&
 TriggerModel::headers() const noexcept
 {
-  const static std::array<QString, 4> headers{
+  const static array<QString, 4> headers{
     tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text")
   };
   return headers;

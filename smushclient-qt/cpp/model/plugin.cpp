@@ -2,6 +2,8 @@
 #include "../client.h"
 #include "smushclient_qt/src/ffi/plugin_details.cxxqt.h"
 
+using std::array;
+
 // Private utils
 namespace {
 inline bool
@@ -168,7 +170,7 @@ PluginModel::headerData(int section,
     return QVariant();
   }
 
-  const static std::array<QString, numColumns> headers{
+  const static array<QString, numColumns> headers{
     tr("Name"), tr("Purpose"), tr("Author"),
     tr("Path"), tr("Enabled"), tr("Version")
   };

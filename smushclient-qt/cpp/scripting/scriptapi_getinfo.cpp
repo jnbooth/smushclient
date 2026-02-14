@@ -594,7 +594,7 @@ ScriptApi::GetStyleInfo(int line, int64_t style, int64_t infoType) const
 
 QVariant
 ScriptApi::GetTimerInfo(size_t pluginIndex,
-                        std::string_view label,
+                        string_view label,
                         int64_t infoType) const
 {
   if (infoType < 0 || infoType > UINT8_MAX) [[unlikely]] {

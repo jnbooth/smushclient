@@ -5,6 +5,8 @@
 #include "smushclient_qt/src/ffi/sender_map.cxxqt.h"
 #include "smushclient_qt/src/ffi/timekeeper.cxxqt.h"
 
+using std::array;
+
 // Public methods
 
 TimerModel::TimerModel(SmushClient& client,
@@ -64,10 +66,10 @@ TimerModel::edit(size_t index, QWidget* parent)
   return client.replaceWorldTimer(index, timer, timekeeper);
 }
 
-const std::array<QString, 4>&
+const array<QString, 4>&
 TimerModel::headers() const noexcept
 {
-  const static std::array<QString, 4> headers{
+  const static array<QString, 4> headers{
     tr("Group/Label"), tr("Type"), tr("Occurrence"), tr("Text")
   };
   return headers;

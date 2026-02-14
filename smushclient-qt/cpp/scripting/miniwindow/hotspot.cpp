@@ -17,13 +17,13 @@ using std::string_view;
 
 namespace {
 constexpr bool
-hasCallback(const std::string& callback)
+hasCallback(const string& callback)
 {
   return !callback.empty();
 }
 
 inline bool
-hasCallback(const std::string& callback, QEvent* event)
+hasCallback(const string& callback, QEvent* event)
 {
   const bool willHandle = hasCallback(callback);
   event->setAccepted(willHandle);

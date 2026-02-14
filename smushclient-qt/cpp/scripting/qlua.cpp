@@ -8,6 +8,7 @@ extern "C"
 #include "lauxlib.h"
 }
 
+using std::array;
 using std::nullopt;
 using std::optional;
 using std::string;
@@ -19,7 +20,7 @@ using std::vector;
 constexpr int FALSE = 0;
 constexpr int TRUE = 1;
 
-static const std::array<QColor, 16> customColors{
+static const array<QColor, 16> customColors{
   QColor(255, 128, 128), QColor(255, 255, 128), QColor(128, 255, 128),
   QColor(128, 255, 255), QColor(0, 128, 255),   QColor(255, 128, 192),
   QColor(255, 0, 0),     QColor(0, 128, 192),   QColor(255, 0, 255),
@@ -151,7 +152,7 @@ toQVariant(lua_State* L, int idx, int type)
     case LUA_TNONE:
       return QVariant();
     case LUA_TNIL:
-      return QVariant(QMetaType::fromType<std::nullptr_t>());
+      return QVariant(QMetaType::fromType<nullptr_t>());
     case LUA_TNUMBER: {
       int isInt;
       const lua_Integer intResult = lua_tointegerx(L, idx, &isInt);

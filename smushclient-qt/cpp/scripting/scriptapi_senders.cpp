@@ -162,52 +162,50 @@ ScriptApi::AddTrigger(size_t plugin,
 }
 
 ApiCode
-ScriptApi::DeleteAlias(size_t plugin, std::string_view name) const
+ScriptApi::DeleteAlias(size_t plugin, string_view name) const
 {
   return client.removeAlias(plugin, bytes::slice(name));
 }
 
 size_t
-ScriptApi::DeleteAliasGroup(size_t plugin, std::string_view group) const
+ScriptApi::DeleteAliasGroup(size_t plugin, string_view group) const
 {
   return client.removeAliasGroup(plugin, bytes::slice(group));
 }
 
 ApiCode
-ScriptApi::DeleteTimer(size_t plugin, std::string_view name) const
+ScriptApi::DeleteTimer(size_t plugin, string_view name) const
 {
   return client.removeTimer(plugin, bytes::slice(name));
 }
 
 size_t
-ScriptApi::DeleteTimerGroup(size_t plugin, std::string_view group) const
+ScriptApi::DeleteTimerGroup(size_t plugin, string_view group) const
 {
   return client.removeTimerGroup(plugin, bytes::slice(group));
 }
 
 ApiCode
-ScriptApi::DeleteTrigger(size_t plugin, std::string_view name) const
+ScriptApi::DeleteTrigger(size_t plugin, string_view name) const
 {
   return client.removeTrigger(plugin, bytes::slice(name));
 }
 
 size_t
-ScriptApi::DeleteTriggerGroup(size_t plugin, std::string_view group) const
+ScriptApi::DeleteTriggerGroup(size_t plugin, string_view group) const
 {
   return client.removeTriggerGroup(plugin, bytes::slice(group));
 }
 
 ApiCode
-ScriptApi::EnableAlias(size_t plugin,
-                       std::string_view label,
-                       bool enabled) const
+ScriptApi::EnableAlias(size_t plugin, string_view label, bool enabled) const
 {
   return client.setAliasEnabled(plugin, bytes::slice(label), enabled);
 }
 
 ApiCode
 ScriptApi::EnableAliasGroup(size_t plugin,
-                            std::string_view group,
+                            string_view group,
                             bool enabled) const
 {
   return client.setAliasesEnabled(plugin, bytes::slice(group), enabled)
@@ -216,16 +214,14 @@ ScriptApi::EnableAliasGroup(size_t plugin,
 }
 
 ApiCode
-ScriptApi::EnableTimer(size_t plugin,
-                       std::string_view label,
-                       bool enabled) const
+ScriptApi::EnableTimer(size_t plugin, string_view label, bool enabled) const
 {
   return client.setTimerEnabled(plugin, bytes::slice(label), enabled);
 }
 
 ApiCode
 ScriptApi::EnableTimerGroup(size_t plugin,
-                            std::string_view group,
+                            string_view group,
                             bool enabled) const
 {
   return client.setTimersEnabled(plugin, bytes::slice(group), enabled)
@@ -234,16 +230,14 @@ ScriptApi::EnableTimerGroup(size_t plugin,
 }
 
 ApiCode
-ScriptApi::EnableTrigger(size_t plugin,
-                         std::string_view label,
-                         bool enabled) const
+ScriptApi::EnableTrigger(size_t plugin, string_view label, bool enabled) const
 {
   return client.setTriggerEnabled(plugin, bytes::slice(label), enabled);
 }
 
 ApiCode
 ScriptApi::EnableTriggerGroup(size_t plugin,
-                              std::string_view group,
+                              string_view group,
                               bool enabled) const
 {
   return client.setTriggersEnabled(plugin, bytes::slice(group), enabled)
@@ -253,7 +247,7 @@ ScriptApi::EnableTriggerGroup(size_t plugin,
 
 QVariant
 ScriptApi::GetAliasOption(size_t plugin,
-                          std::string_view label,
+                          string_view label,
                           string_view option) const
 {
   return client.getAliasOption(
@@ -262,7 +256,7 @@ ScriptApi::GetAliasOption(size_t plugin,
 
 QVariant
 ScriptApi::GetTimerOption(size_t plugin,
-                          std::string_view label,
+                          string_view label,
                           string_view option) const
 {
   return client.getTimerOption(
@@ -271,7 +265,7 @@ ScriptApi::GetTimerOption(size_t plugin,
 
 QVariant
 ScriptApi::GetTriggerOption(size_t plugin,
-                            std::string_view label,
+                            string_view label,
                             string_view option) const
 {
   return client.getTriggerOption(
@@ -279,21 +273,21 @@ ScriptApi::GetTriggerOption(size_t plugin,
 }
 
 ApiCode
-ScriptApi::IsAlias(size_t plugin, std::string_view label) const
+ScriptApi::IsAlias(size_t plugin, string_view label) const
 {
   return client.isAlias(plugin, bytes::slice(label)) ? ApiCode::OK
                                                      : ApiCode::AliasNotFound;
 }
 
 ApiCode
-ScriptApi::IsTimer(size_t plugin, std::string_view label) const
+ScriptApi::IsTimer(size_t plugin, string_view label) const
 {
   return client.isTimer(plugin, bytes::slice(label)) ? ApiCode::OK
                                                      : ApiCode::TimerNotFound;
 }
 
 ApiCode
-ScriptApi::IsTrigger(size_t plugin, std::string_view label) const
+ScriptApi::IsTrigger(size_t plugin, string_view label) const
 {
   return client.isTrigger(plugin, bytes::slice(label))
            ? ApiCode::OK
@@ -302,7 +296,7 @@ ScriptApi::IsTrigger(size_t plugin, std::string_view label) const
 
 ApiCode
 ScriptApi::SetAliasOption(size_t plugin,
-                          std::string_view label,
+                          string_view label,
                           string_view option,
                           string_view value) const
 {
@@ -312,7 +306,7 @@ ScriptApi::SetAliasOption(size_t plugin,
 
 ApiCode
 ScriptApi::SetTimerOption(size_t plugin,
-                          std::string_view label,
+                          string_view label,
                           string_view option,
                           string_view value) const
 {
@@ -322,7 +316,7 @@ ScriptApi::SetTimerOption(size_t plugin,
 
 ApiCode
 ScriptApi::SetTriggerOption(size_t plugin,
-                            std::string_view label,
+                            string_view label,
                             string_view option,
                             string_view value) const
 {
