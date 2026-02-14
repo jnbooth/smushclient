@@ -116,9 +116,13 @@ fn encode_prompts(prompts: &[mxp::LinkPrompt]) -> QString {
 
 // Links
 
-const WORLD: QChar = QChar::new(ffi::SendTo::World.repr as u16);
-const INPUT: QChar = QChar::new(ffi::SendTo::Input.repr as u16);
-const INTERNET: QChar = QChar::new(ffi::SendTo::Internet.repr as u16);
+const fn send_char(send_to: ffi::SendTo) -> QChar {
+    QChar::new(send_to.repr as u16)
+}
+
+const WORLD: QChar = send_char(ffi::SendTo::World);
+const INPUT: QChar = send_char(ffi::SendTo::Input);
+const INTERNET: QChar = send_char(ffi::SendTo::Internet);
 
 fn get_send_to(link: &mut QString) -> ffi::SendTo {
     let send_to = match link.back() {

@@ -1,4 +1,3 @@
-#![allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 use std::borrow::Cow;
 use std::time::Duration;
 
@@ -18,6 +17,7 @@ const fn duration_from_hms(hour: u64, minute: u64, second: f64) -> Duration {
         second.is_finite() && (second == 0.0 || second.is_sign_positive()),
         "second must be a finite positive number"
     );
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     Duration::from_nanos((NANOS_F * second) as u64 + NANOS * 60 * (minute + 60 * hour))
 }
 
@@ -50,9 +50,9 @@ pub struct XmlTimer<'a> {
     #[serde(rename = "@group", borrow, skip_serializing_if = "is_default")]
     pub group: Cow<'a, str>,
     #[serde(rename = "@hour", skip_serializing_if = "is_default")]
-    pub hour: u64,
+    pub hour: u32,
     #[serde(rename = "@minute", skip_serializing_if = "is_default")]
-    pub minute: u64,
+    pub minute: u32,
     #[serde(rename = "@name", borrow, skip_serializing_if = "is_default")]
     pub name: Cow<'a, str>,
     // pub offset_hour: u64,
@@ -90,16 +90,18 @@ impl XmlTimer<'_> {
 impl From<XmlTimer<'_>> for Timer {
     fn from(value: XmlTimer) -> Self {
         let occurrence = if value.at_time {
+            #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+            let rounded_second = value.second as u32;
             Occurrence::Time(
-                NaiveTime::from_hms_opt(
-                    value.hour as u32,
-                    value.minute as u32,
-                    value.second as u32,
-                )
-                .unwrap_or_default(),
+                NaiveTime::from_hms_opt(value.hour, value.minute, rounded_second)
+                    .unwrap_or_default(),
             )
         } else {
-            Occurrence::Interval(duration_from_hms(value.hour, value.minute, value.second))
+            Occurrence::Interval(duration_from_hms(
+                value.hour.into(),
+                value.minute.into(),
+                value.second,
+            ))
         };
         Self {
             occurrence,
@@ -126,18 +128,14 @@ impl<'a> From<&'a Timer> for XmlTimer<'a> {
     fn from(value: &'a Timer) -> Self {
         let (at_time, hour, minute, second) = match value.occurrence {
             Occurrence::Interval(every) => {
-                let secs = every.as_secs();
+                #[allow(clippy::cast_possible_truncation)]
+                let secs = every.as_secs() as u32;
                 let hour = secs / 3600;
                 let minute = (secs % 3600) / 3600;
                 let second = f64::from(every.subsec_nanos()) / NANOS_F;
                 (false, hour, minute, second)
             }
-            Occurrence::Time(time) => (
-                true,
-                time.hour().into(),
-                time.minute().into(),
-                time.second().into(),
-            ),
+            Occurrence::Time(time) => (true, time.hour(), time.minute(), time.second().into()),
         };
         Self {
             active_closed: value.active_closed,

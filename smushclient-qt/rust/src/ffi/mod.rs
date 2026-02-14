@@ -1,4 +1,5 @@
 #![allow(
+    clippy::elidable_lifetime_names,
     clippy::needless_lifetimes,
     clippy::needless_pass_by_value,
     clippy::unnecessary_box_returns

@@ -1,4 +1,3 @@
-#![allow(clippy::elidable_lifetime_names)]
 use crate::modeled::PluginDetailsRust;
 
 #[cxx_qt::bridge]

@@ -42,11 +42,9 @@ fn ansi16() -> QVector<QColor> {
     RgbColor::XTERM_16.iter().map(Convert::convert).collect()
 }
 
-#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 fn encode_naws(browser: &QAbstractScrollArea) -> QByteArray {
     const ADVANCE_SAMPLE: &str = "0123456789";
-    #[allow(clippy::cast_possible_wrap)]
-    const ADVANCE_SAMPLE_LEN: i32 = ADVANCE_SAMPLE.len() as i32;
+    const ADVANCE_SAMPLE_LEN: i32 = 10;
 
     let metrics = browser.font_metrics();
     let margins = browser.contents_margins();
@@ -57,6 +55,7 @@ fn encode_naws(browser: &QAbstractScrollArea) -> QByteArray {
     let width = client_width * ADVANCE_SAMPLE_LEN / advance;
     let height = client_height / metrics.line_spacing() - 4;
 
+    #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
     QByteArray::from(naws(width as u16, height as u16).as_slice())
 }
 

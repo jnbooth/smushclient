@@ -39,7 +39,6 @@ impl Default for RustFilePlaybackRust {
     /// # Panics
     ///
     /// Panics if audio initialization fails.
-    #[allow(clippy::expect_used)]
     fn default() -> Self {
         Self {
             inner: AudioFilePlayback::try_default().expect("audio initialization failed"),

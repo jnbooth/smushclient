@@ -1,4 +1,3 @@
-#![allow(clippy::elidable_lifetime_names)]
 use std::pin::Pin;
 
 use mud_transformer::{TelnetSource, TelnetVerb};

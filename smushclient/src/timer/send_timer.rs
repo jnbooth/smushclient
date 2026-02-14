@@ -78,7 +78,7 @@ impl<T> RecurringTimer<T> {
     pub fn new(timer: SendTimer<T>, duration: Duration) -> Self {
         Self {
             inner: timer,
-            milliseconds: u32::try_from(duration.as_millis()).unwrap_or(u32::MAX),
+            milliseconds: duration.as_millis().try_into().unwrap_or(u32::MAX),
         }
     }
 }

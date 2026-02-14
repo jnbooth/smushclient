@@ -1,4 +1,3 @@
-#![allow(clippy::elidable_lifetime_names)]
 use cxx::type_id;
 use cxx_qt_lib::{QFlag, QFlags};
 use smushclient::AliasOutcome;
@@ -77,7 +76,7 @@ pub mod ffi {
         #[qproperty(i32, every_hour)]
         #[qproperty(i32, every_minute)]
         #[qproperty(i32, every_second)]
-        #[qproperty(u32, every_millisecond)]
+        #[qproperty(i32, every_millisecond)]
         #[qproperty(bool, active_closed)]
         type Timer = super::TimerRust;
 

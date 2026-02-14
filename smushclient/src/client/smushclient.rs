@@ -867,7 +867,6 @@ impl SmushClient {
         self.info.simulating.set(false);
     }
 
-    #[allow(clippy::too_many_arguments)]
     fn process_matches<T: ReactionIterable, H: Handler>(
         &self,
         line: &str,

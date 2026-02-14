@@ -33,23 +33,21 @@ impl Occurrence {
     pub fn hour(&self) -> u32 {
         match self {
             Self::Time(time) => time.hour(),
-            Self::Interval(duration) => {
-                u32::try_from(duration.as_secs() / 3600).unwrap_or(u32::MAX)
-            }
+            Self::Interval(duration) => (duration.as_secs() / 3600).try_into().unwrap_or(u32::MAX),
         }
     }
 
     pub fn minute(&self) -> u32 {
         match self {
             Self::Time(time) => time.minute(),
-            Self::Interval(duration) => u32::try_from(duration.as_secs() / 60).unwrap_or(u32::MAX),
+            Self::Interval(duration) => (duration.as_secs() / 60).try_into().unwrap_or(u32::MAX),
         }
     }
 
     pub fn second(&self) -> u32 {
         match self {
             Self::Time(time) => time.second(),
-            Self::Interval(duration) => u32::try_from(duration.as_secs()).unwrap_or(u32::MAX),
+            Self::Interval(duration) => (duration.as_secs()).try_into().unwrap_or(u32::MAX),
         }
     }
 }

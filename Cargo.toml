@@ -28,6 +28,7 @@ struct_excessive_bools = "allow"
 too_many_lines = "allow"
 undocumented_unsafe_blocks = "warn"
 unnecessary_safety_doc = "warn"
+unreadable_literal = "allow"
 
 [workspace.dependencies]
 cxx = "1.0.192"

@@ -62,13 +62,13 @@ impl FloatConvert for f64 {
     }
 }
 
-#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 impl FloatConvert for u8 {
     #[inline(always)]
     fn to_f64(self) -> f64 {
         f64::from(self)
     }
     #[inline(always)]
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     fn from_f64(f: f64) -> Self {
         f as u8
     }

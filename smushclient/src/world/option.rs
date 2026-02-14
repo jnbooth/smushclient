@@ -9,7 +9,6 @@ use super::types::{AutoConnect, LogFormat, MxpDebugLevel, ScriptRecompile};
 use crate::{LuaStr, LuaString};
 
 const fn code_color(code: i64) -> Result<RgbColor, SetOptionError> {
-    #[allow(clippy::unreadable_literal)]
     if code < 0 || code > 0xFFFFFF {
         return Err(SetOptionError::OptionOutOfRange);
     }

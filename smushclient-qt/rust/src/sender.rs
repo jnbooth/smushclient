@@ -18,10 +18,10 @@ use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer
 use crate::convert::{Convert, impl_constructor, impl_deref};
 use crate::ffi;
 
-const NANOSECONDS_PER_MILLISECOND: u32 = 1_000_000;
+const NANOSECONDS_PER_MILLISECOND: i32 = 1_000_000;
 const MILLISECONDS_PER_SECOND: i32 = 1000;
-const SECONDS_PER_MINUTE: u64 = 60;
-const MINUTES_PER_HOUR: u64 = 60;
+const SECONDS_PER_MINUTE: i32 = 60;
+const MINUTES_PER_HOUR: i32 = 60;
 
 impl From<ffi::SendTarget> for ffi::UserSendTarget {
     fn from(value: ffi::SendTarget) -> Self {
@@ -135,7 +135,7 @@ pub struct TimerRust {
     pub every_hour: i32,
     pub every_minute: i32,
     pub every_second: i32,
-    pub every_millisecond: u32,
+    pub every_millisecond: i32,
     pub active_closed: bool,
     pub id: u16,
 }
@@ -148,7 +148,7 @@ impl From<&Timer> for TimerRust {
 
         match timer.occurrence {
             Occurrence::Time(time) => {
-                let seconds = time.num_seconds_from_midnight().cast_signed();
+                let seconds = time.num_seconds_from_midnight() as i32;
                 let msecs = seconds * MILLISECONDS_PER_SECOND;
                 Self {
                     send,
@@ -163,16 +163,16 @@ impl From<&Timer> for TimerRust {
                 }
             }
             Occurrence::Interval(duration) => {
-                let seconds = duration.as_secs();
+                let seconds = duration.as_secs() as i32;
                 let minutes = seconds / SECONDS_PER_MINUTE;
                 Self {
                     send,
                     occurrence: ffi::Occurrence::Interval,
                     at_time: QTime::default(),
-                    every_millisecond: duration.subsec_millis(),
-                    every_second: (seconds % SECONDS_PER_MINUTE) as i32,
-                    every_minute: (minutes % MINUTES_PER_HOUR) as i32,
-                    every_hour: (minutes / MINUTES_PER_HOUR) as i32,
+                    every_millisecond: duration.subsec_millis() as i32,
+                    every_second: (seconds % SECONDS_PER_MINUTE),
+                    every_minute: (minutes % MINUTES_PER_HOUR),
+                    every_hour: (minutes / MINUTES_PER_HOUR),
                     active_closed: timer.active_closed,
                     id: timer.id,
                 }
@@ -186,19 +186,19 @@ impl From<&TimerRust> for Timer {
         let occurrence = match value.occurrence {
             ffi::Occurrence::Time => {
                 let msecs = value.at_time.msecs_since_start_of_day();
-                let seconds = (msecs / MILLISECONDS_PER_SECOND).cast_unsigned();
+                let seconds = (msecs / MILLISECONDS_PER_SECOND) as u32;
                 let time =
                     NaiveTime::from_num_seconds_from_midnight_opt(seconds, 0).unwrap_or_default();
                 Occurrence::Time(time)
             }
             ffi::Occurrence::Interval => {
-                let seconds = value.every_second as u64;
-                let minutes = value.every_minute as u64;
-                let hours = value.every_hour as u64;
+                let seconds = value.every_second;
+                let minutes = value.every_minute;
+                let hours = value.every_hour;
                 let duration = seconds + SECONDS_PER_MINUTE * (minutes + MINUTES_PER_HOUR * hours);
                 Occurrence::Interval(Duration::new(
-                    duration,
-                    value.every_millisecond * NANOSECONDS_PER_MILLISECOND,
+                    duration as u64,
+                    (value.every_millisecond * NANOSECONDS_PER_MILLISECOND) as u32,
                 ))
             }
             _ => unreachable!(),
@@ -387,8 +387,8 @@ impl TryFrom<&TriggerRust> for Trigger {
             sound_if_inactive: value.sound_if_inactive,
             lowercase_wildcard: value.lowercase_wildcard,
             multi_line: value.multi_line,
-            lines_to_match: u8::try_from(value.lines_to_match).unwrap_or(u8::MAX),
-            clipboard_arg: u8::try_from(value.clipboard_arg).unwrap_or_default(),
+            lines_to_match: value.lines_to_match.try_into().unwrap_or(u8::MAX),
+            clipboard_arg: value.clipboard_arg.try_into().unwrap_or_default(),
         })
     }
 }
@@ -475,7 +475,7 @@ pub struct TextSpan {
 
 fn color_code(color: Option<RgbColor>) -> i32 {
     match color {
-        Some(color) => color.code().cast_signed(),
+        Some(color) => color.code() as i32,
         None => -1,
     }
 }

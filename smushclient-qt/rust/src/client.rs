@@ -68,7 +68,6 @@ impl Default for SmushClientRust {
     }
 }
 
-#[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
 impl SmushClientRust {
     pub fn load_world<P: AsRef<Path>>(&mut self, path: P) -> Result<(), PersistError> {
         self.client.load_world(File::open(path)?)?;
@@ -81,7 +80,7 @@ impl SmushClientRust {
             return QStringList::default();
         };
         let mut list: QStringList = QStringList::default();
-        list.reserve(2 * errors.len() as isize);
+        list.reserve(2 * errors.len().cast_signed());
         for error in &errors {
             list.append(QString::from(&*error.path.to_string_lossy()));
             list.append(QString::from(&error.error.to_string()));
@@ -245,8 +244,9 @@ impl SmushClientRust {
         let had_output = self.client.drain_output(&mut handler);
         handler.doc.as_mut().end(had_output);
 
+        #[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
         let total_read = match read_result {
-            Ok(total_read) => total_read,
+            Ok(total_read) => total_read as i64,
             Err(e) => {
                 handler.display_error(&e.to_string());
                 return -1;
@@ -258,7 +258,7 @@ impl SmushClientRust {
             return -1;
         }
 
-        total_read as i64
+        total_read
     }
 
     pub fn flush(&mut self, doc: Pin<&mut Document>) {

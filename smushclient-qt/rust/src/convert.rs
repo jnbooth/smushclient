@@ -1,4 +1,3 @@
-#![allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 use std::error::Error;
 use std::fmt;
 use std::num::TryFromIntError;
@@ -96,6 +95,7 @@ pub trait Convert<T> {
 impl Convert<RgbColor> for QColor {
     fn convert(&self) -> RgbColor {
         let rgb = self.to_rgb();
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
         RgbColor {
             r: rgb.red() as u8,
             g: rgb.green() as u8,

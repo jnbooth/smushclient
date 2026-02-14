@@ -25,7 +25,6 @@ impl CxxQtBuilderExt for CxxQtBuilder {
     }
 }
 
-#[allow(clippy::needless_borrows_for_generic_args)]
 fn main() {
     let header_dir = PathBuf::from(env::var("OUT_DIR").unwrap())
         .join("include")
@@ -82,7 +81,7 @@ fn main() {
             "src/gui/qtextformat.cpp",
             "src/gui/qtextlength.cpp",
         ])
-        .files(&[
+        .files([
             "src/core/qchar.rs",
             "src/core/qlist/qlist_qtextlength.rs",
             "src/core/qmap/qmap_i32_qvariant.rs",

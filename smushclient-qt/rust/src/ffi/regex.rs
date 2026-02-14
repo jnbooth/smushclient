@@ -66,8 +66,8 @@ impl From<RegexError> for ffi::RegexParse {
             message: QString::from(format_error(&mut value.to_string())),
             target: QString::from(value.target()),
             offset: match value.offset() {
+                Some(offset) => offset.try_into().unwrap_or(i32::MAX),
                 None => -1,
-                Some(offset) => i32::try_from(offset).unwrap_or(i32::MAX),
             },
         }
     }

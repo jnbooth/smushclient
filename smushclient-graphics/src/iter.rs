@@ -42,12 +42,13 @@ pub(crate) fn adjust_subpixels_with_state<F>(
     }
 }
 
-#[allow(clippy::cast_possible_truncation)]
 pub(crate) fn adjust_subpixels_cached<F>(data: &mut [u32], channel: Option<ColorChannel>, f: F)
 where
     F: Fn(u8) -> u8,
 {
     let mut cache = [0; 256];
+
+    #[allow(clippy::cast_possible_truncation)]
     for (i, value) in cache.iter_mut().enumerate() {
         *value = f(i as u8);
     }

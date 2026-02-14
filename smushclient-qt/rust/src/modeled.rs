@@ -188,6 +188,10 @@ fn remove_all<T: Ord>(senders: &CursorVec<T>, indices: &[usize]) {
     }
 }
 
+fn try_index(index: usize) -> i32 {
+    index.try_into().unwrap_or(-1)
+}
+
 #[derive(Clone, PartialEq, Eq)]
 pub struct SenderMapRust {
     inner: SenderMap,
@@ -220,7 +224,7 @@ impl SenderMapRust {
 
     pub fn group_index(&self, group: &str) -> i32 {
         match self.inner.group_index(group) {
-            Some(index) => i32::try_from(index).unwrap_or(-1),
+            Some(index) => try_index(index),
             None => -1,
         }
     }
@@ -238,7 +242,7 @@ impl SenderMapRust {
 
     pub fn position_in_group(&self, group: &str, index: usize) -> i32 {
         match self.inner[group].iter().position(|&i| i == index) {
-            Some(i) => i32::try_from(i).unwrap_or(-1),
+            Some(i) => try_index(i),
             None => -1,
         }
     }
@@ -303,7 +307,7 @@ impl SenderMapRust {
 
     pub fn sender_index(&self, group: &str, index: usize) -> i32 {
         match self.inner.sender_index(group, index) {
-            Some(index) => i32::try_from(index).unwrap_or(-1),
+            Some(index) => try_index(index),
             None => -1,
         }
     }
@@ -329,13 +333,13 @@ impl SenderMapRust {
             return -1;
         };
         if new_index == index {
-            return i32::try_from(row).unwrap_or(-1);
+            return try_index(row);
         }
         self.recalculate(client);
         let Some(new_row) = self.inner[group].iter().position(|&i| i == new_index) else {
             return -1;
         };
-        i32::try_from(new_row).unwrap_or(-1)
+        try_index(new_row)
     }
 }
 
