@@ -1,9 +1,11 @@
-#![allow(clippy::expl_impl_clone_on_copy)]
-#![allow(clippy::ptr_as_ptr)]
-#![allow(clippy::unnecessary_cast)]
-#![allow(clippy::not_unsafe_ptr_arg_deref)]
-#![allow(clippy::struct_field_names)]
-#![allow(dead_code)]
+#![allow(
+    clippy::expl_impl_clone_on_copy,
+    clippy::ptr_as_ptr,
+    clippy::unnecessary_cast,
+    clippy::not_unsafe_ptr_arg_deref,
+    clippy::struct_field_names,
+    dead_code
+)]
 
 use crate::io::{create_world, read_world, write_world};
 use crate::mud::RustMudBridge;

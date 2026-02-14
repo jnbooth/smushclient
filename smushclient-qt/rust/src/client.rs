@@ -68,8 +68,7 @@ impl Default for SmushClientRust {
     }
 }
 
-#[allow(clippy::cast_possible_truncation)]
-#[allow(clippy::cast_possible_wrap)]
+#[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
 impl SmushClientRust {
     pub fn load_world<P: AsRef<Path>>(&mut self, path: P) -> Result<(), PersistError> {
         self.client.load_world(File::open(path)?)?;

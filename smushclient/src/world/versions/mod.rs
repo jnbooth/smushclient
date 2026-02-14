@@ -1,5 +1,4 @@
-#![allow(clippy::wildcard_imports)]
-#![allow(clippy::struct_field_names)]
+#![allow(clippy::struct_field_names, clippy::wildcard_imports)]
 
 mod v1;
 mod v2;

@@ -1,6 +1,8 @@
-#![allow(clippy::needless_lifetimes)]
-#![allow(clippy::needless_pass_by_value)]
-#![allow(clippy::unnecessary_box_returns)]
+#![allow(
+    clippy::needless_lifetimes,
+    clippy::needless_pass_by_value,
+    clippy::unnecessary_box_returns
+)]
 
 mod api_code;
 pub use api_code::ffi::ApiCode;

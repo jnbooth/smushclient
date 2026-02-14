@@ -1,5 +1,4 @@
-#![allow(clippy::trivially_copy_pass_by_ref)]
-#![allow(clippy::undocumented_unsafe_blocks)]
+#![allow(clippy::trivially_copy_pass_by_ref, clippy::undocumented_unsafe_blocks)]
 use cxx::type_id;
 use cxx_qt_lib::{QList, QListElement};
 
