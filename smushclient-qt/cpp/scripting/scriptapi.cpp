@@ -69,6 +69,7 @@ ScriptApi::appendTell(const QString& text, const QTextCharFormat& format)
   hasLine = true;
   lastTellPosition = cursor.position();
   if (logNotes) {
+    client.logNote(text);
   }
 }
 
