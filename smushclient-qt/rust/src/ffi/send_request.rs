@@ -33,4 +33,12 @@ pub mod ffi {
         text: QString,
         destination: QString,
     }
+
+    struct SendTimer {
+        #[cxx_name = "activeClosed"]
+        active_closed: bool,
+        label: String,
+        script: String,
+        request: SendRequest,
+    }
 }

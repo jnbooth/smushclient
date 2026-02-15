@@ -23,7 +23,6 @@ pub mod ffi {
         type Alias = crate::ffi::Alias;
         type AliasOutcomes = crate::ffi::AliasOutcomes;
         type Document = crate::ffi::Document;
-        type SendTimer = crate::ffi::SendTimer;
         type Timekeeper = crate::ffi::Timekeeper;
         type Timer = crate::ffi::Timer;
         type Trigger = crate::ffi::Trigger;
@@ -36,6 +35,8 @@ pub mod ffi {
         type ApiCode = crate::ffi::ApiCode;
         include!("smushclient_qt/src/ffi/regex.cxx.h");
         type RegexParse = crate::ffi::RegexParse;
+        include!("smushclient_qt/src/ffi/send_request.cxx.h");
+        type SendTimer = crate::ffi::SendTimer;
     }
 
     struct AliasMenuItem {
