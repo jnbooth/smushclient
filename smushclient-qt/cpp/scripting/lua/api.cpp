@@ -752,6 +752,36 @@ L_DeleteAliasGroup(lua_State* L)
 }
 
 int
+L_DeleteTemporaryAliases(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  lua_pushinteger(L,
+                  static_cast<lua_Integer>(getApi(L).DeleteTemporaryAliases()));
+  return 1;
+}
+
+int
+L_DeleteTemporaryTimers(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  lua_pushinteger(L,
+                  static_cast<lua_Integer>(getApi(L).DeleteTemporaryTimers()));
+  return 1;
+}
+
+int
+L_DeleteTemporaryTriggers(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  lua_pushinteger(
+    L, static_cast<lua_Integer>(getApi(L).DeleteTemporaryTriggers()));
+  return 1;
+}
+
+int
 L_DeleteTimer(lua_State* L)
 {
   BENCHMARK
@@ -1762,6 +1792,9 @@ static const struct luaL_Reg worldlib[] =
     { "AddTriggerEx", L_AddTrigger },
     { "DeleteAlias", L_DeleteAlias },
     { "DeleteAliasGroup", L_DeleteAliasGroup },
+    { "DeleteTemporaryAliases", L_DeleteTemporaryAliases },
+    { "DeleteTemporaryTimers", L_DeleteTemporaryTimers },
+    { "DeleteTemporaryTriggers", L_DeleteTemporaryTriggers },
     { "DeleteTimer", L_DeleteTimer },
     { "DeleteTimerGroup", L_DeleteTimerGroup },
     { "DeleteTrigger", L_DeleteTrigger },

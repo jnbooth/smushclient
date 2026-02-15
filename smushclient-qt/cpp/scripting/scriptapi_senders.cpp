@@ -173,6 +173,24 @@ ScriptApi::DeleteAliasGroup(size_t plugin, string_view group) const
   return client.removeAliasGroup(plugin, bytes::slice(group));
 }
 
+size_t
+ScriptApi::DeleteTemporaryAliases() const
+{
+  return client.removeTemporaryAliases();
+}
+
+size_t
+ScriptApi::DeleteTemporaryTimers() const
+{
+  return client.removeTemporaryTimers();
+}
+
+size_t
+ScriptApi::DeleteTemporaryTriggers() const
+{
+  return client.removeTemporaryTriggers();
+}
+
 ApiCode
 ScriptApi::DeleteTimer(size_t plugin, string_view name) const
 {

@@ -294,6 +294,18 @@ impl ffi::SmushClient {
             .remove_sender_group::<Trigger>(index, &String::from_utf8_lossy(group))
     }
 
+    pub fn remove_temporary_aliases(&self) -> usize {
+        self.rust().client.remove_temporary_senders::<Alias>()
+    }
+
+    pub fn remove_temporary_timers(&self) -> usize {
+        self.rust().client.remove_temporary_senders::<Timer>()
+    }
+
+    pub fn remove_temporary_triggers(&self) -> usize {
+        self.rust().client.remove_temporary_senders::<Trigger>()
+    }
+
     pub fn add_world_alias(&self, alias: &ffi::Alias) -> Result<ffi::ApiCode, RegexError> {
         let alias = Alias::try_from(alias.rust())?;
         Ok(self.rust().client.add_world_sender(alias).code::<Alias>())

@@ -29,8 +29,9 @@ use crate::handler::Handler;
 use crate::import::ImportedWorld;
 use crate::options::OptionValue;
 use crate::plugins::{
-    AliasEffects, AliasOutcome, CommandSource, LoadFailure, PluginEngine, ReactionIterable,
-    SendIterable, SendRequest, SendScriptRequest, SenderAccessError, SpanStyle, TriggerEffects,
+    AliasEffects, AliasOutcome, AllSendersIter, CommandSource, LoadFailure, PluginEngine,
+    ReactionIterable, SendIterable, SendRequest, SendScriptRequest, SenderAccessError, SpanStyle,
+    TriggerEffects,
 };
 use crate::world::{OptionCaller, PersistError, SetOptionError, World};
 
@@ -115,8 +116,8 @@ impl SmushClient {
     }
 
     pub fn stop_evaluating<T: SendIterable>(&self) {
-        for plugin in &self.plugins {
-            T::from_either(plugin, &self.world).end();
+        for senders in self.all_senders::<T>() {
+            senders.end();
         }
     }
 
@@ -626,6 +627,12 @@ impl SmushClient {
             .retain(|sender: &T| sender.as_ref().group != group)
     }
 
+    pub fn remove_temporary_senders<T: SendIterable>(&self) -> usize {
+        self.all_senders::<T>()
+            .map(|senders| senders.retain(|sender: &T| !sender.as_ref().temporary))
+            .sum()
+    }
+
     pub fn add_or_replace_sender<T: SendIterable>(
         &self,
         index: PluginIndex,
@@ -1020,12 +1027,12 @@ impl SmushClient {
         );
     }
 
+    fn all_senders<T: SendIterable>(&self) -> AllSendersIter<'_, T> {
+        AllSendersIter::new(&self.plugins, &self.world)
+    }
+
     fn count_senders<T: SendIterable>(&self) -> usize {
-        let world = &self.world;
-        self.plugins
-            .iter()
-            .map(|plugin| T::from_either(plugin, world).len())
-            .sum()
+        self.all_senders::<T>().map(CursorVec::len).sum()
     }
 
     pub fn get_info<V: InfoVisitor>(&self, info_type: i64) -> V::Output {

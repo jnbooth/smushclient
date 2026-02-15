@@ -167,6 +167,9 @@ pub mod ffi {
         fn remove_alias_group(self: &SmushClient, index: usize, group: &[u8]) -> usize;
         fn remove_timer_group(self: &SmushClient, index: usize, group: &[u8]) -> usize;
         fn remove_trigger_group(self: &SmushClient, index: usize, group: &[u8]) -> usize;
+        fn remove_temporary_aliases(self: &SmushClient) -> usize;
+        fn remove_temporary_timers(self: &SmushClient) -> usize;
+        fn remove_temporary_triggers(self: &SmushClient) -> usize;
         fn add_world_alias(self: &SmushClient, alias: &Alias) -> Result<ApiCode>;
         fn add_world_timer(self: &SmushClient, timer: &Timer, timekeeper: &Timekeeper) -> ApiCode;
         fn add_world_trigger(self: &SmushClient, trigger: &Trigger) -> Result<ApiCode>;

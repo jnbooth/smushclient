@@ -91,6 +91,9 @@ public:
                    int flags);
   ApiCode DeleteAlias(size_t plugin, std::string_view name) const;
   size_t DeleteAliasGroup(size_t plugin, std::string_view group) const;
+  size_t DeleteTemporaryAliases() const;
+  size_t DeleteTemporaryTimers() const;
+  size_t DeleteTemporaryTriggers() const;
   ApiCode DeleteTimer(size_t plugin, std::string_view name) const;
   size_t DeleteTimerGroup(size_t plugin, std::string_view group) const;
   ApiCode DeleteTrigger(size_t plugin, std::string_view name) const;
