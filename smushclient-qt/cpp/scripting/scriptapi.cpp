@@ -517,7 +517,7 @@ ScriptApi::findDatabase(string_view databaseID)
 }
 
 size_t
-ScriptApi::findPluginIndex(const string& pluginID) const
+ScriptApi::findPluginIndex(string_view pluginID) const
 {
   auto search = pluginIndices.find(pluginID);
   if (search == pluginIndices.end()) [[unlikely]] {

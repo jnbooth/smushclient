@@ -419,11 +419,7 @@ public:
 
 private:
   DatabaseConnection* findDatabase(std::string_view databaseID);
-  size_t findPluginIndex(const std::string& pluginID) const;
-  size_t findPluginIndex(std::string_view pluginID) const
-  {
-    return findPluginIndex(std::string(pluginID));
-  }
+  size_t findPluginIndex(std::string_view pluginID) const;
   MiniWindow* findWindow(std::string_view windowName) const;
   bool finishQueuedSend(const SendRequest& request);
   void flushLine();
