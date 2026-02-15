@@ -2,7 +2,6 @@
 #include "../../environment.h"
 #include "../../localization.h"
 #include "../../model/plugin.h"
-#include "../../scripting/scriptapi.h"
 #include "pluginpopup.h"
 #include "smushclient_qt/src/ffi/plugin_details.cxxqt.h"
 #include "ui_plugins.h"
@@ -12,10 +11,9 @@
 
 // Public methods
 
-PrefsPlugins::PrefsPlugins(PluginModel& model, ScriptApi& api, QWidget* parent)
+PrefsPlugins::PrefsPlugins(PluginModel& model, QWidget* parent)
   : QWidget(parent)
   , ui(new Ui::PrefsPlugins)
-  , api(api)
   , model(model)
 {
   ui->setupUi(this);
@@ -24,14 +22,6 @@ PrefsPlugins::PrefsPlugins(PluginModel& model, ScriptApi& api, QWidget* parent)
     QSettings().value(settingsKey()).toByteArray());
   connect(
     &model, &PluginModel::clientError, this, &PrefsPlugins::onClientError);
-  connect(&model,
-          &PluginModel::pluginOrderChanged,
-          this,
-          &PrefsPlugins::onPluginOrderChanged);
-  connect(&model,
-          &PluginModel::pluginScriptChanged,
-          this,
-          &PrefsPlugins::onPluginScriptChanged);
 }
 
 PrefsPlugins::~PrefsPlugins()
@@ -56,18 +46,6 @@ void
 PrefsPlugins::onClientError(const QString& error)
 {
   QErrorMessage::qtHandler()->showMessage(error);
-}
-
-void
-PrefsPlugins::onPluginOrderChanged()
-{
-  api.initializePlugins();
-}
-
-void
-PrefsPlugins::onPluginScriptChanged(size_t index)
-{
-  api.reinstallPlugin(index);
 }
 
 void

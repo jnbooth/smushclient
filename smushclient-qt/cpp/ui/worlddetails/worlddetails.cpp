@@ -26,7 +26,6 @@ WorldPrefs::WorldPrefs(World& world,
   : QDialog(parent)
   , ui(new Ui::WorldPrefs)
   , aliases(new AliasModel(client, this))
-  , api(api)
   , plugins(new PluginModel(client, this))
   , timers(new TimerModel(client, api.getTimekeeper(), this))
   , triggers(new TriggerModel(client, this))
@@ -39,6 +38,15 @@ WorldPrefs::WorldPrefs(World& world,
   connectModel(plugins);
   connectModel(timers);
   connectModel(triggers);
+
+  connect(plugins,
+          &PluginModel::pluginOrderChanged,
+          &api,
+          &ScriptApi::initializePlugins);
+  connect(plugins,
+          &PluginModel::pluginScriptChanged,
+          &api,
+          &ScriptApi::reinstallPlugin);
 }
 
 WorldPrefs::~WorldPrefs()
@@ -83,7 +91,7 @@ WorldPrefs::paneForIndex(int row)
     case 9:
       return new PrefsScripting(world, this);
     case 10:
-      return new PrefsPlugins(*plugins, api, this);
+      return new PrefsPlugins(*plugins, this);
     default:
       return nullptr;
   }

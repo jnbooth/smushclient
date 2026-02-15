@@ -358,9 +358,7 @@ public:
   const Plugin* getPlugin(std::string_view pluginID) const;
   constexpr Timekeeper& getTimekeeper() { return *timekeeper; }
   void handleSendRequest(const SendRequest& request);
-  void initializePlugins();
   void moveCursor(QTextCursor::MoveOperation op, int count);
-  void reinstallPlugin(size_t index);
   bool isPluginEnabled(size_t plugin) const
   {
     return !plugins[plugin].isDisabled();
@@ -416,6 +414,10 @@ public:
   {
     return plugins.end();
   }
+
+public slots:
+  void initializePlugins();
+  void reinstallPlugin(size_t index);
 
 private:
   DatabaseConnection* findDatabase(std::string_view databaseID);

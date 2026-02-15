@@ -14,7 +14,7 @@ class PrefsPlugins : public QWidget
   Q_OBJECT
 
 public:
-  PrefsPlugins(PluginModel& model, ScriptApi& api, QWidget* parent = nullptr);
+  explicit PrefsPlugins(PluginModel& model, QWidget* parent = nullptr);
   ~PrefsPlugins() override;
 
 private:
@@ -22,8 +22,6 @@ private:
 
 private slots:
   static void onClientError(const QString& error);
-  void onPluginOrderChanged();
-  void onPluginScriptChanged(size_t pluginIndex);
   void on_button_add_clicked();
   void on_button_reinstall_clicked();
   void on_button_remove_clicked();
@@ -32,6 +30,5 @@ private slots:
 
 private:
   Ui::PrefsPlugins* ui;
-  ScriptApi& api;
   PluginModel& model;
 };

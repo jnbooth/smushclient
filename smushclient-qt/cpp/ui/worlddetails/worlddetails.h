@@ -38,7 +38,6 @@ private slots:
 private:
   Ui::WorldPrefs* ui;
   AliasModel* aliases;
-  ScriptApi& api;
   bool dirty = false;
   QWidget* pane = nullptr;
   PluginModel* plugins;
