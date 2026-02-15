@@ -10,7 +10,7 @@ pub struct CursorVec<T> {
     cursor: Cell<usize>,
     unsorted: Cell<bool>,
     evaluating: Cell<bool>,
-    scan_id: Cell<u32>,
+    scan_id: Cell<u8>,
 }
 
 impl<T> CursorVec<T> {
@@ -47,7 +47,7 @@ impl<T: Ord> CursorVec<T> {
     }
 
     pub fn scan(&self) -> CursorVecScan<'_, T> {
-        let scan_id = self.scan_id.get() + 1;
+        let scan_id = self.scan_id.get().wrapping_add(1);
         self.scan_id.set(scan_id);
         self.evaluating.set(true);
         self.cursor.set(usize::MAX);
@@ -58,7 +58,7 @@ impl<T: Ord> CursorVec<T> {
         if !self.evaluating.replace(false) {
             return;
         }
-        self.scan_id.update(|n| n + 1);
+        self.scan_id.update(|n| n.wrapping_add(1));
         if self.unsorted.replace(false) {
             self.inner.borrow_mut().sort_unstable();
         }
@@ -220,7 +220,7 @@ impl<'de, T: Deserialize<'de>> Deserialize<'de> for CursorVec<T> {
 #[derive(Debug)]
 pub struct CursorVecScan<'a, T: Ord> {
     vec: &'a CursorVec<T>,
-    scan_id: u32,
+    scan_id: u8,
 }
 
 impl<T: Ord> Drop for CursorVecScan<'_, T> {
