@@ -5,7 +5,7 @@
 
 struct SendTimer;
 class SmushClient;
-template<typename T>
+template<typename T, typename Handler>
 class TimerMap;
 
 struct TimekeeperItem
@@ -36,7 +36,7 @@ private:
 
 private:
   QTimer* pollTimer;
-  TimerMap<Item>* queue;
+  TimerMap<Item, SmushClient>* queue;
 };
 
 #endif // Timekeeper

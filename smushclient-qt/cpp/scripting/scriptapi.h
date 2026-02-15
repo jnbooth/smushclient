@@ -26,7 +26,7 @@ class Timekeeper;
 class World;
 class WorldTab;
 struct lua_State;
-template<typename T>
+template<typename T, typename Handler>
 class TimerMap;
 
 enum class SendFlag
@@ -459,7 +459,7 @@ private:
   std::vector<Plugin> plugins;
   string_map<size_t> pluginIndices;
   MudScrollBar& scrollBar;
-  TimerMap<SendRequest>* sendQueue;
+  TimerMap<SendRequest, ScriptApi>* sendQueue;
   QAbstractSocket& socket;
   std::unique_ptr<MudStatusBar> statusBar;
   bool suppressEcho = false;

@@ -37,7 +37,9 @@ ScriptApi::ScriptApi(SmushClient& client,
   , cursor(output.document())
   , notepads(notepads)
   , scrollBar(*output.verticalScrollBar())
-  , sendQueue(new TimerMap<SendRequest>(this, &ScriptApi::finishQueuedSend))
+  , sendQueue(new TimerMap<SendRequest, ScriptApi>(*this,
+                                                   &ScriptApi::finishQueuedSend,
+                                                   this))
   , socket(socket)
   , statusBar(new MudStatusBar)
   , tab(parent)

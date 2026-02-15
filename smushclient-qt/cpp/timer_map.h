@@ -1,21 +1,30 @@
 #pragma once
+#include <QtCore/QPointer>
 #include <QtCore/QTimerEvent>
 
-template<typename T>
+template<typename T, typename Handler>
 class TimerMap : public QObject
 {
 private:
-  template<typename Handler>
   using HandlerSlot = bool (Handler::*)(const T& item);
 
 public:
-  template<typename Parent>
-  TimerMap(Parent* parent,
-           HandlerSlot<Parent> slot,
-           Qt::TimerType timerType = Qt::TimerType::CoarseTimer)
+  TimerMap(Handler& handler,
+           HandlerSlot slot,
+           Qt::TimerType timerType,
+           QObject* parent = nullptr)
     : QObject(parent)
-    , slot(static_cast<HandlerSlot<QObject>>(slot))
+    , handler(&handler)
+    , slot(slot)
     , timerType(timerType)
+  {
+  }
+
+  TimerMap(Handler& handler, HandlerSlot slot, QObject* parent = nullptr)
+    : QObject(parent)
+    , handler(&handler)
+    , slot(slot)
+    , timerType(Qt::TimerType::CoarseTimer)
   {
   }
 
@@ -60,7 +69,7 @@ protected:
     if (search == map.end()) [[unlikely]] {
       return;
     }
-    if (!(*parent().*slot)(search->second)) {
+    if (handler != nullptr && !(*handler.*slot)(search->second)) {
       return;
     }
     killTimer(id);
@@ -74,7 +83,8 @@ private:
   }
 
 private:
+  QPointer<Handler> handler;
   std::unordered_map<Qt::TimerId, T> map;
-  HandlerSlot<QObject> slot;
+  HandlerSlot slot;
   Qt::TimerType timerType;
 };

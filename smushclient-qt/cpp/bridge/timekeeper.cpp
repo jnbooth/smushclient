@@ -14,7 +14,9 @@ using std::chrono::seconds;
 Timekeeper::Timekeeper(SmushClient& client, QObject* parent)
   : QObject(parent)
   , pollTimer(new QTimer(this))
-  , queue(new TimerMap<Timekeeper::Item>(&client, &SmushClient::finishTimer))
+  , queue(new TimerMap<Timekeeper::Item, SmushClient>(client,
+                                                      &SmushClient::finishTimer,
+                                                      this))
 {
   connect(pollTimer, &QTimer::timeout, &client, &SmushClient::onTimersPolled);
 }
