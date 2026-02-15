@@ -8,9 +8,18 @@ class SmushClient;
 template<typename T>
 class TimerMap;
 
+struct TimekeeperItem
+{
+  size_t index;
+  uint16_t timerId;
+};
+
 class Timekeeper : public QObject
 {
   Q_OBJECT
+
+public:
+  using Item = TimekeeperItem;
 
 public:
   explicit Timekeeper(SmushClient& client, QObject* parent = nullptr);
@@ -23,20 +32,9 @@ public:
                       unsigned int millis) const;
 
 private:
-  struct Item
-  {
-    size_t index;
-    uint16_t timerId;
-  };
-
-private:
   bool finishTimer(const Item& item);
 
-private slots:
-  void pollTimers();
-
 private:
-  SmushClient& client;
   QTimer* pollTimer;
   TimerMap<Item>* queue;
 };

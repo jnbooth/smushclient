@@ -13,11 +13,10 @@ using std::chrono::seconds;
 
 Timekeeper::Timekeeper(SmushClient& client, QObject* parent)
   : QObject(parent)
-  , client(client)
   , pollTimer(new QTimer(this))
-  , queue(new TimerMap<Timekeeper::Item>(this, &Timekeeper::finishTimer))
+  , queue(new TimerMap<Timekeeper::Item>(&client, &SmushClient::finishTimer))
 {
-  connect(pollTimer, &QTimer::timeout, this, &Timekeeper::pollTimers);
+  connect(pollTimer, &QTimer::timeout, &client, &SmushClient::onTimersPolled);
 }
 
 void
@@ -40,18 +39,4 @@ void
 Timekeeper::startSendTimer(size_t index, uint16_t timerId, uint millis) const
 {
   queue->start(milliseconds{ millis }, { .index = index, .timerId = timerId });
-}
-
-// Private slots
-
-bool
-Timekeeper::finishTimer(const Timekeeper::Item& item)
-{
-  return client.finishTimer(item.index);
-}
-
-void
-Timekeeper::pollTimers()
-{
-  client.pollTimers();
 }
