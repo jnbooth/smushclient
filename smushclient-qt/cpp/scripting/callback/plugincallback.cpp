@@ -153,3 +153,10 @@ OnPluginTelnetSubnegotiation::pushArguments(lua_State* L) const
   qlua::pushBytes(L, data);
   return 2;
 }
+
+int
+TimerCallback::pushArguments(lua_State* L) const
+{
+  lua_pushlstring(L, label.data(), label.size());
+  return 1;
+}

@@ -9,6 +9,7 @@
 #include "../ui/worldtab.h"
 #include "callback/plugincallback.h"
 #include "miniwindow/miniwindow.h"
+#include "smushclient_qt/src/ffi/timekeeper.cxx.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "sqlite3.h"
@@ -26,7 +27,7 @@ using std::chrono::seconds;
 
 // Public methods
 
-ScriptApi::ScriptApi(const SmushClient& client,
+ScriptApi::ScriptApi(SmushClient& client,
                      QAbstractSocket& socket,
                      MudBrowser& output,
                      Notepads& notepads,
@@ -40,9 +41,10 @@ ScriptApi::ScriptApi(const SmushClient& client,
   , socket(socket)
   , statusBar(new MudStatusBar)
   , tab(parent)
-  , timekeeper(new Timekeeper(client, *this))
+  , timekeeper(new Timekeeper(client, this))
   , whenConnected(QDateTime::currentDateTime())
 {
+  connect(&client, &SmushClient::timerSent, this, &ScriptApi::onTimerSent);
   timekeeper->beginPolling(milliseconds(seconds{ 60 }));
   spans::setLineType(echoFormat, LineType::Input);
   spans::setLineType(noteFormat, LineType::Note);
@@ -417,9 +419,9 @@ ScriptApi::setNawsEnabled(bool enabled)
 }
 
 void
-ScriptApi::setOpen(bool open) const
+ScriptApi::setOpen(bool open)
 {
-  timekeeper->setOpen(open);
+  closed = !open;
 }
 
 void
@@ -502,6 +504,27 @@ void
 ScriptApi::updateTimestamp()
 {
   spans::setTimestamp(cursor);
+}
+
+// Public slots
+
+void
+ScriptApi::onTimerSent(const SendTimer& timer)
+{
+  if (closed && !timer.activeClosed) {
+    return;
+  }
+
+  const ActionSource oldSource = setSource(ActionSource::TimerFired);
+  handleSendRequest(timer.request);
+  setSource(oldSource);
+
+  if (timer.script.empty()) {
+    return;
+  }
+
+  TimerCallback callback(timer.script, timer.label);
+  sendCallback(callback, timer.request.plugin);
 }
 
 // Private methods

@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use crate::client::SmushClientRust;
 
 #[cxx_qt::bridge]
@@ -22,6 +23,7 @@ pub mod ffi {
         type Alias = crate::ffi::Alias;
         type AliasOutcomes = crate::ffi::AliasOutcomes;
         type Document = crate::ffi::Document;
+        type SendTimer = crate::ffi::SendTimer;
         type Timekeeper = crate::ffi::Timekeeper;
         type Timer = crate::ffi::Timer;
         type Trigger = crate::ffi::Trigger;
@@ -277,12 +279,15 @@ pub mod ffi {
         fn unset_metavariable(self: &SmushClient, key: &[u8]) -> bool;
         fn start_timers(self: &SmushClient, index: usize, timekeeper: &Timekeeper);
         fn start_all_timers(self: &SmushClient, timekeeper: &Timekeeper);
-        fn finish_timer(self: &SmushClient, id: usize, timekeeper: &Timekeeper) -> bool;
-        fn poll_timers(self: &SmushClient, timekeeper: &Timekeeper);
+        fn finish_timer(self: Pin<&mut SmushClient>, id: usize) -> bool;
+        fn poll_timers(self: Pin<&mut SmushClient>);
         fn stop_senders(self: &SmushClient);
         fn stop_aliases(self: &SmushClient);
         fn stop_timers(self: &SmushClient);
         fn stop_triggers(self: &SmushClient);
         fn command_splitter(self: &SmushClient) -> u8;
+
+        #[qsignal]
+        fn timer_sent(self: Pin<&mut SmushClient>, timer: &SendTimer);
     }
 }

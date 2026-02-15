@@ -356,3 +356,23 @@ public:
   CALLBACK(24, "OnPluginWorldOutputResized", ActionSource::Unknown)
 };
 #undef CALLBACK
+
+class TimerCallback : public DynamicPluginCallback
+{
+public:
+  TimerCallback(const rust::String& callback, const rust::String& label)
+    : DynamicPluginCallback(callback)
+    , label(label)
+  {
+  }
+
+  constexpr ActionSource source() const noexcept override
+  {
+    return ActionSource::TimerFired;
+  }
+
+  int pushArguments(lua_State* L) const override;
+
+private:
+  const rust::String& label;
+};

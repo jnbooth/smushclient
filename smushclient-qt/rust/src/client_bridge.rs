@@ -655,12 +655,18 @@ impl ffi::SmushClient {
         self.rust().start_all_timers(timekeeper);
     }
 
-    pub fn finish_timer(&self, id: usize, timekeeper: &ffi::Timekeeper) -> bool {
-        self.rust().finish_timer(id, timekeeper)
+    pub fn finish_timer(self: Pin<&mut Self>, id: usize) -> bool {
+        let result = self.rust().finish_timer(id);
+        if let Some(timer) = result.timer {
+            self.timer_sent(&timer);
+        }
+        result.done
     }
 
-    pub fn poll_timers(&self, timekeeper: &ffi::Timekeeper) {
-        self.rust().poll_timers(timekeeper);
+    pub fn poll_timers(mut self: Pin<&mut Self>) {
+        for timer in self.rust().poll_timers() {
+            self.as_mut().timer_sent(&timer);
+        }
     }
 
     pub fn stop_senders(&self) {

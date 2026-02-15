@@ -3,8 +3,6 @@
 
 #include <QtCore/QTimer>
 
-class ScriptApi;
-enum class SendTarget;
 struct SendTimer;
 class SmushClient;
 template<typename T>
@@ -15,7 +13,7 @@ class Timekeeper : public QObject
   Q_OBJECT
 
 public:
-  explicit Timekeeper(const SmushClient& client, ScriptApi& parent);
+  explicit Timekeeper(SmushClient& client, QObject* parent = nullptr);
   void beginPolling(std::chrono::milliseconds interval,
                     Qt::TimerType timerType = Qt::TimerType::CoarseTimer);
   void cancelTimers(const QSet<uint16_t>& timerIds);
@@ -23,7 +21,6 @@ public:
   void startSendTimer(size_t index,
                       uint16_t timerId,
                       unsigned int millis) const;
-  void setOpen(bool open) { closed = !open; }
 
 private:
   struct Item
@@ -39,9 +36,7 @@ private slots:
   void pollTimers();
 
 private:
-  ScriptApi& api;
-  const SmushClient& client;
-  bool closed = true;
+  SmushClient& client;
   QTimer* pollTimer;
   TimerMap<Item>* queue;
 };

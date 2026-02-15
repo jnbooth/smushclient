@@ -27,9 +27,6 @@ pub mod ffi {
         #[qobject]
         type Timekeeper;
 
-        #[rust_name = "send_timer"]
-        fn sendTimer(self: &Timekeeper, timer: &SendTimer);
-
         #[doc(hidden)]
         #[rust_name = "start_send_timer"]
         fn startSendTimer(self: &Timekeeper, index: usize, timer: u16, milliseconds: u32);

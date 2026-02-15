@@ -8,6 +8,7 @@ enum class AliasOutcome;
 using AliasOutcomes = QFlags<AliasOutcome>;
 class Document;
 enum class SendTarget;
+struct SendTimer;
 class Timekeeper;
 class Timer;
 class Trigger;

@@ -1,6 +1,5 @@
 #include "timekeeper.h"
 #include "../client.h"
-#include "../scripting/callback/plugincallback.h"
 #include "../scripting/scriptapi.h"
 #include "../timer_map.h"
 #include "smushclient_qt/src/ffi/timekeeper.cxxqt.h"
@@ -12,33 +11,8 @@ extern "C"
 using std::chrono::milliseconds;
 using std::chrono::seconds;
 
-class TimerCallback : public DynamicPluginCallback
-{
-public:
-  TimerCallback(const rust::String& callback, const rust::String& label)
-    : DynamicPluginCallback(callback)
-    , label(label)
-  {
-  }
-
-  constexpr ActionSource source() const noexcept override
-  {
-    return ActionSource::TimerFired;
-  }
-
-  int pushArguments(lua_State* L) const override
-  {
-    lua_pushlstring(L, label.data(), label.size());
-    return 1;
-  }
-
-private:
-  const rust::String& label;
-};
-
-Timekeeper::Timekeeper(const SmushClient& client, ScriptApi& parent)
-  : QObject(&parent)
-  , api(parent)
+Timekeeper::Timekeeper(SmushClient& client, QObject* parent)
+  : QObject(parent)
   , client(client)
   , pollTimer(new QTimer(this))
   , queue(new TimerMap<Timekeeper::Item>(this, &Timekeeper::finishTimer))
@@ -63,25 +37,6 @@ Timekeeper::cancelTimers(const QSet<uint16_t>& timerIds)
 }
 
 void
-Timekeeper::sendTimer(const SendTimer& timer) const
-{
-  if (closed && !timer.activeClosed) {
-    return;
-  }
-
-  const ActionSource oldSource = api.setSource(ActionSource::TimerFired);
-  api.handleSendRequest(timer.request);
-  api.setSource(oldSource);
-
-  if (timer.script.empty()) {
-    return;
-  }
-
-  TimerCallback callback(timer.script, timer.label);
-  api.sendCallback(callback, timer.request.plugin);
-}
-
-void
 Timekeeper::startSendTimer(size_t index, uint16_t timerId, uint millis) const
 {
   queue->start(milliseconds{ millis }, { .index = index, .timerId = timerId });
@@ -92,11 +47,11 @@ Timekeeper::startSendTimer(size_t index, uint16_t timerId, uint millis) const
 bool
 Timekeeper::finishTimer(const Timekeeper::Item& item)
 {
-  return client.finishTimer(item.index, *this);
+  return client.finishTimer(item.index);
 }
 
 void
 Timekeeper::pollTimers()
 {
-  client.pollTimers(*this);
+  client.pollTimers();
 }

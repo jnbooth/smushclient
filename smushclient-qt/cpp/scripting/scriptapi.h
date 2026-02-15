@@ -20,6 +20,7 @@ class MudStatusBar;
 class Notepads;
 struct OutputLayout;
 enum class SendTarget;
+struct SendTimer;
 class SmushClient;
 class Timekeeper;
 class World;
@@ -48,7 +49,7 @@ public:
   static QVariant FontInfo(const QFont& font, int64_t infoType);
   static void SetClipboard(const QString& text);
 
-  ScriptApi(const SmushClient& client,
+  ScriptApi(SmushClient& client,
             QAbstractSocket& socket,
             MudBrowser& output,
             Notepads& notepads,
@@ -385,7 +386,7 @@ public:
     return sendToWorld(bytes, text, flags);
   }
   void setNawsEnabled(bool enabled);
-  void setOpen(bool open) const;
+  void setOpen(bool open);
   void setPluginEnabled(size_t plugin, bool enable = true);
   ActionSource setSource(ActionSource source) noexcept;
   void setSuppressEcho(bool suppress) noexcept;
@@ -417,6 +418,7 @@ public:
 
 public slots:
   void initializePlugins();
+  void onTimerSent(const SendTimer& timer);
   void reinstallPlugin(size_t index);
 
 private:
@@ -436,6 +438,7 @@ private:
   QRect assignedTextRectangle;
   CallbackFilter callbackFilter;
   const SmushClient& client;
+  bool closed = true;
   QTextCursor cursor;
   string_map<DatabaseConnection> databases;
   bool doNaws = false;

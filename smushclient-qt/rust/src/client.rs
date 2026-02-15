@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io::{self, Write};
 use std::path::Path;
 use std::pin::Pin;
+use std::rc::Rc;
 
 use cxx_qt::casting::Downcast;
 use cxx_qt_io::{QAbstractSocket, QIODevice, QNetworkProxy, QNetworkProxyProxyType, QSslSocket};
@@ -12,12 +13,12 @@ use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
     AliasOutcome, CommandSource, Handler, LuaStr, OptionError, Optionable, SendIterable,
-    SenderAccessError, SmushClient, Timers, World,
+    SenderAccessError, SmushClient, TimerFinish, Timers, World,
 };
 use smushclient_plugins::{Alias, ImportError, LoadError, PluginIndex, Timer, Trigger};
 
 use crate::convert::Convert;
-use crate::ffi::{self, AliasMenuItem, Document, Timekeeper};
+use crate::ffi::{self, Document, Timekeeper};
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
 use crate::results::IntoApiCode;
@@ -305,10 +306,10 @@ impl SmushClientRust {
         succeeded
     }
 
-    pub fn alias_menu(&self) -> Vec<AliasMenuItem> {
+    pub fn alias_menu(&self) -> Vec<ffi::AliasMenuItem> {
         let mut menu = Vec::new();
         self.client.build_alias_menu(|plugin, id, label| {
-            menu.push(AliasMenuItem {
+            menu.push(ffi::AliasMenuItem {
                 plugin,
                 id,
                 text: QString::from(label),
@@ -366,18 +367,12 @@ impl SmushClientRust {
         }
     }
 
-    pub fn finish_timer(&self, id: usize, timekeeper: &Timekeeper) -> bool {
-        let result = self.timers.borrow_mut().finish(id, &self.client);
-        if let Some(timer) = result.timer {
-            timekeeper.send_timer(&timer);
-        }
-        result.done
+    pub fn finish_timer(&self, id: usize) -> TimerFinish<ffi::SendTimer> {
+        self.timers.borrow_mut().finish(id, &self.client)
     }
 
-    pub fn poll_timers(&self, timekeeper: &Timekeeper) {
-        for timer in self.timers.borrow_mut().poll(&self.client) {
-            timekeeper.send_timer(&timer);
-        }
+    pub fn poll_timers(&self) -> Vec<Rc<ffi::SendTimer>> {
+        self.timers.borrow_mut().poll(&self.client)
     }
 
     pub fn stop_senders(&self) {
