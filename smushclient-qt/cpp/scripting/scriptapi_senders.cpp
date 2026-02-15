@@ -56,7 +56,7 @@ ScriptApi::AddAlias(size_t plugin,
 
     client.replaceAlias(plugin, alias);
     return ApiCode::OK;
-  } catch (rust::Error&) {
+  } catch (const rust::Error&) {
     return ApiCode::BadRegularExpression;
   }
 }
@@ -156,7 +156,7 @@ ScriptApi::AddTrigger(size_t plugin,
 
     client.replaceTrigger(plugin, trigger);
     return ApiCode::OK;
-  } catch (rust::Error&) {
+  } catch (const rust::Error&) {
     return ApiCode::BadRegularExpression;
   }
 }
