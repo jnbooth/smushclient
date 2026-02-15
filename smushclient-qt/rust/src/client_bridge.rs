@@ -8,7 +8,7 @@ use cxx_qt_lib::{QString, QStringList, QVariant};
 use smushclient::world::PersistError;
 use smushclient::{LuaStr, SendIterable};
 use smushclient_plugins::{
-    Alias, ImportError, LoadError, PluginIndex, RegexError, Timer, Trigger, XmlSerError,
+    Alias, ImportError, LoadError, PluginIndex, Timer, Trigger, XmlSerError,
 };
 
 use crate::convert::Convert;
@@ -99,8 +99,7 @@ impl ffi::SmushClient {
     }
 
     pub fn simulate(&self, line: &LuaStr, doc: Pin<&mut ffi::Document>) {
-        let line = String::from_utf8_lossy(line);
-        self.rust().simulate(&line, doc);
+        self.rust().simulate(&String::from_utf8_lossy(line), doc);
     }
 
     pub fn world_alpha_option(&self, index: PluginIndex, option: &LuaStr) -> VariableView {
@@ -173,10 +172,10 @@ impl ffi::SmushClient {
     }
 
     pub fn plugin_model_text(&self, index: PluginIndex, column: i32) -> QString {
-        let Some(plugin) = self.rust().client.plugin(index) else {
-            return QString::default();
-        };
-        plugin.cell_text(column)
+        match self.rust().client.plugin(index) {
+            Some(plugin) => plugin.cell_text(column),
+            None => QString::default(),
+        }
     }
 
     pub fn add_plugin(self: Pin<&mut Self>, path: &QString) -> Result<PluginIndex, LoadError> {
@@ -239,9 +238,8 @@ impl ffi::SmushClient {
         timer: &ffi::Timer,
         timekeeper: &ffi::Timekeeper,
     ) -> ffi::ApiCode {
-        let timer = Timer::from(timer.rust());
         self.rust()
-            .add_timer(index, timer, timekeeper)
+            .add_timer(index, timer.rust().into(), timekeeper)
             .code::<Timer>()
     }
 
@@ -299,9 +297,11 @@ impl ffi::SmushClient {
         }
     }
 
-    pub fn add_world_alias(&self, alias: &ffi::Alias) -> Result<ffi::ApiCode, RegexError> {
-        let alias = Alias::try_from(alias.rust())?;
-        Ok(self.rust().client.add_world_sender(alias).code::<Alias>())
+    pub fn add_world_alias(&self, alias: &ffi::Alias) -> ffi::ApiCode {
+        let Ok(alias) = Alias::try_from(alias.rust()) else {
+            return ffi::ApiCode::BadRegularExpression;
+        };
+        self.rust().client.add_world_sender(alias).code::<Alias>()
     }
 
     pub fn add_world_timer(
@@ -313,13 +313,14 @@ impl ffi::SmushClient {
         self.add_timer(index, timer, timekeeper)
     }
 
-    pub fn add_world_trigger(&self, trigger: &ffi::Trigger) -> Result<ffi::ApiCode, RegexError> {
-        let trigger = Trigger::try_from(trigger.rust())?;
-        Ok(self
-            .rust()
+    pub fn add_world_trigger(&self, trigger: &ffi::Trigger) -> ffi::ApiCode {
+        let Ok(trigger) = Trigger::try_from(trigger.rust()) else {
+            return ffi::ApiCode::BadRegularExpression;
+        };
+        self.rust()
             .client
             .add_world_sender(trigger)
-            .code::<Trigger>())
+            .code::<Trigger>()
     }
 
     pub fn replace_world_alias(&self, index: usize, alias: &ffi::Alias) -> i32 {
@@ -335,9 +336,8 @@ impl ffi::SmushClient {
         timer: &ffi::Timer,
         timekeeper: &ffi::Timekeeper,
     ) -> i32 {
-        let timer = Timer::from(timer.rust());
         self.rust()
-            .replace_world_timer(index, timer, timekeeper)
+            .replace_world_timer(index, timer.rust().into(), timekeeper)
             .code()
     }
 
@@ -400,8 +400,8 @@ impl ffi::SmushClient {
         timer: &ffi::Timer,
         timekeeper: &ffi::Timekeeper,
     ) -> ffi::ApiCode {
-        let timer = Timer::from(timer.rust());
-        self.rust().add_or_replace_timer(index, timer, timekeeper);
+        self.rust()
+            .add_or_replace_timer(index, timer.rust().into(), timekeeper);
         ffi::ApiCode::OK
     }
 

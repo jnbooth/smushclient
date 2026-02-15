@@ -186,9 +186,9 @@ pub mod ffi {
             name: &[u8],
         ) -> usize;
         fn remove_temporary_senders(self: &SmushClient, kind: SenderKind) -> usize;
-        fn add_world_alias(self: &SmushClient, alias: &Alias) -> Result<ApiCode>;
+        fn add_world_alias(self: &SmushClient, alias: &Alias) -> ApiCode;
         fn add_world_timer(self: &SmushClient, timer: &Timer, timekeeper: &Timekeeper) -> ApiCode;
-        fn add_world_trigger(self: &SmushClient, trigger: &Trigger) -> Result<ApiCode>;
+        fn add_world_trigger(self: &SmushClient, trigger: &Trigger) -> ApiCode;
         fn replace_world_alias(self: &SmushClient, index: usize, alias: &Alias) -> i32;
         fn replace_world_timer(
             self: &SmushClient,
