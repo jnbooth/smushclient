@@ -5,9 +5,10 @@ use std::io::{self, Write};
 use std::path::Path;
 use std::pin::Pin;
 
+use cxx::UniquePtr;
 use cxx_qt::casting::Downcast;
 use cxx_qt_io::{QAbstractSocket, QIODevice, QNetworkProxy, QNetworkProxyProxyType, QSslSocket};
-use cxx_qt_lib::{QString, QStringList, QVariant};
+use cxx_qt_lib::{QSet, QString, QStringList, QVariant};
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
@@ -30,6 +31,7 @@ pub struct SmushClientRust {
     pub client: SmushClient,
     read_buf: Vec<u8>,
     stats: RefCell<HashSet<String>>,
+    timekeeper: UniquePtr<Timekeeper>,
     timers: RefCell<Timers<ffi::SendTimer>>,
     formatter: TextFormatter,
 }
@@ -43,6 +45,7 @@ impl Default for SmushClientRust {
             read_buf: vec![0; BUF_LEN],
             stats: RefCell::new(HashSet::new()),
             timers: RefCell::new(Timers::new()),
+            timekeeper: UniquePtr::null(),
             formatter: TextFormatter::default(),
             client: SmushClient::new(
                 World::default(),
@@ -69,6 +72,16 @@ impl Default for SmushClientRust {
 }
 
 impl SmushClientRust {
+    pub fn acquire_timekeeper(&mut self, timekeeper: UniquePtr<Timekeeper>) {
+        self.timekeeper = timekeeper;
+    }
+
+    pub fn set_open(&mut self, open: bool) {
+        if let Some(timekeeper) = self.timekeeper.as_mut() {
+            timekeeper.set_open(open);
+        }
+    }
+
     pub fn load_world<P: AsRef<Path>>(&mut self, path: P) -> Result<(), PersistError> {
         self.client.load_world(File::open(path)?)?;
         self.apply_world();
@@ -326,10 +339,13 @@ impl SmushClientRust {
         )
     }
 
-    pub fn start_timers(&self, index: PluginIndex, timekeeper: &Timekeeper) {
+    pub fn start_timers(&self, index: PluginIndex) {
         if !self.client.world().enable_timers {
             return;
         }
+        let Some(timekeeper) = self.timekeeper.as_ref() else {
+            return;
+        };
         let timer_starts = {
             let mut timers = self.timers.borrow_mut();
             self.client
@@ -344,10 +360,13 @@ impl SmushClientRust {
         }
     }
 
-    pub fn start_all_timers(&self, timekeeper: &Timekeeper) {
+    pub fn start_all_timers(&self) {
         if !self.client.world().enable_timers {
             return;
         }
+        let Some(timekeeper) = self.timekeeper.as_ref() else {
+            return;
+        };
         let mut timer_starts = Vec::new();
         {
             let mut timers = self.timers.borrow_mut();
@@ -366,17 +385,28 @@ impl SmushClientRust {
         }
     }
 
-    pub fn finish_timer(&self, id: usize, timekeeper: &Timekeeper) -> bool {
+    pub fn finish_timer(&self, id: usize) -> bool {
         let result = self.timers.borrow_mut().finish(id, &self.client);
-        if let Some(timer) = result.timer {
+        if let Some(timer) = result.timer
+            && let Some(timekeeper) = self.timekeeper.as_ref()
+        {
             timekeeper.send_timer(&timer);
         }
         result.done
     }
 
-    pub fn poll_timers(&self, timekeeper: &Timekeeper) {
+    pub fn poll_timers(&self) {
+        let Some(timekeeper) = self.timekeeper.as_ref() else {
+            return;
+        };
         for timer in self.timers.borrow_mut().poll(&self.client) {
             timekeeper.send_timer(&timer);
+        }
+    }
+
+    pub fn cancel_timers(&mut self, timers: &QSet<u16>) {
+        if let Some(timekeeper) = self.timekeeper.as_mut() {
+            timekeeper.cancel_timers(timers);
         }
     }
 
@@ -386,12 +416,7 @@ impl SmushClientRust {
         self.client.stop_evaluating::<Trigger>();
     }
 
-    pub fn add_timer(
-        &self,
-        index: PluginIndex,
-        timer: Timer,
-        timekeeper: &Timekeeper,
-    ) -> Result<(), SenderAccessError> {
+    pub fn add_timer(&self, index: PluginIndex, timer: Timer) -> Result<(), SenderAccessError> {
         let start = {
             let timer = self.client.add_sender(index, timer)?;
             if !self.client.world().enable_timers {
@@ -399,13 +424,15 @@ impl SmushClientRust {
             }
             self.timers.borrow_mut().start(index, &timer)
         };
-        if let Some(start) = start {
+        if let Some(start) = start
+            && let Some(timekeeper) = self.timekeeper.as_ref()
+        {
             timekeeper.start(&start);
         }
         Ok(())
     }
 
-    pub fn add_or_replace_timer(&self, index: PluginIndex, timer: Timer, timekeeper: &Timekeeper) {
+    pub fn add_or_replace_timer(&self, index: PluginIndex, timer: Timer) {
         let start = {
             let timer = self.client.add_or_replace_sender(index, timer);
             if !self.client.world().enable_timers {
@@ -413,22 +440,23 @@ impl SmushClientRust {
             }
             self.timers.borrow_mut().start(index, &timer)
         };
-        if let Some(start) = start {
+        if let Some(start) = start
+            && let Some(timekeeper) = self.timekeeper.as_ref()
+        {
             timekeeper.start(&start);
         }
     }
 
-    pub fn import_world_timers(
-        &self,
-        xml: &str,
-        timekeeper: &Timekeeper,
-    ) -> Result<(), ImportError> {
+    pub fn import_world_timers(&self, xml: &str) -> Result<(), ImportError> {
         let world_index = self.world_plugin_index();
         let imported_timers = self.client.import_world_senders::<Timer>(xml)?;
         if !self.client.world().enable_timers {
             return Ok(());
         }
         let mut timers = self.timers.borrow_mut();
+        let Some(timekeeper) = self.timekeeper.as_ref() else {
+            return Ok(());
+        };
         for timer in &imported_timers {
             if let Some(start) = timers.start(world_index, timer) {
                 timekeeper.start(&start);
@@ -469,7 +497,6 @@ impl SmushClientRust {
         &self,
         index: usize,
         timer: Timer,
-        timekeeper: &Timekeeper,
     ) -> Result<usize, ffi::ReplaceSenderResult> {
         let group = timer.group.clone();
         let (result, start) = {
@@ -485,7 +512,9 @@ impl SmushClientRust {
             let world_index = self.world_plugin_index();
             (result, self.timers.borrow_mut().start(world_index, &timer))
         };
-        if let Some(start) = start {
+        if let Some(start) = start
+            && let Some(timekeeper) = self.timekeeper.as_ref()
+        {
             timekeeper.start(&start);
         }
         result

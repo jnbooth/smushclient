@@ -676,7 +676,7 @@ WorldTab::handleConnect()
     api->appendText(QDateTime::currentDateTime().toString(format));
     api->startLine();
   }
-  api->setOpen(true);
+  client.setOpen(true);
   OnPluginConnect onConnect;
   api->sendCallback(onConnect);
 }
@@ -969,7 +969,7 @@ WorldTab::onSocketDisconnect()
   api->statusBarWidgets().setConnected(
     MudStatusBar::ConnectionStatus::Disconnected);
   document->resetServerStatus();
-  api->setOpen(false);
+  client.setOpen(false);
   if (Settings().getDisplayDisconnect()) {
     const QString format =
       tr("'Disconnected on' dddd, MMMM d, yyyy 'at' h:mm AP");

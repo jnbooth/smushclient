@@ -27,7 +27,7 @@ WorldPrefs::WorldPrefs(World& world,
   , ui(new Ui::WorldPrefs)
   , aliases(new AliasModel(client, this))
   , plugins(new PluginModel(client, this))
-  , timers(new TimerModel(client, api.getTimekeeper(), this))
+  , timers(new TimerModel(client, this))
   , triggers(new TriggerModel(client, this))
   , world(world)
 {

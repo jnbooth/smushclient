@@ -101,10 +101,10 @@ ScriptApi::AddTimer(size_t plugin,
   timer.setText(QString::fromUtf8(text));
 
   if (!flags.testFlag(TimerFlag::Replace)) {
-    return client.addTimer(plugin, timer, *timekeeper);
+    return client.addTimer(plugin, timer);
   }
 
-  client.replaceTimer(plugin, timer, *timekeeper);
+  client.replaceTimer(plugin, timer);
   return ApiCode::OK;
 }
 

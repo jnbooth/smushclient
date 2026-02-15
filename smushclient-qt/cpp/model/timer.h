@@ -1,16 +1,12 @@
 #pragma once
 #include "sender.h"
 
-class Timekeeper;
-
 class TimerModel : public AbstractSenderModel
 {
   Q_OBJECT
 
 public:
-  TimerModel(SmushClient& client,
-             Timekeeper& timekeeper,
-             QObject* parent = nullptr);
+  explicit TimerModel(SmushClient& client, QObject* parent = nullptr);
 
   QString exportXml() const override;
   Qt::ItemFlags flags(const QModelIndex& index) const override;
@@ -25,7 +21,4 @@ protected:
                      const rust::String& group,
                      int row,
                      int count) override;
-
-private:
-  Timekeeper& timekeeper;
 };

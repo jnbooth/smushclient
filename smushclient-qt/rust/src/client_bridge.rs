@@ -2,9 +2,10 @@ use std::cell::Ref;
 use std::io;
 use std::pin::Pin;
 
+use cxx::UniquePtr;
 use cxx_qt::CxxQtType;
 use cxx_qt_io::QAbstractSocket;
-use cxx_qt_lib::{QString, QStringList, QVariant};
+use cxx_qt_lib::{QSet, QString, QStringList, QVariant};
 use smushclient::world::PersistError;
 use smushclient::{LuaStr, SendIterable};
 use smushclient_plugins::{
@@ -27,6 +28,14 @@ fn handle_import_error<T>(res: Result<T, ImportError>) -> Result<ffi::RegexParse
 }
 
 impl ffi::SmushClient {
+    pub fn acquire_timekeeper(self: Pin<&mut Self>, timekeeper: UniquePtr<ffi::Timekeeper>) {
+        self.rust_mut().acquire_timekeeper(timekeeper);
+    }
+
+    pub fn set_open(self: Pin<&mut Self>, open: bool) {
+        self.rust_mut().set_open(open);
+    }
+
     pub fn borrow_world_sender<T: SendIterable>(&self, index: usize) -> Option<Ref<'_, T>> {
         T::from_world(self.rust().client.world()).get(index)
     }
@@ -233,16 +242,9 @@ impl ffi::SmushClient {
         self.rust().client.add_sender(index, alias).code::<Alias>()
     }
 
-    pub fn add_timer(
-        &self,
-        index: PluginIndex,
-        timer: &ffi::Timer,
-        timekeeper: &ffi::Timekeeper,
-    ) -> ffi::ApiCode {
+    pub fn add_timer(&self, index: PluginIndex, timer: &ffi::Timer) -> ffi::ApiCode {
         let timer = Timer::from(timer.rust());
-        self.rust()
-            .add_timer(index, timer, timekeeper)
-            .code::<Timer>()
+        self.rust().add_timer(index, timer).code::<Timer>()
     }
 
     pub fn add_trigger(&self, index: PluginIndex, trigger: &ffi::Trigger) -> ffi::ApiCode {
@@ -299,13 +301,9 @@ impl ffi::SmushClient {
         Ok(self.rust().client.add_world_sender(alias).code::<Alias>())
     }
 
-    pub fn add_world_timer(
-        &self,
-        timer: &ffi::Timer,
-        timekeeper: &ffi::Timekeeper,
-    ) -> ffi::ApiCode {
+    pub fn add_world_timer(&self, timer: &ffi::Timer) -> ffi::ApiCode {
         let index = self.rust().world_plugin_index();
-        self.add_timer(index, timer, timekeeper)
+        self.add_timer(index, timer)
     }
 
     pub fn add_world_trigger(&self, trigger: &ffi::Trigger) -> Result<ffi::ApiCode, RegexError> {
@@ -324,16 +322,9 @@ impl ffi::SmushClient {
         self.rust().replace_world_alias(index, alias).code()
     }
 
-    pub fn replace_world_timer(
-        &self,
-        index: usize,
-        timer: &ffi::Timer,
-        timekeeper: &ffi::Timekeeper,
-    ) -> i32 {
+    pub fn replace_world_timer(&self, index: usize, timer: &ffi::Timer) -> i32 {
         let timer = Timer::from(timer.rust());
-        self.rust()
-            .replace_world_timer(index, timer, timekeeper)
-            .code()
+        self.rust().replace_world_timer(index, timer).code()
     }
 
     pub fn replace_world_trigger(&self, index: usize, trigger: &ffi::Trigger) -> i32 {
@@ -366,15 +357,8 @@ impl ffi::SmushClient {
         )
     }
 
-    pub fn import_world_timers(
-        &self,
-        xml: &QString,
-        timekeeper: &ffi::Timekeeper,
-    ) -> Result<ffi::RegexParse, ImportError> {
-        handle_import_error(
-            self.rust()
-                .import_world_timers(&String::from(xml), timekeeper),
-        )
+    pub fn import_world_timers(&self, xml: &QString) -> Result<ffi::RegexParse, ImportError> {
+        handle_import_error(self.rust().import_world_timers(&String::from(xml)))
     }
 
     pub fn import_world_triggers(&self, xml: &QString) -> Result<ffi::RegexParse, ImportError> {
@@ -393,14 +377,9 @@ impl ffi::SmushClient {
         ffi::ApiCode::OK
     }
 
-    pub fn replace_timer(
-        &self,
-        index: PluginIndex,
-        timer: &ffi::Timer,
-        timekeeper: &ffi::Timekeeper,
-    ) -> ffi::ApiCode {
+    pub fn replace_timer(&self, index: PluginIndex, timer: &ffi::Timer) -> ffi::ApiCode {
         let timer = Timer::from(timer.rust());
-        self.rust().add_or_replace_timer(index, timer, timekeeper);
+        self.rust().add_or_replace_timer(index, timer);
         ffi::ApiCode::OK
     }
 
@@ -647,20 +626,24 @@ impl ffi::SmushClient {
             .timer_info(index, &String::from_utf8_lossy(label), info_type)
     }
 
-    pub fn start_timers(&self, index: PluginIndex, timekeeper: &ffi::Timekeeper) {
-        self.rust().start_timers(index, timekeeper);
+    pub fn start_timers(&self, index: PluginIndex) {
+        self.rust().start_timers(index);
     }
 
-    pub fn start_all_timers(&self, timekeeper: &ffi::Timekeeper) {
-        self.rust().start_all_timers(timekeeper);
+    pub fn start_all_timers(&self) {
+        self.rust().start_all_timers();
     }
 
-    pub fn finish_timer(&self, id: usize, timekeeper: &ffi::Timekeeper) -> bool {
-        self.rust().finish_timer(id, timekeeper)
+    pub fn finish_timer(&self, id: usize) -> bool {
+        self.rust().finish_timer(id)
     }
 
-    pub fn poll_timers(&self, timekeeper: &ffi::Timekeeper) {
-        self.rust().poll_timers(timekeeper);
+    pub fn poll_timers(&self) {
+        self.rust().poll_timers();
+    }
+
+    pub fn cancel_timers(self: Pin<&mut Self>, timers: &QSet<u16>) {
+        self.rust_mut().cancel_timers(timers);
     }
 
     pub fn stop_senders(&self) {

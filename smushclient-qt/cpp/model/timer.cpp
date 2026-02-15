@@ -3,17 +3,13 @@
 #include "../ui/worlddetails/timeredit.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "smushclient_qt/src/ffi/sender_map.cxxqt.h"
-#include "smushclient_qt/src/ffi/timekeeper.cxxqt.h"
 
 using std::array;
 
 // Public methods
 
-TimerModel::TimerModel(SmushClient& client,
-                       Timekeeper& timekeeper,
-                       QObject* parent)
+TimerModel::TimerModel(SmushClient& client, QObject* parent)
   : AbstractSenderModel(client, SenderType::Timer, parent)
-  , timekeeper(timekeeper)
 {
   client.stopTimers();
 }
@@ -52,7 +48,7 @@ TimerModel::add(QWidget* parent)
   if (edit.exec() == QDialog::Rejected) {
     return false;
   }
-  return client.addWorldTimer(timer, timekeeper) == ApiCode::OK;
+  return client.addWorldTimer(timer) == ApiCode::OK;
 }
 
 int
@@ -63,7 +59,7 @@ TimerModel::edit(size_t index, QWidget* parent)
   if (edit.exec() == QDialog::Rejected) {
     return static_cast<int>(ReplaceSenderResult::Unchanged);
   }
-  return client.replaceWorldTimer(index, timer, timekeeper);
+  return client.replaceWorldTimer(index, timer);
 }
 
 const array<QString, 4>&
@@ -78,7 +74,7 @@ TimerModel::headers() const noexcept
 RegexParse
 TimerModel::import(const QString& xml)
 {
-  return client.importWorldTimers(xml, timekeeper);
+  return client.importWorldTimers(xml);
 }
 
 void
@@ -87,5 +83,5 @@ TimerModel::prepareRemove(SenderMap& senderMap,
                           int row,
                           int count)
 {
-  timekeeper.cancelTimers(senderMap.timerIds(client, group, row, count));
+  client.cancelTimers(senderMap.timerIds(client, group, row, count));
 }

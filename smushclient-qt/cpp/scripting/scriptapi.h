@@ -21,7 +21,6 @@ class Notepads;
 struct OutputLayout;
 enum class SendTarget;
 class SmushClient;
-class Timekeeper;
 class World;
 class WorldTab;
 struct lua_State;
@@ -48,7 +47,7 @@ public:
   static QVariant FontInfo(const QFont& font, int64_t infoType);
   static void SetClipboard(const QString& text);
 
-  ScriptApi(const SmushClient& client,
+  ScriptApi(SmushClient& client,
             QAbstractSocket& socket,
             MudBrowser& output,
             Notepads& notepads,
@@ -356,7 +355,6 @@ public:
   void echo(const QString& text);
   void finishNote();
   const Plugin* getPlugin(std::string_view pluginID) const;
-  constexpr Timekeeper& getTimekeeper() { return *timekeeper; }
   void handleSendRequest(const SendRequest& request);
   void moveCursor(QTextCursor::MoveOperation op, int count);
   bool isPluginEnabled(size_t plugin) const
@@ -385,7 +383,6 @@ public:
     return sendToWorld(bytes, text, flags);
   }
   void setNawsEnabled(bool enabled);
-  void setOpen(bool open) const;
   void setPluginEnabled(size_t plugin, bool enable = true);
   ActionSource setSource(ActionSource source) noexcept;
   void setSuppressEcho(bool suppress) noexcept;
@@ -461,7 +458,6 @@ private:
   std::unique_ptr<MudStatusBar> statusBar;
   bool suppressEcho = false;
   WorldTab& tab;
-  Timekeeper* timekeeper;
   int64_t totalLinesSent = 0;
   int64_t totalPacketsSent = 0;
   QDateTime whenConnected;

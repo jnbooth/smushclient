@@ -15,7 +15,9 @@ class Timekeeper : public QObject
   Q_OBJECT
 
 public:
-  explicit Timekeeper(const SmushClient& client, ScriptApi& parent);
+  Timekeeper(const SmushClient& client,
+             ScriptApi& api,
+             QObject* parent = nullptr);
   void beginPolling(std::chrono::milliseconds interval,
                     Qt::TimerType timerType = Qt::TimerType::CoarseTimer);
   void cancelTimers(const QSet<uint16_t>& timerIds);
@@ -34,9 +36,7 @@ private:
 
 private:
   bool finishTimer(const Item& item);
-
-private slots:
-  void pollTimers();
+  void pollTimers() const;
 
 private:
   ScriptApi& api;

@@ -26,7 +26,7 @@ using std::chrono::seconds;
 
 // Public methods
 
-ScriptApi::ScriptApi(const SmushClient& client,
+ScriptApi::ScriptApi(SmushClient& client,
                      QAbstractSocket& socket,
                      MudBrowser& output,
                      Notepads& notepads,
@@ -40,10 +40,12 @@ ScriptApi::ScriptApi(const SmushClient& client,
   , socket(socket)
   , statusBar(new MudStatusBar)
   , tab(parent)
-  , timekeeper(new Timekeeper(client, *this))
   , whenConnected(QDateTime::currentDateTime())
 {
+  auto timekeeper = std::make_unique<Timekeeper>(client, *this);
   timekeeper->beginPolling(milliseconds(seconds{ 60 }));
+  client.acquireTimekeeper(std::move(timekeeper));
+
   spans::setLineType(echoFormat, LineType::Input);
   spans::setLineType(noteFormat, LineType::Note);
 }
@@ -229,7 +231,7 @@ ScriptApi::initializePlugins()
     pluginIndices[pluginId] = index;
     if (plugin.install(pluginPack)) {
       callbackFilter.scan(plugin.state());
-      client.startTimers(index, *timekeeper);
+      client.startTimers(index);
     }
     ++index;
   }
@@ -299,7 +301,7 @@ ScriptApi::reinstallPlugin(size_t index)
     return;
   }
   callbackFilter.scan(plugin.state());
-  client.startTimers(index, *timekeeper);
+  client.startTimers(index);
   OnPluginInstall onInstall;
   sendCallback(onInstall, index);
   OnPluginListChanged onListChanged;
@@ -335,7 +337,7 @@ void
 ScriptApi::resetAllTimers()
 {
   sendQueue->clear();
-  client.startAllTimers(*timekeeper);
+  client.startAllTimers();
 }
 
 void
@@ -414,12 +416,6 @@ void
 ScriptApi::setNawsEnabled(bool enabled)
 {
   doesNaws = enabled;
-}
-
-void
-ScriptApi::setOpen(bool open) const
-{
-  timekeeper->setOpen(open);
 }
 
 void
