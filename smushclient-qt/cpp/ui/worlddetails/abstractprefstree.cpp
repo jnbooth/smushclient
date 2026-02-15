@@ -66,7 +66,7 @@ void
 AbstractPrefsTree::on_export_xml_clicked()
 {
   try {
-    QGuiApplication::clipboard()->setText(model.exportXml());
+    QGuiApplication::clipboard()->setText(model.tryExportXml());
   } catch (const rust::Error& e) {
     QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
   }
@@ -77,7 +77,7 @@ AbstractPrefsTree::on_import_xml_clicked()
 {
   try {
     const RegexParse result =
-      model.importXml(QGuiApplication::clipboard()->text());
+      model.tryImportXml(QGuiApplication::clipboard()->text());
     if (!result.success) {
       RegexDialog dialog(result, this);
       dialog.exec();

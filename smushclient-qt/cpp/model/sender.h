@@ -19,8 +19,8 @@ public:
                       QObject* parent = nullptr);
   bool addItem(QWidget* parent = nullptr);
   bool editItem(const QModelIndex& index, QWidget* parent = nullptr);
-  virtual QString exportXml() const = 0;
-  RegexParse importXml(const QString& xml);
+  virtual QString tryExportXml() const = 0;
+  RegexParse tryImportXml(const QString& xml);
   bool removeSelection(const QItemSelection& selection);
   int senderIndex(const QModelIndex& index) const;
 
@@ -50,7 +50,7 @@ protected:
   virtual bool add(QWidget* parent) = 0;
   virtual int edit(size_t index, QWidget* parent) = 0;
   virtual const std::array<QString, numColumns>& headers() const noexcept = 0;
-  virtual RegexParse import(const QString& xml) = 0;
+  virtual RegexParse tryImport(const QString& xml) = 0;
   virtual void prepareRemove(SenderMap& /*map*/,
                              const rust::String& /*group*/,
                              int /*row*/,

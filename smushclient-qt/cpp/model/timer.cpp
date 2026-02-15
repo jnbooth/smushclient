@@ -21,9 +21,9 @@ TimerModel::TimerModel(SmushClient& client,
 // Public overrides
 
 QString
-TimerModel::exportXml() const
+TimerModel::tryExportXml() const
 {
-  return client.exportWorldSenders(SenderKind::Timer);
+  return client.tryExportWorldSenders(SenderKind::Timer);
 }
 
 Qt::ItemFlags
@@ -76,9 +76,9 @@ TimerModel::headers() const noexcept
 }
 
 RegexParse
-TimerModel::import(const QString& xml)
+TimerModel::tryImport(const QString& xml)
 {
-  return client.importWorldTimers(xml, timekeeper);
+  return client.tryImportWorldTimers(xml, timekeeper);
 }
 
 void

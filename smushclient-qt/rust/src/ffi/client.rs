@@ -82,18 +82,18 @@ pub mod ffi {
         #[cxx_name = "SmushClientBase"]
         type SmushClient = super::SmushClientRust;
 
-        fn load_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<()>;
-        fn save_world(self: &SmushClient, path: &QString) -> Result<()>;
-        fn import_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<RegexParse>;
-        fn open_log(self: Pin<&mut SmushClient>) -> Result<()>;
-        fn close_log(self: &SmushClient) -> Result<()>;
+        fn try_load_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<()>;
+        fn try_save_world(self: &SmushClient, path: &QString) -> Result<()>;
+        fn try_import_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<RegexParse>;
+        fn try_open_log(self: Pin<&mut SmushClient>) -> Result<()>;
+        fn try_close_log(self: &SmushClient) -> Result<()>;
         fn log_input(self: &SmushClient, input: &QString);
         fn log_note(self: &SmushClient, note: &QString);
         fn load_plugins(self: Pin<&mut SmushClient>) -> QStringList;
         fn world_plugin_index(self: &SmushClient) -> usize;
-        fn load_variables(self: &SmushClient, path: &QString) -> Result<bool>;
-        fn save_variables(self: &SmushClient, path: &QString) -> Result<bool>;
-        fn set_world(self: Pin<&mut SmushClient>, world: &World) -> Result<bool>;
+        fn try_load_variables(self: &SmushClient, path: &QString) -> Result<bool>;
+        fn try_save_variables(self: &SmushClient, path: &QString) -> Result<bool>;
+        fn try_set_world(self: Pin<&mut SmushClient>, world: &World) -> Result<bool>;
         fn connect_to_host(self: &SmushClient, socket: Pin<&mut QAbstractSocket>);
         fn handle_connect(self: &SmushClient, socket: Pin<&mut QAbstractSocket>) -> QString;
         fn handle_disconnect(self: Pin<&mut SmushClient>);
@@ -141,7 +141,7 @@ pub mod ffi {
         fn get_info(self: &SmushClient, info_type: i64) -> QVariant;
         fn plugin_info(self: &SmushClient, index: usize, info_type: u8) -> QVariant;
         fn plugins_len(self: &SmushClient) -> usize;
-        fn add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> Result<usize>;
+        fn try_add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> Result<usize>;
         fn remove_plugin(self: Pin<&mut SmushClient>, index: usize) -> bool;
         fn plugin_enabled(self: &SmushClient, index: usize) -> bool;
         fn plugin_id(self: &SmushClient, index: usize) -> QString;
@@ -149,7 +149,7 @@ pub mod ffi {
         fn plugin(self: &SmushClient, index: usize) -> PluginPack;
         fn reset_world_plugin(self: &SmushClient);
         fn reset_plugins(self: &SmushClient) -> Vec<PluginPack>;
-        fn reinstall_plugin(self: Pin<&mut SmushClient>, index: usize) -> Result<usize>;
+        fn try_reinstall_plugin(self: Pin<&mut SmushClient>, index: usize) -> Result<usize>;
         fn read(
             self: Pin<&mut SmushClient>,
             device: Pin<&mut QAbstractSocket>,
@@ -197,14 +197,14 @@ pub mod ffi {
             timekeeper: &Timekeeper,
         ) -> i32;
         fn replace_world_trigger(self: &SmushClient, index: usize, trigger: &Trigger) -> i32;
-        fn export_world_senders(self: &SmushClient, kind: SenderKind) -> Result<QString>;
-        fn import_world_aliases(self: &SmushClient, xml: &QString) -> Result<RegexParse>;
-        fn import_world_timers(
+        fn try_export_world_senders(self: &SmushClient, kind: SenderKind) -> Result<QString>;
+        fn try_import_world_aliases(self: &SmushClient, xml: &QString) -> Result<RegexParse>;
+        fn try_import_world_timers(
             self: &SmushClient,
             xml: &QString,
             timekeeper: &Timekeeper,
         ) -> Result<RegexParse>;
-        fn import_world_triggers(self: &SmushClient, xml: &QString) -> Result<RegexParse>;
+        fn try_import_world_triggers(self: &SmushClient, xml: &QString) -> Result<RegexParse>;
         fn replace_alias(self: &SmushClient, index: usize, alias: &Alias) -> ApiCode;
         fn replace_timer(
             self: &SmushClient,

@@ -28,7 +28,7 @@ PluginModel::addPlugin(const QString& filePath)
 {
   int pluginIndex;
   try {
-    pluginIndex = static_cast<int>(client.addPlugin(filePath));
+    pluginIndex = static_cast<int>(client.tryAddPlugin(filePath));
   } catch (const rust::Error& e) {
     const QString error = QString::fromUtf8(e.what());
     emit clientError(error);
@@ -71,7 +71,7 @@ PluginModel::reinstall(const QModelIndex& index)
   const size_t oldIndex = pluginIndex(row);
   size_t newIndex;
   try {
-    newIndex = client.reinstallPlugin(oldIndex);
+    newIndex = client.tryReinstallPlugin(oldIndex);
   } catch (const rust::Error& e) {
     const QString error = QString::fromUtf8(e.what());
     emit clientError(error);

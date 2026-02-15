@@ -31,22 +31,22 @@ impl ffi::SmushClient {
         T::from_world(self.rust().client.world()).get(index)
     }
 
-    pub fn load_world(self: Pin<&mut Self>, path: &QString) -> Result<(), PersistError> {
+    pub fn try_load_world(self: Pin<&mut Self>, path: &QString) -> Result<(), PersistError> {
         self.rust_mut().load_world(String::from(path))
     }
 
-    pub fn import_world(
+    pub fn try_import_world(
         self: Pin<&mut Self>,
         path: &QString,
     ) -> Result<ffi::RegexParse, ImportError> {
         handle_import_error(self.rust_mut().import_world(String::from(path)))
     }
 
-    pub fn open_log(self: Pin<&mut Self>) -> io::Result<()> {
+    pub fn try_open_log(self: Pin<&mut Self>) -> io::Result<()> {
         self.rust_mut().client.open_log()
     }
 
-    pub fn close_log(&self) -> io::Result<()> {
+    pub fn try_close_log(&self) -> io::Result<()> {
         self.rust().client.close_log()
     }
 
@@ -70,19 +70,19 @@ impl ffi::SmushClient {
         self.rust().client.plugins_len()
     }
 
-    pub fn save_world(&self, path: &QString) -> Result<(), PersistError> {
+    pub fn try_save_world(&self, path: &QString) -> Result<(), PersistError> {
         self.rust().save_world(String::from(path))
     }
 
-    pub fn load_variables(&self, path: &QString) -> Result<bool, PersistError> {
+    pub fn try_load_variables(&self, path: &QString) -> Result<bool, PersistError> {
         self.rust().load_variables(String::from(path))
     }
 
-    pub fn save_variables(&self, path: &QString) -> Result<bool, PersistError> {
+    pub fn try_save_variables(&self, path: &QString) -> Result<bool, PersistError> {
         self.rust().save_variables(String::from(path))
     }
 
-    pub fn set_world(self: Pin<&mut Self>, world: &ffi::World) -> io::Result<bool> {
+    pub fn try_set_world(self: Pin<&mut Self>, world: &ffi::World) -> io::Result<bool> {
         self.rust_mut().set_world(world.rust())
     }
 
@@ -178,7 +178,7 @@ impl ffi::SmushClient {
         }
     }
 
-    pub fn add_plugin(self: Pin<&mut Self>, path: &QString) -> Result<PluginIndex, LoadError> {
+    pub fn try_add_plugin(self: Pin<&mut Self>, path: &QString) -> Result<PluginIndex, LoadError> {
         Ok(self.rust_mut().client.add_plugin(String::from(path))?.0)
     }
 
@@ -201,7 +201,10 @@ impl ffi::SmushClient {
         self.rust().reset_plugins()
     }
 
-    pub fn reinstall_plugin(self: Pin<&mut Self>, index: PluginIndex) -> Result<usize, LoadError> {
+    pub fn try_reinstall_plugin(
+        self: Pin<&mut Self>,
+        index: PluginIndex,
+    ) -> Result<usize, LoadError> {
         self.rust_mut().reinstall_plugin(index)
     }
 
@@ -348,7 +351,7 @@ impl ffi::SmushClient {
         self.rust().replace_world_trigger(index, trigger).code()
     }
 
-    pub fn export_world_senders(&self, kind: SenderKind) -> Result<QString, XmlSerError> {
+    pub fn try_export_world_senders(&self, kind: SenderKind) -> Result<QString, XmlSerError> {
         let client = &self.rust().client;
         let xml = match kind {
             SenderKind::Alias => client.export_world_senders::<Alias>(),
@@ -359,7 +362,7 @@ impl ffi::SmushClient {
         Ok(QString::from(&xml))
     }
 
-    pub fn import_world_aliases(&self, xml: &QString) -> Result<ffi::RegexParse, ImportError> {
+    pub fn try_import_world_aliases(&self, xml: &QString) -> Result<ffi::RegexParse, ImportError> {
         handle_import_error(
             self.rust()
                 .client
@@ -367,7 +370,7 @@ impl ffi::SmushClient {
         )
     }
 
-    pub fn import_world_timers(
+    pub fn try_import_world_timers(
         &self,
         xml: &QString,
         timekeeper: &ffi::Timekeeper,
@@ -378,7 +381,7 @@ impl ffi::SmushClient {
         )
     }
 
-    pub fn import_world_triggers(&self, xml: &QString) -> Result<ffi::RegexParse, ImportError> {
+    pub fn try_import_world_triggers(&self, xml: &QString) -> Result<ffi::RegexParse, ImportError> {
         handle_import_error(
             self.rust()
                 .client

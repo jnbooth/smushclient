@@ -17,9 +17,9 @@ TriggerModel::TriggerModel(SmushClient& client, QObject* parent)
 // Public overrides
 
 QString
-TriggerModel::exportXml() const
+TriggerModel::tryExportXml() const
 {
-  return client.exportWorldSenders(SenderKind::Trigger);
+  return client.tryExportWorldSenders(SenderKind::Trigger);
 }
 
 Qt::ItemFlags
@@ -67,7 +67,7 @@ TriggerModel::headers() const noexcept
 }
 
 RegexParse
-TriggerModel::import(const QString& xml)
+TriggerModel::tryImport(const QString& xml)
 {
-  return client.importWorldTriggers(xml);
+  return client.tryImportWorldTriggers(xml);
 }

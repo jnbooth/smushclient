@@ -172,7 +172,7 @@ void
 WorldTab::closeLog()
 {
   try {
-    client.closeLog();
+    client.tryCloseLog();
   } catch (const rust::Error& e) {
     showRustError(e);
   }
@@ -225,7 +225,7 @@ bool
 WorldTab::importWorld(const QString& filename) &
 {
   try {
-    const RegexParse result = client.importWorld(filename);
+    const RegexParse result = client.tryImportWorld(filename);
     if (!result.success) {
       RegexDialog dialog(result, this);
       dialog.exec();
@@ -250,7 +250,7 @@ void
 WorldTab::openLog()
 {
   try {
-    client.openLog();
+    client.tryOpenLog();
   } catch (const rust::Error& e) {
     showRustError(e);
   }
@@ -260,7 +260,7 @@ bool
 WorldTab::openWorld(const QString& filename) &
 {
   try {
-    client.loadWorld(filename);
+    client.tryLoadWorld(filename);
   } catch (const rust::Error& e) {
     showRustError(e);
     return false;
@@ -284,7 +284,7 @@ WorldTab::openWorldSettings()
   }
 
   try {
-    if (!client.setWorld(world)) {
+    if (!client.trySetWorld(world)) {
       return false;
     }
   } catch (const rust::Error& e) {
@@ -488,7 +488,7 @@ WorldTab::start()
 
   if (!filePath.isEmpty()) {
     try {
-      client.loadVariables(variablesPath(filePath));
+      client.tryLoadVariables(variablesPath(filePath));
     } catch (const rust::Error& e) {
       showRustError(e);
     }
@@ -756,7 +756,7 @@ WorldTab::saveWorldAndState(const QString& path)
   OnPluginWorldSave onWorldSave;
   api->sendCallback(onWorldSave);
   try {
-    client.saveWorld(path);
+    client.trySaveWorld(path);
   } catch (const rust::Error& e) {
     showRustError(e);
     return false;
@@ -765,7 +765,7 @@ WorldTab::saveWorldAndState(const QString& path)
   OnPluginSaveState onSaveState;
   api->sendCallback(onSaveState);
   try {
-    client.saveVariables(variablesPath(path));
+    client.trySaveVariables(variablesPath(path));
   } catch (const rust::Error& e) {
     showRustError(e);
   }

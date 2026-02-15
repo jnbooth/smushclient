@@ -17,9 +17,9 @@ AliasModel::AliasModel(SmushClient& client, QObject* parent)
 // Public overrides
 
 QString
-AliasModel::exportXml() const
+AliasModel::tryExportXml() const
 {
-  return client.exportWorldSenders(SenderKind::Alias);
+  return client.tryExportWorldSenders(SenderKind::Alias);
 }
 
 Qt::ItemFlags
@@ -67,7 +67,7 @@ AliasModel::headers() const noexcept
 }
 
 RegexParse
-AliasModel::import(const QString& xml)
+AliasModel::tryImport(const QString& xml)
 {
-  return client.importWorldAliases(xml);
+  return client.tryImportWorldAliases(xml);
 }
