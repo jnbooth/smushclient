@@ -15,7 +15,7 @@ TimerModel::TimerModel(SmushClient& client,
   : AbstractSenderModel(client, SenderType::Timer, parent)
   , timekeeper(timekeeper)
 {
-  client.stopTimers();
+  client.stopSenders(SenderKind::Timer);
 }
 
 // Public overrides
@@ -23,7 +23,7 @@ TimerModel::TimerModel(SmushClient& client,
 QString
 TimerModel::exportXml() const
 {
-  return client.exportWorldTimers();
+  return client.exportWorldSenders(SenderKind::Timer);
 }
 
 Qt::ItemFlags

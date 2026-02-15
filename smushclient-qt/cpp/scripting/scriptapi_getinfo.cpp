@@ -566,11 +566,13 @@ ScriptApi::GetTimerInfo(size_t pluginIndex,
 
   if (infoType == 26) {
     const QString scriptName =
-      client.timerInfo(pluginIndex, bytes::slice(label), 5).toString();
+      client.senderInfo(SenderKind::Timer, pluginIndex, bytes::slice(label), 5)
+        .toString();
     return !scriptName.isEmpty() &&
            plugins[pluginIndex].hasFunction(scriptName);
   }
-  return client.timerInfo(pluginIndex, bytes::slice(label), infoType);
+  return client.senderInfo(
+    SenderKind::Timer, pluginIndex, bytes::slice(label), infoType);
 }
 
 // External implementations

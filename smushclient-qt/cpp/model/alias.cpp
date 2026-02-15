@@ -11,7 +11,7 @@ using std::array;
 AliasModel::AliasModel(SmushClient& client, QObject* parent)
   : AbstractSenderModel(client, SenderType::Alias, parent)
 {
-  client.stopAliases();
+  client.stopSenders(SenderKind::Alias);
 }
 
 // Public overrides
@@ -19,7 +19,7 @@ AliasModel::AliasModel(SmushClient& client, QObject* parent)
 QString
 AliasModel::exportXml() const
 {
-  return client.exportWorldAliases();
+  return client.exportWorldSenders(SenderKind::Alias);
 }
 
 Qt::ItemFlags

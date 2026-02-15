@@ -70,6 +70,12 @@ pub mod ffi {
         NotFound = -5,
     }
 
+    enum SenderKind {
+        Alias,
+        Timer,
+        Trigger,
+    }
+
     #[auto_cxx_name]
     extern "RustQt" {
         #[qobject]
@@ -152,7 +158,13 @@ pub mod ffi {
         fn flush(self: Pin<&mut SmushClient>, doc: Pin<&mut Document>);
         fn handle_alert(self: &SmushClient) -> ApiCode;
         fn has_output(self: &SmushClient) -> bool;
-        fn timer_info(self: &SmushClient, index: usize, label: &[u8], info_type: u8) -> QVariant;
+        fn sender_info(
+            self: &SmushClient,
+            kind: SenderKind,
+            index: usize,
+            label: &[u8],
+            info_type: u8,
+        ) -> QVariant;
         fn add_alias(self: &SmushClient, index: usize, alias: &Alias) -> ApiCode;
         fn add_timer(
             self: &SmushClient,
@@ -161,15 +173,19 @@ pub mod ffi {
             timekeeper: &Timekeeper,
         ) -> ApiCode;
         fn add_trigger(self: &SmushClient, index: usize, trigger: &Trigger) -> ApiCode;
-        fn remove_alias(self: &SmushClient, index: usize, label: &[u8]) -> ApiCode;
-        fn remove_timer(self: &SmushClient, index: usize, label: &[u8]) -> ApiCode;
-        fn remove_trigger(self: &SmushClient, index: usize, label: &[u8]) -> ApiCode;
-        fn remove_alias_group(self: &SmushClient, index: usize, group: &[u8]) -> usize;
-        fn remove_timer_group(self: &SmushClient, index: usize, group: &[u8]) -> usize;
-        fn remove_trigger_group(self: &SmushClient, index: usize, group: &[u8]) -> usize;
-        fn remove_temporary_aliases(self: &SmushClient) -> usize;
-        fn remove_temporary_timers(self: &SmushClient) -> usize;
-        fn remove_temporary_triggers(self: &SmushClient) -> usize;
+        fn remove_sender(
+            self: &SmushClient,
+            kind: SenderKind,
+            index: usize,
+            name: &[u8],
+        ) -> ApiCode;
+        fn remove_sender_group(
+            self: &SmushClient,
+            kind: SenderKind,
+            index: usize,
+            name: &[u8],
+        ) -> usize;
+        fn remove_temporary_senders(self: &SmushClient, kind: SenderKind) -> usize;
         fn add_world_alias(self: &SmushClient, alias: &Alias) -> Result<ApiCode>;
         fn add_world_timer(self: &SmushClient, timer: &Timer, timekeeper: &Timekeeper) -> ApiCode;
         fn add_world_trigger(self: &SmushClient, trigger: &Trigger) -> Result<ApiCode>;
@@ -181,9 +197,7 @@ pub mod ffi {
             timekeeper: &Timekeeper,
         ) -> i32;
         fn replace_world_trigger(self: &SmushClient, index: usize, trigger: &Trigger) -> i32;
-        fn export_world_aliases(self: &SmushClient) -> Result<QString>;
-        fn export_world_timers(self: &SmushClient) -> Result<QString>;
-        fn export_world_triggers(self: &SmushClient) -> Result<QString>;
+        fn export_world_senders(self: &SmushClient, kind: SenderKind) -> Result<QString>;
         fn import_world_aliases(self: &SmushClient, xml: &QString) -> Result<RegexParse>;
         fn import_world_timers(
             self: &SmushClient,
@@ -199,76 +213,32 @@ pub mod ffi {
             timekeeper: &Timekeeper,
         ) -> ApiCode;
         fn replace_trigger(self: &SmushClient, index: usize, trigger: &Trigger) -> ApiCode;
-        fn is_alias(self: &SmushClient, index: usize, label: &[u8]) -> bool;
-        fn is_timer(self: &SmushClient, index: usize, label: &[u8]) -> bool;
-        fn is_trigger(self: &SmushClient, index: usize, label: &[u8]) -> bool;
-        fn set_alias_enabled(
+        fn is_sender(self: &SmushClient, kind: SenderKind, index: usize, label: &[u8]) -> bool;
+        fn set_sender_enabled(
             self: &SmushClient,
+            kind: SenderKind,
             index: usize,
             label: &[u8],
             enable: bool,
         ) -> ApiCode;
-        fn set_aliases_enabled(
+        fn set_senders_enabled(
             self: &SmushClient,
+            kind: SenderKind,
             index: usize,
             group: &[u8],
             enable: bool,
         ) -> bool;
         fn set_plugin_enabled(self: &SmushClient, index: usize, enable: bool) -> bool;
-        fn set_timer_enabled(
+        fn get_sender_option(
             self: &SmushClient,
-            index: usize,
-            label: &[u8],
-            enable: bool,
-        ) -> ApiCode;
-        fn set_timers_enabled(self: &SmushClient, index: usize, group: &[u8], enable: bool)
-        -> bool;
-        fn set_trigger_enabled(
-            self: &SmushClient,
-            index: usize,
-            label: &[u8],
-            enable: bool,
-        ) -> ApiCode;
-        fn set_triggers_enabled(
-            self: &SmushClient,
-            index: usize,
-            group: &[u8],
-            enable: bool,
-        ) -> bool;
-        fn get_alias_option(
-            self: &SmushClient,
+            kind: SenderKind,
             index: usize,
             label: &[u8],
             option: &[u8],
         ) -> QVariant;
-        fn get_timer_option(
+        fn set_sender_option(
             self: &SmushClient,
-            index: usize,
-            label: &[u8],
-            option: &[u8],
-        ) -> QVariant;
-        fn get_trigger_option(
-            self: &SmushClient,
-            index: usize,
-            label: &[u8],
-            option: &[u8],
-        ) -> QVariant;
-        fn set_alias_option(
-            self: &SmushClient,
-            index: usize,
-            label: &[u8],
-            option: &[u8],
-            value: &[u8],
-        ) -> ApiCode;
-        fn set_timer_option(
-            self: &SmushClient,
-            index: usize,
-            label: &[u8],
-            option: &[u8],
-            value: &[u8],
-        ) -> ApiCode;
-        fn set_trigger_option(
-            self: &SmushClient,
+            kind: SenderKind,
             index: usize,
             label: &[u8],
             option: &[u8],
@@ -285,10 +255,7 @@ pub mod ffi {
         fn start_all_timers(self: &SmushClient, timekeeper: &Timekeeper);
         fn finish_timer(self: Pin<&mut SmushClient>, id: usize) -> bool;
         fn poll_timers(self: Pin<&mut SmushClient>);
-        fn stop_senders(self: &SmushClient);
-        fn stop_aliases(self: &SmushClient);
-        fn stop_timers(self: &SmushClient);
-        fn stop_triggers(self: &SmushClient);
+        fn stop_senders(self: &SmushClient, kind: SenderKind);
         fn command_splitter(self: &SmushClient) -> u8;
 
         #[qsignal]

@@ -361,7 +361,7 @@ ScriptApi::Simulate(string_view output) const
 void
 ScriptApi::StopEvaluatingTriggers() const
 {
-  client.stopTriggers();
+  client.stopSenders(SenderKind::Trigger);
 }
 
 ApiCode

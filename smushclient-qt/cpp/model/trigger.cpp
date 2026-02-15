@@ -11,7 +11,7 @@ using std::array;
 TriggerModel::TriggerModel(SmushClient& client, QObject* parent)
   : AbstractSenderModel(client, SenderType::Trigger, parent)
 {
-  client.stopTriggers();
+  client.stopSenders(SenderKind::Trigger);
 }
 
 // Public overrides
@@ -19,7 +19,7 @@ TriggerModel::TriggerModel(SmushClient& client, QObject* parent)
 QString
 TriggerModel::exportXml() const
 {
-  return client.exportWorldTriggers();
+  return client.exportWorldSenders(SenderKind::Trigger);
 }
 
 Qt::ItemFlags

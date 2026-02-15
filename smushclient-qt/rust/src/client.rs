@@ -375,12 +375,6 @@ impl SmushClientRust {
         self.timers.borrow_mut().poll(&self.client)
     }
 
-    pub fn stop_senders(&self) {
-        self.client.stop_evaluating::<Alias>();
-        self.client.stop_evaluating::<Timer>();
-        self.client.stop_evaluating::<Trigger>();
-    }
-
     pub fn add_timer(
         &self,
         index: PluginIndex,
