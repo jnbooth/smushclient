@@ -1,4 +1,5 @@
 #include "mudbrowser.h"
+#include "../../mudcursor.h"
 #include "mudscrollbar.h"
 #include <QtGui/QMouseEvent>
 
@@ -6,6 +7,7 @@
 
 MudBrowser::MudBrowser(QWidget* parent)
   : QTextBrowser(parent)
+  , mudCursor(nullptr)
 {
   setVerticalScrollBar(new MudScrollBar);
 }
@@ -14,6 +16,15 @@ MudScrollBar*
 MudBrowser::verticalScrollBar() const
 {
   return qobject_cast<MudScrollBar*>(QAbstractScrollArea::verticalScrollBar());
+}
+
+MudCursor*
+MudBrowser::cursor()
+{
+  if (mudCursor == nullptr) {
+    mudCursor = new MudCursor(document());
+  }
+  return mudCursor;
 }
 
 // Public slots

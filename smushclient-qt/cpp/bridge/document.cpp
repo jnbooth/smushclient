@@ -41,7 +41,7 @@ strView(rust::Str str) noexcept
 Document::Document(MudBrowser& output, ScriptApi& api, QObject* parent)
   : QObject(parent)
   , api(api)
-  , doc(*output.document())
+  , cursor(output.cursor())
   , scrollBar(*output.verticalScrollBar())
 {
   expireLinkFormat.setAnchor(false);
@@ -51,20 +51,20 @@ Document::Document(MudBrowser& output, ScriptApi& api, QObject* parent)
 void
 Document::appendHtml(const QString& html) const
 {
-  api.appendHtml(html);
+  cursor->appendHtml(html);
 }
 
 void
 Document::appendLine()
 {
-  outputStart = doc.blockCount() - 1;
-  api.startLine();
+  outputStart = cursor->document()->blockCount() - 1;
+  cursor->startLine();
 }
 
 void
 Document::appendText(const QString& text, const QTextCharFormat& format) const
 {
-  api.appendText(text, format);
+  cursor->appendText(text, format);
 }
 
 void
@@ -72,26 +72,27 @@ Document::appendExpiringLink(const QString& text,
                              const QTextCharFormat& format,
                              const rust::Str expires)
 {
-  const int position = doc.characterCount();
-  api.appendText(text, format);
-  QTextCursor cursor(&doc);
-  cursor.setPosition(position - 1);
-  if (cursor.atBlockEnd()) {
-    cursor.movePosition(QTextCursor::MoveOperation::NextBlock);
+  QTextDocument* doc = cursor->document();
+  const int position = doc->characterCount();
+  cursor->appendText(text, format);
+  QTextCursor linkCursor(doc);
+  linkCursor.setPosition(position - 1);
+  if (linkCursor.atBlockEnd()) {
+    linkCursor.movePosition(QTextCursor::MoveOperation::NextBlock);
   }
-  cursor.movePosition(QTextCursor::MoveOperation::End,
-                      QTextCursor::MoveMode::KeepAnchor);
-  cursor.setKeepPositionOnInsert(true);
-  linksWithExpiration(expires).push_back(cursor);
+  linkCursor.movePosition(QTextCursor::MoveOperation::End,
+                          QTextCursor::MoveMode::KeepAnchor);
+  linkCursor.setKeepPositionOnInsert(true);
+  linksWithExpiration(expires).push_back(linkCursor);
 }
 
 void
 Document::applyStyles(int start, int end, const QTextCharFormat& format) const
 {
-  QTextCursor cursor(doc.findBlockByNumber(outputStart));
-  cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, start);
-  cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, end);
-  cursor.mergeCharFormat(format);
+  QTextCursor styleCursor(cursor->document()->findBlockByNumber(outputStart));
+  styleCursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, start);
+  styleCursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, end);
+  styleCursor.mergeCharFormat(format);
 }
 
 void
@@ -106,14 +107,14 @@ Document::beep() const
 void
 Document::begin() const
 {
-  api.updateTimestamp();
+  cursor->updateTimestamp();
   scrollBar.setAutoScrollEnabled(false);
 }
 
 void
 Document::clear() const
 {
-  doc.clear();
+  cursor->clear();
 }
 
 void
@@ -127,7 +128,7 @@ Document::createMxpStat(const QString& entity,
 void
 Document::echo(const QString& text) const
 {
-  api.echo(text);
+  cursor->echo(text);
 }
 
 void
@@ -142,17 +143,17 @@ Document::end(bool hadOutput)
 void
 Document::eraseCharacters(QTextCursor::MoveOperation direction, int n) const
 {
-  QTextCursor cursor(&doc);
-  cursor.movePosition(direction, QTextCursor::MoveMode::KeepAnchor, n);
-  cursor.removeSelectedText();
+  QTextCursor eraseCursor(cursor->document());
+  eraseCursor.movePosition(direction, QTextCursor::MoveMode::KeepAnchor, n);
+  eraseCursor.removeSelectedText();
 }
 
 void
 Document::eraseCurrentLine() const
 {
-  QTextCursor cursor(&doc);
-  cursor.select(QTextCursor::SelectionType::BlockUnderCursor);
-  cursor.removeSelectedText();
+  QTextCursor eraseCursor(cursor->document());
+  eraseCursor.select(QTextCursor::SelectionType::BlockUnderCursor);
+  eraseCursor.removeSelectedText();
 }
 
 void
@@ -161,16 +162,16 @@ Document::expireLinks(rust::Str expires)
   serverExpiresLinks = true;
   if (!expires.empty()) {
     vector<QTextCursor>& expiredLinks = linksWithExpiration(expires);
-    for (QTextCursor& cursor : expiredLinks) {
-      cursor.mergeCharFormat(expireLinkFormat);
+    for (QTextCursor& linkCursor : expiredLinks) {
+      linkCursor.mergeCharFormat(expireLinkFormat);
     }
     expiredLinks.clear();
     return;
   }
   for (auto& pair : links) {
     vector<QTextCursor>& expiredLinks = pair.second;
-    for (QTextCursor& cursor : expiredLinks) {
-      cursor.mergeCharFormat(expireLinkFormat);
+    for (QTextCursor& linkCursor : expiredLinks) {
+      linkCursor.mergeCharFormat(expireLinkFormat);
     }
     expiredLinks.clear();
   }
@@ -179,9 +180,10 @@ Document::expireLinks(rust::Str expires)
 void
 Document::eraseLastLine() const
 {
-  QTextCursor cursor(doc.findBlockByLineNumber(outputStart));
-  cursor.select(QTextCursor::SelectionType::BlockUnderCursor);
-  cursor.removeSelectedText();
+  QTextCursor eraseCursor(
+    cursor->document()->findBlockByLineNumber(outputStart));
+  eraseCursor.select(QTextCursor::SelectionType::BlockUnderCursor);
+  eraseCursor.removeSelectedText();
 }
 
 void
@@ -279,7 +281,7 @@ Document::handleTelnetSubnegotiation(uint8_t code, const QByteArray& data) const
 void
 Document::moveCursor(QTextCursor::MoveOperation op, int count) const
 {
-  api.moveCursor(op, count);
+  cursor->move(op, count);
 }
 
 bool
@@ -428,7 +430,7 @@ Document::send(const SendScriptRequest& request) const
 void
 Document::setSuppressEcho(bool suppress) const
 {
-  api.setSuppressEcho(suppress);
+  cursor->setSuppressingEcho(suppress);
 }
 
 void

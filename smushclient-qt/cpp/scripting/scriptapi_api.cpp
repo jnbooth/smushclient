@@ -88,14 +88,14 @@ ScriptApi::ColourTell(const QColor& foreground,
                       const QColor& background,
                       const QString& text)
 {
-  QTextCharFormat format = cursor.charFormat();
+  QTextCharFormat format;
   if (foreground.isValid()) {
     format.setForeground(foreground);
   }
   if (background.isValid()) {
     format.setBackground(background);
   }
-  appendTell(text, format);
+  cursor->appendTell(text, format);
 }
 
 int
@@ -177,7 +177,7 @@ ScriptApi::GetAlphaOption(size_t plugin, string_view name) const
 int
 ScriptApi::GetLinesInBufferCount() const
 {
-  return cursor.document()->lineCount();
+  return cursor->document()->lineCount();
 }
 
 QVariant
@@ -237,7 +237,7 @@ ScriptApi::Hyperlink(const QString& action,
   if (!noUnderline) {
     format.setAnchor(true);
   }
-  appendTell(text, format);
+  cursor->appendTell(text, format);
 }
 
 QColor
@@ -307,32 +307,12 @@ ScriptApi::SetOption(size_t plugin, string_view name, int64_t value)
     return code;
   }
 
-  if (name == "echo_colour") {
-    echoFormat.setForeground(QColor(value));
-  } else if (name == "echo_background_colour") {
-    echoFormat.setBackground(QColor(value));
-  } else if (name == "display_my_input") {
+  cursor->setOption(name, value);
+
+  if (name == "display_my_input") {
     echoInput = value == 1;
-  } else if (name == "error_text_colour") {
-    errorFormat.setForeground(QColor(value));
-  } else if (name == "error_background_colour") {
-    errorFormat.setBackground(QColor(value));
-  } else if (name == "indent_paras") {
-    indentText = QStringLiteral(" ").repeated(value);
-  } else if (name == "keep_commands_on_same_line") {
-    echoOnSameLine = value == 1;
-  } else if (name == "log_notes") {
-    logNotes = value == 1;
   } else if (name == "naws") {
     doNaws = value == 1;
-  } else if (name == "note_text_colour") {
-    noteFormat.setForeground(QColor(value));
-  } else if (name == "note_background_colour") {
-    noteFormat.setBackground(QColor(value));
-  } else if (name == "no_echo_off") {
-    if (value == 1) {
-      suppressEcho = false;
-    }
   } else if (name == "enable_scripts" && worldScriptIndex != noSuchPlugin) {
     setPluginEnabled(worldScriptIndex, value == 1);
   }
@@ -373,7 +353,7 @@ ScriptApi::StopSound(size_t channel) const
 void
 ScriptApi::Tell(const QString& text)
 {
-  appendTell(text, noteFormat);
+  cursor->appendTell(text);
 }
 
 ApiCode

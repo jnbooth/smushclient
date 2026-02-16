@@ -1,6 +1,7 @@
 #pragma once
 #include "../bridge/variableview.h"
 #include "../lookup.h"
+#include "../mudcursor.h"
 #include "callback/filter.h"
 #include "callback/key.h"
 #include "databaseconnection.h"
@@ -8,6 +9,7 @@
 #include "plugin.h"
 #include "scriptenums.h"
 #include "smushclient_qt/src/ffi/send_request.cxx.h"
+#include <QtCore/QPointer>
 #include <QtGui/QTextCursor>
 #include <QtNetwork/QAbstractSocket>
 
@@ -352,17 +354,11 @@ public:
   ApiCode WindowUnloadFont(std::string_view windowName,
                            std::string_view fontID) const;
 
-  void appendHtml(const QString& html);
-  void appendTell(const QString& text, const QTextCharFormat& format);
-  void appendText(const QString& text, const QTextCharFormat& format);
-  void appendText(const QString& text);
   void applyWorld(const World& world);
-  void echo(const QString& text);
   void finishNote();
   const Plugin* getPlugin(std::string_view pluginID) const;
   constexpr Timekeeper& getTimekeeper() { return *timekeeper; }
   void handleSendRequest(const SendRequest& request);
-  void moveCursor(QTextCursor::MoveOperation op, int count);
   bool isPluginEnabled(size_t plugin) const
   {
     return !plugins[plugin].isDisabled();
@@ -392,15 +388,12 @@ public:
   void setOpen(bool open);
   void setPluginEnabled(size_t plugin, bool enable = true);
   ActionSource setSource(ActionSource source) noexcept;
-  void setSuppressEcho(bool suppress) noexcept;
   void setWordUnderMenu(const QString& word) { wordUnderMenu = word; }
   void stackWindow(std::string_view windowName, MiniWindow& window) const;
-  int startLine();
   constexpr MudStatusBar& statusBarWidgets() const noexcept
   {
     return *statusBar;
   }
-  void updateTimestamp();
 
   constexpr std::vector<Plugin>::const_iterator cbegin() const noexcept
   {
@@ -429,9 +422,6 @@ private:
   size_t findPluginIndex(std::string_view pluginID) const;
   MiniWindow* findWindow(std::string_view windowName) const;
   bool finishQueuedSend(const SendRequest& request);
-  void flushLine();
-  void insertBlock();
-  void insertText(const QString& text, const QTextCharFormat& format);
   ApiCode sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags);
 
 private:
@@ -442,22 +432,12 @@ private:
   CallbackFilter callbackFilter;
   const SmushClient& client;
   bool closed = true;
-  QTextCursor cursor;
+  QPointer<MudCursor> cursor;
   string_map<DatabaseConnection> databases;
   bool doNaws = false;
   bool doesNaws = false;
-  QTextCharFormat echoFormat;
   bool echoInput = false;
-  bool echoOnSameLine = false;
-  QTextCharFormat errorFormat;
-  bool hasLine = false;
-  bool indentNext = false;
-  QString indentText;
   QByteArray lastCommandSent;
-  int lastTellPosition = -1;
-  int lastLinePosition = -1;
-  bool logNotes = false;
-  QTextCharFormat noteFormat;
   Notepads& notepads;
   std::vector<Plugin> plugins;
   string_map<size_t> pluginIndices;
@@ -465,7 +445,6 @@ private:
   TimerMap<SendRequest, ScriptApi>* sendQueue;
   QAbstractSocket& socket;
   std::unique_ptr<MudStatusBar> statusBar;
-  bool suppressEcho = false;
   WorldTab& tab;
   Timekeeper* timekeeper;
   int64_t totalLinesSent = 0;

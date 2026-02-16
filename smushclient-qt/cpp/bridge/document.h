@@ -2,11 +2,13 @@
 #define DOCUMENT_H
 
 #include "rust/cxx.h"
+#include <QtCore/QPointer>
 #include <QtGui/QTextCursor>
 
 struct SendRequest;
 struct SendScriptRequest;
 class MudBrowser;
+class MudCursor;
 class MudScrollBar;
 class ScriptApi;
 class WorldTab;
@@ -76,7 +78,7 @@ private:
 
 private:
   ScriptApi& api;
-  QTextDocument& doc;
+  QPointer<MudCursor> cursor;
   QTextCharFormat expireLinkFormat;
   std::unordered_map<std::string, std::vector<QTextCursor>> links;
   int outputStart = 0;

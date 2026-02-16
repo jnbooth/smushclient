@@ -222,7 +222,7 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 87:
       return lastCommandSent;
     case 101:
-      return suppressEcho;
+      return cursor->suppressingEcho();
     case 106:
       return !socket.isOpen();
     case 107:
@@ -400,7 +400,8 @@ ScriptApi::GetInfo(int64_t infoType) const
 QVariant
 ScriptApi::GetLineInfo(int lineNumber, int64_t infoType) const
 {
-  const QTextBlock block = cursor.document()->findBlockByLineNumber(lineNumber);
+  const QTextBlock block =
+    cursor->document()->findBlockByLineNumber(lineNumber);
   if (!block.isValid()) {
     return QVariant();
   }
@@ -474,7 +475,7 @@ ScriptApi::GetPluginInfo(string_view pluginID, int64_t infoType) const
 QVariant
 ScriptApi::GetStyleInfo(int line, int64_t style, int64_t infoType) const
 {
-  const QTextDocument& doc = *cursor.document();
+  const QTextDocument& doc = *cursor->document();
   const QTextBlock block = doc.findBlockByLineNumber(line - 1);
   if (!block.isValid()) {
     return QVariant();

@@ -653,6 +653,7 @@ WorldTab::applyWorld(const World& world)
 
   hotkeys.applyWorld(world);
   api->applyWorld(world);
+  ui->output->cursor()->applyWorld(world);
   updateWorldScript();
   splitOn = bytes::qChar(client.commandSplitter());
 }
@@ -673,8 +674,9 @@ WorldTab::handleConnect()
   client.handleConnect(*socket);
   if (Settings().getDisplayConnect()) {
     const QString format = tr("'Connected on' dddd, MMMM d, yyyy 'at' h:mm AP");
-    api->appendText(QDateTime::currentDateTime().toString(format));
-    api->startLine();
+    MudCursor* cursor = ui->output->cursor();
+    cursor->appendText(QDateTime::currentDateTime().toString(format));
+    cursor->startLine();
   }
   api->setOpen(true);
   OnPluginConnect onConnect;
@@ -737,10 +739,11 @@ WorldTab::saveHistory() const
   }
 
   if (block > sessionStartBlock + 1) {
-    api->startLine();
-    api->appendHtml(QStringLiteral("<hr/>"));
-    api->startLine();
-    api->startLine();
+    MudCursor* cursor = ui->output->cursor();
+    cursor->startLine();
+    cursor->appendHtml(QStringLiteral("<hr/>"));
+    cursor->startLine();
+    cursor->startLine();
   }
 
   if (file.write(qCompress(ui->output->toHtml().toUtf8())) == -1) {
@@ -973,8 +976,9 @@ WorldTab::onSocketDisconnect()
   if (Settings().getDisplayDisconnect()) {
     const QString format =
       tr("'Disconnected on' dddd, MMMM d, yyyy 'at' h:mm AP");
-    api->appendText(QDateTime::currentDateTime().toString(format));
-    api->startLine();
+    MudCursor* cursor = ui->output->cursor();
+    cursor->appendText(QDateTime::currentDateTime().toString(format));
+    cursor->startLine();
   }
   OnPluginDisconnect onDisconnect;
   api->sendCallback(onDisconnect);
@@ -1005,8 +1009,9 @@ WorldTab::onSocketError(QAbstractSocket::SocketError socketError)
       socketError == QAbstractSocket::SocketError::RemoteHostClosedError) {
     return;
   }
-  api->appendText(tr("Connection error: %1").arg(socket->errorString()));
-  api->startLine();
+  MudCursor* cursor = ui->output->cursor();
+  cursor->appendText(tr("Connection error: %1").arg(socket->errorString()));
+  cursor->startLine();
 }
 
 void

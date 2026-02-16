@@ -1,7 +1,6 @@
 #include "scriptapi.h"
 #include "../bridge/timekeeper.h"
 #include "../bytes.h"
-#include "../spans.h"
 #include "../timer_map.h"
 #include "../ui/mudstatusbar/mudstatusbar.h"
 #include "../ui/notepad.h"
@@ -34,7 +33,7 @@ ScriptApi::ScriptApi(SmushClient& client,
                      WorldTab& parent)
   : QObject(&parent)
   , client(client)
-  , cursor(output.document())
+  , cursor(output.cursor())
   , notepads(notepads)
   , scrollBar(*output.verticalScrollBar())
   , sendQueue(new TimerMap<SendRequest, ScriptApi>(*this,
@@ -48,67 +47,13 @@ ScriptApi::ScriptApi(SmushClient& client,
 {
   connect(&client, &SmushClient::timerSent, this, &ScriptApi::onTimerSent);
   timekeeper->beginPolling(milliseconds(seconds{ 60 }));
-  spans::setLineType(echoFormat, LineType::Input);
-  spans::setLineType(noteFormat, LineType::Note);
-}
-
-void
-ScriptApi::appendHtml(const QString& html)
-{
-  flushLine();
-  cursor.insertHtml(html);
-}
-
-void
-ScriptApi::appendTell(const QString& text, const QTextCharFormat& format)
-{
-  if (text.isEmpty()) {
-    return;
-  }
-  if (cursor.position() != lastTellPosition) {
-    flushLine();
-    updateTimestamp();
-  }
-  cursor.insertText(text, format);
-  hasLine = true;
-  lastTellPosition = cursor.position();
-  if (logNotes) {
-    client.logNote(text);
-  }
-}
-
-void
-ScriptApi::appendText(const QString& text, const QTextCharFormat& format)
-{
-  flushLine();
-  cursor.insertText(text, format);
-}
-
-void
-ScriptApi::appendText(const QString& text)
-{
-  appendText(text, noteFormat);
 }
 
 void
 ScriptApi::applyWorld(const World& world)
 {
   doNaws = world.getNaws();
-  logNotes = world.getLogNotes();
-  echoOnSameLine = world.getKeepCommandsOnSameLine();
   echoInput = world.getDisplayMyInput();
-
-  if (world.getNoEchoOff()) {
-    suppressEcho = false;
-  }
-
-  indentText = QStringLiteral(" ").repeated(world.getIndentParas());
-  echoFormat.setForeground(world.getEchoColour());
-  echoFormat.setBackground(world.getEchoBackgroundColour());
-  errorFormat.setForeground(world.getErrorTextColour());
-  errorFormat.setBackground(world.getErrorBackgroundColour());
-  noteFormat.setForeground(world.getNoteTextColour());
-  noteFormat.setBackground(world.getNoteBackgroundColour());
 
   if (worldScriptIndex != noSuchPlugin) {
     setPluginEnabled(worldScriptIndex, world.getEnableScripts());
@@ -116,23 +61,9 @@ ScriptApi::applyWorld(const World& world)
 }
 
 void
-ScriptApi::echo(const QString& text)
-{
-  if (suppressEcho) [[unlikely]] {
-    return;
-  }
-  if (echoOnSameLine) {
-    cursor.insertText(text, echoFormat);
-    return;
-  }
-  appendText(text, echoFormat);
-  startLine();
-}
-
-void
 ScriptApi::finishNote()
 {
-  lastTellPosition = -1;
+  cursor->finishNote();
 }
 
 const Plugin*
@@ -171,8 +102,8 @@ ScriptApi::handleSendRequest(const SendRequest& request)
       tab.ui->input->setText(request.text);
       return;
     case SendTarget::Output:
-      appendText(request.text, noteFormat);
-      startLine();
+      cursor->appendText(request.text);
+      cursor->startLine();
       return;
     case SendTarget::Status:
       SetStatus(request.text);
@@ -251,43 +182,6 @@ ScriptApi::playFileRaw(const QString& path) const
 }
 
 void
-ScriptApi::moveCursor(QTextCursor::MoveOperation op, int count)
-{
-  switch (op) {
-    case QTextCursor::MoveOperation::Right: {
-      const int position = cursor.position();
-      cursor.movePosition(op, QTextCursor::MoveMode::MoveAnchor, count);
-      count -= cursor.position() - position;
-      if (count == 0) {
-        break;
-      }
-      flushLine();
-      insertText(QStringLiteral(" ").repeated(count), QTextCharFormat());
-      break;
-    }
-    case QTextCursor::MoveOperation::Down: {
-      const int position = cursor.blockNumber();
-      cursor.movePosition(op, QTextCursor::MoveMode::MoveAnchor, count);
-      count -= cursor.blockNumber() - position;
-      if (count == 0) {
-        break;
-      }
-      for (int i = 0; i < count; ++i) {
-        startLine();
-      }
-      if (position != 0) {
-        flushLine();
-        insertText(QStringLiteral(" ").repeated(count), QTextCharFormat());
-      }
-      break;
-    }
-    default:
-      cursor.movePosition(op, QTextCursor::MoveMode::KeepAnchor, count);
-      break;
-  }
-}
-
-void
 ScriptApi::reinstallPlugin(size_t index)
 {
   Plugin& plugin = plugins[index];
@@ -313,8 +207,7 @@ ScriptApi::reinstallPlugin(size_t index)
 void
 ScriptApi::printError(const QString& message)
 {
-  appendText(message, errorFormat);
-  startLine();
+  cursor->appendError(message);
 }
 
 void
@@ -446,12 +339,6 @@ ScriptApi::setSource(ActionSource source) noexcept
   return previousSource;
 }
 
-void
-ScriptApi::setSuppressEcho(bool suppress) noexcept
-{
-  suppressEcho = suppress;
-}
-
 struct WindowCompare
 {
   int64_t zOrder = 0;
@@ -488,24 +375,6 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow& window) const
   } else if (drawsUnderneath) {
     window.stackUnder(tab.ui->outputBorder);
   }
-}
-
-int
-ScriptApi::startLine()
-{
-  if (hasLine) [[unlikely]] {
-    cursor.insertBlock();
-    indentNext = !indentText.isEmpty();
-  } else {
-    hasLine = true;
-  }
-  return cursor.position();
-}
-
-void
-ScriptApi::updateTimestamp()
-{
-  spans::setTimestamp(cursor);
 }
 
 // Public slots
@@ -571,46 +440,6 @@ ScriptApi::finishQueuedSend(const SendRequest& request)
   return true;
 }
 
-void
-ScriptApi::flushLine()
-{
-  if (!hasLine) [[likely]] {
-    return;
-  }
-
-  hasLine = false;
-  cursor.insertBlock();
-
-  if (!indentNext) [[likely]] {
-    return;
-  }
-
-  indentNext = false;
-  cursor.insertText(indentText);
-}
-
-void
-ScriptApi::insertBlock()
-{
-  if (logNotes && lastTellPosition >= lastLinePosition) {
-    client.logNote(cursor.block().text());
-  }
-  cursor.insertBlock();
-  lastLinePosition = cursor.position();
-}
-
-void
-ScriptApi::insertText(const QString& text, const QTextCharFormat& format)
-{
-  if (!cursor.atBlockEnd()) {
-    cursor.movePosition(QTextCursor::MoveOperation::NextCharacter,
-                        QTextCursor::MoveMode::KeepAnchor,
-                        static_cast<int>(text.size()));
-    cursor.removeSelectedText();
-  }
-  cursor.insertText(text, format);
-}
-
 ApiCode
 ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
 {
@@ -621,7 +450,7 @@ ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
   }
 
   if (echoInput && flags.testFlag(SendFlag::Echo)) {
-    echo(text);
+    cursor->echo(text);
   }
 
   lastCommandSent = bytes;
