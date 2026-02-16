@@ -3,6 +3,7 @@ name = "smushclient-swift"
 version = "0.1.0"
 build = "build.rs"
 edition.workspace = true
+authors.workspace = true
 repository.workspace = true
 
 [lib]

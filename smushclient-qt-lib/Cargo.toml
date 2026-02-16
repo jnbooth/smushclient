@@ -2,6 +2,7 @@
 name = "smushclient-qt-lib"
 version = "0.1.0"
 edition.workspace = true
+authors.workspace = true
 repository.workspace = true
 links = "smushclient-qt-lib"
 
