@@ -148,32 +148,28 @@ calculateGeometry(MiniWindow::Position pos,
     case MiniWindow::Position::OutputStretch:
     case MiniWindow::Position::OwnerStretch:
     case MiniWindow::Position::Tile:
-      return QRect(QPoint(), parent);
+      return { {}, parent };
     case MiniWindow::Position::OutputScale:
     case MiniWindow::Position::OwnerScale:
-      return QRect(QPoint(), scaleWithAspectRatio(parent, child));
+      return { {}, scaleWithAspectRatio(parent, child) };
     case MiniWindow::Position::TopLeft:
-      return QRect(QPoint(), child);
+      return { {}, child };
     case MiniWindow::Position::TopCenter:
-      return QRect(QPoint(xCenter(parent, child), 0), child);
+      return { { xCenter(parent, child), 0 }, child };
     case MiniWindow::Position::TopRight:
-      return QRect(QPoint(xRight(parent, child), 0), child);
+      return { { xRight(parent, child), 0 }, child };
     case MiniWindow::Position::CenterRight:
-      return QRect(QPoint(xRight(parent, child), yCenter(parent, child)),
-                   child);
+      return { { xRight(parent, child), yCenter(parent, child) }, child };
     case MiniWindow::Position::BottomRight:
-      return QRect(QPoint(xRight(parent, child), yBottom(parent, child)),
-                   child);
+      return { { xRight(parent, child), yBottom(parent, child) }, child };
     case MiniWindow::Position::BottomCenter:
-      return QRect(QPoint(xCenter(parent, child), yBottom(parent, child)),
-                   child);
+      return { { xCenter(parent, child), yBottom(parent, child) }, child };
     case MiniWindow::Position::BottomLeft:
-      return QRect(QPoint(0, yBottom(parent, child)), child);
+      return { { 0, yBottom(parent, child) }, child };
     case MiniWindow::Position::CenterLeft:
-      return QRect(QPoint(0, yCenter(parent, child)), child);
+      return { { 0, yCenter(parent, child) }, child };
     case MiniWindow::Position::Center:
-      return QRect(QPoint(xCenter(parent, child), yCenter(parent, child)),
-                   child);
+      return { { xCenter(parent, child), yCenter(parent, child) }, child };
   }
 }
 } // namespace
