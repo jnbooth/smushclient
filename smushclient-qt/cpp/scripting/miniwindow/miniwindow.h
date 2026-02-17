@@ -235,6 +235,7 @@ private:
   {
   public:
     explicit Painter(MiniWindow* window);
+    Painter(MiniWindow* window, QPainter::CompositionMode mode);
     Painter(MiniWindow* window, const QPen& pen);
     Painter(MiniWindow* window, const QPen& pen, const QBrush& brush);
     ~Painter();

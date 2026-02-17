@@ -182,6 +182,12 @@ MiniWindow::Painter::Painter(MiniWindow* window)
 {
 }
 
+MiniWindow::Painter::Painter(MiniWindow* window, CompositionMode mode)
+  : MiniWindow::Painter(window)
+{
+  setCompositionMode(mode);
+}
+
 MiniWindow::Painter::Painter(MiniWindow* window, const QPen& pen)
   : MiniWindow::Painter(window)
 {
@@ -217,12 +223,11 @@ MiniWindow::MiniWindow(const QPoint& location,
   , flags(flags)
   , installed(QDateTime::currentDateTime())
   , location(location)
-  , pixmap(size)
   , pluginID(pluginID)
   , position(position)
 {
   setAttribute(Qt::WA_OpaquePaintEvent);
-  pixmap.fill(background);
+  pixmap.setDevicePixelRatio(devicePixelRatio());
   applyFlags();
 }
 
@@ -269,7 +274,8 @@ MiniWindow::applyFilter(const ImageFilter& filter, const QRect& rectBase)
   }
   QPixmap section = pixmap.copy(rect);
   filter.apply(section);
-  Painter(this).drawPixmap(rect, section, section.rect());
+  Painter(this, QPainter::CompositionMode_Source)
+    .drawPixmap(rect, section, section.rect());
 }
 
 void
@@ -497,7 +503,7 @@ MiniWindow::invert(const QRect& rectBase, QImage::InvertMode mode)
   const QRect rect = normalizeRect(rectBase);
   QImage image = pixmap.copy(rect).toImage();
   image.invertPixels(mode);
-  Painter(this).drawImage(rect, image);
+  Painter(this, QPainter::CompositionMode_Source).drawImage(rect, image);
 }
 
 void
@@ -540,9 +546,10 @@ MiniWindow::updatePosition()
       ? QRect(location, dimensions)
       : calculateGeometry(position, getParentWidget(this)->size(), dimensions);
 
-  const QSize newSize = geometry.size();
+  const QSize newSize = geometry.size() * devicePixelRatio();
   if (pixmap.size() != newSize) {
     QPixmap newPixmap(newSize);
+    newPixmap.setDevicePixelRatio(devicePixelRatio());
     newPixmap.fill(background);
     QPainter(&newPixmap).drawPixmap(QPointF(), pixmap);
     pixmap.swap(newPixmap);
@@ -558,13 +565,17 @@ void
 MiniWindow::paintEvent(QPaintEvent* event)
 {
   QPainter painter(this);
+  painter.setCompositionMode(QPainter::CompositionMode_Source);
   painter.setClipRegion(event->region());
   if (position == Position::Tile) [[unlikely]] {
     painter.drawTiledPixmap(rect(), pixmap);
     return;
   }
-  const QRect& eventRect = event->rect();
-  painter.drawPixmap(eventRect, pixmap, eventRect);
+  int x, y, w, h;
+  event->rect().getRect(&x, &y, &w, &h);
+  qreal ratio = devicePixelRatio();
+  QRectF targetRect(x * ratio, y * ratio, w * ratio, h * ratio);
+  painter.drawPixmap(QPointF(x, y), pixmap, targetRect);
 }
 
 // Private methods
