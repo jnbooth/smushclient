@@ -179,6 +179,11 @@ getQPen(lua_State* L, int idxColor, int idxStyle, int idxWidth);
 std::optional<QPolygonF>
 getQPolygonF(lua_State* L, int idx);
 
+std::optional<BlendMode>
+getBlendMode(lua_State* L,
+             int idx,
+             std::optional<BlendMode> ifNil = std::nullopt);
+
 std::optional<Qt::BrushStyle>
 getBrush(lua_State* L,
          int idx,
@@ -206,6 +211,11 @@ std::optional<MiniWindow::DrawImageMode>
 getDrawImageMode(lua_State* L,
                  int idx,
                  std::optional<MiniWindow::DrawImageMode> ifNil = std::nullopt);
+
+std::optional<FilterOp>
+getFilterOp(lua_State* L,
+            int idx,
+            std::optional<FilterOp> ifNil = std::nullopt);
 
 std::optional<QFont::StyleHint>
 getFontHint(lua_State* L,

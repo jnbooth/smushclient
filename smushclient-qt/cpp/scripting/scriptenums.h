@@ -38,6 +38,74 @@ enum class ActionSource
   Hotspot,         // Hotspot callback
 };
 
+enum class BlendMode : int64_t
+{
+  Normal = 1,
+  Average,
+  Interpolate,
+  Dissolve,
+  Darken,
+  Multiply,
+  ColorBurn,
+  LinearBurn,
+  InverseColorBurn,
+  Subtract,
+  Lighten,
+  Screen,
+  ColorDodge,
+  LinearDodge,
+  InverseColorDodge,
+  Add,
+  Overlay,
+  SoftLight,
+  HardLight,
+  VividLight,
+  LinearLight,
+  PinLight,
+  HardMix,
+  Difference,
+  Exclusion,
+  Reflect,
+  Glow,
+  Freeze,
+  Heat,
+  Negation,
+  Phoenix,
+  Stamp,
+  Xor,
+  And,
+  Or,
+  Red,
+  Green,
+  Blue,
+  Yellow,
+  Cyan,
+  Magenta,
+  GreenLimitedByRed,
+  GreenLimitedByBlue,
+  GreenLimitedByRedAndBlue,
+  BlueLimitedByRed,
+  BlueLimitedByGreen,
+  BlueLimitedByRedAndGreen,
+  RedLimitedByGreen,
+  RedLimitedByBlue,
+  RedLimitedByGreenAndBlue,
+  RedOnly,
+  GreenOnly,
+  BlueOnly,
+  DiscardRed,
+  DiscardGreen,
+  DiscardBlue,
+  AllRed,
+  AllGreen,
+  AllBlue,
+  Hue,
+  Saturation,
+  Color,
+  Luminance,
+  Hsl,
+};
+
 enum class CircleOp : int64_t
 {
   Ellipse = 1,
@@ -45,6 +113,37 @@ enum class CircleOp : int64_t
   RoundedRectangle,
   Chord,
   Pie,
+};
+
+enum class FilterOp : int64_t
+{
+  Noise = 1,
+  MonoNoise,
+  Blur,
+  Sharpen,
+  EdgeDetect,
+  Emboss,
+  BrightnessAdd,
+  Contrast,
+  Gamma,
+  RedBrightnessAdd,
+  RedContrast,
+  RedGamma,
+  GreenBrightnessAdd,
+  GreenContrast,
+  GreenGamma,
+  BlueBrightnessAdd,
+  BlueContrast,
+  BlueGamma,
+  GrayscaleLinear,
+  GrayscalePerceptual,
+  BrightnessMult,
+  RedBrightnessMult,
+  GreenBrightnessMult,
+  BlueBrightnessMult,
+  LesserBlur,
+  MinorBlur,
+  Average,
 };
 
 enum FontPitchFlag : int64_t
@@ -70,6 +169,12 @@ enum class ImageOp : int64_t
   Ellipse = 1,
   Rectangle,
   RoundedRectangle,
+};
+
+enum class MergeMode : int64_t
+{
+  Straight,
+  Transparent,
 };
 
 enum class OperatingSystem : int64_t

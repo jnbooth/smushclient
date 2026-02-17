@@ -60,7 +60,7 @@ public:
   };
   Q_DECLARE_FLAGS(Flags, Flag)
 
-  enum ButtonFrame : int64_t
+  enum class ButtonFrame : int64_t
   {
     Raised = 5,
     Etched = 6,
@@ -70,14 +70,14 @@ public:
 
   enum ButtonFlag
   {
-    Fill = 2048,
-    Soft = 4096,
-    Flat = 16384,
-    Monochrome = 32768,
+    Fill = 0x0800,
+    Soft = 0x1000,
+    Flat = 0x4000,
+    Monochrome = 0x8000,
   };
   Q_DECLARE_FLAGS(ButtonFlags, ButtonFlag)
 
-  enum Position : int64_t
+  enum class Position : int64_t
   {
     OutputStretch, // Stretch to output view size
     OutputScale,   // Scale to output view with aspect ratio

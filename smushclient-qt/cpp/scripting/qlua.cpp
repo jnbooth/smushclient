@@ -953,6 +953,12 @@ qlua::getQPolygonF(lua_State* L, int idx)
   return QPolygonF(points);
 }
 
+optional<BlendMode>
+qlua::getBlendMode(lua_State* L, int idx, optional<BlendMode> ifNil)
+{
+  return getEnum<BlendMode, BlendMode::Normal, BlendMode::Hsl>(L, idx, ifNil);
+}
+
 optional<MiniWindow::ButtonFrame>
 qlua::getButtonFrame(lua_State* L,
                      int idx,
@@ -1077,6 +1083,12 @@ qlua::getDrawImageMode(lua_State* L,
   return getEnum<MiniWindow::DrawImageMode,
                  MiniWindow::DrawImageMode::Copy,
                  MiniWindow::DrawImageMode::CopyTransparent>(L, idx, ifNil);
+}
+
+optional<FilterOp>
+qlua::getFilterOp(lua_State* L, int idx, optional<FilterOp> ifNil)
+{
+  return getEnum<FilterOp, FilterOp::Noise, FilterOp::Average>(L, idx, ifNil);
 }
 
 optional<QFont::StyleHint>
