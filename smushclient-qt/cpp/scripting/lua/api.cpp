@@ -1480,7 +1480,6 @@ L_WindowLoadImage(lua_State* L)
 int
 L_WindowMenu(lua_State* L)
 {
-  BENCHMARK
   expectMaxArgs(L, 4);
   const QVariant result = getApi(L).WindowMenu(
     qlua::getString(L, 1), qlua::getQPoint(L, 2, 3), qlua::getString(L, 4));
