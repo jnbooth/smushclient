@@ -1306,7 +1306,7 @@ L_WindowFilter(lua_State* L)
   const string_view windowName = qlua::getString(L, 1);
   const QRect rect = qlua::getQRect(L, 2, 3, 4, 5);
   const FilterParams params{ .L = L, .windowName = windowName, .rect = rect };
-  const auto filterOp = qlua::getFilterOp(L, 6);
+  const optional<FilterOp> filterOp = qlua::getFilterOp(L, 6);
   if (!filterOp) {
     return returnCode(L, ApiCode::UnknownOption);
   }
