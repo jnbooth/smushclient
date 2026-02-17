@@ -275,7 +275,7 @@ MiniWindow::applyFilter(const ImageFilter& filter, const QRect& rectBase)
   QPixmap section = pixmap.copy(rect);
   filter.apply(section);
   Painter(this, QPainter::CompositionMode_Source)
-    .drawPixmap(rect, section, section.rect());
+    .drawPixmap(rect.topLeft(), section);
 }
 
 void
