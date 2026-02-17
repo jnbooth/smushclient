@@ -509,7 +509,7 @@ L_SetCursor(lua_State* L)
   expectMaxArgs(L, 1);
   const optional<Qt::CursorShape> cursor =
     qlua::getCursor(L, 1, Qt::CursorShape::ArrowCursor);
-  if (!cursor) {
+  if (!cursor) [[unlikely]] {
     return returnCode(L, ApiCode::BadParameter);
   }
   return returnCode(L, getApi(L).SetCursor(*cursor));
@@ -588,7 +588,7 @@ L_CallPlugin(lua_State* L)
   const int topBefore = lua_gettop(L2) - 1;
 
   for (int i = 1; i <= nargs; ++i) {
-    if (!qlua::copyValue(L, L2, i + 2)) {
+    if (!qlua::copyValue(L, L2, i + 2)) [[unlikely]] {
       lua_settop(L, 0);
       return returnCode(
         L, ApiCode::BadParameter, fmtBadParam(i - 2, luaL_typename(L, i)));
@@ -611,7 +611,7 @@ L_CallPlugin(lua_State* L)
   luaL_checkstack(L, nresults + 1, nullptr);
   lua_pushinteger(L, static_cast<lua_Integer>(ApiCode::OK));
   for (int i = topBefore + 1; i <= topAfter; ++i) {
-    if (!qlua::copyValue(L2, L, i)) {
+    if (!qlua::copyValue(L2, L, i)) [[unlikely]] {
       return returnCode(L,
                         ApiCode::ErrorCallingPluginRoutine,
                         fmtBadReturn(plugin, routine, i, luaL_typename(L2, i)));
@@ -661,7 +661,7 @@ L_AddAlias(lua_State* L)
   const QFlags<AliasFlag> flags = qlua::getFlags<AliasFlag>(L, 4);
   const optional<string_view> script = qlua::getScriptName(L, 5);
 
-  if (!script) {
+  if (!script) [[unlikely]] {
     return returnCode(L, ApiCode::ScriptNameNotLocated);
   }
 
@@ -683,7 +683,7 @@ L_AddTimer(lua_State* L)
   const QFlags<TimerFlag> flags = qlua::getFlags<TimerFlag>(L, 6);
   const optional<string_view> script = qlua::getScriptName(L, 7);
 
-  if (!script) {
+  if (!script) [[unlikely]] {
     return returnCode(L, ApiCode::ScriptNameNotLocated);
   }
 
@@ -710,11 +710,11 @@ L_AddTrigger(lua_State* L)
     qlua::getSendTarget(L, 9, SendTarget::World);
   const int sequence = qlua::getInt(L, 10, 100);
 
-  if (!script) {
+  if (!script) [[unlikely]] {
     return returnCode(L, ApiCode::ScriptNameNotLocated);
   }
 
-  if (!target) {
+  if (!target) [[unlikely]] {
     return returnCode(L, ApiCode::TriggerSendToInvalid);
   }
 
@@ -1018,7 +1018,7 @@ L_SetAliasOption(lua_State* L)
   const string_view label = qlua::getString(L, 1);
   const string_view option = qlua::getString(L, 2);
   const optional<string_view> value = getSenderOption(L, 3);
-  if (!value) {
+  if (!value) [[unlikely]] {
     return returnCode(L, ApiCode::OptionOutOfRange);
   }
   return returnCode(L, getApi(L).SetAliasOption(plugin, label, option, *value));
@@ -1033,7 +1033,7 @@ L_SetTimerOption(lua_State* L)
   const string_view label = qlua::getString(L, 1);
   const string_view option = qlua::getString(L, 2);
   const optional<string_view> value = getSenderOption(L, 3);
-  if (!value) {
+  if (!value) [[unlikely]] {
     return returnCode(L, ApiCode::OptionOutOfRange);
   }
   return returnCode(L, getApi(L).SetTimerOption(plugin, label, option, *value));
@@ -1048,7 +1048,7 @@ L_SetTriggerOption(lua_State* L)
   const string_view label = qlua::getString(L, 1);
   const string_view option = qlua::getString(L, 2);
   const optional<string_view> value = getSenderOption(L, 3);
-  if (!value) {
+  if (!value) [[unlikely]] {
     return returnCode(L, ApiCode::OptionOutOfRange);
   }
   return returnCode(L,
@@ -1251,7 +1251,7 @@ L_WindowDrawImage(lua_State* L)
     qlua::getDrawImageMode(L, 7, MiniWindow::DrawImageMode::Copy);
   const QRectF sourceRect =
     n >= 8 ? qlua::getQRectF(L, 8, 9, 10, 11) : QRectF();
-  if (!mode) {
+  if (!mode) [[unlikely]] {
     return returnCode(L, ApiCode::BadParameter);
   }
   return returnCode(
@@ -1307,7 +1307,7 @@ L_WindowFilter(lua_State* L)
   const QRect rect = qlua::getQRect(L, 2, 3, 4, 5);
   const FilterParams params{ .L = L, .windowName = windowName, .rect = rect };
   const optional<FilterOp> filterOp = qlua::getFilterOp(L, 6);
-  if (!filterOp) {
+  if (!filterOp) [[unlikely]] {
     return returnCode(L, ApiCode::UnknownOption);
   }
   switch (*filterOp) {
@@ -1575,9 +1575,8 @@ L_WindowRectOp(lua_State* L)
                                  rect.toRect(),
                                  *frame,
                                  qlua::getFlags<MiniWindow::ButtonFlag>(L, 8)));
-      } else {
-        return returnCode(L, ApiCode::BadParameter);
       }
+      return returnCode(L, ApiCode::BadParameter);
     case RectOp::FloodFillBorder:
     case RectOp::FloodFillSurface:
       return returnCode(L, ApiCode::OK);
@@ -1653,14 +1652,11 @@ L_WindowAddHotspot(lua_State* L)
   const string_view hotspotID = qlua::getString(L, 2);
   const QRect geometry(qlua::getQPoint(L, 3, 4), qlua::getQPoint(L, 5, 6));
   Hotspot::Callbacks callbacks{
-    .dragMove = "",
-    .dragRelease = "",
     .mouseOver = string(qlua::getString(L, 7, "")),
     .cancelMouseOver = string(qlua::getString(L, 8, "")),
     .mouseDown = string(qlua::getString(L, 9, "")),
     .cancelMouseDown = string(qlua::getString(L, 10, "")),
     .mouseUp = string(qlua::getString(L, 11, "")),
-    .scroll = "",
   };
   const QString tooltip = qlua::getQString(L, 12, QString());
   const optional<Qt::CursorShape> cursor =
