@@ -585,7 +585,6 @@ registerTable(lua_State* L, const char* name, const pair<K, V> (&entries)[N])
 {
   const bool isNew = lua_getglobal(L, name) == LUA_TNIL;
   if (isNew) {
-    lua_pop(L, 1);
     lua_createtable(L, 0, N);
   }
   for (const pair<K, V>& entry : entries) {
@@ -596,6 +595,7 @@ registerTable(lua_State* L, const char* name, const pair<K, V> (&entries)[N])
   if (isNew) {
     lua_setglobal(L, name);
   }
+  lua_pop(L, 1);
 }
 } // namespace
 
