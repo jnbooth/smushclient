@@ -269,13 +269,12 @@ MiniWindow::applyFilter(const ImageFilter& filter, const QRect& rectBase)
 {
   const QRect rect = normalizeRect(rectBase);
   if (rectBase == pixmap.rect()) {
-    filter.apply(pixmap);
+    pixmap.convertFromImage(filter.apply(pixmap));
     return;
   }
   QPixmap section = pixmap.copy(rect);
-  filter.apply(section);
   Painter(this, QPainter::CompositionMode_Source)
-    .drawPixmap(rect.topLeft(), section);
+    .drawImage(rect.topLeft(), filter.apply(section));
 }
 
 void
@@ -394,8 +393,9 @@ MiniWindow::drawImage(const QPixmap& image,
       if (croppedImage.isNull()) {
         return;
       }
-      const QImage qImage =
-        image.toImage().convertToFormat(QImage::Format_RGB32);
+      const QImage qImage = image.copy(QRect(0, 0, 2, 2))
+                              .toImage()
+                              .convertToFormat(QImage::Format_RGB32);
       const QRgb pixel = qImage.pixel(0, 0);
       croppedImage.setMask(
         QBitmap::fromImage(std::move(qImage).createMaskFromColor(pixel)));

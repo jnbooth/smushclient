@@ -15,23 +15,23 @@ asPixels(QImage& image)
 
 // Public methods
 
-void
-ImageFilter::PixelFilter::apply(QPixmap& pixmap) const
+QImage
+ImageFilter::PixelFilter::apply(const QPixmap& pixmap) const
 {
   if (isNoop() || pixmap.isNull()) {
-    return;
+    return QImage();
   }
-  QImage image = pixmap.toImage().convertToFormat(QImage::Format_RGB32);
+  QImage image = pixmap.toImage().convertToFormat(QImage::Format_ARGB32);
   apply(asPixels(image));
-  pixmap.convertFromImage(image);
+  return image;
 }
 
-void
-ImageFilter::ConvolveFilter::apply(QPixmap& pixmap) const
+QImage
+ImageFilter::ConvolveFilter::apply(const QPixmap& pixmap) const
 {
-  QImage image = pixmap.toImage().convertToFormat(QImage::Format_RGB32);
+  QImage image = pixmap.toImage().convertToFormat(QImage::Format_ARGB32);
   apply(asPixels(image), image.width(), directions);
-  pixmap.convertFromImage(image);
+  return image;
 }
 
 // Protected methods

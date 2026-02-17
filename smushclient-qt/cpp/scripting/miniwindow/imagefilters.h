@@ -10,7 +10,7 @@ public:
   using Pixels = rust::Slice<uint32_t>;
 
   virtual ~ImageFilter() = default;
-  virtual void apply(QPixmap& pixmap) const = 0;
+  [[nodiscard]] virtual QImage apply(const QPixmap& pixmap) const = 0;
 
 public:
   class Noise;
@@ -37,7 +37,7 @@ protected:
 class ImageFilter::PixelFilter : public ImageFilter
 {
 public:
-  void apply(QPixmap& pixmap) const override;
+  QImage apply(const QPixmap& pixmap) const override;
 
 protected:
   virtual void apply(Pixels pixels) const = 0;
@@ -51,7 +51,7 @@ public:
     : directions(directions)
   {
   }
-  void apply(QPixmap& pixmap) const override;
+  QImage apply(const QPixmap& pixmap) const override;
 
 protected:
   virtual void apply(Pixels pixels, int width, Directions directions) const = 0;
