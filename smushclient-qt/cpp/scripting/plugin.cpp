@@ -21,15 +21,17 @@ using std::string_view;
 
 namespace {
 inline bool
-checkError(int status)
+runLoaded(lua_State* L, int status)
 {
   switch (status) {
     case LUA_OK:
-      return false;
+      [[likely]] return api_pcall(L, 0, 0);
     case LUA_ERRMEM:
       throw std::bad_alloc();
     default:
-      return true;
+      getApi(L).printError(formatCompileError(L));
+      lua_pop(L, 1);
+      return false;
   }
 }
 } // namespace
@@ -181,13 +183,7 @@ Plugin::runFile(const QString& path) const
   }
 
   lua_State* L = L_.get();
-  if (checkError(luaL_loadfile(L, path.toUtf8().data()))) [[unlikely]] {
-    getApi(L).printError(formatCompileError(L));
-    lua_pop(L, 1);
-    return false;
-  }
-
-  return api_pcall(L, 0, 0);
+  return runLoaded(L, luaL_loadfile(L, path.toUtf8().data()));
 }
 
 bool
@@ -198,13 +194,7 @@ Plugin::runScript(string_view script) const
   }
 
   lua_State* L = L_.get();
-  if (checkError(qlua::loadString(L, script))) [[unlikely]] {
-    getApi(L).printError(formatCompileError(L));
-    lua_pop(L, 1);
-    return false;
-  }
-
-  return api_pcall(L, 0, 0);
+  return runLoaded(L, qlua::loadString(L, script));
 }
 
 void

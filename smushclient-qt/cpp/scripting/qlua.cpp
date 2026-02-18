@@ -266,7 +266,7 @@ qlua::expectMaxArgs(lua_State* L, int max)
 {
   const int n = lua_gettop(L);
   if (n > max) [[unlikely]] {
-    qlua::pushQString(L, QStringLiteral("Too many arguments"));
+    qlua::pushString(L, "Too many arguments");
     lua_error(L);
   }
   return n;
