@@ -479,37 +479,33 @@ qlua::concatBytes(lua_State* L)
 }
 
 QString
-qlua::concatStrings(lua_State* L, const QString& delimiter)
+qlua::concatStrings(lua_State* L)
 {
   const int n = lua_gettop(L);
   int isInt;
   bool needsToString = true;
   size_t sLen;
-  QString text;
+  std::ostringstream out;
   for (int i = 1; i <= n; ++i) {
-    if (i > 1) {
-      text.append(delimiter);
-    }
     switch (lua_type(L, i)) {
       case LUA_TNIL:
-        text.append(QStringLiteral("nil"));
+        out << "nil";
         break;
       case LUA_TBOOLEAN:
-        text.append(lua_toboolean(L, i) == TRUE ? QStringLiteral("true")
-                                                : QStringLiteral("false"));
+        out << (lua_toboolean(L, i) == TRUE ? "true" : "false");
         break;
       case LUA_TNUMBER: {
         const lua_Integer result = lua_tointegerx(L, i, &isInt);
         if (isInt == TRUE) {
-          text.append(QString::number(result));
+          out << result;
         } else {
-          text.append(QString::number(lua_tonumber(L, i)));
+          out << lua_tonumber(L, i);
         }
         break;
       }
       case LUA_TSTRING: {
         const char* data = lua_tolstring(L, i, &sLen);
-        text.append(QUtf8StringView(data, static_cast<qsizetype>(sLen)));
+        out << string_view(data, sLen);
         break;
       }
       default:
@@ -521,7 +517,7 @@ qlua::concatStrings(lua_State* L, const QString& delimiter)
         lua_pushvalue(L, i);  // argument
         lua_call(L, 1, 1);
         if (const char* s = lua_tolstring(L, -1, &sLen); s) {
-          text.append(QUtf8StringView(s, static_cast<qsizetype>(sLen)));
+          out << string_view(s, sLen);
           lua_pop(L, 1);
           break;
         }
@@ -533,7 +529,7 @@ qlua::concatStrings(lua_State* L, const QString& delimiter)
   if (!needsToString) {
     lua_pop(L, 1);
   }
-  return text;
+  return QString::fromUtf8(out.view());
 }
 
 int

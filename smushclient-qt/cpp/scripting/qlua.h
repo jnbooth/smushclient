@@ -107,7 +107,7 @@ toString(lua_State* L, int idx);
 QByteArray
 concatBytes(lua_State* L);
 QString
-concatStrings(lua_State* L, const QString& delimiter = QString());
+concatStrings(lua_State* L);
 
 int
 loadQString(lua_State* L, const QString& chunk);
