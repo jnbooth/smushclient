@@ -27,9 +27,7 @@ FilterDemo::~FilterDemo()
 void
 FilterDemo::applyFilter(const ImageFilter& filter) const
 {
-  QPixmap pixmap(base);
-  filter.apply(pixmap);
-  ui->image->setPixmap(pixmap);
+  ui->image->setPixmap(QPixmap::fromImage(filter.apply(base)));
 }
 ImageFilter::ColorChannel
 FilterDemo::optColor() const

@@ -1,5 +1,5 @@
 use smushclient_graphics::filter::{
-    self, average, grayscale_linear, grayscale_perceptual, mono_noise, noise,
+    self, average, dissolve, grayscale_linear, grayscale_perceptual, mono_noise, noise,
 };
 use smushclient_graphics::{ColorChannel, Directions};
 
@@ -41,6 +41,8 @@ mod ffi {
         fn lesser_blur(data: &mut [u32], width: i32, directions: Directions);
         fn minor_blur(data: &mut [u32], width: i32, directions: Directions);
         fn average(data: &mut [u32]);
+
+        fn dissolve(data: &mut [u32], opacity: f64);
     }
 }
 

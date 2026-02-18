@@ -68,6 +68,29 @@ ScriptApi::WindowAddHotspot(size_t index,
 }
 
 ApiCode
+ScriptApi::WindowBlendImage(string_view windowName,
+                            string_view imageID,
+                            const QRectF& rect,
+                            BlendMode mode,
+                            qreal opacity,
+                            const QRectF& sourceRect) const
+{
+  if (opacity < 0 || opacity > 1) [[unlikely]] {
+    return ApiCode::BadParameter;
+  }
+  MiniWindow* window = findWindow(windowName);
+  if (window == nullptr) [[unlikely]] {
+    return ApiCode::NoSuchWindow;
+  }
+  const QPixmap* image = window->findImage(imageID);
+  if (image == nullptr) [[unlikely]] {
+    return ApiCode::ImageNotInstalled;
+  }
+  window->blendImage(mode, *image, rect, opacity, sourceRect);
+  return ApiCode::OK;
+}
+
+ApiCode
 ScriptApi::WindowButton(string_view windowName,
                         const QRect& rect,
                         MiniWindow::ButtonFrame frame,

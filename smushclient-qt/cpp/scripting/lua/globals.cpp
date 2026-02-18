@@ -1,7 +1,6 @@
 #include "globals.h"
 #include "../qlua.h"
 #include "../scriptapi.h"
-#include "../scriptenums.h"
 #include "sqlite3.h"
 #include <string>
 #include <utility>

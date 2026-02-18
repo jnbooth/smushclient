@@ -4,6 +4,7 @@
 #include <QtCore/QDateTime>
 #include <QtGui/QPainter>
 
+enum class BlendMode : int64_t;
 class ImageFilter;
 class Plugin;
 class WorldTab;
@@ -107,6 +108,11 @@ public:
                       const Plugin& plugin,
                       Hotspot::Callbacks&& callbacks);
   void applyFilter(const ImageFilter& filter, const QRect& rect = QRect());
+  void blendImage(BlendMode mode,
+                  const QPixmap& image,
+                  const QRectF& rect,
+                  qreal opacity = 1,
+                  const QRectF& sourceRect = QRectF());
   void clearHotspots();
   bool deleteHotspot(std::string_view hotspotID);
   void drawButton(const QRect& rect, ButtonFrame frame, ButtonFlags flags);
@@ -186,35 +192,9 @@ protected:
 
 private:
   void applyFlags();
+  QRect normalize(const QRect& rect) const noexcept;
+  QRectF normalize(const QRectF& rect) const noexcept;
   void updateMask();
-
-  static QRect normalizeRect(const QRect& rect, const QPixmap& pixmap) noexcept
-  {
-    int x, y, w, h;
-    rect.getRect(&x, &y, &w, &h);
-    return QRect(x,
-                 y,
-                 w > 0 ? w : pixmap.width() - w - x,
-                 h > 0 ? h : pixmap.height() - h - y);
-  }
-  static QRectF normalizeRect(const QRectF& rect,
-                              const QPixmap& pixmap) noexcept
-  {
-    qreal x, y, w, h;
-    rect.getRect(&x, &y, &w, &h);
-    return QRectF(x,
-                  y,
-                  w > 0 ? w : pixmap.width() - w - x,
-                  h > 0 ? h : pixmap.height() - h - y);
-  }
-  QRect normalizeRect(const QRect& rect) const noexcept
-  {
-    return normalizeRect(rect, pixmap);
-  }
-  QRectF normalizeRect(const QRectF& rect) const noexcept
-  {
-    return normalizeRect(rect, pixmap);
-  }
 
 private:
   QColor background;

@@ -1,12 +1,21 @@
 #![allow(clippy::needless_for_each)]
+use std::{iter, slice};
 
-use crate::ColorChannel;
 use crate::casting::{as_bytes_mut, as_pixels_mut};
+use crate::channel::ColorChannel;
 use crate::pixel::Pixel;
 
 #[inline(always)]
 const fn is_rgb_channel(index: usize) -> bool {
     index & 3 != ColorChannel::Alpha as usize
+}
+
+#[inline]
+pub(crate) fn channel_subpixels_mut(
+    data: &mut [u32],
+    channel: ColorChannel,
+) -> iter::StepBy<slice::IterMut<'_, u8>> {
+    as_bytes_mut(data)[channel as usize..].iter_mut().step_by(4)
 }
 
 pub(crate) fn adjust_subpixels<F>(data: &mut [u32], channel: Option<ColorChannel>, f: F)
@@ -27,10 +36,7 @@ pub(crate) fn adjust_subpixels_with_state<F>(
         return;
     }
     match channel {
-        Some(channel) => as_bytes_mut(data)[channel as usize..]
-            .iter_mut()
-            .step_by(4)
-            .for_each(|c| *c = f(*c)),
+        Some(channel) => channel_subpixels_mut(data, channel).for_each(|c| *c = f(*c)),
         None => as_bytes_mut(data)
             .iter_mut()
             .enumerate()

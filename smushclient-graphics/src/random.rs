@@ -1,3 +1,22 @@
+pub(crate) struct DissolveRng {
+    inner: fastrand::Rng,
+    opacity: f64,
+}
+
+impl DissolveRng {
+    pub fn new(opacity: f64) -> Self {
+        Self {
+            inner: fastrand::Rng::new(),
+            opacity,
+        }
+    }
+
+    #[inline]
+    pub fn erase(&mut self) -> bool {
+        self.inner.f64() >= self.opacity
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct NoiseRng {
     inner: fastrand::Rng,

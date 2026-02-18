@@ -239,6 +239,12 @@ public:
                            const QString& tooltip,
                            Qt::CursorShape cursor,
                            Hotspot::Flags flags) const;
+  ApiCode WindowBlendImage(std::string_view windowName,
+                           std::string_view imageID,
+                           const QRectF& rect,
+                           BlendMode mode,
+                           qreal opacity,
+                           const QRectF& sourceRect) const;
   ApiCode WindowButton(std::string_view windowName,
                        const QRect& rect,
                        MiniWindow::ButtonFrame frame,

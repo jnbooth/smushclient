@@ -2,7 +2,6 @@
 #include "../miniwindow/imagefilters.h"
 #include "../qlua.h"
 #include "../scriptapi.h"
-#include "../scriptenums.h"
 #include "errors.h"
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QPointer>
@@ -1177,6 +1176,25 @@ L_TextRectangle(lua_State* L)
 }
 
 int
+L_WindowBlendImage(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 12);
+  const string_view windowName = qlua::getString(L, 1);
+  const string_view imageId = qlua::getString(L, 2);
+  const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
+  const optional<BlendMode> mode = qlua::getBlendMode(L, 7);
+  const lua_Number opacity = qlua::getNumber(L, 8);
+  const QRectF targetRect = qlua::getQRectF(L, 9, 10, 11, 12);
+  if (!mode) [[unlikely]] {
+    return returnCode(L, ApiCode::UnknownOption);
+  }
+  return returnCode(L,
+                    getApi(L).WindowBlendImage(
+                      windowName, imageId, rect, *mode, opacity, targetRect));
+}
+
+int
 L_WindowCircleOp(lua_State* L)
 {
   BENCHMARK
@@ -1828,6 +1846,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetVariable", L_SetVariable },
     // windows
     { "TextRectangle", L_TextRectangle },
+    { "WindowBlendImage", L_WindowBlendImage },
     { "WindowCircleOp", L_WindowCircleOp },
     { "WindowCreate", L_WindowCreate },
     { "WindowDrawImage", L_WindowDrawImage },

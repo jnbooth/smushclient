@@ -8,10 +8,10 @@ use crate::channel::ColorChannel;
 use crate::convolve::{Directions, convolve};
 use crate::iter::{
     adjust_pixels, adjust_pixels_with_state, adjust_subpixels, adjust_subpixels_cached,
-    adjust_subpixels_with_state,
+    adjust_subpixels_with_state, channel_subpixels_mut,
 };
 use crate::pixel::Pixel;
-use crate::random::NoiseRng;
+use crate::random::{DissolveRng, NoiseRng};
 
 pub fn noise(data: &mut [u32], threshold: f64) {
     let mut rng = NoiseRng::new(threshold);
@@ -123,4 +123,13 @@ pub fn average(data: &mut [u32]) {
         alpha: 1,
     };
     adjust_pixels(data, |_| average_pixel);
+}
+
+pub fn dissolve(data: &mut [u32], opacity: f64) {
+    let mut rng = DissolveRng::new(opacity);
+    for subpixel in channel_subpixels_mut(data, ColorChannel::Alpha) {
+        if rng.erase() {
+            *subpixel = 0;
+        }
+    }
 }

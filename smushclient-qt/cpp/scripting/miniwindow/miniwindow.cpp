@@ -1,4 +1,6 @@
 #include "miniwindow.h"
+#include "blend.h"
+#include "geometry.h"
 #include "hotspot.h"
 #include "imagefilters.h"
 #include <QtGui/QPaintEvent>
@@ -107,43 +109,17 @@ getParentWidget(const QWidget* widget)
   return parent;
 }
 
-constexpr int
-xCenter(const QSize& parent, const QSize& child) noexcept
-{
-  return parent.height() - child.height() / 2;
-}
-
-constexpr int
-xRight(const QSize& parent, const QSize& child) noexcept
-{
-  return parent.height() - child.height();
-}
-
-constexpr int
-yCenter(const QSize& parent, const QSize& child) noexcept
-{
-  return parent.width() - child.width() / 2;
-}
-
-constexpr int
-yBottom(const QSize& parent, const QSize& child) noexcept
-{
-  return parent.height() - child.height();
-}
-
-QSize
-scaleWithAspectRatio(const QSize& parent, const QSize& child) noexcept
-{
-  const int height = parent.height();
-  const int width = height * child.width() / child.height();
-  return QSize(height, width);
-}
-
 constexpr QRect
 calculateGeometry(MiniWindow::Position pos,
                   const QSize& parent,
                   const QSize& child) noexcept
 {
+  using geometry::scaleWithAspectRatio;
+  using geometry::xCenter;
+  using geometry::xRight;
+  using geometry::yBottom;
+  using geometry::yCenter;
+
   switch (pos) {
     case MiniWindow::Position::OutputStretch:
     case MiniWindow::Position::OwnerStretch:
@@ -267,7 +243,7 @@ MiniWindow::addHotspot(string_view hotspotID,
 void
 MiniWindow::applyFilter(const ImageFilter& filter, const QRect& rectBase)
 {
-  const QRect rect = normalizeRect(rectBase);
+  const QRect rect = normalize(rectBase);
   if (rectBase == pixmap.rect()) {
     pixmap.convertFromImage(filter.apply(pixmap));
     return;
@@ -275,6 +251,24 @@ MiniWindow::applyFilter(const ImageFilter& filter, const QRect& rectBase)
   QPixmap section = pixmap.copy(rect);
   Painter(this, QPainter::CompositionMode_Source)
     .drawImage(rect.topLeft(), filter.apply(section));
+}
+
+void
+MiniWindow::blendImage(BlendMode mode,
+                       const QPixmap& image,
+                       const QRectF& rectBase,
+                       qreal opacity,
+                       const QRectF& sourceRectBase)
+{
+
+  QRectF rect = normalize(rectBase);
+  QRectF sourceRect = geometry::normalize(sourceRectBase, image.size());
+  const QSizeF size = rect.size().boundedTo(sourceRect.size());
+  rect.setSize(size);
+  sourceRect.setSize(size);
+  blend::image(pixmap, image, rect.topLeft(), mode, opacity, sourceRect);
+  updateMask();
+  update();
 }
 
 void
@@ -299,7 +293,7 @@ MiniWindow::drawButton(const QRect& rectBase,
                        ButtonFrame frameType,
                        ButtonFlags buttonFlags)
 {
-  const QRect rect = normalizeRect(rectBase);
+  const QRect rect = normalize(rectBase);
   QFrame frame;
   frame.setFixedSize(rect.size());
   if (!buttonFlags.testFlag(ButtonFlag::Fill)) {
@@ -346,7 +340,7 @@ MiniWindow::drawEllipse(const QRectF& rect,
                         const QPen& pen,
                         const QBrush& brush)
 {
-  Painter(this, pen, brush).drawEllipse(normalizeRect(rect));
+  Painter(this, pen, brush).drawEllipse(normalize(rect));
 }
 
 void
@@ -354,7 +348,7 @@ MiniWindow::drawFrame(const QRectF& rectBase,
                       const QColor& color1,
                       const QColor& color2)
 {
-  const QRectF rect = normalizeRect(rectBase);
+  const QRectF rect = normalize(rectBase);
   Painter painter(this);
   painter.setPen(color1);
   painter.drawLine(rect.bottomLeft(), rect.topLeft());
@@ -379,8 +373,8 @@ MiniWindow::drawImage(const QPixmap& image,
 {
   Painter painter(this);
   painter.setOpacity(opacity);
-  const QRectF rect = normalizeRect(rectBase);
-  const QRectF sourceRect = normalizeRect(sourceRectBase, image);
+  const QRectF rect = normalize(rectBase);
+  const QRectF sourceRect = geometry::normalize(sourceRectBase, image.size());
   switch (mode) {
     case DrawImageMode::Copy:
       painter.drawPixmap(rect.topLeft(), image, sourceRect);
@@ -427,7 +421,7 @@ MiniWindow::drawPolyline(const QPolygonF& polygon, const QPen& pen)
 void
 MiniWindow::drawRect(const QRectF& rect, const QPen& pen, const QBrush& brush)
 {
-  Painter(this, pen, brush).drawRect(normalizeRect(rect));
+  Painter(this, pen, brush).drawRect(normalize(rect));
 }
 
 void
@@ -437,8 +431,7 @@ MiniWindow::drawRoundedRect(const QRectF& rect,
                             const QPen& pen,
                             const QBrush& brush)
 {
-  Painter(this, pen, brush)
-    .drawRoundedRect(normalizeRect(rect), xRadius, yRadius);
+  Painter(this, pen, brush).drawRoundedRect(normalize(rect), xRadius, yRadius);
 }
 
 QRectF
@@ -450,7 +443,7 @@ MiniWindow::drawText(const QFont& font,
   Painter painter(this, color);
   painter.setFont(font);
   QRectF boundingRect;
-  painter.drawText(normalizeRect(rect), 0, text, &boundingRect);
+  painter.drawText(normalize(rect), 0, text, &boundingRect);
   return boundingRect;
 }
 
@@ -500,7 +493,7 @@ MiniWindow::findImage(string_view imageID) const
 void
 MiniWindow::invert(const QRect& rectBase, QImage::InvertMode mode)
 {
-  const QRect rect = normalizeRect(rectBase);
+  const QRect rect = normalize(rectBase);
   QImage image = pixmap.copy(rect).toImage();
   image.invertPixels(mode);
   Painter(this, QPainter::CompositionMode_Source).drawImage(rect, image);
@@ -579,6 +572,18 @@ MiniWindow::paintEvent(QPaintEvent* event)
 }
 
 // Private methods
+
+QRect
+MiniWindow::normalize(const QRect& rect) const noexcept
+{
+  return geometry::normalize(rect, pixmap.size());
+}
+
+QRectF
+MiniWindow::normalize(const QRectF& rect) const noexcept
+{
+  return geometry::normalize(rect, pixmap.size());
+}
 
 void
 MiniWindow::applyFlags()
