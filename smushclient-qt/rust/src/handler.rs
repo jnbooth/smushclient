@@ -11,6 +11,7 @@ use mud_transformer::{
 use mud_transformer::{MxpFragment, mxp};
 use smushclient::{SendRequest, SendScriptRequest, SpanStyle};
 
+use crate::convert::Convert;
 use crate::ffi::Document;
 use crate::text_formatter::TextFormatter;
 
@@ -48,6 +49,9 @@ impl ClientHandler<'_> {
             }
             ControlFragment::EraseCharacters(n) => self.handle_cursor(CursorEffect::Back(*n)),
             ControlFragment::Erase { target, range, .. } => self.handle_erase(*target, *range),
+            ControlFragment::SetDynamicColor(dynamic, color) => self
+                .doc
+                .set_dynamic_color((*dynamic).into(), &color.convert()),
             ControlFragment::VerticalTab => self.handle_cursor(CursorEffect::Down(1)),
             _ => (),
         }

@@ -644,8 +644,12 @@ WorldTab::applyWorld(const World& world)
   ui->input->setIgnoreKeypad(handleKeypad);
   ui->output->setIgnoreKeypad(handleKeypad);
   QPalette palette;
-  palette.setColor(QPalette::Text, world.getAnsi7());
-  palette.setColor(QPalette::Base, world.getAnsi0());
+  const QColor fgColor = world.getAnsi7();
+  const QColor bgColor = world.getAnsi0();
+  palette.setColor(QPalette::Text, fgColor);
+  palette.setColor(QPalette::HighlightedText, fgColor);
+  palette.setColor(QPalette::Base, bgColor);
+  palette.setColor(QPalette::AlternateBase, bgColor);
   ui->background->setPalette(palette);
   if (world.getSaveWorldAutomatically()) {
     saveWorldAndState(filePath);

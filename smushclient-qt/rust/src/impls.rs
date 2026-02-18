@@ -1,5 +1,6 @@
 use cxx_qt_lib::QString;
 use mud_transformer::mxp::SendTo;
+use mud_transformer::term::DynamicColor;
 use mud_transformer::{TelnetSource, TelnetVerb, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, MxpDebugLevel, ScriptRecompile};
 use smushclient::{CommandSource, SendRequest, SendScriptRequest, TimerConstructible};
@@ -15,6 +16,20 @@ impl_convert_enum!(ffi::TelnetSource, TelnetSource, Client, Server);
 
 impl_convert_enum!(ffi::TelnetVerb, TelnetVerb, Do, Dont, Will, Wont);
 
+impl_convert_enum!(
+    ffi::DynamicColor,
+    DynamicColor,
+    TextForeground,
+    TextBackground,
+    TextCursor,
+    MouseForeground,
+    MouseBackground,
+    TektronixForeground,
+    TektronixBackground,
+    Highlight,
+    TektronixCursor,
+);
+
 impl_convert_enum!(ffi::AutoConnect, AutoConnect, None, Mush, Diku, Mxp);
 
 impl_convert_enum!(
@@ -22,7 +37,7 @@ impl_convert_enum!(
     ScriptRecompile,
     Confirm,
     Always,
-    Never
+    Never,
 );
 
 impl_convert_enum!(ffi::LogFormat, LogFormat, Text, Html, Raw);
@@ -36,7 +51,7 @@ impl_convert_enum!(
     Error,
     Warning,
     Info,
-    All
+    All,
 );
 
 impl_convert_enum!(ffi::UseMxp, UseMxp, Command, Query, Always, Never);

@@ -13,6 +13,7 @@ class MudScrollBar;
 class ScriptApi;
 class WorldTab;
 enum class AliasOutcome;
+enum class DynamicColor : uint8_t;
 enum class SendTarget;
 enum class TelnetSource : uint8_t;
 enum class TelnetVerb : uint8_t;
@@ -63,6 +64,7 @@ public:
   void resetServerStatus();
   void send(const SendRequest& request) const;
   void send(const SendScriptRequest& request) const;
+  void setDynamicColor(DynamicColor dynamic, const QColor& color) const;
   void setSuppressEcho(bool suppress) const;
   constexpr const QHash<QString, QString>& serverStatus() const noexcept
   {

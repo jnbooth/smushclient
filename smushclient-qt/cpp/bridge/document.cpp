@@ -428,6 +428,24 @@ Document::send(const SendScriptRequest& request) const
 }
 
 void
+Document::setDynamicColor(DynamicColor dynamic, const QColor& color) const
+{
+  switch (dynamic) {
+    case DynamicColor::TextForeground:
+      api.SetForegroundColour(color);
+      return;
+    case DynamicColor::TextBackground:
+      api.SetBackgroundColour(color);
+      return;
+    case DynamicColor::Highlight:
+      api.SetHighlightColour(color);
+      return;
+    default:
+      return;
+  }
+}
+
+void
 Document::setSuppressEcho(bool suppress) const
 {
   cursor->setSuppressingEcho(suppress);

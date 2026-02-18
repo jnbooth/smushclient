@@ -1131,6 +1131,15 @@ L_SetVariable(lua_State* L)
 // windows
 
 int
+L_SetBackgroundColour(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  qlua::pushQColor(L, getApi(L).SetBackgroundColour(qlua::getQColor(L, 1)));
+  return 1;
+}
+
+int
 L_TextRectangle(lua_State* L)
 {
   BENCHMARK
@@ -1793,6 +1802,7 @@ static const struct luaL_Reg worldlib[] =
     { "GetPluginVariable", L_GetPluginVariable },
     { "SetVariable", L_SetVariable },
     // windows
+    { "SetBackgroundColour", L_SetBackgroundColour },
     { "TextRectangle", L_TextRectangle },
     { "WindowBlendImage", L_WindowBlendImage },
     { "WindowCircleOp", L_WindowCircleOp },

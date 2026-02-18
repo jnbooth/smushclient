@@ -17,7 +17,9 @@ pub use client::ffi::{
 };
 
 mod document;
-pub use document::ffi::{Document, NamedWildcard, SendScriptRequest, TelnetSource, TelnetVerb};
+pub use document::ffi::{
+    Document, DynamicColor, NamedWildcard, SendScriptRequest, TelnetSource, TelnetVerb,
+};
 
 mod filter;
 

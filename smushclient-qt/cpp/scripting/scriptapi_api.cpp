@@ -292,11 +292,52 @@ ScriptApi::SetAlphaOption(size_t plugin, string_view name, string_view value)
   return tab.setWorldAlphaOption(plugin, name, value);
 }
 
+QColor
+ScriptApi::SetBackgroundColour(const QColor& color) const
+{
+  QWidget* background = tab.ui->background;
+  QPalette palette = background->palette();
+  const QColor oldColor = palette.color(QPalette::Base);
+  if (color == Qt::GlobalColor::black) {
+    palette.setColor(QPalette::Base, Qt::GlobalColor::transparent);
+  } else if (color.isValid()) {
+    palette.setColor(QPalette::Base, color);
+  } else {
+    palette.setColor(QPalette::Base, palette.color(QPalette::AlternateBase));
+  }
+  background->setPalette(palette);
+  return oldColor == Qt::GlobalColor::transparent ? Qt::GlobalColor::black
+                                                  : oldColor;
+}
+
 ApiCode
 ScriptApi::SetCursor(Qt::CursorShape cursorShape) const
 {
   tab.ui->area->setCursor(cursorShape);
   return ApiCode::OK;
+}
+
+QColor
+ScriptApi::SetForegroundColour(const QColor& color) const
+{
+  QWidget* background = tab.ui->background;
+  QPalette palette = background->palette();
+  const QColor oldColor = palette.color(QPalette::Text);
+  palette.setColor(QPalette::Text, color);
+  palette.setColor(QPalette::HighlightedText, color);
+  background->setPalette(palette);
+  return oldColor;
+}
+
+QColor
+ScriptApi::SetHighlightColour(const QColor& color) const
+{
+  QWidget* background = tab.ui->background;
+  QPalette palette = background->palette();
+  const QColor oldColor = palette.color(QPalette::Highlight);
+  palette.setColor(QPalette::Highlight, color);
+  background->setPalette(palette);
+  return oldColor;
 }
 
 ApiCode

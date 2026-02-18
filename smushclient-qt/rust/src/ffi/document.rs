@@ -34,6 +34,18 @@ pub mod ffi {
         Dont,
     }
 
+    enum DynamicColor {
+        TextForeground = 10,
+        TextBackground,
+        TextCursor,
+        MouseForeground,
+        MouseBackground,
+        TektronixForeground,
+        TektronixBackground,
+        Highlight,
+        TektronixCursor,
+    }
+
     struct NamedWildcard<'a> {
         name: &'a str,
         value: &'a str,
@@ -166,6 +178,9 @@ pub mod ffi {
 
         #[rust_name = "send_script"]
         fn send(self: &Document, request: &SendScriptRequest);
+
+        #[rust_name = "set_dynamic_color"]
+        fn setDynamicColor(self: &Document, dynamic: DynamicColor, color: &QColor);
 
         #[rust_name = "set_suppress_echo"]
         fn setSuppressEcho(self: &Document, suppress: bool);

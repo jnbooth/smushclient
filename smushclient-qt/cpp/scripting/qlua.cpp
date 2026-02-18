@@ -122,7 +122,7 @@ toQColor(lua_State* L, int idx, int ltype)
       if (isInt == FALSE) {
         break;
       }
-      if (rgb == -1) {
+      if (rgb == -1 || rgb == 0xFFFFFFFF) {
         return QColor();
       }
       luaL_argcheck(L, rgb >= 0 && rgb <= 0xFFFFFF, idx, "valid color");

@@ -201,7 +201,10 @@ public:
   ApiCode SetAlphaOption(size_t plugin,
                          std::string_view name,
                          std::string_view value);
+  QColor SetBackgroundColour(const QColor& color) const;
   ApiCode SetCursor(Qt::CursorShape cursor) const;
+  QColor SetForegroundColour(const QColor& color) const;
+  QColor SetHighlightColour(const QColor& color) const;
   ApiCode SetOption(size_t plugin, std::string_view name, int64_t value);
   void SetStatus(const QString& status) const;
   ApiCode SetTimerOption(size_t plugin,
