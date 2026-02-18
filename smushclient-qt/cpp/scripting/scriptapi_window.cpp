@@ -16,6 +16,29 @@ using std::unique_ptr;
 
 // Private utils
 
+#define TRY_WINDOW(windowName)                                                 \
+  findWindow(windowName);                                                      \
+  if (window == nullptr) [[unlikely]] {                                        \
+    return ApiCode::NoSuchWindow;                                              \
+  }
+
+#define TRY_IMAGE(imageID)                                                     \
+  window->findImage(imageID);                                                  \
+  if (image == nullptr) [[unlikely]] {                                         \
+    return ApiCode::ImageNotInstalled;                                         \
+  }
+
+#define TRY_HOTSPOT(hotspotID)                                                 \
+  window->findHotspot(hotspotID);                                              \
+  if (hotspot == nullptr) [[unlikely]] {                                       \
+    return ApiCode::HotspotNotInstalled;                                       \
+  }
+
+#define CHECK_NONNULL(ptr)                                                     \
+  if ((ptr) == nullptr) [[unlikely]] {                                         \
+    return QVariant();                                                         \
+  }
+
 namespace {
 bool
 setExactFontFamily(QFont& font, const QString& family)
@@ -51,10 +74,7 @@ ScriptApi::WindowAddHotspot(size_t index,
                             Qt::CursorShape cursorShape,
                             Hotspot::Flags flags) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   Hotspot* hotspot =
     window->addHotspot(hotspotID, tab, plugins[index], std::move(callbacks));
   if (hotspot == nullptr) [[unlikely]] {
@@ -78,14 +98,8 @@ ScriptApi::WindowBlendImage(string_view windowName,
   if (opacity < 0 || opacity > 1) [[unlikely]] {
     return ApiCode::BadParameter;
   }
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
-  const QPixmap* image = window->findImage(imageID);
-  if (image == nullptr) [[unlikely]] {
-    return ApiCode::ImageNotInstalled;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
+  const QPixmap* image = TRY_IMAGE(imageID);
   window->blendImage(mode, *image, rect, opacity, sourceRect);
   return ApiCode::OK;
 }
@@ -96,10 +110,7 @@ ScriptApi::WindowButton(string_view windowName,
                         MiniWindow::ButtonFrame frame,
                         MiniWindow::ButtonFlags flags) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   window->drawButton(rect, frame, flags);
   return ApiCode::OK;
 }
@@ -140,10 +151,7 @@ ApiCode
 ScriptApi::WindowDeleteHotspot(string_view windowName,
                                string_view hotspotID) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   if (!window->deleteHotspot(hotspotID)) [[unlikely]] {
     return ApiCode::HotspotNotInstalled;
   }
@@ -157,14 +165,8 @@ ScriptApi::WindowDrawImage(string_view windowName,
                            MiniWindow::DrawImageMode mode,
                            const QRectF& sourceRect) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
-  const QPixmap* image = window->findImage(imageID);
-  if (image == nullptr) [[unlikely]] {
-    return ApiCode::ImageNotInstalled;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
+  const QPixmap* image = TRY_IMAGE(imageID);
   window->drawImage(*image, rect, sourceRect, mode);
   return ApiCode::OK;
 }
@@ -176,14 +178,8 @@ ScriptApi::WindowDrawImageAlpha(string_view windowName,
                                 qreal opacity,
                                 const QPointF& origin) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
-  const QPixmap* image = window->findImage(imageID);
-  if (image == nullptr) [[unlikely]] {
-    return ApiCode::ImageNotInstalled;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
+  const QPixmap* image = TRY_IMAGE(imageID);
   window->drawImage(*image,
                     rect,
                     QRectF(origin, image->rect().bottomRight().toPointF()),
@@ -198,10 +194,7 @@ ScriptApi::WindowEllipse(string_view windowName,
                          const QPen& pen,
                          const QBrush& brush) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   window->drawEllipse(rect, pen, brush);
   return ApiCode::OK;
 }
@@ -211,10 +204,7 @@ ScriptApi::WindowFilter(string_view windowName,
                         const ImageFilter& filter,
                         const QRect& rect) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   window->applyFilter(filter, rect);
   return ApiCode::OK;
 }
@@ -230,10 +220,7 @@ ScriptApi::WindowFont(string_view windowName,
                       bool strikeout,
                       QFont::StyleHint hint) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   QFont font;
   font.setStyleHint(hint);
   font.setPointSizeF(pointSize);
@@ -260,13 +247,9 @@ ScriptApi::WindowFontInfo(string_view windowName,
                           int64_t infoType) const
 {
   MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return QVariant();
-  }
+  CHECK_NONNULL(window);
   const QFont* font = window->findFont(fontID);
-  if (font == nullptr) [[unlikely]] {
-    return QVariant();
-  }
+  CHECK_NONNULL(font);
   return FontInfo(*font, infoType);
 }
 
@@ -277,13 +260,9 @@ ScriptApi::WindowHotspotInfo(string_view windowName,
 {
 
   MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return QVariant();
-  }
+  CHECK_NONNULL(window);
   const Hotspot* hotspot = window->findHotspot(hotspotID);
-  if (hotspot == nullptr) [[unlikely]] {
-    return QVariant();
-  }
+  CHECK_NONNULL(hotspot);
   return hotspot->info(infoType);
 }
 
@@ -293,10 +272,7 @@ ScriptApi::WindowFrame(string_view windowName,
                        const QColor& color1,
                        const QColor& color2) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   window->drawFrame(rect, color1, color2);
   return ApiCode::OK;
 }
@@ -308,10 +284,7 @@ ScriptApi::WindowGradient(string_view windowName,
                           const QColor& color2,
                           Qt::Orientation direction) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   const qreal horizontalStop = direction == Qt::Orientation::Horizontal ? 1 : 0;
   QLinearGradient gradient(0, 0, horizontalStop, 1 - horizontalStop);
   gradient.setCoordinateMode(QGradient::CoordinateMode::ObjectMode);
@@ -339,9 +312,7 @@ QVariant
 ScriptApi::WindowInfo(string_view windowName, int64_t infoType) const
 {
   MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return QVariant();
-  }
+  CHECK_NONNULL(window);
   return window->info(infoType);
 }
 
@@ -349,10 +320,7 @@ ApiCode
 ScriptApi::WindowInvert(string_view windowName, const QRect& rect) const
 {
 
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   window->invert(rect);
   return ApiCode::OK;
 }
@@ -362,10 +330,7 @@ ScriptApi::WindowLine(string_view windowName,
                       const QLineF& line,
                       const QPen& pen) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   window->drawLine(line, pen);
   return ApiCode::OK;
 }
@@ -375,10 +340,7 @@ ScriptApi::WindowLoadImage(string_view windowName,
                            string_view imageID,
                            const QString& filename) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   QPixmap image(filename);
   if (!image.isNull()) [[likely]] {
     window->loadImage(imageID, std::move(image));
@@ -396,9 +358,7 @@ ScriptApi::WindowMenu(string_view windowName,
                       string_view menuString) const
 {
   MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return QVariant();
-  }
+  CHECK_NONNULL(window);
   return window->execMenu(location, menuString);
 }
 
@@ -407,14 +367,8 @@ ScriptApi::WindowMoveHotspot(string_view windowName,
                              string_view hotspotID,
                              const QRect& geometry) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
-  Hotspot* hotspot = window->findHotspot(hotspotID);
-  if (hotspot == nullptr) [[unlikely]] {
-    return ApiCode::HotspotNotInstalled;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
+  Hotspot* hotspot = TRY_HOTSPOT(hotspotID);
   hotspot->setGeometry(geometry);
   return ApiCode::OK;
 }
@@ -427,10 +381,7 @@ ScriptApi::WindowPolygon(string_view windowName,
                          bool close,
                          Qt::FillRule fillRule) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   if (brush.style() == Qt::BrushStyle::NoBrush && !close) {
     window->drawPolyline(polygon, pen);
   } else {
@@ -445,10 +396,7 @@ ScriptApi::WindowPosition(string_view windowName,
                           MiniWindow::Position position,
                           MiniWindow::Flags flags) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   window->setPosition(location, position, flags);
   window->updatePosition();
   stackWindow(windowName, *window);
@@ -461,10 +409,7 @@ ScriptApi::WindowRect(string_view windowName,
                       const QPen& pen,
                       const QBrush& brush) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   window->drawRect(rect, pen, brush);
   return ApiCode::OK;
 }
@@ -477,10 +422,7 @@ ScriptApi::WindowRoundedRect(string_view windowName,
                              const QPen& pen,
                              const QBrush& brush) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   window->drawRoundedRect(rect, xRadius, yRadius, pen, brush);
   return ApiCode::OK;
 }
@@ -496,10 +438,7 @@ ScriptApi::WindowResize(string_view windowName,
   if (!size.isValid()) {
     return ApiCode::BadParameter;
   }
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   window->setSize(size, fill);
   window->updatePosition();
   return ApiCode::OK;
@@ -508,10 +447,7 @@ ScriptApi::WindowResize(string_view windowName,
 ApiCode
 ScriptApi::WindowSetZOrder(string_view windowName, int64_t order) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   window->setZOrder(order);
   stackWindow(windowName, *window);
   return ApiCode::OK;
@@ -520,10 +456,7 @@ ScriptApi::WindowSetZOrder(string_view windowName, int64_t order) const
 ApiCode
 ScriptApi::WindowShow(string_view windowName, bool show) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   window->setVisible(show);
   return ApiCode::OK;
 }
@@ -572,10 +505,7 @@ ScriptApi::WindowTextWidth(string_view windowName,
 ApiCode
 ScriptApi::WindowUnloadFont(string_view windowName, string_view fontID) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   window->unloadFont(fontID);
   return ApiCode::OK;
 }
@@ -583,10 +513,7 @@ ScriptApi::WindowUnloadFont(string_view windowName, string_view fontID) const
 ApiCode
 ScriptApi::WindowUnloadImage(string_view windowName, string_view windowID) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
   window->unloadImage(windowID);
   return ApiCode::OK;
 }
@@ -597,14 +524,8 @@ ScriptApi::WindowUpdateHotspot(size_t index,
                                string_view hotspotID,
                                Hotspot::CallbacksPartial&& callbacks) const
 {
-  MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) [[unlikely]] {
-    return ApiCode::NoSuchWindow;
-  }
-  Hotspot* hotspot = window->findHotspot(hotspotID);
-  if (hotspot == nullptr) [[unlikely]] {
-    return ApiCode::HotspotNotInstalled;
-  }
+  MiniWindow* window = TRY_WINDOW(windowName);
+  Hotspot* hotspot = TRY_HOTSPOT(hotspotID);
   if (!hotspot->belongsToPlugin(plugins[index])) {
     return ApiCode::HotspotPluginChanged;
   }

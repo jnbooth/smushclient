@@ -24,6 +24,11 @@ const char* const worldRegKey = "smushclient.world";
 const char* const worldLibKey = "world";
 } // namespace
 
+#define expect_nonnull(opt, code)                                              \
+  if (!(opt)) [[unlikely]] {                                                   \
+    return returnCode(L, (code));                                              \
+  }
+
 // Private localization
 
 namespace {
@@ -508,9 +513,7 @@ L_SetCursor(lua_State* L)
   expectMaxArgs(L, 1);
   const optional<Qt::CursorShape> cursor =
     qlua::getCursor(L, 1, Qt::CursorShape::ArrowCursor);
-  if (!cursor) [[unlikely]] {
-    return returnCode(L, ApiCode::BadParameter);
-  }
+  expect_nonnull(cursor, ApiCode::BadParameter);
   return returnCode(L, getApi(L).SetCursor(*cursor));
 }
 
@@ -659,10 +662,7 @@ L_AddAlias(lua_State* L)
   const string_view text = qlua::getString(L, 3);
   const QFlags<AliasFlag> flags = qlua::getFlags<AliasFlag>(L, 4);
   const optional<string_view> script = qlua::getScriptName(L, 5);
-
-  if (!script) [[unlikely]] {
-    return returnCode(L, ApiCode::ScriptNameNotLocated);
-  }
+  expect_nonnull(script, ApiCode::ScriptNameNotLocated);
 
   return returnCode(
     L,
@@ -681,10 +681,7 @@ L_AddTimer(lua_State* L)
   const string_view text = qlua::getString(L, 5);
   const QFlags<TimerFlag> flags = qlua::getFlags<TimerFlag>(L, 6);
   const optional<string_view> script = qlua::getScriptName(L, 7);
-
-  if (!script) [[unlikely]] {
-    return returnCode(L, ApiCode::ScriptNameNotLocated);
-  }
+  expect_nonnull(script, ApiCode::ScriptNameNotLocated);
 
   return returnCode(
     L,
@@ -709,13 +706,8 @@ L_AddTrigger(lua_State* L)
     qlua::getSendTarget(L, 9, SendTarget::World);
   const int sequence = qlua::getInt(L, 10, 100);
 
-  if (!script) [[unlikely]] {
-    return returnCode(L, ApiCode::ScriptNameNotLocated);
-  }
-
-  if (!target) [[unlikely]] {
-    return returnCode(L, ApiCode::TriggerSendToInvalid);
-  }
+  expect_nonnull(script, ApiCode::ScriptNameNotLocated);
+  expect_nonnull(target, ApiCode::TriggerSendToInvalid);
 
   return returnCode(L,
                     getApi(L).AddTrigger(getPluginIndex(L),
@@ -851,9 +843,7 @@ L_DoAfterSpecial(lua_State* L)
   const lua_Number seconds = qlua::getNumber(L, 1);
   const QString text = qlua::getQString(L, 2);
   const optional<SendTarget> target = qlua::getSendTarget(L, 3);
-  if (!target) [[unlikely]] {
-    return returnCode(L, ApiCode::OptionOutOfRange);
-  }
+  expect_nonnull(target, ApiCode::OptionOutOfRange);
   return returnCode(
     L, getApi(L).DoAfter(getPluginIndex(L), seconds, text, *target));
 }
@@ -1017,9 +1007,7 @@ L_SetAliasOption(lua_State* L)
   const string_view label = qlua::getString(L, 1);
   const string_view option = qlua::getString(L, 2);
   const optional<string_view> value = getSenderOption(L, 3);
-  if (!value) [[unlikely]] {
-    return returnCode(L, ApiCode::OptionOutOfRange);
-  }
+  expect_nonnull(value, ApiCode::OptionOutOfRange);
   return returnCode(L, getApi(L).SetAliasOption(plugin, label, option, *value));
 }
 
@@ -1032,9 +1020,7 @@ L_SetTimerOption(lua_State* L)
   const string_view label = qlua::getString(L, 1);
   const string_view option = qlua::getString(L, 2);
   const optional<string_view> value = getSenderOption(L, 3);
-  if (!value) [[unlikely]] {
-    return returnCode(L, ApiCode::OptionOutOfRange);
-  }
+  expect_nonnull(value, ApiCode::OptionOutOfRange);
   return returnCode(L, getApi(L).SetTimerOption(plugin, label, option, *value));
 }
 
@@ -1047,9 +1033,7 @@ L_SetTriggerOption(lua_State* L)
   const string_view label = qlua::getString(L, 1);
   const string_view option = qlua::getString(L, 2);
   const optional<string_view> value = getSenderOption(L, 3);
-  if (!value) [[unlikely]] {
-    return returnCode(L, ApiCode::OptionOutOfRange);
-  }
+  expect_nonnull(value, ApiCode::OptionOutOfRange);
   return returnCode(L,
                     getApi(L).SetTriggerOption(plugin, label, option, *value));
 }
@@ -1157,9 +1141,7 @@ L_TextRectangle(lua_State* L)
   const int borderWidth = qlua::getInt(L, 7);
   QColor outsideColor = qlua::getQColor(L, 8);
   const optional<Qt::BrushStyle> outsideFillStyle = qlua::getBrush(L, 9);
-  if (!outsideFillStyle) [[unlikely]] {
-    return returnCode(L, ApiCode::BrushStyleNotValid);
-  }
+  expect_nonnull(outsideFillStyle, ApiCode::BrushStyleNotValid);
   if (borderColor == Qt::GlobalColor::black) {
     borderColor = Qt::GlobalColor::transparent;
   }
@@ -1186,9 +1168,7 @@ L_WindowBlendImage(lua_State* L)
   const optional<BlendMode> mode = qlua::getBlendMode(L, 7);
   const lua_Number opacity = qlua::getNumber(L, 8);
   const QRectF targetRect = qlua::getQRectF(L, 9, 10, 11, 12);
-  if (!mode) [[unlikely]] {
-    return returnCode(L, ApiCode::UnknownOption);
-  }
+  expect_nonnull(mode, ApiCode::UnknownOption);
   return returnCode(L,
                     getApi(L).WindowBlendImage(
                       windowName, imageId, rect, *mode, opacity, targetRect));
@@ -1206,15 +1186,9 @@ L_WindowCircleOp(lua_State* L)
   const QColor brushColor = qlua::getQColor(L, 10);
   const optional<Qt::BrushStyle> brushStyle =
     qlua::getBrush(L, 11, Qt::BrushStyle::SolidPattern);
-  if (!action) [[unlikely]] {
-    return returnCode(L, ApiCode::UnknownOption);
-  }
-  if (!pen) [[unlikely]] {
-    return returnCode(L, ApiCode::PenStyleNotValid);
-  }
-  if (!brushStyle) [[unlikely]] {
-    return returnCode(L, ApiCode::BrushStyleNotValid);
-  }
+  expect_nonnull(action, ApiCode::UnknownOption);
+  expect_nonnull(pen, ApiCode::PenStyleNotValid);
+  expect_nonnull(brushStyle, ApiCode::BrushStyleNotValid);
   const QBrush brush(brushColor, *brushStyle);
 
   switch (*action) {
@@ -1248,9 +1222,7 @@ L_WindowCreate(lua_State* L)
   const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 6);
   const MiniWindow::Flags flags = qlua::getFlags<MiniWindow::Flag>(L, 7);
   const QColor bg = qlua::getQColor(L, 8);
-  if (!position) [[unlikely]] {
-    return returnCode(L, ApiCode::BadParameter);
-  }
+  expect_nonnull(position, ApiCode::BadParameter);
   return returnCode(
     L,
     getApi(L).WindowCreate(
@@ -1269,9 +1241,7 @@ L_WindowDrawImage(lua_State* L)
     qlua::getDrawImageMode(L, 7, MiniWindow::DrawImageMode::Copy);
   const QRectF sourceRect =
     n >= 8 ? qlua::getQRectF(L, 8, 9, 10, 11) : QRectF();
-  if (!mode) [[unlikely]] {
-    return returnCode(L, ApiCode::BadParameter);
-  }
+  expect_nonnull(mode, ApiCode::BadParameter);
   return returnCode(
     L, getApi(L).WindowDrawImage(windowName, imageID, rect, *mode, sourceRect));
 }
@@ -1304,11 +1274,9 @@ struct FilterParams
   template<typename T>
   int convolve() const
   {
-    const auto directions =
+    const optional<ffi::filter::Directions> directions =
       qlua::getDirections(L, 7, ImageFilter::Directions::Both);
-    if (!directions) [[unlikely]] {
-      return returnCode(L, ApiCode::BadParameter);
-    }
+    expect_nonnull(directions, ApiCode::BadParameter);
     return filter(T(*directions));
   }
 };
@@ -1325,9 +1293,7 @@ L_WindowFilter(lua_State* L)
   const QRect rect = qlua::getQRect(L, 2, 3, 4, 5);
   const FilterParams params{ .L = L, .windowName = windowName, .rect = rect };
   const optional<FilterOp> filterOp = qlua::getFilterOp(L, 6);
-  if (!filterOp) [[unlikely]] {
-    return returnCode(L, ApiCode::UnknownOption);
-  }
+  expect_nonnull(filterOp, ApiCode::UnknownOption);
   switch (*filterOp) {
     case FilterOp::Noise:
       return params.filter(ImageFilter::Noise(qlua::getNumber(L, 7)));
@@ -1410,9 +1376,7 @@ L_WindowFont(lua_State* L)
   // const short charset = qlua::getInt(L, 9);
   const optional<QFont::StyleHint> hint =
     qlua::getFontHint(L, 10, QFont::StyleHint::AnyStyle);
-  if (!hint) [[unlikely]] {
-    return returnCode(L, ApiCode::BadParameter);
-  }
+  expect_nonnull(hint, ApiCode::BadParameter);
   return returnCode(L,
                     getApi(L).WindowFont(windowName,
                                          fontID,
@@ -1447,9 +1411,7 @@ L_WindowGradient(lua_State* L)
   const QColor color1 = qlua::getQColor(L, 6);
   const QColor color2 = qlua::getQColor(L, 7);
   const optional<Qt::Orientation> mode = qlua::getOrientation(L, 8);
-  if (!mode) [[unlikely]] {
-    return returnCode(L, ApiCode::UnknownOption);
-  }
+  expect_nonnull(mode, ApiCode::UnknownOption);
   return returnCode(
     L, getApi(L).WindowGradient(windowName, rect, color1, color2, *mode));
 }
@@ -1474,9 +1436,7 @@ L_WindowLine(lua_State* L)
   const string_view windowName = qlua::getString(L, 1);
   const QLineF line = qlua::getQLineF(L, 2, 3, 4, 5);
   const optional<QPen> pen = qlua::getQPen(L, 6, 7, 8);
-  if (!pen) [[unlikely]] {
-    return returnCode(L, ApiCode::PenStyleNotValid);
-  }
+  expect_nonnull(pen, ApiCode::PenStyleNotValid);
   return returnCode(L, getApi(L).WindowLine(windowName, line, *pen));
 }
 
@@ -1517,15 +1477,9 @@ L_WindowPolygon(lua_State* L)
   const optional<Qt::BrushStyle> brushStyle = qlua::getBrush(L, 7);
   const bool close = qlua::getBool(L, 8, false);
   const bool winding = qlua::getBool(L, 9, false);
-  if (!polygon) [[unlikely]] {
-    return returnCode(L, ApiCode::InvalidNumberOfPoints);
-  }
-  if (!pen) [[unlikely]] {
-    return returnCode(L, ApiCode::PenStyleNotValid);
-  }
-  if (!brushStyle) [[unlikely]] {
-    return returnCode(L, ApiCode::BrushStyleNotValid);
-  }
+  expect_nonnull(polygon, ApiCode::InvalidNumberOfPoints);
+  expect_nonnull(pen, ApiCode::PenStyleNotValid);
+  expect_nonnull(brushStyle, ApiCode::BrushStyleNotValid);
   return returnCode(L,
                     getApi(L).WindowPolygon(windowName,
                                             *polygon,
@@ -1546,9 +1500,7 @@ L_WindowPosition(lua_State* L)
   const QPoint location = qlua::getQPoint(L, 2, 3);
   const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 4);
   const MiniWindow::Flags flags = qlua::getFlags<MiniWindow::Flag>(L, 5);
-  if (!position) [[unlikely]] {
-    return returnCode(L, ApiCode::BadParameter);
-  }
+  expect_nonnull(position, ApiCode::BadParameter);
   return returnCode(
     L, getApi(L).WindowPosition(windowName, location, *position, flags));
 }
@@ -1561,9 +1513,7 @@ L_WindowRectOp(lua_State* L)
   const string_view windowName = qlua::getString(L, 1);
   const optional<RectOp> action = qlua::getRectOp(L, 2);
   const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
-  if (!action) [[unlikely]] {
-    return returnCode(L, ApiCode::UnknownOption);
-  }
+  expect_nonnull(action, ApiCode::UnknownOption);
 
   switch (*action) {
     case RectOp::Frame:
@@ -1679,9 +1629,7 @@ L_WindowAddHotspot(lua_State* L)
   const optional<Qt::CursorShape> cursor =
     qlua::getCursor(L, 13, Qt::CursorShape::ArrowCursor);
   const Hotspot::Flags flags = qlua::getFlags(L, 14, Hotspot::Flags());
-  if (!cursor) [[unlikely]] {
-    return returnCode(L, ApiCode::BadParameter);
-  }
+  expect_nonnull(cursor, ApiCode::BadParameter);
   return returnCode(L,
                     getApi(L).WindowAddHotspot(getPluginIndex(L),
                                                windowName,
