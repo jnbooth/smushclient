@@ -7,6 +7,7 @@
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
 #include "callback/plugincallback.h"
+#include "miniwindow/imagewindow.h"
 #include "miniwindow/miniwindow.h"
 #include "smushclient_qt/src/ffi/timekeeper.cxx.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
@@ -239,17 +240,6 @@ ScriptApi::resetAllTimers()
 void
 ScriptApi::sendCallback(PluginCallback& callback)
 {
-  switch (callback.id()) {
-    case OnPluginWorldOutputResized::ID:
-      for (const auto& window : windows) {
-        window.second->updatePosition();
-      }
-      sendNaws();
-      break;
-    default:
-      break;
-  }
-
   if (!callbackFilter.includes(callback.id())) {
     return;
   }
@@ -379,6 +369,24 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow& window) const
 }
 
 // Public slots
+
+void
+ScriptApi::onResize(bool finished)
+{
+  if (backgroundImage != nullptr) {
+    backgroundImage->onParentResize();
+  }
+  if (foregroundImage != nullptr) {
+    foregroundImage->onParentResize();
+  }
+  if (!finished) {
+    return;
+  }
+  for (const auto& window : windows) {
+    window.second->updatePosition();
+  }
+  sendNaws();
+}
 
 void
 ScriptApi::onTimerSent(const SendTimer& timer)

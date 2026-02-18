@@ -1,5 +1,6 @@
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
+#include "miniwindow/imagewindow.h"
 #include "miniwindow/miniwindow.h"
 #include "scriptapi.h"
 #include "sqlite3.h"
@@ -63,6 +64,20 @@ assignFontFamily(QFont& font, const QString& family)
 } // namespace
 
 // Public methods
+
+ApiCode
+ScriptApi::SetBackgroundImage(const QString& path,
+                              MiniWindow::Position position)
+{
+  return setImage(path, position, false);
+}
+
+ApiCode
+ScriptApi::SetForegroundImage(const QString& path,
+                              MiniWindow::Position position)
+{
+  return setImage(path, position, true);
+}
 
 ApiCode
 ScriptApi::WindowAddHotspot(size_t index,
@@ -530,5 +545,48 @@ ScriptApi::WindowUpdateHotspot(size_t index,
     return ApiCode::HotspotPluginChanged;
   }
   hotspot->setCallbacks(std::move(callbacks));
+  return ApiCode::OK;
+}
+
+// private utils
+
+ApiCode
+ScriptApi::setImage(const QString& path,
+                    MiniWindow::Position position,
+                    bool above)
+{
+  ImageWindow*& window = above ? foregroundImage : backgroundImage;
+  if (path.isEmpty()) {
+    delete window;
+    window = nullptr;
+    return ApiCode::OK;
+  }
+  QPixmap pixmap(path);
+  if (pixmap.isNull()) {
+    return ApiCode::FileNotFound;
+  }
+  QWidget* parent = position == MiniWindow::Position::OwnerStretch ||
+                        position == MiniWindow::Position::OwnerScale
+                      ? tab.ui->output
+                      : tab.ui->area;
+  if (window == nullptr) {
+    window = new ImageWindow(std::move(pixmap), position, parent);
+    if (above) {
+      window->raise();
+    } else {
+      window->lower();
+    }
+    return ApiCode::OK;
+  }
+  if (window->parent() != parent) {
+    window->setParent(parent);
+    if (above) {
+      window->raise();
+    } else {
+      window->lower();
+    }
+  }
+  window->setPixmap(std::move(pixmap));
+  window->setPosition(position);
   return ApiCode::OK;
 }

@@ -95,59 +95,6 @@ buildMenu(QMenu& menu, string_view text)
   }
   return returnsNumber;
 }
-
-const QWidget*
-getParentWidget(const QWidget* widget)
-{
-  if (widget == nullptr) [[unlikely]] {
-    return widget;
-  }
-  const QWidget* parent = widget->parentWidget();
-  if (parent == nullptr) [[unlikely]] {
-    return widget;
-  }
-  return parent;
-}
-
-constexpr QRect
-calculateGeometry(MiniWindow::Position pos,
-                  const QSize& parent,
-                  const QSize& child) noexcept
-{
-  using geometry::scaleWithAspectRatio;
-  using geometry::xCenter;
-  using geometry::xRight;
-  using geometry::yBottom;
-  using geometry::yCenter;
-
-  switch (pos) {
-    case MiniWindow::Position::OutputStretch:
-    case MiniWindow::Position::OwnerStretch:
-    case MiniWindow::Position::Tile:
-      return { {}, parent };
-    case MiniWindow::Position::OutputScale:
-    case MiniWindow::Position::OwnerScale:
-      return { {}, scaleWithAspectRatio(parent, child) };
-    case MiniWindow::Position::TopLeft:
-      return { {}, child };
-    case MiniWindow::Position::TopCenter:
-      return { { xCenter(parent, child), 0 }, child };
-    case MiniWindow::Position::TopRight:
-      return { { xRight(parent, child), 0 }, child };
-    case MiniWindow::Position::CenterRight:
-      return { { xRight(parent, child), yCenter(parent, child) }, child };
-    case MiniWindow::Position::BottomRight:
-      return { { xRight(parent, child), yBottom(parent, child) }, child };
-    case MiniWindow::Position::BottomCenter:
-      return { { xCenter(parent, child), yBottom(parent, child) }, child };
-    case MiniWindow::Position::BottomLeft:
-      return { { 0, yBottom(parent, child) }, child };
-    case MiniWindow::Position::CenterLeft:
-      return { { 0, yCenter(parent, child) }, child };
-    case MiniWindow::Position::Center:
-      return { { xCenter(parent, child), yCenter(parent, child) }, child };
-  }
-}
 } // namespace
 
 // Painter
@@ -534,10 +481,9 @@ MiniWindow::setZOrder(int64_t order) noexcept
 void
 MiniWindow::updatePosition()
 {
-  const QRect geometry =
-    flags.testFlag(Flag::Absolute)
-      ? QRect(location, dimensions)
-      : calculateGeometry(position, getParentWidget(this)->size(), dimensions);
+  const QRect geometry = flags.testFlag(Flag::Absolute)
+                           ? QRect(location, dimensions)
+                           : geometry::calculate(this, position, dimensions);
 
   const QSize newSize = geometry.size() * devicePixelRatio();
   if (pixmap.size() != newSize) {

@@ -12,10 +12,12 @@
 #include <QtCore/QPointer>
 #include <QtGui/QTextCursor>
 #include <QtNetwork/QAbstractSocket>
+#include <QtWidgets/QLabel>
 
 #define SCRIPTING_VERSION "5.07"
 
 class ImageFilter;
+class ImageWindow;
 class MudScrollBar;
 class MudBrowser;
 class MudStatusBar;
@@ -202,8 +204,12 @@ public:
                          std::string_view name,
                          std::string_view value);
   QColor SetBackgroundColour(const QColor& color) const;
+  ApiCode SetBackgroundImage(const QString& path,
+                             MiniWindow::Position position);
   ApiCode SetCursor(Qt::CursorShape cursor) const;
   QColor SetForegroundColour(const QColor& color) const;
+  ApiCode SetForegroundImage(const QString& path,
+                             MiniWindow::Position position);
   QColor SetHighlightColour(const QColor& color) const;
   ApiCode SetOption(size_t plugin, std::string_view name, int64_t value);
   void SetStatus(const QString& status) const;
@@ -423,6 +429,7 @@ public:
 
 public slots:
   void initializePlugins();
+  void onResize(bool finished);
   void onTimerSent(const SendTimer& timer);
   void reinstallPlugin(size_t index);
 
@@ -432,12 +439,16 @@ private:
   MiniWindow* findWindow(std::string_view windowName) const;
   bool finishQueuedSend(const SendRequest& request);
   ApiCode sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags);
+  ApiCode setImage(const QString& path,
+                   MiniWindow::Position position,
+                   bool above);
 
 private:
   static constexpr size_t noSuchPlugin = std::numeric_limits<size_t>::max();
 
   ActionSource actionSource = ActionSource::Unknown;
   QRect assignedTextRectangle;
+  ImageWindow* backgroundImage = nullptr;
   CallbackFilter callbackFilter;
   const SmushClient& client;
   bool closed = true;
@@ -446,6 +457,7 @@ private:
   bool doNaws = false;
   bool doesNaws = false;
   bool echoInput = false;
+  ImageWindow* foregroundImage = nullptr;
   QByteArray lastCommandSent;
   Notepads& notepads;
   std::vector<Plugin> plugins;

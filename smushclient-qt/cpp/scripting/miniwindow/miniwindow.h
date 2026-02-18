@@ -11,6 +11,8 @@ class WorldTab;
 
 class MiniWindow : public QWidget
 {
+  Q_OBJECT
+
 public:
   enum class DrawImageMode : int64_t
   {

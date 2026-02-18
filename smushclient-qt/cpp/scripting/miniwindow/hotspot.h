@@ -10,6 +10,8 @@ class WorldTab;
 
 class Hotspot : public QWidget
 {
+  Q_OBJECT
+
 public:
   enum EventFlag
   {

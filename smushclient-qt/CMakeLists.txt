@@ -106,9 +106,10 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/scriptthread.h cpp/scripting/scriptthread.cpp
 
     cpp/scripting/miniwindow/blend.h cpp/scripting/miniwindow/blend.cpp
-    cpp/scripting/miniwindow/geometry.h
+    cpp/scripting/miniwindow/geometry.h cpp/scripting/miniwindow/geometry.cpp
     cpp/scripting/miniwindow/hotspot.h cpp/scripting/miniwindow/hotspot.cpp
     cpp/scripting/miniwindow/imagefilters.h cpp/scripting/miniwindow/imagefilters.cpp
+    cpp/scripting/miniwindow/imagewindow.h cpp/scripting/miniwindow/imagewindow.cpp
     cpp/scripting/miniwindow/miniwindow.h cpp/scripting/miniwindow/miniwindow.cpp
 
     cpp/scripting/callback/filter.h cpp/scripting/callback/filter.cpp

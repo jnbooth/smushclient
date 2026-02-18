@@ -98,7 +98,7 @@ WorldTab::WorldTab(Notepads& notepads, QWidget* parent)
   flushTimer->setSingleShot(true);
   connect(flushTimer, &QTimer::timeout, this, &WorldTab::flushOutput);
 
-  resizeTimer->setInterval(milliseconds{ 1000 });
+  resizeTimer->setInterval(milliseconds{ 100 });
   resizeTimer->setSingleShot(true);
   connect(resizeTimer, &QTimer::timeout, this, &WorldTab::finishResize);
   connect(ui->output,
@@ -624,6 +624,7 @@ WorldTab::mouseReleaseEvent(QMouseEvent* /*event*/)
 void
 WorldTab::resizeEvent(QResizeEvent* event)
 {
+  api->onResize(false);
   if (!resizeTimer->isActive()) {
     ui->output->document()->setLayoutEnabled(false);
   }
@@ -900,6 +901,7 @@ WorldTab::finishResize()
   ui->output->document()->setLayoutEnabled(true);
   initialized = true;
   OnPluginWorldOutputResized onWorldOutputResized;
+  api->onResize(true);
   api->sendCallback(onWorldOutputResized);
   if (queuedConnect) {
     queuedConnect = false;

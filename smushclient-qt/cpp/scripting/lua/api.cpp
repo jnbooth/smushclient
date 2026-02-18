@@ -1140,6 +1140,28 @@ L_SetBackgroundColour(lua_State* L)
 }
 
 int
+L_SetBackgroundImage(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  const QString path = qlua::getQString(L, 1);
+  const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 2);
+  expect_nonnull(position, ApiCode::BadParameter);
+  return returnCode(L, getApi(L).SetBackgroundImage(path, *position));
+}
+
+int
+L_SetForegroundImage(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  const QString path = qlua::getQString(L, 1);
+  const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 2);
+  expect_nonnull(position, ApiCode::BadParameter);
+  return returnCode(L, getApi(L).SetForegroundImage(path, *position));
+}
+
+int
 L_TextRectangle(lua_State* L)
 {
   BENCHMARK
@@ -1803,6 +1825,8 @@ static const struct luaL_Reg worldlib[] =
     { "SetVariable", L_SetVariable },
     // windows
     { "SetBackgroundColour", L_SetBackgroundColour },
+    { "SetBackgroundImage", L_SetBackgroundImage },
+    { "SetForegroundImage", L_SetForegroundImage },
     { "TextRectangle", L_TextRectangle },
     { "WindowBlendImage", L_WindowBlendImage },
     { "WindowCircleOp", L_WindowCircleOp },
@@ -1831,7 +1855,6 @@ static const struct luaL_Reg worldlib[] =
     { "WindowMoveHotspot", L_WindowMoveHotspot },
     { "WindowScrollwheelHandler", L_WindowScrollwheelHandler },
     // stubs
-    { "SetBackgroundImage", L_noop },
     { "SetFrameBackgroundColour", L_noop },
     { "Redraw", L_noop },
     { "Repaint", L_noop },
