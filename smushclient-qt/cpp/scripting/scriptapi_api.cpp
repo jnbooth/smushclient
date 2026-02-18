@@ -40,6 +40,34 @@ ScriptApi::GetOptionList() noexcept
   return ffi::util::get_option_list();
 }
 
+QColor
+ScriptApi::GetSysColor(SysColor sysColor)
+{
+  const QPalette palette = QGuiApplication::palette();
+  switch (sysColor) {
+    case SysColor::Background:
+      return palette.color(QPalette::ColorRole::Base);
+    case SysColor::Window:
+      return palette.color(QPalette::ColorRole::Window);
+    case SysColor::WindowText:
+      return palette.color(QPalette::ColorRole::WindowText);
+    case SysColor::ButtonFace:
+      return palette.color(QPalette::ColorRole::Button);
+    case SysColor::ButtonShadow:
+      return palette.color(QPalette::ColorRole::Shadow);
+    case SysColor::ButtonText:
+      return palette.color(QPalette::ColorRole::ButtonText);
+    case SysColor::ButtonHighlight:
+      return palette.color(QPalette::ColorRole::BrightText);
+    case SysColor::Dark:
+      return palette.color(QPalette::ColorRole::Dark);
+    case SysColor::Light:
+      return palette.color(QPalette::Light);
+    default:
+      return QColor();
+  }
+}
+
 int64_t
 ScriptApi::GetUniqueNumber() noexcept
 {

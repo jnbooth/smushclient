@@ -224,6 +224,11 @@ getSendTarget(lua_State* L,
               int idx,
               std::optional<SendTarget> ifNil = std::nullopt);
 
+std::optional<SysColor>
+getSysColor(lua_State* L,
+            int idx,
+            std::optional<SysColor> ifNil = std::nullopt);
+
 std::optional<MiniWindow::Position>
 getWindowPosition(lua_State* L,
                   int idx,

@@ -46,11 +46,12 @@ class ScriptApi : public QObject
   Q_OBJECT
 
 public:
+  static QColor GetSysColor(SysColor sysColor);
   static int64_t GetUniqueNumber() noexcept;
-  static QString MakeRegularExpression(std::string_view pattern) noexcept;
   static QStringList GetAlphaOptionList() noexcept;
   static QStringList GetOptionList() noexcept;
   static QVariant FontInfo(const QFont& font, int64_t infoType);
+  static QString MakeRegularExpression(std::string_view pattern) noexcept;
   static void SetClipboard(const QString& text);
 
   ScriptApi(SmushClient& client,

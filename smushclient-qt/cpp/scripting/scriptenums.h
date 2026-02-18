@@ -265,6 +265,35 @@ enum class ScriptCursor : int64_t
   WhatsThisCursor,
 };
 
+enum class SysColor : int64_t
+{
+  Scrollbar,
+  Background,
+  ActiveCaption,
+  InactiveCaption,
+  Menu,
+  Window,
+  WindowFrame,
+  MenuText,
+  WindowText,
+  CaptionText,
+  ActiveBorder,
+  InactiveBorder,
+  ApplicationWorkspace,
+  Highlight,
+  HighlightText,
+  ButtonFace,
+  ButtonShadow,
+  GrayText,
+  ButtonText,
+  InactiveCaptionText,
+  ButtonHighlight,
+  Dark,
+  Light,
+  InfoText,
+  InfoBk,
+};
+
 enum class TimerFlag
 {
   Enabled = 1,           // Enable

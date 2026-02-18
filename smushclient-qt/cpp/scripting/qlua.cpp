@@ -1092,6 +1092,13 @@ qlua::getSendTarget(lua_State* L, int idx, optional<SendTarget> ifNil)
     L, idx, ifNil);
 }
 
+optional<SysColor>
+qlua::getSysColor(lua_State* L, int idx, optional<SysColor> ifNil)
+{
+  return getEnum<SysColor, SysColor::Scrollbar, SysColor::InfoBk>(
+    L, idx, ifNil);
+}
+
 optional<MiniWindow::Position>
 qlua::getWindowPosition(lua_State* L,
                         int idx,

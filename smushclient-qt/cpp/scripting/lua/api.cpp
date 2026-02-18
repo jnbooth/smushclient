@@ -457,6 +457,17 @@ L_GetLinesInBufferCount(lua_State* L)
 }
 
 int
+L_GetSysColor(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  const optional<SysColor> sysColor = qlua::getSysColor(L, 1);
+  expect_nonnull(sysColor, ApiCode::BadParameter);
+  qlua::pushQColor(L, ScriptApi::GetSysColor(*sysColor));
+  return 1;
+}
+
+int
 L_Hyperlink(lua_State* L)
 {
   BENCHMARK
@@ -1764,6 +1775,7 @@ static const struct luaL_Reg worldlib[] =
     { "ColourNote", L_ColourNote },
     { "ColourTell", L_ColourTell },
     { "GetLinesInBufferCount", L_GetLinesInBufferCount },
+    { "GetSysColor", L_GetSysColor },
     { "Hyperlink", L_Hyperlink },
     { "Note", L_Note },
     { "PickColour", L_PickColour },
