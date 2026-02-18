@@ -129,7 +129,8 @@ ScriptApi::handleSendRequest(const SendRequest& request)
     case SendTarget::Script:
     case SendTarget::ScriptAfterOmit:
       const QByteArray utf8 = request.text.toUtf8();
-      runScript(request.plugin, string_view(utf8.data(), utf8.size()));
+      runScript(
+        request.plugin, string_view(utf8.data(), utf8.size()), utf8.data());
       return;
   }
 }

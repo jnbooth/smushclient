@@ -373,9 +373,9 @@ public:
   void printError(const QString& message);
   void reloadWorldScript(const QString& worldScriptPath);
   void resetAllTimers();
-  bool runScript(size_t plugin, std::string_view script) const
+  bool runScript(size_t plugin, std::string_view script, const char* name) const
   {
-    return plugins[plugin].runScript(script);
+    return plugins[plugin].runScript(script, name);
   }
   void sendCallback(PluginCallback& callback);
   bool sendCallback(PluginCallback& callback, size_t plugin);

@@ -38,7 +38,7 @@ public:
   bool runCallback(PluginCallback& callback) const;
   bool runCallbackThreaded(PluginCallback& callback) const;
   bool runFile(const QString& path) const;
-  bool runScript(std::string_view script) const;
+  bool runScript(std::string_view script, const char* name) const;
   void setEnabled(bool enable = true);
   ScriptThread spawnThread() const;
   constexpr lua_State* state() const noexcept { return L_.get(); }
