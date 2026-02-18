@@ -13,7 +13,6 @@ using std::nullopt;
 using std::optional;
 using std::string;
 using std::string_view;
-using std::vector;
 
 // Private utilities
 
@@ -343,8 +342,8 @@ qlua::getIntegerOrBool(lua_State* L, int idx)
     default:
       break;
   }
-  luaL_typeerror(L, idx, "number"); // exits function
-  return 0;                         // unreachable
+  luaL_typeerror(L, idx, "integer"); // exits function
+  return 0;                          // unreachable
 }
 
 lua_Integer
@@ -367,8 +366,8 @@ qlua::getIntegerOrBool(lua_State* L, int idx, lua_Integer ifNil)
     default:
       break;
   }
-  luaL_typeerror(L, idx, "number"); // exits function
-  return 0;                         // unreachable
+  luaL_typeerror(L, idx, "integer"); // exits function
+  return 0;                          // unreachable
 }
 
 lua_Number
@@ -530,21 +529,6 @@ qlua::concatStrings(lua_State* L)
     lua_pop(L, 1);
   }
   return QString::fromUtf8(out.view());
-}
-
-int
-qlua::loadQString(lua_State* L, const QString& chunk)
-{
-  const QByteArray utf8 = chunk.toUtf8();
-  const char* data = utf8.constData();
-  return luaL_loadbuffer(L, data, utf8.size(), data);
-}
-
-int
-qlua::loadString(lua_State* L, string_view chunk)
-{
-  const char* data = chunk.data();
-  return luaL_loadbuffer(L, data, chunk.size(), data);
 }
 
 void
@@ -726,42 +710,6 @@ const char*
 qlua::pushString(lua_State* L, string_view string)
 {
   return lua_pushlstring(L, string.data(), string.size());
-}
-
-void
-qlua::pushRStrings(lua_State* L, rust::Slice<const rust::Str> strings)
-{
-  lua_createtable(L, static_cast<int>(strings.size()), 0);
-  lua_Integer i = 1;
-  for (rust::Str string : strings) {
-    qlua::pushRString(L, string);
-    lua_rawseti(L, -2, i);
-    ++i;
-  }
-}
-
-void
-qlua::pushRStrings(lua_State* L, const rust::Vec<rust::Str>& strings)
-{
-  lua_createtable(L, static_cast<int>(strings.size()), 0);
-  lua_Integer i = 1;
-  for (rust::Str string : strings) {
-    qlua::pushRString(L, string);
-    lua_rawseti(L, -2, i);
-    ++i;
-  }
-}
-
-void
-qlua::pushStrings(lua_State* L, const vector<string>& strings)
-{
-  lua_createtable(L, static_cast<int>(strings.size()), 0);
-  lua_Integer i = 1;
-  for (const string& string : strings) {
-    qlua::pushString(L, string);
-    lua_rawseti(L, -2, i);
-    ++i;
-  }
 }
 
 const char*

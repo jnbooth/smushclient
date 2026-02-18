@@ -109,11 +109,6 @@ concatBytes(lua_State* L);
 QString
 concatStrings(lua_State* L);
 
-int
-loadQString(lua_State* L, const QString& chunk);
-int
-loadString(lua_State* L, std::string_view chunk);
-
 void
 pushBool(lua_State* L, bool value);
 const char*
@@ -136,12 +131,6 @@ const char*
 pushRString(lua_State* L, rust::Str string);
 const char*
 pushString(lua_State* L, std::string_view string);
-void
-pushRStrings(lua_State* L, rust::Slice<const rust::Str> strings);
-void
-pushRStrings(lua_State* L, const rust::Vec<rust::Str>& strings);
-void
-pushStrings(lua_State* L, const std::vector<std::string>& strings);
 const char*
 pushVariable(lua_State* L, VariableView variable);
 

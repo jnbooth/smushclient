@@ -3,7 +3,6 @@
 #include "lua/api.h"
 #include "lua/errors.h"
 #include "lua/init.h"
-#include "qlua.h"
 #include "scriptapi.h"
 #include "scriptthread.h"
 #include "smushclient_qt/src/ffi/client.cxxqt.h"
@@ -194,7 +193,8 @@ Plugin::runScript(string_view script) const
   }
 
   lua_State* L = L_.get();
-  return runLoaded(L, qlua::loadString(L, script));
+  const char* data = script.data();
+  return runLoaded(L, luaL_loadbuffer(L, data, script.size(), data));
 }
 
 void
