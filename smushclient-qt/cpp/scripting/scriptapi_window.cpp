@@ -23,9 +23,9 @@ using std::unique_ptr;
     return ApiCode::NoSuchWindow;                                              \
   }
 
-#define TRY_IMAGE(imageID)                                                     \
+#define TRY_PIXMAP(imageID)                                                    \
   window->findImage(imageID);                                                  \
-  if (image == nullptr) [[unlikely]] {                                         \
+  if (pixmap == nullptr) [[unlikely]] {                                        \
     return ApiCode::ImageNotInstalled;                                         \
   }
 
@@ -126,8 +126,8 @@ ScriptApi::WindowBlendImage(string_view windowName,
     return ApiCode::BadParameter;
   }
   MiniWindow* window = TRY_WINDOW(windowName);
-  const QPixmap* image = TRY_IMAGE(imageID);
-  window->blendImage(mode, *image, rect, opacity, sourceRect);
+  const QPixmap* pixmap = TRY_PIXMAP(imageID);
+  window->blendImage(mode, *pixmap, rect, opacity, sourceRect);
   return ApiCode::OK;
 }
 
@@ -193,8 +193,8 @@ ScriptApi::WindowDrawImage(string_view windowName,
                            const QRectF& sourceRect) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
-  const QPixmap* image = TRY_IMAGE(imageID);
-  window->drawImage(*image, rect, sourceRect, mode);
+  const QPixmap* pixmap = TRY_PIXMAP(imageID);
+  window->drawImage(*pixmap, rect, sourceRect, mode);
   return ApiCode::OK;
 }
 
@@ -206,10 +206,10 @@ ScriptApi::WindowDrawImageAlpha(string_view windowName,
                                 const QPointF& origin) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
-  const QPixmap* image = TRY_IMAGE(imageID);
-  window->drawImage(*image,
+  const QPixmap* pixmap = TRY_PIXMAP(imageID);
+  window->drawImage(*pixmap,
                     rect,
-                    QRectF(origin, image->rect().bottomRight().toPointF()),
+                    QRectF(origin, pixmap->rect().bottomRight().toPointF()),
                     MiniWindow::DrawImageMode::Copy,
                     opacity);
   return ApiCode::OK;
