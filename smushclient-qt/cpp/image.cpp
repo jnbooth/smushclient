@@ -1,17 +1,11 @@
-#include "blend.h"
+#include "image.h"
+#include "scripting/scriptenums.h"
 #include "smushclient_qt/src/ffi/filter.cxx.h"
 #include <QtGui/QPainter>
 
 // Private utils
 
 namespace {
-rust::Slice<uint32_t>
-asPixels(QImage& image)
-{
-  return rust::Slice(reinterpret_cast<uint32_t*>(image.bits()),
-                     static_cast<size_t>(image.sizeInBytes() >> 2));
-}
-
 QImage
 dissolve(const QPixmap& source, const QRect& rect, qreal opacity)
 {
@@ -19,7 +13,7 @@ dissolve(const QPixmap& source, const QRect& rect, qreal opacity)
   QImage image =
     source.rect() == rect ? source.toImage() : source.copy(rect).toImage();
   image.convertTo(QImage::Format::Format_ARGB32);
-  ffi::filter::dissolve(asPixels(image), opacity);
+  ffi::filter::dissolve(image::asPixels(image), opacity);
   return image;
 }
 
@@ -27,9 +21,9 @@ dissolve(const QPixmap& source, const QRect& rect, qreal opacity)
 
 // Public functions
 
-namespace blend {
+namespace image {
 bool
-image(QPixmap& target,
+blend(QPixmap& target,
       const QPixmap& source,
       const QPointF& origin,
       BlendMode mode,
@@ -101,4 +95,4 @@ image(QPixmap& target,
   painter.drawPixmap(origin, source, sourceRect);
   return true;
 }
-} // namespace blend
+} // namespace image

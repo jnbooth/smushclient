@@ -73,6 +73,7 @@ qt_add_executable(${APP_NAME}
     cpp/environment.h cpp/environment.cpp
     cpp/fieldconnector.h
     cpp/hotkeys.h cpp/hotkeys.cpp
+    cpp/image.h cpp/image.cpp
     cpp/layout.h cpp/layout.cpp
     cpp/localization.h cpp/localization.cpp
     cpp/lookup.h
@@ -105,7 +106,6 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
     cpp/scripting/scriptthread.h cpp/scripting/scriptthread.cpp
 
-    cpp/scripting/miniwindow/blend.h cpp/scripting/miniwindow/blend.cpp
     cpp/scripting/miniwindow/geometry.h cpp/scripting/miniwindow/geometry.cpp
     cpp/scripting/miniwindow/hotspot.h cpp/scripting/miniwindow/hotspot.cpp
     cpp/scripting/miniwindow/imagefilters.h cpp/scripting/miniwindow/imagefilters.cpp

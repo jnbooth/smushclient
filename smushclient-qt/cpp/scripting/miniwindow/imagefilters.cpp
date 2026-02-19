@@ -1,17 +1,9 @@
 #include "imagefilters.h"
 #include "../../casting.h"
+#include "../../image.h"
 #include "smushclient_qt/src/ffi/filter.cxx.h"
 
 // Private utils
-
-namespace {
-ImageFilter::Pixels
-asPixels(QImage& image)
-{
-  return rust::Slice(reinterpret_cast<uint32_t*>(image.bits()),
-                     static_cast<size_t>(image.sizeInBytes() >> 2));
-}
-} // namespace
 
 // Public methods
 
@@ -23,7 +15,7 @@ ImageFilter::PixelFilter::apply(const QPixmap& pixmap) const
   }
   QImage image = pixmap.toImage();
   image.convertTo(QImage::Format::Format_ARGB32);
-  apply(asPixels(image));
+  apply(image::asPixels(image));
   return image;
 }
 
@@ -32,7 +24,7 @@ ImageFilter::ConvolveFilter::apply(const QPixmap& pixmap) const
 {
   QImage image = pixmap.toImage();
   image.convertTo(QImage::Format::Format_ARGB32);
-  apply(asPixels(image), image.width(), directions);
+  apply(image::asPixels(image), image.width(), directions);
   return image;
 }
 

@@ -1,5 +1,5 @@
 #include "miniwindow.h"
-#include "blend.h"
+#include "../../image.h"
 #include "geometry.h"
 #include "hotspot.h"
 #include "imagefilters.h"
@@ -214,7 +214,7 @@ MiniWindow::blendImage(BlendMode mode,
   const QSizeF size = rect.size().boundedTo(sourceRect.size());
   rect.setSize(size);
   sourceRect.setSize(size);
-  blend::image(pixmap, image, rect.topLeft(), mode, opacity, sourceRect);
+  image::blend(pixmap, image, rect.topLeft(), mode, opacity, sourceRect);
   updateMask();
   update();
 }
