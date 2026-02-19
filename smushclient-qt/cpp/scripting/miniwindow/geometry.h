@@ -6,6 +6,9 @@
 namespace geometry {
 using Position = MiniWindow::Position;
 
+qreal
+arc(const QPointF& center, const QPointF& edge);
+
 constexpr int
 scale(int value, qreal scalar) noexcept
 {

@@ -2,6 +2,7 @@
 #include "../casting.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include <QtCore/QUuid>
+#include <cmath>
 #include <sstream>
 extern "C"
 {
@@ -92,12 +93,20 @@ toBool(lua_State* L, int idx, int type)
   return false;                      // unreachable
 }
 
-lua_Integer
+inline lua_Integer
 toInteger(lua_State* L, int idx)
 {
   int isInt;
   const lua_Integer result = lua_tointegerx(L, idx, &isInt);
   luaL_argexpected(L, isInt, idx, "integer");
+  return result;
+}
+
+inline lua_Number
+toNumber(lua_State* L, int idx)
+{
+  const lua_Number result = lua_tonumber(L, idx);
+  luaL_argexpected(L, std::isfinite(result), idx, "finite number");
   return result;
 }
 
@@ -136,7 +145,7 @@ toQColor(lua_State* L, int idx, int ltype)
   return QColor();
 }
 
-QString
+inline QString
 toQString(lua_State* L, int idx)
 {
   size_t len;
@@ -374,14 +383,13 @@ lua_Number
 qlua::getNumber(lua_State* L, int idx)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TNUMBER, idx, "number");
-  return lua_tonumber(L, idx);
+  return toNumber(L, idx);
 }
 
 lua_Number
 qlua::getNumber(lua_State* L, int idx, lua_Number ifNil)
 {
-  return checkIsSome(L, idx, LUA_TNUMBER, "number") ? lua_tonumber(L, idx)
-                                                    : ifNil;
+  return checkIsSome(L, idx, LUA_TNUMBER, "number") ? toNumber(L, idx) : ifNil;
 }
 
 QColor

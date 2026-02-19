@@ -9,6 +9,7 @@
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QMenu>
 #include <algorithm>
+#include <cmath>
 
 using std::span;
 using std::string;
@@ -233,6 +234,25 @@ MiniWindow::deleteHotspot(string_view hotspotID)
   }
   hotspots.erase(search);
   return true;
+}
+
+void
+MiniWindow::drawArc(const QRectF& rect,
+                    const QPointF& start,
+                    const QPointF& end,
+                    const QPen& pen)
+{
+  const QPointF center = rect.center();
+  const qreal startArc = geometry::arc(center, start);
+  if (std::isnan(startArc)) {
+    return;
+  }
+  const qreal endArc = geometry::arc(center, end);
+  if (std::isnan(endArc)) {
+    return;
+  }
+  Painter(this, pen).drawArc(
+    rect, static_cast<int>(startArc), static_cast<int>(endArc));
 }
 
 void

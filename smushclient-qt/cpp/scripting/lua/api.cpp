@@ -1200,6 +1200,20 @@ L_TextRectangle(lua_State* L)
 }
 
 int
+L_WindowArc(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 12);
+  const string_view windowName = qlua::getString(L, 1);
+  const QRectF rect = qlua::getQRectF(L, 2, 3, 4, 5);
+  const QPointF start = qlua::getQPointF(L, 6, 7);
+  const QPointF end = qlua::getQPointF(L, 8, 9);
+  const optional<QPen> pen = qlua::getQPen(L, 10, 11, 12);
+  expect_nonnull(pen, ApiCode::PenStyleNotValid);
+  return returnCode(L, getApi(L).WindowArc(windowName, rect, start, end, *pen));
+}
+
+int
 L_WindowBlendImage(lua_State* L)
 {
   BENCHMARK
@@ -1840,6 +1854,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetBackgroundImage", L_SetBackgroundImage },
     { "SetForegroundImage", L_SetForegroundImage },
     { "TextRectangle", L_TextRectangle },
+    { "WindowArc", L_WindowArc },
     { "WindowBlendImage", L_WindowBlendImage },
     { "WindowCircleOp", L_WindowCircleOp },
     { "WindowCreate", L_WindowCreate },

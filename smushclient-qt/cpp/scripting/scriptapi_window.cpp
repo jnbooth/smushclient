@@ -103,6 +103,18 @@ ScriptApi::WindowAddHotspot(size_t index,
 }
 
 ApiCode
+ScriptApi::WindowArc(string_view windowName,
+                     const QRectF& rect,
+                     const QPointF& start,
+                     const QPointF& end,
+                     const QPen& pen) const
+{
+  MiniWindow* window = TRY_WINDOW(windowName);
+  window->drawArc(rect, start, end, pen);
+  return ApiCode::OK;
+}
+
+ApiCode
 ScriptApi::WindowBlendImage(string_view windowName,
                             string_view imageID,
                             const QRectF& rect,
@@ -147,7 +159,7 @@ ScriptApi::WindowCreate(size_t index,
   }
 
   const string windowName(name);
-  std::unique_ptr<MiniWindow>& window = windows[windowName];
+  unique_ptr<MiniWindow>& window = windows[windowName];
   if (window == nullptr) {
     window = std::make_unique<MiniWindow>(
       location, size, position, flags, fill, plugins[index].id(), tab.ui->area);

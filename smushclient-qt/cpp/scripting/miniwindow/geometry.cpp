@@ -1,4 +1,5 @@
 #include "geometry.h"
+#include <numbers>
 
 // Private utils
 
@@ -20,6 +21,27 @@ getParentWidget(const QWidget* widget)
 // Public functions
 
 namespace geometry {
+qreal
+arc(const QPointF& center, const QPointF& edge)
+{
+  if (center == edge) {
+    return NAN;
+  }
+  const qreal xDist = edge.x() - center.x();
+  const qreal yDist = edge.y() - center.y();
+  if (xDist == 0) {
+    return yDist >= 0 ? 90.0 * 16.0 : 270.0 * 16.0;
+  }
+  const qreal arc = std::atan(yDist / xDist) * 180.0 * 16.0 / std::numbers::pi;
+  if (xDist < 0) {
+    return arc + 180.0 * 16.0;
+  }
+  if (arc < 0) {
+    return arc + 360.0 * 16.0;
+  }
+  return arc;
+}
+
 QRect
 calculate(QWidget* widget, MiniWindow::Position position, const QSize& size)
 {

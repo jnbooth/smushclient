@@ -117,6 +117,10 @@ public:
                   const QRectF& sourceRect = QRectF());
   void clearHotspots();
   bool deleteHotspot(std::string_view hotspotID);
+  void drawArc(const QRectF& rect,
+               const QPointF& start,
+               const QPointF& end,
+               const QPen& pen);
   void drawButton(const QRect& rect, ButtonFrame frame, ButtonFlags flags);
   void drawEllipse(const QRectF& rect,
                    const QPen& pen,

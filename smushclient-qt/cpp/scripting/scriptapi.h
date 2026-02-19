@@ -249,6 +249,11 @@ public:
                            const QString& tooltip,
                            Qt::CursorShape cursor,
                            Hotspot::Flags flags) const;
+  ApiCode WindowArc(std::string_view windowName,
+                    const QRectF& rect,
+                    const QPointF& start,
+                    const QPointF& end,
+                    const QPen& pen) const;
   ApiCode WindowBlendImage(std::string_view windowName,
                            std::string_view imageID,
                            const QRectF& rect,
