@@ -249,7 +249,7 @@ public:
   int pushArguments(lua_State* L) const override
   {
     lua_pushinteger(L, flags);
-    qlua::pushString(L, hotspotID);
+    qlua::push(L, hotspotID);
     return 2;
   }
 

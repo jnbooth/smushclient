@@ -327,20 +327,20 @@ public:
 
   int pushArguments(lua_State* L) const override
   {
-    qlua::pushRString(L, senderName);
-    qlua::pushRString(L, line);
+    qlua::push(L, senderName);
+    qlua::push(L, line);
     lua_createtable(L,
                     static_cast<int>(wildcards.size()),
                     static_cast<int>(namedWildcards.size()));
     lua_Integer i = 1;
     for (rust::Str wildcard : wildcards) {
-      qlua::pushRString(L, wildcard);
+      qlua::push(L, wildcard);
       lua_rawseti(L, -2, i);
       ++i;
     }
     for (const NamedWildcard& wildcard : namedWildcards) {
-      qlua::pushRString(L, wildcard.name);
-      qlua::pushRString(L, wildcard.value);
+      qlua::push(L, wildcard.name);
+      qlua::push(L, wildcard.value);
       lua_rawset(L, -3);
     }
     return 3;

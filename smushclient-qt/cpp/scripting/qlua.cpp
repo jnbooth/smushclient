@@ -274,7 +274,7 @@ qlua::expectMaxArgs(lua_State* L, int max)
 {
   const int n = lua_gettop(L);
   if (n > max) [[unlikely]] {
-    qlua::pushString(L, "Too many arguments");
+    qlua::push(L, "Too many arguments");
     lua_error(L);
   }
   return n;
@@ -540,64 +540,6 @@ qlua::concatStrings(lua_State* L)
 }
 
 void
-qlua::pushBool(lua_State* L, bool value)
-{
-  lua_pushboolean(L, static_cast<int>(value));
-}
-
-const char*
-qlua::pushBytes(lua_State* L, const QByteArray& bytes)
-{
-  return lua_pushlstring(L, bytes.constData(), bytes.size());
-}
-
-void
-qlua::pushQColor(lua_State* L, const QColor& color)
-{
-  lua_pushinteger(L, colorToRgbCode(color));
-}
-
-void
-qlua::pushQHash(lua_State* L, const QVariantHash& variants)
-{
-  lua_createtable(L, 0, static_cast<int>(variants.size()));
-  for (auto it = variants.cbegin(), end = variants.cend(); it != end; ++it) {
-    pushQString(L, it.key());
-    pushQVariant(L, it.value());
-    lua_rawset(L, -3);
-  }
-}
-
-void
-qlua::pushQMap(lua_State* L, const QVariantMap& variants)
-{
-  lua_createtable(L, 0, static_cast<int>(variants.size()));
-  for (auto it = variants.cbegin(), end = variants.cend(); it != end; ++it) {
-    pushQString(L, it.key());
-    pushQVariant(L, it.value());
-    lua_rawset(L, -3);
-  }
-}
-
-const char*
-qlua::pushQString(lua_State* L, const QString& string)
-{
-  return pushBytes(L, string.toUtf8());
-}
-
-void
-qlua::pushQStrings(lua_State* L, const QStringList& strings)
-{
-  lua_createtable(L, static_cast<int>(strings.size()), 0);
-  lua_Integer i = 1;
-  for (const QString& string : strings) {
-    pushQString(L, string);
-    lua_rawseti(L, -2, i);
-    ++i;
-  }
-}
-
-void
 qlua::pushQVariant(lua_State* L, const QVariant& variant)
 {
   QMetaType type = variant.metaType();
@@ -607,7 +549,7 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant)
       lua_pushnil(L);
       return;
     case QMetaType::Bool:
-      pushBool(L, variant.toBool());
+      lua_pushboolean(L, variant.toInt());
       return;
     case QMetaType::Int:
     case QMetaType::UInt:
@@ -617,25 +559,25 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant)
     case QMetaType::ULong:
     case QMetaType::ULongLong:
     case QMetaType::UShort:
-      lua_pushinteger(L, variant.toLongLong());
+      push(L, variant.toLongLong());
       return;
     case QMetaType::Double:
     case QMetaType::Float:
     case QMetaType::Float16:
-      lua_pushnumber(L, variant.toDouble());
+      push(L, variant.toDouble());
       return;
     case QMetaType::QChar:
-      pushQString(L, variant.toChar());
+      push(L, variant.toChar());
       return;
     case QMetaType::QString:
-      pushQString(L, variant.toString());
+      push(L, variant.toString());
       return;
     case QMetaType::QDate:
     case QMetaType::QDateTime:
-      lua_pushinteger(L, variant.toDateTime().toSecsSinceEpoch());
+      push(L, variant.toDateTime().toSecsSinceEpoch());
       return;
     case QMetaType::QByteArray:
-      pushBytes(L, variant.toByteArray());
+      push(L, variant.toByteArray());
       return;
     case QMetaType::Char: {
       const char c = variant.value<char>();
@@ -644,12 +586,12 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant)
     }
     case QMetaType::Char16: {
       const char16_t c = variant.value<char16_t>();
-      pushQString(L, QString::fromUtf16(&c, 1));
+      push(L, QString::fromUtf16(&c, 1));
       return;
     }
     case QMetaType::Char32: {
       const char32_t c = variant.value<char32_t>();
-      pushQString(L, QString::fromUcs4(&c, 1));
+      push(L, QString::fromUcs4(&c, 1));
       return;
     }
     case QMetaType::SChar: {
@@ -663,32 +605,32 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant)
       return;
     }
     case QMetaType::QBrush:
-      pushQColor(L, variant.value<QBrush>().color());
+      push(L, variant.value<QBrush>().color());
     case QMetaType::QColor:
-      pushQColor(L, variant.value<QColor>());
+      push(L, variant.value<QColor>());
       return;
     case QMetaType::QUuid:
-      pushQString(L, variant.toUuid().toString());
+      push(L, variant.toUuid().toString());
       return;
     case QMetaType::QStringList:
-      pushQStrings(L, variant.toStringList());
+      pushList(L, variant.toStringList());
       return;
     case QMetaType::QVariantHash:
-      pushQHash(L, variant.toHash());
+      pushMap(L, variant.toHash());
       return;
     case QMetaType::QVariantMap:
-      pushQMap(L, variant.toMap());
+      pushMap(L, variant.toMap());
       return;
     case QMetaType::QVariantList:
       if (variant.canConvert<QStringList>()) {
-        pushQStrings(L, variant.toStringList());
+        pushList(L, variant.toStringList());
       } else {
-        pushQVariants(L, variant.toList());
+        pushList(L, variant.toList());
       }
       return;
     default:
       if (variant.canConvert<qlonglong>()) {
-        lua_pushinteger(L, variant.toLongLong());
+        push(L, variant.toLongLong());
       } else {
         lua_pushnil(L);
       }
@@ -696,39 +638,19 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant)
   }
 }
 
+template<>
 void
-qlua::pushQVariants(lua_State* L, const QVariantList& variants)
+qlua::pushAny(lua_State* L, const QVariant& value)
 {
-  lua_createtable(L, static_cast<int>(variants.size()), 0);
-  lua_Integer i = 1;
-  for (const QVariant& variant : variants) {
-    pushQVariant(L, variant);
-    lua_rawseti(L, -2, i);
-    ++i;
-  }
+  pushQVariant(L, value);
 }
 
-const char*
-qlua::pushRString(lua_State* L, rust::Str string)
+template<>
+void
+qlua::pushAny(lua_State* L,
+              QVariant value) // NOLINT(performance-unnecessary-value-param)
 {
-  return lua_pushlstring(L, string.data(), string.size());
-}
-
-const char*
-qlua::pushString(lua_State* L, string_view string)
-{
-  return lua_pushlstring(L, string.data(), string.size());
-}
-
-const char*
-qlua::pushVariable(lua_State* L, VariableView variable)
-{
-  if (variable) {
-    return lua_pushlstring(L, variable.data(), variable.size());
-  }
-
-  lua_pushnil(L);
-  return nullptr;
+  pushQVariant(L, value);
 }
 
 bool

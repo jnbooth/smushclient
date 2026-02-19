@@ -103,12 +103,12 @@ splitLua(lua_State* L,
   size_t next = 0;
   lua_Integer i = 1;
   for (; i <= max && (next = input.find(sep, last)) != string_view::npos; ++i) {
-    qlua::pushString(L, input.substr(last, next - last));
+    qlua::push(L, input.substr(last, next - last));
     lua_rawseti(L, -2, i);
     last = next + sepSize;
   }
   if (string_view rest = input.substr(last); !rest.empty()) {
-    qlua::pushString(L, rest);
+    qlua::push(L, rest);
     lua_rawseti(L, -2, i);
   }
 }
@@ -141,7 +141,7 @@ L_directorypicker(lua_State* L)
   if (path.isEmpty()) {
     lua_pushnil(L);
   } else {
-    qlua::pushQString(L, path);
+    qlua::push(L, path);
   }
   return 1;
 }
@@ -160,7 +160,7 @@ L_filepicker(lua_State* L)
   if (path.isEmpty()) {
     lua_pushnil(L);
   } else {
-    qlua::pushQString(L, path);
+    qlua::push(L, path);
   }
   return 1;
 }
@@ -175,8 +175,8 @@ L_getfontfamilies(lua_State* L)
     if (family.startsWith(u'.')) {
       continue;
     }
-    qlua::pushQString(L, family);
-    qlua::pushBool(L, true);
+    qlua::push(L, family);
+    qlua::push(L, true);
     lua_rawset(L, -3);
   }
   return 1;
@@ -195,7 +195,7 @@ L_getsystemfont(lua_State* L)
   }
   const QFont systemFont =
     QFontDatabase::systemFont(static_cast<QFontDatabase::SystemFont>(font));
-  qlua::pushQString(L, systemFont.family());
+  qlua::push(L, systemFont.family());
   lua_pushinteger(L, systemFont.pointSize());
   return 2;
 }
@@ -220,7 +220,7 @@ L_inputbox(lua_State* L)
   }
 
   if (dialog.exec() == QDialog::Accepted) {
-    qlua::pushQString(L, dialog.textValue());
+    qlua::push(L, dialog.textValue());
   } else {
     lua_pushnil(L);
   }
@@ -283,11 +283,11 @@ L_split(lua_State* L)
   const string_view sep = qlua::getString(L, 2);
   const lua_Integer count = qlua::getInteger(L, 3, 0);
   if (sep.empty()) {
-    qlua::pushString(L, "Separator must not be an empty string");
+    qlua::push(L, "Separator must not be an empty string");
     lua_error(L);
   }
   if (count < 0) {
-    qlua::pushString(L, "Count must be positive or zero");
+    qlua::push(L, "Count must be positive or zero");
     lua_error(L);
   }
 

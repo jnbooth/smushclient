@@ -109,31 +109,6 @@ concatBytes(lua_State* L);
 QString
 concatStrings(lua_State* L);
 
-void
-pushBool(lua_State* L, bool value);
-const char*
-pushBytes(lua_State* L, const QByteArray& bytes);
-void
-pushQColor(lua_State* L, const QColor& color);
-void
-pushQHash(lua_State* L, const QVariantHash& variants);
-void
-pushQMap(lua_State* L, const QVariantMap& variants);
-const char*
-pushQString(lua_State* L, const QString& string);
-void
-pushQStrings(lua_State* L, const QStringList& strings);
-void
-pushQVariant(lua_State* L, const QVariant& variant);
-void
-pushQVariants(lua_State* L, const QVariantList& variants);
-const char*
-pushRString(lua_State* L, rust::Str string);
-const char*
-pushString(lua_State* L, std::string_view string);
-const char*
-pushVariable(lua_State* L, VariableView variable);
-
 bool
 copyValue(lua_State* fromL, lua_State* toL, int idx);
 
@@ -233,4 +208,114 @@ std::optional<MiniWindow::Position>
 getWindowPosition(lua_State* L,
                   int idx,
                   std::optional<MiniWindow::Position> ifNil = std::nullopt);
+
+void
+pushQVariant(lua_State* L, const QVariant& variant);
+
+#define PUSH(T, f)                                                             \
+  inline void push(lua_State* L, T value)                                      \
+  {                                                                            \
+    f(L, value);                                                               \
+  }
+
+#define NPUSH(T)                                                               \
+  inline void push(lua_State* L, T value)                                      \
+  {                                                                            \
+    lua_pushinteger(L, static_cast<lua_Integer>(value));                       \
+  }
+
+#define SPUSH(T)                                                               \
+  inline const char* push(lua_State* L, T value)                               \
+  {                                                                            \
+    return lua_pushlstring(L, value.data(), value.size());                     \
+  }
+
+PUSH(const char*, lua_pushstring);
+NPUSH(ApiCode);
+NPUSH(int);
+NPUSH(size_t);
+PUSH(lua_Integer, lua_pushinteger);
+PUSH(lua_Number, lua_pushnumber);
+SPUSH(const QByteArray&);
+SPUSH(rust::Str);
+SPUSH(const std::string&);
+SPUSH(std::string_view);
+
+#undef PUSH
+#undef SPUSH
+
+inline void
+push(lua_State* L, bool value)
+{
+  lua_pushboolean(L, static_cast<int>(value));
+}
+
+inline void
+push(lua_State* L, const QColor& color)
+{
+  push(L, colorToRgbCode(color));
+}
+
+inline const char*
+push(lua_State* L, const QString& string)
+{
+  return push(L, string.toUtf8());
+}
+
+inline const char*
+push(lua_State* L, QChar ch)
+{
+  return push(L, QString(ch));
+}
+
+inline const char*
+push(lua_State* L, VariableView variable)
+{
+  if (variable) {
+    return lua_pushlstring(L, variable.data(), variable.size());
+  }
+
+  lua_pushnil(L);
+  return nullptr;
+}
+
+template<typename T>
+void
+pushAny(lua_State* L, T value)
+{
+  push(L, value);
+}
+
+template<>
+void
+pushAny(lua_State* L, const QVariant& value);
+
+template<>
+void
+pushAny(lua_State* L, QVariant value);
+
+template<typename T>
+void
+pushList(lua_State* L, const T& list)
+{
+  lua_createtable(L, static_cast<int>(list.size()), 0);
+  lua_Integer i = 1;
+  for (const auto& item : list) {
+    pushAny(L, item);
+    lua_rawseti(L, -2, i);
+    ++i;
+  }
+}
+
+template<typename T>
+void
+pushMap(lua_State* L, const T& map)
+{
+  lua_createtable(L, 0, static_cast<int>(map.size()));
+  for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
+    push(L, it.key());
+    pushAny(L, it.value());
+    lua_rawset(L, -3);
+  }
+}
 } // namespace qlua

@@ -79,7 +79,7 @@ ModifyTextCallback::collectReturned(lua_State* L)
 int
 ModifyTextCallback::pushArguments(lua_State* L) const
 {
-  qlua::pushBytes(L, text);
+  qlua::push(L, text);
   return 1;
 }
 
@@ -89,52 +89,52 @@ int
 OnPluginBroadcast::pushArguments(lua_State* L) const
 {
   lua_pushinteger(L, message);
-  qlua::pushString(L, pluginID);
-  qlua::pushString(L, pluginName);
-  qlua::pushString(L, text);
+  qlua::push(L, pluginID);
+  qlua::push(L, pluginName);
+  qlua::push(L, text);
   return 4;
 }
 
 int
 OnPluginCommand::pushArguments(lua_State* L) const
 {
-  qlua::pushBytes(L, text);
+  qlua::push(L, text);
   return 1;
 }
 
 int
 OnPluginLineReceived::pushArguments(lua_State* L) const
 {
-  qlua::pushString(L, line);
+  qlua::push(L, line);
   return 1;
 }
 
 int
 OnPluginMXPSetEntity::pushArguments(lua_State* L) const
 {
-  qlua::pushString(L, value);
+  qlua::push(L, value);
   return 1;
 }
 
 int
 OnPluginMXPSetVariable::pushArguments(lua_State* L) const
 {
-  qlua::pushString(L, variable);
-  qlua::pushString(L, contents);
+  qlua::push(L, variable);
+  qlua::push(L, contents);
   return 2;
 }
 
 int
 OnPluginSend::pushArguments(lua_State* L) const
 {
-  qlua::pushBytes(L, text);
+  qlua::push(L, text);
   return 1;
 }
 
 int
 OnPluginSent::pushArguments(lua_State* L) const
 {
-  qlua::pushBytes(L, text);
+  qlua::push(L, text);
   return 1;
 }
 
@@ -142,7 +142,7 @@ int
 OnPluginTelnetRequest::pushArguments(lua_State* L) const
 {
   lua_pushinteger(L, code);
-  qlua::pushString(L, message);
+  qlua::push(L, message);
   return 2;
 }
 
@@ -150,7 +150,7 @@ int
 OnPluginTelnetSubnegotiation::pushArguments(lua_State* L) const
 {
   lua_pushinteger(L, code);
-  qlua::pushBytes(L, data);
+  qlua::push(L, data);
   return 2;
 }
 

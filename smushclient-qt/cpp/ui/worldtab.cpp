@@ -1081,7 +1081,7 @@ public:
 
   int pushArguments(lua_State* L) const override
   {
-    qlua::pushQString(L, arg);
+    qlua::push(L, arg);
     return 1;
   }
 

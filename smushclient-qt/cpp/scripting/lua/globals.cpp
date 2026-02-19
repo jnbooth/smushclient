@@ -558,17 +558,17 @@ namespace {
 void
 pushValue(lua_State* L, int value)
 {
-  lua_pushinteger(L, value);
+  qlua::push(L, value);
 }
 void
 pushValue(lua_State* L, const string& value)
 {
-  qlua::pushString(L, value);
+  qlua::push(L, value);
 }
 #define IMPL_PUSH_ENUM(T)                                                      \
   void pushValue(lua_State* L, T value)                                        \
   {                                                                            \
-    lua_pushinteger(L, I(value));                                              \
+    qlua::push(L, I(value));                                                   \
   }
 
 IMPL_PUSH_ENUM(AliasFlag)
@@ -601,7 +601,7 @@ registerTable(lua_State* L, const char* name, const pair<K, V> (&entries)[N])
 int
 registerLuaGlobals(lua_State* L)
 {
-  qlua::pushQString(L, QCoreApplication::applicationVersion());
+  qlua::push(L, QCoreApplication::applicationVersion());
   lua_setglobal(L, "SMUSHCLIENT_VERSION");
   registerTable(L, "alias_flag", alias_flag);
   registerTable(L, "custom_colour", custom_colour);
