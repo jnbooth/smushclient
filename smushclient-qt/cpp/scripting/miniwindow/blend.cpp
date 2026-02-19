@@ -17,8 +17,8 @@ dissolve(const QPixmap& source, const QRect& rect, qreal opacity)
 {
 
   QImage image =
-    (source.rect() == rect ? source.toImage() : source.copy(rect).toImage())
-      .convertToFormat(QImage::Format_ARGB32);
+    source.rect() == rect ? source.toImage() : source.copy(rect).toImage();
+  image.convertTo(QImage::Format::Format_ARGB32);
   ffi::filter::dissolve(asPixels(image), opacity);
   return image;
 }

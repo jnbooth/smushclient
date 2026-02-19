@@ -354,9 +354,8 @@ MiniWindow::drawImage(const QPixmap& image,
       if (croppedImage.isNull()) {
         return;
       }
-      const QImage qImage = image.copy(QRect(0, 0, 2, 2))
-                              .toImage()
-                              .convertToFormat(QImage::Format_RGB32);
+      QImage qImage = image.copy(QRect(0, 0, 2, 2)).toImage();
+      qImage.convertTo(QImage::Format::Format_RGB32);
       const QRgb pixel = qImage.pixel(0, 0);
       croppedImage.setMask(
         QBitmap::fromImage(std::move(qImage).createMaskFromColor(pixel)));

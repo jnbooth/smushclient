@@ -21,7 +21,8 @@ ImageFilter::PixelFilter::apply(const QPixmap& pixmap) const
   if (isNoop() || pixmap.isNull()) {
     return QImage();
   }
-  QImage image = pixmap.toImage().convertToFormat(QImage::Format_ARGB32);
+  QImage image = pixmap.toImage();
+  image.convertTo(QImage::Format::Format_ARGB32);
   apply(asPixels(image));
   return image;
 }
@@ -29,7 +30,8 @@ ImageFilter::PixelFilter::apply(const QPixmap& pixmap) const
 QImage
 ImageFilter::ConvolveFilter::apply(const QPixmap& pixmap) const
 {
-  QImage image = pixmap.toImage().convertToFormat(QImage::Format_ARGB32);
+  QImage image = pixmap.toImage();
+  image.convertTo(QImage::Format::Format_ARGB32);
   apply(asPixels(image), image.width(), directions);
   return image;
 }
