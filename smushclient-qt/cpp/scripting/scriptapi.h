@@ -414,7 +414,7 @@ public:
                       bool unicode) const;
   ApiCode WindowTransformImage(std::string_view windowName,
                                std::string_view imageID,
-                               MiniWindow::DrawImageMode,
+                               MiniWindow::MergeMode mode,
                                const QTransform& transform) const;
   ApiCode WindowUnloadFont(std::string_view windowName,
                            std::string_view fontID) const;

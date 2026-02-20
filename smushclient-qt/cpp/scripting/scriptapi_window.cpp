@@ -245,7 +245,6 @@ ScriptApi::WindowDrawImageAlpha(string_view windowName,
   window->drawImage(*pixmap,
                     rect,
                     QRectF(origin, pixmap->rect().bottomRight().toPointF()),
-                    MiniWindow::DrawImageMode::Copy,
                     opacity);
   return ApiCode::OK;
 }
@@ -275,11 +274,10 @@ ScriptApi::WindowEllipse(std::string_view windowName,
     window->drawEllipse(rect, pen, brush);
     return ApiCode::OK;
   }
-  const QPen noPen = Qt::PenStyle::NoPen;
-  window->drawEllipse(rect, noPen, brush);
+  window->drawEllipse(rect, brush);
   brush.setColor(pen.color());
   brush.setTexture(image::invertBitmap(*pixmap));
-  window->drawEllipse(rect, noPen, brush);
+  window->drawEllipse(rect, brush);
   return ApiCode::OK;
 }
 
@@ -558,7 +556,7 @@ ScriptApi::WindowMergeImageAlpha(std::string_view windowName,
     return ApiCode::ImageNotInstalled;
   }
   return window->mergeImageAlpha(
-           *pixmap, *mask, targetRect, mode, opacity, sourceRect)
+           *pixmap, *mask, targetRect, sourceRect, opacity, mode)
            ? ApiCode::OK
            : ApiCode::BadParameter;
 }
@@ -629,11 +627,10 @@ ScriptApi::WindowRect(std::string_view windowName,
     window->drawRect(rect, pen, brush);
     return ApiCode::OK;
   }
-  const QPen noPen = Qt::PenStyle::NoPen;
-  window->drawRect(rect, noPen, brush);
+  window->drawRect(rect, brush);
   brush.setColor(pen.color());
   brush.setTexture(image::invertBitmap(*pixmap));
-  window->drawRect(rect, noPen, brush);
+  window->drawRect(rect, brush);
   return ApiCode::OK;
 };
 
@@ -666,11 +663,10 @@ ScriptApi::WindowRoundedRect(std::string_view windowName,
     window->drawRoundedRect(rect, xRadius, yRadius, pen, brush);
     return ApiCode::OK;
   }
-  const QPen noPen = Qt::PenStyle::NoPen;
-  window->drawRoundedRect(rect, xRadius, yRadius, noPen, brush);
+  window->drawRoundedRect(rect, xRadius, yRadius, brush);
   brush.setColor(pen.color());
   brush.setTexture(image::invertBitmap(*pixmap));
-  window->drawRoundedRect(rect, xRadius, yRadius, noPen, brush);
+  window->drawRoundedRect(rect, xRadius, yRadius, brush);
   return ApiCode::OK;
 }
 
@@ -762,7 +758,7 @@ ScriptApi::WindowTextWidth(string_view windowName,
 ApiCode
 ScriptApi::WindowTransformImage(std::string_view windowName,
                                 std::string_view imageID,
-                                MiniWindow::DrawImageMode mode,
+                                MiniWindow::MergeMode mode,
                                 const QTransform& transform) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);

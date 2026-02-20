@@ -1840,11 +1840,16 @@ L_WindowTransformImage(lua_State* L)
   expectMaxArgs(L, 9);
   const string_view windowName = qlua::getString(L, 1);
   const string_view imageID = qlua::getString(L, 2);
-  const optional<MiniWindow::DrawImageMode> mode = qlua::getDrawImageMode(L, 5);
+  const lua_Integer modeN = qlua::getInteger(L, 5);
   const QTransform transform = qlua::getQTransform(L, 6, 7, 8, 9, 3, 4);
-  expect_nonnull(mode, ApiCode::BadParameter);
+  if (modeN != 1 && modeN != 3) {
+    return returnCode(L, ApiCode::BadParameter);
+  }
+  const MiniWindow::MergeMode mode = modeN == 1
+                                       ? MiniWindow::MergeMode::Straight
+                                       : MiniWindow::MergeMode::Transparent;
   return returnCode(
-    L, getApi(L).WindowTransformImage(windowName, imageID, *mode, transform));
+    L, getApi(L).WindowTransformImage(windowName, imageID, mode, transform));
 }
 
 int

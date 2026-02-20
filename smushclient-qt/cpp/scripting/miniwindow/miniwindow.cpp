@@ -336,8 +336,8 @@ void
 MiniWindow::drawImage(const QPixmap& image,
                       const QRectF& rectBase,
                       const QRectF& sourceRectBase,
-                      DrawImageMode mode,
-                      qreal opacity)
+                      qreal opacity,
+                      DrawImageMode mode)
 {
   Painter painter(this);
   if (opacity < 1) {
@@ -365,8 +365,8 @@ MiniWindow::drawImage(const QPixmap& image,
 void
 MiniWindow::drawImage(const QPixmap& image,
                       const QTransform& transform,
-                      DrawImageMode mode,
-                      qreal opacity)
+                      qreal opacity,
+                      MergeMode mode)
 {
   Painter painter(this);
   if (opacity < 1) {
@@ -374,11 +374,10 @@ MiniWindow::drawImage(const QPixmap& image,
   }
   painter.setTransform(transform);
   switch (mode) {
-    case DrawImageMode::Copy:
-    case DrawImageMode::Stretch:
+    case MergeMode::Straight:
       painter.drawPixmap(QPointF(), image);
       return;
-    case DrawImageMode::CopyTransparent:
+    case MergeMode::Transparent:
       QImage masked = image.toImage();
       image::colorToAlpha(masked, image::topLeftPixel(masked));
       Painter(this).drawImage(QPointF(), masked);
@@ -526,9 +525,9 @@ bool
 MiniWindow::mergeImageAlpha(const QPixmap& image,
                             const QPixmap& mask,
                             const QRect& targetRect,
-                            MergeMode mode,
+                            const QRect& sourceRect,
                             qreal opacity,
-                            const QRect& sourceRect)
+                            MergeMode mode)
 {
   QRect targetRectN = normalize(targetRect);
   QRect sourceRectN = geometry::normalize(sourceRect, image.size());
@@ -603,6 +602,12 @@ void
 MiniWindow::setSize(const QSize& size, const QColor& fill) noexcept
 {
   background = fill;
+  dimensions = size;
+}
+
+void
+MiniWindow::setSize(const QSize& size) noexcept
+{
   dimensions = size;
 }
 

@@ -119,7 +119,7 @@ public:
   void blendImage(BlendMode mode,
                   const QPixmap& image,
                   const QRectF& rect,
-                  qreal opacity = 1,
+                  qreal opacity,
                   const QRectF& sourceRect = QRectF());
   void clearHotspots();
   void deleteAllHotspots();
@@ -132,6 +132,11 @@ public:
   void drawEllipse(const QRectF& rect,
                    const QPen& pen,
                    const QBrush& brush = QBrush());
+
+  void drawEllipse(const QRectF& rect, const QBrush& brush)
+  {
+    drawEllipse(rect, Qt::PenStyle::NoPen, brush);
+  }
   void drawFrame(const QRectF& rect,
                  const QColor& color1,
                  const QColor& color2);
@@ -139,26 +144,67 @@ public:
   void drawImage(const QPixmap& image,
                  const QRectF& rect,
                  const QRectF& sourceRect = QRectF(),
-                 DrawImageMode = DrawImageMode::Copy,
-                 qreal opacity = 1);
+                 qreal opacity = 1,
+                 DrawImageMode mode = DrawImageMode::Copy);
+  void drawImage(const QPixmap& image,
+                 const QRectF& rect,
+                 qreal opacity,
+                 DrawImageMode mode = DrawImageMode::Copy)
+  {
+    drawImage(image, rect, QRectF(), opacity, mode);
+  }
+  void drawImage(const QPixmap& image,
+                 const QRectF& rect,
+                 const QRectF& sourceRect,
+                 DrawImageMode mode)
+  {
+    drawImage(image, rect, sourceRect, 1, mode);
+  }
+  void drawImage(const QPixmap& image, const QRectF& rect, DrawImageMode mode)
+  {
+    drawImage(image, rect, QRectF(), 1, mode);
+  }
   void drawImage(const QPixmap& image,
                  const QTransform& transform,
-                 DrawImageMode = DrawImageMode::Copy,
-                 qreal opacity = 1);
+                 qreal opacity = 1,
+                 MergeMode mode = MergeMode::Straight);
+  void drawImage(const QPixmap& image,
+                 const QTransform& transform,
+                 MergeMode mode)
+  {
+    drawImage(image, transform, 1, mode);
+  }
   void drawLine(const QLineF& line, const QPen& pen);
   void drawPolygon(const QPolygonF& polygon,
                    const QPen& pen,
-                   const QBrush& brush,
-                   Qt::FillRule fillRule);
+                   const QBrush& brush = QBrush(),
+                   Qt::FillRule fillRule = Qt::FillRule::OddEvenFill);
+  void drawPolygon(const QPolygonF& polygon,
+                   const QBrush& brush = QBrush(),
+                   Qt::FillRule fillRule = Qt::FillRule::OddEvenFill)
+  {
+    drawPolygon(polygon, Qt::PenStyle::NoPen, brush, fillRule);
+  }
   void drawPolyline(const QPolygonF& polygon, const QPen& pen);
   void drawRect(const QRectF& rect,
                 const QPen& pen,
                 const QBrush& brush = QBrush());
+  void drawRect(const QRectF& rect, const QBrush& brush)
+  {
+    drawRect(rect, Qt::PenStyle::NoPen, brush);
+  }
   void drawRoundedRect(const QRectF& rect,
                        qreal xRadius,
                        qreal yRadius,
                        const QPen& pen,
                        const QBrush& brush = QBrush());
+  void drawRoundedRect(const QRectF& rect,
+                       qreal xRadius,
+                       qreal yRadius,
+                       const QBrush& brush)
+  {
+    drawRoundedRect(rect, xRadius, yRadius, Qt::PenStyle::NoPen, brush);
+  }
   QRectF drawText(const QFont& font,
                   const QString& text,
                   const QRectF& rect,
@@ -186,9 +232,32 @@ public:
   bool mergeImageAlpha(const QPixmap& image,
                        const QPixmap& mask,
                        const QRect& targetRect,
-                       MergeMode mode,
+                       const QRect& sourceRect = QRect(),
+                       qreal opacity = 1,
+                       MergeMode mode = MergeMode::Straight);
+  bool mergeImageAlpha(const QPixmap& image,
+                       const QPixmap& mask,
+                       const QRect& targetRect,
                        qreal opacity,
-                       const QRect& sourceRect);
+                       MergeMode mode = MergeMode::Straight)
+  {
+    return mergeImageAlpha(image, mask, targetRect, QRect(), opacity, mode);
+  }
+  bool mergeImageAlpha(const QPixmap& image,
+                       const QPixmap& mask,
+                       const QRect& targetRect,
+                       MergeMode mode)
+  {
+    return mergeImageAlpha(image, mask, targetRect, QRect(), 1, mode);
+  }
+  bool mergeImageAlpha(const QPixmap& image,
+                       const QPixmap& mask,
+                       const QRect& targetRect,
+                       const QRect& sourceRect,
+                       MergeMode mode)
+  {
+    return mergeImageAlpha(image, mask, targetRect, sourceRect, 1, mode);
+  }
   void reset();
   bool setHotspotTooltip(std::string_view hotspotID,
                          const QString& tooltip) const;
@@ -197,6 +266,7 @@ public:
                    Position position,
                    Flags flags) noexcept;
   void setSize(const QSize& size, const QColor& fill) noexcept;
+  void setSize(const QSize& size) noexcept;
   void setZOrder(int64_t zOrder) noexcept;
   bool unloadFont(std::string_view fontID);
   bool unloadImage(std::string_view imageID);
