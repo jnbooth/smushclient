@@ -1,7 +1,9 @@
+use cxx_qt_lib::QColor;
 use smushclient_graphics::filter::{
-    self, average, dissolve, grayscale_linear, grayscale_perceptual, mono_noise, noise,
+    self, average, dissolve, grayscale_linear, grayscale_perceptual, mask_premultiplied,
+    mono_noise, noise,
 };
-use smushclient_graphics::{ColorChannel, Directions};
+use smushclient_graphics::{ColorChannel, Directions, Pixel};
 
 use crate::convert::OutOfRangeError;
 
@@ -24,6 +26,11 @@ mod ffi {
         Vertical,
     }
 
+    extern "C++" {
+        include!("cxx-qt-lib/qcolor.h");
+        type QColor = cxx_qt_lib::QColor;
+    }
+
     #[namespace = "ffi::filter"]
     extern "Rust" {
         fn noise(data: &mut [u32], threshold: f64);
@@ -42,7 +49,9 @@ mod ffi {
         fn minor_blur(data: &mut [u32], width: i32, directions: Directions);
         fn average(data: &mut [u32]);
 
+        fn color_to_alpha(data: &mut [u32], color: &QColor);
         fn dissolve(data: &mut [u32], opacity: f64);
+        fn mask_premultiplied(data: &mut [u32], mask: &[u8], opacity: f64) -> bool;
     }
 }
 
@@ -140,4 +149,18 @@ fn minor_blur(data: &mut [u32], width: i32, directions: ffi::Directions) {
     if let (Some(width), Ok(directions)) = (validate_width(width), directions.try_into()) {
         filter::minor_blur(data, width, directions);
     }
+}
+
+#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+fn color_to_alpha(data: &mut [u32], color: &QColor) {
+    let alpha = color.alpha();
+    filter::color_to_alpha(
+        data,
+        Pixel {
+            red: (color.red() * alpha / 255) as u8,
+            green: (color.green() * alpha / 255) as u8,
+            blue: (color.blue() * alpha / 255) as u8,
+            alpha: alpha as u8,
+        },
+    );
 }

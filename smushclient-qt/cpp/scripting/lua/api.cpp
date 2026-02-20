@@ -32,9 +32,9 @@ const char* const worldLibKey = "world";
     return returnCode(L, (code));                                              \
   }
 
+namespace {
 // Private localization
 
-namespace {
 QString
 fmtNoSuchPlugin(string_view id)
 {
@@ -152,6 +152,17 @@ inline ScriptApi**
 apiSlot(lua_State* L) noexcept
 {
   return static_cast<ScriptApi**>(lua_getextraspace(L)); // NOLINT
+}
+
+template<typename T>
+void
+pushListOrEmpty(lua_State* L, const T& list)
+{
+  if (list.empty()) {
+    lua_pushnil(L);
+  } else {
+    pushList(L, list);
+  }
 }
 
 } // namespace
@@ -310,6 +321,30 @@ L_Version(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 0);
   push(L, SCRIPTING_VERSION);
+  return 1;
+}
+
+int
+L_WindowFontInfo(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 3);
+  pushQVariant(L,
+               getApi(L).WindowFontInfo(qlua::getString(L, 1),
+                                        qlua::getString(L, 2),
+                                        qlua::getInteger(L, 3)));
+  return 1;
+}
+
+int
+L_WindowImageInfo(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 3);
+  pushQVariant(L,
+               getApi(L).WindowImageInfo(qlua::getString(L, 1),
+                                         qlua::getString(L, 2),
+                                         qlua::getInt(L, 3)));
   return 1;
 }
 
@@ -670,7 +705,7 @@ L_AddAlias(lua_State* L)
   const string_view name = qlua::getString(L, 1);
   const string_view pattern = qlua::getString(L, 2);
   const string_view text = qlua::getString(L, 3);
-  const QFlags<AliasFlag> flags = qlua::getFlags<AliasFlag>(L, 4);
+  const QFlags<AliasFlag> flags = qlua::getQFlags<AliasFlag>(L, 4);
   const optional<string_view> script = qlua::getScriptName(L, 5);
   expect_nonnull(script, ApiCode::ScriptNameNotLocated);
 
@@ -689,7 +724,7 @@ L_AddTimer(lua_State* L)
   const int minute = qlua::getInt(L, 3);
   const lua_Number second = qlua::getNumber(L, 4);
   const string_view text = qlua::getString(L, 5);
-  const QFlags<TimerFlag> flags = qlua::getFlags<TimerFlag>(L, 6);
+  const QFlags<TimerFlag> flags = qlua::getQFlags<TimerFlag>(L, 6);
   const optional<string_view> script = qlua::getScriptName(L, 7);
   expect_nonnull(script, ApiCode::ScriptNameNotLocated);
 
@@ -707,7 +742,7 @@ L_AddTrigger(lua_State* L)
   const string_view name = qlua::getString(L, 1);
   const string_view pattern = qlua::getString(L, 2);
   const string_view text = qlua::getString(L, 3);
-  const QFlags<TriggerFlag> flags = qlua::getFlags<TriggerFlag>(L, 4);
+  const QFlags<TriggerFlag> flags = qlua::getQFlags<TriggerFlag>(L, 4);
   const QColor color = qlua::getCustomColor(L, 5);
   // const lua_Integer wildcardIndex = qlua::getInt(L, 6);
   const string_view soundFile = qlua::getString(L, 7);
@@ -1214,6 +1249,9 @@ L_WindowBlendImage(lua_State* L)
   const lua_Number opacity = qlua::getNumber(L, 8);
   const QRectF targetRect = qlua::getQRectF(L, 9, 10, 11, 12);
   expect_nonnull(mode, ApiCode::UnknownOption);
+  if (opacity < 0 || opacity > 1) {
+    return returnCode(L, ApiCode::BadParameter);
+  }
   return returnCode(L,
                     getApi(L).WindowBlendImage(
                       windowName, imageId, rect, *mode, opacity, targetRect));
@@ -1265,13 +1303,39 @@ L_WindowCreate(lua_State* L)
   const QPoint location = qlua::getQPoint(L, 2, 3);
   const QSize size = qlua::getQSize(L, 4, 5);
   const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 6);
-  const MiniWindow::Flags flags = qlua::getFlags<MiniWindow::Flag>(L, 7);
+  const MiniWindow::Flags flags = qlua::getQFlags<MiniWindow::Flag>(L, 7);
   const QColor bg = qlua::getQColor(L, 8);
   expect_nonnull(position, ApiCode::BadParameter);
   return returnCode(
     L,
     getApi(L).WindowCreate(
       getPluginIndex(L), windowName, location, size, *position, flags, bg));
+}
+
+int
+L_WindowCreateImage(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 10);
+  return returnCode(L,
+                    getApi(L).WindowCreateImage(qlua::getString(L, 1),
+                                                qlua::getString(L, 2),
+                                                { qlua::getInteger(L, 10),
+                                                  qlua::getInteger(L, 9),
+                                                  qlua::getInteger(L, 8),
+                                                  qlua::getInteger(L, 7),
+                                                  qlua::getInteger(L, 6),
+                                                  qlua::getInteger(L, 5),
+                                                  qlua::getInteger(L, 4),
+                                                  qlua::getInteger(L, 3) }));
+}
+
+int
+L_WindowDelete(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  return returnCode(L, getApi(L).WindowDelete(qlua::getString(L, 1)));
 }
 
 int
@@ -1301,6 +1365,9 @@ L_WindowDrawImageAlpha(lua_State* L)
   const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
   const lua_Number opacity = qlua::getNumber(L, 7);
   const QPointF origin = n >= 8 ? qlua::getQPointF(L, 8, 9) : QPointF();
+  if (opacity < 0 || opacity > 1) {
+    return returnCode(L, ApiCode::BadParameter);
+  }
   return returnCode(
     L,
     getApi(L).WindowDrawImageAlpha(windowName, imageID, rect, opacity, origin));
@@ -1436,14 +1503,44 @@ L_WindowFont(lua_State* L)
 }
 
 int
-L_WindowFontInfo(lua_State* L)
+L_WindowFontList(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  pushListOrEmpty(L, getApi(L).WindowFontList(qlua::getString(L, 1)));
+  return 1;
+}
+
+int
+L_WindowGetImageAlpha(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 8);
+  return returnCode(
+    L,
+    getApi(L).WindowGetImageAlpha(qlua::getString(L, 1),
+                                  qlua::getString(L, 2),
+                                  qlua::getQRectF(L, 3, 4, 5, 6),
+                                  qlua::getQPointF(L, 7, 8)));
+}
+
+int
+L_WindowGetPixel(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 3);
-  pushQVariant(L,
-               getApi(L).WindowFontInfo(qlua::getString(L, 1),
-                                        qlua::getString(L, 2),
-                                        qlua::getInteger(L, 3)));
+  const optional<QColor> optColor =
+    getApi(L).WindowGetPixel(qlua::getString(L, 1), qlua::getQPoint(L, 2, 3));
+  if (optColor == nullopt) {
+    push(L, -2);
+    return 1;
+  }
+  const QColor color = *optColor;
+  if (color.isValid()) {
+    push(L, color);
+  } else {
+    push(L, -1);
+  }
   return 1;
 }
 
@@ -1467,11 +1564,51 @@ L_WindowImageFromWindow(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 3);
+  return returnCode(L,
+                    getApi(L).WindowImageFromWindow(qlua::getString(L, 1),
+                                                    qlua::getString(L, 2),
+                                                    qlua::getString(L, 3)));
+}
+
+int
+L_WindowImageList(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  pushListOrEmpty(L, getApi(L).WindowImageList(qlua::getString(L, 1)));
+  return 1;
+}
+
+int
+L_WindowImageOp(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 13);
   const string_view windowName = qlua::getString(L, 1);
-  const string_view imageID = qlua::getString(L, 2);
-  const string_view sourceWindow = qlua::getString(L, 3);
-  return returnCode(
-    L, getApi(L).WindowImageFromWindow(windowName, imageID, sourceWindow));
+  const optional<ImageOp> action = qlua::getImageOp(L, 2);
+  const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
+  const optional<QPen> pen = qlua::getQPen(L, 7, 8, 9);
+  const QColor color = qlua::getQColor(L, 10);
+  const string_view imageID = qlua::getString(L, 11);
+  expect_nonnull(action, ApiCode::UnknownOption);
+  expect_nonnull(pen, ApiCode::PenStyleNotValid);
+  switch (*action) {
+    case ImageOp::Ellipse:
+      return returnCode(
+        L, getApi(L).WindowEllipse(windowName, rect, *pen, color, imageID));
+    case ImageOp::Rectangle:
+      return returnCode(
+        L, getApi(L).WindowRect(windowName, rect, *pen, color, imageID));
+    case ImageOp::RoundedRectangle:
+      return returnCode(L,
+                        getApi(L).WindowRoundedRect(windowName,
+                                                    rect,
+                                                    qlua::getNumber(L, 12),
+                                                    qlua::getNumber(L, 13),
+                                                    *pen,
+                                                    color,
+                                                    imageID));
+  }
 }
 
 int
@@ -1484,6 +1621,15 @@ L_WindowLine(lua_State* L)
   const optional<QPen> pen = qlua::getQPen(L, 6, 7, 8);
   expect_nonnull(pen, ApiCode::PenStyleNotValid);
   return returnCode(L, getApi(L).WindowLine(windowName, line, *pen));
+}
+
+int
+L_WindowList(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  pushList(L, getApi(L).WindowList());
+  return 1;
 }
 
 int
@@ -1510,6 +1656,27 @@ L_WindowMenu(lua_State* L)
                                     qlua::getQPoint(L, 2, 3),
                                     qlua::getString(L, 4)));
   return 1;
+}
+
+int
+L_WindowMergeImageAlpha(lua_State* L)
+{
+  expectMaxArgs(L, 13);
+  const string_view windowName = qlua::getString(L, 1);
+  const string_view imageID = qlua::getString(L, 2);
+  const string_view maskID = qlua::getString(L, 3);
+  const QRect targetRect = qlua::getQRect(L, 4, 5, 6, 7);
+  const optional<MiniWindow::MergeMode> mode = qlua::getMergeMode(L, 8);
+  const qreal opacity = qlua::getNumber(L, 9);
+  const QRect sourceRect = qlua::getQRect(L, 10, 11, 12, 13);
+  expect_nonnull(mode, ApiCode::UnknownOption);
+  if (opacity < 0 || opacity > 1) {
+    return returnCode(L, ApiCode::BadParameter);
+  }
+  return returnCode(
+    L,
+    getApi(L).WindowMergeImageAlpha(
+      windowName, imageID, maskID, targetRect, *mode, opacity, sourceRect));
 }
 
 int
@@ -1546,7 +1713,7 @@ L_WindowPosition(lua_State* L)
   const string_view windowName = qlua::getString(L, 1);
   const QPoint location = qlua::getQPoint(L, 2, 3);
   const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 4);
-  const MiniWindow::Flags flags = qlua::getFlags<MiniWindow::Flag>(L, 5);
+  const MiniWindow::Flags flags = qlua::getQFlags<MiniWindow::Flag>(L, 5);
   expect_nonnull(position, ApiCode::BadParameter);
   return returnCode(
     L, getApi(L).WindowPosition(windowName, location, *position, flags));
@@ -1583,12 +1750,12 @@ L_WindowRectOp(lua_State* L)
     case RectOp::Edge3D:
       if (optional<MiniWindow::ButtonFrame> frame = qlua::getButtonFrame(L, 7);
           frame) {
-        return returnCode(
-          L,
-          getApi(L).WindowButton(windowName,
-                                 rect.toRect(),
-                                 *frame,
-                                 qlua::getFlags<MiniWindow::ButtonFlag>(L, 8)));
+        return returnCode(L,
+                          getApi(L).WindowButton(
+                            windowName,
+                            rect.toRect(),
+                            *frame,
+                            qlua::getQFlags<MiniWindow::ButtonFlag>(L, 8)));
       }
       return returnCode(L, ApiCode::BadParameter);
     case RectOp::FloodFillBorder:
@@ -1606,6 +1773,17 @@ L_WindowResize(lua_State* L)
                     getApi(L).WindowResize(qlua::getString(L, 1),
                                            qlua::getQSize(L, 2, 3),
                                            qlua::getQColor(L, 4)));
+}
+
+int
+L_WindowSetPixel(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 3);
+  return returnCode(L,
+                    getApi(L).WindowSetPixel(qlua::getString(L, 1),
+                                             qlua::getQPoint(L, 2, 3),
+                                             qlua::getQColor(L, 4)));
 }
 
 int
@@ -1655,6 +1833,29 @@ L_WindowTextWidth(lua_State* L)
   return 1;
 }
 
+int
+L_WindowTransformImage(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 9);
+  const string_view windowName = qlua::getString(L, 1);
+  const string_view imageID = qlua::getString(L, 2);
+  const optional<MiniWindow::DrawImageMode> mode = qlua::getDrawImageMode(L, 5);
+  const QTransform transform = qlua::getQTransform(L, 6, 7, 8, 9, 3, 4);
+  expect_nonnull(mode, ApiCode::BadParameter);
+  return returnCode(
+    L, getApi(L).WindowTransformImage(windowName, imageID, *mode, transform));
+}
+
+int
+L_WindowWrite(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  return returnCode(
+    L, getApi(L).WindowWrite(qlua::getString(L, 1), qlua::getQString(L, 2)));
+}
+
 // window hotspots
 
 int
@@ -1675,7 +1876,7 @@ L_WindowAddHotspot(lua_State* L)
   const QString tooltip = qlua::getQString(L, 12, QString());
   const optional<Qt::CursorShape> cursor =
     qlua::getCursor(L, 13, Qt::CursorShape::ArrowCursor);
-  const Hotspot::Flags flags = qlua::getFlags(L, 14, Hotspot::Flags());
+  const Hotspot::Flags flags = qlua::getQFlags(L, 14, Hotspot::Flags());
   expect_nonnull(cursor, ApiCode::BadParameter);
   return returnCode(L,
                     getApi(L).WindowAddHotspot(getPluginIndex(L),
@@ -1686,6 +1887,15 @@ L_WindowAddHotspot(lua_State* L)
                                                tooltip,
                                                *cursor,
                                                flags));
+}
+
+int
+L_WindowDeleteAllHotspots(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  return returnCode(L,
+                    getApi(L).WindowDeleteAllHotspots(qlua::getString(L, 1)));
 }
 
 int
@@ -1711,6 +1921,26 @@ L_WindowDragHandler(lua_State* L)
                       Hotspot::CallbacksPartial{
                         .dragMove = string(qlua::getString(L, 3, "")),
                         .dragRelease = string(qlua::getString(L, 4, "")) }));
+}
+
+int
+L_WindowHotspotList(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  pushListOrEmpty(L, getApi(L).WindowHotspotList(qlua::getString(L, 1)));
+  return 1;
+}
+
+int
+L_WindowHotspotTooltip(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 3);
+  return returnCode(L,
+                    getApi(L).WindowHotspotTooltip(qlua::getString(L, 1),
+                                                   qlua::getString(L, 2),
+                                                   qlua::getQString(L, 3)));
 }
 
 int
@@ -1762,6 +1992,7 @@ static const struct luaL_Reg worldlib[] =
     { "GetUniqueNumber", L_GetUniqueNumber },
     { "Version", L_Version },
     { "WindowFontInfo", L_WindowFontInfo },
+    { "WindowImageInfo", L_WindowImageInfo },
     { "WindowInfo", L_WindowInfo },
     // input
     { "Send", L_Send },
@@ -1849,34 +2080,50 @@ static const struct luaL_Reg worldlib[] =
     { "WindowBlendImage", L_WindowBlendImage },
     { "WindowCircleOp", L_WindowCircleOp },
     { "WindowCreate", L_WindowCreate },
+    { "WindowCreateImage", L_WindowCreateImage },
+    { "WindowDelete", L_WindowDelete },
     { "WindowDrawImage", L_WindowDrawImage },
     { "WindowDrawImageAlpha", L_WindowDrawImageAlpha },
     { "WindowFilter", L_WindowFilter },
     { "WindowFont", L_WindowFont },
+    { "WindowFontList", L_WindowFontList },
+    { "WindowGetImageAlpha", L_WindowGetImageAlpha },
+    { "WindowGetPixel", L_WindowGetPixel },
     { "WindowGradient", L_WindowGradient },
+    { "WindowMergeImageAlpha", L_WindowMergeImageAlpha },
     { "WindowImageFromWindow", L_WindowImageFromWindow },
     { "WindowLine", L_WindowLine },
+    { "WindowImageList", L_WindowImageList },
+    { "WindowImageOp", L_WindowImageOp },
+    { "WindowList", L_WindowList },
     { "WindowLoadImage", L_WindowLoadImage },
     { "WindowMenu", L_WindowMenu },
     { "WindowPolygon", L_WindowPolygon },
     { "WindowPosition", L_WindowPosition },
     { "WindowRectOp", L_WindowRectOp },
     { "WindowResize", L_WindowResize },
+    { "WindowSetPixel", L_WindowSetPixel },
     { "WindowSetZOrder", L_WindowSetZOrder },
     { "WindowShow", L_WindowShow },
     { "WindowText", L_WindowText },
     { "WindowTextWidth", L_WindowTextWidth },
+    { "WindowTransformImage", L_WindowTransformImage },
+    { "Windowrite", L_WindowWrite },
     // window hotspots
     { "WindowAddHotspot", L_WindowAddHotspot },
+    { "WindowDeleteAllHotspots", L_WindowDeleteAllHotspots },
     { "WindowDeleteHotspot", L_WindowDeleteHotspot },
     { "WindowDragHandler", L_WindowDragHandler },
+    { "WindowHotspotList", L_WindowHotspotList },
+    { "WindowHotspotTooltip", L_WindowHotspotTooltip },
     { "WindowMoveHotspot", L_WindowMoveHotspot },
     { "WindowScrollwheelHandler", L_WindowScrollwheelHandler },
     // stubs
-    { "SetFrameBackgroundColour", L_noop },
     { "Redraw", L_noop },
     { "Repaint", L_noop },
     { "ResetIP", L_noop },
+    { "SetFrameBackgroundColour", L_noop },
+    { "WindowBezier", L_noop },
 
     { nullptr, nullptr } };
 

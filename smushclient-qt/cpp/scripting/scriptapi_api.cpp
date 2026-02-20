@@ -284,6 +284,17 @@ ScriptApi::PlaySound(size_t channel,
 }
 
 ApiCode
+ScriptApi::PlaySound(size_t channel,
+                     const QString& path,
+                     bool loop,
+                     float volume) const
+{
+  const QByteArray utf8 = path.toUtf8();
+  return PlaySound(
+    channel, std::string_view(utf8.data(), utf8.size()), loop, volume);
+}
+
+ApiCode
 ScriptApi::PlaySoundMemory(size_t channel,
                            QByteArrayView sound,
                            bool loop,

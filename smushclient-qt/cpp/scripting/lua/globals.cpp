@@ -455,8 +455,8 @@ static const pair<string, lua_Integer> miniwin[] = {
   { "hotspot_got_not_first", Hotspot::EventFlag::Hover },
   { "hotspot_got_middle_mouse", Hotspot::EventFlag::MouseMiddle },
 
-  { "merge_straight", I(MergeMode::Straight) },
-  { "merge_transparent", I(MergeMode::Transparent) },
+  { "merge_straight", I(MiniWindow::MergeMode::Straight) },
+  { "merge_transparent", I(MiniWindow::MergeMode::Transparent) },
 
   { "drag_got_shift", Hotspot::EventFlag::Shift },
   { "drag_got_control", Hotspot::EventFlag::Control },

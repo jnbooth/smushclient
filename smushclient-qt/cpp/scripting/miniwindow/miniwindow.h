@@ -1,5 +1,5 @@
 #pragma once
-#include "../lookup.h"
+#include "../stringmap.h"
 #include "hotspot.h"
 #include <QtCore/QDateTime>
 #include <QtGui/QPainter>
@@ -30,6 +30,12 @@ public:
     // transparent colour as that throws out the calculations. Choose some other
     // colour (eg. purple) - you won't see that colour anyway.
     CopyTransparent,
+  };
+
+  enum class MergeMode : int64_t
+  {
+    Straight,
+    Transparent,
   };
 
   enum Flag
@@ -116,6 +122,7 @@ public:
                   qreal opacity = 1,
                   const QRectF& sourceRect = QRectF());
   void clearHotspots();
+  void deleteAllHotspots();
   bool deleteHotspot(std::string_view hotspotID);
   void drawArc(const QRectF& rect,
                const QPointF& start,
@@ -132,6 +139,10 @@ public:
   void drawImage(const QPixmap& image,
                  const QRectF& rect,
                  const QRectF& sourceRect = QRectF(),
+                 DrawImageMode = DrawImageMode::Copy,
+                 qreal opacity = 1);
+  void drawImage(const QPixmap& image,
+                 const QTransform& transform,
                  DrawImageMode = DrawImageMode::Copy,
                  qreal opacity = 1);
   void drawLine(const QLineF& line, const QPen& pen);
@@ -157,41 +168,39 @@ public:
     return flags.testFlag(Flag::DrawUnderneath);
   }
   QVariant execMenu(const QPoint& location, std::string_view menuString);
+  const QFont* findFont(std::string_view fontID) const;
   Hotspot* findHotspot(std::string_view hotspotID) const;
+  const QPixmap* findImage(std::string_view imageID) const;
+  std::vector<std::string_view> fontList() const;
   constexpr const std::string& getPluginId() const noexcept { return pluginID; }
   constexpr const QPixmap& getPixmap() const noexcept { return pixmap; }
   constexpr int64_t getZOrder() const noexcept { return zOrder; }
+  std::vector<std::string_view> hotspotList() const;
+  std::vector<std::string_view> imageList() const;
   QVariant info(int64_t infoType) const;
   void invert(const QRect& rect,
               QImage::InvertMode mode = QImage::InvertMode::InvertRgb);
+  const QFont& loadFont(std::string_view fontID, const QFont& font);
+  const QPixmap& loadImage(std::string_view imageID, QPixmap&& image);
+  const QPixmap& loadImage(std::string_view imageID, const QPixmap& image);
+  bool mergeImageAlpha(const QPixmap& image,
+                       const QPixmap& mask,
+                       const QRect& targetRect,
+                       MergeMode mode,
+                       qreal opacity,
+                       const QRect& sourceRect);
   void reset();
+  bool setHotspotTooltip(std::string_view hotspotID,
+                         const QString& tooltip) const;
+  bool setPixel(const QPoint& location, const QColor& color);
   void setPosition(const QPoint& location,
                    Position position,
                    Flags flags) noexcept;
   void setSize(const QSize& size, const QColor& fill) noexcept;
   void setZOrder(int64_t zOrder) noexcept;
+  bool unloadFont(std::string_view fontID);
+  bool unloadImage(std::string_view imageID);
   void updatePosition();
-
-  const QFont* findFont(std::string_view fontID) const;
-  const QFont& loadFont(std::string_view fontID, const QFont& font)
-  {
-    return fonts[std::string(fontID)] = font;
-  }
-  void unloadFont(std::string_view fontID) { fonts.erase(std::string(fontID)); }
-
-  const QPixmap* findImage(std::string_view imageID) const;
-  const QPixmap& loadImage(std::string_view imageID, const QPixmap&& image)
-  {
-    return images[std::string(imageID)] = image;
-  }
-  const QPixmap& loadImage(std::string_view imageID, const QPixmap& image)
-  {
-    return images[std::string(imageID)] = image;
-  }
-  void unloadImage(std::string_view imageID)
-  {
-    images.erase(std::string(imageID));
-  }
 
 protected:
   void paintEvent(QPaintEvent* event) override;

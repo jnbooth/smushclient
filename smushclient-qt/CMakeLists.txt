@@ -76,10 +76,10 @@ qt_add_executable(${APP_NAME}
     cpp/image.h cpp/image.cpp
     cpp/layout.h cpp/layout.cpp
     cpp/localization.h cpp/localization.cpp
-    cpp/lookup.h
     cpp/mudcursor.h cpp/mudcursor.cpp
     cpp/settings.h cpp/settings.cpp
     cpp/spans.h cpp/spans.cpp
+    cpp/stringmap.h
     cpp/timer_map.h
 
     cpp/bridge/document.h cpp/bridge/document.cpp

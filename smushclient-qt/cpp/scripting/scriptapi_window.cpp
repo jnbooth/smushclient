@@ -1,3 +1,4 @@
+#include "../image.h"
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
 #include "miniwindow/imagewindow.h"
@@ -11,9 +12,13 @@
 #include <QtWidgets/QStatusBar>
 #include <memory>
 
+using std::array;
+using std::nullopt;
+using std::optional;
 using std::string;
 using std::string_view;
 using std::unique_ptr;
+using std::vector;
 
 // Private utils
 
@@ -23,7 +28,7 @@ using std::unique_ptr;
     return ApiCode::NoSuchWindow;                                              \
   }
 
-#define TRY_PIXMAP(imageID)                                                    \
+#define TRY_PIXMAP(window, imageID)                                            \
   window->findImage(imageID);                                                  \
   if (pixmap == nullptr) [[unlikely]] {                                        \
     return ApiCode::ImageNotInstalled;                                         \
@@ -126,7 +131,7 @@ ScriptApi::WindowBlendImage(string_view windowName,
     return ApiCode::BadParameter;
   }
   MiniWindow* window = TRY_WINDOW(windowName);
-  const QPixmap* pixmap = TRY_PIXMAP(imageID);
+  const QPixmap* pixmap = TRY_PIXMAP(window, imageID);
   window->blendImage(mode, *pixmap, rect, opacity, sourceRect);
   return ApiCode::OK;
 }
@@ -175,6 +180,36 @@ ScriptApi::WindowCreate(size_t index,
 }
 
 ApiCode
+ScriptApi::WindowCreateImage(string_view windowName,
+                             string_view imageID,
+                             array<int64_t, 8> rows) const
+{
+  MiniWindow* window = TRY_WINDOW(windowName);
+  QBitmap bitmap =
+    QBitmap::fromData(QSize(8, 8),
+                      reinterpret_cast<const uchar*>(rows.data()),
+                      image::bitmapFormat);
+  window->loadImage(imageID, std::move(bitmap));
+  return ApiCode::OK;
+}
+
+ApiCode
+ScriptApi::WindowDelete(string_view windowName) const
+{
+  MiniWindow* window = TRY_WINDOW(windowName);
+  delete window;
+  return ApiCode::OK;
+}
+
+ApiCode
+ScriptApi::WindowDeleteAllHotspots(string_view windowName) const
+{
+  MiniWindow* window = TRY_WINDOW(windowName);
+  window->deleteAllHotspots();
+  return ApiCode::OK;
+}
+
+ApiCode
 ScriptApi::WindowDeleteHotspot(string_view windowName,
                                string_view hotspotID) const
 {
@@ -193,7 +228,7 @@ ScriptApi::WindowDrawImage(string_view windowName,
                            const QRectF& sourceRect) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
-  const QPixmap* pixmap = TRY_PIXMAP(imageID);
+  const QPixmap* pixmap = TRY_PIXMAP(window, imageID);
   window->drawImage(*pixmap, rect, sourceRect, mode);
   return ApiCode::OK;
 }
@@ -206,7 +241,7 @@ ScriptApi::WindowDrawImageAlpha(string_view windowName,
                                 const QPointF& origin) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
-  const QPixmap* pixmap = TRY_PIXMAP(imageID);
+  const QPixmap* pixmap = TRY_PIXMAP(window, imageID);
   window->drawImage(*pixmap,
                     rect,
                     QRectF(origin, pixmap->rect().bottomRight().toPointF()),
@@ -223,6 +258,28 @@ ScriptApi::WindowEllipse(string_view windowName,
 {
   MiniWindow* window = TRY_WINDOW(windowName);
   window->drawEllipse(rect, pen, brush);
+  return ApiCode::OK;
+}
+
+ApiCode
+ScriptApi::WindowEllipse(std::string_view windowName,
+                         const QRectF& rect,
+                         const QPen& pen,
+                         const QColor& brushColor,
+                         std::string_view imageID) const
+{
+  MiniWindow* window = TRY_WINDOW(windowName);
+  const QPixmap* pixmap = TRY_PIXMAP(window, imageID);
+  QBrush brush(brushColor, *pixmap);
+  if (pixmap->depth() != 1) {
+    window->drawEllipse(rect, pen, brush);
+    return ApiCode::OK;
+  }
+  const QPen noPen = Qt::PenStyle::NoPen;
+  window->drawEllipse(rect, noPen, brush);
+  brush.setColor(pen.color());
+  brush.setTexture(image::invertBitmap(*pixmap));
+  window->drawEllipse(rect, noPen, brush);
   return ApiCode::OK;
 }
 
@@ -280,17 +337,11 @@ ScriptApi::WindowFontInfo(string_view windowName,
   return FontInfo(*font, infoType);
 }
 
-QVariant
-ScriptApi::WindowHotspotInfo(string_view windowName,
-                             string_view hotspotID,
-                             int64_t infoType) const
+vector<string_view>
+ScriptApi::WindowFontList(std::string_view windowName) const
 {
-
   MiniWindow* window = findWindow(windowName);
-  CHECK_NONNULL(window);
-  const Hotspot* hotspot = window->findHotspot(hotspotID);
-  CHECK_NONNULL(hotspot);
-  return hotspot->info(infoType);
+  return window == nullptr ? vector<string_view>() : window->fontList();
 }
 
 ApiCode
@@ -302,6 +353,37 @@ ScriptApi::WindowFrame(string_view windowName,
   MiniWindow* window = TRY_WINDOW(windowName);
   window->drawFrame(rect, color1, color2);
   return ApiCode::OK;
+}
+
+ApiCode
+ScriptApi::WindowGetImageAlpha(std::string_view windowName,
+                               std::string_view imageID,
+                               const QRectF& rect,
+                               const QPointF& point) const
+{
+  MiniWindow* window = TRY_WINDOW(windowName);
+  const QPixmap* pixmap = TRY_PIXMAP(window, imageID);
+  QImage alphaImage = pixmap->toImage();
+  alphaImage.convertTo(QImage::Format::Format_Alpha8);
+  alphaImage.reinterpretAsFormat(QImage::Format::Format_Grayscale8);
+  QPixmap alphaPixmap = QPixmap::fromImage(alphaImage);
+  window->drawImage(alphaPixmap, rect, QRectF(point, rect.size()));
+  return ApiCode::OK;
+}
+
+optional<QColor>
+ScriptApi::WindowGetPixel(std::string_view windowName,
+                          const QPoint& point) const
+{
+  MiniWindow* window = findWindow(windowName);
+  if (window == nullptr) {
+    return nullopt;
+  }
+  const QPixmap& pixmap = window->getPixmap();
+  if (!pixmap.rect().contains(point)) {
+    return QColor();
+  }
+  return pixmap.toImage().pixelColor(point);
 }
 
 ApiCode
@@ -321,6 +403,37 @@ ScriptApi::WindowGradient(string_view windowName,
   return ApiCode::OK;
 }
 
+QVariant
+ScriptApi::WindowHotspotInfo(string_view windowName,
+                             string_view hotspotID,
+                             int64_t infoType) const
+{
+
+  MiniWindow* window = findWindow(windowName);
+  CHECK_NONNULL(window);
+  const Hotspot* hotspot = window->findHotspot(hotspotID);
+  CHECK_NONNULL(hotspot);
+  return hotspot->info(infoType);
+}
+
+vector<string_view>
+ScriptApi::WindowHotspotList(std::string_view windowName) const
+{
+  MiniWindow* window = findWindow(windowName);
+  return window == nullptr ? vector<string_view>() : window->hotspotList();
+}
+
+ApiCode
+ScriptApi::WindowHotspotTooltip(string_view windowName,
+                                string_view hotspotID,
+                                const QString& tooltip) const
+{
+  MiniWindow* window = TRY_WINDOW(windowName);
+  return window->setHotspotTooltip(hotspotID, tooltip)
+           ? ApiCode::OK
+           : ApiCode::HotspotNotInstalled;
+}
+
 ApiCode
 ScriptApi::WindowImageFromWindow(string_view windowName,
                                  string_view imageID,
@@ -333,6 +446,40 @@ ScriptApi::WindowImageFromWindow(string_view windowName,
   }
   window->loadImage(imageID, source->getPixmap());
   return ApiCode::OK;
+}
+
+QVariant
+ScriptApi::WindowImageInfo(std::string_view windowName,
+                           std::string_view imageID,
+                           int64_t infoType) const
+{
+  MiniWindow* window = findWindow(windowName);
+  CHECK_NONNULL(window);
+  const QPixmap* pixmap = window->findImage(imageID);
+  CHECK_NONNULL(pixmap);
+  switch (infoType) {
+    case 1:
+      return 0;
+    case 2:
+      return pixmap->width();
+    case 3:
+      return pixmap->height();
+    case 4:
+      return pixmap->toImage().sizeInBytes();
+    case 5:
+      return pixmap->depth();
+    case 6:
+      return pixmap->toImage().pixelFormat().bitsPerPixel();
+    default:
+      return QVariant();
+  }
+}
+
+vector<string_view>
+ScriptApi::WindowImageList(std::string_view windowName) const
+{
+  MiniWindow* window = findWindow(windowName);
+  return window == nullptr ? vector<string_view>() : window->imageList();
 }
 
 QVariant
@@ -362,6 +509,12 @@ ScriptApi::WindowLine(string_view windowName,
   return ApiCode::OK;
 }
 
+vector<string_view>
+ScriptApi::WindowList() const
+{
+  return windows.keys();
+}
+
 ApiCode
 ScriptApi::WindowLoadImage(string_view windowName,
                            string_view imageID,
@@ -387,6 +540,27 @@ ScriptApi::WindowMenu(string_view windowName,
   MiniWindow* window = findWindow(windowName);
   CHECK_NONNULL(window);
   return window->execMenu(location, menuString);
+}
+
+ApiCode
+ScriptApi::WindowMergeImageAlpha(std::string_view windowName,
+                                 std::string_view imageID,
+                                 std::string_view maskID,
+                                 const QRect& targetRect,
+                                 MiniWindow::MergeMode mode,
+                                 qreal opacity,
+                                 const QRect& sourceRect) const
+{
+  MiniWindow* window = TRY_WINDOW(windowName);
+  const QPixmap* pixmap = window->findImage(imageID);
+  const QPixmap* mask = window->findImage(maskID);
+  if (pixmap == nullptr || mask == nullptr) {
+    return ApiCode::ImageNotInstalled;
+  }
+  return window->mergeImageAlpha(
+           *pixmap, *mask, targetRect, mode, opacity, sourceRect)
+           ? ApiCode::OK
+           : ApiCode::BadParameter;
 }
 
 ApiCode
@@ -442,6 +616,28 @@ ScriptApi::WindowRect(string_view windowName,
 }
 
 ApiCode
+ScriptApi::WindowRect(std::string_view windowName,
+                      const QRectF& rect,
+                      const QPen& pen,
+                      const QColor& brushColor,
+                      std::string_view imageID) const
+{
+  MiniWindow* window = TRY_WINDOW(windowName);
+  const QPixmap* pixmap = TRY_PIXMAP(window, imageID);
+  QBrush brush(brushColor, *pixmap);
+  if (pixmap->depth() != 1) {
+    window->drawRect(rect, pen, brush);
+    return ApiCode::OK;
+  }
+  const QPen noPen = Qt::PenStyle::NoPen;
+  window->drawRect(rect, noPen, brush);
+  brush.setColor(pen.color());
+  brush.setTexture(image::invertBitmap(*pixmap));
+  window->drawRect(rect, noPen, brush);
+  return ApiCode::OK;
+};
+
+ApiCode
 ScriptApi::WindowRoundedRect(string_view windowName,
                              const QRectF& rect,
                              qreal xRadius,
@@ -451,6 +647,30 @@ ScriptApi::WindowRoundedRect(string_view windowName,
 {
   MiniWindow* window = TRY_WINDOW(windowName);
   window->drawRoundedRect(rect, xRadius, yRadius, pen, brush);
+  return ApiCode::OK;
+}
+
+ApiCode
+ScriptApi::WindowRoundedRect(std::string_view windowName,
+                             const QRectF& rect,
+                             qreal xRadius,
+                             qreal yRadius,
+                             const QPen& pen,
+                             const QColor& brushColor,
+                             std::string_view imageID) const
+{
+  MiniWindow* window = TRY_WINDOW(windowName);
+  const QPixmap* pixmap = TRY_PIXMAP(window, imageID);
+  QBrush brush(brushColor, *pixmap);
+  if (pixmap->depth() != 1) {
+    window->drawRoundedRect(rect, xRadius, yRadius, pen, brush);
+    return ApiCode::OK;
+  }
+  const QPen noPen = Qt::PenStyle::NoPen;
+  window->drawRoundedRect(rect, xRadius, yRadius, noPen, brush);
+  brush.setColor(pen.color());
+  brush.setTexture(image::invertBitmap(*pixmap));
+  window->drawRoundedRect(rect, xRadius, yRadius, noPen, brush);
   return ApiCode::OK;
 }
 
@@ -468,6 +688,16 @@ ScriptApi::WindowResize(string_view windowName,
   MiniWindow* window = TRY_WINDOW(windowName);
   window->setSize(size, fill);
   window->updatePosition();
+  return ApiCode::OK;
+}
+
+ApiCode
+ScriptApi::WindowSetPixel(std::string_view windowName,
+                          const QPoint& point,
+                          const QColor& color) const
+{
+  MiniWindow* window = TRY_WINDOW(windowName);
+  window->setPixel(point, color);
   return ApiCode::OK;
 }
 
@@ -530,6 +760,18 @@ ScriptApi::WindowTextWidth(string_view windowName,
 }
 
 ApiCode
+ScriptApi::WindowTransformImage(std::string_view windowName,
+                                std::string_view imageID,
+                                MiniWindow::DrawImageMode mode,
+                                const QTransform& transform) const
+{
+  MiniWindow* window = TRY_WINDOW(windowName);
+  const QPixmap* pixmap = TRY_PIXMAP(window, imageID);
+  window->drawImage(*pixmap, transform, mode);
+  return ApiCode::OK;
+}
+
+ApiCode
 ScriptApi::WindowUnloadFont(string_view windowName, string_view fontID) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
@@ -558,6 +800,18 @@ ScriptApi::WindowUpdateHotspot(size_t index,
   }
   hotspot->setCallbacks(std::move(callbacks));
   return ApiCode::OK;
+}
+
+ApiCode
+ScriptApi::WindowWrite(std::string_view windowName,
+                       const QString& filename) const
+{
+  if (filename.isEmpty()) {
+    return ApiCode::NoNameSpecified;
+  }
+  MiniWindow* window = TRY_WINDOW(windowName);
+  const QPixmap& pixmap = window->getPixmap();
+  return pixmap.save(filename) ? ApiCode::OK : ApiCode::CouldNotOpenFile;
 }
 
 // private utils

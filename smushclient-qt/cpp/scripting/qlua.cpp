@@ -774,6 +774,23 @@ qlua::getQRectF(lua_State* L,
                 QPointF(getNumber(L, idxRight), getNumber(L, idxBottom)));
 }
 
+QTransform
+qlua::getQTransform(lua_State* L,
+                    int idxM11,
+                    int idxM12,
+                    int idxM21,
+                    int idxM22,
+                    int idxDx,
+                    int idxDy)
+{
+  return QTransform(getNumber(L, idxM11),
+                    getNumber(L, idxM12),
+                    getNumber(L, idxM21),
+                    getNumber(L, idxM22),
+                    getNumber(L, idxDx),
+                    getNumber(L, idxDy));
+}
+
 optional<QPen>
 qlua::getQPen(lua_State* L, int idxColor, int idxStyle, int idxWidth)
 {
@@ -960,9 +977,9 @@ qlua::getDrawImageMode(lua_State* L,
 }
 
 optional<FilterOp>
-qlua::getFilterOp(lua_State* L, int idx, optional<FilterOp> ifNil)
+qlua::getFilterOp(lua_State* L, int idx)
 {
-  return getEnum<FilterOp, FilterOp::Noise, FilterOp::Average>(L, idx, ifNil);
+  return getEnum<FilterOp, FilterOp::Noise, FilterOp::Average>(L, idx);
 }
 
 optional<QFont::StyleHint>
@@ -1000,6 +1017,22 @@ qlua::getFontHint(lua_State* L, int idx, optional<QFont::StyleHint> ifNil)
       return nullopt;
   }
 }
+
+optional<ImageOp>
+qlua::getImageOp(lua_State* L, int idx)
+{
+  return getEnum<ImageOp, ImageOp::Ellipse, ImageOp::RoundedRectangle>(L, idx);
+}
+
+std::optional<MiniWindow::MergeMode>
+qlua::getMergeMode(lua_State* L,
+                   int idx,
+                   std::optional<MiniWindow::MergeMode> ifNil)
+{
+  return getEnum<MiniWindow::MergeMode,
+                 MiniWindow::MergeMode::Straight,
+                 MiniWindow::MergeMode::Transparent>(L, idx, ifNil);
+};
 
 optional<Qt::Orientation>
 qlua::getOrientation(lua_State* L, int idx, optional<Qt::Orientation> ifNil)

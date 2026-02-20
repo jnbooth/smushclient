@@ -1,7 +1,11 @@
 #include "image.h"
 #include "scripting/scriptenums.h"
 #include "smushclient_qt/src/ffi/filter.cxx.h"
+#include <QtGui/QBitmap>
+#include <QtGui/QImage>
 #include <QtGui/QPainter>
+
+using std::span;
 
 // Private utils
 
@@ -10,10 +14,9 @@ QImage
 dissolve(const QPixmap& source, const QRect& rect, qreal opacity)
 {
 
-  QImage image =
-    source.rect() == rect ? source.toImage() : source.copy(rect).toImage();
+  QImage image = image::crop(source, rect);
   image.convertTo(QImage::Format::Format_ARGB32);
-  ffi::filter::dissolve(image::asPixels(image), opacity);
+  ffi::filter::dissolve(image::asPixelsMut(image), opacity);
   return image;
 }
 
@@ -22,6 +25,21 @@ dissolve(const QPixmap& source, const QRect& rect, qreal opacity)
 // Public functions
 
 namespace image {
+QImage::Format
+_getBitmapFormat() noexcept
+{
+  const union
+  {
+    uint32_t i;
+    std::array<char, 4> c;
+  } endiannessTest = { 0x01020304 };
+
+  // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
+  return endiannessTest.c[0] == 1 ? QImage::Format::Format_Mono
+                                  : QImage::Format::Format_MonoLSB;
+  // NOLINTEND(cppcoreguidelines-pro-type-union-access)
+}
+
 bool
 blend(QPixmap& target,
       const QPixmap& source,
@@ -94,5 +112,57 @@ blend(QPixmap& target,
   painter.setOpacity(opacity);
   painter.drawPixmap(origin, source, sourceRect);
   return true;
+}
+
+void
+colorToAlpha(QImage& image, const QColor& color)
+{
+  image.convertTo(QImage::Format::Format_ARGB32_Premultiplied);
+  ffi::filter::color_to_alpha(asPixelsMut(image), color);
+}
+
+QImage
+crop(const QPixmap& pixmap, const QRect& rect)
+{
+  return rect == pixmap.rect() ? pixmap.toImage() : pixmap.copy(rect).toImage();
+}
+
+QBitmap
+invertBitmap(const QPixmap& base)
+{
+  QImage image = base.toImage();
+  image.convertTo(bitmapFormat);
+  span<uchar> bytes(image.bits(), image.sizeInBytes());
+  for (uchar& byte : bytes) {
+    byte = ~byte;
+  }
+  return QBitmap::fromData(base.size(), bytes.data(), bitmapFormat);
+}
+
+bool
+mask(QImage& image, QImage& mask, qreal opacity)
+{
+  image.convertTo(QImage::Format::Format_ARGB32_Premultiplied);
+  mask.convertTo(QImage::Format::Format_Grayscale8);
+  return ffi::filter::mask_premultiplied(
+    asPixelsMut(image), asBytes(mask), opacity);
+}
+
+QRgb
+topLeftPixel(const QImage& image)
+{
+  if (image.size().isEmpty()) {
+    return QRgb();
+  }
+  return image.pixel(0, 0);
+}
+
+QRgb
+topLeftPixel(const QPixmap& pixmap)
+{
+  if (pixmap.size().isEmpty()) {
+    return QRgb();
+  }
+  return pixmap.copy(QRect(0, 0, 1, 1)).toImage().pixel(0, 0);
 }
 } // namespace image

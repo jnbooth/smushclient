@@ -3,7 +3,7 @@
     clippy::cast_lossless,
     clippy::cast_sign_loss
 )]
-use crate::casting::as_pixels;
+use crate::casting::{as_bytes_mut, as_pixels, as_pixels_mut};
 use crate::channel::ColorChannel;
 use crate::convolve::{Directions, convolve};
 use crate::iter::{
@@ -12,6 +12,11 @@ use crate::iter::{
 };
 use crate::pixel::Pixel;
 use crate::random::{DissolveRng, NoiseRng};
+
+#[inline(always)]
+const fn is_multiple_of_4(i: usize) -> bool {
+    i.trailing_zeros() >= 2
+}
 
 pub fn noise(data: &mut [u32], threshold: f64) {
     let mut rng = NoiseRng::new(threshold);
@@ -125,6 +130,14 @@ pub fn average(data: &mut [u32]) {
     adjust_pixels(data, |_| average_pixel);
 }
 
+pub fn color_to_alpha(data: &mut [u32], color: Pixel) {
+    for pixel in as_pixels_mut(data).iter_mut() {
+        if *pixel == color {
+            *pixel = Pixel::transparent();
+        }
+    }
+}
+
 pub fn dissolve(data: &mut [u32], opacity: f64) {
     let mut rng = DissolveRng::new(opacity);
     for subpixel in channel_subpixels_mut(data, ColorChannel::Alpha) {
@@ -132,4 +145,19 @@ pub fn dissolve(data: &mut [u32], opacity: f64) {
             *subpixel = 0;
         }
     }
+}
+
+pub fn mask_premultiplied(data: &mut [u32], mask: &[u8], opacity: f64) -> bool {
+    if data.len() != mask.len() * 4 {
+        return false;
+    }
+    let mut mask_iter = mask.iter();
+    let mut mask = 0.0;
+    for (i, c) in as_bytes_mut(data).iter_mut().enumerate() {
+        if is_multiple_of_4(i) {
+            mask = f64::from(*mask_iter.next().unwrap()) * opacity;
+        }
+        *c = (f64::from(*c) * mask) as u8;
+    }
+    true
 }

@@ -73,13 +73,13 @@ getCustomColor(lua_State* L, int idx);
 
 template<typename T>
 inline QFlags<T>
-getFlags(lua_State* L, int idx)
+getQFlags(lua_State* L, int idx)
 {
   return static_cast<QFlags<T>>(getInt(L, idx));
 }
 template<typename T>
 inline QFlags<T>
-getFlags(lua_State* L, int idx, QFlags<T> ifNil)
+getQFlags(lua_State* L, int idx, QFlags<T> ifNil)
 {
   return static_cast<QFlags<T>>(getInt(L, idx, static_cast<int>(ifNil)));
 }
@@ -136,6 +136,14 @@ QRect
 getQRect(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom);
 QRectF
 getQRectF(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom);
+QTransform
+getQTransform(lua_State* L,
+              int idxM11,
+              int idxM12,
+              int idxM21,
+              int idxM22,
+              int idxDx,
+              int idxDy);
 
 std::optional<QPen>
 getQPen(lua_State* L, int idxColor, int idxStyle, int idxWidth);
@@ -177,14 +185,20 @@ getDrawImageMode(lua_State* L,
                  std::optional<MiniWindow::DrawImageMode> ifNil = std::nullopt);
 
 std::optional<FilterOp>
-getFilterOp(lua_State* L,
-            int idx,
-            std::optional<FilterOp> ifNil = std::nullopt);
+getFilterOp(lua_State* L, int idx);
 
 std::optional<QFont::StyleHint>
 getFontHint(lua_State* L,
             int idx,
             std::optional<QFont::StyleHint> ifNil = std::nullopt);
+
+std::optional<ImageOp>
+getImageOp(lua_State* L, int idx);
+
+std::optional<MiniWindow::MergeMode>
+getMergeMode(lua_State* L,
+             int idx,
+             std::optional<MiniWindow::MergeMode> ifNil = std::nullopt);
 
 std::optional<Qt::Orientation>
 getOrientation(lua_State* L,

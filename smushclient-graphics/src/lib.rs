@@ -13,6 +13,6 @@ pub mod filter;
 mod iter;
 
 mod pixel;
-use pixel::Pixel;
+pub use pixel::Pixel;
 
 mod random;

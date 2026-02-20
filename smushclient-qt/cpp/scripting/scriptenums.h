@@ -171,12 +171,6 @@ enum class ImageOp : int64_t
   RoundedRectangle,
 };
 
-enum class MergeMode : int64_t
-{
-  Straight,
-  Transparent,
-};
-
 enum class OperatingSystem : int64_t
 {
   Windows = 2,

@@ -1,7 +1,7 @@
 #pragma once
 #include "../bridge/variableview.h"
-#include "../lookup.h"
 #include "../mudcursor.h"
+#include "../stringmap.h"
 #include "callback/filter.h"
 #include "callback/key.h"
 #include "databaseconnection.h"
@@ -169,12 +169,7 @@ public:
   ApiCode PlaySound(size_t channel,
                     const QString& path,
                     bool loop = false,
-                    float volume = 1.0) const
-  {
-    const QByteArray utf8 = path.toUtf8();
-    return PlaySound(
-      channel, std::string_view(utf8.data(), utf8.size()), loop, volume);
-  }
+                    float volume = 1.0) const;
   ApiCode PlaySoundMemory(size_t channel,
                           QByteArrayView sound,
                           bool loop = false,
@@ -271,6 +266,11 @@ public:
                        MiniWindow::Position position,
                        MiniWindow::Flags flags,
                        const QColor& fill);
+  ApiCode WindowCreateImage(std::string_view windowName,
+                            std::string_view imageID,
+                            std::array<int64_t, 8> rows) const;
+  ApiCode WindowDelete(std::string_view windowName) const;
+  ApiCode WindowDeleteAllHotspots(std::string_view windowName) const;
   ApiCode WindowDeleteHotspot(std::string_view windowName,
                               std::string_view hotspotID) const;
   ApiCode WindowDrawImage(std::string_view windowName,
@@ -286,10 +286,15 @@ public:
   ApiCode WindowEllipse(std::string_view windowName,
                         const QRectF& rect,
                         const QPen& pen,
-                        const QBrush& brush = QBrush()) const;
+                        const QBrush& brush) const;
+  ApiCode WindowEllipse(std::string_view windowName,
+                        const QRectF& rect,
+                        const QPen& pen,
+                        const QColor& brushColor,
+                        std::string_view imageID) const;
   ApiCode WindowFilter(std::string_view windowName,
                        const ImageFilter& filter,
-                       const QRect& rect = QRect()) const;
+                       const QRect& rect) const;
   ApiCode WindowFont(std::string_view windowName,
                      std::string_view fontID,
                      const QString& family,
@@ -299,6 +304,8 @@ public:
                      bool underline,
                      bool strikeout,
                      QFont::StyleHint hint) const;
+  std::vector<std::string_view> WindowFontList(
+    std::string_view windowName) const;
   QVariant WindowFontInfo(std::string_view windowName,
                           std::string_view fontID,
                           int64_t infoType) const;
@@ -306,6 +313,12 @@ public:
                       const QRectF& rect,
                       const QColor& color1,
                       const QColor& color2) const;
+  ApiCode WindowGetImageAlpha(std::string_view windowName,
+                              std::string_view imageID,
+                              const QRectF& rect,
+                              const QPointF& point) const;
+  std::optional<QColor> WindowGetPixel(std::string_view windowName,
+                                       const QPoint& point) const;
   ApiCode WindowGradient(std::string_view windowName,
                          const QRectF& rect,
                          const QColor& color1,
@@ -314,20 +327,38 @@ public:
   QVariant WindowHotspotInfo(std::string_view windowName,
                              std::string_view hotspotID,
                              int64_t infoType) const;
+  std::vector<std::string_view> WindowHotspotList(
+    std::string_view windowName) const;
+  ApiCode WindowHotspotTooltip(std::string_view windowName,
+                               std::string_view hotspotID,
+                               const QString& tooltip) const;
   ApiCode WindowImageFromWindow(std::string_view windowName,
                                 std::string_view imageID,
                                 std::string_view sourceWindow) const;
+  QVariant WindowImageInfo(std::string_view windowName,
+                           std::string_view imageID,
+                           int64_t infoType) const;
+  std::vector<std::string_view> WindowImageList(
+    std::string_view windowName) const;
   QVariant WindowInfo(std::string_view windowName, int64_t infoType) const;
   ApiCode WindowInvert(std::string_view windowName, const QRect& rect) const;
   ApiCode WindowLine(std::string_view windowName,
                      const QLineF& line,
                      const QPen& pen) const;
+  std::vector<std::string_view> WindowList() const;
   ApiCode WindowLoadImage(std::string_view windowName,
                           std::string_view imageID,
                           const QString& filename) const;
   QVariant WindowMenu(std::string_view windowName,
                       const QPoint& location,
                       std::string_view menuString) const;
+  ApiCode WindowMergeImageAlpha(std::string_view windowName,
+                                std::string_view imageID,
+                                std::string_view maskID,
+                                const QRect& targetRect,
+                                MiniWindow::MergeMode mode,
+                                qreal opacity,
+                                const QRect& sourceRect) const;
   ApiCode WindowMoveHotspot(std::string_view windowName,
                             std::string_view hotspotID,
                             const QRect& geometry) const;
@@ -344,16 +375,31 @@ public:
   ApiCode WindowRect(std::string_view windowName,
                      const QRectF& rect,
                      const QPen& pen,
-                     const QBrush& brush = QBrush()) const;
+                     const QBrush& brush) const;
+  ApiCode WindowRect(std::string_view windowName,
+                     const QRectF& rect,
+                     const QPen& pen,
+                     const QColor& brushColor,
+                     std::string_view imageID) const;
   ApiCode WindowRoundedRect(std::string_view windowName,
                             const QRectF& rect,
                             qreal xRadius,
                             qreal yRadius,
                             const QPen& pen,
-                            const QBrush& brush = QBrush()) const;
+                            const QBrush& brush) const;
+  ApiCode WindowRoundedRect(std::string_view windowName,
+                            const QRectF& rect,
+                            qreal xRadius,
+                            qreal yRadius,
+                            const QPen& pen,
+                            const QColor& brushColor,
+                            std::string_view imageID) const;
   ApiCode WindowResize(std::string_view windowName,
                        const QSize& size,
                        const QColor& fill) const;
+  ApiCode WindowSetPixel(std::string_view windowName,
+                         const QPoint& point,
+                         const QColor& color) const;
   ApiCode WindowSetZOrder(std::string_view windowName, int64_t zOrder) const;
   ApiCode WindowShow(std::string_view windowName, bool show) const;
   qreal WindowText(std::string_view windowName,
@@ -366,14 +412,20 @@ public:
                       std::string_view fontID,
                       std::string_view text,
                       bool unicode) const;
+  ApiCode WindowTransformImage(std::string_view windowName,
+                               std::string_view imageID,
+                               MiniWindow::DrawImageMode,
+                               const QTransform& transform) const;
+  ApiCode WindowUnloadFont(std::string_view windowName,
+                           std::string_view fontID) const;
+  ApiCode WindowUnloadImage(std::string_view windowName,
+                            std::string_view windowID) const;
   ApiCode WindowUpdateHotspot(size_t pluginIndex,
                               std::string_view windowName,
                               std::string_view hotspotID,
                               Hotspot::CallbacksPartial&& callbacks) const;
-  ApiCode WindowUnloadImage(std::string_view windowName,
-                            std::string_view windowID) const;
-  ApiCode WindowUnloadFont(std::string_view windowName,
-                           std::string_view fontID) const;
+  ApiCode WindowWrite(std::string_view windowName,
+                      const QString& filename) const;
 
   void applyWorld(const World& world);
   void finishNote();

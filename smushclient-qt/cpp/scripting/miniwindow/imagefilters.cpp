@@ -15,7 +15,7 @@ ImageFilter::PixelFilter::apply(const QPixmap& pixmap) const
   }
   QImage image = pixmap.toImage();
   image.convertTo(QImage::Format::Format_ARGB32);
-  apply(image::asPixels(image));
+  apply(image::asPixelsMut(image));
   return image;
 }
 
@@ -24,7 +24,7 @@ ImageFilter::ConvolveFilter::apply(const QPixmap& pixmap) const
 {
   QImage image = pixmap.toImage();
   image.convertTo(QImage::Format::Format_ARGB32);
-  apply(image::asPixels(image), image.width(), directions);
+  apply(image::asPixelsMut(image), image.width(), directions);
   return image;
 }
 

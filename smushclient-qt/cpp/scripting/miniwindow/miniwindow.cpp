@@ -1,5 +1,6 @@
 #include "miniwindow.h"
 #include "../../image.h"
+#include "../scriptenums.h"
 #include "geometry.h"
 #include "hotspot.h"
 #include "imagefilters.h"
@@ -209,10 +210,9 @@ MiniWindow::blendImage(BlendMode mode,
                        const QRectF& sourceRectBase)
 {
 
-  QRectF rect = normalize(rectBase);
+  const QRectF rect = normalize(rectBase);
   QRectF sourceRect = geometry::normalize(sourceRectBase, image.size());
   const QSizeF size = rect.size().boundedTo(sourceRect.size());
-  rect.setSize(size);
   sourceRect.setSize(size);
   image::blend(pixmap, image, rect.topLeft(), mode, opacity, sourceRect);
   updateMask();
@@ -225,15 +225,16 @@ MiniWindow::clearHotspots()
   hotspots.clear();
 }
 
+void
+MiniWindow::deleteAllHotspots()
+{
+  hotspots.clear();
+}
+
 bool
 MiniWindow::deleteHotspot(string_view hotspotID)
 {
-  auto search = hotspots.find(hotspotID);
-  if (search == hotspots.end()) {
-    return false;
-  }
-  hotspots.erase(search);
-  return true;
+  return hotspots.erase(hotspotID);
 }
 
 void
@@ -339,7 +340,9 @@ MiniWindow::drawImage(const QPixmap& image,
                       qreal opacity)
 {
   Painter painter(this);
-  painter.setOpacity(opacity);
+  if (opacity < 1) {
+    painter.setOpacity(opacity);
+  }
   const QRectF rect = normalize(rectBase);
   const QRectF sourceRect = geometry::normalize(sourceRectBase, image.size());
   switch (mode) {
@@ -350,16 +353,35 @@ MiniWindow::drawImage(const QPixmap& image,
       painter.drawPixmap(rect, image, sourceRect);
       return;
     case DrawImageMode::CopyTransparent:
-      QPixmap croppedImage = image.copy(sourceRect.toRect());
-      if (croppedImage.isNull()) {
+      if (sourceRect.isNull()) {
         return;
       }
-      QImage qImage = image.copy(QRect(0, 0, 2, 2)).toImage();
-      qImage.convertTo(QImage::Format::Format_RGB32);
-      const QRgb pixel = qImage.pixel(0, 0);
-      croppedImage.setMask(
-        QBitmap::fromImage(std::move(qImage).createMaskFromColor(pixel)));
-      Painter(this).drawPixmap(rect.topLeft(), croppedImage);
+      QImage cropped = image::crop(image, sourceRect.toRect());
+      image::colorToAlpha(cropped, image::topLeftPixel(image));
+      Painter(this).drawImage(rect.topLeft(), cropped);
+  }
+}
+
+void
+MiniWindow::drawImage(const QPixmap& image,
+                      const QTransform& transform,
+                      DrawImageMode mode,
+                      qreal opacity)
+{
+  Painter painter(this);
+  if (opacity < 1) {
+    painter.setOpacity(opacity);
+  }
+  painter.setTransform(transform);
+  switch (mode) {
+    case DrawImageMode::Copy:
+    case DrawImageMode::Stretch:
+      painter.drawPixmap(QPointF(), image);
+      return;
+    case DrawImageMode::CopyTransparent:
+      QImage masked = image.toImage();
+      image::colorToAlpha(masked, image::topLeftPixel(masked));
+      Painter(this).drawImage(QPointF(), masked);
   }
 }
 
@@ -426,16 +448,6 @@ MiniWindow::execMenu(const QPoint& location, string_view menuString)
   return returnsNumber ? QVariant(text.toDouble()) : QVariant(text);
 }
 
-Hotspot*
-MiniWindow::findHotspot(string_view hotspotID) const
-{
-  auto search = hotspots.find(hotspotID);
-  if (search == hotspots.end()) {
-    return nullptr;
-  }
-  return &*search->second;
-}
-
 const QFont*
 MiniWindow::findFont(string_view fontID) const
 {
@@ -444,6 +456,16 @@ MiniWindow::findFont(string_view fontID) const
     return nullptr;
   }
   return &search->second;
+}
+
+Hotspot*
+MiniWindow::findHotspot(string_view hotspotID) const
+{
+  auto search = hotspots.find(hotspotID);
+  if (search == hotspots.end()) {
+    return nullptr;
+  }
+  return &*search->second;
 }
 
 const QPixmap*
@@ -456,13 +478,76 @@ MiniWindow::findImage(string_view imageID) const
   return &search->second;
 }
 
+vector<string_view>
+MiniWindow::fontList() const
+{
+  return fonts.keys();
+}
+
+vector<string_view>
+MiniWindow::hotspotList() const
+{
+  return hotspots.keys();
+}
+
+vector<string_view>
+MiniWindow::imageList() const
+{
+  return images.keys();
+}
+
 void
 MiniWindow::invert(const QRect& rectBase, QImage::InvertMode mode)
 {
   const QRect rect = normalize(rectBase);
-  QImage image = pixmap.copy(rect).toImage();
+  QImage image = image::crop(pixmap, rect);
   image.invertPixels(mode);
   Painter(this, QPainter::CompositionMode_Source).drawImage(rect, image);
+}
+
+const QFont&
+MiniWindow::loadFont(string_view fontID, const QFont& font)
+{
+  return fonts.emplace(string(fontID), font).first->second;
+}
+
+const QPixmap&
+MiniWindow::loadImage(std::string_view imageID, QPixmap&& image)
+{
+  return images.emplace(string(imageID), std::move(image)).first->second;
+}
+const QPixmap&
+MiniWindow::loadImage(std::string_view imageID, const QPixmap& image)
+{
+  return images.emplace(string(imageID), image).first->second;
+}
+
+bool
+MiniWindow::mergeImageAlpha(const QPixmap& image,
+                            const QPixmap& mask,
+                            const QRect& targetRect,
+                            MergeMode mode,
+                            qreal opacity,
+                            const QRect& sourceRect)
+{
+  QRect targetRectN = normalize(targetRect);
+  QRect sourceRectN = geometry::normalize(sourceRect, image.size());
+  if (!sourceRectN.contains(targetRectN)) {
+    return false;
+  }
+  sourceRectN.setSize(targetRectN.size());
+  QImage cropped = image::crop(image, targetRectN);
+  if (mode == MergeMode::Transparent) {
+    image::colorToAlpha(cropped, image::topLeftPixel(image));
+  }
+  QImage maskImage = image::crop(mask, sourceRectN);
+  if (!image::mask(cropped, maskImage, opacity)) {
+    return false;
+  }
+  Painter painter(this);
+  painter.setOpacity(opacity);
+  painter.drawImage(targetRect.topLeft(), cropped);
+  return true;
 }
 
 void
@@ -471,6 +556,36 @@ MiniWindow::reset()
   if (!flags.testFlag(Flag::KeepHotspots)) {
     clearHotspots();
   }
+}
+
+bool
+MiniWindow::setHotspotTooltip(std::string_view hotspotID,
+                              const QString& tooltip) const
+{
+  QWidget* hotspot = findHotspot(hotspotID);
+  if (hotspot == nullptr) {
+    return false;
+  }
+  hotspot->setToolTip(tooltip);
+  return true;
+}
+
+bool
+MiniWindow::setPixel(const QPoint& location, const QColor& color)
+{
+  if (!pixmap.rect().contains(location)) {
+    return false;
+  }
+  QImage image = pixmap.toImage();
+  const QColor oldColor = image.pixelColor(location);
+  image.setPixelColor(location, color);
+  pixmap.convertFromImage(image);
+  if (flags.testFlag(Flag::Transparent) &&
+      (color == background || oldColor == background)) [[unlikely]] {
+    updateMask();
+  }
+  update();
+  return true;
 }
 
 void
@@ -495,6 +610,18 @@ void
 MiniWindow::setZOrder(int64_t order) noexcept
 {
   zOrder = order;
+}
+
+bool
+MiniWindow::unloadFont(string_view fontID)
+{
+  return fonts.erase(fontID);
+}
+
+bool
+MiniWindow::unloadImage(string_view imageID)
+{
+  return fonts.erase(imageID);
 }
 
 void
@@ -538,18 +665,6 @@ MiniWindow::paintEvent(QPaintEvent* event)
 
 // Private methods
 
-QRect
-MiniWindow::normalize(const QRect& rect) const noexcept
-{
-  return geometry::normalize(rect, pixmap.size());
-}
-
-QRectF
-MiniWindow::normalize(const QRectF& rect) const noexcept
-{
-  return geometry::normalize(rect, pixmap.size());
-}
-
 void
 MiniWindow::applyFlags()
 {
@@ -561,6 +676,18 @@ MiniWindow::applyFlags()
   } else {
     clearMask();
   }
+}
+
+QRect
+MiniWindow::normalize(const QRect& rect) const noexcept
+{
+  return geometry::normalize(rect, pixmap.size());
+}
+
+QRectF
+MiniWindow::normalize(const QRectF& rect) const noexcept
+{
+  return geometry::normalize(rect, pixmap.size());
 }
 
 void
