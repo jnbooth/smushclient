@@ -21,7 +21,7 @@ protected:
 
 private:
   using Position = MiniWindow::Position;
-  void updatePosition(const QSize& size);
+  void updatePosition();
 
 private:
   QPixmap pixmap;

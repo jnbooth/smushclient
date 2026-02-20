@@ -827,26 +827,15 @@ ScriptApi::setImage(const QString& path,
   if (pixmap.isNull()) {
     return ApiCode::FileNotFound;
   }
-  QWidget* parent = position == MiniWindow::Position::OwnerStretch ||
-                        position == MiniWindow::Position::OwnerScale
-                      ? tab.ui->output
-                      : tab.ui->area;
   if (window == nullptr) {
-    window = new ImageWindow(std::move(pixmap), position, parent);
+    window = new ImageWindow(std::move(pixmap), position, tab.ui->area);
     if (above) {
       window->raise();
     } else {
       window->lower();
     }
+    window->show();
     return ApiCode::OK;
-  }
-  if (window->parent() != parent) {
-    window->setParent(parent);
-    if (above) {
-      window->raise();
-    } else {
-      window->lower();
-    }
   }
   window->setPixmap(std::move(pixmap));
   window->setPosition(position);

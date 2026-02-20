@@ -8,7 +8,7 @@ ImageWindow::ImageWindow(QPixmap&& pixmap, Position position, QWidget* parent)
   , pixmap(std::move(pixmap))
   , position(position)
 {
-  updatePosition(parent->size());
+  updatePosition();
 }
 
 void
@@ -18,7 +18,7 @@ ImageWindow::setPosition(Position pos)
     return;
   }
   position = pos;
-  updatePosition(size());
+  updatePosition();
 }
 
 void
@@ -35,7 +35,7 @@ ImageWindow::onParentResize()
   if (position == Position::OutputScale ||
       position == Position::OutputStretch || position == Position::OwnerScale ||
       position == Position::OwnerStretch) {
-    setGeometry(QRect(geometry::calculate(this, position)));
+    setGeometry(geometry::calculate(this, position, pixmap.size()));
   }
 }
 
@@ -87,7 +87,7 @@ ImageWindow::resizeEvent(QResizeEvent* event)
 // Private methods
 
 void
-ImageWindow::updatePosition(const QSize& size)
+ImageWindow::updatePosition()
 {
-  setGeometry(QRect(geometry::calculate(this, position, size).topLeft(), size));
+  setGeometry(geometry::calculate(this, position, pixmap.size()));
 }

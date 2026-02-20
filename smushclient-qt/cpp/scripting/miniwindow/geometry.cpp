@@ -45,7 +45,12 @@ arc(const QPointF& center, const QPointF& edge)
 QRect
 calculate(QWidget* widget, MiniWindow::Position position, const QSize& size)
 {
-  return calculate(position, getParentWidget(widget)->size(), size);
+  const QWidget* parent = getParentWidget(widget);
+  if (position == MiniWindow::Position::OwnerScale ||
+      position == MiniWindow::Position::OwnerStretch) {
+    parent = getParentWidget(parent);
+  }
+  return calculate(position, parent->size(), size);
 }
 
 QRect
