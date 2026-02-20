@@ -3,77 +3,93 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QRegularExpression>
 
-using std::nullopt;
-using std::optional;
+namespace property {
+const QTextCharFormat::Property styles =
+  static_cast<QTextCharFormat::Property>(ffi::spans::SpanProperty::Styles);
 
-constexpr int typeProp = QTextCharFormat::UserProperty + 10;
+const QTextCharFormat::Property sendTo =
+  static_cast<QTextCharFormat::Property>(ffi::spans::SpanProperty::SendTo);
 
-constexpr int timestampProp = QTextBlockFormat::UserProperty;
+const QTextCharFormat::Property prompts =
+  static_cast<QTextCharFormat::Property>(ffi::spans::SpanProperty::Prompts);
+
+const QTextCharFormat::Property lineType =
+  static_cast<QTextCharFormat::Property>(ffi::spans::SpanProperty::LineType);
+
+const QTextBlockFormat::Property timestamp = QTextBlockFormat::UserProperty;
+} // namespace property
+
+// Private utils
+
+namespace {
+template<typename T>
+T
+getUnderlying(const QTextCharFormat& format, QTextCharFormat::Property prop)
+{
+  return static_cast<T>(
+    format.property(prop).value<std::underlying_type_t<T>>());
+}
+
+template<typename T>
+void
+setUnderlying(QTextCharFormat& format, QTextCharFormat::Property prop, T value)
+{
+  format.setProperty(prop, static_cast<std::underlying_type_t<T>>(value));
+}
+} // namespace
 
 // Public functions
 
 namespace spans {
-
-QString
-encodeLink(SendTo sendto, const QString& action)
+LineType
+getLineType(const QTextCharFormat& format)
 {
-  QString link = action;
-  ffi::spans::encode_link(sendto, link);
-  return link;
-}
-
-SendTo
-decodeLink(QString& link)
-{
-  return ffi::spans::get_send_to(link);
-}
-
-optional<SendTo>
-getSendTo(const QTextCharFormat& format)
-{
-  QString href = format.anchorHref();
-  if (href.isEmpty()) {
-    return nullopt;
-  }
-  return decodeLink(href);
-}
-
-QFlags<TextStyle>
-getStyles(const QTextCharFormat& format)
-{
-  return QFlags<TextStyle>::fromInt(ffi::spans::get_styles(format));
+  return getUnderlying<LineType>(format, property::lineType);
 }
 
 QStringList
 getPrompts(const QTextCharFormat& format)
 {
-  return ffi::spans::get_prompts(format);
+  const QString prompts = format.property(property::prompts).toString();
+  return prompts.isEmpty() ? QStringList() : prompts.split(QChar(0x1E));
+}
+
+SendTo
+getSendTo(const QTextCharFormat& format)
+{
+  return getUnderlying<SendTo>(format, property::sendTo);
+}
+
+QFlags<TextStyle>
+getStyles(const QTextCharFormat& format)
+{
+  return QFlags<TextStyle>::fromInt(format.property(property::styles).toInt());
+}
+
+QDateTime
+getTimestamp(const QTextBlockFormat& format)
+{
+  return format.property(property::timestamp).toDateTime();
 }
 
 void
 setLineType(QTextCharFormat& format, LineType type)
 {
-  format.setProperty(typeProp, static_cast<int>(type));
+  setUnderlying(format, property::lineType, type);
 }
 
-LineType
-getLineType(const QTextCharFormat& format)
+void
+setSendTo(QTextCharFormat& format, SendTo sendTo)
 {
-  return static_cast<LineType>(format.property(typeProp).toInt());
+  setUnderlying(format, property::sendTo, sendTo);
 }
 
 void
 setTimestamp(QTextCursor& cursor)
 {
   QTextBlockFormat format;
-  format.setProperty(timestampProp, QDateTime::currentDateTime());
+  format.setProperty(property::timestamp, QDateTime::currentDateTime());
   cursor.setBlockFormat(format);
-}
-
-QDateTime
-getTimestamp(const QTextBlockFormat& format)
-{
-  return format.property(timestampProp).toDateTime();
 }
 
 QString&

@@ -1,6 +1,8 @@
 #include "mudbrowser.h"
 #include "../../mudcursor.h"
+#include "../../spans.h"
 #include "mudscrollbar.h"
+#include <QtGui/QAbstractTextDocumentLayout>
 #include <QtGui/QMouseEvent>
 
 // Public methods
@@ -73,4 +75,33 @@ MudBrowser::mousePressEvent(QMouseEvent* event)
     return;
   }
   QTextBrowser::mousePressEvent(event);
+}
+
+void
+MudBrowser::mouseReleaseEvent(QMouseEvent* event)
+{
+  const QTextCharFormat format = document()
+                                   ->documentLayout()
+                                   ->formatAt(mapToContents(event->pos()))
+                                   .toCharFormat();
+  const QString anchor = format.anchorHref();
+  if (!anchor.isEmpty()) {
+    emit linkActivated(anchor, spans::getSendTo(format));
+  }
+  QTextBrowser::mouseReleaseEvent(event);
+}
+
+// Private methods
+
+QPoint
+MudBrowser::mapToContents(const QPoint& point) const
+{
+  const QScrollBar* hbar = horizontalScrollBar();
+  const QScrollBar* vbar = verticalScrollBar();
+  const int horizontalOffset = hbar == nullptr ? 0
+                               : isRightToLeft()
+                                 ? hbar->maximum() - hbar->value()
+                                 : hbar->value();
+  const int verticalOffset = verticalScrollBar() == nullptr ? 0 : vbar->value();
+  return QPoint(point.x() + horizontalOffset, point.y() + verticalOffset);
 }

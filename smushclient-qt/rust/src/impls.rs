@@ -1,5 +1,4 @@
 use cxx_qt_lib::QString;
-use mud_transformer::mxp::SendTo;
 use mud_transformer::term::DynamicColor;
 use mud_transformer::{TelnetSource, TelnetVerb, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, MxpDebugLevel, ScriptRecompile};
@@ -9,8 +8,6 @@ use smushclient_plugins::{Plugin, PluginIndex, SendTarget, Timer};
 use super::ffi;
 use crate::convert::impl_convert_enum;
 use crate::sender::OutputSpan;
-
-impl_convert_enum!(ffi::SendTo, SendTo, Internet, World, Input);
 
 impl_convert_enum!(ffi::TelnetSource, TelnetSource, Client, Server);
 

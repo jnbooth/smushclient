@@ -1,20 +1,27 @@
 use std::fmt::Write;
 
-use cxx_qt_lib::{CaseSensitivity, QString, QStringList, SplitBehaviorFlags};
+use cxx_qt_lib::QString;
 use flagset::FlagSet;
 use mud_transformer::TextStyle;
 use mud_transformer::mxp;
-use smushclient_qt_lib::QChar;
-use smushclient_qt_lib::QStringExt;
 use smushclient_qt_lib::{QFontWeight, QTextCharFormat, QTextFormatProperty};
 
 #[cxx::bridge]
 mod ffi {
     #[repr(u8)]
     enum SendTo {
-        World = 0x20,
-        Input = 0x21,
-        Internet = 0x23,
+        Internet,
+        World,
+        Input,
+    }
+
+    #[namespace = "ffi::spans"]
+    #[repr(i32)]
+    enum SpanProperty {
+        Styles = 0x100000,
+        SendTo,
+        Prompts,
+        LineType,
     }
 
     enum TextStyle {
@@ -40,30 +47,33 @@ mod ffi {
         include!("smushclient-qt-lib/qtextcharformat.h");
         type QTextCharFormat = smushclient_qt_lib::QTextCharFormat;
     }
-
-    #[namespace = "ffi::spans"]
-    extern "Rust" {
-        fn encode_link(send_to: SendTo, action: &mut QString);
-        fn get_prompts(format: &QTextCharFormat) -> QStringList;
-        fn get_styles(format: &QTextCharFormat) -> u32;
-        fn get_send_to(link: &mut QString) -> SendTo;
-    }
 }
-
-pub use ffi::SendTo;
 
 struct SpanProperty;
 
 impl SpanProperty {
-    pub const STYLES: QTextFormatProperty = QTextFormatProperty::user(0);
-    pub const PROMPTS: QTextFormatProperty = QTextFormatProperty::user(1);
+    pub const STYLES: QTextFormatProperty = QTextFormatProperty {
+        repr: ffi::SpanProperty::Styles.repr,
+    };
+    pub const SEND_TO: QTextFormatProperty = QTextFormatProperty {
+        repr: ffi::SpanProperty::SendTo.repr,
+    };
+    pub const PROMPTS: QTextFormatProperty = QTextFormatProperty {
+        repr: ffi::SpanProperty::Prompts.repr,
+    };
+}
+
+impl From<mxp::SendTo> for ffi::SendTo {
+    fn from(value: mxp::SendTo) -> Self {
+        match value {
+            mxp::SendTo::World => Self::World,
+            mxp::SendTo::Input => Self::Input,
+            mxp::SendTo::Internet => Self::Internet,
+        }
+    }
 }
 
 // Styles
-
-fn get_styles(format: &QTextCharFormat) -> u32 {
-    format.property(SpanProperty::STYLES).value_or_default()
-}
 
 pub fn apply_styles(format: &mut QTextCharFormat, flags: FlagSet<TextStyle>) {
     format.set_property(SpanProperty::STYLES, &u32::from(flags.bits()));
@@ -84,23 +94,6 @@ pub fn apply_styles(format: &mut QTextCharFormat, flags: FlagSet<TextStyle>) {
 // Prompts
 
 const SEP: &str = "\x1E";
-const SEP_CHAR: QChar = QChar::new(0x1E);
-
-fn get_prompts(format: &QTextCharFormat) -> QStringList {
-    let property = format.property(SpanProperty::PROMPTS).value_or_default();
-    decode_prompts(&property)
-}
-
-fn decode_prompts(encoded: &QString) -> QStringList {
-    if encoded.is_empty() {
-        return QStringList::default();
-    }
-    encoded.split_char(
-        SEP_CHAR,
-        SplitBehaviorFlags::KeepEmptyParts,
-        CaseSensitivity::CaseSensitive,
-    )
-}
 
 fn encode_prompts(prompts: &[mxp::LinkPrompt]) -> QString {
     let len = prompts
@@ -116,47 +109,10 @@ fn encode_prompts(prompts: &[mxp::LinkPrompt]) -> QString {
 
 // Links
 
-const fn send_char(send_to: ffi::SendTo) -> QChar {
-    QChar::new(send_to.repr as u16)
-}
-
-const WORLD: QChar = send_char(ffi::SendTo::World);
-const INPUT: QChar = send_char(ffi::SendTo::Input);
-const INTERNET: QChar = send_char(ffi::SendTo::Internet);
-
-fn get_send_to(link: &mut QString) -> ffi::SendTo {
-    let send_to = match link.back() {
-        Some(WORLD) => ffi::SendTo::World,
-        Some(INPUT) => ffi::SendTo::Input,
-        Some(INTERNET) => ffi::SendTo::Internet,
-        _ => return ffi::SendTo::Internet,
-    };
-    link.remove_last();
-    send_to
-}
-
-fn encode_link(send_to: ffi::SendTo, action: &mut QString) {
-    action.append_char(match send_to {
-        ffi::SendTo::World => WORLD,
-        ffi::SendTo::Input => INPUT,
-        ffi::SendTo::Internet => INTERNET,
-        _ => return,
-    });
-}
-
-fn encode_mxp_link(link: &mxp::Link) -> QString {
-    let mut action = QString::from(&link.action);
-    action.append_char(match link.send_to {
-        mxp::SendTo::World => WORLD,
-        mxp::SendTo::Input => INPUT,
-        mxp::SendTo::Internet => INTERNET,
-    });
-    action
-}
-
 pub fn apply_link(format: &mut QTextCharFormat, link: &mxp::Link) {
     format.set_anchor(true);
-    format.set_anchor_href(&encode_mxp_link(link));
+    format.set_anchor_href(&QString::from(&link.action));
+    format.set_property(SpanProperty::SEND_TO, &ffi::SendTo::from(link.send_to).repr);
     if let Some(hint) = &link.hint {
         format.set_tool_tip(&QString::from(hint));
     }

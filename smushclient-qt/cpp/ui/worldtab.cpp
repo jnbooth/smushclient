@@ -14,6 +14,7 @@
 #include "../spans.h"
 #include "smushclient_qt/src/ffi/document.cxxqt.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
+#include "smushclient_qt/src/ffi/spans.cxx.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_worldtab.h"
 #include "worlddetails/regexdialog.h"
@@ -1090,42 +1091,6 @@ private:
 };
 
 void
-WorldTab::on_output_anchorClicked(const QUrl& url)
-{
-  QString action = url.toString(QUrl::None);
-  if (action.isEmpty()) {
-    return;
-  }
-
-  switch (spans::decodeLink(action)) {
-    case SendTo::Internet:
-      QDesktopServices::openUrl(QUrl(action));
-      return;
-    case SendTo::World:
-      break;
-    case SendTo::Input:
-      ui->input->setText(action);
-      return;
-  }
-
-  qsizetype delimIndex = 0;
-  qsizetype fnIndex = 0;
-  if (action.first(2) == QStringLiteral("!!") && action.back() == u')' &&
-      (delimIndex = action.indexOf(u':')) != -1 &&
-      (fnIndex = action.indexOf(u'(', delimIndex)) != -1) {
-    const QString pluginID = action.sliced(2, delimIndex - 2);
-    const QString functionName =
-      action.sliced(delimIndex + 1, fnIndex - delimIndex - 1);
-    const QString arg = action.sliced(fnIndex + 1, action.size() - fnIndex - 2);
-    AnchorCallback callback(functionName, arg);
-    api->sendCallback(callback, pluginID);
-    return;
-  }
-
-  sendCommand(action, CommandSource::Hotkey);
-}
-
-void
 WorldTab::on_output_copyAvailable(bool available)
 {
   outputCopyAvailable = available;
@@ -1153,4 +1118,35 @@ WorldTab::on_output_customContextMenuRequested(const QPoint& pos)
     return;
   }
   api->sendToWorld(chosen->data().toString(), SendFlag::Echo | SendFlag::Log);
+}
+
+void
+WorldTab::on_output_linkActivated(const QString& action, SendTo sendTo)
+{
+  switch (sendTo) {
+    case SendTo::Internet:
+      QDesktopServices::openUrl(QUrl(action));
+      return;
+    case SendTo::World:
+      break;
+    case SendTo::Input:
+      ui->input->setText(action);
+      return;
+  }
+
+  qsizetype delimIndex = 0;
+  qsizetype fnIndex = 0;
+  if (action.first(2) == QStringLiteral("!!") && action.back() == u')' &&
+      (delimIndex = action.indexOf(u':')) != -1 &&
+      (fnIndex = action.indexOf(u'(', delimIndex)) != -1) {
+    const QString pluginID = action.sliced(2, delimIndex - 2);
+    const QString functionName =
+      action.sliced(delimIndex + 1, fnIndex - delimIndex - 1);
+    const QString arg = action.sliced(fnIndex + 1, action.size() - fnIndex - 2);
+    AnchorCallback callback(functionName, arg);
+    api->sendCallback(callback, pluginID);
+    return;
+  }
+
+  sendCommand(action, CommandSource::Hotkey);
 }

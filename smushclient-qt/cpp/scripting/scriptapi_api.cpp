@@ -10,6 +10,7 @@
 #include "miniwindow/miniwindow.h"
 #include "scriptapi.h"
 #include "smushclient_qt/src/ffi/document.cxxqt.h"
+#include "smushclient_qt/src/ffi/spans.cxx.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
 #include "sqlite3.h"
 #include <QtCore/QFile>
@@ -253,8 +254,8 @@ ScriptApi::Hyperlink(const QString& action,
                      bool noUnderline)
 {
   QTextCharFormat format;
-  format.setAnchorHref(
-    spans::encodeLink(url ? SendTo::Internet : SendTo::World, action));
+  format.setAnchorHref(action);
+  spans::setSendTo(format, url ? SendTo::Internet : SendTo::World);
   format.setToolTip(hint.isEmpty() ? action : hint);
   if (foreground.isValid()) {
     format.setForeground(foreground);

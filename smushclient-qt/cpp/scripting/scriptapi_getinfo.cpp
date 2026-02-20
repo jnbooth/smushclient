@@ -8,6 +8,7 @@
 #include "../ui/worldtab.h"
 #include "scriptapi.h"
 #include "smushclient_qt/src/ffi/document.cxxqt.h"
+#include "smushclient_qt/src/ffi/spans.cxx.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
 #include "sqlite3.h"
 #include <QtCore/QDir>
@@ -21,7 +22,6 @@
 #include <QtNetwork/QNetworkProxy>
 #include <QtWidgets/QTabWidget>
 
-using std::optional;
 using std::string;
 using std::string_view;
 
@@ -513,11 +513,11 @@ ScriptApi::GetStyleInfo(int line, int64_t style, int64_t infoType) const
     case 3:
       return range.start - textStart;
     case 4: {
-      optional<SendTo> sendto = spans::getSendTo(range.format);
-      if (!sendto) {
+      if (range.format.anchorHref().isEmpty()) {
         return 0;
       }
-      switch (*sendto) {
+      SendTo sendto = spans::getSendTo(range.format);
+      switch (sendto) {
         case SendTo::Internet:
           return 2;
         case SendTo::World:
@@ -526,13 +526,8 @@ ScriptApi::GetStyleInfo(int line, int64_t style, int64_t infoType) const
           return 3;
       }
     }
-    case 5: {
-      QString link = range.format.anchorHref();
-      if (!link.isEmpty()) {
-        spans::decodeLink(link);
-      }
-      return link;
-    }
+    case 5:
+      return range.format.anchorHref();
     case 6:
       return range.format.toolTip();
     // case 7: // variable to set

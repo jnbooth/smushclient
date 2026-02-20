@@ -17,6 +17,7 @@ class WorldTab;
 } // namespace Ui
 
 enum class ScriptRecompile : int32_t;
+enum class SendTo : uint8_t;
 class Hotspot;
 class MudStatusBar;
 class Notepads;
@@ -136,9 +137,9 @@ private slots:
   void on_input_copyAvailable(bool available);
   void on_input_submitted(const QString& text);
   void on_input_textChanged();
-  void on_output_anchorClicked(const QUrl& url);
   void on_output_copyAvailable(bool available);
   void on_output_customContextMenuRequested(const QPoint& pos);
+  void on_output_linkActivated(const QString& action, SendTo sendTo);
 
 private:
   bool active = true;

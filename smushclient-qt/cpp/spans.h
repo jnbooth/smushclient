@@ -5,7 +5,7 @@ struct Link;
 enum class SendTo : uint8_t;
 enum class TextStyle : uint16_t;
 
-enum class LineType
+enum class LineType : uint8_t
 {
   Output,
   Input,
@@ -13,32 +13,29 @@ enum class LineType
 };
 
 namespace spans {
-QString
-encodeLink(SendTo sendto, const QString& action);
+LineType
+getLineType(const QTextCharFormat& format);
+
+QStringList
+getPrompts(const QTextCharFormat& format);
 
 SendTo
-decodeLink(QString& link);
-
-std::optional<SendTo>
 getSendTo(const QTextCharFormat& format);
 
 QFlags<TextStyle>
 getStyles(const QTextCharFormat& format);
 
-QStringList
-getPrompts(const QTextCharFormat& format);
+QDateTime
+getTimestamp(const QTextBlockFormat& format);
 
 void
 setLineType(QTextCharFormat& format, LineType type);
 
-LineType
-getLineType(const QTextCharFormat& format);
+void
+setSendTo(QTextCharFormat& format, SendTo sendTo);
 
 void
 setTimestamp(QTextCursor& cursor);
-
-QDateTime
-getTimestamp(const QTextBlockFormat& format);
 
 QString&
 sanitizeHtml(QString& html);

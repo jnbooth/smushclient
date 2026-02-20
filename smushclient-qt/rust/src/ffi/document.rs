@@ -18,8 +18,6 @@ pub mod ffi {
     extern "C++" {
         include!("smushclient_qt/src/ffi/send_request.cxx.h");
         type SendRequest = super::super::send_request::ffi::SendRequest;
-        include!("smushclient_qt/src/ffi/spans.cxx.h");
-        type SendTo = super::super::spans::SendTo;
     }
 
     enum TelnetSource {

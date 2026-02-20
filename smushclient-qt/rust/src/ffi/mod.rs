@@ -40,7 +40,6 @@ mod send_request;
 pub use send_request::ffi::{SendRequest, SendTarget, SendTimer};
 
 pub mod spans;
-pub use spans::SendTo;
 
 mod timekeeper;
 pub use timekeeper::ffi::Timekeeper;
