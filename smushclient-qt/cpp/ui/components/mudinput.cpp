@@ -106,18 +106,24 @@ MudInput::keyPressEvent(QKeyEvent* event)
       return;
 
     case Qt::Key::Key_Enter:
-    case Qt::Key::Key_Return: {
+    case Qt::Key::Key_Return:
       if (event->modifiers().testFlag(Qt::KeyboardModifier::ShiftModifier)) {
         QTextEdit::keyPressEvent(event);
         return;
       }
-      const QString text = toPlainText();
-      emit submitted(text);
+      emit submitted(toPlainText());
       return;
-    }
 
     case Qt::Key::Key_Left:
     case Qt::Key::Key_Right:
+      break;
+
+    case Qt::Key::Key_C:
+      if (event->modifiers() == Qt::KeyboardModifier::ControlModifier)
+        [[unlikely]] {
+        emit copyTriggered();
+        return;
+      }
       break;
 
     default:

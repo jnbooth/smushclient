@@ -24,6 +24,7 @@ public slots:
   void setMaxLogSize(int size);
 
 signals:
+  void copyTriggered();
   void submitted(const QString& text);
 
 protected:

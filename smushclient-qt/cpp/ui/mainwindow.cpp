@@ -253,6 +253,10 @@ MainWindow::connectTab(WorldTab* tab) const
   connect(tab, &WorldTab::copyAvailable, this, &MainWindow::onCopyAvailable);
   connect(tab, &WorldTab::newActivity, this, &MainWindow::onNewActivity);
   connect(tab, &WorldTab::titleChanged, this, &MainWindow::onTitleChanged);
+  connect(tab->ui->input,
+          &MudInput::copyTriggered,
+          this,
+          &MainWindow::on_action_copy_triggered);
   SettingsDialog::connect(tab);
 }
 
