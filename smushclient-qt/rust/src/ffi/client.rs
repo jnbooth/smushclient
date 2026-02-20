@@ -14,8 +14,12 @@ pub mod ffi {
         type QVariant = cxx_qt_lib::QVariant;
         include!("cxx-qt-lib/qvector.h");
         type QVector_QColor = cxx_qt_lib::QVector<QColor>;
+
         include!("cxx-qt-io/qabstractsocket.h");
         type QAbstractSocket = cxx_qt_io::QAbstractSocket;
+
+        include!("smushclient-qt-lib/qtextcharformat.h");
+        type QTextCharFormat = smushclient_qt_lib::QTextCharFormat;
     }
 
     extern "C++" {
@@ -53,6 +57,11 @@ pub mod ffi {
         script_data: *const u8,
         #[cxx_name = "scriptSize"]
         script_size: usize,
+    }
+
+    struct StyledSpan {
+        text: QString,
+        format: QTextCharFormat,
     }
 
     enum CommandSource {
@@ -129,6 +138,7 @@ pub mod ffi {
         ) -> ApiCode;
         fn play_file_raw(self: &SmushClient, path: &[u8]) -> ApiCode;
         fn stop_sound(self: &SmushClient, i: usize) -> ApiCode;
+        fn ansi_note(self: &SmushClient, text: &[u8]) -> Vec<StyledSpan>;
         fn alias(
             self: &SmushClient,
             command: &QString,

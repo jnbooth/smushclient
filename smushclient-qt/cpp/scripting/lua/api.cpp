@@ -457,6 +457,14 @@ L_SetOption(lua_State* L)
 // output
 
 int
+L_AnsiNote(lua_State* L)
+{
+  BENCHMARK
+  getApi(L).AnsiNote(qlua::concatStrings(L));
+  return 0;
+}
+
+int
 L_ColourNameToRGB(lua_State* L)
 {
   BENCHMARK
@@ -523,7 +531,7 @@ L_Note(lua_State* L)
 {
   BENCHMARK
   ScriptApi& api = getApi(L);
-  api.Tell(qlua::concatStrings(L));
+  api.Tell(QString::fromUtf8(qlua::concatStrings(L)));
   api.finishNote();
   return 0;
 }
@@ -549,7 +557,7 @@ int
 L_SetClipboard(lua_State* L)
 {
   BENCHMARK
-  ScriptApi::SetClipboard(qlua::concatStrings(L));
+  ScriptApi::SetClipboard(QString::fromUtf8(qlua::concatStrings(L)));
   return 0;
 }
 
@@ -586,7 +594,7 @@ int
 L_Tell(lua_State* L)
 {
   BENCHMARK
-  getApi(L).Tell(qlua::concatStrings(L));
+  getApi(L).Tell(QString::fromUtf8(qlua::concatStrings(L)));
   return 0;
 }
 
@@ -2012,6 +2020,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetAlphaOption", L_SetAlphaOption },
     { "SetOption", L_SetOption },
     // output
+    { "AnsiNote", L_AnsiNote },
     { "ColourNameToRGB", L_ColourNameToRGB },
     { "ColourNote", L_ColourNote },
     { "ColourTell", L_ColourTell },

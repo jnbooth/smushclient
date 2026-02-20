@@ -485,7 +485,7 @@ qlua::concatBytes(lua_State* L)
   return bytes;
 }
 
-QString
+string
 qlua::concatStrings(lua_State* L)
 {
   const int n = lua_gettop(L);
@@ -536,7 +536,7 @@ qlua::concatStrings(lua_State* L)
   if (!needsToString) {
     lua_pop(L, 1);
   }
-  return QString::fromUtf8(out.view());
+  return out.str();
 }
 
 void

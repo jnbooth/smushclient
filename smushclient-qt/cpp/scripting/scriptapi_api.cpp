@@ -95,6 +95,14 @@ ScriptApi::SetClipboard(const QString& text)
 
 // Public methods
 
+void
+ScriptApi::AnsiNote(std::string_view text) const
+{
+  for (const StyledSpan& span : client.ansiNote(bytes::slice(text))) {
+    cursor->appendText(span.text, span.format);
+  }
+}
+
 int64_t
 ScriptApi::BroadcastPlugin(size_t index,
                            int64_t message,

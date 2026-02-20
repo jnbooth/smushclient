@@ -84,6 +84,7 @@ public:
                      std::string_view scriptName,
                      SendTarget target,
                      int sequence = 100) const;
+  void AnsiNote(std::string_view text) const;
   int64_t BroadcastPlugin(size_t pluginIndex,
                           int64_t message,
                           std::string_view text) const;

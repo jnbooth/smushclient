@@ -106,7 +106,7 @@ toString(lua_State* L, int idx);
 
 QByteArray
 concatBytes(lua_State* L);
-QString
+std::string
 concatStrings(lua_State* L);
 
 bool

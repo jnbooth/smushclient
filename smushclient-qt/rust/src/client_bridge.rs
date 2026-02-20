@@ -536,6 +536,10 @@ impl ffi::SmushClient {
         self.rust().client.stop_sound(i).code()
     }
 
+    pub fn ansi_note(&self, text: &LuaStr) -> Vec<ffi::StyledSpan> {
+        self.rust().ansi_note(text)
+    }
+
     pub fn alias(
         &self,
         command: &QString,

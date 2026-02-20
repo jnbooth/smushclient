@@ -13,7 +13,7 @@ mod audio;
 mod client;
 pub use client::ffi::{
     AliasMenuItem, CommandSource, PluginPack, QAbstractSocket, ReplaceSenderResult, SenderKind,
-    SmushClient,
+    SmushClient, StyledSpan,
 };
 
 mod document;
