@@ -554,6 +554,26 @@ L_RGBColourToName(lua_State* L)
 }
 
 int
+L_SetBackgroundColour(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, getApi(L).SetBackgroundColour(qlua::getQColor(L, 1)));
+  return 1;
+}
+
+int
+L_SetBackgroundImage(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  const QString path = qlua::getQString(L, 1);
+  const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 2);
+  expect_nonnull(position, ApiCode::BadParameter);
+  return returnCode(L, getApi(L).SetBackgroundImage(path, *position));
+}
+
+int
 L_SetClipboard(lua_State* L)
 {
   BENCHMARK
@@ -570,6 +590,17 @@ L_SetCursor(lua_State* L)
     qlua::getCursor(L, 1, Qt::CursorShape::ArrowCursor);
   expect_nonnull(cursor, ApiCode::BadParameter);
   return returnCode(L, getApi(L).SetCursor(*cursor));
+}
+
+int
+L_SetForegroundImage(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  const QString path = qlua::getQString(L, 1);
+  const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 2);
+  expect_nonnull(position, ApiCode::BadParameter);
+  return returnCode(L, getApi(L).SetForegroundImage(path, *position));
 }
 
 int
@@ -1172,37 +1203,6 @@ L_SetVariable(lua_State* L)
 }
 
 // windows
-
-int
-L_SetBackgroundColour(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 1);
-  push(L, getApi(L).SetBackgroundColour(qlua::getQColor(L, 1)));
-  return 1;
-}
-
-int
-L_SetBackgroundImage(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 2);
-  const QString path = qlua::getQString(L, 1);
-  const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 2);
-  expect_nonnull(position, ApiCode::BadParameter);
-  return returnCode(L, getApi(L).SetBackgroundImage(path, *position));
-}
-
-int
-L_SetForegroundImage(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 2);
-  const QString path = qlua::getQString(L, 1);
-  const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 2);
-  expect_nonnull(position, ApiCode::BadParameter);
-  return returnCode(L, getApi(L).SetForegroundImage(path, *position));
-}
 
 int
 L_TextRectangle(lua_State* L)
@@ -2011,7 +2011,7 @@ static const struct luaL_Reg worldlib[] =
     { "Send", L_Send },
     { "SendNoEcho", L_SendNoEcho },
     { "SendPkt", L_SendPkt },
-    // options
+    // option
     { "GetAlphaOption", L_GetAlphaOption },
     { "GetAlphaOptionList", L_GetAlphaOptionList },
     { "GetCurrentValue", L_GetCurrentValue },
@@ -2030,18 +2030,21 @@ static const struct luaL_Reg worldlib[] =
     { "Note", L_Note },
     { "PickColour", L_PickColour },
     { "RGBColourToName", L_RGBColourToName },
+    { "SetBackgroundColour", L_SetBackgroundColour },
+    { "SetBackgroundImage", L_SetBackgroundImage },
     { "SetClipboard", L_SetClipboard },
     { "SetCursor", L_SetCursor },
+    { "SetForegroundImage", L_SetForegroundImage },
     { "SetStatus", L_SetStatus },
     { "Simulate", L_Simulate },
     { "Tell", L_Tell },
-    // plugins
+    // plugin
     { "BroadcastPlugin", L_BroadcastPlugin },
     { "CallPlugin", L_CallPlugin },
     { "EnablePlugin", L_EnablePlugin },
     { "GetPluginID", L_GetPluginID },
     { "PluginSupports", L_PluginSupports },
-    // senders
+    // sender
     { "AddAlias", L_AddAlias },
     { "AddTimer", L_AddTimer },
     { "AddTrigger", L_AddTrigger },
@@ -2086,9 +2089,6 @@ static const struct luaL_Reg worldlib[] =
     { "GetPluginVariable", L_GetPluginVariable },
     { "SetVariable", L_SetVariable },
     // windows
-    { "SetBackgroundColour", L_SetBackgroundColour },
-    { "SetBackgroundImage", L_SetBackgroundImage },
-    { "SetForegroundImage", L_SetForegroundImage },
     { "TextRectangle", L_TextRectangle },
     { "WindowArc", L_WindowArc },
     { "WindowBlendImage", L_WindowBlendImage },
@@ -2123,7 +2123,7 @@ static const struct luaL_Reg worldlib[] =
     { "WindowTextWidth", L_WindowTextWidth },
     { "WindowTransformImage", L_WindowTransformImage },
     { "Windowrite", L_WindowWrite },
-    // window hotspots
+    // hotspot
     { "WindowAddHotspot", L_WindowAddHotspot },
     { "WindowDeleteAllHotspots", L_WindowDeleteAllHotspots },
     { "WindowDeleteHotspot", L_WindowDeleteHotspot },

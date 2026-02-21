@@ -1,20 +1,20 @@
-#include "../bytes.h"
-#include "../casting.h"
-#include "../ui/worldtab.h"
-#include "scriptapi.h"
+#include "../../bytes.h"
+#include "../../casting.h"
+#include "../../client.h"
+#include "../../timer_map.h"
+#include "../scriptapi.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
-#include "sqlite3.h"
-#include <QtCore/QFile>
-#include <QtGui/QGradient>
-#include <QtGui/QGuiApplication>
-#include <QtWidgets/QStatusBar>
 
-using std::string;
 using std::string_view;
-using std::chrono::hours;
 using std::chrono::milliseconds;
-using std::chrono::minutes;
-using std::chrono::seconds;
+
+// Public static methods
+
+QString
+ScriptApi::MakeRegularExpression(string_view pattern) noexcept
+{
+  return ffi::regex::from_wildcards(bytes::slice(pattern));
+}
 
 // Public methods
 
@@ -219,6 +219,25 @@ ScriptApi::DeleteTriggerGroup(size_t plugin, string_view group) const
 }
 
 ApiCode
+ScriptApi::DoAfter(size_t plugin,
+                   double seconds,
+                   const QString& text,
+                   SendTarget target)
+{
+  if (seconds < 0.1 || seconds > 86399) {
+    return ApiCode::TimeInvalid;
+  }
+  const milliseconds duration =
+    milliseconds{ clamped_cast<int64_t>(seconds * 1000.0) };
+  sendQueue->start(duration,
+                   { .plugin = plugin,
+                     .sendTo = target,
+                     .text = text,
+                     .destination = QString() });
+  return ApiCode::OK;
+}
+
+ApiCode
 ScriptApi::EnableAlias(size_t plugin, string_view label, bool enabled) const
 {
   return client.setSenderEnabled(
@@ -360,4 +379,10 @@ ScriptApi::SetTriggerOption(size_t plugin,
                                 bytes::slice(label),
                                 bytes::slice(option),
                                 bytes::slice(value));
+}
+
+void
+ScriptApi::StopEvaluatingTriggers() const
+{
+  client.stopSenders(SenderKind::Trigger);
 }

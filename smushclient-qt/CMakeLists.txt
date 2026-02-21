@@ -99,12 +99,20 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/databaseconnection.h cpp/scripting/databaseconnection.cpp
     cpp/scripting/plugin.h cpp/scripting/plugin.cpp
     cpp/scripting/qlua.h cpp/scripting/qlua.cpp
-    cpp/scripting/scriptapi_api.cpp
-    cpp/scripting/scriptapi_getinfo.cpp
-    cpp/scripting/scriptapi_senders.cpp
-    cpp/scripting/scriptapi_window.cpp
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
     cpp/scripting/scriptthread.h cpp/scripting/scriptthread.cpp
+
+    cpp/scripting/scriptapi/database.cpp
+    cpp/scripting/scriptapi/hotspot.cpp
+    cpp/scripting/scriptapi/info.cpp
+    cpp/scripting/scriptapi/input.cpp
+    cpp/scripting/scriptapi/option.cpp
+    cpp/scripting/scriptapi/output.cpp
+    cpp/scripting/scriptapi/plugin.cpp
+    cpp/scripting/scriptapi/sender.cpp
+    cpp/scripting/scriptapi/sound.cpp
+    cpp/scripting/scriptapi/variable.cpp
+    cpp/scripting/scriptapi/window.cpp
 
     cpp/scripting/miniwindow/geometry.h cpp/scripting/miniwindow/geometry.cpp
     cpp/scripting/miniwindow/hotspot.h cpp/scripting/miniwindow/hotspot.cpp

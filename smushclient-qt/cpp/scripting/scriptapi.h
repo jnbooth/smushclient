@@ -177,21 +177,10 @@ public:
                           float volume = 1.0) const;
   ApiCode PluginSupports(std::string_view pluginID,
                          PluginCallbackKey routine) const;
-  ApiCode Send(std::string_view text)
-  {
-    QByteArray bytes(text);
-    return sendToWorld(bytes, SendFlag::Echo);
-  }
-  ApiCode Send(const QString& text)
-  {
-    QByteArray bytes = text.toUtf8();
-    return sendToWorld(bytes, SendFlag::Echo);
-  }
-  ApiCode Send(QByteArray& bytes) { return sendToWorld(bytes, SendFlag::Echo); }
-  ApiCode SendNoEcho(QByteArray& bytes)
-  {
-    return sendToWorld(bytes, SendFlags());
-  }
+  ApiCode Send(std::string_view text);
+  ApiCode Send(const QString& text);
+  ApiCode Send(QByteArray& bytes);
+  ApiCode SendNoEcho(QByteArray& bytes);
   ApiCode SendPacket(QByteArrayView bytes);
   ApiCode SetAliasOption(size_t plugin,
                          std::string_view label,

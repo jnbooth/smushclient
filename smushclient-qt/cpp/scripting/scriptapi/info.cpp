@@ -1,16 +1,14 @@
-#include "../bytes.h"
-#include "../environment.h"
-#include "../settings.h"
-#include "../spans.h"
-#include "../ui/components/mudscrollbar.h"
-#include "../ui/mudstatusbar/mudstatusbar.h"
-#include "../ui/ui_worldtab.h"
-#include "../ui/worldtab.h"
-#include "scriptapi.h"
-#include "smushclient_qt/src/ffi/document.cxxqt.h"
+#include "../../bytes.h"
+#include "../../environment.h"
+#include "../../settings.h"
+#include "../../spans.h"
+#include "../../ui/components/mudscrollbar.h"
+#include "../../ui/mudstatusbar/mudstatusbar.h"
+#include "../../ui/ui_worldtab.h"
+#include "../../ui/worldtab.h"
+#include "../scriptapi.h"
 #include "smushclient_qt/src/ffi/spans.cxx.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
-#include "sqlite3.h"
 #include <QtCore/QDir>
 #include <QtCore/QOperatingSystemVersion>
 #include <QtCore/QTranslator>
@@ -146,6 +144,18 @@ ScriptApi::FontInfo(const QFont& font, int64_t infoType)
     default:
       return FontFamilyFlag::AnyFamily | pitchFlag;
   }
+}
+
+int64_t
+ScriptApi::GetUniqueNumber() noexcept
+{
+  static int64_t uniqueNumber = -1;
+  if (uniqueNumber == INT64_MAX) [[unlikely]] {
+    uniqueNumber = 0;
+  } else {
+    ++uniqueNumber;
+  }
+  return uniqueNumber;
 }
 
 // Public methods

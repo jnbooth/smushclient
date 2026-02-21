@@ -482,3 +482,33 @@ ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
   sendCallback(onSent);
   return ApiCode::OK;
 }
+
+ApiCode
+ScriptApi::setImage(const QString& path,
+                    MiniWindow::Position position,
+                    bool above)
+{
+  ImageWindow*& window = above ? foregroundImage : backgroundImage;
+  if (path.isEmpty()) {
+    delete window;
+    window = nullptr;
+    return ApiCode::OK;
+  }
+  QPixmap pixmap(path);
+  if (pixmap.isNull()) {
+    return ApiCode::FileNotFound;
+  }
+  if (window == nullptr) {
+    window = new ImageWindow(std::move(pixmap), position, tab.ui->area);
+    if (above) {
+      window->raise();
+    } else {
+      window->lower();
+    }
+    window->show();
+    return ApiCode::OK;
+  }
+  window->setPixmap(std::move(pixmap));
+  window->setPosition(position);
+  return ApiCode::OK;
+}
