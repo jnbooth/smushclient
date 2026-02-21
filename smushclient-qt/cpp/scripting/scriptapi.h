@@ -1,5 +1,4 @@
 #pragma once
-#include "../bridge/views.h"
 #include "../mudcursor.h"
 #include "../stringmap.h"
 #include "callback/filter.h"

@@ -165,6 +165,16 @@ pushListOrEmpty(lua_State* L, const T& list)
   }
 }
 
+inline const char*
+pushVariable(lua_State* L, string_view variable)
+{
+  if (variable.data() == nullptr) {
+    lua_pushnil(L);
+    return nullptr;
+  }
+  return push(L, variable);
+}
+
 } // namespace
 
 int
@@ -391,9 +401,8 @@ L_GetAlphaOption(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
-  const string_view option =
-    getApi(L).GetAlphaOption(getPluginIndex(L), qlua::getString(L, 1));
-  push(L, option);
+  pushVariable(
+    L, getApi(L).GetAlphaOption(getPluginIndex(L), qlua::getString(L, 1)));
   return 1;
 }
 
@@ -1179,7 +1188,8 @@ L_GetVariable(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
-  push(L, getApi(L).GetVariable(getPluginIndex(L), qlua::getString(L, 1)));
+  pushVariable(L,
+               getApi(L).GetVariable(getPluginIndex(L), qlua::getString(L, 1)));
   return 1;
 }
 
@@ -1188,7 +1198,8 @@ L_GetPluginVariable(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  push(L, getApi(L).GetVariable(qlua::getString(L, 1), qlua::getString(L, 2)));
+  pushVariable(
+    L, getApi(L).GetVariable(qlua::getString(L, 1), qlua::getString(L, 2)));
   return 1;
 }
 

@@ -15,6 +15,8 @@ mod ffi {
     }
 }
 
+/// Type used by the C++ side to send bytes to the Rust side without needing to allocate memory.
+/// This type cannot be constructed within Rust code.
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct BytesView<'a> {
@@ -24,21 +26,21 @@ pub struct BytesView<'a> {
 }
 
 impl<'a> BytesView<'a> {
-    pub const fn len(&self) -> usize {
-        self.size_
+    pub const fn as_slice(&self) -> &'a [u8] {
+        if self.data_.is_null() {
+            return &[];
+        }
+        // SAFETY: All safety requirements have been fulfilled. This type cannot be constructed from
+        // Rust, so its lifetime cannot be manipulated.
+        unsafe { slice::from_raw_parts(self.data_.cast(), self.size_) }
     }
 
     pub const fn is_empty(&self) -> bool {
         self.size_ == 0
     }
 
-    pub const fn as_slice(&self) -> &'a [u8] {
-        if self.data_.is_null() {
-            return &[];
-        }
-        // SAFETY: All safety requirements have been fulfilled because this type cannot be
-        // constructed from Rust.
-        unsafe { slice::from_raw_parts(self.data_.cast(), self.size_) }
+    pub const fn len(&self) -> usize {
+        self.size_
     }
 
     pub fn to_vec(&self) -> Vec<u8> {

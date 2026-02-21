@@ -106,7 +106,6 @@ impl ffi::SmushClient {
         self.rust()
             .client
             .world_alpha_option(index, option.as_slice())
-            .unwrap_or(b"")
             .into()
     }
 

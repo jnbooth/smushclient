@@ -1,5 +1,4 @@
 #pragma once
-#include "../bridge/views.h"
 #include "miniwindow/miniwindow.h"
 #include "rust/cxx.h"
 #include "scriptenums.h"
