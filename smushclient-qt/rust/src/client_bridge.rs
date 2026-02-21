@@ -5,15 +5,15 @@ use std::pin::Pin;
 use cxx_qt::CxxQtType;
 use cxx_qt_io::QAbstractSocket;
 use cxx_qt_lib::{QString, QStringList, QVariant};
+use smushclient::SendIterable;
 use smushclient::world::PersistError;
-use smushclient::{LuaStr, SendIterable};
 use smushclient_plugins::{
     Alias, ImportError, LoadError, PluginIndex, Timer, Trigger, XmlSerError,
 };
 
 use crate::convert::Convert;
-use crate::ffi::AliasOutcomes;
-use crate::ffi::{self, SenderKind, VariableView};
+use crate::ffi::{self, BytesView, SenderKind, StringView};
+use crate::ffi::{AliasOutcomes, VariableView};
 use crate::get_info::InfoVisitorQVariant;
 use crate::modeled::Modeled;
 use crate::results::{IntoApiCode, IntoCode, IntoSenderAccessCode};
@@ -98,50 +98,53 @@ impl ffi::SmushClient {
         self.rust_mut().handle_disconnect();
     }
 
-    pub fn simulate(&self, line: &LuaStr, doc: Pin<&mut ffi::Document>) {
-        self.rust().simulate(&String::from_utf8_lossy(line), doc);
+    pub fn simulate(&self, line: StringView<'_>, doc: Pin<&mut ffi::Document>) {
+        self.rust().simulate(&line.to_string_lossy(), doc);
     }
 
-    pub fn world_alpha_option(&self, index: PluginIndex, option: &LuaStr) -> VariableView {
+    pub fn world_alpha_option(&self, index: PluginIndex, option: StringView<'_>) -> VariableView {
         self.rust()
             .client
-            .world_alpha_option(index, option)
+            .world_alpha_option(index, option.as_slice())
             .unwrap_or(b"")
             .into()
     }
 
-    pub fn world_option(&self, index: PluginIndex, option: &LuaStr) -> i64 {
-        self.rust().client.world_option(index, option).unwrap_or(-1)
-    }
-
-    pub fn world_variant_option(&self, index: PluginIndex, option: &LuaStr) -> QVariant {
+    pub fn world_option(&self, index: PluginIndex, option: StringView<'_>) -> i64 {
         self.rust()
             .client
-            .world_variant_option(index, option)
+            .world_option(index, option.as_slice())
+            .unwrap_or(-1)
+    }
+
+    pub fn world_variant_option(&self, index: PluginIndex, option: StringView<'_>) -> QVariant {
+        self.rust()
+            .client
+            .world_variant_option(index, option.as_slice())
             .convert()
     }
 
     pub fn set_world_alpha_option(
         self: Pin<&mut Self>,
         index: PluginIndex,
-        option: &LuaStr,
-        value: &LuaStr,
+        option: StringView<'_>,
+        value: StringView<'_>,
     ) -> ffi::ApiCode {
         self.rust_mut()
             .client
-            .set_world_alpha_option(index, option, value.to_vec())
+            .set_world_alpha_option(index, option.as_slice(), value.to_vec())
             .code()
     }
 
     pub fn set_world_option(
         self: Pin<&mut Self>,
         index: PluginIndex,
-        option: &LuaStr,
+        option: StringView<'_>,
         value: i64,
     ) -> ffi::ApiCode {
         self.rust_mut()
             .client
-            .set_world_option(index, option, value)
+            .set_world_option(index, option.as_slice(), value)
             .code()
     }
 
@@ -260,10 +263,10 @@ impl ffi::SmushClient {
         &self,
         kind: SenderKind,
         index: PluginIndex,
-        name: &LuaStr,
+        name: StringView<'_>,
     ) -> ffi::ApiCode {
         let client = &self.rust().client;
-        let name = String::from_utf8_lossy(name);
+        let name = name.to_string_lossy();
         match kind {
             SenderKind::Alias => client.remove_sender::<Alias>(index, &name).code::<Alias>(),
             SenderKind::Timer => client.remove_sender::<Timer>(index, &name).code::<Timer>(),
@@ -278,10 +281,10 @@ impl ffi::SmushClient {
         &self,
         kind: SenderKind,
         index: PluginIndex,
-        name: &LuaStr,
+        name: StringView<'_>,
     ) -> usize {
         let client = &self.rust().client;
-        let name = String::from_utf8_lossy(name);
+        let name = name.to_string_lossy();
         match kind {
             SenderKind::Alias => client.remove_sender_group::<Alias>(index, &name),
             SenderKind::Timer => client.remove_sender_group::<Timer>(index, &name),
@@ -416,8 +419,8 @@ impl ffi::SmushClient {
         ffi::ApiCode::OK
     }
 
-    pub fn is_sender(&self, kind: SenderKind, index: PluginIndex, label: &LuaStr) -> bool {
-        let label = String::from_utf8_lossy(label);
+    pub fn is_sender(&self, kind: SenderKind, index: PluginIndex, label: StringView<'_>) -> bool {
+        let label = label.to_string_lossy();
         let client = &self.rust().client;
         match kind {
             SenderKind::Alias => client.borrow_sender::<Alias>(index, &label).is_some(),
@@ -431,10 +434,10 @@ impl ffi::SmushClient {
         &self,
         kind: SenderKind,
         index: PluginIndex,
-        label: &LuaStr,
+        label: StringView<'_>,
         enabled: bool,
     ) -> ffi::ApiCode {
-        let label = String::from_utf8_lossy(label);
+        let label = label.to_string_lossy();
         let client = &self.rust().client;
         match kind {
             SenderKind::Alias => client
@@ -454,11 +457,11 @@ impl ffi::SmushClient {
         &self,
         kind: SenderKind,
         index: PluginIndex,
-        group: &LuaStr,
+        group: StringView<'_>,
         enabled: bool,
     ) -> bool {
         let client = &self.rust().client;
-        let group = String::from_utf8_lossy(group);
+        let group = group.to_string_lossy();
         match kind {
             SenderKind::Alias => client.set_group_enabled::<Alias>(index, &group, enabled),
             SenderKind::Timer => client.set_group_enabled::<Timer>(index, &group, enabled),
@@ -475,11 +478,12 @@ impl ffi::SmushClient {
         &self,
         kind: SenderKind,
         index: PluginIndex,
-        label: &LuaStr,
-        option: &LuaStr,
+        label: StringView<'_>,
+        option: StringView<'_>,
     ) -> QVariant {
         let client = self.rust();
-        let label = String::from_utf8_lossy(label);
+        let label = label.to_string_lossy();
+        let option = option.as_slice();
         match kind {
             SenderKind::Alias => client.get_sender_option::<Alias>(index, &label, option),
             SenderKind::Timer => client.get_sender_option::<Timer>(index, &label, option),
@@ -492,12 +496,14 @@ impl ffi::SmushClient {
         &self,
         kind: SenderKind,
         index: PluginIndex,
-        label: &LuaStr,
-        option: &LuaStr,
-        value: &LuaStr,
+        label: StringView<'_>,
+        option: StringView<'_>,
+        value: StringView<'_>,
     ) -> ffi::ApiCode {
         let client = self.rust();
-        let label = String::from_utf8_lossy(label);
+        let label = label.to_string_lossy();
+        let option = option.as_slice();
+        let value = value.as_slice();
         match kind {
             SenderKind::Alias => client.set_sender_option::<Alias>(index, &label, option, value),
             SenderKind::Timer => client.set_sender_option::<Timer>(index, &label, option, value),
@@ -509,26 +515,38 @@ impl ffi::SmushClient {
         .code()
     }
 
-    pub fn play_buffer(&self, i: usize, buf: &[u8], volume: f32, looping: bool) -> ffi::ApiCode {
+    pub fn play_buffer(
+        &self,
+        i: usize,
+        buf: BytesView<'_>,
+        volume: f32,
+        looping: bool,
+    ) -> ffi::ApiCode {
         self.client
             .play_buffer(i, buf.to_vec(), volume, looping.into())
             .code()
     }
 
-    pub fn play_file(&self, i: usize, path: &LuaStr, volume: f32, looping: bool) -> ffi::ApiCode {
+    pub fn play_file(
+        &self,
+        i: usize,
+        path: StringView<'_>,
+        volume: f32,
+        looping: bool,
+    ) -> ffi::ApiCode {
         let client = &self.rust().client;
         if path.is_empty() {
             client.configure_audio_sink(i, volume, looping.into())
         } else {
-            client.play_file(i, &*String::from_utf8_lossy(path), volume, looping.into())
+            client.play_file(i, &*path.to_string_lossy(), volume, looping.into())
         }
         .code()
     }
 
-    pub fn play_file_raw(&self, path: &LuaStr) -> ffi::ApiCode {
+    pub fn play_file_raw(&self, path: StringView<'_>) -> ffi::ApiCode {
         self.rust()
             .client
-            .play_file_raw(&*String::from_utf8_lossy(path))
+            .play_file_raw(&*path.to_string_lossy())
             .code()
     }
 
@@ -536,8 +554,8 @@ impl ffi::SmushClient {
         self.rust().client.stop_sound(i).code()
     }
 
-    pub fn ansi_note(&self, text: &LuaStr) -> Vec<ffi::StyledSpan> {
-        self.rust().ansi_note(text)
+    pub fn ansi_note(&self, text: StringView<'_>) -> Vec<ffi::StyledSpan> {
+        self.rust().ansi_note(text.as_slice())
     }
 
     pub fn alias(
@@ -560,47 +578,64 @@ impl ffi::SmushClient {
         self.rust().alias_menu()
     }
 
-    pub fn get_variable(&self, index: PluginIndex, key: &LuaStr) -> VariableView {
-        self.rust().client.borrow_variable(index, key).into()
+    pub fn get_variable(&self, index: PluginIndex, key: StringView<'_>) -> VariableView {
+        self.rust()
+            .client
+            .borrow_variable(index, key.as_slice())
+            .into()
     }
 
-    pub fn get_metavariable(&self, key: &LuaStr) -> VariableView {
-        self.rust().client.borrow_metavariable(key).into()
+    pub fn get_metavariable(&self, key: StringView<'_>) -> VariableView {
+        self.rust()
+            .client
+            .borrow_metavariable(key.as_slice())
+            .into()
     }
 
-    pub fn has_metavariable(&self, key: &LuaStr) -> bool {
-        self.rust().client.has_metavariable(key)
+    pub fn has_metavariable(&self, key: StringView<'_>) -> bool {
+        self.rust().client.has_metavariable(key.as_slice())
     }
 
-    pub fn set_variable(&self, index: PluginIndex, key: &LuaStr, value: &LuaStr) -> bool {
+    pub fn set_variable(
+        &self,
+        index: PluginIndex,
+        key: StringView<'_>,
+        value: BytesView<'_>,
+    ) -> bool {
         self.rust()
             .client
             .set_variable(index, key.to_vec(), value.to_vec())
     }
 
-    pub fn unset_variable(&self, index: PluginIndex, key: &LuaStr) -> bool {
-        self.rust().client.unset_variable(index, key).is_some()
+    pub fn unset_variable(&self, index: PluginIndex, key: StringView<'_>) -> bool {
+        self.rust()
+            .client
+            .unset_variable(index, key.as_slice())
+            .is_some()
     }
 
-    pub fn set_metavariable(&self, key: &LuaStr, value: &LuaStr) -> bool {
+    pub fn set_metavariable(&self, key: StringView<'_>, value: BytesView<'_>) -> bool {
         self.rust()
             .client
             .set_metavariable(key.to_vec(), value.to_vec())
     }
 
-    pub fn unset_metavariable(&self, key: &LuaStr) -> bool {
-        self.rust().client.unset_metavariable(key).is_some()
+    pub fn unset_metavariable(&self, key: StringView<'_>) -> bool {
+        self.rust()
+            .client
+            .unset_metavariable(key.as_slice())
+            .is_some()
     }
 
     pub fn sender_info(
         &self,
         kind: SenderKind,
         index: PluginIndex,
-        label: &LuaStr,
+        label: StringView<'_>,
         info_type: u8,
     ) -> QVariant {
         let client = self.rust();
-        let label = String::from_utf8_lossy(label);
+        let label = label.to_string_lossy();
         match kind {
             SenderKind::Alias => client
                 .client

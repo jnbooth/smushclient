@@ -1,5 +1,4 @@
 #include "mud.h"
-#include "../../bytes.h"
 #include "../../fieldconnector.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_mud.h"
@@ -28,7 +27,7 @@ PrefsMud::PrefsMud(World& world, QWidget* parent)
   CONNECT_WORLD(NoEchoOff);
   CONNECT_WORLD(EnableCommandStack);
   ui->CommandStackCharacter->setText(
-    bytes::qChar(world.getCommandStackCharacter()));
+    QChar::fromLatin1(static_cast<char>(world.getCommandStackCharacter())));
 }
 
 PrefsMud::~PrefsMud()

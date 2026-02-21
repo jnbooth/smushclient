@@ -1,4 +1,3 @@
-#include "../../bytes.h"
 #include "../../casting.h"
 #include "../../client.h"
 #include "../../timer_map.h"
@@ -13,7 +12,7 @@ using std::chrono::milliseconds;
 QString
 ScriptApi::MakeRegularExpression(string_view pattern) noexcept
 {
-  return ffi::regex::from_wildcards(bytes::slice(pattern));
+  return ffi::regex::from_wildcards(pattern);
 }
 
 // Public methods
@@ -164,14 +163,13 @@ ScriptApi::AddTrigger(size_t plugin,
 ApiCode
 ScriptApi::DeleteAlias(size_t plugin, string_view name) const
 {
-  return client.removeSender(SenderKind::Alias, plugin, bytes::slice(name));
+  return client.removeSender(SenderKind::Alias, plugin, name);
 }
 
 size_t
 ScriptApi::DeleteAliasGroup(size_t plugin, string_view group) const
 {
-  return client.removeSenderGroup(
-    SenderKind::Alias, plugin, bytes::slice(group));
+  return client.removeSenderGroup(SenderKind::Alias, plugin, group);
 }
 
 size_t
@@ -195,27 +193,25 @@ ScriptApi::DeleteTemporaryTriggers() const
 ApiCode
 ScriptApi::DeleteTimer(size_t plugin, string_view name) const
 {
-  return client.removeSender(SenderKind::Timer, plugin, bytes::slice(name));
+  return client.removeSender(SenderKind::Timer, plugin, name);
 }
 
 size_t
 ScriptApi::DeleteTimerGroup(size_t plugin, string_view group) const
 {
-  return client.removeSenderGroup(
-    SenderKind::Timer, plugin, bytes::slice(group));
+  return client.removeSenderGroup(SenderKind::Timer, plugin, group);
 }
 
 ApiCode
 ScriptApi::DeleteTrigger(size_t plugin, string_view name) const
 {
-  return client.removeSender(SenderKind::Trigger, plugin, bytes::slice(name));
+  return client.removeSender(SenderKind::Trigger, plugin, name);
 }
 
 size_t
 ScriptApi::DeleteTriggerGroup(size_t plugin, string_view group) const
 {
-  return client.removeSenderGroup(
-    SenderKind::Trigger, plugin, bytes::slice(group));
+  return client.removeSenderGroup(SenderKind::Trigger, plugin, group);
 }
 
 ApiCode
@@ -240,8 +236,7 @@ ScriptApi::DoAfter(size_t plugin,
 ApiCode
 ScriptApi::EnableAlias(size_t plugin, string_view label, bool enabled) const
 {
-  return client.setSenderEnabled(
-    SenderKind::Alias, plugin, bytes::slice(label), enabled);
+  return client.setSenderEnabled(SenderKind::Alias, plugin, label, enabled);
 }
 
 ApiCode
@@ -249,8 +244,7 @@ ScriptApi::EnableAliasGroup(size_t plugin,
                             string_view group,
                             bool enabled) const
 {
-  return client.setSendersEnabled(
-           SenderKind::Alias, plugin, bytes::slice(group), enabled)
+  return client.setSendersEnabled(SenderKind::Alias, plugin, group, enabled)
            ? ApiCode::OK
            : ApiCode::AliasNotFound;
 }
@@ -258,8 +252,7 @@ ScriptApi::EnableAliasGroup(size_t plugin,
 ApiCode
 ScriptApi::EnableTimer(size_t plugin, string_view label, bool enabled) const
 {
-  return client.setSenderEnabled(
-    SenderKind::Timer, plugin, bytes::slice(label), enabled);
+  return client.setSenderEnabled(SenderKind::Timer, plugin, label, enabled);
 }
 
 ApiCode
@@ -267,8 +260,7 @@ ScriptApi::EnableTimerGroup(size_t plugin,
                             string_view group,
                             bool enabled) const
 {
-  return client.setSendersEnabled(
-           SenderKind::Timer, plugin, bytes::slice(group), enabled)
+  return client.setSendersEnabled(SenderKind::Timer, plugin, group, enabled)
            ? ApiCode::OK
            : ApiCode::TimerNotFound;
 }
@@ -276,8 +268,7 @@ ScriptApi::EnableTimerGroup(size_t plugin,
 ApiCode
 ScriptApi::EnableTrigger(size_t plugin, string_view label, bool enabled) const
 {
-  return client.setSenderEnabled(
-    SenderKind::Trigger, plugin, bytes::slice(label), enabled);
+  return client.setSenderEnabled(SenderKind::Trigger, plugin, label, enabled);
 }
 
 ApiCode
@@ -285,8 +276,7 @@ ScriptApi::EnableTriggerGroup(size_t plugin,
                               string_view group,
                               bool enabled) const
 {
-  return client.setSendersEnabled(
-           SenderKind::Trigger, plugin, bytes::slice(group), enabled)
+  return client.setSendersEnabled(SenderKind::Trigger, plugin, group, enabled)
            ? ApiCode::OK
            : ApiCode::TriggerNotFound;
 }
@@ -296,8 +286,7 @@ ScriptApi::GetAliasOption(size_t plugin,
                           string_view label,
                           string_view option) const
 {
-  return client.getSenderOption(
-    SenderKind::Alias, plugin, bytes::slice(label), bytes::slice(option));
+  return client.getSenderOption(SenderKind::Alias, plugin, label, option);
 }
 
 QVariant
@@ -305,8 +294,7 @@ ScriptApi::GetTimerOption(size_t plugin,
                           string_view label,
                           string_view option) const
 {
-  return client.getSenderOption(
-    SenderKind::Timer, plugin, bytes::slice(label), bytes::slice(option));
+  return client.getSenderOption(SenderKind::Timer, plugin, label, option);
 }
 
 QVariant
@@ -314,14 +302,13 @@ ScriptApi::GetTriggerOption(size_t plugin,
                             string_view label,
                             string_view option) const
 {
-  return client.getSenderOption(
-    SenderKind::Trigger, plugin, bytes::slice(label), bytes::slice(option));
+  return client.getSenderOption(SenderKind::Trigger, plugin, label, option);
 }
 
 ApiCode
 ScriptApi::IsAlias(size_t plugin, string_view label) const
 {
-  return client.isSender(SenderKind::Alias, plugin, bytes::slice(label))
+  return client.isSender(SenderKind::Alias, plugin, label)
            ? ApiCode::OK
            : ApiCode::AliasNotFound;
 }
@@ -329,7 +316,7 @@ ScriptApi::IsAlias(size_t plugin, string_view label) const
 ApiCode
 ScriptApi::IsTimer(size_t plugin, string_view label) const
 {
-  return client.isSender(SenderKind::Timer, plugin, bytes::slice(label))
+  return client.isSender(SenderKind::Timer, plugin, label)
            ? ApiCode::OK
            : ApiCode::TimerNotFound;
 }
@@ -337,7 +324,7 @@ ScriptApi::IsTimer(size_t plugin, string_view label) const
 ApiCode
 ScriptApi::IsTrigger(size_t plugin, string_view label) const
 {
-  return client.isSender(SenderKind::Trigger, plugin, bytes::slice(label))
+  return client.isSender(SenderKind::Trigger, plugin, label)
            ? ApiCode::OK
            : ApiCode::TriggerNotFound;
 }
@@ -348,11 +335,8 @@ ScriptApi::SetAliasOption(size_t plugin,
                           string_view option,
                           string_view value) const
 {
-  return client.setSenderOption(SenderKind::Alias,
-                                plugin,
-                                bytes::slice(label),
-                                bytes::slice(option),
-                                bytes::slice(value));
+  return client.setSenderOption(
+    SenderKind::Alias, plugin, label, option, value);
 }
 
 ApiCode
@@ -361,11 +345,8 @@ ScriptApi::SetTimerOption(size_t plugin,
                           string_view option,
                           string_view value) const
 {
-  return client.setSenderOption(SenderKind::Timer,
-                                plugin,
-                                bytes::slice(label),
-                                bytes::slice(option),
-                                bytes::slice(value));
+  return client.setSenderOption(
+    SenderKind::Timer, plugin, label, option, value);
 }
 
 ApiCode
@@ -374,11 +355,8 @@ ScriptApi::SetTriggerOption(size_t plugin,
                             string_view option,
                             string_view value) const
 {
-  return client.setSenderOption(SenderKind::Trigger,
-                                plugin,
-                                bytes::slice(label),
-                                bytes::slice(option),
-                                bytes::slice(value));
+  return client.setSenderOption(
+    SenderKind::Trigger, plugin, label, option, value);
 }
 
 void

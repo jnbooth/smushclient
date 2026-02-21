@@ -1,12 +1,20 @@
 use cxx_qt_lib::QString;
-use smushclient::LuaStr;
 use smushclient_plugins::{Reaction, Regex, RegexError};
+
+use crate::ffi::StringView;
 
 #[cxx::bridge]
 pub mod ffi {
     extern "C++" {
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
+    }
+
+    #[namespace = "rust"]
+    extern "C++" {
+        include!("smushclient_qt/views.h");
+        #[cxx_name = "string_view"]
+        type StringView<'a> = crate::ffi::StringView<'a>;
     }
 
     struct RegexParse {
@@ -18,14 +26,13 @@ pub mod ffi {
 
     #[namespace = "ffi::regex"]
     extern "Rust" {
-        fn from_wildcards(pattern: &[u8]) -> QString;
+        fn from_wildcards(pattern: StringView) -> QString;
         fn validate(pattern: &QString) -> RegexParse;
     }
 }
 
-fn from_wildcards(pattern: &LuaStr) -> QString {
-    let pattern = String::from_utf8_lossy(pattern);
-    QString::from(&Reaction::make_regex_pattern(&pattern))
+fn from_wildcards(pattern: StringView) -> QString {
+    QString::from(&Reaction::make_regex_pattern(&pattern.to_string_lossy()))
 }
 
 impl Default for ffi::RegexParse {

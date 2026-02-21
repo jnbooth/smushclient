@@ -1,5 +1,4 @@
 #pragma once
-#include "bridge/variableview.h"
 #include "smushclient_qt/src/ffi/client.cxxqt.h"
 
 struct TimekeeperItem;
@@ -11,31 +10,7 @@ class SmushClient : public SmushClientBase
 public:
   explicit SmushClient(QObject* parent = nullptr);
 
-  VariableView getVariable(size_t index, std::string_view key) const noexcept;
-
-  VariableView getMetavariable(std::string_view key) const noexcept;
-
-  bool hasMetavariable(std::string_view key) const noexcept;
-
-  bool setVariable(size_t index,
-                   std::string_view key,
-                   std::string_view value) const noexcept;
-
-  bool setVariable(size_t index,
-                   std::string_view key,
-                   const QByteArray& value) const noexcept;
-
-  bool setMetavariable(std::string_view key,
-                       std::string_view value) const noexcept;
-
-  bool setMetavariable(std::string_view key,
-                       const QByteArray& value) const noexcept;
-
   bool finishTimer(const TimekeeperItem& item);
-
-  bool unsetVariable(size_t index, std::string_view key) const noexcept;
-
-  bool unsetMetavariable(std::string_view key) const noexcept;
 
 public slots:
   void onTimersPolled() noexcept;

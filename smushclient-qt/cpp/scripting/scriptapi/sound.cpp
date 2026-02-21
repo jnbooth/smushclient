@@ -1,4 +1,3 @@
-#include "../../bytes.h"
 #include "../../client.h"
 #include "../scriptapi.h"
 
@@ -12,7 +11,7 @@ ScriptApi::PlaySound(size_t channel,
                      bool loop,
                      float volume) const
 {
-  return client.playFile(channel, bytes::slice(path), volume, loop);
+  return client.playFile(channel, path, volume, loop);
 }
 
 ApiCode
@@ -32,7 +31,7 @@ ScriptApi::PlaySoundMemory(size_t channel,
                            bool loop,
                            float volume) const
 {
-  return client.playBuffer(channel, bytes::slice(sound), volume, loop);
+  return client.playBuffer(channel, sound, volume, loop);
 }
 
 ApiCode

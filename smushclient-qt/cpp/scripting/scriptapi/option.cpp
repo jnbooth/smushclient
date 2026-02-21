@@ -1,4 +1,3 @@
-#include "../../bytes.h"
 #include "../../ui/worldtab.h"
 #include "../scriptapi.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
@@ -21,22 +20,22 @@ ScriptApi::GetOptionList() noexcept
 
 // Public methods
 
-VariableView
+string_view
 ScriptApi::GetAlphaOption(size_t plugin, string_view name) const
 {
-  return client.worldAlphaOption(plugin, bytes::slice(name));
+  return client.worldAlphaOption(plugin, name);
 }
 
 QVariant
 ScriptApi::GetCurrentValue(size_t pluginIndex, string_view option) const
 {
-  return client.worldVariantOption(pluginIndex, bytes::slice(option));
+  return client.worldVariantOption(pluginIndex, option);
 }
 
 int64_t
 ScriptApi::GetOption(size_t plugin, string_view name) const
 {
-  return client.worldOption(plugin, bytes::slice(name));
+  return client.worldOption(plugin, name);
 }
 
 ApiCode

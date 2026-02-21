@@ -15,10 +15,11 @@ fn main() {
             "src/ffi/sender_map.rs",
             "src/ffi/send_request.rs",
             "src/ffi/spans.rs",
+            "src/ffi/string_view.rs",
             "src/ffi/timekeeper.rs",
             "src/ffi/util.rs",
-            "src/ffi/world.rs",
             "src/ffi/variable_view.rs",
+            "src/ffi/world.rs",
         ])
         .build();
 }

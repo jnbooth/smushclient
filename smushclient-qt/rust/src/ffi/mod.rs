@@ -10,6 +10,9 @@ pub use api_code::ffi::ApiCode;
 
 mod audio;
 
+mod bytes_view;
+pub use bytes_view::BytesView;
+
 mod client;
 pub use client::ffi::{
     AliasMenuItem, CommandSource, PluginPack, QAbstractSocket, ReplaceSenderResult, SenderKind,
@@ -50,6 +53,9 @@ mod world;
 pub use world::ffi::{
     AutoConnect, LogFormat, LogMode, MXPDebugLevel, ScriptRecompile, UseMxp, World,
 };
+
+mod string_view;
+pub use string_view::StringView;
 
 mod variable_view;
 pub use variable_view::VariableView;

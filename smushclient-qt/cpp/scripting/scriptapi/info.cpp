@@ -1,4 +1,3 @@
-#include "../../bytes.h"
 #include "../../environment.h"
 #include "../../settings.h"
 #include "../../spans.h"
@@ -572,13 +571,11 @@ ScriptApi::GetTimerInfo(size_t pluginIndex,
 
   if (infoType == 26) {
     const QString scriptName =
-      client.senderInfo(SenderKind::Timer, pluginIndex, bytes::slice(label), 5)
-        .toString();
+      client.senderInfo(SenderKind::Timer, pluginIndex, label, 5).toString();
     return !scriptName.isEmpty() &&
            plugins[pluginIndex].hasFunction(scriptName);
   }
-  return client.senderInfo(
-    SenderKind::Timer, pluginIndex, bytes::slice(label), infoType);
+  return client.senderInfo(SenderKind::Timer, pluginIndex, label, infoType);
 }
 
 // External implementations

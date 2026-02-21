@@ -1,6 +1,5 @@
 #include "worldtab.h"
 #include "../bridge/document.h"
-#include "../bytes.h"
 #include "../components/mudscrollbar.h"
 #include "../environment.h"
 #include "../hotkeys.h"
@@ -48,6 +47,12 @@ QString
 historyPath(const QString& path)
 {
   return path + QStringLiteral(".history");
+}
+
+constexpr QChar
+toQChar(uint8_t byte) noexcept
+{
+  return QChar::fromLatin1(static_cast<char>(byte));
 }
 
 QString
@@ -430,8 +435,7 @@ WorldTab::setStatusBarVisible(bool visible)
 ApiCode
 WorldTab::setWorldOption(size_t pluginIndex, string_view name, int64_t value)
 {
-  const ApiCode result =
-    client.setWorldOption(pluginIndex, bytes::slice(name), value);
+  const ApiCode result = client.setWorldOption(pluginIndex, name, value);
   if (result != ApiCode::OK) {
     return result;
   }
@@ -441,7 +445,7 @@ WorldTab::setWorldOption(size_t pluginIndex, string_view name, int64_t value)
     ui->input->setIgnoreKeypad(handleKeypad);
     ui->output->setIgnoreKeypad(handleKeypad);
   } else if (name == "enable_command_stack") {
-    splitOn = bytes::qChar(client.commandSplitter());
+    splitOn = toQChar(client.commandSplitter());
   } else if (name == "script_reload_option") {
     scriptReloadOption = static_cast<ScriptRecompile>(value);
   }
@@ -454,14 +458,13 @@ WorldTab::setWorldAlphaOption(size_t pluginIndex,
                               string_view name,
                               string_view value)
 {
-  const ApiCode result = client.setWorldAlphaOption(
-    pluginIndex, bytes::slice(name), bytes::slice(value));
+  const ApiCode result = client.setWorldAlphaOption(pluginIndex, name, value);
   if (result != ApiCode::OK) {
     return result;
   }
 
   if (name == "command_stack_character") {
-    splitOn = bytes::qChar(client.commandSplitter());
+    splitOn = toQChar(client.commandSplitter());
   } else if (name == "name") {
     worldName = QString::fromUtf8(value);
     emit titleChanged(this, worldName);
@@ -475,7 +478,7 @@ WorldTab::setWorldAlphaOption(size_t pluginIndex,
 void
 WorldTab::simulateOutput(string_view output) const
 {
-  client.simulate(bytes::slice(output), *document);
+  client.simulate(output, *document);
 }
 
 void
@@ -661,7 +664,7 @@ WorldTab::applyWorld(const World& world)
   api->applyWorld(world);
   ui->output->cursor()->applyWorld(world);
   updateWorldScript();
-  splitOn = bytes::qChar(client.commandSplitter());
+  splitOn = toQChar(client.commandSplitter());
 }
 
 void

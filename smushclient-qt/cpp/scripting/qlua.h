@@ -1,5 +1,5 @@
 #pragma once
-#include "../bridge/variableview.h"
+#include "../bridge/views.h"
 #include "miniwindow/miniwindow.h"
 #include "rust/cxx.h"
 #include "scriptenums.h"
@@ -280,17 +280,6 @@ inline const char*
 push(lua_State* L, QChar ch)
 {
   return push(L, QString(ch));
-}
-
-inline const char*
-push(lua_State* L, VariableView variable)
-{
-  if (variable) {
-    return lua_pushlstring(L, variable.data(), variable.size());
-  }
-
-  lua_pushnil(L);
-  return nullptr;
 }
 
 template<typename T>

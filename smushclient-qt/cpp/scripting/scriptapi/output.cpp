@@ -1,4 +1,3 @@
-#include "../../bytes.h"
 #include "../../casting.h"
 #include "../../layout.h"
 #include "../../spans.h"
@@ -53,7 +52,7 @@ ScriptApi::SetClipboard(const QString& text)
 void
 ScriptApi::AnsiNote(string_view text) const
 {
-  for (const StyledSpan& span : client.ansiNote(bytes::slice(text))) {
+  for (const StyledSpan& span : client.ansiNote(text)) {
     cursor->appendText(span.text, span.format);
   }
 }

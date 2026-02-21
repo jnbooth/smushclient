@@ -7,8 +7,10 @@ use smushclient::LuaStr;
 
 #[cxx::bridge]
 mod ffi {
+    #[namespace = "rust"]
     extern "C++" {
-        include!("smushclient_qt/variableview.h");
+        include!("smushclient_qt/views.h");
+        #[cxx_name = "variable_view"]
         type VariableView;
     }
 }
@@ -53,8 +55,8 @@ impl From<Option<Ref<'_, LuaStr>>> for VariableView {
     }
 }
 
-// SAFETY: Defined in smushclient-qt/cpp/bridge/variableview.h
+// SAFETY: Defined in smushclient-qt/cpp/bridge/views.h
 unsafe impl ExternType for VariableView {
-    type Id = type_id!("VariableView");
+    type Id = type_id!("rust::variable_view");
     type Kind = cxx::kind::Trivial;
 }

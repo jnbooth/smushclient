@@ -100,7 +100,7 @@ Document::beep() const
 {
   const QString sound = Settings().getBellSound();
   if (!sound.isEmpty()) {
-    api.playFileRaw(sound);
+    api.playFileRaw(sound.toStdString());
   }
 }
 

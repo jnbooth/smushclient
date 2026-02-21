@@ -32,15 +32,23 @@ pub mod ffi {
         type Trigger = crate::ffi::Trigger;
         type World = crate::ffi::World;
 
-        include!("smushclient_qt/variableview.h");
-        type VariableView = crate::ffi::VariableView;
-
         include!("smushclient_qt/src/ffi/api_code.cxx.h");
         type ApiCode = crate::ffi::ApiCode;
         include!("smushclient_qt/src/ffi/regex.cxx.h");
         type RegexParse = crate::ffi::RegexParse;
         include!("smushclient_qt/src/ffi/send_request.cxx.h");
         type SendTimer = crate::ffi::SendTimer;
+    }
+
+    #[namespace = "rust"]
+    extern "C++" {
+        include!("smushclient_qt/views.h");
+        #[cxx_name = "bytes_view"]
+        type BytesView<'a> = crate::ffi::BytesView<'a>;
+        #[cxx_name = "string_view"]
+        type StringView<'a> = crate::ffi::StringView<'a>;
+        #[cxx_name = "variable_view"]
+        type VariableView = crate::ffi::VariableView;
     }
 
     struct AliasMenuItem {
@@ -106,39 +114,40 @@ pub mod ffi {
         fn connect_to_host(self: &SmushClient, socket: Pin<&mut QAbstractSocket>);
         fn handle_connect(self: &SmushClient, socket: Pin<&mut QAbstractSocket>) -> QString;
         fn handle_disconnect(self: Pin<&mut SmushClient>);
-        fn simulate(self: &SmushClient, line: &[u8], doc: Pin<&mut Document>);
-        fn world_option(self: &SmushClient, index: usize, option: &[u8]) -> i64;
-        fn world_alpha_option(self: &SmushClient, index: usize, option: &[u8]) -> VariableView;
-        fn world_variant_option(self: &SmushClient, index: usize, option: &[u8]) -> QVariant;
+        fn simulate(self: &SmushClient, line: StringView, doc: Pin<&mut Document>);
+        fn world_option(self: &SmushClient, index: usize, option: StringView) -> i64;
+        fn world_alpha_option(self: &SmushClient, index: usize, option: StringView)
+        -> VariableView;
+        fn world_variant_option(self: &SmushClient, index: usize, option: StringView) -> QVariant;
         fn set_world_option(
             self: Pin<&mut SmushClient>,
             index: usize,
-            option: &[u8],
+            option: StringView,
             value: i64,
         ) -> ApiCode;
         fn set_world_alpha_option(
             self: Pin<&mut SmushClient>,
             index: usize,
-            option: &[u8],
-            value: &[u8],
+            option: StringView,
+            value: StringView,
         ) -> ApiCode;
         fn play_buffer(
             self: &SmushClient,
             i: usize,
-            buf: &[u8],
+            buf: BytesView,
             volume: f32,
             looping: bool,
         ) -> ApiCode;
         fn play_file(
             self: &SmushClient,
             i: usize,
-            path: &[u8],
+            path: StringView,
             volume: f32,
             looping: bool,
         ) -> ApiCode;
-        fn play_file_raw(self: &SmushClient, path: &[u8]) -> ApiCode;
+        fn play_file_raw(self: &SmushClient, path: StringView) -> ApiCode;
         fn stop_sound(self: &SmushClient, i: usize) -> ApiCode;
-        fn ansi_note(self: &SmushClient, text: &[u8]) -> Vec<StyledSpan>;
+        fn ansi_note(self: &SmushClient, text: StringView) -> Vec<StyledSpan>;
         fn alias(
             self: &SmushClient,
             command: &QString,
@@ -172,7 +181,7 @@ pub mod ffi {
             self: &SmushClient,
             kind: SenderKind,
             index: usize,
-            label: &[u8],
+            label: StringView,
             info_type: u8,
         ) -> QVariant;
         fn add_alias(self: &SmushClient, index: usize, alias: &Alias) -> ApiCode;
@@ -187,13 +196,13 @@ pub mod ffi {
             self: &SmushClient,
             kind: SenderKind,
             index: usize,
-            name: &[u8],
+            name: StringView,
         ) -> ApiCode;
         fn remove_sender_group(
             self: &SmushClient,
             kind: SenderKind,
             index: usize,
-            name: &[u8],
+            name: StringView,
         ) -> usize;
         fn remove_temporary_senders(self: &SmushClient, kind: SenderKind) -> usize;
         fn add_world_alias(self: &SmushClient, alias: &Alias) -> ApiCode;
@@ -223,19 +232,20 @@ pub mod ffi {
             timekeeper: &Timekeeper,
         ) -> ApiCode;
         fn replace_trigger(self: &SmushClient, index: usize, trigger: &Trigger) -> ApiCode;
-        fn is_sender(self: &SmushClient, kind: SenderKind, index: usize, label: &[u8]) -> bool;
+        fn is_sender(self: &SmushClient, kind: SenderKind, index: usize, label: StringView)
+        -> bool;
         fn set_sender_enabled(
             self: &SmushClient,
             kind: SenderKind,
             index: usize,
-            label: &[u8],
+            label: StringView,
             enable: bool,
         ) -> ApiCode;
         fn set_senders_enabled(
             self: &SmushClient,
             kind: SenderKind,
             index: usize,
-            group: &[u8],
+            group: StringView,
             enable: bool,
         ) -> bool;
         fn set_plugin_enabled(self: &SmushClient, index: usize, enable: bool) -> bool;
@@ -243,24 +253,29 @@ pub mod ffi {
             self: &SmushClient,
             kind: SenderKind,
             index: usize,
-            label: &[u8],
-            option: &[u8],
+            label: StringView,
+            option: StringView,
         ) -> QVariant;
         fn set_sender_option(
             self: &SmushClient,
             kind: SenderKind,
             index: usize,
-            label: &[u8],
-            option: &[u8],
-            value: &[u8],
+            label: StringView,
+            option: StringView,
+            value: StringView,
         ) -> ApiCode;
-        fn get_variable(self: &SmushClient, index: usize, key: &[u8]) -> VariableView;
-        fn get_metavariable(self: &SmushClient, key: &[u8]) -> VariableView;
-        fn has_metavariable(self: &SmushClient, key: &[u8]) -> bool;
-        fn set_variable(self: &SmushClient, index: usize, key: &[u8], value: &[u8]) -> bool;
-        fn unset_variable(self: &SmushClient, index: usize, key: &[u8]) -> bool;
-        fn set_metavariable(self: &SmushClient, key: &[u8], value: &[u8]) -> bool;
-        fn unset_metavariable(self: &SmushClient, key: &[u8]) -> bool;
+        fn get_variable(self: &SmushClient, index: usize, key: StringView) -> VariableView;
+        fn get_metavariable(self: &SmushClient, key: StringView) -> VariableView;
+        fn has_metavariable(self: &SmushClient, key: StringView) -> bool;
+        fn set_variable(
+            self: &SmushClient,
+            index: usize,
+            key: StringView,
+            value: BytesView,
+        ) -> bool;
+        fn unset_variable(self: &SmushClient, index: usize, key: StringView) -> bool;
+        fn set_metavariable(self: &SmushClient, key: StringView, value: BytesView) -> bool;
+        fn unset_metavariable(self: &SmushClient, key: StringView) -> bool;
         fn start_timers(self: &SmushClient, index: usize, timekeeper: &Timekeeper);
         fn start_all_timers(self: &SmushClient, timekeeper: &Timekeeper);
         fn finish_timer(self: Pin<&mut SmushClient>, id: usize) -> bool;

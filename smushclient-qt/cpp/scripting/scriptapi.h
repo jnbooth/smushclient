@@ -1,5 +1,5 @@
 #pragma once
-#include "../bridge/variableview.h"
+#include "../bridge/views.h"
 #include "../mudcursor.h"
 #include "../stringmap.h"
 #include "callback/filter.h"
@@ -131,7 +131,7 @@ public:
   QVariant GetAliasOption(size_t plugin,
                           std::string_view label,
                           std::string_view option) const;
-  VariableView GetAlphaOption(size_t plugin, std::string_view name) const;
+  std::string_view GetAlphaOption(size_t plugin, std::string_view name) const;
   QVariant GetCurrentValue(size_t pluginIndex, std::string_view option) const;
   QVariant GetInfo(int64_t infoType) const;
   QVariant GetLineInfo(int line, int64_t infoType) const;
@@ -149,9 +149,9 @@ public:
   QVariant GetTriggerOption(size_t plugin,
                             std::string_view label,
                             std::string_view option) const;
-  VariableView GetVariable(size_t pluginIndex, std::string_view key) const;
-  VariableView GetVariable(std::string_view pluginID,
-                           std::string_view key) const;
+  std::string_view GetVariable(size_t pluginIndex, std::string_view key) const;
+  std::string_view GetVariable(std::string_view pluginID,
+                               std::string_view key) const;
   void Hyperlink(const QString& action,
                  const QString& text,
                  const QString& hint,
@@ -426,7 +426,7 @@ public:
   {
     return !plugins[plugin].isDisabled();
   }
-  ApiCode playFileRaw(const QString& path) const;
+  ApiCode playFileRaw(std::string_view path) const;
   void printError(const QString& message);
   void reloadWorldScript(const QString& worldScriptPath);
   void resetAllTimers();
