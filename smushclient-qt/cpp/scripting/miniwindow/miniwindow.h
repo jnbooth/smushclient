@@ -259,8 +259,6 @@ public:
     return mergeImageAlpha(image, mask, targetRect, sourceRect, 1, mode);
   }
   void reset();
-  bool setHotspotTooltip(std::string_view hotspotID,
-                         const QString& tooltip) const;
   bool setPixel(const QPoint& location, const QColor& color);
   void setPosition(const QPoint& location,
                    Position position,

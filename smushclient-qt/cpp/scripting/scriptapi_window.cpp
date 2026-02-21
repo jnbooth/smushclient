@@ -34,7 +34,7 @@ using std::vector;
     return ApiCode::ImageNotInstalled;                                         \
   }
 
-#define TRY_HOTSPOT(hotspotID)                                                 \
+#define TRY_HOTSPOT(window, hotspotID)                                         \
   window->findHotspot(hotspotID);                                              \
   if (hotspot == nullptr) [[unlikely]] {                                       \
     return ApiCode::HotspotNotInstalled;                                       \
@@ -427,9 +427,9 @@ ScriptApi::WindowHotspotTooltip(string_view windowName,
                                 const QString& tooltip) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
-  return window->setHotspotTooltip(hotspotID, tooltip)
-           ? ApiCode::OK
-           : ApiCode::HotspotNotInstalled;
+  Hotspot* hotspot = TRY_HOTSPOT(window, hotspotID);
+  hotspot->setToolTip(tooltip);
+  return ApiCode::OK;
 }
 
 ApiCode
@@ -567,7 +567,7 @@ ScriptApi::WindowMoveHotspot(string_view windowName,
                              const QRect& geometry) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
-  Hotspot* hotspot = TRY_HOTSPOT(hotspotID);
+  Hotspot* hotspot = TRY_HOTSPOT(window, hotspotID);
   hotspot->setGeometry(geometry);
   return ApiCode::OK;
 }
@@ -790,7 +790,7 @@ ScriptApi::WindowUpdateHotspot(size_t index,
                                Hotspot::CallbacksPartial&& callbacks) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
-  Hotspot* hotspot = TRY_HOTSPOT(hotspotID);
+  Hotspot* hotspot = TRY_HOTSPOT(window, hotspotID);
   if (!hotspot->belongsToPlugin(plugins[index])) {
     return ApiCode::HotspotPluginChanged;
   }

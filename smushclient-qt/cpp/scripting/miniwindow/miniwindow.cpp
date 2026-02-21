@@ -181,12 +181,13 @@ MiniWindow::addHotspot(string_view hotspotID,
     }
   }
 
-  auto& hotspot = hotspots[string(hotspotID)] = std::make_unique<Hotspot>(
+  auto& hotspotInsert = hotspots[string(hotspotID)] = std::make_unique<Hotspot>(
     tab, plugin, hotspotID, std::move(callbacks), this);
+  Hotspot* hotspot = &*hotspotInsert;
   if (neighbor != nullptr) {
     hotspot->stackUnder(neighbor);
   }
-  return &*hotspot;
+  return hotspot;
 }
 
 void
@@ -555,18 +556,6 @@ MiniWindow::reset()
   if (!flags.testFlag(Flag::KeepHotspots)) {
     clearHotspots();
   }
-}
-
-bool
-MiniWindow::setHotspotTooltip(std::string_view hotspotID,
-                              const QString& tooltip) const
-{
-  QWidget* hotspot = findHotspot(hotspotID);
-  if (hotspot == nullptr) {
-    return false;
-  }
-  hotspot->setToolTip(tooltip);
-  return true;
 }
 
 bool
