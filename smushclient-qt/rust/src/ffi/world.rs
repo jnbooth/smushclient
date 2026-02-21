@@ -12,6 +12,8 @@ pub mod ffi {
         type QColor = cxx_qt_lib::QColor;
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
+        include!("cxx-qt-lib/quuid.h");
+        type QUuid = cxx_qt_lib::QUuid;
     }
 
     extern "C++" {
@@ -201,6 +203,8 @@ pub mod ffi {
         #[qproperty(bool, script_errors_to_output_window)]
         #[qproperty(QColor, error_text_colour)]
         #[qproperty(QColor, error_background_colour)]
+        // Hidden
+        #[qproperty(QUuid, id)]
         type World = super::WorldRust;
     }
 

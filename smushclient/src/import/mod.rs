@@ -5,6 +5,7 @@ use mud_transformer::UseMxp;
 use mud_transformer::mxp::RgbColor;
 use serde::Deserialize;
 use smushclient_plugins::{Alias, ImportError, RegexError, Timer, Trigger, XmlIterable, XmlVec};
+use uuid::Uuid;
 
 use crate::client::PluginVariables;
 use crate::world::{AutoConnect, LogFormat, LogMode, MxpDebugLevel, ScriptRecompile, World};
@@ -324,6 +325,7 @@ impl TryFrom<MuClient<'_>> for ImportedWorld {
             script_errors_to_output_window: world.script_errors_to_output_window,
             error_text_colour: Some(RgbColor::rgb(127, 0, 0)),
             error_background_colour: None,
+            id: Uuid::new_v4(),
             plugins: value
                 .include
                 .into_iter()

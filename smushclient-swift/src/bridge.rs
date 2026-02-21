@@ -286,6 +286,13 @@ pub mod ffi {
 
     #[swift_bridge(swift_repr = "struct")]
     #[derive(Clone)]
+    struct Uuid {
+        a: u64,
+        b: u64,
+    }
+
+    #[swift_bridge(swift_repr = "struct")]
+    #[derive(Clone)]
     struct World {
         name: String,
         site: String,
@@ -378,6 +385,7 @@ pub mod ffi {
         error_text_colour: ColorOption,
         error_background_colour: ColorOption,
 
+        id: Uuid,
         plugins: Vec<String>,
     }
 

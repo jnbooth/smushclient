@@ -4,6 +4,7 @@ use mud_transformer::UseMxp;
 use mud_transformer::mxp::RgbColor;
 use serde::Deserialize;
 use smushclient_plugins::{Alias, CursorVec, Timer, Trigger};
+use uuid::Uuid;
 
 use super::super::types::*;
 
@@ -36,7 +37,7 @@ pub struct World {
     pub log_input: bool,
     pub log_notes: bool,
     pub log_mode: LogMode,
-    pub auto_log_file_name: Option<String>,
+    pub auto_log_file_name: String,
     pub write_world_name_to_log: bool,
     pub log_line_preamble_output: String,
     pub log_line_preamble_input: String,
@@ -62,7 +63,7 @@ pub struct World {
     pub echo_colour: Option<RgbColor>,
     pub echo_background_colour: Option<RgbColor>,
     pub keep_commands_on_same_line: bool,
-    pub new_activity_sound: Option<String>,
+    pub new_activity_sound: String,
     pub line_information: bool,
 
     // MUD
@@ -105,7 +106,7 @@ pub struct World {
 
     // Scripting
     pub enable_scripts: bool,
-    pub world_script: Option<String>,
+    pub world_script: String,
     pub script_reload_option: ScriptRecompile,
     pub note_text_colour: Option<RgbColor>,
     pub note_background_colour: Option<RgbColor>,
@@ -118,12 +119,6 @@ pub struct World {
 }
 
 impl From<World> for super::super::World {
-    fn from(value: World) -> Self {
-        super::v4::World::from(value).into()
-    }
-}
-
-impl From<World> for super::v4::World {
     fn from(value: World) -> Self {
         let World {
             name,
@@ -233,7 +228,7 @@ impl From<World> for super::v4::World {
             log_input,
             log_notes,
             log_mode,
-            auto_log_file_name: auto_log_file_name.unwrap_or_default(),
+            auto_log_file_name,
             write_world_name_to_log,
             log_line_preamble_output,
             log_line_preamble_input,
@@ -254,7 +249,7 @@ impl From<World> for super::v4::World {
             echo_colour,
             echo_background_colour,
             keep_commands_on_same_line,
-            new_activity_sound: new_activity_sound.unwrap_or_default(),
+            new_activity_sound,
             line_information,
             use_mxp,
             ignore_mxp_colour_changes,
@@ -285,13 +280,14 @@ impl From<World> for super::v4::World {
             hotkey_adds_to_command_history,
             echo_hotkey_in_output_window,
             enable_scripts,
-            world_script: world_script.unwrap_or_default(),
+            world_script,
             script_reload_option,
             note_text_colour,
             note_background_colour,
             script_errors_to_output_window,
             error_text_colour,
             error_background_colour,
+            id: Uuid::new_v4(),
             plugins,
         }
     }

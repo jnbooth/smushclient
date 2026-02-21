@@ -16,6 +16,7 @@ use smushclient::{SendRequest, SendScriptRequest, World};
 use smushclient_plugins::{
     Alias, CursorVec, Occurrence, Reaction, SendTarget, Sender, Timer, Trigger,
 };
+use uuid::Uuid;
 
 use crate::convert::{Convert, impl_convert, impl_convert_enum, impl_convert_struct};
 use crate::error::UnsupportedError;
@@ -28,6 +29,17 @@ impl Convert<PathBuf> for String {
 
     fn to_ffi(value: PathBuf) -> Self {
         value.to_string_lossy().into_owned()
+    }
+}
+
+impl Convert<Uuid> for ffi::Uuid {
+    fn from_ffi(value: Self) -> Uuid {
+        Uuid::from_u64_pair(value.a, value.b)
+    }
+
+    fn to_ffi(value: Uuid) -> Self {
+        let (a, b) = value.as_u64_pair();
+        Self { a, b }
     }
 }
 
@@ -305,6 +317,7 @@ impl_convert_struct!(
     error_text_colour,
     error_background_colour,
     // Hidden
+    id,
     plugins,
 );
 

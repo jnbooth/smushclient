@@ -9,7 +9,8 @@ use chrono::Local;
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::{TransformerConfig, UseMxp};
 use serde::{Deserialize, Serialize};
-use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Sender, Timer, Trigger};
+use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Timer, Trigger};
+use uuid::Uuid;
 
 use crate::collections::SortOnDrop;
 use crate::plugins::{SendIterable, SenderAccessError};
@@ -26,24 +27,16 @@ pub use option::OptionCaller;
 mod sender_map;
 pub use sender_map::SenderMap;
 
+mod serde_helpers;
+use serde_helpers::skip_temporary;
+
 mod types;
 pub use types::*;
 
 mod versions;
 use versions::Migrate;
 
-const CURRENT_VERSION: u16 = 4;
-
-fn skip_temporary<S, T>(vec: &CursorVec<T>, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: serde::Serializer,
-    T: serde::Serialize + AsRef<Sender> + Ord,
-{
-    let items = vec.borrow();
-    // must collect in a vec because serialization needs to know the size ahead of time
-    let filtered: Vec<&T> = items.iter().filter(|x| !x.as_ref().temporary).collect();
-    serializer.collect_seq(filtered)
-}
+const CURRENT_VERSION: u16 = 5;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct World {
@@ -152,6 +145,7 @@ pub struct World {
     pub error_background_colour: Option<RgbColor>,
 
     // Hidden
+    pub id: Uuid,
     pub plugins: Vec<PathBuf>,
 }
 
@@ -266,6 +260,7 @@ impl World {
             error_background_colour: None,
 
             // Hidden
+            id: Uuid::new_v4(),
             plugins: Vec::new(),
         }
     }
@@ -339,7 +334,8 @@ impl World {
             1 => versions::V1::migrate(bytes),
             2 => versions::V2::migrate(bytes),
             3 => versions::V3::migrate(bytes),
-            4 => postcard::from_bytes(bytes).map_err(Into::into),
+            4 => versions::V4::migrate(bytes),
+            5 => postcard::from_bytes(bytes).map_err(Into::into),
             _ => Err(PersistError::UnsupportedVersion)?,
         }
     }

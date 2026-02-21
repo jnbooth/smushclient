@@ -1,4 +1,4 @@
-use cxx_qt_lib::{QColor, QString};
+use cxx_qt_lib::{QColor, QString, QUuid};
 use smushclient::World;
 use smushclient::world::{Numpad, NumpadMapping};
 use smushclient_plugins::CursorVec;
@@ -135,6 +135,9 @@ pub struct WorldRust {
     pub script_errors_to_output_window: bool,
     pub error_text_colour: QColor,
     pub error_background_colour: QColor,
+
+    // Hidden
+    pub id: QUuid,
 }
 
 impl_deref!(WorldRust, Colors, ansi_colours);
@@ -262,6 +265,8 @@ impl From<&World> for WorldRust {
             script_errors_to_output_window: world.script_errors_to_output_window,
             error_text_colour: world.error_text_colour.convert(),
             error_background_colour: world.error_background_colour.convert(),
+
+            id: world.id.into(),
         }
     }
 }
@@ -397,6 +402,7 @@ impl TryFrom<&WorldRust> for World {
             error_text_colour: value.error_text_colour.convert(),
             error_background_colour: value.error_background_colour.convert(),
 
+            id: value.id.into(),
             plugins: Vec::new(),
         })
     }

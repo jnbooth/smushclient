@@ -19,6 +19,7 @@ mud-transformer = { workspace = true }
 smushclient = { path = "../smushclient", features = ["async"] }
 smushclient-plugins = { path = "../smushclient-plugins" }
 tokio = { workspace = true, features = ["full"] }
+uuid = { workspace = true }
 
 [dependencies.swift-bridge]
 version = "0.1.58"
