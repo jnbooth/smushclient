@@ -146,7 +146,7 @@ enum class FilterOp : int64_t
   Average,
 };
 
-enum FontPitchFlag : int64_t
+enum class FontPitch : int64_t
 {
   Default = 0,
   Fixed = 1,
@@ -154,7 +154,7 @@ enum FontPitchFlag : int64_t
   Monospace = 8
 };
 
-enum FontFamilyFlag : int64_t
+enum class FontFamily : int64_t
 {
   AnyFamily = 0,
   Roman = 16,
@@ -178,7 +178,7 @@ enum class OperatingSystem : int64_t
   Linux = 200,
 };
 
-enum PenStyleFlag : int64_t
+enum class PenStyle : int64_t
 {
   SolidLine = 0,
   DashLine = 1,
@@ -189,14 +189,14 @@ enum PenStyleFlag : int64_t
   InsideFrame = 6,
 };
 
-enum PenCapFlag : int64_t
+enum class PenCap : int64_t
 {
   RoundCap = 0x000,
   SquareCap = 0x100,
   FlatCap = 0x200,
 };
 
-enum PenJoinFlag : int64_t
+enum class PenJoin : int64_t
 {
   RoundJoin = 0x0000,
   BevelJoin = 0x1000,

@@ -213,56 +213,56 @@ getEnum(lua_State* L, int idx, optional<T> ifNil = nullopt)
   return static_cast<T>(value);
 }
 
-constexpr Qt::PenStyle
+constexpr optional<Qt::PenStyle>
 getPenStyle(lua_Integer style) noexcept
 {
-  switch (style & 0xFF) {
-    case PenStyleFlag::SolidLine:
+  switch (static_cast<PenStyle>(style & 0xFF)) {
+    case PenStyle::SolidLine:
       return Qt::PenStyle::SolidLine;
-    case PenStyleFlag::DashLine:
+    case PenStyle::DashLine:
       return Qt::PenStyle::DashLine;
-    case PenStyleFlag::DotLine:
+    case PenStyle::DotLine:
       return Qt::PenStyle::DotLine;
-    case PenStyleFlag::DashDotLine:
+    case PenStyle::DashDotLine:
       return Qt::PenStyle::DashDotLine;
-    case PenStyleFlag::DashDotDotLine:
+    case PenStyle::DashDotDotLine:
       return Qt::PenStyle::DashDotDotLine;
-    case PenStyleFlag::NoPen:
+    case PenStyle::NoPen:
       return Qt::PenStyle::NoPen;
-    case PenStyleFlag::InsideFrame:
+    case PenStyle::InsideFrame:
       return Qt::PenStyle::SolidLine;
     default:
-      return Qt::PenStyle::MPenStyle;
+      return nullopt;
   }
 }
 
-constexpr Qt::PenCapStyle
+constexpr optional<Qt::PenCapStyle>
 getPenCap(lua_Integer style) noexcept
 {
-  switch (style & 0xF00) {
-    case PenCapFlag::RoundCap:
+  switch (static_cast<PenCap>(style & 0xF00)) {
+    case PenCap::RoundCap:
       return Qt::PenCapStyle::RoundCap;
-    case PenCapFlag::SquareCap:
+    case PenCap::SquareCap:
       return Qt::PenCapStyle::SquareCap;
-    case PenCapFlag::FlatCap:
+    case PenCap::FlatCap:
       return Qt::PenCapStyle::FlatCap;
     default:
-      return Qt::PenCapStyle::MPenCapStyle;
+      return nullopt;
   }
 }
 
-constexpr Qt::PenJoinStyle
+constexpr optional<Qt::PenJoinStyle>
 getPenJoin(lua_Integer style) noexcept
 {
-  switch (style & ~0XFFF) {
-    case PenJoinFlag::RoundJoin:
+  switch (static_cast<PenJoin>(style & ~0XFFF)) {
+    case PenJoin::RoundJoin:
       return Qt::PenJoinStyle::RoundJoin;
-    case PenJoinFlag::BevelJoin:
+    case PenJoin::BevelJoin:
       return Qt::PenJoinStyle::BevelJoin;
-    case PenJoinFlag::MiterJoin:
+    case PenJoin::MiterJoin:
       return Qt::PenJoinStyle::MiterJoin;
     default:
-      return Qt::PenJoinStyle::MPenJoinStyle;
+      return nullopt;
   }
 }
 } // namespace
@@ -809,16 +809,14 @@ qlua::getQPen(lua_State* L, int idxColor, int idxStyle, int idxWidth)
                 Qt::PenJoinStyle::RoundJoin);
   }
 
-  const Qt::PenStyle penStyle = getPenStyle(style);
-  const Qt::PenCapStyle capStyle = getPenCap(style);
-  const Qt::PenJoinStyle joinStyle = getPenJoin(style);
-  if (penStyle == Qt::PenStyle::MPenStyle ||
-      capStyle == Qt::PenCapStyle::MPenCapStyle ||
-      joinStyle == Qt::PenJoinStyle::MPenJoinStyle) [[unlikely]] {
+  const optional<Qt::PenStyle> penStyle = getPenStyle(style);
+  const optional<Qt::PenCapStyle> capStyle = getPenCap(style);
+  const optional<Qt::PenJoinStyle> joinStyle = getPenJoin(style);
+  if (!penStyle || !capStyle || !joinStyle) [[unlikely]] {
     return nullopt;
   }
 
-  return QPen(color, width, penStyle, capStyle, joinStyle);
+  return QPen(color, width, *penStyle, *capStyle, *joinStyle);
 }
 
 optional<QPolygonF>
@@ -990,28 +988,28 @@ qlua::getFontHint(lua_State* L, int idx, optional<QFont::StyleHint> ifNil)
   }
 
   const lua_Integer style = toInteger(L, idx);
-  switch (style & 0xF) // pitch
+  switch (static_cast<FontPitch>(style & 0xF)) // pitch
   {
-    case FontPitchFlag::Default:
-    case FontPitchFlag::Fixed:
-    case FontPitchFlag::Variable:
+    case FontPitch::Default:
+    case FontPitch::Fixed:
+    case FontPitch::Variable:
       break;
-    case FontPitchFlag::Monospace:
+    case FontPitch::Monospace:
       return QFont::StyleHint::Monospace;
     default:
       return nullopt;
   }
 
-  switch (style & ~0xF) {
-    case FontFamilyFlag::Roman:
+  switch (static_cast<FontFamily>(style & ~0xF)) {
+    case FontFamily::Roman:
       return QFont::StyleHint::Serif;
-    case FontFamilyFlag::Swiss:
+    case FontFamily::Swiss:
       return QFont::StyleHint::SansSerif;
-    case FontFamilyFlag::Modern:
+    case FontFamily::Modern:
       return QFont::StyleHint::TypeWriter;
-    case FontFamilyFlag::Script:
+    case FontFamily::Script:
       return QFont::StyleHint::Cursive;
-    case FontFamilyFlag::Decorative:
+    case FontFamily::Decorative:
       return QFont::StyleHint::Decorative;
     default:
       return nullopt;

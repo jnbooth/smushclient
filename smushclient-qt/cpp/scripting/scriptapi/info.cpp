@@ -123,25 +123,25 @@ ScriptApi::FontInfo(const QFont& font, int64_t infoType)
   }
   const QFont::StyleHint hint = font.styleHint();
   if (hint == QFont::StyleHint::Monospace) {
-    return FontPitchFlag::Monospace;
+    return FontPitch::Monospace;
   }
 
-  const int pitchFlag = QFontInfo(font).fixedPitch() ? FontPitchFlag::Fixed
-                                                     : FontPitchFlag::Variable;
+  const int pitchFlag =
+    QFontInfo(font).fixedPitch() ? FontPitch::Fixed : FontPitch::Variable;
 
   switch (hint) {
     case QFont::StyleHint::Serif:
-      return FontFamilyFlag::Roman | pitchFlag;
+      return FontFamily::Roman | pitchFlag;
     case QFont::StyleHint::SansSerif:
-      return FontFamilyFlag::Swiss | pitchFlag;
+      return FontFamily::Swiss | pitchFlag;
     case QFont::StyleHint::TypeWriter:
-      return FontFamilyFlag::Modern | pitchFlag;
+      return FontFamily::Modern | pitchFlag;
     case QFont::StyleHint::Cursive:
-      return FontFamilyFlag::Script | pitchFlag;
+      return FontFamily::Script | pitchFlag;
     case QFont::StyleHint::Decorative:
-      return FontFamilyFlag::Decorative | pitchFlag;
+      return FontFamily::Decorative | pitchFlag;
     default:
-      return FontFamilyFlag::AnyFamily | pitchFlag;
+      return FontFamily::AnyFamily | pitchFlag;
   }
 }
 
