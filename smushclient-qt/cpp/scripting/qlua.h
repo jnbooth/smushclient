@@ -231,11 +231,28 @@ pushQVariant(lua_State* L, const QVariant& variant);
     f(L, value);                                                               \
   }
 
+PUSH(const char*, lua_pushstring);
+PUSH(lua_Integer, lua_pushinteger);
+PUSH(lua_Number, lua_pushnumber);
+
+#undef PUSH
+
 #define NPUSH(T)                                                               \
   inline void push(lua_State* L, T value)                                      \
   {                                                                            \
     lua_pushinteger(L, static_cast<lua_Integer>(value));                       \
   }
+
+NPUSH(ApiCode);
+NPUSH(AliasFlag);
+NPUSH(OperatingSystem);
+NPUSH(SendTarget);
+NPUSH(TimerFlag);
+NPUSH(TriggerFlag);
+NPUSH(int);
+NPUSH(size_t);
+
+#undef NPUSH
 
 #define SPUSH(T)                                                               \
   inline const char* push(lua_State* L, T value)                               \
@@ -243,18 +260,11 @@ pushQVariant(lua_State* L, const QVariant& variant);
     return lua_pushlstring(L, value.data(), value.size());                     \
   }
 
-PUSH(const char*, lua_pushstring);
-NPUSH(ApiCode);
-NPUSH(int);
-NPUSH(size_t);
-PUSH(lua_Integer, lua_pushinteger);
-PUSH(lua_Number, lua_pushnumber);
 SPUSH(const QByteArray&);
 SPUSH(rust::Str);
 SPUSH(const std::string&);
 SPUSH(std::string_view);
 
-#undef PUSH
 #undef SPUSH
 
 inline void
@@ -320,4 +330,46 @@ pushMap(lua_State* L, const T& map)
     lua_rawset(L, -3);
   }
 }
+
+template<typename K, typename V>
+void
+pushEntry(lua_State* L, K key, V value, int idx = -1)
+{
+  push(L, key);
+  push(L, value);
+  lua_rawset(L, idx < 0 ? idx - 2 : idx);
+}
+
+template<typename V>
+void
+pushEntry(lua_State* L, const char* key, V value, int idx = -1)
+{
+  push(L, value);
+  lua_setfield(L, idx < 0 ? idx - 1 : idx, key);
+}
+
+template<typename V>
+void
+pushEntry(lua_State* L, const std::string& key, V value, int idx = -1)
+{
+  push(L, value);
+  lua_setfield(L, idx < 0 ? idx - 1 : idx, key.c_str());
+}
+
+template<typename V>
+void
+pushEntry(lua_State* L, const QByteArray& key, V value, int idx = -1)
+{
+  push(L, value);
+  lua_setfield(L, idx < 0 ? idx - 1 : idx, key.toStdString().c_str());
+}
+
+template<typename V>
+void
+pushEntry(lua_State* L, const QString& key, V value, int idx = -1)
+{
+  push(L, value);
+  lua_setfield(L, idx < 0 ? idx - 1 : idx, key.toStdString().c_str());
+}
+
 } // namespace qlua

@@ -175,9 +175,7 @@ L_getfontfamilies(lua_State* L)
     if (family.startsWith(u'.')) {
       continue;
     }
-    qlua::push(L, family);
-    qlua::push(L, true);
-    lua_rawset(L, -3);
+    qlua::pushEntry(L, family, true);
   }
   return 1;
 }

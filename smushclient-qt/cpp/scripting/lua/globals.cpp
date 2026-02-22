@@ -555,29 +555,6 @@ static const pair<string, TriggerFlag> trigger_flag[] = {
 };
 
 namespace {
-void
-pushValue(lua_State* L, int value)
-{
-  qlua::push(L, value);
-}
-void
-pushValue(lua_State* L, const string& value)
-{
-  qlua::push(L, value);
-}
-#define IMPL_PUSH_ENUM(T)                                                      \
-  void pushValue(lua_State* L, T value)                                        \
-  {                                                                            \
-    qlua::push(L, I(value));                                                   \
-  }
-
-IMPL_PUSH_ENUM(AliasFlag)
-IMPL_PUSH_ENUM(ApiCode)
-IMPL_PUSH_ENUM(OperatingSystem)
-IMPL_PUSH_ENUM(SendTarget)
-IMPL_PUSH_ENUM(TimerFlag)
-IMPL_PUSH_ENUM(TriggerFlag)
-
 template<typename K, typename V, size_t N>
 void
 registerTable(lua_State* L, const char* name, const pair<K, V> (&entries)[N])
@@ -587,9 +564,7 @@ registerTable(lua_State* L, const char* name, const pair<K, V> (&entries)[N])
     lua_createtable(L, 0, N);
   }
   for (const pair<K, V>& entry : entries) {
-    pushValue(L, entry.first);
-    pushValue(L, entry.second);
-    lua_rawset(L, -3);
+    qlua::pushEntry(L, entry.first, entry.second);
   }
   if (isNew) {
     lua_setglobal(L, name);

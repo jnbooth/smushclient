@@ -339,9 +339,7 @@ public:
       ++i;
     }
     for (const NamedWildcard& wildcard : namedWildcards) {
-      qlua::push(L, wildcard.name);
-      qlua::push(L, wildcard.value);
-      lua_rawset(L, -3);
+      qlua::pushEntry(L, wildcard.name, wildcard.value);
     }
     return 3;
   }
@@ -383,19 +381,13 @@ public:
       if (span == nullptr) {
         continue;
       }
-      lua_createtable(L, 0, 5);
-      lua_pushinteger(L, span->foreground());
-      lua_setfield(L, -2, "textcolour");
-      lua_pushinteger(L, span->background());
-      lua_setfield(L, -2, "backcolour");
       const rust::Str text = span->text();
-      const lua_Integer len = static_cast<lua_Integer>(text.length());
-      lua_pushlstring(L, text.data(), len);
-      lua_setfield(L, -2, "text");
-      lua_pushinteger(L, len);
-      lua_setfield(L, -2, "length");
-      lua_pushinteger(L, span->style());
-      lua_setfield(L, -2, "style");
+      lua_createtable(L, 0, 5);
+      qlua::pushEntry(L, "textcolour", span->foreground());
+      qlua::pushEntry(L, "backcolour", span->background());
+      qlua::pushEntry(L, "text", text);
+      qlua::pushEntry(L, "length", text.length());
+      qlua::pushEntry(L, "style", span->style());
       lua_rawseti(L, -2, ++i);
     }
 
