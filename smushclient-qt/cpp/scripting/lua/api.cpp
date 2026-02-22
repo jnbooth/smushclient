@@ -21,6 +21,10 @@ using qlua::push;
 using qlua::pushList;
 using qlua::pushQVariant;
 
+DECLARE_ENUM_BOUNDS(Qt::Orientation, Horizontal, Vertical);
+DECLARE_ENUM_BOUNDS(ffi::filter::Directions, Both, Vertical);
+DECLARE_ENUM_BOUNDS(SendTarget, World, ScriptAfterOmit);
+
 namespace {
 const char* const indexRegKey = "smushclient.plugin";
 const char* const worldRegKey = "smushclient.world";
@@ -514,7 +518,7 @@ L_GetSysColor(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
-  const optional<SysColor> sysColor = qlua::getSysColor(L, 1);
+  const optional<SysColor> sysColor = qlua::getEnum<SysColor>(L, 1);
   expect_nonnull(sysColor, ApiCode::BadParameter);
   push(L, ScriptApi::GetSysColor(*sysColor));
   return 1;
@@ -577,7 +581,8 @@ L_SetBackgroundImage(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 2);
   const QString path = qlua::getQString(L, 1);
-  const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 2);
+  const optional<MiniWindow::Position> position =
+    qlua::getEnum<MiniWindow::Position>(L, 2);
   expect_nonnull(position, ApiCode::BadParameter);
   return returnCode(L, getApi(L).SetBackgroundImage(path, *position));
 }
@@ -607,7 +612,8 @@ L_SetForegroundImage(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 2);
   const QString path = qlua::getQString(L, 1);
-  const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 2);
+  const optional<MiniWindow::Position> position =
+    qlua::getEnum<MiniWindow::Position>(L, 2);
   expect_nonnull(position, ApiCode::BadParameter);
   return returnCode(L, getApi(L).SetForegroundImage(path, *position));
 }
@@ -795,8 +801,7 @@ L_AddTrigger(lua_State* L)
   // const lua_Integer wildcardIndex = qlua::getInt(L, 6);
   const string_view soundFile = qlua::getString(L, 7);
   const optional<string_view> script = qlua::getScriptName(L, 8);
-  const optional<SendTarget> target =
-    qlua::getSendTarget(L, 9, SendTarget::World);
+  const optional<SendTarget> target = qlua::getEnum(L, 9, SendTarget::World);
   const int sequence = qlua::getInt(L, 10, 100);
 
   expect_nonnull(script, ApiCode::ScriptNameNotLocated);
@@ -927,7 +932,7 @@ L_DoAfterSpecial(lua_State* L)
   expectMaxArgs(L, 3);
   const lua_Number seconds = qlua::getNumber(L, 1);
   const QString text = qlua::getQString(L, 2);
-  const optional<SendTarget> target = qlua::getSendTarget(L, 3);
+  const optional<SendTarget> target = qlua::getEnum<SendTarget>(L, 3);
   expect_nonnull(target, ApiCode::OptionOutOfRange);
   return returnCode(
     L, getApi(L).DoAfter(getPluginIndex(L), seconds, text, *target));
@@ -1264,7 +1269,7 @@ L_WindowBlendImage(lua_State* L)
   const string_view windowName = qlua::getString(L, 1);
   const string_view imageId = qlua::getString(L, 2);
   const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
-  const optional<BlendMode> mode = qlua::getBlendMode(L, 7);
+  const optional<BlendMode> mode = qlua::getEnum<BlendMode>(L, 7);
   const lua_Number opacity = qlua::getNumber(L, 8);
   const QRectF targetRect = qlua::getQRectF(L, 9, 10, 11, 12);
   expect_nonnull(mode, ApiCode::UnknownOption);
@@ -1282,7 +1287,7 @@ L_WindowCircleOp(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 15);
   const string_view windowName = qlua::getString(L, 1);
-  const optional<CircleOp> action = qlua::getCircleOp(L, 2);
+  const optional<CircleOp> action = qlua::getEnum<CircleOp>(L, 2);
   const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
   const optional<QPen> pen = qlua::getQPen(L, 7, 8, 9);
   const QColor brushColor = qlua::getQColor(L, 10);
@@ -1321,7 +1326,8 @@ L_WindowCreate(lua_State* L)
   const string_view windowName = qlua::getString(L, 1);
   const QPoint location = qlua::getQPoint(L, 2, 3);
   const QSize size = qlua::getQSize(L, 4, 5);
-  const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 6);
+  const optional<MiniWindow::Position> position =
+    qlua::getEnum<MiniWindow::Position>(L, 6);
   const MiniWindow::Flags flags = qlua::getQFlags<MiniWindow::Flag>(L, 7);
   const QColor bg = qlua::getQColor(L, 8);
   expect_nonnull(position, ApiCode::BadParameter);
@@ -1366,7 +1372,7 @@ L_WindowDrawImage(lua_State* L)
   const string_view imageID = qlua::getString(L, 2);
   const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
   const optional<MiniWindow::DrawImageMode> mode =
-    qlua::getDrawImageMode(L, 7, MiniWindow::DrawImageMode::Copy);
+    qlua::getEnum(L, 7, MiniWindow::DrawImageMode::Copy);
   const QRectF sourceRect =
     n >= 8 ? qlua::getQRectF(L, 8, 9, 10, 11) : QRectF();
   expect_nonnull(mode, ApiCode::BadParameter);
@@ -1406,8 +1412,8 @@ struct FilterParams
   template<typename T>
   int convolve() const
   {
-    const optional<ffi::filter::Directions> directions =
-      qlua::getDirections(L, 7, ImageFilter::Directions::Both);
+    const optional<ImageFilter::Directions> directions =
+      qlua::getEnum(L, 7, ImageFilter::Directions::Both);
     expect_nonnull(directions, ApiCode::BadParameter);
     return filter(T(*directions));
   }
@@ -1424,7 +1430,7 @@ L_WindowFilter(lua_State* L)
   const string_view windowName = qlua::getString(L, 1);
   const QRect rect = qlua::getQRect(L, 2, 3, 4, 5);
   const FilterParams params{ .L = L, .windowName = windowName, .rect = rect };
-  const optional<FilterOp> filterOp = qlua::getFilterOp(L, 6);
+  const optional<FilterOp> filterOp = qlua::getEnum<FilterOp>(L, 6);
   expect_nonnull(filterOp, ApiCode::UnknownOption);
   switch (*filterOp) {
     case FilterOp::Noise:
@@ -1572,7 +1578,7 @@ L_WindowGradient(lua_State* L)
   const QRectF rect = qlua::getQRectF(L, 2, 3, 4, 5);
   const QColor color1 = qlua::getQColor(L, 6);
   const QColor color2 = qlua::getQColor(L, 7);
-  const optional<Qt::Orientation> mode = qlua::getOrientation(L, 8);
+  const optional<Qt::Orientation> mode = qlua::getEnum<Qt::Orientation>(L, 8);
   expect_nonnull(mode, ApiCode::UnknownOption);
   return returnCode(
     L, getApi(L).WindowGradient(windowName, rect, color1, color2, *mode));
@@ -1604,7 +1610,7 @@ L_WindowImageOp(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 13);
   const string_view windowName = qlua::getString(L, 1);
-  const optional<ImageOp> action = qlua::getImageOp(L, 2);
+  const optional<ImageOp> action = qlua::getEnum<ImageOp>(L, 2);
   const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
   const optional<QPen> pen = qlua::getQPen(L, 7, 8, 9);
   const QColor color = qlua::getQColor(L, 10);
@@ -1685,7 +1691,8 @@ L_WindowMergeImageAlpha(lua_State* L)
   const string_view imageID = qlua::getString(L, 2);
   const string_view maskID = qlua::getString(L, 3);
   const QRect targetRect = qlua::getQRect(L, 4, 5, 6, 7);
-  const optional<MiniWindow::MergeMode> mode = qlua::getMergeMode(L, 8);
+  const optional<MiniWindow::MergeMode> mode =
+    qlua::getEnum<MiniWindow::MergeMode>(L, 8);
   const qreal opacity = qlua::getNumber(L, 9);
   const QRect sourceRect = qlua::getQRect(L, 10, 11, 12, 13);
   expect_nonnull(mode, ApiCode::UnknownOption);
@@ -1731,7 +1738,8 @@ L_WindowPosition(lua_State* L)
   expectMaxArgs(L, 5);
   const string_view windowName = qlua::getString(L, 1);
   const QPoint location = qlua::getQPoint(L, 2, 3);
-  const optional<MiniWindow::Position> position = qlua::getWindowPosition(L, 4);
+  const optional<MiniWindow::Position> position =
+    qlua::getEnum<MiniWindow::Position>(L, 4);
   const MiniWindow::Flags flags = qlua::getQFlags<MiniWindow::Flag>(L, 5);
   expect_nonnull(position, ApiCode::BadParameter);
   return returnCode(
@@ -1744,10 +1752,9 @@ L_WindowRectOp(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 8);
   const string_view windowName = qlua::getString(L, 1);
-  const optional<RectOp> action = qlua::getRectOp(L, 2);
+  const optional<RectOp> action = qlua::getEnum<RectOp>(L, 2);
   const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
   expect_nonnull(action, ApiCode::UnknownOption);
-
   switch (*action) {
     case RectOp::Frame:
       return returnCode(L,

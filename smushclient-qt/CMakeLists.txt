@@ -68,6 +68,7 @@ qt_add_executable(${APP_NAME}
     cpp/casting.h
     cpp/client.h cpp/client.cpp
     cpp/commandhistory.h cpp/commandhistory.cpp
+    cpp/enumbounds.h
     cpp/enumbuttongroup.h
     cpp/environment.h cpp/environment.cpp
     cpp/fieldconnector.h

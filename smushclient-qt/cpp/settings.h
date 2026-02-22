@@ -21,7 +21,6 @@ public:
     Reopen,
     List,
   };
-
   Q_ENUM(StartupBehavior)
 
   enum class WorldCloseBehavior
@@ -30,7 +29,6 @@ public:
     Confirm,
     Discard,
   };
-
   Q_ENUM(WorldCloseBehavior)
 
 public:

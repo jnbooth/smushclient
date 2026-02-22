@@ -3,6 +3,7 @@
 #include "rust/cxx.h"
 #include "scriptenums.h"
 #include "smushclient_qt/src/ffi/filter.cxx.h"
+#include <limits>
 extern "C"
 {
 #include "lua.h"
@@ -42,7 +43,6 @@ getBool(lua_State* L, int idx, bool ifNil);
 
 QByteArrayView
 getBytes(lua_State* L, int idx);
-
 lua_Integer
 getInteger(lua_State* L, int idx);
 lua_Integer
@@ -95,6 +95,29 @@ getQVariant(lua_State* L, int idx);
 
 std::optional<std::string_view>
 getScriptName(lua_State* L, int idx);
+
+template<typename T, T MIN = enum_bounds<T>::min, T MAX = enum_bounds<T>::max>
+std::optional<T>
+getEnum(lua_State* L, int idx, std::optional<T> ifNil = std::nullopt)
+{
+  constexpr lua_Integer ifNilInt = std::numeric_limits<lua_Integer>::min();
+  const lua_Integer underlying = getInteger(L, idx, ifNilInt);
+  if (underlying == ifNilInt) {
+    return ifNil;
+  }
+  if (underlying < static_cast<lua_Integer>(MIN) ||
+      underlying > static_cast<lua_Integer>(MAX)) [[unlikely]] {
+    return std::nullopt;
+  }
+  return static_cast<T>(underlying);
+}
+
+template<typename T, T MIN = enum_bounds<T>::min, T MAX = enum_bounds<T>::max>
+std::optional<T>
+getEnum(lua_State* L, int idx, T ifNil)
+{
+  return getEnum(L, idx, std::optional(ifNil));
+}
 
 std::string_view
 getString(lua_State* L, int idx);
@@ -165,62 +188,15 @@ getButtonFrame(lua_State* L,
                int idx,
                std::optional<MiniWindow::ButtonFrame> ifNil = std::nullopt);
 
-std::optional<CircleOp>
-getCircleOp(lua_State* L, int idx);
-
 std::optional<Qt::CursorShape>
 getCursor(lua_State* L,
           int idx,
           std::optional<Qt::CursorShape> ifNil = std::nullopt);
 
-std::optional<ffi::filter::Directions>
-getDirections(lua_State* L,
-              int idx,
-              std::optional<ffi::filter::Directions> ifNil = std::nullopt);
-
-std::optional<MiniWindow::DrawImageMode>
-getDrawImageMode(lua_State* L,
-                 int idx,
-                 std::optional<MiniWindow::DrawImageMode> ifNil = std::nullopt);
-
-std::optional<FilterOp>
-getFilterOp(lua_State* L, int idx);
-
 std::optional<QFont::StyleHint>
 getFontHint(lua_State* L,
             int idx,
             std::optional<QFont::StyleHint> ifNil = std::nullopt);
-
-std::optional<ImageOp>
-getImageOp(lua_State* L, int idx);
-
-std::optional<MiniWindow::MergeMode>
-getMergeMode(lua_State* L,
-             int idx,
-             std::optional<MiniWindow::MergeMode> ifNil = std::nullopt);
-
-std::optional<Qt::Orientation>
-getOrientation(lua_State* L,
-               int idx,
-               std::optional<Qt::Orientation> ifNil = std::nullopt);
-
-std::optional<RectOp>
-getRectOp(lua_State* L, int idx);
-
-std::optional<SendTarget>
-getSendTarget(lua_State* L,
-              int idx,
-              std::optional<SendTarget> ifNil = std::nullopt);
-
-std::optional<SysColor>
-getSysColor(lua_State* L,
-            int idx,
-            std::optional<SysColor> ifNil = std::nullopt);
-
-std::optional<MiniWindow::Position>
-getWindowPosition(lua_State* L,
-                  int idx,
-                  std::optional<MiniWindow::Position> ifNil = std::nullopt);
 
 void
 pushQVariant(lua_State* L, const QVariant& variant);

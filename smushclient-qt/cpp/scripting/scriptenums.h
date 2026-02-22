@@ -1,4 +1,5 @@
 #pragma once
+#include "../enumbounds.h"
 #include "smushclient_qt/src/ffi/api_code.cxx.h"
 #include <QtCore/QFlags>
 
@@ -37,6 +38,7 @@ enum class ActionSource
   LuaSandbox,      // Executing Lua sandbox (unused)
   Hotspot,         // Hotspot callback
 };
+DECLARE_ENUM_BOUNDS(ActionSource, Unknown, Hotspot)
 
 enum class BlendMode : int64_t
 {
@@ -105,6 +107,15 @@ enum class BlendMode : int64_t
   Luminance,
   Hsl,
 };
+DECLARE_ENUM_BOUNDS(BlendMode, Normal, Hsl)
+
+enum class ButtonFrame : int64_t
+{
+  Raised = 5,
+  Etched = 6,
+  Bump = 9,
+  Sunken = 10,
+};
 
 enum class CircleOp : int64_t
 {
@@ -114,6 +125,7 @@ enum class CircleOp : int64_t
   Chord,
   Pie,
 };
+DECLARE_ENUM_BOUNDS(CircleOp, Ellipse, Pie)
 
 enum class FilterOp : int64_t
 {
@@ -145,6 +157,7 @@ enum class FilterOp : int64_t
   MinorBlur,
   Average,
 };
+DECLARE_ENUM_BOUNDS(FilterOp, Noise, Average)
 
 enum class FontPitch : int64_t
 {
@@ -170,6 +183,7 @@ enum class ImageOp : int64_t
   Rectangle,
   RoundedRectangle,
 };
+DECLARE_ENUM_BOUNDS(ImageOp, Ellipse, RoundedRectangle)
 
 enum class OperatingSystem : int64_t
 {
@@ -223,6 +237,7 @@ enum class RectOp : int64_t
   // pixels that color. The fill color is specified by Colour2.
   FloodFillSurface,
 };
+DECLARE_ENUM_BOUNDS(RectOp, Frame, FloodFillSurface)
 
 enum class ScriptBrush : int64_t
 {
@@ -240,6 +255,7 @@ enum class ScriptBrush : int64_t
   HorWaves,
   VerWaves,
 };
+DECLARE_ENUM_BOUNDS(ScriptBrush, SolidPattern, VerWaves)
 
 enum class ScriptCursor : int64_t
 {
@@ -258,6 +274,7 @@ enum class ScriptCursor : int64_t
   ForbiddenCursor,
   WhatsThisCursor,
 };
+DECLARE_ENUM_BOUNDS(ScriptCursor, BlankCursor, WhatsThisCursor)
 
 enum class SysColor : int64_t
 {
@@ -287,6 +304,7 @@ enum class SysColor : int64_t
   InfoText,
   InfoBk,
 };
+DECLARE_ENUM_BOUNDS(SysColor, Scrollbar, InfoBk)
 
 enum class TimerFlag
 {

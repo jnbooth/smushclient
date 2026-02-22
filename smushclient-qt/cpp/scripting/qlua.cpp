@@ -198,21 +198,6 @@ toQVariant(lua_State* L, int idx, int type)
   }
 }
 
-template<typename T, T MIN, T MAX>
-inline optional<T>
-getEnum(lua_State* L, int idx, optional<T> ifNil = nullopt)
-{
-  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer")) {
-    return ifNil;
-  }
-  const lua_Integer value = toInteger(L, idx);
-  if (value < static_cast<lua_Integer>(MIN) ||
-      value > static_cast<lua_Integer>(MAX)) [[unlikely]] {
-    return nullopt;
-  }
-  return static_cast<T>(value);
-}
-
 constexpr optional<Qt::PenStyle>
 getPenStyle(lua_Integer style) noexcept
 {
@@ -842,12 +827,6 @@ qlua::getQPolygonF(lua_State* L, int idx)
   return QPolygonF(points);
 }
 
-optional<BlendMode>
-qlua::getBlendMode(lua_State* L, int idx, optional<BlendMode> ifNil)
-{
-  return getEnum<BlendMode, BlendMode::Normal, BlendMode::Hsl>(L, idx, ifNil);
-}
-
 optional<MiniWindow::ButtonFrame>
 qlua::getButtonFrame(lua_State* L,
                      int idx,
@@ -948,38 +927,6 @@ qlua::getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil)
   }
 }
 
-optional<CircleOp>
-qlua::getCircleOp(lua_State* L, int idx)
-{
-  return getEnum<CircleOp, CircleOp::Ellipse, CircleOp::Pie>(L, idx, nullopt);
-}
-
-optional<ffi::filter::Directions>
-qlua::getDirections(lua_State* L,
-                    int idx,
-                    optional<ffi::filter::Directions> ifNil)
-{
-  return getEnum<ffi::filter::Directions,
-                 ffi::filter::Directions::Both,
-                 ffi::filter::Directions::Vertical>(L, idx, ifNil);
-}
-
-optional<MiniWindow::DrawImageMode>
-qlua::getDrawImageMode(lua_State* L,
-                       int idx,
-                       optional<MiniWindow::DrawImageMode> ifNil)
-{
-  return getEnum<MiniWindow::DrawImageMode,
-                 MiniWindow::DrawImageMode::Copy,
-                 MiniWindow::DrawImageMode::CopyTransparent>(L, idx, ifNil);
-}
-
-optional<FilterOp>
-qlua::getFilterOp(lua_State* L, int idx)
-{
-  return getEnum<FilterOp, FilterOp::Noise, FilterOp::Average>(L, idx);
-}
-
 optional<QFont::StyleHint>
 qlua::getFontHint(lua_State* L, int idx, optional<QFont::StyleHint> ifNil)
 {
@@ -1014,58 +961,4 @@ qlua::getFontHint(lua_State* L, int idx, optional<QFont::StyleHint> ifNil)
     default:
       return nullopt;
   }
-}
-
-optional<ImageOp>
-qlua::getImageOp(lua_State* L, int idx)
-{
-  return getEnum<ImageOp, ImageOp::Ellipse, ImageOp::RoundedRectangle>(L, idx);
-}
-
-std::optional<MiniWindow::MergeMode>
-qlua::getMergeMode(lua_State* L,
-                   int idx,
-                   std::optional<MiniWindow::MergeMode> ifNil)
-{
-  return getEnum<MiniWindow::MergeMode,
-                 MiniWindow::MergeMode::Straight,
-                 MiniWindow::MergeMode::Transparent>(L, idx, ifNil);
-};
-
-optional<Qt::Orientation>
-qlua::getOrientation(lua_State* L, int idx, optional<Qt::Orientation> ifNil)
-{
-  return getEnum<Qt::Orientation,
-                 Qt::Orientation::Horizontal,
-                 Qt::Orientation::Vertical>(L, idx, ifNil);
-}
-
-optional<RectOp>
-qlua::getRectOp(lua_State* L, int idx)
-{
-  return getEnum<RectOp, RectOp::Frame, RectOp::FloodFillSurface>(L, idx);
-}
-
-optional<SendTarget>
-qlua::getSendTarget(lua_State* L, int idx, optional<SendTarget> ifNil)
-{
-  return getEnum<SendTarget, SendTarget::World, SendTarget::ScriptAfterOmit>(
-    L, idx, ifNil);
-}
-
-optional<SysColor>
-qlua::getSysColor(lua_State* L, int idx, optional<SysColor> ifNil)
-{
-  return getEnum<SysColor, SysColor::Scrollbar, SysColor::InfoBk>(
-    L, idx, ifNil);
-}
-
-optional<MiniWindow::Position>
-qlua::getWindowPosition(lua_State* L,
-                        int idx,
-                        optional<MiniWindow::Position> ifNil)
-{
-  return getEnum<MiniWindow::Position,
-                 MiniWindow::Position::OutputStretch,
-                 MiniWindow::Position::Tile>(L, idx, ifNil);
 }

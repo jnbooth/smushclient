@@ -1,4 +1,5 @@
 #pragma once
+#include "../../enumbounds.h"
 #include "../stringmap.h"
 #include "hotspot.h"
 #include <QtCore/QDateTime>
@@ -310,3 +311,7 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(MiniWindow::ButtonFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(MiniWindow::Flags)
+
+DECLARE_ENUM_BOUNDS(MiniWindow::DrawImageMode, Copy, CopyTransparent)
+DECLARE_ENUM_BOUNDS(MiniWindow::MergeMode, Straight, Transparent)
+DECLARE_ENUM_BOUNDS(MiniWindow::Position, OutputStretch, Tile)
