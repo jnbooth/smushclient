@@ -60,10 +60,10 @@ getSendTo(const QTextCharFormat& format)
   return getUnderlying<SendTo>(format, property::sendTo);
 }
 
-QFlags<TextStyle>
+TextStyles
 getStyles(const QTextCharFormat& format)
 {
-  return QFlags<TextStyle>::fromInt(format.property(property::styles).toInt());
+  return TextStyles::fromInt(format.property(property::styles).toInt());
 }
 
 QDateTime

@@ -22,7 +22,7 @@ ScriptApi::AddAlias(size_t plugin,
                     string_view name,
                     string_view pattern,
                     string_view text,
-                    QFlags<AliasFlag> flags,
+                    AliasFlags flags,
                     string_view scriptName) const
 {
   if (pattern.empty()) {
@@ -67,7 +67,7 @@ ScriptApi::AddTimer(size_t plugin,
                     int minute,
                     double second,
                     string_view text,
-                    QFlags<TimerFlag> flags,
+                    TimerFlags flags,
                     string_view scriptName) const
 {
   if (flags.testFlag(TimerFlag::AtTime)) {
@@ -112,7 +112,7 @@ ScriptApi::AddTrigger(size_t plugin,
                       string_view name,
                       string_view pattern,
                       string_view text,
-                      QFlags<TriggerFlag> flags,
+                      TriggerFlags flags,
                       const QColor& color,
                       string_view sound,
                       string_view script,

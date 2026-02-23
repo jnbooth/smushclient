@@ -21,7 +21,8 @@ enum class TextStyle : uint16_t;
 struct Link;
 struct OutputSpan;
 
-using AliasOutcomes = QFlags<AliasOutcome>;
+Q_DECLARE_FLAGS(AliasOutcomes, AliasOutcome);
+Q_DECLARE_OPERATORS_FOR_FLAGS(AliasOutcomes);
 
 class Document : public QObject
 {

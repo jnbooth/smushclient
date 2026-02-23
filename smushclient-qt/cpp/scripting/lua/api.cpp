@@ -759,7 +759,7 @@ L_AddAlias(lua_State* L)
   const string_view name = qlua::getString(L, 1);
   const string_view pattern = qlua::getString(L, 2);
   const string_view text = qlua::getString(L, 3);
-  const QFlags<AliasFlag> flags = qlua::getQFlags<AliasFlag>(L, 4);
+  const AliasFlags flags = qlua::getQFlags<AliasFlag>(L, 4);
   const optional<string_view> script = qlua::getScriptName(L, 5);
   expect_nonnull(script, ApiCode::ScriptNameNotLocated);
 
@@ -778,7 +778,7 @@ L_AddTimer(lua_State* L)
   const int minute = qlua::getInt(L, 3);
   const lua_Number second = qlua::getNumber(L, 4);
   const string_view text = qlua::getString(L, 5);
-  const QFlags<TimerFlag> flags = qlua::getQFlags<TimerFlag>(L, 6);
+  const TimerFlags flags = qlua::getQFlags<TimerFlag>(L, 6);
   const optional<string_view> script = qlua::getScriptName(L, 7);
   expect_nonnull(script, ApiCode::ScriptNameNotLocated);
 
@@ -796,7 +796,7 @@ L_AddTrigger(lua_State* L)
   const string_view name = qlua::getString(L, 1);
   const string_view pattern = qlua::getString(L, 2);
   const string_view text = qlua::getString(L, 3);
-  const QFlags<TriggerFlag> flags = qlua::getQFlags<TriggerFlag>(L, 4);
+  const TriggerFlags flags = qlua::getQFlags<TriggerFlag>(L, 4);
   const QColor color = qlua::getCustomColor(L, 5);
   // const lua_Integer wildcardIndex = qlua::getInt(L, 6);
   const string_view soundFile = qlua::getString(L, 7);

@@ -116,13 +116,13 @@ template<typename T>
 inline QFlags<T>
 getQFlags(lua_State* L, int idx)
 {
-  return static_cast<QFlags<T>>(getInt(L, idx));
+  return QFlags<T>::fromInt(getInt(L, idx));
 }
 template<typename T>
 inline QFlags<T>
 getQFlags(lua_State* L, int idx, QFlags<T> ifNil)
 {
-  return static_cast<QFlags<T>>(getInt(L, idx, static_cast<int>(ifNil)));
+  return QFlags<T>::fromInt(getInt(L, idx, ifNil.toInt()));
 }
 
 QLine

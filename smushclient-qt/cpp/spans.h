@@ -6,6 +6,9 @@ struct Link;
 enum class SendTo : uint8_t;
 enum class TextStyle : uint16_t;
 
+Q_DECLARE_FLAGS(TextStyles, TextStyle);
+Q_DECLARE_OPERATORS_FOR_FLAGS(TextStyles);
+
 enum class LineType : uint8_t
 {
   Output,
@@ -24,7 +27,7 @@ getPrompts(const QTextCharFormat& format);
 SendTo
 getSendTo(const QTextCharFormat& format);
 
-QFlags<TextStyle>
+TextStyles
 getStyles(const QTextCharFormat& format);
 
 QDateTime

@@ -253,7 +253,7 @@ private:
 private:
   QColor background;
   QSize dimensions;
-  QFlags<Flag> flags;
+  Flags flags;
   string_map<QFont> fonts;
   string_map<std::unique_ptr<Hotspot>> hotspots;
   string_map<QPixmap> images;
