@@ -23,19 +23,17 @@ class MudStatusBar;
 class Notepads;
 class ScriptApi;
 
-enum class AvailableCopy
-{
-  None,
-  Input,
-  Output,
-};
-
 class WorldTab : public QSplitter
 {
   Q_OBJECT
 
 public:
-  Q_ENUM(AvailableCopy)
+  enum class AvailableCopy
+  {
+    None,
+    Input,
+    Output,
+  };
 
 public:
   explicit WorldTab(Notepads& notepads, QWidget* parent = nullptr);

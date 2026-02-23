@@ -18,6 +18,7 @@ public:
     Connected,
     Encrypted,
   };
+  Q_ENUM(ConnectionStatus)
 
   explicit MudStatusBar(QWidget* parent = nullptr);
   ~MudStatusBar() override;

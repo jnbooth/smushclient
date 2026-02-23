@@ -1371,8 +1371,7 @@ L_WindowDrawImage(lua_State* L)
   const string_view windowName = qlua::getString(L, 1);
   const string_view imageID = qlua::getString(L, 2);
   const QRectF rect = qlua::getQRectF(L, 3, 4, 5, 6);
-  const optional<MiniWindow::DrawImageMode> mode =
-    qlua::getEnum(L, 7, MiniWindow::DrawImageMode::Copy);
+  const optional<DrawImageMode> mode = qlua::getEnum(L, 7, DrawImageMode::Copy);
   const QRectF sourceRect =
     n >= 8 ? qlua::getQRectF(L, 8, 9, 10, 11) : QRectF();
   expect_nonnull(mode, ApiCode::BadParameter);
@@ -1512,9 +1511,9 @@ L_WindowFont(lua_State* L)
   const bool underline = qlua::getBool(L, 7, false);
   const bool strikeout = qlua::getBool(L, 8, false);
   // const short charset = qlua::getInt(L, 9);
-  const optional<QFont::StyleHint> hint =
-    qlua::getFontHint(L, 10, QFont::StyleHint::AnyStyle);
-  expect_nonnull(hint, ApiCode::BadParameter);
+  const lua_Integer fontFlag = qlua::getInteger(L, 9, 0);
+  const optional<ScriptFont> font = ScriptFont::validate(fontFlag);
+  expect_nonnull(font, ApiCode::BadParameter);
   return returnCode(L,
                     getApi(L).WindowFont(windowName,
                                          fontID,
@@ -1524,7 +1523,7 @@ L_WindowFont(lua_State* L)
                                          italic,
                                          underline,
                                          strikeout,
-                                         *hint));
+                                         font->hint()));
 }
 
 int
@@ -1691,8 +1690,7 @@ L_WindowMergeImageAlpha(lua_State* L)
   const string_view imageID = qlua::getString(L, 2);
   const string_view maskID = qlua::getString(L, 3);
   const QRect targetRect = qlua::getQRect(L, 4, 5, 6, 7);
-  const optional<MiniWindow::MergeMode> mode =
-    qlua::getEnum<MiniWindow::MergeMode>(L, 8);
+  const optional<MergeMode> mode = qlua::getEnum<MergeMode>(L, 8);
   const qreal opacity = qlua::getNumber(L, 9);
   const QRect sourceRect = qlua::getQRect(L, 10, 11, 12, 13);
   expect_nonnull(mode, ApiCode::UnknownOption);
@@ -1774,7 +1772,7 @@ L_WindowRectOp(lua_State* L)
                               qlua::getQColor(L, 7),
                               qlua::getQColor(L, 8, Qt::GlobalColor::black)));
     case RectOp::Edge3D:
-      if (optional<MiniWindow::ButtonFrame> frame = qlua::getButtonFrame(L, 7);
+      if (optional<ButtonFrame> frame = qlua::getEnum<ButtonFrame>(L, 7);
           frame) {
         return returnCode(L,
                           getApi(L).WindowButton(
@@ -1868,12 +1866,17 @@ L_WindowTransformImage(lua_State* L)
   const string_view imageID = qlua::getString(L, 2);
   const lua_Integer modeN = qlua::getInteger(L, 5);
   const QTransform transform = qlua::getQTransform(L, 6, 7, 8, 9, 3, 4);
-  if (modeN != 1 && modeN != 3) {
-    return returnCode(L, ApiCode::BadParameter);
+  MergeMode mode;
+  switch (modeN) {
+    case 1:
+      mode = MergeMode::Straight;
+      break;
+    case 3:
+      mode = MergeMode::Transparent;
+      break;
+    default:
+      return returnCode(L, ApiCode::BadParameter);
   }
-  const MiniWindow::MergeMode mode = modeN == 1
-                                       ? MiniWindow::MergeMode::Straight
-                                       : MiniWindow::MergeMode::Transparent;
   return returnCode(
     L, getApi(L).WindowTransformImage(windowName, imageID, mode, transform));
 }

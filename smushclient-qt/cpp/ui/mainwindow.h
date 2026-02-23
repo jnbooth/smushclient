@@ -7,7 +7,6 @@ namespace Ui {
 class MainWindow;
 } // namespace Ui
 
-enum class AvailableCopy : int;
 class Notepads;
 class FindDialog;
 
@@ -16,6 +15,8 @@ class MainWindow : public QMainWindow
   Q_OBJECT
 
 public:
+  using AvailableCopy = WorldTab::AvailableCopy;
+
   explicit MainWindow(Notepads& notepads, QWidget* parent = nullptr);
   ~MainWindow() override;
 

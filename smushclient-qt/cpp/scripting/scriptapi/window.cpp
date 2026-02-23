@@ -104,7 +104,7 @@ ScriptApi::WindowBlendImage(string_view windowName,
 ApiCode
 ScriptApi::WindowButton(string_view windowName,
                         const QRect& rect,
-                        MiniWindow::ButtonFrame frame,
+                        ButtonFrame frame,
                         MiniWindow::ButtonFlags flags) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
@@ -170,7 +170,7 @@ ApiCode
 ScriptApi::WindowDrawImage(string_view windowName,
                            string_view imageID,
                            const QRectF& rect,
-                           MiniWindow::DrawImageMode mode,
+                           DrawImageMode mode,
                            const QRectF& sourceRect) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
@@ -460,7 +460,7 @@ ScriptApi::WindowMergeImageAlpha(std::string_view windowName,
                                  std::string_view imageID,
                                  std::string_view maskID,
                                  const QRect& targetRect,
-                                 MiniWindow::MergeMode mode,
+                                 MergeMode mode,
                                  qreal opacity,
                                  const QRect& sourceRect) const
 {
@@ -662,7 +662,7 @@ ScriptApi::WindowTextWidth(string_view windowName,
 ApiCode
 ScriptApi::WindowTransformImage(std::string_view windowName,
                                 std::string_view imageID,
-                                MiniWindow::MergeMode mode,
+                                MergeMode mode,
                                 const QTransform& transform) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);

@@ -1,6 +1,7 @@
 #include "globals.h"
+#include "../miniwindow/miniwindow.h"
 #include "../qlua.h"
-#include "../scriptapi.h"
+#include "smushclient_qt/src/ffi/send_request.cxx.h"
 #include "sqlite3.h"
 #include <string>
 #include <utility>
@@ -279,10 +280,10 @@ static const pair<string, lua_Integer> miniwin[] = {
   { "rect_draw_edge", I(RectOp::Edge3D) },
   { "rect_flood_fill_border", I(RectOp::FloodFillBorder) },
   { "rect_flood_fill_surface", I(RectOp::FloodFillSurface) },
-  { "rect_edge_raised", I(MiniWindow::ButtonFrame::Raised) },
-  { "rect_edge_etched", I(MiniWindow::ButtonFrame::Etched) },
-  { "rect_edge_bump", I(MiniWindow::ButtonFrame::Bump) },
-  { "rect_edge_sunken", I(MiniWindow::ButtonFrame::Sunken) },
+  { "rect_edge_raised", I(ButtonFrame::Raised) },
+  { "rect_edge_etched", I(ButtonFrame::Etched) },
+  { "rect_edge_bump", I(ButtonFrame::Bump) },
+  { "rect_edge_sunken", I(ButtonFrame::Sunken) },
   { "rect_edge_at_top_left", 0x3 },
   { "rect_edge_at_top_right", 0x6 },
   { "rect_edge_at_bottom_left", 0x9 },
@@ -325,9 +326,9 @@ static const pair<string, lua_Integer> miniwin[] = {
 
   { "font_truetype", 4 },
 
-  { "image_copy", I(MiniWindow::DrawImageMode::Copy) },
-  { "image_stretch", I(MiniWindow::DrawImageMode::Stretch) },
-  { "image_transparent_copy", I(MiniWindow::DrawImageMode::CopyTransparent) },
+  { "image_copy", I(DrawImageMode::Copy) },
+  { "image_stretch", I(DrawImageMode::Stretch) },
+  { "image_transparent_copy", I(DrawImageMode::CopyTransparent) },
 
   { "image_fill_ellipse", I(ImageOp::Ellipse) },
   { "image_fill_rectangle", I(ImageOp::Rectangle) },
@@ -455,8 +456,8 @@ static const pair<string, lua_Integer> miniwin[] = {
   { "hotspot_got_not_first", Hotspot::EventFlag::Hover },
   { "hotspot_got_middle_mouse", Hotspot::EventFlag::MouseMiddle },
 
-  { "merge_straight", I(MiniWindow::MergeMode::Straight) },
-  { "merge_transparent", I(MiniWindow::MergeMode::Transparent) },
+  { "merge_straight", I(MergeMode::Straight) },
+  { "merge_transparent", I(MergeMode::Transparent) },
 
   { "drag_got_shift", Hotspot::EventFlag::Shift },
   { "drag_got_control", Hotspot::EventFlag::Control },

@@ -22,7 +22,6 @@ class MudBrowser;
 class MudStatusBar;
 class Notepads;
 struct OutputLayout;
-enum class SendTarget;
 struct SendTimer;
 class SmushClient;
 class Timekeeper;
@@ -32,11 +31,15 @@ struct lua_State;
 template<typename T, typename Handler>
 class TimerMap;
 
-enum class SendFlag
+namespace sendflag {
+enum SendFlag
 {
   Echo = 1,
   Log = 2,
 };
+} // namespace sendflag
+
+using SendFlag = sendflag::SendFlag;
 Q_DECLARE_FLAGS(SendFlags, SendFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(SendFlags)
 
@@ -246,7 +249,7 @@ public:
                            const QRectF& sourceRect) const;
   ApiCode WindowButton(std::string_view windowName,
                        const QRect& rect,
-                       MiniWindow::ButtonFrame frame,
+                       ButtonFrame frame,
                        MiniWindow::ButtonFlags flags) const;
   ApiCode WindowCreate(size_t pluginIndex,
                        std::string_view windowName,
@@ -265,7 +268,7 @@ public:
   ApiCode WindowDrawImage(std::string_view windowName,
                           std::string_view imageID,
                           const QRectF& rect,
-                          MiniWindow::DrawImageMode mode,
+                          DrawImageMode mode,
                           const QRectF& sourceRect) const;
   ApiCode WindowDrawImageAlpha(std::string_view windowName,
                                std::string_view imageID,
@@ -345,7 +348,7 @@ public:
                                 std::string_view imageID,
                                 std::string_view maskID,
                                 const QRect& targetRect,
-                                MiniWindow::MergeMode mode,
+                                MergeMode mode,
                                 qreal opacity,
                                 const QRect& sourceRect) const;
   ApiCode WindowMoveHotspot(std::string_view windowName,
@@ -403,7 +406,7 @@ public:
                       bool unicode) const;
   ApiCode WindowTransformImage(std::string_view windowName,
                                std::string_view imageID,
-                               MiniWindow::MergeMode mode,
+                               MergeMode mode,
                                const QTransform& transform) const;
   ApiCode WindowUnloadFont(std::string_view windowName,
                            std::string_view fontID) const;

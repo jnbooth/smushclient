@@ -9,6 +9,7 @@ template <> struct SettingInput<QColor>      { using Type = const QColor &; };
 template <> struct SettingInput<QFont>       { using Type = const QFont &; };
 template <> struct SettingInput<QString>     { using Type = const QString &; };
 template <> struct SettingInput<QStringList> { using Type = const QStringList &; };
+template <> struct SettingInput<QVariant>    { using Type = const QVariant&; };
 // clang-format on
 
 #define SETTING(NAME, T, DEFAULT, KEY)                                         \

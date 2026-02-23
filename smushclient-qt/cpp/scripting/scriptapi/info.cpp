@@ -18,10 +18,6 @@
 #include <QtNetwork/QHostInfo>
 #include <QtNetwork/QNetworkProxy>
 #include <QtWidgets/QTabWidget>
-extern "C"
-{
-#include "lua.h"
-}
 
 using std::string;
 using std::string_view;
@@ -49,6 +45,8 @@ enum ModifierFlag : int64_t
   RightMouse = 0x20000,
   MiddleMouse = 0x40000,
 };
+Q_DECLARE_FLAGS(ModifierFlags, ModifierFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(ModifierFlags)
 
 namespace {
 QString
@@ -57,10 +55,10 @@ defaultPath(const QString& name)
   return QDir::currentPath() + QDir::separator() + name;
 }
 
-constexpr int64_t
+constexpr ModifierFlags
 getModifierFlags(Qt::KeyboardModifiers mods, Qt::MouseButtons buttons)
 {
-  int64_t flags = 0;
+  ModifierFlags flags;
 
   if (mods.testFlag(Qt::KeyboardModifier::ShiftModifier)) {
     flags |= ModifierFlag::Shift | ModifierFlag::LeftShift;
@@ -126,7 +124,7 @@ ScriptApi::FontInfo(const QFont& font, int64_t infoType)
     return ffi::util::font_info(font, infoType);
   }
   const ScriptFont scriptFont(font);
-  return static_cast<lua_Integer>(ScriptFont(font));
+  return static_cast<int64_t>(ScriptFont(font));
 }
 
 int64_t
@@ -380,7 +378,8 @@ ScriptApi::GetInfo(int64_t infoType) const
     }
     case 294:
       return getModifierFlags(QGuiApplication::keyboardModifiers(),
-                              QGuiApplication::mouseButtons());
+                              QGuiApplication::mouseButtons())
+        .toInt();
     case 296:
       return scrollBar.sliderPosition();
     case 298:

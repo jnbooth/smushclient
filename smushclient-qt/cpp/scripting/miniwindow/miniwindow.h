@@ -1,11 +1,11 @@
 #pragma once
 #include "../../enumbounds.h"
+#include "../scriptenums.h"
 #include "../stringmap.h"
 #include "hotspot.h"
 #include <QtCore/QDateTime>
 #include <QtGui/QPainter>
 
-enum class BlendMode : int64_t;
 class ImageFilter;
 class Plugin;
 class WorldTab;
@@ -15,30 +15,6 @@ class MiniWindow : public QWidget
   Q_OBJECT
 
 public:
-  enum class DrawImageMode : int64_t
-  {
-    // Copy without stretching to the destination position. The image is not
-    // clipped, so only the Left and Top parameters are used - the full image is
-    // copied to that position.
-    Copy = 1,
-    // Stretch or shrink the image appropriately to fit into the rectangle:
-    // Left, Top, Right, Bottom.
-    Stretch,
-    // Copy without stretching to the position Left, Top. However this is a
-    // transparent copy, where the pixel at the left,top corner (pixel position
-    // 0,0) is considered the transparent colour. Any pixels that exactly match
-    // that colour are not copied. WARNING - do not choose black or white as the
-    // transparent colour as that throws out the calculations. Choose some other
-    // colour (eg. purple) - you won't see that colour anyway.
-    CopyTransparent,
-  };
-
-  enum class MergeMode : int64_t
-  {
-    Straight,
-    Transparent,
-  };
-
   enum Flag
   {
     // Draw underneath. If set, the miniwindow is drawn beneath the scrolling
@@ -69,14 +45,6 @@ public:
     KeepHotspots = 16,
   };
   Q_DECLARE_FLAGS(Flags, Flag)
-
-  enum class ButtonFrame : int64_t
-  {
-    Raised = 5,
-    Etched = 6,
-    Bump = 9,
-    Sunken = 10,
-  };
 
   enum ButtonFlag
   {
@@ -129,7 +97,9 @@ public:
                const QPointF& start,
                const QPointF& end,
                const QPen& pen);
-  void drawButton(const QRect& rect, ButtonFrame frame, ButtonFlags flags);
+  void drawButton(const QRect& rect,
+                  ButtonFrame frame,
+                  ButtonFlags flags = ButtonFlags());
   void drawEllipse(const QRectF& rect,
                    const QPen& pen,
                    const QBrush& brush = QBrush());
@@ -263,7 +233,7 @@ public:
   bool setPixel(const QPoint& location, const QColor& color);
   void setPosition(const QPoint& location,
                    Position position,
-                   Flags flags) noexcept;
+                   Flags flags = Flags()) noexcept;
   void setSize(const QSize& size, const QColor& fill) noexcept;
   void setSize(const QSize& size) noexcept;
   void setZOrder(int64_t zOrder) noexcept;
@@ -312,6 +282,4 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(MiniWindow::ButtonFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(MiniWindow::Flags)
 
-DECLARE_ENUM_BOUNDS(MiniWindow::DrawImageMode, Copy, CopyTransparent)
-DECLARE_ENUM_BOUNDS(MiniWindow::MergeMode, Straight, Transparent)
 DECLARE_ENUM_BOUNDS(MiniWindow::Position, OutputStretch, Tile)

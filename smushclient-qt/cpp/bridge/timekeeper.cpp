@@ -3,10 +3,6 @@
 #include "../scripting/scriptapi.h"
 #include "../timer_map.h"
 #include "smushclient_qt/src/ffi/timekeeper.cxxqt.h"
-extern "C"
-{
-#include "lua.h"
-}
 
 using std::chrono::milliseconds;
 using std::chrono::seconds;

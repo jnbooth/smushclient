@@ -3,6 +3,7 @@
 #include "../../ui/scripting/listbox.h"
 #include "../qlua.h"
 #include <QtGui/QFontDatabase>
+#include <QtWidgets/QApplication>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QInputDialog>
 extern "C"

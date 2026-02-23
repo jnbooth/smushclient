@@ -144,7 +144,7 @@ WorldTab::~WorldTab()
   delete ui;
 }
 
-AvailableCopy
+WorldTab::AvailableCopy
 WorldTab::availableCopy() const
 {
   if (outputCopyAvailable) {

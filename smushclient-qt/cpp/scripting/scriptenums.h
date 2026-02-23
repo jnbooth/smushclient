@@ -5,25 +5,6 @@
 #include <QtGui/QFont>
 #include <QtGui/QPen>
 
-enum class AliasFlag
-{
-  Enabled = 1,             // Enable
-  KeepEvaluating = 8,      // Keep evaluating
-  IgnoreAliasCase = 32,    // Ignore case when matching
-  OmitFromLogFile = 64,    // Omit from log file
-  RegularExpression = 128, // Uses regular expression
-  ExpandVariables = 512,   // Expand variables like @direction
-  Replace = 1024,          // Replace existing of same name
-  AliasSpeedWalk = 2048,   // Interpret send string as a speed walk string
-  AliasQueue =
-    4096, // Queue this alias for sending at the speedwalking delay interval
-  AliasMenu = 8192,  // This alias appears on the alias menu
-  Temporary = 16384, // Temporary - do not save to world file
-  OneShot = 32768,   // If set, only fires once
-};
-Q_DECLARE_FLAGS(AliasFlags, AliasFlag)
-Q_DECLARE_OPERATORS_FOR_FLAGS(AliasFlags)
-
 enum class ActionSource
 {
   Unknown,    // No particular reason, could be plugin saving
@@ -118,6 +99,17 @@ enum class ButtonFrame : int64_t
   Bump = 9,
   Sunken = 10,
 };
+template<>
+struct enum_bounds<ButtonFrame>
+{
+  static constexpr bool validate(int64_t value) noexcept
+  {
+    return value == static_cast<int64_t>(ButtonFrame::Raised) ||
+           value == static_cast<int64_t>(ButtonFrame::Etched) ||
+           value == static_cast<int64_t>(ButtonFrame::Bump) ||
+           value == static_cast<int64_t>(ButtonFrame::Sunken);
+  }
+};
 
 enum class CircleOp : int64_t
 {
@@ -128,6 +120,25 @@ enum class CircleOp : int64_t
   Pie,
 };
 DECLARE_ENUM_BOUNDS(CircleOp, Ellipse, Pie)
+
+enum class DrawImageMode : int64_t
+{
+  // Copy without stretching to the destination position. The image is not
+  // clipped, so only the Left and Top parameters are used - the full image is
+  // copied to that position.
+  Copy = 1,
+  // Stretch or shrink the image appropriately to fit into the rectangle:
+  // Left, Top, Right, Bottom.
+  Stretch,
+  // Copy without stretching to the position Left, Top. However this is a
+  // transparent copy, where the pixel at the left,top corner (pixel position
+  // 0,0) is considered the transparent colour. Any pixels that exactly match
+  // that colour are not copied. WARNING - do not choose black or white as the
+  // transparent colour as that throws out the calculations. Choose some other
+  // colour (eg. purple) - you won't see that colour anyway.
+  CopyTransparent,
+};
+DECLARE_ENUM_BOUNDS(DrawImageMode, Copy, CopyTransparent)
 
 enum class FilterOp : int64_t
 {
@@ -169,11 +180,28 @@ enum class ImageOp : int64_t
 };
 DECLARE_ENUM_BOUNDS(ImageOp, Ellipse, RoundedRectangle)
 
+enum class MergeMode : int64_t
+{
+  Straight,
+  Transparent,
+};
+DECLARE_ENUM_BOUNDS(MergeMode, Straight, Transparent)
+
 enum class OperatingSystem : int64_t
 {
   Windows = 2,
   MacOS = 100,
   Linux = 200,
+};
+template<>
+struct enum_bounds<OperatingSystem>
+{
+  static constexpr bool validate(int64_t value) noexcept
+  {
+    return value == static_cast<int64_t>(OperatingSystem::Windows) ||
+           value == static_cast<int64_t>(OperatingSystem::MacOS) ||
+           value == static_cast<int64_t>(OperatingSystem::Linux);
+  }
 };
 
 enum class RectOp : int64_t
@@ -265,7 +293,28 @@ enum class SysColor : int64_t
 };
 DECLARE_ENUM_BOUNDS(SysColor, Scrollbar, InfoBk)
 
-enum class TimerFlag
+namespace senderflags {
+namespace alias {
+enum AliasFlag
+{
+  Enabled = 1,             // Enable
+  KeepEvaluating = 8,      // Keep evaluating
+  IgnoreAliasCase = 32,    // Ignore case when matching
+  OmitFromLogFile = 64,    // Omit from log file
+  RegularExpression = 128, // Uses regular expression
+  ExpandVariables = 512,   // Expand variables like @direction
+  Replace = 1024,          // Replace existing of same name
+  AliasSpeedWalk = 2048,   // Interpret send string as a speed walk string
+  AliasQueue =
+    4096, // Queue this alias for sending at the speedwalking delay interval
+  AliasMenu = 8192,  // This alias appears on the alias menu
+  Temporary = 16384, // Temporary - do not save to world file
+  OneShot = 32768,   // If set, only fires once
+};
+} // namespace alias
+
+namespace timer {
+enum TimerFlag
 {
   Enabled = 1,           // Enable
   AtTime = 2,            // If not set, time is "every"
@@ -276,10 +325,10 @@ enum class TimerFlag
   Replace = 1024,        // Replace existing of same name
   Temporary = 16384,     // Temporary - do not save to world file
 };
-Q_DECLARE_FLAGS(TimerFlags, TimerFlag)
-Q_DECLARE_OPERATORS_FOR_FLAGS(TimerFlags)
+} // namespace timer
 
-enum class TriggerFlag
+namespace trigger {
+enum TriggerFlag
 {
   Enabled = 1,              // Enable
   OmitFromLog = 2,          // Omit from log file
@@ -293,6 +342,18 @@ enum class TriggerFlag
   Temporary = 16384,        // Temporary - do not save to world file
   OneShot = 32768,          // If set, only fires once
 };
+} // namespace trigger
+} // namespace senderflags
+
+using AliasFlag = senderflags::alias::AliasFlag;
+Q_DECLARE_FLAGS(AliasFlags, AliasFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(AliasFlags)
+
+using TimerFlag = senderflags::timer::TimerFlag;
+Q_DECLARE_FLAGS(TimerFlags, TimerFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(TimerFlags)
+
+using TriggerFlag = senderflags::trigger::TriggerFlag;
 Q_DECLARE_FLAGS(TriggerFlags, TriggerFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(TriggerFlags)
 
@@ -353,15 +414,14 @@ public:
 
   constexpr Pitch pitch() const noexcept
   {
-    return static_cast<Pitch>(value & 0xB);
+    return static_cast<Pitch>(value & 0xB); // exclude 4-bit
   }
 
   constexpr bool isValid() const noexcept
   {
-    return value == 0 ||
-           (value > 0 && value <= 92 &&
-            /// 1, 2, or 8
-            std::popcount(static_cast<uint16_t>(value & 0xB)) == 1);
+    return value == 0 || (value > 0 && value <= 92 &&
+                          /// 1, 2, or 8
+                          std::popcount(static_cast<uint16_t>(pitch())) == 1);
   }
 
   QFont::StyleHint hint() const noexcept;
@@ -436,8 +496,8 @@ public:
   constexpr bool isValid() const noexcept
   {
     return value == 0 ||
-           (value > 0 && (/* join */ ((value >> 8) & 0xF) <= 2) &&
-            (/* cap */ value >> 12 <= 2) && (/* style */ (value & 0xFF) <= 6));
+           (value > 0 && join() <= Join::MiterJoin && cap() <= Cap::FlatCap &&
+            style() <= Style::InsideFrame);
   }
 
   QPen qPen(const QBrush& brush, qreal width = 1) const;

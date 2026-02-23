@@ -1,15 +1,12 @@
 #pragma once
-#include "miniwindow/miniwindow.h"
+#include "../enumbounds.h"
 #include "rust/cxx.h"
-#include "scriptenums.h"
-#include "smushclient_qt/src/ffi/filter.cxx.h"
-#include <limits>
+#include <QtGui/QPen>
+#include <type_traits>
 extern "C"
 {
 #include "lua.h"
 }
-
-enum class SendTarget;
 
 namespace qlua {
 constexpr QColor
@@ -33,6 +30,15 @@ colorToRgbCode(const QColor& color)
   return b << 16 | g << 8 | r;
 }
 
+QByteArray
+concatBytes(lua_State* L);
+
+std::string
+concatStrings(lua_State* L);
+
+bool
+copyValue(lua_State* fromL, lua_State* toL, int idx);
+
 int
 expectMaxArgs(lua_State* L, int max);
 
@@ -43,15 +49,19 @@ getBool(lua_State* L, int idx, bool ifNil);
 
 QByteArrayView
 getBytes(lua_State* L, int idx);
-lua_Integer
-getInteger(lua_State* L, int idx);
-lua_Integer
-getInteger(lua_State* L, int idx, lua_Integer ifNil);
 
 int
 getInt(lua_State* L, int idx);
 int
 getInt(lua_State* L, int idx, int ifNil);
+
+lua_Integer
+getInteger(lua_State* L, int idx);
+lua_Integer
+getInteger(lua_State* L, int idx, lua_Integer ifNil);
+
+std::optional<lua_Integer>
+getIntegerOpt(lua_State* L, int idx);
 
 lua_Integer
 getIntegerOrBool(lua_State* L, int idx);
@@ -63,12 +73,44 @@ getNumber(lua_State* L, int idx);
 lua_Number
 getNumber(lua_State* L, int idx, lua_Number ifNil);
 
+std::optional<Qt::BrushStyle>
+getBrush(lua_State* L,
+         int idx,
+         std::optional<Qt::BrushStyle> ifNil = std::nullopt);
+
+std::optional<Qt::CursorShape>
+getCursor(lua_State* L,
+          int idx,
+          std::optional<Qt::CursorShape> ifNil = std::nullopt);
+
+QColor
+getCustomColor(lua_State* L, int idx);
+
+template<typename T>
+std::optional<T>
+getEnum(lua_State* L, int idx, std::optional<T> ifNil = std::nullopt)
+{
+  const std::optional<lua_Integer> underlying = getIntegerOpt(L, idx);
+  if (underlying == std::nullopt) {
+    return ifNil;
+  }
+  if (!enum_bounds<T>::validate(*underlying)) [[unlikely]] {
+    return std::nullopt;
+  }
+  return static_cast<T>(*underlying);
+}
+
+template<typename T, T MIN = enum_bounds<T>::min, T MAX = enum_bounds<T>::max>
+std::optional<T>
+getEnum(lua_State* L, int idx, T ifNil)
+{
+  return getEnum(L, idx, std::optional(ifNil));
+}
+
 QColor
 getQColor(lua_State* L, int idx);
 QColor
 getQColor(lua_State* L, int idx, const QColor& ifNil);
-QColor
-getCustomColor(lua_State* L, int idx);
 
 template<typename T>
 inline QFlags<T>
@@ -83,6 +125,41 @@ getQFlags(lua_State* L, int idx, QFlags<T> ifNil)
   return static_cast<QFlags<T>>(getInt(L, idx, static_cast<int>(ifNil)));
 }
 
+QLine
+getQLine(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2);
+QLineF
+getQLineF(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2);
+
+QMargins
+getQMargins(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom);
+QMarginsF
+getQMarginsF(lua_State* L,
+             int idxLeft,
+             int idxTop,
+             int idxRight,
+             int idxBottom);
+
+std::optional<QPen>
+getQPen(lua_State* L, int idxColor, int idxStyle, int idxWidth);
+
+QPoint
+getQPoint(lua_State* L, int idxX, int idxY);
+QPointF
+getQPointF(lua_State* L, int idxX, int idxY);
+
+std::optional<QPolygonF>
+getQPolygonF(lua_State* L, int idx);
+
+QSize
+getQSize(lua_State* L, int idxWidth, int idxHeight);
+QSizeF
+getQSizeF(lua_State* L, int idxWidth, int idxHeight);
+
+QRect
+getQRect(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom);
+QRectF
+getQRectF(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom);
+
 QString
 getQString(lua_State* L, int idx);
 QString
@@ -93,71 +170,6 @@ getQVariant(lua_State* L, int idx, int type);
 QVariant
 getQVariant(lua_State* L, int idx);
 
-std::optional<std::string_view>
-getScriptName(lua_State* L, int idx);
-
-template<typename T, T MIN = enum_bounds<T>::min, T MAX = enum_bounds<T>::max>
-std::optional<T>
-getEnum(lua_State* L, int idx, std::optional<T> ifNil = std::nullopt)
-{
-  constexpr lua_Integer ifNilInt = std::numeric_limits<lua_Integer>::min();
-  const lua_Integer underlying = getInteger(L, idx, ifNilInt);
-  if (underlying == ifNilInt) {
-    return ifNil;
-  }
-  if (underlying < static_cast<lua_Integer>(MIN) ||
-      underlying > static_cast<lua_Integer>(MAX)) [[unlikely]] {
-    return std::nullopt;
-  }
-  return static_cast<T>(underlying);
-}
-
-template<typename T, T MIN = enum_bounds<T>::min, T MAX = enum_bounds<T>::max>
-std::optional<T>
-getEnum(lua_State* L, int idx, T ifNil)
-{
-  return getEnum(L, idx, std::optional(ifNil));
-}
-
-std::string_view
-getString(lua_State* L, int idx);
-std::string_view
-getString(lua_State* L, int idx, std::string_view ifNil);
-std::string_view
-toString(lua_State* L, int idx);
-
-QByteArray
-concatBytes(lua_State* L);
-std::string
-concatStrings(lua_State* L);
-
-bool
-copyValue(lua_State* fromL, lua_State* toL, int idx);
-
-QLine
-getQLine(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2);
-QLineF
-getQLineF(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2);
-QMargins
-getQMargins(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom);
-QMarginsF
-getQMarginsF(lua_State* L,
-             int idxLeft,
-             int idxTop,
-             int idxRight,
-             int idxBottom);
-QPoint
-getQPoint(lua_State* L, int idxX, int idxY);
-QPointF
-getQPointF(lua_State* L, int idxX, int idxY);
-QSize
-getQSize(lua_State* L, int idxWidth, int idxHeight);
-QSizeF
-getQSizeF(lua_State* L, int idxWidth, int idxHeight);
-QRect
-getQRect(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom);
-QRectF
-getQRectF(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom);
 QTransform
 getQTransform(lua_State* L,
               int idxM11,
@@ -167,92 +179,58 @@ getQTransform(lua_State* L,
               int idxDx,
               int idxDy);
 
-std::optional<QPen>
-getQPen(lua_State* L, int idxColor, int idxStyle, int idxWidth);
+std::optional<std::string_view>
+getScriptName(lua_State* L, int idx);
 
-std::optional<QPolygonF>
-getQPolygonF(lua_State* L, int idx);
-
-std::optional<BlendMode>
-getBlendMode(lua_State* L,
-             int idx,
-             std::optional<BlendMode> ifNil = std::nullopt);
-
-std::optional<Qt::BrushStyle>
-getBrush(lua_State* L,
-         int idx,
-         std::optional<Qt::BrushStyle> ifNil = std::nullopt);
-
-std::optional<MiniWindow::ButtonFrame>
-getButtonFrame(lua_State* L,
-               int idx,
-               std::optional<MiniWindow::ButtonFrame> ifNil = std::nullopt);
-
-std::optional<Qt::CursorShape>
-getCursor(lua_State* L,
-          int idx,
-          std::optional<Qt::CursorShape> ifNil = std::nullopt);
-
-std::optional<QFont::StyleHint>
-getFontHint(lua_State* L,
-            int idx,
-            std::optional<QFont::StyleHint> ifNil = std::nullopt);
+std::string_view
+getString(lua_State* L, int idx);
+std::string_view
+getString(lua_State* L, int idx, std::string_view ifNil);
+std::string_view
+toString(lua_State* L, int idx);
 
 void
 pushQVariant(lua_State* L, const QVariant& variant);
 
-#define PUSH(T, f)                                                             \
+template<typename T>
+void
+push(lua_State* L, T value)
+  requires(std::is_enum_v<T>)
+{
+  lua_pushinteger(L, static_cast<lua_Integer>(value));
+}
+
+#define IMPL_PUSH(T, f, op)                                                    \
   inline void push(lua_State* L, T value)                                      \
   {                                                                            \
-    f(L, value);                                                               \
+    f(L, op(value));                                                           \
   }
 
-PUSH(const char*, lua_pushstring);
-PUSH(lua_Integer, lua_pushinteger);
-PUSH(lua_Number, lua_pushnumber);
+IMPL_PUSH(lua_Integer, lua_pushinteger, );
+IMPL_PUSH(lua_Number, lua_pushnumber, );
+IMPL_PUSH(bool, lua_pushboolean, static_cast<int>);
+IMPL_PUSH(int, lua_pushinteger, static_cast<lua_Integer>);
+IMPL_PUSH(size_t, lua_pushinteger, static_cast<lua_Integer>);
+IMPL_PUSH(const QColor&, lua_pushinteger, colorToRgbCode);
 
-#undef PUSH
-
-#define NPUSH(T)                                                               \
-  inline void push(lua_State* L, T value)                                      \
-  {                                                                            \
-    lua_pushinteger(L, static_cast<lua_Integer>(value));                       \
-  }
-
-NPUSH(ApiCode);
-NPUSH(AliasFlag);
-NPUSH(OperatingSystem);
-NPUSH(SendTarget);
-NPUSH(TimerFlag);
-NPUSH(TriggerFlag);
-NPUSH(int);
-NPUSH(size_t);
-
-#undef NPUSH
-
-#define SPUSH(T)                                                               \
+#undef IMPL_PUSH
+#define IMPL_PUSH(T)                                                           \
   inline const char* push(lua_State* L, T value)                               \
   {                                                                            \
     return lua_pushlstring(L, value.data(), value.size());                     \
   }
 
-SPUSH(const QByteArray&);
-SPUSH(rust::Str);
-SPUSH(const std::string&);
-SPUSH(std::string_view);
+IMPL_PUSH(const QByteArray&);
+IMPL_PUSH(rust::Str);
+IMPL_PUSH(const std::string&);
+IMPL_PUSH(std::string_view);
 
-#undef SPUSH
+#undef IMPL_PUSH
 
-inline void
-push(lua_State* L, bool value)
+inline const char*
+push(lua_State* L, const char* value)
 {
-  lua_pushboolean(L, static_cast<int>(value));
-}
-
-inline void
-push(lua_State* L, const QColor& color)
-{
-  push(L, colorToRgbCode(color));
+  return lua_pushstring(L, value);
 }
 
 inline const char*
@@ -264,6 +242,10 @@ push(lua_State* L, const QString& string)
 inline const char*
 push(lua_State* L, QChar ch)
 {
+  if (const char16_t code = ch.unicode(); code <= 127) [[likely]] {
+    const char ccode = static_cast<char>(code);
+    return lua_pushlstring(L, &ccode, 1);
+  }
   return push(L, QString(ch));
 }
 

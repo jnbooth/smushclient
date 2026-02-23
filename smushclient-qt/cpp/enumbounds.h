@@ -9,4 +9,10 @@ struct enum_bounds;
   {                                                                            \
     static constexpr T min = T::minVal;                                        \
     static constexpr T max = T::maxVal;                                        \
+                                                                               \
+    static constexpr bool validate(long long value) noexcept                   \
+    {                                                                          \
+      return value >= static_cast<long long>(min) &&                           \
+             value <= static_cast<long long>(max);                             \
+    }                                                                          \
   };
