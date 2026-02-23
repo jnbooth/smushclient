@@ -197,59 +197,6 @@ toQVariant(lua_State* L, int idx, int type)
       return QVariant();
   }
 }
-
-constexpr optional<Qt::PenStyle>
-getPenStyle(lua_Integer style) noexcept
-{
-  switch (static_cast<PenStyle>(style & 0xFF)) {
-    case PenStyle::SolidLine:
-      return Qt::PenStyle::SolidLine;
-    case PenStyle::DashLine:
-      return Qt::PenStyle::DashLine;
-    case PenStyle::DotLine:
-      return Qt::PenStyle::DotLine;
-    case PenStyle::DashDotLine:
-      return Qt::PenStyle::DashDotLine;
-    case PenStyle::DashDotDotLine:
-      return Qt::PenStyle::DashDotDotLine;
-    case PenStyle::NoPen:
-      return Qt::PenStyle::NoPen;
-    case PenStyle::InsideFrame:
-      return Qt::PenStyle::SolidLine;
-    default:
-      return nullopt;
-  }
-}
-
-constexpr optional<Qt::PenCapStyle>
-getPenCap(lua_Integer style) noexcept
-{
-  switch (static_cast<PenCap>(style & 0xF00)) {
-    case PenCap::RoundCap:
-      return Qt::PenCapStyle::RoundCap;
-    case PenCap::SquareCap:
-      return Qt::PenCapStyle::SquareCap;
-    case PenCap::FlatCap:
-      return Qt::PenCapStyle::FlatCap;
-    default:
-      return nullopt;
-  }
-}
-
-constexpr optional<Qt::PenJoinStyle>
-getPenJoin(lua_Integer style) noexcept
-{
-  switch (static_cast<PenJoin>(style & ~0XFFF)) {
-    case PenJoin::RoundJoin:
-      return Qt::PenJoinStyle::RoundJoin;
-    case PenJoin::BevelJoin:
-      return Qt::PenJoinStyle::BevelJoin;
-    case PenJoin::MiterJoin:
-      return Qt::PenJoinStyle::MiterJoin;
-    default:
-      return nullopt;
-  }
-}
 } // namespace
 
 // Public functions
@@ -782,26 +729,11 @@ qlua::getQPen(lua_State* L, int idxColor, int idxStyle, int idxWidth)
   const QColor color = getQColor(L, idxColor);
   const lua_Integer style = getInteger(L, idxStyle);
   const lua_Number width = getNumber(L, idxWidth);
-  if (style < 0 || width < 0) [[unlikely]] {
+  const optional<ScriptPen> pen = ScriptPen::validate(style);
+  if (!pen || width < 0) [[unlikely]] {
     return nullopt;
   }
-
-  if (style == 0) {
-    return QPen(color,
-                width,
-                Qt::PenStyle::SolidLine,
-                Qt::PenCapStyle::RoundCap,
-                Qt::PenJoinStyle::RoundJoin);
-  }
-
-  const optional<Qt::PenStyle> penStyle = getPenStyle(style);
-  const optional<Qt::PenCapStyle> capStyle = getPenCap(style);
-  const optional<Qt::PenJoinStyle> joinStyle = getPenJoin(style);
-  if (!penStyle || !capStyle || !joinStyle) [[unlikely]] {
-    return nullopt;
-  }
-
-  return QPen(color, width, *penStyle, *capStyle, *joinStyle);
+  return pen->qPen(color, width);
 }
 
 optional<QPolygonF>
@@ -933,32 +865,9 @@ qlua::getFontHint(lua_State* L, int idx, optional<QFont::StyleHint> ifNil)
   if (!checkIsSome(L, idx, LUA_TNUMBER, "integer")) {
     return ifNil;
   }
-
-  const lua_Integer style = toInteger(L, idx);
-  switch (static_cast<FontPitch>(style & 0xF)) // pitch
-  {
-    case FontPitch::Default:
-    case FontPitch::Fixed:
-    case FontPitch::Variable:
-      break;
-    case FontPitch::Monospace:
-      return QFont::StyleHint::Monospace;
-    default:
-      return nullopt;
+  const optional<ScriptFont> font = ScriptFont::validate(toInteger(L, idx));
+  if (!font) [[unlikely]] {
+    return nullopt;
   }
-
-  switch (static_cast<FontFamily>(style & ~0xF)) {
-    case FontFamily::Roman:
-      return QFont::StyleHint::Serif;
-    case FontFamily::Swiss:
-      return QFont::StyleHint::SansSerif;
-    case FontFamily::Modern:
-      return QFont::StyleHint::TypeWriter;
-    case FontFamily::Script:
-      return QFont::StyleHint::Cursive;
-    case FontFamily::Decorative:
-      return QFont::StyleHint::Decorative;
-    default:
-      return nullopt;
-  }
+  return font->hint();
 }

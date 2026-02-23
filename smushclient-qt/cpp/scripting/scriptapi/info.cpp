@@ -18,6 +18,10 @@
 #include <QtNetwork/QHostInfo>
 #include <QtNetwork/QNetworkProxy>
 #include <QtWidgets/QTabWidget>
+extern "C"
+{
+#include "lua.h"
+}
 
 using std::string;
 using std::string_view;
@@ -121,28 +125,8 @@ ScriptApi::FontInfo(const QFont& font, int64_t infoType)
   if (infoType != 19) {
     return ffi::util::font_info(font, infoType);
   }
-  const QFont::StyleHint hint = font.styleHint();
-  if (hint == QFont::StyleHint::Monospace) {
-    return FontPitch::Monospace;
-  }
-
-  const int pitchFlag =
-    QFontInfo(font).fixedPitch() ? FontPitch::Fixed : FontPitch::Variable;
-
-  switch (hint) {
-    case QFont::StyleHint::Serif:
-      return FontFamily::Roman | pitchFlag;
-    case QFont::StyleHint::SansSerif:
-      return FontFamily::Swiss | pitchFlag;
-    case QFont::StyleHint::TypeWriter:
-      return FontFamily::Modern | pitchFlag;
-    case QFont::StyleHint::Cursive:
-      return FontFamily::Script | pitchFlag;
-    case QFont::StyleHint::Decorative:
-      return FontFamily::Decorative | pitchFlag;
-    default:
-      return FontFamily::AnyFamily | pitchFlag;
-  }
+  const ScriptFont scriptFont(font);
+  return static_cast<lua_Integer>(ScriptFont(font));
 }
 
 int64_t

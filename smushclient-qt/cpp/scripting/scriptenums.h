@@ -2,6 +2,8 @@
 #include "../enumbounds.h"
 #include "smushclient_qt/src/ffi/api_code.cxx.h"
 #include <QtCore/QFlags>
+#include <QtGui/QFont>
+#include <QtGui/QPen>
 
 enum class AliasFlag
 {
@@ -159,24 +161,6 @@ enum class FilterOp : int64_t
 };
 DECLARE_ENUM_BOUNDS(FilterOp, Noise, Average)
 
-enum class FontPitch : int64_t
-{
-  Default = 0,
-  Fixed = 1,
-  Variable = 2,
-  Monospace = 8
-};
-
-enum class FontFamily : int64_t
-{
-  AnyFamily = 0,
-  Roman = 16,
-  Swiss = 32,
-  Modern = 48,
-  Script = 64,
-  Decorative = 80,
-};
-
 enum class ImageOp : int64_t
 {
   Ellipse = 1,
@@ -190,31 +174,6 @@ enum class OperatingSystem : int64_t
   Windows = 2,
   MacOS = 100,
   Linux = 200,
-};
-
-enum class PenStyle : int64_t
-{
-  SolidLine = 0,
-  DashLine = 1,
-  DotLine = 2,
-  DashDotLine = 3,
-  DashDotDotLine = 4,
-  NoPen = 5,
-  InsideFrame = 6,
-};
-
-enum class PenCap : int64_t
-{
-  RoundCap = 0x000,
-  SquareCap = 0x100,
-  FlatCap = 0x200,
-};
-
-enum class PenJoin : int64_t
-{
-  RoundJoin = 0x0000,
-  BevelJoin = 0x1000,
-  MiterJoin = 0x2000,
 };
 
 enum class RectOp : int64_t
@@ -336,3 +295,153 @@ enum class TriggerFlag
 };
 Q_DECLARE_FLAGS(TriggerFlags, TriggerFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(TriggerFlags)
+
+class ScriptFont
+{
+public:
+  enum class Family : int64_t
+  {
+    AnyFamily = 0,
+    Roman = 16,
+    Swiss = 32,
+    Modern = 48,
+    Script = 64,
+    Decorative = 80,
+  };
+
+  enum class Pitch : int64_t
+  {
+    Default = 0,
+    Fixed = 1,
+    Variable = 2,
+    Monospace = 8
+  };
+
+public:
+  static constexpr std::optional<ScriptFont> validate(int64_t value) noexcept
+  {
+    const ScriptFont font(value);
+    return font.isValid() ? std::optional(font) : std::nullopt;
+  }
+
+  constexpr ScriptFont() noexcept = default;
+
+  explicit constexpr ScriptFont(int64_t value) noexcept
+    : value(value)
+  {
+  }
+
+  explicit constexpr ScriptFont(Family family,
+                                Pitch pitch = Pitch::Default) noexcept
+    : value(static_cast<int64_t>(family) | static_cast<int64_t>(pitch))
+  {
+  }
+
+  explicit constexpr ScriptFont(Pitch pitch) noexcept
+    : value(static_cast<int64_t>(pitch))
+  {
+  }
+
+  explicit ScriptFont(const QFont& font);
+
+  explicit constexpr operator int64_t() const noexcept { return value; }
+
+  constexpr Family family() const noexcept
+  {
+    return static_cast<Family>(value & ~0xF);
+  }
+
+  constexpr Pitch pitch() const noexcept
+  {
+    return static_cast<Pitch>(value & 0xB);
+  }
+
+  constexpr bool isValid() const noexcept
+  {
+    return value == 0 ||
+           (value > 0 && value <= 92 &&
+            /// 1, 2, or 8
+            std::popcount(static_cast<uint16_t>(value & 0xB)) == 1);
+  }
+
+  QFont::StyleHint hint() const noexcept;
+
+private:
+  int64_t value = 0;
+};
+
+class ScriptPen
+{
+public:
+  enum class Cap : int64_t
+  {
+    RoundCap = 0x000,
+    SquareCap = 0x100,
+    FlatCap = 0x200,
+  };
+
+  enum class Join : int64_t
+  {
+    RoundJoin = 0x0000,
+    BevelJoin = 0x1000,
+    MiterJoin = 0x2000,
+  };
+
+  enum class Style : int64_t
+  {
+    SolidLine = 0,
+    DashLine = 1,
+    DotLine = 2,
+    DashDotLine = 3,
+    DashDotDotLine = 4,
+    NoPen = 5,
+    InsideFrame = 6,
+  };
+
+public:
+  static constexpr std::optional<ScriptPen> validate(int64_t value) noexcept
+  {
+    const ScriptPen pen(value);
+    return pen.isValid() ? std::optional(pen) : std::nullopt;
+  }
+
+  constexpr ScriptPen() noexcept = default;
+
+  explicit constexpr ScriptPen(int64_t value) noexcept
+    : value(value)
+  {
+  }
+
+  constexpr ScriptPen(Join join, Cap cap, Style style) noexcept
+    : value(static_cast<int64_t>(join) | static_cast<int64_t>(cap) |
+            static_cast<int64_t>(style))
+  {
+  }
+
+  explicit ScriptPen(const QPen& font);
+
+  explicit constexpr operator int64_t() const noexcept { return value; }
+
+  constexpr Cap cap() const noexcept { return static_cast<Cap>(value & 0xF00); }
+
+  constexpr Join join() const noexcept
+  {
+    return static_cast<Join>(value & ~0XFFF);
+  }
+  constexpr Style style() const noexcept
+  {
+    return static_cast<Style>(value & 0xFF);
+  }
+
+  constexpr bool isValid() const noexcept
+  {
+    return value == 0 ||
+           (value > 0 && (/* join */ ((value >> 8) & 0xF) <= 2) &&
+            (/* cap */ value >> 12 <= 2) && (/* style */ (value & 0xFF) <= 6));
+  }
+
+  QPen qPen(const QBrush& brush, qreal width = 1) const;
+
+private:
+  int64_t value = 0;
+};
