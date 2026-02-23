@@ -23,7 +23,7 @@ replacePathSeparators(string_view path)
 // Public methods
 
 DatabaseConnection::DatabaseConnection(string_view filename)
-  : db(nullptr, sqlite3_close_v2)
+  : dbPtr(nullptr, sqlite3_close_v2)
   , filename(replacePathSeparators(filename))
 {
 }
@@ -31,20 +31,20 @@ DatabaseConnection::DatabaseConnection(string_view filename)
 int
 DatabaseConnection::close()
 {
-  sqlite3* dbptr = db.release();
+  sqlite3* db = dbPtr.release();
 
-  if (dbptr == nullptr) {
+  if (db == nullptr) {
     return Error::NotOpen;
   }
 
-  return sqlite3_close_v2(dbptr);
+  return sqlite3_close_v2(db);
 }
 
 int
 DatabaseConnection::open(int flags)
 {
-  sqlite3* dbptr = nullptr;
-  const int result = sqlite3_open_v2(filename.c_str(), &dbptr, flags, nullptr);
-  db.reset(dbptr);
+  sqlite3* db = nullptr;
+  const int result = sqlite3_open_v2(filename.c_str(), &db, flags, nullptr);
+  dbPtr.reset(db);
   return result;
 }

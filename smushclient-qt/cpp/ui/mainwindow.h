@@ -23,7 +23,7 @@ public:
   void openWorld(const QString& filePath);
 
 public slots:
-  void onBackgroundMaterialChanged(std::optional<int> material);
+  void setBackgroundMaterial(std::optional<int> material);
 
 protected:
   void closeEvent(QCloseEvent* event) override;

@@ -152,7 +152,7 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 50:
       return Settings().getBellSound();
     case 53:
-      return statusBar->message();
+      return statusBar()->message();
     case 54:
       return tab.worldFilePath();
     case 55:
@@ -224,9 +224,9 @@ ScriptApi::GetInfo(int64_t infoType) const
       return tab.isWindowModified();
     // case 112: Automapper active
     case 113:
-      return tab.isActive();
+      return tab.active();
     case 114:
-      return scrollBar.isPaused();
+      return scrollBar.paused();
     // case 115: Localization active
     case 119: // Script engine is active
       return true;
@@ -310,9 +310,9 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 250:
       return tab.window()->width();
     case 259:
-      return statusBar->height();
+      return statusBar()->height();
     case 260:
-      return statusBar->width();
+      return statusBar()->width();
     case 261:
       return tab.ui->outputBorder->height();
     case 262:

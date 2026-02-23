@@ -16,7 +16,7 @@ public:
   ~FindDialog() override;
 
   void find(QTextEdit* edit) const;
-  constexpr bool isFilled() const { return filled; }
+  bool filled() const noexcept { return m_filled; }
 
 private slots:
   void on_buttonBox_accepted();
@@ -24,9 +24,9 @@ private slots:
 
 private:
   Ui::FindDialog* ui;
-  bool filled = false;
   QTextDocument::FindFlags flags;
   bool isRegex = false;
+  bool m_filled = false;
   QRegularExpression pattern;
   QString text;
 };

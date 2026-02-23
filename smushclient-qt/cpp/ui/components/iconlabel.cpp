@@ -1,4 +1,6 @@
 #include "iconlabel.h"
+#include <QtGui/QPaintEvent>
+#include <QtGui/QPainter>
 
 // Public methods
 
@@ -6,11 +8,11 @@ IconLabel::IconLabel(const QIcon& icon,
                      QIcon::Mode mode,
                      QIcon::State state,
                      QWidget* parent)
-  : QLabel(parent)
-  , icon(icon)
+  : QWidget(parent)
+  , m_icon(icon)
+  , m_mode(mode)
+  , m_state(state)
   , maxSize(icon.availableSizes().constLast())
-  , mode(mode)
-  , state(state)
 {
 }
 
@@ -35,30 +37,35 @@ IconLabel::setFixedIconHeight(int height)
   setFixedSize(widthForHeight(height), height);
 }
 
+// Public slots
+
 void
 IconLabel::setIcon(const QIcon& newIcon,
                    QIcon::Mode newMode,
                    QIcon::State newState)
 {
-  icon = newIcon;
-  mode = newMode;
-  state = newState;
-  maxSize = icon.availableSizes().constLast();
-  needsUpdate = true;
+  m_icon = newIcon;
+  m_mode = newMode;
+  m_state = newState;
+  maxSize = m_icon.availableSizes().constLast();
 }
 
 void
-IconLabel::setMode(QIcon::Mode newMode)
+IconLabel::setMode(QIcon::Mode mode)
 {
-  mode = newMode;
-  needsUpdate = true;
+  if (m_mode == mode) {
+    return;
+  }
+  m_mode = mode;
 }
 
 void
-IconLabel::setState(QIcon::State newState)
+IconLabel::setState(QIcon::State state)
 {
-  state = newState;
-  needsUpdate = true;
+  if (m_state == state) {
+    return;
+  }
+  m_state = state;
 }
 
 // Public overrides
@@ -87,18 +94,9 @@ IconLabel::sizeHint() const
 void
 IconLabel::paintEvent(QPaintEvent* event)
 {
-  if (needsUpdate) [[unlikely]] {
-    needsUpdate = false;
-    setPixmap(icon.pixmap(size(), mode, state));
-  }
-  QLabel::paintEvent(event);
-}
-
-void
-IconLabel::resizeEvent(QResizeEvent* event)
-{
-  QWidget::resizeEvent(event);
-  needsUpdate = true;
+  QPainter painter(this);
+  painter.setClipRegion(event->region());
+  m_icon.paint(&painter, rect(), Qt::Alignment(), m_mode, m_state);
 }
 
 // Private methods

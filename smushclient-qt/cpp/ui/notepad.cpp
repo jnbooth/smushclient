@@ -103,7 +103,7 @@ Notepad::on_action_find_triggered()
 void
 Notepad::on_action_find_again_triggered()
 {
-  if (findDialog->isFilled() || findDialog->exec() == QDialog::Accepted) {
+  if (findDialog->filled() || findDialog->exec() == QDialog::Accepted) {
     findDialog->find(ui->editor);
   }
 }

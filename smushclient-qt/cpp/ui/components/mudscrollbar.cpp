@@ -37,17 +37,23 @@ MudScrollBar::MudScrollBar(QWidget* parent)
 void
 MudScrollBar::setAutoScrollEnabled(bool enabled)
 {
-  autoScroll = enabled;
-  if (autoScroll && !paused) {
+  if (m_autoScroll == enabled) {
+    return;
+  }
+  m_autoScroll = enabled;
+  if (m_autoScroll && !m_paused) {
     setValue(maximum());
   }
 }
 
 void
-MudScrollBar::setPaused(bool isPaused)
+MudScrollBar::setPaused(bool paused)
 {
-  paused = isPaused;
-  if (!paused) {
+  if (m_paused == paused) {
+    return;
+  }
+  m_paused = paused;
+  if (!m_paused) {
     setValue(maximum());
   }
 }
@@ -55,12 +61,15 @@ MudScrollBar::setPaused(bool isPaused)
 void
 MudScrollBar::setPausingEnabled(bool enabled)
 {
-  pausingEnabled = enabled;
-  if (pausingEnabled) {
+  if (m_pausingEnabled == enabled) {
+    return;
+  }
+  m_pausingEnabled = enabled;
+  if (m_pausingEnabled) {
     lastValue = value();
-    paused = lastValue != maximum();
+    m_paused = lastValue != maximum();
   } else {
-    paused = false;
+    m_paused = false;
   }
   updateParentPolicy();
 }
@@ -70,7 +79,7 @@ MudScrollBar::setPausingEnabled(bool enabled)
 void
 MudScrollBar::sliderChange(QAbstractSlider::SliderChange change)
 {
-  if (autoScroll && !paused &&
+  if (m_autoScroll && !m_paused &&
       change == QAbstractSlider::SliderChange::SliderRangeChange) {
     inInternalChange = true;
     setValue(maximum());
@@ -83,21 +92,21 @@ MudScrollBar::sliderChange(QAbstractSlider::SliderChange change)
     inInternalChange = false;
     return;
   }
-  if (!pausingEnabled) {
+  if (!m_pausingEnabled) {
     return;
   }
   const int previousValue = lastValue;
   lastValue = value();
   if (lastValue == maximum()) {
-    if (!paused) {
+    if (!m_paused) {
       return;
     }
-    paused = false;
+    m_paused = false;
   } else if (lastValue < previousValue) {
-    if (paused) {
+    if (m_paused) {
       return;
     }
-    paused = true;
+    m_paused = true;
   }
   updateParentPolicy();
 }
@@ -113,7 +122,7 @@ MudScrollBar::updateParentPolicy() const
   }
 
   p->setVerticalScrollBarPolicy(
-    !pausingEnabled ? Qt::ScrollBarPolicy::ScrollBarAsNeeded
-    : paused        ? Qt::ScrollBarPolicy::ScrollBarAlwaysOn
-                    : Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+    !m_pausingEnabled ? Qt::ScrollBarPolicy::ScrollBarAsNeeded
+    : m_paused        ? Qt::ScrollBarPolicy::ScrollBarAlwaysOn
+                      : Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
 }

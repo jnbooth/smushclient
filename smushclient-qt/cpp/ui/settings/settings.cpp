@@ -24,7 +24,7 @@ SettingsDialog::connect(MainWindow* window)
   window->connect(&notifier,
                   &SettingsNotifier::backgroundMaterialChanged,
                   window,
-                  &MainWindow::onBackgroundMaterialChanged);
+                  &MainWindow::setBackgroundMaterial);
 }
 
 void

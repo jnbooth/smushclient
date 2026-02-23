@@ -39,7 +39,8 @@ public:
   explicit WorldTab(Notepads& notepads, QWidget* parent = nullptr);
   ~WorldTab() override;
 
-  AvailableCopy availableCopy() const;
+  bool active() const noexcept { return m_active; }
+  AvailableCopy availableCopy() const noexcept;
   void clearCallbacks();
   void clearCallbacks(const Plugin& plugin);
   void closeLog();
@@ -47,8 +48,7 @@ public:
   QTextEdit* copyableEditor() const;
   void disconnectFromHost();
   void editWorldScript();
-  constexpr bool hasWorldScript() const { return !worldScriptPath.isEmpty(); }
-  constexpr bool isActive() const { return active; }
+  bool hasWorldScript() const { return !worldScriptPath.isEmpty(); }
   bool importWorld(const QString& filename) &;
   bool isConnected() const;
   void openLog();
@@ -60,7 +60,7 @@ public:
   QString saveWorld();
   QString saveWorldAsNew();
   const QHash<QString, QString>& serverStatus() const;
-  void setIsActive(bool active);
+  void setActive(bool active);
   void setOnDragMove(const Plugin& plugin,
                      const PluginCallback& callback,
                      QObject* parent);
@@ -74,7 +74,7 @@ public:
                               std::string_view value);
   void simulateOutput(std::string_view output) const;
   void start();
-  MudStatusBar& statusBar() const;
+  MudStatusBar* statusBar() const;
   void stopSound() const;
   constexpr const QString& title() const noexcept { return worldName; };
   constexpr const QString& worldFilePath() const noexcept { return filePath; }
@@ -140,7 +140,6 @@ private slots:
   void on_output_linkActivated(const QString& action, SendTo sendTo);
 
 private:
-  bool active = true;
   bool alertNewActivity = false;
   ScriptApi* api;
   QMetaObject::Connection autoScroll;
@@ -153,6 +152,7 @@ private:
   bool initialized = false;
   bool inputCopyAvailable = false;
   bool manualDisconnect = false;
+  bool m_active = true;
   std::optional<CallbackTrigger> onDragMove = std::nullopt;
   QPointer<Hotspot> onDragRelease = nullptr;
   bool outputCopyAvailable = false;

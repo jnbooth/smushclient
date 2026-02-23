@@ -41,11 +41,11 @@ public:
   bool runScript(std::string_view script, const char* name) const;
   void setEnabled(bool enable = true);
   ScriptThread spawnThread() const;
-  constexpr lua_State* state() const noexcept { return L_.get(); }
+  lua_State* state() const noexcept { return Lptr.get(); }
   void updateMetadata(const PluginPack& pack, size_t index);
 
 private:
   bool disabled = false;
-  std::shared_ptr<lua_State> L_ = nullptr;
+  std::shared_ptr<lua_State> Lptr = nullptr;
   PluginMetadata metadata;
 };

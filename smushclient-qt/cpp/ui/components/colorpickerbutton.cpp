@@ -17,11 +17,11 @@ void
 ColorPickerButton::openColorPicker()
 {
   const QColor color = QColorDialog::getColor(
-    currentValue,
+    value(),
     this,
     tr("Select Color"),
-    alphaEnabled ? QColorDialog::ColorDialogOption::ShowAlphaChannel
-                 : QColorDialog::ColorDialogOptions());
+    alphaEnabled() ? QColorDialog::ColorDialogOption::ShowAlphaChannel
+                   : QColorDialog::ColorDialogOptions());
 
   if (!color.isValid()) {
     return;
@@ -33,31 +33,25 @@ ColorPickerButton::openColorPicker()
 void
 ColorPickerButton::setAlphaDisabled(bool disabled)
 {
-  alphaEnabled = !disabled;
+  m_alphaEnabled = !disabled;
 }
 
 void
 ColorPickerButton::setAlphaEnabled(bool enabled)
 {
-  alphaEnabled = enabled;
+  m_alphaEnabled = enabled;
 }
 
 void
-ColorPickerButton::setValue(const QColor& val)
+ColorPickerButton::setValue(const QColor& value)
 {
-  if (currentValue == val) {
+  if (m_value == value) {
     return;
   }
 
-  currentValue = QColor(val);
-  emit valueChanged(currentValue);
+  m_value = QColor(value);
+  emit valueChanged(m_value);
   update();
-}
-
-const QColor&
-ColorPickerButton::value() const&
-{
-  return currentValue;
 }
 
 // Public overrides
@@ -87,7 +81,7 @@ ColorPickerButton::paintEvent(QPaintEvent* event)
 
   QPainter painter(this);
   painter.setClipRegion(event->region());
-  painter.fillRect(eventRect, currentValue);
+  painter.fillRect(eventRect, value());
   const QPen& pen = isDown()     ? borderDownPen
                     : hasFocus() ? borderFocusedPen
                                  : borderUpPen;

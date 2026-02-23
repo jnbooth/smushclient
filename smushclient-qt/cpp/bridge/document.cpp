@@ -122,7 +122,7 @@ Document::createMxpStat(const QString& entity,
                         const QString& caption,
                         const QString& max) const
 {
-  api.statusBarWidgets().createStat(entity, caption, max);
+  api.statusBar()->createStat(entity, caption, max);
 }
 
 void
@@ -220,7 +220,7 @@ Document::handleServerStatus(const QByteArray& variableBytes,
   const QString value = QString::fromUtf8(valueBytes);
   serverStatuses.insert(variable, value);
   if (variable == QStringLiteral("PLAYERS")) {
-    api.statusBarWidgets().setUsers(value);
+    api.statusBar()->setUsers(value);
   }
 }
 
@@ -446,7 +446,7 @@ Document::setSuppressEcho(bool suppress) const
 void
 Document::updateMxpStat(const QString& entity, const QString& value) const
 {
-  api.statusBarWidgets().updateStat(entity, value);
+  api.statusBar()->updateStat(entity, value);
 }
 
 // Private methods

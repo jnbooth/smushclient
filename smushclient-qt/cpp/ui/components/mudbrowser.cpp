@@ -9,7 +9,7 @@
 
 MudBrowser::MudBrowser(QWidget* parent)
   : QTextBrowser(parent)
-  , mudCursor(nullptr)
+  , cursorPtr(new MudCursor(document()))
 {
   setVerticalScrollBar(new MudScrollBar);
 }
@@ -21,20 +21,17 @@ MudBrowser::verticalScrollBar() const
 }
 
 MudCursor*
-MudBrowser::cursor()
+MudBrowser::cursor() const
 {
-  if (mudCursor == nullptr) {
-    mudCursor = new MudCursor(document());
-  }
-  return mudCursor;
+  return cursorPtr;
 }
 
 // Public slots
 
 void
-MudBrowser::setIgnoreKeypad(bool ignore)
+MudBrowser::setKeypadIgnored(bool ignored)
 {
-  ignoreKeypad = ignore;
+  m_keypadIgnored = ignored;
 }
 
 void
@@ -48,8 +45,8 @@ MudBrowser::setMaximumBlockCount(int maximum)
 void
 MudBrowser::keyPressEvent(QKeyEvent* event)
 {
-  if (ignoreKeypad && event->modifiers().testFlag(
-                        Qt::KeyboardModifier::KeypadModifier)) [[unlikely]] {
+  if (keypadIgnored() && event->modifiers().testFlag(
+                           Qt::KeyboardModifier::KeypadModifier)) [[unlikely]] {
     event->ignore();
     return;
   }

@@ -55,7 +55,7 @@ MainWindow::MainWindow(Notepads& notepads, QWidget* parent)
   setWindowFlags(Qt::Window);
   setAttribute(Qt::WA_DeleteOnClose);
   if (settings.getBackgroundTransparent()) {
-    onBackgroundMaterialChanged(settings.getBackgroundMaterial());
+    setBackgroundMaterial(settings.getBackgroundMaterial());
   }
 
   QDir::setCurrent(settings.getStartupDirectoryOrDefault());
@@ -128,7 +128,7 @@ MainWindow::worldtabs()
 // Public slots
 
 void
-MainWindow::onBackgroundMaterialChanged(optional<int> material)
+MainWindow::setBackgroundMaterial(optional<int> material)
 {
   if (!material) {
     native::unsetBackgroundMaterial(this);
@@ -193,13 +193,13 @@ MainWindow::event(QEvent* event)
   switch (event->type()) {
     case QEvent::WindowActivate:
       if (WorldTab* tab = worldtab(); tab) {
-        tab->setIsActive(true);
+        tab->setActive(true);
       }
       break;
 
     case QEvent::WindowDeactivate:
       if (WorldTab* tab = worldtab(); tab) {
-        tab->setIsActive(false);
+        tab->setActive(false);
       }
       break;
 
@@ -240,9 +240,9 @@ WorldTab*
 MainWindow::createWorldTab(QWidget* parent) const
 {
   WorldTab* tab = new WorldTab(notepads, parent);
-  MudStatusBar& mudStatusBar = tab->statusBar();
-  statusBar()->addPermanentWidget(&mudStatusBar);
-  mudStatusBar.hide();
+  MudStatusBar* mudStatusBar = tab->statusBar();
+  statusBar()->addPermanentWidget(mudStatusBar);
+  mudStatusBar->hide();
   tab->setAttribute(Qt::WA_DeleteOnClose);
   return tab;
 }
@@ -555,7 +555,7 @@ MainWindow::on_action_find_again_triggered()
 {
   if (WorldTab* tab = worldtab();
       tab != nullptr &&
-      (findDialog->isFilled() || findDialog->exec() == QDialog::Accepted)) {
+      (findDialog->filled() || findDialog->exec() == QDialog::Accepted)) {
     findDialog->find(tab->ui->output);
   }
 }
@@ -826,7 +826,7 @@ MainWindow::on_menu_view_aboutToShow()
 {
   WorldTab* tab = worldtab();
   ui->action_pause_output->setChecked(
-    (tab != nullptr) && tab->ui->output->verticalScrollBar()->isPaused());
+    (tab != nullptr) && tab->ui->output->verticalScrollBar()->paused());
 }
 
 void
@@ -834,7 +834,7 @@ MainWindow::on_world_tabs_currentChanged(int index)
 {
   WorldTab* lastTab = worldtab(lastTabIndex);
   if (lastTab != nullptr) {
-    lastTab->setIsActive(false);
+    lastTab->setActive(false);
     lastTab->setStatusBarVisible(false);
   }
   lastTabIndex = index;
@@ -854,8 +854,8 @@ MainWindow::on_world_tabs_currentChanged(int index)
   onConnectionStatusChanged(activeTab->isConnected());
   setWorldMenusEnabled(true);
   ui->action_pause_output->setChecked(
-    activeTab->ui->output->verticalScrollBar()->isPaused());
-  activeTab->setIsActive(true);
+    activeTab->ui->output->verticalScrollBar()->paused());
+  activeTab->setActive(true);
   activeTab->setStatusBarVisible(true);
   ui->world_tabs->tabBar()->setTabText(index, activeTab->title());
   setWindowTitle(formatWindowTitle(*activeTab));

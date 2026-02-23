@@ -145,7 +145,7 @@ WorldTab::~WorldTab()
 }
 
 WorldTab::AvailableCopy
-WorldTab::availableCopy() const
+WorldTab::availableCopy() const noexcept
 {
   if (outputCopyAvailable) {
     return AvailableCopy::Output;
@@ -394,11 +394,11 @@ WorldTab::serverStatus() const
 }
 
 void
-WorldTab::setIsActive(bool isActive)
+WorldTab::setActive(bool active)
 {
-  active = isActive;
-  alertNewActivity = !isActive;
-  if (!isActive) {
+  m_active = active;
+  alertNewActivity = !active;
+  if (!active) {
     OnPluginLoseFocus onLoseFocus;
     api->sendCallback(onLoseFocus);
     return;
@@ -429,7 +429,7 @@ WorldTab::setOnDragRelease(Hotspot* hotspot)
 void
 WorldTab::setStatusBarVisible(bool visible)
 {
-  api->statusBarWidgets().setVisible(visible);
+  api->statusBar()->setVisible(visible);
 }
 
 ApiCode
@@ -442,8 +442,8 @@ WorldTab::setWorldOption(size_t pluginIndex, string_view name, int64_t value)
 
   if (name == "keypad_enable") {
     handleKeypad = value == 1;
-    ui->input->setIgnoreKeypad(handleKeypad);
-    ui->output->setIgnoreKeypad(handleKeypad);
+    ui->input->setKeypadIgnored(handleKeypad);
+    ui->output->setKeypadIgnored(handleKeypad);
   } else if (name == "enable_command_stack") {
     splitOn = toQChar(client.commandSplitter());
   } else if (name == "script_reload_option") {
@@ -513,10 +513,10 @@ WorldTab::start()
   }
 }
 
-MudStatusBar&
+MudStatusBar*
 WorldTab::statusBar() const
 {
-  return api->statusBarWidgets();
+  return api->statusBar();
 }
 
 void
@@ -646,8 +646,8 @@ WorldTab::applyWorld(const World& world)
   emit titleChanged(this, worldName);
   worldScriptPath = world.getWorldScript();
   handleKeypad = world.getKeypadEnable();
-  ui->input->setIgnoreKeypad(handleKeypad);
-  ui->output->setIgnoreKeypad(handleKeypad);
+  ui->input->setKeypadIgnored(handleKeypad);
+  ui->output->setKeypadIgnored(handleKeypad);
   QPalette palette;
   const QColor fgColor = world.getAnsi7();
   const QColor bgColor = world.getAnsi0();
@@ -965,9 +965,9 @@ WorldTab::onSocketConnect()
   emit connectionStatusChanged(true);
   handleConnect();
 #else
-  api->statusBarWidgets().setConnected(
-    socket->isEncrypted() ? MudStatusBar::ConnectionStatus::Encrypted
-                          : MudStatusBar::ConnectionStatus::Connected);
+  api->statusBar()->setConnected(socket->isEncrypted()
+                                   ? MudStatusBar::ConnectionStatus::Encrypted
+                                   : MudStatusBar::ConnectionStatus::Connected);
   emit connectionStatusChanged(true);
   if (socket->mode() == QSslSocket::UnencryptedMode) {
     handleConnect();
@@ -979,8 +979,7 @@ void
 WorldTab::onSocketDisconnect()
 {
   client.handleDisconnect();
-  api->statusBarWidgets().setConnected(
-    MudStatusBar::ConnectionStatus::Disconnected);
+  api->statusBar()->setConnected(MudStatusBar::ConnectionStatus::Disconnected);
   document->resetServerStatus();
   api->setOpen(false);
   if (Settings().getDisplayDisconnect()) {
@@ -1006,8 +1005,7 @@ WorldTab::onSocketDisconnect()
 void
 WorldTab::onSocketEncrypted()
 {
-  api->statusBarWidgets().setConnected(
-    MudStatusBar::ConnectionStatus::Encrypted);
+  api->statusBar()->setConnected(MudStatusBar::ConnectionStatus::Encrypted);
   handleConnect();
 }
 #endif

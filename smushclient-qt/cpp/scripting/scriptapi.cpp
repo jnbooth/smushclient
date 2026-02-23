@@ -40,7 +40,7 @@ ScriptApi::ScriptApi(SmushClient& client,
                                                    &ScriptApi::finishQueuedSend,
                                                    this))
   , socket(socket)
-  , statusBar(new MudStatusBar)
+  , statusBarPtr(new MudStatusBar)
   , tab(parent)
   , timekeeper(new Timekeeper(client, this))
   , whenConnected(QDateTime::currentDateTime())

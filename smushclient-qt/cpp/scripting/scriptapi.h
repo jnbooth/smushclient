@@ -455,10 +455,7 @@ public:
   ActionSource setSource(ActionSource source) noexcept;
   void setWordUnderMenu(const QString& word) { wordUnderMenu = word; }
   void stackWindow(std::string_view windowName, MiniWindow& window) const;
-  constexpr MudStatusBar& statusBarWidgets() const noexcept
-  {
-    return *statusBar;
-  }
+  MudStatusBar* statusBar() const noexcept { return statusBarPtr.get(); }
 
   constexpr std::vector<Plugin>::const_iterator cbegin() const noexcept
   {
@@ -515,7 +512,7 @@ private:
   MudScrollBar& scrollBar;
   TimerMap<SendRequest, ScriptApi>* sendQueue;
   QAbstractSocket& socket;
-  std::unique_ptr<MudStatusBar> statusBar;
+  std::unique_ptr<MudStatusBar> statusBarPtr;
   WorldTab& tab;
   Timekeeper* timekeeper;
   int64_t totalLinesSent = 0;

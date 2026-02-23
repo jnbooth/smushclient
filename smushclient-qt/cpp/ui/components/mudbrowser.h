@@ -9,15 +9,17 @@ enum class SendTo : uint8_t;
 class MudBrowser : public QTextBrowser
 {
   Q_OBJECT
+  Q_PROPERTY(bool keypadIgnored READ keypadIgnored WRITE setKeypadIgnored)
 
 public:
   explicit MudBrowser(QWidget* parent = nullptr);
 
+  MudCursor* cursor() const;
   MudScrollBar* verticalScrollBar() const;
-  MudCursor* cursor();
+  bool keypadIgnored() const noexcept { return m_keypadIgnored; }
 
 public slots:
-  void setIgnoreKeypad(bool ignore);
+  void setKeypadIgnored(bool ignored = true);
   void setMaximumBlockCount(int maximum);
 
 signals:
@@ -34,6 +36,6 @@ private:
   QPoint mapToContents(const QPoint& point) const;
 
 private:
-  QPointer<MudCursor> mudCursor;
-  bool ignoreKeypad = false;
+  QPointer<MudCursor> cursorPtr;
+  bool m_keypadIgnored = false;
 };

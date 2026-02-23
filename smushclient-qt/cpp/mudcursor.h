@@ -24,7 +24,7 @@ public:
   void move(QTextCursor::MoveOperation op, int count);
   void setIndentText(const QString& text);
   void setSuppressingEcho(bool suppress = true);
-  constexpr bool suppressingEcho() const noexcept { return suppressEcho; }
+  bool suppressingEcho() const noexcept { return m_suppressingEcho; }
   int startLine();
   void setOption(std::string_view name, int64_t value);
   void updateTimestamp();
@@ -49,6 +49,6 @@ private:
   int lastLinePosition = -1;
   int lastTellPosition = -1;
   bool logNotes = false;
+  bool m_suppressingEcho = false;
   QTextCharFormat noteFormat;
-  bool suppressEcho = false;
 };

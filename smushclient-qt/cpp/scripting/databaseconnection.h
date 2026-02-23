@@ -29,14 +29,11 @@ public:
   explicit DatabaseConnection(std::string_view filename);
 
   int close();
-  constexpr bool isFile(std::string_view file) const noexcept
-  {
-    return filename == file;
-  }
-  constexpr bool isOpen() const noexcept { return db != nullptr; }
+  bool isFile(std::string_view file) const noexcept { return filename == file; }
+  bool isOpen() const noexcept { return dbPtr != nullptr; }
   int open(int flags);
 
 private:
-  std::unique_ptr<sqlite3, int (*)(sqlite3*)> db;
+  std::unique_ptr<sqlite3, int (*)(sqlite3*)> dbPtr;
   std::string filename;
 };

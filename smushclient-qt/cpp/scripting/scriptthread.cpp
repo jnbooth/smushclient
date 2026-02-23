@@ -11,7 +11,7 @@ using std::shared_ptr;
 
 ScriptThread::ScriptThread(const shared_ptr<lua_State>& parentL)
   : L(lua_newthread(parentL.get()))
-  , parentL_(parentL)
+  , parentLptr(parentL)
 {
   lua_rawsetp(parentL.get(), LUA_REGISTRYINDEX, L);
   pushErrorHandler(L);
@@ -19,7 +19,7 @@ ScriptThread::ScriptThread(const shared_ptr<lua_State>& parentL)
 
 ScriptThread::ScriptThread(ScriptThread&& other) noexcept
   : L(std::exchange(other.L, nullptr))
-  , parentL_(std::move(other.parentL_))
+  , parentLptr(std::move(other.parentLptr))
 {
 }
 
@@ -28,7 +28,7 @@ ScriptThread::~ScriptThread()
   if (L == nullptr) {
     return;
   }
-  auto parentLock = parentL_.lock();
+  auto parentLock = parentLptr.lock();
   if (!parentLock) {
     return;
   }

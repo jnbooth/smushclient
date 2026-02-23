@@ -4,30 +4,33 @@
 class MudScrollBar : public QScrollBar
 {
   Q_OBJECT
+  Q_PROPERTY(
+    bool autoScrollEnabled READ autoScrollEnabled WRITE setAutoScrollEnabled)
+  Q_PROPERTY(bool pausingEnabled READ pausingEnabled WRITE setPausingEnabled)
+  Q_PROPERTY(bool paused READ paused WRITE setPaused)
 
 public:
   explicit MudScrollBar(QWidget* parent = nullptr);
 
-  void disablePausing() { setPausingEnabled(false); }
-  void enablePausing() { setPausingEnabled(true); }
-  constexpr bool isPaused() const { return paused; }
+  bool autoScrollEnabled() const noexcept { return m_autoScroll; }
+  bool pausingEnabled() const noexcept { return m_pausingEnabled; }
+  bool paused() const noexcept { return m_paused; }
 
 public slots:
   void setAutoScrollEnabled(bool enabled = true);
-  void setPaused(bool paused = true);
-  void setPausingEnabled(bool enabled = true);
-
   void setAutoScrollDisabled(bool disabled = true)
   {
     setAutoScrollEnabled(!disabled);
   }
 
+  void setPaused(bool paused = true);
+  void setUnpaused(bool unpaused = true) { setPaused(!unpaused); }
+
+  void setPausingEnabled(bool enabled = true);
   void setPausingDisabled(bool disabled = true)
   {
     setPausingEnabled(!disabled);
   }
-
-  void setUnpaused(bool unpaused = true) { setPaused(!unpaused); }
 
 protected:
   void sliderChange(QAbstractSlider::SliderChange change) override;
@@ -36,9 +39,9 @@ private:
   void updateParentPolicy() const;
 
 private:
-  bool autoScroll = true;
   bool inInternalChange = false;
   int lastValue = 0;
-  bool paused = false;
-  bool pausingEnabled = true;
+  bool m_autoScroll = true;
+  bool m_paused = false;
+  bool m_pausingEnabled = true;
 };

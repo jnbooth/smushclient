@@ -34,8 +34,8 @@ FindDialog::on_buttonBox_accepted()
                 ui->MatchCase->isChecked());
   isRegex = ui->RegularExpression->isChecked();
   text = ui->Find->text();
-  filled = !text.isEmpty();
-  if (isRegex && filled) {
+  m_filled = !text.isEmpty();
+  if (isRegex && m_filled) {
     pattern = QRegularExpression(text);
   }
 }

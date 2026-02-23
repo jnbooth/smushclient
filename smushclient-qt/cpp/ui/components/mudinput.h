@@ -11,6 +11,7 @@ public:
   MudInput(QWidget* parent, const QStringList& history);
   explicit MudInput(const QStringList& history);
 
+  bool keypadIgnored() const noexcept { return m_keypadIgnored; }
   const QStringList& log() const noexcept;
   void setLog(const QStringList& log);
 
@@ -20,7 +21,7 @@ public:
 public slots:
   void clearLog();
   void remember(const QString& text);
-  void setIgnoreKeypad(bool ignore);
+  void setKeypadIgnored(bool ignore = true);
   void setMaxLogSize(int size);
 
 signals:
@@ -32,5 +33,5 @@ protected:
 
 private:
   CommandHistory history;
-  bool ignoreKeypad = false;
+  bool m_keypadIgnored = false;
 };

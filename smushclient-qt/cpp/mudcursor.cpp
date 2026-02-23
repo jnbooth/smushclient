@@ -25,7 +25,7 @@ MudCursor::setIndentText(const QString& text)
 void
 MudCursor::setSuppressingEcho(bool suppress)
 {
-  suppressEcho = suppress;
+  m_suppressingEcho = suppress;
 }
 
 void
@@ -74,7 +74,7 @@ MudCursor::applyWorld(const World& world)
   echoOnSameLine = world.getKeepCommandsOnSameLine();
 
   if (world.getNoEchoOff()) {
-    suppressEcho = false;
+    m_suppressingEcho = false;
   }
 
   indentText = QStringLiteral(" ").repeated(world.getIndentParas());
@@ -105,7 +105,7 @@ MudCursor::document() const
 void
 MudCursor::echo(const QString& text)
 {
-  if (suppressEcho) [[unlikely]] {
+  if (m_suppressingEcho) [[unlikely]] {
     return;
   }
   if (echoOnSameLine) {
@@ -194,7 +194,7 @@ MudCursor::setOption(string_view name, int64_t value)
     noteFormat.setBackground(QColor(value));
   } else if (name == "no_echo_off") {
     if (value == 1) {
-      suppressEcho = false;
+      m_suppressingEcho = false;
     }
   }
 }

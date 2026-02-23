@@ -63,9 +63,9 @@ MudInput::remember(const QString& text)
 }
 
 void
-MudInput::setIgnoreKeypad(bool ignore)
+MudInput::setKeypadIgnored(bool ignore)
 {
-  ignoreKeypad = ignore;
+  m_keypadIgnored = ignore;
 }
 
 void
@@ -127,7 +127,7 @@ MudInput::keyPressEvent(QKeyEvent* event)
       break;
 
     default:
-      if (ignoreKeypad &&
+      if (keypadIgnored() &&
           event->modifiers().testFlag(Qt::KeyboardModifier::KeypadModifier))
         [[unlikely]] {
         event->ignore();

@@ -4,14 +4,14 @@
 class ColorPickerButton : public QAbstractButton
 {
   Q_OBJECT
-
   Q_PROPERTY(QColor value READ value WRITE setValue NOTIFY valueChanged)
+  Q_PROPERTY(bool alphaEnabled READ alphaEnabled WRITE setAlphaEnabled)
 
 public:
   explicit ColorPickerButton(QWidget* parent = nullptr);
 
-  constexpr bool isAlphaEnabled() const noexcept { return alphaEnabled; }
-  const QColor& value() const&;
+  bool alphaEnabled() const noexcept { return m_alphaEnabled; }
+  const QColor& value() const noexcept { return m_value; }
 
   QSize sizeHint() const override;
   QSize minimumSizeHint() const override;
@@ -29,6 +29,6 @@ protected:
   void paintEvent(QPaintEvent* event) override;
 
 private:
-  QColor currentValue;
-  bool alphaEnabled = true;
+  bool m_alphaEnabled = true;
+  QColor m_value;
 };

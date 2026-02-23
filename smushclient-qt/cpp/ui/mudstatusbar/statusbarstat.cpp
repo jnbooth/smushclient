@@ -32,8 +32,8 @@ StatusBarStat::StatusBarStat(const QString& entity,
                              QWidget* parent)
   : QWidget(parent)
   , ui(new Ui::StatusBarStat)
-  , entityName(entity)
-  , maxEntityName(maxEntity)
+  , m_entity(entity)
+  , m_maxEntity(maxEntity)
   , displayMenu(new QMenu(this))
 {
   ui->setupUi(this);
@@ -58,7 +58,7 @@ StatusBarStat::~StatusBarStat()
 // Public slots
 
 bool
-StatusBarStat::isToggled() const
+StatusBarStat::toggled() const
 {
   return ui->action_display->isChecked();
 }
@@ -90,7 +90,7 @@ StatusBarStat::setMax(const QString& max)
 void
 StatusBarStat::setMaxEntity(const QString& maxEntity)
 {
-  maxEntityName = maxEntity;
+  m_maxEntity = maxEntity;
 }
 
 void
@@ -182,7 +182,7 @@ StatusBarStat::save() const
 QString
 StatusBarStat::settingsKey() const
 {
-  return QStringLiteral("state/stat/") + entityName;
+  return QStringLiteral("state/stat/") + entity();
 }
 
 // Private slots

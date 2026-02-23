@@ -73,7 +73,7 @@ public:
 bool
 Plugin::hasFunction(PluginCallbackKey routine) const
 {
-  lua_State* L = L_.get();
+  lua_State* L = state();
   if (CallbackFinder(routine).findCallback(L)) {
     lua_pop(L, 1);
     return true;
@@ -84,7 +84,7 @@ Plugin::hasFunction(PluginCallbackKey routine) const
 bool
 Plugin::hasFunction(const QString& routine) const
 {
-  lua_State* L = L_.get();
+  lua_State* L = state();
   if (CallbackFinder(routine).findCallback(L)) {
     lua_pop(L, 1);
     return true;
@@ -121,7 +121,7 @@ Plugin::install(const PluginPack& pack)
 void
 Plugin::reset()
 {
-  lua_State* L = L_.get();
+  lua_State* L = state();
   reset(getApi(L));
 }
 
@@ -130,9 +130,9 @@ Plugin::reset(ScriptApi& api)
 {
   disabled = false;
 
-  L_.reset(luaL_newstate(), lua_close);
+  Lptr.reset(luaL_newstate(), lua_close);
 
-  lua_State* L = L_.get();
+  lua_State* L = state();
 
   if (L == nullptr) {
     throw std::bad_alloc();
@@ -149,7 +149,7 @@ Plugin::runCallback(PluginCallback& callback) const
   if (disabled) {
     return false;
   }
-  lua_State* L = L_.get();
+  lua_State* L = state();
   if (!callback.findCallback(L) ||
       !api_pcall(L, callback.pushArguments(L), callback.expectedSize())) {
     return false;
@@ -164,11 +164,11 @@ Plugin::runCallbackThreaded(PluginCallback& callback) const
   if (disabled) {
     return false;
   }
-  lua_State* L = L_.get();
+  lua_State* L = state();
   if (!callback.findCallback(L)) {
     return false;
   }
-  const ScriptThread thread(L_);
+  const ScriptThread thread(Lptr);
   lua_State* L2 = thread.state();
   lua_xmove(L, L2, 1);
   if (!api_pcall(L2, callback.pushArguments(L2), callback.expectedSize())) {
@@ -184,7 +184,7 @@ Plugin::runFile(const QString& path) const
   if (disabled) [[unlikely]] {
     return false;
   }
-  lua_State* L = L_.get();
+  lua_State* L = state();
   return runLoaded(L, luaL_loadfile(L, path.toUtf8().data()));
 }
 
@@ -194,7 +194,7 @@ Plugin::runScript(string_view script, const char* name) const
   if (disabled || script.empty()) [[unlikely]] {
     return false;
   }
-  lua_State* L = L_.get();
+  lua_State* L = state();
   return runLoaded(L, luaL_loadbuffer(L, script.data(), script.size(), name));
 }
 
@@ -207,7 +207,7 @@ Plugin::setEnabled(bool enable)
 ScriptThread
 Plugin::spawnThread() const
 {
-  return ScriptThread(L_);
+  return ScriptThread(Lptr);
 }
 
 void

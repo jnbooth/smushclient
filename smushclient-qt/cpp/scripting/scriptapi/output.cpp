@@ -160,7 +160,7 @@ ScriptApi::SetHighlightColour(const QColor& color) const
 void
 ScriptApi::SetStatus(const QString& status) const
 {
-  statusBar->setMessage(status);
+  statusBar()->setMessage(status);
 }
 
 void

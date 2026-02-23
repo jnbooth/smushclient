@@ -16,16 +16,16 @@ public:
                 QWidget* parent = nullptr);
   ~StatusBarStat() override;
 
-  bool isToggled() const;
-  constexpr QMenu& menu() const noexcept { return *displayMenu; }
-  constexpr const QString& entity() const noexcept { return entityName; }
-  constexpr const QString& maxEntity() const noexcept { return maxEntityName; }
-  void setMaxEntity(const QString& maxEntity);
-  void setToggled(bool toggled);
+  const QString& entity() const noexcept { return m_entity; }
+  const QString& maxEntity() const noexcept { return m_maxEntity; }
+  QMenu* menu() const noexcept { return displayMenu; }
+  bool toggled() const;
 
 public slots:
   void setCaption(const QString& caption);
   void setMax(const QString& max);
+  void setMaxEntity(const QString& maxEntity);
+  void setToggled(bool toggled = true);
   void setValue(const QString& value);
 
 protected:
@@ -45,7 +45,7 @@ private slots:
 
 private:
   Ui::StatusBarStat* ui;
-  QString entityName;
-  QString maxEntityName;
+  QString m_entity;
+  QString m_maxEntity;
   QMenu* displayMenu;
 };
