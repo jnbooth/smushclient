@@ -857,6 +857,14 @@ L_SetForegroundImage(lua_State* L)
 }
 
 int
+L_SetMainTitle(lua_State* L)
+{
+  BENCHMARK
+  getApi(L).SetMainTitle(QString::fromUtf8(qlua::concatArgs(L)));
+  return 0;
+}
+
+int
 L_SetStatus(lua_State* L)
 {
   BENCHMARK
@@ -1350,6 +1358,14 @@ L_SetTimerOption(lua_State* L)
   const optional<string_view> value = getSenderOption(L, 3);
   expect_nonnull(value, ApiCode::OptionOutOfRange);
   return returnCode(L, getApi(L).SetTimerOption(plugin, label, option, *value));
+}
+
+int
+L_SetTitle(lua_State* L)
+{
+  BENCHMARK
+  getApi(L).SetTitle(QString::fromUtf8(qlua::concatArgs(L)));
+  return 0;
 }
 
 int
@@ -2320,7 +2336,9 @@ static const struct luaL_Reg worldlib[] =
     { "SetClipboard", L_SetClipboard },
     { "SetCursor", L_SetCursor },
     { "SetForegroundImage", L_SetForegroundImage },
+    { "SetMainTitle", L_SetMainTitle },
     { "SetStatus", L_SetStatus },
+    { "SetTitle", L_SetTitle },
     { "Simulate", L_Simulate },
     { "Tell", L_Tell },
     // plugin

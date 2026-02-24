@@ -247,6 +247,12 @@ WorldTab::importWorld(const QString& filename) &
   return true;
 }
 
+void
+WorldTab::initNew() &
+{
+  worldName = tr("New world");
+}
+
 bool
 WorldTab::isConnected() const
 {
@@ -423,6 +429,16 @@ WorldTab::setStatusBarVisible(bool visible)
   api->statusBar()->setVisible(visible);
 }
 
+void
+WorldTab::setTitle(const QString& title)
+{
+  if (m_title == title) {
+    return;
+  }
+  m_title = title;
+  emit titleChanged(this, this->title());
+}
+
 ApiCode
 WorldTab::setWorldOption(size_t pluginIndex, string_view name, int64_t value)
 {
@@ -458,7 +474,9 @@ WorldTab::setWorldAlphaOption(size_t pluginIndex,
     splitOn = toQChar(client.commandSplitter());
   } else if (name == "name") {
     worldName = QString::fromUtf8(value);
-    emit titleChanged(this, worldName);
+    if (m_title.isEmpty()) {
+      emit titleChanged(this, worldName);
+    }
   } else if (name == "script_path") {
     worldScriptPath = QString::fromUtf8(value);
   }
@@ -633,7 +651,9 @@ WorldTab::applyWorld(const World& world)
 {
   scriptReloadOption = world.getScriptReloadOption();
   worldName = world.getName();
-  emit titleChanged(this, worldName);
+  if (m_title.isEmpty()) {
+    emit titleChanged(this, worldName);
+  }
   worldScriptPath = world.getWorldScript();
   handleKeypad = world.getKeypadEnable();
   ui->input->setKeypadIgnored(handleKeypad);

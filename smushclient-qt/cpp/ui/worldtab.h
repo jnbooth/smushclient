@@ -50,6 +50,7 @@ public:
   void editWorldScript();
   bool hasWorldScript() const { return !worldScriptPath.isEmpty(); }
   bool importWorld(const QString& filename) &;
+  void initNew() &;
   bool isConnected() const;
   void openLog();
   bool openWorld(const QString& filename) &;
@@ -66,6 +67,7 @@ public:
                      QObject* parent);
   void setOnDragRelease(Hotspot* hotspot);
   void setStatusBarVisible(bool visible);
+  void setTitle(const QString& title);
   ApiCode setWorldOption(size_t pluginIndex,
                          std::string_view name,
                          int64_t value);
@@ -76,7 +78,10 @@ public:
   void start();
   MudStatusBar* statusBar() const;
   void stopSound() const;
-  const QString& title() const noexcept { return worldName; };
+  const QString& title() const noexcept
+  {
+    return m_title.isEmpty() ? worldName : m_title;
+  };
   const QString& worldFilePath() const noexcept { return filePath; }
 
 public slots:
@@ -153,6 +158,7 @@ private:
   bool inputCopyAvailable = false;
   bool manualDisconnect = false;
   bool m_active = true;
+  QString m_title;
   std::optional<CallbackTrigger> onDragMove = std::nullopt;
   QPointer<Hotspot> onDragRelease = nullptr;
   bool outputCopyAvailable = false;

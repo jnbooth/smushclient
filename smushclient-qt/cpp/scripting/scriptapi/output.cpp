@@ -176,9 +176,21 @@ ScriptApi::SetHighlightColour(const QColor& color) const
 }
 
 void
+ScriptApi::SetMainTitle(const QString& title) const
+{
+  tab.setWindowTitle(title);
+}
+
+void
 ScriptApi::SetStatus(const QString& status) const
 {
   statusBar()->setMessage(status);
+}
+
+void
+ScriptApi::SetTitle(const QString& title) const
+{
+  tab.setTitle(title);
 }
 
 void

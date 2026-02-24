@@ -40,8 +40,9 @@ namespace {
 QString
 formatWindowTitle(WorldTab& tab)
 {
-  return tab.title() + QStringLiteral("[*] - ") +
-         QCoreApplication::applicationName();
+  const QString appName = QCoreApplication::applicationName();
+  return tab.isLeftToRight() ? tab.title() + QStringLiteral("[*] - ") + appName
+                             : appName + QStringLiteral(" - [*]") + tab.title();
 }
 } // namespace
 
@@ -614,7 +615,8 @@ MainWindow::on_action_new_triggered()
 {
   const int currentIndex = ui->world_tabs->currentIndex();
   WorldTab* tab = createWorldTab(this);
-  const int tabIndex = ui->world_tabs->addTab(tab, tr("New world"));
+  tab->initNew();
+  const int tabIndex = ui->world_tabs->addTab(tab, tab->title());
   ui->world_tabs->setCurrentIndex(tabIndex);
   if (!tab->openWorldSettings()) {
     delete tab;

@@ -237,12 +237,14 @@ public:
   ApiCode SetForegroundImage(const QString& path,
                              MiniWindow::Position position);
   QColor SetHighlightColour(const QColor& color) const;
+  void SetMainTitle(const QString& title) const;
   ApiCode SetOption(size_t plugin, std::string_view name, int64_t value);
   void SetStatus(const QString& status) const;
   ApiCode SetTimerOption(size_t plugin,
                          std::string_view label,
                          std::string_view option,
                          std::string_view value) const noexcept;
+  void SetTitle(const QString& title) const;
   ApiCode SetTriggerOption(size_t plugin,
                            std::string_view label,
                            std::string_view option,
