@@ -699,6 +699,14 @@ L_ActivateClient(lua_State* L)
 }
 
 int
+L_AddFont(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  return returnCode(L, ScriptApi::AddFont(qlua::getQString(L, 1)));
+}
+
+int
 L_AnsiNote(lua_State* L)
 {
   BENCHMARK
@@ -2296,6 +2304,7 @@ static const struct luaL_Reg worldlib[] =
     // output
     { "Activate", L_ActivateClient },
     { "ActivateClient", L_ActivateClient },
+    { "AddFont", L_AddFont },
     { "AnsiNote", L_AnsiNote },
     { "ColourNameToRGB", L_ColourNameToRGB },
     { "ColourNote", L_ColourNote },

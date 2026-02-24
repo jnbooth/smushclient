@@ -52,6 +52,7 @@ class ScriptApi : public QObject
   Q_OBJECT
 
 public:
+  static ApiCode AddFont(const QString& fileName);
   static QColor GetSysColor(SysColor sysColor);
   static int64_t GetUniqueNumber() noexcept;
   static QStringList GetAlphaOptionList() noexcept;

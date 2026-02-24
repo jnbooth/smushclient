@@ -7,11 +7,23 @@
 #include "../scriptapi.h"
 #include "smushclient_qt/src/ffi/spans.cxx.h"
 #include <QtGui/QClipboard>
+#include <QtGui/QFontDatabase>
 #include <QtWidgets/QColorDialog>
 
 using std::string_view;
 
 // Public static methods
+
+ApiCode
+ScriptApi::AddFont(const QString& fileName)
+{
+  if (fileName.isEmpty()) {
+    return ApiCode::BadParameter;
+  }
+  return QFontDatabase::addApplicationFont(fileName) == -1
+           ? ApiCode::FileNotFound
+           : ApiCode::OK;
+}
 
 QColor
 ScriptApi::GetSysColor(SysColor sysColor)
