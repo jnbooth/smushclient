@@ -17,7 +17,7 @@ using std::string_view;
 
 namespace {
 constexpr bool
-hasCallback(const string& callback)
+hasCallback(const string& callback) noexcept
 {
   return !callback.empty();
 }
@@ -232,9 +232,9 @@ Hotspot::wheelEvent(QWheelEvent* event)
 class HotspotCallback : public DynamicPluginCallback
 {
 public:
-  HotspotCallback(const string& callback,
-                  Hotspot::EventFlags flags,
-                  const string& hotspotID)
+  constexpr HotspotCallback(const string& callback,
+                            Hotspot::EventFlags flags,
+                            const string& hotspotID) noexcept
     : DynamicPluginCallback(callback)
     , flags(flags)
     , hotspotID(hotspotID)

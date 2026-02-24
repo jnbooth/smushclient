@@ -28,17 +28,18 @@ public:
 
   SelectionPredicate(SelectionPredicate&& other) = delete;
 
-  virtual bool isSelected(const QVariant& value) const = 0;
+  virtual bool isSelected(const QVariant& value) const noexcept = 0;
 };
 
 class SingleSelectionPredicate : public SelectionPredicate
 {
 public:
-  explicit SingleSelectionPredicate(const QVariant& selection)
+  explicit constexpr SingleSelectionPredicate(
+    const QVariant& selection) noexcept
     : selection(selection)
   {
   }
-  bool isSelected(const QVariant& value) const override
+  bool isSelected(const QVariant& value) const noexcept override
   {
     return value == selection;
   }
@@ -50,11 +51,12 @@ private:
 class MultiSelectionPredicate : public SelectionPredicate
 {
 public:
-  explicit MultiSelectionPredicate(const QList<QVariant>& selection)
+  explicit constexpr MultiSelectionPredicate(
+    const QList<QVariant>& selection) noexcept
     : selection(selection)
   {
   }
-  bool isSelected(const QVariant& value) const override
+  bool isSelected(const QVariant& value) const noexcept override
   {
     return selection.contains(value);
   }

@@ -62,20 +62,22 @@ public:
             Notepads& notepads,
             WorldTab& parent);
 
-  ApiCode AddAlias(size_t plugin,
-                   std::string_view name,
-                   std::string_view pattern,
-                   std::string_view text,
-                   AliasFlags flags,
-                   std::string_view scriptName = std::string_view()) const;
-  ApiCode AddTimer(size_t plugin,
-                   std::string_view name,
-                   int hour,
-                   int minute,
-                   double second,
-                   std::string_view text,
-                   TimerFlags flags,
-                   std::string_view scriptName = std::string_view()) const;
+  ApiCode AddAlias(
+    size_t plugin,
+    std::string_view name,
+    std::string_view pattern,
+    std::string_view text,
+    AliasFlags flags,
+    std::string_view scriptName = std::string_view()) const noexcept;
+  ApiCode AddTimer(
+    size_t plugin,
+    std::string_view name,
+    int hour,
+    int minute,
+    double second,
+    std::string_view text,
+    TimerFlags flags,
+    std::string_view scriptName = std::string_view()) const noexcept;
   ApiCode AddTrigger(size_t plugin,
                      std::string_view name,
                      std::string_view pattern,
@@ -85,7 +87,7 @@ public:
                      std::string_view sound,
                      std::string_view scriptName,
                      SendTarget target,
-                     int sequence = 100) const;
+                     int sequence = 100) const noexcept;
   void AnsiNote(std::string_view text) const;
   int64_t BroadcastPlugin(size_t pluginIndex,
                           int64_t message,
@@ -97,63 +99,68 @@ public:
   int DatabaseOpen(std::string_view databaseID,
                    std::string_view filename,
                    int flags);
-  ApiCode DeleteAlias(size_t plugin, std::string_view name) const;
-  size_t DeleteAliasGroup(size_t plugin, std::string_view group) const;
-  size_t DeleteTemporaryAliases() const;
-  size_t DeleteTemporaryTimers() const;
-  size_t DeleteTemporaryTriggers() const;
-  ApiCode DeleteTimer(size_t plugin, std::string_view name) const;
-  size_t DeleteTimerGroup(size_t plugin, std::string_view group) const;
-  ApiCode DeleteTrigger(size_t plugin, std::string_view name) const;
-  size_t DeleteTriggerGroup(size_t plugin, std::string_view group) const;
-  ApiCode DeleteVariable(size_t plugin, std::string_view key) const;
+  ApiCode DeleteAlias(size_t plugin, std::string_view name) const noexcept;
+  size_t DeleteAliasGroup(size_t plugin, std::string_view group) const noexcept;
+  size_t DeleteTemporaryAliases() const noexcept;
+  size_t DeleteTemporaryTimers() const noexcept;
+  size_t DeleteTemporaryTriggers() const noexcept;
+  ApiCode DeleteTimer(size_t plugin, std::string_view name) const noexcept;
+  size_t DeleteTimerGroup(size_t plugin, std::string_view group) const noexcept;
+  ApiCode DeleteTrigger(size_t plugin, std::string_view name) const noexcept;
+  size_t DeleteTriggerGroup(size_t plugin,
+                            std::string_view group) const noexcept;
+  ApiCode DeleteVariable(size_t plugin, std::string_view key) const noexcept;
   ApiCode DoAfter(size_t plugin,
                   double seconds,
                   const QString& text,
                   SendTarget target);
   ApiCode EnableAlias(size_t plugin,
                       std::string_view label,
-                      bool enabled) const;
+                      bool enabled) const noexcept;
   ApiCode EnableAliasGroup(size_t plugin,
                            std::string_view group,
-                           bool enabled) const;
+                           bool enabled) const noexcept;
   ApiCode EnablePlugin(std::string_view pluginID, bool enabled);
   ApiCode EnableTimer(size_t plugin,
                       std::string_view label,
-                      bool enabled) const;
+                      bool enabled) const noexcept;
   ApiCode EnableTimerGroup(size_t plugin,
                            std::string_view group,
-                           bool enabled) const;
+                           bool enabled) const noexcept;
   ApiCode EnableTrigger(size_t plugin,
                         std::string_view label,
-                        bool enabled) const;
+                        bool enabled) const noexcept;
   ApiCode EnableTriggerGroup(size_t plugin,
                              std::string_view group,
-                             bool enabled) const;
+                             bool enabled) const noexcept;
   QVariant GetAliasOption(size_t plugin,
                           std::string_view label,
-                          std::string_view option) const;
-  std::string_view GetAlphaOption(size_t plugin, std::string_view name) const;
-  QVariant GetCurrentValue(size_t pluginIndex, std::string_view option) const;
+                          std::string_view option) const noexcept;
+  std::string_view GetAlphaOption(size_t plugin,
+                                  std::string_view name) const noexcept;
+  QVariant GetCurrentValue(size_t pluginIndex,
+                           std::string_view option) const noexcept;
   QVariant GetInfo(int64_t infoType) const;
   QVariant GetLineInfo(int line, int64_t infoType) const;
   int GetLinesInBufferCount() const;
-  int64_t GetOption(size_t plugin, std::string_view name) const;
+  int64_t GetOption(size_t plugin, std::string_view name) const noexcept;
   const std::string& GetPluginID(size_t pluginIndex) const;
-  QVariant GetPluginInfo(std::string_view pluginID, int64_t infoType) const;
+  QVariant GetPluginInfo(std::string_view pluginID,
+                         int64_t infoType) const noexcept;
   QVariant GetStyleInfo(int line, int64_t style, int64_t infoType) const;
   QVariant GetTimerInfo(size_t pluginIndex,
                         std::string_view label,
                         int64_t infoType) const;
   QVariant GetTimerOption(size_t plugin,
                           std::string_view label,
-                          std::string_view option) const;
+                          std::string_view option) const noexcept;
   QVariant GetTriggerOption(size_t plugin,
                             std::string_view label,
-                            std::string_view option) const;
-  std::string_view GetVariable(size_t pluginIndex, std::string_view key) const;
+                            std::string_view option) const noexcept;
+  std::string_view GetVariable(size_t pluginIndex,
+                               std::string_view key) const noexcept;
   std::string_view GetVariable(std::string_view pluginID,
-                               std::string_view key) const;
+                               std::string_view key) const noexcept;
   void Hyperlink(const QString& action,
                  const QString& text,
                  const QString& hint,
@@ -161,22 +168,22 @@ public:
                  const QColor& background,
                  bool url,
                  bool noUnderline);
-  ApiCode IsAlias(size_t plugin, std::string_view label) const;
-  ApiCode IsTimer(size_t plugin, std::string_view label) const;
-  ApiCode IsTrigger(size_t plugin, std::string_view label) const;
+  ApiCode IsAlias(size_t plugin, std::string_view label) const noexcept;
+  ApiCode IsTimer(size_t plugin, std::string_view label) const noexcept;
+  ApiCode IsTrigger(size_t plugin, std::string_view label) const noexcept;
   QColor PickColour(const QColor& hint) const;
   ApiCode PlaySound(size_t channel,
                     std::string_view path,
                     bool loop = false,
-                    float volume = 1.0) const;
+                    float volume = 1.0) const noexcept;
   ApiCode PlaySound(size_t channel,
                     const QString& path,
                     bool loop = false,
-                    float volume = 1.0) const;
+                    float volume = 1.0) const noexcept;
   ApiCode PlaySoundMemory(size_t channel,
                           QByteArrayView sound,
                           bool loop = false,
-                          float volume = 1.0) const;
+                          float volume = 1.0) const noexcept;
   ApiCode PluginSupports(std::string_view pluginID,
                          PluginCallbackKey routine) const;
   ApiCode Send(std::string_view text);
@@ -187,7 +194,7 @@ public:
   ApiCode SetAliasOption(size_t plugin,
                          std::string_view label,
                          std::string_view option,
-                         std::string_view value) const;
+                         std::string_view value) const noexcept;
   ApiCode SetAlphaOption(size_t plugin,
                          std::string_view name,
                          std::string_view value);
@@ -204,17 +211,17 @@ public:
   ApiCode SetTimerOption(size_t plugin,
                          std::string_view label,
                          std::string_view option,
-                         std::string_view value) const;
+                         std::string_view value) const noexcept;
   ApiCode SetTriggerOption(size_t plugin,
                            std::string_view label,
                            std::string_view option,
-                           std::string_view value) const;
+                           std::string_view value) const noexcept;
   bool SetVariable(size_t pluginIndex,
                    std::string_view key,
-                   std::string_view value) const;
-  void Simulate(std::string_view output) const;
-  void StopEvaluatingTriggers() const;
-  ApiCode StopSound(size_t channel = 0) const;
+                   std::string_view value) const noexcept;
+  void Simulate(std::string_view output) const noexcept;
+  void StopEvaluatingTriggers() const noexcept;
+  ApiCode StopSound(size_t channel = 0) const noexcept;
   void Tell(const QString& text);
   ApiCode TextRectangle(const QRect& rect,
                         int borderOffset,
@@ -337,7 +344,7 @@ public:
   ApiCode WindowLine(std::string_view windowName,
                      const QLineF& line,
                      const QPen& pen) const;
-  std::vector<std::string_view> WindowList() const;
+  std::vector<std::string_view> WindowList() const noexcept;
   ApiCode WindowLoadImage(std::string_view windowName,
                           std::string_view imageID,
                           const QString& filename) const;
@@ -421,14 +428,14 @@ public:
 
   void applyWorld(const World& world);
   void finishNote();
-  const Plugin* getPlugin(std::string_view pluginID) const;
-  constexpr Timekeeper& getTimekeeper() { return *timekeeper; }
+  const Plugin* getPlugin(std::string_view pluginID) const noexcept;
+  Timekeeper& getTimekeeper() { return *timekeeper; }
   void handleSendRequest(const SendRequest& request);
-  bool isPluginEnabled(size_t plugin) const
+  bool isPluginEnabled(size_t plugin) const noexcept
   {
     return !plugins[plugin].isDisabled();
   }
-  ApiCode playFileRaw(std::string_view path) const;
+  ApiCode playFileRaw(std::string_view path) const noexcept;
   void printError(const QString& message);
   void reloadWorldScript(const QString& worldScriptPath);
   void resetAllTimers();
@@ -449,27 +456,27 @@ public:
     QByteArray bytes = text.toUtf8();
     return sendToWorld(bytes, text, flags);
   }
-  void setNawsEnabled(bool enabled);
-  void setOpen(bool open);
+  void setNawsEnabled(bool enabled) noexcept;
+  void setOpen(bool open) noexcept;
   void setPluginEnabled(size_t plugin, bool enable = true);
   ActionSource setSource(ActionSource source) noexcept;
-  void setWordUnderMenu(const QString& word) { wordUnderMenu = word; }
+  void setWordUnderMenu(const QString& word) noexcept { wordUnderMenu = word; }
   void stackWindow(std::string_view windowName, MiniWindow& window) const;
   MudStatusBar* statusBar() const noexcept { return statusBarPtr.get(); }
 
-  constexpr std::vector<Plugin>::const_iterator cbegin() const noexcept
+  std::vector<Plugin>::const_iterator cbegin() const noexcept
   {
     return plugins.cbegin();
   }
-  constexpr std::vector<Plugin>::const_iterator begin() const noexcept
+  std::vector<Plugin>::const_iterator begin() const noexcept
   {
     return plugins.begin();
   }
-  constexpr std::vector<Plugin>::const_iterator cend() const noexcept
+  std::vector<Plugin>::const_iterator cend() const noexcept
   {
     return plugins.cend();
   }
-  constexpr std::vector<Plugin>::const_iterator end() const noexcept
+  std::vector<Plugin>::const_iterator end() const noexcept
   {
     return plugins.end();
   }
@@ -481,9 +488,9 @@ public slots:
   void reinstallPlugin(size_t index);
 
 private:
-  DatabaseConnection* findDatabase(std::string_view databaseID);
-  size_t findPluginIndex(std::string_view pluginID) const;
-  MiniWindow* findWindow(std::string_view windowName) const;
+  DatabaseConnection* findDatabase(std::string_view databaseID) noexcept;
+  size_t findPluginIndex(std::string_view pluginID) const noexcept;
+  MiniWindow* findWindow(std::string_view windowName) const noexcept;
   bool finishQueuedSend(const SendRequest& request);
   ApiCode sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags);
   ApiCode setImage(const QString& path,
@@ -491,7 +498,7 @@ private:
                    bool above);
 
 private:
-  static constexpr size_t noSuchPlugin = std::numeric_limits<size_t>::max();
+  static constexpr size_t noSuchPlugin = 0xFFFFFFFFFFFFFFFF;
 
   ActionSource actionSource = ActionSource::Unknown;
   QRect assignedTextRectangle;

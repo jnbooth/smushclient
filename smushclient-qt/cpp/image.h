@@ -12,28 +12,28 @@ _getBitmapFormat() noexcept;
 const QImage::Format bitmapFormat = _getBitmapFormat();
 
 inline rust::Slice<const uint8_t>
-asBytes(const QImage& image)
+asBytes(const QImage& image) noexcept
 {
   return rust::Slice(static_cast<const uint8_t*>(image.bits()),
                      static_cast<size_t>(image.sizeInBytes()));
 }
 
 inline rust::Slice<uint8_t>
-asBytesMut(QImage& image)
+asBytesMut(QImage& image) noexcept
 {
   return rust::Slice(static_cast<uint8_t*>(image.bits()),
                      static_cast<size_t>(image.sizeInBytes()));
 }
 
 inline rust::Slice<const uint32_t>
-asPixels(const QImage& image)
+asPixels(const QImage& image) noexcept
 {
   return rust::Slice(reinterpret_cast<const uint32_t*>(image.bits()),
                      static_cast<size_t>(image.sizeInBytes() >> 2));
 }
 
 inline rust::Slice<uint32_t>
-asPixelsMut(QImage& image)
+asPixelsMut(QImage& image) noexcept
 {
   return rust::Slice(reinterpret_cast<uint32_t*>(image.bits()),
                      static_cast<size_t>(image.sizeInBytes() >> 2));

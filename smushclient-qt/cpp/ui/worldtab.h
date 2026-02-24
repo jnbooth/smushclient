@@ -72,12 +72,12 @@ public:
   ApiCode setWorldAlphaOption(size_t pluginIndex,
                               std::string_view name,
                               std::string_view value);
-  void simulateOutput(std::string_view output) const;
+  void simulateOutput(std::string_view output) const noexcept;
   void start();
   MudStatusBar* statusBar() const;
   void stopSound() const;
-  constexpr const QString& title() const noexcept { return worldName; };
-  constexpr const QString& worldFilePath() const noexcept { return filePath; }
+  const QString& title() const noexcept { return worldName; };
+  const QString& worldFilePath() const noexcept { return filePath; }
 
 public slots:
   void onInputBackgroundChanged(const QColor& color) const;

@@ -53,9 +53,9 @@ public:
           std::string_view id,
           Callbacks&& callbacks,
           QWidget* parent = nullptr);
-  constexpr bool belongsToPlugin(const Plugin& otherPlugin) const noexcept
+  bool belongsToPlugin(const Plugin& other) const noexcept
   {
-    return &otherPlugin == &plugin;
+    return &other == &plugin;
   }
   void finishDrag();
   QVariant info(int64_t infoType) const;

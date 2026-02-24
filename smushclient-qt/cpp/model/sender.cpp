@@ -7,18 +7,19 @@ struct SelectionRegion
 {
   int top = -1;
   int height = -1;
-  const void* parentPtr = nullptr;
+  quintptr parentPtr = 0;
 
-  SelectionRegion() = default;
+  constexpr SelectionRegion() noexcept = default;
 
-  SelectionRegion(const QItemSelectionRange& range, const QModelIndex& parent)
+  constexpr SelectionRegion(const QItemSelectionRange& range,
+                            const QModelIndex& parent) noexcept
     : top(range.top())
     , height(range.height())
-    , parentPtr(parent.constInternalPointer())
+    , parentPtr(parent.internalId())
   {
   }
 
-  bool operator==(const SelectionRegion&) const = default;
+  constexpr bool operator==(const SelectionRegion&) const noexcept = default;
 };
 
 // Private utils

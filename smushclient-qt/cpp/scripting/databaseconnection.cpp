@@ -8,7 +8,7 @@ using std::string_view;
 
 namespace {
 inline string
-replacePathSeparators(string_view path)
+replacePathSeparators(string_view path) noexcept
 {
   string file(path);
   for (char& iter : file) {

@@ -67,7 +67,7 @@ public:
   void send(const SendScriptRequest& request) const;
   void setDynamicColor(DynamicColor dynamic, const QColor& color) const;
   void setSuppressEcho(bool suppress) const;
-  constexpr const QHash<QString, QString>& serverStatus() const noexcept
+  const QHash<QString, QString>& serverStatus() const noexcept
   {
     return serverStatuses;
   }

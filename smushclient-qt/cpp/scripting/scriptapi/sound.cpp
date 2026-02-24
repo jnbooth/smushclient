@@ -9,7 +9,7 @@ ApiCode
 ScriptApi::PlaySound(size_t channel,
                      string_view path,
                      bool loop,
-                     float volume) const
+                     float volume) const noexcept
 {
   return client.playFile(channel, path, volume, loop);
 }
@@ -18,7 +18,7 @@ ApiCode
 ScriptApi::PlaySound(size_t channel,
                      const QString& path,
                      bool loop,
-                     float volume) const
+                     float volume) const noexcept
 {
   const QByteArray utf8 = path.toUtf8();
   return PlaySound(
@@ -29,13 +29,13 @@ ApiCode
 ScriptApi::PlaySoundMemory(size_t channel,
                            QByteArrayView sound,
                            bool loop,
-                           float volume) const
+                           float volume) const noexcept
 {
   return client.playBuffer(channel, sound, volume, loop);
 }
 
 ApiCode
-ScriptApi::StopSound(size_t channel) const
+ScriptApi::StopSound(size_t channel) const noexcept
 {
   return client.stopSound(channel);
 }

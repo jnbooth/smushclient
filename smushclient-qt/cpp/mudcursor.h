@@ -22,8 +22,8 @@ public:
   void echo(const QString& text);
   void finishNote();
   void move(QTextCursor::MoveOperation op, int count);
-  void setIndentText(const QString& text);
-  void setSuppressingEcho(bool suppress = true);
+  void setIndentText(const QString& text) noexcept;
+  void setSuppressingEcho(bool suppress = true) noexcept;
   bool suppressingEcho() const noexcept { return m_suppressingEcho; }
   int startLine();
   void setOption(std::string_view name, int64_t value);

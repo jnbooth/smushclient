@@ -17,13 +17,13 @@ MudCursor::MudCursor(QTextDocument* document)
 }
 
 void
-MudCursor::setIndentText(const QString& text)
+MudCursor::setIndentText(const QString& text) noexcept
 {
   indentText = text;
 }
 
 void
-MudCursor::setSuppressingEcho(bool suppress)
+MudCursor::setSuppressingEcho(bool suppress) noexcept
 {
   m_suppressingEcho = suppress;
 }

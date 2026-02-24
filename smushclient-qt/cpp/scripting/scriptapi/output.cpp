@@ -164,7 +164,7 @@ ScriptApi::SetStatus(const QString& status) const
 }
 
 void
-ScriptApi::Simulate(string_view output) const
+ScriptApi::Simulate(string_view output) const noexcept
 {
   tab.simulateOutput(output);
 }

@@ -264,12 +264,3 @@ PluginModel::setData(const QModelIndex& index, const QVariant& value, int role)
       return false;
   }
 }
-
-// Private methods
-
-bool
-PluginModel::isValidIndex(const QModelIndex& index) const noexcept
-{
-  return isValidColumn(index.column()) && index.row() >= 0 &&
-         index.row() < pluginCount && !isLeaf(index);
-}

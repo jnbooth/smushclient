@@ -25,7 +25,7 @@ public:
              QWidget* parent = nullptr);
   ~WorldPrefs() override;
 
-  constexpr bool isDirty() const { return dirty; }
+  bool isDirty() const noexcept { return dirty; }
 
 private:
   void connectModel(QAbstractItemModel* model) const;

@@ -131,7 +131,9 @@ struct StatusEntry
   QString key;
   QString value;
 
-  StatusEntry(KnownVariable variable, const QString& key, const QString& value)
+  StatusEntry(KnownVariable variable,
+              const QString& key,
+              const QString& value) noexcept
     : isUnknown(variable == KnownVariable::Unknown)
     , variable(variable)
     , key(key)
@@ -139,7 +141,8 @@ struct StatusEntry
   {
   }
 
-  strong_ordering operator<=>(const StatusEntry& other) const = default;
+  strong_ordering operator<=>(const StatusEntry& other) const noexcept =
+    default;
 };
 
 // Public methods

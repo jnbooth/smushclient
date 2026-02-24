@@ -7,15 +7,15 @@ enum class CommandSource : uint8_t;
 
 #define CALLBACK(idNumber, nameString, sourceAction)                           \
   static const unsigned int ID = 1 << (idNumber);                              \
-  inline constexpr unsigned int id() const noexcept override                   \
+  constexpr unsigned int id() const noexcept override                          \
   {                                                                            \
     return 1 << (idNumber);                                                    \
   }                                                                            \
-  inline constexpr const char* name() const noexcept override                  \
+  constexpr const char* name() const noexcept override                         \
   {                                                                            \
     return nameString;                                                         \
   }                                                                            \
-  inline constexpr ActionSource source() const noexcept override               \
+  constexpr ActionSource source() const noexcept override                      \
   {                                                                            \
     return sourceAction;                                                       \
   }
@@ -55,10 +55,8 @@ public:
     , property(callback.property)
   {
   }
-
   explicit DynamicPluginCallback(const QString& callback);
-
-  unsigned int id() const noexcept override { return 0; }
+  constexpr unsigned int id() const noexcept override { return 0; }
   bool findCallback(lua_State* L) const override;
 
 private:
@@ -77,9 +75,8 @@ class DiscardCallback : public NamedPluginCallback
 {
 public:
   constexpr int expectedSize() const noexcept override { return 1; }
-  constexpr DiscardCallback() = default;
   void collectReturned(lua_State* L) override;
-  constexpr bool discarded() const { return !processing; }
+  constexpr bool discarded() const noexcept { return !processing; }
 
 private:
   bool processing = true;
@@ -88,11 +85,11 @@ private:
 class ModifyTextCallback : public NamedPluginCallback
 {
 public:
-  constexpr int expectedSize() const noexcept override { return 1; }
-  explicit constexpr ModifyTextCallback(QByteArray& text)
+  explicit constexpr ModifyTextCallback(QByteArray& text) noexcept
     : text(text)
   {
   }
+  constexpr int expectedSize() const noexcept override { return 1; }
   void collectReturned(lua_State* L) override;
   int pushArguments(lua_State* L) const override;
 
@@ -109,7 +106,7 @@ public:
   constexpr OnPluginBroadcast(int64_t message,
                               std::string_view pluginID,
                               std::string_view pluginName,
-                              std::string_view text)
+                              std::string_view text) noexcept
     : message(message)
     , pluginID(pluginID)
     , pluginName(pluginName)
@@ -129,7 +126,8 @@ class OnPluginCommand : public DiscardCallback
 {
 public:
   CALLBACK(1, "OnPluginCommand", commandAction(commandSource))
-  constexpr OnPluginCommand(CommandSource commandSource, const QByteArray& text)
+  constexpr OnPluginCommand(CommandSource commandSource,
+                            const QByteArray& text) noexcept
     : commandSource(commandSource)
     , text(text)
   {
@@ -158,7 +156,7 @@ class OnPluginCommandEntered : public ModifyTextCallback
 public:
   CALLBACK(4, "OnPluginCommandEntered", commandAction(commandSource))
   constexpr OnPluginCommandEntered(CommandSource commandSource,
-                                   QByteArray& text)
+                                   QByteArray& text) noexcept
     : ModifyTextCallback(text)
     , commandSource(commandSource)
   {
@@ -240,7 +238,7 @@ class OnPluginMXPSetEntity : public NamedPluginCallback
 {
 public:
   CALLBACK(15, "OnPluginMXPsetEntity", ActionSource::WorldAction)
-  constexpr explicit OnPluginMXPSetEntity(std::string_view value)
+  constexpr explicit OnPluginMXPSetEntity(std::string_view value) noexcept
     : value(value)
   {
   }
@@ -255,7 +253,7 @@ class OnPluginMXPSetVariable : public NamedPluginCallback
 public:
   CALLBACK(16, "OnPluginMXPsetVariable", ActionSource::WorldAction)
   constexpr OnPluginMXPSetVariable(std::string_view variable,
-                                   std::string_view contents)
+                                   std::string_view contents) noexcept
     : variable(variable)
     , contents(contents)
   {
@@ -277,7 +275,7 @@ class OnPluginSend : public DiscardCallback
 {
 public:
   CALLBACK(18, "OnPluginSend", ActionSource::Unknown)
-  explicit constexpr OnPluginSend(const QByteArray& text)
+  explicit constexpr OnPluginSend(const QByteArray& text) noexcept
     : text(text)
   {
   }
@@ -291,7 +289,7 @@ class OnPluginSent : public NamedPluginCallback
 {
 public:
   CALLBACK(19, "OnPluginSent", ActionSource::Unknown)
-  explicit constexpr OnPluginSent(const QByteArray& text)
+  explicit constexpr OnPluginSent(const QByteArray& text) noexcept
     : text(text)
   {
   }
@@ -305,7 +303,7 @@ class OnPluginTabComplete : public ModifyTextCallback
 {
 public:
   CALLBACK(20, "OnPluginTabComplete", ActionSource::UserTyping)
-  explicit constexpr OnPluginTabComplete(QByteArray& text)
+  explicit constexpr OnPluginTabComplete(QByteArray& text) noexcept
     : ModifyTextCallback(text)
   {
   }
@@ -316,7 +314,7 @@ class OnPluginTelnetRequest : public NamedPluginCallback
 public:
   CALLBACK(21, "OnPluginTelnetRequest", ActionSource::Unknown)
   explicit constexpr OnPluginTelnetRequest(uint8_t code,
-                                           std::string_view message)
+                                           std::string_view message) noexcept
     : code(code)
     , message(message)
   {
@@ -332,7 +330,8 @@ class OnPluginTelnetSubnegotiation : public NamedPluginCallback
 {
 public:
   CALLBACK(22, "OnPluginTelnetSubnegotiation", ActionSource::Unknown)
-  constexpr OnPluginTelnetSubnegotiation(uint8_t code, const QByteArray& data)
+  constexpr OnPluginTelnetSubnegotiation(uint8_t code,
+                                         const QByteArray& data) noexcept
     : code(code)
     , data(data)
   {
@@ -360,17 +359,16 @@ public:
 class TimerCallback : public DynamicPluginCallback
 {
 public:
-  TimerCallback(const rust::String& callback, const rust::String& label)
+  TimerCallback(const rust::String& callback,
+                const rust::String& label) noexcept
     : DynamicPluginCallback(callback)
     , label(label)
   {
   }
-
   constexpr ActionSource source() const noexcept override
   {
     return ActionSource::TimerFired;
   }
-
   int pushArguments(lua_State* L) const override;
 
 private:

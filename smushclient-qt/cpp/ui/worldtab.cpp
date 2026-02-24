@@ -476,7 +476,7 @@ WorldTab::setWorldAlphaOption(size_t pluginIndex,
 }
 
 void
-WorldTab::simulateOutput(string_view output) const
+WorldTab::simulateOutput(string_view output) const noexcept
 {
   client.simulate(output, *document);
 }
@@ -1070,7 +1070,7 @@ WorldTab::on_input_textChanged()
 class AnchorCallback : public DynamicPluginCallback
 {
 public:
-  AnchorCallback(const QString& callback, const QString& arg)
+  AnchorCallback(const QString& callback, const QString& arg) noexcept
     : DynamicPluginCallback(callback)
     , arg(arg)
   {

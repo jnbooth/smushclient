@@ -21,19 +21,20 @@ ScriptApi::GetOptionList() noexcept
 // Public methods
 
 string_view
-ScriptApi::GetAlphaOption(size_t plugin, string_view name) const
+ScriptApi::GetAlphaOption(size_t plugin, string_view name) const noexcept
 {
   return client.worldAlphaOption(plugin, name);
 }
 
 QVariant
-ScriptApi::GetCurrentValue(size_t pluginIndex, string_view option) const
+ScriptApi::GetCurrentValue(size_t pluginIndex,
+                           string_view option) const noexcept
 {
   return client.worldVariantOption(pluginIndex, option);
 }
 
 int64_t
-ScriptApi::GetOption(size_t plugin, string_view name) const
+ScriptApi::GetOption(size_t plugin, string_view name) const noexcept
 {
   return client.worldOption(plugin, name);
 }

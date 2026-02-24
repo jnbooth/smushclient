@@ -147,7 +147,7 @@ insertTextTriples(lua_State* L, ScriptApi& api)
 }
 
 constexpr float
-convertVolume(lua_Number decibels)
+convertVolume(lua_Number decibels) noexcept
 {
   return static_cast<float>(1 / pow(2, decibels / -3));
 }
@@ -208,7 +208,7 @@ setPluginIndex(lua_State* L, size_t index)
 class Benchmarker
 {
 public:
-  explicit Benchmarker(const char* name)
+  explicit Benchmarker(const char* name) noexcept
     : name(name)
   {
     timer.start();

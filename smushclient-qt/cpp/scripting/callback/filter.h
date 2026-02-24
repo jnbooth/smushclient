@@ -6,12 +6,15 @@ struct lua_State;
 class CallbackFilter
 {
 public:
-  constexpr void operator|=(const CallbackFilter& other)
+  constexpr void operator|=(const CallbackFilter& other) noexcept
   {
     filter |= other.filter;
   }
-  constexpr void clear() { filter = 0; }
-  constexpr bool includes(unsigned int id) const { return (filter & id) != 0; }
+  constexpr void clear() noexcept { filter = 0; }
+  constexpr bool includes(unsigned int id) const noexcept
+  {
+    return (filter & id) != 0;
+  }
   void scan(lua_State* L);
 
 private:
@@ -20,5 +23,3 @@ private:
 private:
   unsigned int filter = 0;
 };
-
-#undef CALLBACK

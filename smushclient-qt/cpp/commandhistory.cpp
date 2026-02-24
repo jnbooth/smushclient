@@ -1,11 +1,24 @@
 #include "commandhistory.h"
 
-// Public methods
+#ifndef SSIZE_MAX
+#include <limits>
+constexpr qsizetype SSIZE_MAX = std::numeric_limits<qsizetype>::max();
+#endif
 
 const QString CommandHistory::_emptyString = QString();
 
-CommandHistory::CommandHistory(qsizetype max)
-  : max(max)
+// Private utils
+
+namespace {
+constexpr qsizetype
+adjustMax(qsizetype max) noexcept
+{
+  return max == -1 ? SSIZE_MAX : max;
+}
+} // namespace
+
+CommandHistory::CommandHistory(qsizetype max) noexcept
+  : max(adjustMax(max))
   , begin(history.cbegin())
   , end(history.cend())
   , iterator(end)
@@ -14,7 +27,7 @@ CommandHistory::CommandHistory(qsizetype max)
 
 CommandHistory::CommandHistory(const QStringList& borrowHistory, qsizetype max)
   : history(borrowHistory)
-  , max(max)
+  , max(adjustMax(max))
   , begin(history.cbegin())
   , end(history.cend())
   , iterator(end)
@@ -61,7 +74,7 @@ CommandHistory::clear()
 }
 
 void
-CommandHistory::pop() noexcept
+CommandHistory::pop()
 {
   history.pop_back();
   resetIterators();
@@ -115,7 +128,7 @@ CommandHistory::setMaxSize(qsizetype newMax)
 // Private functions
 
 void
-CommandHistory::resetIterators() noexcept
+CommandHistory::resetIterators()
 {
   begin = history.cbegin();
   end = history.cend();

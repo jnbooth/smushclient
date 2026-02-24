@@ -12,8 +12,8 @@ getFontPitch(const QFont& font)
                                       : ScriptFont::Pitch::Variable;
 }
 
-inline ScriptFont::Family
-getFontFamily(QFont::StyleHint hint)
+constexpr ScriptFont::Family
+getFontFamily(QFont::StyleHint hint) noexcept
 {
   using StyleHint = QFont::StyleHint;
   using Family = ScriptFont::Family;

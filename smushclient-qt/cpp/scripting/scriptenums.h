@@ -478,8 +478,6 @@ public:
   {
   }
 
-  explicit ScriptPen(const QPen& font);
-
   explicit constexpr operator int64_t() const noexcept { return value; }
 
   constexpr Cap cap() const noexcept { return static_cast<Cap>(value & 0xF00); }

@@ -8,7 +8,7 @@
 // Public methods
 
 QImage
-ImageFilter::PixelFilter::apply(const QPixmap& pixmap) const
+ImageFilter::PixelFilter::apply(const QPixmap& pixmap) const noexcept
 {
   if (isNoop() || pixmap.isNull()) {
     return QImage();
@@ -20,7 +20,7 @@ ImageFilter::PixelFilter::apply(const QPixmap& pixmap) const
 }
 
 QImage
-ImageFilter::ConvolveFilter::apply(const QPixmap& pixmap) const
+ImageFilter::ConvolveFilter::apply(const QPixmap& pixmap) const noexcept
 {
   QImage image = pixmap.toImage();
   image.convertTo(QImage::Format::Format_ARGB32);
@@ -31,19 +31,21 @@ ImageFilter::ConvolveFilter::apply(const QPixmap& pixmap) const
 // Protected methods
 
 void
-ImageFilter::Noise::apply(Pixels pixels) const
+ImageFilter::Noise::apply(Pixels pixels) const noexcept
 {
   ffi::filter::noise(pixels, threshold);
 }
 
 void
-ImageFilter::MonoNoise::apply(Pixels pixels) const
+ImageFilter::MonoNoise::apply(Pixels pixels) const noexcept
 {
   ffi::filter::mono_noise(pixels, threshold);
 }
 
 void
-ImageFilter::Blur::apply(Pixels pixels, int width, Directions directions) const
+ImageFilter::Blur::apply(Pixels pixels,
+                         int width,
+                         Directions directions) const noexcept
 {
   ffi::filter::blur(pixels, width, directions);
 }
@@ -51,7 +53,7 @@ ImageFilter::Blur::apply(Pixels pixels, int width, Directions directions) const
 void
 ImageFilter::Sharpen::apply(Pixels pixels,
                             int width,
-                            Directions directions) const
+                            Directions directions) const noexcept
 {
   ffi::filter::sharpen(pixels, width, directions);
 }
@@ -59,7 +61,7 @@ ImageFilter::Sharpen::apply(Pixels pixels,
 void
 ImageFilter::EdgeDetect::apply(Pixels pixels,
                                int width,
-                               Directions directions) const
+                               Directions directions) const noexcept
 {
   ffi::filter::edge_detect(pixels, width, directions);
 }
@@ -67,31 +69,31 @@ ImageFilter::EdgeDetect::apply(Pixels pixels,
 void
 ImageFilter::Emboss::apply(Pixels pixels,
                            int width,
-                           Directions directions) const
+                           Directions directions) const noexcept
 {
   ffi::filter::emboss(pixels, width, directions);
 }
 
 void
-ImageFilter::BrightnessAdd::apply(Pixels pixels) const
+ImageFilter::BrightnessAdd::apply(Pixels pixels) const noexcept
 {
   ffi::filter::brightness_add(pixels, add, channel);
 }
 
 void
-ImageFilter::Contrast::apply(Pixels pixels) const
+ImageFilter::Contrast::apply(Pixels pixels) const noexcept
 {
   ffi::filter::contrast(pixels, multiply, channel);
 }
 
 void
-ImageFilter::Gamma::apply(Pixels pixels) const
+ImageFilter::Gamma::apply(Pixels pixels) const noexcept
 {
   ffi::filter::gamma(pixels, exp, channel);
 }
 
 void
-ImageFilter::GrayscaleLinear::apply(Pixels pixels) const
+ImageFilter::GrayscaleLinear::apply(Pixels pixels) const noexcept
 {
   ffi::filter::grayscale_linear(pixels);
 }
@@ -99,7 +101,7 @@ ImageFilter::GrayscaleLinear::apply(Pixels pixels) const
 void
 ImageFilter::LesserBlur::apply(Pixels pixels,
                                int width,
-                               Directions directions) const
+                               Directions directions) const noexcept
 {
   ffi::filter::lesser_blur(pixels, width, directions);
 }
@@ -107,25 +109,25 @@ ImageFilter::LesserBlur::apply(Pixels pixels,
 void
 ImageFilter::MinorBlur::apply(Pixels pixels,
                               int width,
-                              Directions directions) const
+                              Directions directions) const noexcept
 {
   ffi::filter::minor_blur(pixels, width, directions);
 }
 
 void
-ImageFilter::GrayscalePerceptual::apply(Pixels pixels) const
+ImageFilter::GrayscalePerceptual::apply(Pixels pixels) const noexcept
 {
   ffi::filter::grayscale_perceptual(pixels);
 }
 
 void
-ImageFilter::BrightnessMult::apply(Pixels pixels) const
+ImageFilter::BrightnessMult::apply(Pixels pixels) const noexcept
 {
   ffi::filter::brightness_mult(pixels, multiply, channel);
 }
 
 void
-ImageFilter::Average::apply(Pixels pixels) const
+ImageFilter::Average::apply(Pixels pixels) const noexcept
 {
   ffi::filter::average(pixels);
 }

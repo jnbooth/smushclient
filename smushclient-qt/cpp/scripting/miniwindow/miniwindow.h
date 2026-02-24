@@ -180,20 +180,20 @@ public:
                   const QString& text,
                   const QRectF& rect,
                   const QColor& color);
-  constexpr bool drawsUnderneath() const noexcept
+  bool drawsUnderneath() const noexcept
   {
     return flags.testFlag(Flag::DrawUnderneath);
   }
   QVariant execMenu(const QPoint& location, std::string_view menuString);
-  const QFont* findFont(std::string_view fontID) const;
-  Hotspot* findHotspot(std::string_view hotspotID) const;
-  const QPixmap* findImage(std::string_view imageID) const;
-  std::vector<std::string_view> fontList() const;
-  constexpr const std::string& getPluginId() const noexcept { return pluginID; }
-  constexpr const QPixmap& getPixmap() const noexcept { return pixmap; }
-  constexpr int64_t getZOrder() const noexcept { return zOrder; }
-  std::vector<std::string_view> hotspotList() const;
-  std::vector<std::string_view> imageList() const;
+  const QFont* findFont(std::string_view fontID) const noexcept;
+  Hotspot* findHotspot(std::string_view hotspotID) const noexcept;
+  const QPixmap* findImage(std::string_view imageID) const noexcept;
+  std::vector<std::string_view> fontList() const noexcept;
+  const std::string& getPluginId() const noexcept { return pluginID; }
+  const QPixmap& getPixmap() const noexcept { return pixmap; }
+  int64_t getZOrder() const noexcept { return zOrder; }
+  std::vector<std::string_view> hotspotList() const noexcept;
+  std::vector<std::string_view> imageList() const noexcept;
   QVariant info(int64_t infoType) const;
   void invert(const QRect& rect,
               QImage::InvertMode mode = QImage::InvertMode::InvertRgb);
@@ -233,10 +233,10 @@ public:
   bool setPixel(const QPoint& location, const QColor& color);
   void setPosition(const QPoint& location,
                    Position position,
-                   Flags flags = Flags()) noexcept;
-  void setSize(const QSize& size, const QColor& fill) noexcept;
-  void setSize(const QSize& size) noexcept;
-  void setZOrder(int64_t zOrder) noexcept;
+                   Flags flags = Flags());
+  void setSize(const QSize& size, const QColor& fill);
+  void setSize(const QSize& size);
+  void setZOrder(int64_t zOrder);
   bool unloadFont(std::string_view fontID);
   bool unloadImage(std::string_view imageID);
   void updatePosition();

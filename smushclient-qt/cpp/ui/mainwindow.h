@@ -118,9 +118,9 @@ public:
     friend class WorldTabRange;
 
   public:
-    bool operator==(const iterator&) const = default;
-    bool operator!=(const iterator&) const = default;
-    constexpr iterator& operator++()
+    constexpr bool operator==(const iterator&) const noexcept = default;
+    constexpr bool operator!=(const iterator&) const noexcept = default;
+    constexpr iterator& operator++() noexcept
     {
       ++index;
       return *this;
@@ -135,7 +135,7 @@ public:
     }
 
   private:
-    constexpr iterator(QTabWidget* tabs, int index)
+    constexpr iterator(QTabWidget* tabs, int index) noexcept
       : tabs(tabs)
       , index(index)
     {
@@ -150,13 +150,16 @@ public:
     friend class MainWindow;
 
   private:
-    constexpr explicit WorldTabRange(QTabWidget* tabs)
+    constexpr explicit WorldTabRange(QTabWidget* tabs) noexcept
       : tabs(tabs)
     {
     }
 
-    iterator begin() { return iterator(tabs, 0); }
-    iterator end() { return iterator(tabs, tabs->count()); }
+    constexpr iterator begin() const noexcept { return iterator(tabs, 0); }
+    constexpr iterator end() const noexcept
+    {
+      return iterator(tabs, tabs->count());
+    }
 
   private:
     QTabWidget* tabs;

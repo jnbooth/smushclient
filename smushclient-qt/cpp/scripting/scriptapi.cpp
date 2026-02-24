@@ -67,7 +67,7 @@ ScriptApi::finishNote()
 }
 
 const Plugin*
-ScriptApi::getPlugin(string_view pluginID) const
+ScriptApi::getPlugin(string_view pluginID) const noexcept
 {
   const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin) [[unlikely]] {
@@ -176,7 +176,7 @@ ScriptApi::initializePlugins()
 }
 
 ApiCode
-ScriptApi::playFileRaw(string_view path) const
+ScriptApi::playFileRaw(string_view path) const noexcept
 {
   return client.playFileRaw(path);
 }
@@ -297,13 +297,13 @@ ScriptApi::sendNaws()
 }
 
 void
-ScriptApi::setNawsEnabled(bool enabled)
+ScriptApi::setNawsEnabled(bool enabled) noexcept
 {
   doesNaws = enabled;
 }
 
 void
-ScriptApi::setOpen(bool open)
+ScriptApi::setOpen(bool open) noexcept
 {
   closed = !open;
 }
@@ -333,7 +333,8 @@ struct WindowCompare
   int64_t zOrder = 0;
   string_view name;
 
-  std::strong_ordering operator<=>(const WindowCompare&) const = default;
+  constexpr std::strong_ordering operator<=>(
+    const WindowCompare&) const noexcept = default;
 };
 
 void
@@ -408,7 +409,7 @@ ScriptApi::onTimerSent(const SendTimer& timer)
 // Private methods
 
 DatabaseConnection*
-ScriptApi::findDatabase(string_view databaseID)
+ScriptApi::findDatabase(string_view databaseID) noexcept
 {
   auto search = databases.find(databaseID);
   if (search == databases.end()) [[unlikely]] {
@@ -418,7 +419,7 @@ ScriptApi::findDatabase(string_view databaseID)
 }
 
 size_t
-ScriptApi::findPluginIndex(string_view pluginID) const
+ScriptApi::findPluginIndex(string_view pluginID) const noexcept
 {
   auto search = pluginIndices.find(pluginID);
   if (search == pluginIndices.end()) [[unlikely]] {
@@ -428,7 +429,7 @@ ScriptApi::findPluginIndex(string_view pluginID) const
 }
 
 MiniWindow*
-ScriptApi::findWindow(string_view windowName) const
+ScriptApi::findWindow(string_view windowName) const noexcept
 {
   auto search = windows.find(windowName);
   if (search == windows.end()) [[unlikely]] {

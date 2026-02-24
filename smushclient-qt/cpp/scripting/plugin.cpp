@@ -37,7 +37,7 @@ runLoaded(lua_State* L, int status)
 
 // Metadata
 
-PluginMetadata::PluginMetadata(const PluginPack& pack, size_t index)
+PluginMetadata::PluginMetadata(const PluginPack& pack, size_t index) noexcept
   : id(pack.id.data(), pack.id.size())
   , index(index)
   , installed(QDateTime::currentDateTimeUtc())
@@ -56,11 +56,11 @@ Plugin::Plugin(ScriptApi& api, const PluginPack& pack, size_t index)
 class CallbackFinder : public DynamicPluginCallback
 {
 public:
-  explicit CallbackFinder(PluginCallbackKey callback)
+  explicit CallbackFinder(PluginCallbackKey callback) noexcept
     : DynamicPluginCallback(callback)
   {
   }
-  explicit CallbackFinder(const QString& callback)
+  explicit CallbackFinder(const QString& callback) noexcept
     : DynamicPluginCallback(callback)
   {
   }
@@ -199,7 +199,7 @@ Plugin::runScript(string_view script, const char* name) const
 }
 
 void
-Plugin::setEnabled(bool enable)
+Plugin::setEnabled(bool enable) noexcept
 {
   disabled = !enable;
 }
@@ -211,7 +211,7 @@ Plugin::spawnThread() const
 }
 
 void
-Plugin::updateMetadata(const PluginPack& pack, size_t index)
+Plugin::updateMetadata(const PluginPack& pack, size_t index) noexcept
 {
   metadata = PluginMetadata(pack, index);
 }

@@ -28,7 +28,7 @@ public:
   {
   }
 
-  void clear() noexcept
+  void clear()
   {
     if (map.empty()) {
       return;

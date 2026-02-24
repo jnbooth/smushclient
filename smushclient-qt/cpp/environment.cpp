@@ -27,13 +27,13 @@ initializeStartupDirectory(const QString& dirPath)
 }
 
 QString
-makePathRelative(const QString& filePath)
+makePathRelative(const QString& filePath) noexcept
 {
   return makePathRelative(filePath, QDir::currentPath());
 }
 
 QString
-makePathRelative(const QString& filePath, const QString& relativeTo)
+makePathRelative(const QString& filePath, const QString& relativeTo) noexcept
 {
   if (!filePath.startsWith(relativeTo)) {
     return filePath;

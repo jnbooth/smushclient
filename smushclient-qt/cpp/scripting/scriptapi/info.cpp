@@ -447,7 +447,7 @@ ScriptApi::GetLineInfo(int lineNumber, int64_t infoType) const
 }
 
 QVariant
-ScriptApi::GetPluginInfo(string_view pluginID, int64_t infoType) const
+ScriptApi::GetPluginInfo(string_view pluginID, int64_t infoType) const noexcept
 {
   const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin || infoType < 0 || infoType > UINT8_MAX)

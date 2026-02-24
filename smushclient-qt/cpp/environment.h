@@ -20,9 +20,9 @@ bool
 initializeStartupDirectory(const QString& dirPath);
 
 QString
-makePathRelative(const QString& filePath);
+makePathRelative(const QString& filePath) noexcept;
 QString
-makePathRelative(const QString& filePath, const QString& relativeTo);
+makePathRelative(const QString& filePath, const QString& relativeTo) noexcept;
 
 bool
 openDirectoryExternally(const QDir& dir);

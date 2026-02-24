@@ -19,12 +19,12 @@ public:
   CallbackTrigger& operator=(const CallbackTrigger&) = delete;
   CallbackTrigger& operator=(CallbackTrigger&&) = delete;
 
-  constexpr bool belongsToPlugin(const Plugin& otherPlugin) const noexcept
+  bool belongsToPlugin(const Plugin& other) const noexcept
   {
-    return &otherPlugin == plugin;
+    return &other == plugin;
   }
   bool trigger();
-  constexpr bool valid() const noexcept { return isValid; }
+  bool valid() const noexcept { return isValid; }
 
 private:
   QPointer<QObject> parent;

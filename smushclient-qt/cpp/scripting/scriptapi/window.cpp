@@ -423,7 +423,7 @@ ScriptApi::WindowLine(string_view windowName,
 }
 
 vector<string_view>
-ScriptApi::WindowList() const
+ScriptApi::WindowList() const noexcept
 {
   return windows.keys();
 }

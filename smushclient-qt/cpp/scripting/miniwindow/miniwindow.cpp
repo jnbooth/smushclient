@@ -449,7 +449,7 @@ MiniWindow::execMenu(const QPoint& location, string_view menuString)
 }
 
 const QFont*
-MiniWindow::findFont(string_view fontID) const
+MiniWindow::findFont(string_view fontID) const noexcept
 {
   auto search = fonts.find(fontID);
   if (search == fonts.end()) {
@@ -459,7 +459,7 @@ MiniWindow::findFont(string_view fontID) const
 }
 
 Hotspot*
-MiniWindow::findHotspot(string_view hotspotID) const
+MiniWindow::findHotspot(string_view hotspotID) const noexcept
 {
   auto search = hotspots.find(hotspotID);
   if (search == hotspots.end()) {
@@ -469,7 +469,7 @@ MiniWindow::findHotspot(string_view hotspotID) const
 }
 
 const QPixmap*
-MiniWindow::findImage(string_view imageID) const
+MiniWindow::findImage(string_view imageID) const noexcept
 {
   auto search = images.find(imageID);
   if (search == images.end()) {
@@ -479,19 +479,19 @@ MiniWindow::findImage(string_view imageID) const
 }
 
 vector<string_view>
-MiniWindow::fontList() const
+MiniWindow::fontList() const noexcept
 {
   return fonts.keys();
 }
 
 vector<string_view>
-MiniWindow::hotspotList() const
+MiniWindow::hotspotList() const noexcept
 {
   return hotspots.keys();
 }
 
 vector<string_view>
-MiniWindow::imageList() const
+MiniWindow::imageList() const noexcept
 {
   return images.keys();
 }
@@ -577,9 +577,7 @@ MiniWindow::setPixel(const QPoint& location, const QColor& color)
 }
 
 void
-MiniWindow::setPosition(const QPoint& loc,
-                        Position pos,
-                        Flags newFlags) noexcept
+MiniWindow::setPosition(const QPoint& loc, Position pos, Flags newFlags)
 {
   location = loc;
   position = pos;
@@ -588,20 +586,20 @@ MiniWindow::setPosition(const QPoint& loc,
 }
 
 void
-MiniWindow::setSize(const QSize& size, const QColor& fill) noexcept
+MiniWindow::setSize(const QSize& size, const QColor& fill)
 {
   background = fill;
   dimensions = size;
 }
 
 void
-MiniWindow::setSize(const QSize& size) noexcept
+MiniWindow::setSize(const QSize& size)
 {
   dimensions = size;
 }
 
 void
-MiniWindow::setZOrder(int64_t order) noexcept
+MiniWindow::setZOrder(int64_t order)
 {
   zOrder = order;
 }

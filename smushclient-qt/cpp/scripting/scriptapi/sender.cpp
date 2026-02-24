@@ -23,7 +23,7 @@ ScriptApi::AddAlias(size_t plugin,
                     string_view pattern,
                     string_view text,
                     AliasFlags flags,
-                    string_view scriptName) const
+                    string_view scriptName) const noexcept
 {
   if (pattern.empty()) {
     return ApiCode::TriggerCannotBeEmpty;
@@ -48,16 +48,12 @@ ScriptApi::AddAlias(size_t plugin,
   alias.setMenu(flags.testFlag(AliasFlag::AliasMenu));
   alias.setTemporary(flags.testFlag(AliasFlag::Temporary));
 
-  try {
-    if (!flags.testFlag(AliasFlag::Replace)) {
-      return client.addAlias(plugin, alias);
-    }
-
-    client.replaceAlias(plugin, alias);
-    return ApiCode::OK;
-  } catch (const rust::Error&) {
-    return ApiCode::BadRegularExpression;
+  if (!flags.testFlag(AliasFlag::Replace)) {
+    return client.addAlias(plugin, alias);
   }
+
+  client.replaceAlias(plugin, alias);
+  return ApiCode::OK;
 }
 
 ApiCode
@@ -68,7 +64,7 @@ ScriptApi::AddTimer(size_t plugin,
                     double second,
                     string_view text,
                     TimerFlags flags,
-                    string_view scriptName) const
+                    string_view scriptName) const noexcept
 {
   if (flags.testFlag(TimerFlag::AtTime)) {
     return ApiCode::OK;
@@ -117,7 +113,7 @@ ScriptApi::AddTrigger(size_t plugin,
                       string_view sound,
                       string_view script,
                       SendTarget target,
-                      int sequence) const
+                      int sequence) const noexcept
 {
   if (pattern.empty()) {
     return ApiCode::TriggerCannotBeEmpty;
@@ -148,68 +144,64 @@ ScriptApi::AddTrigger(size_t plugin,
     trigger.setForegroundColor(color);
   }
 
-  try {
-    if (!flags.testFlag(TriggerFlag::Replace)) {
-      return client.addTrigger(plugin, trigger);
-    }
-
-    client.replaceTrigger(plugin, trigger);
-    return ApiCode::OK;
-  } catch (const rust::Error&) {
-    return ApiCode::BadRegularExpression;
+  if (!flags.testFlag(TriggerFlag::Replace)) {
+    return client.addTrigger(plugin, trigger);
   }
+
+  client.replaceTrigger(plugin, trigger);
+  return ApiCode::OK;
 }
 
 ApiCode
-ScriptApi::DeleteAlias(size_t plugin, string_view name) const
+ScriptApi::DeleteAlias(size_t plugin, string_view name) const noexcept
 {
   return client.removeSender(SenderKind::Alias, plugin, name);
 }
 
 size_t
-ScriptApi::DeleteAliasGroup(size_t plugin, string_view group) const
+ScriptApi::DeleteAliasGroup(size_t plugin, string_view group) const noexcept
 {
   return client.removeSenderGroup(SenderKind::Alias, plugin, group);
 }
 
 size_t
-ScriptApi::DeleteTemporaryAliases() const
+ScriptApi::DeleteTemporaryAliases() const noexcept
 {
   return client.removeTemporarySenders(SenderKind::Alias);
 }
 
 size_t
-ScriptApi::DeleteTemporaryTimers() const
+ScriptApi::DeleteTemporaryTimers() const noexcept
 {
   return client.removeTemporarySenders(SenderKind::Timer);
 }
 
 size_t
-ScriptApi::DeleteTemporaryTriggers() const
+ScriptApi::DeleteTemporaryTriggers() const noexcept
 {
   return client.removeTemporarySenders(SenderKind::Trigger);
 }
 
 ApiCode
-ScriptApi::DeleteTimer(size_t plugin, string_view name) const
+ScriptApi::DeleteTimer(size_t plugin, string_view name) const noexcept
 {
   return client.removeSender(SenderKind::Timer, plugin, name);
 }
 
 size_t
-ScriptApi::DeleteTimerGroup(size_t plugin, string_view group) const
+ScriptApi::DeleteTimerGroup(size_t plugin, string_view group) const noexcept
 {
   return client.removeSenderGroup(SenderKind::Timer, plugin, group);
 }
 
 ApiCode
-ScriptApi::DeleteTrigger(size_t plugin, string_view name) const
+ScriptApi::DeleteTrigger(size_t plugin, string_view name) const noexcept
 {
   return client.removeSender(SenderKind::Trigger, plugin, name);
 }
 
 size_t
-ScriptApi::DeleteTriggerGroup(size_t plugin, string_view group) const
+ScriptApi::DeleteTriggerGroup(size_t plugin, string_view group) const noexcept
 {
   return client.removeSenderGroup(SenderKind::Trigger, plugin, group);
 }
@@ -234,7 +226,9 @@ ScriptApi::DoAfter(size_t plugin,
 }
 
 ApiCode
-ScriptApi::EnableAlias(size_t plugin, string_view label, bool enabled) const
+ScriptApi::EnableAlias(size_t plugin,
+                       string_view label,
+                       bool enabled) const noexcept
 {
   return client.setSenderEnabled(SenderKind::Alias, plugin, label, enabled);
 }
@@ -242,7 +236,7 @@ ScriptApi::EnableAlias(size_t plugin, string_view label, bool enabled) const
 ApiCode
 ScriptApi::EnableAliasGroup(size_t plugin,
                             string_view group,
-                            bool enabled) const
+                            bool enabled) const noexcept
 {
   return client.setSendersEnabled(SenderKind::Alias, plugin, group, enabled)
            ? ApiCode::OK
@@ -250,7 +244,9 @@ ScriptApi::EnableAliasGroup(size_t plugin,
 }
 
 ApiCode
-ScriptApi::EnableTimer(size_t plugin, string_view label, bool enabled) const
+ScriptApi::EnableTimer(size_t plugin,
+                       string_view label,
+                       bool enabled) const noexcept
 {
   return client.setSenderEnabled(SenderKind::Timer, plugin, label, enabled);
 }
@@ -258,7 +254,7 @@ ScriptApi::EnableTimer(size_t plugin, string_view label, bool enabled) const
 ApiCode
 ScriptApi::EnableTimerGroup(size_t plugin,
                             string_view group,
-                            bool enabled) const
+                            bool enabled) const noexcept
 {
   return client.setSendersEnabled(SenderKind::Timer, plugin, group, enabled)
            ? ApiCode::OK
@@ -266,7 +262,9 @@ ScriptApi::EnableTimerGroup(size_t plugin,
 }
 
 ApiCode
-ScriptApi::EnableTrigger(size_t plugin, string_view label, bool enabled) const
+ScriptApi::EnableTrigger(size_t plugin,
+                         string_view label,
+                         bool enabled) const noexcept
 {
   return client.setSenderEnabled(SenderKind::Trigger, plugin, label, enabled);
 }
@@ -274,7 +272,7 @@ ScriptApi::EnableTrigger(size_t plugin, string_view label, bool enabled) const
 ApiCode
 ScriptApi::EnableTriggerGroup(size_t plugin,
                               string_view group,
-                              bool enabled) const
+                              bool enabled) const noexcept
 {
   return client.setSendersEnabled(SenderKind::Trigger, plugin, group, enabled)
            ? ApiCode::OK
@@ -284,7 +282,7 @@ ScriptApi::EnableTriggerGroup(size_t plugin,
 QVariant
 ScriptApi::GetAliasOption(size_t plugin,
                           string_view label,
-                          string_view option) const
+                          string_view option) const noexcept
 {
   return client.getSenderOption(SenderKind::Alias, plugin, label, option);
 }
@@ -292,7 +290,7 @@ ScriptApi::GetAliasOption(size_t plugin,
 QVariant
 ScriptApi::GetTimerOption(size_t plugin,
                           string_view label,
-                          string_view option) const
+                          string_view option) const noexcept
 {
   return client.getSenderOption(SenderKind::Timer, plugin, label, option);
 }
@@ -300,13 +298,13 @@ ScriptApi::GetTimerOption(size_t plugin,
 QVariant
 ScriptApi::GetTriggerOption(size_t plugin,
                             string_view label,
-                            string_view option) const
+                            string_view option) const noexcept
 {
   return client.getSenderOption(SenderKind::Trigger, plugin, label, option);
 }
 
 ApiCode
-ScriptApi::IsAlias(size_t plugin, string_view label) const
+ScriptApi::IsAlias(size_t plugin, string_view label) const noexcept
 {
   return client.isSender(SenderKind::Alias, plugin, label)
            ? ApiCode::OK
@@ -314,7 +312,7 @@ ScriptApi::IsAlias(size_t plugin, string_view label) const
 }
 
 ApiCode
-ScriptApi::IsTimer(size_t plugin, string_view label) const
+ScriptApi::IsTimer(size_t plugin, string_view label) const noexcept
 {
   return client.isSender(SenderKind::Timer, plugin, label)
            ? ApiCode::OK
@@ -322,7 +320,7 @@ ScriptApi::IsTimer(size_t plugin, string_view label) const
 }
 
 ApiCode
-ScriptApi::IsTrigger(size_t plugin, string_view label) const
+ScriptApi::IsTrigger(size_t plugin, string_view label) const noexcept
 {
   return client.isSender(SenderKind::Trigger, plugin, label)
            ? ApiCode::OK
@@ -333,7 +331,7 @@ ApiCode
 ScriptApi::SetAliasOption(size_t plugin,
                           string_view label,
                           string_view option,
-                          string_view value) const
+                          string_view value) const noexcept
 {
   return client.setSenderOption(
     SenderKind::Alias, plugin, label, option, value);
@@ -343,7 +341,7 @@ ApiCode
 ScriptApi::SetTimerOption(size_t plugin,
                           string_view label,
                           string_view option,
-                          string_view value) const
+                          string_view value) const noexcept
 {
   return client.setSenderOption(
     SenderKind::Timer, plugin, label, option, value);
@@ -353,14 +351,14 @@ ApiCode
 ScriptApi::SetTriggerOption(size_t plugin,
                             string_view label,
                             string_view option,
-                            string_view value) const
+                            string_view value) const noexcept
 {
   return client.setSenderOption(
     SenderKind::Trigger, plugin, label, option, value);
 }
 
 void
-ScriptApi::StopEvaluatingTriggers() const
+ScriptApi::StopEvaluatingTriggers() const noexcept
 {
   client.stopSenders(SenderKind::Trigger);
 }
