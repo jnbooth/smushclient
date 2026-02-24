@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "../components/mudscrollbar.h"
+#include "../config.h"
 #include "../environment.h"
 #include "../localization.h"
 #include "../mudstatusbar/mudstatusbar.h"
@@ -7,9 +8,10 @@
 #include "../scripting/listbox.h"
 #include "../settings.h"
 #include "../spans.h"
+#include "dialog/aboutdialog.h"
+#include "dialog/finddialog.h"
 #include "filterdemo.h"
-#include "finddialog.h"
-#include "notepad.h"
+#include "notepad/notepads.h"
 #include "serverstatus.h"
 #include "settings/settings.h"
 #include "ui_mainwindow.h"
@@ -63,18 +65,10 @@ MainWindow::MainWindow(Notepads& notepads, QWidget* parent)
   ui->action_status_bar->setChecked(settings.getShowStatusBar());
   ui->action_wrap_output->setChecked(settings.getOutputWrapping());
   SettingsDialog::connect(this);
-  connect(
-    ui->action_close_window, &QAction::triggered, this, &MainWindow::close);
   connect(ui->action_log_session,
           &QAction::triggered,
           &settings,
           &Settings::setLoggingEnabled);
-  connect(
-    ui->action_maximize, &QAction::triggered, this, &MainWindow::showMaximized);
-  connect(
-    ui->action_minimize, &QAction::triggered, this, &MainWindow::showMinimized);
-  connect(
-    ui->action_restore, &QAction::triggered, this, &MainWindow::showNormal);
   connect(ui->action_status_bar,
           &QAction::triggered,
           &settings,
@@ -425,13 +419,7 @@ MainWindow::onTitleChanged(WorldTab* tab, const QString& title)
 void
 MainWindow::on_action_about_triggered()
 {
-  QMessageBox box(this);
-  box.setIconPixmap(QPixmap(QStringLiteral(":/appicon/appicon.svg")));
-  box.setWindowTitle(ui->action_about->text());
-  box.setText(QCoreApplication::applicationName());
-  box.setInformativeText(
-    tr("Version: %1").arg(QCoreApplication::applicationVersion()));
-  box.exec();
+  AboutDialog(this).exec();
 }
 
 void
@@ -616,6 +604,12 @@ MainWindow::on_action_log_session_triggered(bool checked)
 }
 
 void
+MainWindow::on_action_new_notepad_triggered()
+{
+  notepads.createNotepad();
+}
+
+void
 MainWindow::on_action_new_triggered()
 {
   const int currentIndex = ui->world_tabs->currentIndex();
@@ -793,15 +787,13 @@ MainWindow::on_action_wrap_output_triggered(bool checked)
 void
 MainWindow::on_action_visit_api_guide_triggered()
 {
-  QDesktopServices::openUrl(QStringLiteral(
-    "https://www.gammon.com.au/scripts/doc.php?general=function_list"));
+  QDesktopServices::openUrl(config::apiGuide());
 }
 
 void
 MainWindow::on_action_visit_bug_reports_triggered()
 {
-  QDesktopServices::openUrl(
-    QStringLiteral("https://github.com/jnbooth/smushclient/issues"));
+  QDesktopServices::openUrl(config::issues());
 }
 
 void

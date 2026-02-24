@@ -1,5 +1,5 @@
 #include "./ui/mainwindow.h"
-#include "./ui/notepad.h"
+#include "./ui/notepad/notepads.h"
 #include "environment.h"
 #include "settings.h"
 #include <QtGui/QFontDatabase>

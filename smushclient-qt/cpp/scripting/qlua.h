@@ -248,6 +248,9 @@ push(lua_State* L, QChar ch)
   return push(L, QString(ch));
 }
 
+void
+push(lua_State* L, const QRect& rect);
+
 template<typename T>
 void
 pushAny(lua_State* L, T value)

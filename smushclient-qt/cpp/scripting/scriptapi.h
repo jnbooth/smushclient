@@ -1,6 +1,7 @@
 #pragma once
 #include "../mudcursor.h"
 #include "../stringmap.h"
+#include "../ui/notepad/notepad.h"
 #include "callback/filter.h"
 #include "callback/key.h"
 #include "databaseconnection.h"
@@ -9,6 +10,7 @@
 #include "scriptenums.h"
 #include "smushclient_qt/src/ffi/send_request.cxx.h"
 #include <QtCore/QPointer>
+#include <QtCore/QUuid>
 #include <QtGui/QTextCursor>
 #include <QtNetwork/QAbstractSocket>
 #include <QtWidgets/QLabel>
@@ -64,6 +66,8 @@ public:
             Notepads& notepads,
             WorldTab& parent);
 
+  void ActivateClient() const;
+  bool ActivateNotepad(const QString& name) const;
   ApiCode AddAlias(
     size_t plugin,
     std::string_view name,
@@ -91,10 +95,12 @@ public:
                      SendTarget target,
                      int sequence = 100) const noexcept;
   void AnsiNote(std::string_view text) const;
+  void AppendToNotepad(const QString& name, const QString& text) const;
   int64_t BroadcastPlugin(size_t pluginIndex,
                           int64_t message,
                           std::string_view text) const;
   ApiCode CloseLog() const;
+  bool CloseNotepad(const QString& name, bool querySave) const;
   void ColourTell(const QColor& foreground,
                   const QColor& background,
                   const QString& text);
@@ -147,6 +153,10 @@ public:
   QVariant GetInfo(int64_t infoType) const;
   QVariant GetLineInfo(int line, int64_t infoType) const;
   int GetLinesInBufferCount() const;
+  int GetNotepadLength(const QString& name) const;
+  QStringList GetNotepadList(bool all = false) const;
+  QString GetNotepadText(const QString& name) const;
+  QRect GetNotepadWindowPosition(const QString& name) const;
   int64_t GetOption(size_t plugin, std::string_view name) const noexcept;
   const std::string& GetPluginID(size_t pluginIndex) const;
   QVariant GetPluginInfo(std::string_view pluginID,
@@ -178,6 +188,12 @@ public:
   ApiCode IsTrigger(size_t plugin, std::string_view label) const noexcept;
   ApiCode LogSend(QByteArray& bytes);
   ApiCode OpenLog(std::string_view logFileName, bool append) const;
+  bool NotepadColour(const QString& name,
+                     const QColor& foreground,
+                     const QColor& background) const;
+  bool NotepadFont(const QString& name, const QTextCharFormat& format) const;
+  bool NotepadReadOnly(const QString& name, bool readOnly) const;
+  bool NotepadSaveMethod(const QString& name, Notepad::SaveMethod method) const;
   QColor PickColour(const QColor& hint) const;
   ApiCode PlaySound(size_t channel,
                     std::string_view path,
@@ -193,6 +209,10 @@ public:
                           float volume = 1.0) const noexcept;
   ApiCode PluginSupports(std::string_view pluginID,
                          PluginCallbackKey routine) const;
+  bool ReplaceNotepad(const QString& name, const QString& text) const;
+  bool SaveNotepad(const QString& name,
+                   const QString& filePath,
+                   bool replace) const;
   ApiCode Send(std::string_view text);
   ApiCode Send(const QString& text);
   ApiCode Send(QByteArray& bytes);
@@ -200,6 +220,7 @@ public:
   ApiCode SendNoEcho(QByteArray& bytes);
   ApiCode SendPacket(QByteArrayView bytes);
   ApiCode SendPush(QByteArray& bytes);
+  bool SendToNotepad(const QString& name, const QString& text) const;
   ApiCode SetAliasOption(size_t plugin,
                          std::string_view label,
                          std::string_view option,
@@ -498,6 +519,7 @@ public slots:
   void reinstallPlugin(size_t index);
 
 private:
+  static void activateWindow(QWidget* widget);
   DatabaseConnection* findDatabase(std::string_view databaseID) noexcept;
   size_t findPluginIndex(std::string_view pluginID) const noexcept;
   MiniWindow* findWindow(std::string_view windowName) const noexcept;
@@ -537,5 +559,6 @@ private:
   QDateTime whenConnected;
   string_map<std::unique_ptr<MiniWindow>> windows;
   QString wordUnderMenu;
+  QUuid worldID;
   size_t worldScriptIndex = noSuchPlugin;
 };

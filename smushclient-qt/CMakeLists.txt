@@ -68,6 +68,7 @@ qt_add_executable(${APP_NAME}
     cpp/casting.h
     cpp/client.h cpp/client.cpp
     cpp/commandhistory.h cpp/commandhistory.cpp
+    cpp/config.h
     cpp/enumbounds.h
     cpp/enumbuttongroup.h
     cpp/environment.h cpp/environment.cpp
@@ -108,6 +109,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/scriptapi/info.cpp
     cpp/scripting/scriptapi/input.cpp
     cpp/scripting/scriptapi/log.cpp
+    cpp/scripting/scriptapi/notepad.cpp
     cpp/scripting/scriptapi/option.cpp
     cpp/scripting/scriptapi/output.cpp
     cpp/scripting/scriptapi/plugin.cpp
@@ -133,10 +135,8 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/lua/init.h cpp/scripting/lua/init.cpp
     cpp/scripting/lua/utils.h cpp/scripting/lua/utils.cpp
 
-    cpp/ui/finddialog.h cpp/ui/finddialog.cpp cpp/ui/finddialog.ui
     cpp/ui/filterdemo.h cpp/ui/filterdemo.cpp cpp/ui/filterdemo.ui
     cpp/ui/mainwindow.h cpp/ui/mainwindow.cpp cpp/ui/mainwindow.ui
-    cpp/ui/notepad.h cpp/ui/notepad.cpp cpp/ui/notepad.ui
     cpp/ui/serverstatus.h cpp/ui/serverstatus.cpp cpp/ui/serverstatus.ui
     cpp/ui/worldtab.h cpp/ui/worldtab.cpp cpp/ui/worldtab.ui
 
@@ -146,8 +146,15 @@ qt_add_executable(${APP_NAME}
     cpp/ui/components/mudinput.h cpp/ui/components/mudinput.cpp
     cpp/ui/components/mudscrollbar.h cpp/ui/components/mudscrollbar.cpp
 
+    cpp/ui/dialog/aboutdialog.h cpp/ui/dialog/aboutdialog.cpp
+    cpp/ui/dialog/finddialog.h cpp/ui/dialog/finddialog.cpp cpp/ui/dialog/finddialog.ui
+    cpp/ui/dialog/saveprompt.h cpp/ui/dialog/saveprompt.cpp
+
     cpp/ui/mudstatusbar/mudstatusbar.h cpp/ui/mudstatusbar/mudstatusbar.cpp cpp/ui/mudstatusbar/mudstatusbar.ui
     cpp/ui/mudstatusbar/statusbarstat.h cpp/ui/mudstatusbar/statusbarstat.cpp cpp/ui/mudstatusbar/statusbarstat.ui
+
+    cpp/ui/notepad/notepad.h cpp/ui/notepad/notepad.cpp cpp/ui/notepad/notepad.ui
+    cpp/ui/notepad/notepads.h cpp/ui/notepad/notepads.cpp
 
     cpp/ui/scripting/abstractscriptdialog.h
     cpp/ui/scripting/choose.h cpp/ui/scripting/choose.cpp cpp/ui/scripting/choose.ui

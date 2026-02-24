@@ -2,7 +2,7 @@
 #include "../bridge/timekeeper.h"
 #include "../timermap.h"
 #include "../ui/mudstatusbar/mudstatusbar.h"
-#include "../ui/notepad.h"
+#include "../ui/notepad/notepads.h"
 #include "../ui/ui_worldtab.h"
 #include "../ui/worldtab.h"
 #include "callback/plugincallback.h"
@@ -52,6 +52,7 @@ ScriptApi::ScriptApi(SmushClient& client,
 void
 ScriptApi::applyWorld(const World& world)
 {
+  worldID = world.getId();
   doNaws = world.getNaws();
   echoInput = world.getDisplayMyInput();
 
@@ -111,15 +112,9 @@ ScriptApi::handleSendRequest(const SendRequest& request)
     case SendTarget::NotepadNew:
       notepads.pad()->insertPlainText(request.text);
       return;
-    case SendTarget::NotepadAppend: {
-      QTextCursor notepadCursor =
-        notepads.pad(request.destination)->textCursor();
-      if (!notepadCursor.atBlockStart()) {
-        notepadCursor.insertBlock();
-      }
-      notepadCursor.insertText(request.text);
+    case SendTarget::NotepadAppend:
+      AppendToNotepad(request.destination, request.text);
       return;
-    }
     case SendTarget::NotepadReplace:
       notepads.pad(request.destination)->setPlainText(request.text);
       return;
@@ -207,6 +202,9 @@ ScriptApi::reinstallPlugin(size_t index)
 void
 ScriptApi::printError(const QString& message)
 {
+#ifndef NDEBUG
+  qWarning().noquote() << "Lua error:" << message;
+#endif
   cursor->appendError(message);
 }
 
@@ -404,6 +402,21 @@ ScriptApi::onTimerSent(const SendTimer& timer)
 
   TimerCallback callback(timer.script, timer.label);
   sendCallback(callback, timer.request.plugin);
+}
+
+// Private static methods
+
+void
+ScriptApi::activateWindow(QWidget* widget)
+{
+  if (widget == nullptr) {
+    return;
+  }
+  if (QWidget* window = widget->window(); window != nullptr) {
+    window->setWindowState(
+      window->windowState().setFlag(Qt::WindowState::WindowMinimized, false));
+  }
+  widget->activateWindow();
 }
 
 // Private methods

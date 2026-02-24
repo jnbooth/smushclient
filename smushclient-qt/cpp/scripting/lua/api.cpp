@@ -467,7 +467,157 @@ L_WriteLog(lua_State* L)
     L, getApi(L).WriteLog(string_view(message.data(), message.size())));
 }
 
-// options
+// notepad
+
+int
+L_ActivateNotepad(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, getApi(L).ActivateNotepad(qlua::getQString(L, 1)));
+  return 1;
+}
+
+int
+L_AppendToNotepad(lua_State* L)
+{
+  BENCHMARK
+  getApi(L).AppendToNotepad(qlua::getQString(L, 1),
+                            QString::fromUtf8(qlua::concatArgs(L, 2)));
+  push(L, 1);
+  return 1;
+}
+
+int
+L_CloseNotepad(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  push(
+    L,
+    getApi(L).CloseNotepad(qlua::getQString(L, 1), qlua::getBool(L, 2, false)));
+  return 1;
+}
+
+int
+L_GetNotepadLength(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, getApi(L).GetNotepadLength(qlua::getQString(L, 1)));
+  return 1;
+}
+
+int
+L_GetNotepadList(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  pushList(L, getApi(L).GetNotepadList(qlua::getBool(L, 1, false)));
+  return 1;
+}
+
+int
+L_GetNotepadText(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, getApi(L).GetNotepadText(qlua::getQString(L, 1)));
+  return 1;
+}
+
+int
+L_GetNotepadWindowPosition(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, getApi(L).GetNotepadWindowPosition(qlua::getQString(L, 1)));
+  return 1;
+}
+
+int
+L_NotepadColour(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 3);
+  push(L,
+       getApi(L).NotepadColour(
+         qlua::getQString(L, 1), qlua::getQColor(L, 2), qlua::getQColor(L, 3)));
+  return 1;
+}
+
+int
+L_NotepadFont(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 5);
+  const QString title = qlua::getQString(L, 1);
+  const QString fontFamily = qlua::getQString(L, 2);
+  const lua_Number pointSize = qlua::getNumber(L, 3);
+  const QFlags<StyleFlag> styleFlags = qlua::getQFlags<StyleFlag>(L, 4);
+  // const lua_Integer charset = qlua::getInteger(L, 5, 0);
+  QTextCharFormat format;
+  if (!title.isEmpty()) {
+    format.setFontFamilies(QStringList(title));
+  }
+  if (pointSize != 0) {
+    format.setFontPointSize(pointSize);
+  }
+  format.setFontWeight(styleFlags.testFlag(StyleFlag::Bold)
+                         ? QFont::Weight::Bold
+                         : QFont::Weight::Normal);
+  format.setFontItalic(styleFlags.testFlag(StyleFlag::Italic));
+  format.setFontUnderline(styleFlags.testFlag(StyleFlag::Underline));
+  format.setFontStrikeOut(styleFlags.testFlag(StyleFlag::Strikeout));
+  push(L, getApi(L).NotepadFont(title, format));
+  return 1;
+}
+
+int
+L_NotepadReadOnly(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  push(L,
+       getApi(L).NotepadReadOnly(qlua::getQString(L, 1),
+                                 qlua::getBool(L, 2, true)));
+  return 1;
+}
+
+int
+L_NotepadSaveMethod(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  const QString title = qlua::getQString(L, 1);
+  const optional<Notepad::SaveMethod> method =
+    qlua::getEnum<Notepad::SaveMethod>(L, 2);
+  qDebug() << (method ? optional(static_cast<int64_t>(*method)) : nullopt);
+  push(L, method && getApi(L).NotepadSaveMethod(title, *method));
+  return 1;
+}
+
+int
+L_ReplaceNotepad(lua_State* L)
+{
+  BENCHMARK
+  push(L,
+       getApi(L).ReplaceNotepad(qlua::getQString(L, 1),
+                                QString::fromUtf8(qlua::concatArgs(L, 2))));
+  return 1;
+}
+
+int
+L_SendToNotepad(lua_State* L)
+{
+  BENCHMARK
+  push(L,
+       getApi(L).SendToNotepad(qlua::getQString(L, 1),
+                               QString::fromUtf8(qlua::concatArgs(L, 2))));
+  return 1;
+}
+
+// option
 
 int
 L_GetAlphaOption(lua_State* L)
@@ -537,6 +687,16 @@ L_SetOption(lua_State* L)
 }
 
 // output
+
+int
+L_ActivateClient(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  getApi(L).ActivateClient();
+  push(L, 1);
+  return 1;
+}
 
 int
 L_AnsiNote(lua_State* L)
@@ -2111,6 +2271,20 @@ static const struct luaL_Reg worldlib[] =
     { "IsLogOpen", L_IsLogOpen },
     { "OpenLog", L_OpenLog },
     { "WriteLog", L_WriteLog },
+    // notepad
+    { "ActivateNotepad", L_ActivateNotepad },
+    { "AppendToNotepad", L_AppendToNotepad },
+    { "CloseNotepad", L_CloseNotepad },
+    { "GetNotepadLength", L_GetNotepadLength },
+    { "GetNotepadList", L_GetNotepadList },
+    { "GetNotepadText", L_GetNotepadText },
+    { "GetNotepadWindowPosition", L_GetNotepadWindowPosition },
+    { "NotepadColour", L_NotepadColour },
+    { "NotepadFont", L_NotepadFont },
+    { "NotepadReadOnly", L_NotepadReadOnly },
+    { "NotepadSaveMethod", L_NotepadSaveMethod },
+    { "ReplaceNotepad", L_ReplaceNotepad },
+    { "SendToNotepad", L_SendToNotepad },
     // option
     { "GetAlphaOption", L_GetAlphaOption },
     { "GetAlphaOptionList", L_GetAlphaOptionList },
@@ -2120,6 +2294,8 @@ static const struct luaL_Reg worldlib[] =
     { "SetAlphaOption", L_SetAlphaOption },
     { "SetOption", L_SetOption },
     // output
+    { "Activate", L_ActivateClient },
+    { "ActivateClient", L_ActivateClient },
     { "AnsiNote", L_AnsiNote },
     { "ColourNameToRGB", L_ColourNameToRGB },
     { "ColourNote", L_ColourNote },
@@ -2233,6 +2409,7 @@ static const struct luaL_Reg worldlib[] =
     { "WindowMoveHotspot", L_WindowMoveHotspot },
     { "WindowScrollwheelHandler", L_WindowScrollwheelHandler },
     // stubs
+    { "MoveNotepadWindow", L_noop },
     { "Redraw", L_noop },
     { "Repaint", L_noop },
     { "ResetIP", L_noop },

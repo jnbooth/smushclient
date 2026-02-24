@@ -263,6 +263,16 @@ enum class ScriptCursor : int64_t
 };
 DECLARE_ENUM_BOUNDS(ScriptCursor, BlankCursor, WhatsThisCursor)
 
+enum StyleFlag : int64_t
+{
+  Bold = 1,
+  Italic = 2,
+  Underline = 4,
+  Strikeout = 8,
+};
+Q_DECLARE_FLAGS(StyleFlags, StyleFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(StyleFlags)
+
 enum class SysColor : int64_t
 {
   Scrollbar,

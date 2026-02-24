@@ -816,6 +816,16 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant)
   }
 }
 
+void
+qlua::push(lua_State* L, const QRect& rect)
+{
+  lua_createtable(L, 0, 4);
+  pushEntry(L, "top", rect.top());
+  pushEntry(L, "height", rect.height());
+  pushEntry(L, "left", rect.left());
+  pushEntry(L, "width", rect.width());
+}
+
 template<>
 void
 qlua::pushAny(lua_State* L, const QVariant& value)

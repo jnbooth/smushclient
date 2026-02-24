@@ -50,6 +50,12 @@ ScriptApi::SetClipboard(const QString& text)
 // Public methods
 
 void
+ScriptApi::ActivateClient() const
+{
+  activateWindow(&tab);
+}
+
+void
 ScriptApi::AnsiNote(string_view text) const
 {
   for (const StyledSpan& span : client.ansiNote(text)) {

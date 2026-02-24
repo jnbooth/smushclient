@@ -11,6 +11,7 @@
 #include "../scripting/scriptapi.h"
 #include "../settings.h"
 #include "../spans.h"
+#include "dialog/saveprompt.h"
 #include "smushclient_qt/src/ffi/document.cxxqt.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "smushclient_qt/src/ffi/spans.cxx.h"
@@ -323,15 +324,8 @@ WorldTab::promptSave()
     case Settings::WorldCloseBehavior::Confirm:
       break;
   }
-  QMessageBox msgBox;
-  msgBox.setText(
-    tr("Do you want to save the changes you made to %1?").arg(worldName));
-  msgBox.setInformativeText(
-    tr("Your changes will be lost if you don't save them."));
-  msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard |
-                            QMessageBox::Cancel);
-  msgBox.setDefaultButton(QMessageBox::Save);
-  switch (msgBox.exec()) {
+  SavePrompt prompt(worldName, this);
+  switch (prompt.exec()) {
     case QMessageBox::Save:
       return !saveWorld().isEmpty();
     case QMessageBox::Discard:
@@ -361,11 +355,9 @@ WorldTab::saveWorld()
   if (filePath.isEmpty()) {
     return saveWorldAsNew();
   }
-
   if (!saveWorldAndState(filePath)) {
     return QString();
   }
-
   return filePath;
 }
 
@@ -501,9 +493,9 @@ WorldTab::start()
 
   restoreHistory();
 
-  loadPlugins();
-
   applyWorld(World(client));
+
+  loadPlugins();
 
   setupWorldScriptWatcher();
 
