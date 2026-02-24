@@ -110,7 +110,6 @@ impl From<OptionError> for ApiCode {
 impl From<SetOptionError> for ApiCode {
     fn from(value: SetOptionError) -> Self {
         match value {
-            SetOptionError::LogError(_) => Self::OK,
             SetOptionError::OptionOutOfRange => Self::OptionOutOfRange,
             SetOptionError::UnknownOption => Self::UnknownOption,
             SetOptionError::PluginCannotSetOption => Self::PluginCannotSetOption,

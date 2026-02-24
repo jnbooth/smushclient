@@ -273,6 +273,20 @@ impl World {
         LogBrackets::from(self)
     }
 
+    pub fn log_path(&self) -> String {
+        if self.auto_log_file_name.is_empty() {
+            let mut path = format!("{} log.txt", self.name);
+            path.retain(|c| !"<>\"|?:#%;/\\".contains(c));
+            return path;
+        }
+        let mut path = String::new();
+        Local::now()
+            .format(&self.auto_log_file_name)
+            .write_to(&mut path)
+            .unwrap();
+        path
+    }
+
     pub fn world_plugin(&self) -> Plugin {
         let today = Local::now().date_naive();
         Plugin {

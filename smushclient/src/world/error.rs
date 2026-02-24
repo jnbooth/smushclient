@@ -57,7 +57,6 @@ pub enum SetOptionError {
     UnknownOption,
     OptionOutOfRange,
     PluginCannotSetOption,
-    LogError(io::Error),
 }
 
 impl fmt::Display for SetOptionError {
@@ -66,19 +65,11 @@ impl fmt::Display for SetOptionError {
             Self::UnknownOption => f.write_str("unknown option"),
             Self::OptionOutOfRange => f.write_str("option out of range"),
             Self::PluginCannotSetOption => f.write_str("plugin cannot set option"),
-            Self::LogError(e) => e.fmt(f),
         }
     }
 }
 
-impl Error for SetOptionError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        match self {
-            Self::LogError(e) => Some(e),
-            _ => None,
-        }
-    }
-}
+impl Error for SetOptionError {}
 
 impl From<TryFromIntError> for SetOptionError {
     fn from(_: TryFromIntError) -> Self {
@@ -89,11 +80,5 @@ impl From<TryFromIntError> for SetOptionError {
 impl From<FromUtf8Error> for SetOptionError {
     fn from(_: FromUtf8Error) -> Self {
         Self::OptionOutOfRange
-    }
-}
-
-impl From<io::Error> for SetOptionError {
-    fn from(value: io::Error) -> Self {
-        Self::LogError(value)
     }
 }

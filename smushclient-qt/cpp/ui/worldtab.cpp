@@ -281,6 +281,7 @@ bool
 WorldTab::openWorldSettings()
 {
   World world(client);
+  const QString logFileName = world.getAutoLogFileName();
   WorldPrefs worlddetails(world, client, *api, this);
   if (worlddetails.exec() != QDialog::Accepted) {
     return false;
@@ -289,23 +290,21 @@ WorldTab::openWorldSettings()
     setWindowModified(true);
   }
 
-  try {
-    if (!client.trySetWorld(world)) {
-      return false;
-    }
-  } catch (const rust::Error& e) {
-    showRustError(e);
+  if (!client.setWorld(world)) {
+    return false;
   }
 
   if (!world.getSaveWorldAutomatically()) {
     setWindowModified(true);
   }
 
-  if (Settings().getLoggingEnabled()) {
+  applyWorld(world);
+
+  if (world.getAutoLogFileName() != logFileName && client.isLogOpen()) {
+    client.closeLog();
     openLog();
   }
 
-  applyWorld(world);
   return true;
 }
 
@@ -584,7 +583,6 @@ WorldTab::closeEvent(QCloseEvent* event)
     saveWorldAndState(filePath);
     saveHistory();
   }
-  closeLog();
   event->accept();
 }
 

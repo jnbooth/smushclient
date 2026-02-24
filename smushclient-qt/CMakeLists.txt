@@ -107,6 +107,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/scriptapi/hotspot.cpp
     cpp/scripting/scriptapi/info.cpp
     cpp/scripting/scriptapi/input.cpp
+    cpp/scripting/scriptapi/log.cpp
     cpp/scripting/scriptapi/option.cpp
     cpp/scripting/scriptapi/output.cpp
     cpp/scripting/scriptapi/plugin.cpp

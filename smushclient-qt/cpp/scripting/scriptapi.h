@@ -36,6 +36,8 @@ enum SendFlag
 {
   Echo = 1,
   Log = 2,
+  Remember = 4,
+  Immediate = 8,
 };
 } // namespace sendflag
 
@@ -92,6 +94,7 @@ public:
   int64_t BroadcastPlugin(size_t pluginIndex,
                           int64_t message,
                           std::string_view text) const;
+  ApiCode CloseLog() const;
   void ColourTell(const QColor& foreground,
                   const QColor& background,
                   const QString& text);
@@ -133,6 +136,7 @@ public:
   ApiCode EnableTriggerGroup(size_t plugin,
                              std::string_view group,
                              bool enabled) const noexcept;
+  ApiCode FlushLog() const;
   QVariant GetAliasOption(size_t plugin,
                           std::string_view label,
                           std::string_view option) const noexcept;
@@ -169,8 +173,11 @@ public:
                  bool url,
                  bool noUnderline);
   ApiCode IsAlias(size_t plugin, std::string_view label) const noexcept;
+  bool IsLogOpen() const noexcept;
   ApiCode IsTimer(size_t plugin, std::string_view label) const noexcept;
   ApiCode IsTrigger(size_t plugin, std::string_view label) const noexcept;
+  ApiCode LogSend(QByteArray& bytes);
+  ApiCode OpenLog(std::string_view logFileName, bool append) const;
   QColor PickColour(const QColor& hint) const;
   ApiCode PlaySound(size_t channel,
                     std::string_view path,
@@ -189,8 +196,10 @@ public:
   ApiCode Send(std::string_view text);
   ApiCode Send(const QString& text);
   ApiCode Send(QByteArray& bytes);
+  ApiCode SendImmediate(QByteArray& bytes);
   ApiCode SendNoEcho(QByteArray& bytes);
   ApiCode SendPacket(QByteArrayView bytes);
+  ApiCode SendPush(QByteArray& bytes);
   ApiCode SetAliasOption(size_t plugin,
                          std::string_view label,
                          std::string_view option,
@@ -425,6 +434,7 @@ public:
                               Hotspot::CallbacksPartial&& callbacks) const;
   ApiCode WindowWrite(std::string_view windowName,
                       const QString& filename) const;
+  ApiCode WriteLog(std::string_view message) const;
 
   void applyWorld(const World& world);
   void finishNote();

@@ -33,7 +33,7 @@ use crate::plugins::{
     ReactionIterable, SendIterable, SendRequest, SendScriptRequest, SenderAccessError, SpanStyle,
     TriggerEffects,
 };
-use crate::world::{OptionCaller, PersistError, SetOptionError, World};
+use crate::world::{LogMode, OptionCaller, PersistError, SetOptionError, World};
 
 const METAVARIABLES_KEY: &str = "\x01";
 
@@ -121,8 +121,8 @@ impl SmushClient {
         }
     }
 
-    fn update_logger(&self) -> io::Result<()> {
-        self.logger.borrow_mut().apply_world(&self.world)
+    fn update_logger(&self) {
+        self.logger.borrow_mut().apply_world(&self.world);
     }
 
     fn update_config(&mut self) {
@@ -150,10 +150,7 @@ impl SmushClient {
         *self.logger.borrow_mut() = Logger::new(&self.world);
     }
 
-    pub fn update_world(&mut self, mut world: World) -> io::Result<bool> {
-        if self.world == world {
-            return Ok(false);
-        }
+    pub fn update_world(&mut self, mut world: World) -> bool {
         let plugins = mem::take(&mut self.world.plugins);
         let aliases = mem::take(&mut self.world.aliases);
         let timers = mem::take(&mut self.world.timers);
@@ -163,7 +160,7 @@ impl SmushClient {
             self.world.aliases = aliases;
             self.world.timers = timers;
             self.world.triggers = triggers;
-            return Ok(false);
+            return false;
         }
         world.plugins = plugins;
         world.aliases = aliases;
@@ -172,8 +169,8 @@ impl SmushClient {
         self.world = world;
         self.plugins.set_world_plugin(self.world.world_plugin());
         self.update_config();
-        self.update_logger()?;
-        Ok(true)
+        self.update_logger();
+        true
     }
 
     fn option_caller(&self, index: PluginIndex) -> OptionCaller {
@@ -187,21 +184,24 @@ impl SmushClient {
         }
     }
 
-    pub fn open_log(&mut self) -> io::Result<()> {
-        if self.world.auto_log_file_name.is_empty() {
-            self.world.auto_log_file_name = self
-                .world
-                .name
-                .chars()
-                .filter(|&c| !"<>\"|?:#%;/\\".contains(c))
-                .collect();
-            self.world.auto_log_file_name.push_str(" log.txt");
+    pub fn open_log(&self, mut path: String, mode: Option<LogMode>) -> io::Result<()> {
+        if path.is_empty() {
+            path = self.world.log_path();
         }
-        self.logger.borrow_mut().open()
+        let mode = mode.unwrap_or(self.world.log_mode);
+        self.logger.borrow_mut().open(path, mode)
     }
 
     pub fn close_log(&self) -> io::Result<()> {
         self.logger.borrow_mut().close()
+    }
+
+    pub fn flush_log(&self) -> io::Result<()> {
+        self.logger.borrow_mut().flush()
+    }
+
+    pub fn is_log_open(&self) -> bool {
+        self.logger.borrow().is_open()
     }
 
     pub fn read<R: Read>(&mut self, mut reader: R, read_buf: &mut [u8]) -> io::Result<usize> {
@@ -365,6 +365,10 @@ impl SmushClient {
 
     pub fn log_input(&self, input: &str) -> io::Result<()> {
         self.logger.borrow_mut().log_input_line(input)
+    }
+
+    pub fn write_to_log(&self, bytes: &[u8]) -> io::Result<()> {
+        self.logger.borrow_mut().write_all(bytes)
     }
 
     pub fn load_plugins(&mut self) -> Result<(), Vec<LoadFailure>> {
@@ -716,7 +720,7 @@ impl SmushClient {
             | b"no_echo_off"
             | b"use_mxp" => self.update_config(),
             b"echo_colour" | b"log_format" | b"log_in_colour" | b"log_mode" | b"note_colour" => {
-                self.update_logger()?;
+                self.update_logger();
             }
             _ => (),
         }
@@ -732,16 +736,15 @@ impl SmushClient {
         let caller = self.option_caller(index);
         self.world.set_option_str(caller, option, value)?;
         if option.starts_with(b"log_") {
-            self.update_logger()?;
+            self.update_logger();
             return Ok(());
         }
         match option {
             b"name" | b"player" => {
                 self.update_config();
-                self.update_logger()?;
+                self.update_logger();
             }
             b"password" | b"terminal_identification" => self.update_config(),
-            b"auto_log_file_name" => self.update_logger()?,
             _ => (),
         }
         Ok(())

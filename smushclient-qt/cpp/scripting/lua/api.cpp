@@ -375,11 +375,27 @@ L_WindowInfo(lua_State* L)
 // input
 
 int
+L_LogSend(lua_State* L)
+{
+  BENCHMARK
+  QByteArray bytes = qlua::concatArgs(L);
+  return returnCode(L, getApi(L).LogSend(bytes));
+}
+
+int
 L_Send(lua_State* L)
 {
   BENCHMARK
   QByteArray bytes = qlua::concatArgs(L);
   return returnCode(L, getApi(L).Send(bytes));
+}
+
+int
+L_SendImmediate(lua_State* L)
+{
+  BENCHMARK
+  QByteArray bytes = qlua::concatArgs(L);
+  return returnCode(L, getApi(L).SendImmediate(bytes));
 }
 
 int
@@ -396,6 +412,59 @@ L_SendPkt(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 1);
   return returnCode(L, getApi(L).SendPacket(qlua::getBytes(L, 1)));
+}
+
+int
+L_SendPush(lua_State* L)
+{
+  BENCHMARK
+  QByteArray bytes = qlua::concatArgs(L);
+  return returnCode(L, getApi(L).SendPush(bytes));
+}
+
+// log
+
+int
+L_CloseLog(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  return returnCode(L, getApi(L).CloseLog());
+}
+
+int
+L_FlushLog(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  return returnCode(L, getApi(L).FlushLog());
+}
+
+int
+L_IsLogOpen(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).IsLogOpen());
+  return 1;
+}
+
+int
+L_OpenLog(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  return returnCode(
+    L, getApi(L).OpenLog(qlua::getString(L, 1), qlua::getBool(L, 2, false)));
+}
+
+int
+L_WriteLog(lua_State* L)
+{
+  BENCHMARK
+  const QByteArray message = qlua::concatArgs(L);
+  return returnCode(
+    L, getApi(L).WriteLog(string_view(message.data(), message.size())));
 }
 
 // options
@@ -645,7 +714,7 @@ L_Tell(lua_State* L)
   return 0;
 }
 
-// plugins
+// plugin
 
 int
 L_BroadcastPlugin(lua_State* L)
@@ -750,7 +819,7 @@ L_PluginSupports(lua_State* L)
     L, getApi(L).PluginSupports(qlua::getString(L, 1), qlua::getString(L, 2)));
 }
 
-// senders
+// sender
 
 int
 L_AddAlias(lua_State* L)
@@ -1178,7 +1247,7 @@ L_StopSound(lua_State* L)
   return returnCode(L, getApi(L).StopSound(qlua::getInteger(L, 1, 0)));
 }
 
-// variables
+// variable
 
 int
 L_DeleteVariable(lua_State* L)
@@ -1219,7 +1288,7 @@ L_SetVariable(lua_State* L)
   return returnCode(L, ApiCode::OK);
 }
 
-// windows
+// window
 
 int
 L_TextRectangle(lua_State* L)
@@ -1891,7 +1960,7 @@ L_WindowWrite(lua_State* L)
     L, getApi(L).WindowWrite(qlua::getString(L, 1), qlua::getQString(L, 2)));
 }
 
-// window hotspots
+// window hotspot
 
 int
 L_WindowAddHotspot(lua_State* L)
@@ -2030,9 +2099,18 @@ static const struct luaL_Reg worldlib[] =
     { "WindowImageInfo", L_WindowImageInfo },
     { "WindowInfo", L_WindowInfo },
     // input
+    { "LogSend", L_LogSend },
     { "Send", L_Send },
+    { "SendImmediate", L_SendImmediate },
     { "SendNoEcho", L_SendNoEcho },
     { "SendPkt", L_SendPkt },
+    { "SendPush", L_SendPush },
+    // log
+    { "CloseLog", L_CloseLog },
+    { "FlushLog", L_FlushLog },
+    { "IsLogOpen", L_IsLogOpen },
+    { "OpenLog", L_OpenLog },
+    { "WriteLog", L_WriteLog },
     // option
     { "GetAlphaOption", L_GetAlphaOption },
     { "GetAlphaOptionList", L_GetAlphaOptionList },
@@ -2105,12 +2183,12 @@ static const struct luaL_Reg worldlib[] =
     { "PlaySound", L_PlaySound },
     { "PlaySoundMemory", L_PlaySoundMemory },
     { "StopSound", L_StopSound },
-    // variables
+    // variable
     { "DeleteVariable", L_DeleteVariable },
     { "GetVariable", L_GetVariable },
     { "GetPluginVariable", L_GetPluginVariable },
     { "SetVariable", L_SetVariable },
-    // windows
+    // window
     { "TextRectangle", L_TextRectangle },
     { "WindowArc", L_WindowArc },
     { "WindowBlendImage", L_WindowBlendImage },
@@ -2145,7 +2223,7 @@ static const struct luaL_Reg worldlib[] =
     { "WindowTextWidth", L_WindowTextWidth },
     { "WindowTransformImage", L_WindowTransformImage },
     { "Windowrite", L_WindowWrite },
-    // hotspot
+    // window hotspot
     { "WindowAddHotspot", L_WindowAddHotspot },
     { "WindowDeleteAllHotspots", L_WindowDeleteAllHotspots },
     { "WindowDeleteHotspot", L_WindowDeleteHotspot },

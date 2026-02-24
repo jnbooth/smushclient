@@ -119,9 +119,9 @@ impl SmushClientRust {
         Ok(())
     }
 
-    pub fn set_world(&mut self, world: &WorldRust) -> io::Result<bool> {
+    pub fn set_world(&mut self, world: &WorldRust) -> bool {
         let Ok(world) = World::try_from(world) else {
-            return Ok(false);
+            return false;
         };
         self.apply_world();
         self.client.update_world(world)

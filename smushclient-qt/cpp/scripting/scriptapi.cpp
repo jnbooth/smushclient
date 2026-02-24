@@ -451,6 +451,10 @@ ScriptApi::finishQueuedSend(const SendRequest& request)
 ApiCode
 ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
 {
+  if (flags.testFlag(SendFlag::Remember)) {
+    tab.ui->input->remember(text);
+  }
+
   OnPluginSend onSend(bytes);
   sendCallback(onSend);
   if (onSend.discarded()) {

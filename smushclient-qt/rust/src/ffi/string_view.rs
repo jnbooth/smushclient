@@ -65,6 +65,12 @@ impl<'a> From<StringView<'a>> for &'a [u8] {
     }
 }
 
+impl From<StringView<'_>> for String {
+    fn from(value: StringView<'_>) -> Self {
+        value.to_string_lossy().into_owned()
+    }
+}
+
 // SAFETY: Defined in smushclient-qt/cpp/bridge/views.h
 unsafe impl ExternType for StringView<'_> {
     type Id = type_id!("rust::string_view");

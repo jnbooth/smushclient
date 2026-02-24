@@ -3,12 +3,20 @@
 using std::string_view;
 
 // Public methods
+
+ApiCode
+ScriptApi::LogSend(QByteArray& bytes)
+{
+  return sendToWorld(bytes, SendFlag::Echo | SendFlag::Log);
+}
+
 ApiCode
 ScriptApi::Send(string_view text)
 {
   QByteArray bytes(text);
   return sendToWorld(bytes, SendFlag::Echo);
 }
+
 ApiCode
 ScriptApi::Send(const QString& text)
 {
@@ -23,10 +31,17 @@ ScriptApi::Send(QByteArray& bytes)
 }
 
 ApiCode
+ScriptApi::SendImmediate(QByteArray& bytes)
+{
+  return sendToWorld(bytes, SendFlag::Echo | SendFlag::Immediate);
+}
+
+ApiCode
 ScriptApi::SendNoEcho(QByteArray& bytes)
 {
   return sendToWorld(bytes, SendFlags());
 }
+
 ApiCode
 ScriptApi::SendPacket(QByteArrayView bytes)
 {
@@ -36,4 +51,10 @@ ScriptApi::SendPacket(QByteArrayView bytes)
   }
 
   return ApiCode::OK;
+}
+
+ApiCode
+ScriptApi::SendPush(QByteArray& bytes)
+{
+  return sendToWorld(bytes, SendFlag::Echo | SendFlag::Remember);
 }

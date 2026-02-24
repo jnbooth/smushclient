@@ -1,26 +1,28 @@
-use std::io::{self, Write};
+use std::fs::{File, OpenOptions};
+use std::io::{self, BufWriter, Write};
 
 use mud_transformer::Output;
 
 use super::log_file::LogFile;
-use crate::world::{LogBrackets, LogFormat, World};
+use crate::world::{Escaped, LogBrackets, LogFormat, LogMode, World};
 
 #[derive(Debug)]
 pub struct Logger {
     brackets: LogBrackets,
-    format: LogFormat,
-    file: LogFile,
     buf: String,
+    file: LogFile,
+    format: LogFormat,
+    path: Option<String>,
 }
 
 impl Logger {
     pub fn new(world: &World) -> Self {
-        let brackets = world.brackets();
         Self {
-            file: LogFile::new(world, brackets.file.clone()),
-            format: world.log_format,
             brackets: world.brackets(),
             buf: String::new(),
+            file: LogFile::default(),
+            format: world.log_format,
+            path: None,
         }
     }
 
@@ -29,21 +31,43 @@ impl Logger {
     }
 
     pub fn path(&self) -> Option<&str> {
-        self.file.path()
+        self.path.as_deref()
     }
 
-    pub fn open(&mut self) -> io::Result<()> {
-        self.file.open()
+    pub fn open(&mut self, path: String, mode: LogMode) -> io::Result<()> {
+        self.path = None;
+        let file = OpenOptions::from(mode).open(&path)?;
+        file.try_lock()?;
+        let mut file = BufWriter::new(file);
+        self.write_bracket(self.brackets.file.before(), &mut file)?;
+        self.file = LogFile::new(file);
+        self.path = Some(path);
+        Ok(())
     }
 
-    pub fn apply_world(&mut self, world: &World) -> io::Result<()> {
+    pub fn is_open(&self) -> bool {
+        self.file.is_open()
+    }
+
+    pub fn apply_world(&mut self, world: &World) {
         self.brackets = world.brackets();
         self.format = world.log_format;
-        self.file.apply_world(world, self.brackets.file.clone())
     }
 
     pub fn close(&mut self) -> io::Result<()> {
-        self.file.close()
+        let Some(mut file) = self.file.take() else {
+            return Ok(());
+        };
+        self.path = None;
+        self.write_bracket(self.brackets.file.after(), &mut file)
+    }
+
+    pub fn flush(&mut self) -> io::Result<()> {
+        self.file.flush()
+    }
+
+    pub fn write_all(&mut self, bytes: &[u8]) -> io::Result<()> {
+        self.file.write_all(bytes)
     }
 
     pub fn log_raw(&mut self, bytes: &[u8]) -> io::Result<()> {
@@ -89,6 +113,20 @@ impl Logger {
                     .write(&mut self.file, line, &mut self.buf)
             }
         }
+    }
+
+    fn write_bracket(&self, bracket: &Escaped, file: &mut BufWriter<File>) -> io::Result<()> {
+        if bracket.is_empty() {
+            return Ok(());
+        }
+        let mut buf = String::new();
+        let text = bracket.format(&mut buf, None);
+        if self.format == LogFormat::Html {
+            html_escape::encode_safe_to_writer(text, file)?;
+        } else {
+            file.write_all(text.as_bytes())?;
+        }
+        file.write_all(b"\n")
     }
 }
 

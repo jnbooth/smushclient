@@ -6,7 +6,7 @@ use cxx_qt::CxxQtType;
 use cxx_qt_io::QAbstractSocket;
 use cxx_qt_lib::{QString, QStringList, QVariant};
 use smushclient::SendIterable;
-use smushclient::world::PersistError;
+use smushclient::world::{LogMode, PersistError};
 use smushclient_plugins::{
     Alias, ImportError, LoadError, PluginIndex, Timer, Trigger, XmlSerError,
 };
@@ -42,20 +42,85 @@ impl ffi::SmushClient {
         handle_import_error(self.rust_mut().import_world(String::from(path)))
     }
 
-    pub fn try_open_log(self: Pin<&mut Self>) -> io::Result<()> {
-        self.rust_mut().client.open_log()
+    pub fn try_open_log(&self) -> io::Result<()> {
+        self.rust().client.open_log(String::new(), None)
     }
 
     pub fn try_close_log(&self) -> io::Result<()> {
         self.rust().client.close_log()
     }
 
-    pub fn log_input(&self, note: &QString) {
-        let _ = self.rust().client.log_input(&String::from(note));
+    pub fn open_log(&self, path: StringView, append: bool) -> ffi::ApiCode {
+        let mode = if append {
+            LogMode::Append
+        } else {
+            LogMode::Overwrite
+        };
+        let client = &self.rust().client;
+        if client.is_log_open() {
+            ffi::ApiCode::LogFileAlreadyOpen
+        } else if client.open_log(path.into(), Some(mode)).is_ok() {
+            ffi::ApiCode::OK
+        } else {
+            ffi::ApiCode::CouldNotOpenFile
+        }
     }
 
-    pub fn log_note(&self, note: &QString) {
-        let _ = self.rust().client.log_note(&String::from(note));
+    pub fn close_log(&self) -> ffi::ApiCode {
+        let client = &self.rust().client;
+        if !client.is_log_open() {
+            return ffi::ApiCode::LogFileNotOpen;
+        }
+        let _ = client.close_log();
+        ffi::ApiCode::OK
+    }
+
+    pub fn flush_log(&self) -> ffi::ApiCode {
+        let client = &self.rust().client;
+        if !client.is_log_open() {
+            ffi::ApiCode::LogFileNotOpen
+        } else if client.flush_log().is_ok() {
+            ffi::ApiCode::OK
+        } else {
+            ffi::ApiCode::LogFileBadWrite
+        }
+    }
+
+    pub fn is_log_open(&self) -> bool {
+        self.rust().client.is_log_open()
+    }
+
+    pub fn log_input(&self, note: &QString) -> ffi::ApiCode {
+        let client = &self.rust().client;
+        if !client.is_log_open() {
+            ffi::ApiCode::LogFileNotOpen
+        } else if client.log_input(&String::from(note)).is_ok() {
+            ffi::ApiCode::OK
+        } else {
+            ffi::ApiCode::LogFileBadWrite
+        }
+    }
+
+    pub fn log_note(&self, note: StringView<'_>) -> ffi::ApiCode {
+        let client = &self.rust().client;
+        if !client.is_log_open() {
+            ffi::ApiCode::LogFileNotOpen
+        } else if client.log_note(&note.to_string_lossy()).is_ok() {
+            ffi::ApiCode::OK
+        } else {
+            ffi::ApiCode::LogFileBadWrite
+        }
+    }
+
+    pub fn write_to_log(&self, note: StringView<'_>) -> ffi::ApiCode {
+        let client = &self.rust().client;
+        if !client.is_log_open() {
+            ffi::ApiCode::LogFileNotOpen
+        } else if client.write_to_log(note.as_slice()).is_ok() {
+            ffi::ApiCode::OK
+        } else {
+            ffi::ApiCode::LogFileBadWrite
+        }
     }
 
     pub fn load_plugins(self: Pin<&mut Self>) -> QStringList {
@@ -82,7 +147,7 @@ impl ffi::SmushClient {
         self.rust().save_variables(String::from(path))
     }
 
-    pub fn try_set_world(self: Pin<&mut Self>, world: &ffi::World) -> io::Result<bool> {
+    pub fn set_world(self: Pin<&mut Self>, world: &ffi::World) -> bool {
         self.rust_mut().set_world(world.rust())
     }
 
