@@ -256,7 +256,7 @@ impl World {
             note_text_colour: Some(RgbColor::rgb(0, 128, 255)),
             note_background_colour: None,
             script_errors_to_output_window: false,
-            error_text_colour: Some(RgbColor::rgb(127, 0, 0)),
+            error_text_colour: Some(RgbColor::rgb(228, 56, 56)),
             error_background_colour: None,
 
             // Hidden
