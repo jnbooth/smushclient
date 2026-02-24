@@ -44,7 +44,7 @@ L_panic(lua_State* L)
 int
 L_print(lua_State* L)
 {
-  const QString output = QString::fromUtf8(qlua::concatStrings(L));
+  const QString output = QString::fromUtf8(qlua::concatArgs(L, 1, " "));
 #ifdef NDEBUG
   getApi(L).Tell(output);
 #endif

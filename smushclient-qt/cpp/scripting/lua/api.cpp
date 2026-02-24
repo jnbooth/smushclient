@@ -378,7 +378,7 @@ int
 L_Send(lua_State* L)
 {
   BENCHMARK
-  QByteArray bytes = qlua::concatBytes(L);
+  QByteArray bytes = qlua::concatArgs(L);
   return returnCode(L, getApi(L).Send(bytes));
 }
 
@@ -386,7 +386,7 @@ int
 L_SendNoEcho(lua_State* L)
 {
   BENCHMARK
-  QByteArray bytes = qlua::concatBytes(L);
+  QByteArray bytes = qlua::concatArgs(L);
   return returnCode(L, getApi(L).SendNoEcho(bytes));
 }
 
@@ -473,7 +473,8 @@ int
 L_AnsiNote(lua_State* L)
 {
   BENCHMARK
-  getApi(L).AnsiNote(qlua::concatStrings(L));
+  const QByteArray note = qlua::concatArgs(L);
+  getApi(L).AnsiNote(string_view(note.data(), note.size()));
   return 0;
 }
 
@@ -544,7 +545,7 @@ L_Note(lua_State* L)
 {
   BENCHMARK
   ScriptApi& api = getApi(L);
-  api.Tell(QString::fromUtf8(qlua::concatStrings(L)));
+  api.Tell(QString::fromUtf8(qlua::concatArgs(L)));
   api.finishNote();
   return 0;
 }
@@ -591,7 +592,7 @@ int
 L_SetClipboard(lua_State* L)
 {
   BENCHMARK
-  ScriptApi::SetClipboard(QString::fromUtf8(qlua::concatStrings(L)));
+  ScriptApi::SetClipboard(QString::fromUtf8(qlua::concatArgs(L)));
   return 0;
 }
 
@@ -623,7 +624,7 @@ L_SetStatus(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
-  getApi(L).SetStatus(qlua::getQString(L, 1));
+  getApi(L).SetStatus(QString::fromUtf8(qlua::concatArgs(L)));
   return 0;
 }
 
@@ -631,8 +632,8 @@ int
 L_Simulate(lua_State* L)
 {
   BENCHMARK
-  expectMaxArgs(L, 1);
-  getApi(L).Simulate(qlua::getString(L, 1));
+  const QByteArray message = qlua::concatArgs(L);
+  getApi(L).Simulate(string_view(message.data(), message.size()));
   return 0;
 }
 
@@ -640,7 +641,7 @@ int
 L_Tell(lua_State* L)
 {
   BENCHMARK
-  getApi(L).Tell(QString::fromUtf8(qlua::concatStrings(L)));
+  getApi(L).Tell(QString::fromUtf8(qlua::concatArgs(L)));
   return 0;
 }
 

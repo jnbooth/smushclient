@@ -31,10 +31,9 @@ colorToRgbCode(const QColor& color)
 }
 
 QByteArray
-concatBytes(lua_State* L);
-
-std::string
-concatStrings(lua_State* L);
+concatArgs(lua_State* L,
+           int startIdx = 1,
+           QByteArrayView delim = QByteArrayView());
 
 bool
 copyValue(lua_State* fromL, lua_State* toL, int idx);

@@ -203,55 +203,38 @@ toQVariant(lua_State* L, int idx, int type)
 // Public functions
 
 QByteArray
-qlua::concatBytes(lua_State* L)
+qlua::concatArgs(lua_State* L, int startIdx, QByteArrayView delim)
 {
-  const int n = lua_gettop(L);
-  lua_Unsigned messageSize = 2; // an extra 2 for newline characters
-  for (int i = 1; i <= n; ++i) {
-    luaL_argexpected(L, lua_type(L, i) == LUA_TSTRING, i, "string");
-    messageSize += lua_rawlen(L, i);
-  }
-  QByteArray bytes;
-  bytes.reserve(static_cast<qsizetype>(messageSize));
-  size_t chunkLen;
-  for (int i = 1; i <= n; ++i) {
-    const char* data = lua_tolstring(L, i, &chunkLen);
-    bytes.append(data, static_cast<qsizetype>(chunkLen));
-  }
-
-  return bytes;
-}
-
-string
-qlua::concatStrings(lua_State* L)
-{
+  QByteArray output;
+  std::ostringstream numberBuf;
   const int n = lua_gettop(L);
   int isInt;
   bool needsToString = true;
   size_t sLen;
-  std::ostringstream out;
-  for (int i = 1; i <= n; ++i) {
+  for (int i = startIdx; i <= n; ++i) {
+    if (i > startIdx && !delim.empty()) {
+      output.append(delim);
+    }
     switch (lua_type(L, i)) {
       case LUA_TNIL:
-        out << "nil";
+        output.append(QByteArrayView("nil"));
         break;
       case LUA_TBOOLEAN:
-        out << (lua_toboolean(L, i) == TRUE ? "true" : "false");
+        output.append(lua_toboolean(L, i) == TRUE ? QByteArrayView("true")
+                                                  : QByteArrayView("false"));
         break;
-      case LUA_TNUMBER: {
-        const lua_Integer result = lua_tointegerx(L, i, &isInt);
-        if (isInt == TRUE) {
-          out << result;
+      case LUA_TNUMBER:
+        if (lua_Integer result = lua_tointegerx(L, i, &isInt); isInt == TRUE) {
+          numberBuf << result;
         } else {
-          out << lua_tonumber(L, i);
+          numberBuf << lua_tonumber(L, i);
         }
+        output.append(numberBuf.view());
+        numberBuf.str("");
         break;
-      }
-      case LUA_TSTRING: {
-        const char* data = lua_tolstring(L, i, &sLen);
-        out << string_view(data, sLen);
+      case LUA_TSTRING:
+        output.append(lua_tolstring(L, i, &sLen), static_cast<qsizetype>(sLen));
         break;
-      }
       default:
         if (needsToString) {
           needsToString = false;
@@ -261,7 +244,7 @@ qlua::concatStrings(lua_State* L)
         lua_pushvalue(L, i);  // argument
         lua_call(L, 1, 1);
         if (const char* s = lua_tolstring(L, -1, &sLen); s) {
-          out << string_view(s, sLen);
+          output.append(s, static_cast<qsizetype>(sLen));
           lua_pop(L, 1);
           break;
         }
@@ -273,7 +256,7 @@ qlua::concatStrings(lua_State* L)
   if (!needsToString) {
     lua_pop(L, 1);
   }
-  return out.str();
+  return output;
 }
 
 bool
