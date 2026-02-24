@@ -1,6 +1,6 @@
 #include "../../casting.h"
 #include "../../client.h"
-#include "../../timer_map.h"
+#include "../../timermap.h"
 #include "../scriptapi.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 

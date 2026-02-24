@@ -80,7 +80,7 @@ qt_add_executable(${APP_NAME}
     cpp/settings.h cpp/settings.cpp
     cpp/spans.h cpp/spans.cpp
     cpp/stringmap.h
-    cpp/timer_map.h
+    cpp/timermap.h
 
     cpp/bridge/document.h cpp/bridge/document.cpp
     cpp/bridge/timekeeper.h cpp/bridge/timekeeper.cpp

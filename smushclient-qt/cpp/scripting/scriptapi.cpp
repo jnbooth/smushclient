@@ -1,6 +1,6 @@
 #include "scriptapi.h"
 #include "../bridge/timekeeper.h"
-#include "../timer_map.h"
+#include "../timermap.h"
 #include "../ui/mudstatusbar/mudstatusbar.h"
 #include "../ui/notepad.h"
 #include "../ui/ui_worldtab.h"

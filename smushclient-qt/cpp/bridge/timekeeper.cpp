@@ -1,7 +1,7 @@
 #include "timekeeper.h"
 #include "../client.h"
 #include "../scripting/scriptapi.h"
-#include "../timer_map.h"
+#include "../timermap.h"
 #include "smushclient_qt/src/ffi/timekeeper.cxxqt.h"
 
 using std::chrono::milliseconds;
