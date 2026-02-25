@@ -1,3 +1,5 @@
+#include "../../ui/ui_worldtab.h"
+#include "../../ui/worldtab.h"
 #include "../scriptapi.h"
 
 using std::string_view;
@@ -20,8 +22,7 @@ ScriptApi::Send(string_view text)
 ApiCode
 ScriptApi::Send(const QString& text)
 {
-  QByteArray bytes = text.toUtf8();
-  return sendToWorld(bytes, SendFlag::Echo);
+  return sendToWorld(text, SendFlag::Echo);
 }
 
 ApiCode
@@ -56,5 +57,7 @@ ScriptApi::SendPacket(QByteArrayView bytes)
 ApiCode
 ScriptApi::SendPush(QByteArray& bytes)
 {
-  return sendToWorld(bytes, SendFlag::Echo | SendFlag::Remember);
+  const QString command = QString::fromUtf8(bytes);
+  tab.ui->input->remember(command);
+  return sendToWorld(bytes, command, SendFlag::Echo);
 }

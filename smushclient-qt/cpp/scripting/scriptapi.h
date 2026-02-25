@@ -38,8 +38,7 @@ enum SendFlag
 {
   Echo = 1,
   Log = 2,
-  Remember = 4,
-  Immediate = 8,
+  Immediate = 4,
 };
 } // namespace sendflag
 
@@ -490,6 +489,7 @@ public:
     QByteArray bytes = text.toUtf8();
     return sendToWorld(bytes, text, flags);
   }
+  ApiCode sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags);
   void setNawsEnabled(bool enabled) noexcept;
   void setOpen(bool open) noexcept;
   void setPluginEnabled(size_t plugin, bool enable = true);
@@ -527,7 +527,6 @@ private:
   size_t findPluginIndex(std::string_view pluginID) const noexcept;
   MiniWindow* findWindow(std::string_view windowName) const noexcept;
   bool finishQueuedSend(const SendRequest& request);
-  ApiCode sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags);
   ApiCode setImage(const QString& path,
                    MiniWindow::Position position,
                    bool above);

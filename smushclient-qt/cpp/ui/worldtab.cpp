@@ -807,6 +807,11 @@ WorldTab::sendCommand(const QString& command, CommandSource source)
     return true;
   }
 
+  SendFlags flags = SendFlag::Log;
+  if (aliasOutcome.testFlag(AliasOutcome::Echo)) {
+    flags |= SendFlag::Echo;
+  }
+
   QByteArray bytes = command.toUtf8();
   OnPluginCommand onCommand(source, bytes);
   api->sendCallback(onCommand);
@@ -825,11 +830,7 @@ WorldTab::sendCommand(const QString& command, CommandSource source)
         break;
     }
   }
-  SendFlags flags = SendFlag::Log;
-  if (aliasOutcome.testFlag(AliasOutcome::Echo)) {
-    flags |= SendFlag::Echo;
-  }
-  api->sendToWorld(bytes, flags);
+  api->sendToWorld(bytes, command, flags);
   return true;
 }
 

@@ -294,6 +294,40 @@ ScriptApi::sendNaws()
   SendPacket(ffi::util::encode_naws(*tab.ui->output));
 }
 
+ApiCode
+ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
+{
+  OnPluginSend onSend(bytes);
+  sendCallback(onSend);
+  if (onSend.discarded()) {
+    return ApiCode::OK;
+  }
+
+  if (echoInput && flags.testFlag(SendFlag::Echo)) {
+    cursor->echo(text);
+  }
+
+  lastCommandSent = bytes;
+
+  if (flags.testFlag(SendFlag::Log)) {
+    client.logInput(text);
+  }
+
+  bytes.append("\r\n");
+
+  const qsizetype size = bytes.size();
+  totalLinesSent += bytes.count('\n');
+  totalPacketsSent += 1;
+  if (socket.write(bytes.constData(), size) == -1) [[unlikely]] {
+    return ApiCode::WorldClosed;
+  }
+  bytes.truncate(size - 2);
+
+  OnPluginSent onSent(bytes);
+  sendCallback(onSent);
+  return ApiCode::OK;
+}
+
 void
 ScriptApi::setNawsEnabled(bool enabled) noexcept
 {
@@ -459,44 +493,6 @@ ScriptApi::finishQueuedSend(const SendRequest& request)
   handleSendRequest(request);
   actionSource = oldSource;
   return true;
-}
-
-ApiCode
-ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
-{
-  if (flags.testFlag(SendFlag::Remember)) {
-    tab.ui->input->remember(text);
-  }
-
-  OnPluginSend onSend(bytes);
-  sendCallback(onSend);
-  if (onSend.discarded()) {
-    return ApiCode::OK;
-  }
-
-  if (echoInput && flags.testFlag(SendFlag::Echo)) {
-    cursor->echo(text);
-  }
-
-  lastCommandSent = bytes;
-
-  if (flags.testFlag(SendFlag::Log)) {
-    client.logInput(text);
-  }
-
-  bytes.append("\r\n");
-
-  const qsizetype size = bytes.size();
-  totalLinesSent += bytes.count('\n');
-  totalPacketsSent += 1;
-  if (socket.write(bytes.constData(), size) == -1) [[unlikely]] {
-    return ApiCode::WorldClosed;
-  }
-  bytes.truncate(size - 2);
-
-  OnPluginSent onSent(bytes);
-  sendCallback(onSent);
-  return ApiCode::OK;
 }
 
 ApiCode
