@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::occurrence::Occurrence;
 use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
-use crate::xml::{XmlIterable, bool_serde, is_default, is_true};
+use crate::xml::{XmlIterable, bool_serde, is_default};
 
 const NANOS: u64 = 1_000_000_000;
 const NANOS_F: f64 = 1_000_000_000.0;
@@ -45,7 +45,7 @@ pub struct XmlTimer<'a> {
     pub active_closed: bool,
     #[serde(rename = "@at_time", with = "bool_serde", skip_serializing_if = "is_default")]
     pub at_time: bool,
-    #[serde(rename = "@enabled", with = "bool_serde", skip_serializing_if = "is_true")]
+    #[serde(rename = "@enabled", with = "bool_serde")]
     pub enabled: bool,
     #[serde(rename = "@group", borrow, skip_serializing_if = "is_default")]
     pub group: Cow<'a, str>,
@@ -166,11 +166,9 @@ mod tests {
     #[test]
     fn xml_roundtrip() {
         let timer = Timer::default();
-        let to_xml =
-            quick_xml::se::to_string(&XmlTimer::from(&timer)).expect("error serializing trigger");
-        let from_xml: XmlTimer =
-            quick_xml::de::from_str(&to_xml).expect("error deserializing trigger");
-        let mut roundtrip = Timer::from(from_xml);
+        let xml = timer.to_xml_string().expect("error serializing timer");
+        assert_eq!(xml, r#"<timer enabled="y"></timer>"#);
+        let mut roundtrip = Timer::from_xml_str(&xml).expect("error deserializing timer");
         roundtrip.id = timer.id;
         assert_eq!(roundtrip, timer);
     }

@@ -1,21 +1,35 @@
 use std::iter;
 
 use serde::de::SeqAccess;
-use serde::ser::{SerializeStruct, Serializer};
+use serde::ser::Serializer;
 use serde::{Deserialize, Serialize};
 
 use crate::cursor_vec::CursorVec;
 use crate::error::ImportError;
 
 pub trait XmlIterable: Sized + 'static {
-    const TAG: &'static str;
-
     type Xml<'a>: From<&'a Self>
         + TryInto<Self, Error: Into<ImportError>>
         + Deserialize<'a>
         + Serialize;
 
-    fn from_xml_str<T>(s: &str) -> Result<T, ImportError>
+    const TAG: &'static str;
+
+    fn from_xml_str(s: &str) -> Result<Self, ImportError> {
+        quick_xml::de::from_str::<Self::Xml<'_>>(s)?
+            .try_into()
+            .map_err(Into::into)
+    }
+
+    fn to_xml_string(&self) -> Result<String, quick_xml::SeError> {
+        let mut buf = String::new();
+        let mut serializer = quick_xml::se::Serializer::new(&mut buf);
+        serializer.empty_element_handling(quick_xml::se::EmptyElementHandling::Expanded);
+        Self::Xml::from(self).serialize(serializer)?;
+        Ok(buf)
+    }
+
+    fn list_from_xml_str<T>(s: &str) -> Result<T, ImportError>
     where
         T: FromIterator<Self>,
     {
@@ -28,29 +42,16 @@ pub trait XmlIterable: Sized + 'static {
         .collect()
     }
 
-    fn to_xml_string<'a, I>(iter: I) -> Result<String, quick_xml::SeError>
+    fn list_to_xml_string<'a, I>(iter: I) -> Result<String, quick_xml::SeError>
     where
         I: IntoIterator<Item = &'a Self>,
         I::IntoIter: Clone,
     {
-        struct ListIter<I>(I);
-        impl<I> Serialize for ListIter<I>
-        where
-            I: Clone + Iterator,
-            I::Item: Serialize,
-        {
-            fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-                serializer.collect_seq(self.0.clone())
-            }
-        }
-
         let mut buf = String::new();
-        let serializer = quick_xml::se::Serializer::new(&mut buf);
-        let mut state = serializer.serialize_struct("", 1)?;
-        state.serialize_field(Self::TAG, &ListIter(iter.into_iter().map(Self::Xml::from)))?;
-        state.end()?;
-        buf.truncate(buf.len() - const { "</>".len() });
-        buf.drain(..const { "<>".len() });
+        let mut serializer =
+            quick_xml::se::Serializer::with_root(&mut buf, Some(Self::TAG)).unwrap();
+        serializer.empty_element_handling(quick_xml::se::EmptyElementHandling::Expanded);
+        serializer.collect_seq(iter.into_iter().map(Self::Xml::from))?;
         Ok(buf)
     }
 }
@@ -68,12 +69,6 @@ pub mod bool_serde {
 #[inline]
 pub fn is_default<T: Default + PartialEq>(value: &T) -> bool {
     value == &T::default()
-}
-
-#[inline]
-#[allow(clippy::trivially_copy_pass_by_ref)]
-pub fn is_true(value: &bool) -> bool {
-    *value
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
@@ -144,9 +139,14 @@ mod tests {
     #[test]
     fn xml_roundtrip() {
         let triggers = vec![Trigger::default(), Trigger::default()];
-        let to_xml = XmlIterable::to_xml_string(&triggers).expect("error serializing triggers");
+        let to_xml =
+            XmlIterable::list_to_xml_string(&triggers).expect("error serializing triggers");
+        assert_eq!(
+            to_xml,
+            r#"<trigger enabled="y" sequence="100"></trigger><trigger enabled="y" sequence="100"></trigger>"#
+        );
         let mut from_xml: Vec<Trigger> =
-            XmlIterable::from_xml_str(&to_xml).expect("error deserializing triggers");
+            XmlIterable::list_from_xml_str(&to_xml).expect("error deserializing triggers");
         from_xml[0].id = triggers[0].id;
         from_xml[1].id = triggers[1].id;
         assert_eq!(from_xml, triggers);

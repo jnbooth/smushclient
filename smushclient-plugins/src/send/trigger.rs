@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::reaction::Reaction;
 use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
-use crate::xml::{XmlIterable, bool_serde, is_default, is_true};
+use crate::xml::{XmlIterable, bool_serde, is_default};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Trigger {
@@ -77,8 +77,9 @@ pub struct XmlTrigger<'a> {
     pub clipboard_arg: u8,
     #[serde(rename = "@color_change_type", skip_serializing_if = "is_default")]
     pub colour_change_type: u8,
+    #[serde(rename = "@custom_colour", skip_serializing_if = "is_default")]
     pub custom_colour: usize,
-    #[serde(rename = "@enabled", with = "bool_serde", skip_serializing_if = "is_true")]
+    #[serde(rename = "@enabled", with = "bool_serde")]
     pub enabled: bool,
     #[serde(rename = "@expand_variables", with = "bool_serde", skip_serializing_if = "is_default")]
     pub expand_variables: bool,
@@ -263,11 +264,9 @@ mod tests {
     #[test]
     fn xml_roundtrip() {
         let trigger = Trigger::default();
-        let to_xml = quick_xml::se::to_string(&XmlTrigger::from(&trigger))
-            .expect("error serializing trigger");
-        let from_xml: XmlTrigger =
-            quick_xml::de::from_str(&to_xml).expect("error deserializing trigger");
-        let mut roundtrip = Trigger::try_from(from_xml).expect("error converting trigger");
+        let xml = trigger.to_xml_string().expect("error serializing trigger");
+        assert_eq!(xml, r#"<trigger enabled="y" sequence="100"></trigger>"#);
+        let mut roundtrip = Trigger::from_xml_str(&xml).expect("error deserializing trigger");
         roundtrip.id = trigger.id;
         assert_eq!(roundtrip, trigger);
     }

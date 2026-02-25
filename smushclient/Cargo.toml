@@ -15,7 +15,7 @@ chrono = { workspace = true }
 flagset = { workspace = true }
 html-escape = "0.2.13"
 mud-transformer = { workspace = true }
-quick-xml = { version = "0.38.4", features = ["serialize"] }
+quick-xml = { workspace = true }
 serde = { workspace = true }
 serde-this-or-that = "0.5.0"
 smushclient-plugins = { path = "../smushclient-plugins" }

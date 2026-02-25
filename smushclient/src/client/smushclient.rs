@@ -668,12 +668,12 @@ impl SmushClient {
         &self,
         xml: &str,
     ) -> Result<SortOnDrop<'_, T>, ImportError> {
-        let mut senders = T::from_xml_str(xml)?;
+        let mut senders = T::list_from_xml_str(xml)?;
         Ok(self.world.import_senders(&mut senders))
     }
 
     pub fn export_world_senders<T: SendIterable>(&self) -> Result<String, XmlSerError> {
-        T::to_xml_string(
+        T::list_to_xml_string(
             T::from_world(&self.world)
                 .borrow()
                 .iter()

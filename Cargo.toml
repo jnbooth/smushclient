@@ -56,6 +56,10 @@ git = "https://github.com/jnbooth/mxp"
 version = "0.16.6"
 features = ["serde"]
 
+[workspace.dependencies.quick-xml]
+version = "0.39.2"
+features = ["serialize"]
+
 [workspace.dependencies.serde]
 version = "1.0.228"
 features = ["derive"]

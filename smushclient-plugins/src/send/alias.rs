@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use super::reaction::Reaction;
 use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
-use crate::xml::{XmlIterable, bool_serde, is_default, is_true};
+use crate::xml::{XmlIterable, bool_serde, is_default};
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 pub struct Alias {
@@ -31,7 +31,7 @@ impl XmlIterable for Alias {
 pub struct XmlAlias<'a> {
     #[serde(rename = "@echo_alias", with = "bool_serde", skip_serializing_if = "is_default")]
     pub echo_alias: bool,
-    #[serde(rename = "@enabled", with = "bool_serde", skip_serializing_if = "is_true")]
+    #[serde(rename = "@enabled", with = "bool_serde")]
     pub enabled: bool,
     #[serde(rename = "@expand_variables", with = "bool_serde", skip_serializing_if = "is_default")]
     pub expand_variables: bool,
@@ -153,11 +153,9 @@ mod tests {
     #[test]
     fn xml_roundtrip() {
         let alias = Alias::default();
-        let to_xml =
-            quick_xml::se::to_string(&XmlAlias::from(&alias)).expect("error serializing alias");
-        let from_xml: XmlAlias =
-            quick_xml::de::from_str(&to_xml).expect("error deserializing alias");
-        let mut roundtrip = Alias::try_from(from_xml).expect("error converting alias");
+        let xml = alias.to_xml_string().expect("error serializing alias");
+        assert_eq!(xml, r#"<alias enabled="y" sequence="100"></alias>"#);
+        let mut roundtrip = Alias::from_xml_str(&xml).expect("error deserializing alias");
         roundtrip.id = alias.id;
         assert_eq!(roundtrip, alias);
     }

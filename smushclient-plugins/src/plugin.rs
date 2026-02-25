@@ -83,13 +83,17 @@ impl Plugin {
         quick_xml::de::from_str(s)
     }
 
-    pub fn to_xml<W: Write>(&self, writer: W) -> Result<(), SeError> {
-        quick_xml::se::to_writer(writer, self)?;
+    pub fn to_xml<W: Write>(&self, mut writer: W) -> Result<(), SeError> {
+        let mut serializer = quick_xml::se::Serializer::new(&mut writer);
+        serializer.empty_element_handling(quick_xml::se::EmptyElementHandling::Expanded);
+        self.serialize(serializer)?;
         Ok(())
     }
 
     pub fn to_xml_string(&self) -> Result<String, SeError> {
-        quick_xml::se::to_string(self)
+        let mut buf = String::new();
+        self.to_xml(&mut buf)?;
+        Ok(buf)
     }
 
     pub fn load<P: AsRef<Path>>(path: P) -> Result<Self, LoadError> {
@@ -219,15 +223,28 @@ mod tests {
     #[test]
     fn xml_roundtrip() {
         let triggers = vec![Trigger::default(), Trigger::default()];
+        let metadata = PluginMetadata {
+            written: NaiveDate::from_epoch_days(1).unwrap(),
+            modified: NaiveDate::from_epoch_days(1).unwrap(),
+            ..Default::default()
+        };
         let plugin = PluginFile {
-            plugin: Cow::Owned(PluginMetadata::default()),
+            plugin: Cow::Owned(metadata),
             triggers: (&*triggers).into(),
             aliases: XmlVec::default(),
             timers: XmlVec::default(),
             script: Cow::default(),
         };
 
-        let xml = quick_xml::se::to_string(&plugin).unwrap();
-        panic!("{xml}");
+        let mut xml = String::new();
+        let mut serializer = quick_xml::se::Serializer::new(&mut xml);
+        serializer.empty_element_handling(quick_xml::se::EmptyElementHandling::Expanded);
+        plugin
+            .serialize(serializer)
+            .expect("error serializing plugin");
+        assert_eq!(
+            xml,
+            r#"<muclient><plugin sequence="0" name="" author="" id="" date_written="1970-01-02" date_modified="1970-01-02"></plugin><triggers muclient_version="" world_file_version="" date_saved=""><trigger enabled="y" sequence="100"></trigger><trigger enabled="y" sequence="100"></trigger></triggers></muclient>"#
+        );
     }
 }
