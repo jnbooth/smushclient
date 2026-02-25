@@ -79,17 +79,17 @@ Notepads::listNotepads(const QUuid& worldID) const
   return list;
 }
 
-QTextEdit*
+Notepad*
 Notepads::pad(const QString& name)
 {
   return pad(QUuid(), name);
 }
 
-QTextEdit*
+Notepad*
 Notepads::pad(const QUuid& worldID, const QString& name)
 {
   if (name.isEmpty()) {
-    return createNotepad(worldID, name)->editor();
+    return createNotepad(worldID, name);
   }
 
   Notepad* notepad = findNotepad(worldID, name);
@@ -99,5 +99,5 @@ Notepads::pad(const QUuid& worldID, const QString& name)
     notepad->setWindowTitle(name);
   }
 
-  return notepad->editor();
+  return notepad;
 }

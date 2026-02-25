@@ -71,6 +71,16 @@ Notepad::editor() const
 
 // Public slots
 
+void
+Notepad::appendText(const QString& text)
+{
+  QTextCursor cursor = ui->editor->textCursor();
+  if (!cursor.atBlockStart()) {
+    cursor.insertBlock();
+  }
+  cursor.insertText(text);
+}
+
 QString
 Notepad::save()
 {
@@ -105,6 +115,12 @@ void
 Notepad::setSaveMethod(SaveMethod method)
 {
   promptBeforeClose = method != SaveMethod::NeverPrompt;
+}
+
+void
+Notepad::setText(const QString& text)
+{
+  ui->editor->setPlainText(text);
 }
 
 // Protected overrides

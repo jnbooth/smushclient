@@ -34,10 +34,12 @@ public:
   constexpr const QUuid& world() const noexcept { return worldID; }
 
 public slots:
+  void appendText(const QString& text);
   QString save();
   QString saveAs() { return saveAsNew(QString()); }
   QString saveAsNew(const QString& path, bool separate = false);
   void setSaveMethod(SaveMethod method);
+  void setText(const QString& text);
 
 protected:
   void closeEvent(QCloseEvent* event) override;

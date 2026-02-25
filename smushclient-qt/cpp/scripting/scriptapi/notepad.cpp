@@ -20,11 +20,7 @@ ScriptApi::ActivateNotepad(const QString& name) const
 void
 ScriptApi::AppendToNotepad(const QString& name, const QString& text) const
 {
-  QTextCursor notepadCursor = notepads.pad(worldID, name)->textCursor();
-  if (!notepadCursor.atBlockStart()) {
-    notepadCursor.insertBlock();
-  }
-  notepadCursor.insertText(text);
+  notepads.pad(worldID, name)->appendText(text);
 }
 
 bool
@@ -108,7 +104,7 @@ ScriptApi::NotepadSaveMethod(const QString& name,
 bool
 ScriptApi::ReplaceNotepad(const QString& name, const QString& text) const
 {
-  notepads.pad(worldID, name)->setPlainText(text);
+  notepads.pad(worldID, name)->setText(text);
   return true;
 }
 

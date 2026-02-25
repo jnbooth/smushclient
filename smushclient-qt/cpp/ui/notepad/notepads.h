@@ -1,6 +1,5 @@
 #pragma once
 #include <QtCore/QUuid>
-#include <QtWidgets/QTextEdit>
 #include <QtWidgets/QWidget>
 
 class Notepad;
@@ -22,6 +21,6 @@ public:
 
   QStringList listNotepads(const QUuid& worldID = QUuid()) const;
 
-  QTextEdit* pad(const QUuid& worldID, const QString& name = QString());
-  QTextEdit* pad(const QString& name = QString());
+  Notepad* pad(const QUuid& worldID, const QString& name = QString());
+  Notepad* pad(const QString& name = QString());
 };

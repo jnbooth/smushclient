@@ -107,16 +107,16 @@ ScriptApi::handleSendRequest(const SendRequest& request)
       cursor->startLine();
       return;
     case SendTarget::Status:
-      SetStatus(request.text);
+      statusBar()->setMessage(request.text);
       return;
     case SendTarget::NotepadNew:
-      notepads.pad()->insertPlainText(request.text);
+      notepads.pad()->setText(request.text);
       return;
     case SendTarget::NotepadAppend:
-      AppendToNotepad(request.destination, request.text);
+      notepads.pad(worldID, request.destination)->appendText(request.text);
       return;
     case SendTarget::NotepadReplace:
-      notepads.pad(request.destination)->setPlainText(request.text);
+      notepads.pad(request.destination)->setText(request.text);
       return;
     case SendTarget::Log:
     case SendTarget::Variable:
