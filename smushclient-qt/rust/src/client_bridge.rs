@@ -12,7 +12,7 @@ use smushclient_plugins::{
 };
 
 use crate::convert::Convert;
-use crate::ffi::{self, BytesView, SenderKind, StringView};
+use crate::ffi::{self, ApiCode, BytesView, SenderKind, StringView};
 use crate::ffi::{AliasOutcomes, VariableView};
 use crate::get_info::InfoVisitorQVariant;
 use crate::modeled::Modeled;
@@ -50,7 +50,10 @@ impl ffi::SmushClient {
         self.rust().client.close_log()
     }
 
-    pub fn open_log(&self, path: StringView, append: bool) -> ffi::ApiCode {
+    pub fn open_log(&self, path: StringView, append: bool) -> ApiCode {
+        let Ok(path) = path.to_str() else {
+            return ffi::ApiCode::FileNotFound;
+        };
         let mode = if append {
             LogMode::Append
         } else {
@@ -58,31 +61,31 @@ impl ffi::SmushClient {
         };
         let client = &self.rust().client;
         if client.is_log_open() {
-            ffi::ApiCode::LogFileAlreadyOpen
-        } else if client.open_log(path.into(), Some(mode)).is_ok() {
-            ffi::ApiCode::OK
+            ApiCode::LogFileAlreadyOpen
+        } else if client.open_log(path.to_owned(), Some(mode)).is_ok() {
+            ApiCode::OK
         } else {
-            ffi::ApiCode::CouldNotOpenFile
+            ApiCode::CouldNotOpenFile
         }
     }
 
-    pub fn close_log(&self) -> ffi::ApiCode {
+    pub fn close_log(&self) -> ApiCode {
         let client = &self.rust().client;
         if !client.is_log_open() {
-            return ffi::ApiCode::LogFileNotOpen;
+            return ApiCode::LogFileNotOpen;
         }
         let _ = client.close_log();
-        ffi::ApiCode::OK
+        ApiCode::OK
     }
 
-    pub fn flush_log(&self) -> ffi::ApiCode {
+    pub fn flush_log(&self) -> ApiCode {
         let client = &self.rust().client;
         if !client.is_log_open() {
-            ffi::ApiCode::LogFileNotOpen
+            ApiCode::LogFileNotOpen
         } else if client.flush_log().is_ok() {
-            ffi::ApiCode::OK
+            ApiCode::OK
         } else {
-            ffi::ApiCode::LogFileBadWrite
+            ApiCode::LogFileBadWrite
         }
     }
 
@@ -90,36 +93,36 @@ impl ffi::SmushClient {
         self.rust().client.is_log_open()
     }
 
-    pub fn log_input(&self, note: &QString) -> ffi::ApiCode {
+    pub fn log_input(&self, note: &QString) -> ApiCode {
         let client = &self.rust().client;
         if !client.is_log_open() {
-            ffi::ApiCode::LogFileNotOpen
+            ApiCode::LogFileNotOpen
         } else if client.log_input(&String::from(note)).is_ok() {
-            ffi::ApiCode::OK
+            ApiCode::OK
         } else {
-            ffi::ApiCode::LogFileBadWrite
+            ApiCode::LogFileBadWrite
         }
     }
 
-    pub fn log_note(&self, note: StringView<'_>) -> ffi::ApiCode {
+    pub fn log_note(&self, note: StringView<'_>) -> ApiCode {
         let client = &self.rust().client;
         if !client.is_log_open() {
-            ffi::ApiCode::LogFileNotOpen
+            ApiCode::LogFileNotOpen
         } else if client.log_note(&note.to_string_lossy()).is_ok() {
-            ffi::ApiCode::OK
+            ApiCode::OK
         } else {
-            ffi::ApiCode::LogFileBadWrite
+            ApiCode::LogFileBadWrite
         }
     }
 
-    pub fn write_to_log(&self, note: StringView<'_>) -> ffi::ApiCode {
+    pub fn write_to_log(&self, note: StringView<'_>) -> ApiCode {
         let client = &self.rust().client;
         if !client.is_log_open() {
-            ffi::ApiCode::LogFileNotOpen
+            ApiCode::LogFileNotOpen
         } else if client.write_to_log(note.as_slice()).is_ok() {
-            ffi::ApiCode::OK
+            ApiCode::OK
         } else {
-            ffi::ApiCode::LogFileBadWrite
+            ApiCode::LogFileBadWrite
         }
     }
 
@@ -193,7 +196,7 @@ impl ffi::SmushClient {
         index: PluginIndex,
         option: StringView<'_>,
         value: StringView<'_>,
-    ) -> ffi::ApiCode {
+    ) -> ApiCode {
         self.rust_mut()
             .client
             .set_world_alpha_option(index, option.as_slice(), value.to_vec())
@@ -205,7 +208,7 @@ impl ffi::SmushClient {
         index: PluginIndex,
         option: StringView<'_>,
         value: i64,
-    ) -> ffi::ApiCode {
+    ) -> ApiCode {
         self.rust_mut()
             .client
             .set_world_option(index, option.as_slice(), value)
@@ -287,7 +290,7 @@ impl ffi::SmushClient {
         self.rust_mut().flush(doc);
     }
 
-    pub fn handle_alert(&self) -> ffi::ApiCode {
+    pub fn handle_alert(&self) -> ApiCode {
         self.rust().handle_alert()
     }
 
@@ -295,9 +298,9 @@ impl ffi::SmushClient {
         self.rust().client.has_output()
     }
 
-    pub fn add_alias(&self, index: PluginIndex, alias: &ffi::Alias) -> ffi::ApiCode {
+    pub fn add_alias(&self, index: PluginIndex, alias: &ffi::Alias) -> ApiCode {
         let Ok(alias) = Alias::try_from(alias.rust()) else {
-            return ffi::ApiCode::BadRegularExpression;
+            return ApiCode::BadRegularExpression;
         };
         self.rust().client.add_sender(index, alias).code::<Alias>()
     }
@@ -307,15 +310,15 @@ impl ffi::SmushClient {
         index: PluginIndex,
         timer: &ffi::Timer,
         timekeeper: &ffi::Timekeeper,
-    ) -> ffi::ApiCode {
+    ) -> ApiCode {
         self.rust()
             .add_timer(index, timer.rust().into(), timekeeper)
             .code::<Timer>()
     }
 
-    pub fn add_trigger(&self, index: PluginIndex, trigger: &ffi::Trigger) -> ffi::ApiCode {
+    pub fn add_trigger(&self, index: PluginIndex, trigger: &ffi::Trigger) -> ApiCode {
         let Ok(trigger) = Trigger::try_from(trigger.rust()) else {
-            return ffi::ApiCode::BadRegularExpression;
+            return ApiCode::BadRegularExpression;
         };
         self.rust()
             .client
@@ -328,16 +331,18 @@ impl ffi::SmushClient {
         kind: SenderKind,
         index: PluginIndex,
         name: StringView<'_>,
-    ) -> ffi::ApiCode {
+    ) -> ApiCode {
+        let Ok(name) = name.to_str() else {
+            return kind.not_found();
+        };
         let client = &self.rust().client;
-        let name = name.to_string_lossy();
         match kind {
-            SenderKind::Alias => client.remove_sender::<Alias>(index, &name).code::<Alias>(),
-            SenderKind::Timer => client.remove_sender::<Timer>(index, &name).code::<Timer>(),
+            SenderKind::Alias => client.remove_sender::<Alias>(index, name).code::<Alias>(),
+            SenderKind::Timer => client.remove_sender::<Timer>(index, name).code::<Timer>(),
             SenderKind::Trigger => client
-                .remove_sender::<Trigger>(index, &name)
+                .remove_sender::<Trigger>(index, name)
                 .code::<Trigger>(),
-            _ => ffi::ApiCode::BadParameter,
+            _ => ApiCode::BadParameter,
         }
     }
 
@@ -347,12 +352,14 @@ impl ffi::SmushClient {
         index: PluginIndex,
         name: StringView<'_>,
     ) -> usize {
+        let Ok(name) = name.to_str() else {
+            return 0;
+        };
         let client = &self.rust().client;
-        let name = name.to_string_lossy();
         match kind {
-            SenderKind::Alias => client.remove_sender_group::<Alias>(index, &name),
-            SenderKind::Timer => client.remove_sender_group::<Timer>(index, &name),
-            SenderKind::Trigger => client.remove_sender_group::<Trigger>(index, &name),
+            SenderKind::Alias => client.remove_sender_group::<Alias>(index, name),
+            SenderKind::Timer => client.remove_sender_group::<Timer>(index, name),
+            SenderKind::Trigger => client.remove_sender_group::<Trigger>(index, name),
             _ => 0,
         }
     }
@@ -367,25 +374,21 @@ impl ffi::SmushClient {
         }
     }
 
-    pub fn add_world_alias(&self, alias: &ffi::Alias) -> ffi::ApiCode {
+    pub fn add_world_alias(&self, alias: &ffi::Alias) -> ApiCode {
         let Ok(alias) = Alias::try_from(alias.rust()) else {
-            return ffi::ApiCode::BadRegularExpression;
+            return ApiCode::BadRegularExpression;
         };
         self.rust().client.add_world_sender(alias).code::<Alias>()
     }
 
-    pub fn add_world_timer(
-        &self,
-        timer: &ffi::Timer,
-        timekeeper: &ffi::Timekeeper,
-    ) -> ffi::ApiCode {
+    pub fn add_world_timer(&self, timer: &ffi::Timer, timekeeper: &ffi::Timekeeper) -> ApiCode {
         let index = self.rust().world_plugin_index();
         self.add_timer(index, timer, timekeeper)
     }
 
-    pub fn add_world_trigger(&self, trigger: &ffi::Trigger) -> ffi::ApiCode {
+    pub fn add_world_trigger(&self, trigger: &ffi::Trigger) -> ApiCode {
         let Ok(trigger) = Trigger::try_from(trigger.rust()) else {
-            return ffi::ApiCode::BadRegularExpression;
+            return ApiCode::BadRegularExpression;
         };
         self.rust()
             .client
@@ -456,12 +459,12 @@ impl ffi::SmushClient {
         )
     }
 
-    pub fn replace_alias(&self, index: PluginIndex, alias: &ffi::Alias) -> ffi::ApiCode {
+    pub fn replace_alias(&self, index: PluginIndex, alias: &ffi::Alias) -> ApiCode {
         let Ok(alias) = Alias::try_from(alias.rust()) else {
-            return ffi::ApiCode::BadRegularExpression;
+            return ApiCode::BadRegularExpression;
         };
         self.rust().client.add_or_replace_sender(index, alias);
-        ffi::ApiCode::OK
+        ApiCode::OK
     }
 
     pub fn replace_timer(
@@ -469,27 +472,29 @@ impl ffi::SmushClient {
         index: PluginIndex,
         timer: &ffi::Timer,
         timekeeper: &ffi::Timekeeper,
-    ) -> ffi::ApiCode {
+    ) -> ApiCode {
         self.rust()
             .add_or_replace_timer(index, timer.rust().into(), timekeeper);
-        ffi::ApiCode::OK
+        ApiCode::OK
     }
 
-    pub fn replace_trigger(&self, index: PluginIndex, trigger: &ffi::Trigger) -> ffi::ApiCode {
+    pub fn replace_trigger(&self, index: PluginIndex, trigger: &ffi::Trigger) -> ApiCode {
         let Ok(trigger) = Trigger::try_from(trigger.rust()) else {
-            return ffi::ApiCode::BadRegularExpression;
+            return ApiCode::BadRegularExpression;
         };
         self.rust().client.add_or_replace_sender(index, trigger);
-        ffi::ApiCode::OK
+        ApiCode::OK
     }
 
     pub fn is_sender(&self, kind: SenderKind, index: PluginIndex, label: StringView<'_>) -> bool {
-        let label = label.to_string_lossy();
+        let Ok(label) = label.to_str() else {
+            return false;
+        };
         let client = &self.rust().client;
         match kind {
-            SenderKind::Alias => client.borrow_sender::<Alias>(index, &label).is_some(),
-            SenderKind::Timer => client.borrow_sender::<Timer>(index, &label).is_some(),
-            SenderKind::Trigger => client.borrow_sender::<Trigger>(index, &label).is_some(),
+            SenderKind::Alias => client.borrow_sender::<Alias>(index, label).is_some(),
+            SenderKind::Timer => client.borrow_sender::<Timer>(index, label).is_some(),
+            SenderKind::Trigger => client.borrow_sender::<Trigger>(index, label).is_some(),
             _ => false,
         }
     }
@@ -500,20 +505,22 @@ impl ffi::SmushClient {
         index: PluginIndex,
         label: StringView<'_>,
         enabled: bool,
-    ) -> ffi::ApiCode {
-        let label = label.to_string_lossy();
+    ) -> ApiCode {
+        let Ok(label) = label.to_str() else {
+            return kind.not_found();
+        };
         let client = &self.rust().client;
         match kind {
             SenderKind::Alias => client
-                .set_sender_enabled::<Alias>(index, &label, enabled)
+                .set_sender_enabled::<Alias>(index, label, enabled)
                 .code::<Alias>(),
             SenderKind::Timer => client
-                .set_sender_enabled::<Timer>(index, &label, enabled)
+                .set_sender_enabled::<Timer>(index, label, enabled)
                 .code::<Timer>(),
             SenderKind::Trigger => client
-                .set_sender_enabled::<Trigger>(index, &label, enabled)
+                .set_sender_enabled::<Trigger>(index, label, enabled)
                 .code::<Timer>(),
-            _ => ffi::ApiCode::BadParameter,
+            _ => ApiCode::BadParameter,
         }
     }
 
@@ -524,12 +531,14 @@ impl ffi::SmushClient {
         group: StringView<'_>,
         enabled: bool,
     ) -> bool {
+        let Ok(group) = group.to_str() else {
+            return false;
+        };
         let client = &self.rust().client;
-        let group = group.to_string_lossy();
         match kind {
-            SenderKind::Alias => client.set_group_enabled::<Alias>(index, &group, enabled),
-            SenderKind::Timer => client.set_group_enabled::<Timer>(index, &group, enabled),
-            SenderKind::Trigger => client.set_group_enabled::<Trigger>(index, &group, enabled),
+            SenderKind::Alias => client.set_group_enabled::<Alias>(index, group, enabled),
+            SenderKind::Timer => client.set_group_enabled::<Timer>(index, group, enabled),
+            SenderKind::Trigger => client.set_group_enabled::<Trigger>(index, group, enabled),
             _ => false,
         }
     }
@@ -545,13 +554,15 @@ impl ffi::SmushClient {
         label: StringView<'_>,
         option: StringView<'_>,
     ) -> QVariant {
+        let Ok(label) = label.to_str() else {
+            return QVariant::default();
+        };
         let client = self.rust();
-        let label = label.to_string_lossy();
         let option = option.as_slice();
         match kind {
-            SenderKind::Alias => client.get_sender_option::<Alias>(index, &label, option),
-            SenderKind::Timer => client.get_sender_option::<Timer>(index, &label, option),
-            SenderKind::Trigger => client.get_sender_option::<Trigger>(index, &label, option),
+            SenderKind::Alias => client.get_sender_option::<Alias>(index, label, option),
+            SenderKind::Timer => client.get_sender_option::<Timer>(index, label, option),
+            SenderKind::Trigger => client.get_sender_option::<Trigger>(index, label, option),
             _ => QVariant::default(),
         }
     }
@@ -563,58 +574,49 @@ impl ffi::SmushClient {
         label: StringView<'_>,
         option: StringView<'_>,
         value: StringView<'_>,
-    ) -> ffi::ApiCode {
+    ) -> ApiCode {
+        let Ok(label) = label.to_str() else {
+            return kind.not_found();
+        };
         let client = self.rust();
-        let label = label.to_string_lossy();
         let option = option.as_slice();
         let value = value.as_slice();
         match kind {
-            SenderKind::Alias => client.set_sender_option::<Alias>(index, &label, option, value),
-            SenderKind::Timer => client.set_sender_option::<Timer>(index, &label, option, value),
-            SenderKind::Trigger => {
-                client.set_sender_option::<Trigger>(index, &label, option, value)
-            }
-            _ => return ffi::ApiCode::BadParameter,
+            SenderKind::Alias => client.set_sender_option::<Alias>(index, label, option, value),
+            SenderKind::Timer => client.set_sender_option::<Timer>(index, label, option, value),
+            SenderKind::Trigger => client.set_sender_option::<Trigger>(index, label, option, value),
+            _ => return ApiCode::BadParameter,
         }
         .code()
     }
 
-    pub fn play_buffer(
-        &self,
-        i: usize,
-        buf: BytesView<'_>,
-        volume: f32,
-        looping: bool,
-    ) -> ffi::ApiCode {
+    pub fn play_buffer(&self, i: usize, buf: BytesView<'_>, volume: f32, looping: bool) -> ApiCode {
         self.client
             .play_buffer(i, buf.to_vec(), volume, looping.into())
             .code()
     }
 
-    pub fn play_file(
-        &self,
-        i: usize,
-        path: StringView<'_>,
-        volume: f32,
-        looping: bool,
-    ) -> ffi::ApiCode {
+    pub fn play_file(&self, i: usize, path: StringView<'_>, volume: f32, looping: bool) -> ApiCode {
         let client = &self.rust().client;
         if path.is_empty() {
-            client.configure_audio_sink(i, volume, looping.into())
-        } else {
-            client.play_file(i, &*path.to_string_lossy(), volume, looping.into())
+            return client
+                .configure_audio_sink(i, volume, looping.into())
+                .code();
         }
-        .code()
+        let Ok(path) = path.to_str() else {
+            return ApiCode::FileNotFound;
+        };
+        client.play_file(i, path, volume, looping.into()).code()
     }
 
-    pub fn play_file_raw(&self, path: StringView<'_>) -> ffi::ApiCode {
-        self.rust()
-            .client
-            .play_file_raw(&*path.to_string_lossy())
-            .code()
+    pub fn play_file_raw(&self, path: StringView<'_>) -> ApiCode {
+        let Ok(path) = path.to_str() else {
+            return ApiCode::FileNotFound;
+        };
+        self.rust().client.play_file_raw(path).code()
     }
 
-    pub fn stop_sound(&self, i: usize) -> ffi::ApiCode {
+    pub fn stop_sound(&self, i: usize) -> ApiCode {
         self.rust().client.stop_sound(i).code()
     }
 
@@ -698,16 +700,18 @@ impl ffi::SmushClient {
         label: StringView<'_>,
         info_type: u8,
     ) -> QVariant {
+        let Ok(label) = label.to_str() else {
+            return QVariant::default();
+        };
         let client = self.rust();
-        let label = label.to_string_lossy();
         match kind {
             SenderKind::Alias => client
                 .client
-                .alias_info::<InfoVisitorQVariant>(index, &label, info_type),
-            SenderKind::Timer => client.timer_info(index, &label, info_type),
+                .alias_info::<InfoVisitorQVariant>(index, label, info_type),
+            SenderKind::Timer => client.timer_info(index, label, info_type),
             SenderKind::Trigger => client
                 .client
-                .trigger_info::<InfoVisitorQVariant>(index, &label, info_type),
+                .trigger_info::<InfoVisitorQVariant>(index, label, info_type),
             _ => QVariant::default(),
         }
     }

@@ -202,3 +202,14 @@ impl From<&Plugin> for ffi::PluginPack {
         }
     }
 }
+
+impl ffi::SenderKind {
+    pub const fn not_found(self) -> ffi::ApiCode {
+        match self {
+            Self::Alias => ffi::ApiCode::AliasNotFound,
+            Self::Timer => ffi::ApiCode::TimerNotFound,
+            Self::Trigger => ffi::ApiCode::TriggerNotFound,
+            _ => ffi::ApiCode::BadParameter,
+        }
+    }
+}

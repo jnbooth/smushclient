@@ -3,6 +3,7 @@ use std::borrow::Cow;
 use std::ffi::c_char;
 use std::marker::PhantomData;
 use std::slice;
+use std::str::Utf8Error;
 
 use cxx::{ExternType, type_id};
 
@@ -48,6 +49,10 @@ impl<'a> StringView<'a> {
         String::from_utf8_lossy(self.as_slice())
     }
 
+    pub fn to_str(&self) -> Result<&'a str, Utf8Error> {
+        str::from_utf8(self.as_slice())
+    }
+
     pub fn to_vec(&self) -> Vec<u8> {
         self.as_slice().to_vec()
     }
@@ -62,12 +67,6 @@ impl AsRef<[u8]> for StringView<'_> {
 impl<'a> From<StringView<'a>> for &'a [u8] {
     fn from(value: StringView<'a>) -> Self {
         value.as_slice()
-    }
-}
-
-impl From<StringView<'_>> for String {
-    fn from(value: StringView<'_>) -> Self {
-        value.to_string_lossy().into_owned()
     }
 }
 
