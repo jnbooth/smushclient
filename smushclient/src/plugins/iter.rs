@@ -1,10 +1,6 @@
-use std::marker::PhantomData;
 use std::num::NonZero;
-use std::slice;
 
-use smushclient_plugins::{
-    Alias, CursorVec, Plugin, PluginItem, Reaction, Timer, Trigger, XmlIterable,
-};
+use smushclient_plugins::{Alias, PluginItem, Reaction, Timer, Trigger, XmlIterable};
 
 use super::effects::{AliasEffects, SpanStyle, TriggerEffects};
 use crate::world::WorldConfig;
@@ -92,69 +88,5 @@ impl ReactionIterable for Trigger {
     }
     fn add_effects(&self, effects: &mut Self::Effects) {
         effects.add_effects(self);
-    }
-}
-
-pub(crate) struct AllSendersIter<'a, T> {
-    inner: slice::Iter<'a, Plugin>,
-    marker: PhantomData<T>,
-}
-
-impl<'a, T> AllSendersIter<'a, T> {
-    pub fn new(plugins: &'a [Plugin]) -> Self {
-        Self {
-            inner: plugins.iter(),
-            marker: PhantomData,
-        }
-    }
-}
-
-impl<'a, T> Iterator for AllSendersIter<'a, T>
-where
-    T: SendIterable,
-{
-    type Item = &'a CursorVec<T>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        Some(self.inner.next()?.senders::<T>())
-    }
-
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        let exact = self.len();
-        (exact, Some(exact))
-    }
-
-    fn count(self) -> usize {
-        self.len()
-    }
-
-    fn last(mut self) -> Option<Self::Item> {
-        self.next_back()
-    }
-
-    fn nth(&mut self, n: usize) -> Option<Self::Item> {
-        Some(self.inner.nth(n)?.senders::<T>())
-    }
-}
-
-impl<T> ExactSizeIterator for AllSendersIter<'_, T>
-where
-    T: SendIterable,
-{
-    fn len(&self) -> usize {
-        self.inner.len()
-    }
-}
-
-impl<T> DoubleEndedIterator for AllSendersIter<'_, T>
-where
-    T: SendIterable,
-{
-    fn next_back(&mut self) -> Option<Self::Item> {
-        Some(self.inner.next_back()?.senders::<T>())
-    }
-
-    fn nth_back(&mut self, n: usize) -> Option<Self::Item> {
-        Some(self.inner.nth_back(n)?.senders::<T>())
     }
 }

@@ -29,8 +29,8 @@ use crate::handler::Handler;
 use crate::import::ImportedWorld;
 use crate::options::OptionValue;
 use crate::plugins::{
-    AliasEffects, AliasOutcome, AllSendersIter, CommandSource, LoadFailure, PluginEngine,
-    ReactionIterable, SendIterable, SendRequest, SendScriptRequest, SpanStyle, TriggerEffects,
+    AliasEffects, AliasOutcome, CommandSource, LoadFailure, PluginEngine, ReactionIterable,
+    SendIterable, SendRequest, SendScriptRequest, SpanStyle, TriggerEffects,
 };
 use crate::world::{LogMode, OptionCaller, PersistError, SetOptionError, World, WorldConfig};
 
@@ -117,7 +117,7 @@ impl SmushClient {
     }
 
     pub fn stop_evaluating<T: SendIterable>(&self) {
-        for senders in self.all_senders::<T>() {
+        for senders in self.plugins.all_senders::<T>() {
             senders.end();
         }
     }
@@ -418,6 +418,11 @@ impl SmushClient {
         self.plugins.iter()
     }
 
+    /// # Panics
+    ///
+    /// Panics if the index is out of range.
+    #[inline]
+    #[track_caller]
     pub fn plugin(&self, index: PluginIndex) -> &Plugin {
         &self.plugins[index]
     }
@@ -635,7 +640,8 @@ impl SmushClient {
     }
 
     pub fn remove_temporary_senders<T: SendIterable>(&self) -> usize {
-        self.all_senders::<T>()
+        self.plugins
+            .all_senders::<T>()
             .map(|senders| senders.retain(|sender: &T| !sender.as_ref().temporary))
             .sum()
     }
@@ -1068,12 +1074,8 @@ impl SmushClient {
         );
     }
 
-    fn all_senders<T: SendIterable>(&self) -> AllSendersIter<'_, T> {
-        AllSendersIter::new(&self.plugins)
-    }
-
     fn count_senders<T: SendIterable>(&self) -> usize {
-        self.all_senders::<T>().map(CursorVec::len).sum()
+        self.plugins.all_senders::<T>().map(CursorVec::len).sum()
     }
 
     pub fn get_info<V: InfoVisitor>(&self, info_type: i64) -> V::Output {

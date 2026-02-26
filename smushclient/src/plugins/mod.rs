@@ -9,8 +9,8 @@ mod error;
 pub use error::LoadFailure;
 
 mod iter;
+pub(crate) use iter::ReactionIterable;
 pub use iter::SendIterable;
-pub(crate) use iter::{AllSendersIter, ReactionIterable};
 
 mod send;
 pub use send::{SendRequest, SendScriptRequest};

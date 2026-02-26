@@ -2,11 +2,12 @@ use std::collections::HashSet;
 use std::io::{self};
 use std::ops::Deref;
 use std::path::Path;
-use std::{slice, vec};
+use std::{iter, slice, vec};
 
-use smushclient_plugins::{LoadError, Plugin, PluginIndex};
+use smushclient_plugins::{CursorVec, LoadError, Plugin, PluginIndex};
 
 use super::error::LoadFailure;
+use super::iter::SendIterable;
 use crate::world::WorldConfig;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -36,7 +37,14 @@ impl PluginEngine {
             .position(|plugin| plugin.metadata.is_world_plugin);
     }
 
-    pub fn load_plugins(&mut self, world: &WorldConfig) -> Result<(), Vec<LoadFailure>> {
+    #[allow(clippy::type_complexity)]
+    pub fn all_senders<T: SendIterable>(
+        &self,
+    ) -> iter::Map<slice::Iter<'_, Plugin>, fn(&Plugin) -> &CursorVec<T>> {
+        self.plugins.iter().map(Plugin::senders)
+    }
+
+    pub(crate) fn load_plugins(&mut self, world: &WorldConfig) -> Result<(), Vec<LoadFailure>> {
         self.plugins
             .retain(|plugin| plugin.metadata.is_world_plugin);
         let errors: Vec<LoadFailure> = world
