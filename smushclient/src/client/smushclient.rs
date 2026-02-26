@@ -722,7 +722,7 @@ impl SmushClient {
         option: &LuaStr,
     ) -> Option<Ref<'_, LuaStr>> {
         let caller = self.option_caller(index);
-        Ref::filter_map(self.world.borrow(), |world: &WorldConfig| {
+        Ref::filter_map(self.world.borrow(), |world| {
             world.option_str(caller, option)
         })
         .ok()
@@ -732,7 +732,7 @@ impl SmushClient {
         let caller = self.option_caller(index);
         if let Some(value) = self.world.borrow().option_int(caller, option) {
             OptionValue::Numeric(value)
-        } else if let Ok(value) = Ref::filter_map(self.world.borrow(), |world: &WorldConfig| {
+        } else if let Ok(value) = Ref::filter_map(self.world.borrow(), |world| {
             world.option_str(caller, option)
         }) {
             OptionValue::Borrow(value)
