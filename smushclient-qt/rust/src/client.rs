@@ -133,11 +133,11 @@ impl SmushClientRust {
     }
 
     pub fn get_world(&self) -> WorldRust {
-        WorldRust::from(self.client.world())
+        WorldRust::from(&*self.client.borrow_world())
     }
 
     pub fn connect_to_host(&self, mut socket: Pin<&mut QAbstractSocket>) {
-        let world = self.client.world();
+        let world = self.client.borrow_world();
         if world.use_proxy {
             let mut proxy = QNetworkProxy::default();
             proxy.set_host_name(&QString::from(&world.proxy_server));
@@ -162,8 +162,7 @@ impl SmushClientRust {
     }
 
     pub fn handle_connect(&self, mut socket: Pin<&mut QAbstractSocket>) -> QString {
-        let connect_message = self.client.world().connect_message();
-        match socket.write_all(connect_message.as_bytes()) {
+        match socket.write_all(self.client.borrow_world().connect_message().as_bytes()) {
             Ok(()) => QString::default(),
             Err(e) => QString::from(&e.to_string()),
         }
@@ -175,7 +174,7 @@ impl SmushClientRust {
     }
 
     fn handler<'a>(&'a self, doc: Pin<&'a mut Document>) -> ClientHandler<'a> {
-        let world = self.client.world();
+        let world = self.client.borrow_world();
         ClientHandler {
             doc,
             formatter: &self.formatter,
@@ -224,17 +223,19 @@ impl SmushClientRust {
     }
 
     fn apply_world(&mut self) {
-        self.formatter.apply_world(self.client.world());
+        self.formatter.apply_world(&self.client.borrow_world());
     }
 
     pub fn read(&mut self, mut socket: Pin<&mut QAbstractSocket>, doc: Pin<&mut Document>) -> i64 {
-        let world = self.client.world();
-        let mut handler = ClientHandler {
-            doc,
-            formatter: &self.formatter,
-            carriage_return_clears_line: world.carriage_return_clears_line,
-            no_echo_off: world.no_echo_off,
-            stats: &self.stats,
+        let mut handler = {
+            let world = self.client.borrow_world();
+            ClientHandler {
+                doc,
+                formatter: &self.formatter,
+                carriage_return_clears_line: world.carriage_return_clears_line,
+                no_echo_off: world.no_echo_off,
+                stats: &self.stats,
+            }
         };
         let read_result = self.client.read(&mut socket, &mut self.read_buf);
         handler.doc.begin();
@@ -260,13 +261,15 @@ impl SmushClientRust {
     }
 
     pub fn flush(&mut self, doc: Pin<&mut Document>) {
-        let world = self.client.world();
-        let mut handler = ClientHandler {
-            doc,
-            formatter: &self.formatter,
-            carriage_return_clears_line: world.carriage_return_clears_line,
-            no_echo_off: world.no_echo_off,
-            stats: &self.stats,
+        let mut handler = {
+            let world = self.client.borrow_world();
+            ClientHandler {
+                doc,
+                formatter: &self.formatter,
+                carriage_return_clears_line: world.carriage_return_clears_line,
+                no_echo_off: world.no_echo_off,
+                stats: &self.stats,
+            }
         };
         handler.doc.begin();
 
@@ -275,7 +278,7 @@ impl SmushClientRust {
     }
 
     pub fn handle_alert(&self) -> ffi::ApiCode {
-        let sound = &self.client.world().new_activity_sound;
+        let sound = &self.client.borrow_world().new_activity_sound;
         if sound.is_empty() {
             return ffi::ApiCode::OK;
         }
@@ -335,7 +338,7 @@ impl SmushClientRust {
     }
 
     pub fn start_timers(&self, index: PluginIndex, timekeeper: &Timekeeper) {
-        if !self.client.world().enable_timers {
+        if !self.client.borrow_world().enable_timers {
             return;
         }
         let timer_starts = {
@@ -353,7 +356,7 @@ impl SmushClientRust {
     }
 
     pub fn start_all_timers(&self, timekeeper: &Timekeeper) {
-        if !self.client.world().enable_timers {
+        if !self.client.borrow_world().enable_timers {
             return;
         }
         let mut timer_starts = Vec::new();
@@ -390,7 +393,7 @@ impl SmushClientRust {
     ) -> Result<(), SenderAccessError> {
         let start = {
             let timer = self.client.add_sender(index, timer)?;
-            if !self.client.world().enable_timers {
+            if !self.client.borrow_world().enable_timers {
                 return Ok(());
             }
             self.timers.borrow_mut().start(index, &timer)
@@ -404,7 +407,7 @@ impl SmushClientRust {
     pub fn add_or_replace_timer(&self, index: PluginIndex, timer: Timer, timekeeper: &Timekeeper) {
         let start = {
             let timer = self.client.add_or_replace_sender(index, timer);
-            if !self.client.world().enable_timers {
+            if !self.client.borrow_world().enable_timers {
                 return;
             }
             self.timers.borrow_mut().start(index, &timer)
@@ -421,7 +424,7 @@ impl SmushClientRust {
     ) -> Result<(), ImportError> {
         let world_index = self.world_plugin_index();
         let imported_timers = self.client.import_world_senders::<Timer>(xml)?;
-        if !self.client.world().enable_timers {
+        if !self.client.borrow_world().enable_timers {
             return Ok(());
         }
         let mut timers = self.timers.borrow_mut();
@@ -475,7 +478,7 @@ impl SmushClientRust {
             } else {
                 Err(ffi::ReplaceSenderResult::GroupChanged)
             };
-            if !self.client.world().enable_timers {
+            if !self.client.borrow_world().enable_timers {
                 return result;
             }
             let world_index = self.world_plugin_index();

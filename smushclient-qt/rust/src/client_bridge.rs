@@ -787,7 +787,7 @@ impl ffi::SmushClient {
     }
 
     pub fn command_splitter(&self) -> u8 {
-        let world = self.rust().client.world();
+        let world = self.rust().client.borrow_world();
         if world.enable_command_stack {
             world.command_stack_character
         } else {

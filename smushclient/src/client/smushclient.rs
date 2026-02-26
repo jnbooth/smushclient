@@ -37,12 +37,12 @@ use crate::world::{LogMode, OptionCaller, PersistError, SetOptionError, World, W
 const METAVARIABLES_KEY: &str = "\x01";
 
 pub struct SmushClient {
-    logger: RefCell<Logger>,
     pub(crate) plugins: PluginEngine,
+    logger: RefCell<Logger>,
     supported_tags: FlagSet<Tag>,
     transformer: RefCell<Transformer>,
     variables: RefCell<PluginVariables>,
-    world: WorldConfig,
+    world: RefCell<WorldConfig>,
     audio: AudioSinks,
     buffers: RefCell<(String, String, HashSet<u16>)>,
     info: ClientInfo,
@@ -78,7 +78,7 @@ impl SmushClient {
             supported_tags,
             transformer: RefCell::new(transformer),
             variables: RefCell::default(),
-            world: config,
+            world: RefCell::new(config),
             audio: AudioSinks::try_default().expect("audio initialization error"),
             buffers: RefCell::default(),
             info: ClientInfo::default(),
@@ -123,7 +123,7 @@ impl SmushClient {
     }
 
     fn update_logger(&self) {
-        self.logger.borrow_mut().apply_world(&self.world);
+        self.logger.borrow_mut().apply_world(&self.world.borrow());
     }
 
     fn update_config(&mut self) {
@@ -136,12 +136,12 @@ impl SmushClient {
         TransformerConfig {
             will: self.plugins.supported_protocols(),
             supports: self.supported_tags,
-            ..TransformerConfig::from(&self.world)
+            ..TransformerConfig::from(&*self.world.borrow())
         }
     }
 
-    pub fn world(&self) -> &WorldConfig {
-        &self.world
+    pub fn borrow_world(&self) -> Ref<'_, WorldConfig> {
+        self.world.borrow()
     }
 
     /// # Panics
@@ -155,11 +155,12 @@ impl SmushClient {
 
     pub fn save_world<W: Write>(&self, writer: W) -> Result<(), PersistError> {
         let world_plugin = self.world_plugin();
+        let config = self.world.borrow();
         let aliases = world_plugin.aliases.borrow();
         let timers = world_plugin.timers.borrow();
         let triggers = world_plugin.triggers.borrow();
         World {
-            config: Cow::Borrowed(&self.world),
+            config: Cow::Borrowed(&config),
             aliases: Cow::Borrowed(&aliases),
             timers: Cow::Borrowed(&timers),
             triggers: Cow::Borrowed(&triggers),
@@ -168,14 +169,17 @@ impl SmushClient {
     }
 
     pub fn update_world(&mut self, mut world: WorldConfig) -> bool {
-        let plugins = mem::take(&mut self.world.plugins);
-        if self.world == world {
-            self.world.plugins = plugins;
-            return false;
+        {
+            let mut world_mut = self.world.borrow_mut();
+            let plugins = mem::take(&mut world_mut.plugins);
+            if *world_mut == world {
+                world_mut.plugins = plugins;
+                return false;
+            }
+            world.plugins = plugins;
+            *world_mut = world;
+            self.plugins.set_world_plugin(world_mut.world_plugin());
         }
-        world.plugins = plugins;
-        self.world = world;
-        self.plugins.set_world_plugin(self.world.world_plugin());
         self.update_config();
         self.update_logger();
         true
@@ -191,9 +195,9 @@ impl SmushClient {
 
     pub fn open_log(&self, mut path: String, mode: Option<LogMode>) -> io::Result<()> {
         if path.is_empty() {
-            path = self.world.log_path();
+            path = self.world.borrow().log_path();
         }
-        let mode = mode.unwrap_or(self.world.log_mode);
+        let mode = mode.unwrap_or_else(|| self.world.borrow().log_mode);
         self.logger.borrow_mut().open(path, mode)
     }
 
@@ -377,7 +381,7 @@ impl SmushClient {
     }
 
     pub fn load_plugins(&mut self) -> Result<(), Vec<LoadFailure>> {
-        self.plugins.load_plugins(&self.world)?;
+        self.plugins.load_plugins(&self.world.borrow())?;
         self.update_config();
         Ok(())
     }
@@ -399,7 +403,10 @@ impl SmushClient {
     pub fn remove_plugin(&mut self, index: PluginIndex) -> Option<Plugin> {
         let plugin = self.plugins.remove_plugin(index)?;
         let plugin_path = plugin.metadata.path.as_path();
-        self.world.plugins.retain(|path| path != plugin_path);
+        self.world
+            .borrow_mut()
+            .plugins
+            .retain(|path| path != plugin_path);
         Some(plugin)
     }
 
@@ -690,7 +697,7 @@ impl SmushClient {
     }
 
     pub fn export_numpad_key(&self, name: &str) -> Result<String, XmlSerError> {
-        self.world.numpad_shortcuts.export_key(name)
+        self.world.borrow().numpad_shortcuts.export_key(name)
     }
 
     pub fn export_variable(&self, index: PluginIndex, name: &str) -> Result<String, XmlSerError> {
@@ -700,20 +707,29 @@ impl SmushClient {
 
     pub fn world_option(&self, index: PluginIndex, option: &LuaStr) -> Option<i64> {
         let caller = self.option_caller(index);
-        self.world.option_int(caller, option)
+        self.world.borrow().option_int(caller, option)
     }
 
-    pub fn world_alpha_option(&self, index: PluginIndex, option: &LuaStr) -> Option<&LuaStr> {
+    pub fn world_alpha_option(
+        &self,
+        index: PluginIndex,
+        option: &LuaStr,
+    ) -> Option<Ref<'_, LuaStr>> {
         let caller = self.option_caller(index);
-        self.world.option_str(caller, option)
+        Ref::filter_map(self.world.borrow(), |world: &WorldConfig| {
+            world.option_str(caller, option)
+        })
+        .ok()
     }
 
     pub fn world_variant_option(&self, index: PluginIndex, option: &LuaStr) -> OptionValue<'_> {
         let caller = self.option_caller(index);
-        if let Some(value) = self.world.option_int(caller, option) {
+        if let Some(value) = self.world.borrow().option_int(caller, option) {
             OptionValue::Numeric(value)
-        } else if let Some(value) = self.world.option_str(caller, option) {
-            OptionValue::Alpha(value)
+        } else if let Ok(value) = Ref::filter_map(self.world.borrow(), |world: &WorldConfig| {
+            world.option_str(caller, option)
+        }) {
+            OptionValue::Borrow(value)
         } else {
             OptionValue::Null
         }
@@ -726,7 +742,9 @@ impl SmushClient {
         value: i64,
     ) -> Result<(), SetOptionError> {
         let caller = self.option_caller(index);
-        self.world.set_option_int(caller, option, value)?;
+        self.world
+            .borrow_mut()
+            .set_option_int(caller, option, value)?;
         match option {
             b"connect_method"
             | b"convert_ga_to_newline"
@@ -751,7 +769,9 @@ impl SmushClient {
         value: LuaString,
     ) -> Result<(), SetOptionError> {
         let caller = self.option_caller(index);
-        self.world.set_option_str(caller, option, value)?;
+        self.world
+            .borrow_mut()
+            .set_option_str(caller, option, value)?;
         if option.starts_with(b"log_") {
             self.update_logger();
             return Ok(());
@@ -789,7 +809,7 @@ impl SmushClient {
         source: CommandSource,
         handler: &mut H,
     ) -> AliasOutcome {
-        let mut effects = AliasEffects::new(&self.world, source);
+        let mut effects = AliasEffects::new(&self.world.borrow(), source);
         self.process_matches::<Alias, _>(input, &[], handler, &mut effects);
         effects.into()
     }
@@ -798,6 +818,7 @@ impl SmushClient {
     where
         H: Handler,
     {
+        let enable_scripts = self.world.borrow().enable_scripts;
         let plugin = &self.plugins[plugin_index];
         let aliases = &plugin.aliases;
         let mut buffers = self.buffers.borrow_mut();
@@ -807,7 +828,7 @@ impl SmushClient {
                 Some(alias) if alias.enabled => alias,
                 _ => return false,
             };
-            let enable_scripts = !plugin.metadata.is_world_plugin || self.world.enable_scripts;
+            let enable_scripts = !plugin.metadata.is_world_plugin || enable_scripts;
             let text = alias.expand_text_captureless().into_owned();
             if alias.send_to == SendTarget::Variable {
                 self.variables.borrow_mut().set_variable(
@@ -899,7 +920,7 @@ impl SmushClient {
         handler: &mut H,
         effects: &mut T::Effects,
     ) {
-        if !T::enabled(&self.world) {
+        if !T::enabled(&self.world.borrow()) {
             return;
         }
         let mut buffers = self.buffers.borrow_mut();
@@ -912,7 +933,8 @@ impl SmushClient {
             if plugin.disabled.get() {
                 continue;
             }
-            let enable_scripts = !plugin.metadata.is_world_plugin || self.world.enable_scripts;
+            let enable_scripts =
+                !plugin.metadata.is_world_plugin || self.world.borrow().enable_scripts;
             let senders = plugin.senders::<T>();
             for sender in senders.scan() {
                 let mut matched = false;
@@ -1013,7 +1035,7 @@ impl SmushClient {
                 }
                 let sender = sender.borrow();
                 if let Some(sound) = sender.sound()
-                    && self.world.enable_trigger_sounds
+                    && self.world.borrow().enable_trigger_sounds
                     && let Ok(file) = File::open(sound)
                     && let Ok(decoder) = Decoder::try_from(file)
                 {
@@ -1036,8 +1058,9 @@ impl SmushClient {
     }
 
     fn update_world_plugins(&mut self) {
-        self.world.plugins.clear();
-        self.world.plugins.extend(
+        let mut world_mut = self.world.borrow_mut();
+        world_mut.plugins.clear();
+        world_mut.plugins.extend(
             self.plugins
                 .iter()
                 .filter(|plugin| !plugin.metadata.is_world_plugin)
@@ -1055,7 +1078,7 @@ impl SmushClient {
 
     pub fn get_info<V: InfoVisitor>(&self, info_type: i64) -> V::Output {
         let info = &self.info;
-        let world = &self.world;
+        let world = self.world.borrow();
         match info_type {
             1 => V::visit(&world.site),
             2 => V::visit(&world.name),

@@ -59,7 +59,7 @@ impl RustMudBridge {
     }
 
     pub fn world(&self) -> WorldConfig {
-        self.client.world().clone()
+        self.client.borrow_world().clone()
     }
 
     pub fn set_world(&mut self, world: WorldConfig) -> bool {
@@ -80,10 +80,12 @@ impl RustMudBridge {
     }
 
     pub async fn connect(&mut self) -> Result<(), String> {
-        let world = self.client.world();
-        let stream = TcpStream::connect((world.site.clone(), world.port))
-            .await
-            .str()?;
+        let stream = {
+            let world = self.client.borrow_world();
+            TcpStream::connect((world.site.clone(), world.port))
+        }
+        .await
+        .str()?;
         self.stream = Some(stream);
         Ok(())
     }
