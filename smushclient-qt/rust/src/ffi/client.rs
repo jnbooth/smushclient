@@ -88,9 +88,18 @@ pub mod ffi {
     }
 
     enum SenderKind {
+        Trigger,
         Alias,
         Timer,
+    }
+
+    enum ExportKind {
         Trigger,
+        Alias,
+        Timer,
+        Macro,
+        Variable,
+        Keypad,
     }
 
     #[auto_cxx_name]
@@ -222,6 +231,12 @@ pub mod ffi {
             timekeeper: &Timekeeper,
         ) -> i32;
         fn replace_world_trigger(self: &SmushClient, index: usize, trigger: &Trigger) -> i32;
+        pub fn try_export_xml(
+            self: &SmushClient,
+            kind: ExportKind,
+            index: usize,
+            name: StringView,
+        ) -> Result<QString>;
         fn try_export_world_senders(self: &SmushClient, kind: SenderKind) -> Result<QString>;
         fn try_import_world_aliases(self: &SmushClient, xml: &QString) -> Result<RegexParse>;
         fn try_import_world_timers(

@@ -21,6 +21,10 @@ pub use error::{PersistError, SetOptionError};
 mod escaping;
 pub use escaping::{Escaped, EscapedBrackets, LogBrackets};
 
+mod numpad;
+pub(crate) use numpad::XmlKey;
+pub use numpad::{Numpad, NumpadMapping};
+
 mod option;
 pub use option::OptionCaller;
 

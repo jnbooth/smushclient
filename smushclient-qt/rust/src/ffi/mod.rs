@@ -15,8 +15,8 @@ pub use bytes_view::BytesView;
 
 mod client;
 pub use client::ffi::{
-    AliasMenuItem, CommandSource, PluginPack, QAbstractSocket, ReplaceSenderResult, SenderKind,
-    SmushClient, StyledSpan,
+    AliasMenuItem, CommandSource, ExportKind, PluginPack, QAbstractSocket, ReplaceSenderResult,
+    SenderKind, SmushClient, StyledSpan,
 };
 
 mod document;

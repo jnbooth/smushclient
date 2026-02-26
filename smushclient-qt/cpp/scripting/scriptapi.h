@@ -17,6 +17,7 @@
 
 #define SCRIPTING_VERSION "5.07"
 
+enum class ExportKind : uint8_t;
 class ImageFilter;
 class ImageWindow;
 class MudScrollBar;
@@ -142,6 +143,9 @@ public:
   size_t EnableTriggerGroup(size_t plugin,
                             std::string_view group,
                             bool enabled) const noexcept;
+  QString ExportXML(size_t plugin,
+                    ExportKind kind,
+                    std::string_view name) const noexcept;
   ApiCode FlushLog() const;
   QVariant GetAliasOption(size_t plugin,
                           std::string_view label,

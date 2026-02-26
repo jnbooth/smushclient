@@ -1,8 +1,10 @@
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt;
 use std::io::{Read, Write};
 
 use serde::{Deserialize, Serialize};
+use smushclient_plugins::XmlVec;
 
 use crate::world::PersistError;
 
@@ -84,5 +86,46 @@ impl PluginVariables {
             2 => postcard::from_bytes(bytes).map_err(Into::into),
             _ => Err(PersistError::Invalid),
         }
+    }
+
+    pub fn export_variable(
+        &self,
+        plugin_id: &str,
+        name: &str,
+    ) -> Result<String, quick_xml::SeError> {
+        let Some(value) = self.get_variable(plugin_id, name.as_bytes()) else {
+            return Ok(String::new());
+        };
+        quick_xml::se::to_string(&XmlVariable {
+            name: name.into(),
+            value: String::from_utf8_lossy(value),
+        })
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename = "variable")]
+pub(crate) struct XmlVariable<'a> {
+    #[serde(rename = "@name", borrow)]
+    pub name: Cow<'a, str>,
+    #[serde(rename = "$text", borrow)]
+    pub value: Cow<'a, str>,
+}
+
+impl From<XmlVec<XmlVariable<'_>>> for PluginVariables {
+    fn from(value: XmlVec<XmlVariable>) -> Self {
+        let worldvars = value
+            .elements
+            .into_iter()
+            .map(|var| {
+                (
+                    var.name.into_owned().into_bytes(),
+                    var.value.into_owned().into_bytes(),
+                )
+            })
+            .collect();
+        let mut vars = PluginVariables::default();
+        vars.0.insert(String::new(), worldvars);
+        vars
     }
 }

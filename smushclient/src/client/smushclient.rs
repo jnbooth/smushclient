@@ -654,6 +654,15 @@ impl SmushClient {
         self.world.replace_sender(index, sender)
     }
 
+    pub fn export_world_senders<T: SendIterable>(&self) -> Result<String, XmlSerError> {
+        T::list_to_xml_string(
+            T::from_world(&self.world)
+                .borrow()
+                .iter()
+                .filter(|sender| !sender.as_ref().temporary),
+        )
+    }
+
     pub fn import_world_senders<T: SendIterable>(
         &self,
         xml: &str,
@@ -662,13 +671,24 @@ impl SmushClient {
         Ok(self.world.import_senders(&mut senders))
     }
 
-    pub fn export_world_senders<T: SendIterable>(&self) -> Result<String, XmlSerError> {
-        T::list_to_xml_string(
-            T::from_world(&self.world)
-                .borrow()
-                .iter()
-                .filter(|sender| !sender.as_ref().temporary),
-        )
+    pub fn export_sender<T: SendIterable>(
+        &self,
+        index: PluginIndex,
+        name: &str,
+    ) -> Result<String, XmlSerError> {
+        let Some(sender) = self.borrow_sender::<T>(index, name) else {
+            return Ok(String::new());
+        };
+        sender.to_xml_string()
+    }
+
+    pub fn export_numpad_key(&self, name: &str) -> Result<String, XmlSerError> {
+        self.world.numpad_shortcuts.export_key(name)
+    }
+
+    pub fn export_variable(&self, index: PluginIndex, name: &str) -> Result<String, XmlSerError> {
+        let plugin_id = &self.plugins[index].metadata.id;
+        self.variables.borrow().export_variable(plugin_id, name)
     }
 
     pub fn world_option(&self, index: PluginIndex, option: &LuaStr) -> Option<i64> {

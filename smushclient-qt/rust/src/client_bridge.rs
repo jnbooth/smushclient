@@ -422,6 +422,28 @@ impl ffi::SmushClient {
         self.rust().replace_world_trigger(index, trigger).code()
     }
 
+    pub fn try_export_xml(
+        &self,
+        kind: ffi::ExportKind,
+        index: PluginIndex,
+        name: StringView<'_>,
+    ) -> Result<QString, XmlSerError> {
+        let Ok(name) = name.to_str() else {
+            return Ok(QString::default());
+        };
+        let client = &self.rust().client;
+        let xml = match kind {
+            ffi::ExportKind::Trigger => client.export_sender::<Trigger>(index, name),
+            ffi::ExportKind::Alias => client.export_sender::<Alias>(index, name),
+            ffi::ExportKind::Timer => client.export_sender::<Timer>(index, name),
+            // ffi::ExportKind::Macro =>
+            ffi::ExportKind::Variable => client.export_variable(index, name),
+            ffi::ExportKind::Keypad => client.export_numpad_key(name),
+            _ => return Ok(QString::default()),
+        }?;
+        Ok(QString::from(&xml))
+    }
+
     pub fn try_export_world_senders(&self, kind: SenderKind) -> Result<QString, XmlSerError> {
         let client = &self.rust().client;
         let xml = match kind {

@@ -7,8 +7,10 @@ use serde::Deserialize;
 use smushclient_plugins::{Alias, ImportError, RegexError, Timer, Trigger, XmlIterable, XmlVec};
 use uuid::Uuid;
 
-use crate::client::PluginVariables;
-use crate::world::{AutoConnect, LogFormat, LogMode, MxpDebugLevel, ScriptRecompile, World};
+use crate::client::{PluginVariables, XmlVariable};
+use crate::world::{
+    AutoConnect, LogFormat, LogMode, MxpDebugLevel, ScriptRecompile, World, XmlKey,
+};
 
 mod bool_serde {
     pub use serde_this_or_that::as_bool as deserialize;
@@ -17,11 +19,17 @@ mod bool_serde {
 mod color;
 use color::Colours;
 
-mod types;
-use types::{Include, Key, Variable};
-
 mod xml_enum;
 use xml_enum::XmlEnum;
+
+#[derive(Debug, Deserialize)]
+#[serde(rename = "include")]
+pub(crate) struct XmlInclude {
+    #[serde(rename = "@name")]
+    pub name: String,
+    #[serde(rename = "@plugin", with = "bool_serde", default)]
+    pub plugin: bool,
+}
 
 #[derive(Debug, Default, Deserialize)]
 #[serde(rename = "world", default)]
@@ -183,11 +191,11 @@ struct MuClient<'a> {
     #[serde(borrow)]
     pub timers: XmlVec<<Timer as XmlIterable>::Xml<'a>>,
     // pub macros: XmlVec<Macro>,
-    pub variables: XmlVec<Variable>,
+    pub variables: XmlVec<XmlVariable<'a>>,
     pub colours: Colours,
-    pub keypad: XmlVec<Key>,
+    pub keypad: XmlVec<XmlKey<'a>>,
     // pub printing: Printing,
-    pub include: Vec<Include>,
+    pub include: Vec<XmlInclude>,
 }
 
 #[derive(Debug)]

@@ -276,6 +276,18 @@ ScriptApi::EnableTriggerGroup(size_t plugin,
     SenderKind::Trigger, plugin, group, enabled);
 }
 
+QString
+ScriptApi::ExportXML(size_t plugin,
+                     ExportKind kind,
+                     std::string_view name) const noexcept
+{
+  try {
+    return client.tryExportXml(kind, plugin, name);
+  } catch (const rust::Error& error) {
+    return QString::fromUtf8(error.what());
+  }
+}
+
 QVariant
 ScriptApi::GetAliasOption(size_t plugin,
                           string_view label,

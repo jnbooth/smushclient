@@ -3,6 +3,7 @@
 #include "../qlua.h"
 #include "../scriptapi.h"
 #include "errors.h"
+#include "smushclient_qt/src/ffi/client.cxxqt.h"
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QPointer>
 extern "C"
@@ -24,6 +25,7 @@ using qlua::pushQVariant;
 DECLARE_ENUM_BOUNDS(Qt::Orientation, Horizontal, Vertical);
 DECLARE_ENUM_BOUNDS(ffi::filter::Directions, Both, Vertical);
 DECLARE_ENUM_BOUNDS(SendTarget, World, ScriptAfterOmit);
+DECLARE_ENUM_BOUNDS(ExportKind, Trigger, Keypad);
 
 namespace {
 const char* const indexRegKey = "smushclient.plugin";
@@ -1294,6 +1296,21 @@ L_EnableTriggerGroup(lua_State* L)
 }
 
 int
+L_ExportXML(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  const optional<ExportKind> kind = qlua::getEnum<ExportKind>(L, 1);
+  const string_view name = qlua::getString(L, 2);
+  if (!kind) {
+    push(L, "");
+    return 1;
+  }
+  push(L, getApi(L).ExportXML(getPluginIndex(L), *kind, name));
+  return 1;
+}
+
+int
 L_GetAliasOption(lua_State* L)
 {
   BENCHMARK
@@ -2404,6 +2421,7 @@ static const struct luaL_Reg worldlib[] =
     { "EnableTimerGroup", L_EnableTimerGroup },
     { "EnableTrigger", L_EnableTrigger },
     { "EnableTriggerGroup", L_EnableTriggerGroup },
+    { "ExportXML", L_ExportXML },
     { "GetAliasOption", L_GetAliasOption },
     { "GetTimerOption", L_GetTimerOption },
     { "GetTriggerOption", L_GetTriggerOption },
