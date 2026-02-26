@@ -1,6 +1,5 @@
 #include "filter.h"
 #include "plugincallback.h"
-#include "smushclient_qt/src/ffi/client.cxxqt.h"
 extern "C"
 {
 #include "lua.h"
@@ -11,10 +10,11 @@ CallbackFilter::scan(lua_State* L)
 {
   static QByteArray emptyByteArray;
   const static OnPluginBroadcast onBroadcast(0, "", "", "");
-  const static OnPluginCommand onCommand(CommandSource::User, emptyByteArray);
+  const static OnPluginCommand onCommand(ActionSource::UserTyping,
+                                         emptyByteArray);
   const static OnPluginCommandChanged onCommandChanged;
   const static OnPluginClose onClose;
-  const static OnPluginCommandEntered onCommandEntered(CommandSource::User,
+  const static OnPluginCommandEntered onCommandEntered(ActionSource::UserTyping,
                                                        emptyByteArray);
   const static OnPluginConnect onConnect;
   const static OnPluginDisconnect onDisconnect;

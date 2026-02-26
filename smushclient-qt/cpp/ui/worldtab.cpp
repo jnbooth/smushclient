@@ -384,6 +384,50 @@ WorldTab::saveWorldAsNew()
   return filePath;
 }
 
+bool
+WorldTab::sendCommand(const QString& command, CommandSource source)
+{
+  const AliasOutcomes aliasOutcome = client.alias(command, source, *document);
+
+  if (aliasOutcome.testFlag(AliasOutcome::Remember)) {
+    ui->input->remember(command);
+  }
+
+  if (!aliasOutcome.testFlag(AliasOutcome::Send)) {
+    return true;
+  }
+
+  SendFlags flags = SendFlag::Log;
+  if (aliasOutcome.testFlag(AliasOutcome::Echo)) {
+    flags |= SendFlag::Echo;
+  }
+
+  const ActionSource actionSource = source >= CommandSource::Hotkey
+                                      ? ActionSource::UserTyping
+                                      : ActionSource::UserKeypad;
+
+  QByteArray bytes = command.toUtf8();
+  OnPluginCommand onCommand(actionSource, bytes);
+  api->sendCallback(onCommand);
+  if (onCommand.discarded()) {
+    return true;
+  }
+  OnPluginCommandEntered onCommandEntered(actionSource, bytes);
+  api->sendCallback(onCommandEntered);
+  if (bytes.size() == 1) {
+    switch (bytes.front()) {
+      case '\t':
+        return true;
+      case '\r':
+        return false;
+      default:
+        break;
+    }
+  }
+  api->sendToWorld(bytes, command, flags);
+  return true;
+}
+
 const QHash<QString, QString>&
 WorldTab::serverStatus() const
 {
@@ -794,46 +838,6 @@ WorldTab::saveWorldAndState(const QString& path)
   return true;
 }
 
-bool
-WorldTab::sendCommand(const QString& command, CommandSource source)
-{
-  const AliasOutcomes aliasOutcome = client.alias(command, source, *document);
-
-  if (aliasOutcome.testFlag(AliasOutcome::Remember)) {
-    ui->input->remember(command);
-  }
-
-  if (!aliasOutcome.testFlag(AliasOutcome::Send)) {
-    return true;
-  }
-
-  SendFlags flags = SendFlag::Log;
-  if (aliasOutcome.testFlag(AliasOutcome::Echo)) {
-    flags |= SendFlag::Echo;
-  }
-
-  QByteArray bytes = command.toUtf8();
-  OnPluginCommand onCommand(source, bytes);
-  api->sendCallback(onCommand);
-  if (onCommand.discarded()) {
-    return true;
-  }
-  OnPluginCommandEntered onCommandEntered(source, bytes);
-  api->sendCallback(onCommandEntered);
-  if (bytes.size() == 1) {
-    switch (bytes.front()) {
-      case '\t':
-        return true;
-      case '\r':
-        return false;
-      default:
-        break;
-    }
-  }
-  api->sendToWorld(bytes, command, flags);
-  return true;
-}
-
 void
 WorldTab::setupWorldScriptWatcher()
 {
@@ -1129,7 +1133,9 @@ WorldTab::on_output_customContextMenuRequested(const QPoint& pos)
   if (chosen == nullptr) {
     return;
   }
+  const ActionSource oldSource = api->setSource(ActionSource::UserMenuAction);
   api->sendToWorld(chosen->data().toString(), SendFlag::Echo | SendFlag::Log);
+  api->setSource(oldSource);
 }
 
 void

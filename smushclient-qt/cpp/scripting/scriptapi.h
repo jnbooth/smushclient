@@ -143,6 +143,7 @@ public:
   size_t EnableTriggerGroup(size_t plugin,
                             std::string_view group,
                             bool enabled) const noexcept;
+  ApiCode Execute(const QString& command) const noexcept;
   QString ExportXML(size_t plugin,
                     ExportKind kind,
                     std::string_view name) const noexcept;

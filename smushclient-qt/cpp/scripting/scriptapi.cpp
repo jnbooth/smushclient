@@ -86,8 +86,6 @@ ScriptApi::handleSendRequest(const SendRequest& request)
   switch (request.sendTo) {
     case SendTarget::World:
     case SendTarget::WorldDelay:
-    case SendTarget::Execute:
-    case SendTarget::Speedwalk:
     case SendTarget::WorldImmediate: {
       SendFlags flags;
       if (request.echo) {
@@ -118,14 +116,19 @@ ScriptApi::handleSendRequest(const SendRequest& request)
     case SendTarget::NotepadReplace:
       notepads.pad(request.destination)->setText(request.text);
       return;
-    case SendTarget::Log:
-    case SendTarget::Variable:
+    case SendTarget::Execute:
+      tab.sendCommand(request.text, CommandSource::Execute);
       return;
     case SendTarget::Script:
-    case SendTarget::ScriptAfterOmit:
+    case SendTarget::ScriptAfterOmit: {
       const QByteArray utf8 = request.text.toUtf8();
       runScript(
         request.plugin, string_view(utf8.data(), utf8.size()), utf8.data());
+      return;
+    }
+    case SendTarget::Log:
+    case SendTarget::Variable:
+    case SendTarget::Speedwalk:
       return;
   }
 }

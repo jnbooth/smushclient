@@ -3,7 +3,6 @@
 #include "key.h"
 
 struct lua_State;
-enum class CommandSource : uint8_t;
 
 #define CALLBACK(idNumber, nameString, sourceAction)                           \
   static const unsigned int ID = 1 << (idNumber);                              \
@@ -39,12 +38,6 @@ public:
   virtual int pushArguments(lua_State* /*L*/) const { return 0; }
   virtual bool findCallback(lua_State* L) const = 0;
   virtual void collectReturned(lua_State* /*L*/) {}
-
-  static constexpr ActionSource commandAction(CommandSource source) noexcept
-  {
-    return static_cast<bool>(source) ? ActionSource::UserTyping
-                                     : ActionSource::UserKeypad;
-  }
 };
 
 class DynamicPluginCallback : public PluginCallback
@@ -125,17 +118,17 @@ private:
 class OnPluginCommand : public DiscardCallback
 {
 public:
-  CALLBACK(1, "OnPluginCommand", commandAction(commandSource))
-  constexpr OnPluginCommand(CommandSource commandSource,
+  CALLBACK(1, "OnPluginCommand", actionSource)
+  constexpr OnPluginCommand(ActionSource actionSource,
                             const QByteArray& text) noexcept
-    : commandSource(commandSource)
+    : actionSource(actionSource)
     , text(text)
   {
   }
   int pushArguments(lua_State* L) const override;
 
 private:
-  CommandSource commandSource;
+  ActionSource actionSource;
   const QByteArray& text;
 };
 
@@ -154,16 +147,16 @@ public:
 class OnPluginCommandEntered : public ModifyTextCallback
 {
 public:
-  CALLBACK(4, "OnPluginCommandEntered", commandAction(commandSource))
-  constexpr OnPluginCommandEntered(CommandSource commandSource,
+  CALLBACK(4, "OnPluginCommandEntered", actionSource)
+  constexpr OnPluginCommandEntered(ActionSource actionSource,
                                    QByteArray& text) noexcept
     : ModifyTextCallback(text)
-    , commandSource(commandSource)
+    , actionSource(actionSource)
   {
   }
 
 private:
-  CommandSource commandSource;
+  ActionSource actionSource;
 };
 
 class OnPluginConnect : public NamedPluginCallback

@@ -73,7 +73,14 @@ impl_convert_enum!(
     ScriptAfterOmit,
 );
 
-impl_convert_enum!(ffi::CommandSource, CommandSource, Hotkey, Link, User);
+impl_convert_enum!(
+    ffi::CommandSource,
+    CommandSource,
+    User,
+    Hotkey,
+    Link,
+    Execute
+);
 
 impl Default for ffi::SendTarget {
     fn default() -> Self {

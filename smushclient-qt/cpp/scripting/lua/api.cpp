@@ -377,6 +377,14 @@ L_WindowInfo(lua_State* L)
 // input
 
 int
+L_Execute(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  return returnCode(L, getApi(L).Execute(qlua::getQString(L, 1)));
+}
+
+int
 L_LogSend(lua_State* L)
 {
   BENCHMARK
@@ -2331,6 +2339,7 @@ static const struct luaL_Reg worldlib[] =
     { "WindowImageInfo", L_WindowImageInfo },
     { "WindowInfo", L_WindowInfo },
     // input
+    { "Execute", L_Execute },
     { "LogSend", L_LogSend },
     { "Send", L_Send },
     { "SendImmediate", L_SendImmediate },

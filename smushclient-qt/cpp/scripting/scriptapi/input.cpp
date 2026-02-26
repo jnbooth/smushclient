@@ -7,6 +7,16 @@ using std::string_view;
 // Public methods
 
 ApiCode
+ScriptApi::Execute(const QString& command) const noexcept
+{
+  if (!tab.isConnected()) {
+    return ApiCode::WorldClosed;
+  }
+  tab.sendCommand(command, CommandSource::Execute);
+  return ApiCode::OK;
+}
+
+ApiCode
 ScriptApi::LogSend(QByteArray& bytes)
 {
   return sendToWorld(bytes, SendFlag::Echo | SendFlag::Log);

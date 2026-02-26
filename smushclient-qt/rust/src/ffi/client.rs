@@ -74,6 +74,7 @@ pub mod ffi {
 
     enum CommandSource {
         User,
+        Execute,
         Hotkey,
         Link,
     }

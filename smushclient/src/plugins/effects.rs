@@ -11,6 +11,7 @@ pub enum CommandSource {
     User,
     Hotkey,
     Link,
+    Execute,
 }
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -36,6 +37,11 @@ impl AliasEffects {
             CommandSource::Link => Self {
                 echo: world.echo_hyperlink_in_output_window,
                 omit_from_command_history: !world.hyperlink_adds_to_command_history,
+                matched: false,
+            },
+            CommandSource::Execute => Self {
+                echo: true,
+                omit_from_command_history: true,
                 matched: false,
             },
         }

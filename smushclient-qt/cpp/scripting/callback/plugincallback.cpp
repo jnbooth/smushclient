@@ -1,6 +1,5 @@
 #include "plugincallback.h"
 #include "../qlua.h"
-#include "smushclient_qt/src/ffi/client.cxxqt.h"
 extern "C"
 {
 #include "lua.h"

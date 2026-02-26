@@ -60,6 +60,7 @@ public:
   void resetAllTimers() const;
   QString saveWorld();
   QString saveWorldAsNew();
+  bool sendCommand(const QString& command, CommandSource source);
   const QHash<QString, QString>& serverStatus() const;
   void setActive(bool active);
   void setOnDragMove(const Plugin& plugin,
@@ -116,7 +117,6 @@ private:
   bool restoreHistory();
   bool saveHistory() const;
   bool saveWorldAndState(const QString& filePath);
-  bool sendCommand(const QString& command, CommandSource source);
   void setupWorldScriptWatcher();
   void showAliasMenu();
   void updateWorldScript();
