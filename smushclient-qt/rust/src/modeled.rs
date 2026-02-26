@@ -3,8 +3,10 @@ use std::ptr;
 
 use cxx_qt::{CxxQtType, Initialize};
 use cxx_qt_lib::{QDate, QSet, QString, QVariant};
-use smushclient::{SendIterable, SenderMap, SmushClient};
-use smushclient_plugins::{Alias, CursorVec, Plugin, PluginIndex, PluginMetadata, Timer, Trigger};
+use smushclient::{SenderMap, SmushClient};
+use smushclient_plugins::{
+    Alias, CursorVec, Plugin, PluginIndex, PluginMetadata, SendIterable, Timer, Trigger,
+};
 
 use crate::convert::impl_constructor;
 use crate::ffi;

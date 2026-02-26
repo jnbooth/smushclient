@@ -19,7 +19,7 @@ use crate::error::{LoadError, SenderAccessError};
 use crate::send::Sender;
 use crate::send::{Alias, Timer, Trigger, XmlAlias, XmlTimer, XmlTrigger};
 use crate::sort_on_drop::SortOnDrop;
-use crate::xml::XmlVec;
+use crate::xml::{XmlIterable, XmlVec};
 
 pub type PluginIndex = usize;
 
@@ -74,7 +74,9 @@ mod private {
     pub trait Sealed {}
 }
 
-pub trait PluginItem: AsRef<Sender> + AsMut<Sender> + Eq + Ord + Sized + private::Sealed {
+pub trait SendIterable:
+    XmlIterable + AsRef<Sender> + AsMut<Sender> + Eq + Ord + Sized + private::Sealed
+{
     fn for_plugin(plugin: &Plugin) -> &CursorVec<Self>;
 
     fn assert_unique_label(&self, senders: &CursorVec<Self>) -> Result<(), usize> {
@@ -90,28 +92,28 @@ pub trait PluginItem: AsRef<Sender> + AsMut<Sender> + Eq + Ord + Sized + private
 }
 
 impl private::Sealed for Alias {}
-impl PluginItem for Alias {
+impl SendIterable for Alias {
     fn for_plugin(plugin: &Plugin) -> &CursorVec<Self> {
         &plugin.aliases
     }
 }
 
 impl private::Sealed for Timer {}
-impl PluginItem for Timer {
+impl SendIterable for Timer {
     fn for_plugin(plugin: &Plugin) -> &CursorVec<Self> {
         &plugin.timers
     }
 }
 
 impl private::Sealed for Trigger {}
-impl PluginItem for Trigger {
+impl SendIterable for Trigger {
     fn for_plugin(plugin: &Plugin) -> &CursorVec<Self> {
         &plugin.triggers
     }
 }
 
 impl Plugin {
-    pub fn senders<T: PluginItem>(&self) -> &CursorVec<T> {
+    pub fn senders<T: SendIterable>(&self) -> &CursorVec<T> {
         T::for_plugin(self)
     }
 
@@ -158,13 +160,13 @@ impl Plugin {
         self.triggers.retain(|sender| !sender.temporary);
     }
 
-    pub fn add_sender<T: PluginItem>(&self, sender: T) -> Result<Ref<'_, T>, usize> {
+    pub fn add_sender<T: SendIterable>(&self, sender: T) -> Result<Ref<'_, T>, usize> {
         let senders = self.senders::<T>();
         sender.assert_unique_label(senders)?;
         Ok(senders.insert(sender))
     }
 
-    pub fn replace_sender<T: PluginItem>(
+    pub fn replace_sender<T: SendIterable>(
         &self,
         index: usize,
         sender: T,
@@ -181,7 +183,7 @@ impl Plugin {
         Ok(senders.replace(index, sender))
     }
 
-    pub fn import_senders<T: PluginItem>(&self, imported: &mut Vec<T>) -> SortOnDrop<'_, T> {
+    pub fn import_senders<T: SendIterable>(&self, imported: &mut Vec<T>) -> SortOnDrop<'_, T> {
         let mut senders = self.senders::<T>().borrow_mut();
         let senders_len = senders.len();
         let need_relabeling = !imported

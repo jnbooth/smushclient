@@ -4,10 +4,9 @@ use std::ops::Deref;
 use std::path::Path;
 use std::{iter, slice, vec};
 
-use smushclient_plugins::{CursorVec, LoadError, Plugin, PluginIndex};
+use smushclient_plugins::{CursorVec, LoadError, Plugin, PluginIndex, SendIterable};
 
 use super::error::LoadFailure;
-use super::iter::SendIterable;
 use crate::world::WorldConfig;
 
 #[derive(Clone, Debug, PartialEq, Eq)]

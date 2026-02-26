@@ -5,10 +5,9 @@ use std::pin::Pin;
 use cxx_qt::CxxQtType;
 use cxx_qt_io::QAbstractSocket;
 use cxx_qt_lib::{QString, QStringList, QVariant};
-use smushclient::SendIterable;
 use smushclient::world::{LogMode, PersistError};
 use smushclient_plugins::{
-    Alias, ImportError, LoadError, PluginIndex, Timer, Trigger, XmlSerError,
+    Alias, ImportError, LoadError, PluginIndex, SendIterable, Timer, Trigger, XmlSerError,
 };
 
 use crate::convert::Convert;

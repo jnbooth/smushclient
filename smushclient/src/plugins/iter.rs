@@ -1,36 +1,15 @@
 use std::num::NonZero;
 
-use smushclient_plugins::{Alias, PluginItem, Reaction, Timer, Trigger, XmlIterable};
+use smushclient_plugins::{Alias, Reaction, SendIterable, Trigger};
 
 use super::effects::{AliasEffects, SpanStyle, TriggerEffects};
 use crate::world::WorldConfig;
-
-pub trait SendIterable: XmlIterable + PluginItem {
-    fn enabled(world: &WorldConfig) -> bool;
-}
-
-impl SendIterable for Alias {
-    fn enabled(world: &WorldConfig) -> bool {
-        world.enable_aliases
-    }
-}
-
-impl SendIterable for Timer {
-    fn enabled(world: &WorldConfig) -> bool {
-        world.enable_timers
-    }
-}
-
-impl SendIterable for Trigger {
-    fn enabled(world: &WorldConfig) -> bool {
-        world.enable_triggers
-    }
-}
 
 pub(crate) trait ReactionIterable: SendIterable {
     const AFFECTS_STYLE: bool;
     type Effects;
 
+    fn enabled(world: &WorldConfig) -> bool;
     fn echo_input(&self) -> bool;
     fn reaction(&self) -> &Reaction;
     fn sound(&self) -> Option<&str>;
@@ -42,6 +21,10 @@ pub(crate) trait ReactionIterable: SendIterable {
 impl ReactionIterable for Alias {
     const AFFECTS_STYLE: bool = false;
     type Effects = AliasEffects;
+
+    fn enabled(world: &WorldConfig) -> bool {
+        world.enable_aliases
+    }
 
     fn echo_input(&self) -> bool {
         self.echo_alias
@@ -66,6 +49,10 @@ impl ReactionIterable for Alias {
 impl ReactionIterable for Trigger {
     const AFFECTS_STYLE: bool = true;
     type Effects = TriggerEffects;
+
+    fn enabled(world: &WorldConfig) -> bool {
+        world.enable_triggers
+    }
 
     fn echo_input(&self) -> bool {
         false

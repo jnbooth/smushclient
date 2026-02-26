@@ -10,7 +10,6 @@ pub use error::LoadFailure;
 
 mod iter;
 pub(crate) use iter::ReactionIterable;
-pub use iter::SendIterable;
 
 mod send;
 pub use send::{SendRequest, SendScriptRequest};

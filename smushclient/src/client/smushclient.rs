@@ -13,8 +13,8 @@ use mud_transformer::{
 };
 use rodio::Decoder;
 use smushclient_plugins::{
-    Alias, CursorVec, ImportError, LoadError, Plugin, PluginIndex, SendTarget, SenderAccessError,
-    SortOnDrop, Timer, Trigger, XmlSerError,
+    Alias, CursorVec, ImportError, LoadError, Plugin, PluginIndex, SendIterable, SendTarget,
+    SenderAccessError, SortOnDrop, Timer, Trigger, XmlSerError,
 };
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt};
@@ -30,7 +30,7 @@ use crate::import::ImportedWorld;
 use crate::options::OptionValue;
 use crate::plugins::{
     AliasEffects, AliasOutcome, CommandSource, LoadFailure, PluginEngine, ReactionIterable,
-    SendIterable, SendRequest, SendScriptRequest, SpanStyle, TriggerEffects,
+    SendRequest, SendScriptRequest, SpanStyle, TriggerEffects,
 };
 use crate::world::{LogMode, OptionCaller, PersistError, SetOptionError, World, WorldConfig};
 

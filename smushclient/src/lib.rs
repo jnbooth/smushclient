@@ -20,8 +20,7 @@ pub use options::{OptionError, OptionValue, Optionable};
 
 mod plugins;
 pub use plugins::{
-    AliasOutcome, CommandSource, LoadFailure, SendIterable, SendRequest, SendScriptRequest,
-    SpanStyle,
+    AliasOutcome, CommandSource, LoadFailure, SendRequest, SendScriptRequest, SpanStyle,
 };
 
 mod timer;
