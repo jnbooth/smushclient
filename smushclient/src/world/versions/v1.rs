@@ -128,7 +128,7 @@ pub(crate) struct World {
     pub plugins: Vec<PathBuf>,
 }
 
-impl From<World> for super::super::World {
+impl From<World> for super::super::World<'static> {
     fn from(value: World) -> Self {
         super::v2::World::from(value).into()
     }

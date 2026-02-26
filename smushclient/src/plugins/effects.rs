@@ -3,7 +3,7 @@ use mud_transformer::TextStyle;
 use mud_transformer::mxp::RgbColor;
 use smushclient_plugins::{Alias, Trigger};
 
-use crate::world::World;
+use crate::world::WorldConfig;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum CommandSource {
@@ -21,7 +21,7 @@ pub(crate) struct AliasEffects {
 }
 
 impl AliasEffects {
-    pub const fn new(world: &World, source: CommandSource) -> Self {
+    pub const fn new(world: &WorldConfig, source: CommandSource) -> Self {
         match source {
             CommandSource::User => Self {
                 echo: true,

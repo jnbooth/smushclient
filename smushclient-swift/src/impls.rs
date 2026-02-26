@@ -12,7 +12,7 @@ use mud_transformer::{
 use smushclient::world::{
     AutoConnect, LogFormat, LogMode, MxpDebugLevel, Numpad, NumpadMapping, ScriptRecompile,
 };
-use smushclient::{SendRequest, SendScriptRequest, World};
+use smushclient::{SendRequest, SendScriptRequest, World, WorldConfig};
 use smushclient_plugins::{
     Alias, CursorVec, Occurrence, Reaction, SendTarget, Sender, Timer, Trigger,
 };
@@ -223,8 +223,8 @@ impl_convert_struct!(
 impl_convert_struct!(ffi::NumpadMapping, NumpadMapping, base, modified);
 
 impl_convert_struct!(
-    ffi::World,
-    World,
+    ffi::WorldConfig,
+    WorldConfig,
     // Connecting
     name,
     site,
@@ -260,7 +260,6 @@ impl_convert_struct!(
     log_line_postamble_notes,
     log_script_errors,
     // Timers
-    timers,
     enable_timers,
     // Output
     show_bold,
@@ -296,11 +295,9 @@ impl_convert_struct!(
     command_stack_character,
     mxp_debug_level,
     // Triggers
-    triggers,
     enable_triggers,
     enable_trigger_sounds,
     // Aliases
-    aliases,
     enable_aliases,
     // Numpad
     numpad_shortcuts,
@@ -319,6 +316,15 @@ impl_convert_struct!(
     // Hidden
     id,
     plugins,
+);
+
+impl_convert_struct!(
+    ffi::World,
+    World<'static>,
+    config,
+    aliases,
+    timers,
+    triggers,
 );
 
 impl<'a> From<SendRequest<'a>> for ffi::SendRequest {

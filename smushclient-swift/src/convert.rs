@@ -17,6 +17,8 @@ macro_rules! impl_convert {
     };
 }
 
+use std::borrow::Cow;
+
 pub(crate) use impl_convert;
 
 macro_rules! impl_convert_self {
@@ -76,6 +78,16 @@ impl<T, Ffi: Convert<T>> Convert<Option<T>> for Option<Ffi> {
 
     fn to_ffi(value: Option<T>) -> Self {
         value.map(Convert::to_ffi)
+    }
+}
+
+impl<T: ToOwned + ?Sized, Ffi: Convert<T::Owned>> Convert<Cow<'static, T>> for Ffi {
+    fn from_ffi(value: Self) -> Cow<'static, T> {
+        Cow::Owned(Convert::from_ffi(value))
+    }
+
+    fn to_ffi(value: Cow<'static, T>) -> Self {
+        Convert::to_ffi(value.into_owned())
     }
 }
 

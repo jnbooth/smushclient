@@ -9,13 +9,16 @@ use std::rc::Rc;
 use cxx_qt::casting::Downcast;
 use cxx_qt_io::{QAbstractSocket, QIODevice, QNetworkProxy, QNetworkProxyProxyType, QSslSocket};
 use cxx_qt_lib::{QString, QStringList, QVariant};
+use flagset::FlagSet;
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
     AliasOutcome, CommandSource, Handler, LuaStr, OptionError, Optionable, SendIterable,
-    SenderAccessError, SmushClient, TimerFinish, Timers, World,
+    SmushClient, TimerFinish, Timers, World, WorldConfig,
 };
-use smushclient_plugins::{Alias, ImportError, LoadError, PluginIndex, Timer, Trigger};
+use smushclient_plugins::{
+    Alias, ImportError, LoadError, PluginIndex, SenderAccessError, Timer, Trigger,
+};
 
 use crate::convert::Convert;
 use crate::ffi::{self, Document, Timekeeper};
@@ -45,33 +48,35 @@ impl Default for SmushClientRust {
             stats: RefCell::new(HashSet::new()),
             timers: RefCell::new(Timers::new()),
             formatter: TextFormatter::default(),
-            client: SmushClient::new(
-                World::default(),
-                Tag::Bold
-                    | Tag::Color
-                    | Tag::Expire
-                    | Tag::Font
-                    | Tag::H1
-                    | Tag::H2
-                    | Tag::H3
-                    | Tag::H4
-                    | Tag::H5
-                    | Tag::H6
-                    | Tag::Highlight
-                    | Tag::Hr
-                    | Tag::Hyperlink
-                    | Tag::Italic
-                    | Tag::Send
-                    | Tag::Strikeout
-                    | Tag::Underline,
-            ),
+            client: SmushClient::new(World::default(), Self::supported_tags()),
         }
     }
 }
 
 impl SmushClientRust {
+    fn supported_tags() -> FlagSet<Tag> {
+        Tag::Bold
+            | Tag::Color
+            | Tag::Expire
+            | Tag::Font
+            | Tag::H1
+            | Tag::H2
+            | Tag::H3
+            | Tag::H4
+            | Tag::H5
+            | Tag::H6
+            | Tag::Highlight
+            | Tag::Hr
+            | Tag::Hyperlink
+            | Tag::Italic
+            | Tag::Send
+            | Tag::Strikeout
+            | Tag::Underline
+    }
+
     pub fn load_world<P: AsRef<Path>>(&mut self, path: P) -> Result<(), PersistError> {
-        self.client.load_world(File::open(path)?)?;
+        let world = World::load(File::open(path)?)?;
+        self.client = SmushClient::new(world, Self::supported_tags());
         self.apply_world();
         Ok(())
     }
@@ -91,7 +96,7 @@ impl SmushClientRust {
 
     pub fn save_world<P: AsRef<Path>>(&self, path: P) -> Result<(), PersistError> {
         let file = File::create(path)?;
-        self.client.world().save(file)
+        self.client.save_world(file)
     }
 
     pub fn load_variables<P: AsRef<Path>>(&self, path: P) -> Result<bool, PersistError> {
@@ -114,13 +119,13 @@ impl SmushClientRust {
 
     pub fn import_world<P: AsRef<Path>>(&mut self, path: P) -> Result<(), ImportError> {
         let file = File::open(path)?;
-        self.client.import_world(file)?;
+        self.client = SmushClient::import_world(file, Self::supported_tags())?;
         self.apply_world();
         Ok(())
     }
 
     pub fn set_world(&mut self, world: &WorldRust) -> bool {
-        let Ok(world) = World::try_from(world) else {
+        let Ok(world) = WorldConfig::try_from(world) else {
             return false;
         };
         self.apply_world();

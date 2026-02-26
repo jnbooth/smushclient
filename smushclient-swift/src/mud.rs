@@ -2,7 +2,7 @@ use std::fs::File;
 use std::path::Path;
 
 use mud_transformer::Tag;
-use smushclient::{CommandSource, SmushClient, World};
+use smushclient::{CommandSource, SmushClient, World, WorldConfig};
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 
@@ -21,7 +21,7 @@ pub struct RustMudBridge {
 }
 
 impl RustMudBridge {
-    pub fn new(world: World) -> Self {
+    pub fn new(world: World<'static>) -> Self {
         Self {
             read_buf: vec![0; BUF_LEN],
             write_buf: Vec::new(),
@@ -55,14 +55,14 @@ impl RustMudBridge {
 
     pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<(), String> {
         let file = File::create(path).str()?;
-        self.client.world().save(file).str()
+        self.client.save_world(file).str()
     }
 
-    pub fn world(&self) -> World {
+    pub fn world(&self) -> WorldConfig {
         self.client.world().clone()
     }
 
-    pub fn set_world(&mut self, world: World) -> bool {
+    pub fn set_world(&mut self, world: WorldConfig) -> bool {
         self.client.update_world(world)
     }
 

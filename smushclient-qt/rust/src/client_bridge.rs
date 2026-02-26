@@ -28,7 +28,7 @@ fn handle_import_error<T>(res: Result<T, ImportError>) -> Result<ffi::RegexParse
 
 impl ffi::SmushClient {
     pub fn borrow_world_sender<T: SendIterable>(&self, index: usize) -> Option<Ref<'_, T>> {
-        T::from_world(self.rust().client.world()).get(index)
+        self.rust().client.world_plugin().senders::<T>().get(index)
     }
 
     pub fn try_load_world(self: Pin<&mut Self>, path: &QString) -> Result<(), PersistError> {

@@ -21,11 +21,11 @@ pub use options::{OptionError, OptionValue, Optionable};
 mod plugins;
 pub use plugins::{
     AliasOutcome, CommandSource, LoadFailure, SendIterable, SendRequest, SendScriptRequest,
-    SenderAccessError, SpanStyle,
+    SpanStyle,
 };
 
 mod timer;
 pub use timer::{TimerConstructible, TimerFinish, TimerStart, Timers};
 
 pub mod world;
-pub use world::{OptionCaller, SenderMap, World};
+pub use world::{OptionCaller, SenderMap, World, WorldConfig};

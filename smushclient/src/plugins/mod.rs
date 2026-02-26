@@ -13,4 +13,4 @@ pub use iter::SendIterable;
 pub(crate) use iter::{AllSendersIter, ReactionIterable};
 
 mod send;
-pub use send::{SendRequest, SendScriptRequest, SenderAccessError};
+pub use send::{SendRequest, SendScriptRequest};

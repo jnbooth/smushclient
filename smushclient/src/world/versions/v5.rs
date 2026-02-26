@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::path::PathBuf;
 
 use mud_transformer::UseMxp;
@@ -7,6 +8,7 @@ use smushclient_plugins::{Alias, CursorVec, Timer, Trigger};
 use uuid::Uuid;
 
 use super::super::types::*;
+use crate::world::WorldConfig;
 
 #[derive(Deserialize)]
 pub struct World {
@@ -115,16 +117,11 @@ pub struct World {
     pub error_background_colour: Option<RgbColor>,
 
     // Hidden
+    pub id: Uuid,
     pub plugins: Vec<PathBuf>,
 }
 
 impl From<World> for super::super::World<'static> {
-    fn from(value: World) -> Self {
-        super::v5::World::from(value).into()
-    }
-}
-
-impl From<World> for super::v5::World {
     fn from(value: World) -> Self {
         let World {
             name,
@@ -208,10 +205,11 @@ impl From<World> for super::v5::World {
             script_errors_to_output_window,
             error_text_colour,
             error_background_colour,
+            id,
             plugins,
         } = value;
 
-        Self {
+        let config = WorldConfig {
             name,
             site,
             port,
@@ -243,7 +241,6 @@ impl From<World> for super::v5::World {
             log_line_postamble_input,
             log_line_postamble_notes,
             log_script_errors,
-            timers,
             enable_timers,
             show_bold,
             show_italic,
@@ -276,10 +273,8 @@ impl From<World> for super::v5::World {
             enable_command_stack,
             command_stack_character,
             mxp_debug_level,
-            triggers,
             enable_triggers,
             enable_trigger_sounds,
-            aliases,
             enable_aliases,
             numpad_shortcuts,
             keypad_enable,
@@ -293,8 +288,14 @@ impl From<World> for super::v5::World {
             script_errors_to_output_window,
             error_text_colour,
             error_background_colour,
-            id: Uuid::new_v4(),
+            id,
             plugins,
+        };
+        Self {
+            config: Cow::Owned(config),
+            timers: Cow::Owned(timers.into_vec()),
+            aliases: Cow::Owned(aliases.into_vec()),
+            triggers: Cow::Owned(triggers.into_vec()),
         }
     }
 }

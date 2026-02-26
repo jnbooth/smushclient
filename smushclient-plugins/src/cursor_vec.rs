@@ -46,6 +46,10 @@ impl<T: Ord> CursorVec<T> {
         Ref::filter_map(self.inner.borrow(), |inner| inner.get(i)).ok()
     }
 
+    pub fn into_vec(self) -> Vec<T> {
+        self.inner.into_inner()
+    }
+
     pub fn scan(&self) -> CursorVecScan<'_, T> {
         let scan_id = self.scan_id.get().wrapping_add(1);
         self.scan_id.set(scan_id);

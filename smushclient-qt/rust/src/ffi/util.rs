@@ -62,7 +62,7 @@ fn encode_naws(browser: &QAbstractScrollArea) -> QByteArray {
 fn get_alpha_option_list() -> QStringList {
     let mut list = QStringList::default();
     list.extend(
-        smushclient::World::STR_OPTIONS
+        smushclient::WorldConfig::STR_OPTIONS
             .iter()
             .map(|&s| QString::from(s)),
     );
@@ -72,7 +72,7 @@ fn get_alpha_option_list() -> QStringList {
 fn get_option_list() -> QStringList {
     let mut list = QStringList::default();
     list.extend(
-        smushclient::World::INT_OPTIONS
+        smushclient::WorldConfig::INT_OPTIONS
             .iter()
             .map(|&s| QString::from(s)),
     );

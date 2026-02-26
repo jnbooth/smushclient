@@ -6,7 +6,7 @@ use chrono::{DateTime, Local};
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::{Output, OutputFragment};
 
-use super::World;
+use super::config::WorldConfig;
 use crate::world::LogFormat;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -16,7 +16,7 @@ pub struct Escaped<S = String> {
 }
 
 impl<'a> Escaped<Cow<'a, str>> {
-    pub fn borrow(message: &'a str, world: &World) -> Self {
+    pub fn borrow(message: &'a str, world: &WorldConfig) -> Self {
         if message.len() <= 1 {
             return Escaped {
                 message: message.into(),
@@ -54,7 +54,7 @@ impl<'a> Escaped<Cow<'a, str>> {
 }
 
 impl Escaped<String> {
-    pub fn for_log(message: &str, world: &World) -> Self {
+    pub fn for_log(message: &str, world: &WorldConfig) -> Self {
         let Escaped {
             message,
             has_chrono,
@@ -171,8 +171,8 @@ pub struct LogBrackets {
     pub notes: EscapedBrackets,
 }
 
-impl From<&World> for LogBrackets {
-    fn from(world: &World) -> Self {
+impl From<&WorldConfig> for LogBrackets {
+    fn from(world: &WorldConfig) -> Self {
         let escape_mode = if world.log_format != LogFormat::Html {
             EscapeMode::Text
         } else if world.log_in_colour {

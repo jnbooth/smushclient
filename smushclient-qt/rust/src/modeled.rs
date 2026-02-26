@@ -221,7 +221,7 @@ impl SenderMapRust {
         let Some(index) = self.inner.sender_index(group, index) else {
             return QString::default();
         };
-        let world = client.world();
+        let world = client.world_plugin();
         match self.sender_type {
             ffi::SenderType::Alias => world.aliases.get(index).unwrap().cell_text(column),
             ffi::SenderType::Timer => world.timers.get(index).unwrap().cell_text(column),
@@ -260,7 +260,7 @@ impl SenderMapRust {
     }
 
     pub fn recalculate(&mut self, client: &SmushClient) {
-        let world = client.world();
+        let world = client.world_plugin();
         match self.sender_type {
             ffi::SenderType::Alias => self.inner.recalculate(&*world.aliases.borrow()),
             ffi::SenderType::Timer => self.inner.recalculate(&*world.timers.borrow()),
@@ -290,7 +290,7 @@ impl SenderMapRust {
         amount: usize,
     ) -> QSet<u16> {
         let mut set = QSet::default();
-        let timers = &client.world().timers;
+        let timers = &client.world_plugin().timers;
         for &index in self.group_indices(group, start, amount) {
             if let Some(timer) = timers.get(index) {
                 set.insert(timer.id);

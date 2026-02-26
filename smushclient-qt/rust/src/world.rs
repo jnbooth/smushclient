@@ -1,7 +1,6 @@
 use cxx_qt_lib::{QColor, QString, QUuid};
-use smushclient::World;
+use smushclient::WorldConfig;
 use smushclient::world::{Numpad, NumpadMapping};
-use smushclient_plugins::CursorVec;
 
 use crate::colors::Colors;
 use crate::convert::{Convert, impl_deref};
@@ -142,8 +141,8 @@ pub struct WorldRust {
 
 impl_deref!(WorldRust, Colors, ansi_colours);
 
-impl From<&World> for WorldRust {
-    fn from(world: &World) -> Self {
+impl From<&WorldConfig> for WorldRust {
+    fn from(world: &WorldConfig) -> Self {
         let NumpadMapping {
             base: keypad,
             modified: numpad_mod,
@@ -271,7 +270,7 @@ impl From<&World> for WorldRust {
     }
 }
 
-impl TryFrom<&WorldRust> for World {
+impl TryFrom<&WorldRust> for WorldConfig {
     type Error = crate::convert::OutOfRangeError;
 
     fn try_from(value: &WorldRust) -> Result<Self, Self::Error> {
@@ -310,7 +309,6 @@ impl TryFrom<&WorldRust> for World {
             log_line_postamble_notes: String::from(&value.log_line_postamble_notes),
             log_script_errors: value.log_script_errors,
 
-            timers: CursorVec::new(),
             enable_timers: value.enable_timers,
 
             show_bold: value.show_bold,
@@ -346,11 +344,9 @@ impl TryFrom<&WorldRust> for World {
             command_stack_character: value.command_stack_character,
             mxp_debug_level: value.mxp_debug_level.try_into()?,
 
-            triggers: CursorVec::new(),
             enable_triggers: value.enable_triggers,
             enable_trigger_sounds: value.enable_trigger_sounds,
 
-            aliases: CursorVec::new(),
             enable_aliases: value.enable_aliases,
 
             numpad_shortcuts: NumpadMapping {

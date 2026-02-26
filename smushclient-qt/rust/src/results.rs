@@ -1,8 +1,8 @@
 use std::io;
 
 use smushclient::world::SetOptionError;
-use smushclient::{AudioError, OptionError, SenderAccessError};
-use smushclient_plugins::{Alias, Timer, Trigger};
+use smushclient::{AudioError, OptionError};
+use smushclient_plugins::{Alias, SenderAccessError, Timer, Trigger};
 
 use crate::ffi::{self, ApiCode};
 

@@ -4,7 +4,7 @@ use std::io::{self, BufWriter, Write};
 use mud_transformer::Output;
 
 use super::log_file::LogFile;
-use crate::world::{Escaped, LogBrackets, LogFormat, LogMode, World};
+use crate::world::{Escaped, LogBrackets, LogFormat, LogMode, WorldConfig};
 
 #[derive(Debug)]
 pub struct Logger {
@@ -16,7 +16,7 @@ pub struct Logger {
 }
 
 impl Logger {
-    pub fn new(world: &World) -> Self {
+    pub fn new(world: &WorldConfig) -> Self {
         Self {
             brackets: world.brackets(),
             buf: String::new(),
@@ -49,7 +49,7 @@ impl Logger {
         self.file.is_open()
     }
 
-    pub fn apply_world(&mut self, world: &World) {
+    pub fn apply_world(&mut self, world: &WorldConfig) {
         self.brackets = world.brackets();
         self.format = world.log_format;
     }

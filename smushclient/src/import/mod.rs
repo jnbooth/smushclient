@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::io::BufRead;
 
 use base64::Engine;
@@ -9,7 +10,7 @@ use uuid::Uuid;
 
 use crate::client::{PluginVariables, XmlVariable};
 use crate::world::{
-    AutoConnect, LogFormat, LogMode, MxpDebugLevel, ScriptRecompile, World, XmlKey,
+    AutoConnect, LogFormat, LogMode, MxpDebugLevel, ScriptRecompile, World, WorldConfig, XmlKey,
 };
 
 mod bool_serde {
@@ -200,7 +201,7 @@ struct MuClient<'a> {
 
 #[derive(Debug)]
 pub struct ImportedWorld {
-    pub world: World,
+    pub world: World<'static>,
     pub variables: PluginVariables,
 }
 
@@ -240,7 +241,7 @@ impl TryFrom<MuClient<'_>> for ImportedWorld {
 
         let world = value.world;
 
-        let world = World {
+        let config = WorldConfig {
             name: world.name,
             site: world.site,
             port: world.port,
@@ -278,7 +279,6 @@ impl TryFrom<MuClient<'_>> for ImportedWorld {
             log_line_postamble_input: world.log_line_postamble_input,
             log_line_postamble_notes: world.log_line_postamble_notes,
             log_script_errors: world.log_script_errors,
-            timers: value.timers.try_into().unwrap(),
             enable_timers: world.enable_timers,
             show_bold: world.show_bold,
             show_italic: world.show_italic,
@@ -316,10 +316,8 @@ impl TryFrom<MuClient<'_>> for ImportedWorld {
                 .copied()
                 .unwrap_or(b';'),
             mxp_debug_level: world.mxp_debug_level,
-            triggers: value.triggers.try_into()?,
             enable_triggers: world.enable_triggers,
             enable_trigger_sounds: world.enable_trigger_sounds,
-            aliases: value.aliases.try_into()?,
             enable_aliases: world.enable_aliases,
             numpad_shortcuts: value.keypad.into(),
             keypad_enable: world.keypad_enable,
@@ -342,7 +340,12 @@ impl TryFrom<MuClient<'_>> for ImportedWorld {
                 .collect(),
         };
         Ok(Self {
-            world,
+            world: World {
+                config: Cow::Owned(config),
+                timers: Cow::Owned(value.timers.try_into().unwrap()),
+                aliases: Cow::Owned(value.aliases.try_into()?),
+                triggers: Cow::Owned(value.triggers.try_into()?),
+            },
             variables: value.variables.into(),
         })
     }

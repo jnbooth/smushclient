@@ -1,9 +1,7 @@
 use std::error::Error;
 use std::fmt;
 
-use smushclient_plugins::RegexError;
-
-use crate::SenderAccessError;
+use smushclient_plugins::{RegexError, SenderAccessError};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum OptionError {

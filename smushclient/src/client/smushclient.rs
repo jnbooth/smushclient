@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::cell::{Ref, RefCell, RefMut};
 use std::collections::HashSet;
 use std::fs::File;
@@ -12,8 +13,8 @@ use mud_transformer::{
 };
 use rodio::Decoder;
 use smushclient_plugins::{
-    Alias, CursorVec, ImportError, LoadError, Plugin, PluginIndex, SendTarget, Timer, Trigger,
-    XmlSerError,
+    Alias, CursorVec, ImportError, LoadError, Plugin, PluginIndex, SendTarget, SenderAccessError,
+    SortOnDrop, Timer, Trigger, XmlSerError,
 };
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt};
@@ -23,17 +24,15 @@ use super::logger::Logger;
 use super::variables::PluginVariables;
 use super::variables::{LuaStr, LuaString};
 use crate::audio::{AudioError, AudioSinks, PlayMode};
-use crate::collections::SortOnDrop;
 use crate::get_info::InfoVisitor;
 use crate::handler::Handler;
 use crate::import::ImportedWorld;
 use crate::options::OptionValue;
 use crate::plugins::{
     AliasEffects, AliasOutcome, AllSendersIter, CommandSource, LoadFailure, PluginEngine,
-    ReactionIterable, SendIterable, SendRequest, SendScriptRequest, SenderAccessError, SpanStyle,
-    TriggerEffects,
+    ReactionIterable, SendIterable, SendRequest, SendScriptRequest, SpanStyle, TriggerEffects,
 };
-use crate::world::{LogMode, OptionCaller, PersistError, SetOptionError, World};
+use crate::world::{LogMode, OptionCaller, PersistError, SetOptionError, World, WorldConfig};
 
 const METAVARIABLES_KEY: &str = "\x01";
 
@@ -43,7 +42,7 @@ pub struct SmushClient {
     supported_tags: FlagSet<Tag>,
     transformer: RefCell<Transformer>,
     variables: RefCell<PluginVariables>,
-    world: World,
+    world: WorldConfig,
     audio: AudioSinks,
     buffers: RefCell<(String, String, HashSet<u16>)>,
     info: ClientInfo,
@@ -59,50 +58,52 @@ impl SmushClient {
     /// # Panics
     ///
     /// Panics if audio initialization fails.
-    pub fn new(world: World, supported_tags: FlagSet<Tag>) -> Self {
+    pub fn new(world: World<'static>, supported_tags: FlagSet<Tag>) -> Self {
         let mut plugins = PluginEngine::new();
-        plugins.set_world_plugin(world.world_plugin());
+        let config = world.config.into_owned();
+        let world_plugin = Plugin {
+            aliases: world.aliases.into_owned().into(),
+            timers: world.timers.into_owned().into(),
+            triggers: world.triggers.into_owned().into(),
+            ..config.world_plugin()
+        };
+        plugins.set_world_plugin(world_plugin);
         let transformer = Transformer::new(TransformerConfig {
             supports: supported_tags,
-            ..TransformerConfig::from(&world)
+            ..TransformerConfig::from(&config)
         });
         Self {
-            logger: RefCell::new(Logger::new(&world)),
+            logger: RefCell::new(Logger::new(&config)),
             plugins,
             supported_tags,
             transformer: RefCell::new(transformer),
             variables: RefCell::default(),
-            world,
+            world: config,
             audio: AudioSinks::try_default().expect("audio initialization error"),
             buffers: RefCell::default(),
             info: ClientInfo::default(),
         }
     }
 
-    pub fn load_world<R: Read>(&mut self, reader: R) -> Result<(), PersistError> {
-        self.set_world(World::load(reader)?);
-        Ok(())
-    }
-
-    pub fn import_world<R: Read>(&mut self, reader: R) -> Result<(), ImportError> {
+    pub fn import_world<R: Read>(
+        reader: R,
+        supported_tags: FlagSet<Tag>,
+    ) -> Result<Self, ImportError> {
         let reader = BufReader::new(reader);
         let ImportedWorld { world, variables } = ImportedWorld::from_xml(reader)?;
-        self.set_world(world);
-        *self.variables.borrow_mut() = variables;
-        Ok(())
+        Ok(Self {
+            variables: RefCell::new(variables),
+            ..Self::new(world, supported_tags)
+        })
     }
 
     pub fn reset_world_plugin(&self) {
-        self.world.remove_temporary();
+        self.world_plugin().remove_temporary();
     }
 
     pub fn reset_plugins(&self) {
         for plugin in &self.plugins {
-            if plugin.metadata.is_world_plugin {
-                self.world.remove_temporary();
-            } else {
-                plugin.remove_temporary();
-            }
+            plugin.remove_temporary();
         }
     }
 
@@ -139,33 +140,40 @@ impl SmushClient {
         }
     }
 
-    pub fn world(&self) -> &World {
+    pub fn world(&self) -> &WorldConfig {
         &self.world
     }
 
-    pub fn set_world(&mut self, world: World) {
-        self.world = world;
-        self.plugins.set_world_plugin(self.world.world_plugin());
-        self.update_config();
-        *self.logger.borrow_mut() = Logger::new(&self.world);
+    /// # Panics
+    ///
+    /// Panics if there is no world plugin.
+    pub fn world_plugin(&self) -> &Plugin {
+        self.plugins
+            .world_plugin()
+            .expect("world plugin uninitialized")
     }
 
-    pub fn update_world(&mut self, mut world: World) -> bool {
+    pub fn save_world<W: Write>(&self, writer: W) -> Result<(), PersistError> {
+        let world_plugin = self.world_plugin();
+        let aliases = world_plugin.aliases.borrow();
+        let timers = world_plugin.timers.borrow();
+        let triggers = world_plugin.triggers.borrow();
+        World {
+            config: Cow::Borrowed(&self.world),
+            aliases: Cow::Borrowed(&aliases),
+            timers: Cow::Borrowed(&timers),
+            triggers: Cow::Borrowed(&triggers),
+        }
+        .save(writer)
+    }
+
+    pub fn update_world(&mut self, mut world: WorldConfig) -> bool {
         let plugins = mem::take(&mut self.world.plugins);
-        let aliases = mem::take(&mut self.world.aliases);
-        let timers = mem::take(&mut self.world.timers);
-        let triggers = mem::take(&mut self.world.triggers);
         if self.world == world {
             self.world.plugins = plugins;
-            self.world.aliases = aliases;
-            self.world.timers = timers;
-            self.world.triggers = triggers;
             return false;
         }
         world.plugins = plugins;
-        world.aliases = aliases;
-        world.timers = timers;
-        world.triggers = triggers;
         self.world = world;
         self.plugins.set_world_plugin(self.world.world_plugin());
         self.update_config();
@@ -578,11 +586,11 @@ impl SmushClient {
     }
 
     pub fn senders<T: SendIterable>(&self, index: PluginIndex) -> &CursorVec<T> {
-        T::from_either(&self.plugins[index], &self.world)
+        self.plugins[index].senders::<T>()
     }
 
     pub fn world_senders<T: SendIterable>(&self) -> &CursorVec<T> {
-        T::from_world(&self.world)
+        self.world_plugin().senders::<T>()
     }
 
     pub fn add_sender<T: SendIterable>(
@@ -591,13 +599,11 @@ impl SmushClient {
         mut sender: T,
     ) -> Result<Ref<'_, T>, SenderAccessError> {
         let plugin = &self.plugins[index];
-        let senders = if plugin.metadata.is_world_plugin {
-            T::from_world(&self.world)
-        } else {
-            sender.as_mut().temporary = true;
-            T::from_plugin(plugin)
-        };
+        let senders = plugin.senders::<T>();
         sender.assert_unique_label(senders)?;
+        if plugin.metadata.is_world_plugin {
+            sender.as_mut().temporary = true;
+        }
         Ok(senders.insert(sender))
     }
 
@@ -643,7 +649,7 @@ impl SmushClient {
         &self,
         sender: T,
     ) -> Result<Ref<'_, T>, SenderAccessError> {
-        self.world.add_sender(sender)
+        Ok(self.world_plugin().add_sender(sender)?)
     }
 
     pub fn replace_world_sender<T: SendIterable>(
@@ -651,12 +657,13 @@ impl SmushClient {
         index: usize,
         sender: T,
     ) -> Result<(usize, Ref<'_, T>), SenderAccessError> {
-        self.world.replace_sender(index, sender)
+        self.world_plugin().replace_sender(index, sender)
     }
 
     pub fn export_world_senders<T: SendIterable>(&self) -> Result<String, XmlSerError> {
         T::list_to_xml_string(
-            T::from_world(&self.world)
+            self.world_plugin()
+                .senders::<T>()
                 .borrow()
                 .iter()
                 .filter(|sender| !sender.as_ref().temporary),
@@ -668,7 +675,7 @@ impl SmushClient {
         xml: &str,
     ) -> Result<SortOnDrop<'_, T>, ImportError> {
         let mut senders = T::list_from_xml_str(xml)?;
-        Ok(self.world.import_senders(&mut senders))
+        Ok(self.world_plugin().import_senders(&mut senders))
     }
 
     pub fn export_sender<T: SendIterable>(
@@ -768,7 +775,7 @@ impl SmushClient {
             if plugin.disabled.get() {
                 continue;
             }
-            for alias in &*Alias::from_either(plugin, &self.world).borrow() {
+            for alias in plugin.aliases.borrow().iter() {
                 if alias.menu && !alias.label.is_empty() {
                     f(plugin_index, alias.id, &alias.label);
                 }
@@ -792,7 +799,7 @@ impl SmushClient {
         H: Handler,
     {
         let plugin = &self.plugins[plugin_index];
-        let aliases = Alias::from_either(plugin, &self.world);
+        let aliases = &plugin.aliases;
         let mut buffers = self.buffers.borrow_mut();
         let (text_buf, destination_buf, _) = &mut *buffers;
         let (send_request, has_script) = {
@@ -906,7 +913,7 @@ impl SmushClient {
                 continue;
             }
             let enable_scripts = !plugin.metadata.is_world_plugin || self.world.enable_scripts;
-            let senders = T::from_either(plugin, &self.world);
+            let senders = plugin.senders::<T>();
             for sender in senders.scan() {
                 let mut matched = false;
                 let (echo_input, regex_rc) = {
@@ -1039,7 +1046,7 @@ impl SmushClient {
     }
 
     fn all_senders<T: SendIterable>(&self) -> AllSendersIter<'_, T> {
-        AllSendersIter::new(&self.plugins, &self.world)
+        AllSendersIter::new(&self.plugins)
     }
 
     fn count_senders<T: SendIterable>(&self) -> usize {

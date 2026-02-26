@@ -293,7 +293,7 @@ pub mod ffi {
 
     #[swift_bridge(swift_repr = "struct")]
     #[derive(Clone)]
-    struct World {
+    struct WorldConfig {
         name: String,
         site: String,
         port: u16,
@@ -328,7 +328,6 @@ pub mod ffi {
         log_line_postamble_notes: String,
         log_script_errors: bool,
 
-        timers: Vec<Timer>,
         enable_timers: bool,
 
         show_bold: bool,
@@ -364,11 +363,9 @@ pub mod ffi {
         command_stack_character: u8,
         mxp_debug_level: MXPDebugLevel,
 
-        triggers: Vec<Trigger>,
         enable_triggers: bool,
         enable_trigger_sounds: bool,
 
-        aliases: Vec<Alias>,
         enable_aliases: bool,
 
         numpad_shortcuts: NumpadMapping,
@@ -387,6 +384,15 @@ pub mod ffi {
 
         id: Uuid,
         plugins: Vec<String>,
+    }
+
+    #[swift_bridge(swift_repr = "struct")]
+    #[derive(Clone)]
+    struct World {
+        config: WorldConfig,
+        timers: Vec<Timer>,
+        triggers: Vec<Trigger>,
+        aliases: Vec<Alias>,
     }
 
     enum Heading {
@@ -476,9 +482,9 @@ pub mod ffi {
         fn load(path: String) -> Result<RustMudBridge, String>;
         fn save(&self, path: String) -> Result<(), String>;
         #[swift_bridge(return_into)]
-        fn world(&self) -> World;
+        fn world(&self) -> WorldConfig;
         #[swift_bridge(args_into = (world))]
-        fn set_world(&mut self, world: World) -> bool;
+        fn set_world(&mut self, world: WorldConfig) -> bool;
         fn connected(&self) -> bool;
         fn alias(&mut self, command: String) -> RustAliasOutcome;
         async fn connect(&mut self) -> Result<(), String>;

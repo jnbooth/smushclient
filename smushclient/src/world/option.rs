@@ -3,7 +3,7 @@ use std::slice;
 use mud_transformer::UseMxp;
 use mud_transformer::mxp::RgbColor;
 
-use super::World;
+use super::config::WorldConfig;
 use super::error::SetOptionError;
 use super::types::{AutoConnect, LogFormat, MxpDebugLevel, ScriptRecompile};
 use crate::{LuaStr, LuaString};
@@ -23,7 +23,7 @@ pub enum OptionCaller {
     Plugin,
 }
 
-impl World {
+impl WorldConfig {
     pub const INT_OPTIONS: &[&str] = &[
         "carriage_return_clears_line",
         "convert_ga_to_newline",

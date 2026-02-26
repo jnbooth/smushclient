@@ -1,6 +1,7 @@
 use std::borrow::Cow;
-use std::cell::Cell;
+use std::cell::{Cell, Ref};
 use std::cmp::Ordering;
+use std::collections::HashSet;
 use std::fmt::Write;
 use std::fs::File;
 use std::hash::Hash;
@@ -14,8 +15,10 @@ use quick_xml::SeError;
 use serde::{Deserialize, Serialize, Serializer};
 
 use crate::cursor_vec::CursorVec;
-use crate::error::LoadError;
+use crate::error::{LoadError, SenderAccessError};
+use crate::send::Sender;
 use crate::send::{Alias, Timer, Trigger, XmlAlias, XmlTimer, XmlTrigger};
+use crate::sort_on_drop::SortOnDrop;
 use crate::xml::XmlVec;
 
 pub type PluginIndex = usize;
@@ -67,7 +70,51 @@ impl Ord for Plugin {
     }
 }
 
+mod private {
+    pub trait Sealed {}
+}
+
+pub trait PluginItem: AsRef<Sender> + AsMut<Sender> + Eq + Ord + Sized + private::Sealed {
+    fn for_plugin(plugin: &Plugin) -> &CursorVec<Self>;
+
+    fn assert_unique_label(&self, senders: &CursorVec<Self>) -> Result<(), usize> {
+        let label = self.as_ref().label.as_str();
+        if label.is_empty() {
+            return Ok(());
+        }
+        match senders.position(|sender| sender.as_ref().label == label) {
+            None => Ok(()),
+            Some(pos) => Err(pos),
+        }
+    }
+}
+
+impl private::Sealed for Alias {}
+impl PluginItem for Alias {
+    fn for_plugin(plugin: &Plugin) -> &CursorVec<Self> {
+        &plugin.aliases
+    }
+}
+
+impl private::Sealed for Timer {}
+impl PluginItem for Timer {
+    fn for_plugin(plugin: &Plugin) -> &CursorVec<Self> {
+        &plugin.timers
+    }
+}
+
+impl private::Sealed for Trigger {}
+impl PluginItem for Trigger {
+    fn for_plugin(plugin: &Plugin) -> &CursorVec<Self> {
+        &plugin.triggers
+    }
+}
+
 impl Plugin {
+    pub fn senders<T: PluginItem>(&self) -> &CursorVec<T> {
+        T::for_plugin(self)
+    }
+
     pub fn is_empty(&self) -> bool {
         self.triggers.is_empty()
             && self.aliases.is_empty()
@@ -109,6 +156,58 @@ impl Plugin {
         self.aliases.retain(|sender| !sender.temporary);
         self.timers.retain(|sender| !sender.temporary);
         self.triggers.retain(|sender| !sender.temporary);
+    }
+
+    pub fn add_sender<T: PluginItem>(&self, sender: T) -> Result<Ref<'_, T>, usize> {
+        let senders = self.senders::<T>();
+        sender.assert_unique_label(senders)?;
+        Ok(senders.insert(sender))
+    }
+
+    pub fn replace_sender<T: PluginItem>(
+        &self,
+        index: usize,
+        sender: T,
+    ) -> Result<(usize, Ref<'_, T>), SenderAccessError> {
+        let senders = self.senders::<T>();
+        if *senders.get(index).ok_or(SenderAccessError::NotFound)? == sender {
+            return Err(SenderAccessError::Unchanged);
+        }
+        if let Err(pos) = sender.assert_unique_label(senders)
+            && pos != index
+        {
+            return Err(pos.into());
+        }
+        Ok(senders.replace(index, sender))
+    }
+
+    pub fn import_senders<T: PluginItem>(&self, imported: &mut Vec<T>) -> SortOnDrop<'_, T> {
+        let mut senders = self.senders::<T>().borrow_mut();
+        let senders_len = senders.len();
+        let need_relabeling = !imported
+            .iter()
+            .all(|sender| sender.as_ref().label.is_empty());
+        senders.append(imported);
+        if need_relabeling {
+            let mut labels = HashSet::new();
+            for sender in senders.iter_mut() {
+                let sender = sender.as_mut();
+                if !labels.contains(&sender.label) {
+                    labels.insert(&sender.label);
+                    continue;
+                }
+                let len = sender.label.len();
+                for i in 0.. {
+                    write!(sender.label, "{i}").unwrap();
+                    if !labels.contains(&sender.label) {
+                        labels.insert(&sender.label);
+                        break;
+                    }
+                    sender.label.truncate(len);
+                }
+            }
+        }
+        SortOnDrop::new(senders, senders_len)
     }
 }
 

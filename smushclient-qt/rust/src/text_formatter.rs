@@ -5,7 +5,7 @@ use cxx_qt_lib::QColor;
 use flagset::FlagSet;
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::{TextFragment, TextStyle};
-use smushclient::{SpanStyle, World};
+use smushclient::{SpanStyle, WorldConfig};
 use smushclient_qt_lib::{QBrush, QTextCharFormat};
 
 use crate::ffi::spans;
@@ -51,7 +51,7 @@ impl TextFormatter {
         }
     }
 
-    pub fn apply_world(&mut self, world: &World) {
+    pub fn apply_world(&mut self, world: &WorldConfig) {
         if let Some(color) = world.error_text_colour {
             self.error_format.set_foreground(&brush(color));
         } else {

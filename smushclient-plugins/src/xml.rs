@@ -4,7 +4,7 @@ use serde::de::SeqAccess;
 use serde::ser::Serializer;
 use serde::{Deserialize, Serialize};
 
-use crate::cursor_vec::CursorVec;
+use crate::CursorVec;
 use crate::error::ImportError;
 
 pub trait XmlIterable: Sized + 'static {
@@ -114,9 +114,9 @@ where
     }
 }
 
-impl<T, U: Ord> TryFrom<XmlVec<T>> for CursorVec<U>
+impl<T, U> TryFrom<XmlVec<T>> for Vec<U>
 where
-    U: TryFrom<T>,
+    U: TryFrom<T> + Ord,
 {
     type Error = <U as TryFrom<T>>::Error;
 
@@ -127,6 +127,18 @@ where
             .map(U::try_from)
             .collect::<Result<_, _>>()?;
         items.sort_unstable();
+        Ok(items)
+    }
+}
+
+impl<T, U> TryFrom<XmlVec<T>> for CursorVec<U>
+where
+    U: TryFrom<T> + Ord,
+{
+    type Error = <U as TryFrom<T>>::Error;
+
+    fn try_from(value: XmlVec<T>) -> Result<Self, Self::Error> {
+        let items: Vec<U> = value.try_into()?;
         Ok(items.into())
     }
 }

@@ -1,6 +1,3 @@
-use std::error::Error;
-use std::fmt;
-
 use mud_transformer::Output;
 use smushclient_plugins::{Captures, PluginIndex, Regex, SendTarget};
 
@@ -23,30 +20,3 @@ pub struct SendScriptRequest<'a> {
     pub wildcards: Option<Captures<'a>>,
     pub output: &'a [Output],
 }
-
-#[derive(Clone, Debug)]
-pub enum SenderAccessError {
-    LabelConflict(usize),
-    ItemInUse,
-    NotFound,
-    Unchanged,
-}
-
-impl From<usize> for SenderAccessError {
-    fn from(value: usize) -> Self {
-        Self::LabelConflict(value)
-    }
-}
-
-impl fmt::Display for SenderAccessError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::LabelConflict(_) => f.write_str("sender name conflict"),
-            Self::ItemInUse => f.write_str("item in use"),
-            Self::NotFound => f.write_str("sender not found"),
-            Self::Unchanged => f.write_str("attempted to replace with the same value"),
-        }
-    }
-}
-
-impl Error for SenderAccessError {}

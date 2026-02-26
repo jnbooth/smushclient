@@ -1,17 +1,18 @@
 use std::collections::HashSet;
 use std::io::{self};
-use std::ops::{Deref, DerefMut};
+use std::ops::Deref;
 use std::path::Path;
 use std::{slice, vec};
 
 use smushclient_plugins::{LoadError, Plugin, PluginIndex};
 
 use super::error::LoadFailure;
-use crate::world::World;
+use crate::world::WorldConfig;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct PluginEngine {
     plugins: Vec<Plugin>,
+    world_script_index: Option<usize>,
 }
 
 impl Default for PluginEngine {
@@ -24,12 +25,20 @@ impl PluginEngine {
     pub const fn new() -> Self {
         Self {
             plugins: Vec::new(),
+            world_script_index: None,
         }
     }
 
-    pub fn load_plugins(&mut self, world: &World) -> Result<(), Vec<LoadFailure>> {
-        self.plugins.clear();
-        self.plugins.push(world.world_plugin());
+    fn find_world_plugin(&mut self) {
+        self.world_script_index = self
+            .plugins
+            .iter()
+            .position(|plugin| plugin.metadata.is_world_plugin);
+    }
+
+    pub fn load_plugins(&mut self, world: &WorldConfig) -> Result<(), Vec<LoadFailure>> {
+        self.plugins
+            .retain(|plugin| plugin.metadata.is_world_plugin);
         let errors: Vec<LoadFailure> = world
             .plugins
             .iter()
@@ -42,6 +51,7 @@ impl PluginEngine {
             })
             .collect();
         self.plugins.sort_unstable();
+        self.find_world_plugin();
         if errors.is_empty() {
             Ok(())
         } else {
@@ -56,6 +66,7 @@ impl PluginEngine {
         *plugin = Plugin::load(&path)?;
         let id = plugin.metadata.id.clone();
         self.plugins.sort_unstable();
+        self.find_world_plugin();
         if self.plugins[index].metadata.id == id {
             return Ok(index);
         }
@@ -80,6 +91,7 @@ impl PluginEngine {
         }
         self.load_plugin(path)?;
         self.plugins.sort_unstable();
+        self.find_world_plugin();
         Ok(self
             .plugins
             .iter()
@@ -96,10 +108,11 @@ impl PluginEngine {
 
     pub fn remove_plugin(&mut self, index: PluginIndex) -> Option<Plugin> {
         if index > self.plugins.len() {
-            None
-        } else {
-            Some(self.plugins.remove(index))
+            return None;
         }
+        let plugin = self.plugins.remove(index);
+        self.find_world_plugin();
+        Some(plugin)
     }
 
     pub fn set_world_plugin(&mut self, plugin: Plugin) {
@@ -108,11 +121,18 @@ impl PluginEngine {
             .iter_mut()
             .find(|plugin| plugin.metadata.is_world_plugin)
         {
-            *world_plugin = plugin;
+            world_plugin.metadata = plugin.metadata;
+            world_plugin.disabled = plugin.disabled;
+            world_plugin.script = plugin.script;
         } else {
             self.plugins.push(plugin);
         }
         self.plugins.sort_unstable();
+        self.find_world_plugin();
+    }
+
+    pub fn world_plugin(&self) -> Option<&Plugin> {
+        self.plugins.get(self.world_script_index?)
     }
 
     pub fn supported_protocols(&self) -> HashSet<u8> {
@@ -129,12 +149,6 @@ impl Deref for PluginEngine {
 
     fn deref(&self) -> &Self::Target {
         &self.plugins
-    }
-}
-
-impl DerefMut for PluginEngine {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.plugins
     }
 }
 
