@@ -126,22 +126,22 @@ public:
   ApiCode EnableAlias(size_t plugin,
                       std::string_view label,
                       bool enabled) const noexcept;
-  ApiCode EnableAliasGroup(size_t plugin,
-                           std::string_view group,
-                           bool enabled) const noexcept;
+  size_t EnableAliasGroup(size_t plugin,
+                          std::string_view group,
+                          bool enabled) const noexcept;
   ApiCode EnablePlugin(std::string_view pluginID, bool enabled);
   ApiCode EnableTimer(size_t plugin,
                       std::string_view label,
                       bool enabled) const noexcept;
-  ApiCode EnableTimerGroup(size_t plugin,
-                           std::string_view group,
-                           bool enabled) const noexcept;
+  size_t EnableTimerGroup(size_t plugin,
+                          std::string_view group,
+                          bool enabled) const noexcept;
   ApiCode EnableTrigger(size_t plugin,
                         std::string_view label,
                         bool enabled) const noexcept;
-  ApiCode EnableTriggerGroup(size_t plugin,
-                             std::string_view group,
-                             bool enabled) const noexcept;
+  size_t EnableTriggerGroup(size_t plugin,
+                            std::string_view group,
+                            bool enabled) const noexcept;
   ApiCode FlushLog() const;
   QVariant GetAliasOption(size_t plugin,
                           std::string_view label,

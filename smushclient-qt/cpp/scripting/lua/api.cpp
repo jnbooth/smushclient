@@ -1085,6 +1085,21 @@ L_DeleteAliasGroup(lua_State* L)
 }
 
 int
+L_DeleteGroup(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  const string_view group = qlua::getString(L, 1);
+  const size_t pluginIndex = getPluginIndex(L);
+  ScriptApi& api = getApi(L);
+  push(L,
+       api.DeleteAliasGroup(pluginIndex, group) +
+         api.DeleteTimerGroup(pluginIndex, group) +
+         api.DeleteTriggerGroup(pluginIndex, group));
+  return 1;
+}
+
+int
 L_DeleteTemporaryAliases(lua_State* L)
 {
   BENCHMARK
@@ -1212,10 +1227,26 @@ L_EnableAliasGroup(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  return returnCode(L,
-                    getApi(L).EnableAliasGroup(getPluginIndex(L),
-                                               qlua::getString(L, 1),
-                                               qlua::getBool(L, 2, true)));
+  push(L,
+       getApi(L).EnableAliasGroup(
+         getPluginIndex(L), qlua::getString(L, 1), qlua::getBool(L, 2, true)));
+  return 1;
+}
+
+int
+L_EnableGroup(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  const size_t pluginIndex = getPluginIndex(L);
+  const string_view group = qlua::getString(L, 1);
+  const bool enable = qlua::getBool(L, 2, true);
+  ScriptApi& api = getApi(L);
+  push(L,
+       api.EnableAliasGroup(pluginIndex, group, enable) +
+         api.EnableTimerGroup(pluginIndex, group, enable) +
+         api.EnableTriggerGroup(pluginIndex, group, enable));
+  return 1;
 }
 
 int
@@ -1234,10 +1265,10 @@ L_EnableTimerGroup(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  return returnCode(L,
-                    getApi(L).EnableTimerGroup(getPluginIndex(L),
-                                               qlua::getString(L, 1),
-                                               qlua::getBool(L, 2, true)));
+  push(L,
+       getApi(L).EnableTimerGroup(
+         getPluginIndex(L), qlua::getString(L, 1), qlua::getBool(L, 2, true)));
+  return 1;
 }
 
 int
@@ -1256,10 +1287,10 @@ L_EnableTriggerGroup(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  return returnCode(L,
-                    getApi(L).EnableTrigger(getPluginIndex(L),
-                                            qlua::getString(L, 1),
-                                            qlua::getBool(L, 2, true)));
+  push(L,
+       getApi(L).EnableTriggerGroup(
+         getPluginIndex(L), qlua::getString(L, 1), qlua::getBool(L, 2, true)));
+  return 1;
 }
 
 int
@@ -2354,6 +2385,7 @@ static const struct luaL_Reg worldlib[] =
     { "AddTriggerEx", L_AddTrigger },
     { "DeleteAlias", L_DeleteAlias },
     { "DeleteAliasGroup", L_DeleteAliasGroup },
+    { "DeleteGroup", L_DeleteGroup },
     { "DeleteTemporaryAliases", L_DeleteTemporaryAliases },
     { "DeleteTemporaryTimers", L_DeleteTemporaryTimers },
     { "DeleteTemporaryTriggers", L_DeleteTemporaryTriggers },
@@ -2367,6 +2399,7 @@ static const struct luaL_Reg worldlib[] =
     { "DoAfterSpecial", L_DoAfterSpecial },
     { "EnableAlias", L_EnableAlias },
     { "EnableAliasGroup", L_EnableAliasGroup },
+    { "EnableGroup", L_EnableGroup },
     { "EnableTimer", L_EnableTimer },
     { "EnableTimerGroup", L_EnableTimerGroup },
     { "EnableTrigger", L_EnableTrigger },

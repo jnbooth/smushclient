@@ -209,6 +209,7 @@ pub mod ffi {
             index: usize,
             name: StringView,
         ) -> usize;
+        fn remove_sender_groups(self: &SmushClient, index: usize, name: StringView) -> usize;
         fn remove_temporary_senders(self: &SmushClient, kind: SenderKind) -> usize;
         fn add_world_alias(self: &SmushClient, alias: &Alias) -> ApiCode;
         fn add_world_timer(self: &SmushClient, timer: &Timer, timekeeper: &Timekeeper) -> ApiCode;
@@ -246,13 +247,19 @@ pub mod ffi {
             label: StringView,
             enable: bool,
         ) -> ApiCode;
-        fn set_senders_enabled(
+        fn set_sender_group_enabled(
             self: &SmushClient,
             kind: SenderKind,
             index: usize,
             group: StringView,
             enable: bool,
-        ) -> bool;
+        ) -> usize;
+        fn set_sender_groups_enabled(
+            self: &SmushClient,
+            index: usize,
+            group: StringView,
+            enable: bool,
+        ) -> usize;
         fn set_plugin_enabled(self: &SmushClient, index: usize, enable: bool);
         fn get_sender_option(
             self: &SmushClient,

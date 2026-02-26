@@ -530,8 +530,8 @@ impl SmushClient {
         index: PluginIndex,
         group: &str,
         enabled: bool,
-    ) -> bool {
-        let mut found_group = false;
+    ) -> usize {
+        let mut count = 0;
         for sender in self
             .senders::<T>(index)
             .borrow_mut()
@@ -539,9 +539,9 @@ impl SmushClient {
             .filter(|sender| sender.as_ref().group == group)
         {
             sender.as_mut().enabled = enabled;
-            found_group = true;
+            count += 1;
         }
-        found_group
+        count
     }
 
     pub fn set_plugin_enabled(&self, index: PluginIndex, enabled: bool) {

@@ -233,14 +233,13 @@ ScriptApi::EnableAlias(size_t plugin,
   return client.setSenderEnabled(SenderKind::Alias, plugin, label, enabled);
 }
 
-ApiCode
+size_t
 ScriptApi::EnableAliasGroup(size_t plugin,
                             string_view group,
                             bool enabled) const noexcept
 {
-  return client.setSendersEnabled(SenderKind::Alias, plugin, group, enabled)
-           ? ApiCode::OK
-           : ApiCode::AliasNotFound;
+  return client.setSenderGroupEnabled(
+    SenderKind::Alias, plugin, group, enabled);
 }
 
 ApiCode
@@ -251,14 +250,13 @@ ScriptApi::EnableTimer(size_t plugin,
   return client.setSenderEnabled(SenderKind::Timer, plugin, label, enabled);
 }
 
-ApiCode
+size_t
 ScriptApi::EnableTimerGroup(size_t plugin,
                             string_view group,
                             bool enabled) const noexcept
 {
-  return client.setSendersEnabled(SenderKind::Timer, plugin, group, enabled)
-           ? ApiCode::OK
-           : ApiCode::TimerNotFound;
+  return client.setSenderGroupEnabled(
+    SenderKind::Timer, plugin, group, enabled);
 }
 
 ApiCode
@@ -269,14 +267,13 @@ ScriptApi::EnableTrigger(size_t plugin,
   return client.setSenderEnabled(SenderKind::Trigger, plugin, label, enabled);
 }
 
-ApiCode
+size_t
 ScriptApi::EnableTriggerGroup(size_t plugin,
                               string_view group,
                               bool enabled) const noexcept
 {
-  return client.setSendersEnabled(SenderKind::Trigger, plugin, group, enabled)
-           ? ApiCode::OK
-           : ApiCode::TriggerNotFound;
+  return client.setSenderGroupEnabled(
+    SenderKind::Trigger, plugin, group, enabled);
 }
 
 QVariant

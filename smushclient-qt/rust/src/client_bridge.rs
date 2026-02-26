@@ -355,6 +355,16 @@ impl ffi::SmushClient {
         }
     }
 
+    pub fn remove_sender_groups(&self, index: PluginIndex, name: StringView<'_>) -> usize {
+        let Ok(name) = name.to_str() else {
+            return 0;
+        };
+        let client = &self.rust().client;
+        client.remove_sender_group::<Alias>(index, name)
+            + client.remove_sender_group::<Timer>(index, name)
+            + client.remove_sender_group::<Trigger>(index, name)
+    }
+
     pub fn remove_temporary_senders(&self, kind: SenderKind) -> usize {
         let client = &self.rust().client;
         match kind {
@@ -515,23 +525,38 @@ impl ffi::SmushClient {
         }
     }
 
-    pub fn set_senders_enabled(
+    pub fn set_sender_group_enabled(
         &self,
         kind: SenderKind,
         index: PluginIndex,
         group: StringView<'_>,
         enabled: bool,
-    ) -> bool {
+    ) -> usize {
         let Ok(group) = group.to_str() else {
-            return false;
+            return 0;
         };
         let client = &self.rust().client;
         match kind {
             SenderKind::Alias => client.set_group_enabled::<Alias>(index, group, enabled),
             SenderKind::Timer => client.set_group_enabled::<Timer>(index, group, enabled),
             SenderKind::Trigger => client.set_group_enabled::<Trigger>(index, group, enabled),
-            _ => false,
+            _ => 0,
         }
+    }
+
+    pub fn set_sender_groups_enabled(
+        &self,
+        index: PluginIndex,
+        group: StringView<'_>,
+        enabled: bool,
+    ) -> usize {
+        let Ok(group) = group.to_str() else {
+            return 0;
+        };
+        let client = &self.rust().client;
+        client.set_group_enabled::<Alias>(index, group, enabled)
+            + client.set_group_enabled::<Timer>(index, group, enabled)
+            + client.set_group_enabled::<Trigger>(index, group, enabled)
     }
 
     pub fn set_plugin_enabled(&self, index: PluginIndex, enabled: bool) {
