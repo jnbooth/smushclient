@@ -4,7 +4,7 @@ use std::ops::Deref;
 use std::path::Path;
 use std::{iter, slice, vec};
 
-use smushclient_plugins::{CursorVec, LoadError, Plugin, PluginIndex, SendIterable};
+use smushclient_plugins::{CursorVec, LoadError, Plugin, PluginIndex, PluginSender};
 
 use super::error::LoadFailure;
 use crate::world::WorldConfig;
@@ -37,7 +37,7 @@ impl PluginEngine {
     }
 
     #[allow(clippy::type_complexity)]
-    pub fn all_senders<T: SendIterable>(
+    pub fn all_senders<T: PluginSender>(
         &self,
     ) -> iter::Map<slice::Iter<'_, Plugin>, fn(&Plugin) -> &CursorVec<T>> {
         self.plugins.iter().map(Plugin::senders)

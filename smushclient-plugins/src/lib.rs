@@ -5,7 +5,7 @@ mod error;
 pub use error::{ImportError, LoadError, SenderAccessError};
 
 mod plugin;
-pub use plugin::{Plugin, PluginIndex, PluginLoadError, PluginMetadata, SendIterable};
+pub use plugin::{Plugin, PluginIndex, PluginLoadError, PluginMetadata, PluginSender};
 
 mod regex;
 pub use regex::{CaptureMatches, Captures, Match, Regex, RegexError};

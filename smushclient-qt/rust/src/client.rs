@@ -17,7 +17,7 @@ use smushclient::{
     TimerFinish, Timers, World, WorldConfig,
 };
 use smushclient_plugins::{
-    Alias, ImportError, LoadError, PluginIndex, SendIterable, SenderAccessError, Timer, Trigger,
+    Alias, ImportError, LoadError, PluginIndex, PluginSender, SenderAccessError, Timer, Trigger,
 };
 
 use crate::convert::Convert;
@@ -490,7 +490,7 @@ impl SmushClientRust {
         result
     }
 
-    pub fn get_sender_option<T: SendIterable + Optionable>(
+    pub fn get_sender_option<T: PluginSender + Optionable>(
         &self,
         index: PluginIndex,
         label: &str,
@@ -502,7 +502,7 @@ impl SmushClientRust {
         sender.get_option(option).convert()
     }
 
-    pub fn set_sender_option<T: SendIterable + Optionable>(
+    pub fn set_sender_option<T: PluginSender + Optionable>(
         &self,
         index: PluginIndex,
         label: &str,

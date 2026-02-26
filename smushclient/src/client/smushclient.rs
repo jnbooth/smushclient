@@ -13,7 +13,7 @@ use mud_transformer::{
 };
 use rodio::Decoder;
 use smushclient_plugins::{
-    Alias, CursorVec, ImportError, LoadError, Plugin, PluginIndex, SendIterable, SendTarget,
+    Alias, CursorVec, ImportError, LoadError, Plugin, PluginIndex, PluginSender, SendTarget,
     SenderAccessError, SortOnDrop, Timer, Trigger, XmlSerError,
 };
 #[cfg(feature = "async")]
@@ -29,7 +29,7 @@ use crate::handler::Handler;
 use crate::import::ImportedWorld;
 use crate::options::OptionValue;
 use crate::plugins::{
-    AliasEffects, AliasOutcome, CommandSource, LoadFailure, PluginEngine, ReactionIterable,
+    AliasEffects, AliasOutcome, CommandSource, LoadFailure, PluginEngine, PluginReaction,
     SendRequest, SendScriptRequest, SpanStyle, TriggerEffects,
 };
 use crate::world::{LogMode, OptionCaller, PersistError, SetOptionError, World, WorldConfig};
@@ -116,7 +116,7 @@ impl SmushClient {
         self.supported_tags = supported_tags;
     }
 
-    pub fn stop_evaluating<T: SendIterable>(&self) {
+    pub fn stop_evaluating<T: PluginSender>(&self) {
         for senders in self.plugins.all_senders::<T>() {
             senders.end();
         }
@@ -545,7 +545,7 @@ impl SmushClient {
             .unset_variable(METAVARIABLES_KEY, key)
     }
 
-    pub fn set_group_enabled<T: SendIterable>(
+    pub fn set_group_enabled<T: PluginSender>(
         &self,
         index: PluginIndex,
         group: &str,
@@ -568,7 +568,7 @@ impl SmushClient {
         self.plugins[index].disabled.set(!enabled);
     }
 
-    pub fn borrow_sender<T: SendIterable>(
+    pub fn borrow_sender<T: PluginSender>(
         &self,
         index: PluginIndex,
         label: &str,
@@ -577,7 +577,7 @@ impl SmushClient {
             .find(|sender| sender.as_ref().label == label)
     }
 
-    pub fn borrow_sender_mut<T: SendIterable>(
+    pub fn borrow_sender_mut<T: PluginSender>(
         &self,
         index: PluginIndex,
         label: &str,
@@ -587,7 +587,7 @@ impl SmushClient {
             .ok_or(SenderAccessError::NotFound)
     }
 
-    pub fn set_sender_enabled<T: SendIterable>(
+    pub fn set_sender_enabled<T: PluginSender>(
         &self,
         index: PluginIndex,
         label: &str,
@@ -597,15 +597,15 @@ impl SmushClient {
         Ok(())
     }
 
-    pub fn senders<T: SendIterable>(&self, index: PluginIndex) -> &CursorVec<T> {
+    pub fn senders<T: PluginSender>(&self, index: PluginIndex) -> &CursorVec<T> {
         self.plugins[index].senders::<T>()
     }
 
-    pub fn world_senders<T: SendIterable>(&self) -> &CursorVec<T> {
+    pub fn world_senders<T: PluginSender>(&self) -> &CursorVec<T> {
         self.world_plugin().senders::<T>()
     }
 
-    pub fn add_sender<T: SendIterable>(
+    pub fn add_sender<T: PluginSender>(
         &self,
         index: PluginIndex,
         mut sender: T,
@@ -619,7 +619,7 @@ impl SmushClient {
         Ok(senders.insert(sender))
     }
 
-    pub fn remove_sender<T: SendIterable>(
+    pub fn remove_sender<T: PluginSender>(
         &self,
         index: PluginIndex,
         label: &str,
@@ -634,19 +634,19 @@ impl SmushClient {
         Ok(())
     }
 
-    pub fn remove_sender_group<T: SendIterable>(&self, index: PluginIndex, group: &str) -> usize {
+    pub fn remove_sender_group<T: PluginSender>(&self, index: PluginIndex, group: &str) -> usize {
         self.senders::<T>(index)
             .retain(|sender: &T| sender.as_ref().group != group)
     }
 
-    pub fn remove_temporary_senders<T: SendIterable>(&self) -> usize {
+    pub fn remove_temporary_senders<T: PluginSender>(&self) -> usize {
         self.plugins
             .all_senders::<T>()
             .map(|senders| senders.retain(|sender: &T| !sender.as_ref().temporary))
             .sum()
     }
 
-    pub fn add_or_replace_sender<T: SendIterable>(
+    pub fn add_or_replace_sender<T: PluginSender>(
         &self,
         index: PluginIndex,
         sender: T,
@@ -658,14 +658,14 @@ impl SmushClient {
         }
     }
 
-    pub fn add_world_sender<T: SendIterable>(
+    pub fn add_world_sender<T: PluginSender>(
         &self,
         sender: T,
     ) -> Result<Ref<'_, T>, SenderAccessError> {
         Ok(self.world_plugin().add_sender(sender)?)
     }
 
-    pub fn replace_world_sender<T: SendIterable>(
+    pub fn replace_world_sender<T: PluginSender>(
         &self,
         index: usize,
         sender: T,
@@ -673,7 +673,7 @@ impl SmushClient {
         self.world_plugin().replace_sender(index, sender)
     }
 
-    pub fn export_world_senders<T: SendIterable>(&self) -> Result<String, XmlSerError> {
+    pub fn export_world_senders<T: PluginSender>(&self) -> Result<String, XmlSerError> {
         T::list_to_xml_string(
             self.world_plugin()
                 .senders::<T>()
@@ -683,7 +683,7 @@ impl SmushClient {
         )
     }
 
-    pub fn import_world_senders<T: SendIterable>(
+    pub fn import_world_senders<T: PluginSender>(
         &self,
         xml: &str,
     ) -> Result<SortOnDrop<'_, T>, ImportError> {
@@ -691,7 +691,7 @@ impl SmushClient {
         Ok(self.world_plugin().import_senders(&mut senders))
     }
 
-    pub fn export_sender<T: SendIterable>(
+    pub fn export_sender<T: PluginSender>(
         &self,
         index: PluginIndex,
         name: &str,
@@ -919,7 +919,7 @@ impl SmushClient {
         self.info.simulating.set(false);
     }
 
-    fn process_matches<T: ReactionIterable, H: Handler>(
+    fn process_matches<T: PluginReaction, H: Handler>(
         &self,
         line: &str,
         output: &[Output],
@@ -1074,7 +1074,7 @@ impl SmushClient {
         );
     }
 
-    fn count_senders<T: SendIterable>(&self) -> usize {
+    fn count_senders<T: PluginSender>(&self) -> usize {
         self.plugins.all_senders::<T>().map(CursorVec::len).sum()
     }
 

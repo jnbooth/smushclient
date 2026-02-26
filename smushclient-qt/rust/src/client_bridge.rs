@@ -7,7 +7,7 @@ use cxx_qt_io::QAbstractSocket;
 use cxx_qt_lib::{QString, QStringList, QVariant};
 use smushclient::world::{LogMode, PersistError};
 use smushclient_plugins::{
-    Alias, ImportError, LoadError, PluginIndex, SendIterable, Timer, Trigger, XmlSerError,
+    Alias, ImportError, LoadError, PluginIndex, PluginSender, Timer, Trigger, XmlSerError,
 };
 
 use crate::convert::Convert;
@@ -26,7 +26,7 @@ fn handle_import_error<T>(res: Result<T, ImportError>) -> Result<ffi::RegexParse
 }
 
 impl ffi::SmushClient {
-    pub fn borrow_world_sender<T: SendIterable>(&self, index: usize) -> Option<Ref<'_, T>> {
+    pub fn borrow_world_sender<T: PluginSender>(&self, index: usize) -> Option<Ref<'_, T>> {
         self.rust().client.world_plugin().senders::<T>().get(index)
     }
 

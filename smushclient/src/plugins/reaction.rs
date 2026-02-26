@@ -1,11 +1,11 @@
 use std::num::NonZero;
 
-use smushclient_plugins::{Alias, Reaction, SendIterable, Trigger};
+use smushclient_plugins::{Alias, PluginSender, Reaction, Trigger};
 
 use super::effects::{AliasEffects, SpanStyle, TriggerEffects};
 use crate::world::WorldConfig;
 
-pub(crate) trait ReactionIterable: SendIterable {
+pub(crate) trait PluginReaction: PluginSender {
     const AFFECTS_STYLE: bool;
     type Effects;
 
@@ -18,7 +18,7 @@ pub(crate) trait ReactionIterable: SendIterable {
     fn add_effects(&self, effects: &mut Self::Effects);
 }
 
-impl ReactionIterable for Alias {
+impl PluginReaction for Alias {
     const AFFECTS_STYLE: bool = false;
     type Effects = AliasEffects;
 
@@ -46,7 +46,7 @@ impl ReactionIterable for Alias {
     }
 }
 
-impl ReactionIterable for Trigger {
+impl PluginReaction for Trigger {
     const AFFECTS_STYLE: bool = true;
     type Effects = TriggerEffects;
 

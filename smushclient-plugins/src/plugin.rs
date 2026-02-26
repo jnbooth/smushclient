@@ -74,7 +74,7 @@ mod private {
     pub trait Sealed {}
 }
 
-pub trait SendIterable:
+pub trait PluginSender:
     XmlIterable + AsRef<Sender> + AsMut<Sender> + Eq + Ord + Sized + private::Sealed
 {
     fn for_plugin(plugin: &Plugin) -> &CursorVec<Self>;
@@ -92,28 +92,28 @@ pub trait SendIterable:
 }
 
 impl private::Sealed for Alias {}
-impl SendIterable for Alias {
+impl PluginSender for Alias {
     fn for_plugin(plugin: &Plugin) -> &CursorVec<Self> {
         &plugin.aliases
     }
 }
 
 impl private::Sealed for Timer {}
-impl SendIterable for Timer {
+impl PluginSender for Timer {
     fn for_plugin(plugin: &Plugin) -> &CursorVec<Self> {
         &plugin.timers
     }
 }
 
 impl private::Sealed for Trigger {}
-impl SendIterable for Trigger {
+impl PluginSender for Trigger {
     fn for_plugin(plugin: &Plugin) -> &CursorVec<Self> {
         &plugin.triggers
     }
 }
 
 impl Plugin {
-    pub fn senders<T: SendIterable>(&self) -> &CursorVec<T> {
+    pub fn senders<T: PluginSender>(&self) -> &CursorVec<T> {
         T::for_plugin(self)
     }
 
@@ -160,13 +160,13 @@ impl Plugin {
         self.triggers.retain(|sender| !sender.temporary);
     }
 
-    pub fn add_sender<T: SendIterable>(&self, sender: T) -> Result<Ref<'_, T>, usize> {
+    pub fn add_sender<T: PluginSender>(&self, sender: T) -> Result<Ref<'_, T>, usize> {
         let senders = self.senders::<T>();
         sender.assert_unique_label(senders)?;
         Ok(senders.insert(sender))
     }
 
-    pub fn replace_sender<T: SendIterable>(
+    pub fn replace_sender<T: PluginSender>(
         &self,
         index: usize,
         sender: T,
@@ -183,7 +183,7 @@ impl Plugin {
         Ok(senders.replace(index, sender))
     }
 
-    pub fn import_senders<T: SendIterable>(&self, imported: &mut Vec<T>) -> SortOnDrop<'_, T> {
+    pub fn import_senders<T: PluginSender>(&self, imported: &mut Vec<T>) -> SortOnDrop<'_, T> {
         let mut senders = self.senders::<T>().borrow_mut();
         let senders_len = senders.len();
         let need_relabeling = !imported

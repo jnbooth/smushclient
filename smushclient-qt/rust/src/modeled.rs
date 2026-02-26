@@ -5,7 +5,7 @@ use cxx_qt::{CxxQtType, Initialize};
 use cxx_qt_lib::{QDate, QSet, QString, QVariant};
 use smushclient::{SenderMap, SmushClient};
 use smushclient_plugins::{
-    Alias, CursorVec, Plugin, PluginIndex, PluginMetadata, SendIterable, Timer, Trigger,
+    Alias, CursorVec, Plugin, PluginIndex, PluginMetadata, PluginSender, Timer, Trigger,
 };
 
 use crate::convert::impl_constructor;
@@ -26,7 +26,7 @@ pub trait Modeled {
         data: &QVariant,
     ) -> Option<usize>
     where
-        Self: Clone + Eq + SendIterable,
+        Self: Clone + Eq + PluginSender,
     {
         let mut senders = client.world_senders::<Self>().borrow_mut();
         senders[index].set_cell(column, data)?;
