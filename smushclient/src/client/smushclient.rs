@@ -174,10 +174,7 @@ impl SmushClient {
     }
 
     fn option_caller(&self, index: PluginIndex) -> OptionCaller {
-        let Some(plugin) = self.plugin(index) else {
-            return OptionCaller::WorldScript;
-        };
-        if plugin.metadata.is_world_plugin {
+        if self.plugins[index].metadata.is_world_plugin {
             OptionCaller::WorldScript
         } else {
             OptionCaller::Plugin
@@ -406,8 +403,8 @@ impl SmushClient {
         self.plugins.iter()
     }
 
-    pub fn plugin(&self, index: PluginIndex) -> Option<&Plugin> {
-        self.plugins.get(index)
+    pub fn plugin(&self, index: PluginIndex) -> &Plugin {
+        &self.plugins[index]
     }
 
     pub fn plugins_len(&self) -> usize {
@@ -462,9 +459,9 @@ impl SmushClient {
         !self.variables.borrow().is_empty()
     }
 
-    pub fn variables_len(&self, index: PluginIndex) -> Option<usize> {
-        let plugin_id = &self.plugins.get(index)?.metadata.id;
-        Some(self.variables.borrow().count_variables(plugin_id))
+    pub fn variables_len(&self, index: PluginIndex) -> usize {
+        let plugin_id = &self.plugins[index].metadata.id;
+        self.variables.borrow().count_variables(plugin_id)
     }
 
     pub fn load_variables<R: Read>(&self, reader: R) -> Result<(), PersistError> {
@@ -480,7 +477,7 @@ impl SmushClient {
     }
 
     pub fn borrow_variable(&self, index: PluginIndex, key: &LuaStr) -> Option<Ref<'_, LuaStr>> {
-        let plugin_id = &self.plugins.get(index)?.metadata.id;
+        let plugin_id = &self.plugins[index].metadata.id;
         Ref::filter_map(self.variables.borrow(), |vars| {
             vars.get_variable(plugin_id, key)
         })
@@ -499,11 +496,8 @@ impl SmushClient {
     }
 
     pub fn set_variable(&self, index: PluginIndex, key: LuaString, value: LuaString) -> bool {
-        let Some(plugin) = self.plugins.get(index) else {
-            return false;
-        };
+        let plugin_id = &self.plugins[index].metadata.id;
         self.info.variables_dirty.set(true);
-        let plugin_id = &plugin.metadata.id;
         self.variables
             .borrow_mut()
             .set_variable(plugin_id, key, value);
@@ -511,8 +505,8 @@ impl SmushClient {
     }
 
     pub fn unset_variable(&self, index: PluginIndex, key: &LuaStr) -> Option<LuaString> {
+        let plugin_id = &self.plugins[index].metadata.id;
         self.info.variables_dirty.set(true);
-        let plugin_id = &self.plugins.get(index)?.metadata.id;
         self.variables.borrow_mut().unset_variable(plugin_id, key)
     }
 
@@ -550,12 +544,8 @@ impl SmushClient {
         found_group
     }
 
-    pub fn set_plugin_enabled(&self, index: PluginIndex, enabled: bool) -> bool {
-        let Some(plugin) = self.plugins.get(index) else {
-            return false;
-        };
-        plugin.disabled.set(!enabled);
-        true
+    pub fn set_plugin_enabled(&self, index: PluginIndex, enabled: bool) {
+        self.plugins[index].disabled.set(!enabled);
     }
 
     pub fn borrow_sender<T: SendIterable>(
@@ -781,9 +771,7 @@ impl SmushClient {
     where
         H: Handler,
     {
-        let Some(plugin) = self.plugins.get(plugin_index) else {
-            return false;
-        };
+        let plugin = &self.plugins[plugin_index];
         let aliases = Alias::from_either(plugin, &self.world);
         let mut buffers = self.buffers.borrow_mut();
         let (text_buf, destination_buf, _) = &mut *buffers;

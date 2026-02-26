@@ -197,15 +197,7 @@ impl SmushClientRust {
     /// Panics if the index is out of bounds.
     #[track_caller]
     pub fn plugin(&self, index: PluginIndex) -> ffi::PluginPack {
-        #[cold]
-        #[track_caller]
-        fn assert_failed(index: PluginIndex, len: usize) -> ! {
-            panic!("plugin index (is {index}) should be < len (is {len})");
-        }
-        match self.client.plugin(index) {
-            Some(plugin) => plugin.into(),
-            None => assert_failed(index, self.client.plugins_len()),
-        }
+        self.client.plugin(index).into()
     }
 
     pub fn reset_world_plugin(&self) {

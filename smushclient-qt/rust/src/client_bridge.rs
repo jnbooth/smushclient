@@ -228,24 +228,15 @@ impl ffi::SmushClient {
     }
 
     pub fn plugin_enabled(&self, index: PluginIndex) -> bool {
-        self.rust()
-            .client
-            .plugin(index)
-            .is_some_and(|plugin| !plugin.disabled.get())
+        !self.rust().client.plugin(index).disabled.get()
     }
 
     pub fn plugin_id(&self, index: PluginIndex) -> QString {
-        match self.rust().client.plugin(index) {
-            Some(plugin) => QString::from(&plugin.metadata.id),
-            None => QString::default(),
-        }
+        QString::from(&self.rust().client.plugin(index).metadata.id)
     }
 
     pub fn plugin_model_text(&self, index: PluginIndex, column: i32) -> QString {
-        match self.rust().client.plugin(index) {
-            Some(plugin) => plugin.cell_text(column),
-            None => QString::default(),
-        }
+        self.rust().client.plugin(index).cell_text(column)
     }
 
     pub fn try_add_plugin(self: Pin<&mut Self>, path: &QString) -> Result<PluginIndex, LoadError> {
@@ -543,8 +534,8 @@ impl ffi::SmushClient {
         }
     }
 
-    pub fn set_plugin_enabled(&self, index: PluginIndex, enabled: bool) -> bool {
-        self.rust().client.set_plugin_enabled(index, enabled)
+    pub fn set_plugin_enabled(&self, index: PluginIndex, enabled: bool) {
+        self.rust().client.set_plugin_enabled(index, enabled);
     }
 
     pub fn get_sender_option(

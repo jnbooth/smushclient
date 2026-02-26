@@ -253,7 +253,7 @@ pub mod ffi {
             group: StringView,
             enable: bool,
         ) -> bool;
-        fn set_plugin_enabled(self: &SmushClient, index: usize, enable: bool) -> bool;
+        fn set_plugin_enabled(self: &SmushClient, index: usize, enable: bool);
         fn get_sender_option(
             self: &SmushClient,
             kind: SenderKind,

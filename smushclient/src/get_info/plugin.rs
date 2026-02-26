@@ -29,7 +29,7 @@ impl SmushClient {
             9 => V::visit(plugin.triggers.len()),
             10 => V::visit(plugin.aliases.len()),
             11 => V::visit(plugin.timers.len()),
-            12 => V::visit(self.variables_len(index).unwrap_or_default()),
+            12 => V::visit(self.variables_len(index)),
             13 => V::visit(plugin.metadata.written),
             14 => V::visit(plugin.metadata.modified),
             15 => V::visit(false), // save state flag
@@ -39,7 +39,7 @@ impl SmushClient {
             19 => parse_double::<V>(&plugin.metadata.version),
             20 => V::visit(plugin.metadata.path.parent().unwrap_or(Path::new(""))),
             21 => V::visit(index),
-            // 22 => V::visittime(Utc::now()), // date/time plugin installed (handled by frontend)
+            // 22 => V::visit(Utc::now()), // date/time plugin installed (handled by frontend)
             // 23 - during a CallPlugin call, the ID of the calling plugin (if any) (handled by frontend)
             24 => V::visit(0.0), // Time spent on scripting in this plugin (seconds, double)
             25 => V::visit(plugin.metadata.sequence),

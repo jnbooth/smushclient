@@ -52,13 +52,10 @@ PluginModel::addPlugin(const QString& filePath)
 PluginDetails
 PluginModel::pluginDetails(const QModelIndex& index) const
 {
-  return PluginDetails(client, pluginId(index));
-}
-
-QString
-PluginModel::pluginId(const QModelIndex& index) const
-{
-  return client.pluginId(pluginIndex(index.row()));
+  if (!isValidIndex(index)) {
+    return PluginDetails();
+  }
+  return PluginDetails(client, pluginIndex(index.row()));
 }
 
 bool
@@ -248,7 +245,7 @@ bool
 PluginModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
   if (role != Qt::CheckStateRole || index.column() != 4 || index.row() < 0 ||
-      index.row() >= pluginCount || isLeaf(index)) {
+      index.row() + 1 >= pluginCount || isLeaf(index)) {
     return false;
   }
 

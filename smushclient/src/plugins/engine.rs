@@ -50,7 +50,7 @@ impl PluginEngine {
     }
 
     pub fn reinstall_plugin(&mut self, index: PluginIndex) -> Result<usize, LoadError> {
-        let plugin = self.plugins.get_mut(index).ok_or(io::ErrorKind::NotFound)?;
+        let plugin = &mut self.plugins[index];
         let path = plugin.metadata.path.clone();
         plugin.disabled.set(true);
         *plugin = Plugin::load(&path)?;

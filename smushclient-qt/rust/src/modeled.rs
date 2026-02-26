@@ -1,10 +1,10 @@
 use std::pin::Pin;
 use std::ptr;
 
-use cxx_qt::CxxQtType;
+use cxx_qt::{CxxQtType, Initialize};
 use cxx_qt_lib::{QDate, QSet, QString, QVariant};
 use smushclient::{SendIterable, SenderMap, SmushClient};
-use smushclient_plugins::{Alias, CursorVec, Plugin, PluginMetadata, Timer, Trigger};
+use smushclient_plugins::{Alias, CursorVec, Plugin, PluginIndex, PluginMetadata, Timer, Trigger};
 
 use crate::convert::impl_constructor;
 use crate::ffi;
@@ -152,6 +152,12 @@ pub struct PluginDetailsRust {
     pub description: QString,
 }
 
+impl Initialize for ffi::PluginDetails {
+    fn initialize(self: core::pin::Pin<&mut Self>) {
+        todo!()
+    }
+}
+
 impl From<&PluginMetadata> for PluginDetailsRust {
     fn from(value: &PluginMetadata) -> Self {
         Self {
@@ -178,6 +184,12 @@ impl_constructor!(<'a>, ffi::PluginDetails, (&'a ffi::SmushClient, QString), {
             return PluginDetailsRust::default();
         };
         PluginDetailsRust::from(&plugin.metadata)
+    }
+});
+
+impl_constructor!(<'a>, ffi::PluginDetails, (&'a ffi::SmushClient, PluginIndex), {
+    fn new((client, index): (&'a ffi::SmushClient, PluginIndex)) -> PluginDetailsRust {
+        PluginDetailsRust::from(&client.client.plugin(index).metadata)
     }
 });
 

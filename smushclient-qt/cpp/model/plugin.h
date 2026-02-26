@@ -12,11 +12,6 @@ public:
   explicit PluginModel(SmushClient& client, QObject* parent = nullptr);
   bool addPlugin(const QString& filePath);
   PluginDetails pluginDetails(const QModelIndex& index) const;
-  QString pluginId(const QModelIndex& index) const;
-  size_t pluginIndex(int row) const noexcept
-  {
-    return row >= worldIndex ? row + 1 : row;
-  }
   bool reinstall(const QModelIndex& index);
 
   int columnCount(const QModelIndex& /*index*/) const override
@@ -57,9 +52,13 @@ private:
   bool isValidIndex(const QModelIndex& index) const noexcept
   {
     return isValidColumn(index.column()) && index.row() >= 0 &&
-           index.row() < pluginCount && index.internalId() == 0;
+           index.row() + 1 < pluginCount && index.internalId() == 0;
   }
 
+  size_t pluginIndex(int row) const noexcept
+  {
+    return row >= worldIndex ? row + 1 : row;
+  }
   int pluginIndexToRow(int index) const noexcept
   {
     return index > worldIndex ? index - 1 : index;

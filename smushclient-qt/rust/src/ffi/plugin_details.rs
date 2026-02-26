@@ -28,8 +28,15 @@ pub mod ffi {
         type PluginDetails = super::PluginDetailsRust;
     }
 
+    impl cxx_qt::Constructor<(), NewArguments = ()> for PluginDetails {}
+
     impl<'a>
         cxx_qt::Constructor<(&'a SmushClient, QString), NewArguments = (&'a SmushClient, QString)>
+        for PluginDetails
+    {
+    }
+
+    impl<'a> cxx_qt::Constructor<(&'a SmushClient, usize), NewArguments = (&'a SmushClient, usize)>
         for PluginDetails
     {
     }
