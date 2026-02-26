@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::io::BufRead;
 
 use base64::Engine;
@@ -292,6 +293,7 @@ impl TryFrom<MuClient<'_>> for ImportedWorld {
             keep_commands_on_same_line: world.keep_commands_on_same_line,
             new_activity_sound: world.new_activity_sound,
             line_information: world.line_information,
+            colour_map: HashMap::new(),
             use_mxp: world.use_mxp,
             ignore_mxp_colour_changes: world.ignore_mxp_colour_changes,
             use_custom_link_colour: world.use_custom_link_colour,

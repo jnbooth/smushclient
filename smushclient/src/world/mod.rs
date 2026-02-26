@@ -30,8 +30,9 @@ mod types;
 pub use types::*;
 
 mod versions;
+use versions::Migrate;
 
-const CURRENT_VERSION: u16 = 6;
+const CURRENT_VERSION: u16 = 7;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct World<'a> {
@@ -66,13 +67,14 @@ impl World<'static> {
         let (version, bytes) = buf.split_at_checked(2).ok_or(PersistError::Invalid)?;
         let version = u16::from_be_bytes(version.try_into()?);
         match version {
-            1 => postcard::from_bytes::<versions::V1>(bytes).map(Into::into),
-            2 => postcard::from_bytes::<versions::V2>(bytes).map(Into::into),
-            3 => postcard::from_bytes::<versions::V3>(bytes).map(Into::into),
-            4 => postcard::from_bytes::<versions::V4>(bytes).map(Into::into),
-            5 => postcard::from_bytes::<versions::V5>(bytes).map(Into::into),
-            6 => postcard::from_bytes(bytes),
-            _ => Err(PersistError::UnsupportedVersion)?,
+            1 => versions::V1::migrate(bytes),
+            2 => versions::V2::migrate(bytes),
+            3 => versions::V3::migrate(bytes),
+            4 => versions::V4::migrate(bytes),
+            5 => versions::V5::migrate(bytes),
+            6 => versions::V6::migrate(bytes),
+            7 => postcard::from_bytes(bytes),
+            _ => return Err(PersistError::UnsupportedVersion),
         }
         .map_err(Into::into)
     }

@@ -1,6 +1,6 @@
 #![allow(clippy::trivially_copy_pass_by_ref)]
 use cxx::type_id;
-use cxx_qt_lib::{QList, QListElement};
+use cxx_qt_lib::{QColor, QList, QListElement};
 
 macro_rules! impl_qlist_element {
     ( $typeName:ty, $module:ident, $typeId:literal $(,)? ) => {
@@ -68,4 +68,5 @@ macro_rules! impl_qlist_element {
     };
 }
 
+impl_qlist_element!(crate::QPair<QColor, QColor>, qlist_qpair_qcolor_qcolor, "QList_QPair_QColor_QColor");
 impl_qlist_element!(crate::QTextLength, qlist_qtextlength, "QList_QTextLength");

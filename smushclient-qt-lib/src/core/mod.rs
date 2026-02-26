@@ -6,6 +6,9 @@ mod qlist;
 mod qmap;
 pub use qmap::QMapPair_i32_QVariant;
 
+mod qpair;
+pub use qpair::QPair;
+
 mod qstringext;
 pub use qstringext::QStringExt;
 

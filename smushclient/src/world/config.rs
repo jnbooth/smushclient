@@ -1,10 +1,11 @@
 use std::borrow::Cow;
 use std::cell::Cell;
+use std::collections::HashMap;
 use std::path::PathBuf;
 
 use chrono::Local;
 use mud_transformer::mxp::RgbColor;
-use mud_transformer::{TransformerConfig, UseMxp};
+use mud_transformer::{Output, OutputFragment, TransformerConfig, UseMxp};
 use serde::{Deserialize, Serialize};
 use smushclient_plugins::{Plugin, PluginMetadata};
 use uuid::Uuid;
@@ -68,6 +69,9 @@ pub struct WorldConfig {
     pub keep_commands_on_same_line: bool,
     pub new_activity_sound: String,
     pub line_information: bool,
+
+    // Colors
+    pub colour_map: HashMap<RgbColor, RgbColor>,
 
     // MUD
     pub use_mxp: UseMxp,
@@ -180,6 +184,7 @@ impl WorldConfig {
             keep_commands_on_same_line: false,
             new_activity_sound: String::new(),
             line_information: false,
+            colour_map: HashMap::new(),
 
             // MUD
             use_mxp: UseMxp::Command,
@@ -290,6 +295,28 @@ impl WorldConfig {
             AutoConnect::Diku => format!("{player}\r\n{password}\r\n{text}"),
             AutoConnect::Mush => format!("connect {player} {password}\r\n{text}"),
             AutoConnect::Mxp | AutoConnect::None => text,
+        }
+    }
+
+    pub fn map_color(&self, color: &mut RgbColor) {
+        if let Some(mapped_color) = self.colour_map.get(color) {
+            *color = *mapped_color;
+        }
+    }
+
+    pub fn map_colors<'a, I>(&self, output: I)
+    where
+        I: IntoIterator<Item = &'a mut Output>,
+    {
+        for output in output {
+            if let OutputFragment::Text(fragment) = &mut output.fragment {
+                if let Some(foreground) = &mut fragment.foreground {
+                    self.map_color(foreground);
+                }
+                if let Some(background) = &mut fragment.background {
+                    self.map_color(background);
+                }
+            }
         }
     }
 }

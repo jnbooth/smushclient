@@ -71,7 +71,10 @@ macro_rules! impl_convert_struct {
 }
 pub(crate) use impl_convert_struct;
 
-impl<T, Ffi: Convert<T>> Convert<Option<T>> for Option<Ffi> {
+impl<T, Ffi> Convert<Option<T>> for Option<Ffi>
+where
+    Ffi: Convert<T>,
+{
     fn from_ffi(value: Self) -> Option<T> {
         value.map(Convert::from_ffi)
     }
@@ -81,7 +84,11 @@ impl<T, Ffi: Convert<T>> Convert<Option<T>> for Option<Ffi> {
     }
 }
 
-impl<T: ToOwned + ?Sized, Ffi: Convert<T::Owned>> Convert<Cow<'static, T>> for Ffi {
+impl<T, Ffi> Convert<Cow<'static, T>> for Ffi
+where
+    T: ToOwned + ?Sized,
+    Ffi: Convert<T::Owned>,
+{
     fn from_ffi(value: Self) -> Cow<'static, T> {
         Cow::Owned(Convert::from_ffi(value))
     }
@@ -91,7 +98,10 @@ impl<T: ToOwned + ?Sized, Ffi: Convert<T::Owned>> Convert<Cow<'static, T>> for F
     }
 }
 
-impl<T, Ffi: Convert<T>> Convert<Vec<T>> for Vec<Ffi> {
+impl<T, Ffi> Convert<Vec<T>> for Vec<Ffi>
+where
+    Ffi: Convert<T>,
+{
     fn from_ffi(value: Self) -> Vec<T> {
         value.into_iter().map(Convert::from_ffi).collect()
     }
@@ -101,7 +111,10 @@ impl<T, Ffi: Convert<T>> Convert<Vec<T>> for Vec<Ffi> {
     }
 }
 
-impl<T, Ffi: Convert<T>, const N: usize> Convert<[T; N]> for Vec<Ffi> {
+impl<T, Ffi, const N: usize> Convert<[T; N]> for Vec<Ffi>
+where
+    Ffi: Convert<T>,
+{
     /// # Panics
     ///
     /// Panics if `self.len()` is not `N`.

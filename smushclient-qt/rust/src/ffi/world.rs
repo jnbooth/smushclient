@@ -14,6 +14,10 @@ pub mod ffi {
         type QString = cxx_qt_lib::QString;
         include!("cxx-qt-lib/quuid.h");
         type QUuid = cxx_qt_lib::QUuid;
+
+        include!("smushclient-qt-lib/qlist.h");
+        type QList_QPair_QColor_QColor =
+            cxx_qt_lib::QList<smushclient_qt_lib::QPair<QColor, QColor>>;
     }
 
     extern "C++" {
@@ -135,6 +139,7 @@ pub mod ffi {
         #[qproperty(bool, keep_commands_on_same_line)]
         #[qproperty(QString, new_activity_sound)]
         #[qproperty(bool, line_information)]
+        #[qproperty(QList_QPair_QColor_QColor, colour_map)]
         // MUD
         #[qproperty(UseMxp, use_mxp)]
         #[qproperty(bool, ignore_mxp_colour_changes)]

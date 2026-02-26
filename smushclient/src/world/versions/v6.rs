@@ -1,16 +1,17 @@
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::path::PathBuf;
 
 use mud_transformer::UseMxp;
 use mud_transformer::mxp::RgbColor;
 use serde::Deserialize;
-use smushclient_plugins::{Alias, CursorVec, Timer, Trigger};
+use smushclient_plugins::{Alias, Timer, Trigger};
 use uuid::Uuid;
 
 use super::super::types::*;
 
-#[derive(Deserialize)]
-pub struct World {
+#[derive(Clone, Deserialize)]
+pub struct WorldConfig {
     // Connecting
     pub name: String,
     pub site: String,
@@ -49,8 +50,6 @@ pub struct World {
     pub log_script_errors: bool,
 
     // Timers
-    #[serde(serialize_with = "skip_temporary")]
-    pub timers: CursorVec<Timer>,
     pub enable_timers: bool,
 
     // Output
@@ -89,14 +88,10 @@ pub struct World {
     pub mxp_debug_level: MxpDebugLevel,
 
     // Triggers
-    #[serde(serialize_with = "skip_temporary")]
-    pub triggers: CursorVec<Trigger>,
     pub enable_triggers: bool,
     pub enable_trigger_sounds: bool,
 
     // Aliases
-    #[serde(serialize_with = "skip_temporary")]
-    pub aliases: CursorVec<Alias>,
     pub enable_aliases: bool,
 
     // Keypad
@@ -120,101 +115,23 @@ pub struct World {
     pub plugins: Vec<PathBuf>,
 }
 
-impl From<World> for super::super::World<'static> {
-    fn from(value: World) -> Self {
-        super::v6::World::from(value).into()
-    }
+#[derive(Deserialize)]
+pub struct World<'a> {
+    pub config: Cow<'a, WorldConfig>,
+    pub timers: Cow<'a, [Timer]>,
+    pub triggers: Cow<'a, [Trigger]>,
+    pub aliases: Cow<'a, [Alias]>,
 }
 
-impl From<World> for super::v6::World<'static> {
-    fn from(value: World) -> Self {
+impl From<World<'static>> for super::super::World<'static> {
+    fn from(value: World<'static>) -> Self {
         let World {
-            name,
-            site,
-            port,
-            use_ssl,
-            use_proxy,
-            proxy_server,
-            proxy_port,
-            proxy_username,
-            proxy_password,
-            save_world_automatically,
-            player,
-            password,
-            connect_method,
-            connect_text,
-            log_file_preamble,
-            log_file_postamble,
-            log_format,
-            log_in_colour,
-            log_output,
-            log_input,
-            log_notes,
-            log_mode,
-            auto_log_file_name,
-            write_world_name_to_log,
-            log_line_preamble_output,
-            log_line_preamble_input,
-            log_line_preamble_notes,
-            log_line_postamble_output,
-            log_line_postamble_input,
-            log_line_postamble_notes,
-            log_script_errors,
+            config,
             timers,
-            enable_timers,
-            show_bold,
-            show_italic,
-            show_underline,
-            indent_paras,
-            ansi_colours,
-            use_default_colours,
-            display_my_input,
-            echo_colour,
-            echo_background_colour,
-            keep_commands_on_same_line,
-            new_activity_sound,
-            line_information,
-            use_mxp,
-            ignore_mxp_colour_changes,
-            use_custom_link_colour,
-            hyperlink_colour,
-            mud_can_change_link_colour,
-            underline_hyperlinks,
-            mud_can_remove_underline,
-            hyperlink_adds_to_command_history,
-            echo_hyperlink_in_output_window,
-            terminal_identification,
-            disable_compression,
-            naws,
-            carriage_return_clears_line,
-            utf_8,
-            convert_ga_to_newline,
-            no_echo_off,
-            enable_command_stack,
-            command_stack_character,
-            mxp_debug_level,
             triggers,
-            enable_triggers,
-            enable_trigger_sounds,
             aliases,
-            enable_aliases,
-            numpad_shortcuts,
-            keypad_enable,
-            hotkey_adds_to_command_history,
-            echo_hotkey_in_output_window,
-            enable_scripts,
-            world_script,
-            script_reload_option,
-            note_text_colour,
-            note_background_colour,
-            script_errors_to_output_window,
-            error_text_colour,
-            error_background_colour,
-            id,
-            plugins,
         } = value;
-
-        let config = super::v6::WorldConfig {
+        let WorldConfig {
             name,
             site,
             port,
@@ -295,12 +212,94 @@ impl From<World> for super::v6::World<'static> {
             error_background_colour,
             id,
             plugins,
-        };
+        } = config.into_owned();
         Self {
-            config: Cow::Owned(config),
-            timers: Cow::Owned(timers.into_vec()),
-            aliases: Cow::Owned(aliases.into_vec()),
-            triggers: Cow::Owned(triggers.into_vec()),
+            config: Cow::Owned(super::super::config::WorldConfig {
+                name,
+                site,
+                port,
+                use_ssl,
+                use_proxy,
+                proxy_server,
+                proxy_port,
+                proxy_username,
+                proxy_password,
+                save_world_automatically,
+                player,
+                password,
+                connect_method,
+                connect_text,
+                log_file_preamble,
+                log_file_postamble,
+                log_format,
+                log_in_colour,
+                log_output,
+                log_input,
+                log_notes,
+                log_mode,
+                auto_log_file_name,
+                write_world_name_to_log,
+                log_line_preamble_output,
+                log_line_preamble_input,
+                log_line_preamble_notes,
+                log_line_postamble_output,
+                log_line_postamble_input,
+                log_line_postamble_notes,
+                log_script_errors,
+                enable_timers,
+                show_bold,
+                show_italic,
+                show_underline,
+                indent_paras,
+                ansi_colours,
+                use_default_colours,
+                display_my_input,
+                echo_colour,
+                echo_background_colour,
+                keep_commands_on_same_line,
+                new_activity_sound,
+                line_information,
+                colour_map: HashMap::new(),
+                use_mxp,
+                ignore_mxp_colour_changes,
+                use_custom_link_colour,
+                hyperlink_colour,
+                mud_can_change_link_colour,
+                underline_hyperlinks,
+                mud_can_remove_underline,
+                hyperlink_adds_to_command_history,
+                echo_hyperlink_in_output_window,
+                terminal_identification,
+                disable_compression,
+                naws,
+                carriage_return_clears_line,
+                utf_8,
+                convert_ga_to_newline,
+                no_echo_off,
+                enable_command_stack,
+                command_stack_character,
+                mxp_debug_level,
+                enable_triggers,
+                enable_trigger_sounds,
+                enable_aliases,
+                numpad_shortcuts,
+                keypad_enable,
+                hotkey_adds_to_command_history,
+                echo_hotkey_in_output_window,
+                enable_scripts,
+                world_script,
+                script_reload_option,
+                note_text_colour,
+                note_background_colour,
+                script_errors_to_output_window,
+                error_text_colour,
+                error_background_colour,
+                id,
+                plugins,
+            }),
+            timers,
+            triggers,
+            aliases,
         }
     }
 }

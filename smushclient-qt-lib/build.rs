@@ -35,11 +35,14 @@ fn main() {
     let header_files: &[(&[u8], &OsStr)] = &[
         include_header!("include/core/qchar.h"),
         include_header!("include/core/qlist/qlist_private.h"),
+        include_header!("include/core/qlist/qlist_qpair_qcolor_qcolor.h"),
         include_header!("include/core/qlist/qlist_qtextlength.h"),
         include_header!("include/core/qlist/qlist.h"),
         include_header!("include/core/qmap/qmap_i32_qvariant.h"),
         include_header!("include/core/qmap/qmap_private.h"),
         include_header!("include/core/qmap/qmap.h"),
+        include_header!("include/core/qpair/qpair_qcolor_qcolor.h"),
+        include_header!("include/core/qpair/qpair.h"),
         include_header!("include/core/qstringext.h"),
         include_header!("include/core/qvariant/qvariant.h"),
         include_header!("include/core/qvariant/qvariant_qbrush.h"),
@@ -73,6 +76,7 @@ fn main() {
         .cpp_files(&[
             "src/core/qlist/qlist.cpp",
             "src/core/qmap/qmap.cpp",
+            "src/core/qpair.cpp",
             "src/core/qvariant/qvariant.cpp",
             "src/gui/qbrush.cpp",
             "src/gui/qfontinfo.cpp",
@@ -83,6 +87,7 @@ fn main() {
         ])
         .files([
             "src/core/qchar.rs",
+            "src/core/qlist/qlist_qpair_qcolor_qcolor.rs",
             "src/core/qlist/qlist_qtextlength.rs",
             "src/core/qmap/qmap_i32_qvariant.rs",
             "src/core/qstringext.rs",

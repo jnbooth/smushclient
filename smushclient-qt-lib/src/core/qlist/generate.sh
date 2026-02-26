@@ -140,3 +140,5 @@ EOF
 #generate_bridge "QTextCharFormat"
 #generate_bridge "QTextFormat"
 generate_bridge "QTextLength"
+
+generate_bridge "QPair_QColor_QColor" "QPair<cxx_qt_lib::QColor, cxx_qt_lib::QColor>"

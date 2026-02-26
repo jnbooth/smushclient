@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::num::NonZero;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -274,6 +275,8 @@ impl_convert_struct!(
     keep_commands_on_same_line,
     new_activity_sound,
     line_information,
+    // Colors
+    colour_map,
     //MUD
     use_mxp,
     ignore_mxp_colour_changes,
@@ -543,5 +546,29 @@ impl TryFrom<OutputFragment> for ffi::OutputFragment {
             OutputFragment::Telnet(telnet) => Self::Telnet(telnet.into()),
             OutputFragment::Text(text) => Self::Text(text.into()),
         })
+    }
+}
+
+impl Convert<HashMap<RgbColor, RgbColor>> for Vec<ffi::ColorPair> {
+    fn from_ffi(value: Self) -> HashMap<RgbColor, RgbColor> {
+        value
+            .into_iter()
+            .map(|pair| {
+                (
+                    Convert::from_ffi(pair.first),
+                    Convert::from_ffi(pair.second),
+                )
+            })
+            .collect()
+    }
+
+    fn to_ffi(value: HashMap<RgbColor, RgbColor>) -> Self {
+        value
+            .into_iter()
+            .map(|(k, v)| ffi::ColorPair {
+                first: Convert::to_ffi(k),
+                second: Convert::to_ffi(v),
+            })
+            .collect()
     }
 }

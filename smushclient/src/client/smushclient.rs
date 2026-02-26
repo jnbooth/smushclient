@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::cell::{Ref, RefCell, RefMut};
+use std::cell::{Cell, Ref, RefCell, RefMut};
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, BufReader, Cursor, Read, Write};
@@ -45,7 +45,9 @@ pub struct SmushClient {
     world: RefCell<WorldConfig>,
     audio: AudioSinks,
     buffers: RefCell<(String, String, HashSet<u16>)>,
+    output_buffer: RefCell<Vec<Output>>,
     info: ClientInfo,
+    colors_mapped: Cell<bool>,
 }
 
 impl Default for SmushClient {
@@ -78,8 +80,10 @@ impl SmushClient {
             supported_tags,
             transformer: RefCell::new(transformer),
             variables: RefCell::default(),
+            colors_mapped: Cell::new(!config.colour_map.is_empty()),
             world: RefCell::new(config),
             audio: AudioSinks::try_default().expect("audio initialization error"),
+            output_buffer: RefCell::default(),
             buffers: RefCell::default(),
             info: ClientInfo::default(),
         }
@@ -107,7 +111,7 @@ impl SmushClient {
         }
     }
 
-    pub fn reset_connection(&mut self) {
+    pub fn reset_connection(&self) {
         *self.transformer.borrow_mut() = Transformer::new(self.create_config());
         self.info.reset();
     }
@@ -177,6 +181,7 @@ impl SmushClient {
                 return false;
             }
             world.plugins = plugins;
+            self.colors_mapped.set(!world.colour_map.is_empty());
             *world_mut = world;
             self.plugins.set_world_plugin(world_mut.world_plugin());
         }
@@ -213,7 +218,7 @@ impl SmushClient {
         self.logger.borrow().is_open()
     }
 
-    pub fn read<R: Read>(&mut self, mut reader: R, read_buf: &mut [u8]) -> io::Result<usize> {
+    pub fn read<R: Read>(&self, mut reader: R, read_buf: &mut [u8]) -> io::Result<usize> {
         self.info.packets_received.update(|n| n + 1);
         let mut transformer = self.transformer.borrow_mut();
         let mut logger = self.logger.borrow_mut();
@@ -252,7 +257,7 @@ impl SmushClient {
         }
     }
 
-    pub fn write<W: Write>(&mut self, writer: &mut W) -> io::Result<()> {
+    pub fn write<W: Write>(&self, writer: &mut W) -> io::Result<()> {
         let mut transformer = self.transformer.borrow_mut();
         let Some(mut drain) = transformer.drain_input() else {
             return Ok(());
@@ -264,26 +269,34 @@ impl SmushClient {
         self.transformer.borrow().has_output()
     }
 
-    pub fn drain_output<H: Handler>(&mut self, handler: &mut H) -> bool {
+    pub fn drain_output<H: Handler>(&self, handler: &mut H) -> bool {
         self.process_output(handler, false)
     }
 
-    pub fn flush_output<H: Handler>(&mut self, handler: &mut H) -> bool {
+    pub fn flush_output<H: Handler>(&self, handler: &mut H) -> bool {
         self.process_output(handler, true)
     }
 
     fn process_output<H: Handler>(&self, handler: &mut H, flush: bool) -> bool {
-        let mut transformer = self.transformer.borrow_mut();
-        let drain = if flush {
-            transformer.flush_output()
-        } else {
-            transformer.drain_output()
+        let mut output_buffer = {
+            let mut transformer = self.transformer.borrow_mut();
+            let drain = if flush {
+                transformer.flush_output()
+            } else {
+                transformer.drain_output()
+            };
+            if drain.len() == 0 {
+                return false;
+            }
+            let mut output_buffer = self.output_buffer.borrow_mut();
+            output_buffer.clear();
+            output_buffer.extend(drain);
+            output_buffer
         };
         let mut had_output = false;
-        let mut slice = drain.as_slice();
         let mut line_text = String::new();
         let mut lines_received = 0;
-        for output in slice {
+        for output in output_buffer.iter() {
             match &output.fragment {
                 OutputFragment::LineBreak | OutputFragment::PageBreak => lines_received += 1,
                 OutputFragment::Hr => lines_received += 2,
@@ -293,6 +306,7 @@ impl SmushClient {
         if lines_received != 0 {
             self.info.lines_received.update(|n| n + lines_received);
         }
+        let mut slice = output_buffer.as_mut_slice();
         while !slice.is_empty() {
             line_text.clear();
             let mut until = 0;
@@ -327,8 +341,8 @@ impl SmushClient {
             if !has_break {
                 until = slice.len();
             }
-            let output = &slice[..until];
-            slice = &slice[until..];
+            let (output, next_slice) = slice.split_at_mut(until);
+            slice = next_slice;
 
             if !has_break && line_text.is_empty() {
                 for fragment in output {
@@ -345,6 +359,12 @@ impl SmushClient {
                 }
                 continue;
             }
+
+            if self.colors_mapped.get() {
+                self.world.borrow().map_colors(output.iter_mut());
+            }
+
+            let output: &[Output] = output;
 
             for fragment in output {
                 handler.display(fragment);

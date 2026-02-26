@@ -22,3 +22,4 @@
   static_assert(::std::is_copy_constructible<name>::value);
 
 CXX_QT_IO_QLIST_ASSERTS(QTextLength);
+CXX_QT_IO_QLIST_ASSERTS(QPair_QColor_QColor);

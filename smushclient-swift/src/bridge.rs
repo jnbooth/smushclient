@@ -35,6 +35,13 @@ pub mod ffi {
         b: u8,
     }
 
+    #[derive(Copy, Clone)]
+    #[swift_bridge(swift_repr = "struct")]
+    struct ColorPair {
+        first: RgbColor,
+        second: RgbColor,
+    }
+
     enum AutoConnect {
         None,
         Mush,
@@ -342,6 +349,8 @@ pub mod ffi {
         keep_commands_on_same_line: bool,
         new_activity_sound: String,
         line_information: bool,
+
+        colour_map: Vec<ColorPair>,
 
         use_mxp: UseMxp,
         ignore_mxp_colour_changes: bool,

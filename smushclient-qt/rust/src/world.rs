@@ -1,6 +1,7 @@
-use cxx_qt_lib::{QColor, QString, QUuid};
+use cxx_qt_lib::{QColor, QList, QString, QUuid};
 use smushclient::WorldConfig;
 use smushclient::world::{Numpad, NumpadMapping};
+use smushclient_qt_lib::QPair;
 
 use crate::colors::Colors;
 use crate::convert::{Convert, impl_deref};
@@ -61,6 +62,7 @@ pub struct WorldRust {
     pub keep_commands_on_same_line: bool,
     pub new_activity_sound: QString,
     pub line_information: bool,
+    pub colour_map: QList<QPair<QColor, QColor>>,
 
     // MUD
     pub use_mxp: ffi::UseMxp,
@@ -197,6 +199,12 @@ impl From<&WorldConfig> for WorldRust {
             new_activity_sound: QString::from(&world.new_activity_sound),
             line_information: world.line_information,
 
+            colour_map: world
+                .colour_map
+                .iter()
+                .map(|(k, v)| QPair::from((k.convert(), v.convert())))
+                .collect(),
+
             use_mxp: world.use_mxp.into(),
             ignore_mxp_colour_changes: world.ignore_mxp_colour_changes,
             use_custom_link_colour: world.use_custom_link_colour,
@@ -323,6 +331,12 @@ impl TryFrom<&WorldRust> for WorldConfig {
             keep_commands_on_same_line: value.keep_commands_on_same_line,
             new_activity_sound: String::from(&value.new_activity_sound),
             line_information: value.line_information,
+
+            colour_map: value
+                .colour_map
+                .iter()
+                .map(|pair| (pair.first.convert(), pair.second.convert()))
+                .collect(),
 
             use_mxp: value.use_mxp.try_into()?,
             ignore_mxp_colour_changes: value.ignore_mxp_colour_changes,
