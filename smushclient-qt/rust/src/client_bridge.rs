@@ -191,24 +191,24 @@ impl ffi::SmushClient {
     }
 
     pub fn set_world_alpha_option(
-        self: Pin<&mut Self>,
+        &self,
         index: PluginIndex,
         option: StringView<'_>,
         value: StringView<'_>,
     ) -> ApiCode {
-        self.rust_mut()
+        self.rust()
             .client
             .set_world_alpha_option(index, option.as_slice(), value.to_vec())
             .code()
     }
 
     pub fn set_world_option(
-        self: Pin<&mut Self>,
+        &self,
         index: PluginIndex,
         option: StringView<'_>,
         value: i64,
     ) -> ApiCode {
-        self.rust_mut()
+        self.rust()
             .client
             .set_world_option(index, option.as_slice(), value)
             .code()

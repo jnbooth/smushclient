@@ -134,13 +134,13 @@ pub mod ffi {
         -> VariableView;
         fn world_variant_option(self: &SmushClient, index: usize, option: StringView) -> QVariant;
         fn set_world_option(
-            self: Pin<&mut SmushClient>,
+            self: &SmushClient,
             index: usize,
             option: StringView,
             value: i64,
         ) -> ApiCode;
         fn set_world_alpha_option(
-            self: Pin<&mut SmushClient>,
+            self: &SmushClient,
             index: usize,
             option: StringView,
             value: StringView,

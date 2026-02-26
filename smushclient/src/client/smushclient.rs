@@ -126,7 +126,7 @@ impl SmushClient {
         self.logger.borrow_mut().apply_world(&self.world.borrow());
     }
 
-    fn update_config(&mut self) {
+    fn update_config(&self) {
         self.transformer
             .borrow_mut()
             .set_config(self.create_config());
@@ -742,7 +742,7 @@ impl SmushClient {
     }
 
     pub fn set_world_option(
-        &mut self,
+        &self,
         index: PluginIndex,
         option: &LuaStr,
         value: i64,
@@ -769,7 +769,7 @@ impl SmushClient {
     }
 
     pub fn set_world_alpha_option(
-        &mut self,
+        &self,
         index: PluginIndex,
         option: &LuaStr,
         value: LuaString,
