@@ -5,6 +5,7 @@
 #include "../../model/trigger.h"
 #include "../../scripting/scriptapi.h"
 #include "aliases.h"
+#include "colormap.h"
 #include "connecting.h"
 #include "logging.h"
 #include "login.h"

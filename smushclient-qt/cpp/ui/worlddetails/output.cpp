@@ -1,6 +1,8 @@
 #include "output.h"
 #include "../../environment.h"
 #include "../../fieldconnector.h"
+#include "../../model/colormap.h"
+#include "colormap.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_output.h"
@@ -8,9 +10,10 @@
 
 using std::array;
 
-PrefsOutput::PrefsOutput(const World& world, QWidget* parent)
+PrefsOutput::PrefsOutput(World& world, QWidget* parent)
   : QWidget(parent)
   , ui(new Ui::PrefsOutput)
+  , world(world)
 {
   ui->setupUi(this);
   CONNECT_WORLD(ShowBold);
@@ -74,6 +77,17 @@ PrefsOutput::on_NewActivitySound_textChanged(const QString& text)
 {
   ui->NewActivitySound_test->setEnabled(!text.isEmpty());
   ui->SoundError->setText(audio.setFile(text));
+}
+
+void
+PrefsOutput::on_openColorMap_clicked()
+{
+  QList colorMap = world.getColourMap();
+  ColorMapModel model(colorMap);
+  PrefsColorMap dialog(model, this);
+  if (dialog.exec() == QDialog::Accepted) {
+    world.setColourMap(colorMap);
+  }
 }
 
 void

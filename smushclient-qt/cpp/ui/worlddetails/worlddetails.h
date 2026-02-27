@@ -7,6 +7,7 @@ class WorldPrefs;
 } // namespace Ui
 
 class AliasModel;
+class ColorMapModel;
 class PluginModel;
 class ScriptApi;
 class SmushClient;

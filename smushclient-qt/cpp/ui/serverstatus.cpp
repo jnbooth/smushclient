@@ -1,6 +1,7 @@
 #include "serverstatus.h"
 #include "ui_serverstatus.h"
 #include <QtCore/QDateTime>
+#include <algorithm>
 
 using std::strong_ordering;
 using std::vector;
@@ -212,7 +213,7 @@ ServerStatus::ServerStatus(const QHash<QString, QString>& status,
     entries.emplace_back(variable, key, value);
   }
 
-  std::sort(entries.begin(), entries.end());
+  std::ranges::sort(entries);
 
   for (const StatusEntry& entry : entries) {
     QLabel* label = variableLabel(entry.variable, entry.key, area);
