@@ -25,34 +25,6 @@ ScriptApi::AddFont(const QString& fileName)
            : ApiCode::OK;
 }
 
-QColor
-ScriptApi::GetSysColor(SysColor sysColor)
-{
-  const QPalette palette = QGuiApplication::palette();
-  switch (sysColor) {
-    case SysColor::Background:
-      return palette.color(QPalette::ColorRole::Base);
-    case SysColor::Window:
-      return palette.color(QPalette::ColorRole::Window);
-    case SysColor::WindowText:
-      return palette.color(QPalette::ColorRole::WindowText);
-    case SysColor::ButtonFace:
-      return palette.color(QPalette::ColorRole::Button);
-    case SysColor::ButtonShadow:
-      return palette.color(QPalette::ColorRole::Shadow);
-    case SysColor::ButtonText:
-      return palette.color(QPalette::ColorRole::ButtonText);
-    case SysColor::ButtonHighlight:
-      return palette.color(QPalette::ColorRole::BrightText);
-    case SysColor::Dark:
-      return palette.color(QPalette::ColorRole::Dark);
-    case SysColor::Light:
-      return palette.color(QPalette::Light);
-    default:
-      return QColor();
-  }
-}
-
 void
 ScriptApi::SetClipboard(const QString& text)
 {
@@ -121,58 +93,11 @@ ScriptApi::Hyperlink(const QString& action,
   cursor->appendTell(text, format);
 }
 
-QColor
-ScriptApi::PickColour(const QColor& hint) const
-{
-  return QColorDialog::getColor(hint, &tab);
-}
-
-QColor
-ScriptApi::SetBackgroundColour(const QColor& color) const
-{
-  QWidget* background = tab.ui->background;
-  QPalette palette = background->palette();
-  const QColor oldColor = palette.color(QPalette::Base);
-  if (color == Qt::GlobalColor::black) {
-    palette.setColor(QPalette::Base, Qt::GlobalColor::transparent);
-  } else if (color.isValid()) {
-    palette.setColor(QPalette::Base, color);
-  } else {
-    palette.setColor(QPalette::Base, palette.color(QPalette::AlternateBase));
-  }
-  background->setPalette(palette);
-  return oldColor == Qt::GlobalColor::transparent ? Qt::GlobalColor::black
-                                                  : oldColor;
-}
-
 ApiCode
 ScriptApi::SetCursor(Qt::CursorShape cursorShape) const
 {
   tab.ui->area->setCursor(cursorShape);
   return ApiCode::OK;
-}
-
-QColor
-ScriptApi::SetForegroundColour(const QColor& color) const
-{
-  QWidget* background = tab.ui->background;
-  QPalette palette = background->palette();
-  const QColor oldColor = palette.color(QPalette::Text);
-  palette.setColor(QPalette::Text, color);
-  palette.setColor(QPalette::HighlightedText, color);
-  background->setPalette(palette);
-  return oldColor;
-}
-
-QColor
-ScriptApi::SetHighlightColour(const QColor& color) const
-{
-  QWidget* background = tab.ui->background;
-  QPalette palette = background->palette();
-  const QColor oldColor = palette.color(QPalette::Highlight);
-  palette.setColor(QPalette::Highlight, color);
-  background->setPalette(palette);
-  return oldColor;
 }
 
 void

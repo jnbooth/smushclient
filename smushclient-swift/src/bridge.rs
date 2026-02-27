@@ -355,7 +355,7 @@ pub mod ffi {
         use_mxp: UseMxp,
         ignore_mxp_colour_changes: bool,
         use_custom_link_colour: bool,
-        hyperlink_colour: RgbColor,
+        hyperlink_colour: Option<RgbColor>,
         mud_can_change_link_colour: bool,
         underline_hyperlinks: bool,
         mud_can_remove_underline: bool,

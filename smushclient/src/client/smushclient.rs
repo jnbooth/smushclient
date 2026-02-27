@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::cell::{Cell, Ref, RefCell, RefMut};
+use std::cell::{Ref, RefCell, RefMut};
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, BufReader, Cursor, Read, Write};
@@ -8,6 +8,7 @@ use std::{env, mem, slice};
 
 use arboard::Clipboard;
 use flagset::FlagSet;
+use mud_transformer::mxp::RgbColor;
 use mud_transformer::{
     Output, OutputFragment, Tag, TelnetFragment, Transformer, TransformerConfig,
 };
@@ -47,7 +48,6 @@ pub struct SmushClient {
     buffers: RefCell<(String, String, HashSet<u16>)>,
     output_buffer: RefCell<Vec<Output>>,
     info: ClientInfo,
-    colors_mapped: Cell<bool>,
 }
 
 impl Default for SmushClient {
@@ -80,7 +80,6 @@ impl SmushClient {
             supported_tags,
             transformer: RefCell::new(transformer),
             variables: RefCell::default(),
-            colors_mapped: Cell::new(!config.colour_map.is_empty()),
             world: RefCell::new(config),
             audio: AudioSinks::try_default().expect("audio initialization error"),
             output_buffer: RefCell::default(),
@@ -181,7 +180,6 @@ impl SmushClient {
                 return false;
             }
             world.plugins = plugins;
-            self.colors_mapped.set(!world.colour_map.is_empty());
             *world_mut = world;
             self.plugins.set_world_plugin(world_mut.world_plugin());
         }
@@ -360,8 +358,13 @@ impl SmushClient {
                 continue;
             }
 
-            if self.colors_mapped.get() {
-                self.world.borrow().map_colors(output.iter_mut());
+            {
+                let world = self.world.borrow();
+                for output in output.iter_mut() {
+                    if let OutputFragment::Text(fragment) = &mut output.fragment {
+                        world.map_colors(fragment);
+                    }
+                }
             }
 
             let output: &[Output] = output;
@@ -586,6 +589,31 @@ impl SmushClient {
 
     pub fn set_plugin_enabled(&self, index: PluginIndex, enabled: bool) {
         self.plugins[index].disabled.set(!enabled);
+    }
+
+    pub fn xterm_color(&self, i: u8) -> RgbColor {
+        self.transformer.borrow().xterm_color(i)
+    }
+
+    pub fn set_xterm_color(&self, i: u8, color: Option<RgbColor>) {
+        let color = match color {
+            Some(color) => color,
+            None if i <= 15 => self.world.borrow().ansi_colours[usize::from(i)],
+            None => RgbColor::xterm(i),
+        };
+        self.transformer.borrow_mut().set_xterm_color(i, color);
+    }
+
+    pub fn get_mapped_color(&self, color: RgbColor) -> Option<RgbColor> {
+        self.world.borrow().colour_map.get(&color).copied()
+    }
+
+    pub fn set_mapped_color(&self, color: RgbColor, mapped: RgbColor) {
+        if color == mapped {
+            self.world.borrow_mut().colour_map.remove(&color);
+            return;
+        }
+        self.world.borrow_mut().colour_map.insert(color, mapped);
     }
 
     pub fn borrow_sender<T: PluginSender>(
@@ -1084,9 +1112,9 @@ impl SmushClient {
     }
 
     fn update_world_plugins(&mut self) {
-        let mut world_mut = self.world.borrow_mut();
-        world_mut.plugins.clear();
-        world_mut.plugins.extend(
+        let mut world = self.world.borrow_mut();
+        world.plugins.clear();
+        world.plugins.extend(
             self.plugins
                 .iter()
                 .filter(|plugin| !plugin.metadata.is_world_plugin)

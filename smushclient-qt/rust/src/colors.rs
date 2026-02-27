@@ -52,22 +52,22 @@ impl From<&[RgbColor; 16]> for Colors {
 impl From<&Colors> for [RgbColor; 16] {
     fn from(value: &Colors) -> Self {
         [
-            value.ansi_0.convert(),
-            value.ansi_1.convert(),
-            value.ansi_2.convert(),
-            value.ansi_3.convert(),
-            value.ansi_4.convert(),
-            value.ansi_5.convert(),
-            value.ansi_6.convert(),
-            value.ansi_7.convert(),
-            value.ansi_8.convert(),
-            value.ansi_9.convert(),
-            value.ansi_10.convert(),
-            value.ansi_11.convert(),
-            value.ansi_12.convert(),
-            value.ansi_13.convert(),
-            value.ansi_14.convert(),
-            value.ansi_15.convert(),
+            value.ansi_0.convert().unwrap_or_default(),
+            value.ansi_1.convert().unwrap_or_default(),
+            value.ansi_2.convert().unwrap_or_default(),
+            value.ansi_3.convert().unwrap_or_default(),
+            value.ansi_4.convert().unwrap_or_default(),
+            value.ansi_5.convert().unwrap_or_default(),
+            value.ansi_6.convert().unwrap_or_default(),
+            value.ansi_7.convert().unwrap_or_default(),
+            value.ansi_8.convert().unwrap_or_default(),
+            value.ansi_9.convert().unwrap_or_default(),
+            value.ansi_10.convert().unwrap_or_default(),
+            value.ansi_11.convert().unwrap_or_default(),
+            value.ansi_12.convert().unwrap_or_default(),
+            value.ansi_13.convert().unwrap_or_default(),
+            value.ansi_14.convert().unwrap_or_default(),
+            value.ansi_15.convert().unwrap_or_default(),
         ]
     }
 }

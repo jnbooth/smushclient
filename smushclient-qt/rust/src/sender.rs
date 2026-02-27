@@ -377,9 +377,9 @@ impl TryFrom<&TriggerRust> for Trigger {
         Ok(Self {
             reaction: Reaction::try_from(&value.reaction)?,
             change_foreground: value.change_foreground,
-            foreground_color: value.foreground_color.convert(),
+            foreground_color: value.foreground_color.convert().unwrap_or(RgbColor::WHITE),
             change_background: value.change_background,
-            background_color: value.background_color.convert(),
+            background_color: value.background_color.convert().unwrap_or(RgbColor::BLACK),
             make_bold: value.make_bold,
             make_italic: value.make_italic,
             make_underline: value.make_underline,

@@ -121,6 +121,16 @@ enum class CircleOp : int64_t
 };
 DECLARE_ENUM_BOUNDS(CircleOp, Ellipse, Pie)
 
+enum class ColorAdjust : int64_t
+{
+  Invert = 1,
+  Lighter,
+  Darker,
+  Desaturate,
+  Saturate,
+};
+DECLARE_ENUM_BOUNDS(ColorAdjust, Invert, Saturate)
+
 enum class DrawImageMode : int64_t
 {
   // Copy without stretching to the destination position. The image is not

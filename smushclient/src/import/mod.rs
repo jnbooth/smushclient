@@ -66,7 +66,7 @@ struct XmlWorld {
     #[serde(rename = "@hyperlink_adds_to_command_history", with = "bool_serde")]
     pub hyperlink_adds_to_command_history: bool,
     #[serde(rename = "@hyperlink_colour")]
-    pub hyperlink_colour: RgbColor,
+    pub hyperlink_colour: Option<RgbColor>,
     #[serde(rename = "@ignore_mxp_colour_changes", with = "bool_serde")]
     pub ignore_mxp_colour_changes: bool,
     #[serde(rename = "@indent_paras", with = "bool_serde")]
@@ -100,7 +100,7 @@ struct XmlWorld {
     #[serde(rename = "@naws", with = "bool_serde")]
     pub naws: bool,
     #[serde(rename = "@note_text_colour")]
-    pub note_text_colour: RgbColor,
+    pub note_text_colour: Option<RgbColor>,
     #[serde(rename = "@no_echo_off", with = "bool_serde")]
     pub no_echo_off: bool,
     #[serde(rename = "@play_sounds_in_background", with = "bool_serde")]
@@ -328,7 +328,7 @@ impl TryFrom<MuClient<'_>> for ImportedWorld {
             enable_scripts: world.enable_scripts,
             world_script: world.script_filename,
             script_reload_option: world.script_reload_option,
-            note_text_colour: Some(world.note_text_colour),
+            note_text_colour: world.note_text_colour,
             note_background_colour: None,
             script_errors_to_output_window: world.script_errors_to_output_window,
             error_text_colour: Some(RgbColor::rgb(127, 0, 0)),

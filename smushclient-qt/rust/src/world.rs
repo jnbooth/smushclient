@@ -335,7 +335,7 @@ impl TryFrom<&WorldRust> for WorldConfig {
             colour_map: value
                 .colour_map
                 .iter()
-                .map(|pair| (pair.first.convert(), pair.second.convert()))
+                .filter_map(|pair| Some((pair.first.convert()?, pair.second.convert()?)))
                 .collect(),
 
             use_mxp: value.use_mxp.try_into()?,

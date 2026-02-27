@@ -8,12 +8,27 @@ use super::error::SetOptionError;
 use super::types::{AutoConnect, LogFormat, MxpDebugLevel, ScriptRecompile};
 use crate::{LuaStr, LuaString};
 
-const fn code_color(code: i64) -> Result<RgbColor, SetOptionError> {
+const fn code_color(code: i64) -> Result<Option<RgbColor>, SetOptionError> {
+    if code == -1 || code == 0xFFFFFFFF {
+        return Ok(None);
+    }
     if code < 0 || code > 0xFFFFFF {
         return Err(SetOptionError::OptionOutOfRange);
     }
+
     #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-    Ok(RgbColor::hex(code as u32))
+    Ok(Some(RgbColor {
+        r: (code & 0xFF) as u8,
+        g: ((code >> 8) & 0xFF) as u8,
+        b: ((code >> 16) & 0xFF) as u8,
+    }))
+}
+
+const fn color_code(color: Option<RgbColor>) -> i64 {
+    match color {
+        Some(RgbColor { r, g, b }) => ((b as i64) << 16) | ((g as i64) << 8) | (r as i64),
+        None => 0xFFFFFFFF,
+    }
 }
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -55,6 +70,7 @@ impl WorldConfig {
         "mud_can_remove_underline",
         "mxp_debug_level",
         "naws",
+        "note_background_colour",
         "note_text_colour",
         "no_echo_off",
         "port",
@@ -88,7 +104,7 @@ impl WorldConfig {
             b"enable_triggers" => self.enable_triggers.into(),
             b"enable_trigger_sounds" => self.enable_trigger_sounds.into(),
             b"hyperlink_adds_to_command_history" => self.hyperlink_adds_to_command_history.into(),
-            b"hyperlink_colour" => self.hyperlink_colour.code().into(),
+            b"hyperlink_colour" => color_code(self.hyperlink_colour),
             b"ignore_mxp_colour_changes" => self.ignore_mxp_colour_changes.into(),
             b"indent_paras" => self.indent_paras.into(),
             b"keep_commands_on_same_line" => self.keep_commands_on_same_line.into(),
@@ -105,7 +121,8 @@ impl WorldConfig {
             b"mud_can_remove_underline" => self.mud_can_remove_underline.into(),
             b"mxp_debug_level" => self.mxp_debug_level as _,
             b"naws" => self.naws.into(),
-            b"note_text_colour" => self.note_text_colour.unwrap_or_default().code().into(),
+            b"note_background_colour" => color_code(self.note_background_colour),
+            b"note_text_colour" => color_code(self.note_text_colour),
             b"no_echo_off" => self.no_echo_off.into(),
             b"port" => self.port.into(),
             b"proxy_port" => self.proxy_port.into(),
@@ -197,7 +214,8 @@ impl WorldConfig {
                 }
             }
             b"naws" => self.naws = on?,
-            b"note_text_colour" => self.note_text_colour = Some(code_color(value)?),
+            b"note_background_colour" => self.note_background_colour = code_color(value)?,
+            b"note_text_colour" => self.note_text_colour = code_color(value)?,
             b"no_echo_off" => self.no_echo_off = on?,
             b"save_world_automatically" => self.save_world_automatically = on?,
             b"script_errors_to_output_window" => self.script_errors_to_output_window = on?,

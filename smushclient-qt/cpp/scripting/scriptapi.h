@@ -53,6 +53,7 @@ class ScriptApi : public QObject
 
 public:
   static ApiCode AddFont(const QString& fileName);
+  static QColor AdjustColour(const QColor& color, ColorAdjust method);
   static QColor GetSysColor(SysColor sysColor);
   static int64_t GetUniqueNumber() noexcept;
   static QStringList GetAlphaOptionList() noexcept;
@@ -158,6 +159,7 @@ public:
   QVariant GetInfo(int64_t infoType) const;
   QVariant GetLineInfo(int line, int64_t infoType) const;
   int GetLinesInBufferCount() const;
+  QColor GetMapColour(const QColor& color) const noexcept;
   int GetNotepadLength(const QString& name) const;
   QStringList GetNotepadList(bool all = false) const;
   QString GetNotepadText(const QString& name) const;
@@ -167,6 +169,7 @@ public:
   QVariant GetPluginInfo(std::string_view pluginID,
                          int64_t infoType) const noexcept;
   QVariant GetStyleInfo(int line, int64_t style, int64_t infoType) const;
+  QColor GetTermColour(uint8_t i) const noexcept;
   QVariant GetTimerInfo(size_t pluginIndex,
                         std::string_view label,
                         int64_t infoType) const;
@@ -192,6 +195,8 @@ public:
   ApiCode IsTimer(size_t plugin, std::string_view label) const noexcept;
   ApiCode IsTrigger(size_t plugin, std::string_view label) const noexcept;
   ApiCode LogSend(QByteArray& bytes);
+  void MapColour(const QColor& color, const QColor& mapped) const noexcept;
+  QList<QPair<QColor, QColor>> MapColourList() const noexcept;
   ApiCode OpenLog(std::string_view logFileName, bool append) const;
   bool NotepadColour(const QString& name,
                      const QColor& foreground,
@@ -244,6 +249,7 @@ public:
   void SetMainTitle(const QString& title) const;
   ApiCode SetOption(size_t plugin, std::string_view name, int64_t value);
   void SetStatus(const QString& status) const;
+  void SetTermColour(uint8_t i, const QColor& color) const noexcept;
   ApiCode SetTimerOption(size_t plugin,
                          std::string_view label,
                          std::string_view option,

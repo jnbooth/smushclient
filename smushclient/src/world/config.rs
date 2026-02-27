@@ -5,7 +5,7 @@ use std::path::PathBuf;
 
 use chrono::Local;
 use mud_transformer::mxp::RgbColor;
-use mud_transformer::{Output, OutputFragment, TransformerConfig, UseMxp};
+use mud_transformer::{TextFragment, TransformerConfig, UseMxp};
 use serde::{Deserialize, Serialize};
 use smushclient_plugins::{Plugin, PluginMetadata};
 use uuid::Uuid;
@@ -77,7 +77,7 @@ pub struct WorldConfig {
     pub use_mxp: UseMxp,
     pub ignore_mxp_colour_changes: bool,
     pub use_custom_link_colour: bool,
-    pub hyperlink_colour: RgbColor,
+    pub hyperlink_colour: Option<RgbColor>,
     pub mud_can_change_link_colour: bool,
     pub underline_hyperlinks: bool,
     pub mud_can_remove_underline: bool,
@@ -190,7 +190,7 @@ impl WorldConfig {
             use_mxp: UseMxp::Command,
             ignore_mxp_colour_changes: false,
             use_custom_link_colour: false,
-            hyperlink_colour: RgbColor::rgb(43, 121, 162),
+            hyperlink_colour: Some(RgbColor::rgb(43, 121, 162)),
             mud_can_change_link_colour: true,
             underline_hyperlinks: true,
             mud_can_remove_underline: false,
@@ -298,25 +298,21 @@ impl WorldConfig {
         }
     }
 
-    pub fn map_color(&self, color: &mut RgbColor) {
-        if let Some(mapped_color) = self.colour_map.get(color) {
-            *color = *mapped_color;
+    pub fn map_colors(&self, fragment: &mut TextFragment) {
+        if fragment.action.is_some()
+            && (fragment.foreground.is_none() || self.ignore_mxp_colour_changes)
+            && let Some(color) = self.hyperlink_colour
+        {
+            fragment.foreground = Some(color);
+        } else if let Some(foreground) = &mut fragment.foreground
+            && let Some(color) = self.colour_map.get(foreground)
+        {
+            *foreground = *color;
         }
-    }
-
-    pub fn map_colors<'a, I>(&self, output: I)
-    where
-        I: IntoIterator<Item = &'a mut Output>,
-    {
-        for output in output {
-            if let OutputFragment::Text(fragment) = &mut output.fragment {
-                if let Some(foreground) = &mut fragment.foreground {
-                    self.map_color(foreground);
-                }
-                if let Some(background) = &mut fragment.background {
-                    self.map_color(background);
-                }
-            }
+        if let Some(background) = &mut fragment.background
+            && let Some(color) = self.colour_map.get(background)
+        {
+            *background = *color;
         }
     }
 }

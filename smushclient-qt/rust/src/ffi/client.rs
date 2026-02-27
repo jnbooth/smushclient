@@ -20,6 +20,9 @@ pub mod ffi {
 
         include!("smushclient-qt-lib/qtextcharformat.h");
         type QTextCharFormat = smushclient_qt_lib::QTextCharFormat;
+        include!("smushclient-qt-lib/qlist.h");
+        type QList_QPair_QColor_QColor =
+            cxx_qt_lib::QList<smushclient_qt_lib::QPair<QColor, QColor>>;
     }
 
     extern "C++" {
@@ -130,6 +133,11 @@ pub mod ffi {
         fn handle_connect(self: &SmushClient, socket: Pin<&mut QAbstractSocket>) -> QString;
         fn handle_disconnect(self: Pin<&mut SmushClient>);
         fn simulate(self: &SmushClient, line: StringView, doc: Pin<&mut Document>);
+        fn get_term_color(self: &SmushClient, i: u8) -> QColor;
+        fn set_term_color(self: &SmushClient, i: u8, color: &QColor);
+        fn get_mapped_color(self: &SmushClient, color: &QColor) -> QColor;
+        fn set_mapped_color(self: &SmushClient, color: &QColor, mapped: &QColor);
+        fn color_map(self: &SmushClient) -> QList_QPair_QColor_QColor;
         fn world_option(self: &SmushClient, index: usize, option: StringView) -> i64;
         fn world_alpha_option(self: &SmushClient, index: usize, option: StringView)
         -> VariableView;

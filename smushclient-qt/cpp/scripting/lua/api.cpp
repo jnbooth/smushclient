@@ -241,6 +241,205 @@ private:
 
 namespace {
 
+// color
+
+int
+L_AdjustColour(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  const QColor color = qlua::getQColor(L, 1);
+  const optional<ColorAdjust> method = qlua::getEnum<ColorAdjust>(L, 2);
+  if (!color.isValid() || !method) {
+    lua_pushvalue(L, 1);
+    return 1;
+  }
+  push(L, ScriptApi::AdjustColour(color, *method));
+  return 1;
+}
+
+int
+L_ColourNameToRGB(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, qlua::getQColor(L, 1));
+  return 1;
+}
+
+int
+L_GetBoldColour(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  const lua_Integer i = qlua::getInteger(L, 1);
+  if (i >= 1 && i <= 8) {
+    push(L, getApi(L).GetTermColour(static_cast<uint8_t>(i + 7)));
+  } else {
+    push(L, 0);
+  }
+  return 1;
+}
+
+int
+L_GetCustomColourText(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, qlua::getCustomColor(L, 1));
+  return 1;
+}
+
+int
+L_GetMapColour(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  const QColor color = qlua::getQColor(L, 1);
+  if (!color.isValid()) {
+    lua_pushvalue(L, 1);
+    return 1;
+  }
+  push(L, getApi(L).GetMapColour(color));
+  return 1;
+}
+
+int
+L_GetNormalColour(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  const lua_Integer i = qlua::getInteger(L, 1);
+  if (i >= 1 && i <= 8) {
+    push(L, getApi(L).GetTermColour(static_cast<uint8_t>(i - 1)));
+  } else {
+    push(L, 0);
+  }
+  return 1;
+}
+
+int
+L_GetSysColor(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  const optional<SysColor> sysColor = qlua::getEnum<SysColor>(L, 1);
+  expect_nonnull(sysColor, ApiCode::BadParameter);
+  push(L, ScriptApi::GetSysColor(*sysColor));
+  return 1;
+}
+
+int
+L_MapColour(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  getApi(L).MapColour(qlua::getQColor(L, 1), qlua::getQColor(L, 2));
+  return 0;
+}
+
+int
+L_MapColourList(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  const QList colors = getApi(L).MapColourList();
+  lua_createtable(L, 0, static_cast<int>(colors.size()));
+  for (const auto& item : colors) {
+    qlua::pushEntry(L, item.first, item.second);
+  }
+  return 1;
+}
+
+int
+L_NoteColourBack(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).SetOption(getPluginIndex(L),
+                      "note_background_colour",
+                      qlua::colorToRgbCode(qlua::getQColor(L, 1)));
+  return 0;
+}
+
+int
+L_NoteColourFore(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).SetOption(getPluginIndex(L),
+                      "note_text_colour",
+                      qlua::colorToRgbCode(qlua::getQColor(L, 1)));
+  return 0;
+}
+
+int
+L_NoteColourRgb(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  ScriptApi& api = getApi(L);
+  api.SetOption(getPluginIndex(L),
+                "note_text_colour",
+                qlua::colorToRgbCode(qlua::getQColor(L, 1)));
+  api.SetOption(getPluginIndex(L),
+                "note_background_colour",
+                qlua::colorToRgbCode(qlua::getQColor(L, 2)));
+  return 0;
+}
+
+int
+L_PickColour(lua_State* L)
+{
+  BENCHMARK
+  push(L, getApi(L).PickColour(qlua::getQColor(L, 1, QColor())));
+  return 1;
+}
+
+int
+L_RGBColourToName(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, qlua::rgbCodeToColor(qlua::getInteger(L, 1)).name());
+  return 1;
+}
+
+int
+L_SetBackgroundColour(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, getApi(L).SetBackgroundColour(qlua::getQColor(L, 1)));
+  return 1;
+}
+
+int
+L_SetBoldColour(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  const lua_Integer i = qlua::getInteger(L, 1);
+  const QColor color = qlua::getQColor(L, 2);
+  if (i >= 1 && i <= 8) {
+    getApi(L).SetTermColour(static_cast<uint8_t>(i + 7), color);
+  }
+  return 0;
+}
+
+int
+L_SetNormalColour(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  const lua_Integer i = qlua::getInteger(L, 1);
+  const QColor color = qlua::getQColor(L, 2);
+  if (i >= 1 && i <= 8) {
+    getApi(L).SetTermColour(static_cast<uint8_t>(i - 1), color);
+  }
+  return 0;
+}
+
 // database
 
 int
@@ -681,9 +880,10 @@ L_SetAlphaOption(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  getApi(L).SetAlphaOption(
-    getPluginIndex(L), qlua::getString(L, 1), qlua::getString(L, 2));
-  return 1;
+  return returnCode(L,
+                    getApi(L).SetAlphaOption(getPluginIndex(L),
+                                             qlua::getString(L, 1),
+                                             qlua::getString(L, 2)));
 }
 
 int
@@ -691,9 +891,10 @@ L_SetOption(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  getApi(L).SetOption(
-    getPluginIndex(L), qlua::getString(L, 1), qlua::getIntegerOrBool(L, 2, 0));
-  return 1;
+  return returnCode(L,
+                    getApi(L).SetOption(getPluginIndex(L),
+                                        qlua::getString(L, 1),
+                                        qlua::getIntegerOrBool(L, 2, 0)));
 }
 
 // output
@@ -726,15 +927,6 @@ L_AnsiNote(lua_State* L)
 }
 
 int
-L_ColourNameToRGB(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 1);
-  push(L, qlua::getQColor(L, 1));
-  return 1;
-}
-
-int
 L_ColourNote(lua_State* L)
 {
   BENCHMARK
@@ -762,17 +954,6 @@ L_GetLinesInBufferCount(lua_State* L)
 }
 
 int
-L_GetSysColor(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 1);
-  const optional<SysColor> sysColor = qlua::getEnum<SysColor>(L, 1);
-  expect_nonnull(sysColor, ApiCode::BadParameter);
-  push(L, ScriptApi::GetSysColor(*sysColor));
-  return 1;
-}
-
-int
 L_Hyperlink(lua_State* L)
 {
   BENCHMARK
@@ -795,32 +976,6 @@ L_Note(lua_State* L)
   api.Tell(QString::fromUtf8(qlua::concatArgs(L)));
   api.finishNote();
   return 0;
-}
-
-int
-L_PickColour(lua_State* L)
-{
-  BENCHMARK
-  push(L, getApi(L).PickColour(qlua::getQColor(L, 1, QColor())));
-  return 1;
-}
-
-int
-L_RGBColourToName(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 1);
-  push(L, qlua::rgbCodeToColor(qlua::getInteger(L, 1)).name());
-  return 1;
-}
-
-int
-L_SetBackgroundColour(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 1);
-  push(L, getApi(L).SetBackgroundColour(qlua::getQColor(L, 1)));
-  return 1;
 }
 
 int
@@ -2314,18 +2469,54 @@ L_WindowScrollwheelHandler(lua_State* L)
                         .scroll = string(qlua::getString(L, 3, "")) }));
 }
 
-// userdata
+// noop
+
+#define NOOP(name, op)                                                         \
+  int name(lua_State* L)                                                       \
+  {                                                                            \
+    op;                                                                        \
+    return 1;                                                                  \
+  }
+
+NOOP(L_noop_echo, lua_pushvalue(L, 1));
+NOOP(L_noop_empty, lua_createtable(L, 0, 0));
+NOOP(L_noop_false, push(L, false));
+NOOP(L_noop_neg, push(L, -1));
+NOOP(L_noop_nil, lua_pushnil(L));
+NOOP(L_noop_ok, push(L, ApiCode::OK));
+NOOP(L_noop_spellcheck, push(L, ApiCode::SpellCheckNotActive));
+NOOP(L_noop_string, lua_pushlstring(L, "", 0));
 
 int
-L_noop(lua_State* L)
+L_noop_void(lua_State* /* L */)
 {
-  return returnCode(L, ApiCode::OK);
+  return 0;
 }
+
 } // namespace
 
 static const struct luaL_Reg worldlib[] =
-  // database
-  { { "DatabaseClose", L_DatabaseClose },
+  // color
+  { { "AdjustColour", L_AdjustColour },
+    { "ColourNameToRGB", L_ColourNameToRGB },
+    { "GetBoldColour", L_GetBoldColour },
+    { "GetCustomColourText", L_GetCustomColourText },
+    { "GetMapColour", L_GetMapColour },
+    { "GetNormalColour", L_GetNormalColour },
+    { "GetSysColor", L_GetSysColor },
+    { "MapColour", L_MapColour },
+    { "MapColourList", L_MapColourList },
+    { "NoteColourBack", L_NoteColourBack },
+    { "NoteColourFore", L_NoteColourFore },
+    { "NoteColourRgb", L_NoteColourRgb },
+    { "NoteColourName", L_NoteColourRgb },
+    { "PickColour", L_PickColour },
+    { "RgbColourToName", L_RGBColourToName },
+    { "SetBackgroundColour", L_SetBackgroundColour },
+    { "SetBoldColour", L_SetBoldColour },
+    { "SetNormalColour", L_SetNormalColour },
+    // database
+    { "DatabaseClose", L_DatabaseClose },
     { "DatabaseOpen", L_DatabaseOpen },
     // info
     { "GetInfo", L_GetInfo },
@@ -2379,16 +2570,12 @@ static const struct luaL_Reg worldlib[] =
     { "ActivateClient", L_ActivateClient },
     { "AddFont", L_AddFont },
     { "AnsiNote", L_AnsiNote },
-    { "ColourNameToRGB", L_ColourNameToRGB },
     { "ColourNote", L_ColourNote },
     { "ColourTell", L_ColourTell },
     { "GetLinesInBufferCount", L_GetLinesInBufferCount },
     { "GetSysColor", L_GetSysColor },
     { "Hyperlink", L_Hyperlink },
     { "Note", L_Note },
-    { "PickColour", L_PickColour },
-    { "RGBColourToName", L_RGBColourToName },
-    { "SetBackgroundColour", L_SetBackgroundColour },
     { "SetBackgroundImage", L_SetBackgroundImage },
     { "SetClipboard", L_SetClipboard },
     { "SetCursor", L_SetCursor },
@@ -2496,12 +2683,34 @@ static const struct luaL_Reg worldlib[] =
     { "WindowMoveHotspot", L_WindowMoveHotspot },
     { "WindowScrollwheelHandler", L_WindowScrollwheelHandler },
     // stubs
-    { "MoveNotepadWindow", L_noop },
-    { "Redraw", L_noop },
-    { "Repaint", L_noop },
-    { "ResetIP", L_noop },
-    { "SetFrameBackgroundColour", L_noop },
-    { "WindowBezier", L_noop },
+    { "Accelerator", L_noop_ok },
+    { "AcceleratorList", L_noop_empty },
+    { "AcceleratorTo", L_noop_ok },
+    { "AddMapperComment", L_noop_ok },
+    { "AddSpellCheckWord", L_noop_spellcheck },
+    { "AddToMapper", L_noop_ok },
+    { "BlendPixel", L_noop_echo },
+    { "Bookmark", L_noop_void },
+    { "Debug", L_noop_nil },
+    { "DeleteAllMapItems", L_noop_ok },
+    { "DeleteLastMapItem", L_noop_ok },
+    { "DiscardQueue", L_noop_ok },
+    { "DoCommand", L_noop_ok },
+    { "FilterPixel", L_noop_echo },
+    { "GetCustomColourBackground", L_noop_ok },
+    { "GetCustomColourName", L_noop_string },
+    { "GetNoteColour", L_noop_neg },
+    { "MoveNotepadWindow", L_noop_false },
+    { "Redraw", L_noop_void },
+    { "Repaint", L_noop_void },
+    { "ResetIP", L_noop_void },
+    { "SetCustomColourBackground", L_noop_void },
+    { "SetCustomColourName", L_noop_ok },
+    { "SetCustomColourText", L_noop_void },
+    { "SetFrameBackgroundColour", L_noop_void },
+    { "SetNoteColour", L_noop_void },
+    { "Transparency", L_noop_false },
+    { "WindowBezier", L_noop_ok },
 
     { nullptr, nullptr } };
 

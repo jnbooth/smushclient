@@ -427,7 +427,7 @@ QColor
 qlua::getCustomColor(lua_State* L, int idx)
 {
   const lua_Integer colorIndex = getInteger(L, idx);
-  return (colorIndex < 0 || colorIndex >= 16) ? QColor()
+  return (colorIndex < 0 || colorIndex >= 16) ? Qt::GlobalColor::black
                                               : customColors.at(colorIndex);
 }
 

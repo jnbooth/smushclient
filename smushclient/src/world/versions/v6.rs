@@ -263,7 +263,7 @@ impl From<World<'static>> for super::super::World<'static> {
                 use_mxp,
                 ignore_mxp_colour_changes,
                 use_custom_link_colour,
-                hyperlink_colour,
+                hyperlink_colour: Some(hyperlink_colour),
                 mud_can_change_link_colour,
                 underline_hyperlinks,
                 mud_can_remove_underline,

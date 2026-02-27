@@ -92,24 +92,18 @@ pub trait Convert<T> {
     fn convert(&self) -> T;
 }
 
-impl Convert<RgbColor> for QColor {
-    fn convert(&self) -> RgbColor {
-        let rgb = self.to_rgb();
-        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-        RgbColor {
-            r: rgb.red() as u8,
-            g: rgb.green() as u8,
-            b: rgb.blue() as u8,
-        }
-    }
-}
-
 impl Convert<Option<RgbColor>> for QColor {
     fn convert(&self) -> Option<RgbColor> {
         if self.alpha() == 0 || !self.is_valid() {
             return None;
         }
-        Some(self.convert())
+        let rgb = self.to_rgb();
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+        Some(RgbColor {
+            r: rgb.red() as u8,
+            g: rgb.green() as u8,
+            b: rgb.blue() as u8,
+        })
     }
 }
 
