@@ -113,6 +113,7 @@ public:
                    int flags);
   ApiCode DeleteAlias(size_t plugin, std::string_view name) const noexcept;
   size_t DeleteAliasGroup(size_t plugin, std::string_view group) const noexcept;
+  void DeleteCommandHistory() const;
   size_t DeleteTemporaryAliases() const noexcept;
   size_t DeleteTemporaryTimers() const noexcept;
   size_t DeleteTemporaryTriggers() const noexcept;
@@ -158,6 +159,8 @@ public:
   rust::String GetAliasWildcard(size_t plugin,
                                 std::string_view label,
                                 std::string_view name) const noexcept;
+  QString GetCommand() const;
+  const QStringList& GetCommandList() const;
   QVariant GetCurrentValue(size_t pluginIndex,
                            std::string_view option) const noexcept;
   std::string_view GetEntity(std::string_view name) const noexcept;
@@ -212,6 +215,7 @@ public:
   bool NotepadFont(const QString& name, const QTextCharFormat& format) const;
   bool NotepadReadOnly(const QString& name, bool readOnly) const;
   bool NotepadSaveMethod(const QString& name, Notepad::SaveMethod method) const;
+  QString PasteCommand(const QString& command) const;
   QColor PickColour(const QColor& hint) const;
   ApiCode PlaySound(size_t channel,
                     std::string_view path,
@@ -227,10 +231,12 @@ public:
                           float volume = 1.0) const noexcept;
   ApiCode PluginSupports(std::string_view pluginID,
                          PluginCallbackKey routine) const;
+  QString PushCommand() const;
   bool ReplaceNotepad(const QString& name, const QString& text) const;
   bool SaveNotepad(const QString& name,
                    const QString& filePath,
                    bool replace) const;
+  void SelectCommand() const;
   ApiCode Send(std::string_view text);
   ApiCode Send(const QString& text);
   ApiCode Send(QByteArray& bytes);
@@ -249,6 +255,9 @@ public:
   QColor SetBackgroundColour(const QColor& color) const;
   ApiCode SetBackgroundImage(const QString& path,
                              MiniWindow::Position position);
+  ApiCode SetCommand(const QString& command) const;
+  ApiCode SetCommandSelection(int first, int last) const;
+  ApiCode SetCommandWindowHeight(int height) const;
   ApiCode SetCursor(Qt::CursorShape cursor) const;
   bool SetEntity(std::string_view name, std::string_view value) const noexcept;
   QColor SetForegroundColour(const QColor& color) const;

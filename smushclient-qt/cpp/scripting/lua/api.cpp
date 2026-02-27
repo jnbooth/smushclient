@@ -576,6 +576,15 @@ L_WindowInfo(lua_State* L)
 // input
 
 int
+L_DeleteCommandHistory(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  getApi(L).DeleteCommandHistory();
+  return 0;
+}
+
+int
 L_Execute(lua_State* L)
 {
   BENCHMARK
@@ -584,11 +593,63 @@ L_Execute(lua_State* L)
 }
 
 int
+L_GetCommand(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetCommand());
+  return 1;
+}
+
+int
+L_GetCommandList(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  const lua_Integer baseLimit = qlua::getInteger(L, 1, 0);
+  const QStringList& log = getApi(L).GetCommandList();
+  const lua_Integer size = static_cast<lua_Integer>(log.size());
+  const lua_Integer limit = baseLimit == 0 ? size : std::min(baseLimit, size);
+  lua_createtable(L, static_cast<int>(limit), 0);
+  for (lua_Integer i = 1; i <= limit; ++i) {
+    push(L, log.at(size - i));
+    lua_rawseti(L, -2, i);
+  }
+  return 1;
+}
+
+int
 L_LogSend(lua_State* L)
 {
   BENCHMARK
   QByteArray bytes = qlua::concatArgs(L);
   return returnCode(L, getApi(L).LogSend(bytes));
+}
+int
+L_PasteCommand(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, getApi(L).PasteCommand(qlua::getQString(L, 1)));
+  return 1;
+}
+
+int
+L_PushCommand(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).PushCommand());
+  return 1;
+}
+
+int
+L_SelectCommand(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  getApi(L).PushCommand();
+  return 0;
 }
 
 int
@@ -629,6 +690,31 @@ L_SendPush(lua_State* L)
   BENCHMARK
   QByteArray bytes = qlua::concatArgs(L);
   return returnCode(L, getApi(L).SendPush(bytes));
+}
+
+int
+L_SetCommand(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  return returnCode(L, getApi(L).SetCommand(qlua::getQString(L, 1)));
+}
+
+int
+L_SetCommandSelection(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  return returnCode(
+    L, getApi(L).SetCommandSelection(qlua::getInt(L, 1), qlua::getInt(L, 2)));
+}
+
+int
+L_SetCommandWindowHeight(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  return returnCode(L, getApi(L).SetCommandWindowHeight(qlua::getInt(L, 1)));
 }
 
 // log
@@ -2579,13 +2665,22 @@ static const struct luaL_Reg worldlib[] =
     { "WindowImageInfo", L_WindowImageInfo },
     { "WindowInfo", L_WindowInfo },
     // input
+    { "DeleteCommandHistory", L_DeleteCommandHistory },
     { "Execute", L_Execute },
+    { "GetCommand", L_GetCommand },
+    { "GetCommandList", L_GetCommandList },
     { "LogSend", L_LogSend },
+    { "PasteCommand", L_PasteCommand },
+    { "PushCommand", L_PushCommand },
+    { "SelectCommand", L_SelectCommand },
     { "Send", L_Send },
     { "SendImmediate", L_SendImmediate },
     { "SendNoEcho", L_SendNoEcho },
     { "SendPkt", L_SendPkt },
     { "SendPush", L_SendPush },
+    { "SetCommand", L_SetCommand },
+    { "SetCommandSelection", L_SetCommandSelection },
+    { "SetCommandWindowHeight", L_SetCommandWindowHeight },
     // log
     { "CloseLog", L_CloseLog },
     { "FlushLog", L_FlushLog },
@@ -2763,6 +2858,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetCustomColourText", L_noop_void },
     { "SetFrameBackgroundColour", L_noop_void },
     { "SetNoteColour", L_noop_void },
+    { "SpellCheckCommand", L_noop_spellcheck },
     { "Transparency", L_noop_false },
     { "WindowBezier", L_noop_ok },
 
