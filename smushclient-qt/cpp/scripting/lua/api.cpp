@@ -1478,10 +1478,21 @@ L_GetAliasOption(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  const size_t plugin = getPluginIndex(L);
-  const string_view label = qlua::getString(L, 1);
-  const string_view option = qlua::getString(L, 2);
-  pushQVariant(L, getApi(L).GetAliasOption(plugin, label, option));
+  pushQVariant(L,
+               getApi(L).GetAliasOption(getPluginIndex(L),
+                                        qlua::getString(L, 1),
+                                        qlua::getString(L, 2)));
+  return 1;
+}
+
+int
+L_GetAliasWildcard(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  push(L,
+       getApi(L).GetAliasWildcard(
+         getPluginIndex(L), qlua::getString(L, 1), qlua::getString(L, 2)));
   return 1;
 }
 
@@ -1490,10 +1501,10 @@ L_GetTimerOption(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  const size_t plugin = getPluginIndex(L);
-  const string_view label = qlua::getString(L, 1);
-  const string_view option = qlua::getString(L, 2);
-  pushQVariant(L, getApi(L).GetTimerOption(plugin, label, option));
+  pushQVariant(L,
+               getApi(L).GetTimerOption(getPluginIndex(L),
+                                        qlua::getString(L, 1),
+                                        qlua::getString(L, 2)));
   return 1;
 }
 
@@ -1502,10 +1513,21 @@ L_GetTriggerOption(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  const size_t plugin = getPluginIndex(L);
-  const string_view label = qlua::getString(L, 1);
-  const string_view option = qlua::getString(L, 2);
-  pushQVariant(L, getApi(L).GetTriggerOption(plugin, label, option));
+  pushQVariant(L,
+               getApi(L).GetTriggerOption(getPluginIndex(L),
+                                          qlua::getString(L, 1),
+                                          qlua::getString(L, 2)));
+  return 1;
+}
+
+int
+L_GetTriggerWildcard(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  push(L,
+       getApi(L).GetTriggerWildcard(
+         getPluginIndex(L), qlua::getString(L, 1), qlua::getString(L, 2)));
   return 1;
 }
 
@@ -2619,8 +2641,10 @@ static const struct luaL_Reg worldlib[] =
     { "EnableTriggerGroup", L_EnableTriggerGroup },
     { "ExportXML", L_ExportXML },
     { "GetAliasOption", L_GetAliasOption },
+    { "GetAliasWildcard", L_GetAliasWildcard },
     { "GetTimerOption", L_GetTimerOption },
     { "GetTriggerOption", L_GetTriggerOption },
+    { "GetTriggerWildcard", L_GetTriggerWildcard },
     { "IsAlias", L_IsAlias },
     { "IsTimer", L_IsTimer },
     { "IsTrigger", L_IsTrigger },

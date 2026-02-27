@@ -42,6 +42,14 @@ impl<T: Ord> CursorVec<T> {
         self.inner.borrow_mut()
     }
 
+    pub fn borrow_current(&self) -> Option<Ref<'_, T>> {
+        if !self.evaluating.get() {
+            return None;
+        }
+        let cursor = self.cursor.get();
+        Ref::filter_map(self.inner.borrow(), |vec| vec.get(cursor)).ok()
+    }
+
     pub fn get(&self, i: usize) -> Option<Ref<'_, T>> {
         Ref::filter_map(self.inner.borrow(), |inner| inner.get(i)).ok()
     }

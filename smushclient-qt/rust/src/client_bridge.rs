@@ -7,7 +7,7 @@ use cxx_qt_io::QAbstractSocket;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant};
 use smushclient::world::{LogMode, PersistError};
 use smushclient_plugins::{
-    Alias, ImportError, LoadError, PluginIndex, PluginSender, Timer, Trigger, XmlSerError,
+    Alias, ImportError, LoadError, PluginIndex, PluginSender, Reaction, Timer, Trigger, XmlSerError,
 };
 use smushclient_qt_lib::QPair;
 
@@ -662,6 +662,40 @@ impl ffi::SmushClient {
             _ => return ApiCode::BadParameter,
         }
         .code()
+    }
+
+    fn get_wildcard<T>(
+        &self,
+        index: PluginIndex,
+        label: StringView<'_>,
+        name: StringView<'_>,
+    ) -> Option<String>
+    where
+        T: PluginSender + AsRef<Reaction>,
+    {
+        self.rust()
+            .client
+            .get_wildcard::<T>(index, label.to_str().ok()?, name.to_str().ok()?)
+    }
+
+    pub fn get_alias_wildcard(
+        &self,
+        index: PluginIndex,
+        label: StringView<'_>,
+        name: StringView<'_>,
+    ) -> String {
+        self.get_wildcard::<Alias>(index, label, name)
+            .unwrap_or_default()
+    }
+
+    pub fn get_trigger_wildcard(
+        &self,
+        index: PluginIndex,
+        label: StringView<'_>,
+        name: StringView<'_>,
+    ) -> String {
+        self.get_wildcard::<Trigger>(index, label, name)
+            .unwrap_or_default()
     }
 
     pub fn play_buffer(&self, i: usize, buf: BytesView<'_>, volume: f32, looping: bool) -> ApiCode {

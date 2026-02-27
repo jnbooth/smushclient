@@ -296,6 +296,14 @@ ScriptApi::GetAliasOption(size_t plugin,
   return client.getSenderOption(SenderKind::Alias, plugin, label, option);
 }
 
+rust::String
+ScriptApi::GetAliasWildcard(size_t plugin,
+                            string_view label,
+                            string_view name) const noexcept
+{
+  return client.getAliasWildcard(plugin, label, name);
+}
+
 QVariant
 ScriptApi::GetTimerOption(size_t plugin,
                           string_view label,
@@ -310,6 +318,14 @@ ScriptApi::GetTriggerOption(size_t plugin,
                             string_view option) const noexcept
 {
   return client.getSenderOption(SenderKind::Trigger, plugin, label, option);
+}
+
+rust::String
+ScriptApi::GetTriggerWildcard(size_t plugin,
+                              string_view label,
+                              string_view name) const noexcept
+{
+  return client.getTriggerWildcard(plugin, label, name);
 }
 
 ApiCode

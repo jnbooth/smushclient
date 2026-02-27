@@ -154,6 +154,9 @@ public:
                           std::string_view option) const noexcept;
   std::string_view GetAlphaOption(size_t plugin,
                                   std::string_view name) const noexcept;
+  rust::String GetAliasWildcard(size_t plugin,
+                                std::string_view label,
+                                std::string_view name) const noexcept;
   QVariant GetCurrentValue(size_t pluginIndex,
                            std::string_view option) const noexcept;
   QVariant GetInfo(int64_t infoType) const;
@@ -179,6 +182,9 @@ public:
   QVariant GetTriggerOption(size_t plugin,
                             std::string_view label,
                             std::string_view option) const noexcept;
+  rust::String GetTriggerWildcard(size_t plugin,
+                                  std::string_view label,
+                                  std::string_view name) const noexcept;
   std::string_view GetVariable(size_t pluginIndex,
                                std::string_view key) const noexcept;
   std::string_view GetVariable(std::string_view pluginID,

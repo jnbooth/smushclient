@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::cell::{Ref, RefCell, RefMut};
+use std::cell::{Cell, Ref, RefCell, RefMut};
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, BufReader, Cursor, Read, Write};
@@ -14,8 +14,8 @@ use mud_transformer::{
 };
 use rodio::Decoder;
 use smushclient_plugins::{
-    Alias, CursorVec, ImportError, LoadError, Plugin, PluginIndex, PluginSender, SendTarget,
-    SenderAccessError, SortOnDrop, Timer, Trigger, XmlSerError,
+    Alias, CursorVec, ImportError, LoadError, Plugin, PluginIndex, PluginSender, Reaction,
+    SendTarget, SenderAccessError, SortOnDrop, Timer, Trigger, XmlSerError,
 };
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt};
@@ -46,6 +46,8 @@ pub struct SmushClient {
     world: RefCell<WorldConfig>,
     audio: AudioSinks,
     buffers: RefCell<(String, String, HashSet<u16>)>,
+    last_match: RefCell<String>,
+    last_capture: Cell<usize>,
     output_buffer: RefCell<Vec<Output>>,
     info: ClientInfo,
 }
@@ -82,6 +84,8 @@ impl SmushClient {
             variables: RefCell::default(),
             world: RefCell::new(config),
             audio: AudioSinks::try_default().expect("audio initialization error"),
+            last_match: RefCell::default(),
+            last_capture: Cell::default(),
             output_buffer: RefCell::default(),
             buffers: RefCell::default(),
             info: ClientInfo::default(),
@@ -841,6 +845,28 @@ impl SmushClient {
         Ok(())
     }
 
+    pub fn get_wildcard<T>(&self, index: PluginIndex, label: &str, name: &str) -> Option<String>
+    where
+        T: PluginSender + AsRef<Reaction>,
+    {
+        let current = self.senders::<T>(index).borrow_current()?;
+        let reaction: &Reaction = current.as_ref();
+        if reaction.label != label {
+            return None;
+        }
+        let line = self.last_match.borrow();
+        let capture = reaction
+            .regex
+            .captures_iter(&line)
+            .filter_map(Result::ok)
+            .nth(self.last_capture.get())?;
+        if let Some(wildcard) = capture.name(name) {
+            return Some(wildcard.as_str().to_owned());
+        }
+        let i = name.parse().ok()?;
+        Some(capture.get(i)?.as_str().to_owned())
+    }
+
     pub fn build_alias_menu<F>(&self, mut f: F)
     where
         F: FnMut(PluginIndex, u16, &str),
@@ -977,6 +1003,11 @@ impl SmushClient {
         if !T::enabled(&self.world.borrow()) {
             return;
         }
+        {
+            let mut last_match = self.last_match.borrow_mut();
+            last_match.clear();
+            last_match.push_str(line);
+        }
         let mut buffers = self.buffers.borrow_mut();
         let (text_buf, destination_buf, one_shots) = &mut *buffers;
         let mut can_echo = true;
@@ -1002,7 +1033,8 @@ impl SmushClient {
                 };
                 let regex = &*regex_rc;
                 text_buf.clear();
-                for captures in regex.captures_iter(line).filter_map(Result::ok) {
+                for (i, captures) in regex.captures_iter(line).filter_map(Result::ok).enumerate() {
+                    self.last_capture.set(i);
                     if !matched {
                         matched = true;
                         if echo_input {
