@@ -4,19 +4,10 @@
 
 using std::array;
 
-// Private utils
-namespace {
-inline bool
-isLeaf(const QModelIndex& index) noexcept
-{
-  return index.constInternalPointer() != nullptr;
-}
-} // namespace
-
 // Public methods
 
 PluginModel::PluginModel(SmushClient& client, QObject* parent)
-  : QAbstractItemModel(parent)
+  : QAbstractTableModel(parent)
   , client(client)
   , pluginCount(static_cast<int>(client.pluginsLen()) - 1)
   , worldIndex(static_cast<int>(client.worldPluginIndex()))
@@ -52,18 +43,12 @@ PluginModel::addPlugin(const QString& filePath)
 PluginDetails
 PluginModel::pluginDetails(const QModelIndex& index) const
 {
-  if (!isValidIndex(index)) {
-    return PluginDetails();
-  }
   return PluginDetails(client, pluginIndex(index.row()));
 }
 
 bool
 PluginModel::reinstall(const QModelIndex& index)
 {
-  if (!isValidIndex(index)) {
-    return false;
-  }
   const int row = index.row();
   const size_t oldIndex = pluginIndex(row);
   size_t newIndex;
@@ -113,10 +98,6 @@ PluginModel::reinstall(const QModelIndex& index)
 QVariant
 PluginModel::data(const QModelIndex& index, int role) const
 {
-  if (!isValidIndex(index)) {
-    return QVariant();
-  }
-
   switch (role) {
     case Qt::DisplayRole:
       return client.pluginModelText(pluginIndex(index.row()), index.column());
@@ -137,25 +118,11 @@ PluginModel::data(const QModelIndex& index, int role) const
 Qt::ItemFlags
 PluginModel::flags(const QModelIndex& index) const
 {
-  if (!isValidIndex(index)) {
-    return Qt::ItemFlag::NoItemFlags;
+  Qt::ItemFlags flags = QAbstractTableModel::flags(index);
+  if (index.column() == 4) {
+    flags |= Qt::ItemFlag::ItemIsUserCheckable;
   }
-
-  const Qt::ItemFlags flags = Qt::ItemFlag::ItemIsSelectable |
-                              Qt::ItemFlag::ItemIsEnabled |
-                              Qt::ItemFlag::ItemNeverHasChildren;
-
-  if (index.column() != 4) {
-    return flags;
-  }
-
-  return flags | Qt::ItemFlag::ItemIsUserCheckable;
-}
-
-bool
-PluginModel::hasChildren(const QModelIndex& /*index*/) const
-{
-  return false;
+  return flags;
 }
 
 QVariant
@@ -163,7 +130,7 @@ PluginModel::headerData(int section,
                         Qt::Orientation orientation,
                         int role) const
 {
-  if (orientation != Qt::Orientation::Horizontal || !isValidColumn(section)) {
+  if (orientation != Qt::Orientation::Horizontal || role != Qt::DisplayRole) {
     return QVariant();
   }
 
@@ -172,30 +139,12 @@ PluginModel::headerData(int section,
     tr("Path"), tr("Enabled"), tr("Version")
   };
 
-  if (role == Qt::DisplayRole) {
-    return headers.at(section);
-  }
-
-  return QVariant();
-}
-
-QModelIndex
-PluginModel::index(int row, int column, const QModelIndex& parent) const
-{
-  if (!isValidColumn(column) || (row < 0) || (row >= rowCount(parent))) {
-    return QModelIndex();
-  }
-
-  return createIndex(row, column);
+  return headers.at(section);
 }
 
 QMap<int, QVariant>
 PluginModel::itemData(const QModelIndex& index) const
 {
-  if (!isValidIndex(index)) {
-    return QMap<int, QVariant>();
-  }
-
   QMap<int, QVariant> map;
   map.insert(Qt::DisplayRole, data(index, Qt::DisplayRole));
   map.insert(Qt::CheckStateRole, data(index, Qt::CheckStateRole));
@@ -203,16 +152,10 @@ PluginModel::itemData(const QModelIndex& index) const
   return map;
 }
 
-QModelIndex
-PluginModel::parent(const QModelIndex& /*index*/) const
-{
-  return QModelIndex();
-}
-
 bool
 PluginModel::removeRows(int row, int count, const QModelIndex& parent)
 {
-  if (row < 0 || count <= 0 || row + count > pluginCount || isLeaf(parent)) {
+  if (row < 0 || count <= 0 || row + count >= pluginCount) {
     return false;
   }
 
@@ -235,17 +178,10 @@ PluginModel::removeRows(int row, int count, const QModelIndex& parent)
   return succeeded;
 }
 
-int
-PluginModel::rowCount(const QModelIndex& index) const
-{
-  return isLeaf(index) ? 0 : pluginCount;
-}
-
 bool
 PluginModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
-  if (role != Qt::CheckStateRole || index.column() != 4 || index.row() < 0 ||
-      index.row() + 1 >= pluginCount || isLeaf(index)) {
+  if (role != Qt::CheckStateRole || index.column() != 4) {
     return false;
   }
 
@@ -256,6 +192,7 @@ PluginModel::setData(const QModelIndex& index, const QVariant& value, int role)
       return true;
     case Qt::CheckState::Unchecked:
       client.setPluginEnabled(pluginIndex(index.row()), false);
+      emit dataChanged(index, index, { role });
       return true;
     default:
       return false;

@@ -55,6 +55,15 @@
        <property name="text">
         <string>&amp;Add...</string>
        </property>
+       <property name="icon">
+        <iconset theme="QIcon::ThemeIcon::ListAdd"/>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
       </widget>
      </item>
      <item>
@@ -64,6 +73,15 @@
        </property>
        <property name="text">
         <string>Re&amp;install</string>
+       </property>
+       <property name="icon">
+        <iconset theme="QIcon::ThemeIcon::ViewRefresh"/>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
        </property>
       </widget>
      </item>
@@ -75,6 +93,15 @@
        <property name="text">
         <string>&amp;Show Info</string>
        </property>
+       <property name="icon">
+        <iconset theme="QIcon::ThemeIcon::HelpAbout"/>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
       </widget>
      </item>
      <item>
@@ -84,6 +111,15 @@
        </property>
        <property name="text">
         <string>&amp;Remove</string>
+       </property>
+       <property name="icon">
+        <iconset theme="QIcon::ThemeIcon::ListRemove"/>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
        </property>
       </widget>
      </item>

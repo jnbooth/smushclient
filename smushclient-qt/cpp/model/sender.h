@@ -23,26 +23,25 @@ public:
   RegexParse tryImportXml(const QString& xml);
   bool removeSelection(const QItemSelection& selection);
   int senderIndex(const QModelIndex& index) const;
-
-  int columnCount(const QModelIndex& /*index*/) const override
-  {
-    return numColumns;
-  };
-  QVariant data(const QModelIndex& index, int role) const override;
-  bool hasChildren(const QModelIndex& index) const override;
+  int columnCount(const QModelIndex& index = QModelIndex()) const override;
+  QVariant data(const QModelIndex& index,
+                int role = Qt::DisplayRole) const override;
+  bool hasChildren(const QModelIndex& index = QModelIndex()) const override;
   QVariant headerData(int section,
                       Qt::Orientation orientation,
-                      int role) const override;
+                      int role = Qt::DisplayRole) const override;
   QModelIndex index(int row,
                     int column,
-                    const QModelIndex& parent) const override;
+                    const QModelIndex& parent = QModelIndex()) const override;
   QMap<int, QVariant> itemData(const QModelIndex& index) const override;
   QModelIndex parent(const QModelIndex& index) const override;
-  bool removeRows(int row, int count, const QModelIndex& parent) override;
-  int rowCount(const QModelIndex& index) const override;
+  bool removeRows(int row,
+                  int count,
+                  const QModelIndex& parent = QModelIndex()) override;
+  int rowCount(const QModelIndex& index = QModelIndex()) const override;
   bool setData(const QModelIndex& index,
                const QVariant& value,
-               int role) override;
+               int role = Qt::EditRole) override;
 
 protected:
   static constexpr int numColumns = 4;
@@ -60,10 +59,6 @@ protected:
   SmushClient& client;
 
 private:
-  static constexpr bool isValidColumn(int column) noexcept
-  {
-    return column >= 0 && column < numColumns;
-  }
   void refresh() const;
   bool removeRowsInternal(int row,
                           int count,

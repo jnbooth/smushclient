@@ -181,6 +181,16 @@ AbstractSenderModel::senderIndex(const QModelIndex& index) const
 
 // Public overrides
 
+int
+AbstractSenderModel::columnCount(const QModelIndex& index) const
+{
+  if (index.constInternalPointer() != nullptr) {
+    return 0;
+  }
+
+  return numColumns;
+}
+
 QVariant
 AbstractSenderModel::data(const QModelIndex& index, int role) const
 {
@@ -224,14 +234,11 @@ AbstractSenderModel::headerData(int section,
                                 Qt::Orientation orientation,
                                 int role) const
 {
-  if (orientation != Qt::Orientation::Horizontal || !isValidColumn(section)) {
+  if (orientation != Qt::Orientation::Horizontal || role != Qt::DisplayRole) {
     return QVariant();
   }
 
-  if (role == Qt::DisplayRole) {
-    return headers().at(section);
-  }
-  return QVariant();
+  return headers().at(section);
 }
 
 QModelIndex
@@ -239,7 +246,7 @@ AbstractSenderModel::index(int row, int column, const QModelIndex& parent) const
 {
   refresh();
 
-  if (row < 0 || !isValidColumn(column)) {
+  if (row < 0 || column < 0 || column >= numColumns) {
     return QModelIndex();
   }
 
@@ -341,10 +348,8 @@ AbstractSenderModel::setData(const QModelIndex& index,
     return false;
   }
 
-  static const QList<int> changedRoles{ Qt::DisplayRole, Qt::EditRole };
-
   if (newRow == row) {
-    emit dataChanged(index, index, changedRoles);
+    emit dataChanged(index, index, { Qt::DisplayRole, Qt::EditRole });
     return true;
   }
 
@@ -358,7 +363,7 @@ AbstractSenderModel::setData(const QModelIndex& index,
 
   const QModelIndex newIndex = index.siblingAtRow(newRow);
 
-  emit dataChanged(newIndex, newIndex, changedRoles);
+  emit dataChanged(newIndex, newIndex, { Qt::DisplayRole, Qt::EditRole });
 
   emit layoutChanged({},
                      QAbstractItemModel::LayoutChangeHint::VerticalSortHint);
