@@ -315,6 +315,8 @@ pub mod ffi {
         fn unset_variable(self: &SmushClient, index: usize, key: StringView) -> bool;
         fn set_metavariable(self: &SmushClient, key: StringView, value: BytesView) -> bool;
         fn unset_metavariable(self: &SmushClient, key: StringView) -> bool;
+        fn get_mxp_entity(self: &SmushClient, name: StringView) -> VariableView;
+        fn set_mxp_entity(self: &SmushClient, name: StringView, value: StringView) -> bool;
         fn start_timers(self: &SmushClient, index: usize, timekeeper: &Timekeeper);
         fn start_all_timers(self: &SmushClient, timekeeper: &Timekeeper);
         fn finish_timer(self: Pin<&mut SmushClient>, id: usize) -> bool;

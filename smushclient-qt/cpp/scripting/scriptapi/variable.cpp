@@ -1,7 +1,16 @@
 #include "../../client.h"
 #include "../scriptapi.h"
+#include "smushclient_qt/src/ffi/util.cxx.h"
 
 using std::string_view;
+
+// Public static methods
+
+std::string_view
+ScriptApi::GetXMLEntity(string_view name) noexcept
+{
+  return ffi::util::get_global_entity(name);
+}
 
 // Public methods
 
@@ -10,6 +19,12 @@ ScriptApi::DeleteVariable(size_t plugin, string_view key) const noexcept
 {
   return client.unsetVariable(plugin, key) ? ApiCode::OK
                                            : ApiCode::VariableNotFound;
+}
+
+std::string_view
+ScriptApi::GetEntity(string_view name) const noexcept
+{
+  return client.getMxpEntity(name);
 }
 
 string_view
@@ -27,6 +42,12 @@ ScriptApi::GetVariable(string_view pluginID, string_view key) const noexcept
     return string_view(nullptr, 0);
   }
   return GetVariable(index, key);
+}
+
+bool
+ScriptApi::SetEntity(string_view name, string_view value) const noexcept
+{
+  return client.setMxpEntity(name, value);
 }
 
 bool

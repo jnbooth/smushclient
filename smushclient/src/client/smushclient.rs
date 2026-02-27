@@ -407,6 +407,17 @@ impl SmushClient {
         self.logger.borrow_mut().write_all(bytes)
     }
 
+    pub fn borrow_mxp_entity(&self, name: &str) -> Option<Ref<'_, str>> {
+        Ref::filter_map(self.transformer.borrow(), |transformer| {
+            transformer.get_mxp_entity(name)
+        })
+        .ok()
+    }
+
+    pub fn set_mxp_entity(&self, name: String, value: String) -> bool {
+        self.transformer.borrow_mut().set_mxp_entity(name, value)
+    }
+
     pub fn load_plugins(&mut self) -> Result<(), Vec<LoadFailure>> {
         self.plugins.load_plugins(&self.world.borrow())?;
         self.update_config();

@@ -3,7 +3,6 @@ use std::ffi::c_char;
 use std::ptr;
 
 use cxx::{ExternType, type_id};
-use smushclient::LuaStr;
 
 #[cxx::bridge]
 mod ffi {
@@ -27,10 +26,14 @@ pub struct VariableView {
 }
 
 impl VariableView {
-    const EMPTY: Self = Self {
+    const NULL: Self = Self {
         data_: ptr::null(),
         size_: 0,
     };
+
+    pub const fn null() -> Self {
+        Self::NULL
+    }
 }
 
 impl From<&[u8]> for VariableView {
@@ -48,8 +51,12 @@ impl From<&str> for VariableView {
     }
 }
 
-impl From<Ref<'_, LuaStr>> for VariableView {
-    fn from(value: Ref<'_, LuaStr>) -> Self {
+impl<T> From<Ref<'_, T>> for VariableView
+where
+    T: ?Sized,
+    VariableView: for<'a> From<&'a T>,
+{
+    fn from(value: Ref<'_, T>) -> Self {
         Self::from(&*value)
     }
 }
@@ -61,7 +68,7 @@ where
     fn from(value: Option<T>) -> Self {
         match value {
             Some(value) => Self::from(value),
-            None => Self::EMPTY,
+            None => Self::NULL,
         }
     }
 }

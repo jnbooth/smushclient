@@ -57,6 +57,7 @@ public:
   static QColor GetSysColor(SysColor sysColor);
   static int64_t GetUniqueNumber() noexcept;
   static QStringList GetAlphaOptionList() noexcept;
+  static std::string_view GetXMLEntity(std::string_view name) noexcept;
   static QStringList GetOptionList() noexcept;
   static QVariant FontInfo(const QFont& font, int64_t infoType);
   static QString MakeRegularExpression(std::string_view pattern) noexcept;
@@ -159,6 +160,7 @@ public:
                                 std::string_view name) const noexcept;
   QVariant GetCurrentValue(size_t pluginIndex,
                            std::string_view option) const noexcept;
+  std::string_view GetEntity(std::string_view name) const noexcept;
   QVariant GetInfo(int64_t infoType) const;
   QVariant GetLineInfo(int line, int64_t infoType) const;
   int GetLinesInBufferCount() const;
@@ -248,6 +250,7 @@ public:
   ApiCode SetBackgroundImage(const QString& path,
                              MiniWindow::Position position);
   ApiCode SetCursor(Qt::CursorShape cursor) const;
+  bool SetEntity(std::string_view name, std::string_view value) const noexcept;
   QColor SetForegroundColour(const QColor& color) const;
   ApiCode SetForegroundImage(const QString& path,
                              MiniWindow::Position position);

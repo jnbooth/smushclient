@@ -1,9 +1,10 @@
 use cxx_qt_lib::{QByteArray, QColor, QString, QStringList, QVector};
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::mxp::{self, RgbColor};
 use mud_transformer::naws;
 use smushclient_qt_lib::QAbstractScrollArea;
 
 use crate::convert::Convert;
+use crate::ffi::{StringView, VariableView};
 use crate::get_info::font_info;
 
 #[cxx::bridge]
@@ -28,12 +29,22 @@ mod ffi {
         type QAbstractScrollArea = smushclient_qt_lib::QAbstractScrollArea;
     }
 
+    #[namespace = "rust"]
+    extern "C++" {
+        include!("smushclient_qt/views.h");
+        #[cxx_name = "string_view"]
+        type StringView<'a> = crate::ffi::StringView<'a>;
+        #[cxx_name = "variable_view"]
+        type VariableView = crate::ffi::VariableView;
+    }
+
     #[namespace = "ffi::util"]
     extern "Rust" {
         fn ansi16() -> QVector_QColor;
         fn encode_naws(browser: &QAbstractScrollArea) -> QByteArray;
         fn font_info(font: &QFont, info_type: i64) -> QVariant;
         fn get_alpha_option_list() -> QStringList;
+        fn get_global_entity(name: StringView) -> VariableView;
         fn get_option_list() -> QStringList;
     }
 }
@@ -67,6 +78,10 @@ fn get_alpha_option_list() -> QStringList {
             .map(|&s| QString::from(s)),
     );
     list
+}
+
+fn get_global_entity(name: StringView<'_>) -> VariableView {
+    mxp::Entity::global(name.as_slice()).into()
 }
 
 fn get_option_list() -> QStringList {

@@ -801,6 +801,22 @@ impl ffi::SmushClient {
             .is_some()
     }
 
+    pub fn get_mxp_entity(&self, name: StringView<'_>) -> VariableView {
+        let Ok(name) = name.to_str() else {
+            return VariableView::null();
+        };
+        self.rust().client.borrow_mxp_entity(name).into()
+    }
+
+    pub fn set_mxp_entity(&self, name: StringView<'_>, value: StringView<'_>) -> bool {
+        let (Ok(name), Ok(value)) = (name.to_str(), value.to_str()) else {
+            return false;
+        };
+        self.rust()
+            .client
+            .set_mxp_entity(name.to_owned(), value.to_owned())
+    }
+
     pub fn sender_info(
         &self,
         kind: SenderKind,

@@ -1676,6 +1676,24 @@ L_DeleteVariable(lua_State* L)
 }
 
 int
+L_GetEntity(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, getApi(L).GetEntity(qlua::getString(L, 1)));
+  return 1;
+}
+
+int
+L_GetXMLEntity(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, ScriptApi::GetXMLEntity(qlua::getString(L, 1)));
+  return 1;
+}
+
+int
 L_GetVariable(lua_State* L)
 {
   BENCHMARK
@@ -1693,6 +1711,15 @@ L_GetPluginVariable(lua_State* L)
   pushVariable(
     L, getApi(L).GetVariable(qlua::getString(L, 1), qlua::getString(L, 2)));
   return 1;
+}
+
+int
+L_SetEntity(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  getApi(L).SetEntity(qlua::getString(L, 1), qlua::getString(L, 2));
+  return 0;
 }
 
 int
@@ -2659,8 +2686,11 @@ static const struct luaL_Reg worldlib[] =
     { "StopSound", L_StopSound },
     // variable
     { "DeleteVariable", L_DeleteVariable },
+    { "GetEntity", L_GetEntity },
+    { "GetXMLEntity", L_GetXMLEntity },
     { "GetVariable", L_GetVariable },
     { "GetPluginVariable", L_GetPluginVariable },
+    { "SetEntity", L_SetEntity },
     { "SetVariable", L_SetVariable },
     // window
     { "TextRectangle", L_TextRectangle },
