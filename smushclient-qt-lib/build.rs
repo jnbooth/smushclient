@@ -59,7 +59,7 @@ fn main() {
         include_header!("include/widgets/qwidget.h"),
     ];
 
-    for &(file_contents, file_name) in header_files {
+    for (file_contents, file_name) in header_files.iter().copied() {
         let out_path = header_dir.join(file_name);
         let mut header = File::create(out_path).expect("Could not create header");
         header

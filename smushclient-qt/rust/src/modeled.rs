@@ -197,7 +197,7 @@ impl_constructor!(<'a>, ffi::PluginDetails, (&'a ffi::SmushClient, PluginIndex),
 
 fn remove_all<T: Ord>(senders: &CursorVec<T>, indices: &[usize]) {
     let mut senders_mut = senders.borrow_mut();
-    for &index in indices.iter().rev() {
+    for index in indices.iter().copied().rev() {
         senders_mut.remove(index);
     }
 }
@@ -293,7 +293,7 @@ impl SenderMapRust {
     ) -> QSet<u16> {
         let mut set = QSet::default();
         let timers = &client.world_plugin().timers;
-        for &index in self.group_indices(group, start, amount) {
+        for index in self.group_indices(group, start, amount).iter().copied() {
             if let Some(timer) = timers.get(index) {
                 set.insert(timer.id);
             }

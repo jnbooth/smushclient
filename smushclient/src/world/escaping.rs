@@ -27,7 +27,7 @@ impl<'a> Escaped<Cow<'a, str>> {
         let mut has_player = false;
         let mut has_chrono = false;
         let mut in_escape = false;
-        for &byte in message.as_bytes() {
+        for byte in message.as_bytes().iter().copied() {
             if in_escape {
                 match byte {
                     b'N' => has_world = true,
