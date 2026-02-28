@@ -1,6 +1,7 @@
 use cxx_qt_lib::{QByteArray, QColor, QString, QStringList, QVector};
 use mud_transformer::mxp::{self, RgbColor};
 use mud_transformer::naws;
+use smushclient::WorldConfig;
 use smushclient_qt_lib::QAbstractScrollArea;
 
 use crate::convert::Convert;
@@ -41,6 +42,7 @@ mod ffi {
     #[namespace = "ffi::util"]
     extern "Rust" {
         fn ansi16() -> QVector_QColor;
+        fn default_variant_option(option: StringView) -> QVariant;
         fn encode_naws(browser: &QAbstractScrollArea) -> QByteArray;
         fn font_info(font: &QFont, info_type: i64) -> QVariant;
         fn get_alpha_option_list() -> QStringList;
@@ -51,6 +53,10 @@ mod ffi {
 
 fn ansi16() -> QVector<QColor> {
     RgbColor::XTERM_16.iter().map(Convert::convert).collect()
+}
+
+fn default_variant_option(option: StringView<'_>) -> QVariant {
+    WorldConfig::default_variant_option(option.as_slice()).convert()
 }
 
 fn encode_naws(browser: &QAbstractScrollArea) -> QByteArray {

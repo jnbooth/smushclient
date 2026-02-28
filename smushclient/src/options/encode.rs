@@ -3,14 +3,15 @@ use std::cell::Ref;
 use mud_transformer::mxp::RgbColor;
 use smushclient_plugins::SendTarget;
 
-use crate::LuaStr;
+use crate::{LuaStr, LuaString};
 
 #[derive(Debug, Default)]
 pub enum OptionValue<'a> {
     #[default]
     Null,
     Alpha(&'a LuaStr),
-    Borrow(Ref<'a, LuaStr>),
+    AlphaBorrow(Ref<'a, LuaStr>),
+    AlphaOwned(LuaString),
     Color(RgbColor),
     Numeric(i64),
 }

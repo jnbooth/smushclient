@@ -806,7 +806,7 @@ impl SmushClient {
         } else if let Ok(value) = Ref::filter_map(self.world.borrow(), |world| {
             world.option_str(caller, option)
         }) {
-            OptionValue::Borrow(value)
+            OptionValue::AlphaBorrow(value)
         } else {
             OptionValue::Null
         }

@@ -6,7 +6,7 @@ use mud_transformer::mxp::RgbColor;
 use super::config::WorldConfig;
 use super::error::SetOptionError;
 use super::types::{AutoConnect, LogFormat, MxpDebugLevel, ScriptRecompile};
-use crate::{LuaStr, LuaString};
+use crate::{LuaStr, LuaString, OptionValue};
 
 const fn code_color(code: i64) -> Result<Option<RgbColor>, SetOptionError> {
     if code == -1 || code == 0xFFFFFFFF {
@@ -346,5 +346,17 @@ impl WorldConfig {
             _ => return Err(SetOptionError::UnknownOption),
         }
         Ok(())
+    }
+
+    pub fn default_variant_option(option: &LuaStr) -> OptionValue<'static> {
+        let caller = OptionCaller::WorldScript;
+        let world = WorldConfig::new();
+        if let Some(value) = world.option_int(caller, option) {
+            OptionValue::Numeric(value)
+        } else if let Some(value) = world.option_str(caller, option) {
+            OptionValue::AlphaOwned(value.to_vec())
+        } else {
+            OptionValue::Null
+        }
     }
 }

@@ -12,6 +12,12 @@ ScriptApi::GetAlphaOptionList() noexcept
   return ffi::util::get_alpha_option_list();
 }
 
+QVariant
+ScriptApi::GetDefaultValue(string_view name)
+{
+  return ffi::util::default_variant_option(name);
+}
+
 QStringList
 ScriptApi::GetOptionList() noexcept
 {

@@ -57,6 +57,7 @@ public:
   static bool ChangeDir(const QString& dir);
   static QStringList GetAlphaOptionList() noexcept;
   static QString GetClipboard();
+  static QVariant GetDefaultValue(std::string_view name);
   static QVariant FontInfo(const QFont& font, int64_t infoType);
   static QList<QHostAddress> GetHostAddress(const QString& hostName);
   static QString GetHostName(const QString& address);

@@ -1016,6 +1016,15 @@ L_GetCurrentValue(lua_State* L)
 }
 
 int
+L_GetDefaultValue(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  pushQVariant(L, ScriptApi::GetDefaultValue(qlua::getString(L, 1)));
+  return 1;
+}
+
+int
 L_GetOption(lua_State* L)
 {
   BENCHMARK
@@ -2814,6 +2823,7 @@ static const struct luaL_Reg worldlib[] =
     { "GetAlphaOption", L_GetAlphaOption },
     { "GetAlphaOptionList", L_GetAlphaOptionList },
     { "GetCurrentValue", L_GetCurrentValue },
+    { "GetDefaultValue", L_GetDefaultValue },
     { "GetOption", L_GetOption },
     { "GetOptionList", L_GetOptionList },
     { "SetAlphaOption", L_SetAlphaOption },
