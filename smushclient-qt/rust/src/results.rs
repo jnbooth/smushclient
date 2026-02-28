@@ -1,6 +1,6 @@
 use std::io;
 
-use smushclient::world::SetOptionError;
+use smushclient::SetOptionError;
 use smushclient::{AudioError, OptionError};
 use smushclient_plugins::{Alias, SenderAccessError, Timer, Trigger};
 

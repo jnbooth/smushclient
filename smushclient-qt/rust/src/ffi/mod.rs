@@ -16,7 +16,7 @@ pub use bytes_view::BytesView;
 mod client;
 pub use client::ffi::{
     AliasMenuItem, CommandSource, ExportKind, PluginPack, QAbstractSocket, ReplaceSenderResult,
-    SenderKind, SmushClient, StyledSpan,
+    SmushClient, StyledSpan,
 };
 
 mod document;
@@ -40,7 +40,7 @@ mod sender_map;
 pub use sender_map::ffi::{SenderMap, SenderType};
 
 mod send_request;
-pub use send_request::ffi::{SendRequest, SendTarget, SendTimer};
+pub use send_request::ffi::{SendRequest, SendTarget, SendTimer, SenderKind};
 
 pub mod spans;
 

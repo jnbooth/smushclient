@@ -7,7 +7,8 @@ use cxx_qt_io::QAbstractSocket;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant};
 use smushclient::world::{LogMode, PersistError};
 use smushclient_plugins::{
-    Alias, ImportError, LoadError, PluginIndex, PluginSender, Reaction, Timer, Trigger, XmlSerError,
+    Alias, ImportError, LoadError, PluginIndex, PluginSender, Reaction, Sender, Timer, Trigger,
+    XmlSerError,
 };
 use smushclient_qt_lib::QPair;
 
@@ -257,7 +258,7 @@ impl ffi::SmushClient {
             .get_info::<InfoVisitorQVariant>(info_type)
     }
 
-    pub fn plugin_info(&self, index: PluginIndex, info_type: u8) -> QVariant {
+    pub fn plugin_info(&self, index: PluginIndex, info_type: i64) -> QVariant {
         self.rust()
             .client
             .plugin_info::<InfoVisitorQVariant>(index, info_type)
@@ -826,22 +827,59 @@ impl ffi::SmushClient {
         kind: SenderKind,
         index: PluginIndex,
         label: StringView<'_>,
-        info_type: u8,
+        info_type: i64,
     ) -> QVariant {
         let Ok(label) = label.to_str() else {
             return QVariant::default();
         };
-        let client = self.rust();
+        let inner = self.rust();
         match kind {
-            SenderKind::Alias => client
+            SenderKind::Alias => inner
                 .client
                 .alias_info::<InfoVisitorQVariant>(index, label, info_type),
-            SenderKind::Timer => client.timer_info(index, label, info_type),
-            SenderKind::Trigger => client
+            SenderKind::Timer => inner.timer_info(index, label, info_type),
+            SenderKind::Trigger => inner
                 .client
                 .trigger_info::<InfoVisitorQVariant>(index, label, info_type),
             _ => QVariant::default(),
         }
+    }
+
+    fn borrow_sender(
+        &self,
+        kind: SenderKind,
+        index: PluginIndex,
+        label: StringView<'_>,
+    ) -> Option<Ref<'_, Sender>> {
+        let label = label.to_str().ok()?;
+        let client = &self.rust().client;
+        match kind {
+            SenderKind::Alias => Some(Ref::map(
+                client.borrow_sender::<Alias>(index, label)?,
+                AsRef::as_ref,
+            )),
+            SenderKind::Timer => Some(Ref::map(
+                client.borrow_sender::<Timer>(index, label)?,
+                AsRef::as_ref,
+            )),
+            SenderKind::Trigger => Some(Ref::map(
+                client.borrow_sender::<Trigger>(index, label)?,
+                AsRef::as_ref,
+            )),
+            _ => None,
+        }
+    }
+
+    pub fn sender_script(
+        &self,
+        kind: SenderKind,
+        index: PluginIndex,
+        label: StringView<'_>,
+    ) -> VariableView {
+        let Some(sender) = self.borrow_sender(kind, index, label) else {
+            return VariableView::null();
+        };
+        (&sender.script).into()
     }
 
     pub fn start_timers(&self, index: PluginIndex, timekeeper: &ffi::Timekeeper) {

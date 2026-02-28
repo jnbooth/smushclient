@@ -13,7 +13,7 @@ fn parse_double<V: InfoVisitor>(info: &str) -> V::Output {
 }
 
 impl SmushClient {
-    pub fn plugin_info<V: InfoVisitor>(&self, index: PluginIndex, info_type: u8) -> V::Output {
+    pub fn plugin_info<V: InfoVisitor>(&self, index: PluginIndex, info_type: i64) -> V::Output {
         let Some(plugin) = self.plugins.get(index) else {
             return V::visit_none();
         };

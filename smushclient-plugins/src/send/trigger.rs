@@ -53,6 +53,28 @@ impl_deref!(Trigger, Reaction, reaction);
 impl_asref!(Trigger, Reaction);
 impl_asref!(Trigger, Sender);
 
+impl Trigger {
+    pub fn style_byte(&self) -> u8 {
+        let mut changes = 0;
+        if self.make_bold {
+            changes |= 1;
+        }
+        if self.make_underline {
+            changes |= 2;
+        }
+        if self.make_italic {
+            changes |= 4;
+        }
+        changes
+    }
+
+    pub fn set_style_byte(&mut self, changes: u8) {
+        self.make_bold = (changes & 1) != 0;
+        self.make_underline = (changes & 2) != 0;
+        self.make_italic = (changes & 4) != 0;
+    }
+}
+
 impl XmlIterable for Trigger {
     const TAG: &'static str = "trigger";
     type Xml<'a> = XmlTrigger<'a>;

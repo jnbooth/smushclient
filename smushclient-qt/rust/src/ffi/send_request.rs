@@ -5,6 +5,12 @@ pub mod ffi {
         type QString = cxx_qt_lib::QString;
     }
 
+    enum SenderKind {
+        Trigger,
+        Alias,
+        Timer,
+    }
+
     #[repr(i32)]
     enum SendTarget {
         World,

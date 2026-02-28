@@ -28,12 +28,12 @@ use crate::audio::{AudioError, AudioSinks, PlayMode};
 use crate::get_info::InfoVisitor;
 use crate::handler::Handler;
 use crate::import::ImportedWorld;
-use crate::options::OptionValue;
+use crate::options::{OptionCaller, OptionValue, SetOptionError};
 use crate::plugins::{
     AliasEffects, AliasOutcome, CommandSource, LoadFailure, PluginEngine, PluginReaction,
     SendRequest, SendScriptRequest, SpanStyle, TriggerEffects,
 };
-use crate::world::{LogMode, OptionCaller, PersistError, SetOptionError, World, WorldConfig};
+use crate::world::{LogMode, PersistError, World, WorldConfig};
 
 const METAVARIABLES_KEY: &str = "\x01";
 

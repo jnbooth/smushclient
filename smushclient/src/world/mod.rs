@@ -8,7 +8,7 @@ mod config;
 pub use config::WorldConfig;
 
 mod error;
-pub use error::{PersistError, SetOptionError};
+pub use error::PersistError;
 
 mod escaping;
 pub use escaping::{Escaped, EscapedBrackets, LogBrackets, fixup_html};
@@ -16,9 +16,6 @@ pub use escaping::{Escaped, EscapedBrackets, LogBrackets, fixup_html};
 mod numpad;
 pub(crate) use numpad::XmlKey;
 pub use numpad::{Numpad, NumpadMapping};
-
-mod option;
-pub use option::OptionCaller;
 
 mod sender_map;
 pub use sender_map::SenderMap;

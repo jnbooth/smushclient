@@ -24,6 +24,23 @@ using std::string_view;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
 
+// Private utils
+
+namespace {
+constexpr int64_t
+scriptInfoIndex(SenderKind kind) noexcept
+{
+  switch (kind) {
+    case SenderKind::Alias:
+      return 27;
+    case SenderKind::Timer:
+      return 26;
+    case SenderKind::Trigger:
+      return 34;
+  }
+}
+} // namespace
+
 // Public methods
 
 ScriptApi::ScriptApi(SmushClient& client,
@@ -508,6 +525,40 @@ ScriptApi::finishQueuedSend(const SendRequest& request)
   handleSendRequest(request);
   actionSource = oldSource;
   return true;
+}
+
+QVariant
+ScriptApi::getSenderInfo(SenderKind kind,
+                         size_t pluginIndex,
+                         std::string_view label,
+                         int64_t infoType) const
+{
+
+  if (infoType < 0 || infoType > UINT8_MAX) [[unlikely]] {
+    return QVariant();
+  }
+
+  if (infoType == scriptInfoIndex(kind)) {
+    const string_view scriptName =
+      client.senderScript(kind, pluginIndex, label);
+    return !scriptName.empty() && plugins[pluginIndex].hasFunction(scriptName);
+  }
+
+  return client.senderInfo(
+    kind, pluginIndex, label, static_cast<uint8_t>(infoType));
+}
+
+QVariant
+ScriptApi::getSenderInfo(SenderKind kind,
+                         std::string_view pluginId,
+                         std::string_view label,
+                         int64_t infoType) const
+{
+  const size_t pluginIndex = findPluginIndex(pluginId);
+  if (pluginIndex == noSuchPlugin) {
+    return QVariant();
+  }
+  return getSenderInfo(kind, pluginIndex, label, infoType);
 }
 
 ApiCode

@@ -1,3 +1,4 @@
+use mud_transformer::mxp::RgbColor;
 use smushclient_plugins::Trigger;
 
 use super::decode::DecodeOption;
@@ -13,19 +14,7 @@ impl Optionable for Trigger {
             b"lines_to_match" => self.lines_to_match.encode(),
             b"lowercase_wildcard" => self.lowercase_wildcard.encode(),
             b"multi_line" => self.multi_line.encode(),
-            b"new_style" => {
-                let mut changes: i32 = 0;
-                if self.make_bold {
-                    changes |= 1;
-                }
-                if self.make_underline {
-                    changes |= 2;
-                }
-                if self.make_italic {
-                    changes |= 4;
-                }
-                changes.encode()
-            }
+            b"new_style" => self.style_byte().encode(),
             b"other_back_colour" => self.background_color.encode(),
             b"other_text_colour" => self.foreground_color.encode(),
             b"sound" => self.sound.encode(),
@@ -48,14 +37,23 @@ impl Optionable for Trigger {
                 self.set_pattern(pattern)?;
             }
             b"multi_line" => self.multi_line = value.decode()?,
-            b"new_style" => {
-                let flags: u8 = value.decode()?;
-                self.make_bold = (flags & 1) != 0;
-                self.make_underline = (flags & 2) != 0;
-                self.make_italic = (flags & 4) != 0;
+            b"new_style" => self.set_style_byte(value.decode()?),
+            b"other_back_colour" => {
+                if let Some(color) = value.decode()? {
+                    self.background_color = color;
+                } else {
+                    self.background_color = RgbColor::BLACK;
+                    self.change_background = false;
+                }
             }
-            b"other_back_colour" => self.background_color = value.decode()?,
-            b"other_text_colour" => self.foreground_color = value.decode()?,
+            b"other_text_colour" => {
+                if let Some(color) = value.decode()? {
+                    self.foreground_color = color;
+                } else {
+                    self.foreground_color = RgbColor::WHITE;
+                    self.change_foreground = false;
+                }
+            }
             b"sound" => self.sound = value.decode()?,
             b"sound_if_inactive" => self.sound_if_inactive = value.decode()?,
             _ => self.reaction.set_option(name, value)?,

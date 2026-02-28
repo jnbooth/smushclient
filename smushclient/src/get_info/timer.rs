@@ -10,7 +10,7 @@ impl SmushClient {
         &self,
         index: PluginIndex,
         label: &str,
-        info_type: u8,
+        info_type: i64,
         timers: &Timers<T>,
     ) -> V::Output {
         let Some(timer) = self

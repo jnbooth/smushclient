@@ -160,6 +160,18 @@ public:
                     ExportKind kind,
                     std::string_view name) const noexcept;
   ApiCode FlushLog() const;
+  QVariant GetAliasInfo(size_t pluginIndex,
+                        std::string_view label,
+                        int64_t infoType) const
+  {
+    return getSenderInfo(SenderKind::Alias, pluginIndex, label, infoType);
+  }
+  QVariant GetAliasInfo(std::string_view pluginId,
+                        std::string_view label,
+                        int64_t infoType) const
+  {
+    return getSenderInfo(SenderKind::Alias, pluginId, label, infoType);
+  }
   QVariant GetAliasOption(size_t plugin,
                           std::string_view label,
                           std::string_view option) const noexcept;
@@ -193,10 +205,31 @@ public:
   QColor GetTermColour(uint8_t i) const noexcept;
   QVariant GetTimerInfo(size_t pluginIndex,
                         std::string_view label,
-                        int64_t infoType) const;
+                        int64_t infoType) const
+  {
+    return getSenderInfo(SenderKind::Timer, pluginIndex, label, infoType);
+  }
+  QVariant GetTimerInfo(std::string_view pluginId,
+                        std::string_view label,
+                        int64_t infoType) const
+  {
+    return getSenderInfo(SenderKind::Timer, pluginId, label, infoType);
+  }
   QVariant GetTimerOption(size_t plugin,
                           std::string_view label,
                           std::string_view option) const noexcept;
+  QVariant GetTriggerInfo(size_t pluginIndex,
+                          std::string_view label,
+                          int64_t infoType) const
+  {
+    return getSenderInfo(SenderKind::Trigger, pluginIndex, label, infoType);
+  }
+  QVariant GetTriggerInfo(std::string_view pluginId,
+                          std::string_view label,
+                          int64_t infoType) const
+  {
+    return getSenderInfo(SenderKind::Alias, pluginId, label, infoType);
+  }
   QVariant GetTriggerOption(size_t plugin,
                             std::string_view label,
                             std::string_view option) const noexcept;
@@ -572,6 +605,14 @@ private:
   size_t findPluginIndex(std::string_view pluginID) const noexcept;
   MiniWindow* findWindow(std::string_view windowName) const noexcept;
   bool finishQueuedSend(const SendRequest& request);
+  QVariant getSenderInfo(SenderKind kind,
+                         size_t pluginIndex,
+                         std::string_view label,
+                         int64_t infoType) const;
+  QVariant getSenderInfo(SenderKind kind,
+                         std::string_view pluginId,
+                         std::string_view label,
+                         int64_t infoType) const;
   ApiCode setImage(const QString& path,
                    MiniWindow::Position position,
                    bool above);

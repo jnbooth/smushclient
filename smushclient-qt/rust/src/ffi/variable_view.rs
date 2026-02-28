@@ -51,6 +51,12 @@ impl From<&str> for VariableView {
     }
 }
 
+impl From<&String> for VariableView {
+    fn from(value: &String) -> Self {
+        Self::from(value.as_bytes())
+    }
+}
+
 impl<T> From<Ref<'_, T>> for VariableView
 where
     T: ?Sized,

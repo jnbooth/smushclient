@@ -1,3 +1,5 @@
+#![allow(clippy::match_same_arms)]
+
 mod alias;
 
 mod plugin;

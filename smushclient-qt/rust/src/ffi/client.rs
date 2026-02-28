@@ -40,6 +40,7 @@ pub mod ffi {
         include!("smushclient_qt/src/ffi/regex.cxx.h");
         type RegexParse = crate::ffi::RegexParse;
         include!("smushclient_qt/src/ffi/send_request.cxx.h");
+        type SenderKind = crate::ffi::SenderKind;
         type SendTimer = crate::ffi::SendTimer;
     }
 
@@ -89,12 +90,6 @@ pub mod ffi {
         Conflict = -3,
         BadRegularExpression = -4,
         NotFound = -5,
-    }
-
-    enum SenderKind {
-        Trigger,
-        Alias,
-        Timer,
     }
 
     enum ExportKind {
@@ -181,7 +176,7 @@ pub mod ffi {
         -> bool;
         fn alias_menu(self: &SmushClient) -> Vec<AliasMenuItem>;
         fn get_info(self: &SmushClient, info_type: i64) -> QVariant;
-        fn plugin_info(self: &SmushClient, index: usize, info_type: u8) -> QVariant;
+        fn plugin_info(self: &SmushClient, index: usize, info_type: i64) -> QVariant;
         fn plugins_len(self: &SmushClient) -> usize;
         fn try_add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> Result<usize>;
         fn remove_plugin(self: Pin<&mut SmushClient>, index: usize) -> bool;
@@ -205,7 +200,7 @@ pub mod ffi {
             kind: SenderKind,
             index: usize,
             label: StringView,
-            info_type: u8,
+            info_type: i64,
         ) -> QVariant;
         fn add_alias(self: &SmushClient, index: usize, alias: &Alias) -> ApiCode;
         fn add_timer(
@@ -318,6 +313,12 @@ pub mod ffi {
         fn get_mxp_entity(self: &SmushClient, name: StringView) -> VariableView;
         fn set_mxp_entity(self: &SmushClient, name: StringView, value: StringView) -> bool;
         fn bytes_received(self: &SmushClient) -> u64;
+        fn sender_script(
+            self: &SmushClient,
+            kind: SenderKind,
+            index: usize,
+            label: StringView,
+        ) -> VariableView;
         fn start_timers(self: &SmushClient, index: usize, timekeeper: &Timekeeper);
         fn start_all_timers(self: &SmushClient, timekeeper: &Timekeeper);
         fn finish_timer(self: Pin<&mut SmushClient>, id: usize) -> bool;

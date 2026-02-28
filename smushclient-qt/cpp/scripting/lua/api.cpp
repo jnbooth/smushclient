@@ -473,6 +473,18 @@ L_CreateGUID(lua_State* L)
 }
 
 int
+L_GetAliasInfo(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  pushQVariant(L,
+               getApi(L).GetAliasInfo(getPluginIndex(L),
+                                      qlua::getString(L, 1),
+                                      qlua::getInteger(L, 2)));
+  return 1;
+}
+
+int
 L_GetConnectDuration(lua_State* L)
 {
   BENCHMARK
@@ -504,6 +516,18 @@ L_GetLineInfo(lua_State* L)
 }
 
 int
+L_GetPluginAliasInfo(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 3);
+  pushQVariant(L,
+               getApi(L).GetAliasInfo(qlua::getString(L, 1),
+                                      qlua::getString(L, 2),
+                                      qlua::getInteger(L, 3)));
+  return 1;
+}
+
+int
 L_GetPluginInfo(lua_State* L)
 {
   BENCHMARK
@@ -516,6 +540,30 @@ L_GetPluginInfo(lua_State* L)
     pushQVariant(
       L, getApi(L).GetPluginInfo(pluginID, static_cast<uint8_t>(infoType)));
   }
+  return 1;
+}
+
+int
+L_GetPluginTimerInfo(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 3);
+  pushQVariant(L,
+               getApi(L).GetTimerInfo(qlua::getString(L, 1),
+                                      qlua::getString(L, 2),
+                                      qlua::getInteger(L, 3)));
+  return 1;
+}
+
+int
+L_GetPluginTriggerInfo(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 3);
+  pushQVariant(L,
+               getApi(L).GetTriggerInfo(qlua::getString(L, 1),
+                                        qlua::getString(L, 2),
+                                        qlua::getInteger(L, 3)));
   return 1;
 }
 
@@ -540,6 +588,18 @@ L_GetTimerInfo(lua_State* L)
                getApi(L).GetTimerInfo(getPluginIndex(L),
                                       qlua::getString(L, 1),
                                       qlua::getInteger(L, 2)));
+  return 1;
+}
+
+int
+L_GetTriggerInfo(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  pushQVariant(L,
+               getApi(L).GetTriggerInfo(getPluginIndex(L),
+                                        qlua::getString(L, 1),
+                                        qlua::getInteger(L, 2)));
   return 1;
 }
 
@@ -2809,11 +2869,16 @@ static const struct luaL_Reg worldlib[] =
     { "ChangeDir", L_ChangeDir },
     { "CreateGUID", L_CreateGUID },
     { "GetConnectDuration", L_GetConnectDuration },
+    { "GetAliasInfo", L_GetAliasInfo },
     { "GetInfo", L_GetInfo },
     { "GetLineInfo", L_GetLineInfo },
+    { "GetPluginAliasInfo", L_GetPluginAliasInfo },
     { "GetPluginInfo", L_GetPluginInfo },
+    { "GetPluginTimerInfo", L_GetPluginTimerInfo },
+    { "GetPluginTriggerInfo", L_GetPluginTriggerInfo },
     { "GetStyleInfo", L_GetStyleInfo },
     { "GetTimerInfo", L_GetTimerInfo },
+    { "GetTriggerInfo", L_GetTriggerInfo },
     { "GetUniqueNumber", L_GetUniqueNumber },
     { "Version", L_Version },
     { "WindowFontInfo", L_WindowFontInfo },

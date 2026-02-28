@@ -467,8 +467,7 @@ QVariant
 ScriptApi::GetPluginInfo(string_view pluginID, int64_t infoType) const noexcept
 {
   const size_t index = findPluginIndex(pluginID);
-  if (index == noSuchPlugin || infoType < 0 || infoType > UINT8_MAX)
-    [[unlikely]] {
+  if (index == noSuchPlugin) [[unlikely]] {
     return QVariant();
   }
   switch (infoType) {
@@ -558,24 +557,6 @@ ScriptApi::GetStyleInfo(int line, int64_t style, int64_t infoType) const
     default:
       return QVariant();
   }
-}
-
-QVariant
-ScriptApi::GetTimerInfo(size_t pluginIndex,
-                        string_view label,
-                        int64_t infoType) const
-{
-  if (infoType < 0 || infoType > UINT8_MAX) [[unlikely]] {
-    return QVariant();
-  }
-
-  if (infoType == 26) {
-    const QString scriptName =
-      client.senderInfo(SenderKind::Timer, pluginIndex, label, 5).toString();
-    return !scriptName.isEmpty() &&
-           plugins[pluginIndex].hasFunction(scriptName);
-  }
-  return client.senderInfo(SenderKind::Timer, pluginIndex, label, infoType);
 }
 
 // External implementations

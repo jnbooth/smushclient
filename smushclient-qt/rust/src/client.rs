@@ -328,7 +328,7 @@ impl SmushClientRust {
         menu
     }
 
-    pub fn timer_info(&self, index: PluginIndex, label: &str, info_type: u8) -> QVariant {
+    pub fn timer_info(&self, index: PluginIndex, label: &str, info_type: i64) -> QVariant {
         self.client.timer_info::<InfoVisitorQVariant, _>(
             index,
             label,
