@@ -42,6 +42,12 @@ ScriptApi::GetPluginID(size_t index) const
   return plugins.at(index).id();
 }
 
+const string&
+ScriptApi::GetPluginName(size_t index) const
+{
+  return plugins.at(index).name();
+}
+
 ApiCode
 ScriptApi::PluginSupports(string_view pluginID, PluginCallbackKey routine) const
 {
