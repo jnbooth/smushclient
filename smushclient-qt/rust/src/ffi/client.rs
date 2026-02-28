@@ -298,6 +298,7 @@ pub mod ffi {
         fn get_alias_wildcard(&self, index: usize, label: StringView, name: StringView) -> String;
         fn get_trigger_wildcard(&self, index: usize, label: StringView, name: StringView)
         -> String;
+        fn list_variables(self: &SmushClient, index: usize) -> Vec<String>;
         fn get_variable(self: &SmushClient, index: usize, key: StringView) -> VariableView;
         fn get_metavariable(self: &SmushClient, key: StringView) -> VariableView;
         fn has_metavariable(self: &SmushClient, key: StringView) -> bool;

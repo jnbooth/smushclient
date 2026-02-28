@@ -542,6 +542,15 @@ impl SmushClient {
         Ok(())
     }
 
+    pub fn list_variables(&self, index: PluginIndex) -> Vec<String> {
+        let plugin_id = &self.plugins[index].metadata.id;
+        let variables = self.variables.borrow();
+        let Some(keys) = variables.keys(plugin_id) else {
+            return Vec::new();
+        };
+        keys.into_iter().cloned().collect()
+    }
+
     pub fn borrow_variable(&self, index: PluginIndex, key: &str) -> Option<Ref<'_, [u8]>> {
         let plugin_id = &self.plugins[index].metadata.id;
         Ref::filter_map(self.variables.borrow(), |vars| {

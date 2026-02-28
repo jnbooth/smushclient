@@ -44,6 +44,22 @@ ScriptApi::GetVariable(string_view pluginID, string_view key) const noexcept
   return GetVariable(index, key);
 }
 
+rust::Vec<rust::String>
+ScriptApi::GetVariableList(size_t pluginIndex) const noexcept
+{
+  return client.listVariables(pluginIndex);
+}
+
+rust::Vec<rust::String>
+ScriptApi::GetVariableList(string_view pluginID) const
+{
+  const size_t index = findPluginIndex(pluginID);
+  if (index == noSuchPlugin) {
+    return {};
+  }
+  return client.listVariables(index);
+}
+
 bool
 ScriptApi::SetEntity(string_view name, string_view value) const noexcept
 {

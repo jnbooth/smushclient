@@ -268,6 +268,8 @@ public:
                                std::string_view key) const noexcept;
   std::string_view GetVariable(std::string_view pluginID,
                                std::string_view key) const noexcept;
+  rust::Vec<rust::String> GetVariableList(size_t pluginIndex) const noexcept;
+  rust::Vec<rust::String> GetVariableList(std::string_view pluginID) const;
   void Hyperlink(const QString& action,
                  const QString& text,
                  const QString& hint,

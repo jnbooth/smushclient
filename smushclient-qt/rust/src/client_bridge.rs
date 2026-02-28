@@ -757,6 +757,10 @@ impl ffi::SmushClient {
         self.rust().alias_menu()
     }
 
+    pub fn list_variables(&self, index: PluginIndex) -> Vec<String> {
+        self.rust().client.list_variables(index)
+    }
+
     pub fn get_variable(&self, index: PluginIndex, key: StringView<'_>) -> VariableView {
         let Ok(key) = key.to_str() else {
             return VariableView::null();
