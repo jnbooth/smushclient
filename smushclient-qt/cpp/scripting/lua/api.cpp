@@ -161,17 +161,6 @@ apiSlot(lua_State* L) noexcept
   return static_cast<ScriptApi**>(lua_getextraspace(L)); // NOLINT
 }
 
-template<typename T>
-void
-pushListOrEmpty(lua_State* L, const T& list)
-{
-  if (list.empty()) {
-    lua_pushnil(L);
-  } else {
-    pushList(L, list);
-  }
-}
-
 inline const char*
 pushVariable(lua_State* L, string_view variable)
 {
@@ -2293,7 +2282,7 @@ L_WindowFontList(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
-  pushListOrEmpty(L, getApi(L).WindowFontList(qlua::getString(L, 1)));
+  pushList(L, getApi(L).WindowFontList(qlua::getString(L, 1)));
   return 1;
 }
 
@@ -2361,7 +2350,7 @@ L_WindowImageList(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
-  pushListOrEmpty(L, getApi(L).WindowImageList(qlua::getString(L, 1)));
+  pushList(L, getApi(L).WindowImageList(qlua::getString(L, 1)));
   return 1;
 }
 
@@ -2724,7 +2713,7 @@ L_WindowHotspotList(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
-  pushListOrEmpty(L, getApi(L).WindowHotspotList(qlua::getString(L, 1)));
+  pushList(L, getApi(L).WindowHotspotList(qlua::getString(L, 1)));
   return 1;
 }
 
