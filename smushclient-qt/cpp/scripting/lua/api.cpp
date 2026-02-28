@@ -1770,6 +1770,15 @@ L_ExportXML(lua_State* L)
 }
 
 int
+L_GetAliasList(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  pushList(L, getApi(L).GetAliasList(getPluginIndex(L)));
+  return 1;
+}
+
+int
 L_GetAliasOption(lua_State* L)
 {
   BENCHMARK
@@ -1793,6 +1802,42 @@ L_GetAliasWildcard(lua_State* L)
 }
 
 int
+L_GetPluginAliasList(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  pushList(L, getApi(L).GetAliasList(qlua::getString(L, 1)));
+  return 1;
+}
+
+int
+L_GetPluginTimerList(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  pushList(L, getApi(L).GetTimerList(qlua::getString(L, 1)));
+  return 1;
+}
+
+int
+L_GetPluginTriggerList(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  pushList(L, getApi(L).GetTriggerList(qlua::getString(L, 1)));
+  return 1;
+}
+
+int
+L_GetTimerList(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  pushList(L, getApi(L).GetTimerList(getPluginIndex(L)));
+  return 1;
+}
+
+int
 L_GetTimerOption(lua_State* L)
 {
   BENCHMARK
@@ -1801,6 +1846,15 @@ L_GetTimerOption(lua_State* L)
                getApi(L).GetTimerOption(getPluginIndex(L),
                                         qlua::getString(L, 1),
                                         qlua::getString(L, 2)));
+  return 1;
+}
+
+int
+L_GetTriggerList(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  pushList(L, getApi(L).GetTriggerList(getPluginIndex(L)));
   return 1;
 }
 
@@ -2996,9 +3050,15 @@ static const struct luaL_Reg worldlib[] =
     { "EnableTrigger", L_EnableTrigger },
     { "EnableTriggerGroup", L_EnableTriggerGroup },
     { "ExportXML", L_ExportXML },
+    { "GetAliasList", L_GetAliasList },
     { "GetAliasOption", L_GetAliasOption },
     { "GetAliasWildcard", L_GetAliasWildcard },
+    { "GetPluginAliasList", L_GetPluginAliasList },
+    { "GetPluginTimerList", L_GetPluginTimerList },
+    { "GetPluginTriggerList", L_GetPluginTriggerList },
+    { "GetTimerList", L_GetTimerList },
     { "GetTimerOption", L_GetTimerOption },
+    { "GetTriggerList", L_GetTriggerList },
     { "GetTriggerOption", L_GetTriggerOption },
     { "GetTriggerWildcard", L_GetTriggerWildcard },
     { "IsAlias", L_IsAlias },

@@ -639,6 +639,21 @@ impl SmushClient {
         self.world.borrow_mut().colour_map.insert(color, mapped);
     }
 
+    pub fn list_senders<T: PluginSender>(&self, index: PluginIndex) -> Vec<String> {
+        self.senders::<T>(index)
+            .borrow()
+            .iter()
+            .filter_map(|sender| {
+                let label = &sender.as_ref().label;
+                if label.is_empty() {
+                    None
+                } else {
+                    Some(label.clone())
+                }
+            })
+            .collect()
+    }
+
     pub fn borrow_sender<T: PluginSender>(
         &self,
         index: PluginIndex,

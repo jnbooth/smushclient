@@ -822,6 +822,16 @@ impl ffi::SmushClient {
         self.rust().client.bytes_received()
     }
 
+    pub fn list_senders(&self, kind: SenderKind, index: PluginIndex) -> Vec<String> {
+        let client = &self.rust().client;
+        match kind {
+            SenderKind::Alias => client.list_senders::<Alias>(index),
+            SenderKind::Timer => client.list_senders::<Timer>(index),
+            SenderKind::Trigger => client.list_senders::<Trigger>(index),
+            _ => Vec::new(),
+        }
+    }
+
     pub fn sender_info(
         &self,
         kind: SenderKind,

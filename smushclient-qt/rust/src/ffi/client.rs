@@ -313,6 +313,7 @@ pub mod ffi {
         fn get_mxp_entity(self: &SmushClient, name: StringView) -> VariableView;
         fn set_mxp_entity(self: &SmushClient, name: StringView, value: StringView) -> bool;
         fn bytes_received(self: &SmushClient) -> u64;
+        fn list_senders(self: &SmushClient, kind: SenderKind, index: usize) -> Vec<String>;
         fn sender_script(
             self: &SmushClient,
             kind: SenderKind,

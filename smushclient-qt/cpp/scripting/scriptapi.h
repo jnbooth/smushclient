@@ -173,6 +173,14 @@ public:
   {
     return getSenderInfo(SenderKind::Alias, pluginId, label, infoType);
   }
+  rust::Vec<rust::String> GetAliasList(size_t pluginIndex) const noexcept
+  {
+    return getSenderList(SenderKind::Alias, pluginIndex);
+  }
+  rust::Vec<rust::String> GetAliasList(std::string_view pluginId) const noexcept
+  {
+    return getSenderList(SenderKind::Alias, pluginId);
+  }
   QVariant GetAliasOption(size_t plugin,
                           std::string_view label,
                           std::string_view option) const noexcept;
@@ -216,6 +224,14 @@ public:
   {
     return getSenderInfo(SenderKind::Timer, pluginId, label, infoType);
   }
+  rust::Vec<rust::String> GetTimerList(size_t pluginIndex) const noexcept
+  {
+    return getSenderList(SenderKind::Timer, pluginIndex);
+  }
+  rust::Vec<rust::String> GetTimerList(std::string_view pluginId) const noexcept
+  {
+    return getSenderList(SenderKind::Timer, pluginId);
+  }
   QVariant GetTimerOption(size_t plugin,
                           std::string_view label,
                           std::string_view option) const noexcept;
@@ -230,6 +246,15 @@ public:
                           int64_t infoType) const
   {
     return getSenderInfo(SenderKind::Alias, pluginId, label, infoType);
+  }
+  rust::Vec<rust::String> GetTriggerList(size_t pluginIndex) const noexcept
+  {
+    return getSenderList(SenderKind::Trigger, pluginIndex);
+  }
+  rust::Vec<rust::String> GetTriggerList(
+    std::string_view pluginId) const noexcept
+  {
+    return getSenderList(SenderKind::Trigger, pluginId);
   }
   QVariant GetTriggerOption(size_t plugin,
                             std::string_view label,
@@ -614,6 +639,11 @@ private:
                          std::string_view pluginId,
                          std::string_view label,
                          int64_t infoType) const;
+  rust::Vec<rust::String> getSenderList(SenderKind kind,
+                                        size_t pluginIndex) const noexcept;
+  rust::Vec<rust::String> getSenderList(
+    SenderKind kind,
+    std::string_view pluginId) const noexcept;
   ApiCode setImage(const QString& path,
                    MiniWindow::Position position,
                    bool above);

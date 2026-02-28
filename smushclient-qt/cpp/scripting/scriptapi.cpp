@@ -532,11 +532,6 @@ ScriptApi::getSenderInfo(SenderKind kind,
                          std::string_view label,
                          int64_t infoType) const
 {
-
-  if (infoType < 0 || infoType > UINT8_MAX) [[unlikely]] {
-    return QVariant();
-  }
-
   if (infoType == scriptInfoIndex(kind)) {
     const string_view scriptName =
       client.senderScript(kind, pluginIndex, label);
@@ -558,6 +553,22 @@ ScriptApi::getSenderInfo(SenderKind kind,
     return {};
   }
   return getSenderInfo(kind, pluginIndex, label, infoType);
+}
+
+rust::Vec<rust::String>
+ScriptApi::getSenderList(SenderKind kind, size_t pluginIndex) const noexcept
+{
+  return client.listSenders(kind, pluginIndex);
+}
+
+rust::Vec<rust::String>
+ScriptApi::getSenderList(SenderKind kind, string_view pluginId) const noexcept
+{
+  const size_t pluginIndex = findPluginIndex(pluginId);
+  if (pluginIndex == noSuchPlugin) {
+    return {};
+  }
+  return client.listSenders(kind, pluginIndex);
 }
 
 ApiCode
