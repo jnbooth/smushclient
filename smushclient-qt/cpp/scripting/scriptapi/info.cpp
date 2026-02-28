@@ -117,6 +117,12 @@ getBrushStyle(const QBrush& brush)
 
 // Public static methods
 
+bool
+ScriptApi::ChangeDir(const QString& dir)
+{
+  return QDir::setCurrent(dir);
+}
+
 QVariant
 ScriptApi::FontInfo(const QFont& font, int64_t infoType)
 {

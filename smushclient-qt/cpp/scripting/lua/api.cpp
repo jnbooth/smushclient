@@ -465,6 +465,15 @@ L_DatabaseOpen(lua_State* L)
 // info
 
 int
+L_ChangeDir(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, ScriptApi::ChangeDir(qlua::getQString(L, 1)));
+  return 1;
+}
+
+int
 L_GetInfo(lua_State* L)
 {
   BENCHMARK
@@ -2727,6 +2736,7 @@ static const struct luaL_Reg worldlib[] =
     { "DatabaseClose", L_DatabaseClose },
     { "DatabaseOpen", L_DatabaseOpen },
     // info
+    { "ChangeDir", L_ChangeDir },
     { "GetInfo", L_GetInfo },
     { "GetLineInfo", L_GetLineInfo },
     { "GetPluginInfo", L_GetPluginInfo },

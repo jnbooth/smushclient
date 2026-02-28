@@ -54,6 +54,7 @@ class ScriptApi : public QObject
 public:
   static ApiCode AddFont(const QString& fileName);
   static QColor AdjustColour(const QColor& color, ColorAdjust method);
+  static bool ChangeDir(const QString& dir);
   static QStringList GetAlphaOptionList() noexcept;
   static QString GetClipboard();
   static QVariant FontInfo(const QFont& font, int64_t infoType);
