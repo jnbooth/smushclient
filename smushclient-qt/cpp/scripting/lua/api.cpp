@@ -4,6 +4,7 @@
 #include "../scriptapi.h"
 #include "errors.h"
 #include "smushclient_qt/src/ffi/client.cxxqt.h"
+#include "smushclient_qt/src/ffi/util.cxx.h"
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QPointer>
 extern "C"
@@ -1109,6 +1110,20 @@ L_ColourTell(lua_State* L)
   BENCHMARK
   insertTextTriples(L, getApi(L));
   return 0;
+}
+
+int
+L_FixupHTML(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  const rust::String fixed = ffi::util::fixup_html(qlua::getString(L, 1));
+  if (fixed.empty()) {
+    lua_pushvalue(L, 1);
+  } else {
+    push(L, fixed);
+  }
+  return 1;
 }
 
 int
@@ -2835,6 +2850,7 @@ static const struct luaL_Reg worldlib[] =
     { "AnsiNote", L_AnsiNote },
     { "ColourNote", L_ColourNote },
     { "ColourTell", L_ColourTell },
+    { "FixupHTML", L_FixupHTML },
     { "GetClipboard", L_GetClipboard },
     { "GetEchoInput", L_GetEchoInput },
     { "GetLinesInBufferCount", L_GetLinesInBufferCount },

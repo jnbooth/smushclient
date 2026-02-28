@@ -135,7 +135,7 @@ impl EscapedBrackets {
         if self.escape_mode == EscapeMode::Text {
             writer.write_all(line.as_bytes())?;
         } else {
-            html_escape::encode_safe_to_writer(line, &mut writer)?;
+            html_escape::encode_text_to_writer(line, &mut writer)?;
         }
         writer.write_all(self.after.format(buf, now).as_bytes())
     }
@@ -215,5 +215,15 @@ impl From<&WorldConfig> for LogBrackets {
             this.notes.set_color(note_text_colour);
         }
         this
+    }
+}
+
+pub fn fixup_html(text: &[u8]) -> String {
+    let Ok(text) = str::from_utf8(text) else {
+        return String::new();
+    };
+    match html_escape::encode_text(text) {
+        Cow::Owned(owned) => owned,
+        Cow::Borrowed(_) => String::new(),
     }
 }

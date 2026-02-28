@@ -122,7 +122,7 @@ impl Logger {
         let mut buf = String::new();
         let text = bracket.format(&mut buf, None);
         if self.format == LogFormat::Html {
-            html_escape::encode_safe_to_writer(text, file)?;
+            html_escape::encode_text_to_writer(text, file)?;
         } else {
             file.write_all(text.as_bytes())?;
         }

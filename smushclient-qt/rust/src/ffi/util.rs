@@ -1,4 +1,4 @@
-use cxx_qt_lib::{QByteArray, QColor, QString, QStringList, QVector};
+use cxx_qt_lib::{QByteArray, QColor, QString, QStringList, QVariant, QVector};
 use mud_transformer::mxp::{self, RgbColor};
 use mud_transformer::naws;
 use smushclient::WorldConfig;
@@ -44,6 +44,7 @@ mod ffi {
         fn ansi16() -> QVector_QColor;
         fn default_variant_option(option: StringView) -> QVariant;
         fn encode_naws(browser: &QAbstractScrollArea) -> QByteArray;
+        fn fixup_html(text: StringView) -> String;
         fn font_info(font: &QFont, info_type: i64) -> QVariant;
         fn get_alpha_option_list() -> QStringList;
         fn get_global_entity(name: StringView) -> VariableView;
@@ -74,6 +75,10 @@ fn encode_naws(browser: &QAbstractScrollArea) -> QByteArray {
 
     #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
     QByteArray::from(naws(width as u16, height as u16).as_slice())
+}
+
+fn fixup_html(text: StringView<'_>) -> String {
+    smushclient::fixup_html(text.as_slice())
 }
 
 fn get_alpha_option_list() -> QStringList {

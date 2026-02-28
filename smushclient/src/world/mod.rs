@@ -11,7 +11,7 @@ mod error;
 pub use error::{PersistError, SetOptionError};
 
 mod escaping;
-pub use escaping::{Escaped, EscapedBrackets, LogBrackets};
+pub use escaping::{Escaped, EscapedBrackets, LogBrackets, fixup_html};
 
 mod numpad;
 pub(crate) use numpad::XmlKey;

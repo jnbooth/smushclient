@@ -27,4 +27,4 @@ mod timer;
 pub use timer::{TimerConstructible, TimerFinish, TimerStart, Timers};
 
 pub mod world;
-pub use world::{OptionCaller, SenderMap, World, WorldConfig};
+pub use world::{OptionCaller, SenderMap, World, WorldConfig, fixup_html};
