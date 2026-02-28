@@ -167,8 +167,10 @@ public:
                                 std::string_view name) const noexcept;
   QString GetCommand() const;
   const QStringList& GetCommandList() const;
+  QElapsedTimer::Duration GetConnectDuration() const;
   QVariant GetCurrentValue(size_t pluginIndex,
                            std::string_view option) const noexcept;
+  bool GetEchoInput() const noexcept { return echoInput; }
   std::string_view GetEntity(std::string_view name) const noexcept;
   QVariant GetInfo(int64_t infoType) const;
   QVariant GetLineInfo(int line, int64_t infoType) const;
@@ -268,6 +270,7 @@ public:
   ApiCode SetCommandSelection(int first, int last) const;
   ApiCode SetCommandWindowHeight(int height) const;
   ApiCode SetCursor(Qt::CursorShape cursor) const;
+  void SetEchoInput(bool echo) noexcept { echoInput = echo; }
   bool SetEntity(std::string_view name, std::string_view value) const noexcept;
   QColor SetForegroundColour(const QColor& color) const;
   ApiCode SetForegroundImage(const QString& path,

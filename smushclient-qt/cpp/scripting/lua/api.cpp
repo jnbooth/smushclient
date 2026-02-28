@@ -1112,6 +1112,15 @@ L_GetClipboard(lua_State* L)
 }
 
 int
+L_GetEchoInput(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetEchoInput());
+  return 1;
+}
+
+int
 L_GetLinesInBufferCount(lua_State* L)
 {
   BENCHMARK
@@ -1174,6 +1183,15 @@ L_SetCursor(lua_State* L)
     qlua::getCursor(L, 1, Qt::CursorShape::ArrowCursor);
   expect_nonnull(cursor, ApiCode::BadParameter);
   return returnCode(L, getApi(L).SetCursor(*cursor));
+}
+
+int
+L_SetEchoInput(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).SetEchoInput(qlua::getBool(L, 1, true));
+  return 1;
 }
 
 int
@@ -2808,6 +2826,7 @@ static const struct luaL_Reg worldlib[] =
     { "ColourNote", L_ColourNote },
     { "ColourTell", L_ColourTell },
     { "GetClipboard", L_GetClipboard },
+    { "GetEchoInput", L_GetEchoInput },
     { "GetLinesInBufferCount", L_GetLinesInBufferCount },
     { "GetSysColor", L_GetSysColor },
     { "Hyperlink", L_Hyperlink },
@@ -2815,6 +2834,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetBackgroundImage", L_SetBackgroundImage },
     { "SetClipboard", L_SetClipboard },
     { "SetCursor", L_SetCursor },
+    { "SetEchoInput", L_SetEchoInput },
     { "SetForegroundImage", L_SetForegroundImage },
     { "SetMainTitle", L_SetMainTitle },
     { "SetStatus", L_SetStatus },
