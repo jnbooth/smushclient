@@ -475,6 +475,15 @@ L_ChangeDir(lua_State* L)
 }
 
 int
+L_CreateGUID(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, QUuid::createUuid());
+  return 1;
+}
+
+int
 L_GetConnectDuration(lua_State* L)
 {
   BENCHMARK
@@ -2809,6 +2818,7 @@ static const struct luaL_Reg worldlib[] =
     { "DatabaseOpen", L_DatabaseOpen },
     // info
     { "ChangeDir", L_ChangeDir },
+    { "CreateGUID", L_CreateGUID },
     { "GetConnectDuration", L_GetConnectDuration },
     { "GetInfo", L_GetInfo },
     { "GetLineInfo", L_GetLineInfo },
