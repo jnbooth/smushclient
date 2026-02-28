@@ -4,6 +4,7 @@
 
 using std::string;
 using std::string_view;
+using std::vector;
 
 // Public methods
 
@@ -46,6 +47,17 @@ const string&
 ScriptApi::GetPluginName(size_t index) const
 {
   return plugins.at(index).name();
+}
+
+vector<string_view>
+ScriptApi::GetPluginList() const
+{
+  vector<string_view> list;
+  list.reserve(plugins.size());
+  for (const Plugin& plugin : plugins) {
+    list.emplace_back(plugin.id());
+  }
+  return list;
 }
 
 ApiCode

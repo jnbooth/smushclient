@@ -209,6 +209,7 @@ public:
   QVariant GetPluginInfo(std::string_view pluginID,
                          int64_t infoType) const noexcept;
   const std::string& GetPluginName(size_t pluginIndex) const;
+  std::vector<std::string_view> GetPluginList() const;
   QVariant GetStyleInfo(int line, int64_t style, int64_t infoType) const;
   int64_t GetReceivedBytes() const noexcept;
   int64_t GetSentBytes() const noexcept;

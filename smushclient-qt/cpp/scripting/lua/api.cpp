@@ -1448,6 +1448,15 @@ L_GetPluginID(lua_State* L)
 }
 
 int
+L_GetPluginList(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  pushList(L, getApi(L).GetPluginList());
+  return 1;
+}
+
+int
 L_GetPluginName(lua_State* L)
 {
   BENCHMARK
@@ -3031,6 +3040,7 @@ static const struct luaL_Reg worldlib[] =
     { "CallPlugin", L_CallPlugin },
     { "EnablePlugin", L_EnablePlugin },
     { "GetPluginID", L_GetPluginID },
+    { "GetPluginList", L_GetPluginList },
     { "GetPluginName", L_GetPluginName },
     { "PluginSupports", L_PluginSupports },
     // sender
