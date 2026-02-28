@@ -55,6 +55,7 @@ public:
   static ApiCode AddFont(const QString& fileName);
   static QColor AdjustColour(const QColor& color, ColorAdjust method);
   static QStringList GetAlphaOptionList() noexcept;
+  static QString GetClipboard();
   static QVariant FontInfo(const QFont& font, int64_t infoType);
   static QList<QHostAddress> GetHostAddress(const QString& hostName);
   static QString GetHostName(const QString& address);

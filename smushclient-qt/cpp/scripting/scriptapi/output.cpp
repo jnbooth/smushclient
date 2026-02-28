@@ -25,6 +25,12 @@ ScriptApi::AddFont(const QString& fileName)
            : ApiCode::OK;
 }
 
+QString
+ScriptApi::GetClipboard()
+{
+  return QGuiApplication::clipboard()->text();
+}
+
 void
 ScriptApi::SetClipboard(const QString& text)
 {

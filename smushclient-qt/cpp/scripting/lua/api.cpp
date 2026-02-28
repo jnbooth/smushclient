@@ -1094,6 +1094,15 @@ L_ColourTell(lua_State* L)
 }
 
 int
+L_GetClipboard(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, ScriptApi::GetClipboard());
+  return 1;
+}
+
+int
 L_GetLinesInBufferCount(lua_State* L)
 {
   BENCHMARK
@@ -2788,6 +2797,7 @@ static const struct luaL_Reg worldlib[] =
     { "AnsiNote", L_AnsiNote },
     { "ColourNote", L_ColourNote },
     { "ColourTell", L_ColourTell },
+    { "GetClipboard", L_GetClipboard },
     { "GetLinesInBufferCount", L_GetLinesInBufferCount },
     { "GetSysColor", L_GetSysColor },
     { "Hyperlink", L_Hyperlink },
