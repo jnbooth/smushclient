@@ -828,15 +828,13 @@ qlua::push(lua_State* L, const QRect& rect)
 
 template<>
 void
-qlua::pushAny(lua_State* L, const QVariant& value)
+qlua::pushList(lua_State* L, const QList<QVariant>& list)
 {
-  pushQVariant(L, value);
-}
-
-template<>
-void
-qlua::pushAny(lua_State* L,
-              QVariant value) // NOLINT(performance-unnecessary-value-param)
-{
-  pushQVariant(L, value);
+  lua_createtable(L, static_cast<int>(list.size()), 0);
+  lua_Integer i = 1;
+  for (const auto& item : list) {
+    pushQVariant(L, item);
+    lua_rawseti(L, -2, i);
+    ++i;
+  }
 }

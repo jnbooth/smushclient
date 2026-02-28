@@ -44,9 +44,9 @@ public:
   void clearCallbacks();
   void clearCallbacks(const Plugin& plugin);
   void closeLog();
-  void connectToHost();
+  bool connectToHost();
   QTextEdit* copyableEditor() const;
-  void disconnectFromHost();
+  bool disconnectFromHost();
   void editWorldScript();
   bool hasWorldScript() const { return !worldScriptPath.isEmpty(); }
   bool importWorld(const QString& filename) &;

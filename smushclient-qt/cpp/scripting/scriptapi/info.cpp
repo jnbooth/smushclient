@@ -250,6 +250,8 @@ ScriptApi::GetInfo(int64_t infoType) const
       return QFontMetrics(tab.ui->input->font()).height();
     case 215:
       return QFontMetrics(tab.ui->input->font()).maxWidth();
+    case 217:
+      return totalBytesSent;
     case 224: {
       MudBrowser& output = *tab.ui->output;
       const QRect rect = output.rect();

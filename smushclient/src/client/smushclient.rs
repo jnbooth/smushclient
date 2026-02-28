@@ -221,7 +221,7 @@ impl SmushClient {
     }
 
     pub fn read<R: Read>(&self, mut reader: R, read_buf: &mut [u8]) -> io::Result<usize> {
-        self.info.packets_received.update(|n| n + 1);
+        self.info.packets_received.update(|t| t + 1);
         let mut transformer = self.transformer.borrow_mut();
         let mut logger = self.logger.borrow_mut();
         let midpoint = read_buf.len() / 2;
@@ -231,10 +231,12 @@ impl SmushClient {
             if n == 0 {
                 return Ok(total_read);
             }
+            total_read += n;
+            self.info.bytes_received.update(|t| t + n as u64);
             let (received, buf) = read_buf.split_at_mut(n);
             let _ = logger.log_raw(received);
-            transformer.receive(received, buf)?;
-            total_read += n;
+            let n = transformer.receive(received, buf)? as u64;
+            self.info.bytes_received_uncompressed.update(|t| t + n);
         }
     }
 
@@ -244,7 +246,7 @@ impl SmushClient {
         reader: &mut R,
         read_buf: &mut [u8],
     ) -> io::Result<usize> {
-        self.info.packets_received.update(|n| n + 1);
+        self.info.packets_received.update(|t| t + 1);
         let midpoint = read_buf.len() / 2;
         let mut total_read = 0;
         loop {
@@ -252,10 +254,12 @@ impl SmushClient {
             if n == 0 {
                 return Ok(total_read);
             }
+            total_read += n;
+            self.info.bytes_received.update(|t| t + n as u64);
             let (received, buf) = read_buf.split_at_mut(n);
             let _ = self.logger.borrow_mut().log_raw(buf);
-            self.transformer.borrow_mut().receive(received, buf)?;
-            total_read += n;
+            let n = self.transformer.borrow_mut().receive(received, buf)? as u64;
+            self.info.bytes_received_uncompressed.update(|t| t + n);
         }
     }
 
@@ -306,7 +310,7 @@ impl SmushClient {
             }
         }
         if lines_received != 0 {
-            self.info.lines_received.update(|n| n + lines_received);
+            self.info.lines_received.update(|t| t + lines_received);
         }
         let mut slice = output_buffer.as_mut_slice();
         while !slice.is_empty() {
@@ -317,7 +321,7 @@ impl SmushClient {
                 match &output.fragment {
                     OutputFragment::Text(fragment) => line_text.push_str(&fragment.text),
                     OutputFragment::Hr => {
-                        self.info.lines_displayed.update(|n| n + 1);
+                        self.info.lines_displayed.update(|t| t + 1);
                         until = i + 1;
                         break;
                     }
@@ -378,7 +382,7 @@ impl SmushClient {
             }
 
             if has_break {
-                self.info.lines_displayed.update(|n| n + 1);
+                self.info.lines_displayed.update(|t| t + 1);
             }
 
             let trigger_effects = self.trigger(&line_text, output, handler);
@@ -467,6 +471,10 @@ impl SmushClient {
 
     pub fn plugins_len(&self) -> usize {
         self.plugins.len()
+    }
+
+    pub fn bytes_received(&self) -> u64 {
+        self.info.bytes_received.get()
     }
 
     pub fn configure_audio_sink(
@@ -1200,6 +1208,8 @@ impl SmushClient {
             201 => V::visit(info.lines_received.get()),
             202 => V::visit(info.lines_received.get() - info.lines_displayed.get()),
             204 => V::visit(info.packets_received.get()),
+            206 => V::visit(info.bytes_received_uncompressed.get()),
+            207 => V::visit(info.bytes_received.get()),
             208 => V::visit(if self.transformer.borrow().decompressing() {
                 2
             } else {

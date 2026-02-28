@@ -48,12 +48,12 @@ features = ["serde"]
 
 [workspace.dependencies.mud-transformer]
 git = "https://github.com/jnbooth/mxp"
-version = "0.17.1"
+version = "0.17.2"
 features = ["serde"]
 
 [workspace.dependencies.mxp]
 git = "https://github.com/jnbooth/mxp"
-version = "0.17.1"
+version = "0.17.2"
 features = ["serde"]
 
 [workspace.dependencies.quick-xml]

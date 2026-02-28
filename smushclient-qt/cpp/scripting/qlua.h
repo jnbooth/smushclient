@@ -1,7 +1,9 @@
 #pragma once
 #include "../enumbounds.h"
 #include "rust/cxx.h"
+#include <QtCore/QUuid>
 #include <QtGui/QPen>
+#include <QtNetwork/QHostAddress>
 #include <type_traits>
 extern "C"
 {
@@ -199,6 +201,15 @@ push(lua_State* L, T value)
   lua_pushinteger(L, static_cast<lua_Integer>(value));
 }
 
+inline const char*
+push(lua_State* L, const char* value)
+{
+  return lua_pushstring(L, value);
+}
+
+void
+push(lua_State* L, const QRect& rect);
+
 #define IMPL_PUSH(T, f, op)                                                    \
   inline void push(lua_State* L, T value)                                      \
   {                                                                            \
@@ -220,23 +231,23 @@ IMPL_PUSH(const QColor&, lua_pushinteger, colorToRgbCode);
   }
 
 IMPL_PUSH(const QByteArray&);
+IMPL_PUSH(const rust::String&);
 IMPL_PUSH(rust::Str);
 IMPL_PUSH(const std::string&);
 IMPL_PUSH(std::string_view);
 
 #undef IMPL_PUSH
+#define IMPL_PUSH(T, op)                                                       \
+  inline const char* push(lua_State* L, T value)                               \
+  {                                                                            \
+    return push(L, value.op);                                                  \
+  }
 
-inline const char*
-push(lua_State* L, const char* value)
-{
-  return lua_pushstring(L, value);
-}
+IMPL_PUSH(const QString&, toUtf8());
+IMPL_PUSH(const QHostAddress&, toString());
+IMPL_PUSH(const QUuid&, toByteArray(QUuid::StringFormat::WithoutBraces));
 
-inline const char*
-push(lua_State* L, const QString& string)
-{
-  return push(L, string.toUtf8());
-}
+#undef IMPL_PUSH
 
 inline const char*
 push(lua_State* L, QChar ch)
@@ -248,24 +259,6 @@ push(lua_State* L, QChar ch)
   return push(L, QString(ch));
 }
 
-void
-push(lua_State* L, const QRect& rect);
-
-template<typename T>
-void
-pushAny(lua_State* L, T value)
-{
-  push(L, value);
-}
-
-template<>
-void
-pushAny(lua_State* L, const QVariant& value);
-
-template<>
-void
-pushAny(lua_State* L, QVariant value);
-
 template<typename T>
 void
 pushList(lua_State* L, const T& list)
@@ -273,23 +266,15 @@ pushList(lua_State* L, const T& list)
   lua_createtable(L, static_cast<int>(list.size()), 0);
   lua_Integer i = 1;
   for (const auto& item : list) {
-    pushAny(L, item);
+    push(L, item);
     lua_rawseti(L, -2, i);
     ++i;
   }
 }
 
-template<typename T>
+template<>
 void
-pushMap(lua_State* L, const T& map)
-{
-  lua_createtable(L, 0, static_cast<int>(map.size()));
-  for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
-    push(L, it.key());
-    pushAny(L, it.value());
-    lua_rawset(L, -3);
-  }
-}
+pushList(lua_State* L, const QList<QVariant>& list);
 
 template<typename K, typename V>
 void
@@ -332,4 +317,38 @@ pushEntry(lua_State* L, const QString& key, V value, int idx = -1)
   lua_setfield(L, idx < 0 ? idx - 1 : idx, key.toStdString().c_str());
 }
 
+template<typename T>
+void
+pushMap(lua_State* L, const T& map)
+{
+  lua_createtable(L, 0, static_cast<int>(map.size()));
+  for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
+    pushEntry(L, it.key(), it.value());
+    lua_rawset(L, -3);
+  }
+}
+
+template<typename K>
+void
+pushMap(lua_State* L, const QHash<K, QVariant>& map)
+{
+  lua_createtable(L, 0, static_cast<int>(map.size()));
+  for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
+    push(L, it.key());
+    pushQVariant(L, it.value());
+    lua_rawset(L, -3);
+  }
+}
+
+template<typename K>
+void
+pushMap(lua_State* L, const QMap<K, QVariant>& map)
+{
+  lua_createtable(L, 0, static_cast<int>(map.size()));
+  for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
+    push(L, it.key());
+    pushQVariant(L, it.value());
+    lua_rawset(L, -3);
+  }
+}
 } // namespace qlua

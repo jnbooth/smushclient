@@ -762,6 +762,69 @@ L_WriteLog(lua_State* L)
     L, getApi(L).WriteLog(string_view(message.data(), message.size())));
 }
 
+// network
+
+int
+L_Connect(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  return returnCode(L, getApi(L).Connect());
+}
+
+int
+L_Disconnect(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  return returnCode(L, getApi(L).Disconnect());
+}
+
+int
+L_GetHostAddresses(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  pushList(L, ScriptApi::GetHostAddress(qlua::getQString(L, 1)));
+  return 1;
+}
+
+int
+L_GetHostName(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, ScriptApi::GetHostName(qlua::getQString(L, 1)));
+  return 1;
+}
+
+int
+L_GetReceivedBytes(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetReceivedBytes());
+  return 1;
+}
+
+int
+L_GetSentBytes(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetSentBytes());
+  return 1;
+}
+
+int
+L_IsConnected(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).IsConnected());
+  return 1;
+}
+
 // notepad
 
 int
@@ -2621,6 +2684,7 @@ NOOP(L_noop_nil, lua_pushnil(L));
 NOOP(L_noop_ok, push(L, ApiCode::OK));
 NOOP(L_noop_spellcheck, push(L, ApiCode::SpellCheckNotActive));
 NOOP(L_noop_string, lua_pushlstring(L, "", 0));
+NOOP(L_noop_zero, push(L, 0));
 
 int
 L_noop_void(lua_State* /* L */)
@@ -2687,6 +2751,14 @@ static const struct luaL_Reg worldlib[] =
     { "IsLogOpen", L_IsLogOpen },
     { "OpenLog", L_OpenLog },
     { "WriteLog", L_WriteLog },
+    // network
+    { "Connect", L_Connect },
+    { "Disconnect", L_Disconnect },
+    { "GetHostAddresses", L_GetHostAddresses },
+    { "GetHostName", L_GetHostName },
+    { "GetReceivedBytes", L_GetReceivedBytes },
+    { "GetSentBytes", L_GetSentBytes },
+    { "IsConnected", L_IsConnected },
     // notepad
     { "ActivateNotepad", L_ActivateNotepad },
     { "AppendToNotepad", L_AppendToNotepad },
@@ -2843,12 +2915,14 @@ static const struct luaL_Reg worldlib[] =
     { "Debug", L_noop_nil },
     { "DeleteAllMapItems", L_noop_ok },
     { "DeleteLastMapItem", L_noop_ok },
-    { "DiscardQueue", L_noop_ok },
+    { "DiscardQueue", L_noop_zero },
     { "DoCommand", L_noop_ok },
     { "FilterPixel", L_noop_echo },
-    { "GetCustomColourBackground", L_noop_ok },
+    { "FlashIcon", L_noop_void },
+    { "GetCustomColourBackground", L_noop_zero },
     { "GetCustomColourName", L_noop_string },
     { "GetNoteColour", L_noop_neg },
+    { "GetUdpPort", L_noop_zero },
     { "MoveNotepadWindow", L_noop_false },
     { "Redraw", L_noop_void },
     { "Repaint", L_noop_void },

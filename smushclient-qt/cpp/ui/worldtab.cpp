@@ -197,26 +197,31 @@ WorldTab::copyableEditor() const
   return nullptr;
 }
 
-void
+bool
 WorldTab::connectToHost()
 {
   if (!initialized) {
     queuedConnect = true;
-    return;
+    return true;
   }
 
   if (socket->state() != QAbstractSocket::SocketState::UnconnectedState) {
-    return;
+    return false;
   }
 
   client.connectToHost(*socket);
+  return true;
 }
 
-void
+bool
 WorldTab::disconnectFromHost()
 {
+  if (socket->state() == QAbstractSocket::SocketState::UnconnectedState) {
+    return false;
+  }
   manualDisconnect = true;
   socket->disconnectFromHost();
+  return true;
 }
 
 void

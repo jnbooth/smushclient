@@ -817,6 +817,10 @@ impl ffi::SmushClient {
             .set_mxp_entity(name.to_owned(), value.to_owned())
     }
 
+    pub fn bytes_received(&self) -> u64 {
+        self.rust().client.bytes_received()
+    }
+
     pub fn sender_info(
         &self,
         kind: SenderKind,

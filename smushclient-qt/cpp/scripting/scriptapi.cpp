@@ -46,6 +46,8 @@ ScriptApi::ScriptApi(SmushClient& client,
   , whenConnected(QDateTime::currentDateTime())
 {
   connect(&client, &SmushClient::timerSent, this, &ScriptApi::onTimerSent);
+  connect(
+    &socket, &QAbstractSocket::bytesWritten, this, &ScriptApi::onBytesSent);
   timekeeper->beginPolling(milliseconds(seconds{ 60 }));
 }
 
@@ -320,7 +322,6 @@ ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
 
   const qsizetype size = bytes.size();
   totalLinesSent += bytes.count('\n');
-  totalPacketsSent += 1;
   if (socket.write(bytes.constData(), size) == -1) [[unlikely]] {
     return ApiCode::WorldClosed;
   }
@@ -403,6 +404,13 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow& window) const
 }
 
 // Public slots
+
+void
+ScriptApi::onBytesSent(int64_t bytes)
+{
+  totalBytesSent += bytes;
+  totalPacketsSent += 1;
+}
 
 void
 ScriptApi::onResize(bool finished)

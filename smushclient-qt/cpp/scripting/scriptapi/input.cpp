@@ -15,7 +15,7 @@ ScriptApi::DeleteCommandHistory() const
 ApiCode
 ScriptApi::Execute(const QString& command) const noexcept
 {
-  if (!tab.isConnected()) {
+  if (!socket.isOpen()) {
     return ApiCode::WorldClosed;
   }
   tab.sendCommand(command, CommandSource::Execute);
@@ -104,7 +104,6 @@ ScriptApi::SendNoEcho(QByteArray& bytes)
 ApiCode
 ScriptApi::SendPacket(QByteArrayView bytes)
 {
-  ++totalPacketsSent;
   if (socket.write(bytes.data(), bytes.size()) == -1) [[unlikely]] {
     return ApiCode::WorldClosed;
   }

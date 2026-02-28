@@ -111,6 +111,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/scriptapi/info.cpp
     cpp/scripting/scriptapi/input.cpp
     cpp/scripting/scriptapi/log.cpp
+    cpp/scripting/scriptapi/network.cpp
     cpp/scripting/scriptapi/notepad.cpp
     cpp/scripting/scriptapi/option.cpp
     cpp/scripting/scriptapi/output.cpp

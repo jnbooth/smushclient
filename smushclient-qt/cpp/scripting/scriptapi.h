@@ -54,12 +54,14 @@ class ScriptApi : public QObject
 public:
   static ApiCode AddFont(const QString& fileName);
   static QColor AdjustColour(const QColor& color, ColorAdjust method);
+  static QStringList GetAlphaOptionList() noexcept;
+  static QVariant FontInfo(const QFont& font, int64_t infoType);
+  static QList<QHostAddress> GetHostAddress(const QString& hostName);
+  static QString GetHostName(const QString& address);
+  static QStringList GetOptionList() noexcept;
   static QColor GetSysColor(SysColor sysColor);
   static int64_t GetUniqueNumber() noexcept;
-  static QStringList GetAlphaOptionList() noexcept;
   static std::string_view GetXMLEntity(std::string_view name) noexcept;
-  static QStringList GetOptionList() noexcept;
-  static QVariant FontInfo(const QFont& font, int64_t infoType);
   static QString MakeRegularExpression(std::string_view pattern) noexcept;
   static void SetClipboard(const QString& text);
 
@@ -107,6 +109,7 @@ public:
   void ColourTell(const QColor& foreground,
                   const QColor& background,
                   const QString& text);
+  ApiCode Connect() const;
   int DatabaseClose(std::string_view databaseID);
   int DatabaseOpen(std::string_view databaseID,
                    std::string_view filename,
@@ -123,6 +126,7 @@ public:
   size_t DeleteTriggerGroup(size_t plugin,
                             std::string_view group) const noexcept;
   ApiCode DeleteVariable(size_t plugin, std::string_view key) const noexcept;
+  ApiCode Disconnect() const;
   ApiCode DoAfter(size_t plugin,
                   double seconds,
                   const QString& text,
@@ -177,6 +181,8 @@ public:
   QVariant GetPluginInfo(std::string_view pluginID,
                          int64_t infoType) const noexcept;
   QVariant GetStyleInfo(int line, int64_t style, int64_t infoType) const;
+  int64_t GetReceivedBytes() const noexcept;
+  int64_t GetSentBytes() const noexcept;
   QColor GetTermColour(uint8_t i) const noexcept;
   QVariant GetTimerInfo(size_t pluginIndex,
                         std::string_view label,
@@ -202,6 +208,7 @@ public:
                  bool url,
                  bool noUnderline);
   ApiCode IsAlias(size_t plugin, std::string_view label) const noexcept;
+  bool IsConnected() const;
   bool IsLogOpen() const noexcept;
   ApiCode IsTimer(size_t plugin, std::string_view label) const noexcept;
   ApiCode IsTrigger(size_t plugin, std::string_view label) const noexcept;
@@ -546,6 +553,7 @@ public:
 
 public slots:
   void initializePlugins();
+  void onBytesSent(int64_t bytes);
   void onResize(bool finished);
   void onTimerSent(const SendTimer& timer);
   void reinstallPlugin(size_t index);
@@ -585,6 +593,7 @@ private:
   std::unique_ptr<MudStatusBar> statusBarPtr;
   WorldTab& tab;
   Timekeeper* timekeeper;
+  int64_t totalBytesSent = 0;
   int64_t totalLinesSent = 0;
   int64_t totalPacketsSent = 0;
   QDateTime whenConnected;
