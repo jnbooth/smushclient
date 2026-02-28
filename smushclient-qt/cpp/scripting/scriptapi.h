@@ -120,6 +120,8 @@ public:
   ApiCode DeleteAlias(size_t plugin, std::string_view name) const noexcept;
   size_t DeleteAliasGroup(size_t plugin, std::string_view group) const noexcept;
   void DeleteCommandHistory() const;
+  void DeleteLines(int count) const;
+  void DeleteOutput() const;
   size_t DeleteTemporaryAliases() const noexcept;
   size_t DeleteTemporaryTimers() const noexcept;
   size_t DeleteTemporaryTriggers() const noexcept;

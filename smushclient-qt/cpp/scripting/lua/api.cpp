@@ -1125,6 +1125,24 @@ L_ColourTell(lua_State* L)
 }
 
 int
+L_DeleteLines(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).DeleteLines(qlua::getInt(L, 1));
+  return 0;
+}
+
+int
+L_DeleteOutput(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  getApi(L).DeleteOutput();
+  return 0;
+}
+
+int
 L_FixupHTML(lua_State* L)
 {
   BENCHMARK
@@ -2863,6 +2881,8 @@ static const struct luaL_Reg worldlib[] =
     { "AnsiNote", L_AnsiNote },
     { "ColourNote", L_ColourNote },
     { "ColourTell", L_ColourTell },
+    { "DeleteLines", L_DeleteLines },
+    { "DeleteOutput", L_DeleteOutput },
     { "FixupHTML", L_FixupHTML },
     { "GetClipboard", L_GetClipboard },
     { "GetEchoInput", L_GetEchoInput },

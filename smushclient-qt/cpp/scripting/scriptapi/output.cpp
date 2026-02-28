@@ -8,6 +8,7 @@
 #include "smushclient_qt/src/ffi/spans.cxx.h"
 #include <QtGui/QClipboard>
 #include <QtGui/QFontDatabase>
+#include <QtGui/QTextBlock>
 #include <QtWidgets/QColorDialog>
 
 using std::string_view;
@@ -66,6 +67,30 @@ ScriptApi::ColourTell(const QColor& foreground,
     format.setBackground(background);
   }
   cursor->appendTell(text, format);
+}
+
+void
+ScriptApi::DeleteLines(int count) const
+{
+  if (count < 0) {
+    return;
+  }
+  QTextCursor eraseCursor(cursor->document());
+  eraseCursor.movePosition(QTextCursor::MoveOperation::StartOfBlock,
+                           QTextCursor::MoveMode::KeepAnchor);
+  if (eraseCursor.hasSelection()) {
+    --count;
+  }
+  eraseCursor.movePosition(QTextCursor::MoveOperation::PreviousBlock,
+                           QTextCursor::MoveMode::KeepAnchor,
+                           count);
+  eraseCursor.removeSelectedText();
+}
+
+void
+ScriptApi::DeleteOutput() const
+{
+  cursor->document()->clear();
 }
 
 int
