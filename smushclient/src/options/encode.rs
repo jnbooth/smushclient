@@ -3,15 +3,13 @@ use std::cell::Ref;
 use mud_transformer::mxp::RgbColor;
 use smushclient_plugins::SendTarget;
 
-use crate::{LuaStr, LuaString};
-
 #[derive(Debug, Default)]
 pub enum OptionValue<'a> {
     #[default]
     Null,
-    Alpha(&'a LuaStr),
-    AlphaBorrow(Ref<'a, LuaStr>),
-    AlphaOwned(LuaString),
+    Alpha(&'a str),
+    AlphaBorrow(Ref<'a, str>),
+    AlphaOwned(String),
     Color(RgbColor),
     Numeric(i64),
 }
@@ -44,20 +42,14 @@ impl EncodeOption<'static> for RgbColor {
     }
 }
 
-impl<'a> EncodeOption<'a> for &'a LuaStr {
+impl<'a> EncodeOption<'a> for &'a str {
     fn encode(self) -> OptionValue<'a> {
         OptionValue::Alpha(self)
     }
 }
 
-impl<'a> EncodeOption<'a> for &'a str {
-    fn encode(self) -> OptionValue<'a> {
-        OptionValue::Alpha(self.as_bytes())
-    }
-}
-
 impl<'a> EncodeOption<'a> for &'a String {
     fn encode(self) -> OptionValue<'a> {
-        OptionValue::Alpha(self.as_bytes())
+        OptionValue::Alpha(self.as_str())
     }
 }

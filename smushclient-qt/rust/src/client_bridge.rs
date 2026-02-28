@@ -236,7 +236,11 @@ impl ffi::SmushClient {
     ) -> ApiCode {
         self.rust()
             .client
-            .set_world_alpha_option(index, option.as_slice(), value.to_vec())
+            .set_world_alpha_option(
+                index,
+                option.as_slice(),
+                value.to_string_lossy().into_owned(),
+            )
             .code()
     }
 
@@ -754,21 +758,24 @@ impl ffi::SmushClient {
     }
 
     pub fn get_variable(&self, index: PluginIndex, key: StringView<'_>) -> VariableView {
-        self.rust()
-            .client
-            .borrow_variable(index, key.as_slice())
-            .into()
+        let Ok(key) = key.to_str() else {
+            return VariableView::null();
+        };
+        self.rust().client.borrow_variable(index, key).into()
     }
 
     pub fn get_metavariable(&self, key: StringView<'_>) -> VariableView {
-        self.rust()
-            .client
-            .borrow_metavariable(key.as_slice())
-            .into()
+        let Ok(key) = key.to_str() else {
+            return VariableView::null();
+        };
+        self.rust().client.borrow_metavariable(key).into()
     }
 
     pub fn has_metavariable(&self, key: StringView<'_>) -> bool {
-        self.rust().client.has_metavariable(key.as_slice())
+        let Ok(key) = key.to_str() else {
+            return false;
+        };
+        self.rust().client.has_metavariable(key)
     }
 
     pub fn set_variable(
@@ -777,29 +784,37 @@ impl ffi::SmushClient {
         key: StringView<'_>,
         value: BytesView<'_>,
     ) -> bool {
+        let Ok(key) = key.to_str() else {
+            return false;
+        };
         self.rust()
             .client
-            .set_variable(index, key.to_vec(), value.to_vec())
+            .set_variable(index, key.to_owned(), value.to_vec());
+        true
     }
 
     pub fn unset_variable(&self, index: PluginIndex, key: StringView<'_>) -> bool {
-        self.rust()
-            .client
-            .unset_variable(index, key.as_slice())
-            .is_some()
+        let Ok(key) = key.to_str() else {
+            return false;
+        };
+        self.rust().client.unset_variable(index, key).is_some()
     }
 
     pub fn set_metavariable(&self, key: StringView<'_>, value: BytesView<'_>) -> bool {
+        let Ok(key) = key.to_str() else {
+            return false;
+        };
         self.rust()
             .client
-            .set_metavariable(key.to_vec(), value.to_vec())
+            .set_metavariable(key.to_owned(), value.to_vec());
+        true
     }
 
     pub fn unset_metavariable(&self, key: StringView<'_>) -> bool {
-        self.rust()
-            .client
-            .unset_metavariable(key.as_slice())
-            .is_some()
+        let Ok(key) = key.to_str() else {
+            return false;
+        };
+        self.rust().client.unset_metavariable(key).is_some()
     }
 
     pub fn get_mxp_entity(&self, name: StringView<'_>) -> VariableView {

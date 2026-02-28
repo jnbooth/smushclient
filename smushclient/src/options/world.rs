@@ -5,8 +5,8 @@ use mud_transformer::UseMxp;
 use super::color::{DecodeColor, EncodeColor};
 use super::encode::OptionValue;
 use super::error::SetOptionError;
+use crate::LuaStr;
 use crate::world::{AutoConnect, LogFormat, MxpDebugLevel, ScriptRecompile, WorldConfig};
-use crate::{LuaStr, LuaString};
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum OptionCaller {
@@ -254,45 +254,41 @@ impl WorldConfig {
         "terminal_identification",
     ];
 
-    pub fn option_str(&self, caller: OptionCaller, option: &LuaStr) -> Option<&LuaStr> {
-        Some(
-            match option {
-                b"auto_log_file_name" => &self.auto_log_file_name,
-                b"command_stack_character" => {
-                    return Some(slice::from_ref(&self.command_stack_character));
-                }
-                b"connect_text" => &self.connect_text,
-                b"log_file_postamble" => &self.log_file_postamble,
-                b"log_file_preamble" => &self.log_file_preamble,
-                b"log_line_postamble_input" => &self.log_line_postamble_input,
-                b"log_line_postamble_notes" => &self.log_line_postamble_notes,
-                b"log_line_postamble_output" => &self.log_line_postamble_output,
-                b"log_line_preamble_input" => &self.log_line_preamble_input,
-                b"log_line_preamble_notes" => &self.log_line_preamble_notes,
-                b"log_line_preamble_output" => &self.log_line_preamble_output,
-                b"name" => &self.name,
-                b"new_activity_sound" => &self.new_activity_sound,
-                b"player" => &self.player,
-                b"proxy_username" => &self.proxy_username,
-                b"site" => &self.site,
-                b"terminal_identification" => &self.terminal_identification,
-                _ if caller == OptionCaller::Plugin => return None,
-                b"password" => &self.password,
-                b"proxy_password" => &self.proxy_password,
-                b"proxy_server" => &self.proxy_server,
-                _ => return None,
+    pub fn option_str(&self, caller: OptionCaller, option: &LuaStr) -> Option<&str> {
+        match option {
+            b"auto_log_file_name" => Some(&self.auto_log_file_name),
+            b"command_stack_character" => {
+                str::from_utf8(slice::from_ref(&self.command_stack_character)).ok()
             }
-            .as_bytes(),
-        )
+            b"connect_text" => Some(&self.connect_text),
+            b"log_file_postamble" => Some(&self.log_file_postamble),
+            b"log_file_preamble" => Some(&self.log_file_preamble),
+            b"log_line_postamble_input" => Some(&self.log_line_postamble_input),
+            b"log_line_postamble_notes" => Some(&self.log_line_postamble_notes),
+            b"log_line_postamble_output" => Some(&self.log_line_postamble_output),
+            b"log_line_preamble_input" => Some(&self.log_line_preamble_input),
+            b"log_line_preamble_notes" => Some(&self.log_line_preamble_notes),
+            b"log_line_preamble_output" => Some(&self.log_line_preamble_output),
+            b"name" => Some(&self.name),
+            b"new_activity_sound" => Some(&self.new_activity_sound),
+            b"player" => Some(&self.player),
+            b"proxy_username" => Some(&self.proxy_username),
+            b"site" => Some(&self.site),
+            b"terminal_identification" => Some(&self.terminal_identification),
+            _ if caller == OptionCaller::Plugin => None,
+            b"password" => Some(&self.password),
+            b"proxy_password" => Some(&self.proxy_password),
+            b"proxy_server" => Some(&self.proxy_server),
+            _ => None,
+        }
     }
 
     pub fn set_option_str(
         &mut self,
         caller: OptionCaller,
         option: &LuaStr,
-        value: LuaString,
+        value: String,
     ) -> Result<(), SetOptionError> {
-        let value = String::from_utf8(value)?;
         match option {
             b"auto_log_file_name" => self.auto_log_file_name = value,
             b"command_stack_character" => match value.as_bytes() {
@@ -331,7 +327,7 @@ impl WorldConfig {
         if let Some(value) = world.option_int(caller, option) {
             OptionValue::Numeric(value)
         } else if let Some(value) = world.option_str(caller, option) {
-            OptionValue::AlphaOwned(value.to_vec())
+            OptionValue::AlphaOwned(value.to_owned())
         } else {
             OptionValue::Null
         }

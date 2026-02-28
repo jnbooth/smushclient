@@ -23,7 +23,7 @@ use tokio::io::{AsyncRead, AsyncReadExt};
 use super::info::ClientInfo;
 use super::logger::Logger;
 use super::variables::PluginVariables;
-use super::variables::{LuaStr, LuaString};
+use crate::LuaStr;
 use crate::audio::{AudioError, AudioSinks, PlayMode};
 use crate::get_info::InfoVisitor;
 use crate::handler::Handler;
@@ -542,7 +542,7 @@ impl SmushClient {
         Ok(())
     }
 
-    pub fn borrow_variable(&self, index: PluginIndex, key: &LuaStr) -> Option<Ref<'_, LuaStr>> {
+    pub fn borrow_variable(&self, index: PluginIndex, key: &str) -> Option<Ref<'_, [u8]>> {
         let plugin_id = &self.plugins[index].metadata.id;
         Ref::filter_map(self.variables.borrow(), |vars| {
             vars.get_variable(plugin_id, key)
@@ -550,41 +550,39 @@ impl SmushClient {
         .ok()
     }
 
-    pub fn borrow_metavariable(&self, key: &LuaStr) -> Option<Ref<'_, LuaStr>> {
+    pub fn borrow_metavariable(&self, key: &str) -> Option<Ref<'_, [u8]>> {
         Ref::filter_map(self.variables.borrow(), |vars| {
             vars.get_variable(METAVARIABLES_KEY, key)
         })
         .ok()
     }
 
-    pub fn has_metavariable(&self, key: &LuaStr) -> bool {
+    pub fn has_metavariable(&self, key: &str) -> bool {
         self.variables.borrow().has_variable(METAVARIABLES_KEY, key)
     }
 
-    pub fn set_variable(&self, index: PluginIndex, key: LuaString, value: LuaString) -> bool {
+    pub fn set_variable(&self, index: PluginIndex, key: String, value: Vec<u8>) {
         let plugin_id = &self.plugins[index].metadata.id;
         self.info.variables_dirty.set(true);
         self.variables
             .borrow_mut()
             .set_variable(plugin_id, key, value);
-        true
     }
 
-    pub fn unset_variable(&self, index: PluginIndex, key: &LuaStr) -> Option<LuaString> {
+    pub fn unset_variable(&self, index: PluginIndex, key: &str) -> Option<Vec<u8>> {
         let plugin_id = &self.plugins[index].metadata.id;
         self.info.variables_dirty.set(true);
         self.variables.borrow_mut().unset_variable(plugin_id, key)
     }
 
-    pub fn set_metavariable(&self, key: LuaString, value: LuaString) -> bool {
+    pub fn set_metavariable(&self, key: String, value: Vec<u8>) {
         self.info.variables_dirty.set(true);
         self.variables
             .borrow_mut()
             .set_variable(METAVARIABLES_KEY, key, value);
-        true
     }
 
-    pub fn unset_metavariable(&self, key: &LuaStr) -> Option<LuaString> {
+    pub fn unset_metavariable(&self, key: &str) -> Option<Vec<u8>> {
         self.info.variables_dirty.set(true);
         self.variables
             .borrow_mut()
@@ -802,11 +800,7 @@ impl SmushClient {
         self.world.borrow().option_int(caller, option)
     }
 
-    pub fn world_alpha_option(
-        &self,
-        index: PluginIndex,
-        option: &LuaStr,
-    ) -> Option<Ref<'_, LuaStr>> {
+    pub fn world_alpha_option(&self, index: PluginIndex, option: &LuaStr) -> Option<Ref<'_, str>> {
         let caller = self.option_caller(index);
         Ref::filter_map(self.world.borrow(), |world| {
             world.option_str(caller, option)
@@ -858,7 +852,7 @@ impl SmushClient {
         &self,
         index: PluginIndex,
         option: &LuaStr,
-        value: LuaString,
+        value: String,
     ) -> Result<(), SetOptionError> {
         let caller = self.option_caller(index);
         self.world
@@ -947,7 +941,7 @@ impl SmushClient {
             if alias.send_to == SendTarget::Variable {
                 self.variables.borrow_mut().set_variable(
                     &plugin.metadata.id,
-                    alias.variable.as_bytes().to_vec(),
+                    alias.variable.clone(),
                     text.into_bytes(),
                 );
                 (None, !alias.script.is_empty())
@@ -1096,7 +1090,7 @@ impl SmushClient {
                         if reaction.send_to == SendTarget::Variable {
                             self.variables.borrow_mut().set_variable(
                                 &plugin.metadata.id,
-                                reaction.variable.as_bytes().to_vec(),
+                                reaction.variable.clone(),
                                 reaction
                                     .expand_text(text_buf, &captures)
                                     .as_bytes()

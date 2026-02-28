@@ -10,20 +10,15 @@ use crate::world::PersistError;
 
 const CURRENT_VERSION: u8 = 2;
 
-pub type LuaString = Vec<u8>;
-pub type LuaStr = [u8];
-
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-pub(crate) struct PluginVariables(HashMap<String, HashMap<LuaString, LuaString>>);
+pub(crate) struct PluginVariables(HashMap<String, HashMap<String, Vec<u8>>>);
 
 impl fmt::Display for PluginVariables {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (id, vars) in &self.0 {
             writeln!(f, "{id}:")?;
             for (key, val) in vars {
-                let utf8key = String::from_utf8_lossy(key);
-                let utf8val = String::from_utf8_lossy(val);
-                writeln!(f, "    {utf8key}: {utf8val}")?;
+                writeln!(f, "    {key}: {}", String::from_utf8_lossy(val))?;
             }
         }
         Ok(())
@@ -46,17 +41,17 @@ impl PluginVariables {
         }
     }
 
-    pub fn get_variable(&self, plugin_id: &str, key: &LuaStr) -> Option<&LuaStr> {
+    pub fn get_variable(&self, plugin_id: &str, key: &str) -> Option<&[u8]> {
         Some(self.0.get(plugin_id)?.get(key)?.as_slice())
     }
 
-    pub fn has_variable(&self, plugin_id: &str, key: &LuaStr) -> bool {
+    pub fn has_variable(&self, plugin_id: &str, key: &str) -> bool {
         self.0
             .get(plugin_id)
             .is_some_and(|variables| variables.contains_key(key))
     }
 
-    pub fn set_variable(&mut self, plugin_id: &str, key: LuaString, value: LuaString) {
+    pub fn set_variable(&mut self, plugin_id: &str, key: String, value: Vec<u8>) {
         if let Some(variables) = self.0.get_mut(plugin_id) {
             variables.insert(key, value);
             return;
@@ -66,7 +61,7 @@ impl PluginVariables {
         self.0.insert(plugin_id.to_owned(), variables);
     }
 
-    pub fn unset_variable(&mut self, plugin_id: &str, key: &LuaStr) -> Option<LuaString> {
+    pub fn unset_variable(&mut self, plugin_id: &str, key: &str) -> Option<Vec<u8>> {
         self.0.get_mut(plugin_id)?.remove(key)
     }
 
@@ -93,7 +88,7 @@ impl PluginVariables {
         plugin_id: &str,
         name: &str,
     ) -> Result<String, quick_xml::SeError> {
-        let Some(value) = self.get_variable(plugin_id, name.as_bytes()) else {
+        let Some(value) = self.get_variable(plugin_id, name) else {
             return Ok(String::new());
         };
         quick_xml::se::to_string(&XmlVariable {
@@ -117,12 +112,7 @@ impl From<XmlVec<XmlVariable<'_>>> for PluginVariables {
         let worldvars = value
             .elements
             .into_iter()
-            .map(|var| {
-                (
-                    var.name.into_owned().into_bytes(),
-                    var.value.into_owned().into_bytes(),
-                )
-            })
+            .map(|var| (var.name.into_owned(), var.value.into_owned().into_bytes()))
             .collect();
         let mut vars = PluginVariables::default();
         vars.0.insert(String::new(), worldvars);

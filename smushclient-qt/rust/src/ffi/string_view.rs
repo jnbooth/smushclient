@@ -70,6 +70,24 @@ impl<'a> From<StringView<'a>> for &'a [u8] {
     }
 }
 
+impl<'a> TryFrom<StringView<'a>> for &'a str {
+    type Error = Utf8Error;
+
+    #[inline]
+    fn try_from(value: StringView<'a>) -> Result<Self, Self::Error> {
+        str::from_utf8(value.as_slice())
+    }
+}
+
+impl TryFrom<StringView<'_>> for String {
+    type Error = Utf8Error;
+
+    #[inline]
+    fn try_from(value: StringView<'_>) -> Result<Self, Self::Error> {
+        Ok(str::from_utf8(value.as_slice())?.to_owned())
+    }
+}
+
 // SAFETY: Defined in smushclient-qt/cpp/bridge/views.h
 unsafe impl ExternType for StringView<'_> {
     type Id = type_id!("rust::string_view");

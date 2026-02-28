@@ -36,8 +36,6 @@ impl fmt::Display for SetOptionError {
 impl Error for SetOptionError {}
 
 impl_range_error!(SetOptionError, TryFromIntError);
-impl_range_error!(SetOptionError, FromUtf8Error);
-impl_range_error!(SetOptionError, Utf8Error);
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum OptionError {

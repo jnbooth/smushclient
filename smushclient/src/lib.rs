@@ -1,8 +1,11 @@
+pub type LuaStr = [u8];
+pub type LuaString = Vec<u8>;
+
 mod audio;
 pub use audio::{AudioError, AudioFilePlayback, PlayMode, StreamError};
 
 mod client;
-pub use client::{LuaStr, LuaString, SmushClient};
+pub use client::SmushClient;
 
 mod collections;
 pub use collections::SortOnDrop;
