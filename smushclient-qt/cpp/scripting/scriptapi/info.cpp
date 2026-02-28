@@ -468,7 +468,7 @@ ScriptApi::GetPluginInfo(string_view pluginID, int64_t infoType) const noexcept
 {
   const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin) [[unlikely]] {
-    return QVariant();
+    return {};
   }
   switch (infoType) {
     case 16:

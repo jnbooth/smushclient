@@ -7,7 +7,6 @@
 #include <QtGui/QGradient>
 
 using std::array;
-using std::nullopt;
 using std::optional;
 using std::string;
 using std::string_view;
@@ -30,7 +29,7 @@ using std::vector;
 
 #define CHECK_NONNULL(ptr)                                                     \
   if ((ptr) == nullptr) [[unlikely]] {                                         \
-    return QVariant();                                                         \
+    return {};                                                                 \
   }
 
 namespace {
@@ -285,7 +284,8 @@ vector<string_view>
 ScriptApi::WindowFontList(std::string_view windowName) const
 {
   MiniWindow* window = findWindow(windowName);
-  return window == nullptr ? vector<string_view>() : window->fontList();
+  CHECK_NONNULL(window);
+  return window->fontList();
 }
 
 ApiCode
@@ -320,9 +320,7 @@ ScriptApi::WindowGetPixel(std::string_view windowName,
                           const QPoint& point) const
 {
   MiniWindow* window = findWindow(windowName);
-  if (window == nullptr) {
-    return nullopt;
-  }
+  CHECK_NONNULL(window);
   const QPixmap& pixmap = window->getPixmap();
   if (!pixmap.rect().contains(point)) {
     return QColor();
@@ -392,7 +390,8 @@ vector<string_view>
 ScriptApi::WindowImageList(std::string_view windowName) const
 {
   MiniWindow* window = findWindow(windowName);
-  return window == nullptr ? vector<string_view>() : window->imageList();
+  CHECK_NONNULL(window);
+  return window->imageList();
 }
 
 QVariant

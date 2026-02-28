@@ -39,7 +39,7 @@ ScriptApi::GetVariable(string_view pluginID, string_view key) const noexcept
 {
   const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin) {
-    return string_view(nullptr, 0);
+    return {};
   }
   return GetVariable(index, key);
 }

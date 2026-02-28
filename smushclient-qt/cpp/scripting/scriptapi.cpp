@@ -90,7 +90,7 @@ ScriptApi::getPlugin(string_view pluginID) const noexcept
 {
   const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin) [[unlikely]] {
-    return nullptr;
+    return {};
   }
   return &plugins[index];
 }
@@ -300,9 +300,8 @@ ScriptApi::sendCallback(PluginCallback& callback, const QString& pluginID)
 {
   const size_t index = findPluginIndex(pluginID.toStdString());
   if (index == noSuchPlugin) [[unlikely]] {
-    return false;
+    return {};
   }
-
   return sendCallback(callback, index);
 }
 
@@ -556,7 +555,7 @@ ScriptApi::getSenderInfo(SenderKind kind,
 {
   const size_t pluginIndex = findPluginIndex(pluginId);
   if (pluginIndex == noSuchPlugin) {
-    return QVariant();
+    return {};
   }
   return getSenderInfo(kind, pluginIndex, label, infoType);
 }

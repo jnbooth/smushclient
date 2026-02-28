@@ -24,7 +24,7 @@ using std::vector;
 
 #define CHECK_NONNULL(ptr)                                                     \
   if ((ptr) == nullptr) [[unlikely]] {                                         \
-    return QVariant();                                                         \
+    return {};                                                                 \
   }
 
 // Public methods
@@ -88,7 +88,8 @@ vector<string_view>
 ScriptApi::WindowHotspotList(std::string_view windowName) const
 {
   MiniWindow* window = findWindow(windowName);
-  return window == nullptr ? vector<string_view>() : window->hotspotList();
+  CHECK_NONNULL(window);
+  return window->hotspotList();
 }
 
 ApiCode
