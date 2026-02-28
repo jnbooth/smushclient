@@ -4,7 +4,6 @@
 #include "../scriptapi.h"
 #include "errors.h"
 #include "smushclient_qt/src/ffi/client.cxxqt.h"
-#include "smushclient_qt/src/ffi/util.cxx.h"
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QPointer>
 extern "C"
@@ -1205,7 +1204,7 @@ L_FixupHTML(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
-  const rust::String fixed = ffi::util::fixup_html(qlua::getString(L, 1));
+  const rust::String fixed = ScriptApi::FixupHTML(qlua::getString(L, 1));
   if (fixed.empty()) {
     lua_pushvalue(L, 1);
   } else {

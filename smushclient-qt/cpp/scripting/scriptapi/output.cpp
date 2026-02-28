@@ -6,6 +6,7 @@
 #include "../../ui/worldtab.h"
 #include "../scriptapi.h"
 #include "smushclient_qt/src/ffi/spans.cxx.h"
+#include "smushclient_qt/src/ffi/util.cxx.h"
 #include <QtGui/QClipboard>
 #include <QtGui/QFontDatabase>
 #include <QtGui/QTextBlock>
@@ -24,6 +25,12 @@ ScriptApi::AddFont(const QString& fileName)
   return QFontDatabase::addApplicationFont(fileName) == -1
            ? ApiCode::FileNotFound
            : ApiCode::OK;
+}
+
+rust::String
+ScriptApi::FixupHTML(string_view text) noexcept
+{
+  return ffi::util::fixup_html(text);
 }
 
 QString

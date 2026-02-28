@@ -55,10 +55,11 @@ public:
   static ApiCode AddFont(const QString& fileName);
   static QColor AdjustColour(const QColor& color, ColorAdjust method);
   static bool ChangeDir(const QString& dir);
+  static rust::String FixupHTML(std::string_view text) noexcept;
+  static QVariant FontInfo(const QFont& font, int64_t infoType);
   static QStringList GetAlphaOptionList() noexcept;
   static QString GetClipboard();
   static QVariant GetDefaultValue(std::string_view name);
-  static QVariant FontInfo(const QFont& font, int64_t infoType);
   static QList<QHostAddress> GetHostAddress(const QString& hostName);
   static QString GetHostName(const QString& address);
   static QStringList GetOptionList() noexcept;
