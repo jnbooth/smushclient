@@ -1,5 +1,6 @@
 #pragma once
 #include "enumbounds.h"
+#include <QtCore/QElapsedTimer>
 #include <QtGui/QTextCursor>
 
 struct Link;
@@ -18,6 +19,9 @@ enum class LineType : uint8_t
 DECLARE_ENUM_BOUNDS(LineType, Output, Note);
 
 namespace spans {
+QElapsedTimer
+getElapsed(const QTextBlockFormat& format);
+
 LineType
 getLineType(const QTextCharFormat& format);
 

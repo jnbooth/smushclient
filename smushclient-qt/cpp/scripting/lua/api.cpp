@@ -475,6 +475,18 @@ L_ChangeDir(lua_State* L)
 }
 
 int
+L_GetConnectDuration(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L,
+       std::chrono::duration_cast<std::chrono::seconds>(
+         getApi(L).GetConnectDuration())
+         .count());
+  return 1;
+}
+
+int
 L_GetInfo(lua_State* L)
 {
   BENCHMARK
@@ -2779,6 +2791,7 @@ static const struct luaL_Reg worldlib[] =
     { "DatabaseOpen", L_DatabaseOpen },
     // info
     { "ChangeDir", L_ChangeDir },
+    { "GetConnectDuration", L_GetConnectDuration },
     { "GetInfo", L_GetInfo },
     { "GetLineInfo", L_GetLineInfo },
     { "GetPluginInfo", L_GetPluginInfo },

@@ -147,6 +147,15 @@ ScriptApi::GetUniqueNumber() noexcept
 
 // Public methods
 
+QElapsedTimer::Duration
+ScriptApi::GetConnectDuration() const
+{
+  if (!whenConnected.isValid()) {
+    return {};
+  }
+  return whenConnected.durationElapsed();
+}
+
 QVariant
 ScriptApi::GetInfo(int64_t infoType) const
 {
@@ -448,7 +457,7 @@ ScriptApi::GetLineInfo(int lineNumber, int64_t infoType) const
     }
     // case 12: // ticks - exact value from the high-performance timer
     case 13:
-      return whenConnected.secsTo(spans::getTimestamp(block.blockFormat()));
+      return spans::getElapsed(block.blockFormat()).msecsSinceReference();
     default:
       return QVariant();
   }

@@ -43,7 +43,6 @@ ScriptApi::ScriptApi(SmushClient& client,
   , statusBarPtr(new MudStatusBar)
   , tab(parent)
   , timekeeper(new Timekeeper(client, this))
-  , whenConnected(QDateTime::currentDateTime())
 {
   connect(&client, &SmushClient::timerSent, this, &ScriptApi::onTimerSent);
   connect(
@@ -341,6 +340,11 @@ ScriptApi::setNawsEnabled(bool enabled) noexcept
 void
 ScriptApi::setOpen(bool open) noexcept
 {
+  if (open) {
+    whenConnected.start();
+  } else {
+    whenConnected.invalidate();
+  }
   closed = !open;
 }
 

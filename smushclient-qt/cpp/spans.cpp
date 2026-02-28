@@ -4,19 +4,13 @@
 #include <QtCore/QRegularExpression>
 
 namespace property {
-const QTextCharFormat::Property styles =
-  static_cast<QTextCharFormat::Property>(ffi::spans::SpanProperty::Styles);
+const int styles = static_cast<int>(ffi::spans::SpanProperty::Styles);
+const int sendTo = static_cast<int>(ffi::spans::SpanProperty::SendTo);
+const int prompts = static_cast<int>(ffi::spans::SpanProperty::Prompts);
+const int lineType = static_cast<int>(ffi::spans::SpanProperty::LineType);
 
-const QTextCharFormat::Property sendTo =
-  static_cast<QTextCharFormat::Property>(ffi::spans::SpanProperty::SendTo);
-
-const QTextCharFormat::Property prompts =
-  static_cast<QTextCharFormat::Property>(ffi::spans::SpanProperty::Prompts);
-
-const QTextCharFormat::Property lineType =
-  static_cast<QTextCharFormat::Property>(ffi::spans::SpanProperty::LineType);
-
-const QTextBlockFormat::Property timestamp = QTextBlockFormat::UserProperty;
+const int timestamp = QTextBlockFormat::UserProperty;
+const int timer = QTextBlockFormat::UserProperty + 1;
 } // namespace property
 
 // Private utils
@@ -24,7 +18,7 @@ const QTextBlockFormat::Property timestamp = QTextBlockFormat::UserProperty;
 namespace {
 template<typename T>
 T
-getUnderlying(const QTextCharFormat& format, QTextCharFormat::Property prop)
+getUnderlying(const QTextCharFormat& format, int prop)
 {
   return static_cast<T>(
     format.property(prop).value<std::underlying_type_t<T>>());
@@ -32,7 +26,7 @@ getUnderlying(const QTextCharFormat& format, QTextCharFormat::Property prop)
 
 template<typename T>
 void
-setUnderlying(QTextCharFormat& format, QTextCharFormat::Property prop, T value)
+setUnderlying(QTextCharFormat& format, int prop, T value)
 {
   format.setProperty(prop, static_cast<std::underlying_type_t<T>>(value));
 }
@@ -41,6 +35,12 @@ setUnderlying(QTextCharFormat& format, QTextCharFormat::Property prop, T value)
 // Public functions
 
 namespace spans {
+QElapsedTimer
+getElapsed(const QTextBlockFormat& format)
+{
+  return format.property(property::timestamp).value<QElapsedTimer>();
+}
+
 LineType
 getLineType(const QTextCharFormat& format)
 {
@@ -89,6 +89,9 @@ setTimestamp(QTextCursor& cursor)
 {
   QTextBlockFormat format;
   format.setProperty(property::timestamp, QDateTime::currentDateTime());
+  QElapsedTimer timer;
+  timer.start();
+  format.setProperty(property::timer, QVariant::fromValue(timer));
   cursor.setBlockFormat(format);
 }
 

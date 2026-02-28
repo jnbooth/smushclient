@@ -602,7 +602,7 @@ private:
   int64_t totalBytesSent = 0;
   int64_t totalLinesSent = 0;
   int64_t totalPacketsSent = 0;
-  QDateTime whenConnected;
+  QElapsedTimer whenConnected;
   string_map<std::unique_ptr<MiniWindow>> windows;
   QString wordUnderMenu;
   QUuid worldID;
