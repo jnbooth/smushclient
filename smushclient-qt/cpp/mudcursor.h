@@ -17,10 +17,12 @@ public:
   void appendText(const QString& text, const QTextCharFormat& format);
   void appendText(const QString& text) { appendText(text, noteFormat); }
   void applyWorld(const World& world);
+  QTextCharFormat charFormat() const { return noteFormat; }
   void clear();
   QTextDocument* document() const;
   void echo(const QString& text);
   void finishNote();
+  void mergeCharFormat(const QTextCharFormat& format);
   void move(QTextCursor::MoveOperation op, int count);
   void setIndentText(const QString& text) noexcept;
   void setSuppressingEcho(bool suppress = true) noexcept;

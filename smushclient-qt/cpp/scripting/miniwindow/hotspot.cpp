@@ -31,28 +31,23 @@ hasCallback(const string& callback, QEvent* event)
 }
 
 constexpr Hotspot::EventFlags
-getEventFlags(Qt::KeyboardModifiers modifiers,
-              Qt::MouseButtons buttons) noexcept
+getEventFlags(Qt::KeyboardModifiers mods, Qt::MouseButtons buttons) noexcept
 {
+  using EventFlag = Hotspot::EventFlag;
+
   Hotspot::EventFlags flags;
-  if (modifiers.testFlag(Qt::KeyboardModifier::ShiftModifier)) {
-    flags.setFlag(Hotspot::EventFlag::Shift);
-  }
-  if (modifiers.testFlag(Qt::KeyboardModifier::ControlModifier)) {
-    flags.setFlag(Hotspot::EventFlag::Control);
-  }
-  if (modifiers.testFlag(Qt::KeyboardModifier::AltModifier)) {
-    flags.setFlag(Hotspot::EventFlag::Alt);
-  }
-  if (buttons.testFlag(Qt::MouseButton::LeftButton)) {
-    flags.setFlag(Hotspot::EventFlag::MouseLeft);
-  }
-  if (buttons.testFlag(Qt::MouseButton::RightButton)) {
-    flags.setFlag(Hotspot::EventFlag::MouseRight);
-  }
-  if (buttons.testFlag(Qt::MouseButton::MiddleButton)) {
-    flags.setFlag(Hotspot::EventFlag::MouseMiddle);
-  }
+  flags.setFlag(EventFlag::Shift,
+                mods.testFlag(Qt::KeyboardModifier::ShiftModifier));
+  flags.setFlag(EventFlag::Control,
+                mods.testFlag(Qt::KeyboardModifier::ControlModifier));
+  flags.setFlag(EventFlag::Alt,
+                mods.testFlag(Qt::KeyboardModifier::AltModifier));
+  flags.setFlag(EventFlag::MouseLeft,
+                buttons.testFlag(Qt::MouseButton::LeftButton));
+  flags.setFlag(EventFlag::MouseRight,
+                buttons.testFlag(Qt::MouseButton::RightButton));
+  flags.setFlag(EventFlag::MouseMiddle,
+                buttons.testFlag(Qt::MouseButton::MiddleButton));
   return flags;
 }
 

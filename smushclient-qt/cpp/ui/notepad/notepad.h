@@ -15,6 +15,15 @@ class Notepad : public QMainWindow
   Q_OBJECT
 
 public:
+  enum StyleFlag : int64_t
+  {
+    Bold = 1,
+    Italic = 2,
+    Underline = 4,
+    StrikeOut = 8,
+  };
+  Q_DECLARE_FLAGS(StyleFlags, StyleFlag)
+
   enum class SaveMethod : int64_t
   {
     Default,
@@ -23,6 +32,10 @@ public:
   };
 
 public:
+  static QTextCharFormat format(const QString& family,
+                                qreal pointSize,
+                                StyleFlags style);
+
   explicit Notepad(QUuid worldID,
                    const QString& name,
                    QWidget* parent = nullptr);
@@ -76,3 +89,5 @@ private:
 };
 
 DECLARE_ENUM_BOUNDS(Notepad::SaveMethod, Default, NeverPrompt)
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Notepad::StyleFlags);

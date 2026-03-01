@@ -106,6 +106,12 @@ ScriptApi::GetLinesInBufferCount() const
   return cursor->document()->lineCount();
 }
 
+QTextCharFormat
+ScriptApi::GetNoteStyle() const
+{
+  return cursor->charFormat();
+}
+
 void
 ScriptApi::Hyperlink(const QString& action,
                      const QString& text,
@@ -129,6 +135,12 @@ ScriptApi::Hyperlink(const QString& action,
     format.setAnchor(true);
   }
   cursor->appendTell(text, format);
+}
+
+void
+ScriptApi::NoteStyle(const QTextCharFormat& format) const
+{
+  cursor->mergeCharFormat(format);
 }
 
 ApiCode

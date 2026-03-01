@@ -4,6 +4,7 @@
 #include <QtCore/QFlags>
 #include <QtGui/QFont>
 #include <QtGui/QPen>
+#include <QtGui/QTextCharFormat>
 
 enum class ActionSource
 {
@@ -273,16 +274,6 @@ enum class ScriptCursor : int64_t
 };
 DECLARE_ENUM_BOUNDS(ScriptCursor, BlankCursor, WhatsThisCursor)
 
-enum StyleFlag : int64_t
-{
-  Bold = 1,
-  Italic = 2,
-  Underline = 4,
-  Strikeout = 8,
-};
-Q_DECLARE_FLAGS(StyleFlags, StyleFlag)
-Q_DECLARE_OPERATORS_FOR_FLAGS(StyleFlags)
-
 enum class SysColor : int64_t
 {
   Scrollbar,
@@ -398,7 +389,20 @@ public:
     Monospace = 8
   };
 
+  enum StyleFlag : int64_t
+  {
+    Bold = 1,
+    Underline = 2,
+    Italic = 4,
+    Inverse = 8,
+    StrikeOut = 32,
+  };
+  Q_DECLARE_FLAGS(StyleFlags, StyleFlag)
+
 public:
+  static QTextCharFormat format(StyleFlags style);
+  static StyleFlags styleFlags(const QTextCharFormat& format);
+
   static constexpr std::optional<ScriptFont> validate(int64_t value) noexcept
   {
     const ScriptFont font(value);
@@ -449,6 +453,8 @@ public:
 private:
   int64_t value = 0;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(ScriptFont::StyleFlags);
 
 class ScriptPen
 {

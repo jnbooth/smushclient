@@ -989,23 +989,11 @@ L_NotepadFont(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 5);
   const QString title = qlua::getQString(L, 1);
-  const QString fontFamily = qlua::getQString(L, 2);
-  const lua_Number pointSize = qlua::getNumber(L, 3);
-  const QFlags<StyleFlag> styleFlags = qlua::getQFlags<StyleFlag>(L, 4);
+  const QTextCharFormat format =
+    Notepad::format(qlua::getQString(L, 2),
+                    qlua::getNumber(L, 3),
+                    qlua::getQFlags<Notepad::StyleFlag>(L, 4));
   // const lua_Integer charset = qlua::getInteger(L, 5, 0);
-  QTextCharFormat format;
-  if (!title.isEmpty()) {
-    format.setFontFamilies(QStringList(title));
-  }
-  if (pointSize != 0) {
-    format.setFontPointSize(pointSize);
-  }
-  format.setFontWeight(styleFlags.testFlag(StyleFlag::Bold)
-                         ? QFont::Weight::Bold
-                         : QFont::Weight::Normal);
-  format.setFontItalic(styleFlags.testFlag(StyleFlag::Italic));
-  format.setFontUnderline(styleFlags.testFlag(StyleFlag::Underline));
-  format.setFontStrikeOut(styleFlags.testFlag(StyleFlag::Strikeout));
   push(L, getApi(L).NotepadFont(title, format));
   return 1;
 }
@@ -1241,6 +1229,15 @@ L_GetLinesInBufferCount(lua_State* L)
 }
 
 int
+L_GetNoteStyle(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, ScriptFont::styleFlags(getApi(L).GetNoteStyle()));
+  return 1;
+}
+
+int
 L_Hyperlink(lua_State* L)
 {
   BENCHMARK
@@ -1262,6 +1259,16 @@ L_Note(lua_State* L)
   ScriptApi& api = getApi(L);
   api.Tell(QString::fromUtf8(qlua::concatArgs(L)));
   api.finishNote();
+  return 0;
+}
+
+int
+L_NoteStyle(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).NoteStyle(
+    ScriptFont::format(qlua::getQFlags<ScriptFont::StyleFlag>(L, 1)));
   return 0;
 }
 
@@ -3050,9 +3057,11 @@ static const struct luaL_Reg worldlib[] =
     { "GetClipboard", L_GetClipboard },
     { "GetEchoInput", L_GetEchoInput },
     { "GetLinesInBufferCount", L_GetLinesInBufferCount },
+    { "GetNoteStyle", L_GetNoteStyle },
     { "GetSysColor", L_GetSysColor },
     { "Hyperlink", L_Hyperlink },
     { "Note", L_Note },
+    { "NoteStyle", L_NoteStyle },
     { "SetBackgroundImage", L_SetBackgroundImage },
     { "SetClipboard", L_SetClipboard },
     { "SetCursor", L_SetCursor },

@@ -104,6 +104,31 @@ getPenStyle(ScriptPen::Style style) noexcept
 
 } // namespace
 
+// Public static methods
+
+QTextCharFormat
+ScriptFont::format(StyleFlags style)
+{
+  QTextCharFormat format;
+  format.setFontWeight(style.testFlag(StyleFlag::Bold) ? QFont::Weight::Bold
+                                                       : QFont::Weight::Normal);
+  format.setFontUnderline(style.testFlag(StyleFlag::Underline));
+  format.setFontItalic(style.testFlag(StyleFlag::Italic));
+  format.setFontStrikeOut(style.testFlag(StyleFlag::StrikeOut));
+  return format;
+}
+
+ScriptFont::StyleFlags
+ScriptFont::styleFlags(const QTextCharFormat& format)
+{
+  StyleFlags flags;
+  flags.setFlag(StyleFlag::Bold, format.fontWeight() >= QFont::Weight::Bold);
+  flags.setFlag(StyleFlag::Underline, format.fontUnderline());
+  flags.setFlag(StyleFlag::Italic, format.fontItalic());
+  flags.setFlag(StyleFlag::StrikeOut, format.fontStrikeOut());
+  return flags;
+}
+
 // Public methods
 
 ScriptFont::ScriptFont(const QFont& font)

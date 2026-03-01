@@ -123,6 +123,12 @@ MudCursor::finishNote()
 }
 
 void
+MudCursor::mergeCharFormat(const QTextCharFormat& format)
+{
+  noteFormat.merge(format);
+}
+
+void
 MudCursor::move(QTextCursor::MoveOperation op, int count)
 {
   switch (op) {

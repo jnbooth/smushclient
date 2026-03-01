@@ -205,6 +205,7 @@ public:
   QStringList GetNotepadList(bool all = false) const;
   QString GetNotepadText(const QString& name) const;
   QRect GetNotepadWindowPosition(const QString& name) const;
+  QTextCharFormat GetNoteStyle() const;
   int64_t GetOption(size_t plugin, std::string_view name) const noexcept;
   const std::string& GetPluginID(size_t pluginIndex) const;
   QVariant GetPluginInfo(std::string_view pluginID,
@@ -293,6 +294,7 @@ public:
   bool NotepadFont(const QString& name, const QTextCharFormat& format) const;
   bool NotepadReadOnly(const QString& name, bool readOnly) const;
   bool NotepadSaveMethod(const QString& name, Notepad::SaveMethod method) const;
+  void NoteStyle(const QTextCharFormat& format) const;
   QString PasteCommand(const QString& command) const;
   QColor PickColour(const QColor& hint) const;
   ApiCode PlaySound(size_t channel,
