@@ -83,6 +83,8 @@ public:
 
   bool getReconnectOnDisconnect() const;
 
+  QFont getScriptFont() const;
+
   bool getShowStatusBar() const;
 
   StartupBehavior getStartupBehavior() const;
@@ -132,6 +134,8 @@ public slots:
   void setOutputWrapping(bool wrapping);
 
   void setReconnectOnDisconnect(bool reconnect);
+
+  void setScriptFont(const QFont& font);
 
   void setShowStatusBar(bool show);
 

@@ -1,6 +1,7 @@
 #include "triggeredit.h"
 #include "../../environment.h"
 #include "../../fieldconnector.h"
+#include "../../settings.h"
 #include "regexdialog.h"
 #include "smushclient_qt/src/ffi/regex.cxx.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
@@ -53,6 +54,7 @@ TriggerEdit::TriggerEdit(Trigger& trigger, QWidget* parent)
   CONNECT(MultiLine);
   CONNECT(LinesToMatch);
 
+  ui->Text->setFont(Settings().getScriptFont());
   ui->Text->setPlainText(trigger.getText());
 }
 

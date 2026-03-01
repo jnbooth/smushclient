@@ -1,6 +1,7 @@
 #include "timeredit.h"
 #include "../../enumbuttongroup.h"
 #include "../../fieldconnector.h"
+#include "../../settings.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "ui_timeredit.h"
 
@@ -34,6 +35,7 @@ TimerEdit::TimerEdit(Timer& timer, QWidget* parent)
   CONNECT(EverySecond);
   CONNECT(ActiveClosed);
 
+  ui->Text->setFont(Settings().getScriptFont());
   ui->Text->setPlainText(timer.getText());
   EnumButtonGroup(this, timer.getOccurrence(), &timer, &Timer::setOccurrence)
     .addButton(ui->Occurrence_Interval, Occurrence::Interval)

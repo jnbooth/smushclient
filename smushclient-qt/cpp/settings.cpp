@@ -222,6 +222,8 @@ SETTING(OutputWrapping, bool, true, "output/wrap");
 
 SETTING(ReconnectOnDisconnect, bool, false, "connecting/reconnect");
 
+SETTING(ScriptFont, QFont, getDefaultFont(12), "script/font");
+
 SETTING(ShowStatusBar, bool, true, "statusbar/visible");
 
 SETTING_ENUM(StartupBehavior,

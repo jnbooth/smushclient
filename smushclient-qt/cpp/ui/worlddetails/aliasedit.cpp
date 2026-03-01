@@ -1,5 +1,6 @@
 #include "aliasedit.h"
 #include "../../fieldconnector.h"
+#include "../../settings.h"
 #include "regexdialog.h"
 #include "smushclient_qt/src/ffi/regex.cxx.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
@@ -45,6 +46,7 @@ AliasEdit::AliasEdit(Alias& alias, QWidget* parent)
   CONNECT(Menu);
   CONNECT(OmitFromCommandHistory);
 
+  ui->Text->setFont(Settings().getScriptFont());
   ui->Text->setPlainText(alias.getText());
   ui->Menu->setEnabled(!alias.getLabel().isEmpty());
 }
