@@ -59,6 +59,7 @@ impl<T: Ord> CursorVec<T> {
     }
 
     pub fn scan(&self) -> CursorVecScan<'_, T> {
+        self.end();
         let scan_id = self.scan_id.get().wrapping_add(1);
         self.scan_id.set(scan_id);
         self.evaluating.set(true);
