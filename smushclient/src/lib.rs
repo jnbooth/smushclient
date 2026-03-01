@@ -2,7 +2,7 @@ pub type LuaStr = [u8];
 pub type LuaString = Vec<u8>;
 
 mod audio;
-pub use audio::{AudioError, AudioFilePlayback, PlayMode, StreamError};
+pub use audio::{AudioError, AudioFilePlayback, AudioSinkStatus, PlayMode, StreamError};
 
 mod client;
 pub use client::SmushClient;

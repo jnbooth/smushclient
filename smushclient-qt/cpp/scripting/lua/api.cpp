@@ -2095,6 +2095,15 @@ L_StopEvaluatingTriggers(lua_State* L)
 // sound
 
 int
+L_GetSoundStatus(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, getApi(L).GetSoundStatus(qlua::getInteger(L, 1)));
+  return 1;
+}
+
+int
 L_PlaySound(lua_State* L)
 {
   BENCHMARK
@@ -3201,6 +3210,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetTriggerOption", L_SetTriggerOption },
     { "StopEvaluatingTriggers", L_StopEvaluatingTriggers },
     // sound
+    { "GetSoundStatus", L_GetSoundStatus },
     { "PlaySound", L_PlaySound },
     { "PlaySoundMemory", L_PlaySoundMemory },
     { "StopSound", L_StopSound },

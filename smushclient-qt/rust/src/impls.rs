@@ -2,7 +2,9 @@ use cxx_qt_lib::QString;
 use mud_transformer::term::DynamicColor;
 use mud_transformer::{TelnetSource, TelnetVerb, UseMxp};
 use smushclient::world::{AutoConnect, LogFormat, LogMode, MxpDebugLevel, ScriptRecompile};
-use smushclient::{CommandSource, SendRequest, SendScriptRequest, TimerConstructible};
+use smushclient::{
+    AudioSinkStatus, CommandSource, SendRequest, SendScriptRequest, TimerConstructible,
+};
 use smushclient_plugins::{Plugin, PluginIndex, SendTarget, Timer};
 
 use super::ffi;
@@ -80,6 +82,15 @@ impl_convert_enum!(
     Hotkey,
     Link,
     Execute
+);
+
+impl_convert_enum!(
+    ffi::AudioSinkStatus,
+    AudioSinkStatus,
+    OutOfRange,
+    Done,
+    Playing,
+    Looping
 );
 
 impl Default for ffi::SendTarget {

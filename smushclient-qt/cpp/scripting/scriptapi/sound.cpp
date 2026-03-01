@@ -39,3 +39,9 @@ ScriptApi::StopSound(size_t channel) const noexcept
 {
   return client.stopSound(channel);
 }
+
+AudioSinkStatus
+ScriptApi::GetSoundStatus(size_t channel) const noexcept
+{
+  return client.soundStatus(channel);
+}

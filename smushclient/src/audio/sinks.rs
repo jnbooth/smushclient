@@ -19,6 +19,14 @@ impl From<bool> for PlayMode {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum AudioSinkStatus {
+    OutOfRange = -1,
+    Done = 0,
+    Playing = 1,
+    Looping = 2,
+}
+
 pub(crate) struct AudioSinks {
     sinks: [LoopingSink; 10],
     stream: AudioStream,
@@ -70,6 +78,19 @@ impl AudioSinks {
         sink.set_volume(volume);
         sink.set_looping(mode == PlayMode::Loop);
         Ok(())
+    }
+
+    pub fn status(&self, i: usize) -> AudioSinkStatus {
+        let Some(sink) = i.checked_sub(1).and_then(|i| self.sinks.get(i)) else {
+            return AudioSinkStatus::OutOfRange;
+        };
+        if sink.done() {
+            AudioSinkStatus::Done
+        } else if sink.looping() {
+            AudioSinkStatus::Looping
+        } else {
+            AudioSinkStatus::Playing
+        }
     }
 
     pub fn stop(&self, i: usize) -> Result<(), AudioError> {

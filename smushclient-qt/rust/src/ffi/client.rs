@@ -101,6 +101,14 @@ pub mod ffi {
         Keypad,
     }
 
+    #[repr(i64)]
+    enum AudioSinkStatus {
+        OutOfRange = -1,
+        Done = 0,
+        Playing = 1,
+        Looping = 2,
+    }
+
     #[auto_cxx_name]
     extern "RustQt" {
         #[qobject]
@@ -165,6 +173,7 @@ pub mod ffi {
         ) -> ApiCode;
         fn play_file_raw(self: &SmushClient, path: StringView) -> ApiCode;
         fn stop_sound(self: &SmushClient, i: usize) -> ApiCode;
+        fn sound_status(self: &SmushClient, i: usize) -> AudioSinkStatus;
         fn ansi_note(self: &SmushClient, text: StringView) -> Vec<StyledSpan>;
         fn alias(
             self: &SmushClient,

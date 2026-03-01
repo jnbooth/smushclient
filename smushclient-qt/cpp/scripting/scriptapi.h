@@ -17,6 +17,7 @@
 
 #define SCRIPTING_VERSION "5.07"
 
+enum class AudioSinkStatus : int64_t;
 enum class ExportKind : uint8_t;
 class ImageFilter;
 class ImageWindow;
@@ -266,6 +267,7 @@ public:
   {
     return getSenderList(SenderKind::Trigger, pluginId);
   }
+  AudioSinkStatus GetSoundStatus(size_t channel) const noexcept;
   QVariant GetTriggerOption(size_t plugin,
                             std::string_view label,
                             std::string_view option) const noexcept;

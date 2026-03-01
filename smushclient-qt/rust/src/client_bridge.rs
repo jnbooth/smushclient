@@ -733,6 +733,10 @@ impl ffi::SmushClient {
         self.rust().client.stop_sound(i).code()
     }
 
+    pub fn sound_status(&self, i: usize) -> ffi::AudioSinkStatus {
+        self.rust().client.sound_status(i).into()
+    }
+
     pub fn ansi_note(&self, text: StringView<'_>) -> Vec<ffi::StyledSpan> {
         self.rust().ansi_note(text.as_slice())
     }

@@ -24,7 +24,7 @@ use super::info::ClientInfo;
 use super::logger::Logger;
 use super::variables::PluginVariables;
 use crate::LuaStr;
-use crate::audio::{AudioError, AudioSinks, PlayMode};
+use crate::audio::{AudioError, AudioSinkStatus, AudioSinks, PlayMode};
 use crate::get_info::InfoVisitor;
 use crate::handler::Handler;
 use crate::import::ImportedWorld;
@@ -509,6 +509,10 @@ impl SmushClient {
         let decoder = Decoder::try_from(file)?;
         self.audio.mixer().add(decoder);
         Ok(())
+    }
+
+    pub fn sound_status(&self, i: usize) -> AudioSinkStatus {
+        self.audio.status(i)
     }
 
     pub fn stop_sound(&self, i: usize) -> Result<(), AudioError> {

@@ -43,6 +43,11 @@ impl LoopingSink {
     }
 
     #[inline]
+    pub fn looping(&self) -> bool {
+        self.looping.load(Ordering::Relaxed)
+    }
+
+    #[inline]
     pub fn stop(&self) {
         self.controls.current.fetch_add(1, Ordering::Relaxed);
     }
