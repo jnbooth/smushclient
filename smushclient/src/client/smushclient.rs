@@ -938,26 +938,25 @@ impl SmushClient {
         let enable_scripts = self.world.borrow().enable_scripts;
         let plugin = &self.plugins[plugin_index];
         let aliases = &plugin.aliases;
-        let mut buffers = self.buffers.borrow_mut();
-        let (text_buf, destination_buf, _) = &mut *buffers;
+        let mut text_buf = String::new();
+        let mut destination_buf = String::new();
         let (send_request, has_script) = {
             let alias = match aliases.find(|alias| alias.id == id) {
                 Some(alias) if alias.enabled => alias,
                 _ => return false,
             };
             let enable_scripts = !plugin.metadata.is_world_plugin || enable_scripts;
-            let text = alias.expand_text_captureless().into_owned();
+            let text = alias.expand_text_captureless(&mut text_buf);
             if alias.send_to == SendTarget::Variable {
                 self.variables.borrow_mut().set_variable(
                     &plugin.metadata.id,
                     alias.variable.clone(),
-                    text.into_bytes(),
+                    text.as_bytes().to_vec(),
                 );
                 (None, !alias.script.is_empty())
             } else if !enable_scripts && alias.send_to.is_script() {
                 (None, !alias.script.is_empty())
             } else {
-                *text_buf = text;
                 destination_buf.clone_from(alias.destination());
                 (
                     Some(SendRequest {
@@ -965,8 +964,8 @@ impl SmushClient {
                         send_to: alias.send_to,
                         echo: !alias.omit_from_output,
                         log: !alias.omit_from_log,
-                        text: text_buf,
-                        destination: destination_buf,
+                        text,
+                        destination: &destination_buf,
                     }),
                     !alias.script.is_empty(),
                 )
@@ -993,8 +992,8 @@ impl SmushClient {
         };
         handler.send_script(SendScriptRequest {
             plugin: plugin_index,
-            script: destination_buf,
-            label: text_buf,
+            script: &destination_buf,
+            label: &text_buf,
             line: "",
             regex: &regex,
             wildcards: None,
@@ -1045,7 +1044,9 @@ impl SmushClient {
             last_match.clear();
             last_match.push_str(line);
         }
-        let mut buffers = self.buffers.borrow_mut();
+        let Ok(mut buffers) = self.buffers.try_borrow_mut() else {
+            return; // already processing matches
+        };
         let (text_buf, destination_buf, one_shots) = &mut *buffers;
         let mut can_echo = true;
         let mut style = SpanStyle::null();

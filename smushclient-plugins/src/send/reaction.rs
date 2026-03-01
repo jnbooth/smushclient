@@ -1,4 +1,3 @@
-use std::borrow::Cow;
 use std::iter;
 #[cfg(not(feature = "send"))]
 use std::rc::Rc;
@@ -108,7 +107,6 @@ impl Reaction {
         }
 
         let len = buf.len();
-        buf.reserve(self.text.len());
         let captures_len = captures.len();
         let mut start = 0;
 
@@ -132,12 +130,13 @@ impl Reaction {
         &buf[len..]
     }
 
-    pub fn expand_text_captureless(&self) -> Cow<'_, str> {
+    pub fn expand_text_captureless<'a>(&self, buf: &'a mut String) -> &'a str {
+        let len = buf.len();
         let mut iter = self.text.char_indices();
         let Some((i, _)) = iter.find(|(_, c)| *c == '%') else {
-            return Cow::Borrowed(&self.text);
+            buf.push_str(&self.text);
+            return &buf[len..];
         };
-        let mut buf = String::with_capacity(self.text.len());
         buf.push_str(&self.text[..i]);
         while let Some((start, _)) = iter.find(|(_, c)| !c.is_numeric()) {
             if !iter.any(|(_, c)| c == '%') {
@@ -145,7 +144,7 @@ impl Reaction {
                 break;
             }
         }
-        Cow::Owned(buf)
+        &buf[len..]
     }
 
     pub fn has_send(&self) -> bool {
