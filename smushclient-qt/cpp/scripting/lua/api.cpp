@@ -572,8 +572,8 @@ L_GetStyleInfo(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 3);
   pushQVariant(L,
-               getApi(L).GetStyleInfo(qlua::getInt(L, 1),
-                                      qlua::getInteger(L, 2),
+               getApi(L).GetStyleInfo(qlua::getInt(L, 1) - 1,
+                                      qlua::getInteger(L, 2) - 1,
                                       qlua::getInteger(L, 3)));
   return 1;
 }
@@ -784,8 +784,9 @@ L_SetCommandSelection(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  return returnCode(
-    L, getApi(L).SetCommandSelection(qlua::getInt(L, 1), qlua::getInt(L, 2)));
+  return returnCode(L,
+                    getApi(L).SetCommandSelection(qlua::getInt(L, 1) - 1,
+                                                  qlua::getInt(L, 2) - 1));
 }
 
 int
@@ -1017,7 +1018,6 @@ L_NotepadSaveMethod(lua_State* L)
   const QString title = qlua::getQString(L, 1);
   const optional<Notepad::SaveMethod> method =
     qlua::getEnum<Notepad::SaveMethod>(L, 2);
-  qDebug() << (method ? optional(static_cast<int64_t>(*method)) : nullopt);
   push(L, method && getApi(L).NotepadSaveMethod(title, *method));
   return 1;
 }
@@ -1247,6 +1247,51 @@ L_GetRecentLines(lua_State* L)
 }
 
 int
+L_GetSelection(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetSelection());
+  return 1;
+}
+
+int
+L_GetSelectionEndColumn(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetSelectionEndColumn() + 1);
+  return 1;
+}
+
+int
+L_GetSelectionEndLine(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetSelectionEndLine() + 1);
+  return 1;
+}
+
+int
+L_GetSelectionStartColumn(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetSelectionEndColumn() + 1);
+  return 1;
+}
+
+int
+L_GetSelectionStartLine(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetSelectionEndLine() + 1);
+  return 1;
+}
+
+int
 L_Hyperlink(lua_State* L)
 {
   BENCHMARK
@@ -1338,6 +1383,18 @@ L_SetMainTitle(lua_State* L)
 {
   BENCHMARK
   getApi(L).SetMainTitle(QString::fromUtf8(qlua::concatArgs(L)));
+  return 0;
+}
+
+int
+L_SetSelection(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 4);
+  getApi(L).SetSelection(qlua::getInt(L, 1) - 1,
+                         qlua::getInt(L, 2) - 1,
+                         qlua::getInt(L, 3) - 1,
+                         qlua::getInt(L, 4) - 1);
   return 0;
 }
 
@@ -3068,6 +3125,11 @@ static const struct luaL_Reg worldlib[] =
     { "GetLinesInBufferCount", L_GetLinesInBufferCount },
     { "GetNoteStyle", L_GetNoteStyle },
     { "GetRecentLines", L_GetRecentLines },
+    { "GetSelection", L_GetSelection },
+    { "GetSelectionEndColumn", L_GetSelectionEndColumn },
+    { "GetSelectionEndLine", L_GetSelectionEndLine },
+    { "GetSelectionStartColumn", L_GetSelectionStartColumn },
+    { "GetSelectionStartLine", L_GetSelectionStartLine },
     { "GetSysColor", L_GetSysColor },
     { "Hyperlink", L_Hyperlink },
     { "Note", L_Note },
@@ -3078,6 +3140,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetEchoInput", L_SetEchoInput },
     { "SetForegroundImage", L_SetForegroundImage },
     { "SetMainTitle", L_SetMainTitle },
+    { "SetSelection", L_SetSelection },
     { "SetStatus", L_SetStatus },
     { "SetTitle", L_SetTitle },
     { "Simulate", L_Simulate },
@@ -3221,6 +3284,7 @@ static const struct luaL_Reg worldlib[] =
     { "GetNoteColour", L_noop_neg },
     { "GetQueue", L_noop_empty },
     { "GetRemoveMapReverses", L_noop_false },
+    { "GetScriptTime", L_noop_zero },
     { "GetSpeedWalkDelay", L_noop_zero },
     { "GetUdpPort", L_noop_zero },
     { "MoveNotepadWindow", L_noop_false },

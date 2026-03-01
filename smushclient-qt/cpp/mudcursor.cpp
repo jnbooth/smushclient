@@ -52,7 +52,7 @@ MudCursor::appendTell(const QString& text, const QTextCharFormat& format)
     flushLine();
     updateTimestamp();
   }
-  insertText(text, format);
+  cursor.insertText(text, format);
   hasLine = true;
   lastTellPosition = cursor.position();
   if (logNotes) {
@@ -64,7 +64,7 @@ void
 MudCursor::appendText(const QString& text, const QTextCharFormat& format)
 {
   flushLine();
-  insertText(text, format);
+  cursor.insertText(text, format);
 }
 
 void
@@ -96,12 +96,6 @@ MudCursor::clear()
   lastTellPosition = -1;
 }
 
-QTextDocument*
-MudCursor::document() const
-{
-  return cursor.document();
-}
-
 void
 MudCursor::echo(const QString& text)
 {
@@ -109,7 +103,7 @@ MudCursor::echo(const QString& text)
     return;
   }
   if (echoOnSameLine) {
-    insertText(text, echoFormat);
+    cursor.insertText(text, echoFormat);
     return;
   }
   appendText(text, echoFormat);
@@ -131,50 +125,67 @@ MudCursor::mergeCharFormat(const QTextCharFormat& format)
 void
 MudCursor::move(QTextCursor::MoveOperation op, int count)
 {
+  using MoveMode = QTextCursor::MoveMode;
+  using MoveOperation = QTextCursor::MoveOperation;
+
+  if (count <= 0) {
+    return;
+  }
+  flushLine();
   switch (op) {
-    case QTextCursor::MoveOperation::Right: {
-      const int pos = cursor.position();
-      cursor.movePosition(op, QTextCursor::MoveMode::MoveAnchor, count);
-      count -= cursor.position() - pos;
-      if (count == 0) {
-        break;
-      }
-      flushLine();
-      insertText(QStringLiteral(" ").repeated(count), QTextCharFormat());
+    case MoveOperation::Up:
+      cursor.movePosition(MoveOperation::Up, MoveMode::KeepAnchor, count);
+      cursor.removeSelectedText();
       break;
-    }
-    case QTextCursor::MoveOperation::Down: {
-      const int position = cursor.blockNumber();
-      cursor.movePosition(op, QTextCursor::MoveMode::MoveAnchor, count);
-      count -= cursor.blockNumber() - position;
-      if (count == 0) {
-        break;
+    case MoveOperation::Left:
+      cursor.movePosition(MoveOperation::Left,
+                          MoveMode::KeepAnchor,
+                          std::min(count, cursor.positionInBlock()));
+      cursor.removeSelectedText();
+      break;
+    case MoveOperation::Down: {
+      const int column = cursor.positionInBlock();
+      for (; count != 0; --count) {
+        if (!cursor.movePosition(
+              MoveOperation::Down, MoveMode::MoveAnchor, count)) {
+          break;
+        }
       }
       for (int i = 0; i < count; ++i) {
-        startLine();
+        cursor.insertBlock();
       }
-      if (position != 0) {
-        flushLine();
-        insertText(QStringLiteral(" ").repeated(count), QTextCharFormat());
+      const int columnOffset = column - cursor.positionInBlock();
+      if (columnOffset > 0) {
+        cursor.insertText(QStringLiteral(" ").repeated(columnOffset),
+                          QTextCharFormat());
       }
+      break;
+    }
+    case MoveOperation::Right: {
+      if (!cursor.atBlockEnd()) {
+        const QTextBlock block = cursor.block();
+        const int offset = block.length() - cursor.positionInBlock();
+        if (count <= offset) {
+          cursor.movePosition(
+            MoveOperation::Right, MoveMode::MoveAnchor, count);
+          break;
+        }
+        cursor.movePosition(MoveOperation::EndOfBlock, MoveMode::MoveAnchor);
+        count -= offset;
+      }
+      cursor.insertText(QStringLiteral(" ").repeated(count), QTextCharFormat());
       break;
     }
     default:
-      cursor.movePosition(op, QTextCursor::MoveMode::KeepAnchor, count);
+      cursor.movePosition(op, MoveMode::KeepAnchor, count);
       break;
   }
-}
-
-int
-MudCursor::startLine()
-{
-  if (hasLine) [[unlikely]] {
-    insertBlock();
-    indentNext = !indentText.isEmpty();
-  } else {
+  if (cursor.atEnd() && cursor.atBlockStart()) {
+    cursor.movePosition(MoveOperation::PreviousCharacter, MoveMode::KeepAnchor);
+    cursor.movePosition(MoveOperation::EndOfBlock, MoveMode::KeepAnchor);
+    cursor.removeSelectedText();
     hasLine = true;
   }
-  return cursor.position();
 }
 
 void
@@ -205,6 +216,18 @@ MudCursor::setOption(string_view name, int64_t value)
   }
 }
 
+int
+MudCursor::startLine()
+{
+  if (hasLine) [[unlikely]] {
+    insertBlock();
+    indentNext = !indentText.isEmpty();
+  } else {
+    hasLine = true;
+  }
+  return cursor.position();
+}
+
 void
 MudCursor::updateTimestamp()
 {
@@ -228,7 +251,7 @@ MudCursor::flushLine()
   }
 
   indentNext = false;
-  insertText(indentText);
+  cursor.insertText(indentText);
 }
 
 void
@@ -239,16 +262,4 @@ MudCursor::insertBlock()
   }
   cursor.insertBlock();
   lastLinePosition = cursor.position();
-}
-
-void
-MudCursor::insertText(const QString& text, const QTextCharFormat& format)
-{
-  if (!cursor.atBlockEnd()) {
-    cursor.movePosition(QTextCursor::MoveOperation::NextCharacter,
-                        QTextCursor::MoveMode::KeepAnchor,
-                        static_cast<int>(text.size()));
-    cursor.removeSelectedText();
-  }
-  cursor.insertText(text, format);
 }

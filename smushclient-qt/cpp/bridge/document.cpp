@@ -180,8 +180,7 @@ Document::expireLinks(rust::Str expires)
 void
 Document::eraseLastLine() const
 {
-  QTextCursor eraseCursor(
-    cursor->document()->findBlockByLineNumber(outputStart));
+  QTextCursor eraseCursor(cursor->document()->findBlockByNumber(outputStart));
   eraseCursor.select(QTextCursor::SelectionType::BlockUnderCursor);
   eraseCursor.removeSelectedText();
 }

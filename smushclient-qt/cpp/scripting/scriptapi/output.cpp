@@ -10,6 +10,7 @@
 #include <QtGui/QClipboard>
 #include <QtGui/QFontDatabase>
 #include <QtGui/QTextBlock>
+#include <QtGui/QTextDocumentFragment>
 #include <QtWidgets/QColorDialog>
 
 using std::string_view;
@@ -93,7 +94,7 @@ ScriptApi::DeleteOutput() const
 int
 ScriptApi::GetLinesInBufferCount() const
 {
-  return cursor->document()->lineCount();
+  return cursor->document()->blockCount();
 }
 
 QTextCharFormat
@@ -106,6 +107,57 @@ QStringList
 ScriptApi::GetRecentLines(int count) const
 {
   return selectRecentLines(count).selectedText().split(paragraphSeparator);
+}
+
+QString
+ScriptApi::GetSelection() const
+{
+  return tab.ui->output->textCursor().selectedText().replace(
+    u'\n', paragraphSeparator);
+}
+
+int
+ScriptApi::GetSelectionEndColumn() const
+{
+  QTextCursor selectCursor = tab.ui->output->textCursor();
+  if (!selectCursor.hasSelection()) {
+    return -1;
+  }
+  selectCursor.setPosition(selectCursor.selectionEnd());
+  return selectCursor.positionInBlock();
+}
+
+int
+ScriptApi::GetSelectionEndLine() const
+{
+  QTextCursor selectCursor = tab.ui->output->textCursor();
+  if (!selectCursor.hasSelection()) {
+    return -1;
+  }
+  selectCursor.setPosition(selectCursor.selectionEnd());
+  return selectCursor.blockNumber();
+}
+
+int
+ScriptApi::GetSelectionStartColumn() const
+{
+  QTextCursor selectCursor = tab.ui->output->textCursor();
+  if (!selectCursor.hasSelection()) {
+    return -1;
+  }
+  selectCursor.setPosition(selectCursor.selectionStart());
+  return selectCursor.positionInBlock();
+}
+
+int
+ScriptApi::GetSelectionStartLine() const
+{
+  QTextCursor selectCursor = tab.ui->output->textCursor();
+  if (!selectCursor.hasSelection()) {
+    return -1;
+  }
+  selectCursor.setPosition(selectCursor.selectionStart());
+  return selectCursor.blockNumber();
 }
 
 void
@@ -144,6 +196,45 @@ ScriptApi::SetCursor(Qt::CursorShape cursorShape) const
 {
   tab.ui->area->setCursor(cursorShape);
   return ApiCode::OK;
+}
+
+void
+ScriptApi::SetSelection(int startLine,
+                        int endLine,
+                        int startColumn,
+                        int endColumn) const
+{
+  using MoveMode = QTextCursor::MoveMode;
+  using MoveOperation = QTextCursor::MoveOperation;
+
+  if (endLine < startLine ||
+      (endLine == startLine && endColumn < startColumn) || startLine < 0 ||
+      endLine < 0 || startColumn < 0 || endColumn < 0) {
+    return;
+  }
+  QTextCursor selectCursor = tab.ui->output->textCursor();
+  const QTextBlock block = cursor->document()->findBlockByNumber(startLine);
+  if (!block.isValid()) {
+    return;
+  }
+  selectCursor.setPosition(block.position());
+  if (startColumn >= block.length()) {
+    selectCursor.movePosition(MoveOperation::EndOfLine, MoveMode::MoveAnchor);
+  } else {
+    selectCursor.movePosition(
+      MoveOperation::Right, MoveMode::MoveAnchor, startColumn);
+  }
+  selectCursor.movePosition(
+    MoveOperation::NextBlock, MoveMode::KeepAnchor, endLine - startLine);
+  if (endColumn >= selectCursor.block().length()) {
+    selectCursor.movePosition(MoveOperation::EndOfLine, MoveMode::MoveAnchor);
+  } else {
+    selectCursor.movePosition(MoveOperation::NextCharacter,
+                              MoveMode::KeepAnchor,
+                              endLine == startLine ? endColumn - startColumn
+                                                   : endColumn);
+  }
+  tab.ui->output->setTextCursor(selectCursor);
 }
 
 void

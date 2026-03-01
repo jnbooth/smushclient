@@ -133,17 +133,17 @@ ApiCode
 ScriptApi::SetCommandSelection(int first, int last) const
 {
   QTextCursor cursor = tab.ui->input->textCursor();
-  if (first == 0) {
+  if (first == -1) {
     cursor.clearSelection();
     tab.ui->input->setTextCursor(cursor);
     return ApiCode::OK;
   }
-  cursor.setPosition(first - 1, QTextCursor::MoveMode::MoveAnchor);
-  if (last == -1) {
+  cursor.setPosition(first, QTextCursor::MoveMode::MoveAnchor);
+  if (last == -2) {
     cursor.movePosition(QTextCursor::MoveOperation::End,
                         QTextCursor::MoveMode::KeepAnchor);
   } else {
-    cursor.setPosition(last - 1, QTextCursor::MoveMode::KeepAnchor);
+    cursor.setPosition(last, QTextCursor::MoveMode::KeepAnchor);
   }
   tab.ui->input->setTextCursor(cursor);
   return ApiCode::OK;

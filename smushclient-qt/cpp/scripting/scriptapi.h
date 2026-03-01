@@ -213,6 +213,11 @@ public:
                          int64_t infoType) const noexcept;
   const std::string& GetPluginName(size_t pluginIndex) const;
   std::vector<std::string_view> GetPluginList() const;
+  QString GetSelection() const;
+  int GetSelectionEndColumn() const;
+  int GetSelectionEndLine() const;
+  int GetSelectionStartColumn() const;
+  int GetSelectionStartLine() const;
   QVariant GetStyleInfo(int line, int64_t style, int64_t infoType) const;
   int64_t GetReceivedBytes() const noexcept;
   int64_t GetSentBytes() const noexcept;
@@ -348,6 +353,10 @@ public:
   QColor SetHighlightColour(const QColor& color) const;
   void SetMainTitle(const QString& title) const;
   ApiCode SetOption(size_t plugin, std::string_view name, int64_t value);
+  void SetSelection(int startLine,
+                    int endLine,
+                    int startColumn,
+                    int endColumn) const;
   void SetStatus(const QString& status) const;
   void SetTermColour(uint8_t i, const QColor& color) const noexcept;
   ApiCode SetTimerOption(size_t plugin,

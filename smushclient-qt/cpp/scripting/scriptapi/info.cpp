@@ -409,21 +409,17 @@ ScriptApi::GetInfo(int64_t infoType) const
 QVariant
 ScriptApi::GetLineInfo(int lineNumber, int64_t infoType) const
 {
-  const QTextBlock block =
-    cursor->document()->findBlockByLineNumber(lineNumber);
+  const QTextBlock block = cursor->document()->findBlockByNumber(lineNumber);
   if (!block.isValid()) {
     return QVariant();
   }
-  const int lineIndex = lineNumber - block.firstLineNumber();
   switch (infoType) {
-    case 1: {
-      const QTextLine line = block.layout()->lineAt(lineIndex);
-      return block.text().sliced(line.textStart(), line.textLength());
-    }
+    case 1:
+      return block.text();
     case 2:
-      return block.layout()->lineAt(lineIndex).textLength();
+      return block.length();
     case 3:
-      return lineIndex == block.lineCount() - 1;
+      return true; // true if newline
     case 4:
       return spans::getLineType(block.charFormat()) == LineType::Note;
     case 5:
@@ -432,29 +428,14 @@ ScriptApi::GetLineInfo(int lineNumber, int64_t infoType) const
       return true;
     case 7: // true if bookmarked
       return false;
-    case 8: {
-      const QTextLine line = block.layout()->lineAt(lineIndex);
-      return block.text().sliced(line.textStart(), line.textLength()) ==
-             QStringLiteral("<hr>");
-    }
+    case 8:
+      return block.text() == QStringLiteral("<hr>");
     case 9:
       return spans::getTimestamp(block.blockFormat());
     case 10:
       return lineNumber;
-    case 11: {
-      const QTextLine line = block.layout()->lineAt(lineIndex);
-      int styleCount = 0;
-      const int start = line.textStart();
-      const int end = start + line.textLength();
-      for (const QTextLayout::FormatRange& range : block.textFormats()) {
-        if (range.start > end) {
-          return styleCount;
-        }
-        if (range.start + range.length >= start) {
-          ++styleCount;
-        }
-      }
-    }
+    case 11:
+      return block.textFormats().size();
     // case 12: // ticks - exact value from the high-performance timer
     case 13:
       return spans::getElapsed(block.blockFormat()).msecsSinceReference();
@@ -483,8 +464,11 @@ ScriptApi::GetPluginInfo(string_view pluginID, int64_t infoType) const noexcept
 QVariant
 ScriptApi::GetStyleInfo(int line, int64_t style, int64_t infoType) const
 {
+  if (line < 0 || style < 0) {
+    return QVariant();
+  }
   const QTextDocument& doc = *cursor->document();
-  const QTextBlock block = doc.findBlockByLineNumber(line - 1);
+  const QTextBlock block = doc.findBlockByNumber(line);
   if (!block.isValid()) {
     return QVariant();
   }
@@ -492,34 +476,18 @@ ScriptApi::GetStyleInfo(int line, int64_t style, int64_t infoType) const
   if (layout == nullptr) [[unlikely]] {
     return QVariant();
   }
-  const QTextLine textLine = layout->lineAt(line - block.firstLineNumber());
-  const int textStart = textLine.textStart();
-  const int textEnd = textStart + textLine.textLength();
   const QList<QTextLayout::FormatRange> styles = block.textFormats();
-  auto iter = styles.cbegin();
-  int64_t styleOffset = style;
-  for (auto end = styles.cend();; ++iter) {
-    if (iter == end || iter->start > textEnd) {
-      return QVariant();
-    }
-    if (iter->start + iter->length < textStart) {
-      continue;
-    }
-    if (styleOffset == 0) {
-      break;
-    }
-    --styleOffset;
+  if (styles.size() < style) {
+    return QVariant();
   }
-  const QTextLayout::FormatRange& range = *iter;
-  const int rangeStart = std::max(textStart, range.start);
-  const int rangeEnd = std::min(textEnd, range.start + range.length);
+  const QTextLayout::FormatRange& range = styles.at(style);
   switch (infoType) {
     case 1:
-      return block.text().sliced(rangeStart, rangeEnd);
+      return block.text().sliced(range.start, range.length);
     case 2:
-      return rangeEnd - rangeStart;
+      return range.length;
     case 3:
-      return range.start - textStart;
+      return range.start;
     case 4: {
       if (range.format.anchorHref().isEmpty()) {
         return 0;

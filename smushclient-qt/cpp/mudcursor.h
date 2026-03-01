@@ -19,17 +19,19 @@ public:
   void applyWorld(const World& world);
   QTextCharFormat charFormat() const { return noteFormat; }
   void clear();
-  QTextDocument* document() const;
+  QTextDocument* document() const { return cursor.document(); }
   void echo(const QString& text);
   void finishNote();
   void mergeCharFormat(const QTextCharFormat& format);
   void move(QTextCursor::MoveOperation op, int count);
   void setIndentText(const QString& text) noexcept;
   void setSuppressingEcho(bool suppress = true) noexcept;
-  bool suppressingEcho() const noexcept { return m_suppressingEcho; }
   int startLine();
+  bool suppressingEcho() const noexcept { return m_suppressingEcho; }
   void setOption(std::string_view name, int64_t value);
   void updateTimestamp();
+
+  explicit operator QTextCursor() const { return cursor; }
 
 signals:
   void noteLogged(const QString& note);
@@ -37,8 +39,6 @@ signals:
 private:
   void flushLine();
   void insertBlock();
-  void insertText(const QString& text,
-                  const QTextCharFormat& format = QTextCharFormat());
 
 private:
   QTextCursor cursor;
