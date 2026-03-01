@@ -1238,6 +1238,15 @@ L_GetNoteStyle(lua_State* L)
 }
 
 int
+L_GetRecentLines(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  pushList(L, getApi(L).GetRecentLines(qlua::getInt(L, 1)));
+  return 1;
+}
+
+int
 L_Hyperlink(lua_State* L)
 {
   BENCHMARK
@@ -3058,6 +3067,7 @@ static const struct luaL_Reg worldlib[] =
     { "GetEchoInput", L_GetEchoInput },
     { "GetLinesInBufferCount", L_GetLinesInBufferCount },
     { "GetNoteStyle", L_GetNoteStyle },
+    { "GetRecentLines", L_GetRecentLines },
     { "GetSysColor", L_GetSysColor },
     { "Hyperlink", L_Hyperlink },
     { "Note", L_Note },
@@ -3209,6 +3219,7 @@ static const struct luaL_Reg worldlib[] =
     { "GetMappingItem", L_noop_nil },
     { "GetMappingString", L_noop_string },
     { "GetNoteColour", L_noop_neg },
+    { "GetQueue", L_noop_empty },
     { "GetRemoveMapReverses", L_noop_false },
     { "GetSpeedWalkDelay", L_noop_zero },
     { "GetUdpPort", L_noop_zero },

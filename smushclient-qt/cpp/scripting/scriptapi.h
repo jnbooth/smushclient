@@ -206,6 +206,7 @@ public:
   QString GetNotepadText(const QString& name) const;
   QRect GetNotepadWindowPosition(const QString& name) const;
   QTextCharFormat GetNoteStyle() const;
+  QStringList GetRecentLines(int count) const;
   int64_t GetOption(size_t plugin, std::string_view name) const noexcept;
   const std::string& GetPluginID(size_t pluginIndex) const;
   QVariant GetPluginInfo(std::string_view pluginID,
@@ -586,6 +587,7 @@ public:
   {
     return plugins[plugin].runScript(script, name);
   }
+  QTextCursor selectRecentLines(int count) const;
   void sendCallback(PluginCallback& callback);
   bool sendCallback(PluginCallback& callback, size_t plugin);
   bool sendCallback(PluginCallback& callback, const QString& pluginID);

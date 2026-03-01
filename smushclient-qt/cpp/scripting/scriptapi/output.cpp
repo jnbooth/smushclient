@@ -14,6 +14,8 @@
 
 using std::string_view;
 
+constexpr QChar paragraphSeparator(static_cast<char32_t>(2029));
+
 // Public static methods
 
 ApiCode
@@ -79,19 +81,7 @@ ScriptApi::ColourTell(const QColor& foreground,
 void
 ScriptApi::DeleteLines(int count) const
 {
-  if (count < 0) {
-    return;
-  }
-  QTextCursor eraseCursor(cursor->document());
-  eraseCursor.movePosition(QTextCursor::MoveOperation::StartOfBlock,
-                           QTextCursor::MoveMode::KeepAnchor);
-  if (eraseCursor.hasSelection()) {
-    --count;
-  }
-  eraseCursor.movePosition(QTextCursor::MoveOperation::PreviousBlock,
-                           QTextCursor::MoveMode::KeepAnchor,
-                           count);
-  eraseCursor.removeSelectedText();
+  selectRecentLines(count).removeSelectedText();
 }
 
 void
@@ -110,6 +100,12 @@ QTextCharFormat
 ScriptApi::GetNoteStyle() const
 {
   return cursor->charFormat();
+}
+
+QStringList
+ScriptApi::GetRecentLines(int count) const
+{
+  return selectRecentLines(count).selectedText().split(paragraphSeparator);
 }
 
 void

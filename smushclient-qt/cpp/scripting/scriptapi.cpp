@@ -254,6 +254,24 @@ ScriptApi::resetAllTimers()
   client.startAllTimers(*timekeeper);
 }
 
+QTextCursor
+ScriptApi::selectRecentLines(int count) const
+{
+  if (count < 0) {
+    return QTextCursor();
+  }
+  QTextCursor selectCursor(cursor->document());
+  selectCursor.movePosition(QTextCursor::MoveOperation::StartOfBlock,
+                            QTextCursor::MoveMode::KeepAnchor);
+  if (selectCursor.hasSelection()) {
+    --count;
+  }
+  selectCursor.movePosition(QTextCursor::MoveOperation::PreviousBlock,
+                            QTextCursor::MoveMode::KeepAnchor,
+                            count);
+  return selectCursor;
+}
+
 void
 ScriptApi::sendCallback(PluginCallback& callback)
 {
