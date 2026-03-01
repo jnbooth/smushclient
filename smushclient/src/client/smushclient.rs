@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::cell::{Cell, Ref, RefCell, RefMut};
+use std::cell::{Ref, RefCell, RefMut};
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, BufReader, Cursor, Read, Write};
@@ -45,8 +45,6 @@ pub struct SmushClient {
     variables: RefCell<PluginVariables>,
     world: RefCell<WorldConfig>,
     audio: AudioSinks,
-    last_match: RefCell<String>,
-    last_capture: Cell<usize>,
     output_buffer: RefCell<Vec<Output>>,
     info: ClientInfo,
 }
@@ -83,8 +81,6 @@ impl SmushClient {
             variables: RefCell::default(),
             world: RefCell::new(config),
             audio: AudioSinks::try_default().expect("audio initialization error"),
-            last_match: RefCell::default(),
-            last_capture: Cell::default(),
             output_buffer: RefCell::default(),
             info: ClientInfo::default(),
         }
@@ -889,12 +885,12 @@ impl SmushClient {
         if reaction.label != label {
             return None;
         }
-        let line = self.last_match.borrow();
+        let line = self.info.last_match.borrow();
         let capture = reaction
             .regex
             .captures_iter(&line)
             .filter_map(Result::ok)
-            .nth(self.last_capture.get())?;
+            .nth(self.info.last_capture.get())?;
         if let Some(wildcard) = capture.name(name) {
             return Some(wildcard.as_str().to_owned());
         }
@@ -1038,7 +1034,7 @@ impl SmushClient {
             return;
         }
         {
-            let mut last_match = self.last_match.borrow_mut();
+            let mut last_match = self.info.last_match.borrow_mut();
             last_match.clear();
             last_match.push_str(line);
         }
@@ -1069,7 +1065,7 @@ impl SmushClient {
                 let regex = &*regex_rc;
                 text_buf.clear();
                 for (i, captures) in regex.captures_iter(line).filter_map(Result::ok).enumerate() {
-                    self.last_capture.set(i);
+                    self.info.last_capture.set(i);
                     if !matched {
                         matched = true;
                         if echo_input {
