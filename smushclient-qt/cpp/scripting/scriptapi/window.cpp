@@ -57,6 +57,12 @@ assignFontFamily(QFont& font, const QString& family)
 
 // Public methods
 
+QRect
+ScriptApi::GetMainWindowPosition() const
+{
+  return tab.window()->rect();
+}
+
 ApiCode
 ScriptApi::SetBackgroundImage(const QString& path,
                               MiniWindow::Position position)

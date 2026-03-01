@@ -200,6 +200,7 @@ public:
   QVariant GetLineInfo(int line, int64_t infoType) const;
   int GetLinesInBufferCount() const;
   QColor GetMapColour(const QColor& color) const noexcept;
+  QRect GetMainWindowPosition() const;
   int GetNotepadLength(const QString& name) const;
   QStringList GetNotepadList(bool all = false) const;
   QString GetNotepadText(const QString& name) const;
