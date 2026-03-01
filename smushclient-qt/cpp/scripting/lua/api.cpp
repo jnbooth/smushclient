@@ -1351,6 +1351,33 @@ L_Tell(lua_State* L)
   return 0;
 }
 
+int
+L_TextRectangle(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 9);
+  const QRect rect = qlua::getQRect(L, 1, 2, 3, 4);
+  const int offset = qlua::getInt(L, 5);
+  QColor borderColor = qlua::getQColor(L, 6);
+  const int borderWidth = qlua::getInt(L, 7);
+  QColor outsideColor = qlua::getQColor(L, 8);
+  const optional<Qt::BrushStyle> outsideFillStyle = qlua::getBrush(L, 9);
+  expect_nonnull(outsideFillStyle, ApiCode::BrushStyleNotValid);
+  if (borderColor == Qt::GlobalColor::black) {
+    borderColor = Qt::GlobalColor::transparent;
+  }
+  if (outsideColor == Qt::GlobalColor::black) {
+    outsideColor = Qt::GlobalColor::transparent;
+  }
+  return returnCode(
+    L,
+    getApi(L).TextRectangle(rect,
+                            offset,
+                            borderColor,
+                            borderWidth,
+                            QBrush(outsideColor, *outsideFillStyle)));
+}
+
 // plugin
 
 int
@@ -2119,33 +2146,6 @@ L_SetVariable(lua_State* L)
 }
 
 // window
-
-int
-L_TextRectangle(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 9);
-  const QRect rect = qlua::getQRect(L, 1, 2, 3, 4);
-  const int offset = qlua::getInt(L, 5);
-  QColor borderColor = qlua::getQColor(L, 6);
-  const int borderWidth = qlua::getInt(L, 7);
-  QColor outsideColor = qlua::getQColor(L, 8);
-  const optional<Qt::BrushStyle> outsideFillStyle = qlua::getBrush(L, 9);
-  expect_nonnull(outsideFillStyle, ApiCode::BrushStyleNotValid);
-  if (borderColor == Qt::GlobalColor::black) {
-    borderColor = Qt::GlobalColor::transparent;
-  }
-  if (outsideColor == Qt::GlobalColor::black) {
-    outsideColor = Qt::GlobalColor::transparent;
-  }
-  return returnCode(
-    L,
-    getApi(L).TextRectangle(rect,
-                            offset,
-                            borderColor,
-                            borderWidth,
-                            QBrush(outsideColor, *outsideFillStyle)));
-}
 
 int
 L_WindowArc(lua_State* L)
@@ -3023,6 +3023,7 @@ static const struct luaL_Reg worldlib[] =
     { "GetAlphaOptionList", L_GetAlphaOptionList },
     { "GetCurrentValue", L_GetCurrentValue },
     { "GetDefaultValue", L_GetDefaultValue },
+    { "GetLoadedValue", L_GetCurrentValue },
     { "GetOption", L_GetOption },
     { "GetOptionList", L_GetOptionList },
     { "SetAlphaOption", L_SetAlphaOption },
@@ -3053,6 +3054,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetTitle", L_SetTitle },
     { "Simulate", L_Simulate },
     { "Tell", L_Tell },
+    { "TextRectangle", L_TextRectangle },
     // plugin
     { "BroadcastPlugin", L_BroadcastPlugin },
     { "CallPlugin", L_CallPlugin },
@@ -3122,7 +3124,6 @@ static const struct luaL_Reg worldlib[] =
     { "SetEntity", L_SetEntity },
     { "SetVariable", L_SetVariable },
     // window
-    { "TextRectangle", L_TextRectangle },
     { "WindowArc", L_WindowArc },
     { "WindowBlendImage", L_WindowBlendImage },
     { "WindowCircleOp", L_WindowCircleOp },
@@ -3183,6 +3184,7 @@ static const struct luaL_Reg worldlib[] =
     { "FlashIcon", L_noop_void },
     { "GetCustomColourBackground", L_noop_zero },
     { "GetCustomColourName", L_noop_string },
+    { "GetInternalCommandList", L_noop_empty },
     { "GetNoteColour", L_noop_neg },
     { "GetUdpPort", L_noop_zero },
     { "MoveNotepadWindow", L_noop_false },
