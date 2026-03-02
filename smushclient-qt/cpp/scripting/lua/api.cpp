@@ -2261,6 +2261,15 @@ L_GetMainWindowPosition(lua_State* L)
 }
 
 int
+L_GetWorldWindowPosition(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetWorldWindowPosition());
+  return 1;
+}
+
+int
 L_WindowArc(lua_State* L)
 {
   BENCHMARK
@@ -3251,6 +3260,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetVariable", L_SetVariable },
     // window
     { "GetMainWindowPosition", L_GetMainWindowPosition },
+    { "GetWorldWindowPosition", L_GetWorldWindowPosition },
     { "WindowArc", L_WindowArc },
     { "WindowBlendImage", L_WindowBlendImage },
     { "WindowCircleOp", L_WindowCircleOp },

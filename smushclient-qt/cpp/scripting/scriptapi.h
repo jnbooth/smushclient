@@ -277,6 +277,7 @@ public:
   rust::String GetTriggerWildcard(size_t plugin,
                                   std::string_view label,
                                   std::string_view name) const noexcept;
+  QRect GetWorldWindowPosition() const;
   std::string_view GetVariable(size_t pluginIndex,
                                std::string_view key) const noexcept;
   std::string_view GetVariable(std::string_view pluginID,

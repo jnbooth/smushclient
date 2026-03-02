@@ -63,6 +63,12 @@ ScriptApi::GetMainWindowPosition() const
   return tab.window()->rect();
 }
 
+QRect
+ScriptApi::GetWorldWindowPosition() const
+{
+  return tab.rect();
+}
+
 ApiCode
 ScriptApi::SetBackgroundImage(const QString& path,
                               MiniWindow::Position position)
