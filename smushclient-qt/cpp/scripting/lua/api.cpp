@@ -1114,6 +1114,14 @@ L_NotepadSaveMethod(lua_State* L)
 }
 
 int
+L_OpenBrowser(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  return returnCode(L, ScriptApi::OpenBrowser(qlua::getQString(L, 1)));
+}
+
+int
 L_ReplaceNotepad(lua_State* L)
 {
   BENCHMARK
@@ -3226,6 +3234,7 @@ static const struct luaL_Reg worldlib[] =
     { "NotepadFont", L_NotepadFont },
     { "NotepadReadOnly", L_NotepadReadOnly },
     { "NotepadSaveMethod", L_NotepadSaveMethod },
+    { "OpenBrowser", L_OpenBrowser },
     { "ReplaceNotepad", L_ReplaceNotepad },
     { "SendToNotepad", L_SendToNotepad },
     // option

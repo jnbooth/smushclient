@@ -71,6 +71,7 @@ public:
   static std::string_view GetXMLEntity(std::string_view name) noexcept;
   static QByteArray Hash(QByteArrayView bytes);
   static QString MakeRegularExpression(std::string_view pattern) noexcept;
+  static ApiCode OpenBrowser(const QString& url);
   static void SetClipboard(const QString& text);
 
   ScriptApi(SmushClient& client,

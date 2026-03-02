@@ -8,6 +8,7 @@
 #include "smushclient_qt/src/ffi/spans.cxx.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
 #include <QtGui/QClipboard>
+#include <QtGui/QDesktopServices>
 #include <QtGui/QFontDatabase>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextDocumentFragment>
@@ -40,6 +41,17 @@ QString
 ScriptApi::GetClipboard()
 {
   return QGuiApplication::clipboard()->text();
+}
+
+ApiCode
+ScriptApi::OpenBrowser(const QString& url)
+{
+  const QUrl parsedUrl(url);
+  if (!parsedUrl.isValid()) {
+    return ApiCode::BadParameter;
+  }
+  return QDesktopServices::openUrl(parsedUrl) ? ApiCode::OK
+                                              : ApiCode::CouldNotOpenFile;
 }
 
 void
