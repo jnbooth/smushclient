@@ -2,12 +2,14 @@ use cxx_qt_lib::{QByteArray, QColor, QString, QStringList, QVariant, QVector};
 use mud_transformer::mxp::{self, RgbColor};
 use mud_transformer::naws;
 use smushclient::WorldConfig;
+use smushclient::generate::{create_guid, get_unique_id, hash};
 use smushclient_qt_lib::QAbstractScrollArea;
 
 use crate::convert::Convert;
 use crate::ffi::{StringView, VariableView};
 use crate::get_info::font_info;
 
+#[allow(clippy::extra_unused_lifetimes)]
 #[cxx::bridge]
 mod ffi {
     extern "C++" {
@@ -42,6 +44,7 @@ mod ffi {
     #[namespace = "ffi::util"]
     extern "Rust" {
         fn ansi16() -> QVector_QColor;
+        fn create_guid(buf: &mut [u8]) -> &str;
         fn default_variant_option(option: StringView) -> QVariant;
         fn encode_naws(browser: &QAbstractScrollArea) -> QByteArray;
         fn fixup_html(text: StringView) -> String;
@@ -49,6 +52,8 @@ mod ffi {
         fn get_alpha_option_list() -> QStringList;
         fn get_global_entity(name: StringView) -> VariableView;
         fn get_option_list() -> QStringList;
+        fn get_unique_id(buf: &mut [u8]) -> &str;
+        unsafe fn hash<'a>(data: &[u8], buf: &'a mut [u8]) -> &'a str;
     }
 }
 

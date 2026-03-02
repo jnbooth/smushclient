@@ -451,6 +451,44 @@ L_DatabaseOpen(lua_State* L)
   return 1;
 }
 
+// generate
+
+int
+L_CreateGUID(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, ScriptApi::CreateGUID());
+  return 1;
+}
+
+int
+L_GetUniqueID(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, ScriptApi::GetUniqueID());
+  return 1;
+}
+
+int
+L_GetUniqueNumber(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, ScriptApi::GetUniqueNumber());
+  return 1;
+}
+
+int
+L_MakeRegularExpression(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, ScriptApi::MakeRegularExpression(qlua::getString(L, 1)));
+  return 1;
+}
+
 // info
 
 int
@@ -459,15 +497,6 @@ L_ChangeDir(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 1);
   push(L, ScriptApi::ChangeDir(qlua::getQString(L, 1)));
-  return 1;
-}
-
-int
-L_CreateGUID(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 0);
-  push(L, QUuid::createUuid());
   return 1;
 }
 
@@ -603,9 +632,11 @@ L_GetTriggerInfo(lua_State* L)
 }
 
 int
-L_GetUniqueNumber(lua_State* L)
+L_Hash(lua_State* L)
 {
-  push(L, ScriptApi::GetUniqueNumber());
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, ScriptApi::Hash(qlua::getString(L, 1)));
   return 1;
 }
 
@@ -2027,15 +2058,6 @@ L_IsTrigger(lua_State* L)
 }
 
 int
-L_MakeRegularExpression(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 1);
-  push(L, ScriptApi::MakeRegularExpression(qlua::getString(L, 1)));
-  return 1;
-}
-
-int
 L_SetAliasOption(lua_State* L)
 {
   BENCHMARK
@@ -3045,9 +3067,14 @@ static const struct luaL_Reg worldlib[] =
     // database
     { "DatabaseClose", L_DatabaseClose },
     { "DatabaseOpen", L_DatabaseOpen },
+    // generate
+    { "CreateGUID", L_CreateGUID },
+    { "GetUniqueID", L_GetUniqueID },
+    { "GetUniqueNumber", L_GetUniqueNumber },
+    { "Hash", L_Hash },
+    { "MakeRegularExpression", L_MakeRegularExpression },
     // info
     { "ChangeDir", L_ChangeDir },
-    { "CreateGUID", L_CreateGUID },
     { "GetConnectDuration", L_GetConnectDuration },
     { "GetAliasInfo", L_GetAliasInfo },
     { "GetInfo", L_GetInfo },
@@ -3059,7 +3086,6 @@ static const struct luaL_Reg worldlib[] =
     { "GetStyleInfo", L_GetStyleInfo },
     { "GetTimerInfo", L_GetTimerInfo },
     { "GetTriggerInfo", L_GetTriggerInfo },
-    { "GetUniqueNumber", L_GetUniqueNumber },
     { "Version", L_Version },
     { "WindowFontInfo", L_WindowFontInfo },
     { "WindowImageInfo", L_WindowImageInfo },
@@ -3204,7 +3230,6 @@ static const struct luaL_Reg worldlib[] =
     { "IsAlias", L_IsAlias },
     { "IsTimer", L_IsTimer },
     { "IsTrigger", L_IsTrigger },
-    { "MakeRegularExpression", L_MakeRegularExpression },
     { "SetAliasOption", L_SetAliasOption },
     { "SetTimerOption", L_SetTimerOption },
     { "SetTriggerOption", L_SetTriggerOption },

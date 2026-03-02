@@ -1,7 +1,6 @@
 #pragma once
 #include "../enumbounds.h"
 #include "rust/cxx.h"
-#include <QtCore/QUuid>
 #include <QtGui/QPen>
 #include <QtNetwork/QHostAddress>
 #include <type_traits>
@@ -201,6 +200,13 @@ push(lua_State* L, T value)
   lua_pushinteger(L, static_cast<lua_Integer>(value));
 }
 
+template<size_t N>
+const char*
+push(lua_State* L, const std::array<char, N>& data)
+{
+  return lua_pushlstring(L, data.data(), data.size());
+}
+
 inline const char*
 push(lua_State* L, const char* value)
 {
@@ -245,7 +251,6 @@ IMPL_PUSH(std::string_view);
 
 IMPL_PUSH(const QString&, toUtf8());
 IMPL_PUSH(const QHostAddress&, toString());
-IMPL_PUSH(const QUuid&, toByteArray(QUuid::StringFormat::WithoutBraces));
 
 #undef IMPL_PUSH
 

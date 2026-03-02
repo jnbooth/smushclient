@@ -7,14 +7,6 @@
 using std::string_view;
 using std::chrono::milliseconds;
 
-// Public static methods
-
-QString
-ScriptApi::MakeRegularExpression(string_view pattern) noexcept
-{
-  return ffi::regex::from_wildcards(pattern);
-}
-
 // Public methods
 
 ApiCode

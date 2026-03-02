@@ -64,7 +64,7 @@ impl TextFormatter {
         }
 
         self.ansi.clear();
-        for &color in &world.ansi_colours {
+        for color in world.ansi_colours {
             self.ansi.insert(color, foreground_format(color));
         }
     }

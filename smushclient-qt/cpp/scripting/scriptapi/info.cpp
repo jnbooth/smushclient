@@ -133,18 +133,6 @@ ScriptApi::FontInfo(const QFont& font, int64_t infoType)
   return static_cast<int64_t>(ScriptFont(font));
 }
 
-int64_t
-ScriptApi::GetUniqueNumber() noexcept
-{
-  static int64_t uniqueNumber = -1;
-  if (uniqueNumber == INT64_MAX) [[unlikely]] {
-    uniqueNumber = 0;
-  } else {
-    ++uniqueNumber;
-  }
-  return uniqueNumber;
-}
-
 // Public methods
 
 QElapsedTimer::Duration
