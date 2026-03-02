@@ -847,6 +847,33 @@ L_FlushLog(lua_State* L)
 }
 
 int
+L_GetLogInput(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetOption(getPluginIndex(L), "log_input") != 0);
+  return 1;
+}
+
+int
+L_GetLogNotes(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetOption(getPluginIndex(L), "log_notes") != 0);
+  return 1;
+}
+
+int
+L_GetLogOutput(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetOption(getPluginIndex(L), "log_output") != 0);
+  return 1;
+}
+
+int
 L_IsLogOpen(lua_State* L)
 {
   BENCHMARK
@@ -862,6 +889,39 @@ L_OpenLog(lua_State* L)
   expectMaxArgs(L, 2);
   return returnCode(
     L, getApi(L).OpenLog(qlua::getString(L, 1), qlua::getBool(L, 2, false)));
+}
+
+int
+L_SetLogInput(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).SetOption(getPluginIndex(L),
+                      "log_input",
+                      static_cast<lua_Integer>(qlua::getBool(L, 1, true)));
+  return 0;
+}
+
+int
+L_SetLogNotes(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).SetOption(getPluginIndex(L),
+                      "log_notes",
+                      static_cast<lua_Integer>(qlua::getBool(L, 1, true)));
+  return 0;
+}
+
+int
+L_SetLogOutput(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).SetOption(getPluginIndex(L),
+                      "log_output",
+                      static_cast<lua_Integer>(qlua::getBool(L, 1, true)));
+  return 0;
 }
 
 int
@@ -1593,6 +1653,15 @@ L_GetPluginName(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 0);
   push(L, getApi(L).GetPluginName(getPluginIndex(L)));
+  return 1;
+}
+
+int
+L_IsPluginInstalled(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, getApi(L).IsPluginInstalled(qlua::getString(L, 1)));
   return 1;
 }
 
@@ -3119,8 +3188,14 @@ static const struct luaL_Reg worldlib[] =
     // log
     { "CloseLog", L_CloseLog },
     { "FlushLog", L_FlushLog },
+    { "GetLogInput", L_GetLogInput },
+    { "GetLogNotes", L_GetLogNotes },
+    { "GetLogOutput", L_GetLogOutput },
     { "IsLogOpen", L_IsLogOpen },
     { "OpenLog", L_OpenLog },
+    { "SetLogInput", L_SetLogInput },
+    { "SetLogNotes", L_SetLogNotes },
+    { "SetLogOutput", L_SetLogOutput },
     { "WriteLog", L_WriteLog },
     // network
     { "Connect", L_Connect },
@@ -3197,6 +3272,7 @@ static const struct luaL_Reg worldlib[] =
     { "GetPluginID", L_GetPluginID },
     { "GetPluginList", L_GetPluginList },
     { "GetPluginName", L_GetPluginName },
+    { "IsPluginInstalled", L_IsPluginInstalled },
     { "PluginSupports", L_PluginSupports },
     // sender
     { "AddAlias", L_AddAlias },
@@ -3327,12 +3403,22 @@ static const struct luaL_Reg worldlib[] =
     { "GetMappingItem", L_noop_nil },
     { "GetMappingString", L_noop_string },
     { "GetNoteColour", L_noop_neg },
+    { "GetNotes", L_noop_string },
     { "GetQueue", L_noop_empty },
     { "GetRemoveMapReverses", L_noop_false },
     { "GetScriptTime", L_noop_zero },
     { "GetSpeedWalkDelay", L_noop_zero },
     { "GetUdpPort", L_noop_zero },
+    { "Help", L_noop_void },
+    { "Info", L_noop_void },
+    { "InfoBackground", L_noop_void },
+    { "InfoClear", L_noop_void },
+    { "InfoColour", L_noop_void },
+    { "InfoFont", L_noop_void },
+    { "MoveMainWindow", L_noop_void },
     { "MoveNotepadWindow", L_noop_false },
+    { "MoveWorldWindow", L_noop_void },
+    { "MoveWorldWindowX", L_noop_void },
     { "Redraw", L_noop_void },
     { "Repaint", L_noop_void },
     { "ResetIP", L_noop_void },

@@ -294,6 +294,7 @@ public:
   ApiCode IsAlias(size_t plugin, std::string_view label) const noexcept;
   bool IsConnected() const;
   bool IsLogOpen() const noexcept;
+  bool IsPluginInstalled(std::string_view pluginID) const;
   ApiCode IsTimer(size_t plugin, std::string_view label) const noexcept;
   ApiCode IsTrigger(size_t plugin, std::string_view label) const noexcept;
   ApiCode LogSend(QByteArray& bytes);

@@ -60,6 +60,12 @@ ScriptApi::GetPluginList() const
   return list;
 }
 
+bool
+ScriptApi::IsPluginInstalled(std::string_view pluginID) const
+{
+  return findPluginIndex(pluginID) != noSuchPlugin;
+}
+
 ApiCode
 ScriptApi::PluginSupports(string_view pluginID, PluginCallbackKey routine) const
 {
