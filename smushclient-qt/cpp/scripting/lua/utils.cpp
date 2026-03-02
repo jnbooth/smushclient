@@ -16,6 +16,10 @@ using std::string_view;
 
 using qlua::expectMaxArgs;
 
+namespace {
+const char* const utilsRegKey = "smushclient.utils";
+} // namespace
+
 class SelectionPredicate
 {
 public:
@@ -319,15 +323,35 @@ static const struct luaL_Reg utilslib[] = {
   { nullptr, nullptr }
 };
 
+namespace {
+int
+L_utils_newindex(lua_State* L)
+{
+  lua_pushliteral(L, "attempt to update a read-only table");
+  lua_error(L);
+  return 0;
+}
+} // namespace
+
+static const struct luaL_Reg utils_meta[] = { { "__newindex",
+                                                L_utils_newindex },
+                                              { nullptr, nullptr } };
+
 int
 luaopen_utils(lua_State* L)
 {
   luaL_newlib(L, utilslib);
+
   luaopen_base64(L);
   lua_getfield(L, -1, "decode");
   lua_setfield(L, -3, "base64decode");
   lua_getfield(L, -1, "encode");
   lua_setfield(L, -3, "base64encode");
   lua_pop(L, 1);
+
+  luaL_newmetatable(L, utilsRegKey);
+  luaL_setfuncs(L, utils_meta, 0);
+  lua_setmetatable(L, -2);
+
   return 1;
 }

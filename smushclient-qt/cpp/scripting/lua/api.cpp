@@ -3343,17 +3343,26 @@ static const struct luaL_Reg worldlib[] =
 
 namespace {
 int
+L_world_newindex(lua_State* L)
+{
+  lua_pushliteral(L, "attempt to update a read-only table");
+  lua_error(L);
+  return 0;
+}
+
+int
 L_world_tostring(lua_State* L)
 {
-  BENCHMARK
   lua_pushliteral(L, "world");
   return 1;
 }
 } // namespace
 
-static const struct luaL_Reg worldlib_meta[] = { { "__tostring",
-                                                   L_world_tostring },
-                                                 { nullptr, nullptr } };
+static const struct luaL_Reg worldlib_meta[] = {
+  { "__newindex", L_world_newindex },
+  { "__tostring", L_world_tostring },
+  { nullptr, nullptr }
+};
 
 int
 registerLuaWorld(lua_State* L)
