@@ -301,6 +301,7 @@ public:
   void MapColour(const QColor& color, const QColor& mapped) const noexcept;
   QList<QPair<QColor, QColor>> MapColourList() const noexcept;
   ApiCode OpenLog(std::string_view logFileName, bool append) const;
+  void NoteHr() const;
   bool NotepadColour(const QString& name,
                      const QColor& foreground,
                      const QColor& background) const;

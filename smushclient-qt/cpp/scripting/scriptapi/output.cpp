@@ -186,6 +186,12 @@ ScriptApi::Hyperlink(const QString& action,
 }
 
 void
+ScriptApi::NoteHr() const
+{
+  cursor->appendHtml(QStringLiteral("<hr/>"));
+}
+
+void
 ScriptApi::NoteStyle(const QTextCharFormat& format) const
 {
   cursor->mergeCharFormat(format);

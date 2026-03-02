@@ -1408,6 +1408,15 @@ L_Note(lua_State* L)
 }
 
 int
+L_NoteHr(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  getApi(L).NoteHr();
+  return 0;
+}
+
+int
 L_NoteStyle(lua_State* L)
 {
   BENCHMARK
@@ -3252,6 +3261,7 @@ static const struct luaL_Reg worldlib[] =
     { "GetSysColor", L_GetSysColor },
     { "Hyperlink", L_Hyperlink },
     { "Note", L_Note },
+    { "NoteHr", L_NoteHr },
     { "NoteStyle", L_NoteStyle },
     { "SetBackgroundImage", L_SetBackgroundImage },
     { "SetClipboard", L_SetClipboard },
@@ -3415,6 +3425,7 @@ static const struct luaL_Reg worldlib[] =
     { "InfoClear", L_noop_void },
     { "InfoColour", L_noop_void },
     { "InfoFont", L_noop_void },
+    { "Mapping", L_noop_false },
     { "MoveMainWindow", L_noop_void },
     { "MoveNotepadWindow", L_noop_false },
     { "MoveWorldWindow", L_noop_void },
