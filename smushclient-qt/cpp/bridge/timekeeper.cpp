@@ -2,13 +2,12 @@
 #include "../client.h"
 #include "../scripting/scriptapi.h"
 #include "../timermap.h"
-#include "smushclient_qt/src/ffi/timekeeper.cxxqt.h"
 
 using std::chrono::milliseconds;
 using std::chrono::seconds;
 
 Timekeeper::Timekeeper(SmushClient& client, QObject* parent)
-  : QObject(parent)
+  : AbstractTimekeeper(parent)
   , pollTimer(new QTimer(this))
   , queue(new TimerMap<Timekeeper::Item, SmushClient>(client,
                                                       &SmushClient::finishTimer,
@@ -32,6 +31,8 @@ Timekeeper::cancelTimers(const QSet<uint16_t>& timerIds)
     return timerIds.contains(item.timerId);
   });
 }
+
+// Public overrides
 
 void
 Timekeeper::startSendTimer(size_t index, uint16_t timerId, uint millis) const

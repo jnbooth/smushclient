@@ -4,7 +4,7 @@ use mud_transformer::{TelnetSource, TelnetVerb};
 
 use crate::sender::{OutputSpan, TextSpan};
 
-#[cxx_qt::bridge]
+#[cxx::bridge]
 pub mod ffi {
     extern "C++" {
         include!("cxx-qt-lib/qbytearray.h");
@@ -13,11 +13,19 @@ pub mod ffi {
         type QColor = cxx_qt_lib::QColor;
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
+
+        include!("smushclient-qt-lib/qtextcharformat.h");
+        type QTextCharFormat = smushclient_qt_lib::QTextCharFormat;
+
+        include!("smushclient-qt-lib/qtextcursor.h");
+        #[namespace = "rust::smushclientqtlib1"]
+        type QTextCursorMoveOperation = smushclient_qt_lib::QTextCursorMoveOperation;
     }
 
     extern "C++" {
         include!("smushclient_qt/src/ffi/send_request.cxx.h");
-        type SendRequest = super::super::send_request::ffi::SendRequest;
+        type SendRequest = crate::ffi::SendRequest;
+        type SendTarget = crate::ffi::SendTarget;
     }
 
     enum TelnetSource {
@@ -60,18 +68,6 @@ pub mod ffi {
         output: &'a [OutputSpan],
     }
 
-    extern "C++" {
-        include!("smushclient-qt-lib/qtextcharformat.h");
-        type QTextCharFormat = smushclient_qt_lib::QTextCharFormat;
-    }
-
-    #[namespace = "rust::smushclientqtlib1"]
-    extern "C++" {
-
-        include!("smushclient-qt-lib/qtextcursor.h");
-        type QTextCursorMoveOperation = smushclient_qt_lib::QTextCursorMoveOperation;
-    }
-
     extern "Rust" {
         type TextSpan;
         fn foreground(&self) -> i32;
@@ -85,11 +81,10 @@ pub mod ffi {
         fn text_span(&self) -> *const TextSpan;
     }
 
-    unsafe extern "C++Qt" {
-        include!("smushclient_qt/document.h");
-        type SendTarget = crate::ffi::SendTarget;
+    unsafe extern "C++" {
+        include!("smushclient_qt/abstractdocument.h");
 
-        #[qobject]
+        #[cxx_name = "AbstractDocument"]
         type Document;
 
         #[rust_name = "append_html"]

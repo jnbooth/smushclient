@@ -12,7 +12,6 @@
 #include "../settings.h"
 #include "../spans.h"
 #include "dialog/saveprompt.h"
-#include "smushclient_qt/src/ffi/document.cxxqt.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "smushclient_qt/src/ffi/spans.cxx.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"

@@ -12,7 +12,7 @@ pub mod ffi {
     }
 
     extern "C++" {
-        include!("smushclient_qt/src/ffi/client.cxxqt.h");
+        include!("smushclient_qt/forward.h");
         #[cxx_name = "SmushClientBase"]
         type SmushClient = crate::ffi::SmushClient;
     }

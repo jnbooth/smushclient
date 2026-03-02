@@ -1,6 +1,5 @@
 // NOLINTBEGIN(google-explicit-constructor, hicpp-explicit-conversions)
-#ifndef VIEWS_H
-#define VIEWS_H
+#pragma once
 #include <QtCore/QByteArray>
 
 #define CAST(V, T)                                                             \
@@ -105,5 +104,4 @@ private:
 } // namespace rust
 
 #undef CAST
-#endif // VIEWS_H
 // NOLINTEND(google-explicit-constructor, hicpp-explicit-conversions)

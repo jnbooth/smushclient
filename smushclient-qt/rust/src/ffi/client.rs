@@ -29,7 +29,9 @@ pub mod ffi {
         include!("smushclient_qt/forward.h");
         type Alias = crate::ffi::Alias;
         type AliasOutcomes = crate::ffi::AliasOutcomes;
+        #[cxx_name = "AbstractDocument"]
         type Document = crate::ffi::Document;
+        #[cxx_name = "AbstractTimekeeper"]
         type Timekeeper = crate::ffi::Timekeeper;
         type Timer = crate::ffi::Timer;
         type Trigger = crate::ffi::Trigger;

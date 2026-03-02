@@ -8,7 +8,6 @@
 #include "callback/plugincallback.h"
 #include "miniwindow/imagewindow.h"
 #include "miniwindow/miniwindow.h"
-#include "smushclient_qt/src/ffi/timekeeper.cxx.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "sqlite3.h"

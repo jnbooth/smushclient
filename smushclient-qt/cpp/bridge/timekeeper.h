@@ -1,6 +1,5 @@
-#ifndef TIMEKEEPER_H
-#define TIMEKEEPER_H
-
+#pragma once
+#include "smushclient_qt/abstracttimekeeper.h"
 #include <QtCore/QTimer>
 
 struct SendTimer;
@@ -14,7 +13,7 @@ struct TimekeeperItem
   uint16_t timerId;
 };
 
-class Timekeeper : public QObject
+class Timekeeper : public AbstractTimekeeper
 {
   Q_OBJECT
 
@@ -27,9 +26,11 @@ public:
                     Qt::TimerType timerType = Qt::TimerType::CoarseTimer);
   void cancelTimers(const QSet<uint16_t>& timerIds);
   void sendTimer(const SendTimer& timer) const;
+
+public:
   void startSendTimer(size_t index,
                       uint16_t timerId,
-                      unsigned int millis) const;
+                      unsigned int millis) const override;
 
 private:
   bool finishTimer(const Item& item);
@@ -38,5 +39,3 @@ private:
   QTimer* pollTimer;
   TimerMap<Item, SmushClient>* queue;
 };
-
-#endif // Timekeeper

@@ -1,17 +1,21 @@
 use smushclient::TimerStart;
 
-#[cxx_qt::bridge]
+#[cxx::bridge]
 pub mod ffi {
     extern "C++" {
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
     }
 
-    unsafe extern "C++Qt" {
-        include!("smushclient_qt/timekeeper.h");
+    extern "C++" {
+        include!("smushclient_qt/src/ffi/send_request.cxx.h");
         type SendTarget = crate::ffi::SendTarget;
+    }
 
-        #[qobject]
+    unsafe extern "C++" {
+        include!("smushclient_qt/abstracttimekeeper.h");
+
+        #[cxx_name = "AbstractTimekeeper"]
         type Timekeeper;
 
         #[doc(hidden)]

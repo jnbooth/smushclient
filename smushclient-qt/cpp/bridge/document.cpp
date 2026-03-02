@@ -7,7 +7,7 @@
 #include "../ui/components/mudscrollbar.h"
 #include "../ui/mudstatusbar/mudstatusbar.h"
 #include "../ui/worldtab.h"
-#include "smushclient_qt/src/ffi/document.cxxqt.h"
+#include "smushclient_qt/src/ffi/document.cxx.h"
 #include <QtGui/QAbstractTextDocumentLayout>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextDocumentFragment>
@@ -39,7 +39,7 @@ strView(rust::Str str) noexcept
 // Public methods
 
 Document::Document(MudBrowser& output, ScriptApi& api, QObject* parent)
-  : QObject(parent)
+  : AbstractDocument(parent)
   , api(api)
   , cursor(output.cursor())
   , scrollBar(*output.verticalScrollBar())
@@ -47,6 +47,14 @@ Document::Document(MudBrowser& output, ScriptApi& api, QObject* parent)
   expireLinkFormat.setAnchor(false);
   expireLinkFormat.setAnchorHref(QString());
 }
+
+void
+Document::resetServerStatus()
+{
+  serverStatuses.clear();
+}
+
+// Public overrides
 
 void
 Document::appendHtml(const QString& html) const
@@ -289,12 +297,6 @@ Document::permitLine(rust::Str line) const
   OnPluginLineReceived onLineReceived(strView(line));
   api.sendCallback(onLineReceived);
   return !onLineReceived.discarded();
-}
-
-void
-Document::resetServerStatus()
-{
-  serverStatuses.clear();
 }
 
 void

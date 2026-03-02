@@ -1,9 +1,9 @@
 #include "timer.h"
+#include "../bridge/timekeeper.h"
 #include "../client.h"
 #include "../ui/worlddetails/timeredit.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "smushclient_qt/src/ffi/sender_map.cxxqt.h"
-#include "smushclient_qt/src/ffi/timekeeper.cxxqt.h"
 
 using std::array;
 

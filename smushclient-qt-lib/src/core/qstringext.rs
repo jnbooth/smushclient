@@ -11,6 +11,9 @@ mod ffi {
         type QString = cxx_qt_lib::QString;
         include!("cxx-qt-lib/qstringlist.h");
         type QStringList = cxx_qt_lib::QStringList;
+
+        include!("smushclient-qt-lib/qchar.h");
+        type QChar = crate::QChar;
     }
 
     #[namespace = "Qt"]
@@ -18,11 +21,6 @@ mod ffi {
         include!("cxx-qt-lib/qt.h");
         type CaseSensitivity = cxx_qt_lib::CaseSensitivity;
         type SplitBehaviorFlags = cxx_qt_lib::SplitBehaviorFlags;
-    }
-
-    extern "C++" {
-        include!("smushclient-qt-lib/qchar.h");
-        type QChar = crate::QChar;
     }
 
     #[namespace = "rust::smushclientqtlib1::qstring"]

@@ -1,15 +1,12 @@
-#ifndef FORWARD_H
-#define FORWARD_H
-
+#pragma once
 #include <QtCore/QFlags>
 
+class AbstractDocument;
+class AbstractTimekeeper;
 class Alias;
 enum class AliasOutcome;
 using AliasOutcomes = QFlags<AliasOutcome>;
-class Document;
-class Timekeeper;
+class SmushClientBase;
 class Timer;
 class Trigger;
 class World;
-
-#endif

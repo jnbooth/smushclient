@@ -16,16 +16,13 @@ pub mod ffi {
     }
 
     extern "C++" {
-        include!("smushclient_qt/src/ffi/client.cxxqt.h");
-
+        include!("smushclient_qt/forward.h");
         #[cxx_name = "SmushClientBase"]
         type SmushClient = crate::ffi::SmushClient;
-    }
 
-    extern "C++" {
         include!("smushclient_qt/src/ffi/send_request.cxx.h");
-        type SendTarget = super::super::send_request::ffi::SendTarget;
-        type SendRequest = super::super::send_request::ffi::SendRequest;
+        type SendTarget = crate::ffi::SendTarget;
+        type SendRequest = crate::ffi::SendRequest;
     }
 
     #[repr(i32)]

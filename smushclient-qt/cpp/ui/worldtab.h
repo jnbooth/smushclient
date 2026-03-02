@@ -1,4 +1,5 @@
 #pragma once
+#include "../bridge/document.h"
 #include "../client.h"
 #include "../hotkeys.h"
 #include "../scripting/callback/trigger.h"

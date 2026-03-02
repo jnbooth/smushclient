@@ -85,7 +85,6 @@ qt_add_executable(${APP_NAME}
 
     cpp/bridge/document.h cpp/bridge/document.cpp
     cpp/bridge/timekeeper.h cpp/bridge/timekeeper.cpp
-    cpp/bridge/views.h
 
     cpp/model/alias.h cpp/model/alias.cpp
     cpp/model/colormap.h cpp/model/colormap.cpp

@@ -2,7 +2,7 @@ use cxx_qt_build::CxxQtBuilder;
 
 fn main() {
     CxxQtBuilder::new()
-        .crate_include_root(Some("../cpp/bridge".to_owned()))
+        .crate_include_root(Some("include".to_owned()))
         .files([
             "src/ffi/api_code.rs",
             "src/ffi/audio.rs",

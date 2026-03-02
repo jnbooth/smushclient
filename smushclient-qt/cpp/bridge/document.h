@@ -1,77 +1,78 @@
-#ifndef DOCUMENT_H
-#define DOCUMENT_H
+#pragma once
 
 #include "rust/cxx.h"
+#include "smushclient_qt/abstractdocument.h"
 #include <QtCore/QPointer>
 #include <QtGui/QTextCursor>
 
-struct SendRequest;
-struct SendScriptRequest;
 class MudBrowser;
 class MudCursor;
 class MudScrollBar;
 class ScriptApi;
 class WorldTab;
-enum class AliasOutcome;
-enum class DynamicColor : uint8_t;
 enum class SendTarget;
-enum class TelnetSource : uint8_t;
-enum class TelnetVerb : uint8_t;
 enum class TextStyle : uint16_t;
 struct Link;
 struct OutputSpan;
 
-Q_DECLARE_FLAGS(AliasOutcomes, AliasOutcome);
-Q_DECLARE_OPERATORS_FOR_FLAGS(AliasOutcomes);
-
-class Document : public QObject
+class Document : public AbstractDocument
 {
   Q_OBJECT
 
 public:
   Document(MudBrowser& output, ScriptApi& api, QObject* parent = nullptr);
 
-  void appendHtml(const QString& html) const;
-  void appendExpiringLink(const QString& text,
-                          const QTextCharFormat& format,
-                          rust::Str expires);
-  void appendLine();
-  void appendText(const QString& text, const QTextCharFormat& format) const;
-  void applyStyles(int start, int end, const QTextCharFormat& format) const;
-  void beep() const;
-  void begin() const;
-  void clear() const;
-  void createMxpStat(const QString& entity,
-                     const QString& caption,
-                     const QString& max) const;
-  void echo(const QString& text) const;
-  void end(bool hadOutput);
-  void eraseCharacters(QTextCursor::MoveOperation direction, int n) const;
-  void eraseCurrentLine() const;
-  void eraseLastLine() const;
-  void expireLinks(rust::Str expires);
-  void handleMxpChange(bool enabled) const;
-  void handleMxpEntity(rust::Str data) const;
-  void handleMxpVariable(rust::Str name, rust::Str value) const;
-  void handleServerStatus(const QByteArray& variable, const QByteArray& value);
-  void handleTelnetGoAhead() const;
-  void handleTelnetNaws() const;
-  void handleTelnetNegotiation(TelnetSource source,
-                               TelnetVerb verb,
-                               uint8_t code);
-  void handleTelnetSubnegotiation(uint8_t code, const QByteArray& data) const;
-  void moveCursor(QTextCursor::MoveOperation op, int count) const;
-  bool permitLine(rust::Str line) const;
   void resetServerStatus();
-  void send(const SendRequest& request) const;
-  void send(const SendScriptRequest& request) const;
-  void setDynamicColor(DynamicColor dynamic, const QColor& color) const;
-  void setSuppressEcho(bool suppress) const;
   const QHash<QString, QString>& serverStatus() const noexcept
   {
     return serverStatuses;
   }
-  void updateMxpStat(const QString& entity, const QString& value) const;
+
+public:
+  void appendHtml(const QString& html) const override;
+  void appendExpiringLink(const QString& text,
+                          const QTextCharFormat& format,
+                          rust::Str expires) override;
+  void appendLine() override;
+  void appendText(const QString& text,
+                  const QTextCharFormat& format) const override;
+  void applyStyles(int start,
+                   int end,
+                   const QTextCharFormat& format) const override;
+  void beep() const override;
+  void begin() const override;
+  void clear() const override;
+  void createMxpStat(const QString& entity,
+                     const QString& caption,
+                     const QString& max) const override;
+  void echo(const QString& text) const override;
+  void end(bool hadOutput) override;
+  void eraseCharacters(QTextCursor::MoveOperation direction,
+                       int n) const override;
+  void eraseCurrentLine() const override;
+  void eraseLastLine() const override;
+  void expireLinks(rust::Str expires) override;
+  void handleMxpChange(bool enabled) const override;
+  void handleMxpEntity(rust::Str data) const override;
+  void handleMxpVariable(rust::Str name, rust::Str value) const override;
+  void handleServerStatus(const QByteArray& variable,
+                          const QByteArray& value) override;
+  void handleTelnetGoAhead() const override;
+  void handleTelnetNaws() const override;
+  void handleTelnetNegotiation(TelnetSource source,
+                               TelnetVerb verb,
+                               uint8_t code) override;
+  void handleTelnetSubnegotiation(uint8_t code,
+                                  const QByteArray& data) const override;
+  void moveCursor(QTextCursor::MoveOperation op, int count) const override;
+  bool permitLine(rust::Str line) const override;
+  void send(const SendRequest& request) const override;
+  void send(const SendScriptRequest& request) const override;
+  void setDynamicColor(DynamicColor dynamic,
+                       const QColor& color) const override;
+  void setSuppressEcho(bool suppress) const override;
+  void updateMxpStat(const QString& entity,
+                     const QString& value) const override;
 
 signals:
   void newActivity();
@@ -89,5 +90,3 @@ private:
   bool serverExpiresLinks = false;
   QHash<QString, QString> serverStatuses;
 };
-
-#endif // DOCUMENT_H
