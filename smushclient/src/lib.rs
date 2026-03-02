@@ -10,8 +10,6 @@ pub use client::SmushClient;
 mod collections;
 pub use collections::SortOnDrop;
 
-pub mod generate;
-
 mod get_info;
 pub use get_info::InfoVisitor;
 

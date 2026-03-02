@@ -1,6 +1,8 @@
 #pragma once
 #include "../enumbounds.h"
 #include "rust/cxx.h"
+#include <QtCore/QCryptographicHash>
+#include <QtCore/QUuid>
 #include <QtGui/QPen>
 #include <QtNetwork/QHostAddress>
 #include <type_traits>
@@ -215,6 +217,8 @@ push(lua_State* L, const char* value)
 
 void
 push(lua_State* L, const QRect& rect);
+void
+push(lua_State* L, const QUuid& id);
 
 #define IMPL_PUSH(T, f, op)                                                    \
   inline void push(lua_State* L, T value)                                      \

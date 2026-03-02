@@ -826,6 +826,12 @@ qlua::push(lua_State* L, const QRect& rect)
   pushEntry(L, "width", rect.width());
 }
 
+void
+qlua::push(lua_State* L, const QUuid& id)
+{
+  push(L, id.toByteArray(QUuid::StringFormat::WithoutBraces));
+}
+
 template<>
 void
 qlua::pushList(lua_State* L, const QList<QVariant>& list)

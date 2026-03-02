@@ -467,7 +467,7 @@ L_GetUniqueID(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 0);
-  push(L, ScriptApi::GetUniqueID());
+  push(L, ScriptApi::CreateGUID());
   return 1;
 }
 

@@ -56,7 +56,7 @@ public:
   static ApiCode AddFont(const QString& fileName);
   static QColor AdjustColour(const QColor& color, ColorAdjust method);
   static bool ChangeDir(const QString& dir);
-  static std::array<char, 36> CreateGUID();
+  static QUuid CreateGUID() { return QUuid::createUuid(); }
   static rust::String FixupHTML(std::string_view text) noexcept;
   static QVariant FontInfo(const QFont& font, int64_t infoType);
   static QStringList GetAlphaOptionList() noexcept;
@@ -66,10 +66,10 @@ public:
   static QString GetHostName(const QString& address);
   static QStringList GetOptionList() noexcept;
   static QColor GetSysColor(SysColor sysColor);
-  static std::array<char, 24> GetUniqueID();
+  static QByteArray GetUniqueID();
   static int64_t GetUniqueNumber() noexcept;
   static std::string_view GetXMLEntity(std::string_view name) noexcept;
-  static std::array<char, 40> Hash(QByteArrayView bytes);
+  static QByteArray Hash(QByteArrayView bytes);
   static QString MakeRegularExpression(std::string_view pattern) noexcept;
   static void SetClipboard(const QString& text);
 

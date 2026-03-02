@@ -2,6 +2,7 @@
 #include "../../ui/scripting/choose.h"
 #include "../../ui/scripting/listbox.h"
 #include "../qlua.h"
+#include <QtCore/QCryptographicHash>
 #include <QtGui/QFontDatabase>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QFileDialog>
@@ -15,6 +16,9 @@ extern "C"
 using std::string_view;
 
 using qlua::expectMaxArgs;
+using qlua::push;
+using qlua::pushEntry;
+using qlua::pushQVariant;
 
 namespace {
 const char* const utilsRegKey = "smushclient.utils";
@@ -70,6 +74,12 @@ private:
 };
 
 namespace {
+void
+doHash(lua_State* L, QCryptographicHash::Algorithm algorithm)
+{
+  push(L, QCryptographicHash::hash(qlua::getBytes(L, 1), algorithm).toHex());
+}
+
 int
 execScriptDialog(lua_State* L,
                  int idx,
@@ -90,7 +100,7 @@ execScriptDialog(lua_State* L,
   dialog.sortItems();
 
   if (dialog.exec() == QDialog::Accepted) {
-    qlua::pushQVariant(L, dialog.value());
+    pushQVariant(L, dialog.value());
   } else {
     lua_pushnil(L);
   }
@@ -110,12 +120,12 @@ splitLua(lua_State* L,
   size_t next = 0;
   lua_Integer i = 1;
   for (; i <= max && (next = input.find(sep, last)) != string_view::npos; ++i) {
-    qlua::push(L, input.substr(last, next - last));
+    push(L, input.substr(last, next - last));
     lua_rawseti(L, -2, i);
     last = next + sepSize;
   }
   if (string_view rest = input.substr(last); !rest.empty()) {
-    qlua::push(L, rest);
+    push(L, rest);
     lua_rawseti(L, -2, i);
   }
 }
@@ -148,7 +158,7 @@ L_directorypicker(lua_State* L)
   if (path.isEmpty()) {
     lua_pushnil(L);
   } else {
-    qlua::push(L, path);
+    push(L, path);
   }
   return 1;
 }
@@ -167,7 +177,7 @@ L_filepicker(lua_State* L)
   if (path.isEmpty()) {
     lua_pushnil(L);
   } else {
-    qlua::push(L, path);
+    push(L, path);
   }
   return 1;
 }
@@ -182,7 +192,7 @@ L_getfontfamilies(lua_State* L)
     if (family.startsWith(u'.')) {
       continue;
     }
-    qlua::pushEntry(L, family, true);
+    pushEntry(L, family, true);
   }
   return 1;
 }
@@ -200,9 +210,17 @@ L_getsystemfont(lua_State* L)
   }
   const QFont systemFont =
     QFontDatabase::systemFont(static_cast<QFontDatabase::SystemFont>(font));
-  qlua::push(L, systemFont.family());
+  push(L, systemFont.family());
   lua_pushinteger(L, systemFont.pointSize());
   return 2;
+}
+
+int
+L_hash(lua_State* L)
+{
+  expectMaxArgs(L, 1);
+  doHash(L, QCryptographicHash::Algorithm::Sha1);
+  return 1;
 }
 
 int
@@ -225,7 +243,7 @@ L_inputbox(lua_State* L)
   }
 
   if (dialog.exec() == QDialog::Accepted) {
-    qlua::push(L, dialog.textValue());
+    push(L, dialog.textValue());
   } else {
     lua_pushnil(L);
   }
@@ -246,6 +264,14 @@ L_listbox(lua_State* L)
   SingleSelectionPredicate pred(defaultKey);
   ListBox dialog(title, message);
   return execScriptDialog(L, 3, dialog, pred);
+}
+
+int
+L_md5(lua_State* L)
+{
+  expectMaxArgs(L, 1);
+  doHash(L, QCryptographicHash::Algorithm::Md5);
+  return 1;
 }
 
 int
@@ -281,6 +307,14 @@ L_multilistbox(lua_State* L)
 }
 
 int
+L_sha256(lua_State* L)
+{
+  expectMaxArgs(L, 1);
+  doHash(L, QCryptographicHash::Algorithm::Sha256);
+  return 1;
+}
+
+int
 L_split(lua_State* L)
 {
   expectMaxArgs(L, 3);
@@ -288,11 +322,11 @@ L_split(lua_State* L)
   const string_view sep = qlua::getString(L, 2);
   const lua_Integer count = qlua::getInteger(L, 3, 0);
   if (sep.empty()) {
-    qlua::push(L, "Separator must not be an empty string");
+    push(L, "Separator must not be an empty string");
     lua_error(L);
   }
   if (count < 0) {
-    qlua::push(L, "Count must be positive or zero");
+    push(L, "Count must be positive or zero");
     lua_error(L);
   }
 
@@ -315,10 +349,13 @@ static const struct luaL_Reg utilslib[] = {
   { "directorypicker", L_directorypicker },
   { "getfontfamilies", L_getfontfamilies },
   { "getsystemfont", L_getsystemfont },
+  { "hash", L_hash },
   { "inputbox", L_inputbox },
   { "filepicker", L_filepicker },
   { "listbox", L_listbox },
+  { "md5", L_md5 },
   { "multilistbox", L_multilistbox },
+  { "sha256", L_sha256 },
   { "split", L_split },
   { nullptr, nullptr }
 };
