@@ -148,6 +148,31 @@ L_choose(lua_State* L)
 }
 
 int
+L_compress(lua_State* L)
+{
+  expectMaxArgs(L, 2);
+  const QByteArrayView bytes = qlua::getBytes(L, 1);
+  const lua_Integer level = qlua::getInteger(L, 2, 6);
+  luaL_argexpected(L, level >= 0 && level <= 9, 2, "integer between 0 and 9");
+  push(L,
+       qCompress(reinterpret_cast<const uchar*>(bytes.data()),
+                 static_cast<int>(bytes.size()),
+                 static_cast<int>(level)));
+  return 1;
+}
+
+int
+L_decompress(lua_State* L)
+{
+  expectMaxArgs(L, 1);
+  const QByteArrayView bytes = qlua::getBytes(L, 1);
+  push(L,
+       qUncompress(reinterpret_cast<const uchar*>(bytes.data()),
+                   static_cast<int>(bytes.size())));
+  return 1;
+}
+
+int
 L_directorypicker(lua_State* L)
 {
   expectMaxArgs(L, 2);
@@ -179,6 +204,14 @@ L_filepicker(lua_State* L)
   } else {
     push(L, path);
   }
+  return 1;
+}
+
+int
+L_fromhex(lua_State* L)
+{
+  expectMaxArgs(L, 1);
+  push(L, QByteArray::fromHex(QByteArray(qlua::getBytes(L, 1))));
   return 1;
 }
 
@@ -342,11 +375,23 @@ L_split(lua_State* L)
 
   return 1;
 }
+
+int
+L_tohex(lua_State* L)
+{
+  expectMaxArgs(L, 1);
+  push(L, QByteArray(qlua::getBytes(L, 1)).toHex());
+  return 1;
+}
+
 } // namespace
 
 static const struct luaL_Reg utilslib[] = {
   { "choose", L_choose },
+  { "compress", L_compress },
+  { "decompress", L_decompress },
   { "directorypicker", L_directorypicker },
+  { "fromhex", L_fromhex },
   { "getfontfamilies", L_getfontfamilies },
   { "getsystemfont", L_getsystemfont },
   { "hash", L_hash },
@@ -357,6 +402,7 @@ static const struct luaL_Reg utilslib[] = {
   { "multilistbox", L_multilistbox },
   { "sha256", L_sha256 },
   { "split", L_split },
+  { "tohex", L_tohex },
   { nullptr, nullptr }
 };
 
