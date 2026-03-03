@@ -312,6 +312,7 @@ public:
   void NoteStyle(const QTextCharFormat& format) const;
   QString PasteCommand(const QString& command) const;
   QColor PickColour(const QColor& hint) const;
+  void Pause(bool pause) const;
   ApiCode PlaySound(size_t channel,
                     std::string_view path,
                     bool loop = false,

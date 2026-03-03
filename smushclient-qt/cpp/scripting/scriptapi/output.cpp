@@ -1,6 +1,7 @@
 #include "../../casting.h"
 #include "../../layout.h"
 #include "../../spans.h"
+#include "../../ui/components/mudscrollbar.h"
 #include "../../ui/mudstatusbar/mudstatusbar.h"
 #include "../../ui/ui_worldtab.h"
 #include "../../ui/worldtab.h"
@@ -207,6 +208,12 @@ void
 ScriptApi::NoteStyle(const QTextCharFormat& format) const
 {
   cursor->mergeCharFormat(format);
+}
+
+void
+ScriptApi::Pause(bool pause) const
+{
+  scrollBar.setPaused(pause);
 }
 
 void

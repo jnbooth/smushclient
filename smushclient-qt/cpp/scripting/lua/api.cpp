@@ -1435,6 +1435,15 @@ L_NoteStyle(lua_State* L)
 }
 
 int
+L_Pause(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).Pause(qlua::getBool(L, 1, true));
+  return 0;
+}
+
+int
 L_Reset(lua_State* L)
 {
   BENCHMARK
@@ -3290,6 +3299,7 @@ static const struct luaL_Reg worldlib[] =
     { "Note", L_Note },
     { "NoteHr", L_NoteHr },
     { "NoteStyle", L_NoteStyle },
+    { "Pause", L_Pause },
     { "Reset", L_Reset },
     { "ResetStatusTime", L_ResetStatusTime },
     { "SetBackgroundImage", L_SetBackgroundImage },
