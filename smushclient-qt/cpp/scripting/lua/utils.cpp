@@ -24,55 +24,6 @@ namespace {
 const char* const utilsRegKey = "smushclient.utils";
 } // namespace
 
-class SelectionPredicate
-{
-public:
-  SelectionPredicate() = default;
-  virtual ~SelectionPredicate() = default;
-
-  SelectionPredicate(const SelectionPredicate&) = delete;
-  SelectionPredicate& operator=(const SelectionPredicate&) = delete;
-  SelectionPredicate& operator=(SelectionPredicate&&) = delete;
-
-  SelectionPredicate(SelectionPredicate&& other) = delete;
-
-  virtual bool isSelected(const QVariant& value) const noexcept = 0;
-};
-
-class SingleSelectionPredicate : public SelectionPredicate
-{
-public:
-  explicit constexpr SingleSelectionPredicate(
-    const QVariant& selection) noexcept
-    : selection(selection)
-  {
-  }
-  bool isSelected(const QVariant& value) const noexcept override
-  {
-    return value == selection;
-  }
-
-private:
-  const QVariant& selection;
-};
-
-class MultiSelectionPredicate : public SelectionPredicate
-{
-public:
-  explicit constexpr MultiSelectionPredicate(
-    const QList<QVariant>& selection) noexcept
-    : selection(selection)
-  {
-  }
-  bool isSelected(const QVariant& value) const noexcept override
-  {
-    return selection.contains(value);
-  }
-
-private:
-  const QList<QVariant>& selection;
-};
-
 namespace {
 void
 doHash(lua_State* L, QCryptographicHash::Algorithm algorithm)
@@ -80,11 +31,24 @@ doHash(lua_State* L, QCryptographicHash::Algorithm algorithm)
   push(L, QCryptographicHash::hash(qlua::getBytes(L, 1), algorithm).toHex());
 }
 
+inline bool
+isOptionSelected(const QVariant& value, const QVariant& selection)
+{
+  return value == selection;
+}
+
+inline bool
+isOptionSelected(const QVariant& value, const QList<QVariant>& selection)
+{
+  return selection.contains(value);
+}
+
+template<typename T>
 int
 execScriptDialog(lua_State* L,
                  int idx,
                  AbstractScriptDialog& dialog,
-                 const SelectionPredicate& pred)
+                 const T& selection)
 {
   lua_pushnil(L); // first key
   size_t size;
@@ -93,7 +57,7 @@ execScriptDialog(lua_State* L,
     const QVariant key = qlua::getQVariant(L, -2);
     const char* data = lua_tolstring(L, -1, &size);
     const QString value = QString::fromUtf8(data, static_cast<qsizetype>(size));
-    dialog.addItem(value, key, pred.isSelected(key));
+    dialog.addItem(value, key, isOptionSelected(key, selection));
     lua_pop(L, 1);
   }
 
@@ -142,9 +106,8 @@ L_choose(lua_State* L)
   luaL_argexpected(L, lua_type(L, 3) == LUA_TTABLE, 3, "table");
   const QVariant defaultKey = qlua::getQVariant(L, 4);
 
-  SingleSelectionPredicate pred(defaultKey);
   Choose dialog(title, message);
-  return execScriptDialog(L, 3, dialog, pred);
+  return execScriptDialog(L, 3, dialog, defaultKey);
 }
 
 int
@@ -294,9 +257,8 @@ L_listbox(lua_State* L)
   luaL_argexpected(L, lua_type(L, 3) == LUA_TTABLE, 3, "table");
   const QVariant defaultKey = qlua::getQVariant(L, 4);
 
-  SingleSelectionPredicate pred(defaultKey);
   ListBox dialog(title, message);
-  return execScriptDialog(L, 3, dialog, pred);
+  return execScriptDialog(L, 3, dialog, defaultKey);
 }
 
 int
@@ -333,10 +295,9 @@ L_multilistbox(lua_State* L)
     }
   }
 
-  MultiSelectionPredicate pred(defaults);
   ListBox dialog(title, message);
   dialog.setMode(QListWidget::SelectionMode::MultiSelection);
-  return execScriptDialog(L, 3, dialog, pred);
+  return execScriptDialog(L, 3, dialog, defaults);
 }
 
 int
