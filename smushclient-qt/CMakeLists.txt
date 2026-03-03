@@ -117,6 +117,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/scriptapi/option.cpp
     cpp/scripting/scriptapi/output.cpp
     cpp/scripting/scriptapi/plugin.cpp
+    cpp/scripting/scriptapi/selection.cpp
     cpp/scripting/scriptapi/sender.cpp
     cpp/scripting/scriptapi/sound.cpp
     cpp/scripting/scriptapi/variable.cpp

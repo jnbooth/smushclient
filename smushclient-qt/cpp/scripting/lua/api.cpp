@@ -1364,15 +1364,6 @@ L_FixupHTML(lua_State* L)
 }
 
 int
-L_GetClipboard(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 0);
-  push(L, ScriptApi::GetClipboard());
-  return 1;
-}
-
-int
 L_GetEchoInput(lua_State* L)
 {
   BENCHMARK
@@ -1396,51 +1387,6 @@ L_GetRecentLines(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 1);
   pushList(L, getApi(L).GetRecentLines(qlua::getInt(L, 1)));
-  return 1;
-}
-
-int
-L_GetSelection(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 0);
-  push(L, getApi(L).GetSelection());
-  return 1;
-}
-
-int
-L_GetSelectionEndColumn(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 0);
-  push(L, getApi(L).GetSelectionEndColumn() + 1);
-  return 1;
-}
-
-int
-L_GetSelectionEndLine(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 0);
-  push(L, getApi(L).GetSelectionEndLine() + 1);
-  return 1;
-}
-
-int
-L_GetSelectionStartColumn(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 0);
-  push(L, getApi(L).GetSelectionEndColumn() + 1);
-  return 1;
-}
-
-int
-L_GetSelectionStartLine(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 0);
-  push(L, getApi(L).GetSelectionEndLine() + 1);
   return 1;
 }
 
@@ -1484,14 +1430,6 @@ L_SetBackgroundImage(lua_State* L)
 }
 
 int
-L_SetClipboard(lua_State* L)
-{
-  BENCHMARK
-  ScriptApi::SetClipboard(QString::fromUtf8(qlua::concatArgs(L)));
-  return 0;
-}
-
-int
 L_SetCursor(lua_State* L)
 {
   BENCHMARK
@@ -1528,18 +1466,6 @@ L_SetMainTitle(lua_State* L)
 {
   BENCHMARK
   getApi(L).SetMainTitle(QString::fromUtf8(qlua::concatArgs(L)));
-  return 0;
-}
-
-int
-L_SetSelection(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 4);
-  getApi(L).SetSelection(qlua::getInt(L, 1) - 1,
-                         qlua::getInt(L, 2) - 1,
-                         qlua::getInt(L, 3) - 1,
-                         qlua::getInt(L, 4) - 1);
   return 0;
 }
 
@@ -1718,6 +1644,82 @@ L_PluginSupports(lua_State* L)
   expectMaxArgs(L, 2);
   return returnCode(
     L, getApi(L).PluginSupports(qlua::getString(L, 1), qlua::getString(L, 2)));
+}
+
+// selection
+
+int
+L_GetClipboard(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, ScriptApi::GetClipboard());
+  return 1;
+}
+
+int
+L_GetSelection(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetSelection());
+  return 1;
+}
+
+int
+L_GetSelectionEndColumn(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetSelectionEndColumn() + 1);
+  return 1;
+}
+
+int
+L_GetSelectionEndLine(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetSelectionEndLine() + 1);
+  return 1;
+}
+
+int
+L_GetSelectionStartColumn(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetSelectionEndColumn() + 1);
+  return 1;
+}
+
+int
+L_GetSelectionStartLine(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetSelectionEndLine() + 1);
+  return 1;
+}
+
+int
+L_SetClipboard(lua_State* L)
+{
+  BENCHMARK
+  ScriptApi::SetClipboard(QString::fromUtf8(qlua::concatArgs(L)));
+  return 0;
+}
+
+int
+L_SetSelection(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 4);
+  getApi(L).SetSelection(qlua::getInt(L, 1) - 1,
+                         qlua::getInt(L, 2) - 1,
+                         qlua::getInt(L, 3) - 1,
+                         qlua::getInt(L, 4) - 1);
+  return 0;
 }
 
 // sender
@@ -3293,26 +3295,18 @@ static const struct luaL_Reg worldlib[] =
     { "DeleteLines", L_DeleteLines },
     { "DeleteOutput", L_DeleteOutput },
     { "FixupHTML", L_FixupHTML },
-    { "GetClipboard", L_GetClipboard },
     { "GetEchoInput", L_GetEchoInput },
     { "GetLinesInBufferCount", L_GetLinesInBufferCount },
     { "GetRecentLines", L_GetRecentLines },
-    { "GetSelection", L_GetSelection },
-    { "GetSelectionEndColumn", L_GetSelectionEndColumn },
-    { "GetSelectionEndLine", L_GetSelectionEndLine },
-    { "GetSelectionStartColumn", L_GetSelectionStartColumn },
-    { "GetSelectionStartLine", L_GetSelectionStartLine },
     { "GetSysColor", L_GetSysColor },
     { "Pause", L_Pause },
     { "Reset", L_Reset },
     { "ResetStatusTime", L_ResetStatusTime },
     { "SetBackgroundImage", L_SetBackgroundImage },
-    { "SetClipboard", L_SetClipboard },
     { "SetCursor", L_SetCursor },
     { "SetEchoInput", L_SetEchoInput },
     { "SetForegroundImage", L_SetForegroundImage },
     { "SetMainTitle", L_SetMainTitle },
-    { "SetSelection", L_SetSelection },
     { "SetStatus", L_SetStatus },
     { "SetTitle", L_SetTitle },
     { "Simulate", L_Simulate },
@@ -3326,6 +3320,15 @@ static const struct luaL_Reg worldlib[] =
     { "GetPluginName", L_GetPluginName },
     { "IsPluginInstalled", L_IsPluginInstalled },
     { "PluginSupports", L_PluginSupports },
+    // selection
+    { "GetClipboard", L_GetClipboard },
+    { "GetSelection", L_GetSelection },
+    { "GetSelectionEndColumn", L_GetSelectionEndColumn },
+    { "GetSelectionEndLine", L_GetSelectionEndLine },
+    { "GetSelectionStartColumn", L_GetSelectionStartColumn },
+    { "GetSelectionStartLine", L_GetSelectionStartLine },
+    { "SetClipboard", L_SetClipboard },
+    { "SetSelection", L_SetSelection },
     // sender
     { "AddAlias", L_AddAlias },
     { "AddTimer", L_AddTimer },
