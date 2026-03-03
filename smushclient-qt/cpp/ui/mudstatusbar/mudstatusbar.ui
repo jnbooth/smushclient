@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>578</width>
-    <height>18</height>
+    <height>20</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -69,23 +69,61 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="connection">
-     <property name="enabled">
-      <bool>true</bool>
+    <layout class="QHBoxLayout" name="connectionLayout">
+     <property name="spacing">
+      <number>5</number>
      </property>
-     <property name="text">
-      <string>Disconnected</string>
-     </property>
-     <property name="checkable">
-      <bool>false</bool>
-     </property>
-     <property name="checked">
-      <bool>false</bool>
-     </property>
-     <property name="flat">
-      <bool>true</bool>
-     </property>
-    </widget>
+     <item>
+      <widget class="QPushButton" name="connection">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Disconnected</string>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="ElapsedTimerWidget" name="connection_time" native="true">
+       <property name="palette">
+        <palette>
+         <active>
+          <colorrole role="WindowText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>128</red>
+             <green>128</green>
+             <blue>128</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </active>
+         <inactive>
+          <colorrole role="WindowText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>128</red>
+             <green>128</green>
+             <blue>128</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </inactive>
+         <disabled/>
+        </palette>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
   <action name="action_connection_status">
@@ -110,7 +148,26 @@
     <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
+  <action name="action_connection_time">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Connection Time</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ElapsedTimerWidget</class>
+   <extends>QWidget</extends>
+   <header>timerwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../../resources/resources.qrc"/>
  </resources>

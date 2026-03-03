@@ -148,6 +148,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/components/mudbrowser.h cpp/ui/components/mudbrowser.cpp
     cpp/ui/components/mudinput.h cpp/ui/components/mudinput.cpp
     cpp/ui/components/mudscrollbar.h cpp/ui/components/mudscrollbar.cpp
+    cpp/ui/components/timerwidget.h cpp/ui/components/timerwidget.cpp cpp/ui/components/timerwidget.ui
 
     cpp/ui/dialog/aboutdialog.h cpp/ui/dialog/aboutdialog.cpp
     cpp/ui/dialog/finddialog.h cpp/ui/dialog/finddialog.cpp cpp/ui/dialog/finddialog.ui

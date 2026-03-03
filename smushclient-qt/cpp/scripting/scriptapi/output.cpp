@@ -208,6 +208,11 @@ ScriptApi::NoteStyle(const QTextCharFormat& format) const
 {
   cursor->mergeCharFormat(format);
 }
+void
+ScriptApi::ResetStatusTime() const
+{
+  statusBar()->resetStatusTime();
+}
 
 ApiCode
 ScriptApi::SetCursor(Qt::CursorShape cursorShape) const

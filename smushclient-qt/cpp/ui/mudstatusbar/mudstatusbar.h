@@ -1,4 +1,5 @@
 #pragma once
+#include <QtCore/QElapsedTimer>
 #include <QtWidgets/QMenu>
 
 namespace Ui {
@@ -30,6 +31,7 @@ public:
 
 public slots:
   void clearStats();
+  void resetStatusTime();
   void setConnected(ConnectionStatus status);
   void setMessage(const QString& message);
   void setUsers(int users);
@@ -47,8 +49,12 @@ private:
   static const QString& settingsKey();
   QList<QAction*> stateActions() const;
 
+private slots:
+  void on_action_connection_time_toggled(bool checked);
+
 private:
   Ui::MudStatusBar* ui;
+  bool connected = false;
   std::array<QIcon, 3> connectionIcons;
   QMenu* menu;
   QHash<QString, StatusBarStat*> statsByEntity;

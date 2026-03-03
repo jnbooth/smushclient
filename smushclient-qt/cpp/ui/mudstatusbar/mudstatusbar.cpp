@@ -22,8 +22,9 @@ MudStatusBar::MudStatusBar(QWidget* parent)
   ui->setupUi(this);
 
   menu->close();
-  menu->addAction(ui->action_connection_status);
-  menu->addAction(ui->action_users_online);
+  for (QAction* action : stateActions()) {
+    menu->addAction(action);
+  }
   ui->connection->setAttribute(Qt::WA_TransparentForMouseEvents);
   ui->users->setAttribute(Qt::WA_TransparentForMouseEvents);
   ui->connection->setVisible(false);
@@ -98,20 +99,41 @@ MudStatusBar::clearStats()
 }
 
 void
+MudStatusBar::resetStatusTime()
+{
+  ui->connection_time->start();
+  if (!ui->action_connection_time->isChecked()) {
+    ui->connection_time->pause();
+  }
+}
+
+void
 MudStatusBar::setConnected(MudStatusBar::ConnectionStatus status)
 {
-  const bool connected = status != ConnectionStatus::Disconnected;
+  connected = status != ConnectionStatus::Disconnected;
   ui->connection->setText(status == ConnectionStatus::Disconnected
                             ? tr("Disconnected")
                             : tr("Connected"));
   ui->connection->setIcon(connectionIcons.at(static_cast<size_t>(status)));
 
-  if (connected) {
+  ElapsedTimerWidget* connection_time = ui->connection_time;
+
+  if (!connected) {
+    connection_time->hide();
+    connection_time->stop();
     return;
   }
 
-  ui->users->hide();
-  clearStats();
+  if (!connection_time->isRunning()) {
+    connection_time->start();
+  }
+
+  if (ui->action_connection_time->isChecked()) {
+    connection_time->show();
+  } else {
+    connection_time->pause();
+    connection_time->hide();
+  }
 }
 
 void
@@ -175,8 +197,12 @@ MudStatusBar::restore()
   bool check;
   QDataStream stream(saveData);
   for (QAction* action : stateActions()) {
-    stream >> check;
-    action->setChecked(check);
+    if (stream.atEnd()) {
+      action->setChecked(true);
+    } else {
+      stream >> check;
+      action->setChecked(check);
+    }
   }
 
   return stream.status() == QDataStream::Status::Ok;
@@ -203,5 +229,25 @@ MudStatusBar::settingsKey()
 QList<QAction*>
 MudStatusBar::stateActions() const
 {
-  return { ui->action_connection_status, ui->action_users_online };
+  return { ui->action_connection_status,
+           ui->action_users_online,
+           ui->action_connection_time };
+}
+
+// private slots
+
+void
+MudStatusBar::on_action_connection_time_toggled(bool checked)
+{
+  if (!connected) {
+    return;
+  }
+  ElapsedTimerWidget* connection_time = ui->connection_time;
+  if (checked) {
+    connection_time->resume();
+    connection_time->show();
+  } else {
+    connection_time->pause();
+    connection_time->hide();
+  }
 }
