@@ -996,6 +996,96 @@ L_IsConnected(lua_State* L)
   return 1;
 }
 
+// note
+
+int
+L_AnsiNote(lua_State* L)
+{
+  BENCHMARK
+  const QByteArray note = qlua::concatArgs(L);
+  getApi(L).AnsiNote(string_view(note.data(), note.size()));
+  return 0;
+}
+
+int
+L_ColourNote(lua_State* L)
+{
+  BENCHMARK
+  ScriptApi& api = getApi(L);
+  insertTextTriples(L, api);
+  api.finishNote();
+  return 0;
+}
+
+int
+L_ColourTell(lua_State* L)
+{
+  BENCHMARK
+  insertTextTriples(L, getApi(L));
+  return 0;
+}
+
+int
+L_GetNoteStyle(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, ScriptFont::styleFlags(getApi(L).GetNoteStyle()));
+  return 1;
+}
+
+int
+L_Hyperlink(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 7);
+  getApi(L).Hyperlink(qlua::getQString(L, 1),
+                      qlua::getQString(L, 2),
+                      qlua::getQString(L, 3),
+                      qlua::getQColor(L, 4),
+                      qlua::getQColor(L, 5),
+                      qlua::getBool(L, 6, false),
+                      qlua::getBool(L, 7, false));
+  return 0;
+}
+
+int
+L_Note(lua_State* L)
+{
+  BENCHMARK
+  ScriptApi& api = getApi(L);
+  api.Tell(QString::fromUtf8(qlua::concatArgs(L)));
+  api.finishNote();
+  return 0;
+}
+
+int
+L_NoteHr(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  getApi(L).NoteHr();
+  return 0;
+}
+
+int
+L_NoteStyle(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).NoteStyle(
+    ScriptFont::format(qlua::getQFlags<ScriptFont::StyleFlag>(L, 1)));
+  return 0;
+}
+
+int
+L_Tell(lua_State* L)
+{
+  BENCHMARK
+  getApi(L).Tell(QString::fromUtf8(qlua::concatArgs(L)));
+  return 0;
+}
+
 // notepad
 
 int
@@ -1242,33 +1332,6 @@ L_AddFont(lua_State* L)
 }
 
 int
-L_AnsiNote(lua_State* L)
-{
-  BENCHMARK
-  const QByteArray note = qlua::concatArgs(L);
-  getApi(L).AnsiNote(string_view(note.data(), note.size()));
-  return 0;
-}
-
-int
-L_ColourNote(lua_State* L)
-{
-  BENCHMARK
-  ScriptApi& api = getApi(L);
-  insertTextTriples(L, api);
-  api.finishNote();
-  return 0;
-}
-
-int
-L_ColourTell(lua_State* L)
-{
-  BENCHMARK
-  insertTextTriples(L, getApi(L));
-  return 0;
-}
-
-int
 L_DeleteLines(lua_State* L)
 {
   BENCHMARK
@@ -1328,15 +1391,6 @@ L_GetLinesInBufferCount(lua_State* L)
 }
 
 int
-L_GetNoteStyle(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 0);
-  push(L, ScriptFont::styleFlags(getApi(L).GetNoteStyle()));
-  return 1;
-}
-
-int
 L_GetRecentLines(lua_State* L)
 {
   BENCHMARK
@@ -1388,50 +1442,6 @@ L_GetSelectionStartLine(lua_State* L)
   expectMaxArgs(L, 0);
   push(L, getApi(L).GetSelectionEndLine() + 1);
   return 1;
-}
-
-int
-L_Hyperlink(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 7);
-  getApi(L).Hyperlink(qlua::getQString(L, 1),
-                      qlua::getQString(L, 2),
-                      qlua::getQString(L, 3),
-                      qlua::getQColor(L, 4),
-                      qlua::getQColor(L, 5),
-                      qlua::getBool(L, 6, false),
-                      qlua::getBool(L, 7, false));
-  return 0;
-}
-
-int
-L_Note(lua_State* L)
-{
-  BENCHMARK
-  ScriptApi& api = getApi(L);
-  api.Tell(QString::fromUtf8(qlua::concatArgs(L)));
-  api.finishNote();
-  return 0;
-}
-
-int
-L_NoteHr(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 0);
-  getApi(L).NoteHr();
-  return 0;
-}
-
-int
-L_NoteStyle(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 1);
-  getApi(L).NoteStyle(
-    ScriptFont::format(qlua::getQFlags<ScriptFont::StyleFlag>(L, 1)));
-  return 0;
 }
 
 int
@@ -1548,14 +1558,6 @@ L_Simulate(lua_State* L)
   BENCHMARK
   const QByteArray message = qlua::concatArgs(L);
   getApi(L).Simulate(string_view(message.data(), message.size()));
-  return 0;
-}
-
-int
-L_Tell(lua_State* L)
-{
-  BENCHMARK
-  getApi(L).Tell(QString::fromUtf8(qlua::concatArgs(L)));
   return 0;
 }
 
@@ -3249,6 +3251,16 @@ static const struct luaL_Reg worldlib[] =
     { "GetReceivedBytes", L_GetReceivedBytes },
     { "GetSentBytes", L_GetSentBytes },
     { "IsConnected", L_IsConnected },
+    // note
+    { "AnsiNote", L_AnsiNote },
+    { "ColourNote", L_ColourNote },
+    { "ColourTell", L_ColourTell },
+    { "GetNoteStyle", L_GetNoteStyle },
+    { "Hyperlink", L_Hyperlink },
+    { "Note", L_Note },
+    { "NoteHr", L_NoteHr },
+    { "NoteStyle", L_NoteStyle },
+    { "Tell", L_Tell },
     // notepad
     { "ActivateNotepad", L_ActivateNotepad },
     { "AppendToNotepad", L_AppendToNotepad },
@@ -3278,16 +3290,12 @@ static const struct luaL_Reg worldlib[] =
     { "Activate", L_ActivateClient },
     { "ActivateClient", L_ActivateClient },
     { "AddFont", L_AddFont },
-    { "AnsiNote", L_AnsiNote },
-    { "ColourNote", L_ColourNote },
-    { "ColourTell", L_ColourTell },
     { "DeleteLines", L_DeleteLines },
     { "DeleteOutput", L_DeleteOutput },
     { "FixupHTML", L_FixupHTML },
     { "GetClipboard", L_GetClipboard },
     { "GetEchoInput", L_GetEchoInput },
     { "GetLinesInBufferCount", L_GetLinesInBufferCount },
-    { "GetNoteStyle", L_GetNoteStyle },
     { "GetRecentLines", L_GetRecentLines },
     { "GetSelection", L_GetSelection },
     { "GetSelectionEndColumn", L_GetSelectionEndColumn },
@@ -3295,10 +3303,6 @@ static const struct luaL_Reg worldlib[] =
     { "GetSelectionStartColumn", L_GetSelectionStartColumn },
     { "GetSelectionStartLine", L_GetSelectionStartLine },
     { "GetSysColor", L_GetSysColor },
-    { "Hyperlink", L_Hyperlink },
-    { "Note", L_Note },
-    { "NoteHr", L_NoteHr },
-    { "NoteStyle", L_NoteStyle },
     { "Pause", L_Pause },
     { "Reset", L_Reset },
     { "ResetStatusTime", L_ResetStatusTime },
@@ -3312,7 +3316,6 @@ static const struct luaL_Reg worldlib[] =
     { "SetStatus", L_SetStatus },
     { "SetTitle", L_SetTitle },
     { "Simulate", L_Simulate },
-    { "Tell", L_Tell },
     { "TextRectangle", L_TextRectangle },
     // plugin
     { "BroadcastPlugin", L_BroadcastPlugin },

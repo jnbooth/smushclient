@@ -1,5 +1,4 @@
 #include "spans.h"
-#include "smushclient_qt/src/ffi/spans.cxx.h"
 #include <QtCore/QDateTime>
 #include <QtCore/QRegularExpression>
 

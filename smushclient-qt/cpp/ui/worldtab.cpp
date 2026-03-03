@@ -13,7 +13,6 @@
 #include "../spans.h"
 #include "dialog/saveprompt.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
-#include "smushclient_qt/src/ffi/spans.cxx.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_worldtab.h"
 #include "worlddetails/regexdialog.h"
