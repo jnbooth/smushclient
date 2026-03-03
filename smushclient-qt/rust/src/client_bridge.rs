@@ -167,6 +167,10 @@ impl ffi::SmushClient {
         self.rust_mut().handle_disconnect();
     }
 
+    pub fn reset_mxp(&self) {
+        self.rust().client.reset_mxp();
+    }
+
     pub fn simulate(&self, line: StringView<'_>, doc: Pin<&mut ffi::Document>) {
         self.rust().simulate(&line.to_string_lossy(), doc);
     }

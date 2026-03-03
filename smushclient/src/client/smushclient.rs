@@ -214,6 +214,14 @@ impl SmushClient {
         self.logger.borrow().is_open()
     }
 
+    pub fn reset_ansi(&self) {
+        self.transformer.borrow_mut().reset_ansi();
+    }
+
+    pub fn reset_mxp(&self) {
+        self.transformer.borrow_mut().reset_ansi();
+    }
+
     pub fn read<R: Read>(&self, mut reader: R, read_buf: &mut [u8]) -> io::Result<usize> {
         self.info.packets_received.update(|t| t + 1);
         let mut transformer = self.transformer.borrow_mut();

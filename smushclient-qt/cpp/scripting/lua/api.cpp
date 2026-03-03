@@ -1433,6 +1433,16 @@ L_NoteStyle(lua_State* L)
     ScriptFont::format(qlua::getQFlags<ScriptFont::StyleFlag>(L, 1)));
   return 0;
 }
+
+int
+L_Reset(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  getApi(L).Reset();
+  return 0;
+}
+
 int
 L_ResetStatusTime(lua_State* L)
 {
@@ -3280,6 +3290,7 @@ static const struct luaL_Reg worldlib[] =
     { "Note", L_Note },
     { "NoteHr", L_NoteHr },
     { "NoteStyle", L_NoteStyle },
+    { "Reset", L_Reset },
     { "ResetStatusTime", L_ResetStatusTime },
     { "SetBackgroundImage", L_SetBackgroundImage },
     { "SetClipboard", L_SetClipboard },

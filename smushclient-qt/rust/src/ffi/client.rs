@@ -137,6 +137,7 @@ pub mod ffi {
         fn connect_to_host(self: &SmushClient, socket: Pin<&mut QAbstractSocket>);
         fn handle_connect(self: &SmushClient, socket: Pin<&mut QAbstractSocket>) -> QString;
         fn handle_disconnect(self: Pin<&mut SmushClient>);
+        fn reset_mxp(self: &SmushClient);
         fn simulate(self: &SmushClient, line: StringView, doc: Pin<&mut Document>);
         fn get_term_color(self: &SmushClient, i: u8) -> QColor;
         fn set_term_color(self: &SmushClient, i: u8, color: &QColor);

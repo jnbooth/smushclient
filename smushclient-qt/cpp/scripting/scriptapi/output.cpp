@@ -208,6 +208,13 @@ ScriptApi::NoteStyle(const QTextCharFormat& format) const
 {
   cursor->mergeCharFormat(format);
 }
+
+void
+ScriptApi::Reset() const noexcept
+{
+  client.resetMxp();
+}
+
 void
 ScriptApi::ResetStatusTime() const
 {

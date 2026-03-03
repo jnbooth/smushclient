@@ -329,6 +329,7 @@ public:
   QString PushCommand() const;
   bool ReplaceNotepad(const QString& name, const QString& text) const;
   void Reset() const noexcept;
+  void ResetStatusTime() const;
   bool SaveNotepad(const QString& name,
                    const QString& filePath,
                    bool replace) const;
