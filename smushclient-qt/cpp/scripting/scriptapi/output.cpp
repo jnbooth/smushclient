@@ -113,6 +113,17 @@ ScriptApi::SetOutputFont(const QString& family, qreal pointSize) const
   tab.ui->output->setFontPointSize(pointSize);
 }
 
+ApiCode
+ScriptApi::SetScroll(int position, bool visible) const
+{
+  if (position != -2) {
+    scrollBar.setSliderPosition(position == -1 ? scrollBar.maximum()
+                                               : position);
+  }
+  scrollBar.setVisible(visible);
+  return ApiCode::OK;
+}
+
 void
 ScriptApi::SetStatus(const QString& status) const
 {

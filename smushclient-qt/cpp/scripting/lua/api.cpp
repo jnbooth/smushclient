@@ -1518,6 +1518,14 @@ L_SetOutputFont(lua_State* L)
 }
 
 int
+L_SetScroll(lua_State* L)
+{
+  BENCHMARK
+  return returnCode(
+    L, getApi(L).SetScroll(qlua::getInt(L, 1), qlua::getBool(L, 2, true)));
+}
+
+int
 L_SetStatus(lua_State* L)
 {
   BENCHMARK
@@ -3360,6 +3368,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetForegroundImage", L_SetForegroundImage },
     { "SetMainTitle", L_SetMainTitle },
     { "SetOutputFont", L_SetOutputFont },
+    { "SetScroll", L_SetScroll },
     { "SetStatus", L_SetStatus },
     { "SetTitle", L_SetTitle },
     { "Simulate", L_Simulate },
@@ -3540,6 +3549,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetFrameBackgroundColour", L_noop_void },
     { "SetMapping", L_noop_void },
     { "SetNoteColour", L_noop_void },
+    { "SetNotes", L_noop_void },
     { "SetRemoveBacktracks", L_noop_void },
     { "SetRemoveMapReverses", L_noop_void },
     { "SetSpeedWalkDelay", L_noop_void },

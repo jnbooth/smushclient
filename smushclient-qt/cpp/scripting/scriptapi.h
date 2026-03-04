@@ -373,6 +373,7 @@ public:
   void SetMainTitle(const QString& title) const;
   ApiCode SetOption(size_t plugin, std::string_view name, int64_t value);
   void SetOutputFont(const QString& family, qreal pointSize) const;
+  ApiCode SetScroll(int position, bool visible) const;
   void SetSelection(int startLine,
                     int endLine,
                     int startColumn,
