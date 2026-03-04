@@ -3,6 +3,8 @@
 #include "scriptenums.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include <QtCore/QUuid>
+#include <QtGui/QFontDatabase>
+#include <QtGui/QFontInfo>
 #include <cmath>
 #include <sstream>
 extern "C"
@@ -61,6 +63,27 @@ isScriptName(lua_State* L, string_view name)
   const bool isFunction = lua_getfield(L, -1, propertyPtr) == LUA_TFUNCTION;
   lua_pop(L, 2);
   return isFunction;
+}
+
+bool
+setExactFontFamily(QFont& font, const QString& family)
+{
+  font.setFamily(family);
+  return QFontInfo(font).family() == family;
+}
+
+void
+assignFontFamily(QFont& font, const QString& family)
+{
+  static const QString defaultFamily = QStringLiteral("FixedSys");
+
+  if (setExactFontFamily(font, family) || family.isEmpty()) {
+    return;
+  }
+  if (family == defaultFamily && !setExactFontFamily(font, defaultFamily)) {
+    font.setFamily(
+      QFontDatabase::systemFont(QFontDatabase::SystemFont::FixedFont).family());
+  }
 }
 
 bool
@@ -522,6 +545,22 @@ qlua::getQColor(lua_State* L, int idx, const QColor& ifNil)
 {
   const int type = lua_type(L, idx);
   return type >= 0 ? toQColor(L, idx, type) : ifNil;
+}
+
+QFont
+qlua::getQFont(lua_State* L, int idx)
+{
+  QFont font;
+  assignFontFamily(font, getQString(L, idx));
+  return font;
+}
+
+QFont
+qlua::getQFont(lua_State* L, int idx, const QString& ifNil)
+{
+  QFont font;
+  assignFontFamily(font, getQString(L, idx, ifNil));
+  return font;
 }
 
 QLine

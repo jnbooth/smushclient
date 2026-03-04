@@ -227,15 +227,18 @@ L_inputbox(lua_State* L)
   const QString title =
     qlua::getQString(L, 2, QCoreApplication::applicationName());
   const QString defaultText = qlua::getQString(L, 3, QString());
-  const QString fontFamily = qlua::getQString(L, 4, QString());
-  const int fontSize = qlua::getInt(L, 5, -1);
+  QFont font = qlua::getQFont(L, 4, QString());
+  const qreal fontSize = qlua::getInt(L, 5, -1);
+  if (fontSize > 0) {
+    font.setPointSizeF(fontSize);
+  }
 
   QInputDialog dialog;
   dialog.setWindowTitle(title);
   dialog.setLabelText(message);
   dialog.setTextValue(defaultText);
-  if (!fontFamily.isEmpty()) {
-    dialog.setFont(QFont(fontFamily, fontSize));
+  if (!font.family().isEmpty()) {
+    dialog.setFont(font);
   }
 
   if (dialog.exec() == QDialog::Accepted) {

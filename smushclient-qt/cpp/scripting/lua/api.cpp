@@ -849,10 +849,11 @@ L_SetInputFont(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 4);
-  getApi(L).SetInputFont(qlua::getQString(L, 1),
-                         qlua::getNumber(L, 2),
-                         qlua::getInt(L, 3),
-                         qlua::getBool(L, 4, false));
+  QFont font = qlua::getQFont(L, 1);
+  font.setPointSizeF(qlua::getNumber(L, 2));
+  font.setWeight(QFont::Weight(qlua::getInt(L, 3)));
+  font.setItalic(qlua::getBool(L, 4, false));
+  getApi(L).SetInputFont(font);
   return 0;
 }
 
@@ -1540,7 +1541,9 @@ int
 L_SetOutputFont(lua_State* L)
 {
   BENCHMARK
-  getApi(L).SetOutputFont(qlua::getQString(L, 1), qlua::getNumber(L, 2));
+  QFont font = qlua::getQFont(L, 1);
+  font.setPointSizeF(qlua::getNumber(L, 2));
+  getApi(L).SetOutputFont(font);
   return 0;
 }
 
@@ -2737,29 +2740,22 @@ L_WindowFont(lua_State* L)
   expectMaxArgs(L, 10);
   const string_view windowName = qlua::getString(L, 1);
   const string_view fontID = qlua::getString(L, 2);
-  const QString fontName = qlua::getQString(L, 3);
-  const lua_Number pointSize = qlua::getNumber(L, 4);
-  if (pointSize == 0 && fontName.isEmpty()) [[unlikely]] {
+  QFont font = qlua::getQFont(L, 3);
+  const qreal pointSize = qlua::getNumber(L, 4);
+  if (pointSize == 0 && font.family().isEmpty()) [[unlikely]] {
     return returnCode(L, getApi(L).WindowUnloadFont(windowName, fontID));
   }
-  const bool bold = qlua::getBool(L, 5, false);
-  const bool italic = qlua::getBool(L, 6, false);
-  const bool underline = qlua::getBool(L, 7, false);
-  const bool strikeout = qlua::getBool(L, 8, false);
+  font.setPointSizeF(pointSize);
+  font.setBold(qlua::getBool(L, 5, false));
+  font.setItalic(qlua::getBool(L, 6, false));
+  font.setUnderline(qlua::getBool(L, 7, false));
+  font.setStrikeOut(qlua::getBool(L, 8, false));
   // const short charset = qlua::getInt(L, 9);
-  const lua_Integer fontFlag = qlua::getInteger(L, 9, 0);
-  const optional<ScriptFont> font = ScriptFont::validate(fontFlag);
-  expect_nonnull(font, ApiCode::BadParameter);
-  return returnCode(L,
-                    getApi(L).WindowFont(windowName,
-                                         fontID,
-                                         fontName,
-                                         pointSize,
-                                         bold,
-                                         italic,
-                                         underline,
-                                         strikeout,
-                                         font->hint()));
+  const optional<ScriptFont> fontFlag =
+    ScriptFont::validate(qlua::getInteger(L, 10, 0));
+  expect_nonnull(fontFlag, ApiCode::BadParameter);
+  font.setStyleHint(fontFlag->hint());
+  return returnCode(L, getApi(L).WindowFont(windowName, fontID, font));
 }
 
 int

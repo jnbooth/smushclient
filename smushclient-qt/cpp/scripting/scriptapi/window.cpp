@@ -32,29 +32,6 @@ using std::vector;
     return {};                                                                 \
   }
 
-namespace {
-bool
-setExactFontFamily(QFont& font, const QString& family)
-{
-  font.setFamily(family);
-  return QFontInfo(font).family() == family;
-}
-
-void
-assignFontFamily(QFont& font, const QString& family)
-{
-  if (setExactFontFamily(font, family)) {
-    return;
-  }
-  if (family == QStringLiteral("FixedSys") &&
-      setExactFontFamily(font, QStringLiteral("Fixedsys"))) {
-    return;
-  }
-  font.setFamily(
-    QFontDatabase::systemFont(QFontDatabase::SystemFont::FixedFont).family());
-}
-} // namespace
-
 // Public methods
 
 QRect
@@ -251,31 +228,9 @@ ScriptApi::WindowFilter(string_view windowName,
 ApiCode
 ScriptApi::WindowFont(string_view windowName,
                       string_view fontID,
-                      const QString& family,
-                      qreal pointSize,
-                      bool bold,
-                      bool italic,
-                      bool underline,
-                      bool strikeout,
-                      QFont::StyleHint hint) const
+                      const QFont& font) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
-  QFont font;
-  font.setStyleHint(hint);
-  font.setPointSizeF(pointSize);
-  if (bold) {
-    font.setBold(true);
-  }
-  if (italic) {
-    font.setItalic(true);
-  }
-  if (underline) {
-    font.setUnderline(true);
-  }
-  if (strikeout) {
-    font.setStrikeOut(true);
-  }
-  assignFontFamily(font, family);
   window->loadFont(fontID, font);
   return ApiCode::OK;
 }

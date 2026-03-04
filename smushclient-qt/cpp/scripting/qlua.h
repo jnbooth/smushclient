@@ -127,6 +127,12 @@ getQFlags(lua_State* L, int idx, QFlags<T> ifNil)
   return QFlags<T>::fromInt(getInt(L, idx, ifNil.toInt()));
 }
 
+QFont
+getQFont(lua_State* L, int idx);
+
+QFont
+getQFont(lua_State* L, int idx, const QString& ifNil);
+
 QLine
 getQLine(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2);
 QLineF

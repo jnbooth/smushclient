@@ -107,10 +107,10 @@ ScriptApi::SetMainTitle(const QString& title) const
 }
 
 void
-ScriptApi::SetOutputFont(const QString& family, qreal pointSize) const
+ScriptApi::SetOutputFont(const QFont& font) const
 {
-  tab.ui->output->setFontFamily(family);
-  tab.ui->output->setFontPointSize(pointSize);
+  tab.ui->output->setFontFamily(font.family());
+  tab.ui->output->setFontPointSize(font.pointSizeF());
 }
 
 ApiCode

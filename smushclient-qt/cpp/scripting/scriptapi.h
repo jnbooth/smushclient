@@ -367,13 +367,10 @@ public:
   ApiCode SetForegroundImage(const QString& path,
                              MiniWindow::Position position);
   QColor SetHighlightColour(const QColor& color) const;
-  void SetInputFont(const QString& family,
-                    qreal pointSize,
-                    int weight,
-                    bool italic) const;
+  void SetInputFont(const QFont& font) const;
   void SetMainTitle(const QString& title) const;
   ApiCode SetOption(size_t plugin, std::string_view name, int64_t value);
-  void SetOutputFont(const QString& family, qreal pointSize) const;
+  void SetOutputFont(const QFont& font) const;
   ApiCode SetScroll(int position, bool visible) const;
   void SetSelection(int startLine,
                     int endLine,
@@ -471,13 +468,7 @@ public:
                        const QRect& rect) const;
   ApiCode WindowFont(std::string_view windowName,
                      std::string_view fontID,
-                     const QString& family,
-                     qreal pointSize,
-                     bool bold,
-                     bool italic,
-                     bool underline,
-                     bool strikeout,
-                     QFont::StyleHint hint) const;
+                     const QFont& font) const;
   std::vector<std::string_view> WindowFontList(
     std::string_view windowName) const;
   QVariant WindowFontInfo(std::string_view windowName,
