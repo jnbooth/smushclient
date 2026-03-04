@@ -19,6 +19,11 @@ using qlua::expectMaxArgs;
 using qlua::push;
 using qlua::pushEntry;
 using qlua::pushQVariant;
+using std::optional;
+
+DECLARE_ENUM_BOUNDS(QFontDatabase::SystemFont,
+                    GeneralFont,
+                    SmallestReadableFont);
 
 namespace {
 const char* const utilsRegKey = "smushclient.utils";
@@ -50,6 +55,7 @@ execScriptDialog(lua_State* L,
                  AbstractScriptDialog& dialog,
                  const T& selection)
 {
+  luaL_argexpected(L, lua_type(L, idx) == LUA_TTABLE, idx, "table");
   lua_pushnil(L); // first key
   size_t size;
 
@@ -103,7 +109,6 @@ L_choose(lua_State* L)
   const QString message = qlua::getQString(L, 1, QString());
   const QString title =
     qlua::getQString(L, 2, QCoreApplication::applicationName());
-  luaL_argexpected(L, lua_type(L, 3) == LUA_TTABLE, 3, "table");
   const QVariant defaultKey = qlua::getQVariant(L, 4);
 
   Choose dialog(title, message);
@@ -139,10 +144,10 @@ int
 L_directorypicker(lua_State* L)
 {
   expectMaxArgs(L, 2);
-  const QString title = qlua::getQString(L, 1, QString());
-  const QString defaultName = qlua::getQString(L, 2, QString());
   const QString path =
-    QFileDialog::getExistingDirectory(nullptr, title, defaultName);
+    QFileDialog::getExistingDirectory(nullptr,
+                                      qlua::getQString(L, 1, QString()),
+                                      qlua::getQString(L, 2, QString()));
   if (path.isEmpty()) {
     lua_pushnil(L);
   } else {
@@ -197,15 +202,13 @@ int
 L_getsystemfont(lua_State* L)
 {
   expectMaxArgs(L, 1);
-  const lua_Integer font =
-    qlua::getInteger(L, 1, QFontDatabase::SystemFont::FixedFont);
-  if (font < QFontDatabase::SystemFont::GeneralFont ||
-      font > QFontDatabase::SystemFont::SmallestReadableFont) {
+  const optional<QFontDatabase::SystemFont> font =
+    qlua::getEnum(L, 1, QFontDatabase::SystemFont::FixedFont);
+  if (!font) {
     lua_pushnil(L);
     return 1;
   }
-  const QFont systemFont =
-    QFontDatabase::systemFont(static_cast<QFontDatabase::SystemFont>(font));
+  const QFont systemFont = QFontDatabase::systemFont(*font);
   push(L, systemFont.family());
   lua_pushinteger(L, systemFont.pointSize());
   return 2;
@@ -234,8 +237,8 @@ L_inputbox(lua_State* L)
   }
 
   QInputDialog dialog;
-  dialog.setWindowTitle(title);
   dialog.setLabelText(message);
+  dialog.setWindowTitle(title);
   dialog.setTextValue(defaultText);
   if (!font.family().isEmpty()) {
     dialog.setFont(font);
@@ -257,7 +260,6 @@ L_listbox(lua_State* L)
   const QString message = qlua::getQString(L, 1, QString());
   const QString title =
     qlua::getQString(L, 2, QCoreApplication::applicationName());
-  luaL_argexpected(L, lua_type(L, 3) == LUA_TTABLE, 3, "table");
   const QVariant defaultKey = qlua::getQVariant(L, 4);
 
   ListBox dialog(title, message);
@@ -279,7 +281,6 @@ L_multilistbox(lua_State* L)
   const QString message = qlua::getQString(L, 1, QString());
   const QString title =
     qlua::getQString(L, 2, QCoreApplication::applicationName());
-  luaL_argexpected(L, lua_type(L, 3) == LUA_TTABLE, 3, "table");
   const int defaultType = lua_type(L, 3);
   luaL_argexpected(L,
                    defaultType == LUA_TTABLE || defaultType == LUA_TNIL ||
