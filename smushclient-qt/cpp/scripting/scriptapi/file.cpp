@@ -60,3 +60,9 @@ ScriptApi::SaveState()
   }
   return ApiCode::OK;
 }
+
+void
+ScriptApi::SetChanged(bool changed) const
+{
+  tab.setWindowModified(changed);
+}

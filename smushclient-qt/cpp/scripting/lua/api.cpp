@@ -479,6 +479,15 @@ L_SaveState(lua_State* L)
   return returnCode(L, getApi(L).SaveState());
 }
 
+int
+L_SetChanged(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).SetChanged(qlua::getBool(L, 1, true));
+  return 0;
+}
+
 // generate
 
 int
@@ -3215,6 +3224,7 @@ static const struct luaL_Reg worldlib[] =
     { "DatabaseOpen", L_DatabaseOpen },
     { "Save", L_Save },
     { "SaveState", L_SaveState },
+    { "SetChanged", L_SetChanged },
     // generate
     { "CreateGUID", L_CreateGUID },
     { "GetUniqueID", L_GetUniqueID },

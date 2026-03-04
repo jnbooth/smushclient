@@ -355,6 +355,7 @@ public:
   QColor SetBackgroundColour(const QColor& color) const;
   ApiCode SetBackgroundImage(const QString& path,
                              MiniWindow::Position position);
+  void SetChanged(bool changed) const;
   ApiCode SetCommand(const QString& command) const;
   ApiCode SetCommandSelection(int first, int last) const;
   ApiCode SetCommandWindowHeight(int height) const;
