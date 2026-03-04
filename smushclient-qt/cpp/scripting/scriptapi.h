@@ -599,11 +599,13 @@ public:
   void finishNote();
   const Plugin* getPlugin(std::string_view pluginID) const noexcept;
   Timekeeper& getTimekeeper() { return *timekeeper; }
+  Notepad* globalNotepad(const QString& name) const;
   void handleSendRequest(const SendRequest& request);
   bool isPluginEnabled(size_t plugin) const noexcept
   {
     return !plugins[plugin].isDisabled();
   }
+  QWidget* parentWidget() const { return qobject_cast<QWidget*>(parent()); }
   ApiCode playFileRaw(std::string_view path) const noexcept;
   void printError(const QString& message);
   void reloadWorldScript(const QString& worldScriptPath);

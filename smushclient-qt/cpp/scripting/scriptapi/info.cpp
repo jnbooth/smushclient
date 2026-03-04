@@ -265,6 +265,11 @@ ScriptApi::GetInfo(int64_t infoType) const
     }
     // case 229: Proxy IP address as number
     // case 230: Script execution depth
+    case 232: {
+      QElapsedTimer timer;
+      timer.start();
+      return timer.msecsSinceReference();
+    }
     case 235:
       return qobject_cast<QTabWidget*>(tab.parent())->count();
     case 236: {

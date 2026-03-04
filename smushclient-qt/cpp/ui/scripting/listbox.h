@@ -13,7 +13,7 @@ class ListBox : public AbstractScriptDialog
 public:
   explicit ListBox(const QString& title,
                    const QString& message,
-                   QWidget* parent = nullptr);
+                   QWidget* parent);
   ~ListBox() override;
 
   void addItems(const QStringList& items);

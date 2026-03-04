@@ -12,7 +12,7 @@ class Choose : public AbstractScriptDialog
 public:
   explicit Choose(const QString& title,
                   const QString& message,
-                  QWidget* parent = nullptr);
+                  QWidget* parent);
   ~Choose() override;
 
   void addItem(const QString& text,

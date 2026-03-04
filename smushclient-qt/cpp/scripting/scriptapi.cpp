@@ -94,6 +94,12 @@ ScriptApi::getPlugin(string_view pluginID) const noexcept
   return &plugins[index];
 }
 
+Notepad*
+ScriptApi::globalNotepad(const QString& name) const
+{
+  return notepads.findNotepad(QUuid(), name);
+}
+
 void
 ScriptApi::handleSendRequest(const SendRequest& request)
 {

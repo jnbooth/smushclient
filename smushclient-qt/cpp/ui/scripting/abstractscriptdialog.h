@@ -6,7 +6,7 @@ class AbstractScriptDialog : public QDialog
   Q_OBJECT
 
 public:
-  explicit AbstractScriptDialog(QWidget* parent = nullptr)
+  explicit AbstractScriptDialog(QWidget* parent)
     : QDialog(parent) {};
 
   virtual void addItem(const QString& text,
