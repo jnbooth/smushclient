@@ -14,7 +14,7 @@ public:
   PluginDetails pluginDetails(const QModelIndex& index) const;
   bool reinstall(const QModelIndex& index);
 
-  int columnCount(const QModelIndex& index = QModelIndex()) const override
+  int columnCount(const QModelIndex& index = {}) const override
   {
     return index.isValid() ? 0 : numColumns;
   }
@@ -25,10 +25,8 @@ public:
                       Qt::Orientation orientation,
                       int role = Qt::DisplayRole) const override;
   QMap<int, QVariant> itemData(const QModelIndex& index) const override;
-  bool removeRows(int row,
-                  int count,
-                  const QModelIndex& parent = QModelIndex()) override;
-  int rowCount(const QModelIndex& index = QModelIndex()) const override
+  bool removeRows(int row, int count, const QModelIndex& parent = {}) override;
+  int rowCount(const QModelIndex& index = {}) const override
   {
     return index.isValid() ? 0 : pluginCount - 1;
   }

@@ -13,14 +13,14 @@ public:
 
   void closeAll();
 
-  Notepad* createNotepad(const QString& name = QString());
-  Notepad* createNotepad(const QUuid& worldID, const QString& name = QString());
+  Notepad* createNotepad(const QString& name = {});
+  Notepad* createNotepad(const QUuid& worldID, const QString& name = {});
 
   Notepad* findNotepad(const QUuid& worldID, const QString& name) const;
   Notepad* findNotepad(const QString& name) const;
 
-  QStringList listNotepads(const QUuid& worldID = QUuid()) const;
+  QStringList listNotepads(const QUuid& worldID = {}) const;
 
-  Notepad* pad(const QUuid& worldID, const QString& name = QString());
-  Notepad* pad(const QString& name = QString());
+  Notepad* pad(const QUuid& worldID, const QString& name = {});
+  Notepad* pad(const QString& name = {});
 };

@@ -84,12 +84,12 @@ public:
                       WorldTab& tab,
                       const Plugin& plugin,
                       Hotspot::Callbacks&& callbacks);
-  void applyFilter(const ImageFilter& filter, const QRect& rect = QRect());
+  void applyFilter(const ImageFilter& filter, const QRect& rect = {});
   void blendImage(BlendMode mode,
                   const QPixmap& image,
                   const QRectF& rect,
                   qreal opacity,
-                  const QRectF& sourceRect = QRectF());
+                  const QRectF& sourceRect = {});
   void clearHotspots();
   void deleteAllHotspots();
   bool deleteHotspot(std::string_view hotspotID);
@@ -97,12 +97,10 @@ public:
                const QPointF& start,
                const QPointF& end,
                const QPen& pen);
-  void drawButton(const QRect& rect,
-                  ButtonFrame frame,
-                  ButtonFlags flags = ButtonFlags());
+  void drawButton(const QRect& rect, ButtonFrame frame, ButtonFlags flags = {});
   void drawEllipse(const QRectF& rect,
                    const QPen& pen,
-                   const QBrush& brush = QBrush());
+                   const QBrush& brush = {});
 
   void drawEllipse(const QRectF& rect, const QBrush& brush)
   {
@@ -114,7 +112,7 @@ public:
   void drawGradient(const QRectF& rect, const QGradient& gradient);
   void drawImage(const QPixmap& image,
                  const QRectF& rect,
-                 const QRectF& sourceRect = QRectF(),
+                 const QRectF& sourceRect = {},
                  qreal opacity = 1,
                  DrawImageMode mode = DrawImageMode::Copy);
   void drawImage(const QPixmap& image,
@@ -148,18 +146,16 @@ public:
   void drawLine(const QLineF& line, const QPen& pen);
   void drawPolygon(const QPolygonF& polygon,
                    const QPen& pen,
-                   const QBrush& brush = QBrush(),
+                   const QBrush& brush = {},
                    Qt::FillRule fillRule = Qt::FillRule::OddEvenFill);
   void drawPolygon(const QPolygonF& polygon,
-                   const QBrush& brush = QBrush(),
+                   const QBrush& brush = {},
                    Qt::FillRule fillRule = Qt::FillRule::OddEvenFill)
   {
     drawPolygon(polygon, Qt::PenStyle::NoPen, brush, fillRule);
   }
   void drawPolyline(const QPolygonF& polygon, const QPen& pen);
-  void drawRect(const QRectF& rect,
-                const QPen& pen,
-                const QBrush& brush = QBrush());
+  void drawRect(const QRectF& rect, const QPen& pen, const QBrush& brush = {});
   void drawRect(const QRectF& rect, const QBrush& brush)
   {
     drawRect(rect, Qt::PenStyle::NoPen, brush);
@@ -168,7 +164,7 @@ public:
                        qreal xRadius,
                        qreal yRadius,
                        const QPen& pen,
-                       const QBrush& brush = QBrush());
+                       const QBrush& brush = {});
   void drawRoundedRect(const QRectF& rect,
                        qreal xRadius,
                        qreal yRadius,
@@ -203,7 +199,7 @@ public:
   bool mergeImageAlpha(const QPixmap& image,
                        const QPixmap& mask,
                        const QRect& targetRect,
-                       const QRect& sourceRect = QRect(),
+                       const QRect& sourceRect = {},
                        qreal opacity = 1,
                        MergeMode mode = MergeMode::Straight);
   bool mergeImageAlpha(const QPixmap& image,
@@ -231,9 +227,7 @@ public:
   }
   void reset();
   bool setPixel(const QPoint& location, const QColor& color);
-  void setPosition(const QPoint& location,
-                   Position position,
-                   Flags flags = Flags());
+  void setPosition(const QPoint& location, Position position, Flags flags = {});
   void setSize(const QSize& size, const QColor& fill);
   void setSize(const QSize& size);
   void setZOrder(int64_t zOrder);
