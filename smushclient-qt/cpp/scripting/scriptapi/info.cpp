@@ -48,12 +48,6 @@ Q_DECLARE_FLAGS(ModifierFlags, ModifierFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(ModifierFlags)
 
 namespace {
-QString
-defaultPath(const QString& name)
-{
-  return QDir::currentPath() + QDir::separator() + name;
-}
-
 constexpr ModifierFlags
 getModifierFlags(Qt::KeyboardModifiers mods, Qt::MouseButtons buttons)
 {
@@ -153,13 +147,13 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 56:
       return QCoreApplication::applicationFilePath();
     case 57:
-      return defaultPath(QStringLiteral(WORLDS_DIR));
+      return Settings().getWorldsDir();
     case 58:
-      return defaultPath(QStringLiteral(LOGS_DIR));
+      return Settings().getLogsDir();
     case 59:
-      return defaultPath(QStringLiteral(SCRIPTS_DIR));
+      return Settings().getScriptsDir();
     case 60:
-      return defaultPath(QStringLiteral(PLUGINS_DIR));
+      return Settings().getPluginsDir();
     case 61:
       return socket.peerAddress().toString();
     case 62:
@@ -186,7 +180,7 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 73:
       return QStringLiteral(__DATE__ " " __TIME__);
     case 74:
-      return defaultPath(QStringLiteral(SOUNDS_DIR));
+      return Settings().getSoundsDir();
     // case 76: Special font pathname
     // case 77: Windows version debug string
     case 77:

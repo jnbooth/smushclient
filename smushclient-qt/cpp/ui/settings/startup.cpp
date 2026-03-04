@@ -73,25 +73,25 @@ SettingsStartup::openFolder(const QString& dirPath) const
 void
 SettingsStartup::on_browse_worlds_clicked()
 {
-  openFolder(QStringLiteral(WORLDS_DIR));
+  openFolder(settings.getWorldsDir());
 }
 
 void
 SettingsStartup::on_browse_plugins_clicked()
 {
-  openFolder(QStringLiteral(PLUGINS_DIR));
+  openFolder(settings.getPluginsDir());
 }
 
 void
 SettingsStartup::on_browse_sounds_clicked()
 {
-  openFolder(QStringLiteral(SOUNDS_DIR));
+  openFolder(settings.getSoundsDir());
 }
 
 void
 SettingsStartup::on_browse_scripts_clicked()
 {
-  openFolder(QStringLiteral(SCRIPTS_DIR));
+  openFolder(settings.getScriptsDir());
 }
 
 void
@@ -100,7 +100,7 @@ SettingsStartup::on_OpenAtStartup_add_clicked()
   QDir::setCurrent(currentStartupDirectory());
 
   const QStringList filePaths = QFileDialog::getOpenFileNames(
-    this, tr("Add world"), QStringLiteral(WORLDS_DIR), FileFilter::world());
+    this, tr("Add world"), settings.getWorldsDir(), FileFilter::world());
 
   if (filePaths.isEmpty()) {
     return;

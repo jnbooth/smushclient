@@ -371,7 +371,7 @@ WorldTab::saveWorldAsNew(const QString& path, bool separate)
     path.isEmpty()
       ? QFileDialog::getSaveFileName(this,
                                      tr("Save as"),
-                                     QStringLiteral(WORLDS_DIR) +
+                                     Settings().getWorldsDir() +
                                        QDir::separator() + worldName,
                                      FileFilter::world())
       : path;

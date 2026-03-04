@@ -2,6 +2,7 @@
 #include "../../environment.h"
 #include "../../fieldconnector.h"
 #include "../../model/colormap.h"
+#include "../../settings.h"
 #include "colormap.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
@@ -57,7 +58,7 @@ PrefsOutput::on_NewActivitySound_browse_clicked()
   const QString path = QFileDialog::getOpenFileName(
     this,
     tr("Select sound file"),
-    currentFile.isEmpty() ? QStringLiteral(SOUNDS_DIR) : currentFile);
+    currentFile.isEmpty() ? Settings().getSoundsDir() : currentFile);
 
   if (path.isEmpty()) {
     return;

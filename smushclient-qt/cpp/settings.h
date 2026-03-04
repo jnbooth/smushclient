@@ -94,6 +94,12 @@ public:
 
   WorldCloseBehavior getWorldCloseBehavior() const;
 
+  QString getLogsDir() const;
+  QString getPluginsDir() const;
+  QString getScriptsDir() const;
+  QString getSoundsDir() const;
+  QString getWorldsDir() const;
+
 public slots:
   void setAutoConnect(bool enabled);
 

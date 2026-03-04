@@ -29,7 +29,7 @@ SettingsSound::on_BellSound_browse_clicked()
   const QString path = QFileDialog::getOpenFileName(
     this,
     tr("Select sound file"),
-    currentFile.isEmpty() ? QStringLiteral(SOUNDS_DIR) : currentFile);
+    currentFile.isEmpty() ? Settings().getSoundsDir() : currentFile);
 
   if (path.isEmpty()) {
     return;

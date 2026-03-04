@@ -4,19 +4,12 @@
 #include "settings.h"
 #include <QtGui/QFontDatabase>
 #include <QtWidgets/QApplication>
-extern "C"
-{
-#include "lua.h"
-}
 
 int
 main(int argc, char* argv[])
 {
 #if defined(Q_OS_WINDOWS)
-  _putenv_s("LUA_PATH", SCRIPTS_DIR "/?.lua;" LUA_PATH_DEFAULT);
   QCoreApplication::setOrganizationName(QStringLiteral(CMAKE_ORG_NAME));
-#else
-  setenv("LUA_PATH", SCRIPTS_DIR "/?.lua;" LUA_PATH_DEFAULT, 0);
 #endif
   QApplication app(argc, argv);
   QCoreApplication::setApplicationName(QStringLiteral(CMAKE_APP_NAME));

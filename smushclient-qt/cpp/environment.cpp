@@ -2,6 +2,22 @@
 #include <QtCore/QDir>
 #include <QtCore/QProcess>
 #include <QtCore/QStandardPaths>
+extern "C"
+{
+#include "lua.h"
+}
+
+using std::string;
+using std::string_view;
+
+#if defined(Q_OS_WIN)
+#define DIR_SEP "\\"
+#else
+#define DIR_SEP "/"
+#endif
+
+constexpr string_view luaPathSuffix =
+  DIR_SEP SCRIPTS_DIR DIR_SEP "?.lua;" LUA_PATH_DEFAULT;
 
 QString
 defaultStartupDirectory()
@@ -19,11 +35,22 @@ bool
 initializeStartupDirectory(const QString& dirPath)
 {
   const QDir appDir(dirPath);
-  return appDir.mkpath(QStringLiteral(LOGS_DIR)) &&
-         appDir.mkpath(QStringLiteral(PLUGINS_DIR)) &&
-         appDir.mkpath(QStringLiteral(SCRIPTS_DIR)) &&
-         appDir.mkpath(QStringLiteral(SOUNDS_DIR)) &&
-         appDir.mkpath(QStringLiteral(WORLDS_DIR));
+  const bool success = appDir.mkpath(QStringLiteral(LOGS_DIR)) &&
+                       appDir.mkpath(QStringLiteral(PLUGINS_DIR)) &&
+                       appDir.mkpath(QStringLiteral(SCRIPTS_DIR)) &&
+                       appDir.mkpath(QStringLiteral(SOUNDS_DIR)) &&
+                       appDir.mkpath(QStringLiteral(WORLDS_DIR));
+  if (!success) {
+    return false;
+  }
+  string luaPath = dirPath.toStdString();
+  luaPath.append(luaPathSuffix);
+#if defined(Q_OS_WINDOWS)
+  _putenv_s("LUA_PATH", luaPath.c_str());
+#else
+  setenv("LUA_PATH", luaPath.c_str(), 0);
+#endif
+  return true;
 }
 
 QString

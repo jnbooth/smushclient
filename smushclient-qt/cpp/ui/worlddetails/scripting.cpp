@@ -2,6 +2,7 @@
 #include "../../environment.h"
 #include "../../fieldconnector.h"
 #include "../../localization.h"
+#include "../../settings.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_scripting.h"
 #include <QtGui/QDesktopServices>
@@ -35,7 +36,7 @@ PrefsScripting::~PrefsScripting()
 QString
 PrefsScripting::defaultScriptPath() const
 {
-  return QStringLiteral(WORLDS_DIR "/%1").arg(world.getName());
+  return Settings().getWorldsDir() + QDir::separator() + world.getName();
 }
 
 // Private slots
@@ -45,7 +46,7 @@ PrefsScripting::on_WorldScript_browse_clicked()
 {
   const QString path = QFileDialog::getOpenFileName(this,
                                                     tr("Select world script"),
-                                                    QStringLiteral(WORLDS_DIR),
+                                                    Settings().getWorldsDir(),
                                                     FileFilter::lua());
 
   if (path.isEmpty()) {

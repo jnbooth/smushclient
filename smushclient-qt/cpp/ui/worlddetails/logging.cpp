@@ -3,6 +3,7 @@
 #include "../../environment.h"
 #include "../../fieldconnector.h"
 #include "../../localization.h"
+#include "../../settings.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "specialhelp.h"
 #include "ui_logging.h"
@@ -50,7 +51,7 @@ PrefsLogging::on_AutoLogFileName_browse_clicked()
 {
   QString defaultPath = ui->AutoLogFileName->text();
   if (defaultPath.isEmpty()) {
-    defaultPath = QStringLiteral(LOGS_DIR) + QDir::separator() +
+    defaultPath = Settings().getLogsDir() + QDir::separator() +
                   world.getName() + QStringLiteral(".txt");
   }
   const QString path = QFileDialog::getSaveFileName(

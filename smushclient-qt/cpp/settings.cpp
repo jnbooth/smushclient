@@ -3,6 +3,12 @@
 #include <QtGui/QColor>
 #include <QtGui/QFontDatabase>
 
+#if defined(Q_OS_WIN)
+#define DIR_SEP "\\"
+#else
+#define DIR_SEP "/"
+#endif
+
 // clang-format off
 template <typename T> struct SettingInput    { using Type = T; };
 template <> struct SettingInput<QColor>      { using Type = const QColor &; };
@@ -166,6 +172,36 @@ Settings::getStartupDirectoryOrDefault() const
 {
   const QString dir = getStartupDirectory();
   return dir.isEmpty() ? defaultStartupDirectory() : dir;
+}
+
+QString
+Settings::getLogsDir() const
+{
+  return getStartupDirectoryOrDefault() + QStringLiteral(DIR_SEP LOGS_DIR);
+}
+
+QString
+Settings::getPluginsDir() const
+{
+  return getStartupDirectoryOrDefault() + QStringLiteral(DIR_SEP PLUGINS_DIR);
+}
+
+QString
+Settings::getScriptsDir() const
+{
+  return getStartupDirectoryOrDefault() + QStringLiteral(DIR_SEP SCRIPTS_DIR);
+}
+
+QString
+Settings::getSoundsDir() const
+{
+  return getStartupDirectoryOrDefault() + QStringLiteral(DIR_SEP SOUNDS_DIR);
+}
+
+QString
+Settings::getWorldsDir() const
+{
+  return getStartupDirectoryOrDefault() + QStringLiteral(DIR_SEP WORLDS_DIR);
 }
 
 // Generated

@@ -2,6 +2,7 @@
 #include "../../environment.h"
 #include "../../localization.h"
 #include "../../model/plugin.h"
+#include "../../settings.h"
 #include "pluginpopup.h"
 #include "smushclient_qt/src/ffi/plugin_details.cxxqt.h"
 #include "ui_plugins.h"
@@ -52,7 +53,7 @@ void
 PrefsPlugins::on_button_add_clicked()
 {
   const QString filePath = QFileDialog::getOpenFileName(
-    this, tr("Add plugin"), QStringLiteral(PLUGINS_DIR), FileFilter::plugin());
+    this, tr("Add plugin"), Settings().getPluginsDir(), FileFilter::plugin());
 
   if (filePath.isEmpty()) {
     return;

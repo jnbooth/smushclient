@@ -641,7 +641,7 @@ MainWindow::on_action_open_world_triggered()
   const QString filePath =
     QFileDialog::getOpenFileName(this,
                                  ui->action_open_world->text(),
-                                 QStringLiteral(WORLDS_DIR),
+                                 settings.getWorldsDir(),
                                  FileFilter::world());
 
   if (filePath.isEmpty()) {
