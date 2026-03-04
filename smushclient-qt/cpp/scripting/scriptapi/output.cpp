@@ -107,6 +107,13 @@ ScriptApi::SetMainTitle(const QString& title) const
 }
 
 void
+ScriptApi::SetOutputFont(const QString& family, qreal pointSize) const
+{
+  tab.ui->output->setFontFamily(family);
+  tab.ui->output->setFontPointSize(pointSize);
+}
+
+void
 ScriptApi::SetStatus(const QString& status) const
 {
   statusBar()->setMessage(status);

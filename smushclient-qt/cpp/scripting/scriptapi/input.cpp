@@ -163,3 +163,16 @@ ScriptApi::SetCommandWindowHeight(int height) const
   tab.ui->input->setFixedHeight(height);
   return ApiCode::OK;
 }
+
+void
+ScriptApi::SetInputFont(const QString& family,
+                        qreal pointSize,
+                        int weight,
+                        bool italic) const
+{
+  QFont font(family);
+  font.setPointSizeF(pointSize);
+  font.setWeight(QFont::Weight(weight));
+  font.setItalic(italic);
+  tab.ui->input->setFont(font);
+}

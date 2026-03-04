@@ -366,8 +366,13 @@ public:
   ApiCode SetForegroundImage(const QString& path,
                              MiniWindow::Position position);
   QColor SetHighlightColour(const QColor& color) const;
+  void SetInputFont(const QString& family,
+                    qreal pointSize,
+                    int weight,
+                    bool italic) const;
   void SetMainTitle(const QString& title) const;
   ApiCode SetOption(size_t plugin, std::string_view name, int64_t value);
+  void SetOutputFont(const QString& family, qreal pointSize) const;
   void SetSelection(int startLine,
                     int endLine,
                     int startColumn,

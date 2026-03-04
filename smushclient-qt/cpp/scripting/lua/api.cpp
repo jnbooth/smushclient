@@ -844,6 +844,18 @@ L_SetCommandWindowHeight(lua_State* L)
   return returnCode(L, getApi(L).SetCommandWindowHeight(qlua::getInt(L, 1)));
 }
 
+int
+L_SetInputFont(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 4);
+  getApi(L).SetInputFont(qlua::getQString(L, 1),
+                         qlua::getNumber(L, 2),
+                         qlua::getInt(L, 3),
+                         qlua::getBool(L, 4, false));
+  return 0;
+}
+
 // log
 
 int
@@ -1494,6 +1506,14 @@ L_SetMainTitle(lua_State* L)
 {
   BENCHMARK
   getApi(L).SetMainTitle(QString::fromUtf8(qlua::concatArgs(L)));
+  return 0;
+}
+
+int
+L_SetOutputFont(lua_State* L)
+{
+  BENCHMARK
+  getApi(L).SetOutputFont(qlua::getQString(L, 1), qlua::getNumber(L, 2));
   return 0;
 }
 
@@ -3263,6 +3283,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetCommand", L_SetCommand },
     { "SetCommandSelection", L_SetCommandSelection },
     { "SetCommandWindowHeight", L_SetCommandWindowHeight },
+    { "SetInputFont", L_SetInputFont },
     // log
     { "CloseLog", L_CloseLog },
     { "FlushLog", L_FlushLog },
@@ -3338,6 +3359,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetEchoInput", L_SetEchoInput },
     { "SetForegroundImage", L_SetForegroundImage },
     { "SetMainTitle", L_SetMainTitle },
+    { "SetOutputFont", L_SetOutputFont },
     { "SetStatus", L_SetStatus },
     { "SetTitle", L_SetTitle },
     { "Simulate", L_Simulate },
