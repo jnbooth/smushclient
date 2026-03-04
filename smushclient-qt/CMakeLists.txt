@@ -105,7 +105,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/scriptthread.h cpp/scripting/scriptthread.cpp
 
     cpp/scripting/scriptapi/color.cpp
-    cpp/scripting/scriptapi/database.cpp
+    cpp/scripting/scriptapi/file.cpp
     cpp/scripting/scriptapi/generate.cpp
     cpp/scripting/scriptapi/hotspot.cpp
     cpp/scripting/scriptapi/info.cpp

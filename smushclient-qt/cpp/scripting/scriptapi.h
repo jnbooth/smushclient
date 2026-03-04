@@ -331,9 +331,11 @@ public:
   bool ReplaceNotepad(const QString& name, const QString& text) const;
   void Reset() const noexcept;
   void ResetStatusTime() const;
+  bool Save(const QString& filePath, bool replace);
   bool SaveNotepad(const QString& name,
                    const QString& filePath,
                    bool replace) const;
+  ApiCode SaveState();
   void SelectCommand() const;
   ApiCode Send(std::string_view text);
   ApiCode Send(const QString& text);
@@ -680,6 +682,8 @@ private:
 
 private:
   static constexpr size_t noSuchPlugin = 0xFFFFFFFFFFFFFFFF;
+  static constexpr QChar paragraphSeparator =
+    QChar(static_cast<char32_t>(2029));
 
   ActionSource actionSource = ActionSource::Unknown;
   QRect assignedTextRectangle;

@@ -429,7 +429,16 @@ L_SetNormalColour(lua_State* L)
   return 0;
 }
 
-// database
+// file
+
+int
+L_ChangeDir(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, ScriptApi::ChangeDir(qlua::getQString(L, 1)));
+  return 1;
+}
 
 int
 L_DatabaseClose(lua_State* L)
@@ -449,6 +458,25 @@ L_DatabaseOpen(lua_State* L)
        getApi(L).DatabaseOpen(
          qlua::getString(L, 1), qlua::getString(L, 2), qlua::getInt(L, 3, 6)));
   return 1;
+}
+
+int
+L_Save(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  push(L,
+       getApi(L).Save(qlua::getQString(L, 1, QString()),
+                      qlua::getBool(L, 2, false)));
+  return 1;
+}
+
+int
+L_SaveState(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  return returnCode(L, getApi(L).SaveState());
 }
 
 // generate
@@ -492,15 +520,6 @@ L_MakeRegularExpression(lua_State* L)
 // info
 
 int
-L_ChangeDir(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 1);
-  push(L, ScriptApi::ChangeDir(qlua::getQString(L, 1)));
-  return 1;
-}
-
-int
 L_GetAliasInfo(lua_State* L)
 {
   BENCHMARK
@@ -509,18 +528,6 @@ L_GetAliasInfo(lua_State* L)
                getApi(L).GetAliasInfo(getPluginIndex(L),
                                       qlua::getString(L, 1),
                                       qlua::getInteger(L, 2)));
-  return 1;
-}
-
-int
-L_GetConnectDuration(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 0);
-  push(L,
-       std::chrono::duration_cast<std::chrono::seconds>(
-         getApi(L).GetConnectDuration())
-         .count());
   return 1;
 }
 
@@ -949,6 +956,18 @@ L_Disconnect(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 0);
   return returnCode(L, getApi(L).Disconnect());
+}
+
+int
+L_GetConnectDuration(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L,
+       std::chrono::duration_cast<std::chrono::seconds>(
+         getApi(L).GetConnectDuration())
+         .count());
+  return 1;
 }
 
 int
@@ -3190,9 +3209,12 @@ static const struct luaL_Reg worldlib[] =
     { "SetBackgroundColour", L_SetBackgroundColour },
     { "SetBoldColour", L_SetBoldColour },
     { "SetNormalColour", L_SetNormalColour },
-    // database
+    // file
+    { "ChangeDir", L_ChangeDir },
     { "DatabaseClose", L_DatabaseClose },
     { "DatabaseOpen", L_DatabaseOpen },
+    { "Save", L_Save },
+    { "SaveState", L_SaveState },
     // generate
     { "CreateGUID", L_CreateGUID },
     { "GetUniqueID", L_GetUniqueID },
@@ -3200,8 +3222,6 @@ static const struct luaL_Reg worldlib[] =
     { "Hash", L_Hash },
     { "MakeRegularExpression", L_MakeRegularExpression },
     // info
-    { "ChangeDir", L_ChangeDir },
-    { "GetConnectDuration", L_GetConnectDuration },
     { "GetAliasInfo", L_GetAliasInfo },
     { "GetInfo", L_GetInfo },
     { "GetLineInfo", L_GetLineInfo },
@@ -3248,6 +3268,7 @@ static const struct luaL_Reg worldlib[] =
     // network
     { "Connect", L_Connect },
     { "Disconnect", L_Disconnect },
+    { "GetConnectDuration", L_GetConnectDuration },
     { "GetHostAddresses", L_GetHostAddresses },
     { "GetHostName", L_GetHostName },
     { "GetReceivedBytes", L_GetReceivedBytes },
@@ -3460,6 +3481,7 @@ static const struct luaL_Reg worldlib[] =
     { "GetNoteColour", L_noop_neg },
     { "GetNotes", L_noop_string },
     { "GetQueue", L_noop_empty },
+    { "GetRemoveBacktracks", L_noop_false },
     { "GetRemoveMapReverses", L_noop_false },
     { "GetScriptTime", L_noop_zero },
     { "GetSpeedWalkDelay", L_noop_zero },
@@ -3475,6 +3497,7 @@ static const struct luaL_Reg worldlib[] =
     { "MoveNotepadWindow", L_noop_false },
     { "MoveWorldWindow", L_noop_void },
     { "MoveWorldWindowX", L_noop_void },
+    { "ReadNamesFile", L_noop_ok },
     { "Redraw", L_noop_void },
     { "Repaint", L_noop_void },
     { "ResetIP", L_noop_void },
@@ -3485,6 +3508,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetFrameBackgroundColour", L_noop_void },
     { "SetMapping", L_noop_void },
     { "SetNoteColour", L_noop_void },
+    { "SetRemoveBacktracks", L_noop_void },
     { "SetRemoveMapReverses", L_noop_void },
     { "SetSpeedWalkDelay", L_noop_void },
     { "SpellCheckCommand", L_noop_spellcheck },

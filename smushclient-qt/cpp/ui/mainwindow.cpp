@@ -726,7 +726,7 @@ MainWindow::on_action_save_world_details_as_triggered()
   if (tab == nullptr) {
     return;
   }
-  addRecentFile(tab->saveWorldAsNew());
+  addRecentFile(tab->saveWorldAs());
   setWindowModified(tab->isWindowModified());
 }
 

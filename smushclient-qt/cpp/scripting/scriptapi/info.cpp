@@ -134,15 +134,6 @@ ScriptApi::FontInfo(const QFont& font, int64_t infoType)
 
 // Public methods
 
-QElapsedTimer::Duration
-ScriptApi::GetConnectDuration() const
-{
-  if (!whenConnected.isValid()) {
-    return {};
-  }
-  return whenConnected.durationElapsed();
-}
-
 QVariant
 ScriptApi::GetInfo(int64_t infoType) const
 {

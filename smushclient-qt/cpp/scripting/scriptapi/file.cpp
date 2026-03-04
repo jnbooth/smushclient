@@ -1,3 +1,5 @@
+#include "../../ui/worldtab.h"
+#include "../callback/plugincallback.h"
 #include "../scriptapi.h"
 #include "sqlite3.h"
 
@@ -36,4 +38,25 @@ ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
   }
 
   return result;
+}
+
+bool
+ScriptApi::Save(const QString& path, bool replace)
+{
+  return !(path.isEmpty() ? tab.saveWorldAsNew(path, !replace)
+                          : tab.saveWorld())
+            .isEmpty();
+}
+
+ApiCode
+ScriptApi::SaveState()
+{
+  OnPluginSaveState onSaveState;
+  sendCallback(onSaveState);
+  try {
+    client.trySaveVariables(tab.variablesPath());
+  } catch (const rust::Error&) {
+    return ApiCode::PluginCouldNotSaveState;
+  }
+  return ApiCode::OK;
 }

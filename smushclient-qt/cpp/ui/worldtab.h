@@ -60,7 +60,8 @@ public:
   void reloadWorldScript() const;
   void resetAllTimers() const;
   QString saveWorld();
-  QString saveWorldAsNew();
+  QString saveWorldAs() { return saveWorldAsNew(QString()); }
+  QString saveWorldAsNew(const QString& path, bool separate = false);
   bool sendCommand(const QString& command, CommandSource source);
   const QHash<QString, QString>& serverStatus() const;
   void setActive(bool active);
@@ -84,6 +85,7 @@ public:
   {
     return m_title.isEmpty() ? worldName : m_title;
   };
+  QString variablesPath() const { return variablesPath(filePath); }
   const QString& worldFilePath() const noexcept { return filePath; }
 
 public slots:
@@ -112,6 +114,11 @@ protected:
   void resizeEvent(QResizeEvent* event) override;
 
 private:
+  static QString variablesPath(const QString& path)
+  {
+    return path + QStringLiteral(".vars");
+  }
+
   void applyWorld(const World& world);
   void finishDrag();
   void handleConnect();

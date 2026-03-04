@@ -54,12 +54,6 @@ toQChar(uint8_t byte) noexcept
   return QChar::fromLatin1(static_cast<char>(byte));
 }
 
-QString
-variablesPath(const QString& path)
-{
-  return path + QStringLiteral(".vars");
-}
-
 inline void
 showRustError(const rust::Error& e)
 {
@@ -362,7 +356,7 @@ QString
 WorldTab::saveWorld()
 {
   if (filePath.isEmpty()) {
-    return saveWorldAsNew();
+    return saveWorldAsNew(QString());
   }
   if (!saveWorldAndState(filePath)) {
     return QString();
@@ -371,19 +365,25 @@ WorldTab::saveWorld()
 }
 
 QString
-WorldTab::saveWorldAsNew()
+WorldTab::saveWorldAsNew(const QString& path, bool separate)
 {
-  const QString path = QFileDialog::getSaveFileName(
-    this,
-    tr("Save as"),
-    QStringLiteral(WORLDS_DIR) + QDir::separator() + worldName,
-    FileFilter::world());
+  const QString userPath =
+    path.isEmpty()
+      ? QFileDialog::getSaveFileName(this,
+                                     tr("Save as"),
+                                     QStringLiteral(WORLDS_DIR) +
+                                       QDir::separator() + worldName,
+                                     FileFilter::world())
+      : path;
 
-  if (path.isEmpty() || !saveWorldAndState(path)) {
+  if (userPath.isEmpty() || !saveWorldAndState(userPath)) {
     return QString();
   }
 
-  filePath = makePathRelative(path);
+  if (!separate) {
+    filePath = makePathRelative(path);
+  }
+
   return filePath;
 }
 
@@ -548,7 +548,7 @@ WorldTab::start()
 
   if (!filePath.isEmpty()) {
     try {
-      client.tryLoadVariables(variablesPath(filePath));
+      client.tryLoadVariables(variablesPath());
     } catch (const rust::Error& e) {
       showRustError(e);
     }

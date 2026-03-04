@@ -105,7 +105,7 @@ QString
 Notepad::save()
 {
   if (filePath.isEmpty()) {
-    return saveAs();
+    return saveAsNew(QString());
   }
   if (!writeToFile(filePath)) {
     return QString();

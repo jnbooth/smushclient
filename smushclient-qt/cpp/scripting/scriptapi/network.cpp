@@ -30,6 +30,15 @@ ScriptApi::Disconnect() const
   return tab.connectToHost() ? ApiCode::OK : ApiCode::WorldClosed;
 }
 
+QElapsedTimer::Duration
+ScriptApi::GetConnectDuration() const
+{
+  if (!whenConnected.isValid()) {
+    return {};
+  }
+  return whenConnected.durationElapsed();
+}
+
 int64_t
 ScriptApi::GetReceivedBytes() const noexcept
 {
