@@ -274,6 +274,15 @@ enum class ScriptCursor : int64_t
 };
 DECLARE_ENUM_BOUNDS(ScriptCursor, BlankCursor, WhatsThisCursor)
 
+enum class ScriptWindowStatus : int64_t
+{
+  Maximize = 1,
+  Minimize = 2,
+  Restore = 3,
+  Normal = 4,
+};
+DECLARE_ENUM_BOUNDS(ScriptWindowStatus, Maximize, Normal)
+
 enum class SysColor : int64_t
 {
   Scrollbar,

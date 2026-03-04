@@ -389,6 +389,7 @@ public:
                            std::string_view label,
                            std::string_view option,
                            std::string_view value) const noexcept;
+  void SetWorldWindowStatus(ScriptWindowStatus status) const;
   bool SetVariable(size_t pluginIndex,
                    std::string_view key,
                    std::string_view value) const noexcept;

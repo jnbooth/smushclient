@@ -137,6 +137,24 @@ ScriptApi::SetTitle(const QString& title) const
 }
 
 void
+ScriptApi::SetWorldWindowStatus(ScriptWindowStatus status) const
+{
+  QWidget* window = tab.window();
+  switch (status) {
+    case ScriptWindowStatus::Maximize:
+      window->showMaximized();
+      return;
+    case ScriptWindowStatus::Minimize:
+      window->showMinimized();
+      return;
+    case ScriptWindowStatus::Restore:
+    case ScriptWindowStatus::Normal:
+      window->showNormal();
+      return;
+  }
+}
+
+void
 ScriptApi::Simulate(string_view output) const noexcept
 {
   tab.simulateOutput(output);

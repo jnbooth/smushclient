@@ -1535,6 +1535,20 @@ L_SetStatus(lua_State* L)
 }
 
 int
+L_SetWorldWindowStatus(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  const optional<ScriptWindowStatus> status =
+    qlua::getEnum<ScriptWindowStatus>(L, 1);
+  if (!status) {
+    return 0;
+  }
+  getApi(L).SetWorldWindowStatus(*status);
+  return 0;
+}
+
+int
 L_Simulate(lua_State* L)
 {
   BENCHMARK
@@ -3371,6 +3385,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetScroll", L_SetScroll },
     { "SetStatus", L_SetStatus },
     { "SetTitle", L_SetTitle },
+    { "SetWorldWindowStatus", L_SetWorldWindowStatus },
     { "Simulate", L_Simulate },
     { "TextRectangle", L_TextRectangle },
     // plugin
