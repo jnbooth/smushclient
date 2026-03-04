@@ -13,6 +13,7 @@
 #include <QtCore/QUuid>
 #include <QtGui/QTextCursor>
 #include <QtNetwork/QAbstractSocket>
+#include <QtNetwork/QHostAddress>
 #include <QtWidgets/QLabel>
 
 #define SCRIPTING_VERSION "5.07"
@@ -599,6 +600,8 @@ public:
                               Hotspot::CallbacksPartial&& callbacks) const;
   ApiCode WindowWrite(std::string_view windowName,
                       const QString& filename) const;
+  QHostAddress WorldAddress() const { return socket.peerAddress(); };
+  uint16_t WorldPort() const { return socket.peerPort(); };
   ApiCode WriteLog(std::string_view message) const;
 
   void applyWorld(const World& world);

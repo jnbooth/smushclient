@@ -1036,6 +1036,24 @@ L_IsConnected(lua_State* L)
   return 1;
 }
 
+int
+L_WorldAddress(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).WorldAddress());
+  return 1;
+}
+
+int
+L_WorldPort(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).WorldPort());
+  return 1;
+}
+
 // note
 
 int
@@ -1349,6 +1367,15 @@ L_SetOption(lua_State* L)
                     getApi(L).SetOption(getPluginIndex(L),
                                         qlua::getString(L, 1),
                                         qlua::getIntegerOrBool(L, 2, 0)));
+}
+
+int
+L_WorldName(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetOption(getPluginIndex(L), "name"));
+  return 1;
 }
 
 // output
@@ -3327,6 +3354,8 @@ static const struct luaL_Reg worldlib[] =
     { "GetReceivedBytes", L_GetReceivedBytes },
     { "GetSentBytes", L_GetSentBytes },
     { "IsConnected", L_IsConnected },
+    { "WorldAddress", L_WorldAddress },
+    { "WorldPort", L_WorldPort },
     // note
     { "AnsiNote", L_AnsiNote },
     { "ColourNote", L_ColourNote },
@@ -3362,6 +3391,7 @@ static const struct luaL_Reg worldlib[] =
     { "GetOptionList", L_GetOptionList },
     { "SetAlphaOption", L_SetAlphaOption },
     { "SetOption", L_SetOption },
+    { "WorldName", L_WorldName },
     // output
     { "Activate", L_ActivateClient },
     { "ActivateClient", L_ActivateClient },
@@ -3541,6 +3571,7 @@ static const struct luaL_Reg worldlib[] =
     { "GetRemoveMapReverses", L_noop_false },
     { "GetScriptTime", L_noop_zero },
     { "GetSpeedWalkDelay", L_noop_zero },
+    { "GetTrace", L_noop_false },
     { "GetUdpPort", L_noop_zero },
     { "Help", L_noop_void },
     { "Info", L_noop_void },
@@ -3557,7 +3588,6 @@ static const struct luaL_Reg worldlib[] =
     { "Redraw", L_noop_void },
     { "Repaint", L_noop_void },
     { "ResetIP", L_noop_void },
-    { "ReverseSpeedwalk", L_noop_echo },
     { "SetCustomColourBackground", L_noop_void },
     { "SetCustomColourName", L_noop_ok },
     { "SetCustomColourText", L_noop_void },
@@ -3568,7 +3598,16 @@ static const struct luaL_Reg worldlib[] =
     { "SetRemoveBacktracks", L_noop_void },
     { "SetRemoveMapReverses", L_noop_void },
     { "SetSpeedWalkDelay", L_noop_void },
+    { "SetToolBarPosition", L_noop_ok },
+    { "SetTrace", L_noop_void },
+    { "SetUnseenLines", L_noop_void },
+    { "ShiftTabCompleteItem", L_noop_ok },
+    { "ShowInfoBar", L_noop_void },
+    { "SpellCheck", L_noop_nil },
     { "SpellCheckCommand", L_noop_spellcheck },
+    { "SpellCheckDlg", L_noop_nil },
+    { "TraceOut", L_noop_void },
+    { "TranslateDebug", L_noop_ok },
     { "Transparency", L_noop_false },
     { "WindowBezier", L_noop_ok },
 
