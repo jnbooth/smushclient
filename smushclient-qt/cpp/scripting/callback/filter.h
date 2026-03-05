@@ -15,10 +15,15 @@ public:
   {
     return (filter & id) != 0;
   }
+  constexpr void set(unsigned int id, bool on = true)
+  {
+    if (on) {
+      filter |= id;
+    } else {
+      filter &= ~id;
+    }
+  }
   void scan(lua_State* L);
-
-private:
-  void setIfDefined(lua_State* L, const NamedPluginCallback& callback);
 
 private:
   unsigned int filter = 0;

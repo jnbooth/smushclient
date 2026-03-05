@@ -145,8 +145,7 @@ ScriptApi::handleSendRequest(const SendRequest& request)
     case SendTarget::Script:
     case SendTarget::ScriptAfterOmit: {
       const QByteArray utf8 = request.text.toUtf8();
-      runScript(
-        request.plugin, string_view(utf8.data(), utf8.size()), utf8.data());
+      runScript(request.plugin, utf8, utf8.data());
       return;
     }
     case SendTarget::Log:
@@ -197,8 +196,13 @@ ScriptApi::initializePlugins()
 }
 
 ApiCode
-ScriptApi::playFileRaw(string_view path) const noexcept
+ScriptApi::playFileRaw(string_view path)
 {
+  OnPluginPlaySound onPlaySound(path);
+  sendCallback(onPlaySound);
+  if (onPlaySound.discarded()) {
+    return ApiCode::OK;
+  }
   return client.playFileRaw(path);
 }
 
@@ -280,15 +284,21 @@ ScriptApi::selectRecentLines(int count) const
 void
 ScriptApi::sendCallback(PluginCallback& callback)
 {
-  if (!callbackFilter.includes(callback.id())) {
+  const uint id = callback.id();
+  if (id != 0 && !callbackFilter.includes(id)) {
     return;
   }
+  if (activeCallbacks.includes(id)) {
+    return;
+  }
+  activeCallbacks.set(id, true);
 
   const ActionSource callbackSource = callback.source();
   if (callbackSource == ActionSource::Unknown) {
     for (const Plugin& plugin : plugins) {
       plugin.runCallback(callback);
     }
+    activeCallbacks.set(id, false);
     return;
   }
 
@@ -300,6 +310,7 @@ ScriptApi::sendCallback(PluginCallback& callback)
   }
 
   actionSource = initialSource;
+  activeCallbacks.set(id, false);
 }
 
 bool
@@ -335,6 +346,18 @@ ScriptApi::sendNaws()
     return;
   }
   SendPacket(ffi::util::encode_naws(*tab.ui->output));
+}
+
+void
+ScriptApi::sendPartialLineToPlugins()
+{
+  const QString qline = cursor->document()->lastBlock().text();
+  if (qline.isEmpty()) {
+    return;
+  }
+  const QByteArray line = qline.toUtf8();
+  OnPluginPartialLineReceived onPartialLineReceived(line);
+  sendCallback(onPartialLineReceived);
 }
 
 ApiCode
@@ -394,7 +417,15 @@ ScriptApi::setPluginEnabled(size_t plugin, bool enable)
   if (target.isDisabled() == !enable) {
     return;
   }
+  if (!enable) {
+    OnPluginDisable onPluginDisable;
+    target.runCallback(onPluginDisable);
+  }
   target.setEnabled(enable);
+  if (enable) {
+    OnPluginEnable onPluginEnable;
+    target.runCallback(onPluginEnable);
+  }
   OnPluginListChanged onListChanged;
   sendCallback(onListChanged);
 }

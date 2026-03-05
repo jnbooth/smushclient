@@ -95,8 +95,8 @@ Plugin::hasFunction(const QString& routine) const
 bool
 Plugin::install(const PluginPack& pack)
 {
-  string_view script(reinterpret_cast<const char*>(pack.scriptData),
-                     pack.scriptSize);
+  QByteArrayView script(pack.scriptData,
+                        static_cast<qsizetype>(pack.scriptSize));
   if (pack.scriptSize != 0 && !runScript(script, pack.path.toUtf8().data())) {
     setEnabled(false);
     return false;
@@ -189,7 +189,7 @@ Plugin::runFile(const QString& path) const
 }
 
 bool
-Plugin::runScript(string_view script, const char* name) const
+Plugin::runScript(QByteArrayView script, const char* name) const
 {
   if (disabled || script.empty()) [[unlikely]] {
     return false;

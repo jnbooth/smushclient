@@ -25,16 +25,7 @@ using std::chrono::milliseconds;
 
 constexpr uint8_t telnetNAWS = 31;
 constexpr uint8_t telnetMSSP = 70;
-
-// Private utils
-
-namespace {
-inline string_view
-strView(rust::Str str) noexcept
-{
-  return string_view(str.data(), str.length());
-}
-} // namespace
+constexpr uint8_t telnetMudSpecific = 102;
 
 // Public methods
 
@@ -65,6 +56,7 @@ Document::appendHtml(const QString& html) const
 void
 Document::appendLine()
 {
+  api.sendPartialLineToPlugins();
   outputStart = cursor->document()->blockCount() - 1;
   cursor->startLine();
 }
@@ -208,20 +200,20 @@ Document::handleMxpChange(bool enabled) const
 void
 Document::handleMxpEntity(rust::Str data) const
 {
-  OnPluginMXPSetEntity onMxpSetEntity(strView(data));
+  OnPluginMXPSetEntity onMxpSetEntity(data);
   api.sendCallback(onMxpSetEntity);
 }
 
 void
 Document::handleMxpVariable(rust::Str name, rust::Str value) const
 {
-  OnPluginMXPSetVariable onMxpSetVariable(strView(name), strView(value));
+  OnPluginMXPSetVariable onMxpSetVariable(name, value);
   api.sendCallback(onMxpSetVariable);
 }
 
 void
-Document::handleServerStatus(const QByteArray& variableBytes,
-                             const QByteArray& valueBytes)
+Document::handleServerStatus(rust::Slice<const uint8_t> variableBytes,
+                             rust::Slice<const uint8_t> valueBytes)
 {
   const QString variable = QString::fromUtf8(variableBytes);
   const QString value = QString::fromUtf8(valueBytes);
@@ -279,8 +271,12 @@ Document::handleTelnetNegotiation(TelnetSource source,
 }
 
 void
-Document::handleTelnetSubnegotiation(uint8_t code, const QByteArray& data) const
+Document::handleTelnetSubnegotiation(uint8_t code,
+                                     rust::Slice<const uint8_t> data) const
 {
+  if (code == telnetMudSpecific) {
+    OnPluginTelnetOption onTelnetOption(data);
+  }
   OnPluginTelnetSubnegotiation onTelnetSubnegotiation(code, data);
   api.sendCallback(onTelnetSubnegotiation);
 }
@@ -294,7 +290,15 @@ Document::moveCursor(QTextCursor::MoveOperation op, int count) const
 bool
 Document::permitLine(rust::Str line) const
 {
-  OnPluginLineReceived onLineReceived(strView(line));
+  OnPluginLineReceived onLineReceived(line);
+  api.sendCallback(onLineReceived);
+  return !onLineReceived.discarded();
+}
+
+bool
+Document::permitSound(rust::Str file) const
+{
+  OnPluginPlaySound onLineReceived(file);
   api.sendCallback(onLineReceived);
   return !onLineReceived.discarded();
 }

@@ -47,17 +47,19 @@ public:
   virtual void handleMxpChange(bool enabled) const = 0;
   virtual void handleMxpEntity(rust::Str data) const = 0;
   virtual void handleMxpVariable(rust::Str name, rust::Str value) const = 0;
-  virtual void handleServerStatus(const QByteArray& variable,
-                                  const QByteArray& value) = 0;
+  virtual void handleServerStatus(rust::Slice<const uint8_t> variable,
+                                  rust::Slice<const uint8_t> value) = 0;
   virtual void handleTelnetGoAhead() const = 0;
   virtual void handleTelnetNaws() const = 0;
   virtual void handleTelnetNegotiation(TelnetSource source,
                                        TelnetVerb verb,
                                        uint8_t code) = 0;
-  virtual void handleTelnetSubnegotiation(uint8_t code,
-                                          const QByteArray& data) const = 0;
+  virtual void handleTelnetSubnegotiation(
+    uint8_t code,
+    rust::Slice<const uint8_t> data) const = 0;
   virtual void moveCursor(QTextCursor::MoveOperation op, int count) const = 0;
   virtual bool permitLine(rust::Str line) const = 0;
+  virtual bool permitSound(rust::Str file) const = 0;
   virtual void send(const SendRequest& request) const = 0;
   virtual void send(const SendScriptRequest& request) const = 0;
   virtual void setDynamicColor(DynamicColor dynamic,

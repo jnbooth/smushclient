@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use std::ops::Range;
 use std::pin::Pin;
 
-use cxx_qt_lib::{QByteArray, QString};
+use cxx_qt_lib::QString;
 use mud_transformer::term::{self, CursorEffect};
 use mud_transformer::{
     ControlFragment, EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment,
@@ -152,15 +152,14 @@ impl ClientHandler<'_> {
                     .as_mut()
                     .handle_telnet_negotiation(*source, *verb, *code);
             }
-            TelnetFragment::ServerStatus { variable, value } => self
-                .doc
-                .as_mut()
-                .handle_server_status(&QByteArray::from(&**variable), &QByteArray::from(&**value)),
+            TelnetFragment::ServerStatus { variable, value } => {
+                self.doc.as_mut().handle_server_status(variable, value);
+            }
             TelnetFragment::SetEcho { .. } if self.no_echo_off => (),
             TelnetFragment::SetEcho { should_echo } => self.doc.set_suppress_echo(!should_echo),
-            TelnetFragment::Subnegotiation { code, data } => self
-                .doc
-                .handle_telnet_subnegotiation(*code, &QByteArray::from(&**data)),
+            TelnetFragment::Subnegotiation { code, data } => {
+                self.doc.handle_telnet_subnegotiation(*code, data);
+            }
         }
     }
 }
@@ -206,6 +205,10 @@ impl smushclient::Handler for ClientHandler<'_> {
 
     fn permit_line(&mut self, line: &str) -> bool {
         self.doc.permit_line(line)
+    }
+
+    fn permit_sound(&mut self, file: &str) -> bool {
+        self.doc.permit_sound(file)
     }
 
     fn send(&mut self, request: SendRequest) {

@@ -1,4 +1,5 @@
 #include "../../client.h"
+#include "../callback/plugincallback.h"
 #include "../scriptapi.h"
 
 using std::string_view;
@@ -6,23 +7,14 @@ using std::string_view;
 // Public methods
 
 ApiCode
-ScriptApi::PlaySound(size_t channel,
-                     string_view path,
-                     bool loop,
-                     float volume) const noexcept
+ScriptApi::PlaySound(size_t channel, string_view path, bool loop, float volume)
 {
+  OnPluginPlaySound onPlaySound(path);
+  sendCallback(onPlaySound);
+  if (onPlaySound.discarded()) {
+    return ApiCode::OK;
+  }
   return client.playFile(channel, path, volume, loop);
-}
-
-ApiCode
-ScriptApi::PlaySound(size_t channel,
-                     const QString& path,
-                     bool loop,
-                     float volume) const noexcept
-{
-  const QByteArray utf8 = path.toUtf8();
-  return PlaySound(
-    channel, string_view(utf8.data(), utf8.size()), loop, volume);
 }
 
 ApiCode
@@ -35,8 +27,13 @@ ScriptApi::PlaySoundMemory(size_t channel,
 }
 
 ApiCode
-ScriptApi::StopSound(size_t channel) const noexcept
+ScriptApi::StopSound(size_t channel)
 {
+  OnPluginPlaySound onPlaySound("");
+  sendCallback(onPlaySound);
+  if (onPlaySound.discarded()) {
+    return ApiCode::OK;
+  }
   return client.stopSound(channel);
 }
 

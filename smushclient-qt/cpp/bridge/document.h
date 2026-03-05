@@ -55,17 +55,18 @@ public:
   void handleMxpChange(bool enabled) const override;
   void handleMxpEntity(rust::Str data) const override;
   void handleMxpVariable(rust::Str name, rust::Str value) const override;
-  void handleServerStatus(const QByteArray& variable,
-                          const QByteArray& value) override;
+  void handleServerStatus(rust::Slice<const uint8_t> variable,
+                          rust::Slice<const uint8_t> value) override;
   void handleTelnetGoAhead() const override;
   void handleTelnetNaws() const override;
   void handleTelnetNegotiation(TelnetSource source,
                                TelnetVerb verb,
                                uint8_t code) override;
-  void handleTelnetSubnegotiation(uint8_t code,
-                                  const QByteArray& data) const override;
+  void handleTelnetSubnegotiation(uint8_t code, rust::Slice<const uint8_t> data)
+    const override;
   void moveCursor(QTextCursor::MoveOperation op, int count) const override;
   bool permitLine(rust::Str line) const override;
+  bool permitSound(rust::Str file) const override;
   void send(const SendRequest& request) const override;
   void send(const SendScriptRequest& request) const override;
   void setDynamicColor(DynamicColor dynamic,

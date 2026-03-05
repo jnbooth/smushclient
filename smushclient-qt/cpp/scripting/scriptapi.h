@@ -317,11 +317,16 @@ public:
   ApiCode PlaySound(size_t channel,
                     std::string_view path,
                     bool loop = false,
-                    float volume = 1.0) const noexcept;
+                    float volume = 1.0);
   ApiCode PlaySound(size_t channel,
                     const QString& path,
                     bool loop = false,
-                    float volume = 1.0) const noexcept;
+                    float volume = 1.0)
+  {
+    const QByteArray utf8 = path.toUtf8();
+    return PlaySound(
+      channel, std::string_view(utf8.data(), utf8.size()), loop, volume);
+  }
   ApiCode PlaySoundMemory(size_t channel,
                           QByteArrayView sound,
                           bool loop = false,
@@ -393,7 +398,7 @@ public:
                    std::string_view value) const noexcept;
   void Simulate(std::string_view output) const noexcept;
   void StopEvaluatingTriggers() const noexcept;
-  ApiCode StopSound(size_t channel = 0) const noexcept;
+  ApiCode StopSound(size_t channel = 0);
   void Tell(const QString& text);
   ApiCode TextRectangle(const QRect& rect,
                         int borderOffset,
@@ -606,11 +611,11 @@ public:
     return !plugins[plugin].isDisabled();
   }
   QWidget* parentWidget() const { return qobject_cast<QWidget*>(parent()); }
-  ApiCode playFileRaw(std::string_view path) const noexcept;
+  ApiCode playFileRaw(std::string_view path);
   void printError(const QString& message);
   void reloadWorldScript(const QString& worldScriptPath);
   void resetAllTimers();
-  bool runScript(size_t plugin, std::string_view script, const char* name) const
+  bool runScript(size_t plugin, QByteArrayView script, const char* name) const
   {
     return plugins[plugin].runScript(script, name);
   }
@@ -619,6 +624,7 @@ public:
   bool sendCallback(PluginCallback& callback, size_t plugin);
   bool sendCallback(PluginCallback& callback, const QString& pluginID);
   void sendNaws();
+  void sendPartialLineToPlugins();
   ApiCode sendToWorld(QByteArray& bytes, SendFlags flags)
   {
     return sendToWorld(bytes, QString::fromUtf8(bytes), flags);
@@ -690,6 +696,7 @@ private:
     QChar(static_cast<char32_t>(2029));
 
   ActionSource actionSource = ActionSource::Unknown;
+  CallbackFilter activeCallbacks;
   QRect assignedTextRectangle;
   ImageWindow* backgroundImage = nullptr;
   CallbackFilter callbackFilter;

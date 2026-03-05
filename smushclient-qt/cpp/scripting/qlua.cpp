@@ -23,7 +23,7 @@ using std::string_view;
 constexpr int FALSE = 0;
 constexpr int TRUE = 1;
 
-static const array<QColor, 16> customColors{
+static const array<QColor, 16> customColors = {
   QColor(255, 128, 128), QColor(255, 255, 128), QColor(128, 255, 128),
   QColor(128, 255, 255), QColor(0, 128, 255),   QColor(255, 128, 192),
   QColor(255, 0, 0),     QColor(0, 128, 192),   QColor(255, 0, 255),

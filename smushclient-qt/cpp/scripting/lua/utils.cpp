@@ -2,6 +2,7 @@
 #include "../../settings.h"
 #include "../../ui/scripting/choose.h"
 #include "../../ui/scripting/listbox.h"
+#include "../callback/plugincallback.h"
 #include "../qlua.h"
 #include "../scriptapi.h"
 #include "api.h"
@@ -26,6 +27,7 @@ extern "C"
 #define SIZE_MAX = std::numeric_limits<size_t>::max();
 #endif
 
+using std::span;
 using std::string_view;
 
 using qlua::expectMaxArgs;
@@ -539,6 +541,20 @@ L_appendtonotepad(lua_State* L)
 }
 
 int
+L_callbackslist(lua_State* L)
+{
+  expectMaxArgs(L, 0);
+  const span callbacks = NamedPluginCallback::list();
+  lua_createtable(L, static_cast<int>(callbacks.size()), 0);
+  int i = -1;
+  for (const NamedPluginCallback* callback : callbacks) {
+    push(L, callback->name());
+    lua_rawseti(L, -2, ++i);
+  }
+  return 1;
+}
+
+int
 L_choose(lua_State* L)
 {
   expectMaxArgs(L, 4);
@@ -729,8 +745,8 @@ L_infotypes(lua_State* L)
 {
   lua_createtable(L, maxInfoType, 0);
   for (const auto& entry : infoTypes) {
-    qlua::push(L, entry.second);
-    lua_rawseti(L, -1, entry.first);
+    push(L, entry.second);
+    lua_rawseti(L, -2, entry.first);
   }
   return 1;
 }
@@ -963,6 +979,7 @@ L_noop_nil(lua_State* L)
 static const struct luaL_Reg utilslib[] = {
   { "activatenotepad", L_activatenotepad },
   { "appendtonotepad", L_appendtonotepad },
+  { "callbackslist", L_callbackslist },
   { "choose", L_choose },
   { "compress", L_compress },
   { "decompress", L_decompress },

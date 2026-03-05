@@ -13,4 +13,5 @@ pub trait Handler {
     fn send(&mut self, request: SendRequest);
     fn send_script(&mut self, request: SendScriptRequest);
     fn permit_line(&mut self, line: &str) -> bool;
+    fn permit_sound(&mut self, file: &str) -> bool;
 }

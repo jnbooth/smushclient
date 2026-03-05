@@ -7,8 +7,6 @@ use crate::sender::{OutputSpan, TextSpan};
 #[cxx::bridge]
 pub mod ffi {
     extern "C++" {
-        include!("cxx-qt-lib/qbytearray.h");
-        type QByteArray = cxx_qt_lib::QByteArray;
         include!("cxx-qt-lib/qcolor.h");
         type QColor = cxx_qt_lib::QColor;
         include!("cxx-qt-lib/qstring.h");
@@ -142,7 +140,7 @@ pub mod ffi {
         fn handleMxpVariable(self: &Document, name: &str, value: &str);
 
         #[rust_name = "handle_server_status"]
-        fn handleServerStatus(self: Pin<&mut Document>, variable: &QByteArray, value: &QByteArray);
+        fn handleServerStatus(self: Pin<&mut Document>, variable: &[u8], value: &[u8]);
 
         #[rust_name = "handle_telnet_go_ahead"]
         fn handleTelnetGoAhead(self: &Document);
@@ -159,13 +157,16 @@ pub mod ffi {
         );
 
         #[rust_name = "handle_telnet_subnegotiation"]
-        fn handleTelnetSubnegotiation(self: &Document, code: u8, data: &QByteArray);
+        fn handleTelnetSubnegotiation(self: &Document, code: u8, data: &[u8]);
 
         #[rust_name = "move_cursor"]
         fn moveCursor(self: &Document, op: QTextCursorMoveOperation, count: i32);
 
         #[rust_name = "permit_line"]
         fn permitLine(self: &Document, line: &str) -> bool;
+
+        #[rust_name = "permit_sound"]
+        fn permitSound(self: &Document, file: &str) -> bool;
 
         fn send(self: &Document, request: &SendRequest);
 

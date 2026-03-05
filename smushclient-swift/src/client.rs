@@ -62,6 +62,10 @@ impl smushclient::Handler for AliasHandler {
     fn permit_line(&mut self, _line: &str) -> bool {
         true
     }
+
+    fn permit_sound(&mut self, _file: &str) -> bool {
+        true
+    }
 }
 
 pub struct ClientHandler {
@@ -108,6 +112,10 @@ impl smushclient::Handler for ClientHandler {
     fn erase_last_line(&mut self) {}
 
     fn permit_line(&mut self, _line: &str) -> bool {
+        true
+    }
+
+    fn permit_sound(&mut self, _file: &str) -> bool {
         true
     }
 

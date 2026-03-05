@@ -630,8 +630,8 @@ WorldTab::onOutputPaddingChanged(qreal padding) const
 void
 WorldTab::closeEvent(QCloseEvent* event)
 {
-  OnPluginClose onPluginClose;
-  api->sendCallback(onPluginClose);
+  OnPluginClose onClose;
+  api->sendCallback(onClose);
   if (!promptSave()) {
     event->ignore();
     return;
@@ -937,6 +937,7 @@ WorldTab::flushOutput()
   const ActionSource currentSource = api->setSource(ActionSource::TriggerFired);
   client.flush(*document);
   api->setSource(currentSource);
+  api->sendPartialLineToPlugins();
 }
 
 void
@@ -1170,4 +1171,11 @@ WorldTab::on_output_linkActivated(const QString& action, SendTo sendTo)
   }
 
   sendCommand(action, CommandSource::Hotkey);
+}
+
+void
+WorldTab::on_output_selectionChanged()
+{
+  OnPluginSelectionChanged onSelectionChanged;
+  api->sendCallback(onSelectionChanged);
 }
