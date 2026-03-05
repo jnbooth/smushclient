@@ -14,11 +14,10 @@ public:
                   T value,
                   Source* source,
                   Setter<Source, T> setter)
+    requires(std::is_same_v<std::underlying_type_t<T>, int>)
     : group(new QButtonGroup(parent))
     , currentValue(value)
   {
-    static_assert(std::is_same_v<std::underlying_type_t<T>, int>,
-                  "enum must be represented by int");
     group->setExclusive(true);
     parent->connect(group,
                     &QButtonGroup::idClicked,

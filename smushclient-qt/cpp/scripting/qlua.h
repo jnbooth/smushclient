@@ -206,13 +206,6 @@ push(lua_State* L, T value)
   lua_pushinteger(L, static_cast<lua_Integer>(value));
 }
 
-template<size_t N>
-const char*
-push(lua_State* L, const std::array<char, N>& data)
-{
-  return lua_pushlstring(L, data.data(), data.size());
-}
-
 inline const char*
 push(lua_State* L, const char* value)
 {
@@ -337,7 +330,6 @@ pushMap(lua_State* L, const T& map)
   lua_createtable(L, 0, static_cast<int>(map.size()));
   for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
     pushEntry(L, it.key(), it.value());
-    lua_rawset(L, -3);
   }
 }
 

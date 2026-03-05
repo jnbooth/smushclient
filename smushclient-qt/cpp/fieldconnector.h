@@ -31,9 +31,8 @@ public:
                                          QComboBox* input,
                                          const Enum value,
                                          Setter<T, Enum> setter)
+    requires(std::is_same_v<std::underlying_type_t<Enum>, int>)
   {
-    static_assert(std::is_same_v<std::underlying_type_t<Enum>, int>,
-                  "enum must be represented by int");
     input->setCurrentIndex(static_cast<int>(value));
     return object->connect(input,
                            &QComboBox::currentIndexChanged,
