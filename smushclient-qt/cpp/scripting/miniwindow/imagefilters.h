@@ -1,4 +1,5 @@
 #pragma once
+#include "../../enumbounds.h"
 #include "smushclient_qt/src/ffi/filter.cxx.h"
 #include <QtGui/QPixmap>
 
@@ -220,3 +221,6 @@ public:
 };
 
 #undef CONVOLVE_FILTER
+
+DECLARE_ENUM_BOUNDS(ImageFilter::ColorChannel, Blue, All)
+DECLARE_ENUM_BOUNDS(ImageFilter::Directions, Both, Vertical)

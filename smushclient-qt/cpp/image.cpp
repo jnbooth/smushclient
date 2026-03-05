@@ -13,7 +13,6 @@ namespace {
 QImage
 dissolve(const QPixmap& source, const QRect& rect, qreal opacity)
 {
-
   QImage image = image::crop(source, rect);
   image.convertTo(QImage::Format::Format_ARGB32);
   ffi::filter::dissolve(image::asPixelsMut(image), opacity);

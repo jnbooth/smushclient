@@ -303,6 +303,14 @@ template<typename V>
 void
 pushEntry(lua_State* L, const std::string& key, V value, int idx = -1)
 {
+  for (const char& c : key) {
+    if (c == '\0') {
+      push(L, key);
+      push(L, value);
+      lua_rawset(L, idx < 0 ? idx - 2 : idx);
+      return;
+    }
+  }
   push(L, value);
   lua_setfield(L, idx < 0 ? idx - 1 : idx, key.c_str());
 }
@@ -311,16 +319,23 @@ template<typename V>
 void
 pushEntry(lua_State* L, const QByteArray& key, V value, int idx = -1)
 {
+  for (const char& c : key) {
+    if (c == '\0') {
+      push(L, key);
+      push(L, value);
+      lua_rawset(L, idx < 0 ? idx - 2 : idx);
+      return;
+    }
+  }
   push(L, value);
-  lua_setfield(L, idx < 0 ? idx - 1 : idx, key.toStdString().c_str());
+  lua_setfield(L, idx < 0 ? idx - 1 : idx, key.data());
 }
 
 template<typename V>
 void
 pushEntry(lua_State* L, const QString& key, V value, int idx = -1)
 {
-  push(L, value);
-  lua_setfield(L, idx < 0 ? idx - 1 : idx, key.toStdString().c_str());
+  pushEntry(L, key.toUtf8(), value, idx);
 }
 
 template<typename T>

@@ -10,8 +10,8 @@ enum class DynamicColor : uint8_t;
 enum class TelnetSource : uint8_t;
 enum class TelnetVerb : uint8_t;
 
-Q_DECLARE_FLAGS(AliasOutcomes, AliasOutcome);
-Q_DECLARE_OPERATORS_FOR_FLAGS(AliasOutcomes);
+Q_DECLARE_FLAGS(AliasOutcomes, AliasOutcome)
+Q_DECLARE_OPERATORS_FOR_FLAGS(AliasOutcomes)
 
 class AbstractDocument : public QObject
 {

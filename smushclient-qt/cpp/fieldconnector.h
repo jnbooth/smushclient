@@ -1,5 +1,6 @@
 #pragma once
 #include "./ui/components/colorpickerbutton.h"
+#include "casting.h"
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QDoubleSpinBox>
@@ -34,10 +35,8 @@ public:
     requires(std::is_same_v<std::underlying_type_t<Enum>, int>)
   {
     input->setCurrentIndex(static_cast<int>(value));
-    return object->connect(input,
-                           &QComboBox::currentIndexChanged,
-                           target,
-                           reinterpret_cast<Setter<T, int>>(setter));
+    return object->connect(
+      input, &QComboBox::currentIndexChanged, target, enum_slot_cast(setter));
   }
 
   template<typename T>

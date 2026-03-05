@@ -1,4 +1,5 @@
 #pragma once
+#include "casting.h"
 #include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QButtonGroup>
 
@@ -19,10 +20,8 @@ public:
     , currentValue(value)
   {
     group->setExclusive(true);
-    parent->connect(group,
-                    &QButtonGroup::idClicked,
-                    source,
-                    reinterpret_cast<Setter<Source, int>>(setter));
+    parent->connect(
+      group, &QButtonGroup::idClicked, source, enum_slot_cast(setter));
   }
 
   const EnumButtonGroup<T>& addButton(QAbstractButton* button, T id) const

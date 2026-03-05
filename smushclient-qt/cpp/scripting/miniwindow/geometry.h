@@ -1,4 +1,5 @@
 #pragma once
+#include "../../casting.h"
 #include "miniwindow.h"
 #include <QtCore/QRectF>
 #include <QtCore/QSize>
@@ -12,7 +13,7 @@ arc(const QPointF& center, const QPointF& edge);
 constexpr int
 scale(int value, qreal scalar) noexcept
 {
-  return static_cast<int>(static_cast<qreal>(value) * scalar);
+  return clamped_cast<int>(static_cast<qreal>(value) * scalar);
 }
 
 constexpr QPoint

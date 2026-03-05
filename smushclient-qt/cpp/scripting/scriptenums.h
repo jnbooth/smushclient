@@ -463,7 +463,7 @@ private:
   int64_t value = 0;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(ScriptFont::StyleFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(ScriptFont::StyleFlags)
 
 class ScriptPen
 {

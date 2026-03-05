@@ -22,10 +22,9 @@ using qlua::push;
 using qlua::pushList;
 using qlua::pushQVariant;
 
-DECLARE_ENUM_BOUNDS(Qt::Orientation, Horizontal, Vertical);
-DECLARE_ENUM_BOUNDS(ffi::filter::Directions, Both, Vertical);
-DECLARE_ENUM_BOUNDS(SendTarget, World, ScriptAfterOmit);
-DECLARE_ENUM_BOUNDS(ExportKind, Trigger, Keypad);
+DECLARE_ENUM_BOUNDS(Qt::Orientation, Horizontal, Vertical)
+DECLARE_ENUM_BOUNDS(SendTarget, World, ScriptAfterOmit)
+DECLARE_ENUM_BOUNDS(ExportKind, Trigger, Keypad)
 
 namespace {
 const char* const indexRegKey = "smushclient.plugin";

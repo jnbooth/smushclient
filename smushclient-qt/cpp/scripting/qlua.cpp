@@ -126,6 +126,17 @@ toInteger(lua_State* L, int idx)
   return result;
 }
 
+template<typename T>
+optional<T>
+toEnum(lua_State* L, int idx)
+{
+  const lua_Integer underlying = toInteger(L, idx);
+  if (!enum_bounds<T>::validate(underlying)) [[unlikely]] {
+    return std::nullopt;
+  }
+  return static_cast<T>(underlying);
+}
+
 inline lua_Number
 toNumber(lua_State* L, int idx)
 {
@@ -461,7 +472,12 @@ qlua::getBrush(lua_State* L, int idx, optional<Qt::BrushStyle> ifNil)
     return ifNil;
   }
 
-  switch (static_cast<ScriptBrush>(toInteger(L, idx))) {
+  const optional<ScriptBrush> brush = toEnum<ScriptBrush>(L, idx);
+  if (!brush) {
+    return nullopt;
+  }
+
+  switch (*brush) {
     case ScriptBrush::SolidPattern:
       return Qt::BrushStyle::SolidPattern;
     case ScriptBrush::NoBrush:
@@ -488,8 +504,6 @@ qlua::getBrush(lua_State* L, int idx, optional<Qt::BrushStyle> ifNil)
       return Qt::BrushStyle::HorPattern;
     case ScriptBrush::VerWaves:
       return Qt::BrushStyle::VerPattern;
-    default:
-      return nullopt;
   }
 }
 
@@ -500,7 +514,12 @@ qlua::getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil)
     return ifNil;
   }
 
-  switch (static_cast<ScriptCursor>(toInteger(L, idx))) {
+  const optional<ScriptCursor> cursor = toEnum<ScriptCursor>(L, idx);
+  if (!cursor) {
+    return nullopt;
+  }
+
+  switch (*cursor) {
     case ScriptCursor::BlankCursor:
       return Qt::CursorShape::BlankCursor;
     case ScriptCursor::ArrowCursor:
@@ -529,8 +548,6 @@ qlua::getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil)
       return Qt::CursorShape::ForbiddenCursor;
     case ScriptCursor::WhatsThisCursor:
       return Qt::CursorShape::WhatsThisCursor;
-    default:
-      return nullopt;
   }
 }
 

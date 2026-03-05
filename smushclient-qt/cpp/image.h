@@ -28,15 +28,23 @@ asBytesMut(QImage& image) noexcept
 inline rust::Slice<const uint32_t>
 asPixels(const QImage& image) noexcept
 {
+  assert(image.depth() == 32);
+  // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
+  // SAFETY: the image depth is 32, so each pixel is 32 bits
   return rust::Slice(reinterpret_cast<const uint32_t*>(image.bits()),
                      static_cast<size_t>(image.sizeInBytes() >> 2));
+  // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 }
 
 inline rust::Slice<uint32_t>
 asPixelsMut(QImage& image) noexcept
 {
+  assert(image.depth() == 32);
+  // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
+  // SAFETY: the image depth is 32, so each pixel is 32 bits
   return rust::Slice(reinterpret_cast<uint32_t*>(image.bits()),
                      static_cast<size_t>(image.sizeInBytes() >> 2));
+  // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 }
 
 bool

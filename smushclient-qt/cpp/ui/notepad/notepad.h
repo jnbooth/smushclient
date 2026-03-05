@@ -90,4 +90,4 @@ private:
 
 DECLARE_ENUM_BOUNDS(Notepad::SaveMethod, Default, NeverPrompt)
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Notepad::StyleFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(Notepad::StyleFlags)

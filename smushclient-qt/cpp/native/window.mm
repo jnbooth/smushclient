@@ -16,6 +16,17 @@ static char kBackgroundKey; // NOLINT
     dispatch_sync(dispatch_get_main_queue(), block);                           \
   }
 
+namespace {
+NSView*
+getRootView(void* nativeViewPtr)
+{
+  // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
+  // SAFETY: QWidget::winId() returns an NSView pointer on Mac OS
+  return reinterpret_cast<NSView*>(nativeViewPtr);
+  // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
+}
+} // namespace
+
 extern "C" SetBackgroundMaterialResult
 SetEffectViewBackground(void* nativeViewPtr, int materialIndex)
 {
@@ -44,7 +55,7 @@ SetEffectViewBackground(void* nativeViewPtr, int materialIndex)
     SetBackgroundMaterialResult::PassedNullPointer;
 
   RUN_ON_MAIN(^{
-    NSView* rootView = reinterpret_cast<NSView*>(nativeViewPtr);
+    NSView* rootView = getRootView(nativeViewPtr);
     if (!rootView) {
       return;
     }
@@ -103,7 +114,7 @@ UnsetEffectViewBackground(void* nativeViewPtr)
     SetBackgroundMaterialResult::PassedNullPointer;
 
   RUN_ON_MAIN(^{
-    NSView* rootView = reinterpret_cast<NSView*>(nativeViewPtr);
+    NSView* rootView = getRootView(nativeViewPtr);
     if (!rootView) {
       return;
     }

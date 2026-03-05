@@ -40,7 +40,7 @@ using std::pair;
 
 DECLARE_ENUM_BOUNDS(QFontDatabase::SystemFont,
                     GeneralFont,
-                    SmallestReadableFont);
+                    SmallestReadableFont)
 
 constexpr int FALSE = 0;
 
@@ -567,6 +567,7 @@ L_choose(lua_State* L)
   return execScriptDialog(L, 3, dialog, defaultKey);
 }
 
+// NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
 int
 L_compress(lua_State* L)
 {
@@ -591,6 +592,7 @@ L_decompress(lua_State* L)
                    static_cast<int>(bytes.size())));
   return 1;
 }
+// NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 
 int
 L_directorypicker(lua_State* L)
