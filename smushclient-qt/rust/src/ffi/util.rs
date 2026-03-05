@@ -43,18 +43,34 @@ mod ffi {
     #[namespace = "ffi::util"]
     extern "Rust" {
         fn ansi16() -> QVector_QColor;
+        fn decode_utf8(text: StringView) -> Vec<u32>;
         fn default_variant_option(option: StringView) -> QVariant;
         fn encode_naws(browser: &QAbstractScrollArea) -> QByteArray;
+        fn encode_utf8(buf: &mut String, code: i64) -> bool;
         fn fixup_html(text: StringView) -> String;
         fn font_info(font: &QFont, info_type: i64) -> QVariant;
         fn get_alpha_option_list() -> QStringList;
         fn get_global_entity(name: StringView) -> VariableView;
         fn get_option_list() -> QStringList;
+        fn is_utf8_valid(text: StringView<'_>) -> bool;
+        unsafe fn utf8_substring<'a>(
+            text: StringView<'a>,
+            start: i64,
+            end: i64,
+            error_pos: &mut usize,
+        ) -> &'a str;
     }
 }
 
 fn ansi16() -> QVector<QColor> {
     RgbColor::XTERM_16.iter().map(Convert::convert).collect()
+}
+
+fn decode_utf8(text: StringView<'_>) -> Vec<u32> {
+    let Ok(text) = text.to_str() else {
+        return Vec::new();
+    };
+    text.chars().map(u32::from).collect()
 }
 
 fn default_variant_option(option: StringView<'_>) -> QVariant {
@@ -76,6 +92,14 @@ fn encode_naws(browser: &QAbstractScrollArea) -> QByteArray {
 
     #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
     QByteArray::from(naws(width as u16, height as u16).as_slice())
+}
+
+fn encode_utf8(buf: &mut String, code: i64) -> bool {
+    let Some(c) = code.try_into().ok().and_then(char::from_u32) else {
+        return false;
+    };
+    buf.push(c);
+    true
 }
 
 fn fixup_html(text: StringView<'_>) -> String {
@@ -104,4 +128,45 @@ fn get_option_list() -> QStringList {
             .map(|&s| QString::from(s)),
     );
     list
+}
+
+fn is_utf8_valid(text: StringView<'_>) -> bool {
+    text.to_str().is_ok()
+}
+
+fn utf8_substring<'a>(
+    text: StringView<'a>,
+    mut start: i64,
+    mut end: i64,
+    error_pos: &mut usize,
+) -> &'a str {
+    let text = match text.to_str() {
+        Ok(text) => text,
+        Err(e) => {
+            *error_pos = e.valid_up_to();
+            return "";
+        }
+    };
+    let text_len = text.char_indices().count();
+    #[allow(clippy::cast_possible_wrap)]
+    let text_len_signed = text_len as i64;
+    if start < 0 {
+        start += text_len_signed;
+    }
+    if end < 0 {
+        end += text_len_signed;
+    }
+    let start = usize::try_from(start - 1).unwrap_or_default();
+    let end = usize::try_from(end).unwrap_or_default();
+    if start >= end {
+        return "";
+    }
+    let Some((start_index, _)) = text.char_indices().nth(start) else {
+        return "";
+    };
+    let end_index = match text.char_indices().nth(end) {
+        Some((end_index, _)) => end_index,
+        None => text.len(),
+    };
+    &text[start_index..end_index]
 }

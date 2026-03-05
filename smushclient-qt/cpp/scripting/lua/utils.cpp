@@ -5,6 +5,7 @@
 #include "../qlua.h"
 #include "../scriptapi.h"
 #include "api.h"
+#include "smushclient_qt/src/ffi/util.cxx.h"
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QTranslator>
 #include <QtGui/QFontDatabase>
@@ -20,6 +21,11 @@ extern "C"
   LUALIB_API int luaopen_base64(lua_State* L);
 }
 
+#ifndef SIZE_MAX
+#include <limits>
+#define SIZE_MAX = std::numeric_limits<size_t>::max();
+#endif
+
 using std::string_view;
 
 using qlua::expectMaxArgs;
@@ -33,6 +39,8 @@ using std::pair;
 DECLARE_ENUM_BOUNDS(QFontDatabase::SystemFont,
                     GeneralFont,
                     SmallestReadableFont);
+
+constexpr int FALSE = 0;
 
 namespace {
 const char* const utilsRegKey = "smushclient.utils";
@@ -281,6 +289,54 @@ doHash(lua_State* L, QCryptographicHash::Algorithm algorithm)
   push(L, QCryptographicHash::hash(qlua::getBytes(L, 1), algorithm).toHex());
 }
 
+void
+encodeUtf8Char(lua_State* L,
+               rust::String& buf,
+               int idx,
+               int argIdx,
+               int tableIdx)
+{
+  int isInt;
+  const lua_Integer value = lua_tointegerx(L, idx, &isInt);
+  if (isInt == FALSE) [[unlikely]] {
+    const lua_Number decimalValue = lua_tonumber(L, argIdx);
+    if (tableIdx == 0) {
+      luaL_error(
+        L,
+        "Unicode code (%f) at argument #%d to 'utf8encode' has decimal places",
+        decimalValue,
+        argIdx);
+    }
+    luaL_error(L,
+               "Unicode code (%f) at index [%d] of table at argument #%d "
+               "to 'utf8encode' has decimal places",
+               decimalValue,
+               tableIdx,
+               argIdx);
+  }
+  if (!ffi::util::encode_utf8(buf, value)) [[unlikely]] {
+    if (tableIdx == 0) {
+      luaL_error(
+        L,
+        "Unicode code (%d) at argument #%d to 'utf8encode' is out of range",
+        value,
+        argIdx);
+    }
+    luaL_error(L,
+               "Unicode code (%d) at index [%d] of table at argument #%d "
+               "to 'utf8encode' is out of range",
+               value,
+               tableIdx,
+               argIdx);
+  }
+}
+
+inline void
+encodeUtf8Char(lua_State* L, rust::String& buf, int idx)
+{
+  encodeUtf8Char(L, buf, idx, idx, 0);
+}
+
 inline bool
 isOptionSelected(const QVariant& value, const QVariant& selection)
 {
@@ -304,7 +360,7 @@ execScriptDialog(lua_State* L,
   lua_pushnil(L); // first key
   size_t size;
 
-  while (lua_next(L, idx) != 0) {
+  while (lua_next(L, idx) != FALSE) {
     const QVariant key = qlua::getQVariant(L, -2);
     const char* data = lua_tolstring(L, -1, &size);
     const QString value = QString::fromUtf8(data, static_cast<qsizetype>(size));
@@ -754,7 +810,7 @@ L_multilistbox(lua_State* L)
     defaults.reserve(static_cast<qsizetype>(lua_rawlen(L, 4)));
     lua_pushnil(L); // first key
 
-    while (lua_next(L, 4) != 0) {
+    while (lua_next(L, 4) != FALSE) {
       defaults.push_back(qlua::getQVariant(L, -2));
       lua_pop(L, 1);
     }
@@ -781,11 +837,11 @@ L_split(lua_State* L)
   const string_view sep = qlua::getString(L, 2);
   const lua_Integer count = qlua::getInteger(L, 3, 0);
   if (sep.empty()) {
-    push(L, "Separator must not be an empty string");
+    lua_pushliteral(L, "Separator must not be an empty string");
     lua_error(L);
   }
   if (count < 0) {
-    push(L, "Count must be positive or zero");
+    lua_pushliteral(L, "Count must be positive or zero");
     lua_error(L);
   }
 
@@ -820,10 +876,79 @@ L_tohex(lua_State* L)
 }
 
 int
+L_utf8decode(lua_State* L)
+{
+  expectMaxArgs(L, 1);
+  const string_view text = qlua::getString(L, 1);
+  if (text.empty()) {
+    lua_createtable(L, 0, 0);
+    return 1;
+  }
+  const rust::Vec<uint32_t> codes = ffi::util::decode_utf8(text);
+  if (codes.empty()) {
+    lua_pushnil(L);
+    return 1;
+  }
+  qlua::pushList(L, codes);
+  return 1;
+}
+
+int
+L_utf8encode(lua_State* L)
+{
+  const int n = lua_gettop(L);
+  rust::String buf;
+  for (int i = 1; i <= n; ++i) {
+    switch (lua_type(L, i)) {
+      case LUA_TTABLE:
+        break;
+      case LUA_TNUMBER:
+        encodeUtf8Char(L, buf, i);
+        break;
+      default:
+        luaL_typeerror(L, i, "integer or table");
+    }
+    for (int j = 1, ttype; (ttype = lua_rawgeti(L, i, j)) != LUA_TNONE; ++j) {
+      if (ttype != LUA_TNUMBER) {
+        luaL_error(L,
+                   "Index [%d] of table at argument #%d to 'utf8encode' is "
+                   "not a number",
+                   j,
+                   i);
+      }
+      encodeUtf8Char(L, buf, -1);
+      lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+  }
+  push(L, buf);
+  return 1;
+}
+
+int
+L_utf8sub(lua_State* L)
+{
+  expectMaxArgs(L, 3);
+  size_t errorPos = SIZE_MAX;
+  const rust::Str s = ffi::util::utf8_substring(qlua::getString(L, 1),
+                                                qlua::getInteger(L, 2),
+                                                qlua::getInteger(L, 3, -1),
+                                                errorPos);
+
+  if (errorPos != SIZE_MAX) {
+    lua_pushnil(L);
+    push(L, errorPos);
+    return 2;
+  }
+  push(L, s);
+  return 1;
+}
+
+int
 L_utf8valid(lua_State* L)
 {
   expectMaxArgs(L, 1);
-  push(L, QByteArray(qlua::getBytes(L, 1)).isValidUtf8());
+  push(L, ffi::util::is_utf8_valid(qlua::getString(L, 1)));
   return 1;
 }
 
@@ -864,6 +989,9 @@ static const struct luaL_Reg utilslib[] = {
   { "timer", L_timer },
   { "tohex", L_tohex },
   { "umsgbox", L_msgbox },
+  { "utf8decode", L_utf8decode },
+  { "utf8encode", L_utf8encode },
+  { "utf8sub", L_utf8sub },
   { "utf8valid", L_utf8valid },
   { nullptr, nullptr }
 };

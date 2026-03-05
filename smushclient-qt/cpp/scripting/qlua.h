@@ -235,6 +235,7 @@ IMPL_PUSH(lua_Number, lua_pushnumber, );
 IMPL_PUSH(bool, lua_pushboolean, static_cast<int>);
 IMPL_PUSH(int, lua_pushinteger, static_cast<lua_Integer>);
 IMPL_PUSH(size_t, lua_pushinteger, static_cast<lua_Integer>);
+IMPL_PUSH(uint32_t, lua_pushinteger, static_cast<lua_Integer>);
 IMPL_PUSH(const QColor&, lua_pushinteger, colorToRgbCode);
 
 #undef IMPL_PUSH
@@ -277,11 +278,10 @@ void
 pushList(lua_State* L, const T& list)
 {
   lua_createtable(L, static_cast<int>(list.size()), 0);
-  lua_Integer i = 1;
+  lua_Integer i = 0;
   for (const auto& item : list) {
     push(L, item);
-    lua_rawseti(L, -2, i);
-    ++i;
+    lua_rawseti(L, -2, ++i);
   }
 }
 

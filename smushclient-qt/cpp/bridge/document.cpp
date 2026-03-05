@@ -333,11 +333,10 @@ public:
     lua_createtable(L,
                     static_cast<int>(wildcards.size()),
                     static_cast<int>(namedWildcards.size()));
-    lua_Integer i = 1;
+    lua_Integer i = 0;
     for (rust::Str wildcard : wildcards) {
       qlua::push(L, wildcard);
-      lua_rawseti(L, -2, i);
-      ++i;
+      lua_rawseti(L, -2, ++i);
     }
     for (const NamedWildcard& wildcard : namedWildcards) {
       qlua::pushEntry(L, wildcard.name, wildcard.value);

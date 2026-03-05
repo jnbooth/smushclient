@@ -38,7 +38,9 @@ Diagnostics:
       - cppcoreguidelines-init-variables # Especially in Lua
       - cppcoreguidelines-non-private-member-variables-in-classes
       - cppcoreguidelines-pro-type-reinterpret-cast # Needed for interop
+      - cppcoreguidelines-pro-type-vararg
       - google-default-arguments # For example, QAbstractItemModel
+      - hicpp-vararg
       - misc-non-private-member-variables-in-classes
       - performance-enum-size
       - readability-identifier-length

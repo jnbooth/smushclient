@@ -2128,7 +2128,7 @@ L_ExportXML(lua_State* L)
   const optional<ExportKind> kind = qlua::getEnum<ExportKind>(L, 1);
   const string_view name = qlua::getString(L, 2);
   if (!kind) {
-    push(L, "");
+    lua_pushliteral(L, "");
     return 1;
   }
   push(L, getApi(L).ExportXML(getPluginIndex(L), *kind, name));
@@ -3645,7 +3645,7 @@ registerLuaWorld(lua_State* L)
 
   lua_pushglobaltable(L);
   if (lua_getmetatable(L, -1) == LUA_TNIL) {
-    lua_newtable(L);
+    lua_createtable(L, 0, 1);
   }
 
   lua_getglobal(L, worldLibKey);

@@ -2,7 +2,7 @@
 
 #ifndef SSIZE_MAX
 #include <limits>
-constexpr qsizetype SSIZE_MAX = std::numeric_limits<qsizetype>::max();
+#define SSIZE_MAX = std::numeric_limits<qsizetype>::max();
 #endif
 
 const QString CommandHistory::_emptyString = QString();

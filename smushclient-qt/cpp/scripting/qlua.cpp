@@ -208,7 +208,7 @@ toQVariant(lua_State* L, int idx, int type)
       }
       QVariantHash hash;
       lua_pushnil(L); // first key
-      while (lua_next(L, idx) != 0) {
+      while (lua_next(L, idx) != FALSE) {
         hash[toQString(L, -2)] = toQVariant(L, -1, lua_type(L, -1));
         lua_pop(L, 1);
       }
@@ -320,7 +320,7 @@ qlua::expectMaxArgs(lua_State* L, int max)
 {
   const int n = lua_gettop(L);
   if (n > max) [[unlikely]] {
-    qlua::push(L, "Too many arguments");
+    lua_pushliteral(L, "Too many arguments");
     lua_error(L);
   }
   return n;
@@ -876,10 +876,9 @@ void
 qlua::pushList(lua_State* L, const QList<QVariant>& list)
 {
   lua_createtable(L, static_cast<int>(list.size()), 0);
-  lua_Integer i = 1;
+  lua_Integer i = 0;
   for (const auto& item : list) {
     pushQVariant(L, item);
-    lua_rawseti(L, -2, i);
-    ++i;
+    lua_rawseti(L, -2, ++i);
   }
 }
