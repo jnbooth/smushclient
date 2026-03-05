@@ -16,12 +16,14 @@ const fn is_rgb_column(index: usize) -> bool {
     index & 3 != ColorChannel::Alpha as usize
 }
 
-pub(crate) fn convolve(data: &mut [u32], width: usize, directions: Directions, kernel: &[f64]) {
-    #[cfg(target_endian = "little")]
-    const RGB_CHANNELS: Range<usize> = 0..3;
-    #[cfg(target_endian = "big")]
-    const RGB_CHANNELS: Range<usize> = 1..4;
-
+pub(crate) fn convolve(
+    column_pred: fn(usize) -> bool,
+    columns: Range<usize>,
+    data: &mut [u32],
+    width: usize,
+    directions: Directions,
+    kernel: &[f64],
+) {
     debug_assert!(kernel.len() % 2 == 1, "kernel length is even");
 
     let mut input_buf = Vec::new();
@@ -29,7 +31,7 @@ pub(crate) fn convolve(data: &mut [u32], width: usize, directions: Directions, k
     let mut input = output.encode_f64(&mut input_buf);
     if directions != Directions::Horizontal {
         for col in 0..output.width() {
-            if is_rgb_column(col) {
+            if column_pred(col) {
                 convolve_line(&input.column(col), &mut output.column_mut(col), kernel);
             }
         }
@@ -39,11 +41,29 @@ pub(crate) fn convolve(data: &mut [u32], width: usize, directions: Directions, k
     }
     if directions != Directions::Vertical {
         for row in 0..output.height() {
-            for ch in RGB_CHANNELS {
+            for ch in columns.start..columns.end {
                 convolve_line(&input.row(row, ch), &mut output.row_mut(row, ch), kernel);
             }
         }
     }
+}
+
+pub(crate) fn convolve_rgb(data: &mut [u32], width: usize, directions: Directions, kernel: &[f64]) {
+    #[cfg(target_endian = "little")]
+    const RGB_CHANNELS: Range<usize> = 0..3;
+    #[cfg(target_endian = "big")]
+    const RGB_CHANNELS: Range<usize> = 1..4;
+
+    convolve(is_rgb_column, RGB_CHANNELS, data, width, directions, kernel);
+}
+
+pub(crate) fn convolve_rgba(
+    data: &mut [u32],
+    width: usize,
+    directions: Directions,
+    kernel: &[f64],
+) {
+    convolve(|_| true, 0..4, data, width, directions, kernel);
 }
 
 trait FloatConvert: Copy {
