@@ -715,6 +715,7 @@ private:
   MudScrollBar& scrollBar;
   TimerMap<SendRequest, ScriptApi>* sendQueue;
   QAbstractSocket& socket;
+  QStringList speedwalkQueue;
   std::unique_ptr<MudStatusBar> statusBarPtr;
   WorldTab& tab;
   Timekeeper* timekeeper;

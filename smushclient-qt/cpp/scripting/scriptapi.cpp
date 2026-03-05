@@ -155,46 +155,6 @@ ScriptApi::handleSendRequest(const SendRequest& request)
   }
 }
 
-void
-ScriptApi::initializePlugins()
-{
-  tab.clearCallbacks();
-  const rust::Vec<PluginPack> pack = client.resetPlugins();
-  worldScriptIndex = noSuchPlugin;
-  windows.clear();
-  const size_t size = pack.size();
-  callbackFilter.clear();
-  plugins.clear();
-  plugins.reserve(size);
-  pluginIndices.clear();
-  pluginIndices.reserve(size);
-  sendQueue->clear();
-  QString error;
-  size_t index = 0;
-  for (const PluginPack& pluginPack : pack) {
-    PluginMetadata metadata(pluginPack, index);
-    if (metadata.id.empty()) {
-      worldScriptIndex = index;
-    }
-    pluginIndices[metadata.id] = index;
-    Plugin& plugin = plugins.emplace_back(*this, pluginPack, index);
-    const string& pluginId = plugin.id();
-    if (pluginId.empty()) {
-      worldScriptIndex = index;
-    }
-    pluginIndices[pluginId] = index;
-    if (plugin.install(pluginPack)) {
-      callbackFilter.scan(plugin.state());
-      client.startTimers(index, *timekeeper);
-    }
-    ++index;
-  }
-  OnPluginInstall onInstall;
-  sendCallback(onInstall);
-  OnPluginListChanged onListChanged;
-  sendCallback(onListChanged);
-}
-
 ApiCode
 ScriptApi::playFileRaw(string_view path)
 {
@@ -204,29 +164,6 @@ ScriptApi::playFileRaw(string_view path)
     return ApiCode::OK;
   }
   return client.playFileRaw(path);
-}
-
-void
-ScriptApi::reinstallPlugin(size_t index)
-{
-  Plugin& plugin = plugins[index];
-  tab.clearCallbacks(plugin);
-  const PluginPack pack = client.plugin(index);
-  const string pluginId(pack.id.data(), pack.id.size());
-  std::erase_if(windows, [pluginId](const auto& item) {
-    return item.second->getPluginId() == pluginId;
-  });
-  plugin.updateMetadata(pack, index);
-  plugin.reset();
-  if (!plugin.install(pack)) {
-    return;
-  }
-  callbackFilter.scan(plugin.state());
-  client.startTimers(index, *timekeeper);
-  OnPluginInstall onInstall;
-  sendCallback(onInstall, index);
-  OnPluginListChanged onListChanged;
-  sendCallback(onListChanged);
 }
 
 void
@@ -480,6 +417,46 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow& window) const
 // Public slots
 
 void
+ScriptApi::initializePlugins()
+{
+  tab.clearCallbacks();
+  const rust::Vec<PluginPack> pack = client.resetPlugins();
+  worldScriptIndex = noSuchPlugin;
+  windows.clear();
+  const size_t size = pack.size();
+  callbackFilter.clear();
+  plugins.clear();
+  plugins.reserve(size);
+  pluginIndices.clear();
+  pluginIndices.reserve(size);
+  sendQueue->clear();
+  QString error;
+  size_t index = 0;
+  for (const PluginPack& pluginPack : pack) {
+    PluginMetadata metadata(pluginPack, index);
+    if (metadata.id.empty()) {
+      worldScriptIndex = index;
+    }
+    pluginIndices[metadata.id] = index;
+    Plugin& plugin = plugins.emplace_back(*this, pluginPack, index);
+    const string& pluginId = plugin.id();
+    if (pluginId.empty()) {
+      worldScriptIndex = index;
+    }
+    pluginIndices[pluginId] = index;
+    if (plugin.install(pluginPack)) {
+      callbackFilter.scan(plugin.state());
+      client.startTimers(index, *timekeeper);
+    }
+    ++index;
+  }
+  OnPluginInstall onInstall;
+  sendCallback(onInstall);
+  OnPluginListChanged onListChanged;
+  sendCallback(onListChanged);
+}
+
+void
 ScriptApi::onBytesSent(int64_t bytes)
 {
   totalBytesSent += bytes;
@@ -521,6 +498,29 @@ ScriptApi::onTimerSent(const SendTimer& timer)
 
   TimerCallback callback(timer.script, timer.label);
   sendCallback(callback, timer.request.plugin);
+}
+
+void
+ScriptApi::reinstallPlugin(size_t index)
+{
+  Plugin& plugin = plugins[index];
+  tab.clearCallbacks(plugin);
+  const PluginPack pack = client.plugin(index);
+  const string pluginId(pack.id.data(), pack.id.size());
+  std::erase_if(windows, [pluginId](const auto& item) {
+    return item.second->getPluginId() == pluginId;
+  });
+  plugin.updateMetadata(pack, index);
+  plugin.reset();
+  if (!plugin.install(pack)) {
+    return;
+  }
+  callbackFilter.scan(plugin.state());
+  client.startTimers(index, *timekeeper);
+  OnPluginInstall onInstall;
+  sendCallback(onInstall, index);
+  OnPluginListChanged onListChanged;
+  sendCallback(onListChanged);
 }
 
 // Private static methods
