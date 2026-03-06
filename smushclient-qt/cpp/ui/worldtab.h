@@ -4,7 +4,6 @@
 #include "../hotkeys.h"
 #include "../scripting/callback/trigger.h"
 #include <QtCore/QFileSystemWatcher>
-#include <QtCore/QRegularExpression>
 #include <QtWidgets/QSplitter>
 #include <QtWidgets/QTextEdit>
 
@@ -128,7 +127,6 @@ private:
   bool saveWorldAndState(const QString& filePath);
   void setupWorldScriptWatcher();
   void showAliasMenu();
-  void updateSplitOn();
   void updateWorldScript();
 
 private slots:
@@ -182,7 +180,7 @@ private:
   QSslSocket* socket;
 #endif
   int sessionStartBlock = 0;
-  QRegularExpression splitOn;
+  QChar splitOn{ u'\n' };
   QString worldName;
   QString worldScriptPath;
   QFileSystemWatcher worldScriptWatcher;

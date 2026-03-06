@@ -48,6 +48,12 @@ historyPath(const QString& path)
   return path + QStringLiteral(".history");
 }
 
+constexpr QChar
+toQChar(uint8_t byte) noexcept
+{
+  return QChar::fromLatin1(static_cast<char>(byte));
+}
+
 inline void
 showRustError(const rust::Error& e)
 {
@@ -493,7 +499,7 @@ WorldTab::setWorldOption(size_t pluginIndex, string_view name, int64_t value)
     ui->input->setKeypadIgnored(handleKeypad);
     ui->output->setKeypadIgnored(handleKeypad);
   } else if (name == "enable_command_stack") {
-    updateSplitOn();
+    splitOn = toQChar(client.commandSplitter());
   } else if (name == "script_reload_option") {
     scriptReloadOption = static_cast<ScriptRecompile>(value);
   }
@@ -512,7 +518,7 @@ WorldTab::setWorldAlphaOption(size_t pluginIndex,
   }
 
   if (name == "command_stack_character") {
-    updateSplitOn();
+    splitOn = toQChar(client.commandSplitter());
   } else if (name == "name") {
     worldName = QString::fromUtf8(value);
     if (m_title.isEmpty()) {
@@ -715,7 +721,7 @@ WorldTab::applyWorld(const World& world)
   api->applyWorld(world);
   ui->output->cursor()->applyWorld(world);
   updateWorldScript();
-  updateSplitOn();
+  splitOn = toQChar(client.commandSplitter());
 }
 
 void
@@ -867,22 +873,6 @@ WorldTab::showAliasMenu()
   }
   const QPoint data = choice->data().toPoint();
   client.invokeAlias(data.x(), data.y(), *document);
-}
-
-void
-WorldTab::updateSplitOn()
-{
-  const uint8_t commandSplitter = client.commandSplitter();
-  if (commandSplitter == '\n') {
-    if (splitOn.isValid()) {
-      splitOn = QRegularExpression();
-    }
-    return;
-  }
-  const QChar ch = QChar::fromLatin1(static_cast<char>(commandSplitter));
-  const QString escaped = QRegularExpression::escape(QStringView(&ch, 1));
-  const QString pattern = QStringLiteral("[\n%1]").arg(escaped);
-  splitOn.setPattern(pattern);
 }
 
 void
@@ -1076,8 +1066,7 @@ WorldTab::on_input_submitted(const QString& text)
 {
   ui->output->verticalScrollBar()->setPaused(false);
 
-  const QStringList commands =
-    splitOn.isValid() ? text.split(splitOn) : text.split(u'\n');
+  const QStringList commands = text.split(splitOn);
 
   bool eraseInput = commands.length() > 1;
 
