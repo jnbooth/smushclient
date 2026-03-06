@@ -285,9 +285,8 @@ impl SmushClientRust {
         self.client.play_file_raw(sound).code()
     }
 
-    pub fn ansi_note(&self, text: &LuaStr) -> Vec<ffi::StyledSpan> {
-        let text = String::from_utf8_lossy(text);
-        mud_transformer::interpret_ansi(&text)
+    pub fn ansi_note(&self, text: &str) -> Vec<ffi::StyledSpan> {
+        mud_transformer::interpret_ansi(text)
             .map(|fragment| ffi::StyledSpan {
                 format: self.formatter.text_format(&fragment).into_owned(),
                 text: QString::from(&*fragment.text),

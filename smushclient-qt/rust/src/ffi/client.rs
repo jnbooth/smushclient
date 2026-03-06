@@ -128,7 +128,7 @@ pub mod ffi {
         fn is_log_open(self: &SmushClient) -> bool;
         fn log_note(self: &SmushClient, note: StringView) -> ApiCode;
         fn log_input(self: &SmushClient, input: &QString) -> ApiCode;
-        fn write_to_log(self: &SmushClient, bytes: StringView) -> ApiCode;
+        fn write_to_log(self: &SmushClient, bytes: BytesView) -> ApiCode;
         fn load_plugins(self: Pin<&mut SmushClient>) -> QStringList;
         fn world_plugin_index(self: &SmushClient) -> usize;
         fn try_load_variables(self: &SmushClient, path: &QString) -> Result<bool>;

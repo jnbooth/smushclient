@@ -149,6 +149,9 @@ ScriptApi::handleSendRequest(const SendRequest& request)
       return;
     }
     case SendTarget::Log:
+      client.writeToLog(request.text.toUtf8());
+      client.writeToLog("\n");
+      return;
     case SendTarget::Variable:
     case SendTarget::Speedwalk:
       return;

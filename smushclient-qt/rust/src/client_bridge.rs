@@ -116,7 +116,7 @@ impl ffi::SmushClient {
         }
     }
 
-    pub fn write_to_log(&self, note: StringView<'_>) -> ApiCode {
+    pub fn write_to_log(&self, note: BytesView<'_>) -> ApiCode {
         let client = &self.rust().client;
         if !client.is_log_open() {
             ApiCode::LogFileNotOpen
@@ -742,7 +742,7 @@ impl ffi::SmushClient {
     }
 
     pub fn ansi_note(&self, text: StringView<'_>) -> Vec<ffi::StyledSpan> {
-        self.rust().ansi_note(text.as_slice())
+        self.rust().ansi_note(&text.to_string_lossy())
     }
 
     pub fn alias(
