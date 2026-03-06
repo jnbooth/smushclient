@@ -31,8 +31,19 @@ using std::span;
 using std::string_view;
 
 using qlua::expectMaxArgs;
+using qlua::getBool;
+using qlua::getBytes;
+using qlua::getEnum;
+using qlua::getInt;
+using qlua::getInteger;
+using qlua::getQColor;
+using qlua::getQFont;
+using qlua::getQString;
+using qlua::getQVariant;
+using qlua::getString;
 using qlua::push;
 using qlua::pushEntry;
+using qlua::pushList;
 using qlua::pushQVariant;
 using std::array;
 using std::optional;
@@ -288,7 +299,7 @@ namespace {
 void
 doHash(lua_State* L, QCryptographicHash::Algorithm algorithm)
 {
-  push(L, QCryptographicHash::hash(qlua::getBytes(L, 1), algorithm).toHex());
+  push(L, QCryptographicHash::hash(getBytes(L, 1), algorithm).toHex());
 }
 
 void
@@ -363,7 +374,7 @@ execScriptDialog(lua_State* L,
   size_t size;
 
   while (lua_next(L, idx) != FALSE) {
-    const QVariant key = qlua::getQVariant(L, -2);
+    const QVariant key = getQVariant(L, -2);
     const char* data = lua_tolstring(L, -1, &size);
     const QString value = QString::fromUtf8(data, static_cast<qsizetype>(size));
     dialog.addItem(value, key, isOptionSelected(key, selection));
@@ -385,12 +396,11 @@ int
 execInputDialog(lua_State* L, QInputDialog::InputDialogOptions options = {})
 {
   expectMaxArgs(L, 6);
-  const QString message = qlua::getQString(L, 1, QString());
-  const QString title =
-    qlua::getQString(L, 2, QCoreApplication::applicationName());
-  const QString defaultText = qlua::getQString(L, 3, QString());
-  QFont font = qlua::getQFont(L, 4, QString());
-  const qreal fontSize = qlua::getInt(L, 5, -1);
+  const QString message = getQString(L, 1, QString());
+  const QString title = getQString(L, 2, QCoreApplication::applicationName());
+  const QString defaultText = getQString(L, 3, QString());
+  QFont font = getQFont(L, 4, QString());
+  const qreal fontSize = getInt(L, 5, -1);
   if (fontSize > 0) {
     font.setPointSizeF(fontSize);
   }
@@ -510,7 +520,7 @@ int
 L_activatenotepad(lua_State* L)
 {
   expectMaxArgs(L, 1);
-  Notepad* notepad = getApi(L).globalNotepad(qlua::getQString(L, 1));
+  Notepad* notepad = getApi(L).globalNotepad(getQString(L, 1));
   if (notepad == nullptr) {
     push(L, false);
     return 1;
@@ -524,9 +534,9 @@ int
 L_appendtonotepad(lua_State* L)
 {
   expectMaxArgs(L, 3);
-  Notepad* notepad = getApi(L).globalNotepad(qlua::getQString(L, 1, QString()));
-  const QString& message = qlua::getQString(L, 2);
-  const bool replace = qlua::getBool(L, 3, false);
+  Notepad* notepad = getApi(L).globalNotepad(getQString(L, 1, QString()));
+  const QString& message = getQString(L, 2);
+  const bool replace = getBool(L, 3, false);
   if (notepad == nullptr) {
     push(L, false);
     return 1;
@@ -558,10 +568,9 @@ int
 L_choose(lua_State* L)
 {
   expectMaxArgs(L, 4);
-  const QString message = qlua::getQString(L, 1, QString());
-  const QString title =
-    qlua::getQString(L, 2, QCoreApplication::applicationName());
-  const QVariant defaultKey = qlua::getQVariant(L, 4);
+  const QString message = getQString(L, 1, QString());
+  const QString title = getQString(L, 2, QCoreApplication::applicationName());
+  const QVariant defaultKey = getQVariant(L, 4);
 
   Choose dialog(title, message, getApi(L).parentWidget());
   return execScriptDialog(L, 3, dialog, defaultKey);
@@ -572,8 +581,8 @@ int
 L_compress(lua_State* L)
 {
   expectMaxArgs(L, 2);
-  const QByteArrayView bytes = qlua::getBytes(L, 1);
-  const lua_Integer level = qlua::getInteger(L, 2, 6);
+  const QByteArrayView bytes = getBytes(L, 1);
+  const lua_Integer level = getInteger(L, 2, 6);
   luaL_argexpected(L, level >= 0 && level <= 9, 2, "integer between 0 and 9");
   push(L,
        qCompress(reinterpret_cast<const uchar*>(bytes.data()),
@@ -586,7 +595,7 @@ int
 L_decompress(lua_State* L)
 {
   expectMaxArgs(L, 1);
-  const QByteArrayView bytes = qlua::getBytes(L, 1);
+  const QByteArrayView bytes = getBytes(L, 1);
   push(L,
        qUncompress(reinterpret_cast<const uchar*>(bytes.data()),
                    static_cast<int>(bytes.size())));
@@ -600,8 +609,8 @@ L_directorypicker(lua_State* L)
   expectMaxArgs(L, 2);
   const QString path =
     QFileDialog::getExistingDirectory(getApi(L).parentWidget(),
-                                      qlua::getQString(L, 1, QString()),
-                                      qlua::getQString(L, 2, QString()));
+                                      getQString(L, 1, QString()),
+                                      getQString(L, 2, QString()));
   if (path.isEmpty()) {
     lua_pushnil(L);
   } else {
@@ -621,10 +630,10 @@ int
 L_filepicker(lua_State* L)
 {
   expectMaxArgs(L, 5);
-  const QString title = qlua::getQString(L, 1, QString());
-  const QString defaultName = qlua::getQString(L, 2, QString());
-  const QString extension = qlua::getQString(L, 3, QString());
-  const bool isSave = qlua::getBool(L, 5, false);
+  const QString title = getQString(L, 1, QString());
+  const QString defaultName = getQString(L, 2, QString());
+  const QString extension = getQString(L, 3, QString());
+  const bool isSave = getBool(L, 5, false);
   QWidget* parent = getApi(L).parentWidget();
   const QString path =
     isSave ? QFileDialog::getSaveFileName(parent, title, defaultName)
@@ -641,9 +650,9 @@ int
 L_fontpicker(lua_State* L)
 {
   expectMaxArgs(L, 3);
-  QFont initialFont = qlua::getQFont(L, 1, QString());
-  const int pointSize = qlua::getInt(L, 2, -1);
-  const QColor initialColor = qlua::getQColor(L, 3, Qt::GlobalColor::black);
+  QFont initialFont = getQFont(L, 1, QString());
+  const int pointSize = getInt(L, 2, -1);
+  const QColor initialColor = getQColor(L, 3, Qt::GlobalColor::black);
   if (pointSize != -1) {
     initialFont.setPointSize(pointSize);
   }
@@ -678,7 +687,7 @@ int
 L_fromhex(lua_State* L)
 {
   expectMaxArgs(L, 1);
-  push(L, QByteArray::fromHex(QByteArray(qlua::getBytes(L, 1))));
+  push(L, QByteArray::fromHex(QByteArray(getBytes(L, 1))));
   return 1;
 }
 
@@ -702,7 +711,7 @@ L_getsystemfont(lua_State* L)
 {
   expectMaxArgs(L, 1);
   const optional<QFontDatabase::SystemFont> font =
-    qlua::getEnum(L, 1, QFontDatabase::SystemFont::FixedFont);
+    getEnum(L, 1, QFontDatabase::SystemFont::FixedFont);
   if (!font) {
     lua_pushnil(L);
     return 1;
@@ -763,10 +772,9 @@ int
 L_listbox(lua_State* L)
 {
   expectMaxArgs(L, 4);
-  const QString message = qlua::getQString(L, 1, QString());
-  const QString title =
-    qlua::getQString(L, 2, QCoreApplication::applicationName());
-  const QVariant defaultKey = qlua::getQVariant(L, 4);
+  const QString message = getQString(L, 1, QString());
+  const QString title = getQString(L, 2, QCoreApplication::applicationName());
+  const QVariant defaultKey = getQVariant(L, 4);
 
   ListBox dialog(title, message, getApi(L).parentWidget());
   return execScriptDialog(L, 3, dialog, defaultKey);
@@ -786,13 +794,12 @@ L_msgbox(lua_State* L)
   using Button = QMessageBox::StandardButton;
 
   expectMaxArgs(L, 5);
-  const QString message = qlua::getQString(L, 1);
-  const QString title =
-    qlua::getQString(L, 2, QCoreApplication::applicationName());
+  const QString message = getQString(L, 1);
+  const QString title = getQString(L, 2, QCoreApplication::applicationName());
   const array<Button, 3> buttonArray =
-    getMessageBoxButtons(qlua::getString(L, 3, "ok"));
-  const QMessageBox::Icon icon = getMessageBoxIcon(qlua::getString(L, 4, "!"));
-  const lua_Integer defaultButton = qlua::getInteger(L, 5, 1);
+    getMessageBoxButtons(getString(L, 3, "ok"));
+  const QMessageBox::Icon icon = getMessageBoxIcon(getString(L, 4, "!"));
+  const lua_Integer defaultButton = getInteger(L, 5, 1);
 
   const QMessageBox::StandardButtons buttons =
     buttonArray[0] | buttonArray[1] | buttonArray[2];
@@ -813,9 +820,8 @@ int
 L_multilistbox(lua_State* L)
 {
   expectMaxArgs(L, 4);
-  const QString message = qlua::getQString(L, 1, QString());
-  const QString title =
-    qlua::getQString(L, 2, QCoreApplication::applicationName());
+  const QString message = getQString(L, 1, QString());
+  const QString title = getQString(L, 2, QCoreApplication::applicationName());
   const int defaultType = lua_type(L, 3);
   luaL_argexpected(L,
                    defaultType == LUA_TTABLE || defaultType == LUA_TNIL ||
@@ -829,7 +835,7 @@ L_multilistbox(lua_State* L)
     lua_pushnil(L); // first key
 
     while (lua_next(L, 4) != FALSE) {
-      defaults.push_back(qlua::getQVariant(L, -2));
+      defaults.push_back(getQVariant(L, -2));
       lua_pop(L, 1);
     }
   }
@@ -851,9 +857,9 @@ int
 L_split(lua_State* L)
 {
   expectMaxArgs(L, 3);
-  const string_view input = qlua::getString(L, 1);
-  const string_view sep = qlua::getString(L, 2);
-  const lua_Integer count = qlua::getInteger(L, 3, 0);
+  const string_view input = getString(L, 1);
+  const string_view sep = getString(L, 2);
+  const lua_Integer count = getInteger(L, 3, 0);
   if (sep.empty()) {
     lua_pushliteral(L, "Separator must not be an empty string");
     lua_error(L);
@@ -889,7 +895,7 @@ int
 L_tohex(lua_State* L)
 {
   expectMaxArgs(L, 1);
-  push(L, QByteArray(qlua::getBytes(L, 1)).toHex());
+  push(L, QByteArray(getBytes(L, 1)).toHex());
   return 1;
 }
 
@@ -897,7 +903,7 @@ int
 L_utf8decode(lua_State* L)
 {
   expectMaxArgs(L, 1);
-  const string_view text = qlua::getString(L, 1);
+  const string_view text = getString(L, 1);
   if (text.empty()) {
     lua_createtable(L, 0, 0);
     return 1;
@@ -907,7 +913,7 @@ L_utf8decode(lua_State* L)
     lua_pushnil(L);
     return 1;
   }
-  qlua::pushList(L, codes);
+  pushList(L, codes);
   return 1;
 }
 
@@ -948,10 +954,8 @@ L_utf8sub(lua_State* L)
 {
   expectMaxArgs(L, 3);
   size_t errorPos = SIZE_MAX;
-  const rust::Str s = ffi::util::utf8_substring(qlua::getString(L, 1),
-                                                qlua::getInteger(L, 2),
-                                                qlua::getInteger(L, 3, -1),
-                                                errorPos);
+  const rust::Str s = ffi::util::utf8_substring(
+    getString(L, 1), getInteger(L, 2), getInteger(L, 3, -1), errorPos);
 
   if (errorPos != SIZE_MAX) {
     lua_pushnil(L);
@@ -966,7 +970,7 @@ int
 L_utf8valid(lua_State* L)
 {
   expectMaxArgs(L, 1);
-  push(L, ffi::util::is_utf8_valid(qlua::getString(L, 1)));
+  push(L, ffi::util::is_utf8_valid(getString(L, 1)));
   return 1;
 }
 
