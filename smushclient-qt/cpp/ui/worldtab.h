@@ -127,6 +127,7 @@ private:
   bool saveWorldAndState(const QString& filePath);
   void setupWorldScriptWatcher();
   void showAliasMenu();
+  QStringList splitCommands(const QString& input) const;
   void updateWorldScript();
 
 private slots:
@@ -146,7 +147,7 @@ private slots:
   void onSocketError(QAbstractSocket::SocketError socketError);
 
   void on_input_copyAvailable(bool available);
-  void on_input_submitted(const QString& text);
+  void on_input_submitted(const QString& input);
   void on_input_textChanged();
   void on_output_copyAvailable(bool available);
   void on_output_customContextMenuRequested(const QPoint& pos);

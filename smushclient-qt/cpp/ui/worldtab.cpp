@@ -875,6 +875,26 @@ WorldTab::showAliasMenu()
   client.invokeAlias(data.x(), data.y(), *document);
 }
 
+QStringList
+WorldTab::splitCommands(const QString& input) const
+{
+  constexpr const QChar delim = static_cast<uint16_t>(31);
+  if (splitOn == u'\n') {
+    return input.split(u'\n');
+  }
+  if (input.startsWith(splitOn)) {
+    QStringList commands = input.split(u'\n');
+    commands.first().removeFirst();
+    return commands;
+  }
+  QString buf = input;
+  const std::array<QChar, 2> doubled = { splitOn, splitOn };
+  buf.replace(doubled.data(), doubled.size(), &delim, 1);
+  buf.replace(splitOn, u'\n');
+  buf.replace(delim, splitOn);
+  return buf.split(u'\n');
+}
+
 void
 WorldTab::updateWorldScript()
 {
@@ -1062,11 +1082,11 @@ WorldTab::on_input_copyAvailable(bool available)
 }
 
 void
-WorldTab::on_input_submitted(const QString& text)
+WorldTab::on_input_submitted(const QString& input)
 {
   ui->output->verticalScrollBar()->setPaused(false);
 
-  const QStringList commands = text.split(splitOn);
+  const QStringList commands = splitCommands(input);
 
   bool eraseInput = commands.length() > 1;
 
