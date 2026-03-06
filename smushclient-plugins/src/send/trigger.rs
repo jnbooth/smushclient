@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::reaction::Reaction;
 use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
+use crate::newline::ensure_send_crlf;
 use crate::xml::{XmlIterable, bool_serde, is_default};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
@@ -214,7 +215,7 @@ impl TryFrom<XmlTrigger<'_>> for Trigger {
                     send_to: value.send_to,
                     script: value.script.into(),
                     variable: value.variable.into(),
-                    text: value.text.into(),
+                    text: ensure_send_crlf(value.text),
                     enabled: value.enabled,
                     one_shot: value.one_shot,
                     temporary: value.temporary,

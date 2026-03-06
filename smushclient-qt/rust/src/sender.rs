@@ -13,6 +13,7 @@ use cxx_qt_lib::{QColor, QString, QTime};
 use flagset::{FlagSet, Flags};
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::{Output, OutputFragment, TextFragment, TextStyle};
+use smushclient_plugins::newline::ensure_crlf;
 use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer, Trigger};
 
 use crate::convert::{Convert, impl_constructor, impl_deref};
@@ -109,13 +110,16 @@ impl From<&Sender> for SenderRust {
 
 impl From<&SenderRust> for Sender {
     fn from(value: &SenderRust) -> Self {
+        let text = char::decode_utf16(ensure_crlf(value.text.as_slice().iter().copied()))
+            .map(|r| r.unwrap_or(char::REPLACEMENT_CHARACTER))
+            .collect();
         Self {
             send_to: value.send_to.try_into().unwrap_or_default(),
             label: String::from(&value.label),
             script: String::from(&value.script),
             group: String::from(&value.group),
             variable: String::from(&value.variable),
-            text: String::from(&value.text),
+            text,
             enabled: value.enabled,
             one_shot: value.one_shot,
             temporary: value.temporary,

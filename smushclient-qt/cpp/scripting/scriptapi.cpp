@@ -26,6 +26,30 @@ using std::chrono::seconds;
 // Private utils
 
 namespace {
+qsizetype
+ensureCrLf(QByteArray& bytes)
+{
+  const qsizetype size = bytes.size();
+  if (size == 0) {
+    bytes.append("\r\n");
+    return size;
+  }
+  char& last = bytes[size - 1];
+  switch (last) {
+    case '\n':
+      if (size >= 2 && bytes[size - 2] == '\r') {
+        return size - 2;
+      }
+      last = '\r';
+    case '\r':
+      bytes.append('\n');
+      return size - 1;
+    default:
+      bytes.append("\r\n");
+      return size;
+  }
+}
+
 constexpr int64_t
 scriptInfoIndex(SenderKind kind) noexcept
 {
@@ -319,14 +343,15 @@ ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
     client.logInput(text);
   }
 
-  bytes.append("\r\n");
-
+  const qsizetype originalSize = ensureCrLf(bytes);
   const qsizetype size = bytes.size();
   totalLinesSent += bytes.count('\n');
   if (socket.write(bytes.constData(), size) == -1) [[unlikely]] {
     return ApiCode::WorldClosed;
   }
-  bytes.truncate(size - 2);
+  if (size != originalSize) {
+    bytes.truncate(originalSize);
+  }
 
   OnPluginSent onSent(bytes);
   sendCallback(onSent);

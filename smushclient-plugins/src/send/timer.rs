@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::occurrence::Occurrence;
 use super::send_to::{SendTarget, sendto_serde};
 use super::sender::Sender;
+use crate::newline::ensure_send_crlf;
 use crate::xml::{XmlIterable, bool_serde, is_default};
 
 const NANOS: u64 = 1_000_000_000;
@@ -112,7 +113,7 @@ impl From<XmlTimer<'_>> for Timer {
                 send_to: value.send_to,
                 script: value.script.into(),
                 variable: value.variable.into(),
-                text: value.send.into(),
+                text: ensure_send_crlf(value.send),
                 enabled: value.enabled,
                 one_shot: value.one_shot,
                 temporary: value.temporary,

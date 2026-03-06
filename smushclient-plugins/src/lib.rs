@@ -4,6 +4,8 @@ pub use cursor_vec::{CursorVec, CursorVecRef, CursorVecScan};
 mod error;
 pub use error::{ImportError, LoadError, SenderAccessError};
 
+pub mod newline;
+
 mod plugin;
 pub use plugin::{Plugin, PluginIndex, PluginLoadError, PluginMetadata, PluginSender};
 
