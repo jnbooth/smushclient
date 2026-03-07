@@ -30,4 +30,4 @@ mod timer;
 pub use timer::{TimerConstructible, TimerFinish, TimerStart, Timers};
 
 pub mod world;
-pub use world::{SenderMap, World, WorldConfig, fixup_html};
+pub use world::{SenderMap, SpeedwalkError, World, WorldConfig, fixup_html};

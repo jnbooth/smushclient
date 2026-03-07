@@ -1,4 +1,5 @@
 use std::slice;
+use std::sync::LazyLock;
 use std::time::Duration;
 
 use mud_transformer::UseMxp;
@@ -19,17 +20,21 @@ pub enum OptionCaller {
 impl WorldConfig {
     pub const INT_OPTIONS: &[&str] = &[
         "carriage_return_clears_line",
-        "convert_ga_to_newline",
+        "command_stack_delay",
         "connect_method",
+        "convert_ga_to_newline",
         "disable_compression",
         "display_my_input",
+        "echo_hotkey_in_output_window",
         "echo_hyperlink_in_output_window",
         "enable_aliases",
         "enable_command_stack",
         "enable_scripts",
+        "enable_speed_walk",
         "enable_timers",
-        "enable_triggers",
         "enable_trigger_sounds",
+        "enable_triggers",
+        "hotkey_adds_to_command_history",
         "hyperlink_adds_to_command_history",
         "hyperlink_colour",
         "ignore_mxp_colour_changes",
@@ -48,9 +53,9 @@ impl WorldConfig {
         "mud_can_remove_underline",
         "mxp_debug_level",
         "naws",
+        "no_echo_off",
         "note_background_colour",
         "note_text_colour",
-        "no_echo_off",
         "port",
         "proxy_port",
         "save_world_automatically",
@@ -71,17 +76,21 @@ impl WorldConfig {
     pub fn option_int(&self, _: OptionCaller, option: &LuaStr) -> Option<i64> {
         Some(match option {
             b"carriage_return_clears_line" => self.carriage_return_clears_line.into(),
-            b"convert_ga_to_newline" => self.convert_ga_to_newline.into(),
+            b"command_stack_delay" => self.command_stack_delay.into(),
             b"connect_method" => self.connect_method as _,
+            b"convert_ga_to_newline" => self.convert_ga_to_newline.into(),
             b"disable_compression" => self.disable_compression.into(),
             b"display_my_input" => self.display_my_input.into(),
+            b"echo_hotkey_in_output_window" => self.echo_hotkey_in_output_window.into(),
             b"echo_hyperlink_in_output_window" => self.echo_hyperlink_in_output_window.into(),
             b"enable_aliases" => self.enable_aliases.into(),
             b"enable_command_stack" => self.enable_command_stack.into(),
             b"enable_scripts" => self.enable_scripts.into(),
+            b"enable_speed_walk" => self.enable_speed_walk.into(),
             b"enable_timers" => self.enable_timers.into(),
-            b"enable_triggers" => self.enable_triggers.into(),
             b"enable_trigger_sounds" => self.enable_trigger_sounds.into(),
+            b"enable_triggers" => self.enable_triggers.into(),
+            b"hotkey_adds_to_command_history" => self.hotkey_adds_to_command_history.into(),
             b"hyperlink_adds_to_command_history" => self.hyperlink_adds_to_command_history.into(),
             b"hyperlink_colour" => self.hyperlink_colour.encode_color(),
             b"ignore_mxp_colour_changes" => self.ignore_mxp_colour_changes.into(),
@@ -100,9 +109,9 @@ impl WorldConfig {
             b"mud_can_remove_underline" => self.mud_can_remove_underline.into(),
             b"mxp_debug_level" => self.mxp_debug_level as _,
             b"naws" => self.naws.into(),
+            b"no_echo_off" => self.no_echo_off.into(),
             b"note_background_colour" => self.note_background_colour.encode_color(),
             b"note_text_colour" => self.note_text_colour.encode_color(),
-            b"no_echo_off" => self.no_echo_off.into(),
             b"port" => self.port.into(),
             b"proxy_port" => self.proxy_port.into(),
             b"save_world_automatically" => self.save_world_automatically.into(),
@@ -140,7 +149,7 @@ impl WorldConfig {
 
         match option {
             b"carriage_return_clears_line" => self.carriage_return_clears_line = on?,
-            b"convert_ga_to_newline" => self.convert_ga_to_newline = on?,
+            b"command_stack_delay" => self.command_stack_delay = on?,
             b"connect_method" => {
                 self.connect_method = match value {
                     0 => AutoConnect::None,
@@ -150,15 +159,19 @@ impl WorldConfig {
                     _ => return Err(SetOptionError::OptionOutOfRange),
                 }
             }
+            b"convert_ga_to_newline" => self.convert_ga_to_newline = on?,
             b"disable_compression" => self.disable_compression = on?,
             b"display_my_input" => self.display_my_input = on?,
+            b"echo_hotkey_in_output_window" => self.echo_hotkey_in_output_window = on?,
             b"echo_hyperlink_in_output_window" => self.echo_hyperlink_in_output_window = on?,
             b"enable_aliases" => self.enable_aliases = on?,
             b"enable_command_stack" => self.enable_command_stack = on?,
             b"enable_scripts" => self.enable_scripts = on?,
+            b"enable_speed_walk" => self.enable_speed_walk = on?,
             b"enable_timers" => self.enable_timers = on?,
-            b"enable_triggers" => self.enable_triggers = on?,
             b"enable_trigger_sounds" => self.enable_trigger_sounds = on?,
+            b"enable_triggers" => self.enable_triggers = on?,
+            b"hotkey_adds_to_command_history" => self.hotkey_adds_to_command_history = on?,
             b"hyperlink_adds_to_command_history" => self.hyperlink_adds_to_command_history = on?,
             b"hyperlink_colour" => self.hyperlink_colour = value.decode_color()?,
             b"ignore_mxp_colour_changes" => self.ignore_mxp_colour_changes = on?,
@@ -198,9 +211,9 @@ impl WorldConfig {
                 }
             }
             b"naws" => self.naws = on?,
+            b"no_echo_off" => self.no_echo_off = on?,
             b"note_background_colour" => self.note_background_colour = value.decode_color()?,
             b"note_text_colour" => self.note_text_colour = value.decode_color()?,
-            b"no_echo_off" => self.no_echo_off = on?,
             b"save_world_automatically" => self.save_world_automatically = on?,
             b"script_errors_to_output_window" => self.script_errors_to_output_window = on?,
             b"script_reload_option" => {
@@ -288,6 +301,8 @@ impl WorldConfig {
             b"player" => Some(&self.player),
             b"proxy_username" => Some(&self.proxy_username),
             b"site" => Some(&self.site),
+            b"speed_walk_filler" => Some(&self.speed_walk_filler),
+            b"speed_walk_prefix" => str::from_utf8(slice::from_ref(&self.speed_walk_prefix)).ok(),
             b"terminal_identification" => Some(&self.terminal_identification),
             _ if caller == OptionCaller::Plugin => None,
             b"password" => Some(&self.password),
@@ -319,6 +334,11 @@ impl WorldConfig {
             b"log_line_preamble_notes" => self.log_line_preamble_notes = value,
             b"log_line_preamble_output" => self.log_line_preamble_output = value,
             b"new_activity_sound" => self.new_activity_sound = value,
+            b"speed_walk_filler" => self.speed_walk_filler = value,
+            b"speed_walk_prefix" => match value.as_bytes() {
+                [c] if c.is_ascii() => self.speed_walk_prefix = *c,
+                _ => return Err(SetOptionError::OptionOutOfRange),
+            },
             b"terminal_identification" => self.terminal_identification = value,
             _ if caller == OptionCaller::Plugin => {
                 return Err(SetOptionError::PluginCannotSetOption);
@@ -336,12 +356,13 @@ impl WorldConfig {
     }
 
     pub fn default_variant_option(option: &LuaStr) -> OptionValue<'static> {
-        let caller = OptionCaller::WorldScript;
-        let world = WorldConfig::new();
-        if let Some(value) = world.option_int(caller, option) {
+        const CALLER: OptionCaller = OptionCaller::WorldScript;
+        static DEFAULT_WORLD: LazyLock<WorldConfig> = LazyLock::new(WorldConfig::new);
+        let world = &*DEFAULT_WORLD;
+        if let Some(value) = world.option_int(CALLER, option) {
             OptionValue::Numeric(value)
-        } else if let Some(value) = world.option_str(caller, option) {
-            OptionValue::AlphaOwned(value.to_owned())
+        } else if let Some(value) = world.option_str(CALLER, option) {
+            OptionValue::Alpha(value)
         } else {
             OptionValue::Null
         }

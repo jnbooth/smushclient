@@ -16,6 +16,7 @@
 #include <QtGui/QGradient>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QTextBlock>
+#include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QStatusBar>
 
 using std::string;
@@ -160,7 +161,6 @@ ScriptApi::handleSendRequest(const SendRequest& request)
   switch (request.sendTo) {
     case SendTarget::WorldDelay:
       startCommandQueueTimer();
-    case SendTarget::Speedwalk:
       if (commandQueueTimer->interval() != 0) {
         enqueueCommand(request.text, request.echo);
         return;
@@ -191,11 +191,25 @@ ScriptApi::handleSendRequest(const SendRequest& request)
     case SendTarget::NotepadAppend:
       notepads.pad(worldID, request.destination)->appendText(request.text);
       return;
+    case SendTarget::Log:
+      client.writeToLog(request.text.toUtf8());
+      client.writeToLog("\n");
+      return;
     case SendTarget::NotepadReplace:
       notepads.pad(request.destination)->setText(request.text);
       return;
+    case SendTarget::Variable:
+      return;
     case SendTarget::Execute:
       tab.sendCommand(request.text, CommandSource::Execute);
+      return;
+    case SendTarget::Speedwalk:
+      try {
+        enqueueCommand(client.tryEvaluateSpeedwalk(request.text), request.echo);
+      } catch (const rust::Error& e) {
+        QErrorMessage::qtHandler()->showMessage(
+          tr("Speedwalk error in \"%1\": %2").arg(request.text).arg(e.what()));
+      }
       return;
     case SendTarget::Script:
     case SendTarget::ScriptAfterOmit: {
@@ -203,12 +217,6 @@ ScriptApi::handleSendRequest(const SendRequest& request)
       runScript(request.plugin, utf8, utf8.data());
       return;
     }
-    case SendTarget::Log:
-      client.writeToLog(request.text.toUtf8());
-      client.writeToLog("\n");
-      return;
-    case SendTarget::Variable:
-      return;
   }
 }
 

@@ -144,6 +144,8 @@ pub mod ffi {
         fn get_mapped_color(self: &SmushClient, color: &QColor) -> QColor;
         fn set_mapped_color(self: &SmushClient, color: &QColor, mapped: &QColor);
         fn color_map(self: &SmushClient) -> QList_QPair_QColor_QColor;
+        fn try_evaluate_speedwalk(self: &SmushClient, speedwalk: &QString) -> Result<QString>;
+        fn evaluate_speedwalk(self: &SmushClient, speedwalk: StringView) -> String;
         fn world_option(self: &SmushClient, index: usize, option: StringView) -> i64;
         fn world_alpha_option(self: &SmushClient, index: usize, option: StringView)
         -> VariableView;
@@ -338,7 +340,8 @@ pub mod ffi {
         fn finish_timer(self: Pin<&mut SmushClient>, id: usize) -> bool;
         fn poll_timers(self: Pin<&mut SmushClient>);
         fn stop_senders(self: &SmushClient, kind: SenderKind);
-        fn command_splitter(self: &SmushClient) -> u8;
+        fn command_splitter(self: &SmushClient) -> u16;
+        fn speed_walk_prefix(self: &SmushClient) -> u16;
 
         #[qsignal]
         fn timer_sent(self: Pin<&mut SmushClient>, timer: &SendTimer);

@@ -20,6 +20,12 @@ ScriptApi::DiscardQueue()
   return size;
 }
 
+rust::String
+ScriptApi::EvaluateSpeedwalk(string_view speedwalk) const noexcept
+{
+  return client.evaluateSpeedwalk(speedwalk);
+}
+
 ApiCode
 ScriptApi::Execute(const QString& command) const noexcept
 {

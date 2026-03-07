@@ -3,6 +3,7 @@
         <file>appicon/appicon.svg</file>
         <file>icons/settings/history.svg</file>
         <file>icons/world-details/aliases.svg</file>
+        <file>icons/world-details/commands.svg</file>
         <file>icons/world-details/connecting.svg</file>
         <file>icons/world-details/keypad.svg</file>
         <file>icons/world-details/logging.svg</file>

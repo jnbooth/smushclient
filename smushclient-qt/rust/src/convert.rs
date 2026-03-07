@@ -128,7 +128,6 @@ impl Convert<QVariant> for OptionValue<'_> {
             Self::Null => QVariant::default(),
             Self::Alpha(s) => QVariant::from(&QByteArray::from(*s)),
             Self::AlphaBorrow(s) => QVariant::from(&QByteArray::from(&**s)),
-            Self::AlphaOwned(s) => QVariant::from(&QByteArray::from(&**s)),
             Self::Color(color) => QVariant::from(&QByteArray::from(&color.to_string())),
             Self::Numeric(i) => QVariant::from(i),
         }

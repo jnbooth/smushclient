@@ -12,6 +12,7 @@ use smushclient_plugins::{Plugin, PluginMetadata};
 use uuid::Uuid;
 
 use super::escaping::{Escaped, LogBrackets};
+use super::speedwalk::{SpeedwalkError, evaluate_speedwalk};
 #[allow(clippy::wildcard_imports)]
 use super::types::*;
 
@@ -64,10 +65,6 @@ pub struct WorldConfig {
     pub indent_paras: u8,
     pub ansi_colours: [RgbColor; 16],
     pub use_default_colours: bool,
-    pub display_my_input: bool,
-    pub echo_colour: Option<RgbColor>,
-    pub echo_background_colour: Option<RgbColor>,
-    pub keep_commands_on_same_line: bool,
     pub new_activity_sound: String,
     pub line_information: bool,
 
@@ -91,11 +88,20 @@ pub struct WorldConfig {
     pub utf_8: bool,
     pub convert_ga_to_newline: bool,
     pub no_echo_off: bool,
+    pub mxp_debug_level: MxpDebugLevel,
+
+    // Commands
+    pub display_my_input: bool,
+    pub echo_colour: Option<RgbColor>,
+    pub echo_background_colour: Option<RgbColor>,
+    pub keep_commands_on_same_line: bool,
+    pub enable_speed_walk: bool,
+    pub speed_walk_prefix: u8,
     pub speed_walk_delay: Duration,
+    pub speed_walk_filler: String,
     pub enable_command_stack: bool,
     pub command_stack_character: u8,
     pub command_stack_delay: bool,
-    pub mxp_debug_level: MxpDebugLevel,
 
     // Triggers
     pub enable_triggers: bool,
@@ -206,11 +212,15 @@ impl WorldConfig {
             utf_8: true,
             convert_ga_to_newline: false,
             no_echo_off: false,
+            mxp_debug_level: MxpDebugLevel::None,
+
+            enable_speed_walk: false,
+            speed_walk_prefix: b'#',
             speed_walk_delay: Duration::ZERO,
+            speed_walk_filler: String::new(),
             enable_command_stack: false,
             command_stack_character: b';',
             command_stack_delay: false,
-            mxp_debug_level: MxpDebugLevel::None,
 
             // Triggers
             enable_triggers: true,
@@ -247,6 +257,13 @@ impl WorldConfig {
 
     pub fn brackets(&self) -> LogBrackets {
         LogBrackets::from(self)
+    }
+
+    pub fn evaluate_speedwalk<I>(&self, iter: I) -> Result<String, SpeedwalkError>
+    where
+        I: Iterator<Item = char>,
+    {
+        evaluate_speedwalk(iter, &self.speed_walk_filler)
     }
 
     pub fn log_path(&self) -> String {

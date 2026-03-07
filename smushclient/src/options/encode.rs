@@ -9,7 +9,6 @@ pub enum OptionValue<'a> {
     Null,
     Alpha(&'a str),
     AlphaBorrow(Ref<'a, str>),
-    AlphaOwned(String),
     Color(RgbColor),
     Numeric(i64),
 }

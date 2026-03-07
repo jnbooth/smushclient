@@ -5,6 +5,7 @@ use std::pin::Pin;
 use cxx_qt::CxxQtType;
 use cxx_qt_io::QAbstractSocket;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant};
+use smushclient::SpeedwalkError;
 use smushclient::world::{LogMode, PersistError};
 use smushclient_plugins::{
     Alias, ImportError, LoadError, PluginIndex, PluginSender, Reaction, Sender, Timer, Trigger,
@@ -209,6 +210,33 @@ impl ffi::SmushClient {
             .iter()
             .map(|(k, v)| QPair::from((k.convert(), v.convert())))
             .collect()
+    }
+
+    pub fn try_evaluate_speedwalk(&self, speedwalk: &QString) -> Result<QString, SpeedwalkError> {
+        let chars = char::decode_utf16(speedwalk.as_slice().iter().copied())
+            .map(|r| r.unwrap_or(char::REPLACEMENT_CHARACTER));
+        let evaluated = self
+            .rust()
+            .client
+            .borrow_world()
+            .evaluate_speedwalk(chars)?;
+        Ok(QString::from(&evaluated))
+    }
+
+    pub fn evaluate_speedwalk(&self, speedwalk: StringView<'_>) -> String {
+        let speedwalk = match speedwalk.to_str() {
+            Ok(speedwalk) => speedwalk,
+            Err(e) => return format!("*{e}"),
+        };
+        match self
+            .rust()
+            .client
+            .borrow_world()
+            .evaluate_speedwalk(speedwalk.chars())
+        {
+            Ok(speedwalk) => speedwalk,
+            Err(e) => format!("*{e}"),
+        }
     }
 
     pub fn world_alpha_option(&self, index: PluginIndex, option: StringView<'_>) -> VariableView {
@@ -951,12 +979,23 @@ impl ffi::SmushClient {
         }
     }
 
-    pub fn command_splitter(&self) -> u8 {
+    pub fn command_splitter(&self) -> u16 {
         let world = self.rust().client.borrow_world();
         if world.enable_command_stack {
             world.command_stack_character
         } else {
             b'\n'
         }
+        .into()
+    }
+
+    pub fn speed_walk_prefix(&self) -> u16 {
+        let world = self.rust().client.borrow_world();
+        if world.enable_speed_walk {
+            world.speed_walk_prefix
+        } else {
+            b'\0'
+        }
+        .into()
     }
 }

@@ -176,6 +176,7 @@ public:
   QString ExportXML(size_t plugin,
                     ExportKind kind,
                     std::string_view name) const noexcept;
+  rust::String EvaluateSpeedwalk(std::string_view speedwalk) const noexcept;
   ApiCode FlushLog() const;
   QVariant GetAliasInfo(size_t pluginIndex,
                         std::string_view label,

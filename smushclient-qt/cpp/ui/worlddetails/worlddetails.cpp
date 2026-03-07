@@ -6,6 +6,7 @@
 #include "../../scripting/scriptapi.h"
 #include "aliases.h"
 #include "colormap.h"
+#include "commands.h"
 #include "connecting.h"
 #include "logging.h"
 #include "login.h"
@@ -80,18 +81,20 @@ WorldPrefs::paneForIndex(int row)
     case 3:
       return new PrefsMud(world, this);
     case 4:
-      return new PrefsLogging(world, this);
+      return new PrefsCommands(world, this);
     case 5:
-      return new PrefsNumpad(world, this);
+      return new PrefsLogging(world, this);
     case 6:
-      return new PrefsAliases(world, *aliases, this);
+      return new PrefsNumpad(world, this);
     case 7:
-      return new PrefsTimers(world, *timers, this);
+      return new PrefsAliases(world, *aliases, this);
     case 8:
-      return new PrefsTriggers(world, *triggers, this);
+      return new PrefsTimers(world, *timers, this);
     case 9:
-      return new PrefsScripting(world, this);
+      return new PrefsTriggers(world, *triggers, this);
     case 10:
+      return new PrefsScripting(world, this);
+    case 11:
       return new PrefsPlugins(*plugins, this);
     default:
       return nullptr;

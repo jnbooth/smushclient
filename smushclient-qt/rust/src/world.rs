@@ -58,10 +58,6 @@ pub struct WorldRust {
     pub indent_paras: i32,
     pub ansi_colours: Colors,
     pub use_default_colours: bool,
-    pub display_my_input: bool,
-    pub echo_colour: QColor,
-    pub echo_background_colour: QColor,
-    pub keep_commands_on_same_line: bool,
     pub new_activity_sound: QString,
     pub line_information: bool,
     pub colour_map: QList<QPair<QColor, QColor>>,
@@ -83,11 +79,20 @@ pub struct WorldRust {
     pub utf_8: bool,
     pub convert_ga_to_newline: bool,
     pub no_echo_off: bool,
+    pub mxp_debug_level: ffi::MXPDebugLevel,
+
+    // Commands
+    pub display_my_input: bool,
+    pub echo_colour: QColor,
+    pub echo_background_colour: QColor,
+    pub keep_commands_on_same_line: bool,
+    pub enable_speed_walk: bool,
+    pub speed_walk_prefix: u8,
     pub speed_walk_delay: i32,
+    pub speed_walk_filler: QString,
     pub enable_command_stack: bool,
     pub command_stack_character: u8,
     pub command_stack_delay: bool,
-    pub mxp_debug_level: ffi::MXPDebugLevel,
 
     // Triggers
     pub enable_triggers: bool,
@@ -196,10 +201,6 @@ impl From<&WorldConfig> for WorldRust {
             indent_paras: i32::from(world.indent_paras),
             ansi_colours: Colors::from(&world.ansi_colours),
             use_default_colours: world.use_default_colours,
-            display_my_input: world.display_my_input,
-            echo_colour: world.echo_colour.convert(),
-            echo_background_colour: world.echo_background_colour.convert(),
-            keep_commands_on_same_line: world.keep_commands_on_same_line,
             new_activity_sound: QString::from(&world.new_activity_sound),
             line_information: world.line_information,
 
@@ -225,15 +226,23 @@ impl From<&WorldConfig> for WorldRust {
             utf_8: world.utf_8,
             convert_ga_to_newline: world.convert_ga_to_newline,
             no_echo_off: world.no_echo_off,
+            mxp_debug_level: world.mxp_debug_level.into(),
+
+            display_my_input: world.display_my_input,
+            echo_colour: world.echo_colour.convert(),
+            echo_background_colour: world.echo_background_colour.convert(),
+            keep_commands_on_same_line: world.keep_commands_on_same_line,
+            enable_speed_walk: world.enable_speed_walk,
+            speed_walk_prefix: world.speed_walk_prefix,
             speed_walk_delay: world
                 .speed_walk_delay
                 .as_millis()
                 .try_into()
                 .unwrap_or(i32::MAX),
+            speed_walk_filler: QString::from(&world.speed_walk_filler),
             enable_command_stack: world.enable_command_stack,
             command_stack_character: world.command_stack_character,
             command_stack_delay: false,
-            mxp_debug_level: world.mxp_debug_level.into(),
 
             enable_triggers: world.enable_triggers,
             enable_trigger_sounds: world.enable_trigger_sounds,
@@ -335,10 +344,6 @@ impl TryFrom<&WorldRust> for WorldConfig {
             indent_paras: u8::try_from(value.indent_paras)?,
             ansi_colours: (&value.ansi_colours).into(),
             use_default_colours: value.use_default_colours,
-            display_my_input: value.display_my_input,
-            echo_colour: value.echo_colour.convert(),
-            echo_background_colour: value.echo_background_colour.convert(),
-            keep_commands_on_same_line: value.keep_commands_on_same_line,
             new_activity_sound: String::from(&value.new_activity_sound),
             line_information: value.line_information,
 
@@ -364,11 +369,19 @@ impl TryFrom<&WorldRust> for WorldConfig {
             utf_8: value.utf_8,
             convert_ga_to_newline: value.convert_ga_to_newline,
             no_echo_off: value.no_echo_off,
+            mxp_debug_level: value.mxp_debug_level.try_into()?,
+
+            display_my_input: value.display_my_input,
+            echo_colour: value.echo_colour.convert(),
+            echo_background_colour: value.echo_background_colour.convert(),
+            keep_commands_on_same_line: value.keep_commands_on_same_line,
+            enable_speed_walk: value.enable_speed_walk,
+            speed_walk_prefix: value.speed_walk_prefix,
             speed_walk_delay: Duration::from_millis(value.speed_walk_delay.try_into()?),
+            speed_walk_filler: String::from(&value.speed_walk_filler),
             enable_command_stack: value.enable_command_stack,
             command_stack_character: value.command_stack_character,
             command_stack_delay: value.command_stack_delay,
-            mxp_debug_level: value.mxp_debug_level.try_into()?,
 
             enable_triggers: value.enable_triggers,
             enable_trigger_sounds: value.enable_trigger_sounds,

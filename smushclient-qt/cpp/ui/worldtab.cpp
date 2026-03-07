@@ -48,12 +48,6 @@ historyPath(const QString& path)
   return path + QStringLiteral(".history");
 }
 
-constexpr QChar
-toQChar(uint8_t byte) noexcept
-{
-  return QChar::fromLatin1(static_cast<char>(byte));
-}
-
 inline void
 showRustError(const rust::Error& e)
 {
@@ -390,6 +384,14 @@ WorldTab::saveWorldAsNew(const QString& path, bool separate)
 bool
 WorldTab::sendCommand(const QString& command, CommandSource source)
 {
+  if (speedWalkPrefix != u'\0' && command.startsWith(speedWalkPrefix)) {
+    try {
+      api->enqueueCommand(client.tryEvaluateSpeedwalk(command.sliced(1)), true);
+    } catch (const rust::Error& e) {
+      ; // just treat it like a normal command
+    }
+  }
+
   const AliasOutcomes aliasOutcome = client.alias(command, source, *document);
 
   if (aliasOutcome.testFlag(AliasOutcome::Remember)) {
@@ -494,12 +496,14 @@ WorldTab::setWorldOption(size_t pluginIndex, string_view name, int64_t value)
     return result;
   }
 
-  if (name == "keypad_enable") {
+  if (name == "enable_command_stack") {
+    splitOn = client.commandSplitter();
+  } else if (name == "enable_speed_walk") {
+    speedWalkPrefix = client.speedWalkPrefix();
+  } else if (name == "keypad_enable") {
     handleKeypad = value == 1;
     ui->input->setKeypadIgnored(handleKeypad);
     ui->output->setKeypadIgnored(handleKeypad);
-  } else if (name == "enable_command_stack") {
-    splitOn = toQChar(client.commandSplitter());
   } else if (name == "script_reload_option") {
     scriptReloadOption = static_cast<ScriptRecompile>(value);
   }
@@ -518,7 +522,7 @@ WorldTab::setWorldAlphaOption(size_t pluginIndex,
   }
 
   if (name == "command_stack_character") {
-    splitOn = toQChar(client.commandSplitter());
+    splitOn = client.commandSplitter();
   } else if (name == "name") {
     worldName = QString::fromUtf8(value);
     if (m_title.isEmpty()) {
@@ -526,6 +530,8 @@ WorldTab::setWorldAlphaOption(size_t pluginIndex,
     }
   } else if (name == "script_path") {
     worldScriptPath = QString::fromUtf8(value);
+  } else if (name == "speed_walk_prefix") {
+    speedWalkPrefix = client.speedWalkPrefix();
   }
 
   return result;
@@ -722,7 +728,8 @@ WorldTab::applyWorld(const World& world)
   api->applyWorld(world);
   ui->output->cursor()->applyWorld(world);
   updateWorldScript();
-  splitOn = toQChar(client.commandSplitter());
+  speedWalkPrefix = client.speedWalkPrefix();
+  splitOn = client.commandSplitter();
 }
 
 void

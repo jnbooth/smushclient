@@ -109,6 +109,15 @@
        </item>
        <item>
         <property name="text">
+         <string>Commands</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../resources/resources.qrc">
+          <normaloff>:/icons/world-details/commands.svg</normaloff>:/icons/world-details/commands.svg</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>Logging</string>
         </property>
         <property name="icon">

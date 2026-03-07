@@ -58,6 +58,8 @@ struct XmlWorld {
     pub enable_command_stack: bool,
     #[serde(rename = "@enable_scripts", with = "bool_serde")]
     pub enable_scripts: bool,
+    #[serde(rename = "@enable_speed_walk", with = "bool_serde")]
+    pub enable_speed_walk: bool,
     #[serde(rename = "@enable_timers", with = "bool_serde")]
     pub enable_timers: bool,
     #[serde(rename = "@enable_triggers", with = "bool_serde")]
@@ -181,6 +183,10 @@ struct XmlWorld {
     pub script_filename: String,
     #[serde(rename = "@site")]
     pub site: String,
+    #[serde(rename = "@speed_walk_filler")]
+    pub speed_walk_filler: String,
+    #[serde(rename = "@speed_walk_prefix")]
+    pub speed_walk_prefix: String,
     #[serde(rename = "@terminal_identification")]
     pub terminal_identification: String,
 }
@@ -226,6 +232,10 @@ fn decode_password(password: String, encoded: bool) -> String {
         return password;
     };
     String::from_utf8(decoded).unwrap_or(password)
+}
+
+fn first_char(s: &str, fallback: u8) -> u8 {
+    s.as_bytes().first().copied().unwrap_or(fallback)
 }
 
 impl TryFrom<MuClient<'_>> for ImportedWorld {
@@ -290,10 +300,6 @@ impl TryFrom<MuClient<'_>> for ImportedWorld {
             indent_paras: world.indent_paras.into(),
             ansi_colours: value.colours.ansi,
             use_default_colours: world.use_default_colours,
-            display_my_input: world.display_my_input,
-            echo_colour,
-            echo_background_colour: None,
-            keep_commands_on_same_line: world.keep_commands_on_same_line,
             new_activity_sound: world.new_activity_sound,
             line_information: world.line_information,
             colour_map: HashMap::new(),
@@ -313,16 +319,18 @@ impl TryFrom<MuClient<'_>> for ImportedWorld {
             utf_8: world.utf_8,
             convert_ga_to_newline: world.convert_ga_to_newline,
             no_echo_off: world.no_echo_off,
-            speed_walk_delay: Duration::from_millis(world.speed_walk_delay.into()),
-            enable_command_stack: world.enable_command_stack,
-            command_stack_character: world
-                .command_stack_character
-                .as_bytes()
-                .first()
-                .copied()
-                .unwrap_or(b';'),
-            command_stack_delay: false,
             mxp_debug_level: world.mxp_debug_level,
+            display_my_input: world.display_my_input,
+            echo_colour,
+            echo_background_colour: None,
+            keep_commands_on_same_line: world.keep_commands_on_same_line,
+            enable_speed_walk: world.enable_speed_walk,
+            speed_walk_prefix: first_char(&world.speed_walk_prefix, b'#'),
+            speed_walk_delay: Duration::from_millis(world.speed_walk_delay.into()),
+            speed_walk_filler: world.speed_walk_filler,
+            enable_command_stack: world.enable_command_stack,
+            command_stack_character: first_char(&world.command_stack_character, b';'),
+            command_stack_delay: false,
             enable_triggers: world.enable_triggers,
             enable_trigger_sounds: world.enable_trigger_sounds,
             enable_aliases: world.enable_aliases,

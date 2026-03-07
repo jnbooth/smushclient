@@ -179,6 +179,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/worlddetails/aliasedit.h cpp/ui/worlddetails/aliasedit.cpp cpp/ui/worlddetails/aliasedit.ui
     cpp/ui/worlddetails/aliases.h cpp/ui/worlddetails/aliases.cpp cpp/ui/worlddetails/aliases.ui
     cpp/ui/worlddetails/colormap.h cpp/ui/worlddetails/colormap.cpp cpp/ui/worlddetails/colormap.ui
+    cpp/ui/worlddetails/commands.h cpp/ui/worlddetails/commands.cpp cpp/ui/worlddetails/commands.ui
     cpp/ui/worlddetails/connecting.h cpp/ui/worlddetails/connecting.cpp cpp/ui/worlddetails/connecting.ui
     cpp/ui/worlddetails/login.h cpp/ui/worlddetails/login.cpp cpp/ui/worlddetails/login.ui
     cpp/ui/worlddetails/logging.h cpp/ui/worlddetails/logging.cpp cpp/ui/worlddetails/logging.ui
