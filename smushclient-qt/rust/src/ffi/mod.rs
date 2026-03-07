@@ -34,7 +34,7 @@ pub use regex::ffi::RegexParse;
 
 mod sender;
 pub use sender::AliasOutcomes;
-pub use sender::ffi::{Alias, AliasOutcome, Occurrence, Timer, Trigger, UserSendTarget};
+pub use sender::ffi::{Alias, AliasOutcome, Occurrence, Timer, Trigger};
 
 mod sender_map;
 pub use sender_map::ffi::{SenderMap, SenderType};

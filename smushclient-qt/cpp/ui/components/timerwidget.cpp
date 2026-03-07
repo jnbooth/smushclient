@@ -117,8 +117,8 @@ ElapsedTimerWidget::setSecondsVisible(bool visible)
 void
 ElapsedTimerWidget::timerEvent(QTimerEvent* event)
 {
-  if (event->timerId() != timerId) [[unlikely]] {
-    killTimer(event->timerId());
+  if (event->id() != timerId) [[unlikely]] {
+    killTimer(event->id());
     return;
   }
   updateTime();
@@ -129,16 +129,16 @@ ElapsedTimerWidget::timerEvent(QTimerEvent* event)
 void
 ElapsedTimerWidget::pause()
 {
-  timerId = -1;
+  timerId = { -1 };
 }
 
 void
 ElapsedTimerWidget::resume()
 {
   updateTime();
-  timerId =
-    startTimer(secondsVisible() ? duration_cast<milliseconds>(seconds{ 1 })
-                                : duration_cast<milliseconds>(minutes{ 1 }));
+  timerId = { startTimer(secondsVisible()
+                           ? duration_cast<milliseconds>(seconds{ 1 })
+                           : duration_cast<milliseconds>(minutes{ 1 })) };
 }
 
 void

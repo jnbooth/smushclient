@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use cxx_qt_lib::{QColor, QList, QString, QUuid};
 use smushclient::WorldConfig;
 use smushclient::world::{Numpad, NumpadMapping};
@@ -81,8 +83,10 @@ pub struct WorldRust {
     pub utf_8: bool,
     pub convert_ga_to_newline: bool,
     pub no_echo_off: bool,
+    pub speed_walk_delay: i32,
     pub enable_command_stack: bool,
     pub command_stack_character: u8,
+    pub command_stack_delay: bool,
     pub mxp_debug_level: ffi::MXPDebugLevel,
 
     // Triggers
@@ -221,8 +225,14 @@ impl From<&WorldConfig> for WorldRust {
             utf_8: world.utf_8,
             convert_ga_to_newline: world.convert_ga_to_newline,
             no_echo_off: world.no_echo_off,
+            speed_walk_delay: world
+                .speed_walk_delay
+                .as_millis()
+                .try_into()
+                .unwrap_or(i32::MAX),
             enable_command_stack: world.enable_command_stack,
             command_stack_character: world.command_stack_character,
+            command_stack_delay: false,
             mxp_debug_level: world.mxp_debug_level.into(),
 
             enable_triggers: world.enable_triggers,
@@ -354,8 +364,10 @@ impl TryFrom<&WorldRust> for WorldConfig {
             utf_8: value.utf_8,
             convert_ga_to_newline: value.convert_ga_to_newline,
             no_echo_off: value.no_echo_off,
+            speed_walk_delay: Duration::from_millis(value.speed_walk_delay.try_into()?),
             enable_command_stack: value.enable_command_stack,
             command_stack_character: value.command_stack_character,
+            command_stack_delay: value.command_stack_delay,
             mxp_debug_level: value.mxp_debug_level.try_into()?,
 
             enable_triggers: value.enable_triggers,

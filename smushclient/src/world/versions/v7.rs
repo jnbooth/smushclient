@@ -1,11 +1,13 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::path::PathBuf;
+use std::time::Duration;
 
 use mud_transformer::UseMxp;
 use mud_transformer::mxp::RgbColor;
 use serde::Deserialize;
-use smushclient_plugins::{Alias, Timer, Trigger};
+use smushclient_plugins::newline::replace_crlf;
+use smushclient_plugins::{Alias, Sender, Timer, Trigger};
 use uuid::Uuid;
 
 use super::super::types::*;
@@ -66,11 +68,14 @@ pub struct WorldConfig {
     pub new_activity_sound: String,
     pub line_information: bool,
 
+    // Colors
+    pub colour_map: HashMap<RgbColor, RgbColor>,
+
     // MUD
     pub use_mxp: UseMxp,
     pub ignore_mxp_colour_changes: bool,
     pub use_custom_link_colour: bool,
-    pub hyperlink_colour: RgbColor,
+    pub hyperlink_colour: Option<RgbColor>,
     pub mud_can_change_link_colour: bool,
     pub underline_hyperlinks: bool,
     pub mud_can_remove_underline: bool,
@@ -123,20 +128,27 @@ pub struct World<'a> {
     pub aliases: Cow<'a, [Alias]>,
 }
 
-impl From<World<'static>> for super::super::World<'static> {
-    fn from(value: World<'static>) -> Self {
-        super::v7::World::from(value).into()
+fn ensure_crlfs<T>(senders: &mut [T])
+where
+    T: AsMut<Sender>,
+{
+    for sender in senders {
+        let text = &mut sender.as_mut().text;
+        *text = replace_crlf(text);
     }
 }
 
-impl From<World<'static>> for super::v7::World<'static> {
+impl From<World<'static>> for super::super::World<'static> {
     fn from(value: World<'static>) -> Self {
         let World {
             config,
-            timers,
-            triggers,
-            aliases,
+            mut timers,
+            mut triggers,
+            mut aliases,
         } = value;
+        ensure_crlfs(timers.to_mut());
+        ensure_crlfs(triggers.to_mut());
+        ensure_crlfs(aliases.to_mut());
         let WorldConfig {
             name,
             site,
@@ -182,6 +194,7 @@ impl From<World<'static>> for super::v7::World<'static> {
             keep_commands_on_same_line,
             new_activity_sound,
             line_information,
+            colour_map,
             use_mxp,
             ignore_mxp_colour_changes,
             use_custom_link_colour,
@@ -220,7 +233,7 @@ impl From<World<'static>> for super::v7::World<'static> {
             plugins,
         } = config.into_owned();
         Self {
-            config: Cow::Owned(super::v7::WorldConfig {
+            config: Cow::Owned(super::super::config::WorldConfig {
                 name,
                 site,
                 port,
@@ -265,11 +278,11 @@ impl From<World<'static>> for super::v7::World<'static> {
                 keep_commands_on_same_line,
                 new_activity_sound,
                 line_information,
-                colour_map: HashMap::new(),
+                colour_map,
                 use_mxp,
                 ignore_mxp_colour_changes,
                 use_custom_link_colour,
-                hyperlink_colour: Some(hyperlink_colour),
+                hyperlink_colour,
                 mud_can_change_link_colour,
                 underline_hyperlinks,
                 mud_can_remove_underline,
@@ -282,8 +295,10 @@ impl From<World<'static>> for super::v7::World<'static> {
                 utf_8,
                 convert_ga_to_newline,
                 no_echo_off,
+                speed_walk_delay: Duration::ZERO,
                 enable_command_stack,
                 command_stack_character,
+                command_stack_delay: false,
                 mxp_debug_level,
                 enable_triggers,
                 enable_trigger_sounds,

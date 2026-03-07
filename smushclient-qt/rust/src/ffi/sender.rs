@@ -33,20 +33,6 @@ pub mod ffi {
     }
 
     #[repr(i32)]
-    enum UserSendTarget {
-        World,
-        Command,
-        Output,
-        Status,
-        NotepadNew,
-        NotepadAppend,
-        NotepadReplace,
-        Log,
-        Variable,
-        Script,
-    }
-
-    #[repr(i32)]
     enum Occurrence {
         Time,
         Interval,
@@ -76,9 +62,6 @@ pub mod ffi {
         #[qproperty(i32, every_millisecond)]
         #[qproperty(bool, active_closed)]
         type Timer = super::TimerRust;
-
-        fn get_user_send_to(self: &Timer) -> UserSendTarget;
-        fn set_user_send_to(self: Pin<&mut Timer>, send_to: UserSendTarget);
     }
 
     impl cxx_qt::Constructor<(), NewArguments = ()> for Timer {}
@@ -115,9 +98,6 @@ pub mod ffi {
         #[qproperty(bool, menu)]
         #[qproperty(bool, omit_from_command_history)]
         type Alias = super::AliasRust;
-
-        fn get_user_send_to(self: &Alias) -> UserSendTarget;
-        fn set_user_send_to(self: Pin<&mut Alias>, send_to: UserSendTarget);
     }
 
     impl cxx_qt::Constructor<(), NewArguments = ()> for Alias {}
@@ -163,9 +143,6 @@ pub mod ffi {
         #[qproperty(bool, multi_line)]
         #[qproperty(i32, lines_to_match)]
         type Trigger = super::TriggerRust;
-
-        fn get_user_send_to(self: &Trigger) -> UserSendTarget;
-        fn set_user_send_to(self: Pin<&mut Trigger>, send_to: UserSendTarget);
     }
 
     impl cxx_qt::Constructor<(), NewArguments = ()> for Trigger {}

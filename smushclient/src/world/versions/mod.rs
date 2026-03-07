@@ -6,6 +6,7 @@ mod v3;
 mod v4;
 mod v5;
 mod v6;
+mod v7;
 
 use serde::de::DeserializeOwned;
 pub(crate) use v1::World as V1;
@@ -14,6 +15,7 @@ pub(crate) use v3::World as V3;
 pub(crate) use v4::World as V4;
 pub(crate) use v5::World as V5;
 pub(crate) use v6::World as V6;
+pub(crate) use v7::World as V7;
 
 pub trait Migrate {
     fn migrate(bytes: &[u8]) -> postcard::Result<super::World<'static>>;

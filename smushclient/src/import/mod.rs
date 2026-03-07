@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::io::BufRead;
+use std::time::Duration;
 
 use base64::Engine;
 use mud_transformer::UseMxp;
@@ -123,6 +124,8 @@ struct XmlWorld {
     pub show_italic: bool,
     #[serde(rename = "@show_underline", with = "bool_serde")]
     pub show_underline: bool,
+    #[serde(rename = "@speed_walk_delay")]
+    pub speed_walk_delay: u16,
     #[serde(rename = "@underline_hyperlinks", with = "bool_serde")]
     pub underline_hyperlinks: bool,
     #[serde(rename = "@use_custom_link_colour", with = "bool_serde")]
@@ -310,6 +313,7 @@ impl TryFrom<MuClient<'_>> for ImportedWorld {
             utf_8: world.utf_8,
             convert_ga_to_newline: world.convert_ga_to_newline,
             no_echo_off: world.no_echo_off,
+            speed_walk_delay: Duration::from_millis(world.speed_walk_delay.into()),
             enable_command_stack: world.enable_command_stack,
             command_stack_character: world
                 .command_stack_character
@@ -317,6 +321,7 @@ impl TryFrom<MuClient<'_>> for ImportedWorld {
                 .first()
                 .copied()
                 .unwrap_or(b';'),
+            command_stack_delay: false,
             mxp_debug_level: world.mxp_debug_level,
             enable_triggers: world.enable_triggers,
             enable_trigger_sounds: world.enable_trigger_sounds,

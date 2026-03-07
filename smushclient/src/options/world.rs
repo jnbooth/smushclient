@@ -1,4 +1,5 @@
 use std::slice;
+use std::time::Duration;
 
 use mud_transformer::UseMxp;
 
@@ -58,6 +59,7 @@ impl WorldConfig {
         "show_bold",
         "show_italic",
         "show_underline",
+        "speed_walk_delay",
         "underline_hyperlinks",
         "use_custom_link_colour",
         "use_default_colours",
@@ -109,6 +111,11 @@ impl WorldConfig {
             b"show_bold" => self.show_bold.into(),
             b"show_italic" => self.show_italic.into(),
             b"show_underline" => self.show_underline.into(),
+            b"speed_walk_delay" => self
+                .speed_walk_delay
+                .as_millis()
+                .try_into()
+                .unwrap_or(i64::MAX),
             b"underline_hyperlinks" => self.underline_hyperlinks.into(),
             b"use_custom_link_colour" => self.use_custom_link_colour.into(),
             b"use_default_colours" => self.use_default_colours.into(),
@@ -207,6 +214,13 @@ impl WorldConfig {
             b"show_bold" => self.show_bold = on?,
             b"show_italic" => self.show_italic = on?,
             b"show_underline" => self.show_underline = on?,
+            b"speed_walk_delay" => {
+                let duration = Duration::from_millis(value.try_into()?);
+                if duration > Duration::from_secs(30) {
+                    return Err(SetOptionError::OptionOutOfRange);
+                }
+                self.speed_walk_delay = duration;
+            }
             b"underline_hyperlinks" => self.underline_hyperlinks = on?,
             b"use_custom_link_colour" => self.use_custom_link_colour = on?,
             b"use_default_colours" => self.use_default_colours = on?,

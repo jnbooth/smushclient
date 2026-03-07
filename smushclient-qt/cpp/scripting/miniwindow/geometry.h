@@ -120,17 +120,17 @@ calculate(Position pos) noexcept
     case Position::TopLeft:
     case Position::TopCenter:
     case Position::TopRight:
-      align.setFlag(Qt::AlignmentFlag::AlignTop);
+      align |= Qt::AlignmentFlag::AlignTop;
       break;
     case Position::CenterLeft:
     case Position::Center:
     case Position::CenterRight:
-      align.setFlag(Qt::AlignmentFlag::AlignVCenter);
+      align |= Qt::AlignmentFlag::AlignVCenter;
       break;
     case Position::BottomLeft:
     case Position::BottomCenter:
     case Position::BottomRight:
-      align.setFlag(Qt::AlignmentFlag::AlignBottom);
+      align |= Qt::AlignmentFlag::AlignBottom;
       break;
     default:
       break;
@@ -139,17 +139,17 @@ calculate(Position pos) noexcept
     case Position::TopLeft:
     case Position::CenterLeft:
     case Position::BottomLeft:
-      align.setFlag(Qt::AlignmentFlag::AlignLeft);
+      align |= Qt::AlignmentFlag::AlignLeft;
       break;
     case Position::TopCenter:
     case Position::Center:
     case Position::BottomCenter:
-      align.setFlag(Qt::AlignmentFlag::AlignVCenter);
+      align |= Qt::AlignmentFlag::AlignVCenter;
       break;
     case Position::TopRight:
     case Position::CenterRight:
     case Position::BottomRight:
-      align.setFlag(Qt::AlignmentFlag::AlignRight);
+      align |= Qt::AlignmentFlag::AlignRight;
       break;
     default:
       break;

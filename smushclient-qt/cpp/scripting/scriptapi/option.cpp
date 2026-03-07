@@ -1,3 +1,4 @@
+#include "../../casting.h"
 #include "../../ui/worldtab.h"
 #include "../scriptapi.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
@@ -67,6 +68,11 @@ ScriptApi::SetOption(size_t plugin, string_view name, int64_t value)
     doNaws = value == 1;
   } else if (name == "enable_scripts" && worldScriptIndex != noSuchPlugin) {
     setPluginEnabled(worldScriptIndex, value == 1);
+  } else if (name == "speed_walk_delay") {
+    commandQueueTimer->setInterval(clamped_cast<int>(value));
+    if (value == 0) {
+      flushCommandQueue();
+    }
   }
 
   return code;

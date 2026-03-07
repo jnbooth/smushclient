@@ -2,6 +2,7 @@ use std::borrow::Cow;
 use std::cell::Cell;
 use std::collections::HashMap;
 use std::path::PathBuf;
+use std::time::Duration;
 
 use chrono::Local;
 use mud_transformer::mxp::RgbColor;
@@ -90,8 +91,10 @@ pub struct WorldConfig {
     pub utf_8: bool,
     pub convert_ga_to_newline: bool,
     pub no_echo_off: bool,
+    pub speed_walk_delay: Duration,
     pub enable_command_stack: bool,
     pub command_stack_character: u8,
+    pub command_stack_delay: bool,
     pub mxp_debug_level: MxpDebugLevel,
 
     // Triggers
@@ -203,8 +206,10 @@ impl WorldConfig {
             utf_8: true,
             convert_ga_to_newline: false,
             no_echo_off: false,
+            speed_walk_delay: Duration::ZERO,
             enable_command_stack: false,
             command_stack_character: b';',
+            command_stack_delay: false,
             mxp_debug_level: MxpDebugLevel::None,
 
             // Triggers

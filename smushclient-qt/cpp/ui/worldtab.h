@@ -159,6 +159,7 @@ private:
   ScriptApi* api;
   QMetaObject::Connection autoScroll;
   SmushClient client;
+  bool commandStackDelay = false;
   Document* document;
   QString filePath;
   QTimer* flushTimer;

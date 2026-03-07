@@ -12,6 +12,14 @@ ScriptApi::DeleteCommandHistory() const
   tab.ui->input->clearLog();
 }
 
+qsizetype
+ScriptApi::DiscardQueue()
+{
+  const qsizetype size = commandQueue.size();
+  commandQueue.clear();
+  return size;
+}
+
 ApiCode
 ScriptApi::Execute(const QString& command) const noexcept
 {
@@ -62,6 +70,19 @@ ScriptApi::PushCommand() const
     tab.ui->input->clear();
   }
   return command;
+}
+
+ApiCode
+ScriptApi::Queue(const QString& command, bool echo)
+{
+  if (commandQueueTimer->interval() == 0) {
+    return sendToWorld(command, echo ? SendFlag::Echo : SendFlags());
+  }
+  if (!socket.isOpen()) {
+    return ApiCode::WorldClosed;
+  }
+  enqueueCommand(command, echo);
+  return ApiCode::OK;
 }
 
 void

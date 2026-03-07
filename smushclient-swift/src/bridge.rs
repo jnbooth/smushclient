@@ -368,8 +368,10 @@ pub mod ffi {
         utf_8: bool,
         convert_ga_to_newline: bool,
         no_echo_off: bool,
+        speed_walk_delay: u64,
         enable_command_stack: bool,
         command_stack_character: u8,
+        command_stack_delay: bool,
         mxp_debug_level: MXPDebugLevel,
 
         enable_triggers: bool,

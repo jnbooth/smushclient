@@ -33,6 +33,16 @@ impl Convert<PathBuf> for String {
     }
 }
 
+impl Convert<Duration> for u64 {
+    fn from_ffi(value: Self) -> Duration {
+        Duration::from_millis(value)
+    }
+
+    fn to_ffi(value: Duration) -> Self {
+        value.as_millis().try_into().unwrap_or(u64::MAX)
+    }
+}
+
 impl Convert<Uuid> for ffi::Uuid {
     fn from_ffi(value: Self) -> Uuid {
         Uuid::from_u64_pair(value.a, value.b)
@@ -294,8 +304,10 @@ impl_convert_struct!(
     utf_8,
     convert_ga_to_newline,
     no_echo_off,
+    speed_walk_delay,
     enable_command_stack,
     command_stack_character,
+    command_stack_delay,
     mxp_debug_level,
     // Triggers
     enable_triggers,

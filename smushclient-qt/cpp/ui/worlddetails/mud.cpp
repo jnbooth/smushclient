@@ -25,7 +25,9 @@ PrefsMud::PrefsMud(World& world, QWidget* parent)
   CONNECT_WORLD(Utf8);
   CONNECT_WORLD(ConvertGaToNewline);
   CONNECT_WORLD(NoEchoOff);
+  CONNECT_WORLD(SpeedWalkDelay);
   CONNECT_WORLD(EnableCommandStack);
+  CONNECT_WORLD(CommandStackDelay);
   ui->CommandStackCharacter->setText(
     QChar::fromLatin1(static_cast<char>(world.getCommandStackCharacter())));
 }

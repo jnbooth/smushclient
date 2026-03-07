@@ -72,5 +72,5 @@ private:
 
 private:
   QElapsedTimer elapsed;
-  int timerId = -1;
+  Qt::TimerId timerId{ -1 };
 };

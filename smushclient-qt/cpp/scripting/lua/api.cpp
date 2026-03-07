@@ -726,6 +726,15 @@ L_DeleteCommandHistory(lua_State* L)
 }
 
 int
+L_DiscardQueue(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).DiscardQueue());
+  return 1;
+}
+
+int
 L_Execute(lua_State* L)
 {
   BENCHMARK
@@ -760,6 +769,30 @@ L_GetCommandList(lua_State* L)
 }
 
 int
+L_GetQueue(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  const auto queue = getApi(L).GetQueue();
+  lua_createtable(L, static_cast<int>(queue.size()), 0);
+  lua_Integer i = 0;
+  for (const auto& item : queue) {
+    push(L, item.command);
+    lua_rawseti(L, -2, ++i);
+  }
+  return 1;
+}
+
+int
+L_GetSpeedWalkDelay(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetOption(getPluginIndex(L), "speed_walk_delay"));
+  return 1;
+}
+
+int
 L_LogSend(lua_State* L)
 {
   BENCHMARK
@@ -782,6 +815,14 @@ L_PushCommand(lua_State* L)
   expectMaxArgs(L, 0);
   push(L, getApi(L).PushCommand());
   return 1;
+}
+
+int
+L_Queue(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  return returnCode(L, getApi(L).Queue(getQString(L, 1), getBool(L, 2, true)));
 }
 
 int
@@ -869,6 +910,15 @@ L_SetInputFont(lua_State* L)
   font.setItalic(getBool(L, 4, false));
   getApi(L).SetInputFont(font);
   return 0;
+}
+
+int
+L_SetSpeedWalkDelay(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).SetOption(getPluginIndex(L), "speed_walk_delay", getInteger(L, 1));
+  return 1;
 }
 
 // log
@@ -3279,12 +3329,16 @@ static const struct luaL_Reg worldlib[] =
     { "WindowInfo", L_WindowInfo },
     // input
     { "DeleteCommandHistory", L_DeleteCommandHistory },
+    { "DiscardQueue", L_DiscardQueue },
     { "Execute", L_Execute },
     { "GetCommand", L_GetCommand },
     { "GetCommandList", L_GetCommandList },
+    { "GetQueue", L_GetQueue },
+    { "GetSpeedWalkDelay", L_GetSpeedWalkDelay },
     { "LogSend", L_LogSend },
     { "PasteCommand", L_PasteCommand },
     { "PushCommand", L_PushCommand },
+    { "Queue", L_Queue },
     { "SelectCommand", L_SelectCommand },
     { "Send", L_Send },
     { "SendImmediate", L_SendImmediate },
@@ -3295,6 +3349,7 @@ static const struct luaL_Reg worldlib[] =
     { "SetCommandSelection", L_SetCommandSelection },
     { "SetCommandWindowHeight", L_SetCommandWindowHeight },
     { "SetInputFont", L_SetInputFont },
+    { "SetSpeedWalkDelay", L_SetSpeedWalkDelay },
     // log
     { "CloseLog", L_CloseLog },
     { "FlushLog", L_FlushLog },

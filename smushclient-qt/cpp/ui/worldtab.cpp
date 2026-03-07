@@ -696,6 +696,7 @@ WorldTab::resizeEvent(QResizeEvent* event)
 void
 WorldTab::applyWorld(const World& world)
 {
+  commandStackDelay = world.getCommandStackDelay();
   scriptReloadOption = world.getScriptReloadOption();
   worldName = world.getName();
   if (m_title.isEmpty()) {
@@ -1090,8 +1091,15 @@ WorldTab::on_input_submitted(const QString& input)
 
   bool eraseInput = commands.length() > 1;
 
+  bool startQueue = commandStackDelay && eraseInput && splitOn != u'\n' &&
+                    input.contains(splitOn);
+
   for (const QString& command : commands) {
     eraseInput = sendCommand(command, CommandSource::User) || eraseInput;
+    if (startQueue) {
+      api->startCommandQueueTimer();
+      startQueue = false;
+    }
   }
 
   if (eraseInput) {
@@ -1158,7 +1166,8 @@ WorldTab::on_output_customContextMenuRequested(const QPoint& pos)
     return;
   }
   const ActionSource oldSource = api->setSource(ActionSource::UserMenuAction);
-  api->sendToWorld(chosen->data().toString(), SendFlag::Echo | SendFlag::Log);
+  api->sendToWorld(chosen->data().toString(),
+                   SendFlag::Echo | SendFlag::Log | SendFlag::Immediate);
   api->setSource(oldSource);
 }
 

@@ -10,6 +10,8 @@
 #include "scriptenums.h"
 #include "smushclient_qt/src/ffi/send_request.cxx.h"
 #include <QtCore/QPointer>
+#include <QtCore/QQueue>
+#include <QtCore/QTimer>
 #include <QtCore/QUuid>
 #include <QtGui/QTextCursor>
 #include <QtNetwork/QAbstractSocket>
@@ -52,6 +54,13 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(SendFlags)
 class ScriptApi : public QObject
 {
   Q_OBJECT
+
+public:
+  struct QueuedCommand
+  {
+    QString command;
+    SendFlags flags;
+  };
 
 public:
   static ApiCode AddFont(const QString& fileName);
@@ -138,6 +147,7 @@ public:
   size_t DeleteTriggerGroup(size_t plugin,
                             std::string_view group) const noexcept;
   ApiCode DeleteVariable(size_t plugin, std::string_view key) const noexcept;
+  qsizetype DiscardQueue();
   ApiCode Disconnect() const;
   ApiCode DoAfter(size_t plugin,
                   double seconds,
@@ -212,6 +222,10 @@ public:
   QString GetNotepadText(const QString& name) const;
   QRect GetNotepadWindowPosition(const QString& name) const;
   QTextCharFormat GetNoteStyle() const;
+  const QQueue<QueuedCommand>& GetQueue() const noexcept
+  {
+    return commandQueue;
+  }
   QStringList GetRecentLines(int count) const;
   int64_t GetOption(size_t plugin, std::string_view name) const noexcept;
   const std::string& GetPluginID(size_t pluginIndex) const;
@@ -334,6 +348,7 @@ public:
   ApiCode PluginSupports(std::string_view pluginID,
                          PluginCallbackKey routine) const;
   QString PushCommand() const;
+  ApiCode Queue(const QString& command, bool echo);
   bool ReplaceNotepad(const QString& name, const QString& text) const;
   void Reset() const noexcept;
   void ResetStatusTime() const;
@@ -601,6 +616,7 @@ public:
   ApiCode WriteLog(std::string_view message) const;
 
   void applyWorld(const World& world);
+  void enqueueCommand(const QString& command, bool echo = true);
   void finishNote();
   const Plugin* getPlugin(std::string_view pluginID) const noexcept;
   Timekeeper& getTimekeeper() { return *timekeeper; }
@@ -641,6 +657,7 @@ public:
   ActionSource setSource(ActionSource source) noexcept;
   void setWordUnderMenu(const QString& word) noexcept { wordUnderMenu = word; }
   void stackWindow(std::string_view windowName, MiniWindow& window) const;
+  bool startCommandQueueTimer();
   MudStatusBar* statusBar() const noexcept { return statusBarPtr.get(); }
 
   std::vector<Plugin>::const_iterator cbegin() const noexcept
@@ -661,6 +678,7 @@ public:
   }
 
 public slots:
+  void dequeueCommand();
   void initializePlugins();
   void onBytesSent(int64_t bytes);
   void onResize(bool finished);
@@ -673,6 +691,7 @@ private:
   size_t findPluginIndex(std::string_view pluginID) const noexcept;
   MiniWindow* findWindow(std::string_view windowName) const noexcept;
   bool finishQueuedSend(const SendRequest& request);
+  qsizetype flushCommandQueue();
   QVariant getSenderInfo(SenderKind kind,
                          size_t pluginIndex,
                          std::string_view label,
@@ -702,6 +721,8 @@ private:
   CallbackFilter callbackFilter;
   const SmushClient& client;
   bool closed = true;
+  QQueue<QueuedCommand> commandQueue;
+  QTimer* commandQueueTimer;
   QPointer<MudCursor> cursor;
   string_map<DatabaseConnection> databases;
   bool doNaws = false;
@@ -715,7 +736,6 @@ private:
   MudScrollBar& scrollBar;
   TimerMap<SendRequest, ScriptApi>* sendQueue;
   QAbstractSocket& socket;
-  QStringList speedwalkQueue;
   std::unique_ptr<MudStatusBar> statusBarPtr;
   WorldTab& tab;
   Timekeeper* timekeeper;

@@ -8,7 +8,7 @@ use std::ptr;
 use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike};
-use cxx_qt::{CxxQtType, Initialize};
+use cxx_qt::Initialize;
 use cxx_qt_lib::{QColor, QString, QTime};
 use flagset::{FlagSet, Flags};
 use mud_transformer::mxp::RgbColor;
@@ -23,46 +23,6 @@ const NANOSECONDS_PER_MILLISECOND: i32 = 1_000_000;
 const MILLISECONDS_PER_SECOND: i32 = 1000;
 const SECONDS_PER_MINUTE: i32 = 60;
 const MINUTES_PER_HOUR: i32 = 60;
-
-impl From<ffi::SendTarget> for ffi::UserSendTarget {
-    fn from(value: ffi::SendTarget) -> Self {
-        use ffi::SendTarget as T;
-
-        match value {
-            T::World | T::WorldDelay | T::Execute | T::Speedwalk | T::WorldImmediate => Self::World,
-            T::Command => Self::Command,
-            T::Output => Self::Output,
-            T::Status => Self::Status,
-            T::NotepadNew => Self::NotepadNew,
-            T::NotepadAppend => Self::NotepadAppend,
-            T::NotepadReplace => Self::NotepadReplace,
-            T::Log => Self::Log,
-            T::Variable => Self::Variable,
-            T::Script | T::ScriptAfterOmit => Self::Script,
-            T { repr } => Self { repr },
-        }
-    }
-}
-
-impl From<ffi::UserSendTarget> for ffi::SendTarget {
-    fn from(value: ffi::UserSendTarget) -> Self {
-        use ffi::UserSendTarget as T;
-
-        match value {
-            T::World => Self::World,
-            T::Command => Self::Command,
-            T::Output => Self::Output,
-            T::Status => Self::Status,
-            T::NotepadNew => Self::NotepadNew,
-            T::NotepadAppend => Self::NotepadAppend,
-            T::NotepadReplace => Self::NotepadReplace,
-            T::Log => Self::Log,
-            T::Variable => Self::Variable,
-            T::Script => Self::Script,
-            T { repr } => Self { repr },
-        }
-    }
-}
 
 pub struct SenderRust {
     pub send_to: ffi::SendTarget,
@@ -394,36 +354,6 @@ impl TryFrom<&TriggerRust> for Trigger {
             lines_to_match: value.lines_to_match.try_into().unwrap_or(u8::MAX),
             clipboard_arg: value.clipboard_arg.try_into().unwrap_or_default(),
         })
-    }
-}
-
-impl ffi::Alias {
-    pub fn get_user_send_to(&self) -> ffi::UserSendTarget {
-        self.send_to.into()
-    }
-
-    pub fn set_user_send_to(self: Pin<&mut Self>, send_to: ffi::UserSendTarget) {
-        self.rust_mut().send_to = send_to.into();
-    }
-}
-
-impl ffi::Timer {
-    pub fn get_user_send_to(&self) -> ffi::UserSendTarget {
-        self.send_to.into()
-    }
-
-    pub fn set_user_send_to(self: Pin<&mut Self>, send_to: ffi::UserSendTarget) {
-        self.rust_mut().send_to = send_to.into();
-    }
-}
-
-impl ffi::Trigger {
-    pub fn get_user_send_to(&self) -> ffi::UserSendTarget {
-        self.send_to.into()
-    }
-
-    pub fn set_user_send_to(self: Pin<&mut Self>, send_to: ffi::UserSendTarget) {
-        self.rust_mut().send_to = send_to.into();
     }
 }
 

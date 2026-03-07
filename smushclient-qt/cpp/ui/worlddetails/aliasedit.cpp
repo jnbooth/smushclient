@@ -23,7 +23,7 @@ AliasEdit::AliasEdit(Alias& alias, QWidget* parent)
   // Sender
   CONNECT(Group);
   CONNECT(Label);
-  CONNECT(UserSendTo);
+  CONNECT(SendTo);
   CONNECT(Script);
   CONNECT(Variable);
   CONNECT(Enabled);
@@ -83,17 +83,16 @@ AliasEdit::on_Label_textChanged(const QString& text)
 }
 
 void
-AliasEdit::on_UserSendTo_currentIndexChanged(int index)
+AliasEdit::on_SendTo_currentIndexChanged(int index)
 {
-  const UserSendTarget value = static_cast<UserSendTarget>(index);
-  switch (value) {
-    case UserSendTarget::NotepadAppend:
-    case UserSendTarget::NotepadNew:
-    case UserSendTarget::NotepadReplace:
+  switch (static_cast<SendTarget>(index)) {
+    case SendTarget::NotepadAppend:
+    case SendTarget::NotepadNew:
+    case SendTarget::NotepadReplace:
       ui->Variable->show();
       ui->Variable_label->setText(tr("Notepad:"));
       return;
-    case UserSendTarget::Variable:
+    case SendTarget::Variable:
       ui->Variable->show();
       ui->Variable_label->setText(tr("Variable:"));
       return;

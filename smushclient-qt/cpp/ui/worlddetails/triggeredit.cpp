@@ -22,7 +22,7 @@ TriggerEdit::TriggerEdit(Trigger& trigger, QWidget* parent)
   // Sender
   CONNECT(Group);
   CONNECT(Label);
-  CONNECT(UserSendTo);
+  CONNECT(SendTo);
   CONNECT(Script);
   CONNECT(Variable);
   CONNECT(Enabled);
@@ -89,17 +89,16 @@ TriggerEdit::on_Label_textChanged(const QString& text)
 }
 
 void
-TriggerEdit::on_UserSendTo_currentIndexChanged(int index)
+TriggerEdit::on_SendTo_currentIndexChanged(int index)
 {
-  const UserSendTarget value = static_cast<UserSendTarget>(index);
-  switch (value) {
-    case UserSendTarget::NotepadAppend:
-    case UserSendTarget::NotepadNew:
-    case UserSendTarget::NotepadReplace:
+  switch (static_cast<SendTarget>(index)) {
+    case SendTarget::NotepadAppend:
+    case SendTarget::NotepadNew:
+    case SendTarget::NotepadReplace:
       ui->Variable->show();
       ui->Variable_label->setText(tr("Notepad:"));
       return;
-    case UserSendTarget::Variable:
+    case SendTarget::Variable:
       ui->Variable->show();
       ui->Variable_label->setText(tr("Variable:"));
       return;

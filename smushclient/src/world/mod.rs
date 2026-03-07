@@ -29,7 +29,7 @@ pub use types::*;
 mod versions;
 use versions::Migrate;
 
-const CURRENT_VERSION: u16 = 7;
+const CURRENT_VERSION: u16 = 8;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct World<'a> {
@@ -70,7 +70,8 @@ impl World<'static> {
             4 => versions::V4::migrate(bytes),
             5 => versions::V5::migrate(bytes),
             6 => versions::V6::migrate(bytes),
-            7 => postcard::from_bytes(bytes),
+            7 => versions::V7::migrate(bytes),
+            8 => postcard::from_bytes(bytes),
             _ => return Err(PersistError::UnsupportedVersion),
         }
         .map_err(Into::into)

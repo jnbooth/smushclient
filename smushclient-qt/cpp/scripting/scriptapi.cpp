@@ -73,6 +73,7 @@ ScriptApi::ScriptApi(SmushClient& client,
                      WorldTab& parent)
   : QObject(&parent)
   , client(client)
+  , commandQueueTimer(new QTimer(this))
   , cursor(output.cursor())
   , notepads(notepads)
   , scrollBar(*output.verticalScrollBar())
@@ -87,6 +88,8 @@ ScriptApi::ScriptApi(SmushClient& client,
   connect(&client, &SmushClient::timerSent, this, &ScriptApi::onTimerSent);
   connect(
     &socket, &QAbstractSocket::bytesWritten, this, &ScriptApi::onBytesSent);
+  connect(
+    commandQueueTimer, &QTimer::timeout, this, &ScriptApi::dequeueCommand);
   timekeeper->beginPolling(milliseconds(seconds{ 60 }));
 }
 
@@ -99,6 +102,30 @@ ScriptApi::applyWorld(const World& world)
 
   if (worldScriptIndex != noSuchPlugin) {
     setPluginEnabled(worldScriptIndex, world.getEnableScripts());
+  }
+
+  const int commandQueueInterval = world.getSpeedWalkDelay();
+  if (commandQueueInterval == 0) {
+    flushCommandQueue();
+  }
+  commandQueueTimer->setInterval(commandQueueInterval);
+}
+
+void
+ScriptApi::enqueueCommand(const QString& command, bool echo)
+{
+  constexpr const SendFlags baseFlags = SendFlag::Log | SendFlag::Immediate;
+  constexpr const SendFlags echoFlags = baseFlags | SendFlag::Echo;
+  const SendFlags flags = echo ? echoFlags : baseFlags;
+  QStringList commands = command.split(u'\n');
+  if (!commandQueueTimer->isActive()) {
+    if (commandQueue.isEmpty()) {
+      sendToWorld(commands.takeFirst(), flags);
+    }
+    commandQueueTimer->start();
+  }
+  for (const QString& line : commands) {
+    commandQueue.enqueue({ .command = line, .flags = flags });
   }
 }
 
@@ -131,16 +158,20 @@ ScriptApi::handleSendRequest(const SendRequest& request)
     return;
   }
   switch (request.sendTo) {
-    case SendTarget::World:
     case SendTarget::WorldDelay:
+      startCommandQueueTimer();
+    case SendTarget::Speedwalk:
+      if (commandQueueTimer->interval() != 0) {
+        enqueueCommand(request.text, request.echo);
+        return;
+      }
+    case SendTarget::World:
     case SendTarget::WorldImmediate: {
       SendFlags flags;
-      if (request.echo) {
-        flags |= SendFlag::Echo;
-      }
-      if (request.log) {
-        flags |= SendFlag::Log;
-      }
+      flags.setFlag(SendFlag::Echo, request.echo);
+      flags.setFlag(SendFlag::Log, request.log);
+      flags.setFlag(SendFlag::Immediate,
+                    request.sendTo == SendTarget::WorldImmediate);
       sendToWorld(request.text, flags);
     }
       return;
@@ -177,7 +208,6 @@ ScriptApi::handleSendRequest(const SendRequest& request)
       client.writeToLog("\n");
       return;
     case SendTarget::Variable:
-    case SendTarget::Speedwalk:
       return;
   }
 }
@@ -327,6 +357,11 @@ ScriptApi::sendPartialLineToPlugins()
 ApiCode
 ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
 {
+  if (!flags.testFlag(SendFlag::Immediate) && commandQueueTimer->isActive()) {
+    enqueueCommand(text, flags.testFlag(SendFlag::Echo));
+    return ApiCode::OK;
+  }
+
   OnPluginSend onSend(bytes);
   sendCallback(onSend);
   if (onSend.discarded()) {
@@ -395,6 +430,18 @@ ScriptApi::setPluginEnabled(size_t plugin, bool enable)
   sendCallback(onListChanged);
 }
 
+bool
+ScriptApi::startCommandQueueTimer()
+{
+  if (commandQueueTimer->interval() == 0) {
+    return false;
+  }
+  if (!commandQueueTimer->isActive()) {
+    commandQueueTimer->start();
+  }
+  return true;
+}
+
 ActionSource
 ScriptApi::setSource(ActionSource source) noexcept
 {
@@ -443,6 +490,18 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow& window) const
 }
 
 // Public slots
+
+void
+ScriptApi::dequeueCommand()
+{
+  if (commandQueue.empty()) {
+    commandQueueTimer->stop();
+    return;
+  }
+
+  const QueuedCommand queued = commandQueue.dequeue();
+  sendToWorld(queued.command, queued.flags);
+}
 
 void
 ScriptApi::initializePlugins()
@@ -606,6 +665,18 @@ ScriptApi::finishQueuedSend(const SendRequest& request)
   handleSendRequest(request);
   actionSource = oldSource;
   return true;
+}
+
+qsizetype
+ScriptApi::flushCommandQueue()
+{
+  commandQueueTimer->stop();
+  for (const QueuedCommand& queued : commandQueue) {
+    sendToWorld(queued.command, queued.flags);
+  }
+  const qsizetype size = commandQueue.size();
+  commandQueue.clear();
+  return size;
 }
 
 QVariant
