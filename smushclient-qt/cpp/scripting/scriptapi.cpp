@@ -211,11 +211,9 @@ ScriptApi::handleSendRequest(const SendRequest& request)
           tr("Speedwalk error in \"%1\": %2").arg(request.text).arg(e.what()));
       }
       return;
-    case SendTarget::Script: {
-      const QByteArray utf8 = request.text.toUtf8();
-      runScript(request.plugin, utf8, utf8.data());
+    case SendTarget::Script:
+      runScript(request.plugin, request.text.toUtf8());
       return;
-    }
     case SendTarget::ScriptAfterOmit:
       scriptQueue.enqueue(
         { .plugin = request.plugin, .script = request.text.toUtf8() });
@@ -272,7 +270,7 @@ void
 ScriptApi::runScriptsAfterOmit()
 {
   for (const QueuedScript& script : scriptQueue) {
-    runScript(script.plugin, script.script, script.script.data());
+    runScript(script.plugin, script.script);
   }
   scriptQueue.clear();
 }

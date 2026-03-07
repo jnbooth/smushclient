@@ -642,6 +642,10 @@ public:
   {
     return plugins[plugin].runScript(script, name);
   }
+  bool runScript(size_t plugin, const QByteArray& script) const
+  {
+    return plugins[plugin].runScript(script, script.data());
+  }
   void runScriptsAfterOmit();
   QTextCursor selectRecentLines(int count) const;
   void sendCallback(PluginCallback& callback);
