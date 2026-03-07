@@ -138,6 +138,7 @@ Document::end(bool hadOutput)
   if (hadOutput) {
     emit newActivity();
   }
+  api.runScriptsAfterOmit();
 }
 
 void

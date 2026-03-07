@@ -62,6 +62,12 @@ public:
     SendFlags flags;
   };
 
+  struct QueuedScript
+  {
+    size_t plugin;
+    QByteArray script;
+  };
+
 public:
   static ApiCode AddFont(const QString& fileName);
   static QColor AdjustColour(const QColor& color, ColorAdjust method);
@@ -636,6 +642,7 @@ public:
   {
     return plugins[plugin].runScript(script, name);
   }
+  void runScriptsAfterOmit();
   QTextCursor selectRecentLines(int count) const;
   void sendCallback(PluginCallback& callback);
   bool sendCallback(PluginCallback& callback, size_t plugin);
@@ -734,6 +741,7 @@ private:
   Notepads& notepads;
   std::vector<Plugin> plugins;
   string_map<size_t> pluginIndices;
+  QQueue<QueuedScript> scriptQueue;
   MudScrollBar& scrollBar;
   TimerMap<SendRequest, ScriptApi>* sendQueue;
   QAbstractSocket& socket;

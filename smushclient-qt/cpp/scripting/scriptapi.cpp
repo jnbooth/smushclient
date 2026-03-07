@@ -211,12 +211,15 @@ ScriptApi::handleSendRequest(const SendRequest& request)
           tr("Speedwalk error in \"%1\": %2").arg(request.text).arg(e.what()));
       }
       return;
-    case SendTarget::Script:
-    case SendTarget::ScriptAfterOmit: {
+    case SendTarget::Script: {
       const QByteArray utf8 = request.text.toUtf8();
       runScript(request.plugin, utf8, utf8.data());
       return;
     }
+    case SendTarget::ScriptAfterOmit:
+      scriptQueue.enqueue(
+        { .plugin = request.plugin, .script = request.text.toUtf8() });
+      return;
   }
 }
 
@@ -263,6 +266,15 @@ ScriptApi::resetAllTimers()
 {
   sendQueue->clear();
   client.startAllTimers(*timekeeper);
+}
+
+void
+ScriptApi::runScriptsAfterOmit()
+{
+  for (const QueuedScript& script : scriptQueue) {
+    runScript(script.plugin, script.script, script.script.data());
+  }
+  scriptQueue.clear();
 }
 
 QTextCursor
