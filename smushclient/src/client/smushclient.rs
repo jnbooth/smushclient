@@ -60,24 +60,30 @@ impl SmushClient {
     ///
     /// Panics if audio initialization fails.
     pub fn new(world: World<'static>, supported_tags: FlagSet<Tag>) -> Self {
+        let World {
+            config,
+            timers,
+            triggers,
+            aliases,
+        } = world;
+        let config = config.into_owned();
+
         let mut plugins = PluginEngine::new();
-        let config = world.config.into_owned();
-        let world_plugin = Plugin {
-            aliases: world.aliases.into_owned().into(),
-            timers: world.timers.into_owned().into(),
-            triggers: world.triggers.into_owned().into(),
+        plugins.set_world_plugin(Plugin {
+            aliases: aliases.into_owned().into(),
+            timers: timers.into_owned().into(),
+            triggers: triggers.into_owned().into(),
             ..config.world_plugin()
-        };
-        plugins.set_world_plugin(world_plugin);
-        let transformer = Transformer::new(TransformerConfig {
-            supports: supported_tags,
-            ..TransformerConfig::from(&config)
         });
+
         Self {
             logger: RefCell::new(Logger::new(&config)),
             plugins,
             supported_tags,
-            transformer: RefCell::new(transformer),
+            transformer: RefCell::new(Transformer::new(TransformerConfig {
+                supports: supported_tags,
+                ..TransformerConfig::from(&config)
+            })),
             variables: RefCell::default(),
             world: RefCell::new(config),
             audio: AudioSinks::try_default().expect("audio initialization error"),
@@ -90,8 +96,7 @@ impl SmushClient {
         reader: R,
         supported_tags: FlagSet<Tag>,
     ) -> Result<Self, ImportError> {
-        let reader = BufReader::new(reader);
-        let ImportedWorld { world, variables } = ImportedWorld::from_xml(reader)?;
+        let ImportedWorld { world, variables } = ImportedWorld::from_xml(BufReader::new(reader))?;
         Ok(Self {
             variables: RefCell::new(variables),
             ..Self::new(world, supported_tags)
@@ -439,10 +444,7 @@ impl SmushClient {
         path: P,
     ) -> Result<(PluginIndex, &Plugin), LoadError> {
         let path = path.as_ref();
-        let path = env::current_dir()
-            .ok()
-            .and_then(|cwd| path.strip_prefix(cwd).ok())
-            .unwrap_or(path);
+        let path = make_path_relative(path).unwrap_or(path);
         let index = self.plugins.add_plugin(path)?.0;
         self.update_world_plugins();
         Ok((index, &self.plugins[index]))
@@ -1257,4 +1259,9 @@ impl SmushClient {
             _ => V::visit_none(),
         }
     }
+}
+
+fn make_path_relative(path: &Path) -> Option<&Path> {
+    let cwd = env::current_dir().ok()?;
+    path.strip_prefix(cwd).ok()
 }

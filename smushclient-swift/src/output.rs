@@ -108,6 +108,7 @@ impl RustNamedColorIter {
     }
 
     pub fn next(&mut self) -> Option<ffi::RgbColor> {
-        self.inner.next().map(|(_k, color)| color.into())
+        let (_, color) = self.inner.next()?;
+        Some(color.into())
     }
 }

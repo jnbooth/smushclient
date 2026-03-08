@@ -96,7 +96,10 @@ fn encode_naws(browser: &QAbstractScrollArea) -> QByteArray {
 }
 
 fn encode_utf8(buf: &mut String, code: i64) -> bool {
-    let Some(c) = code.try_into().ok().and_then(char::from_u32) else {
+    let Ok(code) = code.try_into() else {
+        return false;
+    };
+    let Some(c) = char::from_u32(code) else {
         return false;
     };
     buf.push(c);
@@ -108,13 +111,7 @@ fn fixup_html(text: StringView<'_>) -> String {
 }
 
 fn get_alpha_option_list() -> QStringList {
-    let mut list = QStringList::default();
-    list.extend(
-        smushclient::WorldConfig::STR_OPTIONS
-            .iter()
-            .map(|&s| QString::from(s)),
-    );
-    list
+    build_string_list(smushclient::WorldConfig::STR_OPTIONS)
 }
 
 fn get_global_entity(name: StringView<'_>) -> VariableView {
@@ -122,13 +119,7 @@ fn get_global_entity(name: StringView<'_>) -> VariableView {
 }
 
 fn get_option_list() -> QStringList {
-    let mut list = QStringList::default();
-    list.extend(
-        smushclient::WorldConfig::INT_OPTIONS
-            .iter()
-            .map(|&s| QString::from(s)),
-    );
-    list
+    build_string_list(smushclient::WorldConfig::INT_OPTIONS)
 }
 
 fn is_utf8_valid(text: StringView<'_>) -> bool {
@@ -181,4 +172,10 @@ fn utf8_substring<'a>(
         None => text.len(),
     };
     &text[start_index..end_index]
+}
+
+fn build_string_list(options: &[&str]) -> QStringList {
+    let mut list = QStringList::default();
+    list.extend(options.iter().map(|&s| QString::from(s)));
+    list
 }
