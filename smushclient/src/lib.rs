@@ -23,7 +23,8 @@ pub use options::{OptionCaller, OptionError, OptionValue, Optionable, SetOptionE
 
 mod plugins;
 pub use plugins::{
-    AliasOutcome, CommandSource, LoadFailure, SendRequest, SendScriptRequest, SpanStyle,
+    AliasOutcome, AllSendersIter, CommandSource, LoadFailure, SendRequest, SendScriptRequest,
+    SpanStyle,
 };
 
 pub mod speedwalk;

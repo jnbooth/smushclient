@@ -2,7 +2,7 @@ use std::io;
 
 use smushclient::SetOptionError;
 use smushclient::{AudioError, OptionError};
-use smushclient_plugins::{Alias, SenderAccessError, Timer, Trigger};
+use smushclient_plugins::{Alias, RegexError, SenderAccessError, Timer, Trigger};
 
 use crate::ffi::{self, ApiCode};
 
@@ -17,6 +17,12 @@ impl IntoCode for Result<usize, ffi::ReplaceSenderResult> {
             Self::Ok(index) => index as i32,
             Self::Err(e) => e.repr,
         }
+    }
+}
+
+impl From<RegexError> for ffi::ReplaceSenderResult {
+    fn from(_: RegexError) -> Self {
+        Self::BadRegularExpression
     }
 }
 

@@ -1,4 +1,5 @@
 mod engine;
+pub use engine::AllSendersIter;
 pub(crate) use engine::PluginEngine;
 
 mod effects;

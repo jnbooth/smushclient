@@ -1,6 +1,6 @@
 use std::pin::Pin;
 
-use cxx_qt::Initialize;
+use cxx_qt::{CxxQtType, Initialize};
 
 use crate::convert::impl_constructor;
 use crate::world::WorldRust;
@@ -228,6 +228,6 @@ impl Initialize for ffi::World {
 
 impl_constructor!(<'a>, ffi::World, (&'a ffi::SmushClient,), {
     fn new((client,): (&'a ffi::SmushClient,)) -> WorldRust {
-        client.get_world()
+        WorldRust::from(&*client.rust().client.borrow_world())
     }
 });

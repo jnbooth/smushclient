@@ -13,26 +13,21 @@ use flagset::FlagSet;
 use mud_transformer::Tag;
 use smushclient::world::PersistError;
 use smushclient::{
-    AliasOutcome, CommandSource, Handler, LuaStr, OptionError, Optionable, SmushClient,
-    TimerFinish, Timers, World, WorldConfig,
+    AliasOutcome, CommandSource, Handler, SmushClient, TimerFinish, TimerStart, Timers, World,
+    WorldConfig,
 };
-use smushclient_plugins::{
-    Alias, ImportError, LoadError, PluginIndex, PluginSender, SenderAccessError, Timer, Trigger,
-};
+use smushclient_plugins::{ImportError, LoadError, PluginIndex, SenderAccessError, Timer};
 
-use crate::convert::Convert;
-use crate::ffi::{self, Document, Timekeeper};
+use crate::ffi;
 use crate::get_info::InfoVisitorQVariant;
 use crate::handler::ClientHandler;
-use crate::results::IntoApiCode;
 use crate::text_formatter::TextFormatter;
-use crate::world::WorldRust;
 
 const BUF_LEN: usize = 1024 * 20;
 
 pub struct SmushClientRust {
     pub client: SmushClient,
-    read_buf: Vec<u8>,
+    read_buf: RefCell<Box<[u8]>>,
     stats: RefCell<HashSet<String>>,
     timers: RefCell<Timers<ffi::SendTimer>>,
     formatter: TextFormatter,
@@ -44,7 +39,7 @@ impl Default for SmushClientRust {
     /// Panics if audio initialization fails.
     fn default() -> Self {
         Self {
-            read_buf: vec![0; BUF_LEN],
+            read_buf: RefCell::new(vec![0; BUF_LEN].into_boxed_slice()),
             stats: RefCell::new(HashSet::new()),
             timers: RefCell::new(Timers::new()),
             formatter: TextFormatter::default(),
@@ -74,24 +69,30 @@ impl SmushClientRust {
             | Tag::Underline
     }
 
+    // World
+
+    fn apply_world(&mut self, world: &WorldConfig) {
+        self.formatter.apply_world(world);
+    }
+
     pub fn load_world<P: AsRef<Path>>(&mut self, path: P) -> Result<(), PersistError> {
         let world = World::load(File::open(path)?)?;
+        self.apply_world(&world.config);
         self.client = SmushClient::new(world, Self::supported_tags());
-        self.apply_world();
         Ok(())
     }
 
-    pub fn load_plugins(&mut self) -> QStringList {
-        let Err(errors) = self.client.load_plugins() else {
-            return QStringList::default();
-        };
-        let mut list: QStringList = QStringList::default();
-        list.reserve(2 * errors.len().cast_signed());
-        for error in &errors {
-            list.append(QString::from(&*error.path.to_string_lossy()));
-            list.append(QString::from(&error.error.to_string()));
-        }
-        list
+    pub fn import_world<P: AsRef<Path>>(&mut self, path: P) -> Result<(), ImportError> {
+        let file = File::open(path)?;
+        let client = SmushClient::import_world(file, Self::supported_tags())?;
+        self.apply_world(&client.borrow_world());
+        self.client = client;
+        Ok(())
+    }
+
+    pub fn set_world(&mut self, world: WorldConfig) -> bool {
+        self.apply_world(&world);
+        self.client.update_world(world)
     }
 
     pub fn save_world<P: AsRef<Path>>(&self, path: P) -> Result<(), PersistError> {
@@ -117,24 +118,102 @@ impl SmushClientRust {
         Ok(true)
     }
 
-    pub fn import_world<P: AsRef<Path>>(&mut self, path: P) -> Result<(), ImportError> {
-        let file = File::open(path)?;
-        self.client = SmushClient::import_world(file, Self::supported_tags())?;
-        self.apply_world();
-        Ok(())
-    }
+    // Plugins
 
-    pub fn set_world(&mut self, world: &WorldRust) -> bool {
-        let Ok(world) = WorldConfig::try_from(world) else {
-            return false;
+    pub fn load_plugins(&mut self) -> QStringList {
+        let Err(errors) = self.client.load_plugins() else {
+            return QStringList::default();
         };
-        self.apply_world();
-        self.client.update_world(world)
+        let mut list: QStringList = QStringList::default();
+        list.reserve(2 * errors.len().cast_signed());
+        for error in &errors {
+            list.append(QString::from(&*error.path.to_string_lossy()));
+            list.append(QString::from(&error.error.to_string()));
+        }
+        list
     }
 
-    pub fn get_world(&self) -> WorldRust {
-        WorldRust::from(&*self.client.borrow_world())
+    pub fn reinstall_plugin(&mut self, index: PluginIndex) -> Result<usize, LoadError> {
+        self.timers.borrow_mut().reset_plugin(index);
+        self.client.reinstall_plugin(index)
     }
+
+    pub fn reset_plugins(&self) -> Vec<ffi::PluginPack> {
+        self.client.reset_plugins();
+        self.timers.borrow_mut().clear();
+        self.client.plugins().map(ffi::PluginPack::from).collect()
+    }
+
+    pub fn reset_world_plugin(&self) {
+        self.timers
+            .borrow_mut()
+            .reset_plugin(self.world_plugin_index());
+        self.client.reset_world_plugin();
+    }
+
+    /// # Panics
+    ///
+    /// Panics if there is no world plugin.
+    #[track_caller]
+    pub fn world_plugin_index(&self) -> PluginIndex {
+        self.client
+            .plugins()
+            .position(|plugin| plugin.metadata.is_world_plugin)
+            .expect("world plugin is missing!")
+    }
+
+    // Document
+
+    fn handler<'a>(&'a self, doc: Pin<&'a mut ffi::Document>) -> ClientHandler<'a> {
+        ClientHandler::new(
+            doc,
+            &self.formatter,
+            &self.stats,
+            &self.client.borrow_world(),
+        )
+    }
+
+    pub fn alias(
+        &self,
+        command: &str,
+        source: CommandSource,
+        doc: Pin<&mut ffi::Document>,
+    ) -> AliasOutcome {
+        self.client.alias(command, source, &mut self.handler(doc))
+    }
+
+    pub fn flush(&self, doc: Pin<&mut ffi::Document>) {
+        let mut handler = self.handler(doc);
+        if self.client.flush_output(&mut handler) {
+            handler.set_had_output();
+        }
+    }
+
+    pub fn invoke_alias(&self, index: PluginIndex, id: u16, doc: Pin<&mut ffi::Document>) -> bool {
+        self.client.invoke_alias(index, id, &mut self.handler(doc))
+    }
+
+    pub fn read(&self, socket: Pin<&mut QAbstractSocket>, doc: Pin<&mut ffi::Document>) -> i64 {
+        let io_result = self.handle_socket_read(socket);
+        let mut handler = self.handler(doc);
+        if self.client.drain_output(&mut handler) {
+            handler.set_had_output();
+        }
+        #[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
+        match io_result {
+            Ok(total_read) => total_read as i64,
+            Err(e) => {
+                handler.display_error(&e.to_string());
+                -1
+            }
+        }
+    }
+
+    pub fn simulate(&self, line: &str, doc: Pin<&mut ffi::Document>) {
+        self.client.simulate_output(line, &mut self.handler(doc));
+    }
+
+    // Network
 
     pub fn connect_to_host(&self, mut socket: Pin<&mut QAbstractSocket>) {
         let world = self.client.borrow_world();
@@ -168,163 +247,24 @@ impl SmushClientRust {
         }
     }
 
-    pub fn handle_disconnect(&mut self) {
+    pub fn handle_disconnect(&self) {
         self.stats.borrow_mut().clear();
         self.client.reset_connection();
     }
 
-    fn handler<'a>(&'a self, doc: Pin<&'a mut Document>) -> ClientHandler<'a> {
-        let world = self.client.borrow_world();
-        ClientHandler {
-            doc,
-            formatter: &self.formatter,
-            carriage_return_clears_line: world.carriage_return_clears_line,
-            no_echo_off: world.no_echo_off,
-            stats: &self.stats,
-        }
+    fn handle_socket_read(&self, mut socket: Pin<&mut QAbstractSocket>) -> io::Result<usize> {
+        let n = self
+            .client
+            .read(&mut socket, &mut self.read_buf.borrow_mut())?;
+        self.client.write(&mut socket)?;
+        Ok(n)
     }
 
-    pub fn simulate(&self, line: &str, doc: Pin<&mut Document>) {
-        let mut handler = self.handler(doc);
-        self.client.simulate_output(line, &mut handler);
-    }
+    // Sender info
 
-    pub fn world_plugin_index(&self) -> PluginIndex {
+    pub fn alias_info(&self, index: PluginIndex, label: &str, info_type: i64) -> QVariant {
         self.client
-            .plugins()
-            .position(|plugin| plugin.metadata.is_world_plugin)
-            .expect("world plugin is missing!")
-    }
-
-    /// # Panics
-    ///
-    /// Panics if the index is out of bounds.
-    #[track_caller]
-    pub fn plugin(&self, index: PluginIndex) -> ffi::PluginPack {
-        self.client.plugin(index).into()
-    }
-
-    pub fn reset_world_plugin(&self) {
-        self.timers
-            .borrow_mut()
-            .reset_plugin(self.world_plugin_index());
-        self.client.reset_world_plugin();
-    }
-
-    pub fn reset_plugins(&self) -> Vec<ffi::PluginPack> {
-        self.client.reset_plugins();
-        self.timers.borrow_mut().clear();
-        self.client.plugins().map(ffi::PluginPack::from).collect()
-    }
-
-    pub fn reinstall_plugin(&mut self, index: PluginIndex) -> Result<usize, LoadError> {
-        self.timers.borrow_mut().reset_plugin(index);
-        self.client.reinstall_plugin(index)
-    }
-
-    fn apply_world(&mut self) {
-        self.formatter.apply_world(&self.client.borrow_world());
-    }
-
-    pub fn read(&mut self, mut socket: Pin<&mut QAbstractSocket>, doc: Pin<&mut Document>) -> i64 {
-        let mut handler = {
-            let world = self.client.borrow_world();
-            ClientHandler {
-                doc,
-                formatter: &self.formatter,
-                carriage_return_clears_line: world.carriage_return_clears_line,
-                no_echo_off: world.no_echo_off,
-                stats: &self.stats,
-            }
-        };
-        let read_result = self.client.read(&mut socket, &mut self.read_buf);
-        handler.doc.begin();
-
-        let had_output = self.client.drain_output(&mut handler);
-        handler.doc.as_mut().end(had_output);
-
-        #[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
-        let total_read = match read_result {
-            Ok(total_read) => total_read as i64,
-            Err(e) => {
-                handler.display_error(&e.to_string());
-                return -1;
-            }
-        };
-
-        if let Err(e) = self.client.write(&mut socket) {
-            handler.display_error(&e.to_string());
-            return -1;
-        }
-
-        total_read
-    }
-
-    pub fn flush(&mut self, doc: Pin<&mut Document>) {
-        let mut handler = {
-            let world = self.client.borrow_world();
-            ClientHandler {
-                doc,
-                formatter: &self.formatter,
-                carriage_return_clears_line: world.carriage_return_clears_line,
-                no_echo_off: world.no_echo_off,
-                stats: &self.stats,
-            }
-        };
-        handler.doc.begin();
-
-        let had_output = self.client.flush_output(&mut handler);
-        handler.doc.end(had_output);
-    }
-
-    pub fn handle_alert(&self) -> ffi::ApiCode {
-        let sound = &self.client.borrow_world().new_activity_sound;
-        if sound.is_empty() {
-            return ffi::ApiCode::OK;
-        }
-        self.client.play_file_raw(sound).code()
-    }
-
-    pub fn ansi_note(&self, text: &str) -> Vec<ffi::StyledSpan> {
-        mud_transformer::interpret_ansi(text)
-            .map(|fragment| ffi::StyledSpan {
-                format: self.formatter.text_format(&fragment).into_owned(),
-                text: QString::from(&*fragment.text),
-            })
-            .collect()
-    }
-
-    pub fn alias(
-        &self,
-        command: &str,
-        source: CommandSource,
-        doc: Pin<&mut Document>,
-    ) -> AliasOutcome {
-        let mut handler = self.handler(doc);
-        handler.doc.begin();
-        let outcome = self.client.alias(command, source, &mut handler);
-        handler.doc.end(false);
-        outcome
-    }
-
-    pub fn invoke_alias(&self, index: PluginIndex, id: u16, doc: Pin<&mut Document>) -> bool {
-        let mut handler = self.handler(doc);
-        handler.doc.begin();
-        let succeeded = self.client.invoke_alias(index, id, &mut handler);
-        handler.doc.end(false);
-        succeeded
-    }
-
-    pub fn alias_menu(&self) -> Vec<ffi::AliasMenuItem> {
-        let mut menu = Vec::new();
-        self.client.build_alias_menu(|plugin, id, label| {
-            menu.push(ffi::AliasMenuItem {
-                plugin,
-                id,
-                text: QString::from(label),
-            });
-        });
-        menu
+            .alias_info::<InfoVisitorQVariant>(index, label, info_type)
     }
 
     pub fn timer_info(&self, index: PluginIndex, label: &str, info_type: i64) -> QVariant {
@@ -336,44 +276,31 @@ impl SmushClientRust {
         )
     }
 
-    pub fn start_timers(&self, index: PluginIndex, timekeeper: &Timekeeper) {
-        if !self.client.borrow_world().enable_timers {
-            return;
-        }
-        let timer_starts = {
-            let mut timers = self.timers.borrow_mut();
-            self.client
-                .senders::<Timer>(index)
-                .borrow()
-                .iter()
-                .filter_map(|timer| timers.start(index, timer))
-                .collect::<Vec<_>>()
-        };
-        for timer_start in &timer_starts {
-            timekeeper.start(timer_start);
-        }
+    pub fn trigger_info(&self, index: PluginIndex, label: &str, info_type: i64) -> QVariant {
+        self.client
+            .trigger_info::<InfoVisitorQVariant>(index, label, info_type)
     }
 
-    pub fn start_all_timers(&self, timekeeper: &Timekeeper) {
+    // Timers
+
+    pub fn add_timer(
+        &self,
+        index: PluginIndex,
+        timer: Timer,
+    ) -> Result<Option<TimerStart>, SenderAccessError> {
+        let timer = self.client.add_sender(index, timer)?;
         if !self.client.borrow_world().enable_timers {
-            return;
+            return Ok(None);
         }
-        let mut timer_starts = Vec::new();
-        {
-            let mut timers = self.timers.borrow_mut();
-            for index in 0..self.client.plugins_len() {
-                timer_starts.extend(
-                    self.client
-                        .senders::<Timer>(index)
-                        .borrow()
-                        .iter()
-                        .filter_map(|timer| timers.start(index, timer)),
-                );
-            }
-        };
-        for timer_start in &timer_starts {
-            timekeeper.start(timer_start);
+        Ok(self.timers.borrow_mut().start(index, &timer))
+    }
+
+    pub fn add_or_replace_timer(&self, index: PluginIndex, timer: Timer) -> Option<TimerStart> {
+        let timer = self.client.add_or_replace_sender(index, timer);
+        if !self.client.borrow_world().enable_timers {
+            return None;
         }
+        self.timers.borrow_mut().start(index, &timer)
     }
 
     pub fn finish_timer(&self, id: usize) -> TimerFinish<ffi::SendTimer> {
@@ -384,132 +311,79 @@ impl SmushClientRust {
         self.timers.borrow_mut().poll(&self.client)
     }
 
-    pub fn add_timer(
-        &self,
-        index: PluginIndex,
-        timer: Timer,
-        timekeeper: &Timekeeper,
-    ) -> Result<(), SenderAccessError> {
-        let start = {
-            let timer = self.client.add_sender(index, timer)?;
-            if !self.client.borrow_world().enable_timers {
-                return Ok(());
-            }
-            self.timers.borrow_mut().start(index, &timer)
-        };
-        if let Some(start) = start {
-            timekeeper.start(&start);
-        }
-        Ok(())
-    }
-
-    pub fn add_or_replace_timer(&self, index: PluginIndex, timer: Timer, timekeeper: &Timekeeper) {
-        let start = {
-            let timer = self.client.add_or_replace_sender(index, timer);
-            if !self.client.borrow_world().enable_timers {
-                return;
-            }
-            self.timers.borrow_mut().start(index, &timer)
-        };
-        if let Some(start) = start {
-            timekeeper.start(&start);
-        }
-    }
-
-    pub fn import_world_timers(
-        &self,
-        xml: &str,
-        timekeeper: &Timekeeper,
-    ) -> Result<(), ImportError> {
+    pub fn import_world_timers(&self, xml: &str) -> Result<Vec<TimerStart>, ImportError> {
         let world_index = self.world_plugin_index();
         let imported_timers = self.client.import_world_senders::<Timer>(xml)?;
         if !self.client.borrow_world().enable_timers {
-            return Ok(());
+            return Ok(Vec::new());
         }
         let mut timers = self.timers.borrow_mut();
-        for timer in &imported_timers {
-            if let Some(start) = timers.start(world_index, timer) {
-                timekeeper.start(&start);
-            }
-        }
-        Ok(())
-    }
-
-    pub fn replace_world_alias(
-        &self,
-        index: usize,
-        alias: Alias,
-    ) -> Result<usize, ffi::ReplaceSenderResult> {
-        let group = alias.group.clone();
-        let (i, alias) = self.client.replace_world_sender(index, alias)?;
-        if alias.group == group {
-            Ok(i)
-        } else {
-            Err(ffi::ReplaceSenderResult::GroupChanged)
-        }
-    }
-
-    pub fn replace_world_trigger(
-        &self,
-        index: usize,
-        trigger: Trigger,
-    ) -> Result<usize, ffi::ReplaceSenderResult> {
-        let group = trigger.group.clone();
-        let (i, trigger) = self.client.replace_world_sender(index, trigger)?;
-        if trigger.group == group {
-            Ok(i)
-        } else {
-            Err(ffi::ReplaceSenderResult::GroupChanged)
-        }
+        Ok(imported_timers
+            .iter()
+            .filter_map(|timer| timers.start(world_index, timer))
+            .collect())
     }
 
     pub fn replace_world_timer(
         &self,
         index: usize,
         timer: Timer,
-        timekeeper: &Timekeeper,
-    ) -> Result<usize, ffi::ReplaceSenderResult> {
+    ) -> (Result<usize, ffi::ReplaceSenderResult>, Option<TimerStart>) {
         let group = timer.group.clone();
-        let (result, start) = {
-            let (i, timer) = self.client.replace_world_sender(index, timer)?;
-            let result = if timer.group == group {
-                Ok(i)
-            } else {
-                Err(ffi::ReplaceSenderResult::GroupChanged)
-            };
-            if !self.client.borrow_world().enable_timers {
-                return result;
-            }
-            let world_index = self.world_plugin_index();
-            (result, self.timers.borrow_mut().start(world_index, &timer))
+        let (i, timer) = match self.client.replace_world_sender(index, timer) {
+            Ok(result) => result,
+            Err(e) => return (Err(e.into()), None),
         };
-        if let Some(start) = start {
-            timekeeper.start(&start);
+        let result = if timer.group == group {
+            Ok(i)
+        } else {
+            Err(ffi::ReplaceSenderResult::GroupChanged)
+        };
+        if !self.client.borrow_world().enable_timers {
+            return (result, None);
         }
-        result
+        let world_index = self.world_plugin_index();
+        (result, self.timers.borrow_mut().start(world_index, &timer))
     }
 
-    pub fn get_sender_option<T: PluginSender + Optionable>(
-        &self,
-        index: PluginIndex,
-        label: &str,
-        option: &LuaStr,
-    ) -> QVariant {
-        let Some(sender) = self.client.borrow_sender::<T>(index, label) else {
-            return QVariant::default();
-        };
-        sender.get_option(option).convert()
+    pub fn start_all_timers(&self) -> Vec<TimerStart> {
+        if !self.client.borrow_world().enable_timers {
+            return Vec::new();
+        }
+        let mut timer_starts = Vec::new();
+        let mut timers = self.timers.borrow_mut();
+        for (index, plugin_timers) in self.client.all_senders::<Timer>().enumerate() {
+            timer_starts.extend(
+                plugin_timers
+                    .borrow()
+                    .iter()
+                    .filter_map(|timer| timers.start(index, timer)),
+            );
+        }
+        timer_starts
     }
 
-    pub fn set_sender_option<T: PluginSender + Optionable>(
-        &self,
-        index: PluginIndex,
-        label: &str,
-        option: &LuaStr,
-        value: &LuaStr,
-    ) -> Result<(), OptionError> {
+    pub fn start_timers(&self, index: PluginIndex) -> Vec<TimerStart> {
+        if !self.client.borrow_world().enable_timers {
+            return Vec::new();
+        }
+        let mut timers = self.timers.borrow_mut();
         self.client
-            .borrow_sender_mut::<T>(index, label)?
-            .set_option(option, value)
+            .senders::<Timer>(index)
+            .borrow()
+            .iter()
+            .filter_map(|timer| timers.start(index, timer))
+            .collect()
+    }
+
+    // Color
+
+    pub fn ansi_note(&self, text: &str) -> Vec<ffi::StyledSpan> {
+        mud_transformer::interpret_ansi(text)
+            .map(|fragment| ffi::StyledSpan {
+                format: self.formatter.text_format(&fragment).into_owned(),
+                text: QString::from(&*fragment.text),
+            })
+            .collect()
     }
 }

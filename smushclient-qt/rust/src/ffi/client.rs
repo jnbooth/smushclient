@@ -117,44 +117,54 @@ pub mod ffi {
         #[cxx_name = "SmushClientBase"]
         type SmushClient = super::SmushClientRust;
 
-        fn try_load_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<()>;
-        fn try_save_world(self: &SmushClient, path: &QString) -> Result<()>;
-        fn try_import_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<RegexParse>;
-        fn try_open_log(self: &SmushClient) -> Result<()>;
-        fn try_close_log(self: &SmushClient) -> Result<()>;
-        fn open_log(self: &SmushClient, path: StringView, append: bool) -> ApiCode;
+        // color
+        fn ansi_note(self: &SmushClient, text: StringView) -> Vec<StyledSpan>;
+        fn color_map(self: &SmushClient) -> QList_QPair_QColor_QColor;
+        fn get_mapped_color(self: &SmushClient, color: &QColor) -> QColor;
+        fn get_term_color(self: &SmushClient, i: u8) -> QColor;
+        fn set_mapped_color(self: &SmushClient, color: &QColor, mapped: &QColor);
+        fn set_term_color(self: &SmushClient, i: u8, color: &QColor);
+
+        // log
         fn close_log(self: &SmushClient) -> ApiCode;
         fn flush_log(self: &SmushClient) -> ApiCode;
         fn is_log_open(self: &SmushClient) -> bool;
-        fn log_note(self: &SmushClient, note: StringView) -> ApiCode;
         fn log_input(self: &SmushClient, input: &QString) -> ApiCode;
+        fn log_note(self: &SmushClient, note: StringView) -> ApiCode;
+        fn open_log(self: &SmushClient, path: StringView, append: bool) -> ApiCode;
+        fn try_close_log(self: &SmushClient) -> Result<()>;
+        fn try_open_log(self: &SmushClient) -> Result<()>;
         fn write_to_log(self: &SmushClient, bytes: BytesView) -> ApiCode;
-        fn load_plugins(self: Pin<&mut SmushClient>) -> QStringList;
-        fn world_plugin_index(self: &SmushClient) -> usize;
-        fn try_load_variables(self: &SmushClient, path: &QString) -> Result<bool>;
-        fn try_save_variables(self: &SmushClient, path: &QString) -> Result<bool>;
-        fn set_world(self: Pin<&mut SmushClient>, world: &World) -> bool;
+
+        // network
+        fn bytes_received(self: &SmushClient) -> u64;
         fn connect_to_host(self: &SmushClient, socket: Pin<&mut QAbstractSocket>);
+        fn flush(self: &SmushClient, doc: Pin<&mut Document>);
         fn handle_connect(self: &SmushClient, socket: Pin<&mut QAbstractSocket>) -> QString;
-        fn handle_disconnect(self: Pin<&mut SmushClient>);
-        fn reset_mxp(self: &SmushClient);
-        fn simulate(self: &SmushClient, line: StringView, doc: Pin<&mut Document>);
-        fn get_term_color(self: &SmushClient, i: u8) -> QColor;
-        fn set_term_color(self: &SmushClient, i: u8, color: &QColor);
-        fn get_mapped_color(self: &SmushClient, color: &QColor) -> QColor;
-        fn set_mapped_color(self: &SmushClient, color: &QColor, mapped: &QColor);
-        fn color_map(self: &SmushClient) -> QList_QPair_QColor_QColor;
-        fn try_evaluate_speedwalk(self: &SmushClient, speedwalk: &QString) -> Result<QString>;
-        fn evaluate_speedwalk(self: &SmushClient, speedwalk: StringView) -> String;
-        fn world_option(self: &SmushClient, index: usize, option: StringView) -> i64;
-        fn world_alpha_option(self: &SmushClient, index: usize, option: StringView)
-        -> VariableView;
-        fn world_variant_option(self: &SmushClient, index: usize, option: StringView) -> QVariant;
-        fn set_world_option(
+        fn handle_disconnect(self: &SmushClient);
+        fn has_output(self: &SmushClient) -> bool;
+        fn read(
             self: &SmushClient,
+            device: Pin<&mut QAbstractSocket>,
+            doc: Pin<&mut Document>,
+        ) -> i64;
+        fn reset_mxp(self: &SmushClient);
+
+        // option
+        fn get_sender_option(
+            self: &SmushClient,
+            kind: SenderKind,
             index: usize,
+            label: StringView,
             option: StringView,
-            value: i64,
+        ) -> QVariant;
+        fn set_sender_option(
+            self: &SmushClient,
+            kind: SenderKind,
+            index: usize,
+            label: StringView,
+            option: StringView,
+            value: StringView,
         ) -> ApiCode;
         fn set_world_alpha_option(
             self: &SmushClient,
@@ -162,60 +172,34 @@ pub mod ffi {
             option: StringView,
             value: StringView,
         ) -> ApiCode;
-        fn play_buffer(
+        fn set_world_option(
             self: &SmushClient,
-            i: usize,
-            buf: BytesView,
-            volume: f32,
-            looping: bool,
+            index: usize,
+            option: StringView,
+            value: i64,
         ) -> ApiCode;
-        fn play_file(
-            self: &SmushClient,
-            i: usize,
-            path: StringView,
-            volume: f32,
-            looping: bool,
-        ) -> ApiCode;
-        fn play_file_raw(self: &SmushClient, path: StringView) -> ApiCode;
-        fn stop_sound(self: &SmushClient, i: usize) -> ApiCode;
-        fn sound_status(self: &SmushClient, i: usize) -> AudioSinkStatus;
-        fn ansi_note(self: &SmushClient, text: StringView) -> Vec<StyledSpan>;
-        fn alias(
-            self: &SmushClient,
-            command: &QString,
-            source: CommandSource,
-            doc: Pin<&mut Document>,
-        ) -> AliasOutcomes;
-        fn invoke_alias(self: &SmushClient, index: usize, id: u16, doc: Pin<&mut Document>)
-        -> bool;
-        fn alias_menu(self: &SmushClient) -> Vec<AliasMenuItem>;
-        fn get_info(self: &SmushClient, info_type: i64) -> QVariant;
-        fn plugin_info(self: &SmushClient, index: usize, info_type: i64) -> QVariant;
-        fn plugins_len(self: &SmushClient) -> usize;
-        fn try_add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> Result<usize>;
-        fn remove_plugin(self: Pin<&mut SmushClient>, index: usize) -> bool;
+        fn world_alpha_option(self: &SmushClient, index: usize, option: StringView)
+        -> VariableView;
+        fn world_option(self: &SmushClient, index: usize, option: StringView) -> i64;
+        fn world_variant_option(self: &SmushClient, index: usize, option: StringView) -> QVariant;
+
+        // plugin
+        fn load_plugins(self: Pin<&mut SmushClient>) -> QStringList;
+        fn plugin(self: &SmushClient, index: usize) -> PluginPack;
         fn plugin_enabled(self: &SmushClient, index: usize) -> bool;
         fn plugin_id(self: &SmushClient, index: usize) -> QString;
+        fn plugin_info(self: &SmushClient, index: usize, info_type: i64) -> QVariant;
+        fn plugins_len(self: &SmushClient) -> usize;
         fn plugin_model_text(self: &SmushClient, index: usize, column: i32) -> QString;
-        fn plugin(self: &SmushClient, index: usize) -> PluginPack;
-        fn reset_world_plugin(self: &SmushClient);
+        fn remove_plugin(self: Pin<&mut SmushClient>, index: usize) -> bool;
         fn reset_plugins(self: &SmushClient) -> Vec<PluginPack>;
+        fn reset_world_plugin(self: &SmushClient);
+        fn set_plugin_enabled(self: &SmushClient, index: usize, enable: bool);
+        fn try_add_plugin(self: Pin<&mut SmushClient>, path: &QString) -> Result<usize>;
         fn try_reinstall_plugin(self: Pin<&mut SmushClient>, index: usize) -> Result<usize>;
-        fn read(
-            self: Pin<&mut SmushClient>,
-            device: Pin<&mut QAbstractSocket>,
-            doc: Pin<&mut Document>,
-        ) -> i64;
-        fn flush(self: Pin<&mut SmushClient>, doc: Pin<&mut Document>);
-        fn handle_alert(self: &SmushClient) -> ApiCode;
-        fn has_output(self: &SmushClient) -> bool;
-        fn sender_info(
-            self: &SmushClient,
-            kind: SenderKind,
-            index: usize,
-            label: StringView,
-            info_type: i64,
-        ) -> QVariant;
+        fn world_plugin_index(self: &SmushClient) -> usize;
+
+        // sender
         fn add_alias(self: &SmushClient, index: usize, alias: &Alias) -> ApiCode;
         fn add_timer(
             self: &SmushClient,
@@ -224,6 +208,26 @@ pub mod ffi {
             timekeeper: &Timekeeper,
         ) -> ApiCode;
         fn add_trigger(self: &SmushClient, index: usize, trigger: &Trigger) -> ApiCode;
+        fn add_world_alias(self: &SmushClient, alias: &Alias) -> ApiCode;
+        fn add_world_timer(self: &SmushClient, timer: &Timer, timekeeper: &Timekeeper) -> ApiCode;
+        fn add_world_trigger(self: &SmushClient, trigger: &Trigger) -> ApiCode;
+        fn alias(
+            self: &SmushClient,
+            command: &QString,
+            source: CommandSource,
+            doc: Pin<&mut Document>,
+        ) -> AliasOutcomes;
+        fn alias_menu(self: &SmushClient) -> Vec<AliasMenuItem>;
+        fn finish_timer(self: Pin<&mut SmushClient>, id: usize) -> bool;
+        fn get_alias_wildcard(&self, index: usize, label: StringView, name: StringView) -> String;
+        fn get_trigger_wildcard(&self, index: usize, label: StringView, name: StringView)
+        -> String;
+        fn invoke_alias(self: &SmushClient, index: usize, id: u16, doc: Pin<&mut Document>)
+        -> bool;
+        fn is_sender(self: &SmushClient, kind: SenderKind, index: usize, label: StringView)
+        -> bool;
+        fn list_senders(self: &SmushClient, kind: SenderKind, index: usize) -> Vec<String>;
+        fn poll_timers(self: Pin<&mut SmushClient>);
         fn remove_sender(
             self: &SmushClient,
             kind: SenderKind,
@@ -238,31 +242,6 @@ pub mod ffi {
         ) -> usize;
         fn remove_sender_groups(self: &SmushClient, index: usize, name: StringView) -> usize;
         fn remove_temporary_senders(self: &SmushClient, kind: SenderKind) -> usize;
-        fn add_world_alias(self: &SmushClient, alias: &Alias) -> ApiCode;
-        fn add_world_timer(self: &SmushClient, timer: &Timer, timekeeper: &Timekeeper) -> ApiCode;
-        fn add_world_trigger(self: &SmushClient, trigger: &Trigger) -> ApiCode;
-        fn replace_world_alias(self: &SmushClient, index: usize, alias: &Alias) -> i32;
-        fn replace_world_timer(
-            self: &SmushClient,
-            index: usize,
-            timer: &Timer,
-            timekeeper: &Timekeeper,
-        ) -> i32;
-        fn replace_world_trigger(self: &SmushClient, index: usize, trigger: &Trigger) -> i32;
-        pub fn try_export_xml(
-            self: &SmushClient,
-            kind: ExportKind,
-            index: usize,
-            name: StringView,
-        ) -> Result<QString>;
-        fn try_export_world_senders(self: &SmushClient, kind: SenderKind) -> Result<QString>;
-        fn try_import_world_aliases(self: &SmushClient, xml: &QString) -> Result<RegexParse>;
-        fn try_import_world_timers(
-            self: &SmushClient,
-            xml: &QString,
-            timekeeper: &Timekeeper,
-        ) -> Result<RegexParse>;
-        fn try_import_world_triggers(self: &SmushClient, xml: &QString) -> Result<RegexParse>;
         fn replace_alias(self: &SmushClient, index: usize, alias: &Alias) -> ApiCode;
         fn replace_timer(
             self: &SmushClient,
@@ -271,8 +250,27 @@ pub mod ffi {
             timekeeper: &Timekeeper,
         ) -> ApiCode;
         fn replace_trigger(self: &SmushClient, index: usize, trigger: &Trigger) -> ApiCode;
-        fn is_sender(self: &SmushClient, kind: SenderKind, index: usize, label: StringView)
-        -> bool;
+        fn replace_world_alias(self: &SmushClient, index: usize, alias: &Alias) -> i32;
+        fn replace_world_timer(
+            self: &SmushClient,
+            index: usize,
+            timer: &Timer,
+            timekeeper: &Timekeeper,
+        ) -> i32;
+        fn replace_world_trigger(self: &SmushClient, index: usize, trigger: &Trigger) -> i32;
+        fn sender_script(
+            self: &SmushClient,
+            kind: SenderKind,
+            index: usize,
+            label: StringView,
+        ) -> VariableView;
+        fn sender_info(
+            self: &SmushClient,
+            kind: SenderKind,
+            index: usize,
+            label: StringView,
+            info_type: i64,
+        ) -> QVariant;
         fn set_sender_enabled(
             self: &SmushClient,
             kind: SenderKind,
@@ -293,56 +291,78 @@ pub mod ffi {
             group: StringView,
             enable: bool,
         ) -> usize;
-        fn set_plugin_enabled(self: &SmushClient, index: usize, enable: bool);
-        fn get_sender_option(
+        fn simulate(self: &SmushClient, line: StringView, doc: Pin<&mut Document>);
+        fn start_all_timers(self: &SmushClient, timekeeper: &Timekeeper);
+        fn start_timers(self: &SmushClient, index: usize, timekeeper: &Timekeeper);
+        fn stop_senders(self: &SmushClient, kind: SenderKind);
+
+        // sound
+        fn handle_alert(self: &SmushClient) -> ApiCode;
+        fn play_buffer(
             self: &SmushClient,
-            kind: SenderKind,
-            index: usize,
-            label: StringView,
-            option: StringView,
-        ) -> QVariant;
-        fn set_sender_option(
-            self: &SmushClient,
-            kind: SenderKind,
-            index: usize,
-            label: StringView,
-            option: StringView,
-            value: StringView,
+            i: usize,
+            buf: BytesView,
+            volume: f32,
+            looping: bool,
         ) -> ApiCode;
-        fn get_alias_wildcard(&self, index: usize, label: StringView, name: StringView) -> String;
-        fn get_trigger_wildcard(&self, index: usize, label: StringView, name: StringView)
-        -> String;
-        fn list_variables(self: &SmushClient, index: usize) -> Vec<String>;
-        fn get_variable(self: &SmushClient, index: usize, key: StringView) -> VariableView;
+        fn play_file(
+            self: &SmushClient,
+            i: usize,
+            path: StringView,
+            volume: f32,
+            looping: bool,
+        ) -> ApiCode;
+        fn play_file_raw(self: &SmushClient, path: StringView) -> ApiCode;
+        fn sound_status(self: &SmushClient, i: usize) -> AudioSinkStatus;
+        fn stop_sound(self: &SmushClient, i: usize) -> ApiCode;
+
+        // variable
         fn get_metavariable(self: &SmushClient, key: StringView) -> VariableView;
+        fn get_mxp_entity(self: &SmushClient, name: StringView) -> VariableView;
+        fn get_variable(self: &SmushClient, index: usize, key: StringView) -> VariableView;
         fn has_metavariable(self: &SmushClient, key: StringView) -> bool;
+        fn list_variables(self: &SmushClient, index: usize) -> Vec<String>;
+        fn set_metavariable(self: &SmushClient, key: StringView, value: BytesView) -> bool;
+        fn set_mxp_entity(self: &SmushClient, name: StringView, value: StringView) -> bool;
         fn set_variable(
             self: &SmushClient,
             index: usize,
             key: StringView,
             value: BytesView,
         ) -> bool;
-        fn unset_variable(self: &SmushClient, index: usize, key: StringView) -> bool;
-        fn set_metavariable(self: &SmushClient, key: StringView, value: BytesView) -> bool;
         fn unset_metavariable(self: &SmushClient, key: StringView) -> bool;
-        fn get_mxp_entity(self: &SmushClient, name: StringView) -> VariableView;
-        fn set_mxp_entity(self: &SmushClient, name: StringView, value: StringView) -> bool;
-        fn bytes_received(self: &SmushClient) -> u64;
-        fn list_senders(self: &SmushClient, kind: SenderKind, index: usize) -> Vec<String>;
-        fn sender_script(
-            self: &SmushClient,
-            kind: SenderKind,
-            index: usize,
-            label: StringView,
-        ) -> VariableView;
-        fn start_timers(self: &SmushClient, index: usize, timekeeper: &Timekeeper);
-        fn start_all_timers(self: &SmushClient, timekeeper: &Timekeeper);
-        fn finish_timer(self: Pin<&mut SmushClient>, id: usize) -> bool;
-        fn poll_timers(self: Pin<&mut SmushClient>);
-        fn stop_senders(self: &SmushClient, kind: SenderKind);
-        fn command_splitter(self: &SmushClient) -> u16;
-        fn speed_walk_prefix(self: &SmushClient) -> u16;
+        fn unset_variable(self: &SmushClient, index: usize, key: StringView) -> bool;
 
+        // world
+        fn command_splitter(self: &SmushClient) -> u16;
+        fn evaluate_speedwalk(self: &SmushClient, speedwalk: StringView) -> String;
+        fn get_info(self: &SmushClient, info_type: i64) -> QVariant;
+        fn set_world(self: Pin<&mut SmushClient>, world: &World) -> bool;
+        fn speed_walk_prefix(self: &SmushClient) -> u16;
+        fn try_evaluate_speedwalk(self: &SmushClient, speedwalk: &QString) -> Result<QString>;
+        fn try_load_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<()>;
+        fn try_load_variables(self: &SmushClient, path: &QString) -> Result<bool>;
+        fn try_save_world(self: &SmushClient, path: &QString) -> Result<()>;
+        fn try_save_variables(self: &SmushClient, path: &QString) -> Result<bool>;
+
+        // xml
+        pub fn try_export_xml(
+            self: &SmushClient,
+            kind: ExportKind,
+            index: usize,
+            name: StringView,
+        ) -> Result<QString>;
+        fn try_export_world_senders(self: &SmushClient, kind: SenderKind) -> Result<QString>;
+        fn try_import_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<RegexParse>;
+        fn try_import_world_aliases(self: &SmushClient, xml: &QString) -> Result<RegexParse>;
+        fn try_import_world_timers(
+            self: &SmushClient,
+            xml: &QString,
+            timekeeper: &Timekeeper,
+        ) -> Result<RegexParse>;
+        fn try_import_world_triggers(self: &SmushClient, xml: &QString) -> Result<RegexParse>;
+
+        // Qt
         #[qsignal]
         fn timer_sent(self: Pin<&mut SmushClient>, timer: &SendTimer);
     }

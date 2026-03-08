@@ -9,21 +9,51 @@ use mud_transformer::{
     ControlFragment, EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment,
 };
 use mud_transformer::{MxpFragment, mxp};
-use smushclient::{SendRequest, SendScriptRequest, SpanStyle};
+use smushclient::{SendRequest, SendScriptRequest, SpanStyle, WorldConfig};
 
 use crate::convert::Convert;
 use crate::ffi::Document;
 use crate::text_formatter::TextFormatter;
 
 pub struct ClientHandler<'a> {
-    pub doc: Pin<&'a mut Document>,
-    pub formatter: &'a TextFormatter,
-    pub carriage_return_clears_line: bool,
-    pub no_echo_off: bool,
-    pub stats: &'a RefCell<HashSet<String>>,
+    doc: Pin<&'a mut Document>,
+    formatter: &'a TextFormatter,
+    carriage_return_clears_line: bool,
+    no_echo_off: bool,
+    stats: &'a RefCell<HashSet<String>>,
+    had_output: bool,
+}
+
+impl Drop for ClientHandler<'_> {
+    fn drop(&mut self) {
+        self.doc.as_mut().end(self.had_output);
+    }
+}
+
+impl<'a> ClientHandler<'a> {
+    pub fn new(
+        doc: Pin<&'a mut Document>,
+        formatter: &'a TextFormatter,
+        stats: &'a RefCell<HashSet<String>>,
+        world: &WorldConfig,
+    ) -> Self {
+        doc.begin();
+        Self {
+            doc,
+            formatter,
+            carriage_return_clears_line: world.carriage_return_clears_line,
+            no_echo_off: world.no_echo_off,
+            stats,
+            had_output: false,
+        }
+    }
 }
 
 impl ClientHandler<'_> {
+    pub fn set_had_output(&mut self) {
+        self.had_output = true;
+    }
+
     fn display_text(&mut self, fragment: &TextFragment) {
         let text = QString::from(&*fragment.text);
         let format = self.formatter.text_format(fragment);
@@ -189,6 +219,7 @@ impl smushclient::Handler for ClientHandler<'_> {
     }
 
     fn display_error(&mut self, error: &str) {
+        self.had_output = true;
         self.doc.as_mut().append_line();
         self.doc
             .append_text(&QString::from(error), self.formatter.error_format());

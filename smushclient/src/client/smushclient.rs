@@ -30,8 +30,8 @@ use crate::handler::Handler;
 use crate::import::ImportedWorld;
 use crate::options::{OptionCaller, OptionValue, SetOptionError};
 use crate::plugins::{
-    AliasEffects, AliasOutcome, CommandSource, LoadFailure, PluginEngine, PluginReaction,
-    SendRequest, SendScriptRequest, SpanStyle, TriggerEffects,
+    AliasEffects, AliasOutcome, AllSendersIter, CommandSource, LoadFailure, PluginEngine,
+    PluginReaction, SendRequest, SendScriptRequest, SpanStyle, TriggerEffects,
 };
 use crate::world::{LogMode, PersistError, World, WorldConfig};
 
@@ -115,6 +115,10 @@ impl SmushClient {
 
     pub fn set_supported_tags(&mut self, supported_tags: FlagSet<Tag>) {
         self.supported_tags = supported_tags;
+    }
+
+    pub fn all_senders<T: PluginSender>(&self) -> AllSendersIter<'_, T> {
+        self.plugins.all_senders::<T>()
     }
 
     pub fn stop_evaluating<T: PluginSender>(&self) {

@@ -1,0 +1,86 @@
+use cxx_qt::CxxQtType;
+use smushclient_plugins::PluginIndex;
+
+use crate::ffi::{self, BytesView, StringView, VariableView};
+
+impl ffi::SmushClient {
+    pub fn get_metavariable(&self, key: StringView<'_>) -> VariableView {
+        let Ok(key) = key.to_str() else {
+            return VariableView::null();
+        };
+        self.rust().client.borrow_metavariable(key).into()
+    }
+
+    pub fn get_mxp_entity(&self, name: StringView<'_>) -> VariableView {
+        let Ok(name) = name.to_str() else {
+            return VariableView::null();
+        };
+        self.rust().client.borrow_mxp_entity(name).into()
+    }
+
+    pub fn get_variable(&self, index: PluginIndex, key: StringView<'_>) -> VariableView {
+        let Ok(key) = key.to_str() else {
+            return VariableView::null();
+        };
+        self.rust().client.borrow_variable(index, key).into()
+    }
+
+    pub fn has_metavariable(&self, key: StringView<'_>) -> bool {
+        let Ok(key) = key.to_str() else {
+            return false;
+        };
+        self.rust().client.has_metavariable(key)
+    }
+
+    pub fn list_variables(&self, index: PluginIndex) -> Vec<String> {
+        self.rust().client.list_variables(index)
+    }
+
+    pub fn set_metavariable(&self, key: StringView<'_>, value: BytesView<'_>) -> bool {
+        let Ok(key) = key.to_str() else {
+            return false;
+        };
+        self.rust()
+            .client
+            .set_metavariable(key.to_owned(), value.to_vec());
+        true
+    }
+
+    pub fn set_mxp_entity(&self, name: StringView<'_>, value: StringView<'_>) -> bool {
+        let (Ok(name), Ok(value)) = (name.to_str(), value.to_str()) else {
+            return false;
+        };
+        self.rust()
+            .client
+            .set_mxp_entity(name.to_owned(), value.to_owned())
+    }
+
+    pub fn set_variable(
+        &self,
+        index: PluginIndex,
+        key: StringView<'_>,
+        value: BytesView<'_>,
+    ) -> bool {
+        let Ok(key) = key.to_str() else {
+            return false;
+        };
+        self.rust()
+            .client
+            .set_variable(index, key.to_owned(), value.to_vec());
+        true
+    }
+
+    pub fn unset_metavariable(&self, key: StringView<'_>) -> bool {
+        let Ok(key) = key.to_str() else {
+            return false;
+        };
+        self.rust().client.unset_metavariable(key).is_some()
+    }
+
+    pub fn unset_variable(&self, index: PluginIndex, key: StringView<'_>) -> bool {
+        let Ok(key) = key.to_str() else {
+            return false;
+        };
+        self.rust().client.unset_variable(index, key).is_some()
+    }
+}

@@ -9,6 +9,8 @@ use smushclient_plugins::{CursorVec, LoadError, Plugin, PluginIndex, PluginSende
 use super::error::LoadFailure;
 use crate::world::WorldConfig;
 
+pub type AllSendersIter<'a, T> = iter::Map<slice::Iter<'a, Plugin>, fn(&Plugin) -> &CursorVec<T>>;
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct PluginEngine {
     plugins: Vec<Plugin>,
@@ -36,10 +38,7 @@ impl PluginEngine {
             .position(|plugin| plugin.metadata.is_world_plugin);
     }
 
-    #[allow(clippy::type_complexity)]
-    pub fn all_senders<T: PluginSender>(
-        &self,
-    ) -> iter::Map<slice::Iter<'_, Plugin>, fn(&Plugin) -> &CursorVec<T>> {
+    pub fn all_senders<T: PluginSender>(&self) -> AllSendersIter<'_, T> {
         self.plugins.iter().map(Plugin::senders)
     }
 

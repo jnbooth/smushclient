@@ -8,7 +8,7 @@ use std::ptr;
 use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike};
-use cxx_qt::Initialize;
+use cxx_qt::{CxxQtType, Initialize};
 use cxx_qt_lib::{QColor, QString, QTime};
 use flagset::{FlagSet, Flags};
 use mud_transformer::mxp::RgbColor;
@@ -16,7 +16,7 @@ use mud_transformer::{Output, OutputFragment, TextFragment, TextStyle};
 use smushclient_plugins::newline::ensure_crlf;
 use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer, Trigger};
 
-use crate::convert::{Convert, impl_constructor, impl_deref};
+use crate::convert::{Convert, impl_deref};
 use crate::ffi;
 
 const NANOSECONDS_PER_MILLISECOND: i32 = 1_000_000;
@@ -357,44 +357,44 @@ impl TryFrom<&TriggerRust> for Trigger {
     }
 }
 
-impl Initialize for ffi::Alias {
-    fn initialize(self: Pin<&mut Self>) {}
+macro_rules! impl_sender_constructors {
+    ($t:ident) => {
+        impl Initialize for ffi::$t {
+            fn initialize(self: Pin<&mut Self>) {}
+        }
+
+        impl<'a> cxx_qt::Constructor<(&'a ffi::SmushClient, usize)> for ffi::$t {
+            type BaseArguments = ();
+            type InitializeArguments = ();
+            type NewArguments = (&'a ffi::SmushClient, usize);
+            fn route_arguments(
+                args: Self::NewArguments,
+            ) -> (
+                Self::NewArguments,
+                Self::BaseArguments,
+                Self::InitializeArguments,
+            ) {
+                (args, (), ())
+            }
+            fn new((client, index): (&'a ffi::SmushClient, usize)) -> Self::Rust {
+                let sender = client
+                    .rust()
+                    .client
+                    .world_plugin()
+                    .senders::<$t>()
+                    .get(index);
+                match sender {
+                    Some(sender) => Self::Rust::from(&*sender),
+                    None => Self::Rust::default(),
+                }
+            }
+        }
+    };
 }
 
-impl Initialize for ffi::Timer {
-    fn initialize(self: Pin<&mut Self>) {}
-}
-
-impl Initialize for ffi::Trigger {
-    fn initialize(self: Pin<&mut Self>) {}
-}
-
-impl_constructor!(<'a>, ffi::Alias, (&'a ffi::SmushClient, usize), {
-    fn new((client, i): (&'a ffi::SmushClient, usize)) -> AliasRust {
-        match client.borrow_world_sender::<Alias>(i) {
-            Some(alias) => AliasRust::from(&*alias),
-            None => AliasRust::default(),
-        }
-    }
-});
-
-impl_constructor!(<'a>, ffi::Timer, (&'a ffi::SmushClient, usize), {
-    fn new((client, i): (&'a ffi::SmushClient, usize)) -> TimerRust {
-        match client.borrow_world_sender::<Timer>(i) {
-            Some(timer) => TimerRust::from(&*timer),
-            None => TimerRust::default(),
-        }
-    }
-});
-
-impl_constructor!(<'a>, ffi::Trigger, (&'a ffi::SmushClient, usize), {
-    fn new((client, i): (&'a ffi::SmushClient, usize)) -> TriggerRust {
-        match client.borrow_world_sender::<Trigger>(i) {
-            Some(trigger) => TriggerRust::from(&*trigger),
-            None => TriggerRust::default(),
-        }
-    }
-});
+impl_sender_constructors!(Alias);
+impl_sender_constructors!(Timer);
+impl_sender_constructors!(Trigger);
 
 #[inline(always)]
 fn if_contains<E: Flags>(set: FlagSet<E>, value: E, flag: u8) -> u8 {
