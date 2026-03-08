@@ -5,11 +5,11 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike};
-use mud_transformer::mxp::{AudioRepetition, Heading, RgbColor, SendTo};
-use mud_transformer::{
-    ControlFragment, EntityFragment, MxpFragment, OutputFragment, TelnetFragment, TelnetSource,
-    TelnetVerb, UseMxp,
+use mud_transformer::mxp::{self, RgbColor};
+use mud_transformer::output::{
+    ControlFragment, EntityFragment, MxpFragment, OutputFragment, TelnetFragment,
 };
+use mud_transformer::{TelnetSource, TelnetVerb, UseMxp};
 use smushclient::world::{
     AutoConnect, LogFormat, LogMode, MxpDebugLevel, Numpad, NumpadMapping, ScriptRecompile,
 };
@@ -112,7 +112,7 @@ impl_convert_enum!(
     All,
 );
 
-impl_convert_enum!(ffi::SendTo, SendTo, World, Input, Internet);
+impl_convert_enum!(ffi::SendTo, mxp::SendTo, World, Input, Internet);
 
 impl_convert_enum!(ffi::TelnetSource, TelnetSource, Client, Server);
 
@@ -417,18 +417,18 @@ impl From<ffi::Occurrence> for Occurrence {
     }
 }
 
-impl Convert<AudioRepetition> for u32 {
-    fn from_ffi(value: Self) -> AudioRepetition {
+impl Convert<mxp::AudioRepetition> for u32 {
+    fn from_ffi(value: Self) -> mxp::AudioRepetition {
         match NonZero::new(value) {
-            Some(count) => AudioRepetition::Count(count),
-            None => AudioRepetition::Forever,
+            Some(count) => mxp::AudioRepetition::Count(count),
+            None => mxp::AudioRepetition::Forever,
         }
     }
 
-    fn to_ffi(value: AudioRepetition) -> Self {
+    fn to_ffi(value: mxp::AudioRepetition) -> Self {
         match value {
-            AudioRepetition::Forever => 0,
-            AudioRepetition::Count(count) => count.get(),
+            mxp::AudioRepetition::Forever => 0,
+            mxp::AudioRepetition::Count(count) => count.get(),
         }
     }
 }
@@ -508,7 +508,7 @@ impl Clone for ffi::TelnetFragment {
     }
 }
 
-impl_convert_enum!(ffi::Heading, Heading, H1, H2, H3, H4, H5, H6);
+impl_convert_enum!(ffi::Heading, mxp::Heading, H1, H2, H3, H4, H5, H6);
 
 impl From<EntityFragment> for ffi::EntityFragment {
     fn from(value: EntityFragment) -> Self {

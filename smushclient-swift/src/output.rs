@@ -1,17 +1,17 @@
 use std::ptr;
 
-use mud_transformer::mxp::{Heading, Link, NamedColorIter, RgbColor, SendTo};
-use mud_transformer::{TextFragment, TextStyle};
+use mud_transformer::mxp::{self, RgbColor};
+use mud_transformer::output::{TextFragment, TextStyle};
 
 use crate::ffi;
 
 #[repr(transparent)]
 pub struct RustMxpLink {
-    inner: Link,
+    inner: mxp::Link,
 }
 
 impl RustMxpLink {
-    const fn cast(link: &Link) -> &Self {
+    const fn cast(link: &mxp::Link) -> &Self {
         // SAFETY: #[repr(transparent)]
         unsafe { &*ptr::from_ref(link).cast() }
     }
@@ -32,7 +32,7 @@ impl RustMxpLink {
             .collect()
     }
 
-    pub fn send_to(&self) -> SendTo {
+    pub fn send_to(&self) -> mxp::SendTo {
         self.inner.send_to
     }
 }
@@ -77,7 +77,7 @@ impl RustTextFragment {
         self.inner.action.as_ref().map(RustMxpLink::cast)
     }
 
-    pub fn heading(&self) -> Option<Heading> {
+    pub fn heading(&self) -> Option<mxp::Heading> {
         self.inner.heading
     }
 
@@ -91,7 +91,7 @@ impl RustTextFragment {
 
 #[repr(transparent)]
 pub struct RustNamedColorIter {
-    inner: NamedColorIter,
+    inner: mxp::NamedColorIter,
 }
 
 impl Default for RustNamedColorIter {

@@ -1,7 +1,7 @@
 use std::ops::Range;
 use std::vec;
 
-use mud_transformer::Output;
+use mud_transformer::output::Output;
 use smushclient::SpanStyle;
 
 use crate::ffi;

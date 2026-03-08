@@ -6,7 +6,8 @@ use std::time::Duration;
 
 use chrono::Local;
 use mud_transformer::mxp::RgbColor;
-use mud_transformer::{TextFragment, TransformerConfig, UseMxp};
+use mud_transformer::output::TextFragment;
+use mud_transformer::{TransformerConfig, UseMxp};
 use serde::{Deserialize, Serialize};
 use smushclient_plugins::{Plugin, PluginMetadata};
 use uuid::Uuid;

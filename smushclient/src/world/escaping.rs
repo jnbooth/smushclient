@@ -4,7 +4,7 @@ use std::io::{self, Write};
 
 use chrono::{DateTime, Local};
 use mud_transformer::mxp::RgbColor;
-use mud_transformer::{Output, OutputFragment};
+use mud_transformer::output::{Output, OutputFragment};
 
 use super::config::WorldConfig;
 use crate::world::LogFormat;

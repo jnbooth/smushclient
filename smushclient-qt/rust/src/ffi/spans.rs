@@ -2,8 +2,8 @@ use std::fmt::Write;
 
 use cxx_qt_lib::QString;
 use flagset::FlagSet;
-use mud_transformer::TextStyle;
 use mud_transformer::mxp;
+use mud_transformer::output::TextStyle;
 use smushclient_qt_lib::{QFontWeight, QTextCharFormat, QTextFormatProperty};
 
 #[cxx::bridge]

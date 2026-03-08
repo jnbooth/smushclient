@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use mud_transformer::Output;
+use mud_transformer::output::Output;
 
 use crate::plugins::{SendRequest, SendScriptRequest, SpanStyle};
 

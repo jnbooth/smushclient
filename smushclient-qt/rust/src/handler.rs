@@ -4,11 +4,12 @@ use std::ops::Range;
 use std::pin::Pin;
 
 use cxx_qt_lib::QString;
-use mud_transformer::term::{self, CursorEffect};
-use mud_transformer::{
-    ControlFragment, EntityFragment, Output, OutputFragment, TelnetFragment, TextFragment,
+use mud_transformer::mxp;
+use mud_transformer::output::{
+    ControlFragment, EntityFragment, MxpFragment, Output, OutputFragment, TelnetFragment,
+    TextFragment,
 };
-use mud_transformer::{MxpFragment, mxp};
+use mud_transformer::term::{self, CursorEffect};
 use smushclient::{SendRequest, SendScriptRequest, SpanStyle, WorldConfig};
 
 use crate::convert::Convert;

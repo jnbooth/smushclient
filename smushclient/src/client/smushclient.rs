@@ -9,9 +9,8 @@ use std::{env, mem, slice};
 use arboard::Clipboard;
 use flagset::FlagSet;
 use mud_transformer::mxp::RgbColor;
-use mud_transformer::{
-    Output, OutputFragment, Tag, TelnetFragment, Transformer, TransformerConfig,
-};
+use mud_transformer::output::{Output, OutputFragment, TelnetFragment};
+use mud_transformer::{Tag, Transformer, TransformerConfig};
 use rodio::Decoder;
 use smushclient_plugins::{
     Alias, CursorVec, ImportError, LoadError, Plugin, PluginIndex, PluginSender, Reaction,

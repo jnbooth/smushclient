@@ -1,7 +1,7 @@
 use std::fs::{File, OpenOptions};
 use std::io::{self, BufWriter, Write};
 
-use mud_transformer::Output;
+use mud_transformer::output::Output;
 
 use super::log_file::LogFile;
 use crate::world::{Escaped, LogBrackets, LogFormat, LogMode, WorldConfig};

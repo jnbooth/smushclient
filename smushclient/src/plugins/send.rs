@@ -1,4 +1,4 @@
-use mud_transformer::Output;
+use mud_transformer::output::Output;
 use smushclient_plugins::{Captures, PluginIndex, Regex, SendTarget};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]

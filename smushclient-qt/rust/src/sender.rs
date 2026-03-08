@@ -12,7 +12,7 @@ use cxx_qt::{CxxQtType, Initialize};
 use cxx_qt_lib::{QColor, QString, QTime};
 use flagset::{FlagSet, Flags};
 use mud_transformer::mxp::RgbColor;
-use mud_transformer::{Output, OutputFragment, TextFragment, TextStyle};
+use mud_transformer::output::{Output, OutputFragment, TextFragment, TextStyle};
 use smushclient_plugins::newline::ensure_crlf;
 use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer, Trigger};
 
