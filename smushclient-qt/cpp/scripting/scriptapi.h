@@ -88,6 +88,7 @@ public:
   static QByteArray Hash(QByteArrayView bytes);
   static QString MakeRegularExpression(std::string_view pattern) noexcept;
   static ApiCode OpenBrowser(const QString& url);
+  static rust::String ReverseSpeedwalk(std::string_view speedwalk) noexcept;
   static void SetClipboard(const QString& text);
 
   ScriptApi(SmushClient& client,
@@ -722,8 +723,8 @@ private:
                    bool above);
 
 private:
-  static constexpr size_t noSuchPlugin = 0xFFFFFFFFFFFFFFFF;
-  static constexpr QChar paragraphSeparator =
+  static constexpr const size_t noSuchPlugin = 0xFFFFFFFFFFFFFFFF;
+  static constexpr const QChar paragraphSeparator =
     QChar(static_cast<char32_t>(2029));
 
   ActionSource actionSource = ActionSource::Unknown;

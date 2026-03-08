@@ -7,8 +7,8 @@ struct enum_bounds;
   template<>                                                                   \
   struct enum_bounds<T>                                                        \
   {                                                                            \
-    static constexpr T min = T::minVal;                                        \
-    static constexpr T max = T::maxVal;                                        \
+    static constexpr const T min = T::minVal;                                  \
+    static constexpr const T max = T::maxVal;                                  \
                                                                                \
     static constexpr bool validate(long long value) noexcept                   \
     {                                                                          \

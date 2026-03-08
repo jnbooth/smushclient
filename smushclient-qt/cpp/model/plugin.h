@@ -40,7 +40,7 @@ signals:
   void pluginScriptChanged(size_t pluginIndex);
 
 protected:
-  static constexpr int numColumns = 6;
+  static constexpr const int numColumns = 6;
 
 private:
   size_t pluginIndex(int row) const noexcept

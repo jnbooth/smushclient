@@ -12,9 +12,9 @@ use smushclient_plugins::{Plugin, PluginMetadata};
 use uuid::Uuid;
 
 use super::escaping::{Escaped, LogBrackets};
-use super::speedwalk::{SpeedwalkError, evaluate_speedwalk};
 #[allow(clippy::wildcard_imports)]
 use super::types::*;
+use crate::speedwalk;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct WorldConfig {
@@ -259,11 +259,8 @@ impl WorldConfig {
         LogBrackets::from(self)
     }
 
-    pub fn evaluate_speedwalk<I>(&self, iter: I) -> Result<String, SpeedwalkError>
-    where
-        I: Iterator<Item = char>,
-    {
-        evaluate_speedwalk(iter, &self.speed_walk_filler)
+    pub fn evaluate_speedwalk(&self, speedwalk: &str) -> Result<String, speedwalk::Error> {
+        speedwalk::evaluate_to_string(speedwalk, &self.speed_walk_filler)
     }
 
     pub fn log_path(&self) -> String {

@@ -5,7 +5,7 @@ use std::pin::Pin;
 use cxx_qt::CxxQtType;
 use cxx_qt_io::QAbstractSocket;
 use cxx_qt_lib::{QColor, QList, QString, QStringList, QVariant};
-use smushclient::SpeedwalkError;
+use smushclient::speedwalk;
 use smushclient::world::{LogMode, PersistError};
 use smushclient_plugins::{
     Alias, ImportError, LoadError, PluginIndex, PluginSender, Reaction, Sender, Timer, Trigger,
@@ -212,14 +212,12 @@ impl ffi::SmushClient {
             .collect()
     }
 
-    pub fn try_evaluate_speedwalk(&self, speedwalk: &QString) -> Result<QString, SpeedwalkError> {
-        let chars = char::decode_utf16(speedwalk.as_slice().iter().copied())
-            .map(|r| r.unwrap_or(char::REPLACEMENT_CHARACTER));
+    pub fn try_evaluate_speedwalk(&self, speedwalk: &QString) -> Result<QString, speedwalk::Error> {
         let evaluated = self
             .rust()
             .client
             .borrow_world()
-            .evaluate_speedwalk(chars)?;
+            .evaluate_speedwalk(&String::from(speedwalk))?;
         Ok(QString::from(&evaluated))
     }
 
@@ -232,7 +230,7 @@ impl ffi::SmushClient {
             .rust()
             .client
             .borrow_world()
-            .evaluate_speedwalk(speedwalk.chars())
+            .evaluate_speedwalk(speedwalk)
         {
             Ok(speedwalk) => speedwalk,
             Err(e) => format!("*{e}"),

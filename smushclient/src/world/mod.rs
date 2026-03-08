@@ -23,9 +23,6 @@ pub use sender_map::SenderMap;
 mod serde_helpers;
 use serde_helpers::skip_temporary;
 
-mod speedwalk;
-pub use speedwalk::SpeedwalkError;
-
 mod types;
 pub use types::*;
 

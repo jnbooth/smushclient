@@ -105,7 +105,7 @@ Settings::getNotepadPalette() const
 
 static const QString recentFilesKey = QStringLiteral("recent");
 
-constexpr qsizetype recentFilesMax = 5;
+constexpr const qsizetype recentFilesMax = 5;
 
 QStringList
 Settings::getRecentFiles() const

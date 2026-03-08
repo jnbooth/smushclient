@@ -1,7 +1,7 @@
 use cxx_qt_lib::{QByteArray, QColor, QString, QStringList, QVariant, QVector};
 use mud_transformer::mxp::{self, RgbColor};
 use mud_transformer::naws;
-use smushclient::WorldConfig;
+use smushclient::{WorldConfig, speedwalk};
 use smushclient_qt_lib::QAbstractScrollArea;
 
 use crate::convert::Convert;
@@ -53,6 +53,7 @@ mod ffi {
         fn get_global_entity(name: StringView) -> VariableView;
         fn get_option_list() -> QStringList;
         fn is_utf8_valid(text: StringView<'_>) -> bool;
+        fn reverse_speedwalk(text: StringView<'_>) -> String;
         unsafe fn utf8_substring<'a>(
             text: StringView<'a>,
             start: i64,
@@ -132,6 +133,17 @@ fn get_option_list() -> QStringList {
 
 fn is_utf8_valid(text: StringView<'_>) -> bool {
     text.to_str().is_ok()
+}
+
+fn reverse_speedwalk(text: StringView<'_>) -> String {
+    let text = match text.to_str() {
+        Ok(text) => text,
+        Err(e) => return format!("*{e}"),
+    };
+    match speedwalk::reverse_to_string(text) {
+        Ok(result) => result,
+        Err(e) => format!("*{e}"),
+    }
 }
 
 fn utf8_substring<'a>(

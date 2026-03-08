@@ -32,7 +32,7 @@ public:
                int role = Qt::DisplayRole) override;
 
 protected:
-  static constexpr int numColumns = 3;
+  static constexpr const int numColumns = 3;
 
 private:
   static const QIcon clearIcon;

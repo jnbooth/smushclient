@@ -12,7 +12,8 @@ using KnownVariable = ServerStatus::KnownVariable;
 
 // Private utils
 
-constexpr int knownVariablesSize = static_cast<int>(KnownVariable::Referral);
+constexpr const int knownVariablesSize =
+  static_cast<int>(KnownVariable::Referral);
 
 namespace {
 constexpr bool

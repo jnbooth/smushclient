@@ -246,7 +246,7 @@ constexpr const std::array<const NamedPluginCallback*, 30> list = {
   &onWorldSave,
   &onWorldOutputResized,
 };
-constexpr std::span<const NamedPluginCallback* const> span(list);
+constexpr const std::span<const NamedPluginCallback* const> span(list);
 } // namespace namedCallbacks
 
 std::span<const NamedPluginCallback* const>

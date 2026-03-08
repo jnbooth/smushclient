@@ -137,7 +137,7 @@ ScriptApi::WindowCreateImage(string_view windowName,
                              string_view imageID,
                              array<int64_t, 8> rows) const
 {
-  constexpr QSize grid(8, 8);
+  constexpr const QSize grid(8, 8);
   static_assert(sizeof(rows) == sizeof(uchar) * grid.height() * grid.width());
 
   MiniWindow* window = TRY_WINDOW(windowName);

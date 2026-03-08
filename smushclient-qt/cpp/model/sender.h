@@ -42,7 +42,7 @@ public:
                int role = Qt::EditRole) override;
 
 protected:
-  static constexpr int numColumns = 4;
+  static constexpr const int numColumns = 4;
 
   virtual bool add(QWidget* parent) = 0;
   virtual int edit(size_t index, QWidget* parent) = 0;

@@ -20,8 +20,8 @@ using std::string_view;
 
 // Private utilities
 
-constexpr int FALSE = 0;
-constexpr int TRUE = 1;
+constexpr const int FALSE = 0;
+constexpr const int TRUE = 1;
 
 static const array<QColor, 16> customColors = {
   QColor(255, 128, 128), QColor(255, 255, 128), QColor(128, 255, 128),
@@ -75,12 +75,12 @@ setExactFontFamily(QFont& font, const QString& family)
 void
 assignFontFamily(QFont& font, const QString& family)
 {
-  static const QString defaultFamily = QStringLiteral("FixedSys");
-
   if (setExactFontFamily(font, family) || family.isEmpty()) {
     return;
   }
-  if (family == defaultFamily && !setExactFontFamily(font, defaultFamily)) {
+  if ((family == QStringLiteral("FixedSys") ||
+       family == QStringLiteral("Dina")) &&
+      !setExactFontFamily(font, family)) {
     font.setFamily(
       QFontDatabase::systemFont(QFontDatabase::SystemFont::FixedFont).family());
   }

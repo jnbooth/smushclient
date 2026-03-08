@@ -16,7 +16,7 @@ using std::string_view;
 #define DIR_SEP "/"
 #endif
 
-constexpr string_view luaPathSuffix =
+constexpr const string_view luaPathSuffix =
   DIR_SEP SCRIPTS_DIR DIR_SEP "?.lua;" LUA_PATH_DEFAULT;
 
 QString

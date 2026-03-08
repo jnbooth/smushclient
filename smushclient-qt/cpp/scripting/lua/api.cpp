@@ -743,6 +743,15 @@ L_Execute(lua_State* L)
 }
 
 int
+L_EvaluateSpeedwalk(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, getApi(L).EvaluateSpeedwalk(getString(L, 1)));
+  return 1;
+}
+
+int
 L_GetCommand(lua_State* L)
 {
   BENCHMARK
@@ -823,6 +832,15 @@ L_Queue(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 2);
   return returnCode(L, getApi(L).Queue(getQString(L, 1), getBool(L, 2, true)));
+}
+
+int
+L_ReverseSpeedwalk(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, ScriptApi::ReverseSpeedwalk(getString(L, 1)));
+  return 1;
 }
 
 int
@@ -3279,7 +3297,7 @@ L_noop_void(lua_State* /* L */)
 
 } // namespace
 
-static const struct luaL_Reg worldlib[] =
+static constexpr const struct luaL_Reg worldlib[] =
   // color
   { { "AdjustColour", L_AdjustColour },
     { "ColourNameToRGB", L_ColourNameToRGB },
@@ -3330,6 +3348,7 @@ static const struct luaL_Reg worldlib[] =
     // input
     { "DeleteCommandHistory", L_DeleteCommandHistory },
     { "DiscardQueue", L_DiscardQueue },
+    { "EvaluateSpeedwalk", L_EvaluateSpeedwalk },
     { "Execute", L_Execute },
     { "GetCommand", L_GetCommand },
     { "GetCommandList", L_GetCommandList },
@@ -3339,6 +3358,7 @@ static const struct luaL_Reg worldlib[] =
     { "PasteCommand", L_PasteCommand },
     { "PushCommand", L_PushCommand },
     { "Queue", L_Queue },
+    { "ReverseSpeedwalk", L_ReverseSpeedwalk },
     { "SelectCommand", L_SelectCommand },
     { "Send", L_Send },
     { "SendImmediate", L_SendImmediate },
@@ -3419,7 +3439,6 @@ static const struct luaL_Reg worldlib[] =
     { "GetEchoInput", L_GetEchoInput },
     { "GetLinesInBufferCount", L_GetLinesInBufferCount },
     { "GetRecentLines", L_GetRecentLines },
-    { "GetSysColor", L_GetSysColor },
     { "Pause", L_Pause },
     { "Reset", L_Reset },
     { "ResetStatusTime", L_ResetStatusTime },
@@ -3570,7 +3589,6 @@ static const struct luaL_Reg worldlib[] =
     { "Debug", L_noop_nil },
     { "DeleteAllMapItems", L_noop_ok },
     { "DeleteLastMapItem", L_noop_ok },
-    { "DiscardQueue", L_noop_zero },
     { "DoCommand", L_noop_ok },
     { "FilterPixel", L_noop_echo },
     { "FlashIcon", L_noop_void },
@@ -3583,11 +3601,9 @@ static const struct luaL_Reg worldlib[] =
     { "GetMappingString", L_noop_string },
     { "GetNoteColour", L_noop_neg },
     { "GetNotes", L_noop_string },
-    { "GetQueue", L_noop_empty },
     { "GetRemoveBacktracks", L_noop_false },
     { "GetRemoveMapReverses", L_noop_false },
     { "GetScriptTime", L_noop_zero },
-    { "GetSpeedWalkDelay", L_noop_zero },
     { "GetTrace", L_noop_false },
     { "GetUdpPort", L_noop_zero },
     { "Help", L_noop_void },
@@ -3614,7 +3630,6 @@ static const struct luaL_Reg worldlib[] =
     { "SetNotes", L_noop_void },
     { "SetRemoveBacktracks", L_noop_void },
     { "SetRemoveMapReverses", L_noop_void },
-    { "SetSpeedWalkDelay", L_noop_void },
     { "SetToolBarPosition", L_noop_ok },
     { "SetTrace", L_noop_void },
     { "SetUnseenLines", L_noop_void },
@@ -3629,6 +3644,40 @@ static const struct luaL_Reg worldlib[] =
     { "WindowBezier", L_noop_ok },
 
     { nullptr, nullptr } };
+
+namespace {
+// NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+constexpr bool
+charsEqual(const char* a, const char* b)
+{
+  for (;; ++a, ++b) {
+    if (*a == 0 && *b == 0) {
+      return true;
+    }
+    if (*a != *b) {
+      return false;
+    }
+  }
+}
+constexpr const char*
+findFirstDuplicate() noexcept
+{
+  constexpr const size_t size = sizeof(worldlib) / sizeof(luaL_Reg) - 1;
+  constexpr const luaL_Reg* end = &worldlib[size];
+  for (const luaL_Reg* it = worldlib; it < end; ++it) {
+    const char* name = it->name;
+    for (const luaL_Reg* compare = worldlib; compare < it; ++compare) {
+      if (charsEqual(name, compare->name)) {
+        return name;
+      }
+    }
+  }
+  return nullptr;
+}
+// NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+constexpr const char* const firstDuplicate = findFirstDuplicate();
+static_assert(firstDuplicate == nullptr);
+} // namespace
 
 namespace {
 int

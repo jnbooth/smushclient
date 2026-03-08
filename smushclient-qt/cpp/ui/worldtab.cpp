@@ -36,7 +36,7 @@ using std::string;
 using std::string_view;
 using std::chrono::milliseconds;
 
-constexpr Qt::KeyboardModifiers numpadMods =
+constexpr const Qt::KeyboardModifiers numpadMods =
   Qt::KeyboardModifier::ControlModifier | Qt::KeyboardModifier::MetaModifier;
 
 // Private utilities

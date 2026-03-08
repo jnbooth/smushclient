@@ -23,9 +23,9 @@ using std::string_view;
 using std::vector;
 using std::chrono::milliseconds;
 
-constexpr uint8_t telnetNAWS = 31;
-constexpr uint8_t telnetMSSP = 70;
-constexpr uint8_t telnetMudSpecific = 102;
+constexpr const uint8_t telnetNAWS = 31;
+constexpr const uint8_t telnetMSSP = 70;
+constexpr const uint8_t telnetMudSpecific = 102;
 
 // Public methods
 

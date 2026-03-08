@@ -53,7 +53,7 @@ DECLARE_ENUM_BOUNDS(QFontDatabase::SystemFont,
                     GeneralFont,
                     SmallestReadableFont)
 
-constexpr int FALSE = 0;
+constexpr const int FALSE = 0;
 
 namespace {
 const char* const utilsRegKey = "smushclient.utils";
