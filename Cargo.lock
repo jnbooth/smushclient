@@ -164,9 +164,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "casefold"
-version = "0.4.0"
-source = "git+https://github.com/jnbooth/casefold#e02a01167ad51827c4c53fd5ac31aba127ab7609"
+name = "bytestringmut"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9a3ef7b203f22f6ceafd4e9230485cadd5686fc1cfc3be9410fc98783fe1b9f7"
+dependencies = [
+ "bytes",
+ "bytestring",
+]
 
 [[package]]
 name = "cc"
@@ -971,11 +976,12 @@ dependencies = [
 
 [[package]]
 name = "mud-transformer"
-version = "0.18.0"
-source = "git+https://github.com/jnbooth/mxp#41fb95b83ed674a1556af8bdeee84466d49298a9"
+version = "0.19.0"
+source = "git+https://github.com/jnbooth/mxp#f37855629f1c66b81b209e56bd3b363b0b302a05"
 dependencies = [
  "bytes",
  "bytestring",
+ "bytestringmut",
  "flagset",
  "flate2",
  "html-escape",
@@ -985,13 +991,13 @@ dependencies = [
 
 [[package]]
 name = "mxp"
-version = "0.18.0"
-source = "git+https://github.com/jnbooth/mxp#41fb95b83ed674a1556af8bdeee84466d49298a9"
+version = "0.19.0"
+source = "git+https://github.com/jnbooth/mxp#f37855629f1c66b81b209e56bd3b363b0b302a05"
 dependencies = [
- "casefold",
  "flagset",
  "html-escape",
  "serde",
+ "uncased",
 ]
 
 [[package]]
@@ -2062,6 +2068,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "uncased"
+version = "0.9.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1b88fcfe09e89d3866a5c11019378088af2d24c3fbd4f0543f96b479ec90697"
+dependencies = [
+ "version_check",
+]
+
+[[package]]
 name = "unicode-ident"
 version = "1.0.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2108,6 +2123,12 @@ dependencies = [
  "serde_core",
  "wasm-bindgen",
 ]
+
+[[package]]
+name = "version_check"
+version = "0.9.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "walkdir"

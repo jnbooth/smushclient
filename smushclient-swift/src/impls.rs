@@ -536,13 +536,14 @@ impl TryFrom<MxpFragment> for ffi::MxpFragment {
         match value {
             MxpFragment::Entity(fragment) => Ok(Self::Entity(fragment.into())),
             MxpFragment::Error(error) => Ok(Self::Error(error.to_string())),
-            MxpFragment::ExpireLinks(_) => Err(UnsupportedError("<EXPIRE>")),
-            MxpFragment::FileFilter(_) => Err(UnsupportedError("<FILTER>")),
+            MxpFragment::Expire(_) => Err(UnsupportedError("<EXPIRE>")),
+            MxpFragment::Filter(_) => Err(UnsupportedError("<FILTER>")),
             MxpFragment::Gauge(_) => Err(UnsupportedError("<GAUGE>")),
             MxpFragment::Music(_) | MxpFragment::MusicOff => Err(UnsupportedError("<MUSIC>")),
             MxpFragment::Relocate(_) => Err(UnsupportedError("<RELOCATE>")),
             MxpFragment::Sound(_) | MxpFragment::SoundOff => Err(UnsupportedError("<SOUND>")),
-            MxpFragment::StatusBar(_) => Err(UnsupportedError("<STAT>")),
+            MxpFragment::Stat(_) => Err(UnsupportedError("<STAT>")),
+            MxpFragment::StyleVersion(_) => Err(UnsupportedError("<VERSION styleversion>")),
         }
     }
 }

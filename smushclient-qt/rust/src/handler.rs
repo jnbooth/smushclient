@@ -116,11 +116,11 @@ impl ClientHandler<'_> {
         match fragment {
             MxpFragment::Entity(fragment) => self.handle_mxp_entity(fragment),
             MxpFragment::Error(error) => eprintln!("MXP error: {error}"),
-            MxpFragment::ExpireLinks(expires) => {
-                let expires = expires.as_deref().unwrap_or_default();
+            MxpFragment::Expire(expires) => {
+                let expires = expires.name.as_ref().map(AsRef::as_ref).unwrap_or_default();
                 self.doc.as_mut().expire_links(expires);
             }
-            MxpFragment::StatusBar(stat) => self.handle_mxp_stat(stat),
+            MxpFragment::Stat(stat) => self.handle_mxp_stat(stat),
             _ => (),
         }
     }
