@@ -25,6 +25,10 @@ public slots:
 signals:
   void aliasMenuRequested(const QString& word);
   void linkActivated(const QString& link, SendTo sendTo);
+  void linkMenuActivated(const QPoint& cursor,
+                         const QString& commands,
+                         const QString& labels,
+                         SendTo sendTo);
 
 protected:
   void keyPressEvent(QKeyEvent* event) override;

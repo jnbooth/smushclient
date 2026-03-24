@@ -10,7 +10,7 @@ use arboard::Clipboard;
 use flagset::FlagSet;
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::output::{Output, OutputFragment, TelnetFragment};
-use mud_transformer::{Tag, Transformer, TransformerConfig};
+use mud_transformer::{ByteSet, Tag, Transformer, TransformerConfig};
 use rodio::Decoder;
 use smushclient_plugins::{
     Alias, CursorVec, ImportError, LoadError, Plugin, PluginIndex, PluginSender, Reaction,
@@ -39,6 +39,7 @@ const METAVARIABLES_KEY: &str = "\x01";
 pub struct SmushClient {
     pub(crate) plugins: PluginEngine,
     logger: RefCell<Logger>,
+    will: Box<ByteSet>,
     supported_tags: FlagSet<Tag>,
     transformer: RefCell<Transformer>,
     variables: RefCell<PluginVariables>,
@@ -50,7 +51,7 @@ pub struct SmushClient {
 
 impl Default for SmushClient {
     fn default() -> Self {
-        Self::new(World::default(), FlagSet::empty())
+        Self::new(World::default(), ByteSet::default(), FlagSet::default())
     }
 }
 
@@ -58,7 +59,7 @@ impl SmushClient {
     /// # Panics
     ///
     /// Panics if audio initialization fails.
-    pub fn new(world: World<'static>, supported_tags: FlagSet<Tag>) -> Self {
+    pub fn new(world: World<'static>, will: ByteSet, supported_tags: FlagSet<Tag>) -> Self {
         let World {
             config,
             timers,
@@ -79,10 +80,10 @@ impl SmushClient {
             logger: RefCell::new(Logger::new(&config)),
             plugins,
             supported_tags,
-            transformer: RefCell::new(Transformer::new(TransformerConfig {
-                supports: supported_tags,
-                ..TransformerConfig::from(&config)
-            })),
+            will: Box::new(will.clone()),
+            transformer: RefCell::new(Transformer::new(
+                config.transformer_config(supported_tags, will),
+            )),
             variables: RefCell::default(),
             world: RefCell::new(config),
             audio: AudioSinks::try_default().expect("audio initialization error"),
@@ -93,12 +94,13 @@ impl SmushClient {
 
     pub fn import_world<R: Read>(
         reader: R,
+        will: ByteSet,
         supported_tags: FlagSet<Tag>,
     ) -> Result<Self, ImportError> {
         let ImportedWorld { world, variables } = ImportedWorld::from_xml(BufReader::new(reader))?;
         Ok(Self {
             variables: RefCell::new(variables),
-            ..Self::new(world, supported_tags)
+            ..Self::new(world, will, supported_tags)
         })
     }
 
@@ -142,11 +144,11 @@ impl SmushClient {
     }
 
     fn create_config(&self) -> TransformerConfig {
-        TransformerConfig {
-            will: self.plugins.supported_protocols(),
-            supports: self.supported_tags,
-            ..TransformerConfig::from(&*self.world.borrow())
-        }
+        let mut will = (*self.will).clone();
+        will.extend(self.plugins.supported_protocols());
+        self.world
+            .borrow()
+            .transformer_config(self.supported_tags, will)
     }
 
     pub fn borrow_world(&self) -> Ref<'_, WorldConfig> {
@@ -1248,8 +1250,8 @@ impl SmushClient {
             219 => V::visit(self.count_senders::<Trigger>()),
             220 => V::visit(self.count_senders::<Timer>()),
             221 => V::visit(self.count_senders::<Alias>()),
-            225 => V::visit(self.transformer.borrow().count_custom_mxp_elements()),
-            226 => V::visit(self.transformer.borrow().count_custom_mxp_entities()),
+            225 => V::visit(self.transformer.borrow().mxp_element_count()),
+            226 => V::visit(self.transformer.borrow().mxp_entity_count()),
             231 => V::visit(match self.logger.borrow_mut().len() {
                 Ok(Some(len)) => len,
                 _ => 0,

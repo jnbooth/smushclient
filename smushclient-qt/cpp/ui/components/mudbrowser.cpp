@@ -77,13 +77,17 @@ MudBrowser::mousePressEvent(QMouseEvent* event)
 void
 MudBrowser::mouseReleaseEvent(QMouseEvent* event)
 {
-  const QTextCharFormat format = document()
-                                   ->documentLayout()
-                                   ->formatAt(mapToContents(event->pos()))
-                                   .toCharFormat();
+  const QPoint at = event->pos();
+  const QTextCharFormat format =
+    document()->documentLayout()->formatAt(mapToContents(at)).toCharFormat();
   const QString anchor = format.anchorHref();
   if (!anchor.isEmpty()) {
-    emit linkActivated(anchor, spans::getSendTo(format));
+    const SendTo sendTo = spans::getSendTo(format);
+    if (spans::hasPrompts(format)) {
+      emit linkMenuActivated(at, anchor, spans::getPrompts(format), sendTo);
+    } else {
+      emit linkActivated(anchor, sendTo);
+    }
   }
   QTextBrowser::mouseReleaseEvent(event);
 }

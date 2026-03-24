@@ -1,7 +1,8 @@
 use std::fs::File;
 use std::path::Path;
 
-use mud_transformer::Tag;
+use flagset::FlagSet;
+use mud_transformer::{ByteSet, Tag, protocol};
 use smushclient::{CommandSource, SmushClient, World, WorldConfig};
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
@@ -21,29 +22,36 @@ pub struct RustMudBridge {
 }
 
 impl RustMudBridge {
+    fn will() -> ByteSet {
+        let mut set = ByteSet::new();
+        set.insert(protocol::ECHO);
+        set
+    }
+
+    fn supported_tags() -> FlagSet<Tag> {
+        Tag::Bold
+            | Tag::Color
+            | Tag::Font
+            | Tag::H1
+            | Tag::H2
+            | Tag::H3
+            | Tag::H4
+            | Tag::H5
+            | Tag::H6
+            | Tag::Highlight
+            | Tag::Hr
+            | Tag::Hyperlink
+            | Tag::Italic
+            | Tag::Send
+            | Tag::Strikeout
+            | Tag::Underline
+    }
+
     pub fn new(world: World<'static>) -> Self {
         Self {
             read_buf: vec![0; BUF_LEN],
             write_buf: Vec::new(),
-            client: SmushClient::new(
-                world,
-                Tag::Bold
-                    | Tag::Color
-                    | Tag::Font
-                    | Tag::H1
-                    | Tag::H2
-                    | Tag::H3
-                    | Tag::H4
-                    | Tag::H5
-                    | Tag::H6
-                    | Tag::Highlight
-                    | Tag::Hr
-                    | Tag::Hyperlink
-                    | Tag::Italic
-                    | Tag::Send
-                    | Tag::Strikeout
-                    | Tag::Underline,
-            ),
+            client: SmushClient::new(world, Self::will(), Self::supported_tags()),
             ..Default::default()
         }
     }

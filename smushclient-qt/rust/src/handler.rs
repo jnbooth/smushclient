@@ -4,12 +4,13 @@ use std::ops::Range;
 use std::pin::Pin;
 
 use cxx_qt_lib::QString;
-use mud_transformer::mxp;
 use mud_transformer::output::{
     ControlFragment, EntityFragment, MxpFragment, Output, OutputFragment, TelnetFragment,
     TextFragment,
 };
+use mud_transformer::protocol::mssp;
 use mud_transformer::term::{self, CursorEffect};
+use mud_transformer::{Bytes, mxp};
 use smushclient::{SendRequest, SendScriptRequest, SpanStyle, WorldConfig};
 
 use crate::convert::Convert;
@@ -58,15 +59,11 @@ impl ClientHandler<'_> {
     fn display_text(&mut self, fragment: &TextFragment) {
         let text = QString::from(&*fragment.text);
         let format = self.formatter.text_format(fragment);
-        match fragment
-            .action
-            .as_ref()
-            .and_then(|action| action.expires.as_ref())
-        {
-            Some(expires) => self
+        match fragment.link.as_ref().and_then(|link| link.expire.as_ref()) {
+            Some(expire) => self
                 .doc
                 .as_mut()
-                .append_expiring_link(&text, &format, expires),
+                .append_expiring_link(&text, &format, expire),
             None => self.doc.append_text(&text, &format),
         }
     }
@@ -121,28 +118,15 @@ impl ClientHandler<'_> {
                 self.doc.as_mut().expire_links(expires);
             }
             MxpFragment::Stat(stat) => self.handle_mxp_stat(stat),
+            MxpFragment::Variable(var) => self.doc.handle_mxp_variable(&var.name, &var.value),
             _ => (),
         }
     }
 
     fn handle_mxp_entity(&self, fragment: &EntityFragment) {
-        let EntityFragment::Set {
-            name,
-            value,
-            publish,
-            is_variable,
-        } = fragment
-        else {
-            return;
-        };
-        if !publish {
-            return;
-        }
-        if *is_variable {
-            self.doc.handle_mxp_variable(name, value);
-        }
-        let entity = format!("{name}={value}");
-        self.doc.handle_mxp_entity(&entity);
+        let name = &*fragment.name;
+        let value = fragment.value.as_deref().unwrap_or_default();
+        self.doc.handle_mxp_entity(&format!("{name}={value}"));
         if self.stats.borrow().contains(name) {
             self.doc
                 .update_mxp_stat(&QString::from(name), &QString::from(value));
@@ -172,9 +156,17 @@ impl ClientHandler<'_> {
         }
     }
 
+    fn handle_subnegotiation(&mut self, code: u8, data: &Bytes) {
+        self.doc.handle_telnet_subnegotiation(code, data);
+        if code == mssp::OPT {
+            for (variable, value) in mssp::decode(data.clone()) {
+                self.doc.as_mut().handle_server_status(&variable, &value);
+            }
+        }
+    }
+
     fn handle_telnet(&mut self, fragment: &TelnetFragment) {
         match fragment {
-            TelnetFragment::Msdp { .. } => (),
             TelnetFragment::GoAhead => self.doc.handle_telnet_go_ahead(),
             TelnetFragment::Mxp { enabled } => self.doc.handle_mxp_change(*enabled),
             TelnetFragment::Naws => self.doc.handle_telnet_naws(),
@@ -183,13 +175,10 @@ impl ClientHandler<'_> {
                     .as_mut()
                     .handle_telnet_negotiation(*source, *verb, *code);
             }
-            TelnetFragment::ServerStatus { variable, value } => {
-                self.doc.as_mut().handle_server_status(variable, value);
-            }
             TelnetFragment::SetEcho { .. } if self.no_echo_off => (),
             TelnetFragment::SetEcho { should_echo } => self.doc.set_suppress_echo(!should_echo),
             TelnetFragment::Subnegotiation { code, data } => {
-                self.doc.handle_telnet_subnegotiation(*code, data);
+                self.handle_subnegotiation(*code, data);
             }
         }
     }
@@ -209,13 +198,13 @@ impl smushclient::Handler for ClientHandler<'_> {
         match &output.fragment {
             OutputFragment::Control(effect) => self.handle_control(effect),
             OutputFragment::Hr => self.doc.append_html(&QString::from("<hr>")),
+            OutputFragment::Image(_) => (),
             OutputFragment::LineBreak | OutputFragment::PageBreak => {
                 self.doc.as_mut().append_line();
             }
             OutputFragment::Mxp(fragment) => self.handle_mxp(fragment),
             OutputFragment::Telnet(telnet) => self.handle_telnet(telnet),
             OutputFragment::Text(text) => self.display_text(text),
-            OutputFragment::Frame(_) | OutputFragment::Image(_) => (),
         }
     }
 

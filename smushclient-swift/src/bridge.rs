@@ -84,7 +84,7 @@ pub mod ffi {
     enum SendTo {
         World = 1,
         Internet,
-        Input,
+        Prompt,
     }
 
     enum TelnetSource {
@@ -101,10 +101,6 @@ pub mod ffi {
 
     enum TelnetFragment {
         GoAhead,
-        Msdp {
-            name: String,
-            value: String,
-        },
         Mxp {
             enabled: bool,
         },
@@ -117,10 +113,6 @@ pub mod ffi {
         SetEcho {
             should_echo: bool,
         },
-        ServerStatus {
-            variable: Vec<u8>,
-            value: Vec<u8>,
-        },
         Subnegotiation {
             code: u8,
             data: Vec<u8>,
@@ -132,22 +124,32 @@ pub mod ffi {
         CarriageReturn,
     }
 
-    enum EntityFragment {
-        Set {
-            name: String,
-            value: String,
-            publish: bool,
-            is_variable: bool,
-        },
-        Unset {
-            name: String,
-            is_variable: bool,
-        },
+    #[derive(Clone)]
+    #[swift_bridge(swift_repr = "struct")]
+    struct EntityFragment {
+        name: String,
+        value: String,
+    }
+
+    #[derive(Clone)]
+    #[swift_bridge(swift_repr = "struct")]
+    struct MapperFragment {
+        parse_as: String,
+        value: String,
+    }
+
+    #[derive(Clone)]
+    #[swift_bridge(swift_repr = "struct")]
+    struct VariableFragment {
+        name: String,
+        value: String,
     }
 
     enum MxpFragment {
         Entity(EntityFragment),
         Error(String),
+        Mapper(MapperFragment),
+        Variable(VariableFragment),
     }
 
     enum ColorOption {
@@ -429,8 +431,7 @@ pub mod ffi {
     extern "Rust" {
         type RustMxpLink;
         fn action(&self) -> &str;
-        fn hint(&self) -> Option<&str>;
-        fn prompts(&self) -> Vec<String>;
+        fn hint(&self) -> &str;
         #[swift_bridge(return_into)]
         fn send_to(&self) -> SendTo;
     }

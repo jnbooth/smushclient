@@ -26,7 +26,7 @@ getElapsed(const QTextBlockFormat& format);
 LineType
 getLineType(const QTextCharFormat& format);
 
-QStringList
+QString
 getPrompts(const QTextCharFormat& format);
 
 SendTo
@@ -37,6 +37,9 @@ getStyles(const QTextCharFormat& format);
 
 QDateTime
 getTimestamp(const QTextBlockFormat& format);
+
+bool
+hasPrompts(const QTextCharFormat& format);
 
 void
 setLineType(QTextCharFormat& format, LineType type);

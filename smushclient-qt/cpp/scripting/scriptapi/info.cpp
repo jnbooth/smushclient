@@ -475,7 +475,7 @@ ScriptApi::GetStyleInfo(int line, int64_t style, int64_t infoType) const
           return 2;
         case SendTo::World:
           return 1;
-        case SendTo::Input:
+        case SendTo::Prompt:
           return 3;
       }
     }

@@ -79,7 +79,7 @@ impl TextFormatter {
 
     pub fn text_format(&self, fragment: &TextFragment) -> Cow<'_, QTextCharFormat> {
         let mut format = self.get_format(fragment.foreground, fragment.background, fragment.flags);
-        if let Some(link) = &fragment.action {
+        if let Some(link) = &fragment.link {
             spans::apply_link(format.to_mut(), link);
         }
         format

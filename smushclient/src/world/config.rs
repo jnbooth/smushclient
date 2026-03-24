@@ -5,9 +5,10 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use chrono::Local;
+use flagset::FlagSet;
 use mud_transformer::mxp::RgbColor;
 use mud_transformer::output::TextFragment;
-use mud_transformer::{TransformerConfig, UseMxp};
+use mud_transformer::{ByteSet, Tag, TransformerConfig, UseMxp, protocol};
 use serde::{Deserialize, Serialize};
 use smushclient_plugins::{Plugin, PluginMetadata};
 use uuid::Uuid;
@@ -319,7 +320,7 @@ impl WorldConfig {
     }
 
     pub fn map_colors(&self, fragment: &mut TextFragment) {
-        if fragment.action.is_some()
+        if fragment.link.is_some()
             && (fragment.foreground.is_none() || self.ignore_mxp_colour_changes)
             && let Some(color) = self.hyperlink_colour
         {
@@ -335,27 +336,35 @@ impl WorldConfig {
             *background = *color;
         }
     }
-}
 
-impl From<&WorldConfig> for TransformerConfig {
-    fn from(value: &WorldConfig) -> Self {
-        let (player, password) = if value.connect_method == AutoConnect::Mxp {
-            (value.player.clone(), value.password.clone())
+    pub fn transformer_config(
+        &self,
+        supports: FlagSet<Tag>,
+        mut will: ByteSet,
+    ) -> TransformerConfig {
+        let (player, password) = if self.connect_method == AutoConnect::Mxp {
+            (self.player.clone(), self.password.clone())
         } else {
             (String::new(), String::new())
         };
-        Self {
-            use_mxp: value.use_mxp,
-            disable_compression: value.disable_compression,
-            terminal_identification: value.terminal_identification.clone(),
+        if !self.naws {
+            will.remove(protocol::NAWS);
+        }
+        if self.no_echo_off {
+            will.remove(protocol::ECHO);
+        }
+        TransformerConfig {
+            will,
+            supports,
+            use_mxp: self.use_mxp,
+            disable_compression: self.disable_compression,
+            terminal_identification: self.terminal_identification.clone(),
             player,
             password,
-            convert_ga_to_newline: value.convert_ga_to_newline,
-            no_echo_off: value.no_echo_off,
-            naws: value.naws,
-            disable_utf8: !value.utf_8,
-            ignore_mxp_colors: value.ignore_mxp_colour_changes,
-            colors: value.ansi_colours.to_vec(),
+            convert_ga_to_newline: self.convert_ga_to_newline,
+            disable_utf8: !self.utf_8,
+            ignore_mxp_colors: self.ignore_mxp_colour_changes,
+            colors: self.ansi_colours.to_vec(),
             ..Default::default()
         }
     }

@@ -1,38 +1,30 @@
 use std::ptr;
 
 use mud_transformer::mxp::{self, RgbColor};
-use mud_transformer::output::{TextFragment, TextStyle};
+use mud_transformer::output::{Link, SendTo, TextFragment, TextStyle};
 
 use crate::ffi;
 
 #[repr(transparent)]
 pub struct RustMxpLink {
-    inner: mxp::Link,
+    inner: Link,
 }
 
 impl RustMxpLink {
-    const fn cast(link: &mxp::Link) -> &Self {
+    const fn cast(link: &Link) -> &Self {
         // SAFETY: #[repr(transparent)]
         unsafe { &*ptr::from_ref(link).cast() }
     }
 
     pub fn action(&self) -> &str {
-        &self.inner.action
+        &self.inner.href
     }
 
-    pub fn hint(&self) -> Option<&str> {
-        self.inner.hint.as_deref()
+    pub fn hint(&self) -> &str {
+        &self.inner.hint
     }
 
-    pub fn prompts(&self) -> Vec<String> {
-        self.inner
-            .prompts
-            .iter()
-            .map(|prompt| prompt.action.clone())
-            .collect()
-    }
-
-    pub fn send_to(&self) -> mxp::SendTo {
+    pub fn send_to(&self) -> SendTo {
         self.inner.send_to
     }
 }
@@ -74,7 +66,7 @@ impl RustTextFragment {
     }
 
     pub fn link(&self) -> Option<&RustMxpLink> {
-        self.inner.action.as_ref().map(RustMxpLink::cast)
+        self.inner.link.as_ref().map(RustMxpLink::cast)
     }
 
     pub fn heading(&self) -> Option<mxp::Heading> {
@@ -91,7 +83,7 @@ impl RustTextFragment {
 
 #[repr(transparent)]
 pub struct RustNamedColorIter {
-    inner: mxp::NamedColorIter,
+    inner: mxp::color::NamedColorIter,
 }
 
 impl Default for RustNamedColorIter {

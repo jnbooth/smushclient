@@ -10,7 +10,7 @@ use cxx_qt::casting::Downcast;
 use cxx_qt_io::{QAbstractSocket, QIODevice, QNetworkProxy, QNetworkProxyProxyType, QSslSocket};
 use cxx_qt_lib::{QString, QStringList, QVariant};
 use flagset::FlagSet;
-use mud_transformer::Tag;
+use mud_transformer::{ByteSet, Tag, protocol};
 use smushclient::world::PersistError;
 use smushclient::{
     AliasOutcome, CommandSource, Handler, SmushClient, TimerFinish, TimerStart, Timers, World,
@@ -43,12 +43,20 @@ impl Default for SmushClientRust {
             stats: RefCell::new(HashSet::new()),
             timers: RefCell::new(Timers::new()),
             formatter: TextFormatter::default(),
-            client: SmushClient::new(World::default(), Self::supported_tags()),
+            client: SmushClient::new(World::default(), Self::will(), Self::supported_tags()),
         }
     }
 }
 
 impl SmushClientRust {
+    fn will() -> ByteSet {
+        let mut set = ByteSet::new();
+        set.insert(protocol::ECHO);
+        set.insert(protocol::NAWS);
+        set.insert(protocol::MSSP);
+        set
+    }
+
     fn supported_tags() -> FlagSet<Tag> {
         Tag::Bold
             | Tag::Color
@@ -63,9 +71,13 @@ impl SmushClientRust {
             | Tag::Highlight
             | Tag::Hr
             | Tag::Hyperlink
+            | Tag::Image
             | Tag::Italic
             | Tag::Send
+            | Tag::Small
+            | Tag::Stat
             | Tag::Strikeout
+            | Tag::Tt
             | Tag::Underline
     }
 
@@ -78,13 +90,13 @@ impl SmushClientRust {
     pub fn load_world<P: AsRef<Path>>(&mut self, path: P) -> Result<(), PersistError> {
         let world = World::load(File::open(path)?)?;
         self.apply_world(&world.config);
-        self.client = SmushClient::new(world, Self::supported_tags());
+        self.client = SmushClient::new(world, Self::will(), Self::supported_tags());
         Ok(())
     }
 
     pub fn import_world<P: AsRef<Path>>(&mut self, path: P) -> Result<(), ImportError> {
         let file = File::open(path)?;
-        let client = SmushClient::import_world(file, Self::supported_tags())?;
+        let client = SmushClient::import_world(file, Self::will(), Self::supported_tags())?;
         self.apply_world(&client.borrow_world());
         self.client = client;
         Ok(())

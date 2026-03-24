@@ -7,7 +7,8 @@ use std::time::Duration;
 use chrono::{NaiveTime, Timelike};
 use mud_transformer::mxp::{self, RgbColor};
 use mud_transformer::output::{
-    ControlFragment, EntityFragment, MxpFragment, OutputFragment, TelnetFragment,
+    ControlFragment, EntityFragment, MapperFragment, MxpFragment, OutputFragment, SendTo,
+    TelnetFragment, VariableFragment,
 };
 use mud_transformer::{TelnetSource, TelnetVerb, UseMxp};
 use smushclient::world::{
@@ -112,7 +113,7 @@ impl_convert_enum!(
     All,
 );
 
-impl_convert_enum!(ffi::SendTo, mxp::SendTo, World, Input, Internet);
+impl_convert_enum!(ffi::SendTo, SendTo, World, Prompt, Internet);
 
 impl_convert_enum!(ffi::TelnetSource, TelnetSource, Client, Server);
 
@@ -448,15 +449,6 @@ impl TryFrom<ControlFragment> for ffi::ControlFragment {
 impl From<TelnetFragment> for ffi::TelnetFragment {
     fn from(value: TelnetFragment) -> Self {
         match value {
-            TelnetFragment::Msdp { name, value } => Self::Msdp {
-                name: String::from_utf8_lossy(&name).into_owned(),
-                value: match value {
-                    mud_transformer::MsdpValue::String(s) => {
-                        String::from_utf8_lossy(&s).into_owned()
-                    }
-                    _ => String::new(),
-                },
-            },
             TelnetFragment::GoAhead => Self::GoAhead,
             TelnetFragment::Mxp { enabled } => Self::Mxp { enabled },
             TelnetFragment::Naws => Self::Naws,
@@ -466,10 +458,6 @@ impl From<TelnetFragment> for ffi::TelnetFragment {
                 code,
             },
             TelnetFragment::SetEcho { should_echo } => Self::SetEcho { should_echo },
-            TelnetFragment::ServerStatus { variable, value } => Self::ServerStatus {
-                variable: variable.into(),
-                value: value.into(),
-            },
             TelnetFragment::Subnegotiation { code, data } => Self::Subnegotiation {
                 code,
                 data: data.to_vec(),
@@ -481,10 +469,6 @@ impl From<TelnetFragment> for ffi::TelnetFragment {
 impl Clone for ffi::TelnetFragment {
     fn clone(&self) -> Self {
         match self {
-            Self::Msdp { name, value } => Self::Msdp {
-                name: name.clone(),
-                value: value.clone(),
-            },
             Self::GoAhead => Self::GoAhead,
             Self::Mxp { enabled } => Self::Mxp { enabled: *enabled },
             Self::Naws => Self::Naws,
@@ -492,10 +476,6 @@ impl Clone for ffi::TelnetFragment {
                 source: *source,
                 verb: *verb,
                 code: *code,
-            },
-            Self::ServerStatus { variable, value } => Self::ServerStatus {
-                variable: variable.clone(),
-                value: value.clone(),
             },
             Self::SetEcho { should_echo } => Self::SetEcho {
                 should_echo: *should_echo,
@@ -512,19 +492,30 @@ impl_convert_enum!(ffi::Heading, mxp::Heading, H1, H2, H3, H4, H5, H6);
 
 impl From<EntityFragment> for ffi::EntityFragment {
     fn from(value: EntityFragment) -> Self {
-        match value {
-            EntityFragment::Set {
-                name,
-                value,
-                publish,
-                is_variable,
-            } => Self::Set {
-                name,
-                value,
-                publish,
-                is_variable,
-            },
-            EntityFragment::Unset { name, is_variable } => Self::Unset { name, is_variable },
+        ffi::EntityFragment {
+            name: String::from(&*value.name),
+            value: value
+                .value
+                .map(|value| String::from(&*value))
+                .unwrap_or_default(),
+        }
+    }
+}
+
+impl From<MapperFragment> for ffi::MapperFragment {
+    fn from(value: MapperFragment) -> Self {
+        Self {
+            parse_as: value.parse_as.to_string(),
+            value: String::from(&*value.value),
+        }
+    }
+}
+
+impl From<VariableFragment> for ffi::VariableFragment {
+    fn from(var: VariableFragment) -> Self {
+        Self {
+            name: String::from(&*var.name),
+            value: String::from(&*var.value),
         }
     }
 }
@@ -538,12 +529,15 @@ impl TryFrom<MxpFragment> for ffi::MxpFragment {
             MxpFragment::Error(error) => Ok(Self::Error(error.to_string())),
             MxpFragment::Expire(_) => Err(UnsupportedError("<EXPIRE>")),
             MxpFragment::Filter(_) => Err(UnsupportedError("<FILTER>")),
+            MxpFragment::Frame(_) => Err(UnsupportedError("<FRAME>")),
             MxpFragment::Gauge(_) => Err(UnsupportedError("<GAUGE>")),
+            MxpFragment::Mapper(fragment) => Ok(Self::Mapper(fragment.into())),
             MxpFragment::Music(_) | MxpFragment::MusicOff => Err(UnsupportedError("<MUSIC>")),
             MxpFragment::Relocate(_) => Err(UnsupportedError("<RELOCATE>")),
             MxpFragment::Sound(_) | MxpFragment::SoundOff => Err(UnsupportedError("<SOUND>")),
             MxpFragment::Stat(_) => Err(UnsupportedError("<STAT>")),
             MxpFragment::StyleVersion(_) => Err(UnsupportedError("<VERSION styleversion>")),
+            MxpFragment::Variable(fragment) => Ok(Self::Variable(fragment.into())),
         }
     }
 }
@@ -554,7 +548,6 @@ impl TryFrom<OutputFragment> for ffi::OutputFragment {
     fn try_from(value: OutputFragment) -> Result<Self, Self::Error> {
         Ok(match value {
             OutputFragment::Control(fragment) => Self::Control(fragment.try_into()?),
-            OutputFragment::Frame(_) => return Err(UnsupportedError("<frame>")),
             OutputFragment::Hr => Self::Hr,
             OutputFragment::Image(_) => return Err(UnsupportedError("<image>")),
             OutputFragment::LineBreak => Self::LineBreak,

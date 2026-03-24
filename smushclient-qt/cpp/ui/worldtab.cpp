@@ -1153,32 +1153,6 @@ WorldTab::on_output_copyAvailable(bool available)
 }
 
 void
-WorldTab::on_output_customContextMenuRequested(const QPoint& pos)
-{
-  const QTextCharFormat format =
-    ui->output->cursorForPosition(pos).charFormat();
-  const QPoint mouse = ui->output->mapToGlobal(pos);
-  const QStringList prompts = spans::getPrompts(format);
-  if (prompts.isEmpty()) {
-    ui->output->createStandardContextMenu(mouse)->exec(mouse);
-    return;
-  }
-  QMenu menu(ui->output);
-  for (auto it = prompts.cbegin(), end = prompts.cend(); it != end; ++it) {
-    menu.addAction(*it)->setData(*++it);
-  }
-
-  const QAction* chosen = menu.exec(mouse);
-  if (chosen == nullptr) {
-    return;
-  }
-  const ActionSource oldSource = api->setSource(ActionSource::UserMenuAction);
-  api->sendToWorld(chosen->data().toString(),
-                   SendFlag::Echo | SendFlag::Log | SendFlag::Immediate);
-  api->setSource(oldSource);
-}
-
-void
 WorldTab::on_output_linkActivated(const QString& action, SendTo sendTo)
 {
   switch (sendTo) {
@@ -1187,7 +1161,7 @@ WorldTab::on_output_linkActivated(const QString& action, SendTo sendTo)
       return;
     case SendTo::World:
       break;
-    case SendTo::Input:
+    case SendTo::Prompt:
       ui->input->setText(action);
       return;
   }
@@ -1207,6 +1181,41 @@ WorldTab::on_output_linkActivated(const QString& action, SendTo sendTo)
   }
 
   sendCommand(action, CommandSource::Hotkey);
+}
+
+void
+WorldTab::on_output_linkMenuActivated(const QPoint& pos,
+                                      const QString& commands,
+                                      const QString& labels,
+                                      SendTo sendTo)
+{
+  const QTextCharFormat format =
+    ui->output->cursorForPosition(pos).charFormat();
+  const QPoint mouse = ui->output->mapToGlobal(pos);
+  const QStringList commandList = commands.split(u'|');
+  const QStringList labelList = labels.split(u'|');
+  QMenu menu(ui->output);
+  auto label = labelList.cbegin();
+  auto labelEnd = labelList.cend();
+  for (const QString& command : commandList) {
+    QAction* action =
+      label == labelEnd ? menu.addAction(command) : menu.addAction(*label++);
+    action->setData(command);
+  }
+
+  const QAction* chosen = menu.exec(mouse);
+  if (chosen == nullptr) {
+    return;
+  }
+  const QString choice = chosen->data().toString();
+  if (sendTo == SendTo::Prompt) {
+    ui->input->setText(choice);
+    return;
+  }
+  const ActionSource oldSource = api->setSource(ActionSource::UserMenuAction);
+  api->sendToWorld(choice,
+                   SendFlag::Echo | SendFlag::Log | SendFlag::Immediate);
+  api->setSource(oldSource);
 }
 
 void

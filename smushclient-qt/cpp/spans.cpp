@@ -46,11 +46,10 @@ getLineType(const QTextCharFormat& format)
   return getUnderlying<LineType>(format, property::lineType);
 }
 
-QStringList
+QString
 getPrompts(const QTextCharFormat& format)
 {
-  const QString prompts = format.property(property::prompts).toString();
-  return prompts.isEmpty() ? QStringList() : prompts.split(QChar(0x1E));
+  return format.property(property::prompts).toString();
 }
 
 SendTo
@@ -69,6 +68,12 @@ QDateTime
 getTimestamp(const QTextBlockFormat& format)
 {
   return format.property(property::timestamp).toDateTime();
+}
+
+bool
+hasPrompts(const QTextCharFormat& format)
+{
+  return format.hasProperty(property::prompts);
 }
 
 void

@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use std::io::{self};
 use std::ops::Deref;
 use std::path::Path;
@@ -141,12 +140,11 @@ impl PluginEngine {
         self.plugins.get(self.world_script_index?)
     }
 
-    pub fn supported_protocols(&self) -> HashSet<u8> {
+    pub fn supported_protocols(&self) -> impl Iterator<Item = u8> {
         self.plugins
             .iter()
             .flat_map(|plugin| plugin.metadata.protocols.iter())
             .copied()
-            .collect()
     }
 }
 

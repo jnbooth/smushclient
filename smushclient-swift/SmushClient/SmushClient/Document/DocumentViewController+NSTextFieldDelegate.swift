@@ -28,7 +28,7 @@ extension DocumentViewController: NSTextViewDelegate {
     let (send_to, action) = deserializeActionUrl(actionUrl)
 
     switch send_to {
-    case .Input:
+    case .Prompt:
       setInput(action)
     case .World:
       sendInput(action)

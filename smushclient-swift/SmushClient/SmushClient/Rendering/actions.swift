@@ -8,7 +8,7 @@ extension NSAttributedString.Key {
 }
 
 enum InternalSendTo {
-  case Input
+  case Prompt
   case World
 }
 
@@ -20,7 +20,7 @@ func setupActionAttributes(
   let action = link.action().toString()
   let send_to = link.send_to()
   switch send_to {
-  case .Input:
+  case .Prompt:
     attributes[.link] = action + sendToInputSuffix
   case .Internet:
     if let url = URL(string: action) {
@@ -45,7 +45,7 @@ func setupActionAttributes(
 
 func deserializeActionUrl(_ url: String) -> (InternalSendTo, String) {
   if url.last == sendToInputChar {
-    return (.Input, String(url.dropLast()))
+    return (.Prompt, String(url.dropLast()))
   }
   return (.World, url)
 }

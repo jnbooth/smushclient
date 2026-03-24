@@ -1,9 +1,6 @@
-use std::fmt::Write;
-
 use cxx_qt_lib::QString;
 use flagset::FlagSet;
-use mud_transformer::mxp;
-use mud_transformer::output::TextStyle;
+use mud_transformer::output::{Link, SendTo, TextStyle};
 use smushclient_qt_lib::{QFontWeight, QTextCharFormat, QTextFormatProperty};
 
 #[cxx::bridge]
@@ -12,7 +9,7 @@ mod ffi {
     enum SendTo {
         Internet,
         World,
-        Input,
+        Prompt,
     }
 
     #[namespace = "ffi::spans"]
@@ -63,12 +60,12 @@ impl SpanProperty {
     };
 }
 
-impl From<mxp::SendTo> for ffi::SendTo {
-    fn from(value: mxp::SendTo) -> Self {
+impl From<SendTo> for ffi::SendTo {
+    fn from(value: SendTo) -> Self {
         match value {
-            mxp::SendTo::World => Self::World,
-            mxp::SendTo::Input => Self::Input,
-            mxp::SendTo::Internet => Self::Internet,
+            SendTo::World => Self::World,
+            SendTo::Prompt => Self::Prompt,
+            SendTo::Internet => Self::Internet,
         }
     }
 }
@@ -91,34 +88,25 @@ pub fn apply_styles(format: &mut QTextCharFormat, flags: FlagSet<TextStyle>) {
     }
 }
 
-// Prompts
-
-const SEP: &str = "\x1E";
-
-fn encode_prompts(prompts: &[mxp::LinkPrompt]) -> QString {
-    let len = prompts
-        .iter()
-        .map(|prompt| prompt.action.len() + prompt.label().len() + SEP.len() + SEP.len())
-        .sum();
-    let mut s = String::with_capacity(len);
-    for prompt in prompts {
-        write!(s, "{SEP}{}{SEP}{}", &prompt.action, &prompt.label()).unwrap();
-    }
-    QString::from(&s[1..])
-}
-
 // Links
 
-pub fn apply_link(format: &mut QTextCharFormat, link: &mxp::Link) {
+pub fn apply_link(format: &mut QTextCharFormat, link: &Link) {
     format.set_anchor(true);
-    format.set_anchor_href(&QString::from(&link.action));
+    format.set_anchor_href(&QString::from(&link.href));
     format.set_property(SpanProperty::SEND_TO, &ffi::SendTo::from(link.send_to).repr);
-    if let Some(hint) = &link.hint {
-        format.set_tool_tip(&QString::from(hint));
+    if link.hint.is_empty() {
+        return;
     }
-    if !link.prompts.is_empty() {
-        format.set_property(SpanProperty::PROMPTS, &encode_prompts(&link.prompts));
+    if !link.menu {
+        format.set_tool_tip(&QString::from(&link.hint));
+        return;
     }
+    let (tooltip, labels) = match link.hint.split_once('|') {
+        Some((tooltip, labels)) => (QString::from(tooltip), QString::from(labels)),
+        _ => (QString::from(&link.hint), QString::default()),
+    };
+    format.set_tool_tip(&tooltip);
+    format.set_property(SpanProperty::PROMPTS, &labels);
 }
 
 // Assertions
