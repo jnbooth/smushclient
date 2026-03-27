@@ -9,6 +9,7 @@
 #include "plugin.h"
 #include "scriptenums.h"
 #include "smushclient_qt/src/ffi/send_request.cxx.h"
+#include <QtCore/QElapsedTimer>
 #include <QtCore/QPointer>
 #include <QtCore/QQueue>
 #include <QtCore/QTimer>
