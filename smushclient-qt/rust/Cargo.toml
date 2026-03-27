@@ -17,7 +17,9 @@ cxx = { workspace = true }
 cxx-qt = { workspace = true }
 cxx-qt-lib = { workspace = true }
 flagset = { workspace = true }
+log = "0.4.29"
 mud-transformer = { workspace = true }
+simple_logger = "5.2.0"
 
 smushclient = { path = "../../smushclient" }
 smushclient-graphics = { path = "../../smushclient-graphics" }

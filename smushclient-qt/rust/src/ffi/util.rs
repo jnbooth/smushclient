@@ -1,6 +1,10 @@
-use cxx_qt_lib::{QByteArray, QColor, QString, QStringList, QVariant, QVector};
+use std::ffi::{CStr, c_char};
+
+use cxx_qt_lib::{QByteArray, QColor, QString, QStringList, QVariant, QVector, QtMsgType};
+use log::LevelFilter;
 use mud_transformer::opt::mxp::{self, RgbColor};
 use mud_transformer::opt::naws::WindowSize;
+use simple_logger::SimpleLogger;
 use smushclient::{WorldConfig, speedwalk};
 use smushclient_qt_lib::QAbstractScrollArea;
 
@@ -22,6 +26,8 @@ mod ffi {
         type QString = cxx_qt_lib::QString;
         include!("cxx-qt-lib/qstringlist.h");
         type QStringList = cxx_qt_lib::QStringList;
+        include!("cxx-qt-lib/qtlogging.h");
+        type QtMsgType = cxx_qt_lib::QtMsgType;
         include!("cxx-qt-lib/qvariant.h");
         type QVariant = cxx_qt_lib::QVariant;
         include!("cxx-qt-lib/qvector.h");
@@ -52,7 +58,16 @@ mod ffi {
         fn get_alpha_option_list() -> QStringList;
         fn get_global_entity(name: StringView) -> VariableView;
         fn get_option_list() -> QStringList;
+        fn init_logger();
         fn is_utf8_valid(text: StringView<'_>) -> bool;
+        unsafe fn log(
+            msg_type: QtMsgType,
+            message: &QString,
+            category: *const c_char,
+            file: *const c_char,
+            function: *const c_char,
+            line: i32,
+        );
         fn reverse_speedwalk(text: StringView<'_>) -> String;
         unsafe fn utf8_substring<'a>(
             text: StringView<'a>,
@@ -124,8 +139,81 @@ fn get_option_list() -> QStringList {
     build_string_list(smushclient::WorldConfig::INT_OPTIONS)
 }
 
+fn init_logger() {
+    #[cfg(debug_assertions)]
+    let level = LevelFilter::Info;
+    #[cfg(not(debug_assertions))]
+    let level = LevelFilter::Error;
+
+    SimpleLogger::new()
+        .with_level(level)
+        .env()
+        .without_timestamps()
+        .with_colors(true)
+        .init()
+        .unwrap();
+}
+
 fn is_utf8_valid(text: StringView<'_>) -> bool {
     text.to_str().is_ok()
+}
+
+/// # Safety
+///
+/// `p` must either be null or fulfill all the safety requirements of [`CStr::from_ptr`].
+unsafe fn cstr_utf8<'a>(p: *const c_char) -> Option<&'a str> {
+    if p.is_null() {
+        return None;
+    }
+    // SAFETY: `p` fulfills all the safety requirements of [`CStr::from_ptr`].
+    let cstr = unsafe { CStr::from_ptr(p) };
+    if cstr.is_empty() {
+        return None;
+    }
+    cstr.to_str().ok()
+}
+
+fn log(
+    msg_type: QtMsgType,
+    message: &QString,
+    category: *const c_char,
+    file: *const c_char,
+    function: *const c_char,
+    line: i32,
+) {
+    // SAFETY: Provided by the Qt side.
+    let category = unsafe { cstr_utf8(category) };
+    let logger = log::logger();
+    let level = match msg_type {
+        QtMsgType::QtCriticalMsg => log::Level::Error,
+        QtMsgType::QtWarningMsg => log::Level::Warn,
+        QtMsgType::QtInfoMsg => log::Level::Info,
+        QtMsgType::QtDebugMsg => log::Level::Debug,
+        _ => log::Level::Trace,
+    };
+    let target = match category {
+        Some("default") | None => "",
+        Some(category) => category,
+    };
+    let metadata = log::Metadata::builder().target(target).level(level).build();
+    if !logger.enabled(&metadata) {
+        return;
+    }
+    // SAFETY: Provided by the Qt side.
+    let (file, function) = unsafe { (cstr_utf8(file), cstr_utf8(function)) };
+    let args = if let Some(function) = &function {
+        format_args!("{message} ({})", *function)
+    } else {
+        format_args!("{message}")
+    };
+    logger.log(
+        &log::Record::builder()
+            .metadata(metadata)
+            .args(args)
+            .file(file)
+            .line(line.try_into().ok())
+            .build(),
+    );
 }
 
 fn reverse_speedwalk(text: StringView<'_>) -> String {
