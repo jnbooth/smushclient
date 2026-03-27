@@ -2,7 +2,7 @@ use std::path::Path;
 
 use chrono::{DateTime, NaiveDate, Utc};
 use cxx_qt_lib::{QByteArray, QDate, QDateTime, QFont, QString, QVariant};
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::opt::mxp::RgbColor;
 use smushclient::InfoVisitor;
 use smushclient_plugins::SendTarget;
 use smushclient_qt_lib::{QChar, QFontInfo, QFontMetrics};

@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use chrono::{DateTime, NaiveDate, Utc};
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::opt::mxp::RgbColor;
 use smushclient_plugins::SendTarget;
 
 pub trait InfoVisitor {

@@ -1,4 +1,4 @@
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::opt::mxp::RgbColor;
 
 use super::error::SetOptionError;
 

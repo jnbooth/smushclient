@@ -8,7 +8,7 @@ use std::{env, mem, slice};
 
 use arboard::Clipboard;
 use flagset::FlagSet;
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::opt::mxp::RgbColor;
 use mud_transformer::output::{Output, OutputFragment, TelnetFragment};
 use mud_transformer::{ByteSet, Tag, Transformer, TransformerConfig};
 use rodio::Decoder;
@@ -247,7 +247,7 @@ impl SmushClient {
             self.info.bytes_received.update(|t| t + n as u64);
             let (received, buf) = read_buf.split_at_mut(n);
             let _ = logger.log_raw(received);
-            let n = transformer.receive(received, buf)? as u64;
+            let n = transformer.receive(received, buf) as u64;
             self.info.bytes_received_uncompressed.update(|t| t + n);
         }
     }
@@ -270,7 +270,7 @@ impl SmushClient {
             self.info.bytes_received.update(|t| t + n as u64);
             let (received, buf) = read_buf.split_at_mut(n);
             let _ = self.logger.borrow_mut().log_raw(buf);
-            let n = self.transformer.borrow_mut().receive(received, buf)? as u64;
+            let n = self.transformer.borrow_mut().receive(received, buf) as u64;
             self.info.bytes_received_uncompressed.update(|t| t + n);
         }
     }

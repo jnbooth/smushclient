@@ -3,7 +3,7 @@ use std::fmt::Write as _;
 use std::io::{self, Write};
 
 use chrono::{DateTime, Local};
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::opt::mxp::RgbColor;
 use mud_transformer::output::{Output, OutputFragment};
 
 use super::config::WorldConfig;

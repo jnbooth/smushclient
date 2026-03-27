@@ -2,7 +2,7 @@ use std::fs::File;
 use std::path::Path;
 
 use flagset::FlagSet;
-use mud_transformer::{ByteSet, Tag, protocol};
+use mud_transformer::{ByteSet, Tag, opt};
 use smushclient::{CommandSource, SmushClient, World, WorldConfig};
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
@@ -24,7 +24,7 @@ pub struct RustMudBridge {
 impl RustMudBridge {
     fn will() -> ByteSet {
         let mut set = ByteSet::new();
-        set.insert(protocol::ECHO);
+        set.insert(opt::ECHO);
         set
     }
 

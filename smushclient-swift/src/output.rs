@@ -1,6 +1,6 @@
 use std::ptr;
 
-use mud_transformer::mxp::{self, RgbColor};
+use mud_transformer::opt::mxp::{self, RgbColor};
 use mud_transformer::output::{Link, SendTo, TextFragment, TextStyle};
 
 use crate::ffi;

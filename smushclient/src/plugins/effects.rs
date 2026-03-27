@@ -1,5 +1,5 @@
 use flagset::FlagSet;
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::opt::mxp::RgbColor;
 use mud_transformer::output::TextStyle;
 use smushclient_plugins::{Alias, Trigger};
 

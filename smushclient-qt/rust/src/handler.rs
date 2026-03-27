@@ -4,13 +4,14 @@ use std::ops::Range;
 use std::pin::Pin;
 
 use cxx_qt_lib::QString;
+use mud_transformer::Bytes;
+use mud_transformer::opt::mssp;
+use mud_transformer::opt::mxp;
 use mud_transformer::output::{
     ControlFragment, EntityFragment, MxpFragment, Output, OutputFragment, TelnetFragment,
     TextFragment,
 };
-use mud_transformer::protocol::mssp;
 use mud_transformer::term::{self, CursorEffect};
-use mud_transformer::{Bytes, mxp};
 use smushclient::{SendRequest, SendScriptRequest, SpanStyle, WorldConfig};
 
 use crate::convert::Convert;
@@ -112,7 +113,6 @@ impl ClientHandler<'_> {
     fn handle_mxp(&mut self, fragment: &MxpFragment) {
         match fragment {
             MxpFragment::Entity(fragment) => self.handle_mxp_entity(fragment),
-            MxpFragment::Error(error) => eprintln!("MXP error: {error}"),
             MxpFragment::Expire(expires) => {
                 let expires = expires.name.as_ref().map(AsRef::as_ref).unwrap_or_default();
                 self.doc.as_mut().expire_links(expires);
@@ -159,8 +159,8 @@ impl ClientHandler<'_> {
     fn handle_subnegotiation(&mut self, code: u8, data: &Bytes) {
         self.doc.handle_telnet_subnegotiation(code, data);
         if code == mssp::OPT {
-            for (variable, value) in mssp::decode(data.clone()) {
-                self.doc.as_mut().handle_server_status(&variable, &value);
+            for (variable, value) in mssp::decode(data) {
+                self.doc.as_mut().handle_server_status(variable, value);
             }
         }
     }

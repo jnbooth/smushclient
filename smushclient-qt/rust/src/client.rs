@@ -10,7 +10,7 @@ use cxx_qt::casting::Downcast;
 use cxx_qt_io::{QAbstractSocket, QIODevice, QNetworkProxy, QNetworkProxyProxyType, QSslSocket};
 use cxx_qt_lib::{QString, QStringList, QVariant};
 use flagset::FlagSet;
-use mud_transformer::{ByteSet, Tag, protocol};
+use mud_transformer::{ByteSet, Tag, opt};
 use smushclient::world::PersistError;
 use smushclient::{
     AliasOutcome, CommandSource, Handler, SmushClient, TimerFinish, TimerStart, Timers, World,
@@ -51,9 +51,9 @@ impl Default for SmushClientRust {
 impl SmushClientRust {
     fn will() -> ByteSet {
         let mut set = ByteSet::new();
-        set.insert(protocol::ECHO);
-        set.insert(protocol::NAWS);
-        set.insert(protocol::MSSP);
+        set.insert(opt::ECHO);
+        set.insert(opt::NAWS);
+        set.insert(opt::MSSP);
         set
     }
 

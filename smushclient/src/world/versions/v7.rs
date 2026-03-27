@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use mud_transformer::UseMxp;
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::opt::mxp::RgbColor;
 use serde::Deserialize;
 use smushclient_plugins::newline::replace_crlf;
 use smushclient_plugins::{Alias, Sender, Timer, Trigger};

@@ -6,9 +6,9 @@ use std::time::Duration;
 
 use chrono::Local;
 use flagset::FlagSet;
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::opt::mxp::RgbColor;
 use mud_transformer::output::TextFragment;
-use mud_transformer::{ByteSet, Tag, TransformerConfig, UseMxp, protocol};
+use mud_transformer::{ByteSet, Tag, TransformerConfig, UseMxp, opt};
 use serde::{Deserialize, Serialize};
 use smushclient_plugins::{Plugin, PluginMetadata};
 use uuid::Uuid;
@@ -348,10 +348,10 @@ impl WorldConfig {
             (String::new(), String::new())
         };
         if !self.naws {
-            will.remove(protocol::NAWS);
+            will.remove(opt::NAWS);
         }
         if self.no_echo_off {
-            will.remove(protocol::ECHO);
+            will.remove(opt::ECHO);
         }
         TransformerConfig {
             will,

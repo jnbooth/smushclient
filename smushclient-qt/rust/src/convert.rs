@@ -3,7 +3,7 @@ use std::fmt;
 use std::num::TryFromIntError;
 
 use cxx_qt_lib::{QByteArray, QColor, QVariant};
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::opt::mxp::RgbColor;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct OutOfRangeError;

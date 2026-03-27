@@ -1,6 +1,6 @@
 use cxx_qt_lib::{QByteArray, QColor, QString, QStringList, QVariant, QVector};
-use mud_transformer::mxp::{self, RgbColor};
-use mud_transformer::naws;
+use mud_transformer::opt::mxp::{self, RgbColor};
+use mud_transformer::opt::naws::WindowSize;
 use smushclient::{WorldConfig, speedwalk};
 use smushclient_qt_lib::QAbstractScrollArea;
 
@@ -88,11 +88,13 @@ fn encode_naws(browser: &QAbstractScrollArea) -> QByteArray {
     let viewport = browser.maximum_viewport_size();
     let client_width = viewport.width() - margins.left() - margins.right();
     let client_height = viewport.height() - margins.top() - margins.bottom();
-    let width = client_width * ADVANCE_SAMPLE_LEN / advance;
-    let height = client_height / metrics.line_spacing() - 4;
 
     #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
-    QByteArray::from(naws(width as u16, height as u16).as_slice())
+    let size = WindowSize {
+        width: (client_width * ADVANCE_SAMPLE_LEN / advance) as u16,
+        height: (client_height / metrics.line_spacing() - 4) as u16,
+    };
+    QByteArray::from(&size.subnegotiation())
 }
 
 fn encode_utf8(buf: &mut String, code: i64) -> bool {

@@ -5,7 +5,7 @@ use std::time::Duration;
 
 use base64::Engine;
 use mud_transformer::UseMxp;
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::opt::mxp::RgbColor;
 use serde::Deserialize;
 use smushclient_plugins::{Alias, ImportError, RegexError, Timer, Trigger, XmlIterable, XmlVec};
 use uuid::Uuid;

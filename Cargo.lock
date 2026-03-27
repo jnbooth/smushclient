@@ -976,23 +976,24 @@ dependencies = [
 
 [[package]]
 name = "mud-transformer"
-version = "1.1.0"
-source = "git+https://github.com/jnbooth/mxp?rev=61e54c55c4445073b5218e4a82faed5bceefd3b3#61e54c55c4445073b5218e4a82faed5bceefd3b3"
+version = "0.24.0"
+source = "git+https://github.com/jnbooth/mxp?rev=098a0319f0d79da41383aee87385743a689517b8#098a0319f0d79da41383aee87385743a689517b8"
 dependencies = [
  "bytes",
  "bytestring",
  "bytestringmut",
  "flagset",
- "flate2",
  "html-escape",
+ "log",
  "mxp",
  "serde",
+ "zlib-rs",
 ]
 
 [[package]]
 name = "mxp"
 version = "1.1.0"
-source = "git+https://github.com/jnbooth/mxp?rev=61e54c55c4445073b5218e4a82faed5bceefd3b3#61e54c55c4445073b5218e4a82faed5bceefd3b3"
+source = "git+https://github.com/jnbooth/mxp?rev=098a0319f0d79da41383aee87385743a689517b8#098a0319f0d79da41383aee87385743a689517b8"
 dependencies = [
  "flagset",
  "html-escape",
@@ -2721,6 +2722,12 @@ dependencies = [
  "quote",
  "syn 2.0.111",
 ]
+
+[[package]]
+name = "zlib-rs"
+version = "0.6.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3be3d40e40a133f9c916ee3f9f4fa2d9d63435b5fbe1bfc6d9dae0aa0ada1513"
 
 [[package]]
 name = "zune-core"

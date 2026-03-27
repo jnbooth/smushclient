@@ -5,7 +5,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike};
-use mud_transformer::mxp::{self, RgbColor};
+use mud_transformer::opt::mxp::{self, RgbColor};
 use mud_transformer::output::{
     ControlFragment, EntityFragment, MapperFragment, MxpFragment, OutputFragment, SendTo,
     TelnetFragment, VariableFragment,
@@ -526,7 +526,6 @@ impl TryFrom<MxpFragment> for ffi::MxpFragment {
     fn try_from(value: MxpFragment) -> Result<Self, UnsupportedError> {
         match value {
             MxpFragment::Entity(fragment) => Ok(Self::Entity(fragment.into())),
-            MxpFragment::Error(error) => Ok(Self::Error(error.to_string())),
             MxpFragment::Expire(_) => Err(UnsupportedError("<EXPIRE>")),
             MxpFragment::Filter(_) => Err(UnsupportedError("<FILTER>")),
             MxpFragment::Frame(_) => Err(UnsupportedError("<FRAME>")),

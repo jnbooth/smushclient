@@ -147,7 +147,6 @@ pub mod ffi {
 
     enum MxpFragment {
         Entity(EntityFragment),
-        Error(String),
         Mapper(MapperFragment),
         Variable(VariableFragment),
     }

@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 use mud_transformer::UseMxp;
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::opt::mxp::RgbColor;
 use serde::Deserialize;
 use smushclient_plugins::{Alias, Timer, Trigger};
 use uuid::Uuid;

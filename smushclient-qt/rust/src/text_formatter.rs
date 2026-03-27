@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use cxx_qt_lib::QColor;
 use flagset::FlagSet;
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::opt::mxp::RgbColor;
 use mud_transformer::output::{TextFragment, TextStyle};
 use smushclient::{SpanStyle, WorldConfig};
 use smushclient_qt_lib::{QBrush, QTextCharFormat};

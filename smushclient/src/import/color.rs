@@ -1,6 +1,6 @@
 use std::num::NonZero;
 
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::opt::mxp::RgbColor;
 use serde::Deserialize;
 use smushclient_plugins::{Trigger, XmlIterable};
 

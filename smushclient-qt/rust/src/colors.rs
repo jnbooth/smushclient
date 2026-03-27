@@ -1,5 +1,5 @@
 use cxx_qt_lib::QColor;
-use mud_transformer::mxp::RgbColor;
+use mud_transformer::opt::mxp::RgbColor;
 
 use crate::convert::Convert;
 
