@@ -55,7 +55,7 @@ impl<'a> Iterator for Iter<'a> {
             Ok(Some(next)) => Some(Ok(next)),
             Ok(None) => None,
             Err(err) => {
-                self.inner.nth(self.inner.len()); // skip to end
+                self.inner.nth(usize::MAX); // skip to end
                 Some(Err(err))
             }
         }
