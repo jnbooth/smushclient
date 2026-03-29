@@ -175,9 +175,9 @@ dependencies = [
 
 [[package]]
 name = "bytetable"
-version = "1.0.0"
+version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1fd5fd19151b82349ce2b845b697dc83c15b7ef0073f210af6be83964e2dc55"
+checksum = "f61c168fcc44ea26898c15bf65948233dbe138a488cd717c937f0be531848af5"
 
 [[package]]
 name = "cc"

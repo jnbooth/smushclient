@@ -10,5 +10,5 @@ workspace = true
 
 [dependencies]
 bytemuck = { version = "1.25.0", features = ["derive", "must_cast"] }
-bytetable = "1.0.0"
+bytetable = "1"
 fastrand = "2.3.0"
