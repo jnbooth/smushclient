@@ -174,6 +174,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "bytetable"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d1fd5fd19151b82349ce2b845b697dc83c15b7ef0073f210af6be83964e2dc55"
+
+[[package]]
 name = "cc"
 version = "1.2.49"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -995,7 +1001,7 @@ dependencies = [
 [[package]]
 name = "mud-transformer"
 version = "0.24.0"
-source = "git+https://github.com/jnbooth/mxp?rev=098a0319f0d79da41383aee87385743a689517b8#098a0319f0d79da41383aee87385743a689517b8"
+source = "git+https://github.com/jnbooth/mxp?rev=20396fe83e8a9b6706af1ffa5e8c9a02b1b28db1#20396fe83e8a9b6706af1ffa5e8c9a02b1b28db1"
 dependencies = [
  "bytes",
  "bytestring",
@@ -1011,7 +1017,7 @@ dependencies = [
 [[package]]
 name = "mxp"
 version = "1.1.0"
-source = "git+https://github.com/jnbooth/mxp?rev=098a0319f0d79da41383aee87385743a689517b8#098a0319f0d79da41383aee87385743a689517b8"
+source = "git+https://github.com/jnbooth/mxp?rev=20396fe83e8a9b6706af1ffa5e8c9a02b1b28db1#20396fe83e8a9b6706af1ffa5e8c9a02b1b28db1"
 dependencies = [
  "flagset",
  "html-escape",
@@ -1625,6 +1631,7 @@ name = "smushclient-graphics"
 version = "0.0.0"
 dependencies = [
  "bytemuck",
+ "bytetable",
  "fastrand",
 ]
 

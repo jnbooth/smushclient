@@ -1,6 +1,8 @@
 #![allow(clippy::needless_for_each)]
 use std::{iter, slice};
 
+use bytetable::ByteTable;
+
 use crate::casting::{as_bytes_mut, as_pixels_mut};
 use crate::channel::ColorChannel;
 use crate::pixel::Pixel;
@@ -52,16 +54,8 @@ pub(crate) fn adjust_subpixels_cached<F>(data: &mut [u32], channel: Option<Color
 where
     F: Fn(u8) -> u8,
 {
-    let mut cache = [0; 256];
-
-    #[allow(clippy::cast_possible_truncation)]
-    for (i, value) in cache.iter_mut().enumerate() {
-        *value = f(i as u8);
-    }
-    // SAFETY: `cache` has length 256, so any u8 is a valid index.
-    adjust_subpixels(data, channel, |sp| unsafe {
-        *cache.get_unchecked(sp as usize)
-    });
+    let cache = ByteTable::generate(f);
+    adjust_subpixels(data, channel, |sp| cache[sp]);
 }
 
 pub(crate) fn adjust_pixels<F>(data: &mut [u32], f: F)
