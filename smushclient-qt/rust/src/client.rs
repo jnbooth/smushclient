@@ -43,19 +43,13 @@ impl Default for SmushClientRust {
             stats: RefCell::new(HashSet::new()),
             timers: RefCell::new(Timers::new()),
             formatter: TextFormatter::default(),
-            client: SmushClient::new(World::default(), Self::will(), Self::supported_tags()),
+            client: SmushClient::new(World::default(), Self::WILL, Self::supported_tags()),
         }
     }
 }
 
 impl SmushClientRust {
-    fn will() -> ByteSet {
-        let mut set = ByteSet::new();
-        set.insert(opt::ECHO);
-        set.insert(opt::NAWS);
-        set.insert(opt::MSSP);
-        set
-    }
+    const WILL: ByteSet = ByteSet::from_bytes(&[opt::ECHO, opt::NAWS, opt::MSSP]);
 
     fn supported_tags() -> FlagSet<Tag> {
         Tag::Bold
@@ -90,13 +84,13 @@ impl SmushClientRust {
     pub fn load_world<P: AsRef<Path>>(&mut self, path: P) -> Result<(), PersistError> {
         let world = World::load(File::open(path)?)?;
         self.apply_world(&world.config);
-        self.client = SmushClient::new(world, Self::will(), Self::supported_tags());
+        self.client = SmushClient::new(world, Self::WILL, Self::supported_tags());
         Ok(())
     }
 
     pub fn import_world<P: AsRef<Path>>(&mut self, path: P) -> Result<(), ImportError> {
         let file = File::open(path)?;
-        let client = SmushClient::import_world(file, Self::will(), Self::supported_tags())?;
+        let client = SmushClient::import_world(file, Self::WILL, Self::supported_tags())?;
         self.apply_world(&client.borrow_world());
         self.client = client;
         Ok(())

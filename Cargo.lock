@@ -1001,11 +1001,12 @@ dependencies = [
 [[package]]
 name = "mud-transformer"
 version = "0.24.0"
-source = "git+https://github.com/jnbooth/mxp?rev=20396fe83e8a9b6706af1ffa5e8c9a02b1b28db1#20396fe83e8a9b6706af1ffa5e8c9a02b1b28db1"
+source = "git+https://github.com/jnbooth/mxp?rev=00cc957c11619d7c6f69a152ba9640480cacda22#00cc957c11619d7c6f69a152ba9640480cacda22"
 dependencies = [
  "bytes",
  "bytestring",
  "bytestringmut",
+ "bytetable",
  "flagset",
  "html-escape",
  "log",
@@ -1017,7 +1018,7 @@ dependencies = [
 [[package]]
 name = "mxp"
 version = "1.1.0"
-source = "git+https://github.com/jnbooth/mxp?rev=20396fe83e8a9b6706af1ffa5e8c9a02b1b28db1#20396fe83e8a9b6706af1ffa5e8c9a02b1b28db1"
+source = "git+https://github.com/jnbooth/mxp?rev=00cc957c11619d7c6f69a152ba9640480cacda22#00cc957c11619d7c6f69a152ba9640480cacda22"
 dependencies = [
  "flagset",
  "html-escape",

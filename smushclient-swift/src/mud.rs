@@ -22,11 +22,7 @@ pub struct RustMudBridge {
 }
 
 impl RustMudBridge {
-    fn will() -> ByteSet {
-        let mut set = ByteSet::new();
-        set.insert(opt::ECHO);
-        set
-    }
+    const WILL: ByteSet = ByteSet::from_bytes(&[opt::ECHO]);
 
     fn supported_tags() -> FlagSet<Tag> {
         Tag::Bold
@@ -51,7 +47,7 @@ impl RustMudBridge {
         Self {
             read_buf: vec![0; BUF_LEN],
             write_buf: Vec::new(),
-            client: SmushClient::new(world, Self::will(), Self::supported_tags()),
+            client: SmushClient::new(world, Self::WILL, Self::supported_tags()),
             ..Default::default()
         }
     }

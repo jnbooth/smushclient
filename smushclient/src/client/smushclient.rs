@@ -39,7 +39,7 @@ const METAVARIABLES_KEY: &str = "\x01";
 pub struct SmushClient {
     pub(crate) plugins: PluginEngine,
     logger: RefCell<Logger>,
-    will: Box<ByteSet>,
+    will: ByteSet,
     supported_tags: FlagSet<Tag>,
     transformer: RefCell<Transformer>,
     variables: RefCell<PluginVariables>,
@@ -80,7 +80,7 @@ impl SmushClient {
             logger: RefCell::new(Logger::new(&config)),
             plugins,
             supported_tags,
-            will: Box::new(will.clone()),
+            will,
             transformer: RefCell::new(Transformer::new(
                 config.transformer_config(supported_tags, will),
             )),
@@ -144,7 +144,7 @@ impl SmushClient {
     }
 
     fn create_config(&self) -> TransformerConfig {
-        let mut will = (*self.will).clone();
+        let mut will = self.will;
         will.extend(self.plugins.supported_protocols());
         self.world
             .borrow()
