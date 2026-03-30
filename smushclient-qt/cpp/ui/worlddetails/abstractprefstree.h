@@ -36,8 +36,8 @@ private slots:
   void onSelectionChanged();
 
 private:
-  bool filtering = false;
   AbstractSenderModel& model;
   QSortFilterProxyModel* proxy;
   QTreeView* tree = nullptr;
+  bool filtering = false;
 };

@@ -42,7 +42,7 @@ public:
   void updateMetadata(const PluginPack& pack, size_t index) noexcept;
 
 private:
-  bool disabled = false;
   std::shared_ptr<lua_State> Lptr = nullptr;
   PluginMetadata metadata;
+  bool disabled = false;
 };

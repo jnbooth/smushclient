@@ -39,9 +39,9 @@ private:
   void updateParentPolicy() const;
 
 private:
-  bool inInternalChange = false;
   int lastValue = 0;
-  bool m_autoScroll = true;
-  bool m_paused = false;
-  bool m_pausingEnabled = true;
+  bool inInternalChange : 1 = false;
+  bool m_autoScroll : 1 = true;
+  bool m_paused : 1 = false;
+  bool m_pausingEnabled : 1 = true;
 };

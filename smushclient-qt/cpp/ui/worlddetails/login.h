@@ -21,7 +21,7 @@ private slots:
 
 private:
   Ui::PrefsLogin* ui;
+  World& world;
   bool empty = true;
   bool single = true;
-  World& world;
 };

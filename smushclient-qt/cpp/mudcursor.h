@@ -43,14 +43,14 @@ private:
 private:
   QTextCursor cursor;
   QTextCharFormat echoFormat;
-  bool echoOnSameLine = false;
   QTextCharFormat errorFormat;
-  bool hasLine = false;
-  bool indentNext = false;
   QString indentText;
   int lastLinePosition = -1;
   int lastTellPosition = -1;
-  bool logNotes = false;
-  bool m_suppressingEcho = false;
   QTextCharFormat noteFormat;
+  bool echoOnSameLine : 1 = false;
+  bool hasLine : 1 = false;
+  bool indentNext : 1 = false;
+  bool logNotes : 1 = false;
+  bool m_suppressingEcho : 1 = false;
 };

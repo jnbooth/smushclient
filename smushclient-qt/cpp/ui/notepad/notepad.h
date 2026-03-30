@@ -83,9 +83,9 @@ private:
   qreal defaultFontSize;
   FindDialog* findDialog = nullptr;
   QString filePath;
-  bool promptBeforeClose = true;
   QString windowTitleBase;
   QUuid worldID;
+  bool promptBeforeClose = true;
 };
 
 DECLARE_ENUM_BOUNDS(Notepad::SaveMethod, Default, NeverPrompt)

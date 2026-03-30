@@ -158,25 +158,16 @@ private slots:
   void on_output_selectionChanged();
 
 private:
-  bool alertNewActivity = false;
   ScriptApi* api;
   QMetaObject::Connection autoScroll;
   SmushClient client;
-  bool commandStackDelay = false;
   Document* document;
   QString filePath;
   QTimer* flushTimer;
-  bool handleKeypad = false;
   Hotkeys hotkeys;
-  bool initialized = false;
-  bool inputCopyAvailable = false;
-  bool manualDisconnect = false;
-  bool m_active = true;
   QString m_title;
   std::optional<CallbackTrigger> onDragMove = std::nullopt;
   QPointer<Hotspot> onDragRelease = nullptr;
-  bool outputCopyAvailable = false;
-  bool queuedConnect = false;
   QTimer* resizeTimer;
   ScriptRecompile scriptReloadOption;
 #ifdef QT_NO_SSL
@@ -190,4 +181,13 @@ private:
   QString worldName;
   QString worldScriptPath;
   QFileSystemWatcher worldScriptWatcher;
+  bool alertNewActivity : 1 = false;
+  bool commandStackDelay : 1 = false;
+  bool handleKeypad : 1 = false;
+  bool initialized : 1 = false;
+  bool inputCopyAvailable : 1 = false;
+  bool manualDisconnect : 1 = false;
+  bool m_active : 1 = true;
+  bool outputCopyAvailable : 1 = false;
+  bool queuedConnect : 1 = false;
 };

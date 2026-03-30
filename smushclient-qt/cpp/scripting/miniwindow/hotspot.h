@@ -77,11 +77,11 @@ private:
 
 private:
   Callbacks callbacks;
-  bool hadDrag = false;
-  bool hadMouseDown = false;
   std::string id;
   const Plugin& plugin;
   WorldTab& tab;
+  bool hadDrag : 1 = false;
+  bool hadMouseDown : 1 = false;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Hotspot::EventFlags)

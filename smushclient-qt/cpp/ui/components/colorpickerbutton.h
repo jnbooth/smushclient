@@ -29,6 +29,6 @@ protected:
   void paintEvent(QPaintEvent* event) override;
 
 private:
-  bool m_alphaEnabled = true;
   QColor m_value;
+  bool m_alphaEnabled = true;
 };

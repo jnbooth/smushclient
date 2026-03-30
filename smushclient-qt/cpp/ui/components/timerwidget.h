@@ -44,8 +44,8 @@ protected:
 
 private:
   Ui::TimerWidget* ui;
-  bool m_secondsVisible = true;
   std::chrono::hh_mm_ss<std::chrono::seconds> m_time;
+  bool m_secondsVisible = true;
 };
 
 class ElapsedTimerWidget : public TimerWidget

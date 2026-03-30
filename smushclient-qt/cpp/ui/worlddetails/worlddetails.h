@@ -39,10 +39,10 @@ private slots:
 private:
   Ui::WorldPrefs* ui;
   AliasModel* aliases;
-  bool dirty = false;
   QWidget* pane = nullptr;
   PluginModel* plugins;
   TimerModel* timers;
   TriggerModel* triggers;
   World& world;
+  bool dirty = false;
 };

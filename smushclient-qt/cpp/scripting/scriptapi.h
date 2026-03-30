@@ -734,14 +734,10 @@ private:
   ImageWindow* backgroundImage = nullptr;
   CallbackFilter callbackFilter;
   const SmushClient& client;
-  bool closed = true;
   QQueue<QueuedCommand> commandQueue;
   QTimer* commandQueueTimer;
   QPointer<MudCursor> cursor;
   string_map<DatabaseConnection> databases;
-  bool doNaws = false;
-  bool doesNaws = false;
-  bool echoInput = false;
   ImageWindow* foregroundImage = nullptr;
   QByteArray lastCommandSent;
   Notepads& notepads;
@@ -762,4 +758,8 @@ private:
   QString wordUnderMenu;
   QUuid worldID;
   size_t worldScriptIndex = noSuchPlugin;
+  bool closed : 1 = true;
+  bool doNaws : 1 = false;
+  bool doesNaws : 1 = false;
+  bool echoInput : 1 = false;
 };

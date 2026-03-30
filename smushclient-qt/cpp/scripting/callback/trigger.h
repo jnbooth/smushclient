@@ -31,6 +31,6 @@ private:
   const Plugin* plugin;
   ScriptThread thread;
   int top;
-  bool isValid;
   int nargs;
+  bool isValid;
 };

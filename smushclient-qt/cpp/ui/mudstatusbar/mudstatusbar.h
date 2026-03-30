@@ -54,9 +54,9 @@ private slots:
 
 private:
   Ui::MudStatusBar* ui;
-  bool connected = false;
   std::array<QIcon, 3> connectionIcons;
   QMenu* menu;
   QHash<QString, StatusBarStat*> statsByEntity;
   QMultiHash<QString, StatusBarStat*> statsByMax;
+  bool connected = false;
 };
