@@ -75,6 +75,7 @@ impl DerefMut for PluginVariables {
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(transparent)]
 pub(crate) struct PluginVariableMap(HashMap<String, HashMap<String, Vec<u8>>>);
 
 impl fmt::Display for PluginVariableMap {
