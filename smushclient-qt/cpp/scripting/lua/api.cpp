@@ -338,6 +338,24 @@ L_GetNormalColour(lua_State* L)
 }
 
 int
+L_GetNoteColourBack(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).GetOption(getPluginIndex(L), "note_background_colour");
+  return 1;
+}
+
+int
+L_GetNoteColourFore(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).GetOption(getPluginIndex(L), "note_text_colour");
+  return 1;
+}
+
+int
 L_GetSysColor(lua_State* L)
 {
   BENCHMARK
@@ -371,37 +389,18 @@ L_MapColourList(lua_State* L)
 }
 
 int
-L_NoteColourBack(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 1);
-  getApi(L).SetOption(getPluginIndex(L),
-                      "note_background_colour",
-                      colorToRgbCode(getQColor(L, 1)));
-  return 0;
-}
-
-int
-L_NoteColourFore(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 1);
-  getApi(L).SetOption(
-    getPluginIndex(L), "note_text_colour", colorToRgbCode(getQColor(L, 1)));
-  return 0;
-}
-
-int
-L_NoteColourRgb(lua_State* L)
+L_NoteColourRGB(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
   ScriptApi& api = getApi(L);
-  api.SetOption(
-    getPluginIndex(L), "note_text_colour", colorToRgbCode(getQColor(L, 1)));
-  api.SetOption(getPluginIndex(L),
-                "note_background_colour",
-                colorToRgbCode(getQColor(L, 2)));
+  const size_t pluginIndex = getPluginIndex(L);
+  if (QColor fore = getQColor(L, 1, QColor()); fore.isValid()) {
+    api.SetOption(pluginIndex, "note_text_colour", colorToRgbCode(fore));
+  }
+  if (QColor back = getQColor(L, 2, QColor()); back.isValid()) {
+    api.SetOption(pluginIndex, "note_background_colour", colorToRgbCode(back));
+  }
   return 0;
 }
 
@@ -454,6 +453,27 @@ L_SetNormalColour(lua_State* L)
   if (i >= 1 && i <= 8) {
     getApi(L).SetTermColour(static_cast<uint8_t>(i - 1), color);
   }
+  return 0;
+}
+
+int
+L_SetNoteColourBack(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).SetOption(getPluginIndex(L),
+                      "note_background_colour",
+                      colorToRgbCode(getQColor(L, 1)));
+  return 0;
+}
+
+int
+L_SetNoteColourFore(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).SetOption(
+    getPluginIndex(L), "note_text_colour", colorToRgbCode(getQColor(L, 1)));
   return 0;
 }
 
@@ -3305,18 +3325,20 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "GetCustomColourText", L_GetCustomColourText },
     { "GetMapColour", L_GetMapColour },
     { "GetNormalColour", L_GetNormalColour },
+    { "GetNoteColourFore", L_GetNoteColourFore },
+    { "GetNoteColourBack", L_GetNoteColourBack },
     { "GetSysColor", L_GetSysColor },
     { "MapColour", L_MapColour },
     { "MapColourList", L_MapColourList },
-    { "NoteColourBack", L_NoteColourBack },
-    { "NoteColourFore", L_NoteColourFore },
-    { "NoteColourRgb", L_NoteColourRgb },
-    { "NoteColourName", L_NoteColourRgb },
+    { "NoteColourName", L_NoteColourRGB },
+    { "NoteColourRGB", L_NoteColourRGB },
     { "PickColour", L_PickColour },
-    { "RgbColourToName", L_RGBColourToName },
+    { "RGBColourToName", L_RGBColourToName },
     { "SetBackgroundColour", L_SetBackgroundColour },
     { "SetBoldColour", L_SetBoldColour },
     { "SetNormalColour", L_SetNormalColour },
+    { "SetNoteColourBack", L_SetNoteColourBack },
+    { "SetNoteColourFore", L_SetNoteColourFore },
     // file
     { "ChangeDir", L_ChangeDir },
     { "DatabaseClose", L_DatabaseClose },
