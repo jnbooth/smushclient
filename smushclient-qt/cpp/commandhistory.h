@@ -56,6 +56,7 @@ private:
 
 private:
   static const QString _emptyString;
+
   QStringList history;
   qsizetype max;
   QStringList::const_iterator begin;

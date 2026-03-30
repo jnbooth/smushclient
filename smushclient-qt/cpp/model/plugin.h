@@ -52,6 +52,7 @@ private:
     return index > worldIndex ? index - 1 : index;
   }
 
+private:
   SmushClient& client;
   int pluginCount;
   int worldIndex;
