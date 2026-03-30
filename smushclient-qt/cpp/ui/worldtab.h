@@ -29,7 +29,7 @@ class WorldTab : public QSplitter
   Q_OBJECT
 
 public:
-  enum class AvailableCopy
+  enum class AvailableCopy : uint8_t
   {
     None,
     Input,

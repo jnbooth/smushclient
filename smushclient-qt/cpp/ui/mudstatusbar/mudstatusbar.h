@@ -13,7 +13,7 @@ class MudStatusBar : public QWidget
   Q_OBJECT
 
 public:
-  enum class ConnectionStatus
+  enum class ConnectionStatus : uint8_t
   {
     Disconnected,
     Connected,

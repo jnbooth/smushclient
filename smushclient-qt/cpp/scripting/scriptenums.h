@@ -6,7 +6,7 @@
 #include <QtGui/QPen>
 #include <QtGui/QTextCharFormat>
 
-enum class ActionSource
+enum class ActionSource : uint8_t
 {
   Unknown,    // No particular reason, could be plugin saving
   UserTyping, // User typed something in the command area and pressed <Enter>

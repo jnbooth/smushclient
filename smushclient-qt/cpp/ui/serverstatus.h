@@ -12,7 +12,7 @@ class ServerStatus : public QDialog
   Q_OBJECT
 
 public:
-  enum class KnownVariable
+  enum class KnownVariable : uint8_t
   {
     Unknown,
 
