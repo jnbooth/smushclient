@@ -17,6 +17,7 @@ public:
   MudCursor* cursor() const;
   MudScrollBar* verticalScrollBar() const;
   bool keypadIgnored() const noexcept { return m_keypadIgnored; }
+  QTextCharFormat formatAt(const QPoint& point) const;
 
 public slots:
   void setKeypadIgnored(bool ignored = true);

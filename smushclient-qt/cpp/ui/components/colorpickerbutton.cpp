@@ -23,7 +23,7 @@ ColorPickerButton::openColorPicker()
     alphaEnabled() ? QColorDialog::ColorDialogOption::ShowAlphaChannel
                    : QColorDialog::ColorDialogOptions());
 
-  if (!color.isValid()) {
+  if (!color.isValid() || m_readOnly) {
     return;
   }
 
@@ -40,6 +40,12 @@ void
 ColorPickerButton::setAlphaEnabled(bool enabled)
 {
   m_alphaEnabled = enabled;
+}
+
+void
+ColorPickerButton::setReadOnly(bool readOnly)
+{
+  m_readOnly = readOnly;
 }
 
 void

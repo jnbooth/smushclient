@@ -150,6 +150,7 @@ private slots:
   void on_input_submitted(const QString& input);
   void on_input_textChanged();
   void on_output_copyAvailable(bool available);
+  void on_output_customContextMenuRequested(const QPoint& pos);
   void on_output_linkActivated(const QString& action, SendTo sendTo);
   void on_output_linkMenuActivated(const QPoint& pos,
                                    const QString& commands,
@@ -158,6 +159,7 @@ private slots:
   void on_output_selectionChanged();
 
 private:
+  QAction* actionTextAttributes;
   ScriptApi* api;
   QMetaObject::Connection autoScroll;
   SmushClient client;

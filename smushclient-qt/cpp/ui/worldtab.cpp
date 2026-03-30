@@ -12,6 +12,7 @@
 #include "../settings.h"
 #include "../spans.h"
 #include "dialog/saveprompt.h"
+#include "dialog/styledialog.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_worldtab.h"
@@ -20,6 +21,7 @@
 #include <QtCore/QSaveFile>
 #include <QtCore/QTimer>
 #include <QtCore/QUrl>
+#include <QtGui/QAbstractTextDocumentLayout>
 #include <QtGui/QAction>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QFontDatabase>
@@ -60,6 +62,10 @@ showRustError(const rust::Error& e)
 WorldTab::WorldTab(Notepads& notepads, QWidget* parent)
   : QSplitter(parent)
   , ui(new Ui::WorldTab)
+  , actionTextAttributes(
+      new QAction(QIcon::fromTheme(QIcon::ThemeIcon::HelpFaq),
+                  tr("Text Attributes"),
+                  this))
   , flushTimer(new QTimer(this))
   , resizeTimer(new QTimer(this))
   , scriptReloadOption(ScriptRecompile::Never)
@@ -1150,6 +1156,20 @@ WorldTab::on_output_copyAvailable(bool available)
 {
   outputCopyAvailable = available;
   emit copyAvailable(availableCopy());
+}
+
+void
+WorldTab::on_output_customContextMenuRequested(const QPoint& pos)
+{
+  const QPoint mouse = ui->output->mapToGlobal(pos);
+  QMenu* menu = ui->output->createStandardContextMenu(mouse);
+  menu->addAction(actionTextAttributes);
+  if (menu->exec(mouse) != actionTextAttributes) {
+    return;
+  }
+  const QTextCharFormat format = ui->output->formatAt(pos);
+  StyleDialog dialog(format, this);
+  dialog.exec();
 }
 
 void

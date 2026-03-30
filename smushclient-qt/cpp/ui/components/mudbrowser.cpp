@@ -26,6 +26,15 @@ MudBrowser::cursor() const
   return cursorPtr;
 }
 
+QTextCharFormat
+MudBrowser::formatAt(const QPoint& point) const
+{
+  return document()
+    ->documentLayout()
+    ->formatAt(mapToContents(point))
+    .toCharFormat();
+}
+
 // Public slots
 
 void
@@ -78,8 +87,7 @@ void
 MudBrowser::mouseReleaseEvent(QMouseEvent* event)
 {
   const QPoint at = event->pos();
-  const QTextCharFormat format =
-    document()->documentLayout()->formatAt(mapToContents(at)).toCharFormat();
+  const QTextCharFormat format = formatAt(at);
   const QString anchor = format.anchorHref();
   if (!anchor.isEmpty()) {
     const SendTo sendTo = spans::getSendTo(format);

@@ -155,6 +155,7 @@ qt_add_executable(${APP_NAME}
     cpp/ui/dialog/aboutdialog.h cpp/ui/dialog/aboutdialog.cpp
     cpp/ui/dialog/finddialog.h cpp/ui/dialog/finddialog.cpp cpp/ui/dialog/finddialog.ui
     cpp/ui/dialog/saveprompt.h cpp/ui/dialog/saveprompt.cpp
+    cpp/ui/dialog/styledialog.h cpp/ui/dialog/styledialog.cpp cpp/ui/dialog/styledialog.ui
 
     cpp/ui/mudstatusbar/mudstatusbar.h cpp/ui/mudstatusbar/mudstatusbar.cpp cpp/ui/mudstatusbar/mudstatusbar.ui
     cpp/ui/mudstatusbar/statusbarstat.h cpp/ui/mudstatusbar/statusbarstat.cpp cpp/ui/mudstatusbar/statusbarstat.ui
