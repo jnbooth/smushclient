@@ -10,7 +10,7 @@ use serde::Deserialize;
 use smushclient_plugins::{Alias, ImportError, RegexError, Timer, Trigger, XmlIterable, XmlVec};
 use uuid::Uuid;
 
-use crate::client::{PluginVariables, XmlVariable};
+use crate::client::{PluginVariableMap, XmlVariable};
 use crate::world::{
     AutoConnect, LogFormat, LogMode, MxpDebugLevel, ScriptRecompile, World, WorldConfig, XmlKey,
 };
@@ -212,7 +212,7 @@ struct MuClient<'a> {
 #[derive(Debug)]
 pub struct ImportedWorld {
     pub world: World<'static>,
-    pub variables: PluginVariables,
+    pub variables: PluginVariableMap,
 }
 
 impl ImportedWorld {

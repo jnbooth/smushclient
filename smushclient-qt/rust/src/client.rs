@@ -115,12 +115,21 @@ impl SmushClientRust {
         Ok(true)
     }
 
+    pub fn save_state<P: AsRef<Path>>(
+        &self,
+        index: PluginIndex,
+        path: P,
+    ) -> Result<(), PersistError> {
+        let file = File::create(path)?;
+        self.client.save_variables_for(file, index)
+    }
+
     pub fn save_variables<P: AsRef<Path>>(&self, path: P) -> Result<bool, PersistError> {
         if !self.client.has_variables() {
             return Ok(false);
         }
         let file = File::create(path)?;
-        self.client.save_variables(file)?;
+        self.client.save_all_variables(file)?;
         Ok(true)
     }
 

@@ -365,7 +365,7 @@ public:
   bool SaveNotepad(const QString& name,
                    const QString& filePath,
                    bool replace) const;
-  ApiCode SaveState();
+  ApiCode SaveState(size_t plugin);
   void SelectCommand() const;
   ApiCode Send(std::string_view text);
   ApiCode Send(const QString& text);

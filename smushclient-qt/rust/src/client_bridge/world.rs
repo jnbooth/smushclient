@@ -71,15 +71,7 @@ impl ffi::SmushClient {
         self.rust_mut().load_world(String::from(path))
     }
 
-    pub fn try_load_variables(&self, path: &QString) -> Result<bool, PersistError> {
-        self.rust().load_variables(String::from(path))
-    }
-
     pub fn try_save_world(&self, path: &QString) -> Result<(), PersistError> {
         self.rust().save_world(String::from(path))
-    }
-
-    pub fn try_save_variables(&self, path: &QString) -> Result<bool, PersistError> {
-        self.rust().save_variables(String::from(path))
     }
 }

@@ -502,7 +502,7 @@ L_SaveState(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 0);
-  return returnCode(L, getApi(L).SaveState());
+  return returnCode(L, getApi(L).SaveState(getPluginIndex(L)));
 }
 
 int

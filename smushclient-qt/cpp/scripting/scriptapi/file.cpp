@@ -49,12 +49,12 @@ ScriptApi::Save(const QString& path, bool replace)
 }
 
 ApiCode
-ScriptApi::SaveState()
+ScriptApi::SaveState(size_t plugin)
 {
   OnPluginSaveState onSaveState;
-  sendCallback(onSaveState);
+  sendCallback(onSaveState, plugin);
   try {
-    client.trySaveVariables(tab.variablesPath());
+    client.trySaveState(plugin, tab.variablesPath());
   } catch (const rust::Error&) {
     return ApiCode::PluginCouldNotSaveState;
   }

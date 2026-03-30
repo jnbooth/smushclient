@@ -330,6 +330,9 @@ pub mod ffi {
             key: StringView,
             value: BytesView,
         ) -> bool;
+        fn try_load_variables(self: &SmushClient, path: &QString) -> Result<bool>;
+        fn try_save_state(self: &SmushClient, index: usize, path: &QString) -> Result<()>;
+        fn try_save_variables(self: &SmushClient, path: &QString) -> Result<bool>;
         fn unset_metavariable(self: &SmushClient, key: StringView) -> bool;
         fn unset_variable(self: &SmushClient, index: usize, key: StringView) -> bool;
 
@@ -341,9 +344,7 @@ pub mod ffi {
         fn speed_walk_prefix(self: &SmushClient) -> u16;
         fn try_evaluate_speedwalk(self: &SmushClient, speedwalk: &QString) -> Result<QString>;
         fn try_load_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<()>;
-        fn try_load_variables(self: &SmushClient, path: &QString) -> Result<bool>;
         fn try_save_world(self: &SmushClient, path: &QString) -> Result<()>;
-        fn try_save_variables(self: &SmushClient, path: &QString) -> Result<bool>;
 
         // xml
         pub fn try_export_xml(

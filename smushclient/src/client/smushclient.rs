@@ -4,7 +4,7 @@ use std::collections::HashSet;
 use std::fs::File;
 use std::io::{self, BufReader, Cursor, Read, Write};
 use std::path::Path;
-use std::{env, mem, slice};
+use std::{env, iter, mem, slice};
 
 use arboard::Clipboard;
 use flagset::FlagSet;
@@ -99,7 +99,7 @@ impl SmushClient {
     ) -> Result<Self, ImportError> {
         let ImportedWorld { world, variables } = ImportedWorld::from_xml(BufReader::new(reader))?;
         Ok(Self {
-            variables: RefCell::new(variables),
+            variables: RefCell::new(variables.into()),
             ..Self::new(world, will, supported_tags)
         })
     }
@@ -545,14 +545,29 @@ impl SmushClient {
 
     pub fn load_variables<R: Read>(&self, reader: R) -> Result<(), PersistError> {
         *self.variables.borrow_mut() = PluginVariables::load(reader)?;
-        self.info.variables_dirty.set(false);
         Ok(())
     }
 
-    pub fn save_variables<W: Write>(&self, writer: W) -> Result<(), PersistError> {
-        self.variables.borrow().save(writer)?;
-        self.info.variables_dirty.set(false);
+    pub fn save_all_variables<W: Write>(&self, writer: W) -> Result<(), PersistError> {
+        let plugins_to_save = self
+            .plugins
+            .iter()
+            .filter(|plugin| plugin.metadata.save_state)
+            .map(|plugin| &*plugin.metadata.id)
+            .chain(iter::once(METAVARIABLES_KEY));
+        self.variables
+            .borrow_mut()
+            .save_all(writer, plugins_to_save)?;
         Ok(())
+    }
+
+    pub fn save_variables_for<W: Write>(
+        &self,
+        writer: W,
+        index: PluginIndex,
+    ) -> Result<(), PersistError> {
+        let plugin_id = self.plugins[index].metadata.id.clone();
+        self.variables.borrow_mut().save_one(writer, plugin_id)
     }
 
     pub fn list_variables(&self, index: PluginIndex) -> Vec<String> {
@@ -585,7 +600,6 @@ impl SmushClient {
 
     pub fn set_variable(&self, index: PluginIndex, key: String, value: Vec<u8>) {
         let plugin_id = &self.plugins[index].metadata.id;
-        self.info.variables_dirty.set(true);
         self.variables
             .borrow_mut()
             .set_variable(plugin_id, key, value);
@@ -593,19 +607,16 @@ impl SmushClient {
 
     pub fn unset_variable(&self, index: PluginIndex, key: &str) -> Option<Vec<u8>> {
         let plugin_id = &self.plugins[index].metadata.id;
-        self.info.variables_dirty.set(true);
         self.variables.borrow_mut().unset_variable(plugin_id, key)
     }
 
     pub fn set_metavariable(&self, key: String, value: Vec<u8>) {
-        self.info.variables_dirty.set(true);
         self.variables
             .borrow_mut()
             .set_variable(METAVARIABLES_KEY, key, value);
     }
 
     pub fn unset_metavariable(&self, key: &str) -> Option<Vec<u8>> {
-        self.info.variables_dirty.set(true);
         self.variables
             .borrow_mut()
             .unset_variable(METAVARIABLES_KEY, key)
@@ -1234,7 +1245,7 @@ impl SmushClient {
             103 => V::visit(self.transformer.borrow().decompressing()),
             104 => V::visit(self.transformer.borrow().mxp_active()),
             105 => V::visit(false),
-            118 => V::visit(info.variables_dirty.get()),
+            118 => V::visit(self.variables.borrow().is_dirty()),
             123 => V::visit(info.simulating.get()),
             201 => V::visit(info.lines_received.get()),
             202 => V::visit(info.lines_received.get() - info.lines_displayed.get()),

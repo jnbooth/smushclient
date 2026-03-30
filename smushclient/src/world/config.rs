@@ -288,6 +288,7 @@ impl WorldConfig {
                 written: today,
                 modified: today,
                 is_world_plugin: true,
+                save_state: true,
                 sequence: -1,
                 path: PathBuf::from(&self.world_script),
                 ..Default::default()

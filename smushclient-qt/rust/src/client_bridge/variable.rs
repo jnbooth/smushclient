@@ -1,4 +1,6 @@
 use cxx_qt::CxxQtType;
+use cxx_qt_lib::QString;
+use smushclient::world::PersistError;
 use smushclient_plugins::PluginIndex;
 
 use crate::ffi::{self, BytesView, StringView, VariableView};
@@ -68,6 +70,18 @@ impl ffi::SmushClient {
             .client
             .set_variable(index, key.to_owned(), value.to_vec());
         true
+    }
+
+    pub fn try_load_variables(&self, path: &QString) -> Result<bool, PersistError> {
+        self.rust().load_variables(String::from(path))
+    }
+
+    pub fn try_save_state(&self, index: PluginIndex, path: &QString) -> Result<(), PersistError> {
+        self.rust().save_state(index, String::from(path))
+    }
+
+    pub fn try_save_variables(&self, path: &QString) -> Result<bool, PersistError> {
+        self.rust().save_variables(String::from(path))
     }
 
     pub fn unset_metavariable(&self, key: StringView<'_>) -> bool {

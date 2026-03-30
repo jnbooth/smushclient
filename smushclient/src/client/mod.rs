@@ -8,4 +8,4 @@ pub use smushclient::SmushClient;
 mod info;
 
 mod variables;
-pub(crate) use variables::{PluginVariables, XmlVariable};
+pub(crate) use variables::{PluginVariableMap, XmlVariable};

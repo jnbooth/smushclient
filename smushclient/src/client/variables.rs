@@ -2,6 +2,7 @@ use std::borrow::Cow;
 use std::collections::{HashMap, hash_map};
 use std::fmt;
 use std::io::{Read, Write};
+use std::ops::{Deref, DerefMut};
 
 use serde::{Deserialize, Serialize};
 use smushclient_plugins::XmlVec;
@@ -10,10 +11,73 @@ use crate::world::PersistError;
 
 const CURRENT_VERSION: u8 = 2;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-pub(crate) struct PluginVariables(HashMap<String, HashMap<String, Vec<u8>>>);
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub(crate) struct PluginVariables {
+    live: PluginVariableMap,
+    persistent: PluginVariableMap,
+}
 
-impl fmt::Display for PluginVariables {
+impl PluginVariables {
+    pub fn load<R: Read>(reader: R) -> Result<Self, PersistError> {
+        PluginVariableMap::load(reader).map(Into::into)
+    }
+
+    pub fn is_dirty(&self) -> bool {
+        self.live != self.persistent
+    }
+
+    pub fn save_all<W, I>(&mut self, writer: W, iter: I) -> Result<(), PersistError>
+    where
+        W: Write,
+        I: IntoIterator,
+        I::Item: Into<String>,
+    {
+        for plugin_id in iter {
+            self.copy_into_persist(plugin_id.into());
+        }
+        self.persistent.save(writer)
+    }
+
+    pub fn save_one<W: Write>(&mut self, writer: W, plugin_id: String) -> Result<(), PersistError> {
+        self.copy_into_persist(plugin_id);
+        self.persistent.save(writer)
+    }
+
+    fn copy_into_persist(&mut self, plugin_id: String) {
+        match self.live.0.get(&plugin_id) {
+            Some(vars) => self.persistent.0.insert(plugin_id, vars.clone()),
+            None => self.persistent.0.remove(&plugin_id),
+        };
+    }
+}
+
+impl From<PluginVariableMap> for PluginVariables {
+    fn from(value: PluginVariableMap) -> Self {
+        Self {
+            live: value.clone(),
+            persistent: value,
+        }
+    }
+}
+
+impl Deref for PluginVariables {
+    type Target = PluginVariableMap;
+
+    fn deref(&self) -> &Self::Target {
+        &self.live
+    }
+}
+
+impl DerefMut for PluginVariables {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.live
+    }
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub(crate) struct PluginVariableMap(HashMap<String, HashMap<String, Vec<u8>>>);
+
+impl fmt::Display for PluginVariableMap {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (id, vars) in &self.0 {
             writeln!(f, "{id}:")?;
@@ -25,7 +89,7 @@ impl fmt::Display for PluginVariables {
     }
 }
 
-impl PluginVariables {
+impl PluginVariableMap {
     pub fn is_empty(&self) -> bool {
         self.0.values().all(HashMap::is_empty)
     }
@@ -69,13 +133,13 @@ impl PluginVariables {
         self.0.get_mut(plugin_id)?.remove(key)
     }
 
-    pub fn save<W: Write>(&self, mut writer: W) -> Result<(), PersistError> {
+    fn save<W: Write>(&self, mut writer: W) -> Result<(), PersistError> {
         writer.write_all(&[CURRENT_VERSION])?;
         postcard::to_io(self, writer)?;
         Ok(())
     }
 
-    pub fn load<R: Read>(mut reader: R) -> Result<Self, PersistError> {
+    fn load<R: Read>(mut reader: R) -> Result<Self, PersistError> {
         let mut buf = Vec::new();
         reader.read_to_end(&mut buf)?;
         let [version, bytes @ ..] = &*buf else {
@@ -111,14 +175,14 @@ pub(crate) struct XmlVariable<'a> {
     pub value: Cow<'a, str>,
 }
 
-impl From<XmlVec<XmlVariable<'_>>> for PluginVariables {
+impl From<XmlVec<XmlVariable<'_>>> for PluginVariableMap {
     fn from(value: XmlVec<XmlVariable>) -> Self {
         let worldvars = value
             .elements
             .into_iter()
             .map(|var| (var.name.into_owned(), var.value.into_owned().into_bytes()))
             .collect();
-        let mut vars = PluginVariables::default();
+        let mut vars = PluginVariableMap::default();
         vars.0.insert(String::new(), worldvars);
         vars
     }

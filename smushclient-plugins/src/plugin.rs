@@ -19,7 +19,7 @@ use crate::error::{LoadError, SenderAccessError};
 use crate::send::Sender;
 use crate::send::{Alias, Timer, Trigger, XmlAlias, XmlTimer, XmlTrigger};
 use crate::sort_on_drop::SortOnDrop;
-use crate::xml::{XmlIterable, XmlVec};
+use crate::xml::{XmlIterable, XmlVec, bool_serde, is_default};
 
 pub type PluginIndex = usize;
 
@@ -289,6 +289,14 @@ pub struct PluginMetadata {
     /// Plugin version.
     #[serde(default, rename = "@version", skip_serializing_if = "str::is_empty")]
     pub version: String,
+    /// Plugin state should save automatically.
+    #[serde(
+        default,
+        rename = "@save_state",
+        with = "bool_serde",
+        skip_serializing_if = "is_default"
+    )]
+    pub save_state: bool,
     /// Minimum client version required.
     #[serde(default, rename = "@requires", skip_serializing_if = "str::is_empty")]
     pub requires: String,
@@ -309,6 +317,7 @@ impl Default for PluginMetadata {
             written: today(),
             modified: today(),
             version: String::new(),
+            save_state: false,
             requires: String::new(),
             sequence: 0,
             protocols: Vec::new(),
