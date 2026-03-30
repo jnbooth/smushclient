@@ -94,10 +94,24 @@ ScriptApi::ResetStatusTime() const
 }
 
 ApiCode
+ScriptApi::SetBackgroundImage(const QString& path,
+                              MiniWindow::Position position)
+{
+  return setImage(path, position, false);
+}
+
+ApiCode
 ScriptApi::SetCursor(Qt::CursorShape cursorShape) const
 {
   tab.ui->area->setCursor(cursorShape);
   return ApiCode::OK;
+}
+
+ApiCode
+ScriptApi::SetForegroundImage(const QString& path,
+                              MiniWindow::Position position)
+{
+  return setImage(path, position, true);
 }
 
 void

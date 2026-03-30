@@ -47,20 +47,6 @@ ScriptApi::GetWorldWindowPosition() const
 }
 
 ApiCode
-ScriptApi::SetBackgroundImage(const QString& path,
-                              MiniWindow::Position position)
-{
-  return setImage(path, position, false);
-}
-
-ApiCode
-ScriptApi::SetForegroundImage(const QString& path,
-                              MiniWindow::Position position)
-{
-  return setImage(path, position, true);
-}
-
-ApiCode
 ScriptApi::WindowArc(string_view windowName,
                      const QRectF& rect,
                      const QPointF& start,
