@@ -172,9 +172,8 @@ insertTextTriples(lua_State* L, ScriptApi& api)
 {
   int n = lua_gettop(L);
   for (int i = 1; i <= n; i += 3) {
-    api.ColourTell(getQColor(L, i, QColor()),
-                   getQColor(L, i + 1, QColor()),
-                   getQString(L, i + 2));
+    api.ColourTell(
+      getQColor(L, i, {}), getQColor(L, i + 1, {}), getQString(L, i + 2));
   }
 }
 
@@ -395,10 +394,10 @@ L_NoteColourRGB(lua_State* L)
   expectMaxArgs(L, 2);
   ScriptApi& api = getApi(L);
   const size_t pluginIndex = getPluginIndex(L);
-  if (QColor fore = getQColor(L, 1, QColor()); fore.isValid()) {
+  if (QColor fore = getQColor(L, 1, {}); fore.isValid()) {
     api.SetOption(pluginIndex, "note_text_colour", colorToRgbCode(fore));
   }
-  if (QColor back = getQColor(L, 2, QColor()); back.isValid()) {
+  if (QColor back = getQColor(L, 2, {}); back.isValid()) {
     api.SetOption(pluginIndex, "note_background_colour", colorToRgbCode(back));
   }
   return 0;
@@ -408,7 +407,7 @@ int
 L_PickColour(lua_State* L)
 {
   BENCHMARK
-  push(L, getApi(L).PickColour(getQColor(L, 1, QColor())));
+  push(L, getApi(L).PickColour(getQColor(L, 1, {})));
   return 1;
 }
 
@@ -513,7 +512,7 @@ L_Save(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  push(L, getApi(L).Save(getQString(L, 1, QString()), getBool(L, 2, false)));
+  push(L, getApi(L).Save(getQString(L, 1, {}), getBool(L, 2, false)));
   return 1;
 }
 
@@ -3197,10 +3196,10 @@ L_WindowAddHotspot(lua_State* L)
     .cancelMouseDown = string(getString(L, 10, "")),
     .mouseUp = string(getString(L, 11, "")),
   };
-  const QString tooltip = getQString(L, 12, QString());
+  const QString tooltip = getQString(L, 12, {});
   const optional<Qt::CursorShape> cursor =
     getCursor(L, 13, Qt::CursorShape::ArrowCursor);
-  const Hotspot::Flags flags = getQFlags(L, 14, Hotspot::Flags());
+  const Hotspot::Flags flags = getQFlags<Hotspot::Flag>(L, 14, {});
   expect_nonnull(cursor, ApiCode::BadParameter);
   return returnCode(L,
                     getApi(L).WindowAddHotspot(getPluginIndex(L),

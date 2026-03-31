@@ -396,10 +396,10 @@ int
 execInputDialog(lua_State* L, QInputDialog::InputDialogOptions options = {})
 {
   expectMaxArgs(L, 6);
-  const QString message = getQString(L, 1, QString());
+  const QString message = getQString(L, 1, {});
   const QString title = getQString(L, 2, QCoreApplication::applicationName());
-  const QString defaultText = getQString(L, 3, QString());
-  QFont font = getQFont(L, 4, QString());
+  const QString defaultText = getQString(L, 3, {});
+  QFont font = getQFont(L, 4, {});
   const qreal fontSize = getInt(L, 5, -1);
   if (fontSize > 0) {
     font.setPointSizeF(fontSize);
@@ -534,7 +534,7 @@ int
 L_appendtonotepad(lua_State* L)
 {
   expectMaxArgs(L, 3);
-  Notepad* notepad = getApi(L).globalNotepad(getQString(L, 1, QString()));
+  Notepad* notepad = getApi(L).globalNotepad(getQString(L, 1, {}));
   const QString& message = getQString(L, 2);
   const bool replace = getBool(L, 3, false);
   if (notepad == nullptr) {
@@ -568,7 +568,7 @@ int
 L_choose(lua_State* L)
 {
   expectMaxArgs(L, 4);
-  const QString message = getQString(L, 1, QString());
+  const QString message = getQString(L, 1, {});
   const QString title = getQString(L, 2, QCoreApplication::applicationName());
   const QVariant defaultKey = getQVariant(L, 4);
 
@@ -607,10 +607,8 @@ int
 L_directorypicker(lua_State* L)
 {
   expectMaxArgs(L, 2);
-  const QString path =
-    QFileDialog::getExistingDirectory(getApi(L).parentWidget(),
-                                      getQString(L, 1, QString()),
-                                      getQString(L, 2, QString()));
+  const QString path = QFileDialog::getExistingDirectory(
+    getApi(L).parentWidget(), getQString(L, 1, {}), getQString(L, 2, {}));
   if (path.isEmpty()) {
     lua_pushnil(L);
   } else {
@@ -630,9 +628,9 @@ int
 L_filepicker(lua_State* L)
 {
   expectMaxArgs(L, 5);
-  const QString title = getQString(L, 1, QString());
-  const QString defaultName = getQString(L, 2, QString());
-  const QString extension = getQString(L, 3, QString());
+  const QString title = getQString(L, 1, {});
+  const QString defaultName = getQString(L, 2, {});
+  const QString extension = getQString(L, 3, {});
   const bool isSave = getBool(L, 5, false);
   QWidget* parent = getApi(L).parentWidget();
   const QString path =
@@ -650,7 +648,7 @@ int
 L_fontpicker(lua_State* L)
 {
   expectMaxArgs(L, 3);
-  QFont initialFont = getQFont(L, 1, QString());
+  QFont initialFont = getQFont(L, 1, {});
   const int pointSize = getInt(L, 2, -1);
   const QColor initialColor = getQColor(L, 3, Qt::GlobalColor::black);
   if (pointSize != -1) {
@@ -772,7 +770,7 @@ int
 L_listbox(lua_State* L)
 {
   expectMaxArgs(L, 4);
-  const QString message = getQString(L, 1, QString());
+  const QString message = getQString(L, 1, {});
   const QString title = getQString(L, 2, QCoreApplication::applicationName());
   const QVariant defaultKey = getQVariant(L, 4);
 
@@ -820,7 +818,7 @@ int
 L_multilistbox(lua_State* L)
 {
   expectMaxArgs(L, 4);
-  const QString message = getQString(L, 1, QString());
+  const QString message = getQString(L, 1, {});
   const QString title = getQString(L, 2, QCoreApplication::applicationName());
   const int defaultType = lua_type(L, 3);
   luaL_argexpected(L,
