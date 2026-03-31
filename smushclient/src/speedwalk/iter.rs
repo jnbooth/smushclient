@@ -23,8 +23,8 @@ pub fn evaluate_to_string(speedwalk: &str, filler: &str) -> Result<String, Error
 
 pub fn encode_to_string<'a, I: IntoIterator<Item = Step<'a>>>(iter: I) -> String {
     let mut result = String::new();
-    for step in iter.into_iter().map(Step::encode) {
-        write!(result, "{step}").expect("formatting error");
+    for step in iter {
+        write!(result, "{step:#}").expect("formatting error");
     }
     result
 }
