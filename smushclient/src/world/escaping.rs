@@ -222,7 +222,7 @@ pub fn fixup_html(text: &[u8]) -> String {
     let Ok(text) = str::from_utf8(text) else {
         return String::new();
     };
-    match html_escape::encode_text(text) {
+    match html_escape::encode_double_quoted_attribute(text) {
         Cow::Owned(owned) => owned,
         Cow::Borrowed(_) => String::new(),
     }
