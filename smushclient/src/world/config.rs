@@ -284,7 +284,7 @@ impl WorldConfig {
         Plugin {
             disabled: Cell::new(!self.enable_scripts),
             metadata: PluginMetadata {
-                name: format!("World Script: {}", self.name),
+                name: String::new(),
                 written: today,
                 modified: today,
                 is_world_plugin: true,
