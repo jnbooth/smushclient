@@ -69,10 +69,11 @@ ScriptApi::GetLinesInBufferCount() const
   return cursor->document()->blockCount();
 }
 
-QStringList
+QString
 ScriptApi::GetRecentLines(int count) const
 {
-  return selectRecentLines(count).selectedText().split(paragraphSeparator);
+  return selectRecentLines(count).selectedText().replace(paragraphSeparator,
+                                                         u'\n');
 }
 
 void

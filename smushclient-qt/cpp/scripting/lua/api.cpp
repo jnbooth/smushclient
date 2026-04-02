@@ -1563,7 +1563,7 @@ L_GetRecentLines(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
-  pushList(L, getApi(L).GetRecentLines(getInt(L, 1)));
+  push(L, getApi(L).GetRecentLines(getInt(L, 1)));
   return 1;
 }
 

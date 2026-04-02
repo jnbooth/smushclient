@@ -235,7 +235,7 @@ public:
   {
     return commandQueue;
   }
-  QStringList GetRecentLines(int count) const;
+  QString GetRecentLines(int count) const;
   int64_t GetOption(size_t plugin, std::string_view name) const noexcept;
   const std::string& GetPluginID(size_t pluginIndex) const;
   QVariant GetPluginInfo(std::string_view pluginID,
