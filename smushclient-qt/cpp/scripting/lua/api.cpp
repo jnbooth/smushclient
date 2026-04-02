@@ -968,7 +968,9 @@ L_SetInputFont(lua_State* L)
   expectMaxArgs(L, 4);
   QFont font = getQFont(L, 1);
   font.setPointSizeF(getNumber(L, 2));
-  font.setWeight(QFont::Weight(getInt(L, 3)));
+  if (const int weight = getInt(L, 3, 0); weight != 0) {
+    font.setWeight(QFont::Weight(weight));
+  }
   font.setItalic(getBool(L, 4, false));
   getApi(L).SetInputFont(font);
   return 0;
