@@ -749,6 +749,15 @@ L_WindowInfo(lua_State* L)
   return 1;
 }
 
+int
+L_WorldName(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  push(L, getApi(L).GetOption(getPluginIndex(L), "name"));
+  return 1;
+}
+
 // input
 
 int
@@ -1374,14 +1383,6 @@ L_NotepadSaveMethod(lua_State* L)
 }
 
 int
-L_OpenBrowser(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 1);
-  return returnCode(L, ScriptApi::OpenBrowser(getQString(L, 1)));
-}
-
-int
 L_ReplaceNotepad(lua_State* L)
 {
   BENCHMARK
@@ -1479,15 +1480,6 @@ L_SetOption(lua_State* L)
                                         getIntegerOrBool(L, 2, 0)));
 }
 
-int
-L_WorldName(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 0);
-  push(L, getApi(L).GetOption(getPluginIndex(L), "name"));
-  return 1;
-}
-
 // output
 
 int
@@ -1565,6 +1557,14 @@ L_GetRecentLines(lua_State* L)
   expectMaxArgs(L, 1);
   push(L, getApi(L).GetRecentLines(getInt(L, 1)));
   return 1;
+}
+
+int
+L_OpenBrowser(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  return returnCode(L, ScriptApi::OpenBrowser(getQString(L, 1)));
 }
 
 int
@@ -3455,7 +3455,6 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "NotepadFont", L_NotepadFont },
     { "NotepadReadOnly", L_NotepadReadOnly },
     { "NotepadSaveMethod", L_NotepadSaveMethod },
-    { "OpenBrowser", L_OpenBrowser },
     { "ReplaceNotepad", L_ReplaceNotepad },
     { "SendToNotepad", L_SendToNotepad },
     // option
@@ -3468,7 +3467,6 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "GetOptionList", L_GetOptionList },
     { "SetAlphaOption", L_SetAlphaOption },
     { "SetOption", L_SetOption },
-    { "WorldName", L_WorldName },
     // output
     { "Activate", L_ActivateClient },
     { "ActivateClient", L_ActivateClient },
@@ -3479,6 +3477,7 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "GetEchoInput", L_GetEchoInput },
     { "GetLinesInBufferCount", L_GetLinesInBufferCount },
     { "GetRecentLines", L_GetRecentLines },
+    { "OpenBrowser", L_OpenBrowser },
     { "Pause", L_Pause },
     { "Reset", L_Reset },
     { "ResetStatusTime", L_ResetStatusTime },
