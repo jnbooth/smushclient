@@ -34,18 +34,6 @@
 
 using std::optional;
 
-// Private utilities
-
-namespace {
-QString
-formatWindowTitle(WorldTab& tab)
-{
-  const QString appName = QCoreApplication::applicationName();
-  return tab.isLeftToRight() ? tab.title() + QStringLiteral("[*] - ") + appName
-                             : appName + QStringLiteral(" - [*]") + tab.title();
-}
-} // namespace
-
 // Public methods
 
 MainWindow::MainWindow(Notepads& notepads, QWidget* parent)
@@ -134,6 +122,20 @@ MainWindow::setBackgroundMaterial(optional<int> material)
     qWarning() << "Setting background material failed with code " << error;
   }
   repaint();
+}
+
+void
+MainWindow::setTitle(const QString& title)
+{
+  if (m_title == title) {
+    return;
+  }
+  m_title = title;
+  if (m_title.isEmpty()) {
+    updateWindowTitle(worldtab());
+  } else {
+    setWindowTitle(m_title);
+  }
 }
 
 // Protected methods
@@ -246,6 +248,7 @@ void
 MainWindow::connectTab(WorldTab* tab) const
 {
   connect(tab, &WorldTab::copyAvailable, this, &MainWindow::onCopyAvailable);
+  connect(tab, &WorldTab::mainTitleChanged, this, &MainWindow::setTitle);
   connect(tab, &WorldTab::newActivity, this, &MainWindow::onNewActivity);
   connect(tab, &WorldTab::titleChanged, this, &MainWindow::onTitleChanged);
   connect(tab->ui->input,
@@ -363,6 +366,23 @@ MainWindow::setWorldMenusEnabled(bool enabled) const
   ui->action_server_status->setEnabled(enabled);
 }
 
+void
+MainWindow::updateWindowTitle(const WorldTab* tab)
+{
+  if (!m_title.isEmpty()) {
+    return;
+  }
+  const QString appName = QCoreApplication::applicationName();
+  if (tab == nullptr) {
+    setWindowTitle(appName);
+    return;
+  }
+  const QString title = tab->isLeftToRight()
+                          ? tab->title() + QStringLiteral("[*] - ") + appName
+                          : appName + QStringLiteral(" - [*]") + tab->title();
+  setWindowTitle(title);
+}
+
 WorldTab*
 MainWindow::worldtab() const
 {
@@ -413,7 +433,7 @@ MainWindow::onTitleChanged(WorldTab* tab, const QString& title)
   }
   ui->world_tabs->setTabText(index, title);
   if (index == ui->world_tabs->currentIndex()) {
-    setWindowTitle(formatWindowTitle(*tab));
+    updateWindowTitle(tab);
   }
 }
 
@@ -527,7 +547,7 @@ MainWindow::on_action_edit_world_details_triggered()
   if (tab->isWindowModified()) {
     setWindowModified(true);
   }
-  setWindowTitle(formatWindowTitle(*tab));
+  updateWindowTitle(tab);
 }
 
 void
@@ -852,7 +872,7 @@ MainWindow::on_world_tabs_currentChanged(int index)
   activeTab->setActive(true);
   activeTab->setStatusBarVisible(true);
   ui->world_tabs->tabBar()->setTabText(index, activeTab->title());
-  setWindowTitle(formatWindowTitle(*activeTab));
+  updateWindowTitle(activeTab);
   setWindowModified(activeTab->isWindowModified());
   onCopyAvailable(activeTab->availableCopy());
 }

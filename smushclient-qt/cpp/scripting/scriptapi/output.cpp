@@ -117,7 +117,7 @@ ScriptApi::SetForegroundImage(const QString& path,
 void
 ScriptApi::SetMainTitle(const QString& title) const
 {
-  tab.setWindowTitle(title);
+  emit tab.mainTitleChanged(title);
 }
 
 void

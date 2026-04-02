@@ -24,6 +24,7 @@ public:
 
 public slots:
   void setBackgroundMaterial(std::optional<int> material);
+  void setTitle(const QString& title);
 
 protected:
   void closeEvent(QCloseEvent* event) override;
@@ -41,6 +42,7 @@ private:
   void save() const;
   void setupRecentFiles(const QStringList& recentFiles) const;
   void setWorldMenusEnabled(bool enabled) const;
+  void updateWindowTitle(const WorldTab* tab);
   WorldTab* worldtab() const;
   WorldTab* worldtab(int index) const;
 
@@ -106,6 +108,7 @@ private:
   QIcon activityIcon = QIcon::fromTheme(QIcon::ThemeIcon::DialogWarning);
   FindDialog* findDialog;
   int lastTabIndex = -1;
+  QString m_title;
   Notepads& notepads;
   QList<QAction*> recentFileActions;
   Settings settings;
