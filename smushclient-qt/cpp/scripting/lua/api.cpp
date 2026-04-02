@@ -1033,8 +1033,8 @@ L_OpenLog(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  return returnCode(L,
-                    getApi(L).OpenLog(getString(L, 1), getBool(L, 2, false)));
+  return returnCode(
+    L, getApi(L).OpenLog(getString(L, 1, ""), getBool(L, 2, false)));
 }
 
 int
@@ -1277,9 +1277,9 @@ int
 L_AppendToNotepad(lua_State* L)
 {
   BENCHMARK
-  getApi(L).AppendToNotepad(getQString(L, 1),
-                            QString::fromUtf8(concatArgs(L, 2)));
-  push(L, 1);
+  push(L,
+       getApi(L).AppendToNotepad(getQString(L, 1),
+                                 QString::fromUtf8(concatArgs(L, 2))));
   return 1;
 }
 

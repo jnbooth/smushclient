@@ -127,7 +127,7 @@ public:
                      SendTarget target,
                      int sequence = 100) const noexcept;
   void AnsiNote(std::string_view text) const;
-  void AppendToNotepad(const QString& name, const QString& text) const;
+  bool AppendToNotepad(const QString& name, const QString& text) const;
   int64_t BroadcastPlugin(size_t pluginIndex,
                           int64_t message,
                           std::string_view text) const;

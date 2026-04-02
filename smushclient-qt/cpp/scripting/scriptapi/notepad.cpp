@@ -17,10 +17,11 @@ ScriptApi::ActivateNotepad(const QString& name) const
   return true;
 }
 
-void
+bool
 ScriptApi::AppendToNotepad(const QString& name, const QString& text) const
 {
   notepads.pad(worldID, name)->appendText(text);
+  return true;
 }
 
 bool
