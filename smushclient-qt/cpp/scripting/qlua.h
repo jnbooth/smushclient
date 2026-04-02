@@ -1,6 +1,7 @@
 #pragma once
 #include "../enumbounds.h"
 #include "rust/cxx.h"
+#include "smushclient_qt/views.h"
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QUuid>
 #include <QtGui/QPen>
@@ -243,6 +244,7 @@ IMPL_PUSH(const rust::String&);
 IMPL_PUSH(rust::Str);
 IMPL_PUSH(const std::string&);
 IMPL_PUSH(std::string_view);
+IMPL_PUSH(rust::variable_view);
 
 #undef IMPL_PUSH
 #define IMPL_PUSH(T, op)                                                       \
@@ -371,4 +373,15 @@ pushMap(lua_State* L, const QMap<K, QVariant>& map)
     lua_rawset(L, -3);
   }
 }
+
+template<typename T>
+void
+pushMap(lua_State* L, const rust::Vec<T>& entries)
+{
+  lua_createtable(L, 0, static_cast<int>(entries.size()));
+  for (const auto& entry : entries) {
+    pushEntry(L, entry.key, entry.value);
+  }
+}
+
 } // namespace qlua

@@ -49,6 +49,7 @@ using qlua::getString;
 using qlua::push;
 using qlua::pushEntry;
 using qlua::pushList;
+using qlua::pushMap;
 using qlua::pushQVariant;
 using qlua::rgbCodeToColor;
 using qlua::toString;
@@ -2413,13 +2414,12 @@ L_SetTriggerOption(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 3);
-  const size_t plugin = getPluginIndex(L);
   const string_view label = getString(L, 1);
   const string_view option = getString(L, 2);
   const optional<string_view> value = getSenderOption(L, 3);
   expect_nonnull(value, ApiCode::OptionOutOfRange);
-  return returnCode(L,
-                    getApi(L).SetTriggerOption(plugin, label, option, *value));
+  return returnCode(
+    L, getApi(L).SetTriggerOption(getPluginIndex(L), label, option, *value));
 }
 
 int
@@ -2513,7 +2513,7 @@ L_GetPluginVariableList(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
-  pushList(L, getApi(L).GetVariableList(getString(L, 1)));
+  pushMap(L, getApi(L).GetVariableList(getString(L, 1)));
   return 1;
 }
 

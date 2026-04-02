@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 use std::cell::{Ref, RefCell, RefMut};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{self, BufReader, Cursor, Read, Write};
 use std::path::Path;
@@ -570,13 +570,15 @@ impl SmushClient {
         self.variables.borrow_mut().save_one(writer, plugin_id)
     }
 
-    pub fn list_variables(&self, index: PluginIndex) -> Vec<String> {
+    pub fn borrow_variables(
+        &self,
+        index: PluginIndex,
+    ) -> Option<Ref<'_, HashMap<String, Vec<u8>>>> {
         let plugin_id = &self.plugins[index].metadata.id;
-        let variables = self.variables.borrow();
-        let Some(keys) = variables.keys(plugin_id) else {
-            return Vec::new();
-        };
-        keys.into_iter().cloned().collect()
+        Ref::filter_map(self.variables.borrow(), |vars| {
+            vars.get_variables(plugin_id)
+        })
+        .ok()
     }
 
     pub fn borrow_variable(&self, index: PluginIndex, key: &str) -> Option<Ref<'_, [u8]>> {

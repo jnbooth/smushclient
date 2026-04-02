@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::collections::{HashMap, hash_map};
+use std::collections::HashMap;
 use std::fmt;
 use std::io::{Read, Write};
 use std::ops::{Deref, DerefMut};
@@ -110,14 +110,14 @@ impl PluginVariableMap {
         Some(self.0.get(plugin_id)?.get(key)?.as_slice())
     }
 
+    pub fn get_variables(&self, plugin_id: &str) -> Option<&HashMap<String, Vec<u8>>> {
+        self.0.get(plugin_id)
+    }
+
     pub fn has_variable(&self, plugin_id: &str, key: &str) -> bool {
         self.0
             .get(plugin_id)
             .is_some_and(|variables| variables.contains_key(key))
-    }
-
-    pub fn keys(&self, plugin_id: &str) -> Option<hash_map::Keys<'_, String, Vec<u8>>> {
-        Some(self.0.get(plugin_id)?.keys())
     }
 
     pub fn set_variable(&mut self, plugin_id: &str, key: String, value: Vec<u8>) {

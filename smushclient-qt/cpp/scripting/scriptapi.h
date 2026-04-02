@@ -35,6 +35,7 @@ class SmushClient;
 class Timekeeper;
 class World;
 class WorldTab;
+struct VariableEntry;
 struct lua_State;
 template<typename T, typename Handler>
 class TimerMap;
@@ -307,8 +308,8 @@ public:
                                std::string_view key) const noexcept;
   std::string_view GetVariable(std::string_view pluginID,
                                std::string_view key) const noexcept;
-  rust::Vec<rust::String> GetVariableList(size_t pluginIndex) const noexcept;
-  rust::Vec<rust::String> GetVariableList(std::string_view pluginID) const;
+  rust::Vec<VariableEntry> GetVariableList(size_t pluginIndex) const noexcept;
+  rust::Vec<VariableEntry> GetVariableList(std::string_view pluginID) const;
   void Hyperlink(const QString& action,
                  const QString& text,
                  const QString& hint,

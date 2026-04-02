@@ -3,7 +3,7 @@ use cxx_qt_lib::QString;
 use smushclient::world::PersistError;
 use smushclient_plugins::PluginIndex;
 
-use crate::ffi::{self, BytesView, StringView, VariableView};
+use crate::ffi::{self, BytesView, StringView, VariableEntry, VariableView};
 
 impl ffi::SmushClient {
     pub fn get_metavariable(&self, key: StringView<'_>) -> VariableView {
@@ -34,8 +34,17 @@ impl ffi::SmushClient {
         self.rust().client.has_metavariable(key)
     }
 
-    pub fn list_variables(&self, index: PluginIndex) -> Vec<String> {
-        self.rust().client.list_variables(index)
+    pub fn variable_entries(&self, index: PluginIndex) -> Vec<VariableEntry> {
+        let Some(variables) = self.rust().client.borrow_variables(index) else {
+            return Vec::new();
+        };
+        variables
+            .iter()
+            .map(|(k, v)| VariableEntry {
+                key: k.into(),
+                value: v.into(),
+            })
+            .collect()
     }
 
     pub fn set_metavariable(&self, key: StringView<'_>, value: BytesView<'_>) -> bool {

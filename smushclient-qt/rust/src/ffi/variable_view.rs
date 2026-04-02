@@ -45,6 +45,12 @@ impl From<&[u8]> for VariableView {
     }
 }
 
+impl From<&Vec<u8>> for VariableView {
+    fn from(value: &Vec<u8>) -> Self {
+        Self::from(value.as_slice())
+    }
+}
+
 impl From<&str> for VariableView {
     fn from(value: &str) -> Self {
         Self::from(value.as_bytes())

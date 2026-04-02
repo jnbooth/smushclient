@@ -78,6 +78,11 @@ pub mod ffi {
         format: QTextCharFormat,
     }
 
+    struct VariableEntry {
+        key: VariableView,
+        value: VariableView,
+    }
+
     enum CommandSource {
         User,
         Execute,
@@ -321,7 +326,7 @@ pub mod ffi {
         fn get_mxp_entity(self: &SmushClient, name: StringView) -> VariableView;
         fn get_variable(self: &SmushClient, index: usize, key: StringView) -> VariableView;
         fn has_metavariable(self: &SmushClient, key: StringView) -> bool;
-        fn list_variables(self: &SmushClient, index: usize) -> Vec<String>;
+        fn variable_entries(self: &SmushClient, index: usize) -> Vec<VariableEntry>;
         fn set_metavariable(self: &SmushClient, key: StringView, value: BytesView) -> bool;
         fn set_mxp_entity(self: &SmushClient, name: StringView, value: StringView) -> bool;
         fn set_variable(
