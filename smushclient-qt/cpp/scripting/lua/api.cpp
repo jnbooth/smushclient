@@ -1119,7 +1119,7 @@ L_GetConnectDuration(lua_State* L)
 }
 
 int
-L_GetHostAddresses(lua_State* L)
+L_GetHostAddress(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
@@ -3426,7 +3426,7 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "Connect", L_Connect },
     { "Disconnect", L_Disconnect },
     { "GetConnectDuration", L_GetConnectDuration },
-    { "GetHostAddresses", L_GetHostAddresses },
+    { "GetHostAddress", L_GetHostAddress },
     { "GetHostName", L_GetHostName },
     { "GetReceivedBytes", L_GetReceivedBytes },
     { "GetSentBytes", L_GetSentBytes },
