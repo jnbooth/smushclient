@@ -227,18 +227,6 @@ ScriptApi::WindowFont(string_view windowName,
   return ApiCode::OK;
 }
 
-QVariant
-ScriptApi::WindowFontInfo(string_view windowName,
-                          string_view fontID,
-                          int64_t infoType) const
-{
-  MiniWindow* window = findWindow(windowName);
-  CHECK_NONNULL(window);
-  const QFont* font = window->findFont(fontID);
-  CHECK_NONNULL(font);
-  return FontInfo(*font, infoType);
-}
-
 vector<string_view>
 ScriptApi::WindowFontList(std::string_view windowName) const
 {
@@ -316,33 +304,6 @@ ScriptApi::WindowImageFromWindow(string_view windowName,
   }
   window->loadImage(imageID, source->getPixmap());
   return ApiCode::OK;
-}
-
-QVariant
-ScriptApi::WindowImageInfo(std::string_view windowName,
-                           std::string_view imageID,
-                           int64_t infoType) const
-{
-  MiniWindow* window = findWindow(windowName);
-  CHECK_NONNULL(window);
-  const QPixmap* pixmap = window->findImage(imageID);
-  CHECK_NONNULL(pixmap);
-  switch (infoType) {
-    case 1:
-      return 0;
-    case 2:
-      return pixmap->width();
-    case 3:
-      return pixmap->height();
-    case 4:
-      return pixmap->toImage().sizeInBytes();
-    case 5:
-      return pixmap->depth();
-    case 6:
-      return pixmap->toImage().pixelFormat().bitsPerPixel();
-    default:
-      return QVariant();
-  }
 }
 
 vector<string_view>

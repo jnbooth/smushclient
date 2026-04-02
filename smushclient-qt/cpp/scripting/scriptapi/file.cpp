@@ -2,9 +2,18 @@
 #include "../callback/plugincallback.h"
 #include "../scriptapi.h"
 #include "sqlite3.h"
+#include <QtCore/QDir>
 
 using std::string;
 using std::string_view;
+
+// Public static methods
+
+bool
+ScriptApi::ChangeDir(const QString& dir)
+{
+  return QDir::setCurrent(dir);
+}
 
 // Public methods
 

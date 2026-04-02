@@ -86,6 +86,7 @@ ScriptApi::ScriptApi(SmushClient& client,
   , tab(parent)
   , timekeeper(new Timekeeper(client, this))
 {
+  whenOpened.start();
   connect(&client, &SmushClient::timerSent, this, &ScriptApi::onTimerSent);
   connect(
     &socket, &QAbstractSocket::bytesWritten, this, &ScriptApi::onBytesSent);

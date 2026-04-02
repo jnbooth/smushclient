@@ -477,34 +477,29 @@ qlua::getBrush(lua_State* L, int idx, optional<Qt::BrushStyle> ifNil)
     return nullopt;
   }
 
+#define MAP(type)                                                              \
+  case ScriptBrush::type:                                                      \
+    return Qt::BrushStyle::type;
+
   switch (*brush) {
-    case ScriptBrush::SolidPattern:
-      return Qt::BrushStyle::SolidPattern;
-    case ScriptBrush::NoBrush:
-      return Qt::BrushStyle::NoBrush;
-    case ScriptBrush::HorPattern:
-      return Qt::BrushStyle::HorPattern;
-    case ScriptBrush::VerPattern:
-      return Qt::BrushStyle::VerPattern;
-    case ScriptBrush::FDiagPattern:
-      return Qt::BrushStyle::FDiagPattern;
-    case ScriptBrush::BDiagPattern:
-      return Qt::BrushStyle::BDiagPattern;
-    case ScriptBrush::CrossPattern:
-      return Qt::BrushStyle::CrossPattern;
-    case ScriptBrush::DiagCrossPattern:
-      return Qt::BrushStyle::DiagCrossPattern;
-    case ScriptBrush::Dense4Pattern:
-      return Qt::BrushStyle::Dense4Pattern;
-    case ScriptBrush::Dense2Pattern:
-      return Qt::BrushStyle::Dense2Pattern;
-    case ScriptBrush::Dense1Pattern:
-      return Qt::BrushStyle::Dense1Pattern;
+    MAP(SolidPattern)
+    MAP(NoBrush)
+    MAP(HorPattern)
+    MAP(VerPattern)
+    MAP(FDiagPattern)
+    MAP(BDiagPattern)
+    MAP(CrossPattern)
+    MAP(DiagCrossPattern)
+    MAP(Dense4Pattern)
+    MAP(Dense2Pattern)
+    MAP(Dense1Pattern)
     case ScriptBrush::HorWaves:
       return Qt::BrushStyle::HorPattern;
     case ScriptBrush::VerWaves:
       return Qt::BrushStyle::VerPattern;
   }
+
+#undef MAP
 }
 
 optional<Qt::CursorShape>
@@ -519,36 +514,28 @@ qlua::getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil)
     return nullopt;
   }
 
+#define MAP(type)                                                              \
+  case ScriptCursor::type:                                                     \
+    return Qt::CursorShape::type;
+
   switch (*cursor) {
-    case ScriptCursor::BlankCursor:
-      return Qt::CursorShape::BlankCursor;
-    case ScriptCursor::ArrowCursor:
-      return Qt::CursorShape::ArrowCursor;
-    case ScriptCursor::OpenHandCursor:
-      return Qt::CursorShape::OpenHandCursor;
-    case ScriptCursor::IBeamCursor:
-      return Qt::CursorShape::IBeamCursor;
-    case ScriptCursor::CrossCursor:
-      return Qt::CursorShape::CrossCursor;
-    case ScriptCursor::WaitCursor:
-      return Qt::CursorShape::WaitCursor;
-    case ScriptCursor::UpArrowCursor:
-      return Qt::CursorShape::UpArrowCursor;
-    case ScriptCursor::SizeFDiagCursor:
-      return Qt::CursorShape::SizeFDiagCursor;
-    case ScriptCursor::SizeBDiagCursor:
-      return Qt::CursorShape::SizeBDiagCursor;
-    case ScriptCursor::SizeHorCursor:
-      return Qt::CursorShape::SizeHorCursor;
-    case ScriptCursor::SizeVerCursor:
-      return Qt::CursorShape::SizeVerCursor;
-    case ScriptCursor::SizeAllCursor:
-      return Qt::CursorShape::SizeAllCursor;
-    case ScriptCursor::ForbiddenCursor:
-      return Qt::CursorShape::ForbiddenCursor;
-    case ScriptCursor::WhatsThisCursor:
-      return Qt::CursorShape::WhatsThisCursor;
+    MAP(ArrowCursor)
+    MAP(BlankCursor)
+    MAP(OpenHandCursor)
+    MAP(IBeamCursor)
+    MAP(CrossCursor)
+    MAP(WaitCursor)
+    MAP(UpArrowCursor)
+    MAP(SizeFDiagCursor)
+    MAP(SizeBDiagCursor)
+    MAP(SizeHorCursor)
+    MAP(SizeVerCursor)
+    MAP(SizeAllCursor)
+    MAP(ForbiddenCursor)
+    MAP(WhatsThisCursor)
   }
+
+#undef MAP
 }
 
 QColor

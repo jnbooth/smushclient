@@ -26,8 +26,8 @@ public:
   bool hasFunction(PluginCallbackKey routine) const;
   bool hasFunction(const QString& routine) const;
   const std::string& id() const noexcept { return metadata.id; }
+  QVariant info(int64_t infoType) const noexcept;
   bool install(const PluginPack& pack);
-  const QDateTime& installed() const noexcept { return metadata.installed; }
   bool isDisabled() const noexcept { return disabled; }
   const std::string& name() const noexcept { return metadata.name; }
   void reset();

@@ -54,5 +54,17 @@ ScriptApi::GetSentBytes() const noexcept
 bool
 ScriptApi::IsConnected() const
 {
-  return socket.isOpen();
+  return socket.state() == QAbstractSocket::SocketState::ConnectedState;
 }
+
+QHostAddress
+ScriptApi::WorldAddress() const
+{
+  return socket.peerAddress();
+};
+
+uint16_t
+ScriptApi::WorldPort() const
+{
+  return socket.peerPort();
+};

@@ -58,6 +58,7 @@ DECLARE_ENUM_BOUNDS(SendTarget, World, ScriptAfterOmit)
 DECLARE_ENUM_BOUNDS(ExportKind, Trigger, Keypad)
 
 namespace {
+const char* const callingRegKey = "smushclient.calling";
 const char* const indexRegKey = "smushclient.plugin";
 const char* const worldRegKey = "smushclient.world";
 const char* const worldLibKey = "world";
@@ -622,10 +623,14 @@ L_GetPluginInfo(lua_State* L)
   const lua_Integer infoType = getInteger(L, 2);
   if (infoType > UINT8_MAX) [[unlikely]] {
     lua_pushnil(L);
-  } else {
-    pushQVariant(
-      L, getApi(L).GetPluginInfo(pluginID, static_cast<uint8_t>(infoType)));
+    return 1;
   }
+  if (infoType == 23) {
+    lua_rawgetp(L, LUA_REGISTRYINDEX, callingRegKey);
+    return 1;
+  }
+  pushQVariant(
+    L, getApi(L).GetPluginInfo(pluginID, static_cast<uint8_t>(infoType)));
   return 1;
 }
 
@@ -709,6 +714,17 @@ L_WindowFontInfo(lua_State* L)
   expectMaxArgs(L, 3);
   pushQVariant(L,
                getApi(L).WindowFontInfo(
+                 getString(L, 1), getString(L, 2), getInteger(L, 3)));
+  return 1;
+}
+
+int
+L_WindowHotspotInfo(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 3);
+  pushQVariant(L,
+               getApi(L).WindowHotspotInfo(
                  getString(L, 1), getString(L, 2), getInteger(L, 3)));
   return 1;
 }
@@ -1737,6 +1753,8 @@ L_CallPlugin(lua_State* L)
 
   const ScriptThread thread = plugin.spawnThread();
   lua_State* L2 = thread.state();
+  push(L2, plugin.id());
+  lua_rawsetp(L2, LUA_REGISTRYINDEX, callingRegKey);
 
   const int nargs = lua_gettop(L) - 2;
   luaL_checkstack(L2, nargs + 1, nullptr);
@@ -3364,6 +3382,7 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "GetTriggerInfo", L_GetTriggerInfo },
     { "Version", L_Version },
     { "WindowFontInfo", L_WindowFontInfo },
+    { "WindowHotspotInfo", L_WindowHotspotInfo },
     { "WindowImageInfo", L_WindowImageInfo },
     { "WindowInfo", L_WindowInfo },
     // input

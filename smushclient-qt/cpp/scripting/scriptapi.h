@@ -620,8 +620,8 @@ public:
                               Hotspot::CallbacksPartial&& callbacks) const;
   ApiCode WindowWrite(std::string_view windowName,
                       const QString& filename) const;
-  QHostAddress WorldAddress() const { return socket.peerAddress(); };
-  uint16_t WorldPort() const { return socket.peerPort(); };
+  QHostAddress WorldAddress() const;
+  uint16_t WorldPort() const;
   ApiCode WriteLog(std::string_view message) const;
 
   void applyWorld(const World& world);
@@ -754,6 +754,7 @@ private:
   int64_t totalLinesSent = 0;
   int64_t totalPacketsSent = 0;
   QElapsedTimer whenConnected;
+  QElapsedTimer whenOpened;
   string_map<std::unique_ptr<MiniWindow>> windows;
   QString wordUnderMenu;
   QUuid worldID;

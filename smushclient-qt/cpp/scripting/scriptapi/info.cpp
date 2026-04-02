@@ -23,6 +23,11 @@ using std::string_view;
 
 // Private utils
 
+#define CHECK_NONNULL(ptr)                                                     \
+  if ((ptr) == nullptr) [[unlikely]] {                                         \
+    return {};                                                                 \
+  }
+
 enum ModifierFlag : int64_t
 {
   Shift = 0x00001,
@@ -79,42 +84,61 @@ getModifierFlags(Qt::KeyboardModifiers mods, Qt::MouseButtons buttons)
 constexpr ScriptBrush
 getBrushStyle(const QBrush& brush)
 {
+#define MAP(type)                                                              \
+  case Qt::BrushStyle::type:                                                   \
+    return ScriptBrush::type;
+
   switch (brush.style()) {
-    case Qt::BrushStyle::SolidPattern:
-      return ScriptBrush::SolidPattern;
-    case Qt::BrushStyle::NoBrush:
-      return ScriptBrush::NoBrush;
-    case Qt::BrushStyle::HorPattern:
-      return ScriptBrush::HorPattern;
-    case Qt::BrushStyle::VerPattern:
-      return ScriptBrush::VerPattern;
-    case Qt::BrushStyle::FDiagPattern:
-      return ScriptBrush::FDiagPattern;
-    case Qt::BrushStyle::BDiagPattern:
-      return ScriptBrush::BDiagPattern;
-    case Qt::BrushStyle::CrossPattern:
-      return ScriptBrush::CrossPattern;
-    case Qt::BrushStyle::DiagCrossPattern:
-      return ScriptBrush::DiagCrossPattern;
-    case Qt::BrushStyle::Dense4Pattern:
-      return ScriptBrush::Dense4Pattern;
-    case Qt::BrushStyle::Dense2Pattern:
-      return ScriptBrush::Dense2Pattern;
-    case Qt::BrushStyle::Dense1Pattern:
-      return ScriptBrush::Dense1Pattern;
+    MAP(SolidPattern)
+    MAP(NoBrush)
+    MAP(HorPattern)
+    MAP(VerPattern)
+    MAP(FDiagPattern)
+    MAP(BDiagPattern)
+    MAP(CrossPattern)
+    MAP(DiagCrossPattern)
+    MAP(Dense4Pattern)
+    MAP(Dense2Pattern)
+    MAP(Dense1Pattern)
     default:
       return ScriptBrush::SolidPattern;
   }
+
+#undef MAP
 }
+
+constexpr ScriptCursor
+getCursorShape(const QCursor& cursor)
+{
+#define MAP(type)                                                              \
+  case Qt::CursorShape::type:                                                  \
+    return ScriptCursor::type;
+
+  switch (cursor.shape()) {
+    MAP(ArrowCursor)
+    MAP(BlankCursor)
+    MAP(OpenHandCursor)
+    MAP(IBeamCursor)
+    MAP(CrossCursor)
+    MAP(WaitCursor)
+    MAP(UpArrowCursor)
+    MAP(SizeFDiagCursor)
+    MAP(SizeBDiagCursor)
+    MAP(SizeHorCursor)
+    MAP(SizeVerCursor)
+    MAP(SizeAllCursor)
+    MAP(ForbiddenCursor)
+    MAP(WhatsThisCursor)
+    default:
+      return ScriptCursor::ArrowCursor;
+  }
+
+#undef MAP
+}
+
 } // namespace
 
 // Public static methods
-
-bool
-ScriptApi::ChangeDir(const QString& dir)
-{
-  return QDir::setCurrent(dir);
-}
 
 QVariant
 ScriptApi::FontInfo(const QFont& font, int64_t infoType)
@@ -413,9 +437,10 @@ ScriptApi::GetLineInfo(int lineNumber, int64_t infoType) const
       return lineNumber;
     case 11:
       return block.textFormats().size();
-    // case 12: // ticks - exact value from the high-performance timer
-    case 13:
+    case 12:
       return spans::getElapsed(block.blockFormat()).msecsSinceReference();
+    case 13:
+      return whenOpened.secsTo(spans::getElapsed(block.blockFormat()));
     default:
       return QVariant();
   }
@@ -430,9 +455,8 @@ ScriptApi::GetPluginInfo(string_view pluginID, int64_t infoType) const noexcept
   }
   switch (infoType) {
     case 16:
-      return QVariant(!plugins[index].isDisabled());
     case 22:
-      return QVariant(plugins[index].installed());
+      return plugins[index].info(infoType);
     default:
       return client.pluginInfo(index, infoType);
   }
@@ -504,7 +528,61 @@ ScriptApi::GetStyleInfo(int line, int64_t style, int64_t infoType) const
   }
 }
 
+QVariant
+ScriptApi::WindowFontInfo(string_view windowName,
+                          string_view fontID,
+                          int64_t infoType) const
+{
+  MiniWindow* window = findWindow(windowName);
+  CHECK_NONNULL(window);
+  const QFont* font = window->findFont(fontID);
+  CHECK_NONNULL(font);
+  return FontInfo(*font, infoType);
+}
+
+QVariant
+ScriptApi::WindowImageInfo(std::string_view windowName,
+                           std::string_view imageID,
+                           int64_t infoType) const
+{
+  MiniWindow* window = findWindow(windowName);
+  CHECK_NONNULL(window);
+  const QPixmap* pixmap = window->findImage(imageID);
+  CHECK_NONNULL(pixmap);
+  switch (infoType) {
+    case 1:
+      return 0;
+    case 2:
+      return pixmap->width();
+    case 3:
+      return pixmap->height();
+    case 4: {
+      const QImage image = pixmap->toImage();
+      return image.sizeInBytes() / image.height();
+    }
+    case 5:
+      return pixmap->depth();
+    case 6:
+      return pixmap->toImage().pixelFormat().bitsPerPixel();
+    default:
+      return QVariant();
+  }
+}
+
 // External implementations
+
+QVariant
+Plugin::info(int64_t infoType) const noexcept
+{
+  switch (infoType) {
+    case 16:
+      return !disabled;
+    case 22:
+      return metadata.installed;
+    default:
+      return QVariant();
+  }
+}
 
 QVariant
 MiniWindow::info(int64_t infoType) const
@@ -585,38 +663,7 @@ Hotspot::info(int64_t infoType) const
     case 10:
       return toolTip();
     case 11:
-      switch (cursor().shape()) {
-        case Qt::CursorShape::ArrowCursor:
-          return 0;
-        case Qt::CursorShape::BlankCursor:
-          return -1;
-        case Qt::CursorShape::OpenHandCursor:
-          return 1;
-        case Qt::CursorShape::IBeamCursor:
-          return 2;
-        case Qt::CursorShape::CrossCursor:
-          return 3;
-        case Qt::CursorShape::WaitCursor:
-          return 4;
-        case Qt::CursorShape::UpArrowCursor:
-          return 5;
-        case Qt::CursorShape::SizeFDiagCursor:
-          return 6;
-        case Qt::CursorShape::SizeBDiagCursor:
-          return 7;
-        case Qt::CursorShape::SizeHorCursor:
-          return 8;
-        case Qt::CursorShape::SizeVerCursor:
-          return 9;
-        case Qt::CursorShape::SizeAllCursor:
-          return 10;
-        case Qt::CursorShape::ForbiddenCursor:
-          return 11;
-        case Qt::WhatsThisCursor:
-          return 12;
-        default:
-          return 0;
-      }
+      return static_cast<int>(getCursorShape(cursor()));
     case 12:
       return (underMouse() ? 0x80 : 0) + (hasMouseTracking() ? 1 : 0);
     case 13:

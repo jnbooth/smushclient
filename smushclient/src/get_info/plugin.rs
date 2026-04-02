@@ -32,13 +32,13 @@ impl SmushClient {
             12 => V::visit(self.variables_len(index)),
             13 => V::visit(plugin.metadata.written),
             14 => V::visit(plugin.metadata.modified),
-            15 => V::visit(false), // save state flag
+            15 => V::visit(plugin.metadata.save_state),
             // 16 - scripting enabled (handled by frontend)
             17 => V::visit(!plugin.disabled.get()),
             18 => parse_double::<V>(&plugin.metadata.requires),
             19 => parse_double::<V>(&plugin.metadata.version),
             20 => V::visit(plugin.metadata.path.parent().unwrap_or(Path::new(""))),
-            21 => V::visit(index),
+            21 => V::visit(index + 1),
             // 22 => V::visit(Utc::now()), // date/time plugin installed (handled by frontend)
             // 23 - during a CallPlugin call, the ID of the calling plugin (if any) (handled by frontend)
             24 => V::visit(0.0), // Time spent on scripting in this plugin (seconds, double)

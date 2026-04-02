@@ -96,7 +96,7 @@ pub fn font_info(font: &QFont, info_type: i64) -> QVariant {
         // 12 => first character defined in font
         // 13 => last character defined in font
         14 => (&QString::from("�")).into(),
-        // 15 => character used to define word breaks
+        15 => (&QString::from(" ")).into(),
         16 => info!(italic),
         17 => info!(underline),
         18 => info!(strike_out),

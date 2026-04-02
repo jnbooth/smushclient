@@ -30,7 +30,7 @@ impl SmushClient {
             11 => V::visit(trigger.repeats),
             12 => V::visit(trigger.sound_if_inactive),
             13 => V::visit(trigger.expand_variables),
-            // 14 => which wildcard to send to clipboard
+            14 => V::visit(trigger.clipboard_arg),
             15 => V::visit(trigger.send_to),
             16 => V::visit(trigger.sequence),
             17 => V::visit(0i64), // match on (colour/style)
