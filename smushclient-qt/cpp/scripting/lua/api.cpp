@@ -980,7 +980,7 @@ L_SetSpeedWalkDelay(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 1);
   getApi(L).SetOption(getPluginIndex(L), "speed_walk_delay", getInteger(L, 1));
-  return 1;
+  return 0;
 }
 
 // log
