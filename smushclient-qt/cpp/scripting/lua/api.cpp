@@ -1229,8 +1229,8 @@ L_Hyperlink(lua_State* L)
   getApi(L).Hyperlink(getQString(L, 1),
                       getQString(L, 2),
                       getQString(L, 3),
-                      getQColor(L, 4),
-                      getQColor(L, 5),
+                      getQColor(L, 4, {}),
+                      getQColor(L, 5, {}),
                       getBool(L, 6, false),
                       getBool(L, 7, false));
   return 0;
@@ -1356,8 +1356,10 @@ L_NotepadFont(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 5);
   const QString title = getQString(L, 1);
-  const QTextCharFormat format = Notepad::format(
-    getQString(L, 2), getNumber(L, 3), getQFlags<Notepad::StyleFlag>(L, 4));
+  const QTextCharFormat format =
+    Notepad::format(getQString(L, 2, {}),
+                    getNumber(L, 3, 0),
+                    getQFlags<Notepad::StyleFlag>(L, 4, {}));
   // const lua_Integer charset = getInteger(L, 5, 0);
   push(L, getApi(L).NotepadFont(title, format));
   return 1;
@@ -1601,7 +1603,7 @@ L_SetBackgroundImage(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  const QString path = getQString(L, 1);
+  const QString path = getQString(L, 1, {});
   const optional<MiniWindow::Position> position =
     getEnum<MiniWindow::Position>(L, 2);
   expect_nonnull(position, ApiCode::BadParameter);
@@ -3387,6 +3389,7 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "WindowHotspotInfo", L_WindowHotspotInfo },
     { "WindowImageInfo", L_WindowImageInfo },
     { "WindowInfo", L_WindowInfo },
+    { "WorldName", L_WorldName },
     // input
     { "DeleteCommandHistory", L_DeleteCommandHistory },
     { "DiscardQueue", L_DiscardQueue },
