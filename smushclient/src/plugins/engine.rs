@@ -48,9 +48,8 @@ impl PluginEngine {
             .plugins
             .iter()
             .filter_map(|path| {
-                let error = self.load_plugin(path).err()?;
                 Some(LoadFailure {
-                    error,
+                    error: self.load_plugin(path).err()?,
                     path: path.clone(),
                 })
             })
