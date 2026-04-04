@@ -33,14 +33,20 @@ static const array<QColor, 16> customColors = {
 };
 
 namespace {
-bool
-checkIsSome(lua_State* L, int idx, int type, const char* name)
+inline bool
+checkTypeOrNil(lua_State* L,
+               int idx,
+               int type,
+               bool allowNil,
+               const char* name = nullptr)
 {
   const int actualType = lua_type(L, idx);
-  if (actualType <= 0) {
+  if (actualType == type) [[likely]] {
     return false;
   }
-  luaL_argexpected(L, actualType == type, idx, name);
+  if (actualType > 0 || !allowNil) [[unlikely]] {
+    luaL_typeerror(L, idx, name == nullptr ? lua_typename(L, type) : name);
+  }
   return true;
 }
 
@@ -86,37 +92,6 @@ assignFontFamily(QFont& font, const QString& family)
   }
 }
 
-bool
-toBool(lua_State* L, int idx, int type)
-{
-  switch (type) {
-    case LUA_TBOOLEAN:
-      return lua_toboolean(L, idx) == TRUE;
-    case LUA_TNUMBER: {
-      int isInt;
-      const lua_Integer value = lua_tointegerx(L, idx, &isInt);
-      if (isInt == FALSE) {
-        break;
-      }
-      return value == TRUE;
-    }
-    case LUA_TSTRING: {
-      const string_view message = qlua::toString(L, idx);
-      if (message == "n" || message == "N" || message == "0") {
-        return false;
-      }
-      if (message == "y" || message == "Y" || message == "1") {
-        return true;
-      }
-      break;
-    }
-    default:
-      break;
-  }
-  luaL_typeerror(L, idx, "boolean"); // exits function
-  return false;                      // unreachable
-}
-
 inline lua_Integer
 toInteger(lua_State* L, int idx)
 {
@@ -124,60 +99,6 @@ toInteger(lua_State* L, int idx)
   const lua_Integer result = lua_tointegerx(L, idx, &isInt);
   luaL_argexpected(L, isInt, idx, "integer");
   return result;
-}
-
-template<typename T>
-optional<T>
-toEnum(lua_State* L, int idx)
-{
-  const lua_Integer underlying = toInteger(L, idx);
-  if (!enum_bounds<T>::validate(underlying)) [[unlikely]] {
-    return std::nullopt;
-  }
-  return static_cast<T>(underlying);
-}
-
-inline lua_Number
-toNumber(lua_State* L, int idx)
-{
-  const lua_Number result = lua_tonumber(L, idx);
-  luaL_argexpected(L, std::isfinite(result), idx, "finite number");
-  return result;
-}
-
-QColor
-toQColor(lua_State* L, int idx, int ltype)
-{
-  switch (ltype) {
-    case LUA_TSTRING: {
-      size_t len;
-      const char* message = lua_tolstring(L, idx, &len);
-      if (len == 0) {
-        return QColor();
-      }
-      const QColor color = QColor::fromString(
-        QAnyStringView(message, static_cast<qsizetype>(len)));
-      luaL_argcheck(L, color.isValid(), idx, "valid color");
-      return color;
-    }
-    case LUA_TNUMBER: {
-      int isInt;
-      const lua_Integer rgb = lua_tointegerx(L, idx, &isInt);
-      if (isInt == FALSE) {
-        break;
-      }
-      if (rgb == -1 || rgb == 0xFFFFFFFF) {
-        return QColor();
-      }
-      luaL_argcheck(L, rgb >= 0 && rgb <= 0xFFFFFF, idx, "valid color");
-      const int code = static_cast<int>(rgb);
-      return QColor(code & 0xFF, (code >> 8) & 0xFF, (code >> 16) & 0xFF);
-    }
-    default:
-      break;
-  }
-  luaL_typeerror(L, idx, "string or integer");
-  return QColor();
 }
 
 inline QString
@@ -338,95 +259,82 @@ qlua::expectMaxArgs(lua_State* L, int max)
 }
 
 bool
-qlua::getBool(lua_State* L, int idx)
-{
-  return toBool(L, idx, lua_type(L, idx));
-}
-
-bool
-qlua::getBool(lua_State* L, int idx, bool ifNil)
+qlua::getBool(lua_State* L, int idx, optional<bool> ifNil)
 {
   const int type = lua_type(L, idx);
-  if (type == LUA_TNONE || type == LUA_TNIL) {
-    return ifNil;
+  switch (type) {
+    case LUA_TNONE:
+    case LUA_TNIL:
+      if (ifNil) {
+        return *ifNil;
+      }
+      break;
+    case LUA_TBOOLEAN:
+      return lua_toboolean(L, idx) == TRUE;
+    case LUA_TNUMBER: {
+      int isInt;
+      const lua_Integer value = lua_tointegerx(L, idx, &isInt);
+      if (isInt == FALSE) {
+        break;
+      }
+      return value == TRUE;
+    }
+    case LUA_TSTRING: {
+      const string_view message = qlua::toString(L, idx);
+      if (message == "n" || message == "N" || message == "0") {
+        return false;
+      }
+      if (message == "y" || message == "Y" || message == "1") {
+        return true;
+      }
+      break;
+    }
+    default:
+      break;
   }
-  return toBool(L, idx, type);
+  luaL_typeerror(L, idx, "boolean"); // exits function
+  return false;                      // unreachable
 }
 
 QByteArrayView
-qlua::getBytes(lua_State* L, int idx)
+qlua::getBytes(lua_State* L, int idx, optional<QByteArrayView> ifNil)
 {
-  luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
+  if (checkTypeOrNil(L, idx, LUA_TSTRING, !!ifNil)) {
+    return *ifNil;
+  }
   size_t len;
   const char* message = lua_tolstring(L, idx, &len);
   return QByteArrayView(message, static_cast<qsizetype>(len));
 }
 
 int
-qlua::getInt(lua_State* L, int idx)
+qlua::getInt(lua_State* L, int idx, optional<int> ifNil)
 {
-  luaL_argexpected(L, lua_type(L, idx) == LUA_TNUMBER, idx, "integer");
+  if (checkTypeOrNil(L, idx, LUA_TNUMBER, !!ifNil, "integer")) {
+    return *ifNil;
+  }
   return clamped_cast<int>(toInteger(L, idx));
 }
 
-int
-qlua::getInt(lua_State* L, int idx, int ifNil)
-{
-  return (checkIsSome(L, idx, LUA_TNUMBER, "integer"))
-           ? clamped_cast<int>(toInteger(L, idx))
-           : ifNil;
-}
-
 lua_Integer
-qlua::getInteger(lua_State* L, int idx)
+qlua::getInteger(lua_State* L, int idx, optional<lua_Integer> ifNil)
 {
-  luaL_argexpected(L, lua_type(L, idx) == LUA_TNUMBER, idx, "integer");
+  if (checkTypeOrNil(L, idx, LUA_TNUMBER, !!ifNil, "integer")) {
+    return *ifNil;
+  }
   return toInteger(L, idx);
 }
 
 lua_Integer
-qlua::getInteger(lua_State* L, int idx, lua_Integer ifNil)
-{
-  return (checkIsSome(L, idx, LUA_TNUMBER, "integer")) ? toInteger(L, idx)
-                                                       : ifNil;
-}
-
-optional<lua_Integer>
-qlua::getIntegerOpt(lua_State* L, int idx)
-{
-  return (checkIsSome(L, idx, LUA_TNUMBER, "integer"))
-           ? optional(toInteger(L, idx))
-           : nullopt;
-}
-
-lua_Integer
-qlua::getIntegerOrBool(lua_State* L, int idx)
-{
-  switch (lua_type(L, idx)) {
-    case LUA_TBOOLEAN:
-      return static_cast<lua_Integer>(lua_toboolean(L, idx));
-    case LUA_TNUMBER: {
-      int isInt;
-      const lua_Integer value = lua_tointegerx(L, idx, &isInt);
-      if (isInt == FALSE) {
-        break;
-      }
-      return value;
-    }
-    default:
-      break;
-  }
-  luaL_typeerror(L, idx, "integer"); // exits function
-  return 0;                          // unreachable
-}
-
-lua_Integer
-qlua::getIntegerOrBool(lua_State* L, int idx, lua_Integer ifNil)
+qlua::getIntegerOrBool(lua_State* L, int idx, optional<lua_Integer> ifNil)
 {
   switch (lua_type(L, idx)) {
     case LUA_TNONE:
     case LUA_TNIL:
-      return ifNil;
+      if (ifNil) {
+        return *ifNil;
+      }
+      break;
     case LUA_TBOOLEAN:
       return static_cast<lua_Integer>(lua_toboolean(L, idx));
     case LUA_TNUMBER: {
@@ -440,39 +348,29 @@ qlua::getIntegerOrBool(lua_State* L, int idx, lua_Integer ifNil)
     default:
       break;
   }
-  luaL_typeerror(L, idx, "integer"); // exits function
-  return 0;                          // unreachable
+  luaL_typeerror(L, idx, "integer or boolean"); // exits function
+  return 0;                                     // unreachable
 }
 
 lua_Number
-qlua::getNumber(lua_State* L, int idx)
+qlua::getNumber(lua_State* L, int idx, optional<lua_Number> ifNil)
 {
-  luaL_argexpected(L, lua_type(L, idx) == LUA_TNUMBER, idx, "number");
-  return toNumber(L, idx);
-}
-
-lua_Number
-qlua::getNumber(lua_State* L, int idx, lua_Number ifNil)
-{
-  return checkIsSome(L, idx, LUA_TNUMBER, "number") ? toNumber(L, idx) : ifNil;
-}
-
-QColor
-qlua::getCustomColor(lua_State* L, int idx)
-{
-  const lua_Integer colorIndex = getInteger(L, idx);
-  return (colorIndex < 0 || colorIndex >= 16) ? Qt::GlobalColor::black
-                                              : customColors.at(colorIndex);
+  if (checkTypeOrNil(L, idx, LUA_TNUMBER, !!ifNil)) {
+    return *ifNil;
+  }
+  const lua_Number result = lua_tonumber(L, idx);
+  luaL_argexpected(L, std::isfinite(result), idx, "finite number");
+  return result;
 }
 
 optional<Qt::BrushStyle>
 qlua::getBrush(lua_State* L, int idx, optional<Qt::BrushStyle> ifNil)
 {
-  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer")) {
+  if (checkTypeOrNil(L, idx, LUA_TNUMBER, !!ifNil, "integer")) {
     return ifNil;
   }
 
-  const optional<ScriptBrush> brush = toEnum<ScriptBrush>(L, idx);
+  const optional<ScriptBrush> brush = enum_cast<ScriptBrush>(toInteger(L, idx));
   if (!brush) {
     return nullopt;
   }
@@ -505,11 +403,12 @@ qlua::getBrush(lua_State* L, int idx, optional<Qt::BrushStyle> ifNil)
 optional<Qt::CursorShape>
 qlua::getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil)
 {
-  if (!checkIsSome(L, idx, LUA_TNUMBER, "integer")) {
+  if (checkTypeOrNil(L, idx, LUA_TNUMBER, !!ifNil, "integer")) {
     return ifNil;
   }
 
-  const optional<ScriptCursor> cursor = toEnum<ScriptCursor>(L, idx);
+  const optional<ScriptCursor> cursor =
+    enum_cast<ScriptCursor>(toInteger(L, idx));
   if (!cursor) {
     return nullopt;
   }
@@ -539,16 +438,52 @@ qlua::getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil)
 }
 
 QColor
-qlua::getQColor(lua_State* L, int idx)
+qlua::getCustomColor(lua_State* L, int idx)
 {
-  return toQColor(L, idx, lua_type(L, idx));
+  const lua_Integer colorIndex = getInteger(L, idx);
+  return (colorIndex < 0 || colorIndex >= 16) ? Qt::GlobalColor::black
+                                              : customColors.at(colorIndex);
 }
 
 QColor
-qlua::getQColor(lua_State* L, int idx, const QColor& ifNil)
+qlua::getQColor(lua_State* L, int idx, optional<QColor> ifNil)
 {
-  const int type = lua_type(L, idx);
-  return type >= 0 ? toQColor(L, idx, type) : ifNil;
+  switch (lua_type(L, idx)) {
+    case LUA_TNONE:
+    case LUA_TNIL:
+      if (ifNil) {
+        return *ifNil;
+      }
+      break;
+    case LUA_TSTRING: {
+      size_t len;
+      const char* message = lua_tolstring(L, idx, &len);
+      if (len == 0) {
+        return QColor();
+      }
+      const QColor color = QColor::fromString(
+        QAnyStringView(message, static_cast<qsizetype>(len)));
+      luaL_argcheck(L, color.isValid(), idx, "valid color");
+      return color;
+    }
+    case LUA_TNUMBER: {
+      int isInt;
+      const lua_Integer rgb = lua_tointegerx(L, idx, &isInt);
+      if (isInt == FALSE) {
+        break;
+      }
+      if (rgb == -1 || rgb == 0xFFFFFFFF) {
+        return QColor();
+      }
+      luaL_argcheck(L, rgb >= 0 && rgb <= 0xFFFFFF, idx, "valid color");
+      const int code = static_cast<int>(rgb);
+      return QColor(code & 0xFF, (code >> 8) & 0xFF, (code >> 16) & 0xFF);
+    }
+    default:
+      break;
+  }
+  luaL_typeerror(L, idx, "string or integer");
+  return QColor();
 }
 
 QFont
@@ -694,14 +629,17 @@ qlua::getQSizeF(lua_State* L, int idxWidth, int idxHeight)
 QString
 qlua::getQString(lua_State* L, int idx)
 {
-  luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
+  checkTypeOrNil(L, idx, LUA_TSTRING, false);
   return toQString(L, idx);
 }
 
 QString
 qlua::getQString(lua_State* L, int idx, const QString& ifNil)
 {
-  return checkIsSome(L, idx, LUA_TSTRING, "string") ? toQString(L, idx) : ifNil;
+  if (checkTypeOrNil(L, idx, LUA_TSTRING, true)) {
+    return ifNil;
+  }
+  return toQString(L, idx);
 }
 
 QTransform
@@ -740,16 +678,12 @@ qlua::getScriptName(lua_State* L, int idx)
 }
 
 string_view
-qlua::getString(lua_State* L, int idx)
+qlua::getString(lua_State* L, int idx, optional<string_view> ifNil)
 {
-  luaL_argexpected(L, lua_type(L, idx) == LUA_TSTRING, idx, "string");
+  if (checkTypeOrNil(L, idx, LUA_TSTRING, !!ifNil)) {
+    return *ifNil;
+  }
   return toString(L, idx);
-}
-
-string_view
-qlua::getString(lua_State* L, int idx, string_view ifNil)
-{
-  return checkIsSome(L, idx, LUA_TSTRING, "string") ? toString(L, idx) : ifNil;
 }
 
 string_view

@@ -13,6 +13,9 @@ extern "C"
 }
 
 namespace qlua {
+using std::nullopt;
+using std::optional;
+
 constexpr QColor
 rgbCodeToColor(lua_Integer rgb) noexcept
 {
@@ -44,74 +47,49 @@ int
 expectMaxArgs(lua_State* L, int max);
 
 bool
-getBool(lua_State* L, int idx);
-bool
-getBool(lua_State* L, int idx, bool ifNil);
+getBool(lua_State* L, int idx, optional<bool> ifNil = nullopt);
 
 QByteArrayView
-getBytes(lua_State* L, int idx);
+getBytes(lua_State* L, int idx, optional<QByteArrayView> ifNil = nullopt);
 
 int
-getInt(lua_State* L, int idx);
-int
-getInt(lua_State* L, int idx, int ifNil);
+getInt(lua_State* L, int idx, optional<int> ifNil = nullopt);
 
 lua_Integer
-getInteger(lua_State* L, int idx);
-lua_Integer
-getInteger(lua_State* L, int idx, lua_Integer ifNil);
-
-std::optional<lua_Integer>
-getIntegerOpt(lua_State* L, int idx);
+getInteger(lua_State* L, int idx, optional<lua_Integer> ifNil = nullopt);
 
 lua_Integer
-getIntegerOrBool(lua_State* L, int idx);
-lua_Integer
-getIntegerOrBool(lua_State* L, int idx, lua_Integer ifNil);
+getIntegerOrBool(lua_State* L, int idx, optional<lua_Integer> ifNil = nullopt);
 
 lua_Number
-getNumber(lua_State* L, int idx);
-lua_Number
-getNumber(lua_State* L, int idx, lua_Number ifNil);
+getNumber(lua_State* L, int idx, optional<lua_Number> ifNil = nullopt);
 
-std::optional<Qt::BrushStyle>
-getBrush(lua_State* L,
-         int idx,
-         std::optional<Qt::BrushStyle> ifNil = std::nullopt);
+optional<Qt::BrushStyle>
+getBrush(lua_State* L, int idx, optional<Qt::BrushStyle> ifNil = nullopt);
 
-std::optional<Qt::CursorShape>
-getCursor(lua_State* L,
-          int idx,
-          std::optional<Qt::CursorShape> ifNil = std::nullopt);
+optional<Qt::CursorShape>
+getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil = nullopt);
 
 QColor
 getCustomColor(lua_State* L, int idx);
 
 template<typename T>
-std::optional<T>
-getEnum(lua_State* L, int idx, std::optional<T> ifNil = std::nullopt)
+optional<T>
+getEnum(lua_State* L, int idx)
 {
-  const std::optional<lua_Integer> underlying = getIntegerOpt(L, idx);
-  if (underlying == std::nullopt) {
-    return ifNil;
-  }
-  if (!enum_bounds<T>::validate(*underlying)) [[unlikely]] {
-    return std::nullopt;
-  }
-  return static_cast<T>(*underlying);
+  return enum_cast<T>(getInteger(L, idx));
 }
-
-template<typename T, T MIN = enum_bounds<T>::min, T MAX = enum_bounds<T>::max>
-std::optional<T>
+template<typename T>
+optional<T>
 getEnum(lua_State* L, int idx, T ifNil)
 {
-  return getEnum(L, idx, std::optional(ifNil));
+  const lua_Integer nIfNil = static_cast<lua_Integer>(ifNil);
+  const lua_Integer underlying = getInteger(L, idx, nIfNil);
+  return (underlying == nIfNil) ? ifNil : enum_cast<T>(underlying);
 }
 
 QColor
-getQColor(lua_State* L, int idx);
-QColor
-getQColor(lua_State* L, int idx, const QColor& ifNil);
+getQColor(lua_State* L, int idx, optional<QColor> ifNil = nullopt);
 
 template<typename T>
 inline QFlags<T>
@@ -128,17 +106,18 @@ getQFlags(lua_State* L, int idx, QFlags<T> ifNil)
 
 QFont
 getQFont(lua_State* L, int idx);
-
 QFont
 getQFont(lua_State* L, int idx, const QString& ifNil);
 
 QLine
 getQLine(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2);
+
 QLineF
 getQLineF(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2);
 
 QMargins
 getQMargins(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom);
+
 QMarginsF
 getQMarginsF(lua_State* L,
              int idxLeft,
@@ -146,24 +125,27 @@ getQMarginsF(lua_State* L,
              int idxRight,
              int idxBottom);
 
-std::optional<QPen>
+optional<QPen>
 getQPen(lua_State* L, int idxColor, int idxStyle, int idxWidth);
 
 QPoint
 getQPoint(lua_State* L, int idxX, int idxY);
+
 QPointF
 getQPointF(lua_State* L, int idxX, int idxY);
 
-std::optional<QPolygonF>
+optional<QPolygonF>
 getQPolygonF(lua_State* L, int idx);
 
 QSize
 getQSize(lua_State* L, int idxWidth, int idxHeight);
+
 QSizeF
 getQSizeF(lua_State* L, int idxWidth, int idxHeight);
 
 QRect
 getQRect(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom);
+
 QRectF
 getQRectF(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom);
 
@@ -171,11 +153,6 @@ QString
 getQString(lua_State* L, int idx);
 QString
 getQString(lua_State* L, int idx, const QString& ifNil);
-
-QVariant
-getQVariant(lua_State* L, int idx, int type);
-QVariant
-getQVariant(lua_State* L, int idx);
 
 QTransform
 getQTransform(lua_State* L,
@@ -186,13 +163,15 @@ getQTransform(lua_State* L,
               int idxDx,
               int idxDy);
 
-std::optional<std::string_view>
+QVariant
+getQVariant(lua_State* L, int idx);
+
+optional<std::string_view>
 getScriptName(lua_State* L, int idx);
 
 std::string_view
-getString(lua_State* L, int idx);
-std::string_view
-getString(lua_State* L, int idx, std::string_view ifNil);
+getString(lua_State* L, int idx, optional<std::string_view> ifNil = nullopt);
+
 std::string_view
 toString(lua_State* L, int idx);
 

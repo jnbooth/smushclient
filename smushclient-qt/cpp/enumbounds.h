@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 template<typename T>
 struct enum_bounds;
 
@@ -16,3 +18,13 @@ struct enum_bounds;
              value <= static_cast<long long>(max);                             \
     }                                                                          \
   };
+
+template<typename T>
+constexpr std::optional<T>
+enum_cast(long long value) noexcept // NOLINT(google-runtime-int)
+{
+  if (enum_bounds<T>::validate(value)) [[likely]] {
+    return std::optional(static_cast<T>(value));
+  }
+  return std::nullopt;
+}
