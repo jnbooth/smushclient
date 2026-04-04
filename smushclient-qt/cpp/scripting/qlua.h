@@ -88,6 +88,12 @@ getEnum(lua_State* L, int idx, T ifNil)
   return (underlying == nIfNil) ? ifNil : enum_cast<T>(underlying);
 }
 
+optional<QBrush>
+getQBrush(lua_State* L,
+          int idxColor,
+          int idxStyle,
+          optional<Qt::BrushStyle> ifNil = nullopt);
+
 QColor
 getQColor(lua_State* L, int idx, optional<QColor> ifNil = nullopt);
 

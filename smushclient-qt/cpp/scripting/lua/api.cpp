@@ -22,7 +22,6 @@ using qlua::concatArgs;
 using qlua::copyValue;
 using qlua::expectMaxArgs;
 using qlua::getBool;
-using qlua::getBrush;
 using qlua::getBytes;
 using qlua::getCursor;
 using qlua::getCustomColor;
@@ -31,6 +30,7 @@ using qlua::getInt;
 using qlua::getInteger;
 using qlua::getIntegerOrBool;
 using qlua::getNumber;
+using qlua::getQBrush;
 using qlua::getQColor;
 using qlua::getQFlags;
 using qlua::getQFont;
@@ -1810,22 +1810,18 @@ L_TextRectangle(lua_State* L)
   const int offset = getInt(L, 5);
   QColor borderColor = getQColor(L, 6);
   const int borderWidth = getInt(L, 7);
-  QColor outsideColor = getQColor(L, 8);
-  const optional<Qt::BrushStyle> outsideFillStyle = getBrush(L, 9);
-  expect_nonnull(outsideFillStyle, ApiCode::BrushStyleNotValid);
+  optional<QBrush> outsideBrush =
+    getQBrush(L, 8, 9, Qt::BrushStyle::SolidPattern);
+  expect_nonnull(outsideBrush, ApiCode::BrushStyleNotValid);
+  if (outsideBrush->color() == Qt::GlobalColor::black) {
+    outsideBrush->setColor(Qt::GlobalColor::transparent);
+  }
   if (borderColor == Qt::GlobalColor::black) {
     borderColor = Qt::GlobalColor::transparent;
   }
-  if (outsideColor == Qt::GlobalColor::black) {
-    outsideColor = Qt::GlobalColor::transparent;
-  }
-  return returnCode(
-    L,
-    getApi(L).TextRectangle(rect,
-                            offset,
-                            borderColor,
-                            borderWidth,
-                            QBrush(outsideColor, *outsideFillStyle)));
+  return returnCode(L,
+                    getApi(L).TextRectangle(
+                      rect, offset, borderColor, borderWidth, *outsideBrush));
 }
 
 // plugin
@@ -2635,20 +2631,19 @@ L_WindowCircleOp(lua_State* L)
   const optional<CircleOp> action = getEnum<CircleOp>(L, 2);
   const QRectF rect = getQRectF(L, 3, 4, 5, 6);
   const optional<QPen> pen = getQPen(L, 7, 8, 9);
-  const QColor brushColor = getQColor(L, 10);
-  const optional<Qt::BrushStyle> brushStyle =
-    getBrush(L, 11, Qt::BrushStyle::SolidPattern);
+  const optional<QBrush> brush =
+    getQBrush(L, 10, 11, Qt::BrushStyle::SolidPattern);
   expect_nonnull(action, ApiCode::UnknownOption);
   expect_nonnull(pen, ApiCode::PenStyleNotValid);
-  expect_nonnull(brushStyle, ApiCode::BrushStyleNotValid);
-  const QBrush brush(brushColor, *brushStyle);
+  expect_nonnull(brush, ApiCode::BrushStyleNotValid);
 
   switch (*action) {
     case CircleOp::Ellipse:
-      return returnCode(L,
-                        getApi(L).WindowEllipse(windowName, rect, *pen, brush));
+      return returnCode(
+        L, getApi(L).WindowEllipse(windowName, rect, *pen, *brush));
     case CircleOp::Rectangle:
-      return returnCode(L, getApi(L).WindowRect(windowName, rect, *pen, brush));
+      return returnCode(L,
+                        getApi(L).WindowRect(windowName, rect, *pen, *brush));
     case CircleOp::RoundedRectangle:
       return returnCode(L,
                         getApi(L).WindowRoundedRect(windowName,
@@ -2656,7 +2651,7 @@ L_WindowCircleOp(lua_State* L)
                                                     getNumber(L, 12, 0),
                                                     getNumber(L, 13, 0),
                                                     *pen,
-                                                    brush));
+                                                    *brush));
     case CircleOp::Chord:
     case CircleOp::Pie:
       return returnCode(L, ApiCode::OK);
@@ -3040,22 +3035,17 @@ L_WindowPolygon(lua_State* L)
   const string_view windowName = getString(L, 1);
   const optional<QPolygonF> polygon = getQPolygonF(L, 2);
   const optional<QPen> pen = getQPen(L, 3, 4, 5);
-  const QColor brushColor = getQColor(L, 6);
-  const optional<Qt::BrushStyle> brushStyle = getBrush(L, 7);
+  const optional<QBrush> brush =
+    getQBrush(L, 6, 7, Qt::BrushStyle::SolidPattern);
   const bool close = getBool(L, 8, false);
-  const bool winding = getBool(L, 9, false);
+  const Qt::FillRule fill = getBool(L, 9, false) ? Qt::FillRule::WindingFill
+                                                 : Qt::FillRule::OddEvenFill;
   expect_nonnull(polygon, ApiCode::InvalidNumberOfPoints);
   expect_nonnull(pen, ApiCode::PenStyleNotValid);
-  expect_nonnull(brushStyle, ApiCode::BrushStyleNotValid);
-  return returnCode(L,
-                    getApi(L).WindowPolygon(windowName,
-                                            *polygon,
-                                            *pen,
-                                            QBrush(brushColor, *brushStyle),
-                                            close,
-                                            winding
-                                              ? Qt::FillRule::WindingFill
-                                              : Qt::FillRule::OddEvenFill));
+  expect_nonnull(brush, ApiCode::BrushStyleNotValid);
+  return returnCode(
+    L,
+    getApi(L).WindowPolygon(windowName, *polygon, *pen, *brush, close, fill));
 }
 
 int

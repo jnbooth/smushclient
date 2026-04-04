@@ -424,6 +424,20 @@ qlua::getCustomColor(lua_State* L, int idx)
                                               : customColors.at(colorIndex);
 }
 
+optional<QBrush>
+qlua::getQBrush(lua_State* L,
+                int idxColor,
+                int idxStyle,
+                optional<Qt::BrushStyle> ifNil)
+{
+  const QColor color = getQColor(L, idxColor);
+  const optional<Qt::BrushStyle> style = getBrush(L, idxStyle, ifNil);
+  if (!style) {
+    return nullopt;
+  }
+  return QBrush(color, *style);
+}
+
 QColor
 qlua::getQColor(lua_State* L, int idx, optional<QColor> ifNil)
 {
