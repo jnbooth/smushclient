@@ -180,7 +180,7 @@ public:
   {
     return flags.testFlag(Flag::DrawUnderneath);
   }
-  QVariant execMenu(const QPoint& location, std::string_view menuString);
+  QString execMenu(const QPoint& location, std::string_view menuString);
   const QFont* findFont(std::string_view fontID) const noexcept;
   Hotspot* findHotspot(std::string_view hotspotID) const noexcept;
   const QPixmap* findImage(std::string_view imageID) const noexcept;

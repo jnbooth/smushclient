@@ -543,9 +543,9 @@ public:
   ApiCode WindowLoadImage(std::string_view windowName,
                           std::string_view imageID,
                           const QString& filename) const;
-  QVariant WindowMenu(std::string_view windowName,
-                      const QPoint& location,
-                      std::string_view menuString) const;
+  QString WindowMenu(std::string_view windowName,
+                     const QPoint& location,
+                     std::string_view menuString) const;
   ApiCode WindowMergeImageAlpha(std::string_view windowName,
                                 std::string_view imageID,
                                 std::string_view maskID,

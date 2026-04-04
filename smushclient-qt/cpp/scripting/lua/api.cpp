@@ -3000,7 +3000,7 @@ int
 L_WindowMenu(lua_State* L)
 {
   expectMaxArgs(L, 4);
-  pushQVariant(
+  push(
     L,
     getApi(L).WindowMenu(getString(L, 1), getQPoint(L, 2, 3), getString(L, 4)));
   return 1;

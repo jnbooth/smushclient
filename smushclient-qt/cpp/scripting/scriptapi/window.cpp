@@ -352,7 +352,7 @@ ScriptApi::WindowLoadImage(string_view windowName,
   return ApiCode::FileNotFound;
 }
 
-QVariant
+QString
 ScriptApi::WindowMenu(string_view windowName,
                       const QPoint& location,
                       string_view menuString) const

@@ -435,17 +435,38 @@ MiniWindow::drawText(const QFont& font,
   return boundingRect;
 }
 
-QVariant
+QString
 MiniWindow::execMenu(const QPoint& location, string_view menuString)
 {
   QMenu menu(this);
-  const bool returnsNumber = buildMenu(menu, menuString);
+  const bool returnsInt = buildMenu(menu, menuString);
   const QAction* choice = menu.exec(mapToGlobal(location));
   if (choice == nullptr) {
     return QStringLiteral("");
   }
-  const QString text = choice->text();
-  return returnsNumber ? QVariant(text.toDouble()) : QVariant(text);
+  if (!returnsInt) {
+    return choice->text();
+  }
+  QMenu* parent = qobject_cast<QMenu*>(choice->parent());
+  if (parent == nullptr) {
+    qWarning() << "WindowMenu: no parent found for" << choice->text() << "in"
+               << menuString;
+    return choice->text();
+  }
+  int index = 0;
+  for (QAction* action : parent->actions()) {
+    if (!action->isEnabled() || action->isSeparator() ||
+        action->menu() != nullptr) {
+      continue;
+    }
+    ++index;
+    if (action == choice) {
+      return QString::number(index);
+    }
+  }
+  qWarning() << "WindowMenu: no index found for" << choice->text() << "in"
+             << menuString;
+  return choice->text();
 }
 
 const QFont*
