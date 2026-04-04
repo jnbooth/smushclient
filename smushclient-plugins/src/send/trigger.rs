@@ -1,6 +1,5 @@
 use std::borrow::Cow;
 
-use flagset::{FlagSet, flags};
 use mxp::RgbColor;
 use serde::{Deserialize, Serialize};
 
@@ -55,6 +54,16 @@ impl_asref!(Trigger, Reaction);
 impl_asref!(Trigger, Sender);
 
 impl Trigger {
+    pub fn color_change_byte(&self) -> u8 {
+        if self.change_background && self.change_foreground {
+            0
+        } else if self.change_foreground {
+            1
+        } else {
+            2
+        }
+    }
+
     pub fn style_byte(&self) -> u8 {
         let mut changes = 0;
         if self.make_bold {
@@ -79,15 +88,6 @@ impl Trigger {
 impl XmlIterable for Trigger {
     const TAG: &'static str = "trigger";
     type Xml<'a> = XmlTrigger<'a>;
-}
-
-flags! {
-    #[derive(PartialOrd, Ord, Hash)]
-    enum Change: u8 {
-        Both,
-        Fg,
-        Bg,
-    }
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
@@ -184,13 +184,19 @@ impl TryFrom<XmlTrigger<'_>> for Trigger {
 
     fn try_from(value: XmlTrigger) -> Result<Self, Self::Error> {
         let regex = Reaction::make_regex(&value.pattern, value.regexp, value.ignore_case)?;
-        let color_changes = FlagSet::new_truncated(value.colour_change_type);
-
+        let (change_foreground, foreground_color) = match value.other_text_colour {
+            Some(color) => (value.colour_change_type != 2, color),
+            None => (false, RgbColor::WHITE),
+        };
+        let (change_background, background_color) = match value.other_back_colour {
+            Some(color) => (value.colour_change_type != 1, color),
+            None => (false, RgbColor::BLACK),
+        };
         Ok(Self {
-            change_foreground: color_changes.contains(Change::Fg),
-            foreground_color: value.other_text_colour.unwrap_or(RgbColor::WHITE),
-            change_background: color_changes.contains(Change::Bg),
-            background_color: value.other_back_colour.unwrap_or(RgbColor::BLACK),
+            change_foreground,
+            foreground_color,
+            change_background,
+            background_color,
             sound: value.sound.into(),
             make_bold: value.make_bold,
             make_italic: value.make_italic,
@@ -230,22 +236,19 @@ impl TryFrom<XmlTrigger<'_>> for Trigger {
 }
 impl<'a> From<&'a Trigger> for XmlTrigger<'a> {
     fn from(value: &'a Trigger) -> Self {
-        let mut color_changes = FlagSet::empty();
         let other_text_colour = if value.change_foreground {
-            color_changes |= Change::Fg;
             Some(value.foreground_color)
         } else {
             None
         };
         let other_back_colour = if value.change_background {
-            color_changes |= Change::Bg;
             Some(value.background_color)
         } else {
             None
         };
         Self {
             clipboard_arg: value.clipboard_arg,
-            colour_change_type: color_changes.bits(),
+            colour_change_type: value.color_change_byte(),
             custom_colour: 0,
             enabled: value.enabled,
             expand_variables: value.expand_variables,

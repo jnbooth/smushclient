@@ -1,3 +1,5 @@
+use std::ops::RangeBounds;
+
 use mud_transformer::opt::mxp::RgbColor;
 use smushclient_plugins::SendTarget;
 
@@ -11,6 +13,17 @@ pub trait FromOption: Sized {
 
 pub trait DecodeOption {
     fn decode<T: FromOption>(&self) -> Result<T, OptionError>;
+
+    fn decode_in_range<T: FromOption + PartialOrd, R: RangeBounds<T>>(
+        &self,
+        range: R,
+    ) -> Result<T, OptionError> {
+        let value = self.decode::<T>()?;
+        if !range.contains(&value) {
+            return Err(OptionError::OptionOutOfRange);
+        }
+        Ok(value)
+    }
 }
 
 impl DecodeOption for LuaStr {
@@ -80,6 +93,9 @@ macro_rules! impl_parse {
 }
 
 impl_parse!(u8);
+impl_parse!(u32);
+impl_parse!(u64);
 impl_parse!(i16);
 impl_parse!(i32);
 impl_parse!(i64);
+impl_parse!(f64);

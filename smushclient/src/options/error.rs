@@ -1,8 +1,5 @@
 use std::error::Error;
 use std::fmt;
-use std::num::{ParseIntError, TryFromIntError};
-use std::str::Utf8Error;
-use std::string::FromUtf8Error;
 
 use smushclient_plugins::{RegexError, SenderAccessError};
 
@@ -35,7 +32,7 @@ impl fmt::Display for SetOptionError {
 
 impl Error for SetOptionError {}
 
-impl_range_error!(SetOptionError, TryFromIntError);
+impl_range_error!(SetOptionError, std::num::TryFromIntError);
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum OptionError {
@@ -93,7 +90,9 @@ impl From<SenderAccessError> for OptionError {
     }
 }
 
-impl_range_error!(OptionError, TryFromIntError);
-impl_range_error!(OptionError, ParseIntError);
-impl_range_error!(OptionError, FromUtf8Error);
-impl_range_error!(OptionError, Utf8Error);
+impl_range_error!(OptionError, std::num::TryFromIntError);
+impl_range_error!(OptionError, std::num::ParseIntError);
+impl_range_error!(OptionError, std::string::FromUtf8Error);
+impl_range_error!(OptionError, std::str::Utf8Error);
+impl_range_error!(OptionError, std::num::ParseFloatError);
+impl_range_error!(OptionError, std::time::TryFromFloatSecsError);

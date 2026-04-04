@@ -1,26 +1,26 @@
 use smushclient_plugins::Sender;
 
 use super::decode::DecodeOption;
-use super::encode::{EncodeOption, OptionValue};
 use super::error::OptionError;
 use super::optionable::Optionable;
 use crate::LuaStr;
+use crate::get_info::InfoVisitor;
 
 impl Optionable for Sender {
-    fn get_option(&self, name: &LuaStr) -> OptionValue<'_> {
+    fn get_option<V: InfoVisitor>(&self, name: &LuaStr) -> V::Output {
         match name {
-            b"enabled" => self.enabled.encode(),
-            b"group" => self.group.encode(),
-            b"name" => self.label.encode(),
-            b"omit_from_log" => self.omit_from_log.encode(),
-            b"omit_from_output" => self.omit_from_output.encode(),
-            b"one_shot" => self.one_shot.encode(),
-            b"script" => self.script.encode(),
-            b"send" => self.text.encode(),
-            b"send_to" => self.send_to.encode(),
-            b"user" => self.userdata.encode(),
-            b"variable" => self.variable.encode(),
-            _ => OptionValue::Null,
+            b"enabled" => V::visit(self.enabled),
+            b"group" => V::visit(&self.group),
+            b"name" => V::visit(&self.label),
+            b"omit_from_log" => V::visit(self.omit_from_log),
+            b"omit_from_output" => V::visit(self.omit_from_output),
+            b"one_shot" => V::visit(self.one_shot),
+            b"script" => V::visit(&self.script),
+            b"send" => V::visit(&self.text),
+            b"send_to" => V::visit(self.send_to),
+            b"user" => V::visit(self.userdata),
+            b"variable" => V::visit(&self.variable),
+            _ => V::visit_none(),
         }
     }
 

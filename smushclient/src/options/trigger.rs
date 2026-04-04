@@ -2,32 +2,39 @@ use mud_transformer::opt::mxp::RgbColor;
 use smushclient_plugins::Trigger;
 
 use super::decode::DecodeOption;
-use super::encode::{EncodeOption, OptionValue};
 use super::error::OptionError;
 use super::optionable::Optionable;
 use crate::LuaStr;
+use crate::get_info::InfoVisitor;
 
 impl Optionable for Trigger {
-    fn get_option(&self, name: &LuaStr) -> OptionValue<'_> {
+    fn get_option<V: InfoVisitor>(&self, name: &LuaStr) -> V::Output {
         match name {
-            b"clipboard_arg" => self.clipboard_arg.encode(),
-            b"lines_to_match" => self.lines_to_match.encode(),
-            b"lowercase_wildcard" => self.lowercase_wildcard.encode(),
-            b"multi_line" => self.multi_line.encode(),
-            b"new_style" => self.style_byte().encode(),
-            b"other_back_colour" => self.background_color.encode(),
-            b"other_text_colour" => self.foreground_color.encode(),
-            b"sound" => self.sound.encode(),
-            b"sound_if_inactive" => self.sound_if_inactive.encode(),
-            _ => self.reaction.get_option(name),
+            b"clipboard_arg" => V::visit(self.clipboard_arg),
+            b"colour_change_type" => V::visit(self.color_change_byte()),
+            b"lines_to_match" => V::visit(self.lines_to_match),
+            b"lowercase_wildcard" => V::visit(self.lowercase_wildcard),
+            b"multi_line" => V::visit(self.multi_line),
+            b"new_style" => V::visit(self.style_byte()),
+            b"other_back_colour" => V::visit(self.background_color),
+            b"other_text_colour" => V::visit(self.foreground_color),
+            b"sound" => V::visit(&self.sound),
+            b"sound_if_inactive" => V::visit(self.sound_if_inactive),
+            b"custom_colour" | b"match_style" => V::visit(0),
+            b"inverse" | b"italic" => V::visit(false),
+            _ => self.reaction.get_option::<V>(name),
         }
     }
 
     fn set_option(&mut self, name: &LuaStr, value: &LuaStr) -> Result<(), OptionError> {
         match name {
             b"clipboard_arg" => self.clipboard_arg = value.decode()?,
-            b"italic" => self.make_italic = value.decode()?,
-            b"lines_to_match" => self.lines_to_match = value.decode()?,
+            b"colour_change_type" => {
+                let change = value.decode_in_range(..=2)?;
+                self.change_background = change != 1;
+                self.change_foreground = change != 2;
+            }
+            b"lines_to_match" => self.lines_to_match = value.decode_in_range(..=200)?,
             b"lowercase_wildcard" => self.lowercase_wildcard = value.decode()?,
             b"match" => {
                 let pattern: String = value.decode()?;
@@ -37,7 +44,7 @@ impl Optionable for Trigger {
                 self.set_pattern(pattern)?;
             }
             b"multi_line" => self.multi_line = value.decode()?,
-            b"new_style" => self.set_style_byte(value.decode()?),
+            b"new_style" => self.set_style_byte(value.decode_in_range(..8)?),
             b"other_back_colour" => {
                 if let Some(color) = value.decode()? {
                     self.background_color = color;

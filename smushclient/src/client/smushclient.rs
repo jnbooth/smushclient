@@ -27,7 +27,7 @@ use crate::audio::{AudioError, AudioSinkStatus, AudioSinks, PlayMode};
 use crate::get_info::InfoVisitor;
 use crate::handler::Handler;
 use crate::import::ImportedWorld;
-use crate::options::{OptionCaller, OptionValue, SetOptionError};
+use crate::options::{OptionCaller, SetOptionError};
 use crate::plugins::{
     AliasEffects, AliasOutcome, AllSendersIter, CommandSource, LoadFailure, PluginEngine,
     PluginReaction, SendRequest, SendScriptRequest, SpanStyle, TriggerEffects,
@@ -624,25 +624,6 @@ impl SmushClient {
             .unset_variable(METAVARIABLES_KEY, key)
     }
 
-    pub fn set_group_enabled<T: PluginSender>(
-        &self,
-        index: PluginIndex,
-        group: &str,
-        enabled: bool,
-    ) -> usize {
-        let mut count = 0;
-        for sender in self
-            .senders::<T>(index)
-            .borrow_mut()
-            .iter_mut()
-            .filter(|sender| sender.as_ref().group == group)
-        {
-            sender.as_mut().enabled = enabled;
-            count += 1;
-        }
-        count
-    }
-
     pub fn set_plugin_enabled(&self, index: PluginIndex, enabled: bool) {
         self.plugins[index].disabled.set(!enabled);
     }
@@ -714,6 +695,22 @@ impl SmushClient {
     ) -> Result<(), SenderAccessError> {
         self.borrow_sender_mut::<T>(index, label)?.as_mut().enabled = enabled;
         Ok(())
+    }
+
+    pub fn set_sender_group_enabled<T: PluginSender>(
+        &self,
+        index: PluginIndex,
+        group: &str,
+        enabled: bool,
+    ) -> usize {
+        self.senders::<T>(index)
+            .borrow_mut()
+            .iter_mut()
+            .filter(|sender| sender.as_ref().group == group)
+            .fold(0, |acc, sender| {
+                sender.as_mut().enabled = enabled;
+                acc + 1
+            })
     }
 
     pub fn senders<T: PluginSender>(&self, index: PluginIndex) -> &CursorVec<T> {
@@ -843,16 +840,20 @@ impl SmushClient {
         .ok()
     }
 
-    pub fn world_variant_option(&self, index: PluginIndex, option: &LuaStr) -> OptionValue<'_> {
+    pub fn world_variant_option<V: InfoVisitor>(
+        &self,
+        index: PluginIndex,
+        option: &LuaStr,
+    ) -> V::Output {
         let caller = self.option_caller(index);
         if let Some(value) = self.world.borrow().option_int(caller, option) {
-            OptionValue::Numeric(value)
+            V::visit(value)
         } else if let Ok(value) = Ref::filter_map(self.world.borrow(), |world| {
             world.option_str(caller, option)
         }) {
-            OptionValue::AlphaBorrow(value)
+            V::visit(&*value)
         } else {
-            OptionValue::Null
+            V::visit_none()
         }
     }
 

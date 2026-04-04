@@ -5,9 +5,6 @@ mod color;
 
 mod decode;
 
-mod encode;
-pub use encode::OptionValue;
-
 mod error;
 pub use error::{OptionError, SetOptionError};
 

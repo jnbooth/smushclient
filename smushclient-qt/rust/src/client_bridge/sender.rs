@@ -323,9 +323,11 @@ impl ffi::SmushClient {
         };
         let client = &self.rust().client;
         match kind {
-            SenderKind::Alias => client.set_group_enabled::<Alias>(index, group, enabled),
-            SenderKind::Timer => client.set_group_enabled::<Timer>(index, group, enabled),
-            SenderKind::Trigger => client.set_group_enabled::<Trigger>(index, group, enabled),
+            SenderKind::Alias => client.set_sender_group_enabled::<Alias>(index, group, enabled),
+            SenderKind::Timer => client.set_sender_group_enabled::<Timer>(index, group, enabled),
+            SenderKind::Trigger => {
+                client.set_sender_group_enabled::<Trigger>(index, group, enabled)
+            }
             _ => 0,
         }
     }
@@ -340,9 +342,9 @@ impl ffi::SmushClient {
             return 0;
         };
         let client = &self.rust().client;
-        client.set_group_enabled::<Alias>(index, group, enabled)
-            + client.set_group_enabled::<Timer>(index, group, enabled)
-            + client.set_group_enabled::<Trigger>(index, group, enabled)
+        client.set_sender_group_enabled::<Alias>(index, group, enabled)
+            + client.set_sender_group_enabled::<Timer>(index, group, enabled)
+            + client.set_sender_group_enabled::<Trigger>(index, group, enabled)
     }
 
     pub fn simulate(&self, line: StringView<'_>, doc: Pin<&mut ffi::Document>) {

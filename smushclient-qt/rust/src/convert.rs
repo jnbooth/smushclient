@@ -2,7 +2,7 @@ use std::error::Error;
 use std::fmt;
 use std::num::TryFromIntError;
 
-use cxx_qt_lib::{QByteArray, QColor, QVariant};
+use cxx_qt_lib::QColor;
 use mud_transformer::opt::mxp::RgbColor;
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -86,7 +86,6 @@ macro_rules! impl_constructor {
     };
 }
 pub(crate) use impl_constructor;
-use smushclient::OptionValue;
 
 pub trait Convert<T> {
     fn convert(&self) -> T;
@@ -118,18 +117,6 @@ impl Convert<QColor> for Option<RgbColor> {
         match self {
             Some(color) => color.convert(),
             None => QColor::from_rgba(0, 0, 0, 0),
-        }
-    }
-}
-
-impl Convert<QVariant> for OptionValue<'_> {
-    fn convert(&self) -> QVariant {
-        match self {
-            Self::Null => QVariant::default(),
-            Self::Alpha(s) => QVariant::from(&QByteArray::from(*s)),
-            Self::AlphaBorrow(s) => QVariant::from(&QByteArray::from(&**s)),
-            Self::Color(color) => QVariant::from(&QByteArray::from(&color.to_string())),
-            Self::Numeric(i) => QVariant::from(i),
         }
     }
 }

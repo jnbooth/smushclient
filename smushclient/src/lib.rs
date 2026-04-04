@@ -19,7 +19,7 @@ pub use handler::Handler;
 mod import;
 
 mod options;
-pub use options::{OptionCaller, OptionError, OptionValue, Optionable, SetOptionError};
+pub use options::{OptionCaller, OptionError, Optionable, SetOptionError};
 
 mod plugins;
 pub use plugins::{

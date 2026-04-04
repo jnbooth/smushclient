@@ -1,18 +1,18 @@
 use smushclient_plugins::Alias;
 
 use super::decode::DecodeOption;
-use super::encode::{EncodeOption, OptionValue};
 use super::error::OptionError;
 use super::optionable::Optionable;
 use crate::LuaStr;
+use crate::get_info::InfoVisitor;
 
 impl Optionable for Alias {
-    fn get_option(&self, name: &LuaStr) -> OptionValue<'_> {
+    fn get_option<V: InfoVisitor>(&self, name: &LuaStr) -> V::Output {
         match name {
-            b"echo_alias" => self.echo_alias.encode(),
-            b"menu" => self.menu.encode(),
-            b"omit_from_command_history" => self.omit_from_command_history.encode(),
-            _ => self.reaction.get_option(name),
+            b"echo_alias" => V::visit(self.echo_alias),
+            b"menu" => V::visit(self.menu),
+            b"omit_from_command_history" => V::visit(self.omit_from_command_history),
+            _ => self.reaction.get_option::<V>(name),
         }
     }
 

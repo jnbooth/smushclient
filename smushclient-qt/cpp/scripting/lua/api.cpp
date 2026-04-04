@@ -1410,6 +1410,17 @@ L_SendToNotepad(lua_State* L)
 // option
 
 int
+L_GetAliasOption(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  pushQVariant(L,
+               getApi(L).GetAliasOption(
+                 getPluginIndex(L), getString(L, 1), getString(L, 2)));
+  return 1;
+}
+
+int
 L_GetAlphaOption(lua_State* L)
 {
   BENCHMARK
@@ -1465,6 +1476,41 @@ L_GetOptionList(lua_State* L)
 }
 
 int
+L_GetTimerOption(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  pushQVariant(L,
+               getApi(L).GetTimerOption(
+                 getPluginIndex(L), getString(L, 1), getString(L, 2)));
+  return 1;
+}
+
+int
+L_GetTriggerOption(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  pushQVariant(L,
+               getApi(L).GetTriggerOption(
+                 getPluginIndex(L), getString(L, 1), getString(L, 2)));
+  return 1;
+}
+
+int
+L_SetAliasOption(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 3);
+  const string_view label = getString(L, 1);
+  const string_view option = getString(L, 2);
+  const optional<string_view> value = getSenderOption(L, 3);
+  expect_nonnull(value, ApiCode::OptionOutOfRange);
+  return returnCode(
+    L, getApi(L).SetAliasOption(getPluginIndex(L), label, option, *value));
+}
+
+int
 L_SetAlphaOption(lua_State* L)
 {
   BENCHMARK
@@ -1483,6 +1529,32 @@ L_SetOption(lua_State* L)
                     getApi(L).SetOption(getPluginIndex(L),
                                         getString(L, 1),
                                         getIntegerOrBool(L, 2, 0)));
+}
+
+int
+L_SetTimerOption(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 3);
+  const string_view label = getString(L, 1);
+  const string_view option = getString(L, 2);
+  const optional<string_view> value = getSenderOption(L, 3);
+  expect_nonnull(value, ApiCode::OptionOutOfRange);
+  return returnCode(
+    L, getApi(L).SetTimerOption(getPluginIndex(L), label, option, *value));
+}
+
+int
+L_SetTriggerOption(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 3);
+  const string_view label = getString(L, 1);
+  const string_view option = getString(L, 2);
+  const optional<string_view> value = getSenderOption(L, 3);
+  expect_nonnull(value, ApiCode::OptionOutOfRange);
+  return returnCode(
+    L, getApi(L).SetTriggerOption(getPluginIndex(L), label, option, *value));
 }
 
 // output
@@ -1674,6 +1746,14 @@ L_SetStatus(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 1);
   getApi(L).SetStatus(QString::fromUtf8(concatArgs(L)));
+  return 0;
+}
+
+int
+L_SetTitle(lua_State* L)
+{
+  BENCHMARK
+  getApi(L).SetTitle(QString::fromUtf8(concatArgs(L)));
   return 0;
 }
 
@@ -1982,7 +2062,7 @@ L_AddTrigger(lua_State* L)
   const string_view text = getString(L, 3);
   const TriggerFlags flags = getQFlags<TriggerFlag>(L, 4);
   const QColor color = getCustomColor(L, 5);
-  // const lua_Integer wildcardIndex = getInt(L, 6);
+  const int clipboardArg = getInt(L, 6);
   const string_view soundFile = getString(L, 7);
   const optional<string_view> script = getScriptName(L, 8);
   const optional<SendTarget> target = getEnum(L, 9, SendTarget::World);
@@ -1998,6 +2078,7 @@ L_AddTrigger(lua_State* L)
                                          text,
                                          flags,
                                          color,
+                                         clipboardArg,
                                          soundFile,
                                          *script,
                                          *target,
@@ -2252,17 +2333,6 @@ L_GetAliasList(lua_State* L)
 }
 
 int
-L_GetAliasOption(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 2);
-  pushQVariant(L,
-               getApi(L).GetAliasOption(
-                 getPluginIndex(L), getString(L, 1), getString(L, 2)));
-  return 1;
-}
-
-int
 L_GetAliasWildcard(lua_State* L)
 {
   BENCHMARK
@@ -2310,33 +2380,11 @@ L_GetTimerList(lua_State* L)
 }
 
 int
-L_GetTimerOption(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 2);
-  pushQVariant(L,
-               getApi(L).GetTimerOption(
-                 getPluginIndex(L), getString(L, 1), getString(L, 2)));
-  return 1;
-}
-
-int
 L_GetTriggerList(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 0);
   pushList(L, getApi(L).GetTriggerList(getPluginIndex(L)));
-  return 1;
-}
-
-int
-L_GetTriggerOption(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 2);
-  pushQVariant(L,
-               getApi(L).GetTriggerOption(
-                 getPluginIndex(L), getString(L, 1), getString(L, 2)));
   return 1;
 }
 
@@ -2373,53 +2421,6 @@ L_IsTrigger(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 1);
   return returnCode(L, getApi(L).IsTrigger(getPluginIndex(L), getString(L, 1)));
-}
-
-int
-L_SetAliasOption(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 3);
-  const size_t plugin = getPluginIndex(L);
-  const string_view label = getString(L, 1);
-  const string_view option = getString(L, 2);
-  const optional<string_view> value = getSenderOption(L, 3);
-  expect_nonnull(value, ApiCode::OptionOutOfRange);
-  return returnCode(L, getApi(L).SetAliasOption(plugin, label, option, *value));
-}
-
-int
-L_SetTimerOption(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 3);
-  const size_t plugin = getPluginIndex(L);
-  const string_view label = getString(L, 1);
-  const string_view option = getString(L, 2);
-  const optional<string_view> value = getSenderOption(L, 3);
-  expect_nonnull(value, ApiCode::OptionOutOfRange);
-  return returnCode(L, getApi(L).SetTimerOption(plugin, label, option, *value));
-}
-
-int
-L_SetTitle(lua_State* L)
-{
-  BENCHMARK
-  getApi(L).SetTitle(QString::fromUtf8(concatArgs(L)));
-  return 0;
-}
-
-int
-L_SetTriggerOption(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 3);
-  const string_view label = getString(L, 1);
-  const string_view option = getString(L, 2);
-  const optional<string_view> value = getSenderOption(L, 3);
-  expect_nonnull(value, ApiCode::OptionOutOfRange);
-  return returnCode(
-    L, getApi(L).SetTriggerOption(getPluginIndex(L), label, option, *value));
 }
 
 int
@@ -2540,7 +2541,7 @@ L_GetVariableList(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 0);
-  pushList(L, getApi(L).GetVariableList(getPluginIndex(L)));
+  pushMap(L, getApi(L).GetVariableList(getString(L, 1)));
   return 1;
 }
 
@@ -3463,6 +3464,7 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "ReplaceNotepad", L_ReplaceNotepad },
     { "SendToNotepad", L_SendToNotepad },
     // option
+    { "GetAliasOption", L_GetAliasOption },
     { "GetAlphaOption", L_GetAlphaOption },
     { "GetAlphaOptionList", L_GetAlphaOptionList },
     { "GetCurrentValue", L_GetCurrentValue },
@@ -3470,8 +3472,13 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "GetLoadedValue", L_GetCurrentValue },
     { "GetOption", L_GetOption },
     { "GetOptionList", L_GetOptionList },
+    { "GetTimerOption", L_GetTimerOption },
+    { "GetTriggerOption", L_GetTriggerOption },
+    { "SetAliasOption", L_SetAliasOption },
     { "SetAlphaOption", L_SetAlphaOption },
     { "SetOption", L_SetOption },
+    { "SetTimerOption", L_SetTimerOption },
+    { "SetTriggerOption", L_SetTriggerOption },
     // output
     { "Activate", L_ActivateClient },
     { "ActivateClient", L_ActivateClient },
@@ -3544,22 +3551,16 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "EnableTriggerGroup", L_EnableTriggerGroup },
     { "ExportXML", L_ExportXML },
     { "GetAliasList", L_GetAliasList },
-    { "GetAliasOption", L_GetAliasOption },
     { "GetAliasWildcard", L_GetAliasWildcard },
     { "GetPluginAliasList", L_GetPluginAliasList },
     { "GetPluginTimerList", L_GetPluginTimerList },
     { "GetPluginTriggerList", L_GetPluginTriggerList },
     { "GetTimerList", L_GetTimerList },
-    { "GetTimerOption", L_GetTimerOption },
     { "GetTriggerList", L_GetTriggerList },
-    { "GetTriggerOption", L_GetTriggerOption },
     { "GetTriggerWildcard", L_GetTriggerWildcard },
     { "IsAlias", L_IsAlias },
     { "IsTimer", L_IsTimer },
     { "IsTrigger", L_IsTrigger },
-    { "SetAliasOption", L_SetAliasOption },
-    { "SetTimerOption", L_SetTimerOption },
-    { "SetTriggerOption", L_SetTriggerOption },
     { "StopEvaluatingTriggers", L_StopEvaluatingTriggers },
     // sound
     { "GetSoundStatus", L_GetSoundStatus },

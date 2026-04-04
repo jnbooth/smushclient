@@ -1,7 +1,8 @@
 use std::borrow::Cow;
 use std::time::Duration;
 
-use chrono::{NaiveTime, Timelike};
+use chrono::NaiveTime;
+use serde::de::{Deserializer, Error, Unexpected};
 use serde::{Deserialize, Serialize};
 
 use super::occurrence::Occurrence;
@@ -10,16 +11,9 @@ use super::sender::Sender;
 use crate::newline::ensure_send_crlf;
 use crate::xml::{XmlIterable, bool_serde, is_default};
 
-const NANOS: u64 = 1_000_000_000;
-const NANOS_F: f64 = 1_000_000_000.0;
-
-const fn duration_from_hms(hour: u64, minute: u64, second: f64) -> Duration {
-    debug_assert!(
-        second.is_finite() && (second == 0.0 || second.is_sign_positive()),
-        "second must be a finite positive number"
-    );
-    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-    Duration::from_nanos((NANOS_F * second) as u64 + NANOS * 60 * (minute + 60 * hour))
+fn duration_from_hms(hour: u32, minute: u32, second: f64) -> Duration {
+    Duration::from_secs(u64::from(hour) * 3600 + u64::from(minute) * 60)
+        + Duration::from_secs_f64(second)
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
@@ -38,6 +32,39 @@ impl XmlIterable for Timer {
     type Xml<'a> = XmlTimer<'a>;
 }
 
+fn de_hour<'de, D: Deserializer<'de>>(deserializer: D) -> Result<u32, D::Error> {
+    let hour = u32::deserialize(deserializer)?;
+    if hour >= 24 {
+        return Err(D::Error::invalid_value(
+            Unexpected::Unsigned(hour.into()),
+            &"integer between 0 and 23",
+        ));
+    }
+    Ok(hour)
+}
+
+fn de_min<'de, D: Deserializer<'de>>(deserializer: D) -> Result<u32, D::Error> {
+    let minute = u32::deserialize(deserializer)?;
+    if minute >= 60 {
+        return Err(D::Error::invalid_value(
+            Unexpected::Unsigned(minute.into()),
+            &"integer between 0 and 59",
+        ));
+    }
+    Ok(minute)
+}
+
+fn de_sec<'de, D: Deserializer<'de>>(deserializer: D) -> Result<f64, D::Error> {
+    let sec = f64::deserialize(deserializer)?;
+    if !(0.0..60.0).contains(&sec) {
+        return Err(D::Error::invalid_value(
+            Unexpected::Float(sec),
+            &"number between 0 and 59.9999",
+        ));
+    }
+    Ok(sec)
+}
+
 #[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(rename = "timer", default = "XmlTimer::template")]
 #[rustfmt::skip]
@@ -50,9 +77,9 @@ pub struct XmlTimer<'a> {
     pub enabled: bool,
     #[serde(rename = "@group", borrow, skip_serializing_if = "is_default")]
     pub group: Cow<'a, str>,
-    #[serde(rename = "@hour", skip_serializing_if = "is_default")]
+    #[serde(rename = "@hour", deserialize_with = "de_hour", skip_serializing_if = "is_default")]
     pub hour: u32,
-    #[serde(rename = "@minute", skip_serializing_if = "is_default")]
+    #[serde(rename = "@minute", deserialize_with = "de_min", skip_serializing_if = "is_default")]
     pub minute: u32,
     #[serde(rename = "@name", borrow, skip_serializing_if = "is_default")]
     pub name: Cow<'a, str>,
@@ -67,7 +94,7 @@ pub struct XmlTimer<'a> {
     pub one_shot: bool,
     #[serde(rename = "@script", borrow, skip_serializing_if = "is_default")]
     pub script: Cow<'a, str>,
-    #[serde(rename = "@second", skip_serializing_if = "is_default")]
+    #[serde(rename = "@second", deserialize_with = "de_sec", skip_serializing_if = "is_default")]
     pub second: f64,
     #[serde(borrow, skip_serializing_if = "is_default")]
     pub send: Cow<'a, str>,
@@ -93,16 +120,11 @@ impl From<XmlTimer<'_>> for Timer {
         let occurrence = if value.at_time {
             #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
             let rounded_second = value.second as u32;
-            Occurrence::Time(
-                NaiveTime::from_hms_opt(value.hour, value.minute, rounded_second)
-                    .unwrap_or_default(),
-            )
+            NaiveTime::from_hms_opt(value.hour, value.minute, rounded_second)
+                .unwrap_or_default()
+                .into()
         } else {
-            Occurrence::Interval(duration_from_hms(
-                value.hour.into(),
-                value.minute.into(),
-                value.second,
-            ))
+            duration_from_hms(value.hour, value.minute, value.second).into()
         };
         Self {
             occurrence,
@@ -127,30 +149,19 @@ impl From<XmlTimer<'_>> for Timer {
 }
 impl<'a> From<&'a Timer> for XmlTimer<'a> {
     fn from(value: &'a Timer) -> Self {
-        let (at_time, hour, minute, second) = match value.occurrence {
-            Occurrence::Interval(every) => {
-                #[allow(clippy::cast_possible_truncation)]
-                let secs = every.as_secs() as u32;
-                let hour = secs / 3600;
-                let minute = (secs % 3600) / 3600;
-                let second = f64::from(every.subsec_nanos()) / NANOS_F;
-                (false, hour, minute, second)
-            }
-            Occurrence::Time(time) => (true, time.hour(), time.minute(), time.second().into()),
-        };
         Self {
             active_closed: value.active_closed,
-            at_time,
+            at_time: matches!(value.occurrence, Occurrence::Interval(_)),
             enabled: value.enabled,
             group: (&value.group).into(),
-            hour,
-            minute,
+            hour: value.occurrence.hour(),
+            minute: value.occurrence.minute(),
             name: (&value.label).into(),
             omit_from_log: value.omit_from_log,
             omit_from_output: value.omit_from_output,
             one_shot: value.one_shot,
             script: (&value.script).into(),
-            second,
+            second: value.occurrence.seconds(),
             send_to: value.send_to,
             send: (&value.text).into(),
             temporary: value.temporary,

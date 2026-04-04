@@ -35,7 +35,7 @@ impl SmushClient {
             16 => V::visit(trigger.sequence),
             17 => V::visit(0i64), // match on (colour/style)
             18 => V::visit(trigger.style_byte()),
-            19 => V::visit(0), // change to colour
+            19 => V::visit(trigger.color_change_byte()),
             // 20 => invocation count
             // 21 => times matched
             // 22 => date/time trigger last matched

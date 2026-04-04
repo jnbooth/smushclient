@@ -4,6 +4,8 @@ use std::time::Duration;
 use chrono::{NaiveTime, Timelike};
 use serde::{Deserialize, Serialize};
 
+const NANOS_F: f64 = 1_000_000_000.0;
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 pub enum Occurrence {
     // Note: this is at the top for Ord-deriving purposes.
@@ -40,7 +42,9 @@ impl Occurrence {
     pub fn minute(&self) -> u32 {
         match self {
             Self::Time(time) => time.minute(),
-            Self::Interval(duration) => (duration.as_secs() / 60).try_into().unwrap_or(u32::MAX),
+            Self::Interval(duration) => ((duration.as_secs() % 3600) / 60)
+                .try_into()
+                .unwrap_or(u32::MAX),
         }
     }
 
@@ -48,6 +52,13 @@ impl Occurrence {
         match self {
             Self::Time(time) => time.second(),
             Self::Interval(duration) => (duration.as_secs()).try_into().unwrap_or(u32::MAX),
+        }
+    }
+
+    pub fn seconds(&self) -> f64 {
+        match self {
+            Self::Time(time) => time.second().into(),
+            Self::Interval(duration) => f64::from(duration.subsec_nanos()) / NANOS_F,
         }
     }
 }

@@ -10,7 +10,7 @@ use smushclient_qt_lib::QAbstractScrollArea;
 
 use crate::convert::Convert;
 use crate::ffi::{StringView, VariableView};
-use crate::get_info::font_info;
+use crate::get_info::{InfoVisitorQVariant, font_info};
 
 #[allow(clippy::extra_unused_lifetimes)]
 #[cxx::bridge]
@@ -90,7 +90,7 @@ fn decode_utf8(text: StringView<'_>) -> Vec<u32> {
 }
 
 fn default_variant_option(option: StringView<'_>) -> QVariant {
-    WorldConfig::default_variant_option(option.as_slice()).convert()
+    WorldConfig::default_variant_option::<InfoVisitorQVariant>(option.as_slice())
 }
 
 fn encode_naws(browser: &QAbstractScrollArea) -> QByteArray {

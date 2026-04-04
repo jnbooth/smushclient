@@ -1,11 +1,34 @@
+use std::str::Utf8Error;
+
 use cxx_qt::CxxQtType;
 use cxx_qt_lib::QVariant;
-use smushclient::{OptionError, Optionable};
+use smushclient::{OptionError, Optionable, SmushClient};
 use smushclient_plugins::{Alias, PluginIndex, PluginSender, Timer, Trigger};
 
-use crate::convert::Convert;
 use crate::ffi::{self, ApiCode, SenderKind, StringView, VariableView};
+use crate::get_info::InfoVisitorQVariant;
 use crate::results::IntoApiCode;
+
+#[derive(Copy, Clone)]
+struct OptionIndex<'a> {
+    index: PluginIndex,
+    label: &'a str,
+    option: &'a [u8],
+}
+
+impl<'a> OptionIndex<'a> {
+    pub fn new(
+        index: PluginIndex,
+        label: StringView<'a>,
+        option: StringView<'a>,
+    ) -> Result<Self, Utf8Error> {
+        Ok(Self {
+            index,
+            label: label.to_str()?,
+            option: option.as_slice(),
+        })
+    }
+}
 
 impl ffi::SmushClient {
     pub fn get_sender_option(
@@ -15,13 +38,23 @@ impl ffi::SmushClient {
         label: StringView<'_>,
         option: StringView<'_>,
     ) -> QVariant {
-        match kind {
-            SenderKind::Alias => self.try_get_sender_opt::<Alias>(index, label, option),
-            SenderKind::Timer => self.try_get_sender_opt::<Timer>(index, label, option),
-            SenderKind::Trigger => self.try_get_sender_opt::<Trigger>(index, label, option),
-            _ => None,
+        fn inner<T: PluginSender + Optionable>(client: &SmushClient, opt: OptionIndex) -> QVariant {
+            let Some(sender) = client.borrow_sender::<T>(opt.index, opt.label) else {
+                return QVariant::default();
+            };
+            sender.get_option::<InfoVisitorQVariant>(opt.option)
         }
-        .unwrap_or_default()
+
+        let Ok(opt) = OptionIndex::new(index, label, option) else {
+            return QVariant::default();
+        };
+        let client = &self.rust().client;
+        match kind {
+            SenderKind::Alias => inner::<Alias>(client, opt),
+            SenderKind::Timer => inner::<Timer>(client, opt),
+            SenderKind::Trigger => inner::<Trigger>(client, opt),
+            _ => QVariant::default(),
+        }
     }
 
     pub fn set_sender_option(
@@ -32,16 +65,27 @@ impl ffi::SmushClient {
         option: StringView<'_>,
         value: StringView<'_>,
     ) -> ApiCode {
-        let Ok(label) = label.to_str() else {
+        fn inner<T: PluginSender + Optionable>(
+            client: &SmushClient,
+            opt: OptionIndex,
+            value: &[u8],
+        ) -> Result<(), OptionError> {
+            client
+                .borrow_sender_mut::<T>(opt.index, opt.label)?
+                .set_option(opt.option, value)
+        }
+
+        let Ok(opt) = OptionIndex::new(index, label, option) else {
             return kind.not_found();
         };
+        let value = value.as_slice();
+        let client = &self.rust().client;
         match kind {
-            SenderKind::Alias => self.try_set_sender_opt::<Alias>(index, label, option, value),
-            SenderKind::Timer => self.try_set_sender_opt::<Timer>(index, label, option, value),
-            SenderKind::Trigger => self.try_set_sender_opt::<Trigger>(index, label, option, value),
-            _ => return ApiCode::BadParameter,
+            SenderKind::Alias => inner::<Alias>(client, opt, value).code(),
+            SenderKind::Timer => inner::<Timer>(client, opt, value).code(),
+            SenderKind::Trigger => inner::<Trigger>(client, opt, value).code(),
+            _ => ApiCode::BadParameter,
         }
-        .code()
     }
 
     pub fn set_world_alpha_option(
@@ -86,31 +130,6 @@ impl ffi::SmushClient {
     pub fn world_variant_option(&self, index: PluginIndex, option: StringView<'_>) -> QVariant {
         self.rust()
             .client
-            .world_variant_option(index, option.as_slice())
-            .convert()
-    }
-
-    fn try_get_sender_opt<T: PluginSender + Optionable>(
-        &self,
-        index: PluginIndex,
-        label: StringView<'_>,
-        option: StringView<'_>,
-    ) -> Option<QVariant> {
-        let label = label.to_str().ok()?;
-        let sender = self.rust().client.borrow_sender::<T>(index, label)?;
-        Some(sender.get_option(option.as_slice()).convert())
-    }
-
-    fn try_set_sender_opt<T: PluginSender + Optionable>(
-        &self,
-        index: PluginIndex,
-        label: &str,
-        option: StringView<'_>,
-        value: StringView<'_>,
-    ) -> Result<(), OptionError> {
-        self.rust()
-            .client
-            .borrow_sender_mut::<T>(index, label)?
-            .set_option(option.as_slice(), value.as_slice())
+            .world_variant_option::<InfoVisitorQVariant>(index, option.as_slice())
     }
 }

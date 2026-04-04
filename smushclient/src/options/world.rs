@@ -5,9 +5,9 @@ use std::time::Duration;
 use mud_transformer::UseMxp;
 
 use super::color::{DecodeColor, EncodeColor};
-use super::encode::OptionValue;
 use super::error::SetOptionError;
 use crate::LuaStr;
+use crate::get_info::InfoVisitor;
 use crate::world::{AutoConnect, LogFormat, MxpDebugLevel, ScriptRecompile, WorldConfig};
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -274,9 +274,9 @@ impl WorldConfig {
         "new_activity_sound",
         "password",
         "player",
+        "proxy_password",
         "proxy_server",
         "proxy_username",
-        "proxy_password",
         "site",
         "terminal_identification",
     ];
@@ -346,25 +346,25 @@ impl WorldConfig {
             b"name" => self.name = value,
             b"password" => self.password = value,
             b"player" => self.player = value,
+            b"proxy_password" => self.proxy_password = value,
             b"proxy_server" => self.proxy_server = value,
             b"proxy_username" => self.proxy_username = value,
-            b"proxy_password" => self.proxy_password = value,
             b"site" => self.site = value,
             _ => return Err(SetOptionError::UnknownOption),
         }
         Ok(())
     }
 
-    pub fn default_variant_option(option: &LuaStr) -> OptionValue<'static> {
+    pub fn default_variant_option<V: InfoVisitor>(option: &LuaStr) -> V::Output {
         const CALLER: OptionCaller = OptionCaller::WorldScript;
         static DEFAULT_WORLD: LazyLock<WorldConfig> = LazyLock::new(WorldConfig::new);
         let world = &*DEFAULT_WORLD;
         if let Some(value) = world.option_int(CALLER, option) {
-            OptionValue::Numeric(value)
+            V::visit(value)
         } else if let Some(value) = world.option_str(CALLER, option) {
-            OptionValue::Alpha(value)
+            V::visit(value)
         } else {
-            OptionValue::Null
+            V::visit_none()
         }
     }
 }

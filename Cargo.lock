@@ -1641,7 +1641,6 @@ name = "smushclient-plugins"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "flagset",
  "mxp",
  "pcre2",
  "quick-xml",

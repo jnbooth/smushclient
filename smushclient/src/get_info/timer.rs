@@ -1,4 +1,4 @@
-use chrono::Utc;
+use chrono::{Timelike, Utc};
 use smushclient_plugins::{Occurrence, PluginIndex, SendTarget, Timer};
 
 use super::visitor::InfoVisitor;
@@ -22,7 +22,10 @@ impl SmushClient {
         match info_type {
             1 => V::visit(timer.occurrence.hour()),
             2 => V::visit(timer.occurrence.minute()),
-            3 => V::visit(timer.occurrence.second()),
+            3 => match timer.occurrence {
+                Occurrence::Interval(_) => V::visit(timer.occurrence.seconds()),
+                Occurrence::Time(time) => V::visit(time.second()),
+            },
             4 => V::visit(&timer.text),
             5 => V::visit(&timer.script),
             6 => V::visit(timer.enabled),

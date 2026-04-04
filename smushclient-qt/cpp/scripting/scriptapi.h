@@ -101,32 +101,31 @@ public:
 
   void ActivateClient() const;
   bool ActivateNotepad(const QString& name) const;
-  ApiCode AddAlias(
-    size_t plugin,
-    std::string_view name,
-    std::string_view pattern,
-    std::string_view text,
-    AliasFlags flags,
-    std::string_view scriptName = std::string_view()) const noexcept;
-  ApiCode AddTimer(
-    size_t plugin,
-    std::string_view name,
-    int hour,
-    int minute,
-    double second,
-    std::string_view text,
-    TimerFlags flags,
-    std::string_view scriptName = std::string_view()) const noexcept;
+  ApiCode AddAlias(size_t plugin,
+                   std::string_view name,
+                   std::string_view pattern,
+                   std::string_view text,
+                   AliasFlags flags,
+                   std::string_view scriptName) const noexcept;
+  ApiCode AddTimer(size_t plugin,
+                   std::string_view name,
+                   int hour,
+                   int minute,
+                   double second,
+                   std::string_view text,
+                   TimerFlags flags,
+                   std::string_view scriptName) const noexcept;
   ApiCode AddTrigger(size_t plugin,
                      std::string_view name,
                      std::string_view pattern,
                      std::string_view text,
                      TriggerFlags flags,
                      const QColor& color,
+                     int clipboardArg,
                      std::string_view sound,
                      std::string_view scriptName,
                      SendTarget target,
-                     int sequence = 100) const noexcept;
+                     int sequence) const noexcept;
   void AnsiNote(std::string_view text) const;
   bool AppendToNotepad(const QString& name, const QString& text) const;
   int64_t BroadcastPlugin(size_t pluginIndex,
@@ -228,7 +227,7 @@ public:
   QColor GetMapColour(const QColor& color) const noexcept;
   QRect GetMainWindowPosition() const;
   int GetNotepadLength(const QString& name) const;
-  QStringList GetNotepadList(bool all = false) const;
+  QStringList GetNotepadList(bool all) const;
   QString GetNotepadText(const QString& name) const;
   QRect GetNotepadWindowPosition(const QString& name) const;
   QTextCharFormat GetNoteStyle() const;

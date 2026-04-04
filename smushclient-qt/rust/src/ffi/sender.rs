@@ -142,6 +142,7 @@ pub mod ffi {
         #[qproperty(bool, lowercase_wildcard)]
         #[qproperty(bool, multi_line)]
         #[qproperty(i32, lines_to_match)]
+        #[qproperty(i32, clipboard_arg)]
         type Trigger = super::TriggerRust;
     }
 

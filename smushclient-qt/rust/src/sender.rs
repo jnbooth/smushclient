@@ -19,7 +19,6 @@ use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer
 use crate::convert::{Convert, impl_deref};
 use crate::ffi;
 
-const NANOSECONDS_PER_MILLISECOND: i32 = 1_000_000;
 const MILLISECONDS_PER_SECOND: i32 = 1000;
 const SECONDS_PER_MINUTE: i32 = 60;
 const MINUTES_PER_HOUR: i32 = 60;
@@ -151,19 +150,16 @@ impl From<&TimerRust> for Timer {
             ffi::Occurrence::Time => {
                 let msecs = value.at_time.msecs_since_start_of_day();
                 let seconds = (msecs / MILLISECONDS_PER_SECOND) as u32;
-                let time =
-                    NaiveTime::from_num_seconds_from_midnight_opt(seconds, 0).unwrap_or_default();
-                Occurrence::Time(time)
+                NaiveTime::from_num_seconds_from_midnight_opt(seconds, 0)
+                    .unwrap_or_default()
+                    .into()
             }
             ffi::Occurrence::Interval => {
-                let seconds = value.every_second;
-                let minutes = value.every_minute;
-                let hours = value.every_hour;
-                let duration = seconds + SECONDS_PER_MINUTE * (minutes + MINUTES_PER_HOUR * hours);
-                Occurrence::Interval(Duration::new(
-                    duration as u64,
-                    (value.every_millisecond * NANOSECONDS_PER_MILLISECOND) as u32,
-                ))
+                let secs = (value.every_hour as u64) * 3600
+                    + (value.every_minute as u64) * 60
+                    + (value.every_second as u64);
+                (Duration::from_secs(secs) + Duration::from_millis(value.every_millisecond as u64))
+                    .into()
             }
             _ => unreachable!(),
         };

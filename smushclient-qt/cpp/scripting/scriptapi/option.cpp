@@ -27,6 +27,14 @@ ScriptApi::GetOptionList() noexcept
 
 // Public methods
 
+QVariant
+ScriptApi::GetAliasOption(size_t plugin,
+                          string_view label,
+                          string_view option) const noexcept
+{
+  return client.getSenderOption(SenderKind::Alias, plugin, label, option);
+}
+
 string_view
 ScriptApi::GetAlphaOption(size_t plugin, string_view name) const noexcept
 {
@@ -44,6 +52,22 @@ int64_t
 ScriptApi::GetOption(size_t plugin, string_view name) const noexcept
 {
   return client.worldOption(plugin, name);
+}
+
+QVariant
+ScriptApi::GetTimerOption(size_t plugin,
+                          string_view label,
+                          string_view option) const noexcept
+{
+  return client.getSenderOption(SenderKind::Timer, plugin, label, option);
+}
+
+QVariant
+ScriptApi::GetTriggerOption(size_t plugin,
+                            string_view label,
+                            string_view option) const noexcept
+{
+  return client.getSenderOption(SenderKind::Trigger, plugin, label, option);
 }
 
 ApiCode

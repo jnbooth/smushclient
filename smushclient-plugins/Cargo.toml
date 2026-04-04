@@ -10,7 +10,6 @@ workspace = true
 
 [dependencies]
 chrono = { workspace = true }
-flagset = { workspace = true }
 mxp = { workspace = true }
 pcre2 = { version = "0.2.11" }
 quick-xml = { workspace = true }

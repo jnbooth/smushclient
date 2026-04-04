@@ -1,5 +1,4 @@
 #include "../../bridge/timekeeper.h"
-#include "../../casting.h"
 #include "../../client.h"
 #include "../../timermap.h"
 #include "../scriptapi.h"
@@ -59,10 +58,6 @@ ScriptApi::AddTimer(size_t plugin,
                     TimerFlags flags,
                     string_view scriptName) const noexcept
 {
-  if (flags.testFlag(TimerFlag::AtTime)) {
-    return ApiCode::OK;
-  }
-
   if (hour < 0 || minute < 0 || second < 0 || hour >= 24 || minute >= 60 ||
       second >= 60) {
     return ApiCode::TimeInvalid;
@@ -76,17 +71,25 @@ ScriptApi::AddTimer(size_t plugin,
   Timer timer;
   timer.setActiveClosed(flags.testFlag(TimerFlag::ActiveWhenClosed));
   timer.setEnabled(flags.testFlag(TimerFlag::Enabled));
-  timer.setEveryHour(hour);
-  timer.setEveryMillisecond(clamped_cast<int>(second / 1000));
-  timer.setEveryMinute(minute);
-  timer.setEverySecond(clamped_cast<int>(second));
   timer.setLabel(QString::fromUtf8(name));
-  timer.setOccurrence(Occurrence::Interval);
   timer.setOneShot(flags.testFlag(TimerFlag::OneShot));
   timer.setScript(QString::fromUtf8(scriptName));
   timer.setSendTo(target);
   timer.setTemporary(flags.testFlag(TimerFlag::Temporary));
   timer.setText(QString::fromUtf8(text));
+
+  if (flags.testFlag(TimerFlag::AtTime)) {
+    timer.setOccurrence(Occurrence::Time);
+    QTime time;
+    time.setHMS(hour, minute, static_cast<int>(second));
+    timer.setAtTime(time);
+  } else {
+    timer.setOccurrence(Occurrence::Interval);
+    timer.setEveryHour(hour);
+    timer.setEveryMillisecond(static_cast<int>(second / 1000));
+    timer.setEveryMinute(minute);
+    timer.setEverySecond(static_cast<int>(second));
+  }
 
   if (!flags.testFlag(TimerFlag::Replace)) {
     return client.addTimer(plugin, timer, *timekeeper);
@@ -103,6 +106,7 @@ ScriptApi::AddTrigger(size_t plugin,
                       string_view text,
                       TriggerFlags flags,
                       const QColor& color,
+                      int clipboardArg,
                       string_view sound,
                       string_view script,
                       SendTarget target,
@@ -117,6 +121,7 @@ ScriptApi::AddTrigger(size_t plugin,
   }
 
   Trigger trigger;
+  trigger.setClipboardArg(clipboardArg);
   trigger.setEnabled(flags.testFlag(TriggerFlag::Enabled));
   trigger.setExpandVariables(flags.testFlag(TriggerFlag::ExpandVariables));
   trigger.setIgnoreCase(flags.testFlag(TriggerFlag::IgnoreCase));
@@ -209,7 +214,7 @@ ScriptApi::DoAfter(size_t plugin,
     return ApiCode::TimeInvalid;
   }
   const milliseconds duration =
-    milliseconds{ clamped_cast<int64_t>(seconds * 1000.0) };
+    milliseconds{ static_cast<int64_t>(seconds * 1000.0) };
   sendQueue->start(duration,
                    { .plugin = plugin,
                      .sendTo = target,
@@ -281,36 +286,12 @@ ScriptApi::ExportXML(size_t plugin,
   }
 }
 
-QVariant
-ScriptApi::GetAliasOption(size_t plugin,
-                          string_view label,
-                          string_view option) const noexcept
-{
-  return client.getSenderOption(SenderKind::Alias, plugin, label, option);
-}
-
 rust::String
 ScriptApi::GetAliasWildcard(size_t plugin,
                             string_view label,
                             string_view name) const noexcept
 {
   return client.getAliasWildcard(plugin, label, name);
-}
-
-QVariant
-ScriptApi::GetTimerOption(size_t plugin,
-                          string_view label,
-                          string_view option) const noexcept
-{
-  return client.getSenderOption(SenderKind::Timer, plugin, label, option);
-}
-
-QVariant
-ScriptApi::GetTriggerOption(size_t plugin,
-                            string_view label,
-                            string_view option) const noexcept
-{
-  return client.getSenderOption(SenderKind::Trigger, plugin, label, option);
 }
 
 rust::String

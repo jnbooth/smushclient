@@ -1,22 +1,22 @@
 use smushclient_plugins::Reaction;
 
 use super::decode::DecodeOption;
-use super::encode::{EncodeOption, OptionValue};
 use super::error::OptionError;
 use super::optionable::Optionable;
 use crate::LuaStr;
+use crate::get_info::InfoVisitor;
 
 impl Optionable for Reaction {
-    fn get_option(&self, name: &LuaStr) -> OptionValue<'_> {
+    fn get_option<V: InfoVisitor>(&self, name: &LuaStr) -> V::Output {
         match name {
-            b"expand_variables" => self.expand_variables.encode(),
-            b"ignore_case" => self.ignore_case.encode(),
-            b"keep_evaluating" => self.keep_evaluating.encode(),
-            b"match" => self.pattern.encode(),
-            b"regexp" => self.is_regex.encode(),
-            b"repeat" => self.repeats.encode(),
-            b"sequence" => self.sequence.encode(),
-            _ => self.send.get_option(name),
+            b"expand_variables" => V::visit(self.expand_variables),
+            b"ignore_case" => V::visit(self.ignore_case),
+            b"keep_evaluating" => V::visit(self.keep_evaluating),
+            b"match" => V::visit(&self.pattern),
+            b"regexp" => V::visit(self.is_regex),
+            b"repeat" => V::visit(self.repeats),
+            b"sequence" => V::visit(self.sequence),
+            _ => self.send.get_option::<V>(name),
         }
     }
 
@@ -27,7 +27,7 @@ impl Optionable for Reaction {
             b"keep_evaluating" => self.keep_evaluating = value.decode()?,
             b"regexp" => self.set_is_regex(value.decode()?)?,
             b"repeat" => self.repeats = value.decode()?,
-            b"sequence" => self.sequence = value.decode()?,
+            b"sequence" => self.sequence = value.decode_in_range(..=10000)?,
             _ => self.send.set_option(name, value)?,
         }
         Ok(())

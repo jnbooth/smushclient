@@ -410,9 +410,9 @@ impl From<Occurrence> for ffi::Occurrence {
 impl From<ffi::Occurrence> for Occurrence {
     fn from(value: ffi::Occurrence) -> Self {
         match value {
-            ffi::Occurrence::Interval { s } => Occurrence::Interval(Duration::from_secs(s)),
+            ffi::Occurrence::Interval { s } => Duration::from_secs(s).into(),
             ffi::Occurrence::Time { h, m, s } => {
-                Occurrence::Time(NaiveTime::from_hms_opt(h, m, s).unwrap_or_default())
+                NaiveTime::from_hms_opt(h, m, s).unwrap_or_default().into()
             }
         }
     }
