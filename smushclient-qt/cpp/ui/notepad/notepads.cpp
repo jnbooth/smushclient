@@ -27,7 +27,7 @@ Notepads::createNotepad(const QUuid& worldID, const QString& name)
 {
   Notepad* notepad = new Notepad(worldID, name, this);
   notepad->show();
-  if (QWidget* active = QApplication::activeWindow(); active != nullptr) {
+  if (QWidget* active = QApplication::activeWindow()) {
     active->activateWindow();
   }
   return notepad;

@@ -637,7 +637,7 @@ ScriptApi::activateWindow(QWidget* widget)
   if (widget == nullptr) {
     return;
   }
-  if (QWidget* window = widget->window(); window != nullptr) {
+  if (QWidget* window = widget->window()) {
     window->setWindowState(
       window->windowState().setFlag(Qt::WindowState::WindowMinimized, false));
   }

@@ -189,13 +189,13 @@ MainWindow::event(QEvent* event)
 
   switch (event->type()) {
     case QEvent::WindowActivate:
-      if (WorldTab* tab = worldtab(); tab) {
+      if (WorldTab* tab = worldtab()) {
         tab->setActive(true);
       }
       break;
 
     case QEvent::WindowDeactivate:
-      if (WorldTab* tab = worldtab(); tab) {
+      if (WorldTab* tab = worldtab()) {
         tab->setActive(false);
       }
       break;
@@ -446,7 +446,7 @@ MainWindow::on_action_about_triggered()
 void
 MainWindow::on_action_clear_output_triggered()
 {
-  if (WorldTab* tab = worldtab(); tab != nullptr) {
+  if (WorldTab* tab = worldtab()) {
     tab->ui->output->clear();
   }
 }
@@ -489,7 +489,7 @@ MainWindow::on_action_command_history_triggered()
 void
 MainWindow::on_action_copy_triggered()
 {
-  if (WorldTab* tab = worldtab(); tab != nullptr) {
+  if (WorldTab* tab = worldtab()) {
     tab->copyableEditor()->copy();
   }
 }
@@ -497,9 +497,8 @@ MainWindow::on_action_copy_triggered()
 void
 MainWindow::on_action_copy_as_html_triggered()
 {
-  if (WorldTab* tab = worldtab(); tab != nullptr) {
-    QString html =
-      worldtab()->copyableEditor()->textCursor().selection().toHtml();
+  if (WorldTab* tab = worldtab()) {
+    QString html = tab->copyableEditor()->textCursor().selection().toHtml();
     QGuiApplication::clipboard()->setText(spans::sanitizeHtml(html));
   }
 }
@@ -507,7 +506,7 @@ MainWindow::on_action_copy_as_html_triggered()
 void
 MainWindow::on_action_cut_triggered()
 {
-  if (WorldTab* tab = worldtab(); tab != nullptr) {
+  if (WorldTab* tab = worldtab()) {
     tab->copyableEditor()->cut();
   }
 }
@@ -515,7 +514,7 @@ MainWindow::on_action_cut_triggered()
 void
 MainWindow::on_action_connect_triggered()
 {
-  if (WorldTab* tab = worldtab(); tab != nullptr) {
+  if (WorldTab* tab = worldtab()) {
     tab->connectToHost();
   }
 }
@@ -523,7 +522,7 @@ MainWindow::on_action_connect_triggered()
 void
 MainWindow::on_action_disconnect_triggered()
 {
-  if (WorldTab* tab = worldtab(); tab != nullptr) {
+  if (WorldTab* tab = worldtab()) {
     tab->disconnectFromHost();
   }
 }
@@ -531,7 +530,7 @@ MainWindow::on_action_disconnect_triggered()
 void
 MainWindow::on_action_edit_script_file_triggered()
 {
-  if (WorldTab* tab = worldtab(); tab != nullptr) {
+  if (WorldTab* tab = worldtab()) {
     tab->editWorldScript();
   }
 }
