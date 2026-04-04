@@ -198,7 +198,7 @@ qlua::concatArgs(lua_State* L, int startIdx, QByteArrayView delim)
         lua_pushvalue(L, -1); // tostring
         lua_pushvalue(L, i);  // argument
         lua_call(L, 1, 1);
-        if (const char* s = lua_tolstring(L, -1, &sLen); s) {
+        if (const char* s = lua_tolstring(L, -1, &sLen)) {
           output.append(s, static_cast<qsizetype>(sLen));
           lua_pop(L, 1);
           break;
