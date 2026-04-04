@@ -891,6 +891,7 @@ L_split(lua_State* L)
 int
 L_timer(lua_State* L)
 {
+  expectMaxArgs(L, 0);
   QElapsedTimer timer;
   timer.start();
   push(L, timer.msecsSinceReference());
