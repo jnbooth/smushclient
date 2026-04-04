@@ -107,12 +107,11 @@ toQVariant(lua_State* L, int idx, int type)
     case LUA_TSTRING:
       return QVariant(toQString(L, idx));
     case LUA_TTABLE: {
-      if (lua_Unsigned len = lua_rawlen(L, idx)) {
+      if (lua_Unsigned len = luaL_len(L, idx)) {
         QVariantList variants(static_cast<qsizetype>(len));
         const lua_Integer max = static_cast<lua_Integer>(len);
         for (lua_Integer i = 1; i <= max; ++i) {
-          const int type = lua_rawgeti(L, idx, i);
-          variants.append(toQVariant(L, -1, type));
+          variants.append(toQVariant(L, -1, lua_geti(L, idx, i)));
           lua_pop(L, 1);
         }
         return variants;

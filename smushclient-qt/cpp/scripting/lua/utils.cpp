@@ -829,7 +829,7 @@ L_multilistbox(lua_State* L)
 
   QList<QVariant> defaults;
   if (defaultType == LUA_TTABLE) {
-    defaults.reserve(static_cast<qsizetype>(lua_rawlen(L, 4)));
+    defaults.reserve(static_cast<qsizetype>(luaL_len(L, 4)));
     lua_pushnil(L); // first key
 
     while (lua_next(L, 4) != FALSE) {
@@ -938,7 +938,7 @@ L_utf8encode(lua_State* L)
       default:
         luaL_typeerror(L, i, "integer or table");
     }
-    for (int j = 1, ttype; (ttype = lua_rawgeti(L, i, j)) != LUA_TNONE; ++j) {
+    for (int j = 1, ttype; (ttype = lua_geti(L, i, j)) != LUA_TNONE; ++j) {
       if (ttype != LUA_TNUMBER) {
         luaL_error(L,
                    "Index [%d] of table at argument #%d to 'utf8encode' is "
