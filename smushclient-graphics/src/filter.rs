@@ -3,6 +3,8 @@
     clippy::cast_lossless,
     clippy::cast_sign_loss
 )]
+use std::mem;
+
 use crate::casting::{as_bytes_mut, as_pixels, as_pixels_mut};
 use crate::channel::ColorChannel;
 use crate::convolve::{Directions, convolve_rgb, convolve_rgba};
@@ -160,4 +162,10 @@ pub fn mask_premultiplied(data: &mut [u32], mask: &[u8], opacity: f64) -> bool {
         *c = (f64::from(*c) * mask) as u8;
     }
     true
+}
+
+pub fn swap_blue_and_alpha(data: &mut [u32]) {
+    for pixel in as_pixels_mut(data).iter_mut() {
+        mem::swap(&mut pixel.blue, &mut pixel.alpha);
+    }
 }

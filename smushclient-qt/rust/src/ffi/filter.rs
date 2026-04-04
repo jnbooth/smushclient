@@ -1,7 +1,7 @@
 use cxx_qt_lib::QColor;
 use smushclient_graphics::filter::{
     self, average, dissolve, grayscale_linear, grayscale_perceptual, mask_premultiplied,
-    mono_noise, noise,
+    mono_noise, noise, swap_blue_and_alpha,
 };
 use smushclient_graphics::{ColorChannel, Directions, Pixel};
 
@@ -52,6 +52,7 @@ mod ffi {
         fn color_to_alpha(data: &mut [u32], color: &QColor);
         fn dissolve(data: &mut [u32], opacity: f64);
         fn mask_premultiplied(data: &mut [u32], mask: &[u8], opacity: f64) -> bool;
+        fn swap_blue_and_alpha(data: &mut [u32]);
     }
 }
 

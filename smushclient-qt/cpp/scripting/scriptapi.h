@@ -543,6 +543,10 @@ public:
   ApiCode WindowLoadImage(std::string_view windowName,
                           std::string_view imageID,
                           const QString& filename) const;
+  ApiCode WindowLoadImageMemory(std::string_view windowName,
+                                std::string_view imageID,
+                                QByteArrayView data,
+                                bool swapBlueAndAlpha = false) const;
   QString WindowMenu(std::string_view windowName,
                      const QPoint& location,
                      std::string_view menuString) const;

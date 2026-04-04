@@ -2997,6 +2997,17 @@ L_WindowLoadImage(lua_State* L)
 }
 
 int
+L_WindowLoadImageMemory(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 4);
+  return returnCode(
+    L,
+    getApi(L).WindowLoadImageMemory(
+      getString(L, 1), getString(L, 2), getBytes(L, 3), getBool(L, 4, false)));
+}
+
+int
 L_WindowMenu(lua_State* L)
 {
   expectMaxArgs(L, 4);
@@ -3599,6 +3610,7 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "WindowImageOp", L_WindowImageOp },
     { "WindowList", L_WindowList },
     { "WindowLoadImage", L_WindowLoadImage },
+    { "WindowLoadImageMemory", L_WindowLoadImageMemory },
     { "WindowMenu", L_WindowMenu },
     { "WindowPolygon", L_WindowPolygon },
     { "WindowPosition", L_WindowPosition },

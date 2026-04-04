@@ -11,7 +11,8 @@ public:
   using Pixels = rust::Slice<uint32_t>;
 
   virtual ~ImageFilter() = default;
-  [[nodiscard]] virtual QImage apply(const QPixmap& pixmap) const noexcept = 0;
+  [[nodiscard]] virtual QImage apply(const QPixmap& pixmap) const noexcept;
+  virtual void apply(QImage& image) const noexcept = 0;
 
 public:
   class Noise;
@@ -29,6 +30,7 @@ public:
   class LesserBlur;
   class MinorBlur;
   class Average;
+  class SwapBlueAndAlpha;
 
 protected:
   class PixelFilter;
@@ -38,7 +40,8 @@ protected:
 class ImageFilter::PixelFilter : public ImageFilter
 {
 public:
-  QImage apply(const QPixmap& pixmap) const noexcept override;
+  [[nodiscard]] QImage apply(const QPixmap& pixmap) const noexcept override;
+  void apply(QImage& image) const noexcept override;
 
 protected:
   virtual void apply(Pixels pixels) const noexcept = 0;
@@ -52,7 +55,8 @@ public:
     : directions(directions)
   {
   }
-  QImage apply(const QPixmap& pixmap) const noexcept override;
+  using ImageFilter::apply;
+  void apply(QImage& image) const noexcept override;
 
 protected:
   virtual void apply(Pixels pixels,
@@ -74,6 +78,7 @@ private:
     }                                                                          \
                                                                                \
   protected:                                                                   \
+    using ConvolveFilter::apply;                                               \
     void apply(Pixels pixels,                                                  \
                int width,                                                      \
                Directions directions) const noexcept override;                 \
@@ -87,6 +92,7 @@ public:
     : threshold(threshold)
   {
   }
+  using ImageFilter::apply;
 
 protected:
   void apply(Pixels pixels) const noexcept override;
@@ -103,6 +109,7 @@ public:
     : threshold(threshold)
   {
   }
+  using ImageFilter::apply;
 
 protected:
   void apply(Pixels pixels) const noexcept override;
@@ -130,6 +137,7 @@ public:
     , channel(channel)
   {
   }
+  using ImageFilter::apply;
 
 protected:
   void apply(Pixels pixels) const noexcept override;
@@ -149,6 +157,7 @@ public:
     , multiply(multiply)
   {
   }
+  using ImageFilter::apply;
 
 protected:
   void apply(Pixels pixels) const noexcept override;
@@ -168,6 +177,7 @@ public:
     , exp(exp)
   {
   }
+  using ImageFilter::apply;
 
 protected:
   void apply(Pixels pixels) const noexcept override;
@@ -181,12 +191,14 @@ private:
 class ImageFilter::GrayscaleLinear : public PixelFilter
 {
 public:
+  using ImageFilter::apply;
   void apply(Pixels pixels) const noexcept override;
 };
 
 class ImageFilter::GrayscalePerceptual : public PixelFilter
 {
 public:
+  using ImageFilter::apply;
   void apply(Pixels pixels) const noexcept override;
 };
 
@@ -200,6 +212,7 @@ public:
     , multiply(multiply)
   {
   }
+  using ImageFilter::apply;
 
 protected:
   void apply(Pixels pixels) const noexcept override;
@@ -217,10 +230,18 @@ CONVOLVE_FILTER(MinorBlur)
 class ImageFilter::Average : public PixelFilter
 {
 public:
+  using ImageFilter::apply;
   void apply(Pixels pixels) const noexcept override;
 };
 
 #undef CONVOLVE_FILTER
+
+class ImageFilter::SwapBlueAndAlpha : public PixelFilter
+{
+public:
+  using ImageFilter::apply;
+  void apply(Pixels pixels) const noexcept override;
+};
 
 DECLARE_ENUM_BOUNDS(ImageFilter::ColorChannel, Blue, All)
 DECLARE_ENUM_BOUNDS(ImageFilter::Directions, Both, Vertical)

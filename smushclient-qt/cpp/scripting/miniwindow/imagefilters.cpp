@@ -1,5 +1,4 @@
 #include "imagefilters.h"
-#include "../../casting.h"
 #include "../../image.h"
 #include "smushclient_qt/src/ffi/filter.cxx.h"
 
@@ -8,24 +7,34 @@
 // Public methods
 
 QImage
+ImageFilter::apply(const QPixmap& pixmap) const noexcept
+{
+  QImage image = pixmap.toImage();
+  apply(image);
+  return image;
+}
+
+void
+ImageFilter::PixelFilter::apply(QImage& image) const noexcept
+{
+  image.convertTo(QImage::Format::Format_ARGB32);
+  apply(image::asPixelsMut(image));
+}
+
+QImage
 ImageFilter::PixelFilter::apply(const QPixmap& pixmap) const noexcept
 {
   if (isNoop() || pixmap.isNull()) {
     return QImage();
   }
-  QImage image = pixmap.toImage();
-  image.convertTo(QImage::Format::Format_ARGB32);
-  apply(image::asPixelsMut(image));
-  return image;
+  return ImageFilter::apply(pixmap);
 }
 
-QImage
-ImageFilter::ConvolveFilter::apply(const QPixmap& pixmap) const noexcept
+void
+ImageFilter::ConvolveFilter::apply(QImage& image) const noexcept
 {
-  QImage image = pixmap.toImage();
   image.convertTo(QImage::Format::Format_ARGB32);
   apply(image::asPixelsMut(image), image.width(), directions);
-  return image;
 }
 
 // Protected methods
@@ -130,4 +139,10 @@ void
 ImageFilter::Average::apply(Pixels pixels) const noexcept
 {
   ffi::filter::average(pixels);
+}
+
+void
+ImageFilter::SwapBlueAndAlpha::apply(Pixels pixels) const noexcept
+{
+  ffi::filter::swap_blue_and_alpha(pixels);
 }

@@ -1,6 +1,7 @@
 #include "../../image.h"
 #include "../../ui/ui_worldtab.h"
 #include "../../ui/worldtab.h"
+#include "../miniwindow/imagefilters.h"
 #include "../scriptapi.h"
 #include <QtCore/QFile>
 #include <QtGui/QFontDatabase>
@@ -352,13 +353,37 @@ ScriptApi::WindowLoadImage(string_view windowName,
   return ApiCode::FileNotFound;
 }
 
+ApiCode
+ScriptApi::WindowLoadImageMemory(string_view windowName,
+                                 string_view imageID,
+                                 QByteArrayView data,
+                                 bool swapBlueAndAlpha) const
+{
+  MiniWindow* window = TRY_WINDOW(windowName);
+  QImage image = QImage::fromData(data, "PNG");
+  if (image.isNull()) [[unlikely]] {
+    image = QImage::fromData(data);
+    if (image.isNull()) [[unlikely]] {
+      return ApiCode::UnableToLoadImage;
+    }
+  }
+  if (swapBlueAndAlpha) {
+    ImageFilter::SwapBlueAndAlpha().apply(image);
+  }
+
+  window->loadImage(imageID, QPixmap::fromImage(image));
+  return ApiCode::OK;
+}
+
 QString
 ScriptApi::WindowMenu(string_view windowName,
                       const QPoint& location,
                       string_view menuString) const
 {
   MiniWindow* window = findWindow(windowName);
-  CHECK_NONNULL(window);
+  if (window == nullptr) {
+    return QString();
+  }
   return window->execMenu(location, menuString);
 }
 
