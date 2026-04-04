@@ -2564,7 +2564,7 @@ L_GetVariableList(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 0);
-  pushMap(L, getApi(L).GetVariableList(getString(L, 1)));
+  pushMap(L, getApi(L).GetVariableList(getPluginIndex(L)));
   return 1;
 }
 
