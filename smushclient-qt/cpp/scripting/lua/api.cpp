@@ -3089,7 +3089,7 @@ L_WindowRectOp(lua_State* L)
                               getQColor(L, 7),
                               getQColor(L, 8, Qt::GlobalColor::black)));
     case RectOp::Edge3D:
-      if (optional<ButtonFrame> frame = getEnum<ButtonFrame>(L, 7); frame) {
+      if (optional<ButtonFrame> frame = getEnum<ButtonFrame>(L, 7)) {
         return returnCode(
           L,
           getApi(L).WindowButton(windowName,
