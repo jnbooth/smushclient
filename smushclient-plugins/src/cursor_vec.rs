@@ -177,7 +177,7 @@ impl<T: Ord> CursorVec<T> {
         let mut i = 0;
         inner.retain(|item| {
             // can't remove current sender
-            if pred(item) || i == cursor {
+            if i == cursor || pred(item) {
                 i += 1;
                 return true;
             }
