@@ -71,7 +71,7 @@ optional<Qt::CursorShape>
 getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil = nullopt);
 
 QColor
-getCustomColor(lua_State* L, int idx);
+getCustomColor(lua_State* L, int idx, optional<QColor> ifNil = nullopt);
 
 template<typename T>
 optional<T>

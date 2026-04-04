@@ -2082,9 +2082,9 @@ L_AddTrigger(lua_State* L)
   const string_view pattern = getString(L, 2);
   const string_view text = getString(L, 3);
   const TriggerFlags flags = getQFlags<TriggerFlag>(L, 4);
-  const QColor color = getCustomColor(L, 5);
-  const int clipboardArg = getInt(L, 6);
-  const string_view soundFile = getString(L, 7);
+  const QColor color = getCustomColor(L, 5, {});
+  const int clipboardArg = getInt(L, 6, 0);
+  const string_view soundFile = getString(L, 7, "");
   const string_view script = getString(L, 8, "");
   const optional<SendTarget> target = getEnum(L, 9, SendTarget::World);
   const int sequence = getInt(L, 10, 100);
@@ -2131,9 +2131,9 @@ L_DeleteGroup(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
-  const string_view group = getString(L, 1);
   const size_t pluginIndex = getPluginIndex(L);
   ScriptApi& api = getApi(L);
+  const string_view group = getString(L, 1);
   push(L,
        api.DeleteAliasGroup(pluginIndex, group) +
          api.DeleteTimerGroup(pluginIndex, group) +
@@ -2279,9 +2279,9 @@ L_EnableGroup(lua_State* L)
   BENCHMARK
   expectMaxArgs(L, 2);
   const size_t pluginIndex = getPluginIndex(L);
+  ScriptApi& api = getApi(L);
   const string_view group = getString(L, 1);
   const bool enable = getBool(L, 2, true);
-  ScriptApi& api = getApi(L);
   push(L,
        api.EnableAliasGroup(pluginIndex, group, enable) +
          api.EnableTimerGroup(pluginIndex, group, enable) +
@@ -2606,13 +2606,13 @@ int
 L_WindowBlendImage(lua_State* L)
 {
   BENCHMARK
-  expectMaxArgs(L, 12);
+  const int n = expectMaxArgs(L, 12);
   const string_view windowName = getString(L, 1);
   const string_view imageId = getString(L, 2);
   const QRectF rect = getQRectF(L, 3, 4, 5, 6);
   const optional<BlendMode> mode = getEnum<BlendMode>(L, 7);
   const lua_Number opacity = getNumber(L, 8);
-  const QRectF targetRect = getQRectF(L, 9, 10, 11, 12);
+  const QRectF targetRect = n > 8 ? getQRectF(L, 9, 10, 11, 12) : QRectF();
   expect_nonnull(mode, ApiCode::UnknownOption);
   if (opacity < 0 || opacity > 1) {
     return returnCode(L, ApiCode::BadParameter);
@@ -2712,7 +2712,7 @@ L_WindowDrawImage(lua_State* L)
   const string_view imageID = getString(L, 2);
   const QRectF rect = getQRectF(L, 3, 4, 5, 6);
   const optional<DrawImageMode> mode = getEnum(L, 7, DrawImageMode::Copy);
-  const QRectF sourceRect = n >= 8 ? getQRectF(L, 8, 9, 10, 11) : QRectF();
+  const QRectF sourceRect = n > 7 ? getQRectF(L, 8, 9, 10, 11) : QRectF();
   expect_nonnull(mode, ApiCode::BadParameter);
   return returnCode(
     L, getApi(L).WindowDrawImage(windowName, imageID, rect, *mode, sourceRect));
@@ -2727,7 +2727,7 @@ L_WindowDrawImageAlpha(lua_State* L)
   const string_view imageID = getString(L, 2);
   const QRectF rect = getQRectF(L, 3, 4, 5, 6);
   const lua_Number opacity = getNumber(L, 7);
-  const QPointF origin = n >= 8 ? getQPointF(L, 8, 9) : QPointF();
+  const QPointF origin = n > 7 ? getQPointF(L, 8, 9) : QPointF();
   if (opacity < 0 || opacity > 1) {
     return returnCode(L, ApiCode::BadParameter);
   }
@@ -3009,14 +3009,14 @@ L_WindowMenu(lua_State* L)
 int
 L_WindowMergeImageAlpha(lua_State* L)
 {
-  expectMaxArgs(L, 13);
+  const int n = expectMaxArgs(L, 13);
   const string_view windowName = getString(L, 1);
   const string_view imageID = getString(L, 2);
   const string_view maskID = getString(L, 3);
   const QRect targetRect = getQRect(L, 4, 5, 6, 7);
   const optional<MergeMode> mode = getEnum<MergeMode>(L, 8);
   const qreal opacity = getNumber(L, 9);
-  const QRect sourceRect = getQRect(L, 10, 11, 12, 13);
+  const QRect sourceRect = n > 9 ? getQRect(L, 10, 11, 12, 13) : QRect();
   expect_nonnull(mode, ApiCode::UnknownOption);
   if (opacity < 0 || opacity > 1) {
     return returnCode(L, ApiCode::BadParameter);
@@ -3210,7 +3210,7 @@ L_WindowAddHotspot(lua_State* L)
   expectMaxArgs(L, 14);
   const string_view windowName = getString(L, 1);
   const string_view hotspotID = getString(L, 2);
-  const QRect geometry(getQPoint(L, 3, 4), getQPoint(L, 5, 6));
+  const QRect geometry = getQRect(L, 3, 4, 5, 6);
   Hotspot::Callbacks callbacks{
     .mouseOver = string(getString(L, 7, "")),
     .cancelMouseOver = string(getString(L, 8, "")),
@@ -3290,11 +3290,10 @@ L_WindowMoveHotspot(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 6);
-  return returnCode(
-    L,
-    getApi(L).WindowMoveHotspot(getString(L, 1),
-                                getString(L, 2),
-                                QRect(getQPoint(L, 3, 4), getQPoint(L, 5, 6))));
+  return returnCode(L,
+                    getApi(L).WindowMoveHotspot(getString(L, 1),
+                                                getString(L, 2),
+                                                getQRect(L, 3, 4, 5, 6)));
 }
 
 int

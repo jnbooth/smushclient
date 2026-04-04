@@ -417,10 +417,13 @@ qlua::getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil)
 }
 
 QColor
-qlua::getCustomColor(lua_State* L, int idx)
+qlua::getCustomColor(lua_State* L, int idx, optional<QColor> ifNil)
 {
-  const lua_Integer colorIndex = getInteger(L, idx);
-  return (colorIndex < 0 || colorIndex >= 16) ? Qt::GlobalColor::black
+  if (checkTypeOrNil(L, idx, LUA_TNUMBER, !!ifNil, "integer")) {
+    return *ifNil;
+  }
+  const lua_Integer colorIndex = toInteger(L, idx);
+  return (colorIndex < 0 || colorIndex >= 16) ? QColor()
                                               : customColors.at(colorIndex);
 }
 
