@@ -844,6 +844,14 @@ L_multilistbox(lua_State* L)
 }
 
 int
+L_rgb(lua_State* L)
+{
+  expectMaxArgs(L, 3);
+  push(L, getInteger(L, 1) | getInteger(L, 2) << 8 | getInteger(L, 3) << 16);
+  return 1;
+}
+
+int
 L_sha256(lua_State* L)
 {
   expectMaxArgs(L, 1);
@@ -1004,6 +1012,7 @@ static const struct luaL_Reg utilslib[] = {
   { "msgbox", L_msgbox },
   { "multilistbox", L_multilistbox },
   { "reload_global_prefs", L_noop_nil },
+  { "rgb", L_rgb },
   { "sendtofront", L_noop_nil },
   { "sha256", L_sha256 },
   { "split", L_split },
