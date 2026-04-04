@@ -50,27 +50,6 @@ checkTypeOrNil(lua_State* L,
   return true;
 }
 
-inline bool
-isScriptName(lua_State* L, string_view name)
-{
-  const size_t dotIndex = name.find('.');
-  if (dotIndex == string_view::npos) {
-    const char* namePtr = name.data();
-    const bool isFunction = lua_getglobal(L, namePtr) != LUA_TNIL;
-    lua_pop(L, 1);
-    return isFunction;
-  }
-  const string tableName(name.substr(0, dotIndex));
-  if (lua_getglobal(L, tableName.c_str()) != LUA_TTABLE) {
-    lua_pop(L, 1);
-    return false;
-  }
-  const char* propertyPtr = name.substr(dotIndex + 1).data();
-  const bool isFunction = lua_getfield(L, -1, propertyPtr) == LUA_TFUNCTION;
-  lua_pop(L, 2);
-  return isFunction;
-}
-
 bool
 setExactFontFamily(QFont& font, const QString& family)
 {
@@ -665,18 +644,6 @@ qlua::getQVariant(lua_State* L, int idx)
   return toQVariant(L, idx, lua_type(L, idx));
 }
 
-optional<string_view>
-qlua::getScriptName(lua_State* L, int idx)
-{
-  const string_view name = qlua::getString(L, idx);
-
-  if (name.empty() || isScriptName(L, name)) {
-    return name;
-  }
-
-  return nullopt;
-}
-
 string_view
 qlua::getString(lua_State* L, int idx, optional<string_view> ifNil)
 {
@@ -692,6 +659,27 @@ qlua::toString(lua_State* L, int idx)
   size_t len;
   const char* message = lua_tolstring(L, idx, &len);
   return string_view(message, len);
+}
+
+bool
+qlua::isScriptName(lua_State* L, string_view name)
+{
+  const size_t dotIndex = name.find('.');
+  if (dotIndex == string_view::npos) {
+    const char* namePtr = name.data();
+    const bool isFunction = lua_getglobal(L, namePtr) != LUA_TNIL;
+    lua_pop(L, 1);
+    return isFunction;
+  }
+  const string tableName(name.substr(0, dotIndex));
+  if (lua_getglobal(L, tableName.c_str()) != LUA_TTABLE) {
+    lua_pop(L, 1);
+    return false;
+  }
+  const char* propertyPtr = name.substr(dotIndex + 1).data();
+  const bool isFunction = lua_getfield(L, -1, propertyPtr) == LUA_TFUNCTION;
+  lua_pop(L, 2);
+  return isFunction;
 }
 
 void

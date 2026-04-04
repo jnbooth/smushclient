@@ -166,14 +166,14 @@ getQTransform(lua_State* L,
 QVariant
 getQVariant(lua_State* L, int idx);
 
-optional<std::string_view>
-getScriptName(lua_State* L, int idx);
-
 std::string_view
 getString(lua_State* L, int idx, optional<std::string_view> ifNil = nullopt);
 
 std::string_view
 toString(lua_State* L, int idx);
+
+bool
+isScriptName(lua_State* L, std::string_view name);
 
 void
 pushQVariant(lua_State* L, const QVariant& variant);

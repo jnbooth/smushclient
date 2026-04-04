@@ -44,8 +44,8 @@ using qlua::getQRectF;
 using qlua::getQSize;
 using qlua::getQString;
 using qlua::getQTransform;
-using qlua::getScriptName;
 using qlua::getString;
+using qlua::isScriptName;
 using qlua::push;
 using qlua::pushEntry;
 using qlua::pushList;
@@ -2046,12 +2046,13 @@ L_AddAlias(lua_State* L)
   const string_view pattern = getString(L, 2);
   const string_view text = getString(L, 3);
   const AliasFlags flags = getQFlags<AliasFlag>(L, 4);
-  const optional<string_view> script = getScriptName(L, 5);
-  expect_nonnull(script, ApiCode::ScriptNameNotLocated);
-
+  const string_view script = getString(L, 5, "");
+  if (!script.empty() && !isScriptName(L, script)) {
+    return returnCode(L, ApiCode::ScriptNameNotLocated);
+  }
   return returnCode(
     L,
-    getApi(L).AddAlias(getPluginIndex(L), name, pattern, text, flags, *script));
+    getApi(L).AddAlias(getPluginIndex(L), name, pattern, text, flags, script));
 }
 
 int
@@ -2065,13 +2066,15 @@ L_AddTimer(lua_State* L)
   const lua_Number second = getNumber(L, 4);
   const string_view text = getString(L, 5);
   const TimerFlags flags = getQFlags<TimerFlag>(L, 6);
-  const optional<string_view> script = getScriptName(L, 7);
-  expect_nonnull(script, ApiCode::ScriptNameNotLocated);
+  const string_view script = getString(L, 7, "");
+  if (!script.empty() && !isScriptName(L, script)) {
+    return returnCode(L, ApiCode::ScriptNameNotLocated);
+  }
 
   return returnCode(
     L,
     getApi(L).AddTimer(
-      getPluginIndex(L), name, hour, minute, second, text, flags, *script));
+      getPluginIndex(L), name, hour, minute, second, text, flags, script));
 }
 
 int
@@ -2086,11 +2089,13 @@ L_AddTrigger(lua_State* L)
   const QColor color = getCustomColor(L, 5);
   const int clipboardArg = getInt(L, 6);
   const string_view soundFile = getString(L, 7);
-  const optional<string_view> script = getScriptName(L, 8);
+  const string_view script = getString(L, 8, "");
   const optional<SendTarget> target = getEnum(L, 9, SendTarget::World);
   const int sequence = getInt(L, 10, 100);
 
-  expect_nonnull(script, ApiCode::ScriptNameNotLocated);
+  if (!script.empty() && !isScriptName(L, script)) {
+    return returnCode(L, ApiCode::ScriptNameNotLocated);
+  }
   expect_nonnull(target, ApiCode::TriggerSendToInvalid);
 
   return returnCode(L,
@@ -2102,7 +2107,7 @@ L_AddTrigger(lua_State* L)
                                          color,
                                          clipboardArg,
                                          soundFile,
-                                         *script,
+                                         script,
                                          *target,
                                          sequence));
 }
