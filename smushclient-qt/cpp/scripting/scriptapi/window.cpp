@@ -34,18 +34,6 @@ using std::vector;
 
 // Public methods
 
-QRect
-ScriptApi::GetMainWindowPosition() const
-{
-  return tab.window()->rect();
-}
-
-QRect
-ScriptApi::GetWorldWindowPosition() const
-{
-  return tab.rect();
-}
-
 ApiCode
 ScriptApi::WindowArc(string_view windowName,
                      const QRectF& rect,

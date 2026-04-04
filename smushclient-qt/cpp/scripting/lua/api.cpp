@@ -1628,11 +1628,33 @@ L_GetLinesInBufferCount(lua_State* L)
 }
 
 int
+L_GetMainWindowPosition(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  // const bool differentCalc = getBool(L, 1, false);
+  push(L, getApi(L).GetMainWindowPosition());
+  return 1;
+}
+
+int
 L_GetRecentLines(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
   push(L, getApi(L).GetRecentLines(getInt(L, 1)));
+  return 1;
+}
+
+int
+L_GetWorldWindowPosition(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 3);
+  // const int windowNum = getInt(L, 1, 1);
+  // const bool useScreenCoords = getBool(L, 2, false);
+  // const bool differentCalc = getBool(L, 3, false);
+  push(L, getApi(L).GetWorldWindowPosition());
   return 1;
 }
 
@@ -2566,24 +2588,6 @@ L_SetVariable(lua_State* L)
 // window
 
 int
-L_GetMainWindowPosition(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 0);
-  push(L, getApi(L).GetMainWindowPosition());
-  return 1;
-}
-
-int
-L_GetWorldWindowPosition(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 0);
-  push(L, getApi(L).GetWorldWindowPosition());
-  return 1;
-}
-
-int
 L_WindowArc(lua_State* L)
 {
   BENCHMARK
@@ -3488,7 +3492,9 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "FixupHTML", L_FixupHTML },
     { "GetEchoInput", L_GetEchoInput },
     { "GetLinesInBufferCount", L_GetLinesInBufferCount },
+    { "GetMainWindowPosition", L_GetMainWindowPosition },
     { "GetRecentLines", L_GetRecentLines },
+    { "GetWorldWindowPosition", L_GetWorldWindowPosition },
     { "OpenBrowser", L_OpenBrowser },
     { "Pause", L_Pause },
     { "Reset", L_Reset },
@@ -3578,8 +3584,6 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "SetEntity", L_SetEntity },
     { "SetVariable", L_SetVariable },
     // window
-    { "GetMainWindowPosition", L_GetMainWindowPosition },
-    { "GetWorldWindowPosition", L_GetWorldWindowPosition },
     { "WindowArc", L_WindowArc },
     { "WindowBlendImage", L_WindowBlendImage },
     { "WindowCircleOp", L_WindowCircleOp },

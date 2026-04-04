@@ -69,11 +69,23 @@ ScriptApi::GetLinesInBufferCount() const
   return cursor->document()->blockCount();
 }
 
+QRect
+ScriptApi::GetMainWindowPosition() const
+{
+  return tab.window()->rect();
+}
+
 QString
 ScriptApi::GetRecentLines(int count) const
 {
   return selectRecentLines(count).selectedText().replace(paragraphSeparator,
                                                          u'\n');
+}
+
+QRect
+ScriptApi::GetWorldWindowPosition() const
+{
+  return tab.rect();
 }
 
 void
