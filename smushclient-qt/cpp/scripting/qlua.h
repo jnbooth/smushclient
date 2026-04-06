@@ -12,6 +12,12 @@ extern "C"
 #include "lua.h"
 }
 
+inline bool
+lua_tobool(lua_State* L, int idx)
+{
+  return static_cast<bool>(lua_toboolean(L, idx));
+}
+
 namespace qlua {
 using std::nullopt;
 using std::optional;
@@ -246,7 +252,7 @@ IMPL_PUSH(const QHostAddress&, toString());
 inline const char*
 push(lua_State* L, QChar ch)
 {
-  if (const char16_t code = ch.unicode(); code <= 127) [[likely]] {
+  if (char16_t code = ch.unicode(); code <= 127) [[likely]] {
     const char ccode = static_cast<char>(code);
     return lua_pushlstring(L, &ccode, 1);
   }

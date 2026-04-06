@@ -58,8 +58,7 @@ NamedPluginCallback::findCallback(lua_State* L) const
 void
 DiscardCallback::collectReturned(lua_State* L)
 {
-  if (processing && !lua_isnil(L, -1) &&
-      !static_cast<bool>(lua_toboolean(L, -1))) {
+  if (processing && !lua_isnil(L, -1) && !lua_tobool(L, -1)) {
     processing = false;
   }
 }

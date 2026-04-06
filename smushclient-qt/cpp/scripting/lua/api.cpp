@@ -159,7 +159,7 @@ getSenderOption(lua_State* L, int idx)
 {
   switch (lua_type(L, idx)) {
     case LUA_TBOOLEAN:
-      return static_cast<bool>(lua_toboolean(L, idx)) ? "1" : "0";
+      return lua_tobool(L, idx) ? "1" : "0";
     case LUA_TNUMBER:
     case LUA_TSTRING:
       return toString(L, idx);
@@ -969,7 +969,7 @@ L_SetInputFont(lua_State* L)
   expectMaxArgs(L, 4);
   QFont font = getQFont(L, 1);
   font.setPointSizeF(getNumber(L, 2));
-  if (const int weight = getInt(L, 3, 0)) {
+  if (int weight = getInt(L, 3, 0)) {
     font.setWeight(QFont::Weight(weight));
   }
   font.setItalic(getBool(L, 4, false));

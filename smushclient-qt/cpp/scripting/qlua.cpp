@@ -103,7 +103,7 @@ toQVariant(lua_State* L, int idx, int type)
                            : QVariant(lua_tonumber(L, idx));
     }
     case LUA_TBOOLEAN:
-      return QVariant(lua_toboolean(L, idx));
+      return QVariant(lua_tobool(L, idx));
     case LUA_TSTRING:
       return QVariant(toQString(L, idx));
     case LUA_TTABLE: {
@@ -153,8 +153,8 @@ qlua::concatArgs(lua_State* L, int startIdx, QByteArrayView delim)
         output.append(QByteArrayView("nil"));
         break;
       case LUA_TBOOLEAN:
-        output.append(lua_toboolean(L, i) == TRUE ? QByteArrayView("true")
-                                                  : QByteArrayView("false"));
+        output.append(lua_tobool(L, i) ? QByteArrayView("true")
+                                       : QByteArrayView("false"));
         break;
       case LUA_TNUMBER:
         if (lua_Integer result = lua_tointegerx(L, i, &isInt); isInt == TRUE) {
@@ -248,7 +248,7 @@ qlua::getBool(lua_State* L, int idx, optional<bool> ifNil)
       }
       break;
     case LUA_TBOOLEAN:
-      return lua_toboolean(L, idx) == TRUE;
+      return lua_tobool(L, idx);
     case LUA_TNUMBER: {
       int isInt;
       const lua_Integer value = lua_tointegerx(L, idx, &isInt);
