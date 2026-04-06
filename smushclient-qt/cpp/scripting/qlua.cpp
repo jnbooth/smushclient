@@ -83,9 +83,7 @@ toInteger(lua_State* L, int idx)
 inline QString
 toQString(lua_State* L, int idx)
 {
-  size_t len;
-  const char* message = lua_tolstring(L, idx, &len);
-  return QString::fromUtf8(message, static_cast<qsizetype>(len));
+  return QString::fromUtf8(lua_tobytes(L, idx));
 }
 
 QVariant
@@ -143,7 +141,6 @@ qlua::concatArgs(lua_State* L, int startIdx, QByteArrayView delim)
   const int n = lua_gettop(L);
   int isInt;
   bool needsToString = true;
-  size_t sLen;
   for (int i = startIdx; i <= n; ++i) {
     if (i > startIdx && !delim.empty()) {
       output.append(delim);
@@ -166,7 +163,7 @@ qlua::concatArgs(lua_State* L, int startIdx, QByteArrayView delim)
         numberBuf.str("");
         break;
       case LUA_TSTRING:
-        output.append(lua_tolstring(L, i, &sLen), static_cast<qsizetype>(sLen));
+        output.append(lua_tobytes(L, i));
         break;
       default:
         if (needsToString) {
@@ -176,8 +173,8 @@ qlua::concatArgs(lua_State* L, int startIdx, QByteArrayView delim)
         lua_pushvalue(L, -1); // tostring
         lua_pushvalue(L, i);  // argument
         lua_call(L, 1, 1);
-        if (const char* s = lua_tolstring(L, -1, &sLen)) {
-          output.append(s, static_cast<qsizetype>(sLen));
+        if (QByteArrayView s = lua_tobytes(L, -1); !s.isNull()) {
+          output.append(s);
           lua_pop(L, 1);
           break;
         }
@@ -216,8 +213,7 @@ qlua::copyValue(lua_State* fromL, lua_State* toL, int idx)
     }
     case LUA_TSTRING: {
       size_t len;
-      const char* s = lua_tolstring(fromL, idx, &len);
-      lua_pushlstring(toL, s, len);
+      lua_pushlstring(toL, lua_tolstring(fromL, idx, &len), len);
     }
       return true;
     default:
@@ -258,7 +254,7 @@ qlua::getBool(lua_State* L, int idx, optional<bool> ifNil)
       return value == TRUE;
     }
     case LUA_TSTRING: {
-      const string_view message = qlua::toString(L, idx);
+      const string_view message = toString(L, idx);
       if (message == "n" || message == "N" || message == "0") {
         return false;
       }
@@ -280,9 +276,7 @@ qlua::getBytes(lua_State* L, int idx, optional<QByteArrayView> ifNil)
   if (checkTypeOrNil(L, idx, LUA_TSTRING, !!ifNil)) {
     return *ifNil;
   }
-  size_t len;
-  const char* message = lua_tolstring(L, idx, &len);
-  return QByteArrayView(message, static_cast<qsizetype>(len));
+  return lua_tobytes(L, idx);
 }
 
 int
@@ -451,13 +445,11 @@ qlua::getQColor(lua_State* L, int idx, optional<QColor> ifNil)
       }
       break;
     case LUA_TSTRING: {
-      size_t len;
-      const char* message = lua_tolstring(L, idx, &len);
-      if (len == 0) {
+      const QByteArrayView message = lua_tobytes(L, idx);
+      if (message.empty()) {
         return QColor();
       }
-      const QColor color = QColor::fromString(
-        QAnyStringView(message, static_cast<qsizetype>(len)));
+      const QColor color = QColor::fromString(message);
       luaL_argcheck(L, color.isValid(), idx, "valid color");
       return color;
     }

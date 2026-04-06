@@ -66,13 +66,12 @@ DiscardCallback::collectReturned(lua_State* L)
 void
 ModifyTextCallback::collectReturned(lua_State* L)
 {
-  size_t len;
-  const char* message = lua_tolstring(L, -1, &len);
-  if (message == nullptr) {
+  const QByteArrayView message = lua_tobytes(L, -1);
+  if (message.isNull()) {
     return;
   }
   text.clear();
-  text.append(message, static_cast<qsizetype>(len));
+  text.append(message);
 }
 
 int

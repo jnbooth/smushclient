@@ -371,12 +371,10 @@ execScriptDialog(lua_State* L,
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TTABLE, idx, "table");
   lua_pushnil(L); // first key
-  size_t size;
 
   while (lua_next(L, idx) != FALSE) {
     const QVariant key = getQVariant(L, -2);
-    const char* data = lua_tolstring(L, -1, &size);
-    const QString value = QString::fromUtf8(data, static_cast<qsizetype>(size));
+    const QString value = QString::fromUtf8(lua_tobytes(L, -1));
     dialog.addItem(value, key, isOptionSelected(key, selection));
     lua_pop(L, 1);
   }

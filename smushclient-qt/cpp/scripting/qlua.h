@@ -18,6 +18,14 @@ lua_tobool(lua_State* L, int idx)
   return static_cast<bool>(lua_toboolean(L, idx));
 }
 
+inline QByteArrayView
+lua_tobytes(lua_State* L, int idx)
+{
+  size_t len;
+  const char* message = lua_tolstring(L, idx, &len);
+  return QByteArrayView(message, static_cast<qsizetype>(len));
+}
+
 namespace qlua {
 using std::nullopt;
 using std::optional;
