@@ -3,18 +3,18 @@
 #include <QtWidgets/QListWidgetItem>
 
 namespace Ui {
-class ListBox;
+class ListBoxDialog;
 } // namespace Ui
 
-class ListBox : public AbstractScriptDialog
+class ListBoxDialog : public AbstractScriptDialog
 {
   Q_OBJECT
 
 public:
-  explicit ListBox(const QString& title,
-                   const QString& message,
-                   QWidget* parent);
-  ~ListBox() override;
+  explicit ListBoxDialog(const QString& title,
+                         const QString& message,
+                         QWidget* parent);
+  ~ListBoxDialog() override;
 
   void addItems(const QStringList& items);
   void setMode(QListWidget::SelectionMode mode);
@@ -30,5 +30,5 @@ private slots:
   void on_items_itemDoubleClicked(QListWidgetItem* item);
 
 private:
-  Ui::ListBox* ui;
+  Ui::ListBoxDialog* ui;
 };

@@ -2,18 +2,18 @@
 #include "abstractscriptdialog.h"
 
 namespace Ui {
-class Choose;
+class ChooseDialog;
 } // namespace Ui
 
-class Choose : public AbstractScriptDialog
+class ChooseDialog : public AbstractScriptDialog
 {
   Q_OBJECT
 
 public:
-  explicit Choose(const QString& title,
-                  const QString& message,
-                  QWidget* parent);
-  ~Choose() override;
+  explicit ChooseDialog(const QString& title,
+                        const QString& message,
+                        QWidget* parent);
+  ~ChooseDialog() override;
 
   void addItem(const QString& text,
                const QVariant& value,
@@ -22,5 +22,5 @@ public:
   QVariant value() const override;
 
 private:
-  Ui::Choose* ui;
+  Ui::ChooseDialog* ui;
 };

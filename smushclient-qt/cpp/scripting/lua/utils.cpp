@@ -1,6 +1,7 @@
 #include "utils.h"
 #include "../../settings.h"
 #include "../../ui/scripting/choose.h"
+#include "../../ui/scripting/inputbox.h"
 #include "../../ui/scripting/listbox.h"
 #include "../callback/plugincallback.h"
 #include "../qlua.h"
@@ -27,9 +28,6 @@ extern "C"
 #define SIZE_MAX = std::numeric_limits<size_t>::max();
 #endif
 
-using std::span;
-using std::string_view;
-
 using qlua::expectMaxArgs;
 using qlua::getBool;
 using qlua::getBytes;
@@ -45,9 +43,14 @@ using qlua::push;
 using qlua::pushEntry;
 using qlua::pushList;
 using qlua::pushQVariant;
+
 using std::array;
+using std::make_unique;
 using std::optional;
 using std::pair;
+using std::span;
+using std::string_view;
+using std::unique_ptr;
 
 DECLARE_ENUM_BOUNDS(QFontDatabase::SystemFont,
                     GeneralFont,
@@ -390,37 +393,6 @@ execScriptDialog(lua_State* L,
   return 1;
 }
 
-int
-execInputDialog(lua_State* L, QInputDialog::InputDialogOptions options = {})
-{
-  expectMaxArgs(L, 6);
-  const QString message = getQString(L, 1, {});
-  const QString title = getQString(L, 2, QCoreApplication::applicationName());
-  const QString defaultText = getQString(L, 3, {});
-  QFont font = getQFont(L, 4, {});
-  const qreal fontSize = getInt(L, 5, -1);
-  if (fontSize > 0) {
-    font.setPointSizeF(fontSize);
-  }
-
-  QInputDialog dialog(getApi(L).parentWidget());
-  dialog.setLabelText(message);
-  dialog.setWindowTitle(title);
-  dialog.setTextValue(defaultText);
-  if (!font.family().isEmpty()) {
-    dialog.setFont(font);
-  }
-  dialog.setOptions(options);
-
-  if (dialog.exec() == QDialog::Accepted) {
-    push(L, dialog.textValue());
-  } else {
-    lua_pushnil(L);
-  }
-
-  return 1;
-}
-
 constexpr string_view
 formatStandardButton(QMessageBox::StandardButton button)
 {
@@ -570,8 +542,9 @@ L_choose(lua_State* L)
   const QString title = getQString(L, 2, QCoreApplication::applicationName());
   const QVariant defaultKey = getQVariant(L, 4);
 
-  Choose dialog(title, message, getApi(L).parentWidget());
-  return execScriptDialog(L, 3, dialog, defaultKey);
+  unique_ptr<ChooseDialog> dialog =
+    make_unique<ChooseDialog>(title, message, getApi(L).parentWidget());
+  return execScriptDialog(L, 3, *dialog, defaultKey);
 }
 
 // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -618,8 +591,14 @@ L_directorypicker(lua_State* L)
 int
 L_editbox(lua_State* L)
 {
-  return execInputDialog(
-    L, QInputDialog::InputDialogOption::UsePlainTextEditForTextInput);
+  unique_ptr<InputBox> dialog =
+    make_unique<InputBox>(L, true, getApi(L).parentWidget());
+  if (dialog->exec() == QDialog::Accepted) {
+    push(L, dialog->textValue());
+  } else {
+    lua_pushnil(L);
+  }
+  return 1;
 }
 
 int
@@ -761,7 +740,14 @@ L_infotypes(lua_State* L)
 int
 L_inputbox(lua_State* L)
 {
-  return execInputDialog(L);
+  unique_ptr<InputBox> dialog =
+    make_unique<InputBox>(L, false, getApi(L).parentWidget());
+  if (dialog->exec() == QDialog::Accepted) {
+    push(L, dialog->textValue());
+  } else {
+    lua_pushnil(L);
+  }
+  return 1;
 }
 
 int
@@ -772,8 +758,9 @@ L_listbox(lua_State* L)
   const QString title = getQString(L, 2, QCoreApplication::applicationName());
   const QVariant defaultKey = getQVariant(L, 4);
 
-  ListBox dialog(title, message, getApi(L).parentWidget());
-  return execScriptDialog(L, 3, dialog, defaultKey);
+  unique_ptr<ListBoxDialog> dialog =
+    make_unique<ListBoxDialog>(title, message, getApi(L).parentWidget());
+  return execScriptDialog(L, 3, *dialog, defaultKey);
 }
 
 int
@@ -806,9 +793,10 @@ L_msgbox(lua_State* L)
                 5,
                 "msgbox default button must be 1, 2 or 3");
   QWidget* parent = getApi(L).parentWidget();
-  QMessageBox messageBox(icon, title, message, buttons, parent);
-  messageBox.setDefaultButton(buttonArray.at(defaultButton - 1));
-  push(L, formatStandardButton(Button(messageBox.exec())));
+  unique_ptr<QMessageBox> messageBox =
+    make_unique<QMessageBox>(icon, title, message, buttons, parent);
+  messageBox->setDefaultButton(buttonArray.at(defaultButton - 1));
+  push(L, formatStandardButton(Button(messageBox->exec())));
   return 1;
 }
 
@@ -836,9 +824,10 @@ L_multilistbox(lua_State* L)
     }
   }
 
-  ListBox dialog(title, message, getApi(L).parentWidget());
-  dialog.setMode(QListWidget::SelectionMode::MultiSelection);
-  return execScriptDialog(L, 3, dialog, defaults);
+  unique_ptr<ListBoxDialog> dialog =
+    make_unique<ListBoxDialog>(title, message, getApi(L).parentWidget());
+  dialog->setMode(QListWidget::SelectionMode::MultiSelection);
+  return execScriptDialog(L, 3, *dialog, defaults);
 }
 
 int
@@ -1043,7 +1032,6 @@ int
 luaopen_utils(lua_State* L)
 {
   luaL_newlib(L, utilslib);
-
   luaopen_base64(L);
   lua_getfield(L, -1, "decode");
   lua_setfield(L, -3, "base64decode");

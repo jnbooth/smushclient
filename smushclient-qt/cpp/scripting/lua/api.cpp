@@ -3160,7 +3160,7 @@ L_WindowText(lua_State* L)
   expectMaxArgs(L, 9);
   const qreal width = getApi(L).WindowText(getString(L, 1),
                                            getString(L, 2),
-                                           toString(L, 3),
+                                           getString(L, 3),
                                            getQRectF(L, 4, 5, 6, 7),
                                            getQColor(L, 8),
                                            getBool(L, 9, false));

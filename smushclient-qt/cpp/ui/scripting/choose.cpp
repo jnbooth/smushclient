@@ -3,16 +3,18 @@
 
 // Public methods
 
-Choose::Choose(const QString& title, const QString& message, QWidget* parent)
+ChooseDialog::ChooseDialog(const QString& title,
+                           const QString& message,
+                           QWidget* parent)
   : AbstractScriptDialog(parent)
-  , ui(new Ui::Choose)
+  , ui(new Ui::ChooseDialog)
 {
   ui->setupUi(this);
   setWindowTitle(title);
   ui->label->setText(message);
 }
 
-Choose::~Choose()
+ChooseDialog::~ChooseDialog()
 {
   delete ui;
 }
@@ -20,7 +22,7 @@ Choose::~Choose()
 // Public overrides
 
 void
-Choose::addItem(const QString& text, const QVariant& value, bool active)
+ChooseDialog::addItem(const QString& text, const QVariant& value, bool active)
 {
   ui->items->addItem(text, value);
   if (active) {
@@ -29,13 +31,13 @@ Choose::addItem(const QString& text, const QVariant& value, bool active)
 }
 
 void
-Choose::sortItems()
+ChooseDialog::sortItems()
 {
   ui->items->model()->sort(0);
 }
 
 QVariant
-Choose::value() const
+ChooseDialog::value() const
 {
   return ui->items->currentData();
 }

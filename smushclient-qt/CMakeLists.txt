@@ -165,6 +165,7 @@ qt_add_executable(${APP_NAME}
 
     cpp/ui/scripting/abstractscriptdialog.h
     cpp/ui/scripting/choose.h cpp/ui/scripting/choose.cpp cpp/ui/scripting/choose.ui
+    cpp/ui/scripting/inputbox.h cpp/ui/scripting/inputbox.cpp
     cpp/ui/scripting/listbox.h cpp/ui/scripting/listbox.cpp cpp/ui/scripting/listbox.ui
 
     cpp/ui/settings/appearance.h cpp/ui/settings/appearance.cpp cpp/ui/settings/appearance.ui

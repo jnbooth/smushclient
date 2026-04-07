@@ -474,7 +474,7 @@ MainWindow::on_action_command_history_triggered()
     return;
   }
   MudInput& input = *tab->ui->input;
-  ListBox listbox(tr("Command History"), QString(), this);
+  ListBoxDialog listbox(tr("Command History"), QString(), this);
   listbox.addItems(input.log());
   if (listbox.exec() != QDialog::Accepted) {
     return;

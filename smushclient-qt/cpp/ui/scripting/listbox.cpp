@@ -3,34 +3,36 @@
 
 // Public methods
 
-ListBox::ListBox(const QString& title, const QString& message, QWidget* parent)
+ListBoxDialog::ListBoxDialog(const QString& title,
+                             const QString& message,
+                             QWidget* parent)
   : AbstractScriptDialog(parent)
-  , ui(new Ui::ListBox)
+  , ui(new Ui::ListBoxDialog)
 {
   ui->setupUi(this);
   setWindowTitle(title);
   ui->label->setText(message);
 }
 
-ListBox::~ListBox()
+ListBoxDialog::~ListBoxDialog()
 {
   delete ui;
 }
 
 void
-ListBox::addItems(const QStringList& items)
+ListBoxDialog::addItems(const QStringList& items)
 {
   ui->items->addItems(items);
 }
 
 void
-ListBox::setMode(QListWidget::SelectionMode mode)
+ListBoxDialog::setMode(QListWidget::SelectionMode mode)
 {
   ui->items->setSelectionMode(mode);
 }
 
 QString
-ListBox::text() const
+ListBoxDialog::text() const
 {
   QListWidgetItem* item = ui->items->currentItem();
   return (item != nullptr) ? item->text() : QString();
@@ -39,7 +41,7 @@ ListBox::text() const
 // Public overrides
 
 void
-ListBox::addItem(const QString& text, const QVariant& value, bool active)
+ListBoxDialog::addItem(const QString& text, const QVariant& value, bool active)
 {
   QListWidgetItem* item = new QListWidgetItem(text, ui->items);
   item->setData(Qt::UserRole, value);
@@ -49,13 +51,13 @@ ListBox::addItem(const QString& text, const QVariant& value, bool active)
 }
 
 void
-ListBox::sortItems()
+ListBoxDialog::sortItems()
 {
   ui->items->sortItems(Qt::SortOrder::AscendingOrder);
 }
 
 QVariant
-ListBox::value() const
+ListBoxDialog::value() const
 {
   if (ui->items->selectionMode() ==
       QListWidget::SelectionMode::SingleSelection) {
@@ -72,7 +74,7 @@ ListBox::value() const
 }
 
 void
-ListBox::on_items_itemDoubleClicked(QListWidgetItem* /*item*/)
+ListBoxDialog::on_items_itemDoubleClicked(QListWidgetItem* /*item*/)
 {
   accept();
 }
