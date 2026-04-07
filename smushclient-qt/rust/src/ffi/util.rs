@@ -182,7 +182,8 @@ fn log(
     line: i32,
 ) {
     // SAFETY: Provided by the Qt side.
-    let category = unsafe { cstr_utf8(category) };
+    let (category, file, function) =
+        unsafe { (cstr_utf8(category), cstr_utf8(file), cstr_utf8(function)) };
     let logger = log::logger();
     let level = match msg_type {
         QtMsgType::QtCriticalMsg => log::Level::Error,
@@ -192,24 +193,17 @@ fn log(
         _ => log::Level::Trace,
     };
     let target = match category {
-        Some("default") | None => "",
+        Some("default") | None => function.unwrap_or_default(),
         Some(category) => category,
     };
     let metadata = log::Metadata::builder().target(target).level(level).build();
     if !logger.enabled(&metadata) {
         return;
     }
-    // SAFETY: Provided by the Qt side.
-    let (file, function) = unsafe { (cstr_utf8(file), cstr_utf8(function)) };
-    let args = if let Some(function) = &function {
-        format_args!("{message} ({})", *function)
-    } else {
-        format_args!("{message}")
-    };
     logger.log(
         &log::Record::builder()
             .metadata(metadata)
-            .args(args)
+            .args(format_args!("{message}"))
             .file(file)
             .line(line.try_into().ok())
             .build(),
