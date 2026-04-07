@@ -140,7 +140,6 @@ qlua::concatArgs(lua_State* L, int startIdx, QByteArrayView delim)
   QByteArray output;
   std::ostringstream numberBuf;
   const int n = lua_gettop(L);
-  int isInt;
   bool needsToString = true;
   for (int i = startIdx; i <= n; ++i) {
     if (i > startIdx && !delim.empty()) {
@@ -155,11 +154,7 @@ qlua::concatArgs(lua_State* L, int startIdx, QByteArrayView delim)
                                        : QByteArrayView("false"));
         break;
       case LUA_TNUMBER:
-        if (lua_Integer result = lua_tointegerx(L, i, &isInt); isInt == TRUE) {
-          numberBuf << result;
-        } else {
-          numberBuf << lua_tonumber(L, i);
-        }
+        numberBuf << lua_tonumber(L, i);
         output.append(numberBuf.view());
         numberBuf.str("");
         break;
