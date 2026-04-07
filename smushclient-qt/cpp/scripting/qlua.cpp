@@ -94,7 +94,7 @@ toQVariant(lua_State* L, int idx, int type)
     case LUA_TNONE:
       return QVariant();
     case LUA_TNIL:
-      return QVariant(QMetaType::fromType<nullptr_t>());
+      return QVariant::fromValue(nullptr);
     case LUA_TNUMBER: {
       int isInt;
       const lua_Integer intResult = lua_tointegerx(L, idx, &isInt);
