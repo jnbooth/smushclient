@@ -26,7 +26,7 @@ QString
 ScriptApi::GetSelection() const
 {
   return tab.ui->output->textCursor().selectedText().replace(
-    u'\n', paragraphSeparator);
+    u'\n', QChar::ParagraphSeparator);
 }
 
 int

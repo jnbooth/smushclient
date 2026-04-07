@@ -34,8 +34,7 @@ PrefsMud::~PrefsMud()
 void
 PrefsMud::on_UseMxp_currentIndexChanged(int index)
 {
-  const UseMxp value = static_cast<UseMxp>(index);
-  const bool enableMxp = value != UseMxp::Never;
+  const bool enableMxp = index != static_cast<int>(UseMxp::Never);
   ui->IgnoreMxpColourChanges->setEnabled(enableMxp);
   ui->UseCustomLinkColour->setEnabled(enableMxp);
   ui->MudCanChangeLinkColour->setEnabled(enableMxp);

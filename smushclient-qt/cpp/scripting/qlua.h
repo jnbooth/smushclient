@@ -1,4 +1,5 @@
 #pragma once
+#include "../casting.h"
 #include "../enumbounds.h"
 #include "rust/cxx.h"
 #include "smushclient_qt/views.h"
@@ -253,16 +254,16 @@ IMPL_PUSH(rust::variable_view);
 
 IMPL_PUSH(lua_Integer, lua_pushinteger, value);
 IMPL_PUSH(lua_Number, lua_pushnumber, value);
-IMPL_PUSH(bool, lua_pushboolean, static_cast<int>(value));
-IMPL_PUSH(int, lua_pushinteger, static_cast<lua_Integer>(value));
-IMPL_PUSH(size_t, lua_pushinteger, static_cast<lua_Integer>(value));
-IMPL_PUSH(uint32_t, lua_pushinteger, static_cast<lua_Integer>(value));
+IMPL_PUSH(bool, lua_pushboolean, value);
+IMPL_PUSH(int, lua_pushinteger, value);
+IMPL_PUSH(uint32_t, lua_pushinteger, value);
+IMPL_PUSH(size_t, lua_pushinteger, clamped_cast<lua_Integer>(value));
 IMPL_PUSH(const QColor&, lua_pushinteger, colorToRgbCode(value));
 IMPL_PUSH(signed char, push, static_cast<char>(value));
 IMPL_PUSH(unsigned char, push, static_cast<char>(value));
 IMPL_PUSH(QChar, push, value.unicode());
 IMPL_PUSH(const QString&, push, value.toUtf8());
-IMPL_PUSH(const QDateTime&, push, value.toSecsSinceEpoch());
+IMPL_PUSH(const QDateTime&, lua_pushinteger, value.toSecsSinceEpoch());
 IMPL_PUSH(const QHostAddress&, push, value.toString());
 IMPL_PUSH(const QUuid&, push, value.toByteArray(QUuid::WithoutBraces));
 

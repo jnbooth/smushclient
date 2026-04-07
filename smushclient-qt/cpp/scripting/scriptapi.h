@@ -729,8 +729,6 @@ private:
 
 private:
   static constexpr const size_t noSuchPlugin = 0xFFFFFFFFFFFFFFFF;
-  static constexpr const QChar paragraphSeparator =
-    QChar(static_cast<char32_t>(2029));
 
   ActionSource actionSource = ActionSource::Unknown;
   CallbackFilter activeCallbacks;

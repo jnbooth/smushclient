@@ -892,7 +892,7 @@ WorldTab::showAliasMenu()
 QStringList
 WorldTab::splitCommands(const QString& input) const
 {
-  constexpr const QChar delim = static_cast<uint16_t>(31);
+  constexpr const QChar delim = QChar::fromLatin1(31);
   if (splitOn == u'\n') {
     return input.split(u'\n');
   }

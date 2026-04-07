@@ -78,8 +78,8 @@ ScriptApi::GetMainWindowPosition() const
 QString
 ScriptApi::GetRecentLines(int count) const
 {
-  return selectRecentLines(count).selectedText().replace(paragraphSeparator,
-                                                         u'\n');
+  return selectRecentLines(count).selectedText().replace(
+    QChar::ParagraphSeparator, u'\n');
 }
 
 QRect
