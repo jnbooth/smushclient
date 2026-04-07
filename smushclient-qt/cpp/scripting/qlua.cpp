@@ -611,8 +611,7 @@ qlua::isScriptName(lua_State* L, string_view name)
 void
 qlua::pushQVariant(lua_State* L, const QVariant& variant)
 {
-  QMetaType type = variant.metaType();
-  switch (type.id()) {
+  switch (variant.typeId()) {
     case QMetaType::UnknownType:
     case QMetaType::Nullptr:
       lua_pushnil(L);
