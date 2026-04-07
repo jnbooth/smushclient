@@ -255,14 +255,22 @@ qlua::getBool(lua_State* L, int idx, optional<bool> ifNil)
       return value == TRUE;
     }
     case LUA_TSTRING: {
-      const string_view message = toString(L, idx);
-      if (message == "n" || message == "N" || message == "0") {
-        return false;
+      const string_view message = lua_tostr(L, idx);
+      if (message.size() != 1) {
+        break;
       }
-      if (message == "y" || message == "Y" || message == "1") {
-        return true;
+      switch (message.front()) {
+        case 'n':
+        case 'N':
+        case '0':
+          return false;
+        case 'y':
+        case 'Y':
+        case '1':
+          return true;
+        default:
+          break;
       }
-      break;
     }
     default:
       break;
@@ -659,15 +667,7 @@ qlua::getString(lua_State* L, int idx, optional<string_view> ifNil)
   if (checkTypeOrNil(L, idx, LUA_TSTRING, !!ifNil)) {
     return *ifNil;
   }
-  return toString(L, idx);
-}
-
-string_view
-qlua::toString(lua_State* L, int idx)
-{
-  size_t len;
-  const char* message = lua_tolstring(L, idx, &len);
-  return string_view(message, len);
+  return lua_tostr(L, idx);
 }
 
 bool

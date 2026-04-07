@@ -23,8 +23,14 @@ inline QByteArrayView
 lua_tobytes(lua_State* L, int idx)
 {
   size_t len;
-  const char* message = lua_tolstring(L, idx, &len);
-  return QByteArrayView(message, static_cast<qsizetype>(len));
+  return { lua_tolstring(L, idx, &len), static_cast<qsizetype>(len) };
+}
+
+inline std::string_view
+lua_tostr(lua_State* L, int idx)
+{
+  size_t len;
+  return { lua_tolstring(L, idx, &len), len };
 }
 
 namespace qlua {
@@ -189,9 +195,6 @@ getQVariant(lua_State* L, int idx);
 
 std::string_view
 getString(lua_State* L, int idx, optional<std::string_view> ifNil = nullopt);
-
-std::string_view
-toString(lua_State* L, int idx);
 
 bool
 isScriptName(lua_State* L, std::string_view name);

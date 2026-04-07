@@ -52,7 +52,6 @@ using qlua::pushList;
 using qlua::pushMap;
 using qlua::pushQVariant;
 using qlua::rgbCodeToColor;
-using qlua::toString;
 
 DECLARE_ENUM_BOUNDS(Qt::Orientation, Horizontal, Vertical)
 DECLARE_ENUM_BOUNDS(SendTarget, World, ScriptAfterOmit)
@@ -162,8 +161,7 @@ getSenderOption(lua_State* L, int idx)
       return lua_tobool(L, idx) ? "1" : "0";
     case LUA_TNUMBER:
     case LUA_TSTRING:
-      return toString(L, idx);
-      break;
+      return lua_tostr(L, idx);
     default:
       return nullopt;
   }
