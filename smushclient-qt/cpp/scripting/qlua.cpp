@@ -86,50 +86,6 @@ toQString(lua_State* L, int idx)
 {
   return QString::fromUtf8(lua_tobytes(L, idx));
 }
-
-QVariant
-toQVariant(lua_State* L, int idx, int type)
-{
-  switch (type) {
-    case LUA_TNONE:
-      return QVariant();
-    case LUA_TNIL:
-      return QVariant::fromValue(nullptr);
-    case LUA_TNUMBER: {
-      int isInt;
-      const lua_Integer intResult = lua_tointegerx(L, idx, &isInt);
-      return isInt == TRUE ? QVariant(intResult)
-                           : QVariant(lua_tonumber(L, idx));
-    }
-    case LUA_TBOOLEAN:
-      return QVariant(lua_tobool(L, idx));
-    case LUA_TSTRING:
-      return QVariant(toQString(L, idx));
-    case LUA_TTABLE: {
-      if (lua_Unsigned len = luaL_len(L, idx)) {
-        QVariantList variants(static_cast<qsizetype>(len));
-        const lua_Integer max = static_cast<lua_Integer>(len);
-        for (lua_Integer i = 1; i <= max; ++i) {
-          variants.append(toQVariant(L, -1, lua_geti(L, idx, i)));
-          lua_pop(L, 1);
-        }
-        return variants;
-      }
-      QVariantHash hash;
-      lua_pushnil(L); // first key
-      while (lua_next(L, idx) != FALSE) {
-        hash[toQString(L, -2)] = toQVariant(L, -1, lua_type(L, -1));
-        lua_pop(L, 1);
-      }
-      if (!hash.empty()) {
-        return QVariant(hash);
-      }
-      return QVariant(QVariantList(0));
-    }
-    default:
-      return QVariant();
-  }
-}
 } // namespace
 
 // Public functions
@@ -642,12 +598,6 @@ qlua::getQTransform(lua_State* L,
                     getNumber(L, idxM22),
                     getNumber(L, idxDx),
                     getNumber(L, idxDy));
-}
-
-QVariant
-qlua::getQVariant(lua_State* L, int idx)
-{
-  return toQVariant(L, idx, lua_type(L, idx));
 }
 
 string_view

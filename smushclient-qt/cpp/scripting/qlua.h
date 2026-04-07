@@ -191,9 +191,6 @@ getQTransform(lua_State* L,
               int idxDx,
               int idxDy);
 
-QVariant
-getQVariant(lua_State* L, int idx);
-
 std::string_view
 getString(lua_State* L, int idx, optional<std::string_view> ifNil = nullopt);
 

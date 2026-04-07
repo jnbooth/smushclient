@@ -37,7 +37,6 @@ using qlua::getInteger;
 using qlua::getQColor;
 using qlua::getQFont;
 using qlua::getQString;
-using qlua::getQVariant;
 using qlua::getString;
 using qlua::push;
 using qlua::pushEntry;
@@ -353,6 +352,19 @@ encodeUtf8Char(lua_State* L, rust::String& buf, int idx)
   encodeUtf8Char(L, buf, idx, idx, 0);
 }
 
+QVariant
+getKey(lua_State* L, int tableIdx, int idx)
+{
+  switch (lua_type(L, idx)) {
+    case LUA_TNUMBER:
+      return lua_tonumber(L, idx);
+    case LUA_TSTRING:
+      return QString::fromUtf8(lua_tobytes(L, idx));
+    default:
+      return luaL_argerror(L, tableIdx, "all keys must be strings or numbers");
+  }
+}
+
 inline bool
 isOptionSelected(const QVariant& value, const QVariant& selection)
 {
@@ -373,13 +385,11 @@ execScriptDialog(lua_State* L,
                  const T& selection)
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TTABLE, idx, "table");
-  lua_pushnil(L); // first key
 
-  while (lua_next(L, idx) != FALSE) {
-    const QVariant key = getQVariant(L, -2);
+  for (lua_pushnil(L); lua_next(L, idx) != FALSE; lua_pop(L, 1)) {
+    const QVariant key = getKey(L, idx, -2);
     const QString value = QString::fromUtf8(lua_tobytes(L, -1));
     dialog.addItem(value, key, isOptionSelected(key, selection));
-    lua_pop(L, 1);
   }
 
   dialog.sortItems();
@@ -540,7 +550,7 @@ L_choose(lua_State* L)
   expectMaxArgs(L, 4);
   const QString message = getQString(L, 1, {});
   const QString title = getQString(L, 2, QCoreApplication::applicationName());
-  const QVariant defaultKey = getQVariant(L, 4);
+  const QVariant defaultKey = getKey(L, 4, 4);
 
   unique_ptr<ChooseDialog> dialog =
     make_unique<ChooseDialog>(title, message, getApi(L).parentWidget());
@@ -756,7 +766,7 @@ L_listbox(lua_State* L)
   expectMaxArgs(L, 4);
   const QString message = getQString(L, 1, {});
   const QString title = getQString(L, 2, QCoreApplication::applicationName());
-  const QVariant defaultKey = getQVariant(L, 4);
+  const QVariant defaultKey = getKey(L, 4, 4);
 
   unique_ptr<ListBoxDialog> dialog =
     make_unique<ListBoxDialog>(title, message, getApi(L).parentWidget());
@@ -815,12 +825,10 @@ L_multilistbox(lua_State* L)
 
   QList<QVariant> defaults;
   if (defaultType == LUA_TTABLE) {
-    defaults.reserve(static_cast<qsizetype>(luaL_len(L, 4)));
-    lua_pushnil(L); // first key
+    defaults.reserve(luaL_len(L, 4));
 
-    while (lua_next(L, 4) != FALSE) {
-      defaults.push_back(getQVariant(L, -2));
-      lua_pop(L, 1);
+    for (lua_pushnil(L); lua_next(L, 4) != FALSE; lua_pop(L, 1)) {
+      defaults.push_back(getKey(L, 4, -2));
     }
   }
 
