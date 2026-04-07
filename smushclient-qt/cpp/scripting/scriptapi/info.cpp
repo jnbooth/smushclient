@@ -146,7 +146,6 @@ ScriptApi::FontInfo(const QFont& font, int64_t infoType)
   if (infoType != 19) {
     return ffi::util::font_info(font, infoType);
   }
-  const ScriptFont scriptFont(font);
   return static_cast<int64_t>(ScriptFont(font));
 }
 

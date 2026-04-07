@@ -415,7 +415,10 @@ public:
   static constexpr std::optional<ScriptFont> validate(int64_t value) noexcept
   {
     const ScriptFont font(value);
-    return font.isValid() ? std::optional(font) : std::nullopt;
+    if (!font.isValid()) [[unlikely]] {
+      return std::nullopt;
+    }
+    return font;
   }
 
   constexpr ScriptFont() noexcept = default;
@@ -497,7 +500,10 @@ public:
   static constexpr std::optional<ScriptPen> validate(int64_t value) noexcept
   {
     const ScriptPen pen(value);
-    return pen.isValid() ? std::optional(pen) : std::nullopt;
+    if (!pen.isValid()) [[unlikely]] {
+      return std::nullopt;
+    }
+    return pen;
   }
 
   constexpr ScriptPen() noexcept = default;

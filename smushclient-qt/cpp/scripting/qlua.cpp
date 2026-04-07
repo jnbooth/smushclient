@@ -90,6 +90,27 @@ toQString(lua_State* L, int idx)
 
 // Public functions
 
+QColor
+qlua::rgbCodeToColor(lua_Integer rgb) noexcept
+{
+  if (rgb == -1 || rgb > 0xFFFFFF) [[unlikely]] {
+    return QColor();
+  }
+  const int code = static_cast<int>(rgb);
+  return QColor(code & 0xFF, (code >> 8) & 0xFF, (code >> 16) & 0xFF);
+}
+
+lua_Integer
+qlua::colorToRgbCode(const QColor& color)
+{
+  if (!color.isValid()) [[unlikely]] {
+    return -1;
+  }
+  int r, g, b;
+  color.getRgb(&r, &g, &b);
+  return b << 16 | g << 8 | r;
+}
+
 QByteArray
 qlua::concatArgs(lua_State* L, int startIdx, QByteArrayView delim)
 {
@@ -153,6 +174,9 @@ qlua::copyValue(lua_State* fromL, lua_State* toL, int idx)
     case LUA_TBOOLEAN:
       lua_pushboolean(toL, lua_toboolean(fromL, idx));
       return true;
+    case LUA_TLIGHTUSERDATA:
+      lua_pushlightuserdata(toL, lua_touserdata(fromL, idx));
+      return true;
     case LUA_TNUMBER: {
       int isInt;
       const lua_Integer intResult = lua_tointegerx(fromL, idx, &isInt);
@@ -166,22 +190,22 @@ qlua::copyValue(lua_State* fromL, lua_State* toL, int idx)
     case LUA_TSTRING: {
       size_t len;
       lua_pushlstring(toL, lua_tolstring(fromL, idx, &len), len);
-    }
       return true;
+    }
     default:
       return false;
   }
 }
 
 int
-qlua::expectMaxArgs(lua_State* L, int max)
+qlua::throwTooManyArgsError(lua_State* L, int max)
 {
   const int n = lua_gettop(L);
-  if (n > max) [[unlikely]] {
-    lua_pushliteral(L, "Too many arguments");
-    lua_error(L);
-  }
-  return n;
+  lua_Debug ar;
+  lua_getstack(L, 0, &ar);
+  const char* name = ar.name == nullptr ? "?" : ar.name;
+  return luaL_error(
+    L, "expected at most %d arguments to '%s', got %d", max, name, n);
 }
 
 bool

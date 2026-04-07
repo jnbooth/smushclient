@@ -38,26 +38,14 @@ namespace qlua {
 using std::nullopt;
 using std::optional;
 
-constexpr QColor
-rgbCodeToColor(lua_Integer rgb) noexcept
-{
-  if (rgb == -1 || rgb > 0xFFFFFF) [[unlikely]] {
-    return QColor();
-  }
-  const int code = static_cast<int>(rgb);
-  return QColor(code & 0xFF, (code >> 8) & 0xFF, (code >> 16) & 0xFF);
-}
+QColor
+rgbCodeToColor(lua_Integer rgb) noexcept;
 
-inline lua_Integer
-colorToRgbCode(const QColor& color)
-{
-  if (!color.isValid()) [[unlikely]] {
-    return -1;
-  }
-  int r, g, b;
-  color.getRgb(&r, &g, &b);
-  return b << 16 | g << 8 | r;
-}
+lua_Integer
+colorToRgbCode(const QColor& color);
+
+int
+throwTooManyArgsError(lua_State* L, int max);
 
 QByteArray
 concatArgs(lua_State* L, int startIdx = 1, QByteArrayView delim = {});
@@ -65,8 +53,14 @@ concatArgs(lua_State* L, int startIdx = 1, QByteArrayView delim = {});
 bool
 copyValue(lua_State* fromL, lua_State* toL, int idx);
 
-int
-expectMaxArgs(lua_State* L, int max);
+inline int
+expectMaxArgs(lua_State* L, int max)
+{
+  if (int n = lua_gettop(L); n <= max) [[likely]] {
+    return n;
+  }
+  return throwTooManyArgsError(L, max);
+}
 
 bool
 getBool(lua_State* L, int idx, optional<bool> ifNil = nullopt);
@@ -101,6 +95,7 @@ getEnum(lua_State* L, int idx)
 {
   return enum_cast<T>(getInteger(L, idx));
 }
+
 template<typename T>
 optional<T>
 getEnum(lua_State* L, int idx, T ifNil)
@@ -125,6 +120,7 @@ getQFlags(lua_State* L, int idx)
 {
   return QFlags<T>::fromInt(getInt(L, idx));
 }
+
 template<typename T>
 inline QFlags<T>
 getQFlags(lua_State* L, int idx, QFlags<T> ifNil)

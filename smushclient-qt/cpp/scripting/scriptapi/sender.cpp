@@ -210,7 +210,7 @@ ScriptApi::DoAfter(size_t plugin,
                    const QString& text,
                    SendTarget target)
 {
-  if (seconds < 0.1 || seconds > 86399) {
+  if (seconds < 0.1 || seconds >= 86400) {
     return ApiCode::TimeInvalid;
   }
   const milliseconds duration =
