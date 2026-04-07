@@ -43,7 +43,6 @@ using qlua::getQRect;
 using qlua::getQRectF;
 using qlua::getQSize;
 using qlua::getQString;
-using qlua::getQTransform;
 using qlua::getString;
 using qlua::isScriptName;
 using qlua::push;
@@ -3182,7 +3181,12 @@ L_WindowTransformImage(lua_State* L)
   const string_view windowName = getString(L, 1);
   const string_view imageID = getString(L, 2);
   const lua_Integer modeN = getInteger(L, 5);
-  const QTransform transform = getQTransform(L, 6, 7, 8, 9, 3, 4);
+  const QTransform transform(getNumber(L, 6),
+                             getNumber(L, 7),
+                             getNumber(L, 8),
+                             getNumber(L, 9),
+                             getNumber(L, 3),
+                             getNumber(L, 4));
   MergeMode mode;
   switch (modeN) {
     case 1:

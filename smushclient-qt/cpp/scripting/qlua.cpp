@@ -459,32 +459,6 @@ qlua::getQLineF(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2)
                 getNumber(L, idxY2));
 }
 
-QMargins
-qlua::getQMargins(lua_State* L,
-                  int idxLeft,
-                  int idxTop,
-                  int idxRight,
-                  int idxBottom)
-{
-  return QMargins(getInt(L, idxLeft),
-                  getInt(L, idxTop),
-                  getInt(L, idxRight),
-                  getInt(L, idxBottom));
-}
-
-QMarginsF
-qlua::getQMarginsF(lua_State* L,
-                   int idxLeft,
-                   int idxTop,
-                   int idxRight,
-                   int idxBottom)
-{
-  return QMarginsF(getNumber(L, idxLeft),
-                   getNumber(L, idxTop),
-                   getNumber(L, idxRight),
-                   getNumber(L, idxBottom));
-}
-
 QPoint
 qlua::getQPoint(lua_State* L, int idxX, int idxY)
 {
@@ -581,23 +555,6 @@ qlua::getQString(lua_State* L, int idx, const QString& ifNil)
     return ifNil;
   }
   return toQString(L, idx);
-}
-
-QTransform
-qlua::getQTransform(lua_State* L,
-                    int idxM11,
-                    int idxM12,
-                    int idxM21,
-                    int idxM22,
-                    int idxDx,
-                    int idxDy)
-{
-  return QTransform(getNumber(L, idxM11),
-                    getNumber(L, idxM12),
-                    getNumber(L, idxM21),
-                    getNumber(L, idxM22),
-                    getNumber(L, idxDx),
-                    getNumber(L, idxDy));
 }
 
 string_view

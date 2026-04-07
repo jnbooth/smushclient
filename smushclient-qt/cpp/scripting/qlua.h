@@ -143,16 +143,6 @@ getQLine(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2);
 QLineF
 getQLineF(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2);
 
-QMargins
-getQMargins(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom);
-
-QMarginsF
-getQMarginsF(lua_State* L,
-             int idxLeft,
-             int idxTop,
-             int idxRight,
-             int idxBottom);
-
 optional<QPen>
 getQPen(lua_State* L, int idxColor, int idxStyle, int idxWidth);
 
@@ -181,15 +171,6 @@ QString
 getQString(lua_State* L, int idx);
 QString
 getQString(lua_State* L, int idx, const QString& ifNil);
-
-QTransform
-getQTransform(lua_State* L,
-              int idxM11,
-              int idxM12,
-              int idxM21,
-              int idxM22,
-              int idxDx,
-              int idxDy);
 
 std::string_view
 getString(lua_State* L, int idx, optional<std::string_view> ifNil = nullopt);
