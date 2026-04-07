@@ -3,6 +3,7 @@
 #include "rust/cxx.h"
 #include "smushclient_qt/views.h"
 #include <QtCore/QCryptographicHash>
+#include <QtCore/QDateTime>
 #include <QtCore/QUuid>
 #include <QtGui/QPen>
 #include <QtNetwork/QHostAddress>
@@ -206,36 +207,31 @@ push(lua_State* L, T value)
   lua_pushinteger(L, static_cast<lua_Integer>(value));
 }
 
-inline const char*
+inline void
 push(lua_State* L, const char* value)
 {
-  return lua_pushstring(L, value);
+  lua_pushstring(L, value);
+}
+
+inline void
+push(lua_State* L, char ch)
+{
+  lua_pushlstring(L, &ch, 1);
 }
 
 void
-push(lua_State* L, const QRect& rect);
-void
-push(lua_State* L, const QUuid& id);
+push(lua_State* L, char16_t ch);
 
-#define IMPL_PUSH(T, f, op)                                                    \
+void
+push(lua_State* L, char32_t ch);
+
+void
+push(lua_State* L, const QRect& rect);
+
+#define IMPL_PUSH(T)                                                           \
   inline void push(lua_State* L, T value)                                      \
   {                                                                            \
-    f(L, op(value));                                                           \
-  }
-
-IMPL_PUSH(lua_Integer, lua_pushinteger, );
-IMPL_PUSH(lua_Number, lua_pushnumber, );
-IMPL_PUSH(bool, lua_pushboolean, static_cast<int>);
-IMPL_PUSH(int, lua_pushinteger, static_cast<lua_Integer>);
-IMPL_PUSH(size_t, lua_pushinteger, static_cast<lua_Integer>);
-IMPL_PUSH(uint32_t, lua_pushinteger, static_cast<lua_Integer>);
-IMPL_PUSH(const QColor&, lua_pushinteger, colorToRgbCode);
-
-#undef IMPL_PUSH
-#define IMPL_PUSH(T)                                                           \
-  inline const char* push(lua_State* L, T value)                               \
-  {                                                                            \
-    return lua_pushlstring(L, value.data(), value.size());                     \
+    lua_pushlstring(L, value.data(), value.size());                            \
   }
 
 IMPL_PUSH(const QByteArray&);
@@ -246,26 +242,28 @@ IMPL_PUSH(std::string_view);
 IMPL_PUSH(rust::variable_view);
 
 #undef IMPL_PUSH
-#define IMPL_PUSH(T, op)                                                       \
-  inline const char* push(lua_State* L, T value)                               \
+#define IMPL_PUSH(T, f, expr)                                                  \
+  inline void push(lua_State* L, T value)                                      \
   {                                                                            \
-    return push(L, value.op);                                                  \
+    f(L, expr);                                                                \
   }
 
-IMPL_PUSH(const QString&, toUtf8());
-IMPL_PUSH(const QHostAddress&, toString());
+IMPL_PUSH(lua_Integer, lua_pushinteger, value);
+IMPL_PUSH(lua_Number, lua_pushnumber, value);
+IMPL_PUSH(bool, lua_pushboolean, static_cast<int>(value));
+IMPL_PUSH(int, lua_pushinteger, static_cast<lua_Integer>(value));
+IMPL_PUSH(size_t, lua_pushinteger, static_cast<lua_Integer>(value));
+IMPL_PUSH(uint32_t, lua_pushinteger, static_cast<lua_Integer>(value));
+IMPL_PUSH(const QColor&, lua_pushinteger, colorToRgbCode(value));
+IMPL_PUSH(signed char, push, static_cast<char>(value));
+IMPL_PUSH(unsigned char, push, static_cast<char>(value));
+IMPL_PUSH(QChar, push, value.unicode());
+IMPL_PUSH(const QString&, push, value.toUtf8());
+IMPL_PUSH(const QDateTime&, push, value.toSecsSinceEpoch());
+IMPL_PUSH(const QHostAddress&, push, value.toString());
+IMPL_PUSH(const QUuid&, push, value.toByteArray(QUuid::WithoutBraces));
 
 #undef IMPL_PUSH
-
-inline const char*
-push(lua_State* L, QChar ch)
-{
-  if (char16_t code = ch.unicode(); code <= 127) [[likely]] {
-    const char ccode = static_cast<char>(code);
-    return lua_pushlstring(L, &ccode, 1);
-  }
-  return push(L, QString(ch));
-}
 
 template<typename T>
 void

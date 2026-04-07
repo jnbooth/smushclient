@@ -6,6 +6,7 @@
 #include <QtGui/QFontDatabase>
 #include <QtGui/QFontInfo>
 #include <cmath>
+#include <codecvt>
 #include <sstream>
 extern "C"
 {
@@ -700,7 +701,7 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant)
       lua_pushnil(L);
       return;
     case QMetaType::Bool:
-      lua_pushboolean(L, variant.toInt());
+      push(L, variant.toBool());
       return;
     case QMetaType::Int:
     case QMetaType::UInt:
@@ -725,43 +726,34 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant)
       return;
     case QMetaType::QDate:
     case QMetaType::QDateTime:
-      push(L, variant.toDateTime().toSecsSinceEpoch());
+      push(L, variant.toDateTime());
       return;
     case QMetaType::QByteArray:
       push(L, variant.toByteArray());
       return;
-    case QMetaType::Char: {
-      const char c = variant.value<char>();
-      lua_pushlstring(L, &c, 1);
+    case QMetaType::Char:
+      push(L, variant.value<char>());
       return;
-    }
-    case QMetaType::Char16: {
-      const char16_t c = variant.value<char16_t>();
-      push(L, QString::fromUtf16(&c, 1));
+    case QMetaType::Char16:
+      push(L, variant.value<char16_t>());
       return;
-    }
-    case QMetaType::Char32: {
-      const char32_t c = variant.value<char32_t>();
-      push(L, QString::fromUcs4(&c, 1));
+    case QMetaType::Char32:
+      push(L, variant.value<char32_t>());
       return;
-    }
-    case QMetaType::SChar: {
-      const char c = static_cast<char>(variant.value<signed char>());
-      lua_pushlstring(L, &c, 1);
+    case QMetaType::SChar:
+      push(L, variant.value<signed char>());
       return;
-    }
-    case QMetaType::UChar: {
-      const char c = static_cast<char>(variant.value<unsigned char>());
-      lua_pushlstring(L, &c, 1);
+    case QMetaType::UChar:
+      push(L, variant.value<unsigned char>());
       return;
-    }
     case QMetaType::QBrush:
       push(L, variant.value<QBrush>().color());
+      return;
     case QMetaType::QColor:
       push(L, variant.value<QColor>());
       return;
     case QMetaType::QUuid:
-      push(L, variant.toUuid().toString());
+      push(L, variant.toUuid());
       return;
     case QMetaType::QStringList:
       pushList(L, variant.toStringList());
@@ -789,6 +781,34 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant)
   }
 }
 
+namespace {
+template<typename T>
+void
+pushChar(lua_State* L, T ch)
+{
+  if (ch <= 127) [[likely]] {
+    qlua::push(L, static_cast<char>(ch));
+    return;
+  }
+  std::wstring_convert<std::codecvt_utf8<T>, T> convert;
+  // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+  qlua::push(L, convert.to_bytes(&ch, &ch + 1));
+  // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+}
+} // namespace
+
+void
+qlua::push(lua_State* L, char16_t ch)
+{
+  pushChar(L, ch);
+}
+
+void
+qlua::push(lua_State* L, char32_t ch)
+{
+  pushChar(L, ch);
+}
+
 void
 qlua::push(lua_State* L, const QRect& rect)
 {
@@ -797,12 +817,6 @@ qlua::push(lua_State* L, const QRect& rect)
   pushEntry(L, "height", rect.height());
   pushEntry(L, "left", rect.left());
   pushEntry(L, "width", rect.width());
-}
-
-void
-qlua::push(lua_State* L, const QUuid& id)
-{
-  push(L, id.toByteArray(QUuid::StringFormat::WithoutBraces));
 }
 
 template<>

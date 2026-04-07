@@ -191,14 +191,12 @@ apiSlot(lua_State* L) noexcept
   return static_cast<ScriptApi**>(lua_getextraspace(L)); // NOLINT
 }
 
-inline const char*
+void
 pushVariable(lua_State* L, string_view variable)
 {
-  if (variable.data() == nullptr) {
-    lua_pushnil(L);
-    return nullptr;
+  if (variable.data() != nullptr) {
+    push(L, variable);
   }
-  return push(L, variable);
 }
 
 } // namespace
