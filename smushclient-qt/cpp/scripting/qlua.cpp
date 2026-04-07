@@ -302,30 +302,24 @@ qlua::getInteger(lua_State* L, int idx, optional<lua_Integer> ifNil)
 }
 
 lua_Integer
-qlua::getIntegerOrBool(lua_State* L, int idx, optional<lua_Integer> ifNil)
+qlua::getOption(lua_State* L, int idx)
 {
   switch (lua_type(L, idx)) {
-    case LUA_TNONE:
     case LUA_TNIL:
-      if (ifNil) {
-        return *ifNil;
-      }
-      break;
+      return 0;
     case LUA_TBOOLEAN:
-      return static_cast<lua_Integer>(lua_toboolean(L, idx));
+      return lua_toboolean(L, idx);
     case LUA_TNUMBER: {
       int isInt;
       const lua_Integer value = lua_tointegerx(L, idx, &isInt);
-      if (isInt == FALSE) {
-        break;
+      if (isInt == TRUE) {
+        return value;
       }
-      return value;
     }
     default:
-      break;
+      luaL_typeerror(L, idx, "integer, boolean, or nil"); // exits function
+      return 0;                                           // unreachable
   }
-  luaL_typeerror(L, idx, "integer or boolean"); // exits function
-  return 0;                                     // unreachable
 }
 
 lua_Number

@@ -81,7 +81,7 @@ lua_Integer
 getInteger(lua_State* L, int idx, optional<lua_Integer> ifNil = nullopt);
 
 lua_Integer
-getIntegerOrBool(lua_State* L, int idx, optional<lua_Integer> ifNil = nullopt);
+getOption(lua_State* L, int idx);
 
 lua_Number
 getNumber(lua_State* L, int idx, optional<lua_Number> ifNil = nullopt);

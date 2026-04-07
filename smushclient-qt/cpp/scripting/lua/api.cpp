@@ -28,8 +28,8 @@ using qlua::getCustomColor;
 using qlua::getEnum;
 using qlua::getInt;
 using qlua::getInteger;
-using qlua::getIntegerOrBool;
 using qlua::getNumber;
+using qlua::getOption;
 using qlua::getQBrush;
 using qlua::getQColor;
 using qlua::getQFlags;
@@ -1521,10 +1521,9 @@ L_SetOption(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  return returnCode(L,
-                    getApi(L).SetOption(getPluginIndex(L),
-                                        getString(L, 1),
-                                        getIntegerOrBool(L, 2, 0)));
+  return returnCode(
+    L,
+    getApi(L).SetOption(getPluginIndex(L), getString(L, 1), getOption(L, 2)));
 }
 
 int
