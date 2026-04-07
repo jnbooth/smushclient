@@ -301,76 +301,13 @@ pushEntry(lua_State* L, const char* key, V value, int idx = -1)
   lua_setfield(L, idx < 0 ? idx - 1 : idx, key);
 }
 
-template<typename V>
-void
-pushEntry(lua_State* L, const std::string& key, V value, int idx = -1)
-{
-  for (const char& c : key) {
-    if (c == '\0') {
-      push(L, key);
-      push(L, value);
-      lua_rawset(L, idx < 0 ? idx - 2 : idx);
-      return;
-    }
-  }
-  push(L, value);
-  lua_setfield(L, idx < 0 ? idx - 1 : idx, key.c_str());
-}
-
-template<typename V>
-void
-pushEntry(lua_State* L, const QByteArray& key, V value, int idx = -1)
-{
-  for (const char& c : key) {
-    if (c == '\0') {
-      push(L, key);
-      push(L, value);
-      lua_rawset(L, idx < 0 ? idx - 2 : idx);
-      return;
-    }
-  }
-  push(L, value);
-  lua_setfield(L, idx < 0 ? idx - 1 : idx, key.data());
-}
-
-template<typename V>
-void
-pushEntry(lua_State* L, const QString& key, V value, int idx = -1)
-{
-  pushEntry(L, key.toUtf8(), value, idx);
-}
-
 template<typename T>
 void
 pushMap(lua_State* L, const T& map)
 {
   lua_createtable(L, 0, static_cast<int>(map.size()));
-  for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
-    pushEntry(L, it.key(), it.value());
-  }
-}
-
-template<typename K>
-void
-pushMap(lua_State* L, const QHash<K, QVariant>& map)
-{
-  lua_createtable(L, 0, static_cast<int>(map.size()));
-  for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
-    push(L, it.key());
-    pushQVariant(L, it.value());
-    lua_rawset(L, -3);
-  }
-}
-
-template<typename K>
-void
-pushMap(lua_State* L, const QMap<K, QVariant>& map)
-{
-  lua_createtable(L, 0, static_cast<int>(map.size()));
-  for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
-    push(L, it.key());
-    pushQVariant(L, it.value());
-    lua_rawset(L, -3);
+  for (const auto& [key, value] : map.asKeyValueRange()) {
+    pushEntry(L, key, value);
   }
 }
 
@@ -381,6 +318,30 @@ pushMap(lua_State* L, const rust::Vec<T>& entries)
   lua_createtable(L, 0, static_cast<int>(entries.size()));
   for (const auto& entry : entries) {
     pushEntry(L, entry.key, entry.value);
+  }
+}
+
+template<typename K>
+void
+pushMap(lua_State* L, const QHash<K, QVariant>& map)
+{
+  lua_createtable(L, 0, static_cast<int>(map.size()));
+  for (const auto& [key, value] : map.asKeyValueRange()) {
+    push(L, key);
+    pushQVariant(L, value);
+    lua_rawset(L, -3);
+  }
+}
+
+template<typename K>
+void
+pushMap(lua_State* L, const QMap<K, QVariant>& map)
+{
+  lua_createtable(L, 0, static_cast<int>(map.size()));
+  for (const auto& [key, value] : map.asKeyValueRange()) {
+    push(L, key);
+    pushQVariant(L, value);
+    lua_rawset(L, -3);
   }
 }
 
