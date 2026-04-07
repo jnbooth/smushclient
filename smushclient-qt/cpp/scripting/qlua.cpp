@@ -21,9 +21,6 @@ using std::string_view;
 
 // Private utilities
 
-constexpr const int FALSE = 0;
-constexpr const int TRUE = 1;
-
 static const array<QColor, 16> customColors = {
   QColor(255, 128, 128), QColor(255, 255, 128), QColor(128, 255, 128),
   QColor(128, 255, 255), QColor(0, 128, 255),   QColor(255, 128, 192),
@@ -180,7 +177,7 @@ qlua::copyValue(lua_State* fromL, lua_State* toL, int idx)
     case LUA_TNUMBER: {
       int isInt;
       const lua_Integer intResult = lua_tointegerx(fromL, idx, &isInt);
-      if (isInt == TRUE) {
+      if (isInt) {
         lua_pushinteger(toL, intResult);
       } else {
         lua_pushnumber(toL, lua_tonumber(fromL, idx));
@@ -224,10 +221,10 @@ qlua::getBool(lua_State* L, int idx, optional<bool> ifNil)
     case LUA_TNUMBER: {
       int isInt;
       const lua_Integer value = lua_tointegerx(L, idx, &isInt);
-      if (isInt == FALSE) {
-        break;
+      if (isInt) {
+        return value != 0;
       }
-      return value == TRUE;
+      break;
     }
     case LUA_TSTRING: {
       const string_view message = lua_tostr(L, idx);
@@ -292,7 +289,7 @@ qlua::getOption(lua_State* L, int idx)
     case LUA_TNUMBER: {
       int isInt;
       const lua_Integer value = lua_tointegerx(L, idx, &isInt);
-      if (isInt == TRUE) {
+      if (isInt) {
         return value;
       }
     }
@@ -434,7 +431,7 @@ qlua::getQColor(lua_State* L, int idx, optional<QColor> ifNil)
     case LUA_TNUMBER: {
       int isInt;
       const lua_Integer rgb = lua_tointegerx(L, idx, &isInt);
-      if (isInt == FALSE) {
+      if (!isInt) {
         break;
       }
       if (rgb == -1 || rgb == 0xFFFFFFFF) {

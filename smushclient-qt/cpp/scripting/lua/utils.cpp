@@ -55,8 +55,6 @@ DECLARE_ENUM_BOUNDS(QFontDatabase::SystemFont,
                     GeneralFont,
                     SmallestReadableFont)
 
-constexpr const int FALSE = 0;
-
 namespace {
 const char* const utilsRegKey = "smushclient.utils";
 } // namespace
@@ -313,7 +311,7 @@ encodeUtf8Char(lua_State* L,
 {
   int isInt;
   const lua_Integer value = lua_tointegerx(L, idx, &isInt);
-  if (isInt == FALSE) [[unlikely]] {
+  if (!isInt) [[unlikely]] {
     const lua_Number decimalValue = lua_tonumber(L, argIdx);
     if (tableIdx == 0) {
       luaL_error(
@@ -386,7 +384,7 @@ execScriptDialog(lua_State* L,
 {
   luaL_argexpected(L, lua_type(L, idx) == LUA_TTABLE, idx, "table");
 
-  for (lua_pushnil(L); lua_next(L, idx) != FALSE; lua_pop(L, 1)) {
+  for (lua_pushnil(L); lua_next(L, idx); lua_pop(L, 1)) {
     const QVariant key = getKey(L, idx, -2);
     const QString value = QString::fromUtf8(lua_tobytes(L, -1));
     dialog.addItem(value, key, isOptionSelected(key, selection));
@@ -827,7 +825,7 @@ L_multilistbox(lua_State* L)
   if (defaultType == LUA_TTABLE) {
     defaults.reserve(luaL_len(L, 4));
 
-    for (lua_pushnil(L); lua_next(L, 4) != FALSE; lua_pop(L, 1)) {
+    for (lua_pushnil(L); lua_next(L, 4); lua_pop(L, 1)) {
       defaults.push_back(getKey(L, 4, -2));
     }
   }

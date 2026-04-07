@@ -67,7 +67,7 @@ CompileFlags:
 ---
 If:
   PathMatch:
-    - smushclient-qt/.*/scripting/lua/.*\.cpp
+    - smushclient-qt/cpp/scripting/lua/.*\.cpp
 Diagnostics:
   ClangTidy:
     Remove:
@@ -77,6 +77,16 @@ Diagnostics:
       - hicpp-no-array-decay
       - modernize-avoid-c-arrays
       - modernize-use-designated-initializers
+---
+If:
+  PathMatch:
+    - smushclient-qt/cpp/scripting/qlua\.cpp
+    - smushclient-qt/cpp/scripting/lua/.*\.cpp
+    - smushclient-qt/cpp/ui/scripting/.*\.cpp
+Diagnostics:
+  ClangTidy:
+    CheckOptions:
+      readability-implicit-bool-conversion.AllowIntegerConditions: true # Booleans are ints
 ---
 If:
   PathMatch:

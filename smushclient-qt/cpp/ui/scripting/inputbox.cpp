@@ -35,7 +35,8 @@ struct InputBoxExtras
     }
     if (lua_getfield(L, idx, "max_length") == LUA_TNUMBER) {
       int isInt;
-      if (lua_Integer len = lua_tointegerx(L, -1, &isInt); isInt) {
+      const lua_Integer len = lua_tointegerx(L, -1, &isInt);
+      if (isInt) {
         max_length = clamped_cast<int>(len);
       }
     }
