@@ -2,7 +2,6 @@
 #include "../miniwindow/miniwindow.h"
 #include "../qlua.h"
 #include "smushclient_qt/src/ffi/send_request.cxx.h"
-#include "sqlite3.h"
 #include <string>
 #include <utility>
 extern "C"
