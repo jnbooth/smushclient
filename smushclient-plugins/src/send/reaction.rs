@@ -1,3 +1,4 @@
+use std::fmt::Write as _;
 use std::iter;
 #[cfg(not(feature = "send"))]
 use std::rc::Rc;
@@ -158,6 +159,12 @@ impl Reaction {
         for c in pattern.chars() {
             if c == '*' {
                 buf.push_str("(.*)");
+                continue;
+            }
+            if let Ok(ch) = u8::try_from(c)
+                && ch.is_ascii_control()
+            {
+                write!(buf, "\\x{ch:02X}").unwrap();
                 continue;
             }
             if SPECIAL_CHARS.contains(c) {
