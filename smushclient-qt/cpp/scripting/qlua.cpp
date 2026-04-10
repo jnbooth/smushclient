@@ -508,24 +508,56 @@ qlua::getQPen(lua_State* L, int idxColor, int idxStyle, int idxWidth)
 optional<QPolygonF>
 qlua::getQPolygonF(lua_State* L, int idx)
 {
-  const string_view s = getString(L, idx);
-  const qsizetype commaCount = std::count(s.cbegin(), s.cend(), ',');
-  if (commaCount % 2 == 0 || commaCount < 3) [[unlikely]] {
-    return nullopt;
-  }
-  QList<QPointF> points;
-  points.reserve((commaCount + 1) / 2);
-  std::istringstream stream((string(s)));
-  for (string sX, sY;
-       std::getline(stream, sX, ',') && std::getline(stream, sY, ',');) {
-    qreal dX = stod(sX);
-    qreal dY = stod(sY);
-    if (!std::isfinite(dX) || !std::isfinite(dY)) [[unlikely]] {
-      return nullopt;
+  switch (lua_type(L, idx)) {
+    case LUA_TSTRING: {
+      const string_view s = getString(L, idx);
+      const qsizetype commaCount = std::count(s.cbegin(), s.cend(), ',');
+      if (commaCount % 2 == 0 || commaCount < 3) [[unlikely]] {
+        return nullopt;
+      }
+      QPolygonF points;
+      points.reserve((commaCount + 1) / 2);
+      std::istringstream stream((string(s)));
+      for (string sX, sY;
+           std::getline(stream, sX, ',') && std::getline(stream, sY, ',');) {
+        const qreal dX = stod(sX);
+        const qreal dY = stod(sY);
+        if (!std::isfinite(dX) || !std::isfinite(dY)) [[unlikely]] {
+          return nullopt;
+        }
+        points.append(QPointF(dX, dY));
+      }
+      return points;
     }
-    points.append(QPointF(dX, dY));
+    case LUA_TTABLE: {
+      const lua_Unsigned len = luaL_len(L, idx);
+      if (len == 0) [[unlikely]] {
+        break;
+      }
+      QPolygonF points;
+      const lua_Integer max = static_cast<lua_Integer>(len);
+      const int top = lua_gettop(L);
+      for (lua_Integer i = 1; i <= max; ++i) {
+        if (lua_geti(L, idx, i) != LUA_TTABLE ||
+            lua_geti(L, top + 1, 1) != LUA_TNUMBER ||
+            lua_geti(L, top + 1, 2) != LUA_TNUMBER) [[unlikely]] {
+          luaL_typeerror(L, idx, "string or array of points"); // exits function
+        }
+        const qreal dX = lua_tonumber(L, top + 2);
+        const qreal dY = lua_tonumber(L, top + 3);
+        if (!std::isfinite(dX) || !std::isfinite(dY)) [[unlikely]] {
+          return nullopt;
+        }
+        points.append(QPointF(dX, dY));
+        lua_pop(L, 3);
+      }
+      return points;
+    }
+    default:
+      break;
   }
-  return QPolygonF(points);
+  luaL_typeerror(L, idx, "string or array of points"); // exits function
+  return nullopt;                                      // unreachable
 }
 
 QRect

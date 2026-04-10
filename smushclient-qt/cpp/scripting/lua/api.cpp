@@ -3177,7 +3177,9 @@ L_WindowPolygon(lua_State* L)
   const bool close = getBool(L, 8, false);
   const Qt::FillRule fill = getBool(L, 9, false) ? Qt::FillRule::WindingFill
                                                  : Qt::FillRule::OddEvenFill;
-  expect_nonnull(polygon, ApiCode::InvalidNumberOfPoints);
+  if (!polygon || polygon->size() < 2) [[unlikely]] {
+    return returnCode(L, (ApiCode::InvalidNumberOfPoints));
+  }
   expect_nonnull(pen, ApiCode::PenStyleNotValid);
   expect_nonnull(brush, ApiCode::BrushStyleNotValid);
   return returnCode(
