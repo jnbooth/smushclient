@@ -1238,7 +1238,7 @@ L_Hyperlink(lua_State* L)
   expectMaxArgs(L, 7);
   getApi(L).Hyperlink(getQString(L, 1),
                       getQString(L, 2),
-                      getQString(L, 3),
+                      getQString(L, 3, {}),
                       getQColor(L, 4, {}),
                       getQColor(L, 5, {}),
                       getBool(L, 6, false),
