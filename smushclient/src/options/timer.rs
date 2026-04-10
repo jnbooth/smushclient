@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use chrono::{NaiveTime, Timelike};
+use smushclient_plugins::hmsn::Hmsn;
 use smushclient_plugins::{Occurrence, Timer};
 
 use super::decode::DecodeOption;
@@ -8,14 +9,6 @@ use super::error::OptionError;
 use super::optionable::Optionable;
 use crate::LuaStr;
 use crate::get_info::InfoVisitor;
-
-fn to_hms(secs: u64) -> (u64, u64, u64) {
-    (secs / 3600, secs % 3600 / 60, secs % 60)
-}
-
-fn from_hms(h: u64, m: u64, s: u64) -> u64 {
-    h * 3600 + m * 60 + s
-}
 
 fn set_at_time(occurrence: &mut Occurrence, at_time: bool) {
     match *occurrence {
@@ -59,45 +52,17 @@ impl Optionable for Timer {
             b"active_closed" => self.active_closed = value.decode()?,
             b"at_time" => set_at_time(&mut self.occurrence, value.decode()?),
             b"hour" => {
-                self.occurrence = match self.occurrence {
-                    Occurrence::Interval(duration) => {
-                        let (_, m, s) = to_hms(duration.as_secs());
-                        let secs = from_hms(value.decode_in_range(..24)?, m, s);
-                        Occurrence::Interval(Duration::new(secs, duration.subsec_nanos()))
-                    }
-                    Occurrence::Time(time) => Occurrence::Time(
-                        time.with_hour(value.decode()?)
-                            .ok_or(OptionError::OptionOutOfRange)?,
-                    ),
-                }
+                let hmsn = Hmsn::from(self.occurrence).with_hour(value.decode_in_range(..24)?);
+                self.occurrence = self.occurrence.with_hmsn(hmsn)?;
             }
             b"minute" => {
-                self.occurrence = match self.occurrence {
-                    Occurrence::Interval(duration) => {
-                        let (h, _, s) = to_hms(duration.as_secs());
-                        let secs = from_hms(h, value.decode_in_range(..60)?, s);
-                        Occurrence::Interval(Duration::new(secs, duration.subsec_nanos()))
-                    }
-                    Occurrence::Time(time) => Occurrence::Time(
-                        time.with_minute(value.decode()?)
-                            .ok_or(OptionError::OptionOutOfRange)?,
-                    ),
-                }
+                let hmsn = Hmsn::from(self.occurrence).with_minute(value.decode_in_range(..60)?);
+                self.occurrence = self.occurrence.with_hmsn(hmsn)?;
             }
             b"second" => {
-                self.occurrence = match self.occurrence {
-                    Occurrence::Interval(duration) => {
-                        let s = value.decode_in_range(..60.0)?;
-                        let offset = Duration::try_from_secs_f64(s)?;
-                        let (h, m, _) = to_hms(duration.as_secs());
-                        let secs = from_hms(h, m, 0);
-                        Occurrence::Interval(Duration::new(secs, 0) + offset)
-                    }
-                    Occurrence::Time(time) => Occurrence::Time(
-                        time.with_second(value.decode()?)
-                            .ok_or(OptionError::OptionOutOfRange)?,
-                    ),
-                }
+                let hmsn =
+                    Hmsn::from(self.occurrence).with_fsecond(value.decode_in_range(..60.0)?)?;
+                self.occurrence = self.occurrence.with_hmsn(hmsn)?;
             }
             _ => self.send.set_option(name, value)?,
         }

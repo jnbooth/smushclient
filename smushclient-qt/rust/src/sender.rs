@@ -13,13 +13,15 @@ use cxx_qt_lib::{QColor, QString, QTime};
 use flagset::{FlagSet, Flags};
 use mud_transformer::opt::mxp::RgbColor;
 use mud_transformer::output::{Output, OutputFragment, TextFragment, TextStyle};
+use smushclient_plugins::hmsn::Hmsn;
 use smushclient_plugins::newline::ensure_crlf;
 use smushclient_plugins::{Alias, Occurrence, Reaction, RegexError, Sender, Timer, Trigger};
 
 use crate::convert::{Convert, impl_deref};
 use crate::ffi;
 
-const MILLISECONDS_PER_SECOND: i32 = 1000;
+const MILLISECONDS_PER_SECOND: u32 = 1000;
+const NANOSECONDS_PER_MILLISECOND: u32 = 1_000_000;
 const SECONDS_PER_MINUTE: i32 = 60;
 const MINUTES_PER_HOUR: i32 = 60;
 
@@ -111,12 +113,12 @@ impl From<&Timer> for TimerRust {
 
         match timer.occurrence {
             Occurrence::Time(time) => {
-                let seconds = time.num_seconds_from_midnight() as i32;
+                let seconds = time.num_seconds_from_midnight();
                 let msecs = seconds * MILLISECONDS_PER_SECOND;
                 Self {
                     send,
                     occurrence: ffi::Occurrence::Time,
-                    at_time: QTime::from_msecs_since_start_of_day(msecs),
+                    at_time: QTime::from_msecs_since_start_of_day(msecs as i32),
                     every_millisecond: 0,
                     every_second: 0,
                     every_minute: 0,
@@ -148,19 +150,20 @@ impl From<&TimerRust> for Timer {
     fn from(value: &TimerRust) -> Self {
         let occurrence = match value.occurrence {
             ffi::Occurrence::Time => {
-                let msecs = value.at_time.msecs_since_start_of_day();
-                let seconds = (msecs / MILLISECONDS_PER_SECOND) as u32;
-                NaiveTime::from_num_seconds_from_midnight_opt(seconds, 0)
+                let msecs = value.at_time.msecs_since_start_of_day() as u32;
+                let seconds = msecs / MILLISECONDS_PER_SECOND;
+                let nanos = msecs % MILLISECONDS_PER_SECOND * NANOSECONDS_PER_MILLISECOND;
+                NaiveTime::from_num_seconds_from_midnight_opt(seconds, nanos)
                     .unwrap_or_default()
                     .into()
             }
-            ffi::Occurrence::Interval => {
-                let secs = (value.every_hour as u64) * 3600
-                    + (value.every_minute as u64) * 60
-                    + (value.every_second as u64);
-                (Duration::from_secs(secs) + Duration::from_millis(value.every_millisecond as u64))
-                    .into()
-            }
+            ffi::Occurrence::Interval => Duration::from(Hmsn(
+                value.every_hour as u64,
+                value.every_minute as u64,
+                value.every_second as u64,
+                (value.every_millisecond as u32) * NANOSECONDS_PER_MILLISECOND,
+            ))
+            .into(),
             _ => unreachable!(),
         };
         Self {

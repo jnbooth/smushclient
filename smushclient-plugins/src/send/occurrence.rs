@@ -4,7 +4,7 @@ use std::time::Duration;
 use chrono::{NaiveTime, Timelike};
 use serde::{Deserialize, Serialize};
 
-const NANOS_F: f64 = 1_000_000_000.0;
+use crate::hmsn::{Hmsn, TimeError};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 pub enum Occurrence {
@@ -31,64 +31,56 @@ impl From<Duration> for Occurrence {
     }
 }
 
+impl From<Occurrence> for Hmsn {
+    fn from(value: Occurrence) -> Self {
+        match value {
+            Occurrence::Time(time) => time.into(),
+            Occurrence::Interval(duration) => duration.into(),
+        }
+    }
+}
+
 impl Occurrence {
-    pub fn hour(&self) -> u32 {
+    pub fn hour(&self) -> u64 {
         match self {
-            Self::Time(time) => time.hour(),
-            Self::Interval(duration) => (duration.as_secs() / 3600).try_into().unwrap_or(u32::MAX),
+            Self::Time(time) => time.hour().into(),
+            Self::Interval(duration) => Hmsn::from(*duration).hour(),
         }
     }
 
-    pub fn minute(&self) -> u32 {
+    pub fn minute(&self) -> u64 {
         match self {
-            Self::Time(time) => time.minute(),
-            Self::Interval(duration) => ((duration.as_secs() % 3600) / 60)
-                .try_into()
-                .unwrap_or(u32::MAX),
+            Self::Time(time) => time.minute().into(),
+            Self::Interval(duration) => Hmsn::from(*duration).minute(),
         }
     }
 
-    pub fn second(&self) -> u32 {
+    pub fn second(&self) -> u64 {
         match self {
-            Self::Time(time) => time.second(),
-            Self::Interval(duration) => (duration.as_secs()).try_into().unwrap_or(u32::MAX),
+            Self::Time(time) => time.second().into(),
+            Self::Interval(duration) => Hmsn::from(*duration).second(),
         }
     }
 
     pub fn seconds(&self) -> f64 {
+        Hmsn::from(*self).fsecond()
+    }
+
+    #[must_use = "this returns a new Occurrence without modifying the original"]
+    pub fn with_hmsn(&self, hmsn: Hmsn) -> Result<Self, TimeError> {
         match self {
-            Self::Time(time) => time.second().into(),
-            Self::Interval(duration) => f64::from(duration.subsec_nanos()) / NANOS_F,
+            Self::Time(_) => Ok(Self::Time(hmsn.try_into()?)),
+            Self::Interval(_) => Ok(Self::Interval(hmsn.into())),
         }
     }
 }
 
 impl fmt::Display for Occurrence {
+    #[allow(clippy::many_single_char_names)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let interval = match self {
-            Self::Interval(interval) => interval,
-            Self::Time(time) => return time.format("%-I:%M %p").fmt(f),
-        };
-
-        let secs = interval.as_secs();
-        let millis = interval.subsec_millis();
-        if millis == 0 {
-            write!(
-                f,
-                "{:02}:{:02}:{:02}",
-                secs / 3600,
-                (secs % 3600) / 60,
-                secs % 60
-            )
-        } else {
-            write!(
-                f,
-                "{:02}:{:02}:{:02}.{:03}",
-                secs / 3600,
-                (secs % 3600) / 60,
-                secs % 60,
-                millis
-            )
+        match self {
+            Self::Interval(interval) => Hmsn::from(*interval).fmt(f),
+            Self::Time(time) => time.format("%-I:%M %p").fmt(f),
         }
     }
 }

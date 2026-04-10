@@ -96,3 +96,8 @@ impl_range_error!(OptionError, std::string::FromUtf8Error);
 impl_range_error!(OptionError, std::str::Utf8Error);
 impl_range_error!(OptionError, std::num::ParseFloatError);
 impl_range_error!(OptionError, std::time::TryFromFloatSecsError);
+impl_range_error!(OptionError, smushclient_plugins::hmsn::TimeError);
+impl_range_error!(
+    OptionError,
+    smushclient_plugins::hmsn::TryFromFloatSecsError
+);
