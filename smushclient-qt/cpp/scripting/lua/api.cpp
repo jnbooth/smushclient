@@ -1627,6 +1627,15 @@ L_GetEchoInput(lua_State* L)
 }
 
 int
+L_GetLineCount(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  pushQVariant(L, getApi(L).GetInfo(201));
+  return 1;
+}
+
+int
 L_GetLinesInBufferCount(lua_State* L)
 {
   BENCHMARK
@@ -3629,6 +3638,7 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "DeleteOutput", L_DeleteOutput },
     { "FixupHTML", L_FixupHTML },
     { "GetEchoInput", L_GetEchoInput },
+    { "GetLineCount", L_GetLineCount },
     { "GetLinesInBufferCount", L_GetLinesInBufferCount },
     { "GetMainWindowPosition", L_GetMainWindowPosition },
     { "GetRecentLines", L_GetRecentLines },
