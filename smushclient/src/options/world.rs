@@ -303,6 +303,7 @@ impl WorldConfig {
             b"new_activity_sound" => Some(&self.new_activity_sound),
             b"player" => Some(&self.player),
             b"proxy_username" => Some(&self.proxy_username),
+            b"script_prefix" => Some("/"),
             b"site" => Some(&self.site),
             b"speed_walk_filler" => Some(&self.speed_walk_filler),
             b"speed_walk_prefix" => str::from_utf8(slice::from_ref(&self.speed_walk_prefix)).ok(),
