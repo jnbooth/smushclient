@@ -9,6 +9,7 @@
 #include "plugin.h"
 #include "scriptenums.h"
 #include "smushclient_qt/src/ffi/send_request.cxx.h"
+#include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QPointer>
 #include <QtCore/QQueue>
@@ -186,6 +187,7 @@ public:
                     std::string_view name) const noexcept;
   rust::String EvaluateSpeedwalk(std::string_view speedwalk) const noexcept;
   ApiCode FlushLog() const;
+  Alias GetAlias(size_t pluginIndex, std::string_view label) const noexcept;
   QVariant GetAliasInfo(size_t pluginIndex,
                         std::string_view label,
                         int64_t infoType) const
@@ -251,6 +253,7 @@ public:
   int64_t GetReceivedBytes() const noexcept;
   int64_t GetSentBytes() const noexcept;
   QColor GetTermColour(uint8_t i) const noexcept;
+  Timer GetTimer(size_t pluginIndex, std::string_view label) const noexcept;
   QVariant GetTimerInfo(size_t pluginIndex,
                         std::string_view label,
                         int64_t infoType) const
@@ -274,6 +277,7 @@ public:
   QVariant GetTimerOption(size_t plugin,
                           std::string_view label,
                           std::string_view option) const noexcept;
+  Trigger GetTrigger(size_t pluginIndex, std::string_view label) const noexcept;
   QVariant GetTriggerInfo(size_t pluginIndex,
                           std::string_view label,
                           int64_t infoType) const

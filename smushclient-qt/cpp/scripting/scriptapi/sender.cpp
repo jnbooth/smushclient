@@ -18,7 +18,7 @@ ScriptApi::AddAlias(size_t plugin,
                     string_view scriptName) const noexcept
 {
   if (pattern.empty()) {
-    return ApiCode::TriggerCannotBeEmpty;
+    return ApiCode::AliasCannotBeEmpty;
   }
 
   const SendTarget target =
@@ -32,6 +32,7 @@ ScriptApi::AddAlias(size_t plugin,
   alias.setPattern(QString::fromUtf8(pattern));
   alias.setText(QString::fromUtf8(text));
   alias.setScript(QString::fromUtf8(scriptName));
+
   alias.setEnabled(flags.testFlag(AliasFlag::Enabled));
   alias.setKeepEvaluating(flags.testFlag(AliasFlag::KeepEvaluating));
   alias.setOmitFromLog(flags.testFlag(AliasFlag::OmitFromLogFile));
@@ -39,6 +40,7 @@ ScriptApi::AddAlias(size_t plugin,
   alias.setExpandVariables(flags.testFlag(AliasFlag::ExpandVariables));
   alias.setMenu(flags.testFlag(AliasFlag::AliasMenu));
   alias.setTemporary(flags.testFlag(AliasFlag::Temporary));
+  alias.setOneShot(flags.testFlag(AliasFlag::OneShot));
 
   if (!flags.testFlag(AliasFlag::Replace)) {
     return client.addAlias(plugin, alias);
@@ -69,14 +71,15 @@ ScriptApi::AddTimer(size_t plugin,
                                               : SendTarget::World;
 
   Timer timer;
-  timer.setActiveClosed(flags.testFlag(TimerFlag::ActiveWhenClosed));
-  timer.setEnabled(flags.testFlag(TimerFlag::Enabled));
   timer.setLabel(QString::fromUtf8(name));
-  timer.setOneShot(flags.testFlag(TimerFlag::OneShot));
   timer.setScript(QString::fromUtf8(scriptName));
   timer.setSendTo(target);
-  timer.setTemporary(flags.testFlag(TimerFlag::Temporary));
   timer.setText(QString::fromUtf8(text));
+
+  timer.setEnabled(flags.testFlag(TimerFlag::Enabled));
+  timer.setOneShot(flags.testFlag(TimerFlag::OneShot));
+  timer.setActiveClosed(flags.testFlag(TimerFlag::ActiveWhenClosed));
+  timer.setTemporary(flags.testFlag(TimerFlag::Temporary));
 
   if (flags.testFlag(TimerFlag::AtTime)) {
     timer.setOccurrence(Occurrence::Time);
@@ -122,15 +125,7 @@ ScriptApi::AddTrigger(size_t plugin,
 
   Trigger trigger;
   trigger.setClipboardArg(clipboardArg);
-  trigger.setEnabled(flags.testFlag(TriggerFlag::Enabled));
-  trigger.setExpandVariables(flags.testFlag(TriggerFlag::ExpandVariables));
-  trigger.setIgnoreCase(flags.testFlag(TriggerFlag::IgnoreCase));
-  trigger.setIsRegex(flags.testFlag(TriggerFlag::RegularExpression));
-  trigger.setKeepEvaluating(flags.testFlag(TriggerFlag::KeepEvaluating));
   trigger.setLabel(QString::fromUtf8(name));
-  trigger.setLowercaseWildcard(flags.testFlag(TriggerFlag::LowercaseWildcard));
-  trigger.setOmitFromLog(flags.testFlag(TriggerFlag::OmitFromLog));
-  trigger.setOmitFromOutput(flags.testFlag(TriggerFlag::OmitFromOutput));
   trigger.setPattern(QString::fromUtf8(pattern));
   trigger.setScript(QString::fromUtf8(script));
   trigger.setSendTo(target);
@@ -141,6 +136,17 @@ ScriptApi::AddTrigger(size_t plugin,
     trigger.setChangeForeground(true);
     trigger.setForegroundColor(color);
   }
+
+  trigger.setEnabled(flags.testFlag(TriggerFlag::Enabled));
+  trigger.setOmitFromLog(flags.testFlag(TriggerFlag::OmitFromLog));
+  trigger.setOmitFromOutput(flags.testFlag(TriggerFlag::OmitFromOutput));
+  trigger.setKeepEvaluating(flags.testFlag(TriggerFlag::KeepEvaluating));
+  trigger.setIgnoreCase(flags.testFlag(TriggerFlag::IgnoreCase));
+  trigger.setIsRegex(flags.testFlag(TriggerFlag::RegularExpression));
+  trigger.setExpandVariables(flags.testFlag(TriggerFlag::ExpandVariables));
+  trigger.setLowercaseWildcard(flags.testFlag(TriggerFlag::LowercaseWildcard));
+  trigger.setTemporary(flags.testFlag(TriggerFlag::Temporary));
+  trigger.setOneShot(flags.testFlag(TriggerFlag::OneShot));
 
   if (!flags.testFlag(TriggerFlag::Replace)) {
     return client.addTrigger(plugin, trigger);
@@ -286,12 +292,30 @@ ScriptApi::ExportXML(size_t plugin,
   }
 }
 
+Alias
+ScriptApi::GetAlias(size_t plugin, string_view label) const noexcept
+{
+  return Alias(client, plugin, QString::fromUtf8(label));
+}
+
 rust::String
 ScriptApi::GetAliasWildcard(size_t plugin,
                             string_view label,
                             string_view name) const noexcept
 {
   return client.getAliasWildcard(plugin, label, name);
+}
+
+Timer
+ScriptApi::GetTimer(size_t plugin, string_view label) const noexcept
+{
+  return Timer(client, plugin, QString::fromUtf8(label));
+}
+
+Trigger
+ScriptApi::GetTrigger(size_t plugin, string_view label) const noexcept
+{
+  return Trigger(client, plugin, QString::fromUtf8(label));
 }
 
 rust::String

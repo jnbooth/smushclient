@@ -128,6 +128,19 @@ fmtBadReturn(const Plugin& plugin,
 
 // Private utils
 
+template<typename T>
+QFlags<T>
+combineFlags(std::initializer_list<std::pair<T, bool>> pairs)
+{
+  QFlags<T> flags;
+  for (const std::pair<T, bool>& pair : pairs) {
+    if (pair.second) {
+      flags.setFlag(pair.first);
+    }
+  }
+  return flags;
+}
+
 inline int
 returnCode(lua_State* L, ApiCode code)
 {
@@ -2341,6 +2354,39 @@ L_ExportXML(lua_State* L)
 }
 
 int
+L_GetAlias(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  const ScriptApi& api = getApi(L);
+  const size_t pluginIndex = getPluginIndex(L);
+  const string_view label = getString(L, 1);
+  const ApiCode code = api.IsAlias(pluginIndex, label);
+  push(L, code);
+  if (code != ApiCode::OK) {
+    return 1;
+  }
+  const Alias alias = api.GetAlias(pluginIndex, label);
+  const SendTarget sendto = alias.getSendTo();
+  push(L, alias.getPattern());
+  push(L, alias.getText());
+  push(L,
+       combineFlags<AliasFlag>(
+         { { AliasFlag::Enabled, alias.getEnabled() },
+           { AliasFlag::KeepEvaluating, alias.getKeepEvaluating() },
+           { AliasFlag::OmitFromLogFile, alias.getOmitFromLog() },
+           { AliasFlag::RegularExpression, alias.getIsRegex() },
+           { AliasFlag::ExpandVariables, alias.getExpandVariables() },
+           { AliasFlag::AliasSpeedWalk, sendto == SendTarget::Speedwalk },
+           { AliasFlag::AliasQueue, sendto == SendTarget::WorldDelay },
+           { AliasFlag::AliasMenu, alias.getMenu() },
+           { AliasFlag::Temporary, alias.getTemporary() },
+           { AliasFlag::OneShot, alias.getOneShot() } }));
+  push(L, alias.getScript());
+  return 5;
+}
+
+int
 L_GetAliasList(lua_State* L)
 {
   BENCHMARK
@@ -2385,6 +2431,91 @@ L_GetPluginTriggerList(lua_State* L)
   expectMaxArgs(L, 1);
   pushList(L, getApi(L).GetTriggerList(getString(L, 1)));
   return 1;
+}
+
+int
+L_GetTimer(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  const ScriptApi& api = getApi(L);
+  const size_t pluginIndex = getPluginIndex(L);
+  const string_view label = getString(L, 1);
+  const ApiCode code = api.IsTimer(pluginIndex, label);
+  push(L, code);
+  if (code != ApiCode::OK) {
+    return 1;
+  }
+  const Timer timer = api.GetTimer(pluginIndex, label);
+  const SendTarget sendto = timer.getSendTo();
+  const Occurrence occurrence = timer.getOccurrence();
+  int hour, minute, second, ms;
+  switch (occurrence) {
+    case Occurrence::Interval:
+      hour = timer.getEveryHour();
+      minute = timer.getEveryMinute();
+      second = timer.getEverySecond();
+      ms = timer.getEveryMillisecond();
+      break;
+    case Occurrence::Time: {
+      const QTime& time = timer.getAtTime();
+      hour = time.hour();
+      minute = time.minute();
+      second = time.second();
+      ms = time.msec();
+      break;
+    }
+  }
+  push(L, hour);
+  push(L, minute);
+  push(L, static_cast<lua_Number>(second) + static_cast<lua_Number>(ms) / 1000);
+  push(L, timer.getText());
+  push(L,
+       combineFlags<TimerFlag>(
+         { { TimerFlag::Enabled, timer.getEnabled() },
+           { TimerFlag::AtTime, occurrence == Occurrence::Time },
+           { TimerFlag::OneShot, timer.getOneShot() },
+           { TimerFlag::TimerSpeedWalk, sendto == SendTarget::Speedwalk },
+           { TimerFlag::TimerNote, sendto == SendTarget::Output },
+           { TimerFlag::ActiveWhenClosed, timer.getActiveClosed() },
+           { TimerFlag::Temporary, timer.getTemporary() } }));
+  push(L, timer.getScript());
+  return 7;
+}
+
+int
+L_GetTrigger(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  const ScriptApi& api = getApi(L);
+  const size_t pluginIndex = getPluginIndex(L);
+  const string_view label = getString(L, 1);
+  const ApiCode code = api.IsTrigger(pluginIndex, label);
+  push(L, code);
+  if (code != ApiCode::OK) {
+    return 1;
+  }
+  const Trigger trigger = api.GetTrigger(pluginIndex, label);
+  push(L, trigger.getPattern());
+  push(L, trigger.getText());
+  push(L,
+       combineFlags<TriggerFlag>(
+         { { TriggerFlag::Enabled, trigger.getEnabled() },
+           { TriggerFlag::OmitFromLog, trigger.getOmitFromLog() },
+           { TriggerFlag::OmitFromOutput, trigger.getOmitFromOutput() },
+           { TriggerFlag::KeepEvaluating, trigger.getKeepEvaluating() },
+           { TriggerFlag::IgnoreCase, trigger.getIgnoreCase() },
+           { TriggerFlag::RegularExpression, trigger.getIsRegex() },
+           { TriggerFlag::ExpandVariables, trigger.getExpandVariables() },
+           { TriggerFlag::LowercaseWildcard, trigger.getLowercaseWildcard() },
+           { TriggerFlag::Temporary, trigger.getTemporary() },
+           { TriggerFlag::OneShot, trigger.getOneShot() } }));
+  push(L, -1); // custom colour
+  push(L, trigger.getClipboardArg());
+  push(L, trigger.getSound());
+  push(L, trigger.getScript());
+  return 8;
 }
 
 int
@@ -3560,12 +3691,15 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "EnableTrigger", L_EnableTrigger },
     { "EnableTriggerGroup", L_EnableTriggerGroup },
     { "ExportXML", L_ExportXML },
+    { "GetAlias", L_GetAlias },
     { "GetAliasList", L_GetAliasList },
     { "GetAliasWildcard", L_GetAliasWildcard },
     { "GetPluginAliasList", L_GetPluginAliasList },
     { "GetPluginTimerList", L_GetPluginTimerList },
     { "GetPluginTriggerList", L_GetPluginTriggerList },
+    { "GetTimer", L_GetTimer },
     { "GetTimerList", L_GetTimerList },
+    { "GetTrigger", L_GetTrigger },
     { "GetTriggerList", L_GetTriggerList },
     { "GetTriggerWildcard", L_GetTriggerWildcard },
     { "IsAlias", L_IsAlias },

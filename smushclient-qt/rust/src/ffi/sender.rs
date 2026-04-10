@@ -69,6 +69,13 @@ pub mod ffi {
         for Timer
     {
     }
+    impl<'a>
+        cxx_qt::Constructor<
+            (&'a SmushClient, usize, &'a QString),
+            NewArguments = (&'a SmushClient, usize, &'a QString),
+        > for Timer
+    {
+    }
 
     #[auto_cxx_name]
     extern "RustQt" {
@@ -103,6 +110,13 @@ pub mod ffi {
     impl cxx_qt::Constructor<(), NewArguments = ()> for Alias {}
     impl<'a> cxx_qt::Constructor<(&'a SmushClient, usize), NewArguments = (&'a SmushClient, usize)>
         for Alias
+    {
+    }
+    impl<'a>
+        cxx_qt::Constructor<
+            (&'a SmushClient, usize, &'a QString),
+            NewArguments = (&'a SmushClient, usize, &'a QString),
+        > for Alias
     {
     }
 
@@ -149,6 +163,13 @@ pub mod ffi {
     impl cxx_qt::Constructor<(), NewArguments = ()> for Trigger {}
     impl<'a> cxx_qt::Constructor<(&'a SmushClient, usize), NewArguments = (&'a SmushClient, usize)>
         for Trigger
+    {
+    }
+    impl<'a>
+        cxx_qt::Constructor<
+            (&'a SmushClient, usize, &'a QString),
+            NewArguments = (&'a SmushClient, usize, &'a QString),
+        > for Trigger
     {
     }
 }

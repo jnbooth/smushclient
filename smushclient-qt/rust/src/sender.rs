@@ -388,6 +388,33 @@ macro_rules! impl_sender_constructors {
                 }
             }
         }
+
+        impl<'a, 'b> cxx_qt::Constructor<(&'a ffi::SmushClient, usize, &'b QString)> for ffi::$t {
+            type BaseArguments = ();
+            type InitializeArguments = ();
+            type NewArguments = (&'a ffi::SmushClient, usize, &'b QString);
+            fn route_arguments(
+                args: Self::NewArguments,
+            ) -> (
+                Self::NewArguments,
+                Self::BaseArguments,
+                Self::InitializeArguments,
+            ) {
+                (args, (), ())
+            }
+            fn new(
+                (client, plugin, label): (&'a ffi::SmushClient, usize, &'b QString),
+            ) -> Self::Rust {
+                let sender = client
+                    .rust()
+                    .client
+                    .borrow_sender::<$t>(plugin, &String::from(label));
+                match sender {
+                    Some(sender) => Self::Rust::from(&*sender),
+                    None => Self::Rust::default(),
+                }
+            }
+        }
     };
 }
 
