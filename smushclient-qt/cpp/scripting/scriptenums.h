@@ -317,50 +317,50 @@ namespace senderflags {
 namespace alias {
 enum AliasFlag
 {
-  Enabled = 1,             // Enable
-  KeepEvaluating = 8,      // Keep evaluating
-  IgnoreAliasCase = 32,    // Ignore case when matching
-  OmitFromLogFile = 64,    // Omit from log file
-  RegularExpression = 128, // Uses regular expression
-  ExpandVariables = 512,   // Expand variables like @direction
-  Replace = 1024,          // Replace existing of same name
-  AliasSpeedWalk = 2048,   // Interpret send string as a speed walk string
+  Enabled = 0x1,            // Enable
+  KeepEvaluating = 0x8,     // Keep evaluating
+  IgnoreAliasCase = 0x20,   // Ignore case when matching
+  OmitFromLogFile = 0x40,   // Omit from log file
+  RegularExpression = 0x80, // Uses regular expression
+  ExpandVariables = 0x200,  // Expand variables like @direction
+  Replace = 0x400,          // Replace existing of same name
+  AliasSpeedWalk = 0x800,   // Interpret send string as a speed walk string
   AliasQueue =
-    4096, // Queue this alias for sending at the speedwalking delay interval
-  AliasMenu = 8192,  // This alias appears on the alias menu
-  Temporary = 16384, // Temporary - do not save to world file
-  OneShot = 32768,   // If set, only fires once
+    0x1000, // Queue this alias for sending at the speedwalking delay interval
+  AliasMenu = 0x2000, // This alias appears on the alias menu
+  Temporary = 0x4000, // Temporary - do not save to world file
+  OneShot = 0x8000,   // If set, only fires once
 };
 } // namespace alias
 
 namespace timer {
 enum TimerFlag
 {
-  Enabled = 1,           // Enable
-  AtTime = 2,            // If not set, time is "every"
-  OneShot = 4,           // If set, only fires once
-  TimerSpeedWalk = 8,    // Timer does a speed walk when it fires
-  TimerNote = 16,        // Timer does a world.Note when it fires
-  ActiveWhenClosed = 32, // Timer fires even when world is disconnected
-  Replace = 1024,        // Replace existing of same name
-  Temporary = 16384,     // Temporary - do not save to world file
+  Enabled = 1,             // Enable
+  AtTime = 2,              // If not set, time is "every"
+  OneShot = 4,             // If set, only fires once
+  TimerSpeedWalk = 8,      // Timer does a speed walk when it fires
+  TimerNote = 0x10,        // Timer does a world.Note when it fires
+  ActiveWhenClosed = 0x20, // Timer fires even when world is disconnected
+  Replace = 0x400,         // Replace existing of same name
+  Temporary = 0x4000,      // Temporary - do not save to world file
 };
 } // namespace timer
 
 namespace trigger {
 enum TriggerFlag
 {
-  Enabled = 1,              // Enable
-  OmitFromLog = 2,          // Omit from log file
-  OmitFromOutput = 4,       // Omit from output
-  KeepEvaluating = 8,       // Keep evaluating
-  IgnoreCase = 16,          // Ignore case when matching
-  RegularExpression = 32,   // Uses regular expression
-  ExpandVariables = 512,    // Expand variables like @direction
-  Replace = 1024,           // Replace existing of same name
-  LowercaseWildcard = 2048, // Wildcards forced to lower-case
-  Temporary = 16384,        // Temporary - do not save to world file
-  OneShot = 32768,          // If set, only fires once
+  Enabled = 1,               // Enable
+  OmitFromLog = 2,           // Omit from log file
+  OmitFromOutput = 4,        // Omit from output
+  KeepEvaluating = 8,        // Keep evaluating
+  IgnoreCase = 0x10,         // Ignore case when matching
+  RegularExpression = 0x20,  // Uses regular expression
+  ExpandVariables = 0x200,   // Expand variables like @direction
+  Replace = 0x400,           // Replace existing of same name
+  LowercaseWildcard = 0x800, // Wildcards forced to lower-case
+  Temporary = 0x4000,        // Temporary - do not save to world file
+  OneShot = 0x8000,          // If set, only fires once
 };
 } // namespace trigger
 } // namespace senderflags
