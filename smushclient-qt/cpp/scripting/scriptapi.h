@@ -390,7 +390,7 @@ public:
   ApiCode SetBackgroundImage(const QString& path,
                              MiniWindow::Position position);
   void SetChanged(bool changed) const;
-  ApiCode SetCommand(const QString& command) const;
+  ApiCode SetCommand(const QString& command, bool force) const;
   ApiCode SetCommandSelection(int first, int last) const;
   ApiCode SetCommandWindowHeight(int height) const;
   ApiCode SetCursor(Qt::CursorShape cursor) const;

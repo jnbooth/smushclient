@@ -949,8 +949,9 @@ int
 L_SetCommand(lua_State* L)
 {
   BENCHMARK
-  expectMaxArgs(L, 1);
-  return returnCode(L, getApi(L).SetCommand(getQString(L, 1)));
+  expectMaxArgs(L, 2);
+  return returnCode(
+    L, getApi(L).SetCommand(getQString(L, 1), getBool(L, 2, false)));
 }
 
 int

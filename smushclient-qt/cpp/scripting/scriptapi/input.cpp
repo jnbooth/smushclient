@@ -156,9 +156,9 @@ ScriptApi::SendPush(QByteArray& bytes)
 }
 
 ApiCode
-ScriptApi::SetCommand(const QString& command) const
+ScriptApi::SetCommand(const QString& command, bool force) const
 {
-  if (!tab.ui->input->toPlainText().isEmpty()) {
+  if (!force && !tab.ui->input->toPlainText().isEmpty()) {
     return ApiCode::CommandNotEmpty;
   }
   tab.ui->input->setPlainText(command);
