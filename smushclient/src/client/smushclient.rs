@@ -837,6 +837,7 @@ impl SmushClient {
             variables,
             keys,
             script,
+            worlds,
         } = Imports::from_xml(xml)?;
 
         let imported = aliases.len()
@@ -864,6 +865,9 @@ impl SmushClient {
             );
         }
         let mut world = self.world.borrow_mut();
+        for world_partial in worlds {
+            world_partial.apply(&mut world);
+        }
         world.ansi_colours.extend(&colours.ansi);
         world.numpad_shortcuts.extend(keys);
         if !script.as_bytes().iter().all(u8::is_ascii_whitespace) {

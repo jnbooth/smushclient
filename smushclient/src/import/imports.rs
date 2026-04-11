@@ -8,7 +8,7 @@ use smushclient_plugins::xml::{XmlAlias, XmlTimer, XmlTrigger, XmlVec};
 use smushclient_plugins::{Alias, ImportError, RegexError, Timer, Trigger};
 
 use super::color::{ColoursXml, CustomColours};
-use super::world::MuClient;
+use super::world::{MuClient, XmlWorldPartial};
 use crate::client::XmlVariable;
 use crate::world::XmlKey;
 
@@ -16,8 +16,8 @@ use crate::world::XmlKey;
 #[allow(clippy::large_enum_variant)]
 enum XmlImport<'a> {
     #[serde(borrow)]
-    MuClient(MuClient<'a>),
-    // World(XmlWorld),
+    MuClient(MuClient<'a, XmlWorldPartial>),
+    World(XmlWorldPartial),
     #[serde(borrow)]
     Triggers(XmlVec<XmlTrigger<'a>>),
     #[serde(borrow)]
@@ -49,6 +49,7 @@ pub(crate) struct Imports<'a> {
     pub variables: Vec<XmlVariable<'a>>,
     pub keys: Vec<XmlKey<'a>>,
     pub script: String,
+    pub worlds: Vec<XmlWorldPartial>,
 }
 
 impl<'a> Imports<'a> {
@@ -81,6 +82,7 @@ impl<'a> TryFrom<XmlImports<'a>> for Imports<'a> {
             variables,
             keys,
             script,
+            worlds,
         } = value;
         Ok(Self {
             aliases: aliases
@@ -96,6 +98,7 @@ impl<'a> TryFrom<XmlImports<'a>> for Imports<'a> {
             variables,
             keys,
             script,
+            worlds,
         })
     }
 }
@@ -108,36 +111,39 @@ struct XmlImports<'a> {
     triggers: Vec<XmlTrigger<'a>>,
     variables: Vec<XmlVariable<'a>>,
     keys: Vec<XmlKey<'a>>,
+    worlds: Vec<XmlWorldPartial>,
     script: String,
 }
 
 impl<'a> XmlImports<'a> {
-    pub fn append(&mut self, xml: &mut XmlImport<'a>) {
+    pub fn append(&mut self, xml: XmlImport<'a>) {
         match xml {
-            XmlImport::Aliases(aliases) => self.aliases.append(aliases),
-            XmlImport::Colours(colours) => self.colours.append(colours),
-            XmlImport::Keypad(keys) => self.keys.append(keys),
-            XmlImport::Script(script) => self.script.push_str(script),
-            XmlImport::Timers(timers) => self.timers.append(timers),
-            XmlImport::Triggers(triggers) => self.triggers.append(triggers),
-            XmlImport::Variables(vars) => self.variables.append(vars),
+            XmlImport::Aliases(mut aliases) => self.aliases.append(&mut aliases),
+            XmlImport::Colours(mut colours) => self.colours.append(&mut colours),
+            XmlImport::Keypad(mut keys) => self.keys.append(&mut keys),
+            XmlImport::Script(script) => self.script.push_str(&script),
+            XmlImport::Timers(mut timers) => self.timers.append(&mut timers),
+            XmlImport::Triggers(mut triggers) => self.triggers.append(&mut triggers),
+            XmlImport::Variables(mut vars) => self.variables.append(&mut vars),
+            XmlImport::World(world) => self.worlds.push(world),
             XmlImport::Unknown => (),
             XmlImport::MuClient(MuClient {
-                aliases,
-                colours,
+                mut aliases,
+                mut colours,
                 include: _,
-                keypad,
-                timers,
-                triggers,
-                variables,
-                world: _,
+                mut keypad,
+                mut timers,
+                mut triggers,
+                mut variables,
+                world,
             }) => {
-                self.aliases.append(aliases);
-                self.colours.append(colours);
-                self.keys.append(keypad);
-                self.timers.append(timers);
-                self.triggers.append(triggers);
-                self.variables.append(variables);
+                self.aliases.append(&mut aliases);
+                self.colours.append(&mut colours);
+                self.keys.append(&mut keypad);
+                self.timers.append(&mut timers);
+                self.triggers.append(&mut triggers);
+                self.variables.append(&mut variables);
+                self.worlds.push(world);
             }
         }
     }
@@ -158,8 +164,8 @@ impl<'de> Deserialize<'de> for XmlImports<'de> {
 
             fn visit_seq<A: SeqAccess<'de>>(self, mut seq: A) -> Result<Self::Value, A::Error> {
                 let mut imports = Self::Value::default();
-                while let Some(mut value) = seq.next_element()? {
-                    imports.append(&mut value);
+                while let Some(value) = seq.next_element()? {
+                    imports.append(value);
                 }
                 Ok(imports)
             }

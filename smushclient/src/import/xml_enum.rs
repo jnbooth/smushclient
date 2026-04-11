@@ -16,18 +16,31 @@ impl Expected for ExpectedRange {
 pub(super) trait XmlEnum: Copy + Sized + 'static {
     const VARIANTS: &[Self];
 
-    fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+    fn from_variant<E: de::Error>(v: i64) -> Result<Self, E> {
         #[cold]
         fn create_error<E: de::Error>(v: i64, len: usize) -> E {
             E::invalid_value(Unexpected::Signed(v), &ExpectedRange(len - 1))
         }
 
-        let v = i64::deserialize(deserializer)?;
         let variant = usize::try_from(v).map_err(|_| create_error(v, Self::VARIANTS.len()))?;
         match Self::VARIANTS.get(variant) {
             Some(value) => Ok(*value),
             None => Err(create_error(v, Self::VARIANTS.len())),
         }
+    }
+
+    fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let v = i64::deserialize(deserializer)?;
+        Self::from_variant(v)
+    }
+
+    fn deserialize_opt<'de, D: Deserializer<'de>>(
+        deserializer: D,
+    ) -> Result<Option<Self>, D::Error> {
+        let Some(v) = Option::deserialize(deserializer)? else {
+            return Ok(None);
+        };
+        Ok(Some(Self::from_variant(v)?))
     }
 }
 
