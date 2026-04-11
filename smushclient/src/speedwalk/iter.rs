@@ -30,10 +30,9 @@ pub fn encode_to_string<'a, I: IntoIterator<Item = Step<'a>>>(iter: I) -> String
 }
 
 pub fn reverse<'a>(speedwalk: &'a str, filler: &'a str) -> Result<vec::IntoIter<Step<'a>>, Error> {
-    let steps: Result<Vec<_>, _> = evaluate(speedwalk, filler)
+    let mut steps = evaluate(speedwalk, filler)
         .map(|step| step.map(Step::reverse))
-        .collect();
-    let mut steps = steps?;
+        .collect::<Result<Vec<_>, _>>()?;
     steps.reverse();
     Ok(steps.into_iter())
 }

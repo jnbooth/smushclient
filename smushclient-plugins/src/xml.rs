@@ -1,9 +1,13 @@
+use std::io::BufRead;
+use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
-use std::{iter, vec};
+use std::{fmt, vec};
 
+use quick_xml::de::{Deserializer, IoReader, SliceReader, XmlRead};
+use quick_xml::se::{EmptyElementHandling, SeError, Serializer, WriteResult};
 pub use quick_xml::{DeError as XmlError, SeError as XmlSerError};
 use serde::de::SeqAccess;
-use serde::ser::Serializer;
+use serde::ser::Serializer as _;
 use serde::{Deserialize, Serialize};
 
 use crate::CursorVec;
@@ -18,44 +22,101 @@ pub trait XmlIterable: Sized + 'static {
 
     const TAG: &'static str;
 
-    fn from_xml_str(s: &str) -> Result<Self, ImportError> {
-        quick_xml::de::from_str::<Self::Xml<'_>>(s)?
+    fn from_xml_list<R>(reader: R) -> XmlIter<'static, Self, IoReader<R>>
+    where
+        R: BufRead,
+    {
+        Deserializer::from_reader(reader).into()
+    }
+
+    fn from_xml_list_str(s: &str) -> XmlIter<'_, Self> {
+        Deserializer::from_str(s).into()
+    }
+
+    fn from_xml<R>(reader: R) -> Result<Self, ImportError>
+    where
+        R: BufRead,
+    {
+        Self::Xml::<'_>::deserialize(&mut Deserializer::from_reader(reader))?
             .try_into()
             .map_err(Into::into)
     }
 
-    fn to_xml_string(&self) -> Result<String, quick_xml::SeError> {
+    fn from_xml_str(s: &str) -> Result<Self, ImportError> {
+        Self::Xml::<'_>::deserialize(&mut Deserializer::from_str(s))?
+            .try_into()
+            .map_err(Into::into)
+    }
+
+    fn to_xml_string(&self) -> Result<String, SeError> {
         let mut buf = String::new();
-        let mut serializer = quick_xml::se::Serializer::new(&mut buf);
-        serializer.empty_element_handling(quick_xml::se::EmptyElementHandling::Expanded);
-        Self::Xml::from(self).serialize(serializer)?;
+        self.write_xml(&mut buf)?;
         Ok(buf)
     }
 
-    fn list_from_xml_str<T>(s: &str) -> Result<T, ImportError>
+    fn to_xml_list_string<'a, I>(iter: I) -> Result<String, SeError>
     where
-        T: FromIterator<Self>,
+        I: IntoIterator<Item = &'a Self>,
     {
-        let mut deserializer = &mut quick_xml::de::Deserializer::from_str(s);
-        iter::from_fn(move || match deserializer.next_element::<Self::Xml<'_>>() {
+        let mut buf = String::new();
+        Self::write_xml_list(&mut buf, iter)?;
+        Ok(buf)
+    }
+
+    fn write_xml<W>(&self, mut writer: W) -> Result<WriteResult, SeError>
+    where
+        W: fmt::Write,
+    {
+        let mut serializer = Serializer::new(&mut writer);
+        serializer.empty_element_handling(EmptyElementHandling::Expanded);
+        Self::Xml::from(self).serialize(serializer)
+    }
+
+    fn write_xml_list<'a, I, W>(mut writer: W, iter: I) -> Result<WriteResult, SeError>
+    where
+        I: IntoIterator<Item = &'a Self>,
+        W: fmt::Write,
+    {
+        let mut serializer = Serializer::with_root(&mut writer, Some(Self::TAG)).unwrap();
+        serializer.empty_element_handling(EmptyElementHandling::Expanded);
+        serializer.collect_seq(iter.into_iter().map(Self::Xml::from))
+    }
+}
+
+pub struct XmlIter<'a, T, D = SliceReader<'a>>
+where
+    D: XmlRead<'a>,
+{
+    inner: Deserializer<'a, D>,
+    marker: PhantomData<T>,
+}
+
+impl<'a, T, D> From<Deserializer<'a, D>> for XmlIter<'a, T, D>
+where
+    D: XmlRead<'a>,
+{
+    fn from(value: Deserializer<'a, D>) -> Self {
+        Self {
+            inner: value,
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<'a, T, D> Iterator for XmlIter<'a, T, D>
+where
+    D: XmlRead<'a>,
+    T: XmlIterable,
+{
+    type Item = Result<T, ImportError>;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        match (&mut self.inner).next_element::<T::Xml<'_>>() {
             Err(e) => Some(Err(e.into())),
             Ok(None) => None,
             Ok(Some(value)) => Some(value.try_into().map_err(Into::into)),
-        })
-        .collect()
-    }
-
-    fn list_to_xml_string<'a, I>(iter: I) -> Result<String, quick_xml::SeError>
-    where
-        I: IntoIterator<Item = &'a Self>,
-        I::IntoIter: Clone,
-    {
-        let mut buf = String::new();
-        let mut serializer =
-            quick_xml::se::Serializer::with_root(&mut buf, Some(Self::TAG)).unwrap();
-        serializer.empty_element_handling(quick_xml::se::EmptyElementHandling::Expanded);
-        serializer.collect_seq(iter.into_iter().map(Self::Xml::from))?;
-        Ok(buf)
+        }
     }
 }
 
@@ -180,13 +241,14 @@ mod tests {
     fn xml_roundtrip() {
         let triggers = vec![Trigger::default(), Trigger::default()];
         let to_xml =
-            XmlIterable::list_to_xml_string(&triggers).expect("error serializing triggers");
+            XmlIterable::to_xml_list_string(&triggers).expect("error serializing triggers");
         assert_eq!(
             to_xml,
             r#"<trigger enabled="y" sequence="100"></trigger><trigger enabled="y" sequence="100"></trigger>"#
         );
-        let mut from_xml: Vec<Trigger> =
-            XmlIterable::list_from_xml_str(&to_xml).expect("error deserializing triggers");
+        let mut from_xml: Vec<Trigger> = XmlIterable::from_xml_list_str(&to_xml)
+            .collect::<Result<_, _>>()
+            .expect("error deserializing triggers");
         from_xml[0].id = triggers[0].id;
         from_xml[1].id = triggers[1].id;
         assert_eq!(from_xml, triggers);

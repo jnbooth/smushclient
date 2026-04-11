@@ -50,6 +50,14 @@ impl<T: Ord> CursorVec<T> {
         Ref::filter_map(self.inner.borrow(), |vec| vec.get(cursor)).ok()
     }
 
+    pub fn request_sort(&self) {
+        if self.evaluating.get() {
+            self.unsorted.set(true);
+        } else {
+            self.inner.borrow_mut().sort_unstable();
+        }
+    }
+
     pub fn get(&self, i: usize) -> Option<Ref<'_, T>> {
         Ref::filter_map(self.inner.borrow(), |inner| inner.get(i)).ok()
     }
@@ -75,10 +83,6 @@ impl<T: Ord> CursorVec<T> {
         if self.unsorted.replace(false) {
             self.inner.borrow_mut().sort_unstable();
         }
-    }
-
-    pub fn append(&self, other: &mut Vec<T>) {
-        self.inner.borrow_mut().append(other);
     }
 
     pub fn insert(&self, item: T) -> Ref<'_, T> {

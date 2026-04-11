@@ -15,7 +15,7 @@ use rodio::Decoder;
 use smushclient_plugins::xml::XmlSerError;
 use smushclient_plugins::{
     Alias, CursorVec, ImportError, LoadError, Plugin, PluginIndex, PluginSender, Reaction,
-    SendTarget, SenderAccessError, SortOnDrop, Timer, Trigger,
+    SendTarget, SenderAccessError, Timer, Trigger,
 };
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt};
@@ -791,21 +791,13 @@ impl SmushClient {
     }
 
     pub fn export_world_senders<T: PluginSender>(&self) -> Result<String, XmlSerError> {
-        T::list_to_xml_string(
+        T::to_xml_list_string(
             self.world_plugin()
                 .senders::<T>()
                 .borrow()
                 .iter()
                 .filter(|sender| !sender.as_ref().temporary),
         )
-    }
-
-    pub fn import_world_senders<T: PluginSender>(
-        &self,
-        xml: &str,
-    ) -> Result<SortOnDrop<'_, T>, ImportError> {
-        let mut senders = T::list_from_xml_str(xml)?;
-        Ok(self.world_plugin().import_senders(&mut senders))
     }
 
     pub fn export_sender<T: PluginSender>(
@@ -830,10 +822,10 @@ impl SmushClient {
 
     pub fn import_xml(&self, xml: &str) -> Result<usize, ImportError> {
         let Imports {
-            mut aliases,
+            aliases,
             colours,
-            mut timers,
-            mut triggers,
+            timers,
+            triggers,
             variables,
             keys,
             script,
@@ -849,13 +841,13 @@ impl SmushClient {
 
         let world_plugin = self.world_plugin();
         if !aliases.is_empty() {
-            world_plugin.import_senders(&mut aliases);
+            world_plugin.import_senders(aliases);
         }
         if !timers.is_empty() {
-            world_plugin.import_senders(&mut timers);
+            world_plugin.import_senders(timers);
         }
         if !triggers.is_empty() {
-            world_plugin.import_senders(&mut triggers);
+            world_plugin.import_senders(triggers);
         }
         if !variables.is_empty() {
             self.variables.borrow_mut().world_variables_mut().extend(

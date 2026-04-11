@@ -2,10 +2,19 @@ use std::pin::Pin;
 
 use cxx_qt::CxxQtType;
 use cxx_qt_lib::QString;
-use smushclient_plugins::xml::XmlSerError;
+use smushclient_plugins::xml::{XmlIterable, XmlSerError};
 use smushclient_plugins::{Alias, PluginIndex, Timer, Trigger};
 
-use crate::ffi::{self, SenderKind, StringView};
+use crate::ffi::{self, ExportKind, SenderKind, StringView};
+
+macro_rules! try_xml {
+    ($e:expr) => {
+        match XmlIterable::from_xml_list_str(&String::from($e)).collect() {
+            Ok(senders) => senders,
+            Err(e) => return e.into(),
+        }
+    };
+}
 
 impl ffi::SmushClient {
     pub fn import_world(self: Pin<&mut Self>, path: &QString) -> ffi::ParseResult {
@@ -16,10 +25,11 @@ impl ffi::SmushClient {
     }
 
     pub fn import_world_aliases(&self, xml: &QString) -> ffi::ParseResult {
+        let aliases: Vec<Alias> = try_xml!(xml);
         self.rust()
             .client
-            .import_world_senders::<Alias>(&String::from(xml))
-            .map(|result| result.len())
+            .world_plugin()
+            .import_senders(aliases)
             .into()
     }
 
@@ -28,20 +38,20 @@ impl ffi::SmushClient {
         xml: &QString,
         timekeeper: &ffi::Timekeeper,
     ) -> ffi::ParseResult {
-        let result = self.rust().import_world_timers(&String::from(xml));
-        if let Ok(timers) = &result {
-            for timer in timers {
-                timekeeper.start(timer);
-            }
+        let timers: Vec<Timer> = try_xml!(xml);
+        let rust = self.rust();
+        for timer in rust.import_world_timers(&timers) {
+            timekeeper.start(&timer);
         }
-        result.map(|result| result.len()).into()
+        rust.client.world_plugin().import_senders(timers).into()
     }
 
     pub fn import_world_triggers(&self, xml: &QString) -> ffi::ParseResult {
+        let triggers: Vec<Trigger> = try_xml!(xml);
         self.rust()
             .client
-            .import_world_senders::<Trigger>(&String::from(xml))
-            .map(|result| result.len())
+            .world_plugin()
+            .import_senders(triggers)
             .into()
     }
 
@@ -57,7 +67,7 @@ impl ffi::SmushClient {
 
     pub fn try_export_xml(
         &self,
-        kind: ffi::ExportKind,
+        kind: ExportKind,
         index: PluginIndex,
         name: StringView<'_>,
     ) -> Result<QString, XmlSerError> {
@@ -66,18 +76,18 @@ impl ffi::SmushClient {
         };
         let client = &self.rust().client;
         let xml = match kind {
-            ffi::ExportKind::Trigger => client.export_sender::<Trigger>(index, name),
-            ffi::ExportKind::Alias => client.export_sender::<Alias>(index, name),
-            ffi::ExportKind::Timer => client.export_sender::<Timer>(index, name),
-            // ffi::ExportKind::Macro =>
-            ffi::ExportKind::Variable => client.export_variable(index, name),
-            ffi::ExportKind::Keypad => client.export_numpad_key(name),
+            ExportKind::Trigger => client.export_sender::<Trigger>(index, name),
+            ExportKind::Alias => client.export_sender::<Alias>(index, name),
+            ExportKind::Timer => client.export_sender::<Timer>(index, name),
+            // ExportKind::Macro =>
+            ExportKind::Variable => client.export_variable(index, name),
+            ExportKind::Keypad => client.export_numpad_key(name),
             _ => return Ok(QString::default()),
         }?;
         Ok(QString::from(&xml))
     }
 
-    pub fn try_export_world_senders(&self, kind: SenderKind) -> Result<QString, XmlSerError> {
+    pub fn try_export_world_senders(&self, kind: ffi::SenderKind) -> Result<QString, XmlSerError> {
         let client = &self.rust().client;
         let xml = match kind {
             SenderKind::Alias => client.export_world_senders::<Alias>(),

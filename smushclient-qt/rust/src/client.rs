@@ -326,17 +326,19 @@ impl SmushClientRust {
         self.timers.borrow_mut().poll(&self.client)
     }
 
-    pub fn import_world_timers(&self, xml: &str) -> Result<Vec<TimerStart>, ImportError> {
-        let world_index = self.world_plugin_index();
-        let imported_timers = self.client.import_world_senders::<Timer>(xml)?;
+    pub fn import_world_timers<'a, I>(&self, imports: I) -> Vec<TimerStart>
+    where
+        I: IntoIterator<Item = &'a Timer>,
+    {
         if !self.client.borrow_world().enable_timers {
-            return Ok(Vec::new());
+            return Vec::new();
         }
+        let world_index = self.world_plugin_index();
         let mut timers = self.timers.borrow_mut();
-        Ok(imported_timers
-            .iter()
+        imports
+            .into_iter()
             .filter_map(|timer| timers.start(world_index, timer))
-            .collect())
+            .collect()
     }
 
     pub fn replace_world_timer(

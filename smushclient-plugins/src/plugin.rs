@@ -1,24 +1,21 @@
 use std::borrow::Cow;
 use std::cell::{Cell, Ref};
 use std::cmp::Ordering;
-use std::collections::HashSet;
-use std::fmt::Write;
+use std::collections::HashMap;
 use std::fs::File;
 use std::hash::Hash;
-use std::io::{BufRead, BufReader};
+use std::io::BufReader;
 use std::path::{Path, PathBuf};
-use std::str;
+use std::{mem, str};
 
 use chrono::{Local, NaiveDate};
 pub use quick_xml::DeError as PluginLoadError;
-use quick_xml::SeError;
 use serde::{Deserialize, Serialize, Serializer};
 
 use crate::cursor_vec::CursorVec;
 use crate::error::{LoadError, SenderAccessError};
 use crate::send::Sender;
 use crate::send::{Alias, Timer, Trigger, XmlAlias, XmlTimer, XmlTrigger};
-use crate::sort_on_drop::SortOnDrop;
 use crate::xml::{XmlIterable, XmlVec, bool_serde, is_default};
 
 pub type PluginIndex = usize;
@@ -124,32 +121,11 @@ impl Plugin {
             && self.script.trim().is_empty()
     }
 
-    pub fn from_xml<R: BufRead>(reader: R) -> Result<Self, PluginLoadError> {
-        quick_xml::de::from_reader(reader)
-    }
-
-    pub fn from_xml_str(s: &str) -> Result<Self, PluginLoadError> {
-        quick_xml::de::from_str(s)
-    }
-
-    pub fn to_xml<W: Write>(&self, mut writer: W) -> Result<(), SeError> {
-        let mut serializer = quick_xml::se::Serializer::new(&mut writer);
-        serializer.empty_element_handling(quick_xml::se::EmptyElementHandling::Expanded);
-        self.serialize(serializer)?;
-        Ok(())
-    }
-
-    pub fn to_xml_string(&self) -> Result<String, SeError> {
-        let mut buf = String::new();
-        self.to_xml(&mut buf)?;
-        Ok(buf)
-    }
-
     pub fn load<P: AsRef<Path>>(path: P) -> Result<Self, LoadError> {
         let path = path.as_ref();
         let file = File::open(path)?;
         let reader = BufReader::new(file);
-        let mut this = Self::from_xml(reader)?;
+        let mut this: Self = quick_xml::de::from_reader(reader)?;
         this.metadata.path = path.to_path_buf();
         Ok(this)
     }
@@ -183,33 +159,58 @@ impl Plugin {
         Ok(senders.replace(index, sender))
     }
 
-    pub fn import_senders<T: PluginSender>(&self, imported: &mut Vec<T>) -> SortOnDrop<'_, T> {
-        let mut senders = self.senders::<T>().borrow_mut();
-        let senders_len = senders.len();
-        let need_relabeling = !imported
-            .iter()
-            .all(|sender| sender.as_ref().label.is_empty());
-        senders.append(imported);
-        if need_relabeling {
-            let mut labels = HashSet::new();
-            for sender in senders.iter_mut() {
-                let sender = sender.as_mut();
-                if !labels.contains(&sender.label) {
-                    labels.insert(&sender.label);
+    pub fn import_senders<I>(&self, iter: I) -> usize
+    where
+        I: IntoIterator,
+        I::Item: PluginSender,
+    {
+        let iter = iter.into_iter();
+        let (low, high) = iter.size_hint();
+        if high == Some(0) {
+            return 0;
+        }
+        let senders = self.senders::<I::Item>();
+        let imported = {
+            let mut senders = senders.borrow_mut();
+            senders.reserve(low);
+            let mut need_map = true;
+            let mut label_map = HashMap::new();
+
+            let mut imported = 0;
+            for mut sender in iter {
+                imported += 1;
+                let label = &mut sender.as_mut().label;
+                if label.is_empty() {
+                    senders.push(sender);
                     continue;
                 }
-                let len = sender.label.len();
-                for i in 0.. {
-                    write!(sender.label, "{i}").unwrap();
-                    if !labels.contains(&sender.label) {
-                        labels.insert(&sender.label);
-                        break;
-                    }
-                    sender.label.truncate(len);
+                if need_map {
+                    label_map.extend(senders.iter_mut().enumerate().filter_map(|(i, sender)| {
+                        let label = &mut sender.as_mut().label;
+                        if label.is_empty() {
+                            None
+                        } else {
+                            Some((mem::take(label), i))
+                        }
+                    }));
+                    need_map = false;
+                }
+                if let Some(pos) = label_map.get(label.as_str()) {
+                    senders[*pos] = sender;
+                } else {
+                    label_map.insert(mem::take(label), senders.len());
+                    senders.push(sender);
                 }
             }
+            for (label, pos) in label_map {
+                senders[pos].as_mut().label = label;
+            }
+            imported
+        };
+        if imported != 0 {
+            senders.request_sort();
         }
-        SortOnDrop::new(senders, senders_len)
+        imported
     }
 }
 
