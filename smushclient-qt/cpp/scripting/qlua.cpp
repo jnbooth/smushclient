@@ -738,7 +738,10 @@ pushChar(lua_State* L, T ch)
     qlua::push(L, static_cast<char>(ch));
     return;
   }
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   std::wstring_convert<std::codecvt_utf8<T>, T> convert;
+#pragma GCC diagnostic pop
   // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   qlua::push(L, convert.to_bytes(&ch, &ch + 1));
   // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
