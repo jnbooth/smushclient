@@ -125,12 +125,12 @@ AbstractSenderModel::editItem(const QModelIndex& modelIndex, QWidget* parent)
   return true;
 }
 
-RegexParse
-AbstractSenderModel::tryImportXml(const QString& xml)
+ParseResult
+AbstractSenderModel::importXml(const QString& xml)
 {
   beginResetModel();
-  const RegexParse result = tryImport(xml);
-  *needsRefresh = true;
+  const ParseResult result = import(xml);
+  *needsRefresh = result.code > 0;
   endResetModel();
   return result;
 }

@@ -30,7 +30,7 @@ mod plugin_details;
 pub use plugin_details::ffi::PluginDetails;
 
 mod regex;
-pub use regex::ffi::RegexParse;
+pub use regex::ffi::ParseResult;
 
 mod sender;
 pub use sender::AliasOutcomes;

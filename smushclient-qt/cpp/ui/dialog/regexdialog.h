@@ -6,14 +6,16 @@ namespace Ui {
 class RegexDialog;
 } // namespace Ui
 
-struct RegexParse;
+struct ParseResult;
 
 class RegexDialog : public QDialog
 {
   Q_OBJECT
 
 public:
-  explicit RegexDialog(const RegexParse& parse, QWidget* parent = nullptr);
+  static bool handle(const ParseResult& parse, QWidget* parent = nullptr);
+
+  explicit RegexDialog(const ParseResult& parse, QWidget* parent = nullptr);
   ~RegexDialog() override;
 
 private:

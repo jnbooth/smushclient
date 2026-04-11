@@ -1,5 +1,5 @@
+#include "../../ui/dialog/regexdialog.h"
 #include "../../ui/worldtab.h"
-#include "../callback/plugincallback.h"
 #include "../scriptapi.h"
 #include "sqlite3.h"
 #include <QtCore/QDir>
@@ -49,25 +49,32 @@ ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
   return result;
 }
 
+QString
+ScriptApi::ExportXML(size_t plugin,
+                     ExportKind kind,
+                     std::string_view name) const noexcept
+{
+  try {
+    return client.tryExportXml(kind, plugin, name);
+  } catch (const rust::Error& error) {
+    return QString::fromUtf8(error.what());
+  }
+}
+
+int64_t
+ScriptApi::ImportXML(string_view xml) const noexcept
+{
+  const ParseResult result = client.importXml(xml);
+  RegexDialog::handle(result, parentWidget());
+  return result.code;
+}
+
 bool
 ScriptApi::Save(const QString& path, bool replace)
 {
   return !(path.isEmpty() ? tab.saveWorldAsNew(path, !replace)
                           : tab.saveWorld())
             .isEmpty();
-}
-
-ApiCode
-ScriptApi::SaveState(size_t plugin)
-{
-  OnPluginSaveState onSaveState;
-  sendCallback(onSaveState, plugin);
-  try {
-    client.trySaveState(plugin, tab.variablesPath());
-  } catch (const rust::Error&) {
-    return ApiCode::PluginCouldNotSaveState;
-  }
-  return ApiCode::OK;
 }
 
 void

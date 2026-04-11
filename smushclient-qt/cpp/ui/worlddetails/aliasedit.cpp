@@ -1,7 +1,7 @@
 #include "aliasedit.h"
 #include "../../fieldconnector.h"
 #include "../../settings.h"
-#include "regexdialog.h"
+#include "../dialog/regexdialog.h"
 #include "smushclient_qt/src/ffi/regex.cxx.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "ui_aliasedit.h"
@@ -61,14 +61,9 @@ AliasEdit::~AliasEdit()
 void
 AliasEdit::accept()
 {
-  if (ui->IsRegex->isChecked()) {
-    const QString pattern = ui->Pattern->text();
-    const RegexParse result = ffi::regex::validate(pattern);
-    if (!result.success) {
-      RegexDialog dialog(result, this);
-      dialog.exec();
-      return;
-    }
+  if (ui->IsRegex->isChecked() &&
+      !RegexDialog::handle(ffi::regex::validate(ui->Pattern->text()))) {
+    return;
   }
   QDialog::accept();
 }

@@ -2,8 +2,27 @@
 #include "smushclient_qt/src/ffi/regex.cxx.h"
 #include "ui_regexdialog.h"
 #include <QtGui/QFontDatabase>
+#include <QtWidgets/QErrorMessage>
 
-RegexDialog::RegexDialog(const RegexParse& parse, QWidget* parent)
+// static methods
+bool
+RegexDialog::handle(const ParseResult& parse, QWidget* parent)
+{
+  if (parse.code >= 0) {
+    return true;
+  }
+  if (parse.target.isEmpty()) {
+    QErrorMessage::qtHandler()->showMessage(parse.message);
+    return false;
+  }
+  RegexDialog dialog(parse, parent);
+  dialog.exec();
+  return false;
+}
+
+// public methods
+
+RegexDialog::RegexDialog(const ParseResult& parse, QWidget* parent)
   : QDialog(parent)
   , ui(new Ui::RegexDialog)
 {

@@ -1,4 +1,6 @@
 #include "../../client.h"
+#include "../../ui/worldtab.h"
+#include "../callback/plugincallback.h"
 #include "../scriptapi.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
 
@@ -58,6 +60,19 @@ ScriptApi::GetVariableList(string_view pluginID) const
     return {};
   }
   return client.variableEntries(index);
+}
+
+ApiCode
+ScriptApi::SaveState(size_t plugin)
+{
+  OnPluginSaveState onSaveState;
+  sendCallback(onSaveState, plugin);
+  try {
+    client.trySaveState(plugin, tab.variablesPath());
+  } catch (const rust::Error&) {
+    return ApiCode::PluginCouldNotSaveState;
+  }
+  return ApiCode::OK;
 }
 
 bool

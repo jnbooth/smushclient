@@ -518,20 +518,36 @@ L_DatabaseOpen(lua_State* L)
 }
 
 int
+L_ExportXML(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 2);
+  const optional<ExportKind> kind = getEnum<ExportKind>(L, 1);
+  const string_view name = getString(L, 2);
+  if (!kind) {
+    lua_pushliteral(L, "");
+    return 1;
+  }
+  push(L, getApi(L).ExportXML(getPluginIndex(L), *kind, name));
+  return 1;
+}
+
+int
+L_ImportXML(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, getApi(L).ImportXML(getString(L, 1)));
+  return 1;
+}
+
+int
 L_Save(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
   push(L, getApi(L).Save(getQString(L, 1, {}), getBool(L, 2, false)));
   return 1;
-}
-
-int
-L_SaveState(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 0);
-  return returnCode(L, getApi(L).SaveState(getPluginIndex(L)));
 }
 
 int
@@ -2349,21 +2365,6 @@ L_EnableTriggerGroup(lua_State* L)
 }
 
 int
-L_ExportXML(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 2);
-  const optional<ExportKind> kind = getEnum<ExportKind>(L, 1);
-  const string_view name = getString(L, 2);
-  if (!kind) {
-    lua_pushliteral(L, "");
-    return 1;
-  }
-  push(L, getApi(L).ExportXML(getPluginIndex(L), *kind, name));
-  return 1;
-}
-
-int
 L_GetAlias(lua_State* L)
 {
   BENCHMARK
@@ -2558,15 +2559,6 @@ L_GetTriggerWildcard(lua_State* L)
 }
 
 int
-L_ImportXML(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 1);
-  push(L, getApi(L).ImportXML(getString(L, 1)));
-  return 1;
-}
-
-int
 L_IsAlias(lua_State* L)
 {
   BENCHMARK
@@ -2710,6 +2702,14 @@ L_GetVariableList(lua_State* L)
   expectMaxArgs(L, 0);
   pushMap(L, getApi(L).GetVariableList(getPluginIndex(L)));
   return 1;
+}
+
+int
+L_SaveState(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  return returnCode(L, getApi(L).SaveState(getPluginIndex(L)));
 }
 
 int
@@ -3525,8 +3525,9 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "ChangeDir", L_ChangeDir },
     { "DatabaseClose", L_DatabaseClose },
     { "DatabaseOpen", L_DatabaseOpen },
+    { "ExportXML", L_ExportXML },
+    { "ImportXML", L_ImportXML },
     { "Save", L_Save },
-    { "SaveState", L_SaveState },
     { "SetChanged", L_SetChanged },
     // generate
     { "CreateGUID", L_CreateGUID },
@@ -3712,7 +3713,6 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "EnableTimerGroup", L_EnableTimerGroup },
     { "EnableTrigger", L_EnableTrigger },
     { "EnableTriggerGroup", L_EnableTriggerGroup },
-    { "ExportXML", L_ExportXML },
     { "GetAlias", L_GetAlias },
     { "GetAliasList", L_GetAliasList },
     { "GetAliasWildcard", L_GetAliasWildcard },
@@ -3724,7 +3724,6 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "GetTrigger", L_GetTrigger },
     { "GetTriggerList", L_GetTriggerList },
     { "GetTriggerWildcard", L_GetTriggerWildcard },
-    { "ImportXML", L_ImportXML },
     { "IsAlias", L_IsAlias },
     { "IsTimer", L_IsTimer },
     { "IsTrigger", L_IsTrigger },
@@ -3742,6 +3741,7 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "GetXMLEntity", L_GetXMLEntity },
     { "GetVariable", L_GetVariable },
     { "GetVariableList", L_GetVariableList },
+    { "SaveState", L_SaveState },
     { "SetEntity", L_SetEntity },
     { "SetVariable", L_SetVariable },
     // window

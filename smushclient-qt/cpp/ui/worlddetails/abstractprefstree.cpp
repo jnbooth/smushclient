@@ -1,6 +1,6 @@
 #include "abstractprefstree.h"
 #include "../../model/sender.h"
-#include "regexdialog.h"
+#include "../dialog/regexdialog.h"
 #include "rust/cxx.h"
 #include <QtCore/QSettings>
 #include <QtGui/QClipboard>
@@ -75,18 +75,7 @@ AbstractPrefsTree::on_export_xml_clicked()
 void
 AbstractPrefsTree::on_import_xml_clicked()
 {
-  try {
-    const RegexParse result =
-      model.tryImportXml(QGuiApplication::clipboard()->text());
-    if (!result.success) {
-      RegexDialog dialog(result, this);
-      dialog.exec();
-      return;
-    }
-
-  } catch (const rust::Error& e) {
-    QErrorMessage::qtHandler()->showMessage(QString::fromUtf8(e.what()));
-  }
+  RegexDialog::handle(model.importXml(QGuiApplication::clipboard()->text()));
 }
 
 void

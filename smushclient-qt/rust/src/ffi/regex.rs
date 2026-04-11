@@ -1,5 +1,10 @@
+use std::error::Error;
+use std::io;
+use std::str::Utf8Error;
+
 use cxx_qt_lib::QString;
-use smushclient_plugins::{Reaction, Regex, RegexError};
+use smushclient_plugins::xml::XmlError;
+use smushclient_plugins::{ImportError, Reaction, Regex, RegexError};
 
 use crate::ffi::StringView;
 
@@ -17,8 +22,8 @@ pub mod ffi {
         type StringView<'a> = crate::ffi::StringView<'a>;
     }
 
-    struct RegexParse {
-        success: bool,
+    struct ParseResult {
+        code: i64,
         message: QString,
         target: QString,
         offset: i32,
@@ -27,7 +32,7 @@ pub mod ffi {
     #[namespace = "ffi::regex"]
     extern "Rust" {
         fn from_wildcards(pattern: StringView) -> QString;
-        fn validate(pattern: &QString) -> RegexParse;
+        fn validate(pattern: &QString) -> ParseResult;
     }
 }
 
@@ -35,10 +40,20 @@ fn from_wildcards(pattern: StringView) -> QString {
     QString::from(&Reaction::make_regex_pattern(&pattern.to_string_lossy()))
 }
 
-impl Default for ffi::RegexParse {
+impl ffi::ParseResult {
+    fn new<E: Error>(error: &E) -> Self {
+        Self {
+            code: -1,
+            message: QString::from(&error.to_string()),
+            ..Default::default()
+        }
+    }
+}
+
+impl Default for ffi::ParseResult {
     fn default() -> Self {
         Self {
-            success: true,
+            code: 0,
             message: QString::default(),
             target: QString::default(),
             offset: -1,
@@ -46,7 +61,49 @@ impl Default for ffi::RegexParse {
     }
 }
 
-impl From<RegexError> for ffi::RegexParse {
+impl From<i64> for ffi::ParseResult {
+    fn from(code: i64) -> Self {
+        Self {
+            code,
+            ..Default::default()
+        }
+    }
+}
+
+impl From<i32> for ffi::ParseResult {
+    fn from(value: i32) -> Self {
+        Self::from(i64::from(value))
+    }
+}
+
+impl From<usize> for ffi::ParseResult {
+    fn from(value: usize) -> Self {
+        Self::from(value.try_into().unwrap_or(i64::MAX))
+    }
+}
+
+impl From<Utf8Error> for ffi::ParseResult {
+    fn from(value: Utf8Error) -> Self {
+        Self {
+            offset: value.valid_up_to().try_into().unwrap_or(-1),
+            ..Self::new(&value)
+        }
+    }
+}
+
+impl From<io::Error> for ffi::ParseResult {
+    fn from(value: io::Error) -> Self {
+        Self::new(&value)
+    }
+}
+
+impl From<XmlError> for ffi::ParseResult {
+    fn from(value: XmlError) -> Self {
+        Self::new(&value)
+    }
+}
+
+impl From<RegexError> for ffi::ParseResult {
     fn from(value: RegexError) -> Self {
         fn find_split(message: &str) -> Option<usize> {
             const SKIP: usize = "PCRE2: ".len();
@@ -69,7 +126,7 @@ impl From<RegexError> for ffi::RegexParse {
         }
 
         Self {
-            success: false,
+            code: -2,
             message: QString::from(format_error(&mut value.to_string())),
             target: QString::from(value.target()),
             offset: match value.offset() {
@@ -80,9 +137,32 @@ impl From<RegexError> for ffi::RegexParse {
     }
 }
 
-fn validate(pattern: &QString) -> ffi::RegexParse {
+impl From<ImportError> for ffi::ParseResult {
+    fn from(value: ImportError) -> Self {
+        match value {
+            ImportError::Io(error) => error.into(),
+            ImportError::Regex(error) => error.into(),
+            ImportError::Xml(error) => error.into(),
+        }
+    }
+}
+
+impl<T, E> From<Result<T, E>> for ffi::ParseResult
+where
+    ffi::ParseResult: From<T>,
+    ffi::ParseResult: From<E>,
+{
+    fn from(value: Result<T, E>) -> Self {
+        match value {
+            Ok(ok) => ok.into(),
+            Err(e) => e.into(),
+        }
+    }
+}
+
+fn validate(pattern: &QString) -> ffi::ParseResult {
     match Regex::new(&String::from(pattern)) {
-        Ok(_) => ffi::RegexParse::default(),
-        Err(e) => ffi::RegexParse::from(e),
+        Ok(_) => ffi::ParseResult::default(),
+        Err(e) => ffi::ParseResult::from(e),
     }
 }

@@ -11,12 +11,12 @@
 #include "../scripting/scriptapi.h"
 #include "../settings.h"
 #include "../spans.h"
+#include "dialog/regexdialog.h"
 #include "dialog/saveprompt.h"
 #include "dialog/styledialog.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_worldtab.h"
-#include "worlddetails/regexdialog.h"
 #include "worlddetails/worlddetails.h"
 #include <QtCore/QSaveFile>
 #include <QtCore/QTimer>
@@ -228,20 +228,7 @@ WorldTab::editWorldScript()
 bool
 WorldTab::importWorld(const QString& filename) &
 {
-  try {
-    const RegexParse result = client.tryImportWorld(filename);
-    if (!result.success) {
-      RegexDialog dialog(result, this);
-      dialog.exec();
-      return false;
-    }
-  } catch (const rust::Error& e) {
-    showRustError(e);
-    return false;
-  }
-  ui->output->setVerticalScrollBarPolicy(
-    Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
-  return true;
+  return RegexDialog::handle(client.importWorld(filename));
 }
 
 void

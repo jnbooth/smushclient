@@ -40,7 +40,7 @@ pub mod ffi {
         include!("smushclient_qt/src/ffi/api_code.cxx.h");
         type ApiCode = crate::ffi::ApiCode;
         include!("smushclient_qt/src/ffi/regex.cxx.h");
-        type RegexParse = crate::ffi::RegexParse;
+        type ParseResult = crate::ffi::ParseResult;
         include!("smushclient_qt/src/ffi/send_request.cxx.h");
         type SenderKind = crate::ffi::SenderKind;
         type SendTimer = crate::ffi::SendTimer;
@@ -352,7 +352,15 @@ pub mod ffi {
         fn try_save_world(self: &SmushClient, path: &QString) -> Result<()>;
 
         // xml
-        fn import_xml(self: &SmushClient, xml: StringView) -> i64;
+        fn import_world(self: Pin<&mut SmushClient>, path: &QString) -> ParseResult;
+        fn import_world_aliases(self: &SmushClient, xml: &QString) -> ParseResult;
+        fn import_world_timers(
+            self: &SmushClient,
+            xml: &QString,
+            timekeeper: &Timekeeper,
+        ) -> ParseResult;
+        fn import_world_triggers(self: &SmushClient, xml: &QString) -> ParseResult;
+        fn import_xml(self: &SmushClient, xml: StringView) -> ParseResult;
         pub fn try_export_xml(
             self: &SmushClient,
             kind: ExportKind,
@@ -360,14 +368,6 @@ pub mod ffi {
             name: StringView,
         ) -> Result<QString>;
         fn try_export_world_senders(self: &SmushClient, kind: SenderKind) -> Result<QString>;
-        fn try_import_world(self: Pin<&mut SmushClient>, path: &QString) -> Result<RegexParse>;
-        fn try_import_world_aliases(self: &SmushClient, xml: &QString) -> Result<RegexParse>;
-        fn try_import_world_timers(
-            self: &SmushClient,
-            xml: &QString,
-            timekeeper: &Timekeeper,
-        ) -> Result<RegexParse>;
-        fn try_import_world_triggers(self: &SmushClient, xml: &QString) -> Result<RegexParse>;
 
         // Qt
         #[qsignal]

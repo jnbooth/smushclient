@@ -75,10 +75,10 @@ TimerModel::headers() const noexcept
   return headers;
 }
 
-RegexParse
-TimerModel::tryImport(const QString& xml)
+ParseResult
+TimerModel::import(const QString& xml)
 {
-  return client.tryImportWorldTimers(xml, timekeeper);
+  return client.importWorldTimers(xml, timekeeper);
 }
 
 void
