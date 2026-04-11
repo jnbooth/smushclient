@@ -13,11 +13,10 @@ use crate::client::XmlVariable;
 use crate::world::XmlKey;
 
 #[derive(Debug, Deserialize)]
-#[allow(clippy::large_enum_variant)]
 enum XmlImport<'a> {
     #[serde(borrow)]
-    MuClient(MuClient<'a, XmlWorldPartial>),
-    World(XmlWorldPartial),
+    MuClient(Box<MuClient<'a, XmlWorldPartial>>),
+    World(Box<XmlWorldPartial>),
     #[serde(borrow)]
     Triggers(XmlVec<XmlTrigger<'a>>),
     #[serde(borrow)]
@@ -125,25 +124,16 @@ impl<'a> XmlImports<'a> {
             XmlImport::Timers(mut timers) => self.timers.append(&mut timers),
             XmlImport::Triggers(mut triggers) => self.triggers.append(&mut triggers),
             XmlImport::Variables(mut vars) => self.variables.append(&mut vars),
-            XmlImport::World(world) => self.worlds.push(world),
+            XmlImport::World(world) => self.worlds.push(*world),
             XmlImport::Unknown => (),
-            XmlImport::MuClient(MuClient {
-                mut aliases,
-                mut colours,
-                include: _,
-                mut keypad,
-                mut timers,
-                mut triggers,
-                mut variables,
-                world,
-            }) => {
-                self.aliases.append(&mut aliases);
-                self.colours.append(&mut colours);
-                self.keys.append(&mut keypad);
-                self.timers.append(&mut timers);
-                self.triggers.append(&mut triggers);
-                self.variables.append(&mut variables);
-                self.worlds.push(world);
+            XmlImport::MuClient(mut client) => {
+                self.aliases.append(&mut client.aliases);
+                self.colours.append(&mut client.colours);
+                self.keys.append(&mut client.keypad);
+                self.timers.append(&mut client.timers);
+                self.triggers.append(&mut client.triggers);
+                self.variables.append(&mut client.variables);
+                self.worlds.push(client.world);
             }
         }
     }
