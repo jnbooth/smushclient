@@ -1,11 +1,12 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt;
+use std::hash::BuildHasher;
 use std::io::{Read, Write};
 use std::ops::{Deref, DerefMut};
 
 use serde::{Deserialize, Serialize};
-use smushclient_plugins::XmlVec;
+use smushclient_plugins::xml::XmlVec;
 
 use crate::world::PersistError;
 
@@ -134,6 +135,24 @@ impl PluginVariableMap {
         self.0.get_mut(plugin_id)?.remove(key)
     }
 
+    pub fn export_variable(
+        &self,
+        plugin_id: &str,
+        name: &str,
+    ) -> Result<String, quick_xml::SeError> {
+        let Some(value) = self.get_variable(plugin_id, name) else {
+            return Ok(String::new());
+        };
+        quick_xml::se::to_string(&XmlVariable {
+            name: name.into(),
+            value: String::from_utf8_lossy(value),
+        })
+    }
+
+    pub(crate) fn world_variables_mut(&mut self) -> &mut HashMap<String, Vec<u8>> {
+        self.0.entry(String::new()).or_default()
+    }
+
     fn save<W: Write>(&self, mut writer: W) -> Result<(), PersistError> {
         writer.write_all(&[CURRENT_VERSION])?;
         postcard::to_io(self, writer)?;
@@ -151,20 +170,6 @@ impl PluginVariableMap {
             _ => Err(PersistError::Invalid),
         }
     }
-
-    pub fn export_variable(
-        &self,
-        plugin_id: &str,
-        name: &str,
-    ) -> Result<String, quick_xml::SeError> {
-        let Some(value) = self.get_variable(plugin_id, name) else {
-            return Ok(String::new());
-        };
-        quick_xml::se::to_string(&XmlVariable {
-            name: name.into(),
-            value: String::from_utf8_lossy(value),
-        })
-    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -176,15 +181,27 @@ pub(crate) struct XmlVariable<'a> {
     pub value: Cow<'a, str>,
 }
 
+impl<'a, S: BuildHasher> Extend<XmlVariable<'a>> for HashMap<String, Vec<u8>, S> {
+    fn extend<T: IntoIterator<Item = XmlVariable<'a>>>(&mut self, iter: T) {
+        self.extend(
+            iter.into_iter()
+                .map(|var| (var.name.into_owned(), var.value.into_owned().into_bytes())),
+        );
+    }
+}
+
+impl<'a, S: BuildHasher + Default> FromIterator<XmlVariable<'a>> for HashMap<String, Vec<u8>, S> {
+    fn from_iter<T: IntoIterator<Item = XmlVariable<'a>>>(iter: T) -> Self {
+        let mut vars = Self::default();
+        vars.extend(iter);
+        vars
+    }
+}
+
 impl From<XmlVec<XmlVariable<'_>>> for PluginVariableMap {
     fn from(value: XmlVec<XmlVariable>) -> Self {
-        let worldvars = value
-            .elements
-            .into_iter()
-            .map(|var| (var.name.into_owned(), var.value.into_owned().into_bytes()))
-            .collect();
         let mut vars = PluginVariableMap::default();
-        vars.0.insert(String::new(), worldvars);
+        vars.0.insert(String::new(), value.into_iter().collect());
         vars
     }
 }

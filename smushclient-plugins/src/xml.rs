@@ -1,11 +1,14 @@
-use std::iter;
+use std::ops::{Deref, DerefMut};
+use std::{iter, vec};
 
+pub use quick_xml::{DeError as XmlError, SeError as XmlSerError};
 use serde::de::SeqAccess;
 use serde::ser::Serializer;
 use serde::{Deserialize, Serialize};
 
 use crate::CursorVec;
 use crate::error::ImportError;
+pub use crate::send::{XmlAlias, XmlTimer, XmlTrigger};
 
 pub trait XmlIterable: Sized + 'static {
     type Xml<'a>: From<&'a Self>
@@ -74,14 +77,28 @@ pub fn is_default<T: Default + PartialEq>(value: &T) -> bool {
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
 #[serde(default)]
 pub struct XmlVec<T> {
+    #[serde(rename = "$value")]
+    pub elements: Vec<T>,
     #[serde(rename = "@muclient_version")]
     pub muclient_version: Option<String>,
     #[serde(rename = "@world_file_version")]
     pub world_file_version: Option<u32>,
     #[serde(rename = "@date_saved")]
     pub date_saved: Option<String>,
-    #[serde(rename = "$value")]
-    pub elements: Vec<T>,
+}
+
+impl<T> Deref for XmlVec<T> {
+    type Target = Vec<T>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.elements
+    }
+}
+
+impl<T> DerefMut for XmlVec<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.elements
+    }
 }
 
 impl<T> Default for XmlVec<T> {
@@ -98,6 +115,17 @@ impl<T> Default for XmlVec<T> {
 impl<T> XmlVec<T> {
     pub const fn is_empty(&self) -> bool {
         self.elements.is_empty()
+    }
+}
+
+impl<T> IntoIterator for XmlVec<T> {
+    type Item = T;
+
+    type IntoIter = vec::IntoIter<T>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        self.elements.into_iter()
     }
 }
 

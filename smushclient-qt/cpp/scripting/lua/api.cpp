@@ -2558,6 +2558,15 @@ L_GetTriggerWildcard(lua_State* L)
 }
 
 int
+L_ImportXML(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  push(L, getApi(L).ImportXML(getString(L, 1)));
+  return 1;
+}
+
+int
 L_IsAlias(lua_State* L)
 {
   BENCHMARK
@@ -3715,6 +3724,7 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "GetTrigger", L_GetTrigger },
     { "GetTriggerList", L_GetTriggerList },
     { "GetTriggerWildcard", L_GetTriggerWildcard },
+    { "ImportXML", L_ImportXML },
     { "IsAlias", L_IsAlias },
     { "IsTimer", L_IsTimer },
     { "IsTrigger", L_IsTrigger },

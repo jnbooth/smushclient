@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use serde::{Deserialize, Serialize};
-use smushclient_plugins::XmlVec;
+use smushclient_plugins::xml::XmlVec;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct Numpad {
@@ -23,6 +23,41 @@ pub struct Numpad {
 }
 
 impl Numpad {
+    const fn is_empty(&self) -> bool {
+        let Self {
+            key_0,
+            key_1,
+            key_2,
+            key_3,
+            key_4,
+            key_5,
+            key_6,
+            key_7,
+            key_8,
+            key_9,
+            key_period,
+            key_slash,
+            key_asterisk,
+            key_minus,
+            key_plus,
+        } = self;
+        key_0.is_empty()
+            && key_1.is_empty()
+            && key_2.is_empty()
+            && key_3.is_empty()
+            && key_4.is_empty()
+            && key_5.is_empty()
+            && key_6.is_empty()
+            && key_7.is_empty()
+            && key_8.is_empty()
+            && key_9.is_empty()
+            && key_period.is_empty()
+            && key_slash.is_empty()
+            && key_asterisk.is_empty()
+            && key_minus.is_empty()
+            && key_plus.is_empty()
+    }
+
     const fn get(&self, name: u8) -> Option<&str> {
         match name {
             b'0' => Some(self.key_0.as_str()),
@@ -96,6 +131,10 @@ impl NumpadMapping {
         }
     }
 
+    pub const fn is_empty(&self) -> bool {
+        self.base.is_empty() && self.modified.is_empty()
+    }
+
     pub const fn get(&self, name: &str) -> Option<&str> {
         match name.as_bytes() {
             [name] => self.base.get(*name),
@@ -132,17 +171,29 @@ pub(crate) struct XmlKey<'a> {
     pub send: Cow<'a, str>,
 }
 
+impl<'a> Extend<XmlKey<'a>> for NumpadMapping {
+    fn extend<T: IntoIterator<Item = XmlKey<'a>>>(&mut self, iter: T) {
+        for key in iter {
+            if let Some(key_mut) = self.get_mut(&key.name) {
+                *key_mut = key.send.into_owned();
+            }
+        }
+    }
+}
+
+impl<'a> FromIterator<XmlKey<'a>> for NumpadMapping {
+    fn from_iter<T: IntoIterator<Item = XmlKey<'a>>>(iter: T) -> Self {
+        let mut numpad = Self::default();
+        numpad.extend(iter);
+        numpad
+    }
+}
+
 impl From<XmlVec<XmlKey<'_>>> for NumpadMapping {
     fn from(keypad: XmlVec<XmlKey>) -> Self {
         if keypad.is_empty() {
             return Self::navigation();
         }
-        let mut numpad_shortcuts = Self::default();
-        for key in keypad.elements {
-            if let Some(key_mut) = numpad_shortcuts.get_mut(&key.name) {
-                *key_mut = key.send.into_owned();
-            }
-        }
-        numpad_shortcuts
+        keypad.into_iter().collect()
     }
 }

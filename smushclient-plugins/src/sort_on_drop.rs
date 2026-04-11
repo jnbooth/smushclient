@@ -7,17 +7,28 @@ use std::slice;
 pub struct SortOnDrop<'a, T: Ord> {
     senders: RefMut<'a, Vec<T>>,
     index: usize,
+    sort: bool,
 }
 
 impl<'a, T: Ord> SortOnDrop<'a, T> {
     pub fn new(senders: RefMut<'a, Vec<T>>, index: usize) -> Self {
-        Self { senders, index }
+        Self {
+            senders,
+            index,
+            sort: true,
+        }
+    }
+
+    pub fn release(mut self) {
+        self.sort = false;
     }
 }
 
 impl<T: Ord> Drop for SortOnDrop<'_, T> {
     fn drop(&mut self) {
-        self.senders.sort_unstable();
+        if self.sort {
+            self.senders.sort_unstable();
+        }
     }
 }
 

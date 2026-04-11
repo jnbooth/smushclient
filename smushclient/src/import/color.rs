@@ -1,8 +1,9 @@
 use std::num::NonZero;
+use std::{iter, slice};
 
 use mud_transformer::opt::mxp::RgbColor;
 use serde::Deserialize;
-use smushclient_plugins::{Trigger, XmlIterable};
+use smushclient_plugins::xml::XmlTrigger;
 
 #[derive(Copy, Clone, Debug, Default)]
 pub(super) struct ColorPair {
@@ -24,7 +25,7 @@ impl CustomColours {
         }
     }
 
-    pub fn apply_to_trigger(&self, trigger: &mut <Trigger as XmlIterable>::Xml<'_>) {
+    pub fn apply_to_trigger(&self, trigger: &mut XmlTrigger) {
         let Some(pair) = self.get(trigger.custom_colour) else {
             return;
         };
@@ -33,49 +34,56 @@ impl CustomColours {
     }
 }
 
-#[derive(Debug, Default, Deserialize)]
+impl From<&ColoursXml> for CustomColours {
+    fn from(value: &ColoursXml) -> Self {
+        let Some(max_seq) = value.custom.elements.iter().map(|color| color.seq).max() else {
+            return Self::default();
+        };
+        let max_seq = max_seq.get();
+        let mut pairs = vec![None; max_seq];
+        for color in &value.custom.elements {
+            pairs[color.seq.get() - 1] = Some(color.into());
+        }
+        Self { pairs }
+    }
+}
+
+#[derive(Debug, Deserialize)]
 #[serde(from = "ColoursXml")]
 pub(super) struct Colours {
     pub ansi: [RgbColor; 16],
     pub custom: CustomColours,
 }
 
-impl From<ColoursXml> for Colours {
-    fn from(value: ColoursXml) -> Self {
-        let mut ansi = RgbColor::XTERM_16;
-        for color in value.ansi.normal.elements {
-            if let Some(slot) = ansi.get_mut(color.seq.get() - 1) {
-                *slot = color.rgb;
-            }
-        }
-        for color in value.ansi.bold.elements {
-            if let Some(slot) = ansi.get_mut(color.seq.get() - 1 + 8) {
-                *slot = color.rgb;
-            }
-        }
-        let Some(max_seq) = value.custom.elements.iter().map(|color| color.seq).max() else {
-            return Self {
-                ansi,
-                custom: CustomColours::default(),
-            };
-        };
-        let mut pairs = vec![None; max_seq.get()];
-        for color in value.custom.elements {
-            pairs[color.seq.get() - 1] = Some(ColorPair {
-                text: color.text,
-                back: color.back,
-            });
-        }
+impl From<[RgbColor; 16]> for Colours {
+    fn from(ansi: [RgbColor; 16]) -> Self {
         Self {
             ansi,
-            custom: CustomColours { pairs },
+            custom: CustomColours::default(),
         }
     }
 }
 
-#[derive(Debug, Default, Deserialize)]
+impl From<ColoursXml> for Colours {
+    fn from(value: ColoursXml) -> Self {
+        Self::from(&value)
+    }
+}
+
+impl From<&ColoursXml> for Colours {
+    fn from(value: &ColoursXml) -> Self {
+        let mut ansi = RgbColor::XTERM_16;
+        ansi.extend(&value.ansi);
+        Self {
+            ansi,
+            custom: value.into(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Default, Deserialize)]
 #[serde(rename = "colours", default)]
-struct ColoursXml {
+pub(crate) struct ColoursXml {
     #[serde(rename = "@muclient_version")]
     pub muclient_version: Option<String>,
     #[serde(rename = "@world_file_version")]
@@ -86,25 +94,82 @@ struct ColoursXml {
     pub custom: XmlList<CustomColour>,
 }
 
-#[derive(Debug, Default, Deserialize)]
+impl ColoursXml {
+    pub fn len(&self) -> usize {
+        self.ansi.len() + self.custom.elements.len()
+    }
+
+    pub fn append(&mut self, other: &mut Self) {
+        self.ansi.append(&mut other.ansi);
+        self.custom.append(&mut other.custom);
+    }
+}
+
+#[derive(Clone, Debug, Default, Deserialize)]
 #[serde(rename = "ansi", default)]
-struct Ansi {
+pub(crate) struct Ansi {
     normal: XmlList<Colour>,
     bold: XmlList<Colour>,
 }
 
-#[derive(Debug, Deserialize)]
+impl Ansi {
+    fn len(&self) -> usize {
+        self.normal.elements.len() + self.bold.elements.len()
+    }
+
+    fn append(&mut self, other: &mut Self) {
+        self.normal.append(&mut other.normal);
+        self.bold.append(&mut other.bold);
+    }
+}
+
+type CopiedColours<'a> = iter::Copied<slice::Iter<'a, Colour>>;
+
+impl<'a> IntoIterator for &'a Ansi {
+    type Item = Colour;
+
+    type IntoIter =
+        iter::Chain<CopiedColours<'a>, iter::Map<CopiedColours<'a>, fn(Colour) -> Colour>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        const fn normalize_bold(Colour { seq, rgb }: Colour) -> Colour {
+            Colour {
+                seq: seq.saturating_add(8),
+                rgb,
+            }
+        }
+        self.normal.elements.iter().copied().chain(
+            self.bold
+                .elements
+                .iter()
+                .copied()
+                .map(normalize_bold as fn(Colour) -> Colour),
+        )
+    }
+}
+
+#[derive(Copy, Clone, Debug, Deserialize)]
 #[serde(rename = "colour")]
-struct Colour {
+pub(crate) struct Colour {
     #[serde(rename = "@seq")]
     pub seq: NonZero<usize>,
     #[serde(rename = "@rgb")]
     pub rgb: RgbColor,
 }
 
-#[derive(Debug, Deserialize)]
+impl Extend<Colour> for [RgbColor] {
+    fn extend<T: IntoIterator<Item = Colour>>(&mut self, iter: T) {
+        for color in iter {
+            if let Some(slot) = self.get_mut(color.seq.get() - 1) {
+                *slot = color.rgb;
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename = "colour")]
-struct CustomColour {
+pub(crate) struct CustomColour {
     #[serde(rename = "@seq")]
     pub seq: NonZero<usize>,
     #[allow(unused)]
@@ -116,11 +181,26 @@ struct CustomColour {
     pub back: RgbColor,
 }
 
-#[derive(Debug, Deserialize)]
+impl From<&CustomColour> for ColorPair {
+    fn from(value: &CustomColour) -> Self {
+        Self {
+            text: value.text,
+            back: value.back,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Deserialize)]
 #[serde(default)]
-struct XmlList<T> {
+pub(crate) struct XmlList<T> {
     #[serde(rename = "$value")]
     pub elements: Vec<T>,
+}
+
+impl<T> XmlList<T> {
+    pub fn append(&mut self, other: &mut Self) {
+        self.elements.append(&mut other.elements);
+    }
 }
 
 impl<T> Default for XmlList<T> {

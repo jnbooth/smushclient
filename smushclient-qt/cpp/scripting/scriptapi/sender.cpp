@@ -326,6 +326,12 @@ ScriptApi::GetTriggerWildcard(size_t plugin,
   return client.getTriggerWildcard(plugin, label, name);
 }
 
+int64_t
+ScriptApi::ImportXML(string_view xml) const noexcept
+{
+  return client.importXml(xml);
+}
+
 ApiCode
 ScriptApi::IsAlias(size_t plugin, string_view label) const noexcept
 {

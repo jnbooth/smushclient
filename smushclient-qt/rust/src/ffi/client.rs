@@ -352,6 +352,7 @@ pub mod ffi {
         fn try_save_world(self: &SmushClient, path: &QString) -> Result<()>;
 
         // xml
+        fn import_xml(self: &SmushClient, xml: StringView) -> i64;
         pub fn try_export_xml(
             self: &SmushClient,
             kind: ExportKind,

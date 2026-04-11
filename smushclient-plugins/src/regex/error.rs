@@ -1,3 +1,4 @@
+use std::convert::Infallible;
 use std::error::Error;
 use std::fmt;
 use std::ops::Deref;
@@ -31,5 +32,11 @@ impl fmt::Display for RegexError {
 impl Error for RegexError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         Some(&self.inner)
+    }
+}
+
+impl From<Infallible> for RegexError {
+    fn from(value: Infallible) -> Self {
+        match value {}
     }
 }

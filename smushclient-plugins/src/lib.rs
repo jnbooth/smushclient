@@ -20,6 +20,4 @@ pub use send::{Alias, Occurrence, Reaction, SendTarget, Sender, Timer, Trigger};
 mod sort_on_drop;
 pub use sort_on_drop::SortOnDrop;
 
-mod xml;
-pub use quick_xml::{DeError as XmlError, SeError as XmlSerError};
-pub use xml::{XmlIterable, XmlVec};
+pub mod xml;

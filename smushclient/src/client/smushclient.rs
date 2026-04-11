@@ -12,9 +12,10 @@ use mud_transformer::opt::mxp::RgbColor;
 use mud_transformer::output::{Output, OutputFragment, TelnetFragment};
 use mud_transformer::{ByteSet, Tag, Transformer, TransformerConfig};
 use rodio::Decoder;
+use smushclient_plugins::xml::XmlSerError;
 use smushclient_plugins::{
     Alias, CursorVec, ImportError, LoadError, Plugin, PluginIndex, PluginSender, Reaction,
-    SendTarget, SenderAccessError, SortOnDrop, Timer, Trigger, XmlSerError,
+    SendTarget, SenderAccessError, SortOnDrop, Timer, Trigger,
 };
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt};
@@ -26,7 +27,7 @@ use crate::LuaStr;
 use crate::audio::{AudioError, AudioSinkStatus, AudioSinks, PlayMode};
 use crate::get_info::InfoVisitor;
 use crate::handler::Handler;
-use crate::import::ImportedWorld;
+use crate::import::{ImportedWorld, Imports};
 use crate::options::{OptionCaller, SetOptionError};
 use crate::plugins::{
     AliasEffects, AliasOutcome, AllSendersIter, CommandSource, LoadFailure, PluginEngine,
@@ -825,6 +826,50 @@ impl SmushClient {
     pub fn export_variable(&self, index: PluginIndex, name: &str) -> Result<String, XmlSerError> {
         let plugin_id = &self.plugins[index].metadata.id;
         self.variables.borrow().export_variable(plugin_id, name)
+    }
+
+    pub fn import_xml(&self, xml: &str) -> Result<usize, ImportError> {
+        let Imports {
+            mut aliases,
+            colours,
+            mut timers,
+            mut triggers,
+            variables,
+            keys,
+            script,
+        } = Imports::from_xml(xml)?;
+
+        let imported = aliases.len()
+            + colours.len()
+            + timers.len()
+            + triggers.len()
+            + variables.len()
+            + keys.len();
+
+        let world_plugin = self.world_plugin();
+        if !aliases.is_empty() {
+            world_plugin.import_senders(&mut aliases);
+        }
+        if !timers.is_empty() {
+            world_plugin.import_senders(&mut timers);
+        }
+        if !triggers.is_empty() {
+            world_plugin.import_senders(&mut triggers);
+        }
+        if !variables.is_empty() {
+            self.variables.borrow_mut().world_variables_mut().extend(
+                variables
+                    .into_iter()
+                    .map(|var| (var.name.into_owned(), var.value.into_owned().into_bytes())),
+            );
+        }
+        let mut world = self.world.borrow_mut();
+        world.ansi_colours.extend(&colours.ansi);
+        world.numpad_shortcuts.extend(keys);
+        if !script.as_bytes().iter().all(u8::is_ascii_whitespace) {
+            world.world_script.push_str(&script);
+        }
+        Ok(imported)
     }
 
     pub fn world_option(&self, index: PluginIndex, option: &LuaStr) -> Option<i64> {

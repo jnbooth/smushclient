@@ -320,6 +320,7 @@ public:
                  const QColor& background,
                  bool url,
                  bool noUnderline);
+  int64_t ImportXML(std::string_view xml) const noexcept;
   ApiCode IsAlias(size_t plugin, std::string_view label) const noexcept;
   bool IsConnected() const;
   bool IsLogOpen() const noexcept;

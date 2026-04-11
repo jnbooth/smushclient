@@ -2,7 +2,8 @@ use std::pin::Pin;
 
 use cxx_qt::CxxQtType;
 use cxx_qt_lib::QString;
-use smushclient_plugins::{Alias, ImportError, PluginIndex, Timer, Trigger, XmlSerError};
+use smushclient_plugins::xml::XmlSerError;
+use smushclient_plugins::{Alias, ImportError, PluginIndex, Timer, Trigger};
 
 use crate::ffi::{self, SenderKind, StringView};
 
@@ -15,6 +16,16 @@ fn handle_import_error<T>(res: Result<T, ImportError>) -> Result<ffi::RegexParse
 }
 
 impl ffi::SmushClient {
+    pub fn import_xml(&self, xml: StringView<'_>) -> i64 {
+        let Ok(xml) = xml.to_str() else {
+            return -1;
+        };
+        match self.rust().client.import_xml(xml) {
+            Ok(len) => len.try_into().unwrap_or(i64::MAX),
+            Err(_) => -2,
+        }
+    }
+
     pub fn try_export_xml(
         &self,
         kind: ffi::ExportKind,
