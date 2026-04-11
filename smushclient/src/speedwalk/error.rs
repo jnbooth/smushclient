@@ -3,7 +3,7 @@ use std::str::Utf8Error;
 
 pub(super) const COUNTER_LIMIT: u8 = 99;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Error {
     UnterminatedComment,
     CounterExceedsLimit,

@@ -219,10 +219,8 @@ pub(crate) struct ImportedWorld {
 
 impl ImportedWorld {
     pub fn from_xml<R: BufRead>(reader: R) -> Result<Self, ImportError> {
-        Ok(
-            MuClient::deserialize(&mut quick_xml::de::Deserializer::from_reader(reader))?
-                .try_into()?,
-        )
+        let mut deserializer = quick_xml::de::Deserializer::from_reader(reader);
+        Ok(MuClient::deserialize(&mut deserializer)?.try_into()?)
     }
 }
 
@@ -237,7 +235,10 @@ fn decode_password(password: String, encoded: bool) -> String {
 }
 
 fn first_char(s: &str) -> Option<u8> {
-    s.as_bytes().first().copied()
+    match s.as_bytes() {
+        &[first, ..] => Some(first),
+        _ => None,
+    }
 }
 
 impl TryFrom<MuClient<'_>> for ImportedWorld {

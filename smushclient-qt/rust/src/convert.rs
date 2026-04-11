@@ -5,7 +5,7 @@ use std::num::TryFromIntError;
 use cxx_qt_lib::QColor;
 use mud_transformer::opt::mxp::RgbColor;
 
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct OutOfRangeError;
 
 impl fmt::Display for OutOfRangeError {

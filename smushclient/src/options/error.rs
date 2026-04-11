@@ -13,7 +13,7 @@ macro_rules! impl_range_error {
     };
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum SetOptionError {
     UnknownOption,
     OptionOutOfRange,
@@ -34,7 +34,7 @@ impl Error for SetOptionError {}
 
 impl_range_error!(SetOptionError, std::num::TryFromIntError);
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum OptionError {
     UnknownOption,
     OptionOutOfRange,

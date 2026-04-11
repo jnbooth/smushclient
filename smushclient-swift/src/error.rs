@@ -11,7 +11,7 @@ impl<T, E: fmt::Display> StringifyResultError<T> for Result<T, E> {
     }
 }
 
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct UnsupportedError(pub &'static str);
 
 impl fmt::Display for UnsupportedError {
