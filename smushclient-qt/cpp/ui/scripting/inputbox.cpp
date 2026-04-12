@@ -74,8 +74,8 @@ InputBox::InputBox(lua_State* L, bool multiline, QWidget* parent)
   const QString title = getQString(L, 2, QCoreApplication::applicationName());
   const QString defaultText = getQString(L, 3, {});
   QFont font = getQFont(L, 4, {});
-  const qreal fontSize = getNumber(L, 5, -1);
-  if (fontSize > 0) {
+  const qreal fontSize = getNumber(L, 5, -1.0);
+  if (fontSize > 0.0) {
     font.setPointSizeF(fontSize);
   }
   InputBoxExtras extras(L, 6);

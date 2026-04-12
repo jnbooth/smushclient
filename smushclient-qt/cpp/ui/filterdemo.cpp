@@ -154,13 +154,13 @@ FilterDemo::on_filter_currentIndexChanged(int index)
       useInt(-255, 50, 255);
       break;
     case 7: // contrast
-      useFloat(-10, 1.5, 10);
+      useFloat(-1.0, 1.5, 10.0);
       break;
     case 8: // gamma
-      useFloat(0, 2, 25);
+      useFloat(0.0, 2.0, 25);
       break;
     case 11: // brightness (multiplicative)
-      useFloat(0, 1.2, 10);
+      useFloat(0.0, 1.2, 10.0);
       break;
     case 2:  // blur
     case 3:  // sharpen

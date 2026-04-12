@@ -191,7 +191,7 @@ insertTextTriples(lua_State* L, ScriptApi& api)
 constexpr float
 convertVolume(lua_Number decibels) noexcept
 {
-  return static_cast<float>(1 / pow(2, decibels / -3));
+  return static_cast<float>(1.0 / pow(2, decibels / -3.0));
 }
 
 inline ScriptApi**
@@ -1382,7 +1382,7 @@ L_NotepadFont(lua_State* L)
   const QString title = getQString(L, 1);
   const QTextCharFormat format =
     Notepad::format(getQString(L, 2, {}),
-                    getNumber(L, 3, 0),
+                    getNumber(L, 3, 0.0),
                     getQFlags<Notepad::StyleFlag>(L, 4, {}));
   // const lua_Integer charset = getInteger(L, 5, 0);
   push(L, getApi(L).NotepadFont(title, format));
@@ -2476,7 +2476,7 @@ L_GetTimer(lua_State* L)
   }
   push(L, hour);
   push(L, minute);
-  push(L, static_cast<lua_Number>(second) + static_cast<lua_Number>(ms) / 1000);
+  push(L, ms / 1000.0 + second);
   push(L, timer.getText());
   push(L,
        combineFlags<TimerFlag>(
@@ -2789,8 +2789,8 @@ L_WindowCircleOp(lua_State* L)
       return returnCode(L,
                         getApi(L).WindowRoundedRect(windowName,
                                                     rect,
-                                                    getNumber(L, 12, 0),
-                                                    getNumber(L, 13, 0),
+                                                    getNumber(L, 12, 0.0),
+                                                    getNumber(L, 13, 0.0),
                                                     *pen,
                                                     *brush));
     case CircleOp::Chord:

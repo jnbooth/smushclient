@@ -13,7 +13,7 @@ arc(const QPointF& center, const QPointF& edge);
 constexpr int
 scale(int value, qreal scalar) noexcept
 {
-  return clamped_cast<int>(static_cast<qreal>(value) * scalar);
+  return clamped_cast<int>(value * scalar);
 }
 
 constexpr QPoint

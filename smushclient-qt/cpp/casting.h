@@ -4,28 +4,23 @@
 template<typename To, typename From>
 constexpr To
 clamped_cast(From n) noexcept
-  requires(std::numeric_limits<From>::is_integer,
-           std::numeric_limits<To>::is_integer)
+  requires(std::numeric_limits<To>::is_integer)
 {
-  using from_limits = std::numeric_limits<From>;
-  using to_limits = std::numeric_limits<To>;
+  using from = std::numeric_limits<From>;
+  using to = std::numeric_limits<To>;
 
-  constexpr const From min = !from_limits::is_signed || !to_limits::is_signed
-                               ? 0
-                             : from_limits::digits >= to_limits::digits
-                               ? static_cast<From>(to_limits::min())
-                               : from_limits::min();
+  constexpr const bool bounded =
+    !from::is_integer || from::digits >= to::digits;
 
-  constexpr const From max = from_limits::digits >= to_limits::digits
-                               ? static_cast<From>(to_limits::max())
-                               : from_limits::max();
+  constexpr const From min = !from::is_signed || !to::is_signed ? 0
+                             : bounded ? static_cast<From>(to::min())
+                                       : from::min();
 
-  return (n < min)   ? to_limits::min()
-         : (n > max) ? to_limits::max()
-                     : static_cast<To>(n);
+  constexpr const From max =
+    bounded ? static_cast<From>(to::max()) : from::max();
+
+  return (n < min) ? to::min() : (n > max) ? to::max() : static_cast<To>(n);
 }
-
-constexpr const size_t test = 0;
 
 template<typename Source, typename EnumValue>
 void (Source::* enum_slot_cast(void (Source::*slot)(EnumValue)))(int)

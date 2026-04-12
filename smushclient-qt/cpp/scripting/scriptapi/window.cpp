@@ -272,11 +272,12 @@ ScriptApi::WindowGradient(string_view windowName,
                           Qt::Orientation direction) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
-  const qreal horizontalStop = direction == Qt::Orientation::Horizontal ? 1 : 0;
-  QLinearGradient gradient(0, 0, horizontalStop, 1 - horizontalStop);
+  const qreal horizontalStop =
+    direction == Qt::Orientation::Horizontal ? 1.0 : 0.0;
+  QLinearGradient gradient(0.0, 0.0, horizontalStop, 1.0 - horizontalStop);
   gradient.setCoordinateMode(QGradient::CoordinateMode::ObjectMode);
-  gradient.setColorAt(0, color1);
-  gradient.setColorAt(1, color2);
+  gradient.setColorAt(0.0, color1);
+  gradient.setColorAt(1.0, color2);
   window->drawGradient(rect, gradient);
   return ApiCode::OK;
 }
