@@ -641,15 +641,15 @@ qlua::isScriptName(lua_State* L, string_view name)
 }
 
 void
-qlua::pushQVariant(lua_State* L, const QVariant& variant)
+qlua::push(lua_State* L, const QVariant& value)
 {
-  switch (variant.typeId()) {
+  switch (value.typeId()) {
     case QMetaType::UnknownType:
     case QMetaType::Nullptr:
       lua_pushnil(L);
       return;
     case QMetaType::Bool:
-      push(L, variant.toBool());
+      push(L, value.toBool());
       return;
     case QMetaType::Int:
     case QMetaType::UInt:
@@ -659,69 +659,69 @@ qlua::pushQVariant(lua_State* L, const QVariant& variant)
     case QMetaType::ULong:
     case QMetaType::ULongLong:
     case QMetaType::UShort:
-      push(L, variant.toLongLong());
+      push(L, value.toLongLong());
       return;
     case QMetaType::Double:
     case QMetaType::Float:
     case QMetaType::Float16:
-      push(L, variant.toDouble());
+      push(L, value.toDouble());
       return;
     case QMetaType::QChar:
-      push(L, variant.toChar());
+      push(L, value.toChar());
       return;
     case QMetaType::QString:
-      push(L, variant.toString());
+      push(L, value.toString());
       return;
     case QMetaType::QDate:
     case QMetaType::QDateTime:
-      push(L, variant.toDateTime());
+      push(L, value.toDateTime());
       return;
     case QMetaType::QByteArray:
-      push(L, variant.toByteArray());
+      push(L, value.toByteArray());
       return;
     case QMetaType::Char:
-      push(L, variant.value<char>());
+      push(L, value.value<char>());
       return;
     case QMetaType::Char16:
-      push(L, variant.value<char16_t>());
+      push(L, value.value<char16_t>());
       return;
     case QMetaType::Char32:
-      push(L, variant.value<char32_t>());
+      push(L, value.value<char32_t>());
       return;
     case QMetaType::SChar:
-      push(L, variant.value<signed char>());
+      push(L, value.value<signed char>());
       return;
     case QMetaType::UChar:
-      push(L, variant.value<unsigned char>());
+      push(L, value.value<unsigned char>());
       return;
     case QMetaType::QBrush:
-      push(L, variant.value<QBrush>().color());
+      push(L, value.value<QBrush>().color());
       return;
     case QMetaType::QColor:
-      push(L, variant.value<QColor>());
+      push(L, value.value<QColor>());
       return;
     case QMetaType::QUuid:
-      push(L, variant.toUuid());
+      push(L, value.toUuid());
       return;
     case QMetaType::QStringList:
-      pushList(L, variant.toStringList());
+      pushList(L, value.toStringList());
       return;
     case QMetaType::QVariantHash:
-      pushMap(L, variant.toHash());
+      pushMap(L, value.toHash());
       return;
     case QMetaType::QVariantMap:
-      pushMap(L, variant.toMap());
+      pushMap(L, value.toMap());
       return;
     case QMetaType::QVariantList:
-      if (variant.canConvert<QStringList>()) {
-        pushList(L, variant.toStringList());
+      if (value.canConvert<QStringList>()) {
+        pushList(L, value.toStringList());
       } else {
-        pushList(L, variant.toList());
+        pushList(L, value.toList());
       }
       return;
     default:
-      if (variant.canConvert<qlonglong>()) {
-        push(L, variant.toLongLong());
+      if (value.canConvert<qlonglong>()) {
+        push(L, value.toLongLong());
       } else {
         lua_pushnil(L);
       }
@@ -768,16 +768,4 @@ qlua::push(lua_State* L, const QRect& rect)
   pushEntry(L, "height", rect.height());
   pushEntry(L, "left", rect.left());
   pushEntry(L, "width", rect.width());
-}
-
-template<>
-void
-qlua::pushList(lua_State* L, const QList<QVariant>& list)
-{
-  lua_createtable(L, static_cast<int>(list.size()), 0);
-  lua_Integer i = 0;
-  for (const auto& item : list) {
-    pushQVariant(L, item);
-    lua_rawseti(L, -2, ++i);
-  }
 }

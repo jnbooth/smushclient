@@ -34,7 +34,7 @@ ChooseDialog::addItem(const QString& text, const QVariant& value, bool active)
 int
 ChooseDialog::pushValue(lua_State* L) const
 {
-  qlua::pushQVariant(L, ui->items->currentData());
+  qlua::push(L, ui->items->currentData());
   return 1;
 }
 

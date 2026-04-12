@@ -49,7 +49,6 @@ using qlua::push;
 using qlua::pushEntry;
 using qlua::pushList;
 using qlua::pushMap;
-using qlua::pushQVariant;
 using qlua::rgbCodeToColor;
 
 DECLARE_ENUM_BOUNDS(Qt::Orientation, Horizontal, Vertical)
@@ -604,9 +603,9 @@ L_GetAliasInfo(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  pushQVariant(L,
-               getApi(L).GetAliasInfo(
-                 getPluginIndex(L), getString(L, 1), getInteger(L, 2)));
+  push(L,
+       getApi(L).GetAliasInfo(
+         getPluginIndex(L), getString(L, 1), getInteger(L, 2)));
   return 1;
 }
 
@@ -615,7 +614,7 @@ L_GetInfo(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
-  pushQVariant(L, getApi(L).GetInfo(getInteger(L, 1)));
+  push(L, getApi(L).GetInfo(getInteger(L, 1)));
   return 1;
 }
 
@@ -624,7 +623,7 @@ L_GetLineInfo(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  pushQVariant(L, getApi(L).GetLineInfo(getInt(L, 1) - 1, getInteger(L, 2)));
+  push(L, getApi(L).GetLineInfo(getInt(L, 1) - 1, getInteger(L, 2)));
   return 1;
 }
 
@@ -633,7 +632,7 @@ L_GetPluginAliasInfo(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 3);
-  pushQVariant(
+  push(
     L,
     getApi(L).GetAliasInfo(getString(L, 1), getString(L, 2), getInteger(L, 3)));
   return 1;
@@ -654,8 +653,7 @@ L_GetPluginInfo(lua_State* L)
     lua_rawgetp(L, LUA_REGISTRYINDEX, callingRegKey);
     return 1;
   }
-  pushQVariant(
-    L, getApi(L).GetPluginInfo(pluginID, static_cast<uint8_t>(infoType)));
+  push(L, getApi(L).GetPluginInfo(pluginID, static_cast<uint8_t>(infoType)));
   return 1;
 }
 
@@ -664,7 +662,7 @@ L_GetPluginTimerInfo(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 3);
-  pushQVariant(
+  push(
     L,
     getApi(L).GetTimerInfo(getString(L, 1), getString(L, 2), getInteger(L, 3)));
   return 1;
@@ -675,9 +673,9 @@ L_GetPluginTriggerInfo(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 3);
-  pushQVariant(L,
-               getApi(L).GetTriggerInfo(
-                 getString(L, 1), getString(L, 2), getInteger(L, 3)));
+  push(L,
+       getApi(L).GetTriggerInfo(
+         getString(L, 1), getString(L, 2), getInteger(L, 3)));
   return 1;
 }
 
@@ -686,9 +684,9 @@ L_GetStyleInfo(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 3);
-  pushQVariant(L,
-               getApi(L).GetStyleInfo(
-                 getInt(L, 1) - 1, getInteger(L, 2) - 1, getInteger(L, 3)));
+  push(L,
+       getApi(L).GetStyleInfo(
+         getInt(L, 1) - 1, getInteger(L, 2) - 1, getInteger(L, 3)));
   return 1;
 }
 
@@ -697,9 +695,9 @@ L_GetTimerInfo(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  pushQVariant(L,
-               getApi(L).GetTimerInfo(
-                 getPluginIndex(L), getString(L, 1), getInteger(L, 2)));
+  push(L,
+       getApi(L).GetTimerInfo(
+         getPluginIndex(L), getString(L, 1), getInteger(L, 2)));
   return 1;
 }
 
@@ -708,9 +706,9 @@ L_GetTriggerInfo(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  pushQVariant(L,
-               getApi(L).GetTriggerInfo(
-                 getPluginIndex(L), getString(L, 1), getInteger(L, 2)));
+  push(L,
+       getApi(L).GetTriggerInfo(
+         getPluginIndex(L), getString(L, 1), getInteger(L, 2)));
   return 1;
 }
 
@@ -737,9 +735,9 @@ L_WindowFontInfo(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 3);
-  pushQVariant(L,
-               getApi(L).WindowFontInfo(
-                 getString(L, 1), getString(L, 2), getInteger(L, 3)));
+  push(L,
+       getApi(L).WindowFontInfo(
+         getString(L, 1), getString(L, 2), getInteger(L, 3)));
   return 1;
 }
 
@@ -748,9 +746,9 @@ L_WindowHotspotInfo(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 3);
-  pushQVariant(L,
-               getApi(L).WindowHotspotInfo(
-                 getString(L, 1), getString(L, 2), getInteger(L, 3)));
+  push(L,
+       getApi(L).WindowHotspotInfo(
+         getString(L, 1), getString(L, 2), getInteger(L, 3)));
   return 1;
 }
 
@@ -759,7 +757,7 @@ L_WindowImageInfo(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 3);
-  pushQVariant(
+  push(
     L,
     getApi(L).WindowImageInfo(getString(L, 1), getString(L, 2), getInt(L, 3)));
   return 1;
@@ -770,7 +768,7 @@ L_WindowInfo(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  pushQVariant(L, getApi(L).WindowInfo(getString(L, 1), getInteger(L, 2)));
+  push(L, getApi(L).WindowInfo(getString(L, 1), getInteger(L, 2)));
   return 1;
 }
 
@@ -1439,9 +1437,9 @@ L_GetAliasOption(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  pushQVariant(L,
-               getApi(L).GetAliasOption(
-                 getPluginIndex(L), getString(L, 1), getString(L, 2)));
+  push(L,
+       getApi(L).GetAliasOption(
+         getPluginIndex(L), getString(L, 1), getString(L, 2)));
   return 1;
 }
 
@@ -1468,8 +1466,7 @@ L_GetCurrentValue(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
-  pushQVariant(L,
-               getApi(L).GetCurrentValue(getPluginIndex(L), getString(L, 1)));
+  push(L, getApi(L).GetCurrentValue(getPluginIndex(L), getString(L, 1)));
   return 1;
 }
 
@@ -1478,7 +1475,7 @@ L_GetDefaultValue(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
-  pushQVariant(L, ScriptApi::GetDefaultValue(getString(L, 1)));
+  push(L, ScriptApi::GetDefaultValue(getString(L, 1)));
   return 1;
 }
 
@@ -1505,9 +1502,9 @@ L_GetTimerOption(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  pushQVariant(L,
-               getApi(L).GetTimerOption(
-                 getPluginIndex(L), getString(L, 1), getString(L, 2)));
+  push(L,
+       getApi(L).GetTimerOption(
+         getPluginIndex(L), getString(L, 1), getString(L, 2)));
   return 1;
 }
 
@@ -1516,9 +1513,9 @@ L_GetTriggerOption(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 2);
-  pushQVariant(L,
-               getApi(L).GetTriggerOption(
-                 getPluginIndex(L), getString(L, 1), getString(L, 2)));
+  push(L,
+       getApi(L).GetTriggerOption(
+         getPluginIndex(L), getString(L, 1), getString(L, 2)));
   return 1;
 }
 
@@ -1647,7 +1644,7 @@ L_GetLineCount(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 0);
-  pushQVariant(L, getApi(L).GetInfo(201));
+  push(L, getApi(L).GetInfo(201));
   return 1;
 }
 

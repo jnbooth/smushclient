@@ -174,8 +174,9 @@ getString(lua_State* L, int idx, optional<std::string_view> ifNil = nullopt);
 bool
 isScriptName(lua_State* L, std::string_view name);
 
+template<typename T>
 void
-pushQVariant(lua_State* L, const QVariant& variant);
+push(lua_State* L, T value) = delete;
 
 template<typename T>
 void
@@ -184,6 +185,16 @@ push(lua_State* L, T value)
 {
   lua_pushinteger(L, static_cast<lua_Integer>(value));
 }
+
+template<typename T>
+void
+push(lua_State* L, QFlags<T> flags)
+{
+  lua_pushinteger(L, flags.toInt());
+}
+
+void
+push(lua_State* L, const QVariant& value);
 
 inline void
 push(lua_State* L, const char* value)
@@ -212,6 +223,7 @@ push(lua_State* L, const QRect& rect);
     lua_pushlstring(L, value.data(), value.size());                            \
   }
 
+IMPL_PUSH(QByteArrayView);
 IMPL_PUSH(const QByteArray&);
 IMPL_PUSH(const rust::String&);
 IMPL_PUSH(rust::Str);
@@ -230,6 +242,7 @@ IMPL_PUSH(lua_Integer, lua_pushinteger, value);
 IMPL_PUSH(lua_Number, lua_pushnumber, value);
 IMPL_PUSH(bool, lua_pushboolean, value);
 IMPL_PUSH(int, lua_pushinteger, value);
+IMPL_PUSH(uint16_t, lua_pushinteger, value);
 IMPL_PUSH(uint32_t, lua_pushinteger, value);
 IMPL_PUSH(size_t, lua_pushinteger, clamped_cast<lua_Integer>(value));
 IMPL_PUSH(const QColor&, lua_pushinteger, colorToRgbCode(value));
@@ -254,10 +267,6 @@ pushList(lua_State* L, const T& list)
     lua_rawseti(L, -2, ++i);
   }
 }
-
-template<>
-void
-pushList(lua_State* L, const QList<QVariant>& list);
 
 template<typename K, typename V>
 void
@@ -295,29 +304,4 @@ pushMap(lua_State* L, const rust::Vec<T>& entries)
     pushEntry(L, entry.key, entry.value);
   }
 }
-
-template<typename K>
-void
-pushMap(lua_State* L, const QHash<K, QVariant>& map)
-{
-  lua_createtable(L, 0, static_cast<int>(map.size()));
-  for (const auto& [key, value] : map.asKeyValueRange()) {
-    push(L, key);
-    pushQVariant(L, value);
-    lua_rawset(L, -3);
-  }
-}
-
-template<typename K>
-void
-pushMap(lua_State* L, const QMap<K, QVariant>& map)
-{
-  lua_createtable(L, 0, static_cast<int>(map.size()));
-  for (const auto& [key, value] : map.asKeyValueRange()) {
-    push(L, key);
-    pushQVariant(L, value);
-    lua_rawset(L, -3);
-  }
-}
-
 } // namespace qlua

@@ -60,16 +60,14 @@ ListBoxDialog::pushValue(lua_State* L) const
     if (item == nullptr) {
       lua_pushnil(L);
     } else {
-      qlua::pushQVariant(L, item->data(Qt::UserRole));
+      qlua::push(L, item->data(Qt::UserRole));
     }
     return 1;
   }
   QList<QListWidgetItem*> choices = ui->items->selectedItems();
   lua_createtable(L, 0, static_cast<int>(choices.size()));
   for (const QListWidgetItem* item : choices) {
-    qlua::pushQVariant(L, item->data(Qt::UserRole));
-    qlua::push(L, true);
-    lua_rawset(L, -3);
+    qlua::pushEntry(L, item->data(Qt::UserRole), true);
   }
   return 1;
 }
