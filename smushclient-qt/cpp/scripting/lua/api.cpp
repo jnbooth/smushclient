@@ -3307,7 +3307,7 @@ L_WindowText(lua_State* L)
                                            getQRectF(L, 4, 5, 6, 7),
                                            getQColor(L, 8),
                                            getBool(L, 9, false));
-  push(L, static_cast<lua_Integer>(width));
+  push(L, width);
   return 1;
 }
 
@@ -3316,9 +3316,10 @@ L_WindowTextWidth(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 4);
-  const int width = getApi(L).WindowTextWidth(
-    getString(L, 1), getString(L, 2), getString(L, 3), getBool(L, 4, false));
-  push(L, width);
+  push(
+    L,
+    getApi(L).WindowTextWidth(
+      getString(L, 1), getString(L, 2), getString(L, 3), getBool(L, 4, false)));
   return 1;
 }
 
@@ -3369,7 +3370,7 @@ L_WindowAddHotspot(lua_State* L)
   expectMaxArgs(L, 14);
   const string_view windowName = getString(L, 1);
   const string_view hotspotID = getString(L, 2);
-  const QRect geometry = getQRect(L, 3, 4, 5, 6);
+  const QRect geometry = getQRectF(L, 3, 4, 5, 6).toRect();
   Hotspot::Callbacks callbacks{
     .mouseOver = string(getString(L, 7, "")),
     .cancelMouseOver = string(getString(L, 8, "")),
@@ -3449,10 +3450,10 @@ L_WindowMoveHotspot(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 6);
-  return returnCode(L,
-                    getApi(L).WindowMoveHotspot(getString(L, 1),
-                                                getString(L, 2),
-                                                getQRect(L, 3, 4, 5, 6)));
+  return returnCode(
+    L,
+    getApi(L).WindowMoveHotspot(
+      getString(L, 1), getString(L, 2), getQRectF(L, 3, 4, 5, 6).toRect()));
 }
 
 int

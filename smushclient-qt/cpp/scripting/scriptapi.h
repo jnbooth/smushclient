@@ -611,10 +611,10 @@ public:
                    const QRectF& rect,
                    const QColor& color,
                    bool unicode) const;
-  int WindowTextWidth(std::string_view windowName,
-                      std::string_view fontID,
-                      std::string_view text,
-                      bool unicode) const;
+  qreal WindowTextWidth(std::string_view windowName,
+                        std::string_view fontID,
+                        std::string_view text,
+                        bool unicode) const;
   ApiCode WindowTransformImage(std::string_view windowName,
                                std::string_view imageID,
                                MergeMode mode,

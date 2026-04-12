@@ -572,7 +572,7 @@ ScriptApi::WindowText(string_view windowName,
   return window->drawText(*font, qtext, rect, color).width();
 }
 
-int
+qreal
 ScriptApi::WindowTextWidth(string_view windowName,
                            string_view fontID,
                            string_view text,
@@ -586,7 +586,7 @@ ScriptApi::WindowTextWidth(string_view windowName,
   if (font == nullptr) [[unlikely]] {
     return -2;
   }
-  QFontMetrics fm(*font);
+  QFontMetricsF fm(*font);
   const QString qtext =
     unicode ? QString::fromUtf8(text) : QString::fromLatin1(text);
   return fm.horizontalAdvance(qtext);

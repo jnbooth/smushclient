@@ -253,13 +253,13 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 204:
       return totalPacketsSent;
     case 212:
-      return QFontMetrics(tab.ui->output->font()).height();
+      return QFontMetricsF(tab.ui->output->font()).height();
     case 213:
-      return QFontMetrics(tab.ui->output->font()).maxWidth();
+      return QFontMetricsF(tab.ui->output->font()).maxWidth();
     case 214:
-      return QFontMetrics(tab.ui->input->font()).height();
+      return QFontMetricsF(tab.ui->input->font()).height();
     case 215:
-      return QFontMetrics(tab.ui->input->font()).maxWidth();
+      return QFontMetricsF(tab.ui->input->font()).maxWidth();
     case 217:
       return totalBytesSent;
     case 224: {
@@ -319,9 +319,13 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 239:
       return static_cast<int>(actionSource);
     case 240:
-      return QFontMetrics(tab.ui->output->font()).averageCharWidth();
+      return QFontMetricsF(tab.ui->output->font()).averageCharWidth();
     case 241:
-      return QFontMetrics(tab.ui->output->font()).height();
+      return QFontMetricsF(tab.ui->output->font()).height();
+    case 243:
+      return QFontMetricsF(
+               QFontDatabase::systemFont(QFontDatabase::SystemFont::FixedFont))
+        .height();
     case 249:
       return tab.window()->height();
     case 250:

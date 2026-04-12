@@ -5,7 +5,7 @@ use cxx_qt_lib::{QByteArray, QDate, QDateTime, QFont, QString, QVariant};
 use mud_transformer::opt::mxp::RgbColor;
 use smushclient::InfoVisitor;
 use smushclient_plugins::SendTarget;
-use smushclient_qt_lib::{QChar, QFontInfo, QFontMetrics};
+use smushclient_qt_lib::{QChar, QFontInfo, QFontMetricsF};
 
 use crate::convert::Convert;
 use crate::ffi;
@@ -78,7 +78,7 @@ pub fn font_info(font: &QFont, info_type: i64) -> QVariant {
     }
     macro_rules! metric {
         ($i:ident) => {
-            (&QFontMetrics::new(font).$i()).into()
+            (&QFontMetricsF::new(font).$i()).into()
         };
     }
     match info_type {
@@ -86,11 +86,11 @@ pub fn font_info(font: &QFont, info_type: i64) -> QVariant {
         2 => metric!(ascent),
         3 => metric!(descent),
         4 => metric!(leading),
-        5 => (&0).into(), // external leading
+        5 => (&0.0).into(), // external leading
         6 => metric!(average_char_width),
         7 => metric!(max_width),
         8 => info!(weight),
-        9 => (&QFontMetrics::new(font).left_bearing(OVERHANG_SAMPLE)).into(),
+        9 => (&QFontMetricsF::new(font).left_bearing(OVERHANG_SAMPLE)).into(),
         // 10 => digitized aspect X
         // 11 => digitized aspect Y
         // 12 => first character defined in font
