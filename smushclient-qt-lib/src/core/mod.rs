@@ -13,6 +13,6 @@ mod qstringext;
 pub use qstringext::QStringExt;
 
 mod qt;
-pub use qt::{BrushStyle, GlobalColor};
+pub use qt::{BrushStyle, GlobalColor, TextElideMode};
 
 mod qvariant;

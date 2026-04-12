@@ -7,6 +7,9 @@ pub use qfontinfo::QFontInfo;
 mod qfontmetrics;
 pub use qfontmetrics::QFontMetrics;
 
+mod qfontmetricsf;
+pub use qfontmetricsf::QFontMetricsF;
+
 mod qtextcharformat;
 pub use qtextcharformat::{
     QFontWeight, QTextCharFormat, QTextCharFormatUnderlineStyle, QTextCharFormatVerticalAlignment,
