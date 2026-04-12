@@ -1,0 +1,187 @@
+---@meta
+
+---Each miniwindow can have any number of hotspots (including zero). Each one designates a rectangle which has some significance if you mouse over it, or click inside it. You should take care not to overlap hotspot rectangles or they may not behave as you expect. When checking for mouse clicks, hotspots are evaluated in ascending alphabetic order by hotspot id.
+---
+---Hotspots are not, in themselves, visible graphic elements. You would normally associate them with a piece of text (for a hyperlink) or a graphical element such as a button or checkbox. For example, when drawing text, you know the starting point of the text, the height of the text, and the width of the text. This can be used to create a hotspot over the same place the text appeared.
+---
+---Most of the functionality of hotspots is provided by script "callbacks" - that is, when you mouse over a hotspot, a function in your main script file, or plugin, is called (if you nominate one).
+---@param windowName string The name of an existing miniwindow. Names are case-sensitive.
+---@param hotspotId string The hotspot ID to be associated with this particular hotspot. Hotspot IDs are case-sensitive.
+---@param left integer Left pixel coordinate of the hotspot rectangle.
+---@param top integer Top pixel coordinate of the hotspot rectangle.
+---@param right integer Right pixel coordinate of the hotspot rectangle.
+---@param bottom integer Bottom pixel coordinate of the hotspot rectangle.
+---@param mouseOver? string The name of the script function to be called when you mouse over the hotspot rectangle.
+---@param cancelMouseOver? string The name of the script function to be called when you move the mouse away from the hotspot rectangle.
+---@param mouseDown? string The name of the script function to be called when you mouse down in the hotspot rectangle.
+---@param cancelMouseDown? string The name of the script function to be called when you release the mouse not in the hotspot rectangle that the mouse-down occurred in.
+---@param mouseUp? string The name of the script function to be called when you release the mouse in the hotspot rectangle that the mouse-down occurred in.
+---@param tooltipText? string The text here is shown automatically if you "hover" the mouse over the hotspot for about a second. It is then removed after a few seconds. This is intended for help messages. If there is a tab character (0x09) in the tooltip text, the text before the tab is considered the tooltip title (shown in bold on a separate line), and the rest of the text is the non-bold tooltip text. To change a tooltip later, see [`WindowHotspotTooltip`](lua://WindowHotspotTooltip).
+---@param cursor? miniwin.cursor A number which indicates what shape the mouse pointer is to take when over the hotspot. See [`miniwin.cursor`](lua://miniwin.cursor). Default: `miniwin.cursor_arrow` (0).
+---@param flags? integer OR combination of flags to modify hotspot behaviour. Default: 0.
+---`miniwin.hotspot_report_all_mouseovers` (0x01): All mouse-over events are reported to the mouseover callback (if any)
+---@return error_code code #
+---`error_code.eNoSuchWindow`: No such miniwindow.\
+---`error_code.eInvalidObjectLabel`: One of the script functions is not a valid function name.\
+---`error_code.eHotspotPluginChanged`: The plugin is not the same one as used before for hotspots.\
+---`error_code.eItemInUse`: Attempt to add a hotspot in the middle of adding a hotspot.\
+---`error_code.eOK`: Completed OK.
+function WindowAddHotspot(windowName, hotspotId, left, top, right, bottom, mouseOver, cancelMouseOver, mouseDown,
+                          cancelMouseDown, mouseUp, tooltipText, cursor, flags) end
+
+---This deletes all hotspots from the miniwindow.
+---@param windowName string The name of an existing miniwindow.
+---@return error_code code #
+---`error_code.eNoSuchWindow`: No such miniwindow…\
+---`error_code.eOK`: Completed OK.
+function WindowDeleteAllHotspots(windowName) end
+
+---This deletes the hotspot from the miniwindow.
+---@param windowName string The name of an existing miniwindow.
+---@param hotspotId string The ID of an existing hotspot.
+---@return error_code code #
+---`error_code.eNoSuchWindow`: No such miniwindow.\
+---`error_code.eHotspotNotInstalled`: No such hotspot.\
+---`error_code.eOK`: Completed OK.
+function WindowDeleteHotspot(windowName, hotspotId) end
+
+---Adds drag handler callbacks to the nominated hotspot.
+---
+---If:
+---
+---* The user clicks in the hotspot; and
+---* Moves the mouse; and
+---* There is a MoveCallback function defined (by using this function)
+---
+---then the callback function is called every time the mouse moves (regardless of whether it is still over the current miniwindow).
+---
+---Also, when the mouse is eventually released, the ReleaseCallback function is called. Unlike the existing mousedown and mouseup functions, these two functions are called no matter where the mouse is - it doesn't even have to be over the SmushClient window.
+---
+---This lets you do things like move a window around (eg. drag its title bar), or drag something from one window to another.
+---
+---There are now [`WindowInfo`](lua://WindowInfo) selectors (17 and 18) which return the current position of the mouse in "client" coordinates. That is, relative to the output window, not relative to the miniwindow. The mouse position in client coordinates could be used to work out where in the output window the mouse is.
+---
+---For each miniwindow, [`WindowInfo`](lua://WindowInfo) selectors 10 to 13 give the current position of that miniwindow (as last drawn), and thus you can work out whether the cursor is over a particular one.
+---
+---If you want to change the shape of the cursor as the mouse is being dragged, see [`SetCursor`](lua://SetCursor).
+---
+---To cancel a drag handler, just set the function names to empty strings or nil, eg.
+---
+---```lua
+---WindowDragHandler(win, "hs1", nil, nil)
+---```
+---
+---The callback functions should look like this:
+---
+---```lua
+------@param flags integer
+------@param hotspot_id string
+---function drag_move(flags, hotspot_id)
+---    -- find where it is now
+---    local posx = WindowInfo(win, 17) -- where mouse is relative to output window (X)
+---    local posy = WindowInfo(win, 18) -- where mouse is relative to output window (Y)
+---    -- reposition window here
+---end
+---
+---```
+---
+---The flags parameter is a bit mask as follows:\
+---`miniwin.hotspot_got_shift` (0x01): Shift key down\
+---`miniwin.hotspot_got_control` (0x02): Control key down\
+---`miniwin.hotspot_got_alt` (0x04): Alt key down\
+---`miniwin.hotspot_got_lh_mouse` (0x10): LH mouse (from mouse-down)\
+---`miniwin.hotspot_got_rh_mouse` (0x20): RH mouse (from mouse-down)\
+---`miniwin.hotspot_got_dbl_click` (0x40): double-click (from mouse-down)
+---@param windowName string The name of an existing miniwindow.
+---@param hotspotId string The ID of an existing hotspot.
+---@param moveCallback? string The name of the script function to be called when you move the mouse.
+---@param releaseCallback? string The name of the script function to be called when you release the mouse.
+---@return error_code code #
+---`error_code.eNoSuchWindow`: No such miniwindow.\
+---`error_code.eHotspotNotInstalled`: No such hotspot.\
+---`error_code.eInvalidObjectLabel`: One of the script functions is not a valid function name.\
+---`error_code.eHotspotPluginChanged`: The plugin is not the same one as used before for hotspots.\
+---`error_code.eOK`: Completed OK.
+---
+---@see SetCursor - for changing the shape of the cursor as the mouse is dragged.
+---@see WindowScrollwheelHandler - for handling scroll events.
+function WindowDragHandler(windowName, hotspotId, moveCallback, releaseCallback) end
+
+---This returns a list of all hotspots loaded into this miniwindow. You could use this to find which hotspots have been created, and then use [`WindowHotspotInfo`](lua://WindowHotspotInfo) to find information about each one.
+---@param windowName string The name of an existing miniwindow.
+---@return string[] hotspotIDs
+---
+---@see WindowHotspotInfo
+function WindowHotspotList(windowName) end
+
+---This function lets you change the tooltip text for an existing hotspot.
+---@param windowName string The name of an existing miniwindow.
+---@param hotspotId string The ID of an existing hotspot.
+---@param tooltipText string The text here is shown automatically if you "hover" the mouse over the hotspot for about a second. It is then removed after a few seconds. This is intended for help messages (maximum 999 characters). If there is a tab character (0x09) in the tooltip text, the text before the tab is considered the tooltip title (shown in bold on a separate line), and the rest of the text is the non-bold tooltip text.
+---@return error_code code #
+---`error_code.eNoSuchWindow`: No such miniwindow.\
+---`error_code.eHotspotNotInstalled`: No such hotspot.\
+---`error_code.eOK`: Completed OK.
+function WindowHotspotTooltip(windowName, hotspotId, tooltipText) end
+
+---Moves a hotspot in a miniwindow.
+---
+---This lets you reposition a hotspot (for example, if the window is resized).
+---@param windowName string The name of an existing miniwindow.
+---@param hotspotId string The ID of an existing hotspot.
+---@param left integer Left pixel coordinate of destination.
+---@param top integer Top pixel coordinate of destination.
+---@param right integer Right pixel coordinate of destination.
+---@param bottom integer Bottom pixel coordinate of destination.
+---@return error_code code #
+---`error_code.eNoSuchWindow`: No such miniwindow.\
+---`error_code.eHotspotNotInstalled`: this hotspot has not been defined for this window.\
+---`error_code.eOK`: Completed OK.
+function WindowMoveHotspot(windowName, hotspotId, left, top, right, bottom) end
+
+---Adds a scroll-wheel handler callback to the nominated hotspot.
+---
+---If:
+---
+---* The user moves the scroll wheel over a miniwindow hotspot; and
+---* There is a MoveCallback function defined (by using this function)
+---
+---... then the callback function is called.
+---
+---To cancel a scroll wheel handler, just set the function name to nil or the empty string, eg.
+---
+---```lua
+---WindowScrollwheelHandler(win, "hs1", nil)
+---```
+---
+---The callback function should look like this:
+---
+---```lua
+------@param flags integer
+------@param hotspot_id string
+---function wheel_move(flags, hotspot_id)
+---    if flags & miniwin.wheel_scroll_back ~= 0 then
+---        -- wheel scrolled down (towards you)
+---    else
+---        -- wheel scrolled up (away from you)
+---    end
+---end
+---````
+---
+---The flags parameter is a bit mask as follows:\
+---`miniwin.wheel_got_shift` (0x01): Shift key down\
+---`miniwin.wheel_got_control` (0x02): Control key down\
+---`miniwin.wheel_got_alt` (0x04): Alt key down\
+---`miniwin.wheel_scroll_back` (0x100): Scroll wheel scrolled down (towards you)
+---
+---You can use `&` (as illustrated above) to test individual flags.
+---@param windowName string The name of an existing miniwindow.
+---@param hotspotId string The ID of an existing hotspot.
+---@param moveCallback? string The name of the script function to be called when you scroll the mouse.
+---@return error_code code #
+---`error_code.eNoSuchWindow`: No such miniwindow.\
+---`error_code.eHotspotNotInstalled`: No such hotspot.\
+---`error_code.eInvalidObjectLabel`: The script function is not a valid function name.\
+---`error_code.eHotspotPluginChanged`: The plugin is not the same one as used before for hotspots.\
+---`error_code.eOK`: Completed OK.
+function WindowScrollwheelHandler(windowName, hotspotId, moveCallback) end

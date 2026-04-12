@@ -1,0 +1,122 @@
+---@meta
+
+---@alias SoundStatus
+---| -3 # Sound system is not initialized (ie. DirectX not installed or too early version)
+---| -2 # That buffer is free (never played a sound, or the sound was stopped with StopSound)
+---| -1 # Requested buffer number out of range 1 to 10
+---| 0 # That buffer has reached the end and stopped playing
+---| 1 # That buffer is playing a sound, but not looping
+---| 2 # That buffer is playing a sound, which is a looping sound
+
+---Gets the status of one of the sound buffers.
+---
+---If you started playing a sound with [`PlaySound`](lua://PlaySound) or [`PlaySoundMemory`](lua://PlaySoundMemory) this will tell you if it is still playing, and if so, whether it is set to loop or not.
+---
+---Basically if the returned number is > 0 then the sound is playing, and if it is <= 0 then it is not playing.
+---
+---You might test this in a timer to see if a sound had stopped playing (eg. some music), and if so, play something else.
+---@param buffer integer Which buffer to query (1 to 10).
+---@return SoundStatus status
+---
+---@see PlaySound
+---@see PlaySoundMemory
+---@see StopSound
+function GetSoundStatus(buffer) end
+
+---Plays a sound from a file, or adjusts the parameters of a sound that is currently playing.
+---
+---You can choose to use 1 of 10 "sound buffers" - sounds placed in different buffers will play simultaneously.
+---
+---If a sound is currently playing in the selected buffer it is automatically stopped and its memory freed. Thus you do not need to stop sounds first before replacing them by something else.
+---
+---You can use [`StopSound`](lua://StopSound) to stop the sound playing at any time, and [`GetSoundStatus`](lua://GetSoundStatus) to see if a sound is playing or not in a particular buffer.
+---@param buffer integer Which buffer to use (1 to 10) or 0 to take the first free buffer when playing a new sound. If there are no free buffers, buffer 1 is chosen.
+---@param fileName string The sound file to play. Can be the empty string in which case you are modifying the behaviour of a currently-playing sound in that buffer. If the file name is a fully-qualified path name (ie. it starts with a slash, or a drive letter, colon, slash like "C:/") then it is used "as is". Otherwise, SmushClient prepends the SmushClient execution directory + "sounds" subdirectory to the name.
+---@param loop? boolean If `true` the sound loops, and thus repeats indefinitely until cancelled. A sound can be cancelled by calling the [`StopSound`](lua://StopSound) function for that buffer number, or simply playing a different sound in that buffer. Default: `false`.
+---@param volume? number -100 to 0. This is the number of db (decibels) to attenuate (reduce) the sound. Decibels are a logarithmic scale, every 3 db corresponds to half the perceived sound volume. Thus a volume of zero is "full volume". A volume of -3 is half-volume, -6 is quarter-volume, and so on. If you want to fade a sound away rather than just cut if off, you get quite a good effect by readjusting the sound every half second or so in a loop, reducing the volume by -2 each time, from 0 to -40. A sound at volume -40 is pretty quiet, after which you can just stop playing the sound. If you are going to write a "reduce the volume" loop you would need to use Lua coroutines, or some other timer mechanism, to turn the volume in that channel down periodically. Default: 0.
+---@return error_code code #
+---`error_code.eCannotPlaySound`:
+---
+---* DirectSound not initialized
+---* An attempt made to change the volume, looping, or pan of a sound that is not playing
+---* Cannot parse sound file
+---* Cannot find sound data in sound file
+---* Cannot create internal sound buffer (maybe all in use)
+---* Cannot read sound data into memory
+---* DirectSound refuses to play the sound
+---
+---`error_code.eBadParameter`:
+---
+---* An attempt made to change the volume, looping, or pan of a sound that is not in use
+---* No sound file name given, and buffer 0 given
+---* Buffer number outside range 0 to 10
+---* File name > 127 characters long
+---
+---`error_code.eFileNotFound`:
+---
+---* Sound file not found
+---
+---`error_code.eOK`:
+---
+---* Sound played OK (or volume/looping/pan adjusted OK)
+---
+---@see GetSoundStatus
+---@see PlaySoundMemory
+---@see StopSound
+function PlaySound(buffer, fileName, loop, volume) end
+
+
+---Plays a sound loaded into memory, or adjusts the parameters of a sound that is currently playing.
+---
+---You can choose to use 1 of 10 "sound buffers" - sounds placed in different buffers will play simultaneously.
+---
+---If a sound is currently playing in the selected buffer it is automatically stopped and its memory freed. Thus you do not need to stop sounds first before replacing them by something else.
+---
+---You can use [`StopSound`](lua://StopSound) to stop the sound playing at any time, and [`GetSoundStatus`](lua://GetSoundStatus) to see if a sound is playing or not in a particular buffer.
+---@param buffer integer Which buffer to use (1 to 10) or 0 to take the first free buffer when playing a new sound. If there are no free buffers, buffer 1 is chosen.
+---@param data string In-memory sound filedata, preferably in WAV format.
+---@param loop? boolean If `true` the sound loops, and thus repeats indefinitely until cancelled. A sound can be cancelled by calling the [`StopSound`](lua://StopSound) function for that buffer number, or simply playing a different sound in that buffer. Default: `false`.
+---@param volume? number -100 to 0. This is the number of db (decibels) to attenuate (reduce) the sound. Decibels are a logarithmic scale, every 3 db corresponds to half the perceived sound volume. Thus a volume of zero is "full volume". A volume of -3 is half-volume, -6 is quarter-volume, and so on. If you want to fade a sound away rather than just cut if off, you get quite a good effect by readjusting the sound every half second or so in a loop, reducing the volume by -2 each time, from 0 to -40. A sound at volume -40 is pretty quiet, after which you can just stop playing the sound. If you are going to write a "reduce the volume" loop you would need to use Lua coroutines, or some other timer mechanism, to turn the volume in that channel down periodically. Default: 0.
+---@return error_code code #
+---`error_code.eCannotPlaySound`:
+---
+---* DirectSound not initialized
+---* An attempt made to change the volume, looping, or pan of a sound that is not playing
+---* Cannot parse sound file
+---* Cannot find sound data in sound file
+---* Cannot create internal sound buffer (maybe all in use)
+---* Cannot read sound data into memory
+---* DirectSound refuses to play the sound
+---
+---`error_code.eBadParameter`:
+---
+---* An attempt made to change the volume, looping, or pan of a sound that is not in use
+---* No sound file name given, and buffer 0 given
+---* Buffer number outside range 0 to 10
+---* File name > 127 characters long
+---
+---`error_code.eFileNotFound`:
+---
+---* Sound file not found
+---
+---`error_code.eOK`:
+---
+---* Sound played OK (or volume/looping/pan adjusted OK)
+---
+---@see GetSoundStatus
+---@see PlaySound
+---@see StopSound
+function PlaySoundMemory(buffer, data, loop, volume, pan) end
+
+---Stops one, or all, sound buffers from playing.
+---
+---It is not necessary to call this for non-looping sounds, which stop of their own accord anyway, however doing so would free up the memory used by the sound.
+---@param buffer? integer Which buffer to stop (1 to 10), or nil or 0 to stop all sound buffers playing.
+---@return error_code code #
+---`error_code.eBadParameter`: Buffer number outside range 0 to 10.\
+---`error_code.eOK`: Requested buffer(s) have been stopped.
+---
+---@see GetSoundStatus
+---@see PlaySound
+---@see PlaySoundMemory
+function StopSound(buffer) end
