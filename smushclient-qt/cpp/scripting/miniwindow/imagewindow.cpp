@@ -3,28 +3,33 @@
 
 // Public methods
 
-ImageWindow::ImageWindow(QPixmap&& pixmap, Position position, QWidget* parent)
+ImageWindow::ImageWindow(const QString& path,
+                         QPixmap&& pixmap,
+                         Position position,
+                         QWidget* parent)
   : QWidget(parent)
-  , pixmap(std::move(pixmap))
-  , position(position)
+  , m_path(path)
+  , m_pixmap(std::move(pixmap))
+  , m_position(position)
 {
   updatePosition();
 }
 
 void
-ImageWindow::setPosition(Position pos)
+ImageWindow::setPosition(Position position)
 {
-  if (pos == position) {
+  if (position == m_position) {
     return;
   }
-  position = pos;
+  m_position = position;
   updatePosition();
 }
 
 void
-ImageWindow::setPixmap(QPixmap&& other)
+ImageWindow::setPixmap(const QString& path, QPixmap&& pixmap)
 {
-  pixmap = std::move(other);
+  m_path = path;
+  m_pixmap = std::move(pixmap);
 }
 
 // Public slots
@@ -32,10 +37,11 @@ ImageWindow::setPixmap(QPixmap&& other)
 void
 ImageWindow::onParentResize()
 {
-  if (position == Position::OutputScale ||
-      position == Position::OutputStretch || position == Position::OwnerScale ||
-      position == Position::OwnerStretch) {
-    setGeometry(geometry::calculate(this, position, pixmap.size()));
+  if (m_position == Position::OutputScale ||
+      m_position == Position::OutputStretch ||
+      m_position == Position::OwnerScale ||
+      m_position == Position::OwnerStretch) {
+    setGeometry(geometry::calculate(this, m_position, m_pixmap.size()));
   }
 }
 
@@ -47,26 +53,26 @@ ImageWindow::paintEvent(QPaintEvent* event)
   QPainter painter(this);
   painter.setCompositionMode(QPainter::CompositionMode_Source);
   painter.setClipRegion(event->region());
-  if (position == Position::Tile) [[unlikely]] {
-    painter.drawTiledPixmap(rect(), pixmap);
+  if (m_position == Position::Tile) [[unlikely]] {
+    painter.drawTiledPixmap(rect(), m_pixmap);
     return;
   }
   const QRect& rect = event->rect();
   if (scale.isNull()) {
-    painter.drawPixmap(rect, pixmap, rect);
+    painter.drawPixmap(rect, m_pixmap, rect);
   } else {
-    painter.drawPixmap(rect, pixmap, geometry::scale(rect, scale));
+    painter.drawPixmap(rect, m_pixmap, geometry::scale(rect, scale));
   }
 }
 
 void
 ImageWindow::resizeEvent(QResizeEvent* event)
 {
-  switch (position) {
+  switch (m_position) {
     case Position::OutputStretch:
     case Position::OwnerStretch: {
       const QSizeF thisSize = event->size().toSizeF();
-      const QSizeF pixmapSize = pixmap.size().toSizeF();
+      const QSizeF pixmapSize = m_pixmap.size().toSizeF();
       scale = QSizeF(pixmapSize.width() / thisSize.width(),
                      pixmapSize.height() / thisSize.height());
       break;
@@ -74,7 +80,7 @@ ImageWindow::resizeEvent(QResizeEvent* event)
     case Position::OwnerScale:
     case Position::OutputScale: {
       const QSizeF thisSize = event->size().toSizeF();
-      const QSizeF pixmapSize = pixmap.size().toSizeF();
+      const QSizeF pixmapSize = m_pixmap.size().toSizeF();
       const qreal heightScale = pixmapSize.height() / thisSize.height();
       scale = QSizeF(heightScale, heightScale);
       break;
@@ -89,5 +95,5 @@ ImageWindow::resizeEvent(QResizeEvent* event)
 void
 ImageWindow::updatePosition()
 {
-  setGeometry(geometry::calculate(this, position, pixmap.size()));
+  setGeometry(geometry::calculate(this, m_position, m_pixmap.size()));
 }

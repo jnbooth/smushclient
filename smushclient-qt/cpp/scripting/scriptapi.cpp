@@ -84,6 +84,7 @@ ScriptApi::ScriptApi(SmushClient& client,
   , socket(socket)
   , statusBarPtr(new MudStatusBar)
   , tab(parent)
+  , timeOpened(QDateTime::currentDateTime())
   , timekeeper(new Timekeeper(client, this))
 {
   whenOpened.start();
@@ -759,7 +760,7 @@ ScriptApi::setImage(const QString& path,
     return ApiCode::FileNotFound;
   }
   if (window == nullptr) {
-    window = new ImageWindow(std::move(pixmap), position, tab.ui->area);
+    window = new ImageWindow(path, std::move(pixmap), position, tab.ui->area);
     if (above) {
       window->raise();
     } else {
@@ -768,7 +769,7 @@ ScriptApi::setImage(const QString& path,
     window->show();
     return ApiCode::OK;
   }
-  window->setPixmap(std::move(pixmap));
+  window->setPixmap(path, std::move(pixmap));
   window->setPosition(position);
   return ApiCode::OK;
 }

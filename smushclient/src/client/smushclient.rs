@@ -245,11 +245,16 @@ impl SmushClient {
                 return Ok(total_read);
             }
             total_read += n;
-            self.info.bytes_received.update(|t| t + n as u64);
+            transformer.decompressing();
             let (received, buf) = read_buf.split_at_mut(n);
             let _ = logger.log_raw(received);
             let n = transformer.receive(received, buf) as u64;
-            self.info.bytes_received_uncompressed.update(|t| t + n);
+            self.info.bytes_received.update(|t| t + n);
+            if transformer.decompressing() {
+                self.info.bytes_received_uncompressed.update(|t| t + n);
+            } else {
+                self.info.bytes_received_compressed.update(|t| t + n);
+            }
         }
     }
 
@@ -1279,6 +1284,8 @@ impl SmushClient {
             16 => V::visit(&world.log_line_postamble_input),
             17 => V::visit(&world.log_line_postamble_notes),
             18 => V::visit(&world.log_line_postamble_output),
+            19 => V::visit(&world.speed_walk_filler),
+            21 => V::visit(&*String::from_utf8_lossy(&[world.speed_walk_prefix])),
             22 => V::visit(&world.connect_text),
             28 => V::visit("lua"),
             35 => V::visit(&world.world_script),
@@ -1295,12 +1302,13 @@ impl SmushClient {
             202 => V::visit(info.lines_received.get() - info.lines_displayed.get()),
             204 => V::visit(info.packets_received.get()),
             206 => V::visit(info.bytes_received_uncompressed.get()),
-            207 => V::visit(info.bytes_received.get()),
+            207 => V::visit(info.bytes_received_compressed.get()),
             208 => V::visit(if self.transformer.borrow().decompressing() {
                 2
             } else {
                 0
             }),
+            216 => V::visit(info.bytes_received.get()),
             218 => V::visit(self.variables.borrow().len()),
             219 => V::visit(self.count_senders::<Trigger>()),
             220 => V::visit(self.count_senders::<Timer>()),
@@ -1312,6 +1320,7 @@ impl SmushClient {
                 _ => 0,
             }),
             289 => V::visit(info.last_line_with_iac_ga.get()),
+            310 => V::visit(info.lines_displayed.get()),
             _ => V::visit_none(),
         }
     }

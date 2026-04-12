@@ -5,6 +5,7 @@
 #include "../../ui/mudstatusbar/mudstatusbar.h"
 #include "../../ui/ui_worldtab.h"
 #include "../../ui/worldtab.h"
+#include "../miniwindow/imagewindow.h"
 #include "../scriptapi.h"
 #include "smushclient_qt/src/ffi/util.cxx.h"
 #include <QtCore/QDir>
@@ -185,6 +186,8 @@ ScriptApi::GetInfo(int64_t infoType) const
       return QHostInfo::localHostName();
     case 64:
       return QDir::currentPath();
+    case 65:
+      return QStringLiteral("Save");
     case 66:
       return QCoreApplication::applicationDirPath();
     case 67:
@@ -208,8 +211,10 @@ ScriptApi::GetInfo(int64_t infoType) const
     // case 77: Windows version debug string
     case 77:
       return QOperatingSystemVersion::current().name();
-    // case 78: Foreground image name
-    // case 79: Background image name
+    case 78:
+      return foregroundImage == nullptr ? QString() : foregroundImage->path();
+    case 79:
+      return backgroundImage == nullptr ? QString() : backgroundImage->path();
     // case 80: libpng version
     // case 81: libpng header
     case 82:
@@ -232,7 +237,8 @@ ScriptApi::GetInfo(int64_t infoType) const
       return true;
     case 111:
       return tab.isWindowModified();
-    // case 112: Automapper active
+    case 112: // Automapper active
+      return false;
     case 113:
       return tab.active();
     case 114:
@@ -246,11 +252,13 @@ ScriptApi::GetInfo(int64_t infoType) const
       return true;
     case 122:
       return sqlite3_threadsafe() != 0;
+    case 124: // Is the current line from the MUD being omitted from output?
+      return false;
     case 125:
       return tab.isFullScreen();
     case 203:
       return totalLinesSent;
-    case 204:
+    case 205:
       return totalPacketsSent;
     case 212:
       return QFontMetricsF(tab.ui->output->font()).height();
@@ -262,6 +270,8 @@ ScriptApi::GetInfo(int64_t infoType) const
       return QFontMetricsF(tab.ui->input->font()).maxWidth();
     case 217:
       return totalBytesSent;
+    case 222:
+      return commandQueue.size();
     case 224: {
       MudBrowser& output = *tab.ui->output;
       const QRect rect = output.rect();
@@ -284,14 +294,14 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 228: {
       bool isOk;
       const uint32_t ipv4 = socket.peerAddress().toIPv4Address(&isOk);
-      return isOk ? ipv4 : QVariant();
+      return isOk ? ipv4 : 0;
     }
     // case 229: Proxy IP address as number
     // case 230: Script execution depth
     case 232: {
       QElapsedTimer timer;
       timer.start();
-      return timer.msecsSinceReference();
+      return static_cast<double>(timer.msecsSinceReference()) / 1000.0;
     }
     case 235:
       return qobject_cast<QTabWidget*>(tab.parent())->count();
@@ -352,6 +362,14 @@ ScriptApi::GetInfo(int64_t infoType) const
 #else
       return QVariant();
 #endif
+    case 269:
+      return foregroundImage == nullptr
+               ? 0
+               : static_cast<int64_t>(foregroundImage->position());
+    case 270:
+      return backgroundImage == nullptr
+               ? 0
+               : static_cast<int64_t>(backgroundImage->position());
     case 271:
       return tab.ui->output->palette().brush(QPalette::ColorRole::Base).color();
     case 272:
@@ -390,11 +408,11 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 291:
       return tab.ui->area->contentsMargins().top();
     case 292: {
-      QWidget& area = *tab.ui->area;
+      const QWidget& area = *tab.ui->area;
       return area.width() - area.contentsMargins().right();
     }
     case 293: {
-      QWidget& area = *tab.ui->area;
+      const QWidget& area = *tab.ui->area;
       return area.height() - area.contentsMargins().bottom();
     }
     case 294:
@@ -405,6 +423,14 @@ ScriptApi::GetInfo(int64_t infoType) const
       return scrollBar.sliderPosition();
     case 298:
       return sqlite3_libversion_number();
+    case 301:
+      return std::chrono::duration_cast<std::chrono::seconds>(
+               whenConnected.durationElapsed())
+        .count();
+    case 304:
+      return QDateTime::currentDateTime();
+    case 306:
+      return timeOpened;
     default:
       return client.getInfo(infoType);
   }

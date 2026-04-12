@@ -6,11 +6,14 @@ class ImageWindow : public QWidget
   Q_OBJECT
 
 public:
-  ImageWindow(QPixmap&& pixmap,
+  ImageWindow(const QString& path,
+              QPixmap&& pixmap,
               MiniWindow::Position position,
               QWidget* parent = nullptr);
-  void setPixmap(QPixmap&& other);
-  void setPosition(MiniWindow::Position pos);
+  MiniWindow::Position position() const { return m_position; }
+  const QString& path() const { return m_path; }
+  void setPixmap(const QString& path, QPixmap&& pixmap);
+  void setPosition(MiniWindow::Position position);
 
 public slots:
   void onParentResize();
@@ -24,7 +27,8 @@ private:
   void updatePosition();
 
 private:
-  QPixmap pixmap;
-  MiniWindow::Position position;
+  QString m_path;
+  QPixmap m_pixmap;
+  MiniWindow::Position m_position;
   QSizeF scale;
 };

@@ -756,6 +756,7 @@ private:
   QAbstractSocket& socket;
   std::unique_ptr<MudStatusBar> statusBarPtr;
   WorldTab& tab;
+  QDateTime timeOpened;
   Timekeeper* timekeeper;
   int64_t totalBytesSent = 0;
   int64_t totalLinesSent = 0;
