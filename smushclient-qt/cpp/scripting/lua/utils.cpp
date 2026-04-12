@@ -31,7 +31,6 @@ extern "C"
 using qlua::expectMaxArgs;
 using qlua::getBool;
 using qlua::getBytes;
-using qlua::getEnum;
 using qlua::getInt;
 using qlua::getInteger;
 using qlua::getQColor;
@@ -41,11 +40,9 @@ using qlua::getString;
 using qlua::push;
 using qlua::pushEntry;
 using qlua::pushList;
-using qlua::pushQVariant;
 
 using std::array;
 using std::make_unique;
-using std::optional;
 using std::pair;
 using std::span;
 using std::string_view;
@@ -393,11 +390,9 @@ execScriptDialog(lua_State* L,
   dialog.sortItems();
 
   if (dialog.exec() == QDialog::Accepted) {
-    pushQVariant(L, dialog.value());
-  } else {
-    lua_pushnil(L);
+    return dialog.pushValue(L);
   }
-
+  lua_pushnil(L);
   return 1;
 }
 
@@ -690,22 +685,6 @@ L_getfontfamilies(lua_State* L)
 }
 
 int
-L_getsystemfont(lua_State* L)
-{
-  expectMaxArgs(L, 1);
-  const optional<QFontDatabase::SystemFont> font =
-    getEnum(L, 1, QFontDatabase::SystemFont::FixedFont);
-  if (!font) {
-    lua_pushnil(L);
-    return 1;
-  }
-  const QFont systemFont = QFontDatabase::systemFont(*font);
-  push(L, systemFont.family());
-  lua_pushinteger(L, systemFont.pointSize());
-  return 2;
-}
-
-int
 L_hash(lua_State* L)
 {
   expectMaxArgs(L, 1);
@@ -729,7 +708,7 @@ L_info(lua_State* L)
   pushEntry(L, "startup_directory", settings.getStartupDirectoryOrDefault());
   pushEntry(L, "locale", QLocale().name());
   pushEntry(L, "fixed_pitch_font", fixedFont.family());
-  pushEntry(L, "fixed_pitch_font_size", fixedFont.pointSize());
+  pushEntry(L, "fixed_pitch_font_size", fixedFont.pointSizeF());
   pushEntry(L, "translator_file", QTranslator().filePath());
   return 1;
 }
@@ -994,7 +973,6 @@ static const struct luaL_Reg utilslib[] = {
   { "fontpicker", L_fontpicker },
   { "fromhex", L_fromhex },
   { "getfontfamilies", L_getfontfamilies },
-  { "getsystemfont", L_getsystemfont },
   { "glyph_available", L_noop_nil },
   { "hash", L_hash },
   { "info", L_info },

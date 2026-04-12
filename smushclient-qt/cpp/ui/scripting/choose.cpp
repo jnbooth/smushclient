@@ -1,4 +1,5 @@
 #include "choose.h"
+#include "../scripting/qlua.h"
 #include "ui_choose.h"
 
 // Public methods
@@ -30,14 +31,15 @@ ChooseDialog::addItem(const QString& text, const QVariant& value, bool active)
   }
 }
 
+int
+ChooseDialog::pushValue(lua_State* L) const
+{
+  qlua::pushQVariant(L, ui->items->currentData());
+  return 1;
+}
+
 void
 ChooseDialog::sortItems()
 {
   ui->items->model()->sort(0);
-}
-
-QVariant
-ChooseDialog::value() const
-{
-  return ui->items->currentData();
 }

@@ -1,4 +1,5 @@
 #include "listbox.h"
+#include "../../scripting/qlua.h"
 #include "ui_listbox.h"
 
 // Public methods
@@ -50,27 +51,33 @@ ListBoxDialog::addItem(const QString& text, const QVariant& value, bool active)
   }
 }
 
-void
-ListBoxDialog::sortItems()
-{
-  ui->items->sortItems(Qt::SortOrder::AscendingOrder);
-}
-
-QVariant
-ListBoxDialog::value() const
+int
+ListBoxDialog::pushValue(lua_State* L) const
 {
   if (ui->items->selectionMode() ==
       QListWidget::SelectionMode::SingleSelection) {
     QListWidgetItem* item = ui->items->currentItem();
-    return (item != nullptr) ? item->data(Qt::UserRole) : QVariant();
+    if (item == nullptr) {
+      lua_pushnil(L);
+    } else {
+      qlua::pushQVariant(L, item->data(Qt::UserRole));
+    }
+    return 1;
   }
   QList<QListWidgetItem*> choices = ui->items->selectedItems();
-  QList<QVariant> values;
-  values.reserve(choices.size());
+  lua_createtable(L, 0, static_cast<int>(choices.size()));
   for (const QListWidgetItem* item : choices) {
-    values.push_back(item->data(Qt::UserRole));
+    qlua::pushQVariant(L, item->data(Qt::UserRole));
+    qlua::push(L, true);
+    lua_rawset(L, -3);
   }
-  return values;
+  return 1;
+}
+
+void
+ListBoxDialog::sortItems()
+{
+  ui->items->sortItems(Qt::SortOrder::AscendingOrder);
 }
 
 void

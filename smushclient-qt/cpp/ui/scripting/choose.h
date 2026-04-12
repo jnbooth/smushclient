@@ -18,8 +18,8 @@ public:
   void addItem(const QString& text,
                const QVariant& value,
                bool active) override;
+  int pushValue(lua_State* L) const override;
   void sortItems() override;
-  QVariant value() const override;
 
 private:
   Ui::ChooseDialog* ui;
