@@ -685,6 +685,18 @@ L_getfontfamilies(lua_State* L)
 }
 
 int
+L_glyph_available(lua_State* L)
+{
+  expectMaxArgs(L, 1);
+  const QFont font = getQFont(L, 1);
+  const lua_Integer glyph = getInteger(L, 2);
+  const bool available =
+    glyph >= 0 && glyph <= UINT_MAX && QFontMetricsF(font).inFontUcs4(glyph);
+  push(L, available ? 1 : 0);
+  return 1;
+}
+
+int
 L_hash(lua_State* L)
 {
   expectMaxArgs(L, 1);
@@ -843,7 +855,7 @@ L_split(lua_State* L)
     lua_error(L);
   }
   if (count < 0) {
-    lua_pushliteral(L, "Count must be positive or zero");
+    lua_pushliteral(L, "Count must be positive, zero, or nil");
     lua_error(L);
   }
 
@@ -949,8 +961,14 @@ int
 L_utf8valid(lua_State* L)
 {
   expectMaxArgs(L, 1);
-  push(L, ffi::util::is_utf8_valid(getString(L, 1)));
-  return 1;
+  const lua_Integer n = ffi::util::validate_utf8(getString(L, 1));
+  if (n >= 0) {
+    push(L, n);
+    return 1;
+  }
+  lua_pushnil(L);
+  push(L, 1 - n);
+  return 2;
 }
 
 int
@@ -973,7 +991,7 @@ static const struct luaL_Reg utilslib[] = {
   { "fontpicker", L_fontpicker },
   { "fromhex", L_fromhex },
   { "getfontfamilies", L_getfontfamilies },
-  { "glyph_available", L_noop_nil },
+  { "glyph_available", L_glyph_available },
   { "hash", L_hash },
   { "info", L_info },
   { "infotypes", L_infotypes },

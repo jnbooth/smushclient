@@ -59,7 +59,6 @@ mod ffi {
         fn get_global_entity(name: StringView) -> VariableView;
         fn get_option_list() -> QStringList;
         fn init_logger();
-        fn is_utf8_valid(text: StringView<'_>) -> bool;
         unsafe fn log(
             msg_type: QtMsgType,
             message: &QString,
@@ -75,6 +74,7 @@ mod ffi {
             end: i64,
             error_pos: &mut usize,
         ) -> &'a str;
+        fn validate_utf8(text: StringView<'_>) -> i64;
     }
 }
 
@@ -154,8 +154,11 @@ fn init_logger() {
         .unwrap();
 }
 
-fn is_utf8_valid(text: StringView<'_>) -> bool {
-    text.to_str().is_ok()
+fn validate_utf8(text: StringView<'_>) -> i64 {
+    match text.to_str() {
+        Ok(text) => text.chars().count().try_into().unwrap_or(i64::MAX),
+        Err(e) => -(e.valid_up_to().try_into().unwrap_or(i64::MAX)),
+    }
 }
 
 /// # Safety
