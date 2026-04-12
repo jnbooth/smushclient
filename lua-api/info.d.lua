@@ -268,16 +268,16 @@ function GetInfo(infoType) end
 ---@return ActionSource info
 function GetInfo(infoType) end
 
+---Gets the operating system of the current world.
+---@param infoType 268
+---@return operating_system|nil info
+function GetInfo(infoType) end
+
 ---Gets window position information about the current world.
 ---@param infoType
 ---| 269 # Foreground image mode
 ---| 270 # Background image mode
 ---@return miniwin.pos info
-function GetInfo(infoType) end
-
----Gets the operating system of the current world.
----@param infoType 268
----@return operating_system|nil info
 function GetInfo(infoType) end
 
 

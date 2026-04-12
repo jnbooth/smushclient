@@ -456,7 +456,7 @@ function WindowGetImageAlpha(windowName, imageID, left, top, right, srcLeft, src
 ---
 ---The alpha channel could be used when copying an image onto the miniwindow using the [`WindowMergeImageAlpha`](lua://WindowMergeImageAlpha) function.
 ---
----Thus you could use `WindowGetImageAlpha` to create a scratch window (one not visible to the player) which holds the alpha information. This could then be turned into another image by using []`WindowImageFromWindow`](lua://WindowImageFromWindow). This image is now available for use with `WindowMergeImageAlpha` to selectively copy the image to another miniwindow (this image would be used as the *maskId*).
+---Thus you could use `WindowGetImageAlpha` to create a scratch window (one not visible to the player) which holds the alpha information. This could then be turned into another image by using [`WindowImageFromWindow`](lua://WindowImageFromWindow). This image is now available for use with `WindowMergeImageAlpha` to selectively copy the image to another miniwindow (this image would be used as the *maskId*).
 ---
 ---`left`, `top`, `right`, `bottom` — describes the rectangle to be drawn to.
 ---
