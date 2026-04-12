@@ -657,7 +657,7 @@ L_fontpicker(lua_State* L)
   pushEntry(L, "strikeout", font.strikeOut());
   pushEntry(L, "italic", font.italic());
   pushEntry(L, "bold", font.bold());
-  pushEntry(L, "style", font.style());
+  pushEntry(L, "style", font.styleName());
   return 1;
 }
 
