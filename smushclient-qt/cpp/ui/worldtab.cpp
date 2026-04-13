@@ -583,6 +583,13 @@ WorldTab::stopSound() const
 // Public slots
 
 void
+WorldTab::importXmlSettings(const QString& xml)
+{
+  const ParseResult result = client.importXml(xml.toStdString());
+  RegexDialog::handle(result, this);
+}
+
+void
 WorldTab::onInputBackgroundChanged(const QColor& color) const
 {
   QPalette palette = ui->input->palette();

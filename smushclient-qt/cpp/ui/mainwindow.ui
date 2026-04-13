@@ -96,6 +96,7 @@
     <addaction name="action_copy"/>
     <addaction name="action_copy_as_html"/>
     <addaction name="action_paste"/>
+    <addaction name="action_paste_xml"/>
     <addaction name="separator"/>
     <addaction name="action_select_all"/>
     <addaction name="action_save_selection"/>
@@ -123,6 +124,7 @@
     <addaction name="separator"/>
     <addaction name="action_go_to_line"/>
     <addaction name="separator"/>
+    <addaction name="action_log_session"/>
     <addaction name="action_command_history"/>
     <addaction name="separator"/>
     <addaction name="action_clear_output"/>
@@ -171,7 +173,6 @@
     <addaction name="action_edit_script_file"/>
     <addaction name="action_reload_script_file"/>
     <addaction name="separator"/>
-    <addaction name="action_log_session"/>
     <addaction name="action_new_notepad"/>
     <addaction name="action_global_preferences"/>
     <addaction name="separator"/>
@@ -711,6 +712,17 @@
   <action name="action_new_notepad">
    <property name="text">
     <string>New Notepad</string>
+   </property>
+  </action>
+  <action name="action_paste_xml">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Paste &amp;XML Settings</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+V</string>
    </property>
   </action>
  </widget>

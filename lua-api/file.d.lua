@@ -53,7 +53,7 @@ function DatabaseOpen(databaseId, filename, flags) end
 ---@return string xml The XML text of the nominated item, or an empty string if *type* is not valid or the item cannot be found.
 function ExportXML(type, name) end
 
----This duplicates the functionality in the File menu -> Import -> Clipboard.
+---This duplicates the functionality in the Edit menu -> Paste XML Settings.
 ---
 ---It allows you to import one or more triggers, aliases, macros, timers, variables, colours, numeric keypad configuration items.
 ---

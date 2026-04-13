@@ -354,6 +354,7 @@ MainWindow::setWorldMenusEnabled(bool enabled) const
   ui->action_undo->setEnabled(enabled);
   ui->action_redo->setEnabled(enabled);
   ui->action_paste->setEnabled(enabled);
+  ui->action_paste_xml->setEnabled(enabled);
   ui->action_select_all->setEnabled(enabled);
   ui->action_find->setEnabled(enabled);
   ui->action_find_again->setEnabled(enabled);
@@ -674,6 +675,12 @@ void
 MainWindow::on_action_paste_triggered()
 {
   worldtab()->ui->input->paste();
+}
+
+void
+MainWindow::on_action_paste_xml_triggered()
+{
+  worldtab()->importXmlSettings(QGuiApplication::clipboard()->text());
 }
 
 void

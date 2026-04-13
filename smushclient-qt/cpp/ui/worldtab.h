@@ -89,6 +89,7 @@ public:
   const QString& worldFilePath() const noexcept { return filePath; }
 
 public slots:
+  void importXmlSettings(const QString& xml);
   void onInputBackgroundChanged(const QColor& color) const;
   void onInputFontChanged(const QFont& font) const;
   void onInputForegroundChanged(const QColor& color) const;

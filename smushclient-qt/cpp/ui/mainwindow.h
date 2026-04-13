@@ -75,6 +75,7 @@ private slots:
   void on_action_new_window_triggered();
   void on_action_open_world_triggered();
   void on_action_paste_triggered();
+  void on_action_paste_xml_triggered();
   void on_action_pause_output_triggered(bool checked);
   void on_action_print_triggered();
   static void on_action_quit_triggered();
