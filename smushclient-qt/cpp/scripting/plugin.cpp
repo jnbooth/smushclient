@@ -1,6 +1,5 @@
 #include "plugin.h"
 #include "callback/plugincallback.h"
-#include "lua/api.h"
 #include "lua/errors.h"
 #include "lua/init.h"
 #include "scriptapi.h"
@@ -28,7 +27,7 @@ runLoaded(lua_State* L, int status)
     case LUA_ERRMEM:
       throw std::bad_alloc();
     default:
-      getApi(L).printError(formatCompileError(L));
+      ScriptApi::of(L).printError(formatCompileError(L));
       lua_pop(L, 1);
       return false;
   }
@@ -122,7 +121,7 @@ void
 Plugin::reset()
 {
   lua_State* L = state();
-  reset(getApi(L));
+  reset(ScriptApi::of(L));
 }
 
 void
@@ -138,9 +137,8 @@ Plugin::reset(ScriptApi& api)
     throw std::bad_alloc();
   }
 
-  initLuaState(L);
-  setPluginIndex(L, metadata.index);
-  setLuaApi(L, api);
+  initLuaState(L, metadata.index);
+  api.installInto(L);
 }
 
 bool

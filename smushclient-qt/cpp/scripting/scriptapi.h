@@ -94,6 +94,8 @@ public:
   static rust::String ReverseSpeedwalk(std::string_view speedwalk) noexcept;
   static void SetClipboard(const QString& text);
 
+  static ScriptApi& of(lua_State* L);
+
   ScriptApi(SmushClient& client,
             QAbstractSocket& socket,
             MudBrowser& output,
@@ -640,6 +642,7 @@ public:
   Timekeeper& getTimekeeper() { return *timekeeper; }
   Notepad* globalNotepad(const QString& name) const;
   void handleSendRequest(const SendRequest& request);
+  void installInto(lua_State* L);
   bool isPluginEnabled(size_t plugin) const noexcept
   {
     return !plugins[plugin].isDisabled();

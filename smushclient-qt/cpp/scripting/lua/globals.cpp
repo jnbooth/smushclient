@@ -538,7 +538,7 @@ registerTable(lua_State* L, const char* name, const pair<K, V> (&entries)[N])
 } // namespace
 
 int
-registerLuaGlobals(lua_State* L)
+luaopen_smushglobals(lua_State* L)
 {
   qlua::push(L, QCoreApplication::applicationVersion());
   lua_setglobal(L, "SMUSHCLIENT_VERSION");

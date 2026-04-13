@@ -3,4 +3,4 @@
 struct lua_State;
 
 int
-registerLuaGlobals(lua_State* L);
+luaopen_smushglobals(lua_State* L);

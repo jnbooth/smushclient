@@ -18,6 +18,10 @@
 #include <QtGui/QTextBlock>
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QStatusBar>
+extern "C"
+{
+#include "lua.h"
+}
 
 using std::string;
 using std::string_view;
@@ -27,6 +31,12 @@ using std::chrono::seconds;
 // Private utils
 
 namespace {
+inline ScriptApi**
+apiSlot(lua_State* L) noexcept
+{
+  return static_cast<ScriptApi**>(lua_getextraspace(L)); // NOLINT
+}
+
 qsizetype
 ensureCrLf(QByteArray& bytes)
 {
@@ -64,6 +74,14 @@ scriptInfoIndex(SenderKind kind) noexcept
   }
 }
 } // namespace
+
+// Public static methods
+
+ScriptApi&
+ScriptApi::of(lua_State* L)
+{
+  return **apiSlot(L);
+}
 
 // Public methods
 
@@ -221,6 +239,12 @@ ScriptApi::handleSendRequest(const SendRequest& request)
         { .plugin = request.plugin, .script = request.text.toUtf8() });
       return;
   }
+}
+
+void
+ScriptApi::installInto(lua_State* L)
+{
+  *apiSlot(L) = this;
 }
 
 ApiCode

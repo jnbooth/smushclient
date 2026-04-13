@@ -293,6 +293,12 @@ static const pair<lua_Integer, string_view> infoTypes[] = {
 static const lua_Integer maxInfoType = 310;
 
 namespace {
+inline ScriptApi&
+getApi(lua_State* L)
+{
+  return ScriptApi::of(L);
+}
+
 void
 doHash(lua_State* L, QCryptographicHash::Algorithm algorithm)
 {

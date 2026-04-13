@@ -46,7 +46,7 @@ L_print(lua_State* L)
 {
   const QString output = QString::fromUtf8(qlua::concatArgs(L, 1, " "));
 #ifdef NDEBUG
-  getApi(L).Tell(output);
+  ScriptApi::of(L).Tell(output);
 #endif
   qInfo() << "print(" << output << ")";
   return 0;
@@ -54,7 +54,7 @@ L_print(lua_State* L)
 } // namespace
 
 int
-initLuaState(lua_State* L)
+initLuaState(lua_State* L, size_t pluginIndex)
 {
   lua_atpanic(L, &L_panic);
   lua_register(L, "print", L_print);
@@ -75,8 +75,8 @@ initLuaState(lua_State* L)
   setlib(L, "sqlite3");
   luaopen_utils(L);
   setlib(L, "utils");
-  registerLuaGlobals(L);
-  registerLuaWorld(L);
+  luaopen_smushglobals(L);
+  registerLuaWorld(L, pluginIndex);
   lua_settop(L, 0);
   addErrorHandler(L);
   return 1;

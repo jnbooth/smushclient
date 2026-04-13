@@ -140,6 +140,12 @@ combineFlags(std::initializer_list<std::pair<T, bool>> pairs)
   return flags;
 }
 
+inline ScriptApi&
+getApi(lua_State* L)
+{
+  return ScriptApi::of(L);
+}
+
 inline int
 returnCode(lua_State* L, ApiCode code)
 {
@@ -162,6 +168,14 @@ getPluginIndex(lua_State* L)
   const size_t index = lua_tointeger(L, -1);
   lua_pop(L, 1);
   return index;
+}
+
+int
+setPluginIndex(lua_State* L, size_t index)
+{
+  push(L, index);
+  lua_rawsetp(L, LUA_REGISTRYINDEX, indexRegKey);
+  return 0;
 }
 
 inline optional<string_view>
@@ -194,12 +208,6 @@ convertVolume(lua_Number decibels) noexcept
   return static_cast<float>(1.0 / pow(2, decibels / -3.0));
 }
 
-inline ScriptApi**
-apiSlot(lua_State* L) noexcept
-{
-  return static_cast<ScriptApi**>(lua_getextraspace(L)); // NOLINT
-}
-
 void
 pushVariable(lua_State* L, string_view variable)
 {
@@ -207,29 +215,7 @@ pushVariable(lua_State* L, string_view variable)
     push(L, variable);
   }
 }
-
 } // namespace
-
-int
-setLuaApi(lua_State* L, ScriptApi& api)
-{
-  *apiSlot(L) = &api;
-  return 0;
-}
-
-inline ScriptApi&
-getApi(lua_State* L)
-{
-  return **apiSlot(L);
-}
-
-int
-setPluginIndex(lua_State* L, size_t index)
-{
-  push(L, index);
-  lua_rawsetp(L, LUA_REGISTRYINDEX, indexRegKey);
-  return 0;
-}
 
 // benchmarking
 
@@ -3912,7 +3898,7 @@ static const struct luaL_Reg worldlib_meta[] = {
 };
 
 int
-registerLuaWorld(lua_State* L)
+registerLuaWorld(lua_State* L, size_t pluginIndex)
 {
   luaL_newlib(L, worldlib);
 
@@ -3930,6 +3916,8 @@ registerLuaWorld(lua_State* L)
   lua_getglobal(L, worldLibKey);
   lua_setfield(L, -2, "__index");
   lua_setmetatable(L, -2);
+
+  setPluginIndex(L, pluginIndex);
 
   return 1;
 }

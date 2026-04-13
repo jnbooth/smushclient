@@ -1,6 +1,5 @@
 #include "errors.h"
 #include "../scriptapi.h"
-#include "api.h"
 extern "C"
 {
 #include "lualib.h"
@@ -60,7 +59,7 @@ bool
 api_pcall(lua_State* L, int nargs, int nreturn)
 {
   if (checkError(lua_pcall(L, nargs, nreturn, 1))) [[unlikely]] {
-    getApi(L).printError(formatRuntimeError(L));
+    ScriptApi::of(L).printError(formatRuntimeError(L));
     lua_pop(L, 1);
     return false;
   }
