@@ -101,7 +101,6 @@ function FilterPixel(pixel, operation, options) end
 function FilterPixel(pixel, operation, options) end
 
 
-
 ---This draws an arc from `x1`,`y1` to `x2`,`y2` with the designated pen.
 ---
 ---`left`, `top`, `right`, `bottom` — describes the rectangle into which the arc must fit.
@@ -120,12 +119,24 @@ function FilterPixel(pixel, operation, options) end
 ---@param y2 number
 ---@param penColour integer|string Integer BBGGRR colour code, string hex code, or string colour name.
 ---@param penStyle WindowPenStyle See [`WindowPenStyle`](lua://WindowPenStyle).
----@param penWidth number Brush width in pixels.
+---@param penWidth number Pen width in pixels.
 ---@return error_code code #
 ---`error_code.eNoSuchWindow`: No such miniwindow.\
 ---`error_code.ePenStyleNotValid`: Invalid pen style.\
 ---`error_code.eOK`: Completed OK.
 function WindowArc(windowName, left, top, right, bottom, x1, y1, x2, y2, penColour, penStyle, penWidth) end
+
+
+---@param windowName string The name of an existing miniwindow.
+---@param points string|[number,number][] Either an array of points or a string consisting of pairs of numbers (integers or floating-point), one for each point, in the format x1,y1,x2,y2 ...
+---
+---For example: `"20,50,180,50"` would specify two points, one at 20,50 and one at 180,50.
+---
+---You must have at least 4 points (the start, and 3 points per spline), which is 8 numbers. The number of numbers in the string must be even (divisible by two), as it takes a pair of numbers to specify one point. Also, since you need 3 points per spline, the number of numbers in the Points string must have a remainder of 2 when divided by 6 (3 points per spline, plus the start point).
+---@param penColour integer|string Integer BBGGRR colour code, string hex code, or string colour name.
+---@param penStyle WindowPenStyle See [`WindowPenStyle`](lua://WindowPenStyle).
+---@param penWidth number Pen width in pixels.
+function WindowBezier(windowName, points, penColour, penStyle, penWidth) end
 
 
 ---This blends the specified image into the miniwindow, on top of the specified rectangle. This function uses the entire image as its source rectangle.
@@ -186,7 +197,7 @@ function WindowBlendImage(windowName, imageID, left, top, right, bottom, mode, o
 ---@param bottom number
 ---@param penColour integer|string Integer BBGGRR colour code, string hex code, or string colour name.
 ---@param penStyle WindowPenStyle See [`WindowPenStyle`](lua://WindowPenStyle).
----@param penWidth number
+---@param penWidth number Pen width in pixels.
 ---@param brushColour integer|string Integer BBGGRR colour code, string hex code, or string colour name.
 ---@param brushStyle? miniwin.brush See [`miniwin.brush`](lua://miniwin.brush). Default: 0 (solid).
 ---@return error_code code #
@@ -214,7 +225,7 @@ function WindowCircleOp(windowName, action, left, top, right, bottom, penColour,
 ---@param bottom number
 ---@param penColour integer|string Integer BBGGRR colour code, string hex code, or string colour name.
 ---@param penStyle WindowPenStyle See [`WindowPenStyle`](lua://WindowPenStyle).
----@param penWidth number Pixel width of the pen.
+---@param penWidth number Pen width in pixels.
 ---@param brushColour integer|string Integer BBGGRR colour code, string hex code, or string colour name.
 ---@param brushStyle miniwin.brush See [`miniwin.brush`](lua://miniwin.brush).
 ---@param roundedWidth number Width of the ellipse used to draw the rounded corner.
@@ -584,7 +595,7 @@ function WindowImageList(windowName) end
 ---@param bottom number
 ---@param penColour integer|string Integer BBGGRR colour code, string hex code, or string colour name.
 ---@param penStyle WindowPenStyle See [`WindowPenStyle`](lua://WindowPenStyle).
----@param penWidth number
+---@param penWidth number Pen width in pixels.
 ---@param brushColour integer|string Integer BBGGRR colour code, string hex code, or string colour name.
 ---@param imageID string ID of an image loaded into the miniwindow with [`WindowCreateImage`](lua://WindowCreateImage), [`WindowLoadImage`](lua://WindowLoadImage), [`WindowLoadImageMemory`](lua://WindowLoadImageMemory), or [`WindowImageFromWindow`](lua://WindowImageFromWindow).
 ---@return error_code code #
@@ -609,7 +620,7 @@ function WindowImageOp(windowName, action, left, top, right, bottom, penColour, 
 ---@param bottom number
 ---@param penColour integer|string Integer BBGGRR colour code, string hex code, or string colour name.
 ---@param penStyle WindowPenStyle See [`WindowPenStyle`](lua://WindowPenStyle).
----@param penWidth number
+---@param penWidth number Pen width in pixels.
 ---@param brushColour integer|string Integer BBGGRR colour code, string hex code, or string colour name.
 ---@param imageID string ID of an image loaded into the miniwindow with [`WindowCreateImage`](lua://WindowCreateImage), [`WindowLoadImage`](lua://WindowLoadImage), [`WindowLoadImageMemory`](lua://WindowLoadImageMemory), or [`WindowImageFromWindow`](lua://WindowImageFromWindow).
 ---@param roundedWidth number Width of the ellipse used to draw the rounded corner.
@@ -633,7 +644,7 @@ function WindowImageOp(windowName, action, left, top, right, bottom, penColour, 
 ---@param y2 number Ending Y coordinate for the line.
 ---@param penColour integer|string Integer BBGGRR colour code, string hex code, or string colour name.
 ---@param penStyle WindowPenStyle See [`WindowPenStyle`](lua://WindowPenStyle).
----@param penWidth number
+---@param penWidth number Pen width in pixels.
 ---@return error_code code #
 ---`error_code.eNoSuchWindow`: Mo such miniwindow.\
 ---`error_code.ePenStyleNotValid`: Invalid pen style.\
@@ -887,7 +898,7 @@ function WindowMergeImageAlpha(windowName, imageID, maskID, left, top, right, bo
 ---You must have at least 2 points (the start and end), which is 4 numbers. The number of numbers in the string must be even (divisible by two), as it takes a pair of numbers to specify one point.
 ---@param penColour integer|string Integer BBGGRR colour code, string hex code, or string colour name for the pen.
 ---@param penStyle WindowPenStyle See [`WindowPenStyle`](lua://WindowPenStyle).
----@param penWidth number Width of the pen in pixels.
+---@param penWidth number Pen width in pixels.
 ---@param brushColour integer|string Integer BBGGRR colour code, string hex code, or string colour name for the brush.
 ---@param brushStyle? miniwin.brush See [`miniwin.brush`](lua://miniwin.brush). Default: 0 (solid).
 ---@param close? boolean If `true`, the polygon is closed by connecting the last point to the first one, if necessary. Default: `false`.

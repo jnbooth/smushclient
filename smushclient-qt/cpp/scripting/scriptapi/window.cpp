@@ -6,6 +6,7 @@
 #include <QtCore/QFile>
 #include <QtGui/QFontDatabase>
 #include <QtGui/QGradient>
+#include <QtGui/QPainterPath>
 
 using std::array;
 using std::optional;
@@ -58,6 +59,26 @@ ScriptApi::WindowArc(string_view windowName,
 {
   MiniWindow* window = TRY_WINDOW(windowName);
   window->drawArc(rect, start, end, pen);
+  return ApiCode::OK;
+}
+
+ApiCode
+ScriptApi::WindowBezier(std::string_view windowName,
+                        const QList<QPointF>& points,
+                        const QPen& pen) const
+{
+  const qsizetype size = points.size();
+  if (size < 4 || size % 3 != 1) {
+    return ApiCode::InvalidNumberOfPoints;
+  }
+  QPainterPath path;
+  auto iter = points.begin();
+  path.moveTo(*iter);
+  for (auto end = points.end(); iter != end;) {
+    path.cubicTo(*++iter, *++iter, *++iter);
+  }
+  MiniWindow* window = TRY_WINDOW(windowName);
+  window->drawPath(path, pen);
   return ApiCode::OK;
 }
 

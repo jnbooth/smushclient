@@ -525,7 +525,7 @@ qlua::getQPolygonF(lua_State* L, int idx)
         if (!std::isfinite(dX) || !std::isfinite(dY)) [[unlikely]] {
           return nullopt;
         }
-        points.append(QPointF(dX, dY));
+        points.append({ dX, dY });
       }
       return points;
     }

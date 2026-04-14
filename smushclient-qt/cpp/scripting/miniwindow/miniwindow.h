@@ -144,6 +144,13 @@ public:
   }
 
   void drawLine(const QLineF& line, const QPen& pen);
+  void drawPath(const QPainterPath& path,
+                const QPen& pen,
+                const QBrush& brush = {});
+  void drawPath(const QPainterPath& path, const QBrush& brush)
+  {
+    drawPath(path, {}, brush);
+  }
   void drawPolygon(const QPolygonF& polygon,
                    const QPen& pen,
                    const QBrush& brush = {},

@@ -2829,6 +2829,19 @@ L_WindowArc(lua_State* L)
 }
 
 int
+L_WindowBezier(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 5);
+  const string_view windowName = getString(L, 1);
+  const optional<QPolygonF> points = getQPolygonF(L, 2);
+  const optional<QPen> pen = getQPen(L, 3, 4, 5);
+  expect_nonnull(points, ApiCode::InvalidNumberOfPoints);
+  expect_nonnull(pen, ApiCode::PenStyleNotValid);
+  return returnCode(L, getApi(L).WindowBezier(windowName, *points, *pen));
+}
+
+int
 L_WindowBlendImage(lua_State* L)
 {
   BENCHMARK
@@ -3830,6 +3843,7 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "BlendPixel", L_BlendPixel },
     { "FilterPixel", L_FilterPixel },
     { "WindowArc", L_WindowArc },
+    { "WindowBezier", L_WindowBezier },
     { "WindowBlendImage", L_WindowBlendImage },
     { "WindowCircleOp", L_WindowCircleOp },
     { "WindowCreate", L_WindowCreate },
@@ -3934,7 +3948,6 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "TraceOut", L_stub_void },
     { "TranslateDebug", L_stub_ok },
     { "Transparency", L_stub_false },
-    { "WindowBezier", L_stub_ok },
 
     { nullptr, nullptr } };
 

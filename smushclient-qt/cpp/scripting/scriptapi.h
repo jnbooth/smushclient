@@ -460,6 +460,9 @@ public:
                     const QPointF& start,
                     const QPointF& end,
                     const QPen& pen) const;
+  ApiCode WindowBezier(std::string_view windowName,
+                       const QList<QPointF>& points,
+                       const QPen& pen) const;
   ApiCode WindowBlendImage(std::string_view windowName,
                            std::string_view imageID,
                            const QRectF& rect,

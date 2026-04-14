@@ -392,6 +392,14 @@ MiniWindow::drawLine(const QLineF& line, const QPen& pen)
 }
 
 void
+MiniWindow::drawPath(const QPainterPath& path,
+                     const QPen& pen,
+                     const QBrush& brush)
+{
+  Painter(this, pen, brush).drawPath(path);
+}
+
+void
 MiniWindow::drawPolygon(const QPolygonF& polygon,
                         const QPen& pen,
                         const QBrush& brush,
