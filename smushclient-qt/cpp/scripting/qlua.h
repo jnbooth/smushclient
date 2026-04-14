@@ -257,8 +257,12 @@ IMPL_PUSH(const QUuid&, push, value.toByteArray(QUuid::WithoutBraces));
 #undef IMPL_PUSH
 
 template<typename T>
+concept Pushable = requires(lua_State* L, T t) { qlua::push(L, t); };
+
+template<typename T>
 void
 pushList(lua_State* L, const T& list)
+  requires(Pushable<typename T::value_type>)
 {
   lua_createtable(L, static_cast<int>(list.size()), 0);
   lua_Integer i = 0;
@@ -268,7 +272,19 @@ pushList(lua_State* L, const T& list)
   }
 }
 
-template<typename K, typename V>
+template<Pushable T, size_t N>
+void
+pushList(lua_State* L, const T (&list)[N])
+{
+  lua_createtable(L, N, 0);
+  lua_Integer i = 0;
+  for (const auto& item : list) {
+    push(L, item);
+    lua_rawseti(L, -2, ++i);
+  }
+}
+
+template<Pushable K, Pushable V>
 void
 pushEntry(lua_State* L, K key, V value, int idx = -1)
 {
@@ -277,7 +293,7 @@ pushEntry(lua_State* L, K key, V value, int idx = -1)
   lua_rawset(L, idx < 0 ? idx - 2 : idx);
 }
 
-template<typename V>
+template<Pushable V>
 void
 pushEntry(lua_State* L, const char* key, V value, int idx = -1)
 {
@@ -287,21 +303,37 @@ pushEntry(lua_State* L, const char* key, V value, int idx = -1)
 
 template<typename T>
 void
-pushMap(lua_State* L, const T& map)
+pushEntries(lua_State* L, const T& entries)
 {
-  lua_createtable(L, 0, static_cast<int>(map.size()));
-  for (const auto& [key, value] : map.asKeyValueRange()) {
+  for (const auto& [key, value] : entries) {
+    pushEntry(L, key, value);
+  }
+}
+
+template<typename T, size_t N>
+void
+pushMap(lua_State* L, const T (&entries)[N])
+{
+  lua_createtable(L, 0, N);
+  for (const auto& [key, value] : entries) {
     pushEntry(L, key, value);
   }
 }
 
 template<typename T>
 void
-pushMap(lua_State* L, const rust::Vec<T>& entries)
+pushMap(lua_State* L, const T& entries)
 {
   lua_createtable(L, 0, static_cast<int>(entries.size()));
-  for (const auto& entry : entries) {
-    pushEntry(L, entry.key, entry.value);
-  }
+  pushEntries(L, entries);
+}
+
+template<typename T>
+void
+pushMap(lua_State* L, const T& map)
+  requires(requires(T t) { t.asKeyValueRange(); })
+{
+  lua_createtable(L, 0, static_cast<int>(map.size()));
+  pushEntries(L, map.asKeyValueRange());
 }
 } // namespace qlua

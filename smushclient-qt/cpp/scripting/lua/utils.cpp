@@ -535,8 +535,8 @@ L_callbackslist(lua_State* L)
   expectMaxArgs(L, 0);
   const span callbacks = NamedPluginCallback::list();
   lua_createtable(L, static_cast<int>(callbacks.size()), 0);
-  int i = -1;
-  for (const NamedPluginCallback* callback : callbacks) {
+  lua_Integer i = 0;
+  for (const NamedPluginCallback* const callback : callbacks) {
     push(L, callback->name());
     lua_rawseti(L, -2, ++i);
   }

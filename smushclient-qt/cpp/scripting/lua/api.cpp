@@ -132,9 +132,9 @@ QFlags<T>
 combineFlags(std::initializer_list<std::pair<T, bool>> pairs)
 {
   QFlags<T> flags;
-  for (const std::pair<T, bool>& pair : pairs) {
-    if (pair.second) {
-      flags.setFlag(pair.first);
+  for (const auto& [flag, enable] : pairs) {
+    if (enable) {
+      flags.setFlag(flag);
     }
   }
   return flags;
@@ -373,11 +373,13 @@ int
 L_MapColourList(lua_State* L)
 {
   BENCHMARK
+  pushMap(L, QMap<int, bool>());
   expectMaxArgs(L, 0);
   const QList colors = getApi(L).MapColourList();
+  pushMap(L, colors);
   lua_createtable(L, 0, static_cast<int>(colors.size()));
-  for (const auto& item : colors) {
-    pushEntry(L, item.first, item.second);
+  for (const auto& [color, name] : colors) {
+    pushEntry(L, color, name);
   }
   return 1;
 }

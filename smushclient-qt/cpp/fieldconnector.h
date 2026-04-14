@@ -26,13 +26,12 @@ class FieldConnector
   using Setter = void (Source::*&&)(Value);
 
 public:
-  template<typename T, typename Enum>
+  template<typename T, IntEnum Enum>
   static QMetaObject::Connection connect(QObject* object,
                                          const T* target,
                                          QComboBox* input,
                                          const Enum value,
                                          Setter<T, Enum> setter)
-    requires(std::is_same_v<std::underlying_type_t<Enum>, int>)
   {
     input->setCurrentIndex(static_cast<int>(value));
     return object->connect(

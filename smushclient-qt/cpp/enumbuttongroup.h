@@ -3,7 +3,7 @@
 #include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QButtonGroup>
 
-template<typename T>
+template<IntEnum T>
 class EnumButtonGroup
 {
   template<typename Source, typename Value>
@@ -15,7 +15,6 @@ public:
                   T value,
                   Source* source,
                   Setter<Source, T> setter)
-    requires(std::is_same_v<std::underlying_type_t<T>, int>)
     : group(new QButtonGroup(parent))
     , currentValue(value)
   {

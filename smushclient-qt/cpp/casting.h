@@ -22,9 +22,11 @@ clamped_cast(From n) noexcept
   return (n < min) ? to::min() : (n > max) ? to::max() : static_cast<To>(n);
 }
 
-template<typename Source, typename EnumValue>
+template<typename T>
+concept IntEnum = std::is_same_v<std::underlying_type_t<T>, int>;
+
+template<typename Source, IntEnum EnumValue>
 void (Source::* enum_slot_cast(void (Source::*slot)(EnumValue)))(int)
-  requires(std::is_same_v<std::underlying_type_t<EnumValue>, int>)
 {
   // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
   // SAFETY: the underlying type of EnumValue is int
