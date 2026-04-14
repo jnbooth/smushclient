@@ -978,7 +978,7 @@ L_utf8valid(lua_State* L)
 }
 
 int
-L_noop_nil(lua_State* L)
+L_stub_nil(lua_State* L)
 {
   lua_pushnil(L);
   return 1;
@@ -1007,9 +1007,9 @@ static const struct luaL_Reg utilslib[] = {
   { "md5", L_md5 },
   { "msgbox", L_msgbox },
   { "multilistbox", L_multilistbox },
-  { "reload_global_prefs", L_noop_nil },
+  { "reload_global_prefs", L_stub_nil },
   { "rgb", L_rgb },
-  { "sendtofront", L_noop_nil },
+  { "sendtofront", L_stub_nil },
   { "sha256", L_sha256 },
   { "split", L_split },
   { "timer", L_timer },

@@ -74,6 +74,10 @@ public:
 public:
   static ApiCode AddFont(const QString& fileName);
   static QColor AdjustColour(const QColor& color, ColorAdjust method);
+  static QColor BlendPixel(const QColor& blend,
+                           const QColor& base,
+                           BlendMode mode,
+                           qreal opacity);
   static bool ChangeDir(const QString& dir);
   static QUuid CreateGUID() { return QUuid::createUuid(); }
   static rust::String FixupHTML(std::string_view text) noexcept;

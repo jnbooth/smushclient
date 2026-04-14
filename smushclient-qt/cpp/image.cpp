@@ -48,6 +48,8 @@ blend(QPixmap& target,
       const QRectF& sourceRect)
 {
   QPainter painter(&target);
+  const QRectF rect =
+    sourceRect.isNull() ? source.rect().toRectF() : sourceRect;
 
   switch (mode) {
     case BlendMode::Normal:
@@ -57,7 +59,7 @@ blend(QPixmap& target,
       opacity /= 2;
       break;
     case BlendMode::Dissolve:
-      painter.drawImage(origin, dissolve(source, sourceRect.toRect(), opacity));
+      painter.drawImage(origin, dissolve(source, rect.toRect(), opacity));
       return true;
     case BlendMode::Darken:
       painter.setCompositionMode(QPainter::CompositionMode_Darken);
@@ -109,8 +111,16 @@ blend(QPixmap& target,
       return false;
   }
   painter.setOpacity(opacity);
-  painter.drawPixmap(origin, source, sourceRect);
+  painter.drawPixmap(origin, source, rect);
   return true;
+}
+
+QPixmap
+colorPixel(const QColor& color)
+{
+  QPixmap pixmap(1, 1);
+  pixmap.fill(color);
+  return pixmap;
 }
 
 void

@@ -53,7 +53,10 @@ blend(QPixmap& target,
       const QPointF& origin,
       BlendMode mode,
       qreal opacity,
-      const QRectF& sourceRect);
+      const QRectF& sourceRect = {});
+
+QPixmap
+colorPixel(const QColor& color);
 
 void
 colorToAlpha(QImage& image, const QColor& color);

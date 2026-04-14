@@ -28,6 +28,80 @@
 ---`miniwin.pen_join_miter` (8192)
 ---@alias WindowPenStyle integer
 
+
+---@alias FilterWithInt
+---| 7 # (miniwin.filter_brightness) Adjust Brightness - by adding Options to each pixel
+---| 10 # (miniwin.filter_red_brightness) Adjust Brightness for red channel only - by adding Options to each pixel
+---| 13 # (miniwin.filter_green_brightness) Adjust Brightness for green channel only - by adding Options to each pixel
+---| 16 # (miniwin.filter_blue_brightness) Adjust Brightness for blue channel only - by adding Options to each pixel
+
+---@alias FilterWithNumber
+---| 1 # (miniwin.filter_noise) Apply colour noise
+---| 2 # (miniwin.filter_monochrome_noise) Apply monochrome noise
+---| 8 # (miniwin.filter_contrast) Adjust Contrast
+---| 9 # (miniwin.filter_gamma) Adjust Gamma
+---| 11 # (miniwin.filter_red_contrast) Adjust Contrast for red channel only
+---| 12 # (miniwin.filter_red_gamma) Adjust Gamma for red channel only
+---| 14 # (miniwin.filter_green_contrast) Adjust Contrast for green channel only
+---| 15 # (miniwin.filter_green_gamma) Adjust Gamma for green channel only
+---| 17 # (miniwin.filter_blue_contrast) Adjust Contrast for blue channel only
+---| 18 # (miniwin.filter_blue_gamma) Adjust Gamma for blue channel only
+---| 21 # (miniwin.filter_brightness_multiply) Adjust Brightness - by multiplying Options by each pixel
+---| 22 # (miniwin.filter_red_brightness_multiply) Adjust Brightness for red channel only - by multiplying Options by each pixel
+---| 23 # (miniwin.filter_green_brightness_multiply) Adjust Brightness for green channel only - by multiplying Options by each pixel
+---| 24 # (miniwin.filter_blue_brightness_multiply) Adjust Brightness for blue channel only - by multiplying Options by each pixel
+
+---@alias FilterWithNone
+---| 3 # (miniwin.filter_blur) Blur - by comparing 2 pixels on each side
+---| 4 # (miniwin.filter_sharpen) Sharpen
+---| 5 # (miniwin.filter_find_edges) Find edges
+---| 6 # (miniwin.filter_emboss) Emboss
+---| 19 # (miniwin.filter_grayscale) Convert to grayscale - mix red/green/blue equally
+---| 20 # (miniwin.filter_normal_grayscale) Convert to grayscale - mix 30% red + 59% green + 11% blue for normal perception
+---| 25 # (miniwin.filter_lesser_blur) Lesser Blur - by comparing 1 pixel on each side
+---| 26 # (miniwin.filter_minor_blur) Minor Blur - by comparing 1 pixel on each side, taking a smaller amount
+---| 27 # (miniwin.filter_average) Average - the entire rectangle is set to its average colour
+
+
+---This does the same thing as [`WindowBlendImage`](lua://WindowBlendImage), except it operates on a single pixel (that is, a single RGB colour for the blend colour, and a single RGB colour for the base colour). This does the same thing, to a single pixel, as [`WindowBlendImage`](lua://WindowBlendImage) (with the same codes). This is intended for situations where you need to work on individual colours - either in a miniwindow image, or generally, to do things like merge them together in various ways.
+---@param blend integer|string Integer BBGGRR colour code, string hex code, or string colour name for the pixel to be blended.
+---@param base integer|string Integer BBGGRR colour code, string hex code, or string colour name for the base pixel.
+---@param mode miniwin.blend See [`miniwin.blend`](lua://miniwin.blend).
+---@param opacity number Between 0 and 1. An opacity of 0 means the result will be the base pixel. An opacity of 1 means the blend is fully applied. An opacity of 0.5 means the blended pixel is merged 50% with the original pixel.
+function BlendPixel(blend, base, mode, opacity) end
+
+
+---This applies the specified filtering operation to the pixel supplied (an RGB code).
+---
+---This does largely the same thing as [`WindowFilter`](lua://WindowFilter), except it operates on a single pixel (that is, a single RGB colour). This does the same operations (with the same codes as for [`WindowFilter`](lua://WindowFilter)) excepting the ones which require more than one pixel (like Blur, Sharpen, Find Edges, and Emboss).
+---@param pixel integer|string Integer BBGGRR colour code, string hex code, or string colour name for the pixel to be filtered.
+---@param operation FilterWithInt
+---@param options integer
+---@return integer rgb BBGGRR color code.
+function FilterPixel(pixel, operation, options) end
+
+---This applies the specified filtering operation to the pixel supplied (an RGB code).
+---
+---This does largely the same thing as [`WindowFilter`](lua://WindowFilter), except it operates on a single pixel (that is, a single RGB colour). This does the same operations (with the same codes as for [`WindowFilter`](lua://WindowFilter)) excepting the ones which require more than one pixel (like Blur, Sharpen, Find Edges, and Emboss).
+---@param pixel integer|string Integer BBGGRR colour code, string hex code, or string colour name for the pixel to be filtered.
+---@param operation FilterWithNumber
+---@param options number
+---@return integer rgb BBGGRR color code.
+function FilterPixel(pixel, operation, options) end
+
+---This applies the specified filtering operation to the pixel supplied (an RGB code).
+---
+---This does largely the same thing as [`WindowFilter`](lua://WindowFilter), except it operates on a single pixel (that is, a single RGB colour). This does the same operations (with the same codes as for [`WindowFilter`](lua://WindowFilter)) excepting the ones which require more than one pixel (like Blur, Sharpen, Find Edges, and Emboss).
+---@param pixel integer|string Integer BBGGRR colour code, string hex code, or string colour name for the pixel to be filtered.
+---@param operation
+---| 19 # (miniwin.filter_grayscale) Convert to grayscale - mix red/green/blue equally
+---| 20 # (miniwin.filter_normal_grayscale) Convert to grayscale - mix 30% red + 59% green + 11% blue for normal perception
+---| 27 # (miniwin.filter_average) Average - the entire rectangle is set to its average colour
+---@return integer rgb BBGGRR color code.
+function FilterPixel(pixel, operation, options) end
+
+
+
 ---This draws an arc from `x1`,`y1` to `x2`,`y2` with the designated pen.
 ---
 ---`left`, `top`, `right`, `bottom` — describes the rectangle into which the arc must fit.
@@ -320,11 +394,7 @@ function WindowDrawImageAlpha(windowName, imageID, left, top, right, bottom, opa
 ---@param top number
 ---@param right number
 ---@param bottom number
----@param filter
----| 7 # (miniwin.filter_brightness) Adjust Brightness - by adding Options to each pixel
----| 10 # (miniwin.filter_red_brightness) Adjust Brightness for red channel only - by adding Options to each pixel
----| 13 # (miniwin.filter_green_brightness) Adjust Brightness for green channel only - by adding Options to each pixel
----| 16 # (miniwin.filter_blue_brightness) Adjust Brightness for blue channel only - by adding Options to each pixel
+---@param filter FilterWithInt
 ---@param option integer
 ---@return error_code code #
 ---`error_code.eNoSuchWindow`: No such miniwindow.\
@@ -340,21 +410,7 @@ function WindowFilter(windowName, left, top, right, bottom, filter, option) end
 ---@param top number
 ---@param right number
 ---@param bottom number
----@param filter
----| 1 # (miniwin.filter_noise) Apply colour noise
----| 2 # (miniwin.filter_monochrome_noise) Apply monochrome noise
----| 8 # (miniwin.filter_contrast) Adjust Contrast
----| 9 # (miniwin.filter_gamma) Adjust Gamma
----| 11 # (miniwin.filter_red_contrast) Adjust Contrast for red channel only
----| 12 # (miniwin.filter_red_gamma) Adjust Gamma for red channel only
----| 14 # (miniwin.filter_green_contrast) Adjust Contrast for green channel only
----| 15 # (miniwin.filter_green_gamma) Adjust Gamma for green channel only
----| 17 # (miniwin.filter_blue_contrast) Adjust Contrast for blue channel only
----| 18 # (miniwin.filter_blue_gamma) Adjust Gamma for blue channel only
----| 21 # (miniwin.filter_brightness_multiply) Adjust Brightness - by multiplying Options by each pixel
----| 22 # (miniwin.filter_red_brightness_multiply) Adjust Brightness for red channel only - by multiplying Options by each pixel
----| 23 # (miniwin.filter_green_brightness_multiply) Adjust Brightness for green channel only - by multiplying Options by each pixel
----| 24 # (miniwin.filter_blue_brightness_multiply) Adjust Brightness for blue channel only - by multiplying Options by each pixel
+---@param filter FilterWithNumber
 ---@param option number
 ---@return error_code code #
 ---`error_code.eNoSuchWindow`: No such miniwindow.\
@@ -370,16 +426,7 @@ function WindowFilter(windowName, left, top, right, bottom, filter, option) end
 ---@param top number
 ---@param right number
 ---@param bottom number
----@param filter
----| 3 # (miniwin.filter_blur) Blur - by comparing 2 pixels on each side
----| 4 # (miniwin.filter_sharpen) Sharpen
----| 5 # (miniwin.filter_find_edges) Find edges
----| 6 # (miniwin.filter_emboss) Emboss
----| 19 # (miniwin.filter_grayscale) Convert to grayscale - mix red/green/blue equally
----| 20 # (miniwin.filter_normal_grayscale) Convert to grayscale - mix 30% red + 59% green + 11% blue for normal perception
----| 25 # (miniwin.filter_lesser_blur) Lesser Blur - by comparing 1 pixel on each side
----| 26 # (miniwin.filter_minor_blur) Minor Blur - by comparing 1 pixel on each side, taking a smaller amount
----| 27 # (miniwin.filter_average) Average - the entire rectangle is set to its average colour
+---@param filter FilterWithNone
 ---@return error_code code #
 ---`error_code.eNoSuchWindow`: No such miniwindow.\
 ---`error_code.eUnknownOption`: Filter mode not in the list above.\

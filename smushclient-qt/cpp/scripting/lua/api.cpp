@@ -1,4 +1,5 @@
 #include "api.h"
+#include "../../image.h"
 #include "../miniwindow/imagefilters.h"
 #include "../qlua.h"
 #include "../scriptapi.h"
@@ -2715,6 +2716,105 @@ L_SetVariable(lua_State* L)
 // window
 
 int
+L_BlendPixel(lua_State* L)
+{
+  expectMaxArgs(L, 4);
+  const QColor blend = getQColor(L, 1);
+  const QColor base = getQColor(L, 2);
+  const optional<BlendMode> mode = getEnum<BlendMode>(L, 3);
+  const lua_Number opacity = getNumber(L, 4);
+  if (!mode) {
+    push(L, -1);
+    return 1;
+  }
+  if (opacity < 0 || opacity > 1) {
+    push(L, -2);
+    return 1;
+  }
+  push(L, ScriptApi::BlendPixel(blend, base, *mode, opacity));
+  return 1;
+}
+
+int
+pushPixel(lua_State* L, const QPixmap& pixmap, const ImageFilter& filter)
+{
+  push(L, filter.apply(pixmap).pixel({}));
+  return 1;
+}
+
+int
+L_FilterPixel(lua_State* L)
+{
+  BENCHMARK
+  using ImageFilter::ColorChannel::Blue;
+  using ImageFilter::ColorChannel::Green;
+  using ImageFilter::ColorChannel::Red;
+  expectMaxArgs(L, 3);
+  const QColor color = getQColor(L, 1);
+  const optional<FilterOp> filterOp = getEnum<FilterOp>(L, 2);
+  if (!filterOp) {
+    push(L, -1);
+    return 1;
+  }
+  const QPixmap p = image::colorPixel(color);
+  switch (*filterOp) {
+    case FilterOp::Noise:
+      return pushPixel(L, p, ImageFilter::Noise(getNumber(L, 3)));
+    case FilterOp::MonoNoise:
+      return pushPixel(L, p, ImageFilter::MonoNoise(getNumber(L, 3)));
+    case FilterOp::BrightnessAdd:
+      return pushPixel(L, p, ImageFilter::BrightnessAdd(getInt(L, 3)));
+    case FilterOp::Contrast:
+      return pushPixel(L, p, ImageFilter::Contrast(getNumber(L, 3)));
+    case FilterOp::Gamma:
+      return pushPixel(L, p, ImageFilter::Gamma(getNumber(L, 3)));
+    case FilterOp::RedBrightnessAdd:
+      return pushPixel(L, p, ImageFilter::BrightnessAdd(getInt(L, 3), Red));
+    case FilterOp::RedContrast:
+      return pushPixel(L, p, ImageFilter::Contrast(getNumber(L, 3), Red));
+    case FilterOp::RedGamma:
+      return pushPixel(L, p, ImageFilter::Gamma(getNumber(L, 3), Red));
+    case FilterOp::GreenBrightnessAdd:
+      return pushPixel(L, p, ImageFilter::BrightnessAdd(getInt(L, 3), Green));
+    case FilterOp::GreenContrast:
+      return pushPixel(L, p, ImageFilter::Contrast(getNumber(L, 3), Green));
+    case FilterOp::GreenGamma:
+      return pushPixel(L, p, ImageFilter::Gamma(getNumber(L, 3), Green));
+    case FilterOp::BlueBrightnessAdd:
+      return pushPixel(L, p, ImageFilter::BrightnessAdd(getInt(L, 3), Blue));
+    case FilterOp::BlueContrast:
+      return pushPixel(L, p, ImageFilter::Contrast(getNumber(L, 3), Blue));
+    case FilterOp::BlueGamma:
+      return pushPixel(L, p, ImageFilter::Gamma(getNumber(L, 3), Blue));
+    case FilterOp::GrayscaleLinear:
+      return pushPixel(L, p, ImageFilter::GrayscaleLinear());
+    case FilterOp::GrayscalePerceptual:
+      return pushPixel(L, p, ImageFilter::GrayscalePerceptual());
+    case FilterOp::BrightnessMult:
+      return pushPixel(L, p, ImageFilter::BrightnessMult(getNumber(L, 3)));
+    case FilterOp::RedBrightnessMult:
+      return pushPixel(L, p, ImageFilter::BrightnessMult(getNumber(L, 3), Red));
+    case FilterOp::GreenBrightnessMult:
+      return pushPixel(
+        L, p, ImageFilter::BrightnessMult(getNumber(L, 3), Green));
+    case FilterOp::BlueBrightnessMult:
+      return pushPixel(
+        L, p, ImageFilter::BrightnessMult(getNumber(L, 3), Blue));
+    case FilterOp::Average:
+      push(L, color);
+      return 1;
+    case FilterOp::Blur:
+    case FilterOp::Sharpen:
+    case FilterOp::EdgeDetect:
+    case FilterOp::Emboss:
+    case FilterOp::LesserBlur:
+    case FilterOp::MinorBlur:
+      push(L, -1);
+      return 1;
+  }
+}
+
+int
 L_WindowArc(lua_State* L)
 {
   BENCHMARK
@@ -3455,27 +3555,26 @@ L_WindowScrollwheelHandler(lua_State* L)
       Hotspot::CallbacksPartial{ .scroll = string(getString(L, 3, "")) }));
 }
 
-// noop
+// stub
 
-#define NOOP(name, op)                                                         \
+#define STUB(name, op)                                                         \
   int name(lua_State* L)                                                       \
   {                                                                            \
     (op);                                                                      \
     return 1;                                                                  \
   }
 
-NOOP(L_noop_echo, lua_pushvalue(L, 1));
-NOOP(L_noop_empty, lua_createtable(L, 0, 0));
-NOOP(L_noop_false, push(L, false));
-NOOP(L_noop_neg, push(L, -1));
-NOOP(L_noop_nil, lua_pushnil(L));
-NOOP(L_noop_ok, push(L, ApiCode::OK));
-NOOP(L_noop_spellcheck, push(L, ApiCode::SpellCheckNotActive));
-NOOP(L_noop_string, lua_pushlstring(L, "", 0));
-NOOP(L_noop_zero, push(L, 0));
+STUB(L_stub_empty, lua_createtable(L, 0, 0));
+STUB(L_stub_false, push(L, false));
+STUB(L_stub_neg, push(L, -1));
+STUB(L_stub_nil, lua_pushnil(L));
+STUB(L_stub_ok, push(L, ApiCode::OK));
+STUB(L_stub_spellcheck, push(L, ApiCode::SpellCheckNotActive));
+STUB(L_stub_string, lua_pushlstring(L, "", 0));
+STUB(L_stub_zero, push(L, 0));
 
 int
-L_noop_void(lua_State* /* L */)
+L_stub_void(lua_State* /* L */)
 {
   return 0;
 }
@@ -3728,6 +3827,8 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "SetEntity", L_SetEntity },
     { "SetVariable", L_SetVariable },
     // window
+    { "BlendPixel", L_BlendPixel },
+    { "FilterPixel", L_FilterPixel },
     { "WindowArc", L_WindowArc },
     { "WindowBlendImage", L_WindowBlendImage },
     { "WindowCircleOp", L_WindowCircleOp },
@@ -3772,70 +3873,68 @@ static constexpr const struct luaL_Reg worldlib[] =
     { "WindowMoveHotspot", L_WindowMoveHotspot },
     { "WindowScrollwheelHandler", L_WindowScrollwheelHandler },
     // stubs
-    { "Accelerator", L_noop_ok },
-    { "AcceleratorList", L_noop_empty },
-    { "AcceleratorTo", L_noop_ok },
-    { "AddMapperComment", L_noop_ok },
-    { "AddSpellCheckWord", L_noop_spellcheck },
-    { "AddToMapper", L_noop_ok },
-    { "BlendPixel", L_noop_echo },
-    { "Bookmark", L_noop_void },
-    { "Debug", L_noop_nil },
-    { "DeleteAllMapItems", L_noop_ok },
-    { "DeleteLastMapItem", L_noop_ok },
-    { "DoCommand", L_noop_ok },
-    { "FilterPixel", L_noop_echo },
-    { "FlashIcon", L_noop_void },
-    { "GetCustomColourBackground", L_noop_zero },
-    { "GetCustomColourName", L_noop_string },
-    { "GetInternalCommandList", L_noop_empty },
-    { "GetMapping", L_noop_false },
-    { "GetMappingCount", L_noop_zero },
-    { "GetMappingItem", L_noop_nil },
-    { "GetMappingString", L_noop_string },
-    { "GetNoteColour", L_noop_neg },
-    { "GetNotes", L_noop_string },
-    { "GetRemoveBacktracks", L_noop_false },
-    { "GetRemoveMapReverses", L_noop_false },
-    { "GetScriptTime", L_noop_zero },
-    { "GetTrace", L_noop_false },
-    { "GetUdpPort", L_noop_zero },
-    { "Help", L_noop_void },
-    { "Info", L_noop_void },
-    { "InfoBackground", L_noop_void },
-    { "InfoClear", L_noop_void },
-    { "InfoColour", L_noop_void },
-    { "InfoFont", L_noop_void },
-    { "Mapping", L_noop_false },
-    { "MoveMainWindow", L_noop_void },
-    { "MoveNotepadWindow", L_noop_false },
-    { "MoveWorldWindow", L_noop_void },
-    { "MoveWorldWindowX", L_noop_void },
-    { "ReadNamesFile", L_noop_ok },
-    { "Redraw", L_noop_void },
-    { "Repaint", L_noop_void },
-    { "ResetIP", L_noop_void },
-    { "SetCustomColourBackground", L_noop_void },
-    { "SetCustomColourName", L_noop_ok },
-    { "SetCustomColourText", L_noop_void },
-    { "SetFrameBackgroundColour", L_noop_void },
-    { "SetMapping", L_noop_void },
-    { "SetNoteColour", L_noop_void },
-    { "SetNotes", L_noop_void },
-    { "SetRemoveBacktracks", L_noop_void },
-    { "SetRemoveMapReverses", L_noop_void },
-    { "SetToolBarPosition", L_noop_ok },
-    { "SetTrace", L_noop_void },
-    { "SetUnseenLines", L_noop_void },
-    { "ShiftTabCompleteItem", L_noop_ok },
-    { "ShowInfoBar", L_noop_void },
-    { "SpellCheck", L_noop_nil },
-    { "SpellCheckCommand", L_noop_spellcheck },
-    { "SpellCheckDlg", L_noop_nil },
-    { "TraceOut", L_noop_void },
-    { "TranslateDebug", L_noop_ok },
-    { "Transparency", L_noop_false },
-    { "WindowBezier", L_noop_ok },
+    { "Accelerator", L_stub_ok },
+    { "AcceleratorList", L_stub_empty },
+    { "AcceleratorTo", L_stub_ok },
+    { "AddMapperComment", L_stub_ok },
+    { "AddSpellCheckWord", L_stub_spellcheck },
+    { "AddToMapper", L_stub_ok },
+    { "Bookmark", L_stub_void },
+    { "Debug", L_stub_nil },
+    { "DeleteAllMapItems", L_stub_ok },
+    { "DeleteLastMapItem", L_stub_ok },
+    { "DoCommand", L_stub_ok },
+    { "FlashIcon", L_stub_void },
+    { "GetCustomColourBackground", L_stub_zero },
+    { "GetCustomColourName", L_stub_string },
+    { "GetInternalCommandList", L_stub_empty },
+    { "GetMapping", L_stub_false },
+    { "GetMappingCount", L_stub_zero },
+    { "GetMappingItem", L_stub_nil },
+    { "GetMappingString", L_stub_string },
+    { "GetNoteColour", L_stub_neg },
+    { "GetNotes", L_stub_string },
+    { "GetRemoveBacktracks", L_stub_false },
+    { "GetRemoveMapReverses", L_stub_false },
+    { "GetScriptTime", L_stub_zero },
+    { "GetTrace", L_stub_false },
+    { "GetUdpPort", L_stub_zero },
+    { "Help", L_stub_void },
+    { "Info", L_stub_void },
+    { "InfoBackground", L_stub_void },
+    { "InfoClear", L_stub_void },
+    { "InfoColour", L_stub_void },
+    { "InfoFont", L_stub_void },
+    { "Mapping", L_stub_false },
+    { "MoveMainWindow", L_stub_void },
+    { "MoveNotepadWindow", L_stub_false },
+    { "MoveWorldWindow", L_stub_void },
+    { "MoveWorldWindowX", L_stub_void },
+    { "ReadNamesFile", L_stub_ok },
+    { "Redraw", L_stub_void },
+    { "Repaint", L_stub_void },
+    { "ResetIP", L_stub_void },
+    { "SetCustomColourBackground", L_stub_void },
+    { "SetCustomColourName", L_stub_ok },
+    { "SetCustomColourText", L_stub_void },
+    { "SetFrameBackgroundColour", L_stub_void },
+    { "SetMapping", L_stub_void },
+    { "SetNoteColour", L_stub_void },
+    { "SetNotes", L_stub_void },
+    { "SetRemoveBacktracks", L_stub_void },
+    { "SetRemoveMapReverses", L_stub_void },
+    { "SetToolBarPosition", L_stub_ok },
+    { "SetTrace", L_stub_void },
+    { "SetUnseenLines", L_stub_void },
+    { "ShiftTabCompleteItem", L_stub_ok },
+    { "ShowInfoBar", L_stub_void },
+    { "SpellCheck", L_stub_nil },
+    { "SpellCheckCommand", L_stub_spellcheck },
+    { "SpellCheckDlg", L_stub_nil },
+    { "TraceOut", L_stub_void },
+    { "TranslateDebug", L_stub_ok },
+    { "Transparency", L_stub_false },
+    { "WindowBezier", L_stub_ok },
 
     { nullptr, nullptr } };
 

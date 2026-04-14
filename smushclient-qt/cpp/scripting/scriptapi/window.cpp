@@ -33,6 +33,20 @@ using std::vector;
     return {};                                                                 \
   }
 
+// Public static methods
+
+QColor
+ScriptApi::BlendPixel(const QColor& blend,
+                      const QColor& base,
+                      BlendMode mode,
+                      qreal opacity)
+{
+  QPixmap blendPixel = image::colorPixel(blend);
+  QPixmap basePixel = image::colorPixel(base);
+  image::blend(basePixel, blendPixel, {}, mode, opacity);
+  return basePixel.toImage().pixelColor({ 0, 0 });
+}
+
 // Public methods
 
 ApiCode
