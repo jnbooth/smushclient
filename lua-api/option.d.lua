@@ -112,7 +112,6 @@
 ---| "default_alias_send_to"
 ---| "default_alias_sequence"
 ---| "default_timer_send_to"
----| "echo_colour"
 ---| "fade_output_buffer_after_seconds"
 ---| "fade_output_opacity_percent"
 ---| "fade_output_seconds"
@@ -189,8 +188,6 @@
 ---| "send_to_world_line_postamble"
 ---| "send_to_world_line_preamble"
 ---| "spam_message"
----| "speed_walk_filler"
----| "speed_walk_prefix"
 ---| "tab_completion_defaults"
 ---| "timestamp_input"
 ---| "timestamp_notes"
@@ -242,6 +239,7 @@
 
 ---@alias WorldOptionInt
 ---| "connect_method" # 0 - 3
+---| "echo_colour"
 ---| "hyperlink_colour"
 ---| "indent_paras"
 ---| "mxp_debug_level" # 0 - 4
@@ -270,6 +268,8 @@
 ---| "player"
 ---| "proxy_username"
 ---| "site"
+---| "speed_walk_filler"
+---| "speed_walk_prefix"
 ---| "terminal_identification"
 
 ---@alias WorldOptionStringSecure
