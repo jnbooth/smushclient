@@ -180,7 +180,7 @@ private:
   QSslSocket* socket;
 #endif
   int sessionStartBlock = 0;
-  QChar speedWalkPrefix{ 0 };
+  QChar speedWalkPrefix{ 255 };
   QChar splitOn{ u'\n' };
   QString worldName;
   QString worldScriptPath;

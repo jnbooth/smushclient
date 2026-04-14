@@ -377,7 +377,7 @@ WorldTab::saveWorldAsNew(const QString& path, bool separate)
 bool
 WorldTab::sendCommand(const QString& command, CommandSource source)
 {
-  if (speedWalkPrefix != u'\0' && command.startsWith(speedWalkPrefix)) {
+  if (speedWalkPrefix != QChar{ 255 } && command.startsWith(speedWalkPrefix)) {
     try {
       api->enqueueCommand(client.tryEvaluateSpeedwalk(command.sliced(1)), true);
     } catch (const rust::Error& e) {
@@ -1093,6 +1093,15 @@ void
 WorldTab::on_input_submitted(const QString& input)
 {
   ui->output->verticalScrollBar()->setPaused(false);
+
+  if (input.startsWith(u'/')) {
+    if (Plugin* plugin = api->worldPlugin(); plugin) {
+      if (plugin->runScript(input.sliced(1).toUtf8())) {
+        ui->input->clear();
+      }
+    }
+    return;
+  }
 
   const QStringList commands = splitCommands(input);
 

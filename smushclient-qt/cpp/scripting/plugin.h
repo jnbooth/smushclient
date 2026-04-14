@@ -36,6 +36,10 @@ public:
   bool runCallbackThreaded(PluginCallback& callback) const;
   bool runFile(const QString& path) const;
   bool runScript(QByteArrayView script, const char* name) const;
+  bool runScript(const QByteArray& script) const
+  {
+    return runScript(script, script.data());
+  }
   void setEnabled(bool enable = true) noexcept;
   ScriptThread spawnThread() const;
   lua_State* state() const noexcept { return Lptr.get(); }

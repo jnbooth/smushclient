@@ -270,17 +270,17 @@ ScriptApi::printError(const QString& message)
 void
 ScriptApi::reloadWorldScript(const QString& worldScriptPath)
 {
-  if (worldScriptIndex == noSuchPlugin) {
+  Plugin* plugin = worldPlugin();
+  if (plugin == nullptr) {
     return;
   }
-  Plugin& worldPlugin = plugins[worldScriptIndex];
-  worldPlugin.reset();
+  plugin->reset();
 
   if (worldScriptPath.isEmpty()) {
     return;
   }
 
-  if (!worldPlugin.runFile(worldScriptPath)) {
+  if (!plugin->runFile(worldScriptPath)) {
     setPluginEnabled(worldScriptIndex, false);
   }
 }

@@ -662,7 +662,7 @@ public:
   }
   bool runScript(size_t plugin, const QByteArray& script) const
   {
-    return plugins[plugin].runScript(script, script.data());
+    return plugins[plugin].runScript(script);
   }
   void runScriptsAfterOmit();
   QTextCursor selectRecentLines(int count) const;
@@ -689,6 +689,11 @@ public:
   void stackWindow(std::string_view windowName, MiniWindow& window) const;
   bool startCommandQueueTimer();
   MudStatusBar* statusBar() const noexcept { return statusBarPtr.get(); }
+  Plugin* worldPlugin() noexcept
+  {
+    return worldScriptIndex == noSuchPlugin ? nullptr
+                                            : &plugins[worldScriptIndex];
+  }
 
   std::vector<Plugin>::const_iterator cbegin() const noexcept
   {

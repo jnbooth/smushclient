@@ -53,7 +53,7 @@ impl ffi::SmushClient {
         if world.enable_speed_walk {
             world.speed_walk_prefix
         } else {
-            b'\0'
+            255
         }
         .into()
     }
