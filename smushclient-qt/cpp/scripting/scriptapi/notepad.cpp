@@ -2,7 +2,7 @@
 #include "../scriptapi.h"
 
 #define TRY_NOTEPAD(name)                                                      \
-  notepads.findNotepad(worldID, name);                                         \
+  notepads.findNotepad(worldID, (name));                                       \
   if (notepad == nullptr) [[unlikely]] {                                       \
     return {};                                                                 \
   }

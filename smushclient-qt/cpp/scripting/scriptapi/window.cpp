@@ -17,13 +17,13 @@ using std::vector;
 // Private utils
 
 #define TRY_WINDOW(windowName)                                                 \
-  findWindow(windowName);                                                      \
+  findWindow((windowName));                                                    \
   if (window == nullptr) [[unlikely]] {                                        \
     return ApiCode::NoSuchWindow;                                              \
   }
 
 #define TRY_PIXMAP(window, imageID)                                            \
-  window->findImage(imageID);                                                  \
+  (window)->findImage((imageID));                                              \
   if (pixmap == nullptr) [[unlikely]] {                                        \
     return ApiCode::ImageNotInstalled;                                         \
   }

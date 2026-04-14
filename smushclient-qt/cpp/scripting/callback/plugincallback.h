@@ -12,11 +12,11 @@ struct lua_State;
   }                                                                            \
   constexpr const char* name() const noexcept override                         \
   {                                                                            \
-    return nameString;                                                         \
+    return (nameString);                                                       \
   }                                                                            \
   constexpr ActionSource source() const noexcept override                      \
   {                                                                            \
-    return sourceAction;                                                       \
+    return (sourceAction);                                                     \
   }
 
 // Abstract

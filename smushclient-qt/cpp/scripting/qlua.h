@@ -235,7 +235,7 @@ IMPL_PUSH(rust::variable_view);
 #define IMPL_PUSH(T, f, expr)                                                  \
   inline void push(lua_State* L, T value)                                      \
   {                                                                            \
-    f(L, expr);                                                                \
+    (f)(L, (expr));                                                            \
   }
 
 IMPL_PUSH(lua_Integer, lua_pushinteger, value);

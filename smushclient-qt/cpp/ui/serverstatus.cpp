@@ -38,9 +38,9 @@ isHiddenVariable(KnownVariable variable) noexcept
 QString
 variableName(KnownVariable variable)
 {
-#define KNOWN(VALUE, NAME)                                                     \
-  case KnownVariable::VALUE:                                                   \
-    return QStringLiteral(NAME);
+#define KNOWN(value, name)                                                     \
+  case KnownVariable::value:                                                   \
+    return QStringLiteral(name);
 
   switch (variable) {
     KNOWN(Unknown, "");

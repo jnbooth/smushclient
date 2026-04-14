@@ -18,28 +18,28 @@ template <> struct SettingInput<QStringList> { using Type = const QStringList &;
 template <> struct SettingInput<QVariant>    { using Type = const QVariant&; };
 // clang-format on
 
-#define SETTING(NAME, T, DEFAULT, KEY)                                         \
-  static const QString key##NAME = QStringLiteral(KEY);                        \
-  void Settings::set##NAME(SettingInput<T>::Type value)                        \
+#define SETTING(name, T, defaultValue, keyLiteral)                             \
+  static const QString key##name = QStringLiteral(keyLiteral);                 \
+  void Settings::set##name(SettingInput<T>::Type value)                        \
   {                                                                            \
-    store.setValue(key##NAME, value);                                          \
+    store.setValue(key##name, value);                                          \
   }                                                                            \
-  T Settings::get##NAME() const                                                \
+  T Settings::get##name() const                                                \
   {                                                                            \
-    return store.contains(key##NAME) ? store.value(key##NAME).value<T>()       \
-                                     : (DEFAULT);                              \
+    return store.contains(key##name) ? store.value(key##name).value<T>()       \
+                                     : (defaultValue);                         \
   }
 
-#define SETTING_ENUM(NAME, T, DEFAULT, KEY)                                    \
-  static const QString key##NAME = QStringLiteral(KEY);                        \
-  void Settings::set##NAME(SettingInput<T>::Type value)                        \
+#define SETTING_ENUM(name, T, defaultValue, keyLiteral)                        \
+  static const QString key##name = QStringLiteral(keyLiteral);                 \
+  void Settings::set##name(SettingInput<T>::Type value)                        \
   {                                                                            \
-    store.setValue(key##NAME, (int)value);                                     \
+    store.setValue(key##name, (int)value);                                     \
   }                                                                            \
-  T Settings::get##NAME() const                                                \
+  T Settings::get##name() const                                                \
   {                                                                            \
-    return store.contains(key##NAME) ? (T)store.value(key##NAME).value<T>()    \
-                                     : (DEFAULT);                              \
+    return store.contains(key##name) ? (T)store.value(key##name).value<T>()    \
+                                     : (defaultValue);                         \
   }
 
 // Private utils
@@ -218,15 +218,9 @@ SETTING(ConfirmQuit, bool, false, "closing/app");
 SETTING(DisplayConnect, bool, true, "connecting/display/connect");
 SETTING(DisplayDisconnect, bool, true, "connecting/display/disconnect");
 
-SETTING(InputBackground,
-        QColor,
-        QColor(Qt::GlobalColor::white),
-        "input/background");
+SETTING(InputBackground, QColor, Qt::white, "input/background");
 SETTING(InputFont, QFont, getDefaultFont(12), "input/font");
-SETTING(InputForeground,
-        QColor,
-        QColor(Qt::GlobalColor::black),
-        "input/foreground");
+SETTING(InputForeground, QColor, Qt::black, "input/foreground");
 SETTING(InputHistoryLimit, bool, true, "input/history/limit");
 SETTING(InputHistoryLines, int, 100, "input/history/lines");
 
@@ -235,14 +229,8 @@ SETTING(LastFiles, QStringList, QStringList(), "startup/reopen");
 SETTING(LoggingEnabled, bool, true, "logging/enable");
 
 SETTING(NotepadFont, QFont, getDefaultFont(12), "notepad/font");
-SETTING(NotepadBackground,
-        QColor,
-        QColor(Qt::GlobalColor::white),
-        "notepad/background");
-SETTING(NotepadForeground,
-        QColor,
-        QColor(Qt::GlobalColor::black),
-        "notepad/foreground");
+SETTING(NotepadBackground, QColor, Qt::white, "notepad/background");
+SETTING(NotepadForeground, QColor, Qt::black, "notepad/foreground");
 
 SETTING(OpenAtStartup, QStringList, QStringList(), "startup/list");
 

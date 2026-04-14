@@ -3463,7 +3463,7 @@ L_WindowScrollwheelHandler(lua_State* L)
 #define NOOP(name, op)                                                         \
   int name(lua_State* L)                                                       \
   {                                                                            \
-    op;                                                                        \
+    (op);                                                                      \
     return 1;                                                                  \
   }
 
