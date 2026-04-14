@@ -81,7 +81,7 @@ function ExportXML(type, name) end
 ---<script
 ---```
 ---
----In other words, to import a trigger you should start with <triggers>. You can import more than one type of thing, eg.
+---In other words, to import a trigger you should start with `<triggers>`. You can import more than one type of thing, eg.
 ---
 ---```xml
 ---<triggers> ... </triggers> <aliases> ... </aliases>
@@ -93,7 +93,7 @@ function ExportXML(type, name) end
 ---
 ---Note that duplicate items are replaced by `ImportXML` - so if you already have a trigger / alias / timer of the same name, it will be replaced.
 ---@param xml string
----@return integer imported If sucessful, the number of items imported, which might be zero if the syntax was OK, but nothing was actually added, eg. "<triggers></triggers>" would parse OK but not add anything.
+---@return integer imported If sucessful, the number of items imported, which might be zero if the syntax was OK, but nothing was actually added, eg. `"<triggers></triggers>"` would parse OK but not add anything.
 ---
 ---If unsuccessful, returns a negative number as follows:\
 ----1: Invalid text.
