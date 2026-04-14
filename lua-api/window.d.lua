@@ -127,6 +127,7 @@ function FilterPixel(pixel, operation, options) end
 function WindowArc(windowName, left, top, right, bottom, x1, y1, x2, y2, penColour, penStyle, penWidth) end
 
 
+---Draws one or more Bézier splines. This function draws cubic Bézier splines by using the endpoints and control points specified by the *points* parameter. The first spline is drawn from the first point to the fourth point by using the second and third points as control points. Each subsequent spline in the sequence needs exactly three more points: the end point of the previous spline is used as the starting point, the next two points in the sequence are control points, and the third is the end point.
 ---@param windowName string The name of an existing miniwindow.
 ---@param points string|[number,number][] Either an array of points or a string consisting of pairs of numbers (integers or floating-point), one for each point, in the format x1,y1,x2,y2 ...
 ---
@@ -135,7 +136,12 @@ function WindowArc(windowName, left, top, right, bottom, x1, y1, x2, y2, penColo
 ---You must have at least 4 points (the start, and 3 points per spline), which is 8 numbers. The number of numbers in the string must be even (divisible by two), as it takes a pair of numbers to specify one point. Also, since you need 3 points per spline, the number of numbers in the Points string must have a remainder of 2 when divided by 6 (3 points per spline, plus the start point).
 ---@param penColour integer|string Integer BBGGRR colour code, string hex code, or string colour name.
 ---@param penStyle WindowPenStyle See [`WindowPenStyle`](lua://WindowPenStyle).
----@param penWidth number Pen width in pixels.
+---@param penWidth number Pen width in pixels
+---@return error_code code #
+---eNoSuchWindow: No such miniwindow.\
+---ePenStyleNotValid: Invalid pen style.\
+---eInvalidNumberOfPoints: Number of numbers supplied does not give a remainder of 2 after dividing by 6, or is less than 8.\
+---eOK - completed OK
 function WindowBezier(windowName, points, penColour, penStyle, penWidth) end
 
 
