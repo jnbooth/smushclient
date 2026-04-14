@@ -17,9 +17,5 @@ struct OutputLayout
   QByteArray save() const;
 };
 
-inline QDataStream&
-operator>>(QDataStream& stream, OutputLayout& layout)
-{
-  return stream >> layout.margins >> layout.borderOffset >>
-         layout.borderColor >> layout.borderWidth >> layout.outsideFill;
-}
+QDataStream&
+operator>>(QDataStream& stream, OutputLayout& layout);

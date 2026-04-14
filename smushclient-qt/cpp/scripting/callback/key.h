@@ -8,13 +8,10 @@ public:
   constexpr PluginCallbackKey(std::string_view routine) noexcept
     : name(routine)
   {
-    const size_t n = routine.find('.');
-    if (n == std::string_view::npos) {
-      return;
+    if (size_t n = routine.find('.'); n != std::string_view::npos) {
+      name = routine.substr(0, n);
+      property = routine.substr(n + 1);
     }
-
-    name = routine.substr(0, n);
-    property = routine.substr(n + 1);
   }
 
   constexpr PluginCallbackKey(const std::string& routine) noexcept

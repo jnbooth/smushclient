@@ -1901,8 +1901,7 @@ L_CallPlugin(lua_State* L)
     lua_settop(L, 0);
     push(L, ApiCode::ErrorCallingPluginRoutine);
     push(L, fmtCallError(plugin, routine));
-    size_t size = 0;
-    lua_pushlstring(L, lua_tolstring(L2, -1, &size), size);
+    copyValue(L2, L, -1);
     return 3;
   }
 
@@ -2591,8 +2590,6 @@ int
 L_PlaySound(lua_State* L)
 {
   BENCHMARK
-  // lua_Integer PlaySound(short Buffer, BSTR FileName, BOOL Loop, double
-  // Volume, double Pan);
   expectMaxArgs(L, 5);
   return returnCode(L,
                     getApi(L).PlaySound(getInteger(L, 1),

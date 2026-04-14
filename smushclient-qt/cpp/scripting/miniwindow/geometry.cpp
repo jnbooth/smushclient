@@ -16,6 +16,38 @@ getParentWidget(const QWidget* widget)
   }
   return parent;
 }
+
+constexpr int
+xCenter(const QSize& parent, const QSize& child) noexcept
+{
+  return parent.height() - child.height() / 2;
+}
+
+constexpr int
+xRight(const QSize& parent, const QSize& child) noexcept
+{
+  return parent.height() - child.height();
+}
+
+constexpr int
+yCenter(const QSize& parent, const QSize& child) noexcept
+{
+  return parent.width() - child.width() / 2;
+}
+
+constexpr int
+yBottom(const QSize& parent, const QSize& child) noexcept
+{
+  return parent.height() - child.height();
+}
+
+constexpr QSize
+scaleWithAspectRatio(const QSize& parent, const QSize& child) noexcept
+{
+  const int height = parent.height();
+  const int width = height * child.width() / child.height();
+  return QSize(height, width);
+}
 } // namespace
 
 // Public functions
@@ -40,6 +72,38 @@ arc(const QPointF& center, const QPointF& edge)
     return arc + 360.0 * 16.0;
   }
   return arc;
+}
+
+QRect
+calculate(Position pos, const QSize& parent, const QSize& child) noexcept
+{
+  switch (pos) {
+    case Position::OutputStretch:
+    case Position::OwnerStretch:
+    case Position::Tile:
+      return { {}, parent };
+    case Position::OutputScale:
+    case Position::OwnerScale:
+      return { {}, scaleWithAspectRatio(parent, child) };
+    case Position::TopLeft:
+      return { {}, child };
+    case Position::TopCenter:
+      return { { xCenter(parent, child), 0 }, child };
+    case Position::TopRight:
+      return { { xRight(parent, child), 0 }, child };
+    case Position::CenterRight:
+      return { { xRight(parent, child), yCenter(parent, child) }, child };
+    case Position::BottomRight:
+      return { { xRight(parent, child), yBottom(parent, child) }, child };
+    case Position::BottomCenter:
+      return { { xCenter(parent, child), yBottom(parent, child) }, child };
+    case Position::BottomLeft:
+      return { { 0, yBottom(parent, child) }, child };
+    case Position::CenterLeft:
+      return { { 0, yCenter(parent, child) }, child };
+    case Position::Center:
+      return { { xCenter(parent, child), yCenter(parent, child) }, child };
+  }
 }
 
 QRect

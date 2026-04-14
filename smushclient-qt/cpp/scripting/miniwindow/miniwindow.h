@@ -101,7 +101,6 @@ public:
   void drawEllipse(const QRectF& rect,
                    const QPen& pen,
                    const QBrush& brush = {});
-
   void drawEllipse(const QRectF& rect, const QBrush& brush)
   {
     drawEllipse(rect, Qt::PenStyle::NoPen, brush);
@@ -143,6 +142,7 @@ public:
   {
     drawImage(image, transform, 1, mode);
   }
+
   void drawLine(const QLineF& line, const QPen& pen);
   void drawPolygon(const QPolygonF& polygon,
                    const QPen& pen,

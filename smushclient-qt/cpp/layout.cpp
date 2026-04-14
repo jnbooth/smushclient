@@ -26,3 +26,10 @@ OutputLayout::restore(const QByteArray& data)
     outsideFill;
   return stream.status() == QDataStream::Status::Ok;
 }
+
+QDataStream&
+operator>>(QDataStream& stream, OutputLayout& layout)
+{
+  return stream >> layout.margins >> layout.borderOffset >>
+         layout.borderColor >> layout.borderWidth >> layout.outsideFill;
+}
