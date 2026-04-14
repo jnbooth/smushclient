@@ -92,6 +92,7 @@ getCustomColor(lua_State* L, int idx, optional<QColor> ifNil = nullopt);
 template<typename T>
 optional<T>
 getEnum(lua_State* L, int idx)
+  requires(std::is_enum_v<T>)
 {
   return enum_cast<T>(getInteger(L, idx));
 }
@@ -99,10 +100,9 @@ getEnum(lua_State* L, int idx)
 template<typename T>
 optional<T>
 getEnum(lua_State* L, int idx, T ifNil)
+  requires(std::is_enum_v<T>)
 {
-  const lua_Integer nIfNil = static_cast<lua_Integer>(ifNil);
-  const lua_Integer underlying = getInteger(L, idx, nIfNil);
-  return (underlying == nIfNil) ? ifNil : enum_cast<T>(underlying);
+  return enum_cast<T>(getInteger(L, idx, static_cast<lua_Integer>(ifNil)));
 }
 
 optional<QBrush>
