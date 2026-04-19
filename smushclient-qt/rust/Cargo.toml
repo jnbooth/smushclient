@@ -17,7 +17,7 @@ cxx = { workspace = true }
 cxx-qt = { workspace = true }
 cxx-qt-lib = { workspace = true }
 flagset = { workspace = true }
-log = "0.4.29"
+log = { workspace = true }
 mud-transformer = { workspace = true }
 simple_logger = "5.2.0"
 
@@ -36,8 +36,8 @@ cxx-qt-build = { workspace = true }
 
 [features]
 link_qt_object_files = [
-  "cxx-qt-build/link_qt_object_files",
-  "cxx-qt-lib/link_qt_object_files",
-  "cxx-qt-io/link_qt_object_files",
-  "smushclient-qt-lib/link_qt_object_files",
+    "cxx-qt-build/link_qt_object_files",
+    "cxx-qt-lib/link_qt_object_files",
+    "cxx-qt-io/link_qt_object_files",
+    "smushclient-qt-lib/link_qt_object_files",
 ]

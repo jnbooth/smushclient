@@ -1,3 +1,5 @@
+mod clipboard;
+
 mod log_file;
 
 mod logger;

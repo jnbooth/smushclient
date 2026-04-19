@@ -1616,6 +1616,7 @@ dependencies = [
  "chrono",
  "flagset",
  "html-escape",
+ "log",
  "mud-transformer",
  "postcard",
  "quick-xml",

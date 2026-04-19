@@ -1,6 +1,4 @@
-use std::num::NonZero;
-
-use smushclient_plugins::{Alias, PluginSender, Reaction, Trigger};
+use smushclient_plugins::{Alias, Captures, PluginSender, Reaction, Trigger};
 
 use super::effects::{AliasEffects, SpanStyle, TriggerEffects};
 use crate::world::WorldConfig;
@@ -14,7 +12,7 @@ pub(crate) trait PluginReaction: PluginSender {
     fn reaction(&self) -> &Reaction;
     fn sound(&self) -> Option<&str>;
     fn style(&self) -> SpanStyle;
-    fn clipboard_arg(&self) -> Option<NonZero<u8>>;
+    fn clipboard_text<'a>(&self, captures: &'a Captures) -> Option<&'a str>;
     fn add_effects(&self, effects: &mut Self::Effects);
 }
 
@@ -38,7 +36,7 @@ impl PluginReaction for Alias {
     fn style(&self) -> SpanStyle {
         SpanStyle::null()
     }
-    fn clipboard_arg(&self) -> Option<NonZero<u8>> {
+    fn clipboard_text<'a>(&self, _: &'a Captures) -> Option<&'a str> {
         None
     }
     fn add_effects(&self, effects: &mut Self::Effects) {
@@ -70,8 +68,11 @@ impl PluginReaction for Trigger {
     fn style(&self) -> SpanStyle {
         SpanStyle::from(self)
     }
-    fn clipboard_arg(&self) -> Option<NonZero<u8>> {
-        NonZero::new(self.clipboard_arg)
+    fn clipboard_text<'a>(&self, captures: &'a Captures) -> Option<&'a str> {
+        if self.clipboard_arg == 0 {
+            return None;
+        }
+        Some(captures.get(self.clipboard_arg.into())?.as_str())
     }
     fn add_effects(&self, effects: &mut Self::Effects) {
         effects.add_effects(self);

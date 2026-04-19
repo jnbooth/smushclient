@@ -1,12 +1,12 @@
 [workspace]
 resolver = "2"
 members = [
-  "smushclient",
-  "smushclient-graphics",
-  "smushclient-plugins",
-  "smushclient-qt/rust",
-  "smushclient-qt-lib",
-  "smushclient-swift",
+    "smushclient",
+    "smushclient-graphics",
+    "smushclient-plugins",
+    "smushclient-qt/rust",
+    "smushclient-qt-lib",
+    "smushclient-swift",
 ]
 
 [workspace.package]
@@ -36,6 +36,7 @@ cxx = "1.0.192"
 cxx-qt = "0.8.0"
 cxx-qt-build = "0.8.0"
 cxx-qt-lib = { version = "0.8.0", features = ["chrono", "qt_gui", "uuid"] }
+log = "0.4.29"
 uuid = { version = "1.21", features = ["serde", "v4"] }
 
 [workspace.dependencies.chrono]

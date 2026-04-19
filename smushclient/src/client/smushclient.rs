@@ -6,7 +6,6 @@ use std::io::{self, BufReader, Cursor, Read, Write};
 use std::path::Path;
 use std::{env, iter, mem, slice};
 
-use arboard::Clipboard;
 use flagset::FlagSet;
 use mud_transformer::opt::mxp::RgbColor;
 use mud_transformer::output::{Output, OutputFragment, TelnetFragment};
@@ -20,6 +19,7 @@ use smushclient_plugins::{
 #[cfg(feature = "async")]
 use tokio::io::{AsyncRead, AsyncReadExt};
 
+use super::clipboard::Clipboard;
 use super::info::ClientInfo;
 use super::logger::Logger;
 use super::variables::PluginVariables;
@@ -1078,6 +1078,7 @@ impl SmushClient {
         let mut style = SpanStyle::null();
         let mut has_style = false;
         let mut send_buffer = SendRequestBuffer::new(line, output);
+        let mut clipboard = Clipboard::new();
 
         for (plugin_index, plugin) in self.plugins.iter().enumerate() {
             if plugin.disabled.get() {
@@ -1118,11 +1119,10 @@ impl SmushClient {
                     }
                     if let Some(send_request) = {
                         let sender = sender.borrow();
-                        if let Some(clipboard_arg) = sender.clipboard_arg()
-                            && let Some(capture) = captures.get(clipboard_arg.get().into())
-                            && let Ok(mut clipboard) = Clipboard::new()
+                        if let Some(text) = sender.clipboard_text(&captures)
+                            && let Err(e) = clipboard.set_text(text)
                         {
-                            clipboard.set_text(capture.as_str()).ok();
+                            log::warn!(target: "process_matches.clipboard", "{e}");
                         }
                         send_buffer.send_request(
                             plugin_index,
