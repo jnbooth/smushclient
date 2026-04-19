@@ -31,7 +31,7 @@ use crate::import::{ImportedWorld, Imports};
 use crate::options::{OptionCaller, SetOptionError};
 use crate::plugins::{
     AliasEffects, AliasOutcome, AllSendersIter, CommandSource, LoadFailure, PluginEngine,
-    PluginReaction, SendRequest, SendScriptRequest, SpanStyle, TriggerEffects,
+    PluginReaction, SendRequest, SendRequestBuffer, SendScriptRequest, SpanStyle, TriggerEffects,
 };
 use crate::world::{LogMode, PersistError, World, WorldConfig};
 
@@ -1008,70 +1008,30 @@ impl SmushClient {
     where
         H: Handler,
     {
-        let enable_scripts = self.world.borrow().enable_scripts;
         let plugin = &self.plugins[plugin_index];
+        let enable_scripts = !plugin.metadata.is_world_plugin || self.world.borrow().enable_scripts;
         let aliases = &plugin.aliases;
-        let mut text_buf = String::new();
-        let mut destination_buf = String::new();
-        let (send_request, has_script) = {
-            let alias = match aliases.find(|alias| alias.id == id) {
-                Some(alias) if alias.enabled => alias,
-                _ => return false,
-            };
-            let enable_scripts = !plugin.metadata.is_world_plugin || enable_scripts;
-            let text = alias.expand_text_captureless(&mut text_buf);
-            if alias.send_to == SendTarget::Variable {
-                self.variables.borrow_mut().set_variable(
-                    &plugin.metadata.id,
-                    &alias.variable,
-                    text.as_bytes(),
-                );
-                (None, !alias.script.is_empty())
-            } else if !enable_scripts && alias.send_to.is_script() {
-                (None, !alias.script.is_empty())
-            } else {
-                destination_buf.clone_from(alias.destination());
-                (
-                    Some(SendRequest {
-                        plugin: plugin_index,
-                        send_to: alias.send_to,
-                        echo: !alias.omit_from_output,
-                        log: !alias.omit_from_log,
-                        text,
-                        destination: &destination_buf,
-                    }),
-                    !alias.script.is_empty(),
-                )
+        let mut send_buffer = SendRequestBuffer::new("", &[]);
+        if let Some(send_request) = match aliases.find(|alias| alias.id == id) {
+            Some(alias) if alias.enabled => {
+                send_buffer.send_request(plugin_index, &alias, enable_scripts, None)
             }
-        };
-        if let Some(send_request) = send_request {
+            _ => return false,
+        } {
+            self.handle_send_request(&send_request);
             handler.send(send_request);
         }
-        if !has_script {
+        if !enable_scripts {
             return true;
         }
-        let regex = {
-            // fresh borrow in case the handler changed the reaction's settings
-            let alias = match aliases.find(|alias| alias.id == id) {
-                Some(alias) if alias.enabled => alias,
-                _ => return true,
-            };
-            if alias.script.is_empty() {
-                return true;
+        if let Some(send_script_request) = aliases.find(|alias| alias.id == id).and_then(|alias| {
+            if !alias.enabled {
+                return None;
             }
-            destination_buf.clone_from(&alias.script);
-            text_buf.clone_from(&alias.label);
-            alias.regex.clone()
-        };
-        handler.send_script(SendScriptRequest {
-            plugin: plugin_index,
-            script: &destination_buf,
-            label: &text_buf,
-            line: "",
-            regex: &regex,
-            wildcards: None,
-            output: &[],
-        });
+            send_buffer.send_script_request(plugin_index, &alias)
+        }) {
+            handler.send_script(send_script_request);
+        }
         true
     }
 
@@ -1112,28 +1072,26 @@ impl SmushClient {
         if !T::enabled(&self.world.borrow()) {
             return;
         }
-        {
-            let mut last_match = self.info.last_match.borrow_mut();
-            last_match.clear();
-            last_match.push_str(line);
-        }
-        let mut text_buf = String::new();
-        let mut destination_buf = String::new();
+        line.clone_into(&mut *self.info.last_match.borrow_mut());
         let mut one_shots = HashSet::new();
         let mut can_echo = true;
         let mut style = SpanStyle::null();
         let mut has_style = false;
+        let mut send_buffer = SendRequestBuffer::new(line, output);
 
         for (plugin_index, plugin) in self.plugins.iter().enumerate() {
             if plugin.disabled.get() {
                 continue;
             }
+            let senders = plugin.senders::<T>();
+            if senders.is_empty() {
+                continue;
+            }
             let enable_scripts =
                 !plugin.metadata.is_world_plugin || self.world.borrow().enable_scripts;
-            let senders = plugin.senders::<T>();
             for sender in senders.scan() {
                 let mut matched = false;
-                let (echo_input, regex_rc) = {
+                let (echo_input, regex) = {
                     let sender = sender.borrow();
                     let reaction = sender.reaction();
                     if !reaction.enabled {
@@ -1141,8 +1099,6 @@ impl SmushClient {
                     }
                     (can_echo && sender.echo_input(), reaction.regex.clone())
                 };
-                let regex = &*regex_rc;
-                text_buf.clear();
                 for (i, captures) in regex.captures_iter(line).filter_map(Result::ok).enumerate() {
                     self.info.last_capture.set(i);
                     if !matched {
@@ -1160,7 +1116,7 @@ impl SmushClient {
                     if has_style && let Some(capture) = captures.get(0) {
                         handler.apply_styles(capture.start()..capture.end(), style);
                     }
-                    let send_request = {
+                    if let Some(send_request) = {
                         let sender = sender.borrow();
                         if let Some(clipboard_arg) = sender.clipboard_arg()
                             && let Some(capture) = captures.get(clipboard_arg.get().into())
@@ -1168,30 +1124,14 @@ impl SmushClient {
                         {
                             clipboard.set_text(capture.as_str()).ok();
                         }
-                        let reaction = sender.reaction();
-                        if reaction.send_to == SendTarget::Variable {
-                            self.variables.borrow_mut().set_variable(
-                                &plugin.metadata.id,
-                                &reaction.variable,
-                                reaction.expand_text(&mut text_buf, &captures).as_bytes(),
-                            );
-                            None
-                        } else if !enable_scripts && reaction.send_to.is_script() {
-                            None
-                        } else {
-                            let text = reaction.expand_text(&mut text_buf, &captures);
-                            destination_buf.clone_from(reaction.destination());
-                            Some(SendRequest {
-                                plugin: plugin_index,
-                                send_to: reaction.send_to,
-                                echo: !reaction.omit_from_output,
-                                log: !reaction.omit_from_log,
-                                text,
-                                destination: &destination_buf,
-                            })
-                        }
-                    };
-                    if let Some(send_request) = send_request {
+                        send_buffer.send_request(
+                            plugin_index,
+                            sender.reaction(),
+                            enable_scripts,
+                            Some(&captures),
+                        )
+                    } {
+                        self.handle_send_request(&send_request);
                         handler.send(send_request);
                     }
                     // fresh borrow in case the handler changed the reaction's settings
@@ -1202,27 +1142,18 @@ impl SmushClient {
                 if !matched {
                     continue;
                 }
-                let send_script = enable_scripts && {
-                    let sender = sender.borrow();
-                    let reaction = sender.reaction();
-                    if reaction.script.is_empty() {
-                        false
-                    } else {
-                        destination_buf.clone_from(&reaction.script);
-                        text_buf.clone_from(&reaction.label);
-                        true
-                    }
-                };
-                if send_script {
-                    for captures in regex.captures_iter(line).filter_map(Result::ok) {
+                if enable_scripts
+                    && let Some(send_script_request) =
+                        send_buffer.send_script_request(plugin_index, sender.borrow().reaction())
+                {
+                    for captures in send_script_request
+                        .regex
+                        .captures_iter(send_script_request.line)
+                        .filter_map(Result::ok)
+                    {
                         handler.send_script(SendScriptRequest {
-                            plugin: plugin_index,
-                            script: &destination_buf,
-                            label: &text_buf,
-                            line,
-                            regex,
                             wildcards: Some(captures),
-                            output,
+                            ..send_script_request
                         });
                     }
                 }
@@ -1248,6 +1179,17 @@ impl SmushClient {
                 one_shots.clear();
             }
         }
+    }
+
+    fn handle_send_request(&self, request: &SendRequest) {
+        if request.send_to != SendTarget::Variable {
+            return;
+        }
+        self.variables.borrow_mut().set_variable(
+            &self.plugins[request.plugin].metadata.id,
+            request.destination,
+            request.text.as_bytes(),
+        );
     }
 
     fn update_world_plugins(&mut self) {

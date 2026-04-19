@@ -13,4 +13,4 @@ mod reaction;
 pub(crate) use reaction::PluginReaction;
 
 mod send;
-pub use send::{SendRequest, SendScriptRequest};
+pub use send::{SendRequest, SendRequestBuffer, SendScriptRequest};
