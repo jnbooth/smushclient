@@ -451,8 +451,7 @@ impl SmushClient {
         path: P,
     ) -> Result<(PluginIndex, &Plugin), LoadError> {
         let path = path.as_ref();
-        let path = make_path_relative(path).unwrap_or(path);
-        let index = self.plugins.add_plugin(path)?.0;
+        let index = self.plugins.add_plugin(make_path_relative(path))?.0;
         self.update_world_plugins();
         Ok((index, &self.plugins[index]))
     }
@@ -1092,26 +1091,38 @@ impl SmushClient {
                 !plugin.metadata.is_world_plugin || self.world.borrow().enable_scripts;
             for sender in senders.scan() {
                 let mut matched = false;
-                let (echo_input, regex) = {
+                let mut keep_evaluating = true;
+                let regex = {
                     let sender = sender.borrow();
                     let reaction = sender.reaction();
                     if !reaction.enabled {
                         continue;
                     }
-                    (can_echo && sender.echo_input(), reaction.regex.clone())
+                    reaction.regex.clone()
                 };
                 for (i, captures) in regex.captures_iter(line).filter_map(Result::ok).enumerate() {
                     self.info.last_capture.set(i);
                     if !matched {
                         matched = true;
-                        if echo_input {
+                        let sender = sender.borrow();
+                        if can_echo && sender.echo_input() {
                             handler.echo(line);
                             can_echo = false;
                         }
+                        if let Some(sound) = sender.sound()
+                            && self.world.borrow().enable_trigger_sounds
+                            && let Err(e) = self.play_file_raw(sound)
+                        {
+                            log::warn!(target: "smushclient.process_matches", "{e}");
+                        }
                         if T::AFFECTS_STYLE {
-                            let sender = sender.borrow();
                             style = sender.style();
                             has_style = !style.is_null();
+                        }
+                        sender.add_effects(effects);
+                        let reaction = sender.reaction();
+                        if reaction.one_shot {
+                            one_shots.insert(reaction.id);
                         }
                     }
                     if has_style && let Some(capture) = captures.get(0) {
@@ -1122,7 +1133,7 @@ impl SmushClient {
                         if let Some(text) = sender.clipboard_text(&captures)
                             && let Err(e) = clipboard.set_text(text)
                         {
-                            log::warn!(target: "process_matches.clipboard", "{e}");
+                            log::warn!(target: "smushclient.process_matches", "{e}");
                         }
                         send_buffer.send_request(
                             plugin_index,
@@ -1135,7 +1146,10 @@ impl SmushClient {
                         handler.send(send_request);
                     }
                     // fresh borrow in case the handler changed the reaction's settings
-                    if !sender.borrow().reaction().repeats {
+                    let sender = sender.borrow();
+                    let reaction = sender.reaction();
+                    keep_evaluating = reaction.keep_evaluating;
+                    if !reaction.repeats {
                         break;
                     }
                 }
@@ -1157,20 +1171,7 @@ impl SmushClient {
                         });
                     }
                 }
-                let sender = sender.borrow();
-                if let Some(sound) = sender.sound()
-                    && self.world.borrow().enable_trigger_sounds
-                    && let Ok(file) = File::open(sound)
-                    && let Ok(decoder) = Decoder::try_from(file)
-                {
-                    self.audio.mixer().add(decoder);
-                }
-                sender.add_effects(effects);
-                let reaction = sender.reaction();
-                if reaction.one_shot {
-                    one_shots.insert(reaction.id);
-                }
-                if !reaction.keep_evaluating {
+                if !keep_evaluating {
                     break;
                 }
             }
@@ -1265,7 +1266,12 @@ impl SmushClient {
     }
 }
 
-fn make_path_relative(path: &Path) -> Option<&Path> {
-    let cwd = env::current_dir().ok()?;
-    path.strip_prefix(cwd).ok()
+fn make_path_relative(path: &Path) -> &Path {
+    match env::current_dir() {
+        Ok(cwd) => path.strip_prefix(cwd).unwrap_or(path),
+        Err(e) => {
+            log::warn!(target: "smushclient.make_path_relative", "{e}");
+            path
+        }
+    }
 }
