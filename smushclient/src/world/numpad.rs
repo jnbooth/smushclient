@@ -5,6 +5,11 @@ use smushclient_plugins::xml::XmlVec;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct Numpad {
+    pub key_asterisk: String,
+    pub key_plus: String,
+    pub key_minus: String,
+    pub key_period: String,
+    pub key_slash: String,
     pub key_0: String,
     pub key_1: String,
     pub key_2: String,
@@ -15,16 +20,16 @@ pub struct Numpad {
     pub key_7: String,
     pub key_8: String,
     pub key_9: String,
-    pub key_period: String,
-    pub key_slash: String,
-    pub key_asterisk: String,
-    pub key_minus: String,
-    pub key_plus: String,
 }
 
 impl Numpad {
     const fn is_empty(&self) -> bool {
         let Self {
+            key_asterisk,
+            key_plus,
+            key_minus,
+            key_period,
+            key_slash,
             key_0,
             key_1,
             key_2,
@@ -35,13 +40,13 @@ impl Numpad {
             key_7,
             key_8,
             key_9,
-            key_period,
-            key_slash,
-            key_asterisk,
-            key_minus,
-            key_plus,
         } = self;
-        key_0.is_empty()
+        key_asterisk.is_empty()
+            && key_plus.is_empty()
+            && key_minus.is_empty()
+            && key_period.is_empty()
+            && key_slash.is_empty()
+            && key_0.is_empty()
             && key_1.is_empty()
             && key_2.is_empty()
             && key_3.is_empty()
@@ -51,15 +56,15 @@ impl Numpad {
             && key_7.is_empty()
             && key_8.is_empty()
             && key_9.is_empty()
-            && key_period.is_empty()
-            && key_slash.is_empty()
-            && key_asterisk.is_empty()
-            && key_minus.is_empty()
-            && key_plus.is_empty()
     }
 
     const fn get(&self, name: u8) -> Option<&str> {
         match name {
+            b'*' => Some(self.key_asterisk.as_str()),
+            b'+' => Some(self.key_plus.as_str()),
+            b'-' => Some(self.key_minus.as_str()),
+            b'.' => Some(self.key_period.as_str()),
+            b'/' => Some(self.key_slash.as_str()),
             b'0' => Some(self.key_0.as_str()),
             b'1' => Some(self.key_1.as_str()),
             b'2' => Some(self.key_2.as_str()),
@@ -70,17 +75,17 @@ impl Numpad {
             b'7' => Some(self.key_7.as_str()),
             b'8' => Some(self.key_8.as_str()),
             b'9' => Some(self.key_9.as_str()),
-            b'.' => Some(self.key_period.as_str()),
-            b'/' => Some(self.key_slash.as_str()),
-            b'*' => Some(self.key_asterisk.as_str()),
-            b'-' => Some(self.key_minus.as_str()),
-            b'+' => Some(self.key_plus.as_str()),
             _ => None,
         }
     }
 
     const fn get_mut(&mut self, name: u8) -> Option<&mut String> {
         match name {
+            b'*' => Some(&mut self.key_asterisk),
+            b'+' => Some(&mut self.key_plus),
+            b'-' => Some(&mut self.key_minus),
+            b'.' => Some(&mut self.key_period),
+            b'/' => Some(&mut self.key_slash),
             b'0' => Some(&mut self.key_0),
             b'1' => Some(&mut self.key_1),
             b'2' => Some(&mut self.key_2),
@@ -91,11 +96,6 @@ impl Numpad {
             b'7' => Some(&mut self.key_7),
             b'8' => Some(&mut self.key_8),
             b'9' => Some(&mut self.key_9),
-            b'.' => Some(&mut self.key_period),
-            b'/' => Some(&mut self.key_slash),
-            b'*' => Some(&mut self.key_asterisk),
-            b'-' => Some(&mut self.key_minus),
-            b'+' => Some(&mut self.key_plus),
             _ => None,
         }
     }
@@ -111,6 +111,11 @@ impl NumpadMapping {
     pub fn navigation() -> Self {
         Self {
             base: Numpad {
+                key_asterisk: "score".to_owned(),
+                key_plus: "down".to_owned(),
+                key_minus: "up".to_owned(),
+                key_period: "hide".to_owned(),
+                key_slash: "inventory".to_owned(),
                 key_0: "look".to_owned(),
                 key_1: "sw".to_owned(),
                 key_2: "south".to_owned(),
@@ -121,11 +126,6 @@ impl NumpadMapping {
                 key_7: "nw".to_owned(),
                 key_8: "north".to_owned(),
                 key_9: "ne".to_owned(),
-                key_period: "hide".to_owned(),
-                key_slash: "inventory".to_owned(),
-                key_asterisk: "score".to_owned(),
-                key_minus: "up".to_owned(),
-                key_plus: "down".to_owned(),
             },
             modified: Numpad::default(),
         }
