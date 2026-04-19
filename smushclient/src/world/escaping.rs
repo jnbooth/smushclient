@@ -108,11 +108,11 @@ pub struct EscapedBrackets {
 }
 
 impl EscapedBrackets {
-    pub const fn before(&self) -> &Escaped {
+    pub fn before(&self) -> &Escaped {
         &self.before
     }
 
-    pub const fn after(&self) -> &Escaped {
+    pub fn after(&self) -> &Escaped {
         &self.after
     }
 

@@ -18,19 +18,19 @@ impl<'s> Match<'s> {
         })
     }
 
-    pub const fn start(&self) -> usize {
+    pub fn start(&self) -> usize {
         self.start
     }
 
-    pub const fn end(&self) -> usize {
+    pub fn end(&self) -> usize {
         self.end
     }
 
-    pub const fn as_bytes(&self) -> &'s [u8] {
+    pub fn as_bytes(&self) -> &'s [u8] {
         self.subject.as_bytes()
     }
 
-    pub const fn as_str(&self) -> &'s str {
+    pub fn as_str(&self) -> &'s str {
         self.subject
     }
 }
