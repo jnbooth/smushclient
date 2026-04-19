@@ -999,7 +999,7 @@ impl SmushClient {
         handler: &mut H,
     ) -> AliasOutcome {
         let mut effects = AliasEffects::new(&self.world.borrow(), source);
-        self.process_matches::<Alias, _>(input, &[], handler, &mut effects);
+        self.process_matches::<Alias, H>(input, &[], handler, &mut effects);
         effects.into()
     }
 
@@ -1034,20 +1034,6 @@ impl SmushClient {
         true
     }
 
-    fn trigger<H: Handler>(
-        &self,
-        line: &str,
-        output: &[Output],
-        handler: &mut H,
-    ) -> TriggerEffects {
-        let mut effects = TriggerEffects::new();
-        self.process_matches::<Trigger, _>(line, output, handler, &mut effects);
-        if effects.omit_from_output {
-            handler.erase_last_line();
-        }
-        effects
-    }
-
     pub fn simulate_output<H: Handler>(&self, line: &str, handler: &mut H) {
         self.info.simulating.set(true);
         self.trigger(
@@ -1059,6 +1045,20 @@ impl SmushClient {
             handler,
         );
         self.info.simulating.set(false);
+    }
+
+    fn trigger<H: Handler>(
+        &self,
+        line: &str,
+        output: &[Output],
+        handler: &mut H,
+    ) -> TriggerEffects {
+        let mut effects = TriggerEffects::new();
+        self.process_matches::<Trigger, H>(line, output, handler, &mut effects);
+        if effects.omit_from_output {
+            handler.erase_last_line();
+        }
+        effects
     }
 
     fn process_matches<T: PluginReaction, H: Handler>(
