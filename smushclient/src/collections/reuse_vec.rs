@@ -49,44 +49,16 @@ impl<T> ReuseVec<T> {
     where
         P: FnMut(&T) -> bool + 'a,
     {
-        ExtractIf {
-            holes: &mut self.holes,
-            inner: self
-                .inner
-                .iter_mut()
-                .enumerate()
-                .filter(move |(_, slot)| slot.as_ref().is_some_and(&mut pred)),
-        }
-    }
-}
-
-pub struct ExtractIf<'a, T: 'a, I: Iterator<Item = (usize, &'a mut Option<T>)>> {
-    inner: I,
-    holes: &'a mut Vec<usize>,
-}
-
-impl<'a, T, I> Drop for ExtractIf<'a, T, I>
-where
-    T: 'a,
-    I: Iterator<Item = (usize, &'a mut Option<T>)>,
-{
-    fn drop(&mut self) {
-        for (i, _) in &mut self.inner {
-            self.holes.push(i);
-        }
-    }
-}
-
-impl<'a, T, I> Iterator for ExtractIf<'a, T, I>
-where
-    T: 'a,
-    I: Iterator<Item = (usize, &'a mut Option<T>)>,
-{
-    type Item = T;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let (i, slot) = self.inner.next()?;
-        self.holes.push(i);
-        slot.take()
+        let holes = &mut self.holes;
+        self.inner
+            .iter_mut()
+            .enumerate()
+            .filter_map(move |(i, slot)| {
+                if !pred(slot.as_ref()?) {
+                    return None;
+                }
+                holes.push(i);
+                slot.take()
+            })
     }
 }
