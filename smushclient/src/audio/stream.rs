@@ -27,6 +27,7 @@ impl Deref for AudioStream {
 }
 
 impl DerefMut for AudioStream {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
