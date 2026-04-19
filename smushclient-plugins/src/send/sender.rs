@@ -57,11 +57,16 @@ impl Sender {
         }
     }
 
-    pub fn destination(&self) -> &String {
-        if self.variable.is_empty() {
-            &self.label
-        } else {
-            &self.variable
+    pub fn destination(&self) -> &str {
+        if !matches!(
+            self.send_to,
+            SendTarget::NotepadAppend | SendTarget::NotepadReplace | SendTarget::Variable
+        ) {
+            return "";
         }
+        if self.variable.is_empty() {
+            return &self.label;
+        }
+        &self.variable
     }
 }
