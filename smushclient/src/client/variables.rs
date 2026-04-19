@@ -121,14 +121,21 @@ impl PluginVariableMap {
             .is_some_and(|variables| variables.contains_key(key))
     }
 
-    pub fn set_variable(&mut self, plugin_id: &str, key: String, value: Vec<u8>) {
-        if let Some(variables) = self.0.get_mut(plugin_id) {
-            variables.insert(key, value);
+    pub fn set_variable(&mut self, plugin_id: &str, key: &str, value: &[u8]) {
+        let Some(variables) = self.0.get_mut(plugin_id) else {
+            let mut variables = HashMap::new();
+            variables.insert(key.to_owned(), value.to_owned());
+            self.0.insert(plugin_id.to_owned(), variables);
             return;
+        };
+        match variables.get_mut(key) {
+            Some(entry) => {
+                value.clone_into(entry);
+            }
+            None => {
+                variables.insert(key.to_owned(), value.to_owned());
+            }
         }
-        let mut variables = HashMap::new();
-        variables.insert(key, value);
-        self.0.insert(plugin_id.to_owned(), variables);
     }
 
     pub fn unset_variable(&mut self, plugin_id: &str, key: &str) -> Option<Vec<u8>> {

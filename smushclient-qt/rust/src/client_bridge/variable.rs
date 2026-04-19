@@ -51,9 +51,7 @@ impl ffi::SmushClient {
         let Ok(key) = key.to_str() else {
             return false;
         };
-        self.rust()
-            .client
-            .set_metavariable(key.to_owned(), value.to_vec());
+        self.rust().client.set_metavariable(key, value.as_slice());
         true
     }
 
@@ -77,7 +75,7 @@ impl ffi::SmushClient {
         };
         self.rust()
             .client
-            .set_variable(index, key.to_owned(), value.to_vec());
+            .set_variable(index, key, value.as_slice());
         true
     }
 

@@ -606,7 +606,7 @@ impl SmushClient {
         self.variables.borrow().has_variable(METAVARIABLES_KEY, key)
     }
 
-    pub fn set_variable(&self, index: PluginIndex, key: String, value: Vec<u8>) {
+    pub fn set_variable(&self, index: PluginIndex, key: &str, value: &[u8]) {
         let plugin_id = &self.plugins[index].metadata.id;
         self.variables
             .borrow_mut()
@@ -618,7 +618,7 @@ impl SmushClient {
         self.variables.borrow_mut().unset_variable(plugin_id, key)
     }
 
-    pub fn set_metavariable(&self, key: String, value: Vec<u8>) {
+    pub fn set_metavariable(&self, key: &str, value: &[u8]) {
         self.variables
             .borrow_mut()
             .set_variable(METAVARIABLES_KEY, key, value);
@@ -1023,8 +1023,8 @@ impl SmushClient {
             if alias.send_to == SendTarget::Variable {
                 self.variables.borrow_mut().set_variable(
                     &plugin.metadata.id,
-                    alias.variable.clone(),
-                    text.as_bytes().to_vec(),
+                    &alias.variable,
+                    text.as_bytes(),
                 );
                 (None, !alias.script.is_empty())
             } else if !enable_scripts && alias.send_to.is_script() {
@@ -1172,11 +1172,8 @@ impl SmushClient {
                         if reaction.send_to == SendTarget::Variable {
                             self.variables.borrow_mut().set_variable(
                                 &plugin.metadata.id,
-                                reaction.variable.clone(),
-                                reaction
-                                    .expand_text(&mut text_buf, &captures)
-                                    .as_bytes()
-                                    .to_vec(),
+                                &reaction.variable,
+                                reaction.expand_text(&mut text_buf, &captures).as_bytes(),
                             );
                             None
                         } else if !enable_scripts && reaction.send_to.is_script() {
