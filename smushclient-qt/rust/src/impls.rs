@@ -93,54 +93,6 @@ impl_convert_enum!(
     Looping
 );
 
-impl Default for ffi::SendTarget {
-    fn default() -> Self {
-        Self::World
-    }
-}
-
-impl Default for ffi::Occurrence {
-    fn default() -> Self {
-        Self::Interval
-    }
-}
-
-impl Default for ffi::ScriptRecompile {
-    fn default() -> Self {
-        Self::Confirm
-    }
-}
-
-impl Default for ffi::LogFormat {
-    fn default() -> Self {
-        Self::Text
-    }
-}
-
-impl Default for ffi::LogMode {
-    fn default() -> Self {
-        Self::Append
-    }
-}
-
-impl Default for ffi::MXPDebugLevel {
-    fn default() -> Self {
-        Self::None
-    }
-}
-
-impl Default for ffi::UseMxp {
-    fn default() -> Self {
-        Self::Command
-    }
-}
-
-impl Default for ffi::AutoConnect {
-    fn default() -> Self {
-        Self::None
-    }
-}
-
 impl<'a> From<SendRequest<'a>> for ffi::SendRequest {
     fn from(value: SendRequest<'a>) -> Self {
         Self {
@@ -168,10 +120,9 @@ impl<'a> From<SendScriptRequest<'a>> for ffi::SendScriptRequest<'a> {
                     .iter()
                     .filter_map(|name| {
                         let name = name.as_ref()?;
-                        let value = captures.name(name)?;
                         Some(ffi::NamedWildcard {
                             name,
-                            value: value.as_str(),
+                            value: captures.name(name)?.as_str(),
                         })
                     })
                     .collect();

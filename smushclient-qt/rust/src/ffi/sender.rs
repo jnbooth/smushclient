@@ -33,9 +33,11 @@ pub mod ffi {
     }
 
     #[repr(i32)]
+    #[derive(Default)]
     enum Occurrence {
-        Time,
+        #[default]
         Interval,
+        Time,
     }
 
     #[auto_cxx_name]

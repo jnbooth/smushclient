@@ -26,29 +26,37 @@ pub mod ffi {
         type SmushClient = crate::ffi::SmushClient;
     }
 
+    #[derive(Default)]
     #[repr(i32)]
     enum AutoConnect {
+        #[default]
         None,
         Mush,
         Diku,
         Mxp,
     }
 
+    #[derive(Default)]
     #[repr(i32)]
     enum LogFormat {
+        #[default]
         Text,
         Html,
         Raw,
     }
 
+    #[derive(Default)]
     #[repr(i32)]
     enum LogMode {
+        #[default]
         Append,
         Overwrite,
     }
 
+    #[derive(Default)]
     #[repr(i32)]
     enum MXPDebugLevel {
+        #[default]
         None,
         Error,
         Warning,
@@ -56,16 +64,20 @@ pub mod ffi {
         All,
     }
 
+    #[derive(Default)]
     #[repr(i32)]
     enum UseMxp {
+        #[default]
         Command,
         Query,
         Always,
         Never,
     }
 
+    #[derive(Default)]
     #[repr(i32)]
     enum ScriptRecompile {
+        #[default]
         Confirm,
         Always,
         Never,

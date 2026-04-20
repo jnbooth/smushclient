@@ -135,12 +135,6 @@ pub struct WorldConfig {
 
 impl Default for WorldConfig {
     fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl WorldConfig {
-    pub fn new() -> Self {
         Self {
             // Connecting
             name: String::new(),
@@ -252,7 +246,9 @@ impl WorldConfig {
             plugins: Vec::new(),
         }
     }
+}
 
+impl WorldConfig {
     pub fn escape<'a>(&self, message: &'a str) -> Escaped<Cow<'a, str>> {
         Escaped::borrow(message, self)
     }

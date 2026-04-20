@@ -11,8 +11,10 @@ pub mod ffi {
         Timer,
     }
 
+    #[derive(Default)]
     #[repr(i32)]
     enum SendTarget {
+        #[default]
         World,
         Command,
         Output,

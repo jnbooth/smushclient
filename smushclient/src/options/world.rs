@@ -361,7 +361,7 @@ impl WorldConfig {
 
     pub fn default_variant_option<V: InfoVisitor>(option: &LuaStr) -> V::Output {
         const CALLER: OptionCaller = OptionCaller::WorldScript;
-        static DEFAULT_WORLD: LazyLock<WorldConfig> = LazyLock::new(WorldConfig::new);
+        static DEFAULT_WORLD: LazyLock<WorldConfig> = LazyLock::new(WorldConfig::default);
         let world = &*DEFAULT_WORLD;
         if let Some(value) = world.option_int(CALLER, option) {
             V::visit(value)

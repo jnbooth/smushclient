@@ -3,7 +3,7 @@ use smushclient::World;
 use crate::error::StringifyResultError;
 
 pub fn create_world() -> World<'static> {
-    World::new()
+    World::default()
 }
 
 pub fn read_world(data: &[u8]) -> Result<World<'static>, String> {

@@ -198,6 +198,12 @@ pub(crate) struct XmlList<T> {
 }
 
 impl<T> XmlList<T> {
+    pub const fn new() -> Self {
+        Self {
+            elements: Vec::new(),
+        }
+    }
+
     pub fn append(&mut self, other: &mut Self) {
         self.elements.append(&mut other.elements);
     }
@@ -205,8 +211,6 @@ impl<T> XmlList<T> {
 
 impl<T> Default for XmlList<T> {
     fn default() -> Self {
-        Self {
-            elements: Vec::new(),
-        }
+        Self::new()
     }
 }

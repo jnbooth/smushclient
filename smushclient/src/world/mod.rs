@@ -44,20 +44,16 @@ pub struct World<'a> {
 
 impl Default for World<'static> {
     fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl World<'static> {
-    pub fn new() -> Self {
         Self {
-            config: Cow::Owned(WorldConfig::new()),
+            config: Cow::Owned(WorldConfig::default()),
             timers: Cow::Owned(Vec::new()),
             triggers: Cow::Owned(Vec::new()),
             aliases: Cow::Owned(Vec::new()),
         }
     }
+}
 
+impl World<'static> {
     pub fn load<R: Read>(mut reader: R) -> Result<Self, PersistError> {
         let mut buf = Vec::new();
         reader.read_to_end(&mut buf)?;

@@ -29,17 +29,6 @@ pub struct Sender {
 
 impl Default for Sender {
     fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl Sender {
-    pub(super) fn get_id() -> u16 {
-        static ID_COUNTER: AtomicU16 = AtomicU16::new(0);
-        ID_COUNTER.fetch_add(1, Ordering::Relaxed)
-    }
-
-    pub fn new() -> Self {
         Self {
             text: String::new(),
             send_to: SendTarget::World,
@@ -55,6 +44,13 @@ impl Sender {
             id: Self::get_id(),
             userdata: 0,
         }
+    }
+}
+
+impl Sender {
+    pub(super) fn get_id() -> u16 {
+        static ID_COUNTER: AtomicU16 = AtomicU16::new(0);
+        ID_COUNTER.fetch_add(1, Ordering::Relaxed)
     }
 
     pub fn destination(&self) -> &str {
