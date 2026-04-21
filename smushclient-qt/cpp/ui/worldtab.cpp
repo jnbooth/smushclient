@@ -715,10 +715,10 @@ WorldTab::applyWorld(const World& world)
   QPalette palette;
   const QColor fgColor = world.getAnsi7();
   const QColor bgColor = world.getAnsi0();
-  palette.setColor(QPalette::Text, fgColor);
-  palette.setColor(QPalette::HighlightedText, fgColor);
-  palette.setColor(QPalette::Base, bgColor);
-  palette.setColor(QPalette::AlternateBase, bgColor);
+  palette.setColor(QPalette::ColorRole::Text, fgColor);
+  palette.setColor(QPalette::ColorRole::HighlightedText, fgColor);
+  palette.setColor(QPalette::ColorRole::Base, bgColor);
+  palette.setColor(QPalette::ColorRole::AlternateBase, bgColor);
   ui->background->setPalette(palette);
   if (world.getSaveWorldAutomatically()) {
     saveWorldAndState(filePath);

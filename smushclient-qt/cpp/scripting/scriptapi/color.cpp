@@ -64,7 +64,7 @@ ScriptApi::GetSysColor(SysColor sysColor)
     case SysColor::Dark:
       return palette.color(QPalette::ColorRole::Dark);
     case SysColor::Light:
-      return palette.color(QPalette::Light);
+      return palette.color(QPalette::ColorRole::Light);
     default:
       return QColor();
   }
@@ -107,13 +107,14 @@ ScriptApi::SetBackgroundColour(const QColor& color) const
 {
   QWidget* background = tab.ui->background;
   QPalette palette = background->palette();
-  const QColor oldColor = palette.color(QPalette::Base);
+  const QColor oldColor = palette.color(QPalette::ColorRole::Base);
   if (color == Qt::GlobalColor::black) {
-    palette.setColor(QPalette::Base, Qt::GlobalColor::transparent);
+    palette.setColor(QPalette::ColorRole::Base, Qt::GlobalColor::transparent);
   } else if (color.isValid()) {
-    palette.setColor(QPalette::Base, color);
+    palette.setColor(QPalette::ColorRole::Base, color);
   } else {
-    palette.setColor(QPalette::Base, palette.color(QPalette::AlternateBase));
+    palette.setColor(QPalette::ColorRole::Base,
+                     palette.color(QPalette::ColorRole::AlternateBase));
   }
   background->setPalette(palette);
   return oldColor == Qt::GlobalColor::transparent ? Qt::GlobalColor::black
@@ -125,9 +126,9 @@ ScriptApi::SetForegroundColour(const QColor& color) const
 {
   QWidget* background = tab.ui->background;
   QPalette palette = background->palette();
-  const QColor oldColor = palette.color(QPalette::Text);
-  palette.setColor(QPalette::Text, color);
-  palette.setColor(QPalette::HighlightedText, color);
+  const QColor oldColor = palette.color(QPalette::ColorRole::Text);
+  palette.setColor(QPalette::ColorRole::Text, color);
+  palette.setColor(QPalette::ColorRole::HighlightedText, color);
   background->setPalette(palette);
   return oldColor;
 }
@@ -137,8 +138,8 @@ ScriptApi::SetHighlightColour(const QColor& color) const
 {
   QWidget* background = tab.ui->background;
   QPalette palette = background->palette();
-  const QColor oldColor = palette.color(QPalette::Highlight);
-  palette.setColor(QPalette::Highlight, color);
+  const QColor oldColor = palette.color(QPalette::ColorRole::Highlight);
+  palette.setColor(QPalette::ColorRole::Highlight, color);
   background->setPalette(palette);
   return oldColor;
 }

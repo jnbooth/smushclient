@@ -190,9 +190,9 @@ StatusBarStat::settingsKey() const
 void
 StatusBarStat::on_action_reset_colors_triggered()
 {
-  ui->caption->setPalette(QPalette());
-  ui->value->setPalette(QPalette());
-  ui->max->setPalette(QPalette());
+  ui->caption->setPalette({});
+  ui->value->setPalette({});
+  ui->max->setPalette({});
 }
 
 void
