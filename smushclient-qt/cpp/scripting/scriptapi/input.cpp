@@ -38,7 +38,7 @@ ScriptApi::EvaluateSpeedwalk(string_view speedwalk) const noexcept
 ApiCode
 ScriptApi::Execute(const QString& command) const noexcept
 {
-  if (!socket.isOpen()) {
+  if (!socket->isOpen()) {
     return ApiCode::WorldClosed;
   }
   tab.sendCommand(command, CommandSource::Execute);
@@ -93,7 +93,7 @@ ScriptApi::Queue(const QString& command, bool echo)
   if (commandQueueTimer->interval() == 0) {
     return sendToWorld(command, echo ? SendFlag::Echo : SendFlags());
   }
-  if (!socket.isOpen()) {
+  if (!socket->isOpen()) {
     return ApiCode::WorldClosed;
   }
   enqueueCommand(command, echo);
@@ -140,7 +140,7 @@ ScriptApi::SendNoEcho(QByteArray& bytes)
 ApiCode
 ScriptApi::SendPacket(QByteArrayView bytes)
 {
-  if (socket.write(bytes.data(), bytes.size()) == -1) [[unlikely]] {
+  if (socket->write(bytes.data(), bytes.size()) == -1) [[unlikely]] {
     return ApiCode::WorldClosed;
   }
 

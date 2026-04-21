@@ -2,7 +2,7 @@
 #include "../scriptapi.h"
 
 #define TRY_NOTEPAD(name)                                                      \
-  notepads.findNotepad(worldID, (name));                                       \
+  notepads->findNotepad(worldID, (name));                                      \
   if (notepad == nullptr) [[unlikely]] {                                       \
     return {};                                                                 \
   }
@@ -20,7 +20,7 @@ ScriptApi::ActivateNotepad(const QString& name) const
 bool
 ScriptApi::AppendToNotepad(const QString& name, const QString& text) const
 {
-  notepads.pad(worldID, name)->appendText(text);
+  notepads->pad(worldID, name)->appendText(text);
   return true;
 }
 
@@ -44,7 +44,7 @@ ScriptApi::GetNotepadLength(const QString& name) const
 QStringList
 ScriptApi::GetNotepadList(bool all) const
 {
-  return all ? notepads.listNotepads() : notepads.listNotepads(worldID);
+  return all ? notepads->listNotepads() : notepads->listNotepads(worldID);
 }
 
 QString
@@ -105,7 +105,7 @@ ScriptApi::NotepadSaveMethod(const QString& name,
 bool
 ScriptApi::ReplaceNotepad(const QString& name, const QString& text) const
 {
-  notepads.pad(worldID, name)->setText(text);
+  notepads->pad(worldID, name)->setText(text);
   return true;
 }
 
@@ -123,6 +123,6 @@ ScriptApi::SaveNotepad(const QString& name,
 bool
 ScriptApi::SendToNotepad(const QString& name, const QString& text) const
 {
-  notepads.createNotepad(worldID, name)->editor()->setPlainText(text);
+  notepads->createNotepad(worldID, name)->editor()->setPlainText(text);
   return true;
 }

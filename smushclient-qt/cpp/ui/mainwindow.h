@@ -110,7 +110,7 @@ private:
   FindDialog* findDialog;
   int lastTabIndex = -1;
   QString m_title;
-  Notepads& notepads;
+  QPointer<Notepads> notepads;
   QList<QAction*> recentFileActions;
   Settings settings;
   QMetaObject::Connection socketConnection;

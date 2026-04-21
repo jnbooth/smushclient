@@ -1,6 +1,7 @@
 #include "scriptapi.h"
 #include "../bridge/timekeeper.h"
 #include "../timermap.h"
+#include "../ui/components/mudscrollbar.h" // IWYU pragma: keep (needed for QPointer)
 #include "../ui/mudstatusbar/mudstatusbar.h"
 #include "../ui/notepad/notepads.h"
 #include "../ui/ui_worldtab.h"
@@ -94,12 +95,12 @@ ScriptApi::ScriptApi(SmushClient& client,
   , client(client)
   , commandQueueTimer(new QTimer(this))
   , cursor(output.cursor())
-  , notepads(notepads)
-  , scrollBar(*output.verticalScrollBar())
+  , notepads(&notepads)
+  , scrollBar(output.verticalScrollBar())
   , sendQueue(new TimerMap<SendRequest, ScriptApi>(*this,
                                                    &ScriptApi::finishQueuedSend,
                                                    this))
-  , socket(socket)
+  , socket(&socket)
   , statusBarPtr(new MudStatusBar)
   , tab(parent)
   , timeOpened(QDateTime::currentDateTime())
@@ -169,7 +170,7 @@ ScriptApi::getPlugin(string_view pluginID) const noexcept
 Notepad*
 ScriptApi::globalNotepad(const QString& name) const
 {
-  return notepads.findNotepad(QUuid(), name);
+  return notepads->findNotepad(QUuid(), name);
 }
 
 void
@@ -206,17 +207,17 @@ ScriptApi::handleSendRequest(const SendRequest& request)
       statusBar()->setMessage(request.text);
       return;
     case SendTarget::NotepadNew:
-      notepads.pad()->setText(request.text);
+      notepads->pad()->setText(request.text);
       return;
     case SendTarget::NotepadAppend:
-      notepads.pad(worldID, request.destination)->appendText(request.text);
+      notepads->pad(worldID, request.destination)->appendText(request.text);
       return;
     case SendTarget::Log:
       client.writeToLog(request.text.toUtf8());
       client.writeToLog("\n");
       return;
     case SendTarget::NotepadReplace:
-      notepads.pad(request.destination)->setText(request.text);
+      notepads->pad(request.destination)->setText(request.text);
       return;
     case SendTarget::Variable:
       return;
@@ -425,7 +426,7 @@ ScriptApi::sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags)
   const qsizetype originalSize = ensureCrLf(bytes);
   const qsizetype size = bytes.size();
   totalLinesSent += bytes.count('\n');
-  if (socket.write(bytes.constData(), size) == -1) [[unlikely]] {
+  if (socket->write(bytes.constData(), size) == -1) [[unlikely]] {
     return ApiCode::WorldClosed;
   }
   if (size != originalSize) {
@@ -773,9 +774,9 @@ ScriptApi::setImage(const QString& path,
                     MiniWindow::Position position,
                     bool above)
 {
-  ImageWindow*& window = above ? foregroundImage : backgroundImage;
+  QPointer<ImageWindow>& window = above ? foregroundImage : backgroundImage;
   if (path.isEmpty()) {
-    delete window;
+    delete window.data();
     window = nullptr;
     return ApiCode::OK;
   }

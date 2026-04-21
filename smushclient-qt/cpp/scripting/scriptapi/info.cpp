@@ -179,9 +179,9 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 60:
       return Settings().getPluginsDir();
     case 61:
-      return socket.peerAddress().toString();
+      return socket->peerAddress().toString();
     case 62:
-      return socket.proxy().hostName();
+      return socket->proxy().hostName();
     case 63:
       return QHostInfo::localHostName();
     case 64:
@@ -230,9 +230,9 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 101:
       return cursor->suppressingEcho();
     case 106:
-      return !socket.isOpen();
+      return !socket->isOpen();
     case 107:
-      return socket.state() == QAbstractSocket::SocketState::ConnectingState;
+      return socket->state() == QAbstractSocket::SocketState::ConnectingState;
     case 108: // OK to disconnect
       return true;
     case 111:
@@ -242,12 +242,12 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 113:
       return tab.active();
     case 114:
-      return scrollBar.paused();
+      return scrollBar->paused();
     // case 115: Localization active
     case 119: // Script engine is active
       return true;
     case 120:
-      return scrollBar.isVisible();
+      return scrollBar->isVisible();
     case 121: // High-resolution timer is available
       return true;
     case 122:
@@ -281,7 +281,7 @@ ScriptApi::GetInfo(int64_t infoType) const
       return lastVisible.blockNumber() - firstVisible.blockNumber();
     }
     case 227:
-      switch (socket.state()) {
+      switch (socket->state()) {
         case QAbstractSocket::SocketState::HostLookupState:
           return 1;
         case QAbstractSocket::SocketState::ConnectingState:
@@ -293,7 +293,7 @@ ScriptApi::GetInfo(int64_t infoType) const
       }
     case 228: {
       bool isOk;
-      const uint32_t ipv4 = socket.peerAddress().toIPv4Address(&isOk);
+      const uint32_t ipv4 = socket->peerAddress().toIPv4Address(&isOk);
       return isOk ? ipv4 : 0;
     }
     // case 229: Proxy IP address as number
@@ -420,7 +420,7 @@ ScriptApi::GetInfo(int64_t infoType) const
                               QGuiApplication::mouseButtons())
         .toInt();
     case 296:
-      return scrollBar.sliderPosition();
+      return scrollBar->sliderPosition();
     case 298:
       return sqlite3_libversion_number();
     case 301:

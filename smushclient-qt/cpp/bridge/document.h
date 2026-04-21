@@ -82,12 +82,12 @@ private:
   std::vector<QTextCursor>& linksWithExpiration(rust::Str expires);
 
 private:
-  ScriptApi& api;
+  QPointer<ScriptApi> api;
   QPointer<MudCursor> cursor;
   QTextCharFormat expireLinkFormat;
   std::unordered_map<std::string, std::vector<QTextCursor>> links;
   int outputStart = 0;
-  MudScrollBar& scrollBar;
+  QPointer<MudScrollBar> scrollBar;
   QHash<QString, QString> serverStatuses;
   bool serverExpiresLinks = false;
 };

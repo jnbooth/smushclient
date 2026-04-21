@@ -31,9 +31,9 @@ constexpr const uint8_t telnetMudSpecific = 102;
 
 Document::Document(MudBrowser& output, ScriptApi& api, QObject* parent)
   : AbstractDocument(parent)
-  , api(api)
+  , api(&api)
   , cursor(output.cursor())
-  , scrollBar(*output.verticalScrollBar())
+  , scrollBar(output.verticalScrollBar())
 {
   expireLinkFormat.setAnchor(false);
   expireLinkFormat.setAnchorHref(QString());
@@ -56,7 +56,7 @@ Document::appendHtml(const QString& html) const
 void
 Document::appendLine()
 {
-  api.sendPartialLineToPlugins();
+  api->sendPartialLineToPlugins();
   outputStart = cursor->document()->blockCount() - 1;
   cursor->startLine();
 }
@@ -100,7 +100,7 @@ Document::beep() const
 {
   const QString sound = Settings().getBellSound();
   if (!sound.isEmpty()) {
-    api.playFileRaw(sound.toStdString());
+    api->playFileRaw(sound.toStdString());
   }
 }
 
@@ -108,7 +108,7 @@ void
 Document::begin() const
 {
   cursor->updateTimestamp();
-  scrollBar.setAutoScrollEnabled(false);
+  scrollBar->setAutoScrollEnabled(false);
 }
 
 void
@@ -122,7 +122,7 @@ Document::createMxpStat(const QString& entity,
                         const QString& caption,
                         const QString& max) const
 {
-  api.statusBar()->createStat(entity, caption, max);
+  api->statusBar()->createStat(entity, caption, max);
 }
 
 void
@@ -134,11 +134,11 @@ Document::echo(const QString& text) const
 void
 Document::end(bool hadOutput)
 {
-  scrollBar.setAutoScrollEnabled(true);
+  scrollBar->setAutoScrollEnabled(true);
   if (hadOutput) {
     emit newActivity();
   }
-  api.runScriptsAfterOmit();
+  api->runScriptsAfterOmit();
 }
 
 void
@@ -191,10 +191,10 @@ Document::handleMxpChange(bool enabled) const
 {
   if (enabled) {
     OnPluginMXPStart onMxpStart;
-    api.sendCallback(onMxpStart);
+    api->sendCallback(onMxpStart);
   } else {
     OnPluginMXPStop onMxpStop;
-    api.sendCallback(onMxpStop);
+    api->sendCallback(onMxpStop);
   }
 }
 
@@ -202,14 +202,14 @@ void
 Document::handleMxpEntity(rust::Str data) const
 {
   OnPluginMXPSetEntity onMxpSetEntity(data);
-  api.sendCallback(onMxpSetEntity);
+  api->sendCallback(onMxpSetEntity);
 }
 
 void
 Document::handleMxpVariable(rust::Str name, rust::Str value) const
 {
   OnPluginMXPSetVariable onMxpSetVariable(name, value);
-  api.sendCallback(onMxpSetVariable);
+  api->sendCallback(onMxpSetVariable);
 }
 
 void
@@ -220,7 +220,7 @@ Document::handleServerStatus(rust::Slice<const uint8_t> variableBytes,
   const QString value = QString::fromUtf8(valueBytes);
   serverStatuses.insert(variable, value);
   if (variable == QStringLiteral("PLAYERS")) {
-    api.statusBar()->setUsers(value);
+    api->statusBar()->setUsers(value);
   }
 }
 
@@ -228,13 +228,13 @@ void
 Document::handleTelnetGoAhead() const
 {
   OnPluginIacGa onIacGa;
-  api.sendCallback(onIacGa);
+  api->sendCallback(onIacGa);
 }
 
 void
 Document::handleTelnetNaws() const
 {
-  api.sendNaws();
+  api->sendNaws();
 }
 
 void
@@ -248,15 +248,15 @@ Document::handleTelnetNegotiation(TelnetSource source,
     }
 
     OnPluginTelnetRequest onTelnetRequest(code, "SENT_DO");
-    api.sendCallback(onTelnetRequest);
+    api->sendCallback(onTelnetRequest);
     return;
   }
 
   if (code == telnetNAWS) {
     if (verb == TelnetVerb::Do) {
-      api.setNawsEnabled(true);
+      api->setNawsEnabled(true);
     } else if (verb == TelnetVerb::Dont) {
-      api.setNawsEnabled(false);
+      api->setNawsEnabled(false);
     }
   }
 
@@ -267,7 +267,7 @@ Document::handleTelnetNegotiation(TelnetSource source,
 
   if (verb == TelnetVerb::Will) {
     OnPluginTelnetRequest onTelnetRequest(code, "WILL");
-    api.sendCallback(onTelnetRequest);
+    api->sendCallback(onTelnetRequest);
   }
 }
 
@@ -279,7 +279,7 @@ Document::handleTelnetSubnegotiation(uint8_t code,
     OnPluginTelnetOption onTelnetOption(data);
   }
   OnPluginTelnetSubnegotiation onTelnetSubnegotiation(code, data);
-  api.sendCallback(onTelnetSubnegotiation);
+  api->sendCallback(onTelnetSubnegotiation);
 }
 
 void
@@ -292,7 +292,7 @@ bool
 Document::permitLine(rust::Str line) const
 {
   OnPluginLineReceived onLineReceived(line);
-  api.sendCallback(onLineReceived);
+  api->sendCallback(onLineReceived);
   return !onLineReceived.discarded();
 }
 
@@ -300,14 +300,14 @@ bool
 Document::permitSound(rust::Str file) const
 {
   OnPluginPlaySound onLineReceived(file);
-  api.sendCallback(onLineReceived);
+  api->sendCallback(onLineReceived);
   return !onLineReceived.discarded();
 }
 
 void
 Document::send(const SendRequest& request) const
 {
-  api.handleSendRequest(request);
+  api->handleSendRequest(request);
 }
 
 class AliasCallback : public DynamicPluginCallback
@@ -412,7 +412,7 @@ Document::send(const SendScriptRequest& request) const
                                 request.line,
                                 request.wildcards,
                                 request.namedWildcards);
-    api.sendCallback(aliasCallback, request.plugin);
+    api->sendCallback(aliasCallback, request.plugin);
   } else {
     TriggerCallback triggerCallback(request.script,
                                     request.label,
@@ -420,7 +420,7 @@ Document::send(const SendScriptRequest& request) const
                                     request.wildcards,
                                     request.namedWildcards,
                                     request.output);
-    api.sendCallback(triggerCallback, request.plugin);
+    api->sendCallback(triggerCallback, request.plugin);
   }
 }
 
@@ -429,13 +429,13 @@ Document::setDynamicColor(DynamicColor dynamic, const QColor& color) const
 {
   switch (dynamic) {
     case DynamicColor::TextForeground:
-      api.SetForegroundColour(color);
+      api->SetForegroundColour(color);
       return;
     case DynamicColor::TextBackground:
-      api.SetBackgroundColour(color);
+      api->SetBackgroundColour(color);
       return;
     case DynamicColor::Highlight:
-      api.SetHighlightColour(color);
+      api->SetHighlightColour(color);
       return;
     default:
       return;
@@ -451,7 +451,7 @@ Document::setSuppressEcho(bool suppress) const
 void
 Document::updateMxpStat(const QString& entity, const QString& value) const
 {
-  api.statusBar()->updateStat(entity, value);
+  api->statusBar()->updateStat(entity, value);
 }
 
 // Private methods

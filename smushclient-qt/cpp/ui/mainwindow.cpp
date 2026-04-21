@@ -40,7 +40,7 @@ MainWindow::MainWindow(Notepads& notepads, QWidget* parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
   , findDialog(new FindDialog(this))
-  , notepads(notepads)
+  , notepads(&notepads)
 {
   ui->setupUi(this);
   setWindowFlags(Qt::Window);
@@ -236,7 +236,7 @@ MainWindow::addRecentFile(const QString& filePath)
 WorldTab*
 MainWindow::createWorldTab(QWidget* parent) const
 {
-  WorldTab* tab = new WorldTab(notepads, parent);
+  WorldTab* tab = new WorldTab(*notepads, parent);
   MudStatusBar* mudStatusBar = tab->statusBar();
   statusBar()->addPermanentWidget(mudStatusBar);
   mudStatusBar->hide();
@@ -455,7 +455,7 @@ MainWindow::on_action_clear_output_triggered()
 void
 MainWindow::on_action_close_all_notepad_windows_triggered()
 {
-  notepads.closeAll();
+  notepads->closeAll();
 }
 
 void
@@ -627,7 +627,7 @@ MainWindow::on_action_log_session_triggered(bool checked)
 void
 MainWindow::on_action_new_notepad_triggered()
 {
-  notepads.createNotepad();
+  notepads->createNotepad();
 }
 
 void
@@ -651,7 +651,7 @@ MainWindow::on_action_new_triggered()
 void
 MainWindow::on_action_new_window_triggered()
 {
-  MainWindow* newWindow = new MainWindow(notepads);
+  MainWindow* newWindow = new MainWindow(*notepads);
   newWindow->show();
 }
 

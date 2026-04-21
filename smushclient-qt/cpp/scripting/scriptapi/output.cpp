@@ -91,7 +91,7 @@ ScriptApi::GetWorldWindowPosition() const
 void
 ScriptApi::Pause(bool pause) const
 {
-  scrollBar.setPaused(pause);
+  scrollBar->setPaused(pause);
 }
 
 void
@@ -144,10 +144,10 @@ ApiCode
 ScriptApi::SetScroll(int position, bool visible) const
 {
   if (position != -2) {
-    scrollBar.setSliderPosition(position == -1 ? scrollBar.maximum()
-                                               : position);
+    scrollBar->setSliderPosition(position == -1 ? scrollBar->maximum()
+                                                : position);
   }
-  scrollBar.setVisible(visible);
+  scrollBar->setVisible(visible);
   return ApiCode::OK;
 }
 
