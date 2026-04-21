@@ -1,4 +1,7 @@
-use std::sync::Arc;
+#[cfg(not(feature = "async"))]
+use std::rc::Rc;
+#[cfg(feature = "async")]
+use std::sync::Arc as Rc;
 
 use mud_transformer::output::Output;
 use smushclient_plugins::{Captures, PluginIndex, Reaction, Regex, SendTarget};
@@ -29,7 +32,7 @@ pub struct SendRequestBuffer<'a> {
     output: &'a [Output],
     text: String,
     destination: String,
-    regex: Option<Arc<Regex>>,
+    regex: Option<Rc<Regex>>,
 }
 
 impl<'a> SendRequestBuffer<'a> {
