@@ -8,7 +8,6 @@ extern "C"
 }
 
 using qlua::expectMaxArgs;
-using qlua::getNumber;
 using qlua::getQFont;
 using qlua::getQString;
 using qlua::push;
@@ -73,11 +72,7 @@ InputBox::InputBox(lua_State* L, bool multiline, QWidget* parent)
   const QString message = getQString(L, 1, {});
   const QString title = getQString(L, 2, QCoreApplication::applicationName());
   const QString defaultText = getQString(L, 3, {});
-  QFont font = getQFont(L, 4, {});
-  const qreal fontSize = getNumber(L, 5, -1.0);
-  if (fontSize > 0.0) {
-    font.setPointSizeF(fontSize);
-  }
+  const QFont font = getQFont(L, 4, 5);
   InputBoxExtras extras(L, 6);
 
   hasValidate = extras.validate;

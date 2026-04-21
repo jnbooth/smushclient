@@ -129,9 +129,11 @@ getQFlags(lua_State* L, int idx, QFlags<T> ifNil)
 }
 
 QFont
-getQFont(lua_State* L, int idx);
+getQFont(lua_State* L, int idxFamily);
 QFont
-getQFont(lua_State* L, int idx, const QString& ifNil);
+getQFont(lua_State* L, int idxFamily, int idxSize);
+QFont
+getQFont(lua_State* L, int idxFamily, int idxSize, int idxStyle);
 
 QLine
 getQLine(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2);

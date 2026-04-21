@@ -48,27 +48,6 @@ checkTypeOrNil(lua_State* L,
   return true;
 }
 
-bool
-setExactFontFamily(QFont& font, const QString& family)
-{
-  font.setFamily(family);
-  return QFontInfo(font).family() == family;
-}
-
-void
-assignFontFamily(QFont& font, const QString& family)
-{
-  if (setExactFontFamily(font, family) || family.isEmpty()) {
-    return;
-  }
-  if ((family == QStringLiteral("FixedSys") ||
-       family == QStringLiteral("Dina")) &&
-      !setExactFontFamily(font, family)) {
-    font.setFamily(
-      QFontDatabase::systemFont(QFontDatabase::SystemFont::FixedFont).family());
-  }
-}
-
 inline lua_Integer
 toInteger(lua_State* L, int idx)
 {
@@ -449,18 +428,62 @@ qlua::getQColor(lua_State* L, int idx, optional<QColor> ifNil)
 }
 
 QFont
-qlua::getQFont(lua_State* L, int idx)
+qlua::getQFont(lua_State* L, int idxFamily)
 {
   QFont font;
-  assignFontFamily(font, getQString(L, idx));
+  QString family = getQString(L, idxFamily, {});
+  if (!family.isEmpty()) {
+    font.setFamily(family);
+    if (QFontInfo(font).family() != family) {
+      family = family.toLower();
+      if (family == QStringLiteral("fixedsys") ||
+          family == QStringLiteral("dina")) {
+        font.setFamily(
+          QFontDatabase::systemFont(QFontDatabase::SystemFont::FixedFont)
+            .family());
+      }
+    }
+  }
   return font;
 }
 
 QFont
-qlua::getQFont(lua_State* L, int idx, const QString& ifNil)
+qlua::getQFont(lua_State* L, int idxFamily, int idxSize)
 {
-  QFont font;
-  assignFontFamily(font, getQString(L, idx, ifNil));
+  enum StyleFlag : int64_t
+  {
+    Bold = 1,
+    Italic = 2,
+    Underline = 4,
+    StrikeOut = 8,
+  };
+
+  QFont font = getQFont(L, idxFamily);
+  const qreal pointSize = getNumber(L, idxSize, 0);
+  if (pointSize > 0) {
+    font.setPointSizeF(pointSize);
+  }
+  return font;
+}
+
+QFont
+qlua::getQFont(lua_State* L, int idxFamily, int idxSize, int idxStyle)
+{
+  enum StyleFlag : int64_t
+  {
+    Bold = 1,
+    Italic = 2,
+    Underline = 4,
+    StrikeOut = 8,
+  };
+
+  QFont font = getQFont(L, idxFamily, idxSize);
+  const QFlags<StyleFlag> style = getQFlags<StyleFlag>(L, idxStyle, {});
+  font.setWeight(style.testFlag(StyleFlag::Bold) ? QFont::Weight::Bold
+                                                 : QFont::Weight::Normal);
+  font.setItalic(style.testFlag(StyleFlag::Italic));
+  font.setUnderline(style.testFlag(StyleFlag::Underline));
+  font.setStrikeOut(style.testFlag(StyleFlag::StrikeOut));
   return font;
 }
 

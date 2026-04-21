@@ -31,7 +31,6 @@ extern "C"
 using qlua::expectMaxArgs;
 using qlua::getBool;
 using qlua::getBytes;
-using qlua::getInt;
 using qlua::getInteger;
 using qlua::getQColor;
 using qlua::getQFont;
@@ -634,12 +633,8 @@ int
 L_fontpicker(lua_State* L)
 {
   expectMaxArgs(L, 3);
-  QFont initialFont = getQFont(L, 1, {});
-  const int pointSize = getInt(L, 2, -1);
+  const QFont initialFont = getQFont(L, 1, 2);
   const QColor initialColor = getQColor(L, 3, Qt::GlobalColor::black);
-  if (pointSize != -1) {
-    initialFont.setPointSize(pointSize);
-  }
   QWidget* parent = getApi(L).parentWidget();
   bool ok;
   QFont font = initialFont.family().isEmpty()

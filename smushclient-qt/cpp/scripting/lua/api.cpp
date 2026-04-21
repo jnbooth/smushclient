@@ -979,8 +979,7 @@ L_SetInputFont(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 4);
-  QFont font = getQFont(L, 1);
-  font.setPointSizeF(getNumber(L, 2));
+  QFont font = getQFont(L, 1, 2);
   if (int weight = getInt(L, 3, 0)) {
     font.setWeight(QFont::Weight(weight));
   }
@@ -1368,13 +1367,8 @@ L_NotepadFont(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 5);
-  const QString title = getQString(L, 1);
-  const QTextCharFormat format =
-    Notepad::format(getQString(L, 2, {}),
-                    getNumber(L, 3, 0.0),
-                    getQFlags<Notepad::StyleFlag>(L, 4, {}));
+  push(L, getApi(L).NotepadFont(getQString(L, 1), getQFont(L, 2, 3, 4)));
   // const lua_Integer charset = getInteger(L, 5, 0);
-  push(L, getApi(L).NotepadFont(title, format));
   return 1;
 }
 
@@ -1768,9 +1762,8 @@ int
 L_SetOutputFont(lua_State* L)
 {
   BENCHMARK
-  QFont font = getQFont(L, 1);
-  font.setPointSizeF(getNumber(L, 2));
-  getApi(L).SetOutputFont(font);
+  expectMaxArgs(L, 2);
+  getApi(L).SetOutputFont(getQFont(L, 1, 2));
   return 0;
 }
 
@@ -3074,12 +3067,10 @@ L_WindowFont(lua_State* L)
   expectMaxArgs(L, 10);
   const string_view windowName = getString(L, 1);
   const string_view fontID = getString(L, 2);
-  QFont font = getQFont(L, 3);
-  const qreal pointSize = getNumber(L, 4);
-  if (pointSize == 0 && font.family().isEmpty()) [[unlikely]] {
+  if (getString(L, 3, {}).empty() && getNumber(L, 4, 0.0) <= 0.0) [[unlikely]] {
     return returnCode(L, getApi(L).WindowUnloadFont(windowName, fontID));
   }
-  font.setPointSizeF(pointSize);
+  QFont font = getQFont(L, 3, 4);
   font.setBold(getBool(L, 5, false));
   font.setItalic(getBool(L, 6, false));
   font.setUnderline(getBool(L, 7, false));

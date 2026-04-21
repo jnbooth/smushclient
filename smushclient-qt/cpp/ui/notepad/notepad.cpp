@@ -23,26 +23,6 @@
 
 // Notepad
 
-// Public static methods
-
-QTextCharFormat
-Notepad::format(const QString& family, qreal pointSize, StyleFlags style)
-{
-  QTextCharFormat format;
-  if (!family.isEmpty()) {
-    format.setFontFamilies(QStringList(family));
-  }
-  if (pointSize != 0) {
-    format.setFontPointSize(pointSize);
-  }
-  format.setFontWeight(style.testFlag(StyleFlag::Bold) ? QFont::Weight::Bold
-                                                       : QFont::Weight::Normal);
-  format.setFontItalic(style.testFlag(StyleFlag::Italic));
-  format.setFontUnderline(style.testFlag(StyleFlag::Underline));
-  format.setFontStrikeOut(style.testFlag(StyleFlag::StrikeOut));
-  return format;
-}
-
 // Public methods
 
 Notepad::Notepad(const QString& name, QWidget* parent)

@@ -341,7 +341,7 @@ public:
   bool NotepadColour(const QString& name,
                      const QColor& foreground,
                      const QColor& background) const;
-  bool NotepadFont(const QString& name, const QTextCharFormat& format) const;
+  bool NotepadFont(const QString& name, const QFont& font) const;
   bool NotepadReadOnly(const QString& name, bool readOnly) const;
   bool NotepadSaveMethod(const QString& name, Notepad::SaveMethod method) const;
   void NoteStyle(const QTextCharFormat& format) const;

@@ -78,10 +78,10 @@ ScriptApi::NotepadColour(const QString& name,
 }
 
 bool
-ScriptApi::NotepadFont(const QString& name, const QTextCharFormat& format) const
+ScriptApi::NotepadFont(const QString& name, const QFont& font) const
 {
   Notepad* notepad = TRY_NOTEPAD(name);
-  notepad->editor()->mergeCurrentCharFormat(format);
+  notepad->editor()->setFont(font);
   return true;
 }
 
