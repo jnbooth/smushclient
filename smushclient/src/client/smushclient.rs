@@ -167,15 +167,11 @@ impl SmushClient {
 
     pub fn save_world<W: Write>(&self, writer: W) -> Result<(), PersistError> {
         let world_plugin = self.world_plugin();
-        let config = self.world.borrow();
-        let aliases = world_plugin.aliases.borrow();
-        let timers = world_plugin.timers.borrow();
-        let triggers = world_plugin.triggers.borrow();
         World {
-            config: Cow::Borrowed(&config),
-            aliases: Cow::Borrowed(&aliases),
-            timers: Cow::Borrowed(&timers),
-            triggers: Cow::Borrowed(&triggers),
+            config: Cow::Borrowed(&self.world.borrow()),
+            aliases: Cow::Borrowed(&world_plugin.aliases.borrow()),
+            timers: Cow::Borrowed(&world_plugin.timers.borrow()),
+            triggers: Cow::Borrowed(&world_plugin.triggers.borrow()),
         }
         .save(writer)
     }
@@ -711,9 +707,12 @@ impl SmushClient {
         self.senders::<T>(index)
             .borrow_mut()
             .iter_mut()
-            .filter(|sender| sender.as_ref().group == group)
             .fold(0, |acc, sender| {
-                sender.as_mut().enabled = enabled;
+                let sender = sender.as_mut();
+                if sender.group != group {
+                    return acc;
+                }
+                sender.enabled = enabled;
                 acc + 1
             })
     }
@@ -1120,9 +1119,9 @@ impl SmushClient {
                             has_style = !style.is_null();
                         }
                         sender.add_effects(effects);
-                        let reaction = sender.reaction();
-                        if reaction.one_shot {
-                            one_shots.insert(reaction.id);
+                        let sender = sender.as_ref();
+                        if sender.one_shot {
+                            one_shots.insert(sender.id);
                         }
                     }
                     if has_style && let Some(capture) = captures.get(0) {
