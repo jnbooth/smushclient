@@ -219,8 +219,7 @@ ScriptApi::DoAfter(size_t plugin,
   if (seconds < 0.1 || seconds >= 86400) {
     return ApiCode::TimeInvalid;
   }
-  const milliseconds duration =
-    milliseconds{ static_cast<int64_t>(seconds * 1000.0) };
+  const milliseconds duration{ static_cast<int64_t>(seconds * 1000.0) };
   sendQueue->start(duration,
                    { .plugin = plugin,
                      .sendTo = target,

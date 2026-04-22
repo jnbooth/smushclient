@@ -40,12 +40,7 @@ using qlua::push;
 using qlua::pushEntry;
 using qlua::pushList;
 
-using std::array;
-using std::make_unique;
-using std::pair;
-using std::span;
 using std::string_view;
-using std::unique_ptr;
 
 DECLARE_ENUM_BOUNDS(QFontDatabase::SystemFont,
                     GeneralFont,
@@ -55,7 +50,7 @@ namespace {
 const char* const utilsRegKey = "smushclient.utils";
 } // namespace
 
-static const pair<lua_Integer, string_view> infoTypes[] = {
+static const std::pair<lua_Integer, string_view> infoTypes[] = {
   { 1, "Server name" },
   { 2, "World name" },
   { 3, "Character name" },
@@ -426,7 +421,7 @@ formatStandardButton(QMessageBox::StandardButton button)
   }
 }
 
-constexpr array<QMessageBox::StandardButton, 3>
+constexpr std::array<QMessageBox::StandardButton, 3>
 getMessageBoxButtons(string_view opt)
 {
   using Button = QMessageBox::StandardButton;
@@ -532,7 +527,8 @@ int
 L_callbackslist(lua_State* L)
 {
   expectMaxArgs(L, 0);
-  const span callbacks = NamedPluginCallback::list();
+  const std::span<const NamedPluginCallback* const> callbacks =
+    NamedPluginCallback::list();
   lua_createtable(L, static_cast<int>(callbacks.size()), 0);
   lua_Integer i = 0;
   for (const NamedPluginCallback* const callback : callbacks) {
@@ -550,8 +546,8 @@ L_choose(lua_State* L)
   const QString title = getQString(L, 2, QCoreApplication::applicationName());
   const QVariant defaultKey = getKey(L, 4, 4);
 
-  unique_ptr<ChooseDialog> dialog =
-    make_unique<ChooseDialog>(title, message, getApi(L).parentWidget());
+  std::unique_ptr<ChooseDialog> dialog =
+    std::make_unique<ChooseDialog>(title, message, getApi(L).parentWidget());
   return execScriptDialog(L, 3, *dialog, defaultKey);
 }
 
@@ -599,8 +595,8 @@ L_directorypicker(lua_State* L)
 int
 L_editbox(lua_State* L)
 {
-  unique_ptr<InputBox> dialog =
-    make_unique<InputBox>(L, true, getApi(L).parentWidget());
+  std::unique_ptr<InputBox> dialog =
+    std::make_unique<InputBox>(L, true, getApi(L).parentWidget());
   if (dialog->exec() == QDialog::Accepted) {
     push(L, dialog->textValue());
   } else {
@@ -740,8 +736,8 @@ L_infotypes(lua_State* L)
 int
 L_inputbox(lua_State* L)
 {
-  unique_ptr<InputBox> dialog =
-    make_unique<InputBox>(L, false, getApi(L).parentWidget());
+  std::unique_ptr<InputBox> dialog =
+    std::make_unique<InputBox>(L, false, getApi(L).parentWidget());
   if (dialog->exec() == QDialog::Accepted) {
     push(L, dialog->textValue());
   } else {
@@ -758,8 +754,8 @@ L_listbox(lua_State* L)
   const QString title = getQString(L, 2, QCoreApplication::applicationName());
   const QVariant defaultKey = getKey(L, 4, 4);
 
-  unique_ptr<ListBoxDialog> dialog =
-    make_unique<ListBoxDialog>(title, message, getApi(L).parentWidget());
+  std::unique_ptr<ListBoxDialog> dialog =
+    std::make_unique<ListBoxDialog>(title, message, getApi(L).parentWidget());
   return execScriptDialog(L, 3, *dialog, defaultKey);
 }
 
@@ -779,7 +775,7 @@ L_msgbox(lua_State* L)
   expectMaxArgs(L, 5);
   const QString message = getQString(L, 1);
   const QString title = getQString(L, 2, QCoreApplication::applicationName());
-  const array<Button, 3> buttonArray =
+  const std::array<Button, 3> buttonArray =
     getMessageBoxButtons(getString(L, 3, "ok"));
   const QMessageBox::Icon icon = getMessageBoxIcon(getString(L, 4, "!"));
   const lua_Integer defaultButton = getInteger(L, 5, 1);
@@ -793,8 +789,8 @@ L_msgbox(lua_State* L)
                 5,
                 "msgbox default button must be 1, 2 or 3");
   QWidget* parent = getApi(L).parentWidget();
-  unique_ptr<QMessageBox> messageBox =
-    make_unique<QMessageBox>(icon, title, message, buttons, parent);
+  std::unique_ptr<QMessageBox> messageBox =
+    std::make_unique<QMessageBox>(icon, title, message, buttons, parent);
   messageBox->setDefaultButton(buttonArray.at(defaultButton - 1));
   push(L, formatStandardButton(Button(messageBox->exec())));
   return 1;
@@ -822,8 +818,8 @@ L_multilistbox(lua_State* L)
     }
   }
 
-  unique_ptr<ListBoxDialog> dialog =
-    make_unique<ListBoxDialog>(title, message, getApi(L).parentWidget());
+  std::unique_ptr<ListBoxDialog> dialog =
+    std::make_unique<ListBoxDialog>(title, message, getApi(L).parentWidget());
   dialog->setMode(QListWidget::SelectionMode::MultiSelection);
   return execScriptDialog(L, 3, *dialog, defaults);
 }

@@ -727,7 +727,7 @@ ScriptApi::flushCommandQueue()
 QVariant
 ScriptApi::getSenderInfo(SenderKind kind,
                          size_t pluginIndex,
-                         std::string_view label,
+                         string_view label,
                          int64_t infoType) const
 {
   if (infoType == scriptInfoIndex(kind)) {
@@ -742,8 +742,8 @@ ScriptApi::getSenderInfo(SenderKind kind,
 
 QVariant
 ScriptApi::getSenderInfo(SenderKind kind,
-                         std::string_view pluginId,
-                         std::string_view label,
+                         string_view pluginId,
+                         string_view label,
                          int64_t infoType) const
 {
   const size_t pluginIndex = findPluginIndex(pluginId);

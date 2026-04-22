@@ -20,7 +20,6 @@ extern "C"
 
 using std::string;
 using std::string_view;
-using std::vector;
 using std::chrono::milliseconds;
 
 constexpr const uint8_t telnetNAWS = 31;
@@ -162,7 +161,7 @@ Document::expireLinks(rust::Str expires)
 {
   serverExpiresLinks = true;
   if (!expires.empty()) {
-    vector<QTextCursor>& expiredLinks = linksWithExpiration(expires);
+    std::vector<QTextCursor>& expiredLinks = linksWithExpiration(expires);
     for (QTextCursor& linkCursor : expiredLinks) {
       linkCursor.mergeCharFormat(expireLinkFormat);
     }
@@ -170,7 +169,7 @@ Document::expireLinks(rust::Str expires)
     return;
   }
   for (auto& pair : links) {
-    vector<QTextCursor>& expiredLinks = pair.second;
+    std::vector<QTextCursor>& expiredLinks = pair.second;
     for (QTextCursor& linkCursor : expiredLinks) {
       linkCursor.mergeCharFormat(expireLinkFormat);
     }
@@ -456,7 +455,7 @@ Document::updateMxpStat(const QString& entity, const QString& value) const
 
 // Private methods
 
-vector<QTextCursor>&
+std::vector<QTextCursor>&
 Document::linksWithExpiration(rust::Str expires)
 {
   return links[string(expires.data(), expires.length())];

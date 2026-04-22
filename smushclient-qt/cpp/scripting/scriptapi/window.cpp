@@ -8,12 +8,9 @@
 #include <QtGui/QGradient>
 #include <QtGui/QPainterPath>
 
-using std::array;
 using std::optional;
 using std::string;
 using std::string_view;
-using std::unique_ptr;
-using std::vector;
 
 // Private utils
 
@@ -63,7 +60,7 @@ ScriptApi::WindowArc(string_view windowName,
 }
 
 ApiCode
-ScriptApi::WindowBezier(std::string_view windowName,
+ScriptApi::WindowBezier(string_view windowName,
                         const QList<QPointF>& points,
                         const QPen& pen) const
 {
@@ -127,7 +124,7 @@ ScriptApi::WindowCreate(size_t index,
   }
 
   const string windowName(name);
-  unique_ptr<MiniWindow>& window = windows[windowName];
+  std::unique_ptr<MiniWindow>& window = windows[windowName];
   if (window == nullptr) {
     window = std::make_unique<MiniWindow>(
       location, size, position, flags, fill, plugins[index].id(), tab.ui->area);
@@ -145,7 +142,7 @@ ScriptApi::WindowCreate(size_t index,
 ApiCode
 ScriptApi::WindowCreateImage(string_view windowName,
                              string_view imageID,
-                             array<int64_t, 8> rows) const
+                             std::array<int64_t, 8> rows) const
 {
   constexpr const QSize grid(8, 8);
   static_assert(sizeof(rows) == sizeof(uchar) * grid.height() * grid.width());
@@ -211,11 +208,11 @@ ScriptApi::WindowEllipse(string_view windowName,
 }
 
 ApiCode
-ScriptApi::WindowEllipse(std::string_view windowName,
+ScriptApi::WindowEllipse(string_view windowName,
                          const QRectF& rect,
                          const QPen& pen,
                          const QColor& brushColor,
-                         std::string_view imageID) const
+                         string_view imageID) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
   const QPixmap* pixmap = TRY_PIXMAP(window, imageID);
@@ -251,8 +248,8 @@ ScriptApi::WindowFont(string_view windowName,
   return ApiCode::OK;
 }
 
-vector<string_view>
-ScriptApi::WindowFontList(std::string_view windowName) const
+std::vector<string_view>
+ScriptApi::WindowFontList(string_view windowName) const
 {
   MiniWindow* window = findWindow(windowName);
   CHECK_NONNULL(window);
@@ -271,8 +268,8 @@ ScriptApi::WindowFrame(string_view windowName,
 }
 
 ApiCode
-ScriptApi::WindowGetImageAlpha(std::string_view windowName,
-                               std::string_view imageID,
+ScriptApi::WindowGetImageAlpha(string_view windowName,
+                               string_view imageID,
                                const QRectF& rect,
                                const QPointF& point) const
 {
@@ -287,8 +284,7 @@ ScriptApi::WindowGetImageAlpha(std::string_view windowName,
 }
 
 optional<QColor>
-ScriptApi::WindowGetPixel(std::string_view windowName,
-                          const QPoint& point) const
+ScriptApi::WindowGetPixel(string_view windowName, const QPoint& point) const
 {
   MiniWindow* window = findWindow(windowName);
   CHECK_NONNULL(window);
@@ -331,8 +327,8 @@ ScriptApi::WindowImageFromWindow(string_view windowName,
   return ApiCode::OK;
 }
 
-vector<string_view>
-ScriptApi::WindowImageList(std::string_view windowName) const
+std::vector<string_view>
+ScriptApi::WindowImageList(string_view windowName) const
 {
   MiniWindow* window = findWindow(windowName);
   CHECK_NONNULL(window);
@@ -366,7 +362,7 @@ ScriptApi::WindowLine(string_view windowName,
   return ApiCode::OK;
 }
 
-vector<string_view>
+std::vector<string_view>
 ScriptApi::WindowList() const noexcept
 {
   return windows.keys();
@@ -424,9 +420,9 @@ ScriptApi::WindowMenu(string_view windowName,
 }
 
 ApiCode
-ScriptApi::WindowMergeImageAlpha(std::string_view windowName,
-                                 std::string_view imageID,
-                                 std::string_view maskID,
+ScriptApi::WindowMergeImageAlpha(string_view windowName,
+                                 string_view imageID,
+                                 string_view maskID,
                                  const QRect& targetRect,
                                  MergeMode mode,
                                  qreal opacity,
@@ -486,11 +482,11 @@ ScriptApi::WindowRect(string_view windowName,
 }
 
 ApiCode
-ScriptApi::WindowRect(std::string_view windowName,
+ScriptApi::WindowRect(string_view windowName,
                       const QRectF& rect,
                       const QPen& pen,
                       const QColor& brushColor,
-                      std::string_view imageID) const
+                      string_view imageID) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
   const QPixmap* pixmap = TRY_PIXMAP(window, imageID);
@@ -520,13 +516,13 @@ ScriptApi::WindowRoundedRect(string_view windowName,
 }
 
 ApiCode
-ScriptApi::WindowRoundedRect(std::string_view windowName,
+ScriptApi::WindowRoundedRect(string_view windowName,
                              const QRectF& rect,
                              qreal xRadius,
                              qreal yRadius,
                              const QPen& pen,
                              const QColor& brushColor,
-                             std::string_view imageID) const
+                             string_view imageID) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
   const QPixmap* pixmap = TRY_PIXMAP(window, imageID);
@@ -560,7 +556,7 @@ ScriptApi::WindowResize(string_view windowName,
 }
 
 ApiCode
-ScriptApi::WindowSetPixel(std::string_view windowName,
+ScriptApi::WindowSetPixel(string_view windowName,
                           const QPoint& point,
                           const QColor& color) const
 {
@@ -628,8 +624,8 @@ ScriptApi::WindowTextWidth(string_view windowName,
 }
 
 ApiCode
-ScriptApi::WindowTransformImage(std::string_view windowName,
-                                std::string_view imageID,
+ScriptApi::WindowTransformImage(string_view windowName,
+                                string_view imageID,
                                 MergeMode mode,
                                 const QTransform& transform) const
 {
@@ -656,8 +652,7 @@ ScriptApi::WindowUnloadImage(string_view windowName, string_view windowID) const
 }
 
 ApiCode
-ScriptApi::WindowWrite(std::string_view windowName,
-                       const QString& filename) const
+ScriptApi::WindowWrite(string_view windowName, const QString& filename) const
 {
   if (filename.isEmpty()) {
     return ApiCode::NoNameSpecified;

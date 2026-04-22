@@ -4,7 +4,6 @@
 
 using std::string;
 using std::string_view;
-using std::vector;
 
 // Public methods
 
@@ -49,10 +48,10 @@ ScriptApi::GetPluginName(size_t index) const
   return plugins.at(index).name();
 }
 
-vector<string_view>
+std::vector<string_view>
 ScriptApi::GetPluginList() const
 {
-  vector<string_view> list;
+  std::vector<string_view> list;
   list.reserve(plugins.size());
   for (const Plugin& plugin : plugins) {
     list.emplace_back(plugin.id());
@@ -61,7 +60,7 @@ ScriptApi::GetPluginList() const
 }
 
 bool
-ScriptApi::IsPluginInstalled(std::string_view pluginID) const
+ScriptApi::IsPluginInstalled(string_view pluginID) const
 {
   return findPluginIndex(pluginID) != noSuchPlugin;
 }

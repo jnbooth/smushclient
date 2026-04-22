@@ -3,9 +3,6 @@
 #include <QtCore/QDateTime>
 #include <algorithm>
 
-using std::strong_ordering;
-using std::vector;
-
 constexpr int iconSize = 32;
 
 using KnownVariable = ServerStatus::KnownVariable;
@@ -143,7 +140,7 @@ struct StatusEntry
   {
   }
 
-  strong_ordering operator<=>(const StatusEntry& other) const noexcept =
+  std::strong_ordering operator<=>(const StatusEntry& other) const noexcept =
     default;
 };
 
@@ -157,7 +154,7 @@ ServerStatus::ServerStatus(const QHash<QString, QString>& status,
   ui->setupUi(this);
   variableFont.setBold(true);
   QWidget* area = ui->scrollAreaWidgetContents;
-  vector<StatusEntry> entries;
+  std::vector<StatusEntry> entries;
   entries.reserve(status.size());
   QStringList supported;
   QStringList unsupported;

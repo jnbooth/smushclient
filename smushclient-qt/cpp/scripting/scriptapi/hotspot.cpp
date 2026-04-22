@@ -2,7 +2,6 @@
 
 using std::string;
 using std::string_view;
-using std::vector;
 
 #define TRY_WINDOW(windowName)                                                 \
   findWindow((windowName));                                                    \
@@ -84,8 +83,8 @@ ScriptApi::WindowHotspotInfo(string_view windowName,
   return hotspot->info(infoType);
 }
 
-vector<string_view>
-ScriptApi::WindowHotspotList(std::string_view windowName) const
+std::vector<string_view>
+ScriptApi::WindowHotspotList(string_view windowName) const
 {
   MiniWindow* window = findWindow(windowName);
   CHECK_NONNULL(window);

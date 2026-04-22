@@ -52,7 +52,7 @@ ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
 QString
 ScriptApi::ExportXML(size_t plugin,
                      ExportKind kind,
-                     std::string_view name) const noexcept
+                     string_view name) const noexcept
 {
   try {
     return client.tryExportXml(kind, plugin, name);

@@ -5,11 +5,9 @@ extern "C"
 #include "lua.h"
 }
 
-using std::shared_ptr;
-
 // Public methods
 
-ScriptThread::ScriptThread(const shared_ptr<lua_State>& parentL)
+ScriptThread::ScriptThread(const std::shared_ptr<lua_State>& parentL)
   : L(lua_newthread(parentL.get()))
   , parentLptr(parentL)
 {

@@ -13,7 +13,6 @@ extern "C"
 #include "lauxlib.h"
 }
 
-using std::array;
 using std::nullopt;
 using std::optional;
 using std::string;
@@ -21,7 +20,7 @@ using std::string_view;
 
 // Private utilities
 
-static const array<QColor, 16> customColors = {
+static const std::array<QColor, 16> customColors = {
   QColor(255, 128, 128), QColor(255, 255, 128), QColor(128, 255, 128),
   QColor(128, 255, 255), QColor(0, 128, 255),   QColor(255, 128, 192),
   QColor(255, 0, 0),     QColor(0, 128, 192),   QColor(255, 0, 255),

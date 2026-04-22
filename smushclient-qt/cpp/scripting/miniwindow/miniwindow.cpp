@@ -12,27 +12,25 @@
 #include <algorithm>
 #include <cmath>
 
-using std::span;
 using std::string;
 using std::string_view;
-using std::vector;
 
 // Private utils
 
 namespace {
-constexpr span<const char>
+constexpr std::span<const char>
 trim(const string& s) noexcept
 {
   const size_t start = s.find_first_not_of(' ');
   const size_t end = s.find_last_not_of(' ');
-  return span(s).subspan(start, end + 1 - start);
+  return std::span(s).subspan(start, end + 1 - start);
 }
 
 inline bool
 buildMenu(QMenu& menu, string_view text)
 {
   const size_t menuCount = 1 + std::count(text.cbegin(), text.cend(), '>');
-  vector<QMenu*> menus;
+  std::vector<QMenu*> menus;
   menus.reserve(menuCount);
   menus.push_back(&menu);
   std::istringstream stream((string(text)));
@@ -46,7 +44,7 @@ buildMenu(QMenu& menu, string_view text)
     stream.get(); // vertical alignment
   }
   for (string untrimmed; std::getline(stream, untrimmed, '|');) {
-    const span<const char> item = trim(untrimmed);
+    const std::span<const char> item = trim(untrimmed);
     if (item.empty()) {
       menus.back()->addSeparator();
       continue;
@@ -507,19 +505,19 @@ MiniWindow::findImage(string_view imageID) const noexcept
   return &search->second;
 }
 
-vector<string_view>
+std::vector<string_view>
 MiniWindow::fontList() const noexcept
 {
   return fonts.keys();
 }
 
-vector<string_view>
+std::vector<string_view>
 MiniWindow::hotspotList() const noexcept
 {
   return hotspots.keys();
 }
 
-vector<string_view>
+std::vector<string_view>
 MiniWindow::imageList() const noexcept
 {
   return images.keys();
@@ -541,12 +539,12 @@ MiniWindow::loadFont(string_view fontID, const QFont& font)
 }
 
 const QPixmap&
-MiniWindow::loadImage(std::string_view imageID, QPixmap&& image)
+MiniWindow::loadImage(string_view imageID, QPixmap&& image)
 {
   return images.emplace(string(imageID), std::move(image)).first->second;
 }
 const QPixmap&
-MiniWindow::loadImage(std::string_view imageID, const QPixmap& image)
+MiniWindow::loadImage(string_view imageID, const QPixmap& image)
 {
   return images.emplace(string(imageID), image).first->second;
 }

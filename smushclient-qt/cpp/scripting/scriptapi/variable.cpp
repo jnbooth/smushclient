@@ -8,7 +8,7 @@ using std::string_view;
 
 // Public static methods
 
-std::string_view
+string_view
 ScriptApi::GetXMLEntity(string_view name) noexcept
 {
   return ffi::util::get_global_entity(name);
@@ -23,7 +23,7 @@ ScriptApi::DeleteVariable(size_t plugin, string_view key) const noexcept
                                            : ApiCode::VariableNotFound;
 }
 
-std::string_view
+string_view
 ScriptApi::GetEntity(string_view name) const noexcept
 {
   return client.getMxpEntity(name);

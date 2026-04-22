@@ -17,6 +17,8 @@ using std::nullopt;
 using std::optional;
 using std::string;
 using std::string_view;
+using std::chrono::duration_cast;
+using std::chrono::seconds;
 
 using qlua::colorToRgbCode;
 using qlua::concatArgs;
@@ -1125,10 +1127,7 @@ L_GetConnectDuration(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 0);
-  push(L,
-       std::chrono::duration_cast<std::chrono::seconds>(
-         getApi(L).GetConnectDuration())
-         .count());
+  push(L, duration_cast<seconds>(getApi(L).GetConnectDuration()).count());
   return 1;
 }
 

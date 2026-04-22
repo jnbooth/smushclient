@@ -9,7 +9,6 @@ extern "C"
 #include "lua.h"
 }
 
-using std::pair;
 using std::string;
 
 struct TableEntry
@@ -127,7 +126,7 @@ static const TableEntry error_code[] = {
   { "eBrushStyleNotValid", ApiCode::BrushStyleNotValid }
 };
 
-static const pair<ApiCode, string> error_desc[] = {
+static const std::pair<ApiCode, string> error_desc[] = {
   { ApiCode::OK, "No error" },
   { ApiCode::WorldOpen, "The world is already open" },
   { ApiCode::WorldClosed,

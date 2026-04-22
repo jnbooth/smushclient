@@ -21,6 +21,8 @@
 
 using std::string;
 using std::string_view;
+using std::chrono::duration_cast;
+using std::chrono::seconds;
 
 // Private utils
 
@@ -424,9 +426,7 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 298:
       return sqlite3_libversion_number();
     case 301:
-      return std::chrono::duration_cast<std::chrono::seconds>(
-               whenConnected.durationElapsed())
-        .count();
+      return duration_cast<seconds>(whenConnected.durationElapsed()).count();
     case 304:
       return QDateTime::currentDateTime();
     case 306:
@@ -570,8 +570,8 @@ ScriptApi::WindowFontInfo(string_view windowName,
 }
 
 QVariant
-ScriptApi::WindowImageInfo(std::string_view windowName,
-                           std::string_view imageID,
+ScriptApi::WindowImageInfo(string_view windowName,
+                           string_view imageID,
                            int64_t infoType) const
 {
   MiniWindow* window = findWindow(windowName);

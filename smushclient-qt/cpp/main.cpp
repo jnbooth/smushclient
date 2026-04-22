@@ -34,7 +34,7 @@ main(int argc, char* argv[])
   QCoreApplication::setApplicationVersion(QStringLiteral(CMAKE_APP_VERSION));
   Settings settings;
   initializeStartupDirectory(settings.getStartupDirectoryOrDefault());
-  Notepads* notepads = new Notepads;
+  std::unique_ptr<Notepads> notepads = std::make_unique<Notepads>();
   MainWindow* w = new MainWindow(*notepads);
   for (const QString& reopen : settings.getStartupWorlds()) {
     w->openWorld(reopen);
