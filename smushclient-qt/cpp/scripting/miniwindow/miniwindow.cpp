@@ -167,7 +167,7 @@ MiniWindow::addHotspot(string_view hotspotID,
   for (const auto& entry : hotspots) {
     const string_view entryID = entry.first;
     if (entryID == hotspotID) {
-      Hotspot* hotspot = &*entry.second;
+      Hotspot* hotspot = entry.second.get();
       if (!hotspot->belongsToPlugin(plugin)) {
         return nullptr;
       }
@@ -176,14 +176,14 @@ MiniWindow::addHotspot(string_view hotspotID,
     }
     if (entryID < hotspotID &&
         ((neighbor == nullptr) || entryID > neighborID)) {
-      neighbor = &*entry.second;
+      neighbor = entry.second.get();
       neighborID = entryID;
     }
   }
 
   auto& hotspotInsert = hotspots[string(hotspotID)] = std::make_unique<Hotspot>(
     tab, plugin, hotspotID, std::move(callbacks), this);
-  Hotspot* hotspot = &*hotspotInsert;
+  Hotspot* hotspot = hotspotInsert.get();
   if (neighbor != nullptr) {
     hotspot->stackUnder(neighbor);
   }
@@ -494,7 +494,7 @@ MiniWindow::findHotspot(string_view hotspotID) const noexcept
   if (search == hotspots.end()) {
     return nullptr;
   }
-  return &*search->second;
+  return search->second.get();
 }
 
 const QPixmap*

@@ -514,7 +514,7 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow& window) const
   WindowCompare neighborCompare;
 
   for (const auto& entry : windows) {
-    if (&*entry.second == &window ||
+    if (entry.second.get() == &window ||
         entry.second->drawsUnderneath() != drawsUnderneath) {
       continue;
     }
@@ -522,7 +522,7 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow& window) const
                                 .name = entry.first };
     if (entryCompare > compare &&
         ((neighbor == nullptr) || entryCompare < neighborCompare)) {
-      neighbor = &*entry.second;
+      neighbor = entry.second.get();
       neighborCompare = entryCompare;
     }
   }
@@ -699,7 +699,7 @@ ScriptApi::findWindow(string_view windowName) const noexcept
   if (search == windows.end()) [[unlikely]] {
     return nullptr;
   }
-  return &*search->second;
+  return search->second.get();
 }
 
 bool
