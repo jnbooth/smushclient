@@ -448,11 +448,9 @@ WorldTab::setActive(bool active)
 }
 
 void
-WorldTab::setOnDragMove(const Plugin& plugin,
-                        const PluginCallback& callback,
-                        QObject* parent)
+WorldTab::setOnDragMove(const Plugin& plugin, const PluginCallback& callback)
 {
-  CallbackTrigger trigger(plugin, callback, parent);
+  CallbackTrigger trigger(plugin, callback);
   if (!trigger.valid()) {
     return;
   }

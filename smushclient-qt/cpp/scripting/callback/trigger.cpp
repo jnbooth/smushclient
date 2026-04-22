@@ -8,10 +8,8 @@ extern "C"
 }
 
 CallbackTrigger::CallbackTrigger(const Plugin& plugin,
-                                 const PluginCallback& callback,
-                                 QObject* parent)
-  : parent(parent)
-  , plugin(&plugin)
+                                 const PluginCallback& callback)
+  : disabled(plugin.getDisabled())
   , thread(plugin.spawnThread())
 {
   lua_State* L = thread.state();
@@ -21,9 +19,15 @@ CallbackTrigger::CallbackTrigger(const Plugin& plugin,
 }
 
 bool
+CallbackTrigger::belongsToPlugin(const Plugin& plugin) const
+{
+  return plugin.getDisabled() == disabled;
+}
+
+bool
 CallbackTrigger::trigger()
 {
-  if (parent.isNull() || plugin->isDisabled()) [[unlikely]] {
+  if (*disabled) [[unlikely]] {
     return false;
   }
   lua_State* L = thread.state();

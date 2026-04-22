@@ -74,6 +74,7 @@ Hotspot::Hotspot(WorldTab& tab,
                  QWidget* parent)
   : QWidget(parent)
   , callbacks(std::move(callbacksMoved))
+  , disabled(plugin.getDisabled())
   , id(id)
   , plugin(plugin)
   , tab(tab)
@@ -271,5 +272,5 @@ Hotspot::startDrag(QMouseEvent* event)
   }
 
   HotspotCallback callback(callbacks.dragMove, getEventFlags(event), id);
-  tab.setOnDragMove(plugin, callback, this);
+  tab.setOnDragMove(plugin, callback);
 }

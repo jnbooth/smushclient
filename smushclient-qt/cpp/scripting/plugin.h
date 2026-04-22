@@ -22,13 +22,15 @@ class Plugin
 {
 public:
   Plugin(ScriptApi& api, const PluginPack& pack, size_t index);
+  ~Plugin();
 
+  std::shared_ptr<bool> getDisabled() const;
   bool hasFunction(PluginCallbackKey routine) const;
   bool hasFunction(const QString& routine) const;
   const std::string& id() const noexcept { return metadata.id; }
   QVariant info(int64_t infoType) const noexcept;
   bool install(const PluginPack& pack);
-  bool isDisabled() const noexcept { return disabled; }
+  bool isDisabled() const noexcept { return *disabled; }
   const std::string& name() const noexcept { return metadata.name; }
   void reset();
   void reset(ScriptApi& api);
@@ -48,5 +50,5 @@ public:
 private:
   std::shared_ptr<lua_State> Lptr = nullptr;
   PluginMetadata metadata;
-  bool disabled = false;
+  std::shared_ptr<bool> disabled = std::make_shared<bool>(false);
 };

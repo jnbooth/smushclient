@@ -52,6 +52,11 @@ Plugin::Plugin(ScriptApi& api, const PluginPack& pack, size_t index)
   reset(api);
 }
 
+Plugin::~Plugin()
+{
+  setEnabled(false);
+}
+
 class CallbackFinder : public DynamicPluginCallback
 {
 public:
@@ -68,6 +73,12 @@ public:
     return ActionSource::Unknown;
   }
 };
+
+std::shared_ptr<bool>
+Plugin::getDisabled() const
+{
+  return disabled;
+}
 
 bool
 Plugin::hasFunction(PluginCallbackKey routine) const
@@ -127,7 +138,7 @@ Plugin::reset()
 void
 Plugin::reset(ScriptApi& api)
 {
-  disabled = false;
+  setEnabled(true);
 
   Lptr.reset(luaL_newstate(), lua_close);
 
@@ -144,7 +155,7 @@ Plugin::reset(ScriptApi& api)
 bool
 Plugin::runCallback(PluginCallback& callback) const
 {
-  if (disabled) {
+  if (*disabled) {
     return false;
   }
   lua_State* L = state();
@@ -159,7 +170,7 @@ Plugin::runCallback(PluginCallback& callback) const
 bool
 Plugin::runCallbackThreaded(PluginCallback& callback) const
 {
-  if (disabled) {
+  if (*disabled) {
     return false;
   }
   lua_State* L = state();
@@ -179,7 +190,7 @@ Plugin::runCallbackThreaded(PluginCallback& callback) const
 bool
 Plugin::runFile(const QString& path) const
 {
-  if (disabled) [[unlikely]] {
+  if (*disabled) [[unlikely]] {
     return false;
   }
   lua_State* L = state();
@@ -189,7 +200,7 @@ Plugin::runFile(const QString& path) const
 bool
 Plugin::runScript(QByteArrayView script, const char* name) const
 {
-  if (disabled || script.empty()) [[unlikely]] {
+  if (*disabled || script.empty()) [[unlikely]] {
     return false;
   }
   lua_State* L = state();
@@ -199,7 +210,7 @@ Plugin::runScript(QByteArrayView script, const char* name) const
 void
 Plugin::setEnabled(bool enable) noexcept
 {
-  disabled = !enable;
+  *disabled = !enable;
 }
 
 ScriptThread

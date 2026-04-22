@@ -29,9 +29,6 @@ ScriptThread::~ScriptThread()
     return;
   }
   auto parentLock = parentLptr.lock();
-  if (!parentLock) {
-    return;
-  }
   lua_State* parentL = parentLock.get();
   if (parentL == nullptr) {
     return;

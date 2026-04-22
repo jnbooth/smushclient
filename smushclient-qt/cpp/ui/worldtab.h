@@ -65,9 +65,7 @@ public:
   bool sendCommand(const QString& command, CommandSource source);
   const QHash<QString, QString>& serverStatus() const;
   void setActive(bool active);
-  void setOnDragMove(const Plugin& plugin,
-                     const PluginCallback& callback,
-                     QObject* parent);
+  void setOnDragMove(const Plugin& plugin, const PluginCallback& callback);
   void setOnDragRelease(Hotspot* hotspot);
   void setStatusBarVisible(bool visible);
   void setTitle(const QString& title);

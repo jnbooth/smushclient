@@ -77,6 +77,7 @@ private:
 
 private:
   Callbacks callbacks;
+  std::shared_ptr<bool> disabled;
   std::string id;
   const Plugin& plugin;
   WorldTab& tab;
