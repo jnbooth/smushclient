@@ -59,7 +59,9 @@ showRustError(const rust::Error& e)
 
 // Public methods
 
-WorldTab::WorldTab(Notepads& notepads, QWidget* parent)
+WorldTab::WorldTab(const QTextCursor& infoCursor,
+                   Notepads& notepads,
+                   QWidget* parent)
   : QSplitter(parent)
   , ui(new Ui::WorldTab)
   , actionTextAttributes(
@@ -79,7 +81,8 @@ WorldTab::WorldTab(Notepads& notepads, QWidget* parent)
   ui->setupUi(this);
   // NOLINTBEGIN(cppcoreguidelines-prefer-member-initializer,
   // cppcoreguidelines-prefer-member-initializer)
-  api = new ScriptApi(client, *socket, *ui->output, notepads, *this);
+  api =
+    new ScriptApi(client, *socket, *ui->output, infoCursor, notepads, *this);
   document = new Document(*ui->output, *api, this);
   // NOLINTEND(cppcoreguidelines-prefer-member-initializer,
   // cppcoreguidelines-prefer-member-initializer)

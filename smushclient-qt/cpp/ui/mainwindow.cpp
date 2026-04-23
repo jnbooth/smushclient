@@ -6,6 +6,7 @@
 #include "../mudstatusbar/mudstatusbar.h"
 #include "../native/native.h"
 #include "../scripting/listbox.h"
+#include "../scripting/scriptapi.h"
 #include "../settings.h"
 #include "../spans.h"
 #include "dialog/aboutdialog.h"
@@ -40,24 +41,39 @@ MainWindow::MainWindow(Notepads& notepads, QWidget* parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
   , findDialog(new FindDialog(this))
+  , infoBar(new QTextDocument(this))
+  , infoBarLabel(new QLabel)
   , notepads(&notepads)
 {
   ui->setupUi(this);
   setWindowFlags(Qt::Window);
   setAttribute(Qt::WA_DeleteOnClose);
+  infoBarLabel->setAutoFillBackground(true);
+  QStatusBar* mainStatusBar = statusBar();
+  mainStatusBar->setLayoutDirection(Qt::LayoutDirection::LeftToRight);
+  mainStatusBar->addPermanentWidget(infoBarLabel);
   if (settings.getBackgroundTransparent()) {
     setBackgroundMaterial(settings.getBackgroundMaterial());
   }
 
   QDir::setCurrent(settings.getStartupDirectoryOrDefault());
 
+  ui->action_info_bar->setChecked(settings.getShowInfoBar());
   ui->action_status_bar->setChecked(settings.getShowStatusBar());
   ui->action_wrap_output->setChecked(settings.getOutputWrapping());
   SettingsDialog::connect(this);
+  connect(infoBar,
+          &QTextDocument::contentsChanged,
+          this,
+          &MainWindow::onInfoBarContentsChanged);
   connect(ui->action_log_session,
           &QAction::triggered,
           &settings,
           &Settings::setLoggingEnabled);
+  connect(ui->action_info_bar,
+          &QAction::toggled,
+          &settings,
+          &Settings::setShowInfoBar);
   connect(ui->action_status_bar,
           &QAction::triggered,
           &settings,
@@ -236,7 +252,9 @@ MainWindow::addRecentFile(const QString& filePath)
 WorldTab*
 MainWindow::createWorldTab(QWidget* parent) const
 {
-  WorldTab* tab = new WorldTab(*notepads, parent);
+  QTextCursor infoBarCursor(infoBar);
+  infoBarCursor.movePosition(QTextCursor::MoveOperation::End);
+  WorldTab* tab = new WorldTab(infoBarCursor, *notepads, parent);
   MudStatusBar* mudStatusBar = tab->statusBar();
   statusBar()->addPermanentWidget(mudStatusBar);
   mudStatusBar->hide();
@@ -248,9 +266,13 @@ void
 MainWindow::connectTab(WorldTab* tab) const
 {
   connect(tab, &WorldTab::copyAvailable, this, &MainWindow::onCopyAvailable);
-  connect(tab, &WorldTab::mainTitleChanged, this, &MainWindow::setTitle);
   connect(tab, &WorldTab::newActivity, this, &MainWindow::onNewActivity);
   connect(tab, &WorldTab::titleChanged, this, &MainWindow::onTitleChanged);
+  ScriptApi* api = tab->scriptApi();
+  connect(api, &ScriptApi::mainTitleChanged, this, &MainWindow::setTitle);
+  connect(
+    api, &ScriptApi::infoBarShown, ui->action_info_bar, &QAction::setChecked);
+
   connect(tab->ui->input,
           &MudInput::copyTriggered,
           this,
@@ -412,6 +434,12 @@ MainWindow::onConnectionStatusChanged(bool connected)
 {
   ui->action_connect->setEnabled(!connected);
   ui->action_disconnect->setEnabled(connected);
+}
+
+void
+MainWindow::onInfoBarContentsChanged()
+{
+  infoBarLabel->setText(infoBar->toHtml());
 }
 
 void
@@ -610,6 +638,12 @@ MainWindow::on_action_import_world_triggered()
   }
 
   importWorld(filePath);
+}
+
+void
+MainWindow::on_action_info_bar_triggered(bool checked)
+{
+  infoBarLabel->setVisible(checked);
 }
 
 void

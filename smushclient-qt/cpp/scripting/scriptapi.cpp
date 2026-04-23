@@ -18,7 +18,7 @@
 #include <QtGui/QGuiApplication>
 #include <QtGui/QTextBlock>
 #include <QtWidgets/QErrorMessage>
-#include <QtWidgets/QStatusBar>
+
 extern "C"
 {
 #include "lua.h"
@@ -89,12 +89,14 @@ ScriptApi::of(lua_State* L)
 ScriptApi::ScriptApi(SmushClient& client,
                      QAbstractSocket& socket,
                      MudBrowser& output,
+                     const QTextCursor& infoCursor,
                      Notepads& notepads,
                      WorldTab& parent)
   : QObject(&parent)
   , client(client)
   , commandQueueTimer(new QTimer(this))
   , cursor(output.cursor())
+  , infoCursor(infoCursor)
   , notepads(&notepads)
   , scrollBar(output.verticalScrollBar())
   , sendQueue(new TimerMap<SendRequest, ScriptApi>(*this,

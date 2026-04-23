@@ -53,7 +53,7 @@ function GetNotepadWindowPosition(title) end
 ---@return boolean succeeded
 function NotepadColour(title, foreground, background) end
 
----Changes the font, font size, style, and character set of the font for an open notepad window.
+---Changes the font, font size, and style for an open notepad window.
 ---@param title string Notepad title.
 ---@param fontName? string Font name. If nil or an empty string, font is not changed.
 ---@param size? number Font size. If nil or 0, font size is not changed.

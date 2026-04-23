@@ -98,11 +98,6 @@ function Pause(flag) end
 ---This closes any outstanding MXP and resets the output window colours to ANSI white on black. It also cancels underline, highlight, and inverse.
 function Reset() end
 
----This resets the "connect time" to now, so that the time shown on the status bar counts up from the moment you called this function.
----
----@see GetConnectDuration
-function ResetStatusTime() end
-
 ---This sets a background image for output window. The text in the output window is drawn on top of this. If the image does not completely fill the window, the background colour is visible beneath it.
 ---@param fileName string|nil Disk file to load the image from. The file name can be nil or an empty string, in which case any existing image will be removed.
 ---@param mode miniwin.pos See [`miniwin.pos`](lua://miniwin.pos).
@@ -180,10 +175,6 @@ function SetOutputFont(fontName, pointSize) end
 ---@return error_code code #
 ---`error_code.eOK`: Success.
 function SetScroll(position, visible) end
-
----This sets the status line (at the bottom of the screen) to the nominated text. It is useful for keeping track of things. The status line is separately maintained for each world.
----@param ... any Values to concatenate into text.
-function SetStatus(...) end
 
 ---Changes the status of the world window.
 ---@param parameter

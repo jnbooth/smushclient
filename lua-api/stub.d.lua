@@ -106,21 +106,6 @@ function GetUdpPort(...) end
 function Help(...) end
 
 ---Stub. Provided for compatibility with MUSHclient.
-function Info(...) end
-
----Stub. Provided for compatibility with MUSHclient.
-function InfoBackground(...) end
-
----Stub. Provided for compatibility with MUSHclient.
-function InfoClear(...) end
-
----Stub. Provided for compatibility with MUSHclient.
-function InfoColour(...) end
-
----Stub. Provided for compatibility with MUSHclient.
-function InfoFont(...) end
-
----Stub. Provided for compatibility with MUSHclient.
 ---@return false
 function Mapping(...) end
 
@@ -191,9 +176,6 @@ function SetUnseenLines(...) end
 ---Stub. Provided for compatibility with MUSHclient.
 ---@return 0
 function ShiftTabCompleteItem(...) end
-
----Stub. Provided for compatibility with MUSHclient.
-function ShowInfoBar(...) end
 
 ---Stub. Provided for compatibility with MUSHclient.
 ---@return nil

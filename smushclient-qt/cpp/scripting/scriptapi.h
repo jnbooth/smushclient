@@ -103,6 +103,7 @@ public:
   ScriptApi(SmushClient& client,
             QAbstractSocket& socket,
             MudBrowser& output,
+            const QTextCursor& infoCursor,
             Notepads& notepads,
             WorldTab& parent);
 
@@ -327,6 +328,11 @@ public:
                  bool url,
                  bool noUnderline);
   int64_t ImportXML(std::string_view xml) const noexcept;
+  void Info(const QString& text);
+  void InfoBackground(const QColor& color);
+  void InfoClear();
+  void InfoColour(const QColor& color);
+  void InfoFont(const QFont& font);
   ApiCode IsAlias(size_t plugin, std::string_view label) const noexcept;
   bool IsConnected() const;
   bool IsLogOpen() const noexcept;
@@ -408,7 +414,7 @@ public:
                              MiniWindow::Position position);
   QColor SetHighlightColour(const QColor& color) const;
   void SetInputFont(const QFont& font) const;
-  void SetMainTitle(const QString& title) const;
+  void SetMainTitle(const QString& title);
   ApiCode SetOption(size_t plugin, std::string_view name, int64_t value);
   void SetOutputFont(const QFont& font) const;
   ApiCode SetScroll(int position, bool visible) const;
@@ -431,6 +437,7 @@ public:
   bool SetVariable(size_t pluginIndex,
                    std::string_view key,
                    std::string_view value) const noexcept;
+  void ShowInfoBar(bool visible);
   void Simulate(std::string_view output) const noexcept;
   void StopEvaluatingTriggers() const noexcept;
   ApiCode StopSound(size_t channel = 0);
@@ -723,6 +730,10 @@ public slots:
   void onTimerSent(const SendTimer& timer);
   void reinstallPlugin(size_t index);
 
+signals:
+  void mainTitleChanged(const QString& title);
+  void infoBarShown(bool visible);
+
 private:
   static void activateWindow(QWidget* widget);
   DatabaseConnection* findDatabase(std::string_view databaseID) noexcept;
@@ -761,6 +772,7 @@ private:
   QPointer<MudCursor> cursor;
   string_map<DatabaseConnection> databases;
   QPointer<ImageWindow> foregroundImage = nullptr;
+  QTextCursor infoCursor;
   QByteArray lastCommandSent;
   QPointer<Notepads> notepads;
   std::vector<Plugin> plugins;

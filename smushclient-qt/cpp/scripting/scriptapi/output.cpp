@@ -1,7 +1,6 @@
 #include "../../casting.h"
 #include "../../layout.h"
 #include "../../ui/components/mudscrollbar.h"
-#include "../../ui/mudstatusbar/mudstatusbar.h"
 #include "../../ui/ui_worldtab.h"
 #include "../../ui/worldtab.h"
 #include "../scriptapi.h"
@@ -100,12 +99,6 @@ ScriptApi::Reset() const noexcept
   client.resetMxp();
 }
 
-void
-ScriptApi::ResetStatusTime() const
-{
-  statusBar()->resetStatusTime();
-}
-
 ApiCode
 ScriptApi::SetBackgroundImage(const QString& path,
                               MiniWindow::Position position)
@@ -128,9 +121,9 @@ ScriptApi::SetForegroundImage(const QString& path,
 }
 
 void
-ScriptApi::SetMainTitle(const QString& title) const
+ScriptApi::SetMainTitle(const QString& title)
 {
-  emit tab.mainTitleChanged(title);
+  emit mainTitleChanged(title);
 }
 
 void
@@ -149,12 +142,6 @@ ScriptApi::SetScroll(int position, bool visible) const
   }
   scrollBar->setVisible(visible);
   return ApiCode::OK;
-}
-
-void
-ScriptApi::SetStatus(const QString& status) const
-{
-  statusBar()->setMessage(status);
 }
 
 void

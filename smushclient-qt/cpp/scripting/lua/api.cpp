@@ -257,6 +257,79 @@ private:
 
 namespace {
 
+// bar
+
+int
+L_Info(lua_State* L)
+{
+  BENCHMARK
+  getApi(L).Info(QString::fromUtf8(concatArgs(L)));
+  return 0;
+}
+
+int
+L_InfoBackground(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).InfoBackground(getQColor(L, 1));
+  return 0;
+}
+
+int
+L_InfoClear(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  getApi(L).InfoClear();
+  return 0;
+}
+
+int
+L_InfoColour(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).InfoColour(getQColor(L, 1));
+  return 0;
+}
+
+int
+L_InfoFont(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 3);
+  getApi(L).InfoFont(getQFont(L, 1, 2, 3));
+  return 0;
+}
+
+int
+L_ResetStatusTime(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 0);
+  getApi(L).ResetStatusTime();
+  return 0;
+}
+
+int
+L_SetStatus(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).SetStatus(QString::fromUtf8(concatArgs(L)));
+  return 0;
+}
+
+int
+L_ShowInfoBar(lua_State* L)
+{
+  BENCHMARK
+  expectMaxArgs(L, 1);
+  getApi(L).ShowInfoBar(getBool(L, 1, true));
+  return 1;
+}
+
 // color
 
 int
@@ -1697,15 +1770,6 @@ L_Reset(lua_State* L)
 }
 
 int
-L_ResetStatusTime(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 0);
-  getApi(L).ResetStatusTime();
-  return 0;
-}
-
-int
 L_SetBackgroundImage(lua_State* L)
 {
   BENCHMARK
@@ -1771,15 +1835,6 @@ L_SetScroll(lua_State* L)
 {
   BENCHMARK
   return returnCode(L, getApi(L).SetScroll(getInt(L, 1), getBool(L, 2, true)));
-}
-
-int
-L_SetStatus(lua_State* L)
-{
-  BENCHMARK
-  expectMaxArgs(L, 1);
-  getApi(L).SetStatus(QString::fromUtf8(concatArgs(L)));
-  return 0;
 }
 
 int
@@ -3585,6 +3640,15 @@ L_stub_void(lua_State* /* L */)
 } // namespace
 
 static constexpr const struct luaL_Reg worldlib[] = {
+  // bar
+  { "Info", L_Info },
+  { "InfoBackground", L_InfoBackground },
+  { "InfoClear", L_InfoClear },
+  { "InfoColour", L_InfoColour },
+  { "InfoFont", L_InfoFont },
+  { "ResetStatusTime", L_ResetStatusTime },
+  { "SetStatus", L_SetStatus },
+  { "ShowInfoBar", L_ShowInfoBar },
   // color
   { "AdjustColour", L_AdjustColour },
   { "ColourNameToRGB", L_ColourNameToRGB },
@@ -3741,7 +3805,6 @@ static constexpr const struct luaL_Reg worldlib[] = {
   { "OpenBrowser", L_OpenBrowser },
   { "Pause", L_Pause },
   { "Reset", L_Reset },
-  { "ResetStatusTime", L_ResetStatusTime },
   { "SetBackgroundImage", L_SetBackgroundImage },
   { "SetCursor", L_SetCursor },
   { "SetEchoInput", L_SetEchoInput },
@@ -3749,7 +3812,6 @@ static constexpr const struct luaL_Reg worldlib[] = {
   { "SetMainTitle", L_SetMainTitle },
   { "SetOutputFont", L_SetOutputFont },
   { "SetScroll", L_SetScroll },
-  { "SetStatus", L_SetStatus },
   { "SetTitle", L_SetTitle },
   { "SetWorldWindowStatus", L_SetWorldWindowStatus },
   { "Simulate", L_Simulate },

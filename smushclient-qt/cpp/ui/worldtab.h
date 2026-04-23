@@ -4,6 +4,7 @@
 #include "../hotkeys.h"
 #include "../scripting/callback/trigger.h"
 #include <QtCore/QFileSystemWatcher>
+#include <QtWidgets/QLabel>
 #include <QtWidgets/QSplitter>
 #include <QtWidgets/QTextEdit>
 
@@ -37,7 +38,9 @@ public:
   };
 
 public:
-  explicit WorldTab(Notepads& notepads, QWidget* parent = nullptr);
+  explicit WorldTab(const QTextCursor& infoCursor,
+                    Notepads& notepads,
+                    QWidget* parent = nullptr);
   ~WorldTab() override;
 
   bool active() const noexcept { return m_active; }
@@ -62,6 +65,7 @@ public:
   QString saveWorld();
   QString saveWorldAs() { return saveWorldAsNew(QString()); }
   QString saveWorldAsNew(const QString& path, bool separate = false);
+  ScriptApi* scriptApi() { return api; }
   bool sendCommand(const QString& command, CommandSource source);
   const QHash<QString, QString>& serverStatus() const;
   void setActive(bool active);
@@ -98,7 +102,6 @@ public slots:
 signals:
   void connectionStatusChanged(bool connected);
   void copyAvailable(AvailableCopy available);
-  void mainTitleChanged(const QString& title);
   void newActivity(WorldTab* self);
   void titleChanged(WorldTab* self, const QString& title);
 

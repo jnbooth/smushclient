@@ -108,6 +108,7 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
+    <addaction name="action_info_bar"/>
     <addaction name="action_status_bar"/>
     <addaction name="separator"/>
     <addaction name="action_wrap_output"/>
@@ -442,6 +443,14 @@
    </property>
    <property name="visible">
     <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_info_bar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show &amp;Info Bar</string>
    </property>
   </action>
   <action name="action_status_bar">

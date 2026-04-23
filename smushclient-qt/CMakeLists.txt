@@ -104,6 +104,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/scriptenums.h cpp/scripting/scriptenums.cpp
     cpp/scripting/scriptthread.h cpp/scripting/scriptthread.cpp
 
+    cpp/scripting/scriptapi/bar.cpp
     cpp/scripting/scriptapi/color.cpp
     cpp/scripting/scriptapi/file.cpp
     cpp/scripting/scriptapi/generate.cpp

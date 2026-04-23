@@ -19,27 +19,28 @@ template <> struct SettingInput<QVariant>    { using Type = const QVariant&; };
 // clang-format on
 
 #define SETTING(name, T, defaultValue, keyLiteral)                             \
-  static const QString key##name = QStringLiteral(keyLiteral);                 \
   void Settings::set##name(SettingInput<T>::Type value)                        \
   {                                                                            \
-    store.setValue(key##name, value);                                          \
+    static const QString key = QStringLiteral(keyLiteral);                     \
+    store.setValue(key, value);                                                \
   }                                                                            \
   T Settings::get##name() const                                                \
   {                                                                            \
-    return store.contains(key##name) ? store.value(key##name).value<T>()       \
-                                     : (defaultValue);                         \
+    static const QString key = QStringLiteral(keyLiteral);                     \
+    return store.contains(key) ? store.value(key).value<T>() : (defaultValue); \
   }
 
 #define SETTING_ENUM(name, T, defaultValue, keyLiteral)                        \
-  static const QString key##name = QStringLiteral(keyLiteral);                 \
   void Settings::set##name(SettingInput<T>::Type value)                        \
   {                                                                            \
-    store.setValue(key##name, (int)value);                                     \
+    static const QString key = QStringLiteral(keyLiteral);                     \
+    store.setValue(key, (int)value);                                           \
   }                                                                            \
   T Settings::get##name() const                                                \
   {                                                                            \
-    return store.contains(key##name) ? (T)store.value(key##name).value<T>()    \
-                                     : (defaultValue);                         \
+    static const QString key = QStringLiteral(keyLiteral);                     \
+    return store.contains(key) ? (T)store.value(key).value<T>()                \
+                               : (defaultValue);                               \
   }
 
 // Private utils
@@ -247,6 +248,8 @@ SETTING(OutputWrapping, bool, true, "output/wrap");
 SETTING(ReconnectOnDisconnect, bool, false, "connecting/reconnect");
 
 SETTING(ScriptFont, QFont, getDefaultFont(12), "script/font");
+
+SETTING(ShowInfoBar, bool, false, "infobar/visible");
 
 SETTING(ShowStatusBar, bool, true, "statusbar/visible");
 

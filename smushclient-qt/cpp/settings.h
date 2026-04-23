@@ -85,6 +85,7 @@ public:
 
   QFont getScriptFont() const;
 
+  bool getShowInfoBar() const;
   bool getShowStatusBar() const;
 
   StartupBehavior getStartupBehavior() const;
@@ -143,6 +144,7 @@ public slots:
 
   void setScriptFont(const QFont& font);
 
+  void setShowInfoBar(bool show);
   void setShowStatusBar(bool show);
 
   void setStartupBehavior(StartupBehavior behavior);

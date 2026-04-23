@@ -49,6 +49,7 @@ private:
 private slots:
   void onCopyAvailable(AvailableCopy copy);
   void onConnectionStatusChanged(bool connected);
+  void onInfoBarContentsChanged();
   void onNewActivity(WorldTab* tab);
   void onTitleChanged(WorldTab* tab, const QString& title);
 
@@ -69,6 +70,7 @@ private slots:
   void on_action_global_preferences_triggered();
   void on_action_go_to_line_triggered();
   void on_action_import_world_triggered();
+  void on_action_info_bar_triggered(bool checked);
   void on_action_log_session_triggered(bool checked);
   void on_action_new_notepad_triggered();
   void on_action_new_triggered();
@@ -108,6 +110,8 @@ private:
   Ui::MainWindow* ui;
   QIcon activityIcon = QIcon::fromTheme(QIcon::ThemeIcon::DialogWarning);
   FindDialog* findDialog;
+  QTextDocument* infoBar;
+  QPointer<QLabel> infoBarLabel;
   int lastTabIndex = -1;
   QString m_title;
   QPointer<Notepads> notepads;
