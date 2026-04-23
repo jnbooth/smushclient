@@ -7,6 +7,7 @@ mod ffi;
 mod get_info;
 mod handler;
 mod impls;
+mod logging;
 mod modeled;
 mod results;
 mod sender;

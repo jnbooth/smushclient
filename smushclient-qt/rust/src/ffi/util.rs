@@ -1,16 +1,15 @@
 use std::ffi::{CStr, c_char};
 
 use cxx_qt_lib::{QByteArray, QColor, QString, QStringList, QVariant, QVector, QtMsgType};
-use log::LevelFilter;
 use mud_transformer::opt::mxp::{self, RgbColor};
 use mud_transformer::opt::naws::WindowSize;
-use simple_logger::SimpleLogger;
 use smushclient::{WorldConfig, speedwalk};
 use smushclient_qt_lib::QAbstractScrollArea;
 
 use crate::convert::Convert;
 use crate::ffi::{StringView, VariableView};
 use crate::get_info::{InfoVisitorQVariant, font_info};
+use crate::logging;
 
 #[allow(clippy::extra_unused_lifetimes)]
 #[cxx::bridge]
@@ -140,18 +139,7 @@ fn get_option_list() -> QStringList {
 }
 
 fn init_logger() {
-    #[cfg(debug_assertions)]
-    let level = LevelFilter::Info;
-    #[cfg(not(debug_assertions))]
-    let level = LevelFilter::Error;
-
-    SimpleLogger::new()
-        .with_level(level)
-        .env()
-        .without_timestamps()
-        .with_colors(true)
-        .init()
-        .unwrap();
+    logging::create_logger().init().unwrap();
 }
 
 fn validate_utf8(text: StringView<'_>) -> i64 {
@@ -187,30 +175,15 @@ fn log(
     // SAFETY: Provided by the Qt side.
     let (category, file, function) =
         unsafe { (cstr_utf8(category), cstr_utf8(file), cstr_utf8(function)) };
-    let logger = log::logger();
-    let level = match msg_type {
-        QtMsgType::QtCriticalMsg => log::Level::Error,
-        QtMsgType::QtWarningMsg => log::Level::Warn,
-        QtMsgType::QtInfoMsg => log::Level::Info,
-        QtMsgType::QtDebugMsg => log::Level::Debug,
-        _ => log::Level::Trace,
-    };
-    let target = match category {
-        Some("default") | None => function.unwrap_or_default(),
-        Some(category) => category,
-    };
-    let metadata = log::Metadata::builder().target(target).level(level).build();
-    if !logger.enabled(&metadata) {
-        return;
-    }
-    logger.log(
-        &log::Record::builder()
-            .metadata(metadata)
-            .args(format_args!("{message}"))
-            .file(file)
-            .line(line.try_into().ok())
-            .build(),
-    );
+
+    logging::log(logging::QMessageLogContext {
+        msg_type,
+        message,
+        category,
+        file,
+        function,
+        line,
+    });
 }
 
 fn reverse_speedwalk(text: StringView<'_>) -> String {
