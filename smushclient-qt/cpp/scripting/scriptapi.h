@@ -364,8 +364,8 @@ public:
                     float volume = 1.0)
   {
     const QByteArray utf8 = path.toUtf8();
-    return PlaySound(
-      channel, std::string_view(utf8.data(), utf8.size()), loop, volume);
+    const std::string_view pathView(utf8.data(), utf8.size());
+    return PlaySound(channel, pathView, loop, volume);
   }
   ApiCode PlaySoundMemory(size_t channel,
                           QByteArrayView sound,

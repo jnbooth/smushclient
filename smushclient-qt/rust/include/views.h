@@ -83,17 +83,13 @@ public:
   constexpr operator bool() const noexcept { return data_ != nullptr; }
   constexpr operator std::string_view() const noexcept
   {
-    return std::string_view(data_, size_);
+    return { data_, size_ };
   }
   constexpr operator QByteArrayView() const noexcept
   {
-    return QByteArrayView(data_, static_cast<qsizetype>(size_));
+    return { data_, static_cast<qsizetype>(size_) };
   }
-  explicit operator std::string() const { return std::string(data_, size_); }
-  explicit operator QByteArray() const
-  {
-    return QByteArray::fromRawData(data_, static_cast<qsizetype>(size_));
-  }
+  explicit operator std::string() const { return { data_, size_ }; }
 
   // DO NOT EDIT THESE FIELDS
   // They must be consistent with smushclient-qt/rust/src/ffi/variable_views.rs

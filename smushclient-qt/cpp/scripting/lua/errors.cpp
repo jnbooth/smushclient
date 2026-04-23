@@ -30,7 +30,7 @@ getError(lua_State* L)
 {
   size_t len;
   const char* message = lua_tolstring(L, -1, &len);
-  return QLatin1StringView(message, static_cast<qsizetype>(len));
+  return { message, static_cast<qsizetype>(len) };
 }
 } // namespace
 
