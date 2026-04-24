@@ -231,7 +231,7 @@ MiniWindow::deleteAllHotspots()
 bool
 MiniWindow::deleteHotspot(string_view hotspotID)
 {
-  return hotspots.erase(hotspotID);
+  return hotspots.erase(hotspotID) != 0;
 }
 
 void
@@ -632,13 +632,13 @@ MiniWindow::setZOrder(int64_t order)
 bool
 MiniWindow::unloadFont(string_view fontID)
 {
-  return fonts.erase(fontID);
+  return fonts.erase(fontID) != 0;
 }
 
 bool
 MiniWindow::unloadImage(string_view imageID)
 {
-  return fonts.erase(imageID);
+  return fonts.erase(imageID) != 0;
 }
 
 void

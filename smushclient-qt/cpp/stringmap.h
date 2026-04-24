@@ -3,14 +3,9 @@
 #include <unordered_map>
 #include <vector>
 
-struct string_hash
+struct string_hash : std::hash<std::string_view>
 {
-  using hash_type = std::hash<std::string_view>;
   using is_transparent = void;
-
-  size_t operator()(const char* str) const { return hash_type{}(str); }
-  size_t operator()(std::string_view str) const { return hash_type{}(str); }
-  size_t operator()(std::string const& str) const { return hash_type{}(str); }
 };
 
 template<typename T>
@@ -22,30 +17,27 @@ private:
     std::unordered_map<std::string, T, string_hash, std::equal_to<>>;
 
 public:
-  template<class... Args>
-  explicit string_map(Args&&... args)
-    : super(std::forward<Args>(args)...)
-  {
-  }
+  using std::unordered_map<std::string, T, string_hash, std::equal_to<>>::
+    unordered_map;
 
   using super::erase;
 
-  bool erase(std::string_view key)
+  super::size_type erase(std::string_view key)
   {
     auto search = super::find(key);
     if (search == super::end()) {
-      return false;
+      return 0;
     }
     super::erase(search);
-    return true;
+    return 1;
   }
 
   std::vector<std::string_view> keys() const
   {
     std::vector<std::string_view> list;
     list.reserve(super::size());
-    for (const auto& pair : *this) {
-      list.emplace_back(pair.first);
+    for (const auto& [key, _] : *this) {
+      list.emplace_back(key);
     }
     return list;
   }
