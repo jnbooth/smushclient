@@ -162,19 +162,17 @@ MiniWindow::addHotspot(string_view hotspotID,
 {
   Hotspot* neighbor = nullptr;
   string_view neighborID;
-  for (const auto& entry : hotspots) {
-    const string_view entryID = entry.first;
+  for (const auto& [entryID, hotspot] : hotspots) {
     if (entryID == hotspotID) {
-      Hotspot* hotspot = entry.second.get();
       if (!hotspot->belongsToPlugin(plugin)) {
         return nullptr;
       }
       hotspot->setCallbacks(std::move(callbacks));
-      return hotspot;
+      return hotspot.get();
     }
     if (entryID < hotspotID &&
         ((neighbor == nullptr) || entryID > neighborID)) {
-      neighbor = entry.second.get();
+      neighbor = hotspot.get();
       neighborID = entryID;
     }
   }

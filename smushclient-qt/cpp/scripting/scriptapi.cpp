@@ -515,16 +515,14 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow& window) const
   MiniWindow* neighbor = nullptr;
   WindowCompare neighborCompare;
 
-  for (const auto& entry : windows) {
-    if (entry.second.get() == &window ||
-        entry.second->drawsUnderneath() != drawsUnderneath) {
+  for (const auto& [name, win] : windows) {
+    if (win.get() == &window || win->drawsUnderneath() != drawsUnderneath) {
       continue;
     }
-    WindowCompare entryCompare{ .zOrder = entry.second->getZOrder(),
-                                .name = entry.first };
+    WindowCompare entryCompare{ .zOrder = win->getZOrder(), .name = name };
     if (entryCompare > compare &&
         ((neighbor == nullptr) || entryCompare < neighborCompare)) {
-      neighbor = entry.second.get();
+      neighbor = win.get();
       neighborCompare = entryCompare;
     }
   }
@@ -609,8 +607,8 @@ ScriptApi::onResize(bool finished)
   if (!finished) {
     return;
   }
-  for (const auto& window : windows) {
-    window.second->updatePosition();
+  for (const auto& [_, window] : windows) {
+    window->updatePosition();
   }
   sendNaws();
 }

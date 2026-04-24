@@ -726,9 +726,9 @@ int
 L_infotypes(lua_State* L)
 {
   lua_createtable(L, maxInfoType, 0);
-  for (const auto& entry : infoTypes) {
-    push(L, entry.second);
-    lua_rawseti(L, -2, entry.first);
+  for (const auto& [name, value] : infoTypes) {
+    push(L, value);
+    lua_rawseti(L, -2, name);
   }
   return 1;
 }

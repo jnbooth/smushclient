@@ -168,8 +168,7 @@ Document::expireLinks(rust::Str expires)
     expiredLinks.clear();
     return;
   }
-  for (auto& pair : links) {
-    std::vector<QTextCursor>& expiredLinks = pair.second;
+  for (auto& [_, expiredLinks] : links) {
     for (QTextCursor& linkCursor : expiredLinks) {
       linkCursor.mergeCharFormat(expireLinkFormat);
     }

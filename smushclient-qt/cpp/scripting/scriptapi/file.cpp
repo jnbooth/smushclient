@@ -33,9 +33,9 @@ ScriptApi::DatabaseClose(string_view databaseID)
 int
 ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
 {
-  auto entry = databases.emplace(string(databaseID), filename);
-  DatabaseConnection& db = entry.first->second;
-  if (!entry.second) {
+  auto [entry, inserted] = databases.emplace(string(databaseID), filename);
+  DatabaseConnection& db = entry->second;
+  if (!inserted) {
     return db.isFile(databaseID)
              ? SQLITE_OK
              : DatabaseConnection::Error::DatabaseAlreadyExists;
@@ -43,7 +43,7 @@ ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
 
   const int result = db.open(flags);
   if (result != SQLITE_OK) {
-    databases.erase(entry.first);
+    databases.erase(entry->first);
   }
 
   return result;
