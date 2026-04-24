@@ -34,8 +34,8 @@ public:
       return;
     }
 
-    for (const auto& entry : map) {
-      killTimer(entry.first);
+    for (const auto& [id, _] : map) {
+      killTimer(id);
     }
     map.clear();
   }
