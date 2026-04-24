@@ -72,10 +72,7 @@ private:
   class ImageFilter::name : public ConvolveFilter                              \
   {                                                                            \
   public:                                                                      \
-    explicit constexpr name(Directions directions = Directions::Both) noexcept \
-      : ConvolveFilter(directions)                                             \
-    {                                                                          \
-    }                                                                          \
+    using ConvolveFilter::ConvolveFilter;                                      \
                                                                                \
   protected:                                                                   \
     using ConvolveFilter::apply;                                               \

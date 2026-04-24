@@ -60,14 +60,8 @@ Plugin::~Plugin()
 class CallbackFinder : public DynamicPluginCallback
 {
 public:
-  explicit CallbackFinder(PluginCallbackKey callback) noexcept
-    : DynamicPluginCallback(callback)
-  {
-  }
-  explicit CallbackFinder(const QString& callback) noexcept
-    : DynamicPluginCallback(callback)
-  {
-  }
+  using DynamicPluginCallback::DynamicPluginCallback;
+
   constexpr ActionSource source() const noexcept override
   {
     return ActionSource::Unknown;

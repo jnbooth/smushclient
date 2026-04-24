@@ -8,7 +8,7 @@ class SmushClient : public SmushClientBase
   Q_OBJECT
 
 public:
-  explicit SmushClient(QObject* parent = nullptr);
+  using SmushClientBase::SmushClientBase;
 
   bool finishTimer(const TimekeeperItem& item);
 

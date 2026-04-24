@@ -6,11 +6,6 @@ using std::string_view;
 
 // Public methods
 
-SmushClient::SmushClient(QObject* parent)
-  : SmushClientBase(parent)
-{
-}
-
 bool
 SmushClient::finishTimer(const Timekeeper::Item& item)
 {
