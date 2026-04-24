@@ -17,8 +17,7 @@ private:
     std::unordered_map<std::string, T, string_hash, std::equal_to<>>;
 
 public:
-  using std::unordered_map<std::string, T, string_hash, std::equal_to<>>::
-    unordered_map;
+  using super::super;
 
   using super::erase;
 
