@@ -1,5 +1,6 @@
 #include "qlua.h"
 #include "../casting.h"
+#include "argstream.h"
 #include "scriptenums.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include <QtCore/QUuid>
@@ -47,6 +48,50 @@ checkTypeOrNil(lua_State* L,
   return true;
 }
 
+void
+doConcatArgs(argstream& output, lua_State* L, int startIdx, bool spaced)
+{
+  bool needsToString = true;
+  for (int i = startIdx, n = lua_gettop(L); i <= n; ++i) {
+    if (spaced && i > startIdx) {
+      output << ' ';
+    }
+    switch (lua_type(L, i)) {
+      case LUA_TNIL:
+        output << "nil";
+        break;
+      case LUA_TBOOLEAN:
+        output << lua_tobool(L, i);
+        break;
+      case LUA_TNUMBER:
+        output << lua_tonumber(L, i);
+        break;
+      case LUA_TSTRING:
+        output << lua_tostr(L, i);
+        break;
+      default:
+        if (needsToString) {
+          needsToString = false;
+          lua_getglobal(L, "tostring");
+        }
+        lua_pushvalue(L, -1); // tostring
+        lua_pushvalue(L, i);  // argument
+        lua_call(L, 1, 1);
+        if (string_view s = lua_tostr(L, -1); s.data()) {
+          output << s;
+          lua_pop(L, 1);
+          break;
+        }
+        lua_pushliteral(L,
+                        "'tostring' must return a string to be concatenated");
+        lua_error(L);
+    }
+  }
+  if (!needsToString) {
+    lua_pop(L, 1);
+  }
+}
+
 inline lua_Integer
 toInteger(lua_State* L, int idx)
 {
@@ -86,55 +131,31 @@ qlua::colorToRgbCode(const QColor& color)
   return b << 16 | g << 8 | r;
 }
 
+template<>
 QByteArray
-qlua::concatArgs(lua_State* L, int startIdx, QByteArrayView delim)
+qlua::concatArgs(lua_State* L, int startIdx, bool spaced)
 {
-  QByteArray output;
-  std::ostringstream numberBuf;
-  const int n = lua_gettop(L);
-  bool needsToString = true;
-  for (int i = startIdx; i <= n; ++i) {
-    if (i > startIdx && !delim.empty()) {
-      output.append(delim);
-    }
-    switch (lua_type(L, i)) {
-      case LUA_TNIL:
-        output.append(QByteArrayView("nil"));
-        break;
-      case LUA_TBOOLEAN:
-        output.append(lua_tobool(L, i) ? QByteArrayView("true")
-                                       : QByteArrayView("false"));
-        break;
-      case LUA_TNUMBER:
-        numberBuf << lua_tonumber(L, i);
-        output.append(numberBuf.view());
-        numberBuf.str("");
-        break;
-      case LUA_TSTRING:
-        output.append(lua_tobytes(L, i));
-        break;
-      default:
-        if (needsToString) {
-          needsToString = false;
-          lua_getglobal(L, "tostring");
-        }
-        lua_pushvalue(L, -1); // tostring
-        lua_pushvalue(L, i);  // argument
-        lua_call(L, 1, 1);
-        if (QByteArrayView s = lua_tobytes(L, -1); !s.isNull()) {
-          output.append(s);
-          lua_pop(L, 1);
-          break;
-        }
-        lua_pushliteral(L,
-                        "'tostring' must return a string to be concatenated");
-        lua_error(L);
-    }
-  }
-  if (!needsToString) {
-    lua_pop(L, 1);
-  }
-  return output;
+  argstream output;
+  doConcatArgs(output, L, startIdx, spaced);
+  return QByteArray(output.view());
+}
+
+template<>
+QString
+qlua::concatArgs(lua_State* L, int startIdx, bool spaced)
+{
+  argstream output;
+  doConcatArgs(output, L, startIdx, spaced);
+  return QString::fromUtf8(output.view());
+}
+
+template<>
+std::string
+qlua::concatArgs(lua_State* L, int startIdx, bool spaced)
+{
+  argstream output;
+  doConcatArgs(output, L, startIdx, spaced);
+  return std::move(output).str();
 }
 
 bool

@@ -47,8 +47,18 @@ colorToRgbCode(const QColor& color);
 int
 throwTooManyArgsError(lua_State* L, int max);
 
+template<typename T>
+T
+concatArgs(lua_State* L, int startIdx = 1, bool spaced = false) = delete;
+template<>
 QByteArray
-concatArgs(lua_State* L, int startIdx = 1, QByteArrayView delim = {});
+concatArgs(lua_State* L, int startIdx, bool spaced);
+template<>
+QString
+concatArgs(lua_State* L, int startIdx, bool spaced);
+template<>
+std::string
+concatArgs(lua_State* L, int startIdx, bool spaced);
 
 bool
 copyValue(lua_State* fromL, lua_State* toL, int idx);

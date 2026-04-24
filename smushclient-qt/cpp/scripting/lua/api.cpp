@@ -263,7 +263,7 @@ int
 L_Info(lua_State* L)
 {
   BENCHMARK
-  getApi(L).Info(QString::fromUtf8(concatArgs(L)));
+  getApi(L).Info(concatArgs<QString>(L));
   return 0;
 }
 
@@ -317,7 +317,7 @@ L_SetStatus(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 1);
-  getApi(L).SetStatus(QString::fromUtf8(concatArgs(L)));
+  getApi(L).SetStatus(concatArgs<QString>(L));
   return 0;
 }
 
@@ -936,7 +936,7 @@ int
 L_LogSend(lua_State* L)
 {
   BENCHMARK
-  QByteArray bytes = concatArgs(L);
+  QByteArray bytes = concatArgs<QByteArray>(L);
   return returnCode(L, getApi(L).LogSend(bytes));
 }
 int
@@ -987,7 +987,7 @@ int
 L_Send(lua_State* L)
 {
   BENCHMARK
-  QByteArray bytes = concatArgs(L);
+  QByteArray bytes = concatArgs<QByteArray>(L);
   return returnCode(L, getApi(L).Send(bytes));
 }
 
@@ -995,7 +995,7 @@ int
 L_SendImmediate(lua_State* L)
 {
   BENCHMARK
-  QByteArray bytes = concatArgs(L);
+  QByteArray bytes = concatArgs<QByteArray>(L);
   return returnCode(L, getApi(L).SendImmediate(bytes));
 }
 
@@ -1003,7 +1003,7 @@ int
 L_SendNoEcho(lua_State* L)
 {
   BENCHMARK
-  QByteArray bytes = concatArgs(L);
+  QByteArray bytes = concatArgs<QByteArray>(L);
   return returnCode(L, getApi(L).SendNoEcho(bytes));
 }
 
@@ -1019,7 +1019,7 @@ int
 L_SendPush(lua_State* L)
 {
   BENCHMARK
-  QByteArray bytes = concatArgs(L);
+  QByteArray bytes = concatArgs<QByteArray>(L);
   return returnCode(L, getApi(L).SendPush(bytes));
 }
 
@@ -1172,9 +1172,7 @@ int
 L_WriteLog(lua_State* L)
 {
   BENCHMARK
-  const QByteArray message = concatArgs(L);
-  return returnCode(
-    L, getApi(L).WriteLog(string_view(message.data(), message.size())));
+  return returnCode(L, getApi(L).WriteLog(concatArgs<string>(L)));
 }
 
 // network
@@ -1273,8 +1271,7 @@ int
 L_AnsiNote(lua_State* L)
 {
   BENCHMARK
-  const QByteArray note = concatArgs(L);
-  getApi(L).AnsiNote(string_view(note.data(), note.size()));
+  getApi(L).AnsiNote(concatArgs<string>(L));
   return 0;
 }
 
@@ -1325,7 +1322,7 @@ L_Note(lua_State* L)
 {
   BENCHMARK
   ScriptApi& api = getApi(L);
-  api.Tell(QString::fromUtf8(concatArgs(L)));
+  api.Tell(concatArgs<QString>(L));
   api.finishNote();
   return 0;
 }
@@ -1353,7 +1350,7 @@ int
 L_Tell(lua_State* L)
 {
   BENCHMARK
-  getApi(L).Tell(QString::fromUtf8(concatArgs(L)));
+  getApi(L).Tell(concatArgs<QString>(L));
   return 0;
 }
 
@@ -1373,8 +1370,7 @@ L_AppendToNotepad(lua_State* L)
 {
   BENCHMARK
   push(L,
-       getApi(L).AppendToNotepad(getQString(L, 1),
-                                 QString::fromUtf8(concatArgs(L, 2))));
+       getApi(L).AppendToNotepad(getQString(L, 1), concatArgs<QString>(L, 2)));
   return 1;
 }
 
@@ -1470,8 +1466,7 @@ L_ReplaceNotepad(lua_State* L)
 {
   BENCHMARK
   push(L,
-       getApi(L).ReplaceNotepad(getQString(L, 1),
-                                QString::fromUtf8(concatArgs(L, 2))));
+       getApi(L).ReplaceNotepad(getQString(L, 1), concatArgs<QString>(L, 2)));
   return 1;
 }
 
@@ -1479,9 +1474,7 @@ int
 L_SendToNotepad(lua_State* L)
 {
   BENCHMARK
-  push(L,
-       getApi(L).SendToNotepad(getQString(L, 1),
-                               QString::fromUtf8(concatArgs(L, 2))));
+  push(L, getApi(L).SendToNotepad(getQString(L, 1), concatArgs<QString>(L, 2)));
   return 1;
 }
 
@@ -1817,7 +1810,7 @@ int
 L_SetMainTitle(lua_State* L)
 {
   BENCHMARK
-  getApi(L).SetMainTitle(QString::fromUtf8(concatArgs(L)));
+  getApi(L).SetMainTitle(concatArgs<QString>(L));
   return 0;
 }
 
@@ -1841,7 +1834,7 @@ int
 L_SetTitle(lua_State* L)
 {
   BENCHMARK
-  getApi(L).SetTitle(QString::fromUtf8(concatArgs(L)));
+  getApi(L).SetTitle(concatArgs<QString>(L));
   return 0;
 }
 
@@ -1862,8 +1855,7 @@ int
 L_Simulate(lua_State* L)
 {
   BENCHMARK
-  const QByteArray message = concatArgs(L);
-  getApi(L).Simulate(string_view(message.data(), message.size()));
+  getApi(L).Simulate(concatArgs<string>(L));
   return 0;
 }
 
@@ -2082,7 +2074,7 @@ int
 L_SetClipboard(lua_State* L)
 {
   BENCHMARK
-  ScriptApi::SetClipboard(QString::fromUtf8(concatArgs(L)));
+  ScriptApi::SetClipboard(concatArgs<QString>(L));
   return 0;
 }
 

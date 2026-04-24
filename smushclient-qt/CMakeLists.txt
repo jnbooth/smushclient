@@ -97,6 +97,7 @@ qt_add_executable(${APP_NAME}
     cpp/native/result.h
     cpp/native/window.h
 
+    cpp/scripting/argstream.h
     cpp/scripting/databaseconnection.h cpp/scripting/databaseconnection.cpp
     cpp/scripting/plugin.h cpp/scripting/plugin.cpp
     cpp/scripting/qlua.h cpp/scripting/qlua.cpp
