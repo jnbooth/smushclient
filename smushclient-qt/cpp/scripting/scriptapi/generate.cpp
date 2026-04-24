@@ -22,12 +22,7 @@ int64_t
 ScriptApi::GetUniqueNumber() noexcept
 {
   static int64_t uniqueNumber = -1;
-  if (uniqueNumber == INT64_MAX) [[unlikely]] {
-    uniqueNumber = 0;
-  } else {
-    ++uniqueNumber;
-  }
-  return uniqueNumber;
+  return ++uniqueNumber;
 }
 
 QByteArray
