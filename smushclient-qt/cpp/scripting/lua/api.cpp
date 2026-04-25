@@ -1918,7 +1918,9 @@ L_CallPlugin(lua_State* L)
   lua_rawsetp(L2, LUA_REGISTRYINDEX, callingRegKey);
 
   const int nargs = lua_gettop(L) - 2;
-  luaL_checkstack(L2, nargs + 1, nullptr);
+  if (!lua_checkstack(L2, nargs + 1)) {
+    return returnCode(L, ApiCode::ErrorCallingPluginRoutine, "Stack overflow");
+  }
 
   const char* data = routine.data();
   if (lua_getglobal(L2, data) != LUA_TFUNCTION) {
@@ -1948,7 +1950,9 @@ L_CallPlugin(lua_State* L)
   const int topAfter = lua_gettop(L2);
   const int nresults = topAfter - topBefore;
   lua_settop(L, 0);
-  luaL_checkstack(L, nresults + 1, nullptr);
+  if (!lua_checkstack(L, nresults + 1)) {
+    return returnCode(L, ApiCode::ErrorCallingPluginRoutine, "Stack overflow");
+  }
   push(L, ApiCode::OK);
   for (int i = topBefore + 1; i <= topAfter; ++i) {
     if (!copyValue(L2, L, i)) [[unlikely]] {

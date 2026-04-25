@@ -4,7 +4,7 @@
 #include "plugincallback.h"
 extern "C"
 {
-#include "lua.h"
+#include "lauxlib.h"
 }
 
 CallbackTrigger::CallbackTrigger(const Plugin& plugin,
@@ -13,9 +13,16 @@ CallbackTrigger::CallbackTrigger(const Plugin& plugin,
   , thread(plugin.spawnThread())
 {
   lua_State* L = thread.state();
-  top = lua_gettop(L) + 1;
   isValid = callback.findCallback(L);
+  top = lua_gettop(L);
   nargs = callback.pushArguments(L);
+}
+
+CallbackTrigger::~CallbackTrigger()
+{
+  if (lua_State* L = thread.state(); L != nullptr && lua_gettop(L) >= top) {
+    lua_remove(L, top);
+  }
 }
 
 bool
@@ -34,6 +41,7 @@ CallbackTrigger::trigger()
   if (L == nullptr) {
     return false;
   }
+  luaL_checkstack(L, nargs + 1, nullptr);
   for (int i = top; i <= top + nargs; ++i) {
     lua_pushvalue(L, i);
   }

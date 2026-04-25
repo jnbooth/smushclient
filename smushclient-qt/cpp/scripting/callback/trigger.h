@@ -11,7 +11,7 @@ class CallbackTrigger
 public:
   CallbackTrigger(const Plugin& plugin, const PluginCallback& callback);
   CallbackTrigger(CallbackTrigger&& other) noexcept = default;
-  ~CallbackTrigger() = default;
+  ~CallbackTrigger();
 
   CallbackTrigger(const CallbackTrigger&) = delete;
   CallbackTrigger& operator=(const CallbackTrigger&) = delete;

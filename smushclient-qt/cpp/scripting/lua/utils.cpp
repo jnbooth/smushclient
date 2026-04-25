@@ -465,21 +465,50 @@ getMessageBoxIcon(string_view opt)
   return Icon::NoIcon;
 }
 
+int
+countOccurrences(string_view input, char c, int max)
+{
+  return std::min(max, 1 + static_cast<int>(std::ranges::count(input, c)));
+}
+int
+countOccurrences(string_view input, string_view sep, int max)
+{
+  int count = 0;
+  for (size_t offset = input.find(sep);
+       count <= max && offset != std::string::npos;
+       offset = input.find(sep, offset + sep.length())) {
+    ++count;
+  }
+  return 1 + count;
+}
+
+size_t
+getSepSize(char /*sep*/)
+{
+  return 1;
+}
+size_t
+getSepSize(string_view sep)
+{
+  return sep.length();
+}
+
 template<typename T>
 inline void
-splitLua(lua_State* L,
-         string_view input,
-         T sep,
-         size_t sepSize,
-         lua_Integer max)
+splitLua(lua_State* L, string_view input, T sep, lua_Integer max)
 {
+  const size_t sepSize = getSepSize(sep);
+  const int occurrences = countOccurrences(input, sep, max);
   size_t last = 0;
-  size_t next = 0;
   lua_Integer i = 1;
-  for (; i <= max && (next = input.find(sep, last)) != string_view::npos; ++i) {
-    push(L, input.substr(last, next - last));
+  luaL_checkstack(L, occurrences + 1, nullptr);
+  lua_createtable(L, occurrences, 0);
+  for (size_t offset = input.find(sep); i <= max && offset != string_view::npos;
+       offset = input.find(sep, last)) {
+    push(L, input.substr(last, offset - last));
     lua_rawseti(L, -2, i);
-    last = next + sepSize;
+    last = offset + sepSize;
+    ++i;
   }
   if (string_view rest = input.substr(last); !rest.empty()) {
     push(L, rest);
@@ -856,14 +885,18 @@ L_split(lua_State* L)
     lua_error(L);
   }
 
-  lua_newtable(L);
+  if (input.empty()) {
+    lua_newtable(L);
+    return 1;
+  }
+
   const lua_Integer max = count == 0 ? INT_MAX : count;
 
   const size_t sepSize = sep.size();
   if (sepSize == 1) {
-    splitLua(L, input, sep[0], 1, max);
+    splitLua(L, input, sep[0], max);
   } else {
-    splitLua(L, input, sep, sepSize, max);
+    splitLua(L, input, sep, max);
   }
 
   return 1;
