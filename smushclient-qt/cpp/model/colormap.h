@@ -35,6 +35,9 @@ protected:
   static constexpr const int numColumns = 3;
 
 private:
+  QColor* get(const QModelIndex& index) const;
+
+private:
   static const QIcon clearIcon;
 
   QList<QPair<QColor, QColor>>& list;
