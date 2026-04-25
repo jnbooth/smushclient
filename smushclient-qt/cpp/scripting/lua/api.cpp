@@ -70,66 +70,9 @@ const char* const worldLibKey = "world";
     return returnCode(L, (code));                                              \
   }
 
-namespace {
-// Private localization
-
-QString
-fmtNoSuchPlugin(string_view id)
-{
-  return ScriptApi::tr("Plugin ID (%1) is not installed").arg(id);
-}
-
-QString
-fmtPluginDisabled(const Plugin& plugin)
-{
-  return ScriptApi::tr("Plugin '%1' (%2) is not enabled")
-    .arg(plugin.name())
-    .arg(plugin.id());
-}
-
-QString
-fmtNoSuchRoutine(const Plugin& plugin, string_view routine)
-{
-  return ScriptApi::tr("No function '%1' in plugin '%2' (%3)")
-    .arg(routine)
-    .arg(plugin.name())
-    .arg(plugin.id());
-}
-
-QString
-fmtBadParam(int idx, const char* type)
-{
-  return ScriptApi::tr("Cannot pass argument #%1 (%2 type) to CallPlugin")
-    .arg(idx)
-    .arg(type);
-}
-
-QString
-fmtCallError(const Plugin& plugin, string_view routine)
-{
-  return ScriptApi::tr("Runtime error in function '%1', plugin '%2' (%3)")
-    .arg(routine)
-    .arg(plugin.name())
-    .arg(plugin.id());
-}
-
-QString
-fmtBadReturn(const Plugin& plugin,
-             string_view routine,
-             int idx,
-             const char* type)
-{
-  return ScriptApi::tr("Cannot handle return value #%1 (%2 type) from function "
-                       "'%3' in plugin '%4' (%5)")
-    .arg(idx)
-    .arg(type)
-    .arg(routine)
-    .arg(plugin.name())
-    .arg(plugin.id());
-}
-
 // Private utils
 
+namespace {
 template<typename T>
 QFlags<T>
 combineFlags(std::initializer_list<std::pair<T, bool>> pairs)
@@ -156,11 +99,14 @@ returnCode(lua_State* L, ApiCode code)
   return 1;
 }
 
-inline int
-returnCode(lua_State* L, ApiCode code, const QString& reason)
+int
+returnCode(lua_State* L, ApiCode code, const char* fmt, ...)
 {
   push(L, code);
-  push(L, reason);
+  va_list argp;
+  va_start(argp, fmt);
+  lua_pushvfstring(L, fmt, argp);
+  va_end(argp);
   return 2;
 }
 
@@ -1901,13 +1847,19 @@ L_CallPlugin(lua_State* L)
   BENCHMARK
   const Plugin* pluginRef = getApi(L).getPlugin(getString(L, 1));
   if (pluginRef == nullptr) [[unlikely]] {
-    return returnCode(
-      L, ApiCode::NoSuchPlugin, fmtNoSuchPlugin(getString(L, 1)));
+    return returnCode(L,
+                      ApiCode::NoSuchPlugin,
+                      "Plugin ID (%s) is not installed",
+                      getString(L, 1));
   }
 
   const Plugin& plugin = *pluginRef;
   if (plugin.isDisabled()) [[unlikely]] {
-    return returnCode(L, ApiCode::PluginDisabled, fmtPluginDisabled(plugin));
+    return returnCode(L,
+                      ApiCode::PluginDisabled,
+                      "Plugin '%s' (%s) is not enabled",
+                      plugin.name().c_str(),
+                      plugin.id().c_str());
   }
 
   const string_view routine = getString(L, 2);
@@ -1925,8 +1877,12 @@ L_CallPlugin(lua_State* L)
   const char* data = routine.data();
   if (lua_getglobal(L2, data) != LUA_TFUNCTION) {
     lua_pop(L2, 1);
-    return returnCode(
-      L, ApiCode::NoSuchRoutine, fmtNoSuchRoutine(plugin, routine));
+    return returnCode(L,
+                      ApiCode::NoSuchRoutine,
+                      "No function '%s' in plugin '%s' (%s)",
+                      routine,
+                      plugin.name().c_str(),
+                      plugin.id().c_str());
   }
 
   const int topBefore = lua_gettop(L2) - 1;
@@ -1934,15 +1890,22 @@ L_CallPlugin(lua_State* L)
   for (int i = 1; i <= nargs; ++i) {
     if (!copyValue(L, L2, i + 2)) [[unlikely]] {
       lua_settop(L, 0);
-      return returnCode(
-        L, ApiCode::BadParameter, fmtBadParam(i - 2, luaL_typename(L, i)));
+      return returnCode(L,
+                        ApiCode::BadParameter,
+                        "Cannot pass argument #%d (%s type) to CallPlugin",
+                        i - 2,
+                        luaL_typename(L, i));
     }
   }
 
   if (!api_pcall(L2, nargs, LUA_MULTRET)) {
     lua_settop(L, 0);
     push(L, ApiCode::ErrorCallingPluginRoutine);
-    push(L, fmtCallError(plugin, routine));
+    lua_pushfstring(L,
+                    "Runtime error in function '%', plugin '%s' (%s)",
+                    routine,
+                    plugin.name().c_str(),
+                    plugin.id().c_str());
     copyValue(L2, L, -1);
     return 3;
   }
@@ -1958,7 +1921,13 @@ L_CallPlugin(lua_State* L)
     if (!copyValue(L2, L, i)) [[unlikely]] {
       return returnCode(L,
                         ApiCode::ErrorCallingPluginRoutine,
-                        fmtBadReturn(plugin, routine, i, luaL_typename(L2, i)));
+                        "Cannot handle return value #%d (%s type) from "
+                        "function '%s' in plugin '%s' (%s)",
+                        i,
+                        luaL_typename(L2, i),
+                        routine,
+                        plugin.name().c_str(),
+                        plugin.id().c_str());
     }
   }
   return nresults + 1;
