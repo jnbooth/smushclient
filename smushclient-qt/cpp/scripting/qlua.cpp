@@ -557,7 +557,7 @@ qlua::getQPolygonF(lua_State* L, int idx)
     case LUA_TSTRING: {
       const string_view s = getString(L, idx);
       const qsizetype commaCount = std::count(s.cbegin(), s.cend(), ',');
-      if (commaCount % 2 == 0 || commaCount < 3) [[unlikely]] {
+      if ((commaCount & 1) == 0 || commaCount < 3) [[unlikely]] {
         return nullopt;
       }
       QPolygonF points;
