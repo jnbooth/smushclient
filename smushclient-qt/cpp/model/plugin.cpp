@@ -98,18 +98,18 @@ PluginModel::reinstall(const QModelIndex& index)
 QVariant
 PluginModel::data(const QModelIndex& index, int role) const
 {
+  const size_t plugin = pluginIndex(index.row());
   switch (role) {
     case Qt::DisplayRole:
-      return client.pluginModelText(pluginIndex(index.row()), index.column());
+      return client.pluginModelText(plugin, index.column());
     case Qt::CheckStateRole:
       if (index.column() != 4) {
         return QVariant();
       }
-      return client.pluginEnabled(pluginIndex(index.row()))
-               ? Qt::CheckState::Checked
-               : Qt::CheckState::Unchecked;
+      return client.pluginEnabled(plugin) ? Qt::CheckState::Checked
+                                          : Qt::CheckState::Unchecked;
     case Qt::InitialSortOrderRole:
-      return static_cast<int>(pluginIndex(index.row()));
+      return static_cast<int>(plugin);
     default:
       return QVariant();
   }
@@ -146,9 +146,10 @@ QMap<int, QVariant>
 PluginModel::itemData(const QModelIndex& index) const
 {
   QMap<int, QVariant> map;
-  map.insert(Qt::DisplayRole, data(index, Qt::DisplayRole));
-  map.insert(Qt::CheckStateRole, data(index, Qt::CheckStateRole));
-  map.insert(Qt::InitialSortOrderRole, data(index, Qt::InitialSortOrderRole));
+  for (Qt::ItemDataRole role :
+       { Qt::DisplayRole, Qt::CheckStateRole, Qt::InitialSortOrderRole }) {
+    map.insert(role, data(index, role));
+  }
   return map;
 }
 
