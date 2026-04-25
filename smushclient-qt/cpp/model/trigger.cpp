@@ -4,33 +4,11 @@
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "smushclient_qt/src/ffi/sender_map.cxxqt.h"
 
-using std::array;
-
 // Public methods
 
 TriggerModel::TriggerModel(SmushClient& client, QObject* parent)
-  : AbstractSenderModel(client, SenderType::Trigger, parent)
+  : AbstractSenderModel(client, SenderKind::Trigger, parent)
 {
-  client.stopSenders(SenderKind::Trigger);
-}
-
-// Public overrides
-
-QString
-TriggerModel::tryExportXml() const
-{
-  return client.tryExportWorldSenders(SenderKind::Trigger);
-}
-
-Qt::ItemFlags
-TriggerModel::flags(const QModelIndex& index) const
-{
-  if (hasChildren(index)) {
-    return Qt::ItemFlag::ItemIsEnabled;
-  }
-
-  return Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEnabled |
-         Qt::ItemFlag::ItemNeverHasChildren | Qt::ItemFlag::ItemIsEditable;
 }
 
 // Protected overrides
@@ -55,15 +33,6 @@ TriggerModel::edit(size_t index, QWidget* parent)
     return static_cast<int>(ReplaceSenderResult::Unchanged);
   }
   return client.replaceWorldTrigger(index, trigger);
-}
-
-const array<QString, 4>&
-TriggerModel::headers() const noexcept
-{
-  const static array<QString, 4> headers{
-    tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text")
-  };
-  return headers;
 }
 
 ParseResult

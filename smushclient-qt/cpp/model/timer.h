@@ -12,14 +12,14 @@ public:
              Timekeeper& timekeeper,
              QObject* parent = nullptr);
 
-  QString tryExportXml() const override;
   Qt::ItemFlags flags(const QModelIndex& index) const override;
+  QVariant headerData(int section,
+                      Qt::Orientation orientation,
+                      int role = Qt::DisplayRole) const override;
 
 protected:
   bool add(QWidget* parent) override;
   int edit(size_t index, QWidget* parent) override;
-  const std::array<QString, AbstractSenderModel::numColumns>& headers()
-    const noexcept override;
   ParseResult import(const QString& xml) override;
   void prepareRemove(SenderMap& map,
                      const rust::String& group,

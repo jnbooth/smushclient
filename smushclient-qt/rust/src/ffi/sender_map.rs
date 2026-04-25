@@ -15,13 +15,8 @@ pub mod ffi {
         include!("smushclient_qt/forward.h");
         #[cxx_name = "SmushClientBase"]
         type SmushClient = crate::ffi::SmushClient;
-    }
-
-    #[repr(i32)]
-    enum SenderType {
-        Alias,
-        Timer,
-        Trigger,
+        include!("smushclient_qt/src/ffi/send_request.cxx.h");
+        type SenderKind = crate::ffi::SenderKind;
     }
 
     #[auto_cxx_name]
@@ -67,5 +62,5 @@ pub mod ffi {
         ) -> QSet_u16;
     }
 
-    impl cxx_qt::Constructor<(SenderType,), NewArguments = (SenderType,)> for SenderMap {}
+    impl cxx_qt::Constructor<(SenderKind,), NewArguments = (SenderKind,)> for SenderMap {}
 }

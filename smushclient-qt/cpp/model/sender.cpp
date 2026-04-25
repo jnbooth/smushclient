@@ -3,6 +3,8 @@
 #include "smushclient_qt/src/ffi/sender_map.cxxqt.h"
 #include <QtCore/QAbstractProxyModel>
 
+using std::array;
+
 struct SelectionRegion
 {
   int top = -1;
@@ -35,14 +37,16 @@ getGroup(const QModelIndex& modelIndex)
 // Public methods
 
 AbstractSenderModel::AbstractSenderModel(SmushClient& client,
-                                         SenderType type,
+                                         SenderKind kind,
                                          QObject* parent)
   : QAbstractItemModel(parent)
   , client(client)
-  , map(new SenderMap(type))
+  , kind(kind)
+  , map(new SenderMap(kind))
   , needsRefresh(std::make_unique<bool>(true))
 {
   map->setParent(this);
+  client.stopSenders(kind);
 }
 
 bool
@@ -123,6 +127,12 @@ AbstractSenderModel::editItem(const QModelIndex& modelIndex, QWidget* parent)
   emit layoutChanged({},
                      QAbstractItemModel::LayoutChangeHint::VerticalSortHint);
   return true;
+}
+
+QString
+AbstractSenderModel::tryExportXml() const
+{
+  return client.tryExportWorldSenders(kind);
 }
 
 ParseResult
@@ -223,6 +233,17 @@ AbstractSenderModel::data(const QModelIndex& index, int role) const
   return untitledGroupName;
 }
 
+Qt::ItemFlags
+AbstractSenderModel::flags(const QModelIndex& index) const
+{
+  if (hasChildren(index)) {
+    return Qt::ItemFlag::ItemIsEnabled;
+  }
+
+  return Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEnabled |
+         Qt::ItemFlag::ItemNeverHasChildren | Qt::ItemFlag::ItemIsEditable;
+}
+
 bool
 AbstractSenderModel::hasChildren(const QModelIndex& index) const
 {
@@ -234,11 +255,15 @@ AbstractSenderModel::headerData(int section,
                                 Qt::Orientation orientation,
                                 int role) const
 {
+  const static array<QString, numColumns> headers{
+    tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text")
+  };
+
   if (orientation != Qt::Orientation::Horizontal || role != Qt::DisplayRole) {
     return QVariant();
   }
 
-  return headers().at(section);
+  return headers.at(section);
 }
 
 QModelIndex
@@ -276,9 +301,7 @@ QMap<int, QVariant>
 AbstractSenderModel::itemData(const QModelIndex& index) const
 {
   refresh();
-  QMap<int, QVariant> dataMap;
-  dataMap.insert(Qt::DisplayRole, data(index, Qt::DisplayRole));
-  return dataMap;
+  return { { Qt::DisplayRole, data(index, Qt::DisplayRole) } };
 }
 
 QModelIndex

@@ -209,7 +209,7 @@ fn try_index(index: usize) -> i32 {
 #[derive(Clone, PartialEq, Eq)]
 pub struct SenderMapRust {
     inner: SenderMap,
-    sender_type: ffi::SenderType,
+    kind: ffi::SenderKind,
 }
 
 impl SenderMapRust {
@@ -224,10 +224,10 @@ impl SenderMapRust {
             return QString::default();
         };
         let world = client.world_plugin();
-        match self.sender_type {
-            ffi::SenderType::Alias => world.aliases.get(index).unwrap().cell_text(column),
-            ffi::SenderType::Timer => world.timers.get(index).unwrap().cell_text(column),
-            ffi::SenderType::Trigger => world.triggers.get(index).unwrap().cell_text(column),
+        match self.kind {
+            ffi::SenderKind::Alias => world.aliases.get(index).unwrap().cell_text(column),
+            ffi::SenderKind::Timer => world.timers.get(index).unwrap().cell_text(column),
+            ffi::SenderKind::Trigger => world.triggers.get(index).unwrap().cell_text(column),
             _ => QString::default(),
         }
     }
@@ -263,10 +263,10 @@ impl SenderMapRust {
 
     pub fn recalculate(&mut self, client: &SmushClient) {
         let world = client.world_plugin();
-        match self.sender_type {
-            ffi::SenderType::Alias => self.inner.recalculate(&*world.aliases.borrow()),
-            ffi::SenderType::Timer => self.inner.recalculate(&*world.timers.borrow()),
-            ffi::SenderType::Trigger => self.inner.recalculate(&*world.triggers.borrow()),
+        match self.kind {
+            ffi::SenderKind::Alias => self.inner.recalculate(&*world.aliases.borrow()),
+            ffi::SenderKind::Timer => self.inner.recalculate(&*world.timers.borrow()),
+            ffi::SenderKind::Trigger => self.inner.recalculate(&*world.triggers.borrow()),
             _ => (),
         }
     }
@@ -305,10 +305,10 @@ impl SenderMapRust {
         if indices.is_empty() {
             return false;
         }
-        match self.sender_type {
-            ffi::SenderType::Alias => remove_all(client.world_senders::<Alias>(), indices),
-            ffi::SenderType::Timer => remove_all(client.world_senders::<Timer>(), indices),
-            ffi::SenderType::Trigger => remove_all(client.world_senders::<Trigger>(), indices),
+        match self.kind {
+            ffi::SenderKind::Alias => remove_all(client.world_senders::<Alias>(), indices),
+            ffi::SenderKind::Timer => remove_all(client.world_senders::<Timer>(), indices),
+            ffi::SenderKind::Trigger => remove_all(client.world_senders::<Trigger>(), indices),
             _ => return false,
         }
         true
@@ -337,10 +337,10 @@ impl SenderMapRust {
         let Some(index) = self.inner.sender_index(group, row) else {
             return -1;
         };
-        let result = match self.sender_type {
-            ffi::SenderType::Alias => Alias::update_in_world(client, index, column, data),
-            ffi::SenderType::Timer => Timer::update_in_world(client, index, column, data),
-            ffi::SenderType::Trigger => Trigger::update_in_world(client, index, column, data),
+        let result = match self.kind {
+            ffi::SenderKind::Alias => Alias::update_in_world(client, index, column, data),
+            ffi::SenderKind::Timer => Timer::update_in_world(client, index, column, data),
+            ffi::SenderKind::Trigger => Trigger::update_in_world(client, index, column, data),
             _ => None,
         };
         let Some(new_index) = result else {
@@ -357,11 +357,11 @@ impl SenderMapRust {
     }
 }
 
-impl_constructor!(<>, ffi::SenderMap, (ffi::SenderType,), {
-    fn new((sender_type,): (ffi::SenderType,)) -> SenderMapRust {
+impl_constructor!(<>, ffi::SenderMap, (ffi::SenderKind,), {
+    fn new((kind,): (ffi::SenderKind,)) -> SenderMapRust {
         SenderMapRust {
             inner: SenderMap::default(),
-            sender_type,
+            kind,
         }
     }
 });

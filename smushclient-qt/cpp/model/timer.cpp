@@ -12,34 +12,22 @@ using std::array;
 TimerModel::TimerModel(SmushClient& client,
                        Timekeeper& timekeeper,
                        QObject* parent)
-  : AbstractSenderModel(client, SenderType::Timer, parent)
+  : AbstractSenderModel(client, SenderKind::Timer, parent)
   , timekeeper(timekeeper)
 {
-  client.stopSenders(SenderKind::Timer);
 }
 
 // Public overrides
 
-QString
-TimerModel::tryExportXml() const
-{
-  return client.tryExportWorldSenders(SenderKind::Timer);
-}
-
 Qt::ItemFlags
 TimerModel::flags(const QModelIndex& index) const
 {
-  if (hasChildren(index)) {
-    return Qt::ItemFlag::ItemIsEnabled;
-  }
-
-  const Qt::ItemFlags flags = Qt::ItemFlag::ItemIsSelectable |
-                              Qt::ItemFlag::ItemIsEnabled |
-                              Qt::ItemFlag::ItemNeverHasChildren;
-
+  Qt::ItemFlags flags = AbstractSenderModel::flags(index);
   const int column = index.column();
-  return column == 0 || column == 3 ? flags | Qt::ItemFlag::ItemIsEditable
-                                    : flags;
+  if (column == 0 || column == 3) {
+    flags.setFlag(Qt::ItemFlag::ItemIsEditable, false);
+  }
+  return flags;
 }
 
 // Protected overrides
@@ -66,13 +54,18 @@ TimerModel::edit(size_t index, QWidget* parent)
   return client.replaceWorldTimer(index, timer, timekeeper);
 }
 
-const array<QString, 4>&
-TimerModel::headers() const noexcept
+QVariant
+TimerModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-  const static array<QString, 4> headers{
+  const static array<QString, numColumns> headers{
     tr("Group/Label"), tr("Type"), tr("Occurrence"), tr("Text")
   };
-  return headers;
+
+  if (orientation != Qt::Orientation::Horizontal || role != Qt::DisplayRole) {
+    return QVariant();
+  }
+
+  return headers.at(section);
 }
 
 ParseResult

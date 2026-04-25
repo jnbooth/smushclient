@@ -5,7 +5,7 @@
 #include <QtCore/QItemSelection>
 
 class SenderMap;
-enum class SenderType;
+enum class SenderKind : uint8_t;
 class SmushClient;
 class Timekeeper;
 
@@ -15,17 +15,18 @@ class AbstractSenderModel : public QAbstractItemModel
 
 public:
   AbstractSenderModel(SmushClient& client,
-                      SenderType type,
+                      SenderKind kind,
                       QObject* parent = nullptr);
   bool addItem(QWidget* parent = nullptr);
   bool editItem(const QModelIndex& index, QWidget* parent = nullptr);
-  virtual QString tryExportXml() const = 0;
+  QString tryExportXml() const;
   ParseResult importXml(const QString& xml);
   bool removeSelection(const QItemSelection& selection);
   int senderIndex(const QModelIndex& index) const;
   int columnCount(const QModelIndex& index = {}) const override;
   QVariant data(const QModelIndex& index,
                 int role = Qt::DisplayRole) const override;
+  Qt::ItemFlags flags(const QModelIndex& index) const override;
   bool hasChildren(const QModelIndex& index = {}) const override;
   QVariant headerData(int section,
                       Qt::Orientation orientation,
@@ -46,7 +47,6 @@ protected:
 
   virtual bool add(QWidget* parent) = 0;
   virtual int edit(size_t index, QWidget* parent) = 0;
-  virtual const std::array<QString, numColumns>& headers() const noexcept = 0;
   virtual ParseResult import(const QString& xml) = 0;
   virtual void prepareRemove(SenderMap& /*map*/,
                              const rust::String& /*group*/,
@@ -61,6 +61,7 @@ private:
   bool removeRowsInternal(int row, int count, const QModelIndex& parent = {});
 
 private:
+  SenderKind kind;
   SenderMap* map;
   std::unique_ptr<bool> needsRefresh;
 };

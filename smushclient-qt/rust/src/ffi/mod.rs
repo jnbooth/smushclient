@@ -37,7 +37,7 @@ pub use sender::AliasOutcomes;
 pub use sender::ffi::{Alias, AliasOutcome, Occurrence, Timer, Trigger};
 
 mod sender_map;
-pub use sender_map::ffi::{SenderMap, SenderType};
+pub use sender_map::ffi::SenderMap;
 
 mod send_request;
 pub use send_request::ffi::{SendRequest, SendTarget, SendTimer, SenderKind};
