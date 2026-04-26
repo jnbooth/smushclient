@@ -88,17 +88,6 @@ Plugin::hasFunction(PluginCallbackKey routine) const
 }
 
 bool
-Plugin::hasFunction(const QString& routine) const
-{
-  lua_State* L = state();
-  if (CallbackFinder(routine).findCallback(L)) {
-    lua_pop(L, 1);
-    return true;
-  }
-  return false;
-}
-
-bool
 Plugin::install(const PluginPack& pack)
 {
   QByteArrayView script(pack.scriptData,

@@ -33,6 +33,7 @@
 #include <QtWidgets/QMessageBox>
 
 using std::nullopt;
+using std::string;
 using std::string_view;
 using std::chrono::milliseconds;
 
@@ -1097,8 +1098,8 @@ WorldTab::on_input_submitted(const QString& input)
 
   if (input.startsWith(u'/')) {
     if (Plugin* plugin = api->worldPlugin(); plugin) {
-      if (plugin->runScript(input.sliced(1).toUtf8())) {
-        ui->input->clear();
+      if (plugin->runScript(QStringView(input).sliced(1).toUtf8())) {
+        ui->input->push();
       }
     }
     return;
@@ -1131,30 +1132,6 @@ WorldTab::on_input_textChanged()
   api->sendCallback(onCommandChanged);
 }
 
-class AnchorCallback : public DynamicPluginCallback
-{
-public:
-  AnchorCallback(const QString& callback, const QString& arg) noexcept
-    : DynamicPluginCallback(callback)
-    , arg(arg)
-  {
-  }
-
-  constexpr ActionSource source() const noexcept override
-  {
-    return ActionSource::UserMenuAction;
-  }
-
-  int pushArguments(lua_State* L) const override
-  {
-    qlua::push(L, arg);
-    return 1;
-  }
-
-private:
-  const QString& arg;
-};
-
 void
 WorldTab::on_output_copyAvailable(bool available)
 {
@@ -1176,6 +1153,30 @@ WorldTab::on_output_customContextMenuRequested(const QPoint& pos)
   dialog.exec();
 }
 
+class AnchorCallback : public DynamicPluginCallback
+{
+public:
+  AnchorCallback(PluginCallbackKey callback, string_view arg) noexcept
+    : DynamicPluginCallback(callback)
+    , arg(arg)
+  {
+  }
+
+  constexpr ActionSource source() const noexcept override
+  {
+    return ActionSource::UserMenuAction;
+  }
+
+  int pushArguments(lua_State* L) const override
+  {
+    qlua::push(L, arg);
+    return 1;
+  }
+
+private:
+  string_view arg;
+};
+
 void
 WorldTab::on_output_linkActivated(const QString& action, SendTo sendTo)
 {
@@ -1190,21 +1191,26 @@ WorldTab::on_output_linkActivated(const QString& action, SendTo sendTo)
       return;
   }
 
-  qsizetype delimIndex = 0;
-  qsizetype fnIndex = 0;
-  if (action.first(2) == QStringLiteral("!!") && action.back() == u')' &&
-      (delimIndex = action.indexOf(u':')) != -1 &&
-      (fnIndex = action.indexOf(u'(', delimIndex)) != -1) {
-    const QString pluginID = action.sliced(2, delimIndex - 2);
-    const QString functionName =
-      action.sliced(delimIndex + 1, fnIndex - delimIndex - 1);
-    const QString arg = action.sliced(fnIndex + 1, action.size() - fnIndex - 2);
-    AnchorCallback callback(functionName, arg);
-    api->sendCallback(callback, pluginID);
+  if (!action.startsWith("!!"_L1) || action.back() != u')') {
+    sendCommand(action, CommandSource::Hotkey);
     return;
   }
 
-  sendCommand(action, CommandSource::Hotkey);
+  const string actionStd = action.toStdString();
+  const string_view s = string_view(actionStd).substr(2, actionStd.size() - 3);
+  const size_t start = s.find(':');
+  if (start == string_view::npos) {
+    return;
+  }
+  const size_t end = s.find('(', start);
+  if (end == string_view::npos) {
+    return;
+  }
+  const string_view pluginID = s.substr(0, start);
+  const string_view functionName = s.substr(start + 1, end - (start + 1));
+  const string_view arg = s.substr(end + 1);
+  AnchorCallback callback(functionName, arg);
+  api->sendCallback(callback, pluginID);
 }
 
 void

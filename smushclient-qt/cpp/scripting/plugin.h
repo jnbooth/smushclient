@@ -26,7 +26,6 @@ public:
 
   std::shared_ptr<bool> getDisabled() const;
   bool hasFunction(PluginCallbackKey routine) const;
-  bool hasFunction(const QString& routine) const;
   const std::string& id() const noexcept { return metadata.id; }
   QVariant info(int64_t infoType) const noexcept;
   bool install(const PluginPack& pack);

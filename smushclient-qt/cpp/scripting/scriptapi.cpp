@@ -371,9 +371,9 @@ ScriptApi::sendCallback(PluginCallback& callback, size_t plugin)
 }
 
 bool
-ScriptApi::sendCallback(PluginCallback& callback, const QString& pluginID)
+ScriptApi::sendCallback(PluginCallback& callback, string_view pluginID)
 {
-  const size_t index = findPluginIndex(pluginID.toStdString());
+  const size_t index = findPluginIndex(pluginID);
   if (index == noSuchPlugin) [[unlikely]] {
     return {};
   }

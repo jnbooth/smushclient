@@ -9,17 +9,6 @@ using qlua::push;
 
 // Abstract
 
-DynamicPluginCallback::DynamicPluginCallback(const QString& callback)
-{
-  const qsizetype n = callback.indexOf(u'.');
-  if (n == -1) {
-    name = callback.toStdString();
-    return;
-  }
-  name = callback.first(n).toStdString();
-  property = callback.sliced(n + 1).toStdString();
-}
-
 bool
 DynamicPluginCallback::findCallback(lua_State* L) const
 {

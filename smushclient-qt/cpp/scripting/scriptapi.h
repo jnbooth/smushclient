@@ -678,7 +678,7 @@ public:
   QTextCursor selectRecentLines(int count) const;
   void sendCallback(PluginCallback& callback);
   bool sendCallback(PluginCallback& callback, size_t plugin);
-  bool sendCallback(PluginCallback& callback, const QString& pluginID);
+  bool sendCallback(PluginCallback& callback, std::string_view pluginID);
   void sendNaws();
   void sendPartialLineToPlugins();
   ApiCode sendToWorld(QByteArray& bytes, SendFlags flags)

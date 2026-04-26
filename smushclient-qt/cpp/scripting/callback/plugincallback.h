@@ -48,7 +48,6 @@ public:
     , property(callback.property)
   {
   }
-  explicit DynamicPluginCallback(const QString& callback);
   constexpr unsigned int id() const noexcept override { return 0; }
   bool findCallback(lua_State* L) const override;
 
