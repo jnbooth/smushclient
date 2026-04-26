@@ -4,6 +4,11 @@
 class CommandHistory
 {
 public:
+  using const_reference = const QString&;
+  using parameter_type = const QString&;
+  using size_type = qsizetype;
+  using value_type = QString;
+
   explicit CommandHistory(qsizetype max = -1) noexcept;
   explicit CommandHistory(const QStringList& history, qsizetype max = -1);
   CommandHistory(CommandHistory&& other) noexcept;

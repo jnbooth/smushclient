@@ -36,6 +36,8 @@ public:
   template<typename T>
   struct BasicCallbacks
   {
+    using value_type = T;
+
     T dragMove{};
     T dragRelease{};
     T mouseOver{};
