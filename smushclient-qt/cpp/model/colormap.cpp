@@ -58,7 +58,7 @@ ColorMapModel::headerData(int section,
                           Qt::Orientation orientation,
                           int role) const
 {
-  const static array<QString, numColumns> headers{ tr("From"),
+  static const array<QString, numColumns> headers{ tr("From"),
                                                    tr("To"),
                                                    QString() };
 

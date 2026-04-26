@@ -25,9 +25,9 @@ QString
 defaultStartupDirectory()
 {
 #if defined(STANDALONE_CLIENT)
-  const static QString dir = QDir::currentPath();
+  static const QString dir = QDir::currentPath();
 #else
-  const static QString dir =
+  static const QString dir =
     QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).first();
 #endif
   return dir;

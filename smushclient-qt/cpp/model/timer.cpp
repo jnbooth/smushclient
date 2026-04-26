@@ -57,7 +57,7 @@ TimerModel::edit(size_t index, QWidget* parent)
 QVariant
 TimerModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-  const static array<QString, numColumns> headers{
+  static const array<QString, numColumns> headers{
     tr("Group/Label"), tr("Type"), tr("Occurrence"), tr("Text")
   };
 

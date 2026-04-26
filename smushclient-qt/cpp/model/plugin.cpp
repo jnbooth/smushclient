@@ -134,7 +134,7 @@ PluginModel::headerData(int section,
     return QVariant();
   }
 
-  const static array<QString, numColumns> headers{
+  static const array<QString, numColumns> headers{
     tr("Name"), tr("Purpose"), tr("Author"),
     tr("Path"), tr("Enabled"), tr("Version")
   };

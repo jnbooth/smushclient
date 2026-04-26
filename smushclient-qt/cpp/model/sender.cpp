@@ -255,7 +255,7 @@ AbstractSenderModel::headerData(int section,
                                 Qt::Orientation orientation,
                                 int role) const
 {
-  const static array<QString, numColumns> headers{
+  static const array<QString, numColumns> headers{
     tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text")
   };
 
