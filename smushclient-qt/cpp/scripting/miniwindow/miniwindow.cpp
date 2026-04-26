@@ -21,15 +21,15 @@ namespace {
 constexpr std::span<const char>
 trim(const string& s) noexcept
 {
-  const size_t start = s.find_first_not_of(' ');
-  const size_t end = s.find_last_not_of(' ');
+  const string::size_type start = s.find_first_not_of(' ');
+  const string::size_type end = s.find_last_not_of(' ');
   return std::span(s).subspan(start, end + 1 - start);
 }
 
 inline bool
 buildMenu(QMenu& menu, string_view text)
 {
-  const size_t menuCount = 1 + std::count(text.cbegin(), text.cend(), '>');
+  const ptrdiff_t menuCount = 1 + std::count(text.cbegin(), text.cend(), '>');
   std::vector<QMenu*> menus;
   menus.reserve(menuCount);
   menus.push_back(&menu);

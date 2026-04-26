@@ -475,7 +475,7 @@ countOccurrences(string_view input, string_view sep, int max)
 {
   int count = 0;
   for (size_t offset = input.find(sep);
-       count <= max && offset != std::string::npos;
+       count <= max && offset != string_view::npos;
        offset = input.find(sep, offset + sep.length())) {
     ++count;
   }

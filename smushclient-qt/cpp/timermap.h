@@ -41,7 +41,7 @@ public:
   }
 
   template<class Predicate>
-  size_t erase_if(Predicate pred)
+  std::unordered_map<Qt::TimerId, T>::size_type erase_if(Predicate pred)
   {
     return std::erase_if(map,
                          [pred](const std::pair<const Qt::TimerId, T>& item) {
@@ -58,7 +58,7 @@ public:
 
   T& start(std::chrono::milliseconds duration, T item)
   {
-    return map[startTimerId(duration)] = item;
+    return map.emplace(startTimerId(duration), item).first->second;
   }
 
 protected:

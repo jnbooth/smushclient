@@ -134,14 +134,11 @@ public:
       ++index;
       return *this;
     }
-    WorldTab& operator*() const
-    {
-      return *qobject_cast<WorldTab*>(tabs->widget(index));
-    }
     WorldTab* operator->() const
     {
       return qobject_cast<WorldTab*>(tabs->widget(index));
     }
+    WorldTab& operator*() const { return *operator->(); }
 
   private:
     constexpr iterator(QTabWidget* tabs, int index) noexcept
@@ -164,11 +161,8 @@ public:
     {
     }
 
-    constexpr iterator begin() const noexcept { return iterator(tabs, 0); }
-    constexpr iterator end() const noexcept
-    {
-      return iterator(tabs, tabs->count());
-    }
+    constexpr iterator begin() const noexcept { return { tabs, 0 }; }
+    constexpr iterator end() const noexcept { return { tabs, tabs->count() }; }
 
   private:
     QTabWidget* tabs;

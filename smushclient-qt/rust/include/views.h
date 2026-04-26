@@ -80,7 +80,6 @@ public:
   constexpr const char* data() const noexcept { return data_; }
   constexpr size_t size() const noexcept { return size_; };
 
-  constexpr operator bool() const noexcept { return data_ != nullptr; }
   constexpr operator std::string_view() const noexcept
   {
     return { data_, size_ };
