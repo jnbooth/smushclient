@@ -100,14 +100,6 @@ CommandHistory::push(const QString& command)
 }
 
 void
-CommandHistory::replace(const QStringList& newHistory)
-{
-  const qsizetype newSize = newHistory.size();
-  history = newSize <= max ? newHistory : newHistory.sliced(newSize - max, max);
-  resetIterators();
-}
-
-void
 CommandHistory::setMaxSize(qsizetype newMax)
 {
   if (newMax < 0) {

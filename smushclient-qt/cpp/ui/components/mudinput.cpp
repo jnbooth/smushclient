@@ -27,12 +27,6 @@ MudInput::log() const noexcept
   return history.log();
 }
 
-void
-MudInput::setLog(const QStringList& log)
-{
-  history.replace(log);
-}
-
 // Public overrides
 
 QSize
@@ -54,6 +48,17 @@ void
 MudInput::clearLog()
 {
   history.clear();
+}
+
+QString
+MudInput::push()
+{
+  const QString command = toPlainText();
+  if (!command.isEmpty()) {
+    remember(command);
+    clear();
+  }
+  return command;
 }
 
 void

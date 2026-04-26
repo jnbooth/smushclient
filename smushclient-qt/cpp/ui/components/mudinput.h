@@ -13,13 +13,13 @@ public:
 
   bool keypadIgnored() const noexcept { return m_keypadIgnored; }
   const QStringList& log() const noexcept;
-  void setLog(const QStringList& log);
 
   QSize minimumSizeHint() const override;
   QSize sizeHint() const override;
 
 public slots:
   void clearLog();
+  QString push();
   void remember(const QString& text);
   void setKeypadIgnored(bool ignore = true);
   void setMaxLogSize(int size);

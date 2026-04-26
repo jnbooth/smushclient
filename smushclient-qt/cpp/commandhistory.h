@@ -22,7 +22,6 @@ public:
   void clear();
   void pop();
   bool push(const QString& command);
-  void replace(const QStringList& history);
   void setMaxSize(qsizetype max);
 
   const QString& previous() noexcept

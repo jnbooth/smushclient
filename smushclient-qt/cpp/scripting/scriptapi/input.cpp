@@ -79,12 +79,7 @@ ScriptApi::PasteCommand(const QString& command) const
 QString
 ScriptApi::PushCommand() const
 {
-  const QString command = tab.ui->input->toPlainText();
-  if (!command.isEmpty()) {
-    tab.ui->input->remember(command);
-    tab.ui->input->clear();
-  }
-  return command;
+  return tab.ui->input->push();
 }
 
 ApiCode
