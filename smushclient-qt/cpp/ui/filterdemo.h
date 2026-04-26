@@ -1,5 +1,4 @@
-#ifndef FILTERDEMO_H
-#define FILTERDEMO_H
+#pragma once
 
 #include "smushclient_qt/src/ffi/filter.cxx.h"
 #include <QtWidgets/QDialog>
@@ -41,5 +40,3 @@ private:
   QPixmap base;
   bool pause = false;
 };
-
-#endif // FILTERDEMO_H

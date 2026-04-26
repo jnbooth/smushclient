@@ -17,16 +17,12 @@
 #include <QtWidgets/QFontDialog>
 #include <QtWidgets/QInputDialog>
 #include <QtWidgets/QMessageBox>
+#include <limits>
 extern "C"
 {
 #include "lauxlib.h"
   LUALIB_API int luaopen_base64(lua_State* L);
 }
-
-#ifndef SIZE_MAX
-#include <limits>
-#define SIZE_MAX = std::numeric_limits<size_t>::max();
-#endif
 
 using qlua::expectMaxArgs;
 using qlua::getBool;
@@ -980,12 +976,13 @@ L_utf8encode(lua_State* L)
 int
 L_utf8sub(lua_State* L)
 {
+  constexpr const size_t errorNPos = std::numeric_limits<size_t>::max();
   expectMaxArgs(L, 3);
-  size_t errorPos = SIZE_MAX;
+  size_t errorPos = errorNPos;
   const rust::Str s = ffi::util::utf8_substring(
     getString(L, 1), getInteger(L, 2), getInteger(L, 3, -1), errorPos);
 
-  if (errorPos != SIZE_MAX) {
+  if (errorPos != errorNPos) {
     lua_pushnil(L);
     push(L, errorPos);
     return 2;
