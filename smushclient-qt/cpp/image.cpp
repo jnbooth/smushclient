@@ -126,8 +126,8 @@ invertBitmap(const QPixmap& base)
 {
   QImage image = base.toImage();
   image.convertTo(bitmapFormat);
-  span<uchar> bytes(image.bits(), image.sizeInBytes());
-  for (uchar& byte : bytes) {
+  span<unsigned char> bytes(image.bits(), image.sizeInBytes());
+  for (unsigned char& byte : bytes) {
     byte = ~byte;
   }
   return QBitmap::fromData(base.size(), bytes.data(), bitmapFormat);

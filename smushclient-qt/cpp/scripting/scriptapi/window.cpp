@@ -144,13 +144,15 @@ ScriptApi::WindowCreateImage(string_view windowName,
                              std::array<int64_t, 8> rows) const
 {
   constexpr const QSize grid(8, 8);
-  static_assert(sizeof(rows) == sizeof(uchar) * grid.height() * grid.width());
+  static_assert(sizeof(rows) ==
+                sizeof(unsigned char) * grid.height() * grid.width());
 
   MiniWindow* window = TRY_WINDOW(windowName);
 
   // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
   // SAFETY: see static assertion above
-  const uchar* data = reinterpret_cast<const uchar*>(rows.data());
+  const unsigned char* data =
+    reinterpret_cast<const unsigned char*>(rows.data());
   // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 
   QBitmap bitmap = QBitmap::fromData(grid, data, image::bitmapFormat);

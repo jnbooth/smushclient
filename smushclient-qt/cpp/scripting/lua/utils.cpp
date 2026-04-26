@@ -493,12 +493,12 @@ getSepSize(string_view sep)
   return sep.length();
 }
 
-inline const uchar*
+inline const unsigned char*
 reinterpretUnsigned(const char* data) noexcept
 {
   // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
   // SAFETY: Reinterpreting between const char* and const uchar* is safe.
-  return reinterpret_cast<const uchar*>(data);
+  return reinterpret_cast<const unsigned char*>(data);
   // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 }
 
