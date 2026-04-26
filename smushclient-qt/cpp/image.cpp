@@ -24,21 +24,6 @@ dissolve(const QPixmap& source, const QRect& rect, qreal opacity)
 // Public functions
 
 namespace image {
-QImage::Format
-_getBitmapFormat() noexcept
-{
-  const union
-  {
-    uint32_t i;
-    std::array<char, 4> c;
-  } endiannessTest = { 0x01020304 };
-
-  // NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
-  return endiannessTest.c[0] == 1 ? QImage::Format::Format_Mono
-                                  : QImage::Format::Format_MonoLSB;
-  // NOLINTEND(cppcoreguidelines-pro-type-union-access)
-}
-
 bool
 blend(QPixmap& target,
       const QPixmap& source,

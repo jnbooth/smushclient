@@ -493,6 +493,15 @@ getSepSize(string_view sep)
   return sep.length();
 }
 
+inline const uchar*
+reinterpretUnsigned(const char* data) noexcept
+{
+  // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
+  // SAFETY: Reinterpreting between const char* and const uchar* is safe.
+  return reinterpret_cast<const uchar*>(data);
+  // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
+}
+
 template<typename T>
 inline void
 splitLua(lua_State* L, string_view input, T sep, lua_Integer max)
@@ -580,7 +589,6 @@ L_choose(lua_State* L)
   return execScriptDialog(L, 3, *dialog, defaultKey);
 }
 
-// NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
 int
 L_compress(lua_State* L)
 {
@@ -589,7 +597,7 @@ L_compress(lua_State* L)
   const lua_Integer level = getInteger(L, 2, 6);
   luaL_argexpected(L, level >= 0 && level <= 9, 2, "integer between 0 and 9");
   push(L,
-       qCompress(reinterpret_cast<const uchar*>(bytes.data()),
+       qCompress(reinterpretUnsigned(bytes.data()),
                  static_cast<int>(bytes.size()),
                  static_cast<int>(level)));
   return 1;
@@ -601,11 +609,10 @@ L_decompress(lua_State* L)
   expectMaxArgs(L, 1);
   const QByteArrayView bytes = getBytes(L, 1);
   push(L,
-       qUncompress(reinterpret_cast<const uchar*>(bytes.data()),
+       qUncompress(reinterpretUnsigned(bytes.data()),
                    static_cast<int>(bytes.size())));
   return 1;
 }
-// NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 
 int
 L_directorypicker(lua_State* L)

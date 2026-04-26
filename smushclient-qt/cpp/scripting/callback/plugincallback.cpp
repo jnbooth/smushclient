@@ -167,8 +167,12 @@ TimerCallback::pushArguments(lua_State* L) const
   return 1;
 }
 
+namespace {
+QByteArray
+  emptyByteArray; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+}; // namespace
+
 namespace namedCallbacks {
-QByteArray emptyByteArray; // NOLINT
 constexpr const OnPluginBroadcast onBroadcast({}, {}, {}, {});
 constexpr const OnPluginClose onClose;
 constexpr const OnPluginCommand onCommand({}, {});

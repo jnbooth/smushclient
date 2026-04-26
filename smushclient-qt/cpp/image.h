@@ -6,10 +6,9 @@
 enum class BlendMode : int64_t;
 
 namespace image {
-QImage::Format
-_getBitmapFormat() noexcept;
-
-const QImage::Format bitmapFormat = _getBitmapFormat();
+const QImage::Format bitmapFormat = std::endian::native == std::endian::little
+                                      ? QImage::Format::Format_MonoLSB
+                                      : QImage::Format::Format_Mono;
 
 inline rust::Slice<const uint8_t>
 asBytes(const QImage& image) noexcept

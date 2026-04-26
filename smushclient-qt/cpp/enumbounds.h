@@ -21,7 +21,7 @@ struct enum_bounds;
 
 template<typename T>
 constexpr std::optional<T>
-enum_cast(long long value) noexcept // NOLINT(google-runtime-int)
+enum_cast(int64_t value) noexcept
 {
   if (enum_bounds<T>::validate(value)) [[likely]] {
     return std::optional(static_cast<T>(value));
