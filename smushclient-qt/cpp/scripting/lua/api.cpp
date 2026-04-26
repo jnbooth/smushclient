@@ -3970,13 +3970,14 @@ static constexpr const struct luaL_Reg worldlib[] = {
 };
 
 namespace {
+template<size_t N>
 constexpr const char*
-findFirstDuplicate() noexcept
+findFirstDuplicate(const luaL_Reg (&libtable)[N]) noexcept
 {
-  constexpr const std::span<const luaL_Reg> worldLib(worldlib);
-  std::array<string_view, worldLib.size() - 1> names;
+  const std::span<const luaL_Reg> libspan(libtable);
+  std::array<string_view, N - 1> names;
 
-  auto iter = worldLib.begin();
+  auto iter = libspan.begin();
   for (string_view& name : names) {
     name = iter->name;
     ++iter;
@@ -3995,7 +3996,7 @@ findFirstDuplicate() noexcept
   return nullptr;
 }
 
-constexpr const char* const firstDuplicate = findFirstDuplicate();
+constexpr const char* const firstDuplicate = findFirstDuplicate(worldlib);
 static_assert(firstDuplicate == nullptr);
 } // namespace
 
