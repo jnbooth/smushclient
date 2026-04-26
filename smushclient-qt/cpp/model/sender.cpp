@@ -3,8 +3,6 @@
 #include "smushclient_qt/src/ffi/sender_map.cxxqt.h"
 #include <QtCore/QAbstractProxyModel>
 
-using std::array;
-
 struct SelectionRegion
 {
   int top = -1;
@@ -255,7 +253,7 @@ AbstractSenderModel::headerData(int section,
                                 Qt::Orientation orientation,
                                 int role) const
 {
-  static const array<QString, numColumns> headers{
+  static const std::array<QString, numColumns> headers{
     tr("Group/Label"), tr("Sequence"), tr("Pattern"), tr("Text")
   };
 

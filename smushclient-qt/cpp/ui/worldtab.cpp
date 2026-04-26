@@ -898,7 +898,7 @@ WorldTab::splitCommands(const QString& input) const
     return commands;
   }
   QString buf = input;
-  const std::array<QChar, 2> doubled = { splitOn, splitOn };
+  const std::array doubled{ splitOn, splitOn };
   buf.replace(doubled.data(), doubled.size(), &delim, 1);
   buf.replace(splitOn, u'\n');
   buf.replace(delim, splitOn);

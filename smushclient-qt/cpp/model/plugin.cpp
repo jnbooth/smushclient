@@ -2,8 +2,6 @@
 #include "../client.h"
 #include "smushclient_qt/src/ffi/plugin_details.cxxqt.h"
 
-using std::array;
-
 // Public methods
 
 PluginModel::PluginModel(SmushClient& client, QObject* parent)
@@ -134,7 +132,7 @@ PluginModel::headerData(int section,
     return QVariant();
   }
 
-  static const array<QString, numColumns> headers{
+  static const std::array<QString, numColumns> headers{
     tr("Name"), tr("Purpose"), tr("Author"),
     tr("Path"), tr("Enabled"), tr("Version")
   };

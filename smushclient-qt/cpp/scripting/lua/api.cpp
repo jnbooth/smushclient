@@ -3610,7 +3610,7 @@ L_stub_void(lua_State* /* L */)
 
 } // namespace
 
-static constexpr const struct luaL_Reg worldlib[] = {
+static constexpr const struct luaL_Reg worldlib[]{
   // bar
   { "Info", L_Info },
   { "InfoBackground", L_InfoBackground },
@@ -4017,7 +4017,7 @@ L_world_tostring(lua_State* L)
 }
 } // namespace
 
-static const struct luaL_Reg worldlib_meta[] = {
+static const struct luaL_Reg worldlib_meta[]{
   { "__newindex", L_world_newindex },
   { "__tostring", L_world_tostring },
   { nullptr, nullptr }

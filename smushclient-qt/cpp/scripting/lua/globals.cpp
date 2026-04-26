@@ -20,7 +20,7 @@ struct TableEntry : std::pair<const char*, lua_Integer>
   }
 };
 
-static const TableEntry alias_flag[] = {
+static const TableEntry alias_flag[]{
   { "Enabled", AliasFlag::Enabled },
   { "KeepEvaluating", AliasFlag::KeepEvaluating },
   { "IgnoreAliasCase", AliasFlag::IgnoreAliasCase },
@@ -35,7 +35,7 @@ static const TableEntry alias_flag[] = {
   { "OneShot", AliasFlag::OneShot }
 };
 
-static const TableEntry custom_colour[] = {
+static const TableEntry custom_colour[]{
   { "NoChange", -1 },       { "Custom1", 0x8080FF },  { "Custom2", 0x80FFFF },
   { "Custom3", 0x80FF80 },  { "Custom4", 0xFFFF80 },  { "Custom5", 0xFF8000 },
   { "Custom6", 0xC080FF },  { "Custom7", 0x0000FF },  { "Custom8", 0xC08000 },
@@ -44,7 +44,7 @@ static const TableEntry custom_colour[] = {
   { "Custom15", 0x008000 }, { "Custom16", 0xFF0000 }, { "CustomOther", -1 }
 };
 
-static const TableEntry error_code[] = {
+static const TableEntry error_code[]{
   { "eOK", ApiCode::OK },
   { "eWorldOpen", ApiCode::WorldOpen },
   { "eWorldClosed", ApiCode::WorldClosed },
@@ -122,7 +122,7 @@ static const TableEntry error_code[] = {
   { "eBrushStyleNotValid", ApiCode::BrushStyleNotValid }
 };
 
-static const std::pair<ApiCode, string> error_desc[] = {
+static const std::pair<ApiCode, string> error_desc[]{
   { ApiCode::OK, "No error" },
   { ApiCode::WorldOpen, "The world is already open" },
   { ApiCode::WorldClosed,
@@ -226,7 +226,7 @@ static const std::pair<ApiCode, string> error_desc[] = {
   { ApiCode::BrushStyleNotValid, "Invalid settings for brush parameter" }
 };
 
-static const TableEntry miniwin[] = {
+static const TableEntry miniwin[]{
   { "pos_stretch_to_view", MiniWindow::Position::OutputStretch },
   { "pos_stretch_to_view_with_aspect", MiniWindow::Position::OutputScale },
   { "pos_stretch_to_owner", MiniWindow::Position::OwnerStretch },
@@ -474,13 +474,13 @@ static const TableEntry miniwin[] = {
   { "wheel_scroll_back", Hotspot::EventFlag::ScrollDown }
 };
 
-static const TableEntry operating_system[] = {
+static const TableEntry operating_system[]{
   { "Windows", OperatingSystem::Windows },
   { "MacOS", OperatingSystem::MacOS },
   { "Linux", OperatingSystem::Linux }
 };
 
-static const TableEntry sendto[] = {
+static const TableEntry sendto[]{
   { "world", SendTarget::World },
   { "command", SendTarget::Command },
   { "output", SendTarget::Output },
@@ -498,7 +498,7 @@ static const TableEntry sendto[] = {
   { "scriptafteromit", SendTarget::ScriptAfterOmit }
 };
 
-static const TableEntry timer_flag[] = {
+static const TableEntry timer_flag[]{
   { "Enabled", TimerFlag::Enabled },
   { "AtTime", TimerFlag::AtTime },
   { "OneShot", TimerFlag::OneShot },
@@ -509,7 +509,7 @@ static const TableEntry timer_flag[] = {
   { "Temporary", TimerFlag::Temporary }
 };
 
-static const TableEntry trigger_flag[] = {
+static const TableEntry trigger_flag[]{
   { "Enabled", TriggerFlag::Enabled },
   { "OmitFromLog", TriggerFlag::OmitFromLog },
   { "OmitFromOutput", TriggerFlag::OmitFromOutput },

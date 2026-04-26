@@ -5,8 +5,6 @@
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "smushclient_qt/src/ffi/sender_map.cxxqt.h"
 
-using std::array;
-
 // Public methods
 
 TimerModel::TimerModel(SmushClient& client,
@@ -57,7 +55,7 @@ TimerModel::edit(size_t index, QWidget* parent)
 QVariant
 TimerModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-  static const array<QString, numColumns> headers{
+  static const std::array<QString, numColumns> headers{
     tr("Group/Label"), tr("Type"), tr("Occurrence"), tr("Text")
   };
 

@@ -9,8 +9,6 @@
 #include "ui_output.h"
 #include <QtWidgets/QFileDialog>
 
-using std::array;
-
 PrefsOutput::PrefsOutput(World& world, QWidget* parent)
   : QWidget(parent)
   , ui(new Ui::PrefsOutput)
@@ -91,7 +89,7 @@ void
 PrefsOutput::on_reset_clicked()
 {
   const QVector<QColor> ansiColors = ffi::util::ansi16();
-  array<ColorPickerButton*, 16> colorPickers{
+  const std::array colorPickers{
     ui->Ansi0,  ui->Ansi1,  ui->Ansi2,  ui->Ansi3, ui->Ansi4,  ui->Ansi5,
     ui->Ansi6,  ui->Ansi7,  ui->Ansi8,  ui->Ansi9, ui->Ansi10, ui->Ansi11,
     ui->Ansi12, ui->Ansi13, ui->Ansi14, ui->Ansi15

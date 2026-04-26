@@ -1,8 +1,6 @@
 #include "colormap.h"
 #include <QtGui/QIcon>
 
-using std::array;
-
 // Private static variables
 
 const QIcon ColorMapModel::clearIcon =
@@ -58,9 +56,9 @@ ColorMapModel::headerData(int section,
                           Qt::Orientation orientation,
                           int role) const
 {
-  static const array<QString, numColumns> headers{ tr("From"),
-                                                   tr("To"),
-                                                   QString() };
+  static const std::array<QString, numColumns> headers{ tr("From"),
+                                                        tr("To"),
+                                                        QString() };
 
   if (orientation != Qt::Orientation::Horizontal || role != Qt::DisplayRole) {
     return QVariant();

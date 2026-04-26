@@ -23,7 +23,7 @@ using Qt::StringLiterals::operator""_L1;
 
 // Private utilities
 
-static const std::array<QColor, 16> customColors = {
+static const std::array customColors{
   QColor(255, 128, 128), QColor(255, 255, 128), QColor(128, 255, 128),
   QColor(128, 255, 255), QColor(0, 128, 255),   QColor(255, 128, 192),
   QColor(255, 0, 0),     QColor(0, 128, 192),   QColor(255, 0, 255),

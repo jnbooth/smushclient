@@ -203,7 +203,7 @@ constexpr const OnPluginTelnetRequest onTelnetRequest({}, {});
 constexpr const OnPluginTelnetSubnegotiation onTelnetSubnegotiation({}, {});
 constexpr const OnPluginWorldSave onWorldSave;
 constexpr const OnPluginWorldOutputResized onWorldOutputResized;
-constexpr const std::array<const NamedPluginCallback*, 30> list = {
+constexpr const std::array<const NamedPluginCallback*, 30> list{
   &onBroadcast,
   &onClose,
   &onCommand,

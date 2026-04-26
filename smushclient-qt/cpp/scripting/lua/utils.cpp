@@ -46,7 +46,7 @@ namespace {
 const char* const utilsRegKey = "smushclient.utils";
 } // namespace
 
-static const std::pair<lua_Integer, string_view> infoTypes[] = {
+static const std::pair<lua_Integer, string_view> infoTypes[]{
   { 1, "Server name" },
   { 2, "World name" },
   { 3, "Character name" },
@@ -1013,7 +1013,7 @@ L_stub_nil(lua_State* L)
 }
 } // namespace
 
-static const struct luaL_Reg utilslib[] = {
+static const struct luaL_Reg utilslib[]{
   { "activatenotepad", L_activatenotepad },
   { "appendtonotepad", L_appendtonotepad },
   { "callbackslist", L_callbackslist },
@@ -1060,9 +1060,8 @@ L_utils_newindex(lua_State* L)
 }
 } // namespace
 
-static const struct luaL_Reg utils_meta[] = { { "__newindex",
-                                                L_utils_newindex },
-                                              { nullptr, nullptr } };
+static const struct luaL_Reg utils_meta[]{ { "__newindex", L_utils_newindex },
+                                           { nullptr, nullptr } };
 
 int
 luaopen_utils(lua_State* L)
