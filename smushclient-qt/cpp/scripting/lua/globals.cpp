@@ -11,15 +11,11 @@ extern "C"
 
 using std::string;
 
-struct TableEntry
+struct TableEntry : std::pair<const char*, lua_Integer>
 {
-  const char* first;
-  lua_Integer second;
-
   template<typename T>
   constexpr TableEntry(const char* key, T value)
-    : first(key)
-    , second(static_cast<lua_Integer>(value))
+    : std::pair<const char*, lua_Integer>(key, static_cast<lua_Integer>(value))
   {
   }
 };
