@@ -77,7 +77,7 @@ MudCursor::applyWorld(const World& world)
     m_suppressingEcho = false;
   }
 
-  indentText = QStringLiteral(" ").repeated(world.getIndentParas());
+  indentText = QString(world.getIndentParas(), u' ');
   echoFormat.setForeground(world.getEchoColour());
   echoFormat.setBackground(world.getEchoBackgroundColour());
   errorFormat.setForeground(world.getErrorTextColour());
@@ -156,8 +156,7 @@ MudCursor::move(QTextCursor::MoveOperation op, int count)
       }
       const int columnOffset = column - cursor.positionInBlock();
       if (columnOffset > 0) {
-        cursor.insertText(QStringLiteral(" ").repeated(columnOffset),
-                          QTextCharFormat());
+        cursor.insertText(QString(columnOffset, u' '), QTextCharFormat());
       }
       break;
     }
@@ -173,7 +172,7 @@ MudCursor::move(QTextCursor::MoveOperation op, int count)
         cursor.movePosition(MoveOperation::EndOfBlock, MoveMode::MoveAnchor);
         count -= offset;
       }
-      cursor.insertText(QStringLiteral(" ").repeated(count), QTextCharFormat());
+      cursor.insertText(QString(count, u' '), QTextCharFormat());
       break;
     }
     default:
@@ -200,7 +199,7 @@ MudCursor::setOption(string_view name, int64_t value)
   } else if (name == "error_background_colour") {
     errorFormat.setBackground(QColor(value));
   } else if (name == "indent_paras") {
-    indentText = QStringLiteral(" ").repeated(value);
+    indentText = QString(value, u' ');
   } else if (name == "keep_commands_on_same_line") {
     echoOnSameLine = value == 1;
   } else if (name == "log_notes") {
