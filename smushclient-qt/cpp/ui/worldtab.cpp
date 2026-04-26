@@ -31,10 +31,8 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMessageBox>
-#include <string>
 
 using std::nullopt;
-using std::string;
 using std::string_view;
 using std::chrono::milliseconds;
 

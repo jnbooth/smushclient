@@ -6,8 +6,6 @@ extern "C"
 }
 
 using qlua::push;
-using std::string;
-using std::string_view;
 
 // Abstract
 

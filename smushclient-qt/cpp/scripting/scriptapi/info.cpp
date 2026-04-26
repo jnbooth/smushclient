@@ -19,7 +19,6 @@
 #include <QtNetwork/QNetworkProxy>
 #include <QtWidgets/QTabWidget>
 
-using std::string;
 using std::string_view;
 using std::chrono::duration_cast;
 using std::chrono::seconds;

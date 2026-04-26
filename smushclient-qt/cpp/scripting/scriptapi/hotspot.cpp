@@ -1,6 +1,5 @@
 #include "../scriptapi.h"
 
-using std::string;
 using std::string_view;
 
 #define TRY_WINDOW(windowName)                                                 \
