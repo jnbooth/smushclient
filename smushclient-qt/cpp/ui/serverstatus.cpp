@@ -4,15 +4,13 @@
 #include <algorithm>
 
 using Qt::StringLiterals::operator""_L1;
+using Qt::StringLiterals::operator""_s;
 
 constexpr int iconSize = 32;
 
 using KnownVariable = ServerStatus::KnownVariable;
 
 // Private utils
-
-constexpr const int knownVariablesSize =
-  static_cast<int>(KnownVariable::Referral);
 
 namespace {
 constexpr bool
@@ -34,100 +32,75 @@ isHiddenVariable(KnownVariable variable) noexcept
   return variable >= KnownVariable::CrawlDelay;
 }
 
-QString
-variableName(KnownVariable variable)
-{
-#define KNOWN(value, name)                                                     \
-  case KnownVariable::value:                                                   \
-    return QStringLiteral(name);
-
-  switch (variable) {
-    KNOWN(Unknown, "");
-    KNOWN(AdultMaterial, "ADULT MATERIAL");
-    KNOWN(Areas, "AREAS");
-    KNOWN(Charset, "CHARSET");
-    KNOWN(Classes, "CLASSES");
-    KNOWN(Codebase, "CODEBASE");
-    KNOWN(Contact, "CONTACT");
-    KNOWN(CrawlDelay, "CRAWL DELAY");
-    KNOWN(Created, "CREATED");
-    KNOWN(DbSize, "DBSIZE");
-    KNOWN(Description, "DESCRIPTION");
-    KNOWN(Discord, "DISCORD");
-    KNOWN(EquipmentSystem, "EQUIPMENT SYSTEM");
-    KNOWN(Exits, "EXITS");
-    KNOWN(ExtraDescriptions, "EXTRA DESCRIPTIONS");
-    KNOWN(Family, "FAMILY");
-    KNOWN(Gameplay, "GAMEPLAY");
-    KNOWN(GameSystem, "GAMESYSTEM");
-    KNOWN(Genre, "GENRE");
-    KNOWN(Helpfiles, "HELPFILES");
-    KNOWN(HiringBuilders, "HIRING BUILDERS");
-    KNOWN(HiringCoders, "HIRING CODERS");
-    KNOWN(Hostname, "HOSTNAME");
-    KNOWN(Icon, "ICON");
-    KNOWN(Intermud, "INTERMUD");
-    KNOWN(IP, "IP");
-    KNOWN(IPv6, "IPV6");
-    KNOWN(Language, "LANGUAGE");
-    KNOWN(Levels, "LEVELS");
-    KNOWN(Location, "LOCATION");
-    KNOWN(MinimumAge, "MINIMUM AGE");
-    KNOWN(Mobiles, "MOBILES");
-    KNOWN(MudProgs, "MUDPROGS");
-    KNOWN(MudTrigs, "MUDTRIGS");
-    KNOWN(Multiclassing, "MULTICLASSING");
-    KNOWN(Multiplaying, "MULTIPLAYING");
-    KNOWN(Name, "NAME");
-    KNOWN(NewbieFriendly, "NEWBIE FRIENDLY");
-    KNOWN(Objects, "OBJECTS");
-    KNOWN(PayForPerks, "PAY FOR PERKS");
-    KNOWN(PayToPlay, "PAY TO PLAY");
-    KNOWN(PlayerCities, "PLAYER CITIES");
-    KNOWN(PlayerClans, "PLAYER CLANS");
-    KNOWN(PlayerCrafting, "PLAYER CRAFTING");
-    KNOWN(PlayerGuilds, "PLAYER GUILDS");
-    KNOWN(Playerkilling, "PLAYERKILLING");
-    KNOWN(Players, "PLAYERS");
-    KNOWN(Port, "PORT");
-    KNOWN(QuestSystem, "QUEST SYSTEM");
-    KNOWN(Races, "RACES");
-    KNOWN(Referral, "REFERRAL");
-    KNOWN(Resets, "RESETS");
-    KNOWN(Roleplaying, "ROLEPLAYING");
-    KNOWN(Rooms, "ROOMS");
-    KNOWN(Skills, "SKILLS");
-    KNOWN(SSL, "SSL");
-    KNOWN(Status, "STATUS");
-    KNOWN(Subgenre, "SUBGENRE");
-    KNOWN(TrainingSystem, "TRAINING SYSTEM");
-    KNOWN(Uptime, "UPTIME");
-    KNOWN(Website, "WEBSITE");
-    KNOWN(WorldOriginality, "WORLD ORIGINALITY");
-    KNOWN(Worlds, "WORLDS");
-  }
-
-#undef KNOWN
-}
-
-QHash<QString, KnownVariable>
-buildKnownVariables()
-{
-  QHash<QString, KnownVariable> variables;
-  variables.reserve(knownVariablesSize);
-  for (int i = 1; i <= knownVariablesSize; ++i) {
-    const KnownVariable variable = static_cast<KnownVariable>(i);
-    variables.insert(variableName(variable), variable);
-  }
-  return variables;
-}
-
-const QHash<QString, KnownVariable> knownVariables = buildKnownVariables();
+const QHash<QString, KnownVariable> knownVariables{
+  { u"ADULT MATERIAL"_s, KnownVariable::AdultMaterial },
+  { u"AREAS"_s, KnownVariable::Areas },
+  { u"CHARSET"_s, KnownVariable::Charset },
+  { u"CLASSES"_s, KnownVariable::Classes },
+  { u"CODEBASE"_s, KnownVariable::Codebase },
+  { u"CONTACT"_s, KnownVariable::Contact },
+  { u"CRAWL DELAY"_s, KnownVariable::CrawlDelay },
+  { u"CREATED"_s, KnownVariable::Created },
+  { u"DBSIZE"_s, KnownVariable::DbSize },
+  { u"DESCRIPTION"_s, KnownVariable::Description },
+  { u"DISCORD"_s, KnownVariable::Discord },
+  { u"EQUIPMENT SYSTEM"_s, KnownVariable::EquipmentSystem },
+  { u"EXITS"_s, KnownVariable::Exits },
+  { u"EXTRA DESCRIPTIONS"_s, KnownVariable::ExtraDescriptions },
+  { u"FAMILY"_s, KnownVariable::Family },
+  { u"GAMEPLAY"_s, KnownVariable::Gameplay },
+  { u"GAMESYSTEM"_s, KnownVariable::GameSystem },
+  { u"GENRE"_s, KnownVariable::Genre },
+  { u"HELPFILES"_s, KnownVariable::Helpfiles },
+  { u"HIRING BUILDERS"_s, KnownVariable::HiringBuilders },
+  { u"HIRING CODERS"_s, KnownVariable::HiringCoders },
+  { u"HOSTNAME"_s, KnownVariable::Hostname },
+  { u"ICON"_s, KnownVariable::Icon },
+  { u"INTERMUD"_s, KnownVariable::Intermud },
+  { u"IP"_s, KnownVariable::IP },
+  { u"IPV6"_s, KnownVariable::IPv6 },
+  { u"LANGUAGE"_s, KnownVariable::Language },
+  { u"LEVELS"_s, KnownVariable::Levels },
+  { u"LOCATION"_s, KnownVariable::Location },
+  { u"MINIMUM AGE"_s, KnownVariable::MinimumAge },
+  { u"MOBILES"_s, KnownVariable::Mobiles },
+  { u"MUDPROGS"_s, KnownVariable::MudProgs },
+  { u"MUDTRIGS"_s, KnownVariable::MudTrigs },
+  { u"MULTICLASSING"_s, KnownVariable::Multiclassing },
+  { u"MULTIPLAYING"_s, KnownVariable::Multiplaying },
+  { u"NAME"_s, KnownVariable::Name },
+  { u"NEWBIE FRIENDLY"_s, KnownVariable::NewbieFriendly },
+  { u"OBJECTS"_s, KnownVariable::Objects },
+  { u"PAY FOR PERKS"_s, KnownVariable::PayForPerks },
+  { u"PAY TO PLAY"_s, KnownVariable::PayToPlay },
+  { u"PLAYER CITIES"_s, KnownVariable::PlayerCities },
+  { u"PLAYER CLANS"_s, KnownVariable::PlayerClans },
+  { u"PLAYER CRAFTING"_s, KnownVariable::PlayerCrafting },
+  { u"PLAYER GUILDS"_s, KnownVariable::PlayerGuilds },
+  { u"PLAYERKILLING"_s, KnownVariable::Playerkilling },
+  { u"PLAYERS"_s, KnownVariable::Players },
+  { u"PORT"_s, KnownVariable::Port },
+  { u"QUEST SYSTEM"_s, KnownVariable::QuestSystem },
+  { u"RACES"_s, KnownVariable::Races },
+  { u"REFERRAL"_s, KnownVariable::Referral },
+  { u"RESETS"_s, KnownVariable::Resets },
+  { u"ROLEPLAYING"_s, KnownVariable::Roleplaying },
+  { u"ROOMS"_s, KnownVariable::Rooms },
+  { u"SKILLS"_s, KnownVariable::Skills },
+  { u"SSL"_s, KnownVariable::SSL },
+  { u"STATUS"_s, KnownVariable::Status },
+  { u"SUBGENRE"_s, KnownVariable::Subgenre },
+  { u"TRAINING SYSTEM"_s, KnownVariable::TrainingSystem },
+  { u"UPTIME"_s, KnownVariable::Uptime },
+  { u"WEBSITE"_s, KnownVariable::Website },
+  { u"WORLD ORIGINALITY"_s, KnownVariable::WorldOriginality },
+  { u"WORLDS"_s, KnownVariable::Worlds },
+};
 } // namespace
 
 struct StatusEntry
 {
-  bool isUnknown;
+  bool isUnknown; // for ordering
   KnownVariable variable;
   QString key;
   QString value;
@@ -168,7 +141,7 @@ ServerStatus::ServerStatus(const QHash<QString, QString>& status,
     const KnownVariable variable = knownVariables[key];
 
     if (isHiddenVariable(variable) ||
-        (isCounterVariable(variable) && value == "0"_L1)) {
+        (isCounterVariable(variable) && value == "-1"_L1)) {
       continue;
     }
 
@@ -217,11 +190,11 @@ ServerStatus::ServerStatus(const QHash<QString, QString>& status,
 
   for (const StatusEntry& entry : entries) {
     QLabel* label = variableLabel(entry.variable, entry.key, area);
-    if (!entry.value.contains(QChar(2))) {
+    if (!entry.value.contains(u'\x02')) {
       ui->form->addRow(label, valueLabel(entry.variable, entry.value, area));
       continue;
     }
-    const QStringList values = entry.value.split(QChar(2));
+    const QStringList values = entry.value.split(u'\x02');
     for (const QString& text : values) {
       ui->form->addRow(label, valueLabel(entry.variable, text, area));
       label = nullptr;
