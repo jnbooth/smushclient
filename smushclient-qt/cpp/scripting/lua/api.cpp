@@ -172,7 +172,13 @@ pushVariable(lua_State* L, string_view variable)
 class Benchmarker
 {
 public:
-  explicit Benchmarker(const char* name) noexcept
+  template<size_t N>
+  static constexpr QLatin1StringView toName(const char (&func)[N]) noexcept
+  {
+    return QLatin1StringView(func, N).sliced(2);
+  }
+
+  explicit Benchmarker(QLatin1StringView name) noexcept
     : name(name)
   {
     timer.start();
@@ -182,21 +188,21 @@ public:
   {
     int64_t elapsed = timer.elapsed();
     if (elapsed > 2) {
-      const string_view sName = string_view(name).substr(2);
-      qDebug() << QString::fromUtf8(sName) << elapsed << "ms";
+      qDebug() << name << elapsed << "ms";
     }
   }
+
   Benchmarker(const Benchmarker&) = default;
   Benchmarker& operator=(const Benchmarker&) = default;
   Benchmarker(Benchmarker&&) = delete;
   Benchmarker& operator=(Benchmarker&&) = delete;
 
 private:
-  const char* name;
+  QLatin1StringView name;
   QElapsedTimer timer;
 };
 
-#define BENCHMARK Benchmarker benchmarker(__func__);
+#define BENCHMARK Benchmarker benchmarker(Benchmarker::toName(__func__));
 #else
 #define BENCHMARK
 #endif
