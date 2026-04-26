@@ -3970,35 +3970,31 @@ static constexpr const struct luaL_Reg worldlib[] = {
 };
 
 namespace {
-// NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-constexpr bool
-charsEqual(const char* a, const char* b)
-{
-  for (;; ++a, ++b) {
-    if (*a == 0 && *b == 0) {
-      return true;
-    }
-    if (*a != *b) {
-      return false;
-    }
-  }
-}
 constexpr const char*
 findFirstDuplicate() noexcept
 {
-  constexpr const size_t size = sizeof(worldlib) / sizeof(luaL_Reg) - 1;
-  constexpr const luaL_Reg* end = &worldlib[size];
-  for (const luaL_Reg* it = worldlib; it < end; ++it) {
-    const char* name = it->name;
-    for (const luaL_Reg* compare = worldlib; compare < it; ++compare) {
-      if (charsEqual(name, compare->name)) {
-        return name;
+  constexpr const std::span<const luaL_Reg> worldLib(worldlib);
+  std::array<string_view, worldLib.size() - 1> names;
+
+  auto iter = worldLib.begin();
+  for (string_view& name : names) {
+    name = iter->name;
+    ++iter;
+  }
+
+  for (const string_view& name : names) {
+    for (const string_view& other : names) {
+      if (&other == &name) {
+        break;
+      }
+      if (other == name) {
+        return name.data();
       }
     }
   }
   return nullptr;
 }
-// NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+
 constexpr const char* const firstDuplicate = findFirstDuplicate();
 static_assert(firstDuplicate == nullptr);
 } // namespace
