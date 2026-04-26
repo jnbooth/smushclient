@@ -22,6 +22,7 @@
 
 class FieldConnector
 {
+private:
   template<typename Source, typename Value>
   using Setter = void (Source::*&&)(Value);
 
