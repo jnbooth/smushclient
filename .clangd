@@ -80,6 +80,7 @@ Diagnostics:
       - hicpp-avoid-c-arrays
       - hicpp-no-array-decay
       - modernize-avoid-c-arrays
+      - modernize-use-designated-initializers
 ---
 If:
   PathMatch:
