@@ -12,10 +12,10 @@ struct enum_bounds;
     static constexpr const T min = T::minVal;                                  \
     static constexpr const T max = T::maxVal;                                  \
                                                                                \
-    static constexpr bool validate(long long value) noexcept                   \
+    static constexpr bool validate(::int64_t value) noexcept                   \
     {                                                                          \
-      return value >= static_cast<long long>(min) &&                           \
-             value <= static_cast<long long>(max);                             \
+      return value >= static_cast<::int64_t>(min) &&                           \
+             value <= static_cast<::int64_t>(max);                             \
     }                                                                          \
   };
 
