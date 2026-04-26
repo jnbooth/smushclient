@@ -31,8 +31,6 @@ protected:
   bool event(QEvent* event) override;
 
 private:
-  static const QString& settingsKey();
-
   void addRecentFile(const QString& filePath);
   WorldTab* createWorldTab(QWidget* parent) const;
   void connectTab(WorldTab* tab) const;

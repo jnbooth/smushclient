@@ -3,6 +3,8 @@
 #include <QtCore/QDateTime>
 #include <algorithm>
 
+using Qt::StringLiterals::operator""_L1;
+
 constexpr int iconSize = 32;
 
 using KnownVariable = ServerStatus::KnownVariable;
@@ -166,17 +168,17 @@ ServerStatus::ServerStatus(const QHash<QString, QString>& status,
     const KnownVariable variable = knownVariables[key];
 
     if (isHiddenVariable(variable) ||
-        (isCounterVariable(variable) && value == QStringLiteral("0"))) {
+        (isCounterVariable(variable) && value == "0"_L1)) {
       continue;
     }
 
     switch (variable) {
       case KnownVariable::Unknown:
-        if (value == QStringLiteral("0")) {
+        if (value == "0"_L1) {
           unsupported.push_back(key);
           continue;
         }
-        if (value == QStringLiteral("1")) {
+        if (value == "1"_L1) {
           supported.push_back(key);
           continue;
         }
@@ -193,14 +195,14 @@ ServerStatus::ServerStatus(const QHash<QString, QString>& status,
 
       case KnownVariable::EquipmentSystem:
       case KnownVariable::TrainingSystem:
-        if (value != QStringLiteral("Both")) {
+        if (value != "Both"_L1) {
           break;
         }
-        entries.emplace_back(variable, key, QStringLiteral("Skill\x02Level"));
+        entries.emplace_back(variable, key, "Skill\x02Level"_L1);
         continue;
 
       case KnownVariable::Worlds:
-        if (value == QStringLiteral("1")) {
+        if (value == "1"_L1) {
           continue;
         }
         break;
@@ -423,10 +425,10 @@ ServerStatus::valueLabel(KnownVariable variable,
                          QWidget* parent) const
 {
   if (isBoolVariable(variable)) {
-    if (text == QStringLiteral("0")) {
+    if (text == "0"_L1) {
       return valueLabel(tr("No"), parent);
     }
-    if (text == QStringLiteral("1")) {
+    if (text == "1"_L1) {
       return valueLabel(tr("Yes"), parent);
     }
     return valueLabel(text, parent);
@@ -438,19 +440,17 @@ ServerStatus::valueLabel(KnownVariable variable,
         QDateTime::fromSecsSinceEpoch(text.toLongLong()).toString(), parent);
 
     case KnownVariable::Contact:
-      return valueLabel(
-        QStringLiteral("<a href=\"mailto:%1\">%1</a>").arg(text), parent);
+      return valueLabel("<a href=\"mailto:%1\">%1</a>"_L1.arg(text), parent);
 
     case KnownVariable::MinimumAge:
-      if (text == QStringLiteral("0")) {
+      if (text == "0"_L1) {
         return valueLabel(text, parent);
       }
       break;
 
     case KnownVariable::Discord:
     case KnownVariable::Website:
-      return valueLabel(QStringLiteral("<a href=\"%1\">%1</a>").arg(text),
-                        parent);
+      return valueLabel("<a href=\"%1\">%1</a>"_L1.arg(text), parent);
     default:
       break;
   }

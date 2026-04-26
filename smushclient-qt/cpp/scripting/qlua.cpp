@@ -19,6 +19,8 @@ using std::optional;
 using std::string;
 using std::string_view;
 
+using Qt::StringLiterals::operator""_L1;
+
 // Private utilities
 
 static const std::array<QColor, 16> customColors = {
@@ -458,8 +460,7 @@ qlua::getQFont(lua_State* L, int idxFamily)
     font.setFamily(family);
     if (QFontInfo(font).family() != family) {
       family = family.toLower();
-      if (family == QStringLiteral("fixedsys") ||
-          family == QStringLiteral("dina")) {
+      if (family == "fixedsys"_L1 || family == "dina"_L1) {
         font.setFamily(
           QFontDatabase::systemFont(QFontDatabase::SystemFont::FixedFont)
             .family());
@@ -787,9 +788,7 @@ pushChar(lua_State* L, T ch)
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   std::wstring_convert<std::codecvt_utf8<T>, T> convert;
 #pragma GCC diagnostic pop
-  // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-  qlua::push(L, convert.to_bytes(&ch, &ch + 1));
-  // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+  qlua::push(L, convert.to_bytes(ch));
 }
 } // namespace
 

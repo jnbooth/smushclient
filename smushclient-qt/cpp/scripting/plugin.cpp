@@ -15,6 +15,8 @@ extern "C"
 
 using std::string_view;
 
+using Qt::StringLiterals::operator""_L1;
+
 // Private utils
 
 namespace {
@@ -111,7 +113,7 @@ Plugin::install(const PluginPack& pack)
   }
 
   if (!pack.id.empty()) {
-    scriptPath.replace(scriptPath.size() - 3, 3, QStringLiteral("lua"));
+    scriptPath.replace(scriptPath.size() - 3, 3, "lua"_L1);
   }
 
   const QFileInfo info(scriptPath);

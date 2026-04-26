@@ -36,6 +36,8 @@ using std::nullopt;
 using std::string_view;
 using std::chrono::milliseconds;
 
+using Qt::StringLiterals::operator""_L1;
+
 constexpr const Qt::KeyboardModifiers numpadMods =
   Qt::KeyboardModifier::ControlModifier | Qt::KeyboardModifier::MetaModifier;
 
@@ -45,7 +47,7 @@ namespace {
 QString
 historyPath(const QString& path)
 {
-  return path + QStringLiteral(".history");
+  return path + ".history"_L1;
 }
 
 inline void
@@ -814,7 +816,7 @@ WorldTab::saveHistory() const
   if (block > sessionStartBlock + 1) {
     MudCursor* cursor = ui->output->cursor();
     cursor->startLine();
-    cursor->appendHtml(QStringLiteral("<hr/>"));
+    cursor->appendHtml("<hr/>"_L1);
     cursor->startLine();
     cursor->startLine();
   }

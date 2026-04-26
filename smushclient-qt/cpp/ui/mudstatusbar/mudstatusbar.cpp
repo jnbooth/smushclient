@@ -5,7 +5,9 @@
 #include <QtCore/QSettings>
 #include <QtGui/QContextMenuEvent>
 
-// Private utils
+using Qt::StringLiterals::operator""_L1;
+
+constexpr const QLatin1StringView settingsKey = "state/stat"_L1;
 
 // Public methods
 
@@ -13,9 +15,9 @@ MudStatusBar::MudStatusBar(QWidget* parent)
   : QWidget(parent)
   , ui(new Ui::MudStatusBar)
   , connectionIcons({
-      QIcon(QStringLiteral(":/icons/status/disconnected.svg")),
-      QIcon(QStringLiteral(":/icons/status/connected.svg")),
-      QIcon(QStringLiteral(":/icons/status/encrypted.svg")),
+      QIcon(":/icons/status/disconnected.svg"_L1),
+      QIcon(":/icons/status/connected.svg"_L1),
+      QIcon(":/icons/status/encrypted.svg"_L1),
     })
   , menu(new QMenu(this))
 {
@@ -185,7 +187,7 @@ MudStatusBar::recreateStat(StatusBarStat* stat,
 bool
 MudStatusBar::restore()
 {
-  const QByteArray saveData = QSettings().value(settingsKey()).toByteArray();
+  const QByteArray saveData = QSettings().value(settingsKey).toByteArray();
   if (saveData.isEmpty()) {
     for (QAction* action : stateActions()) {
       action->setChecked(true);
@@ -216,14 +218,7 @@ MudStatusBar::save() const
   for (QAction* action : stateActions()) {
     stream << action->isChecked();
   }
-  QSettings().setValue(settingsKey(), saveData);
-}
-
-const QString&
-MudStatusBar::settingsKey()
-{
-  static const QString key = QStringLiteral("state/stat");
-  return key;
+  QSettings().setValue(settingsKey, saveData);
 }
 
 QList<QAction*>

@@ -22,6 +22,8 @@ using std::string;
 using std::string_view;
 using std::chrono::milliseconds;
 
+using Qt::StringLiterals::operator""_L1;
+
 constexpr const uint8_t telnetNAWS = 31;
 constexpr const uint8_t telnetMSSP = 70;
 constexpr const uint8_t telnetMudSpecific = 102;
@@ -217,7 +219,7 @@ Document::handleServerStatus(rust::Slice<const uint8_t> variableBytes,
   const QString variable = QString::fromUtf8(variableBytes);
   const QString value = QString::fromUtf8(valueBytes);
   serverStatuses.insert(variable, value);
-  if (variable == QStringLiteral("PLAYERS")) {
+  if (variable == "PLAYERS"_L1) {
     api->statusBar()->setUsers(value);
   }
 }

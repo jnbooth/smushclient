@@ -3,6 +3,8 @@
 #include <QtGui/QColor>
 #include <QtGui/QFontDatabase>
 
+using Qt::StringLiterals::operator""_L1;
+
 #if defined(Q_OS_WIN)
 #define DIR_SEP "\\"
 #else
@@ -18,29 +20,26 @@ template<> struct SettingInput<QStringList> { using Type = const QStringList &; 
 template<> struct SettingInput<QVariant>    { using Type = const QVariant&; };
 // clang-format on
 
-#define SETTING(name, T, defaultValue, keyLiteral)                             \
+#define SETTING(name, T, defaultValue, key)                                    \
   void Settings::set##name(SettingInput<T>::Type value)                        \
   {                                                                            \
-    static const QString key = QStringLiteral(keyLiteral);                     \
-    store.setValue(key, value);                                                \
+    store.setValue(key ""_L1, value);                                          \
   }                                                                            \
   T Settings::get##name() const                                                \
   {                                                                            \
-    static const QString key = QStringLiteral(keyLiteral);                     \
-    return store.contains(key) ? store.value(key).value<T>() : (defaultValue); \
+    return store.contains(key ""_L1) ? store.value(key).value<T>()             \
+                                     : (defaultValue);                         \
   }
 
-#define SETTING_ENUM(name, T, defaultValue, keyLiteral)                        \
+#define SETTING_ENUM(name, T, defaultValue, key)                               \
   void Settings::set##name(SettingInput<T>::Type value)                        \
   {                                                                            \
-    static const QString key = QStringLiteral(keyLiteral);                     \
-    store.setValue(key, (int)value);                                           \
+    store.setValue(key ""_L1, (int)value);                                     \
   }                                                                            \
   T Settings::get##name() const                                                \
   {                                                                            \
-    static const QString key = QStringLiteral(keyLiteral);                     \
-    return store.contains(key) ? (T)store.value(key).value<T>()                \
-                               : (defaultValue);                               \
+    return store.contains(key ""_L1) ? (T)store.value(key).value<T>()          \
+                                     : (defaultValue);                         \
   }
 
 // Private utils
@@ -104,7 +103,7 @@ Settings::getNotepadPalette() const
 
 // Recent files
 
-static const QString recentFilesKey = QStringLiteral("recent");
+constexpr const QLatin1StringView recentFilesKey = "recent"_L1;
 
 constexpr const qsizetype recentFilesMax = 5;
 
@@ -178,31 +177,31 @@ Settings::getStartupDirectoryOrDefault() const
 QString
 Settings::getLogsDir() const
 {
-  return getStartupDirectoryOrDefault() + QStringLiteral(DIR_SEP LOGS_DIR);
+  return getStartupDirectoryOrDefault() + DIR_SEP LOGS_DIR ""_L1;
 }
 
 QString
 Settings::getPluginsDir() const
 {
-  return getStartupDirectoryOrDefault() + QStringLiteral(DIR_SEP PLUGINS_DIR);
+  return getStartupDirectoryOrDefault() + DIR_SEP PLUGINS_DIR ""_L1;
 }
 
 QString
 Settings::getScriptsDir() const
 {
-  return getStartupDirectoryOrDefault() + QStringLiteral(DIR_SEP SCRIPTS_DIR);
+  return getStartupDirectoryOrDefault() + DIR_SEP SCRIPTS_DIR ""_L1;
 }
 
 QString
 Settings::getSoundsDir() const
 {
-  return getStartupDirectoryOrDefault() + QStringLiteral(DIR_SEP SOUNDS_DIR);
+  return getStartupDirectoryOrDefault() + DIR_SEP SOUNDS_DIR ""_L1;
 }
 
 QString
 Settings::getWorldsDir() const
 {
-  return getStartupDirectoryOrDefault() + QStringLiteral(DIR_SEP WORLDS_DIR);
+  return getStartupDirectoryOrDefault() + DIR_SEP WORLDS_DIR ""_L1;
 }
 
 // Generated

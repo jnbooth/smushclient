@@ -8,6 +8,8 @@
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QHeaderView>
 
+using Qt::StringLiterals::operator""_L1;
+
 // Public methods
 
 AbstractPrefsTree::AbstractPrefsTree(AbstractSenderModel& model,
@@ -129,7 +131,7 @@ AbstractPrefsTree::mapIndex(const QModelIndex& index) const
 QString
 AbstractPrefsTree::settingsKey() const
 {
-  return QStringLiteral("state/headers/") + objectName();
+  return "state/headers/"_L1 + objectName();
 }
 
 // Private slots

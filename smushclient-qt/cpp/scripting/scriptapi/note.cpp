@@ -4,6 +4,8 @@
 
 using std::string_view;
 
+using Qt::StringLiterals::operator""_L1;
+
 // Public methods
 
 void
@@ -63,7 +65,7 @@ ScriptApi::Hyperlink(const QString& action,
 void
 ScriptApi::NoteHr() const
 {
-  cursor->appendHtml(QStringLiteral("<hr/>"));
+  cursor->appendHtml("<hr/>"_L1);
 }
 
 void

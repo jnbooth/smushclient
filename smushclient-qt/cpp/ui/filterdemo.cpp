@@ -6,6 +6,8 @@
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QFileDialog>
 
+using Qt::StringLiterals::operator""_L1;
+
 // Public methods
 
 FilterDemo::FilterDemo(QWidget* parent)
@@ -188,7 +190,7 @@ void
 FilterDemo::on_upload_clicked()
 {
   const QString filePath = QFileDialog::getOpenFileName(
-    this, QStringLiteral("Image"), QString(), FileFilter::image());
+    this, "Image"_L1, QString(), FileFilter::image());
   if (filePath.isEmpty()) {
     return;
   }

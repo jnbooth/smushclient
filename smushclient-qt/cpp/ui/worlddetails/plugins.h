@@ -17,9 +17,6 @@ public:
   explicit PrefsPlugins(PluginModel& model, QWidget* parent = nullptr);
   ~PrefsPlugins() override;
 
-private:
-  static const QString& settingsKey();
-
 private slots:
   static void onClientError(const QString& error);
   void on_button_add_clicked();

@@ -10,6 +10,8 @@ extern "C"
 using std::string;
 using std::string_view;
 
+using Qt::StringLiterals::operator""_L1;
+
 #if defined(Q_OS_WIN)
 #define DIR_SEP "\\"
 #else
@@ -35,11 +37,10 @@ bool
 initializeStartupDirectory(const QString& dirPath)
 {
   const QDir appDir(dirPath);
-  const bool success = appDir.mkpath(QStringLiteral(LOGS_DIR)) &&
-                       appDir.mkpath(QStringLiteral(PLUGINS_DIR)) &&
-                       appDir.mkpath(QStringLiteral(SCRIPTS_DIR)) &&
-                       appDir.mkpath(QStringLiteral(SOUNDS_DIR)) &&
-                       appDir.mkpath(QStringLiteral(WORLDS_DIR));
+  const bool success =
+    appDir.mkpath(LOGS_DIR ""_L1) && appDir.mkpath(PLUGINS_DIR ""_L1) &&
+    appDir.mkpath(SCRIPTS_DIR ""_L1) && appDir.mkpath(SOUNDS_DIR ""_L1) &&
+    appDir.mkpath(WORLDS_DIR ""_L1);
   if (!success) {
     return false;
   }
@@ -79,10 +80,10 @@ bool
 openDirectoryExternally(const QString& dirPath)
 {
 #if defined(Q_OS_LINUX)
-  return QProcess::execute(QStringLiteral("xdg-open"), { dirPath }) == 0;
+  return QProcess::execute("xdg-open"_L1, { dirPath }) == 0;
 #elif defined(Q_OS_MACOS)
-  return QProcess::execute(QStringLiteral("open"), { dirPath }) == 0;
+  return QProcess::execute("open"_L1, { dirPath }) == 0;
 #elif defined(Q_OS_WIN)
-  return QProcess::startDetached(QStringLiteral("explorer"), { dirPath }) == 0;
+  return QProcess::startDetached("explorer"_L1, { dirPath }) == 0;
 #endif
 }

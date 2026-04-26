@@ -3,6 +3,8 @@
 #include <QtCore/QSettings>
 #include <QtWidgets/QColorDialog>
 
+using Qt::StringLiterals::operator""_L1;
+
 // Private utils
 
 namespace {
@@ -69,7 +71,7 @@ StatusBarStat::setCaption(const QString& caption)
   QString formattedCaption =
     caption.toLower() == caption ? caption.toUpper() : caption;
   displayMenu->setTitle(formattedCaption);
-  formattedCaption.push_back(QStringLiteral(": "));
+  formattedCaption += ": "_L1;
   ui->caption->setText(formattedCaption);
 }
 
@@ -78,7 +80,7 @@ StatusBarStat::setMax(const QString& max)
 {
   const bool hasMax = !max.isEmpty();
   ui->action_show_max->setVisible(hasMax);
-  ui->max->setText(hasMax ? QStringLiteral("/") + max : QString());
+  ui->max->setText(hasMax ? "/"_L1 + max : QString());
 
   const bool showMax = hasMax && ui->action_show_max->isChecked();
   ui->max->setVisible(showMax);
@@ -182,7 +184,7 @@ StatusBarStat::save() const
 QString
 StatusBarStat::settingsKey() const
 {
-  return QStringLiteral("state/stat/") + entity();
+  return "state/stat/"_L1 + entity();
 }
 
 // Private slots

@@ -119,7 +119,8 @@ protected:
 private:
   static QString variablesPath(const QString& path)
   {
-    return path + QStringLiteral(".vars");
+    using Qt::StringLiterals::operator""_L1;
+    return path + ".vars"_L1;
   }
 
   void applyWorld(const World& world);

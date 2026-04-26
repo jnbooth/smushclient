@@ -446,7 +446,7 @@ MiniWindow::execMenu(const QPoint& location, string_view menuString)
   const bool returnsInt = buildMenu(menu, menuString);
   const QAction* choice = menu.exec(mapToGlobal(location));
   if (choice == nullptr) {
-    return QStringLiteral("");
+    return {};
   }
   if (!returnsInt) {
     return choice->text();

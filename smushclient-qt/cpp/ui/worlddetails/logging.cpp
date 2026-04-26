@@ -9,6 +9,8 @@
 #include "ui_logging.h"
 #include <QtWidgets/QFileDialog>
 
+using Qt::StringLiterals::operator""_L1;
+
 PrefsLogging::PrefsLogging(World& world, QWidget* parent)
   : QWidget(parent)
   , ui(new Ui::PrefsLogging)
@@ -51,8 +53,8 @@ PrefsLogging::on_AutoLogFileName_browse_clicked()
 {
   QString defaultPath = ui->AutoLogFileName->text();
   if (defaultPath.isEmpty()) {
-    defaultPath = Settings().getLogsDir() + QDir::separator() +
-                  world.getName() + QStringLiteral(".txt");
+    defaultPath =
+      Settings().getLogsDir() + QDir::separator() + world.getName() + ".txt"_L1;
   }
   const QString path = QFileDialog::getSaveFileName(
     this, tr("Select log file"), defaultPath, FileFilter::text());

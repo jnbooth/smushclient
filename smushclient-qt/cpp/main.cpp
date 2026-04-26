@@ -6,6 +6,8 @@
 #include <QtGui/QFontDatabase>
 #include <QtWidgets/QApplication>
 
+using Qt::StringLiterals::operator""_L1;
+
 namespace {
 void
 handleMessage(QtMsgType msgtype,
@@ -27,11 +29,11 @@ main(int argc, char* argv[])
   qInstallMessageHandler(handleMessage);
   ffi::util::init_logger();
 #if defined(Q_OS_WINDOWS)
-  QCoreApplication::setOrganizationName(QStringLiteral(CMAKE_ORG_NAME));
+  QCoreApplication::setOrganizationName(CMAKE_ORG_NAME ""_L1);
 #endif
   QApplication app(argc, argv);
-  QCoreApplication::setApplicationName(QStringLiteral(CMAKE_APP_NAME));
-  QCoreApplication::setApplicationVersion(QStringLiteral(CMAKE_APP_VERSION));
+  QCoreApplication::setApplicationName(CMAKE_APP_NAME ""_L1);
+  QCoreApplication::setApplicationVersion(CMAKE_APP_VERSION ""_L1);
   Settings settings;
   initializeStartupDirectory(settings.getStartupDirectoryOrDefault());
   std::unique_ptr<Notepads> notepads = std::make_unique<Notepads>();

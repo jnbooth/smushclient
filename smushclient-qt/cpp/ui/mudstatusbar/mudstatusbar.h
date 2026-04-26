@@ -46,7 +46,6 @@ private:
                     const QString& maxEntity);
   bool restore();
   void save() const;
-  static const QString& settingsKey();
   QList<QAction*> stateActions() const;
 
 private slots:

@@ -21,6 +21,8 @@
 #include <QtWidgets/QFontDialog>
 #include <QtWidgets/QMessageBox>
 
+using Qt::StringLiterals::operator""_L1;
+
 // Notepad
 
 // Public methods
@@ -158,8 +160,8 @@ Notepad::updateWindowTitle(const QString& name)
 {
   windowTitleBase = name;
   const QString appName = QCoreApplication::applicationName();
-  setWindowTitle(isLeftToRight() ? name + QStringLiteral("[*] - ") + appName
-                                 : appName + QStringLiteral(" - [*]") + name);
+  setWindowTitle(isLeftToRight() ? name + "[*] - "_L1 + appName
+                                 : appName + " - [*]"_L1 + name);
 }
 
 QString
@@ -167,7 +169,7 @@ Notepad::fileHint() const
 {
   QString name = objectName();
   if (!name.isEmpty()) {
-    name.append(QStringLiteral(".txt"));
+    name.append(".txt"_L1);
   }
   return name;
 }

@@ -35,6 +35,10 @@
 
 using std::optional;
 
+using Qt::StringLiterals::operator""_L1;
+
+constexpr const QLatin1StringView settingsKey = "state/mainwindow"_L1;
+
 // Public methods
 
 MainWindow::MainWindow(Notepads& notepads, QWidget* parent)
@@ -159,7 +163,7 @@ MainWindow::setTitle(const QString& title)
 void
 MainWindow::closeEvent(QCloseEvent* event)
 {
-  QSettings().setValue(settingsKey(), saveGeometry());
+  QSettings().setValue(settingsKey, saveGeometry());
 
   if (settings.getConfirmQuit() &&
       QMessageBox::question(this,
@@ -221,15 +225,6 @@ MainWindow::event(QEvent* event)
   };
 
   return QMainWindow::event(event);
-}
-
-// Private static methods
-
-const QString&
-MainWindow::settingsKey()
-{
-  static const QString key = QStringLiteral("state/mainwindow");
-  return key;
 }
 
 // Private methods
@@ -319,7 +314,7 @@ MainWindow::openRecentFile(qsizetype index)
 bool
 MainWindow::restore()
 {
-  const QByteArray saveData = QSettings().value(settingsKey()).toByteArray();
+  const QByteArray saveData = QSettings().value(settingsKey).toByteArray();
   if (!saveData.isEmpty()) {
     return restoreGeometry(saveData);
   }
@@ -334,7 +329,7 @@ void
 MainWindow::save() const
 {
   const QByteArray saveData = saveGeometry();
-  QSettings().setValue(settingsKey(), saveData);
+  QSettings().setValue(settingsKey, saveData);
 }
 
 void
@@ -401,8 +396,8 @@ MainWindow::updateWindowTitle(const WorldTab* tab)
     return;
   }
   const QString title = tab->isLeftToRight()
-                          ? tab->title() + QStringLiteral("[*] - ") + appName
-                          : appName + QStringLiteral(" - [*]") + tab->title();
+                          ? tab->title() + "[*] - "_L1 + appName
+                          : appName + " - [*]"_L1 + tab->title();
   setWindowTitle(title);
 }
 
@@ -449,8 +444,7 @@ MainWindow::onNewActivity(WorldTab* tab)
   if (index == -1 || index == ui->world_tabs->currentIndex()) {
     return;
   }
-  ui->world_tabs->tabBar()->setTabText(index,
-                                       tab->title() + QStringLiteral(" ⏺︎"));
+  ui->world_tabs->tabBar()->setTabText(index, tab->title() + " ⏺︎"_L1);
 }
 
 void

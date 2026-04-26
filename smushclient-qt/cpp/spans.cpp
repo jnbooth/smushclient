@@ -102,29 +102,24 @@ setTimestamp(QTextCursor& cursor)
 QString&
 sanitizeHtml(QString& html)
 {
-#define Q QStringLiteral
+  using Qt::StringLiterals::operator""_L1;
 
   static const QString none;
   static const QRegularExpression sanitize(
-    Q("("
-      " ?(background-color:transparent|-qt-paragraph-type:empty|(\\w|-)+:0("
-      "px)?);? ?"
-      "|"
-      "<!--.*?-->"
-      ")"));
-  static const QRegularExpression attributeWhitespace(Q("=\"\\s+"));
-  static const QRegularExpression emptyAttribute(Q(" ?(\\w|-)+=\"\""));
+    R"(<!--.*?-->|"
+    " ?(background-color:transparent|-qt-paragraph-type:empty|(\w|-)+:0(spx)?)"
+    ";? ?)"_L1);
+  static const QRegularExpression attributeWhitespace("=\"\\s+"_L1);
+  static const QRegularExpression emptyAttribute(R"( ?(\w|-)+="")"_L1);
 
-  const qsizetype bodyStart = html.indexOf(Q("<body>")) + 6;
-  const qsizetype bodyEnd = html.lastIndexOf(Q("</body>"));
+  const qsizetype bodyStart = html.indexOf("<body>"_L1) + 6;
+  const qsizetype bodyEnd = html.lastIndexOf("</body>"_L1);
 
   return html.slice(bodyStart, bodyEnd - bodyStart)
     .replace(sanitize, none)
-    .replace(attributeWhitespace, Q("=\""))
-    .replace(Q(" ?\\w+=\"\""), none)
+    .replace(attributeWhitespace, "=\""_L1)
+    .replace(R"( ?\w+="")"_L1, none)
     .replace(emptyAttribute, none)
-    .replace(Q("href=\"w:"), Q("href=\""));
-
-#undef Q
+    .replace("href=\"w:"_L1, "href=\""_L1);
 }
 } // namespace spans

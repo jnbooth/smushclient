@@ -23,6 +23,8 @@ using std::string_view;
 using std::chrono::duration_cast;
 using std::chrono::seconds;
 
+using Qt::StringLiterals::operator""_L1;
+
 // Private utils
 
 #define CHECK_NONNULL(ptr)                                                     \
@@ -188,7 +190,7 @@ ScriptApi::GetInfo(int64_t infoType) const
     case 64:
       return QDir::currentPath();
     case 65:
-      return QStringLiteral("Save");
+      return "Save"_L1;
     case 66:
       return QCoreApplication::applicationDirPath();
     case 67:
@@ -203,9 +205,9 @@ ScriptApi::GetInfo(int64_t infoType) const
       return QFontDatabase::systemFont(QFontDatabase::SystemFont::FixedFont)
         .family();
     case 72:
-      return QStringLiteral(SCRIPTING_VERSION);
+      return SCRIPTING_VERSION ""_L1;
     case 73:
-      return QStringLiteral(__DATE__ " " __TIME__);
+      return __DATE__ " " __TIME__ ""_L1;
     case 74:
       return Settings().getSoundsDir();
     // case 76: Special font pathname
@@ -458,7 +460,7 @@ ScriptApi::GetLineInfo(int lineNumber, int64_t infoType) const
     case 7: // true if bookmarked
       return false;
     case 8:
-      return block.text() == QStringLiteral("<hr>");
+      return block.text() == "<hr>"_L1;
     case 9:
       return spans::getTimestamp(block.blockFormat());
     case 10:

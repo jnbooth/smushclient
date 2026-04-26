@@ -8,13 +8,15 @@ using std::chrono::milliseconds;
 using std::chrono::minutes;
 using std::chrono::seconds;
 
+using Qt::StringLiterals::operator""_L1;
+
 namespace {
 QStringList
 buildTimeLookup()
 {
   QStringList list;
   for (int i = 0; i < 10; ++i) {
-    list.append(QStringLiteral("0%1").arg(i));
+    list.append("0"_L1 + QString::number(i));
   }
   for (int i = 10; i < 60; ++i) {
     list.append(QString::number(i));

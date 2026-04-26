@@ -10,6 +10,10 @@
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QFileDialog>
 
+using Qt::StringLiterals::operator""_L1;
+
+constexpr const QLatin1StringView settingsKey = "state/headers/plugins"_L1;
+
 // Public methods
 
 PrefsPlugins::PrefsPlugins(PluginModel& model, QWidget* parent)
@@ -20,26 +24,18 @@ PrefsPlugins::PrefsPlugins(PluginModel& model, QWidget* parent)
   ui->setupUi(this);
   ui->table->setModel(&model);
   ui->table->horizontalHeader()->restoreState(
-    QSettings().value(settingsKey()).toByteArray());
+    QSettings().value(settingsKey).toByteArray());
   connect(
     &model, &PluginModel::clientError, this, &PrefsPlugins::onClientError);
 }
 
 PrefsPlugins::~PrefsPlugins()
 {
-  QSettings().setValue(settingsKey(),
-                       ui->table->horizontalHeader()->saveState());
+  QSettings().setValue(settingsKey, ui->table->horizontalHeader()->saveState());
   delete ui;
 }
 
 // Private methods
-
-const QString&
-PrefsPlugins::settingsKey()
-{
-  static const QString key = QStringLiteral("state/headers/plugins");
-  return key;
-}
 
 // Private slots
 
