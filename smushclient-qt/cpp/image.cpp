@@ -5,8 +5,6 @@
 #include <QtGui/QImage>
 #include <QtGui/QPainter>
 
-using std::span;
-
 // Private utils
 
 namespace {
@@ -126,7 +124,7 @@ invertBitmap(const QPixmap& base)
 {
   QImage image = base.toImage();
   image.convertTo(bitmapFormat);
-  span<unsigned char> bytes(image.bits(), image.sizeInBytes());
+  std::span<unsigned char> bytes(image.bits(), image.sizeInBytes());
   for (unsigned char& byte : bytes) {
     byte = ~byte;
   }

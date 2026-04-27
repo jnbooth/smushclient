@@ -24,7 +24,6 @@ extern "C"
 #include "lua.h"
 }
 
-using std::string;
 using std::string_view;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
@@ -571,7 +570,7 @@ ScriptApi::initializePlugins()
     }
     pluginIndices[metadata.id] = index;
     Plugin& plugin = plugins.emplace_back(*this, pluginPack, index);
-    const string& pluginId = plugin.id();
+    const std::string& pluginId = plugin.id();
     if (pluginId.empty()) {
       worldScriptIndex = index;
     }
@@ -638,7 +637,7 @@ ScriptApi::reinstallPlugin(size_t index)
   Plugin& plugin = plugins[index];
   tab.clearCallbacks(plugin);
   const PluginPack pack = client.plugin(index);
-  const string pluginId(pack.id.data(), pack.id.size());
+  const std::string pluginId(pack.id.data(), pack.id.size());
   std::erase_if(windows, [pluginId](const auto& item) {
     return item.second->getPluginId() == pluginId;
   });

@@ -246,10 +246,10 @@ public:
   }
   QString GetRecentLines(int count) const;
   int64_t GetOption(size_t plugin, std::string_view name) const noexcept;
-  const std::string& GetPluginID(size_t pluginIndex) const;
+  std::string_view GetPluginID(size_t pluginIndex) const;
   QVariant GetPluginInfo(std::string_view pluginID,
                          int64_t infoType) const noexcept;
-  const std::string& GetPluginName(size_t pluginIndex) const;
+  std::string_view GetPluginName(size_t pluginIndex) const;
   std::vector<std::string_view> GetPluginList() const;
   QString GetSelection() const;
   int GetSelectionEndColumn() const;

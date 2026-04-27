@@ -33,7 +33,6 @@
 #include <QtWidgets/QMessageBox>
 
 using std::nullopt;
-using std::string;
 using std::string_view;
 using std::chrono::milliseconds;
 
@@ -1196,7 +1195,7 @@ WorldTab::on_output_linkActivated(const QString& action, SendTo sendTo)
     return;
   }
 
-  const string actionStd = action.toStdString();
+  const std::string actionStd = action.toStdString();
   const string_view s = string_view(actionStd).substr(2, actionStd.size() - 3);
   const size_t start = s.find(':');
   if (start == string_view::npos) {

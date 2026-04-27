@@ -2,14 +2,11 @@
 #include "../miniwindow/miniwindow.h"
 #include "../qlua.h"
 #include "smushclient_qt/src/ffi/send_request.cxx.h"
-#include <string>
 #include <utility>
 extern "C"
 {
 #include "lua.h"
 }
-
-using std::string;
 
 struct TableEntry : std::pair<const char*, lua_Integer>
 {
@@ -122,7 +119,7 @@ static const TableEntry error_code[]{
   { "eBrushStyleNotValid", ApiCode::BrushStyleNotValid }
 };
 
-static const std::pair<ApiCode, string> error_desc[]{
+static const std::pair<ApiCode, const char*> error_desc[]{
   { ApiCode::OK, "No error" },
   { ApiCode::WorldOpen, "The world is already open" },
   { ApiCode::WorldClosed,

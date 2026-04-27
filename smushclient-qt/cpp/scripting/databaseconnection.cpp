@@ -1,16 +1,15 @@
 #include "databaseconnection.h"
 #include "sqlite3.h"
 
-using std::string;
 using std::string_view;
 
 // Private utils
 
 namespace {
-inline string
+inline std::string
 replacePathSeparators(string_view path) noexcept
 {
-  string file(path);
+  std::string file(path);
   for (char& iter : file) {
     if (iter == '\\') {
       iter = '/';

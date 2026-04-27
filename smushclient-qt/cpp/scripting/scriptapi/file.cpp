@@ -4,7 +4,6 @@
 #include "sqlite3.h"
 #include <QtCore/QDir>
 
-using std::string;
 using std::string_view;
 
 // Public static methods
@@ -33,7 +32,7 @@ ScriptApi::DatabaseClose(string_view databaseID)
 int
 ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
 {
-  auto [entry, inserted] = databases.emplace(string(databaseID), filename);
+  auto [entry, inserted] = databases.emplace(databaseID, filename);
   DatabaseConnection& db = entry->second;
   if (!inserted) {
     return db.isFile(databaseID)

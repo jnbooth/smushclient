@@ -16,7 +16,6 @@ extern "C"
 
 using std::nullopt;
 using std::optional;
-using std::string;
 using std::string_view;
 
 using Qt::StringLiterals::operator""_L1;
@@ -563,8 +562,8 @@ qlua::getQPolygonF(lua_State* L, int idx)
       }
       QPolygonF points;
       points.reserve((commaCount + 1) / 2);
-      std::istringstream stream((string(s)));
-      for (string sX, sY;
+      std::istringstream stream((std::string(s)));
+      for (std::string sX, sY;
            std::getline(stream, sX, ',') && std::getline(stream, sY, ',');) {
         const qreal dX = stod(sX);
         const qreal dY = stod(sY);
@@ -675,7 +674,7 @@ qlua::isScriptName(lua_State* L, string_view name)
     lua_pop(L, 1);
     return isFunction;
   }
-  const string tableName(name.substr(0, dotIndex));
+  const std::string tableName(name.substr(0, dotIndex));
   if (lua_getglobal(L, tableName.c_str()) != LUA_TTABLE) {
     lua_pop(L, 1);
     return false;

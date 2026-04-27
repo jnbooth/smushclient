@@ -12,17 +12,16 @@
 #include <algorithm>
 #include <cmath>
 
-using std::string;
 using std::string_view;
 
 // Private utils
 
 namespace {
 constexpr std::span<const char>
-trim(const string& s) noexcept
+trim(const std::string& s) noexcept
 {
-  const string::size_type start = s.find_first_not_of(' ');
-  const string::size_type end = s.find_last_not_of(' ');
+  const auto start = s.find_first_not_of(' ');
+  const auto end = s.find_last_not_of(' ');
   return std::span(s).subspan(start, end + 1 - start);
 }
 
@@ -33,7 +32,7 @@ buildMenu(QMenu& menu, string_view text)
   std::vector<QMenu*> menus;
   menus.reserve(menuCount);
   menus.push_back(&menu);
-  std::istringstream stream((string(text)));
+  std::istringstream stream((std::string(text)));
   const bool returnsNumber = stream.peek() == '!';
   if (returnsNumber) {
     stream.get();
@@ -43,7 +42,7 @@ buildMenu(QMenu& menu, string_view text)
     stream.get(); // horizontal alignment
     stream.get(); // vertical alignment
   }
-  for (string untrimmed; std::getline(stream, untrimmed, '|');) {
+  for (std::string untrimmed; std::getline(stream, untrimmed, '|');) {
     const std::span<const char> item = trim(untrimmed);
     if (item.empty()) {
       menus.back()->addSeparator();
@@ -177,7 +176,7 @@ MiniWindow::addHotspot(string_view hotspotID,
     }
   }
 
-  auto& hotspotInsert = hotspots[string(hotspotID)] = std::make_unique<Hotspot>(
+  auto& hotspotInsert = hotspots[hotspotID] = std::make_unique<Hotspot>(
     tab, plugin, hotspotID, std::move(callbacks), this);
   Hotspot* hotspot = hotspotInsert.get();
   if (neighbor != nullptr) {
@@ -533,18 +532,18 @@ MiniWindow::invert(const QRect& rectBase, QImage::InvertMode mode)
 const QFont&
 MiniWindow::loadFont(string_view fontID, const QFont& font)
 {
-  return fonts.emplace(string(fontID), font).first->second;
+  return fonts.emplace(fontID, font).first->second;
 }
 
 const QPixmap&
 MiniWindow::loadImage(string_view imageID, QPixmap&& image)
 {
-  return images.emplace(string(imageID), std::move(image)).first->second;
+  return images.emplace(imageID, std::move(image)).first->second;
 }
 const QPixmap&
 MiniWindow::loadImage(string_view imageID, const QPixmap& image)
 {
-  return images.emplace(string(imageID), image).first->second;
+  return images.emplace(imageID, image).first->second;
 }
 
 bool

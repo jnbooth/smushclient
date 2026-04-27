@@ -9,7 +9,6 @@
 #include <QtGui/QPainterPath>
 
 using std::optional;
-using std::string;
 using std::string_view;
 
 // Private utils
@@ -123,7 +122,7 @@ ScriptApi::WindowCreate(size_t index,
     return ApiCode::BadParameter;
   }
 
-  std::unique_ptr<MiniWindow>& window = windows[string(name)];
+  std::unique_ptr<MiniWindow>& window = windows[name];
   if (window == nullptr) {
     window = std::make_unique<MiniWindow>(
       location, size, position, flags, fill, plugins[index].id(), tab.ui->area);

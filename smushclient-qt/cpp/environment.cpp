@@ -7,7 +7,6 @@ extern "C"
 #include "lua.h"
 }
 
-using std::string;
 using std::string_view;
 
 using Qt::StringLiterals::operator""_L1;
@@ -44,7 +43,7 @@ initializeStartupDirectory(const QString& dirPath)
   if (!success) {
     return false;
   }
-  string luaPath = dirPath.toStdString();
+  std::string luaPath = dirPath.toStdString();
   luaPath.append(luaPathSuffix);
 #if defined(Q_OS_WINDOWS)
   _putenv_s("LUA_PATH", luaPath.c_str());

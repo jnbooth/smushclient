@@ -20,7 +20,6 @@ public:
   using super::super;
 
   using super::erase;
-
   super::size_type erase(std::string_view key)
   {
     auto search = super::find(key);
@@ -39,5 +38,11 @@ public:
       list.emplace_back(key);
     }
     return list;
+  }
+
+  using super::operator[];
+  T& operator[](std::string_view k)
+  {
+    return super::operator[](std::string(k));
   }
 };

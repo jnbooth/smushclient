@@ -18,7 +18,6 @@ extern "C"
 #include "lua.h"
 }
 
-using std::string;
 using std::string_view;
 using std::chrono::milliseconds;
 
@@ -459,5 +458,5 @@ Document::updateMxpStat(const QString& entity, const QString& value) const
 std::vector<QTextCursor>&
 Document::linksWithExpiration(rust::Str expires)
 {
-  return links[string(expires.data(), expires.length())];
+  return links[std::string(expires.data(), expires.length())];
 }

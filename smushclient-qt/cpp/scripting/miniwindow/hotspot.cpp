@@ -10,20 +10,19 @@ extern "C"
 #include "lua.h"
 }
 
-using std::string;
 using std::string_view;
 
 // Private utils
 
 namespace {
 constexpr bool
-hasCallback(const string& callback) noexcept
+hasCallback(const std::string& callback) noexcept
 {
   return !callback.empty();
 }
 
 inline bool
-hasCallback(const string& callback, QEvent* event)
+hasCallback(const std::string& callback, QEvent* event)
 {
   const bool willHandle = hasCallback(callback);
   event->setAccepted(willHandle);
@@ -228,9 +227,9 @@ Hotspot::wheelEvent(QWheelEvent* event)
 class HotspotCallback : public DynamicPluginCallback
 {
 public:
-  constexpr HotspotCallback(const string& callback,
+  constexpr HotspotCallback(const std::string& callback,
                             Hotspot::EventFlags flags,
-                            const string& hotspotID) noexcept
+                            const std::string& hotspotID) noexcept
     : DynamicPluginCallback(callback)
     , flags(flags)
     , hotspotID(hotspotID)
@@ -251,11 +250,11 @@ public:
 
 private:
   Hotspot::EventFlags flags;
-  const string& hotspotID;
+  const std::string& hotspotID;
 };
 
 void
-Hotspot::runCallback(const string& callbackName, EventFlags flags)
+Hotspot::runCallback(const std::string& callbackName, EventFlags flags)
 {
   HotspotCallback callback(callbackName, flags, id);
   plugin.runCallback(callback);

@@ -2,7 +2,6 @@
 #include "../callback/plugincallback.h"
 #include "../scriptapi.h"
 
-using std::string;
 using std::string_view;
 
 // Public methods
@@ -36,13 +35,13 @@ ScriptApi::EnablePlugin(string_view pluginID, bool enabled)
   return ApiCode::OK;
 }
 
-const string&
+string_view
 ScriptApi::GetPluginID(size_t index) const
 {
   return plugins.at(index).id();
 }
 
-const string&
+string_view
 ScriptApi::GetPluginName(size_t index) const
 {
   return plugins.at(index).name();
