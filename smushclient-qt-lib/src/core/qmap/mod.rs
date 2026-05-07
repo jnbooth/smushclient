@@ -1,7 +1,8 @@
 #![allow(
     non_camel_case_types,
     clippy::needless_lifetimes,
-    clippy::trivially_copy_pass_by_ref
+    clippy::trivially_copy_pass_by_ref,
+    clippy::undocumented_unsafe_blocks
 )]
 use cxx::type_id;
 use cxx_qt_lib::{QMap, QMapPair};

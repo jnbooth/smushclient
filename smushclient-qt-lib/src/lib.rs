@@ -1,5 +1,3 @@
-#![allow(clippy::undocumented_unsafe_blocks)]
-
 #[macro_use]
 mod macros;
 
