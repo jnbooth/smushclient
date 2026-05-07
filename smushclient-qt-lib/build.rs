@@ -36,6 +36,7 @@ fn main() {
         include_header!("include/core/qchar.h"),
         include_header!("include/core/qlist/qlist_private.h"),
         include_header!("include/core/qlist/qlist_qpair_qcolor_qcolor.h"),
+        include_header!("include/core/qlist/qlist_qtextcharformat.h"),
         include_header!("include/core/qlist/qlist_qtextlength.h"),
         include_header!("include/core/qlist/qlist.h"),
         include_header!("include/core/qmap/qmap_i32_qvariant.h"),
@@ -86,10 +87,12 @@ fn main() {
             "src/gui/qtextcharformat.cpp",
             "src/gui/qtextformat.cpp",
             "src/gui/qtextlength.cpp",
+            "src/widgets/qwidget.cpp",
         ])
         .files([
             "src/core/qchar.rs",
             "src/core/qlist/qlist_qpair_qcolor_qcolor.rs",
+            "src/core/qlist/qlist_qtextcharformat.rs",
             "src/core/qlist/qlist_qtextlength.rs",
             "src/core/qmap/qmap_i32_qvariant.rs",
             "src/core/qstringext.rs",

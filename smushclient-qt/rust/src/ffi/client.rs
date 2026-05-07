@@ -23,6 +23,7 @@ pub mod ffi {
         include!("smushclient-qt-lib/qlist.h");
         type QList_QPair_QColor_QColor =
             cxx_qt_lib::QList<smushclient_qt_lib::QPair<QColor, QColor>>;
+        type QList_QTextCharFormat = cxx_qt_lib::QList<QTextCharFormat>;
     }
 
     extern "C++" {
@@ -73,9 +74,10 @@ pub mod ffi {
         script_size: usize,
     }
 
-    struct StyledSpan {
-        text: QString,
-        format: QTextCharFormat,
+    #[derive(Default)]
+    struct StyledSpans {
+        text: QStringList,
+        formats: QList_QTextCharFormat,
     }
 
     struct VariableEntry {
@@ -123,7 +125,7 @@ pub mod ffi {
         type SmushClient = super::SmushClientRust;
 
         // color
-        fn ansi_note(self: &SmushClient, text: StringView) -> Vec<StyledSpan>;
+        fn ansi_note(self: &SmushClient, text: StringView) -> StyledSpans;
         fn color_map(self: &SmushClient) -> QList_QPair_QColor_QColor;
         fn get_mapped_color(self: &SmushClient, color: &QColor) -> QColor;
         fn get_term_color(self: &SmushClient, i: u8) -> QColor;

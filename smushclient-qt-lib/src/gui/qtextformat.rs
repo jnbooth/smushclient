@@ -4,6 +4,9 @@ use std::mem::MaybeUninit;
 use cxx::{ExternType, type_id};
 use cxx_qt_lib::{LayoutDirection, QColor, QFlags, QList, QPen, QString, QVariant};
 
+use crate::util::new_in_place;
+use crate::{QBrush, QTextCharFormat, QTextLength};
+
 #[cxx::bridge]
 mod ffi {
     /// This enum describes the text item a [`QTextFormat`] object is formatting.
@@ -251,10 +254,6 @@ mod ffi {
         fn boolProperty(&self, property_id: i32) -> bool;
 
         #[doc(hidden)]
-        #[rust_name = "brush_property_int"]
-        fn brushProperty(&self, property_id: i32) -> QBrush;
-
-        #[doc(hidden)]
         #[rust_name = "clear_property_int"]
         fn clearProperty(&mut self, property_id: i32);
 
@@ -369,7 +368,14 @@ mod ffi {
     }
 
     #[namespace = "rust::smushclientqtlib1"]
-    unsafe extern "C++" {}
+    unsafe extern "C++" {
+        #[rust_name = "qtextformat_brush_property"]
+        unsafe fn qtextformatBrushProperty(
+            format: &QTextFormat,
+            property_id: i32,
+            uninit: *mut QBrush,
+        );
+    }
 
     #[namespace = "rust::cxxqtlib1"]
     unsafe extern "C++" {
@@ -378,26 +384,29 @@ mod ffi {
         #[rust_name = "qtextformat_drop"]
         fn drop(config: &mut QTextFormat);
 
-        #[rust_name = "qtextformat_init_default"]
-        fn construct() -> QTextFormat;
-        #[rust_name = "qtextformat_clone"]
-        fn construct(other: &QTextFormat) -> QTextFormat;
-        #[rust_name = "qtextformat_init_type"]
-        fn construct(format_type: i32) -> QTextFormat;
-
         #[rust_name = "qtextformat_eq"]
         fn operatorEq(a: &QTextFormat, b: &QTextFormat) -> bool;
 
         #[rust_name = "qtextformat_to_debug_qstring"]
         fn toDebugQString(value: &QTextFormat) -> QString;
     }
+
+    #[namespace = "rust::cxxqtio1"]
+    unsafe extern "C++" {
+        include!("cxx-qt-io/common.h");
+
+        #[rust_name = "qtextformat_init_default"]
+        unsafe fn constructInPlace(uninit: *mut QTextFormat);
+        #[rust_name = "qtextformat_clone"]
+        unsafe fn constructInPlace(uninit: *mut QTextFormat, other: &QTextFormat);
+        #[rust_name = "qtextformat_init_type"]
+        unsafe fn constructInPlace(uninit: *mut QTextFormat, format_type: i32);
+    }
 }
 
 pub use ffi::{
     QTextFormatFormatType, QTextFormatObjectTypes, QTextFormatPageBreakFlag, QTextFormatProperty,
 };
-
-use crate::{QBrush, QTextCharFormat, QTextLength};
 
 /// [`QFlags`] of [`QTextFormatPageBreakFlag`].
 pub type QTextFormatPageBreakFlags = QFlags<QTextFormatPageBreakFlag>;
@@ -417,14 +426,16 @@ pub struct QTextFormat {
 
 impl Clone for QTextFormat {
     fn clone(&self) -> Self {
-        ffi::qtextformat_clone(self)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qtextformat_clone(p, self)) }
     }
 }
 
 impl Default for QTextFormat {
     /// Default constructs a `QTextFormat` object.
     fn default() -> Self {
-        ffi::qtextformat_init_default()
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qtextformat_init_default(p)) }
     }
 }
 
@@ -450,7 +461,8 @@ impl fmt::Debug for QTextFormat {
 
 impl From<QTextFormatFormatType> for QTextFormat {
     fn from(value: QTextFormatFormatType) -> Self {
-        ffi::qtextformat_init_type(value.repr)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qtextformat_init_type(p, value.repr)) }
     }
 }
 
@@ -480,7 +492,8 @@ impl QTextFormat {
 
     /// Returns the value of the property given by `property_id`; if the property isn't of `QMetaTypeType::QBrush` type, [`BrushStyle::NoBrush`](crate::BrushStyle::NoBrush) is returned instead.
     pub fn brush_property(&self, property_id: QTextFormatProperty) -> QBrush {
-        self.brush_property_int(property_id.repr)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qtextformat_brush_property(self, property_id.repr, p)) }
     }
 
     /// Returns the value of the property given by `property_id`; if the property isn't of `QMetaTypeType::QColor` type, an invalid color is returned instead.

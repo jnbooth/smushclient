@@ -11,8 +11,14 @@ using Qt::StringLiterals::operator""_L1;
 void
 ScriptApi::AnsiNote(string_view text) const
 {
-  for (const StyledSpan& span : client.ansiNote(text)) {
-    cursor->appendText(span.text, span.format);
+  const auto spans = client.ansiNote(text);
+  auto format = spans.formats.begin();
+  const auto lastFormat = spans.formats.end() - 1;
+  for (const QString& text : spans.text) {
+    cursor->appendText(text, *format);
+    if (format < lastFormat) {
+      ++format;
+    }
   }
 }
 

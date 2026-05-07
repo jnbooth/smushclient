@@ -4,6 +4,7 @@ use cxx::{ExternType, type_id};
 use cxx_qt_lib::{QFont, QString};
 
 use crate::TextElideMode;
+use crate::util::new_in_place;
 
 #[cxx::bridge]
 mod ffi {
@@ -191,13 +192,18 @@ mod ffi {
         #[rust_name = "qfontmetrics_drop"]
         fn drop(config: &mut QFontMetrics);
 
-        #[rust_name = "qfontmetrics_clone"]
-        fn construct(other: &QFontMetrics) -> QFontMetrics;
-        #[rust_name = "qfontmetrics_init_qfont"]
-        fn construct(font: &QFont) -> QFontMetrics;
-
         #[rust_name = "qfontmetrics_eq"]
         fn operatorEq(a: &QFontMetrics, b: &QFontMetrics) -> bool;
+    }
+
+    #[namespace = "rust::cxxqtio1"]
+    unsafe extern "C++" {
+        include!("cxx-qt-io/common.h");
+
+        #[rust_name = "qfontmetrics_clone"]
+        unsafe fn constructInPlace(uninit: *mut QFontMetrics, other: &QFontMetrics);
+        #[rust_name = "qfontmetrics_init_qfont"]
+        unsafe fn constructInPlace(uninit: *mut QFontMetrics, font: &QFont);
     }
 }
 
@@ -211,7 +217,8 @@ pub struct QFontMetrics {
 
 impl Clone for QFontMetrics {
     fn clone(&self) -> Self {
-        ffi::qfontmetrics_clone(self)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qfontmetrics_clone(p, self)) }
     }
 }
 
@@ -234,7 +241,7 @@ impl From<&QFont> for QFontMetrics {
     ///
     /// The font metrics object holds the information for the font that is passed in the constructor at the time it is created, and is not updated if the font's attributes are changed later.
     fn from(font: &QFont) -> Self {
-        ffi::qfontmetrics_init_qfont(font)
+        Self::new(font)
     }
 }
 
@@ -243,7 +250,8 @@ impl QFontMetrics {
     ///
     /// The font metrics object holds the information for the font that is passed in the constructor at the time it is created, and is not updated if the font's attributes are changed later.
     pub fn new(font: &QFont) -> Self {
-        ffi::qfontmetrics_init_qfont(font)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qfontmetrics_init_qfont(p, font)) }
     }
 
     /// If the string `text` is wider than `width`, returns an elided version of the string (i.e., a string with "..." in it). Otherwise, returns the original string.

@@ -395,12 +395,14 @@ impl SmushClientRust {
 
     // Color
 
-    pub fn ansi_note(&self, text: &str) -> Vec<ffi::StyledSpan> {
-        mud_transformer::output::interpret_ansi(text)
-            .map(|fragment| ffi::StyledSpan {
-                format: self.formatter.text_format(&fragment).into_owned(),
-                text: QString::from(&*fragment.text),
-            })
-            .collect()
+    pub fn ansi_note(&self, text: &str) -> ffi::StyledSpans {
+        let mut spans = ffi::StyledSpans::default();
+        for fragment in mud_transformer::output::interpret_ansi(text) {
+            spans
+                .formats
+                .append_clone(&self.formatter.text_format(&fragment));
+            spans.text.append(QString::from(&*fragment.text));
+        }
+        spans
     }
 }

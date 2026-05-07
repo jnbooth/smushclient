@@ -9,6 +9,7 @@ use cxx_qt_lib::{
     QFontStyleStrategy, QPen, QString, QStringList,
 };
 
+use crate::util::new_in_place;
 use crate::{QTextFormat, QTextFormatProperty};
 
 #[cxx::bridge]
@@ -138,7 +139,7 @@ mod ffi {
         fn qtextcharformatSetFontWithSpecified(format: &mut QTextCharFormat, font: &QFont);
 
         #[rust_name = "qtextformat_to_char_format"]
-        fn qtextformatToCharFormat(format: &QTextFormat) -> QTextCharFormat;
+        unsafe fn qtextformatToCharFormat(format: &QTextFormat, uninit: *mut QTextCharFormat);
     }
 
     #[namespace = "rust::cxxqt1"]
@@ -161,16 +162,21 @@ mod ffi {
         #[rust_name = "qtextcharformat_drop"]
         fn drop(config: &mut QTextCharFormat);
 
-        #[rust_name = "qtextcharformat_init_default"]
-        fn construct() -> QTextCharFormat;
-        #[rust_name = "qtextcharformat_clone"]
-        fn construct(other: &QTextCharFormat) -> QTextCharFormat;
-
         #[rust_name = "qtextcharformat_eq"]
         fn operatorEq(a: &QTextCharFormat, b: &QTextCharFormat) -> bool;
 
         #[rust_name = "qtextcharformat_to_debug_qstring"]
         fn toDebugQString(value: &QTextCharFormat) -> QString;
+    }
+
+    #[namespace = "rust::cxxqtio1"]
+    unsafe extern "C++" {
+        include!("cxx-qt-io/common.h");
+
+        #[rust_name = "qtextcharformat_init_default"]
+        unsafe fn constructInPlace(uninit: *mut QTextCharFormat);
+        #[rust_name = "qtextcharformat_clone"]
+        unsafe fn constructInPlace(uninit: *mut QTextCharFormat, other: &QTextCharFormat);
     }
 }
 
@@ -205,14 +211,16 @@ pub struct QTextCharFormat {
 
 impl Clone for QTextCharFormat {
     fn clone(&self) -> Self {
-        ffi::qtextcharformat_clone(self)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qtextcharformat_clone(p, self)) }
     }
 }
 
 impl Default for QTextCharFormat {
     /// Default constructs a `QTextCharFormat` object.
     fn default() -> Self {
-        ffi::qtextcharformat_init_default()
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qtextcharformat_init_default(p)) }
     }
 }
 
@@ -238,7 +246,8 @@ impl fmt::Debug for QTextCharFormat {
 
 impl From<&QTextFormat> for QTextCharFormat {
     fn from(value: &QTextFormat) -> Self {
-        ffi::qtextformat_to_char_format(value)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qtextformat_to_char_format(value, p)) }
     }
 }
 
@@ -589,12 +598,15 @@ impl DerefMut for QTextCharFormat {
     }
 }
 
+// SAFETY: qobject_cast
 unsafe impl Upcast<QTextFormat> for QTextCharFormat {
     unsafe fn upcast_ptr(this: *const Self) -> *const QTextFormat {
+        // SAFETY: static_upcast
         unsafe { ffi::upcast_qtextcharformat(this) }
     }
 
     unsafe fn from_base_ptr(base: *const QTextFormat) -> *const Self {
+        // SAFETY: qobject_cast
         unsafe { ffi::downcast_qtextformat(base) }
     }
 }

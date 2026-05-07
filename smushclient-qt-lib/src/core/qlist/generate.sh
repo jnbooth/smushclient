@@ -137,7 +137,7 @@ EOF
 }
 
 #generate_bridge "QBrush"
-#generate_bridge "QTextCharFormat"
+generate_bridge "QTextCharFormat"
 #generate_bridge "QTextFormat"
 generate_bridge "QTextLength"
 

@@ -6,7 +6,7 @@ use crate::convert::Convert;
 use crate::ffi::{self, StringView};
 
 impl ffi::SmushClient {
-    pub fn ansi_note(&self, text: StringView<'_>) -> Vec<ffi::StyledSpan> {
+    pub fn ansi_note(&self, text: StringView<'_>) -> ffi::StyledSpans {
         self.rust().ansi_note(&text.to_string_lossy())
     }
 

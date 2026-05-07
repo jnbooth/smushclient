@@ -55,7 +55,9 @@ mod ffi {
         ElideRight,
         /// The ellipsis should appear in the middle of the text.
         ElideMiddle,
-        /// Ellipsis should NOT appear in the text. When passed to functions such as [`QFontMetricsF::elided_text`](crate::QFontMetricsF::elided_text), this will cause the full string to return unless the text contains multi-length variants. Elision in this case must be done by clipping to the component width.
+        /// Ellipsis should NOT appear in the text. When passed to functions such as [`QFontMetricsF::elided_text`], this will cause the full string to return unless the text contains multi-length variants. Elision in this case must be done by clipping to the component width.
+        ///
+        /// [`QFontMetricsF::elided_text`]: crate::QFontMetricsF::elided_text
         ElideNone,
     }
 }

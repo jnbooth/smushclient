@@ -17,8 +17,14 @@ pub mod ffi {
         fn qvariantCanConvertQBrush(variant: &QVariant) -> bool;
         #[rust_name = "qvariant_construct_QBrush"]
         fn qvariantConstruct(value: &QBrush) -> QVariant;
-        #[rust_name = "qvariant_value_or_default_QBrush"]
-        fn qvariantValueOrDefault(variant: &QVariant) -> QBrush;
+    }
+
+    #[namespace = "rust::cxxqtio1::qvariant"]
+    unsafe extern "C++" {
+        include!("cxx-qt-io/qvariant.h");
+
+        #[rust_name = "qvariant_init_value_or_default_QBrush"]
+        unsafe fn qvariantInitValueOrDefault(variant: &QVariant, uninit: *mut QBrush);
     }
 }
 
@@ -31,5 +37,17 @@ pub(crate) fn construct(value: &ffi::QBrush) -> ffi::QVariant {
 }
 
 pub(crate) fn value_or_default(variant: &ffi::QVariant) -> ffi::QBrush {
-    ffi::qvariant_value_or_default_QBrush(variant)
+    let mut uninit = std::mem::MaybeUninit::uninit();
+    // SAFETY: uninit.as_mut_ptr() is valid.
+    unsafe { ffi::qvariant_init_value_or_default_QBrush(variant, uninit.as_mut_ptr()) };
+    // SAFETY: ffi::qvariant_init_value_or_default_QBrush initializes the passed pointer in-place.
+    unsafe { uninit.assume_init() }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn can_convert() {
+        assert!(!super::can_convert(&cxx_qt_lib::QVariant::default()));
+    }
 }

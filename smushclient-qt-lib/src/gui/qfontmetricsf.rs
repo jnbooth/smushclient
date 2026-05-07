@@ -4,6 +4,7 @@ use cxx::{ExternType, type_id};
 use cxx_qt_lib::{QFont, QString};
 
 use crate::TextElideMode;
+use crate::util::new_in_place;
 
 #[cxx::bridge]
 mod ffi {
@@ -191,13 +192,18 @@ mod ffi {
         #[rust_name = "qfontmetricsf_drop"]
         fn drop(config: &mut QFontMetricsF);
 
-        #[rust_name = "qfontmetricsf_clone"]
-        fn construct(other: &QFontMetricsF) -> QFontMetricsF;
-        #[rust_name = "qfontmetricsf_init_qfont"]
-        fn construct(font: &QFont) -> QFontMetricsF;
-
         #[rust_name = "qfontmetricsf_eq"]
         fn operatorEq(a: &QFontMetricsF, b: &QFontMetricsF) -> bool;
+    }
+
+    #[namespace = "rust::cxxqtio1"]
+    unsafe extern "C++" {
+        include!("cxx-qt-io/common.h");
+
+        #[rust_name = "qfontmetricsf_clone"]
+        unsafe fn constructInPlace(uninit: *mut QFontMetricsF, other: &QFontMetricsF);
+        #[rust_name = "qfontmetricsf_init_qfont"]
+        unsafe fn constructInPlace(uninit: *mut QFontMetricsF, font: &QFont);
     }
 }
 
@@ -211,7 +217,8 @@ pub struct QFontMetricsF {
 
 impl Clone for QFontMetricsF {
     fn clone(&self) -> Self {
-        ffi::qfontmetricsf_clone(self)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qfontmetricsf_clone(p, self)) }
     }
 }
 
@@ -234,7 +241,7 @@ impl From<&QFont> for QFontMetricsF {
     ///
     /// The font metrics object holds the information for the font that is passed in the constructor at the time it is created, and is not updated if the font's attributes are changed later.
     fn from(font: &QFont) -> Self {
-        ffi::qfontmetricsf_init_qfont(font)
+        Self::new(font)
     }
 }
 
@@ -243,7 +250,8 @@ impl QFontMetricsF {
     ///
     /// The font metrics object holds the information for the font that is passed in the constructor at the time it is created, and is not updated if the font's attributes are changed later.
     pub fn new(font: &QFont) -> Self {
-        ffi::qfontmetricsf_init_qfont(font)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qfontmetricsf_init_qfont(p, font)) }
     }
 
     /// If the string `text` is wider than `width`, returns an elided version of the string (i.e., a string with "..." in it). Otherwise, returns the original string.

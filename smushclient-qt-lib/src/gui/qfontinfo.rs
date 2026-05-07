@@ -3,6 +3,8 @@ use std::mem::MaybeUninit;
 use cxx::{ExternType, type_id};
 use cxx_qt_lib::QFont;
 
+use crate::util::new_in_place;
+
 #[cxx::bridge]
 mod ffi {
     extern "C++" {
@@ -90,11 +92,16 @@ mod ffi {
 
         #[rust_name = "qfontinfo_drop"]
         fn drop(config: &mut QFontInfo);
+    }
+
+    #[namespace = "rust::cxxqtio1"]
+    unsafe extern "C++" {
+        include!("cxx-qt-io/common.h");
 
         #[rust_name = "qfontinfo_clone"]
-        fn construct(other: &QFontInfo) -> QFontInfo;
+        unsafe fn constructInPlace(uninit: *mut QFontInfo, other: &QFontInfo);
         #[rust_name = "qfontinfo_init_qfont"]
-        fn construct(font: &QFont) -> QFontInfo;
+        unsafe fn constructInPlace(uninit: *mut QFontInfo, font: &QFont);
     }
 }
 
@@ -108,7 +115,8 @@ pub struct QFontInfo {
 
 impl Clone for QFontInfo {
     fn clone(&self) -> Self {
-        ffi::qfontinfo_clone(self)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qfontinfo_clone(p, self)) }
     }
 }
 
@@ -123,7 +131,7 @@ impl From<&QFont> for QFontInfo {
     ///
     /// The font metrics object holds the information for the font that is passed in the constructor at the time it is created, and is not updated if the font's attributes are changed later.
     fn from(font: &QFont) -> Self {
-        ffi::qfontinfo_init_qfont(font)
+        Self::new(font)
     }
 }
 
@@ -134,7 +142,8 @@ impl QFontInfo {
     ///
     /// The font info object holds the information for the font that is passed in the constructor at the time it is created, and is not updated if the font's attributes are changed later.
     pub fn new(font: &QFont) -> Self {
-        ffi::qfontinfo_init_qfont(font)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qfontinfo_init_qfont(p, font)) }
     }
 }
 

@@ -4,6 +4,7 @@ use std::mem::MaybeUninit;
 use cxx::{ExternType, type_id};
 use cxx_qt_lib::{QColor, QImage};
 
+use crate::util::new_in_place;
 use crate::{BrushStyle, GlobalColor};
 
 #[cxx::bridge]
@@ -73,24 +74,29 @@ mod ffi {
         #[rust_name = "qbrush_drop"]
         fn drop(config: &mut QBrush);
 
-        #[rust_name = "qbrush_init_default"]
-        fn construct() -> QBrush;
-        #[rust_name = "qbrush_clone"]
-        fn construct(other: &QBrush) -> QBrush;
-        #[rust_name = "qbrush_init_brushstyle"]
-        fn construct(style: BrushStyle) -> QBrush;
-        #[rust_name = "qbrush_init_qimage"]
-        fn construct(image: &QImage) -> QBrush;
-        #[rust_name = "qbrush_init_globalcolor"]
-        fn construct(color: GlobalColor, style: BrushStyle) -> QBrush;
-        #[rust_name = "qbrush_init_qcolor"]
-        fn construct(color: &QColor, style: BrushStyle) -> QBrush;
-
         #[rust_name = "qbrush_eq"]
         fn operatorEq(a: &QBrush, b: &QBrush) -> bool;
 
         #[rust_name = "qbrush_to_debug_qstring"]
         fn toDebugQString(value: &QBrush) -> QString;
+    }
+
+    #[namespace = "rust::cxxqtio1"]
+    unsafe extern "C++" {
+        include!("cxx-qt-io/common.h");
+
+        #[rust_name = "qbrush_init_default"]
+        unsafe fn constructInPlace(uninit: *mut QBrush);
+        #[rust_name = "qbrush_clone"]
+        unsafe fn constructInPlace(uninit: *mut QBrush, other: &QBrush);
+        #[rust_name = "qbrush_init_brushstyle"]
+        unsafe fn constructInPlace(uninit: *mut QBrush, style: BrushStyle);
+        #[rust_name = "qbrush_init_qimage"]
+        unsafe fn constructInPlace(uninit: *mut QBrush, image: &QImage);
+        #[rust_name = "qbrush_init_globalcolor"]
+        unsafe fn constructInPlace(uninit: *mut QBrush, color: GlobalColor, style: BrushStyle);
+        #[rust_name = "qbrush_init_qcolor"]
+        unsafe fn constructInPlace(uninit: *mut QBrush, color: &QColor, style: BrushStyle);
     }
 }
 
@@ -104,14 +110,16 @@ pub struct QBrush {
 
 impl Clone for QBrush {
     fn clone(&self) -> Self {
-        ffi::qbrush_clone(self)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qbrush_clone(p, self)) }
     }
 }
 
 impl Default for QBrush {
     /// Constructs a default black brush with the style [`BrushStyle::NoBrush`] (i.e. this brush will not fill shapes).
     fn default() -> Self {
-        ffi::qbrush_init_default()
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qbrush_init_default(p)) }
     }
 }
 
@@ -138,28 +146,34 @@ impl fmt::Debug for QBrush {
 impl From<BrushStyle> for QBrush {
     /// Constructs a black brush with the given `style`.
     fn from(style: BrushStyle) -> Self {
-        ffi::qbrush_init_brushstyle(style)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qbrush_init_brushstyle(p, style)) }
     }
 }
 
 impl From<&QImage> for QBrush {
     /// Constructs a brush with a black color and a texture set to the given `image`. The style is set to [`BrushStyle::TexturePattern`].
     fn from(image: &QImage) -> Self {
-        ffi::qbrush_init_qimage(image)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qbrush_init_qimage(p, image)) }
     }
 }
 
 impl From<GlobalColor> for QBrush {
     /// Constructs a brush with the given `color`.
     fn from(color: GlobalColor) -> Self {
-        ffi::qbrush_init_globalcolor(color, BrushStyle::SolidPattern)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe {
+            new_in_place(|p| ffi::qbrush_init_globalcolor(p, color, BrushStyle::SolidPattern))
+        }
     }
 }
 
 impl From<&QColor> for QBrush {
     /// Constructs a brush with the given `color`.
     fn from(color: &QColor) -> Self {
-        ffi::qbrush_init_qcolor(color, BrushStyle::SolidPattern)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qbrush_init_qcolor(p, color, BrushStyle::SolidPattern)) }
     }
 }
 
@@ -201,7 +215,8 @@ impl private::Sealed for GlobalColor {}
 
 impl QBrushColor for GlobalColor {
     fn new_brush(self, style: BrushStyle) -> QBrush {
-        ffi::qbrush_init_globalcolor(self, style)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qbrush_init_globalcolor(p, self, style)) }
     }
 
     fn set_color(self, brush: &mut QBrush) {
@@ -213,7 +228,8 @@ impl private::Sealed for &QColor {}
 
 impl QBrushColor for &QColor {
     fn new_brush(self, style: BrushStyle) -> QBrush {
-        ffi::qbrush_init_qcolor(self, style)
+        // SAFETY: ffi:: initializes the passed pointer in-place.
+        unsafe { new_in_place(|p| ffi::qbrush_init_qcolor(p, self, style)) }
     }
 
     fn set_color(self, brush: &mut QBrush) {

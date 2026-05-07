@@ -24,10 +24,10 @@ qtextcharformatSetFontWithSpecified(QTextCharFormat& format, const QFont& font)
 {
   format.setFont(font, QTextCharFormat::FontPropertiesSpecifiedOnly);
 }
-QTextCharFormat
-qtextformatToCharFormat(const QTextFormat& format)
+void
+qtextformatToCharFormat(const QTextFormat& format, QTextCharFormat* uninit)
 {
-  return format.toCharFormat();
+  new (uninit) QTextCharFormat(format.toCharFormat());
 }
 } // namespace smushclientqtlib1
 } // namespace rust

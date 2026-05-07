@@ -33,3 +33,11 @@ pub(crate) fn construct(value: &ffi::QTextLength) -> ffi::QVariant {
 pub(crate) fn value_or_default(variant: &ffi::QVariant) -> ffi::QTextLength {
     ffi::qvariant_value_or_default_QTextLength(variant)
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn can_convert() {
+        assert!(!super::can_convert(&cxx_qt_lib::QVariant::default()));
+    }
+}

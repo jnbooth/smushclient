@@ -15,6 +15,7 @@ crate-type = ["staticlib"]
 chrono = { workspace = true }
 cxx = { workspace = true }
 cxx-qt = { workspace = true }
+cxx-qt-io = { workspace = true }
 cxx-qt-lib = { workspace = true }
 flagset = { workspace = true }
 log = { workspace = true }
@@ -25,11 +26,6 @@ smushclient = { path = "../../smushclient" }
 smushclient-graphics = { path = "../../smushclient-graphics" }
 smushclient-plugins = { path = "../../smushclient-plugins" }
 smushclient-qt-lib = { path = "../../smushclient-qt-lib" }
-
-[dependencies.cxx-qt-io]
-git = "https://github.com/jnbooth/cxx-qt-io"
-version = "0.3.3"
-features = ["net", "ssl"]
 
 [build-dependencies]
 cxx-qt-build = { workspace = true }

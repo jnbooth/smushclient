@@ -69,4 +69,9 @@ macro_rules! impl_qlist_element {
 }
 
 impl_qlist_element!(crate::QPair<QColor, QColor>, qlist_qpair_qcolor_qcolor, "QList_QPair_QColor_QColor");
+impl_qlist_element!(
+    crate::QTextCharFormat,
+    qlist_qtextcharformat,
+    "QList_QTextCharFormat"
+);
 impl_qlist_element!(crate::QTextLength, qlist_qtextlength, "QList_QTextLength");

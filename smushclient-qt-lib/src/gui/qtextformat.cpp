@@ -10,3 +10,16 @@ static_assert(!::std::is_trivially_copy_constructible<QTextFormat>::value);
 static_assert(!::std::is_trivially_destructible<QTextFormat>::value);
 static_assert(::std::is_move_constructible<QTextFormat>::value);
 static_assert(QTypeInfo<QTextFormat>::isRelocatable);
+
+namespace rust {
+namespace smushclientqtlib1 {
+
+void
+qtextformatBrushProperty(const QTextFormat& format,
+                         int propertyId,
+                         QBrush* uninit)
+{
+  new (uninit) QBrush(format.brushProperty(propertyId));
+}
+} // namespace smushclientqtlib1
+} // namespace rust
