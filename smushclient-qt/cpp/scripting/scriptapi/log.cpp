@@ -1,4 +1,4 @@
-#include "../../client.h"
+#include "../../bridge/client.h"
 #include "../scriptapi.h"
 
 using std::string_view;

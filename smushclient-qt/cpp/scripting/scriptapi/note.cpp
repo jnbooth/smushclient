@@ -1,4 +1,4 @@
-#include "../../client.h"
+#include "../../bridge/client.h"
 #include "../../spans.h"
 #include "../scriptapi.h"
 

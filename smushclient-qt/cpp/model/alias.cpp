@@ -1,5 +1,5 @@
 #include "alias.h"
-#include "../client.h"
+#include "../bridge/client.h"
 #include "../ui/worlddetails/aliasedit.h"
 #include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "smushclient_qt/src/ffi/sender_map.cxxqt.h"

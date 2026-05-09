@@ -1,5 +1,5 @@
 #include "sender.h"
-#include "../client.h"
+#include "../bridge/client.h"
 #include "smushclient_qt/src/ffi/sender_map.cxxqt.h"
 #include <QtCore/QAbstractProxyModel>
 

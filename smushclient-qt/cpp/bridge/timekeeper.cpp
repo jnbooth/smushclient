@@ -1,7 +1,7 @@
 #include "timekeeper.h"
-#include "../client.h"
 #include "../scripting/scriptapi.h"
 #include "../timermap.h"
+#include "client.h"
 
 using std::chrono::milliseconds;
 using std::chrono::seconds;

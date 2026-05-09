@@ -1,4 +1,4 @@
-#include "../../client.h"
+#include "../../bridge/client.h"
 #include "../callback/plugincallback.h"
 #include "../scriptapi.h"
 

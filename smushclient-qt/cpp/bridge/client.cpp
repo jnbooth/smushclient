@@ -1,5 +1,5 @@
 #include "client.h"
-#include "bridge/timekeeper.h"
+#include "timekeeper.h"
 #include <QtCore/QDataStream>
 
 using std::string_view;

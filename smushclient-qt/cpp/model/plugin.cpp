@@ -1,5 +1,5 @@
 #include "plugin.h"
-#include "../client.h"
+#include "../bridge/client.h"
 #include "smushclient_qt/src/ffi/plugin_details.cxxqt.h"
 
 // Public methods
