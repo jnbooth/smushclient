@@ -1,5 +1,4 @@
 #include "logging.h"
-#include "../../enumbuttongroup.h"
 #include "../../environment.h"
 #include "../../fieldconnector.h"
 #include "../../localization.h"

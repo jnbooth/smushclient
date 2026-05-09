@@ -1,6 +1,7 @@
 #pragma once
 #include "./ui/components/colorpickerbutton.h"
 #include "casting.h"
+#include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QDoubleSpinBox>
@@ -159,4 +160,39 @@ public:
     input->setTime(value);
     return object->connect(input, &QTimeEdit::timeChanged, target, setter);
   }
+};
+
+template<IntEnum T>
+class EnumButtonGroup
+{
+private:
+  template<typename Source, typename Value>
+  using Setter = void (Source::*&&)(Value);
+
+public:
+  template<typename Source>
+  EnumButtonGroup(QObject* parent,
+                  T value,
+                  Source* source,
+                  Setter<Source, T> setter)
+    : group(new QButtonGroup(parent))
+    , currentValue(value)
+  {
+    group->setExclusive(true);
+    parent->connect(
+      group, &QButtonGroup::idClicked, source, enum_slot_cast(setter));
+  }
+
+  const EnumButtonGroup<T>& addButton(QAbstractButton* button, T id) const
+  {
+    if (id == currentValue) {
+      button->setChecked(true);
+    }
+    group->addButton(button, static_cast<int>(id));
+    return *this;
+  }
+
+private:
+  QButtonGroup* group;
+  T currentValue;
 };

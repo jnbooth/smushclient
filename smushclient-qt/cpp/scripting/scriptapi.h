@@ -447,13 +447,6 @@ public:
                         const QColor& borderColor,
                         int borderWidth,
                         const QBrush& outsideFill);
-  ApiCode TextRectangle(const OutputLayout& layout) const;
-  ApiCode TextRectangle(const QMargins& margins,
-                        int borderOffset,
-                        const QColor& borderColor,
-                        int borderWidth,
-                        const QBrush& outsideFill) const;
-  ApiCode TextRectangle() const;
   ApiCode WindowAddHotspot(size_t pluginIndex,
                            std::string_view windowName,
                            std::string_view hotspotID,
@@ -666,6 +659,7 @@ public:
   void printError(const QString& message);
   void reloadWorldScript(const QString& worldScriptPath);
   void resetAllTimers();
+  bool restoreTextRectangle() const;
   bool runScript(size_t plugin, QByteArrayView script, const char* name) const
   {
     return plugins[plugin].runScript(script, name);
@@ -695,6 +689,7 @@ public:
   void setOpen(bool open) noexcept;
   void setPluginEnabled(size_t plugin, bool enable = true);
   ActionSource setSource(ActionSource source) noexcept;
+  ApiCode setTextRectangle(const OutputLayout& layout) const;
   void setWordUnderMenu(const QString& word) noexcept { wordUnderMenu = word; }
   void stackWindow(std::string_view windowName, MiniWindow& window) const;
   bool startCommandQueueTimer();

@@ -69,12 +69,10 @@ qt_add_executable(${APP_NAME}
     cpp/commandhistory.h cpp/commandhistory.cpp
     cpp/config.h
     cpp/enumbounds.h
-    cpp/enumbuttongroup.h
     cpp/environment.h cpp/environment.cpp
     cpp/fieldconnector.h
     cpp/hotkeys.h cpp/hotkeys.cpp
     cpp/image.h cpp/image.cpp
-    cpp/layout.h cpp/layout.cpp
     cpp/localization.h cpp/localization.cpp
     cpp/mudcursor.h cpp/mudcursor.cpp
     cpp/settings.h cpp/settings.cpp

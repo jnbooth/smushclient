@@ -1,5 +1,4 @@
 #include "timeredit.h"
-#include "../../enumbuttongroup.h"
 #include "../../fieldconnector.h"
 #include "../../settings.h"
 #include "ui_timeredit.h"

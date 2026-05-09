@@ -1,5 +1,4 @@
 #include "../../casting.h"
-#include "../../layout.h"
 #include "../../ui/components/mudscrollbar.h"
 #include "../../ui/ui_worldtab.h"
 #include "../../ui/worldtab.h"
@@ -11,6 +10,30 @@
 #include <smushclient_qt/src/ffi/util.cxx.h>
 
 using std::string_view;
+
+// Private utils
+
+struct OutputLayout
+{
+  QMargins margins;
+  int16_t borderOffset = 0;
+  QColor borderColor;
+  int16_t borderWidth = 0;
+  QBrush outsideFill;
+
+  friend QDataStream& operator<<(QDataStream& stream,
+                                 const OutputLayout& layout)
+  {
+    return stream << layout.margins << layout.borderOffset << layout.borderColor
+                  << layout.borderWidth << layout.outsideFill;
+  }
+
+  friend QDataStream& operator>>(QDataStream& stream, OutputLayout& layout)
+  {
+    return stream >> layout.margins >> layout.borderOffset >>
+           layout.borderColor >> layout.borderWidth >> layout.outsideFill;
+  }
+};
 
 // Public static methods
 
@@ -175,43 +198,6 @@ ScriptApi::Simulate(string_view output) const noexcept
 }
 
 ApiCode
-ScriptApi::TextRectangle(const QMargins& margins,
-                         int borderOffset,
-                         const QColor& borderColor,
-                         int borderWidth,
-                         const QBrush& outsideFill) const
-{
-  Ui::WorldTab& ui = *tab.ui;
-  QTextDocument& doc = *ui.output->document();
-  doc.setLayoutEnabled(false);
-  QPalette palette;
-
-  palette.setBrush(QPalette::ColorRole::Window, outsideFill);
-  ui.area->setPalette(palette);
-  ui.area->setContentsMargins(margins);
-
-  palette.setBrush(QPalette::ColorRole::Window, borderColor);
-  ui.outputBorder->setPalette(palette);
-  ui.outputBorder->setContentsMargins(
-    borderWidth, borderWidth, borderWidth, borderWidth);
-
-  ui.background->setContentsMargins(
-    borderOffset, borderOffset, borderOffset, borderOffset);
-  doc.setLayoutEnabled(true);
-  return ApiCode::OK;
-}
-
-ApiCode
-ScriptApi::TextRectangle(const OutputLayout& layout) const
-{
-  return TextRectangle(layout.margins,
-                       layout.borderOffset,
-                       layout.borderColor,
-                       layout.borderWidth,
-                       layout.outsideFill);
-}
-
-ApiCode
 ScriptApi::TextRectangle(const QRect& rect,
                          int borderOffset,
                          const QColor& borderColor,
@@ -220,11 +206,14 @@ ScriptApi::TextRectangle(const QRect& rect,
 {
   assignedTextRectangle = rect;
   const QSize size = tab.ui->area->size();
-  const QMargins margins(
-    rect.left(),
-    rect.top(),
-    rect.right() > 0 ? size.width() - rect.right() : -rect.right(),
-    rect.bottom() > 0 ? size.height() - rect.bottom() : -rect.bottom());
+  const int left = rect.left(), top = rect.top(), right = rect.right(),
+            bottom = rect.bottom();
+
+  const QMargins margins(left,
+                         top,
+                         (right > 0 ? size.width() : 0) - right,
+                         (bottom > 0 ? size.height() : 0) - bottom);
+
   const OutputLayout layout{
     .margins = margins,
     .borderOffset = clamped_cast<int16_t>(borderOffset),
@@ -232,22 +221,44 @@ ScriptApi::TextRectangle(const QRect& rect,
     .borderWidth = clamped_cast<int16_t>(borderWidth),
     .outsideFill = outsideFill,
   };
-  client.setMetavariable("output/layout", layout.save());
-  return TextRectangle(layout);
+  client.setMetavariable("output/layout", layout);
+  return setTextRectangle(layout);
+}
+
+bool
+ScriptApi::restoreTextRectangle() const
+{
+  const auto layout = client.getMetavariable<OutputLayout>("output/layout");
+  if (!layout) {
+    return false;
+  }
+  setTextRectangle(*layout);
+  return true;
 }
 
 ApiCode
-ScriptApi::TextRectangle() const
+ScriptApi::setTextRectangle(const OutputLayout& layout) const
 {
-  const QByteArrayView variable = client.getMetavariable("output/layout");
-  if (variable.isNull()) {
-    return ApiCode::OK;
-  }
+  Ui::WorldTab& ui = *tab.ui;
+  QTextDocument& doc = *ui.output->document();
+  doc.setLayoutEnabled(false);
+  QPalette palette;
 
-  OutputLayout layout;
-  if (!layout.restore(QByteArray(variable))) {
-    return ApiCode::VariableNotFound;
-  }
+  palette.setBrush(QPalette::ColorRole::Window, layout.outsideFill);
+  ui.area->setPalette(palette);
+  ui.area->setContentsMargins(layout.margins);
 
-  return TextRectangle(layout);
+  palette.setBrush(QPalette::ColorRole::Window, layout.borderColor);
+  ui.outputBorder->setPalette(palette);
+  ui.outputBorder->setContentsMargins(layout.borderWidth,
+                                      layout.borderWidth,
+                                      layout.borderWidth,
+                                      layout.borderWidth);
+
+  ui.background->setContentsMargins(layout.borderOffset,
+                                    layout.borderOffset,
+                                    layout.borderOffset,
+                                    layout.borderOffset);
+  doc.setLayoutEnabled(true);
+  return ApiCode::OK;
 }

@@ -554,7 +554,7 @@ WorldTab::start()
     }
   }
 
-  api->TextRectangle();
+  api->restoreTextRectangle();
 
   restoreHistory();
 
