@@ -2866,10 +2866,11 @@ L_WindowBlendImage(lua_State* L)
   const int n = expectMaxArgs(L, 12);
   const string_view windowName = getString(L, 1);
   const string_view imageId = getString(L, 2);
-  const QRectF rect = getQRectF(L, 3, 4, 5, 6);
+  const QRect rect = getQRectF(L, 3, 4, 5, 6).toRect();
   const optional<BlendMode> mode = getEnum<BlendMode>(L, 7);
   const lua_Number opacity = getNumber(L, 8);
-  const QRectF targetRect = n > 8 ? getQRectF(L, 9, 10, 11, 12) : QRectF();
+  const QRect targetRect =
+    n > 8 ? getQRectF(L, 9, 10, 11, 12).toRect() : QRect();
   expect_nonnull(mode, ApiCode::UnknownOption);
   if (opacity < 0 || opacity > 1) {
     return returnCode(L, ApiCode::BadParameter);
@@ -2967,9 +2968,10 @@ L_WindowDrawImage(lua_State* L)
   const int n = expectMaxArgs(L, 11);
   const string_view windowName = getString(L, 1);
   const string_view imageID = getString(L, 2);
-  const QRectF rect = getQRectF(L, 3, 4, 5, 6);
+  const QRect rect = getQRectF(L, 3, 4, 5, 6).toRect();
   const optional<DrawImageMode> mode = getEnum(L, 7, DrawImageMode::Copy);
-  const QRectF sourceRect = n > 7 ? getQRectF(L, 8, 9, 10, 11) : QRectF();
+  const QRect sourceRect =
+    n > 7 ? getQRectF(L, 8, 9, 10, 11).toRect() : QRect();
   expect_nonnull(mode, ApiCode::BadParameter);
   return returnCode(
     L, getApi(L).WindowDrawImage(windowName, imageID, rect, *mode, sourceRect));
@@ -2982,9 +2984,9 @@ L_WindowDrawImageAlpha(lua_State* L)
   const int n = expectMaxArgs(L, 9);
   const string_view windowName = getString(L, 1);
   const string_view imageID = getString(L, 2);
-  const QRectF rect = getQRectF(L, 3, 4, 5, 6);
+  const QRect rect = getQRectF(L, 3, 4, 5, 6).toRect();
   const lua_Number opacity = getNumber(L, 7);
-  const QPointF origin = n > 7 ? getQPointF(L, 8, 9) : QPointF();
+  const QPoint origin = n > 7 ? getQPointF(L, 8, 9).toPoint() : QPoint();
   if (opacity < 0 || opacity > 1) {
     return returnCode(L, ApiCode::BadParameter);
   }
@@ -3122,11 +3124,12 @@ L_WindowGetImageAlpha(lua_State* L)
 {
   BENCHMARK
   expectMaxArgs(L, 8);
-  return returnCode(L,
-                    getApi(L).WindowGetImageAlpha(getString(L, 1),
-                                                  getString(L, 2),
-                                                  getQRectF(L, 3, 4, 5, 6),
-                                                  getQPointF(L, 7, 8)));
+  return returnCode(
+    L,
+    getApi(L).WindowGetImageAlpha(getString(L, 1),
+                                  getString(L, 2),
+                                  getQRectF(L, 3, 4, 5, 6).toRect(),
+                                  getQPointF(L, 7, 8).toPoint()));
 }
 
 int

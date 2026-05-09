@@ -71,17 +71,29 @@ ImageWindow::resizeEvent(QResizeEvent* event)
   switch (m_position) {
     case Position::OutputStretch:
     case Position::OwnerStretch: {
-      const QSizeF thisSize = event->size().toSizeF();
-      const QSizeF pixmapSize = m_pixmap.size().toSizeF();
-      scale = QSizeF(pixmapSize.width() / thisSize.width(),
-                     pixmapSize.height() / thisSize.height());
+      const QSize thisSize = event->size();
+      const QSize pixmapSize = m_pixmap.size();
+      if (thisSize == pixmapSize) {
+        scale = QSizeF{};
+        break;
+      }
+      const QSizeF thisSizeF = thisSize;
+      const QSizeF pixmapSizeF = pixmapSize;
+      scale = QSizeF(pixmapSizeF.width() / thisSizeF.width(),
+                     pixmapSizeF.height() / thisSizeF.height());
       break;
     }
     case Position::OwnerScale:
     case Position::OutputScale: {
-      const QSizeF thisSize = event->size().toSizeF();
-      const QSizeF pixmapSize = m_pixmap.size().toSizeF();
-      const qreal heightScale = pixmapSize.height() / thisSize.height();
+      const int thisHeight = event->size().height();
+      const int pixmapHeight = m_pixmap.height();
+      if (thisHeight == pixmapHeight) {
+        scale = QSizeF{};
+        break;
+      }
+      const qreal thisHeightF = thisHeight;
+      const qreal pixmapHeightF = pixmapHeight;
+      const qreal heightScale = thisHeightF / pixmapHeightF;
       scale = QSizeF(heightScale, heightScale);
       break;
     }

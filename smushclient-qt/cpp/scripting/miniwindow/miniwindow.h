@@ -87,9 +87,9 @@ public:
   void applyFilter(const ImageFilter& filter, const QRect& rect = {});
   void blendImage(BlendMode mode,
                   const QPixmap& image,
-                  const QRectF& rect,
+                  const QRect& rect,
                   qreal opacity,
-                  const QRectF& sourceRect = {});
+                  const QRect& sourceRect = {});
   void clearHotspots();
   void deleteAllHotspots();
   bool deleteHotspot(std::string_view hotspotID);
@@ -110,27 +110,27 @@ public:
                  const QColor& color2);
   void drawGradient(const QRectF& rect, const QGradient& gradient);
   void drawImage(const QPixmap& image,
-                 const QRectF& rect,
-                 const QRectF& sourceRect = {},
+                 const QRect& rect,
+                 const QRect& sourceRect = {},
                  qreal opacity = 1,
                  DrawImageMode mode = DrawImageMode::Copy);
   void drawImage(const QPixmap& image,
-                 const QRectF& rect,
+                 const QRect& rect,
                  qreal opacity,
                  DrawImageMode mode = DrawImageMode::Copy)
   {
-    drawImage(image, rect, QRectF(), opacity, mode);
+    drawImage(image, rect, {}, opacity, mode);
   }
   void drawImage(const QPixmap& image,
-                 const QRectF& rect,
-                 const QRectF& sourceRect,
+                 const QRect& rect,
+                 const QRect& sourceRect,
                  DrawImageMode mode)
   {
     drawImage(image, rect, sourceRect, 1, mode);
   }
-  void drawImage(const QPixmap& image, const QRectF& rect, DrawImageMode mode)
+  void drawImage(const QPixmap& image, const QRect& rect, DrawImageMode mode)
   {
-    drawImage(image, rect, QRectF(), 1, mode);
+    drawImage(image, rect, {}, 1, mode);
   }
   void drawImage(const QPixmap& image,
                  const QTransform& transform,

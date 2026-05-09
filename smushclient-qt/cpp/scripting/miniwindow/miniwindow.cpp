@@ -201,14 +201,13 @@ MiniWindow::applyFilter(const ImageFilter& filter, const QRect& rectBase)
 void
 MiniWindow::blendImage(BlendMode mode,
                        const QPixmap& image,
-                       const QRectF& rectBase,
+                       const QRect& rectBase,
                        qreal opacity,
-                       const QRectF& sourceRectBase)
+                       const QRect& sourceRectBase)
 {
-
-  const QRectF rect = normalize(rectBase);
-  QRectF sourceRect = geometry::normalize(sourceRectBase, image.size());
-  const QSizeF size = rect.size().boundedTo(sourceRect.size());
+  const QRect rect = normalize(rectBase);
+  QRect sourceRect = geometry::normalize(sourceRectBase, image.size());
+  const QSize size = rect.size().boundedTo(sourceRect.size());
   sourceRect.setSize(size);
   image::blend(pixmap, image, rect.topLeft(), mode, opacity, sourceRect);
   updateMask();
@@ -330,8 +329,8 @@ MiniWindow::drawGradient(const QRectF& rect, const QGradient& gradient)
 
 void
 MiniWindow::drawImage(const QPixmap& image,
-                      const QRectF& rectBase,
-                      const QRectF& sourceRectBase,
+                      const QRect& rectBase,
+                      const QRect& sourceRectBase,
                       qreal opacity,
                       DrawImageMode mode)
 {
@@ -339,8 +338,8 @@ MiniWindow::drawImage(const QPixmap& image,
   if (opacity < 1) {
     painter.setOpacity(opacity);
   }
-  const QRectF rect = normalize(rectBase);
-  const QRectF sourceRect = geometry::normalize(sourceRectBase, image.size());
+  const QRect rect = normalize(rectBase);
+  const QRect sourceRect = geometry::normalize(sourceRectBase, image.size());
   switch (mode) {
     case DrawImageMode::Copy:
       painter.drawPixmap(rect.topLeft(), image, sourceRect);
@@ -352,7 +351,7 @@ MiniWindow::drawImage(const QPixmap& image,
       if (sourceRect.isNull()) {
         return;
       }
-      QImage cropped = image::crop(image, sourceRect.toRect());
+      QImage cropped = image::crop(image, sourceRect);
       image::colorToAlpha(cropped, image::topLeftPixel(image));
       Painter(this).drawImage(rect.topLeft(), cropped);
   }
@@ -672,11 +671,17 @@ MiniWindow::paintEvent(QPaintEvent* event)
     painter.drawTiledPixmap(rect(), pixmap);
     return;
   }
-  int x, y, w, h;
-  event->rect().getRect(&x, &y, &w, &h);
-  qreal ratio = devicePixelRatio();
-  QRectF targetRect(x * ratio, y * ratio, w * ratio, h * ratio);
-  painter.drawPixmap(QPointF(x, y), pixmap, targetRect);
+  const qreal ratio = devicePixelRatio();
+  const QRect rect = event->rect();
+  if (ratio == 1) {
+    painter.drawPixmap(rect.topLeft(), pixmap, rect);
+    return;
+  }
+  const QPoint topLeft = rect.topLeft();
+  const QPoint bottomRight = rect.bottomRight();
+  const QRectF targetRect(topLeft.toPointF() * ratio,
+                          bottomRight.toPointF() * ratio);
+  painter.drawPixmap(topLeft, pixmap, targetRect);
 }
 
 // Private methods
@@ -703,7 +708,7 @@ MiniWindow::normalize(const QRect& rect) const noexcept
 QRectF
 MiniWindow::normalize(const QRectF& rect) const noexcept
 {
-  return geometry::normalize(rect, pixmap.size());
+  return geometry::normalize(rect, pixmap.size().toSizeF());
 }
 
 void

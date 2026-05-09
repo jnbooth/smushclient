@@ -7,8 +7,21 @@
 namespace geometry {
 using Position = MiniWindow::Position;
 
-qreal
-arc(const QPointF& center, const QPointF& edge);
+template<typename T>
+concept Point = requires(T t) { t.rx(); };
+
+template<typename T>
+concept Size = requires(T t) { t.width(); };
+
+template<typename T>
+concept Rect = requires(T t) { t.topLeft(); };
+
+template<typename N>
+constexpr N
+scale(N value, N scalar) noexcept
+{
+  return value * scalar;
+}
 
 constexpr int
 scale(int value, qreal scalar) noexcept
@@ -16,37 +29,45 @@ scale(int value, qreal scalar) noexcept
   return clamped_cast<int>(value * scalar);
 }
 
-constexpr QPoint
-scale(const QPoint& point, const QSizeF& scalar) noexcept
+template<Point P, Size S>
+constexpr P
+scale(const P& point, const S& scalar) noexcept
 {
-  return QPoint(scale(point.x(), scalar.width()),
-                scale(point.y(), scalar.height()));
+  return { scale(point.x(), scalar.width()),
+           scale(point.y(), scalar.height()) };
 }
 
-constexpr QRect
-scale(const QRect& rect, const QSizeF& scalar) noexcept
+template<Rect R, Size S>
+constexpr R
+scale(const R& rect, const S& scalar) noexcept
 {
-  return QRect(scale(rect.topLeft(), scalar),
-               scale(rect.bottomRight(), scalar));
+  return { scale(rect.topLeft(), scalar), scale(rect.bottomRight(), scalar) };
 }
 
-constexpr QRect
-normalize(const QRect& rect, const QSize& size) noexcept
+template<typename N>
+constexpr N
+normalize(N n, N limit) noexcept
 {
-  int x, y, w, h;
-  rect.getRect(&x, &y, &w, &h);
-  return QRect(
-    x, y, w > 0 ? w : size.width() - w - x, h > 0 ? h : size.height() - h - y);
+  return n >= 0 ? n : limit - n;
 }
 
-constexpr QRectF
-normalize(const QRectF& rect, const QSize& size) noexcept
+template<Point P, Size S>
+constexpr P
+normalize(const P& point, const S& size) noexcept
 {
-  qreal x, y, w, h;
-  rect.getRect(&x, &y, &w, &h);
-  return QRectF(
-    x, y, w > 0 ? w : size.width() - w - x, h > 0 ? h : size.height() - h - y);
+  return { normalize(point.x(), size.width()),
+           normalize(point.y(), size.height()) };
 }
+
+template<Rect R, Size S>
+constexpr R
+normalize(const R& rect, const S& size) noexcept
+{
+  return { rect.topLeft(), normalize(rect.bottomRight(), size) };
+}
+
+qreal
+arc(const QPointF& center, const QPointF& edge);
 
 QRect
 calculate(Position pos, const QSize& parent, const QSize& child) noexcept;

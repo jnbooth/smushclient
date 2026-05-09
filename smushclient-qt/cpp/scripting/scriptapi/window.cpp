@@ -81,10 +81,10 @@ ScriptApi::WindowBezier(string_view windowName,
 ApiCode
 ScriptApi::WindowBlendImage(string_view windowName,
                             string_view imageID,
-                            const QRectF& rect,
+                            const QRect& rect,
                             BlendMode mode,
                             qreal opacity,
-                            const QRectF& sourceRect) const
+                            const QRect& sourceRect) const
 {
   if (opacity < 0 || opacity > 1) [[unlikely]] {
     return ApiCode::BadParameter;
@@ -170,9 +170,9 @@ ScriptApi::WindowDelete(string_view windowName) const
 ApiCode
 ScriptApi::WindowDrawImage(string_view windowName,
                            string_view imageID,
-                           const QRectF& rect,
+                           const QRect& rect,
                            DrawImageMode mode,
-                           const QRectF& sourceRect) const
+                           const QRect& sourceRect) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
   const QPixmap* pixmap = TRY_PIXMAP(window, imageID);
@@ -183,16 +183,14 @@ ScriptApi::WindowDrawImage(string_view windowName,
 ApiCode
 ScriptApi::WindowDrawImageAlpha(string_view windowName,
                                 string_view imageID,
-                                const QRectF& rect,
+                                const QRect& rect,
                                 qreal opacity,
-                                const QPointF& origin) const
+                                const QPoint& origin) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
   const QPixmap* pixmap = TRY_PIXMAP(window, imageID);
-  window->drawImage(*pixmap,
-                    rect,
-                    QRectF(origin, pixmap->rect().bottomRight().toPointF()),
-                    opacity);
+  window->drawImage(
+    *pixmap, rect, QRect(origin, pixmap->rect().bottomRight()), opacity);
   return ApiCode::OK;
 }
 
@@ -270,8 +268,8 @@ ScriptApi::WindowFrame(string_view windowName,
 ApiCode
 ScriptApi::WindowGetImageAlpha(string_view windowName,
                                string_view imageID,
-                               const QRectF& rect,
-                               const QPointF& point) const
+                               const QRect& rect,
+                               const QPoint& point) const
 {
   MiniWindow* window = TRY_WINDOW(windowName);
   const QPixmap* pixmap = TRY_PIXMAP(window, imageID);
@@ -279,7 +277,7 @@ ScriptApi::WindowGetImageAlpha(string_view windowName,
   alphaImage.convertTo(QImage::Format::Format_Alpha8);
   alphaImage.reinterpretAsFormat(QImage::Format::Format_Grayscale8);
   QPixmap alphaPixmap = QPixmap::fromImage(alphaImage);
-  window->drawImage(alphaPixmap, rect, QRectF(point, rect.size()));
+  window->drawImage(alphaPixmap, rect, QRect(point, rect.size()));
   return ApiCode::OK;
 }
 

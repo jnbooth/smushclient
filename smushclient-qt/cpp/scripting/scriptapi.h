@@ -465,10 +465,10 @@ public:
                        const QPen& pen) const;
   ApiCode WindowBlendImage(std::string_view windowName,
                            std::string_view imageID,
-                           const QRectF& rect,
+                           const QRect& rect,
                            BlendMode mode,
                            qreal opacity,
-                           const QRectF& sourceRect) const;
+                           const QRect& sourceRect) const;
   ApiCode WindowButton(std::string_view windowName,
                        const QRect& rect,
                        ButtonFrame frame,
@@ -489,14 +489,14 @@ public:
                               std::string_view hotspotID) const;
   ApiCode WindowDrawImage(std::string_view windowName,
                           std::string_view imageID,
-                          const QRectF& rect,
+                          const QRect& rect,
                           DrawImageMode mode,
-                          const QRectF& sourceRect) const;
+                          const QRect& sourceRect) const;
   ApiCode WindowDrawImageAlpha(std::string_view windowName,
                                std::string_view imageID,
-                               const QRectF& rect,
+                               const QRect& rect,
                                qreal opacity,
-                               const QPointF& origin) const;
+                               const QPoint& origin) const;
   ApiCode WindowEllipse(std::string_view windowName,
                         const QRectF& rect,
                         const QPen& pen,
@@ -523,8 +523,8 @@ public:
                       const QColor& color2) const;
   ApiCode WindowGetImageAlpha(std::string_view windowName,
                               std::string_view imageID,
-                              const QRectF& rect,
-                              const QPointF& point) const;
+                              const QRect& rect,
+                              const QPoint& point) const;
   std::optional<QColor> WindowGetPixel(std::string_view windowName,
                                        const QPoint& point) const;
   ApiCode WindowGradient(std::string_view windowName,
