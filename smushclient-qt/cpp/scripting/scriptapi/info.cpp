@@ -7,7 +7,6 @@
 #include "../../ui/worldtab.h"
 #include "../miniwindow/imagewindow.h"
 #include "../scriptapi.h"
-#include "smushclient_qt/src/ffi/util.cxx.h"
 #include <QtCore/QDir>
 #include <QtCore/QOperatingSystemVersion>
 #include <QtCore/QTranslator>
@@ -18,6 +17,7 @@
 #include <QtNetwork/QHostInfo>
 #include <QtNetwork/QNetworkProxy>
 #include <QtWidgets/QTabWidget>
+#include <smushclient_qt/src/ffi/util.cxx.h>
 
 using std::string_view;
 using std::chrono::duration_cast;

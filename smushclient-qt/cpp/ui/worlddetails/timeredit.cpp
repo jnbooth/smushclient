@@ -2,8 +2,8 @@
 #include "../../enumbuttongroup.h"
 #include "../../fieldconnector.h"
 #include "../../settings.h"
-#include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "ui_timeredit.h"
+#include <smushclient_qt/src/ffi/sender.cxxqt.h>
 
 #define CONNECT(field)                                                         \
   FieldConnector::connect(                                                     \

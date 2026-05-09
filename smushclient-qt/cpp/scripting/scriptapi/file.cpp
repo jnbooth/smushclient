@@ -1,8 +1,8 @@
 #include "../../ui/dialog/regexdialog.h"
 #include "../../ui/worldtab.h"
 #include "../scriptapi.h"
-#include "sqlite3.h"
 #include <QtCore/QDir>
+#include <sqlite3.h>
 
 using std::string_view;
 

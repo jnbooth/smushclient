@@ -1,7 +1,7 @@
 #include "connecting.h"
 #include "../../fieldconnector.h"
-#include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_connecting.h"
+#include <smushclient_qt/src/ffi/world.cxxqt.h>
 
 #ifndef QT_NO_SSL
 #include <QtNetwork/QSslSocket>

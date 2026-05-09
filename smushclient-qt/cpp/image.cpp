@@ -1,9 +1,9 @@
 #include "image.h"
 #include "scripting/scriptenums.h"
-#include "smushclient_qt/src/ffi/filter.cxx.h"
 #include <QtGui/QBitmap>
 #include <QtGui/QImage>
 #include <QtGui/QPainter>
+#include <smushclient_qt/src/ffi/filter.cxx.h>
 
 // Private utils
 

@@ -2,16 +2,16 @@
 #include "../casting.h"
 #include "argstream.h"
 #include "scriptenums.h"
-#include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include <QtCore/QUuid>
 #include <QtGui/QFontDatabase>
 #include <QtGui/QFontInfo>
 #include <cmath>
 #include <codecvt>
+#include <smushclient_qt/src/ffi/sender.cxxqt.h>
 #include <sstream>
 extern "C"
 {
-#include "lauxlib.h"
+#include <lauxlib.h>
 }
 
 using std::nullopt;

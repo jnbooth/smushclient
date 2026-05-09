@@ -1,5 +1,5 @@
 #pragma once
-#include "rust/cxx.h"
+#include <rust/cxx.h>
 
 class PluginCallbackKey
 {

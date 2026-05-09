@@ -1,11 +1,11 @@
 #include "globals.h"
 #include "../miniwindow/miniwindow.h"
 #include "../qlua.h"
-#include "smushclient_qt/src/ffi/send_request.cxx.h"
+#include <smushclient_qt/src/ffi/send_request.cxx.h>
 #include <utility>
 extern "C"
 {
-#include "lua.h"
+#include <lua.h>
 }
 
 struct TableEntry : std::pair<const char*, lua_Integer>

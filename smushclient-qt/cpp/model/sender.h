@@ -1,8 +1,8 @@
 #pragma once
-#include "rust/cxx.h"
-#include "smushclient_qt/src/ffi/regex.cxx.h"
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QItemSelection>
+#include <rust/cxx.h>
+#include <smushclient_qt/src/ffi/regex.cxx.h>
 
 class SenderMap;
 enum class SenderKind : uint8_t;

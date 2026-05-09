@@ -11,8 +11,8 @@
 #include <QtWidgets/QErrorMessage>
 extern "C"
 {
-#include "lauxlib.h"
-#include "lualib.h"
+#include <lauxlib.h>
+#include <lualib.h>
   LUALIB_API int luaopen_bc(lua_State* L);
   LUALIB_API int luaopen_bit(lua_State* L);
   LUALIB_API int luaopen_cjson(lua_State* L);

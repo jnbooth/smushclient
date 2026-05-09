@@ -1,8 +1,8 @@
 #include "regexdialog.h"
-#include "smushclient_qt/src/ffi/regex.cxx.h"
 #include "ui_regexdialog.h"
 #include <QtGui/QFontDatabase>
 #include <QtWidgets/QErrorMessage>
+#include <smushclient_qt/src/ffi/regex.cxx.h>
 
 // static methods
 bool

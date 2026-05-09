@@ -2,8 +2,7 @@
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-
-#include "rust/cxx.h"
+#include <rust/cxx.h>
 
 namespace rust::smushclientqtlib1::qstring {
 QString&

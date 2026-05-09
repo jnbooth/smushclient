@@ -1,6 +1,6 @@
 #pragma once
-#include "smushclient_qt/abstracttimekeeper.h"
 #include <QtCore/QTimer>
+#include <smushclient_qt/abstracttimekeeper.h>
 
 struct SendTimer;
 class SmushClient;

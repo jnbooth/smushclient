@@ -1,7 +1,7 @@
 #pragma once
 
-#include "rust/cxx.h"
 #include <QtGui/QTextCursor>
+#include <rust/cxx.h>
 
 struct SendRequest;
 struct SendScriptRequest;

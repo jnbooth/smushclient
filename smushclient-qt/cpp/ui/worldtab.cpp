@@ -14,8 +14,6 @@
 #include "dialog/regexdialog.h"
 #include "dialog/saveprompt.h"
 #include "dialog/styledialog.h"
-#include "smushclient_qt/src/ffi/sender.cxxqt.h"
-#include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_worldtab.h"
 #include "worlddetails/worlddetails.h"
 #include <QtCore/QSaveFile>
@@ -31,6 +29,8 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMessageBox>
+#include <smushclient_qt/src/ffi/sender.cxxqt.h>
+#include <smushclient_qt/src/ffi/world.cxxqt.h>
 
 using std::nullopt;
 using std::string_view;

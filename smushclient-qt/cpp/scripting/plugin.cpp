@@ -4,13 +4,13 @@
 #include "lua/init.h"
 #include "scriptapi.h"
 #include "scriptthread.h"
-#include "smushclient_qt/src/ffi/client.cxxqt.h"
 #include <QtCore/QFileInfo>
 #include <QtWidgets/QErrorMessage>
 #include <memory>
+#include <smushclient_qt/src/ffi/client.cxxqt.h>
 extern "C"
 {
-#include "lauxlib.h"
+#include <lauxlib.h>
 }
 
 using std::string_view;

@@ -1,5 +1,5 @@
 #include "choose.h"
-#include "../scripting/qlua.h"
+#include "../../scripting/qlua.h"
 #include "ui_choose.h"
 
 // Public methods

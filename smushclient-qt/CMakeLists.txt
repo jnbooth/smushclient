@@ -219,7 +219,6 @@ endif()
 
 target_include_directories(${APP_NAME}
   PRIVATE
-  cpp/bridge
   cpp/ui/components
 )
 

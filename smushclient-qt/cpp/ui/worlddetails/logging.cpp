@@ -4,10 +4,10 @@
 #include "../../fieldconnector.h"
 #include "../../localization.h"
 #include "../../settings.h"
-#include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "specialhelp.h"
 #include "ui_logging.h"
 #include <QtWidgets/QFileDialog>
+#include <smushclient_qt/src/ffi/world.cxxqt.h>
 
 using Qt::StringLiterals::operator""_L1;
 

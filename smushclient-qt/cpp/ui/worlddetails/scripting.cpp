@@ -3,11 +3,11 @@
 #include "../../fieldconnector.h"
 #include "../../localization.h"
 #include "../../settings.h"
-#include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_scripting.h"
 #include <QtGui/QDesktopServices>
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QFileDialog>
+#include <smushclient_qt/src/ffi/world.cxxqt.h>
 
 // Public methods
 

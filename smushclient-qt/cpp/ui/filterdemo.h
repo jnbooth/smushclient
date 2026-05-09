@@ -1,7 +1,7 @@
 #pragma once
 
-#include "smushclient_qt/src/ffi/filter.cxx.h"
 #include <QtWidgets/QDialog>
+#include <smushclient_qt/src/ffi/filter.cxx.h>
 
 namespace Ui {
 class FilterDemo;

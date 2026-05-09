@@ -9,19 +9,19 @@
 #include "callback/plugincallback.h"
 #include "miniwindow/imagewindow.h"
 #include "miniwindow/miniwindow.h"
-#include "smushclient_qt/src/ffi/util.cxx.h"
-#include "smushclient_qt/src/ffi/world.cxxqt.h"
-#include "sqlite3.h"
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtGui/QGradient>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QTextBlock>
 #include <QtWidgets/QErrorMessage>
+#include <smushclient_qt/src/ffi/util.cxx.h>
+#include <smushclient_qt/src/ffi/world.cxxqt.h>
+#include <sqlite3.h>
 
 extern "C"
 {
-#include "lua.h"
+#include <lua.h>
 }
 
 using std::string_view;

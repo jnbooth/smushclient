@@ -8,8 +8,6 @@
 #include "miniwindow/miniwindow.h"
 #include "plugin.h"
 #include "scriptenums.h"
-#include "smushclient_qt/src/ffi/send_request.cxx.h"
-#include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QPointer>
 #include <QtCore/QQueue>
@@ -19,6 +17,8 @@
 #include <QtNetwork/QAbstractSocket>
 #include <QtNetwork/QHostAddress>
 #include <QtWidgets/QLabel>
+#include <smushclient_qt/src/ffi/send_request.cxx.h>
+#include <smushclient_qt/src/ffi/sender.cxxqt.h>
 
 #define SCRIPTING_VERSION "5.07"
 

@@ -2,10 +2,10 @@
 #include "../../fieldconnector.h"
 #include "../../settings.h"
 #include "../dialog/regexdialog.h"
-#include "smushclient_qt/src/ffi/regex.cxx.h"
-#include "smushclient_qt/src/ffi/sender.cxxqt.h"
 #include "ui_aliasedit.h"
 #include <QtWidgets/QErrorMessage>
+#include <smushclient_qt/src/ffi/regex.cxx.h>
+#include <smushclient_qt/src/ffi/sender.cxxqt.h>
 
 #define CONNECT(field)                                                         \
   FieldConnector::connect(                                                     \

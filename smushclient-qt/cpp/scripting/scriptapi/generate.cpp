@@ -1,7 +1,7 @@
 #include "../scriptapi.h"
-#include "smushclient_qt/src/ffi/regex.cxx.h"
-#include "smushclient_qt/src/ffi/util.cxx.h"
 #include <QtCore/QCryptographicHash>
+#include <smushclient_qt/src/ffi/regex.cxx.h>
+#include <smushclient_qt/src/ffi/util.cxx.h>
 
 using std::string_view;
 

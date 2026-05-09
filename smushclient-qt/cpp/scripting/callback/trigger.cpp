@@ -4,7 +4,7 @@
 #include "plugincallback.h"
 extern "C"
 {
-#include "lauxlib.h"
+#include <lauxlib.h>
 }
 
 CallbackTrigger::CallbackTrigger(const Plugin& plugin,

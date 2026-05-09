@@ -7,7 +7,6 @@
 #include "../qlua.h"
 #include "../scriptapi.h"
 #include "api.h"
-#include "smushclient_qt/src/ffi/util.cxx.h"
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QTranslator>
 #include <QtGui/QFontDatabase>
@@ -18,9 +17,10 @@
 #include <QtWidgets/QInputDialog>
 #include <QtWidgets/QMessageBox>
 #include <limits>
+#include <smushclient_qt/src/ffi/util.cxx.h>
 extern "C"
 {
-#include "lauxlib.h"
+#include <lauxlib.h>
   LUALIB_API int luaopen_base64(lua_State* L);
 }
 

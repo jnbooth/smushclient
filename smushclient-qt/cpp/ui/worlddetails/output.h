@@ -1,6 +1,6 @@
 #pragma once
-#include "smushclient_qt/src/ffi/audio.cxxqt.h"
 #include <QtWidgets/QWidget>
+#include <smushclient_qt/src/ffi/audio.cxxqt.h>
 
 class ScriptApi;
 

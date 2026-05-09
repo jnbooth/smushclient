@@ -4,7 +4,7 @@
 #include <QtCore/QStandardPaths>
 extern "C"
 {
-#include "lua.h"
+#include <lua.h>
 }
 
 using std::string_view;

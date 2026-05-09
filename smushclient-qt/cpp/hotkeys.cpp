@@ -1,5 +1,5 @@
 #include "hotkeys.h"
-#include "smushclient_qt/src/ffi/world.cxxqt.h"
+#include <smushclient_qt/src/ffi/world.cxxqt.h>
 
 // Public methods
 

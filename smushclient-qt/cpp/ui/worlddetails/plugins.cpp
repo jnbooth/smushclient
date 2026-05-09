@@ -4,11 +4,11 @@
 #include "../../model/plugin.h"
 #include "../../settings.h"
 #include "pluginpopup.h"
-#include "smushclient_qt/src/ffi/plugin_details.cxxqt.h"
 #include "ui_plugins.h"
 #include <QtCore/QSettings>
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QFileDialog>
+#include <smushclient_qt/src/ffi/plugin_details.cxxqt.h>
 
 using Qt::StringLiterals::operator""_L1;
 

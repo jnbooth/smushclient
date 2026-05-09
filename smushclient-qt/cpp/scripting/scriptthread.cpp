@@ -2,7 +2,7 @@
 #include "lua/errors.h"
 extern "C"
 {
-#include "lua.h"
+#include <lua.h>
 }
 
 // Public methods

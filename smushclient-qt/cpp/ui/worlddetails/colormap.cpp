@@ -1,8 +1,8 @@
 #include "../../model/colormap.h"
 #include "colormap.h"
-#include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_colormap.h"
 #include <QtWidgets/QColorDialog>
+#include <smushclient_qt/src/ffi/world.cxxqt.h>
 
 // Public methods
 

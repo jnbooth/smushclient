@@ -2,9 +2,9 @@
 #include "./ui/notepad/notepads.h"
 #include "environment.h"
 #include "settings.h"
-#include "smushclient_qt/src/ffi/util.cxx.h"
 #include <QtGui/QFontDatabase>
 #include <QtWidgets/QApplication>
+#include <smushclient_qt/src/ffi/util.cxx.h>
 
 using Qt::StringLiterals::operator""_L1;
 

@@ -1,6 +1,6 @@
 #include "mudcursor.h"
-#include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "spans.h"
+#include <smushclient_qt/src/ffi/world.cxxqt.h>
 
 #include <QtGui/QTextBlock>
 

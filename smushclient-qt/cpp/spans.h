@@ -1,8 +1,8 @@
 #pragma once
 #include "enumbounds.h"
-#include "smushclient_qt/src/ffi/spans.cxx.h"
 #include <QtCore/QElapsedTimer>
 #include <QtGui/QTextCursor>
+#include <smushclient_qt/src/ffi/spans.cxx.h>
 
 struct Link;
 enum class SendTo : uint8_t;

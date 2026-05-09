@@ -1,12 +1,12 @@
 #include "abstractprefstree.h"
 #include "../../model/sender.h"
 #include "../dialog/regexdialog.h"
-#include "rust/cxx.h"
 #include <QtCore/QSettings>
 #include <QtGui/QClipboard>
 #include <QtGui/QGuiApplication>
 #include <QtWidgets/QErrorMessage>
 #include <QtWidgets/QHeaderView>
+#include <rust/cxx.h>
 
 using Qt::StringLiterals::operator""_L1;
 

@@ -1,6 +1,6 @@
 #include "plugin.h"
 #include "../bridge/client.h"
-#include "smushclient_qt/src/ffi/plugin_details.cxxqt.h"
+#include <smushclient_qt/src/ffi/plugin_details.cxxqt.h>
 
 // Public methods
 

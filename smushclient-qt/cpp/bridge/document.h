@@ -1,9 +1,9 @@
 #pragma once
 
-#include "rust/cxx.h"
-#include "smushclient_qt/abstractdocument.h"
 #include <QtCore/QPointer>
 #include <QtGui/QTextCursor>
+#include <rust/cxx.h>
+#include <smushclient_qt/abstractdocument.h>
 
 class MudBrowser;
 class MudCursor;

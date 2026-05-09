@@ -4,10 +4,10 @@
 #include "../../model/colormap.h"
 #include "../../settings.h"
 #include "colormap.h"
-#include "smushclient_qt/src/ffi/util.cxx.h"
-#include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_output.h"
 #include <QtWidgets/QFileDialog>
+#include <smushclient_qt/src/ffi/util.cxx.h>
+#include <smushclient_qt/src/ffi/world.cxxqt.h>
 
 PrefsOutput::PrefsOutput(World& world, QWidget* parent)
   : QWidget(parent)

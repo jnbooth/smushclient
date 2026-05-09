@@ -1,5 +1,5 @@
 #pragma once
-#include "smushclient_qt/src/ffi/client.cxxqt.h"
+#include <smushclient_qt/src/ffi/client.cxxqt.h>
 
 struct TimekeeperItem;
 

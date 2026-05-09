@@ -1,7 +1,7 @@
 #include "commands.h"
 #include "../../fieldconnector.h"
-#include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_commands.h"
+#include <smushclient_qt/src/ffi/world.cxxqt.h>
 
 PrefsCommands::PrefsCommands(World& world, QWidget* parent)
   : QWidget(parent)

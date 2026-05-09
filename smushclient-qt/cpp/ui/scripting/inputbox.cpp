@@ -4,7 +4,7 @@
 #include <QtCore/QCoreApplication>
 extern "C"
 {
-#include "lauxlib.h"
+#include <lauxlib.h>
 }
 
 using qlua::expectMaxArgs;

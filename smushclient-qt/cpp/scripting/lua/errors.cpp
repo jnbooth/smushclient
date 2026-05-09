@@ -2,7 +2,7 @@
 #include "../scriptapi.h"
 extern "C"
 {
-#include "lualib.h"
+#include <lualib.h>
 }
 
 namespace {

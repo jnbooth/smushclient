@@ -1,6 +1,6 @@
 #pragma once
-#include "smushclient_qt/src/ffi/audio.cxxqt.h"
 #include <QtWidgets/QDialog>
+#include <smushclient_qt/src/ffi/audio.cxxqt.h>
 
 namespace Ui {
 class TriggerEdit;

@@ -4,13 +4,13 @@
 #include "../qlua.h"
 #include "../scriptapi.h"
 #include "errors.h"
-#include "smushclient_qt/src/ffi/client.cxxqt.h"
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QPointer>
+#include <smushclient_qt/src/ffi/client.cxxqt.h>
 extern "C"
 {
-#include "lauxlib.h"
-#include "lua.h"
+#include <lauxlib.h>
+#include <lua.h>
 }
 
 using std::nullopt;

@@ -1,7 +1,7 @@
 #pragma once
-#include "rust/cxx.h"
 #include <QtGui/QImage>
 #include <QtGui/QPixmap>
+#include <rust/cxx.h>
 
 enum class BlendMode : int64_t;
 

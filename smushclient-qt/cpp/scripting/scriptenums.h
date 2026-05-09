@@ -1,10 +1,10 @@
 #pragma once
 #include "../enumbounds.h"
-#include "smushclient_qt/src/ffi/api_code.cxx.h"
 #include <QtCore/QFlags>
 #include <QtGui/QFont>
 #include <QtGui/QPen>
 #include <QtGui/QTextCharFormat>
+#include <smushclient_qt/src/ffi/api_code.cxx.h>
 
 enum class ActionSource : uint8_t
 {

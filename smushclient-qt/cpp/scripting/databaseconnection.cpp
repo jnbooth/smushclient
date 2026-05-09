@@ -1,5 +1,5 @@
 #include "databaseconnection.h"
-#include "sqlite3.h"
+#include <sqlite3.h>
 
 using std::string_view;
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "../../enumbounds.h"
-#include "smushclient_qt/src/ffi/filter.cxx.h"
 #include <QtGui/QPixmap>
+#include <smushclient_qt/src/ffi/filter.cxx.h>
 
 class ImageFilter
 {

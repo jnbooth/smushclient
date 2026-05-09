@@ -1,17 +1,17 @@
 #pragma once
 #include "../casting.h"
 #include "../enumbounds.h"
-#include "rust/cxx.h"
-#include "smushclient_qt/views.h"
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QDateTime>
 #include <QtCore/QUuid>
 #include <QtGui/QPen>
 #include <QtNetwork/QHostAddress>
+#include <rust/cxx.h>
+#include <smushclient_qt/views.h>
 #include <type_traits>
 extern "C"
 {
-#include "lua.h"
+#include <lua.h>
 }
 
 inline bool

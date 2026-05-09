@@ -1,7 +1,7 @@
 #include "../../ui/ui_worldtab.h"
 #include "../../ui/worldtab.h"
 #include "../scriptapi.h"
-#include "smushclient_qt/src/ffi/util.cxx.h"
+#include <smushclient_qt/src/ffi/util.cxx.h>
 
 using std::string_view;
 

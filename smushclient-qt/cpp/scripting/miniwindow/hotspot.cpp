@@ -1,13 +1,13 @@
 #include "hotspot.h"
+#include "../../ui/worldtab.h"
 #include "../callback/plugincallback.h"
 #include "../plugin.h"
 #include "../qlua.h"
-#include "../ui/worldtab.h"
 #include "miniwindow.h"
 #include <QtGui/QGuiApplication>
 extern "C"
 {
-#include "lua.h"
+#include <lua.h>
 }
 
 using std::string_view;

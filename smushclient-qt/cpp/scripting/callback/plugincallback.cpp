@@ -2,7 +2,7 @@
 #include "../qlua.h"
 extern "C"
 {
-#include "lua.h"
+#include <lua.h>
 }
 
 using qlua::push;

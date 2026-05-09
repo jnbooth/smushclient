@@ -1,7 +1,7 @@
 #include "login.h"
 #include "../../fieldconnector.h"
-#include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_login.h"
+#include <smushclient_qt/src/ffi/world.cxxqt.h>
 
 PrefsLogin::PrefsLogin(World& world, QWidget* parent)
   : QWidget(parent)

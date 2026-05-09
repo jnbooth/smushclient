@@ -2,7 +2,7 @@
 #include "../../bridge/timekeeper.h"
 #include "../../timermap.h"
 #include "../scriptapi.h"
-#include "smushclient_qt/src/ffi/sender.cxxqt.h"
+#include <smushclient_qt/src/ffi/sender.cxxqt.h>
 
 using std::string_view;
 using std::chrono::milliseconds;

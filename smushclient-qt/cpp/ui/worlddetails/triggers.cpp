@@ -1,8 +1,8 @@
 #include "triggers.h"
 #include "../../fieldconnector.h"
 #include "../../model/trigger.h"
-#include "smushclient_qt/src/ffi/world.cxxqt.h"
 #include "ui_triggers.h"
+#include <smushclient_qt/src/ffi/world.cxxqt.h>
 
 PrefsTriggers::PrefsTriggers(const World& world,
                              TriggerModel& model,

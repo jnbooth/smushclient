@@ -7,15 +7,15 @@
 #include "../ui/components/mudscrollbar.h"
 #include "../ui/mudstatusbar/mudstatusbar.h"
 #include "../ui/worldtab.h"
-#include "smushclient_qt/src/ffi/document.cxx.h"
 #include <QtGui/QAbstractTextDocumentLayout>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextDocumentFragment>
 #include <QtWidgets/QStatusBar>
+#include <smushclient_qt/src/ffi/document.cxx.h>
 #include <string>
 extern "C"
 {
-#include "lua.h"
+#include <lua.h>
 }
 
 using std::string_view;

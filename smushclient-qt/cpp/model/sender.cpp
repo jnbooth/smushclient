@@ -1,7 +1,7 @@
 #include "sender.h"
 #include "../bridge/client.h"
-#include "smushclient_qt/src/ffi/sender_map.cxxqt.h"
 #include <QtCore/QAbstractProxyModel>
+#include <smushclient_qt/src/ffi/sender_map.cxxqt.h>
 
 struct SelectionRegion
 {
