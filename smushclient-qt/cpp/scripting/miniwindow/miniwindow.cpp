@@ -531,18 +531,18 @@ MiniWindow::invert(const QRect& rectBase, QImage::InvertMode mode)
 const QFont&
 MiniWindow::loadFont(string_view fontID, const QFont& font)
 {
-  return fonts.emplace(fontID, font).first->second;
+  return fonts.insert_or_assign(fontID, font).first->second;
 }
 
 const QPixmap&
 MiniWindow::loadImage(string_view imageID, QPixmap&& image)
 {
-  return images.emplace(imageID, std::move(image)).first->second;
+  return images.insert_or_assign(imageID, std::move(image)).first->second;
 }
 const QPixmap&
 MiniWindow::loadImage(string_view imageID, const QPixmap& image)
 {
-  return images.emplace(imageID, image).first->second;
+  return images.insert_or_assign(imageID, image).first->second;
 }
 
 bool

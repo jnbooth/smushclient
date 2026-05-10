@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../stringmap.h"
 #include <QtCore/QPointer>
 #include <QtGui/QTextCursor>
 #include <rust/cxx.h>
@@ -79,13 +80,10 @@ signals:
   void newActivity();
 
 private:
-  std::vector<QTextCursor>& linksWithExpiration(rust::Str expires);
-
-private:
   QPointer<ScriptApi> api;
   QPointer<MudCursor> cursor;
   QTextCharFormat expireLinkFormat;
-  std::unordered_map<std::string, std::vector<QTextCursor>> links;
+  string_map<std::vector<QTextCursor>> links;
   int outputStart = 0;
   QPointer<MudScrollBar> scrollBar;
   QHash<QString, QString> serverStatuses;

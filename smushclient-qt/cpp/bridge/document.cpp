@@ -12,7 +12,6 @@
 #include <QtGui/QTextDocumentFragment>
 #include <QtWidgets/QStatusBar>
 #include <smushclient_qt/src/ffi/document.cxx.h>
-#include <string>
 extern "C"
 {
 #include <lua.h>
@@ -83,7 +82,7 @@ Document::appendExpiringLink(const QString& text,
   linkCursor.movePosition(QTextCursor::MoveOperation::End,
                           QTextCursor::MoveMode::KeepAnchor);
   linkCursor.setKeepPositionOnInsert(true);
-  linksWithExpiration(expires).push_back(linkCursor);
+  links[std::string_view(expires.data(), expires.size())].push_back(linkCursor);
 }
 
 void
@@ -161,20 +160,24 @@ void
 Document::expireLinks(rust::Str expires)
 {
   serverExpiresLinks = true;
-  if (!expires.empty()) {
-    std::vector<QTextCursor>& expiredLinks = linksWithExpiration(expires);
-    for (QTextCursor& linkCursor : expiredLinks) {
-      linkCursor.mergeCharFormat(expireLinkFormat);
+  if (expires.empty()) {
+    for (auto& [_, expiredLinks] : links) {
+      for (QTextCursor& linkCursor : expiredLinks) {
+        linkCursor.mergeCharFormat(expireLinkFormat);
+      }
+      expiredLinks.clear();
     }
-    expiredLinks.clear();
     return;
   }
-  for (auto& [_, expiredLinks] : links) {
-    for (QTextCursor& linkCursor : expiredLinks) {
-      linkCursor.mergeCharFormat(expireLinkFormat);
-    }
-    expiredLinks.clear();
+  auto search = links.find(string_view(expires.data(), expires.size()));
+  if (search == links.end()) {
+    return;
   }
+  auto& expiredLinks = search->second;
+  for (QTextCursor& linkCursor : expiredLinks) {
+    linkCursor.mergeCharFormat(expireLinkFormat);
+  }
+  expiredLinks.clear();
 }
 
 void
@@ -451,12 +454,4 @@ void
 Document::updateMxpStat(const QString& entity, const QString& value) const
 {
   api->statusBar()->updateStat(entity, value);
-}
-
-// Private methods
-
-std::vector<QTextCursor>&
-Document::linksWithExpiration(rust::Str expires)
-{
-  return links[std::string(expires.data(), expires.length())];
 }
