@@ -786,8 +786,8 @@ pushChar(lua_State* L, T ch)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   std::wstring_convert<std::codecvt_utf8<T>, T> convert;
-#pragma GCC diagnostic pop
   qlua::push(L, convert.to_bytes(ch));
+#pragma GCC diagnostic pop
 }
 } // namespace
 

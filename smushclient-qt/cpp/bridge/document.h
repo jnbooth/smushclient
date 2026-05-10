@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../stringmap.h"
+#include "../string_map.h"
 #include <QtCore/QPointer>
 #include <QtGui/QTextCursor>
 #include <rust/cxx.h>

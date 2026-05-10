@@ -1,6 +1,6 @@
 #include "scriptapi.h"
 #include "../bridge/timekeeper.h"
-#include "../timermap.h"
+#include "../timer_map.h"
 #include "../ui/components/mudscrollbar.h" // IWYU pragma: keep (needed for QPointer)
 #include "../ui/mudstatusbar/mudstatusbar.h"
 #include "../ui/notepad/notepads.h"

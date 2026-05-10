@@ -1,6 +1,6 @@
 #pragma once
 #include "../../enumbounds.h"
-#include "../../stringmap.h"
+#include "../../string_map.h"
 #include "../scriptenums.h"
 #include "hotspot.h"
 #include <QtCore/QDateTime>

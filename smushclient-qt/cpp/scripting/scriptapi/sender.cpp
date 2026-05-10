@@ -1,6 +1,6 @@
 #include "../../bridge/client.h"
 #include "../../bridge/timekeeper.h"
-#include "../../timermap.h"
+#include "../../timer_map.h"
 #include "../scriptapi.h"
 #include <smushclient_qt/src/ffi/sender.cxxqt.h>
 

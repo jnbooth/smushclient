@@ -77,8 +77,8 @@ qt_add_executable(${APP_NAME}
     cpp/mudcursor.h cpp/mudcursor.cpp
     cpp/settings.h cpp/settings.cpp
     cpp/spans.h cpp/spans.cpp
-    cpp/stringmap.h
-    cpp/timermap.h
+    cpp/string_map.h
+    cpp/timer_map.h
 
     cpp/bridge/client.h cpp/bridge/client.cpp
     cpp/bridge/document.h cpp/bridge/document.cpp

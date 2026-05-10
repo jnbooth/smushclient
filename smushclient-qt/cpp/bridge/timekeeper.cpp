@@ -1,6 +1,6 @@
 #include "timekeeper.h"
 #include "../scripting/scriptapi.h"
-#include "../timermap.h"
+#include "../timer_map.h"
 #include "client.h"
 
 using std::chrono::milliseconds;

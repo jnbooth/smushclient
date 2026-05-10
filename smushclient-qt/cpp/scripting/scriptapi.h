@@ -1,6 +1,6 @@
 #pragma once
 #include "../mudcursor.h"
-#include "../stringmap.h"
+#include "../string_map.h"
 #include "../ui/notepad/notepad.h"
 #include "callback/filter.h"
 #include "callback/key.h"
