@@ -122,12 +122,6 @@ MainWindow::openWorld(const QString& filePath)
   ui->world_tabs->setTabText(tabIndex, tab->title());
 }
 
-MainWindow::WorldTabRange
-MainWindow::worldtabs()
-{
-  return WorldTabRange(ui->world_tabs);
-}
-
 // Public slots
 
 void
@@ -181,7 +175,7 @@ MainWindow::closeEvent(QCloseEvent* event)
   QStringList lastFiles;
   lastFiles.reserve(tabCount);
 
-  for (WorldTab& tab : worldtabs()) {
+  for (WorldTab& tab : *this) {
     if (!tab.promptSave()) {
       event->ignore();
       return;
@@ -244,6 +238,18 @@ MainWindow::addRecentFile(const QString& filePath)
   setupRecentFiles(result.recentFiles);
 }
 
+MainWindow::iterator
+MainWindow::begin()
+{
+  return { ui->world_tabs, 0 };
+}
+
+MainWindow::iterator
+MainWindow::end()
+{
+  return { ui->world_tabs, ui->world_tabs->count() };
+}
+
 WorldTab*
 MainWindow::createWorldTab(QWidget* parent) const
 {
@@ -301,7 +307,7 @@ MainWindow::openRecentFile(qsizetype index)
 
   const QString& filePath = recentFiles.at(index);
 
-  for (WorldTab& tab : worldtabs()) {
+  for (WorldTab& tab : *this) {
     if (tab.worldFilePath() == filePath) {
       ui->world_tabs->setCurrentWidget(&tab);
       return;
@@ -643,7 +649,7 @@ MainWindow::on_action_info_bar_triggered(bool checked)
 void
 MainWindow::on_action_log_session_triggered(bool checked)
 {
-  for (WorldTab& tab : worldtabs()) {
+  for (WorldTab& tab : *this) {
     if (checked) {
       tab.openLog();
     } else {
@@ -743,7 +749,7 @@ MainWindow::on_action_reload_script_file_triggered()
 void
 MainWindow::on_action_reset_all_timers_triggered()
 {
-  for (WorldTab& tab : worldtabs()) {
+  for (WorldTab& tab : *this) {
     tab.resetAllTimers();
   }
 }
@@ -824,7 +830,7 @@ MainWindow::on_action_status_bar_triggered(bool checked)
 void
 MainWindow::on_action_stop_sound_playing_triggered()
 {
-  for (WorldTab& tab : worldtabs()) {
+  for (WorldTab& tab : *this) {
     tab.stopSound();
   }
 }
@@ -835,7 +841,7 @@ MainWindow::on_action_wrap_output_triggered(bool checked)
   const QTextEdit::LineWrapMode mode = checked
                                          ? QTextEdit::LineWrapMode::WidgetWidth
                                          : QTextEdit::LineWrapMode::NoWrap;
-  for (WorldTab& tab : worldtabs()) {
+  for (WorldTab& tab : *this) {
     tab.ui->output->setLineWrapMode(mode);
   }
 }

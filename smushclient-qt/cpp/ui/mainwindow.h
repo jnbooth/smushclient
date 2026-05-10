@@ -14,6 +14,9 @@ class MainWindow : public QMainWindow
 {
   Q_OBJECT
 
+private:
+  class iterator;
+
 public:
   using AvailableCopy = WorldTab::AvailableCopy;
 
@@ -32,8 +35,10 @@ protected:
 
 private:
   void addRecentFile(const QString& filePath);
+  iterator begin();
   WorldTab* createWorldTab(QWidget* parent) const;
   void connectTab(WorldTab* tab) const;
+  iterator end();
   void importWorld(const QString& filePath);
   void openRecentFile(qsizetype index);
   bool restore();
@@ -117,17 +122,17 @@ private:
   Settings settings;
   QMetaObject::Connection socketConnection;
 
-public:
+private:
   class WorldTabRange;
 
   class iterator
   {
-    friend class WorldTabRange;
+    friend class MainWindow;
 
   public:
-    constexpr bool operator==(const iterator&) const noexcept = default;
-    constexpr bool operator!=(const iterator&) const noexcept = default;
-    constexpr iterator& operator++() noexcept
+    bool operator==(const iterator&) const noexcept = default;
+    bool operator!=(const iterator&) const noexcept = default;
+    iterator& operator++() noexcept
     {
       ++index;
       return *this;
@@ -139,7 +144,7 @@ public:
     WorldTab& operator*() const { return *operator->(); }
 
   private:
-    constexpr iterator(QTabWidget* tabs, int index) noexcept
+    iterator(QTabWidget* tabs, int index) noexcept
       : tabs(tabs)
       , index(index)
     {
@@ -148,23 +153,4 @@ public:
     QTabWidget* tabs;
     int index;
   };
-
-  class WorldTabRange
-  {
-    friend class MainWindow;
-
-  private:
-    constexpr explicit WorldTabRange(QTabWidget* tabs) noexcept
-      : tabs(tabs)
-    {
-    }
-
-    constexpr iterator begin() const noexcept { return { tabs, 0 }; }
-    constexpr iterator end() const noexcept { return { tabs, tabs->count() }; }
-
-  private:
-    QTabWidget* tabs;
-  };
-
-  WorldTabRange worldtabs();
 };
