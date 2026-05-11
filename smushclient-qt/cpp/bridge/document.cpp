@@ -345,9 +345,7 @@ public:
       qlua::push(L, wildcard);
       lua_rawseti(L, -2, ++i);
     }
-    for (const NamedWildcard& wildcard : namedWildcards) {
-      qlua::pushEntry(L, wildcard.name, wildcard.value);
-    }
+    qlua::pushEntries(L, namedWildcards);
     return 3;
   }
 

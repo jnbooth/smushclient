@@ -1,6 +1,7 @@
 #pragma once
 #include "../casting.h"
 #include "../enumbounds.h"
+#include "qlua_internal.h"
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QDateTime>
 #include <QtCore/QUuid>
@@ -188,7 +189,20 @@ isScriptName(lua_State* L, std::string_view name);
 
 template<typename T>
 void
-push(lua_State* L, T value) = delete;
+push(lua_State* L, const T& value)
+  requires(std::negation_v<
+            std::disjunction<typeHelpers::is_compatible_string<T>,
+                             std::is_enum<T>,
+                             std::is_arithmetic<T>>>)
+= delete;
+
+template<typename T>
+void
+push(lua_State* L, const T& value)
+  requires(typeHelpers::is_compatible_string_v<T>)
+{
+  lua_pushlstring(L, value.data(), value.size());
+}
 
 template<typename T>
 void
@@ -200,35 +214,67 @@ push(lua_State* L, T value)
 
 template<typename T>
 void
-push(lua_State* L, QFlags<T> flags)
+push(lua_State* L, T value)
+  requires(std::is_floating_point_v<T>)
 {
-  lua_pushinteger(L, flags.toInt());
+  lua_pushnumber(L, value);
 }
 
+template<typename T>
 void
-push(lua_State* L, const QVariant& value);
+push(lua_State* L, T value)
+  requires(std::is_integral_v<T> && !casting_overflows_v<T, lua_Integer>)
+{
+  lua_pushinteger(L, value);
+}
 
+template<typename T>
+void
+push(lua_State* L, T value)
+  requires(std::is_integral_v<T> && casting_overflows_v<T, lua_Integer>)
+{
+  lua_pushinteger(L, clamped_cast<lua_Integer>(value));
+}
+
+template<>
 inline void
-push(lua_State* L, const char* value)
+push(lua_State* L, char value)
 {
-  lua_pushstring(L, value);
+  lua_pushlstring(L, &value, 1);
 }
 
-inline void
-push(lua_State* L, char ch)
-{
-  lua_pushlstring(L, &ch, 1);
-}
-
+template<>
 void
-push(lua_State* L, char16_t ch);
+push(lua_State* L, char16_t value);
 
+template<>
 void
-push(lua_State* L, char32_t ch);
+push(lua_State* L, char32_t value);
 
-void
-push(lua_State* L, const QRect& rect);
+#define IMPL_PUSH(T, f, expr)                                                  \
+  inline void push(lua_State* L, T value)                                      \
+  {                                                                            \
+    (f)(L, (expr));                                                            \
+  }
 
+template<>
+IMPL_PUSH(bool, lua_pushboolean, static_cast<int>(value));
+template<>
+IMPL_PUSH(signed char, push, static_cast<char>(value));
+template<>
+IMPL_PUSH(unsigned char, push, static_cast<char>(value));
+IMPL_PUSH(const char*, lua_pushstring, value);
+IMPL_PUSH(char*, lua_pushstring, value);
+IMPL_PUSH(QChar, push, value.unicode());
+IMPL_PUSH(const QColor&, lua_pushinteger, colorToRgbCode(value));
+IMPL_PUSH(const QString&, push, value.toUtf8());
+IMPL_PUSH(const QDateTime&, lua_pushinteger, value.toSecsSinceEpoch());
+IMPL_PUSH(const QHostAddress&, push, value.toString());
+IMPL_PUSH(const QUuid&, push, value.toByteArray(QUuid::WithoutBraces));
+template<typename T>
+IMPL_PUSH(QFlags<T>, lua_pushinteger, value.toInt());
+
+#undef IMPL_PUSH
 #define IMPL_PUSH(T)                                                           \
   inline void push(lua_State* L, T value)                                      \
   {                                                                            \
@@ -236,47 +282,30 @@ push(lua_State* L, const QRect& rect);
   }
 
 IMPL_PUSH(QByteArrayView);
-IMPL_PUSH(const QByteArray&);
-IMPL_PUSH(const rust::String&);
 IMPL_PUSH(rust::Str);
-IMPL_PUSH(const std::string&);
 IMPL_PUSH(std::string_view);
 IMPL_PUSH(rust::variable_view);
 
 #undef IMPL_PUSH
-#define IMPL_PUSH(T, f, expr)                                                  \
-  inline void push(lua_State* L, T value)                                      \
-  {                                                                            \
-    (f)(L, (expr));                                                            \
-  }
 
-IMPL_PUSH(lua_Integer, lua_pushinteger, value);
-IMPL_PUSH(lua_Number, lua_pushnumber, value);
-IMPL_PUSH(bool, lua_pushboolean, value);
-IMPL_PUSH(int, lua_pushinteger, value);
-IMPL_PUSH(uint16_t, lua_pushinteger, value);
-IMPL_PUSH(uint32_t, lua_pushinteger, value);
-IMPL_PUSH(size_t, lua_pushinteger, clamped_cast<lua_Integer>(value));
-IMPL_PUSH(const QColor&, lua_pushinteger, colorToRgbCode(value));
-IMPL_PUSH(signed char, push, static_cast<char>(value));
-IMPL_PUSH(unsigned char, push, static_cast<char>(value));
-IMPL_PUSH(QChar, push, value.unicode());
-IMPL_PUSH(const QString&, push, value.toUtf8());
-IMPL_PUSH(const QDateTime&, lua_pushinteger, value.toSecsSinceEpoch());
-IMPL_PUSH(const QHostAddress&, push, value.toString());
-IMPL_PUSH(const QUuid&, push, value.toByteArray(QUuid::WithoutBraces));
+void
+push(lua_State* L, const QRect& value);
 
-#undef IMPL_PUSH
+void
+push(lua_State* L, const QVariant& value);
 
 template<typename T>
 concept Pushable = requires(lua_State* L, T t) { qlua::push(L, t); };
 
 template<typename T>
+concept PushableEntry = Pushable<typeHelpers::entry_key_t<T>> &&
+                        Pushable<typeHelpers::entry_value_t<T>>;
+
+template<Pushable T, size_t N>
 void
-pushList(lua_State* L, const T& list)
-  requires(Pushable<typename T::value_type>)
+pushList(lua_State* L, const T (&list)[N])
 {
-  lua_createtable(L, static_cast<int>(list.size()), 0);
+  lua_createtable(L, N, 0);
   lua_Integer i = 0;
   for (const auto& item : list) {
     push(L, item);
@@ -284,11 +313,12 @@ pushList(lua_State* L, const T& list)
   }
 }
 
-template<Pushable T, size_t N>
+template<typename T>
 void
-pushList(lua_State* L, const T (&list)[N])
+pushList(lua_State* L, const T& list)
+  requires(Pushable<typeHelpers::element_t<T>>)
 {
-  lua_createtable(L, N, 0);
+  lua_createtable(L, static_cast<int>(list.size()), 0);
   lua_Integer i = 0;
   for (const auto& item : list) {
     push(L, item);
@@ -313,28 +343,38 @@ pushEntry(lua_State* L, const char* key, V value, int idx = -1)
   lua_setfield(L, idx < 0 ? idx - 1 : idx, key);
 }
 
-template<typename T>
+template<PushableEntry T, size_t N>
 void
-pushEntries(lua_State* L, const T& entries)
+pushEntries(lua_State* L, const T (&entries)[N])
 {
   for (const auto& [key, value] : entries) {
     pushEntry(L, key, value);
   }
 }
 
-template<typename T, size_t N>
+template<typename T>
+void
+pushEntries(lua_State* L, const T& entries)
+  requires(PushableEntry<typeHelpers::element_t<T>>)
+{
+  for (const auto& [key, value] : entries) {
+    pushEntry(L, key, value);
+  }
+}
+
+template<PushableEntry T, size_t N>
 void
 pushMap(lua_State* L, const T (&entries)[N])
 {
   lua_createtable(L, 0, N);
-  for (const auto& [key, value] : entries) {
-    pushEntry(L, key, value);
-  }
+  pushEntries(L, entries);
 }
 
 template<typename T>
 void
 pushMap(lua_State* L, const T& entries)
+  requires(!requires { entries.asKeyValueRange(); } &&
+           PushableEntry<typeHelpers::element_t<T>>)
 {
   lua_createtable(L, 0, static_cast<int>(entries.size()));
   pushEntries(L, entries);
@@ -343,7 +383,7 @@ pushMap(lua_State* L, const T& entries)
 template<typename T>
 void
 pushMap(lua_State* L, const T& map)
-  requires(requires(T t) { t.asKeyValueRange(); })
+  requires(Pushable<typename T::key_type> && Pushable<typename T::mapped_type>)
 {
   lua_createtable(L, 0, static_cast<int>(map.size()));
   pushEntries(L, map.asKeyValueRange());

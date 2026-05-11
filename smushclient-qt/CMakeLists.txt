@@ -99,6 +99,7 @@ qt_add_executable(${APP_NAME}
     cpp/scripting/databaseconnection.h cpp/scripting/databaseconnection.cpp
     cpp/scripting/plugin.h cpp/scripting/plugin.cpp
     cpp/scripting/qlua.h cpp/scripting/qlua.cpp
+    cpp/scripting/qlua_internal.h
     cpp/scripting/scriptapi.h cpp/scripting/scriptapi.cpp
     cpp/scripting/scriptenums.h cpp/scripting/scriptenums.cpp
     cpp/scripting/scriptthread.h cpp/scripting/scriptthread.cpp

@@ -791,24 +791,26 @@ pushChar(lua_State* L, T ch)
 }
 } // namespace
 
+template<>
 void
-qlua::push(lua_State* L, char16_t ch)
+qlua::push(lua_State* L, char16_t value)
 {
-  pushChar(L, ch);
+  pushChar(L, value);
+}
+
+template<>
+void
+qlua::push(lua_State* L, char32_t value)
+{
+  pushChar(L, value);
 }
 
 void
-qlua::push(lua_State* L, char32_t ch)
-{
-  pushChar(L, ch);
-}
-
-void
-qlua::push(lua_State* L, const QRect& rect)
+qlua::push(lua_State* L, const QRect& value)
 {
   lua_createtable(L, 0, 4);
-  pushEntry(L, "top", rect.top());
-  pushEntry(L, "height", rect.height());
-  pushEntry(L, "left", rect.left());
-  pushEntry(L, "width", rect.width());
+  pushEntry(L, "top", value.top());
+  pushEntry(L, "height", value.height());
+  pushEntry(L, "left", value.left());
+  pushEntry(L, "width", value.width());
 }
