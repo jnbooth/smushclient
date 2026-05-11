@@ -2,15 +2,22 @@
 #include <limits>
 
 template<typename From, typename To>
-constexpr const bool casting_overflows_v =
-  std::is_integral_v<To> &&
-  (std::is_floating_point_v<From> ||
-   (std::is_integral_v<From> &&
-    std::numeric_limits<From>::digits > std::numeric_limits<To>::digits));
+struct casting_overflows
+  : std::conjunction<
+      // Overflow can only occur if casting to an integral type.
+      std::is_integral<To>,
+      std::disjunction<
+        // Overflow can occur if casting from a floating-point type...
+        std::is_floating_point<From>,
+        // or from an integral type with more digits.
+        std::conjunction<
+          std::is_integral<From>,
+          std::bool_constant<(std::numeric_limits<From>::digits >
+                              std::numeric_limits<To>::digits)>>>>
+{};
 
 template<typename From, typename To>
-struct casting_overflows : std::bool_constant<casting_overflows_v<To, From>>
-{};
+constexpr const bool casting_overflows_v = casting_overflows<From, To>::value;
 
 template<typename To, typename From>
 constexpr To
@@ -33,4 +40,14 @@ clamped_cast(From n) noexcept
            std::is_unsigned_v<To>)
 {
   return (n < 0) ? 0 : static_cast<To>(n);
+}
+
+template<typename To, typename From>
+[[deprecated("value cannot overflow; use static_cast instead")]]
+constexpr To
+clamped_cast(From n) noexcept
+  requires(!casting_overflows_v<From, To> &&
+           (std::is_unsigned_v<From> || std::is_signed_v<To>))
+{
+  return static_cast<To>(n);
 }
