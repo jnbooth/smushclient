@@ -4,7 +4,7 @@
 // Public methods
 
 QString
-Keypad::get(Qt::Key key) const noexcept
+Hotkeys::Keypad::get(Qt::Key key) const noexcept
 {
   switch (key) {
     case Qt::Key::Key_0:
