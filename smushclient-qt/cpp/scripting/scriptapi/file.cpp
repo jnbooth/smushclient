@@ -33,7 +33,7 @@ int
 ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
 {
   auto [entry, inserted] = databases.emplace(databaseID, filename);
-  DatabaseConnection& db = entry->second;
+  auto& [id, db] = *entry;
   if (!inserted) {
     return db.isFile(databaseID)
              ? SQLITE_OK
@@ -42,7 +42,7 @@ ScriptApi::DatabaseOpen(string_view databaseID, string_view filename, int flags)
 
   const int result = db.open(flags);
   if (result != SQLITE_OK) {
-    databases.erase(entry->first);
+    databases.erase(id);
   }
 
   return result;

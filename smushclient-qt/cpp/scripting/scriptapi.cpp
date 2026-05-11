@@ -137,8 +137,8 @@ ScriptApi::applyWorld(const World& world)
 void
 ScriptApi::enqueueCommand(const QString& command, bool echo)
 {
-  constexpr const SendFlags baseFlags = SendFlag::Log | SendFlag::Immediate;
-  constexpr const SendFlags echoFlags = baseFlags | SendFlag::Echo;
+  constexpr SendFlags baseFlags = SendFlag::Log | SendFlag::Immediate;
+  constexpr SendFlags echoFlags = baseFlags | SendFlag::Echo;
   const SendFlags flags = echo ? echoFlags : baseFlags;
   QStringList commands = command.split(u'\n');
   if (!commandQueueTimer->isActive()) {

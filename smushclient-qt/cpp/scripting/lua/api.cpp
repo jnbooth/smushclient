@@ -3607,7 +3607,7 @@ L_stub_void(lua_State* /* L */)
 
 } // namespace
 
-static constexpr const struct luaL_Reg worldlib[]{
+static constexpr struct luaL_Reg worldlib[]{
   // bar
   { "Info", L_Info },
   { "InfoBackground", L_InfoBackground },
@@ -3993,7 +3993,7 @@ findFirstDuplicate(const luaL_Reg (&libtable)[N]) noexcept
   return nullptr;
 }
 
-constexpr const char* const firstDuplicate = findFirstDuplicate(worldlib);
+constexpr const char* firstDuplicate = findFirstDuplicate(worldlib);
 static_assert(firstDuplicate == nullptr);
 } // namespace
 

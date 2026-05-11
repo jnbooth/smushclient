@@ -976,7 +976,7 @@ L_utf8encode(lua_State* L)
 int
 L_utf8sub(lua_State* L)
 {
-  constexpr const size_t errorNPos = std::numeric_limits<size_t>::max();
+  constexpr size_t errorNPos = std::numeric_limits<size_t>::max();
   expectMaxArgs(L, 3);
   size_t errorPos = errorNPos;
   const rust::Str s = ffi::util::utf8_substring(

@@ -4,12 +4,12 @@
 template<typename From, typename To>
 struct casting_overflows
   : std::conjunction<
-      // Overflow can only occur if casting to an integral type.
+      // Overflow can only occur when casting TO an integral type.
       std::is_integral<To>,
       std::disjunction<
-        // Overflow can occur if casting from a floating-point type...
+        // Overflow can occur if casting FROM a floating-point type...
         std::is_floating_point<From>,
-        // or from an integral type with more digits.
+        // or FROM an integral type with more digits.
         std::conjunction<
           std::is_integral<From>,
           std::bool_constant<(std::numeric_limits<From>::digits >

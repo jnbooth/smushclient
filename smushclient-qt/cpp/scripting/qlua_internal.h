@@ -40,7 +40,7 @@ using entry_traits = decltype(getTraits(std::declval<T>()));
 } // namespace entry
 
 template<typename T>
-using element_t = decltype(*std::declval<T>().begin());
+using element_t = std::remove_cv_t<decltype(*std::declval<T>().begin())>;
 
 template<typename T, typename Enable = void>
 struct is_compatible_string : std::false_type

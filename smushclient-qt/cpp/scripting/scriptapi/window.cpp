@@ -142,7 +142,7 @@ ScriptApi::WindowCreateImage(string_view windowName,
                              string_view imageID,
                              std::array<int64_t, 8> rows) const
 {
-  constexpr const QSize grid(8, 8);
+  constexpr QSize grid(8, 8);
   static_assert(sizeof(rows) ==
                 sizeof(unsigned char) * grid.height() * grid.width());
 
