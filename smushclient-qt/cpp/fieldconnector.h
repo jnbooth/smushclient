@@ -1,6 +1,5 @@
 #pragma once
 #include "./ui/components/colorpickerbutton.h"
-#include "casting.h"
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
@@ -20,6 +19,18 @@
 #define CONNECT_WORLD(field)                                                   \
   FieldConnector::connect(                                                     \
     this, &world, ui->field, world.get##field(), &World::set##field);
+
+template<typename T>
+concept IntEnum = std::is_same_v<std::underlying_type_t<T>, int>;
+
+template<typename Source, IntEnum EnumValue>
+void (Source::* enum_slot_cast(void (Source::*slot)(EnumValue)))(int)
+{
+  // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
+  // SAFETY: the underlying type of EnumValue is int
+  return reinterpret_cast<void (Source::*)(int)>(slot);
+  // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
+}
 
 class FieldConnector
 {

@@ -1,35 +1,36 @@
 #pragma once
 #include <limits>
 
+template<typename From, typename To>
+constexpr const bool casting_overflows_v =
+  std::is_integral_v<To> &&
+  (std::is_floating_point_v<From> ||
+   (std::is_integral_v<From> &&
+    std::numeric_limits<From>::digits > std::numeric_limits<To>::digits));
+
+template<typename From, typename To>
+struct casting_overflows : std::bool_constant<casting_overflows_v<To, From>>
+{};
+
 template<typename To, typename From>
 constexpr To
 clamped_cast(From n) noexcept
-  requires(std::numeric_limits<To>::is_integer)
+  requires(casting_overflows_v<From, To>)
 {
-  using from = std::numeric_limits<From>;
-  using to = std::numeric_limits<To>;
+  constexpr const To toMin =
+    std::is_signed_v<From> ? std::numeric_limits<To>::min() : 0;
+  constexpr const To toMax = std::numeric_limits<To>::max();
+  constexpr const From fromMin = static_cast<From>(toMin);
+  constexpr const From fromMax = static_cast<From>(toMax);
 
-  constexpr const bool bounded =
-    !from::is_integer || from::digits >= to::digits;
-
-  constexpr const From min = !from::is_signed || !to::is_signed ? 0
-                             : bounded ? static_cast<From>(to::min())
-                                       : from::min();
-
-  constexpr const From max =
-    bounded ? static_cast<From>(to::max()) : from::max();
-
-  return (n < min) ? to::min() : (n > max) ? to::max() : static_cast<To>(n);
+  return (n < fromMin) ? toMin : (n > fromMax) ? toMax : static_cast<To>(n);
 }
 
-template<typename T>
-concept IntEnum = std::is_same_v<std::underlying_type_t<T>, int>;
-
-template<typename Source, IntEnum EnumValue>
-void (Source::* enum_slot_cast(void (Source::*slot)(EnumValue)))(int)
+template<typename To, typename From>
+constexpr To
+clamped_cast(From n) noexcept
+  requires(!casting_overflows_v<From, To> && std::is_signed_v<From> &&
+           std::is_unsigned_v<To>)
 {
-  // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
-  // SAFETY: the underlying type of EnumValue is int
-  return reinterpret_cast<void (Source::*)(int)>(slot);
-  // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
+  return (n < 0) ? 0 : static_cast<To>(n);
 }
