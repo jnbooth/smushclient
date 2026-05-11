@@ -35,12 +35,13 @@ getTraits(const T& entry) noexcept
                 std::remove_cv_t<decltype(value)>>{};
 }
 
-template<typename T>
-using entry_traits = decltype(getTraits(std::declval<T>()));
 } // namespace entry
 
 template<typename T>
-using element_t = std::remove_cv_t<decltype(*std::declval<T>().begin())>;
+using element_t = std::remove_cv_t<decltype(*std::declval<const T&>().begin())>;
+
+template<typename T>
+using entry_traits = decltype(entry::getTraits(std::declval<T>()));
 
 template<typename T, typename Enable = void>
 struct is_compatible_string : std::false_type
@@ -55,10 +56,4 @@ struct is_compatible_string<T,
 
 template<typename T>
 constexpr bool is_compatible_string_v = is_compatible_string<T>::value;
-
-template<typename T>
-using entry_key_t = typename entry::entry_traits<T>::key_type;
-
-template<typename T>
-using entry_value_t = typename entry::entry_traits<T>::mapped_type;
 } // namespace qlua::typeHelpers

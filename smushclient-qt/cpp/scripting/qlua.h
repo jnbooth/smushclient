@@ -193,7 +193,8 @@ push(lua_State* L, const T& value)
   requires(std::negation_v<
             std::disjunction<typeHelpers::is_compatible_string<T>,
                              std::is_enum<T>,
-                             std::is_arithmetic<T>>>)
+                             std::is_floating_point<T>,
+                             std::is_integral<T>>>)
 = delete;
 
 template<typename T>
@@ -298,8 +299,9 @@ template<typename T>
 concept Pushable = requires(lua_State* L, T t) { qlua::push(L, t); };
 
 template<typename T>
-concept PushableEntry = Pushable<typeHelpers::entry_key_t<T>> &&
-                        Pushable<typeHelpers::entry_value_t<T>>;
+concept PushableEntry =
+  Pushable<typename typeHelpers::entry_traits<T>::key_type> &&
+  Pushable<typename typeHelpers::entry_traits<T>::mapped_type>;
 
 template<Pushable T, size_t N>
 void
