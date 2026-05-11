@@ -49,7 +49,6 @@ using qlua::getQString;
 using qlua::getString;
 using qlua::isScriptName;
 using qlua::push;
-using qlua::pushEntry;
 using qlua::pushList;
 using qlua::pushMap;
 using qlua::rgbCodeToColor;
@@ -401,14 +400,9 @@ int
 L_MapColourList(lua_State* L)
 {
   BENCHMARK
-  pushMap(L, QMap<int, bool>());
   expectMaxArgs(L, 0);
   const QList colors = getApi(L).MapColourList();
   pushMap(L, colors);
-  lua_createtable(L, 0, static_cast<int>(colors.size()));
-  for (const auto& [color, name] : colors) {
-    pushEntry(L, color, name);
-  }
   return 1;
 }
 
