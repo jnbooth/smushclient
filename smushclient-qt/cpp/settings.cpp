@@ -103,9 +103,9 @@ Settings::getNotepadPalette() const
 
 // Recent files
 
-constexpr const QLatin1StringView recentFilesKey = "recent"_L1;
+constexpr QLatin1StringView recentFilesKey = "recent"_L1;
 
-constexpr const qsizetype recentFilesMax = 5;
+constexpr qsizetype recentFilesMax = 5;
 
 QStringList
 Settings::getRecentFiles() const

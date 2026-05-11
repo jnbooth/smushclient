@@ -17,7 +17,7 @@ using Qt::StringLiterals::operator""_L1;
 #define DIR_SEP "/"
 #endif
 
-constexpr const string_view luaPathSuffix =
+constexpr string_view luaPathSuffix =
   DIR_SEP SCRIPTS_DIR DIR_SEP "?.lua;" LUA_PATH_DEFAULT;
 
 QString

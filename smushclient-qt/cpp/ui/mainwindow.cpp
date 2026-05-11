@@ -37,7 +37,7 @@ using std::optional;
 
 using Qt::StringLiterals::operator""_L1;
 
-constexpr const QLatin1StringView settingsKey = "state/mainwindow"_L1;
+constexpr QLatin1StringView settingsKey = "state/mainwindow"_L1;
 
 // Public methods
 

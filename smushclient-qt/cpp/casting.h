@@ -17,18 +17,18 @@ struct casting_overflows
 {};
 
 template<typename From, typename To>
-constexpr const bool casting_overflows_v = casting_overflows<From, To>::value;
+constexpr bool casting_overflows_v = casting_overflows<From, To>::value;
 
 template<typename To, typename From>
 constexpr To
 clamped_cast(From n) noexcept
   requires(casting_overflows_v<From, To>)
 {
-  constexpr const To toMin =
+  constexpr To toMin =
     std::is_signed_v<From> ? std::numeric_limits<To>::min() : 0;
-  constexpr const To toMax = std::numeric_limits<To>::max();
-  constexpr const From fromMin = static_cast<From>(toMin);
-  constexpr const From fromMax = static_cast<From>(toMax);
+  constexpr To toMax = std::numeric_limits<To>::max();
+  constexpr From fromMin = static_cast<From>(toMin);
+  constexpr From fromMax = static_cast<From>(toMax);
 
   return (n < fromMin) ? toMin : (n > fromMax) ? toMax : static_cast<To>(n);
 }

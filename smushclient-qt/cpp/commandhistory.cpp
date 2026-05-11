@@ -1,7 +1,7 @@
 #include "commandhistory.h"
 #include <limits>
 
-constexpr const qsizetype maxLimit = std::numeric_limits<qsizetype>::max();
+constexpr qsizetype maxLimit = std::numeric_limits<qsizetype>::max();
 
 const QString CommandHistory::_emptyString = QString();
 

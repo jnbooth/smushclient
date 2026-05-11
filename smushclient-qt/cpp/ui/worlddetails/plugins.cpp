@@ -12,7 +12,7 @@
 
 using Qt::StringLiterals::operator""_L1;
 
-constexpr const QLatin1StringView settingsKey = "state/headers/plugins"_L1;
+constexpr QLatin1StringView settingsKey = "state/headers/plugins"_L1;
 
 // Public methods
 

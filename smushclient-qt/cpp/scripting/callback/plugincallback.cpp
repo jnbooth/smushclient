@@ -173,37 +173,37 @@ QByteArray
 }; // namespace
 
 namespace namedCallbacks {
-constexpr const OnPluginBroadcast onBroadcast({}, {}, {}, {});
-constexpr const OnPluginClose onClose;
-constexpr const OnPluginCommand onCommand({}, {});
-constexpr const OnPluginCommandChanged onCommandChanged;
-constexpr const OnPluginCommandEntered onCommandEntered({}, emptyByteArray);
-constexpr const OnPluginConnect onConnect;
-constexpr const OnPluginDisable onDisable;
-constexpr const OnPluginDisconnect onDisconnect;
-constexpr const OnPluginEnable onEnable;
-constexpr const OnPluginGetFocus onGetFocus;
-constexpr const OnPluginIacGa onIacGa;
-constexpr const OnPluginInstall onInstall;
-constexpr const OnPluginLineReceived onLineReceived({});
-constexpr const OnPluginListChanged onListChanged;
-constexpr const OnPluginLoseFocus onLoseFocus;
-constexpr const OnPluginMXPSetEntity onMXPSetEntity({});
-constexpr const OnPluginMXPSetVariable onMXPSetVariable({}, {});
-constexpr const OnPluginMXPStart onMXPStart;
-constexpr const OnPluginMXPStop onMXPStop;
-constexpr const OnPluginPartialLineReceived onPartialLineReceived({});
-constexpr const OnPluginPlaySound onPlaySound({});
-constexpr const OnPluginSaveState onSaveState;
-constexpr const OnPluginSelectionChanged onSelectionChanged;
-constexpr const OnPluginSend onSend({});
-constexpr const OnPluginSent onSent({});
-constexpr const OnPluginTelnetOption onTelnetOption({});
-constexpr const OnPluginTelnetRequest onTelnetRequest({}, {});
-constexpr const OnPluginTelnetSubnegotiation onTelnetSubnegotiation({}, {});
-constexpr const OnPluginWorldSave onWorldSave;
-constexpr const OnPluginWorldOutputResized onWorldOutputResized;
-constexpr const std::array<const NamedPluginCallback*, 30> list{
+constexpr OnPluginBroadcast onBroadcast({}, {}, {}, {});
+constexpr OnPluginClose onClose;
+constexpr OnPluginCommand onCommand({}, {});
+constexpr OnPluginCommandChanged onCommandChanged;
+constexpr OnPluginCommandEntered onCommandEntered({}, emptyByteArray);
+constexpr OnPluginConnect onConnect;
+constexpr OnPluginDisable onDisable;
+constexpr OnPluginDisconnect onDisconnect;
+constexpr OnPluginEnable onEnable;
+constexpr OnPluginGetFocus onGetFocus;
+constexpr OnPluginIacGa onIacGa;
+constexpr OnPluginInstall onInstall;
+constexpr OnPluginLineReceived onLineReceived({});
+constexpr OnPluginListChanged onListChanged;
+constexpr OnPluginLoseFocus onLoseFocus;
+constexpr OnPluginMXPSetEntity onMXPSetEntity({});
+constexpr OnPluginMXPSetVariable onMXPSetVariable({}, {});
+constexpr OnPluginMXPStart onMXPStart;
+constexpr OnPluginMXPStop onMXPStop;
+constexpr OnPluginPartialLineReceived onPartialLineReceived({});
+constexpr OnPluginPlaySound onPlaySound({});
+constexpr OnPluginSaveState onSaveState;
+constexpr OnPluginSelectionChanged onSelectionChanged;
+constexpr OnPluginSend onSend({});
+constexpr OnPluginSent onSent({});
+constexpr OnPluginTelnetOption onTelnetOption({});
+constexpr OnPluginTelnetRequest onTelnetRequest({}, {});
+constexpr OnPluginTelnetSubnegotiation onTelnetSubnegotiation({}, {});
+constexpr OnPluginWorldSave onWorldSave;
+constexpr OnPluginWorldOutputResized onWorldOutputResized;
+constexpr std::array<const NamedPluginCallback*, 30> list{
   &onBroadcast,
   &onClose,
   &onCommand,
@@ -235,7 +235,7 @@ constexpr const std::array<const NamedPluginCallback*, 30> list{
   &onWorldSave,
   &onWorldOutputResized,
 };
-constexpr const std::span<const NamedPluginCallback* const> span(list);
+constexpr std::span<const NamedPluginCallback* const> span(list);
 } // namespace namedCallbacks
 
 std::span<const NamedPluginCallback* const>
