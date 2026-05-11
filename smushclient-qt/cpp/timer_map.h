@@ -40,7 +40,7 @@ public:
     map.clear();
   }
 
-  template<class Predicate>
+  template<typename Predicate>
   std::unordered_map<Qt::TimerId, T>::size_type erase_if(Predicate pred)
   {
     return std::erase_if(map,
@@ -49,7 +49,7 @@ public:
                          });
   }
 
-  template<class... Args>
+  template<typename... Args>
   T& start(std::chrono::milliseconds duration, Args&&... args)
   {
     return map.try_emplace(startTimerId(duration), std::forward<Args>(args)...)

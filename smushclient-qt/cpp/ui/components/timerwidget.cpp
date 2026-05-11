@@ -26,7 +26,7 @@ buildTimeLookup()
 
 const QStringList timeLookup = buildTimeLookup();
 
-template<class Rep, class Period>
+template<typename Rep, typename Period>
 const QString&
 formatTime(duration<Rep, Period> time) noexcept
 {
