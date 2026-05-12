@@ -512,29 +512,30 @@ getQFont(lua_State* L, int idxFamily, int idxSize, int idxStyle)
 QLine
 getQLine(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2)
 {
-  return QLine(
-    getInt(L, idxX1), getInt(L, idxY1), getInt(L, idxX2), getInt(L, idxY2));
+  return {
+    getInt(L, idxX1), getInt(L, idxY1), getInt(L, idxX2), getInt(L, idxY2)
+  };
 }
 
 QLineF
 getQLineF(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2)
 {
-  return QLineF(getNumber(L, idxX1),
-                getNumber(L, idxY1),
-                getNumber(L, idxX2),
-                getNumber(L, idxY2));
+  return { getNumber(L, idxX1),
+           getNumber(L, idxY1),
+           getNumber(L, idxX2),
+           getNumber(L, idxY2) };
 }
 
 QPoint
 getQPoint(lua_State* L, int idxX, int idxY)
 {
-  return QPoint(getInt(L, idxX), getInt(L, idxY));
+  return { getInt(L, idxX), getInt(L, idxY) };
 }
 
 QPointF
 getQPointF(lua_State* L, int idxX, int idxY)
 {
-  return QPointF(getNumber(L, idxX), getNumber(L, idxY));
+  return { getNumber(L, idxX), getNumber(L, idxY) };
 }
 
 optional<QPen>
@@ -593,7 +594,7 @@ getQPolygonF(lua_State* L, int idx)
         if (!std::isfinite(dX) || !std::isfinite(dY)) [[unlikely]] {
           return nullopt;
         }
-        points.append(QPointF(dX, dY));
+        points.append({ dX, dY });
         lua_pop(L, 3);
       }
       return points;
@@ -608,27 +609,25 @@ getQPolygonF(lua_State* L, int idx)
 QRect
 getQRect(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom)
 {
-  return QRect(QPoint(getInt(L, idxLeft), getInt(L, idxTop)),
-               QPoint(getInt(L, idxRight), getInt(L, idxBottom)));
+  return { getQPoint(L, idxLeft, idxTop), getQPoint(L, idxRight, idxBottom) };
 }
 
 QRectF
 getQRectF(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom)
 {
-  return QRectF(QPointF(getNumber(L, idxLeft), getNumber(L, idxTop)),
-                QPointF(getNumber(L, idxRight), getNumber(L, idxBottom)));
+  return { getQPointF(L, idxLeft, idxTop), getQPointF(L, idxRight, idxBottom) };
 }
 
 QSize
 getQSize(lua_State* L, int idxWidth, int idxHeight)
 {
-  return QSize(getInt(L, idxWidth), getInt(L, idxHeight));
+  return { getInt(L, idxWidth), getInt(L, idxHeight) };
 }
 
 QSizeF
 getQSizeF(lua_State* L, int idxWidth, int idxHeight)
 {
-  return QSizeF(getNumber(L, idxWidth), getNumber(L, idxHeight));
+  return { getNumber(L, idxWidth), getNumber(L, idxHeight) };
 }
 
 QString

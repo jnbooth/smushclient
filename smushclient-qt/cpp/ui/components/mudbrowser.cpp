@@ -112,5 +112,5 @@ MudBrowser::mapToContents(const QPoint& point) const
                                  ? hbar->maximum() - hbar->value()
                                  : hbar->value();
   const int verticalOffset = verticalScrollBar() == nullptr ? 0 : vbar->value();
-  return QPoint(point.x() + horizontalOffset, point.y() + verticalOffset);
+  return { point.x() + horizontalOffset, point.y() + verticalOffset };
 }

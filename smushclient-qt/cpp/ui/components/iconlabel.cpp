@@ -86,7 +86,7 @@ QSize
 IconLabel::sizeHint() const
 {
   const int lineHeight = fontMetrics().lineSpacing();
-  return QSize(widthForHeight(lineHeight), lineHeight);
+  return { widthForHeight(lineHeight), lineHeight };
 }
 
 // Protected overrides

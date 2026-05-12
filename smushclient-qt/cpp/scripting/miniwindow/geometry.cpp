@@ -46,7 +46,7 @@ scaleWithAspectRatio(const QSize& parent, const QSize& child) noexcept
 {
   const int height = parent.height();
   const int width = height * child.width() / child.height();
-  return QSize(height, width);
+  return { height, width };
 }
 } // namespace
 

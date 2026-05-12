@@ -79,8 +79,8 @@ ImageWindow::resizeEvent(QResizeEvent* event)
       }
       const QSizeF thisSizeF = thisSize;
       const QSizeF pixmapSizeF = pixmapSize;
-      scale = QSizeF(pixmapSizeF.width() / thisSizeF.width(),
-                     pixmapSizeF.height() / thisSizeF.height());
+      scale = { pixmapSizeF.width() / thisSizeF.width(),
+                pixmapSizeF.height() / thisSizeF.height() };
       break;
     }
     case Position::OwnerScale:
@@ -94,7 +94,7 @@ ImageWindow::resizeEvent(QResizeEvent* event)
       const qreal thisHeightF = thisHeight;
       const qreal pixmapHeightF = pixmapHeight;
       const qreal heightScale = thisHeightF / pixmapHeightF;
-      scale = QSizeF(heightScale, heightScale);
+      scale = { heightScale, heightScale };
       break;
     }
     default:

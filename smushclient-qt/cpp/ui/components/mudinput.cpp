@@ -33,7 +33,7 @@ QSize
 MudInput::minimumSizeHint() const
 {
   const QFontMetrics metrics = fontMetrics();
-  return QSize(metrics.maxWidth(), metrics.lineSpacing() + 8);
+  return { metrics.maxWidth(), metrics.lineSpacing() + 8 };
 }
 
 QSize

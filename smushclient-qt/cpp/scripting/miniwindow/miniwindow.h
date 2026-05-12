@@ -215,14 +215,14 @@ public:
                        qreal opacity,
                        MergeMode mode = MergeMode::Straight)
   {
-    return mergeImageAlpha(image, mask, targetRect, QRect(), opacity, mode);
+    return mergeImageAlpha(image, mask, targetRect, {}, opacity, mode);
   }
   bool mergeImageAlpha(const QPixmap& image,
                        const QPixmap& mask,
                        const QRect& targetRect,
                        MergeMode mode)
   {
-    return mergeImageAlpha(image, mask, targetRect, QRect(), 1, mode);
+    return mergeImageAlpha(image, mask, targetRect, {}, 1, mode);
   }
   bool mergeImageAlpha(const QPixmap& image,
                        const QPixmap& mask,
