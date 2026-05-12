@@ -7,44 +7,53 @@
 namespace geometry {
 using Position = MiniWindow::Position;
 
-template<typename T>
-concept Point = requires(T t) { t.rx(); };
+template<typename T, typename Arg, typename... Args>
+constexpr bool is_one_of_v = std::is_same_v<T, Arg> || is_one_of_v<T, Args...>;
 
-template<typename T>
-concept Size = requires(T t) { t.width(); };
+template<typename T, typename Arg>
+constexpr bool is_one_of_v<T, Arg> = std::is_same_v<T, Arg>;
 
-template<typename T>
-concept Rect = requires(T t) { t.topLeft(); };
+template<typename P>
+concept Point = is_one_of_v<P, QPoint, QPointF>;
+
+template<typename R>
+concept Rect = is_one_of_v<R, QRect, QRectF>;
 
 template<typename N>
+concept Scalar = std::is_arithmetic_v<N>;
+
+template<typename S>
+concept Size = is_one_of_v<S, QSize, QSizeF>;
+
+template<Scalar N>
 constexpr N
-scale(N value, N scalar) noexcept
+scale(N value, N scaleBy) noexcept
 {
-  return value * scalar;
+  return value * scaleBy;
 }
 
 constexpr int
-scale(int value, qreal scalar) noexcept
+scale(int value, qreal scaleBy) noexcept
 {
-  return clamped_cast<int>(value * scalar);
+  return clamped_cast<int>(value * scaleBy);
 }
 
 template<Point P, Size S>
 constexpr P
-scale(const P& point, const S& scalar) noexcept
+scale(const P& point, const S& scaleBy) noexcept
 {
-  return { scale(point.x(), scalar.width()),
-           scale(point.y(), scalar.height()) };
+  return { scale(point.x(), scaleBy.width()),
+           scale(point.y(), scaleBy.height()) };
 }
 
 template<Rect R, Size S>
 constexpr R
-scale(const R& rect, const S& scalar) noexcept
+scale(const R& rect, const S& scaleBy) noexcept
 {
-  return { scale(rect.topLeft(), scalar), scale(rect.bottomRight(), scalar) };
+  return { scale(rect.topLeft(), scaleBy), scale(rect.bottomRight(), scaleBy) };
 }
 
-template<typename N>
+template<Scalar N>
 constexpr N
 normalize(N n, N limit) noexcept
 {
