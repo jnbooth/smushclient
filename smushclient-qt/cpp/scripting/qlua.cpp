@@ -681,7 +681,7 @@ template<>
 void
 push(lua_State* L, char16_t value)
 {
-  if (value <= 127) [[likely]] {
+  if (value <= CHAR_MAX) [[likely]] {
     push(L, static_cast<char>(value));
     return;
   }
@@ -692,7 +692,7 @@ template<>
 void
 push(lua_State* L, char32_t value)
 {
-  if (value <= 127) [[likely]] {
+  if (value <= CHAR_MAX) [[likely]] {
     push(L, static_cast<char>(value));
     return;
   }
@@ -702,7 +702,7 @@ push(lua_State* L, char32_t value)
 void
 push(lua_State* L, QChar value)
 {
-  if (value.unicode() <= 127) [[likely]] {
+  if (value.unicode() <= CHAR_MAX) [[likely]] {
     push(L, static_cast<char>(value.unicode()));
     return;
   }
