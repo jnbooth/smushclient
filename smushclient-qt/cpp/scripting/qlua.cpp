@@ -6,7 +6,6 @@
 #include <QtGui/QFontDatabase>
 #include <QtGui/QFontInfo>
 #include <cmath>
-#include <codecvt>
 #include <smushclient_qt/src/ffi/sender.cxxqt.h>
 #include <sstream>
 extern "C"
@@ -685,6 +684,48 @@ qlua::isScriptName(lua_State* L, string_view name)
   return isFunction;
 }
 
+template<>
+void
+qlua::push(lua_State* L, char16_t value)
+{
+  if (value <= 127) [[likely]] {
+    push(L, static_cast<char>(value));
+    return;
+  }
+  push(L, QString::fromUtf16(&value, 1));
+}
+
+template<>
+void
+qlua::push(lua_State* L, char32_t value)
+{
+  if (value <= 127) [[likely]] {
+    push(L, static_cast<char>(value));
+    return;
+  }
+  push(L, QString::fromUcs4(&value, 1));
+}
+
+void
+qlua::push(lua_State* L, QChar value)
+{
+  if (value.unicode() <= 127) [[likely]] {
+    push(L, static_cast<char>(value.unicode()));
+    return;
+  }
+  push(L, QString(value));
+}
+
+void
+qlua::push(lua_State* L, const QRect& value)
+{
+  lua_createtable(L, 0, 4);
+  pushEntry(L, "top", value.top());
+  pushEntry(L, "height", value.height());
+  pushEntry(L, "left", value.left());
+  pushEntry(L, "width", value.width());
+}
+
 void
 qlua::push(lua_State* L, const QVariant& value)
 {
@@ -772,45 +813,4 @@ qlua::push(lua_State* L, const QVariant& value)
       }
       return;
   }
-}
-
-namespace {
-template<typename T>
-void
-pushChar(lua_State* L, T ch)
-{
-  if (ch <= 127) [[likely]] {
-    qlua::push(L, static_cast<char>(ch));
-    return;
-  }
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  std::wstring_convert<std::codecvt_utf8<T>, T> convert;
-  qlua::push(L, convert.to_bytes(ch));
-#pragma GCC diagnostic pop
-}
-} // namespace
-
-template<>
-void
-qlua::push(lua_State* L, char16_t value)
-{
-  pushChar(L, value);
-}
-
-template<>
-void
-qlua::push(lua_State* L, char32_t value)
-{
-  pushChar(L, value);
-}
-
-void
-qlua::push(lua_State* L, const QRect& value)
-{
-  lua_createtable(L, 0, 4);
-  pushEntry(L, "top", value.top());
-  pushEntry(L, "height", value.height());
-  pushEntry(L, "left", value.left());
-  pushEntry(L, "width", value.width());
 }

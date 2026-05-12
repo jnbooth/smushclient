@@ -264,9 +264,10 @@ template<>
 IMPL_PUSH(signed char, push, static_cast<char>(value));
 template<>
 IMPL_PUSH(unsigned char, push, static_cast<char>(value));
+template<>
+IMPL_PUSH(char8_t, push, static_cast<char>(value));
 IMPL_PUSH(const char*, lua_pushstring, value);
 IMPL_PUSH(char*, lua_pushstring, value);
-IMPL_PUSH(QChar, push, value.unicode());
 IMPL_PUSH(const QColor&, lua_pushinteger, colorToRgbCode(value));
 IMPL_PUSH(const QString&, push, value.toUtf8());
 IMPL_PUSH(const QDateTime&, lua_pushinteger, value.toSecsSinceEpoch());
@@ -288,6 +289,9 @@ IMPL_PUSH(std::string_view);
 IMPL_PUSH(rust::variable_view);
 
 #undef IMPL_PUSH
+
+void
+push(lua_State* L, QChar value);
 
 void
 push(lua_State* L, const QRect& value);
