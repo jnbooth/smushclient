@@ -229,6 +229,12 @@ WorldTab::editWorldScript()
 }
 
 bool
+WorldTab::hasWorldScript() const
+{
+  return !worldScriptPath.isEmpty();
+}
+
+bool
 WorldTab::importWorld(const QString& filename) &
 {
   return RegexDialog::handle(client.importWorld(filename));
@@ -581,6 +587,12 @@ WorldTab::stopSound() const
   api->StopSound();
 }
 
+const QString&
+WorldTab::title() const noexcept
+{
+  return m_title.isEmpty() ? worldName : m_title;
+};
+
 // Public slots
 
 void
@@ -696,6 +708,15 @@ WorldTab::resizeEvent(QResizeEvent* event)
   }
   resizeTimer->start();
   QSplitter::resizeEvent(event);
+}
+
+// Private static methods
+
+QString
+WorldTab::variablesPath(const QString& path)
+{
+  using Qt::StringLiterals::operator""_L1;
+  return path + ".vars"_L1;
 }
 
 // Private methods

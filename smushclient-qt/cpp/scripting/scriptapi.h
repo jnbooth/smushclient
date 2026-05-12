@@ -361,12 +361,7 @@ public:
   ApiCode PlaySound(size_t channel,
                     const QString& path,
                     bool loop = false,
-                    float volume = 1.0)
-  {
-    const QByteArray utf8 = path.toUtf8();
-    const std::string_view pathView(utf8.data(), utf8.size());
-    return PlaySound(channel, pathView, loop, volume);
-  }
+                    float volume = 1.0);
   ApiCode PlaySoundMemory(size_t channel,
                           QByteArrayView sound,
                           bool loop = false,
@@ -650,24 +645,15 @@ public:
   Notepad* globalNotepad(const QString& name) const;
   void handleSendRequest(const SendRequest& request);
   void installInto(lua_State* L);
-  bool isPluginEnabled(size_t plugin) const noexcept
-  {
-    return !plugins[plugin].isDisabled();
-  }
+  bool isPluginEnabled(size_t plugin) const noexcept;
   QWidget* parentWidget() const { return qobject_cast<QWidget*>(parent()); }
   ApiCode playFileRaw(std::string_view path);
   void printError(const QString& message);
   void reloadWorldScript(const QString& worldScriptPath);
   void resetAllTimers();
   bool restoreTextRectangle() const;
-  bool runScript(size_t plugin, QByteArrayView script, const char* name) const
-  {
-    return plugins[plugin].runScript(script, name);
-  }
-  bool runScript(size_t plugin, const QByteArray& script) const
-  {
-    return plugins[plugin].runScript(script);
-  }
+  bool runScript(size_t plugin, QByteArrayView script, const char* name) const;
+  bool runScript(size_t plugin, const QByteArray& script) const;
   void runScriptsAfterOmit();
   QTextCursor selectRecentLines(int count) const;
   void sendCallback(PluginCallback& callback);
@@ -675,6 +661,7 @@ public:
   bool sendCallback(PluginCallback& callback, std::string_view pluginID);
   void sendNaws();
   void sendPartialLineToPlugins();
+  ApiCode sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags);
   ApiCode sendToWorld(QByteArray& bytes, SendFlags flags)
   {
     return sendToWorld(bytes, QString::fromUtf8(bytes), flags);
@@ -684,21 +671,16 @@ public:
     QByteArray bytes = text.toUtf8();
     return sendToWorld(bytes, text, flags);
   }
-  ApiCode sendToWorld(QByteArray& bytes, const QString& text, SendFlags flags);
   void setNawsEnabled(bool enabled) noexcept;
   void setOpen(bool open) noexcept;
   void setPluginEnabled(size_t plugin, bool enable = true);
   ActionSource setSource(ActionSource source) noexcept;
   ApiCode setTextRectangle(const OutputLayout& layout) const;
-  void setWordUnderMenu(const QString& word) noexcept { wordUnderMenu = word; }
+  void setWordUnderMenu(const QString& word) noexcept;
   void stackWindow(std::string_view windowName, MiniWindow& window) const;
   bool startCommandQueueTimer();
   MudStatusBar* statusBar() const noexcept { return statusBarPtr.get(); }
-  Plugin* worldPlugin() noexcept
-  {
-    return worldScriptIndex == noSuchPlugin ? nullptr
-                                            : &plugins[worldScriptIndex];
-  }
+  Plugin* worldPlugin() noexcept;
 
   std::vector<Plugin>::const_iterator cbegin() const noexcept
   {

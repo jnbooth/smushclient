@@ -16,6 +16,16 @@ ScriptApi::PlaySound(size_t channel, string_view path, bool loop, float volume)
   }
   return client.playFile(channel, path, volume, loop);
 }
+ApiCode
+ScriptApi::PlaySound(size_t channel,
+                     const QString& path,
+                     bool loop,
+                     float volume)
+{
+  const QByteArray utf8 = path.toUtf8();
+  const std::string_view pathView(utf8.data(), utf8.size());
+  return PlaySound(channel, pathView, loop, volume);
+}
 
 ApiCode
 ScriptApi::PlaySoundMemory(size_t channel,

@@ -52,7 +52,7 @@ public:
   QTextEdit* copyableEditor() const;
   bool disconnectFromHost();
   void editWorldScript();
-  bool hasWorldScript() const { return !worldScriptPath.isEmpty(); }
+  bool hasWorldScript() const;
   bool importWorld(const QString& filename) &;
   void initNew() &;
   bool isConnected() const;
@@ -83,10 +83,7 @@ public:
   void start();
   MudStatusBar* statusBar() const;
   void stopSound() const;
-  const QString& title() const noexcept
-  {
-    return m_title.isEmpty() ? worldName : m_title;
-  };
+  const QString& title() const noexcept;
   QString variablesPath() const { return variablesPath(filePath); }
   const QString& worldFilePath() const noexcept { return filePath; }
 
@@ -117,11 +114,7 @@ protected:
   void resizeEvent(QResizeEvent* event) override;
 
 private:
-  static QString variablesPath(const QString& path)
-  {
-    using Qt::StringLiterals::operator""_L1;
-    return path + ".vars"_L1;
-  }
+  static QString variablesPath(const QString& path);
 
   void applyWorld(const World& world);
   void finishDrag();

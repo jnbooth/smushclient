@@ -455,9 +455,14 @@ public:
 
   constexpr bool isValid() const noexcept
   {
-    return value == 0 || (value > 0 && value <= 92 &&
-                          /// 1, 2, or 8
-                          std::popcount(static_cast<uint16_t>(pitch())) == 1);
+    if (value == 0) {
+      return true;
+    }
+    if (value <= 0 || value > 92) {
+      return false;
+    }
+    const uint16_t nPitch = static_cast<uint16_t>(pitch());
+    return nPitch == 1 || nPitch == 2 || nPitch == 8;
   }
 
   QFont::StyleHint hint() const noexcept;

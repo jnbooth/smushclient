@@ -249,6 +249,12 @@ ScriptApi::installInto(lua_State* L)
   *apiSlot(L) = this;
 }
 
+bool
+ScriptApi::isPluginEnabled(size_t plugin) const noexcept
+{
+  return !plugins[plugin].isDisabled();
+}
+
 ApiCode
 ScriptApi::playFileRaw(string_view path)
 {
@@ -292,6 +298,20 @@ ScriptApi::resetAllTimers()
 {
   sendQueue->clear();
   client.startAllTimers(*timekeeper);
+}
+
+bool
+ScriptApi::runScript(size_t plugin,
+                     QByteArrayView script,
+                     const char* name) const
+{
+  return plugins[plugin].runScript(script, name);
+}
+
+bool
+ScriptApi::runScript(size_t plugin, const QByteArray& script) const
+{
+  return plugins[plugin].runScript(script);
 }
 
 void
@@ -476,24 +496,18 @@ ScriptApi::setPluginEnabled(size_t plugin, bool enable)
   sendCallback(onListChanged);
 }
 
-bool
-ScriptApi::startCommandQueueTimer()
-{
-  if (commandQueueTimer->interval() == 0) {
-    return false;
-  }
-  if (!commandQueueTimer->isActive()) {
-    commandQueueTimer->start();
-  }
-  return true;
-}
-
 ActionSource
 ScriptApi::setSource(ActionSource source) noexcept
 {
   const ActionSource previousSource = actionSource;
   actionSource = source;
   return previousSource;
+}
+
+void
+ScriptApi::setWordUnderMenu(const QString& word) noexcept
+{
+  wordUnderMenu = word;
 }
 
 struct WindowCompare
@@ -531,6 +545,25 @@ ScriptApi::stackWindow(string_view windowName, MiniWindow& window) const
   } else if (drawsUnderneath) {
     window.stackUnder(tab.ui->outputBorder);
   }
+}
+
+bool
+ScriptApi::startCommandQueueTimer()
+{
+  if (commandQueueTimer->interval() == 0) {
+    return false;
+  }
+  if (!commandQueueTimer->isActive()) {
+    commandQueueTimer->start();
+  }
+  return true;
+}
+
+Plugin*
+ScriptApi::worldPlugin() noexcept
+{
+  return worldScriptIndex == noSuchPlugin ? nullptr
+                                          : &plugins[worldScriptIndex];
 }
 
 // Public slots
