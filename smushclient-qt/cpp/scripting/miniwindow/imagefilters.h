@@ -67,7 +67,6 @@ private:
   Directions directions;
 };
 
-// NOLINTBEGIN(bugprone-macro-parentheses)
 #define CONVOLVE_FILTER(name)                                                  \
   class ImageFilter::name : public ConvolveFilter                              \
   {                                                                            \
@@ -80,7 +79,6 @@ private:
                int width,                                                      \
                Directions directions) const noexcept override;                 \
   };
-// NOLINTEND(bugprone-macro-parentheses)
 
 class ImageFilter::Noise : public PixelFilter
 {

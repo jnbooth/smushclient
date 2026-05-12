@@ -177,15 +177,15 @@ template<IntEnum T>
 class EnumButtonGroup
 {
 private:
-  template<typename Source, typename Value>
-  using Setter = void (Source::*&&)(Value);
+  template<typename Source>
+  using Setter = void (Source::*&&)(T);
 
 public:
   template<typename Source>
   EnumButtonGroup(QObject* parent,
                   T value,
                   Source* source,
-                  Setter<Source, T> setter)
+                  Setter<Source> setter)
     : group(new QButtonGroup(parent))
     , currentValue(value)
   {
