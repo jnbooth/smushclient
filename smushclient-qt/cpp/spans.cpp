@@ -25,7 +25,7 @@ getElapsed(const QTextBlockFormat& format)
 LineType
 getLineType(const QTextCharFormat& format)
 {
-  return enumFromVariant<LineType>(format.property(property::lineType));
+  return qvariant_enum_cast<LineType>(format.property(property::lineType));
 }
 
 QString
@@ -37,7 +37,7 @@ getPrompts(const QTextCharFormat& format)
 SendTo
 getSendTo(const QTextCharFormat& format)
 {
-  return enumFromVariant<SendTo>(format.property(property::sendTo));
+  return qvariant_enum_cast<SendTo>(format.property(property::sendTo));
 }
 
 TextStyles
@@ -61,13 +61,13 @@ hasPrompts(const QTextCharFormat& format)
 void
 setLineType(QTextCharFormat& format, LineType type)
 {
-  format.setProperty(property::lineType, enumToVariant(type));
+  format.setProperty(property::lineType, to_underlying(type));
 }
 
 void
 setSendTo(QTextCharFormat& format, SendTo sendTo)
 {
-  format.setProperty(property::sendTo, enumToVariant(sendTo));
+  format.setProperty(property::sendTo, to_underlying(sendTo));
 }
 
 void

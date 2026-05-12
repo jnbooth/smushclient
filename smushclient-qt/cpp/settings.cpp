@@ -38,7 +38,7 @@ using pass_by_t =
 #define SETTING_ENUM(name, T, defaultValue, key)                               \
   void Settings::set##name(T value)                                            \
   {                                                                            \
-    store.setValue(key ""_L1, enumToVariant(value));                           \
+    store.setValue(key ""_L1, to_underlying(value));                           \
   }                                                                            \
                                                                                \
   T Settings::get##name() const                                                \
@@ -47,7 +47,7 @@ using pass_by_t =
     if (value.isNull()) {                                                      \
       return defaultValue;                                                     \
     }                                                                          \
-    return enumFromVariant<T>(value);                                          \
+    return qvariant_enum_cast<T>(value);                                       \
   }
 
 // Private utils
