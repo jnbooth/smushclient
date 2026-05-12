@@ -712,11 +712,13 @@ push(lua_State* L, QChar value)
 void
 push(lua_State* L, const QRect& value)
 {
+  int x, y, w, h;
+  value.getRect(&x, &y, &w, &h);
   lua_createtable(L, 0, 4);
-  pushEntry(L, "top", value.top());
-  pushEntry(L, "height", value.height());
-  pushEntry(L, "left", value.left());
-  pushEntry(L, "width", value.width());
+  pushEntry(L, "top", y);
+  pushEntry(L, "height", h);
+  pushEntry(L, "left", x);
+  pushEntry(L, "width", w);
 }
 
 void
