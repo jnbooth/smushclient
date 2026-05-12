@@ -1,7 +1,9 @@
 #include "settings.h"
+#include "casting.h"
 #include "environment.h"
 #include <QtGui/QColor>
 #include <QtGui/QFontDatabase>
+#include <type_traits>
 
 using Qt::StringLiterals::operator""_L1;
 
@@ -11,35 +13,41 @@ using Qt::StringLiterals::operator""_L1;
 #define DIR_SEP "/"
 #endif
 
-// clang-format off
-template<typename T> struct SettingInput    { using Type = T; };
-template<> struct SettingInput<QColor>      { using Type = const QColor &; };
-template<> struct SettingInput<QFont>       { using Type = const QFont &; };
-template<> struct SettingInput<QString>     { using Type = const QString &; };
-template<> struct SettingInput<QStringList> { using Type = const QStringList &; };
-template<> struct SettingInput<QVariant>    { using Type = const QVariant&; };
-// clang-format on
+template<typename T>
+using pass_by_t =
+  std::conditional_t<std::is_trivially_copy_constructible_v<T> &&
+                       sizeof(T) <= 8,
+                     T,
+                     const T&>;
 
 #define SETTING(name, T, defaultValue, key)                                    \
-  void Settings::set##name(SettingInput<T>::Type value)                        \
+  void Settings::set##name(pass_by_t<T> value)                                 \
   {                                                                            \
     store.setValue(key ""_L1, value);                                          \
   }                                                                            \
+                                                                               \
   T Settings::get##name() const                                                \
   {                                                                            \
-    return store.contains(key ""_L1) ? store.value(key).value<T>()             \
-                                     : (defaultValue);                         \
+    const QVariant value = store.value(key ""_L1);                             \
+    if (value.isNull()) {                                                      \
+      return defaultValue;                                                     \
+    }                                                                          \
+    return qvariant_cast<T>(value);                                            \
   }
 
 #define SETTING_ENUM(name, T, defaultValue, key)                               \
-  void Settings::set##name(SettingInput<T>::Type value)                        \
+  void Settings::set##name(T value)                                            \
   {                                                                            \
-    store.setValue(key ""_L1, (int)value);                                     \
+    store.setValue(key ""_L1, enumToVariant(value));                           \
   }                                                                            \
+                                                                               \
   T Settings::get##name() const                                                \
   {                                                                            \
-    return store.contains(key ""_L1) ? (T)store.value(key).value<T>()          \
-                                     : (defaultValue);                         \
+    const QVariant value = store.value(key ""_L1);                             \
+    if (value.isNull()) {                                                      \
+      return defaultValue;                                                     \
+    }                                                                          \
+    return enumFromVariant<T>(value);                                          \
   }
 
 // Private utils
@@ -52,8 +60,6 @@ getDefaultFont(int pointSize)
   defaultFont.setPointSize(pointSize);
   return defaultFont;
 }
-
-const QFont defaultFont = getDefaultFont(12);
 } // namespace
 
 // Public methods
@@ -211,7 +217,7 @@ SETTING(AutoConnect, bool, true, "connecting/auto");
 SETTING(BackgroundMaterial, int, 12, "background/material");
 SETTING(BackgroundTransparent, bool, false, "background/transparent");
 
-SETTING(BellSound, QString, QString(), "sound/bell");
+SETTING(BellSound, QString, {}, "sound/bell");
 
 SETTING(ConfirmQuit, bool, false, "closing/app");
 
@@ -224,7 +230,7 @@ SETTING(InputForeground, QColor, Qt::black, "input/foreground");
 SETTING(InputHistoryLimit, bool, true, "input/history/limit");
 SETTING(InputHistoryLines, int, 100, "input/history/lines");
 
-SETTING(LastFiles, QStringList, QStringList(), "startup/reopen");
+SETTING(LastFiles, QStringList, {}, "startup/reopen");
 
 SETTING(LoggingEnabled, bool, true, "logging/enable");
 
@@ -232,7 +238,7 @@ SETTING(NotepadFont, QFont, getDefaultFont(12), "notepad/font");
 SETTING(NotepadBackground, QColor, Qt::white, "notepad/background");
 SETTING(NotepadForeground, QColor, Qt::black, "notepad/foreground");
 
-SETTING(OpenAtStartup, QStringList, QStringList(), "startup/list");
+SETTING(OpenAtStartup, QStringList, {}, "startup/list");
 
 SETTING(OutputFont, QFont, getDefaultFont(12), "output/font");
 SETTING(OutputHistoryEnabled, bool, true, "output/history/enable");
@@ -256,7 +262,7 @@ SETTING_ENUM(StartupBehavior,
              Settings::StartupBehavior,
              StartupBehavior::Reopen,
              "startup/behavior");
-SETTING(StartupDirectory, QString, QString(), "startup/directory");
+SETTING(StartupDirectory, QString, {}, "startup/directory");
 
 SETTING_ENUM(WorldCloseBehavior,
              Settings::WorldCloseBehavior,

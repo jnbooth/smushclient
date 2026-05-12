@@ -51,3 +51,22 @@ clamped_cast(From n) noexcept
 {
   return static_cast<To>(n);
 }
+
+class QVariant;
+template<typename T>
+T
+qvariant_cast(const QVariant& v);
+
+template<typename T>
+T
+enumFromVariant(const QVariant& variant)
+{
+  return static_cast<T>(qvariant_cast<std::underlying_type_t<T>>(variant));
+}
+
+template<typename T>
+std::underlying_type_t<T>
+enumToVariant(T value)
+{
+  return static_cast<std::underlying_type_t<T>>(value);
+}

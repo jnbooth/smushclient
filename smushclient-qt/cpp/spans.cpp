@@ -1,4 +1,5 @@
 #include "spans.h"
+#include "casting.h"
 #include <QtCore/QDateTime>
 #include <QtCore/QRegularExpression>
 
@@ -12,38 +13,19 @@ const int timestamp = QTextBlockFormat::UserProperty;
 const int timer = QTextBlockFormat::UserProperty + 1;
 } // namespace property
 
-// Private utils
-
-namespace {
-template<typename T>
-T
-getUnderlying(const QTextCharFormat& format, int prop)
-{
-  return static_cast<T>(
-    format.property(prop).value<std::underlying_type_t<T>>());
-}
-
-template<typename T>
-void
-setUnderlying(QTextCharFormat& format, int prop, T value)
-{
-  format.setProperty(prop, static_cast<std::underlying_type_t<T>>(value));
-}
-} // namespace
-
 // Public functions
 
 namespace spans {
 QElapsedTimer
 getElapsed(const QTextBlockFormat& format)
 {
-  return format.property(property::timestamp).value<QElapsedTimer>();
+  return qvariant_cast<QElapsedTimer>(format.property(property::timestamp));
 }
 
 LineType
 getLineType(const QTextCharFormat& format)
 {
-  return getUnderlying<LineType>(format, property::lineType);
+  return enumFromVariant<LineType>(format.property(property::lineType));
 }
 
 QString
@@ -55,7 +37,7 @@ getPrompts(const QTextCharFormat& format)
 SendTo
 getSendTo(const QTextCharFormat& format)
 {
-  return getUnderlying<SendTo>(format, property::sendTo);
+  return enumFromVariant<SendTo>(format.property(property::sendTo));
 }
 
 TextStyles
@@ -79,13 +61,13 @@ hasPrompts(const QTextCharFormat& format)
 void
 setLineType(QTextCharFormat& format, LineType type)
 {
-  setUnderlying(format, property::lineType, type);
+  format.setProperty(property::lineType, enumToVariant(type));
 }
 
 void
 setSendTo(QTextCharFormat& format, SendTo sendTo)
 {
-  setUnderlying(format, property::sendTo, sendTo);
+  format.setProperty(property::sendTo, enumToVariant(sendTo));
 }
 
 void

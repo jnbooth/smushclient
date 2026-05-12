@@ -725,25 +725,25 @@ qlua::push(lua_State* L, const QVariant& value)
       push(L, value.toByteArray());
       return;
     case QMetaType::Char:
-      push(L, value.value<char>());
+      push(L, qvariant_cast<char>(value));
       return;
     case QMetaType::Char16:
-      push(L, value.value<char16_t>());
+      push(L, qvariant_cast<char16_t>(value));
       return;
     case QMetaType::Char32:
-      push(L, value.value<char32_t>());
+      push(L, qvariant_cast<char32_t>(value));
       return;
     case QMetaType::SChar:
-      push(L, value.value<signed char>());
+      push(L, qvariant_cast<signed char>(value));
       return;
     case QMetaType::UChar:
-      push(L, value.value<unsigned char>());
+      push(L, qvariant_cast<unsigned char>(value));
       return;
     case QMetaType::QBrush:
-      push(L, value.value<QBrush>().color());
+      push(L, qvariant_cast<QBrush>(value).color());
       return;
     case QMetaType::QColor:
-      push(L, value.value<QColor>());
+      push(L, qvariant_cast<QColor>(value));
       return;
     case QMetaType::QUuid:
       push(L, value.toUuid());

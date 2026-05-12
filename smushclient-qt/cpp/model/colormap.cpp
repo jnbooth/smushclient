@@ -118,7 +118,7 @@ ColorMapModel::setData(const QModelIndex& index,
   if (role != Qt::BackgroundRole) {
     return false;
   }
-  return setValue(index, value.value<QColor>());
+  return setValue(index, qvariant_cast<QColor>(value));
 }
 
 // Private methods
