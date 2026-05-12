@@ -804,6 +804,7 @@ push(lua_State* L, const QVariant& value)
       if (value.canConvert<qlonglong>()) {
         push(L, value.toLongLong());
       } else {
+        qWarning() << "Unrecognized variant:" << value;
         lua_pushnil(L);
       }
       return;

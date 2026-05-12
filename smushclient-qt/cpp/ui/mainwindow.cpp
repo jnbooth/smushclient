@@ -133,7 +133,7 @@ MainWindow::setBackgroundMaterial(optional<int> material)
     return;
   }
   if (int error = native::setBackgroundMaterial(this, *material)) {
-    qWarning() << "Setting background material failed with code " << error;
+    qWarning() << "Setting background material failed with code" << error;
   }
   repaint();
 }
