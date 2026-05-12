@@ -110,8 +110,9 @@ toQString(lua_State* L, int idx)
 
 // Public functions
 
+namespace qlua {
 QColor
-qlua::rgbCodeToColor(lua_Integer rgb) noexcept
+rgbCodeToColor(lua_Integer rgb) noexcept
 {
   if (rgb == -1 || rgb > 0xFFFFFF) [[unlikely]] {
     return QColor();
@@ -121,7 +122,7 @@ qlua::rgbCodeToColor(lua_Integer rgb) noexcept
 }
 
 lua_Integer
-qlua::colorToRgbCode(const QColor& color)
+colorToRgbCode(const QColor& color)
 {
   if (!color.isValid()) [[unlikely]] {
     return -1;
@@ -133,7 +134,7 @@ qlua::colorToRgbCode(const QColor& color)
 
 template<>
 QByteArray
-qlua::concatArgs(lua_State* L, int startIdx, bool spaced)
+concatArgs(lua_State* L, int startIdx, bool spaced)
 {
   argstream output;
   doConcatArgs(output, L, startIdx, spaced);
@@ -142,7 +143,7 @@ qlua::concatArgs(lua_State* L, int startIdx, bool spaced)
 
 template<>
 QString
-qlua::concatArgs(lua_State* L, int startIdx, bool spaced)
+concatArgs(lua_State* L, int startIdx, bool spaced)
 {
   argstream output;
   doConcatArgs(output, L, startIdx, spaced);
@@ -151,7 +152,7 @@ qlua::concatArgs(lua_State* L, int startIdx, bool spaced)
 
 template<>
 std::string
-qlua::concatArgs(lua_State* L, int startIdx, bool spaced)
+concatArgs(lua_State* L, int startIdx, bool spaced)
 {
   argstream output;
   doConcatArgs(output, L, startIdx, spaced);
@@ -159,7 +160,7 @@ qlua::concatArgs(lua_State* L, int startIdx, bool spaced)
 }
 
 bool
-qlua::copyValue(lua_State* fromL, lua_State* toL, int idx)
+copyValue(lua_State* fromL, lua_State* toL, int idx)
 {
   switch (lua_type(fromL, idx)) {
     case LUA_TNONE:
@@ -194,7 +195,7 @@ qlua::copyValue(lua_State* fromL, lua_State* toL, int idx)
 }
 
 int
-qlua::throwTooManyArgsError(lua_State* L, int max)
+throwTooManyArgsError(lua_State* L, int max)
 {
   const int n = lua_gettop(L);
   lua_Debug ar;
@@ -207,7 +208,7 @@ qlua::throwTooManyArgsError(lua_State* L, int max)
 }
 
 bool
-qlua::getBool(lua_State* L, int idx, optional<bool> ifNil)
+getBool(lua_State* L, int idx, optional<bool> ifNil)
 {
   const int type = lua_type(L, idx);
   switch (type) {
@@ -253,7 +254,7 @@ qlua::getBool(lua_State* L, int idx, optional<bool> ifNil)
 }
 
 QByteArrayView
-qlua::getBytes(lua_State* L, int idx, optional<QByteArrayView> ifNil)
+getBytes(lua_State* L, int idx, optional<QByteArrayView> ifNil)
 {
   if (checkTypeOrNil(L, idx, LUA_TSTRING, !!ifNil)) {
     return *ifNil;
@@ -262,7 +263,7 @@ qlua::getBytes(lua_State* L, int idx, optional<QByteArrayView> ifNil)
 }
 
 int
-qlua::getInt(lua_State* L, int idx, optional<int> ifNil)
+getInt(lua_State* L, int idx, optional<int> ifNil)
 {
   if (checkTypeOrNil(L, idx, LUA_TNUMBER, !!ifNil, "integer")) {
     return *ifNil;
@@ -271,7 +272,7 @@ qlua::getInt(lua_State* L, int idx, optional<int> ifNil)
 }
 
 lua_Integer
-qlua::getInteger(lua_State* L, int idx, optional<lua_Integer> ifNil)
+getInteger(lua_State* L, int idx, optional<lua_Integer> ifNil)
 {
   if (checkTypeOrNil(L, idx, LUA_TNUMBER, !!ifNil, "integer")) {
     return *ifNil;
@@ -280,7 +281,7 @@ qlua::getInteger(lua_State* L, int idx, optional<lua_Integer> ifNil)
 }
 
 lua_Integer
-qlua::getOption(lua_State* L, int idx)
+getOption(lua_State* L, int idx)
 {
   switch (lua_type(L, idx)) {
     case LUA_TNIL:
@@ -301,7 +302,7 @@ qlua::getOption(lua_State* L, int idx)
 }
 
 lua_Number
-qlua::getNumber(lua_State* L, int idx, optional<lua_Number> ifNil)
+getNumber(lua_State* L, int idx, optional<lua_Number> ifNil)
 {
   if (checkTypeOrNil(L, idx, LUA_TNUMBER, !!ifNil)) {
     return *ifNil;
@@ -312,7 +313,7 @@ qlua::getNumber(lua_State* L, int idx, optional<lua_Number> ifNil)
 }
 
 optional<Qt::BrushStyle>
-qlua::getBrush(lua_State* L, int idx, optional<Qt::BrushStyle> ifNil)
+getBrush(lua_State* L, int idx, optional<Qt::BrushStyle> ifNil)
 {
   if (checkTypeOrNil(L, idx, LUA_TNUMBER, !!ifNil, "integer")) {
     return ifNil;
@@ -349,7 +350,7 @@ qlua::getBrush(lua_State* L, int idx, optional<Qt::BrushStyle> ifNil)
 }
 
 optional<Qt::CursorShape>
-qlua::getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil)
+getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil)
 {
   if (checkTypeOrNil(L, idx, LUA_TNUMBER, !!ifNil, "integer")) {
     return ifNil;
@@ -386,7 +387,7 @@ qlua::getCursor(lua_State* L, int idx, optional<Qt::CursorShape> ifNil)
 }
 
 QColor
-qlua::getCustomColor(lua_State* L, int idx, optional<QColor> ifNil)
+getCustomColor(lua_State* L, int idx, optional<QColor> ifNil)
 {
   if (checkTypeOrNil(L, idx, LUA_TNUMBER, !!ifNil, "integer")) {
     return *ifNil;
@@ -397,10 +398,10 @@ qlua::getCustomColor(lua_State* L, int idx, optional<QColor> ifNil)
 }
 
 optional<QBrush>
-qlua::getQBrush(lua_State* L,
-                int idxColor,
-                int idxStyle,
-                optional<Qt::BrushStyle> ifNil)
+getQBrush(lua_State* L,
+          int idxColor,
+          int idxStyle,
+          optional<Qt::BrushStyle> ifNil)
 {
   const QColor color = getQColor(L, idxColor);
   const optional<Qt::BrushStyle> style = getBrush(L, idxStyle, ifNil);
@@ -411,7 +412,7 @@ qlua::getQBrush(lua_State* L,
 }
 
 QColor
-qlua::getQColor(lua_State* L, int idx, optional<QColor> ifNil)
+getQColor(lua_State* L, int idx, optional<QColor> ifNil)
 {
   switch (lua_type(L, idx)) {
     case LUA_TNONE:
@@ -450,7 +451,7 @@ qlua::getQColor(lua_State* L, int idx, optional<QColor> ifNil)
 }
 
 QFont
-qlua::getQFont(lua_State* L, int idxFamily)
+getQFont(lua_State* L, int idxFamily)
 {
   QFont font;
   QString family = getQString(L, idxFamily, {});
@@ -469,7 +470,7 @@ qlua::getQFont(lua_State* L, int idxFamily)
 }
 
 QFont
-qlua::getQFont(lua_State* L, int idxFamily, int idxSize)
+getQFont(lua_State* L, int idxFamily, int idxSize)
 {
   enum StyleFlag : int64_t
   {
@@ -488,7 +489,7 @@ qlua::getQFont(lua_State* L, int idxFamily, int idxSize)
 }
 
 QFont
-qlua::getQFont(lua_State* L, int idxFamily, int idxSize, int idxStyle)
+getQFont(lua_State* L, int idxFamily, int idxSize, int idxStyle)
 {
   enum StyleFlag : int64_t
   {
@@ -509,14 +510,14 @@ qlua::getQFont(lua_State* L, int idxFamily, int idxSize, int idxStyle)
 }
 
 QLine
-qlua::getQLine(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2)
+getQLine(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2)
 {
   return QLine(
     getInt(L, idxX1), getInt(L, idxY1), getInt(L, idxX2), getInt(L, idxY2));
 }
 
 QLineF
-qlua::getQLineF(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2)
+getQLineF(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2)
 {
   return QLineF(getNumber(L, idxX1),
                 getNumber(L, idxY1),
@@ -525,19 +526,19 @@ qlua::getQLineF(lua_State* L, int idxX1, int idxY1, int idxX2, int idxY2)
 }
 
 QPoint
-qlua::getQPoint(lua_State* L, int idxX, int idxY)
+getQPoint(lua_State* L, int idxX, int idxY)
 {
   return QPoint(getInt(L, idxX), getInt(L, idxY));
 }
 
 QPointF
-qlua::getQPointF(lua_State* L, int idxX, int idxY)
+getQPointF(lua_State* L, int idxX, int idxY)
 {
   return QPointF(getNumber(L, idxX), getNumber(L, idxY));
 }
 
 optional<QPen>
-qlua::getQPen(lua_State* L, int idxColor, int idxStyle, int idxWidth)
+getQPen(lua_State* L, int idxColor, int idxStyle, int idxWidth)
 {
   const QColor color = getQColor(L, idxColor);
   const lua_Integer style = getInteger(L, idxStyle);
@@ -550,7 +551,7 @@ qlua::getQPen(lua_State* L, int idxColor, int idxStyle, int idxWidth)
 }
 
 optional<QPolygonF>
-qlua::getQPolygonF(lua_State* L, int idx)
+getQPolygonF(lua_State* L, int idx)
 {
   switch (lua_type(L, idx)) {
     case LUA_TSTRING: {
@@ -605,48 +606,40 @@ qlua::getQPolygonF(lua_State* L, int idx)
 }
 
 QRect
-qlua::getQRect(lua_State* L,
-               int idxLeft,
-               int idxTop,
-               int idxRight,
-               int idxBottom)
+getQRect(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom)
 {
   return QRect(QPoint(getInt(L, idxLeft), getInt(L, idxTop)),
                QPoint(getInt(L, idxRight), getInt(L, idxBottom)));
 }
 
 QRectF
-qlua::getQRectF(lua_State* L,
-                int idxLeft,
-                int idxTop,
-                int idxRight,
-                int idxBottom)
+getQRectF(lua_State* L, int idxLeft, int idxTop, int idxRight, int idxBottom)
 {
   return QRectF(QPointF(getNumber(L, idxLeft), getNumber(L, idxTop)),
                 QPointF(getNumber(L, idxRight), getNumber(L, idxBottom)));
 }
 
 QSize
-qlua::getQSize(lua_State* L, int idxWidth, int idxHeight)
+getQSize(lua_State* L, int idxWidth, int idxHeight)
 {
   return QSize(getInt(L, idxWidth), getInt(L, idxHeight));
 }
 
 QSizeF
-qlua::getQSizeF(lua_State* L, int idxWidth, int idxHeight)
+getQSizeF(lua_State* L, int idxWidth, int idxHeight)
 {
   return QSizeF(getNumber(L, idxWidth), getNumber(L, idxHeight));
 }
 
 QString
-qlua::getQString(lua_State* L, int idx)
+getQString(lua_State* L, int idx)
 {
   checkTypeOrNil(L, idx, LUA_TSTRING, false);
   return toQString(L, idx);
 }
 
 QString
-qlua::getQString(lua_State* L, int idx, const QString& ifNil)
+getQString(lua_State* L, int idx, const QString& ifNil)
 {
   if (checkTypeOrNil(L, idx, LUA_TSTRING, true)) {
     return ifNil;
@@ -655,7 +648,7 @@ qlua::getQString(lua_State* L, int idx, const QString& ifNil)
 }
 
 string_view
-qlua::getString(lua_State* L, int idx, optional<string_view> ifNil)
+getString(lua_State* L, int idx, optional<string_view> ifNil)
 {
   if (checkTypeOrNil(L, idx, LUA_TSTRING, !!ifNil)) {
     return *ifNil;
@@ -664,7 +657,7 @@ qlua::getString(lua_State* L, int idx, optional<string_view> ifNil)
 }
 
 bool
-qlua::isScriptName(lua_State* L, string_view name)
+isScriptName(lua_State* L, string_view name)
 {
   const size_t dotIndex = name.find('.');
   if (dotIndex == string_view::npos) {
@@ -686,7 +679,7 @@ qlua::isScriptName(lua_State* L, string_view name)
 
 template<>
 void
-qlua::push(lua_State* L, char16_t value)
+push(lua_State* L, char16_t value)
 {
   if (value <= 127) [[likely]] {
     push(L, static_cast<char>(value));
@@ -697,7 +690,7 @@ qlua::push(lua_State* L, char16_t value)
 
 template<>
 void
-qlua::push(lua_State* L, char32_t value)
+push(lua_State* L, char32_t value)
 {
   if (value <= 127) [[likely]] {
     push(L, static_cast<char>(value));
@@ -707,7 +700,7 @@ qlua::push(lua_State* L, char32_t value)
 }
 
 void
-qlua::push(lua_State* L, QChar value)
+push(lua_State* L, QChar value)
 {
   if (value.unicode() <= 127) [[likely]] {
     push(L, static_cast<char>(value.unicode()));
@@ -717,7 +710,7 @@ qlua::push(lua_State* L, QChar value)
 }
 
 void
-qlua::push(lua_State* L, const QRect& value)
+push(lua_State* L, const QRect& value)
 {
   lua_createtable(L, 0, 4);
   pushEntry(L, "top", value.top());
@@ -727,7 +720,7 @@ qlua::push(lua_State* L, const QRect& value)
 }
 
 void
-qlua::push(lua_State* L, const QVariant& value)
+push(lua_State* L, const QVariant& value)
 {
   switch (value.typeId()) {
     case QMetaType::UnknownType:
@@ -814,3 +807,4 @@ qlua::push(lua_State* L, const QVariant& value)
       return;
   }
 }
+} // namespace qlua
