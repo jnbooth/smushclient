@@ -1,5 +1,5 @@
 #pragma once
-#include "../enumbounds.h"
+#include "../enum_bounds.h"
 #include <QtCore/QFlags>
 #include <QtGui/QFont>
 #include <QtGui/QPen>

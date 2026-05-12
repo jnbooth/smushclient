@@ -1,5 +1,5 @@
 #pragma once
-#include "../../enumbounds.h"
+#include "../../enum_bounds.h"
 #include <QtGui/QPixmap>
 #include <smushclient_qt/src/ffi/filter.cxx.h>
 

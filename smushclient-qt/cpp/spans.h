@@ -1,5 +1,5 @@
 #pragma once
-#include "enumbounds.h"
+#include "enum_bounds.h"
 #include <QtCore/QElapsedTimer>
 #include <QtGui/QTextCursor>
 #include <smushclient_qt/src/ffi/spans.cxx.h>

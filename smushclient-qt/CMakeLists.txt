@@ -68,7 +68,7 @@ qt_add_executable(${APP_NAME}
     cpp/casting.h
     cpp/commandhistory.h cpp/commandhistory.cpp
     cpp/config.h
-    cpp/enumbounds.h
+    cpp/enum_bounds.h
     cpp/environment.h cpp/environment.cpp
     cpp/fieldconnector.h
     cpp/hotkeys.h cpp/hotkeys.cpp

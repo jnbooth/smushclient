@@ -1,5 +1,5 @@
 #pragma once
-#include "../../enumbounds.h"
+#include "../../enum_bounds.h"
 #include "../../string_map.h"
 #include "../scriptenums.h"
 #include "hotspot.h"

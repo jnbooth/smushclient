@@ -1,6 +1,6 @@
 #pragma once
 #include "../casting.h"
-#include "../enumbounds.h"
+#include "../enum_bounds.h"
 #include "qlua_internal.h"
 #include <QtCore/QCryptographicHash>
 #include <QtCore/QDateTime>
