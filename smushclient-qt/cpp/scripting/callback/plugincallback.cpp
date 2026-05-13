@@ -167,79 +167,43 @@ TimerCallback::pushArguments(lua_State* L) const
   return 1;
 }
 
-namespace {
-QByteArray
-  emptyByteArray; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-}; // namespace
-
-namespace namedCallbacks {
-constexpr OnPluginBroadcast onBroadcast({}, {}, {}, {});
-constexpr OnPluginClose onClose;
-constexpr OnPluginCommand onCommand({}, {});
-constexpr OnPluginCommandChanged onCommandChanged;
-constexpr OnPluginCommandEntered onCommandEntered({}, emptyByteArray);
-constexpr OnPluginConnect onConnect;
-constexpr OnPluginDisable onDisable;
-constexpr OnPluginDisconnect onDisconnect;
-constexpr OnPluginEnable onEnable;
-constexpr OnPluginGetFocus onGetFocus;
-constexpr OnPluginIacGa onIacGa;
-constexpr OnPluginInstall onInstall;
-constexpr OnPluginLineReceived onLineReceived({});
-constexpr OnPluginListChanged onListChanged;
-constexpr OnPluginLoseFocus onLoseFocus;
-constexpr OnPluginMXPSetEntity onMXPSetEntity({});
-constexpr OnPluginMXPSetVariable onMXPSetVariable({}, {});
-constexpr OnPluginMXPStart onMXPStart;
-constexpr OnPluginMXPStop onMXPStop;
-constexpr OnPluginPartialLineReceived onPartialLineReceived({});
-constexpr OnPluginPlaySound onPlaySound({});
-constexpr OnPluginSaveState onSaveState;
-constexpr OnPluginSelectionChanged onSelectionChanged;
-constexpr OnPluginSend onSend({});
-constexpr OnPluginSent onSent({});
-constexpr OnPluginTelnetOption onTelnetOption({});
-constexpr OnPluginTelnetRequest onTelnetRequest({}, {});
-constexpr OnPluginTelnetSubnegotiation onTelnetSubnegotiation({}, {});
-constexpr OnPluginWorldSave onWorldSave;
-constexpr OnPluginWorldOutputResized onWorldOutputResized;
-constexpr std::array<const NamedPluginCallback*, 30> list{
-  &onBroadcast,
-  &onClose,
-  &onCommand,
-  &onCommandChanged,
-  &onCommandEntered,
-  &onConnect,
-  &onDisable,
-  &onDisconnect,
-  &onEnable,
-  &onGetFocus,
-  &onIacGa,
-  &onInstall,
-  &onLineReceived,
-  &onListChanged,
-  &onLoseFocus,
-  &onMXPSetEntity,
-  &onMXPSetVariable,
-  &onMXPStart,
-  &onMXPStop,
-  &onPartialLineReceived,
-  &onPlaySound,
-  &onSaveState,
-  &onSelectionChanged,
-  &onSend,
-  &onSent,
-  &onTelnetOption,
-  &onTelnetRequest,
-  &onTelnetSubnegotiation,
-  &onWorldSave,
-  &onWorldOutputResized,
-};
-constexpr std::span<const NamedPluginCallback* const> span(list);
-} // namespace namedCallbacks
-
-std::span<const NamedPluginCallback* const>
+std::span<const NamedPluginCallback::Metadata>
 NamedPluginCallback::list()
 {
-  return namedCallbacks::span;
+  static QByteArray emptyByteArray;
+
+  static constexpr std::initializer_list<Metadata> list{
+    OnPluginBroadcast({}, {}, {}, {}),
+    OnPluginClose(),
+    OnPluginCommand({}, {}),
+    OnPluginCommandChanged(),
+    OnPluginCommandEntered(ActionSource::Unknown, emptyByteArray),
+    OnPluginConnect(),
+    OnPluginDisable(),
+    OnPluginDisconnect(),
+    OnPluginEnable(),
+    OnPluginGetFocus(),
+    OnPluginIacGa(),
+    OnPluginInstall(),
+    OnPluginLineReceived({}),
+    OnPluginListChanged(),
+    OnPluginLoseFocus(),
+    OnPluginMXPSetEntity({}),
+    OnPluginMXPSetVariable({}, {}),
+    OnPluginMXPStart(),
+    OnPluginMXPStop(),
+    OnPluginPartialLineReceived({}),
+    OnPluginPlaySound({}),
+    OnPluginSaveState(),
+    OnPluginSelectionChanged(),
+    OnPluginSend({}),
+    OnPluginSent({}),
+    OnPluginTelnetOption({}),
+    OnPluginTelnetRequest({}, {}),
+    OnPluginTelnetSubnegotiation({}, {}),
+    OnPluginWorldSave(),
+    OnPluginWorldOutputResized(),
+  };
+  constexpr std::span<const NamedPluginCallback::Metadata> span(list);
+  return span;
 }

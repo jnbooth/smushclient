@@ -561,12 +561,11 @@ int
 L_callbackslist(lua_State* L)
 {
   expectMaxArgs(L, 0);
-  const std::span<const NamedPluginCallback* const> callbacks =
-    NamedPluginCallback::list();
+  const std::span callbacks = NamedPluginCallback::list();
   lua_createtable(L, static_cast<int>(callbacks.size()), 0);
   lua_Integer i = 0;
-  for (const NamedPluginCallback* const callback : callbacks) {
-    push(L, callback->name());
+  for (const auto& callback : callbacks) {
+    push(L, callback.name);
     lua_rawseti(L, -2, ++i);
   }
   return 1;
@@ -812,8 +811,8 @@ L_msgbox(lua_State* L)
   const QMessageBox::Icon icon = getMessageBoxIcon(getString(L, 4, "!"));
   const lua_Integer defaultButton = getInteger(L, 5, 1);
 
-  const QMessageBox::StandardButtons buttons =
-    buttonArray[0] | buttonArray[1] | buttonArray[2];
+  const auto& [b0, b1, b2] = buttonArray;
+  const QMessageBox::StandardButtons buttons = b0 | b1 | b2;
   luaL_argcheck(L, buttons != Button::NoButton, 3, "msgbox type unknown");
   luaL_argcheck(L, icon != QMessageBox::Icon::NoIcon, 4, "msgbox type unknown");
   luaL_argcheck(L,
@@ -897,7 +896,7 @@ L_split(lua_State* L)
 
   const size_t sepSize = sep.size();
   if (sepSize == 1) {
-    splitLua(L, input, sep[0], max);
+    splitLua(L, input, sep.front(), max);
   } else {
     splitLua(L, input, sep, max);
   }

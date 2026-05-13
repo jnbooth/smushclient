@@ -472,14 +472,6 @@ getQFont(lua_State* L, int idxFamily)
 QFont
 getQFont(lua_State* L, int idxFamily, int idxSize)
 {
-  enum StyleFlag : int64_t
-  {
-    Bold = 1,
-    Italic = 2,
-    Underline = 4,
-    StrikeOut = 8,
-  };
-
   QFont font = getQFont(L, idxFamily);
   const qreal pointSize = getNumber(L, idxSize, 0);
   if (pointSize > 0) {

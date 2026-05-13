@@ -307,6 +307,18 @@ concept PushableEntry =
   Pushable<typename typeHelpers::entry_traits<T>::key_type> &&
   Pushable<typename typeHelpers::entry_traits<T>::mapped_type>;
 
+template<Pushable T>
+void
+pushList(lua_State* L, std::initializer_list<T> list)
+{
+  lua_createtable(L, list.size(), 0);
+  lua_Integer i = 0;
+  for (const auto& item : list) {
+    push(L, item);
+    lua_rawseti(L, -2, ++i);
+  }
+}
+
 template<Pushable T, size_t N>
 void
 pushList(lua_State* L, const T (&list)[N])
@@ -349,20 +361,11 @@ pushEntry(lua_State* L, const char* key, V value, int idx = -1)
   lua_setfield(L, idx < 0 ? idx - 1 : idx, key);
 }
 
-template<PushableEntry T, size_t N>
+template<PushableEntry T>
 void
-pushEntries(lua_State* L, const T (&entries)[N])
+pushMap(lua_State* L, std::initializer_list<T> entries)
 {
-  for (const auto& [key, value] : entries) {
-    pushEntry(L, key, value);
-  }
-}
-
-template<typename T>
-void
-pushEntries(lua_State* L, const T& entries)
-  requires(PushableEntry<typeHelpers::element_t<T>>)
-{
+  lua_createtable(L, 0, entries.size());
   for (const auto& [key, value] : entries) {
     pushEntry(L, key, value);
   }
@@ -373,7 +376,9 @@ void
 pushMap(lua_State* L, const T (&entries)[N])
 {
   lua_createtable(L, 0, N);
-  pushEntries(L, entries);
+  for (const auto& [key, value] : entries) {
+    pushEntry(L, key, value);
+  }
 }
 
 template<typename T>
@@ -383,7 +388,9 @@ pushMap(lua_State* L, const T& entries)
            PushableEntry<typeHelpers::element_t<T>>)
 {
   lua_createtable(L, 0, static_cast<int>(entries.size()));
-  pushEntries(L, entries);
+  for (const auto& [key, value] : entries) {
+    pushEntry(L, key, value);
+  }
 }
 
 template<typename T>
@@ -392,6 +399,8 @@ pushMap(lua_State* L, const T& map)
   requires(Pushable<typename T::key_type> && Pushable<typename T::mapped_type>)
 {
   lua_createtable(L, 0, static_cast<int>(map.size()));
-  pushEntries(L, map.asKeyValueRange());
+  for (const auto& [key, value] : map.asKeyValueRange()) {
+    pushEntry(L, key, value);
+  }
 }
 } // namespace qlua

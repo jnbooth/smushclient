@@ -301,7 +301,7 @@ void
 MainWindow::openRecentFile(qsizetype index)
 {
   const QStringList recentFiles = settings.getRecentFiles();
-  if (index >= recentFiles.length()) {
+  if (index < 0 || index >= recentFiles.length()) {
     return;
   }
 
@@ -314,7 +314,7 @@ MainWindow::openRecentFile(qsizetype index)
     }
   }
 
-  openWorld(recentFiles.at(index));
+  openWorld(filePath);
 }
 
 bool

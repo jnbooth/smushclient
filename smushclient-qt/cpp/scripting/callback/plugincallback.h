@@ -5,7 +5,6 @@
 struct lua_State;
 
 #define CALLBACK(idNumber, nameString, sourceAction)                           \
-  static const unsigned int ID = 1 << (idNumber);                              \
   constexpr unsigned int id() const noexcept override                          \
   {                                                                            \
     return 1 << (idNumber);                                                    \
@@ -59,7 +58,20 @@ private:
 class NamedPluginCallback : public PluginCallback
 {
 public:
-  static std::span<const NamedPluginCallback* const> list();
+  struct Metadata
+  {
+    unsigned int id;
+    const char* name;
+
+    // NOLINTBEGIN(google-explicit-constructor, hicpp-explicit-conversions)
+    constexpr Metadata(const NamedPluginCallback& callback) noexcept
+      : id(callback.id())
+      , name(callback.name())
+    {
+    }
+    // NOLINTEND(google-explicit-constructor, hicpp-explicit-conversions)
+  };
+  static std::span<const NamedPluginCallback::Metadata> list();
 
 public:
   virtual const char* name() const noexcept = 0;
