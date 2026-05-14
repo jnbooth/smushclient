@@ -92,6 +92,18 @@ doConcatArgs(argstream& output, lua_State* L, int startIdx, bool spaced)
   }
 }
 
+int
+throwTooManyArgsError(lua_State* L, int n, int max)
+{
+  lua_Debug ar;
+  const char* name =
+    lua_getstack(L, 0, &ar) && lua_getinfo(L, "n", &ar) && ar.name != nullptr
+      ? ar.name
+      : "?";
+  return luaL_error(
+    L, "expected at most %d arguments to '%s', got %d", max, name, n);
+}
+
 inline lua_Integer
 toInteger(lua_State* L, int idx)
 {
@@ -195,16 +207,13 @@ copyValue(lua_State* fromL, lua_State* toL, int idx)
 }
 
 int
-throwTooManyArgsError(lua_State* L, int max)
+expectMaxArgs(lua_State* L, int max)
 {
   const int n = lua_gettop(L);
-  lua_Debug ar;
-  const char* name =
-    lua_getstack(L, 0, &ar) && lua_getinfo(L, "n", &ar) && ar.name != nullptr
-      ? ar.name
-      : "?";
-  return luaL_error(
-    L, "expected at most %d arguments to '%s', got %d", max, name, n);
+  if (n > max) [[unlikely]] {
+    throwTooManyArgsError(L, n, max);
+  }
+  return n;
 }
 
 bool

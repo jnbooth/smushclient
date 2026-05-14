@@ -45,9 +45,6 @@ rgbCodeToColor(lua_Integer rgb) noexcept;
 lua_Integer
 colorToRgbCode(const QColor& color);
 
-int
-throwTooManyArgsError(lua_State* L, int max);
-
 template<typename T>
 T
 concatArgs(lua_State* L, int startIdx = 1, bool spaced = false) = delete;
@@ -64,14 +61,8 @@ concatArgs(lua_State* L, int startIdx, bool spaced);
 bool
 copyValue(lua_State* fromL, lua_State* toL, int idx);
 
-inline int
-expectMaxArgs(lua_State* L, int max)
-{
-  if (int n = lua_gettop(L); n <= max) [[likely]] {
-    return n;
-  }
-  return throwTooManyArgsError(L, max);
-}
+int
+expectMaxArgs(lua_State* L, int max);
 
 bool
 getBool(lua_State* L, int idx, optional<bool> ifNil = nullopt);
