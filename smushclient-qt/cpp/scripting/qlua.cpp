@@ -738,9 +738,11 @@ push(lua_State* L, const QVariant& value)
     case QMetaType::LongLong:
     case QMetaType::Short:
     case QMetaType::ULong:
-    case QMetaType::ULongLong:
     case QMetaType::UShort:
       push(L, value.toLongLong());
+      return;
+    case QMetaType::ULongLong:
+      push(L, value.toULongLong());
       return;
     case QMetaType::Double:
     case QMetaType::Float:
@@ -761,6 +763,8 @@ push(lua_State* L, const QVariant& value)
       push(L, value.toByteArray());
       return;
     case QMetaType::Char:
+    case QMetaType::SChar:
+    case QMetaType::UChar:
       push(L, qvariant_cast<char>(value));
       return;
     case QMetaType::Char16:
@@ -768,12 +772,6 @@ push(lua_State* L, const QVariant& value)
       return;
     case QMetaType::Char32:
       push(L, qvariant_cast<char32_t>(value));
-      return;
-    case QMetaType::SChar:
-      push(L, qvariant_cast<signed char>(value));
-      return;
-    case QMetaType::UChar:
-      push(L, qvariant_cast<unsigned char>(value));
       return;
     case QMetaType::QBrush:
       push(L, qvariant_cast<QBrush>(value).color());
