@@ -3,8 +3,6 @@
 #include <QtCore/QTimer>
 
 using std::chrono::duration;
-using std::chrono::hh_mm_ss;
-using std::chrono::milliseconds;
 using std::chrono::minutes;
 using std::chrono::seconds;
 
@@ -55,7 +53,7 @@ TimerWidget::~TimerWidget()
 void
 TimerWidget::clear()
 {
-  setTime(hh_mm_ss<seconds>{});
+  setTime(hh_mm_ss{});
 }
 
 void
@@ -72,7 +70,7 @@ TimerWidget::setSecondsVisible(bool visible)
 // Private methods
 
 void
-TimerWidget::setTime(hh_mm_ss<seconds> time)
+TimerWidget::setTime(hh_mm_ss time)
 {
   if (m_secondsVisible && time.seconds() != m_time.seconds()) {
     ui->seconds->setText(formatTime(time.seconds()));
@@ -138,9 +136,11 @@ void
 ElapsedTimerWidget::resume()
 {
   updateTime();
-  timerId = { startTimer(secondsVisible()
-                           ? duration_cast<milliseconds>(seconds{ 1 })
-                           : duration_cast<milliseconds>(minutes{ 1 })) };
+  if (secondsVisible()) {
+    timerId = { startTimer(seconds{ 1 }) };
+  } else {
+    timerId = { startTimer(minutes{ 1 }) };
+  }
 }
 
 void

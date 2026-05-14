@@ -14,6 +14,9 @@ class TimerWidget : public QWidget
   Q_PROPERTY(bool secondsVisible READ secondsVisible WRITE setSecondsVisible)
   Q_PROPERTY(std::chrono::seconds time READ time WRITE setTime)
 
+protected:
+  using hh_mm_ss = std::chrono::hh_mm_ss<std::chrono::seconds>;
+
 public:
   explicit TimerWidget(QWidget* parent = nullptr);
   ~TimerWidget() override;
@@ -30,21 +33,19 @@ public slots:
   }
   void setTime(std::chrono::milliseconds time)
   {
-    setTime(std::chrono::hh_mm_ss{
-      std::chrono::duration_cast<std::chrono::seconds>(time) });
+    setTime(hh_mm_ss{ std::chrono::duration_cast<std::chrono::seconds>(time) });
   }
   void setTime(std::chrono::nanoseconds time)
   {
-    setTime(std::chrono::hh_mm_ss{
-      std::chrono::duration_cast<std::chrono::seconds>(time) });
+    setTime(hh_mm_ss{ std::chrono::duration_cast<std::chrono::seconds>(time) });
   }
 
 protected:
-  virtual void setTime(std::chrono::hh_mm_ss<std::chrono::seconds> time);
+  virtual void setTime(hh_mm_ss time);
 
 private:
   Ui::TimerWidget* ui;
-  std::chrono::hh_mm_ss<std::chrono::seconds> m_time;
+  hh_mm_ss m_time;
   bool m_secondsVisible = true;
 };
 
