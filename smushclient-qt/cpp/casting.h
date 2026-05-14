@@ -52,6 +52,19 @@ clamped_cast(From n) noexcept
   return static_cast<To>(n);
 }
 
+template<typename To, typename From>
+constexpr const To*
+pointer_sign_cast(const From* data) noexcept
+  requires(
+    std::is_same_v<std::make_unsigned_t<To>, std::make_unsigned_t<From>> &&
+    sizeof(From) == sizeof(To))
+{
+  // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
+  // SAFETY: `From` and `To` are equivalent types differing only in signedness.
+  return reinterpret_cast<const To*>(data);
+  // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
+}
+
 template<typename T>
 std::underlying_type_t<T>
 to_underlying(T value)

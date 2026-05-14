@@ -489,15 +489,6 @@ getSepSize(string_view sep)
   return sep.length();
 }
 
-inline const unsigned char*
-reinterpretUnsigned(const char* data) noexcept
-{
-  // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
-  // SAFETY: Reinterpreting between const char* and const uchar* is safe.
-  return reinterpret_cast<const unsigned char*>(data);
-  // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
-}
-
 template<typename T>
 inline void
 splitLua(lua_State* L, string_view input, T sep, lua_Integer max)
@@ -592,7 +583,7 @@ L_compress(lua_State* L)
   const lua_Integer level = getInteger(L, 2, 6);
   luaL_argexpected(L, level >= 0 && level <= 9, 2, "integer between 0 and 9");
   push(L,
-       qCompress(reinterpretUnsigned(bytes.data()),
+       qCompress(pointer_sign_cast<unsigned char>(bytes.data()),
                  static_cast<int>(bytes.size()),
                  static_cast<int>(level)));
   return 1;
@@ -604,7 +595,7 @@ L_decompress(lua_State* L)
   expectMaxArgs(L, 1);
   const QByteArrayView bytes = getBytes(L, 1);
   push(L,
-       qUncompress(reinterpretUnsigned(bytes.data()),
+       qUncompress(pointer_sign_cast<unsigned char>(bytes.data()),
                    static_cast<int>(bytes.size())));
   return 1;
 }
@@ -701,7 +692,7 @@ int
 L_getfontfamilies(lua_State* L)
 {
   expectMaxArgs(L, 0);
-  const QStringList families = QFontDatabase::families();
+  QStringList families = QFontDatabase::families();
   lua_createtable(L, 0, static_cast<int>(families.size()));
   for (const QString& family : families) {
     if (family.startsWith(u'.')) {
