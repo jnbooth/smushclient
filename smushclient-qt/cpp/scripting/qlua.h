@@ -131,7 +131,6 @@ getQFlags(lua_State* L, int idx)
 {
   return QFlags<T>::fromInt(getInt(L, idx));
 }
-
 template<typename T>
 inline QFlags<T>
 getQFlags(lua_State* L, int idx, QFlags<T> ifNil)
@@ -307,41 +306,24 @@ concept PushableEntry =
   Pushable<typename typeHelpers::entry_traits<T>::key_type> &&
   Pushable<typename typeHelpers::entry_traits<T>::mapped_type>;
 
-template<Pushable T>
-void
-pushList(lua_State* L, std::initializer_list<T> list)
-{
-  lua_createtable(L, list.size(), 0);
-  lua_Integer i = 0;
-  for (const auto& item : list) {
-    push(L, item);
-    lua_rawseti(L, -2, ++i);
-  }
-}
-
-template<Pushable T, size_t N>
-void
-pushList(lua_State* L, const T (&list)[N])
-{
-  lua_createtable(L, N, 0);
-  lua_Integer i = 0;
-  for (const auto& item : list) {
-    push(L, item);
-    lua_rawseti(L, -2, ++i);
-  }
-}
-
 template<typename T>
 void
 pushList(lua_State* L, const T& list)
   requires(Pushable<typeHelpers::element_t<T>>)
 {
-  lua_createtable(L, static_cast<int>(list.size()), 0);
+  lua_createtable(L, static_cast<int>(std::size(list)), 0);
   lua_Integer i = 0;
   for (const auto& item : list) {
     push(L, item);
     lua_rawseti(L, -2, ++i);
   }
+}
+
+template<Pushable T>
+void
+pushList(lua_State* L, std::initializer_list<T> list)
+{
+  pushList<std::initializer_list<T>>(L, list);
 }
 
 template<Pushable K, Pushable V>
@@ -361,33 +343,13 @@ pushEntry(lua_State* L, const char* key, V value, int idx = -1)
   lua_setfield(L, idx < 0 ? idx - 1 : idx, key);
 }
 
-template<PushableEntry T>
-void
-pushMap(lua_State* L, std::initializer_list<T> entries)
-{
-  lua_createtable(L, 0, entries.size());
-  for (const auto& [key, value] : entries) {
-    pushEntry(L, key, value);
-  }
-}
-
-template<PushableEntry T, size_t N>
-void
-pushMap(lua_State* L, const T (&entries)[N])
-{
-  lua_createtable(L, 0, N);
-  for (const auto& [key, value] : entries) {
-    pushEntry(L, key, value);
-  }
-}
-
 template<typename T>
 void
 pushMap(lua_State* L, const T& entries)
   requires(!requires { entries.asKeyValueRange(); } &&
            PushableEntry<typeHelpers::element_t<T>>)
 {
-  lua_createtable(L, 0, static_cast<int>(entries.size()));
+  lua_createtable(L, 0, static_cast<int>(std::size(entries)));
   for (const auto& [key, value] : entries) {
     pushEntry(L, key, value);
   }
@@ -400,6 +362,24 @@ pushMap(lua_State* L, const T& map)
 {
   lua_createtable(L, 0, static_cast<int>(map.size()));
   for (const auto& [key, value] : map.asKeyValueRange()) {
+    pushEntry(L, key, value);
+  }
+}
+
+template<typename TArr, typename TRec>
+void
+pushTable(lua_State* L, const TArr& arr, const TRec& rec)
+  requires(Pushable<typeHelpers::element_t<TArr>> &&
+           PushableEntry<typeHelpers::element_t<TRec>>)
+{
+  lua_createtable(
+    L, static_cast<int>(std::size(arr)), static_cast<int>(std::size(rec)));
+  lua_Integer i = 0;
+  for (const auto& item : arr) {
+    push(L, item);
+    lua_rawseti(L, -2, ++i);
+  }
+  for (const auto& [key, value] : rec) {
     pushEntry(L, key, value);
   }
 }

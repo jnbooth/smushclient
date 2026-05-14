@@ -1,4 +1,5 @@
 #pragma once
+#include <iterator>
 #include <type_traits>
 
 // Internal helpers for determining whether a value can be pushed to Lua.
@@ -38,10 +39,11 @@ getTraits(const T& entry) noexcept
 } // namespace entry
 
 template<typename T>
-using element_t = std::remove_cv_t<decltype(*std::declval<const T&>().begin())>;
+using element_t =
+  std::remove_cv_t<decltype(*std::data(std::declval<const T&>()))>;
 
 template<typename T>
-using entry_traits = decltype(entry::getTraits(std::declval<T>()));
+using entry_traits = decltype(entry::getTraits(std::declval<const T&>()));
 
 template<typename T, typename Enable = void>
 struct is_compatible_string : std::false_type
@@ -50,7 +52,7 @@ struct is_compatible_string : std::false_type
 template<typename T>
 struct is_compatible_string<T,
                             std::enable_if_t<chars::is_char_pointer_v<
-                              decltype(std::declval<const T&>().data())>>>
+                              decltype(std::data(std::declval<const T&>()))>>>
   : std::true_type
 {};
 

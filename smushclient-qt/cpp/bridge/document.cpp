@@ -337,17 +337,7 @@ public:
   {
     qlua::push(L, senderName);
     qlua::push(L, line);
-    lua_createtable(L,
-                    static_cast<int>(wildcards.size()),
-                    static_cast<int>(namedWildcards.size()));
-    lua_Integer i = 0;
-    for (rust::Str wildcard : wildcards) {
-      qlua::push(L, wildcard);
-      lua_rawseti(L, -2, ++i);
-    }
-    for (const auto& [key, value] : namedWildcards) {
-      qlua::pushEntry(L, key, value);
-    }
+    qlua::pushTable(L, wildcards, namedWildcards);
     return 3;
   }
 
