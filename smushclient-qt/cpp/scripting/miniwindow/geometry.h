@@ -7,23 +7,17 @@
 namespace geometry {
 using Position = MiniWindow::Position;
 
-template<typename T, typename Arg, typename... Args>
-constexpr bool is_one_of_v = std::is_same_v<T, Arg> || is_one_of_v<T, Args...>;
-
-template<typename T, typename Arg>
-constexpr bool is_one_of_v<T, Arg> = std::is_same_v<T, Arg>;
-
 template<typename P>
-concept Point = is_one_of_v<P, QPoint, QPointF>;
+concept Point = std::is_same_v<P, QPoint> || std::is_same_v<P, QPointF>;
 
 template<typename R>
-concept Rect = is_one_of_v<R, QRect, QRectF>;
+concept Rect = std::is_same_v<R, QRect> || std::is_same_v<R, QRectF>;
 
 template<typename N>
 concept Scalar = std::is_arithmetic_v<N>;
 
 template<typename S>
-concept Size = is_one_of_v<S, QSize, QSizeF>;
+concept Size = std::is_same_v<S, QSize> || std::is_same_v<S, QSizeF>;
 
 template<Scalar N>
 constexpr N
