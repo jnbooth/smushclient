@@ -13,14 +13,8 @@ namespace rust {
 class bytes_view
 {
 public:
-  constexpr bytes_view(const char* data, size_t size) noexcept
-    : data_(data)
-    , size_(size)
-  {
-  }
-
-  constexpr CAST(bytes_view, const std::string&);
   constexpr CAST(bytes_view, std::string_view);
+  constexpr CAST(bytes_view, const std::string&);
   constexpr CAST(bytes_view, QByteArrayView);
   CAST(bytes_view, const QByteArray&);
 
@@ -43,12 +37,6 @@ private:
 class string_view
 {
 public:
-  constexpr string_view(const char* data, size_t size) noexcept
-    : data_(data)
-    , size_(size)
-  {
-  }
-
   constexpr CAST(string_view, std::string_view);
   constexpr CAST(string_view, const std::string&);
 
@@ -71,12 +59,6 @@ private:
 class variable_view
 {
 public:
-  constexpr variable_view(const char* data, size_t size) noexcept
-    : data_(data)
-    , size_(size)
-  {
-  }
-
   constexpr const char* data() const noexcept { return data_; }
   constexpr size_t size() const noexcept { return size_; };
 
