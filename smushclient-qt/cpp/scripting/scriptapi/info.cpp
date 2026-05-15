@@ -588,7 +588,7 @@ ScriptApi::WindowImageInfo(string_view windowName,
       return pixmap->height();
     case 4: {
       const QImage image = pixmap->toImage();
-      return image.sizeInBytes() / image.height();
+      return image.height() == 0 ? 0 : image.sizeInBytes() / image.height();
     }
     case 5:
       return pixmap->depth();

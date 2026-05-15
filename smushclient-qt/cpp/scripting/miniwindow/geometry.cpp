@@ -45,6 +45,9 @@ constexpr QSize
 scaleWithAspectRatio(const QSize& parent, const QSize& child) noexcept
 {
   const int height = parent.height();
+  if (child.height() == 0) [[unlikely]] {
+    return { height, height };
+  }
   const int width = height * child.width() / child.height();
   return { height, width };
 }
