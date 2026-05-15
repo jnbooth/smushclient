@@ -49,13 +49,6 @@ public:
                          });
   }
 
-  template<typename... Args>
-  T& start(std::chrono::milliseconds duration, Args&&... args)
-  {
-    return map.try_emplace(startTimerId(duration), std::forward<Args>(args)...)
-      .second;
-  }
-
   T& start(std::chrono::milliseconds duration, T item)
   {
     return map.try_emplace(startTimerId(duration), item).first->second;

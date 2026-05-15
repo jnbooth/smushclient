@@ -2,8 +2,6 @@
 #include "../../image.h"
 #include <smushclient_qt/src/ffi/filter.cxx.h>
 
-// Private utils
-
 // Public methods
 
 QImage

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QtCore/QString>
 #include <sstream>
 
 class argstream : public std::ostringstream

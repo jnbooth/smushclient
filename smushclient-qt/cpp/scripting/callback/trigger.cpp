@@ -7,6 +7,8 @@ extern "C"
 #include <lauxlib.h>
 }
 
+// Public methods
+
 CallbackTrigger::CallbackTrigger(const Plugin& plugin,
                                  const PluginCallback& callback)
   : disabled(plugin.getDisabled())
