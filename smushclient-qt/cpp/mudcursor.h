@@ -21,7 +21,7 @@ public:
   void clear();
   QTextDocument* document() const { return cursor.document(); }
   void echo(const QString& text);
-  void finishNote();
+  void finishNote() noexcept;
   void mergeCharFormat(const QTextCharFormat& format);
   void move(QTextCursor::MoveOperation op, int count);
   void setIndentText(const QString& text) noexcept;

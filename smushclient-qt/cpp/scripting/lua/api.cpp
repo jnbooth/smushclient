@@ -74,7 +74,7 @@ const char* const worldLibKey = "world";
 namespace {
 template<typename T>
 QFlags<T>
-combineFlags(std::initializer_list<std::pair<T, bool>> pairs)
+combineFlags(std::initializer_list<std::pair<T, bool>> pairs) noexcept
 {
   QFlags<T> flags;
   for (const auto& [flag, enable] : pairs) {

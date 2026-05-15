@@ -43,7 +43,7 @@ QColor
 rgbCodeToColor(lua_Integer rgb) noexcept;
 
 lua_Integer
-colorToRgbCode(const QColor& color);
+colorToRgbCode(const QColor& color) noexcept;
 
 template<typename T>
 T

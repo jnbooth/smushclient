@@ -54,7 +54,7 @@ scaleWithAspectRatio(const QSize& parent, const QSize& child) noexcept
 
 namespace geometry {
 qreal
-arc(const QPointF& center, const QPointF& edge)
+arc(const QPointF& center, const QPointF& edge) noexcept
 {
   if (center == edge) {
     return NAN;

@@ -10,17 +10,18 @@ public:
   using value_type = QString;
 
   explicit CommandHistory(qsizetype max = -1) noexcept;
-  explicit CommandHistory(const QStringList& history, qsizetype max = -1);
+  explicit CommandHistory(const QStringList& history,
+                          qsizetype max = -1) noexcept;
   CommandHistory(CommandHistory&& other) noexcept;
-  CommandHistory(const CommandHistory& other);
+  CommandHistory(const CommandHistory& other) noexcept;
   ~CommandHistory() = default;
 
-  CommandHistory& operator=(const CommandHistory& other);
-  CommandHistory& operator=(const QStringList& other);
+  CommandHistory& operator=(const CommandHistory& other) noexcept;
+  CommandHistory& operator=(const QStringList& other) noexcept;
   CommandHistory& operator=(CommandHistory&&) = delete;
 
   void clear();
-  void pop();
+  void pop() noexcept;
   bool push(const QString& command);
   void setMaxSize(qsizetype max);
 
@@ -56,7 +57,7 @@ public:
   qsizetype size() const noexcept { return end - begin; }
 
 private:
-  void resetIterators();
+  void resetIterators() noexcept;
 
 private:
   static const QString _emptyString;

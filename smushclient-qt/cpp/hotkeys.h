@@ -28,7 +28,7 @@ private:
   };
 
 public:
-  void applyWorld(const World& world);
+  void applyWorld(const World& world) noexcept;
   QString get(Qt::Key key, bool modified = false) const noexcept;
 
 private:

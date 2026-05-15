@@ -67,7 +67,7 @@ pointer_sign_cast(const From* data) noexcept
 
 template<typename T>
 std::underlying_type_t<T>
-to_underlying(T value)
+to_underlying(T value) noexcept
   requires(std::is_enum_v<T>)
 {
   return static_cast<std::underlying_type_t<T>>(value);

@@ -12,7 +12,7 @@ namespace {
 void
 handleMessage(QtMsgType msgtype,
               const QMessageLogContext& context,
-              const QString& message)
+              const QString& message) noexcept
 {
   ffi::util::log(msgtype,
                  message,

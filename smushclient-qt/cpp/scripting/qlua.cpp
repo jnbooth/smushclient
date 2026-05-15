@@ -134,7 +134,7 @@ rgbCodeToColor(lua_Integer rgb) noexcept
 }
 
 lua_Integer
-colorToRgbCode(const QColor& color)
+colorToRgbCode(const QColor& color) noexcept
 {
   if (!color.isValid()) [[unlikely]] {
     return -1;

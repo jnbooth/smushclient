@@ -111,7 +111,7 @@ MudCursor::echo(const QString& text)
 }
 
 void
-MudCursor::finishNote()
+MudCursor::finishNote() noexcept
 {
   lastTellPosition = -1;
 }

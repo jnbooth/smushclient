@@ -43,7 +43,7 @@ Hotkeys::Keypad::get(Qt::Key key) const noexcept
 }
 
 void
-Hotkeys::applyWorld(const World& world)
+Hotkeys::applyWorld(const World& world) noexcept
 {
   normal.key0 = world.getNumpad0();
   normal.key1 = world.getNumpad1();

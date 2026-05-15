@@ -11,7 +11,7 @@ extern "C"
 struct TableEntry : std::pair<const char*, lua_Integer>
 {
   template<typename T>
-  constexpr TableEntry(const char* key, T value)
+  constexpr TableEntry(const char* key, T value) noexcept
     : std::pair<const char*, lua_Integer>(key, static_cast<lua_Integer>(value))
   {
   }

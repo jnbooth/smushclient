@@ -70,7 +70,7 @@ normalize(const R& rect, const S& size) noexcept
 }
 
 qreal
-arc(const QPointF& center, const QPointF& edge);
+arc(const QPointF& center, const QPointF& edge) noexcept;
 
 QRect
 calculate(Position pos, const QSize& parent, const QSize& child) noexcept;

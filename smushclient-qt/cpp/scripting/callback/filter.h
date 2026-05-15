@@ -15,7 +15,7 @@ public:
   {
     return (filter & id) != 0;
   }
-  constexpr void set(unsigned int id, bool on = true)
+  constexpr void set(unsigned int id, bool on = true) noexcept
   {
     if (on) {
       filter |= id;

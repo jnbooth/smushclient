@@ -23,7 +23,8 @@ CommandHistory::CommandHistory(qsizetype max) noexcept
 {
 }
 
-CommandHistory::CommandHistory(const QStringList& borrowHistory, qsizetype max)
+CommandHistory::CommandHistory(const QStringList& borrowHistory,
+                               qsizetype max) noexcept
   : history(borrowHistory)
   , max(adjustMax(max))
   , begin(history.cbegin())
@@ -41,13 +42,13 @@ CommandHistory::CommandHistory(CommandHistory&& other) noexcept
 {
 }
 
-CommandHistory::CommandHistory(const CommandHistory& other)
+CommandHistory::CommandHistory(const CommandHistory& other) noexcept
   : CommandHistory(other.history, other.max)
 {
 }
 
 CommandHistory&
-CommandHistory::operator=(const CommandHistory& other)
+CommandHistory::operator=(const CommandHistory& other) noexcept
 {
   history = other.history;
   max = other.max;
@@ -56,7 +57,7 @@ CommandHistory::operator=(const CommandHistory& other)
 }
 
 CommandHistory&
-CommandHistory::operator=(const QStringList& other)
+CommandHistory::operator=(const QStringList& other) noexcept
 {
   history = other;
   max = maxLimit;
@@ -72,7 +73,7 @@ CommandHistory::clear()
 }
 
 void
-CommandHistory::pop()
+CommandHistory::pop() noexcept
 {
   history.pop_back();
   resetIterators();
@@ -118,7 +119,7 @@ CommandHistory::setMaxSize(qsizetype newMax)
 // Private functions
 
 void
-CommandHistory::resetIterators()
+CommandHistory::resetIterators() noexcept
 {
   begin = history.cbegin();
   end = history.cend();
