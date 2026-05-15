@@ -169,7 +169,7 @@ Document::expireLinks(rust::Str expires)
     }
     return;
   }
-  auto search = links.find(string_view(expires.data(), expires.size()));
+  const auto search = links.find(string_view(expires.data(), expires.size()));
   if (search == links.end()) {
     return;
   }

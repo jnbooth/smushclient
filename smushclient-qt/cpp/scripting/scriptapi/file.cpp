@@ -19,7 +19,7 @@ ScriptApi::ChangeDir(const QString& dir)
 int
 ScriptApi::DatabaseClose(string_view databaseID)
 {
-  auto search = databases.find(databaseID);
+  const auto search = databases.find(databaseID);
   if (search == databases.end()) [[unlikely]] {
     return DatabaseConnection::Error::IdNotFound;
   }

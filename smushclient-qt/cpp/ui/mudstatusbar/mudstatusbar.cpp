@@ -46,7 +46,7 @@ MudStatusBar::createStat(const QString& entity,
                          const QString& caption,
                          const QString& maxEntity)
 {
-  auto search = statsByEntity.find(entity);
+  const auto search = statsByEntity.find(entity);
   if (search != statsByEntity.end()) {
     return recreateStat(search.value(), caption, maxEntity);
   }
@@ -74,7 +74,7 @@ MudStatusBar::updateStat(const QString& entity, const QString& value)
     iter.value()->setMax(value);
   }
 
-  auto search = statsByEntity.find(entity);
+  const auto search = statsByEntity.find(entity);
   if (search == statsByEntity.end()) [[unlikely]] {
     return false;
   }

@@ -707,7 +707,7 @@ ScriptApi::activateWindow(QWidget* widget)
 DatabaseConnection*
 ScriptApi::findDatabase(string_view databaseID) noexcept
 {
-  auto search = databases.find(databaseID);
+  const auto search = databases.find(databaseID);
   if (search == databases.end()) [[unlikely]] {
     return nullptr;
   }
@@ -717,7 +717,7 @@ ScriptApi::findDatabase(string_view databaseID) noexcept
 size_t
 ScriptApi::findPluginIndex(string_view pluginID) const noexcept
 {
-  auto search = pluginIndices.find(pluginID);
+  const auto search = pluginIndices.find(pluginID);
   if (search == pluginIndices.end()) [[unlikely]] {
     return noSuchPlugin;
   }
@@ -727,7 +727,7 @@ ScriptApi::findPluginIndex(string_view pluginID) const noexcept
 MiniWindow*
 ScriptApi::findWindow(string_view windowName) const noexcept
 {
-  auto search = windows.find(windowName);
+  const auto search = windows.find(windowName);
   if (search == windows.end()) [[unlikely]] {
     return nullptr;
   }

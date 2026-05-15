@@ -58,7 +58,7 @@ protected:
   void timerEvent(QTimerEvent* event) override
   {
     const Qt::TimerId id = event->id();
-    auto search = map.find(id);
+    const auto search = map.find(id);
     if (search == map.end()) [[unlikely]] {
       return;
     }

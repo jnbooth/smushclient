@@ -474,7 +474,7 @@ MiniWindow::execMenu(const QPoint& location, string_view menuString)
 const QFont*
 MiniWindow::findFont(string_view fontID) const noexcept
 {
-  auto search = fonts.find(fontID);
+  const auto search = fonts.find(fontID);
   if (search == fonts.end()) {
     return nullptr;
   }
@@ -484,7 +484,7 @@ MiniWindow::findFont(string_view fontID) const noexcept
 Hotspot*
 MiniWindow::findHotspot(string_view hotspotID) const noexcept
 {
-  auto search = hotspots.find(hotspotID);
+  const auto search = hotspots.find(hotspotID);
   if (search == hotspots.end()) {
     return nullptr;
   }
@@ -494,7 +494,7 @@ MiniWindow::findHotspot(string_view hotspotID) const noexcept
 const QPixmap*
 MiniWindow::findImage(string_view imageID) const noexcept
 {
-  auto search = images.find(imageID);
+  const auto search = images.find(imageID);
   if (search == images.end()) {
     return nullptr;
   }
