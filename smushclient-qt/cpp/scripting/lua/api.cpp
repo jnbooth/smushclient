@@ -73,7 +73,7 @@ const char* const worldLibKey = "world";
 
 namespace {
 template<typename T>
-QFlags<T>
+constexpr QFlags<T>
 combineFlags(std::initializer_list<std::pair<T, bool>> pairs) noexcept
 {
   QFlags<T> flags;
@@ -171,7 +171,7 @@ pushVariable(lua_State* L, string_view variable)
 class Benchmarker
 {
 public:
-  template<size_t N>
+  template<qsizetype N>
   static constexpr QLatin1StringView toName(const char (&func)[N]) noexcept
   {
     return QLatin1StringView(func, N).sliced(2);

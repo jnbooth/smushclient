@@ -4,21 +4,6 @@
 
 // Internal helpers for determining whether a value can be pushed to Lua.
 namespace qlua::typeHelpers {
-namespace chars {
-template<typename T>
-struct is_char_pointer : std::false_type
-{};
-template<>
-struct is_char_pointer<const char*> : std::true_type
-{};
-template<>
-struct is_char_pointer<char*> : std::true_type
-{};
-
-template<typename T>
-constexpr bool is_char_pointer_v = is_char_pointer<T>::value;
-} // namespace chars
-
 namespace entry {
 template<typename K, typename V>
 struct Traits
@@ -50,9 +35,11 @@ struct is_compatible_string : std::false_type
 {};
 
 template<typename T>
-struct is_compatible_string<T,
-                            std::enable_if_t<chars::is_char_pointer_v<
-                              decltype(std::data(std::declval<const T&>()))>>>
+struct is_compatible_string<
+  T,
+  std::enable_if_t<std::is_same_v<
+    char,
+    std::remove_cvref_t<decltype(*std::data(std::declval<const T&>()))>>>>
   : std::true_type
 {};
 
