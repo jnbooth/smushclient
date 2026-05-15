@@ -103,4 +103,13 @@ public:
     }
     return i->second;
   }
+
+  const T& operator[](std::string_view key) const
+  {
+    iterator i = super::find(key);
+    if (i == super::end()) {
+      return super::operator[](std::string(key));
+    }
+    return i->second;
+  }
 };
