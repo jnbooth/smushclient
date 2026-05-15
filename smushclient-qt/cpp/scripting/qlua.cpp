@@ -82,9 +82,7 @@ doConcatArgs(argstream& output, lua_State* L, int startIdx, bool spaced)
           lua_pop(L, 1);
           break;
         }
-        lua_pushliteral(L,
-                        "'tostring' must return a string to be concatenated");
-        lua_error(L);
+        luaL_error(L, "'tostring' must return a string to be concatenated");
     }
   }
   if (!needsToString) {

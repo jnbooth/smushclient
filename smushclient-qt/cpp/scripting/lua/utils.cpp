@@ -870,12 +870,10 @@ L_split(lua_State* L)
   const string_view sep = getString(L, 2);
   const lua_Integer count = getInteger(L, 3, 0);
   if (sep.empty()) {
-    lua_pushliteral(L, "Separator must not be an empty string");
-    lua_error(L);
+    luaL_error(L, "Separator must not be an empty string");
   }
   if (count < 0) {
-    lua_pushliteral(L, "Count must be positive, zero, or nil");
-    lua_error(L);
+    luaL_error(L, "Count must be positive, zero, or nil");
   }
 
   if (input.empty()) {
