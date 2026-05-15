@@ -190,9 +190,19 @@ push(lua_State* L, const T& value)
 template<typename T>
 void
 push(lua_State* L, const T& value)
-  requires(typeHelpers::is_compatible_string_v<T>)
+  requires(typeHelpers::is_compatible_string_v<T> &&
+           !std::is_trivially_copy_constructible_v<T>)
 {
-  lua_pushlstring(L, value.data(), value.size());
+  lua_pushlstring(L, std::data(value), std::size(value));
+}
+
+template<typename T>
+void
+push(lua_State* L, T value)
+  requires(typeHelpers::is_compatible_string_v<T> &&
+           std::is_trivially_copy_constructible_v<T>)
+{
+  lua_pushlstring(L, std::data(value), std::size(value));
 }
 
 template<typename T>
@@ -265,18 +275,6 @@ IMPL_PUSH(const QHostAddress&, push, value.toString());
 IMPL_PUSH(const QUuid&, push, value.toByteArray(QUuid::WithoutBraces));
 template<typename T>
 IMPL_PUSH(QFlags<T>, lua_pushinteger, value.toInt());
-
-#undef IMPL_PUSH
-#define IMPL_PUSH(T)                                                           \
-  inline void push(lua_State* L, T value)                                      \
-  {                                                                            \
-    lua_pushlstring(L, value.data(), value.size());                            \
-  }
-
-IMPL_PUSH(QByteArrayView);
-IMPL_PUSH(rust::Str);
-IMPL_PUSH(std::string_view);
-IMPL_PUSH(rust::variable_view);
 
 #undef IMPL_PUSH
 
