@@ -3974,10 +3974,10 @@ findFirstDuplicate(const luaL_Reg (&libtable)[N]) noexcept
   const std::span<const luaL_Reg> libspan(libtable);
   std::array<string_view, N - 1> names;
 
-  auto iter = libspan.begin();
+  auto lib = libspan.begin();
   for (string_view& name : names) {
-    name = iter->name;
-    ++iter;
+    name = lib->name;
+    ++lib;
   }
 
   for (const string_view& name : names) {
