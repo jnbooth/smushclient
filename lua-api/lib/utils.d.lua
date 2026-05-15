@@ -405,3 +405,7 @@ function utils.utf8valid(s) end
 
 ---@type string|nil
 SMUSHCLIENT_VERSION = SMUSHCLIENT_VERSION
+
+---Raises an error (including an error description) if `code` is not `error_code.OK`.
+---@param code error_code
+function check(code) end
