@@ -9,20 +9,22 @@ using std::chrono::seconds;
 using Qt::StringLiterals::operator""_L1;
 
 namespace {
-QStringList
+std::array<QString, 60>
 buildTimeLookup()
 {
-  QStringList list;
-  for (int i = 0; i < 10; ++i) {
-    list.append("0"_L1 + QString::number(i));
-  }
-  for (int i = 10; i < 60; ++i) {
-    list.append(QString::number(i));
+  std::array<QString, 60> list;
+  int i = 0;
+  for (QString& s : list) {
+    s = QString::number(i);
+    if (i < 10) {
+      s.prepend("0"_L1);
+    }
+    ++i;
   }
   return list;
 }
 
-const QStringList timeLookup = buildTimeLookup();
+const std::array<QString, 60> timeLookup = buildTimeLookup();
 
 template<typename Rep, typename Period>
 const QString&
