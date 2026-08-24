@@ -356,6 +356,8 @@ impl WorldConfig {
             use_mxp: self.use_mxp,
             disable_compression: self.disable_compression,
             terminal_identification: self.terminal_identification.clone(),
+            app_name: "MUSHclient".to_owned(),
+            version: "5.07".to_owned(),
             player,
             password,
             convert_ga_to_newline: self.convert_ga_to_newline,
