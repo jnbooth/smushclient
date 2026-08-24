@@ -1156,8 +1156,10 @@ impl SmushClient {
                     continue;
                 }
                 if enable_scripts
-                    && let Some(send_script_request) =
-                        send_buffer.send_script_request(plugin_index, sender.borrow().reaction())
+                    && let Some(send_script_request) = {
+                        let sender = sender.borrow();
+                        send_buffer.send_script_request(plugin_index, sender.reaction())
+                    }
                 {
                     for captures in send_script_request
                         .regex
