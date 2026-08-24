@@ -261,10 +261,6 @@ push(lua_State* L, char32_t value);
 template<>
 IMPL_PUSH(bool, lua_pushboolean, static_cast<int>(value));
 template<>
-IMPL_PUSH(signed char, push, static_cast<char>(value));
-template<>
-IMPL_PUSH(unsigned char, push, static_cast<char>(value));
-template<>
 IMPL_PUSH(char8_t, push, static_cast<char>(value));
 IMPL_PUSH(const char*, lua_pushstring, value);
 IMPL_PUSH(char*, lua_pushstring, value);
