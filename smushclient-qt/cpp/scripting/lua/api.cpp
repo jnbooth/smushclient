@@ -145,8 +145,9 @@ insertTextTriples(lua_State* L, ScriptApi& api)
 {
   int n = lua_gettop(L);
   for (int i = 1; i <= n; i += 3) {
-    api.ColourTell(
-      getQColor(L, i, {}), getQColor(L, i + 1, {}), getQString(L, i + 2));
+    api.ColourTell(getQColor(L, i, {}),
+                   getQColor(L, i + 1, {}),
+                   QString::fromUtf8(lua_tobytes(L, i + 2)));
   }
 }
 
@@ -3414,7 +3415,7 @@ L_WindowText(lua_State* L)
   expectMaxArgs(L, 9);
   const qreal width = getApi(L).WindowText(getString(L, 1),
                                            getString(L, 2),
-                                           getString(L, 3),
+                                           lua_tostr(L, 3),
                                            getQRectF(L, 4, 5, 6, 7),
                                            getQColor(L, 8),
                                            getBool(L, 9, false));
