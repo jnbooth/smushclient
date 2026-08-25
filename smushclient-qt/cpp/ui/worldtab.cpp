@@ -1248,9 +1248,12 @@ WorldTab::on_output_linkMenuActivated(const QPoint& pos,
   auto label = labelList.cbegin();
   auto labelEnd = labelList.cend();
   for (const QString& command : commandList) {
-    QAction* action =
-      label == labelEnd ? menu.addAction(command) : menu.addAction(*label++);
-    action->setData(command);
+    if (label == labelEnd) {
+      menu.addAction(command)->setData(command);
+    } else {
+      menu.addAction(label->isEmpty() ? command : *label)->setData(command);
+      ++label;
+    }
   }
 
   const QAction* chosen = menu.exec(mouse);
