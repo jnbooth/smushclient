@@ -94,7 +94,8 @@ fn default_variant_option(option: StringView<'_>) -> QVariant {
 
 fn encode_naws(browser: &QAbstractScrollArea) -> QByteArray {
     const ADVANCE_SAMPLE: &str = "0123456789";
-    const ADVANCE_SAMPLE_LEN: i32 = 10;
+    #[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
+    const ADVANCE_SAMPLE_LEN: i32 = ADVANCE_SAMPLE.len() as i32;
 
     let metrics = browser.font_metrics();
     let margins = browser.contents_margins();
