@@ -318,7 +318,7 @@ impl WorldConfig {
 
     pub fn map_colors(&self, fragment: &mut TextFragment) {
         if fragment.link.is_some()
-            && (fragment.foreground.is_none() || self.ignore_mxp_colour_changes)
+            && self.ignore_mxp_colour_changes
             && let Some(color) = self.hyperlink_colour
         {
             fragment.foreground = Some(color);
