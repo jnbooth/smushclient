@@ -66,7 +66,11 @@ template<Rect R, Size S>
 constexpr R
 normalize(const R& rect, const S& size) noexcept
 {
-  return { rect.topLeft(), normalize(rect.bottomRight(), size) };
+  auto bottomRight = rect.bottomRight();
+  if (bottomRight.isNull()) {
+    bottomRight = { size.width(), size.height() };
+  }
+  return { rect.topLeft(), bottomRight };
 }
 
 qreal

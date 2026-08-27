@@ -433,11 +433,7 @@ MiniWindow::drawText(const QFont& font,
   Painter painter(this, color);
   painter.setFont(font);
   QRectF boundingRect;
-  const QRectF normalized =
-    rect.bottomRight().isNull()
-      ? QRectF(rect.topLeft(), this->rect().bottomRight())
-      : normalize(rect);
-  painter.drawText(normalized, 0, text, &boundingRect);
+  painter.drawText(normalize(rect), 0, text, &boundingRect);
   return boundingRect;
 }
 
