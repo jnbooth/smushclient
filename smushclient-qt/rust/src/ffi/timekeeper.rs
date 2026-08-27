@@ -26,6 +26,6 @@ pub mod ffi {
 
 impl ffi::Timekeeper {
     pub fn start(&self, start: &TimerStart) {
-        self.start_send_timer(start.plugin, start.timer, start.milliseconds);
+        self.start_send_timer(start.index, start.timer, start.milliseconds);
     }
 }
