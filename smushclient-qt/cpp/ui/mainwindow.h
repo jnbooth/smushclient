@@ -70,6 +70,7 @@ private slots:
   void on_action_edit_script_file_triggered();
   void on_action_find_triggered();
   void on_action_find_again_triggered();
+  void on_action_flush_log_triggered();
   void on_action_global_preferences_triggered();
   void on_action_go_to_line_triggered();
   void on_action_import_world_triggered();

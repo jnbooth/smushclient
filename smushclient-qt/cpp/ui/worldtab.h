@@ -52,6 +52,7 @@ public:
   QTextEdit* copyableEditor() const;
   bool disconnectFromHost();
   void editWorldScript();
+  void flushLog();
   bool hasWorldScript() const;
   bool importWorld(const QString& filename) &;
   void initNew() &;

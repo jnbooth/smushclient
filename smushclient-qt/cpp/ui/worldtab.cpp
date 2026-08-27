@@ -228,6 +228,12 @@ WorldTab::editWorldScript()
   }
 }
 
+void
+WorldTab::flushLog()
+{
+  client.flushLog();
+}
+
 bool
 WorldTab::hasWorldScript() const
 {

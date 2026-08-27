@@ -373,6 +373,7 @@ MainWindow::setWorldMenusEnabled(bool enabled) const
   ui->action_edit_script_file->setEnabled(enabled);
   ui->action_reload_script_file->setEnabled(enabled);
   ui->action_log_session->setEnabled(enabled);
+  ui->action_flush_log->setEnabled(enabled);
   ui->action_print->setEnabled(enabled);
   ui->action_undo->setEnabled(enabled);
   ui->action_redo->setEnabled(enabled);
@@ -598,6 +599,14 @@ MainWindow::on_action_find_again_triggered()
 }
 
 void
+MainWindow::on_action_flush_log_triggered()
+{
+  if (WorldTab* tab = worldtab()) {
+    tab->flushLog();
+  }
+}
+
+void
 MainWindow::on_action_global_preferences_triggered()
 {
   SettingsDialog(settings, this).exec();
@@ -649,11 +658,11 @@ MainWindow::on_action_info_bar_triggered(bool checked)
 void
 MainWindow::on_action_log_session_triggered(bool checked)
 {
-  for (WorldTab& tab : *this) {
+  if (WorldTab* tab = worldtab()) {
     if (checked) {
-      tab.openLog();
+      tab->openLog();
     } else {
-      tab.closeLog();
+      tab->closeLog();
     }
   }
 }
