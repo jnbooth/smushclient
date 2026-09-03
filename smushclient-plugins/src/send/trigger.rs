@@ -55,7 +55,7 @@ impl_asref!(Trigger, Sender);
 
 impl Trigger {
     pub fn color_change_byte(&self) -> u8 {
-        if self.change_background && self.change_foreground {
+        if self.change_background == self.change_foreground {
             0
         } else if self.change_foreground {
             1

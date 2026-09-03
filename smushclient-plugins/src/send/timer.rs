@@ -153,7 +153,7 @@ impl<'a> From<&'a Timer> for XmlTimer<'a> {
     fn from(value: &'a Timer) -> Self {
         Self {
             active_closed: value.active_closed,
-            at_time: matches!(value.occurrence, Occurrence::Interval(_)),
+            at_time: matches!(value.occurrence, Occurrence::Time(_)),
             enabled: value.enabled,
             group: (&value.group).into(),
             hour: value.occurrence.hour(),
