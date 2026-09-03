@@ -106,6 +106,10 @@ impl<T> ScheduledTimer<T> {
     pub fn new(timer: SendTimer<T>, time: NaiveTime) -> Self {
         Self { time, inner: timer }
     }
+
+    pub fn into_inner(self) -> SendTimer<T> {
+        self.inner
+    }
 }
 
 impl<T> PartialEq for ScheduledTimer<T> {

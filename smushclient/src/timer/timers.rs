@@ -133,13 +133,14 @@ impl<T: TimerConstructible> Timers<T> {
             if send_timer.time > time {
                 break;
             }
-            self.cursor_pos += 1;
-            triggered.push(send_timer.timer.clone());
             if send_timer.one_shot {
-                send_timer.remove(client);
-                self.cursor_pos -= 1;
+                let send_timer = self.scheduled.remove(self.cursor_pos).into_inner();
                 self.scheduled_times.remove(&send_timer.id);
-                self.scheduled.remove(self.cursor_pos);
+                send_timer.remove(client);
+                triggered.push(send_timer.timer);
+            } else {
+                triggered.push(send_timer.timer.clone());
+                self.cursor_pos += 1;
             }
         }
         triggered
@@ -203,40 +204,20 @@ impl<T: TimerConstructible> Timers<T> {
 
     fn insert_scheduled(&mut self, timer: ScheduledTimer<T>) {
         let time = timer.time;
-        self.scheduled_times.insert(timer.id, time);
-        let mut pos = match self.find_insert_index(&timer) {
-            Ok(pos) => pos,
-            Err(pos) => {
-                self.scheduled[pos] = timer;
-                return;
-            }
-        };
-        if let Some(old_pos) = self.find_index(&timer) {
-            if old_pos < pos {
-                pos -= 1;
-            }
-            if old_pos < self.cursor_pos {
-                self.cursor_pos -= 1;
-            }
+        if self.scheduled_times.insert(timer.id, time).is_some()
+            && let Some(old_pos) = self
+                .scheduled
+                .iter()
+                .position(|old_timer| old_timer.id == timer.id)
+        {
             self.scheduled.remove(old_pos);
         }
+        let pos = match self.scheduled.binary_search(&timer) {
+            Ok(pos) | Err(pos) => pos,
+        };
         self.scheduled.insert(pos, timer);
-
         if pos < self.cursor_pos || (pos == self.cursor_pos && time < Local::now().time()) {
             self.cursor_pos += 1;
         }
-    }
-
-    fn find_insert_index(&self, timer: &ScheduledTimer<T>) -> Result<usize, usize> {
-        let id = timer.id;
-        match self.scheduled.binary_search(timer) {
-            Err(pos) if self.scheduled.get(pos).is_none_or(|timer| timer.id != id) => Ok(pos),
-            Err(pos) | Ok(pos) => Err(pos),
-        }
-    }
-
-    fn find_index(&self, timer: &ScheduledTimer<T>) -> Option<usize> {
-        let id = timer.id;
-        self.scheduled.iter().position(|timer| timer.id == id)
     }
 }
