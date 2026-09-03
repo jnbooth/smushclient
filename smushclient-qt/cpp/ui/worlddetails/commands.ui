@@ -155,6 +155,9 @@
           <property name="text">
            <string>Speedwalk delay:</string>
           </property>
+          <property name="buddy">
+           <cstring>SpeedWalkDelay</cstring>
+          </property>
          </widget>
         </item>
         <item>
@@ -188,6 +191,9 @@
          <widget class="QLabel" name="SpeedWalkFiller_label">
           <property name="text">
            <string>Speedwalk filler:</string>
+          </property>
+          <property name="buddy">
+           <cstring>SpeedWalkFiller</cstring>
           </property>
          </widget>
         </item>

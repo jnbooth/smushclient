@@ -61,9 +61,12 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="InputHistoryLines_label">
            <property name="text">
             <string>Limit to:</string>
+           </property>
+           <property name="buddy">
+            <cstring>InputHistoryLines</cstring>
            </property>
           </widget>
          </item>
@@ -78,7 +81,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="InputHistory_label">
+          <widget class="QLabel" name="InputHistoryLines_label2">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>1</horstretch>
@@ -87,6 +90,9 @@
            </property>
            <property name="text">
             <string>commands</string>
+           </property>
+           <property name="buddy">
+            <cstring>InputHistoryLines</cstring>
            </property>
           </widget>
          </item>
@@ -128,9 +134,12 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="OutputLines_label2">
            <property name="text">
             <string>Limit to:</string>
+           </property>
+           <property name="buddy">
+            <cstring>OutputLines</cstring>
            </property>
           </widget>
          </item>
@@ -148,7 +157,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="Output_label">
+          <widget class="QLabel" name="OutputLines_label">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>1</horstretch>
@@ -157,6 +166,9 @@
            </property>
            <property name="text">
             <string>maximum lines</string>
+           </property>
+           <property name="buddy">
+            <cstring>OutputLines</cstring>
            </property>
           </widget>
          </item>
@@ -208,9 +220,12 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QLabel" name="OutputHistory_before">
+          <widget class="QLabel" name="OutputHistoryLines_label">
            <property name="text">
             <string>Limit to:</string>
+           </property>
+           <property name="buddy">
+            <cstring>OutputHistoryLines</cstring>
            </property>
           </widget>
          </item>
@@ -225,7 +240,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="OutputHistory_label">
+          <widget class="QLabel" name="OutputHistoryLines_label2">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>1</horstretch>
@@ -234,6 +249,9 @@
            </property>
            <property name="text">
             <string>maximum lines</string>
+           </property>
+           <property name="buddy">
+            <cstring>OutputHistoryLines</cstring>
            </property>
           </widget>
          </item>
@@ -343,7 +361,7 @@
   <connection>
    <sender>OutputHistoryEnabled</sender>
    <signal>toggled(bool)</signal>
-   <receiver>OutputHistory_before</receiver>
+   <receiver>OutputHistoryLines_label</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -359,7 +377,7 @@
   <connection>
    <sender>OutputHistoryEnabled</sender>
    <signal>toggled(bool)</signal>
-   <receiver>OutputHistory_label</receiver>
+   <receiver>OutputHistoryLines_label2</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">

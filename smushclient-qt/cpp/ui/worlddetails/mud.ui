@@ -177,15 +177,15 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_1">
-        <item>
+       <layout class="QFormLayout" name="formLayout">
+        <item row="1" column="0">
          <widget class="QLabel" name="TerminalIdentification_label">
           <property name="text">
            <string>Terminal identification:</string>
           </property>
          </widget>
         </item>
-        <item>
+        <item row="1" column="1">
          <widget class="QLineEdit" name="TerminalIdentification"/>
         </item>
        </layout>
