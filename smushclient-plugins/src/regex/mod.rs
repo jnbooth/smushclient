@@ -3,9 +3,6 @@ use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::str::{self, FromStr};
 
-use serde::de::{self, Deserialize, Deserializer, Unexpected, Visitor};
-use serde::ser::{Serialize, Serializer};
-
 mod builder;
 pub(crate) use builder::RegexBuilder;
 
@@ -18,14 +15,6 @@ pub use error::RegexError;
 /// A wrapper around [`pcre2::bytes::Regex`] providing additional trait implementations.
 #[derive(Clone)]
 pub struct Regex(pub(super) pcre2::bytes::Regex);
-
-// pub type RegexError = pcre2::Error;
-
-impl Default for Regex {
-    fn default() -> Self {
-        Self(pcre2::bytes::Regex::new("^$").unwrap())
-    }
-}
 
 impl PartialEq for Regex {
     fn eq(&self, other: &Self) -> bool {
@@ -59,32 +48,6 @@ impl fmt::Display for Regex {
 impl fmt::Debug for Regex {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.as_str().fmt(f)
-    }
-}
-
-impl Serialize for Regex {
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serializer.collect_str(self.as_str())
-    }
-}
-
-impl<'de> Deserialize<'de> for Regex {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        struct RegexVisitor;
-
-        impl Visitor<'_> for RegexVisitor {
-            type Value = Regex;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("a valid regular expression string")
-            }
-
-            fn visit_str<E: de::Error>(self, s: &str) -> Result<Self::Value, E> {
-                Regex::new(s).map_err(|_| E::invalid_value(Unexpected::Str(s), &self))
-            }
-        }
-
-        deserializer.deserialize_str(RegexVisitor)
     }
 }
 

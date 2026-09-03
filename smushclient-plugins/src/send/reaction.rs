@@ -1,10 +1,11 @@
+use std::borrow::Cow;
 use std::fmt::Write as _;
 use std::iter;
 #[cfg(not(feature = "send"))]
 use std::rc::Rc;
 use std::str::CharIndices;
 #[cfg(feature = "send")]
-use std::sync::Arc as Rc;
+use std::sync::{Arc as Rc, LazyLock};
 
 use serde::{Deserialize, Serialize};
 
@@ -12,7 +13,8 @@ use super::send_to::SendTarget;
 use super::sender::Sender;
 use crate::regex::{Captures, Regex, RegexBuilder, RegexError};
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
+#[serde(try_from = "ReactionSerde")]
 pub struct Reaction {
     // Note: this is at the top for Ord-deriving purposes.
     pub sequence: i16,
@@ -25,7 +27,6 @@ pub struct Reaction {
     pub expand_variables: bool,
     pub repeats: bool,
 
-    #[serde(with = "regex_serde")]
     pub regex: Rc<Regex>,
 }
 
@@ -34,16 +35,32 @@ impl_asref!(Reaction, Sender);
 
 impl Default for Reaction {
     fn default() -> Self {
+        fn make_default_regex_rc() -> Rc<Regex> {
+            Rc::new(Regex::new("^$").unwrap())
+        }
+
+        #[cfg(feature = "send")]
+        static DEFAULT_REGEX: LazyLock<Rc<Regex>> = LazyLock::new(make_default_regex_rc);
+        #[cfg(not(feature = "send"))]
+        thread_local! {
+            static DEFAULT_REGEX: Rc<Regex> = make_default_regex_rc();
+        }
+
         Self {
             sequence: Self::DEFAULT_SEQUENCE,
             pattern: String::new(),
             send: Sender::default(),
+
             ignore_case: false,
             keep_evaluating: false,
             is_regex: false,
             expand_variables: false,
             repeats: false,
-            regex: Rc::new(Regex::default()),
+
+            #[cfg(feature = "send")]
+            regex: DEFAULT_REGEX.clone(),
+            #[cfg(not(feature = "send"))]
+            regex: DEFAULT_REGEX.with(Rc::clone),
         }
     }
 }
@@ -191,18 +208,81 @@ impl Reaction {
     }
 }
 
-mod regex_serde {
-    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+#[derive(Deserialize, Serialize)]
+struct ReactionSerde<'a> {
+    sequence: i16,
+    pattern: Cow<'a, str>,
+    send: Cow<'a, Sender>,
 
-    use super::{Rc, Regex};
+    ignore_case: bool,
+    keep_evaluating: bool,
+    is_regex: bool,
+    expand_variables: bool,
+    repeats: bool,
 
-    #[allow(clippy::ref_option)]
-    pub fn serialize<S: Serializer>(value: &Rc<Regex>, serializer: S) -> Result<S::Ok, S::Error> {
-        (*value).serialize(serializer)
+    #[serde(borrow)]
+    regex: Cow<'a, str>,
+}
+
+impl<'a> From<&'a Reaction> for ReactionSerde<'a> {
+    fn from(value: &'a Reaction) -> Self {
+        let &Reaction {
+            sequence,
+            ref pattern,
+            ref send,
+            ignore_case,
+            keep_evaluating,
+            is_regex,
+            expand_variables,
+            repeats,
+            ref regex,
+        } = value;
+        Self {
+            sequence,
+            pattern: Cow::Borrowed(pattern),
+            send: Cow::Borrowed(send),
+            ignore_case,
+            keep_evaluating,
+            is_regex,
+            expand_variables,
+            repeats,
+            regex: Cow::Borrowed(regex.as_str()),
+        }
     }
+}
 
-    pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Rc<Regex>, D::Error> {
-        Regex::deserialize(deserializer).map(Rc::new)
+impl<'a> TryFrom<ReactionSerde<'a>> for Reaction {
+    type Error = RegexError;
+
+    fn try_from(value: ReactionSerde<'a>) -> Result<Self, Self::Error> {
+        let ReactionSerde {
+            sequence,
+            pattern,
+            send,
+            ignore_case,
+            keep_evaluating,
+            is_regex,
+            expand_variables,
+            repeats,
+            regex,
+        } = value;
+        Ok(Self {
+            sequence,
+            pattern: pattern.into_owned(),
+            send: send.into_owned(),
+            ignore_case,
+            keep_evaluating,
+            is_regex,
+            expand_variables,
+            repeats,
+            regex: Rc::new(RegexBuilder::new().caseless(ignore_case).build(&regex)?),
+        })
+    }
+}
+
+impl Serialize for Reaction {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        ReactionSerde::from(self).serialize(serializer)
     }
 }
 
@@ -228,5 +308,16 @@ mod tests {
         let mut buf = String::new();
         let expanded = reaction.expand_text(&mut buf, &captures);
         assert_eq!(expanded, "z%c%be gee55h");
+    }
+
+    #[test]
+    fn caseless() {
+        let mut reaction = Reaction::default();
+        reaction
+            .set_pattern("^flyto (Ankh.Morpork|AM)$".to_owned())
+            .unwrap();
+        reaction.set_is_regex(true).unwrap();
+        reaction.set_ignore_case(true).unwrap();
+        assert!(reaction.regex.captures_iter("flyto am").next().is_some());
     }
 }

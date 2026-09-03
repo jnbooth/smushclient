@@ -17,7 +17,7 @@ impl RegexBuilder {
         Self(pcre2::bytes::RegexBuilder::new())
     }
 
-    pub fn build(self, pattern: &str) -> Result<Regex, RegexError> {
+    pub fn build(&self, pattern: &str) -> Result<Regex, RegexError> {
         match self.0.build(pattern) {
             Ok(re) => Ok(Regex(re)),
             Err(e) => Err(RegexError {
@@ -25,6 +25,11 @@ impl RegexBuilder {
                 target: pattern.to_owned(),
             }),
         }
+    }
+
+    pub fn caseless(&mut self, yes: bool) -> &mut Self {
+        self.0.caseless(yes);
+        self
     }
 }
 
