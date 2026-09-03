@@ -175,7 +175,7 @@ public:
   template<qsizetype N>
   static constexpr QLatin1StringView toName(const char (&func)[N]) noexcept
   {
-    return QLatin1StringView(func, N).sliced(2);
+    return QLatin1StringView(func, N).sliced(2, N - 3);
   }
 
   explicit Benchmarker(QLatin1StringView name) noexcept
