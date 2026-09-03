@@ -93,6 +93,8 @@ public:
   QString getStartupDirectoryOrDefault() const;
   QStringList getStartupWorlds() const;
 
+  QString getTimestampFormat() const;
+
   WorldCloseBehavior getWorldCloseBehavior() const;
 
   QString getLogsDir() const;
@@ -149,6 +151,8 @@ public slots:
 
   void setStartupBehavior(StartupBehavior behavior);
   void setStartupDirectory(const QString& dir);
+
+  void setTimestampFormat(const QString& format);
 
   void setWorldCloseBehavior(WorldCloseBehavior behavior);
 

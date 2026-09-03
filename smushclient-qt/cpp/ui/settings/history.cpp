@@ -31,6 +31,7 @@ SettingsHistory::SettingsHistory(Settings& settings,
   CONNECT_SETTINGS(OutputHistoryEnabled);
   CONNECT_SETTINGS(OutputHistoryLimit);
   CONNECT_SETTINGS(OutputHistoryLines);
+  CONNECT_SETTINGS(TimestampFormat);
 
   connect(ui->InputHistoryLimit,
           &QCheckBox::checkStateChanged,

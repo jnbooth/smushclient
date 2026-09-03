@@ -1174,8 +1174,8 @@ WorldTab::on_output_customContextMenuRequested(const QPoint& pos)
   if (menu->exec(mouse) != actionTextAttributes) {
     return;
   }
-  const QTextCharFormat format = ui->output->formatAt(pos);
-  StyleDialog dialog(format, this);
+  const QTextCursor cursor = ui->output->cursorForPosition(pos);
+  StyleDialog dialog(cursor.blockFormat(), cursor.charFormat(), this);
   dialog.exec();
 }
 

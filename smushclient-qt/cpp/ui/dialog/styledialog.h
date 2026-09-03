@@ -11,7 +11,8 @@ class StyleDialog : public QDialog
   Q_OBJECT
 
 public:
-  explicit StyleDialog(const QTextCharFormat& format,
+  explicit StyleDialog(const QTextBlockFormat& blockFormat,
+                       const QTextCharFormat& format,
                        QWidget* parent = nullptr);
   ~StyleDialog() override;
 

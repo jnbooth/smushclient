@@ -258,6 +258,31 @@
         </layout>
        </widget>
       </item>
+      <item>
+       <layout class="QVBoxLayout" name="timestampGroup">
+        <item>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="TimestampFormat_label">
+            <property name="text">
+             <string>Timestamp format</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="TimestampFormat"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>&lt;a href=&quot;https://doc.qt.io/qt-6/qdatetime.html#toString&quot;&gt;View timestamp format options&lt;/a&gt;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </widget>
    </item>

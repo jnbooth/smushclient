@@ -26,15 +26,6 @@ MudBrowser::cursor() const
   return cursorPtr;
 }
 
-QTextCharFormat
-MudBrowser::formatAt(const QPoint& point) const
-{
-  return document()
-    ->documentLayout()
-    ->formatAt(mapToContents(point))
-    .toCharFormat();
-}
-
 // Public slots
 
 void
@@ -87,7 +78,7 @@ void
 MudBrowser::mouseReleaseEvent(QMouseEvent* event)
 {
   const QPoint at = event->pos();
-  const QTextCharFormat format = formatAt(at);
+  const QTextCharFormat format = cursorForPosition(event->pos()).charFormat();
   const QString anchor = format.anchorHref();
   if (!anchor.isEmpty()) {
     const SendTo sendTo = spans::getSendTo(format);
@@ -98,19 +89,4 @@ MudBrowser::mouseReleaseEvent(QMouseEvent* event)
     }
   }
   QTextBrowser::mouseReleaseEvent(event);
-}
-
-// Private methods
-
-QPoint
-MudBrowser::mapToContents(const QPoint& point) const
-{
-  const QScrollBar* hbar = horizontalScrollBar();
-  const QScrollBar* vbar = verticalScrollBar();
-  const int horizontalOffset = hbar == nullptr ? 0
-                               : isRightToLeft()
-                                 ? hbar->maximum() - hbar->value()
-                                 : hbar->value();
-  const int verticalOffset = verticalScrollBar() == nullptr ? 0 : vbar->value();
-  return { point.x() + horizontalOffset, point.y() + verticalOffset };
 }

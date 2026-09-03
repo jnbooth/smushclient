@@ -1,6 +1,8 @@
 #include "styledialog.h"
+#include "../../settings.h"
 #include "../../spans.h"
 #include "ui_styledialog.h"
+#include <QtCore/QDateTime>
 
 // Private utils
 
@@ -21,11 +23,19 @@ brushColor(const QBrush& brush)
 
 // Public methods
 
-StyleDialog::StyleDialog(const QTextCharFormat& format, QWidget* parent)
+StyleDialog::StyleDialog(const QTextBlockFormat& blockFormat,
+                         const QTextCharFormat& format,
+                         QWidget* parent)
   : QDialog(parent)
   , ui(new Ui::StyleDialog)
 {
   ui->setupUi(this);
+
+  const QDateTime timestamp = spans::getTimestamp(blockFormat);
+
+  if (timestamp.isValid()) {
+    ui->timestamp->setText(timestamp.toString(Settings().getTimestampFormat()));
+  }
 
   const QColor foreground = brushColor(format.foreground());
   if (foreground.isValid()) {

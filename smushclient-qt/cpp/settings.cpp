@@ -264,6 +264,11 @@ SETTING_ENUM(StartupBehavior,
              "startup/behavior");
 SETTING(StartupDirectory, QString, {}, "startup/directory");
 
+SETTING(TimestampFormat,
+        QString,
+        QStringLiteral("hh:mm:ss MM/dd"),
+        "output/timestamp/format");
+
 SETTING_ENUM(WorldCloseBehavior,
              Settings::WorldCloseBehavior,
              WorldCloseBehavior::Confirm,

@@ -17,7 +17,6 @@ public:
   MudCursor* cursor() const;
   MudScrollBar* verticalScrollBar() const;
   bool keypadIgnored() const noexcept { return m_keypadIgnored; }
-  QTextCharFormat formatAt(const QPoint& point) const;
 
 public slots:
   void setKeypadIgnored(bool ignored = true);
@@ -36,9 +35,6 @@ protected:
   void mouseMoveEvent(QMouseEvent* event) override;
   void mousePressEvent(QMouseEvent* event) override;
   void mouseReleaseEvent(QMouseEvent* event) override;
-
-private:
-  QPoint mapToContents(const QPoint& point) const;
 
 private:
   QPointer<MudCursor> cursorPtr;
